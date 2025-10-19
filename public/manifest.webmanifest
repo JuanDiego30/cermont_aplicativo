@@ -1,0 +1,9 @@
+{
+  "name": "Cermont",
+  "short_name": "Cermont",
+  "start_url": "/(auth)/login",
+  "display": "standalone",
+  "background_color": "#fefefe",
+  "theme_color": "#3b5fb3",
+  "icons": [{ "src": "/logo-cermont.png", "sizes": "192x192", "type": "image/png" }]
+}

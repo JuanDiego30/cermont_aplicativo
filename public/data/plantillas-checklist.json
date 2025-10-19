@@ -1,0 +1,246 @@
+[
+  {
+    "id": "tpl-cctv-preventivo",
+    "nombre": "Checklist CCTV - Mantenimiento Preventivo",
+    "tipo_equipo": "CCTV",
+    "tipo_orden": "Mantenimiento Preventivo",
+    "items": [
+      {
+        "id": "1",
+        "nombre": "Destornilladores (plano y estrella)",
+        "categoria": "herramienta_mano",
+        "obligatorio": true,
+        "cantidad_sugerida": 2,
+        "unidad": "unidad"
+      },
+      {
+        "id": "2",
+        "nombre": "Multímetro digital",
+        "categoria": "equipo_medicion",
+        "descripcion": "Para verificación de voltajes",
+        "obligatorio": true,
+        "cantidad_sugerida": 1,
+        "unidad": "unidad"
+      },
+      {
+        "id": "3",
+        "nombre": "Monitor portátil de prueba",
+        "categoria": "equipo_medicion",
+        "obligatorio": true,
+        "cantidad_sugerida": 1,
+        "unidad": "unidad"
+      },
+      {
+        "id": "4",
+        "nombre": "Alcohol isopropílico",
+        "categoria": "material_consumible",
+        "descripcion": "Para limpieza de lentes",
+        "obligatorio": true,
+        "cantidad_sugerida": 1,
+        "unidad": "litro"
+      },
+      {
+        "id": "5",
+        "nombre": "Paños de microfibra",
+        "categoria": "material_consumible",
+        "obligatorio": true,
+        "cantidad_sugerida": 3,
+        "unidad": "unidad"
+      },
+      {
+        "id": "6",
+        "nombre": "Escalera telescópica",
+        "categoria": "herramienta_mano",
+        "obligatorio": true,
+        "cantidad_sugerida": 1,
+        "unidad": "unidad"
+      },
+      {
+        "id": "7",
+        "nombre": "Casco de seguridad",
+        "categoria": "equipo_seguridad",
+        "obligatorio": true,
+        "cantidad_sugerida": 1,
+        "unidad": "unidad"
+      },
+      {
+        "id": "8",
+        "nombre": "Arnés de seguridad",
+        "categoria": "equipo_seguridad",
+        "obligatorio": true,
+        "cantidad_sugerida": 1,
+        "unidad": "unidad"
+      },
+      {
+        "id": "9",
+        "nombre": "Cinta aislante",
+        "categoria": "material_consumible",
+        "obligatorio": false,
+        "cantidad_sugerida": 1,
+        "unidad": "rollo"
+      },
+      {
+        "id": "10",
+        "nombre": "Cable UTP Cat6 (repuesto)",
+        "categoria": "material_consumible",
+        "obligatorio": false,
+        "cantidad_sugerida": 10,
+        "unidad": "metro"
+      }
+    ],
+    "activo": true,
+    "created_at": "2025-10-18T08:00:00Z",
+    "updated_at": "2025-10-18T08:00:00Z"
+  },
+  {
+    "id": "tpl-radio-instalacion",
+    "nombre": "Checklist Radio Enlace - Instalación",
+    "tipo_equipo": "Radio Enlace",
+    "tipo_orden": "Instalación",
+    "items": [
+      {
+        "id": "11",
+        "nombre": "Medidor de potencia RF",
+        "categoria": "equipo_medicion",
+        "obligatorio": true,
+        "cantidad_sugerida": 1,
+        "unidad": "unidad"
+      },
+      {
+        "id": "12",
+        "nombre": "Brújula o GPS",
+        "categoria": "equipo_medicion",
+        "descripcion": "Para alineación de antenas",
+        "obligatorio": true,
+        "cantidad_sugerida": 1,
+        "unidad": "unidad"
+      },
+      {
+        "id": "13",
+        "nombre": "Laptop con software de configuración",
+        "categoria": "equipo_medicion",
+        "obligatorio": true,
+        "cantidad_sugerida": 1,
+        "unidad": "unidad"
+      },
+      {
+        "id": "14",
+        "nombre": "Juego de llaves hexagonales",
+        "categoria": "herramienta_mano",
+        "obligatorio": true,
+        "cantidad_sugerida": 1,
+        "unidad": "set"
+      },
+      {
+        "id": "15",
+        "nombre": "Taladro percutor",
+        "categoria": "herramienta_mano",
+        "obligatorio": true,
+        "cantidad_sugerida": 1,
+        "unidad": "unidad"
+      },
+      {
+        "id": "16",
+        "nombre": "Conectores RJ45 y crimpadora",
+        "categoria": "material_consumible",
+        "obligatorio": true,
+        "cantidad_sugerida": 20,
+        "unidad": "unidad"
+      },
+      {
+        "id": "17",
+        "nombre": "Guantes dieléctricos",
+        "categoria": "equipo_seguridad",
+        "obligatorio": true,
+        "cantidad_sugerida": 1,
+        "unidad": "par"
+      },
+      {
+        "id": "18",
+        "nombre": "Línea de vida",
+        "categoria": "equipo_seguridad",
+        "obligatorio": true,
+        "cantidad_sugerida": 1,
+        "unidad": "unidad"
+      }
+    ],
+    "activo": true,
+    "created_at": "2025-10-18T08:00:00Z",
+    "updated_at": "2025-10-18T08:00:00Z"
+  },
+  {
+    "id": "tpl-torre-correctivo",
+    "nombre": "Checklist Torre - Mantenimiento Correctivo",
+    "tipo_equipo": "Torre",
+    "tipo_orden": "Mantenimiento Correctivo",
+    "items": [
+      {
+        "id": "19",
+        "nombre": "Andamio certificado",
+        "categoria": "herramienta_mano",
+        "obligatorio": true,
+        "cantidad_sugerida": 1,
+        "unidad": "unidad"
+      },
+      {
+        "id": "20",
+        "nombre": "Pintura anticorrosiva",
+        "categoria": "material_consumible",
+        "obligatorio": true,
+        "cantidad_sugerida": 5,
+        "unidad": "litro"
+      },
+      {
+        "id": "21",
+        "nombre": "Brocha y rodillo",
+        "categoria": "herramienta_mano",
+        "obligatorio": true,
+        "cantidad_sugerida": 2,
+        "unidad": "unidad"
+      },
+      {
+        "id": "22",
+        "nombre": "Cepillo de alambre",
+        "categoria": "herramienta_mano",
+        "obligatorio": true,
+        "cantidad_sugerida": 2,
+        "unidad": "unidad"
+      },
+      {
+        "id": "23",
+        "nombre": "Equipo de oxicorte (si aplica)",
+        "categoria": "herramienta_mano",
+        "obligatorio": false,
+        "cantidad_sugerida": 1,
+        "unidad": "set"
+      },
+      {
+        "id": "24",
+        "nombre": "Casco con barboquejo",
+        "categoria": "equipo_seguridad",
+        "obligatorio": true,
+        "cantidad_sugerida": 1,
+        "unidad": "unidad"
+      },
+      {
+        "id": "25",
+        "nombre": "Guantes de carnaza",
+        "categoria": "equipo_seguridad",
+        "obligatorio": true,
+        "cantidad_sugerida": 2,
+        "unidad": "par"
+      },
+      {
+        "id": "26",
+        "nombre": "Botas de seguridad con puntera",
+        "categoria": "equipo_seguridad",
+        "obligatorio": true,
+        "cantidad_sugerida": 1,
+        "unidad": "par"
+      }
+    ],
+    "activo": true,
+    "created_at": "2025-10-18T08:00:00Z",
+    "updated_at": "2025-10-18T08:00:00Z"
+  }
+]

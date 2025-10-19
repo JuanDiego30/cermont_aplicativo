@@ -1,0 +1,54 @@
+[
+  {
+    "id": "1",
+    "codigo": "CCTV-001",
+    "nombre": "Pérdida de señal",
+    "tipo_equipo": "CCTV",
+    "severidad": "alta",
+    "descripcion": "El sistema deja de transmitir imagen por completo.",
+    "causas_probables": "Corte de energía, cable dañado, cámara defectuosa.",
+    "acciones_sugeridas": "Verificar alimentación, revisar cableado, cambiar cámara si es necesario.",
+    "activo": true,
+    "created_at": "2025-10-18T08:00:00Z",
+    "updated_at": "2025-10-18T08:00:00Z"
+  },
+  {
+    "id": "2",
+    "codigo": "CCTV-002",
+    "nombre": "Imagen borrosa",
+    "tipo_equipo": "CCTV",
+    "severidad": "media",
+    "descripcion": "La imagen se ve desenfocada o poco nítida.",
+    "causas_probables": "Lente sucio, condensación, mala configuración de enfoque.",
+    "acciones_sugeridas": "Limpiar lente, ajustar enfoque, revisar sellado de la cámara.",
+    "activo": true,
+    "created_at": "2025-10-18T08:00:00Z",
+    "updated_at": "2025-10-18T08:00:00Z"
+  },
+  {
+    "id": "3",
+    "codigo": "RAD-001",
+    "nombre": "Atenuación de señal",
+    "tipo_equipo": "Radio Enlace",
+    "severidad": "alta",
+    "descripcion": "La señal de radio pierde intensidad.",
+    "causas_probables": "Interferencia, alineación incorrecta, obstáculos físicos.",
+    "acciones_sugeridas": "Revisar alineación, eliminar obstáculos, cambiar frecuencia.",
+    "activo": true,
+    "created_at": "2025-10-18T08:00:00Z",
+    "updated_at": "2025-10-18T08:00:00Z"
+  },
+  {
+    "id": "4",
+    "codigo": "TOR-001",
+    "nombre": "Corrosión estructural",
+    "tipo_equipo": "Torre",
+    "severidad": "media",
+    "descripcion": "Partes metálicas de la torre presentan óxido o corrosión.",
+    "causas_probables": "Exposición a humedad, falta de mantenimiento.",
+    "acciones_sugeridas": "Aplicar tratamiento anticorrosivo, realizar inspección periódica.",
+    "activo": true,
+    "created_at": "2025-10-18T08:00:00Z",
+    "updated_at": "2025-10-18T08:00:00Z"
+  }
+]

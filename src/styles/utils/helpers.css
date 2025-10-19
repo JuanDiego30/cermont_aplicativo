@@ -1,0 +1,248 @@
+/**
+ * Clases de utilidad CSS
+ * Helpers reutilizables para layouts, spacing, etc.
+ */
+
+/* === Container === */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-lg);
+  padding-right: var(--space-lg);
+}
+
+.container-sm {
+  max-width: 640px;
+}
+
+.container-md {
+  max-width: 768px;
+}
+
+.container-lg {
+  max-width: 1024px;
+}
+
+.container-xl {
+  max-width: 1280px;
+}
+
+/* === Flex Utilities === */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.items-start {
+  align-items: flex-start;
+}
+
+.items-end {
+  align-items: flex-end;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+.gap-1 {
+  gap: var(--space-xs);
+}
+.gap-2 {
+  gap: var(--space-sm);
+}
+.gap-4 {
+  gap: var(--space-md);
+}
+.gap-6 {
+  gap: var(--space-lg);
+}
+.gap-8 {
+  gap: var(--space-xl);
+}
+
+/* === Grid Utilities === */
+.grid {
+  display: grid;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.grid-cols-12 {
+  grid-template-columns: repeat(12, 1fr);
+}
+
+/* === Spacing Utilities === */
+.m-0 {
+  margin: 0;
+}
+.mt-4 {
+  margin-top: var(--space-md);
+}
+.mb-4 {
+  margin-bottom: var(--space-md);
+}
+.my-4 {
+  margin-top: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.p-4 {
+  padding: var(--space-md);
+}
+.pt-4 {
+  padding-top: var(--space-md);
+}
+.pb-4 {
+  padding-bottom: var(--space-md);
+}
+.px-4 {
+  padding-left: var(--space-md);
+  padding-right: var(--space-md);
+}
+.py-4 {
+  padding-top: var(--space-md);
+  padding-bottom: var(--space-md);
+}
+
+/* === Text Utilities === */
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-base {
+  font-size: 1rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+/* === Display Utilities === */
+.hidden {
+  display: none;
+}
+
+.block {
+  display: block;
+}
+
+.inline-block {
+  display: inline-block;
+}
+
+/* === Width/Height === */
+.w-full {
+  width: 100%;
+}
+
+.h-full {
+  height: 100%;
+}
+
+/* === Border Radius === */
+.rounded {
+  border-radius: var(--radius-md);
+}
+
+.rounded-lg {
+  border-radius: var(--radius-lg);
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
+/* === Shadow === */
+.shadow {
+  box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+.shadow-none {
+  box-shadow: none;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .container {
+    padding-left: var(--space-md);
+    padding-right: var(--space-md);
+  }
+
+  .md\:hidden {
+    display: none;
+  }
+}
+
+@media (min-width: 769px) {
+  .md\:block {
+    display: block;
+  }
+
+  .md\:flex {
+    display: flex;
+  }
+}

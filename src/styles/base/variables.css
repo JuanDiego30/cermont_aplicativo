@@ -1,0 +1,115 @@
+/**
+ * Variables CSS y tema (light/dark)
+ * Define todos los colores, sombras y variables del sistema de diseño
+ */
+
+:root {
+  /* === Brand Colors === */
+  --brand-primary: #3b5fb3; /* Azul corporativo */
+  --brand-secondary: #6ca947; /* Verde corporativo */
+  --brand-accent: #ec4899; /* Rosa acento */
+  
+  /* === Light Theme === */
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --text: #0f172a;
+  --text-secondary: #475569;
+  --muted: #94a3b8;
+  --border: #e5e7eb;
+  --border-light: #f3f4f6;
+  
+  /* === Focus & Interactive === */
+  --focus-ring: rgba(59, 95, 179, 0.18);
+  --hover-bg: rgba(59, 95, 179, 0.08);
+  
+  /* === Shadows === */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  
+  /* === Navbar === */
+  --nav-bg: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+  --nav-text: #ffffff;
+  --nav-link-active-bg: rgba(255, 255, 255, 0.14);
+  --nav-link-active-ring: rgba(255, 255, 255, 0.18);
+  --mobile-panel-bg: rgba(255, 255, 255, 0.92);
+  
+  /* === Status Colors === */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+  
+  /* === Spacing === */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  
+  /* === Border Radius === */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  
+  /* === Transitions === */
+  --transition-fast: 150ms;
+  --transition-base: 200ms;
+  --transition-slow: 300ms;
+
+  /* === Aliases de compatibilidad (evitan romper estilos existentes) === */
+  /* Algunos archivos usan --brand-1/2, --shadow-1 y --focus */
+  --brand-1: var(--brand-primary);
+  --brand-2: var(--brand-secondary);
+  --shadow-1: var(--shadow-md);
+  /* --focus se usa como box-shadow en algunos hovers */
+  --focus: 0 0 0 3px var(--focus-ring);
+}
+
+/* === Dark Theme === */
+[data-theme="dark"] {
+  --bg: #0b1020;
+  --surface: #111827;
+  --text: #e5e7eb;
+  --text-secondary: #9ca3af;
+  --muted: #6b7280;
+  --border: #253042;
+  --border-light: #1f2937;
+  
+  --focus-ring: rgba(108, 169, 71, 0.25);
+  --hover-bg: rgba(108, 169, 71, 0.12);
+  
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6);
+  
+  --nav-bg: linear-gradient(135deg, #2b3a68, #1f4825);
+  --nav-text: #fefefe;
+  --nav-link-active-bg: rgba(255, 255, 255, 0.12);
+  --nav-link-active-ring: rgba(255, 255, 255, 0.18);
+  --mobile-panel-bg: rgba(20, 20, 20, 0.92);
+  
+  --success: #34d399;
+  --warning: #fbbf24;
+  --error: #f87171;
+  --info: #60a5fa;
+
+  /* Aliases en modo oscuro */
+  --brand-1: var(--brand-primary);
+  --brand-2: var(--brand-secondary);
+  --shadow-1: var(--shadow-md);
+  --focus: 0 0 0 3px var(--focus-ring);
+}
+
+/* === Modo impresión === */
+@media print {
+  :root {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --text: #000000;
+    --border: #cccccc;
+  }
+}

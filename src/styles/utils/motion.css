@@ -1,0 +1,40 @@
+/**
+ * Motion utilities (animaciones optimizadas)
+ * - Respeta prefers-reduced-motion
+ * - Usa variables de duración/easing del sistema
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Easing comunes */
+:root {
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ease-in: cubic-bezier(.64, 0, .78, 0);
+  --ease-in-out: cubic-bezier(.87, 0, .13, 1);
+}
+
+/* Transiciones base */
+.transition-base { transition: all var(--transition-base) var(--ease-out); }
+.transition-fast { transition: all var(--transition-fast) var(--ease-out); }
+.transition-slow { transition: all var(--transition-slow) var(--ease-in-out); }
+
+/* Micro interacciones */
+.hover-raise { transition: transform var(--transition-fast) var(--ease-out), box-shadow var(--transition-fast) var(--ease-out); }
+.hover-raise:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+
+.pressable { transition: transform var(--transition-fast) var(--ease-out); }
+.pressable:active { transform: translateY(0); }
+
+/* Fade & slide */
+.fade-in { animation: fade-in var(--transition-slow) var(--ease-out) both; }
+.slide-up { animation: slide-up var(--transition-slow) var(--ease-out) both; }
+
+@keyframes fade-in { from { opacity: 0 } to { opacity: 1 } }
+@keyframes slide-up { from { transform: translateY(8px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }

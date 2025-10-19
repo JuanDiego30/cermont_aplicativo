@@ -1,0 +1,27 @@
+/**
+ * Punto de entrada principal para estilos globales CERMONT WEB
+ * Importa todos los archivos CSS organizados por categoría
+ * 
+ * Estructura:
+ * - base/       Variables, reset, tipografía
+ * - utils/      Helpers, utilidades, print
+ * - components/ Estilos de componentes
+ * - pages/      Estilos específicos de páginas
+ */
+
+/* === Base Styles === */
+@import './base/variables.css';
+@import './base/reset.css';
+
+/* === Utilities === */
+@import './utils/helpers.css';
+@import './utils/print.css';
+@import './utils/motion.css';
+
+/* === Components === */
+@import './components/navbar.css';
+@import './components/forms.css';
+
+/* === Pages === */
+@import './pages/home.css';
+@import './pages/login.css';
