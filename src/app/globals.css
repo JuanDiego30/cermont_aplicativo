@@ -22,23 +22,41 @@
 }
 
 body {
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  transition: padding 180ms ease;
 }
 
-/* Animaciones para HeaderTabs */
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+/* Container principal con grid para centrar contenido */
+.app-main {
+  min-height: calc(100vh - 180px);
+  width: 100%;
+  padding-block: clamp(2rem, 5vw, 3rem);
+  transition: padding 180ms ease, margin 180ms ease;
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    padding-block: clamp(1.85rem, 6vw, 2.4rem);
   }
 }
 
-.animate-slideDown {
-  animation: slideDown 0.2s ease-out;
+@media (max-width: 480px) {
+  .app-main {
+    padding-block: clamp(1.6rem, 7vw, 2rem);
+  }
+}
+
+@media (min-width: 1025px) {
+  body {
+    padding-left: 136px; /* espacio fijo para navbar */
+    padding-right: 96px; /* espacio para asistente/bot flotante */
+  }
+
+  .app-main {
+    padding-block: clamp(2.4rem, 4.5vw, 3.4rem);
+  }
 }

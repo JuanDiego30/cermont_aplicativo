@@ -1,0 +1,11 @@
+diff --git a/node_modules/express-rate-limit/tsconfig.json b/node_modules/express-rate-limit/tsconfig.json
+index 52b6ff1..e42c323 100644
+--- a/node_modules/express-rate-limit/tsconfig.json
++++ b/node_modules/express-rate-limit/tsconfig.json
+@@ -1,5 +1,5 @@
+ {
+-	"include": ["source/"],
++	"include": ["dist/**/*"],
+ 	"exclude": ["node_modules/"],
+ 	"extends": "@express-rate-limit/tsconfig",
+ 	"compilerOptions": {

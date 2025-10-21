@@ -1,121 +1,178 @@
-/**
- * Dashboard para Cliente
- * Vista de órdenes propias y equipos registrados
- */
+"use client";
 
-'use client';
+import Link from "next/link";
+import {
+  Badge,
+  Button,
+  Card,
+  Container,
+  Group,
+  SimpleGrid,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
+  rem,
+} from "@mantine/core";
+import { useAuth } from "@/lib/auth";
+import {
+  ClipboardList,
+  HeartHandshake,
+  Home,
+  Laptop,
+  Layers3,
+  PlusCircle,
+} from "lucide-react";
+import { ROUTES } from "@/lib/constants";
 
-import { useAuth } from '@/lib/auth';
-import Link from 'next/link';
+const snapshotCards = [
+  { label: "Órdenes activas", value: "0", color: "cerBlue", icon: ClipboardList },
+  { label: "Equipos registrados", value: "0", color: "cerGreen", icon: Laptop },
+  { label: "Servicios completados", value: "0", color: "grape", icon: Layers3 },
+];
+
+const actions = [
+  {
+    label: "Solicitar servicio",
+    description: "Crea una nueva orden personalizada",
+    href: ROUTES.ROLES.CLIENTE.REQUEST_SERVICE,
+    color: "cerBlue",
+    icon: PlusCircle,
+  },
+  {
+    label: "Gestionar equipos",
+    description: "Actualiza fichas técnicas y agrega activos",
+    href: ROUTES.ROLES.CLIENTE.EQUIPMENT,
+    color: "cerGreen",
+    icon: Laptop,
+  },
+];
 
 export default function ClienteDashboard() {
   const { user } = useAuth();
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Bienvenido, {user?.nombre}
-        </h1>
-        <p className="mt-2 text-gray-600">
-          Gestiona tus órdenes de servicio y equipos registrados
-        </p>
-      </div>
+    <Container size="xl" py="xl">
+      <Stack gap="xl">
+        <Stack gap="xs">
+          <Title order={1} fw={700}>
+            {user?.nombre ? `Hola, ${user.nombre}` : "Portal del cliente"}
+          </Title>
+          <Text c="dimmed" fz="sm">
+            Monitorea tus servicios, administra tus equipos y mantén comunicación directa con el equipo Cermont.
+          </Text>
+        </Stack>
 
-      {/* Tarjetas de resumen */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Órdenes Activas</p>
-              <p className="mt-2 text-3xl font-bold text-blue-600">0</p>
-            </div>
-            <div className="p-3 bg-blue-100 rounded-full">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-          </div>
-        </div>
+        <SimpleGrid cols={{ base: 1, md: 3 }} spacing="lg">
+          {snapshotCards.map(({ label, value, color, icon: Icon }) => (
+            <Card key={label} withBorder shadow="sm" radius="lg" padding="lg">
+              <Stack gap="sm">
+                <Group justify="space-between" align="center">
+                  <Text c="dimmed" fz="sm" tt="uppercase" fw={600}>
+                    {label}
+                  </Text>
+                  <ThemeIcon variant="light" color={color} radius="md" size={42}>
+                    <Icon size={rem(20)} />
+                  </ThemeIcon>
+                </Group>
+                <Text fz={32} fw={700} lh={1}>
+                  {value}
+                </Text>
+                <Badge variant="light" color={color} radius="sm">
+                  Datos en sincronización
+                </Badge>
+              </Stack>
+            </Card>
+          ))}
+        </SimpleGrid>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Equipos Registrados</p>
-              <p className="mt-2 text-3xl font-bold text-green-600">0</p>
-            </div>
-            <div className="p-3 bg-green-100 rounded-full">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2" />
-              </svg>
-            </div>
-          </div>
-        </div>
+        <Card withBorder shadow="md" radius="lg" padding="lg">
+          <Stack gap="lg">
+            <Group justify="space-between" align="flex-start">
+              <Stack gap={4}>
+                <Text fz="lg" fw={600}>
+                  Acciones rápidas
+                </Text>
+                <Text c="dimmed" fz="sm">
+                  Gestiona tus servicios en un par de clics.
+                </Text>
+              </Stack>
+              <Badge color="cerBlue" variant="light" radius="md">
+                Recomendada
+              </Badge>
+            </Group>
+            <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
+              {actions.map(({ label, description, href, color, icon: Icon }) => (
+                <Card
+                  key={label}
+                  component={Link}
+                  href={href}
+                  withBorder
+                  shadow="sm"
+                  radius="lg"
+                  padding="lg"
+                  style={{ transition: "transform 150ms ease, box-shadow 150ms ease" }}
+                >
+                  <Stack gap="md">
+                    <ThemeIcon variant="light" color={color} radius="lg" size={44}>
+                      <Icon size={rem(20)} />
+                    </ThemeIcon>
+                    <Stack gap={4}>
+                      <Text fw={600}>{label}</Text>
+                      <Text c="dimmed" fz="sm">
+                        {description}
+                      </Text>
+                    </Stack>
+                    <Group gap={6} align="center">
+                      <Text fw={600} fz="sm" c="var(--mantine-color-primary-5)">
+                        Continuar
+                      </Text>
+                    </Group>
+                  </Stack>
+                </Card>
+              ))}
+            </SimpleGrid>
+          </Stack>
+        </Card>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Servicios Completados</p>
-              <p className="mt-2 text-3xl font-bold text-purple-600">0</p>
-            </div>
-            <div className="p-3 bg-purple-100 rounded-full">
-              <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Acciones rápidas */}
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Link 
-            href="/cliente/solicitar-servicio"
-            className="flex items-center p-4 border-2 border-blue-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition"
-          >
-            <div className="p-2 bg-blue-100 rounded-lg mr-4">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Solicitar Servicio</h3>
-              <p className="text-sm text-gray-600">Crear nueva orden de trabajo</p>
-            </div>
-          </Link>
-
-          <Link 
-            href="/cliente/equipos"
-            className="flex items-center p-4 border-2 border-green-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition"
-          >
-            <div className="p-2 bg-green-100 rounded-lg mr-4">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Gestionar Equipos</h3>
-              <p className="text-sm text-gray-600">Ver y administrar equipos</p>
-            </div>
-          </Link>
-        </div>
-      </div>
-
-      {/* Órdenes recientes */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Órdenes Recientes</h2>
-        <div className="text-center py-12 text-gray-500">
-          <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          <p className="text-lg">No tienes órdenes activas</p>
-          <Link href="/cliente/solicitar-servicio" className="text-blue-600 hover:text-blue-800 mt-2 inline-block">
-            Solicitar tu primer servicio →
-          </Link>
-        </div>
-      </div>
-    </div>
+        <Card withBorder shadow="md" radius="lg" padding="xl">
+          <Stack gap="md">
+            <Group justify="space-between" align="center">
+              <Group gap="sm" align="center">
+                <ThemeIcon variant="light" color="cerBlue" radius="md" size={44}>
+                  <Home size={rem(20)} />
+                </ThemeIcon>
+                <Stack gap={2}>
+                  <Text fz="lg" fw={600}>
+                    Órdenes recientes
+                  </Text>
+                  <Text c="dimmed" fz="sm">
+                    Tus últimas solicitudes aparecerán aquí con actualizaciones en tiempo real.
+                  </Text>
+                </Stack>
+              </Group>
+              <Button
+                component={Link}
+                href={ROUTES.ROLES.CLIENTE.REQUEST_SERVICE}
+                radius="xl"
+                variant="light"
+                color="cerGreen"
+                leftSection={<PlusCircle size={rem(18)} />}
+              >
+                Solicitar servicio
+              </Button>
+            </Group>
+            <Card radius="lg" withBorder padding="xl" style={{ background: "var(--mantine-color-gray-0)" }}>
+              <Stack gap="sm" align="center">
+                <HeartHandshake size={rem(32)} color="var(--mantine-color-gray-5)" />
+                <Text c="dimmed" ta="center" fz="sm">
+                  Aún no registramos órdenes activas. Cuando envíes tu primer servicio, podrás seguir cada etapa desde aquí.
+                </Text>
+              </Stack>
+            </Card>
+          </Stack>
+        </Card>
+      </Stack>
+    </Container>
   );
 }

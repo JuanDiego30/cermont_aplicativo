@@ -6,6 +6,7 @@
  */
 
 import { withRole } from '@/lib/auth';
+import { ROUTES } from '@/lib/constants';
 import { Role } from '@/lib/types/roles';
 import Link from 'next/link';
 import '@/styles/globals.css';
@@ -19,31 +20,31 @@ function TecnicoLayout({ children }: { children: React.ReactNode }) {
           <div className="flex justify-between h-16">
             <div className="flex space-x-8">
               <Link 
-                href="/tecnico/dashboard" 
+                href={ROUTES.ROLES.TECNICO.DASHBOARD} 
                 className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
               >
                 Dashboard
               </Link>
               <Link 
-                href="/tecnico/ordenes-asignadas" 
+                href={ROUTES.ROLES.TECNICO.ASSIGNED_ORDERS} 
                 className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900"
               >
                 Órdenes Asignadas
               </Link>
               <Link 
-                href="/tecnico/calendario" 
+                href={ROUTES.ROLES.TECNICO.CALENDAR} 
                 className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900"
               >
                 Calendario
               </Link>
               <Link 
-                href="/tecnico/reportar" 
+                href={ROUTES.ROLES.TECNICO.REPORT} 
                 className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900"
               >
                 Reportar Trabajo
               </Link>
               <Link 
-                href="/tecnico/historial" 
+                href={ROUTES.ROLES.TECNICO.HISTORY} 
                 className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900"
               >
                 Historial
@@ -52,7 +53,7 @@ function TecnicoLayout({ children }: { children: React.ReactNode }) {
 
             <div className="flex items-center">
               <Link 
-                href="/tecnico/perfil" 
+                href={ROUTES.ROLES.TECNICO.PROFILE} 
                 className="text-sm font-medium text-gray-500 hover:text-gray-900"
               >
                 Mi Perfil

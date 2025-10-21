@@ -1,0 +1,48 @@
+.toggle {
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--icon-surface-active);
+  color: var(--icon-color-contrast);
+  border: 1px solid var(--icon-border);
+  box-shadow: var(--icon-shadow-active);
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--icon-shadow-active);
+}
+
+.toggle:active {
+  transform: translateY(0);
+  box-shadow: var(--icon-shadow);
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  transition: transform 200ms ease, opacity 160ms ease;
+}
+
+.lightIcon {
+  display: block;
+}
+
+.darkIcon {
+  display: none;
+}
+
+:global([data-mantine-color-scheme="dark"]) .lightIcon {
+  display: none;
+}
+
+:global([data-mantine-color-scheme="dark"]) .darkIcon {
+  display: block;
+}
+
+.toggle:hover .icon {
+  transform: scale(1.05);
+}

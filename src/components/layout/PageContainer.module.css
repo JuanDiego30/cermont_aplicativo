@@ -1,0 +1,22 @@
+.pageContainer {
+  width: 100%;
+  max-width: 1380px;
+  margin-inline: auto;
+  padding-inline: clamp(1.6rem, 4vw, 3.4rem);
+}
+
+.pageContent {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .pageContainer {
+    padding-inline: clamp(1.1rem, 6vw, 2.1rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .pageContainer {
+    padding-inline: clamp(1rem, 7vw, 1.6rem);
+  }
+}

@@ -3,26 +3,17 @@
  * Maneja autenticación, errores y transformación de respuestas
  */
 
-import { createClient } from '@/lib/supabase/client';
 import { handleMockRequest } from './mock';
+import { getToken } from '@/lib/auth/tokenStorage';
 
 export interface ApiError {
-  error: string;
+  code?: string;
+  error?: string;
   message?: string;
   details?: unknown;
 }
 
-export interface ApiResponse<T> {
-  data?: T;
-  error?: string;
-  message?: string;
-  pagination?: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
+export type ApiResponse<T> = T & ApiError;
 
 /**
  * Cliente HTTP con manejo automático de auth y errores
@@ -34,18 +25,8 @@ export async function apiClient<T>(
   try {
     // Modo Mock: no hace fetch, retorna desde localStorage
     if (process.env.NEXT_PUBLIC_USE_MOCKS === 'true') {
-      const res: any = await handleMockRequest<T>(endpoint, options);
-      return res;
+      return handleMockRequest(endpoint, options) as Promise<ApiResponse<T>>;
     }
-    // Obtener token de sesión de Supabase
-    let session: any = null;
-    try {
-      const supabase = createClient() as any;
-      if (supabase && supabase.auth?.getSession) {
-        const r = await supabase.auth.getSession();
-        session = r?.data?.session ?? null;
-      }
-    } catch {}
 
     // Configurar headers
     const headers: Record<string, string> = {
@@ -62,18 +43,17 @@ export async function apiClient<T>(
     }
 
     // Agregar token si existe sesión
-    if (session?.access_token) {
-      headers['Authorization'] = `Bearer ${session.access_token}`;
+    const token = getToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
     // Resolver URL base: si el endpoint empieza con /api/ usamos Next; si no, usar BACKEND base si existe
-    const base = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/v1';
     const useNextApi = endpoint.startsWith('/api/');
     const url = useNextApi
       ? endpoint
-      : base
-        ? `${base}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`
-        : endpoint;
+      : `${base.replace(/\/$/, '')}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
     // Hacer la petición
     const response = await fetch(url, {
@@ -87,18 +67,20 @@ export async function apiClient<T>(
     // Manejar errores HTTP
     if (!response.ok) {
       return {
-        error: json.error || 'Error en la petición',
-        message: json.message,
-      };
+        code: json.code,
+        error: json.message || json.error || 'Error en la petición',
+        message: json.message || json.error,
+        details: json.details,
+      } as ApiResponse<T>;
     }
 
-    return json;
+    return json as ApiResponse<T>;
   } catch (error) {
     console.error('API Client Error:', error);
     return {
       error: 'Error de conexión',
       message: error instanceof Error ? error.message : 'Error desconocido',
-    };
+    } as ApiResponse<T>;
   }
 }
 

@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { roleRoutes } from '@/lib/types/roles';
 import Button from '@/components/ui/Button';
+import { ROUTES } from '@/lib/constants';
 
 export default function AccesoDenegadoPage() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function AccesoDenegadoPage() {
     if (user?.rol) {
       router.push(roleRoutes[user.rol]);
     } else {
-      router.push('/autenticacion/login');
+      router.push(ROUTES.LOGIN);
     }
   };
 
@@ -59,7 +60,7 @@ export default function AccesoDenegadoPage() {
             Volver a mi Dashboard
           </Button>
           
-          <Link href="/autenticacion/login">
+          <Link href={ROUTES.LOGIN}>
             <Button variant="light" className="w-full">
               Iniciar Sesión
             </Button>

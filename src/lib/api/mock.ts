@@ -4,7 +4,17 @@
 import type { Falla } from './failures';
 import type { PlantillaChecklist, ChecklistOrden, CostosOrden } from '@/lib/types/operations';
 
+type OrdenFallaMock = {
+  orden_id: string;
+  falla_id: string;
+  creado_en: string;
+};
+
 type Method = 'GET' | 'POST' | 'PATCH' | 'DELETE';
+
+function toRecord(value: unknown): Record<string, unknown> {
+  return typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {};
+}
 
 function getStore<T>(key: string, fallback: T): T {
   try {
@@ -47,7 +57,7 @@ function seedIfEmpty() {
     ];
     setStore('mock_fallas', seed);
   }
-  const of = getStore<any[]>('mock_orden_fallas', []);
+  const of = getStore<OrdenFallaMock[]>('mock_orden_fallas', []);
   if (of.length === 0) setStore('mock_orden_fallas', []);
   
   // Seed plantillas checklist desde public/data si aún no existen
@@ -64,14 +74,19 @@ function seedIfEmpty() {
   if (costos.length === 0) setStore('mock_costos_orden', []);
 }
 
-export async function handleMockRequest<T>(endpoint: string, options: RequestInit = {}): Promise<any> {
+export async function handleMockRequest(endpoint: string, options: RequestInit = {}): Promise<unknown> {
   seedIfEmpty();
   const method = ((options.method || 'GET').toUpperCase()) as Method;
   const url = new URL(endpoint, 'http://localhost');
 
   // Parse body si viene
-  let body: any = undefined;
-  try { body = options.body ? JSON.parse(String(options.body)) : undefined; } catch {}
+  let body: unknown;
+  try {
+    body = options.body ? JSON.parse(String(options.body)) : undefined;
+  } catch {
+    body = undefined;
+  }
+  const bodyRecord = toRecord(body);
 
   // Recursos soportados: /failures, /failures/:id, /failures/assign, /failures/by-order/:id
   if (url.pathname === '/failures' && method === 'GET') {
@@ -90,9 +105,16 @@ export async function handleMockRequest<T>(endpoint: string, options: RequestIni
 
   if (url.pathname === '/failures' && method === 'POST') {
     const all = getStore<Falla[]>('mock_fallas', []);
-    if (all.some(f => f.codigo === body?.codigo)) return { error: 'Código de falla ya existe' };
+    const payload = toRecord(body) as Partial<Falla>;
+    if (all.some(f => f.codigo === payload.codigo)) return { error: 'Código de falla ya existe' };
     const now = new Date().toISOString();
-    const nueva: Falla = { id: String(Date.now()), activo: true, created_at: now, updated_at: now, ...body };
+    const nueva: Falla = {
+      id: String(Date.now()),
+      activo: true,
+      created_at: now,
+      updated_at: now,
+      ...(payload as Record<string, unknown>),
+    } as Falla;
     all.push(nueva);
     setStore('mock_fallas', all);
     return { data: nueva };
@@ -111,7 +133,7 @@ export async function handleMockRequest<T>(endpoint: string, options: RequestIni
     const all = getStore<Falla[]>('mock_fallas', []);
     const idx = all.findIndex(x => x.id === id);
     if (idx === -1) return { error: 'Falla no encontrada' };
-    all[idx] = { ...all[idx], ...body, updated_at: new Date().toISOString() };
+  all[idx] = { ...all[idx], ...bodyRecord, updated_at: new Date().toISOString() };
     setStore('mock_fallas', all);
     return { data: all[idx] };
   }
@@ -127,9 +149,9 @@ export async function handleMockRequest<T>(endpoint: string, options: RequestIni
   }
 
   if (url.pathname === '/failures/assign' && method === 'POST') {
-    const { orden_id, falla_ids } = body || {};
+  const { orden_id, falla_ids } = bodyRecord as { orden_id?: string; falla_ids?: string[] };
     if (!orden_id || !Array.isArray(falla_ids)) return { error: 'Datos inválidos' };
-    let of = getStore<any[]>('mock_orden_fallas', []);
+  let of = getStore<OrdenFallaMock[]>('mock_orden_fallas', []);
     of = of.filter(x => x.orden_id !== orden_id);
     const now = new Date().toISOString();
     falla_ids.forEach((fid: string) => of.push({ orden_id, falla_id: fid, creado_en: now }));
@@ -139,7 +161,7 @@ export async function handleMockRequest<T>(endpoint: string, options: RequestIni
 
   if (url.pathname.startsWith('/failures/by-order/') && method === 'GET') {
     const ordenId = url.pathname.split('/')[3];
-    const of = getStore<any[]>('mock_orden_fallas', []);
+  const of = getStore<OrdenFallaMock[]>('mock_orden_fallas', []);
     const fallas = getStore<Falla[]>('mock_fallas', []);
     const ids = of.filter(x => x.orden_id === ordenId).map(x => x.falla_id);
     const result = fallas.filter(f => ids.includes(f.id));
@@ -160,7 +182,13 @@ export async function handleMockRequest<T>(endpoint: string, options: RequestIni
   if (url.pathname === '/checklists/plantillas' && method === 'POST') {
     const all = getStore<PlantillaChecklist[]>('mock_plantillas_checklist', []);
     const now = new Date().toISOString();
-    const nueva: PlantillaChecklist = { id: `tpl-${Date.now()}`, activo: true, created_at: now, updated_at: now, ...body };
+    const nueva = {
+      id: `tpl-${Date.now()}`,
+      activo: true,
+      created_at: now,
+      updated_at: now,
+      ...(bodyRecord as Partial<PlantillaChecklist>),
+    } as PlantillaChecklist;
     all.push(nueva);
     setStore('mock_plantillas_checklist', all);
     return { data: nueva };
@@ -179,7 +207,7 @@ export async function handleMockRequest<T>(endpoint: string, options: RequestIni
     const all = getStore<PlantillaChecklist[]>('mock_plantillas_checklist', []);
     const idx = all.findIndex(x => x.id === id);
     if (idx === -1) return { error: 'Plantilla no encontrada' };
-    all[idx] = { ...all[idx], ...body, updated_at: new Date().toISOString() };
+  all[idx] = { ...all[idx], ...bodyRecord, updated_at: new Date().toISOString() };
     setStore('mock_plantillas_checklist', all);
     return { data: all[idx] };
   }
@@ -206,15 +234,15 @@ export async function handleMockRequest<T>(endpoint: string, options: RequestIni
   if (url.pathname === '/checklists/orden' && method === 'POST') {
     const all = getStore<ChecklistOrden[]>('mock_checklists_orden', []);
     const now = new Date().toISOString();
-    const nuevo: ChecklistOrden = { 
+    const nuevo = ({
       id: `ch-${Date.now()}`, 
       completado: false, 
       porcentaje_completado: 0,
       items_verificados: [],
       created_at: now, 
       updated_at: now, 
-      ...body 
-    };
+      ...bodyRecord
+    }) as unknown as ChecklistOrden;
     all.push(nuevo);
     setStore('mock_checklists_orden', all);
     return { data: nuevo };
@@ -225,7 +253,7 @@ export async function handleMockRequest<T>(endpoint: string, options: RequestIni
     const all = getStore<ChecklistOrden[]>('mock_checklists_orden', []);
     const idx = all.findIndex(x => x.orden_id === ordenId);
     if (idx === -1) return { error: 'Checklist no encontrado' };
-    all[idx] = { ...all[idx], ...body, updated_at: new Date().toISOString() };
+  all[idx] = { ...all[idx], ...bodyRecord, updated_at: new Date().toISOString() };
     setStore('mock_checklists_orden', all);
     return { data: all[idx] };
   }
@@ -242,7 +270,7 @@ export async function handleMockRequest<T>(endpoint: string, options: RequestIni
   if (url.pathname === '/costos/orden' && method === 'POST') {
     const all = getStore<CostosOrden[]>('mock_costos_orden', []);
     const now = new Date().toISOString();
-    const nuevo: CostosOrden = { 
+    const nuevo = ({
       id: `cost-${Date.now()}`,
       aprobado: false,
       diferencia: 0,
@@ -252,8 +280,8 @@ export async function handleMockRequest<T>(endpoint: string, options: RequestIni
       real: { items: [], subtotal: 0, iva_total: 0, total: 0 },
       created_at: now, 
       updated_at: now, 
-      ...body 
-    };
+      ...bodyRecord
+    }) as unknown as CostosOrden;
     all.push(nuevo);
     setStore('mock_costos_orden', all);
     return { data: nuevo };
@@ -264,7 +292,7 @@ export async function handleMockRequest<T>(endpoint: string, options: RequestIni
     const all = getStore<CostosOrden[]>('mock_costos_orden', []);
     const idx = all.findIndex(x => x.orden_id === ordenId);
     if (idx === -1) return { error: 'Costos no encontrados' };
-    all[idx] = { ...all[idx], ...body, updated_at: new Date().toISOString() };
+  all[idx] = { ...all[idx], ...bodyRecord, updated_at: new Date().toISOString() };
     setStore('mock_costos_orden', all);
     return { data: all[idx] };
   }

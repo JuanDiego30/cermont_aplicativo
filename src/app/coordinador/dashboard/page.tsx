@@ -1,149 +1,179 @@
-/**
- * Dashboard para Coordinador
- * Vista general de órdenes y asignación de técnicos
- */
+"use client";
 
-'use client';
+import Link from "next/link";
+import {
+  Badge,
+  Card,
+  Container,
+  Group,
+  SimpleGrid,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
+  rem,
+} from "@mantine/core";
+import { useAuth } from "@/lib/auth";
+import { ROUTES } from "@/lib/constants";
+import {
+  CalendarClock,
+  ClipboardList,
+  Route,
+  UserCheck2,
+  Users,
+  Wrench,
+} from "lucide-react";
 
-import { useAuth } from '@/lib/auth';
-import Link from 'next/link';
+const summaryCards = [
+  { label: "Órdenes totales", value: "0", color: "cerBlue", icon: ClipboardList },
+  { label: "Sin asignar", value: "0", color: "red", icon: Route },
+  { label: "En progreso", value: "0", color: "cerBlue", icon: CalendarClock },
+  { label: "Completadas", value: "0", color: "cerGreen", icon: UserCheck2 },
+  { label: "Técnicos activos", value: "0", color: "grape", icon: Users },
+];
+
+const quickLinks = [
+  {
+    label: "Asignar técnicos",
+    description: "Distribuye órdenes y balancea la carga",
+    href: ROUTES.ROLES.COORDINADOR.ASSIGN,
+    color: "cerBlue",
+    icon: Wrench,
+  },
+  {
+    label: "Ver todas las órdenes",
+    description: "Control y filtros avanzados",
+    href: ROUTES.ROLES.COORDINADOR.ORDERS,
+    color: "cerGreen",
+    icon: ClipboardList,
+  },
+  {
+    label: "Calendario general",
+    description: "Agenda y disponibilidad",
+    href: ROUTES.ROLES.COORDINADOR.CALENDAR,
+    color: "grape",
+    icon: CalendarClock,
+  },
+];
 
 export default function CoordinadorDashboard() {
   const { user } = useAuth();
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Panel de Coordinación
-        </h1>
-        <p className="mt-2 text-gray-600">
-          Gestiona y asigna órdenes de trabajo al equipo técnico
-        </p>
-      </div>
+    <Container size="xl" py="xl">
+      <Stack gap="xl">
+        <Stack gap="xs">
+          <Title order={1} fw={700}>
+            Panel de Coordinación
+          </Title>
+          <Text c="dimmed" fz="sm">
+            {user?.nombre ? `Hola, ${user.nombre}. ` : null}
+            Supervisa el ciclo de órdenes y mantiene al equipo técnico alineado.
+          </Text>
+        </Stack>
 
-      {/* Tarjetas de resumen */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Órdenes</p>
-              <p className="mt-2 text-3xl font-bold text-gray-900">0</p>
-            </div>
-          </div>
-        </div>
+        <SimpleGrid cols={{ base: 1, sm: 2, lg: 5 }} spacing="lg">
+          {summaryCards.map(({ label, value, color, icon: Icon }) => (
+            <Card key={label} withBorder shadow="sm" radius="lg" padding="lg">
+              <Stack gap="sm">
+                <Group justify="space-between" align="center">
+                  <Text c="dimmed" fz="sm" tt="uppercase" fw={600}>
+                    {label}
+                  </Text>
+                  <ThemeIcon variant="light" color={color} radius="md" size={40}>
+                    <Icon size={rem(20)} />
+                  </ThemeIcon>
+                </Group>
+                <Text fz={32} fw={700} lh={1}>
+                  {value}
+                </Text>
+                <Badge variant="light" color={color} radius="sm">
+                  Datos en tiempo real
+                </Badge>
+              </Stack>
+            </Card>
+          ))}
+        </SimpleGrid>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Sin Asignar</p>
-              <p className="mt-2 text-3xl font-bold text-red-600">0</p>
-            </div>
-          </div>
-        </div>
+        <Card withBorder shadow="md" radius="lg" padding="lg">
+          <Stack gap="lg">
+            <Group justify="space-between" align="flex-start">
+              <Stack gap={4}>
+                <Text fz="lg" fw={600}>
+                  Acciones rápidas
+                </Text>
+                <Text c="dimmed" fz="sm">
+                  Tareas clave para mantener el flujo operativo.
+                </Text>
+              </Stack>
+            </Group>
+            <SimpleGrid cols={{ base: 1, md: 3 }} spacing="lg">
+              {quickLinks.map(({ label, description, href, color, icon: Icon }) => (
+                <Card
+                  key={label}
+                  component={Link}
+                  href={href}
+                  withBorder
+                  shadow="sm"
+                  radius="lg"
+                  padding="lg"
+                  style={{ transition: "transform 150ms ease, box-shadow 150ms ease" }}
+                >
+                  <Stack gap="md">
+                    <ThemeIcon variant="light" color={color} radius="lg" size={42}>
+                      <Icon size={rem(20)} />
+                    </ThemeIcon>
+                    <Stack gap={4}>
+                      <Text fw={600}>{label}</Text>
+                      <Text c="dimmed" fz="sm">
+                        {description}
+                      </Text>
+                    </Stack>
+                  </Stack>
+                </Card>
+              ))}
+            </SimpleGrid>
+          </Stack>
+        </Card>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">En Progreso</p>
-              <p className="mt-2 text-3xl font-bold text-blue-600">0</p>
-            </div>
-          </div>
-        </div>
+        <Card withBorder shadow="md" radius="lg" padding="lg">
+          <Stack gap="lg">
+            <Group justify="space-between" align="center">
+              <Text fz="lg" fw={600}>
+                Órdenes sin asignar
+              </Text>
+              <Badge color="red" variant="light">
+                Requieren atención
+              </Badge>
+            </Group>
+            <Stack gap="sm" align="center" py="xl">
+              <Route size={rem(36)} color="var(--mantine-color-gray-5)" />
+              <Text c="dimmed" fz="sm" ta="center">
+                No hay órdenes pendientes de asignación. ¡Todo en orden!
+              </Text>
+            </Stack>
+          </Stack>
+        </Card>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Completadas</p>
-              <p className="mt-2 text-3xl font-bold text-green-600">0</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Técnicos Activos</p>
-              <p className="mt-2 text-3xl font-bold text-purple-600">0</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Acciones rápidas */}
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link 
-            href="/coordinador/asignar"
-            className="flex items-center p-4 border-2 border-blue-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition"
-          >
-            <div className="p-2 bg-blue-100 rounded-lg mr-4">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Asignar Técnicos</h3>
-              <p className="text-sm text-gray-600">Distribuir órdenes de trabajo</p>
-            </div>
-          </Link>
-
-          <Link 
-            href="/coordinador/ordenes"
-            className="flex items-center p-4 border-2 border-green-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition"
-          >
-            <div className="p-2 bg-green-100 rounded-lg mr-4">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Ver Todas las Órdenes</h3>
-              <p className="text-sm text-gray-600">Gestión completa</p>
-            </div>
-          </Link>
-
-          <Link 
-            href="/coordinador/calendario"
-            className="flex items-center p-4 border-2 border-purple-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition"
-          >
-            <div className="p-2 bg-purple-100 rounded-lg mr-4">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Calendario General</h3>
-              <p className="text-sm text-gray-600">Vista de todas las agendas</p>
-            </div>
-          </Link>
-        </div>
-      </div>
-
-      {/* Órdenes sin asignar */}
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Órdenes Sin Asignar</h2>
-          <span className="px-3 py-1 text-sm font-semibold bg-red-100 text-red-800 rounded-full">
-            Requieren Atención
-          </span>
-        </div>
-        <div className="text-center py-12 text-gray-500">
-          <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-          </svg>
-          <p className="text-lg">No hay órdenes pendientes de asignación</p>
-        </div>
-      </div>
-
-      {/* Técnicos disponibles */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Técnicos Disponibles</h2>
-        <div className="text-center py-12 text-gray-500">
-          <p className="text-lg">Cargando información del equipo...</p>
-        </div>
-      </div>
-    </div>
+        <Card withBorder shadow="md" radius="lg" padding="lg">
+          <Stack gap="lg">
+            <Group justify="space-between" align="center">
+              <Text fz="lg" fw={600}>
+                Técnicos disponibles
+              </Text>
+              <Badge color="cerBlue" variant="light">
+                Datos monitoreados
+              </Badge>
+            </Group>
+            <Stack gap="sm" align="center" py="xl">
+              <Users size={rem(36)} color="var(--mantine-color-gray-5)" />
+              <Text c="dimmed" fz="sm" ta="center">
+                Cargando información del equipo...
+              </Text>
+            </Stack>
+          </Stack>
+        </Card>
+      </Stack>
+    </Container>
   );
 }

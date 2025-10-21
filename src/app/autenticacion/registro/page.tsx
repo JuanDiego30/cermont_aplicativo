@@ -1,13 +1,14 @@
 "use client";
-import RegisterForm from '@/components/forms/RegisterForm';
-import Image from 'next/image';
+
+import AnimatedLogo from "@/components/AnimatedLogo";
+import RegisterForm from "@/components/forms/RegisterForm";
 
 export default function PaginaRegistro() {
   return (
     <main className="login-shell">
       <div className="login-stack">
         <div className="brand-logo" aria-hidden>
-          <Image src="/logo.png" alt="Cermont" width={100} height={100} />
+          <AnimatedLogo size={118} />
         </div>
         <section className="login-card" aria-label="Tarjeta de registro">
           <h1 className="login-title">Crear cuenta</h1>

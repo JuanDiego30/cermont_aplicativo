@@ -165,6 +165,26 @@ export interface PlantillaMantenimiento {
   creador?: Usuario;
 }
 
+// ===== HERRAMIENTAS PARA ACTIVIDADES =====
+
+export type CriticidadHerramienta = 'baja' | 'media' | 'alta';
+
+export interface ActividadHerramienta {
+  id: string;
+  tipo_orden: TipoOrden;
+  tipo_equipo: TipoEquipo;
+  nombre: string;
+  descripcion?: string;
+  categoria?: string;
+  unidad?: string;
+  cantidad_sugerida?: number | null;
+  criticidad: CriticidadHerramienta;
+  activo: boolean;
+  notas?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 // ===== TIPOS PARA FORMULARIOS =====
 
 export interface CrearOrdenInput {

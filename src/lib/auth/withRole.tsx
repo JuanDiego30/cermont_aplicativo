@@ -9,6 +9,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useHasRole } from './AuthContext';
 import { Role, roleRoutes } from '@/lib/types/roles';
+import { ROUTES } from '@/lib/constants';
 
 export function withRole<P extends object>(
   Component: React.ComponentType<P>,
@@ -22,13 +23,13 @@ export function withRole<P extends object>(
     useEffect(() => {
       if (!isLoading) {
         if (!isAuthenticated) {
-          router.push('/autenticacion/login');
+          router.push(ROUTES.LOGIN);
         } else if (!hasRole) {
           // Redirigir al dashboard del rol actual
           if (user?.rol) {
             router.push(roleRoutes[user.rol]);
           } else {
-            router.push('/acceso-denegado');
+            router.push(ROUTES.ACCESS_DENIED);
           }
         }
       }

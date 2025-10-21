@@ -4,3 +4,4 @@
  */
 
 export * from './cctv';
+export * from './work-plan';

@@ -6,6 +6,7 @@
  */
 
 import { withRole } from '@/lib/auth';
+import { ROUTES } from '@/lib/constants';
 import { Role } from '@/lib/types/roles';
 import Link from 'next/link';
 import '@/styles/globals.css';
@@ -19,25 +20,25 @@ function ClienteLayout({ children }: { children: React.ReactNode }) {
           <div className="flex justify-between h-16">
             <div className="flex space-x-8">
               <Link 
-                href="/cliente/dashboard" 
+                href={ROUTES.ROLES.CLIENTE.DASHBOARD} 
                 className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-blue-500"
               >
                 Dashboard
               </Link>
               <Link 
-                href="/cliente/ordenes" 
+                href={ROUTES.ROLES.CLIENTE.ORDERS} 
                 className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900"
               >
                 Mis Órdenes
               </Link>
               <Link 
-                href="/cliente/equipos" 
+                href={ROUTES.ROLES.CLIENTE.EQUIPMENT} 
                 className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900"
               >
                 Mis Equipos
               </Link>
               <Link 
-                href="/cliente/solicitar-servicio" 
+                href={ROUTES.ROLES.CLIENTE.REQUEST_SERVICE} 
                 className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900"
               >
                 Solicitar Servicio
@@ -46,7 +47,7 @@ function ClienteLayout({ children }: { children: React.ReactNode }) {
 
             <div className="flex items-center">
               <Link 
-                href="/cliente/perfil" 
+                href={ROUTES.ROLES.CLIENTE.PROFILE} 
                 className="text-sm font-medium text-gray-500 hover:text-gray-900"
               >
                 Mi Perfil

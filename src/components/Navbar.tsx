@@ -5,12 +5,14 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/cn';
 import { ThemeToggle } from '@/components/shared';
 import AnimatedLogo from '@/components/AnimatedLogo';
+import { ROUTES } from '@/lib/constants';
 
 const links = [
-  { href: '/inicio', label: 'Inicio' },
-  { href: '/ordenes', label: 'Órdenes' },
-  { href: '/usuarios', label: 'Usuarios' },
+  { href: ROUTES.LANDING, label: 'Inicio' },
+  { href: ROUTES.WORK_ORDERS, label: 'Órdenes' },
+  { href: ROUTES.USERS, label: 'Usuarios' },
   { href: '/reportes', label: 'Reportes' },
+  { href: '/asistente', label: 'Asistente' },
 ];
 
 const Navbar: React.FC = () => {
@@ -38,7 +40,7 @@ const Navbar: React.FC = () => {
     <header className={cn('navbar', open && 'navbar--open')}>
       <div className="navbar-left">
         <Link href="/inicio" aria-label="Inicio Cermont" className="logo-wrap">
-          <AnimatedLogo width={110} height={26} priority />
+          <AnimatedLogo />
         </Link>
       </div>
 

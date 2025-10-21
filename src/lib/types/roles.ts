@@ -2,6 +2,8 @@
  * Roles y permisos del sistema Cermont Web
  */
 
+import { ROUTES } from '@/lib/constants';
+
 export enum Role {
   CLIENTE = 'cliente',
   TECNICO = 'tecnico',
@@ -158,14 +160,14 @@ export function getRolePermissions(role: Role): Permission[] {
 export interface User {
   id: string;
   email: string;
-  nombre: string;
+  nombre?: string;
   rol: Role;
-  empresa?: string;
-  telefono?: string;
-  avatar_url?: string;
-  activo: boolean;
-  created_at: string;
-  updated_at: string;
+  empresa?: string | null;
+  telefono?: string | null;
+  avatar_url?: string | null;
+  activo?: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 /**
@@ -181,11 +183,11 @@ export interface AuthSession {
  * Rutas base por rol
  */
 export const roleRoutes: Record<Role, string> = {
-  [Role.CLIENTE]: '/cliente/dashboard',
-  [Role.TECNICO]: '/tecnico/dashboard',
-  [Role.COORDINADOR]: '/coordinador/dashboard',
-  [Role.GERENTE]: '/gerente/dashboard',
-  [Role.ADMIN]: '/admin/dashboard',
+  [Role.CLIENTE]: ROUTES.ROLES.CLIENTE.DASHBOARD,
+  [Role.TECNICO]: ROUTES.ROLES.TECNICO.DASHBOARD,
+  [Role.COORDINADOR]: ROUTES.ROLES.COORDINADOR.DASHBOARD,
+  [Role.GERENTE]: ROUTES.ROLES.GERENTE.DASHBOARD,
+  [Role.ADMIN]: ROUTES.DASHBOARD,
 };
 
 /**

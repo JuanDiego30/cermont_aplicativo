@@ -42,8 +42,11 @@ const FallasAdminPage: React.FC = () => {
     
     if (res.error) {
       setError(res.error);
+      setFallas([]);
     } else if (res.data) {
-      setFallas(res.data.data || []);
+      setFallas(res.data);
+    } else {
+      setFallas([]);
     }
     setLoading(false);
   }, [filterTipo, filterSeveridad, searchTerm]);

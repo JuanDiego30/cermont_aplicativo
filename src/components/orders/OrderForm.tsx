@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,8 +10,10 @@ import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import Textarea from '@/components/ui/Textarea';
 import Select from '@/components/ui/Select';
-import type { PrioridadOrden, CrearOrdenInput } from '@/lib/types/database';
+import type { CrearOrdenInput, ActividadHerramienta, Json } from '@/lib/types/database';
 import { failuresAPI, type Falla } from '@/lib/api/failures';
+import { toolsAPI } from '@/lib/api/tools';
+import { ROUTES } from '@/lib/constants';
 
 // Schema de validación
 const tipoOrdenValues = ['Mantenimiento Preventivo', 'Mantenimiento Correctivo', 'Instalación', 'Diagnóstico'] as const satisfies readonly TipoOrden[];
@@ -39,12 +41,16 @@ const OrderForm: React.FC = () => {
   const [fallas, setFallas] = useState<Falla[]>([]);
   const [selectedFallas, setSelectedFallas] = useState<string[]>([]);
   const [loadingFallas, setLoadingFallas] = useState(false);
+  const [herramientas, setHerramientas] = useState<ActividadHerramienta[]>([]);
+  const [selectedHerramientas, setSelectedHerramientas] = useState<string[]>([]);
+  const [loadingHerramientas, setLoadingHerramientas] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    watch,
   } = useForm<FormData>({
     resolver: zodResolver(orderFormSchema),
     defaultValues: {
@@ -57,26 +63,59 @@ const OrderForm: React.FC = () => {
     },
   });
 
-  // Cargar fallas según tipo_equipo seleccionado
-  const tipoEquipoSeleccionado = ((): TipoEquipo | undefined => {
-    // Inferir dinámicamente desde el form state
-    // Nota: useWatch sería ideal; como simplificación, recargamos al enviar y ofrecemos un botón manual si hace falta
-    return undefined;
-  })();
+  const tipoOrdenSeleccionado = watch('tipo_orden');
+  const tipoEquipoSeleccionado = watch('tipo_equipo');
 
   const loadFallas = async (tipo?: TipoEquipo) => {
     setLoadingFallas(true);
     const res = await failuresAPI.list({ limit: 50, tipo_equipo: tipo || 'CCTV', activo: true });
-    if (!res.error && res.data) {
-      setFallas(res.data.data || []);
+    if (res.error) {
+      setFallas([]);
+    } else if (res.data) {
+      setFallas(res.data);
+    } else {
+      setFallas([]);
     }
     setLoadingFallas(false);
   };
+
+  const loadHerramientas = useCallback(async (tipoOrden: TipoOrden, tipoEquipo: TipoEquipo) => {
+    setLoadingHerramientas(true);
+    const response = await toolsAPI.list({
+      tipo_orden: tipoOrden,
+      tipo_equipo: tipoEquipo,
+      activo: true,
+    });
+
+    if (response.error) {
+      setHerramientas([]);
+    } else if (response.data) {
+      setHerramientas(response.data);
+    } else {
+      setHerramientas([]);
+    }
+
+    setLoadingHerramientas(false);
+  }, []);
 
   useEffect(() => {
     // Carga inicial por defecto (CCTV)
     loadFallas('CCTV');
   }, []);
+
+  useEffect(() => {
+    if (!tipoOrdenSeleccionado || !tipoEquipoSeleccionado) {
+      return;
+    }
+    setSelectedHerramientas([]);
+    const tipoOrden = tipoOrdenSeleccionado as TipoOrden | undefined;
+    const tipoEquipo = tipoEquipoSeleccionado as TipoEquipo | undefined;
+    if (!tipoOrden || !tipoEquipo) {
+      return;
+    }
+    setSelectedHerramientas([]);
+    void loadHerramientas(tipoOrden, tipoEquipo);
+  }, [tipoOrdenSeleccionado, tipoEquipoSeleccionado, loadHerramientas]);
 
   const onSubmit = async (data: FormData) => {
     setError(null);
@@ -91,6 +130,23 @@ const OrderForm: React.FC = () => {
       fecha_programada: data.fecha_programada || undefined,
     };
 
+    const herramientasSeleccionadas = herramientas
+      .filter((item) => selectedHerramientas.includes(item.id))
+      .map((item) => ({
+        id: item.id,
+        nombre: item.nombre,
+        unidad: item.unidad,
+        cantidad_sugerida: item.cantidad_sugerida,
+        criticidad: item.criticidad,
+      }));
+
+    if (herramientasSeleccionadas.length > 0) {
+      const datosTecnicos: Record<string, unknown> = {
+        herramientas_planificadas: herramientasSeleccionadas,
+      };
+      orderData.datos_tecnicos = datosTecnicos as Json;
+    }
+
     // Crear orden
     const response = await ordersAPI.create(orderData);
 
@@ -99,20 +155,24 @@ const OrderForm: React.FC = () => {
       return;
     }
 
-    if (response.data && 'data' in response.data) {
-      const order = response.data.data;
-      // Asociar fallas seleccionadas si hay
-      if (selectedFallas.length > 0) {
-        await failuresAPI.assignToOrder(order.id, selectedFallas);
-      }
-      setSuccess(`Orden ${order.numero_orden} creada exitosamente`);
-      reset();
-      
-      // Redirigir después de 1 segundo
-      setTimeout(() => {
-        router.push(`/ordenes/${order.id}`);
-      }, 1000);
+    if (!response.data) {
+      setError('La API no devolvió la orden creada.');
+      return;
     }
+
+    const order = response.data;
+
+    if (selectedFallas.length > 0) {
+      await failuresAPI.assignToOrder(order.id, selectedFallas);
+    }
+
+    setSuccess(`Orden ${order.numero_orden} creada exitosamente`);
+    reset();
+
+    // Redirigir después de 1 segundo
+    setTimeout(() => {
+      router.push(ROUTES.WORK_ORDER_DETAIL(order.id));
+    }, 1000);
   };
 
   return (
@@ -265,6 +325,54 @@ const OrderForm: React.FC = () => {
           </div>
         </fieldset>
 
+        {/* Herramientas sugeridas */}
+        <fieldset className="space-y-4">
+          <legend className="text-lg font-semibold text-gray-900 mb-2">Herramientas y equipos sugeridos</legend>
+          <p className="text-sm text-gray-600">
+            Selecciona los elementos que deben estar listos para la actividad de {tipoOrdenSeleccionado || 'la orden'} sobre
+            {' '}
+            {tipoEquipoSeleccionado || 'el equipo correspondiente'}.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-56 overflow-auto border rounded-md p-3 bg-gray-50">
+            {loadingHerramientas ? (
+              <div className="text-gray-500">Cargando herramientas...</div>
+            ) : herramientas.length === 0 ? (
+              <div className="text-gray-500">No hay elementos registrados para esta combinación.</div>
+            ) : (
+              herramientas.map((item) => (
+                <label key={item.id} className="flex items-start gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selectedHerramientas.includes(item.id)}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      setSelectedHerramientas((prev) =>
+                        checked ? [...prev, item.id] : prev.filter((value) => value !== item.id)
+                      );
+                    }}
+                  />
+                  <span>
+                    <span className="font-medium">{item.nombre}</span>
+                    <span className="block text-xs text-gray-600">
+                      {(item.categoria ? `${item.categoria} • ` : '') + item.criticidad.toUpperCase()}
+                    </span>
+                    {(item.cantidad_sugerida || item.unidad) && (
+                      <span className="block text-xs text-gray-500">
+                        {item.cantidad_sugerida ? `Cantidad sugerida: ${item.cantidad_sugerida}` : ''}
+                        {item.cantidad_sugerida && item.unidad ? ' ' : ''}
+                        {item.unidad ? `(${item.unidad})` : ''}
+                      </span>
+                    )}
+                    {item.descripcion && (
+                      <span className="block text-xs text-gray-500 mt-0.5">{item.descripcion}</span>
+                    )}
+                  </span>
+                </label>
+              ))
+            )}
+          </div>
+        </fieldset>
+
         {/* Prioridad y Fecha */}
         <fieldset className="space-y-4">
           <legend className="text-lg font-semibold text-gray-900 mb-4">Programación</legend>
@@ -298,7 +406,7 @@ const OrderForm: React.FC = () => {
           <Button
             variant="light"
             type="button"
-            onClick={() => router.push('/ordenes')}
+            onClick={() => router.push(ROUTES.WORK_ORDERS)}
             disabled={isSubmitting}
           >
             Cancelar

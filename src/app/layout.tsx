@@ -1,12 +1,16 @@
 // app/layout.tsx
+import '@mantine/core/styles.css';
+import '@mantine/notifications/styles.css';
 import '@/styles/globals.css';
 import '@/styles/pages/login.css';
 import '@/styles/components/forms.css';
-import '@/styles/components/navbar.css';
+import '@/styles/components/assistant-widget.css';
 import '@/styles/utils/print.css';
+import { ColorSchemeScript } from '@mantine/core';
+import AppProviders from '@/components/AppProviders';
 import HeaderTabs from '@/components/HeaderTabs';
 import Footer from '@/components/Footer';
-import { AuthProvider } from '@/lib/auth';
+import AssistantWidget from '@/components/assistant/AssistantWidget';
 
 export const metadata = {
   title: 'Cermont Web',
@@ -16,26 +20,34 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" suppressHydrationWarning>
-      {/* data-theme se setea dinámicamente antes de hidratar */}
+      <head>
+        <ColorSchemeScript defaultColorScheme="auto" />
+      </head>
       <body suppressHydrationWarning>
         <script
           dangerouslySetInnerHTML={{
             __html: `
 (function(){
   try{
-    var saved = localStorage.getItem('theme');
-    var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    var theme = saved ? saved : (prefersDark ? 'dark' : 'light');
-    document.documentElement.setAttribute('data-theme', theme);
+    var root = document.documentElement;
+    var saved = localStorage.getItem('mantine-color-scheme');
+    var inferred = root.getAttribute('data-mantine-color-scheme');
+    if(!inferred){
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      inferred = prefersDark ? 'dark' : 'light';
+    }
+    var theme = saved ? saved : inferred;
+    root.setAttribute('data-theme', theme);
   }catch(e){}
 })();
 `}}
         />
-        <AuthProvider>
+        <AppProviders>
           <HeaderTabs />
-          {children}
+          <main className="app-main">{children}</main>
           <Footer />
-        </AuthProvider>
+          <AssistantWidget />
+        </AppProviders>
       </body>
     </html>
   );

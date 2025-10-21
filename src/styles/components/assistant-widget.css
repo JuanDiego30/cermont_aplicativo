@@ -1,0 +1,199 @@
+.assistant-launcher {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 18px 35px rgba(59, 95, 179, 0.32);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  z-index: 1200;
+}
+
+.assistant-launcher:hover,
+.assistant-launcher--active {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 22px 46px rgba(108, 169, 71, 0.4);
+}
+
+.assistant-launcher:focus-visible {
+  outline: 3px solid #93c5fd;
+}
+
+.assistant-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 15, 33, 0.45);
+  z-index: 1195;
+}
+
+.assistant-panel {
+  position: fixed;
+  bottom: 108px;
+  right: 28px;
+  width: min(360px, calc(100% - 32px));
+  max-height: 560px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface, #111827) 82%, rgba(255, 255, 255, 0.08));
+  color: var(--text, #e2e8f0);
+  box-shadow: 0 30px 80px rgba(11, 16, 32, 0.55);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(59, 95, 179, 0.18);
+  z-index: 1199;
+  backdrop-filter: blur(14px);
+}
+
+.assistant-panel--open {
+  display: flex;
+}
+
+.assistant-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--brand-primary) 88%, black 12%), color-mix(in srgb, var(--brand-secondary) 92%, black 8%));
+  color: #fff;
+}
+
+.assistant-panel__title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.assistant-panel__subtitle {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  opacity: 0.85;
+}
+
+.assistant-panel__close {
+  border: none;
+  background: rgba(15, 23, 42, 0.24);
+  color: inherit;
+  border-radius: 999px;
+  padding: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.assistant-panel__close:hover {
+  background: rgba(15, 23, 42, 0.32);
+}
+
+.assistant-panel__suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px 16px 4px;
+}
+
+.assistant-panel__viewport {
+  flex: 1;
+  padding: 8px 16px 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.assistant-panel__placeholder {
+  margin: 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: rgba(226, 232, 240, 0.65);
+}
+
+.assistant-panel__error {
+  margin: 0;
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(252, 165, 165, 0.3);
+  font-size: 0.8rem;
+}
+
+.assistant-panel__form {
+  padding: 12px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: color-mix(in srgb, var(--surface, #111827) 90%, rgba(108, 169, 71, 0.12));
+  border-top: 1px solid rgba(108, 169, 71, 0.2);
+}
+
+.assistant-bubble {
+  position: relative;
+  padding: 12px 14px 12px;
+  border-radius: 14px;
+  max-width: 85%;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.assistant-bubble--user {
+  margin-left: auto;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--brand-primary) 92%, white 8%), color-mix(in srgb, var(--brand-secondary) 92%, white 8%));
+  color: #fff;
+}
+
+.assistant-bubble--assistant {
+  margin-right: auto;
+  background: rgba(15, 23, 42, 0.55);
+  color: rgba(226, 232, 240, 0.92);
+  border: 1px solid rgba(59, 95, 179, 0.2);
+}
+
+.assistant-bubble__label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.72;
+}
+
+.assistant-bubble__typing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.assistant-bubble__spinner {
+  animation: assistant-rotate 1s linear infinite;
+}
+
+@keyframes assistant-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 720px) {
+  .assistant-panel {
+    right: 18px;
+    left: 18px;
+    width: auto;
+  }
+
+  .assistant-launcher {
+    bottom: 20px;
+    right: 20px;
+  }
+}

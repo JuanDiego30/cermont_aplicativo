@@ -189,9 +189,9 @@
   border:0;
 }
 .btn.light{
-  background:#fff;
-  color:var(--text);
-  border:1px solid var(--border);
+  background: var(--button-elevated-bg);
+  color: var(--button-elevated-text);
+  border: 1px solid var(--button-border);
 }
 .btn.ghost{
   background:transparent;
@@ -199,16 +199,17 @@
   color:var(--text);
 }
 .btn.pdf{
-  background:#fff;
-  border:1px solid var(--border);
+  background: var(--button-elevated-bg);
+  border: 1px solid var(--button-border);
+  color: var(--button-elevated-text);
 }
 .btn.pdf:hover{
   box-shadow: 0 0 0 3px var(--focus-ring);
 }
 .btn.secondary{
-  background: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--border);
+  background: var(--button-muted-bg);
+  color: var(--button-muted-text);
+  border: 1px solid var(--button-border);
 }
 .btn.danger{
   background: linear-gradient(135deg, #dc2626, #991b1b);

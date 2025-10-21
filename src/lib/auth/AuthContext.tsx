@@ -1,105 +1,283 @@
 /**
  * Context de Autenticación
- * Maneja el estado de autenticación global de la aplicación
+ * Implementación basada en API propia con JWT
  */
 
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-// Autenticación local sin Supabase
-import { Role, type User } from '@/lib/types/roles';
-type Session = null;
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { api } from '@/lib/api/client';
+import {
+  clearToken,
+  getToken,
+  setToken,
+  subscribeToken,
+  TOKEN_STORAGE_KEY,
+} from '@/lib/auth/tokenStorage';
+import { Role, roleRoutes, type User } from '@/lib/types/roles';
+import { ROUTES } from '@/lib/constants';
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
+  token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  signIn: (email: string, password: string) => Promise<{ error?: string }>;
-  signUp: (email: string, password: string, nombre: string) => Promise<{ error?: string; requiresConfirmation?: boolean }>;
+  signIn: (email: string, password: string) => Promise<{ error?: string; redirectTo?: string }>;
+  signUp: (
+    email: string,
+    password: string,
+    nombre: string
+  ) => Promise<{ error?: string; redirectTo?: string; requiresConfirmation?: boolean }>;
   signOut: () => Promise<void>;
   refreshSession: () => Promise<void>;
 }
 
+interface AuthUserDTO {
+  id: string;
+  correo: string;
+  rol: string;
+}
+
+interface LoginResponse {
+  token?: string;
+  user?: AuthUserDTO;
+  error?: string;
+  message?: string;
+}
+
+interface RegisterResponse {
+  id?: string;
+  correo?: string;
+  rol?: string;
+  error?: string;
+  message?: string;
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+function deriveRole(value: string | Role): Role {
+  const parsed = value as Role;
+  if (Object.values(Role).includes(parsed)) {
+    return parsed;
+  }
+  return Role.CLIENTE;
+}
+
+function buildDisplayName(email: string | null | undefined, fallbackId: string) {
+  if (!email) {
+    return `Usuario ${fallbackId.slice(0, 6)}`;
+  }
+
+  const base = email.split('@')[0] ?? '';
+  const cleaned = base.replace(/[._-]+/g, ' ').trim();
+  if (!cleaned) {
+    return email;
+  }
+
+  return cleaned
+    .split(' ')
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(' ');
+}
+
+function mapAuthUser(dto: AuthUserDTO): User {
+  const email = dto.correo;
+  const role = deriveRole(dto.rol);
+
+  return {
+    id: dto.id,
+    email,
+    nombre: buildDisplayName(email, dto.id),
+    rol: role,
+    activo: true,
+  };
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const AUTH_USER_KEY = 'auth_user';
+  const [token, setTokenState] = useState<string | null>(() => getToken());
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Cargar usuario desde la sesión
-  const loadUser = useCallback(async (_userId: string) => {
-    // En local, no hay carga remota de usuario
-    return null;
-  }, []);
+  const loadUser = useCallback(async () => {
+    const storedToken = getToken();
+    if (!storedToken) {
+      setTokenState(null);
+      setUser(null);
+      return;
+    }
 
-  // Inicializar sesión
-  useEffect(() => {
-    // Cargar usuario fake desde localStorage
     try {
-      const raw = typeof window !== 'undefined' ? localStorage.getItem(AUTH_USER_KEY) : null;
-      if (raw) {
-        const parsed = JSON.parse(raw) as User;
-        setUser(parsed);
+      setTokenState(storedToken);
+      const response = await api.get<AuthUserDTO>('/auth/users/me');
+
+      if (response.error) {
+        clearToken();
+        setTokenState(null);
+        setUser(null);
+        return;
       }
-    } catch {}
-    setIsLoading(false);
+
+      setUser(mapAuthUser(response));
+    } catch (error) {
+      console.error('Error al cargar el usuario autenticado', error);
+      clearToken();
+      setTokenState(null);
+      setUser(null);
+    }
   }, []);
 
-  const signIn = async (email: string, _password: string) => {
-    // Derivar rol por conveniencia a partir del correo: admin@local, tecnico@local, coordinador@local, gerente@local, cliente@local
-    const name = email.split('@')[0]?.toLowerCase() || 'admin';
-    const map: Record<string, Role> = {
-      admin: Role.ADMIN,
-      tecnico: Role.TECNICO,
-      coordinador: Role.COORDINADOR,
-      gerente: Role.GERENTE,
-      cliente: Role.CLIENTE,
-    };
-    const role = map[name] || Role.ADMIN;
-    const now = new Date().toISOString();
-    const fakeUser: User = {
-      id: 'local-' + role,
-      email,
-      nombre: name.charAt(0).toUpperCase() + name.slice(1),
-      rol: role,
-      empresa: 'Cermont',
-      telefono: undefined,
-      avatar_url: undefined,
-      activo: true,
-      created_at: now,
-      updated_at: now,
-    };
-    setUser(fakeUser);
-    try { localStorage.setItem(AUTH_USER_KEY, JSON.stringify(fakeUser)); } catch {}
-    return {};
-  };
+  useEffect(() => {
+    let isMounted = true;
 
-  const signUp = async (_email: string, _password: string, _nombre: string) => {
-    return { error: 'Registro deshabilitado en modo local' };
-  };
+    (async () => {
+      setIsLoading(true);
+      try {
+        if (isMounted) {
+          await loadUser();
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    })();
 
-  const signOut = async () => {
+    return () => {
+      isMounted = false;
+    };
+  }, [loadUser]);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToken((nextToken) => {
+      setTokenState(nextToken);
+      if (!nextToken) {
+        setUser(null);
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== TOKEN_STORAGE_KEY) {
+        return;
+      }
+
+      const nextToken = event.newValue;
+      setTokenState(nextToken);
+
+      if (!nextToken) {
+        setUser(null);
+        return;
+      }
+
+      loadUser();
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [loadUser]);
+
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      setIsLoading(true);
+      try {
+        const response = await api.post<LoginResponse>('/auth/login', {
+          correo: email,
+          password,
+        });
+
+        if (response.error || !response.token || !response.user) {
+          return {
+            error: response.error || response.message || 'No se pudo iniciar sesión',
+          };
+        }
+
+  setToken(response.token);
+  setTokenState(response.token);
+        const profile = mapAuthUser(response.user);
+        setUser(profile);
+
+        const redirectTo = roleRoutes[profile.rol] ?? ROUTES.DASHBOARD;
+        return { redirectTo };
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    []
+  );
+
+  const signUp = useCallback(
+    async (email: string, password: string, nombre: string) => {
+      const response = await api.post<RegisterResponse>('/auth/register', {
+        correo: email,
+        password,
+        rol: Role.CLIENTE,
+      });
+
+      if (response.error) {
+        return { error: response.error || response.message };
+      }
+
+      const loginResult = await signIn(email, password);
+      if (loginResult.error) {
+        return { error: loginResult.error };
+      }
+
+      const trimmedName = nombre.trim();
+      if (trimmedName) {
+        setUser((current) => (current ? { ...current, nombre: trimmedName } : current));
+      }
+
+      return {
+        redirectTo: loginResult.redirectTo,
+        requiresConfirmation: false,
+      };
+    },
+    [signIn]
+  );
+
+  const signOut = useCallback(async () => {
+    clearToken();
+    setTokenState(null);
     setUser(null);
-    setSession(null);
-  };
+  }, []);
 
-  const refreshSession = async () => {
-    // No-op en local
-  };
+  const refreshSession = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      await loadUser();
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loadUser]);
 
-  const value = {
-    user,
-    session,
-    isLoading,
-    isAuthenticated: !!user,
-    signIn,
-    signUp,
-    signOut,
-    refreshSession,
-  };
+  const value = useMemo<AuthContextType>(
+    () => ({
+      user,
+      token,
+      isLoading,
+      isAuthenticated: Boolean(user && token),
+      signIn,
+      signUp,
+      signOut,
+      refreshSession,
+    }),
+    [isLoading, token, signIn, signOut, signUp, refreshSession, user]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
@@ -129,7 +307,7 @@ export function useRole(): Role | null {
 export function useHasRole(roles: Role | Role[]): boolean {
   const userRole = useRole();
   if (!userRole) return false;
-  
+
   const roleArray = Array.isArray(roles) ? roles : [roles];
   return roleArray.includes(userRole);
 }

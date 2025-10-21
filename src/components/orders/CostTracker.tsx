@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import type { CostosOrden, ItemCosto, TipoCosto } from '@/lib/types/operations';
 import { Badge } from '@/components/ui';
 
@@ -29,11 +29,7 @@ export default function CostTracker({ ordenId, readonly = false }: CostTrackerPr
     costo_unitario: 0,
   });
 
-  useEffect(() => {
-    loadCostos();
-  }, [ordenId]);
-
-  async function loadCostos() {
+  const loadCostos = useCallback(async () => {
     setLoading(true);
     const res = await fetch(`/costos/orden/${ordenId}`);
     if (res.ok) {
@@ -52,7 +48,11 @@ export default function CostTracker({ ordenId, readonly = false }: CostTrackerPr
       }
     }
     setLoading(false);
-  }
+  }, [ordenId]);
+
+  useEffect(() => {
+    void loadCostos();
+  }, [loadCostos]);
 
   function calcularSubtotal(items: ItemCosto[]) {
     return items.reduce((sum, i) => sum + i.costo_total, 0);

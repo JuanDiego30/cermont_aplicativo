@@ -1,196 +1,261 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import Image from 'next/image';
-import { useRouter, usePathname } from 'next/navigation';
-import { useAuth } from '@/lib/auth';
-import { Menu, X, ChevronDown, Heart, Star, MessageSquare, Settings, RefreshCw, LogOut, Trash2, PauseCircle } from 'lucide-react';
+import { useCallback, useMemo } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  ActionIcon,
+  Avatar,
+  Container,
+  Menu,
+  Text,
+  UnstyledButton,
+} from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
+import {
+  IconBell,
+  IconChevronDown,
+  IconClipboardList,
+  IconHome2,
+  IconLogout,
+  IconReportAnalytics,
+  IconUsersGroup,
+  IconPlus,
+  IconListCheck,
+  IconCalendarEvent,
+  IconChartBar,
+  IconFileAnalytics,
+  IconUserCog,
+  IconUserPlus,
+  IconDashboard,
+} from "@tabler/icons-react";
+import ThemeToggle from "@/components/shared/ThemeToggle";
+import { NavbarMinimal } from "@/components/NavbarMinimal";
+import AnimatedLogo from "@/components/AnimatedLogo";
+import { useAuth } from "@/lib/auth/AuthContext";
+import { ROUTES } from "@/lib/constants";
+import { cn } from "@/lib/cn";
+import classes from "./HeaderTabs.module.css";
 
-const user = {
-  name: 'Jane Spoonfighter',
-  email: 'janspoon@fighter.dev',
-  image: 'https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-5.png',
-};
-
-const tabs = [
-  { label: 'Inicio', value: '/inicio' },
-  { label: 'Órdenes', value: '/ordenes' },
-  { label: 'Usuarios', value: '/usuarios' },
-  { label: 'Reportes', value: '/reportes' },
+const NAV_MENU_ITEMS = [
+  {
+    label: "Inicio",
+    value: ROUTES.LANDING,
+    icon: IconHome2,
+    menuItems: [
+      { label: "Dashboard Principal", href: ROUTES.LANDING, icon: IconDashboard },
+    ],
+  },
+  {
+    label: "Órdenes",
+    value: ROUTES.WORK_ORDERS,
+    icon: IconClipboardList,
+    menuItems: [
+      { label: "Centro de órdenes", href: ROUTES.WORK_ORDERS, icon: IconListCheck },
+      { label: "Crear nueva orden", href: ROUTES.WORK_ORDERS_NEW, icon: IconPlus },
+      { label: "Planeación de obra", href: ROUTES.WORK_PLAN, icon: IconCalendarEvent },
+      { label: "Órdenes CCTV", href: ROUTES.CCTV_LIST, icon: IconClipboardList },
+    ],
+  },
+  {
+    label: "Usuarios",
+    value: ROUTES.USERS,
+    icon: IconUsersGroup,
+    menuItems: [
+      { label: "Gestión de usuarios", href: ROUTES.USERS, icon: IconUserCog },
+      { label: "Agregar usuario", href: ROUTES.USERS, icon: IconUserPlus },
+    ],
+  },
+  {
+    label: "Reportes",
+    value: ROUTES.REPORTS,
+    icon: IconReportAnalytics,
+    menuItems: [
+      { label: "Centro de reportes", href: ROUTES.REPORTS, icon: IconChartBar },
+      { label: "Análisis avanzado", href: ROUTES.REPORTS, icon: IconFileAnalytics },
+    ],
+  },
 ];
 
+const HIDDEN_ROUTES = [ROUTES.LOGIN, ROUTES.REGISTER];
+
 function HeaderTabs() {
-  // Mantine-style header, tabs centered, logo left, user right, dark bg
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const router = useRouter();
   const pathname = usePathname();
+  const router = useRouter();
+  const isMobile = useMediaQuery("(max-width: 1024px)");
   const { user, signOut } = useAuth();
 
-  const displayName = user?.nombre || user?.email || 'Usuario';
+  const activeTab = useMemo(() => {
+    if (!pathname) {
+      return NAV_MENU_ITEMS[0].value;
+    }
+    const match = NAV_MENU_ITEMS.find((item) => pathname.startsWith(item.value));
+    return match?.value ?? NAV_MENU_ITEMS[0].value;
+  }, [pathname]);
+
+  const displayName = useMemo(
+    () => user?.nombre || user?.email || "Usuario",
+    [user?.email, user?.nombre]
+  );
+
   const initials = useMemo(() => {
-    const name = displayName.trim();
-    if (!name) return 'U';
-    const parts = name.split(' ');
-    const a = parts[0]?.[0] || '';
-    const b = parts[1]?.[0] || '';
-    return (a + b).toUpperCase() || a.toUpperCase() || 'U';
+    const basis = displayName.trim();
+    if (!basis) return "U";
+    const parts = basis.split(" ");
+    const first = parts[0]?.[0] ?? "U";
+    const second = parts[1]?.[0] ?? "";
+    return `${first}${second}`.toUpperCase();
   }, [displayName]);
 
-  const isActive = (value: string) => {
-    if (!pathname) return false;
-    // Marca activa si coincide exactamente o es prefijo (para subrutas)
-    return pathname === value || pathname.startsWith(value + '/');
-  };
+  const shouldHide = useMemo(
+    () => (pathname ? HIDDEN_ROUTES.some((route) => pathname.startsWith(route)) : false),
+    [pathname]
+  );
 
-  const handleNavigate = (value: string) => {
-    router.push(value);
-    setMobileMenuOpen(false);
-  };
+  const handleSignOut = useCallback(async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Error cerrando sesión", error);
+    }
+    router.push(ROUTES.LOGIN);
+  }, [router, signOut]);
 
-  const handleLogout = async () => {
-    try { await signOut(); } catch {}
-    router.push('/autenticacion/login');
-    setUserMenuOpen(false);
-  };
+  if (shouldHide) {
+    return null;
+  }
 
   return (
-    <header className="w-full bg-[#23272f] border-b border-[#23272f]">
-      <div className="max-w-7xl mx-auto px-6 flex items-center h-20">
-        {/* Logo */}
-        <div className="flex items-center gap-2 min-w-[160px]">
-          <Image src="/logo-cermont.png" alt="CERMONT" width={36} height={36} className="rounded-full" />
-          <span className="text-2xl font-bold text-white tracking-wide">CERMONT</span>
-        </div>
-        {/* Tabs */}
-        <nav className="flex-1 flex justify-center">
-          <ul className="hidden md:flex gap-2">
-            {tabs.map((tab) => (
-              <li key={tab.value}>
-                <button
-                  className={`px-6 py-2 rounded-xl font-semibold text-base transition-all duration-150 focus:outline-none ${
-                    isActive(tab.value)
-                      ? 'bg-[#313843] text-white shadow border border-[#444c5a]'
-                      : 'text-white/80 hover:bg-[#2a2f38] hover:text-white'
-                  }`}
-                  onClick={() => handleNavigate(tab.value)}
+    <>
+      {isMobile && (
+        <div className={classes.headerRoot}>
+          <Container size="responsive" className={classes.headerInner}>
+            <div className={classes.metaRow}>
+              <Link href={ROUTES.LANDING} className={classes.brandLink} aria-label="Ir al inicio">
+                <AnimatedLogo size={52} enableEntrance={false} />
+                <div className={classes.brandCopy}>
+                  <Text className={classes.brandTitle}>Cermont</Text>
+                  <Text className={classes.brandSubtitle}>Centro operativo</Text>
+                </div>
+              </Link>
+
+              <div className={classes.actions}>
+                <ActionIcon
+                  variant="transparent"
+                  radius="xl"
+                  size={46}
+                  aria-label="Notificaciones"
+                  className={classes.iconButton}
                 >
-                  {tab.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-          {/* Mobile menu button */}
-          <button className="md:hidden ml-2 p-2 rounded-lg hover:bg-[#2a2f38]" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? <X className="w-6 h-6 text-white" /> : <Menu className="w-6 h-6 text-white" />}
-          </button>
-        </nav>
-        {/* User menu */}
-        <div className="relative min-w-[180px] flex justify-end">
-          <button
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-150 ${userMenuOpen ? 'bg-[#313843]' : 'hover:bg-[#2a2f38]'}`}
-            onClick={() => setUserMenuOpen((v) => !v)}
-          >
-            {user?.avatar_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={user.avatar_url} alt={displayName} width={32} height={32} className="rounded-full" />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-[#2a2f38] text-white grid place-items-center text-xs font-semibold">
-                {initials}
-              </div>
-            )}
-            <span className="font-medium text-white hidden sm:block">{displayName}</span>
-            <ChevronDown className={`w-4 h-4 text-white transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
-          </button>
-          {/* Dropdown */}
-          {userMenuOpen && (
-            <div className="absolute right-0 mt-2 w-64 bg-[#23272f] rounded-xl shadow-2xl border border-[#313843] z-50 overflow-hidden animate-slideDown">
-              <div className="px-4 py-3 border-b border-[#313843]">
-                <p className="text-sm font-semibold text-white">{displayName}</p>
-                {user?.email && (
-                  <p className="text-xs text-white/60">{user.email}</p>
-                )}
-              </div>
-              <div className="py-2">
-                <MenuItem icon={<Heart className="w-4 h-4 text-red-500" />} label="Liked posts" />
-                <MenuItem icon={<Star className="w-4 h-4 text-yellow-400" />} label="Saved posts" />
-                <MenuItem icon={<MessageSquare className="w-4 h-4 text-blue-400" />} label="Your comments" />
-              </div>
-              <div className="py-2 border-t border-[#313843]">
-                <div className="px-4 py-1 text-xs font-semibold text-white/60">SETTINGS</div>
-                <MenuItem icon={<Settings className="w-4 h-4" />} label="Account settings" />
-                <MenuItem icon={<RefreshCw className="w-4 h-4" />} label="Change account" />
-                <MenuItem icon={<LogOut className="w-4 h-4" />} label="Logout" onClick={handleLogout} />
-              </div>
-              <div className="py-2 border-t border-[#313843]">
-                <div className="px-4 py-1 text-xs font-semibold text-red-400">DANGER ZONE</div>
-                <MenuItem icon={<PauseCircle className="w-4 h-4" />} label="Pause subscription" />
-                <MenuItem icon={<Trash2 className="w-4 h-4 text-red-500" />} label="Delete account" danger />
+                  <IconBell size="1.05rem" stroke={1.6} />
+                </ActionIcon>
+                <ThemeToggle className={classes.themeToggle} variant="transparent" />
+                <Menu
+                  shadow="md"
+                  width={220}
+                  position="bottom-end"
+                  classNames={{ dropdown: classes.menuDropdown, label: classes.menuLabel }}
+                >
+                  <Menu.Target>
+                    <UnstyledButton className={classes.user} aria-label="Abrir menú de usuario">
+                      {user?.avatar_url ? (
+                        <Avatar src={user.avatar_url} size={34} radius="xl" alt={displayName} />
+                      ) : (
+                        <Avatar size={34} radius="xl" color="blue">
+                          {initials}
+                        </Avatar>
+                      )}
+                      <div className={classes.userDetails}>
+                        <Text className={classes.userName}>{displayName}</Text>
+                        {user?.rol ? (
+                          <Text size="xs" c="dimmed" className={classes.userRole}>
+                            {user.rol.toLowerCase()}
+                          </Text>
+                        ) : null}
+                      </div>
+                      <IconChevronDown size="1rem" stroke={1.4} />
+                    </UnstyledButton>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Label>Navegación</Menu.Label>
+                    <Menu.Item
+                      component={Link}
+                      href={ROUTES.WORK_ORDERS}
+                      leftSection={<IconClipboardList size="1rem" stroke={1.6} />}
+                    >
+                      Mis órdenes
+                    </Menu.Item>
+                    <Menu.Item
+                      component={Link}
+                      href={ROUTES.USERS}
+                      leftSection={<IconUsersGroup size="1rem" stroke={1.6} />}
+                    >
+                      Equipo
+                    </Menu.Item>
+                    <Menu.Divider />
+                    <Menu.Item
+                      leftSection={<IconLogout size="1rem" stroke={1.6} />}
+                      onClick={handleSignOut}
+                      color="red"
+                    >
+                      Cerrar sesión
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
               </div>
             </div>
-          )}
-        </div>
-      </div>
-      {/* Mobile menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-[#23272f] border-t border-[#313843] px-6 pb-4 animate-slideDown">
-          <ul className="flex flex-col gap-2 mt-2">
-            {tabs.map((tab) => (
-              <li key={tab.value}>
-                <button
-                  className={`w-full px-6 py-2 rounded-xl font-semibold text-base transition-all duration-150 focus:outline-none ${
-                    isActive(tab.value)
-                      ? 'bg-[#313843] text-white shadow border border-[#444c5a]'
-                      : 'text-white/80 hover:bg-[#2a2f38] hover:text-white'
-                  }`}
-                  onClick={() => handleNavigate(tab.value)}
-                >
-                  {tab.label}
-                </button>
-              </li>
-            ))}
-          </ul>
+
+            <div className={classes.tabsShell}>
+              <div className={classes.navRow}>
+                {NAV_MENU_ITEMS.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.value;
+                  return (
+                    <Menu
+                      key={item.value}
+                      withinPortal={false}
+                      position="bottom"
+                      offset={8}
+                      shadow="md"
+                      classNames={{ dropdown: classes.navDropdown, label: classes.navDropdownLabel }}
+                    >
+                      <Menu.Target>
+                        <button
+                          type="button"
+                          className={cn(classes.navTrigger, isActive && classes.navTriggerActive)}
+                          aria-label={item.label}
+                        >
+                          <Icon size="1.05rem" stroke={1.65} />
+                        </button>
+                      </Menu.Target>
+                      <Menu.Dropdown>
+                        <Menu.Label>{item.label}</Menu.Label>
+                        <Menu.Divider />
+                        {item.menuItems.map((menuItem) => {
+                          const MenuIcon = menuItem.icon;
+                          return (
+                            <Menu.Item
+                              key={menuItem.href}
+                              component={Link}
+                              href={menuItem.href}
+                              leftSection={<MenuIcon size="0.95rem" stroke={1.6} />}
+                            >
+                              {menuItem.label}
+                            </Menu.Item>
+                          );
+                        })}
+                      </Menu.Dropdown>
+                    </Menu>
+                  );
+                })}
+              </div>
+            </div>
+          </Container>
         </div>
       )}
-      {/* Click outside to close user menu */}
-      {userMenuOpen && (
-        <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
-      )}
-    </header>
-  );
-}
 
-
-
-
-// Menu Item Component
-function MenuItem({ 
-  icon, 
-  label, 
-  danger = false,
-  onClick,
-}: { 
-  icon: React.ReactNode; 
-  label: string; 
-  danger?: boolean;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      className={`
-        w-full flex items-center space-x-3 px-4 py-2.5 text-sm transition-colors
-        ${
-          danger
-            ? 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
-            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
-        }
-      `}
-      onClick={onClick}
-    >
-      {icon}
-      <span>{label}</span>
-
-    </button>
+      <NavbarMinimal opened={!isMobile} />
+    </>
   );
 }
 

@@ -1,45 +1,47 @@
-'use client';
-import { useEffect, useState } from 'react';
+"use client";
 
-export default function ThemeToggle({ className }: { className?: string }) {
-  // Importante: usar un estado inicial fijo para evitar mismatch SSR/CSR
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+import { useEffect, useState } from "react";
+import { ActionIcon, useComputedColorScheme, useMantineColorScheme, type ActionIconProps } from "@mantine/core";
+import { IconMoon, IconSun } from "@tabler/icons-react";
+import { cn } from "@/lib/cn";
+import classes from "./ThemeToggle.module.css";
 
-  // Al montar, sincronizar con localStorage o atributo data-theme del documento
+interface ThemeToggleProps {
+  className?: string;
+  variant?: ActionIconProps["variant"];
+}
+
+export default function ThemeToggle({ className, variant = "default" }: ThemeToggleProps) {
+  const { setColorScheme } = useMantineColorScheme();
+  const computedColorScheme = useComputedColorScheme("light", { getInitialValueInEffect: true });
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
-    try {
-      let initial: 'light' | 'dark' = 'light';
-      const attr = document.documentElement.getAttribute('data-theme');
-      if (attr === 'dark' || attr === 'light') initial = attr;
-      const saved = localStorage.getItem('theme');
-      if (saved === 'dark' || saved === 'light') initial = saved;
-      if (initial !== theme) setTheme(initial);
-      document.documentElement.setAttribute('data-theme', initial);
-    } catch {
-      // ignorar
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setMounted(true);
   }, []);
 
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    try { localStorage.setItem('theme', theme); } catch {}
-  }, [theme]);
+  const handleToggle = () => {
+    setColorScheme(computedColorScheme === "light" ? "dark" : "light");
+  };
 
-  const isDark = theme === 'dark';
+  const ariaLabel = mounted
+    ? computedColorScheme === "light"
+      ? "Activar modo oscuro"
+      : "Activar modo claro"
+    : "Alternar tema";
 
   return (
-    <button
-      type="button"
-      aria-label="Cambiar tema"
-      aria-pressed={isDark}
-      title={isDark ? 'Cambiar a claro' : 'Cambiar a oscuro'}
-      onClick={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}
-      className={['theme-btn', className].filter(Boolean).join(' ')}
+    <ActionIcon
+      onClick={handleToggle}
+      variant={variant}
+      size={48}
+      radius="xl"
+      aria-label={ariaLabel}
+      className={cn(classes.toggle, className)}
     >
-      <span className="theme-icon">{isDark ? '☀️' : '🌙'}</span>
-      <span className="theme-text">{isDark ? 'Claro' : 'Oscuro'}</span>
-    </button>
+      <IconSun className={cn(classes.icon, classes.lightIcon)} stroke={1.6} />
+      <IconMoon className={cn(classes.icon, classes.darkIcon)} stroke={1.6} />
+    </ActionIcon>
   );
 }
 

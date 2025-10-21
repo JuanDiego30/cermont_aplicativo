@@ -1,184 +1,280 @@
-/**
- * Dashboard para Gerente
- * Vista ejecutiva con KPIs y métricas del negocio
- */
+"use client";
 
-'use client';
+import Link from "next/link";
+import {
+  Badge,
+  Card,
+  Container,
+  Group,
+  SimpleGrid,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
+  rem,
+} from "@mantine/core";
+import { useAuth } from "@/lib/auth";
+import {
+  BarChart3,
+  BriefcaseBusiness,
+  LineChart,
+  PiggyBank,
+  TrendingUp,
+  Users2,
+} from "lucide-react";
+import { ROUTES } from "@/lib/constants";
 
-import { useAuth } from '@/lib/auth';
-import Link from 'next/link';
+const kpiCards = [
+  {
+    label: "Ingresos del mes",
+    value: "$0",
+    hint: "↗︎ 0% vs mes anterior",
+    gradient: { from: "cerBlue.5", to: "cerBlue.7", deg: 135 },
+    icon: PiggyBank,
+  },
+  {
+    label: "Órdenes completadas",
+    value: "0",
+    hint: "↗︎ 0% vs mes anterior",
+    gradient: { from: "cerGreen.4", to: "cerGreen.6", deg: 135 },
+    icon: TrendingUp,
+  },
+  {
+    label: "Clientes activos",
+    value: "0",
+    hint: "Total registrados",
+    gradient: { from: "grape.4", to: "grape.6", deg: 135 },
+    icon: Users2,
+  },
+  {
+    label: "Tiempo promedio",
+    value: "0 h",
+    hint: "Resolución de órdenes",
+    gradient: { from: "orange.4", to: "orange.6", deg: 135 },
+    icon: BriefcaseBusiness,
+  },
+];
+
+const performanceTiles = [
+  {
+    label: "Pendientes",
+    value: "0",
+    badgeColor: "yellow",
+  },
+  {
+    label: "En progreso",
+    value: "0",
+    badgeColor: "cerBlue",
+  },
+  {
+    label: "Completadas",
+    value: "0",
+    badgeColor: "cerGreen",
+  },
+  {
+    label: "Canceladas",
+    value: "0",
+    badgeColor: "red",
+  },
+];
+
+const quickAccess = [
+  {
+    label: "Reportes ejecutivos",
+    href: ROUTES.ROLES.GERENTE.REPORTS,
+    color: "cerBlue",
+    icon: BarChart3,
+  },
+  {
+    label: "KPIs y tendencias",
+    href: ROUTES.ROLES.GERENTE.KPIS,
+    color: "cerGreen",
+    icon: TrendingUp,
+  },
+  {
+    label: "Clientes clave",
+    href: ROUTES.ROLES.GERENTE.CLIENTS,
+    color: "grape",
+    icon: Users2,
+  },
+  {
+    label: "Equipo & talento",
+    href: ROUTES.ROLES.GERENTE.TEAM,
+    color: "orange",
+    icon: BriefcaseBusiness,
+  },
+];
 
 export default function GerenteDashboard() {
   const { user } = useAuth();
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Dashboard Ejecutivo
-        </h1>
-        <p className="mt-2 text-gray-600">
-          Visión general del desempeño operativo y financiero
-        </p>
-      </div>
+    <Container size="xl" py="xl">
+      <Stack gap="xl">
+        <Stack gap="xs">
+          <Title order={1} fw={700}>
+            Dashboard Ejecutivo
+          </Title>
+          <Text c="dimmed" fz="sm">
+            {user?.nombre ? `Hola, ${user.nombre}. ` : null}
+            Visualiza la salud financiera y operativa de Cermont en un vistazo.
+          </Text>
+        </Stack>
 
-      {/* KPIs principales */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white">
-          <p className="text-sm font-medium opacity-90">Ingresos del Mes</p>
-          <p className="mt-2 text-3xl font-bold">$0</p>
-          <p className="text-sm mt-2 opacity-75">↑ 0% vs mes anterior</p>
-        </div>
+        <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="lg">
+          {kpiCards.map(({ label, value, hint, gradient, icon: Icon }) => (
+            <Card key={label} padding="lg" radius="lg" shadow="lg">
+              <Stack gap="sm">
+                <ThemeIcon size={48} radius="lg" variant="gradient" gradient={gradient}>
+                  <Icon size={rem(22)} />
+                </ThemeIcon>
+                <Text fz="sm" tt="uppercase" fw={600} c="dimmed">
+                  {label}
+                </Text>
+                <Text fz={34} fw={700} lh={1}>
+                  {value}
+                </Text>
+                <Text fz="sm" c="dimmed">
+                  {hint}
+                </Text>
+              </Stack>
+            </Card>
+          ))}
+        </SimpleGrid>
 
-        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white">
-          <p className="text-sm font-medium opacity-90">Órdenes Completadas</p>
-          <p className="mt-2 text-3xl font-bold">0</p>
-          <p className="text-sm mt-2 opacity-75">↑ 0% vs mes anterior</p>
-        </div>
+        <SimpleGrid cols={{ base: 1, md: 3 }} spacing="lg">
+          <Card withBorder padding="lg" radius="lg" shadow="sm">
+            <Stack gap="lg">
+              <Text fz="lg" fw={600}>
+                Estado de órdenes
+              </Text>
+              <Stack gap="md">
+                {performanceTiles.map(({ label, value, badgeColor }) => (
+                  <Group key={label} justify="space-between">
+                    <Text c="dimmed">{label}</Text>
+                    <Badge color={badgeColor} variant="light">
+                      {value}
+                    </Badge>
+                  </Group>
+                ))}
+              </Stack>
+            </Stack>
+          </Card>
 
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
-          <p className="text-sm font-medium opacity-90">Clientes Activos</p>
-          <p className="mt-2 text-3xl font-bold">0</p>
-          <p className="text-sm mt-2 opacity-75">Total en sistema</p>
-        </div>
+          <Card withBorder padding="lg" radius="lg" shadow="sm">
+            <Stack gap="lg">
+              <Text fz="lg" fw={600}>
+                Desempeño del equipo
+              </Text>
+              <Stack gap="md">
+                <Group justify="space-between">
+                  <Text c="dimmed">Técnicos activos</Text>
+                  <Badge variant="light" color="cerBlue">
+                    0
+                  </Badge>
+                </Group>
+                <Group justify="space-between">
+                  <Text c="dimmed">Tasa de finalización</Text>
+                  <Badge variant="light" color="cerGreen">
+                    0%
+                  </Badge>
+                </Group>
+                <Group justify="space-between">
+                  <Text c="dimmed">Promedio por técnico</Text>
+                  <Badge variant="light" color="grape">
+                    0
+                  </Badge>
+                </Group>
+                <Group justify="space-between">
+                  <Text c="dimmed">Satisfacción cliente</Text>
+                  <Badge variant="light" color="cerBlue">
+                    0%
+                  </Badge>
+                </Group>
+              </Stack>
+            </Stack>
+          </Card>
 
-        <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg shadow-lg p-6 text-white">
-          <p className="text-sm font-medium opacity-90">Tiempo Promedio</p>
-          <p className="mt-2 text-3xl font-bold">0h</p>
-          <p className="text-sm mt-2 opacity-75">Resolución de órdenes</p>
-        </div>
-      </div>
+          <Card withBorder padding="lg" radius="lg" shadow="sm">
+            <Stack gap="lg">
+              <Text fz="lg" fw={600}>
+                Tipos de servicio
+              </Text>
+              <Stack gap="md">
+                {["Mantenimiento", "Reparación", "Instalación", "Inspección"].map((label) => (
+                  <Group key={label} justify="space-between">
+                    <Text c="dimmed">{label}</Text>
+                    <Badge variant="light" color="gray">
+                      0
+                    </Badge>
+                  </Group>
+                ))}
+              </Stack>
+            </Stack>
+          </Card>
+        </SimpleGrid>
 
-      {/* Métricas operativas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-sm font-medium text-gray-600 mb-4">Estado de Órdenes</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Pendientes</span>
-              <span className="font-semibold text-yellow-600">0</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">En Progreso</span>
-              <span className="font-semibold text-blue-600">0</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Completadas</span>
-              <span className="font-semibold text-green-600">0</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Canceladas</span>
-              <span className="font-semibold text-red-600">0</span>
-            </div>
-          </div>
-        </div>
+        <Card withBorder padding="lg" radius="lg" shadow="md">
+          <Stack gap="lg">
+            <Group justify="space-between" align="flex-start">
+              <Stack gap={4}>
+                <Text fz="lg" fw={600}>
+                  Acceso rápido
+                </Text>
+                <Text fz="sm" c="dimmed">
+                  Enlaces clave para decisiones estratégicas.
+                </Text>
+              </Stack>
+            </Group>
+            <SimpleGrid cols={{ base: 1, md: 4 }} spacing="lg">
+              {quickAccess.map(({ label, href, color, icon: Icon }) => (
+                <Card
+                  key={label}
+                  component={Link}
+                  href={href}
+                  withBorder
+                  radius="lg"
+                  shadow="sm"
+                  padding="lg"
+                  style={{ transition: "transform 150ms ease, box-shadow 150ms ease" }}
+                >
+                  <Stack gap="md" align="center">
+                    <ThemeIcon variant="light" color={color} radius="lg" size={46}>
+                      <Icon size={rem(22)} />
+                    </ThemeIcon>
+                    <Text fw={600} ta="center">
+                      {label}
+                    </Text>
+                  </Stack>
+                </Card>
+              ))}
+            </SimpleGrid>
+          </Stack>
+        </Card>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-sm font-medium text-gray-600 mb-4">Desempeño del Equipo</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Técnicos Activos</span>
-              <span className="font-semibold">0</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Tasa de Finalización</span>
-              <span className="font-semibold text-green-600">0%</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Promedio por Técnico</span>
-              <span className="font-semibold">0</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Satisfacción Cliente</span>
-              <span className="font-semibold text-blue-600">0%</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-sm font-medium text-gray-600 mb-4">Tipos de Servicio</h3>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Mantenimiento</span>
-              <span className="font-semibold">0</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Reparación</span>
-              <span className="font-semibold">0</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Instalación</span>
-              <span className="font-semibold">0</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Inspección</span>
-              <span className="font-semibold">0</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Acciones rápidas */}
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Acceso Rápido</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Link 
-            href="/gerente/reportes"
-            className="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition"
-          >
-            <div className="p-3 bg-blue-100 rounded-full mb-3">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <span className="font-semibold text-gray-900">Reportes</span>
-          </Link>
-
-          <Link 
-            href="/gerente/kpis"
-            className="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition"
-          >
-            <div className="p-3 bg-green-100 rounded-full mb-3">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-              </svg>
-            </div>
-            <span className="font-semibold text-gray-900">KPIs</span>
-          </Link>
-
-          <Link 
-            href="/gerente/clientes"
-            className="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition"
-          >
-            <div className="p-3 bg-purple-100 rounded-full mb-3">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            </div>
-            <span className="font-semibold text-gray-900">Clientes</span>
-          </Link>
-
-          <Link 
-            href="/gerente/equipo"
-            className="flex flex-col items-center p-4 border-2 border-gray-200 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition"
-          >
-            <div className="p-3 bg-orange-100 rounded-full mb-3">
-              <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </div>
-            <span className="font-semibold text-gray-900">Personal</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* Gráfico placeholder */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Tendencia de Órdenes (Últimos 30 días)</h2>
-        <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-          <p className="text-gray-500">Gráfico de tendencias próximamente</p>
-        </div>
-      </div>
-    </div>
+        <Card withBorder padding="lg" radius="lg" shadow="md">
+          <Stack gap="lg">
+            <Group justify="space-between" align="center">
+              <Group gap="sm" align="center">
+                <ThemeIcon variant="light" color="cerBlue" radius="md">
+                  <LineChart size={rem(20)} />
+                </ThemeIcon>
+                <Text fz="lg" fw={600}>
+                  Tendencia de órdenes (30 días)
+                </Text>
+              </Group>
+              <Badge variant="light" color="cerGreen">
+                Próximamente
+              </Badge>
+            </Group>
+            <Card radius="lg" padding="xl" withBorder style={{ background: "var(--mantine-color-gray-0)" }}>
+              <Text c="dimmed" ta="center">
+                Integraremos visualizaciones interactivas con Mantine Charts y datos reales muy pronto.
+              </Text>
+            </Card>
+          </Stack>
+        </Card>
+      </Stack>
+    </Container>
   );
 }

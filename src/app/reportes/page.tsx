@@ -1,8 +1,13 @@
+import PageContainer from "@/components/layout/PageContainer";
+import { Title, Text, Stack } from "@mantine/core";
+
 export default function PaginaReportes() {
   return (
-    <main>
-      <h1>Reportes</h1>
-      <p>Generación y exportación de reportes (pendiente de implementar).</p>
-    </main>
+    <PageContainer>
+      <Stack gap="xl">
+        <Title order={1}>Reportes</Title>
+        <Text>Generación y exportación de reportes (pendiente de implementar).</Text>
+      </Stack>
+    </PageContainer>
   );
 }

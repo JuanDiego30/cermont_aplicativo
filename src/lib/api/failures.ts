@@ -27,7 +27,7 @@ export interface FailuresFilters {
 }
 
 export const failuresAPI = {
-  list: (filters?: FailuresFilters) => api.get<{ data: Falla[]; pagination: any }>('/failures', (filters || {}) as unknown as Record<string, unknown>),
+  list: (filters?: FailuresFilters) => api.get<{ data: Falla[] }>('/failures', (filters || {}) as unknown as Record<string, unknown>),
   get: (id: string) => api.get<{ data: Falla }>(`/failures/${id}`),
   create: (payload: Partial<Falla>) => api.post<{ data: Falla }>(`/failures`, payload),
   update: (id: string, payload: Partial<Falla>) => api.patch<{ data: Falla }>(`/failures/${id}`, payload),

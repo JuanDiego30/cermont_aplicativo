@@ -1,13 +1,15 @@
 "use client";
 import OrderForm from '@/components/orders/OrderForm';
+import PageContainer from '@/components/layout/PageContainer';
+import { Stack, Title } from '@mantine/core';
 
 export default function PaginaNuevaOrden() {
   return (
-    <main className="contenedor">
-      <h1 className="titulo">Registrar nueva orden</h1>
-      <div className="formulario">
-  <OrderForm />
-      </div>
-    </main>
+    <PageContainer>
+      <Stack gap="xl">
+        <Title order={1}>Registrar nueva orden</Title>
+        <OrderForm />
+      </Stack>
+    </PageContainer>
   );
 }

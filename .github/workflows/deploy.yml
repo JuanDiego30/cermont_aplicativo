@@ -1,0 +1,70 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting
+        run: npm run lint -- --max-warnings=0
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build backend
+        run: npm run backend:build
+
+      - name: Run backend tests
+        run: npm run backend:test
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          port: 22
+          script: |
+            set -e
+            cd /var/www/cermont || exit 1
+            echo "📥 Pulling latest changes..."
+            git pull origin main
+            echo "📦 Installing production dependencies..."
+            npm ci --omit=dev
+            echo "🔨 Building backend..."
+            npm run backend:build
+            echo "🔄 Restarting application..."
+            sudo systemctl restart cermont || true
+            echo "✅ Deploy completed successfully"
+
+  notify-on-failure:
+    needs: [build-and-test, deploy]
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      - name: Notify deployment failure
+        run: |
+          echo "❌ Deployment failed. Review logs above."

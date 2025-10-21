@@ -9,17 +9,46 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+const config = [
   {
     ignores: [
-      "node_modules/**",
-      ".next/**",
-      "out/**",
-      "build/**",
+      "**/node_modules/**",
+      "**/.next/**",
+      "**/out/**",
+      "**/build/**",
       "next-env.d.ts",
+  "src/api/dist/**",
     ],
+  },
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    rules: {
+      "@typescript-eslint/no-explicit-any": "warn",
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@supabase/supabase-js",
+              message: "No usar Supabase en este repo",
+            },
+            {
+              name: "@supabase/ssr",
+              message: "No usar Supabase en este repo",
+            },
+          ],
+          patterns: ["@supabase/*"],
+        },
+      ],
+    },
+  },
+  {
+    files: ["src/api/tests/**/*.test.ts"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+    },
   },
 ];
 
-export default eslintConfig;
+export default config;

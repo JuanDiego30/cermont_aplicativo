@@ -4,10 +4,11 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { ordersAPI, evidenceAPI, failuresAPI, type Falla } from '@/lib/api';
-import type { OrdenTrabajo } from '@/lib/types/database';
-import type { Evidence, HistoryEntry } from '@/lib/api/evidence';
+import type { OrdenTrabajo, HistorialOrden } from '@/lib/types/database';
+import type { EvidenceRecord } from '@/lib/api/evidence';
 import ChecklistManager from './ChecklistManager';
 import CostTracker from './CostTracker';
+import { ROUTES } from '@/lib/constants';
 
 type Tab = 'general' | 'fallas' | 'checklist' | 'costos' | 'evidencias' | 'historial' | 'tecnico';
 
@@ -17,8 +18,8 @@ const OrderDetail: React.FC = () => {
   
   // Estados
   const [order, setOrder] = useState<OrdenTrabajo | null>(null);
-  const [evidencias, setEvidencias] = useState<Evidence[]>([]);
-  const [historial, setHistorial] = useState<HistoryEntry[]>([]);
+  const [evidencias, setEvidencias] = useState<EvidenceRecord[]>([]);
+  const [historial, setHistorial] = useState<HistorialOrden[]>([]);
   const [loading, setLoading] = useState(true);
   const [fallas, setFallas] = useState<Falla[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -47,22 +48,17 @@ const OrderDetail: React.FC = () => {
       // Cargar fallas asociadas
       const fallasRes = await failuresAPI.listByOrder(id);
       if (!fallasRes.error && fallasRes.data) {
-        setFallas(fallasRes.data.data || []);
+        setFallas(fallasRes.data ?? []);
       }
-      if (orderResponse.data?.data) {
-        setOrder(orderResponse.data.data);
+      if (orderResponse.data) {
+        setOrder(orderResponse.data);
+        setHistorial(orderResponse.data.historial ?? []);
       }
 
       // Cargar evidencias
       const evidenciasResponse = await evidenceAPI.list(id);
       if (!evidenciasResponse.error && evidenciasResponse.data) {
-        setEvidencias(evidenciasResponse.data.data);
-      }
-
-      // Cargar historial
-      const historialResponse = await evidenceAPI.getHistory(id);
-      if (!historialResponse.error && historialResponse.data) {
-        setHistorial(historialResponse.data.data);
+        setEvidencias(evidenciasResponse.data);
       }
     } catch (err) {
       setError('Error al cargar datos de la orden');
@@ -81,8 +77,9 @@ const OrderDetail: React.FC = () => {
     
     if (response.error) {
       alert(`Error: ${response.error}`);
-    } else if (response.data?.data) {
-      setOrder(response.data.data);
+    } else if (response.data) {
+      setOrder(response.data);
+      setHistorial(response.data.historial ?? []);
       alert('Estado actualizado exitosamente');
       loadOrderData(order.id);
     }
@@ -101,14 +98,16 @@ const OrderDetail: React.FC = () => {
       setIsDeleting(false);
     } else {
       alert('Orden eliminada exitosamente');
-      router.push('/ordenes');
+  router.push(ROUTES.WORK_ORDERS);
     }
   };
 
   const handleDeleteEvidence = async (evidenceId: string) => {
     if (!confirm('¿Eliminar esta evidencia?')) return;
 
-    const response = await evidenceAPI.delete(evidenceId);
+  if (!order) return;
+
+  const response = await evidenceAPI.remove(order.id, evidenceId);
     
     if (response.error) {
       alert(`Error: ${response.error}`);
@@ -131,7 +130,7 @@ const OrderDetail: React.FC = () => {
       <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
         <p className="text-red-800 font-medium mb-4">{error}</p>
         <button
-          onClick={() => router.push('/ordenes')}
+          onClick={() => router.push(ROUTES.WORK_ORDERS)}
           className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
         >
           Volver a Órdenes
@@ -171,7 +170,7 @@ const OrderDetail: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => router.push('/ordenes')}
+              onClick={() => router.push(ROUTES.WORK_ORDERS)}
               className="p-2 hover:bg-gray-100 rounded-lg"
             >
               ← Volver
@@ -207,7 +206,7 @@ const OrderDetail: React.FC = () => {
           </select>
 
           <button
-            onClick={() => router.push(`/ordenes/${order.id}/editar`)}
+            onClick={() => router.push(ROUTES.WORK_ORDER_EDIT(order.id))}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Editar
@@ -359,7 +358,7 @@ const OrderDetail: React.FC = () => {
                           return isImage ? (
                             <Image
                               src={evidencia.url}
-                              alt={evidencia.descripcion || 'Evidencia'}
+                              alt={(evidencia.meta_json?.originalName as string | undefined) || 'Evidencia'}
                               className="w-full h-full object-cover"
                               fill
                               sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 25vw"
@@ -369,7 +368,9 @@ const OrderDetail: React.FC = () => {
                           );
                         })()}
                       </div>
-                      {evidencia.descripcion && <p className="mt-2 text-sm truncate">{evidencia.descripcion}</p>}
+                      {typeof evidencia.meta_json?.originalName === 'string' && (
+                        <p className="mt-2 text-sm truncate">{evidencia.meta_json.originalName}</p>
+                      )}
                       <button
                         onClick={() => handleDeleteEvidence(evidencia.id)}
                         className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100"
@@ -394,7 +395,7 @@ const OrderDetail: React.FC = () => {
                   {historial.map((entry) => (
                     <li key={entry.id} className="border-l-2 border-blue-500 pl-4">
                       <p className="text-sm">
-                        {entry.accion} <span className="font-medium">{entry.usuario.nombre}</span>
+                        {entry.accion} <span className="font-medium">{entry.usuario?.nombre ?? 'Usuario desconocido'}</span>
                       </p>
                       <p className="text-xs text-gray-500">{new Date(entry.timestamp).toLocaleString('es-ES')}</p>
                     </li>

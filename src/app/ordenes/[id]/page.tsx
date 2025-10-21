@@ -1,10 +1,11 @@
 "use client";
 import OrderDetail from '@/components/orders/OrderDetail';
+import PageContainer from '@/components/layout/PageContainer';
 
 export default function PaginaDetalleOrden() {
   return (
-    <main className="contenedor">
-  <OrderDetail />
-    </main>
+    <PageContainer>
+      <OrderDetail />
+    </PageContainer>
   );
 }

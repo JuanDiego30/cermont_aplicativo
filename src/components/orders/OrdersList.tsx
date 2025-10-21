@@ -1,14 +1,61 @@
 "use client";
-import React, { useCallback, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { ordersAPI, type OrdersFilters } from '@/lib/api/orders';
-import type { OrdenTrabajo, EstadoOrden, PrioridadOrden } from '@/lib/types/database';
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import {
+  Badge,
+  Box,
+  Button,
+  Card,
+  Group,
+  Loader,
+  Pagination,
+  ScrollArea,
+  Select,
+  SimpleGrid,
+  Stack,
+  Table,
+  Text,
+  TextInput,
+  ThemeIcon,
+  rem,
+} from "@mantine/core";
+import { AlertCircle, Filter, RefreshCw, Search, TableProperties } from "lucide-react";
+import { ordersAPI, type OrdersFilters } from "@/lib/api/orders";
+import type { EstadoOrden, OrdenTrabajo, PrioridadOrden } from "@/lib/types/database";
+import { ROUTES } from "@/lib/constants";
+
+type AnimeInstance = { pause?: () => void } | void;
+type AnimeFactory = (params: Record<string, unknown>) => AnimeInstance;
 
 interface OrdersListProps {
   initialFilters?: OrdersFilters;
 }
 
-const OrdersList: React.FC<OrdersListProps> = ({ initialFilters }) => {
+interface PaginationState {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+const estadoBadgeColor: Record<string, string> = {
+  pendiente: "yellow",
+  asignada: "cerBlue",
+  en_progreso: "grape",
+  completada: "cerGreen",
+  cancelada: "red",
+  aprobada: "teal",
+};
+
+const prioridadBadgeColor: Record<string, string> = {
+  baja: "gray",
+  normal: "cerBlue",
+  alta: "orange",
+  urgente: "red",
+};
+
+const OrdersList = ({ initialFilters }: OrdersListProps) => {
   const [orders, setOrders] = useState<OrdenTrabajo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,383 +64,425 @@ const OrdersList: React.FC<OrdersListProps> = ({ initialFilters }) => {
     limit: 10,
     ...initialFilters,
   });
-  const [pagination, setPagination] = useState({
+  const [pagination, setPagination] = useState<PaginationState>({
     page: 1,
     limit: 10,
     total: 0,
     totalPages: 0,
   });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedEstado, setSelectedEstado] = useState<EstadoOrden | "">("");
+  const [selectedPrioridad, setSelectedPrioridad] = useState<PrioridadOrden | "">("");
+  const filtersRef = useRef<HTMLDivElement | null>(null);
+  const tableRef = useRef<HTMLDivElement | null>(null);
+  const feedbackRef = useRef<HTMLDivElement | null>(null);
 
-  // Estado para filtros de UI
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedEstado, setSelectedEstado] = useState<EstadoOrden | ''>('');
-  const [selectedPrioridad, setSelectedPrioridad] = useState<PrioridadOrden | ''>('');
+  const estadoOptions = useMemo(
+    () => [
+      { label: "Todos", value: "" },
+      { label: "Pendiente", value: "pendiente" },
+      { label: "Asignada", value: "asignada" },
+      { label: "En progreso", value: "en_progreso" },
+      { label: "Completada", value: "completada" },
+      { label: "Cancelada", value: "cancelada" },
+      { label: "Aprobada", value: "aprobada" },
+    ],
+    []
+  );
 
-  // Cargar órdenes
+  const prioridadOptions = useMemo(
+    () => [
+      { label: "Todas", value: "" },
+      { label: "Baja", value: "baja" },
+      { label: "Normal", value: "normal" },
+      { label: "Alta", value: "alta" },
+      { label: "Urgente", value: "urgente" },
+    ],
+    []
+  );
+
   const loadOrders = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     const response = await ordersAPI.list(filters);
-
     if (response.error) {
       setError(response.error);
-    } else if (response.data) {
-      // Tipado explícito de la respuesta
-      const listData = response.data as { data?: OrdenTrabajo[]; pagination?: typeof pagination };
-      if (listData?.data && Array.isArray(listData.data)) {
-        setOrders(listData.data);
+      setLoading(false);
+      return;
+    }
+
+    if (response.data) {
+      const result = response.data as { data?: OrdenTrabajo[]; pagination?: PaginationState };
+      if (result?.data) {
+        setOrders(result.data);
       }
-      if (listData?.pagination) {
-        setPagination(listData.pagination);
+      if (result?.pagination) {
+        setPagination(result.pagination);
       }
     }
 
     setLoading(false);
   }, [filters]);
 
-  // Cargar al montar y cuando cambien los filtros
   useEffect(() => {
-    loadOrders();
+    void loadOrders();
   }, [loadOrders]);
 
-  // Aplicar filtros
+  useEffect(() => {
+    const animateFilters = async () => {
+      try {
+        const animeModule = await import("animejs");
+        const anime = (
+          (animeModule as unknown as { default?: AnimeFactory }).default ??
+          (animeModule as unknown as AnimeFactory)
+        ) as AnimeFactory;
+        if (filtersRef.current) {
+          anime({
+            targets: filtersRef.current,
+            opacity: [0, 1],
+            translateY: [-16, 0],
+            duration: 520,
+            easing: "easeOutQuad",
+          });
+        }
+      } catch (animationError) {
+        console.error("No se pudo animar el panel de filtros:", animationError);
+      }
+    };
+
+    void animateFilters();
+  }, []);
+
+  useEffect(() => {
+    if (loading) return;
+
+    const animateContent = async () => {
+      try {
+        const animeModule = await import("animejs");
+        const anime = (
+          (animeModule as unknown as { default?: AnimeFactory }).default ??
+          (animeModule as unknown as AnimeFactory)
+        ) as AnimeFactory;
+
+        const target = orders.length > 0 ? tableRef.current : feedbackRef.current;
+        if (target) {
+          anime({
+            targets: target,
+            opacity: [0, 1],
+            translateY: [12, 0],
+            duration: 480,
+            easing: "easeOutQuad",
+          });
+        }
+      } catch (animationError) {
+        console.error("No se pudo animar el contenido de órdenes:", animationError);
+      }
+    };
+
+    void animateContent();
+  }, [loading, orders.length]);
+
   const handleApplyFilters = () => {
-    setFilters({
-      ...filters,
-      page: 1, // Reset a página 1
+    setFilters((current) => ({
+      ...current,
+      page: 1,
       search: searchTerm || undefined,
       estado: selectedEstado || undefined,
       prioridad: selectedPrioridad || undefined,
-    });
+    }));
   };
 
-  // Limpiar filtros
   const handleClearFilters = () => {
-    setSearchTerm('');
-    setSelectedEstado('');
-    setSelectedPrioridad('');
+    setSearchTerm("");
+    setSelectedEstado("");
+    setSelectedPrioridad("");
     setFilters({ page: 1, limit: 10 });
   };
 
-  // Cambiar página
   const handlePageChange = (newPage: number) => {
-    setFilters({ ...filters, page: newPage });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setFilters((current) => ({ ...current, page: newPage }));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Formatear fecha
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString("es-ES", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
-  };
 
-  // Obtener clase de badge según estado
-  const getEstadoBadgeClass = (estado: string) => {
-    const classes: Record<string, string> = {
-      pendiente: 'bg-yellow-100 text-yellow-800',
-      asignada: 'bg-blue-100 text-blue-800',
-      en_progreso: 'bg-purple-100 text-purple-800',
-      completada: 'bg-green-100 text-green-800',
-      cancelada: 'bg-red-100 text-red-800',
-      aprobada: 'bg-emerald-100 text-emerald-800',
-    };
-    return classes[estado] || 'bg-gray-100 text-gray-800';
-  };
-
-  // Obtener clase de badge según prioridad
-  const getPrioridadBadgeClass = (prioridad: string) => {
-    const classes: Record<string, string> = {
-      baja: 'bg-gray-100 text-gray-600',
-      normal: 'bg-blue-100 text-blue-600',
-      alta: 'bg-orange-100 text-orange-600',
-      urgente: 'bg-red-100 text-red-600',
-    };
-    return classes[prioridad] || 'bg-gray-100 text-gray-600';
-  };
+  const formatLabel = (value: string) =>
+    value
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Cargando órdenes...</span>
-      </div>
+      <Card
+        radius="xl"
+        padding="xl"
+        shadow="lg"
+        withBorder
+        style={{
+          background: "linear-gradient(135deg, rgba(226, 232, 240, 0.06), rgba(148, 163, 184, 0.08))",
+          borderColor: "rgba(148, 163, 184, 0.14)",
+        }}
+      >
+        <Stack align="center" gap="sm">
+          <Loader color="cerBlue" size="md" />
+          <Text c="dimmed">Cargando órdenes…</Text>
+        </Stack>
+      </Card>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
-        <p className="font-semibold">Error al cargar órdenes</p>
-        <p className="text-sm mt-1">{error}</p>
-        <button
-          onClick={loadOrders}
-          className="mt-3 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-        >
-          Reintentar
-        </button>
-      </div>
+      <Card
+        ref={feedbackRef}
+        radius="xl"
+        padding="xl"
+        withBorder
+        shadow="lg"
+        style={{
+          background: "linear-gradient(140deg, rgba(248, 113, 113, 0.18), rgba(248, 113, 113, 0.32))",
+          borderColor: "rgba(248, 113, 113, 0.45)",
+        }}
+      >
+        <Stack gap="md">
+          <Group gap="sm">
+            <ThemeIcon color="red" variant="light" radius="xl" size={42}>
+              <AlertCircle size={20} />
+            </ThemeIcon>
+            <div>
+              <Text fw={600}>Error al cargar órdenes</Text>
+              <Text fz="sm" c="rgba(239, 68, 68, 0.88)">
+                {error}
+              </Text>
+            </div>
+          </Group>
+
+          <Group justify="flex-end">
+            <Button
+              size="sm"
+              color="red"
+              radius="xl"
+              leftSection={<RefreshCw size={16} />}
+              onClick={() => loadOrders()}
+            >
+              Reintentar
+            </Button>
+          </Group>
+        </Stack>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Filtros */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold mb-4">Filtros</h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Búsqueda */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Buscar
-            </label>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+    <Stack gap="lg">
+      <Card
+        ref={filtersRef}
+        withBorder
+        shadow="lg"
+        radius="xl"
+        padding="xl"
+        style={{
+          position: "relative",
+          overflow: "hidden",
+          borderColor: "rgba(59, 130, 246, 0.24)",
+          background: "linear-gradient(135deg, rgba(30, 64, 175, 0.12), rgba(14, 165, 233, 0.05))",
+        }}
+      >
+        <Box
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: "-30%",
+            background: "radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.18), transparent 55%)",
+            filter: "blur(64px)",
+          }}
+        />
+        <Stack gap="xl" style={{ position: "relative", zIndex: 1 }}>
+          <Group gap="sm" justify="space-between" align="flex-start" wrap="wrap">
+            <Group gap="sm">
+              <ThemeIcon variant="light" color="cerBlue" radius="xl" size={42}>
+                <Filter size={18} />
+              </ThemeIcon>
+              <Stack gap={2}>
+                <Text fw={700}>Filtrar órdenes</Text>
+                <Text fz="sm" c="dimmed">
+                  Busca por palabras clave o perfila por estado y prioridad.
+                </Text>
+              </Stack>
+            </Group>
+            <Badge size="sm" variant="light" color="cerBlue">
+              Búsqueda asistida
+            </Badge>
+          </Group>
+          <SimpleGrid cols={{ base: 1, md: 4 }} spacing="lg">
+            <TextInput
+              label="Buscar"
               placeholder="Número de orden o descripción"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.currentTarget.value)}
+              leftSection={<Search size={16} />}
+              radius="lg"
+              size="md"
+              variant="filled"
             />
-          </div>
-
-          {/* Estado */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Estado
-            </label>
-            <select
+            <Select
+              label="Estado"
+              data={estadoOptions}
               value={selectedEstado}
-              onChange={(e) => setSelectedEstado(e.target.value as EstadoOrden | '')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Todos</option>
-              <option value="pendiente">Pendiente</option>
-              <option value="asignada">Asignada</option>
-              <option value="en_progreso">En Progreso</option>
-              <option value="completada">Completada</option>
-              <option value="cancelada">Cancelada</option>
-              <option value="aprobada">Aprobada</option>
-            </select>
-          </div>
-
-          {/* Prioridad */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Prioridad
-            </label>
-            <select
+              onChange={(value) => setSelectedEstado((value as EstadoOrden) ?? "")}
+              leftSection={<TableProperties size={16} />}
+              radius="lg"
+              size="md"
+              variant="filled"
+            />
+            <Select
+              label="Prioridad"
+              data={prioridadOptions}
               value={selectedPrioridad}
-              onChange={(e) => setSelectedPrioridad(e.target.value as PrioridadOrden | '')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Todas</option>
-              <option value="baja">Baja</option>
-              <option value="normal">Normal</option>
-              <option value="alta">Alta</option>
-              <option value="urgente">Urgente</option>
-            </select>
-          </div>
+              onChange={(value) => setSelectedPrioridad((value as PrioridadOrden) ?? "")}
+              leftSection={<TableProperties size={16} />}
+              radius="lg"
+              size="md"
+              variant="filled"
+            />
+            <Stack gap="sm" justify="flex-end">
+              <Button radius="lg" color="cerBlue" onClick={handleApplyFilters} fullWidth>
+                Aplicar filtros
+              </Button>
+              <Button variant="subtle" radius="lg" color="gray" onClick={handleClearFilters} fullWidth>
+                Limpiar
+              </Button>
+            </Stack>
+          </SimpleGrid>
+        </Stack>
+      </Card>
 
-          {/* Botones */}
-          <div className="flex items-end gap-2">
-            <button
-              onClick={handleApplyFilters}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-            >
-              Aplicar
-            </button>
-            <button
-              onClick={handleClearFilters}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition"
-            >
-              Limpiar
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Lista de órdenes */}
       {orders.length === 0 ? (
-        <div className="bg-gray-50 rounded-lg p-8 text-center">
-          <p className="text-gray-600">No hay órdenes que coincidan con los filtros.</p>
-          <button
-            onClick={handleClearFilters}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Ver todas las órdenes
-          </button>
-        </div>
+        <Card
+          ref={feedbackRef}
+          withBorder
+          radius="xl"
+          padding="xl"
+          shadow="lg"
+          style={{
+            background: "linear-gradient(140deg, rgba(125, 211, 252, 0.18), rgba(14, 165, 233, 0.24))",
+            borderColor: "rgba(56, 189, 248, 0.36)",
+          }}
+        >
+          <Stack gap="md" align="center">
+            <TableProperties size={rem(36)} color="rgba(14, 165, 233, 0.85)" />
+            <Text c="rgba(30, 64, 175, 0.76)" ta="center">
+              No encontramos órdenes con los criterios seleccionados.
+            </Text>
+            <Button
+              variant="white"
+              color="cerBlue"
+              radius="xl"
+              leftSection={<RefreshCw size={16} />}
+              onClick={handleClearFilters}
+            >
+              Ver todas las órdenes
+            </Button>
+          </Stack>
+        </Card>
       ) : (
-        <>
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Número
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Cliente
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Descripción
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Estado
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Prioridad
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Fecha
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {orders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-medium text-gray-900">
-                        {order.numero_orden}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-900">
-                        {order.cliente?.nombre || 'N/A'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-900 max-w-xs truncate">
-                        {order.titulo || order.descripcion}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getEstadoBadgeClass(order.estado)}`}>
-                        {order.estado}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getPrioridadBadgeClass(order.prioridad)}`}>
-                        {order.prioridad}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(order.created_at)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <Link
-                        href={`/ordenes/${order.id}`}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        Ver detalle
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <Stack gap="lg">
+          <Card
+            ref={tableRef}
+            withBorder
+            shadow="lg"
+            radius="xl"
+            padding={0}
+            style={{
+              overflow: "hidden",
+              borderColor: "rgba(148, 163, 184, 0.18)",
+            }}
+          >
+            <ScrollArea>
+              <Table highlightOnHover verticalSpacing="md" horizontalSpacing="lg" striped withRowBorders={false}>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>Número</Table.Th>
+                    <Table.Th>Cliente</Table.Th>
+                    <Table.Th>Descripción</Table.Th>
+                    <Table.Th>Estado</Table.Th>
+                    <Table.Th>Prioridad</Table.Th>
+                    <Table.Th>Fecha</Table.Th>
+                    <Table.Th>Acciones</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {orders.map((order) => (
+                    <Table.Tr key={order.id}>
+                      <Table.Td>
+                        <Text fw={600}>{order.numero_orden}</Text>
+                      </Table.Td>
+                      <Table.Td>
+                        <Text>{order.cliente?.nombre ?? "N/A"}</Text>
+                      </Table.Td>
+                      <Table.Td maw={280}>
+                        <Text lineClamp={2}>{order.titulo || order.descripcion}</Text>
+                      </Table.Td>
+                      <Table.Td>
+                        <Badge color={estadoBadgeColor[order.estado] ?? "gray"} variant="light">
+                          {formatLabel(order.estado)}
+                        </Badge>
+                      </Table.Td>
+                      <Table.Td>
+                        <Badge color={prioridadBadgeColor[order.prioridad] ?? "gray"} variant="light">
+                          {formatLabel(order.prioridad)}
+                        </Badge>
+                      </Table.Td>
+                      <Table.Td>
+                        <Text c="dimmed" fz="sm">
+                          {formatDate(order.created_at)}
+                        </Text>
+                      </Table.Td>
+                      <Table.Td>
+                        <Button
+                          component={Link}
+                          href={ROUTES.WORK_ORDER_DETAIL(order.id)}
+                          variant="subtle"
+                          size="xs"
+                          color="cerBlue"
+                        >
+                          Ver detalle
+                        </Button>
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </ScrollArea>
+          </Card>
 
-          {/* Paginación */}
           {pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between bg-white px-4 py-3 rounded-lg shadow">
-              <div className="flex-1 flex justify-between sm:hidden">
-                <button
-                  onClick={() => handlePageChange(pagination.page - 1)}
-                  disabled={pagination.page === 1}
-                  className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Anterior
-                </button>
-                <button
-                  onClick={() => handlePageChange(pagination.page + 1)}
-                  disabled={pagination.page === pagination.totalPages}
-                  className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Siguiente
-                </button>
-              </div>
-              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm text-gray-700">
-                    Mostrando{' '}
-                    <span className="font-medium">
-                      {(pagination.page - 1) * pagination.limit + 1}
-                    </span>{' '}
-                    a{' '}
-                    <span className="font-medium">
-                      {Math.min(pagination.page * pagination.limit, pagination.total)}
-                    </span>{' '}
-                    de <span className="font-medium">{pagination.total}</span> resultados
-                  </p>
-                </div>
-                <div>
-                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                    <button
-                      onClick={() => handlePageChange(pagination.page - 1)}
-                      disabled={pagination.page === 1}
-                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      ← Anterior
-                    </button>
-                    
-                    {/* Números de página */}
-                    {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
-                      .filter(page => {
-                        // Mostrar primera, última y páginas cercanas a la actual
-                        return (
-                          page === 1 ||
-                          page === pagination.totalPages ||
-                          (page >= pagination.page - 1 && page <= pagination.page + 1)
-                        );
-                      })
-                      .map((page, index, array) => {
-                        // Agregar "..." si hay salto
-                        const prevPage = array[index - 1];
-                        const showEllipsis = prevPage && page - prevPage > 1;
-
-                        return (
-                          <React.Fragment key={page}>
-                            {showEllipsis && (
-                              <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
-                                ...
-                              </span>
-                            )}
-                            <button
-                              onClick={() => handlePageChange(page)}
-                              className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                page === pagination.page
-                                  ? 'z-10 bg-blue-600 border-blue-600 text-white'
-                                  : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                              }`}
-                            >
-                              {page}
-                            </button>
-                          </React.Fragment>
-                        );
-                      })}
-
-                    <button
-                      onClick={() => handlePageChange(pagination.page + 1)}
-                      disabled={pagination.page === pagination.totalPages}
-                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Siguiente →
-                    </button>
-                  </nav>
-                </div>
-              </div>
-            </div>
+              <Card withBorder radius="lg" padding="md" shadow="sm">
+              <Group justify="space-between" align="center" wrap="wrap" gap="sm">
+                <Text fz="sm" c="dimmed">
+                  Mostrando {Math.max((pagination.page - 1) * pagination.limit + 1, 1)} -
+                  {" "}
+                  {Math.min(pagination.page * pagination.limit, pagination.total)} de {pagination.total} órdenes
+                </Text>
+                <Pagination
+                  total={pagination.totalPages}
+                  value={pagination.page}
+                  onChange={handlePageChange}
+                  color="cerBlue"
+                  radius="lg"
+                />
+              </Group>
+            </Card>
           )}
-        </>
+        </Stack>
       )}
-    </div>
+    </Stack>
   );
 };
 

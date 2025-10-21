@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import type { PlantillaChecklist, ChecklistOrden, ItemChecklist } from '@/lib/types/operations';
+import React, { useState, useEffect, useCallback } from 'react';
+import type { PlantillaChecklist, ChecklistOrden } from '@/lib/types/operations';
 import { Badge } from '@/components/ui';
 
 interface ChecklistManagerProps {
@@ -16,11 +16,7 @@ export default function ChecklistManager({ ordenId, tipoEquipo, tipoOrden, reado
   const [checklist, setChecklist] = useState<ChecklistOrden | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadData();
-  }, [ordenId, tipoEquipo]);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     setLoading(true);
     // Cargar plantillas disponibles
     const resPl = await fetch(`/checklists/plantillas?tipo_equipo=${tipoEquipo}${tipoOrden ? `&tipo_orden=${tipoOrden}` : ''}`);
@@ -36,7 +32,11 @@ export default function ChecklistManager({ ordenId, tipoEquipo, tipoOrden, reado
       if (json.data) setPlantillaSeleccionada(json.data.plantilla_id);
     }
     setLoading(false);
-  }
+  }, [ordenId, tipoEquipo, tipoOrden]);
+
+  useEffect(() => {
+    void loadData();
+  }, [loadData]);
 
   async function handleCrearChecklist() {
     if (!plantillaSeleccionada) return;

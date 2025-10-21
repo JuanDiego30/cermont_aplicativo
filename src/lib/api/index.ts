@@ -9,3 +9,4 @@ export * from './clients';
 export * from './equipment';
 export * from './evidence';
 export * from './failures';
+export * from './tools';
