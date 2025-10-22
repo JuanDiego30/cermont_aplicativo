@@ -59,7 +59,7 @@ const NAV_MENU_ITEMS = [
     icon: IconUsersGroup,
     menuItems: [
       { label: 'Gestión de usuarios', href: ROUTES.USERS, icon: IconUserCog },
-      { label: 'Agregar usuario', href: ROUTES.USERS, icon: IconUserPlus },
+      { label: 'Agregar usuario', href: `${ROUTES.USERS}?action=add`, icon: IconUserPlus },
     ],
   },
   {
@@ -68,7 +68,7 @@ const NAV_MENU_ITEMS = [
     icon: IconReportAnalytics,
     menuItems: [
       { label: 'Centro de reportes', href: ROUTES.REPORTS, icon: IconChartBar },
-      { label: 'Análisis avanzado', href: ROUTES.REPORTS, icon: IconFileAnalytics },
+      { label: 'Análisis avanzado', href: `${ROUTES.REPORTS}?view=advanced`, icon: IconFileAnalytics },
     ],
   },
 ];
