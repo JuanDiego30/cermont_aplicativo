@@ -56,3 +56,9 @@ data/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Archivos comprimidos
+*.zip
+*.rar
+*.tar.gz
+*.7z
