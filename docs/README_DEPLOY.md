@@ -223,15 +223,42 @@ sudo certbot certonly --nginx -d your-domain.com -d www.your-domain.com
 
 ## Deployment Steps
 
-### Automated (GitHub Actions)
+### GitHub Actions Setup (Automated Deployment)
 
-Push to `main` branch. GitHub Actions automatically:
+**📖 Complete Guide:** See [GITHUB_SECRETS_SETUP.md](./GITHUB_SECRETS_SETUP.md) for detailed instructions.
+
+**Quick Setup:**
+
+1. **Configure GitHub Secrets** (required for automated deployment):
+   - Go to: `Settings -> Secrets and variables -> Actions`
+   - Add three secrets:
+     - `VPS_HOST` - Your VPS IP or domain
+     - `VPS_USER` - SSH username
+     - `VPS_KEY` - Complete private SSH key
+
+2. **Setup SSH Access on VPS:**
+   ```bash
+   # On your VPS:
+   mkdir -p ~/.ssh
+   chmod 700 ~/.ssh
+   echo "your-public-key-here" >> ~/.ssh/authorized_keys
+   chmod 600 ~/.ssh/authorized_keys
+   ```
+
+3. **Verify Connection:**
+   ```bash
+   # From your local machine:
+   ssh -i ~/.ssh/your-key user@vps-host
+   ```
+
+**Once configured**, pushing to `main` branch automatically:
 1. Builds frontend & backend
 2. Runs tests
-3. Connects via SSH
-4. Pulls latest code
-5. Installs dependencies
-6. Restarts service
+3. Validates deployment secrets
+4. Connects via SSH
+5. Pulls latest code
+6. Installs dependencies
+7. Restarts service
 
 ### Manual Deployment
 

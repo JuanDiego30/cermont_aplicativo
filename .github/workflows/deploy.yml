@@ -36,9 +36,29 @@ jobs:
     needs: build-and-test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://${{ secrets.VPS_HOST }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Validate deployment secrets
+        run: |
+          if [ -z "${{ secrets.VPS_HOST }}" ]; then
+            echo "❌ Error: VPS_HOST secret not configured"
+            echo "Configure it in: Settings -> Secrets and variables -> Actions"
+            exit 1
+          fi
+          if [ -z "${{ secrets.VPS_USER }}" ]; then
+            echo "❌ Error: VPS_USER secret not configured"
+            exit 1
+          fi
+          if [ -z "${{ secrets.VPS_KEY }}" ]; then
+            echo "❌ Error: VPS_KEY secret not configured"
+            exit 1
+          fi
+          echo "✅ All deployment secrets are configured"
 
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v0.1.8
