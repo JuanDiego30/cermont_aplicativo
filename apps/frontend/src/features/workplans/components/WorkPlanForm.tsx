@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { workPlanSchema, type WorkPlanFormData } from '../forms/schema';
+import { workPlanSchema, type WorkPlanFormData } from '../schemas/workplan.schema';
 import { BUSINESS_UNITS, SECURITY_ELEMENT_CATEGORIES } from '@/lib/constants';
 import { useCreateWorkPlan } from '../hooks/useCreateWorkPlan';
 import { type CreateWorkPlanData } from '@/types/workplan.types';

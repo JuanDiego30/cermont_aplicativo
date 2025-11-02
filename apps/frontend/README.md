@@ -1,36 +1,156 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cermont ATG Frontend
 
-## Getting Started
+Sistema de gestión de trabajos para CERMONT SAS
 
-First, run the development server:
+## Estructura del Proyecto
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+apps/frontend/
+├── public/
+│   ├── logo-cermont.png
+│   └── favicon.ico
+├── src/
+│   ├── app/                         # Next.js App Router
+│   │   ├── (auth)/                  # Grupo de autenticación
+│   │   │   ├── login/
+│   │   │   │   └── page.tsx
+│   │   │   └── layout.tsx           # Layout auth (con background)
+│   │   ├── (dashboard)/             # Grupo dashboard
+│   │   │   ├── dashboard/
+│   │   │   │   └── page.tsx
+│   │   │   ├── workplans/
+│   │   │   │   └── page.tsx
+│   │   │   ├── orders/
+│   │   │   ├── users/
+│   │   │   ├── reports/
+│   │   │   ├── cctv/
+│   │   │   └── layout.tsx           # Layout dashboard (sin background)
+│   │   ├── layout.tsx               # Root layout
+│   │   ├── page.tsx                 # Redirect a /login
+│   │   ├── globals.css              # Único archivo de estilos globales
+│   │   └── not-found.tsx            # Página 404 personalizada
+│   │
+│   ├── components/                  # Componentes reutilizables
+│   │   ├── layout/                  # Componentes de layout
+│   │   │   ├── AppShell.tsx
+│   │   │   ├── Header.tsx
+│   │   │   ├── Sidebar.tsx
+│   │   │   └── index.ts             # Barrel export
+│   │   ├── shared/                  # Componentes compartidos
+│   │   │   ├── AppBackground.tsx    # Background animado
+│   │   │   ├── SkeletonCard.tsx
+│   │   │   ├── EmptyState.tsx
+│   │   │   └── index.ts
+│   │   └── ui/                      # shadcn/ui components
+│   │       ├── button.tsx
+│   │       ├── input.tsx
+│   │       ├── label.tsx
+│   │       ├── LiquidEther.tsx      # Efecto visual
+│   │       └── index.ts
+│   │
+│   ├── features/                    # Features por dominio
+│   │   └── workplans/               # Feature completa
+│   │       ├── components/          # Componentes específicos
+│   │       ├── hooks/               # Hooks del feature
+│   │       ├── schemas/             # Validaciones Zod
+│   │       ├── services/            # Servicios API del feature
+│   │       └── index.ts             # Barrel export
+│   │
+│   ├── lib/                         # Utilities y configuración
+│   │   ├── api/
+│   │   │   └── client.ts            # Cliente Axios configurado
+│   │   ├── auth/                    # Autenticación
+│   │   │   ├── AuthContext.tsx
+│   │   │   ├── useLoginForm.ts
+│   │   │   ├── login-schema.ts
+│   │   │   └── index.ts
+│   │   ├── query/                   # React Query setup
+│   │   │   └── react-query.tsx
+│   │   └── utils/                   # Utilidades generales
+│   │       ├── error-handler.ts     # Parse errores API
+│   │       ├── helpers.ts
+│   │       └── index.ts
+│   │
+│   ├── services/                    # Servicios globales
+│   │   ├── dashboard.service.ts
+│   │   ├── auth.service.ts
+│   │   └── index.ts
+│   │
+│   ├── types/                       # Tipos globales
+│   │   ├── api.types.ts
+│   │   ├── user.types.ts
+│   │   └── index.ts
+│   │
+│   └── middleware.ts                # Middleware de Next.js
+│
+├── .env.local                       # Variables de entorno
+├── .gitignore
+├── next.config.ts
+├── package.json
+├── tailwind.config.ts
+├── tsconfig.json
+└── README.md
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Convenciones
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Nomenclatura
+- **Componentes**: `PascalCase.tsx` (`LoginPage.tsx`)
+- **Hooks**: `camelCase.ts` (`useLoginForm.ts`)
+- **Utilities**: `kebab-case.ts` (`error-handler.ts`)
+- **Types**: `PascalCase.types.ts` (`workplan.types.ts`)
+- **Services**: `kebab-case.service.ts` (`dashboard.service.ts`)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Estructura de Features
+Cada feature debe tener:
+```
+features/[name]/
+├── components/      # Componentes específicos
+├── hooks/          # Hooks del feature
+├── schemas/        # Validaciones Zod
+├── services/       # Servicios API
+└── index.ts        # Barrel export
+```
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Desarrollo
+npm run dev
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Build producción
+npm run build
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Servidor producción
+npm run start
 
-## Deploy on Vercel
+# Linting
+npm run lint
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# TypeScript check
+npm run typecheck
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Tecnologías
+
+- **Framework**: Next.js 14 (App Router)
+- **Lenguaje**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI**: shadcn/ui + Radix UI
+- **State**: React Query + Zustand
+- **Forms**: React Hook Form + Zod
+- **Backend**: Socket.io + REST API
+
+## Desarrollo
+
+1. Instalar dependencias: `npm install`
+2. Configurar variables de entorno en `.env.local`
+3. Ejecutar desarrollo: `npm run dev`
+4. Visitar: `http://localhost:3000`
+
+## Despliegue
+
+```bash
+npm run build
+npm run start
+```

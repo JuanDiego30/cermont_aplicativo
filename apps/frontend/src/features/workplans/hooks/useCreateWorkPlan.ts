@@ -1,6 +1,6 @@
 // src/features/workplans/hooks/useCreateWorkPlan.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createWorkPlan } from '@/services/workplans.service';
+import { createWorkPlan } from '../services/workplans.service';
 import type { CreateWorkPlanData, WorkPlan } from '@/types/workplan.types';
 
 export const useCreateWorkPlan = () => {
