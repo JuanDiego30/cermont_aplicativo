@@ -1,0 +1,18 @@
+﻿@import "tailwindcss";
+
+:root {
+  /* Paleta oficial CERMONT */
+  --cermont-blue-primary: #0072FF;    /* Azul principal (corporativo) */
+  --cermont-blue-dark: #004A7C;       /* Azul oscuro (tecnológico) */
+  --cermont-green-secondary: #00A878; /* Verde secundario (energía/sostenibilidad) */
+  --cermont-green-bright: #00FF99;    /* Verde brillante (detalle/énfasis) */
+  --cermont-gray-dark: #1C1C1C;       /* Gris oscuro (fondo/texto) */
+  --cermont-gray-light: #E5E7EB;      /* Gris claro (paneles/bordes) */
+  --cermont-white: #FFFFFF;           /* Blanco puro */
+
+  /* Variables de compatibilidad */
+  --primary: var(--cermont-blue-primary);
+  --secondary: var(--cermont-green-secondary);
+}
+
+body { background-color: transparent; }
