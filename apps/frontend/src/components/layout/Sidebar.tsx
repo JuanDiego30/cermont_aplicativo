@@ -12,7 +12,7 @@ import {
   FileText,
   LucideIcon,
 } from 'lucide-react';
-import { useAuth } from '@/lib/auth/AuthContext';
+import { useAuth } from '@/features/auth/components/AuthContext';
 import { cn } from '@/lib/utils';
 
 interface NavItem {

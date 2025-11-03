@@ -1,6 +1,6 @@
 'use client';
 import Image from 'next/image';
-import { useAuth } from '@/lib/auth/AuthContext';
+import { useAuth } from '@/features/auth/components/AuthContext';
 import { Button } from '@/components/ui/button';
 
 export default function Header() {

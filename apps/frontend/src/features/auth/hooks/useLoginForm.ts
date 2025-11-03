@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useAuth } from './AuthContext';
-import { loginSchema, type LoginFormData } from './login-schema';
+import { useAuth } from '../components/AuthContext';
+import { loginSchema, type LoginFormData } from '../schemas/login-schema';
 import { parseApiError } from '@/lib/utils/error-handler';
 
 export function useLoginForm() {

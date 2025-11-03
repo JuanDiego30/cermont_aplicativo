@@ -11,6 +11,14 @@ credentials
 return response.data.data;
 },
 
+async forgotPassword(email: string): Promise<null | { resetToken?: string }> {
+const response = await apiClient.post<ApiResponse<null | { resetToken?: string }>>(
+'/auth/forgot-password',
+{ email }
+);
+return response.data.data;
+},
+
 async logout(): Promise<void> {
 try {
 await apiClient.post('/auth/logout');
