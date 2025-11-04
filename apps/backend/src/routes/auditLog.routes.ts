@@ -24,7 +24,7 @@ import {
 } from '../controllers/auditLog.controller';
 import { authenticate } from '../middleware/auth'; // Adds req.user: UserDoc
 import { requireMinRole } from '../middleware/rbac'; // (role: Rol): Middleware, uses hierarchy
-import { validateRequest } from '../middleware/validateRequest'; // (schema: object): Middleware
+import { validateRequest } from '../middleware/validate'; // (schema: object): Middleware
 import { auditLogger } from '../middleware/auditLogger'; // (action: string): Middleware for meta-audit
 
 // Interfaces for queries/params (type safety in controllers)

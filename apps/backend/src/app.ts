@@ -3,21 +3,21 @@
  * CERMONT ATG Backend - Middleware stack completo con seguridad, sanitización, y manejo de errores
  */
 
-import express, { type Application, type Request, type Response, type NextFunction } from 'express';
+import express, { type Application, type Request, type Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import path from 'path';
 import { morganStream, logger } from './utils/logger';
-import { errorHandler } from './middleware/errorHandler.js';
-import { notFound } from './middleware/notFound.js';
-import routes from './routes/index.js';
-import { blacklistMiddleware, apiRateLimiter } from './middleware/rateLimiter.js';
-import { mongoSanitization, sanitizeAll } from './middleware/sanitize.js';
-import { authenticate } from './middleware/auth.js';
+import { errorHandler } from './middleware/errorHandler';
+import { notFound } from './middleware/notFound';
+import routes from './routes/index';
+import { blacklistMiddleware, apiRateLimiter } from './middleware/rateLimiter';
+import { mongoSanitization, sanitizeAll } from './middleware/sanitize';
+import { authenticate } from './middleware/auth';
 import swaggerUi from 'swagger-ui-express';
-import swaggerSpec from './config/swagger.js';
+import swaggerSpec from './config/swagger';
 
 // ✅ FIX 1: Import httpsRedirect y securityHeaders correctamente
 import httpsRedirect from './middleware/httpsRedirect.js';
@@ -113,7 +113,7 @@ app.use('/public', express.static(publicPath, { maxAge: '1y' }));
 
 // ==================== HEALTH & ROOT ====================
 
-app.get('/health', (req: Request, res: Response) => {
+app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     status: 'ok',
@@ -132,7 +132,7 @@ app.get('/health', (req: Request, res: Response) => {
   });
 });
 
-app.get('/', (req: Request, res: Response) => {
+app.get('/', (_req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     message: 'CERMONT ATG API',
@@ -149,9 +149,6 @@ app.use('/api/', apiRateLimiter);
 
 // ==================== API ROUTES ====================
 
-// 18. Error handler import
-import { errorHandler as errorHandlerMiddleware } from './middleware/errorHandler.js';
-
 // 19. Swagger docs (dev only)
 if (process.env.NODE_ENV !== 'production' && process.env.SWAGGER_ENABLED !== 'false') {
   app.use('/api-docs', swaggerUi.serve as any, swaggerUi.setup(swaggerSpec) as any);
@@ -164,8 +161,6 @@ app.use('/api/v1', routes as any);
 // ==================== ERROR HANDLING ====================
 
 // 20. Error handler middleware
-app.use(errorHandlerMiddleware as any);
-
 app.use(notFound as any);
 app.use(errorHandler as any);
 

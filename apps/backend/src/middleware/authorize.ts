@@ -9,7 +9,7 @@
 
 
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../utils/errorHandler';
+import { AppError } from '../utils/AppError';
 import { errorResponse } from '../utils/response';
 import { HTTP_STATUS } from '../utils/constants';
 import { logger } from '../utils/logger';

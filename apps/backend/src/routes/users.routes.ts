@@ -18,7 +18,7 @@ import { authenticate } from '../middleware/auth';
 import { requireAdmin, requireMinRole } from '../middleware/rbac';
 import { validateObjectId } from '../middleware/validate';
 import { rateLimiter } from '../middleware/rateLimiter';
-import { validateRequest } from '../middleware/validateRequest';
+import { validateRequest } from '../middleware/validate';
 import { HTTP_STATUS, ROLES } from '../utils/constants';
 import { Role } from '../types';
 import { TypedRequest, AuthenticatedRequest, ApiResponse } from '../types/express.types';

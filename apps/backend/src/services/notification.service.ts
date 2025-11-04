@@ -12,7 +12,7 @@
 
 import { emitToUser, emitToRole } from '../config/socket';
 import { logger } from '../utils/logger';
-import { AppError } from '../utils/errorHandler'; // Custom error if needed, else Error
+import { AppError } from '../utils/AppError'; // Custom error if needed, else Error
 
 // Import from services (no circular: notification uses email, not vice versa)
 // Stubs for missing exports (implement in email.service.ts)

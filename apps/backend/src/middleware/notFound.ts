@@ -11,7 +11,7 @@
  */
 
 
-import { AppError } from '../utils/errorHandler';
+import { AppError } from '../utils/AppError';
 import { errorResponse } from '../utils/response';
 import { Request, Response, NextFunction } from 'express';
 import { HTTP_STATUS } from '../utils/constants';

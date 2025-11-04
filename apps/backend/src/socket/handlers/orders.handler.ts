@@ -14,7 +14,7 @@ import { Server, Socket } from 'socket.io';
 import Order, { type OrderDocument } from '../../models/Order';
 import { logger } from '../../utils/logger';
 import orderService from '../../services/order.service';
-import { AppError } from '../../utils/errorHandler'; // For service throws
+import { AppError } from '../../utils/AppError'; // For service throws
 import type { Role as UserRole } from '../../models/User'; // 'technician', 'supervisor', 'engineer', 'admin', 'root'
 
 // Interfaces
