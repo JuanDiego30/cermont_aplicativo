@@ -1,0 +1,25 @@
+import { Router } from 'express';
+import { getAllToolKits, getToolKitById, getToolKitsByCategory, createToolKit, updateToolKit, deleteToolKit, incrementToolKitUsage, getMostUsedToolKits, cloneToolKit, toggleToolKitActive, getToolKitStats, } from '';
+import { authenticate } from '';
+import { requireMinRole } from '';
+import { validateObjectId } from '';
+import { createRateLimiter } from '';
+import { auditLogger } from '';
+import { cacheMiddleware, invalidateCacheById, invalidateCache } from '';
+import { sanitizeQuery } from '';
+import { validateCategory } from '';
+const router = Router();
+router.use(authenticate);
+router.get('/stats/summary', sanitizeQuery, requireMinRole('engineer'), cacheMiddleware(600), getToolKitStats);
+router.get('/stats/most-used', sanitizeQuery, requireMinRole('engineer'), cacheMiddleware(300), getMostUsedToolKits);
+router.get('/', sanitizeQuery, cacheMiddleware(120), getAllToolKits);
+router.get('/category/:categoria', validateCategory('categoria'), cacheMiddleware(180), getToolKitsByCategory);
+router.get('/:id', validateObjectId('id'), cacheMiddleware(300), getToolKitById);
+router.post('/', requireMinRole('supervisor'), createRateLimiter({ windowMs: 15 * 60 * 1000, max: 15 }), invalidateCache('toolkits'), auditLogger('CREATE', 'ToolKit'), createToolKit);
+router.put('/:id', validateObjectId('id'), requireMinRole('supervisor'), invalidateCacheById('toolkits'), auditLogger('UPDATE', 'ToolKit'), updateToolKit);
+router.delete('/:id', validateObjectId('id'), requireMinRole('admin'), invalidateCacheById('toolkits'), auditLogger('DELETE', 'ToolKit'), deleteToolKit);
+router.post('/:id/use', validateObjectId('id'), invalidateCache('toolkits:stats'), incrementToolKitUsage);
+router.post('/:id/clone', validateObjectId('id'), requireMinRole('supervisor'), invalidateCache('toolkits'), auditLogger('CREATE', 'ToolKitClone'), cloneToolKit);
+router.patch('/:id/toggle-active', validateObjectId('id'), requireMinRole('admin'), invalidateCacheById('toolkits'), invalidateCache('toolkits:stats'), auditLogger('UPDATE', 'ToolKitActive'), toggleToolKitActive);
+export default router;
+//# sourceMappingURL=toolkits.routes.js.map

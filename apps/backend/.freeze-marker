@@ -1,0 +1,2 @@
+# Freeze marker - only stabilization/bugfixes allowed on stabilize/pr04
+FEATURE_FREEZE=stabilize/pr04

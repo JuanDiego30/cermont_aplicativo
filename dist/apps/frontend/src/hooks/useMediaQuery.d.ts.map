@@ -1,0 +1,1 @@
+{"version":3,"file":"useMediaQuery.d.ts","sourceRoot":"","sources":["../../../../../apps/frontend/src/hooks/useMediaQuery.ts"],"names":[],"mappings":"AAGA,wBAAgB,aAAa,CAAC,KAAK,EAAE,MAAM,GAAG,OAAO,CA0BpD;AAGD,eAAO,MAAM,WAAW,eAA4C,CAAC;AACrE,eAAO,MAAM,WAAW,eAAoE,CAAC;AAC7F,eAAO,MAAM,YAAY,eAA6C,CAAC"}

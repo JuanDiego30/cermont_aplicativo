@@ -2,7 +2,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import https from 'https';
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL ?? '';
+const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
 
 // httpsAgent solo en Node (SSR) y en dev, nunca en el navegador
 const nodeHttpsAgent =
@@ -20,6 +20,7 @@ const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    console.log('Request:', config.method?.toUpperCase(), config.url, config.data);
     if (!config.url?.includes('/auth/login')) {
       const token =
         typeof window !== 'undefined'
@@ -35,6 +36,7 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
+    console.error('API Error:', error.response?.data);
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('accessToken');

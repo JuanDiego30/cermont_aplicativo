@@ -117,10 +117,12 @@ const seedOrders = async (users) => {
     const engineer = users.find(u => u.rol === 'engineer');
     const supervisor = users.find(u => u.rol === 'supervisor');
     const technician = users.find(u => u.rol === 'technician');
+    const admin = users.find(u => u.rol === 'admin');
 
     const ordersData = [
       {
         numeroOrden: generateOrderNumber(0),
+        code: 'ORDER-001',
         clienteNombre: 'ECOPETROL S.A.',
         clienteContacto: {
           nombre: 'Pedro Sánchez',
@@ -134,14 +136,16 @@ const seedOrders = async (users) => {
         fechaInicio: new Date(),
         fechaFinEstimada: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         prioridad: 'alta',
-        estado: 'planning',
+        estado: 'planificacion',
         costoEstimado: 150000000,
         moneda: 'COP',
         asignadoA: [engineer._id, technician._id],
         supervisorId: supervisor._id,
+        creadoPor: admin._id,
       },
       {
         numeroOrden: generateOrderNumber(1),
+        code: 'ORDER-002',
         clienteNombre: 'Carbones del Cerrejón',
         clienteContacto: {
           nombre: 'Laura Gómez',
@@ -149,20 +153,22 @@ const seedOrders = async (users) => {
           telefono: '+57 320 222 3333',
         },
         poNumber: 'PO-2025-002',
-        descripcion: 'Mantenimiento preventivo de sistemas eléctricos',
-        alcance: 'Revisión y mantenimiento de subestaciones eléctricas',
-        lugar: 'Mina del Cerrejón, La Guajira',
-        fechaInicio: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
-        fechaFinEstimada: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+        descripcion: 'Mantenimiento preventivo de sistema de control industrial',
+        alcance: 'Revisión y mantenimiento de PLCs, sensores y actuadores en planta de procesamiento',
+        lugar: 'Planta Cerrejón, La Guajira',
+        fechaInicio: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+        fechaFinEstimada: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
         prioridad: 'media',
-        estado: 'in_progress',
-        costoEstimado: 80000000,
+        estado: 'en_progreso',
+        costoEstimado: 75000000,
         moneda: 'COP',
         asignadoA: [engineer._id],
         supervisorId: supervisor._id,
+        creadoPor: admin._id,
       },
       {
         numeroOrden: generateOrderNumber(2),
+        code: 'ORDER-003',
         clienteNombre: 'Pacific Rubiales',
         clienteContacto: {
           nombre: 'Roberto Díaz',
@@ -175,10 +181,11 @@ const seedOrders = async (users) => {
         fechaInicio: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         fechaFinEstimada: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000),
         prioridad: 'baja',
-        estado: 'pending',
+        estado: 'pendiente',
         costoEstimado: 200000000,
         moneda: 'COP',
         supervisorId: supervisor._id,
+        creadoPor: admin._id,
       },
     ];
 

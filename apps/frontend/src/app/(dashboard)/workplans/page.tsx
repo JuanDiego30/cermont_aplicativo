@@ -3,22 +3,21 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import WorkPlanForm from '@/features/workplans/components/WorkPlanForm';
-import { Plus } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 
 export default function WorkPlansPage() {
   const [showForm, setShowForm] = useState(false);
-  const [selectedOrderId, setSelectedOrderId] = useState<string>('');
 
-  const handleCreateWorkPlan = (orderId: string) => {
-    setSelectedOrderId(orderId);
+  const handleCreateWorkPlan = () => {
     setShowForm(true);
   };
 
   const handleFormSuccess = () => {
     setShowForm(false);
-    setSelectedOrderId('');
     // TODO: Refresh workplans list
   };
 
@@ -35,7 +34,6 @@ export default function WorkPlansPage() {
           </Button>
         </div>
         <WorkPlanForm
-          orderId={selectedOrderId}
           onSuccess={handleFormSuccess}
         />
       </div>
@@ -52,7 +50,7 @@ export default function WorkPlansPage() {
           </p>
         </div>
         <Button
-          onClick={() => handleCreateWorkPlan('ORDER-001')} // TODO: Get from order selection
+          onClick={handleCreateWorkPlan}
           className="bg-cermont-primary hover:bg-cermont-primary/90"
         >
           <Plus className="w-4 h-4 mr-2" />

@@ -1,25 +1,41 @@
+// eslint.config.cjs
+const typescript = require('@typescript-eslint/eslint-plugin');
+const typescriptParser = require('@typescript-eslint/parser');
+const prettier = require('eslint-config-prettier');
+
 module.exports = [
   {
-    // Basic ignore for node_modules and build folders
-    ignores: ['node_modules/**', '.next/**', 'out/**'],
+    ignores: ['dist/**', 'node_modules/**', 'coverage/**', '*.config.js', '*.config.cjs']
   },
   {
-    files: ['**/*.js'],
+    files: ['src/**/*.ts', 'scripts/**/*.ts'],
     languageOptions: {
-      ecmaVersion: 2021,
-      sourceType: 'module',
-      globals: {
-        describe: 'readonly',
-        it: 'readonly',
-        expect: 'readonly',
-        beforeAll: 'readonly',
-        afterAll: 'readonly',
-        jest: 'readonly',
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: 2024,
+        sourceType: 'module',
+        project: './tsconfig.json'
       },
+      globals: {
+        NodeJS: 'readonly',
+        process: 'readonly',
+        console: 'readonly',
+        Buffer: 'readonly'
+      }
+    },
+    plugins: {
+      '@typescript-eslint': typescript
     },
     rules: {
-      // Use core rule for unused vars; allow underscore-only parameters
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-    },
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-floating-promises': 'error',
+      'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
+      'prefer-const': 'error',
+      'no-var': 'error'
+    }
   },
+  prettier
 ];
