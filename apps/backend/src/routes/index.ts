@@ -13,14 +13,14 @@ import usersRoutes from './users.routes';
 import ordersRoutes from './orders.routes';
 import workplansRoutes from './workplans.routes';
 import uploadRoutes from './upload.routes';
-import auditLogRoutes from './auditLogs.routes';
+import auditLogRoutes from './auditLog.routes';
 import adminRoutes from './admin.routes';
 import systemRoutes from './system.routes';
 
 // ATG-specific modules
-import cctvRoutes from './cctv.routes';
-import evidenceRoutes from './evidence.routes';
+import evidencesRoutes from './evidences.routes';
 import toolkitsRoutes from './toolkits.routes';
+import healthRoutes from './health.routes';
 
 const router: Router = express.Router();
 
@@ -97,14 +97,14 @@ router.use('/admin', adminRoutes);
  * @desc    CCTV reports
  * @access  Private
  */
-router.use('/cctv', cctvRoutes);
+// router.use('/cctv', cctvRoutes); // TODO: Implement CCTV routes
 
 /**
  * @route   POST/GET/DELETE /api/v1/evidence/*
  * @desc    Evidence handling
  * @access  Private
  */
-router.use('/evidence', evidenceRoutes);
+router.use('/evidences', evidencesRoutes);
 
 /**
  * @route   GET/POST/PUT/DELETE /api/v1/toolkits/*
@@ -136,7 +136,7 @@ router.get('/health', async (req: Request, res: Response) => {
   let dbConnected = false;
   
   try {
-    if (mongoose.connection.readyState === 1) {
+    if (mongoose.connection.readyState === 1 && mongoose.connection.db) {
       await mongoose.connection.db.admin().ping();
       dbConnected = true;
     }
@@ -157,6 +157,13 @@ router.get('/health', async (req: Request, res: Response) => {
   res.status(200).json(health);
   logger.info('Health check requested', { ip: req.ip });
 });
+
+/**
+ * @route   GET /api/v1/healthz, /api/v1/readyz, /api/v1/metrics
+ * @desc    Kubernetes-style health checks
+ * @access  Public
+ */
+router.use('/', healthRoutes);
 
 // Global 404 fallback
 router.use('*', (req: Request, res: Response) => {

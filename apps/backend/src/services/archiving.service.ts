@@ -22,7 +22,8 @@ import Order, { IOrder } from '../models/Order';
 import { logger } from '../utils/logger';
 import { ORDER_STATUS } from '../utils/constants'; // Spanish: { PENDING: 'pendiente', IN_PROGRESS: 'en_progreso', COMPLETED: 'completada', PAID: 'pagada' } as const
 import { createAuditLog } from '../middleware/auditLogger';
-import { AppError, ErrorCode } from '../utils/errorHandler'; // Assume ErrorCode enum: 'NOT_FOUND' | 'DATABASE_ERROR' | 'INVALID_INPUT' | ... (map custom)
+import { AppError } from '../utils/AppError'; // Assume ErrorCode enum: 'NOT_FOUND' | 'DATABASE_ERROR' | 'INVALID_INPUT' | ... (map custom)
+import type { ErrorCode } from '../utils/constants';
 
 // Types
 type OrderStatus = (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS]; // 'pendiente' | 'en_progreso' | 'completada' | 'pagada'

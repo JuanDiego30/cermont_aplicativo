@@ -5,7 +5,7 @@
 
 import { Order, OrderState, IOrder, ALLOWED_TRANSITIONS } from '../models/Order.js';
 import Evidence from '../models/Evidence.js';
-import { AppError } from '../utils/errorHandler.js';
+import { AppError } from '../utils/AppError.js';
 import { HTTP_STATUS } from '../utils/constants.js';
 import logger from '../utils/logger.js';
 import { Types } from 'mongoose';

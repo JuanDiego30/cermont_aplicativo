@@ -12,7 +12,7 @@
 import Joi, { type ObjectSchema } from 'joi';
 import { ROLES, HTTP_STATUS, ERROR_CODES } from '../utils/constants';
 import { validatePasswordStrength } from '../utils/passwordHash';
-import { AppError } from '../utils/errorHandler';
+import { AppError } from '../utils/AppError';
 import User from '../models/User';
 
 // Interface for user validation data

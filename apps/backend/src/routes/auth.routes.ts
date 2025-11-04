@@ -4,7 +4,7 @@
  */
 
 import express, { Router, Request, Response, NextFunction } from 'express';
-import { validateZod } from '../middleware/validateZod';
+import { validateBody } from '../middleware/validate';
 import { authenticate } from '../middleware/auth';
 import { loginLimiter, strictLimiter } from '../middleware/rateLimiter';
 import {
@@ -235,7 +235,7 @@ const router: Router = express.Router();
  */
 router.post('/register',
   strictLimiter,
-  validateZod(registerSchema),
+  validateBody(registerSchema),
   (req: Request, res: Response, next: NextFunction) => {
     if (process.env.NODE_ENV === 'production' && (req.body as RegisterBody).rol !== 'client') {
       return res.status(403).json({
@@ -270,7 +270,7 @@ router.post('/login',
 router.post(
   '/refresh',
   strictLimiter,
-  validateZod(refreshTokenSchema),
+  validateBody(refreshTokenSchema),
   refreshToken
 );
 
@@ -353,7 +353,7 @@ router.put(
 router.post(
   '/change-password',
   authenticate,
-  validateZod(changePasswordSchema),
+  validateBody(changePasswordSchema),
   auditLogger('PASSWORD_CHANGE'),
   changePassword
 );
@@ -385,7 +385,7 @@ router.delete(
  */
 router.get('/.well-known/jwks.json', async (req: Request, res: Response) => {
   try {
-    const { getJWKS } = await import('../services/jwt.service');
+    const { getJWKS } = await import('../config/jwt');
     const jwks = await getJWKS();
 
     res.setHeader('Content-Type', 'application/json');

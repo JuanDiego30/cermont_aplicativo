@@ -12,7 +12,7 @@ import https from 'https';
 import dotenv from 'dotenv';
 import { connectDB, closeDB } from './config/database';
 import { initializeSocket } from './socket/index';
-import { cacheService } from './services/cache';
+import cacheService from './services/cache.service';
 import { logger } from './utils/logger';
 import app from './app';
 import { getSSLConfig } from './config/ssl';

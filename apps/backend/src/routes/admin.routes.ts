@@ -22,7 +22,7 @@
 import express from 'express';
 import { authenticate } from '../middleware/auth';
 import { authorizeRoles } from '../utils/asyncHandler';
-import { validateRequest } from '../middleware/validateRequest';
+import { validateRequest } from '../middleware/validate';
 import { auditLogger } from '../middleware/auditLogger'; // Custom for admin
 import { TypedRequest, AuthenticatedRequest, ApiResponse } from '../types/express.types';
 import {

@@ -5,7 +5,7 @@
 
 import User from '../models/User.js';
 import { logger } from '../utils/logger.js';
-import { AppError } from '../utils/errorHandler.js';
+import { AppError } from '../utils/AppError.js';
 import type { Types } from 'mongoose';
 
 // ==================== INTERFACES ====================
