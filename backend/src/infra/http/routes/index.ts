@@ -13,6 +13,7 @@ import evidencesRoutes from './evidences.routes';
 import reportsRoutes from './reports.routes';
 import usersRoutes from './users.routes';
 import dashboardRoutes from './dashboard.routes';
+import kitsRoutes from './kits.routes';
 
 const router = Router();
 
@@ -49,6 +50,7 @@ router.use('/evidences', evidencesRoutes);
 router.use('/reports', reportsRoutes);
 router.use('/users', usersRoutes);
 router.use('/dashboard', dashboardRoutes);
+router.use('/kits', kitsRoutes);
 
 /**
  * Ruta 404 para endpoints no encontrados
