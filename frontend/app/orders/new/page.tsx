@@ -18,18 +18,23 @@ import { ErrorAlert } from '@/components/patterns/ErrorAlert';
 // UI Components
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { Select } from '@/components/ui/Select';
 
 // API & Icons
 import { ordersApi } from '@/lib/api/orders';
-import { FileText, Building2, MapPin, MessageSquare, ArrowLeft } from 'lucide-react';
+import { FileText, Building2, MapPin, MessageSquare, ArrowLeft, Clock, AlertCircle } from 'lucide-react';
 
 // ============================================================================
 // VALIDATION
 // ============================================================================
 const createOrderSchema = z.object({
-  cliente: z.string().min(3, 'El nombre del cliente debe tener al menos 3 caracteres.'),
-  descripcion: z.string().min(10, 'La descripción debe tener al menos 10 caracteres.'),
-  ubicacion: z.string().min(3, 'La ubicación debe tener al menos 3 caracteres.'),
+  clientName: z.string().min(3, 'El nombre del cliente debe tener al menos 3 caracteres.'),
+  clientEmail: z.string().email('Email inválido').optional().or(z.literal('')),
+  clientPhone: z.string().optional(),
+  description: z.string().min(10, 'La descripción debe tener al menos 10 caracteres.'),
+  location: z.string().min(3, 'La ubicación debe tener al menos 3 caracteres.'),
+  priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
+  estimatedHours: z.number().positive('Horas estimadas deben ser positivas').optional(),
 });
 
 type CreateOrderFormValues = z.infer<typeof createOrderSchema>;
@@ -51,9 +56,13 @@ export default function NewOrderPage() {
   } = useForm<CreateOrderFormValues>({
     resolver: zodResolver(createOrderSchema),
     defaultValues: {
-      cliente: '',
-      descripcion: '',
-      ubicacion: '',
+      clientName: '',
+      clientEmail: '',
+      clientPhone: '',
+      description: '',
+      location: '',
+      priority: 'MEDIUM',
+      estimatedHours: undefined,
     },
   });
 
@@ -64,9 +73,13 @@ export default function NewOrderPage() {
     setServerError(null);
     try {
       await ordersApi.create({
-        cliente: values.cliente,
-        descripcion: values.descripcion,
-        ubicacion: values.ubicacion,
+        clientName: values.clientName,
+        clientEmail: values.clientEmail || undefined,
+        clientPhone: values.clientPhone || undefined,
+        description: values.description,
+        location: values.location,
+        priority: values.priority || 'MEDIUM',
+        estimatedHours: values.estimatedHours,
       });
       router.push('/orders');
     } catch (err: any) {
@@ -91,7 +104,7 @@ export default function NewOrderPage() {
       <PageHeader
         icon={FileText}
         title="Nueva Orden de Trabajo"
-        description="Registra una nueva orden de trabajo con los campos mínimos requeridos"
+        description="Registra una nueva orden de trabajo con toda la información necesaria"
         badge={{ text: 'Crear Orden', variant: 'primary' }}
         action={
           <Button
@@ -109,28 +122,81 @@ export default function NewOrderPage() {
           SECTION: Form
       ========================================== */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Order Information Card */}
+        {/* Client Information Card */}
         <FormCard
-          title="Información de la Orden"
-          description="Datos básicos del cliente y ubicación"
+          title="Información del Cliente"
+          description="Datos de contacto y empresa"
           icon={Building2}
         >
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
               <Input
-                label="Cliente"
+                label="Nombre del Cliente *"
                 placeholder="Ej: Sierracol Energy"
-                error={errors.cliente?.message}
-                {...register('cliente')}
+                error={errors.clientName?.message}
+                {...register('clientName')}
               />
             </div>
 
             <div>
               <Input
-                label="Ubicación"
-                placeholder="Ej: Campo Caño Limón"
-                error={errors.ubicacion?.message}
-                {...register('ubicacion')}
+                label="Email"
+                type="email"
+                placeholder="contacto@cliente.com"
+                error={errors.clientEmail?.message}
+                {...register('clientEmail')}
+              />
+            </div>
+
+            <div>
+              <Input
+                label="Teléfono"
+                placeholder="(+57) 300 123 4567"
+                error={errors.clientPhone?.message}
+                {...register('clientPhone')}
+              />
+            </div>
+
+            <div>
+              <Input
+                label="Ubicación *"
+                placeholder="Ej: Campo Caño Limón, Arauca"
+                error={errors.location?.message}
+                {...register('location')}
+              />
+            </div>
+          </div>
+        </FormCard>
+
+        {/* Order Details Card */}
+        <FormCard
+          title="Detalles de la Orden"
+          description="Prioridad y estimación de tiempo"
+          icon={Clock}
+        >
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-sm font-bold text-neutral-900 dark:text-neutral-50">
+                Prioridad
+              </label>
+              <select
+                className="w-full rounded-xl border-2 border-neutral-200 bg-white px-4 py-3 font-medium text-neutral-900 transition-all focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-100 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-50 dark:focus:ring-primary-950"
+                {...register('priority')}
+              >
+                <option value="LOW">Baja</option>
+                <option value="MEDIUM">Media</option>
+                <option value="HIGH">Alta</option>
+                <option value="URGENT">Urgente</option>
+              </select>
+            </div>
+
+            <div>
+              <Input
+                label="Horas Estimadas"
+                type="number"
+                placeholder="Ej: 24"
+                error={errors.estimatedHours?.message}
+                {...register('estimatedHours', { valueAsNumber: true })}
               />
             </div>
           </div>
@@ -144,21 +210,21 @@ export default function NewOrderPage() {
         >
           <div>
             <label className="mb-3 block text-sm font-bold text-neutral-900 dark:text-neutral-50">
-              Detalle del trabajo
+              Detalle del trabajo *
             </label>
             <textarea
               rows={6}
               className={`w-full rounded-xl border-2 bg-white px-4 py-3 font-medium text-neutral-900 transition-all placeholder:text-neutral-400 focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-100 dark:bg-neutral-800 dark:text-neutral-50 dark:placeholder:text-neutral-500 dark:focus:ring-primary-950 ${
-                errors.descripcion
+                errors.description
                   ? 'border-error-500 focus:border-error-500 focus:ring-error-100 dark:focus:ring-error-950'
                   : 'border-neutral-200 dark:border-neutral-700'
               }`}
-              placeholder="Describe el alcance de la orden, contexto y objetivos..."
-              {...register('descripcion')}
+              placeholder="Describe el alcance de la orden, contexto y objetivos. Mínimo 10 caracteres."
+              {...register('description')}
             />
-            {errors.descripcion && (
+            {errors.description && (
               <p className="mt-2 text-sm font-bold text-error-600">
-                {errors.descripcion.message}
+                {errors.description.message}
               </p>
             )}
           </div>

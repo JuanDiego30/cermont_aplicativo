@@ -128,6 +128,12 @@ export const createOrderSchema = z.object({
       .min(3, 'Nombre del cliente debe tener al menos 3 caracteres')
       .max(200, 'Nombre del cliente demasiado largo')
       .trim(),
+    clientEmail: z
+      .string()
+      .email('Email inválido')
+      .optional()
+      .or(z.literal('')),
+    clientPhone: z.string().max(50).optional(),
     description: z
       .string()
       .min(10, 'Descripción debe tener al menos 10 caracteres')
@@ -138,6 +144,8 @@ export const createOrderSchema = z.object({
       .min(1, 'Ubicación requerida')
       .max(500, 'Ubicación demasiado larga')
       .trim(),
+    priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']).optional(),
+    estimatedHours: z.number().int().positive('Horas estimadas deben ser positivas').optional(),
   }),
 });
 
