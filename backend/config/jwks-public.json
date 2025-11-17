@@ -1,0 +1,12 @@
+{
+  "keys": [
+    {
+      "kty": "RSA",
+      "kid": "cermont-jwt-key-1",
+      "use": "sig",
+      "alg": "RS256",
+      "n": "x3kDto7gpQph8Y1jnTbKcKg585eDCyluwORkamk-YQ0kQ92nddqVAnVRlWhjoriAKsYIVLH8_qK0a1uHs2KhV4-HGy2wpP9J9hlm4oASD9xtraP1X17QcQc6M2rDu1wYzQCSQpw-Hj0EgkkQOeVyYLcDwrDYYwlBm-2XSTpF9qJkh0n7YSDaZFPwLfot8kzTPbnBv67oqb6fEQBhPzWys1o1o_8VqcTk3mK0OoDSIEqASeEFwAdLys3N_0ggNUVUCjv4m5cTQnd9kkVhN9HiQTUoPRh2ARO05tGt1aTrm5jE6WLoZL8Ky5IDzzBQq4KCBK_Lk3qq1g5ovrr48lFjPQ",
+      "e": "AQAB"
+    }
+  ]
+}

@@ -1,0 +1,227 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  password          String
+  name              String
+  role              String
+  avatar            String?
+  active            Boolean   @default(true)
+  mfaEnabled        Boolean   @default(false)
+  mfaSecret         String?
+  loginAttempts     Int       @default(0)
+  passwordHistory   String    @default("[]")
+  lastPasswordChange DateTime
+  passwordExpiresAt DateTime
+  lastLogin         DateTime?
+  lastFailedLogin   DateTime?
+  lockedUntil       DateTime?
+  createdBy         String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  orders            Order[]             @relation("OrderCreator")
+  assignedOrders    Order[]             @relation("OrderResponsible")
+  workPlans         WorkPlan[]          @relation("WorkPlanCreator")
+  approvedWorkPlans WorkPlan[]          @relation("WorkPlanApprover")
+  rejectedWorkPlans WorkPlan[]          @relation("WorkPlanRejecter")
+  evidences         Evidence[]          @relation("EvidenceUploader")
+  approvedEvidences Evidence[]          @relation("EvidenceApprover")
+  rejectedEvidences Evidence[]          @relation("EvidenceRejecter")
+  kits              Kit[]               @relation("KitCreator")
+  auditLogs         AuditLog[]
+  tokenBlacklist    TokenBlacklist[]
+  refreshTokens     RefreshToken[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Order {
+  id                String      @id @default(uuid())
+  orderNumber       String      @unique
+  clientName        String
+  clientEmail       String?     // ? AGREGAR
+  clientPhone       String?     // ? AGREGAR
+  description       String
+  state             String
+  priority          String
+  responsibleId     String
+  createdBy         String
+  archived          Boolean     @default(false)
+  location          String?
+  estimatedHours    Int?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  responsible       User        @relation("OrderResponsible", fields: [responsibleId], references: [id])
+  creator           User        @relation("OrderCreator", fields: [createdBy], references: [id])
+  workPlans         WorkPlan[]
+  evidences         Evidence[]
+
+  @@index([state])
+  @@index([responsibleId])
+  @@index([createdBy])
+}
+
+model WorkPlan {
+  id                String    @id @default(uuid())
+  orderId           String
+  title             String
+  description       String
+  status            String
+  estimatedBudget   Float
+  actualBudget      Float?
+  materials         String?
+  tools             String?
+  equipment         String?
+  ppe               String?
+  asts              String?   // ? AGREGAR
+  checklists        String?   // ? AGREGAR
+  budgetBreakdown   String?
+  tasks             String?
+  attachments       String?
+  safetyMeetings    String?
+  assignedTeam      String?
+  plannedStart      DateTime?
+  plannedEnd        DateTime?
+  actualStart       DateTime?
+  actualEnd         DateTime?
+  notes             String?
+  createdById       String    // ? Usar createdById
+  approvedBy        String?
+  approvedAt        DateTime?
+  approvalComments  String?
+  rejectedBy        String?
+  rejectedAt        DateTime?
+  rejectionReason   String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  order             Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  createdBy         User      @relation("WorkPlanCreator", fields: [createdById], references: [id])
+  approver          User?     @relation("WorkPlanApprover", fields: [approvedBy], references: [id])
+  rejecter          User?     @relation("WorkPlanRejecter", fields: [rejectedBy], references: [id])
+
+  @@index([orderId])
+  @@index([status])
+}
+
+model Evidence {
+  id                String    @id @default(uuid())
+  orderId           String
+  filename          String
+  filepath          String
+  mimetype          String
+  size              Int
+  stage             String
+  type              String?
+  status            String    @default("PENDING")
+  checksum          String
+  previousVersions   String?
+  metadata           String?
+  approvalComments   String?
+  version           Int       @default(1)
+  uploadedById      String
+  approvedBy        String?
+  approvedAt        DateTime?
+  rejectedBy        String?
+  rejectedAt        DateTime?
+  rejectionReason   String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  order             Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  uploadedBy        User      @relation("EvidenceUploader", fields: [uploadedById], references: [id])
+  approver          User?     @relation("EvidenceApprover", fields: [approvedBy], references: [id])
+  rejecter          User?     @relation("EvidenceRejecter", fields: [rejectedBy], references: [id])
+
+  @@index([orderId])
+  @@index([stage])
+  @@index([status])
+}
+
+model AuditLog {
+  id                String    @id @default(uuid())
+  entityType        String
+  entityId          String
+  action            String
+  userId            String
+  before            String?
+  after             String?
+  ip                String
+  userAgent         String?
+  reason            String?
+  timestamp         DateTime  @default(now())
+
+  user              User      @relation(fields: [userId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([action])
+  @@index([timestamp])
+}
+
+model TokenBlacklist {
+  id                String    @id @default(uuid())
+  token             String    @unique
+  userId            String
+  type              String    // Mantener como String en Prisma
+  expiresAt         DateTime
+  revokedAt         DateTime  @default(now())
+  createdAt         DateTime  @default(now())
+
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model RefreshToken {
+  id                String    @id @default(uuid())
+  token             String    @unique
+  userId            String
+  family            String
+  isRevoked         Boolean   @default(false)
+  ipAddress         String?
+  userAgent         String?
+  expiresAt         DateTime
+  lastUsedAt        DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now())
+
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@index([family])
+}
+
+model Kit {
+  id                String    @id @default(uuid())
+  name              String
+  description       String
+  category          String
+  active            Boolean   @default(true)
+  tools             String    @default("[]")
+  equipment         String    @default("[]")
+  documents         String    @default("[]")
+  createdBy         String
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now())
+
+  creator           User      @relation("KitCreator", fields: [createdBy], references: [id])
+
+  @@index([category])
+  @@index([active])
+}
