@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { orderRepository } from '../../db/repositories/OrderRepository';
-import { auditLogRepository } from '../../db/repositories/AuditLogRepository';
-import { AuditService } from '../../../domain/services/AuditService';
-import { AuditAction } from '../../../domain/entities/AuditLog';
-import { OrderState } from '../../../domain/entities/Order';
+import { orderRepository } from '../../db/repositories/OrderRepository.js';
+import { auditLogRepository } from '../../db/repositories/AuditLogRepository.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { OrderState } from '../../../domain/entities/Order.js';
 
 /**
  * Controller para gestión de órdenes
@@ -286,7 +286,7 @@ class OrdersController {
       const { userId: assignedUserId } = req.body;
 
       // Usar update en lugar de assignToUser
-      const updated = await orderRepository.update(id, { userId: assignedUserId });
+      const updated = await orderRepository.update(id, { responsibleId: assignedUserId });
 
       const auditService = new AuditService(auditLogRepository);
       await auditService.log({
@@ -294,7 +294,7 @@ class OrdersController {
         entityId: id,
         action: AuditAction.ASSIGN_RESPONSIBLE,
         userId: (req as any).user?.userId,
-        after: { assignedUserId },
+        after: { responsibleId: assignedUserId },
         ip: req.ip || 'unknown',
         reason: 'Order assigned to user',
       });

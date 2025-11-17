@@ -1,6 +1,6 @@
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import type { Order } from '../../../domain/entities/Order';
-import { OrderState } from '../../../domain/entities/Order';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import type { Order } from '../../../domain/entities/Order.js';
+import { OrderState } from '../../../domain/entities/Order.js';
 
 /**
  * Error personalizado para operaciones de creación de orden
@@ -118,9 +118,7 @@ export class CreateOrder {
    * @param {CreateOrderDto} dto - DTO con los datos
    * @returns {Omit<Order, 'id'>} Datos de la orden para crear
    */
-  private buildOrderData(dto: CreateOrderDto): Omit<Order, 'id'> {
-    const now = new Date();
-
+  private buildOrderData(dto: CreateOrderDto): Omit<Order, 'id' | 'createdAt' | 'updatedAt' | 'orderNumber'> {
     return {
       clientName: dto.clientName.trim(),
       description: dto.description.trim(),
@@ -128,8 +126,6 @@ export class CreateOrder {
       state: OrderState.SOLICITUD,
       responsibleId: dto.createdBy,
       createdBy: dto.createdBy,
-      createdAt: now,
-      updatedAt: now,
       archived: false,
       ...(dto.clientEmail && { clientEmail: dto.clientEmail.trim().toLowerCase() }),
       ...(dto.clientPhone && { clientPhone: dto.clientPhone.trim() }),

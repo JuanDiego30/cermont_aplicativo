@@ -1,4 +1,4 @@
-import type { Order, OrderState } from '../entities/Order';
+import type { Order, OrderState } from '../entities/Order.js';
 
 /**
  * Filtros para buscar órdenes
@@ -51,7 +51,7 @@ export interface IOrderRepository {
    * @returns {Promise<Order>} Orden creada con ID y timestamps
    * @throws {Error} Si falla la persistencia
    */
-  create(order: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>): Promise<Order>;
+  create(order: Omit<Order, 'id' | 'createdAt' | 'updatedAt' | 'orderNumber'>): Promise<Order>;
 
   /**
    * Busca una orden por ID

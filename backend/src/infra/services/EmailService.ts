@@ -7,9 +7,9 @@
  */
 
 import nodemailer, { type Transporter } from 'nodemailer';
-import type { Order } from '../../domain/entities/Order';
-import type { WorkPlan } from '../../domain/entities/WorkPlan';
-import { logger } from '../../shared/utils/logger';
+import type { Order } from '../../domain/entities/Order.js';
+import type { WorkPlan } from '../../domain/entities/WorkPlan.js';
+import { logger } from '../../shared/utils/logger.js';
 
 /**
  * Configuraci�n del servicio de email

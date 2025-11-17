@@ -15,12 +15,20 @@ export enum OrderState {
 }
 
 /**
+ * Prioridades disponibles para la orden
+ */
+export type OrderPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'NORMAL';
+
+/**
  * Entidad: Orden de trabajo
  * Representa una orden de trabajo en el sistema ATG
  */
-export interface Order extends Record<string, unknown> {
+export interface Order {
   /** ID único de la orden */
   id: string;
+
+  /** Número interno de orden */
+  orderNumber: string;
 
   /** Identificador externo para integraciones */
   externalId?: string;
@@ -31,20 +39,26 @@ export interface Order extends Record<string, unknown> {
   /** Nombre del cliente */
   clientName: string;
 
+  /** Email del cliente */
+  clientEmail?: string;
+
+  /** Teléfono del cliente */
+  clientPhone?: string;
+
   /** Descripción del trabajo a realizar */
   description: string;
 
   /** Dirección o ubicación del trabajo */
-  location: string;
+  location?: string;
 
   /** Estado actual de la orden */
   state: OrderState;
 
   /** Prioridad del trabajo */
-  priority?: 'LOW' | 'MEDIUM' | 'HIGH';
+  priority?: OrderPriority;
 
   /** ID del responsable asignado */
-  responsibleId?: string;
+  responsibleId: string;
 
   /** ID del plan de trabajo enlazado */
   workPlanId?: string;

@@ -1,13 +1,13 @@
 import type { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { userRepository } from '../../db/repositories/UserRepository';
-import { jwtService } from '../../../shared/security/jwtService';
-import { RefreshTokenService } from '../../../shared/security/RefreshTokenService';
-import { tokenBlacklistRepository } from '../../db/repositories/TokenBlacklistRepository';
-import { auditLogRepository } from '../../db/repositories/AuditLogRepository';
-import { AuditService } from '../../../domain/services/AuditService';
-import { TokenType } from '../../../domain/entities/TokenBlacklist';
-import { AuditAction } from '../../../domain/entities/AuditLog';
+import { userRepository } from '../../db/repositories/UserRepository.js';
+import { jwtService } from '../../../shared/security/jwtService.js';
+import { RefreshTokenService } from '../../../shared/security/RefreshTokenService.js';
+import { tokenBlacklistRepository } from '../../db/repositories/TokenBlacklistRepository.js';
+import { auditLogRepository } from '../../db/repositories/AuditLogRepository.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { TokenType } from '../../../domain/entities/TokenBlacklist.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
 
 /**
  * Controller para autenticación y gestión de sesiones

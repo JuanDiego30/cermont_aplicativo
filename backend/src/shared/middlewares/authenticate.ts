@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { tokenBlacklistRepository } from '../../infra/db/repositories/TokenBlacklistRepository';
-import { logger } from '../utils/logger';
-import { loginFailedTotal } from '../metrics/prometheus';
-import { jwtService } from '../security/jwtService';
+import { tokenBlacklistRepository } from '../../infra/db/repositories/TokenBlacklistRepository.js';
+import { logger } from '../utils/logger.js';
+import { loginFailedTotal } from '../metrics/prometheus.js';
+import { jwtService } from '../security/jwtService.js';
 
 /**
  * Extender Request interface para incluir user

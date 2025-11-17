@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { GetKPIs } from '../../../app/dashboard/use-cases/GetKPIs';
-import { orderRepository } from '../../db/repositories/OrderRepository';
-import { userRepository } from '../../db/repositories/UserRepository';
-import { workPlanRepository } from '../../db/repositories/WorkPlanRepository';
-import { evidenceRepository } from '../../db/repositories/EvidenceRepository';
-import { OrderState } from '../../../domain/entities/Order';
+import { GetKPIs } from '../../../app/dashboard/use-cases/GetKPIs.js';
+import { orderRepository } from '../../db/repositories/OrderRepository.js';
+import { userRepository } from '../../db/repositories/UserRepository.js';
+import { workPlanRepository } from '../../db/repositories/WorkPlanRepository.js';
+import { evidenceRepository } from '../../db/repositories/EvidenceRepository.js';
+import { OrderState } from '../../../domain/entities/Order.js';
 
 /**
  * Controller para dashboard y estadísticas

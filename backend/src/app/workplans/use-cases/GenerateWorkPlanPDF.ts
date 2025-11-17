@@ -1,21 +1,21 @@
 /**
  * Use Case: Generar PDF de plan de trabajo
- * Resuelve: Generación automática de PDF del plan
+ * Resuelve: Generaciï¿½n automï¿½tica de PDF del plan
  * 
  * @file backend/src/app/workplans/use-cases/GenerateWorkPlanPDF.ts
  */
 
-import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository';
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import { PdfGeneratorService } from '../../../infra/services/PdfGeneratorService';
-import { logger } from '../../../shared/utils/logger';
+import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository.js';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import { PdfGeneratorService } from '../../../infra/services/PdfGeneratorService.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
- * Error de generación
+ * Error de generaciï¿½n
  */
 export class GenerateWorkPlanPDFError extends Error {
   constructor(
@@ -69,7 +69,7 @@ export class GenerateWorkPlanPDF {
       }
 
       // 3. Generar PDF usando PdfGeneratorService
-      // Nota: Necesitarías agregar un método en PdfGeneratorService para planes
+      // Nota: Necesitarï¿½as agregar un mï¿½todo en PdfGeneratorService para planes
       // Por ahora usaremos un placeholder
 
       const pdfBuffer = Buffer.from('WorkPlan PDF placeholder');

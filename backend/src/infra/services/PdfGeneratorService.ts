@@ -12,9 +12,9 @@ import { existsSync } from 'fs';
 import puppeteer from 'puppeteer';
 import Handlebars from 'handlebars';
 import fs from 'fs/promises';
-import type { Order } from '../../domain/entities/Order';
-import type { WorkPlan } from '../../domain/entities/WorkPlan';
-import type { Evidence } from '../../domain/entities/Evidence';
+import type { Order } from '../../domain/entities/Order.js';
+import type { WorkPlan } from '../../domain/entities/WorkPlan.js';
+import type { Evidence } from '../../domain/entities/Evidence.js';
 
 /**
  * Opciones para generaci�n de PDF

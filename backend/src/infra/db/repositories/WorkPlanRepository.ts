@@ -5,13 +5,24 @@
  * @file src/infra/db/repositories/WorkPlanRepository.ts
  */
 
-import prisma from '../prisma';
-import type { WorkPlan } from '@/domain/entities/WorkPlan';
-import type { IWorkPlanRepository } from '@/domain/repositories/IWorkPlanRepository';
+import prisma from '../prisma.js';
+import type { WorkPlan } from '@/domain/entities/WorkPlan.js';
+import type { IWorkPlanRepository } from '@/domain/repositories/IWorkPlanRepository.js';
 
-const toStringOrNull = (_: unknown): string | null => null;
+const toStringOrNull = (value: unknown): string | null => typeof value === 'string' ? value : null;
 
-const toDateOrNull = (_: unknown): Date | null => null;
+const toDateOrNull = (value: unknown): Date | null => {
+  if (!value) {
+    return null;
+  }
+
+  if (value instanceof Date) {
+    return value;
+  }
+
+  const parsed = new Date(value as string);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
 
 export class WorkPlanRepository implements IWorkPlanRepository {
   /**
@@ -283,14 +294,14 @@ export class WorkPlanRepository implements IWorkPlanRepository {
   /**
    * Approve WorkPlan
    */
-  async approve(id: string, approvedBy: string, _: string | undefined): Promise<WorkPlan> {
+  async approve(id: string, approvedBy: string, comments?: string): Promise<WorkPlan> {
     const prismaWorkPlan = await prisma.workPlan.update({
       where: { id },
       data: {
         status: 'APROBADO',
         approvedBy,
         approvedAt: new Date(),
-        // Note: comments no existe en schema, considerar agregarlo
+        approvalComments: comments ?? undefined,
       },
       include: {
         order: true,

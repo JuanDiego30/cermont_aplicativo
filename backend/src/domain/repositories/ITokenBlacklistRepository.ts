@@ -1,4 +1,4 @@
-import type { TokenBlacklist, TokenType } from '../entities/TokenBlacklist';
+import type { TokenBlacklist, TokenType } from '../entities/TokenBlacklist.js';
 
 /**
  * Estadísticas de la blacklist

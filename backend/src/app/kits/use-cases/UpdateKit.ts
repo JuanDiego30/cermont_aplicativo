@@ -1,7 +1,7 @@
-import type { IKitRepository } from '../../../domain/repositories/IKitRepository';
-import type { Kit } from '../../../domain/entities/Kit';
-import { kitRepository } from '../../../infra/db/repositories/KitRepository';
-import { logger } from '../../../shared/utils/logger';
+import type { IKitRepository } from '../../../domain/repositories/IKitRepository.js';
+import type { Kit } from '../../../domain/entities/Kit.js';
+import { kitRepository } from '../../../infra/db/repositories/KitRepository.js';
+import { logger } from '../../../shared/utils/logger.js';
 
 /**
  * Caso de uso: Actualizar Kit

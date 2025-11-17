@@ -6,16 +6,16 @@
  */
 
 import type { Request, Response, NextFunction } from 'express';
-import { UploadEvidence } from '../../../app/evidences/use-cases/UploadEvidence';
-import { ApproveEvidence } from '../../../app/evidences/use-cases/ApproveEvidence';
-import { RejectEvidence } from '../../../app/evidences/use-cases/RejectEvidence';
-import { GetEvidencesByOrder } from '../../../app/evidences/use-cases/GetEvidencesByOrder';
-import { DeleteEvidence } from '../../../app/evidences/use-cases/DeleteEvidence';
-import { SyncOfflineEvidences } from '../../../app/evidences/use-cases/SyncOfflineEvidences';
-import { evidenceRepository } from '../../db/repositories/EvidenceRepository';
-import { orderRepository } from '../../db/repositories/OrderRepository';
-import { auditLogRepository } from '../../db/repositories/AuditLogRepository';
-import { AuditService } from '../../../domain/services/AuditService';
+import { UploadEvidence } from '../../../app/evidences/use-cases/UploadEvidence.js';
+import { ApproveEvidence } from '../../../app/evidences/use-cases/ApproveEvidence.js';
+import { RejectEvidence } from '../../../app/evidences/use-cases/RejectEvidence.js';
+import { GetEvidencesByOrder } from '../../../app/evidences/use-cases/GetEvidencesByOrder.js';
+import { DeleteEvidence } from '../../../app/evidences/use-cases/DeleteEvidence.js';
+import { SyncOfflineEvidences } from '../../../app/evidences/use-cases/SyncOfflineEvidences.js';
+import { evidenceRepository } from '../../db/repositories/EvidenceRepository.js';
+import { orderRepository } from '../../db/repositories/OrderRepository.js';
+import { auditLogRepository } from '../../db/repositories/AuditLogRepository.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
 
 /**
  * Controller de evidencias

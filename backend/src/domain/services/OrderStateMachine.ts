@@ -1,4 +1,4 @@
-import { OrderState } from '../entities/Order';
+import { OrderState } from '../entities/Order.js';
 
 /**
  * Error personalizado para transiciones inválidas de estado

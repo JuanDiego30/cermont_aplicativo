@@ -1,10 +1,10 @@
 /**
  * Servicio de almacenamiento de archivos (evidencias)
- * Resuelve: Pérdida de certificados, extravío de evidencias
+ * Resuelve: Pï¿½rdida de certificados, extravï¿½o de evidencias
  * 
  * @file backend/src/infra/services/FileStorageService.ts
  * @requires multer
- * @requires sharp (compresión de imágenes)
+ * @requires sharp (compresiï¿½n de imï¿½genes)
  */
 
 import fs from 'fs/promises';
@@ -13,7 +13,7 @@ import crypto from 'crypto';
 import sharp from 'sharp';
 
 /**
- * Configuración de almacenamiento
+ * Configuraciï¿½n de almacenamiento
  */
 interface StorageConfig {
   basePath: string;
@@ -67,7 +67,7 @@ export class FileStorageService {
   async initialize(): Promise<void> {
     await fs.mkdir(this.config.basePath, { recursive: true });
     
-    // Crear subdirectorios por año/mes
+    // Crear subdirectorios por aï¿½o/mes
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -86,7 +86,7 @@ export class FileStorageService {
     originalName: string,
     mimeType: string
   ): Promise<UploadResult> {
-    // Validar tamaño
+    // Validar tamaï¿½o
     if (fileBuffer.length > this.config.maxFileSize) {
       throw new Error(`File size exceeds maximum allowed: ${this.config.maxFileSize} bytes`);
     }
@@ -102,10 +102,10 @@ export class FileStorageService {
       processedBuffer = await this.compressImage(fileBuffer);
     }
 
-    // Generar nombre único
+    // Generar nombre ï¿½nico
     const filename = this.generateUniqueFilename(originalName);
     
-    // Obtener ruta por fecha (año/mes)
+    // Obtener ruta por fecha (aï¿½o/mes)
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -139,7 +139,7 @@ export class FileStorageService {
     
     try {
       return await fs.readFile(fullPath);
-    } catch (_) {
+    } catch {
       throw new Error(`File not found: ${filePath}`);
     }
   }
@@ -147,7 +147,7 @@ export class FileStorageService {
   /**
    * Elimina un archivo
    * @param {string} filePath - Ruta relativa del archivo
-   * @returns {Promise<boolean>} True si se eliminó correctamente
+   * @returns {Promise<boolean>} True si se eliminï¿½ correctamente
    */
   async delete(filePath: string): Promise<boolean> {
     const fullPath = path.join(this.config.basePath, filePath);
@@ -192,7 +192,7 @@ export class FileStorageService {
   }
 
   /**
-   * Genera un nombre de archivo único
+   * Genera un nombre de archivo ï¿½nico
    * @private
    */
   private generateUniqueFilename(originalName: string): string {
@@ -215,8 +215,8 @@ export class FileStorageService {
   }
 
   /**
-   * Obtiene el tamaño total de almacenamiento usado
-   * @returns {Promise<number>} Tamaño en bytes
+   * Obtiene el tamaï¿½o total de almacenamiento usado
+   * @returns {Promise<number>} Tamaï¿½o en bytes
    */
   async getStorageSize(): Promise<number> {
     let totalSize = 0;
@@ -251,8 +251,8 @@ export class FileStorageService {
   private async deleteFromDisk(filePath: string): Promise<void> {
     try {
       await fs.unlink(filePath);
-    } catch (__error: any) {
-      // Log silencioso, el archivo podría no existir
+    } catch {
+      // Log silencioso, el archivo podrÃ­a no existir
     }
   }
 }

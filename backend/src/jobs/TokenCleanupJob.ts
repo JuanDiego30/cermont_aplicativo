@@ -1,9 +1,9 @@
-import { AuditService } from '../domain/services/AuditService';
-import { auditLogRepository } from '../infra/db/repositories/AuditLogRepository';
-import { AuditAction } from '../domain/entities/AuditLog';
-import { refreshTokenRepository } from '../infra/db/repositories/RefreshTokenRepository';
-import { tokenBlacklistRepository } from '../infra/db/repositories/TokenBlacklistRepository';
-import { logger } from '../shared/utils/logger';
+import { AuditService } from '../domain/services/AuditService.js';
+import { auditLogRepository } from '../infra/db/repositories/AuditLogRepository.js';
+import { AuditAction } from '../domain/entities/AuditLog.js';
+import { refreshTokenRepository } from '../infra/db/repositories/RefreshTokenRepository.js';
+import { tokenBlacklistRepository } from '../infra/db/repositories/TokenBlacklistRepository.js';
+import { logger } from '../shared/utils/logger.js';
 
 /**
  * ========================================

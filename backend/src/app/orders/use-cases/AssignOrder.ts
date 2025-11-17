@@ -1,20 +1,20 @@
 /**
- * Use Case: Asignar orden a técnico
- * Resuelve: Asignación de órdenes con validación de jerarquía de roles
+ * Use Case: Asignar orden a tï¿½cnico
+ * Resuelve: Asignaciï¿½n de ï¿½rdenes con validaciï¿½n de jerarquï¿½a de roles
  * 
  * @file backend/src/app/orders/use-cases/AssignOrder.ts
  */
 
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import type { IUserRepository } from '../../../domain/repositories/IUserRepository';
-import { AuditService } from '../../../domain/services/AuditService';
-import { AuditAction } from '../../../domain/entities/AuditLog';
-import { emailService } from '../../../infra/services/EmailService';
-import { logger } from '../../../shared/utils/logger';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import type { IUserRepository } from '../../../domain/repositories/IUserRepository.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { emailService } from '../../../infra/services/EmailService.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * DTO para asignar orden
@@ -27,7 +27,7 @@ export interface AssignOrderDto {
 }
 
 /**
- * Error de asignación
+ * Error de asignaciï¿½n
  */
 export class AssignOrderError extends Error {
   constructor(
@@ -66,12 +66,12 @@ export class AssignOrder {
         );
       }
 
-      // 2. Verificar que el técnico existe y está activo
+      // 2. Verificar que el tï¿½cnico existe y estï¿½ activo
       const technician = await this.userRepository.findById(dto.technicianId);
 
       if (!technician) {
         throw new AssignOrderError(
-          `Técnico ${dto.technicianId} no encontrado`,
+          `Tï¿½cnico ${dto.technicianId} no encontrado`,
           'TECHNICIAN_NOT_FOUND',
           404
         );
@@ -79,7 +79,7 @@ export class AssignOrder {
 
       if (!technician.active) {
         throw new AssignOrderError(
-          'El técnico no está activo',
+          'El tï¿½cnico no estï¿½ activo',
           'TECHNICIAN_INACTIVE',
           400
         );
@@ -93,7 +93,7 @@ export class AssignOrder {
         notes: dto.notes ? `${order.notes || ''}\n${dto.notes}` : order.notes,
       });
 
-      // 4. Registrar en auditoría
+      // 4. Registrar en auditorï¿½a
       await this.auditService.log({
         entityType: 'Order',
         entityId: dto.orderId,
@@ -104,7 +104,7 @@ export class AssignOrder {
         reason: dto.notes || 'Order assigned to technician',
       });
 
-      // 5. Enviar notificación por email al técnico
+      // 5. Enviar notificaciï¿½n por email al tï¿½cnico
       await emailService.notifyOrderAssigned(
         technician.email,
         technician.name,
@@ -136,7 +136,7 @@ export class AssignOrder {
   private validateDto(dto: AssignOrderDto): void {
     try {
       dto.orderId = ObjectIdValidator.validate(dto.orderId, 'ID de la orden');
-      dto.technicianId = ObjectIdValidator.validate(dto.technicianId, 'ID del técnico');
+      dto.technicianId = ObjectIdValidator.validate(dto.technicianId, 'ID del tï¿½cnico');
       dto.assignedBy = ObjectIdValidator.validate(dto.assignedBy, 'ID del asignador');
     } catch (error) {
       if (error instanceof ObjectIdValidationError) {

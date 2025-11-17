@@ -15,43 +15,53 @@ export enum OrderPriority {
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
   HIGH = 'HIGH',
+  URGENT = 'URGENT',
 }
 
 export interface Order {
   id: string;
-  codigo: string;
-  cliente: string;
-  descripcion?: string;
-  ubicacion?: string;
-  state: OrderState | string; // Cambio de 'estado' a 'state' para consistencia
-  prioridad?: string;
-  responsableId?: string;
-  notas?: string;
-  fechaCreacion: string;
-  fechaActualizacion?: string;
+  orderNumber: string;
+  clientName: string;
+  clientEmail?: string;
+  clientPhone?: string;
+  description: string;
+  location: string;
+  state: OrderState | string;
+  priority?: OrderPriority | string;
+  estimatedHours?: number;
+  archived: boolean;
+  responsibleId?: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateOrderDTO {
-  cliente: string;
-  descripcion: string;
-  ubicacion: string;
-  clienteEmail?: string;
-  clienteTelefono?: string;
-  fechaInicioEstimada?: string;
-  notas?: string;
+  clientName: string;
+  clientEmail?: string;
+  clientPhone?: string;
+  description: string;
+  location: string;
+  priority?: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  estimatedHours?: number;
 }
 
 export interface UpdateOrderDTO {
+  clientName?: string;
+  clientEmail?: string;
+  clientPhone?: string;
+  description?: string;
+  location?: string;
+  priority?: string;
+  estimatedHours?: number;
   state?: OrderState;
-  descripcion?: string;
-  responsableId?: string;
 }
 
 export interface ListOrdersParams {
   page?: number;
   limit?: number;
-  estado?: OrderState;
-  prioridad?: OrderPriority;
+  state?: OrderState;
+  priority?: OrderPriority;
   search?: string;
 }
 

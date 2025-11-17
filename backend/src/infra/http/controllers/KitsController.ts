@@ -1,14 +1,14 @@
 import type { Request, Response } from 'express';
-import { CreateKit } from '../../../app/kits/use-cases/CreateKit';
-import { UpdateKit } from '../../../app/kits/use-cases/UpdateKit';
-import { ListKits } from '../../../app/kits/use-cases/ListKits';
-import { DeleteKit } from '../../../app/kits/use-cases/DeleteKit';
-import { kitRepository } from '../../db/repositories/KitRepository';
-import { AuditService } from '../../../domain/services/AuditService';
-import { auditLogRepository } from '../../db/repositories/AuditLogRepository';
-import { logger } from '../../../shared/utils/logger';
-import type { KitCategory } from '../../../domain/entities/Kit';
-import { AuditAction } from '../../../domain/entities/AuditLog';
+import { CreateKit } from '../../../app/kits/use-cases/CreateKit.js';
+import { UpdateKit } from '../../../app/kits/use-cases/UpdateKit.js';
+import { ListKits } from '../../../app/kits/use-cases/ListKits.js';
+import { DeleteKit } from '../../../app/kits/use-cases/DeleteKit.js';
+import { kitRepository } from '../../db/repositories/KitRepository.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { auditLogRepository } from '../../db/repositories/AuditLogRepository.js';
+import { logger } from '../../../shared/utils/logger.js';
+import type { KitCategory } from '../../../domain/entities/Kit.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
 
 const auditService = new AuditService(auditLogRepository);
 

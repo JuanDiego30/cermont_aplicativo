@@ -1,20 +1,20 @@
 /**
  * Use Case: Actualizar plan de trabajo
- * Resuelve: Actualización de planes con validaciones
+ * Resuelve: Actualizaciï¿½n de planes con validaciones
  * 
  * @file backend/src/app/workplans/use-cases/UpdateWorkPlan.ts
  */
 
-import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository';
-import type { WorkPlan, WorkPlanMaterial, WorkPlanTool } from '../../../domain/entities/WorkPlan';
-import { WorkPlanStatus } from '../../../domain/entities/WorkPlan';
-import { AuditService } from '../../../domain/services/AuditService';
-import { AuditAction } from '../../../domain/entities/AuditLog';
-import { logger } from '../../../shared/utils/logger';
+import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository.js';
+import type { WorkPlan, WorkPlanMaterial, WorkPlanTool } from '../../../domain/entities/WorkPlan.js';
+import { WorkPlanStatus } from '../../../domain/entities/WorkPlan.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * DTO para actualizar plan
@@ -31,7 +31,7 @@ export interface UpdateWorkPlanDto {
 }
 
 /**
- * Error de actualización
+ * Error de actualizaciï¿½n
  */
 export class UpdateWorkPlanError extends Error {
   constructor(
@@ -69,7 +69,7 @@ export class UpdateWorkPlan {
         );
       }
 
-      // 2. Verificar que no esté aprobado o rechazado
+      // 2. Verificar que no estï¿½ aprobado o rechazado
       if (workPlan.status !== WorkPlanStatus.DRAFT) {
         throw new UpdateWorkPlanError(
           `No se puede actualizar un plan en estado ${workPlan.status}`,
@@ -84,7 +84,7 @@ export class UpdateWorkPlan {
       // 4. Actualizar el plan
       const updatedWorkPlan = await this.workPlanRepository.update(dto.workPlanId, dto.data);
 
-      // 5. Registrar en auditoría
+      // 5. Registrar en auditorï¿½a
       await this.auditService.log({
         entityType: 'WorkPlan',
         entityId: dto.workPlanId,

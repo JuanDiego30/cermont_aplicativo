@@ -1,19 +1,19 @@
 /**
  * Use Case: Generar formato SES
- * Resuelve: Generación de formato de seguridad, salud y medio ambiente
+ * Resuelve: Generaciï¿½n de formato de seguridad, salud y medio ambiente
  * 
  * @file backend/src/app/reports/use-cases/GenerateSES.ts
  */
 
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository';
-import type { IUserRepository } from '../../../domain/repositories/IUserRepository';
-import { pdfGeneratorService, type SESData } from '../../../infra/services/PdfGeneratorService';
-import { logger } from '../../../shared/utils/logger';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository.js';
+import type { IUserRepository } from '../../../domain/repositories/IUserRepository.js';
+import { pdfGeneratorService, type SESData } from '../../../infra/services/PdfGeneratorService.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * DTO para generar SES
@@ -33,7 +33,7 @@ export interface GenerateSESDto {
 }
 
 /**
- * Error de generación
+ * Error de generaciï¿½n
  */
 export class GenerateSESError extends Error {
   constructor(
@@ -80,13 +80,13 @@ export class GenerateSES {
 
       if (!workPlan) {
         throw new GenerateSESError(
-          'No se encontró plan de trabajo asociado',
+          'No se encontrï¿½ plan de trabajo asociado',
           'WORKPLAN_NOT_FOUND',
           404
         );
       }
 
-      // 3. Obtener técnico responsable
+      // 3. Obtener tï¿½cnico responsable
       let technician = { name: 'N/A', certifications: [] as string[] };
       
       if (order.responsibleId) {

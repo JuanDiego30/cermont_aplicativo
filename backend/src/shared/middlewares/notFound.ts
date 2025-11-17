@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 
 /**
  * ========================================
@@ -10,7 +10,7 @@ import { logger } from '../utils/logger';
  *
  * @example
  * ```
- * import { notFound } from './middlewares/notFound';
+ * import { notFound } from './middlewares/notFound.js';
  *
  * // Despu�s de todas las rutas
  * app.use('/api', apiRoutes);

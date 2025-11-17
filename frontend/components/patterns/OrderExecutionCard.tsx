@@ -38,12 +38,12 @@ export function OrderExecutionCard({
           <div className="flex-1">
             <div className="mb-2 flex items-center gap-2">
               <h3 className="text-xl font-bold text-neutral-900 dark:text-neutral-50">
-                {order.codigo}
+                {order.orderNumber}
               </h3>
               <Badge state={order.state} />
             </div>
             <p className="text-sm text-neutral-600 dark:text-neutral-400">
-              {order.descripcion || 'Sin descripción'}
+              {order.description || 'Sin descripción'}
             </p>
           </div>
           <ArrowRight className="h-6 w-6 text-neutral-400 transition-transform group-hover:translate-x-1 group-hover:text-primary-600" />
@@ -62,7 +62,7 @@ export function OrderExecutionCard({
                 Cliente
               </p>
               <p className="mt-1 font-bold text-neutral-900 dark:text-neutral-50">
-                {order.cliente}
+                {order.clientName}
               </p>
             </div>
           </div>
@@ -76,7 +76,7 @@ export function OrderExecutionCard({
                 Ubicación
               </p>
               <p className="mt-1 font-bold text-neutral-900 dark:text-neutral-50">
-                {order.ubicacion || 'No especificada'}
+                {order.location || 'No especificada'}
               </p>
             </div>
           </div>

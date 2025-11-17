@@ -1,7 +1,7 @@
-import prisma from '../prisma';
-import type { TokenBlacklist } from '../../../domain/entities/TokenBlacklist';
-import { TokenType } from '../../../domain/entities/TokenBlacklist';
-import type { ITokenBlacklistRepository, TokenBlacklistStats } from '../../../domain/repositories/ITokenBlacklistRepository';
+import prisma from '../prisma.js';
+import type { TokenBlacklist } from '../../../domain/entities/TokenBlacklist.js';
+import { TokenType } from '../../../domain/entities/TokenBlacklist.js';
+import type { ITokenBlacklistRepository, TokenBlacklistStats } from '../../../domain/repositories/ITokenBlacklistRepository.js';
 
 export class TokenBlacklistRepository implements ITokenBlacklistRepository {
   private toDomain(entry: any): TokenBlacklist {

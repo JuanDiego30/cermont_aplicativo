@@ -1,20 +1,20 @@
 /**
  * Controller de Reportes - NUEVO
- * Genera reportes y PDFs automáticos
+ * Genera reportes y PDFs automï¿½ticos
  * 
  * @file backend/src/infra/http/controllers/ReportsController.ts
  */
 
 import type { Request, Response, NextFunction } from 'express';
-import { GenerateActivityReport } from '../../../app/reports/use-cases/GenerateActivityReport';
-import { GenerateActaEntrega } from '../../../app/reports/use-cases/GenerateActaEntrega';
-import { GenerateSES } from '../../../app/reports/use-cases/GenerateSES';
-import { GenerateCostReport } from '../../../app/reports/use-cases/GenerateCostReport';
-import { GenerateDashboardReport } from '../../../app/reports/use-cases/GenerateDashboardReport';
-import { orderRepository } from '../../db/repositories/OrderRepository';
-import { workPlanRepository } from '../../db/repositories/WorkPlanRepository';
-import { evidenceRepository } from '../../db/repositories/EvidenceRepository';
-import { userRepository } from '../../db/repositories/UserRepository';
+import { GenerateActivityReport } from '../../../app/reports/use-cases/GenerateActivityReport.js';
+import { GenerateActaEntrega } from '../../../app/reports/use-cases/GenerateActaEntrega.js';
+import { GenerateSES } from '../../../app/reports/use-cases/GenerateSES.js';
+import { GenerateCostReport } from '../../../app/reports/use-cases/GenerateCostReport.js';
+import { GenerateDashboardReport } from '../../../app/reports/use-cases/GenerateDashboardReport.js';
+import { orderRepository } from '../../db/repositories/OrderRepository.js';
+import { workPlanRepository } from '../../db/repositories/WorkPlanRepository.js';
+import { evidenceRepository } from '../../db/repositories/EvidenceRepository.js';
+import { userRepository } from '../../db/repositories/UserRepository.js';
 
 /**
  * Controller de reportes
@@ -117,7 +117,7 @@ export class ReportsController {
           type: 'https://httpstatuses.com/400',
           title: 'Bad Request',
           status: 400,
-          detail: 'realCost debe ser un número válido',
+          detail: 'realCost debe ser un nï¿½mero vï¿½lido',
         });
         return;
       }

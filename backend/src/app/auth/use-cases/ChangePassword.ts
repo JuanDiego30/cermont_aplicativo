@@ -11,11 +11,11 @@
  */
 
 import bcrypt from 'bcrypt';
-import type { IUserRepository } from '../../../domain/repositories/IUserRepository';
-import type { IAuditLogRepository } from '../../../domain/repositories/IAuditLogRepository';
+import type { IUserRepository } from '../../../domain/repositories/IUserRepository.js';
+import type { IAuditLogRepository } from '../../../domain/repositories/IAuditLogRepository.js';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { auditLogRepository } from '../../../infra/db/repositories/AuditLogRepository';
-import { AuditAction } from '../../../domain/entities/AuditLog';
+import { auditLogRepository } from '../../../infra/db/repositories/AuditLogRepository.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
 
 interface ChangePasswordInput {
   userId: string;

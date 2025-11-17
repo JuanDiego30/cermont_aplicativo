@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 import type { Prisma } from '@prisma/client';
-import prisma from '../prisma';
-import { UserModel } from './User';
+import prisma from '../prisma.js';
+import { UserModel } from './User.js';
 
 type TestOrderCreateData = {
   clientName: string;

@@ -1,6 +1,6 @@
-import type { IAuditLogRepository } from '../repositories/IAuditLogRepository';
-import { AuditAction } from '../entities/AuditLog';
-import { SYSTEM_USER_ID } from '../../shared/constants/system';
+import type { IAuditLogRepository } from '../repositories/IAuditLogRepository.js';
+import { AuditAction } from '../entities/AuditLog.js';
+import { SYSTEM_USER_ID } from '../../shared/constants/system.js';
 
 /**
  * Parámetros para crear un log de auditoría

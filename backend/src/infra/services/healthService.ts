@@ -1,6 +1,6 @@
-import { auditLogRepository } from '../db/repositories/AuditLogRepository';
-import { tokenBlacklistRepository } from '../db/repositories/TokenBlacklistRepository';
-import { refreshTokenRepository } from '../db/repositories/RefreshTokenRepository';
+import { auditLogRepository } from '../db/repositories/AuditLogRepository.js';
+import { tokenBlacklistRepository } from '../db/repositories/TokenBlacklistRepository.js';
+import { refreshTokenRepository } from '../db/repositories/RefreshTokenRepository.js';
 
 /**
  * ========================================

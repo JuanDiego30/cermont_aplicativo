@@ -1,20 +1,20 @@
 /**
  * Use Case: Generar informe de actividad
- * Resuelve: Generación automática de informe técnico
+ * Resuelve: Generaciï¿½n automï¿½tica de informe tï¿½cnico
  * 
  * @file backend/src/app/reports/use-cases/GenerateActivityReport.ts
  */
 
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository';
-import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository';
-import type { IUserRepository } from '../../../domain/repositories/IUserRepository';
-import { pdfGeneratorService, type ActivityReportData } from '../../../infra/services/PdfGeneratorService';
-import { logger } from '../../../shared/utils/logger';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository.js';
+import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository.js';
+import type { IUserRepository } from '../../../domain/repositories/IUserRepository.js';
+import { pdfGeneratorService, type ActivityReportData } from '../../../infra/services/PdfGeneratorService.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * DTO para generar reporte
@@ -25,7 +25,7 @@ export interface GenerateActivityReportDto {
 }
 
 /**
- * Error de generación
+ * Error de generaciï¿½n
  */
 export class GenerateActivityReportError extends Error {
   constructor(
@@ -73,7 +73,7 @@ export class GenerateActivityReport {
 
       if (!workPlan) {
         throw new GenerateActivityReportError(
-          'No se encontró plan de trabajo asociado',
+          'No se encontrï¿½ plan de trabajo asociado',
           'WORKPLAN_NOT_FOUND',
           404
         );
@@ -82,7 +82,7 @@ export class GenerateActivityReport {
       // 3. Obtener evidencias
       const evidences = await this.evidenceRepository.findByOrderId(validatedOrderId);
 
-      // 4. Obtener técnico responsable
+      // 4. Obtener tï¿½cnico responsable
       let technician = { name: 'N/A', role: 'N/A' };
       
       if (order.responsibleId) {
@@ -106,7 +106,7 @@ export class GenerateActivityReport {
           startDate: workPlan.actualStart || workPlan.plannedStart || new Date(),
           endDate: workPlan.actualEnd || workPlan.plannedEnd || new Date(),
           durationHours: order.actualHours || order.estimatedHours || 0,
-          location: order.location,
+          location: order.location ?? 'Sin ubicaciÃ³n definida',
         },
         observations: dto.observations,
         generatedAt: new Date(),

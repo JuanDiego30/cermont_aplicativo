@@ -1,9 +1,9 @@
 import cron from 'node-cron';
-import { orderRepository } from '../infra/db/repositories/OrderRepository';
-import { AuditService } from '../domain/services/AuditService';
-import { AuditAction } from '../domain/entities/AuditLog';
-import { auditLogRepository } from '../infra/db/repositories/AuditLogRepository';
-import { logger } from '../shared/utils/logger';
+import { orderRepository } from '../infra/db/repositories/OrderRepository.js';
+import { AuditService } from '../domain/services/AuditService.js';
+import { AuditAction } from '../domain/entities/AuditLog.js';
+import { auditLogRepository } from '../infra/db/repositories/AuditLogRepository.js';
+import { logger } from '../shared/utils/logger.js';
 
 /**
  * ========================================
@@ -16,7 +16,7 @@ import { logger } from '../shared/utils/logger';
  *
  * @example
  * ```
- * import { ArchiveOrdersJob } from './jobs/ArchiveOrdersJob';
+ * import { ArchiveOrdersJob } from './jobs/ArchiveOrdersJob.js';
  * ArchiveOrdersJob.schedule();
  * ```
  */

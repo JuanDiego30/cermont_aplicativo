@@ -1,30 +1,30 @@
 import { Router } from 'express';
-import { KitsController } from '../controllers/KitsController';
-import { authenticate } from '../../../shared/middlewares/authenticate';
-import { authorize } from '../../../shared/middlewares/authorize';
-import { PERMISSIONS } from '../../../shared/constants/permissions';
+import { KitsController } from '../controllers/KitsController.js';
+import { authenticate } from '../../../shared/middlewares/authenticate.js';
+import { authorize } from '../../../shared/middlewares/authorize.js';
+import { PERMISSIONS } from '../../../shared/constants/permissions.js';
 
 const router = Router();
 
-// Todas las rutas requieren autenticación
+// Todas las rutas requieren autenticaciï¿½n
 router.use(authenticate);
 
 /**
  * GET /api/kits
- * Listar kits con filtros y paginación
+ * Listar kits con filtros y paginaciï¿½n
  */
 router.get('/', authorize([PERMISSIONS.READ_KITS]), KitsController.list);
 
 /**
  * GET /api/kits/stats
- * Obtener estadísticas de kits
+ * Obtener estadï¿½sticas de kits
  * Nota: Esta ruta debe ir antes de /:id para evitar conflictos
  */
 router.get('/stats', authorize([PERMISSIONS.READ_KITS]), KitsController.getStats);
 
 /**
  * GET /api/kits/category/:category
- * Obtener kits por categoría
+ * Obtener kits por categorï¿½a
  */
 router.get(
   '/category/:category',

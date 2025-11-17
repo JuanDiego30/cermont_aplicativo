@@ -1,20 +1,20 @@
 /**
  * Use Case: Obtener plan de trabajo por ID
- * Resuelve: Recuperación de plan con validaciones
+ * Resuelve: Recuperaciï¿½n de plan con validaciones
  * 
  * @file backend/src/app/workplans/use-cases/GetWorkPlanById.ts
  */
 
-import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository';
-import type { WorkPlan } from '../../../domain/entities/WorkPlan';
-import { logger } from '../../../shared/utils/logger';
+import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository.js';
+import type { WorkPlan } from '../../../domain/entities/WorkPlan.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
- * Error de obtención
+ * Error de obtenciï¿½n
  */
 export class GetWorkPlanByIdError extends Error {
   constructor(

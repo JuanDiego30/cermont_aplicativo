@@ -1,5 +1,5 @@
-import { refreshTokenRepository } from '../../infra/db/repositories/RefreshTokenRepository';
-import { logger } from '../utils/logger';
+import { refreshTokenRepository } from '../../infra/db/repositories/RefreshTokenRepository.js';
+import { logger } from '../utils/logger.js';
 import { randomBytes } from 'crypto';
 
 /**

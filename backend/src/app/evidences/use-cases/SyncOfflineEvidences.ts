@@ -1,13 +1,13 @@
 /**
  * Use Case: Sincronizar evidencias offline
- * Resuelve: Sincronización de evidencias subidas en modo offline
+ * Resuelve: Sincronizaciï¿½n de evidencias subidas en modo offline
  * 
  * @file backend/src/app/evidences/use-cases/SyncOfflineEvidences.ts
  */
 
-import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository';
-import { syncQueueService, SyncEntityType, SyncOperation } from '../../../infra/services/SyncQueueService';
-import { logger } from '../../../shared/utils/logger';
+import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository.js';
+import { syncQueueService, SyncEntityType, SyncOperation } from '../../../infra/services/SyncQueueService.js';
+import { logger } from '../../../shared/utils/logger.js';
 
 /**
  * Evidencia pendiente de sincronizar
@@ -23,7 +23,7 @@ export interface PendingEvidence {
 }
 
 /**
- * Resultado de sincronización
+ * Resultado de sincronizaciï¿½n
  */
 export interface SyncResult {
   success: boolean;
@@ -47,13 +47,13 @@ export class SyncOfflineEvidences {
       errors: [],
     };
 
-    logger.info('[SyncOfflineEvidences] Iniciando sincronización', {
+    logger.info('[SyncOfflineEvidences] Iniciando sincronizaciï¿½n', {
       count: pendingEvidences.length,
     });
 
     for (const pendingEvidence of pendingEvidences) {
       try {
-        // Agregar a la cola de sincronización
+        // Agregar a la cola de sincronizaciï¿½n
         await syncQueueService.enqueue(
           SyncEntityType.EVIDENCE,
           pendingEvidence.tempId,
@@ -91,7 +91,7 @@ export class SyncOfflineEvidences {
       }
     }
 
-    logger.info('[SyncOfflineEvidences] Sincronización completada', {
+    logger.info('[SyncOfflineEvidences] Sincronizaciï¿½n completada', {
       synced: result.synced,
       failed: result.failed,
     });

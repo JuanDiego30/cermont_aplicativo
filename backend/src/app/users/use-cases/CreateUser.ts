@@ -1,9 +1,9 @@
 import bcrypt from 'bcrypt';
-import type { User } from '@/domain/entities/User';
-import type { IUserRepository } from '@/domain/repositories/IUserRepository';
-import { UserRole } from '@/shared/constants/roles';
-import type { IAuditLogRepository } from '@/domain/repositories/IAuditLogRepository';
-import { AuditAction } from '@/domain/entities/AuditLog';
+import type { User } from '@/domain/entities/User.js';
+import type { IUserRepository } from '@/domain/repositories/IUserRepository.js';
+import { UserRole } from '@/shared/constants/roles.js';
+import type { IAuditLogRepository } from '@/domain/repositories/IAuditLogRepository.js';
+import { AuditAction } from '@/domain/entities/AuditLog.js';
 
 interface CreateUserInput {
   email: string;

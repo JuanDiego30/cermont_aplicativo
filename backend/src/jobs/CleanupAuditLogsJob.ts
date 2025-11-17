@@ -1,6 +1,6 @@
 import cron from 'node-cron';
-import { auditLogRepository } from '../infra/db/repositories/AuditLogRepository';
-import { logger } from '../shared/utils/logger';
+import { auditLogRepository } from '../infra/db/repositories/AuditLogRepository.js';
+import { logger } from '../shared/utils/logger.js';
 
 /**
  * ========================================

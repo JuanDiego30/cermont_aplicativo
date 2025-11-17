@@ -1,7 +1,7 @@
 // @ts-ignore - ESM import compatibility
 import request from 'supertest';
-import createApp from '../app';
-import prisma from '../infra/db/prisma';
+import createApp from '../app.js';
+import prisma from '../infra/db/prisma.js';
 // @ts-ignore - ESM import compatibility  
 import bcrypt from 'bcrypt';
 

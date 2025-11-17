@@ -1,19 +1,19 @@
 /**
  * Use Case: Rechazar plan de trabajo
- * Resuelve: Rechazo de planes con razón y notificación
+ * Resuelve: Rechazo de planes con razï¿½n y notificaciï¿½n
  * 
  * @file backend/src/app/workplans/use-cases/RejectWorkPlan.ts
  */
 
-import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository';
-import { WorkPlanStatus } from '../../../domain/entities/WorkPlan';
-import { AuditService } from '../../../domain/services/AuditService';
-import { AuditAction } from '../../../domain/entities/AuditLog';
-import { logger } from '../../../shared/utils/logger';
+import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository.js';
+import { WorkPlanStatus } from '../../../domain/entities/WorkPlan.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * DTO para rechazar plan
@@ -63,10 +63,10 @@ export class RejectWorkPlan {
         );
       }
 
-      // 2. Verificar que esté en estado DRAFT
+      // 2. Verificar que estï¿½ en estado DRAFT
       if (workPlan.status !== WorkPlanStatus.DRAFT) {
         throw new RejectWorkPlanError(
-          `El plan ya está ${workPlan.status}`,
+          `El plan ya estï¿½ ${workPlan.status}`,
           'INVALID_STATUS',
           400
         );
@@ -80,7 +80,7 @@ export class RejectWorkPlan {
         rejectionReason: dto.reason,
       });
 
-      // 4. Registrar en auditoría
+      // 4. Registrar en auditorï¿½a
       await this.auditService.log({
         entityType: 'WorkPlan',
         entityId: dto.workPlanId,
@@ -125,7 +125,7 @@ export class RejectWorkPlan {
 
     if (!dto.reason || dto.reason.trim().length === 0) {
       throw new RejectWorkPlanError(
-        'Debe proporcionar una razón para rechazar el plan',
+        'Debe proporcionar una razï¿½n para rechazar el plan',
         'MISSING_REASON',
         400
       );
@@ -133,7 +133,7 @@ export class RejectWorkPlan {
 
     if (dto.reason.length < 10) {
       throw new RejectWorkPlanError(
-        'La razón debe tener al menos 10 caracteres',
+        'La razï¿½n debe tener al menos 10 caracteres',
         'REASON_TOO_SHORT',
         400
       );

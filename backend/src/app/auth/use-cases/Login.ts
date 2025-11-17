@@ -15,12 +15,12 @@
  */
 
 import bcrypt from 'bcrypt';
-import type { IUserRepository } from '@/domain/repositories/IUserRepository';
-import type { ITokenBlacklistRepository } from '@/domain/repositories/ITokenBlacklistRepository';
-import type { IAuditLogRepository } from '@/domain/repositories/IAuditLogRepository';
-import { TokenService } from '@/domain/services/TokenService';
-import { AuditAction } from '@/domain/entities/AuditLog';
-import { SYSTEM_USER_ID } from '@/shared/constants/system';
+import type { IUserRepository } from '@/domain/repositories/IUserRepository.js';
+import type { ITokenBlacklistRepository } from '@/domain/repositories/ITokenBlacklistRepository.js';
+import type { IAuditLogRepository } from '@/domain/repositories/IAuditLogRepository.js';
+import { TokenService } from '@/domain/services/TokenService.js';
+import { AuditAction } from '@/domain/entities/AuditLog.js';
+import { SYSTEM_USER_ID } from '@/shared/constants/system.js';
 
 interface LoginInput {
   email: string;

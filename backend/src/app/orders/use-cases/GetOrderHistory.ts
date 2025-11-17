@@ -1,19 +1,19 @@
 /**
  * Use Case: Obtener historial de orden
- * Resuelve: Visualización del historial completo de cambios de una orden
+ * Resuelve: Visualizaciï¿½n del historial completo de cambios de una orden
  * 
  * @file backend/src/app/orders/use-cases/GetOrderHistory.ts
  */
 
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import type { IAuditLogRepository } from '../../../domain/repositories/IAuditLogRepository';
-import type { Order } from '../../../domain/entities/Order';
-import type { AuditLog } from '../../../domain/entities/AuditLog';
-import { logger } from '../../../shared/utils/logger';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import type { IAuditLogRepository } from '../../../domain/repositories/IAuditLogRepository.js';
+import type { Order } from '../../../domain/entities/Order.js';
+import type { AuditLog } from '../../../domain/entities/AuditLog.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * Historial de orden
@@ -66,10 +66,10 @@ export class GetOrderHistory {
         );
       }
 
-      // 2. Obtener logs de auditoría
+      // 2. Obtener logs de auditorï¿½a
       const auditLogs = await this.auditLogRepository.findByEntity('Order', validatedOrderId);
 
-      // 3. Ordenar por fecha (más reciente primero)
+      // 3. Ordenar por fecha (mï¿½s reciente primero)
       auditLogs.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
       logger.info('[GetOrderHistory] Historial obtenido', {

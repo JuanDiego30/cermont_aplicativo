@@ -5,26 +5,29 @@
  * @file src/infra/db/repositories/OrderRepository.ts
  */
 
-import prisma from '../prisma';
-import type { Order, OrderState } from '../../../domain/entities/Order';
-import type { IOrderRepository, OrderStats } from '../../../domain/repositories/IOrderRepository';
+import prisma from '../prisma.js';
+import type { Order as PrismaOrder } from '@prisma/client';
+import type { Order, OrderPriority, OrderState } from '../../../domain/entities/Order.js';
+import type { IOrderRepository, OrderStats } from '../../../domain/repositories/IOrderRepository.js';
 
 export class OrderRepository implements IOrderRepository {
   /**
    * Convertir Prisma Order a Domain Order
    */
-  private toDomain(prismaOrder: any): Order {
+  private toDomain(prismaOrder: PrismaOrder): Order {
+    const priority = prismaOrder.priority as OrderPriority;
+
     return {
       id: prismaOrder.id,
       orderNumber: prismaOrder.orderNumber,
       clientName: prismaOrder.clientName,
-      clientEmail: prismaOrder.clientEmail || undefined,
-      clientPhone: prismaOrder.clientPhone || undefined,
+      clientEmail: prismaOrder.clientEmail ?? undefined,
+      clientPhone: prismaOrder.clientPhone ?? undefined,
       description: prismaOrder.description,
       state: prismaOrder.state as OrderState,
-      priority: prismaOrder.priority || 'NORMAL',
-      location: prismaOrder.location || undefined,
-      estimatedHours: prismaOrder.estimatedHours || undefined,
+      priority,
+      location: prismaOrder.location ?? undefined,
+      estimatedHours: prismaOrder.estimatedHours ?? undefined,
       archived: prismaOrder.archived,
       responsibleId: prismaOrder.responsibleId,
       createdBy: prismaOrder.createdBy,
@@ -281,18 +284,6 @@ export class OrderRepository implements IOrderRepository {
   /**
    * Transition state
    */
-  async transitionState(id: string, newState: OrderState, _: string): Promise<Order> {
-    const prismaOrder = await prisma.order.update({
-      where: { id },
-      data: { state: newState },
-      include: { responsible: true },
-    });
-
-    // TODO: Registrar transición en audit log
-
-    return this.toDomain(prismaOrder);
-  }
-
   /**
    * Assign to user
    */

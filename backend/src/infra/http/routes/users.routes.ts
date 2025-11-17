@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { authenticate } from '../../../shared/middlewares/authenticate';
-import { authorize } from '../../../shared/middlewares/authorize';
-import { usersController } from '../controllers/UsersController';
-import { PERMISSIONS } from '../../../shared/constants/permissions';
-import { validateRequest, createUserSchema, updateUserSchema, changePasswordSchema, userFiltersSchema } from '../schemas/validation.schemas';
+import { authenticate } from '../../../shared/middlewares/authenticate.js';
+import { authorize } from '../../../shared/middlewares/authorize.js';
+import { usersController } from '../controllers/UsersController.js';
+import { PERMISSIONS } from '../../../shared/constants/permissions.js';
+import { validateRequest, createUserSchema, updateUserSchema, changePasswordSchema, userFiltersSchema } from '../schemas/validation.schemas.js';
 
 const router = Router();
 

@@ -6,15 +6,15 @@
  */
 
 import { Router, Request, Response } from 'express';
-import authRoutes from './auth.routes';
-import ordersRoutes from './orders.routes';
-import workplansRoutes from './workplans.routes';
-import evidencesRoutes from './evidences.routes';
-import reportsRoutes from './reports.routes';
-import usersRoutes from './users.routes';
-import dashboardRoutes from './dashboard.routes';
-import kitsRoutes from './kits.routes';
-import checklistsRoutes from './checklists.routes';
+import authRoutes from './auth.routes.js';
+import ordersRoutes from './orders.routes.js';
+import workplansRoutes from './workplans.routes.js';
+import evidencesRoutes from './evidences.routes.js';
+import reportsRoutes from './reports.routes.js';
+import usersRoutes from './users.routes.js';
+import dashboardRoutes from './dashboard.routes.js';
+import kitsRoutes from './kits.routes.js';
+import checklistsRoutes from './checklists.routes.js';
 
 const router = Router();
 

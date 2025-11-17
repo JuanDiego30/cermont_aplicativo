@@ -1,4 +1,4 @@
-import prisma from '../infra/db/prisma';
+import prisma from '../infra/db/prisma.js';
 
 // Setup global para tests
 beforeAll(async () => {

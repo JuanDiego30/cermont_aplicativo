@@ -1,6 +1,6 @@
-import { OrderState } from '../../../domain/entities/Order';
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import type { Order } from '../../../domain/entities/Order';
+import { OrderState } from '../../../domain/entities/Order.js';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import type { Order } from '../../../domain/entities/Order.js';
 
 /**
  * Estructura de datos para las métricas KPI del sistema

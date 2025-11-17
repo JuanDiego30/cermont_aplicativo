@@ -1,6 +1,6 @@
-import type { IUserRepository } from '../../../domain/repositories/IUserRepository';
-import type { User } from '../../../domain/entities/User';
-import { UserRole } from '../../../shared/constants/roles'; // ✅ Importar centralizado
+import type { IUserRepository } from '../../../domain/repositories/IUserRepository.js';
+import type { User } from '../../../domain/entities/User.js';
+import { UserRole } from '../../../shared/constants/roles.js'; // ✅ Importar centralizado
 
 /**
  * Error personalizado para operaciones de listado de usuarios

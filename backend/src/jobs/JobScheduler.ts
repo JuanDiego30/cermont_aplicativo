@@ -1,8 +1,8 @@
 import * as cron from 'node-cron';
-import { ArchiveOrdersJob } from './ArchiveOrdersJob';
-import { TokenCleanupJob } from './TokenCleanupJob';
-import { CleanupAuditLogsJob } from './CleanupAuditLogsJob';
-import { logger } from '../shared/utils/logger';
+import { ArchiveOrdersJob } from './ArchiveOrdersJob.js';
+import { TokenCleanupJob } from './TokenCleanupJob.js';
+import { CleanupAuditLogsJob } from './CleanupAuditLogsJob.js';
+import { logger } from '../shared/utils/logger.js';
 
 /**
  * Programador de jobs

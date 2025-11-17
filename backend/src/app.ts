@@ -8,13 +8,13 @@ import express, { type Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import routes from './infra/http/routes';
-import { errorHandler } from './shared/middlewares/errorHandler';
-import { notFound } from './shared/middlewares/notFound';
-import { auditMiddleware } from './shared/middlewares/auditMiddleware';
-import { metricsMiddleware } from './shared/middlewares/metricsMiddleware';
-import { adaptiveRateLimit } from './shared/middlewares/adaptiveRateLimit';
-import { logger } from './shared/utils/logger';
+import routes from './infra/http/routes/index.js';
+import { errorHandler } from './shared/middlewares/errorHandler.js';
+import { notFound } from './shared/middlewares/notFound.js';
+import { auditMiddleware } from './shared/middlewares/auditMiddleware.js';
+import { metricsMiddleware } from './shared/middlewares/metricsMiddleware.js';
+import { adaptiveRateLimit } from './shared/middlewares/adaptiveRateLimit.js';
+import { logger } from './shared/utils/logger.js';
 
 /**
  * Crea y configura la aplicación Express

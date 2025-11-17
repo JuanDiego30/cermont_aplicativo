@@ -5,10 +5,10 @@
  * @file backend/src/app/auth/use-cases/RefreshToken.ts
  */
 
-import type { IRefreshTokenRepository } from '../../../domain/repositories/IRefreshTokenRepository';
-import type { IUserRepository } from '../../../domain/repositories/IUserRepository';
-import { jwtService } from '../../../shared/security/jwtService';
-import { logger } from '../../../shared/utils/logger';
+import type { IRefreshTokenRepository } from '../../../domain/repositories/IRefreshTokenRepository.js';
+import type { IUserRepository } from '../../../domain/repositories/IUserRepository.js';
+import { jwtService } from '../../../shared/security/jwtService.js';
+import { logger } from '../../../shared/utils/logger.js';
 import jwt from 'jsonwebtoken';
 
 /**

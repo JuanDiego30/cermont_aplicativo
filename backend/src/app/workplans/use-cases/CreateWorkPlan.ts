@@ -1,7 +1,7 @@
-import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository';
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import type { WorkPlan } from '../../../domain/entities/WorkPlan';
-import { WorkPlanStatus } from '../../../domain/entities/WorkPlan';
+import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository.js';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import type { WorkPlan } from '../../../domain/entities/WorkPlan.js';
+import { WorkPlanStatus } from '../../../domain/entities/WorkPlan.js';
 
 export class WorkPlanCreationError extends Error {
   constructor(
