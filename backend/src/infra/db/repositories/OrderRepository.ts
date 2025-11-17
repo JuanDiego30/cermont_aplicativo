@@ -66,23 +66,28 @@ export class OrderRepository implements IOrderRepository {
   /**
    * Create Order
    * 
-   * ✅ FIX: Casting explícito de tipos para evitar 'unknown'
+   * ✅ FIX: Generar orderNumber automáticamente
    */
-  async create(data: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>): Promise<Order> {
+  async create(data: Omit<Order, 'id' | 'createdAt' | 'updatedAt' | 'orderNumber'>): Promise<Order> {
+    // Generar orderNumber único
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    const orderNumber = `OT-${timestamp}-${random}`;
+
     const prismaOrder = await prisma.order.create({
       data: {
-        orderNumber: data.orderNumber as string,                    // ← Cast explícito
-        clientName: data.clientName as string,                      // ← Cast explícito
-        clientEmail: (data.clientEmail as string | undefined) || null,
-        clientPhone: (data.clientPhone as string | undefined) || null,
-        description: data.description as string,                    // ← Cast explícito
-        state: data.state as string,                                // ← Cast explícito
-        priority: (data.priority as string | undefined) || 'NORMAL', // ← Fix con default
-        location: (data.location as string | undefined) || null,    // ← Fix con null
-        estimatedHours: (data.estimatedHours as number | undefined) || null, // ← Fix con null
-        archived: (data.archived as boolean | undefined) || false,  // ← Fix con default
-        responsibleId: data.responsibleId as string,                // ← Cast explícito
-        createdBy: data.createdBy as string,                        // ← Cast explícito
+        orderNumber,
+        clientName: data.clientName,
+        clientEmail: data.clientEmail || null,
+        clientPhone: data.clientPhone || null,
+        description: data.description,
+        state: data.state,
+        priority: data.priority || 'NORMAL',
+        location: data.location || null,
+        estimatedHours: data.estimatedHours || null,
+        archived: data.archived || false,
+        responsibleId: data.responsibleId,
+        createdBy: data.createdBy,
       },
       include: {
         responsible: true,
