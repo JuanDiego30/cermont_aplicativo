@@ -1,18 +1,18 @@
 /**
  * Use Case: Generar acta de entrega
- * Resuelve: Generación de acta de entrega formal
+ * Resuelve: Generaciï¿½n de acta de entrega formal
  * 
  * @file backend/src/app/reports/use-cases/GenerateActaEntrega.ts
  */
 
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import type { IUserRepository } from '../../../domain/repositories/IUserRepository';
-import { pdfGeneratorService, type ActaEntregaData } from '../../../infra/services/PdfGeneratorService';
-import { logger } from '../../../shared/utils/logger';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import type { IUserRepository } from '../../../domain/repositories/IUserRepository.js';
+import { pdfGeneratorService, type ActaEntregaData } from '../../../infra/services/PdfGeneratorService.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * DTO para generar acta
@@ -30,7 +30,7 @@ export interface GenerateActaEntregaDto {
 }
 
 /**
- * Error de generación
+ * Error de generaciï¿½n
  */
 export class GenerateActaEntregaError extends Error {
   constructor(
@@ -71,7 +71,7 @@ export class GenerateActaEntrega {
         );
       }
 
-      // 2. Obtener técnico responsable
+      // 2. Obtener tï¿½cnico responsable
       let technician = { name: 'N/A', role: 'N/A' };
       
       if (order.responsibleId) {

@@ -5,15 +5,15 @@
  * @file backend/src/app/evidences/use-cases/DeleteEvidence.ts
  */
 
-import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository';
-import { fileStorageService } from '../../../infra/services/FileStorageService';
-import { AuditService } from '../../../domain/services/AuditService';
-import { AuditAction } from '../../../domain/entities/AuditLog';
-import { logger } from '../../../shared/utils/logger';
+import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository.js';
+import { fileStorageService } from '../../../infra/services/FileStorageService.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * DTO para eliminar evidencia

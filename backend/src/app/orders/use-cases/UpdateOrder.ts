@@ -1,19 +1,19 @@
 /**
  * Use Case: Actualizar orden
- * Resuelve: Actualización de órdenes con validaciones
+ * Resuelve: Actualizaciï¿½n de ï¿½rdenes con validaciones
  * 
  * @file backend/src/app/orders/use-cases/UpdateOrder.ts
  */
 
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import type { Order } from '../../../domain/entities/Order';
-import { AuditService } from '../../../domain/services/AuditService';
-import { AuditAction } from '../../../domain/entities/AuditLog';
-import { logger } from '../../../shared/utils/logger';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import type { Order } from '../../../domain/entities/Order.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * DTO para actualizar orden
@@ -33,7 +33,7 @@ export interface UpdateOrderDto {
 }
 
 /**
- * Error de actualización
+ * Error de actualizaciï¿½n
  */
 export class UpdateOrderError extends Error {
   constructor(
@@ -71,7 +71,7 @@ export class UpdateOrder {
         );
       }
 
-      // 2. Verificar que no esté archivada
+      // 2. Verificar que no estï¿½ archivada
       if (order.archived) {
         throw new UpdateOrderError(
           'No se puede actualizar una orden archivada',
@@ -80,20 +80,20 @@ export class UpdateOrder {
         );
       }
 
-      // 3. Guardar estado anterior para auditoría
+      // 3. Guardar estado anterior para auditorï¿½a
       const before = { ...order };
 
       // 4. Actualizar la orden
       const updatedOrder = await this.orderRepository.update(dto.orderId, dto.data);
 
-      // 5. Registrar en auditoría
+      // 5. Registrar en auditorï¿½a
       await this.auditService.log({
         entityType: 'Order',
         entityId: dto.orderId,
         action: AuditAction.UPDATE,
         userId: dto.updatedBy,
         before,
-        after: updatedOrder,
+        after: { ...updatedOrder },
         reason: 'Order updated',
       });
 

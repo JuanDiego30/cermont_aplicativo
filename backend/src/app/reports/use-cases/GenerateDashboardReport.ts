@@ -1,13 +1,13 @@
 /**
  * Use Case: Generar reporte de dashboard
- * Resuelve: Reporte consolidado con KPIs y métricas
+ * Resuelve: Reporte consolidado con KPIs y mï¿½tricas
  * 
  * @file backend/src/app/reports/use-cases/GenerateDashboardReport.ts
  */
 
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import { GetOrderStats, type OrderStats } from '../../orders/use-cases/GetOrderStats';
-import { logger } from '../../../shared/utils/logger';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import { GetOrderStats, type OrderStats } from '../../orders/use-cases/GetOrderStats.js';
+import { logger } from '../../../shared/utils/logger.js';
 
 /**
  * Filtros para el reporte
@@ -45,11 +45,11 @@ export class GenerateDashboardReport {
     try {
       logger.info('[GenerateDashboardReport] Generando reporte', { filters });
 
-      // 1. Establecer período por defecto (último mes)
+      // 1. Establecer perï¿½odo por defecto (ï¿½ltimo mes)
       const endDate = filters.endDate || new Date();
       const startDate = filters.startDate || new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-      // 2. Obtener estadísticas
+      // 2. Obtener estadï¿½sticas
       const stats = await this.getOrderStats.execute({
         startDate,
         endDate,
@@ -72,7 +72,7 @@ export class GenerateDashboardReport {
 
       // 4. Si se solicita PDF, generar (futuro)
       if (filters.format === 'PDF') {
-        // TODO: Implementar generación de PDF del dashboard
+        // TODO: Implementar generaciï¿½n de PDF del dashboard
         logger.warn('[GenerateDashboardReport] PDF generation not implemented yet');
       }
 

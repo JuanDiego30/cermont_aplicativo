@@ -123,28 +123,28 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
   const orderFields = [
     {
       label: 'Cliente',
-      value: order.cliente,
+      value: order.clientName,
       icon: Building2,
       bgColor: 'bg-primary-50 dark:bg-primary-950',
       iconColor: 'text-primary-600 dark:text-primary-400',
     },
     {
       label: 'Código',
-      value: order.codigo,
+      value: order.orderNumber,
       icon: Hash,
       bgColor: 'bg-secondary-50 dark:bg-secondary-950',
       iconColor: 'text-secondary-600 dark:text-secondary-400',
     },
     {
       label: 'Ubicación',
-      value: order.ubicacion || 'N/A',
+      value: order.location || 'N/A',
       icon: MapPin,
       bgColor: 'bg-info-50 dark:bg-info-950',
       iconColor: 'text-info-600 dark:text-info-400',
     },
     {
       label: 'Fecha de Creación',
-      value: new Date(order.fechaCreacion).toLocaleString('es-ES'),
+      value: new Date(order.createdAt).toLocaleString('es-ES'),
       icon: Calendar,
       bgColor: 'bg-warning-50 dark:bg-warning-950',
       iconColor: 'text-warning-600 dark:text-warning-400',
@@ -189,10 +189,12 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
 
             <div className="mt-4 flex flex-wrap items-center gap-3">
               <Badge state={order.state} />
-              <div className="flex items-center gap-2 rounded-lg border-2 border-warning-200 bg-warning-50 px-3 py-1 text-sm font-bold text-warning-700 dark:border-warning-900 dark:bg-warning-950 dark:text-warning-400">
-                <Flag className="h-4 w-4" />
-                {order.prioridad}
-              </div>
+              {order.priority && (
+                <div className="flex items-center gap-2 rounded-lg border-2 border-warning-200 bg-warning-50 px-3 py-1 text-sm font-bold text-warning-700 dark:border-warning-900 dark:bg-warning-950 dark:text-warning-400">
+                  <Flag className="h-4 w-4" />
+                  {order.priority}
+                </div>
+              )}
             </div>
           </div>
 
@@ -229,7 +231,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
                   Descripción
                 </label>
                 <p className="leading-relaxed text-neutral-900 dark:text-neutral-50">
-                  {order.descripcion || 'Sin descripción proporcionada'}
+                  {order.description || 'Sin descripción proporcionada'}
                 </p>
               </div>
             </div>

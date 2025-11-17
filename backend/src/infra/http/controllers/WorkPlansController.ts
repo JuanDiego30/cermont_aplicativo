@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { workPlanRepository } from '../../db/repositories/WorkPlanRepository';
-import { auditLogRepository } from '../../db/repositories/AuditLogRepository';
-import { AuditService } from '../../../domain/services/AuditService';
-import { AuditAction } from '../../../domain/entities/AuditLog';
-import { WorkPlanStatus } from '../../../domain/entities/WorkPlan';
+import { workPlanRepository } from '../../db/repositories/WorkPlanRepository.js';
+import { auditLogRepository } from '../../db/repositories/AuditLogRepository.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { WorkPlanStatus } from '../../../domain/entities/WorkPlan.js';
 
 /**
  * Controller para gesti�n de planes de trabajo

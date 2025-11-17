@@ -1,4 +1,4 @@
-import type { Evidence, EvidenceStatus, EvidenceType } from '../entities/Evidence';
+import type { Evidence, EvidenceStatus, EvidenceType } from '../entities/Evidence.js';
 
 /**
  * Filtros para buscar evidencias

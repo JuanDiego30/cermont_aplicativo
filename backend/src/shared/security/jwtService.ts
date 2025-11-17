@@ -1,8 +1,8 @@
 import { SignJWT, jwtVerify, importJWK } from 'jose';
 import fs from 'fs/promises';
 import path from 'path';
-import { generateUniqueId } from '@shared/utils/generateUniqueId';
-import { logger } from '../utils/logger';
+import { generateUniqueId } from '@shared/utils/generateUniqueId.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * ========================================

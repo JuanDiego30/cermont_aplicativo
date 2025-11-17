@@ -1,14 +1,14 @@
 /**
- * Servicio de cálculo de costos
+ * Servicio de cï¿½lculo de costos
  * Resuelve: Desconocimiento de costos reales vs presupuestados
  * 
  * @file backend/src/infra/services/CostCalculatorService.ts
  */
 
-import type { WorkPlan } from '../../domain/entities/WorkPlan';
+import type { WorkPlan } from '../../domain/entities/WorkPlan.js';
 
 /**
- * Categorías de costos
+ * Categorï¿½as de costos
  */
 export enum CostCategory {
   MATERIALS = 'MATERIALS',
@@ -46,7 +46,7 @@ export interface CostSummary {
 }
 
 /**
- * Servicio de cálculo de costos
+ * Servicio de cï¿½lculo de costos
  * @class CostCalculatorService
  */
 export class CostCalculatorService {
@@ -58,7 +58,7 @@ export class CostCalculatorService {
   }
 
   /**
-   * Calcula el costo por categoría
+   * Calcula el costo por categorï¿½a
    */
   calculateCostByCategory(items: CostItem[]): Record<CostCategory, number> {
     const costs: Record<CostCategory, number> = {
@@ -78,7 +78,7 @@ export class CostCalculatorService {
   }
 
   /**
-   * Calcula la variación entre presupuesto y real
+   * Calcula la variaciï¿½n entre presupuesto y real
    */
   calculateVariance(budgeted: number, actual: number): {
     variance: number;
@@ -223,7 +223,7 @@ export class CostCalculatorService {
     const estimatedHours = 8; // Default 8 hours
     items.push({
       category: CostCategory.LABOR,
-      description: 'Mano de obra técnica',
+      description: 'Mano de obra tï¿½cnica',
       quantity: estimatedHours,
       unitCost: 50000,
       totalCost: estimatedHours * 50000,

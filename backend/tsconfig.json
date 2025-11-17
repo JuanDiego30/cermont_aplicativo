@@ -2,8 +2,8 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022"],
-    "module": "ES2022",
-    "moduleResolution": "node",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
@@ -15,11 +15,11 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
+      "@shared/*": ["src/shared/*"],
       "@backend/*": ["src/*"],
       "@domain/*": ["src/domain/*"],
       "@infra/*": ["src/infra/*"],
-      "@app/*": ["src/app/*"],
-      "@shared/*": ["src/shared/*"]
+      "@app/*": ["src/app/*"]
     },
     "types": ["node", "jest"]
   },

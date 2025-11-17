@@ -11,9 +11,9 @@
  */
 
 import type { Request, Response, NextFunction } from 'express';
-import { AuditAction } from '../src/domain/entities/AuditLog';
-import { AuditService } from '../src/domain/services/AuditService';
-import { AuditLogRepository } from '../src/infra/db/repositories/AuditLogRepository'; // ← CORRECCIÓN
+import { AuditAction } from '../src/domain/entities/AuditLog.js';
+import { AuditService } from '../src/domain/services/AuditService.js';
+import { AuditLogRepository } from '../src/infra/db/repositories/AuditLogRepository.js'; // ← CORRECCIÓN
 
 // ==========================================
 // SETUP: Instanciar repositorio y servicio

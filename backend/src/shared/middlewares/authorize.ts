@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { Permission, ROLE_PERMISSIONS, hasAnyPermission, hasAllPermissions } from '../constants/permissions';
-import { logger } from '../utils/logger';
+import { Permission, ROLE_PERMISSIONS, hasAnyPermission, hasAllPermissions } from '../constants/permissions.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * ========================================
  * AUTHORIZATION MIDDLEWARE
  * ========================================
- * Middleware de autorización basado en permisos (PBAC - Permission-Based Access Control).
+ * Middleware de autorizaciï¿½n basado en permisos (PBAC - Permission-Based Access Control).
  * Verifica si el usuario autenticado tiene los permisos necesarios para acceder al recurso.
  * 
  * **Requisitos:**
@@ -17,7 +17,7 @@ import { logger } from '../utils/logger';
  */
 
 /**
- * Middleware de autorización con lógica OR
+ * Middleware de autorizaciï¿½n con lï¿½gica OR
  * Verifica si el usuario tiene AL MENOS UNO de los permisos requeridos.
  *
  * @param requiredPermissions - Lista de permisos requeridos (OR logic)
@@ -25,8 +25,8 @@ import { logger } from '../utils/logger';
  * 
  * @example
  * ```typescript
- * import { authorize } from './middlewares/authorize';
- * import { PERMISSIONS } from './constants/permissions';
+ * import { authorize } from './middlewares/authorize.js';
+ * import { PERMISSIONS } from './constants/permissions.js';
  * 
  * // Usuario debe tener ORDERS_VIEW O ORDERS_VIEW_ALL O ORDERS_VIEW_OWN
  * router.get('/orders', 
@@ -39,7 +39,7 @@ import { logger } from '../utils/logger';
 export function authorize(requiredPermissions: Permission[]) {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
-      // Verificar que el usuario esté autenticado
+      // Verificar que el usuario estï¿½ autenticado
       if (!req.user || !req.user.role) {
         logger.warn('Authorization failed: User not authenticated', {
           path: req.path,
@@ -72,7 +72,7 @@ export function authorize(requiredPermissions: Permission[]) {
           type: 'https://httpstatuses.com/403',
           title: 'Forbidden',
           status: 403,
-          detail: 'Rol no válido',
+          detail: 'Rol no vï¿½lido',
         });
         return;
       }
@@ -93,7 +93,7 @@ export function authorize(requiredPermissions: Permission[]) {
           type: 'https://httpstatuses.com/403',
           title: 'Forbidden',
           status: 403,
-          detail: 'No tienes permisos para realizar esta acción',
+          detail: 'No tienes permisos para realizar esta acciï¿½n',
         });
         return;
       }
@@ -125,7 +125,7 @@ export function authorize(requiredPermissions: Permission[]) {
 }
 
 /**
- * Middleware de autorización con lógica AND
+ * Middleware de autorizaciï¿½n con lï¿½gica AND
  * Verifica si el usuario tiene TODOS los permisos requeridos.
  *
  * @param requiredPermissions - Lista de permisos requeridos (AND logic)
@@ -172,7 +172,7 @@ export function authorizeAll(requiredPermissions: Permission[]) {
           type: 'https://httpstatuses.com/403',
           title: 'Forbidden',
           status: 403,
-          detail: 'Rol no válido',
+          detail: 'Rol no vï¿½lido',
         });
         return;
       }
@@ -218,12 +218,12 @@ export function authorizeAll(requiredPermissions: Permission[]) {
  * Middleware para autorizar solo al propietario del recurso
  * Verifica que el userId del recurso coincida con el userId autenticado
  *
- * @param getUserIdFromResource - Función que extrae el userId del recurso
+ * @param getUserIdFromResource - Funciï¿½n que extrae el userId del recurso
  * @returns Middleware de Express
  * 
  * @example
  * ```typescript
- * // Solo el usuario dueño puede acceder
+ * // Solo el usuario dueï¿½o puede acceder
  * router.get('/profile/:id',
  *   authenticate,
  *   authorizeOwner((req) => req.params.id),

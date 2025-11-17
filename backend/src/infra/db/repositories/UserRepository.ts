@@ -1,7 +1,7 @@
-import prisma from '../prisma';
+import prisma from '../prisma.js';
 import bcrypt from 'bcrypt';
-import type { User } from '@/domain/entities/User';
-import type { IUserRepository } from '@/domain/repositories/IUserRepository';
+import type { User } from '@/domain/entities/User.js';
+import type { IUserRepository } from '@/domain/repositories/IUserRepository.js';
 
 export class UserRepository implements IUserRepository {
   async findById(id: string): Promise<User | null> {
@@ -346,6 +346,7 @@ export class UserRepository implements IUserRepository {
 
   private toSafeEntity(user: any): User {
     const { password, ...safeUser } = user;
+    void password;
 
     return {
       ...safeUser,

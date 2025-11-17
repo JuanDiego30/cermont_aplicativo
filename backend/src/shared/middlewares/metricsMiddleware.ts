@@ -1,37 +1,37 @@
 import { Request, Response, NextFunction } from 'express';
-import { httpRequestDuration, httpRequestsTotal, httpErrorsTotal } from '../metrics/prometheus';
+import { httpRequestDuration, httpRequestsTotal, httpErrorsTotal } from '../metrics/prometheus.js';
 
 /**
  * ========================================
  * METRICS MIDDLEWARE
  * ========================================
- * Middleware para recolectar métricas HTTP con Prometheus.
- * Registra duración, total de requests y errores.
+ * Middleware para recolectar mï¿½tricas HTTP con Prometheus.
+ * Registra duraciï¿½n, total de requests y errores.
  * 
  * @example
  * ```
- * import { metricsMiddleware } from './middlewares/metricsMiddleware';
+ * import { metricsMiddleware } from './middlewares/metricsMiddleware.js';
  * 
  * app.use(metricsMiddleware);
  * ```
  */
 
 /**
- * Middleware de métricas Prometheus
+ * Middleware de mï¿½tricas Prometheus
  */
 export function metricsMiddleware(req: Request, res: Response, next: NextFunction): void {
   // Iniciar timer
   const start = Date.now();
 
-  // Interceptar finalización de respuesta
+  // Interceptar finalizaciï¿½n de respuesta
   res.on('finish', () => {
-    // Calcular duración
+    // Calcular duraciï¿½n
     const duration = (Date.now() - start) / 1000; // Convertir a segundos
 
     // Normalizar ruta (reemplazar IDs por :id)
     const route = normalizeRoute(req.path);
 
-    // Registrar métricas
+    // Registrar mï¿½tricas
     httpRequestDuration.observe(
       {
         method: req.method,
@@ -61,8 +61,8 @@ export function metricsMiddleware(req: Request, res: Response, next: NextFunctio
 }
 
 /**
- * Normalizar ruta para métricas
- * Reemplaza IDs y valores dinámicos por placeholders
+ * Normalizar ruta para mï¿½tricas
+ * Reemplaza IDs y valores dinï¿½micos por placeholders
  * 
  * @example
  * /api/users/123 -> /api/users/:id

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 
 /**
  * ========================================
@@ -34,7 +34,7 @@ const RATE_LIMITS: Record<string, number> = {
  * 
  * @example
  * ```
- * import { adaptiveRateLimit } from './middlewares/adaptiveRateLimit';
+ * import { adaptiveRateLimit } from './middlewares/adaptiveRateLimit.js';
  * 
  * app.use(adaptiveRateLimit());
  * ```

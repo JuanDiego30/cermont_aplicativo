@@ -5,9 +5,9 @@
  * @file backend/src/app/orders/use-cases/GetOrderStats.ts
  */
 
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import { Order, OrderState } from '../../../domain/entities/Order';
-import { logger } from '../../../shared/utils/logger';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import { Order, OrderState } from '../../../domain/entities/Order.js';
+import { logger } from '../../../shared/utils/logger.js';
 
 /**
  * Estadísticas de órdenes

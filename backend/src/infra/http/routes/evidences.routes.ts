@@ -5,14 +5,14 @@
  */
 
 import { Router } from 'express';
-import { EvidencesController } from '../controllers/EvidencesController';
-import { authenticate } from '../../../shared/middlewares/authenticate';
-import { authorize } from '../../../shared/middlewares/authorize';
-import { PERMISSIONS } from '../../../shared/constants/permissions';
+import { EvidencesController } from '../controllers/EvidencesController.js';
+import { authenticate } from '../../../shared/middlewares/authenticate.js';
+import { authorize } from '../../../shared/middlewares/authorize.js';
+import { PERMISSIONS } from '../../../shared/constants/permissions.js';
 
 const router = Router();
 
-// Todas las rutas requieren autenticación
+// Todas las rutas requieren autenticaciï¿½n
 router.use(authenticate);
 
 /**
@@ -22,7 +22,7 @@ router.use(authenticate);
  */
 router.post(
   '/',
-  authorize([PERMISSIONS.ORDERS_UPDATE]), // Usar permiso de orders ya que las evidencias están relacionadas
+  authorize([PERMISSIONS.ORDERS_UPDATE]), // Usar permiso de orders ya que las evidencias estï¿½n relacionadas
   EvidencesController.upload
 );
 

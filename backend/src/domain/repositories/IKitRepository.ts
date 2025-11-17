@@ -1,7 +1,7 @@
-import type { Kit, KitCategory } from '../entities/Kit';
+import type { Kit, KitCategory } from '../entities/Kit.js';
 
 /**
- * Filtros para búsqueda de kits
+ * Filtros para bï¿½squeda de kits
  */
 export interface KitFilters {
   category?: KitCategory;
@@ -11,7 +11,7 @@ export interface KitFilters {
 }
 
 /**
- * Opciones de paginación
+ * Opciones de paginaciï¿½n
  */
 export interface KitPaginationOptions {
   page?: number;
@@ -22,7 +22,7 @@ export interface KitPaginationOptions {
 
 /**
  * Interface del repositorio de Kits
- * Define los métodos de acceso a datos para kits típicos
+ * Define los mï¿½todos de acceso a datos para kits tï¿½picos
  */
 export interface IKitRepository {
   /**
@@ -46,7 +46,7 @@ export interface IKitRepository {
   }): Promise<Kit[]>;
 
   /**
-   * Buscar kits con filtros y paginación (método alternativo)
+   * Buscar kits con filtros y paginaciï¿½n (mï¿½todo alternativo)
    */
   findAll(filters?: {
     active?: boolean;
@@ -56,7 +56,7 @@ export interface IKitRepository {
   }): Promise<{ kits: Kit[]; total: number }>;
 
   /**
-   * Buscar kits por categoría
+   * Buscar kits por categorï¿½a
    */
   findByCategory(category: string): Promise<Kit[]>;
 
@@ -76,12 +76,12 @@ export interface IKitRepository {
   duplicate(id: string, userId: string): Promise<Kit>;
 
   /**
-   * Contar kits por categoría
+   * Contar kits por categorï¿½a
    */
   countByCategory(category: string): Promise<number>;
 
   /**
-   * Obtener estadísticas de kits
+   * Obtener estadï¿½sticas de kits
    */
   getStats(): Promise<{
     total: number;

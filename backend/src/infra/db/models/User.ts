@@ -1,6 +1,6 @@
 import type { Prisma } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import prisma from '../prisma';
+import prisma from '../prisma.js';
 
 type TestUserCreateProps = {
   email?: string;

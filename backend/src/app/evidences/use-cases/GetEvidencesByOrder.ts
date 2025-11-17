@@ -5,13 +5,13 @@
  * @file backend/src/app/evidences/use-cases/GetEvidencesByOrder.ts
  */
 
-import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository';
-import type { Evidence } from '../../../domain/entities/Evidence';
-import { logger } from '../../../shared/utils/logger';
+import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository.js';
+import type { Evidence } from '../../../domain/entities/Evidence.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * Filtros para evidencias
@@ -23,7 +23,7 @@ export interface GetEvidencesFilters {
 }
 
 /**
- * Error de obtención
+ * Error de obtenciï¿½n
  */
 export class GetEvidencesByOrderError extends Error {
   constructor(

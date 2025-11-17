@@ -1,19 +1,19 @@
 /**
  * Use Case: Rechazar evidencia
- * Resuelve: Rechazo de evidencias con razón
+ * Resuelve: Rechazo de evidencias con razï¿½n
  * 
  * @file backend/src/app/evidences/use-cases/RejectEvidence.ts
  */
 
-import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository';
-import { EvidenceStatus } from '../../../domain/entities/Evidence';
-import { AuditService } from '../../../domain/services/AuditService';
-import { AuditAction } from '../../../domain/entities/AuditLog';
-import { logger } from '../../../shared/utils/logger';
+import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository.js';
+import { EvidenceStatus } from '../../../domain/entities/Evidence.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * DTO para rechazar evidencia
@@ -63,10 +63,10 @@ export class RejectEvidence {
         );
       }
 
-      // 2. Verificar que esté pendiente
+      // 2. Verificar que estï¿½ pendiente
       if (evidence.status !== EvidenceStatus.PENDING) {
         throw new RejectEvidenceError(
-          `La evidencia ya está ${evidence.status}`,
+          `La evidencia ya estï¿½ ${evidence.status}`,
           'INVALID_STATUS',
           400
         );
@@ -75,7 +75,7 @@ export class RejectEvidence {
       // 3. Rechazar evidencia
       await this.evidenceRepository.reject(dto.evidenceId, dto.rejectedBy, dto.reason);
 
-      // 4. Registrar en auditoría
+      // 4. Registrar en auditorï¿½a
       await this.auditService.log({
         entityType: 'Evidence',
         entityId: dto.evidenceId,
@@ -120,7 +120,7 @@ export class RejectEvidence {
 
     if (!dto.reason || dto.reason.trim().length === 0) {
       throw new RejectEvidenceError(
-        'Debe proporcionar una razón para rechazar',
+        'Debe proporcionar una razï¿½n para rechazar',
         'MISSING_REASON',
         400
       );
@@ -128,7 +128,7 @@ export class RejectEvidence {
 
     if (dto.reason.length < 10) {
       throw new RejectEvidenceError(
-        'La razón debe tener al menos 10 caracteres',
+        'La razï¿½n debe tener al menos 10 caracteres',
         'REASON_TOO_SHORT',
         400
       );

@@ -1,6 +1,6 @@
-import prisma from '../prisma';
-import type { Evidence } from '@/domain/entities/Evidence';
-import type { IEvidenceRepository } from '@/domain/repositories/IEvidenceRepository';
+import prisma from '../prisma.js';
+import type { Evidence } from '@/domain/entities/Evidence.js';
+import type { IEvidenceRepository } from '@/domain/repositories/IEvidenceRepository.js';
 import { Prisma } from '@prisma/client';
 
 export class EvidenceRepository implements IEvidenceRepository {

@@ -5,10 +5,10 @@
  */
 
 import { Router } from 'express';
-import { AuthController } from '../controllers/AuthController';
-import { authenticate } from '../../../shared/middlewares/authenticate';
-import { validateMiddleware } from '../../../shared/middlewares/validateMiddleware';
-import { loginSchema } from '../schemas/validation.schemas';
+import { AuthController } from '../controllers/AuthController.js';
+import { authenticate } from '../../../shared/middlewares/authenticate.js';
+import { validateMiddleware } from '../../../shared/middlewares/validateMiddleware.js';
+import { loginSchema } from '../schemas/validation.schemas.js';
 
 const router = Router();
 

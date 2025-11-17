@@ -1,6 +1,6 @@
-import prisma from '../prisma';
-import type { RefreshToken } from '@/domain/entities/RefreshToken';
-import type { IRefreshTokenRepository } from '@/domain/repositories/IRefreshTokenRepository';
+import prisma from '../prisma.js';
+import type { RefreshToken } from '@/domain/entities/RefreshToken.js';
+import type { IRefreshTokenRepository } from '@/domain/repositories/IRefreshTokenRepository.js';
 
 export class RefreshTokenRepository implements IRefreshTokenRepository {
   private toDomain(prismaToken: any): RefreshToken {

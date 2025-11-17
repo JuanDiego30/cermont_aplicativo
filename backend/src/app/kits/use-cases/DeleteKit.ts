@@ -14,15 +14,15 @@
  * @file src/app/kits/use-cases/DeleteKit.ts
  */
 
-import type { IKitRepository } from '../../../domain/repositories/IKitRepository';
-import type { IAuditLogRepository } from '../../../domain/repositories/IAuditLogRepository';
-import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository';
-import { kitRepository } from '../../../infra/db/repositories/KitRepository';
-import { auditLogRepository } from '../../../infra/db/repositories/AuditLogRepository';
-import { workPlanRepository } from '../../../infra/db/repositories/WorkPlanRepository';
-import { logger } from '../../../shared/utils/logger';
-import { AuditAction } from '../../../domain/entities/AuditLog';
-import { WorkPlanStatus } from '../../../domain/entities/WorkPlan';
+import type { IKitRepository } from '../../../domain/repositories/IKitRepository.js';
+import type { IAuditLogRepository } from '../../../domain/repositories/IAuditLogRepository.js';
+import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository.js';
+import { kitRepository } from '../../../infra/db/repositories/KitRepository.js';
+import { auditLogRepository } from '../../../infra/db/repositories/AuditLogRepository.js';
+import { workPlanRepository } from '../../../infra/db/repositories/WorkPlanRepository.js';
+import { logger } from '../../../shared/utils/logger.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { WorkPlanStatus } from '../../../domain/entities/WorkPlan.js';
 
 /**
  * Input del caso de uso

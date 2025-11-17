@@ -5,15 +5,15 @@
  * @file backend/src/app/workplans/use-cases/UpdateBudget.ts
  */
 
-import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository';
-import { AuditService } from '../../../domain/services/AuditService';
-import { AuditAction } from '../../../domain/entities/AuditLog';
-import { costCalculatorService } from '../../../infra/services/CostCalculatorService';
-import { logger } from '../../../shared/utils/logger';
+import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { costCalculatorService } from '../../../infra/services/CostCalculatorService.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * DTO para actualizar presupuesto
@@ -26,7 +26,7 @@ export interface UpdateBudgetDto {
 }
 
 /**
- * Error de actualización
+ * Error de actualizaciï¿½n
  */
 export class UpdateBudgetError extends Error {
   constructor(
@@ -67,7 +67,7 @@ export class UpdateBudget {
       // 2. Guardar presupuesto anterior
       const previousBudget = workPlan.estimatedBudget;
 
-      // 3. Calcular variación
+      // 3. Calcular variaciï¿½n
       const variance = costCalculatorService.calculateVariance(previousBudget, dto.newBudget);
 
       // 4. Actualizar presupuesto
@@ -75,7 +75,7 @@ export class UpdateBudget {
         estimatedBudget: dto.newBudget,
       });
 
-      // 5. Registrar en auditoría
+      // 5. Registrar en auditorï¿½a
       await this.auditService.log({
         entityType: 'WorkPlan',
         entityId: dto.workPlanId,
@@ -123,7 +123,7 @@ export class UpdateBudget {
 
     if (typeof dto.newBudget !== 'number' || dto.newBudget < 0) {
       throw new UpdateBudgetError(
-        'El presupuesto debe ser un número positivo',
+        'El presupuesto debe ser un nï¿½mero positivo',
         'INVALID_BUDGET',
         400
       );
@@ -131,7 +131,7 @@ export class UpdateBudget {
 
     if (!dto.reason || dto.reason.trim().length === 0) {
       throw new UpdateBudgetError(
-        'Debe proporcionar una razón para cambiar el presupuesto',
+        'Debe proporcionar una razï¿½n para cambiar el presupuesto',
         'MISSING_REASON',
         400
       );

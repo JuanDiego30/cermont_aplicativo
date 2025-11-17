@@ -1,11 +1,11 @@
 /**
- * Servicio de cola de sincronización offline/online
- * Resuelve: Conectividad intermitente en campo Caño Limón
+ * Servicio de cola de sincronizaciï¿½n offline/online
+ * Resuelve: Conectividad intermitente en campo Caï¿½o Limï¿½n
  * 
  * @file backend/src/infra/services/SyncQueueService.ts
  */
 
-import { logger } from '../../shared/utils/logger';
+import { logger } from '../../shared/utils/logger.js';
 
 /**
  * Tipos de entidades sincronizables
@@ -17,7 +17,7 @@ export enum SyncEntityType {
 }
 
 /**
- * Estados de sincronización
+ * Estados de sincronizaciï¿½n
  */
 export enum SyncStatus {
   PENDING = 'PENDING',
@@ -27,7 +27,7 @@ export enum SyncStatus {
 }
 
 /**
- * Operaciones de sincronización
+ * Operaciones de sincronizaciï¿½n
  */
 export enum SyncOperation {
   CREATE = 'CREATE',
@@ -36,7 +36,7 @@ export enum SyncOperation {
 }
 
 /**
- * Item de cola de sincronización
+ * Item de cola de sincronizaciï¿½n
  */
 export interface SyncQueueItem {
   id: string;
@@ -54,7 +54,7 @@ export interface SyncQueueItem {
 }
 
 /**
- * Resultado de sincronización
+ * Resultado de sincronizaciï¿½n
  */
 export interface SyncResult {
   success: boolean;
@@ -65,7 +65,7 @@ export interface SyncResult {
 }
 
 /**
- * Servicio de cola de sincronización
+ * Servicio de cola de sincronizaciï¿½n
  * @class SyncQueueService
  */
 export class SyncQueueService {
@@ -75,7 +75,7 @@ export class SyncQueueService {
   private readonly retryDelayMs = 5000;
 
   /**
-   * Agrega un item a la cola de sincronización
+   * Agrega un item a la cola de sincronizaciï¿½n
    */
   async enqueue(
     entityType: SyncEntityType,
@@ -101,7 +101,7 @@ export class SyncQueueService {
 
     logger.info(`[SyncQueue] Item enqueued: ${itemId} (${entityType} ${operation})`);
 
-    // Iniciar procesamiento si no está activo
+    // Iniciar procesamiento si no estï¿½ activo
     if (!this.isProcessing) {
       this.processQueue();
     }
@@ -110,7 +110,7 @@ export class SyncQueueService {
   }
 
   /**
-   * Procesa la cola de sincronización
+   * Procesa la cola de sincronizaciï¿½n
    * @private
    */
   private async processQueue(): Promise<void> {
@@ -143,7 +143,7 @@ export class SyncQueueService {
     item.lastAttemptAt = new Date();
 
     try {
-      // Intentar sincronización según el tipo de entidad
+      // Intentar sincronizaciï¿½n segï¿½n el tipo de entidad
       await this.syncEntity(item);
 
       item.status = SyncStatus.COMPLETED;
@@ -168,7 +168,7 @@ export class SyncQueueService {
         item.status = SyncStatus.PENDING;
         logger.warn(`[SyncQueue] Item failed, retrying (${item.retryCount}/${item.maxRetries}): ${item.id}`);
         
-        // Reintentar después de un delay
+        // Reintentar despuï¿½s de un delay
         await this.delay(this.retryDelayMs * item.retryCount);
       }
 
@@ -207,10 +207,10 @@ export class SyncQueueService {
    * @private
    */
   private async syncOrder(item: SyncQueueItem): Promise<void> {
-    // Implementación real dependerá de tus repositorios
+    // Implementaciï¿½n real dependerï¿½ de tus repositorios
     logger.info(`[SyncQueue] Syncing ORDER: ${item.entityId} (${item.operation})`);
     
-    // Simular sincronización (reemplazar con lógica real)
+    // Simular sincronizaciï¿½n (reemplazar con lï¿½gica real)
     await this.delay(500);
   }
 
@@ -297,7 +297,7 @@ export class SyncQueueService {
   }
 
   /**
-   * Genera un ID único para un item
+   * Genera un ID ï¿½nico para un item
    * @private
    */
   private generateItemId(): string {

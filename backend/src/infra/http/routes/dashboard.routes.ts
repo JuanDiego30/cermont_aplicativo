@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { authenticate } from '../../../shared/middlewares/authenticate';
-import { authorize } from '../../../shared/middlewares/authorize';
-import { dashboardController } from '../controllers/DashboardController';
-import { PERMISSIONS } from '../../../shared/constants/permissions';
+import { authenticate } from '../../../shared/middlewares/authenticate.js';
+import { authorize } from '../../../shared/middlewares/authorize.js';
+import { dashboardController } from '../controllers/DashboardController.js';
+import { PERMISSIONS } from '../../../shared/constants/permissions.js';
 
 const router = Router();
 

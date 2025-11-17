@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { authenticate } from '../../../shared/middlewares/authenticate';
-import { authorize } from '../../../shared/middlewares/authorize';
-import { PERMISSIONS } from '../../../shared/constants/permissions';
-import { JobScheduler } from '../../../jobs/JobScheduler';
+import { authenticate } from '../../../shared/middlewares/authenticate.js';
+import { authorize } from '../../../shared/middlewares/authorize.js';
+import { PERMISSIONS } from '../../../shared/constants/permissions.js';
+import { JobScheduler } from '../../../jobs/JobScheduler.js';
 
 const router = Router();
 

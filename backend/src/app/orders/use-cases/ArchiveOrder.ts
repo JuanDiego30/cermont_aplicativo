@@ -1,19 +1,19 @@
 /**
  * Use Case: Archivar orden
- * Resuelve: Archivado de órdenes completadas con validaciones
+ * Resuelve: Archivado de ï¿½rdenes completadas con validaciones
  * 
  * @file backend/src/app/orders/use-cases/ArchiveOrder.ts
  */
 
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import { OrderState } from '../../../domain/entities/Order';
-import { AuditService } from '../../../domain/services/AuditService';
-import { AuditAction } from '../../../domain/entities/AuditLog';
-import { logger } from '../../../shared/utils/logger';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import { OrderState } from '../../../domain/entities/Order.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * DTO para archivar orden
@@ -63,21 +63,21 @@ export class ArchiveOrder {
         );
       }
 
-      // 2. Verificar que ya no esté archivada
+      // 2. Verificar que ya no estï¿½ archivada
       if (order.archived) {
         throw new ArchiveOrderError(
-          'La orden ya está archivada',
+          'La orden ya estï¿½ archivada',
           'ALREADY_ARCHIVED',
           400
         );
       }
 
-      // 3. Verificar que esté en estado terminal (COMPLETADA o CANCELADA)
+      // 3. Verificar que estï¿½ en estado terminal (COMPLETADA o CANCELADA)
       const terminalStates = [OrderState.PAGO];
       
       if (!terminalStates.includes(order.state)) {
         throw new ArchiveOrderError(
-          `Solo se pueden archivar órdenes completadas o canceladas. Estado actual: ${order.state}`,
+          `Solo se pueden archivar ï¿½rdenes completadas o canceladas. Estado actual: ${order.state}`,
           'INVALID_STATE',
           400
         );
@@ -90,7 +90,7 @@ export class ArchiveOrder {
         archivedBy: dto.archivedBy,
       });
 
-      // 5. Registrar en auditoría
+      // 5. Registrar en auditorï¿½a
       await this.auditService.log({
         entityType: 'Order',
         entityId: dto.orderId,

@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
-import { CreateUserUseCase } from '../../../app/users/use-cases/CreateUser';
-import { UpdateUser } from '../../../app/users/use-cases/UpdateUser';
-import { ListUsers } from '../../../app/users/use-cases/ListUsers';
-import { UserRepository } from '../../db/repositories/UserRepository';
-import { AuditService } from '../../../domain/services/AuditService';
-import { auditLogRepository } from '../../db/repositories/AuditLogRepository';
-import { UserRole } from '../../../shared/constants/roles';
-import { AuditAction } from '../../../domain/entities/AuditLog';
+import { CreateUserUseCase } from '../../../app/users/use-cases/CreateUser.js';
+import { UpdateUser } from '../../../app/users/use-cases/UpdateUser.js';
+import { ListUsers } from '../../../app/users/use-cases/ListUsers.js';
+import { UserRepository } from '../../db/repositories/UserRepository.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { auditLogRepository } from '../../db/repositories/AuditLogRepository.js';
+import { UserRole } from '../../../shared/constants/roles.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
 
 /**
  * Controller para gestión de usuarios
@@ -474,8 +474,8 @@ export class UsersController {
       }
 
       // ✅ Bloquear cuenta usando update
-      const _lockUntil = new Date(Date.now() + 2 * 60 * 60 * 1000); // 2 horas
-      await this.userRepository.update(id, { active: false });
+      const lockUntil = new Date(Date.now() + 2 * 60 * 60 * 1000); // 2 horas
+      await this.userRepository.update(id, { active: false, lockedUntil: lockUntil });
 
       // ✅ Registrar auditoría
       const auditService = new AuditService(auditLogRepository);

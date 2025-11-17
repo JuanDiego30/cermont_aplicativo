@@ -5,16 +5,16 @@
  */
 
 import { Router } from 'express';
-import { ordersController } from '../controllers/OrdersController';
-import { authenticate } from '../../../shared/middlewares/authenticate';
-import { authorize } from '../../../shared/middlewares/authorize';
-import { validateMiddleware } from '../../../shared/middlewares/validateMiddleware';
+import { ordersController } from '../controllers/OrdersController.js';
+import { authenticate } from '../../../shared/middlewares/authenticate.js';
+import { authorize } from '../../../shared/middlewares/authorize.js';
+import { validateMiddleware } from '../../../shared/middlewares/validateMiddleware.js';
 import {
   createOrderSchema,
   updateOrderSchema,
   assignOrderSchema
-} from '../schemas/validation.schemas';
-import { PERMISSIONS } from '../../../shared/constants/permissions';
+} from '../schemas/validation.schemas.js';
+import { PERMISSIONS } from '../../../shared/constants/permissions.js';
 
 const router = Router();
 

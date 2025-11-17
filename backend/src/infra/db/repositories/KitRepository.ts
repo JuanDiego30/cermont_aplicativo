@@ -1,11 +1,11 @@
-import prisma from '../prisma';
-import type { Kit } from '@/domain/entities/Kit';
-import { KitCategory } from '@/domain/entities/Kit';
+import prisma from '../prisma.js';
+import type { Kit } from '@/domain/entities/Kit.js';
+import { KitCategory } from '@/domain/entities/Kit.js';
 import type {
   IKitRepository,
   KitFilters,
   KitPaginationOptions,
-} from '@/domain/repositories/IKitRepository';
+} from '@/domain/repositories/IKitRepository.js';
 
 export class KitRepository implements IKitRepository {
   private readonly defaultLimit = 20;

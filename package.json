@@ -12,14 +12,13 @@
     "frontend"
   ],
   "scripts": {
-    "dev": "npm run dev:all",
-    "dev:all": "npm run dev:backend & npm run dev:frontend",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" --names \"BACKEND,FRONTEND\" --prefix \"[{name}]\" --kill-others-on-exit",
     "dev:backend": "npm run dev -w backend",
     "dev:frontend": "npm run dev -w frontend",
     "build": "npm run build:backend && npm run build:frontend",
     "build:backend": "npm run build -w backend",
     "build:frontend": "npm run build -w frontend",
-    "start": "npm run start:backend & npm run start:frontend",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\" --names \"BACKEND,FRONTEND\" --prefix \"[{name}]\" --kill-others-on-exit",
     "start:backend": "npm run start -w backend",
     "start:frontend": "npm run start -w frontend",
     "test": "npm run test -w backend",
@@ -43,5 +42,8 @@
     "typescript"
   ],
   "author": "Cermont SAS",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
 }

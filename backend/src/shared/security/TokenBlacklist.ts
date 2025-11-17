@@ -1,6 +1,6 @@
-import { tokenBlacklistRepository } from '../../infra/db/repositories/TokenBlacklistRepository';
-import { TokenType } from '../../domain/entities/TokenBlacklist';
-import { logger } from '../utils/logger';
+import { tokenBlacklistRepository } from '../../infra/db/repositories/TokenBlacklistRepository.js';
+import { TokenType } from '../../domain/entities/TokenBlacklist.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * ========================================

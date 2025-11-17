@@ -1,10 +1,10 @@
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import type { Order } from '../../../domain/entities/Order';
-import { OrderState } from '../../../domain/entities/Order';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import type { Order } from '../../../domain/entities/Order.js';
+import { OrderState } from '../../../domain/entities/Order.js';
 import {
   ObjectIdValidationError,
   ObjectIdValidator,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * Error personalizado para operaciones de listado

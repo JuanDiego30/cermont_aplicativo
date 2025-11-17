@@ -1,7 +1,7 @@
-import type { IUserRepository } from '../../../domain/repositories/IUserRepository';
-import { passwordHasher } from '../../../shared/security/passwordHasher';
-import type { User } from '../../../domain/entities/User';
-import { UserRole } from '../../../shared/constants/roles';
+import type { IUserRepository } from '../../../domain/repositories/IUserRepository.js';
+import { passwordHasher } from '../../../shared/security/passwordHasher.js';
+import type { User } from '../../../domain/entities/User.js';
+import { UserRole } from '../../../shared/constants/roles.js';
 
 export class UserUpdateError extends Error {
   constructor(

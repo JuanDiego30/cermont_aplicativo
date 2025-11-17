@@ -1,20 +1,20 @@
 /**
  * Use Case: Agregar material al plan
- * Resuelve: Adición de materiales con actualización de presupuesto
+ * Resuelve: Adiciï¿½n de materiales con actualizaciï¿½n de presupuesto
  * 
  * @file backend/src/app/workplans/use-cases/AddMaterialToWorkPlan.ts
  */
 
-import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository';
-import type { WorkPlanMaterial } from '../../../domain/entities/WorkPlan';
-import { WorkPlanStatus } from '../../../domain/entities/WorkPlan';
-import { AuditService } from '../../../domain/services/AuditService';
-import { AuditAction } from '../../../domain/entities/AuditLog';
-import { logger } from '../../../shared/utils/logger';
+import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository.js';
+import type { WorkPlanMaterial } from '../../../domain/entities/WorkPlan.js';
+import { WorkPlanStatus } from '../../../domain/entities/WorkPlan.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * DTO para agregar material
@@ -26,7 +26,7 @@ export interface AddMaterialDto {
 }
 
 /**
- * Error de adición
+ * Error de adiciï¿½n
  */
 export class AddMaterialError extends Error {
   constructor(
@@ -64,7 +64,7 @@ export class AddMaterialToWorkPlan {
         );
       }
 
-      // 2. Verificar que esté en estado DRAFT
+      // 2. Verificar que estï¿½ en estado DRAFT
       if (workPlan.status !== WorkPlanStatus.DRAFT) {
         throw new AddMaterialError(
           'Solo se pueden agregar materiales a planes en borrador',
@@ -86,7 +86,7 @@ export class AddMaterialToWorkPlan {
         estimatedBudget: newBudget,
       });
 
-      // 6. Registrar en auditoría
+      // 6. Registrar en auditorï¿½a
       await this.auditService.log({
         entityType: 'WorkPlan',
         entityId: dto.workPlanId,

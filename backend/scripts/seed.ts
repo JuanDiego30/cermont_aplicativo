@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import { SYSTEM_USER_ID } from '../src/shared/constants/system';
+import { SYSTEM_USER_ID } from '../src/shared/constants/system.js';
 
 const prisma = new PrismaClient();
 

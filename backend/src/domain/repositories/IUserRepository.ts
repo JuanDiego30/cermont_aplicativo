@@ -1,5 +1,5 @@
-import { User } from '../entities/User';
-import { UserRole } from '../../shared/constants/roles';
+import { User } from '../entities/User.js';
+import { UserRole } from '../../shared/constants/roles.js';
 
 /**
  * Filtros para buscar usuarios

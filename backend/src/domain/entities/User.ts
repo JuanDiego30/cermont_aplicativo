@@ -1,4 +1,4 @@
-import { UserRole } from '../../shared/constants/roles';
+import { UserRole } from '../../shared/constants/roles.js';
 
 /**
  * Entidad: Usuario del sistema

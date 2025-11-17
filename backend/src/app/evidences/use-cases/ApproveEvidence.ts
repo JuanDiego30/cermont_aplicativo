@@ -1,5 +1,5 @@
-import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository';
-import { Evidence, EvidenceStatus } from '../../../domain/entities/Evidence';
+import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository.js';
+import { Evidence, EvidenceStatus } from '../../../domain/entities/Evidence.js';
 
 /**
  * Error personalizado para operaciones de aprobación de evidencia

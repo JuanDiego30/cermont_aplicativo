@@ -2,25 +2,25 @@
  * ========================================
  * MIDDLEWARES BARREL EXPORT
  * ========================================
- * Exportación centralizada de todos los middlewares del sistema.
+ * Exportaciï¿½n centralizada de todos los middlewares del sistema.
  */
 
 // Authentication & Authorization
-export { authenticate, authenticateOptional } from './authenticate';
-export { authorize, authorizeAll, authorizeOwner } from './authorize';
+export { authenticate, authenticateOptional } from './authenticate.js';
+export { authorize, authorizeAll, authorizeOwner } from './authorize.js';
 
 // Error Handling
-export { errorHandler, createError, asyncHandler } from './errorHandler';
-export { notFound } from './notFound';
+export { errorHandler, createError, asyncHandler } from './errorHandler.js';
+export { notFound } from './notFound.js';
 
 // Validation
-export { validateMiddleware } from './validateMiddleware';
+export { validateMiddleware } from './validateMiddleware.js';
 
 // Auditing
-export { auditMiddleware } from './auditMiddleware';
+export { auditMiddleware } from './auditMiddleware.js';
 
 // Rate Limiting
-export { adaptiveRateLimit, strictRateLimit } from './adaptiveRateLimit';
+export { adaptiveRateLimit, strictRateLimit } from './adaptiveRateLimit.js';
 
 // Metrics
-export { metricsMiddleware } from './metricsMiddleware';
+export { metricsMiddleware } from './metricsMiddleware.js';

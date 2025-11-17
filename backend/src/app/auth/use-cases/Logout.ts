@@ -5,12 +5,12 @@
  * @file backend/src/app/auth/use-cases/Logout.ts
  */
 
-import type { ITokenBlacklistRepository } from '../../../domain/repositories/ITokenBlacklistRepository';
-import type { IRefreshTokenRepository } from '../../../domain/repositories/IRefreshTokenRepository';
-import { AuditService } from '../../../domain/services/AuditService';
-import { TokenType } from '../../../domain/entities/TokenBlacklist';
-import { AuditAction } from '../../../domain/entities/AuditLog';
-import { logger } from '../../../shared/utils/logger';
+import type { ITokenBlacklistRepository } from '../../../domain/repositories/ITokenBlacklistRepository.js';
+import type { IRefreshTokenRepository } from '../../../domain/repositories/IRefreshTokenRepository.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { TokenType } from '../../../domain/entities/TokenBlacklist.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { logger } from '../../../shared/utils/logger.js';
 import jwt from 'jsonwebtoken';
 
 /**

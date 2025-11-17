@@ -1,9 +1,9 @@
 import request from 'supertest';
-import app from '../app';
-import { OrderModel } from '../infra/db/models/Order';
-import { OrderState } from '../domain/entities/Order';
-import { UserModel } from '../infra/db/models/User';
-import { connectDatabase, disconnectDatabase } from '../shared/config/database';
+import app from '../app.js';
+import { OrderModel } from '../infra/db/models/Order.js';
+import { OrderState } from '../domain/entities/Order.js';
+import { UserModel } from '../infra/db/models/User.js';
+import { connectDatabase, disconnectDatabase } from '../shared/config/database.js';
 
 describe('Orders Integration Tests', () => {
   let accessToken: string;

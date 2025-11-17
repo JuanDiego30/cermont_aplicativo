@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuditService } from '../../domain/services/AuditService';
-import { auditLogRepository } from '../../infra/db/repositories/AuditLogRepository';
-import { logger } from '../utils/logger';
-import { SYSTEM_USER_ID } from '../constants/system';
+import { AuditService } from '../../domain/services/AuditService.js';
+import { auditLogRepository } from '../../infra/db/repositories/AuditLogRepository.js';
+import { logger } from '../utils/logger.js';
+import { SYSTEM_USER_ID } from '../constants/system.js';
 
 /**
  * ========================================

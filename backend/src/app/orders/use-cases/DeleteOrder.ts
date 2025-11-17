@@ -5,16 +5,16 @@
  * @file backend/src/app/orders/use-cases/DeleteOrder.ts
  */
 
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository';
-import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository';
-import { AuditService } from '../../../domain/services/AuditService';
-import { AuditAction } from '../../../domain/entities/AuditLog';
-import { logger } from '../../../shared/utils/logger';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository.js';
+import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * DTO para eliminar orden
@@ -105,7 +105,7 @@ export class DeleteOrder {
         entityId: dto.orderId,
         action: AuditAction.DELETE,
         userId: dto.deletedBy,
-        before: order,
+        before: { ...order },
         after: {} as Record<string, unknown>,
         reason: dto.reason,
       });

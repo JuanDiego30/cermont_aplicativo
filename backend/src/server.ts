@@ -1,10 +1,10 @@
 import 'dotenv/config';
 import 'module-alias/register';
-import createApp from './app';
-import { config } from './shared/config';
-import prisma from './infra/db/prisma';
-import { logger } from './shared/utils/logger';
-import { JobScheduler } from './jobs/JobScheduler';
+import createApp from './app.js';
+import { config } from './shared/config/index.js';
+import prisma from './infra/db/prisma.js';
+import { logger } from './shared/utils/logger.js';
+import { JobScheduler } from './jobs/JobScheduler.js';
 
 const PORT = config.port;
 

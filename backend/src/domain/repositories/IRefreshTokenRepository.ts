@@ -1,4 +1,4 @@
-import type { RefreshToken } from '../entities/RefreshToken';
+import type { RefreshToken } from '../entities/RefreshToken.js';
 
 /**
  * Estadísticas de los refresh tokens

@@ -1,4 +1,4 @@
-import { WorkPlan, WorkPlanStatus, WorkPlanMaterial as Material } from '../entities/WorkPlan';
+import { WorkPlan, WorkPlanStatus, WorkPlanMaterial as Material } from '../entities/WorkPlan.js';
 
 /**
  * Filtros para buscar planes de trabajo

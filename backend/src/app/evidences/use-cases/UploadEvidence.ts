@@ -1,7 +1,7 @@
-import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository';
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import { EvidenceStatus, EvidenceType } from '../../../domain/entities/Evidence';
-import type { Evidence, EvidenceMetadata, GPSCoordinates } from '../../../domain/entities/Evidence';
+import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository.js';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import { EvidenceStatus, EvidenceType } from '../../../domain/entities/Evidence.js';
+import type { Evidence, EvidenceMetadata, GPSCoordinates } from '../../../domain/entities/Evidence.js';
 
 /**
  * Error personalizado para operaciones de subida de evidencia

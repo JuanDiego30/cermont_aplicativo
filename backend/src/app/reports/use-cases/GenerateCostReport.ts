@@ -5,14 +5,14 @@
  * @file backend/src/app/reports/use-cases/GenerateCostReport.ts
  */
 
-import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository';
-import { pdfGeneratorService } from '../../../infra/services/PdfGeneratorService';
-import { costCalculatorService } from '../../../infra/services/CostCalculatorService';
-import { logger } from '../../../shared/utils/logger';
+import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository.js';
+import { pdfGeneratorService } from '../../../infra/services/PdfGeneratorService.js';
+import { costCalculatorService } from '../../../infra/services/CostCalculatorService.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * DTO para generar reporte de costos
@@ -23,7 +23,7 @@ export interface GenerateCostReportDto {
 }
 
 /**
- * Error de generación
+ * Error de generaciï¿½n
  */
 export class GenerateCostReportError extends Error {
   constructor(
@@ -72,13 +72,13 @@ export class GenerateCostReport {
         );
       }
 
-      // 3. Calcular variación
+      // 3. Calcular variaciï¿½n
       const variance = costCalculatorService.calculateVariance(
         workPlan.estimatedBudget,
         dto.realCost
       );
 
-      logger.info('[GenerateCostReport] Variación calculada', {
+      logger.info('[GenerateCostReport] Variaciï¿½n calculada', {
         budgeted: workPlan.estimatedBudget,
         real: dto.realCost,
         variance: variance.variance,

@@ -1,9 +1,9 @@
-import type { ITokenBlacklistRepository } from '../repositories/ITokenBlacklistRepository';
-import type { IRefreshTokenRepository } from '../repositories/IRefreshTokenRepository';
-import { TokenType } from '../entities/TokenBlacklist';
-import type { RefreshToken } from '../entities/RefreshToken';
-import { jwtService } from '@/shared/security/jwtService';
-import { generateUniqueId } from '@/shared/utils/generateUniqueId';
+import type { ITokenBlacklistRepository } from '../repositories/ITokenBlacklistRepository.js';
+import type { IRefreshTokenRepository } from '../repositories/IRefreshTokenRepository.js';
+import { TokenType } from '../entities/TokenBlacklist.js';
+import type { RefreshToken } from '../entities/RefreshToken.js';
+import { jwtService } from '@/shared/security/jwtService.js';
+import { generateUniqueId } from '@/shared/utils/generateUniqueId.js';
 
 /**
  * Resultado de limpieza de tokens expirados

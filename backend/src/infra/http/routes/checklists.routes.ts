@@ -1,10 +1,10 @@
 /**
  * Checklists Routes
- * Rutas para gestión de checklists y plantillas
+ * Rutas para gestiï¿½n de checklists y plantillas
  */
 
 import { Router } from 'express';
-import { authenticateToken } from '../../../shared/middlewares/authenticateToken';
+import { authenticate } from '../../../shared/middlewares/authenticate.js';
 
 const router = Router();
 
@@ -12,13 +12,13 @@ const router = Router();
  * GET /api/checklists
  * Listar todas las plantillas de checklists
  */
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', authenticate, async (req, res) => {
   try {
-    // TODO: Implementar con repository cuando esté disponible
+    // TODO: Implementar con repository cuando estï¿½ disponible
     const templates = [
       {
         id: '1',
-        name: 'Inspección Pre-Operacional',
+        name: 'Inspecciï¿½n Pre-Operacional',
         category: 'safety',
         items: [
           { id: '1', text: 'Verificar EPP completo', required: true },
@@ -33,7 +33,7 @@ router.get('/', authenticateToken, async (req, res) => {
         category: 'operations',
         items: [
           { id: '1', text: 'Documentar actividades realizadas', required: true },
-          { id: '2', text: 'Verificar limpieza del área', required: true },
+          { id: '2', text: 'Verificar limpieza del ï¿½rea', required: true },
           { id: '3', text: 'Entregar herramientas', required: true },
         ],
         createdAt: new Date().toISOString(),
@@ -59,15 +59,15 @@ router.get('/', authenticateToken, async (req, res) => {
 
 /**
  * GET /api/checklists/:id
- * Obtener una plantilla específica
+ * Obtener una plantilla especï¿½fica
  */
-router.get('/:id', authenticateToken, async (req, res) => {
+router.get('/:id', authenticate, async (req, res) => {
   try {
     const { id } = req.params;
 
     const template = {
       id,
-      name: 'Inspección Pre-Operacional',
+      name: 'Inspecciï¿½n Pre-Operacional',
       category: 'safety',
       items: [
         { id: '1', text: 'Verificar EPP completo', required: true },
@@ -94,7 +94,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
  * POST /api/checklists
  * Crear nueva plantilla
  */
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authenticate, async (req, res) => {
   try {
     const newTemplate = {
       id: Date.now().toString(),

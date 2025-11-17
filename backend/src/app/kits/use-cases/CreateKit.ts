@@ -16,13 +16,13 @@
  * @file src/app/kits/use-cases/CreateKit.ts
  */
 
-import type { IKitRepository } from '../../../domain/repositories/IKitRepository';
-import type { IAuditLogRepository } from '../../../domain/repositories/IAuditLogRepository';
-import type { Kit, KitCategory } from '../../../domain/entities/Kit';
-import { kitRepository } from '../../../infra/db/repositories/KitRepository';
-import { auditLogRepository } from '../../../infra/db/repositories/AuditLogRepository';
-import { logger } from '../../../shared/utils/logger';
-import { AuditAction } from '../../../domain/entities/AuditLog';
+import type { IKitRepository } from '../../../domain/repositories/IKitRepository.js';
+import type { IAuditLogRepository } from '../../../domain/repositories/IAuditLogRepository.js';
+import type { Kit, KitCategory } from '../../../domain/entities/Kit.js';
+import { kitRepository } from '../../../infra/db/repositories/KitRepository.js';
+import { auditLogRepository } from '../../../infra/db/repositories/AuditLogRepository.js';
+import { logger } from '../../../shared/utils/logger.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
 
 /**
  * Input del caso de uso

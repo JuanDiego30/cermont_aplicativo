@@ -1,4 +1,4 @@
-import type { AuditLog, AuditAction } from '../entities/AuditLog';
+import type { AuditLog, AuditAction } from '../entities/AuditLog.js';
 
 /**
  * Filtros para buscar audit logs

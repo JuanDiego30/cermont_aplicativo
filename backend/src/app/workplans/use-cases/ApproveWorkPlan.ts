@@ -1,20 +1,20 @@
 /**
  * Use Case: Aprobar plan de trabajo
- * Resuelve: Aprobación de planes con notificación al técnico
+ * Resuelve: Aprobaciï¿½n de planes con notificaciï¿½n al tï¿½cnico
  * 
  * @file backend/src/app/workplans/use-cases/ApproveWorkPlan.ts
  */
 
-import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository';
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import { WorkPlanStatus } from '../../../domain/entities/WorkPlan';
-import { AuditService } from '../../../domain/services/AuditService';
-import { AuditAction } from '../../../domain/entities/AuditLog';
-import { logger } from '../../../shared/utils/logger';
+import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository.js';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import { WorkPlanStatus } from '../../../domain/entities/WorkPlan.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { logger } from '../../../shared/utils/logger.js';
 import {
   ObjectIdValidator,
   ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator';
+} from '../../../shared/validators/ObjectIdValidator.js';
 
 /**
  * DTO para aprobar plan
@@ -26,7 +26,7 @@ export interface ApproveWorkPlanDto {
 }
 
 /**
- * Error de aprobación
+ * Error de aprobaciï¿½n
  */
 export class ApproveWorkPlanError extends Error {
   constructor(
@@ -65,10 +65,10 @@ export class ApproveWorkPlan {
         );
       }
 
-      // 2. Verificar que esté en estado DRAFT
+      // 2. Verificar que estï¿½ en estado DRAFT
       if (workPlan.status !== WorkPlanStatus.DRAFT) {
         throw new ApproveWorkPlanError(
-          `El plan ya está ${workPlan.status}`,
+          `El plan ya estï¿½ ${workPlan.status}`,
           'INVALID_STATUS',
           400
         );
@@ -82,7 +82,7 @@ export class ApproveWorkPlan {
         approvalComments: dto.comments,
       });
 
-      // 4. Registrar en auditoría
+      // 4. Registrar en auditorï¿½a
       await this.auditService.log({
         entityType: 'WorkPlan',
         entityId: dto.workPlanId,
@@ -93,11 +93,11 @@ export class ApproveWorkPlan {
         reason: dto.comments || 'WorkPlan approved',
       });
 
-      // 5. Enviar notificación al técnico
+      // 5. Enviar notificaciï¿½n al tï¿½cnico
       const order = await this.orderRepository.findById(workPlan.orderId);
       
       if (order && order.responsibleId) {
-        // Aquí enviarías el email al técnico
+        // Aquï¿½ enviarï¿½as el email al tï¿½cnico
         // await emailService.notifyWorkPlanApproved(...)
       }
 

@@ -1,10 +1,11 @@
-import prisma from '../prisma';
-import type { AuditLog } from '@/domain/entities/AuditLog';
-import { AuditAction } from '@/domain/entities/AuditLog';
+import prisma from '../prisma.js';
+import type { AuditLog as PrismaAuditLog } from '@prisma/client';
+import type { AuditLog } from '@/domain/entities/AuditLog.js';
+import { AuditAction } from '@/domain/entities/AuditLog.js';
 import type {
   AuditLogFilters,
   IAuditLogRepository,
-} from '@/domain/repositories/IAuditLogRepository';
+} from '@/domain/repositories/IAuditLogRepository.js';
 
 /**
  * Implementaci�n de Prisma para AuditLogRepository
@@ -12,7 +13,7 @@ import type {
  * @implements {IAuditLogRepository}
  */
 export class AuditLogRepository implements IAuditLogRepository {
-  private toDomain(log: any): AuditLog {
+  private toDomain(log: PrismaAuditLog): AuditLog {
     return {
       id: log.id,
       entityType: log.entityType,

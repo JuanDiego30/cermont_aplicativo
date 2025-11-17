@@ -1,5 +1,5 @@
-import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository';
-import type { Order } from '../../../domain/entities/Order';
+import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import type { Order } from '../../../domain/entities/Order.js';
 
 /**
  * Error personalizado para operaciones de orden no encontrada
