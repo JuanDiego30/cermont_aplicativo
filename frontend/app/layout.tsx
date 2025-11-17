@@ -40,12 +40,14 @@ export const metadata: Metadata = {
     follow: false,
   },
   manifest: '/manifest.json',
+  // Evita meta theme-color no soportado por algunos navegadores
+  themeColor: '#1D5FA8',
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 5,
+  // eliminar maximumScale para cumplir recomendación de accesibilidad
   themeColor: '#1D5FA8',
 };
 
@@ -61,6 +63,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="CERMONT ATG" />
+        {/* Compatibilidad text-size-adjust */}
+        <style>{`html,:host{-webkit-text-size-adjust:100%;text-size-adjust:100%}`}</style>
       </head>
       <body
         className={`min-h-screen bg-neutral-50 text-neutral-900 antialiased dark:bg-neutral-950 dark:text-neutral-50 ${inter.className}`}
