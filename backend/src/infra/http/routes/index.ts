@@ -14,6 +14,7 @@ import reportsRoutes from './reports.routes';
 import usersRoutes from './users.routes';
 import dashboardRoutes from './dashboard.routes';
 import kitsRoutes from './kits.routes';
+import checklistsRoutes from './checklists.routes';
 
 const router = Router();
 
@@ -51,6 +52,7 @@ router.use('/reports', reportsRoutes);
 router.use('/users', usersRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/kits', kitsRoutes);
+router.use('/checklists', checklistsRoutes);
 
 /**
  * Ruta 404 para endpoints no encontrados
