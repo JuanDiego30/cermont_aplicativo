@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "node --require ./scripts/safe-code-frame.js ./node_modules/next/dist/bin/next dev",
+    "build": "node --require ./scripts/safe-code-frame.js ./node_modules/next/dist/bin/next build",
+    "start": "node --require ./scripts/safe-code-frame.js ./node_modules/next/dist/bin/next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "type-check": "tsc --noEmit"
