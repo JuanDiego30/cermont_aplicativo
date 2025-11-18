@@ -3,6 +3,7 @@ import { orderRepository } from '../../db/repositories/OrderRepository.js';
 import { auditLogRepository } from '../../db/repositories/AuditLogRepository.js';
 import { AuditService } from '../../../domain/services/AuditService.js';
 import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { CreateOrder, OrderCreationError } from '../../../app/orders/use-cases/CreateOrder.js';
 import { OrderState } from '../../../domain/entities/Order.js';
 
 /**
@@ -130,15 +131,33 @@ class OrdersController {
    * POST /api/orders
    */
   async create(req: Request, res: Response): Promise<void> {
-    try {
-      const userId = (req as any).user?.userId;
-      const orderData = {
-        ...req.body,
-        createdBy: userId,
-        state: OrderState.SOLICITUD,
-      };
+    const userId = (req as any).user?.userId;
 
-      const newOrder = await orderRepository.create(orderData);
+    if (!userId) {
+      res.status(401).json({
+        type: 'https://httpstatuses.com/401',
+        title: 'Unauthorized',
+        status: 401,
+        detail: 'Usuario no autenticado',
+      });
+      return;
+    }
+
+    const createOrderUseCase = new CreateOrder(orderRepository);
+
+    const payload = {
+      clientName: req.body.clientName,
+      description: req.body.description,
+      location: req.body.location,
+      createdBy: userId,
+      clientEmail: req.body.clientEmail,
+      clientPhone: req.body.clientPhone,
+      estimatedStartDate: req.body.estimatedStartDate ? new Date(req.body.estimatedStartDate) : undefined,
+      notes: req.body.notes,
+    };
+
+    try {
+      const newOrder = await createOrderUseCase.execute(payload);
 
       const auditService = new AuditService(auditLogRepository);
       await auditService.log({
@@ -146,7 +165,7 @@ class OrdersController {
         entityId: newOrder.id,
         action: AuditAction.CREATE_ORDER,
         userId,
-        after: orderData,
+        after: { ...payload, state: OrderState.SOLICITUD },
         ip: req.ip || 'unknown',
         userAgent: req.get('user-agent') || 'unknown',
         reason: 'Order created',
@@ -157,6 +176,16 @@ class OrdersController {
         data: newOrder,
       });
     } catch (error: any) {
+      if (error instanceof OrderCreationError) {
+        res.status(error.statusCode).json({
+          type: `https://httpstatuses.com/${error.statusCode}`,
+          title: error.code,
+          status: error.statusCode,
+          detail: error.message,
+        });
+        return;
+      }
+
       res.status(500).json({
         type: 'https://httpstatuses.com/500',
         title: 'Internal Server Error',
