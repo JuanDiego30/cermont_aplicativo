@@ -16,16 +16,16 @@ export const checklistsApi = {
    * Obtener todos los templates
    */
   getAllTemplates: async (): Promise<ChecklistTemplate[]> => {
-    const response = await apiClient.get<ChecklistTemplate[]>('/checklists/templates');
-    return response.data;
+    const response = await apiClient.get<{ success: boolean; data: { templates: ChecklistTemplate[] } }>('/checklists');
+    return response.data.data.templates;
   },
 
   /**
    * Obtener template por ID
    */
   getTemplateById: async (id: string): Promise<ChecklistTemplate> => {
-    const response = await apiClient.get<ChecklistTemplate>(`/checklists/templates/${id}`);
-    return response.data;
+    const response = await apiClient.get<{ success: boolean; data: ChecklistTemplate }>(`/checklists/${id}`);
+    return response.data.data;
   },
 
   /**
@@ -52,8 +52,8 @@ export const checklistsApi = {
    * Crear nuevo template
    */
   createTemplate: async (data: CreateChecklistTemplateDTO): Promise<ChecklistTemplate> => {
-    const response = await apiClient.post<ChecklistTemplate>('/checklists/templates', data);
-    return response.data;
+    const response = await apiClient.post<{ success: boolean; data: ChecklistTemplate }>('/checklists', data);
+    return response.data.data;
   },
 
   /**

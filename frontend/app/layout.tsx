@@ -40,7 +40,6 @@ export const metadata: Metadata = {
     follow: false,
   },
   manifest: '/manifest.json',
-  themeColor: '#1D5FA8',
 };
 
 export const viewport: Viewport = {
