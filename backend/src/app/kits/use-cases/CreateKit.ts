@@ -18,7 +18,7 @@
 
 import type { IKitRepository } from '../../../domain/repositories/IKitRepository.js';
 import type { IAuditLogRepository } from '../../../domain/repositories/IAuditLogRepository.js';
-import type { Kit, KitCategory } from '../../../domain/entities/Kit.js';
+import { Kit, KitCategory } from '../../../domain/entities/Kit.js';
 import { kitRepository } from '../../../infra/db/repositories/KitRepository.js';
 import { auditLogRepository } from '../../../infra/db/repositories/AuditLogRepository.js';
 import { logger } from '../../../shared/utils/logger.js';
@@ -47,7 +47,7 @@ export class CreateKit {
   constructor(
     private readonly repository: IKitRepository = kitRepository,
     private readonly auditRepository: IAuditLogRepository = auditLogRepository
-  ) {}
+  ) { }
 
   async execute(input: CreateKitInput): Promise<Kit> {
     const { userId, ip, userAgent, ...kitData } = input;
@@ -149,13 +149,7 @@ export class CreateKit {
     }
 
     // Validar categoría
-    const validCategories = [
-      'LINEA_VIDA',
-      'ALTURA',
-      'MANTENIMIENTO',
-      'INSPECCION',
-      'CUSTOM',
-    ];
+    const validCategories = Object.values(KitCategory);
 
     if (!validCategories.includes(data.category)) {
       throw new Error(

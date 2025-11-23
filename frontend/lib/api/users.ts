@@ -1,65 +1,45 @@
 import apiClient from './client';
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-  active: boolean;
-  mfaEnabled: boolean;
-  lastLogin?: Date;
-  createdAt: Date;
-}
-
-export interface CreateUserDTO {
-  email: string;
-  password: string;
-  name: string;
-  role: string;
-}
-
-export interface UpdateUserDTO {
-  name?: string;
-  role?: string;
-  mfaEnabled?: boolean;
-}
+import { User, CreateUserDTO, UpdateUserDTO, UserFilters, UsersResponse } from '../types/user';
 
 export const usersApi = {
-  async list(params?: { page?: number; limit?: number; role?: string; active?: boolean }): Promise<any> {
-    const { data } = await apiClient.get('/users', { params });
-    return data;
+  getAll: async (filters?: UserFilters): Promise<UsersResponse> => {
+    const params = new URLSearchParams();
+    if (filters?.role) params.append('role', filters.role);
+    if (filters?.active !== undefined) params.append('active', String(filters.active));
+    if (filters?.search) params.append('search', filters.search);
+    if (filters?.page) params.append('page', String(filters.page));
+    if (filters?.limit) params.append('limit', String(filters.limit));
+
+    const response = await apiClient.get<UsersResponse>(`/users?${params.toString()}`);
+    return response.data;
   },
 
-  async getById(id: string): Promise<User> {
-    const { data } = await apiClient.get(`/users/${id}`);
-    return data.data;
+  getById: async (id: string): Promise<User> => {
+    const response = await apiClient.get<{ success: boolean; data: User }>(`/users/${id}`);
+    return response.data.data;
   },
 
-  async create(userData: CreateUserDTO): Promise<User> {
-    const { data } = await apiClient.post('/users', userData);
-    return data.data;
+  create: async (data: CreateUserDTO): Promise<User> => {
+    const response = await apiClient.post<{ success: boolean; data: User }>('/users', data);
+    return response.data.data;
   },
 
-  async update(id: string, userData: UpdateUserDTO): Promise<User> {
-    const { data } = await apiClient.put(`/users/${id}`, userData);
-    return data.data;
+  update: async (id: string, data: UpdateUserDTO): Promise<User> => {
+    const response = await apiClient.put<{ success: boolean; data: User }>(`/users/${id}`, data);
+    return response.data.data;
   },
 
-  async changePassword(id: string, newPassword: string): Promise<void> {
-    await apiClient.post(`/users/${id}/change-password`, { newPassword });
-  },
-
-  async activate(id: string): Promise<User> {
-    const { data } = await apiClient.post(`/users/${id}/activate`);
-    return data.data;
-  },
-
-  async deactivate(id: string): Promise<User> {
-    const { data } = await apiClient.post(`/users/${id}/deactivate`);
-    return data.data;
-  },
-
-  async delete(id: string): Promise<void> {
+  delete: async (id: string): Promise<void> => {
     await apiClient.delete(`/users/${id}`);
+  },
+
+  activate: async (id: string): Promise<User> => {
+    const response = await apiClient.post<{ success: boolean; data: User }>(`/users/${id}/activate`);
+    return response.data.data;
+  },
+
+  deactivate: async (id: string): Promise<User> => {
+    const response = await apiClient.post<{ success: boolean; data: User }>(`/users/${id}/deactivate`);
+    return response.data.data;
   },
 };
