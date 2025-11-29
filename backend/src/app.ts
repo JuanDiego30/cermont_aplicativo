@@ -1,4 +1,4 @@
-/**
+/** 
  * Configuración de la aplicación Express
  *
  * @file backend/src/app.ts
@@ -16,16 +16,14 @@ import { metricsMiddleware } from './shared/middlewares/metricsMiddleware.js';
 import { adaptiveRateLimit } from './shared/middlewares/adaptiveRateLimit.js';
 import { logger } from './shared/utils/logger.js';
 
-/**
- * Crea y configura la aplicación Express
- */
-export function createApp(): Express {
-  const app = express();
+// ==========================================
+// Configuraciones Extraídas
+// ==========================================
 
-  // Configuración de seguridad
-  // Configuración de seguridad mejorada para producción
-  const isProduction = process.env.NODE_ENV === 'production';
-  
+const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+function configureSecurityHeaders(app: Express) {
   app.use(helmet({
     contentSecurityPolicy: {
       directives: {
@@ -38,7 +36,7 @@ export function createApp(): Express {
         frameSrc: ["'none'"],
         objectSrc: ["'none'"],
       },
-      reportOnly: !isProduction, // Solo warnings en desarrollo
+      reportOnly: !isProduction,
     },
     hsts: {
       maxAge: 31536000, // 1 año
@@ -49,34 +47,39 @@ export function createApp(): Express {
     noSniff: true,
     xssFilter: true,
   }));
+}
 
-  // CORS mejorado - acepta múltiples orígenes
-  const allowedOrigins: (string | RegExp)[] = process.env.CORS_ORIGIN 
-    ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
-    : ['http://localhost:3000'];
+function configureCors(app: Express) {
+  const corsEnvOrigins = process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()).filter(Boolean)
+    : [];
 
-  // En desarrollo, aceptar más orígenes (tuneles, etc)
-  if (process.env.NODE_ENV === 'development') {
+  const allowedOrigins: (string | RegExp)[] = [
+    ...corsEnvOrigins,
+    process.env.FRONTEND_URL || 'http://localhost:3000',
+  ];
+
+  // Regex para redes locales
+  const localNetworkOriginRegex = /^(https?:\/\/)?(localhost|127\.0\.0\.1|0\.0\.0\.0|169\.254\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01]))(:\d+)?$/i;
+
+  if (isDevelopment) {
     allowedOrigins.push('http://localhost:3000');
     allowedOrigins.push('http://127.0.0.1:3000');
-    // Aceptar cualquier tunnel de devtunnels (dev tunnels de VS Code)
     allowedOrigins.push(/\.devtunnels\.ms$/);
   }
 
   app.use(cors({
     origin: (origin, callback) => {
-      // Permitir requests sin origin (como mobile apps, Postman, etc)
+      // Permitir requests sin origin (mobile, curl)
       if (!origin) return callback(null, true);
-      
-      // Verificar si el origen está permitido
-      const isAllowed = allowedOrigins.some(allowedOrigin => {
-        if (allowedOrigin instanceof RegExp) {
-          return allowedOrigin.test(origin);
-        }
-        return origin === allowedOrigin;
-      });
 
-      if (isAllowed || process.env.NODE_ENV === 'development') {
+      const isAllowed = allowedOrigins.some(allowed => 
+        allowed instanceof RegExp ? allowed.test(origin) : origin === allowed
+      );
+
+      const isLocalNetwork = localNetworkOriginRegex.test(origin);
+
+      if (isAllowed || isLocalNetwork || isDevelopment) {
         callback(null, true);
       } else {
         callback(new Error(`CORS no permitido para origen: ${origin}`));
@@ -85,40 +88,56 @@ export function createApp(): Express {
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    maxAge: 86400, // 24 horas
+    maxAge: 86400, // 24h cache
   }));
+}
 
-  // Rate limiting adaptativo
+function configureMiddleware(app: Express) {
+  // Rate limiting
   app.use(adaptiveRateLimit());
 
   // Body parsing
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-  // Logging HTTP
+  // Logging
   if (process.env.NODE_ENV !== 'test') {
     app.use(morgan('combined', {
-      stream: {
-        write: (message: string) => logger.info(message.trim()),
-      },
+      stream: { write: (message: string) => logger.info(message.trim()) },
     }));
   }
 
-  // Métricas
+  // Custom middlewares
   app.use(metricsMiddleware);
-
-  // Auditoría
   app.use(auditMiddleware());
+}
 
-  // Rutas
+// ==========================================
+// Función Principal
+// ==========================================
+
+/**
+ * Crea y configura la aplicación Express
+ */
+export function createApp(): Express {
+  const app = express();
+
+  // 1. Seguridad y Headers Base
+  configureSecurityHeaders(app);
+  configureCors(app);
+
+  // 2. Middlewares Generales
+  configureMiddleware(app);
+
+  // 3. Rutas
   app.use('/api', routes);
 
-  // Manejadores de errores
+  // 4. Manejo de Errores (Siempre al final)
   app.use(notFound);
   app.use(errorHandler);
 
   return app;
 }
 
-// Exportar la función para compatibilidad
 export default createApp;
+

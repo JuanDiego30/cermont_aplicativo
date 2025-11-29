@@ -1,0 +1,181 @@
+﻿node.exe :  
+ÔÜá Warning: 
+Next.js 
+inferred 
+your 
+workspace 
+root, but it 
+may not be 
+correct.
+En línea: 1 
+Carácter: 1
++ & 
+"C:\Program F
+iles\nodejs/n
+ode.exe" 
+"C:\Program F
+iles\nodejs/n
+ode_mo ...
++ ~~~~~~~~~~~
+~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+~~~~~~~~~~~~~
+~~~~~~
+    + Catego 
+   ryInfo    
+             
+ : NotSpe    
+cified:     
+( ÔÜá Wa    
+rning: N    
+...not b    
+e correc    
+t.:Strin    
+g) [], R    
+emoteExc    
+eption
+    + FullyQ 
+   ualified  
+  ErrorId    
+ : Native    
+CommandE    
+rror
+ 
+ We detected 
+multiple 
+lockfiles 
+and selected 
+the 
+directory of 
+C:\Users\cami
+l\Downloads\C
+ompressed\apl
+icativo_cermo
+nt_prueba\cer
+mont_aplicati
+vo\package-lo
+ck.json as 
+the root 
+directory.
+ To silence 
+this 
+warning, set 
+`outputFileTr
+acingRoot` 
+in your 
+Next.js 
+config, or 
+consider 
+removing one 
+of the 
+lockfiles if 
+it's not 
+needed.
+   See https:
+//nextjs.org/
+docs/app/api-
+reference/con
+fig/next-conf
+ig-js/output#
+caveats for 
+more 
+information.
+ Detected 
+additional 
+lockfiles: 
+   * C:\Users
+\camil\Downlo
+ads\Compresse
+d\aplicativo_
+cermont_prueb
+a\cermont_apl
+icativo\front
+end\package-l
+ock.json
+
+   Ôû▓ Next.js 15.5.6
+
+   Creating an optimized production build ...
+ Ô£ô Compiled successfully in 6.0s
+   Linting and checking validity of types ...
+
+./src/app/(admin)/users/new/page.tsx
+44:32  Warning: '_confirmPassword' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+44:57  Warning: '_phone' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/(admin)/users/[id]/page.tsx
+9:9  Warning: '_router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
+Failed to 
+compile.
+
+./tailadmin-t
+emp/src/app/(
+admin)/layout
+.tsx:3:28
+Type error: 
+Cannot find 
+module '@/con
+text/SidebarC
+ontext' or 
+its correspon
+ding type 
+declarations.
+
+[0m [90m 1 
+|[39m 
+[32m"use cli
+ent"[39m[33
+m;[39m
+ [90m 2 
+|[39m
+[31m[1m>[2
+2m[39m[90m 
+3 |[39m [36
+mimport[39m 
+{ useSidebar 
+} [36mfrom[
+39m [32m"@/c
+ontext/Sideba
+rContext"[39
+m[33m;[39m
+ [90m   
+|[39m       
+             
+        [31m
+[1m^[22m[3
+9m
+ [90m 4 
+|[39m [36mi
+mport[39m [
+33mAppHeader
+[39m [36mfro
+m[39m [32m"
+@/layout/AppH
+eader"[39m[
+33m;[39m
+ [90m 5 
+|[39m [36mi
+mport[39m [
+33mAppSidebar
+[39m [36mfr
+om[39m [32m
+"@/layout/App
+Sidebar"[39m
+[33m;[39m
+ [90m 6 
+|[39m [36mi
+mport[39m [
+33mBackdrop[
+39m [36mfrom
+[39m [32m"@
+/layout/Backd
+rop"[39m[33
+m;[39m[0m
+Next.js 
+build worker 
+exited with 
+code: 1 and 
+signal: null

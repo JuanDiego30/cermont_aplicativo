@@ -60,14 +60,14 @@ async function checkDatabase(): Promise<void> {
 }
 
 async function checkJWKS(): Promise<void> {
-  const privateKeyPath = resolve(process.cwd(), process.env.JWKS_PRIVATE_PATH || '../config/jwks-private.json');
-  const publicKeyPath = resolve(process.cwd(), process.env.JWKS_PUBLIC_PATH || '../config/jwks-public.json');
-  
+  const privateKeyPath = resolve(process.cwd(), process.env.JWKS_PRIVATE_PATH || 'config/jwks-private.json');
+  const publicKeyPath = resolve(process.cwd(), process.env.JWKS_PUBLIC_PATH || 'config/jwks-public.json');
+
   console.log('?? Verificando archivos JWKS...');
-  
+
   const privateExists = existsSync(privateKeyPath);
   const publicExists = existsSync(publicKeyPath);
-  
+
   if (privateExists && publicExists) {
     checks.push({
       name: 'JWKS',
@@ -88,7 +88,7 @@ async function checkJWKS(): Promise<void> {
 
 function checkEnvironment(): void {
   console.log('?? Verificando variables de entorno...');
-  
+
   const requiredVars = [
     'DATABASE_URL',
     'JWT_SECRET',
@@ -96,9 +96,9 @@ function checkEnvironment(): void {
     'JWT_AUDIENCE',
     'CORS_ORIGIN',
   ];
-  
+
   const missing = requiredVars.filter(varName => !process.env[varName]);
-  
+
   if (missing.length === 0) {
     checks.push({
       name: 'Variables de Entorno',
@@ -115,7 +115,7 @@ function checkEnvironment(): void {
     console.log('??  Algunas variables de entorno no est�n configuradas:');
     missing.forEach(varName => console.log(`   - ${varName}`));
   }
-  
+
   // Mostrar configuraci�n actual
   console.log('\n?? Configuraci�n actual:');
   console.log(`   NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
@@ -128,17 +128,17 @@ function printSummary(): void {
   console.log('\n' + '='.repeat(50));
   console.log('?? RESUMEN DE VERIFICACIONES');
   console.log('='.repeat(50));
-  
+
   checks.forEach(check => {
     const icon = check.status === 'ok' ? '?' : check.status === 'warning' ? '??' : '?';
     console.log(`${icon} ${check.name}: ${check.message}`);
   });
-  
+
   const hasErrors = checks.some(c => c.status === 'error');
   const hasWarnings = checks.some(c => c.status === 'warning');
-  
+
   console.log('='.repeat(50));
-  
+
   if (hasErrors) {
     console.log('\n? HAY ERRORES CR�TICOS');
     console.log('   El servidor no podr� iniciarse correctamente.');
@@ -155,12 +155,12 @@ function printSummary(): void {
 
 async function main(): Promise<void> {
   console.log('?? Verificando prerequisitos del servidor...\n');
-  
+
   // Ejecutar verificaciones
   checkEnvironment();
   await checkJWKS();
   await checkDatabase();
-  
+
   // Mostrar resumen
   printSummary();
 }

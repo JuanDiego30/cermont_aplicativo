@@ -12,7 +12,7 @@ import { PERMISSIONS } from '../../../shared/constants/permissions.js';
 
 const router = Router();
 
-// Todas las rutas requieren autenticaci�n
+// Todas las rutas requieren autenticación
 router.use(authenticate);
 
 /**
@@ -22,7 +22,7 @@ router.use(authenticate);
  */
 router.get(
   '/activity/:orderId',
-  authorize([PERMISSIONS.ORDERS_VIEW]),
+  authorize([PERMISSIONS.REPORTS_VIEW, PERMISSIONS.ORDERS_VIEW]),
   ReportsController.generateActivity
 );
 
@@ -33,7 +33,7 @@ router.get(
  */
 router.post(
   '/acta-entrega/:orderId',
-  authorize([PERMISSIONS.WORKPLANS_APPROVE]),
+  authorize([PERMISSIONS.REPORTS_GENERATE, PERMISSIONS.WORKPLANS_APPROVE]),
   ReportsController.generateActa
 );
 
@@ -44,7 +44,7 @@ router.post(
  */
 router.post(
   '/ses/:orderId',
-  authorize([PERMISSIONS.ORDERS_VIEW]),
+  authorize([PERMISSIONS.REPORTS_GENERATE, PERMISSIONS.ORDERS_VIEW]),
   ReportsController.generateSES
 );
 
@@ -55,7 +55,7 @@ router.post(
  */
 router.get(
   '/costs/:workPlanId',
-  authorize([PERMISSIONS.WORKPLANS_VIEW]),
+  authorize([PERMISSIONS.REPORTS_VIEW, PERMISSIONS.WORKPLANS_VIEW]),
   ReportsController.generateCosts
 );
 
@@ -68,6 +68,19 @@ router.get(
   '/dashboard',
   authorize([PERMISSIONS.DASHBOARD_VIEW_STATS]),
   ReportsController.generateDashboard
+);
+
+// --- Rutas Nuevas para Automatización (Tesis) ---
+
+/**
+ * @route   GET /api/reports/pending-actas
+ * @desc    Obtener listado de actas pendientes por generar (>12h)
+ * @access  Private (Admin/Coordinador)
+ */
+router.get(
+  '/pending-actas',
+  authorize([PERMISSIONS.REPORTS_VIEW, PERMISSIONS.ADMIN_FULL_ACCESS]),
+  ReportsController.getPendingActas
 );
 
 export default router;

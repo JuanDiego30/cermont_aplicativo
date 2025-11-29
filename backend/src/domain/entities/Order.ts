@@ -1,126 +1,112 @@
 /**
- * Estados posibles de una orden de trabajo
+ * Estados posibles del flujo de vida de una orden
+ * @enum {string}
  */
 export enum OrderState {
   SOLICITUD = 'SOLICITUD',
   VISITA = 'VISITA',
-  PO = 'PO',
+  PO = 'PO', // Purchase Order
   PLANEACION = 'PLANEACION',
   EJECUCION = 'EJECUCION',
   INFORME = 'INFORME',
   ACTA = 'ACTA',
-  SES = 'SES',
+  SES = 'SES', // Seguridad, Salud y Medio Ambiente
   FACTURA = 'FACTURA',
   PAGO = 'PAGO',
 }
 
 /**
- * Prioridades disponibles para la orden
+ * Niveles de prioridad estandarizados
  */
-export type OrderPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'NORMAL';
+export enum OrderPriority {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+  CRITICAL = 'CRITICAL', // Agregado para casos urgentes
+}
 
 /**
- * Entidad: Orden de trabajo
- * Representa una orden de trabajo en el sistema ATG
+ * Información de contacto asociada a la orden
+ */
+export interface ContactInfo {
+  name: string;
+  email?: string;
+  phone?: string;
+  role?: string; // Ej: 'Gerente', 'Técnico en sitio'
+}
+
+/**
+ * Registro de transición de estado
+ */
+export interface StateTransition {
+  fromState?: OrderState;
+  toState: OrderState;
+  changedAt: Date;
+  changedBy: string;
+  reason?: string;
+}
+
+/**
+ * Entidad: Orden de Trabajo
+ * Representa el núcleo operativo del sistema ATG.
  */
 export interface Order {
-  /** ID único de la orden */
   id: string;
-
-  /** Número interno de orden */
   orderNumber: string;
-
-  /** Identificador externo para integraciones */
+  
+  // Referencias externas
   externalId?: string;
-
-  /** Caso o expediente asociado */
   caseId?: string;
 
-  /** Nombre del cliente */
+  // Información del Cliente (Unificada)
   clientName: string;
+  clientContact: ContactInfo;
 
-  /** Email del cliente */
-  clientEmail?: string;
-
-  /** Teléfono del cliente */
-  clientPhone?: string;
-
-  /** Descripción del trabajo a realizar */
+  // Detalles del trabajo
   description: string;
-
-  /** Dirección o ubicación del trabajo */
   location?: string;
-
-  /** Estado actual de la orden */
-  state: OrderState;
-
-  /** Prioridad del trabajo */
-  priority?: OrderPriority;
-
-  /** ID del responsable asignado */
-  responsibleId: string;
-
-  /** ID del plan de trabajo enlazado */
-  workPlanId?: string;
-
-  /** Fecha estimada de inicio */
-  requestedAt?: Date;
-
-  /** Fecha límite comprometida */
-  dueDate?: Date;
-
-  /** Colaborador operativo actual */
-  assignedTeam?: string;
-
-  /** Lista de etiquetas libres para búsqueda */
+  notes?: string;
   tags?: string[];
 
-  /** Notas adicionales */
-  notes?: string;
+  // Estado y Clasificación
+  state: OrderState;
+  priority: OrderPriority;
 
-  /** Contacto principal */
-  contact?: {
-    name: string;
-    phone?: string;
-    email?: string;
-  };
+  // Asignación
+  responsibleId: string;   // ID del usuario responsable (Owner)
+  assignedTeam?: string;   // Equipo operativo asignado
 
-  /** Historial de cambios de estado */
-  stateHistory?: Array<{
-    state: OrderState;
-    changedAt: Date;
-    changedBy: string;
-    comment?: string;
-  }>;
-
-  /** Indica si la orden está archivada */
-  archived: boolean;
-
-  /** Fecha en que se archivó la orden */
-  archivedAt?: Date;
-
-  /** ID del usuario que archivó la orden */
-  archivedBy?: string;
-
-  /** Tiempo estimado en horas */
+  // Planificación
+  workPlanId?: string;     // ID del plan asociado
+  requestedAt?: Date;      // Fecha solicitada por cliente
+  dueDate?: Date;          // Fecha compromiso de entrega
+  
+  // Métricas de Tiempo
   estimatedHours?: number;
-
-  /** Tiempo real registrado en horas */
   actualHours?: number;
 
-  /** Metadatos específicos de la orden */
-  metadata?: Record<string, unknown>;
+  // Auditoría de cambios de estado
+  stateHistory: StateTransition[];
 
-  /** IDs de evidencias relacionadas */
-  evidenceIds?: string[];
+  // Archivo / Eliminación
+  archived: boolean;
+  archivedAt?: Date;
+  archivedBy?: string;
 
-  /** ID del usuario que creó la orden */
+  deletedAt?: Date | null;
+  deletedBy?: string;
+  deletionReason?: string;
+
+  // Metadatos del sistema
   createdBy: string;
-
-  /** Fecha de creación */
   createdAt: Date;
-
-  /** Fecha de última actualización */
   updatedAt: Date;
+
+  /** 
+   * Metadatos flexibles para integraciones o plugins
+   * Preferir campos tipados si son core del negocio.
+   */
+  metadata?: Record<string, unknown>;
 }
+
 

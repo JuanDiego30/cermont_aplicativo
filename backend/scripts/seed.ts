@@ -35,42 +35,6 @@ async function main() {
       active: true,
       loginAttempts: 0,
     },
-    {
-      email: 'admin@cermont.com',
-      password: await bcrypt.hash('Admin123!', 10),
-      name: 'System Administrator',
-      role: 'ADMIN',
-      mfaEnabled: false,
-      passwordHistory: JSON.stringify([]),
-      passwordExpiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-      lastPasswordChange: new Date(),
-      active: true,
-      loginAttempts: 0,
-    },
-    {
-      email: 'coordinador@cermont.com',
-      password: await bcrypt.hash('Coord123!', 10),
-      name: 'Coordinador de Pruebas',
-      role: 'COORDINADOR',
-      mfaEnabled: false,
-      passwordHistory: JSON.stringify([]),
-      passwordExpiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-      lastPasswordChange: new Date(),
-      active: true,
-      loginAttempts: 0,
-    },
-    {
-      email: 'test@cermont.com',
-      password: await bcrypt.hash('Test1234!', 10),
-      name: 'Test User',
-      role: 'OPERARIO',
-      mfaEnabled: false,
-      passwordHistory: JSON.stringify([]),
-      passwordExpiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-      lastPasswordChange: new Date(),
-      active: true,
-      loginAttempts: 0,
-    },
   ];
 
   for (const user of users) {
@@ -88,7 +52,7 @@ async function main() {
   users.forEach(user => {
     console.log(`   📧 ${user.email}`);
   });
-  
+
   await prisma.$disconnect();
 }
 

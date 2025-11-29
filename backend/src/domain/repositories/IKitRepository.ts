@@ -1,87 +1,74 @@
 import type { Kit, KitCategory } from '../entities/Kit.js';
 
-/**
- * Filtros para b�squeda de kits
- */
+export interface PaginationParams {
+  page: number;
+  limit: number;
+  skip: number;
+}
+
+export interface SortingParams {
+  field: keyof Kit;
+  order: 'asc' | 'desc';
+}
+
 export interface KitFilters {
   category?: KitCategory;
   active?: boolean;
-  search?: string;
+  search?: string; // Búsqueda por nombre/descripción
   createdBy?: string;
 }
 
 /**
- * Opciones de paginaci�n
- */
-export interface KitPaginationOptions {
-  page?: number;
-  limit?: number;
-  sortBy?: string;
-  sortOrder?: 'asc' | 'desc';
-}
-
-/**
- * Interface del repositorio de Kits
- * Define los m�todos de acceso a datos para kits t�picos
+ * Repositorio: Kits Típicos
+ * Gestión de plantillas de recursos reutilizables.
  */
 export interface IKitRepository {
-  /**
-   * Crear un nuevo kit
-   */
-  create(kit: Omit<Kit, 'id' | 'createdAt' | 'updatedAt'>): Promise<Kit>;
+  create(kit: Omit<Kit, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>): Promise<Kit>;
 
-  /**
-   * Buscar kit por ID
-   */
+  update(id: string, updates: Partial<Kit>): Promise<Kit>;
+
   findById(id: string): Promise<Kit | null>;
 
   /**
-   * Buscar kits con filtros simples
+   * Búsqueda unificada con filtros, paginación y ordenamiento.
+   * Reemplaza a find, findAll, findByCategory, findAllWithFilters.
    */
-  find(filters: {
-    category?: string;
-    active?: boolean;
-    limit?: number;
-    skip?: number;
-  }): Promise<Kit[]>;
+  findAll(
+    filters: KitFilters,
+    pagination?: PaginationParams,
+    sorting?: SortingParams
+  ): Promise<Kit[]>;
 
   /**
-   * Buscar kits con filtros y paginaci�n (m�todo alternativo)
+   * Cuenta total de registros según filtros.
+   * Esencial para paginación.
    */
-  findAll(filters?: {
-    active?: boolean;
-    category?: string;
-    limit?: number;
-    skip?: number;
-  }): Promise<{ kits: Kit[]; total: number }>;
+  count(filters: KitFilters): Promise<number>;
 
   /**
-   * Buscar kits por categor�a
+   * Alias de findAll para compatibilidad.
+   * @deprecated Usar findAll directamente.
    */
-  findByCategory(category: string): Promise<Kit[]>;
+  findAllWithFilters(
+    filters: KitFilters,
+    pagination?: PaginationParams,
+    sorting?: SortingParams
+  ): Promise<Kit[]>;
 
   /**
-   * Actualizar un kit
-   */
-  update(id: string, updates: Partial<Kit>): Promise<Kit>;
-
-  /**
-   * Eliminar un kit (soft delete - marcar como inactivo)
+   * Soft delete: Marca deletedAt con fecha actual.
    */
   delete(id: string): Promise<void>;
 
   /**
-   * Duplicar un kit (crear copia)
+   * Busca unicidad para evitar duplicados lógicos.
+   * Útil en validaciones de creación.
    */
-  duplicate(id: string, userId: string): Promise<Kit>;
+  findByNameAndCategory(name: string, category: KitCategory): Promise<Kit | null>;
 
   /**
-   * Contar kits por categor�a
-   */
-  countByCategory(category: string): Promise<number>;
-
-  /**
-   * Obtener estad�sticas de kits
+   * Obtiene estadísticas agregadas para dashboards.
+   * @deprecated Considerar mover a un servicio de reportes si crece la complejidad.
    */
   getStats(): Promise<{
     total: number;
@@ -89,3 +76,4 @@ export interface IKitRepository {
     byCategory: Record<string, number>;
   }>;
 }
+

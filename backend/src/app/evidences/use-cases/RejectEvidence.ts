@@ -1,137 +1,198 @@
 /**
  * Use Case: Rechazar evidencia
- * Resuelve: Rechazo de evidencias con raz�n
+ * Resuelve: Rechazo de evidencias con razón detallada
  * 
  * @file backend/src/app/evidences/use-cases/RejectEvidence.ts
  */
 
 import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository.js';
-import { EvidenceStatus } from '../../../domain/entities/Evidence.js';
+import { Evidence, EvidenceStatus } from '../../../domain/entities/Evidence.js';
 import { AuditService } from '../../../domain/services/AuditService.js';
 import { AuditAction } from '../../../domain/entities/AuditLog.js';
 import { logger } from '../../../shared/utils/logger.js';
-import {
-  ObjectIdValidator,
-  ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator.js';
 
-/**
- * DTO para rechazar evidencia
- */
-export interface RejectEvidenceDto {
+const REJECTION_CONFIG = {
+  MIN_REASON_LENGTH: 10,
+  MAX_REASON_LENGTH: 1000,
+  REJECTABLE_STATUS: EvidenceStatus.PENDING,
+} as const;
+
+const ERROR_MESSAGES = {
+  EVIDENCE_NOT_FOUND: (id: string) => `Evidencia ${id} no encontrada`,
+  INVALID_STATUS: (current: EvidenceStatus) =>
+    `Solo se pueden rechazar evidencias pendientes. Estado actual: ${current}`,
+  ALREADY_REJECTED: (rejectedAt: Date) =>
+    `La evidencia ya fue rechazada el ${rejectedAt.toISOString()}`,
+  MISSING_EVIDENCE_ID: 'El ID de la evidencia es requerido',
+  MISSING_REJECTED_BY: 'El ID del usuario es requerido',
+  MISSING_REASON: 'Debe proporcionar una razón para el rechazo',
+  REASON_TOO_SHORT: `La razón debe tener al menos ${REJECTION_CONFIG.MIN_REASON_LENGTH} caracteres`,
+  REASON_TOO_LONG: `La razón no puede exceder ${REJECTION_CONFIG.MAX_REASON_LENGTH} caracteres`,
+} as const;
+
+const LOG_CONTEXT = {
+  USE_CASE: '[RejectEvidenceUseCase]',
+} as const;
+
+interface RejectEvidenceInput {
   evidenceId: string;
   rejectedBy: string;
   reason: string;
+  ip?: string;
+  userAgent?: string;
 }
 
-/**
- * Error de rechazo
- */
-export class RejectEvidenceError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-    public readonly statusCode: number
-  ) {
-    super(message);
-    this.name = 'RejectEvidenceError';
-  }
+interface AuditContext {
+  ip: string;
+  userAgent: string;
 }
 
-/**
- * Use Case: Rechazar Evidencia
- * @class RejectEvidence
- */
-export class RejectEvidence {
+export class RejectEvidenceUseCase {
   constructor(
     private readonly evidenceRepository: IEvidenceRepository,
     private readonly auditService: AuditService
   ) {}
 
-  async execute(dto: RejectEvidenceDto): Promise<void> {
-    try {
-      this.validateDto(dto);
+  async execute(input: RejectEvidenceInput): Promise<Evidence> {
+    this.validateInput(input);
 
-      // 1. Verificar que la evidencia existe
-      const evidence = await this.evidenceRepository.findById(dto.evidenceId);
+    const evidence = await this.fetchEvidence(input.evidenceId);
+    this.validateEvidenceCanBeRejected(evidence);
 
-      if (!evidence) {
-        throw new RejectEvidenceError(
-          `Evidencia ${dto.evidenceId} no encontrada`,
-          'EVIDENCE_NOT_FOUND',
-          404
-        );
-      }
+    const updatedEvidence = await this.updateEvidenceToRejected(evidence.id, input);
 
-      // 2. Verificar que est� pendiente
-      if (evidence.status !== EvidenceStatus.PENDING) {
-        throw new RejectEvidenceError(
-          `La evidencia ya est� ${evidence.status}`,
-          'INVALID_STATUS',
-          400
-        );
-      }
+    const auditContext = this.extractAuditContext(input);
+    await this.logRejectionEvent(evidence, input.rejectedBy, input.reason, auditContext);
 
-      // 3. Rechazar evidencia
-      await this.evidenceRepository.reject(dto.evidenceId, dto.rejectedBy, dto.reason);
+    logger.info(`${LOG_CONTEXT.USE_CASE} Evidencia rechazada exitosamente`, {
+      evidenceId: evidence.id,
+      rejectedBy: input.rejectedBy,
+      orderId: evidence.orderId,
+    });
 
-      // 4. Registrar en auditor�a
-      await this.auditService.log({
-        entityType: 'Evidence',
-        entityId: dto.evidenceId,
-        action: AuditAction.UPDATE,
-        userId: dto.rejectedBy,
-        before: { status: EvidenceStatus.PENDING },
-        after: { status: EvidenceStatus.REJECTED },
-        reason: dto.reason,
-      });
+    return updatedEvidence;
+  }
 
-      logger.info('[RejectEvidence] Evidencia rechazada', {
-        evidenceId: dto.evidenceId,
-        rejectedBy: dto.rejectedBy,
-      });
-    } catch (error) {
-      if (error instanceof RejectEvidenceError) {
-        throw error;
-      }
+  private validateInput(input: RejectEvidenceInput): void {
+    if (!input.evidenceId?.trim()) {
+      throw new Error(ERROR_MESSAGES.MISSING_EVIDENCE_ID);
+    }
 
-      logger.error('[RejectEvidence] Error inesperado', {
-        error: error instanceof Error ? error.message : 'Unknown',
-      });
+    if (!input.rejectedBy?.trim()) {
+      throw new Error(ERROR_MESSAGES.MISSING_REJECTED_BY);
+    }
 
-      throw new RejectEvidenceError(
-        'Error interno al rechazar evidencia',
-        'INTERNAL_ERROR',
-        500
-      );
+    this.validateReason(input.reason);
+  }
+
+  private validateReason(reason: unknown): void {
+    if (!reason || typeof reason !== 'string' || reason.trim().length === 0) {
+      throw new Error(ERROR_MESSAGES.MISSING_REASON);
+    }
+
+    const trimmedLength = reason.trim().length;
+
+    if (trimmedLength < REJECTION_CONFIG.MIN_REASON_LENGTH) {
+      throw new Error(ERROR_MESSAGES.REASON_TOO_SHORT);
+    }
+
+    if (trimmedLength > REJECTION_CONFIG.MAX_REASON_LENGTH) {
+      throw new Error(ERROR_MESSAGES.REASON_TOO_LONG);
     }
   }
 
-  private validateDto(dto: RejectEvidenceDto): void {
-    try {
-      dto.evidenceId = ObjectIdValidator.validate(dto.evidenceId, 'ID de la evidencia');
-      dto.rejectedBy = ObjectIdValidator.validate(dto.rejectedBy, 'ID del usuario');
-    } catch (error) {
-      if (error instanceof ObjectIdValidationError) {
-        throw new RejectEvidenceError(error.message, 'INVALID_INPUT', 400);
+  private async fetchEvidence(evidenceId: string): Promise<Evidence> {
+    const evidence = await this.evidenceRepository.findById(evidenceId);
+
+    if (!evidence) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Evidencia no encontrada`, { evidenceId });
+      throw new Error(ERROR_MESSAGES.EVIDENCE_NOT_FOUND(evidenceId));
+    }
+
+    return evidence;
+  }
+
+  private validateEvidenceCanBeRejected(evidence: Evidence): void {
+    if (evidence.status !== REJECTION_CONFIG.REJECTABLE_STATUS) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Estado inválido para rechazo`, {
+        evidenceId: evidence.id,
+        currentStatus: evidence.status,
+        requiredStatus: REJECTION_CONFIG.REJECTABLE_STATUS,
+      });
+      
+      // Si ya está rechazada, dar mensaje específico
+      if (evidence.status === EvidenceStatus.REJECTED) {
+        throw new Error(ERROR_MESSAGES.ALREADY_REJECTED(evidence.rejectedAt || new Date()));
       }
+      
+      throw new Error(ERROR_MESSAGES.INVALID_STATUS(evidence.status));
+    }
+  }
+
+  private async updateEvidenceToRejected(
+    evidenceId: string,
+    input: RejectEvidenceInput
+  ): Promise<Evidence> {
+    const rejectionData = {
+      status: EvidenceStatus.REJECTED,
+      rejectedBy: input.rejectedBy,
+      rejectionReason: input.reason.trim(),
+      rejectedAt: new Date(),
+    };
+
+    try {
+      return await this.evidenceRepository.update(evidenceId, rejectionData);
+    } catch (error) {
+      logger.error(`${LOG_CONTEXT.USE_CASE} Error actualizando evidencia`, {
+        evidenceId,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
       throw error;
     }
+  }
 
-    if (!dto.reason || dto.reason.trim().length === 0) {
-      throw new RejectEvidenceError(
-        'Debe proporcionar una raz�n para rechazar',
-        'MISSING_REASON',
-        400
-      );
-    }
+  private extractAuditContext(input: RejectEvidenceInput): AuditContext {
+    return {
+      ip: input.ip || 'unknown',
+      userAgent: input.userAgent || 'unknown',
+    };
+  }
 
-    if (dto.reason.length < 10) {
-      throw new RejectEvidenceError(
-        'La raz�n debe tener al menos 10 caracteres',
-        'REASON_TOO_SHORT',
-        400
-      );
+  private async logRejectionEvent(
+    evidence: Evidence,
+    rejectedBy: string,
+    reason: string,
+    auditContext: AuditContext
+  ): Promise<void> {
+    try {
+      await this.auditService.log({
+        entityType: 'Evidence',
+        entityId: evidence.id,
+        action: AuditAction.REJECT_EVIDENCE,
+        userId: rejectedBy,
+        before: {
+          status: evidence.status,
+          approvedBy: evidence.approvedBy,
+          approvedAt: evidence.approvedAt,
+          rejectedBy: evidence.rejectedBy,
+          rejectedAt: evidence.rejectedAt,
+        },
+        after: {
+          status: EvidenceStatus.REJECTED,
+          rejectedBy,
+          rejectedAt: new Date(),
+          rejectionReason: reason,
+        },
+        ip: auditContext.ip,
+        userAgent: auditContext.userAgent,
+        reason: `Evidencia rechazada: ${reason}`,
+      });
+    } catch (error) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Error registrando auditoría (no crítico)`, {
+        evidenceId: evidence.id,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
     }
   }
 }
+

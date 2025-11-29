@@ -19,7 +19,7 @@ import { PERMISSIONS } from '../../../shared/constants/permissions.js';
 
 const router = Router();
 
-// Todas las rutas requieren autenticaci�n
+// Middleware global de autenticación
 router.use(authenticate);
 
 /**
@@ -81,15 +81,14 @@ router.post(
   WorkPlansController.reject
 );
 
-/**
- * @route   GET /api/workplans/:id/pdf
- * @desc    Generar PDF del plan de trabajo
- * @access  Private
+/*
+ * Ruta pendiente de implementación para PDF
+ * router.get(
+ *   '/:id/pdf',
+ *   authorize([PERMISSIONS.WORKPLANS_VIEW]),
+ *   WorkPlansController.generatePDF
+ * );
  */
-// router.get(
-//   '/:id/pdf',
-//   authorize([PERMISSIONS.WORKPLANS_VIEW]),
-//   WorkPlansController.generatePDF
-// );
 
 export default router;
+

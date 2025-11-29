@@ -1,140 +1,98 @@
-/**
- * Use Case: Actualizar presupuesto del plan
- * Resuelve: Ajuste de presupuesto con validaciones
- * 
- * @file backend/src/app/workplans/use-cases/UpdateBudget.ts
- */
-
 import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository.js';
+import type { ICostCalculatorService } from '../../../domain/services/ICostCalculatorService.js';
 import { AuditService } from '../../../domain/services/AuditService.js';
 import { AuditAction } from '../../../domain/entities/AuditLog.js';
-import { costCalculatorService } from '../../../infra/services/CostCalculatorService.js';
 import { logger } from '../../../shared/utils/logger.js';
-import {
-  ObjectIdValidator,
-  ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator.js';
 
-/**
- * DTO para actualizar presupuesto
- */
-export interface UpdateBudgetDto {
+const CONFIG = {
+  BUDGET_MAX: 1_000_000_000, // Límite razonable
+} as const;
+
+const ERROR_MESSAGES = {
+  PLAN_NOT_FOUND: (id: string) => `Plan de trabajo ${id} no encontrado`,
+  INVALID_BUDGET: `El presupuesto debe ser un número positivo menor a ${CONFIG.BUDGET_MAX}`,
+  MISSING_REASON: 'Debe proporcionar una razón para cambiar el presupuesto',
+} as const;
+
+const LOG_CONTEXT = {
+  USE_CASE: '[UpdateBudgetUseCase]',
+} as const;
+
+export interface UpdateBudgetInput {
   workPlanId: string;
   newBudget: number;
   updatedBy: string;
   reason: string;
+  ip?: string;
+  userAgent?: string;
 }
 
-/**
- * Error de actualizaci�n
- */
-export class UpdateBudgetError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-    public readonly statusCode: number
-  ) {
-    super(message);
-    this.name = 'UpdateBudgetError';
-  }
-}
-
-/**
- * Use Case: Actualizar Presupuesto
- * @class UpdateBudget
- */
-export class UpdateBudget {
+export class UpdateBudgetUseCase {
   constructor(
     private readonly workPlanRepository: IWorkPlanRepository,
-    private readonly auditService: AuditService
+    private readonly auditService: AuditService,
+    private readonly costCalculatorService: ICostCalculatorService // Inyección
   ) {}
 
-  async execute(dto: UpdateBudgetDto): Promise<void> {
-    try {
-      this.validateDto(dto);
+  async execute(input: UpdateBudgetInput): Promise<void> {
+    this.validateInput(input);
 
-      // 1. Verificar que el plan existe
-      const workPlan = await this.workPlanRepository.findById(dto.workPlanId);
+    const workPlan = await this.workPlanRepository.findById(input.workPlanId);
+    if (!workPlan) {
+      throw new Error(ERROR_MESSAGES.PLAN_NOT_FOUND(input.workPlanId));
+    }
 
-      if (!workPlan) {
-        throw new UpdateBudgetError(
-          `Plan de trabajo ${dto.workPlanId} no encontrado`,
-          'WORKPLAN_NOT_FOUND',
-          404
-        );
-      }
+    const previousBudget = workPlan.estimatedBudget || 0;
+    const variance = this.costCalculatorService.calculateVariance(previousBudget, input.newBudget);
 
-      // 2. Guardar presupuesto anterior
-      const previousBudget = workPlan.estimatedBudget;
+    await this.workPlanRepository.update(input.workPlanId, {
+      estimatedBudget: input.newBudget,
+    });
 
-      // 3. Calcular variaci�n
-      const variance = costCalculatorService.calculateVariance(previousBudget, dto.newBudget);
+    await this.logAudit(workPlan.id, previousBudget, input, variance);
 
-      // 4. Actualizar presupuesto
-      await this.workPlanRepository.update(dto.workPlanId, {
-        estimatedBudget: dto.newBudget,
-      });
+    logger.info(`${LOG_CONTEXT.USE_CASE} Presupuesto actualizado`, {
+      workPlanId: input.workPlanId,
+      previousBudget,
+      newBudget: input.newBudget,
+      variance,
+    });
+  }
 
-      // 5. Registrar en auditor�a
-      await this.auditService.log({
-        entityType: 'WorkPlan',
-        entityId: dto.workPlanId,
-        action: AuditAction.UPDATE,
-        userId: dto.updatedBy,
-        before: { estimatedBudget: previousBudget },
-        after: { estimatedBudget: dto.newBudget, variance },
-        reason: dto.reason,
-      });
+  private validateInput(input: UpdateBudgetInput): void {
+    if (!input.workPlanId?.trim()) throw new Error('ID del plan requerido');
+    if (!input.updatedBy?.trim()) throw new Error('ID del usuario requerido');
 
-      logger.info('[UpdateBudget] Presupuesto actualizado', {
-        workPlanId: dto.workPlanId,
-        previousBudget,
-        newBudget: dto.newBudget,
-        variance: variance.variance,
-        variancePercentage: variance.variancePercentage,
-      });
-    } catch (error) {
-      if (error instanceof UpdateBudgetError) {
-        throw error;
-      }
+    if (
+      typeof input.newBudget !== 'number' ||
+      input.newBudget < 0 ||
+      input.newBudget > CONFIG.BUDGET_MAX
+    ) {
+      throw new Error(ERROR_MESSAGES.INVALID_BUDGET);
+    }
 
-      logger.error('[UpdateBudget] Error inesperado', {
-        error: error instanceof Error ? error.message : 'Unknown',
-      });
-
-      throw new UpdateBudgetError(
-        'Error interno al actualizar presupuesto',
-        'INTERNAL_ERROR',
-        500
-      );
+    if (!input.reason || input.reason.trim().length === 0) {
+      throw new Error(ERROR_MESSAGES.MISSING_REASON);
     }
   }
 
-  private validateDto(dto: UpdateBudgetDto): void {
-    try {
-      dto.workPlanId = ObjectIdValidator.validate(dto.workPlanId, 'ID del plan');
-      dto.updatedBy = ObjectIdValidator.validate(dto.updatedBy, 'ID del usuario');
-    } catch (error) {
-      if (error instanceof ObjectIdValidationError) {
-        throw new UpdateBudgetError(error.message, 'INVALID_INPUT', 400);
-      }
-      throw error;
-    }
-
-    if (typeof dto.newBudget !== 'number' || dto.newBudget < 0) {
-      throw new UpdateBudgetError(
-        'El presupuesto debe ser un n�mero positivo',
-        'INVALID_BUDGET',
-        400
-      );
-    }
-
-    if (!dto.reason || dto.reason.trim().length === 0) {
-      throw new UpdateBudgetError(
-        'Debe proporcionar una raz�n para cambiar el presupuesto',
-        'MISSING_REASON',
-        400
-      );
-    }
+  private async logAudit(
+    workPlanId: string,
+    previousBudget: number,
+    input: UpdateBudgetInput,
+    variance: any
+  ): Promise<void> {
+    await this.auditService.log({
+      entityType: 'WorkPlan',
+      entityId: workPlanId,
+      action: AuditAction.UPDATE,
+      userId: input.updatedBy,
+      before: { estimatedBudget: previousBudget },
+      after: { estimatedBudget: input.newBudget, variance },
+      reason: input.reason,
+      ip: input.ip || 'unknown',
+      userAgent: input.userAgent,
+    });
   }
 }
+

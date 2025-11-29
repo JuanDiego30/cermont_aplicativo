@@ -1,68 +1,61 @@
 import type { Request, Response } from 'express';
-import { CreateKit } from '../../../app/kits/use-cases/CreateKit.js';
-import { UpdateKit } from '../../../app/kits/use-cases/UpdateKit.js';
-import { ListKits } from '../../../app/kits/use-cases/ListKits.js';
-import { DeleteKit } from '../../../app/kits/use-cases/DeleteKit.js';
+import { CreateKitUseCase } from '../../../app/kits/use-cases/CreateKit.js';
+import { UpdateKitUseCase } from '../../../app/kits/use-cases/UpdateKit.js';
+import { ListKitsUseCase } from '../../../app/kits/use-cases/ListKits.js';
+import { DeleteKitUseCase } from '../../../app/kits/use-cases/DeleteKit.js';
+import { SuggestKitUseCase } from '../../../app/kits/use-cases/SuggestKit.js';
 import { kitRepository } from '../../db/repositories/KitRepository.js';
+import { workPlanRepository } from '../../db/repositories/WorkPlanRepository.js'; // Necesario para delete safe
 import { AuditService } from '../../../domain/services/AuditService.js';
 import { auditLogRepository } from '../../db/repositories/AuditLogRepository.js';
 import { logger } from '../../../shared/utils/logger.js';
 import type { KitCategory } from '../../../domain/entities/Kit.js';
 import { AuditAction } from '../../../domain/entities/AuditLog.js';
 
+// Servicios
 const auditService = new AuditService(auditLogRepository);
 
-/**
- * Controlador de Kits T�picos
- * Maneja las peticiones HTTP relacionadas con kits
- */
 export class KitsController {
-  /**
-   * GET /api/kits
-   * Listar kits con filtros y paginaci�n
-   */
-  static async list(req: Request, res: Response): Promise<void> {
+  
+  static list = async (req: Request, res: Response): Promise<void> => {
     try {
       const {
         category,
         active,
         search,
         limit = 20,
+        page = 1
       } = req.query;
 
-      const filters: any = {};
-      if (category) filters.category = category as string;
-      if (active !== undefined) filters.active = active === 'true';
-      if (search) filters.search = search as string;
-
-      const listKitsUseCase = new ListKits(kitRepository);
-      const result = await listKitsUseCase.execute(filters);
+      const listKitsUseCase = new ListKitsUseCase(kitRepository);
+      const result = await listKitsUseCase.execute({
+        category: category as any,
+        active: active !== undefined ? active === 'true' : undefined,
+        search: search as string,
+        page: Number(page),
+        limit: Number(limit),
+      });
 
       res.json({
         kits: result.kits,
-        total: result.total,
-        page: 1,
-        totalPages: Math.ceil(result.total / parseInt(limit as string, 10)),
+        total: result.pagination.total,
+        page: result.pagination.page,
+        totalPages: result.pagination.totalPages,
       });
-    } catch (error) {
-      logger.error('Error al listar kits', { error, query: req.query });
+    } catch (error: any) {
+      logger.error('Error al listar kits', { error: error.message });
       res.status(500).json({
         type: 'internal_error',
         title: 'Error al listar kits',
         status: 500,
-        detail: 'Ocurri� un error al obtener la lista de kits',
+        detail: 'Ocurrió un error al obtener la lista de kits',
       });
     }
-  }
+  };
 
-  /**
-   * GET /api/kits/:id
-   * Obtener kit por ID
-   */
-  static async getById(req: Request, res: Response): Promise<void> {
+  static getById = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
-
       const kit = await kitRepository.findById(id);
 
       if (!kit) {
@@ -70,261 +63,219 @@ export class KitsController {
           type: 'not_found',
           title: 'Kit no encontrado',
           status: 404,
-          detail: `No se encontr� el kit con ID ${id}`,
+          detail: `No se encontró el kit con ID ${id}`,
         });
         return;
       }
 
       res.json(kit);
-    } catch (error) {
-      logger.error('Error al obtener kit', { error, kitId: req.params.id });
+    } catch (error: any) {
+      logger.error('Error al obtener kit', { error: error.message, kitId: req.params.id });
       res.status(500).json({
         type: 'internal_error',
         title: 'Error al obtener kit',
         status: 500,
-        detail: 'Ocurri� un error al obtener el kit',
+        detail: 'Ocurrió un error al obtener el kit',
       });
     }
-  }
+  };
 
-  /**
-   * GET /api/kits/category/:category
-   * Obtener kits por categor�a
-   */
-  static async getByCategory(req: Request, res: Response): Promise<void> {
+  static create = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { category } = req.params;
-
-      const kits = await kitRepository.findByCategory(category as KitCategory);
-
-      res.json(kits);
-    } catch (error) {
-      logger.error('Error al obtener kits por categor�a', {
-        error,
-        category: req.params.category,
-      });
-      res.status(500).json({
-        type: 'internal_error',
-        title: 'Error al obtener kits',
-        status: 500,
-        detail: 'Ocurri� un error al obtener los kits por categor�a',
-      });
-    }
-  }
-
-  /**
-   * POST /api/kits
-   * Crear nuevo kit
-   */
-  static async create(req: Request, res: Response): Promise<void> {
-    try {
-      const userId = req.user!.userId;
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+      }
+      
       const kitData = req.body;
-
-      const createKitUseCase = new CreateKit(kitRepository);
+      const createKitUseCase = new CreateKitUseCase(kitRepository, auditService);
+      
       const kit = await createKitUseCase.execute({
         ...kitData,
         userId,
-        ip: req.ip,
-        userAgent: req.get('user-agent'),
-      });
-
-      // Auditor�a
-      await auditService.log({
-        entityType: 'kit',
-        entityId: kit.id,
-        action: AuditAction.CREATE,
-        userId,
-        after: kit as any,
-        ip: req.ip || '',
-        userAgent: req.get('user-agent'),
+        ip: req.ip || 'unknown',
+        userAgent: req.get('user-agent') || 'unknown',
       });
 
       res.status(201).json(kit);
-    } catch (error) {
-      logger.error('Error al crear kit', { error, body: req.body });
+    } catch (error: any) {
+      logger.error('Error al crear kit', { error: error.message });
+      
+      // Manejo de errores de negocio
+      if (error.message.includes('requerido') || error.message.includes('existe')) {
+        res.status(400).json({
+          type: 'bad_request',
+          title: 'Error de validación',
+          status: 400,
+          detail: error.message,
+        });
+        return;
+      }
+
       res.status(500).json({
         type: 'internal_error',
         title: 'Error al crear kit',
         status: 500,
-        detail: 'Ocurri� un error al crear el kit',
+        detail: error.message,
       });
     }
-  }
+  };
 
-  /**
-   * PUT /api/kits/:id
-   * Actualizar kit
-   */
-  static async update(req: Request, res: Response): Promise<void> {
+  static update = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
-      const userId = req.user!.userId;
-      const updates = req.body;
+      const userId = req.user?.userId;
 
-      // Obtener kit original para auditor�a
-      const originalKit = await kitRepository.findById(id);
-
-      if (!originalKit) {
-        res.status(404).json({
-          type: 'not_found',
-          title: 'Kit no encontrado',
-          status: 404,
-          detail: `No se encontr� el kit con ID ${id}`,
-        });
+      if (!userId) {
+        res.status(401).json({ message: 'Unauthorized' });
         return;
       }
 
-      const updateKitUseCase = new UpdateKit(kitRepository);
-      const updatedKit = await updateKitUseCase.execute(id, updates, userId);
+      const originalKit = await kitRepository.findById(id);
+      if (!originalKit) {
+        res.status(404).json({ type: 'not_found', title: 'Kit no encontrado', status: 404 });
+        return;
+      }
 
-      // Auditor�a
-      await auditService.log({
-        entityType: 'kit',
-        entityId: id,
-        action: AuditAction.UPDATE,
+      const updateKitUseCase = new UpdateKitUseCase(kitRepository, auditService);
+      const updatedKit = await updateKitUseCase.execute({
+        kitId: id,
+        updates: req.body,
         userId,
-        before: originalKit as any,
-        after: updatedKit as any,
-        ip: req.ip || '',
-        userAgent: req.get('user-agent'),
+        ip: req.ip || 'unknown',
+        userAgent: req.get('user-agent') || 'unknown',
       });
 
       res.json(updatedKit);
-    } catch (error) {
-      logger.error('Error al actualizar kit', { error, kitId: req.params.id });
-      res.status(500).json({
-        type: 'internal_error',
-        title: 'Error al actualizar kit',
-        status: 500,
-        detail: 'Ocurri� un error al actualizar el kit',
-      });
+    } catch (error: any) {
+      logger.error('Error al actualizar kit', { error: error.message });
+      res.status(500).json({ type: 'internal_error', status: 500, detail: error.message });
     }
-  }
+  };
 
-  /**
-   * DELETE /api/kits/:id
-   * Eliminar kit (soft delete)
-   */
-  static async delete(req: Request, res: Response): Promise<void> {
+  static delete = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
-      const userId = req.user!.userId;
+      const userId = req.user?.userId;
 
-      // Obtener kit para auditor�a
-      const kit = await kitRepository.findById(id);
-
-      if (!kit) {
-        res.status(404).json({
-          type: 'not_found',
-          title: 'Kit no encontrado',
-          status: 404,
-          detail: `No se encontr� el kit con ID ${id}`,
-        });
+      if (!userId) {
+        res.status(401).json({ message: 'Unauthorized' });
         return;
       }
 
-      const deleteKitUseCase = new DeleteKit(kitRepository);
-      const result = await deleteKitUseCase.execute({
+      const kit = await kitRepository.findById(id);
+      if (!kit) {
+        res.status(404).json({ type: 'not_found', status: 404 });
+        return;
+      }
+
+      // Inyección de workPlanRepository para validar dependencias
+      const deleteKitUseCase = new DeleteKitUseCase(kitRepository, workPlanRepository, auditService);
+      
+      await deleteKitUseCase.execute({
         kitId: id,
         userId,
-        ip: req.ip,
-        userAgent: req.get('user-agent'),
+        ip: req.ip || 'unknown',
+        userAgent: req.get('user-agent') || 'unknown',
       });
 
-      if (result.success) {
-        // Auditor�a
-        await auditService.log({
-          entityType: 'kit',
-          entityId: id,
-          action: AuditAction.DELETE,
-          userId,
-          before: kit as any,
-          ip: req.ip || '',
-          userAgent: req.get('user-agent'),
-        });
-
-        res.status(204).send();
-      } else {
-        res.status(500).json({
-          type: 'internal_error',
-          title: 'Error al eliminar kit',
-          status: 500,
-          detail: result.message || 'No se pudo eliminar el kit',
-        });
-      }
-    } catch (error) {
-      logger.error('Error al eliminar kit', { error, kitId: req.params.id });
-      res.status(500).json({
-        type: 'internal_error',
-        title: 'Error al eliminar kit',
-        status: 500,
-        detail: 'Ocurri� un error al eliminar el kit',
-      });
+      res.status(204).send();
+    } catch (error: any) {
+      logger.error('Error al eliminar kit', { error: error.message });
+      res.status(500).json({ type: 'internal_error', status: 500, detail: error.message });
     }
-  }
+  };
 
-  /**
-   * POST /api/kits/:id/duplicate
-   * Duplicar kit
-   */
-  static async duplicate(req: Request, res: Response): Promise<void> {
+  static duplicate = async (req: Request, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
-      const userId = req.user!.userId;
+      const userId = req.user?.userId;
 
-      const duplicatedKit = await kitRepository.duplicate(id, userId);
-
-      if (!duplicatedKit) {
-        res.status(404).json({
-          type: 'not_found',
-          title: 'Kit no encontrado',
-          status: 404,
-          detail: `No se encontr� el kit con ID ${id}`,
-        });
+      if (!userId) {
+        res.status(401).json({ message: 'Unauthorized' });
         return;
       }
 
-      // Auditor�a
-      await auditService.log({
-        entityType: 'kit',
-        entityId: duplicatedKit.id,
-        action: AuditAction.CREATE,
+      // Buscar original
+      const original = await kitRepository.findById(id);
+      if (!original) {
+        res.status(404).json({ type: 'not_found', status: 404 });
+        return;
+      }
+
+      // Crear copia usando CreateKitUseCase
+      const createUseCase = new CreateKitUseCase(kitRepository, auditService);
+      const duplicatedKit = await createUseCase.execute({
+        name: `${original.name} (Copia)`,
+        description: original.description,
+        category: original.category,
+        tools: original.tools,
+        equipment: original.equipment,
+        documents: original.documents,
+        active: true,
         userId,
-        after: duplicatedKit as any,
-        ip: req.ip || '',
-        userAgent: req.get('user-agent'),
-        reason: `Duplicado desde kit ${id}`,
+        ip: req.ip || 'unknown',
+        userAgent: req.get('user-agent') || 'unknown',
       });
 
       res.status(201).json(duplicatedKit);
-    } catch (error) {
-      logger.error('Error al duplicar kit', { error, kitId: req.params.id });
-      res.status(500).json({
-        type: 'internal_error',
-        title: 'Error al duplicar kit',
-        status: 500,
-        detail: 'Ocurri� un error al duplicar el kit',
-      });
+    } catch (error: any) {
+      logger.error('Error al duplicar kit', { error: error.message });
+      res.status(500).json({ type: 'internal_error', status: 500, detail: error.message });
     }
-  }
+  };
 
-  /**
-   * GET /api/kits/stats
-   * Obtener estad�sticas de kits
-   */
-  static async getStats(req: Request, res: Response): Promise<void> {
+  static getStats = async (req: Request, res: Response): Promise<void> => {
     try {
       const stats = await kitRepository.getStats();
       res.json(stats);
-    } catch (error) {
-      logger.error('Error al obtener estad�sticas de kits', { error });
-      res.status(500).json({
-        type: 'internal_error',
-        title: 'Error al obtener estad�sticas',
-        status: 500,
-        detail: 'Ocurri� un error al obtener las estad�sticas de kits',
-      });
+    } catch (error: any) {
+      logger.error('Error al obtener estadísticas', { error: error.message });
+      res.status(500).json({ type: 'internal_error', status: 500, detail: error.message });
     }
-  }
+  };
+
+  static getByCategory = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { category } = req.params;
+      
+      const listKitsUseCase = new ListKitsUseCase(kitRepository);
+      const result = await listKitsUseCase.execute({
+        category: category as any,
+        active: true,
+      });
+
+      res.json({
+        kits: result.kits,
+        total: result.pagination.total,
+      });
+    } catch (error: any) {
+      logger.error('Error al obtener kits por categoría', { error: error.message });
+      res.status(500).json({ type: 'internal_error', status: 500, detail: error.message });
+    }
+  };
+
+  static suggest = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { description, category, limit } = req.body;
+
+      const suggestUseCase = new SuggestKitUseCase(kitRepository);
+      const result = await suggestUseCase.execute({
+        description,
+        category,
+        limit: limit ? Number(limit) : undefined,
+      });
+
+      res.json({
+        success: true,
+        data: result,
+      });
+    } catch (error: any) {
+      logger.error('Error al sugerir kit', { error: error.message });
+      res.status(400).json({ type: 'bad_request', status: 400, detail: error.message });
+    }
+  };
 }
+

@@ -5,9 +5,9 @@
  * 
  * Características:
  * - Validación de credenciales
- * - Bloqueo de cuenta por intentos fallidos (5 intentos)
+ * - Bloqueo de cuenta por intentos fallidos
  * - Generación de access token y refresh token
- * - Auditoría completa de logins (exitosos y fallidos)
+ * - Auditoría completa de logins
  * - Actualización de último login
  * - Verificación de cuenta activa
  * 
@@ -15,12 +15,47 @@
  */
 
 import bcrypt from 'bcrypt';
-import type { IUserRepository } from '@/domain/repositories/IUserRepository.js';
-import type { ITokenBlacklistRepository } from '@/domain/repositories/ITokenBlacklistRepository.js';
-import type { IAuditLogRepository } from '@/domain/repositories/IAuditLogRepository.js';
-import { TokenService } from '@/domain/services/TokenService.js';
-import { AuditAction } from '@/domain/entities/AuditLog.js';
-import { SYSTEM_USER_ID } from '@/shared/constants/system.js';
+import type { IUserRepository } from '../../../domain/repositories/IUserRepository.js';
+import type { IRevokedTokenRepository } from '../../../domain/repositories/ITokenBlacklistRepository.js';
+import type { IAuditLogRepository } from '../../../domain/repositories/IAuditLogRepository.js';
+import { TokenService } from '../../../domain/services/TokenService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { SYSTEM_USER_ID } from '../../../shared/constants/system.js';
+import type { User } from '../../../domain/entities/User.js';
+
+// Constantes de configuración
+const ACCOUNT_LOCKOUT = {
+  MAX_ATTEMPTS: 5,
+  LOCKOUT_DURATION_MINUTES: 15,
+  LOCKOUT_DURATION_MS: 15 * 60 * 1000,
+} as const;
+
+const DEFAULT_VALUES = {
+  IP: 'unknown',
+  USER_AGENT: 'unknown',
+  USER_ID: 'unknown',
+} as const;
+
+const ERROR_MESSAGES = {
+  MISSING_CREDENTIALS: 'Email y contraseña son requeridos',
+  INVALID_CREDENTIALS: 'Credenciales inválidas',
+  ACCOUNT_LOCKED: (minutes: number) =>
+    `Cuenta bloqueada temporalmente. Intente nuevamente en ${minutes} minutos.`,
+  ACCOUNT_INACTIVE: 'Usuario inactivo. Contacte al administrador.',
+  MULTIPLE_FAILED_ATTEMPTS: `Cuenta bloqueada por múltiples intentos fallidos. Intente en ${ACCOUNT_LOCKOUT.LOCKOUT_DURATION_MINUTES} minutos.`,
+  REMAINING_ATTEMPTS: (remaining: number) =>
+    `Credenciales inválidas. ${remaining} intentos restantes.`,
+} as const;
+
+const AUDIT_REASONS = {
+  USER_NOT_FOUND: 'Usuario no encontrado',
+  ACCOUNT_LOCKED: (minutes: number) => `Cuenta bloqueada (${minutes} minutos restantes)`,
+  ACCOUNT_INACTIVE: 'Usuario inactivo',
+  AUTO_LOCKED: (attempts: number) =>
+    `Cuenta bloqueada automáticamente (${attempts} intentos fallidos)`,
+  INVALID_PASSWORD: (attempt: number, max: number) =>
+    `Contraseña incorrecta (intento ${attempt}/${max})`,
+} as const;
 
 interface LoginInput {
   email: string;
@@ -40,152 +75,29 @@ interface LoginOutput {
   refreshToken: string;
 }
 
+interface AuditContext {
+  ip: string;
+  userAgent: string;
+}
+
 export class LoginUseCase {
   constructor(
-    private userRepository: IUserRepository,
-    private tokenBlacklistRepository: ITokenBlacklistRepository,
-    private auditLogRepository: IAuditLogRepository, // ← AGREGADO para auditoría
-    private tokenService: TokenService
+    private readonly userRepository: IUserRepository,
+    private readonly revokedTokenRepository: IRevokedTokenRepository,
+    private readonly auditLogRepository: IAuditLogRepository,
+    private readonly tokenService: TokenService
   ) {}
 
   async execute(input: LoginInput): Promise<LoginOutput> {
-    const { email, password, ipAddress, userAgent } = input;
+    this.validateInput(input);
 
-    // 1. Validar entrada
-    if (!email || !password) {
-      throw new Error('Email y contraseña son requeridos');
-    }
+    const auditContext = this.extractAuditContext(input);
+    const user = await this.authenticateUser(input.email, input.password, auditContext);
 
-    // 2. Buscar usuario
-    const user = await this.userRepository.findByEmail(email);
-    if (!user) {
-      // ✅ MEJORADO: Registrar intento fallido con email desconocido
-      await this.logFailedLogin(
-        'unknown',
-        email,
-        ipAddress || 'unknown',
-        userAgent,
-        'Usuario no encontrado'
-      );
+    await this.resetLoginAttempts(user.id);
+    const tokens = await this.generateTokens(user, auditContext);
+    await this.logSuccessfulLogin(user, auditContext);
 
-      throw new Error('Credenciales inválidas');
-    }
-
-    // 3. Verificar si la cuenta está bloqueada
-    if (user.lockedUntil && user.lockedUntil > new Date()) {
-      const remainingMinutes = Math.ceil(
-        (user.lockedUntil.getTime() - Date.now()) / 60000
-      );
-
-        await this.logFailedLogin(
-          user.id,
-          email,
-          ipAddress || 'unknown',
-          userAgent,
-          `Cuenta bloqueada (${remainingMinutes} minutos restantes)`
-        );
-
-      throw new Error(
-        `Cuenta bloqueada temporalmente. Intente nuevamente en ${remainingMinutes} minutos.`
-      );
-    }
-
-    // 4. Verificar si está activo
-    if (!user.active) {
-      await this.logFailedLogin(
-        user.id,
-        email,
-        ipAddress || 'unknown',
-        userAgent,
-        'Usuario inactivo'
-      );
-
-      throw new Error('Usuario inactivo. Contacte al administrador.');
-    }
-
-    // 5. Verificar contraseña
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) {
-      // Incrementar intentos fallidos
-      const newAttempts = (user.loginAttempts || 0) + 1;
-
-      // Bloquear cuenta después de 5 intentos (15 minutos)
-      if (newAttempts >= 5) {
-        const lockUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
-
-        await this.userRepository.update(user.id, {
-          loginAttempts: newAttempts,
-          lockedUntil: lockUntil,
-          lastFailedLogin: new Date(),
-        });
-
-        await this.logFailedLogin(
-          user.id,
-          email,
-          ipAddress || 'unknown',
-          userAgent,
-          `Cuenta bloqueada automáticamente (${newAttempts} intentos fallidos)`
-        );
-
-        throw new Error('Cuenta bloqueada por múltiples intentos fallidos. Intente en 15 minutos.');
-      }
-
-      // Actualizar intentos fallidos
-      await this.userRepository.update(user.id, {
-        loginAttempts: newAttempts,
-        lastFailedLogin: new Date(),
-      });
-
-      await this.logFailedLogin(
-        user.id,
-        email,
-        ipAddress || 'unknown',
-        userAgent,
-        `Contraseña incorrecta (intento ${newAttempts}/5)`
-      );
-
-      throw new Error(`Credenciales inválidas. ${5 - newAttempts} intentos restantes.`);
-    }
-
-    // 6. ✅ Login exitoso - Reset intentos fallidos
-    await this.userRepository.update(user.id, {
-      loginAttempts: 0,
-      lockedUntil: null,
-      lastLogin: new Date(),
-    });
-
-    // 7. Generar tokens
-    const accessToken = await this.tokenService.generateAccessToken({
-      userId: user.id,
-      email: user.email,
-      role: user.role,
-    });
-    const refreshToken = await this.tokenService.generateRefreshToken(
-      {
-        userId: user.id,
-        email: user.email,
-        role: user.role,
-      },
-      ipAddress || 'unknown',
-      userAgent || 'unknown'
-    );
-
-    // 8. ✅ Registrar login exitoso en auditoría
-    await this.auditLogRepository.create({
-      entityType: 'User',
-      entityId: user.id,
-      action: AuditAction.LOGIN,  // ← Usar enum
-      userId: user.id,
-      before: null,
-      after: {
-        lastLogin: new Date(),
-        ip: ipAddress || 'unknown',
-      },
-      ip: ipAddress || 'unknown',
-      userAgent: userAgent || 'unknown',
-    });
-
-    // 9. Retornar datos del usuario y tokens
     return {
       user: {
         id: user.id,
@@ -193,38 +105,230 @@ export class LoginUseCase {
         name: user.name,
         role: user.role,
       },
-      accessToken,
-      refreshToken,
+      ...tokens,
     };
   }
 
-  /**
-   * Registrar intento de login fallido en auditoría
-   */
+  private validateInput(input: LoginInput): void {
+    if (!input.email || !input.password) {
+      throw new Error(ERROR_MESSAGES.MISSING_CREDENTIALS);
+    }
+  }
+
+  private extractAuditContext(input: LoginInput): AuditContext {
+    return {
+      ip: input.ipAddress || DEFAULT_VALUES.IP,
+      userAgent: input.userAgent || DEFAULT_VALUES.USER_AGENT,
+    };
+  }
+
+  private async authenticateUser(
+    email: string,
+    password: string,
+    auditContext: AuditContext
+  ): Promise<User> {
+    const user = await this.findAndValidateUser(email, auditContext);
+    await this.verifyAccountStatus(user, email, auditContext);
+    await this.verifyPassword(user, email, password, auditContext);
+
+    return user;
+  }
+
+  private async findAndValidateUser(email: string, auditContext: AuditContext): Promise<User> {
+    const user = await this.userRepository.findByEmail(email);
+
+    if (!user) {
+      await this.logFailedLogin(
+        DEFAULT_VALUES.USER_ID,
+        email,
+        auditContext,
+        AUDIT_REASONS.USER_NOT_FOUND
+      );
+      throw new Error(ERROR_MESSAGES.INVALID_CREDENTIALS);
+    }
+
+    return user;
+  }
+
+  private async verifyAccountStatus(
+    user: User,
+    email: string,
+    auditContext: AuditContext
+  ): Promise<void> {
+    this.checkAccountLockout(user, email, auditContext);
+    this.checkAccountActive(user, email, auditContext);
+  }
+
+  private checkAccountLockout(user: User, email: string, auditContext: AuditContext): void {
+    if (!user.lockedUntil || user.lockedUntil <= new Date()) {
+      return;
+    }
+
+    const remainingMinutes = this.calculateRemainingLockoutMinutes(user.lockedUntil);
+
+    this.logFailedLogin(
+      user.id,
+      email,
+      auditContext,
+      AUDIT_REASONS.ACCOUNT_LOCKED(remainingMinutes)
+    );
+
+    throw new Error(ERROR_MESSAGES.ACCOUNT_LOCKED(remainingMinutes));
+  }
+
+  private checkAccountActive(user: User, email: string, auditContext: AuditContext): void {
+    if (user.active) {
+      return;
+    }
+
+    this.logFailedLogin(user.id, email, auditContext, AUDIT_REASONS.ACCOUNT_INACTIVE);
+    throw new Error(ERROR_MESSAGES.ACCOUNT_INACTIVE);
+  }
+
+  private async verifyPassword(
+    user: User,
+    email: string,
+    password: string,
+    auditContext: AuditContext
+  ): Promise<void> {
+    const isValidPassword = await bcrypt.compare(password, user.password);
+
+    if (isValidPassword) {
+      return;
+    }
+
+    await this.handleFailedPasswordAttempt(user, email, auditContext);
+  }
+
+  private async handleFailedPasswordAttempt(
+    user: User,
+    email: string,
+    auditContext: AuditContext
+  ): Promise<void> {
+    const newAttempts = (user.loginAttempts || 0) + 1;
+
+    if (newAttempts >= ACCOUNT_LOCKOUT.MAX_ATTEMPTS) {
+      await this.lockAccount(user, email, newAttempts, auditContext);
+    } else {
+      await this.recordFailedAttempt(user, email, newAttempts, auditContext);
+    }
+  }
+
+  private async lockAccount(
+    user: User,
+    email: string,
+    attempts: number,
+    auditContext: AuditContext
+  ): Promise<void> {
+    const lockUntil = new Date(Date.now() + ACCOUNT_LOCKOUT.LOCKOUT_DURATION_MS);
+
+    await this.userRepository.update(user.id, {
+      loginAttempts: attempts,
+      lockedUntil: lockUntil,
+      lastFailedLogin: new Date(),
+    });
+
+    await this.logFailedLogin(
+      user.id,
+      email,
+      auditContext,
+      AUDIT_REASONS.AUTO_LOCKED(attempts)
+    );
+
+    throw new Error(ERROR_MESSAGES.MULTIPLE_FAILED_ATTEMPTS);
+  }
+
+  private async recordFailedAttempt(
+    user: User,
+    email: string,
+    attempts: number,
+    auditContext: AuditContext
+  ): Promise<void> {
+    await this.userRepository.update(user.id, {
+      loginAttempts: attempts,
+      lastFailedLogin: new Date(),
+    });
+
+    await this.logFailedLogin(
+      user.id,
+      email,
+      auditContext,
+      AUDIT_REASONS.INVALID_PASSWORD(attempts, ACCOUNT_LOCKOUT.MAX_ATTEMPTS)
+    );
+
+    const remainingAttempts = ACCOUNT_LOCKOUT.MAX_ATTEMPTS - attempts;
+    throw new Error(ERROR_MESSAGES.REMAINING_ATTEMPTS(remainingAttempts));
+  }
+
+  private calculateRemainingLockoutMinutes(lockedUntil: Date): number {
+    const millisecondsPerMinute = 60 * 1000;
+    return Math.ceil((lockedUntil.getTime() - Date.now()) / millisecondsPerMinute);
+  }
+
+  private async resetLoginAttempts(userId: string): Promise<void> {
+    await this.userRepository.update(userId, {
+      loginAttempts: 0,
+      lockedUntil: null,
+      lastLogin: new Date(),
+    });
+  }
+
+  private async generateTokens(
+    user: User,
+    auditContext: AuditContext
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const tokenPayload = {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    const [accessToken, refreshToken] = await Promise.all([
+      this.tokenService.generateAccessToken(tokenPayload),
+      this.tokenService.generateRefreshToken(tokenPayload, auditContext.ip, auditContext.userAgent),
+    ]);
+
+    return { accessToken, refreshToken };
+  }
+
+  private async logSuccessfulLogin(user: User, auditContext: AuditContext): Promise<void> {
+    await this.auditLogRepository.create({
+      entityType: 'User',
+      entityId: user.id,
+      action: AuditAction.LOGIN,
+      userId: user.id,
+      before: null,
+      after: {
+        lastLogin: new Date(),
+        ip: auditContext.ip,
+      },
+      ip: auditContext.ip,
+      userAgent: auditContext.userAgent,
+    });
+  }
+
   private async logFailedLogin(
     userId: string,
     email: string,
-    ip: string,
-    userAgent: string | undefined,
+    auditContext: AuditContext,
     reason: string
   ): Promise<void> {
     try {
-      // Registrar intento fallido
       await this.auditLogRepository.create({
         entityType: 'User',
         entityId: userId,
-        action: AuditAction.LOGIN_FAILED,  // ← Usar enum
-        userId: userId === 'unknown' ? SYSTEM_USER_ID : userId,
+        action: AuditAction.LOGIN_FAILED,
+        userId: userId === DEFAULT_VALUES.USER_ID ? SYSTEM_USER_ID : userId,
         before: null,
         after: null,
-        ip: ip || 'unknown',
-        userAgent: userAgent || 'unknown',
+        ip: auditContext.ip,
+        userAgent: auditContext.userAgent,
         reason,
       });
     } catch (error) {
-      // No lanzar error para no bloquear el flujo de login
       console.error('[LoginUseCase] Error logging failed login:', error);
     }
   }
 }
+
 

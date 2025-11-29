@@ -1,12 +1,12 @@
 /**
- * Create Kit Use Case
+ * Use Case: Crear Kit
  * 
  * Permite crear un nuevo kit típico en el sistema.
  * 
  * Los kits son plantillas predefinidas de materiales, herramientas,
  * equipos y EPP para diferentes tipos de trabajos.
  * 
- * Tipos de kits:
+ * Categorías de kits:
  * - LINEA_VIDA: Instalación de líneas de vida
  * - ALTURA: Trabajos en altura
  * - MANTENIMIENTO: Mantenimiento preventivo
@@ -17,168 +17,383 @@
  */
 
 import type { IKitRepository } from '../../../domain/repositories/IKitRepository.js';
-import type { IAuditLogRepository } from '../../../domain/repositories/IAuditLogRepository.js';
-import { Kit, KitCategory } from '../../../domain/entities/Kit.js';
-import { kitRepository } from '../../../infra/db/repositories/KitRepository.js';
-import { auditLogRepository } from '../../../infra/db/repositories/AuditLogRepository.js';
-import { logger } from '../../../shared/utils/logger.js';
+import { Kit, KitCategory, KitItem, KitDocument } from '../../../domain/entities/Kit.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
 import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { logger } from '../../../shared/utils/logger.js';
 
-/**
- * Input del caso de uso
- */
+const KIT_LIMITS = {
+  MIN_NAME_LENGTH: 3,
+  MAX_NAME_LENGTH: 100,
+  MIN_DESCRIPTION_LENGTH: 10,
+  MAX_DESCRIPTION_LENGTH: 500,
+  MAX_TOOLS: 50,
+  MAX_EQUIPMENT: 50,
+  MAX_DOCUMENTS: 20,
+} as const;
+
+const ERROR_MESSAGES = {
+  MISSING_NAME: 'El nombre del kit es requerido',
+  NAME_TOO_SHORT: `El nombre del kit debe tener al menos ${KIT_LIMITS.MIN_NAME_LENGTH} caracteres`,
+  NAME_TOO_LONG: `El nombre del kit no puede exceder ${KIT_LIMITS.MAX_NAME_LENGTH} caracteres`,
+  MISSING_DESCRIPTION: 'La descripción del kit es requerida',
+  DESCRIPTION_TOO_SHORT: `La descripción debe tener al menos ${KIT_LIMITS.MIN_DESCRIPTION_LENGTH} caracteres`,
+  DESCRIPTION_TOO_LONG: `La descripción no puede exceder ${KIT_LIMITS.MAX_DESCRIPTION_LENGTH} caracteres`,
+  INVALID_CATEGORY: (validCategories: string[]) =>
+    `Categoría inválida. Debe ser una de: ${validCategories.join(', ')}`,
+  NO_ITEMS: 'El kit debe contener al menos herramientas, equipos o documentos',
+  DUPLICATE_NAME: (name: string, category: string) =>
+    `Ya existe un kit con el nombre "${name}" en la categoría ${category}`,
+  EMPTY_TOOL: 'Las herramientas no pueden estar vacías',
+  EMPTY_EQUIPMENT: 'Los equipos no pueden estar vacíos',
+  EMPTY_DOCUMENT: 'Los documentos no pueden estar vacíos',
+  TOO_MANY_TOOLS: `El kit no puede tener más de ${KIT_LIMITS.MAX_TOOLS} herramientas`,
+  TOO_MANY_EQUIPMENT: `El kit no puede tener más de ${KIT_LIMITS.MAX_EQUIPMENT} equipos`,
+  TOO_MANY_DOCUMENTS: `El kit no puede tener más de ${KIT_LIMITS.MAX_DOCUMENTS} documentos`,
+  MISSING_USER_ID: 'El ID del usuario es requerido',
+} as const;
+
+const LOG_CONTEXT = {
+  USE_CASE: '[CreateKitUseCase]',
+} as const;
+
+// Interfaces de entrada (permiten valores opcionales que serán normalizados)
+interface ToolItemInput {
+  id?: string;
+  name: string;
+  quantity?: number;
+  specifications?: string;
+}
+
+interface EquipmentItemInput {
+  id?: string;
+  name: string;
+  quantity?: number;
+  specifications?: string;
+}
+
+interface DocumentItemInput {
+  id?: string;
+  name: string;
+  type?: string;
+  url?: string;
+  required?: boolean;
+}
+
 interface CreateKitInput {
   name: string;
   description: string;
   category: KitCategory;
-  tools: string[];
-  equipment: string[];
-  documents: string[];
+  tools?: (string | ToolItemInput)[];
+  equipment?: (string | EquipmentItemInput)[];
+  documents?: (string | DocumentItemInput)[];
   active?: boolean;
   userId: string;
   ip?: string;
   userAgent?: string;
 }
 
-/**
- * Caso de uso: Crear Kit
- */
-export class CreateKit {
+interface NormalizedKitData {
+  name: string;
+  description: string;
+  category: KitCategory;
+  tools: KitItem[];
+  equipment: KitItem[];
+  documents: KitDocument[];
+  active: boolean;
+  createdBy: string;
+}
+
+interface AuditContext {
+  ip: string;
+  userAgent: string;
+}
+
+export class CreateKitUseCase {
   constructor(
-    private readonly repository: IKitRepository = kitRepository,
-    private readonly auditRepository: IAuditLogRepository = auditLogRepository
-  ) { }
+    private readonly kitRepository: IKitRepository,
+    private readonly auditService: AuditService
+  ) {}
 
   async execute(input: CreateKitInput): Promise<Kit> {
-    const { userId, ip, userAgent, ...kitData } = input;
+    this.validateInput(input);
 
-    try {
-      // 1. Validar datos de entrada
-      this.validateInput(kitData);
+    const normalizedData = this.normalizeKitData(input);
 
-      // 2. Verificar si ya existe un kit con el mismo nombre
-      const result = await this.repository.findAll({
-        category: kitData.category,
-        active: true,
-        limit: 100,
-      });
+    await this.checkDuplicateName(normalizedData.name, normalizedData.category);
 
-      const duplicateName = result.kits.find(
-        (kit) => kit.name.toLowerCase() === kitData.name.toLowerCase()
-      );
+    const kit = await this.createKit(normalizedData);
 
-      if (duplicateName) {
-        throw new Error(`Ya existe un kit con el nombre "${kitData.name}" en la categoría ${kitData.category}`);
+    const auditContext = this.extractAuditContext(input);
+    await this.logKitCreation(kit, input.userId, auditContext);
+
+    logger.info(`${LOG_CONTEXT.USE_CASE} Kit creado exitosamente`, {
+      kitId: kit.id,
+      userId: input.userId,
+      name: kit.name,
+      category: kit.category,
+      toolsCount: kit.tools.length,
+      equipmentCount: kit.equipment.length,
+      documentsCount: kit.documents.length,
+    });
+
+    return kit;
+  }
+
+  private validateInput(input: CreateKitInput): void {
+    if (!input.userId?.trim()) {
+      throw new Error(ERROR_MESSAGES.MISSING_USER_ID);
+    }
+
+    this.validateName(input.name);
+    this.validateDescription(input.description);
+    this.validateCategory(input.category);
+    this.validateHasItems(input);
+    this.validateArrays(input);
+  }
+
+  private validateName(name: unknown): void {
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      throw new Error(ERROR_MESSAGES.MISSING_NAME);
+    }
+
+    const trimmedLength = name.trim().length;
+
+    if (trimmedLength < KIT_LIMITS.MIN_NAME_LENGTH) {
+      throw new Error(ERROR_MESSAGES.NAME_TOO_SHORT);
+    }
+
+    if (trimmedLength > KIT_LIMITS.MAX_NAME_LENGTH) {
+      throw new Error(ERROR_MESSAGES.NAME_TOO_LONG);
+    }
+  }
+
+  private validateDescription(description: unknown): void {
+    if (!description || typeof description !== 'string' || description.trim().length === 0) {
+      throw new Error(ERROR_MESSAGES.MISSING_DESCRIPTION);
+    }
+
+    const trimmedLength = description.trim().length;
+
+    if (trimmedLength < KIT_LIMITS.MIN_DESCRIPTION_LENGTH) {
+      throw new Error(ERROR_MESSAGES.DESCRIPTION_TOO_SHORT);
+    }
+
+    if (trimmedLength > KIT_LIMITS.MAX_DESCRIPTION_LENGTH) {
+      throw new Error(ERROR_MESSAGES.DESCRIPTION_TOO_LONG);
+    }
+  }
+
+  private validateCategory(category: KitCategory): void {
+    const validCategories = Object.values(KitCategory) as string[];
+
+    if (!validCategories.includes(category)) {
+      throw new Error(ERROR_MESSAGES.INVALID_CATEGORY(validCategories));
+    }
+  }
+
+  private validateHasItems(input: CreateKitInput): void {
+    const hasTools = input.tools && input.tools.length > 0;
+    const hasEquipment = input.equipment && input.equipment.length > 0;
+    const hasDocuments = input.documents && input.documents.length > 0;
+
+    if (!hasTools && !hasEquipment && !hasDocuments) {
+      throw new Error(ERROR_MESSAGES.NO_ITEMS);
+    }
+  }
+
+  private validateArrays(input: CreateKitInput): void {
+    if (input.tools) {
+      this.validateTools(input.tools);
+    }
+
+    if (input.equipment) {
+      this.validateEquipment(input.equipment);
+    }
+
+    if (input.documents) {
+      this.validateDocuments(input.documents);
+    }
+  }
+
+  private validateTools(tools: (string | ToolItemInput)[]): void {
+    if (tools.length > KIT_LIMITS.MAX_TOOLS) {
+      throw new Error(ERROR_MESSAGES.TOO_MANY_TOOLS);
+    }
+
+    const emptyTools = tools.filter((tool) => {
+      if (typeof tool === 'string') {
+        return !tool || tool.trim().length === 0;
       }
+      return !tool.name || tool.name.trim().length === 0;
+    });
 
-      // 3. Crear el kit
-      const kit = await this.repository.create({
-        name: kitData.name,
-        description: kitData.description,
-        category: kitData.category,
-        tools: kitData.tools,
-        equipment: kitData.equipment,
-        documents: kitData.documents,
-        active: kitData.active ?? true,
-        createdBy: userId,
+    if (emptyTools.length > 0) {
+      throw new Error(ERROR_MESSAGES.EMPTY_TOOL);
+    }
+  }
+
+  private validateEquipment(equipment: (string | EquipmentItemInput)[]): void {
+    if (equipment.length > KIT_LIMITS.MAX_EQUIPMENT) {
+      throw new Error(ERROR_MESSAGES.TOO_MANY_EQUIPMENT);
+    }
+
+    const emptyEquipment = equipment.filter((item) => {
+      if (typeof item === 'string') {
+        return !item || item.trim().length === 0;
+      }
+      return !item.name || item.name.trim().length === 0;
+    });
+
+    if (emptyEquipment.length > 0) {
+      throw new Error(ERROR_MESSAGES.EMPTY_EQUIPMENT);
+    }
+  }
+
+  private validateDocuments(documents: (string | DocumentItemInput)[]): void {
+    if (documents.length > KIT_LIMITS.MAX_DOCUMENTS) {
+      throw new Error(ERROR_MESSAGES.TOO_MANY_DOCUMENTS);
+    }
+
+    const emptyDocuments = documents.filter((doc) => {
+      if (typeof doc === 'string') {
+        return !doc || doc.trim().length === 0;
+      }
+      return !doc.name || doc.name.trim().length === 0;
+    });
+
+    if (emptyDocuments.length > 0) {
+      throw new Error(ERROR_MESSAGES.EMPTY_DOCUMENT);
+    }
+  }
+
+  private normalizeKitData(input: CreateKitInput): NormalizedKitData {
+    return {
+      name: input.name.trim(),
+      description: input.description.trim(),
+      category: input.category,
+      tools: this.normalizeTools(input.tools || []),
+      equipment: this.normalizeEquipment(input.equipment || []),
+      documents: this.normalizeDocuments(input.documents || []),
+      active: input.active ?? true,
+      createdBy: input.userId,
+    };
+  }
+
+  private normalizeTools(tools: (string | ToolItemInput)[]): KitItem[] {
+    return tools.map((tool) => {
+      if (typeof tool === 'string') {
+        return {
+          name: tool.trim(),
+          quantity: 1,
+        };
+      }
+      return {
+        name: tool.name.trim(),
+        quantity: tool.quantity ?? 1,
+        specifications: tool.specifications,
+      };
+    });
+  }
+
+  private normalizeEquipment(equipment: (string | EquipmentItemInput)[]): KitItem[] {
+    return equipment.map((item) => {
+      if (typeof item === 'string') {
+        return {
+          name: item.trim(),
+          quantity: 1,
+        };
+      }
+      return {
+        name: item.name.trim(),
+        quantity: item.quantity ?? 1,
+        specifications: item.specifications,
+      };
+    });
+  }
+
+  private normalizeDocuments(documents: (string | DocumentItemInput)[]): KitDocument[] {
+    return documents.map((doc) => {
+      if (typeof doc === 'string') {
+        return {
+          name: doc.trim(),
+          type: 'DOCUMENT',
+          required: false,
+        };
+      }
+      return {
+        name: doc.name.trim(),
+        type: doc.type ?? 'DOCUMENT',
+        url: doc.url,
+        required: doc.required ?? false,
+      };
+    });
+  }
+
+  private async checkDuplicateName(name: string, category: KitCategory): Promise<void> {
+    const existing = await this.kitRepository.findByNameAndCategory(name, category);
+
+    if (existing) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Intento de crear kit duplicado`, {
+        name,
+        category,
+        existingId: existing.id,
       });
+      throw new Error(ERROR_MESSAGES.DUPLICATE_NAME(name, category));
+    }
+  }
 
-      // 4. Registrar auditoría
-      await this.auditRepository.create({
+  private async createKit(data: NormalizedKitData): Promise<Kit> {
+    try {
+      return await this.kitRepository.create(data);
+    } catch (error) {
+      logger.error(`${LOG_CONTEXT.USE_CASE} Error creando kit en BD`, {
+        name: data.name,
+        category: data.category,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
+      throw error;
+    }
+  }
+
+  private extractAuditContext(input: CreateKitInput): AuditContext {
+    return {
+      ip: input.ip || 'unknown',
+      userAgent: input.userAgent || 'unknown',
+    };
+  }
+
+  private async logKitCreation(
+    kit: Kit,
+    userId: string,
+    auditContext: AuditContext
+  ): Promise<void> {
+    try {
+      await this.auditService.log({
         entityType: 'Kit',
         entityId: kit.id,
-        action: AuditAction.CREATE, // ← Usar enum
+        action: AuditAction.CREATE,
         userId,
-        before: null,
+        before: null, // No hay estado anterior en un create
         after: {
           name: kit.name,
           category: kit.category,
           toolsCount: kit.tools.length,
           equipmentCount: kit.equipment.length,
+          documentsCount: kit.documents.length,
+          active: kit.active,
         },
-        ip: ip || 'unknown',
-        userAgent: userAgent || 'unknown',
+        ip: auditContext.ip,
+        userAgent: auditContext.userAgent,
+        reason: `Kit tipo ${kit.category} creado`,
       });
-
-      // 5. Log informativo
-      logger.info('Kit creado exitosamente', {
+    } catch (error) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Error registrando auditoría (no crítico)`, {
         kitId: kit.id,
-        userId,
-        name: kit.name,
-        category: kit.category,
-        toolsCount: kit.tools.length,
-        equipmentCount: kit.equipment.length,
+        error: error instanceof Error ? error.message : 'Unknown',
       });
-
-      return kit;
-    } catch (error: any) {
-      logger.error('Error en CreateKit use case', {
-        error: error.message,
-        userId,
-        kitName: kitData.name,
-      });
-
-      throw error;
-    }
-  }
-
-  /**
-   * Validar datos de entrada
-   */
-  private validateInput(data: Omit<CreateKitInput, 'userId' | 'ip' | 'userAgent'>): void {
-    // Validar nombre
-    if (!data.name || data.name.trim().length === 0) {
-      throw new Error('El nombre del kit es requerido');
-    }
-
-    if (data.name.length < 3) {
-      throw new Error('El nombre del kit debe tener al menos 3 caracteres');
-    }
-
-    if (data.name.length > 100) {
-      throw new Error('El nombre del kit no puede exceder 100 caracteres');
-    }
-
-    // Validar descripción
-    if (!data.description || data.description.trim().length === 0) {
-      throw new Error('La descripción del kit es requerida');
-    }
-
-    if (data.description.length < 10) {
-      throw new Error('La descripción debe tener al menos 10 caracteres');
-    }
-
-    // Validar categoría
-    const validCategories = Object.values(KitCategory);
-
-    if (!validCategories.includes(data.category)) {
-      throw new Error(
-        `Categoría inválida. Debe ser una de: ${validCategories.join(', ')}`
-      );
-    }
-
-    // Validar que tenga al menos herramientas o equipos
-    if (
-      (!data.tools || data.tools.length === 0) &&
-      (!data.equipment || data.equipment.length === 0)
-    ) {
-      throw new Error('El kit debe contener al menos herramientas o equipos');
-    }
-
-    // Validar que los arrays no estén vacíos si se proporcionan
-    if (data.tools && data.tools.length > 0) {
-      const emptyTools = data.tools.filter((t) => !t || t.trim().length === 0);
-      if (emptyTools.length > 0) {
-        throw new Error('Las herramientas no pueden estar vacías');
-      }
-    }
-
-    if (data.equipment && data.equipment.length > 0) {
-      const emptyEquipment = data.equipment.filter((e) => !e || e.trim().length === 0);
-      if (emptyEquipment.length > 0) {
-        throw new Error('Los equipos no pueden estar vacíos');
-      }
     }
   }
 }
+
 

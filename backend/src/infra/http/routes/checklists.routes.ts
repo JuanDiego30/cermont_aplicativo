@@ -1,24 +1,23 @@
-/**
- * Checklists Routes
- * Rutas para gesti�n de checklists y plantillas
- */
-
 import { Router } from 'express';
 import { authenticate } from '../../../shared/middlewares/authenticate.js';
+// Importar controlador si existiera, por ahora mocks inline mejorados
 
 const router = Router();
+
+// Middleware global para rutas de checklist
+router.use(authenticate);
 
 /**
  * GET /api/checklists
  * Listar todas las plantillas de checklists
  */
-router.get('/', authenticate, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
-    // TODO: Implementar con repository cuando est� disponible
+    // TODO: Conectar con ChecklistRepository real
     const templates = [
       {
         id: '1',
-        name: 'Inspecci�n Pre-Operacional',
+        name: 'Inspección Pre-Operacional',
         category: 'safety',
         items: [
           { id: '1', text: 'Verificar EPP completo', required: true },
@@ -33,7 +32,7 @@ router.get('/', authenticate, async (req, res) => {
         category: 'operations',
         items: [
           { id: '1', text: 'Documentar actividades realizadas', required: true },
-          { id: '2', text: 'Verificar limpieza del �rea', required: true },
+          { id: '2', text: 'Verificar limpieza del área', required: true },
           { id: '3', text: 'Entregar herramientas', required: true },
         ],
         createdAt: new Date().toISOString(),
@@ -59,15 +58,15 @@ router.get('/', authenticate, async (req, res) => {
 
 /**
  * GET /api/checklists/:id
- * Obtener una plantilla espec�fica
+ * Obtener una plantilla específica
  */
-router.get('/:id', authenticate, async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
     const template = {
       id,
-      name: 'Inspecci�n Pre-Operacional',
+      name: 'Inspección Pre-Operacional',
       category: 'safety',
       items: [
         { id: '1', text: 'Verificar EPP completo', required: true },
@@ -94,7 +93,7 @@ router.get('/:id', authenticate, async (req, res) => {
  * POST /api/checklists
  * Crear nueva plantilla
  */
-router.post('/', authenticate, async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const newTemplate = {
       id: Date.now().toString(),

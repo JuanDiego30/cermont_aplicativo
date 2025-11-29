@@ -3,7 +3,6 @@
  * Resuelve: Alertas de vencimientos, recordatorios de tareas
  * 
  * @file backend/src/infra/services/EmailService.ts
- * @requires nodemailer
  */
 
 import nodemailer, { type Transporter } from 'nodemailer';
@@ -11,10 +10,11 @@ import type { Order } from '../../domain/entities/Order.js';
 import type { WorkPlan } from '../../domain/entities/WorkPlan.js';
 import { logger } from '../../shared/utils/logger.js';
 
-/**
- * Configuraci�n del servicio de email
- */
-interface EmailConfig {
+// ==========================================
+// Tipos y Configuraciones
+// ==========================================
+
+export interface EmailConfig {
   host: string;
   port: number;
   secure: boolean;
@@ -25,10 +25,7 @@ interface EmailConfig {
   from: string;
 }
 
-/**
- * Opciones para env�o de email
- */
-interface SendEmailOptions {
+export interface SendEmailOptions {
   to: string | string[];
   subject: string;
   html: string;
@@ -40,31 +37,138 @@ interface SendEmailOptions {
   }>;
 }
 
-/**
- * Tipos de notificaciones
- */
-export enum NotificationType {
-  ORDER_ASSIGNED = 'ORDER_ASSIGNED',
-  ORDER_STATE_CHANGED = 'ORDER_STATE_CHANGED',
-  WORKPLAN_APPROVED = 'WORKPLAN_APPROVED',
-  WORKPLAN_REJECTED = 'WORKPLAN_REJECTED',
-  EVIDENCE_APPROVED = 'EVIDENCE_APPROVED',
-  EVIDENCE_REJECTED = 'EVIDENCE_REJECTED',
-  DEADLINE_REMINDER = 'DEADLINE_REMINDER',
-  CERTIFICATE_EXPIRING = 'CERTIFICATE_EXPIRING',
+// ==========================================
+// Clase de Templates (Separación de Vista)
+// ==========================================
+
+class EmailTemplates {
+  private static baseLayout(content: string, title: string = 'CERMONT S.A.S.'): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+            .header { background-color: #0066cc; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+            .content { padding: 20px; background-color: #f9f9f9; }
+            .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; border-top: 1px solid #eee; }
+            .button { display: inline-block; padding: 10px 20px; background-color: #0066cc; color: white; text-decoration: none; border-radius: 5px; margin-top: 15px; }
+            .alert { color: #dc3545; font-weight: bold; }
+            .warning { color: #ffc107; font-weight: bold; }
+            .success { color: #28a745; font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>${title}</h1>
+            </div>
+            <div class="content">
+              ${content}
+            </div>
+            <div class="footer">
+              <p>Este es un mensaje automático, por favor no responder.</p>
+              <p>&copy; ${new Date().getFullYear()} CERMONT S.A.S. Todos los derechos reservados.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+  }
+
+  static orderAssigned(technicianName: string, order: Order, frontendUrl: string): string {
+    const content = `
+      <p>Hola <strong>${technicianName}</strong>,</p>
+      <p>Se te ha asignado una nueva orden de trabajo:</p>
+      <ul>
+        <li><strong>Cliente:</strong> ${order.clientName}</li>
+        <li><strong>Ubicación:</strong> ${order.location || 'N/A'}</li>
+        <li><strong>Estado:</strong> ${order.state}</li>
+        <li><strong>Prioridad:</strong> ${order.priority || 'Normal'}</li>
+      </ul>
+      <p style="text-align: center;">
+        <a href="${frontendUrl}/orders/${order.id}" class="button">Ver Orden</a>
+      </p>
+    `;
+    return this.baseLayout(content, 'Nueva Orden Asignada');
+  }
+
+  static orderStateChanged(order: Order, previousState: string, newState: string, frontendUrl: string): string {
+    const content = `
+      <h2>Cambio de Estado de Orden</h2>
+      <p>La orden <strong>${order.id}</strong> ha cambiado de estado:</p>
+      <ul>
+        <li><strong>Estado anterior:</strong> ${previousState}</li>
+        <li><strong>Nuevo estado:</strong> ${newState}</li>
+      </ul>
+      <p><a href="${frontendUrl}/orders/${order.id}">Ver detalles</a></p>
+    `;
+    return this.baseLayout(content, 'Actualización de Orden');
+  }
+
+  static workPlanApproved(workPlan: WorkPlan, order: Order, frontendUrl: string): string {
+    const content = `
+      <h2 class="success">✔ Plan de Trabajo Aprobado</h2>
+      <p>El plan de trabajo para la orden <strong>${order.id}</strong> ha sido aprobado.</p>
+      <p>Puedes proceder con la ejecución según lo planeado.</p>
+      <p><a href="${frontendUrl}/workplans/${workPlan.id}" class="button">Ver Plan de Trabajo</a></p>
+    `;
+    return this.baseLayout(content);
+  }
+
+  static workPlanRejected(workPlan: WorkPlan, order: Order, reason: string, frontendUrl: string): string {
+    const content = `
+      <h2 class="alert">✖ Plan de Trabajo Rechazado</h2>
+      <p>El plan de trabajo para la orden <strong>${order.id}</strong> ha sido rechazado.</p>
+      <p><strong>Razón:</strong> ${reason}</p>
+      <p>Por favor, revisa y corrige el plan según las observaciones.</p>
+      <p><a href="${frontendUrl}/workplans/${workPlan.id}" class="button">Corregir Plan</a></p>
+    `;
+    return this.baseLayout(content);
+  }
+
+  static deadlineReminder(order: Order, daysRemaining: number, frontendUrl: string): string {
+    const content = `
+      <h2 class="warning">⚠ Recordatorio de Fecha Límite</h2>
+      <p>La orden <strong>${order.id}</strong> está próxima a vencer.</p>
+      <p><strong>Días restantes:</strong> ${daysRemaining}</p>
+      <p>Por favor, asegúrate de completar las actividades pendientes.</p>
+      <p><a href="${frontendUrl}/orders/${order.id}" class="button">Ver Orden</a></p>
+    `;
+    return this.baseLayout(content);
+  }
+
+  static certificateExpiring(name: string, expiryDate: Date, days: number): string {
+    const content = `
+      <h2 class="alert">⚠ Certificado Próximo a Vencer</h2>
+      <p>El certificado <strong>${name}</strong> está próximo a vencer.</p>
+      <ul>
+        <li><strong>Fecha de vencimiento:</strong> ${expiryDate.toLocaleDateString('es-CO')}</li>
+        <li><strong>Días restantes:</strong> ${days}</li>
+      </ul>
+      <p>Por favor, gestiona la renovación del certificado antes de su vencimiento.</p>
+    `;
+    return this.baseLayout(content, 'Alerta de Vencimiento');
+  }
 }
 
-/**
- * Servicio de notificaciones por email
- * @class EmailService
- */
+// ==========================================
+// Servicio de Email
+// ==========================================
+
+import type { EmailParams } from '../../domain/services/IEmailService.js';
+
 export class EmailService {
   private transporter: Transporter | null = null;
   private readonly config: EmailConfig;
   private readonly enabled: boolean;
+  private readonly frontendUrl: string;
 
-  constructor() {
+  constructor(config?: Partial<EmailConfig>) {
     this.enabled = process.env.EMAIL_ENABLED === 'true';
+    this.frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     
     this.config = {
       host: process.env.EMAIL_HOST || 'smtp.gmail.com',
@@ -75,30 +179,25 @@ export class EmailService {
         pass: process.env.EMAIL_PASSWORD || '',
       },
       from: process.env.EMAIL_FROM || 'noreply@cermont.com',
+      ...config
     };
   }
 
-  /**
-   * Inicializa el servicio de email
-   */
   async initialize(): Promise<void> {
     if (!this.enabled) {
-      logger.warn('[EmailService] Email service is disabled');
+      logger.warn('[EmailService] Email service is disabled by configuration');
       return;
     }
 
     try {
-      const transporter = nodemailer.createTransport({
+      this.transporter = nodemailer.createTransport({
         host: this.config.host,
         port: this.config.port,
         secure: this.config.secure,
         auth: this.config.auth,
       });
 
-      this.transporter = transporter;
-
-      // Verificar conexi�n
-      await transporter.verify();
+      await this.transporter.verify();
       logger.info('[EmailService] Email service initialized successfully');
     } catch (error) {
       logger.error('[EmailService] Failed to initialize email service', { error });
@@ -106,13 +205,9 @@ export class EmailService {
     }
   }
 
-  /**
-   * Env�a un email
-   * @private
-   */
   private async sendEmail(options: SendEmailOptions): Promise<boolean> {
     if (!this.enabled || !this.transporter) {
-      logger.warn('[EmailService] Email service not available');
+      logger.warn('[EmailService] Cannot send email: Service disabled or not initialized');
       return false;
     }
 
@@ -122,235 +217,114 @@ export class EmailService {
         to: Array.isArray(options.to) ? options.to.join(', ') : options.to,
         subject: options.subject,
         html: options.html,
-        text: options.text,
+        text: options.text, // Fallback plain text
         attachments: options.attachments,
       });
 
-      logger.info(`[EmailService] Email sent successfully to ${options.to}`);
+      logger.info(`[EmailService] Email sent to ${options.to}`);
       return true;
     } catch (error) {
-      logger.error('[EmailService] Failed to send email', { error });
+      logger.error('[EmailService] Failed to send email', { error, to: options.to });
       return false;
     }
   }
 
-  /**
-   * Notifica asignaci�n de orden a t�cnico
-   */
-  async notifyOrderAssigned(
-    technicianEmail: string,
-    technicianName: string,
-    order: Order
-  ): Promise<boolean> {
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="UTF-8">
-          <style>
-            body { font-family: Arial, sans-serif; line-height: 1.6; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background-color: #0066cc; color: white; padding: 20px; text-align: center; }
-            .content { padding: 20px; background-color: #f9f9f9; }
-            .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
-            .button { display: inline-block; padding: 10px 20px; background-color: #0066cc; color: white; text-decoration: none; border-radius: 5px; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>CERMONT S.A.S.</h1>
-              <p>Nueva Orden Asignada</p>
-            </div>
-            <div class="content">
-              <p>Hola ${technicianName},</p>
-              <p>Se te ha asignado una nueva orden de trabajo:</p>
-              <ul>
-                <li><strong>Cliente:</strong> ${order.clientName}</li>
-                <li><strong>Ubicaci�n:</strong> ${order.location || 'N/A'}</li>
-                <li><strong>Estado:</strong> ${order.state}</li>
-                <li><strong>Prioridad:</strong> ${order.priority || 'Normal'}</li>
-              </ul>
-              <p>Por favor, revisa los detalles en el sistema:</p>
-              <p style="text-align: center;">
-                <a href="${process.env.FRONTEND_URL}/orders/${order.id}" class="button">Ver Orden</a>
-              </p>
-            </div>
-            <div class="footer">
-              <p>Este es un mensaje autom�tico, por favor no responder.</p>
-              <p>&copy; 2024 CERMONT S.A.S. Todos los derechos reservados.</p>
-            </div>
-          </div>
-        </body>
-      </html>
-    `;
+  // --- Métodos Públicos de Notificación ---
 
+  /**
+   * Método genérico de envío (implementa IEmailService)
+   * Para uso con plantillas personalizadas o casos de uso
+   */
+  async send(params: EmailParams): Promise<void> {
+    if (!this.enabled || !this.transporter) {
+      logger.warn('[EmailService] Cannot send email: Service disabled or not initialized');
+      return;
+    }
+
+    try {
+      await this.transporter.sendMail({
+        from: this.config.from,
+        to: Array.isArray(params.to) ? params.to.join(', ') : params.to,
+        subject: params.subject,
+        html: params.html,
+        text: params.text,
+        cc: params.cc ? (Array.isArray(params.cc) ? params.cc.join(', ') : params.cc) : undefined,
+        bcc: params.bcc ? (Array.isArray(params.bcc) ? params.bcc.join(', ') : params.bcc) : undefined,
+        replyTo: params.replyTo,
+        attachments: params.attachments?.map(att => ({
+          filename: att.filename,
+          content: att.content,
+          contentType: att.contentType,
+        })),
+      });
+
+      logger.info(`[EmailService] Email sent to ${params.to}`);
+    } catch (error) {
+      logger.error('[EmailService] Failed to send email', { error, to: params.to });
+      throw error;
+    }
+  }
+
+  async notifyOrderAssigned(email: string, name: string, order: Order): Promise<boolean> {
+    const html = EmailTemplates.orderAssigned(name, order, this.frontendUrl);
     return this.sendEmail({
-      to: technicianEmail,
+      to: email,
       subject: `Nueva Orden Asignada: ${order.id}`,
       html,
-      text: `Se te ha asignado una nueva orden: ${order.id} - ${order.clientName}`,
+      text: `Se te ha asignado la orden ${order.id}. Revisa el sistema para más detalles.`,
     });
   }
 
-  /**
-   * Notifica cambio de estado de orden
-   */
-  async notifyOrderStateChanged(
-    recipientEmail: string,
-    order: Order,
-    previousState: string,
-    newState: string
-  ): Promise<boolean> {
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <body>
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2>Cambio de Estado de Orden</h2>
-            <p>La orden <strong>${order.id}</strong> ha cambiado de estado:</p>
-            <ul>
-              <li><strong>Estado anterior:</strong> ${previousState}</li>
-              <li><strong>Nuevo estado:</strong> ${newState}</li>
-            </ul>
-            <p><a href="${process.env.FRONTEND_URL}/orders/${order.id}">Ver detalles</a></p>
-          </div>
-        </body>
-      </html>
-    `;
-
+  async notifyOrderStateChanged(email: string, order: Order, oldState: string, newState: string): Promise<boolean> {
+    const html = EmailTemplates.orderStateChanged(order, oldState, newState, this.frontendUrl);
     return this.sendEmail({
-      to: recipientEmail,
+      to: email,
       subject: `Cambio de Estado: ${order.id}`,
       html,
+      text: `La orden ${order.id} cambió de ${oldState} a ${newState}.`,
     });
   }
 
-  /**
-   * Notifica aprobaci�n de plan de trabajo
-   */
-  async notifyWorkPlanApproved(
-    technicianEmail: string,
-    workPlan: WorkPlan,
-    order: Order
-  ): Promise<boolean> {
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <body>
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #28a745;">? Plan de Trabajo Aprobado</h2>
-            <p>El plan de trabajo para la orden <strong>${order.id}</strong> ha sido aprobado.</p>
-            <p>Puedes proceder con la ejecuci�n seg�n lo planeado.</p>
-            <p><a href="${process.env.FRONTEND_URL}/workplans/${workPlan.id}">Ver plan de trabajo</a></p>
-          </div>
-        </body>
-      </html>
-    `;
-
+  async notifyWorkPlanApproved(email: string, workPlan: WorkPlan, order: Order): Promise<boolean> {
+    const html = EmailTemplates.workPlanApproved(workPlan, order, this.frontendUrl);
     return this.sendEmail({
-      to: technicianEmail,
+      to: email,
       subject: `Plan de Trabajo Aprobado: ${order.id}`,
       html,
+      text: `El plan de trabajo para la orden ${order.id} ha sido aprobado.`,
     });
   }
 
-  /**
-   * Notifica rechazo de plan de trabajo
-   */
-  async notifyWorkPlanRejected(
-    technicianEmail: string,
-    workPlan: WorkPlan,
-    order: Order,
-    reason: string
-  ): Promise<boolean> {
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <body>
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #dc3545;">? Plan de Trabajo Rechazado</h2>
-            <p>El plan de trabajo para la orden <strong>${order.id}</strong> ha sido rechazado.</p>
-            <p><strong>Raz�n:</strong> ${reason}</p>
-            <p>Por favor, revisa y corrige el plan seg�n las observaciones.</p>
-            <p><a href="${process.env.FRONTEND_URL}/workplans/${workPlan.id}">Ver plan de trabajo</a></p>
-          </div>
-        </body>
-      </html>
-    `;
-
+  async notifyWorkPlanRejected(email: string, workPlan: WorkPlan, order: Order, reason: string): Promise<boolean> {
+    const html = EmailTemplates.workPlanRejected(workPlan, order, reason, this.frontendUrl);
     return this.sendEmail({
-      to: technicianEmail,
+      to: email,
       subject: `Plan de Trabajo Rechazado: ${order.id}`,
       html,
+      text: `El plan de trabajo para la orden ${order.id} ha sido rechazado. Razón: ${reason}`,
     });
   }
 
-  /**
-   * Env�a recordatorio de fecha l�mite
-   */
-  async sendDeadlineReminder(
-    recipientEmail: string,
-    order: Order,
-    daysRemaining: number
-  ): Promise<boolean> {
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <body>
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #ffc107;">?? Recordatorio de Fecha L�mite</h2>
-            <p>La orden <strong>${order.id}</strong> est� pr�xima a vencer.</p>
-            <p><strong>D�as restantes:</strong> ${daysRemaining}</p>
-            <p>Por favor, aseg�rate de completar las actividades pendientes.</p>
-            <p><a href="${process.env.FRONTEND_URL}/orders/${order.id}">Ver orden</a></p>
-          </div>
-        </body>
-      </html>
-    `;
-
+  async sendDeadlineReminder(email: string, order: Order, daysRemaining: number): Promise<boolean> {
+    const html = EmailTemplates.deadlineReminder(order, daysRemaining, this.frontendUrl);
     return this.sendEmail({
-      to: recipientEmail,
-      subject: `Recordatorio: Orden ${order.id} pr�xima a vencer`,
+      to: email,
+      subject: `Recordatorio: Orden ${order.id} vence en ${daysRemaining} días`,
       html,
+      text: `La orden ${order.id} vence en ${daysRemaining} días.`,
     });
   }
 
-  /**
-   * Notifica vencimiento pr�ximo de certificado
-   */
-  async notifyCertificateExpiring(
-    recipientEmail: string,
-    certificateName: string,
-    expiryDate: Date,
-    daysRemaining: number
-  ): Promise<boolean> {
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <body>
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #dc3545;">?? Certificado Pr�ximo a Vencer</h2>
-            <p>El certificado <strong>${certificateName}</strong> est� pr�ximo a vencer.</p>
-            <ul>
-              <li><strong>Fecha de vencimiento:</strong> ${expiryDate.toLocaleDateString('es-CO')}</li>
-              <li><strong>D�as restantes:</strong> ${daysRemaining}</li>
-            </ul>
-            <p>Por favor, gestiona la renovaci�n del certificado antes de su vencimiento.</p>
-          </div>
-        </body>
-      </html>
-    `;
-
+  async notifyCertificateExpiring(email: string, certName: string, date: Date, days: number): Promise<boolean> {
+    const html = EmailTemplates.certificateExpiring(certName, date, days);
     return this.sendEmail({
-      to: recipientEmail,
-      subject: `URGENTE: Certificado ${certificateName} pr�ximo a vencer`,
+      to: email,
+      subject: `URGENTE: Certificado ${certName} vence en ${days} días`,
       html,
+      text: `El certificado ${certName} vence el ${date.toLocaleDateString()}.`,
     });
   }
 }
 
-/**
- * Instancia singleton del servicio
- */
 export const emailService = new EmailService();
+

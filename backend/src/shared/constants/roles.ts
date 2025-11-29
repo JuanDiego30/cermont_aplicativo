@@ -3,6 +3,7 @@ export enum UserRole {
   ADMIN = 'admin',
   COORDINADOR = 'coordinador',
   AUXILIAR = 'auxiliar',
+  CLIENTE = 'cliente',
 }
 
 /**
@@ -13,6 +14,7 @@ export const ROLE_HIERARCHY: UserRole[] = [
   UserRole.ADMIN,
   UserRole.COORDINADOR,
   UserRole.AUXILIAR,
+  UserRole.CLIENTE,
 ];
 
 /**

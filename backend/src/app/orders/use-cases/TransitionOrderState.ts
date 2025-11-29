@@ -1,89 +1,131 @@
+/**
+ * Use Case: Transicionar estado de orden
+ * 
+ * Cambia el estado de una orden validando que la transición sea permitida
+ * según las reglas del OrderStateMachine.
+ * 
+ * Validaciones:
+ * - La orden debe existir
+ * - La transición debe ser válida según estado actual
+ * - El usuario debe tener permisos para la transición
+ * - El comentario no debe exceder 500 caracteres
+ * 
+ * @file backend/src/app/orders/use-cases/TransitionOrderState.ts
+ */
+
 import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
-import { OrderStateMachine } from '../../../domain/services/OrderStateMachine.js';
+import type { INotificationService } from '../../../domain/services/INotificationService.js';
+import type { OrderStateMachine } from '../../../domain/services/OrderStateMachine.js';
 import type { Order } from '../../../domain/entities/Order.js';
 import { OrderState } from '../../../domain/entities/Order.js';
-import {
-  ObjectIdValidationError,
-  ObjectIdValidator,
-} from '../../../shared/validators/ObjectIdValidator.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { logger } from '../../../shared/utils/logger.js';
 
-/**
- * Error personalizado para transiciones de estado
- * Incluye estados actual e intentado para debugging
- * @class StateTransitionError
- * @extends {Error}
- */
-export class StateTransitionError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-    public readonly statusCode: number,
-    public readonly currentState?: OrderState,
-    public readonly attemptedState?: OrderState
-  ) {
-    super(message);
-    this.name = 'StateTransitionError';
+const VALIDATION_LIMITS = {
+  MAX_COMMENT_LENGTH: 500,
+} as const;
 
-    Error.captureStackTrace?.(this, this.constructor);
-  }
-}
+const ERROR_MESSAGES = {
+  MISSING_ORDER_ID: 'El ID de la orden es requerido',
+  MISSING_NEW_STATE: 'El nuevo estado es requerido',
+  MISSING_USER_ID: 'El ID del usuario es requerido',
+  ORDER_NOT_FOUND: (id: string) => `Orden ${id} no encontrada`,
+  INVALID_STATE: (validStates: string[]) =>
+    `Estado inválido. Valores permitidos: ${validStates.join(', ')}`,
+  INVALID_TRANSITION: (current: OrderState, attempted: OrderState) =>
+    `Transición no permitida de ${current} a ${attempted}`,
+  COMMENT_TOO_LONG: `El comentario no puede exceder ${VALIDATION_LIMITS.MAX_COMMENT_LENGTH} caracteres`,
+} as const;
 
-/**
- * DTO para transicionar estado de orden
- * @interface TransitionOrderStateDto
- */
-export interface TransitionOrderStateDto {
-  /** ID de la orden (formato ObjectId de MongoDB) */
+const LOG_CONTEXT = {
+  USE_CASE: '[TransitionOrderStateUseCase]',
+} as const;
+
+interface TransitionOrderStateInput {
   orderId: string;
-  /** Nuevo estado deseado para la orden */
   newState: OrderState;
-  /** ID del usuario que realiza la transición */
   userId: string;
-  /** Comentario opcional sobre la transición (máx. 500 caracteres) */
   comment?: string;
+  ip?: string;
+  userAgent?: string;
 }
 
-/**
- * Caso de uso: Transicionar estado de una orden
- * Valida que la transición sea permitida según el OrderStateMachine
- * @class TransitionOrderState
- * @since 1.0.0
- */
-export class TransitionOrderState {
-  private static readonly MAX_COMMENT_LENGTH = 500;
-  private readonly stateMachine = new OrderStateMachine();
+interface AuditContext {
+  ip: string;
+  userAgent: string;
+}
 
-  constructor(private readonly orderRepository: IOrderRepository) {}
+export class TransitionOrderStateUseCase {
+  constructor(
+    private readonly orderRepository: IOrderRepository,
+    private readonly stateMachine: OrderStateMachine,
+    private readonly auditService: AuditService,
+    private readonly notificationService: INotificationService
+  ) {}
 
-  async execute(dto: TransitionOrderStateDto): Promise<Order> {
-    try {
-      this.validateDto(dto);
+  async execute(input: TransitionOrderStateInput): Promise<Order> {
+    this.validateInput(input);
 
-      const order = await this.fetchOrder(dto.orderId);
-      const previousState = order.state;
+    const order = await this.fetchOrder(input.orderId);
+    const previousState = order.state;
 
-      this.validateStateTransition(previousState, dto.newState);
+    this.validateTransition(previousState, input.newState);
 
-      const updatedOrder = await this.orderRepository.update(dto.orderId, {
-        state: dto.newState,
-      });
+    const updatedOrder = await this.updateOrderState(input.orderId, input.newState, input.comment);
 
-      this.logTransition(dto, previousState);
+    const auditContext = this.extractAuditContext(input);
+    await this.logStateTransition(
+      updatedOrder,
+      previousState,
+      input.newState,
+      input.userId,
+      input.comment,
+      auditContext
+    );
 
-      return updatedOrder;
-    } catch (error) {
-      if (error instanceof StateTransitionError) {
-        throw error;
-      }
+    await this.notifyStateChange(updatedOrder, previousState, input.newState);
 
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
-      console.error('[TransitionOrderState] Error inesperado:', errorMessage);
+    logger.info(`${LOG_CONTEXT.USE_CASE} Estado transicionado exitosamente`, {
+      orderId: updatedOrder.id,
+      orderNumber: updatedOrder.orderNumber,
+      transition: `${previousState} → ${input.newState}`,
+      userId: input.userId,
+    });
 
-      throw new StateTransitionError(
-        `Error interno al transicionar estado de la orden: ${errorMessage}`,
-        'INTERNAL_ERROR',
-        500
-      );
+    return updatedOrder;
+  }
+
+  private validateInput(input: TransitionOrderStateInput): void {
+    if (!input.orderId?.trim()) {
+      throw new Error(ERROR_MESSAGES.MISSING_ORDER_ID);
+    }
+
+    if (!input.newState) {
+      throw new Error(ERROR_MESSAGES.MISSING_NEW_STATE);
+    }
+
+    if (!input.userId?.trim()) {
+      throw new Error(ERROR_MESSAGES.MISSING_USER_ID);
+    }
+
+    this.validateNewState(input.newState);
+
+    if (input.comment) {
+      this.validateComment(input.comment);
+    }
+  }
+
+  private validateNewState(newState: string): void {
+    const validStates = Object.values(OrderState);
+    if (!validStates.includes(newState as OrderState)) {
+      throw new Error(ERROR_MESSAGES.INVALID_STATE(validStates));
+    }
+  }
+
+  private validateComment(comment: string): void {
+    if (comment.length > VALIDATION_LIMITS.MAX_COMMENT_LENGTH) {
+      throw new Error(ERROR_MESSAGES.COMMENT_TOO_LONG);
     }
   }
 
@@ -91,139 +133,132 @@ export class TransitionOrderState {
     const order = await this.orderRepository.findById(orderId);
 
     if (!order) {
-      throw new StateTransitionError(
-        `Orden con ID ${orderId} no encontrada`,
-        'ORDER_NOT_FOUND',
-        404
-      );
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Orden no encontrada`, { orderId });
+      throw new Error(ERROR_MESSAGES.ORDER_NOT_FOUND(orderId));
     }
 
     return order;
   }
 
-  private validateStateTransition(currentState: OrderState, newState: OrderState): void {
+  private validateTransition(currentState: OrderState, newState: OrderState): void {
     try {
       this.stateMachine.validateTransition(currentState, newState);
     } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : `Transición inválida de ${currentState} a ${newState}`;
-
-      throw new StateTransitionError(
-        errorMessage,
-        'INVALID_TRANSITION',
-        400,
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Transición inválida`, {
         currentState,
-        newState
-      );
+        attemptedState: newState,
+      });
+      throw new Error(ERROR_MESSAGES.INVALID_TRANSITION(currentState, newState));
     }
   }
 
-  private logTransition(dto: TransitionOrderStateDto, previousState: OrderState): void {
-    console.info(
-      `[TransitionOrderState] 🔄 Transición: ${dto.orderId} (${previousState} → ${dto.newState}) por ${dto.userId}`
-    );
+  private async updateOrderState(
+    orderId: string,
+    newState: OrderState,
+    comment?: string
+  ): Promise<Order> {
+    const updateData: any = {
+      state: newState,
+      [`${newState.toLowerCase()}At`]: new Date(), // e.g., ejecucionAt, pagoAt
+    };
 
-    if (dto.comment) {
-      console.info(`[TransitionOrderState]    📝 Comentario: ${dto.comment}`);
+    // Agregar comentario a notas si existe
+    if (comment) {
+      const timestampedComment = `[${new Date().toISOString()}] Transición a ${newState}: ${comment}`;
+      const existingOrder = await this.orderRepository.findById(orderId);
+      updateData.notes = existingOrder?.notes
+        ? `${existingOrder.notes}\n${timestampedComment}`
+        : timestampedComment;
     }
-  }
 
-  private validateDto(dto: TransitionOrderStateDto): void {
-    const normalizedOrderId = this.validateObjectId(
-      dto.orderId,
-      'ORDER_ID',
-      'ID de la orden'
-    );
-
-    dto.orderId = normalizedOrderId;
-
-    const normalizedUserId = this.validateObjectId(
-      dto.userId,
-      'USER_ID',
-      'ID del usuario'
-    );
-
-    dto.userId = normalizedUserId;
-
-    this.validateNewState(dto.newState);
-
-    if (dto.comment !== undefined) {
-      this.validateComment(dto.comment);
-    }
-  }
-
-  private validateObjectId(value: string, fieldCode: string, displayName: string): string {
     try {
-      return ObjectIdValidator.validate(value, displayName);
-    } catch (error) {
-      if (error instanceof ObjectIdValidationError) {
-        throw new StateTransitionError(
-          error.message,
-          this.buildObjectIdErrorCode(error.code, fieldCode),
-          400
-        );
+      const updated = await this.orderRepository.update(orderId, updateData);
+
+      if (!updated) {
+        throw new Error('Error actualizando estado de la orden');
       }
 
+      return updated;
+    } catch (error) {
+      logger.error(`${LOG_CONTEXT.USE_CASE} Error actualizando estado`, {
+        orderId,
+        newState,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
       throw error;
     }
   }
 
-  private buildObjectIdErrorCode(errorCode: string, fieldCode: string): string {
-    const normalizedField = fieldCode.toUpperCase();
+  private extractAuditContext(input: TransitionOrderStateInput): AuditContext {
+    return {
+      ip: input.ip || 'unknown',
+      userAgent: input.userAgent || 'unknown',
+    };
+  }
 
-    switch (errorCode) {
-      case 'INVALID_TYPE':
-        return `INVALID_${normalizedField}_TYPE`;
-      case 'EMPTY':
-        return `EMPTY_${normalizedField}`;
-      case 'INVALID_LENGTH':
-        return `INVALID_${normalizedField}_LENGTH`;
-      case 'INVALID_FORMAT':
-        return `INVALID_${normalizedField}_FORMAT`;
-      case 'REQUIRED':
-      default:
-        return `INVALID_${normalizedField}`;
+  private async logStateTransition(
+    order: Order,
+    previousState: OrderState,
+    newState: OrderState,
+    userId: string,
+    comment: string | undefined,
+    auditContext: AuditContext
+  ): Promise<void> {
+    try {
+      await this.auditService.log({
+        entityType: 'Order',
+        entityId: order.id,
+        action: AuditAction.UPDATE,
+        userId,
+        before: {
+          state: previousState,
+        },
+        after: {
+          state: newState,
+          transitionedAt: new Date(),
+        },
+        ip: auditContext.ip,
+        userAgent: auditContext.userAgent,
+        reason: comment || `Transición de estado: ${previousState} → ${newState}`,
+      });
+    } catch (error) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Error registrando auditoría (no crítico)`, {
+        orderId: order.id,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
     }
   }
 
-  private validateNewState(newState: OrderState): void {
-    if (!newState) {
-      throw new StateTransitionError('El nuevo estado es requerido', 'MISSING_NEW_STATE', 400);
-    }
+  private async notifyStateChange(
+    order: Order,
+    previousState: OrderState,
+    newState: OrderState
+  ): Promise<void> {
+    try {
+      // Notificar al responsable de la orden
+      if (order.responsibleId) {
+        await this.notificationService.notify({
+          recipientId: order.responsibleId,
+          type: 'ORDER_STATE_CHANGED',
+          title: 'Cambio de estado de orden',
+          message: `La orden ${order.orderNumber} cambió de ${previousState} a ${newState}`,
+          context: { orderId: order.id },
+        });
+      }
 
-    const validStates = Object.values(OrderState);
-
-    if (!validStates.includes(newState)) {
-      throw new StateTransitionError(
-        `Estado inválido. Valores permitidos: ${validStates.join(', ')}`,
-        'INVALID_ORDER_STATE',
-        400,
-        undefined,
-        newState
-      );
-    }
-  }
-
-  private validateComment(comment: string): void {
-    if (typeof comment !== 'string') {
-      throw new StateTransitionError(
-        'El comentario debe ser una cadena de texto',
-        'INVALID_COMMENT_TYPE',
-        400
-      );
-    }
-
-    if (comment.length > TransitionOrderState.MAX_COMMENT_LENGTH) {
-      throw new StateTransitionError(
-        `El comentario no puede exceder ${TransitionOrderState.MAX_COMMENT_LENGTH} caracteres`,
-        'COMMENT_TOO_LONG',
-        400
-      );
+      logger.info(`${LOG_CONTEXT.USE_CASE} Notificación enviada`, {
+        orderId: order.id,
+        recipientId: order.responsibleId,
+      });
+    } catch (error) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Error enviando notificación (no crítico)`, {
+        orderId: order.id,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
     }
   }
 }
+
 
 
 

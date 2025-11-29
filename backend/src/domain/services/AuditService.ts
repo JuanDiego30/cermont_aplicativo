@@ -1,173 +1,27 @@
 import type { IAuditLogRepository } from '../repositories/IAuditLogRepository.js';
 import { AuditAction } from '../entities/AuditLog.js';
 import { SYSTEM_USER_ID } from '../../shared/constants/system.js';
+import { logger } from '../../shared/utils/logger.js';
 
-/**
- * Parámetros para crear un log de auditoría
- * @interface AuditLogParams
- */
 export interface AuditLogParams {
-  /** Tipo de entidad afectada (e.g., 'User', 'Order', 'WorkPlan') */
   entityType: string;
-  /** ID de la entidad afectada */
   entityId: string;
-  /** Acción realizada sobre la entidad */
   action: AuditAction;
-  /** ID del usuario que realizó la acción */
   userId: string;
-  /** Estado previo de la entidad (opcional) */
-  before?: Record<string, unknown>;
-  /** Estado posterior de la entidad (opcional) */
-  after?: Record<string, unknown>;
-  /** Dirección IP del usuario (opcional) */
+  before?: Record<string, unknown> | null;
+  after?: Record<string, unknown> | null;
   ip?: string;
-  /** User-Agent del navegador/cliente (opcional) */
   userAgent?: string;
-  /** Razón o comentario sobre la acción (opcional) */
   reason?: string;
 }
 
-/**
- * Interface: Servicio de Auditoría
- * Contrato para el servicio que facilita la creación de logs de auditoría
- * @interface IAuditService
- * @since 1.0.0
- */
-export interface IAuditService {
-  /**
-   * Registra un log de auditoría genérico
-   * @param {AuditLogParams} params - Parámetros del log
-   * @returns {Promise<void>}
-   */
-  log(params: AuditLogParams): Promise<void>;
-
-  /**
-   * Registra un login exitoso
-   * @param {string} userId - ID del usuario
-   * @param {string} ip - Dirección IP
-   * @param {string} [userAgent] - User-Agent (opcional)
-   * @returns {Promise<void>}
-   */
-  logLogin(userId: string, ip: string, userAgent?: string): Promise<void>;
-
-  /**
-   * Registra un logout
-   * @param {string} userId - ID del usuario
-   * @param {string} ip - Dirección IP
-   * @param {string} [userAgent] - User-Agent (opcional)
-   * @returns {Promise<void>}
-   */
-  logLogout(userId: string, ip: string, userAgent?: string): Promise<void>;
-
-  /**
-   * Registra un intento de login fallido
-   * @param {string} email - Email del intento
-   * @param {string} ip - Dirección IP
-   * @param {string} [userAgent] - User-Agent (opcional)
-   * @param {string} [reason] - Razón del fallo (opcional)
-   * @returns {Promise<void>}
-   */
-  logLoginFailed(email: string, ip: string, userAgent?: string, reason?: string): Promise<void>;
-
-  /**
-   * Registra una creación de entidad
-   * @param {string} entityType - Tipo de entidad
-   * @param {string} entityId - ID de la entidad
-   * @param {string} userId - ID del usuario
-   * @param {Record<string, unknown>} after - Estado posterior
-   * @param {string} ip - Dirección IP
-   * @param {string} [userAgent] - User-Agent (opcional)
-   * @returns {Promise<void>}
-   */
-  logCreate(
-    entityType: string,
-    entityId: string,
-    userId: string,
-    after: Record<string, unknown>,
-    ip: string,
-    userAgent?: string,
-  ): Promise<void>;
-
-  /**
-   * Registra una actualización de entidad
-   * @param {string} entityType - Tipo de entidad
-   * @param {string} entityId - ID de la entidad
-   * @param {string} userId - ID del usuario
-   * @param {Record<string, unknown>} before - Estado previo
-   * @param {Record<string, unknown>} after - Estado posterior
-   * @param {string} ip - Dirección IP
-   * @param {string} [userAgent] - User-Agent (opcional)
-   * @returns {Promise<void>}
-   */
-  logUpdate(
-    entityType: string,
-    entityId: string,
-    userId: string,
-    before: Record<string, unknown>,
-    after: Record<string, unknown>,
-    ip: string,
-    userAgent?: string,
-  ): Promise<void>;
-
-  /**
-   * Registra una eliminación de entidad
-   * @param {string} entityType - Tipo de entidad
-   * @param {string} entityId - ID de la entidad
-   * @param {string} userId - ID del usuario
-   * @param {Record<string, unknown>} before - Estado previo
-   * @param {string} ip - Dirección IP
-   * @param {string} [userAgent] - User-Agent (opcional)
-   * @param {string} [reason] - Razón de la eliminación (opcional)
-   * @returns {Promise<void>}
-   */
-  logDelete(
-    entityType: string,
-    entityId: string,
-    userId: string,
-    before: Record<string, unknown>,
-    ip: string,
-    userAgent?: string,
-    reason?: string,
-  ): Promise<void>;
-
-  /**
-   * Registra una transición de estado
-   * @param {string} entityType - Tipo de entidad
-   * @param {string} entityId - ID de la entidad
-   * @param {string} userId - ID del usuario
-   * @param {string} oldState - Estado anterior
-   * @param {string} newState - Estado nuevo
-   * @param {string} ip - Dirección IP
-   * @param {string} [userAgent] - User-Agent (opcional)
-   * @returns {Promise<void>}
-   */
-  logTransition(
-    entityType: string,
-    entityId: string,
-    userId: string,
-    oldState: string,
-    newState: string,
-    ip: string,
-    userAgent?: string,
-  ): Promise<void>;
-}
-
-/**
- * Servicio: Auditoría
- * Helper para crear logs de auditoría de forma consistente
- * Implementa fail-safe logging (errores no interrumpen operaciones principales)
- * @class AuditService
- * @implements {IAuditService}
- * @since 1.0.0
- */
-export class AuditService implements IAuditService {
+export class AuditService {
   constructor(private readonly auditLogRepository: IAuditLogRepository) {}
 
   /**
-   * Registra una acción de auditoría genérica
-   * Fail-safe: errores se loguean pero no se propagan
-   * @param {AuditLogParams} params - Parámetros del log
-   * @returns {Promise<void>}
+   * Registra un evento de auditoría.
+   * Diseño "Fail-Safe": Si falla la auditoría, no interrumpe el flujo principal,
+   * pero registra el error en el logger del sistema.
    */
   async log(params: AuditLogParams): Promise<void> {
     try {
@@ -176,81 +30,41 @@ export class AuditService implements IAuditService {
         entityId: params.entityId,
         action: params.action,
         userId: params.userId,
-        before: params.before,
-        after: params.after,
+        before: params.before ?? null,
+        after: params.after ?? null,
         ip: params.ip,
         userAgent: params.userAgent,
         reason: params.reason,
       });
-
-      console.info(
-        `[AuditService] 📝 Log: ${params.action} on ${params.entityType}:${params.entityId} by ${params.userId}`
-      );
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error(`[AuditService] ❌ Error creating audit log: ${errorMessage}`, {
-        entityType: params.entityType,
-        entityId: params.entityId,
-        action: params.action,
-        error,
+      logger.error('[AuditService] Fallo crítico al registrar auditoría', {
+        error: error instanceof Error ? error.message : 'Unknown',
+        params,
       });
-
-      // TODO: Considerar enviar alerta a sistema de monitoreo (e.g., Sentry)
-      // No lanzar error para no interrumpir la operación principal
+      // No re-lanzar error (Fail-Safe)
     }
   }
 
-  async logLogin(userId: string, ip: string, userAgent?: string): Promise<void> {
-    await this.log({
-      entityType: 'User',
-      entityId: userId,
-      action: AuditAction.LOGIN,
-      userId,
-      ip,
-      userAgent,
-    });
-  }
-
-  async logLogout(userId: string, ip: string, userAgent?: string): Promise<void> {
-    await this.log({
-      entityType: 'User',
-      entityId: userId,
-      action: AuditAction.LOGOUT,
-      userId,
-      ip,
-      userAgent,
-    });
-  }
-
-  async logLoginFailed(
-    email: string,
-    ip: string,
-    userAgent?: string,
-    reason?: string,
-  ): Promise<void> {
-    await this.log({
-      entityType: 'User',
-      entityId: email,
-      action: AuditAction.LOGIN_FAILED,
-      userId: SYSTEM_USER_ID,
-      ip,
-      userAgent,
-      reason,
-    });
-  }
+  // --- Helpers Semánticos ---
 
   async logCreate(
     entityType: string,
     entityId: string,
     userId: string,
     after: Record<string, unknown>,
-    ip: string,
-    userAgent?: string,
+    ip?: string,
+    userAgent?: string
   ): Promise<void> {
+    const actionKey = `CREATE_${entityType.toUpperCase()}`;
+    // Intenta usar acción específica (CREATE_USER), si no existe usa genérica CREATE
+    const action = Object.values(AuditAction).includes(actionKey as AuditAction)
+      ? (actionKey as AuditAction)
+      : AuditAction.CREATE;
+
     await this.log({
       entityType,
       entityId,
-      action: AuditAction.CREATE,
+      action,
       userId,
       after,
       ip,
@@ -264,13 +78,18 @@ export class AuditService implements IAuditService {
     userId: string,
     before: Record<string, unknown>,
     after: Record<string, unknown>,
-    ip: string,
-    userAgent?: string,
+    ip?: string,
+    userAgent?: string
   ): Promise<void> {
+    const actionKey = `UPDATE_${entityType.toUpperCase()}`;
+    const action = Object.values(AuditAction).includes(actionKey as AuditAction)
+      ? (actionKey as AuditAction)
+      : AuditAction.UPDATE;
+
     await this.log({
       entityType,
       entityId,
-      action: AuditAction.UPDATE,
+      action,
       userId,
       before,
       after,
@@ -284,14 +103,19 @@ export class AuditService implements IAuditService {
     entityId: string,
     userId: string,
     before: Record<string, unknown>,
-    ip: string,
+    ip?: string,
     userAgent?: string,
-    reason?: string,
+    reason?: string
   ): Promise<void> {
+    const actionKey = `DELETE_${entityType.toUpperCase()}`;
+    const action = Object.values(AuditAction).includes(actionKey as AuditAction)
+      ? (actionKey as AuditAction)
+      : AuditAction.DELETE;
+
     await this.log({
       entityType,
       entityId,
-      action: AuditAction.DELETE,
+      action,
       userId,
       before,
       ip,
@@ -300,24 +124,20 @@ export class AuditService implements IAuditService {
     });
   }
 
-  async logTransition(
-    entityType: string,
-    entityId: string,
-    userId: string,
-    oldState: string,
-    newState: string,
+  async logLoginFailed(
+    email: string,
     ip: string,
     userAgent?: string,
+    reason?: string
   ): Promise<void> {
     await this.log({
-      entityType,
-      entityId,
-      action: AuditAction.TRANSITION,
-      userId,
-      before: { state: oldState },
-      after: { state: newState },
+      entityType: 'User',
+      entityId: email, // Usamos email porque no sabemos ID
+      action: AuditAction.LOGIN_FAILED,
+      userId: SYSTEM_USER_ID,
       ip,
       userAgent,
+      reason,
     });
   }
 }

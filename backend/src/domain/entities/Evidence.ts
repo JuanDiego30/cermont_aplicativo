@@ -1,5 +1,5 @@
 /**
- * Posibles estados de una evidencia
+ * Enumeración de estados posibles para una evidencia
  * @enum {string}
  */
 export enum EvidenceStatus {
@@ -11,6 +11,7 @@ export enum EvidenceStatus {
 
 /**
  * Tipos de evidencia soportados por el sistema
+ * @enum {string}
  */
 export enum EvidenceType {
   PHOTO = 'PHOTO',
@@ -20,92 +21,76 @@ export enum EvidenceType {
   OTHER = 'OTHER',
 }
 
+/**
+ * Coordenadas geográficas
+ * Value Object para ubicación
+ */
 export interface GPSCoordinates {
   lat: number;
   lng: number;
 }
 
 /**
- * Metadatos adicionales disponibles para ciertos formatos
+ * Metadatos técnicos extraídos del archivo
  */
 export interface EvidenceMetadata {
-  duration?: number;
-  width?: number;
-  height?: number;
+  duration?: number; // Segundos (Video/Audio)
+  width?: number;    // Pixeles (Foto/Video)
+  height?: number;   // Pixeles (Foto/Video)
   mimeType?: string;
-  checksum?: string;
-  location?: string;
+  checksum?: string; // Hash MD5/SHA-256 para integridad
+  location?: string; // Dirección legible
   gps?: GPSCoordinates;
   deviceId?: string;
-  capturedAt?: Date;
-  [key: string]: unknown;
+  capturedAt?: Date; // Fecha original de captura (EXIF)
 }
 
 /**
- * Registro generado cada vez que un usuario sube una evidencia a una orden
+ * Entidad: Evidencia
+ * Representa un archivo subido asociado a una orden de trabajo
  */
-export interface Evidence extends Record<string, unknown> {
-  /** ID único del recurso */
+export interface Evidence {
   id: string;
-
-  /** Orden asociada */
   orderId: string;
-
-  /** Etapa actual de flujo (por ejemplo, 'technical_review') */
-  stage: string;
-
-  /** Tipo de evidencia */
+  
+  /** Etapa del flujo donde se subió (ej: 'technical_review') */
+  stage: string; 
+  
   type: EvidenceType;
-
-  /** Nombre original del archivo */
   fileName: string;
-
-  /** MIME type guardado */
   mimeType: string;
-
-  /** Tamaño en bytes */
   fileSize: number;
-
-  /** Ruta en almacenamiento */
   filePath: string;
-
-  /** Estado del flujo de evidencias */
+  
   status: EvidenceStatus;
-
-  /** Versión actual del archivo */
+  
+  /** Control de versiones (1..N) */
   version: number;
-
-  /** IDs de las versiones anteriores */
+  
+  /** Historial de IDs de versiones previas */
   previousVersions: string[];
-
-  /** Usuario que cargó la evidencia */
+  
   uploadedBy: string;
-
-  /** Fecha de creación */
   createdAt: Date;
-
-  /** Última actualización */
   updatedAt: Date;
-
-  /** Metadatos dependientes del tipo de evidencia */
+  
+  /** Fecha manual o de sistema de la captura */
+  capturedAt?: Date;
+  
+  description?: string;
+  
+  /** Datos técnicos extra */
   metadata?: EvidenceMetadata;
 
-  /** Usuario que aprobó */
+  // --- Auditoría de aprobación ---
   approvedBy?: string;
-
-  /** Fecha de aprobación */
   approvedAt?: Date;
-
-  /** Comentarios del aprobador */
   approvalComments?: string;
 
-  /** Usuario que rechazó */
+  // --- Auditoría de rechazo ---
   rejectedBy?: string;
-
-  /** Fecha de rechazo */
   rejectedAt?: Date;
-
-  /** Motivo del rechazo */
   rejectionReason?: string;
 }
+
 

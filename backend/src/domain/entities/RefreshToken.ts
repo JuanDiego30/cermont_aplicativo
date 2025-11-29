@@ -1,38 +1,50 @@
 /**
  * Entidad: Refresh Token
- * Representa un token de refresco válido y rastreador de estados
+ * Gestiona la sesión de larga duración y la rotación de tokens.
+ * Implementa detección de robo mediante familias de tokens.
  */
 export interface RefreshToken {
-  /** ID único */
   id: string;
 
-  /** Token JWT */
-  token: string;
+  /** 
+   * Hash del token real para almacenamiento seguro.
+   * Nunca guardar el token JWT en texto plano.
+   * Opcional en create - puede derivarse de token.
+   */
+  tokenHash?: string;
+  
+  /**
+   * Alias para tokenHash (compatibilidad).
+   */
+  token?: string;
 
-  /** ID del usuario */
   userId: string;
 
-  /** ID de la familia de tokens (para rotación) */
-  family: string;
+  /** 
+   * Identificador de familia para rotación de tokens (Reuse Detection).
+   * Si un token de una familia vieja se usa, se invalida toda la familia.
+   */
+  familyId: string;
 
-  /** Indica si está revocado */
   isRevoked: boolean;
 
-  /** Dirección IP desde la que se emitió */
+  /** Metadatos de seguridad y origen */
   ipAddress?: string;
-
-  /** User-Agent asociado a este token */
   userAgent?: string;
 
-  /** Fecha de expiración */
   expiresAt: Date;
-
-  /** Fecha de creación */
-  createdAt: Date;
-
-  /** Fecha de última actualización */
-  updatedAt: Date;
-
-  /** Fecha en que se usó por última vez */
+  createdAt?: Date;
+  updatedAt?: Date;
+  
+  /** Auditoría de uso */
   lastUsedAt?: Date;
+  
+  /** Número de generación (para rotación legacy) */
+  generationNumber?: number;
+  
+  /** Información adicional de revocación */
+  revokedAt?: Date;
+  revokedReason?: string;
+  deviceInfo?: string;
+  lastIpAddress?: string;
 }

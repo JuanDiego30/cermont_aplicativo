@@ -15,6 +15,17 @@
       "path": "backend",
       "envManager": "ms-python.python:system",
       "packageManager": "ms-python.python:pip"
+    },
+    {
+      "path": "frontend/public",
+      "envManager": "ms-python.python:system",
+      "packageManager": "ms-python.python:pip"
+    },
+    {
+      "path": "backend/src/infra",
+      "envManager": "ms-python.python:system",
+      "packageManager": "ms-python.python:pip"
     }
-  ]
+  ],
+  "files.autoGuessEncoding": true
 }

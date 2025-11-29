@@ -5,7 +5,7 @@
  */
 
 import { Router } from 'express';
-import { ordersController } from '../controllers/OrdersController.js';
+import { OrdersController } from '../controllers/OrdersController.js'; // Asegurar importación correcta de la clase
 import { authenticate } from '../../../shared/middlewares/authenticate.js';
 import { authorize } from '../../../shared/middlewares/authorize.js';
 import { validateMiddleware } from '../../../shared/middlewares/validateMiddleware.js';
@@ -24,13 +24,14 @@ router.use(authenticate);
 /**
  * @route   POST /api/orders
  * @desc    Crear nueva orden
- * @access  Private (ADMIN, COORDINADOR)
+ * @access  Private (ADMIN, COORDINADOR, CLIENTE)
  */
 router.post(
   '/',
-  authorize([PERMISSIONS.ORDERS_CREATE]),
+  // Se usa CLIENT_CREATE_REQUESTS (plural) según el archivo de permisos actualizado
+  authorize([PERMISSIONS.ORDERS_CREATE, PERMISSIONS.CLIENT_CREATE_REQUEST]), 
   validateMiddleware(createOrderSchema),
-    ordersController.create
+  OrdersController.create
 );
 
 /**
@@ -41,7 +42,7 @@ router.post(
 router.get(
   '/',
   authorize([PERMISSIONS.ORDERS_VIEW]),
-  ordersController.list
+  OrdersController.list
 );
 
 /**
@@ -51,8 +52,9 @@ router.get(
  */
 router.get(
   '/stats',
+  // Usar DASHBOARD_VIEW_STATS o ORDERS_VIEW según preferencia
   authorize([PERMISSIONS.DASHBOARD_VIEW_STATS]),
-  ordersController.getStats
+  OrdersController.getStats
 );
 
 /**
@@ -63,19 +65,8 @@ router.get(
 router.get(
   '/:id',
   authorize([PERMISSIONS.ORDERS_VIEW]),
-  ordersController.getById
+  OrdersController.getById
 );
-
-/**
- * @route   GET /api/orders/:id/history
- * @desc    Obtener historial de una orden
- * @access  Private
- */
-// router.get(
-//   '/:id/history',
-//   authorize([PERMISSIONS.ORDERS_VIEW]),
-//   ordersController.getHistory
-// );
 
 /**
  * @route   PATCH /api/orders/:id/state
@@ -84,8 +75,9 @@ router.get(
  */
 router.patch(
   '/:id/state',
-  authorize([PERMISSIONS.ORDERS_TRANSITION]),
-  ordersController.transition
+  // Asegurarse que ORDERS_MANAGE o ORDERS_UPDATE cubra esto si ORDERS_TRANSITION no existe
+  authorize([PERMISSIONS.ORDERS_MANAGE]), 
+  OrdersController.transition
 );
 
 /**
@@ -95,9 +87,10 @@ router.patch(
  */
 router.patch(
   '/:id/assign',
-  authorize([PERMISSIONS.ORDERS_ASSIGN]),
+  // Asegurarse que ORDERS_MANAGE cubra la asignación si ORDERS_ASSIGN no existe
+  authorize([PERMISSIONS.ORDERS_MANAGE]), 
   validateMiddleware(assignOrderSchema),
-  ordersController.assign
+  OrdersController.assign
 );
 
 /**
@@ -107,8 +100,9 @@ router.patch(
  */
 router.patch(
   '/:id/archive',
-  authorize([PERMISSIONS.ORDERS_ARCHIVE]),
-  ordersController.archive
+  // Asegurarse que ORDERS_DELETE o ORDERS_MANAGE cubra esto si ORDERS_ARCHIVE no existe
+  authorize([PERMISSIONS.ORDERS_DELETE]), 
+  OrdersController.archive
 );
 
 /**
@@ -120,7 +114,8 @@ router.patch(
   '/:id',
   authorize([PERMISSIONS.ORDERS_UPDATE]),
   validateMiddleware(updateOrderSchema),
-  ordersController.update
+  OrdersController.update
 );
 
 export default router;
+

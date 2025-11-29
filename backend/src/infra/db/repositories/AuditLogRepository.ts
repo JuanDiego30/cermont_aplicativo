@@ -1,18 +1,17 @@
-import prisma from '../prisma.js';
-import type { AuditLog as PrismaAuditLog } from '@prisma/client';
-import type { AuditLog } from '@/domain/entities/AuditLog.js';
-import { AuditAction } from '@/domain/entities/AuditLog.js';
-import type {
-  AuditLogFilters,
-  IAuditLogRepository,
-} from '@/domain/repositories/IAuditLogRepository.js';
+import { Prisma, type AuditLog as PrismaAuditLog } from '@prisma/client';
+import type { AuditLog, AuditLogFilters, AuditAction } from '../../../domain/entities/AuditLog.js';
+import type { IAuditLogRepository, PaginationParams, SortingParams } from '../../../domain/repositories/IAuditLogRepository.js';
+import { prisma } from '../prisma.js';
 
 /**
- * Implementaci�n de Prisma para AuditLogRepository
- * @class AuditLogRepository
- * @implements {IAuditLogRepository}
+ * Implementación de Prisma para AuditLogRepository
  */
 export class AuditLogRepository implements IAuditLogRepository {
+  
+  /**
+   * Convierte el modelo de Prisma a la entidad de Dominio.
+   * Maneja la conversión de JSON strings si la BD no soporta JSON nativo.
+   */
   private toDomain(log: PrismaAuditLog): AuditLog {
     return {
       id: log.id,
@@ -20,17 +19,15 @@ export class AuditLogRepository implements IAuditLogRepository {
       entityId: log.entityId,
       action: log.action as AuditAction,
       userId: log.userId,
-      before: log.before ? JSON.parse(log.before) : null,
-      after: log.after ? JSON.parse(log.after) : null,
+      before: typeof log.before === 'string' ? JSON.parse(log.before) : log.before,
+      after: typeof log.after === 'string' ? JSON.parse(log.after) : log.after,
       ip: log.ip,
       userAgent: log.userAgent ?? undefined,
       reason: log.reason ?? undefined,
       timestamp: log.timestamp,
     };
   }
-  /**
-   * Crea un nuevo registro de auditor�a
-   */
+
   async create(data: Omit<AuditLog, 'id' | 'timestamp'>): Promise<AuditLog> {
     const created = await prisma.auditLog.create({
       data: {
@@ -38,139 +35,132 @@ export class AuditLogRepository implements IAuditLogRepository {
         entityId: data.entityId,
         action: data.action,
         userId: data.userId,
+        // Prisma maneja la serialización - stringify para almacenar como String
         before: data.before ? JSON.stringify(data.before) : null,
         after: data.after ? JSON.stringify(data.after) : null,
         ip: data.ip ?? 'unknown',
         userAgent: data.userAgent ?? null,
         reason: data.reason ?? null,
-      },
-      include: {
-        user: true,
+        timestamp: new Date(), // Explícito o default DB
       },
     });
 
     return this.toDomain(created);
   }
 
-  /**
-   * Busca registros por ID de entidad
-   */
-  async findByEntityId(entityId: string): Promise<AuditLog[]> {
-    const logs = await prisma.auditLog.findMany({
-      where: { entityId },
-      include: {
-        user: true,
-      },
-      orderBy: { timestamp: 'desc' },
-    });
+  async findAll(
+    filters: AuditLogFilters,
+    pagination?: PaginationParams,
+    sorting?: SortingParams
+  ): Promise<AuditLog[]> {
+    const where: any = {};
 
-    return logs.map((log: any) => this.toDomain(log));
-  }
-
-  /**
-   * Busca registros por usuario
-   */
-  async findByUser(userId: string, startDate?: Date, endDate?: Date): Promise<AuditLog[]> {
-    const where: any = { userId };
-
-    if (startDate || endDate) {
+    if (filters.entityType) where.entityType = filters.entityType;
+    if (filters.action) where.action = filters.action;
+    if (filters.userId) where.userId = filters.userId;
+    if (filters.entityId) where.entityId = filters.entityId;
+    
+    if (filters.startDate || filters.endDate) {
       where.timestamp = {};
-      if (startDate) where.timestamp.gte = startDate;
-      if (endDate) where.timestamp.lte = endDate;
+      if (filters.startDate) where.timestamp.gte = filters.startDate;
+      if (filters.endDate) where.timestamp.lte = filters.endDate;
     }
 
     const logs = await prisma.auditLog.findMany({
       where,
-      take: 100,
-      orderBy: { timestamp: 'desc' },
-      include: {
-        user: true,
-      },
+      take: pagination?.limit,
+      skip: pagination?.skip,
+      orderBy: sorting
+        ? { [sorting.field]: sorting.order }
+        : { timestamp: 'desc' },
     });
 
-    return logs.map((log: any) => this.toDomain(log));
+    return logs.map(log => this.toDomain(log));
+  }
+
+  async count(filters: AuditLogFilters): Promise<number> {
+    const where: any = {};
+
+    if (filters.entityType) where.entityType = filters.entityType;
+    if (filters.action) where.action = filters.action;
+    if (filters.userId) where.userId = filters.userId;
+    if (filters.entityId) where.entityId = filters.entityId;
+    
+    if (filters.startDate || filters.endDate) {
+      where.timestamp = {};
+      if (filters.startDate) where.timestamp.gte = filters.startDate;
+      if (filters.endDate) where.timestamp.lte = filters.endDate;
+    }
+
+    return prisma.auditLog.count({ where });
+  }
+
+  async prune(retentionDate: Date): Promise<number> {
+    const result = await prisma.auditLog.deleteMany({
+      where: {
+        timestamp: {
+          lt: retentionDate,
+        },
+      },
+    });
+    return result.count;
+  }
+
+  // --- Métodos Legacy / Alias para compatibilidad con UseCases antiguos ---
+
+  async findByEntity(entityType: string, entityId: string): Promise<AuditLog[]> {
+    return this.findAll({ entityType, entityId });
+  }
+
+  async findByEntityId(entityId: string): Promise<AuditLog[]> {
+    return this.findAll({ entityId });
   }
 
   /**
-   * Elimina registros m�s antiguos que X d�as
+   * Encuentra los logs más recientes
+   */
+  async findRecent(limit: number = 10): Promise<AuditLog[]> {
+    return this.findAll({}, { page: 1, limit, skip: 0 }, { field: 'timestamp', order: 'desc' });
+  }
+
+  /**
+   * Alias para findAll con filtros (compatibilidad)
+   */
+  async find(filters: any): Promise<AuditLog[]> {
+    return this.findAll(filters);
+  }
+
+  async findByUser(userId: string, dateRange?: { start?: Date; end?: Date }): Promise<AuditLog[]> {
+    return this.findAll({ 
+      userId, 
+      startDate: dateRange?.start, 
+      endDate: dateRange?.end 
+    });
+  }
+
+  /**
+   * @deprecated Use prune() instead
    */
   async deleteOlderThan(days: number): Promise<number> {
     const date = new Date();
     date.setDate(date.getDate() - days);
-
-    const result = await prisma.auditLog.deleteMany({
-      where: {
-        timestamp: {
-          lt: date,
-        },
-      },
-    });
-
-    return result.count;
+    return this.prune(date);
   }
 
-  async find(filters: AuditLogFilters): Promise<AuditLog[]> {
-    const where: any = {};
-
-    if (filters.entityType) where.entityType = filters.entityType;
-    if (filters.action) where.action = filters.action;
-    if (filters.userId) where.userId = filters.userId;
-    if (filters.startDate || filters.endDate) {
-      where.timestamp = {};
-      if (filters.startDate) where.timestamp.gte = filters.startDate;
-      if (filters.endDate) where.timestamp.lte = filters.endDate;
-    }
-
-    const logs = await prisma.auditLog.findMany({
-      where,
-      take: filters.limit || 50,
-      skip: filters.skip || 0,
-      include: { user: true },
-      orderBy: { timestamp: 'desc' },
-    });
-
-    return logs.map((log: any) => this.toDomain(log));
+  /**
+   * @deprecated Use findAll() instead
+   */
+  async findByFilters(filters: any, pagination?: any, sorting?: any): Promise<AuditLog[]> {
+    return this.findAll(filters, pagination, sorting);
   }
 
-  async count(filters: Omit<AuditLogFilters, 'limit' | 'skip'>): Promise<number> {
-    const where: any = {};
-
-    if (filters.entityType) where.entityType = filters.entityType;
-    if (filters.action) where.action = filters.action;
-    if (filters.userId) where.userId = filters.userId;
-    if (filters.startDate || filters.endDate) {
-      where.timestamp = {};
-      if (filters.startDate) where.timestamp.gte = filters.startDate;
-      if (filters.endDate) where.timestamp.lte = filters.endDate;
-    }
-
-    return await prisma.auditLog.count({ where });
-  }
-
-  async findByEntity(entityType: string, entityId: string): Promise<AuditLog[]> {
-    const logs = await prisma.auditLog.findMany({
-      where: { entityType, entityId },
-      include: { user: true },
-      orderBy: { timestamp: 'desc' },
-    });
-
-    return logs.map((log: any) => this.toDomain(log));
-  }
-
-  // M�todo adicional requerido
-  async findRecent(limit: number): Promise<AuditLog[]> {
-    const logs = await prisma.auditLog.findMany({
-      take: limit,
-      include: { user: true },
-      orderBy: { timestamp: 'desc' },
-    });
-
-    return logs.map((log: any) => ({
-      ...log,
-      before: log.before ? JSON.parse(log.before) : null,
-      after: log.after ? JSON.parse(log.after) : null,
-    }));
+  /**
+   * @deprecated Use count() instead
+   */
+  async countByFilters(filters: any): Promise<number> {
+    return this.count(filters);
   }
 }
 
+// Exportar singleton para legacy imports (si es necesario)
 export const auditLogRepository = new AuditLogRepository();

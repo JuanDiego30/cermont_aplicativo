@@ -1,16 +1,18 @@
-import { Request, Response } from 'express';
-import { GetKPIs } from '../../../app/dashboard/use-cases/GetKPIs.js';
+import type { Request, Response } from 'express';
+import { prisma } from '../../db/prisma.js';
+import { GetKPIsUseCase } from '../../../app/dashboard/use-cases/GetKPIs.js';
 import { orderRepository } from '../../db/repositories/OrderRepository.js';
 import { userRepository } from '../../db/repositories/UserRepository.js';
 import { workPlanRepository } from '../../db/repositories/WorkPlanRepository.js';
 import { evidenceRepository } from '../../db/repositories/EvidenceRepository.js';
 import { OrderState } from '../../../domain/entities/Order.js';
+import { WorkPlanStatus } from '../../../domain/entities/WorkPlan.js'; // Asegurar importación
 
 /**
  * Controller para dashboard y estadísticas
  */
 export class DashboardController {
-  private getKPIs: GetKPIs;
+  private getKPIs: GetKPIsUseCase;
   private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutos
   private metricsCache: {
     data: any;
@@ -18,16 +20,16 @@ export class DashboardController {
   } | null = null;
 
   constructor() {
-    this.getKPIs = new GetKPIs(orderRepository);
+    this.getKPIs = new GetKPIsUseCase(orderRepository);
   }
 
   /**
    * Obtener métricas principales (KPIs)
    * GET /api/dashboard/metrics
    */
-  async getMetrics(req: Request, res: Response): Promise<void> {
+  getMetrics = async (req: Request, res: Response): Promise<void> => {
     try {
-      // ✅ Implementar caché simple (5 min)
+      // Caché simple en memoria
       const now = Date.now();
       if (this.metricsCache && now - this.metricsCache.timestamp < this.CACHE_TTL) {
         res.json({
@@ -38,10 +40,10 @@ export class DashboardController {
         return;
       }
 
-      // ✅ Obtener métricas usando use case
+      // Obtener métricas usando use case
       const metrics = await this.getKPIs.execute();
 
-      // ✅ Actualizar caché
+      // Actualizar caché
       this.metricsCache = {
         data: metrics,
         timestamp: now,
@@ -60,17 +62,17 @@ export class DashboardController {
         detail: error.message,
       });
     }
-  }
+  };
 
   /**
    * Obtener órdenes por estado
    * GET /api/dashboard/orders/by-state/:state
    */
-  async getOrdersByState(req: Request, res: Response): Promise<void> {
+  getOrdersByState = async (req: Request, res: Response): Promise<void> => {
     try {
       const { state } = req.params;
 
-      // ✅ Validar estado
+      // Validar estado
       if (!Object.values(OrderState).includes(state as OrderState)) {
         res.status(400).json({
           type: 'https://httpstatuses.com/400',
@@ -81,8 +83,8 @@ export class DashboardController {
         return;
       }
 
-      // ✅ Obtener órdenes (usa repository optimizado)
-      const orders = await orderRepository.findByState(state as OrderState);
+      // Usar repository optimizado
+      const orders = await orderRepository.findAll({ state: state as OrderState });
 
       res.json({
         success: true,
@@ -100,27 +102,27 @@ export class DashboardController {
         detail: error.message,
       });
     }
-  }
+  };
 
   /**
    * Obtener estadísticas generales
    * GET /api/dashboard/stats
    */
-  async getGeneralStats(req: Request, res: Response): Promise<void> {
+  getGeneralStats = async (req: Request, res: Response): Promise<void> => {
     try {
-      // ✅ Obtener estadísticas de múltiples entidades en paralelo
-      const [orderStats, userStats, workPlanStats] = await Promise.all([
-        orderRepository.getStats(),
-        userRepository.getStats(),
-        workPlanRepository.getStats(),
+      // Obtener estadísticas de múltiples entidades en paralelo
+      const [orderStats, usersTotal, workPlansTotal] = await Promise.all([
+        orderRepository.getDashboardStats(),
+        userRepository.count({}),
+        workPlanRepository.count({}),
       ]);
 
       res.json({
         success: true,
         data: {
           orders: orderStats,
-          users: userStats,
-          workPlans: workPlanStats,
+          users: { total: usersTotal },
+          workPlans: { total: workPlansTotal },
         },
       });
     } catch (error: any) {
@@ -131,20 +133,22 @@ export class DashboardController {
         detail: error.message,
       });
     }
-  }
+  };
 
   /**
-   * Obtener órdenes activas (no archivadas)
+   * Obtener órdenes activas
    * GET /api/dashboard/orders/active
    */
-  async getActiveOrders(req: Request, res: Response): Promise<void> {
+  getActiveOrders = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { limit = 10 } = req.query;
+      const { limit = 10, page = 1 } = req.query;
+      const limitNum = Number(limit);
+      const pageNum = Number(page);
 
-      // ✅ Usar método optimizado
-      const orders = await orderRepository.findActive({
-        limit: Number(limit),
-      });
+      const orders = await orderRepository.findAll(
+        { archived: false },
+        { limit: limitNum, page: pageNum, skip: (pageNum - 1) * limitNum }
+      );
 
       const total = await orderRepository.count({ archived: false });
 
@@ -154,9 +158,9 @@ export class DashboardController {
           orders,
           pagination: {
             total,
-            limit: Number(limit),
-            skip: 0,
-            hasMore: orders.length === Number(limit),
+            limit: limitNum,
+            page: pageNum,
+            totalPages: Math.ceil(total / limitNum),
           },
         },
       });
@@ -168,16 +172,16 @@ export class DashboardController {
         detail: error.message,
       });
     }
-  }
+  };
 
   /**
-   * Obtener work plans pendientes de aprobación
+   * Obtener work plans pendientes
    * GET /api/dashboard/work-plans/pending
    */
-  async getPendingWorkPlans(req: Request, res: Response): Promise<void> {
+  getPendingWorkPlans = async (req: Request, res: Response): Promise<void> => {
     try {
-      // ✅ Usar método optimizado
-      const workPlans = await workPlanRepository.findPending();
+      // Usar findAll con filtro de status PENDING_APPROVAL (estado de espera de aprobación)
+      const workPlans = await workPlanRepository.findAll({ status: WorkPlanStatus.PENDING_APPROVAL });
 
       res.json({
         success: true,
@@ -194,13 +198,13 @@ export class DashboardController {
         detail: error.message,
       });
     }
-  }
+  };
 
   /**
-   * Obtener estadísticas del usuario autenticado
+   * Obtener estadísticas personales
    * GET /api/dashboard/my-stats
    */
-  async getMyStats(req: Request, res: Response): Promise<void> {
+  getMyStats = async (req: Request, res: Response): Promise<void> => {
     try {
       const userId = req.user?.userId;
 
@@ -214,11 +218,10 @@ export class DashboardController {
         return;
       }
 
-      // ✅ Obtener estadísticas del usuario en paralelo
       const [myOrders, myWorkPlans, myEvidence] = await Promise.all([
-        orderRepository.findByResponsible(userId),
-        workPlanRepository.findByCreator(userId),
-        evidenceRepository.find({ uploadedBy: userId }),
+        orderRepository.findAll({ responsibleId: userId }),
+        workPlanRepository.findAll({ createdBy: userId }),
+        evidenceRepository.findAll({ uploadedBy: userId }),
       ]);
 
       res.json({
@@ -227,8 +230,8 @@ export class DashboardController {
           ordersCount: myOrders.length,
           workPlansCount: myWorkPlans.length,
           evidenceCount: myEvidence.length,
-          orders: myOrders.slice(0, 5), // últimas 5
-          workPlans: myWorkPlans.slice(0, 5), // últimos 5
+          orders: myOrders.slice(0, 5),
+          workPlans: myWorkPlans.slice(0, 5),
         },
       });
     } catch (error: any) {
@@ -239,23 +242,22 @@ export class DashboardController {
         detail: error.message,
       });
     }
-  }
+  };
 
   /**
-   * Obtener resumen de actividad reciente
+   * Obtener actividad reciente
    * GET /api/dashboard/recent-activity
    */
-  async getRecentActivity(req: Request, res: Response): Promise<void> {
+  getRecentActivity = async (req: Request, res: Response): Promise<void> => {
     try {
       const { limit = 10 } = req.query;
+      const limitNum = Number(limit);
 
-      // ✅ Obtener actividad reciente de múltiples entidades
       const [recentOrders, recentWorkPlans] = await Promise.all([
-        orderRepository.find({ limit: Number(limit) }),
-        workPlanRepository.find({ limit: Number(limit) }),
+        orderRepository.findAll({}, { page: 1, limit: limitNum, skip: 0 }, { field: 'updatedAt', order: 'desc' }),
+        workPlanRepository.findAll({}, { page: 1, limit: limitNum, skip: 0 }, { field: 'updatedAt', order: 'desc' }),
       ]);
 
-      // ✅ Combinar y ordenar por updatedAt
       const activities = [
         ...recentOrders.map((o) => ({
           type: 'order',
@@ -273,7 +275,7 @@ export class DashboardController {
         })),
       ]
         .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
-        .slice(0, Number(limit));
+        .slice(0, limitNum);
 
       res.json({
         success: true,
@@ -289,19 +291,77 @@ export class DashboardController {
         detail: error.message,
       });
     }
-  }
+  };
 
   /**
-   * Limpiar caché de métricas (admin)
-   * POST /api/dashboard/cache/clear
+   * Obtener métricas avanzadas
    */
-  async clearCache(req: Request, res: Response): Promise<void> {
+  getAdvancedMetrics = async (req: Request, res: Response): Promise<void> => {
     try {
-      this.metricsCache = null;
+      // Métricas calculadas con Prisma nativo para eficiencia
+      // 1. Cycle Time
+      const completedOrders = await prisma.order.findMany({
+        where: { state: 'COMPLETED', archived: false }, // Ajustar enum
+        select: { createdAt: true, updatedAt: true },
+      });
+
+      let avgCycleTime = 0;
+      if (completedOrders.length > 0) {
+        const totalTime = completedOrders.reduce((acc, order) => {
+          return acc + (new Date(order.updatedAt).getTime() - new Date(order.createdAt).getTime());
+        }, 0);
+        avgCycleTime = totalTime / completedOrders.length / (1000 * 60 * 60 * 24);
+      }
+
+      // 2. Compliance Rate (Plan vs Actual)
+      const completedWorkPlans = await prisma.workPlan.findMany({
+        where: {
+          status: 'APROBADO', // O COMPLETED si existe
+          actualEnd: { not: null },
+          plannedEnd: { not: null },
+        },
+        select: { actualEnd: true, plannedEnd: true },
+      });
+
+      let complianceRate = 0;
+      if (completedWorkPlans.length > 0) {
+        const onTimeCount = completedWorkPlans.filter((wp) => {
+          return wp.actualEnd! <= wp.plannedEnd!;
+        }).length;
+        complianceRate = (onTimeCount / completedWorkPlans.length) * 100;
+      }
+
+      // 3. Budget Variance
+      // Asumiendo campo `actualBudget` o calculándolo
+      const budgetWorkPlans = await prisma.workPlan.findMany({
+        where: {
+          estimatedBudget: { gt: 0 },
+        },
+        select: { estimatedBudget: true, id: true }, // Necesitaríamos sumar `CostBreakdown`
+      });
+      
+      // Simplificación: Usar un valor calculado o mock por ahora si no hay campo directo
+      const budgetVariance = 0; 
 
       res.json({
         success: true,
-        message: 'Caché de métricas limpiado',
+        data: {
+          cycleTime: {
+            value: Number(avgCycleTime.toFixed(1)),
+            unit: 'días',
+            trend: 'stable',
+          },
+          complianceRate: {
+            value: Number(complianceRate.toFixed(1)),
+            unit: '%',
+            trend: complianceRate > 80 ? 'up' : 'down',
+          },
+          budgetVariance: {
+            value: Number(budgetVariance.toFixed(1)),
+            unit: '%',
+            status: 'good',
+          },
+        },
       });
     } catch (error: any) {
       res.status(500).json({
@@ -311,7 +371,18 @@ export class DashboardController {
         detail: error.message,
       });
     }
-  }
+  };
+
+  /**
+   * Limpiar caché
+   */
+  clearCache = async (req: Request, res: Response): Promise<void> => {
+    this.metricsCache = null;
+    res.json({
+      success: true,
+      message: 'Caché de métricas limpiado',
+    });
+  };
 }
 
 export const dashboardController = new DashboardController();

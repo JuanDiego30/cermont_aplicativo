@@ -1,93 +1,37 @@
-import type { TokenBlacklist, TokenType } from '../entities/TokenBlacklist.js';
+import type { RevokedToken } from '../entities/RevokedToken.js'; // Nombre actualizado
 
 /**
- * Estadísticas de la blacklist
- * @interface TokenBlacklistStats
+ * Repositorio: Tokens Revocados (Blacklist)
+ * Almacenamiento temporal de tokens invalidados hasta su expiración natural.
+ * Ideal para Redis o caché en memoria.
  */
-export interface TokenBlacklistStats {
-  /** Total de tokens invalidos */
-  total: number;
-  /** Distribución por tipo */
-  byType: Record<TokenType, number>;
-  /** Tokens expirados que pueden eliminarse */
-  expired: number;
-}
-
-/**
- * Repositorio: Token Blacklist
- * Contrato para persistencia de tokens invalidos (access y refresh)
- * @interface ITokenBlacklistRepository
- * @since 1.0.0
- */
-export interface ITokenBlacklistRepository {
+export interface IRevokedTokenRepository {
   /**
-   * Crea un registro en la blacklist
-   * @param {Omit<TokenBlacklist, 'id' | 'createdAt'>} data - Datos del token sin createdAt
-   * @returns {Promise<TokenBlacklist>} Token invalidado con createdAt generado por Mongo
+   * Registra un token revocado.
+   * Si ya existe, debería ser idempotente.
    */
-  create(data: Omit<TokenBlacklist, 'id' | 'createdAt'>): Promise<TokenBlacklist>;
+  create(data: Omit<RevokedToken, 'id' | 'revokedAt'>): Promise<RevokedToken>;
 
   /**
-   * Busca un token en la blacklist
-   * @param {string} token - Token JWT
-   * @returns {Promise<TokenBlacklist | null>} Token encontrado o null
+   * Verifica si un token está revocado.
+   * Operación crítica de alto rendimiento.
+   * @param tokenIdentifier JTI o Hash del token
    */
-  findByToken(token: string): Promise<TokenBlacklist | null>;
+  isRevoked(tokenIdentifier: string): Promise<boolean>;
 
   /**
-   * Agrega un token a la blacklist (helper sobre create())
-   * @param {string} token - Token JWT
-   * @param {string} userId - ID del usuario
-   * @param {TokenType} type - Tipo de token (ACCESS o REFRESH)
-   * @param {Date} expiresAt - Fecha de expiración original
-   * @returns {Promise<TokenBlacklist>} Token agregado
+   * Limpieza de tokens cuya fecha de expiración original ya pasó.
+   * (Una vez expirado, el token es inválido por sí mismo, no necesita estar en blacklist).
    */
-  addToken(token: string, userId: string, type: TokenType, expiresAt: Date): Promise<TokenBlacklist>;
+  pruneExpired(): Promise<number>;
+
+  // --- Métodos de soporte / Auditoría ---
+
+  findByUser(userId: string): Promise<RevokedToken[]>;
 
   /**
-   * Verifica si un token está en la blacklist
-   * @param {string} token - Token JWT
-   * @returns {Promise<boolean>} True si está invalidado
+   * Revoca masivamente tokens de un usuario (si el backend soporta revocación por patrón).
+   * Útil para "Cerrar sesión en todos los dispositivos".
    */
-  isBlacklisted(token: string): Promise<boolean>;
-
-  /**
-   * Busca tokens blacklisteados de un usuario
-   * @param {string} userId - ID del usuario
-   * @returns {Promise<TokenBlacklist[]>} Lista ordenada por createdAt
-   */
-  findByUser(userId: string): Promise<TokenBlacklist[]>;
-
-  /**
-   * Busca tokens blacklisteados por tipo
-   * @param {TokenType} type - Tipo de token
-   * @returns {Promise<TokenBlacklist[]>} Lista ordenada por createdAt
-   */
-  findByType(type: TokenType): Promise<TokenBlacklist[]>;
-
-  /**
-   * Cuenta tokens blacklisteados de un usuario
-   * @param {string} userId - ID del usuario
-   * @returns {Promise<number>} Cantidad de tokens
-   */
-  countByUser(userId: string): Promise<number>;
-
-  /**
-   * Elimina tokens expirados
-   * @returns {Promise<number>} Cantidad eliminada
-   */
-  deleteExpired(): Promise<number>;
-
-  /**
-   * Elimina todos los tokens blacklisteados de un usuario
-   * @param {string} userId - ID del usuario
-   * @returns {Promise<number>} Cantidad eliminada
-   */
-  deleteByUser(userId: string): Promise<number>;
-
-  /**
-   * Obtiene estadísticas de la blacklist
-   * @returns {Promise<TokenBlacklistStats>} Métricas para monitoreo
-   */
-  getStats(): Promise<TokenBlacklistStats>;
+  revokeAllByUser(userId: string): Promise<number>;
 }

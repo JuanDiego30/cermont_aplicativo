@@ -26,7 +26,10 @@ const RATE_LIMITS: Record<string, number> = {
   ADMIN: parseInt(process.env.RATE_LIMIT_ADMIN || '500', 10),
   COORDINADOR: parseInt(process.env.RATE_LIMIT_COORDINADOR || '200', 10),
   OPERARIO: parseInt(process.env.RATE_LIMIT_OPERARIO || '50', 10), // ✅ CORREGIDO
-  anonymous: parseInt(process.env.RATE_LIMIT_ANONYMOUS || '20', 10),
+  // ✅ FIX: Aumentar límite para usuarios anónimos en desarrollo
+  anonymous: process.env.NODE_ENV === 'production'
+    ? parseInt(process.env.RATE_LIMIT_ANONYMOUS || '50', 10)
+    : parseInt(process.env.RATE_LIMIT_ANONYMOUS || '1000', 10),
 };
 
 /**

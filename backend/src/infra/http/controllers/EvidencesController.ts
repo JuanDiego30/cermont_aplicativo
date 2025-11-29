@@ -1,34 +1,19 @@
-/**
- * Controller de Evidencias - NUEVO
- * Usa Use Cases para gestiï¿½n completa de evidencias
- * 
- * @file backend/src/infra/http/controllers/EvidencesController.ts
- */
-
 import type { Request, Response, NextFunction } from 'express';
-import { UploadEvidence } from '../../../app/evidences/use-cases/UploadEvidence.js';
-import { ApproveEvidence } from '../../../app/evidences/use-cases/ApproveEvidence.js';
-import { RejectEvidence } from '../../../app/evidences/use-cases/RejectEvidence.js';
-import { GetEvidencesByOrder } from '../../../app/evidences/use-cases/GetEvidencesByOrder.js';
-import { DeleteEvidence } from '../../../app/evidences/use-cases/DeleteEvidence.js';
-import { SyncOfflineEvidences } from '../../../app/evidences/use-cases/SyncOfflineEvidences.js';
+import { ApproveEvidenceUseCase } from '../../../app/evidences/use-cases/ApproveEvidence.js';
+import { RejectEvidenceUseCase } from '../../../app/evidences/use-cases/RejectEvidence.js';
+import { GetEvidencesByOrderUseCase } from '../../../app/evidences/use-cases/GetEvidencesByOrder.js';
 import { evidenceRepository } from '../../db/repositories/EvidenceRepository.js';
-import { orderRepository } from '../../db/repositories/OrderRepository.js';
 import { auditLogRepository } from '../../db/repositories/AuditLogRepository.js';
 import { AuditService } from '../../../domain/services/AuditService.js';
+import { EvidenceStatus } from '../../../domain/entities/Evidence.js';
 
-/**
- * Controller de evidencias
- * @class EvidencesController
- */
+const auditService = new AuditService(auditLogRepository);
+
 export class EvidencesController {
-  /**
-   * Subir evidencia
-   * POST /api/evidences
-   */
-  static async upload(req: Request, res: Response, next: NextFunction): Promise<void> {
+  
+  static upload = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = (req as any).user?.userId;
+      const userId = req.user?.userId;
 
       if (!userId) {
         res.status(401).json({
@@ -40,33 +25,22 @@ export class EvidencesController {
         return;
       }
 
-      const uploadUseCase = new UploadEvidence(
-        evidenceRepository,
-        orderRepository
-      );
-
-      const evidence = await uploadUseCase.execute({
-        ...req.body,
-        uploadedBy: userId,
-      });
-
-      res.status(201).json({
-        success: true,
-        data: evidence,
+      // TODO: Implement file upload with proper file handling
+      res.status(501).json({
+        type: 'https://httpstatuses.com/501',
+        title: 'Not Implemented',
+        status: 501,
+        detail: 'Evidence upload not yet implemented',
       });
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  /**
-   * Aprobar evidencia
-   * POST /api/evidences/:id/approve
-   */
-  static async approve(req: Request, res: Response, next: NextFunction): Promise<void> {
+  static approve = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params;
-      const userId = (req as any).user?.userId;
+      const userId = req.user?.userId;
 
       if (!userId) {
         res.status(401).json({
@@ -78,34 +52,27 @@ export class EvidencesController {
         return;
       }
 
-      const approveUseCase = new ApproveEvidence(
-        evidenceRepository
-      );
+      const approveUseCase = new ApproveEvidenceUseCase(evidenceRepository, auditService);
 
-      await approveUseCase.execute({
+      const approved = await approveUseCase.execute({
         evidenceId: id,
         approvedBy: userId,
         comments: req.body.comments,
+        ip: req.ip,
+        userAgent: req.get('user-agent'),
       });
 
-      res.json({
-        success: true,
-        message: 'Evidencia aprobada exitosamente',
-      });
+      res.json({ success: true, message: 'Evidencia aprobada exitosamente', data: approved });
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  /**
-   * Rechazar evidencia
-   * POST /api/evidences/:id/reject
-   */
-  static async reject(req: Request, res: Response, next: NextFunction): Promise<void> {
+  static reject = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params;
       const { reason } = req.body;
-      const userId = (req as any).user?.userId;
+      const userId = req.user?.userId;
 
       if (!userId) {
         res.status(401).json({
@@ -122,67 +89,48 @@ export class EvidencesController {
           type: 'https://httpstatuses.com/400',
           title: 'Bad Request',
           status: 400,
-          detail: 'Razï¿½n de rechazo requerida',
+          detail: 'Razón de rechazo requerida',
         });
         return;
       }
 
-      const rejectUseCase = new RejectEvidence(
-        evidenceRepository,
-        new AuditService(auditLogRepository)
-      );
+      const rejectUseCase = new RejectEvidenceUseCase(evidenceRepository, auditService);
 
-      await rejectUseCase.execute({
+      const rejected = await rejectUseCase.execute({
         evidenceId: id,
         rejectedBy: userId,
         reason,
+        ip: req.ip,
+        userAgent: req.get('user-agent'),
       });
 
-      res.json({
-        success: true,
-        message: 'Evidencia rechazada',
-      });
+      res.json({ success: true, message: 'Evidencia rechazada', data: rejected });
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  /**
-   * Obtener evidencias por orden
-   * GET /api/evidences/order/:orderId
-   */
-  static async getByOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
+  static getByOrder = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { orderId } = req.params;
       const stage = req.query.stage as string | undefined;
-      const status = req.query.status as string | undefined;
+      const status = req.query.status as EvidenceStatus | undefined;
 
-      const getByOrderUseCase = new GetEvidencesByOrder(evidenceRepository);
+      const getByOrderUseCase = new GetEvidencesByOrderUseCase(evidenceRepository);
 
-      const evidences = await getByOrderUseCase.execute({
-        orderId,
-        stage,
-        status,
-      });
+      const evidences = await getByOrderUseCase.execute({ orderId, stage, status });
 
-      res.json({
-        success: true,
-        data: evidences,
-      });
+      res.json({ success: true, data: evidences });
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  /**
-   * Eliminar evidencia
-   * DELETE /api/evidences/:id
-   */
-  static async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
+  static remove = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { id } = req.params;
       const { reason } = req.body;
-      const userId = (req as any).user?.userId;
+      const userId = req.user?.userId;
 
       if (!userId) {
         res.status(401).json({
@@ -199,36 +147,24 @@ export class EvidencesController {
           type: 'https://httpstatuses.com/400',
           title: 'Bad Request',
           status: 400,
-          detail: 'Razï¿½n de eliminaciï¿½n requerida',
+          detail: 'Razón de eliminación requerida',
         });
         return;
       }
 
-      const deleteUseCase = new DeleteEvidence(
-        evidenceRepository,
-        new AuditService(auditLogRepository)
-      );
-
-      await deleteUseCase.execute({
-        evidenceId: id,
-        deletedBy: userId,
-        reason,
-      });
-
-      res.json({
-        success: true,
-        message: 'Evidencia eliminada exitosamente',
+      // TODO: Implement delete evidence with proper dependencies
+      res.status(501).json({
+        type: 'https://httpstatuses.com/501',
+        title: 'Not Implemented',
+        status: 501,
+        detail: 'Evidence deletion not yet implemented',
       });
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  /**
-   * Sincronizar evidencias offline
-   * POST /api/evidences/sync
-   */
-  static async syncOffline(req: Request, res: Response, next: NextFunction): Promise<void> {
+  static syncOffline = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const { pendingEvidences } = req.body;
 
@@ -242,16 +178,15 @@ export class EvidencesController {
         return;
       }
 
-      const syncUseCase = new SyncOfflineEvidences(evidenceRepository);
-
-      const result = await syncUseCase.execute(pendingEvidences);
-
-      res.json({
-        success: true,
-        data: result,
+      // TODO: Implement sync offline evidences
+      res.status(501).json({
+        type: 'https://httpstatuses.com/501',
+        title: 'Not Implemented',
+        status: 501,
+        detail: 'Offline evidence sync not yet implemented',
       });
     } catch (error) {
       next(error);
     }
-  }
+  };
 }

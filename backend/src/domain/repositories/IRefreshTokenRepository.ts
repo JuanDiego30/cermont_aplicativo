@@ -1,87 +1,65 @@
 import type { RefreshToken } from '../entities/RefreshToken.js';
 
-/**
- * Estadísticas de los refresh tokens
- * @interface RefreshTokenStats
- */
 export interface RefreshTokenStats {
-  /** Tokens totales registrados */
   total: number;
-  /** Tokens activos (no revocados y no expirados) */
   active: number;
-  /** Tokens revocados manualmente */
   revoked: number;
-  /** Tokens expirados */
   expired: number;
 }
 
 /**
- * Repositorio: Refresh tokens
- * Maneja persistencia, revocación y rotación segura
- * @interface IRefreshTokenRepository
- * @since 1.0.0
+ * Repositorio: Refresh Tokens
+ * Gestión de sesiones persistentes y seguridad de acceso.
+ * Debe implementarse sobre un almacén rápido y seguro (ej: Redis o SQL indexado).
  */
 export interface IRefreshTokenRepository {
-  /**
-   * Crea un refresh token
-   * @param {Omit<RefreshToken, 'id' | 'createdAt' | 'updatedAt'>} data - Datos del token sin timestamps
-   * @returns {Promise<RefreshToken>} Token creado con timestamps asignados por la base de datos
-   * @throws {Error} Si la creación falla
-   */
   create(data: Omit<RefreshToken, 'id' | 'createdAt' | 'updatedAt'>): Promise<RefreshToken>;
 
   /**
-   * Busca un refresh token por su string completo
-   * @param {string} token - Token JWT
-   * @returns {Promise<RefreshToken | null>} Token encontrado o null si no existe
+   * Busca un token por su hash seguro.
+   * @param tokenHash Hash SHA-256 del token recibido
    */
-  findByToken(token: string): Promise<RefreshToken | null>;
+  findByTokenHash(tokenHash: string): Promise<RefreshToken | null>;
 
   /**
-   * Revoca un refresh token específico
-   * @param {string} token - Token JWT
-   * @returns {Promise<boolean>} True si se revocó
+   * Busca tokens de una familia específica.
+   * Crítico para implementar "Reuse Detection".
    */
-  revokeToken(token: string): Promise<boolean>;
+  findByFamily(familyId: string): Promise<RefreshToken[]>;
 
   /**
-   * Revoca todos los tokens de una familia (rotación segura)
-   * @param {string} family - ID de la familia de tokens
-   * @returns {Promise<number>} Tokens revocados
+   * Revoca un token específico por ID.
    */
-  revokeTokenFamily(family: string): Promise<number>;
+  revoke(id: string, reason?: string): Promise<void>;
 
   /**
-   * Revoca todos los tokens de un usuario (logout global/cambio contraseña)
-   * @param {string} userId - ID del usuario
-   * @returns {Promise<number>} Tokens revocados
+   * Revoca un token específico buscando por el hash del token.
+   * Alternativa a revoke cuando solo se tiene el token, no el ID.
    */
-  revokeAllUserTokens(userId: string): Promise<number>;
+  revokeToken(token: string): Promise<void>;
 
   /**
-   * Lista los tokens activos de un usuario
-   * Activo = !isRevoked && expiresAt > now
-   * @param {string} userId - ID del usuario
-   * @returns {Promise<RefreshToken[]>} Tokens activos
+   * Revoca toda una familia de tokens (Detección de robo).
+   */
+  revokeFamily(familyId: string, reason?: string): Promise<number>;
+
+  /**
+   * Revoca todos los tokens de un usuario (Logout Global).
+   */
+  revokeAllByUser(userId: string, reason?: string): Promise<number>;
+
+  /**
+   * Obtiene sesiones activas para mostrarlas al usuario.
    */
   findActiveByUser(userId: string): Promise<RefreshToken[]>;
 
   /**
-   * Cuenta los tokens activos de un usuario (para limitar sesiones)
-   * @param {string} userId - ID del usuario
-   * @returns {Promise<number>} Tokens activos
+   * Limpieza de tokens expirados (Job periódico).
    */
-  countActiveByUser(userId: string): Promise<number>;
+  pruneExpired(): Promise<number>;
 
   /**
-   * Elimina tokens expirados o revocados (limpieza periódica)
-   * @returns {Promise<number>} Cantidad eliminada
-   */
-  deleteExpired(): Promise<number>;
-
-  /**
-   * Estadísticas agregadas de los refresh tokens
-   * @returns {Promise<RefreshTokenStats>} Estadísticas para dashboards
+   * Métricas de seguridad.
    */
   getStats(): Promise<RefreshTokenStats>;
 }

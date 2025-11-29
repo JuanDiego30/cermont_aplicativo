@@ -1,36 +1,50 @@
+import { WorkPlanStatus } from './WorkPlanStatus.js';
+
+// Re-exportar para uso externo
+export { WorkPlanStatus };
+
+// Interfaces de Componentes (Reutilizadas del UseCase de CreateWorkPlan para consistencia)
+export interface Material { name: string; quantity: number; unitCost: number; }
+export interface Tool { name: string; quantity: number; }
+export interface Equipment { name: string; certification?: string; }
+export interface PPE { name: string; quantity: number; }
+export interface ChecklistItem { item: string; completed: boolean; }
+
 /**
- * Estados posibles de un plan de trabajo
+ * Análisis de Seguridad en el Trabajo (AST)
+ * Define riesgos y controles por actividad específica.
  */
-export enum WorkPlanStatus {
-  DRAFT = 'DRAFT',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
+export interface ActivityRiskAnalysis {
+  activity: string;
+  risks: string[];
+  controls: string[];
 }
 
 /**
- * Item de presupuesto detallado
+ * Análisis de Riesgos Generales del Sitio/Entorno
+ * (Diferente del AST que es por actividad)
  */
-export interface WorkPlanBudgetLine {
+export interface SiteRiskAnalysis {
+  hazard: string;      // Peligro (ej: Altura)
+  risk: string;        // Riesgo (ej: Caída)
+  controls: string;    // Medida de control
+}
+
+export interface BudgetLine {
   category: string;
   description?: string;
   amount: number;
 }
 
-/**
- * Tarea o hitos incluidos en el plan
- */
-export interface WorkPlanTask {
+export interface Task {
   description: string;
   owner: string;
   scheduledDate: Date;
-  estimatedHours?: number;
   completed: boolean;
+  estimatedHours?: number;
 }
 
-/**
- * Archivo o documento asociado al plan
- */
-export interface WorkPlanAttachment {
+export interface Attachment {
   id: string;
   name: string;
   url: string;
@@ -38,104 +52,71 @@ export interface WorkPlanAttachment {
   uploadedAt: Date;
 }
 
-/**
- * Reunión de seguridad vinculada al plan
- */
-export interface WorkPlanSafetyMeeting {
-  topic: string;
-  facilitator: string;
-  heldAt: Date;
-  notes?: string;
-}
-
-/**
- * Material requerido en el plan de trabajo
- */
-export interface WorkPlanMaterial {
-  name: string;
-  quantity: number;
-  unitCost: number;
-}
-
-/**
- * Herramienta requerida en el plan de trabajo
- */
-export interface WorkPlanTool {
-  name: string;
-  quantity: number;
-}
-
-/**
- * Equipo requerido en el plan de trabajo
- */
-export interface WorkPlanEquipment {
-  name: string;
-  certification?: string;
-}
-
-/**
- * Elemento de protección personal (EPP)
- */
-export interface WorkPlanPPE {
-  name: string;
-  quantity: number;
-}
-
-/**
- * Análisis Seguro de Trabajo (AST)
- */
-export interface WorkPlanAST {
-  activity: string;
-  risks: string[];
-  controls: string[];
-}
-
-/**
- * Item de checklist del plan de trabajo
- */
-export interface WorkPlanChecklistItem {
-  item: string;
-  completed: boolean;
+export interface ExecutionWindow {
+  start: Date;
+  end: Date;
 }
 
 /**
  * Entidad: Plan de Trabajo
- * Representa la planificación de recursos, seguridad y presupuesto para una orden
+ * Define la estrategia operativa para ejecutar una orden.
  */
-export interface WorkPlan extends Record<string, unknown> {
+export interface WorkPlan {
   id: string;
   orderId: string;
   status: WorkPlanStatus;
-  materials: WorkPlanMaterial[];
-  tools: WorkPlanTool[];
-  equipment: WorkPlanEquipment[];
-  ppe: WorkPlanPPE[];
-  asts: WorkPlanAST[];
-  checklists: WorkPlanChecklistItem[];
+
+  // --- Recursos ---
+  materials: Material[];
+  tools: Tool[];
+  equipment: Equipment[];
+  ppe: PPE[];
+
+  // --- Seguridad ---
+  asts: ActivityRiskAnalysis[];         // Específico de actividades
+  riskAnalysis?: SiteRiskAnalysis[];    // General del entorno
+  checklists: ChecklistItem[];
+  safetyMeetings?: Array<{
+    topic: string;
+    facilitator: string;
+    heldAt: Date;
+    notes?: string;
+  }>;
+
+  // --- Planificación ---
+  tasks?: Task[];
+  assignedTeam?: string; // Opcional, si difiere de la orden
+  
+  // Ventanas de tiempo
+  plannedWindow?: ExecutionWindow;
+  actualWindow?: ExecutionWindow;
+
+  // --- Finanzas ---
+  /** Presupuesto total estimado (debe coincidir con la suma de materials + breakdown) */
   estimatedBudget: number;
-  budgetBreakdown?: WorkPlanBudgetLine[];
-  tasks?: WorkPlanTask[];
-  attachments?: WorkPlanAttachment[];
-  safetyMeetings?: WorkPlanSafetyMeeting[];
-  assignedTeam?: string;
-  plannedStart?: Date;
-  plannedEnd?: Date;
-  actualStart?: Date;
-  actualEnd?: Date;
+  budgetBreakdown?: BudgetLine[];
+
+  // --- Documentación ---
+  attachments?: Attachment[];
   notes?: string;
+
+  // --- Ciclo de Aprobación ---
+  approval?: {
+    by: string;
+    at: Date;
+    comments?: string;
+  };
+
+  rejection?: {
+    by: string;
+    at: Date;
+    reason: string;
+  };
+
+  // --- Auditoría ---
   createdBy: string;
-  
-  // === Campos de aprobación ===
-  approvedBy?: string;
-  approvedAt?: Date;
-  approvalComments?: string;
-  
-  // === Campos de rechazo ===
-  rejectedBy?: string;
-  rejectedAt?: Date;
-  rejectionReason?: string;
-  
   createdAt: Date;
   updatedAt: Date;
 }
+
 
