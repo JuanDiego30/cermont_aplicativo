@@ -2,16 +2,19 @@ import { Router } from 'express';
 import { authenticate } from '../../../shared/middlewares/authenticate.js';
 import { authorize } from '../../../shared/middlewares/authorize.js';
 import { PERMISSIONS } from '../../../shared/constants/permissions.js';
-import { JobScheduler } from '../../../jobs/JobScheduler.js';
+import { JobScheduler } from '../../scheduler/JobScheduler.js';
 
 const router = Router();
+
+// Middleware global para jobs
+router.use(authenticate);
 
 /**
  * @route   GET /api/jobs/status
  * @desc    Obtener estado de todos los jobs
  * @access  Private (Admin only)
  */
-router.get('/status', authenticate, authorize([PERMISSIONS.ADMIN_FULL_ACCESS]), (req, res) => {
+router.get('/status', authorize([PERMISSIONS.ADMIN_FULL_ACCESS]), (req, res) => {
   try {
     const status = JobScheduler.getStatus();
     res.json({
@@ -33,9 +36,12 @@ router.get('/status', authenticate, authorize([PERMISSIONS.ADMIN_FULL_ACCESS]), 
  * @desc    Ejecutar un job manualmente
  * @access  Private (Admin only)
  */
-router.post('/:jobName/run', authenticate, authorize([PERMISSIONS.ADMIN_FULL_ACCESS]), async (req, res) => {
+router.post('/:jobName/run', authorize([PERMISSIONS.ADMIN_FULL_ACCESS]), async (req, res) => {
   try {
     const { jobName } = req.params;
+    
+    // Validar jobName si es necesario para evitar ejecución arbitraria
+    
     const result = await JobScheduler.runJob(jobName);
 
     res.json({

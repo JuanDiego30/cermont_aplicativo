@@ -13,147 +13,227 @@
 import bcrypt from 'bcrypt';
 import type { IUserRepository } from '../../../domain/repositories/IUserRepository.js';
 import type { IAuditLogRepository } from '../../../domain/repositories/IAuditLogRepository.js';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { auditLogRepository } from '../../../infra/db/repositories/AuditLogRepository.js';
 import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import type { User } from '../../../domain/entities/User.js';
+
+// Constantes de configuración
+const PASSWORD_POLICY = {
+  MIN_LENGTH: 8,
+  HISTORY_SIZE: 5,
+  EXPIRATION_DAYS: 90,
+  BCRYPT_SALT_ROUNDS: 10,
+} as const;
+
+const PASSWORD_REQUIREMENTS = {
+  UPPERCASE: /[A-Z]/,
+  LOWERCASE: /[a-z]/,
+  DIGIT: /[0-9]/,
+  SPECIAL_CHAR: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/,
+  WHITESPACE: /\s/,
+} as const;
+
+const ERROR_MESSAGES = {
+  USER_NOT_FOUND: 'Usuario no encontrado',
+  INVALID_CURRENT_PASSWORD: 'Contraseña actual incorrecta',
+  MIN_LENGTH: `La nueva contraseña debe tener al menos ${PASSWORD_POLICY.MIN_LENGTH} caracteres`,
+  REQUIRES_UPPERCASE: 'La contraseña debe contener al menos una letra mayúscula',
+  REQUIRES_LOWERCASE: 'La contraseña debe contener al menos una letra minúscula',
+  REQUIRES_DIGIT: 'La contraseña debe contener al menos un número',
+  REQUIRES_SPECIAL: 'La contraseña debe contener al menos un carácter especial',
+  NO_WHITESPACE: 'La contraseña no debe contener espacios',
+  PASSWORD_REUSED: `No puedes reutilizar contraseñas anteriores (últimas ${PASSWORD_POLICY.HISTORY_SIZE})`,
+  SAME_AS_CURRENT: 'La nueva contraseña no puede ser igual a la actual',
+} as const;
+
+const DEFAULT_AUDIT_VALUES = {
+  IP: 'unknown',
+  USER_AGENT: 'unknown',
+} as const;
 
 interface ChangePasswordInput {
   userId: string;
   oldPassword: string;
   newPassword: string;
-  ip?: string;           // ← Agregado para auditoría
-  userAgent?: string;    // ← Agregado para auditoría
+  ip?: string;
+  userAgent?: string;
+}
+
+interface PasswordValidationRule {
+  test: (password: string) => boolean;
+  errorMessage: string;
 }
 
 export class ChangePasswordUseCase {
   constructor(
-    private userRepository: IUserRepository,
-    private auditLogRepository: IAuditLogRepository
+    private readonly userRepository: IUserRepository,
+    private readonly auditLogRepository: IAuditLogRepository
   ) {}
 
   async execute(input: ChangePasswordInput): Promise<void> {
     const { userId, oldPassword, newPassword, ip, userAgent } = input;
 
-    // 1. Buscar usuario
+    const user = await this.findUser(userId);
+    await this.verifyCurrentPassword(user, oldPassword, userId, ip, userAgent);
+    
+    this.validateNewPassword(newPassword);
+    await this.ensurePasswordNotReused(user, newPassword);
+
+    const hashedPassword = await this.hashPassword(newPassword);
+    const updatedHistory = this.buildPasswordHistory(user);
+    const passwordExpiresAt = this.calculateExpirationDate();
+
+    await this.updateUserPassword(userId, hashedPassword, updatedHistory, passwordExpiresAt);
+    await this.logSuccessfulChange(user, userId, passwordExpiresAt, ip, userAgent);
+  }
+
+  private async findUser(userId: string): Promise<User> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
-      throw new Error('Usuario no encontrado');
+      throw new Error(ERROR_MESSAGES.USER_NOT_FOUND);
     }
+    return user;
+  }
 
-    // 2. Verificar contraseña actual
+  private async verifyCurrentPassword(
+    user: User,
+    oldPassword: string,
+    userId: string,
+    ip?: string,
+    userAgent?: string
+  ): Promise<void> {
     const isValidPassword = await bcrypt.compare(oldPassword, user.password);
+    
     if (!isValidPassword) {
-      // Registrar intento fallido
-      await this.auditLogRepository.create({
-        entityType: 'User',
-        entityId: userId,
-        action: AuditAction.PASSWORD_CHANGE_FAILED,  // ← Usar enum
-        userId,
-        before: null,
-        after: null,
-        ip: ip || 'unknown',
-        userAgent: userAgent || 'unknown',
-        reason: 'Contraseña actual incorrecta',
-      });
-
-      throw new Error('Contraseña actual incorrecta');
+      await this.logFailedAttempt(userId, ip, userAgent);
+      throw new Error(ERROR_MESSAGES.INVALID_CURRENT_PASSWORD);
     }
+  }
 
-    // 3. Validar nueva contraseña
-    this.validatePassword(newPassword);
-
-    // 4. Verificar historial (no reutilizar contraseñas anteriores)
-    await this.checkPasswordHistory(user, newPassword);
-
-    // 5. Hashear nueva contraseña
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    // 6. Preparar historial actualizado
-    const passwordHistory = user.passwordHistory || [];
-    const updatedHistory = [...passwordHistory.slice(-4), user.password]; // Últimas 5
-
-    // 7. Actualizar contraseña en la base de datos
-    await this.userRepository.update(userId, {
-      password: hashedPassword,
-      passwordHistory: updatedHistory,
-      lastPasswordChange: new Date(),
-      passwordExpiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 días
-    });
-
-    // 8. Registrar cambio exitoso en auditoría
+  private async logFailedAttempt(
+    userId: string,
+    ip?: string,
+    userAgent?: string
+  ): Promise<void> {
     await this.auditLogRepository.create({
       entityType: 'User',
       entityId: userId,
-      action: AuditAction.PASSWORD_CHANGE,  // ← Usar enum
+      action: AuditAction.PASSWORD_CHANGE_FAILED,
       userId,
-      before: { 
-        lastPasswordChange: user.lastPasswordChange,
-        passwordExpiresAt: user.passwordExpiresAt,
-      },
-      after: { 
-        message: 'Contraseña actualizada exitosamente',
-        lastPasswordChange: new Date(),
-        passwordExpiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-      },
-      ip: ip || 'unknown',
-      userAgent: userAgent || 'unknown',
+      before: null,
+      after: null,
+      ip: ip || DEFAULT_AUDIT_VALUES.IP,
+      userAgent: userAgent || DEFAULT_AUDIT_VALUES.USER_AGENT,
+      reason: ERROR_MESSAGES.INVALID_CURRENT_PASSWORD,
     });
   }
 
-  /**
-   * Validar complejidad de la nueva contraseña
-   */
-  private validatePassword(password: string): void {
-    // Longitud mínima
-    if (password.length < 8) {
-      throw new Error('La nueva contraseña debe tener al menos 8 caracteres');
-    }
+  private validateNewPassword(password: string): void {
+    const validationRules: PasswordValidationRule[] = [
+      {
+        test: (pwd) => pwd.length >= PASSWORD_POLICY.MIN_LENGTH,
+        errorMessage: ERROR_MESSAGES.MIN_LENGTH,
+      },
+      {
+        test: (pwd) => PASSWORD_REQUIREMENTS.UPPERCASE.test(pwd),
+        errorMessage: ERROR_MESSAGES.REQUIRES_UPPERCASE,
+      },
+      {
+        test: (pwd) => PASSWORD_REQUIREMENTS.LOWERCASE.test(pwd),
+        errorMessage: ERROR_MESSAGES.REQUIRES_LOWERCASE,
+      },
+      {
+        test: (pwd) => PASSWORD_REQUIREMENTS.DIGIT.test(pwd),
+        errorMessage: ERROR_MESSAGES.REQUIRES_DIGIT,
+      },
+      {
+        test: (pwd) => PASSWORD_REQUIREMENTS.SPECIAL_CHAR.test(pwd),
+        errorMessage: ERROR_MESSAGES.REQUIRES_SPECIAL,
+      },
+      {
+        test: (pwd) => !PASSWORD_REQUIREMENTS.WHITESPACE.test(pwd),
+        errorMessage: ERROR_MESSAGES.NO_WHITESPACE,
+      },
+    ];
 
-    // Debe contener al menos una mayúscula
-    if (!/[A-Z]/.test(password)) {
-      throw new Error('La contraseña debe contener al menos una letra mayúscula');
-    }
-
-    // Debe contener al menos una minúscula
-    if (!/[a-z]/.test(password)) {
-      throw new Error('La contraseña debe contener al menos una letra minúscula');
-    }
-
-    // Debe contener al menos un número
-    if (!/[0-9]/.test(password)) {
-      throw new Error('La contraseña debe contener al menos un número');
-    }
-
-    // Debe contener al menos un carácter especial
-    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-      throw new Error('La contraseña debe contener al menos un carácter especial');
-    }
-
-    // No debe contener espacios
-    if (/\s/.test(password)) {
-      throw new Error('La contraseña no debe contener espacios');
+    for (const rule of validationRules) {
+      if (!rule.test(password)) {
+        throw new Error(rule.errorMessage);
+      }
     }
   }
 
-  /**
-   * Verificar que no se reutilice una contraseña anterior
-   */
-  private async checkPasswordHistory(user: any, newPassword: string): Promise<void> {
-    const passwordHistory = user.passwordHistory || [];
+  private async ensurePasswordNotReused(user: User, newPassword: string): Promise<void> {
+    const passwordHistory = user.security?.passwordHistory || [];
 
-    // Verificar contra las últimas 5 contraseñas
     for (const oldHash of passwordHistory) {
       const isRepeated = await bcrypt.compare(newPassword, oldHash);
       if (isRepeated) {
-        throw new Error('No puedes reutilizar contraseñas anteriores (últimas 5)');
+        throw new Error(ERROR_MESSAGES.PASSWORD_REUSED);
       }
     }
 
-    // También verificar contra la contraseña actual
     const isCurrentPassword = await bcrypt.compare(newPassword, user.password);
     if (isCurrentPassword) {
-      throw new Error('La nueva contraseña no puede ser igual a la actual');
+      throw new Error(ERROR_MESSAGES.SAME_AS_CURRENT);
     }
   }
+
+  private async hashPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, PASSWORD_POLICY.BCRYPT_SALT_ROUNDS);
+  }
+
+  private buildPasswordHistory(user: User): string[] {
+    const passwordHistory = user.security?.passwordHistory || [];
+    const historyLimit = PASSWORD_POLICY.HISTORY_SIZE - 1;
+    return [...passwordHistory.slice(-historyLimit), user.password];
+  }
+
+  private calculateExpirationDate(): Date {
+    const millisecondsPerDay = 24 * 60 * 60 * 1000;
+    return new Date(Date.now() + PASSWORD_POLICY.EXPIRATION_DAYS * millisecondsPerDay);
+  }
+
+  private async updateUserPassword(
+    userId: string,
+    hashedPassword: string,
+    updatedHistory: string[],
+    passwordExpiresAt: Date
+  ): Promise<void> {
+    await this.userRepository.update(userId, {
+      password: hashedPassword,
+      security: {
+        passwordHistory: updatedHistory,
+      },
+      lastPasswordChange: new Date(),
+      passwordExpiresAt,
+    });
+  }
+
+  private async logSuccessfulChange(
+    user: User,
+    userId: string,
+    passwordExpiresAt: Date,
+    ip?: string,
+    userAgent?: string
+  ): Promise<void> {
+    await this.auditLogRepository.create({
+      entityType: 'User',
+      entityId: userId,
+      action: AuditAction.PASSWORD_CHANGE,
+      userId,
+      before: {
+        lastPasswordChange: user.lastPasswordChange,
+        passwordExpiresAt: user.passwordExpiresAt,
+      },
+      after: {
+        message: 'Contraseña actualizada exitosamente',
+        lastPasswordChange: new Date(),
+        passwordExpiresAt,
+      },
+      ip: ip || DEFAULT_AUDIT_VALUES.IP,
+      userAgent: userAgent || DEFAULT_AUDIT_VALUES.USER_AGENT,
+    });
+  }
 }
+
 

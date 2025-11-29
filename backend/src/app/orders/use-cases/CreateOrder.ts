@@ -1,352 +1,331 @@
+/**
+ * Use Case: Crear orden de trabajo
+ * 
+ * Crea una nueva orden de trabajo en estado SOLICITUD.
+ * 
+ * Validaciones:
+ * - Campos requeridos: clientName, description, location, createdBy
+ * - Longitudes mínimas y máximas configurables
+ * - Email y teléfono opcionales con formato válido
+ * - Fecha estimada no puede ser pasada ni más de 2 años futura
+ * 
+ * @file backend/src/app/orders/use-cases/CreateOrder.ts
+ */
+
 import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
 import type { Order } from '../../../domain/entities/Order.js';
 import { OrderState } from '../../../domain/entities/Order.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { logger } from '../../../shared/utils/logger.js';
+import { generateUniqueId } from '../../../shared/utils/generateUniqueId.js';
 
-/**
- * Error personalizado para operaciones de creación de orden
- * Incluye código de error y status HTTP para manejo consistente
- * @class OrderCreationError
- * @extends {Error}
- */
-export class OrderCreationError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-    public readonly statusCode: number
-  ) {
-    super(message);
-    this.name = 'OrderCreationError';
-    Error.captureStackTrace?.(this, this.constructor);
-  }
-}
+const VALIDATION_LIMITS = {
+  CLIENT_NAME: { min: 3, max: 100 },
+  DESCRIPTION: { min: 10, max: 1000 },
+  LOCATION: { min: 5, max: 200 },
+  NOTES: { min: 0, max: 500 },
+  CLIENT_EMAIL: { max: 100 },
+  CLIENT_PHONE: { min: 7, max: 20 },
+} as const;
 
-/**
- * DTO para crear una nueva orden
- * @interface CreateOrderDto
- */
-export interface CreateOrderDto {
-  /** Nombre del cliente (3-100 caracteres) */
+const DATE_LIMITS = {
+  MAX_FUTURE_YEARS: 2,
+} as const;
+
+const PATTERNS = {
+  EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  PHONE: /^\+?[\d\s\-\(\)]{7,20}$/,
+  CLIENT_NAME: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s.,'&\-]+$/,
+} as const;
+
+const ERROR_MESSAGES = {
+  MISSING_CLIENT_NAME: 'El nombre del cliente es requerido',
+  CLIENT_NAME_TOO_SHORT: `El nombre del cliente debe tener al menos ${VALIDATION_LIMITS.CLIENT_NAME.min} caracteres`,
+  CLIENT_NAME_TOO_LONG: `El nombre del cliente no puede exceder ${VALIDATION_LIMITS.CLIENT_NAME.max} caracteres`,
+  CLIENT_NAME_INVALID_CHARS: 'El nombre del cliente contiene caracteres no permitidos',
+  MISSING_DESCRIPTION: 'La descripción es requerida',
+  DESCRIPTION_TOO_SHORT: `La descripción debe tener al menos ${VALIDATION_LIMITS.DESCRIPTION.min} caracteres`,
+  DESCRIPTION_TOO_LONG: `La descripción no puede exceder ${VALIDATION_LIMITS.DESCRIPTION.max} caracteres`,
+  MISSING_LOCATION: 'La ubicación es requerida',
+  LOCATION_TOO_SHORT: `La ubicación debe tener al menos ${VALIDATION_LIMITS.LOCATION.min} caracteres`,
+  LOCATION_TOO_LONG: `La ubicación no puede exceder ${VALIDATION_LIMITS.LOCATION.max} caracteres`,
+  MISSING_CREATED_BY: 'El ID del usuario creador es requerido',
+  INVALID_EMAIL: 'El email del cliente no es válido',
+  INVALID_PHONE: 'El teléfono del cliente no es válido',
+  PHONE_TOO_SHORT: `El teléfono debe tener al menos ${VALIDATION_LIMITS.CLIENT_PHONE.min} dígitos`,
+  PHONE_TOO_LONG: `El teléfono no puede exceder ${VALIDATION_LIMITS.CLIENT_PHONE.max} caracteres`,
+  NOTES_TOO_LONG: `Las notas no pueden exceder ${VALIDATION_LIMITS.NOTES.max} caracteres`,
+  INVALID_DATE: 'La fecha estimada de inicio no es válida',
+  DATE_IN_PAST: 'La fecha estimada de inicio no puede ser en el pasado',
+  DATE_TOO_FAR: `La fecha estimada no puede ser más de ${DATE_LIMITS.MAX_FUTURE_YEARS} años en el futuro`,
+} as const;
+
+const LOG_CONTEXT = {
+  USE_CASE: '[CreateOrderUseCase]',
+} as const;
+
+interface CreateOrderInput {
   clientName: string;
-  /** Descripción del trabajo (10-1000 caracteres) */
   description: string;
-  /** Ubicación física del trabajo (5-200 caracteres) */
   location: string;
-  /** ID del usuario que crea la orden */
   createdBy: string;
-  /** Email de contacto del cliente (opcional, formato válido) */
+  responsibleId?: string; // Opcional: técnico asignado desde el inicio
   clientEmail?: string;
-  /** Teléfono de contacto del cliente (opcional) */
   clientPhone?: string;
-  /** Fecha estimada de inicio (opcional, no puede ser pasada) */
   estimatedStartDate?: Date;
-  /** Notas adicionales (opcional, máx. 500 caracteres) */
   notes?: string;
+  ip?: string;
+  userAgent?: string;
 }
 
-/**
- * Configuración de límites de validación
- */
-interface ValidationLimits {
-  min: number;
-  max: number;
+interface AuditContext {
+  ip: string;
+  userAgent: string;
 }
 
-/**
- * Caso de uso: Crear una nueva orden de trabajo
- * Valida todos los campos y crea la orden en estado SOLICITUD
- * @class CreateOrder
- * @since 1.0.0
- */
-export class CreateOrder {
-  // Configuración de límites de longitud
-  private static readonly LENGTH_LIMITS = {
-    CLIENT_NAME: { min: 3, max: 100 } as ValidationLimits,
-    DESCRIPTION: { min: 10, max: 1000 } as ValidationLimits,
-    LOCATION: { min: 5, max: 200 } as ValidationLimits,
-    NOTES: { min: 0, max: 500 } as ValidationLimits,
-  } as const;
+export class CreateOrderUseCase {
+  constructor(
+    private readonly orderRepository: IOrderRepository,
+    private readonly auditService: AuditService
+  ) {}
 
-  // Configuración de fechas
-  private static readonly MAX_FUTURE_YEARS = 2;
+  async execute(input: CreateOrderInput): Promise<Order> {
+    this.validateInput(input);
 
-  // Expresiones regulares
-  private static readonly PATTERNS = {
-    EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    PHONE: /^[\+]?[(]?[0-9]{1,4}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,9}$/,
-    CLIENT_NAME: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s.,-]+$/,
-  } as const;
+    const orderNumber = await this.generateOrderNumber();
+    const orderData = this.buildOrderData(input, orderNumber);
 
-  constructor(private readonly orderRepository: IOrderRepository) {}
+    const createdOrder = await this.createOrder(orderData);
 
-  /**
-   * Ejecuta la creación de una orden
-   * @param {CreateOrderDto} dto - Datos de la orden a crear
-   * @returns {Promise<Order>} Orden creada con estado SOLICITUD
-   * @throws {OrderCreationError} Si hay errores de validación o creación
-   */
-  async execute(dto: CreateOrderDto): Promise<Order> {
-    try {
-      this.validateDto(dto);
+    const auditContext = this.extractAuditContext(input);
+    await this.logOrderCreation(createdOrder, input.createdBy, auditContext);
 
-      const orderData = this.buildOrderData(dto);
-      const createdOrder = await this.orderRepository.create(orderData);
+    logger.info(`${LOG_CONTEXT.USE_CASE} Orden creada exitosamente`, {
+      orderId: createdOrder.id,
+      orderNumber: createdOrder.orderNumber,
+      clientName: createdOrder.clientName,
+      createdBy: input.createdBy,
+    });
 
-      console.info(
-        `[CreateOrder] 📋 Orden creada: ${createdOrder.id} por ${dto.createdBy} (cliente: ${dto.clientName})`
-      );
+    return createdOrder;
+  }
 
-      return createdOrder;
-    } catch (error) {
-      if (error instanceof OrderCreationError) {
-        throw error;
-      }
+  private validateInput(input: CreateOrderInput): void {
+    this.validateClientName(input.clientName);
+    this.validateDescription(input.description);
+    this.validateLocation(input.location);
+    this.validateCreatedBy(input.createdBy);
 
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
-      console.error('[CreateOrder] Error inesperado:', errorMessage);
+    if (input.clientEmail) {
+      this.validateEmail(input.clientEmail);
+    }
 
-      throw new OrderCreationError(
-        `Error interno al crear la orden: ${errorMessage}`,
-        'INTERNAL_ERROR',
-        500
-      );
+    if (input.clientPhone) {
+      this.validatePhone(input.clientPhone);
+    }
+
+    if (input.estimatedStartDate) {
+      this.validateEstimatedDate(input.estimatedStartDate);
+    }
+
+    if (input.notes) {
+      this.validateNotes(input.notes);
     }
   }
 
-  /**
-   * Construye el objeto de datos de la orden
-   * @private
-   * @param {CreateOrderDto} dto - DTO con los datos
-   * @returns {Omit<Order, 'id'>} Datos de la orden para crear
-   */
-  private buildOrderData(dto: CreateOrderDto): Omit<Order, 'id' | 'createdAt' | 'updatedAt' | 'orderNumber'> {
-    return {
-      clientName: dto.clientName.trim(),
-      description: dto.description.trim(),
-      location: dto.location.trim(),
-      state: OrderState.SOLICITUD,
-      responsibleId: dto.createdBy,
-      createdBy: dto.createdBy,
-      archived: false,
-      ...(dto.clientEmail && { clientEmail: dto.clientEmail.trim().toLowerCase() }),
-      ...(dto.clientPhone && { clientPhone: dto.clientPhone.trim() }),
-      ...(dto.estimatedStartDate && {
-        estimatedStartDate: new Date(dto.estimatedStartDate),
-      }),
-      ...(dto.notes && { notes: dto.notes.trim() }),
-    };
-  }
-
-  /**
-   * Valida el DTO completo
-   * @private
-   * @param {CreateOrderDto} dto - DTO a validar
-   * @throws {OrderCreationError} Si alguna validación falla
-   */
-  private validateDto(dto: CreateOrderDto): void {
-    // Validaciones requeridas
-    this.validateStringField(
-      dto.clientName,
-      'clientName',
-      'El nombre del cliente',
-      CreateOrder.LENGTH_LIMITS.CLIENT_NAME,
-      CreateOrder.PATTERNS.CLIENT_NAME
-    );
-
-    this.validateStringField(
-      dto.description,
-      'description',
-      'La descripción',
-      CreateOrder.LENGTH_LIMITS.DESCRIPTION
-    );
-
-    this.validateStringField(
-      dto.location,
-      'location',
-      'La ubicación',
-      CreateOrder.LENGTH_LIMITS.LOCATION
-    );
-
-    this.validateCreatedBy(dto.createdBy);
-
-    // Validaciones opcionales
-    if (dto.clientEmail) {
-      this.validateEmail(dto.clientEmail);
+  private validateClientName(clientName: unknown): void {
+    if (!clientName || typeof clientName !== 'string') {
+      throw new Error(ERROR_MESSAGES.MISSING_CLIENT_NAME);
     }
 
-    if (dto.clientPhone) {
-      this.validatePhone(dto.clientPhone);
+    const trimmed = clientName.trim();
+
+    if (trimmed.length < VALIDATION_LIMITS.CLIENT_NAME.min) {
+      throw new Error(ERROR_MESSAGES.CLIENT_NAME_TOO_SHORT);
     }
 
-    if (dto.estimatedStartDate) {
-      this.validateEstimatedDate(dto.estimatedStartDate);
+    if (trimmed.length > VALIDATION_LIMITS.CLIENT_NAME.max) {
+      throw new Error(ERROR_MESSAGES.CLIENT_NAME_TOO_LONG);
     }
 
-    if (dto.notes && dto.notes.length > CreateOrder.LENGTH_LIMITS.NOTES.max) {
-      throw new OrderCreationError(
-        `Las notas no pueden exceder ${CreateOrder.LENGTH_LIMITS.NOTES.max} caracteres`,
-        'NOTES_TOO_LONG',
-        400
-      );
+    if (!PATTERNS.CLIENT_NAME.test(trimmed)) {
+      throw new Error(ERROR_MESSAGES.CLIENT_NAME_INVALID_CHARS);
     }
   }
 
-  /**
-   * Valida un campo de texto con límites de longitud y patrón opcional
-   * @private
-   * @param {string} value - Valor a validar
-   * @param {string} fieldCode - Código del campo (para error code)
-   * @param {string} displayName - Nombre para mostrar al usuario
-   * @param {ValidationLimits} limits - Límites min/max de longitud
-   * @param {RegExp} [pattern] - Patrón regex opcional
-   * @throws {OrderCreationError} Si el campo es inválido
-   */
-  private validateStringField(
-    value: string,
-    fieldCode: string,
-    displayName: string,
-    limits: ValidationLimits,
-    pattern?: RegExp
-  ): void {
-    if (!value || typeof value !== 'string') {
-      throw new OrderCreationError(
-        `${displayName} es requerido`,
-        `INVALID_${fieldCode.toUpperCase()}`,
-        400
-      );
+  private validateDescription(description: unknown): void {
+    if (!description || typeof description !== 'string') {
+      throw new Error(ERROR_MESSAGES.MISSING_DESCRIPTION);
     }
 
-    const trimmed = value.trim();
+    const trimmed = description.trim();
 
-    if (trimmed.length < limits.min) {
-      throw new OrderCreationError(
-        `${displayName} debe tener al menos ${limits.min} caracteres`,
-        `${fieldCode.toUpperCase()}_TOO_SHORT`,
-        400
-      );
+    if (trimmed.length < VALIDATION_LIMITS.DESCRIPTION.min) {
+      throw new Error(ERROR_MESSAGES.DESCRIPTION_TOO_SHORT);
     }
 
-    if (trimmed.length > limits.max) {
-      throw new OrderCreationError(
-        `${displayName} no puede exceder ${limits.max} caracteres`,
-        `${fieldCode.toUpperCase()}_TOO_LONG`,
-        400
-      );
-    }
-
-    if (pattern && !pattern.test(trimmed)) {
-      throw new OrderCreationError(
-        `${displayName} contiene caracteres no permitidos`,
-        `INVALID_${fieldCode.toUpperCase()}_CHARS`,
-        400
-      );
+    if (trimmed.length > VALIDATION_LIMITS.DESCRIPTION.max) {
+      throw new Error(ERROR_MESSAGES.DESCRIPTION_TOO_LONG);
     }
   }
 
-  /**
-   * Valida el ID del usuario creador
-   * @private
-   * @param {string} createdBy - ID de usuario a validar
-   * @throws {OrderCreationError} Si el ID es inválido
-   */
-  private validateCreatedBy(createdBy: string): void {
+  private validateLocation(location: unknown): void {
+    if (!location || typeof location !== 'string') {
+      throw new Error(ERROR_MESSAGES.MISSING_LOCATION);
+    }
+
+    const trimmed = location.trim();
+
+    if (trimmed.length < VALIDATION_LIMITS.LOCATION.min) {
+      throw new Error(ERROR_MESSAGES.LOCATION_TOO_SHORT);
+    }
+
+    if (trimmed.length > VALIDATION_LIMITS.LOCATION.max) {
+      throw new Error(ERROR_MESSAGES.LOCATION_TOO_LONG);
+    }
+  }
+
+  private validateCreatedBy(createdBy: unknown): void {
     if (!createdBy || typeof createdBy !== 'string' || createdBy.trim() === '') {
-      throw new OrderCreationError(
-        'El ID del usuario creador es requerido',
-        'INVALID_CREATED_BY',
-        400
-      );
+      throw new Error(ERROR_MESSAGES.MISSING_CREATED_BY);
     }
   }
 
-  /**
-   * Valida el email del cliente usando regex estándar
-   * @private
-   * @param {string} email - Email a validar
-   * @throws {OrderCreationError} Si el email es inválido
-   */
   private validateEmail(email: string): void {
     const normalized = email.trim().toLowerCase();
 
-    if (!CreateOrder.PATTERNS.EMAIL.test(normalized)) {
-      throw new OrderCreationError(
-        'El email del cliente no es válido',
-        'INVALID_CLIENT_EMAIL',
-        400
-      );
+    if (normalized.length > VALIDATION_LIMITS.CLIENT_EMAIL.max) {
+      throw new Error(ERROR_MESSAGES.INVALID_EMAIL);
+    }
+
+    if (!PATTERNS.EMAIL.test(normalized)) {
+      throw new Error(ERROR_MESSAGES.INVALID_EMAIL);
     }
   }
 
-  /**
-   * Valida el teléfono del cliente
-   * Acepta formatos internacionales: +57 300 123 4567, 3001234567, (300) 123-4567
-   * @private
-   * @param {string} phone - Teléfono a validar
-   * @throws {OrderCreationError} Si el teléfono es inválido
-   */
   private validatePhone(phone: string): void {
-    const cleanPhone = phone.trim().replace(/\s/g, '');
+    const cleaned = phone.trim().replace(/\s/g, '');
 
-    if (!CreateOrder.PATTERNS.PHONE.test(cleanPhone)) {
-      throw new OrderCreationError(
-        'El teléfono del cliente no es válido',
-        'INVALID_CLIENT_PHONE',
-        400
-      );
+    if (cleaned.length < VALIDATION_LIMITS.CLIENT_PHONE.min) {
+      throw new Error(ERROR_MESSAGES.PHONE_TOO_SHORT);
+    }
+
+    if (cleaned.length > VALIDATION_LIMITS.CLIENT_PHONE.max) {
+      throw new Error(ERROR_MESSAGES.PHONE_TOO_LONG);
+    }
+
+    if (!PATTERNS.PHONE.test(phone.trim())) {
+      throw new Error(ERROR_MESSAGES.INVALID_PHONE);
     }
   }
 
-  /**
-   * Valida la fecha estimada de inicio
-   * La fecha debe ser válida, no estar en el pasado, y no exceder 2 años
-   * @private
-   * @param {Date} date - Fecha a validar
-   * @throws {OrderCreationError} Si la fecha es inválida
-   */
+  private validateNotes(notes: string): void {
+    if (notes.length > VALIDATION_LIMITS.NOTES.max) {
+      throw new Error(ERROR_MESSAGES.NOTES_TOO_LONG);
+    }
+  }
+
   private validateEstimatedDate(date: Date): void {
     const estimatedDate = this.normalizeDate(new Date(date));
 
     if (Number.isNaN(estimatedDate.getTime())) {
-      throw new OrderCreationError(
-        'La fecha estimada de inicio no es válida',
-        'INVALID_ESTIMATED_DATE',
-        400
-      );
+      throw new Error(ERROR_MESSAGES.INVALID_DATE);
     }
 
     const today = this.normalizeDate(new Date());
 
     if (estimatedDate < today) {
-      throw new OrderCreationError(
-        'La fecha estimada de inicio no puede ser en el pasado',
-        'ESTIMATED_DATE_IN_PAST',
-        400
-      );
+      throw new Error(ERROR_MESSAGES.DATE_IN_PAST);
     }
 
     const maxDate = new Date();
-    maxDate.setFullYear(maxDate.getFullYear() + CreateOrder.MAX_FUTURE_YEARS);
+    maxDate.setFullYear(maxDate.getFullYear() + DATE_LIMITS.MAX_FUTURE_YEARS);
 
     if (estimatedDate > maxDate) {
-      throw new OrderCreationError(
-        `La fecha estimada de inicio no puede ser más de ${CreateOrder.MAX_FUTURE_YEARS} años en el futuro`,
-        'ESTIMATED_DATE_TOO_FAR',
-        400
-      );
+      throw new Error(ERROR_MESSAGES.DATE_TOO_FAR);
     }
   }
 
-  /**
-   * Normaliza una fecha eliminando horas/minutos/segundos
-   * @private
-   * @param {Date} date - Fecha a normalizar
-   * @returns {Date} Fecha normalizada a medianoche
-   */
   private normalizeDate(date: Date): Date {
     const normalized = new Date(date);
     normalized.setHours(0, 0, 0, 0);
     return normalized;
   }
+
+  private async generateOrderNumber(): Promise<string> {
+    const year = new Date().getFullYear();
+    const orderNumber = await this.orderRepository.nextOrderNumber(year);
+    return orderNumber;
+  }
+
+  private buildOrderData(input: CreateOrderInput, orderNumber: string): any {
+    return {
+      orderNumber,
+      clientName: input.clientName.trim(),
+      description: input.description.trim(),
+      location: input.location.trim(),
+      state: OrderState.SOLICITUD,
+      responsibleId: input.responsibleId || null, // null si no hay técnico asignado
+      createdBy: input.createdBy,
+      archived: false,
+      clientEmail: input.clientEmail?.trim().toLowerCase(),
+      clientPhone: input.clientPhone?.trim(),
+      estimatedStartDate: input.estimatedStartDate ? new Date(input.estimatedStartDate) : null,
+      notes: input.notes?.trim() || null,
+    };
+  }
+
+  private async createOrder(orderData: any): Promise<Order> {
+    try {
+      return await this.orderRepository.create(orderData);
+    } catch (error) {
+      logger.error(`${LOG_CONTEXT.USE_CASE} Error creando orden en BD`, {
+        clientName: orderData.clientName,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
+      throw error;
+    }
+  }
+
+  private extractAuditContext(input: CreateOrderInput): AuditContext {
+    return {
+      ip: input.ip || 'unknown',
+      userAgent: input.userAgent || 'unknown',
+    };
+  }
+
+  private async logOrderCreation(
+    order: Order,
+    createdBy: string,
+    auditContext: AuditContext
+  ): Promise<void> {
+    try {
+      await this.auditService.log({
+        entityType: 'Order',
+        entityId: order.id,
+        action: AuditAction.CREATE,
+        userId: createdBy,
+        before: null, // No hay estado anterior en un create
+        after: {
+          orderNumber: order.orderNumber,
+          clientName: order.clientName,
+          location: order.location,
+          state: order.state,
+        },
+        ip: auditContext.ip,
+        userAgent: auditContext.userAgent,
+        reason: 'Orden de trabajo creada',
+      });
+    } catch (error) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Error registrando auditoría (no crítico)`, {
+        orderId: order.id,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
+    }
+  }
 }
+
 
 
 

@@ -1,293 +1,382 @@
+/**
+ * Use Case: Subir evidencia
+ * Resuelve: Validación, almacenamiento y registro de evidencias
+ * 
+ * @file backend/src/app/evidences/use-cases/UploadEvidence.ts
+ */
+
 import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository.js';
 import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
+import type { IFileStorageService } from '../../../domain/services/IFileStorageService.js';
 import { EvidenceStatus, EvidenceType } from '../../../domain/entities/Evidence.js';
 import type { Evidence, EvidenceMetadata, GPSCoordinates } from '../../../domain/entities/Evidence.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { logger } from '../../../shared/utils/logger.js';
+import { generateUniqueId } from '../../../shared/utils/generateUniqueId.js';
 
-/**
- * Error personalizado para operaciones de subida de evidencia
- * Incluye código de error y status HTTP para manejo consistente
- * @class EvidenceUploadError
- * @extends {Error}
- */
-export class EvidenceUploadError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-    public readonly statusCode: number
-  ) {
-    super(message);
-    this.name = 'EvidenceUploadError';
-    Error.captureStackTrace?.(this, this.constructor);
-  }
-}
+const FILE_LIMITS = {
+  MAX_SIZE_PHOTO: 10 * 1024 * 1024, // 10MB
+  MAX_SIZE_VIDEO: 500 * 1024 * 1024, // 500MB
+  MAX_SIZE_DOCUMENT: 50 * 1024 * 1024, // 50MB
+  MAX_SIZE_AUDIO: 50 * 1024 * 1024, // 50MB
+  MAX_SIZE_OTHER: 100 * 1024 * 1024, // 100MB
+  MAX_METADATA_SIZE: 10 * 1024, // 10KB
+} as const;
 
-/**
- * Parámetros para subir una evidencia
- * @interface UploadEvidenceInput
- */
-export interface UploadEvidenceInput {
-  /** ID de la orden a la que pertenece la evidencia */
+const ALLOWED_MIME_TYPES: Record<EvidenceType, readonly string[]> = {
+  [EvidenceType.PHOTO]: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic'],
+  [EvidenceType.VIDEO]: ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo'],
+  [EvidenceType.DOCUMENT]: [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  ],
+  [EvidenceType.AUDIO]: ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg'],
+  [EvidenceType.OTHER]: [], // Permitir cualquier tipo
+} as const;
+
+const GPS_LIMITS = {
+  LAT_MIN: -90,
+  LAT_MAX: 90,
+  LNG_MIN: -180,
+  LNG_MAX: 180,
+} as const;
+
+const ERROR_MESSAGES = {
+  MISSING_ORDER_ID: 'El ID de la orden es requerido',
+  MISSING_STAGE: 'La etapa es requerida',
+  MISSING_FILE: 'El archivo es requerido',
+  MISSING_UPLOADED_BY: 'El ID del usuario es requerido',
+  INVALID_TYPE: (validTypes: string[]) =>
+    `Tipo de evidencia inválido. Tipos válidos: ${validTypes.join(', ')}`,
+  INVALID_FILE_SIZE: 'El tamaño del archivo debe ser un número positivo',
+  ORDER_NOT_FOUND: (id: string) => `Orden ${id} no encontrada`,
+  FILE_TOO_LARGE: (sizeMB: number, maxMB: number) =>
+    `El archivo (${sizeMB}MB) excede el tamaño máximo de ${maxMB}MB para este tipo`,
+  INVALID_FILE_TYPE: (type: EvidenceType, allowed: string[]) =>
+    `Tipo de archivo no permitido para ${type}. Tipos válidos: ${allowed.join(', ')}`,
+  INVALID_GPS_LAT: `Latitud inválida. Debe estar entre ${GPS_LIMITS.LAT_MIN} y ${GPS_LIMITS.LAT_MAX}`,
+  INVALID_GPS_LNG: `Longitud inválida. Debe estar entre ${GPS_LIMITS.LNG_MIN} y ${GPS_LIMITS.LNG_MAX}`,
+  METADATA_TOO_LARGE: `Los metadatos exceden el tamaño máximo de ${FILE_LIMITS.MAX_METADATA_SIZE} bytes`,
+  INVALID_FILE_EXTENSION: (fileName: string, mimeType: string) =>
+    `La extensión del archivo "${fileName}" no coincide con el tipo MIME "${mimeType}"`,
+} as const;
+
+const LOG_CONTEXT = {
+  USE_CASE: '[UploadEvidenceUseCase]',
+} as const;
+
+interface UploadEvidenceInput {
   orderId: string;
-  /** Etapa del trabajo (e.g., "EJECUCION", "CIERRE") */
   stage: string;
-  /** Tipo de archivo (photo, video, document) */
   type: EvidenceType;
-  /** Nombre del archivo original */
-  fileName: string;
-  /** Ruta donde se almacenó el archivo en el servidor */
-  filePath: string;
-  /** Tamaño del archivo en bytes */
-  fileSize: number;
-  /** MIME type del archivo (e.g., "image/jpeg", "video/mp4") */
-  mimeType: string;
-  /** ID del usuario que sube la evidencia */
+  file: {
+    buffer: Buffer;
+    originalName: string;
+    mimeType: string;
+    size: number;
+  };
   uploadedBy: string;
-  /** Metadata opcional adicional */
   metadata?: EvidenceMetadata;
+  ip?: string;
+  userAgent?: string;
 }
 
-/**
- * Caso de uso: Subir una evidencia para una orden
- * Valida y crea un registro de evidencia asociado a una orden de trabajo
- * @class UploadEvidence
- * @since 1.0.0
- */
-export class UploadEvidence {
-  // Límites de tamaño
-  private static readonly MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
-  private static readonly BYTES_PER_MB = 1024 * 1024;
+interface AuditContext {
+  ip: string;
+  userAgent: string;
+}
 
-  // Tipos MIME permitidos por categoría
-  private static readonly ALLOWED_MIME_TYPES: Record<EvidenceType, readonly string[]> = {
-    [EvidenceType.PHOTO]: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
-    [EvidenceType.VIDEO]: ['video/mp4', 'video/webm', 'video/quicktime'],
-    [EvidenceType.DOCUMENT]: [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    ],
-    [EvidenceType.AUDIO]: ['audio/mpeg', 'audio/mp3', 'audio/wav'],
-    [EvidenceType.OTHER]: ['application/octet-stream'],
-  };
-
-  // Límites GPS
-  private static readonly GPS_LIMITS = {
-    LAT_MIN: -90,
-    LAT_MAX: 90,
-    LNG_MIN: -180,
-    LNG_MAX: 180,
-  } as const;
-
+export class UploadEvidenceUseCase {
   constructor(
     private readonly evidenceRepository: IEvidenceRepository,
-    private readonly orderRepository: IOrderRepository
+    private readonly orderRepository: IOrderRepository,
+    private readonly fileStorageService: IFileStorageService,
+    private readonly auditService: AuditService
   ) {}
 
-  /**
-   * Ejecuta la subida de una evidencia
-   * @param {UploadEvidenceInput} input - Datos de la evidencia a subir
-   * @returns {Promise<Evidence>} Evidencia creada con status PENDING
-   * @throws {EvidenceUploadError} Si hay errores de validación o creación
-   */
   async execute(input: UploadEvidenceInput): Promise<Evidence> {
-    try {
-      await this.validateAndPrepareInput(input);
+    this.validateInput(input);
 
-      const evidence = await this.createEvidence(input);
-
-      console.info(
-        `[UploadEvidence] 📤 Evidencia subida: ${evidence.id} por ${input.uploadedBy} (orden: ${input.orderId})`
-      );
-
-      return evidence;
-    } catch (error) {
-      if (error instanceof EvidenceUploadError) {
-        throw error;
-      }
-
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
-      console.error('[UploadEvidence] Error inesperado:', errorMessage);
-
-      throw new EvidenceUploadError(
-        `Error interno al subir la evidencia: ${errorMessage}`,
-        'INTERNAL_ERROR',
-        500
-      );
-    }
-  }
-
-  /**
-   * Valida y prepara el input para la creación de evidencia
-   * @private
-   * @param {UploadEvidenceInput} input - Datos a validar
-   */
-  private async validateAndPrepareInput(input: UploadEvidenceInput): Promise<void> {
-    this.validateRequiredFields(input);
     await this.validateOrder(input.orderId);
-    this.validateFileSize(input.fileSize);
-    
-    const normalizedMimeType = input.mimeType.trim().toLowerCase();
-    this.validateFileType(input.type, normalizedMimeType);
 
-    if (input.metadata?.gps) {
-      this.validateGPS(input.metadata.gps);
-    }
-  }
+    const filePath = await this.uploadFile(input);
+    const evidence = await this.createEvidenceRecord(input, filePath);
 
-  /**
-   * Crea la evidencia en el repositorio
-   * @private
-   * @param {UploadEvidenceInput} input - Datos de la evidencia
-   * @returns {Promise<Evidence>} Evidencia creada
-   */
-  private async createEvidence(input: UploadEvidenceInput): Promise<Evidence> {
-    return this.evidenceRepository.create({
+    const auditContext = this.extractAuditContext(input);
+    await this.logUploadEvent(evidence, input.uploadedBy, auditContext);
+
+    logger.info(`${LOG_CONTEXT.USE_CASE} Evidencia subida exitosamente`, {
+      evidenceId: evidence.id,
       orderId: input.orderId,
-      stage: input.stage.trim(),
-      type: input.type,
-      fileName: input.fileName.trim(),
-      filePath: input.filePath.trim(),
-      fileSize: input.fileSize,
-      mimeType: input.mimeType.trim().toLowerCase(),
-      status: EvidenceStatus.PENDING,
       uploadedBy: input.uploadedBy,
-      version: 1,
-      previousVersions: [],
-      metadata: input.metadata ?? {},
+      type: input.type,
+      fileSize: input.file.size,
     });
+
+    return evidence;
   }
 
-  /**
-   * Valida todos los campos requeridos del input
-   * @private
-   * @param {UploadEvidenceInput} input - Datos a validar
-   * @throws {EvidenceUploadError} Si algún campo es inválido
-   */
-  private validateRequiredFields(input: UploadEvidenceInput): void {
-    const validations: Array<[unknown, string, string]> = [
-      [input.orderId, 'El ID de la orden', 'INVALID_ORDER_ID'],
-      [input.stage, 'La etapa', 'INVALID_STAGE'],
-      [input.fileName, 'El nombre del archivo', 'INVALID_FILE_NAME'],
-      [input.filePath, 'La ruta del archivo', 'INVALID_FILE_PATH'],
-      [input.mimeType, 'El tipo MIME del archivo', 'INVALID_MIME_TYPE'],
-      [input.uploadedBy, 'El ID del usuario que sube', 'INVALID_UPLOADED_BY'],
-    ];
-
-    for (const [value, displayName, errorCode] of validations) {
-      if (!value || typeof value !== 'string' || value.trim() === '') {
-        throw new EvidenceUploadError(`${displayName} es requerido`, errorCode, 400);
-      }
+  private validateInput(input: UploadEvidenceInput): void {
+    if (!input.orderId?.trim()) {
+      throw new Error(ERROR_MESSAGES.MISSING_ORDER_ID);
     }
 
-    // Validar type contra el enum
-    if (!Object.values(EvidenceType).includes(input.type)) {
-      throw new EvidenceUploadError(
-        `Tipo de archivo inválido. Debe ser: ${Object.values(EvidenceType).join(', ')}`,
-        'INVALID_TYPE',
-        400
-      );
+    if (!input.stage?.trim()) {
+      throw new Error(ERROR_MESSAGES.MISSING_STAGE);
     }
 
-    // Validar fileSize
-    if (typeof input.fileSize !== 'number' || input.fileSize <= 0) {
-      throw new EvidenceUploadError(
-        'El tamaño del archivo debe ser un número positivo',
-        'INVALID_FILE_SIZE',
-        400
-      );
+    if (!input.uploadedBy?.trim()) {
+      throw new Error(ERROR_MESSAGES.MISSING_UPLOADED_BY);
+    }
+
+    if (!input.file || !input.file.buffer) {
+      throw new Error(ERROR_MESSAGES.MISSING_FILE);
+    }
+
+    this.validateEvidenceType(input.type);
+    this.validateFile(input.file, input.type);
+
+    if (input.metadata) {
+      this.validateMetadata(input.metadata);
     }
   }
 
-  /**
-   * Valida que la orden existe en el sistema
-   * @private
-   * @param {string} orderId - ID de la orden a validar
-   * @throws {EvidenceUploadError} Si la orden no existe
-   */
+  private validateEvidenceType(type: EvidenceType): void {
+    const validTypes = Object.values(EvidenceType);
+    if (!validTypes.includes(type)) {
+      throw new Error(ERROR_MESSAGES.INVALID_TYPE(validTypes));
+    }
+  }
+
+  private validateFile(
+    file: { buffer: Buffer; originalName: string; mimeType: string; size: number },
+    type: EvidenceType
+  ): void {
+    // Validar tamaño
+    if (typeof file.size !== 'number' || file.size <= 0) {
+      throw new Error(ERROR_MESSAGES.INVALID_FILE_SIZE);
+    }
+
+    const maxSize = this.getMaxFileSizeForType(type);
+    if (file.size > maxSize) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      const maxMB = (maxSize / (1024 * 1024)).toFixed(0);
+      throw new Error(ERROR_MESSAGES.FILE_TOO_LARGE(Number(sizeMB), Number(maxMB)));
+    }
+
+    // Validar MIME type
+    const normalizedMimeType = file.mimeType.trim().toLowerCase();
+    this.validateMimeType(normalizedMimeType, type);
+
+    // Validar extensión coincida con MIME type
+    this.validateFileExtension(file.originalName, normalizedMimeType);
+  }
+
+  private getMaxFileSizeForType(type: EvidenceType): number {
+    switch (type) {
+      case EvidenceType.PHOTO:
+        return FILE_LIMITS.MAX_SIZE_PHOTO;
+      case EvidenceType.VIDEO:
+        return FILE_LIMITS.MAX_SIZE_VIDEO;
+      case EvidenceType.DOCUMENT:
+        return FILE_LIMITS.MAX_SIZE_DOCUMENT;
+      case EvidenceType.AUDIO:
+        return FILE_LIMITS.MAX_SIZE_AUDIO;
+      case EvidenceType.OTHER:
+        return FILE_LIMITS.MAX_SIZE_OTHER;
+      default:
+        return FILE_LIMITS.MAX_SIZE_OTHER;
+    }
+  }
+
+  private validateMimeType(mimeType: string, type: EvidenceType): void {
+    const allowedTypes = ALLOWED_MIME_TYPES[type];
+
+    // OTHER permite cualquier tipo
+    if (type === EvidenceType.OTHER && allowedTypes.length === 0) {
+      return;
+    }
+
+    if (!allowedTypes.includes(mimeType)) {
+      throw new Error(ERROR_MESSAGES.INVALID_FILE_TYPE(type, allowedTypes as string[]));
+    }
+  }
+
+  private validateFileExtension(fileName: string, mimeType: string): void {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    if (!extension) return;
+
+    const mimeToExtension: Record<string, string[]> = {
+      'image/jpeg': ['jpg', 'jpeg'],
+      'image/png': ['png'],
+      'image/webp': ['webp'],
+      'video/mp4': ['mp4'],
+      'video/webm': ['webm'],
+      'application/pdf': ['pdf'],
+      'application/msword': ['doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['docx'],
+    };
+
+    const expectedExtensions = mimeToExtension[mimeType];
+    if (expectedExtensions && !expectedExtensions.includes(extension)) {
+      throw new Error(ERROR_MESSAGES.INVALID_FILE_EXTENSION(fileName, mimeType));
+    }
+  }
+
+  private validateMetadata(metadata: EvidenceMetadata): void {
+    // Validar tamaño de metadata
+    const metadataSize = JSON.stringify(metadata).length;
+    if (metadataSize > FILE_LIMITS.MAX_METADATA_SIZE) {
+      throw new Error(ERROR_MESSAGES.METADATA_TOO_LARGE);
+    }
+
+    // Validar GPS si existe
+    if (metadata.gps) {
+      this.validateGPS(metadata.gps);
+    }
+  }
+
+  private validateGPS(gps: GPSCoordinates): void {
+    if (
+      typeof gps.lat !== 'number' ||
+      gps.lat < GPS_LIMITS.LAT_MIN ||
+      gps.lat > GPS_LIMITS.LAT_MAX
+    ) {
+      throw new Error(ERROR_MESSAGES.INVALID_GPS_LAT);
+    }
+
+    if (
+      typeof gps.lng !== 'number' ||
+      gps.lng < GPS_LIMITS.LNG_MIN ||
+      gps.lng > GPS_LIMITS.LNG_MAX
+    ) {
+      throw new Error(ERROR_MESSAGES.INVALID_GPS_LNG);
+    }
+  }
+
   private async validateOrder(orderId: string): Promise<void> {
     const order = await this.orderRepository.findById(orderId);
 
     if (!order) {
-      throw new EvidenceUploadError(
-        `Orden con ID ${orderId} no encontrada`,
-        'ORDER_NOT_FOUND',
-        404
-      );
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Orden no encontrada`, { orderId });
+      throw new Error(ERROR_MESSAGES.ORDER_NOT_FOUND(orderId));
     }
   }
 
-  /**
-   * Valida el tamaño del archivo contra el límite máximo
-   * @private
-   * @param {number} fileSize - Tamaño del archivo en bytes
-   * @throws {EvidenceUploadError} Si el archivo excede el tamaño máximo
-   */
-  private validateFileSize(fileSize: number): void {
-    if (fileSize > UploadEvidence.MAX_FILE_SIZE) {
-      const maxSizeMB = UploadEvidence.MAX_FILE_SIZE / UploadEvidence.BYTES_PER_MB;
-      const fileSizeMB = (fileSize / UploadEvidence.BYTES_PER_MB).toFixed(2);
+  private async uploadFile(input: UploadEvidenceInput): Promise<string> {
+    const fileName = this.generateFileName(input);
 
-      throw new EvidenceUploadError(
-        `El archivo (${fileSizeMB}MB) excede el tamaño máximo permitido (${maxSizeMB}MB)`,
-        'FILE_TOO_LARGE',
-        413
-      );
+    try {
+      return await this.fileStorageService.upload(fileName, input.file.buffer, input.file.mimeType);
+    } catch (error) {
+      logger.error(`${LOG_CONTEXT.USE_CASE} Error subiendo archivo`, {
+        orderId: input.orderId,
+        fileName: input.file.originalName,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
+      throw error;
     }
   }
 
-  /**
-   * Valida el tipo de archivo según su categoría
-   * @private
-   * @param {EvidenceType} type - Tipo de evidencia
-   * @param {string} normalizedMimeType - MIME type normalizado del archivo
-   * @throws {EvidenceUploadError} Si el tipo MIME no es permitido
-   */
-  private validateFileType(type: EvidenceType, normalizedMimeType: string): void {
-    const allowedTypes = UploadEvidence.ALLOWED_MIME_TYPES[type];
+  private generateFileName(input: UploadEvidenceInput): string {
+    const uniqueId = generateUniqueId();
+    const sanitizedName = this.sanitizeFileName(input.file.originalName);
+    return `${input.orderId}/${input.stage}/${uniqueId}_${sanitizedName}`;
+  }
 
-    if (!allowedTypes) {
-      throw new EvidenceUploadError(
-        `Tipo de evidencia no implementado: ${type}`,
-        'UNHANDLED_EVIDENCE_TYPE',
-        500
-      );
-    }
+  private sanitizeFileName(fileName: string): string {
+    // Remover caracteres especiales peligrosos
+    return fileName
+      .replace(/[^a-zA-Z0-9._-]/g, '_')
+      .replace(/_{2,}/g, '_')
+      .toLowerCase();
+  }
 
-    if (!allowedTypes.includes(normalizedMimeType)) {
-      throw new EvidenceUploadError(
-        `Tipo de archivo no permitido para ${type}. Tipos válidos: ${allowedTypes.join(', ')}`,
-        'INVALID_FILE_TYPE',
-        415
-      );
+  private async createEvidenceRecord(
+    input: UploadEvidenceInput,
+    filePath: string
+  ): Promise<Evidence> {
+    try {
+      return await this.evidenceRepository.create({
+        orderId: input.orderId,
+        stage: input.stage.trim(),
+        type: input.type,
+        fileName: input.file.originalName.trim(),
+        filePath,
+        fileSize: input.file.size,
+        mimeType: input.file.mimeType.trim().toLowerCase(),
+        status: EvidenceStatus.PENDING,
+        uploadedBy: input.uploadedBy,
+        version: 1,
+        previousVersions: [],
+        metadata: {
+          ...input.metadata,
+        },
+        capturedAt: new Date(),
+      });
+    } catch (error) {
+      // Si falla crear el registro, intentar eliminar el archivo subido
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Error creando registro, limpiando archivo`, {
+        filePath,
+      });
+
+      try {
+        await this.fileStorageService.delete(filePath);
+      } catch (cleanupError) {
+        logger.error(`${LOG_CONTEXT.USE_CASE} Error limpiando archivo huérfano`, {
+          filePath,
+          error: cleanupError instanceof Error ? cleanupError.message : 'Unknown',
+        });
+      }
+
+      throw error;
     }
   }
 
-  /**
-   * Valida las coordenadas GPS
-   * @private
-   * @param {GPSCoordinates} gps - Objeto con latitud y longitud
-   * @throws {EvidenceUploadError} Si las coordenadas son inválidas
-   */
-  private validateGPS(gps: GPSCoordinates): void {
-    const { LAT_MIN, LAT_MAX, LNG_MIN, LNG_MAX } = UploadEvidence.GPS_LIMITS;
+  private extractAuditContext(input: UploadEvidenceInput): AuditContext {
+    return {
+      ip: input.ip || 'unknown',
+      userAgent: input.userAgent || 'unknown',
+    };
+  }
 
-    if (typeof gps.lat !== 'number' || gps.lat < LAT_MIN || gps.lat > LAT_MAX) {
-      throw new EvidenceUploadError(
-        `Latitud inválida. Debe estar entre ${LAT_MIN} y ${LAT_MAX}`,
-        'INVALID_GPS_LATITUDE',
-        400
-      );
-    }
-
-    if (typeof gps.lng !== 'number' || gps.lng < LNG_MIN || gps.lng > LNG_MAX) {
-      throw new EvidenceUploadError(
-        `Longitud inválida. Debe estar entre ${LNG_MIN} y ${LNG_MAX}`,
-        'INVALID_GPS_LONGITUDE',
-        400
-      );
+  private async logUploadEvent(
+    evidence: Evidence,
+    uploadedBy: string,
+    auditContext: AuditContext
+  ): Promise<void> {
+    try {
+      await this.auditService.log({
+        entityType: 'Evidence',
+        entityId: evidence.id,
+        action: AuditAction.UPLOAD_EVIDENCE,
+        userId: uploadedBy,
+        before: null, // No hay estado anterior en un create
+        after: {
+          orderId: evidence.orderId,
+          stage: evidence.stage,
+          type: evidence.type,
+          fileName: evidence.fileName,
+          fileSize: evidence.fileSize,
+          status: evidence.status,
+        },
+        ip: auditContext.ip,
+        userAgent: auditContext.userAgent,
+        reason: `Evidencia tipo ${evidence.type} subida`,
+      });
+    } catch (error) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Error registrando auditoría (no crítico)`, {
+        evidenceId: evidence.id,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
     }
   }
 }
+
 
 
 

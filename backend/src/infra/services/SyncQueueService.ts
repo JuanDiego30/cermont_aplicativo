@@ -1,24 +1,23 @@
 /**
- * Servicio de cola de sincronizaci�n offline/online
- * Resuelve: Conectividad intermitente en campo Ca�o Lim�n
+ * Servicio de cola de sincronización offline/online
+ * Resuelve: Conectividad intermitente en campo Caño Limón
  * 
  * @file backend/src/infra/services/SyncQueueService.ts
  */
 
 import { logger } from '../../shared/utils/logger.js';
+import { randomUUID } from 'crypto';
 
-/**
- * Tipos de entidades sincronizables
- */
+// ==========================================
+// Tipos y Enums
+// ==========================================
+
 export enum SyncEntityType {
   ORDER = 'ORDER',
   WORKPLAN = 'WORKPLAN',
   EVIDENCE = 'EVIDENCE',
 }
 
-/**
- * Estados de sincronizaci�n
- */
 export enum SyncStatus {
   PENDING = 'PENDING',
   IN_PROGRESS = 'IN_PROGRESS',
@@ -26,18 +25,12 @@ export enum SyncStatus {
   FAILED = 'FAILED',
 }
 
-/**
- * Operaciones de sincronizaci�n
- */
 export enum SyncOperation {
   CREATE = 'CREATE',
   UPDATE = 'UPDATE',
   DELETE = 'DELETE',
 }
 
-/**
- * Item de cola de sincronizaci�n
- */
 export interface SyncQueueItem {
   id: string;
   entityType: SyncEntityType;
@@ -53,9 +46,6 @@ export interface SyncQueueItem {
   error?: string;
 }
 
-/**
- * Resultado de sincronizaci�n
- */
 export interface SyncResult {
   success: boolean;
   itemId: string;
@@ -64,26 +54,67 @@ export interface SyncResult {
   error?: string;
 }
 
-/**
- * Servicio de cola de sincronizaci�n
- * @class SyncQueueService
- */
+// ==========================================
+// Estrategias de Sincronización (Pattern Strategy)
+// ==========================================
+
+interface SyncStrategy {
+  sync(item: SyncQueueItem): Promise<void>;
+}
+
+class OrderSyncStrategy implements SyncStrategy {
+  async sync(item: SyncQueueItem): Promise<void> {
+    logger.info(`[Sync:Order] Processing ${item.operation} for ${item.entityId}`);
+    // Lógica real: OrderRepository.upsert(item.data)
+    await new Promise(r => setTimeout(r, 500)); 
+  }
+}
+
+class WorkPlanSyncStrategy implements SyncStrategy {
+  async sync(item: SyncQueueItem): Promise<void> {
+    logger.info(`[Sync:WorkPlan] Processing ${item.operation} for ${item.entityId}`);
+    // Lógica real: WorkPlanRepository.upsert(item.data)
+    await new Promise(r => setTimeout(r, 500));
+  }
+}
+
+class EvidenceSyncStrategy implements SyncStrategy {
+  async sync(item: SyncQueueItem): Promise<void> {
+    logger.info(`[Sync:Evidence] Processing ${item.operation} for ${item.entityId}`);
+    // Lógica real: EvidenceRepository.upload(item.data)
+    await new Promise(r => setTimeout(r, 500));
+  }
+}
+
+// ==========================================
+// Servicio de Cola
+// ==========================================
+
 export class SyncQueueService {
-  private queue: Map<string, SyncQueueItem> = new Map();
+  // Idealmente esto debería ser un repositorio persistente (Redis/DB)
+  private queue: Map<string, SyncQueueItem> = new Map(); 
   private isProcessing = false;
   private readonly maxRetries = 3;
-  private readonly retryDelayMs = 5000;
+  private readonly strategies: Map<SyncEntityType, SyncStrategy>;
 
-  /**
-   * Agrega un item a la cola de sincronizaci�n
-   */
+  constructor() {
+    // Registrar estrategias
+    this.strategies = new Map();
+    this.strategies.set(SyncEntityType.ORDER, new OrderSyncStrategy());
+    this.strategies.set(SyncEntityType.WORKPLAN, new WorkPlanSyncStrategy());
+    this.strategies.set(SyncEntityType.EVIDENCE, new EvidenceSyncStrategy());
+    
+    // TODO: Cargar items pendientes desde persistencia al iniciar
+    // this.loadQueueFromStorage(); 
+  }
+
   async enqueue(
     entityType: SyncEntityType,
     entityId: string,
     operation: SyncOperation,
     data: Record<string, unknown>
   ): Promise<string> {
-    const itemId = this.generateItemId();
+    const itemId = randomUUID();
 
     const item: SyncQueueItem = {
       id: itemId,
@@ -98,222 +129,111 @@ export class SyncQueueService {
     };
 
     this.queue.set(itemId, item);
+    // TODO: Persistir item en DB
 
-    logger.info(`[SyncQueue] Item enqueued: ${itemId} (${entityType} ${operation})`);
+    logger.info(`[SyncQueue] Enqueued: ${itemId} (${entityType})`);
 
-    // Iniciar procesamiento si no est� activo
+    // Trigger asíncrono (fire and forget)
     if (!this.isProcessing) {
-      this.processQueue();
+      void this.processQueue();
     }
 
     return itemId;
   }
 
-  /**
-   * Procesa la cola de sincronizaci�n
-   * @private
-   */
   private async processQueue(): Promise<void> {
-    if (this.isProcessing) {
-      return;
-    }
-
+    if (this.isProcessing) return;
     this.isProcessing = true;
 
     try {
-      const pendingItems = Array.from(this.queue.values()).filter(
-        (item) => item.status === SyncStatus.PENDING || item.status === SyncStatus.FAILED
-      );
+      // Procesar hasta que no queden pendientes
+      while (true) {
+        const pendingItems = this.getPendingItemsBatch(5); // Procesar en lotes de 5
+        if (pendingItems.length === 0) break;
 
-      for (const item of pendingItems) {
-        await this.processItem(item);
-        await this.delay(1000); // Delay entre items
+        await Promise.all(pendingItems.map(item => this.processItem(item)));
       }
     } finally {
       this.isProcessing = false;
     }
   }
 
-  /**
-   * Procesa un item individual
-   * @private
-   */
-  private async processItem(item: SyncQueueItem): Promise<SyncResult> {
+  private async processItem(item: SyncQueueItem): Promise<void> {
     item.status = SyncStatus.IN_PROGRESS;
     item.lastAttemptAt = new Date();
 
     try {
-      // Intentar sincronizaci�n seg�n el tipo de entidad
-      await this.syncEntity(item);
+      const strategy = this.strategies.get(item.entityType);
+      if (!strategy) {
+        throw new Error(`No strategy found for type: ${item.entityType}`);
+      }
+
+      await strategy.sync(item);
 
       item.status = SyncStatus.COMPLETED;
       item.completedAt = new Date();
+      logger.info(`[SyncQueue] Completed: ${item.id}`);
+      
+      // TODO: Actualizar estado en DB o borrar si es efímero
 
-      logger.info(`[SyncQueue] Item completed: ${item.id}`);
-
-      return {
-        success: true,
-        itemId: item.id,
-        entityType: item.entityType,
-        entityId: item.entityId,
-      };
-    } catch (error) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       item.retryCount++;
-      item.error = error instanceof Error ? error.message : 'Unknown error';
+      item.error = message;
 
       if (item.retryCount >= item.maxRetries) {
         item.status = SyncStatus.FAILED;
-        logger.error(`[SyncQueue] Item failed permanently: ${item.id}`, { error });
+        logger.error(`[SyncQueue] Failed permanently: ${item.id}`, { error: message });
       } else {
-        item.status = SyncStatus.PENDING;
-        logger.warn(`[SyncQueue] Item failed, retrying (${item.retryCount}/${item.maxRetries}): ${item.id}`);
-        
-        // Reintentar despu�s de un delay
-        await this.delay(this.retryDelayMs * item.retryCount);
+        item.status = SyncStatus.PENDING; // Volver a encolar
+        logger.warn(`[SyncQueue] Retry ${item.retryCount}/${item.maxRetries} for ${item.id}`);
       }
-
-      return {
-        success: false,
-        itemId: item.id,
-        entityType: item.entityType,
-        entityId: item.entityId,
-        error: item.error,
-      };
+      // TODO: Actualizar estado en DB
     }
   }
 
-  /**
-   * Sincroniza una entidad con el servidor
-   * @private
-   */
-  private async syncEntity(item: SyncQueueItem): Promise<void> {
-    switch (item.entityType) {
-      case SyncEntityType.ORDER:
-        await this.syncOrder(item);
-        break;
-      case SyncEntityType.WORKPLAN:
-        await this.syncWorkPlan(item);
-        break;
-      case SyncEntityType.EVIDENCE:
-        await this.syncEvidence(item);
-        break;
-      default:
-        throw new Error(`Unknown entity type: ${item.entityType}`);
-    }
+  // --- Métodos de Gestión y Monitoreo ---
+
+  private getPendingItemsBatch(limit: number): SyncQueueItem[] {
+    return Array.from(this.queue.values())
+      .filter(i => i.status === SyncStatus.PENDING)
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime()) // FIFO
+      .slice(0, limit);
   }
 
-  /**
-   * Sincroniza una orden
-   * @private
-   */
-  private async syncOrder(item: SyncQueueItem): Promise<void> {
-    // Implementaci�n real depender� de tus repositorios
-    logger.info(`[SyncQueue] Syncing ORDER: ${item.entityId} (${item.operation})`);
-    
-    // Simular sincronizaci�n (reemplazar con l�gica real)
-    await this.delay(500);
-  }
-
-  /**
-   * Sincroniza un plan de trabajo
-   * @private
-   */
-  private async syncWorkPlan(item: SyncQueueItem): Promise<void> {
-    logger.info(`[SyncQueue] Syncing WORKPLAN: ${item.entityId} (${item.operation})`);
-    await this.delay(500);
-  }
-
-  /**
-   * Sincroniza una evidencia
-   * @private
-   */
-  private async syncEvidence(item: SyncQueueItem): Promise<void> {
-    logger.info(`[SyncQueue] Syncing EVIDENCE: ${item.entityId} (${item.operation})`);
-    await this.delay(500);
-  }
-
-  /**
-   * Obtiene el estado de la cola
-   */
-  getQueueStatus(): {
-    total: number;
-    pending: number;
-    inProgress: number;
-    completed: number;
-    failed: number;
-  } {
+  getQueueStatus() {
     const items = Array.from(this.queue.values());
-
     return {
       total: items.length,
-      pending: items.filter((i) => i.status === SyncStatus.PENDING).length,
-      inProgress: items.filter((i) => i.status === SyncStatus.IN_PROGRESS).length,
-      completed: items.filter((i) => i.status === SyncStatus.COMPLETED).length,
-      failed: items.filter((i) => i.status === SyncStatus.FAILED).length,
+      pending: items.filter(i => i.status === SyncStatus.PENDING).length,
+      failed: items.filter(i => i.status === SyncStatus.FAILED).length,
     };
   }
 
-  /**
-   * Obtiene todos los items pendientes
-   */
-  getPendingItems(): SyncQueueItem[] {
-    return Array.from(this.queue.values()).filter(
-      (item) => item.status === SyncStatus.PENDING || item.status === SyncStatus.FAILED
-    );
-  }
-
-  /**
-   * Limpia items completados
-   */
-  clearCompleted(): number {
-    const completed = Array.from(this.queue.entries()).filter(
-      ([, item]) => item.status === SyncStatus.COMPLETED
-    );
-
-    completed.forEach(([id]) => this.queue.delete(id));
-
-    logger.info(`[SyncQueue] Cleared ${completed.length} completed items`);
-    return completed.length;
-  }
-
-  /**
-   * Reintentar items fallidos
-   */
   async retryFailed(): Promise<void> {
-    const failed = Array.from(this.queue.values()).filter(
-      (item) => item.status === SyncStatus.FAILED
-    );
-
-    failed.forEach((item) => {
+    const failed = Array.from(this.queue.values()).filter(i => i.status === SyncStatus.FAILED);
+    
+    for (const item of failed) {
       item.status = SyncStatus.PENDING;
       item.retryCount = 0;
-    });
-
+      item.error = undefined;
+    }
+    
     logger.info(`[SyncQueue] Retrying ${failed.length} failed items`);
-
-    if (failed.length > 0) {
-      this.processQueue();
+    
+    if (failed.length > 0 && !this.isProcessing) {
+      void this.processQueue();
     }
   }
 
-  /**
-   * Genera un ID �nico para un item
-   * @private
-   */
-  private generateItemId(): string {
-    return `sync-${Date.now()}-${Math.random().toString(36).substring(7)}`;
-  }
-
-  /**
-   * Delay helper
-   * @private
-   */
-  private delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+  clearCompleted(): void {
+    for (const [id, item] of this.queue) {
+      if (item.status === SyncStatus.COMPLETED) {
+        this.queue.delete(id);
+      }
+    }
   }
 }
 
-/**
- * Instancia singleton del servicio
- */
 export const syncQueueService = new SyncQueueService();
+

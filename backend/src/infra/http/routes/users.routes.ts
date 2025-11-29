@@ -3,9 +3,18 @@ import { authenticate } from '../../../shared/middlewares/authenticate.js';
 import { authorize } from '../../../shared/middlewares/authorize.js';
 import { usersController } from '../controllers/UsersController.js';
 import { PERMISSIONS } from '../../../shared/constants/permissions.js';
-import { validateRequest, createUserSchema, updateUserSchema, changePasswordSchema, userFiltersSchema } from '../schemas/validation.schemas.js';
+import { validateMiddleware } from '../../../shared/middlewares/validateMiddleware.js';
+import { 
+  createUserSchema, 
+  updateUserSchema, 
+  changePasswordSchema, 
+  userFiltersSchema 
+} from '../schemas/validation.schemas.js';
 
 const router = Router();
+
+// Middleware global
+router.use(authenticate);
 
 /**
  * @route   GET /api/users
@@ -14,10 +23,9 @@ const router = Router();
  */
 router.get(
   '/',
-  authenticate,
   authorize([PERMISSIONS.USERS_VIEW_ALL]),
-  validateRequest(userFiltersSchema),
-  (req, res) => usersController.list(req, res)
+  validateMiddleware(userFiltersSchema),
+  usersController.list
 );
 
 /**
@@ -27,9 +35,8 @@ router.get(
  */
 router.get(
   '/:id',
-  authenticate,
   authorize([PERMISSIONS.USERS_VIEW]),
-  (req, res) => usersController.getById(req, res)
+  usersController.getById
 );
 
 /**
@@ -39,10 +46,9 @@ router.get(
  */
 router.post(
   '/',
-  authenticate,
   authorize([PERMISSIONS.USERS_CREATE]),
-  validateRequest(createUserSchema),
-  (req, res) => usersController.create(req, res)
+  validateMiddleware(createUserSchema),
+  usersController.create
 );
 
 /**
@@ -52,10 +58,9 @@ router.post(
  */
 router.put(
   '/:id',
-  authenticate,
   authorize([PERMISSIONS.USERS_UPDATE]),
-  validateRequest(updateUserSchema),
-  (req, res) => usersController.update(req, res)
+  validateMiddleware(updateUserSchema),
+  usersController.update
 );
 
 /**
@@ -65,10 +70,9 @@ router.put(
  */
 router.post(
   '/:id/change-password',
-  authenticate,
-  authorize([PERMISSIONS.USERS_CHANGE_PASSWORD]),
-  validateRequest(changePasswordSchema),
-  (req, res) => usersController.changePassword(req, res)
+  authorize([PERMISSIONS.USERS_UPDATE]),
+  validateMiddleware(changePasswordSchema),
+  usersController.changePassword
 );
 
 /**
@@ -78,9 +82,8 @@ router.post(
  */
 router.post(
   '/:id/activate',
-  authenticate,
-  authorize([PERMISSIONS.USERS_ACTIVATE]),
-  (req, res) => usersController.activate(req, res)
+  authorize([PERMISSIONS.USERS_MANAGE]),
+  usersController.activate
 );
 
 /**
@@ -90,9 +93,8 @@ router.post(
  */
 router.post(
   '/:id/deactivate',
-  authenticate,
-  authorize([PERMISSIONS.USERS_DEACTIVATE]),
-  (req, res) => usersController.deactivate(req, res)
+  authorize([PERMISSIONS.USERS_MANAGE]),
+  usersController.deactivate
 );
 
 /**
@@ -102,9 +104,8 @@ router.post(
  */
 router.post(
   '/:id/lock',
-  authenticate,
-  authorize([PERMISSIONS.USERS_LOCK]),
-  (req, res) => usersController.lock(req, res)
+  authorize([PERMISSIONS.USERS_MANAGE]),
+  usersController.lock
 );
 
 /**
@@ -114,21 +115,19 @@ router.post(
  */
 router.post(
   '/:id/unlock',
-  authenticate,
-  authorize([PERMISSIONS.USERS_UNLOCK]),
-  (req, res) => usersController.unlock(req, res)
+  authorize([PERMISSIONS.USERS_MANAGE]),
+  usersController.unlock
 );
 
 /**
  * @route   DELETE /api/users/:id
  * @desc    Eliminar usuario
- * @access  Private (Solo Root)
+ * @access  Private (Solo Root/Admin)
  */
 router.delete(
   '/:id',
-  authenticate,
   authorize([PERMISSIONS.USERS_DELETE]),
-  (req, res) => usersController.delete(req, res)
+  usersController.remove
 );
 
 export default router;

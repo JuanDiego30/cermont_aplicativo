@@ -1,99 +1,128 @@
-/**
- * Use Case: Generar PDF de plan de trabajo
- * Resuelve: Generaci�n autom�tica de PDF del plan
- * 
- * @file backend/src/app/workplans/use-cases/GenerateWorkPlanPDF.ts
- */
-
 import type { IWorkPlanRepository } from '../../../domain/repositories/IWorkPlanRepository.js';
 import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
-import { PdfGeneratorService } from '../../../infra/services/PdfGeneratorService.js';
+import type { IPdfGeneratorService } from '../../../domain/services/IPdfGeneratorService.js';
+import type { IFileStorageService } from '../../../domain/services/IFileStorageService.js';
+import type { WorkPlan } from '../../../domain/entities/WorkPlan.js';
+import type { Order } from '../../../domain/entities/Order.js';
 import { logger } from '../../../shared/utils/logger.js';
-import {
-  ObjectIdValidator,
-  ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator.js';
 
-/**
- * Error de generaci�n
- */
-export class GenerateWorkPlanPDFError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-    public readonly statusCode: number
-  ) {
-    super(message);
-    this.name = 'GenerateWorkPlanPDFError';
-  }
+const ERROR_MESSAGES = {
+  WORKPLAN_NOT_FOUND: (id: string) => `Plan de trabajo ${id} no encontrado`,
+  ORDER_NOT_FOUND: 'Orden asociada al plan no encontrada',
+} as const;
+
+const LOG_CONTEXT = {
+  USE_CASE: '[GenerateWorkPlanPDFUseCase]',
+} as const;
+
+export interface GenerateWorkPlanPDFOutput {
+  pdfBuffer: Buffer;
+  filePath?: string;
+  fileName: string;
+  fileSize: number;
+  generatedAt: Date;
 }
 
-/**
- * Use Case: Generar PDF de Plan de Trabajo
- * @class GenerateWorkPlanPDF
- */
-export class GenerateWorkPlanPDF {
+export class GenerateWorkPlanPDFUseCase {
   constructor(
     private readonly workPlanRepository: IWorkPlanRepository,
     private readonly orderRepository: IOrderRepository,
-    private readonly pdfGeneratorService: PdfGeneratorService
+    private readonly pdfGeneratorService: IPdfGeneratorService,
+    private readonly fileStorageService?: IFileStorageService
   ) {}
 
-  async execute(workPlanId: string): Promise<Buffer> {
-    try {
-      // Validar ID
-      const validatedId = ObjectIdValidator.validate(workPlanId, 'ID del plan');
-
-      logger.info('[GenerateWorkPlanPDF] Generando PDF', { workPlanId: validatedId });
-
-      // 1. Obtener plan de trabajo
-      const workPlan = await this.workPlanRepository.findById(validatedId);
-
-      if (!workPlan) {
-        throw new GenerateWorkPlanPDFError(
-          `Plan de trabajo ${validatedId} no encontrado`,
-          'WORKPLAN_NOT_FOUND',
-          404
-        );
-      }
-
-      // 2. Obtener orden asociada
-      const order = await this.orderRepository.findById(workPlan.orderId);
-
-      if (!order) {
-        throw new GenerateWorkPlanPDFError(
-          'Orden asociada no encontrada',
-          'ORDER_NOT_FOUND',
-          404
-        );
-      }
-
-      // 3. Generar PDF usando PdfGeneratorService
-      // Nota: Necesitar�as agregar un m�todo en PdfGeneratorService para planes
-      // Por ahora usaremos un placeholder
-
-      const pdfBuffer = Buffer.from('WorkPlan PDF placeholder');
-
-      logger.info('[GenerateWorkPlanPDF] PDF generado', {
-        workPlanId: validatedId,
-        size: pdfBuffer.length,
-      });
-
-      return pdfBuffer;
-    } catch (error) {
-      if (error instanceof GenerateWorkPlanPDFError || error instanceof ObjectIdValidationError) {
-        throw error;
-      }
-
-      logger.error('[GenerateWorkPlanPDF] Error inesperado', {
-        error: error instanceof Error ? error.message : 'Unknown',
-      });
-
-      throw new GenerateWorkPlanPDFError(
-        'Error interno al generar PDF',
-        'INTERNAL_ERROR',
-        500
-      );
+  async execute(workPlanId: string): Promise<GenerateWorkPlanPDFOutput> {
+    if (!workPlanId?.trim()) {
+      throw new Error('ID del plan de trabajo requerido');
     }
+
+    const workPlan = await this.workPlanRepository.findById(workPlanId);
+    if (!workPlan) {
+      throw new Error(ERROR_MESSAGES.WORKPLAN_NOT_FOUND(workPlanId));
+    }
+
+    const order = await this.orderRepository.findById(workPlan.orderId);
+    if (!order) {
+      throw new Error(ERROR_MESSAGES.ORDER_NOT_FOUND);
+    }
+
+    const pdfData = this.buildPdfData(workPlan, order);
+    const pdfBuffer = await this.pdfGeneratorService.generateWorkPlanPDF(pdfData);
+
+    const fileName = this.generateFileName(workPlan, order);
+    const filePath = this.fileStorageService
+      ? await this.fileStorageService.upload(fileName, pdfBuffer, 'application/pdf')
+      : undefined;
+
+    logger.debug(`${LOG_CONTEXT.USE_CASE} PDF generado`, {
+      workPlanId,
+      fileName,
+      filePath,
+      fileSize: pdfBuffer.length,
+    });
+
+    return {
+      pdfBuffer,
+      filePath,
+      fileName,
+      fileSize: pdfBuffer.length,
+      generatedAt: new Date(),
+    };
+  }
+
+  private buildPdfData(workPlan: WorkPlan, order: Order) {
+    return {
+      workPlan: {
+        id: workPlan.id,
+        orderId: workPlan.orderId,
+        status: workPlan.status,
+        materials: (workPlan.materials || []).map((m) => ({
+          name: m.name,
+          quantity: m.quantity,
+          unitCost: m.unitCost,
+        })),
+        tools: (workPlan.tools || []).map((t) => ({
+          name: t.name,
+          quantity: t.quantity,
+        })),
+        equipment: (workPlan.equipment || []).map((e) => ({
+          name: e.name,
+          certification: e.certification,
+        })),
+        ppe: (workPlan.ppe || []).map((p) => ({
+          name: p.name,
+          quantity: p.quantity,
+        })),
+        tasks: (workPlan.tasks || []).map((t) => ({
+          description: t.description,
+          owner: t.owner,
+          scheduledDate: t.scheduledDate,
+        })),
+        estimatedBudget: workPlan.estimatedBudget || 0,
+        plannedWindow: workPlan.plannedWindow,
+        notes: workPlan.notes,
+      },
+      order: {
+        orderNumber: order.orderNumber,
+        clientName: order.clientName,
+        location: order.location,
+        description: order.description,
+      },
+      generatedAt: new Date(),
+    };
+  }
+
+  private calculateTotalCost(workPlan: WorkPlan): number {
+    const materialsCost = (workPlan.materials || []).reduce(
+      (sum, m) => sum + (m.quantity * m.unitCost),
+      0
+    );
+    return materialsCost + (workPlan.estimatedBudget || 0);
+  }
+
+  private generateFileName(workPlan: WorkPlan, order: Order): string {
+    const timestamp = new Date().toISOString().slice(0, 10);
+    return `plan-trabajo-${order.orderNumber}-${timestamp}.pdf`;
   }
 }
+

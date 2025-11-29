@@ -1,14 +1,9 @@
-/**
- * Rutas de Autenticación
- *
- * @file backend/src/infra/http/routes/auth.routes.ts
- */
-
 import { Router } from 'express';
 import { AuthController } from '../controllers/AuthController.js';
 import { authenticate } from '../../../shared/middlewares/authenticate.js';
 import { validateMiddleware } from '../../../shared/middlewares/validateMiddleware.js';
-import { loginSchema } from '../schemas/validation.schemas.js';
+import { loginSchema, registerSchema } from '../schemas/validation.schemas.js';
+import { authRateLimit } from '../../../shared/middlewares/authRateLimit.js';
 
 const router = Router();
 
@@ -19,6 +14,7 @@ const router = Router();
  */
 router.post(
   '/login',
+  authRateLimit,
   validateMiddleware(loginSchema),
   AuthController.login
 );
@@ -41,6 +37,7 @@ router.post(
  */
 router.post(
   '/refresh',
+  authRateLimit,
   AuthController.refresh
 );
 
@@ -63,7 +60,51 @@ router.get(
 router.post(
   '/logout-all',
   authenticate,
-  AuthController.logoutAll // Reutilizar el mismo controller
+  AuthController.logoutAll
+);
+
+/**
+ * @route   POST /api/auth/register
+ * @desc    Registro de nuevo cliente
+ * @access  Public
+ */
+router.post(
+  '/register',
+  authRateLimit,
+  validateMiddleware(registerSchema),
+  AuthController.register
+);
+
+/**
+ * @route   POST /api/auth/forgot-password
+ * @desc    Solicitar enlace de recuperación de contraseña
+ * @access  Public
+ */
+router.post(
+  '/forgot-password',
+  authRateLimit,
+  AuthController.forgotPassword
+);
+
+/**
+ * @route   POST /api/auth/reset-password
+ * @desc    Restablecer contraseña con token de recuperación
+ * @access  Public
+ */
+router.post(
+  '/reset-password',
+  authRateLimit,
+  AuthController.resetPassword
+);
+
+/**
+ * @route   GET /api/auth/verify-reset-token
+ * @desc    Verificar si un token de recuperación es válido
+ * @access  Public
+ */
+router.get(
+  '/verify-reset-token',
+  AuthController.verifyResetToken
 );
 
 export default router;

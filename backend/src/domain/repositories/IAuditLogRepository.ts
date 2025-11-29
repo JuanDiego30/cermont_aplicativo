@@ -1,81 +1,79 @@
-import type { AuditLog, AuditAction } from '../entities/AuditLog.js';
+import type { AuditLog, AuditAction, AuditLogFilters } from '../entities/AuditLog.js';
 
 /**
- * Filtros para buscar audit logs
- * @interface AuditLogFilters
+ * Parámetros de paginación estándar
  */
-export interface AuditLogFilters {
-  /** Filtrar por tipo de entidad (e.g., 'User', 'Order', 'WorkPlan') */
-  entityType?: string;
-  /** Filtrar por ID de entidade específica */
-  entityId?: string;
-  /** Filtrar por acción concreta */
-  action?: AuditAction;
-  /** Filtrar por el usuario que realizó la acción */
-  userId?: string;
-  /** Filtrar por rango de fechas de inicio */
-  startDate?: Date;
-  /** Filtrar por rango de fechas de cierre */
-  endDate?: Date;
-  /** Página para paginación offset-based */
-  page?: number;
-  /** Límite de resultados por página */
-  limit?: number;
-  /** Saltar N registros (alternativa a page) */
-  skip?: number;
+export interface PaginationParams {
+  page: number;
+  limit: number;
+  skip: number;
+}
+
+/**
+ * Parámetros de ordenamiento estándar
+ */
+export interface SortingParams {
+  field: keyof AuditLog;
+  order: 'asc' | 'desc';
 }
 
 /**
  * Repositorio: Audit Logs
- * Contrato para persistencia de logs de auditoría (append-only log)
- * @interface IAuditLogRepository
- * @since 1.0.0
+ * Contrato para persistencia de logs de auditoría (append-only log).
+ * Provee acceso de solo escritura/lectura (sin updates).
  */
 export interface IAuditLogRepository {
   /**
-   * Crea un registro de auditoría
-   * @param {Omit<AuditLog, 'id' | 'timestamp'>} data - Datos del log (timestamp generado por la infraestructura)
-   * @returns {Promise<AuditLog>} Registro creado con ID y timestamp definidos
-   * @throws {Error} Si falla la persistencia
+   * Registra una nueva entrada de auditoría.
+   * El timestamp debe ser asignado por la capa de persistencia si no se provee.
    */
   create(data: Omit<AuditLog, 'id' | 'timestamp'>): Promise<AuditLog>;
 
   /**
-   * Busca logs con filtros y paginación
-   * @param {AuditLogFilters} filters - Filtros de búsqueda
-   * @returns {Promise<AuditLog[]>} Lista ordenada por timestamp DESC
+   * Busca logs aplicando filtros, paginación y ordenamiento.
+   * Sustituye a los antiguos `find` y `findByFilters`.
    */
-  find(filters: AuditLogFilters): Promise<AuditLog[]>;
+  findAll(
+    filters: AuditLogFilters,
+    pagination?: PaginationParams,
+    sorting?: SortingParams
+  ): Promise<AuditLog[]>;
 
   /**
-   * Cuenta logs que coinciden con los filtros
-   * @param {Omit<AuditLogFilters, 'page' | 'limit' | 'skip'>} filters - Filtros sin paginación
-   * @returns {Promise<number>} Total de logs
+   * Cuenta el total de logs que coinciden con los filtros.
+   * Útil para calcular total de páginas.
    */
-  count(filters: Omit<AuditLogFilters, 'page' | 'limit' | 'skip'>): Promise<number>;
+  count(filters: AuditLogFilters): Promise<number>;
 
   /**
-   * Retorna el historial completo de una entidad específica
-   * @param {string} entityType - Tipo de entidad (e.g., 'User', 'Order')
-   * @param {string} entityId - ID de la entidad
-   * @returns {Promise<AuditLog[]>} Logs ordenados por timestamp DESC
+   * Busca logs con filtros genéricos.
+   * Alias para findAll con tipado más flexible.
+   */
+  findByFilters(filters: any, pagination?: any, sorting?: any): Promise<AuditLog[]>;
+
+  /**
+   * Cuenta logs que coinciden con los filtros genéricos.
+   * Alias para count con tipado más flexible.
+   */
+  countByFilters(filters: any): Promise<number>;
+
+  /**
+   * Retorna el historial completo de una entidad específica.
+   * Helper optimizado para la vista de "Historial" en frontend.
    */
   findByEntity(entityType: string, entityId: string): Promise<AuditLog[]>;
 
   /**
-   * Obtiene logs generados por un usuario en un rango de fechas
-   * @param {string} userId - ID del usuario
-   * @param {Date} [startDate] - Fecha mínima (opcional)
-   * @param {Date} [endDate] - Fecha máxima (opcional)
-   * @returns {Promise<AuditLog[]>} Logs ordenados por timestamp DESC
+   * Obtiene logs generados por un usuario.
+   * Helper para auditoría de actividad de usuario.
    */
-  findByUser(userId: string, startDate?: Date, endDate?: Date): Promise<AuditLog[]>;
+  findByUser(userId: string, dateRange?: { start?: Date; end?: Date }): Promise<AuditLog[]>;
 
   /**
-   * Elimina logs antiguos para cumplir políticas de retención
-   * @param {number} days - Dias de antigüedad mínima (debe ser >= 1)
-   * @returns {Promise<number>} Cantidad de registros eliminados
-   * @throws {Error} Si days < 1
+   * Elimina logs antiguos para cumplir políticas de retención de datos (Retention Policy).
+   * @param retentionDate Fecha límite (se borrará todo lo anterior a esta fecha)
+   * @returns Número de registros eliminados
    */
-  deleteOlderThan(days: number): Promise<number>;
+  prune(retentionDate: Date): Promise<number>;
 }
+

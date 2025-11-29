@@ -1,135 +1,178 @@
 /**
  * Use Case: Eliminar evidencia
- * Resuelve: Eliminaci�n segura de evidencias con archivo
+ * Resuelve: Eliminación segura de evidencias con archivo físico
  * 
  * @file backend/src/app/evidences/use-cases/DeleteEvidence.ts
  */
 
 import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository.js';
-import { fileStorageService } from '../../../infra/services/FileStorageService.js';
+import type { IFileStorageService } from '../../../domain/services/IFileStorageService.js';
 import { AuditService } from '../../../domain/services/AuditService.js';
 import { AuditAction } from '../../../domain/entities/AuditLog.js';
 import { logger } from '../../../shared/utils/logger.js';
-import {
-  ObjectIdValidator,
-  ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator.js';
+import type { Evidence } from '../../../domain/entities/Evidence.js';
 
-/**
- * DTO para eliminar evidencia
- */
-export interface DeleteEvidenceDto {
+const VALIDATION_CONFIG = {
+  MIN_REASON_LENGTH: 1,
+  MAX_REASON_LENGTH: 500,
+} as const;
+
+const ERROR_MESSAGES = {
+  EVIDENCE_NOT_FOUND: (id: string) => `Evidencia ${id} no encontrada`,
+  MISSING_EVIDENCE_ID: 'El ID de la evidencia es requerido',
+  MISSING_DELETED_BY: 'El ID del usuario es requerido',
+  MISSING_REASON: 'Debe proporcionar una razón para la eliminación',
+  REASON_TOO_LONG: `La razón no puede exceder ${VALIDATION_CONFIG.MAX_REASON_LENGTH} caracteres`,
+} as const;
+
+const LOG_CONTEXT = {
+  USE_CASE: '[DeleteEvidenceUseCase]',
+} as const;
+
+interface DeleteEvidenceInput {
   evidenceId: string;
   deletedBy: string;
   reason: string;
+  ip?: string;
+  userAgent?: string;
 }
 
-/**
- * Error de eliminaci�n
- */
-export class DeleteEvidenceError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-    public readonly statusCode: number
-  ) {
-    super(message);
-    this.name = 'DeleteEvidenceError';
-  }
+interface AuditContext {
+  ip: string;
+  userAgent: string;
 }
 
-/**
- * Use Case: Eliminar Evidencia
- * @class DeleteEvidence
- */
-export class DeleteEvidence {
+export class DeleteEvidenceUseCase {
   constructor(
     private readonly evidenceRepository: IEvidenceRepository,
+    private readonly fileStorageService: IFileStorageService,
     private readonly auditService: AuditService
   ) {}
 
-  async execute(dto: DeleteEvidenceDto): Promise<void> {
-    try {
-      this.validateDto(dto);
+  async execute(input: DeleteEvidenceInput): Promise<void> {
+    this.validateInput(input);
 
-      // 1. Verificar que la evidencia existe
-      const evidence = await this.evidenceRepository.findById(dto.evidenceId);
+    const evidence = await this.fetchEvidence(input.evidenceId);
 
-      if (!evidence) {
-        throw new DeleteEvidenceError(
-          `Evidencia ${dto.evidenceId} no encontrada`,
-          'EVIDENCE_NOT_FOUND',
-          404
-        );
-      }
+    await this.deletePhysicalFile(evidence);
+    await this.deleteFromDatabase(evidence.id);
 
-      // 2. Eliminar archivo f�sico
-      if (evidence.filePath) {
-        try {
-          await fileStorageService.delete(evidence.filePath);
-          logger.info('[DeleteEvidence] Archivo eliminado', {
-            filePath: evidence.filePath,
-          });
-        } catch (error) {
-          logger.warn('[DeleteEvidence] Error eliminando archivo f�sico', {
-            filePath: evidence.filePath,
-            error: error instanceof Error ? error.message : 'Unknown',
-          });
-        }
-      }
+    const auditContext = this.extractAuditContext(input);
+    await this.logDeletionEvent(evidence, input.deletedBy, input.reason, auditContext);
 
-      // 3. Eliminar evidencia de BD
-      await this.evidenceRepository.delete(dto.evidenceId);
+    logger.info(`${LOG_CONTEXT.USE_CASE} Evidencia eliminada exitosamente`, {
+      evidenceId: evidence.id,
+      deletedBy: input.deletedBy,
+      orderId: evidence.orderId,
+    });
+  }
 
-      // 4. Registrar en auditor�a
-      await this.auditService.log({
-        entityType: 'Evidence',
-        entityId: dto.evidenceId,
-        action: AuditAction.DELETE,
-        userId: dto.deletedBy,
-        before: evidence,
-        after: {} as Record<string, unknown>,
-        reason: dto.reason,
-      });
+  private validateInput(input: DeleteEvidenceInput): void {
+    if (!input.evidenceId?.trim()) {
+      throw new Error(ERROR_MESSAGES.MISSING_EVIDENCE_ID);
+    }
 
-      logger.info('[DeleteEvidence] Evidencia eliminada', {
-        evidenceId: dto.evidenceId,
-        deletedBy: dto.deletedBy,
-      });
-    } catch (error) {
-      if (error instanceof DeleteEvidenceError) {
-        throw error;
-      }
+    if (!input.deletedBy?.trim()) {
+      throw new Error(ERROR_MESSAGES.MISSING_DELETED_BY);
+    }
 
-      logger.error('[DeleteEvidence] Error inesperado', {
-        error: error instanceof Error ? error.message : 'Unknown',
-      });
+    this.validateReason(input.reason);
+  }
 
-      throw new DeleteEvidenceError(
-        'Error interno al eliminar evidencia',
-        'INTERNAL_ERROR',
-        500
-      );
+  private validateReason(reason: unknown): void {
+    if (!reason || typeof reason !== 'string' || reason.trim().length === 0) {
+      throw new Error(ERROR_MESSAGES.MISSING_REASON);
+    }
+
+    if (reason.length > VALIDATION_CONFIG.MAX_REASON_LENGTH) {
+      throw new Error(ERROR_MESSAGES.REASON_TOO_LONG);
     }
   }
 
-  private validateDto(dto: DeleteEvidenceDto): void {
-    try {
-      dto.evidenceId = ObjectIdValidator.validate(dto.evidenceId, 'ID de la evidencia');
-      dto.deletedBy = ObjectIdValidator.validate(dto.deletedBy, 'ID del usuario');
-    } catch (error) {
-      if (error instanceof ObjectIdValidationError) {
-        throw new DeleteEvidenceError(error.message, 'INVALID_INPUT', 400);
-      }
-      throw error;
+  private async fetchEvidence(evidenceId: string): Promise<Evidence> {
+    const evidence = await this.evidenceRepository.findById(evidenceId);
+
+    if (!evidence) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Evidencia no encontrada`, { evidenceId });
+      throw new Error(ERROR_MESSAGES.EVIDENCE_NOT_FOUND(evidenceId));
     }
 
-    if (!dto.reason || dto.reason.trim().length === 0) {
-      throw new DeleteEvidenceError(
-        'Debe proporcionar una raz�n para eliminar',
-        'MISSING_REASON',
-        400
-      );
+    return evidence;
+  }
+
+  private async deletePhysicalFile(evidence: Evidence): Promise<void> {
+    if (!evidence.filePath) {
+      logger.info(`${LOG_CONTEXT.USE_CASE} Sin archivo físico para eliminar`, {
+        evidenceId: evidence.id,
+      });
+      return;
+    }
+
+    try {
+      await this.fileStorageService.delete(evidence.filePath);
+      logger.info(`${LOG_CONTEXT.USE_CASE} Archivo físico eliminado`, {
+        evidenceId: evidence.id,
+        filePath: evidence.filePath,
+      });
+    } catch (error) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Error eliminando archivo físico (continuando)`, {
+        evidenceId: evidence.id,
+        filePath: evidence.filePath,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
+      // No lanzamos error: permitimos eliminar el registro aunque falle el archivo
+    }
+  }
+
+  private async deleteFromDatabase(evidenceId: string): Promise<void> {
+    try {
+      await this.evidenceRepository.delete(evidenceId);
+    } catch (error) {
+      logger.error(`${LOG_CONTEXT.USE_CASE} Error eliminando de BD`, {
+        evidenceId,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
+      throw error;
+    }
+  }
+
+  private extractAuditContext(input: DeleteEvidenceInput): AuditContext {
+    return {
+      ip: input.ip || 'unknown',
+      userAgent: input.userAgent || 'unknown',
+    };
+  }
+
+  private async logDeletionEvent(
+    evidence: Evidence,
+    deletedBy: string,
+    reason: string,
+    auditContext: AuditContext
+  ): Promise<void> {
+    try {
+      await this.auditService.log({
+        entityType: 'Evidence',
+        entityId: evidence.id,
+        action: AuditAction.DELETE_EVIDENCE,
+        userId: deletedBy,
+        before: {
+          fileName: evidence.fileName,
+          filePath: evidence.filePath,
+          status: evidence.status,
+          orderId: evidence.orderId,
+          stage: evidence.stage,
+        },
+        after: null, // No hay estado después de un delete
+        ip: auditContext.ip,
+        userAgent: auditContext.userAgent,
+        reason,
+      });
+    } catch (error) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Error registrando auditoría (no crítico)`, {
+        evidenceId: evidence.id,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
     }
   }
 }
+

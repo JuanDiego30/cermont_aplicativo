@@ -1,5 +1,5 @@
 /**
- * Servicio de c�lculo de costos
+ * Servicio de cálculo de costos
  * Resuelve: Desconocimiento de costos reales vs presupuestados
  * 
  * @file backend/src/infra/services/CostCalculatorService.ts
@@ -7,9 +7,10 @@
 
 import type { WorkPlan } from '../../domain/entities/WorkPlan.js';
 
-/**
- * Categor�as de costos
- */
+// ==========================================
+// Tipos y Enums
+// ==========================================
+
 export enum CostCategory {
   MATERIALS = 'MATERIALS',
   LABOR = 'LABOR',
@@ -19,9 +20,6 @@ export enum CostCategory {
   OVERHEAD = 'OVERHEAD',
 }
 
-/**
- * Item de costo
- */
 export interface CostItem {
   category: CostCategory;
   description: string;
@@ -30,106 +28,99 @@ export interface CostItem {
   totalCost: number;
 }
 
-/**
- * Resumen de costos
- */
 export interface CostSummary {
   budgeted: number;
   actual: number;
   variance: number;
   variancePercentage: number;
-  byCategory: Record<CostCategory, {
-    budgeted: number;
-    actual: number;
-    variance: number;
-  }>;
+  byCategory: Record<CostCategory, CategorySummary>;
 }
 
-/**
- * Servicio de c�lculo de costos
- * @class CostCalculatorService
- */
+interface CategorySummary {
+  budgeted: number;
+  actual: number;
+  variance: number;
+}
+
+export interface CostRates {
+  laborHourlyRate: number;
+  overtimeMultiplier: number;
+  transportTripCost: number;
+  defaultOverheadPercentage: number;
+  defaultWastePercentage: number;
+}
+
+// ==========================================
+// Servicio
+// ==========================================
+
 export class CostCalculatorService {
+  
+  // Tarifas por defecto (Idealmente deberían venir de una BD o configuración)
+  private rates: CostRates = {
+    laborHourlyRate: 50000,
+    overtimeMultiplier: 1.5,
+    transportTripCost: 100000,
+    defaultOverheadPercentage: 15,
+    defaultWastePercentage: 10,
+  };
+
+  constructor(customRates?: Partial<CostRates>) {
+    if (customRates) {
+      this.rates = { ...this.rates, ...customRates };
+    }
+  }
+
   /**
-   * Calcula el costo total de items
+   * Calcula el costo total de una lista de items
    */
   calculateTotalCost(items: CostItem[]): number {
     return items.reduce((total, item) => total + item.totalCost, 0);
   }
 
   /**
-   * Calcula el costo por categor�a
+   * Agrupa costos por categoría
    */
   calculateCostByCategory(items: CostItem[]): Record<CostCategory, number> {
-    const costs: Record<CostCategory, number> = {
-      [CostCategory.MATERIALS]: 0,
-      [CostCategory.LABOR]: 0,
-      [CostCategory.EQUIPMENT]: 0,
-      [CostCategory.TRANSPORTATION]: 0,
-      [CostCategory.PERMITS]: 0,
-      [CostCategory.OVERHEAD]: 0,
-    };
+    // Inicializar todas las categorías en 0
+    const costs = Object.values(CostCategory).reduce((acc, cat) => {
+      acc[cat] = 0;
+      return acc;
+    }, {} as Record<CostCategory, number>);
 
     items.forEach((item) => {
-      costs[item.category] += item.totalCost;
+      if (costs[item.category] !== undefined) {
+        costs[item.category] += item.totalCost;
+      }
     });
 
     return costs;
   }
 
   /**
-   * Calcula la variaci�n entre presupuesto y real
+   * Genera un resumen comparativo completo
    */
-  calculateVariance(budgeted: number, actual: number): {
-    variance: number;
-    variancePercentage: number;
-    status: 'UNDER_BUDGET' | 'ON_BUDGET' | 'OVER_BUDGET';
-  } {
-    const variance = actual - budgeted;
-    const variancePercentage = budgeted > 0 ? (variance / budgeted) * 100 : 0;
-
-    let status: 'UNDER_BUDGET' | 'ON_BUDGET' | 'OVER_BUDGET';
-    if (Math.abs(variancePercentage) <= 5) {
-      status = 'ON_BUDGET';
-    } else if (variancePercentage < 0) {
-      status = 'UNDER_BUDGET';
-    } else {
-      status = 'OVER_BUDGET';
-    }
-
-    return {
-      variance,
-      variancePercentage,
-      status,
-    };
-  }
-
-  /**
-   * Genera resumen completo de costos
-   */
-  generateCostSummary(
-    budgetedItems: CostItem[],
-    actualItems: CostItem[]
-  ): CostSummary {
+  generateCostSummary(budgetedItems: CostItem[], actualItems: CostItem[]): CostSummary {
     const budgetedTotal = this.calculateTotalCost(budgetedItems);
     const actualTotal = this.calculateTotalCost(actualItems);
-    const { variance, variancePercentage } = this.calculateVariance(budgetedTotal, actualTotal);
+    
+    const variance = actualTotal - budgetedTotal;
+    const variancePercentage = budgetedTotal > 0 ? (variance / budgetedTotal) * 100 : 0;
 
     const budgetedByCategory = this.calculateCostByCategory(budgetedItems);
     const actualByCategory = this.calculateCostByCategory(actualItems);
 
     const byCategory = Object.values(CostCategory).reduce((acc, category) => {
-      const budgeted = budgetedByCategory[category] || 0;
+      const budget = budgetedByCategory[category] || 0;
       const actual = actualByCategory[category] || 0;
       
       acc[category] = {
-        budgeted,
-        actual,
-        variance: actual - budgeted,
+        budgeted: budget,
+        actual: actual,
+        variance: actual - budget,
       };
-      
       return acc;
-    }, {} as Record<CostCategory, { budgeted: number; actual: number; variance: number }>);
+    }, {} as Record<CostCategory, CategorySummary>);
 
     return {
       budgeted: budgetedTotal,
@@ -140,172 +131,111 @@ export class CostCalculatorService {
     };
   }
 
-  /**
-   * Calcula el costo de mano de obra por horas
-   */
-  calculateLaborCost(
-    hours: number,
-    hourlyRate: number,
-    overtime: number = 0,
-    overtimeMultiplier: number = 1.5
-  ): number {
-    const regularCost = hours * hourlyRate;
-    const overtimeCost = overtime * hourlyRate * overtimeMultiplier;
+  // ----------------------------------------------------------------
+  // Métodos de Cálculo Específicos (Usando tasas configuradas)
+  // ----------------------------------------------------------------
+
+  calculateLaborCost(hours: number, overtime: number = 0): number {
+    const regularCost = hours * this.rates.laborHourlyRate;
+    const overtimeCost = overtime * this.rates.laborHourlyRate * this.rates.overtimeMultiplier;
     return regularCost + overtimeCost;
   }
 
-  /**
-   * Calcula el costo de materiales con desperdicio
-   */
-  calculateMaterialCost(
-    quantity: number,
-    unitCost: number,
-    wastePercentage: number = 10
-  ): number {
-    const adjustedQuantity = quantity * (1 + wastePercentage / 100);
+  calculateMaterialCost(quantity: number, unitCost: number): number {
+    const adjustedQuantity = quantity * (1 + this.rates.defaultWastePercentage / 100);
     return adjustedQuantity * unitCost;
   }
 
-  /**
-   * Calcula el costo de transporte por distancia
-   */
-  calculateTransportationCost(
-    distanceKm: number,
-    costPerKm: number,
-    trips: number = 1
-  ): number {
-    return distanceKm * costPerKm * trips * 2; // Ida y vuelta
+  calculateTransportationCost(trips: number = 1): number {
+    // Asumiendo ida y vuelta incluido en la tarifa base del viaje
+    return trips * this.rates.transportTripCost; 
   }
 
-  /**
-   * Calcula costos indirectos (overhead)
-   */
-  calculateOverhead(
-    directCosts: number,
-    overheadPercentage: number = 15
-  ): number {
-    return directCosts * (overheadPercentage / 100);
-  }
+  // ----------------------------------------------------------------
+  // Estimación de Plan de Trabajo
+  // ----------------------------------------------------------------
 
-  /**
-   * Estima costo total de un plan de trabajo
-   */
   estimateWorkPlanCost(workPlan: WorkPlan): CostItem[] {
     const items: CostItem[] = [];
 
-    // Calcular costos de materiales
-    if (workPlan.materials && workPlan.materials.length > 0) {
-      workPlan.materials.forEach((material) => {
-        items.push({
-          category: CostCategory.MATERIALS,
-          description: material.name,
-          quantity: material.quantity,
-          unitCost: material.unitCost || 0,
-          totalCost: material.quantity * (material.unitCost || 0),
-        });
-      });
-    }
-
-    // Calcular costos de herramientas/equipos
-    if (workPlan.tools && workPlan.tools.length > 0) {
-      workPlan.tools.forEach((tool) => {
-        items.push({
-          category: CostCategory.EQUIPMENT,
-          description: tool.name,
-          quantity: tool.quantity,
-          unitCost: 0, // Asumiendo que son herramientas de la empresa
-          totalCost: 0,
-        });
-      });
-    }
-
-    // Agregar mano de obra estimada (basado en presupuesto)
-    const estimatedHours = 8; // Default 8 hours
-    items.push({
-      category: CostCategory.LABOR,
-      description: 'Mano de obra t�cnica',
-      quantity: estimatedHours,
-      unitCost: 50000,
-      totalCost: estimatedHours * 50000,
+    // 1. Materiales
+    workPlan.materials?.forEach((material) => {
+      const cost = (material.quantity || 0) * (material.unitCost || 0);
+      items.push(this.createItem(CostCategory.MATERIALS, material.name, material.quantity, material.unitCost || 0, cost));
     });
 
-    // Agregar transporte
-    items.push({
-      category: CostCategory.TRANSPORTATION,
-      description: 'Transporte a sitio',
-      quantity: 1,
-      unitCost: 100000, // Valor ejemplo
-      totalCost: 100000,
+    // 2. Herramientas / Equipos (Costo 0 si son propios, o implementar lógica de alquiler)
+    workPlan.tools?.forEach((tool) => {
+      items.push(this.createItem(CostCategory.EQUIPMENT, tool.name, tool.quantity, 0, 0));
     });
+
+    // 3. Mano de Obra (Estimación base: 8 horas)
+    const estimatedHours = 8;
+    const laborCost = this.calculateLaborCost(estimatedHours);
+    items.push(this.createItem(CostCategory.LABOR, 'Mano de obra técnica (Est.)', estimatedHours, this.rates.laborHourlyRate, laborCost));
+
+    // 4. Transporte (Estimación base: 1 viaje)
+    const transportCost = this.calculateTransportationCost(1);
+    items.push(this.createItem(CostCategory.TRANSPORTATION, 'Transporte a sitio (Est.)', 1, transportCost, transportCost));
 
     return items;
   }
 
-  /**
-   * Compara dos presupuestos
-   */
-  compareBudgets(
-    budget1: CostItem[],
-    budget2: CostItem[]
-  ): {
-    differences: Array<{
-      category: CostCategory;
-      description: string;
-      budget1Cost: number;
-      budget2Cost: number;
-      difference: number;
-    }>;
-    totalDifference: number;
-  } {
-    const differences: Array<{
-      category: CostCategory;
-      description: string;
-      budget1Cost: number;
-      budget2Cost: number;
-      difference: number;
-    }> = [];
+  // ----------------------------------------------------------------
+  // Comparación de Presupuestos
+  // ----------------------------------------------------------------
 
-    const budget1Map = new Map<string, CostItem>();
-    budget1.forEach((item) => {
-      const key = `${item.category}-${item.description}`;
-      budget1Map.set(key, item);
-    });
+  compareBudgets(budget1: CostItem[], budget2: CostItem[]) {
+    const differences: Array<any> = [];
+    
+    // Crear mapa para búsqueda rápida O(1)
+    const budget1Map = new Map(budget1.map(item => [`${item.category}:${item.description}`, item]));
+    const processedKeys = new Set<string>();
 
-    budget2.forEach((item) => {
-      const key = `${item.category}-${item.description}`;
-      const budget1Item = budget1Map.get(key);
+    // Paso 1: Comparar items en budget2 contra budget1
+    budget2.forEach(item2 => {
+      const key = `${item2.category}:${item2.description}`;
+      processedKeys.add(key);
+      
+      const item1 = budget1Map.get(key);
+      const cost1 = item1 ? item1.totalCost : 0;
+      const diff = item2.totalCost - cost1;
 
-      if (budget1Item) {
-        if (budget1Item.totalCost !== item.totalCost) {
-          differences.push({
-            category: item.category,
-            description: item.description,
-            budget1Cost: budget1Item.totalCost,
-            budget2Cost: item.totalCost,
-            difference: item.totalCost - budget1Item.totalCost,
-          });
-        }
-      } else {
+      if (diff !== 0) {
         differences.push({
-          category: item.category,
-          description: item.description,
-          budget1Cost: 0,
-          budget2Cost: item.totalCost,
-          difference: item.totalCost,
+          category: item2.category,
+          description: item2.description,
+          budget1Cost: cost1,
+          budget2Cost: item2.totalCost,
+          difference: diff
         });
       }
     });
 
-    const totalDifference = differences.reduce((sum, diff) => sum + diff.difference, 0);
+    // Paso 2: Encontrar items que estaban en budget1 pero NO en budget2
+    budget1.forEach(item1 => {
+      const key = `${item1.category}:${item1.description}`;
+      if (!processedKeys.has(key)) {
+        differences.push({
+          category: item1.category,
+          description: item1.description,
+          budget1Cost: item1.totalCost,
+          budget2Cost: 0,
+          difference: -item1.totalCost // Diferencia negativa (ahorro o recorte)
+        });
+      }
+    });
 
-    return {
-      differences,
-      totalDifference,
-    };
+    const totalDifference = differences.reduce((sum, item) => sum + item.difference, 0);
+
+    return { differences, totalDifference };
+  }
+
+  // Helper privado para crear items consistentemente
+  private createItem(category: CostCategory, description: string, qty: number, unit: number, total: number): CostItem {
+    return { category, description, quantity: qty, unitCost: unit, totalCost: total };
   }
 }
 
-/**
- * Instancia singleton del servicio
- */
 export const costCalculatorService = new CostCalculatorService();
+

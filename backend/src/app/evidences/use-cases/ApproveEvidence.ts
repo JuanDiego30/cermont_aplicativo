@@ -1,28 +1,30 @@
 import type { IEvidenceRepository } from '../../../domain/repositories/IEvidenceRepository.js';
 import { Evidence, EvidenceStatus } from '../../../domain/entities/Evidence.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { logger } from '../../../shared/utils/logger.js';
 
-/**
- * Error personalizado para operaciones de aprobación de evidencia
- * Incluye código de error y status HTTP para manejo consistente
- * @class EvidenceApprovalError
- * @extends {Error}
- */
-export class EvidenceApprovalError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-    public readonly statusCode: number
-  ) {
-    super(message);
-    this.name = 'EvidenceApprovalError';
-    Error.captureStackTrace?.(this, this.constructor);
-  }
-}
+const APPROVAL_CONFIG = {
+  MAX_COMMENT_LENGTH: 1000,
+  APPROVABLE_STATUS: EvidenceStatus.PENDING,
+} as const;
 
-/**
- * Parámetros para aprobar una evidencia
- * @interface ApproveEvidenceParams
- */
+const ERROR_MESSAGES = {
+  EVIDENCE_NOT_FOUND: (id: string) => `Evidencia con ID ${id} no encontrada`,
+  INVALID_STATUS: (current: EvidenceStatus) =>
+    `Solo se pueden aprobar evidencias pendientes. Estado actual: ${current}`,
+  ALREADY_APPROVED: (approvedAt: Date) =>
+    `La evidencia ya fue aprobada el ${approvedAt.toISOString()}`,
+  MISSING_EVIDENCE_ID: 'El ID de la evidencia es requerido',
+  MISSING_APPROVED_BY: 'El ID del usuario aprobador es requerido',
+  INVALID_COMMENTS_TYPE: 'Los comentarios deben ser una cadena de texto',
+  COMMENTS_TOO_LONG: `Los comentarios no pueden exceder ${APPROVAL_CONFIG.MAX_COMMENT_LENGTH} caracteres`,
+} as const;
+
+const LOG_CONTEXT = {
+  USE_CASE: '[ApproveEvidenceUseCase]',
+} as const;
+
 interface ApproveEvidenceParams {
   /** ID único de la evidencia a aprobar */
   evidenceId: string;
@@ -30,175 +32,158 @@ interface ApproveEvidenceParams {
   approvedBy: string;
   /** Comentarios opcionales sobre la aprobación (máx. 1000 caracteres) */
   comments?: string;
+  /** IP del usuario que aprueba (para auditoría) */
+  ip?: string;
+  /** User-Agent del usuario que aprueba (para auditoría) */
+  userAgent?: string;
 }
 
-/**
- * Caso de uso: Aprobar una evidencia pendiente
- * Valida el estado de la evidencia y actualiza su status a APPROVED
- * @class ApproveEvidence
- * @since 1.0.0
- */
-export class ApproveEvidence {
-  private static readonly MAX_COMMENT_LENGTH = 1000;
-  private static readonly APPROVABLE_STATUS = EvidenceStatus.PENDING;
+interface AuditContext {
+  ip: string;
+  userAgent: string;
+}
 
-  constructor(private readonly evidenceRepository: IEvidenceRepository) {}
+export class ApproveEvidenceUseCase {
+  constructor(
+    private readonly evidenceRepository: IEvidenceRepository,
+    private readonly auditService: AuditService
+  ) {}
 
-  /**
-   * Ejecuta la aprobación de una evidencia
-   * @param {ApproveEvidenceParams} params - Parámetros de aprobación
-   * @returns {Promise<Evidence>} Evidencia aprobada con datos actualizados
-   * @throws {EvidenceApprovalError} Si la evidencia no existe, no está pendiente, o hay error en la actualización
-   */
   async execute(params: ApproveEvidenceParams): Promise<Evidence> {
-    try {
-      this.validateParams(params);
+    this.validateInputParams(params);
 
-      const evidence = await this.fetchEvidence(params.evidenceId);
-      this.validateEvidenceState(evidence);
+    const evidence = await this.fetchEvidence(params.evidenceId);
+    this.validateEvidenceCanBeApproved(evidence);
 
-      const updatedEvidence = await this.approveEvidence(evidence.id, params);
+    const updatedEvidence = await this.updateEvidenceToApproved(evidence.id, params);
 
-      console.info(`[ApproveEvidence] ✅ Evidencia ${evidence.id} aprobada por ${params.approvedBy}`);
+    const auditContext = this.extractAuditContext(params);
+    await this.logApprovalEvent(evidence, params.approvedBy, auditContext);
 
-      return updatedEvidence;
-    } catch (error) {
-      if (error instanceof EvidenceApprovalError) {
-        throw error;
-      }
-
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
-      console.error('[ApproveEvidence] Error inesperado:', errorMessage);
-
-      throw new EvidenceApprovalError(
-        `Error interno al aprobar la evidencia: ${errorMessage}`,
-        'INTERNAL_ERROR',
-        500
-      );
-    }
-  }
-
-  /**
-   * Obtiene la evidencia del repositorio
-   * @private
-   * @param {string} evidenceId - ID de la evidencia
-   * @returns {Promise<Evidence>} Evidencia encontrada
-   * @throws {EvidenceApprovalError} Si la evidencia no existe
-   */
-  private async fetchEvidence(evidenceId: string): Promise<Evidence> {
-    const evidence = await this.evidenceRepository.findById(evidenceId);
-
-    if (!evidence) {
-      throw new EvidenceApprovalError(
-        `Evidencia con ID ${evidenceId} no encontrada`,
-        'EVIDENCE_NOT_FOUND',
-        404
-      );
-    }
-
-    return evidence;
-  }
-
-  /**
-   * Valida que la evidencia esté en estado aprobable
-   * @private
-   * @param {Evidence} evidence - Evidencia a validar
-   * @throws {EvidenceApprovalError} Si el estado no permite aprobación
-   */
-  private validateEvidenceState(evidence: Evidence): void {
-    if (evidence.status !== ApproveEvidence.APPROVABLE_STATUS) {
-      throw new EvidenceApprovalError(
-        `Solo se pueden aprobar evidencias pendientes. Estado actual: ${evidence.status}`,
-        'INVALID_STATUS',
-        400
-      );
-    }
-
-    if (evidence.approvedAt) {
-      throw new EvidenceApprovalError(
-        `La evidencia ya fue aprobada el ${evidence.approvedAt.toISOString()}`,
-        'ALREADY_APPROVED',
-        409
-      );
-    }
-  }
-
-  /**
-   * Actualiza la evidencia con datos de aprobación
-   * @private
-   * @param {string} evidenceId - ID de la evidencia
-   * @param {ApproveEvidenceParams} params - Parámetros de aprobación
-   * @returns {Promise<Evidence>} Evidencia actualizada
-   */
-  private async approveEvidence(
-    evidenceId: string,
-    params: ApproveEvidenceParams
-  ): Promise<Evidence> {
-    return this.evidenceRepository.update(evidenceId, {
-      status: EvidenceStatus.APPROVED,
+    logger.info(`${LOG_CONTEXT.USE_CASE} Evidencia aprobada exitosamente`, {
+      evidenceId: evidence.id,
       approvedBy: params.approvedBy,
-      approvalComments: params.comments?.trim() || undefined,
-      approvedAt: new Date(),
+      orderId: evidence.orderId,
     });
+
+    return updatedEvidence;
   }
 
-  /**
-   * Valida los parámetros de entrada
-   * @private
-   * @param {ApproveEvidenceParams} params - Parámetros a validar
-   * @throws {EvidenceApprovalError} Si algún parámetro es inválido
-   */
-  private validateParams(params: ApproveEvidenceParams): void {
-    this.validateStringParam(params.evidenceId, 'evidenceId', 'El ID de la evidencia');
-    this.validateStringParam(params.approvedBy, 'approvedBy', 'El ID del usuario aprobador');
+  private validateInputParams(params: ApproveEvidenceParams): void {
+    if (!params.evidenceId?.trim()) {
+      throw new Error(ERROR_MESSAGES.MISSING_EVIDENCE_ID);
+    }
+
+    if (!params.approvedBy?.trim()) {
+      throw new Error(ERROR_MESSAGES.MISSING_APPROVED_BY);
+    }
 
     if (params.comments !== undefined) {
       this.validateComments(params.comments);
     }
   }
 
-  /**
-   * Valida un parámetro de tipo string
-   * @private
-   * @param {unknown} value - Valor a validar
-   * @param {string} paramName - Nombre del parámetro (para error code)
-   * @param {string} displayName - Nombre para mostrar al usuario
-   * @throws {EvidenceApprovalError} Si el parámetro es inválido
-   */
-  private validateStringParam(value: unknown, paramName: string, displayName: string): void {
-    if (!value || typeof value !== 'string' || value.trim() === '') {
-      throw new EvidenceApprovalError(
-        `${displayName} es requerido y debe ser una cadena válida`,
-        `INVALID_${paramName.toUpperCase()}`,
-        400
-      );
+  private validateComments(comments: unknown): void {
+    if (typeof comments !== 'string') {
+      throw new Error(ERROR_MESSAGES.INVALID_COMMENTS_TYPE);
+    }
+
+    if (comments.length > APPROVAL_CONFIG.MAX_COMMENT_LENGTH) {
+      throw new Error(ERROR_MESSAGES.COMMENTS_TOO_LONG);
     }
   }
 
-  /**
-   * Valida los comentarios de aprobación
-   * @private
-   * @param {unknown} comments - Comentarios a validar
-   * @throws {EvidenceApprovalError} Si los comentarios son inválidos
-   */
-  private validateComments(comments: unknown): void {
-    if (typeof comments !== 'string') {
-      throw new EvidenceApprovalError(
-        'Los comentarios deben ser una cadena de texto',
-        'INVALID_COMMENTS',
-        400
-      );
+  private async fetchEvidence(evidenceId: string): Promise<Evidence> {
+    const evidence = await this.evidenceRepository.findById(evidenceId);
+
+    if (!evidence) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Evidencia no encontrada`, { evidenceId });
+      throw new Error(ERROR_MESSAGES.EVIDENCE_NOT_FOUND(evidenceId));
     }
 
-    if (comments.length > ApproveEvidence.MAX_COMMENT_LENGTH) {
-      throw new EvidenceApprovalError(
-        `Los comentarios no pueden exceder ${ApproveEvidence.MAX_COMMENT_LENGTH} caracteres`,
-        'COMMENTS_TOO_LONG',
-        400
-      );
+    return evidence;
+  }
+
+  private validateEvidenceCanBeApproved(evidence: Evidence): void {
+    if (evidence.status !== APPROVAL_CONFIG.APPROVABLE_STATUS) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Estado inválido para aprobación`, {
+        evidenceId: evidence.id,
+        currentStatus: evidence.status,
+        requiredStatus: APPROVAL_CONFIG.APPROVABLE_STATUS,
+      });
+      
+      // Si ya está aprobada, dar mensaje específico
+      if (evidence.status === EvidenceStatus.APPROVED) {
+        throw new Error(ERROR_MESSAGES.ALREADY_APPROVED(evidence.approvedAt || new Date()));
+      }
+      
+      throw new Error(ERROR_MESSAGES.INVALID_STATUS(evidence.status));
+    }
+  }
+
+  private async updateEvidenceToApproved(
+    evidenceId: string,
+    params: ApproveEvidenceParams
+  ): Promise<Evidence> {
+    const approvalData = {
+      status: EvidenceStatus.APPROVED,
+      approvedBy: params.approvedBy,
+      approvalComments: params.comments?.trim() || undefined,
+      approvedAt: new Date(),
+    };
+
+    try {
+      return await this.evidenceRepository.update(evidenceId, approvalData);
+    } catch (error) {
+      logger.error(`${LOG_CONTEXT.USE_CASE} Error actualizando evidencia`, {
+        evidenceId,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
+      throw error;
+    }
+  }
+
+  private extractAuditContext(params: ApproveEvidenceParams): AuditContext {
+    return {
+      ip: params.ip || 'unknown',
+      userAgent: params.userAgent || 'unknown',
+    };
+  }
+
+  private async logApprovalEvent(
+    evidence: Evidence,
+    approvedBy: string,
+    auditContext: AuditContext
+  ): Promise<void> {
+    try {
+      await this.auditService.log({
+        entityType: 'Evidence',
+        entityId: evidence.id,
+        action: AuditAction.APPROVE_EVIDENCE,
+        userId: approvedBy,
+        before: {
+          status: evidence.status,
+          approvedBy: evidence.approvedBy,
+          approvedAt: evidence.approvedAt,
+        },
+        after: {
+          status: EvidenceStatus.APPROVED,
+          approvedBy,
+          approvedAt: new Date(),
+        },
+        ip: auditContext.ip,
+        userAgent: auditContext.userAgent,
+        reason: 'Evidencia aprobada manualmente',
+      });
+    } catch (error) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Error registrando auditoría (no crítico)`, {
+        evidenceId: evidence.id,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
     }
   }
 }
+
 
 
 

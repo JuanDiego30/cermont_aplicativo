@@ -6,6 +6,9 @@ import { PERMISSIONS } from '../../../shared/constants/permissions.js';
 
 const router = Router();
 
+// Middleware de autenticación global para rutas de dashboard
+router.use(authenticate);
+
 /**
  * @route   GET /api/dashboard/metrics
  * @desc    Obtener métricas principales (KPIs)
@@ -13,9 +16,19 @@ const router = Router();
  */
 router.get(
   '/metrics',
-  authenticate,
   authorize([PERMISSIONS.DASHBOARD_VIEW_METRICS]),
-  (req, res) => dashboardController.getMetrics(req, res)
+  dashboardController.getMetrics
+);
+
+/**
+ * @route   GET /api/dashboard/metrics/advanced
+ * @desc    Obtener métricas avanzadas
+ * @access  Private (Admin, Coordinador)
+ */
+router.get(
+  '/metrics/advanced',
+  authorize([PERMISSIONS.DASHBOARD_VIEW_METRICS]),
+  dashboardController.getAdvancedMetrics
 );
 
 /**
@@ -25,9 +38,8 @@ router.get(
  */
 router.get(
   '/stats',
-  authenticate,
   authorize([PERMISSIONS.DASHBOARD_VIEW_STATS]),
-  (req, res) => dashboardController.getGeneralStats(req, res)
+  dashboardController.getGeneralStats
 );
 
 /**
@@ -37,9 +49,8 @@ router.get(
  */
 router.get(
   '/orders/by-state/:state',
-  authenticate,
   authorize([PERMISSIONS.ORDERS_VIEW]),
-  (req, res) => dashboardController.getOrdersByState(req, res)
+  dashboardController.getOrdersByState
 );
 
 /**
@@ -49,9 +60,8 @@ router.get(
  */
 router.get(
   '/orders/active',
-  authenticate,
   authorize([PERMISSIONS.ORDERS_VIEW]),
-  (req, res) => dashboardController.getActiveOrders(req, res)
+  dashboardController.getActiveOrders
 );
 
 /**
@@ -61,9 +71,8 @@ router.get(
  */
 router.get(
   '/work-plans/pending',
-  authenticate,
   authorize([PERMISSIONS.WORKPLANS_VIEW]),
-  (req, res) => dashboardController.getPendingWorkPlans(req, res)
+  dashboardController.getPendingWorkPlans
 );
 
 /**
@@ -73,9 +82,8 @@ router.get(
  */
 router.get(
   '/my-stats',
-  authenticate,
   authorize([PERMISSIONS.DASHBOARD_VIEW]),
-  (req, res) => dashboardController.getMyStats(req, res)
+  dashboardController.getMyStats
 );
 
 /**
@@ -85,9 +93,8 @@ router.get(
  */
 router.get(
   '/recent-activity',
-  authenticate,
   authorize([PERMISSIONS.DASHBOARD_VIEW]),
-  (req, res) => dashboardController.getRecentActivity(req, res)
+  dashboardController.getRecentActivity
 );
 
 /**
@@ -97,9 +104,8 @@ router.get(
  */
 router.post(
   '/cache/clear',
-  authenticate,
   authorize([PERMISSIONS.DASHBOARD_CLEAR_CACHE]),
-  (req, res) => dashboardController.clearCache(req, res)
+  dashboardController.clearCache
 );
 
 export default router;

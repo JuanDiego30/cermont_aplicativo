@@ -1,43 +1,41 @@
 /**
- * Entidad: Token en Blacklist
- * Representa un token (ACCESS o REFRESH) invalidado de forma explícita
+ * Tipos de token revocables
  */
 export enum TokenType {
   ACCESS = 'ACCESS',
   REFRESH = 'REFRESH',
 }
 
-export interface TokenBlacklist {
-  /** ID único del registro */
+/**
+ * Entidad: Token Revocado
+ * Registro de un token invalidado antes de su expiración natural.
+ * Usado para Logout forzado o rotación de seguridad.
+ */
+export interface RevokedToken {
   id: string;
 
-  /** Token JWT completo que dejó de ser válido */
-  token: string;
+  /** 
+   * Identificador único del token (JTI claim) o Hash del token.
+   * Es más eficiente buscar por JTI que por el token completo.
+   */
+  tokenIdentifier: string;
 
-  /** ID del usuario dueño del token */
   userId: string;
-
-  /** Tipo de token (access/refresh) */
   type: TokenType;
 
-  /** Fecha de expiración original del token */
+  /** 
+   * Fecha de expiración original.
+   * Crítico: Este registro puede eliminarse automáticamente después de esta fecha.
+   */
   expiresAt: Date;
 
-  /** Fecha en que fue invalidado */
+  /** Auditoría de revocación */
   revokedAt: Date;
+  revokedBy?: string; // 'SYSTEM', 'ADMIN', o userId
+  reason?: string;    // 'LOGOUT', 'ROTATION', 'SECURITY_BREACH'
 
-  /** Usuario que solicitó la revocación */
-  revokedBy?: string;
-
-  /** Motivo o contexto de la revocación */
-  reason?: string;
-
-  /** Estado de la lista donde fue registrado */
-  createdAt: Date;
-
-  /** Dirección IP desde la que se revocó */
+  /** Contexto de la solicitud de revocación */
   ipAddress?: string;
-
-  /** User-Agent asociado al token */
   userAgent?: string;
 }
+

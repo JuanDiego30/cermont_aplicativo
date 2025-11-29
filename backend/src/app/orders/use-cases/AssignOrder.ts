@@ -1,148 +1,273 @@
 /**
- * Use Case: Asignar orden a t�cnico
- * Resuelve: Asignaci�n de �rdenes con validaci�n de jerarqu�a de roles
+ * Use Case: Asignar orden a técnico
+ * Resuelve: Asignación de órdenes con validación de roles y permisos
+ * 
+ * Validaciones:
+ * - La orden debe existir y no estar completada/cancelada
+ * - El técnico debe existir, estar activo y tener rol TECHNICIAN
+ * - El asignador debe tener permisos para asignar órdenes
+ * - No se permite auto-asignación (opcional)
  * 
  * @file backend/src/app/orders/use-cases/AssignOrder.ts
  */
 
 import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
 import type { IUserRepository } from '../../../domain/repositories/IUserRepository.js';
+import type { IEmailService } from '../../../domain/services/IEmailService.js';
 import { AuditService } from '../../../domain/services/AuditService.js';
 import { AuditAction } from '../../../domain/entities/AuditLog.js';
-import { emailService } from '../../../infra/services/EmailService.js';
+import { OrderState } from '../../../domain/entities/Order.js';
+import type { Order } from '../../../domain/entities/Order.js';
+import type { User } from '../../../domain/entities/User.js';
 import { logger } from '../../../shared/utils/logger.js';
-import {
-  ObjectIdValidator,
-  ObjectIdValidationError,
-} from '../../../shared/validators/ObjectIdValidator.js';
 
-/**
- * DTO para asignar orden
- */
-export interface AssignOrderDto {
+const ASSIGNABLE_STATES = new Set<OrderState>([
+  OrderState.SOLICITUD,
+  OrderState.PLANEACION,
+  OrderState.EJECUCION,
+  OrderState.ACTA,
+  // No permitir asignar órdenes completadas o canceladas
+]);
+
+const ALLOWED_TECHNICIAN_ROLES = new Set(['TECHNICIAN', 'SUPERVISOR', 'ADMIN']);
+
+const ERROR_MESSAGES = {
+  MISSING_ORDER_ID: 'El ID de la orden es requerido',
+  MISSING_TECHNICIAN_ID: 'El ID del técnico es requerido',
+  MISSING_ASSIGNED_BY: 'El ID del asignador es requerido',
+  ORDER_NOT_FOUND: (id: string) => `Orden ${id} no encontrada`,
+  TECHNICIAN_NOT_FOUND: (id: string) => `Técnico ${id} no encontrado`,
+  TECHNICIAN_INACTIVE: 'El técnico no está activo',
+  INVALID_TECHNICIAN_ROLE: (role: string) =>
+    `El usuario tiene rol ${role}, no puede ser asignado a órdenes. Roles válidos: ${Array.from(ALLOWED_TECHNICIAN_ROLES).join(', ')}`,
+  INVALID_ORDER_STATE: (current: OrderState) =>
+    `No se pueden asignar órdenes en estado ${current}. Estados válidos: ${Array.from(ASSIGNABLE_STATES).join(', ')}`,
+  SELF_ASSIGNMENT_NOT_ALLOWED: 'No se permite auto-asignarse órdenes',
+  ALREADY_ASSIGNED: (name: string) =>
+    `La orden ya está asignada a ${name}. Use reasignación si desea cambiar el técnico`,
+} as const;
+
+const LOG_CONTEXT = {
+  USE_CASE: '[AssignOrderUseCase]',
+} as const;
+
+interface AssignOrderInput {
   orderId: string;
   technicianId: string;
   assignedBy: string;
   notes?: string;
+  ip?: string;
+  userAgent?: string;
+  allowSelfAssignment?: boolean;
+  allowReassignment?: boolean;
 }
 
-/**
- * Error de asignaci�n
- */
-export class AssignOrderError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-    public readonly statusCode: number
-  ) {
-    super(message);
-    this.name = 'AssignOrderError';
-  }
+interface AuditContext {
+  ip: string;
+  userAgent: string;
 }
 
-/**
- * Use Case: Asignar Orden
- * @class AssignOrder
- */
-export class AssignOrder {
+export class AssignOrderUseCase {
   constructor(
     private readonly orderRepository: IOrderRepository,
     private readonly userRepository: IUserRepository,
+    private readonly emailService: IEmailService,
     private readonly auditService: AuditService
   ) {}
 
-  async execute(dto: AssignOrderDto): Promise<void> {
-    try {
-      this.validateDto(dto);
+  async execute(input: AssignOrderInput): Promise<void> {
+    this.validateInput(input);
 
-      // 1. Verificar que la orden existe
-      const order = await this.orderRepository.findById(dto.orderId);
+    const order = await this.fetchOrder(input.orderId);
+    this.validateOrderCanBeAssigned(order, input);
 
-      if (!order) {
-        throw new AssignOrderError(
-          `Orden ${dto.orderId} no encontrada`,
-          'ORDER_NOT_FOUND',
-          404
-        );
-      }
+    const technician = await this.fetchTechnician(input.technicianId);
+    this.validateTechnician(technician);
 
-      // 2. Verificar que el t�cnico existe y est� activo
-      const technician = await this.userRepository.findById(dto.technicianId);
+    this.validateSelfAssignment(input);
 
-      if (!technician) {
-        throw new AssignOrderError(
-          `T�cnico ${dto.technicianId} no encontrado`,
-          'TECHNICIAN_NOT_FOUND',
-          404
-        );
-      }
+    const previousResponsibleId = order.responsibleId;
+    await this.assignOrder(input.orderId, input.technicianId, input.notes);
 
-      if (!technician.active) {
-        throw new AssignOrderError(
-          'El t�cnico no est� activo',
-          'TECHNICIAN_INACTIVE',
-          400
-        );
-      }
+    const auditContext = this.extractAuditContext(input);
+    await this.logAssignmentEvent(
+      order,
+      technician,
+      previousResponsibleId,
+      input.assignedBy,
+      auditContext
+    );
 
-      // 3. Actualizar la orden
-      const previousResponsible = order.responsibleId;
+    await this.notifyTechnician(technician, order);
 
-      await this.orderRepository.update(dto.orderId, {
-        responsibleId: dto.technicianId,
-        notes: dto.notes ? `${order.notes || ''}\n${dto.notes}` : order.notes,
-      });
+    logger.info(`${LOG_CONTEXT.USE_CASE} Orden asignada exitosamente`, {
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      technicianId: technician.id,
+      technicianName: technician.name,
+      assignedBy: input.assignedBy,
+    });
+  }
 
-      // 4. Registrar en auditor�a
-      await this.auditService.log({
-        entityType: 'Order',
-        entityId: dto.orderId,
-        action: AuditAction.UPDATE,
-        userId: dto.assignedBy,
-        before: { responsibleId: previousResponsible },
-        after: { responsibleId: dto.technicianId },
-        reason: dto.notes || 'Order assigned to technician',
-      });
+  private validateInput(input: AssignOrderInput): void {
+    if (!input.orderId?.trim()) {
+      throw new Error(ERROR_MESSAGES.MISSING_ORDER_ID);
+    }
 
-      // 5. Enviar notificaci�n por email al t�cnico
-      await emailService.notifyOrderAssigned(
-        technician.email,
-        technician.name,
-        order
-      );
+    if (!input.technicianId?.trim()) {
+      throw new Error(ERROR_MESSAGES.MISSING_TECHNICIAN_ID);
+    }
 
-      logger.info('[AssignOrder] Orden asignada exitosamente', {
-        orderId: dto.orderId,
-        technicianId: dto.technicianId,
-        assignedBy: dto.assignedBy,
-      });
-    } catch (error) {
-      if (error instanceof AssignOrderError) {
-        throw error;
-      }
-
-      logger.error('[AssignOrder] Error inesperado', {
-        error: error instanceof Error ? error.message : 'Unknown',
-      });
-
-      throw new AssignOrderError(
-        'Error interno al asignar orden',
-        'INTERNAL_ERROR',
-        500
-      );
+    if (!input.assignedBy?.trim()) {
+      throw new Error(ERROR_MESSAGES.MISSING_ASSIGNED_BY);
     }
   }
 
-  private validateDto(dto: AssignOrderDto): void {
+  private async fetchOrder(orderId: string): Promise<Order> {
+    const order = await this.orderRepository.findById(orderId);
+
+    if (!order) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Intento de asignar orden inexistente`, { orderId });
+      throw new Error(ERROR_MESSAGES.ORDER_NOT_FOUND(orderId));
+    }
+
+    return order;
+  }
+
+  private validateOrderCanBeAssigned(order: Order, input: AssignOrderInput): void {
+    if (!ASSIGNABLE_STATES.has(order.state)) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Intento de asignar orden en estado inválido`, {
+        orderId: order.id,
+        currentState: order.state,
+      });
+      throw new Error(ERROR_MESSAGES.INVALID_ORDER_STATE(order.state));
+    }
+
+    if (order.responsibleId && !input.allowReassignment) {
+      const currentTechnician = order.responsibleId; // Idealmente, obtener nombre
+      throw new Error(ERROR_MESSAGES.ALREADY_ASSIGNED(currentTechnician));
+    }
+  }
+
+  private async fetchTechnician(technicianId: string): Promise<User> {
+    const technician = await this.userRepository.findById(technicianId);
+
+    if (!technician) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Intento de asignar a técnico inexistente`, {
+        technicianId,
+      });
+      throw new Error(ERROR_MESSAGES.TECHNICIAN_NOT_FOUND(technicianId));
+    }
+
+    return technician;
+  }
+
+  private validateTechnician(technician: User): void {
+    if (!technician.active) {
+      throw new Error(ERROR_MESSAGES.TECHNICIAN_INACTIVE);
+    }
+
+    if (!ALLOWED_TECHNICIAN_ROLES.has(technician.role)) {
+      throw new Error(ERROR_MESSAGES.INVALID_TECHNICIAN_ROLE(technician.role));
+    }
+  }
+
+  private validateSelfAssignment(input: AssignOrderInput): void {
+    if (!input.allowSelfAssignment && input.technicianId === input.assignedBy) {
+      throw new Error(ERROR_MESSAGES.SELF_ASSIGNMENT_NOT_ALLOWED);
+    }
+  }
+
+  private async assignOrder(
+    orderId: string,
+    technicianId: string,
+    notes?: string
+  ): Promise<void> {
+    const updateData: any = {
+      responsibleId: technicianId,
+      assignedAt: new Date(),
+    };
+
+    // Agregar nota con timestamp y autor
+    if (notes) {
+      const timestampedNote = `[${new Date().toISOString()}] Asignación: ${notes}`;
+      const existingOrder = await this.orderRepository.findById(orderId);
+      updateData.notes = existingOrder?.notes
+        ? `${existingOrder.notes}\n${timestampedNote}`
+        : timestampedNote;
+    }
+
     try {
-      dto.orderId = ObjectIdValidator.validate(dto.orderId, 'ID de la orden');
-      dto.technicianId = ObjectIdValidator.validate(dto.technicianId, 'ID del t�cnico');
-      dto.assignedBy = ObjectIdValidator.validate(dto.assignedBy, 'ID del asignador');
+      await this.orderRepository.update(orderId, updateData);
     } catch (error) {
-      if (error instanceof ObjectIdValidationError) {
-        throw new AssignOrderError(error.message, 'INVALID_INPUT', 400);
-      }
+      logger.error(`${LOG_CONTEXT.USE_CASE} Error asignando orden`, {
+        orderId,
+        technicianId,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
       throw error;
     }
   }
+
+  private extractAuditContext(input: AssignOrderInput): AuditContext {
+    return {
+      ip: input.ip || 'unknown',
+      userAgent: input.userAgent || 'unknown',
+    };
+  }
+
+  private async logAssignmentEvent(
+    order: Order,
+    technician: User,
+    previousResponsibleId: string | null,
+    assignedBy: string,
+    auditContext: AuditContext
+  ): Promise<void> {
+    try {
+      await this.auditService.log({
+        entityType: 'Order',
+        entityId: order.id,
+        action: AuditAction.ASSIGN_ORDER,
+        userId: assignedBy,
+        before: {
+          responsibleId: previousResponsibleId,
+        },
+        after: {
+          responsibleId: technician.id,
+          responsibleName: technician.name,
+          assignedAt: new Date(),
+        },
+        ip: auditContext.ip,
+        userAgent: auditContext.userAgent,
+        reason: `Orden asignada a ${technician.name}`,
+      });
+    } catch (error) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Error registrando auditoría (no crítico)`, {
+        orderId: order.id,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
+    }
+  }
+
+  private async notifyTechnician(technician: User, order: Order): Promise<void> {
+    try {
+      if (this.emailService.notifyOrderAssigned) {
+        await this.emailService.notifyOrderAssigned(technician.email, technician.name, order);
+      }
+
+      logger.info(`${LOG_CONTEXT.USE_CASE} Notificación enviada al técnico`, {
+        technicianId: technician.id,
+        technicianEmail: technician.email,
+        orderId: order.id,
+      });
+    } catch (error) {
+      // Error de notificación no debe bloquear la asignación
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Error enviando notificación (no crítico)`, {
+        technicianId: technician.id,
+        orderId: order.id,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
+    }
+  }
 }
+

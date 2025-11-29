@@ -1,65 +1,71 @@
 import { UserRole } from '../../shared/constants/roles.js';
 
+// Re-export UserRole for convenience
+export { UserRole };
+
 /**
- * Entidad: Usuario del sistema
- * Representa un usuario con autenticación, roles y gestión de contraseñas
+ * Información de seguridad sensible separada
+ * para evitar exposición accidental.
+ */
+export interface UserSecurity {
+  mfaSecret?: string;
+  mfaEnabled?: boolean;
+  passwordHistory: string[];
+  recoveryCodes?: string[];
+  lastPasswordChange?: Date;
+  passwordExpiresAt?: Date;
+}
+
+/**
+ * Perfil profesional (opcional, solo para técnicos/operativos)
+ */
+export interface ProfessionalProfile {
+  idNumber?: string;     // Cédula/DNI
+  certifications?: string[];
+  specialties?: string[];
+}
+
+/**
+ * Entidad: Usuario
+ * Núcleo de identidad y acceso del sistema.
  */
 export interface User {
-  /** ID único del usuario */
   id: string;
-  
-  /** Email del usuario (único) */
   email: string;
-  
-  /** Hash de la contraseña (bcrypt) */
-  password: string;
-  
-  /** Nombre completo del usuario */
+  password: string; // Hashed
   name: string;
-  
-  /** Rol del usuario en el sistema */
   role: UserRole;
-
-  /** URL del avatar del usuario */
   avatar?: string;
-  
-  /** Indica si el usuario tiene MFA habilitado */
+
+  // --- Estado de Cuenta ---
+  active: boolean;
   mfaEnabled: boolean;
   
-  /** Secret de MFA (TOTP) */
-  mfaSecret?: string;
-  
-  /** Fecha del último cambio de contraseña */
+  // --- Seguridad y Ciclo de Vida de Password ---
   lastPasswordChange: Date;
-  
-  /** Historial de hashes de contraseñas anteriores (máximo 5 entradas) */
-  passwordHistory: string[];
-  
-  /** Fecha de expiración de la contraseña (90 días por defecto) */
   passwordExpiresAt: Date;
   
-  /** Fecha del último login exitoso */
+  // --- Control de Acceso (Rate Limiting / Locking) ---
   lastLogin?: Date;
-
-  /** Fecha del último login fallido */
   lastFailedLogin?: Date | null;
-  
-  /** Número de intentos de login fallidos consecutivos */
   loginAttempts: number;
-  
-  /** Fecha de bloqueo por intentos fallidos */
   lockedUntil?: Date | null;
-  
-  /** Indica si el usuario está activo */
-  active: boolean;
-  
-  /** ID del usuario que creó este usuario */
-  createdBy?: string;
-  
-  /** Fecha de creación */
-  createdAt: Date;
 
-  /** Fecha de última actualización */
+  // --- Datos Profesionales (Embedded) ---
+  /** Datos específicos para roles operativos */
+  professionalDetails?: ProfessionalProfile;
+
+  // --- Auditoría ---
+  createdBy?: string;
+  createdAt: Date;
   updatedAt: Date;
+  
+  /**
+   * Contenedor de secretos sensibles.
+   * Debe excluirse siempre de respuestas API y logs.
+   */
+  security?: UserSecurity;
 }
+
+
 

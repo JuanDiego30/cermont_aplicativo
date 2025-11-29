@@ -56,7 +56,7 @@ export function authorize(requiredPermissions: Permission[]) {
         return;
       }
 
-      const userRole = req.user.role.toUpperCase() as keyof typeof ROLE_PERMISSIONS;
+      const userRole = req.user.role.toLowerCase() as keyof typeof ROLE_PERMISSIONS;
 
       // Obtener permisos del rol del usuario
       const userPermissions = ROLE_PERMISSIONS[userRole];

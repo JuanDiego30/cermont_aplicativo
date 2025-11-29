@@ -1,313 +1,220 @@
 import type { IUserRepository } from '../../../domain/repositories/IUserRepository.js';
-import { passwordHasher } from '../../../shared/security/passwordHasher.js';
+import type { IPasswordHasher } from '../../../domain/services/IPasswordHasher.js';
 import type { User } from '../../../domain/entities/User.js';
 import { UserRole } from '../../../shared/constants/roles.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { logger } from '../../../shared/utils/logger.js';
 
-export class UserUpdateError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-    public readonly statusCode: number
-  ) {
-    super(message);
-    this.name = 'UserUpdateError';
+const CONFIG = {
+  PASSWORD: {
+    MIN_LENGTH: 8,
+    MAX_LENGTH: 128,
+    HISTORY_SIZE: 5,
+    EXPIRATION_DAYS: 90,
+    REGEX: {
+      UPPERCASE: /[A-Z]/,
+      LOWERCASE: /[a-z]/,
+      DIGIT: /[0-9]/,
+      SPECIAL: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/,
+      WHITESPACE: /\s/,
+    },
+  },
+  NAME: {
+    MIN_LENGTH: 3,
+    MAX_LENGTH: 100,
+  },
+} as const;
 
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
-    } else {
-      Object.setPrototypeOf(this, new.target.prototype);
-    }
-  }
-}
+const ERROR_MESSAGES = {
+  USER_NOT_FOUND: (id: string) => `Usuario con ID ${id} no encontrado`,
+  INVALID_USER_ID: 'El ID del usuario es inválido',
+  NO_FIELDS: 'Debe proporcionar al menos un campo para actualizar',
+  INVALID_NAME: `El nombre debe tener entre ${CONFIG.NAME.MIN_LENGTH} y ${CONFIG.NAME.MAX_LENGTH} caracteres`,
+  INVALID_ROLE: 'Rol inválido o no permitido (ROOT)',
+  PASSWORD_WEAK: 'La contraseña no cumple con los requisitos de seguridad (mayúscula, minúscula, número, especial)',
+  PASSWORD_REUSED: 'La contraseña ya fue utilizada recientemente',
+  PASSWORD_SAME: 'La nueva contraseña no puede ser igual a la actual',
+} as const;
+
+const LOG_CONTEXT = {
+  USE_CASE: '[UpdateUserUseCase]',
+} as const;
 
 export interface UpdateUserInput {
   name?: string;
   role?: UserRole;
   password?: string;
   mfaEnabled?: boolean;
+  updatedBy: string;
+  ip?: string;
+  userAgent?: string;
 }
 
-export class UpdateUser {
-  private static readonly MIN_PASSWORD_LENGTH = 8;
-  private static readonly MAX_PASSWORD_LENGTH = 128;
-  private static readonly PASSWORD_EXPIRATION_DAYS = 90;
-  private static readonly PASSWORD_HISTORY_SIZE = 5;
-  private static readonly MIN_NAME_LENGTH = 3;
-  private static readonly MAX_NAME_LENGTH = 100;
+interface AuditContext {
+  ip: string;
+  userAgent: string;
+}
 
-  // Regex para validar ObjectId de MongoDB (24 caracteres hexadecimales)
-  private static readonly OBJECTID_REGEX = /^[a-f\d]{24}$/i;
-
-  private static readonly UPPERCASE_REGEX = /[A-Z]/;
-  private static readonly LOWERCASE_REGEX = /[a-z]/;
-  private static readonly DIGIT_REGEX = /[0-9]/;
-  private static readonly SPECIAL_CHAR_REGEX =
-    /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
-  private static readonly WHITESPACE_REGEX = /\s/;
-
-  constructor(private readonly userRepository: IUserRepository) {}
+export class UpdateUserUseCase {
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly auditService: AuditService,
+    private readonly passwordHasher: IPasswordHasher // Inyección de dependencia
+  ) {}
 
   async execute(userId: string, input: UpdateUserInput): Promise<User> {
-    try {
-      this.validateUserId(userId);
+    this.validateInput(userId, input);
 
-      const existingUser = await this.userRepository.findById(userId);
+    const existingUser = await this.userRepository.findById(userId);
+    if (!existingUser) {
+      throw new Error(ERROR_MESSAGES.USER_NOT_FOUND(userId));
+    }
 
-      if (!existingUser) {
-        throw new UserUpdateError(
-          `Usuario con ID ${userId} no encontrado`,
-          'USER_NOT_FOUND',
-          404
-        );
+    const updateData: Partial<User> = await this.prepareUpdateData(existingUser, input);
+    const updatedUser = await this.userRepository.update(userId, updateData);
+
+    await this.logAudit(existingUser, updatedUser, input);
+
+    logger.info(`${LOG_CONTEXT.USE_CASE} Usuario actualizado exitosamente`, {
+      userId,
+      updatedBy: input.updatedBy,
+      changedFields: Object.keys(updateData),
+    });
+
+    return updatedUser;
+  }
+
+  private validateInput(userId: string, input: UpdateUserInput): void {
+    if (!userId || userId.trim().length === 0) {
+      throw new Error(ERROR_MESSAGES.INVALID_USER_ID);
+    }
+
+    const hasUpdates = [input.name, input.role, input.password, input.mfaEnabled].some(
+      (val) => val !== undefined
+    );
+
+    if (!hasUpdates) {
+      throw new Error(ERROR_MESSAGES.NO_FIELDS);
+    }
+
+    if (input.name) {
+      const len = input.name.trim().length;
+      if (len < CONFIG.NAME.MIN_LENGTH || len > CONFIG.NAME.MAX_LENGTH) {
+        throw new Error(ERROR_MESSAGES.INVALID_NAME);
       }
+    }
 
-      this.validateInput(input, existingUser);
-
-      const updateData: Partial<User> = {};
-
-      if (input.name !== undefined) {
-        updateData.name = input.name.trim();
+    if (input.role) {
+      if (!Object.values(UserRole).includes(input.role)) {
+        throw new Error('Rol inválido');
       }
-
-      if (input.role !== undefined) {
-        updateData.role = input.role;
+      if (input.role === UserRole.ROOT) {
+        throw new Error(ERROR_MESSAGES.INVALID_ROLE);
       }
+    }
 
-      if (input.mfaEnabled !== undefined) {
-        updateData.mfaEnabled = input.mfaEnabled;
-      }
-
-      if (input.password !== undefined) {
-        this.validatePasswordStrength(input.password);
-        await this.validatePasswordHistory(input.password, existingUser);
-
-        const passwordHash = await passwordHasher.hash(input.password);
-        updateData.password = passwordHash;
-
-        const passwordHistory = [...(existingUser.passwordHistory ?? [])];
-        passwordHistory.push(existingUser.password);
-
-        if (passwordHistory.length > UpdateUser.PASSWORD_HISTORY_SIZE) {
-          passwordHistory.shift();
-        }
-
-        updateData.passwordHistory = passwordHistory;
-
-        const now = new Date();
-        const passwordExpiresAt = new Date(now);
-        passwordExpiresAt.setDate(
-          passwordExpiresAt.getDate() + UpdateUser.PASSWORD_EXPIRATION_DAYS
-        );
-
-        updateData.passwordExpiresAt = passwordExpiresAt;
-        updateData.lastPasswordChange = now;
-      }
-
-      const updatedUser = await this.userRepository.update(userId, updateData);
-
-      const changes = Object.keys(updateData).filter(
-        (key) => key !== 'password' && key !== 'passwordHistory'
-      );
-
-      console.info(
-        `[UpdateUser] Usuario actualizado: ${userId} (${existingUser.email}) - Cambios: ${changes.join(
-          ', '
-        )}`
-      );
-
-      if (input.password) {
-        console.info('[UpdateUser] Contraseña actualizada');
-      }
-
-      return updatedUser;
-    } catch (error: unknown) {
-      if (error instanceof UserUpdateError) {
-        throw error;
-      }
-
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
-      console.error('[UpdateUser] Error inesperado:', errorMessage);
-
-      throw new Error('Error interno al actualizar el usuario');
+    if (input.password) {
+      this.validatePasswordStrength(input.password);
     }
   }
 
-  private validateUserId(userId: string): void {
-    if (!userId || typeof userId !== 'string' || userId.trim() === '') {
-      throw new UserUpdateError(
-        'El ID del usuario es requerido',
-        'INVALID_USER_ID',
-        400
+  private async prepareUpdateData(existingUser: User, input: UpdateUserInput): Promise<Partial<User>> {
+    const data: Partial<User> = {};
+
+    if (input.name) data.name = input.name.trim();
+    if (input.role) data.role = input.role;
+    if (input.mfaEnabled !== undefined) data.mfaEnabled = input.mfaEnabled;
+
+    if (input.password) {
+      await this.validatePasswordHistory(input.password, existingUser);
+      const { hash, history, expiresAt, lastChange } = await this.processNewPassword(
+        input.password,
+        existingUser
       );
+      data.password = hash;
+      data.security = {
+        passwordHistory: history,
+      };
+      data.passwordExpiresAt = expiresAt;
+      data.lastPasswordChange = lastChange;
     }
 
-    if (!UpdateUser.OBJECTID_REGEX.test(userId.trim())) {
-      throw new UserUpdateError(
-        `El ID del usuario tiene un formato inválido: ${userId}`,
-        'INVALID_USER_ID_FORMAT',
-        400
-      );
-    }
-  }
-
-  private validateInput(input: UpdateUserInput, existingUser: User): void {
-    const { name, role, password, mfaEnabled } = input;
-
-    if (
-      name === undefined &&
-      role === undefined &&
-      password === undefined &&
-      mfaEnabled === undefined
-    ) {
-      throw new UserUpdateError(
-        'Debe proporcionar al menos un campo para actualizar',
-        'NO_FIELDS_TO_UPDATE',
-        400
-      );
-    }
-
-    if (name !== undefined) {
-      if (typeof name !== 'string' || name.trim() === '') {
-        throw new UserUpdateError(
-          'El nombre no puede estar vacío',
-          'INVALID_NAME',
-          400
-        );
-      }
-
-      const trimmedName = name.trim();
-
-      if (trimmedName.length < UpdateUser.MIN_NAME_LENGTH) {
-        throw new UserUpdateError(
-          `El nombre debe tener al menos ${UpdateUser.MIN_NAME_LENGTH} caracteres`,
-          'NAME_TOO_SHORT',
-          400
-        );
-      }
-
-      if (trimmedName.length > UpdateUser.MAX_NAME_LENGTH) {
-        throw new UserUpdateError(
-          `El nombre no puede exceder ${UpdateUser.MAX_NAME_LENGTH} caracteres`,
-          'NAME_TOO_LONG',
-          400
-        );
-      }
-    }
-
-    if (role !== undefined) {
-      const validRoles = Object.values(UserRole);
-
-      if (!validRoles.includes(role)) {
-        throw new UserUpdateError(
-          `Rol inválido. Valores permitidos: ${validRoles.join(', ')}`,
-          'INVALID_ROLE',
-          400
-        );
-      }
-
-      if (role === UserRole.ROOT && existingUser.role !== UserRole.ROOT) {
-        throw new UserUpdateError(
-          'No se puede asignar el rol ROOT',
-          'CANNOT_ASSIGN_ROOT_ROLE',
-          403
-        );
-      }
-    }
-
-    if (mfaEnabled !== undefined && typeof mfaEnabled !== 'boolean') {
-      throw new UserUpdateError(
-        'El campo mfaEnabled debe ser un booleano',
-        'INVALID_MFA_ENABLED_TYPE',
-        400
-      );
-    }
+    return data;
   }
 
   private validatePasswordStrength(password: string): void {
-    if (password.length < UpdateUser.MIN_PASSWORD_LENGTH) {
-      throw new UserUpdateError(
-        `La contraseña debe tener al menos ${UpdateUser.MIN_PASSWORD_LENGTH} caracteres`,
-        'PASSWORD_TOO_SHORT',
-        400
-      );
+    const { MIN_LENGTH, MAX_LENGTH, REGEX } = CONFIG.PASSWORD;
+
+    if (password.length < MIN_LENGTH || password.length > MAX_LENGTH) {
+      throw new Error(`La contraseña debe tener entre ${MIN_LENGTH} y ${MAX_LENGTH} caracteres`);
     }
 
-    if (password.length > UpdateUser.MAX_PASSWORD_LENGTH) {
-      throw new UserUpdateError(
-        `La contraseña no puede exceder ${UpdateUser.MAX_PASSWORD_LENGTH} caracteres`,
-        'PASSWORD_TOO_LONG',
-        400
-      );
-    }
+    const isStrong =
+      REGEX.UPPERCASE.test(password) &&
+      REGEX.LOWERCASE.test(password) &&
+      REGEX.DIGIT.test(password) &&
+      REGEX.SPECIAL.test(password) &&
+      !REGEX.WHITESPACE.test(password);
 
-    if (!UpdateUser.UPPERCASE_REGEX.test(password)) {
-      throw new UserUpdateError(
-        'La contraseña debe contener al menos una letra mayúscula',
-        'PASSWORD_MISSING_UPPERCASE',
-        400
-      );
-    }
-
-    if (!UpdateUser.LOWERCASE_REGEX.test(password)) {
-      throw new UserUpdateError(
-        'La contraseña debe contener al menos una letra minúscula',
-        'PASSWORD_MISSING_LOWERCASE',
-        400
-      );
-    }
-
-    if (!UpdateUser.DIGIT_REGEX.test(password)) {
-      throw new UserUpdateError(
-        'La contraseña debe contener al menos un número',
-        'PASSWORD_MISSING_NUMBER',
-        400
-      );
-    }
-
-    if (!UpdateUser.SPECIAL_CHAR_REGEX.test(password)) {
-      throw new UserUpdateError(
-        'La contraseña debe contener al menos un carácter especial',
-        'PASSWORD_MISSING_SPECIAL',
-        400
-      );
-    }
-
-    if (UpdateUser.WHITESPACE_REGEX.test(password)) {
-      throw new UserUpdateError(
-        'La contraseña no puede contener espacios',
-        'PASSWORD_CONTAINS_SPACES',
-        400
-      );
+    if (!isStrong) {
+      throw new Error(ERROR_MESSAGES.PASSWORD_WEAK);
     }
   }
 
-  private async validatePasswordHistory(
-    newPassword: string,
-    user: User
-  ): Promise<void> {
-    const passwordHistory = user.passwordHistory ?? [];
-
-    const matchesCurrent = await passwordHasher.verify(user.password, newPassword);
-
-    if (matchesCurrent) {
-      throw new UserUpdateError(
-        'La nueva contraseña no puede ser igual a la contraseña actual',
-        'PASSWORD_SAME_AS_CURRENT',
-        400
-      );
+  private async validatePasswordHistory(newPassword: string, user: User): Promise<void> {
+    const isSameAsCurrent = await this.passwordHasher.compare(newPassword, user.password);
+    if (isSameAsCurrent) {
+      throw new Error(ERROR_MESSAGES.PASSWORD_SAME);
     }
 
-    for (const oldHash of passwordHistory) {
-      const matchesOld = await passwordHasher.verify(oldHash, newPassword);
-
-      if (matchesOld) {
-        throw new UserUpdateError(
-          'La contraseña ya fue utilizada recientemente. Por favor elige una contraseña diferente',
-          'PASSWORD_IN_HISTORY',
-          400
-        );
+    if (user.security?.passwordHistory?.length) {
+      for (const oldHash of user.security.passwordHistory) {
+        const isReused = await this.passwordHasher.compare(newPassword, oldHash);
+        if (isReused) {
+          throw new Error(ERROR_MESSAGES.PASSWORD_REUSED);
+        }
       }
     }
   }
+
+  private async processNewPassword(newPassword: string, user: User) {
+    const hash = await this.passwordHasher.hash(newPassword);
+    const now = new Date();
+    const expiresAt = new Date(now);
+    expiresAt.setDate(expiresAt.getDate() + CONFIG.PASSWORD.EXPIRATION_DAYS);
+
+    const history = [...(user.security?.passwordHistory || [])];
+    history.push(user.password);
+    if (history.length > CONFIG.PASSWORD.HISTORY_SIZE) {
+      history.shift();
+    }
+
+    return {
+      hash,
+      history,
+      expiresAt,
+      lastChange: now,
+    };
+  }
+
+  private async logAudit(before: User, after: User, input: UpdateUserInput): Promise<void> {
+    const changes = Object.keys(after).filter(
+      (key) => (before as any)[key] !== (after as any)[key] && key !== 'password'
+    );
+
+    await this.auditService.log({
+      entityType: 'User',
+      entityId: after.id,
+      action: AuditAction.UPDATE,
+      userId: input.updatedBy,
+      before: before as unknown as Record<string, unknown>,
+      after: after as unknown as Record<string, unknown>,
+      ip: input.ip || 'unknown',
+      userAgent: input.userAgent,
+      reason: `User updated: ${changes.join(', ')}`,
+    });
+  }
 }
+
 

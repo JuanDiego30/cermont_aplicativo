@@ -1,149 +1,141 @@
+/**
+ * Use Case: Obtener orden por ID
+ * 
+ * Busca una orden específica por su ID y retorna todos sus datos.
+ * 
+ * Opciones:
+ * - Incluir work plans asociados
+ * - Incluir evidencias asociadas
+ * - Incluir historial de auditoría
+ * 
+ * @file backend/src/app/orders/use-cases/GetOrderById.ts
+ */
+
 import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
 import type { Order } from '../../../domain/entities/Order.js';
+import { logger } from '../../../shared/utils/logger.js';
 
-/**
- * Error personalizado para operaciones de orden no encontrada
- * Incluye el ID de la orden que no se encontró para debugging
- * @class OrderNotFoundError
- * @extends {Error}
- */
-export class OrderNotFoundError extends Error {
-  constructor(
-    message: string,
-    public readonly code: string,
-    public readonly statusCode: number,
-    public readonly orderId: string
-  ) {
-    super(message);
-    this.name = 'OrderNotFoundError';
-    Error.captureStackTrace?.(this, this.constructor);
-  }
-}
+const ERROR_MESSAGES = {
+  MISSING_ORDER_ID: 'El ID de la orden es requerido',
+  EMPTY_ORDER_ID: 'El ID de la orden no puede estar vacío',
+  ORDER_NOT_FOUND: (id: string) => `Orden ${id} no encontrada`,
+} as const;
 
-/**
- * DTO para obtener orden por ID
- * @interface GetOrderByIdDto
- */
-export interface GetOrderByIdDto {
-  /** ID de la orden a buscar (formato ObjectId de MongoDB) */
+const LOG_CONTEXT = {
+  USE_CASE: '[GetOrderByIdUseCase]',
+} as const;
+
+interface GetOrderByIdInput {
   orderId: string;
+  includeWorkPlans?: boolean;
+  includeEvidences?: boolean;
+  includeAuditLog?: boolean;
 }
 
-/**
- * Caso de uso: Obtener una orden por su ID
- * Valida el formato del ID y busca la orden en el repositorio
- * @class GetOrderById
- * @since 1.0.0
- */
-export class GetOrderById {
-  // Regex para validar ObjectId de MongoDB (24 caracteres hexadecimales)
-  private static readonly OBJECTID_REGEX = /^[a-f\d]{24}$/i;
-  private static readonly OBJECTID_LENGTH = 24;
+interface GetOrderByIdOutput {
+  order: Order;
+  workPlans?: any[]; // Tipado según tu entidad WorkPlan
+  evidences?: any[]; // Tipado según tu entidad Evidence
+  auditLog?: any[]; // Tipado según tu entidad AuditLog
+}
 
+export class GetOrderByIdUseCase {
   constructor(private readonly orderRepository: IOrderRepository) {}
 
-  /**
-   * Ejecuta la búsqueda de una orden por ID
-   * @param {GetOrderByIdDto} dto - DTO con el ID de la orden
-   * @returns {Promise<Order>} Orden encontrada con todos sus datos
-   * @throws {OrderNotFoundError} Si la orden no existe o el ID es inválido
-   */
-  async execute(dto: GetOrderByIdDto): Promise<Order> {
+  async execute(input: GetOrderByIdInput): Promise<GetOrderByIdOutput> {
+    this.validateInput(input);
+
+    const order = await this.fetchOrder(input.orderId);
+
+    const result: GetOrderByIdOutput = { order };
+
+    // Incluir relaciones opcionales
+    if (input.includeWorkPlans) {
+      result.workPlans = await this.fetchWorkPlans(order.id);
+    }
+
+    if (input.includeEvidences) {
+      result.evidences = await this.fetchEvidences(order.id);
+    }
+
+    if (input.includeAuditLog) {
+      result.auditLog = await this.fetchAuditLog(order.id);
+    }
+
+    return result;
+  }
+
+  private validateInput(input: GetOrderByIdInput): void {
+    if (!input.orderId || typeof input.orderId !== 'string') {
+      throw new Error(ERROR_MESSAGES.MISSING_ORDER_ID);
+    }
+
+    if (input.orderId.trim() === '') {
+      throw new Error(ERROR_MESSAGES.EMPTY_ORDER_ID);
+    }
+  }
+
+  private async fetchOrder(orderId: string): Promise<Order> {
     try {
-      this.validateOrderId(dto.orderId);
+      const order = await this.orderRepository.findById(orderId);
 
-      const order = await this.fetchOrder(dto.orderId);
-
-      console.info(
-        `[GetOrderById] 🔍 Orden consultada: ${order.id} (cliente: ${order.clientName})`
-      );
+      if (!order) {
+        logger.warn(`${LOG_CONTEXT.USE_CASE} Orden no encontrada`, { orderId });
+        throw new Error(ERROR_MESSAGES.ORDER_NOT_FOUND(orderId));
+      }
 
       return order;
     } catch (error) {
-      if (error instanceof OrderNotFoundError) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown';
+      if (errorMessage.includes('no encontrada')) {
         throw error;
       }
 
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
-      console.error('[GetOrderById] Error inesperado:', errorMessage);
-
-      throw new OrderNotFoundError(
-        `Error interno al obtener la orden: ${errorMessage}`,
-        'INTERNAL_ERROR',
-        500,
-        dto.orderId
-      );
+      logger.error(`${LOG_CONTEXT.USE_CASE} Error obteniendo orden`, {
+        orderId,
+        error: errorMessage,
+      });
+      throw error;
     }
   }
 
-  /**
-   * Obtiene la orden del repositorio
-   * @private
-   * @param {string} orderId - ID de la orden
-   * @returns {Promise<Order>} Orden encontrada
-   * @throws {OrderNotFoundError} Si la orden no existe
-   */
-  private async fetchOrder(orderId: string): Promise<Order> {
-    const order = await this.orderRepository.findById(orderId);
-
-    if (!order) {
-      throw new OrderNotFoundError(
-        `Orden con ID ${orderId} no encontrada`,
-        'ORDER_NOT_FOUND',
-        404,
-        orderId
-      );
+  private async fetchWorkPlans(orderId: string): Promise<any[]> {
+    try {
+      return await this.orderRepository.findWorkPlansByOrderId(orderId);
+    } catch (error) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Error obteniendo work plans (no crítico)`, {
+        orderId,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
+      return [];
     }
-
-    return order;
   }
 
-  /**
-   * Valida el formato del ID de la orden (ObjectId de MongoDB)
-   * @private
-   * @param {string} orderId - ID a validar
-   * @throws {OrderNotFoundError} Si el ID es inválido
-   */
-  private validateOrderId(orderId: string): void {
-    if (!orderId || typeof orderId !== 'string') {
-      throw new OrderNotFoundError(
-        'El ID de la orden es requerido',
-        'INVALID_ORDER_ID',
-        400,
-        orderId ?? ''
-      );
+  private async fetchEvidences(orderId: string): Promise<any[]> {
+    try {
+      return await this.orderRepository.findEvidencesByOrderId(orderId);
+    } catch (error) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Error obteniendo evidencias (no crítico)`, {
+        orderId,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
+      return [];
     }
+  }
 
-    const trimmed = orderId.trim();
-
-    if (trimmed === '') {
-      throw new OrderNotFoundError(
-        'El ID de la orden no puede estar vacío',
-        'EMPTY_ORDER_ID',
-        400,
-        orderId
-      );
-    }
-
-    if (trimmed.length !== GetOrderById.OBJECTID_LENGTH) {
-      throw new OrderNotFoundError(
-        `El ID de la orden debe tener exactamente ${GetOrderById.OBJECTID_LENGTH} caracteres hexadecimales`,
-        'INVALID_ORDER_ID_LENGTH',
-        400,
-        orderId
-      );
-    }
-
-    if (!GetOrderById.OBJECTID_REGEX.test(trimmed)) {
-      throw new OrderNotFoundError(
-        `El ID de la orden tiene un formato inválido: ${orderId}`,
-        'INVALID_ORDER_ID_FORMAT',
-        400,
-        orderId
-      );
+  private async fetchAuditLog(orderId: string): Promise<any[]> {
+    try {
+      return await this.orderRepository.findAuditLogByOrderId(orderId);
+    } catch (error) {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Error obteniendo audit log (no crítico)`, {
+        orderId,
+        error: error instanceof Error ? error.message : 'Unknown',
+      });
+      return [];
     }
   }
 }
+
 
 
 

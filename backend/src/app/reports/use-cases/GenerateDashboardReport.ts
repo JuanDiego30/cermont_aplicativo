@@ -1,87 +1,185 @@
 /**
  * Use Case: Generar reporte de dashboard
- * Resuelve: Reporte consolidado con KPIs y m�tricas
+ * 
+ * Genera un reporte consolidado con KPIs y métricas de órdenes para
+ * un período dado, con opción de exportar en PDF y almacenar historial.
  * 
  * @file backend/src/app/reports/use-cases/GenerateDashboardReport.ts
  */
 
 import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
-import { GetOrderStats, type OrderStats } from '../../orders/use-cases/GetOrderStats.js';
+import type { IPdfGeneratorService } from '../../../domain/services/IPdfGeneratorService.js';
+import type { IFileStorageService } from '../../../domain/services/IFileStorageService.js';
+import type { ICacheService } from '../../../domain/services/ICacheService.js';
+import { GetOrderStatsUseCase, type OrderStats } from '../../orders/use-cases/GetOrderStats.js';
+import { AuditService } from '../../../domain/services/AuditService.js';
+import { AuditAction } from '../../../domain/entities/AuditLog.js';
 import { logger } from '../../../shared/utils/logger.js';
 
-/**
- * Filtros para el reporte
- */
-export interface DashboardReportFilters {
+const LOG_CONTEXT = {
+  USE_CASE: '[GenerateDashboardReportUseCase]',
+} as const;
+
+interface DashboardReportFilters {
   startDate?: Date;
   endDate?: Date;
   format?: 'JSON' | 'PDF';
+  generatedBy: string;
+  ip?: string;
+  userAgent?: string;
 }
 
-/**
- * Datos del reporte
- */
-export interface DashboardReportData {
+interface DashboardReportData {
   stats: OrderStats;
   period: {
     start: Date;
     end: Date;
   };
   generatedAt: Date;
+  reportFilePath?: string;
+  fileSize?: number;
 }
 
-/**
- * Use Case: Generar Reporte de Dashboard
- * @class GenerateDashboardReport
- */
-export class GenerateDashboardReport {
-  private readonly getOrderStats: GetOrderStats;
+interface AuditContext {
+  ip: string;
+  userAgent: string;
+}
 
-  constructor(private readonly orderRepository: IOrderRepository) {
-    this.getOrderStats = new GetOrderStats(orderRepository);
+export class GenerateDashboardReportUseCase {
+  private readonly getOrderStats: GetOrderStatsUseCase;
+
+  constructor(
+    private readonly orderRepository: IOrderRepository,
+    private readonly pdfGeneratorService: IPdfGeneratorService,
+    private readonly fileStorageService: IFileStorageService,
+    private readonly auditService: AuditService,
+    private readonly cacheService: ICacheService
+  ) {
+    this.getOrderStats = new GetOrderStatsUseCase(orderRepository, cacheService);
   }
 
-  async execute(filters: DashboardReportFilters = {}): Promise<DashboardReportData> {
-    try {
-      logger.info('[GenerateDashboardReport] Generando reporte', { filters });
+  async execute(filters: DashboardReportFilters): Promise<DashboardReportData> {
+    this.validateInput(filters);
 
-      // 1. Establecer per�odo por defecto (�ltimo mes)
-      const endDate = filters.endDate || new Date();
-      const startDate = filters.startDate || new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000);
+    // 1. Establecer período por defecto (últimos 30 días)
+    const now = new Date();
+    const endDate = filters.endDate || now;
+    const startDate = filters.startDate || new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-      // 2. Obtener estad�sticas
-      const stats = await this.getOrderStats.execute({
-        startDate,
-        endDate,
-      });
+    if (endDate < startDate) {
+      throw new Error('La fecha de fin debe ser posterior o igual a la de inicio');
+    }
 
-      // 3. Preparar datos del reporte
-      const reportData: DashboardReportData = {
-        stats,
-        period: {
-          start: startDate,
-          end: endDate,
-        },
-        generatedAt: new Date(),
+    // 2. Obtener estadísticas
+    const statsResult = await this.getOrderStats.execute({
+      startDate,
+      endDate,
+    });
+
+    const reportData: DashboardReportData = {
+      stats: statsResult.stats,
+      period: {
+        start: startDate,
+        end: endDate,
+      },
+      generatedAt: now,
+    };
+
+    let pdfBuffer: Buffer | undefined;
+    let filePath: string | undefined;
+    let fileSize: number | undefined;
+
+    // 3. Generar PDF y almacenar si se solicita
+    if (filters.format === 'PDF') {
+      // Mapear OrderStats a la estructura esperada por IPdfGeneratorService
+      const pdfStats = {
+        totalOrders: statsResult.stats.total,
+        completedOrders: statsResult.stats.stateGroups.completed,
+        pendingOrders: statsResult.stats.stateGroups.pending + statsResult.stats.stateGroups.inProgress,
+        byState: Object.fromEntries(
+          Object.entries(statsResult.stats.byState).map(([k, v]) => [k, v])
+        ) as Record<string, number>,
+        byMonth: [] as Array<{ month: string; count: number }>, // TODO: calcular por mes si es necesario
       };
-
-      logger.info('[GenerateDashboardReport] Reporte generado', {
-        totalOrders: stats.total,
-        period: `${startDate.toISOString()} - ${endDate.toISOString()}`,
+      pdfBuffer = await this.pdfGeneratorService.generateDashboardReport({
+        stats: pdfStats,
+        period: { start: startDate, end: endDate },
+        generatedAt: now,
       });
-
-      // 4. Si se solicita PDF, generar (futuro)
-      if (filters.format === 'PDF') {
-        // TODO: Implementar generaci�n de PDF del dashboard
-        logger.warn('[GenerateDashboardReport] PDF generation not implemented yet');
+      if (pdfBuffer) {
+        fileSize = pdfBuffer.length;
+        const fileName = `dashboard-report-${startDate.toISOString().slice(0, 10)}-${endDate.toISOString().slice(0, 10)}.pdf`;
+        filePath = await this.fileStorageService.upload(fileName, pdfBuffer, 'application/pdf');
+        reportData.reportFilePath = filePath;
+        reportData.fileSize = fileSize;
       }
+    }
 
-      return reportData;
+    // 4. Registrar en auditoría
+    const auditContext = this.extractAuditContext(filters);
+    await this.logDashboardReport(
+      reportData,
+      filters.generatedBy,
+      filters.format === 'PDF' ? filePath : undefined,
+      auditContext
+    );
+
+    logger.info(`${LOG_CONTEXT.USE_CASE} Reporte de dashboard generado`, {
+      period: `${startDate.toISOString()} - ${endDate.toISOString()}`,
+      format: filters.format || 'JSON',
+      reportFilePath: filePath,
+      generatedBy: filters.generatedBy,
+    });
+
+    return reportData;
+  }
+
+  private validateInput(filters: DashboardReportFilters): void {
+    if (!filters.generatedBy || !filters.generatedBy.trim()) {
+      throw new Error('Debe especificar el usuario que genera el reporte');
+    }
+    if (filters.format && !['JSON', 'PDF'].includes(filters.format)) {
+      throw new Error('Formato de reporte inválido');
+    }
+  }
+
+  private extractAuditContext(input: DashboardReportFilters): AuditContext {
+    return {
+      ip: input.ip || 'unknown',
+      userAgent: input.userAgent || 'unknown',
+    };
+  }
+
+  private async logDashboardReport(
+    reportData: DashboardReportData,
+    userId: string,
+    filePath: string | undefined,
+    auditContext: AuditContext
+  ): Promise<void> {
+    try {
+      await this.auditService.log({
+        entityType: 'DashboardReport',
+        entityId: reportData.period.start.toISOString() + '_' + reportData.period.end.toISOString(),
+        action: AuditAction.GENERATE_DASHBOARD_REPORT,
+        userId,
+        before: null,
+        after: {
+          reportGenerated: true,
+          filePath,
+          totalOrders: reportData.stats.total,
+          periodStart: reportData.period.start,
+          periodEnd: reportData.period.end,
+          generatedAt: reportData.generatedAt,
+        },
+        ip: auditContext.ip,
+        userAgent: auditContext.userAgent,
+        reason: `Reporte generado en formato ${filePath ? 'PDF' : 'JSON'}`,
+      });
     } catch (error) {
-      logger.error('[GenerateDashboardReport] Error inesperado', {
+      logger.warn(`${LOG_CONTEXT.USE_CASE} Error registrando auditoría (no crítico)`, {
         error: error instanceof Error ? error.message : 'Unknown',
       });
-      throw error;
     }
   }
 }
+

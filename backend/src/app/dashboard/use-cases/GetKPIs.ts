@@ -1,11 +1,24 @@
 import { OrderState } from '../../../domain/entities/Order.js';
 import type { IOrderRepository } from '../../../domain/repositories/IOrderRepository.js';
 import type { Order } from '../../../domain/entities/Order.js';
+import { logger } from '../../../shared/utils/logger.js';
 
-/**
- * Estructura de datos para las métricas KPI del sistema
- * @interface SystemMetrics
- */
+const KPI_CONFIG = {
+  MAX_ORDERS_FETCH: 10_000,
+  DELAY_THRESHOLD_DAYS: 30,
+  COMPLETION_DECIMAL_PRECISION: 2,
+} as const;
+
+const TIME_CONSTANTS = {
+  MS_PER_DAY: 24 * 60 * 60 * 1000,
+} as const;
+
+const COMPLETED_STATES = new Set<OrderState>([OrderState.PAGO]);
+
+const LOG_CONTEXT = {
+  USE_CASE: '[GetKPIsUseCase]',
+} as const;
+
 interface SystemMetrics {
   /** Total de órdenes en el sistema */
   totalOrders: number;
@@ -23,72 +36,84 @@ interface SystemMetrics {
   lastUpdated: Date;
 }
 
-/**
- * Caso de uso: Obtener KPIs (Key Performance Indicators) del sistema
- * Calcula métricas de rendimiento basadas en el estado y ciclo de vida de las órdenes
- * @class GetKPIs
- * @since 1.0.0
- */
-export class GetKPIs {
-  private static readonly MAX_ORDERS_FETCH = 10_000;
-  private static readonly DELAY_THRESHOLD_DAYS = 30;
-  private static readonly MS_PER_DAY = 86_400_000; // 1000 * 60 * 60 * 24
-  private static readonly FINAL_STATES = new Set<OrderState>([OrderState.PAGO]);
-  private static readonly DECIMAL_PRECISION = 100;
+interface OrderMetrics {
+  ordersByState: Record<OrderState, number>;
+  completedOrders: Order[];
+  delayedOrders: number;
+}
 
+export class GetKPIsUseCase {
   constructor(private readonly orderRepository: IOrderRepository) {}
 
-  /**
-   * Ejecuta el cálculo de KPIs del sistema
-   * @returns {Promise<SystemMetrics>} Métricas calculadas con datos actualizados
-   * @throws {Error} Si hay error al obtener datos del repositorio
-   */
   async execute(): Promise<SystemMetrics> {
     try {
       const [orders, totalCount] = await this.fetchOrdersData();
 
       if (totalCount === 0) {
+        logger.info(`${LOG_CONTEXT.USE_CASE} Sin órdenes en el sistema`);
         return this.buildEmptyMetrics();
       }
 
-      const ordersByState = this.initializeStateCounter();
-      const completedOrders = this.categorizeOrdersByState(orders, ordersByState);
+      const orderMetrics = this.analyzeOrders(orders);
 
       const metrics: SystemMetrics = {
         totalOrders: totalCount,
-        ordersByState,
-        averageCycleTimeDays: this.calculateAverageCycleTime(completedOrders),
-        completionRatePercentage: this.calculateCompletionRate(completedOrders.length, totalCount),
-        pendingApprovals: ordersByState[OrderState.ACTA] ?? 0,
-        delayedOrders: this.countDelayedOrders(orders),
+        ordersByState: orderMetrics.ordersByState,
+        averageCycleTimeDays: this.calculateAverageCycleTime(orderMetrics.completedOrders),
+        completionRatePercentage: this.calculateCompletionRate(
+          orderMetrics.completedOrders.length,
+          totalCount
+        ),
+        pendingApprovals: orderMetrics.ordersByState[OrderState.ACTA] ?? 0,
+        delayedOrders: orderMetrics.delayedOrders,
         lastUpdated: new Date(),
       };
+
+      logger.info(`${LOG_CONTEXT.USE_CASE} KPIs calculados exitosamente`, {
+        totalOrders: metrics.totalOrders,
+        completionRate: metrics.completionRatePercentage,
+        delayedOrders: metrics.delayedOrders,
+      });
 
       return metrics;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
-      console.error('[GetKPIs] Error al calcular KPIs:', errorMessage);
+      logger.error(`${LOG_CONTEXT.USE_CASE} Error al calcular KPIs`, { error: errorMessage });
       throw new Error(`No se pudieron calcular las métricas del sistema: ${errorMessage}`);
     }
   }
 
-  /**
-   * Obtiene las órdenes y el total desde el repositorio de forma paralela
-   * @private
-   * @returns {Promise<[Order[], number]>} Tupla con array de órdenes y total
-   */
   private async fetchOrdersData(): Promise<[Order[], number]> {
     return Promise.all([
-      this.orderRepository.find({ limit: GetKPIs.MAX_ORDERS_FETCH, skip: 0 }),
+      this.orderRepository.find({ limit: KPI_CONFIG.MAX_ORDERS_FETCH, skip: 0 }),
       this.orderRepository.count({}),
     ]);
   }
 
-  /**
-   * Inicializa el contador de estados con valor 0 para cada estado del enum
-   * @private
-   * @returns {Record<OrderState, number>} Objeto con todos los estados inicializados en 0
-   */
+  private analyzeOrders(orders: Order[]): OrderMetrics {
+    const ordersByState = this.initializeStateCounter();
+    const completedOrders: Order[] = [];
+    const nowMs = Date.now();
+    const delayThresholdMs = KPI_CONFIG.DELAY_THRESHOLD_DAYS * TIME_CONSTANTS.MS_PER_DAY;
+    let delayedCount = 0;
+
+    for (const order of orders) {
+      ordersByState[order.state] = (ordersByState[order.state] ?? 0) + 1;
+
+      if (this.isOrderCompleted(order)) {
+        completedOrders.push(order);
+      } else if (this.isOrderDelayed(order, nowMs, delayThresholdMs)) {
+        delayedCount++;
+      }
+    }
+
+    return {
+      ordersByState,
+      completedOrders,
+      delayedOrders: delayedCount,
+    };
+  }
+
   private initializeStateCounter(): Record<OrderState, number> {
     return Object.values(OrderState).reduce(
       (acc, state) => {
@@ -99,36 +124,19 @@ export class GetKPIs {
     );
   }
 
-  /**
-   * Categoriza las órdenes por estado y extrae las completadas
-   * @private
-   * @param {Order[]} orders - Array de órdenes a categorizar
-   * @param {Record<OrderState, number>} ordersByState - Contador de estados a actualizar (mutable)
-   * @returns {Order[]} Array de órdenes completadas (estado PAGO)
-   */
-  private categorizeOrdersByState(
-    orders: Order[],
-    ordersByState: Record<OrderState, number>
-  ): Order[] {
-    const completedOrders: Order[] = [];
-
-    for (const order of orders) {
-      ordersByState[order.state] = (ordersByState[order.state] ?? 0) + 1;
-
-      if (order.state === OrderState.PAGO) {
-        completedOrders.push(order);
-      }
-    }
-
-    return completedOrders;
+  private isOrderCompleted(order: Order): boolean {
+    return COMPLETED_STATES.has(order.state);
   }
 
-  /**
-   * Calcula el tiempo promedio de ciclo en días para órdenes completadas
-   * @private
-   * @param {Order[]} completedOrders - Array de órdenes completadas (estado PAGO)
-   * @returns {number} Tiempo promedio en días (redondeado a entero)
-   */
+  private isOrderDelayed(order: Order, nowMs: number, thresholdMs: number): boolean {
+    if (COMPLETED_STATES.has(order.state)) {
+      return false;
+    }
+
+    const ageMs = nowMs - order.createdAt.getTime();
+    return ageMs > thresholdMs;
+  }
+
   private calculateAverageCycleTime(completedOrders: Order[]): number {
     if (completedOrders.length === 0) {
       return 0;
@@ -140,54 +148,19 @@ export class GetKPIs {
     }, 0);
 
     const averageCycleTimeMs = totalCycleTimeMs / completedOrders.length;
-    const averageCycleTimeDays = averageCycleTimeMs / GetKPIs.MS_PER_DAY;
-
-    return Math.round(averageCycleTimeDays);
+    return Math.round(averageCycleTimeMs / TIME_CONSTANTS.MS_PER_DAY);
   }
 
-  /**
-   * Calcula la tasa de completitud en porcentaje
-   * @private
-   * @param {number} completedCount - Cantidad de órdenes completadas
-   * @param {number} totalCount - Total de órdenes en el sistema
-   * @returns {number} Porcentaje de completitud con 2 decimales (0.00-100.00)
-   */
   private calculateCompletionRate(completedCount: number, totalCount: number): number {
     if (totalCount === 0) {
       return 0;
     }
 
     const ratePercentage = (completedCount / totalCount) * 100;
-    return Math.round(ratePercentage * GetKPIs.DECIMAL_PRECISION) / GetKPIs.DECIMAL_PRECISION;
+    const multiplier = Math.pow(10, KPI_CONFIG.COMPLETION_DECIMAL_PRECISION);
+    return Math.round(ratePercentage * multiplier) / multiplier;
   }
 
-  /**
-   * Cuenta las órdenes con retraso (más de 30 días sin completar)
-   * Solo considera órdenes activas que no estén en estado final (PAGO)
-   * @private
-   * @param {Order[]} orders - Array de todas las órdenes del sistema
-   * @returns {number} Cantidad de órdenes con retraso
-   */
-  private countDelayedOrders(orders: Order[]): number {
-    const nowMs = Date.now();
-    const thresholdMs = GetKPIs.DELAY_THRESHOLD_DAYS * GetKPIs.MS_PER_DAY;
-
-    return orders.reduce((delayedCount, order) => {
-      if (GetKPIs.FINAL_STATES.has(order.state)) {
-        return delayedCount;
-      }
-
-      const ageMs = nowMs - order.createdAt.getTime();
-
-      return ageMs > thresholdMs ? delayedCount + 1 : delayedCount;
-    }, 0);
-  }
-
-  /**
-   * Construye métricas vacías cuando no hay datos disponibles en el sistema
-   * @private
-   * @returns {SystemMetrics} Objeto de métricas con todos los valores en 0
-   */
   private buildEmptyMetrics(): SystemMetrics {
     return {
       totalOrders: 0,
@@ -200,6 +173,7 @@ export class GetKPIs {
     };
   }
 }
+
 
 
 

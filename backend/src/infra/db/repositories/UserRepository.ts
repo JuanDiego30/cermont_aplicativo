@@ -1,27 +1,80 @@
-import prisma from '../prisma.js';
 import bcrypt from 'bcrypt';
-import type { User } from '@/domain/entities/User.js';
-import type { IUserRepository } from '@/domain/repositories/IUserRepository.js';
+import { prisma } from '../prisma.js';
+import type { User, UserRole } from '../../../domain/entities/User.js';
+import type { 
+  IUserRepository, 
+  UserFilters, 
+  PaginationParams, 
+  SortingParams 
+} from '../../../domain/repositories/IUserRepository.js';
 
 export class UserRepository implements IUserRepository {
-  async findById(id: string): Promise<User | null> {
-    const user = await prisma.user.findUnique({
-      where: { id },
-    });
+  
+  // --- Mappers ---
 
+  private toSafeEntity(user: any): User {
+    const { password, passwordHistory, mfaSecret, ...safeUser } = user;
+    
+    // Reconstruir estructura de dominio
+    return {
+      id: safeUser.id,
+      email: safeUser.email,
+      password: '', // No exponer password real en safe entity
+      name: safeUser.name,
+      role: safeUser.role as UserRole,
+      active: safeUser.active,
+      avatar: safeUser.avatar,
+      mfaEnabled: safeUser.mfaEnabled ?? false,
+      lastPasswordChange: safeUser.lastPasswordChange ?? new Date(),
+      passwordExpiresAt: safeUser.passwordExpiresAt ?? new Date(),
+      createdAt: safeUser.createdAt,
+      updatedAt: safeUser.updatedAt,
+      lastLogin: safeUser.lastLogin,
+      loginAttempts: safeUser.loginAttempts,
+      lockedUntil: safeUser.lockedUntil,
+      
+      // Agrupar seguridad
+      security: {
+        passwordHistory: typeof passwordHistory === 'string'
+          ? JSON.parse(passwordHistory)
+          : passwordHistory || [],
+        mfaEnabled: safeUser.mfaEnabled,
+        mfaSecret: mfaSecret,
+        lastPasswordChange: safeUser.lastPasswordChange,
+        passwordExpiresAt: safeUser.passwordExpiresAt
+      }
+    };
+  }
+
+  private toEntityWithPassword(user: any): User {
+    const safeUser = this.toSafeEntity(user);
+    // Re-inyectar password para uso interno (login)
+    return {
+      ...safeUser,
+      password: user.password
+    };
+  }
+
+  // --- Implementación ---
+
+  async findById(id: string): Promise<User | null> {
+    const user = await prisma.user.findUnique({ where: { id } });
     return user ? this.toSafeEntity(user) : null;
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
+    const user = await prisma.user.findUnique({ where: { email } });
     return user ? this.toSafeEntity(user) : null;
   }
 
+  async findByEmailWithPassword(email: string): Promise<User | null> {
+    const user = await prisma.user.findUnique({ where: { email } });
+    return user ? this.toEntityWithPassword(user) : null;
+  }
+
   async create(data: Omit<User, 'id' | 'createdAt' | 'updatedAt'>): Promise<User> {
-    const hashedPassword = await bcrypt.hash(data.password, 10);
+    // Nota: Idealmente el hashing debe venir hecho del servicio
+    const hashedPassword = await bcrypt.hash(data.password!, 10); 
 
     const user = await prisma.user.create({
       data: {
@@ -30,12 +83,13 @@ export class UserRepository implements IUserRepository {
         name: data.name,
         role: data.role,
         active: data.active ?? true,
-        mfaEnabled: data.mfaEnabled ?? false,
+        mfaEnabled: data.security?.mfaEnabled ?? false,
         avatar: data.avatar,
         loginAttempts: 0,
-        passwordHistory: data.passwordHistory ? JSON.stringify(data.passwordHistory) : '[]',
-        lastPasswordChange: data.lastPasswordChange || new Date(),
-        passwordExpiresAt: data.passwordExpiresAt || new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+        passwordHistory: data.security?.passwordHistory ? JSON.stringify(data.security.passwordHistory) : '[]',
+        mfaSecret: data.security?.mfaSecret,
+        lastPasswordChange: data.security?.lastPasswordChange || new Date(),
+        passwordExpiresAt: data.security?.passwordExpiresAt || new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
       },
     });
 
@@ -49,20 +103,20 @@ export class UserRepository implements IUserRepository {
     if (data.name) updateData.name = data.name;
     if (data.role) updateData.role = data.role;
     if (data.active !== undefined) updateData.active = data.active;
-    if (data.mfaEnabled !== undefined) updateData.mfaEnabled = data.mfaEnabled;
-    if (data.mfaSecret) updateData.mfaSecret = data.mfaSecret;
+    if (data.avatar !== undefined) updateData.avatar = data.avatar;
+    
+    // Flatten security object updates
+    if (data.security) {
+      if (data.security.mfaEnabled !== undefined) updateData.mfaEnabled = data.security.mfaEnabled;
+      if (data.security.mfaSecret) updateData.mfaSecret = data.security.mfaSecret;
+      if (data.security.lastPasswordChange) updateData.lastPasswordChange = data.security.lastPasswordChange;
+      if (data.security.passwordExpiresAt) updateData.passwordExpiresAt = data.security.passwordExpiresAt;
+      if (data.security.passwordHistory) updateData.passwordHistory = JSON.stringify(data.security.passwordHistory);
+    }
 
     if (data.password) {
       updateData.password = await bcrypt.hash(data.password, 10);
     }
-
-    if (data.passwordHistory) {
-      updateData.passwordHistory = JSON.stringify(data.passwordHistory);
-    }
-
-    if (data.lastPasswordChange) updateData.lastPasswordChange = data.lastPasswordChange;
-    if (data.passwordExpiresAt) updateData.passwordExpiresAt = data.passwordExpiresAt;
-    if (data.avatar !== undefined) updateData.avatar = data.avatar;
 
     const user = await prisma.user.update({
       where: { id },
@@ -72,42 +126,52 @@ export class UserRepository implements IUserRepository {
     return this.toSafeEntity(user);
   }
 
-  async delete(id: string): Promise<boolean> {
-    try {
-      await prisma.user.delete({
-        where: { id },
-      });
-      return true;
-    } catch {
-      return false;
-    }
+  async delete(id: string): Promise<void> {
+    await prisma.user.delete({ where: { id } });
   }
 
-  async findAll(filters?: {
-    role?: string;
-    active?: boolean;
-    limit?: number;
-    skip?: number;
-  }): Promise<{ users: User[]; total: number }> {
+  async findAll(
+    filters: UserFilters,
+    pagination?: PaginationParams,
+    sorting?: SortingParams
+  ): Promise<User[]> {
     const where: any = {};
 
-    if (filters?.role) where.role = filters.role;
-    if (filters?.active !== undefined) where.active = filters.active;
+    if (filters.role) where.role = filters.role;
+    if (filters.active !== undefined) where.active = filters.active;
+    if (filters.email) where.email = filters.email;
+    
+    if (filters.search) {
+      where.OR = [
+        { email: { contains: filters.search } }, // mode insensitive en Postgres
+        { name: { contains: filters.search } },
+      ];
+    }
 
-    const [users, total] = await Promise.all([
-      prisma.user.findMany({
-        where,
-        take: filters?.limit || 50,
-        skip: filters?.skip || 0,
-        orderBy: { createdAt: 'desc' },
-      }),
-      prisma.user.count({ where }),
-    ]);
+    const users = await prisma.user.findMany({
+      where,
+      take: pagination?.limit,
+      skip: pagination?.skip,
+      orderBy: sorting
+        ? { [sorting.field]: sorting.order }
+        : { createdAt: 'desc' },
+    });
 
-    return {
-      users: users.map((u) => this.toSafeEntity(u)),
-      total,
-    };
+    return users.map(u => this.toSafeEntity(u));
+  }
+
+  async count(filters: UserFilters): Promise<number> {
+    const where: any = {};
+    if (filters.role) where.role = filters.role;
+    if (filters.active !== undefined) where.active = filters.active;
+    if (filters.email) where.email = filters.email;
+    if (filters.search) {
+        where.OR = [
+          { email: { contains: filters.search } },
+          { name: { contains: filters.search } },
+        ];
+    }
+    return prisma.user.count({ where });
   }
 
   async comparePassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
@@ -124,202 +188,6 @@ export class UserRepository implements IUserRepository {
     });
   }
 
-  async resetFailedLogins(id: string): Promise<void> {
-    await prisma.user.update({
-      where: { id },
-      data: {
-        loginAttempts: 0,
-        lastFailedLogin: null,
-      },
-    });
-  }
-
-  async lockAccount(id: string, lockedUntil: Date): Promise<User> {
-    const user = await prisma.user.update({
-      where: { id },
-      data: {
-        lockedUntil,
-        loginAttempts: 0,
-      },
-    });
-
-    return this.toSafeEntity(user);
-  }
-
-  async unlockAccount(id: string): Promise<User> {
-    const user = await prisma.user.update({
-      where: { id },
-      data: {
-        active: true,
-        loginAttempts: 0,
-        lastFailedLogin: null,
-      },
-    });
-
-    return this.toSafeEntity(user);
-  }
-
-  // M�todos adicionales requeridos por la interfaz
-  async findByIdWithPassword(id: string): Promise<User | null> {
-    const user = await prisma.user.findUnique({
-      where: { id },
-    });
-
-    return user ? this.toSafeEntity(user) : null;
-  }
-
-  async updatePassword(id: string, newPassword: string): Promise<User> {
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    const user = await prisma.user.update({
-      where: { id },
-      data: {
-        password: hashedPassword,
-        lastPasswordChange: new Date(),
-        passwordExpiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-      },
-    });
-
-    return this.toSafeEntity(user);
-  }
-
-  async findByRole(role: string): Promise<User[]> {
-    const users = await prisma.user.findMany({
-      where: { role },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return users.map((u) => this.toSafeEntity(u));
-  }
-
-  async findActive(): Promise<User[]> {
-    const users = await prisma.user.findMany({
-      where: { active: true },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return users.map((u) => this.toSafeEntity(u));
-  }
-
-  async findByEmailWithPassword(email: string): Promise<User | null> {
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    return user ? this.toEntityWithPassword(user) : null;
-  }
-
-  async updateLastLogin(id: string): Promise<void> {
-    await prisma.user.update({
-      where: { id },
-      data: { lastLogin: new Date() },
-    });
-  }
-
-  async updateProfile(id: string, data: { name?: string; mfaEnabled?: boolean; avatar?: string }): Promise<User> {
-    const user = await prisma.user.update({
-      where: { id },
-      data,
-    });
-
-    return this.toSafeEntity(user);
-  }
-
-  async changePassword(id: string, oldPassword: string, newPassword: string): Promise<boolean> {
-    const user = await prisma.user.findUnique({
-      where: { id },
-    });
-
-    if (!user) return false;
-
-    const isValid = await bcrypt.compare(oldPassword, user.password);
-    if (!isValid) return false;
-
-    await this.updatePassword(id, newPassword);
-    return true;
-  }
-
-  async getUserStats(): Promise<{ total: number; active: number; inactive: number }> {
-    const [total, active, inactive] = await Promise.all([
-      prisma.user.count(),
-      prisma.user.count({ where: { active: true } }),
-      prisma.user.count({ where: { active: false } }),
-    ]);
-
-    return { total, active, inactive };
-  }
-
-  // M�s m�todos requeridos por la interfaz
-  async findInactive(): Promise<User[]> {
-    const users = await prisma.user.findMany({
-      where: { active: false },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return users.map((u) => this.toSafeEntity(u));
-  }
-
-  async find(filters?: {
-    role?: string;
-    active?: boolean;
-    search?: string;
-    limit?: number;
-    skip?: number;
-  }): Promise<User[]> {
-    const where: any = {};
-
-    if (filters?.role) where.role = filters.role;
-    if (filters?.active !== undefined) where.active = filters.active;
-    if (filters?.search) {
-      where.OR = [
-        { email: { contains: filters.search } },
-        { name: { contains: filters.search } },
-      ];
-    }
-
-    const users = await prisma.user.findMany({
-      where,
-      take: filters?.limit || 50,
-      skip: filters?.skip || 0,
-      orderBy: { createdAt: 'desc' },
-    });
-
-    return users.map((u) => this.toSafeEntity(u));
-  }
-
-  async count(filters?: {
-    role?: string;
-    active?: boolean;
-    search?: string;
-  }): Promise<number> {
-    const where: any = {};
-
-    if (filters?.role) where.role = filters.role;
-    if (filters?.active !== undefined) where.active = filters.active;
-    if (filters?.search) {
-      where.OR = [
-        { email: { contains: filters.search } },
-        { name: { contains: filters.search } },
-      ];
-    }
-
-    return await prisma.user.count({ where });
-  }
-
-  async getStats(): Promise<any> {
-    return await this.getUserStats();
-  }
-
-  // M�todos faltantes
-  async existsByEmail(email: string): Promise<boolean> {
-    const user = await prisma.user.findUnique({
-      where: { email },
-      select: { id: true },
-    });
-
-    return !!user;
-  }
-
   async recordFailedLogin(id: string): Promise<User> {
     const user = await prisma.user.update({
       where: { id },
@@ -328,7 +196,6 @@ export class UserRepository implements IUserRepository {
         lastFailedLogin: new Date(),
       },
     });
-
     return this.toSafeEntity(user);
   }
 
@@ -338,31 +205,49 @@ export class UserRepository implements IUserRepository {
       data: {
         loginAttempts: 0,
         lastFailedLogin: null,
+        lockedUntil: null // Desbloqueo implícito
       },
     });
-
     return this.toSafeEntity(user);
   }
 
-  private toSafeEntity(user: any): User {
-    const { password, ...safeUser } = user;
-    void password;
-
-    return {
-      ...safeUser,
-      passwordHistory: typeof user.passwordHistory === 'string'
-        ? JSON.parse(user.passwordHistory)
-        : user.passwordHistory || [],
-    };
+  async recordSuccessfulLogin(id: string): Promise<void> {
+    await prisma.user.update({
+      where: { id },
+      data: {
+        lastLogin: new Date(),
+        loginAttempts: 0,
+        lastFailedLogin: null,
+      },
+    });
   }
 
-  private toEntityWithPassword(user: any): User {
-    return {
-      ...user,
-      passwordHistory: typeof user.passwordHistory === 'string'
-        ? JSON.parse(user.passwordHistory)
-        : user.passwordHistory || [],
-    };
+  // --- Legacy / Compatibilidad ---
+
+  async deactivate(id: string): Promise<User> {
+    return this.update(id, { active: false });
+  }
+
+  async activate(id: string): Promise<User> {
+    return this.update(id, { active: true });
+  }
+
+  async emailExists(email: string, excludeId?: string): Promise<boolean> {
+    const where: any = { email };
+    if (excludeId) where.id = { not: excludeId };
+    const count = await prisma.user.count({ where });
+    return count > 0;
+  }
+
+  async updateLoginAttempts(id: string, attempts: number, lockedUntil?: Date | null): Promise<void> {
+    await prisma.user.update({
+      where: { id },
+      data: {
+        loginAttempts: attempts,
+        lockedUntil: lockedUntil ?? null,
+        lastFailedLogin: attempts > 0 ? new Date() : null,
+      },
+    });
   }
 }
 

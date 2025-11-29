@@ -1,9 +1,3 @@
-/**
- * Rutas de Evidencias
- *
- * @file backend/src/infra/http/routes/evidences.routes.ts
- */
-
 import { Router } from 'express';
 import { EvidencesController } from '../controllers/EvidencesController.js';
 import { authenticate } from '../../../shared/middlewares/authenticate.js';
@@ -12,7 +6,7 @@ import { PERMISSIONS } from '../../../shared/constants/permissions.js';
 
 const router = Router();
 
-// Todas las rutas requieren autenticaci�n
+// Todas las rutas requieren autenticación
 router.use(authenticate);
 
 /**
@@ -22,7 +16,7 @@ router.use(authenticate);
  */
 router.post(
   '/',
-  authorize([PERMISSIONS.ORDERS_UPDATE]), // Usar permiso de orders ya que las evidencias est�n relacionadas
+  authorize([PERMISSIONS.ORDERS_UPDATE]), // Usar permiso de orders ya que las evidencias están relacionadas
   EvidencesController.upload
 );
 
@@ -67,7 +61,7 @@ router.get(
 router.delete(
   '/:id',
   authorize([PERMISSIONS.WORKPLANS_APPROVE]),
-  EvidencesController.delete
+  EvidencesController.remove
 );
 
 /**

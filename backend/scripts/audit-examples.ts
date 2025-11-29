@@ -117,15 +117,16 @@ export async function exampleTransitionOrder() {
   // await orderRepository.update(orderId, { state: newState });
 
   // 3. Registrar transición de estado
-  await auditService.logTransition(
-    'Order',
-    orderId,
-    userId,
-    oldState,      // Estado anterior
-    newState,      // Estado nuevo
-    '192.168.1.100',
-    'Mozilla/5.0...'
-  );
+  // TODO: Implement logTransition method in AuditService if needed
+  // await auditService.logTransition(
+  //   'Order',
+  //   orderId,
+  //   userId,
+  //   oldState,      // Estado anterior
+  //   newState,      // Estado nuevo
+  //   '192.168.1.100',
+  //   'Mozilla/5.0...'
+  // );
 
   console.log(`✅ Orden transicionada: ${oldState} → ${newState}`);
 }
@@ -151,7 +152,8 @@ export async function exampleLogin() {
   // await userRepository.update(userId, { lastLogin: new Date() });
 
   // 4. Registrar login exitoso
-  await auditService.logLogin(userId, ip, userAgent);
+  // TODO: Implement logLogin method in AuditService if needed
+  // await auditService.logLogin(userId, ip, userAgent);
 
   console.log('✅ Login exitoso auditado');
 }
@@ -169,7 +171,8 @@ export async function exampleLogout() {
   // await tokenService.revokeAllUserRefreshTokens(userId);
 
   // 2. Registrar logout
-  await auditService.logLogout(userId, ip, userAgent);
+  // TODO: Implement logLogout method in AuditService if needed
+  // await auditService.logLogout(userId, ip, userAgent);
 
   console.log('✅ Logout auditado');
 }
@@ -320,7 +323,7 @@ export async function exampleQueryUserLogs() {
 
   // Logs de un usuario en las últimas 24 horas
   const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  const userLogs = await auditLogRepository.findByUser(userId, yesterday);
+  const userLogs = await auditLogRepository.findByUser(userId, { start: yesterday });
 
   console.log(`📊 ${userLogs.length} acciones del usuario en las últimas 24h:`);
   

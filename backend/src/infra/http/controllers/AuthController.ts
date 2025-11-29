@@ -1,393 +1,324 @@
 import type { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
+import { AuthService } from '../../../domain/services/AuthService.js';
+import { asyncHandler } from '../../../shared/utils/asyncHandler.js';
 import { userRepository } from '../../db/repositories/UserRepository.js';
-import { jwtService } from '../../../shared/security/jwtService.js';
-import { RefreshTokenService } from '../../../shared/security/RefreshTokenService.js';
-import { tokenBlacklistRepository } from '../../db/repositories/TokenBlacklistRepository.js';
+import { revokedTokenRepository } from '../../db/repositories/RevokedTokenRepository.js';
+import { refreshTokenRepository } from '../../db/repositories/RefreshTokenRepository.js';
 import { auditLogRepository } from '../../db/repositories/AuditLogRepository.js';
+import { passwordResetRepository } from '../../db/repositories/PasswordResetRepository.js';
+import { jwtService } from '../../adapters/security/jwtService.js';
+import { RefreshTokenService } from '../../adapters/security/RefreshTokenService.js';
 import { AuditService } from '../../../domain/services/AuditService.js';
-import { TokenType } from '../../../domain/entities/TokenBlacklist.js';
-import { AuditAction } from '../../../domain/entities/AuditLog.js';
+import { passwordHasher } from '../../adapters/security/passwordHasher.js';
+import { emailService } from '../../services/EmailService.js';
+import { ForgotPasswordUseCase } from '../../../app/auth/use-cases/ForgotPassword.js';
+import { ResetPasswordUseCase } from '../../../app/auth/use-cases/ResetPassword.js';
+import { UserRole } from '../../../domain/entities/User.js';
 
-/**
- * Controller para autenticación y gestión de sesiones
- */
+// --- Composition Root (Instanciación de Servicios) ---
+const refreshTokenService = new RefreshTokenService(refreshTokenRepository);
+const auditService = new AuditService(auditLogRepository);
+
+const authService = new AuthService(
+  userRepository,
+  revokedTokenRepository,
+  jwtService,
+  refreshTokenService,
+  auditService,
+  passwordHasher
+);
+
+// Tipado para request autenticado
+interface AuthenticatedRequest extends Omit<Request, 'user'> {
+  user?: { userId: string; email?: string; role: string; jti?: string };
+}
+
 export class AuthController {
-  /**
-   * Login de usuario
-   * POST /api/auth/login
-   */
-  static async login(req: Request, res: Response): Promise<void> {
+  
+  static login = asyncHandler(async (req: Request, res: Response) => {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      res.status(400).json({ 
+        type: 'https://httpstatuses.com/400',
+        title: 'Bad Request',
+        status: 400,
+        detail: 'Email y contraseña son requeridos' 
+      });
+      return;
+    }
+
     try {
-      console.log('🔐 AuthController.login start');
-      const { email, password } = req.body as { email?: string; password?: string };
-
-      if (!email || !password) {
-        res.status(400).json({
-          type: 'https://httpstatuses.com/400',
-          title: 'Bad Request',
-          status: 400,
-          detail: 'Email y contraseña son requeridos',
-        });
-        return;
-      }
-
-      const user = await userRepository.findByEmailWithPassword(email);
-      console.log('🔐 userRepository.findByEmailWithPassword completed');
-
-      if (!user || !user.password) {
-        res.status(401).json({
-          type: 'https://httpstatuses.com/401',
-          title: 'Unauthorized',
-          status: 401,
-          detail: 'Credenciales inválidas',
-        });
-        return;
-      }
-
-      if (user.lockedUntil && user.lockedUntil > new Date()) {
-        res.status(423).json({
-          type: 'https://httpstatuses.com/423',
-          title: 'Locked',
-          status: 423,
-          detail: 'Cuenta bloqueada temporalmente. Intente más tarde.',
-        });
-        return;
-      }
-
-      const isValid = await userRepository.comparePassword(password, user.password);
-      console.log('🔐 userRepository.comparePassword result', isValid);
-
-      if (!isValid) {
-        await userRepository.recordFailedLogin(user.id);
-
-        res.status(401).json({
-          type: 'https://httpstatuses.com/401',
-          title: 'Unauthorized',
-          status: 401,
-          detail: 'Credenciales inválidas',
-        });
-        return;
-      }
-
-      await userRepository.resetLoginAttempts(user.id);
-
-      const accessToken = await jwtService.generateAccessToken({
-        userId: user.id,
-        email: user.email,
-        role: user.role.toString(),
-      });
-
-      const refreshToken = await RefreshTokenService.generate(user.id);
-
-      const auditService = new AuditService(auditLogRepository);
-      await auditService.log({
-        action: AuditAction.LOGIN,
-        entityType: 'User',
-        entityId: user.id,
-        userId: user.id,
-        before: { authenticated: false },
-        after: { authenticated: true, email: user.email },
-        ip: req.ip || 'unknown',
-        userAgent: req.get('user-agent') || 'unknown',
-        reason: 'User login',
-      });
-
-      if (process.env.NODE_ENV === 'development') {
-        console.log('✅ Login exitoso para:', email);
-      }
-
-      res.json({
-        success: true,
-        data: {
-          accessToken,
-          refreshToken,
-          user: {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-            avatar: user.avatar,
-          },
-        },
-      });
-    } catch (error: unknown) {
-      console.error('❌ Error en login:', error);
-      const detail = error instanceof Error ? error.message : 'Error interno del servidor';
-      res.status(500).json({
-        type: 'https://httpstatuses.com/500',
-        title: 'Internal Server Error',
-        status: 500,
-        detail,
+      const result = await authService.login(
+        email,
+        password,
+        req.ip,
+        req.get('user-agent')
+      );
+      res.json({ success: true, data: result });
+    } catch (error: any) {
+      const isAuthError = error.message === 'Credenciales inválidas' || error.message === 'Usuario no encontrado';
+      const status = isAuthError ? 401 : 400;
+      
+      res.status(status).json({
+        type: `https://httpstatuses.com/${status}`,
+        title: status === 401 ? 'Unauthorized' : 'Bad Request',
+        status,
+        detail: error.message
       });
     }
-  }
+  });
 
-  /**
-   * Refrescar access token
-   * POST /api/auth/refresh
-   */
-  static async refresh(req: Request, res: Response): Promise<void> {
+  static refresh = asyncHandler(async (req: Request, res: Response) => {
+    const { refreshToken } = req.body;
+    // userId puede venir del token decodificado o ser undefined si es rotación anónima (depende de la estrategia)
+    // Aquí asumimos que el cliente lo envía o lo extraemos del token expired si es posible
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?.userId; 
+
+    if (!refreshToken) {
+      res.status(400).json({ message: 'Refresh token requerido' });
+      return;
+    }
+
     try {
-      const { refreshToken } = req.body as { refreshToken?: string };
-      const userId = (req as any).user?.userId as string | undefined;
-
-      if (!refreshToken) {
-        res.status(401).json({
-          type: 'https://httpstatuses.com/401',
-          title: 'Unauthorized',
-          status: 401,
-          detail: 'Refresh token requerido',
-        });
-        return;
-      }
-
-      const isValid = await RefreshTokenService.validate(refreshToken, userId ?? '');
-
-      if (!isValid) {
-        res.status(401).json({
-          type: 'https://httpstatuses.com/401',
-          title: 'Unauthorized',
-          status: 401,
-          detail: 'Refresh token inválido',
-        });
-        return;
-      }
-
-      const newRefreshToken = await RefreshTokenService.rotate(refreshToken, userId ?? '');
-
-      const user = await userRepository.findById(userId ?? '');
-
-      if (!user) {
-        res.status(404).json({
-          type: 'https://httpstatuses.com/404',
-          title: 'Not Found',
-          status: 404,
-          detail: 'Usuario no encontrado',
-        });
-        return;
-      }
-
-      const accessToken = await jwtService.generateAccessToken({
-        userId: user.id,
-        email: user.email,
-        role: user.role.toString(),
-      });
-
-      res.json({
-        success: true,
-        data: {
-          accessToken,
-          refreshToken: newRefreshToken,
-        },
-      });
-    } catch (error: unknown) {
-      const detail = error instanceof Error ? error.message : 'Refresh token inválido';
+      const result = await authService.refresh(refreshToken, userId);
+      res.json({ success: true, data: result });
+    } catch (error: any) {
       res.status(401).json({
         type: 'https://httpstatuses.com/401',
         title: 'Unauthorized',
         status: 401,
-        detail,
+        detail: error.message
       });
     }
-  }
+  });
+
+  static logout = asyncHandler(async (req: Request, res: Response) => {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?.userId;
+
+    if (!token || !userId) {
+      res.status(400).json({ message: 'Token no disponible o usuario no identificado' });
+      return;
+    }
+
+    try {
+      await authService.logout(token, userId, req.ip, req.get('user-agent'));
+      res.json({ success: true, message: 'Sesión cerrada exitosamente' });
+    } catch (error: any) {
+      res.status(500).json({ message: 'Error al cerrar sesión', detail: error.message });
+    }
+  });
+
+  static getProfile = asyncHandler(async (req: Request, res: Response) => {
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?.userId;
+
+    if (!userId) {
+      res.status(401).json({ message: 'No autenticado' });
+      return;
+    }
+
+    const user = await userRepository.findById(userId);
+    if (!user) {
+      res.status(404).json({ message: 'Usuario no encontrado' });
+      return;
+    }
+
+    res.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        active: user.active,
+        avatar: user.avatar,
+        createdAt: user.createdAt,
+        // No devolver datos sensibles de seguridad
+      },
+    });
+  });
+
+  static register = asyncHandler(async (req: Request, res: Response) => {
+    const { email, password, name } = req.body;
+
+    if (!email || !password || !name) {
+      res.status(400).json({ message: 'Faltan datos requeridos' });
+      return;
+    }
+
+    // Validar existencia
+    const existingUser = await userRepository.findByEmail(email);
+    if (existingUser) {
+      res.status(409).json({ message: 'El email ya está registrado' });
+      return;
+    }
+
+    // Crear usuario (Rol CLIENTE por defecto para registro público)
+    // Nota: Idealmente esto debería ir en un UseCase 'RegisterUser' para encapsular la lógica de negocio
+    const now = new Date();
+    const user = await userRepository.create({
+      email,
+      password, // El repositorio hasheará la contraseña (según implementación actual del repo)
+      name,
+      role: UserRole.CLIENTE, // Usar Enum del dominio
+      active: true,
+      avatar: undefined,
+      mfaEnabled: false,
+      lastPasswordChange: now,
+      passwordExpiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 días
+      loginAttempts: 0,
+      security: {
+        mfaEnabled: false,
+        passwordHistory: [],
+        lastPasswordChange: now,
+        passwordExpiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+      }
+    });
+
+    // Auto login
+    const result = await authService.login(
+      email,
+      password,
+      req.ip,
+      req.get('user-agent')
+    );
+
+    res.status(201).json({ success: true, data: result });
+  });
+
+  // Alias for compatibility
+  static refreshToken = AuthController.refresh;
+  static logoutSession = AuthController.logout;
+  
+  static logoutAll = asyncHandler(async (req: Request, res: Response) => {
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user?.userId;
+    
+    if (!userId) {
+      res.status(401).json({ message: 'No autenticado' });
+      return;
+    }
+
+    // Lógica para revocar todas las sesiones
+    await refreshTokenService.revokeAllUserTokens(userId);
+    
+    res.json({ success: true, message: 'Todas las sesiones cerradas' });
+  });
 
   /**
-   * Logout de sesión actual
-   * POST /api/auth/logout
+   * POST /auth/forgot-password
+   * Solicita un enlace de recuperación de contraseña
    */
-  static async logout(req: Request, res: Response): Promise<void> {
+  static forgotPassword = asyncHandler(async (req: Request, res: Response) => {
+    const { email } = req.body;
+
+    const forgotPasswordUseCase = new ForgotPasswordUseCase(
+      userRepository,
+      passwordResetRepository,
+      auditLogRepository,
+      emailService
+    );
+
+    const result = await forgotPasswordUseCase.execute({
+      email,
+      frontendUrl: process.env.FRONTEND_URL,
+      ip: req.ip,
+      userAgent: req.get('user-agent'),
+    });
+
+    res.json({
+      success: result.success,
+      message: result.message,
+    });
+  });
+
+  /**
+   * POST /auth/reset-password
+   * Restablece la contraseña usando un token de recuperación
+   */
+  static resetPassword = asyncHandler(async (req: Request, res: Response) => {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      res.status(400).json({
+        type: 'https://httpstatuses.com/400',
+        title: 'Bad Request',
+        status: 400,
+        detail: 'Token y nueva contraseña son requeridos',
+      });
+      return;
+    }
+
+    const resetPasswordUseCase = new ResetPasswordUseCase(
+      userRepository,
+      passwordResetRepository,
+      refreshTokenRepository,
+      auditLogRepository
+    );
+
     try {
-      const token = req.headers.authorization?.split(' ')[1];
-      const userId = (req as any).user?.userId as string | undefined;
-
-      if (!token || !userId) {
-        res.status(400).json({
-          type: 'https://httpstatuses.com/400',
-          title: 'Bad Request',
-          status: 400,
-          detail: 'Token no disponible',
-        });
-        return;
-      }
-
-      const decoded = jwt.decode(token) as { exp?: number } | null;
-      if (!decoded?.exp) {
-        res.status(400).json({
-          type: 'https://httpstatuses.com/400',
-          title: 'Bad Request',
-          status: 400,
-          detail: 'Token inválido',
-        });
-        return;
-      }
-
-      const expiresAt = new Date(decoded.exp * 1000);
-
-      await tokenBlacklistRepository.addToken(
+      const result = await resetPasswordUseCase.execute({
         token,
-        userId,
-        TokenType.ACCESS,
-        expiresAt
-      );
-
-      const auditService = new AuditService(auditLogRepository);
-      await auditService.log({
-        action: AuditAction.LOGOUT,
-        entityType: 'User',
-        entityId: userId,
-        userId,
-        before: { sessionActive: true },
-        after: { sessionActive: false },
-        ip: req.ip || 'unknown',
-        userAgent: req.get('user-agent') || 'unknown',
-        reason: 'User logout',
+        newPassword,
+        revokeAllSessions: true,
+        ip: req.ip,
+        userAgent: req.get('user-agent'),
       });
 
       res.json({
-        success: true,
-        message: 'Sesión cerrada exitosamente',
+        success: result.success,
+        message: result.message,
       });
-    } catch (error: unknown) {
-      const detail = error instanceof Error ? error.message : 'Error interno del servidor';
-      res.status(500).json({
-        type: 'https://httpstatuses.com/500',
-        title: 'Internal Server Error',
-        status: 500,
-        detail,
-      });
-    }
-  }
+    } catch (error: any) {
+      const isInvalidToken = error.message.includes('inválido') || error.message.includes('expirado');
+      const status = isInvalidToken ? 400 : 422;
 
-  /**
-   * Logout de todas las sesiones
-   * POST /api/auth/logout-all
-   */
-  static async logoutAll(req: Request, res: Response): Promise<void> {
-    try {
-      const token = req.headers.authorization?.split(' ')[1];
-      const userId = (req as any).user?.userId as string | undefined;
-
-      if (!userId) {
-        res.status(400).json({
-          type: 'https://httpstatuses.com/400',
-          title: 'Bad Request',
-          status: 400,
-          detail: 'Usuario no autenticado',
-        });
-        return;
-      }
-
-      await RefreshTokenService.revokeAllUserTokens(userId);
-
-      if (token) {
-        const decoded = jwt.decode(token) as { exp?: number } | null;
-        if (decoded?.exp) {
-          const expiresAt = new Date(decoded.exp * 1000);
-
-          await tokenBlacklistRepository.addToken(
-            token,
-            userId,
-            TokenType.ACCESS,
-            expiresAt
-          );
-        }
-      }
-
-      const auditService = new AuditService(auditLogRepository);
-      await auditService.log({
-        action: AuditAction.LOGOUT,
-        entityType: 'User',
-        entityId: userId,
-        userId,
-        before: { allSessionsActive: true },
-        after: { allSessionsActive: false },
-        ip: req.ip || 'unknown',
-        userAgent: req.get('user-agent') || 'unknown',
-        reason: 'User logout all sessions',
-      });
-
-      res.json({
-        success: true,
-        message: 'Todas las sesiones cerradas exitosamente',
-      });
-    } catch (error: unknown) {
-      const detail = error instanceof Error ? error.message : 'Error interno del servidor';
-      res.status(500).json({
-        type: 'https://httpstatuses.com/500',
-        title: 'Internal Server Error',
-        status: 500,
-        detail,
+      res.status(status).json({
+        type: `https://httpstatuses.com/${status}`,
+        title: status === 400 ? 'Bad Request' : 'Unprocessable Entity',
+        status,
+        detail: error.message,
       });
     }
-  }
+  });
 
   /**
-   * Obtener perfil del usuario autenticado
-   * GET /api/auth/profile
+   * GET /auth/verify-reset-token
+   * Verifica si un token de recuperación es válido (para la UI)
    */
-  static async getProfile(req: Request, res: Response): Promise<void> {
-    try {
-      const userId = (req as any).user?.userId as string | undefined;
+  static verifyResetToken = asyncHandler(async (req: Request, res: Response) => {
+    const { token } = req.query;
 
-      if (!userId) {
-        res.status(401).json({
-          type: 'https://httpstatuses.com/401',
-          title: 'Unauthorized',
-          status: 401,
-          detail: 'No autenticado',
-        });
-        return;
-      }
-
-      const user = await userRepository.findById(userId);
-
-      if (!user) {
-        res.status(404).json({
-          type: 'https://httpstatuses.com/404',
-          title: 'Not Found',
-          status: 404,
-          detail: 'Usuario no encontrado',
-        });
-        return;
-      }
-
-      res.json({
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          active: user.active,
-          mfaEnabled: user.mfaEnabled,
-          lastLogin: user.lastLogin,
-          createdAt: user.createdAt,
-          avatar: user.avatar,
-        },
+    if (!token || typeof token !== 'string') {
+      res.status(400).json({
+        valid: false,
+        message: 'Token requerido',
       });
-    } catch (error: unknown) {
-      const detail = error instanceof Error ? error.message : 'Error interno del servidor';
-      res.status(500).json({
-        type: 'https://httpstatuses.com/500',
-        title: 'Internal Server Error',
-        status: 500,
-        detail,
-      });
+      return;
     }
-  }
 
-  /**
-   * Alias para compatibilidad
-   */
-  static async refreshToken(req: Request, res: Response): Promise<void> {
-    return AuthController.refresh(req, res);
-  }
+    const resetToken = await passwordResetRepository.findByToken(token);
 
-  /**
-   * Alias para compatibilidad
-   */
-  static async logoutSession(req: Request, res: Response): Promise<void> {
-    return AuthController.logout(req, res);
-  }
+    if (!resetToken) {
+      res.json({ valid: false, message: 'Token inválido' });
+      return;
+    }
+
+    if (resetToken.usedAt) {
+      res.json({ valid: false, message: 'Este enlace ya fue utilizado' });
+      return;
+    }
+
+    if (new Date() > resetToken.expiresAt) {
+      res.json({ valid: false, message: 'Este enlace ha expirado' });
+      return;
+    }
+
+    res.json({ valid: true });
+  });
 }
 
