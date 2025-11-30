@@ -11,7 +11,7 @@ export const signaturesApi = {
     request: SignatureRequest,
     signatureDataUrl: string
   ): Promise<SignatureData> {
-    const response = await apiClient.post(`${API_BASE}`, {
+    const response = await apiClient.post<SignatureData>(`${API_BASE}`, {
       ...request,
       signatureDataUrl,
       signedAt: new Date().toISOString(),
@@ -27,11 +27,11 @@ export const signaturesApi = {
     entityId: string
   ): Promise<SignedDocument | null> {
     try {
-      const response = await apiClient.get(
+      const response = await apiClient.get<SignedDocument>(
         `${API_BASE}/${entityType}/${entityId}`
       );
       return response;
-    } catch (error) {
+    } catch {
       return null;
     }
   },
@@ -40,7 +40,7 @@ export const signaturesApi = {
    * Get signature image by ID
    */
   async getSignatureImage(signatureId: string): Promise<string> {
-    const response = await apiClient.get(`${API_BASE}/${signatureId}/image`);
+    const response = await apiClient.get<{ dataUrl: string }>(`${API_BASE}/${signatureId}/image`);
     return response.dataUrl;
   },
 
@@ -51,7 +51,7 @@ export const signaturesApi = {
     isValid: boolean;
     message: string;
   }> {
-    const response = await apiClient.get(`${API_BASE}/${signatureId}/validate`);
+    const response = await apiClient.get<{ isValid: boolean; message: string }>(`${API_BASE}/${signatureId}/validate`);
     return response;
   },
 
@@ -69,7 +69,7 @@ export const signaturesApi = {
     entityType: string,
     entityId: string
   ): Promise<SignedDocument> {
-    const response = await apiClient.post(
+    const response = await apiClient.post<SignedDocument>(
       `${API_BASE}/${entityType}/${entityId}/finalize`
     );
     return response;
@@ -79,7 +79,7 @@ export const signaturesApi = {
    * Get pending signatures for current user
    */
   async getPendingSignatures(): Promise<SignedDocument[]> {
-    const response = await apiClient.get(`${API_BASE}/pending`);
+    const response = await apiClient.get<SignedDocument[]>(`${API_BASE}/pending`);
     return response;
   },
 };

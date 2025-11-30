@@ -2,6 +2,8 @@
 
 import { useOrder } from "@/features/orders";
 import { useOrderReports, ActaEntregaButton, SESButton, ActivityReportButton } from "@/features/reports";
+import { SignatureSection } from "@/features/signatures";
+import { AribaIntegrationCard } from "@/features/ariba";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 
@@ -147,6 +149,19 @@ export default function OrderDetailPage() {
               </div>
             </div>
           </div>
+
+          {/* Digital Signatures Section */}
+          <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+            <SignatureSection
+              entityType="order"
+              entityId={orderId}
+              requiredSignatures={['technician', 'supervisor', 'client']}
+              title="Firmas del Acta de Entrega"
+              onAllSigned={() => {
+                console.log('Todas las firmas completadas');
+              }}
+            />
+          </div>
         </div>
 
         {/* Right Column - Info Cards */}
@@ -234,6 +249,9 @@ export default function OrderDetailPage() {
               />
             </div>
           </div>
+
+          {/* SAP Ariba Integration Card */}
+          <AribaIntegrationCard orderId={orderId} orderNumber={order.orderNumber || ''} />
         </div>
       </div>
     </div>
