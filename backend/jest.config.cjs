@@ -24,6 +24,9 @@ module.exports = {
     '^.+\\.ts$': ['ts-jest', {
       tsconfig: path.resolve(__dirname, 'tsconfig.json'),
       useESM: false,
+      diagnostics: {
+        ignoreCodes: [151002, 1343]
+      }
     }]
   },
   transformIgnorePatterns: [

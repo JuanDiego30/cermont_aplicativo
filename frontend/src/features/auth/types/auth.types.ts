@@ -29,6 +29,7 @@ export interface AuthContextValue {
   isLoading: boolean;
   isAuthenticated: boolean;
   isInitialized: boolean;
+  isReady: boolean; // Token is saved and ready for API calls
   login: (params: LoginCredentials) => Promise<void>;
   logout: () => Promise<void>;
 }

@@ -33,15 +33,16 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
-  const { isAuthenticated, isLoading, isInitialized } = useAuth();
+  const { isAuthenticated, isLoading, isInitialized, isReady } = useAuth();
   const router = useRouter();
 
-  // Redirect to login if not authenticated
+  // Redirect to login if not authenticated AND ready state is confirmed
   useEffect(() => {
-    if (isInitialized && !isAuthenticated) {
+    // Only redirect if we're fully initialized AND not ready (no valid token)
+    if (isInitialized && !isAuthenticated && !isReady) {
       router.push('/signin');
     }
-  }, [isInitialized, isAuthenticated, router]);
+  }, [isInitialized, isAuthenticated, isReady, router]);
 
   // Show loading state while checking authentication
   if (!isInitialized || isLoading) {
@@ -55,8 +56,8 @@ export default function AdminLayout({
     );
   }
 
-  // If not authenticated, don't render the layout
-  if (!isAuthenticated) {
+  // If not authenticated and not ready, don't render the layout
+  if (!isAuthenticated && !isReady) {
     return null;
   }
 
