@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useWorkPlan, useApproveWorkPlan, useRejectWorkPlan } from "@/features/workplans";
 import { CostSummaryCard, CostBreakdownTable, ApprovalDialog } from "@/features/workplans";
+import { useWorkPlanReports, CostsReportButton } from "@/features/reports";
 import { useState, useCallback } from "react";
 import { ArrowLeft, Calendar, Clock, CheckCircle, XCircle, FileText, DollarSign, Users, Wrench } from "lucide-react";
 
@@ -15,6 +16,7 @@ export default function WorkPlanDetailPage() {
   const { data: workPlan, isLoading, refetch } = useWorkPlan(workPlanId);
   const approveMutation = useApproveWorkPlan();
   const rejectMutation = useRejectWorkPlan();
+  const { generateCosts, isGeneratingCosts } = useWorkPlanReports(workPlanId);
   const [activeTab, setActiveTab] = useState<"overview" | "costs" | "resources">("overview");
   const [showApprovalDialog, setShowApprovalDialog] = useState(false);
 
@@ -135,6 +137,10 @@ export default function WorkPlanDetailPage() {
           )}
         </div>
         <div className="flex gap-3">
+          <CostsReportButton 
+            onDownload={generateCosts}
+            isLoading={isGeneratingCosts}
+          />
           {workPlan.status?.toUpperCase() === "DRAFT" && (
             <>
               <button
