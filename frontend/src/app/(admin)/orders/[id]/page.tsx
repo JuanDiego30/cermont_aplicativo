@@ -1,6 +1,7 @@
 "use client";
 
 import { useOrder } from "@/features/orders";
+import { useOrderReports, ActaEntregaButton, SESButton, ActivityReportButton } from "@/features/reports";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 
@@ -9,6 +10,14 @@ export default function OrderDetailPage() {
   const orderId = params.id as string;
   
   const { data: order, isLoading } = useOrder(orderId);
+  const { 
+    generateActivity, 
+    generateActa, 
+    generateSES,
+    isGeneratingActivity,
+    isGeneratingActa,
+    isGeneratingSES,
+  } = useOrderReports(orderId);
 
   const getStateColor = (state?: string) => {
     const colors: Record<string, string> = {
@@ -199,9 +208,30 @@ export default function OrderDetailPage() {
               <button className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 Agregar Evidencia
               </button>
-              <button className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                Generar PDF
-              </button>
+            </div>
+          </div>
+
+          {/* PDF Reports Card */}
+          <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Documentos PDF
+            </h3>
+            <div className="space-y-3">
+              <ActivityReportButton 
+                onDownload={generateActivity}
+                isLoading={isGeneratingActivity}
+                className="w-full justify-center"
+              />
+              <ActaEntregaButton 
+                onDownload={generateActa}
+                isLoading={isGeneratingActa}
+                className="w-full justify-center"
+              />
+              <SESButton 
+                onDownload={generateSES}
+                isLoading={isGeneratingSES}
+                className="w-full justify-center"
+              />
             </div>
           </div>
         </div>
