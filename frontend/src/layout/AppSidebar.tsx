@@ -26,6 +26,7 @@ import {
   EvidencesIcon,
   AIAssistantIcon,
   WeatherIcon,
+  ArchiveIcon,
 } from "@/icons/navigation";
 import SidebarWidget from "./SidebarWidget";
 
@@ -122,13 +123,12 @@ const AppSidebar: React.FC = () => {
   ];
 
   const adminItems: NavItem[] = [
-    // TODO: Crear página /admin/archives
-    // {
-    //   icon: <ArchiveIcon />,
-    //   name: "Archivos",
-    //   path: "/admin/archives",
-    //   show: hasPermission(PERMISSIONS.VIEW_ARCHIVES),
-    // },
+    {
+      icon: <ArchiveIcon />,
+      name: "Archivos",
+      path: "/archives",
+      show: hasPermission(PERMISSIONS.VIEW_ARCHIVES),
+    },
     {
       icon: <UsersIcon />,
       name: "Usuarios",
