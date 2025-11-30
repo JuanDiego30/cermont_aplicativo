@@ -29,12 +29,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     const token = getAccessToken();
     if (!token) {
       setIsLoading(false);
       setIsInitialized(true);
+      setIsReady(true);
       return;
     }
 
@@ -49,13 +51,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (profile) {
           setUser(profile);
           setIsAuthenticated(true);
+          setIsReady(true);
         } else {
           clearSession();
           setIsAuthenticated(false);
+          setIsReady(true);
         }
       } catch {
         clearSession();
         setIsAuthenticated(false);
+        setIsReady(true);
       } finally {
         setIsLoading(false);
         setIsInitialized(true);
@@ -76,7 +81,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           password,
         });
 
-        // El apiClient.post ya extrae json.data, así que response ya contiene los datos directamente
         const accessToken = response.accessToken;
         const refreshToken = response.refreshToken;
         const loggedUser = response.user;
@@ -85,24 +89,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw new Error('Respuesta incompleta del servidor');
         }
 
-        // 🔧 FIX: Guardar sesión ANTES de actualizar estado
-        // Esto asegura que el token esté disponible inmediatamente en localStorage
+        // 🔧 CRITICAL FIX: Store session FIRST, before any state updates
         setSession({
           accessToken,
           refreshToken,
           userRole: loggedUser.role
         });
 
-        // Actualizar estado después de que el token esté en localStorage
+        // Update state after token is in localStorage
         setUser(loggedUser);
         setIsAuthenticated(true);
+        
+        // ✅ Set isReady AFTER all state updates
+        // This tells dashboard it's safe to make API calls
+        setIsReady(true);
 
-        // ✅ Navegar inmediatamente - el token ya está disponible
+        // Navigate - token is now available for immediate API calls
         router.replace('/dashboard');
       } catch (error: unknown) {
         clearSession();
         setUser(null);
         setIsAuthenticated(false);
+        setIsReady(false);
 
         const err = error as { response?: { data?: { detail?: string } }; message?: string };
         const errorMessage =
@@ -124,12 +132,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearSession();
       setUser(null);
       setIsAuthenticated(false);
+      setIsReady(false);
       router.push('/signin');
     }
   }, [router]);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAuthenticated, isInitialized, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, isAuthenticated, isInitialized, isReady, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
