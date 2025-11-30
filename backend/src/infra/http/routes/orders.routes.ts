@@ -5,7 +5,7 @@
  */
 
 import { Router } from 'express';
-import { OrdersController } from '../controllers/OrdersController.js'; // Asegurar importación correcta de la clase
+import { container } from '../../../shared/container/index.js';
 import { authenticate } from '../../../shared/middlewares/authenticate.js';
 import { authorize } from '../../../shared/middlewares/authorize.js';
 import { validateMiddleware } from '../../../shared/middlewares/validateMiddleware.js';
@@ -17,104 +17,313 @@ import {
 import { PERMISSIONS } from '../../../shared/constants/permissions.js';
 
 const router = Router();
+const { ordersController } = container;
 
 // Todas las rutas requieren autenticación
 router.use(authenticate);
 
 /**
- * @route   POST /api/orders
- * @desc    Crear nueva orden
- * @access  Private (ADMIN, COORDINADOR, CLIENTE)
+ * @swagger
+ * /api/orders:
+ *   post:
+ *     summary: Crear nueva orden de trabajo
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - clientId
+ *               - title
+ *               - description
+ *             properties:
+ *               clientId:
+ *                 type: string
+ *                 format: uuid
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               priority:
+ *                 type: string
+ *                 enum: [low, medium, high, urgent]
+ *               scheduledDate:
+ *                 type: string
+ *                 format: date-time
+ *     responses:
+ *       201:
+ *         description: Orden creada exitosamente
+ *       400:
+ *         description: Datos de entrada inválidos
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: Sin permisos
  */
 router.post(
   '/',
-  // Se usa CLIENT_CREATE_REQUESTS (plural) según el archivo de permisos actualizado
-  authorize([PERMISSIONS.ORDERS_CREATE, PERMISSIONS.CLIENT_CREATE_REQUEST]), 
+  authorize([PERMISSIONS.ORDERS_CREATE, PERMISSIONS.CLIENT_CREATE_REQUEST]),
   validateMiddleware(createOrderSchema),
-  OrdersController.create
+  ordersController.create.bind(ordersController)
 );
 
 /**
- * @route   GET /api/orders
- * @desc    Listar órdenes con filtros
- * @access  Private
+ * @swagger
+ * /api/orders:
+ *   get:
+ *     summary: Listar órdenes con filtros y paginación
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: clientId
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *       - in: query
+ *         name: technicianId
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Lista de órdenes
+ *       401:
+ *         description: No autenticado
  */
 router.get(
   '/',
   authorize([PERMISSIONS.ORDERS_VIEW]),
-  OrdersController.list
+  ordersController.list.bind(ordersController)
 );
 
 /**
- * @route   GET /api/orders/stats
- * @desc    Obtener estadísticas de órdenes
- * @access  Private
+ * @swagger
+ * /api/orders/stats:
+ *   get:
+ *     summary: Obtener estadísticas de órdenes
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Estadísticas de órdenes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 total:
+ *                   type: integer
+ *                 byStatus:
+ *                   type: object
+ *                 byPriority:
+ *                   type: object
+ *       401:
+ *         description: No autenticado
  */
 router.get(
   '/stats',
-  // Usar DASHBOARD_VIEW_STATS o ORDERS_VIEW según preferencia
   authorize([PERMISSIONS.DASHBOARD_VIEW_STATS]),
-  OrdersController.getStats
+  ordersController.getStats.bind(ordersController)
 );
 
 /**
- * @route   GET /api/orders/:id
- * @desc    Obtener orden por ID
- * @access  Private
+ * @swagger
+ * /api/orders/{id}:
+ *   get:
+ *     summary: Obtener orden por ID
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Detalle de la orden
+ *       404:
+ *         description: Orden no encontrada
+ *       401:
+ *         description: No autenticado
  */
 router.get(
   '/:id',
   authorize([PERMISSIONS.ORDERS_VIEW]),
-  OrdersController.getById
+  ordersController.getById.bind(ordersController)
 );
 
 /**
- * @route   PATCH /api/orders/:id/state
- * @desc    Transicionar estado de orden
- * @access  Private
+ * @swagger
+ * /api/orders/{id}/state:
+ *   patch:
+ *     summary: Transicionar estado de orden
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - newState
+ *             properties:
+ *               newState:
+ *                 type: string
+ *                 enum: [solicitud, visita, po, planeacion, ejecucion, facturacion, entrega, completed]
+ *     responses:
+ *       200:
+ *         description: Estado actualizado
+ *       400:
+ *         description: Transición inválida
+ *       404:
+ *         description: Orden no encontrada
  */
 router.patch(
   '/:id/state',
-  // Asegurarse que ORDERS_MANAGE o ORDERS_UPDATE cubra esto si ORDERS_TRANSITION no existe
-  authorize([PERMISSIONS.ORDERS_MANAGE]), 
-  OrdersController.transition
+  authorize([PERMISSIONS.ORDERS_MANAGE]),
+  ordersController.transition.bind(ordersController)
 );
 
 /**
- * @route   PATCH /api/orders/:id/assign
- * @desc    Asignar orden a técnico
- * @access  Private (ADMIN, COORDINADOR)
+ * @swagger
+ * /api/orders/{id}/assign:
+ *   patch:
+ *     summary: Asignar orden a técnico
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - technicianId
+ *             properties:
+ *               technicianId:
+ *                 type: string
+ *                 format: uuid
+ *     responses:
+ *       200:
+ *         description: Orden asignada
+ *       404:
+ *         description: Orden o técnico no encontrado
  */
 router.patch(
   '/:id/assign',
-  // Asegurarse que ORDERS_MANAGE cubra la asignación si ORDERS_ASSIGN no existe
-  authorize([PERMISSIONS.ORDERS_MANAGE]), 
+  authorize([PERMISSIONS.ORDERS_MANAGE]),
   validateMiddleware(assignOrderSchema),
-  OrdersController.assign
+  ordersController.assign.bind(ordersController)
 );
 
 /**
- * @route   PATCH /api/orders/:id/archive
- * @desc    Archivar orden
- * @access  Private (ADMIN)
+ * @swagger
+ * /api/orders/{id}/archive:
+ *   patch:
+ *     summary: Archivar orden
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Orden archivada
+ *       404:
+ *         description: Orden no encontrada
  */
 router.patch(
   '/:id/archive',
-  // Asegurarse que ORDERS_DELETE o ORDERS_MANAGE cubra esto si ORDERS_ARCHIVE no existe
-  authorize([PERMISSIONS.ORDERS_DELETE]), 
-  OrdersController.archive
+  authorize([PERMISSIONS.ORDERS_DELETE]),
+  ordersController.archive.bind(ordersController)
 );
 
 /**
- * @route   PATCH /api/orders/:id
- * @desc    Actualizar orden
- * @access  Private
+ * @swagger
+ * /api/orders/{id}:
+ *   patch:
+ *     summary: Actualizar orden
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               priority:
+ *                 type: string
+ *                 enum: [low, medium, high, urgent]
+ *     responses:
+ *       200:
+ *         description: Orden actualizada
+ *       404:
+ *         description: Orden no encontrada
  */
 router.patch(
   '/:id',
   authorize([PERMISSIONS.ORDERS_UPDATE]),
   validateMiddleware(updateOrderSchema),
-  OrdersController.update
+  ordersController.update.bind(ordersController)
 );
 
 export default router;

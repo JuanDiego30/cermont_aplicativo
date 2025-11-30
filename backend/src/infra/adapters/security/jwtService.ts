@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { generateUniqueId } from '../../../shared/utils/generateUniqueId.js';
-import { logger } from '../../../shared/utils/logger.js';
+import { logger } from '../../../shared/utils/index.js';
 // Asumiendo que la interfaz está definida en el dominio (ajusta la ruta si es necesario)
 import type { IJwtService } from '../../../domain/ports/security/IJwtService.js'; 
 
@@ -192,8 +192,9 @@ export class JwtService implements IJwtService {
         jti: String(payload.jti),
         ...payload,
       };
-    } catch (error: any) {
-      if (error?.code === 'ERR_JWT_EXPIRED') {
+    } catch (error: unknown) {
+      // Check for JWT expired error code
+      if (error instanceof Error && 'code' in error && error.code === 'ERR_JWT_EXPIRED') {
         throw new Error('Token expirado');
       }
       throw new Error('Token inválido');

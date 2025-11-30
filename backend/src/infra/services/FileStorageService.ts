@@ -9,6 +9,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
 import sharp from 'sharp';
+import { fileTypeFromBuffer } from 'file-type';
+import sanitize from 'sanitize-filename';
 
 // ==========================================
 // Tipos y Configuraciones
@@ -31,6 +33,36 @@ export interface UploadResult {
   url: string;
   checksum: string;
 }
+
+// Magic bytes signatures for file type validation
+// Previene que usuarios suban archivos maliciosos con extensiones falsas
+const MAGIC_BYTES: Record<string, number[][]> = {
+  'image/jpeg': [[0xFF, 0xD8, 0xFF]],
+  'image/jpg': [[0xFF, 0xD8, 0xFF]],
+  'image/png': [[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]],
+  'application/pdf': [[0x25, 0x50, 0x44, 0x46]], // %PDF
+  'video/mp4': [
+    [0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70], // ftyp at offset 4
+    [0x00, 0x00, 0x00, 0x1C, 0x66, 0x74, 0x79, 0x70], // ftyp variant
+    [0x00, 0x00, 0x00, 0x20, 0x66, 0x74, 0x79, 0x70], // ftyp variant
+  ],
+  'video/quicktime': [[0x00, 0x00, 0x00, 0x14, 0x66, 0x74, 0x79, 0x70, 0x71, 0x74]],
+};
+
+// Dangerous file patterns that should never be allowed
+const DANGEROUS_PATTERNS = [
+  /\.exe$/i,
+  /\.dll$/i,
+  /\.bat$/i,
+  /\.cmd$/i,
+  /\.ps1$/i,
+  /\.sh$/i,
+  /\.php$/i,
+  /\.jsp$/i,
+  /\.asp$/i,
+  /\.aspx$/i,
+  /\.(html?|js|svg)$/i, // Can contain XSS
+];
 
 // Default configuration
 const DEFAULT_CONFIG: StorageConfig = {
@@ -84,7 +116,7 @@ export class FileStorageService {
    */
   async initialize(): Promise<void> {
     await fs.mkdir(this.config.basePath, { recursive: true });
-    
+
     // Crear directorio del mes actual preventivamente
     const { relativePath } = this.getDatePathInfo();
     await fs.mkdir(path.join(this.config.basePath, relativePath), { recursive: true });
@@ -98,7 +130,7 @@ export class FileStorageService {
     originalName: string,
     mimeType: string
   ): Promise<UploadResult> {
-    this.validateFile(fileBuffer, mimeType);
+    await this.validateFile(fileBuffer, mimeType, originalName);
 
     let processedBuffer = fileBuffer;
 
@@ -175,14 +207,73 @@ export class FileStorageService {
   // Helpers Privados
   // ==========================================
 
-  private validateFile(buffer: Buffer, mimeType: string): void {
+  /**
+   * Valida un archivo de forma robusta:
+   * 1. Verifica tamaño máximo
+   * 2. Verifica MIME type permitido
+   * 3. Valida magic bytes usando file-type
+   * 4. Bloquea extensiones peligrosas
+   */
+  private async validateFile(buffer: Buffer, mimeType: string, originalName?: string): Promise<void> {
+    // 1. Validar tamaño
     if (buffer.length > this.config.maxFileSize) {
       throw new Error(`File size exceeds maximum allowed: ${(this.config.maxFileSize / 1024 / 1024).toFixed(2)} MB`);
     }
 
+    // 2. Validar MIME type declarado
     if (!this.config.allowedMimeTypes.includes(mimeType)) {
       throw new Error(`File type not allowed: ${mimeType}`);
     }
+
+    // 3. Validar extensión contra patrones peligrosos
+    if (originalName) {
+      const isDangerous = DANGEROUS_PATTERNS.some(pattern => pattern.test(originalName));
+      if (isDangerous) {
+        throw new Error('Dangerous file type detected');
+      }
+    }
+
+    // 4. Validar magic bytes real usando file-type
+    const type = await fileTypeFromBuffer(buffer);
+    if (!type) {
+      // Si file-type no lo reconoce, pero nosotros permitimos ciertos tipos que file-type podría no cubrir (raro),
+      // podríamos fallar o advertir. Para seguridad estricta, fallamos.
+      throw new Error(`Could not determine file type from content.`);
+    }
+
+    if (type.mime !== mimeType) {
+      // Permitir discrepancias menores si son seguros (ej: jpg vs jpeg)
+      const isImage = type.mime.startsWith('image/') && mimeType.startsWith('image/');
+      if (!isImage) {
+        throw new Error(`File content (${type.mime}) does not match declared type (${mimeType})`);
+      }
+    }
+
+    if (!this.config.allowedMimeTypes.includes(type.mime)) {
+      throw new Error(`Detected file type not allowed: ${type.mime}`);
+    }
+  }
+
+  /**
+   * Verifica que los primeros bytes del archivo coincidan con el tipo declarado
+   * Previene ataques donde se sube un .exe disfrazado de .jpg
+   */
+  private validateMagicBytes(buffer: Buffer, mimeType: string): boolean {
+    const signatures = MAGIC_BYTES[mimeType];
+
+    // Si no tenemos firma definida, aceptamos (pero ya pasó la validación de MIME type)
+    if (!signatures) {
+      return true;
+    }
+
+    // Verificar si alguna de las firmas coincide
+    return signatures.some(signature => {
+      if (buffer.length < signature.length) {
+        return false;
+      }
+
+      return signature.every((byte, index) => buffer[index] === byte);
+    });
   }
 
   private getDatePathInfo(filename: string = '') {
@@ -191,23 +282,8 @@ export class FileStorageService {
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const relativePath = path.join(year, month);
     const fullPath = path.join(this.config.basePath, relativePath, filename);
-    
+
     return { relativePath, fullPath };
-  }
-
-  private generateUniqueFilename(originalName: string): string {
-    const timestamp = Date.now();
-    const random = crypto.randomBytes(8).toString('hex');
-    const ext = path.extname(originalName);
-    const baseName = path.basename(originalName, ext)
-      .replace(/[^a-zA-Z0-9]/g, '-') // Sanitizar nombre
-      .substring(0, 50);
-    
-    return `${baseName}-${timestamp}-${random}${ext}`;
-  }
-
-  private calculateChecksum(buffer: Buffer): string {
-    return crypto.createHash('sha256').update(buffer).digest('hex');
   }
 
   private async calculateDirSize(dirPath: string): Promise<number> {

@@ -1,3 +1,9 @@
+/**
+ * Rutas del Dashboard
+ *
+ * @file backend/src/infra/http/routes/dashboard.routes.ts
+ */
+
 import { Router } from 'express';
 import { authenticate } from '../../../shared/middlewares/authenticate.js';
 import { authorize } from '../../../shared/middlewares/authorize.js';
@@ -10,9 +16,29 @@ const router = Router();
 router.use(authenticate);
 
 /**
- * @route   GET /api/dashboard/metrics
- * @desc    Obtener métricas principales (KPIs)
- * @access  Private (Admin, Coordinador)
+ * @swagger
+ * /api/dashboard/metrics:
+ *   get:
+ *     summary: Obtener métricas principales (KPIs)
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Métricas del dashboard
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalOrders:
+ *                   type: integer
+ *                 activeOrders:
+ *                   type: integer
+ *                 completedOrders:
+ *                   type: integer
+ *                 avgCompletionTime:
+ *                   type: number
  */
 router.get(
   '/metrics',
@@ -21,9 +47,16 @@ router.get(
 );
 
 /**
- * @route   GET /api/dashboard/metrics/advanced
- * @desc    Obtener métricas avanzadas
- * @access  Private (Admin, Coordinador)
+ * @swagger
+ * /api/dashboard/metrics/advanced:
+ *   get:
+ *     summary: Obtener métricas avanzadas
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Métricas avanzadas con tendencias
  */
 router.get(
   '/metrics/advanced',
@@ -32,9 +65,16 @@ router.get(
 );
 
 /**
- * @route   GET /api/dashboard/stats
- * @desc    Obtener estadísticas generales
- * @access  Private (Admin, Coordinador)
+ * @swagger
+ * /api/dashboard/stats:
+ *   get:
+ *     summary: Obtener estadísticas generales
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Estadísticas generales del sistema
  */
 router.get(
   '/stats',
@@ -43,9 +83,23 @@ router.get(
 );
 
 /**
- * @route   GET /api/dashboard/orders/by-state/:state
- * @desc    Obtener órdenes por estado
- * @access  Private
+ * @swagger
+ * /api/dashboard/orders/by-state/{state}:
+ *   get:
+ *     summary: Obtener órdenes por estado
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: state
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [solicitud, visita, po, planeacion, ejecucion, facturacion, entrega, completed]
+ *     responses:
+ *       200:
+ *         description: Lista de órdenes en el estado especificado
  */
 router.get(
   '/orders/by-state/:state',
@@ -54,9 +108,16 @@ router.get(
 );
 
 /**
- * @route   GET /api/dashboard/orders/active
- * @desc    Obtener órdenes activas
- * @access  Private
+ * @swagger
+ * /api/dashboard/orders/active:
+ *   get:
+ *     summary: Obtener órdenes activas
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de órdenes activas
  */
 router.get(
   '/orders/active',
@@ -65,9 +126,16 @@ router.get(
 );
 
 /**
- * @route   GET /api/dashboard/work-plans/pending
- * @desc    Obtener work plans pendientes
- * @access  Private (Admin, Coordinador)
+ * @swagger
+ * /api/dashboard/work-plans/pending:
+ *   get:
+ *     summary: Obtener planes de trabajo pendientes
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de planes pendientes de aprobación
  */
 router.get(
   '/work-plans/pending',
@@ -76,9 +144,16 @@ router.get(
 );
 
 /**
- * @route   GET /api/dashboard/my-stats
- * @desc    Obtener estadísticas del usuario
- * @access  Private
+ * @swagger
+ * /api/dashboard/my-stats:
+ *   get:
+ *     summary: Obtener estadísticas del usuario actual
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Estadísticas personales del usuario
  */
 router.get(
   '/my-stats',
@@ -87,9 +162,16 @@ router.get(
 );
 
 /**
- * @route   GET /api/dashboard/recent-activity
- * @desc    Obtener actividad reciente
- * @access  Private
+ * @swagger
+ * /api/dashboard/recent-activity:
+ *   get:
+ *     summary: Obtener actividad reciente
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de actividades recientes
  */
 router.get(
   '/recent-activity',
@@ -98,9 +180,18 @@ router.get(
 );
 
 /**
- * @route   POST /api/dashboard/cache/clear
- * @desc    Limpiar caché de métricas
- * @access  Private (Solo Admin)
+ * @swagger
+ * /api/dashboard/cache/clear:
+ *   post:
+ *     summary: Limpiar caché de métricas
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Caché limpiado exitosamente
+ *       403:
+ *         description: Sin permisos de administrador
  */
 router.post(
   '/cache/clear',

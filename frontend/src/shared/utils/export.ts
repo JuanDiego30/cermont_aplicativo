@@ -11,6 +11,37 @@ export type ExportColumn = {
   format?: (value: unknown) => string;
 };
 
+const BOM = '\uFEFF';
+
+function sanitizeCellValue(value: unknown, format?: ExportColumn['format']): string {
+  const formatted = format ? format(value) : value;
+  if (formatted === null || formatted === undefined) {
+    return '""';
+  }
+  const text = String(formatted).replace(/"/g, '""');
+  return `"${text}"`;
+}
+
+function buildCsvRows(data: Record<string, unknown>[], columns: ExportColumn[]): string[] {
+  return data.map((row) =>
+    columns.map((col) => sanitizeCellValue(row[col.key], col.format)).join(',')
+  );
+}
+
+function buildTableRows(data: Record<string, unknown>[], columns: ExportColumn[]): string {
+  return data
+    .map((row) => {
+      const cells = columns
+        .map((col) => {
+          const value = col.format ? col.format(row[col.key]) : row[col.key];
+          return `<td>${value ?? ''}</td>`;
+        })
+        .join('');
+      return `<tr>${cells}</tr>`;
+    })
+    .join('');
+}
+
 /**
  * Exportar datos a CSV
  */
@@ -19,34 +50,10 @@ export function exportToCSV(
   columns: ExportColumn[],
   filename: string
 ): void {
-  // Generar cabecera
-  const headers = columns.map(col => `"${col.header}"`).join(',');
-  
-  // Generar filas
-  const rows = data.map(row => {
-    return columns.map(col => {
-      let value = row[col.key];
-      
-      // Aplicar formato si existe
-      if (col.format) {
-        value = col.format(value);
-      }
-      
-      // Escapar comillas y envolver en comillas
-      if (value === null || value === undefined) {
-        return '""';
-      }
-      const strValue = String(value).replace(/"/g, '""');
-      return `"${strValue}"`;
-    }).join(',');
-  });
-  
-  // Combinar todo con BOM para Excel
-  const BOM = '\uFEFF';
-  const csvContent = BOM + headers + '\n' + rows.join('\n');
-  
-  // Descargar
-  downloadFile(csvContent, `${filename}.csv`, 'text/csv;charset=utf-8');
+  const headerRow = columns.map((col) => `"${col.header}"`).join(',');
+  const rows = buildCsvRows(data, columns);
+  const csvContent = `${BOM}${headerRow}\n${rows.join('\n')}`;
+  downloadContent(csvContent, `${filename}.csv`, 'text/csv;charset=utf-8');
 }
 
 /**
@@ -65,31 +72,20 @@ export async function exportToExcel(
     if (!XLSX) {
       throw new Error('xlsx no disponible');
     }
-    
-    // Preparar datos con headers
+
     const wsData = [
-      columns.map(c => c.header),
-      ...data.map(row => columns.map(col => {
-        let value = row[col.key];
-        if (col.format) value = col.format(value);
-        return value;
-      }))
+      columns.map((col) => col.header),
+      ...data.map((row) => columns.map((col) => col.format ? col.format(row[col.key]) : row[col.key])),
     ];
-    
-    // Crear libro y hoja
+
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(wsData);
-    
-    // Configurar anchos de columna
-    const colWidths = columns.map(col => ({ wch: col.width || 15 }));
-    ws['!cols'] = colWidths;
-    
+
+    ws['!cols'] = columns.map((col) => ({ wch: col.width || 15 }));
+
     XLSX.utils.book_append_sheet(wb, ws, sheetName);
-    
-    // Descargar
     XLSX.writeFile(wb, `${filename}.xlsx`);
   } catch {
-    // Fallback a CSV si xlsx no está disponible
     console.warn('xlsx no disponible, exportando como CSV');
     exportToCSV(data, columns, filename);
   }
@@ -107,92 +103,45 @@ export async function exportToPDF(
     pageSize?: 'A4' | 'letter';
   } = {}
 ): Promise<void> {
+  const { title = 'Documento', orientation = 'portrait', pageSize = 'A4' } = options;
   const printWindow = window.open('', '_blank');
-  
+
   if (!printWindow) {
     throw new Error('No se pudo abrir ventana de impresión. Permite ventanas emergentes.');
   }
-  
-  const { title = 'Documento', orientation = 'portrait' } = options;
-  
-  printWindow.document.write(`
+
+  const documentContent = `
     <!DOCTYPE html>
     <html>
-    <head>
-      <title>${title}</title>
-      <meta charset="utf-8">
-      <style>
-        @page {
-          size: ${options.pageSize || 'A4'} ${orientation};
-          margin: 1.5cm;
-        }
-        body {
-          font-family: Arial, sans-serif;
-          font-size: 12px;
-          line-height: 1.4;
-          color: #333;
-        }
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin: 10px 0;
-        }
-        th, td {
-          border: 1px solid #ddd;
-          padding: 8px;
-          text-align: left;
-        }
-        th {
-          background-color: #f5f5f5;
-          font-weight: bold;
-        }
-        tr:nth-child(even) {
-          background-color: #fafafa;
-        }
-        .header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          border-bottom: 2px solid #333;
-          padding-bottom: 10px;
-          margin-bottom: 20px;
-        }
-        .title {
-          font-size: 18px;
-          font-weight: bold;
-        }
-        .subtitle {
-          font-size: 14px;
-          color: #666;
-        }
-        .footer {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          text-align: center;
-          font-size: 10px;
-          color: #999;
-          padding: 10px;
-          border-top: 1px solid #ddd;
-        }
-        @media print {
-          .no-print { display: none; }
-          body { -webkit-print-color-adjust: exact; }
-        }
-      </style>
-    </head>
-    <body>
-      ${htmlContent}
-      <div class="footer">
-        Generado el ${new Date().toLocaleString('es-CO')} - CERMONT S.A.S.
-      </div>
-    </body>
+      <head>
+        <title>${title}</title>
+        <meta charset="utf-8">
+        <style>
+          @page { size: ${pageSize} ${orientation}; margin: 1.5cm; }
+          body { font-family: Arial, sans-serif; font-size: 12px; line-height: 1.4; color: #333; }
+          table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+          th { background-color: #f5f5f5; font-weight: bold; }
+          tr:nth-child(even) { background-color: #fafafa; }
+          .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+          .title { font-size: 18px; font-weight: bold; }
+          .subtitle { font-size: 14px; color: #666; }
+          .footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; font-size: 10px; color: #999; padding: 10px; border-top: 1px solid #ddd; }
+          @media print { .no-print { display: none; } body { -webkit-print-color-adjust: exact; } }
+        </style>
+      </head>
+      <body>
+        ${htmlContent}
+        <div class="footer">
+          Generado el ${new Date().toLocaleString('es-CO')} - CERMONT S.A.S.
+        </div>
+      </body>
     </html>
-  `);
-  
+  `;
+
+  printWindow.document.write(documentContent);
   printWindow.document.close();
-  
+
   printWindow.onload = () => {
     setTimeout(() => {
       printWindow.print();
@@ -211,29 +160,26 @@ export async function exportToZIP(
   try {
     // @ts-expect-error - jszip es opcional
     const JSZipModule = await import('jszip').catch(() => null);
-    
+
     if (!JSZipModule) {
       throw new Error('jszip no disponible');
     }
-    
+
     const JSZip = JSZipModule.default;
     const zip = new JSZip();
-    
-    for (const file of files) {
-      zip.file(file.name, file.content);
-    }
-    
+
+    files.forEach((file) => zip.file(file.name, file.content));
     const blob = await zip.generateAsync({ type: 'blob' });
     downloadBlob(blob, `${zipFilename}.zip`);
   } catch {
-    console.warn('JSZip no disponible, descargando archivos individualmente');
-    for (const file of files) {
+    console.warn('jszip no disponible, descargando archivos individualmente');
+    files.forEach((file) => {
       if (file.content instanceof Blob) {
         downloadBlob(file.content, file.name);
       } else {
-        downloadFile(file.content, file.name, file.type || 'text/plain');
+        downloadContent(file.content, file.name, file.type || 'text/plain');
       }
-    }
+    });
   }
 }
 
@@ -246,17 +192,9 @@ export function generateTableHTML(
   title?: string,
   subtitle?: string
 ): string {
-  const headerRow = columns.map(col => `<th>${col.header}</th>`).join('');
-  
-  const bodyRows = data.map(row => {
-    const cells = columns.map(col => {
-      let value = row[col.key];
-      if (col.format) value = col.format(value);
-      return `<td>${value ?? ''}</td>`;
-    }).join('');
-    return `<tr>${cells}</tr>`;
-  }).join('');
-  
+  const headerRow = columns.map((col) => `<th>${col.header}</th>`).join('');
+  const bodyRows = buildTableRows(data, columns);
+
   return `
     ${title ? `
       <div class="header">
@@ -284,14 +222,11 @@ export function generateTableHTML(
 /**
  * Helper para descargar archivo de texto
  */
-function downloadFile(content: string, filename: string, mimeType: string): void {
+function downloadContent(content: string, filename: string, mimeType: string): void {
   const blob = new Blob([content], { type: mimeType });
   downloadBlob(blob, filename);
 }
 
-/**
- * Helper para descargar blob
- */
 function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');

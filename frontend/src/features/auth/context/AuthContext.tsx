@@ -67,24 +67,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async ({ email, password }: { email: string; password: string }) => {
       try {
         interface LoginResponse {
-          data?: {
-            accessToken: string;
-            refreshToken: string;
-            user: User;
-          };
-          accessToken?: string;
-          refreshToken?: string;
-          user?: User;
+          accessToken: string;
+          refreshToken: string;
+          user: User;
         }
         const response = await apiClient.post<LoginResponse>('/auth/login', {
           email: email.toLowerCase().trim(),
           password,
         });
 
-        const payload = response.data ?? response;
-        const accessToken: string | undefined = payload?.accessToken;
-        const refreshToken: string | undefined = payload?.refreshToken;
-        const loggedUser: User | undefined = payload?.user;
+        // El apiClient.post ya extrae json.data, así que response ya contiene los datos directamente
+        const accessToken = response.accessToken;
+        const refreshToken = response.refreshToken;
+        const loggedUser = response.user;
 
         if (!accessToken || !refreshToken || !loggedUser) {
           throw new Error('Respuesta incompleta del servidor');
@@ -98,7 +93,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(loggedUser);
         setIsAuthenticated(true);
 
-        router.push('/dashboard');
+        // Pequeño retraso para asegurar que el estado se propague antes de navegar
+        await new Promise(resolve => setTimeout(resolve, 100));
+        router.replace('/dashboard');
       } catch (error: unknown) {
         clearSession();
         setUser(null);

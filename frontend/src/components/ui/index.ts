@@ -1,29 +1,58 @@
 /**
- * UI Components - TailAdmin Integration
+ * UI Components - Cermont
  * Centralized exports for all UI components
  */
 
-// Button
+// ============================================================================
+// Buttons
+// ============================================================================
 export { Button } from './Button';
 
-// Card
+// ============================================================================
+// Cards
+// ============================================================================
 export { Card, CardHeader, CardTitle, CardContent } from './Card';
 
-// Modal
+// ============================================================================
+// Modals
+// ============================================================================
 export { Modal } from './modal';
 
-// Table
+// ===========================================================================
+// Tables
+// ===========================================================================
 export { Table, TableHeader, TableBody, TableRow, TableCell } from './table';
 
-// Alert
+// ============================================================================
+// Alerts
+// ============================================================================
 export { default as Alert } from './alert/Alert';
 
-// Badge
+// ============================================================================
+// Badges
+// ============================================================================
 export { default as Badge } from './badge/Badge';
 
-// Avatar
+// ============================================================================
+// Avatars
+// ============================================================================
 export { default as Avatar } from './avatar/Avatar';
 
-// Dropdown
+// ============================================================================
+// Dropdowns
+// ============================================================================
 export { Dropdown } from './dropdown/Dropdown';
 export { DropdownItem } from './dropdown/DropdownItem';
+
+// ============================================================================
+// Images
+// ============================================================================
+export { default as ResponsiveImage } from './images/ResponsiveImage';
+export { default as ThreeColumnImageGrid } from './images/ThreeColumnImageGrid';
+export { default as TwoColumnImageGrid } from './images/TwoColumnImageGrid';
+
+// ============================================================================
+// Floating Components
+// ============================================================================
+export { default as FloatingAssistant } from './FloatingAssistant';
+export { default as FloatingWeather } from './FloatingWeather';

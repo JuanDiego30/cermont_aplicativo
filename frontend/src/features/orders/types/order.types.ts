@@ -1,6 +1,4 @@
-/**
- * Order Types
- */
+import type { AuditableEntity, PaginatedResponse } from '@/shared/types';
 
 export enum OrderState {
   SOLICITUD = 'SOLICITUD',
@@ -22,8 +20,7 @@ export enum OrderPriority {
   URGENT = 'URGENT',
 }
 
-export interface Order {
-  id: string;
+export interface Order extends AuditableEntity {
   orderNumber: string;
   clientName: string;
   clientEmail?: string;
@@ -35,9 +32,6 @@ export interface Order {
   estimatedHours?: number;
   archived: boolean;
   responsibleId?: string;
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface CreateOrderDTO {
@@ -69,12 +63,5 @@ export interface ListOrdersParams {
   search?: string;
 }
 
-export interface ListOrdersResponse {
-  data: Order[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
-}
+export type ListOrdersResponse = PaginatedResponse<Order>;
+

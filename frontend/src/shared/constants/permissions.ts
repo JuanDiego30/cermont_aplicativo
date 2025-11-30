@@ -122,32 +122,56 @@ const CLIENT_PERMISSIONS: Permission[] = [
 /**
  * ROLE PERMISSIONS MAPPING
  */
-export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
+const ROLE_PERMISSIONS_BASE = {
   ROOT: Object.values(PERMISSIONS),
   ADMIN: Object.values(PERMISSIONS),
 
-  // Spanish Roles
   COORDINADOR: COORDINATOR_PERMISSIONS,
   AUXILIAR: AUXILIAR_PERMISSIONS,
   CLIENTE: CLIENT_PERMISSIONS,
+} as const;
 
-  // English Aliases
-  COORDINATOR: COORDINATOR_PERMISSIONS,
-  SUPERVISOR: COORDINATOR_PERMISSIONS,
-  TECHNICIAN: AUXILIAR_PERMISSIONS,
-  INSPECTOR: AUXILIAR_PERMISSIONS,
-  CLIENT: CLIENT_PERMISSIONS,
+const ROLE_ALIASES: Record<string, keyof typeof ROLE_PERMISSIONS_BASE> = {
+  COORDINATOR: 'COORDINADOR',
+  SUPERVISOR: 'COORDINADOR',
+  TECHNICIAN: 'AUXILIAR',
+  INSPECTOR: 'AUXILIAR',
+  CLIENT: 'CLIENTE',
 };
 
-/**
- * Helper functions
- */
+export type RoleKey = keyof typeof ROLE_PERMISSIONS_BASE;
+export type RoleAlias = keyof typeof ROLE_ALIASES;
+export type Role = RoleKey | RoleAlias;
+
+export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
+  ...Object.fromEntries(
+    Object.entries(ROLE_PERMISSIONS_BASE).map(([role, permissions]) => [role, permissions])
+  ),
+  ...Object.fromEntries(
+    Object.entries(ROLE_ALIASES).map(([alias, role]) => [alias, ROLE_PERMISSIONS_BASE[role]])
+  ),
+};
+
+export function normalizeRole(role?: string): Role | undefined {
+  if (!role) return undefined;
+  const normalized = role.toUpperCase();
+  if (normalized in ROLE_PERMISSIONS_BASE) return normalized as RoleKey;
+  if (normalized in ROLE_ALIASES) return normalized as RoleAlias;
+  return undefined;
+}
+
+export function getRolePermissions(role?: string): Permission[] {
+  const resolved = normalizeRole(role);
+  if (!resolved) return [];
+  return ROLE_PERMISSIONS[resolved];
+}
+
 export function hasAnyPermission(role: string, requiredPermissions: Permission[]): boolean {
-  const rolePermissions = ROLE_PERMISSIONS[role] || [];
+  const rolePermissions = getRolePermissions(role);
   return requiredPermissions.some((permission) => rolePermissions.includes(permission));
 }
 
 export function hasAllPermissions(role: string, requiredPermissions: Permission[]): boolean {
-  const rolePermissions = ROLE_PERMISSIONS[role] || [];
+  const rolePermissions = getRolePermissions(role);
   return requiredPermissions.every((permission) => rolePermissions.includes(permission));
 }

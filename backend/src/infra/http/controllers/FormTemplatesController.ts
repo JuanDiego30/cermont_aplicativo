@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { prisma } from '../../db/prisma.js';
-import { logger } from '../../../shared/utils/logger.js';
+import { logger } from '../../../shared/utils/index.js';
 
 export class FormTemplatesController {
   static create = async (req: Request, res: Response): Promise<void> => {

@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useId } from "react";
 
 interface ModalProps {
   isOpen: boolean;
@@ -10,6 +10,8 @@ interface ModalProps {
   isFullscreen?: boolean;
   title?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  /** Accessible description for screen readers */
+  ariaDescription?: string;
 }
 
 const SIZE_CLASSES = {
@@ -29,8 +31,51 @@ export const Modal: React.FC<ModalProps> = ({
   isFullscreen = false,
   title,
   size = 'md',
+  ariaDescription,
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
+  const titleId = useId();
+  const descId = useId();
+
+  // Trap focus inside modal
+  useEffect(() => {
+    if (!isOpen || !modalRef.current) return;
+
+    // Store the currently focused element
+    previousActiveElement.current = document.activeElement as HTMLElement;
+
+    // Focus the modal
+    modalRef.current.focus();
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || !modalRef.current) return;
+
+      const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement?.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleTab);
+    return () => document.removeEventListener('keydown', handleTab);
+  }, [isOpen]);
+
+  // Restore focus on close
+  useEffect(() => {
+    if (!isOpen && previousActiveElement.current) {
+      previousActiveElement.current.focus();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
@@ -67,22 +112,31 @@ export const Modal: React.FC<ModalProps> = ({
     : `relative w-full rounded-3xl bg-white dark:bg-gray-900 ${SIZE_CLASSES[size]}`;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center overflow-y-auto modal z-99999">
+    <div 
+      className="fixed inset-0 flex items-center justify-center overflow-y-auto modal z-99999"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={title ? titleId : undefined}
+      aria-describedby={ariaDescription ? descId : undefined}
+    >
       {!isFullscreen && (
         <div
           className="fixed inset-0 h-full w-full bg-gray-400/50 backdrop-blur-[32px]"
           onClick={onClose}
+          aria-hidden="true"
         ></div>
       )}
       <div
         ref={modalRef}
         className={`${contentClasses} ${className || ''}`}
         onClick={(e) => e.stopPropagation()}
+        tabIndex={-1}
       >
         {showCloseButton && (
           <button
             onClick={onClose}
-            className="absolute right-3 top-3 z-999 flex h-9.5 w-9.5 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white sm:right-6 sm:top-6 sm:h-11 sm:w-11"
+            aria-label="Cerrar modal"
+            className="absolute right-3 top-3 z-999 flex h-9.5 w-9.5 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white sm:right-6 sm:top-6 sm:h-11 sm:w-11 focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
             <svg
               width="24"
@@ -90,6 +144,7 @@ export const Modal: React.FC<ModalProps> = ({
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
             >
               <path
                 fillRule="evenodd"
@@ -102,9 +157,10 @@ export const Modal: React.FC<ModalProps> = ({
         )}
         {title && (
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h2>
+            <h2 id={titleId} className="text-xl font-semibold text-gray-900 dark:text-white">{title}</h2>
           </div>
         )}
+        {ariaDescription && <p id={descId} className="sr-only">{ariaDescription}</p>}
         <div className="p-6">{children}</div>
       </div>
     </div>

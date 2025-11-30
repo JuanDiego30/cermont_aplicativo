@@ -1,6 +1,7 @@
 "use client";
 
 import { useDashboard } from "@/features/dashboard";
+import { SkeletonDashboard } from "@/components/common";
 import Link from "next/link";
 
 // Stats Card Component
@@ -175,11 +176,16 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-brand-500 border-t-transparent"></div>
-          <p className="text-gray-600 dark:text-gray-400">Cargando dashboard...</p>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Dashboard
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            Cargando métricas del sistema...
+          </p>
         </div>
+        <SkeletonDashboard />
       </div>
     );
   }

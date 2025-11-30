@@ -1,146 +1,268 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger.js';
 import { Prisma } from '@prisma/client';
+import { 
+  AppError 
+} from '../errors/AppError.js';
+import {
+  ValidationError,
+  NotFoundError,
+  AuthenticationError,
+  AuthorizationError,
+  ConflictError,
+  BusinessError,
+  ExternalServiceError,
+  isOperationalError,
+  getErrorStatusCode,
+} from '../errors/index.js';
 
 /**
- * ========================================
- * ERROR HANDLER MIDDLEWARE
- * ========================================
- * Middleware global para manejo de errores.
+ * Error Handler Middleware
+ * Middleware global para manejo centralizado de errores.
  * Debe colocarse al FINAL de la cadena de middlewares.
- *
- * **Formatos soportados:**
- * - RFC 7807 (Problem Details for HTTP APIs)
- * - Prisma errors
- * - Validation errors
- * - Custom errors
  */
 
-/**
- * Tipos de errores personalizados
- */
-interface AppError extends Error {
-  statusCode?: number;
-  title?: string;
-  isOperational?: boolean;
+// ============================================================================
+// Prisma Error Codes
+// ============================================================================
+
+const PRISMA_ERROR_MAP = {
+  P2002: { statusCode: 409, title: 'Conflict' },
+  P2025: { statusCode: 404, title: 'Not Found' },
+  P2003: { statusCode: 400, title: 'Invalid Relation' },
+} as const;
+
+const PRISMA_ERROR_MESSAGES: Record<string, string> = {
+  P2002: 'Ya existe un registro con ese campo',
+  P2025: 'El registro no existe',
+  P2003: 'Referencia inválida a otro registro',
+};
+
+// ============================================================================
+// JWT Error Names
+// ============================================================================
+
+const JWT_ERRORS = {
+  JsonWebTokenError: {
+    statusCode: 401,
+    title: 'Invalid Token',
+    detail: 'Token JWT inválido',
+  },
+  TokenExpiredError: {
+    statusCode: 401,
+    title: 'Token Expired',
+    detail: 'El token ha expirado',
+  },
+} as const;
+
+// ============================================================================
+// Error Response Builder
+// ============================================================================
+
+interface ErrorResponse {
+  type: string;
+  title: string;
+  status: number;
+  detail: string;
+  instance: string;
+  stack?: string;
 }
 
-/**
- * Middleware de manejo de errores global
- */
-export function errorHandler(
-  err: AppError | any,
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
-  // Log del error
+function buildErrorResponse(
+  statusCode: number,
+  title: string,
+  detail: string,
+  path: string,
+  stack?: string
+): ErrorResponse {
+  const response: ErrorResponse = {
+    type: `https://httpstatuses.com/${statusCode}`,
+    title,
+    status: statusCode,
+    detail,
+    instance: path,
+  };
+
+  if (process.env.NODE_ENV === 'development' && stack) {
+    response.stack = stack;
+  }
+
+  return response;
+}
+
+// ============================================================================
+// Error Handlers
+// ============================================================================
+
+function handlePrismaError(err: Prisma.PrismaClientKnownRequestError): {
+  statusCode: number;
+  title: string;
+  detail: string;
+} {
+  const errorConfig = PRISMA_ERROR_MAP[err.code as keyof typeof PRISMA_ERROR_MAP];
+
+  if (errorConfig) {
+    const detail = err.code === 'P2002'
+      ? `Ya existe un registro con ese ${(err.meta?.target as string[])?.[0] || 'campo'}`
+      : PRISMA_ERROR_MESSAGES[err.code] || 'Error en la operación de base de datos';
+
+    return {
+      statusCode: errorConfig.statusCode,
+      title: errorConfig.title,
+      detail,
+    };
+  }
+
+  return {
+    statusCode: 400,
+    title: 'Database Error',
+    detail: 'Error en la operación de base de datos',
+  };
+}
+
+function handleJWTError(errorName: string): {
+  statusCode: number;
+  title: string;
+  detail: string;
+} | null {
+  const jwtError = JWT_ERRORS[errorName as keyof typeof JWT_ERRORS];
+  return jwtError || null;
+}
+
+function logError(err: Error, req: Request): void {
+  const statusCode = getErrorStatusCode(err);
+
   logger.error('Error handler caught exception', {
     error: err.message,
     stack: err.stack,
     path: req.path,
     method: req.method,
-    userId: (req as any).user?.userId,
-    statusCode: err.statusCode || 500,
+    userId: (req as Express.Request & { user?: { userId: string } }).user?.userId,
+    statusCode,
   });
+}
 
-  // Si ya se envió una respuesta, delegar al handler por defecto
+// ============================================================================
+// Main Error Handler Middleware
+// ============================================================================
+
+export function errorHandler(
+  err: Error,
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
+  // Log the error
+  logError(err, req);
+
+  // If response already sent, delegate to default handler
   if (res.headersSent) {
     return next(err);
   }
 
-  // Determinar status code
-  let statusCode = err.statusCode || 500;
-  let title = err.title || 'Internal Server Error';
-  let detail = err.message || 'Ha ocurrido un error inesperado';
+  // Default values
+  let statusCode = 500;
+  let title = 'Internal Server Error';
+  let detail = 'Ha ocurrido un error inesperado';
 
-  // Manejo especial de errores Prisma
+  // Handle Prisma errors
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    // Unique constraint violation
-    if (err.code === 'P2002') {
-      statusCode = 409;
-      title = 'Conflict';
-      detail = `Ya existe un registro con ese ${(err.meta?.target as string[])?.[0] || 'campo'}`;
-    }
-    // Record not found
-    else if (err.code === 'P2025') {
-      statusCode = 404;
-      title = 'Not Found';
-      detail = 'El registro no existe';
-    }
-    // Invalid relation
-    else if (err.code === 'P2003') {
-      statusCode = 400;
-      title = 'Invalid Relation';
-      detail = 'Referencia inválida a otro registro';
-    }
-    // Other Prisma errors
-    else {
-      statusCode = 400;
-      title = 'Database Error';
-      detail = 'Error en la operación de base de datos';
+    const prismaError = handlePrismaError(err);
+    statusCode = prismaError.statusCode;
+    title = prismaError.title;
+    detail = prismaError.detail;
+  }
+  // Handle JWT errors
+  else if (err.name && err.name in JWT_ERRORS) {
+    const jwtError = handleJWTError(err.name);
+    if (jwtError) {
+      statusCode = jwtError.statusCode;
+      title = jwtError.title;
+      detail = jwtError.detail;
     }
   }
-
-  // Manejo de errores JWT
-  if (err.name === 'JsonWebTokenError') {
-    statusCode = 401;
-    title = 'Invalid Token';
-    detail = 'Token JWT inválido';
+  // Handle specific error types
+  else if (err instanceof ValidationError) {
+    statusCode = err.statusCode;
+    title = 'Validation Error';
+    detail = err.message;
+  }
+  else if (err instanceof NotFoundError) {
+    statusCode = err.statusCode;
+    title = 'Not Found';
+    detail = err.message;
+  }
+  else if (err instanceof AuthenticationError) {
+    statusCode = err.statusCode;
+    title = 'Authentication Error';
+    detail = err.message;
+  }
+  else if (err instanceof AuthorizationError) {
+    statusCode = err.statusCode;
+    title = 'Authorization Error';
+    detail = err.message;
+  }
+  else if (err instanceof ConflictError) {
+    statusCode = err.statusCode;
+    title = 'Conflict';
+    detail = err.message;
+  }
+  else if (err instanceof BusinessError) {
+    statusCode = err.statusCode;
+    title = 'Business Rule Violation';
+    detail = err.message;
+  }
+  else if (err instanceof ExternalServiceError) {
+    statusCode = err.statusCode;
+    title = 'External Service Error';
+    detail = err.message;
+  }
+  // Handle custom app errors
+  else if (err instanceof AppError) {
+    statusCode = err.statusCode;
+    title = 'Error';
+    detail = err.message;
+  }
+  // Handle legacy custom errors (duck typing)
+  else if (isOperationalError(err)) {
+    statusCode = getErrorStatusCode(err);
+    title = 'Error';
+    detail = err.message;
   }
 
-  if (err.name === 'TokenExpiredError') {
-    statusCode = 401;
-    title = 'Token Expired';
-    detail = 'El token ha expirado';
-  }
-
-  // No exponer detalles internos en producción
+  // Don't expose internal details in production for 500s
   if (process.env.NODE_ENV === 'production' && statusCode === 500) {
     detail = 'Ha ocurrido un error interno del servidor';
   }
 
-  // Respuesta RFC 7807
-  res.status(statusCode).json({
-    type: `https://httpstatuses.com/${statusCode}`,
+  // Send RFC 7807 compliant response
+  const response = buildErrorResponse(
+    statusCode,
     title,
-    status: statusCode,
     detail,
-    instance: req.path,
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
-  });
+    req.path,
+    err.stack
+  );
+
+  res.status(statusCode).json(response);
 }
 
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
 /**
- * Helper para crear errores personalizados
- *
- * @example
- * ```
- * throw createError(404, 'User not found', 'Not Found');
- * ```
+ * Creates a custom application error
  */
 export function createError(
   statusCode: number,
-  detail: string,
-  title?: string
+  detail: string
 ): AppError {
-  const error = new Error(detail) as AppError;
-  error.statusCode = statusCode;
-  error.title = title || 'Error';
-  error.isOperational = true;
-  return error;
+  return new AppError(detail, statusCode);
 }
 
 /**
- * Wrapper para funciones async en routes (evita try/catch repetitivo)
- *
- * @example
- * ```
- * router.get('/users', asyncHandler(async (req, res) => {
- *   const users = await User.find();
- *   res.json(users);
- * }));
- * ```
+ * Wrapper for async route handlers (avoids repetitive try/catch)
  */
 export function asyncHandler(
   fn: (req: Request, res: Response, next: NextFunction) => Promise<any>

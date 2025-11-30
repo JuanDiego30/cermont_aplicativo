@@ -1,5 +1,11 @@
 /**
  * Session Management Utilities
+ * 
+ * Security considerations:
+ * - Tokens stored in localStorage for SPA functionality
+ * - Cookies used for Next.js middleware route protection
+ * - Secure flag added in production (HTTPS)
+ * - SameSite=Strict to prevent CSRF
  */
 
 const ACCESS_TOKEN_KEY = 'accessToken';
@@ -8,6 +14,7 @@ const USER_ROLE_KEY = 'userRole';
 const SESSION_COOKIE_NAME = 'cermont_atg_token';
 
 const isBrowser = typeof window !== 'undefined';
+const isSecure = isBrowser && window.location.protocol === 'https:';
 
 export interface SessionPayload {
   accessToken: string;
@@ -15,31 +22,72 @@ export interface SessionPayload {
   userRole?: string;
 }
 
+/**
+ * Validates token format (basic JWT structure check)
+ */
+function isValidTokenFormat(token: string): boolean {
+  if (!token || typeof token !== 'string') return false;
+  const parts = token.split('.');
+  return parts.length === 3 && parts.every(part => part.length > 0);
+}
+
+/**
+ * Sets a cookie with security options
+ */
+function setCookie(name: string, value: string, maxAge: number): void {
+  const cookieParts = [
+    `${name}=${encodeURIComponent(value)}`,
+    'Path=/',
+    `Max-Age=${maxAge}`,
+    'SameSite=Strict',
+  ];
+  
+  if (isSecure) {
+    cookieParts.push('Secure');
+  }
+  
+  document.cookie = cookieParts.join('; ');
+}
+
+/**
+ * Clears a cookie
+ */
+function clearCookie(name: string): void {
+  const cookieParts = [
+    `${name}=`,
+    'Path=/',
+    'Max-Age=0',
+    'SameSite=Strict',
+  ];
+  
+  if (isSecure) {
+    cookieParts.push('Secure');
+  }
+  
+  document.cookie = cookieParts.join('; ');
+}
+
 export function setSession({ accessToken, refreshToken, userRole }: SessionPayload) {
   if (!isBrowser) return;
+
+  // Validate token format before storing
+  if (!isValidTokenFormat(accessToken) || !isValidTokenFormat(refreshToken)) {
+    console.error('Invalid token format received');
+    return;
+  }
 
   localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
   localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
   if (userRole) {
     localStorage.setItem(USER_ROLE_KEY, userRole);
   }
-
-  // Set accessToken cookie
-  document.cookie = [
-    `${SESSION_COOKIE_NAME}=${accessToken}`,
-    'Path=/',
-    `Max-Age=${60 * 60 * 24}`,
-    'SameSite=Lax',
-  ].join('; ');
+  
+  // Set accessToken cookie (24 hours)
+  setCookie(SESSION_COOKIE_NAME, accessToken, 60 * 60 * 24);
 
   // Set userRole cookie for middleware
   if (userRole) {
-    document.cookie = [
-      `${USER_ROLE_KEY}=${userRole}`,
-      'Path=/',
-      `Max-Age=${60 * 60 * 24}`,
-      'SameSite=Lax',
-    ].join('; ');
+    setCookie(USER_ROLE_KEY, userRole, 60 * 60 * 24);
   }
 }
 
@@ -50,21 +98,9 @@ export function clearSession() {
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(USER_ROLE_KEY);
 
-  // Clear accessToken cookie
-  document.cookie = [
-    `${SESSION_COOKIE_NAME}=`,
-    'Path=/',
-    'Max-Age=0',
-    'SameSite=Lax',
-  ].join('; ');
-
-  // Clear userRole cookie
-  document.cookie = [
-    `${USER_ROLE_KEY}=`,
-    'Path=/',
-    'Max-Age=0',
-    'SameSite=Lax',
-  ].join('; ');
+  // Clear cookies
+  clearCookie(SESSION_COOKIE_NAME);
+  clearCookie(USER_ROLE_KEY);
 }
 
 export function getAccessToken(): string | null {

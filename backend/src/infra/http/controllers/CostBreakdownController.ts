@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { prisma } from '../../db/prisma.js';
-import { logger } from '../../../shared/utils/logger.js';
+import { logger, getErrorMessage } from '../../../shared/utils/index.js';
 
 export class CostBreakdownController {
   /**
@@ -17,8 +17,8 @@ export class CostBreakdownController {
       });
 
       res.json({ success: true, data: items });
-    } catch (error: any) {
-      logger.error('Error fetching cost breakdown:', error);
+    } catch (error: unknown) {
+      logger.error('Error fetching cost breakdown:', { error: getErrorMessage(error) });
       res.status(500).json({
         success: false,
         error: 'Failed to fetch cost breakdown',
@@ -67,8 +67,8 @@ export class CostBreakdownController {
           byCategory,
         },
       });
-    } catch (error: any) {
-      logger.error('Error calculating cost summary:', error);
+    } catch (error: unknown) {
+      logger.error('Error calculating cost summary:', { error: getErrorMessage(error) });
       res.status(500).json({
         success: false,
         error: 'Failed to calculate cost summary',
@@ -109,8 +109,8 @@ export class CostBreakdownController {
       });
 
       res.json({ success: true, data: item });
-    } catch (error: any) {
-      logger.error('Error creating cost breakdown item:', error);
+    } catch (error: unknown) {
+      logger.error('Error creating cost breakdown item:', { error: getErrorMessage(error) });
       res.status(500).json({
         success: false,
         error: 'Failed to create cost breakdown item',
@@ -151,8 +151,8 @@ export class CostBreakdownController {
       });
 
       res.json({ success: true, data: item });
-    } catch (error: any) {
-      logger.error('Error updating cost breakdown item:', error);
+    } catch (error: unknown) {
+      logger.error('Error updating cost breakdown item:', { error: getErrorMessage(error) });
       res.status(500).json({
         success: false,
         error: 'Failed to update cost breakdown item',
@@ -173,8 +173,8 @@ export class CostBreakdownController {
       });
 
       res.json({ success: true });
-    } catch (error: any) {
-      logger.error('Error deleting cost breakdown item:', error);
+    } catch (error: unknown) {
+      logger.error('Error deleting cost breakdown item:', { error: getErrorMessage(error) });
       res.status(500).json({
         success: false,
         error: 'Failed to delete cost breakdown item',

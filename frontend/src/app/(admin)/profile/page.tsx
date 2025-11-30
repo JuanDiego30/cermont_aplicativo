@@ -50,7 +50,7 @@ export default function ProfilePage() {
       {/* Profile Card */}
       <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
         {/* Cover & Avatar */}
-        <div className="relative h-32 bg-gradient-to-r from-brand-500 to-brand-600 rounded-t-xl">
+        <div className="relative h-32 bg-linear-to-r from-brand-500 to-brand-600 rounded-t-xl">
           <div className="absolute -bottom-12 left-6">
             <div className="h-24 w-24 rounded-full border-4 border-white dark:border-gray-800 bg-brand-100 dark:bg-brand-900/30 flex items-center justify-center text-2xl font-bold text-brand-600 dark:text-brand-400">
               {getInitials(user?.name)}
