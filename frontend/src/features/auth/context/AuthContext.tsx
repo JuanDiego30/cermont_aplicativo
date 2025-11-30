@@ -29,96 +29,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [isReady, setIsReady] = useState(false);
 
+  // Verificar sesión al montar el componente
   useEffect(() => {
-    const token = getAccessToken();
-    if (!token) {
-      setIsLoading(false);
-      setIsInitialized(true);
-      setIsReady(true);
-      return;
-    }
+    const initializeAuth = async () => {
+      const token = getAccessToken();
+      
+      if (!token) {
+        setIsLoading(false);
+        setIsInitialized(true);
+        return;
+      }
 
-    (async () => {
       try {
-        interface ProfileResponse {
-          data?: { user?: User };
-          user?: User;
-        }
-        const response = await apiClient.get<ProfileResponse>('/auth/profile');
-        const profile = response.data?.user ?? response.user;
+        const response = await apiClient.get('/auth/profile');
+        const profile = response.user || response.data?.user;
+        
         if (profile) {
           setUser(profile);
           setIsAuthenticated(true);
-          setIsReady(true);
         } else {
           clearSession();
           setIsAuthenticated(false);
-          setIsReady(true);
         }
-      } catch {
+      } catch (error) {
+        console.error('Auth initialization failed:', error);
         clearSession();
         setIsAuthenticated(false);
-        setIsReady(true);
       } finally {
         setIsLoading(false);
         setIsInitialized(true);
       }
-    })();
+    };
+
+    initializeAuth();
   }, []);
 
   const login = useCallback(
     async ({ email, password }: { email: string; password: string }) => {
       try {
-        interface LoginResponse {
-          accessToken: string;
-          refreshToken: string;
-          user: User;
-        }
-        const response = await apiClient.post<LoginResponse>('/auth/login', {
+        const response = await apiClient.post('/auth/login', {
           email: email.toLowerCase().trim(),
           password,
         });
 
-        const accessToken = response.accessToken;
-        const refreshToken = response.refreshToken;
-        const loggedUser = response.user;
+        const { accessToken, refreshToken, user: loggedUser } = response;
 
         if (!accessToken || !refreshToken || !loggedUser) {
           throw new Error('Respuesta incompleta del servidor');
         }
 
-        // 🔧 CRITICAL FIX: Store session FIRST, before any state updates
+        // Guardar sesión
         setSession({
           accessToken,
           refreshToken,
           userRole: loggedUser.role
         });
 
-        // Update state after token is in localStorage
+        // Actualizar estado
         setUser(loggedUser);
         setIsAuthenticated(true);
-        
-        // ✅ Set isReady AFTER all state updates
-        // This tells dashboard it's safe to make API calls
-        setIsReady(true);
 
-        // Navigate - token is now available for immediate API calls
+        // Navegar al dashboard
         router.replace('/dashboard');
-      } catch (error: unknown) {
+      } catch (error: any) {
+        // Limpiar sesión en caso de error
         clearSession();
         setUser(null);
         setIsAuthenticated(false);
-        // 👁️ Copilot fix: Don't set isReady to false on login error
-        // The auth system is still fully initialized and ready,
-        // just the credentials were incorrect
 
-        const err = error as { response?: { data?: { detail?: string } }; message?: string };
-        const errorMessage =
-          err.response?.data?.detail ||
-          err.message ||
-          'Error al iniciar sesión';
+        // Propagar error
+        const errorMessage = error?.response?.data?.detail || error?.message || 'Error al iniciar sesión';
         throw new Error(errorMessage);
       }
     },
@@ -128,21 +109,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     try {
       await apiClient.post('/auth/logout', {});
-    } catch {
-      // Ignore errors and clear session
+    } catch (error) {
+      console.error('Logout error:', error);
     } finally {
       clearSession();
       setUser(null);
       setIsAuthenticated(false);
-      // 👁️ Copilot fix: Don't set isReady to false on logout
-      // The auth system remains initialized and ready,
-      // just the user is no longer authenticated
       router.push('/signin');
     }
   }, [router]);
 
+  const value: AuthContextValue = {
+    user,
+    isLoading,
+    isAuthenticated,
+    isInitialized,
+    isReady: isInitialized && !isLoading, // Simplificado
+    login,
+    logout,
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAuthenticated, isInitialized, isReady, login, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
