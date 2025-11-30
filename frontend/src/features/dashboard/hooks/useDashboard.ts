@@ -5,14 +5,14 @@ import { dashboardApi } from '../api';
 import { useAuth } from '@/features/auth/context/AuthContext';
 
 /**
- * Hook para verificar si el usuario está autenticado
+ * Hook para verificar si el usuario está autenticado y listo
  * Usa el contexto de Auth para evitar condiciones de carrera
  */
 function useIsReady(): boolean {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isReady } = useAuth();
   
-  // Solo permitir consultas cuando el auth esté inicializado y autenticado
-  return !isLoading && isAuthenticated;
+  // Solo permitir consultas cuando el auth esté inicializado, autenticado y el token listo
+  return !isLoading && isAuthenticated && isReady;
 }
 
 export function useDashboard() {

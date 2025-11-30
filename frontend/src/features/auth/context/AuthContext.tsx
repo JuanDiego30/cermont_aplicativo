@@ -29,14 +29,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isReady, setIsReady] = useState(false); // Token is saved and ready
 
   useEffect(() => {
     const token = getAccessToken();
     if (!token) {
       setIsLoading(false);
       setIsInitialized(true);
+      setIsReady(false);
       return;
     }
+
+    // Token exists, mark as ready immediately
+    setIsReady(true);
 
     (async () => {
       try {
@@ -52,10 +57,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           clearSession();
           setIsAuthenticated(false);
+          setIsReady(false);
         }
       } catch {
         clearSession();
         setIsAuthenticated(false);
+        setIsReady(false);
       } finally {
         setIsLoading(false);
         setIsInitialized(true);
@@ -93,6 +100,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           userRole: loggedUser.role
         });
 
+        // Marcar como listo - el token ya está en localStorage
+        setIsReady(true);
+
         // Actualizar estado después de que el token esté en localStorage
         setUser(loggedUser);
         setIsAuthenticated(true);
@@ -103,6 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearSession();
         setUser(null);
         setIsAuthenticated(false);
+        // ✅ NO poner isReady = false - el sistema sigue inicializado, solo falló el login
 
         const err = error as { response?: { data?: { detail?: string } }; message?: string };
         const errorMessage =
@@ -124,12 +135,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearSession();
       setUser(null);
       setIsAuthenticated(false);
+      // ✅ NO poner isReady = false - el sistema sigue inicializado después del logout
       router.push('/signin');
     }
   }, [router]);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAuthenticated, isInitialized, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, isAuthenticated, isInitialized, isReady, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

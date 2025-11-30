@@ -2,8 +2,8 @@
  * Tests unitarios para catchUtils
  */
 
-import { getErrorMessage, getErrorStack, isAppError } from '../../../shared/utils/catchUtils';
-import { AppError } from '../../../shared/errors';
+import { getErrorMessage, getErrorStack, isAppError } from '../../shared/utils/catchUtils';
+import { AppError } from '../../shared/errors';
 
 describe('catchUtils', () => {
   describe('getErrorMessage', () => {

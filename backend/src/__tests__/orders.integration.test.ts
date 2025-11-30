@@ -17,7 +17,7 @@ describe('Orders Integration Tests', () => {
       email: 'admin@cermont.com',
       password,
       name: 'Admin',
-      role: 'admin',
+      role: 'ADMIN',
     });
 
     const loginResponse = await request(app)
