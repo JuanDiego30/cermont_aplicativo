@@ -75,12 +75,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         console.log('🔐 Login response:', JSON.stringify(response, null, 2));
 
-        // El apiClient ya extrae json.data, response contiene directamente los datos
-        const accessToken = response.accessToken;
-        const refreshToken = response.refreshToken;
+        // Extraer tokens - soportar ambos formatos:
+        // Formato 1: { user, accessToken, refreshToken } (tokens en raíz)
+        // Formato 2: { user, tokens: { accessToken, refreshToken } } (tokens anidados)
+        let accessToken: string;
+        let refreshToken: string;
         const loggedUser = response.user;
 
-        console.log('🔑 Tokens:', { 
+        if (response.tokens && typeof response.tokens === 'object') {
+          // Formato 2: tokens anidados
+          accessToken = response.tokens.accessToken;
+          refreshToken = response.tokens.refreshToken;
+          console.log('📦 Usando formato tokens anidados');
+        } else {
+          // Formato 1: tokens en raíz
+          accessToken = response.accessToken;
+          refreshToken = response.refreshToken;
+          console.log('📦 Usando formato tokens en raíz');
+        }
+
+        console.log('🔑 Tokens extraídos:', { 
           hasAccessToken: !!accessToken, 
           hasRefreshToken: !!refreshToken,
           accessTokenPreview: accessToken?.substring(0, 50) + '...',
@@ -88,25 +102,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
 
         if (!accessToken || !refreshToken || !loggedUser) {
+          console.error('❌ Respuesta incompleta:', { accessToken: !!accessToken, refreshToken: !!refreshToken, user: !!loggedUser });
           throw new Error('Respuesta incompleta del servidor');
         }
 
-        // Guardar sesión
+        // Guardar sesión en localStorage
         setSession({
           accessToken,
           refreshToken,
           userRole: loggedUser.role
         });
 
-        console.log('✅ Session saved successfully');
+        console.log('✅ Session saved, updating state...');
 
-        // Actualizar estado
+        // Actualizar estado React
         setUser(loggedUser);
         setIsAuthenticated(true);
 
+        console.log('✅ State updated, navigating to dashboard...');
+
         // Navegar al dashboard
         router.replace('/dashboard');
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('❌ Login error:', error);
         // Limpiar sesión en caso de error
         clearSession();
@@ -114,7 +131,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsAuthenticated(false);
 
         // Propagar error
-        const errorMessage = error?.response?.data?.detail || error?.message || 'Error al iniciar sesión';
+        const err = error as { response?: { data?: { detail?: string } }; message?: string };
+        const errorMessage = err?.response?.data?.detail || err?.message || 'Error al iniciar sesión';
         throw new Error(errorMessage);
       }
     },
