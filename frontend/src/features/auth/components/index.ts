@@ -10,6 +10,12 @@ export { RoleGate, AdminOnly, ClientOnly } from './RoleGate';
 export { CanAccess, CanAccessAny, CanAccessAll } from './CanAccess';
 
 // ============================================================================
+// Authentication Forms
+// ============================================================================
+export { SignInForm } from './SignInForm';
+export { SignUpForm } from './SignUpForm';
+
+// ============================================================================
 // Password Reset
 // ============================================================================
 export { ForgotPasswordContainer } from './ForgotPasswordContainer';
