@@ -1,0 +1,191 @@
+# ============================================================================
+# CERMONT ATG - DOCKER COMPOSE PRODUCTION
+# ============================================================================
+# Deploy: docker compose -f docker-compose.prod.yml up -d
+# ============================================================================
+
+version: '3.8'
+
+services:
+  # ========================================
+  # PostgreSQL Database
+  # ========================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: cermont-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-cermont_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-CermontSecure2025!}
+      POSTGRES_DB: ${DB_NAME:-cermont_db}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/prisma/migrations:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-cermont_user} -d ${DB_NAME:-cermont_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cermont-network
+
+  # ========================================
+  # Redis Cache (Optional - for sessions/cache)
+  # ========================================
+  redis:
+    image: redis:7-alpine
+    container_name: cermont-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-RedisSecure2025!}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cermont-network
+
+  # ========================================
+  # Backend API
+  # ========================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: cermont-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      DATABASE_URL: postgresql://${DB_USER:-cermont_user}:${DB_PASSWORD:-CermontSecure2025!}@postgres:5432/${DB_NAME:-cermont_db}
+      REDIS_URL: redis://:${REDIS_PASSWORD:-RedisSecure2025!}@redis:6379
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://localhost}
+      FRONTEND_URL: ${FRONTEND_URL:-https://localhost}
+    volumes:
+      - uploads_data:/app/uploads
+      - backend_logs:/app/logs
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - cermont-network
+
+  # ========================================
+  # Frontend Next.js
+  # ========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://localhost/api}
+        NEXT_PUBLIC_ENV: production
+    container_name: cermont-frontend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - cermont-network
+
+  # ========================================
+  # Nginx Reverse Proxy
+  # ========================================
+  nginx:
+    image: nginx:alpine
+    container_name: cermont-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - uploads_data:/var/www/uploads:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - cermont-network
+
+  # ========================================
+  # Backup Service (CronJob)
+  # ========================================
+  backup:
+    image: postgres:15-alpine
+    container_name: cermont-backup
+    restart: unless-stopped
+    environment:
+      PGHOST: postgres
+      PGUSER: ${DB_USER:-cermont_user}
+      PGPASSWORD: ${DB_PASSWORD:-CermontSecure2025!}
+      PGDATABASE: ${DB_NAME:-cermont_db}
+    volumes:
+      - backups:/backups
+      - ./scripts/backup.sh:/backup.sh:ro
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["crond -f -d 8"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - cermont-network
+
+# ========================================
+# Networks
+# ========================================
+networks:
+  cermont-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+# ========================================
+# Volumes
+# ========================================
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  uploads_data:
+    driver: local
+  backend_logs:
+    driver: local
+  nginx_logs:
+    driver: local
+  backups:
+    driver: local
