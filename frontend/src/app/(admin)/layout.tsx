@@ -18,6 +18,10 @@ const FloatingWeather = dynamic(
   () => import("@/components/ui/FloatingWeather"),
   { ssr: false }
 );
+const OfflineIndicator = dynamic(
+  () => import("@/components/ui/OfflineIndicator"),
+  { ssr: false }
+);
 
 export default function AdminLayout({
   children,
@@ -79,6 +83,9 @@ export default function AdminLayout({
       {/* Floating Widgets */}
       <FloatingWeather />
       <FloatingAssistant />
+      
+      {/* Offline Status Indicator */}
+      <OfflineIndicator />
     </div>
   );
 }
