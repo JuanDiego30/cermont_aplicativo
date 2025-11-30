@@ -1,6 +1,7 @@
 
 import { Outfit } from 'next/font/google';
 import './globals.css';
+import './globals-compat.css'; // 🔧 Cross-browser compatibility fixes
 
 import { AppProviders } from '@/core/providers';
 import { ErrorBoundary, SkipToContent } from '@/components/common';
