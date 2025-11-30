@@ -85,16 +85,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw new Error('Respuesta incompleta del servidor');
         }
 
+        // 🔧 FIX: Guardar sesión ANTES de actualizar estado
+        // Esto asegura que el token esté disponible inmediatamente en localStorage
         setSession({
           accessToken,
           refreshToken,
           userRole: loggedUser.role
         });
+
+        // Actualizar estado después de que el token esté en localStorage
         setUser(loggedUser);
         setIsAuthenticated(true);
 
-        // Pequeño retraso para asegurar que el estado se propague antes de navegar
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // ✅ Navegar inmediatamente - el token ya está disponible
         router.replace('/dashboard');
       } catch (error: unknown) {
         clearSession();
