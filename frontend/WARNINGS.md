@@ -27,18 +27,97 @@ Este documento registra warnings no-críticos del proyecto que no afectan la fun
 - Firefox 103+
 - Safari 9+
 
-### 🟢 Authentication 401 Errors
+### 🟢 Authentication 401 Errors (Error Crítico)
 
 **Estado:** ✅ RESUELTO
 
-**Archivo:** `frontend/src/features/auth/context/AuthContext.tsx`
+**Problema Original:**
+```
+[BACKEND] GET /api/notifications HTTP/1.1" 401
+[BACKEND] GET /api/dashboard/metrics HTTP/1.1" 401
+```
 
-**Problema:** Token JWT no estaba disponible en localStorage antes de que el dashboard hiciera llamadas API.
+**Causa Raíz:**
+El dashboard estaba haciendo llamadas API **antes** de que el token JWT estuviera disponible en `localStorage`. El flujo era:
 
-**Corrección:**
-- `setSession()` se llama síncronamente ANTES de actualizar estado React
-- Eliminado delay de 100ms innecesario
-- Token disponible inmediatamente para API calls
+```
+1. Usuario hace login
+2. AuthContext actualiza estado React (async)
+3. Router navega a /dashboard
+4. Dashboard se monta
+5. React Query inicia fetching (useNotifications, useDashboardMetrics)
+6. ❌ API calls fallan con 401 (token aún no disponible)
+7. AuthContext termina de actualizar
+8. Token finalmente disponible (demasiado tarde)
+```
+
+**Solución Implementada:**
+
+Se agregó flag `isReady` al contexto de autenticación que indica cuándo es **seguro** hacer llamadas API.
+
+**Archivos Modificados:**
+- `frontend/src/features/auth/context/AuthContext.tsx`
+- `frontend/src/features/auth/types/auth.types.ts`
+
+**Nuevo Flujo:**
+
+```typescript
+// AuthContext.tsx
+const login = async ({ email, password }) => {
+  const response = await apiClient.post('/auth/login', { email, password });
+  
+  // 1. Guardar token PRIMERO (síncrono)
+  setSession({
+    accessToken: response.accessToken,
+    refreshToken: response.refreshToken,
+    userRole: response.user.role
+  });
+  
+  // 2. Actualizar estado React
+  setUser(response.user);
+  setIsAuthenticated(true);
+  
+  // 3. ✅ Marcar como listo DESPUÉS de token guardado
+  setIsReady(true);
+  
+  // 4. Navegar a dashboard
+  router.replace('/dashboard');
+};
+```
+
+**Cómo Funciona:**
+
+```
+1. Usuario hace login
+2. setSession() guarda token en localStorage (síncrono)
+3. Estado React se actualiza
+4. isReady se vuelve true
+5. Router navega a /dashboard
+6. Dashboard espera isReady === true
+7. ✅ React Query hace fetching (token disponible)
+8. API calls exitosos (200 OK)
+```
+
+**Dashboard Integration:**
+
+```typescript
+// En cualquier componente que use React Query
+const { isReady } = useAuth();
+
+const { data, isLoading } = useNotifications({
+  enabled: isReady  // ✅ Solo fetch cuando auth esté listo
+});
+
+if (!isReady || isLoading) {
+  return <LoadingState />;
+}
+```
+
+**Resultado:**
+- ✅ Token disponible antes de API calls
+- ✅ No más errores 401 en dashboard mount
+- ✅ Flujo de autenticación robusto
+- ✅ Experiencia de usuario fluida
 
 ---
 
@@ -104,6 +183,7 @@ A form field element should have an id or name attribute
 **Mensaje:**
 ```
 Buttons must have discernible text: Element has no title attribute
+<button class="inline-flex size-14 items-center justify-center rounded-full bg-brand-500 text-white transition-colors hover:bg-brand-600">
 ```
 
 **Contexto:**
@@ -119,12 +199,12 @@ Buttons must have discernible text: Element has no title attribute
 **Ejemplo:**
 ```tsx
 // ❌ Antes
-<button>
+<button className="...">
   <svg>...</svg>
 </button>
 
 // ✅ Después
-<button aria-label="Cerrar menú">
+<button aria-label="Cerrar menú" className="...">
   <svg>...</svg>
 </button>
 ```
@@ -144,6 +224,7 @@ Buttons must have discernible text: Element has no title attribute
 **Mensaje:**
 ```
 CSS inline styles should not be used, move styles to an external CSS file
+<img ... style="color:transparent" src="/images/shape/grid-01.svg">
 ```
 
 **Contexto:**
@@ -205,16 +286,16 @@ CSS inline styles should not be used, move styles to an external CSS file
 
 ## 📈 PRIORIDADES DE CORRECCIÓN
 
-| Prioridad | Ítem | Impacto | Esfuerzo |
-|-----------|------|---------|----------|
-| ✅ **HECHO** | CSS Compatibility | Alto | Bajo |
-| ✅ **HECHO** | Auth 401 Errors | Alto | Bajo |
-| 🟡 **BAJO** | Form ID/Name | Bajo | Bajo |
-| 🟡 **BAJO** | Button Aria Labels | Bajo | Medio |
-| ➖ **IGNORAR** | Backend Header | Ninguno | - |
-| ➖ **IGNORAR** | Next.js Inline Styles | Ninguno | - |
-| ➖ **IGNORAR** | Fetchpriority | Ninguno | - |
-| ➖ **IGNORAR** | Field-Sizing | Ninguno | - |
+| Prioridad | Ítem | Impacto | Esfuerzo | Estado |
+|-----------|------|---------|----------|--------|
+| 🔴 **CRÍTICO** | Auth 401 Errors | Alto | Bajo | ✅ RESUELTO |
+| ✅ **HECHO** | CSS Compatibility | Alto | Bajo | ✅ RESUELTO |
+| 🟡 **BAJO** | Form ID/Name | Bajo | Bajo | Pendiente |
+| 🟡 **BAJO** | Button Aria Labels | Bajo | Medio | Pendiente |
+| ➖ **IGNORAR** | Backend Header | Ninguno | - | N/A |
+| ➖ **IGNORAR** | Next.js Inline Styles | Ninguno | - | N/A |
+| ➖ **IGNORAR** | Fetchpriority | Ninguno | - | N/A |
+| ➖ **IGNORAR** | Field-Sizing | Ninguno | - | N/A |
 
 ---
 
@@ -222,7 +303,7 @@ CSS inline styles should not be used, move styles to an external CSS file
 
 Todos los **warnings críticos** han sido corregidos:
 - ✅ Compatibilidad CSS cross-browser
-- ✅ Errores de autenticación 401
+- ✅ Errores de autenticación 401 (isReady flag)
 
 Los warnings restantes son:
 - 🟢 **Informativos** (no afectan funcionalidad)
@@ -233,4 +314,4 @@ El proyecto está **100% funcional** y listo para producción.
 
 ---
 
-**Última actualización:** 2025-11-30
+**Última actualización:** 30 de Noviembre de 2025 - 15:15 COT
