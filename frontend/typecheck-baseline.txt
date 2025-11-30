@@ -1,0 +1,4 @@
+﻿src/app/(full-width-pages)/(auth)/signin/page.tsx(1,24): error TS2307: Cannot find module '@/components/auth/SignInForm' or its corresponding type declarations.
+src/app/(full-width-pages)/(auth)/signup/page.tsx(1,24): error TS2307: Cannot find module '@/components/auth/SignUpForm' or its corresponding type declarations.
+src/components/auth/index.ts(9,39): error TS2307: Cannot find module './SignInForm' or its corresponding type declarations.
+src/components/auth/index.ts(10,39): error TS2307: Cannot find module './SignUpForm' or its corresponding type declarations.
