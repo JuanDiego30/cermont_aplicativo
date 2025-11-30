@@ -7,6 +7,7 @@ import { AuthProvider } from '@/features/auth';
 import { env } from '@/core/config';
 import { SidebarProvider } from './SidebarContext';
 import { ThemeProvider } from './ThemeContext';
+import { ServiceWorkerProvider } from '@/core/offline/ServiceWorkerProvider';
 import '@/core/offline/sync-service';
 
 // ============================================================================
@@ -49,7 +50,9 @@ export function Providers({ children }: ProvidersProps) {
       <AuthProvider>
         <ThemeProvider>
           <SidebarProvider>
-            {children}
+            <ServiceWorkerProvider>
+              {children}
+            </ServiceWorkerProvider>
             {isDevelopment && <ReactQueryDevtools initialIsOpen={false} />}
           </SidebarProvider>
         </ThemeProvider>
