@@ -1,6 +1,6 @@
 "use client";
 
-import { useDashboard } from "@/features/dashboard";
+import { useDashboard, CostOverviewWidget } from "@/features/dashboard";
 import { SkeletonDashboard } from "@/components/common";
 import Link from "next/link";
 
@@ -296,6 +296,9 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Cost Overview Widget */}
+      <CostOverviewWidget />
     </div>
   );
 }
