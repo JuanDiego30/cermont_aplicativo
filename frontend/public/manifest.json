@@ -1,20 +1,104 @@
 {
-    "name": "Cermont - Sistema de Gestión",
+    "name": "Cermont - Sistema de Gestión de Órdenes de Trabajo",
     "short_name": "Cermont",
-    "start_url": "/",
+    "description": "Sistema integral para gestión de órdenes de trabajo, mantenimiento industrial y facturación",
+    "start_url": "/dashboard",
+    "scope": "/",
     "display": "standalone",
+    "orientation": "portrait-primary",
     "background_color": "#ffffff",
-    "theme_color": "#ffffff",
+    "theme_color": "#465fff",
+    "lang": "es-CO",
+    "categories": ["business", "productivity", "utilities"],
     "icons": [
         {
             "src": "/images/logo/cermont-logo.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/logo/cermont-logo.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/logo/cermont-logo.png",
+            "sizes": "128x128",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/logo/cermont-logo.png",
+            "sizes": "144x144",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/logo/cermont-logo.png",
+            "sizes": "152x152",
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/images/logo/cermont-logo.png",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/images/logo/cermont-logo.png",
+            "sizes": "384x384",
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "/images/logo/cermont-logo.png",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any maskable"
         }
-    ]
+    ],
+    "shortcuts": [
+        {
+            "name": "Nueva Orden",
+            "short_name": "Nueva OT",
+            "description": "Crear nueva orden de trabajo",
+            "url": "/orders/new",
+            "icons": [{ "src": "/images/icons/add-order.png", "sizes": "96x96" }]
+        },
+        {
+            "name": "Dashboard",
+            "short_name": "Dashboard",
+            "description": "Ver métricas y KPIs",
+            "url": "/dashboard",
+            "icons": [{ "src": "/images/icons/dashboard.png", "sizes": "96x96" }]
+        },
+        {
+            "name": "Mis Órdenes",
+            "short_name": "Órdenes",
+            "description": "Ver órdenes asignadas",
+            "url": "/orders",
+            "icons": [{ "src": "/images/icons/orders.png", "sizes": "96x96" }]
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/images/screenshots/dashboard.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Dashboard principal con métricas"
+        },
+        {
+            "src": "/images/screenshots/orders-mobile.png",
+            "sizes": "750x1334",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Lista de órdenes en móvil"
+        }
+    ],
+    "related_applications": [],
+    "prefer_related_applications": false
 }
