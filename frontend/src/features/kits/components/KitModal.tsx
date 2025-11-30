@@ -5,7 +5,7 @@ import { Modal } from '@/components/ui/modal';
 import Input from '@/components/form/input/InputField';
 import Select from '@/components/form/Select';
 import { FormField } from '@/components/form/FormField';
-import { Button } from '@/components/ui/Button';
+import Button from '@/components/ui/button/Button';
 import { Card } from '@/components/ui/Card';
 import { useCreateKit, useUpdateKit } from '../hooks/useKits';
 import type { Kit, CreateKitDTO, ToolItem, EquipmentItem, DocumentItem } from '../types/kit.types';
