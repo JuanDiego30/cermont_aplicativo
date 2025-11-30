@@ -11,6 +11,7 @@
  */
 
 import { env } from '../config';
+import { getAccessToken, getRefreshToken, updateAccessToken, clearSession } from '@/features/auth/utils/session';
 
 // ============================================================================
 // Types & Constants
@@ -23,6 +24,7 @@ interface RequestConfig extends Omit<RequestInit, 'body' | 'method'> {
   timeout?: number;
   retries?: number;
   retryDelay?: number;
+  requiresAuth?: boolean;
 }
 
 interface ApiError extends Error {
@@ -36,84 +38,54 @@ interface ApiError extends Error {
 const DEFAULT_TIMEOUT = 30000; // 30 segundos
 const DEFAULT_RETRIES = 2;
 const DEFAULT_RETRY_DELAY = 1000; // 1 segundo
+const API_BASE_URL = env.API_URL;
 
 // ============================================================================
 // Token Refresh Management
 // ============================================================================
 
-let isRefreshing = false;
-let refreshPromise: Promise<string | null> | null = null;
-let sessionModule: typeof import('@/features/auth/utils/session') | null = null;
-
-async function getSessionFunctions() {
-  if (!sessionModule) {
-    sessionModule = await import('@/features/auth/utils/session');
-  }
-  return sessionModule;
-}
-
-async function refreshAccessToken(): Promise<string | null> {
-  if (!isRefreshing) {
-    isRefreshing = true;
-    refreshPromise = executeTokenRefresh();
-  }
-  return refreshPromise;
-}
-
-async function executeTokenRefresh(): Promise<string | null> {
+/**
+ * Refresh the access token using the refresh token
+ */
+async function refreshAccessToken(): Promise<boolean> {
   try {
-    const { getRefreshToken, setSession, clearSession } = await getSessionFunctions();
     const refreshToken = getRefreshToken();
-    
-    if (!refreshToken) return null;
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-    try {
-      const response = await fetch(`${env.API_URL}/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken }),
-        credentials: 'include',
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        clearSession();
-        return null;
-      }
-
-      const data = await response.json();
-      const payload = data?.data ?? data;
-      const newAccessToken = payload?.accessToken;
-      const newRefreshToken = payload?.refreshToken ?? refreshToken;
-
-      if (newAccessToken) {
-        setSession({ accessToken: newAccessToken, refreshToken: newRefreshToken });
-        return newAccessToken;
-      }
-
-      return null;
-    } catch (error) {
-      clearTimeout(timeoutId);
-      throw error;
+    if (!refreshToken) {
+      console.log('No refresh token available');
+      return false;
     }
-  } catch {
-    const { clearSession } = await getSessionFunctions();
-    clearSession();
-    return null;
-  } finally {
-    isRefreshing = false;
-    refreshPromise = null;
-  }
-}
 
-function redirectToSignIn(): void {
-  if (typeof window !== 'undefined' && !window.location.pathname.includes('/signin')) {
-    window.location.href = '/signin';
+    console.log('Attempting to refresh access token');
+
+    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ refreshToken }),
+    });
+
+    if (!response.ok) {
+      console.log('Failed to refresh token:', response.status);
+      return false;
+    }
+
+    const data = await response.json();
+
+    // Verificar que la respuesta tenga el accessToken
+    if (!data.accessToken || typeof data.accessToken !== 'string') {
+      console.error('Invalid token format in refresh response');
+      return false;
+    }
+
+    // Actualizar solo el access token
+    updateAccessToken(data.accessToken);
+    console.log('Access token refreshed successfully');
+    return true;
+  } catch (error) {
+    console.error('Error refreshing access token:', error);
+    return false;
   }
 }
 
@@ -162,17 +134,17 @@ async function handleOfflineRequest(method: HttpMethod, url: string, data?: unkn
 function createApiError(message: string, options?: Partial<ApiError>): ApiError {
   const error = new Error(message) as ApiError;
   error.name = 'ApiError';
-  
+
   if (options) {
     Object.assign(error, options);
   }
-  
+
   return error;
 }
 
 async function parseErrorResponse(response: Response): Promise<ApiError> {
   let data: unknown = {};
-  
+
   try {
     data = await response.json();
   } catch {
@@ -190,32 +162,17 @@ async function parseErrorResponse(response: Response): Promise<ApiError> {
 // Request Execution with Timeout & Retry
 // ============================================================================
 
-async function buildHeaders(token: string | null): Promise<Headers> {
-  const headers = new Headers();
-  headers.set('Content-Type', 'application/json');
-  headers.set('Accept', 'application/json');
-
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`);
-  }
-
-  return headers;
-}
-
 async function executeRequestWithTimeout(
   url: string,
   options: RequestInit,
-  headers: Headers,
   timeout: number
 ): Promise<Response> {
-  const fullUrl = `${env.API_URL}${url}`;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
-    const response = await fetch(fullUrl, {
+    const response = await fetch(url, {
       ...options,
-      headers,
       credentials: 'include',
       signal: controller.signal,
     });
@@ -224,13 +181,13 @@ async function executeRequestWithTimeout(
     return response;
   } catch (error) {
     clearTimeout(timeoutId);
-    
+
     if (error instanceof Error && error.name === 'AbortError') {
       throw createApiError('La solicitud excedió el tiempo de espera', {
         isTimeout: true,
       });
     }
-    
+
     throw createApiError('Error de conexión de red', {
       isNetworkError: true,
     });
@@ -238,37 +195,34 @@ async function executeRequestWithTimeout(
 }
 
 async function executeWithRetry(
-  url: string,
-  options: RequestInit,
-  headers: Headers,
+  requestFn: () => Promise<Response>,
   config: RequestConfig
 ): Promise<Response> {
   const maxRetries = config.retries ?? DEFAULT_RETRIES;
   const baseDelay = config.retryDelay ?? DEFAULT_RETRY_DELAY;
-  const timeout = config.timeout ?? DEFAULT_TIMEOUT;
 
   let lastError: ApiError | undefined;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      const response = await executeRequestWithTimeout(url, options, headers, timeout);
-      
+      const response = await requestFn();
+
       // Solo reintentar en errores de servidor (5xx) o timeout
       if (response.status >= 500 && attempt < maxRetries) {
         await delay(baseDelay * Math.pow(2, attempt));
         continue;
       }
-      
+
       return response;
     } catch (error) {
       lastError = error as ApiError;
-      
+
       // Reintentar en errores de red o timeout
       if ((lastError.isNetworkError || lastError.isTimeout) && attempt < maxRetries) {
         await delay(baseDelay * Math.pow(2, attempt));
         continue;
       }
-      
+
       throw lastError;
     }
   }
@@ -284,55 +238,83 @@ function delay(ms: number): Promise<void> {
 // Main Request Handler
 // ============================================================================
 
-async function handleUnauthorized(
+/**
+ * Make a fetch request with authentication
+ */
+const fetchWithAuth = async (
   url: string,
-  options: RequestInit,
-  headers: Headers,
-  config: RequestConfig
-): Promise<Response | null> {
-  // No intentar refresh en endpoints de autenticación
-  if (url.includes('/auth/login') || url.includes('/auth/refresh')) {
-    return null;
-  }
-
-  const newToken = await refreshAccessToken();
-
-  if (newToken) {
-    headers.set('Authorization', `Bearer ${newToken}`);
-    return executeWithRetry(url, options, headers, config);
-  }
-
-  redirectToSignIn();
-  return null;
-}
-
-async function fetchWithAuth(
-  url: string, 
-  options: RequestInit = {},
+  options: RequestInit & { requiresAuth?: boolean } = {},
   config: RequestConfig = {}
-): Promise<Response> {
-  const { getAccessToken } = await getSessionFunctions();
-  const token = getAccessToken();
-  
-  console.log(`🌐 API Request: ${url}`, {
-    hasToken: !!token,
-    tokenPreview: token?.substring(0, 30) + '...'
-  });
-  
-  const headers = await buildHeaders(token);
+): Promise<Response> => {
+  const { requiresAuth = true, headers = {}, ...restOptions } = options;
+  const timeout = config.timeout ?? DEFAULT_TIMEOUT;
 
-  let response = await executeWithRetry(url, options, headers, config);
+  let requestHeaders: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...headers,
+  };
 
-  if (response.status === 401) {
-    console.log(`🔄 401 received for ${url}, attempting refresh...`);
-    const retryResponse = await handleUnauthorized(url, options, headers, config);
-    if (retryResponse) {
-      response = retryResponse;
+  // Si requiere autenticación, agregar token
+  if (requiresAuth) {
+    const accessToken = getAccessToken();
+
+    console.log('API Request:', url.replace(API_BASE_URL, ''), {
+      hasToken: !!accessToken,
+      tokenPreview: accessToken?.substring(0, 50) + '...',
+    });
+
+    if (accessToken) {
+      requestHeaders = {
+        ...requestHeaders,
+        Authorization: `Bearer ${accessToken}`,
+      };
+    } else if (requiresAuth) {
+      console.warn('No access token found for authenticated request');
+    }
+  }
+
+  // Hacer la petición
+  let response = await executeWithRetry(
+    () => executeRequestWithTimeout(url, { ...restOptions, headers: requestHeaders }, timeout),
+    config
+  );
+
+  // Si obtenemos 401 y requiere autenticación, intentar refrescar el token
+  if (response.status === 401 && requiresAuth) {
+    console.log(`401 received for ${url}, attempting refresh...`);
+
+    const refreshSuccess = await refreshAccessToken();
+
+    if (refreshSuccess) {
+      // Reintentar con el nuevo token
+      const newAccessToken = getAccessToken();
+
+      if (newAccessToken) {
+        requestHeaders = {
+          ...requestHeaders,
+          Authorization: `Bearer ${newAccessToken}`,
+        };
+
+        response = await executeWithRetry(
+          () => executeRequestWithTimeout(url, { ...restOptions, headers: requestHeaders }, timeout),
+          config
+        );
+      }
+    } else {
+      // Si falla el refresh, limpiar sesión y redirigir
+      console.log('Token refresh failed, redirecting to signin');
+      clearSession();
+
+      if (typeof window !== 'undefined') {
+        window.location.href = '/signin';
+      }
+
+      throw new Error('Session expired');
     }
   }
 
   return response;
-}
+};
 
 async function parseResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -354,6 +336,8 @@ async function request<T>(
   data?: unknown,
   config: RequestConfig = {}
 ): Promise<T> {
+  const fullUrl = `${API_BASE_URL}${url}`;
+
   // Manejar solicitudes offline
   const isOffline = await handleOfflineRequest(method, url, data);
 
@@ -361,15 +345,16 @@ async function request<T>(
     return { success: true, offline: true, message: 'Guardado offline' } as T;
   }
 
-  const requestInit: RequestInit = {
+  const requestInit: RequestInit & { requiresAuth?: boolean } = {
     method,
+    requiresAuth: config.requiresAuth,
   };
 
   if (data !== undefined && method !== 'GET') {
     requestInit.body = JSON.stringify(data);
   }
 
-  const response = await fetchWithAuth(url, requestInit, config);
+  const response = await fetchWithAuth(fullUrl, requestInit, config);
   return parseResponse<T>(response);
 }
 

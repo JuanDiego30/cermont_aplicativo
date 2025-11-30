@@ -1,135 +1,161 @@
-/**
- * Session Management Utilities
- * 
- * Security considerations:
- * - Tokens stored in localStorage for SPA functionality
- * - Cookies used for Next.js middleware route protection
- * - Secure flag added in production (HTTPS)
- * - SameSite=Strict to prevent CSRF
- */
+import type { User, SessionData } from '@/features/auth/types';
 
-const ACCESS_TOKEN_KEY = 'accessToken';
-const REFRESH_TOKEN_KEY = 'refreshToken';
-const USER_ROLE_KEY = 'userRole';
-const SESSION_COOKIE_NAME = 'cermont_atg_token';
+const SESSION_KEYS = {
+  ACCESS_TOKEN: 'accessToken',
+  REFRESH_TOKEN: 'refreshToken',
+  USER: 'user',
+} as const;
 
-const isBrowser = typeof window !== 'undefined';
-const isSecure = isBrowser && window.location.protocol === 'https:';
-
-export interface SessionPayload {
-  accessToken: string;
-  refreshToken: string;
-  userRole?: string;
+// Helper para verificar si estamos en el cliente
+function isClient(): boolean {
+  return typeof window !== 'undefined';
 }
 
 /**
- * Validates token format (basic JWT structure check)
+ * Guarda la sesión en localStorage
  */
-function isValidTokenFormat(token: string): boolean {
-  if (!token || typeof token !== 'string') return false;
-  const parts = token.split('.');
-  return parts.length === 3 && parts.every(part => part.length > 0);
+export function setSession(session: SessionData | null): void {
+  if (!isClient()) {
+    console.warn('setSession called on server side');
+    return;
+  }
+
+  if (session) {
+    const { accessToken, refreshToken, user } = session;
+
+    console.log('setSession called with:', {
+      accessTokenLength: accessToken?.length,
+      refreshTokenLength: refreshToken?.length,
+      userRole: user?.role,
+    });
+
+    // Validar que los tokens son strings válidos
+    if (typeof accessToken !== 'string' || accessToken.trim().length === 0) {
+      console.error('Invalid accessToken format:', accessToken?.substring(0, 50));
+      throw new Error('Invalid accessToken format');
+    }
+
+    if (typeof refreshToken !== 'string' || refreshToken.trim().length === 0) {
+      console.error('Invalid refreshToken format:', refreshToken?.substring(0, 50));
+      const parts = refreshToken?.split('.') || [];
+      console.error('Token parts:', parts.length);
+      throw new Error('Invalid refreshToken format');
+    }
+
+    // Validar que accessToken tiene formato JWT (3 partes separadas por punto)
+    const accessTokenParts = accessToken.split('.');
+    if (accessTokenParts.length !== 3) {
+      console.error('AccessToken does not have JWT format. Parts:', accessTokenParts.length);
+      throw new Error('AccessToken does not have JWT format');
+    }
+
+    // Guardar en localStorage
+    try {
+      localStorage.setItem(SESSION_KEYS.ACCESS_TOKEN, accessToken);
+      localStorage.setItem(SESSION_KEYS.REFRESH_TOKEN, refreshToken);
+      localStorage.setItem(SESSION_KEYS.USER, JSON.stringify(user));
+      console.log('Session stored in localStorage');
+    } catch (error) {
+      console.error('Error storing session in localStorage:', error);
+      throw error;
+    }
+  } else {
+    clearSession();
+  }
 }
 
 /**
- * Sets a cookie with security options
+ * Obtiene la sesión desde localStorage
  */
-function setCookie(name: string, value: string, maxAge: number): void {
-  const cookieParts = [
-    `${name}=${encodeURIComponent(value)}`,
-    'Path=/',
-    `Max-Age=${maxAge}`,
-    'SameSite=Strict',
-  ];
-  
-  if (isSecure) {
-    cookieParts.push('Secure');
+export function getSession(): SessionData | null {
+  if (!isClient()) {
+    return null;
   }
-  
-  document.cookie = cookieParts.join('; ');
+
+  try {
+    const accessToken = localStorage.getItem(SESSION_KEYS.ACCESS_TOKEN);
+    const refreshToken = localStorage.getItem(SESSION_KEYS.REFRESH_TOKEN);
+    const userStr = localStorage.getItem(SESSION_KEYS.USER);
+
+    if (!accessToken || !refreshToken || !userStr) {
+      return null;
+    }
+
+    const user = JSON.parse(userStr) as User;
+
+    return {
+      user,
+      accessToken,
+      refreshToken,
+    };
+  } catch (error) {
+    console.error('Error getting session:', error);
+    clearSession();
+    return null;
+  }
 }
 
 /**
- * Clears a cookie
+ * Obtiene solo el access token
  */
-function clearCookie(name: string): void {
-  const cookieParts = [
-    `${name}=`,
-    'Path=/',
-    'Max-Age=0',
-    'SameSite=Strict',
-  ];
-  
-  if (isSecure) {
-    cookieParts.push('Secure');
-  }
-  
-  document.cookie = cookieParts.join('; ');
-}
-
-export function setSession({ accessToken, refreshToken, userRole }: SessionPayload) {
-  if (!isBrowser) return;
-
-  console.log('🔒 setSession called with:', {
-    accessTokenLength: accessToken?.length,
-    refreshTokenLength: refreshToken?.length,
-    userRole
-  });
-
-  // Validate token format before storing
-  if (!isValidTokenFormat(accessToken)) {
-    console.error('❌ Invalid accessToken format:', accessToken?.substring(0, 50));
-    console.error('Token parts:', accessToken?.split('.').length);
-    // No return - still try to save
-  }
-  
-  if (!isValidTokenFormat(refreshToken)) {
-    console.error('❌ Invalid refreshToken format:', refreshToken?.substring(0, 50));
-    console.error('Token parts:', refreshToken?.split('.').length);
-    // No return - still try to save
-  }
-
-  // Guardar tokens aunque la validación falle (el backend puede usar otro formato)
-  localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-  localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-  if (userRole) {
-    localStorage.setItem(USER_ROLE_KEY, userRole);
-  }
-  
-  // Set accessToken cookie (24 hours)
-  setCookie(SESSION_COOKIE_NAME, accessToken, 60 * 60 * 24);
-
-  // Set userRole cookie for middleware
-  if (userRole) {
-    setCookie(USER_ROLE_KEY, userRole, 60 * 60 * 24);
-  }
-
-  console.log('✅ Session stored in localStorage');
-}
-
-export function clearSession() {
-  if (!isBrowser) return;
-
-  localStorage.removeItem(ACCESS_TOKEN_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_KEY);
-  localStorage.removeItem(USER_ROLE_KEY);
-
-  // Clear cookies
-  clearCookie(SESSION_COOKIE_NAME);
-  clearCookie(USER_ROLE_KEY);
-}
-
 export function getAccessToken(): string | null {
-  if (!isBrowser) return null;
-  return localStorage.getItem(ACCESS_TOKEN_KEY);
+  if (!isClient()) {
+    return null;
+  }
+
+  return localStorage.getItem(SESSION_KEYS.ACCESS_TOKEN);
 }
 
+/**
+ * Obtiene solo el refresh token
+ */
 export function getRefreshToken(): string | null {
-  if (!isBrowser) return null;
-  return localStorage.getItem(REFRESH_TOKEN_KEY);
+  if (!isClient()) {
+    return null;
+  }
+
+  return localStorage.getItem(SESSION_KEYS.REFRESH_TOKEN);
 }
 
-export function getUserRole(): string | null {
-  if (!isBrowser) return null;
-  return localStorage.getItem(USER_ROLE_KEY);
+/**
+ * Actualiza solo el access token
+ */
+export function updateAccessToken(accessToken: string): void {
+  if (!isClient()) {
+    console.warn('updateAccessToken called on server side');
+    return;
+  }
+
+  if (!accessToken || typeof accessToken !== 'string') {
+    throw new Error('Invalid access token');
+  }
+
+  localStorage.setItem(SESSION_KEYS.ACCESS_TOKEN, accessToken);
+}
+
+/**
+ * Limpia la sesión
+ */
+export function clearSession(): void {
+  if (!isClient()) {
+    console.warn('clearSession called on server side');
+    return;
+  }
+
+  localStorage.removeItem(SESSION_KEYS.ACCESS_TOKEN);
+  localStorage.removeItem(SESSION_KEYS.REFRESH_TOKEN);
+  localStorage.removeItem(SESSION_KEYS.USER);
+  console.log('Session cleared');
+}
+
+/**
+ * Verifica si hay una sesión activa
+ */
+export function hasActiveSession(): boolean {
+  if (!isClient()) {
+    return false;
+  }
+
+  const accessToken = getAccessToken();
+  return !!accessToken;
 }

@@ -1,19 +1,163 @@
 'use client';
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import apiClient from '@/core/api/client';
-import { clearSession, getAccessToken, setSession } from '../utils/session';
-import type { User, AuthContextValue } from '../types';
+import { setSession, clearSession, getSession } from '@/features/auth/utils/session';
+import type { User } from '@/features/auth/types';
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  isInitialized: boolean;
+  isReady: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const router = useRouter();
+
+  // Cargar sesión al iniciar
+  useEffect(() => {
+    const loadSession = async () => {
+      try {
+        const session = getSession();
+        if (session && session.user) {
+          setUser(session.user);
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        console.error('Error loading session:', error);
+        clearSession();
+      } finally {
+        setIsLoading(false);
+        setIsInitialized(true);
+      }
+    };
+
+    loadSession();
+  }, []);
+
+  const login = useCallback(
+    async (email: string, password: string) => {
+      try {
+        // Hacer petición de login
+        const response = await apiClient.post<{
+          user: User;
+          accessToken: string;
+          refreshToken: string;
+        }>('/auth/login', {
+          email,
+          password,
+        });
+
+        console.log('Login response:', {
+          accessToken: response.accessToken?.substring(0, 50) + '...',
+          refreshToken: response.refreshToken?.substring(0, 50) + '...',
+          user: {
+            id: response.user.id,
+            email: response.user.email,
+            name: response.user.name,
+            role: response.user.role,
+          },
+        });
+
+        // Extraer datos
+        const { user: userData, accessToken, refreshToken } = response;
+
+        // Validar que tenemos tokens válidos
+        console.log('Tokens:', {
+          hasAccessToken: !!accessToken,
+          hasRefreshToken: !!refreshToken,
+          accessTokenPreview: accessToken?.substring(0, 50) + '...',
+          hasUser: !!userData,
+        });
+
+        if (!accessToken || !refreshToken || !userData) {
+          throw new Error('Invalid response from server');
+        }
+
+        // Guardar sesión
+        try {
+          setSession({
+            user: userData,
+            accessToken,
+            refreshToken,
+          });
+          console.log('Session saved successfully');
+        } catch (sessionError) {
+          console.error('Error saving session:', sessionError);
+          throw sessionError;
+        }
+
+        // Actualizar estado
+        setUser(userData);
+        setIsAuthenticated(true);
+
+        // Redirigir al dashboard
+        router.replace('/dashboard');
+      } catch (error) {
+        console.error('Login error:', error);
+        clearSession();
+        setUser(null);
+        setIsAuthenticated(false);
+        throw error;
+      }
+    },
+    [router]
+  );
+
+  const logout = useCallback(async () => {
+    try {
+      // Intentar logout en el servidor
+      await apiClient.post('/auth/logout');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Limpiar sesión local siempre
+      clearSession();
+      setUser(null);
+      setIsAuthenticated(false);
+      router.replace('/signin');
+    }
+  }, [router]);
+
+  const refreshUser = useCallback(async () => {
+    try {
+      const response = await apiClient.get<{ user: User }>('/auth/profile');
+      setUser(response.user);
+    } catch (error) {
+      console.error('Error refreshing user:', error);
+      // Si falla, hacer logout
+      await logout();
+    }
+  }, [logout]);
+
+  // isReady = inicializado y no cargando
+  const isReady = isInitialized && !isLoading;
+
+  const value = {
+    user,
+    isAuthenticated,
+    isLoading,
+    isInitialized,
+    isReady,
+    login,
+    logout,
+    refreshUser,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
 
 export function useAuth() {
   const context = useContext(AuthContext);
@@ -21,158 +165,4 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
-
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  // Verificar sesión al montar el componente
-  useEffect(() => {
-    const initializeAuth = async () => {
-      const token = getAccessToken();
-      
-      if (!token) {
-        setIsLoading(false);
-        setIsInitialized(true);
-        return;
-      }
-
-      try {
-        const response = await apiClient.get('/auth/profile');
-        const profile = response.user || response.data?.user;
-        
-        if (profile) {
-          setUser(profile);
-          setIsAuthenticated(true);
-        } else {
-          clearSession();
-          setIsAuthenticated(false);
-        }
-      } catch (error) {
-        console.error('Auth initialization failed:', error);
-        clearSession();
-        setIsAuthenticated(false);
-      } finally {
-        setIsLoading(false);
-        setIsInitialized(true);
-      }
-    };
-
-    initializeAuth();
-  }, []);
-
-  const login = useCallback(
-    async ({ email, password }: { email: string; password: string }) => {
-      try {
-        const response = await apiClient.post('/auth/login', {
-          email: email.toLowerCase().trim(),
-          password,
-        });
-
-        console.log('🔐 Login response:', JSON.stringify(response, null, 2));
-
-        // Extraer tokens - soportar ambos formatos:
-        // Formato 1: { user, accessToken, refreshToken } (tokens en raíz)
-        // Formato 2: { user, tokens: { accessToken, refreshToken } } (tokens anidados)
-        let accessToken: string;
-        let refreshToken: string;
-        const loggedUser = response.user;
-
-        if (response.tokens && typeof response.tokens === 'object') {
-          // Formato 2: tokens anidados
-          accessToken = response.tokens.accessToken;
-          refreshToken = response.tokens.refreshToken;
-          console.log('📦 Usando formato tokens anidados');
-        } else {
-          // Formato 1: tokens en raíz
-          accessToken = response.accessToken;
-          refreshToken = response.refreshToken;
-          console.log('📦 Usando formato tokens en raíz');
-        }
-
-        console.log('🔑 Tokens extraídos:', { 
-          hasAccessToken: !!accessToken, 
-          hasRefreshToken: !!refreshToken,
-          accessTokenPreview: accessToken?.substring(0, 50) + '...',
-          hasUser: !!loggedUser 
-        });
-
-        if (!accessToken || !refreshToken || !loggedUser) {
-          console.error('❌ Respuesta incompleta:', { accessToken: !!accessToken, refreshToken: !!refreshToken, user: !!loggedUser });
-          throw new Error('Respuesta incompleta del servidor');
-        }
-
-        // Guardar sesión en localStorage
-        setSession({
-          accessToken,
-          refreshToken,
-          userRole: loggedUser.role
-        });
-
-        console.log('✅ Session saved, updating state...');
-
-        // Actualizar estado React
-        setUser(loggedUser);
-        setIsAuthenticated(true);
-
-        console.log('✅ State updated, navigating to dashboard...');
-
-        // Navegar al dashboard
-        router.replace('/dashboard');
-      } catch (error: unknown) {
-        console.error('❌ Login error:', error);
-        // Limpiar sesión en caso de error
-        clearSession();
-        setUser(null);
-        setIsAuthenticated(false);
-
-        // Propagar error
-        const err = error as { response?: { data?: { detail?: string } }; message?: string };
-        const errorMessage = err?.response?.data?.detail || err?.message || 'Error al iniciar sesión';
-        throw new Error(errorMessage);
-      }
-    },
-    [router],
-  );
-
-  const logout = useCallback(async () => {
-    try {
-      await apiClient.post('/auth/logout', {});
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      clearSession();
-      setUser(null);
-      setIsAuthenticated(false);
-      router.push('/signin');
-    }
-  }, [router]);
-
-  const value: AuthContextValue = {
-    user,
-    isLoading,
-    isAuthenticated,
-    isInitialized,
-    isReady: isInitialized && !isLoading, // Simplificado
-    login,
-    logout,
-  };
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
-
-export function useAuthContext() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error('useAuthContext must be used within an AuthProvider');
-  }
-  return ctx;
 }
