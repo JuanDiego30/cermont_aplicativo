@@ -22,6 +22,10 @@ const OfflineIndicator = dynamic(
   () => import("@/components/ui/OfflineIndicator"),
   { ssr: false }
 );
+const BottomNavigation = dynamic(
+  () => import("@/components/pwa/BottomNavigation"),
+  { ssr: false }
+);
 
 export default function AdminLayout({
   children,
@@ -86,6 +90,9 @@ export default function AdminLayout({
       
       {/* Offline Status Indicator */}
       <OfflineIndicator />
+      
+      {/* Mobile Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }
