@@ -3,6 +3,7 @@ import { authenticate } from '../../../shared/middlewares/authenticate.js';
 import { authorize } from '../../../shared/middlewares/authorize.js';
 import { PERMISSIONS } from '../../../shared/constants/permissions.js';
 import { JobScheduler } from '../../scheduler/JobScheduler.js';
+import { getErrorMessage } from '../../../shared/utils/index.js';
 
 const router = Router();
 
@@ -21,12 +22,12 @@ router.get('/status', authorize([PERMISSIONS.ADMIN_FULL_ACCESS]), (req, res) => 
       status: 'ok',
       jobs: status,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       type: 'https://httpstatuses.com/500',
       title: 'Internal Server Error',
       status: 500,
-      detail: error.message,
+      detail: getErrorMessage(error),
     });
   }
 });
@@ -49,12 +50,12 @@ router.post('/:jobName/run', authorize([PERMISSIONS.ADMIN_FULL_ACCESS]), async (
       job: jobName,
       result,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       type: 'https://httpstatuses.com/500',
       title: 'Internal Server Error',
       status: 500,
-      detail: error.message,
+      detail: getErrorMessage(error),
     });
   }
 });

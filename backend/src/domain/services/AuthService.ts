@@ -9,6 +9,8 @@ import { AuditService } from './AuditService.js';
 import { AuditAction } from '../entities/AuditLog.js';
 import type { IUserRepository } from '../repositories/IUserRepository.js';
 import type { IRevokedTokenRepository } from '../repositories/IRevokedTokenRepository.js';
+import { AppError } from '../../shared/errors/AppError.js';
+import { UserRole } from '../entities/User.js';
 
 export interface AuthResult {
   accessToken: string;
@@ -38,6 +40,14 @@ export interface PasswordHasherInterface {
   verify(plainPassword: string, hashedPassword: string): Promise<boolean>;
 }
 
+export interface RegisterDTO {
+  email: string;
+  password: string;
+  name: string;
+  ip?: string;
+  userAgent?: string;
+}
+
 /**
  * AuthService - Facade para operaciones de autenticación
  */
@@ -49,7 +59,7 @@ export class AuthService {
     private readonly refreshTokenService: RefreshTokenServiceInterface,
     private readonly auditService: AuditService,
     private readonly passwordHasher?: PasswordHasherInterface
-  ) {}
+  ) { }
 
   /**
    * Inicia sesión con email y contraseña
@@ -57,22 +67,22 @@ export class AuthService {
   async login(email: string, password: string, ip?: string, userAgent?: string): Promise<AuthResult> {
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
-      throw new Error('Credenciales inválidas');
+      throw new AppError('Credenciales inválidas', 401);
     }
 
     // Verificar contraseña
     if (this.passwordHasher && user.password) {
       const isValid = await this.passwordHasher.verify(password, user.password);
       if (!isValid) {
-        throw new Error('Credenciales inválidas');
+        throw new AppError('Credenciales inválidas', 401);
       }
     }
 
     // Verificar si el usuario está activo
     if (!user.active) {
-      throw new Error('Usuario desactivado');
+      throw new AppError('Usuario desactivado', 403);
     }
-    
+
     const accessToken = await this.jwtService.sign({
       userId: user.id,
       email: user.email,
@@ -104,12 +114,48 @@ export class AuthService {
   }
 
   /**
+   * Registra un nuevo usuario
+   */
+  async register(data: RegisterDTO): Promise<AuthResult> {
+    const { email, password, name, ip, userAgent } = data;
+
+    // Validar existencia
+    const existingUser = await this.userRepository.findByEmail(email);
+    if (existingUser) {
+      throw new AppError('El email ya está registrado', 409);
+    }
+
+    const now = new Date();
+    const user = await this.userRepository.create({
+      email,
+      password, // El repositorio hasheará la contraseña
+      name,
+      role: UserRole.CLIENTE,
+      active: true,
+      avatar: undefined,
+      mfaEnabled: false,
+      lastPasswordChange: now,
+      passwordExpiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 días
+      loginAttempts: 0,
+      security: {
+        mfaEnabled: false,
+        passwordHistory: [],
+        lastPasswordChange: now,
+        passwordExpiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+      }
+    });
+
+    // Auto login
+    return this.login(email, password, ip, userAgent);
+  }
+
+  /**
    * Renueva tokens usando refresh token
    */
   async refresh(refreshToken: string, _userId?: string): Promise<{ accessToken: string; refreshToken: string }> {
     const result = await this.refreshTokenService.validateAndRotate(refreshToken);
     if (!result) {
-      throw new Error('Refresh token inválido o expirado');
+      throw new AppError('Refresh token inválido o expirado', 401);
     }
     return result;
   }

@@ -124,7 +124,7 @@ export default function WorkPlansPage() {
                               style={{ width: `${plan.status === 'COMPLETED' ? 100 : plan.status === 'IN_PROGRESS' ? 50 : 0}%` }}
                             />
                           </div>
-                          <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[40px]">
+                          <span className="text-sm text-gray-600 dark:text-gray-400 min-w-10">
                             {plan.status === 'COMPLETED' ? 100 : plan.status === 'IN_PROGRESS' ? 50 : 0}%
                           </span>
                         </div>

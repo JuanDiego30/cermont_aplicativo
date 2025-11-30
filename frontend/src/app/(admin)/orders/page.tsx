@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useOrders, type Order } from "@/features/orders";
+import { SkeletonTable } from "@/components/common";
 import Button from "@/components/ui/button/Button";
 
 // State badge component
@@ -95,12 +96,7 @@ export default function OrdersPage() {
       {/* Table */}
       <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
         {isLoading ? (
-          <div className="flex items-center justify-center h-96">
-            <div className="flex flex-col items-center gap-4">
-              <div className="h-12 w-12 animate-spin rounded-full border-4 border-brand-500 border-t-transparent"></div>
-              <p className="text-gray-600 dark:text-gray-400">Cargando órdenes...</p>
-            </div>
-          </div>
+          <SkeletonTable rows={ORDERS_PER_PAGE} columns={6} hasHeader />
         ) : orders.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-96 gap-4">
             <svg className="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

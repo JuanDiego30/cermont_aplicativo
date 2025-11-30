@@ -7,6 +7,17 @@ import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
+import dynamic from "next/dynamic";
+
+// Lazy load floating widgets
+const FloatingAssistant = dynamic(
+  () => import("@/components/ui/FloatingAssistant"),
+  { ssr: false }
+);
+const FloatingWeather = dynamic(
+  () => import("@/components/ui/FloatingWeather"),
+  { ssr: false }
+);
 
 export default function AdminLayout({
   children,
@@ -60,8 +71,14 @@ export default function AdminLayout({
         {/* Header */}
         <AppHeader />
         {/* Page Content */}
-        <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">{children}</div>
+        <main id="main-content" className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+          {children}
+        </main>
       </div>
+
+      {/* Floating Widgets */}
+      <FloatingWeather />
+      <FloatingAssistant />
     </div>
   );
 }

@@ -1,31 +1,31 @@
 /**
  * Features Index
- * Barrel export de todas las features
+ * Barrel export de todas las features de la aplicación
  */
 
-// Auth Feature
+// ============================================================================
+// Core Features
+// ============================================================================
 export * from './auth';
 
-// Orders Feature  
+// ============================================================================
+// Business Features
+// ============================================================================
 export * from './orders';
-
-// Users Feature
 export * from './users';
-
-// Kits Feature
 export * from './kits';
-
-// Workplans Feature
 export * from './workplans';
-
-// Checklists Feature
 export * from './checklists';
-
-// Evidences Feature
 export * from './evidences';
 
-// Dashboard Feature
+// ============================================================================
+// Administrative Features
+// ============================================================================
 export * from './dashboard';
-
-// Billing Feature
 export * from './billing';
+
+// ============================================================================
+// AI & Utilities Features
+// ============================================================================
+export * from './assistant';
+export * from './weather';

@@ -8,7 +8,7 @@ import { AuditService } from '../../../domain/services/AuditService.js';
 import { PasswordHasher } from '../../adapters/security/passwordHasher.js';
 import { UserRole } from '../../../domain/entities/User.js';
 import { AuditAction } from '../../../domain/entities/AuditLog.js';
-import { logger } from '../../../shared/utils/logger.js';
+import { logger, getErrorMessage } from '../../../shared/utils/index.js';
 
 export class UsersController {
   private createUserUseCase: CreateUserUseCase;
@@ -90,12 +90,13 @@ export class UsersController {
           createdAt: user.createdAt,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
       res.status(400).json({
         type: 'https://httpstatuses.com/400',
         title: 'Bad Request',
         status: 400,
-        detail: error.message,
+        detail: message,
       });
     }
   };
@@ -200,12 +201,13 @@ export class UsersController {
           active: user.active,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
       res.status(400).json({
         type: 'https://httpstatuses.com/400',
         title: 'Bad Request',
         status: 400,
-        detail: error.message,
+        detail: message,
       });
     }
   };

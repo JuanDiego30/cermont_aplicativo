@@ -7,7 +7,7 @@ import { AuditAction } from '../../../domain/entities/AuditLog.js';
 import { WorkPlanStatus } from '../../../domain/entities/WorkPlan.js';
 import { CreateWorkPlanUseCase } from '../../../app/workplans/use-cases/CreateWorkPlan.js';
 import { UpdateWorkPlanUseCase } from '../../../app/workplans/use-cases/UpdateWorkPlan.js';
-import { logger } from '../../../shared/utils/logger.js';
+import { logger, getErrorMessage } from '../../../shared/utils/index.js';
 
 // Services
 const auditService = new AuditService(auditLogRepository);
@@ -47,13 +47,14 @@ export class WorkPlansController {
           },
         },
       });
-    } catch (error: any) {
-      logger.error('Error listing work plans:', error);
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      logger.error('Error listing work plans:', { error: message });
       res.status(500).json({
         type: 'https://httpstatuses.com/500',
         title: 'Internal Server Error',
         status: 500,
-        detail: error.message,
+        detail: message,
       });
     }
   };
@@ -97,13 +98,14 @@ export class WorkPlansController {
           },
         },
       });
-    } catch (error: any) {
-      logger.error('Error getting user work plans:', error);
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      logger.error('Error getting user work plans:', { error: message });
       res.status(500).json({
         type: 'https://httpstatuses.com/500',
         title: 'Internal Server Error',
         status: 500,
-        detail: error.message,
+        detail: message,
       });
     }
   };
@@ -119,8 +121,8 @@ export class WorkPlansController {
       }
 
       res.json({ success: true, data: workPlan });
-    } catch (error: any) {
-      logger.error('Error getting work plan:', error);
+    } catch (error: unknown) {
+      logger.error('Error getting work plan:', { error: getErrorMessage(error) });
       res.status(500).json({ message: 'Internal Server Error' });
     }
   };
@@ -152,8 +154,8 @@ export class WorkPlansController {
       });
 
       res.status(201).json({ success: true, data: newWorkPlan });
-    } catch (error: any) {
-      logger.error('Error creating work plan:', error);
+    } catch (error: unknown) {
+      logger.error('Error creating work plan:', { error: getErrorMessage(error) });
       res.status(500).json({ message: 'Internal Server Error' });
     }
   };
@@ -177,8 +179,8 @@ export class WorkPlansController {
       });
 
       res.json({ success: true, data: updated });
-    } catch (error: any) {
-      logger.error('Error updating work plan:', error);
+    } catch (error: unknown) {
+      logger.error('Error updating work plan:', { error: getErrorMessage(error) });
       res.status(500).json({ message: 'Internal Server Error' });
     }
   };
@@ -205,8 +207,8 @@ export class WorkPlansController {
       });
 
       res.json({ success: true, data: updated });
-    } catch (error: any) {
-      logger.error('Error approving work plan:', error);
+    } catch (error: unknown) {
+      logger.error('Error approving work plan:', { error: getErrorMessage(error) });
       res.status(500).json({ message: 'Internal Server Error' });
     }
   };
@@ -233,8 +235,8 @@ export class WorkPlansController {
       });
 
       res.json({ success: true, data: updated });
-    } catch (error: any) {
-      logger.error('Error rejecting work plan:', error);
+    } catch (error: unknown) {
+      logger.error('Error rejecting work plan:', { error: getErrorMessage(error) });
       res.status(500).json({ message: 'Internal Server Error' });
     }
   };
@@ -246,8 +248,8 @@ export class WorkPlansController {
       const { id } = req.params;
       await workPlanRepository.delete(id);
       res.status(204).send();
-    } catch (error: any) {
-      const msg = error instanceof Error ? error.message : 'Unknown error';
+    } catch (error: unknown) {
+      const msg = getErrorMessage(error);
       logger.error('Error deleting work plan', { error: msg });
       res.status(500).json({ message: 'Internal Server Error' });
     }

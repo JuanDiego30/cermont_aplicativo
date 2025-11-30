@@ -6,7 +6,8 @@ import { userRepository } from '../../db/repositories/UserRepository.js';
 import { workPlanRepository } from '../../db/repositories/WorkPlanRepository.js';
 import { evidenceRepository } from '../../db/repositories/EvidenceRepository.js';
 import { OrderState } from '../../../domain/entities/Order.js';
-import { WorkPlanStatus } from '../../../domain/entities/WorkPlan.js'; // Asegurar importación
+import { WorkPlanStatus } from '../../../domain/entities/WorkPlan.js';
+import { getErrorMessage } from '../../../shared/utils/index.js';
 
 /**
  * Controller para dashboard y estadísticas
@@ -54,12 +55,12 @@ export class DashboardController {
         data: metrics,
         cached: false,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({
         type: 'https://httpstatuses.com/500',
         title: 'Internal Server Error',
         status: 500,
-        detail: error.message,
+        detail: getErrorMessage(error),
       });
     }
   };
@@ -94,12 +95,12 @@ export class DashboardController {
           orders,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({
         type: 'https://httpstatuses.com/500',
         title: 'Internal Server Error',
         status: 500,
-        detail: error.message,
+        detail: getErrorMessage(error),
       });
     }
   };
@@ -125,12 +126,12 @@ export class DashboardController {
           workPlans: { total: workPlansTotal },
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({
         type: 'https://httpstatuses.com/500',
         title: 'Internal Server Error',
         status: 500,
-        detail: error.message,
+        detail: getErrorMessage(error),
       });
     }
   };
@@ -164,12 +165,12 @@ export class DashboardController {
           },
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({
         type: 'https://httpstatuses.com/500',
         title: 'Internal Server Error',
         status: 500,
-        detail: error.message,
+        detail: getErrorMessage(error),
       });
     }
   };
@@ -190,12 +191,12 @@ export class DashboardController {
           workPlans,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({
         type: 'https://httpstatuses.com/500',
         title: 'Internal Server Error',
         status: 500,
-        detail: error.message,
+        detail: getErrorMessage(error),
       });
     }
   };
@@ -234,12 +235,12 @@ export class DashboardController {
           workPlans: myWorkPlans.slice(0, 5),
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({
         type: 'https://httpstatuses.com/500',
         title: 'Internal Server Error',
         status: 500,
-        detail: error.message,
+        detail: getErrorMessage(error),
       });
     }
   };
@@ -283,12 +284,12 @@ export class DashboardController {
           activities,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({
         type: 'https://httpstatuses.com/500',
         title: 'Internal Server Error',
         status: 500,
-        detail: error.message,
+        detail: getErrorMessage(error),
       });
     }
   };
@@ -363,12 +364,12 @@ export class DashboardController {
           },
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       res.status(500).json({
         type: 'https://httpstatuses.com/500',
         title: 'Internal Server Error',
         status: 500,
-        detail: error.message,
+        detail: getErrorMessage(error),
       });
     }
   };

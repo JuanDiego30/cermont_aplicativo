@@ -8,7 +8,7 @@ import { kitRepository } from '../../db/repositories/KitRepository.js';
 import { workPlanRepository } from '../../db/repositories/WorkPlanRepository.js'; // Necesario para delete safe
 import { AuditService } from '../../../domain/services/AuditService.js';
 import { auditLogRepository } from '../../db/repositories/AuditLogRepository.js';
-import { logger } from '../../../shared/utils/logger.js';
+import { logger, getErrorMessage } from '../../../shared/utils/index.js';
 import type { KitCategory } from '../../../domain/entities/Kit.js';
 import { AuditAction } from '../../../domain/entities/AuditLog.js';
 
@@ -29,7 +29,7 @@ export class KitsController {
 
       const listKitsUseCase = new ListKitsUseCase(kitRepository);
       const result = await listKitsUseCase.execute({
-        category: category as any,
+        category: category as KitCategory | undefined,
         active: active !== undefined ? active === 'true' : undefined,
         search: search as string,
         page: Number(page),
@@ -42,8 +42,9 @@ export class KitsController {
         page: result.pagination.page,
         totalPages: result.pagination.totalPages,
       });
-    } catch (error: any) {
-      logger.error('Error al listar kits', { error: error.message });
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      logger.error('Error al listar kits', { error: message });
       res.status(500).json({
         type: 'internal_error',
         title: 'Error al listar kits',
@@ -69,8 +70,9 @@ export class KitsController {
       }
 
       res.json(kit);
-    } catch (error: any) {
-      logger.error('Error al obtener kit', { error: error.message, kitId: req.params.id });
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      logger.error('Error al obtener kit', { error: message, kitId: req.params.id });
       res.status(500).json({
         type: 'internal_error',
         title: 'Error al obtener kit',
@@ -100,16 +102,17 @@ export class KitsController {
       });
 
       res.status(201).json(kit);
-    } catch (error: any) {
-      logger.error('Error al crear kit', { error: error.message });
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      logger.error('Error al crear kit', { error: message });
       
       // Manejo de errores de negocio
-      if (error.message.includes('requerido') || error.message.includes('existe')) {
+      if (message.includes('requerido') || message.includes('existe')) {
         res.status(400).json({
           type: 'bad_request',
           title: 'Error de validación',
           status: 400,
-          detail: error.message,
+          detail: message,
         });
         return;
       }
@@ -118,7 +121,7 @@ export class KitsController {
         type: 'internal_error',
         title: 'Error al crear kit',
         status: 500,
-        detail: error.message,
+        detail: message,
       });
     }
   };
@@ -149,9 +152,10 @@ export class KitsController {
       });
 
       res.json(updatedKit);
-    } catch (error: any) {
-      logger.error('Error al actualizar kit', { error: error.message });
-      res.status(500).json({ type: 'internal_error', status: 500, detail: error.message });
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      logger.error('Error al actualizar kit', { error: message });
+      res.status(500).json({ type: 'internal_error', status: 500, detail: message });
     }
   };
 
@@ -182,9 +186,10 @@ export class KitsController {
       });
 
       res.status(204).send();
-    } catch (error: any) {
-      logger.error('Error al eliminar kit', { error: error.message });
-      res.status(500).json({ type: 'internal_error', status: 500, detail: error.message });
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      logger.error('Error al eliminar kit', { error: message });
+      res.status(500).json({ type: 'internal_error', status: 500, detail: message });
     }
   };
 
@@ -221,9 +226,10 @@ export class KitsController {
       });
 
       res.status(201).json(duplicatedKit);
-    } catch (error: any) {
-      logger.error('Error al duplicar kit', { error: error.message });
-      res.status(500).json({ type: 'internal_error', status: 500, detail: error.message });
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      logger.error('Error al duplicar kit', { error: message });
+      res.status(500).json({ type: 'internal_error', status: 500, detail: message });
     }
   };
 
@@ -231,9 +237,10 @@ export class KitsController {
     try {
       const stats = await kitRepository.getStats();
       res.json(stats);
-    } catch (error: any) {
-      logger.error('Error al obtener estadísticas', { error: error.message });
-      res.status(500).json({ type: 'internal_error', status: 500, detail: error.message });
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      logger.error('Error al obtener estadísticas', { error: message });
+      res.status(500).json({ type: 'internal_error', status: 500, detail: message });
     }
   };
 
@@ -243,7 +250,7 @@ export class KitsController {
       
       const listKitsUseCase = new ListKitsUseCase(kitRepository);
       const result = await listKitsUseCase.execute({
-        category: category as any,
+        category: category as KitCategory,
         active: true,
       });
 
@@ -251,9 +258,10 @@ export class KitsController {
         kits: result.kits,
         total: result.pagination.total,
       });
-    } catch (error: any) {
-      logger.error('Error al obtener kits por categoría', { error: error.message });
-      res.status(500).json({ type: 'internal_error', status: 500, detail: error.message });
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      logger.error('Error al obtener kits por categoría', { error: message });
+      res.status(500).json({ type: 'internal_error', status: 500, detail: message });
     }
   };
 
@@ -272,9 +280,10 @@ export class KitsController {
         success: true,
         data: result,
       });
-    } catch (error: any) {
-      logger.error('Error al sugerir kit', { error: error.message });
-      res.status(400).json({ type: 'bad_request', status: 400, detail: error.message });
+    } catch (error: unknown) {
+      const message = getErrorMessage(error);
+      logger.error('Error al sugerir kit', { error: message });
+      res.status(400).json({ type: 'bad_request', status: 400, detail: message });
     }
   };
 }

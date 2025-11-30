@@ -1,6 +1,4 @@
-/**
- * User Types
- */
+import type { BaseEntity, PaginatedResponse } from '@/shared/types';
 
 export enum UserRole {
   ROOT = 'ROOT',
@@ -11,15 +9,13 @@ export enum UserRole {
   CLIENT = 'CLIENT',
 }
 
-export interface User {
-  id: string;
+export interface User extends BaseEntity {
   email: string;
   name: string;
   role: UserRole;
   active: boolean;
   mfaEnabled: boolean;
   lastLogin?: string;
-  createdAt: string;
 }
 
 export interface CreateUserDTO {
@@ -43,13 +39,5 @@ export interface UserFilters {
   limit?: number;
 }
 
-export interface UsersResponse {
-  success: boolean;
-  data: User[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
-}
+export type UsersResponse = PaginatedResponse<User>;
+

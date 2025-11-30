@@ -16,9 +16,25 @@ const router = Router();
 router.use(authenticate);
 
 /**
- * @route   GET /api/reports/activity/:orderId
- * @desc    Generar informe de actividad
- * @access  Private
+ * @swagger
+ * /api/reports/activity/{orderId}:
+ *   get:
+ *     summary: Generar informe de actividad de una orden
+ *     tags: [Reports]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Informe de actividad generado
+ *       404:
+ *         description: Orden no encontrada
  */
 router.get(
   '/activity/:orderId',
@@ -27,9 +43,30 @@ router.get(
 );
 
 /**
- * @route   POST /api/reports/acta-entrega/:orderId
- * @desc    Generar acta de entrega
- * @access  Private
+ * @swagger
+ * /api/reports/acta-entrega/{orderId}:
+ *   post:
+ *     summary: Generar acta de entrega
+ *     tags: [Reports]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Acta de entrega generada
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       404:
+ *         description: Orden no encontrada
  */
 router.post(
   '/acta-entrega/:orderId',
@@ -38,9 +75,25 @@ router.post(
 );
 
 /**
- * @route   POST /api/reports/ses/:orderId
- * @desc    Generar formato SES
- * @access  Private
+ * @swagger
+ * /api/reports/ses/{orderId}:
+ *   post:
+ *     summary: Generar formato SES
+ *     tags: [Reports]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: orderId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Formato SES generado
+ *       404:
+ *         description: Orden no encontrada
  */
 router.post(
   '/ses/:orderId',
@@ -49,9 +102,25 @@ router.post(
 );
 
 /**
- * @route   GET /api/reports/costs/:workPlanId
- * @desc    Generar reporte de costos
- * @access  Private
+ * @swagger
+ * /api/reports/costs/{workPlanId}:
+ *   get:
+ *     summary: Generar reporte de costos de un plan de trabajo
+ *     tags: [Reports]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: workPlanId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Reporte de costos generado
+ *       404:
+ *         description: Plan de trabajo no encontrado
  */
 router.get(
   '/costs/:workPlanId',
@@ -60,9 +129,16 @@ router.get(
 );
 
 /**
- * @route   GET /api/reports/dashboard
- * @desc    Generar reporte del dashboard
- * @access  Private
+ * @swagger
+ * /api/reports/dashboard:
+ *   get:
+ *     summary: Generar reporte del dashboard
+ *     tags: [Reports]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Reporte del dashboard generado
  */
 router.get(
   '/dashboard',
@@ -70,12 +146,18 @@ router.get(
   ReportsController.generateDashboard
 );
 
-// --- Rutas Nuevas para Automatización (Tesis) ---
-
 /**
- * @route   GET /api/reports/pending-actas
- * @desc    Obtener listado de actas pendientes por generar (>12h)
- * @access  Private (Admin/Coordinador)
+ * @swagger
+ * /api/reports/pending-actas:
+ *   get:
+ *     summary: Obtener listado de actas pendientes por generar
+ *     tags: [Reports]
+ *     security:
+ *       - bearerAuth: []
+ *     description: Retorna órdenes completadas hace más de 12 horas sin acta generada
+ *     responses:
+ *       200:
+ *         description: Lista de órdenes con actas pendientes
  */
 router.get(
   '/pending-actas',

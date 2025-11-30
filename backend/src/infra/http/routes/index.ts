@@ -1,6 +1,6 @@
 /**
- * Router Principal
- * Agrega todas las rutas de la aplicación
+ * Main Router
+ * Centraliza todas las rutas de la aplicación
  *
  * @file backend/src/infra/http/routes/index.ts
  */
@@ -20,14 +20,19 @@ import billingRoutes from './billing.routes.js';
 import weatherRoutes from './weather.routes.js';
 import assistantRoutes from './assistant.routes.js';
 import formTemplatesRoutes from './form-templates.routes.js';
-import jobsRoutes from './jobs.routes.js'; // Nuevo
+import jobsRoutes from './jobs.routes.js';
 import notificationsRoutes from './notifications.routes.js';
 import costBreakdownRoutes from './cost-breakdown.routes.js';
 
 const router = Router();
 
+// ============================================================================
+// System Endpoints
+// ============================================================================
+
 /**
- * Health Check
+ * Health check endpoint
+ * GET /api/health
  */
 router.get('/health', (req: Request, res: Response) => {
   res.json({
@@ -39,7 +44,8 @@ router.get('/health', (req: Request, res: Response) => {
 });
 
 /**
- * API Version
+ * API version endpoint
+ * GET /api/version
  */
 router.get('/version', (req: Request, res: Response) => {
   res.json({
@@ -49,30 +55,52 @@ router.get('/version', (req: Request, res: Response) => {
   });
 });
 
-/**
- * Montar rutas
- */
+// ============================================================================
+// Core Features
+// ============================================================================
+
 router.use('/auth', authRoutes);
+router.use('/users', usersRoutes);
+
+// ============================================================================
+// Business Features
+// ============================================================================
+
 router.use('/orders', ordersRoutes);
 router.use('/workplans', workplansRoutes);
 router.use('/evidences', evidencesRoutes);
-router.use('/reports', reportsRoutes);
-router.use('/users', usersRoutes);
-router.use('/dashboard', dashboardRoutes);
 router.use('/kits', kitsRoutes);
 router.use('/checklists', checklistsRoutes);
-router.use('/archives', archivesRoutes);
+
+// ============================================================================
+// Reports & Analytics
+// ============================================================================
+
+router.use('/reports', reportsRoutes);
+router.use('/dashboard', dashboardRoutes);
 router.use('/billing', billingRoutes);
+router.use('/cost-breakdown', costBreakdownRoutes);
+
+// ============================================================================
+// External Services & Utilities
+// ============================================================================
+
 router.use('/weather', weatherRoutes);
 router.use('/assistant', assistantRoutes);
-router.use('/jobs', jobsRoutes); // Montar ruta de jobs
-router.use('/notifications', notificationsRoutes);
-router.use('/form-templates', formTemplatesRoutes);
-router.use('/', costBreakdownRoutes); // Cost breakdown uses nested paths
 
-/**
- * Ruta 404 para endpoints no encontrados
- */
+// ============================================================================
+// Administrative
+// ============================================================================
+
+router.use('/jobs', jobsRoutes);
+router.use('/notifications', notificationsRoutes);
+router.use('/archives', archivesRoutes);
+router.use('/form-templates', formTemplatesRoutes);
+
+// ============================================================================
+// 404 Not Found Handler
+// ============================================================================
+
 router.use((req: Request, res: Response) => {
   res.status(404).json({
     type: 'https://httpstatuses.com/404',

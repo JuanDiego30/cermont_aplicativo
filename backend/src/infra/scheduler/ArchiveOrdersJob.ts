@@ -3,7 +3,7 @@ import { orderRepository } from '../db/repositories/OrderRepository.js';
 import { AuditService } from '../../domain/services/AuditService.js';
 import { AuditAction } from '../../domain/entities/AuditLog.js';
 import { auditLogRepository } from '../db/repositories/AuditLogRepository.js';
-import { logger } from '../../shared/utils/logger.js';
+import { logger, getErrorMessage } from '../../shared/utils/index.js';
 
 /**
  * ========================================
@@ -85,12 +85,12 @@ export class ArchiveOrdersJob {
 
       return { success: true, archivedCount: archivedOrders };
 
-    } catch (error: any) {
-      this.jobStatus.lastError = error.message;
+    } catch (error: unknown) {
+      const errorMsg = getErrorMessage(error);
+      this.jobStatus.lastError = errorMsg;
       
       logger.error('❌ Archive Orders Job failed', {
-        error: error.message,
-        stack: error.stack,
+        error: errorMsg,
       });
 
       // Auditoría de error
@@ -100,10 +100,10 @@ export class ArchiveOrdersJob {
         action: AuditAction.DELETE, // O mantener DELETE si representa fallo crítico/limpieza
         userId: 'SYSTEM',
         ip: 'LOCAL',
-        reason: `Archive orders job error: ${error.message}`,
+        reason: `Archive orders job error: ${errorMsg}`,
       });
 
-      return { success: false, archivedCount: 0, error: error.message };
+      return { success: false, archivedCount: 0, error: errorMsg };
     } finally {
       this.jobStatus.isRunning = false;
     }

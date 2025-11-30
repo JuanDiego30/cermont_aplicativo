@@ -4,7 +4,7 @@ import { orderRepository } from '../../db/repositories/OrderRepository.js';
 import { auditLogRepository } from '../../db/repositories/AuditLogRepository.js';
 import { createObjectCsvStringifier } from 'csv-writer';
 import archiver from 'archiver';
-import { logger } from '../../../shared/utils/logger.js';
+import { logger } from '../../../shared/utils/index.js';
 
 // Instancia del servicio (ya que no es estático)
 const archivingService = new ArchivingService();

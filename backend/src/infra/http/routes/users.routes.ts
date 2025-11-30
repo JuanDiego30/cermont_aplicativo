@@ -1,3 +1,9 @@
+/**
+ * Rutas de Usuarios
+ *
+ * @file backend/src/infra/http/routes/users.routes.ts
+ */
+
 import { Router } from 'express';
 import { authenticate } from '../../../shared/middlewares/authenticate.js';
 import { authorize } from '../../../shared/middlewares/authorize.js';
@@ -17,9 +23,39 @@ const router = Router();
 router.use(authenticate);
 
 /**
- * @route   GET /api/users
- * @desc    Listar usuarios
- * @access  Private (Admin)
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Listar usuarios con filtros y paginación
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: isActive
+ *         schema:
+ *           type: boolean
+ *     responses:
+ *       200:
+ *         description: Lista de usuarios
+ *       401:
+ *         description: No autenticado
+ *       403:
+ *         description: Sin permisos
  */
 router.get(
   '/',
@@ -29,9 +65,25 @@ router.get(
 );
 
 /**
- * @route   GET /api/users/:id
- * @desc    Obtener usuario por ID
- * @access  Private (Admin)
+ * @swagger
+ * /api/users/{id}:
+ *   get:
+ *     summary: Obtener usuario por ID
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Detalle del usuario
+ *       404:
+ *         description: Usuario no encontrado
  */
 router.get(
   '/:id',
@@ -40,9 +92,45 @@ router.get(
 );
 
 /**
- * @route   POST /api/users
- * @desc    Crear usuario
- * @access  Private (Admin)
+ * @swagger
+ * /api/users:
+ *   post:
+ *     summary: Crear nuevo usuario
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *               - name
+ *               - role
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *                 minLength: 8
+ *               name:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *                 enum: [admin, coordinator, technician, client]
+ *               phone:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Usuario creado
+ *       400:
+ *         description: Datos inválidos
+ *       409:
+ *         description: Email ya existe
  */
 router.post(
   '/',
@@ -52,9 +140,38 @@ router.post(
 );
 
 /**
- * @route   PUT /api/users/:id
- * @desc    Actualizar usuario
- * @access  Private (Admin)
+ * @swagger
+ * /api/users/{id}:
+ *   put:
+ *     summary: Actualizar usuario
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Usuario actualizado
+ *       404:
+ *         description: Usuario no encontrado
  */
 router.put(
   '/:id',
@@ -64,9 +181,39 @@ router.put(
 );
 
 /**
- * @route   POST /api/users/:id/change-password
- * @desc    Cambiar contraseña
- * @access  Private (Admin)
+ * @swagger
+ * /api/users/{id}/change-password:
+ *   post:
+ *     summary: Cambiar contraseña de usuario
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *                 minLength: 8
+ *     responses:
+ *       200:
+ *         description: Contraseña cambiada
+ *       400:
+ *         description: Contraseña actual incorrecta
  */
 router.post(
   '/:id/change-password',
@@ -76,9 +223,25 @@ router.post(
 );
 
 /**
- * @route   POST /api/users/:id/activate
- * @desc    Activar usuario
- * @access  Private (Admin)
+ * @swagger
+ * /api/users/{id}/activate:
+ *   post:
+ *     summary: Activar usuario
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Usuario activado
+ *       404:
+ *         description: Usuario no encontrado
  */
 router.post(
   '/:id/activate',
@@ -87,9 +250,25 @@ router.post(
 );
 
 /**
- * @route   POST /api/users/:id/deactivate
- * @desc    Desactivar usuario
- * @access  Private (Admin)
+ * @swagger
+ * /api/users/{id}/deactivate:
+ *   post:
+ *     summary: Desactivar usuario
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Usuario desactivado
+ *       404:
+ *         description: Usuario no encontrado
  */
 router.post(
   '/:id/deactivate',
@@ -98,9 +277,25 @@ router.post(
 );
 
 /**
- * @route   POST /api/users/:id/lock
- * @desc    Bloquear cuenta
- * @access  Private (Admin)
+ * @swagger
+ * /api/users/{id}/lock:
+ *   post:
+ *     summary: Bloquear cuenta de usuario
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Cuenta bloqueada
+ *       404:
+ *         description: Usuario no encontrado
  */
 router.post(
   '/:id/lock',
@@ -109,9 +304,25 @@ router.post(
 );
 
 /**
- * @route   POST /api/users/:id/unlock
- * @desc    Desbloquear cuenta
- * @access  Private (Admin)
+ * @swagger
+ * /api/users/{id}/unlock:
+ *   post:
+ *     summary: Desbloquear cuenta de usuario
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Cuenta desbloqueada
+ *       404:
+ *         description: Usuario no encontrado
  */
 router.post(
   '/:id/unlock',
@@ -120,9 +331,27 @@ router.post(
 );
 
 /**
- * @route   DELETE /api/users/:id
- * @desc    Eliminar usuario
- * @access  Private (Solo Root/Admin)
+ * @swagger
+ * /api/users/{id}:
+ *   delete:
+ *     summary: Eliminar usuario
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Usuario eliminado
+ *       404:
+ *         description: Usuario no encontrado
+ *       403:
+ *         description: No se puede eliminar este usuario
  */
 router.delete(
   '/:id',

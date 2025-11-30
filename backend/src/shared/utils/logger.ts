@@ -1,59 +1,49 @@
-/**
- * ========================================
- * SIMPLE LOGGER
- * ========================================
- * Logger básico para la aplicación (reemplaza winston por simplicidad).
- */
+import winston from 'winston';
 
-interface LogMetadata {
-  [key: string]: any;
-}
+const levels = {
+  error: 0,
+  warn: 1,
+  info: 2,
+  http: 3,
+  debug: 4,
+};
 
-class Logger {
-  private formatMessage(level: string, message: string, metadata?: LogMetadata): string {
-    const timestamp = new Date().toISOString();
-    let msg = `${timestamp} [${level.toUpperCase()}]: ${message}`;
+const level = () => {
+  const env = process.env.NODE_ENV || 'development';
+  const isDevelopment = env === 'development';
+  return isDevelopment ? 'debug' : 'warn';
+};
 
-    if (metadata && Object.keys(metadata).length > 0) {
-      msg += ` ${JSON.stringify(metadata)}`;
-    }
+const colors = {
+  error: 'red',
+  warn: 'yellow',
+  info: 'green',
+  http: 'magenta',
+  debug: 'white',
+};
 
-    return msg;
-  }
+winston.addColors(colors);
 
-  private shouldLog(): boolean {
-    return process.env.NODE_ENV !== 'test';
-  }
+const format = winston.format.combine(
+  winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
+  winston.format.colorize({ all: true }),
+  winston.format.printf(
+    (info) => `${info.timestamp} ${info.level}: ${info.message}`,
+  ),
+);
 
-  info(message: string, metadata?: LogMetadata): void {
-    if (!this.shouldLog()) {
-      return;
-    }
+const transports = [
+  new winston.transports.Console(),
+  new winston.transports.File({
+    filename: 'logs/error.log',
+    level: 'error',
+  }),
+  new winston.transports.File({ filename: 'logs/all.log' }),
+];
 
-    console.log(this.formatMessage('info', message, metadata));
-  }
-
-  warn(message: string, metadata?: LogMetadata): void {
-    if (!this.shouldLog()) {
-      return;
-    }
-
-    console.warn(this.formatMessage('warn', message, metadata));
-  }
-
-  error(message: string, metadata?: LogMetadata): void {
-    if (!this.shouldLog()) {
-      return;
-    }
-
-    console.error(this.formatMessage('error', message, metadata));
-  }
-
-  debug(message: string, metadata?: LogMetadata): void {
-    if (process.env.NODE_ENV === 'development' && this.shouldLog()) {
-      console.debug(this.formatMessage('debug', message, metadata));
-    }
-  }
-}
-
-export const logger = new Logger();
+export const logger = winston.createLogger({
+  level: level(),
+  levels,
+  format,
+  transports,
+});

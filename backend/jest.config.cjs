@@ -1,18 +1,18 @@
-const { defaultsESM } = require('ts-jest/presets');
 const path = require('node:path');
 
 module.exports = {
-  ...defaultsESM,
-  extensionsToTreatAsEsm: ['.ts'],
+  preset: 'ts-jest',
   testEnvironment: 'node',
-  testTimeout: 30000, // 30 segundos de timeout por defecto
-  forceExit: true, // Forzar salida después de tests
-  detectOpenHandles: false, // Desactivar detección de handles abiertos
+  testTimeout: 30000,
+  forceExit: true,
+  detectOpenHandles: false,
+  roots: ['<rootDir>/src'],
   testMatch: [
-    '**/src/__tests__/**/*.test.ts',
+    '**/__tests__/**/*.test.ts',
     '**/?(*.)+(spec|test).ts'
   ],
   moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@backend/(.*)$': '<rootDir>/src/$1',
     '^@domain/(.*)$': '<rootDir>/src/domain/$1',
@@ -21,12 +21,15 @@ module.exports = {
     '^@shared/(.*)$': '<rootDir>/src/shared/$1'
   },
   transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', {
+    '^.+\\.ts$': ['ts-jest', {
       tsconfig: path.resolve(__dirname, 'tsconfig.json'),
-      useESM: true,
-      isolatedModules: true
+      useESM: false,
     }]
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!.*\\.mjs$)'
+  ],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   setupFilesAfterEnv: [
     '<rootDir>/src/__tests__/setup.ts'
   ],
@@ -35,5 +38,13 @@ module.exports = {
     '!src/**/*.d.ts',
     '!src/__tests__/**',
     '!src/server.ts'
-  ]
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 50,
+      functions: 50,
+      lines: 50,
+      statements: 50
+    }
+  }
 };

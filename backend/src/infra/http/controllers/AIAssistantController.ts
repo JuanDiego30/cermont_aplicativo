@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { logger } from '../../../shared/utils/logger.js';
+import { logger, getErrorMessage } from '../../../shared/utils/index.js';
 
 /**
  * AI Assistant Controller
@@ -87,12 +87,12 @@ Responde de forma clara, profesional y práctica. Si no sabes algo específico d
           usage: data.usage,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('AI Assistant error:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to get AI response',
-        detail: error.message,
+        detail: getErrorMessage(error),
       });
     }
   };

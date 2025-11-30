@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '../context/AuthContext';
-import { Permission, ROLE_PERMISSIONS } from '@/shared/constants/permissions';
+import { Permission, getRolePermissions } from '@/shared/constants/permissions';
 
 /**
  * usePermissions Hook
@@ -13,7 +13,7 @@ export function usePermissions() {
 
   const hasPermission = (permission: Permission): boolean => {
     if (!user) return false;
-    const rolePermissions = ROLE_PERMISSIONS[user.role] || [];
+    const rolePermissions = getRolePermissions(user.role);
     return rolePermissions.includes(permission);
   };
 

@@ -15,6 +15,7 @@ import { auditMiddleware } from './shared/middlewares/auditMiddleware.js';
 import { metricsMiddleware } from './shared/middlewares/metricsMiddleware.js';
 import { adaptiveRateLimit } from './shared/middlewares/adaptiveRateLimit.js';
 import { logger } from './shared/utils/logger.js';
+import { setupSwagger } from './infra/http/swagger.js';
 
 // ==========================================
 // Configuraciones Extraídas
@@ -73,7 +74,7 @@ function configureCors(app: Express) {
       // Permitir requests sin origin (mobile, curl)
       if (!origin) return callback(null, true);
 
-      const isAllowed = allowedOrigins.some(allowed => 
+      const isAllowed = allowedOrigins.some(allowed =>
         allowed instanceof RegExp ? allowed.test(origin) : origin === allowed
       );
 
@@ -93,7 +94,7 @@ function configureCors(app: Express) {
 }
 
 function configureMiddleware(app: Express) {
-  // Rate limiting
+  // Rate limiting general
   app.use(adaptiveRateLimit());
 
   // Body parsing
@@ -129,10 +130,13 @@ export function createApp(): Express {
   // 2. Middlewares Generales
   configureMiddleware(app);
 
-  // 3. Rutas
+  // 3. Swagger API Documentation (antes de rutas)
+  setupSwagger(app);
+
+  // 4. Rutas
   app.use('/api', routes);
 
-  // 4. Manejo de Errores (Siempre al final)
+  // 5. Manejo de Errores (Siempre al final)
   app.use(notFound);
   app.use(errorHandler);
 

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { Permission, ROLE_PERMISSIONS, hasAnyPermission, hasAllPermissions } from '../constants/permissions.js';
-import { logger } from '../utils/logger.js';
+import { logger, getErrorMessage } from '../utils/index.js';
 
 /**
  * ========================================
@@ -106,10 +106,9 @@ export function authorize(requiredPermissions: Permission[]) {
       });
 
       next();
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Authorization error', {
-        error: error.message,
-        stack: error.stack,
+        error: getErrorMessage(error),
         userId: req.user?.userId,
         path: req.path,
       });
@@ -198,9 +197,9 @@ export function authorizeAll(requiredPermissions: Permission[]) {
       }
 
       next();
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Authorization (ALL) error', {
-        error: error.message,
+        error: getErrorMessage(error),
         userId: req.user?.userId,
       });
 
@@ -263,9 +262,9 @@ export function authorizeOwner(getUserIdFromResource: (req: Request) => string) 
       }
 
       next();
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Authorization (Owner) error', {
-        error: error.message,
+        error: getErrorMessage(error),
         userId: req.user?.userId,
       });
 

@@ -5,6 +5,13 @@
 
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
 
+// Logger condicional para desarrollo
+const isDev = process.env.NODE_ENV === 'development';
+const logger = {
+  log: (...args: unknown[]) => isDev && console.log('[SyncService]', ...args),
+  error: (...args: unknown[]) => console.error('[SyncService]', ...args),
+};
+
 interface OfflineDB extends DBSchema {
   pendingActions: {
     key: string;
@@ -95,20 +102,20 @@ class SyncService {
 
   async syncPendingActions() {
     if (!navigator.onLine) {
-      console.log('Sin conexion, sincronizacion pospuesta');
+      logger.log('Sin conexion, sincronizacion pospuesta');
       return;
     }
 
     const actions = await this.getPendingActions();
-    console.log(`Sincronizando ${actions.length} acciones pendientes...`);
+    logger.log(`Sincronizando ${actions.length} acciones pendientes...`);
 
     for (const action of actions) {
       try {
         await this.executeAction(action);
         await this.removePendingAction(action.id);
-        console.log(`[OK] Accion ${action.id} sincronizada`);
+        logger.log(`[OK] Accion ${action.id} sincronizada`);
       } catch (error) {
-        console.error(`[ERROR] Error sincronizando accion ${action.id}:`, error);
+        logger.error(`[ERROR] Error sincronizando accion ${action.id}:`, error);
         await this.incrementRetries(action.id);
       }
     }
@@ -266,7 +273,7 @@ class SyncService {
       }
     }
 
-    console.log('[OK] Limpieza de datos antiguos completada');
+    logger.log('[OK] Limpieza de datos antiguos completada');
   }
 }
 
@@ -277,7 +284,7 @@ if (typeof window !== 'undefined') {
   syncService.init();
 
   window.addEventListener('online', () => {
-    console.log('[ONLINE] Conexion restaurada, sincronizando...');
+    logger.log('[ONLINE] Conexion restaurada, sincronizando...');
     syncService.syncPendingActions();
   });
 

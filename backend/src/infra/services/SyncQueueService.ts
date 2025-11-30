@@ -3,6 +3,22 @@
  * Resuelve: Conectividad intermitente en campo Caño Limón
  * 
  * @file backend/src/infra/services/SyncQueueService.ts
+ * 
+ * ## Mejoras Pendientes (TECH DEBT)
+ * 
+ * 1. **Persistencia**: Actualmente usa Map en memoria. Para producción,
+ *    implementar SyncQueueRepository con Redis o PostgreSQL.
+ *    - Cargar items pendientes al iniciar
+ *    - Persistir items en cada enqueue
+ *    - Actualizar estado en cada processItem
+ * 
+ * 2. **Resiliencia**: Implementar dead letter queue para items 
+ *    que fallen permanentemente.
+ * 
+ * 3. **Escalabilidad**: Considerar bull/bullmq para procesamiento 
+ *    distribuido en múltiples workers.
+ * 
+ * @see docs/ARQUITECTURA.md para más detalles
  */
 
 import { logger } from '../../shared/utils/logger.js';
