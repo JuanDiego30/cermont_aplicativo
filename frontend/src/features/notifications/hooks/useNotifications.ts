@@ -29,19 +29,23 @@ export const notificationsKeys = {
 /**
  * Hook para obtener notificaciones del usuario
  * Incluye polling automático cada 30 segundos
- * Solo se activa cuando el usuario está autenticado
+ * 
+ * ⚠️ IMPORTANTE: Solo hace fetching cuando:
+ * - isReady === true (auth system initialized)
+ * - isAuthenticated === true (user logged in)
+ * 
+ * Esto previene errores 401 tanto en mount inicial como cuando no hay sesión
  */
 export function useNotifications() {
-  const { isAuthenticated, isLoading, isReady } = useAuth();
-  const isEnabled = !isLoading && isAuthenticated && isReady;
-
+  const { isReady, isAuthenticated } = useAuth();
+  
   return useQuery<NotificationsResponse>({
     queryKey: notificationsKeys.list(),
     queryFn: getNotifications,
     staleTime: 30 * 1000, // 30 segundos
-    refetchInterval: isEnabled ? 30 * 1000 : false, // Polling solo si autenticado
+    refetchInterval: 30 * 1000, // Polling cada 30 segundos
     refetchOnWindowFocus: true,
-    enabled: isEnabled, // Solo hacer fetch si está autenticado
+    enabled: isReady && isAuthenticated, // ✅ Solo fetch cuando auth esté listo Y autenticado
   });
 }
 
