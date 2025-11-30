@@ -110,7 +110,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearSession();
         setUser(null);
         setIsAuthenticated(false);
-        setIsReady(false);
+        // 👁️ Copilot fix: Don't set isReady to false on login error
+        // The auth system is still fully initialized and ready,
+        // just the credentials were incorrect
 
         const err = error as { response?: { data?: { detail?: string } }; message?: string };
         const errorMessage =
@@ -132,7 +134,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearSession();
       setUser(null);
       setIsAuthenticated(false);
-      setIsReady(false);
+      // 👁️ Copilot fix: Don't set isReady to false on logout
+      // The auth system remains initialized and ready,
+      // just the user is no longer authenticated
       router.push('/signin');
     }
   }, [router]);
