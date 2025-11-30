@@ -6,7 +6,8 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { archivesApi, type ArchiveFilters } from '../api';
+import { archivesApi } from '../api';
+import type { ArchiveFilters } from '../types';
 
 const ARCHIVES_KEY = 'archives';
 

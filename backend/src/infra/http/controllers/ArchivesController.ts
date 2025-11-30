@@ -10,27 +10,24 @@ import { logger } from '../../../shared/utils/index.js';
 const archivingService = new ArchivingService();
 
 export class ArchivesController {
-  
+
   static list = async (req: Request, res: Response) => {
     try {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
-      // TODO: Implementar listado de archivados en el repositorio
-      // Por ahora, retornamos vacío ya que la implementación de ArchivingService
-      // cambió a Soft Delete en la misma tabla de órdenes.
-      
-      const archivedOrders = await orderRepository.findAll({ archived: true }, { page, limit, skip: (page-1)*limit });
-      const total = await orderRepository.count({ archived: true });
+      const month = req.query.month as string; // Optional filter YYYY-MM
 
-      res.json({ 
-        success: true, 
+      const result = await archivingService.listArchivedOrders(page, limit, month);
+
+      res.json({
+        success: true,
         data: {
-          data: archivedOrders,
+          data: result.items,
           meta: {
-            total,
+            total: result.total,
             page,
             limit,
-            totalPages: Math.ceil(total / limit)
+            totalPages: Math.ceil(result.total / limit)
           }
         }
       });

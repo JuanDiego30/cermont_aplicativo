@@ -1,7 +1,6 @@
 import { SignJWT, jwtVerify, importJWK, type KeyLike } from 'jose';
 import fs from 'fs/promises';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { generateUniqueId } from '../../../shared/utils/generateUniqueId.js';
 import { logger } from '../../../shared/utils/index.js';
 // Asumiendo que la interfaz está definida en el dominio (ajusta la ruta si es necesario)
@@ -99,8 +98,6 @@ export class JwtService implements IJwtService {
    * Busca los archivos JWKS en ubicaciones estándar
    */
   private async findJWKSPath(filename: string): Promise<string> {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
     const cwd = process.cwd();
 
     // Lista de posibles ubicaciones (prioridad descendente)
@@ -108,8 +105,7 @@ export class JwtService implements IJwtService {
       process.env.JWKS_DIR ? path.join(process.env.JWKS_DIR, filename) : null,
       path.join(cwd, 'config', filename),
       path.join(cwd, '..', 'config', filename),
-      path.resolve(__dirname, '../../../config', filename),
-      path.resolve(__dirname, '../../../../config', filename), // Caso dist/
+      path.join(cwd, 'backend', 'config', filename),
     ].filter((p): p is string => p !== null);
 
     for (const candidate of candidates) {

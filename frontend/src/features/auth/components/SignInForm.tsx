@@ -41,7 +41,7 @@ export function SignInForm() {
   const onSubmit = async (values: LoginFormValues) => {
     setServerError(null);
     try {
-      await login(values);
+      await login(values.email, values.password);
       // La redirección se maneja en el AuthContext.login()
     } catch (err: unknown) {
       const error = err as { response?: { data?: { detail?: string; message?: string } }; message?: string };

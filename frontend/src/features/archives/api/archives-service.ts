@@ -4,22 +4,16 @@
  */
 
 import apiClient from '@/core/api/client';
-import type { Order } from '@/features/orders';
+import type { ArchivedOrder, ArchiveFilters } from '../types';
 
 export interface ArchiveListResponse {
-    data: Order[];
+    data: ArchivedOrder[];
     meta: {
         total: number;
         page: number;
         limit: number;
         totalPages: number;
     };
-}
-
-export interface ArchiveFilters {
-    page?: number;
-    limit?: number;
-    search?: string;
 }
 
 export const archivesApi = {
@@ -31,6 +25,7 @@ export const archivesApi = {
         if (filters?.page) params.append('page', String(filters.page));
         if (filters?.limit) params.append('limit', String(filters.limit));
         if (filters?.search) params.append('search', filters.search);
+        if (filters?.month) params.append('month', filters.month);
 
         const queryString = params.toString();
         const url = queryString ? `/archives?${queryString}` : '/archives';
