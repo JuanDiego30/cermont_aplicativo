@@ -5,6 +5,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/features/auth/context/AuthContext';
 import {
   getNotifications,
   markAsRead,
@@ -28,14 +29,20 @@ export const notificationsKeys = {
 /**
  * Hook para obtener notificaciones del usuario
  * Incluye polling automático cada 30 segundos
+ * 
+ * ⚠️ IMPORTANTE: Solo hace fetching cuando isReady === true
+ * Esto previene errores 401 en el mount inicial del dashboard
  */
 export function useNotifications() {
+  const { isReady } = useAuth();
+  
   return useQuery<NotificationsResponse>({
     queryKey: notificationsKeys.list(),
     queryFn: getNotifications,
     staleTime: 30 * 1000, // 30 segundos
     refetchInterval: 30 * 1000, // Polling cada 30 segundos
     refetchOnWindowFocus: true,
+    enabled: isReady, // ✅ Solo fetch cuando auth esté listo
   });
 }
 
