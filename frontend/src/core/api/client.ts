@@ -313,11 +313,18 @@ async function fetchWithAuth(
 ): Promise<Response> {
   const { getAccessToken } = await getSessionFunctions();
   const token = getAccessToken();
+  
+  console.log(`🌐 API Request: ${url}`, {
+    hasToken: !!token,
+    tokenPreview: token?.substring(0, 30) + '...'
+  });
+  
   const headers = await buildHeaders(token);
 
   let response = await executeWithRetry(url, options, headers, config);
 
   if (response.status === 401) {
+    console.log(`🔄 401 received for ${url}, attempting refresh...`);
     const retryResponse = await handleUnauthorized(url, options, headers, config);
     if (retryResponse) {
       response = retryResponse;

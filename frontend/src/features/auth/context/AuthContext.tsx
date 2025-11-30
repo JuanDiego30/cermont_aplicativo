@@ -73,7 +73,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           password,
         });
 
-        const { accessToken, refreshToken, user: loggedUser } = response;
+        console.log('🔐 Login response:', JSON.stringify(response, null, 2));
+
+        // El apiClient ya extrae json.data, response contiene directamente los datos
+        const accessToken = response.accessToken;
+        const refreshToken = response.refreshToken;
+        const loggedUser = response.user;
+
+        console.log('🔑 Tokens:', { 
+          hasAccessToken: !!accessToken, 
+          hasRefreshToken: !!refreshToken,
+          accessTokenPreview: accessToken?.substring(0, 50) + '...',
+          hasUser: !!loggedUser 
+        });
 
         if (!accessToken || !refreshToken || !loggedUser) {
           throw new Error('Respuesta incompleta del servidor');
@@ -86,6 +98,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           userRole: loggedUser.role
         });
 
+        console.log('✅ Session saved successfully');
+
         // Actualizar estado
         setUser(loggedUser);
         setIsAuthenticated(true);
@@ -93,6 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Navegar al dashboard
         router.replace('/dashboard');
       } catch (error: any) {
+        console.error('❌ Login error:', error);
         // Limpiar sesión en caso de error
         clearSession();
         setUser(null);

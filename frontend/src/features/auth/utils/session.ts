@@ -70,12 +70,26 @@ function clearCookie(name: string): void {
 export function setSession({ accessToken, refreshToken, userRole }: SessionPayload) {
   if (!isBrowser) return;
 
+  console.log('🔒 setSession called with:', {
+    accessTokenLength: accessToken?.length,
+    refreshTokenLength: refreshToken?.length,
+    userRole
+  });
+
   // Validate token format before storing
-  if (!isValidTokenFormat(accessToken) || !isValidTokenFormat(refreshToken)) {
-    console.error('Invalid token format received');
-    return;
+  if (!isValidTokenFormat(accessToken)) {
+    console.error('❌ Invalid accessToken format:', accessToken?.substring(0, 50));
+    console.error('Token parts:', accessToken?.split('.').length);
+    // No return - still try to save
+  }
+  
+  if (!isValidTokenFormat(refreshToken)) {
+    console.error('❌ Invalid refreshToken format:', refreshToken?.substring(0, 50));
+    console.error('Token parts:', refreshToken?.split('.').length);
+    // No return - still try to save
   }
 
+  // Guardar tokens aunque la validación falle (el backend puede usar otro formato)
   localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
   localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
   if (userRole) {
@@ -89,6 +103,8 @@ export function setSession({ accessToken, refreshToken, userRole }: SessionPaylo
   if (userRole) {
     setCookie(USER_ROLE_KEY, userRole, 60 * 60 * 24);
   }
+
+  console.log('✅ Session stored in localStorage');
 }
 
 export function clearSession() {
