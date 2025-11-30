@@ -30,11 +30,14 @@ export const notificationsKeys = {
  * Hook para obtener notificaciones del usuario
  * Incluye polling automático cada 30 segundos
  * 
- * ⚠️ IMPORTANTE: Solo hace fetching cuando isReady === true
- * Esto previene errores 401 en el mount inicial del dashboard
+ * ⚠️ IMPORTANTE: Solo hace fetching cuando:
+ * - isReady === true (auth system initialized)
+ * - isAuthenticated === true (user logged in)
+ * 
+ * Esto previene errores 401 tanto en mount inicial como cuando no hay sesión
  */
 export function useNotifications() {
-  const { isReady } = useAuth();
+  const { isReady, isAuthenticated } = useAuth();
   
   return useQuery<NotificationsResponse>({
     queryKey: notificationsKeys.list(),
@@ -42,7 +45,7 @@ export function useNotifications() {
     staleTime: 30 * 1000, // 30 segundos
     refetchInterval: 30 * 1000, // Polling cada 30 segundos
     refetchOnWindowFocus: true,
-    enabled: isReady, // ✅ Solo fetch cuando auth esté listo
+    enabled: isReady && isAuthenticated, // ✅ Solo fetch cuando auth esté listo Y autenticado
   });
 }
 
