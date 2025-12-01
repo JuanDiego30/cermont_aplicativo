@@ -6,12 +6,26 @@
 // ============================================================================
 // UI Components (primitives)
 // ============================================================================
-export * from './ui';
+export * from '../shared/components/ui';
 
 // ============================================================================
 // Form Components
 // ============================================================================
-export * from './form';
+export {
+	Input as FormInput,
+	Checkbox,
+	Radio,
+	RadioSm,
+	TextArea,
+	FileInput,
+	Select,
+	MultiSelect,
+	Label,
+	Switch,
+	DatePicker,
+	Form,
+	FormField,
+} from '../shared/components/form';
 
 // ============================================================================
 // Common Components

@@ -9,7 +9,7 @@
 'use client';
 
 import React from 'react';
-import Button from '@/components/ui/button/Button';
+import Button from '@/shared/components/ui/button/Button';
 import { cn } from '@/shared/utils/cn';
 
 // ==========================================

@@ -2,12 +2,12 @@
  * Servicio API para Reportes y Generación de PDFs
  * 
  * Endpoints:
- * - GET /api/reports/activity/:orderId - Informe de actividad
- * - POST /api/reports/acta-entrega/:orderId - Acta de entrega
- * - POST /api/reports/ses/:orderId - Formato SES
- * - GET /api/reports/costs/:workPlanId - Reporte de costos
- * - GET /api/reports/dashboard - Reporte del dashboard
- * - GET /api/reports/pending-actas - Actas pendientes
+ * - GET /reports/activity/:orderId - Informe de actividad
+ * - POST /reports/acta-entrega/:orderId - Acta de entrega
+ * - POST /reports/ses/:orderId - Formato SES
+ * - GET /reports/costs/:workPlanId - Reporte de costos
+ * - GET /reports/dashboard - Reporte del dashboard
+ * - GET /reports/pending-actas - Actas pendientes
  * 
  * @file frontend/src/features/reports/api/reports-service.ts
  */

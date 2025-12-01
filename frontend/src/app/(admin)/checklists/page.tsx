@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useChecklists } from "@/features/checklists";
-import Button from "@/components/ui/button/Button";
+import Button from "@/shared/components/ui/button/Button";
 
 export default function ChecklistsPage() {
   const router = useRouter();

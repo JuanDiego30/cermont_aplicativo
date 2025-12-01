@@ -17,16 +17,37 @@ out/
 .env
 .env.*
 backend/.env
-frontend/.env
-frontend/.env.*
+# Build outputs
+build
+dist
+out
+coverage
+*.log
+logs/
+.turbopack/
 
-# Secrets/keys
-backend/config/jwks-private.json
-backend/config/jwks-public.json
+# Frontend build artifacts
+frontend/.next/
+frontend/.turbopack/
+frontend/build/
+frontend/dist/
+frontend/out/
+
+# Cache directories
+.cache/
+node_modules/.cache/
+frontend/.cache/
+
+# Temporary bundles
+*.tar
+*.tar.gz
 
 # IDE/editor
 .vscode/
 .vs/
+
+# IDE/editor
+.idea/
 *.suo
 *.user
 *.userossc

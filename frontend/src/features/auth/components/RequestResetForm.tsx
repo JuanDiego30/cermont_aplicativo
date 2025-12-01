@@ -8,9 +8,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
-import Input from '@/components/form/input/InputField';
-import Label from '@/components/form/Label';
-import Button from '@/components/ui/button/Button';
+import Input from '@/shared/components/form/input/InputField';
+import Label from '@/shared/components/form/Label';
+import Button from '@/shared/components/ui/button/Button';
 import { useRequestReset } from '../hooks/usePasswordReset';
 
 // ============================================================================

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CERMONT - Sin conexión</title>
+  <title>Sin Conexión - Cermont</title>
   <style>
     * {
       margin: 0;
@@ -12,164 +12,125 @@
     }
     
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
+      padding: 20px;
     }
     
     .container {
-      text-align: center;
-      padding: 2rem;
+      background: white;
+      border-radius: 20px;
+      padding: 60px 40px;
       max-width: 500px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     }
     
     .icon {
-      width: 120px;
-      height: 120px;
-      margin-bottom: 2rem;
-      opacity: 0.9;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 30px;
+      background: #f3f4f6;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
     .icon svg {
-      width: 100%;
-      height: 100%;
+      width: 50px;
+      height: 50px;
+      color: #667eea;
     }
     
     h1 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-      font-weight: 600;
+      font-size: 28px;
+      color: #1f2937;
+      margin-bottom: 16px;
     }
     
     p {
-      font-size: 1.1rem;
-      color: rgba(255, 255, 255, 0.8);
-      margin-bottom: 2rem;
+      font-size: 16px;
+      color: #6b7280;
       line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    
+    .button {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 14px 32px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    
+    .button:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
     }
     
     .status {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1.5rem;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 50px;
-      font-size: 0.9rem;
-      margin-bottom: 2rem;
+      margin-top: 24px;
+      font-size: 14px;
+      color: #9ca3af;
     }
     
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      background: #ef4444;
-      border-radius: 50%;
-      animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-    
-    .btn {
-      display: inline-block;
-      padding: 0.875rem 2rem;
-      background: #3b82f6;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: 500;
-      transition: all 0.2s;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    
-    .btn:hover {
-      background: #2563eb;
-      transform: translateY(-1px);
-    }
-    
-    .features {
-      margin-top: 3rem;
-      padding-top: 2rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .features h2 {
-      font-size: 1rem;
-      font-weight: 500;
-      margin-bottom: 1rem;
-      opacity: 0.9;
-    }
-    
-    .features ul {
-      list-style: none;
-      text-align: left;
-      display: inline-block;
-    }
-    
-    .features li {
-      padding: 0.5rem 0;
-      color: rgba(255, 255, 255, 0.7);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    
-    .features li::before {
-      content: '✓';
-      color: #22c55e;
-      font-weight: bold;
+    .online {
+      color: #10b981;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.14 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" stroke-linecap="round" stroke-linejoin="round"/>
-        <line x1="4" y1="4" x2="20" y2="20" stroke="#ef4444" stroke-width="2"/>
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path>
       </svg>
     </div>
     
-    <h1>Sin conexión a Internet</h1>
-    
-    <div class="status">
-      <span class="status-dot"></span>
-      <span>Modo offline activo</span>
-    </div>
-    
+    <h1>Sin Conexión a Internet</h1>
     <p>
-      No te preocupes, tus datos están guardados localmente. 
-      Cuando recuperes la conexión, todo se sincronizará automáticamente.
+      No hay conexión a internet en este momento. Por favor, verifica tu conexión 
+      e intenta nuevamente.
     </p>
     
-    <button class="btn" onclick="window.location.reload()">
-      Reintentar conexión
-    </button>
+    <a href="/" class="button" onclick="window.location.reload(); return false;">
+      Reintentar
+    </a>
     
-    <div class="features">
-      <h2>Mientras estás offline puedes:</h2>
-      <ul>
-        <li>Ver órdenes de trabajo guardadas</li>
-        <li>Registrar nuevas actividades</li>
-        <li>Tomar y guardar evidencias fotográficas</li>
-        <li>Completar checklists</li>
-      </ul>
+    <div class="status" id="status">
+      Verificando conexión...
     </div>
   </div>
   
   <script>
     // Check for online status
-    window.addEventListener('online', () => {
-      window.location.reload();
-    });
+    function updateStatus() {
+      const status = document.getElementById('status');
+      if (navigator.onLine) {
+        status.innerHTML = '<span class="online">✓ Conectado</span>';
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
+      } else {
+        status.textContent = '✗ Sin conexión';
+      }
+    }
+    
+    window.addEventListener('online', updateStatus);
+    window.addEventListener('offline', updateStatus);
+    
+    setInterval(updateStatus, 3000);
+    updateStatus();
   </script>
 </body>
 </html>

@@ -6,6 +6,8 @@
 import apiClient from '@/core/api/client';
 import type { ArchivedOrder, ArchiveFilters } from '../types';
 
+export type { ArchiveFilters } from '../types';
+
 export interface ArchiveListResponse {
     data: ArchivedOrder[];
     meta: {

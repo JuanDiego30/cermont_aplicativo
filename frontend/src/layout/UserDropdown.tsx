@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import { Dropdown } from "@/components/ui/dropdown/Dropdown";
-import { DropdownItem } from "@/components/ui/dropdown/DropdownItem";
+import { Dropdown } from "@/shared/components/ui/dropdown/Dropdown";
+import { DropdownItem } from "@/shared/components/ui/dropdown/DropdownItem";
 import { useAuth } from "@/features/auth";
 
 export default function UserDropdown() {

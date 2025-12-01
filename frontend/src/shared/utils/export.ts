@@ -66,7 +66,7 @@ export async function exportToExcel(
   sheetName: string = 'Datos'
 ): Promise<void> {
   try {
-    // @ts-expect-error - xlsx es opcional
+    // @ts-ignore - xlsx es dependencia opcional
     const XLSX = await import('xlsx').catch(() => null);
     
     if (!XLSX) {
@@ -158,7 +158,7 @@ export async function exportToZIP(
   zipFilename: string
 ): Promise<void> {
   try {
-    // @ts-expect-error - jszip es opcional
+    // @ts-ignore - jszip es dependencia opcional
     const JSZipModule = await import('jszip').catch(() => null);
 
     if (!JSZipModule) {

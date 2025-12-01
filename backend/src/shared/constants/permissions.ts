@@ -111,6 +111,16 @@ const CLIENT_PERMISSIONS = {
 } as const;
 
 // ============================================================================
+// Equipment & Certifications (NEW - Control de certificaciones)
+// ============================================================================
+const EQUIPMENT_PERMISSIONS = {
+  EQUIPMENT_READ: 'equipment:read',
+  EQUIPMENT_WRITE: 'equipment:write',
+  EQUIPMENT_DELETE: 'equipment:delete',
+  VERIFY_CERTIFICATIONS: 'equipment:verify-certifications',
+} as const;
+
+// ============================================================================
 // Consolidated Permissions
 // ============================================================================
 
@@ -128,6 +138,7 @@ export const PERMISSIONS = {
   ...ARCHIVE_PERMISSIONS,
   ...BILLING_PERMISSIONS,
   ...CLIENT_PERMISSIONS,
+  ...EQUIPMENT_PERMISSIONS,
 } as const;
 
 export type Permission = typeof PERMISSIONS[keyof typeof PERMISSIONS];

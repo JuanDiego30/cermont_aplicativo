@@ -205,7 +205,7 @@ export function CameraCapture({
           />
 
           {/* Controls overlay */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+          <div className="absolute bottom-0 left-0 right-0 p-4 bg-linear-to-t from-black/70 to-transparent">
             <div className="flex items-center justify-center gap-6">
               {/* Gallery button */}
               <button

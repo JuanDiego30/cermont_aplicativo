@@ -58,6 +58,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }>('/auth/login', {
           email,
           password,
+        }, {
+          requiresAuth: false,
         });
 
         console.log('Login response:', {
