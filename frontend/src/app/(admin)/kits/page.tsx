@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useKits } from "@/features/kits";
 import { SkeletonTable } from "@/components/common";
-import Button from "@/components/ui/button/Button";
+import Button from "@/shared/components/ui/button/Button";
 
 export default function KitsPage() {
   const router = useRouter();

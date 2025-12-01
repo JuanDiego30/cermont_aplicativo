@@ -17,6 +17,16 @@ Se refactorizaron **29 archivos** en frontend y backend, aplicando principios de
 
 ---
 
+## 2025 · Plan Maestro de Limpieza (Frontend)
+
+- ? **scripts/analyze-unused.js**: inventario automático de componentes y reporte `CLEANUP_REPORT.md`.
+- ? **scripts/cleanup-and-reorganize.sh**: rutina guiada con fases de limpieza, análisis y validación.
+- ? **MIGRATION_MAP.md**: tablero vivo para mover `src/components/**` hacia `src/shared/components/**` sin perder trazabilidad.
+- ? **.gitignore** actualizado con `.turbopack/`, caches e IDEs para evitar commits de artefactos.
+- ?? Pendiente: ejecutar plan por fases (backup ? limpieza ? consolidación ? validación) y actualizar reportes tras cada iteración.
+
+---
+
 ## ?? Archivos Refactorizados
 
 ### FRONTEND (15 archivos)

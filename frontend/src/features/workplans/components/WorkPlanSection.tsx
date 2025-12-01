@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { workplansApi } from '../api/workplans-service';
-import Button from '@/components/ui/button/Button';
+import Button from '@/shared/components/ui/button/Button';
 import { LoadingState } from '@/components/patterns/LoadingState';
 import { ErrorState } from '@/components/patterns/ErrorState';
 import {

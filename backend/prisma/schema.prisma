@@ -48,6 +48,8 @@ model User {
   createdTemplates  FormTemplate[]   @relation("TemplateCreator")
   formSubmissions   FormSubmission[] @relation("FormSubmitter")
   reviewedForms     FormSubmission[] @relation("FormReviewer")
+  createdEquipment  CertifiedEquipment[] @relation("EquipmentCreator")
+  assignedEquipment CertifiedEquipment[] @relation("AssignedEquipment")
 
   @@index([email])
   @@index([role])
@@ -401,6 +403,50 @@ model FormTemplate {
   @@index([activityType])
   @@index([isActive])
   @@map("form_templates")
+}
+
+// ========================================
+// CERTIFIED EQUIPMENT (NUEVA FUNCIONALIDAD)
+// Control de equipos y herramientas con certificaciones
+// Resuelve: Falla #1 - Control de certificaciones
+// ========================================
+model CertifiedEquipment {
+  id              String   @id @default(uuid())
+  name            String
+  description     String?  @db.Text
+  category        String   // TOOL, EQUIPMENT, PPE, VEHICLE, INSTRUMENT
+  manufacturer    String?
+  model           String?
+  serialNumber    String?  @unique
+  
+  // Certificación principal (JSON para flexibilidad)
+  certification   Json     // { type, number, issueDate, expiryDate, issuedBy, documentUrl, verifiedBy, notes }
+  
+  // Certificaciones adicionales
+  additionalCertifications Json?  // Array de certificaciones
+  
+  // Mantenimiento (JSON)
+  maintenanceSchedule Json?  // { lastMaintenance, nextMaintenance, frequencyInDays, maintenanceType, lastMaintenanceBy }
+  
+  // Estado
+  status          String   @default("AVAILABLE") // AVAILABLE, IN_USE, MAINTENANCE, EXPIRED, RETIRED
+  location        String?  // Ubicación física
+  assignedTo      String?  // Usuario asignado
+  
+  // Auditoría
+  createdBy       String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  lastUsedAt      DateTime?
+
+  createdByUser   User?    @relation("EquipmentCreator", fields: [createdBy], references: [id])
+  assignedUser    User?    @relation("AssignedEquipment", fields: [assignedTo], references: [id])
+
+  @@index([category])
+  @@index([status])
+  @@index([serialNumber])
+  @@index([assignedTo])
+  @@map("certified_equipment")
 }
 
 // Envíos/respuestas de formularios

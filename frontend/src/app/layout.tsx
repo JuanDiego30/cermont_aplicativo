@@ -5,6 +5,7 @@ import './globals-compat.css'; // 🔧 Cross-browser compatibility fixes
 
 import { AppProviders } from '@/core/providers';
 import { ErrorBoundary, SkipToContent } from '@/components/common';
+import { ServiceWorkerRegistration } from '@/components/ServiceWorkerRegistration';
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -30,6 +31,7 @@ export default function RootLayout({
     <html lang="es" suppressHydrationWarning>
       <body className={`${outfit.className} dark:bg-gray-900`}>
         <SkipToContent />
+        <ServiceWorkerRegistration />
         <ErrorBoundary>
           <AppProviders>
             {children}

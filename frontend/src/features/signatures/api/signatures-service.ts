@@ -1,7 +1,7 @@
 import apiClient from '@/core/api/client';
 import type { SignatureData, SignatureRequest, SignedDocument } from '../types';
 
-const API_BASE = '/api/signatures';
+const API_BASE = '/signatures';
 
 export const signaturesApi = {
   /**

@@ -11,15 +11,15 @@ import dynamic from "next/dynamic";
 
 // Lazy load floating widgets
 const FloatingAssistant = dynamic(
-  () => import("@/components/ui/FloatingAssistant"),
+  () => import("@/shared/components/ui/FloatingAssistant"),
   { ssr: false }
 );
 const FloatingWeather = dynamic(
-  () => import("@/components/ui/FloatingWeather"),
+  () => import("@/shared/components/ui/FloatingWeather"),
   { ssr: false }
 );
 const OfflineIndicator = dynamic(
-  () => import("@/components/ui/OfflineIndicator"),
+  () => import("@/shared/components/ui/OfflineIndicator"),
   { ssr: false }
 );
 const BottomNavigation = dynamic(

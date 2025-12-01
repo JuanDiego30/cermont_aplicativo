@@ -1,301 +1,142 @@
-/**
- * CERMONT Service Worker
- * Offline-first caching strategy for field operations
- */
+// Service Worker for Cermont Application
+// Provides offline support and asset caching
 
-const CACHE_VERSION = 'v1';
-const STATIC_CACHE = `cermont-static-${CACHE_VERSION}`;
-const DYNAMIC_CACHE = `cermont-dynamic-${CACHE_VERSION}`;
-const API_CACHE = `cermont-api-${CACHE_VERSION}`;
+const CACHE_NAME = 'cermont-v1';
+const STATIC_CACHE = 'cermont-static-v1';
+const API_CACHE = 'cermont-api-v1';
 
-// Static assets to precache
+// Assets to cache on install
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
   '/offline.html',
 ];
 
-// API endpoints to cache for offline access
-const CACHEABLE_API_ROUTES = [
-  '/api/orders',
-  '/api/workplans',
-  '/api/kits',
-  '/api/users',
-  '/api/dashboard',
-];
-
-// Install Service Worker
+// Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing Service Worker v' + CACHE_VERSION);
-  
+  console.log('[Service Worker] Installing...');
   event.waitUntil(
-    caches.open(STATIC_CACHE)
-      .then((cache) => {
-        console.log('[SW] Precaching static assets');
-        return cache.addAll(STATIC_ASSETS).catch((err) => {
-          console.warn('[SW] Some assets failed to cache:', err);
-        });
-      })
+    caches.open(STATIC_CACHE).then((cache) => {
+      console.log('[Service Worker] Caching static assets');
+      return cache.addAll(STATIC_ASSETS);
+    })
   );
-  
-  // Activate immediately
   self.skipWaiting();
 });
 
-// Activate Service Worker
+// Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating Service Worker v' + CACHE_VERSION);
-  
+  console.log('[Service Worker] Activating...');
   event.waitUntil(
-    caches.keys().then((keys) => {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        keys
-          .filter((key) => {
-            return key.startsWith('cermont-') && 
-                   key !== STATIC_CACHE && 
-                   key !== DYNAMIC_CACHE && 
-                   key !== API_CACHE;
-          })
-          .map((key) => {
-            console.log('[SW] Removing old cache:', key);
-            return caches.delete(key);
+        cacheNames
+          .filter((name) => name !== CACHE_NAME && name !== STATIC_CACHE && name !== API_CACHE)
+          .map((name) => {
+            console.log('[Service Worker] Deleting old cache:', name);
+            return caches.delete(name);
           })
       );
     })
   );
-  
-  // Take control immediately
-  return self.clients.claim();
+  self.clients.claim();
 });
 
-// Fetch event handler
+// Fetch event - serve from cache, fallback to network
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET requests for caching
-  if (request.method !== 'GET') {
-    // For POST/PUT/DELETE, try network and queue if offline
-    if (request.method === 'POST' || request.method === 'PUT' || request.method === 'DELETE') {
-      event.respondWith(handleMutationRequest(request));
-    }
-    return;
-  }
-
-  // API requests: Network-first, fallback to cache
+  // API requests - Network first, cache fallback
   if (url.pathname.startsWith('/api/')) {
-    event.respondWith(handleApiRequest(request));
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Clone and cache successful responses
+          if (response.ok) {
+            const responseClone = response.clone();
+            caches.open(API_CACHE).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Fallback to cache if network fails
+          return caches.match(request).then((cached) => {
+            if (cached) {
+              return cached;
+            }
+            // Return offline page for navigation requests
+            if (request.mode === 'navigate') {
+              return caches.match('/offline.html');
+            }
+            return new Response('Offline', { status: 503 });
+          });
+        })
+    );
     return;
   }
 
-  // Static assets and pages: Cache-first, fallback to network
-  event.respondWith(handleStaticRequest(request));
-});
-
-/**
- * Handle API requests with network-first strategy
- */
-async function handleApiRequest(request) {
-  const url = new URL(request.url);
-  const isCacheable = CACHEABLE_API_ROUTES.some(route => url.pathname.startsWith(route));
-
-  try {
-    const response = await fetch(request);
-    
-    // Cache successful GET responses for cacheable routes
-    if (response.status === 200 && isCacheable) {
-      const clonedResponse = response.clone();
-      caches.open(API_CACHE).then((cache) => {
-        cache.put(request, clonedResponse);
-      });
-    }
-    
-    return response;
-  } catch (error) {
-    console.log('[SW] Network failed for API, trying cache:', request.url);
-    
-    const cachedResponse = await caches.match(request);
-    if (cachedResponse) {
-      // Add header to indicate cached response
-      const headers = new Headers(cachedResponse.headers);
-      headers.set('X-Cache-Status', 'HIT');
-      return new Response(cachedResponse.body, {
-        status: cachedResponse.status,
-        statusText: cachedResponse.statusText,
-        headers,
-      });
-    }
-    
-    // Return offline response for API
-    return new Response(
-      JSON.stringify({ 
-        error: 'Offline',
-        message: 'No hay conexión a internet. Los datos se sincronizarán cuando vuelva la conexión.',
-        offline: true 
-      }),
-      { 
-        status: 503,
-        headers: { 'Content-Type': 'application/json' }
+  // Static assets - Cache first, network fallback
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      if (cached) {
+        return cached;
       }
-    );
-  }
-}
 
-/**
- * Handle static assets with cache-first strategy
- */
-async function handleStaticRequest(request) {
-  const cachedResponse = await caches.match(request);
-  
-  if (cachedResponse) {
-    // Return cached version and update in background
-    fetchAndCache(request);
-    return cachedResponse;
-  }
-
-  try {
-    const response = await fetch(request);
-    
-    // Cache successful responses
-    if (response.status === 200) {
-      const clonedResponse = response.clone();
-      caches.open(DYNAMIC_CACHE).then((cache) => {
-        cache.put(request, clonedResponse);
+      return fetch(request).then((response) => {
+        // Cache successful responses
+        if (response.ok && request.method === 'GET') {
+          const responseClone = response.clone();
+          caches.open(STATIC_CACHE).then((cache) => {
+            cache.put(request, responseClone);
+          });
+        }
+        return response;
       });
-    }
-    
-    return response;
-  } catch (error) {
-    console.log('[SW] Network failed for static, returning offline page');
-    
-    // Return offline page for navigation requests
-    if (request.mode === 'navigate') {
-      const offlinePage = await caches.match('/offline.html');
-      if (offlinePage) {
-        return offlinePage;
-      }
-    }
-    
-    return new Response('Offline', { status: 503 });
-  }
-}
-
-/**
- * Handle mutation requests (POST, PUT, DELETE)
- */
-async function handleMutationRequest(request) {
-  try {
-    return await fetch(request);
-  } catch (error) {
-    console.log('[SW] Mutation failed, will be queued for sync');
-    
-    // Return response indicating offline queue
-    return new Response(
-      JSON.stringify({
-        queued: true,
-        message: 'Operación guardada. Se sincronizará cuando haya conexión.',
-        offline: true
-      }),
-      {
-        status: 202,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-  }
-}
-
-/**
- * Fetch and update cache in background
- */
-async function fetchAndCache(request) {
-  try {
-    const response = await fetch(request);
-    if (response.status === 200) {
-      const cache = await caches.open(DYNAMIC_CACHE);
-      cache.put(request, response);
-    }
-  } catch (error) {
-    // Silently fail - we already have cached version
-  }
-}
-
-// Background Sync
-self.addEventListener('sync', (event) => {
-  console.log('[SW] Background sync event:', event.tag);
-  
-  if (event.tag === 'sync-pending-actions') {
-    event.waitUntil(syncPendingActions());
-  }
-});
-
-async function syncPendingActions() {
-  console.log('[SW] Syncing pending actions...');
-  
-  // Notify all clients to sync
-  const clients = await self.clients.matchAll();
-  clients.forEach((client) => {
-    client.postMessage({
-      type: 'SYNC_REQUIRED',
-      timestamp: Date.now()
-    });
-  });
-}
-
-// Push notifications
-self.addEventListener('push', (event) => {
-  console.log('[SW] Push notification received');
-  
-  const options = {
-    body: event.data?.text() || 'Nueva notificación de CERMONT',
-    icon: '/images/logo/cermont-logo.png',
-    badge: '/images/logo/cermont-logo.png',
-    vibrate: [100, 50, 100],
-    data: {
-      dateOfArrival: Date.now(),
-      primaryKey: 1
-    },
-    actions: [
-      { action: 'open', title: 'Abrir' },
-      { action: 'close', title: 'Cerrar' }
-    ]
-  };
-
-  event.waitUntil(
-    self.registration.showNotification('CERMONT', options)
+    })
   );
 });
 
-// Notification click handler
+// Background sync for offline actions
+self.addEventListener('sync', (event) => {
+  console.log('[Service Worker] Background sync:', event.tag);
+
+  if (event.tag === 'sync-orders') {
+    event.waitUntil(syncOrders());
+  }
+});
+
+async function syncOrders() {
+  // Implement order sync logic here
+  console.log('[Service Worker] Syncing orders...');
+}
+
+// Push notifications (optional future enhancement)
+self.addEventListener('push', (event) => {
+  console.log('[Service Worker] Push received:', event);
+
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || 'Cermont Notification';
+  const options = {
+    body: data.body || 'Nueva actualización disponible',
+    icon: '/icon-192.png',
+    badge: '/badge-72.png',
+    data: data.url,
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  );
+});
+
 self.addEventListener('notificationclick', (event) => {
-  console.log('[SW] Notification clicked');
   event.notification.close();
 
-  if (event.action === 'open') {
+  if (event.notification.data) {
     event.waitUntil(
-      self.clients.openWindow('/')
+      clients.openWindow(event.notification.data)
     );
   }
 });
-
-// Message handler for client communication
-self.addEventListener('message', (event) => {
-  console.log('[SW] Message received:', event.data);
-
-  if (event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-
-  if (event.data.type === 'CACHE_URLS') {
-    caches.open(DYNAMIC_CACHE).then((cache) => {
-      cache.addAll(event.data.urls);
-    });
-  }
-
-  if (event.data.type === 'CLEAR_CACHE') {
-    caches.keys().then((keys) => {
-      keys.forEach((key) => caches.delete(key));
-    });
-  }
-});
-
-console.log('[SW] Service Worker loaded successfully');

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useOrders, type Order } from "@/features/orders";
 import { SkeletonTable } from "@/components/common";
-import Button from "@/components/ui/button/Button";
+import Button from "@/shared/components/ui/button/Button";
 
 // State badge component
 function StateBadge({ state }: { state: string }) {

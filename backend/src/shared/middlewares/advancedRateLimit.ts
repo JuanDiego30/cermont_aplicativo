@@ -1,20 +1,27 @@
 import rateLimit from 'express-rate-limit';
-import RedisStore from 'rate-limit-redis';
+import RedisStore, { type RedisReply, type SendCommandFn } from 'rate-limit-redis';
 import { Redis } from 'ioredis';
 import { logger } from '../utils/logger.js';
 
 // Configuración de Redis (Opcional)
 const redisUrl = process.env.REDIS_URL;
 let redisClient: Redis | undefined;
+let redisSendCommand: SendCommandFn | undefined;
 
 if (redisUrl) {
     try {
         redisClient = new Redis(redisUrl, {
             enableOfflineQueue: false,
-            retryStrategy: (times) => Math.min(times * 50, 2000),
+            retryStrategy: (times: number) => Math.min(times * 50, 2000),
         });
 
-        redisClient.on('error', (err) => {
+        redisSendCommand = async (...args: Parameters<SendCommandFn>) => {
+            return redisClient!.call(
+                ...(args as unknown as [string, ...Array<string | number | Buffer>])
+            ) as Promise<RedisReply>;
+        };
+
+        redisClient.on('error', (err: Error) => {
             logger.warn('⚠️ Redis connection error for Rate Limiting, falling back to memory', { error: err.message });
         });
 
@@ -33,7 +40,7 @@ if (redisUrl) {
 export const authRateLimiter = rateLimit({
     store: redisClient
         ? new RedisStore({
-            sendCommand: (...args: string[]) => redisClient!.call(...args),
+            sendCommand: redisSendCommand!,
             prefix: 'rl:auth:',
         })
         : undefined, // Fallback to memory store
@@ -59,7 +66,7 @@ export const authRateLimiter = rateLimit({
 export const apiRateLimiter = rateLimit({
     store: redisClient
         ? new RedisStore({
-            sendCommand: (...args: string[]) => redisClient!.call(...args),
+            sendCommand: redisSendCommand!,
             prefix: 'rl:api:',
         })
         : undefined,

@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useCosting } from '../hooks/useCosting';
-import { Card } from '@/components/ui/Card';
-import Button from '@/components/ui/button/Button';
+import { Card } from '@/shared/components/ui/Card';
+import Button from '@/shared/components/ui/button/Button';
 
 interface CostingDashboardProps {
     workPlanId: string;

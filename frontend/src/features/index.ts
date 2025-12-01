@@ -17,12 +17,14 @@ export * from './kits';
 export * from './workplans';
 export * from './checklists';
 export * from './evidences';
+export * from './equipment';
 
 // ============================================================================
 // Administrative Features
 // ============================================================================
 export * from './dashboard';
 export * from './billing';
+export * from './costing';
 
 // ============================================================================
 // AI & Utilities Features

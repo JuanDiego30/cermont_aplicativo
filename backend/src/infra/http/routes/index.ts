@@ -14,6 +14,7 @@ import reportsRoutes from './reports.routes.js';
 import usersRoutes from './users.routes.js';
 import dashboardRoutes from './dashboard.routes.js';
 import kitsRoutes from './kits.routes.js';
+import equipmentRoutes from './equipment.routes.js';
 import checklistsRoutes from './checklists.routes.js';
 import archivesRoutes from './archives.routes.js';
 import billingRoutes from './billing.routes.js';
@@ -23,6 +24,7 @@ import formTemplatesRoutes from './form-templates.routes.js';
 import jobsRoutes from './jobs.routes.js';
 import notificationsRoutes from './notifications.routes.js';
 import costBreakdownRoutes from './cost-breakdown.routes.js';
+import documentsRoutes from './documents.routes.js';
 
 const router = Router();
 
@@ -70,6 +72,7 @@ router.use('/orders', ordersRoutes);
 router.use('/workplans', workplansRoutes);
 router.use('/evidences', evidencesRoutes);
 router.use('/kits', kitsRoutes);
+router.use('/equipment', equipmentRoutes); // NEW: Equipment & Certifications
 router.use('/checklists', checklistsRoutes);
 
 // ============================================================================
@@ -96,6 +99,8 @@ router.use('/jobs', jobsRoutes);
 router.use('/notifications', notificationsRoutes);
 router.use('/archives', archivesRoutes);
 router.use('/form-templates', formTemplatesRoutes);
+router.use('/documents', documentsRoutes);
+router.use('/equipment', equipmentRoutes);
 
 // ============================================================================
 // 404 Not Found Handler

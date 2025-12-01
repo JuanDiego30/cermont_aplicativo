@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUsers } from "@/features/users";
 import { SkeletonTable } from "@/components/common";
-import Button from "@/components/ui/button/Button";
+import Button from "@/shared/components/ui/button/Button";
 
 // Role badge component
 function RoleBadge({ role }: { role: string }) {

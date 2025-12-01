@@ -286,6 +286,28 @@ export class FileStorageService {
     return { relativePath, fullPath };
   }
 
+  /**
+   * Genera un nombre único y sanitizado con timestamp y sufijo aleatorio
+   */
+  private generateUniqueFilename(originalName: string): string {
+    const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).slice(2, 10);
+    const sanitized = sanitize(originalName);
+    const ext = path.extname(sanitized);
+    const name = path.basename(sanitized, ext) || 'file';
+
+    return `${name}-${timestamp}-${randomStr}${ext}`;
+  }
+
+  /**
+   * Calcula checksum SHA-256 del buffer almacenado
+   */
+  private calculateChecksum(buffer: Buffer): string {
+    const hash = crypto.createHash('sha256');
+    hash.update(buffer);
+    return hash.digest('hex');
+  }
+
   private async calculateDirSize(dirPath: string): Promise<number> {
     let totalSize = 0;
     try {

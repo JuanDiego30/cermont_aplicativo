@@ -4,17 +4,18 @@ import { useOrder } from "@/features/orders";
 import { useOrderReports, ActaEntregaButton, SESButton, ActivityReportButton } from "@/features/reports";
 import { SignatureSection } from "@/features/signatures";
 import { AribaIntegrationCard } from "@/features/ariba";
+import { WhatsAppButton } from "@/features/whatsapp";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 
 export default function OrderDetailPage() {
   const params = useParams();
   const orderId = params.id as string;
-  
+
   const { data: order, isLoading } = useOrder(orderId);
-  const { 
-    generateActivity, 
-    generateActa, 
+  const {
+    generateActivity,
+    generateActa,
     generateSES,
     isGeneratingActivity,
     isGeneratingActa,
@@ -223,6 +224,49 @@ export default function OrderDetailPage() {
               <button className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 Agregar Evidencia
               </button>
+
+              {/* WhatsApp Integration */}
+              {order.clientPhone && (
+                <>
+                  <div className="border-t border-gray-200 dark:border-gray-700 my-3 pt-3">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Contactar Cliente</p>
+                  </div>
+                  <WhatsAppButton
+                    phoneNumber={order.clientPhone}
+                    template="ORDER_UPDATE"
+                    data={{
+                      clientName: order.clientName,
+                      orderNumber: order.orderNumber,
+                      state: order.state
+                    }}
+                    label="Notificar Estado"
+                    variant="outline"
+                    className="w-full"
+                  />
+                  <WhatsAppButton
+                    phoneNumber={order.clientPhone}
+                    template="PROPOSAL_READY"
+                    data={{
+                      clientName: order.clientName,
+                      orderNumber: order.orderNumber
+                    }}
+                    label="Propuesta Lista"
+                    variant="outline"
+                    className="w-full"
+                  />
+                  <WhatsAppButton
+                    phoneNumber={order.clientPhone}
+                    template="INVOICE_SENT"
+                    data={{
+                      clientName: order.clientName,
+                      orderNumber: order.orderNumber
+                    }}
+                    label="Factura Enviada"
+                    variant="outline"
+                    className="w-full"
+                  />
+                </>
+              )}
             </div>
           </div>
 
@@ -232,17 +276,17 @@ export default function OrderDetailPage() {
               Documentos PDF
             </h3>
             <div className="space-y-3">
-              <ActivityReportButton 
+              <ActivityReportButton
                 onDownload={generateActivity}
                 isLoading={isGeneratingActivity}
                 className="w-full justify-center"
               />
-              <ActaEntregaButton 
+              <ActaEntregaButton
                 onDownload={generateActa}
                 isLoading={isGeneratingActa}
                 className="w-full justify-center"
               />
-              <SESButton 
+              <SESButton
                 onDownload={generateSES}
                 isLoading={isGeneratingSES}
                 className="w-full justify-center"

@@ -8,7 +8,7 @@ import type {
   AribaApiResponse 
 } from '../types';
 
-const API_BASE = '/api/ariba';
+const API_BASE = '/ariba';
 
 export const aribaApi = {
   // ============================================================================

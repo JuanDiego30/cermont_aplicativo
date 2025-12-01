@@ -1,12 +1,12 @@
 ﻿'use client';
 
 import { useState, useEffect } from 'react';
-import { Modal } from '@/components/ui/modal';
-import Input from '@/components/form/input/InputField';
-import Select from '@/components/form/Select';
-import { FormField } from '@/components/form/FormField';
-import Button from '@/components/ui/button/Button';
-import { Card } from '@/components/ui/Card';
+import { Modal } from '@/shared/components/ui/modal';
+import Input from '@/shared/components/form/input/InputField';
+import Select from '@/shared/components/form/Select';
+import { FormField } from '@/shared/components/form/FormField';
+import Button from '@/shared/components/ui/button/Button';
+import { Card } from '@/shared/components/ui/Card';
 import { useCreateKit, useUpdateKit } from '../hooks/useKits';
 import type { Kit, CreateKitDTO, ToolItem, EquipmentItem, DocumentItem } from '../types/kit.types';
 import { v4 as uuidv4 } from 'uuid';
