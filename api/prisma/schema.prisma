@@ -1,0 +1,198 @@
+// Prisma Schema para Cermont - Sistema de Gestión de Órdenes
+// Version: 1.0.0
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum UserRole {
+  admin
+  supervisor
+  tecnico
+  administrativo
+}
+
+enum OrderStatus {
+  planeacion
+  ejecucion
+  pausada
+  completada
+  cancelada
+}
+
+enum OrderPriority {
+  baja
+  media
+  alta
+  urgente
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+model User {
+  id           String         @id @default(uuid())
+  email        String         @unique
+  password     String
+  name         String
+  role         UserRole       @default(tecnico)
+  phone        String?
+  avatar       String?
+  active       Boolean        @default(true)
+  lastLogin    DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  // Relations
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]     @relation("UserAuditLogs")
+  ordenes       Order[]        @relation("OrderCreator")
+  asignaciones  Order[]        @relation("OrderAssignee")
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id         String    @id @default(uuid())
+  token      String    @unique
+  userId     String
+  family     String
+  expiresAt  DateTime
+  isRevoked  Boolean   @default(false)
+  ipAddress  String?
+  userAgent  String?
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  token     String    @unique
+  userId    String
+  email     String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([token])
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+model Order {
+  id               String        @id @default(uuid())
+  numero           String        @unique
+  descripcion      String
+  cliente          String
+  estado           OrderStatus   @default(planeacion)
+  prioridad        OrderPriority @default(media)
+  fechaFinEstimada DateTime?
+  fechaInicio      DateTime?
+  fechaFin         DateTime?
+  
+  // Relations
+  creadorId    String?
+  creador      User?   @relation("OrderCreator", fields: [creadorId], references: [id])
+  asignadoId   String?
+  asignado     User?   @relation("OrderAssignee", fields: [asignadoId], references: [id])
+  
+  items        OrderItem[]
+  evidencias   Evidence[]
+  costos       Cost[]
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([estado])
+  @@index([cliente])
+  @@index([numero])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String  @id @default(uuid())
+  descripcion String
+  cantidad    Int     @default(1)
+  completado  Boolean @default(false)
+  notas       String?
+
+  // Relations
+  orderId String
+  orden   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model Evidence {
+  id          String @id @default(uuid())
+  tipo        String // 'foto', 'documento', 'video'
+  url         String
+  descripcion String?
+  
+  // Relations
+  orderId String
+  orden   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+  @@map("evidences")
+}
+
+model Cost {
+  id          String  @id @default(uuid())
+  concepto    String
+  monto       Float
+  tipo        String  // 'material', 'mano_obra', 'transporte', 'otros'
+  descripcion String?
+
+  // Relations
+  orderId String
+  orden   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@map("costs")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  entityType String
+  entityId   String
+  action     String
+  changes    Json?
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  userId String
+  user   User   @relation("UserAuditLogs", fields: [userId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@map("audit_logs")
+}
