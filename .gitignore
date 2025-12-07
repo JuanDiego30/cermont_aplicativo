@@ -1,67 +1,40 @@
 # Dependencies
 node_modules
+.pnp
+.pnp.js
 
-# Build outputs
-build
-dist
-out
+# Testing
 coverage
-*.log
-logs/
+.nyc_output
 
-# Next.js
+# Production
+dist
+build
+out
 .next
-out/
-
-# Environment files
-.env
-.env.*
-backend/.env
-# Build outputs
-build
-dist
-out
-coverage
-*.log
-logs/
-.turbopack/
-
-# Frontend build artifacts
-frontend/.next/
-frontend/.turbopack/
-frontend/build/
-frontend/dist/
-frontend/out/
-
-# Cache directories
-.cache/
-node_modules/.cache/
-frontend/.cache/
-
-# Temporary bundles
-*.tar
-*.tar.gz
-
-# IDE/editor
-.vscode/
-.vs/
-
-# IDE/editor
-.idea/
-*.suo
-*.user
-*.userossc
-*.sln.docstates
-
-# OS
-.DS_Store
-Thumbs.db
 
 # Misc
+.DS_Store
+*.pem
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
-
-# TypeScript
+.idea
+.vscode
 *.tsbuildinfo
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Prisma
+generated

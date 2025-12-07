@@ -1,305 +1,407 @@
-# ?? CERMONT ATG - Sistema de Gesti�n de �rdenes de Trabajo
+# 🏢 Cermont - Sistema de Gestión de Órdenes
 
-> Sistema integral para empresas de mantenimiento industrial. Control total de proyectos, ejecuci�n en campo y reportes t�cnicos autom�ticos.
+## 📋 Descripción
 
-## ?? Descripci�n
+Cermont es una aplicación web moderna para la gestión integral de órdenes de servicio, planeación, ejecución y seguimiento de proyectos. Construida con tecnologías modernas y mejores prácticas de desarrollo.
 
-CERMONT ATG es una plataforma desarrollada en **Node.js + Next.js** que permite gestionar �rdenes de trabajo, coordinar equipos de campo, generar reportes y mantener auditor�a completa de operaciones.
+### Stack Tecnológico
 
-## ? Caracter�sticas
+**Frontend:**
+- Next.js 16.0.7 (App Router)
+- React 19
+- TypeScript
+- TailwindCSS 3.4
+- Zustand 5.0.2 (State Management)
+- @tanstack/react-query 5.62.0 (Server State)
+- Zod 3.24 (Validación)
 
-- ?? **Gesti�n de �rdenes** - Crear, asignar y seguir �rdenes de trabajo
-- ?? **Dashboard Ejecutivo** - KPIs y m�tricas en tiempo real
-- ?? **Trabajo Offline** - Funciona sin conexi�n a internet
-- ?? **Reportes Autom�ticos** - Generaci�n de PDF profesionales
-- ?? **Seguridad** - JWT, RBAC, auditor�a completa
-- ?? **Soporte 24/7** - Equipo t�cnico disponible
+**Backend:**
+- Node.js con Express 4.21
+- TypeScript
+- Prisma 6.19 (ORM)
+- PostgreSQL
+- JWT (Autenticación)
+- Zod (Validación)
 
-## ??? Stack Tecnol�gico
+---
 
-### Backend
-- **Runtime**: Node.js v20+
-- **Framework**: Express.js
-- **Database**: SQLite (Prisma ORM)
-- **Auth**: JWT + Bcrypt
-- **API**: REST + Tipos TypeScript
+## 🚀 Quick Start
 
-### Frontend
-- **Framework**: Next.js 15
-- **UI**: React 19 + TailwindCSS
-- **State**: TanStack Query + Context API
-- **Offline**: Service Workers + IndexedDB
-
-## ?? Quick Start
-
-### Requisitos
-- Node.js v20+
-- npm v10+
+### Requisitos Previos
+- Node.js >= 18.0.0
+- npm >= 9.0.0
+- PostgreSQL >= 12
 - Git
 
-### 1. Clonar Repositorio
+### 1️⃣ Clonar Repositorio
+
 ```bash
 git clone https://github.com/JuanDiego30/cermont_aplicativo.git
 cd cermont_aplicativo
 ```
 
-### 2. Instalaci�n (Monorepo)
+### 2️⃣ Instalar Dependencias
+
 ```bash
-# Instala backend + frontend + todas las dependencias
+# Backend
+cd api
 npm install
+cd ..
 
-# Setup de BD (opcional - se hace autom�ticamente con npm run dev)
-npm run db:seed
+# Frontend
+cd web
+npm install
+cd ..
 ```
 
-### 3. Desarrollo
+### 3️⃣ Configurar Variables de Entorno
+
+**Backend (api/.env):**
 ```bash
-# Corre backend (puerto 5000) + frontend (puerto 3000)
-npm run dev
-```
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/cermont_db"
 
-Luego accede a:
-- **App**: http://localhost:3000
-- **API**: http://localhost:5000/api
-- **Credenciales**: 
-  - Email: `admin@cermont.com`
-  - Password: `Admin123!`
+# JWT
+JWT_SECRET="tu_secret_key_aqui"
+JWT_REFRESH_SECRET="tu_refresh_secret_aqui"
 
-### 4. Build Producci�n
-```bash
-npm run build
-npm run start
-```
-
-## ?? Estructura del Proyecto
-
-```
-cermont-aplicativo/
-??? backend/              # API Express + Prisma
-?   ??? src/
-?   ?   ??? app.ts
-?   ?   ??? server.ts
-?   ?   ??? domain/       # L�gica de negocio
-?   ?   ??? infra/        # BD, HTTP, servicios
-?   ?   ??? shared/       # Utilidades comunes
-?   ??? prisma/           # Schema y migraciones
-?   ??? package.json
-?
-??? frontend/             # App Next.js
-?   ??? app/              # Rutas (App Router)
-?   ??? components/       # Componentes React
-?   ??? lib/              # Hooks, API client
-?   ??? package.json
-?
-??? scripts/              # Scripts de utilidad
-??? docs/                 # Documentaci�n adicional
-??? package.json          # Root monorepo (workspaces)
-```
-
-## ?? Documentaci�n
-
-### Para Comenzar
-- **[START_HERE.md](START_HERE.md)** - Punto de entrada (5 min)
-- **[GUIA_RAPIDA_INICIO.md](GUIA_RAPIDA_INICIO.md)** - Gu�a r�pida (5 min)
-- **[VERIFICACION_WORKSPACE.md](VERIFICACION_WORKSPACE.md)** - Verificar que todo funciona (10 min)
-
-### Para Entender
-- **[WORKSPACE_PROFESIONAL_SETUP.md](WORKSPACE_PROFESIONAL_SETUP.md)** - Setup del workspace
-- **[MONOREPO_PROFESIONAL_GUIA.md](MONOREPO_PROFESIONAL_GUIA.md)** - Por qu� se estructura as�
-- **[DOCUMENTACION_INDICE_COMPLETO.md](DOCUMENTACION_INDICE_COMPLETO.md)** - �ndice completo
-
-### Para Problemas
-- **[CLEAN_INSTALL.md](CLEAN_INSTALL.md)** - Limpiar y reinstalar
-- **[SOLUCION_CONNECTION_REFUSED.md](SOLUCION_CONNECTION_REFUSED.md)** - Errores de conexi�n
-- **[SOLUCION_FINAL_LOGIN.md](SOLUCION_FINAL_LOGIN.md)** - Problemas de login
-
-### Para Deploy
-- **[GUIA_DEPLOYMENT_VPS.md](GUIA_DEPLOYMENT_VPS.md)** - Deploy en VPS
-
----
-
-## ? Comandos Principales
-
-### Desarrollo
-```bash
-npm run dev              # Corre backend + frontend
-npm run dev:backend     # Solo backend en :5000
-npm run dev:frontend    # Solo frontend en :3000
-```
-
-### Build
-```bash
-npm run build           # Compila ambos
-npm run build:backend   # Solo backend
-npm run build:frontend  # Solo frontend
-```
-
-### Producci�n
-```bash
-npm run start           # Inicia backend + frontend
-npm run start:backend   # Solo backend
-npm run start:frontend  # Solo frontend
-```
-
-### Base de Datos
-```bash
-npm run db:seed        # Carga datos de prueba
-npm run db:reset       # Resetea la BD
-npm run db:studio      # Abre Prisma Studio
-```
-
-### Testing
-```bash
-npm run test           # Corre tests
-npm run test:watch     # Tests en watch mode
-npm run test:coverage  # Coverage
-```
-
-### Calidad
-```bash
-npm run lint           # Verificar linting
-npm run lint:fix       # Arreglar linting
-npm run type-check     # Verificar tipos
-npm run format         # Formatear c�digo
-```
-
-### Limpieza
-```bash
-npm run clean          # Limpia dist y node_modules
-./reset-workspace.ps1  # Script completo (PowerShell)
-```
-
-## ?? Variables de Entorno
-
-### Backend (`backend/.env`)
-```env
+# API
+API_PORT=3001
 NODE_ENV=development
-PORT=5000
-DATABASE_URL="file:./prisma/dev.db"
-CORS_ORIGIN=http://localhost:3000
-JWT_SECRET=tu_clave_secreta_aqui
+
+# CORS
+CORS_ORIGIN="http://localhost:3000"
 ```
 
-### Frontend (`frontend/.env.development`)
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
-NEXT_PUBLIC_APP_NAME=CERMONT ATG
+**Frontend (web/.env.local):**
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:3001/api
 ```
 
-## ?? Usuarios de Prueba
-
-| Email | Password | Rol |
-|-------|----------|-----|
-| `root@cermont.com` | `Root123!` | ROOT |
-| `admin@cermont.com` | `Admin123!` | ADMIN |
-| `coordinador@cermont.com` | `Coord123!` | COORDINADOR |
-| `operario@cermont.com` | `Oper123!` | OPERARIO |
-
-## ?? Testing
+### 4️⃣ Configurar Base de Datos
 
 ```bash
-# Tests de integraci�n
-npm run test
+cd api
 
-# Watch mode
-npm run test:watch
+# Crear base de datos
+npx prisma db push
 
-# Coverage completo
-npm run test:coverage
+# Opcional: Generar datos de prueba
+npx prisma db seed
 ```
 
-## ?? Monorepo con npm workspaces
+### 5️⃣ Ejecutar en Desarrollo
 
-Este proyecto usa **npm workspaces** para gestionar backend y frontend como un �nico monorepo profesional:
+#### Opción A: Terminales Separadas
 
-```
-npm install              # Instala todas las dependencias (una sola vez)
-node_modules/            # Contiene TODAS las librer�as (no duplicadas)
-??? backend ? ../node_modules  # symlink
-??? frontend ? ../node_modules # symlink
-```
-
-**Ventajas:**
-- ? Sin duplicaci�n de paquetes
-- ? Instalaci�n m�s r�pida
-- ? Scripts centralizados
-- ? Mismo stack en todo el proyecto
-- ? F�cil escalable a m�s workspaces
-
-[M�s informaci�n aqu�](MONOREPO_PROFESIONAL_GUIA.md)
-
-## ?? Docker
-
+**Terminal 1 - Backend:**
 ```bash
-# Desarrollo
-docker-compose up -d
-
-# Build con todos los optimizaciones
-docker build -t cermont-app .
-```
-
-## ? Troubleshooting
-
-### "npm run dev" falla
-```bash
-npm install
-npm run prisma:generate
-npm run jwks:generate
+cd api
 npm run dev
+# Backend iniciará en: http://localhost:3001
+# API disponible en: http://localhost:3001/api
 ```
 
-### Error de CORS
-Verificar que `backend/.env` tiene:
-```
-CORS_ORIGIN=http://localhost:3000
-```
-
-### Base de datos bloqueada
+**Terminal 2 - Frontend:**
 ```bash
-rm backend/prisma/dev.db*
-npm run db:seed
+cd web
 npm run dev
+# Frontend iniciará en: http://localhost:3000
 ```
 
-### node_modules corrupto
+#### Opción B: Ejecutar Ambas desde la Raíz
+
 ```bash
-./reset-workspace.ps1  # En Windows
-# O manualmente:
-rm -rf node_modules package-lock.json
-npm cache clean --force
-npm install
+# Desde la raíz del proyecto
+npm run dev
+
+# O individualmente:
+npm run dev:api    # Solo backend
+npm run dev:web    # Solo frontend
 ```
-
-**Ver m�s en [DOCUMENTACION_INDICE_COMPLETO.md](DOCUMENTACION_INDICE_COMPLETO.md)**
-
-## ?? Contribuir
-
-1. Fork el repositorio
-2. Crea rama: `git checkout -b feature/MiFeature`
-3. Commit: `git commit -am 'Add feature'`
-4. Push: `git push origin feature/MiFeature`
-5. Pull Request
-
-## ?? Soporte
-
-- Email: support@cermont.com
-- Docs: [Documentaci�n Completa](DOCUMENTACION_INDICE_COMPLETO.md)
-- Issues: https://github.com/JuanDiego30/cermont_aplicativo/issues
-
-## ?? Licencia
-
-Todos los derechos reservados � 2024 Cermont SAS
-
-## ?? Agradecimientos
-
-- Team Cermont
-- Comunidad Open Source
-- Clientes y Partners
 
 ---
 
-**Status**: ? Producci�n lista  
-**Versi�n**: 1.0.0  
-**�ltima actualizaci�n**: 2024-11-17
+## 📝 Scripts Disponibles
 
-**[Comienza aqu� ?](START_HERE.md)**
+### Backend (api/)
+
+```bash
+npm run dev            # Desarrollo con hot-reload
+npm run build          # Compilar a JavaScript
+npm run start          # Ejecutar en producción
+npm run type-check     # Verificar tipos TypeScript
+npm run lint           # Linting con ESLint
+npm run test           # Ejecutar tests
+npm run prisma:studio  # Abrir Prisma Studio (UI de BD)
+npm run prisma:migrate # Crear migrations
+```
+
+### Frontend (web/)
+
+```bash
+npm run dev            # Desarrollo con hot-reload
+npm run build          # Build optimizado
+npm run start          # Ejecutar build optimizado
+npm run type-check     # Verificar tipos TypeScript
+npm run lint           # Linting
+npm run format         # Formatear código
+```
+
+---
+
+## 🌐 Puertos y URLs
+
+| Servicio | Puerto | URL | Notas |
+|----------|--------|-----|-------|
+| **Frontend** | 3000 | http://localhost:3000 | Next.js dev server |
+| **Backend API** | 3001 | http://localhost:3001 | Express server |
+| **API REST** | 3001 | http://localhost:3001/api | Endpoints de datos |
+| **Prisma Studio** | 5555 | http://localhost:5555 | Interfaz gráfica de BD |
+| **PostgreSQL** | 5432 | localhost:5432 | Base de datos |
+
+---
+
+## 🏗️ Estructura del Proyecto
+
+```
+cermont_aplicativo/
+├── api/                          # Backend (Node.js + Express)
+│   ├── src/
+│   │   ├── modules/              # Features (auth, ordenes, usuarios)
+│   │   │   ├── auth/
+│   │   │   ├── ordenes/
+│   │   │   └── usuarios/
+│   │   ├── shared/               # Código compartido
+│   │   │   ├── middleware/
+│   │   │   ├── errors/
+│   │   │   ├── utils/
+│   │   │   └── types/
+│   │   ├── config/               # Configuración
+│   │   ├── app.ts                # Express app
+│   │   └── server.ts             # Entry point
+│   ├── prisma/
+│   │   └── schema.prisma         # Modelo de datos
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── .env
+│
+├── web/                          # Frontend (Next.js + React)
+│   ├── src/
+│   │   ├── app/                  # App Router
+│   │   │   ├── (auth)/           # Rutas de autenticación
+│   │   │   ├── dashboard/        # Rutas del dashboard
+│   │   │   └── layout.tsx
+│   │   ├── components/           # Componentes reutilizables
+│   │   │   ├── ui/               # Primitivos (button, input, etc)
+│   │   │   ├── layout/           # Layout components
+│   │   │   └── icons/            # Icon system
+│   │   ├── features/             # Features (auth, ordenes, dashboard)
+│   │   │   ├── auth/
+│   │   │   ├── ordenes/
+│   │   │   └── dashboard/
+│   │   ├── lib/                  # Utilidades
+│   │   │   ├── api-client.ts
+│   │   │   ├── query-client.ts
+│   │   │   └── utils.ts
+│   │   ├── hooks/                # Custom hooks compartidos
+│   │   ├── stores/               # Zustand stores (estado global)
+│   │   ├── types/                # Tipos TypeScript
+│   │   └── services/             # Servicios API
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── tailwind.config.js
+│   ├── next.config.js
+│   └── .env.local
+│
+├── infra/                        # Infraestructura
+│   └── docker-compose.yml        # Configuración Docker (opcional)
+│
+├── docs/                         # Documentación
+│   └── API.md                    # Documentación de API
+│
+└── README.md                     # Este archivo
+```
+
+---
+
+## 🔐 Autenticación
+
+### Flujo de Login
+
+1. Usuario ingresa credenciales (email + contraseña)
+2. Backend valida y genera JWT
+3. Frontend almacena token en localStorage
+4. Token se envía en header `Authorization: Bearer <token>` en cada request
+
+### Tipos de Usuarios
+
+- **Admin:** Acceso total al sistema
+- **Supervisor:** Gestión de órdenes y usuarios
+- **Técnico:** Ejecución de órdenes asignadas
+- **Administrativo:** Visualización de reportes
+
+---
+
+## 📊 Módulos Principales
+
+### 1. Módulo de Autenticación (`features/auth`)
+- Login / Registro
+- Recuperación de contraseña
+- Gestión de sesiones
+- Tokens JWT con refresh
+
+### 2. Módulo de Órdenes (`features/ordenes`)
+- CRUD de órdenes
+- Filtros y búsqueda
+- Cambio de estado
+- Asignación de técnicos
+- Items y costos
+
+### 3. Módulo de Usuarios (`features/usuarios`)
+- Gestión de usuarios
+- Roles y permisos
+- Perfil de usuario
+
+### 4. Dashboard
+- Métricas y estadísticas
+- Órdenes recientes
+- Gráficos de desempeño
+- Reportes
+
+---
+
+## 🧪 Testing
+
+```bash
+# Backend
+cd api
+npm run test              # Unit tests
+npm run test:watch       # Watch mode
+
+# Frontend
+cd web
+npm run test              # Jest tests
+npm run test:watch       # Watch mode
+```
+
+---
+
+## 📦 Build para Producción
+
+### Backend
+
+```bash
+cd api
+npm run build
+npm start
+```
+
+### Frontend
+
+```bash
+cd web
+npm run build
+npm start
+```
+
+---
+
+## 🐳 Docker (Opcional)
+
+```bash
+# Construir imágenes
+docker-compose build
+
+# Levantar servicios
+docker-compose up
+
+# Detener servicios
+docker-compose down
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### Puerto 3000 / 3001 ya está en uso
+
+```bash
+# Windows - Encontrar proceso en puerto
+netstat -ano | findstr :<PUERTO>
+taskkill /PID <PID> /F
+
+# macOS/Linux
+lsof -ti:<PUERTO> | xargs kill -9
+```
+
+### Base de datos no se conecta
+
+1. Verificar que PostgreSQL está corriendo
+2. Verificar DATABASE_URL en `.env`
+3. Recrear la BD: `npx prisma db push`
+
+### Errores de TypeScript
+
+```bash
+# Frontend
+cd web
+npm run type-check
+
+# Backend
+cd api
+npm run type-check
+```
+
+---
+
+## 📚 Documentación Adicional
+
+- [API Reference](./docs/API.md)
+- [Estructura de Tipos](./docs/TYPES.md)
+- [Guía de Contribución](./docs/CONTRIBUTING.md)
+- [Archivos de Configuración](./docs/CONFIG.md)
+
+---
+
+## 👥 Autores
+
+**Juan Diego López**
+- GitHub: [@JuanDiego30](https://github.com/JuanDiego30)
+
+---
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT.
+
+---
+
+## 🤝 Contribuir
+
+Las contribuciones son bienvenidas. Por favor:
+
+1. Fork el proyecto
+2. Crea una rama feature (`git checkout -b feature/AmazingFeature`)
+3. Commit cambios (`git commit -m 'Add AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+---
+
+## 📞 Soporte
+
+Para reportar issues o solicitar features, abre un issue en el repositorio.
+
+---
+
+## ⚡ Últimas Actualizaciones
+
+- ✅ Refactorización completa del código (Diciembre 2025)
+- ✅ Implementación del patrón Repository
+- ✅ Migración a React Query para estado del servidor
+- ✅ Estructura feature-based
+- ✅ TypeScript con tipos completos
+- ✅ Zustand para estado global
+- ✅ Sistema de autenticación JWT mejorado
+
