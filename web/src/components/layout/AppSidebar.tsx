@@ -97,22 +97,20 @@ const AppSidebar: React.FC = () => {
             <>
               <button
                 onClick={() => handleSubmenuToggle(index, menuType)}
-                className={`flex items-center w-full gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                  openSubmenu?.type === menuType && openSubmenu?.index === index
-                    ? 'bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400'
-                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5'
-                } ${!isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start'}`}
+                className={`flex items-center w-full gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${openSubmenu?.type === menuType && openSubmenu?.index === index
+                  ? 'bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400'
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5'
+                  } ${!isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start'}`}
               >
                 <span className="w-6 h-6">{nav.icon}</span>
                 {(isExpanded || isHovered || isMobileOpen) && (
                   <>
                     <span className="flex-1">{nav.name}</span>
                     <ChevronDownIcon
-                      className={`w-5 h-5 transition-transform duration-200 ${
-                        openSubmenu?.type === menuType && openSubmenu?.index === index
-                          ? 'rotate-180'
-                          : ''
-                      }`}
+                      className={`w-5 h-5 transition-transform duration-200 ${openSubmenu?.type === menuType && openSubmenu?.index === index
+                        ? 'rotate-180'
+                        : ''
+                        }`}
                     />
                   </>
                 )}
@@ -123,11 +121,10 @@ const AppSidebar: React.FC = () => {
                     <li key={subItem.name}>
                       <Link
                         href={subItem.path}
-                        className={`block px-4 py-2 rounded-lg text-sm transition-colors ${
-                          isActive(subItem.path)
-                            ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10'
-                            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white'
-                        }`}
+                        className={`block px-4 py-2 rounded-lg text-sm transition-colors ${isActive(subItem.path)
+                          ? 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10'
+                          : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white'
+                          }`}
                       >
                         {subItem.name}
                       </Link>
@@ -140,11 +137,10 @@ const AppSidebar: React.FC = () => {
             nav.path && (
               <Link
                 href={nav.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                  isActive(nav.path)
-                    ? 'bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400'
-                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5'
-                } ${!isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start'}`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive(nav.path)
+                  ? 'bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400'
+                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5'
+                  } ${!isExpanded && !isHovered ? 'lg:justify-center' : 'lg:justify-start'}`}
               >
                 <span className="w-6 h-6">{nav.icon}</span>
                 {(isExpanded || isHovered || isMobileOpen) && (
@@ -172,14 +168,24 @@ const AppSidebar: React.FC = () => {
         <Link href="/dashboard" className="flex items-center gap-3">
           {isExpanded || isHovered || isMobileOpen ? (
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-brand-500 flex items-center justify-center">
-                <span className="text-white font-bold text-lg">C</span>
+              <div className="relative w-10 h-10">
+                <Image
+                  src="/logo.svg"
+                  alt="Cermont Logo"
+                  fill
+                  className="object-contain"
+                />
               </div>
               <span className="text-xl font-bold text-gray-900 dark:text-white">Cermont</span>
             </div>
           ) : (
-            <div className="w-10 h-10 rounded-xl bg-brand-500 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">C</span>
+            <div className="relative w-10 h-10">
+              <Image
+                src="/logo.svg"
+                alt="Cermont Logo"
+                fill
+                className="object-contain"
+              />
             </div>
           )}
         </Link>
