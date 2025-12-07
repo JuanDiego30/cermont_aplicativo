@@ -23,7 +23,8 @@
     "test:api": "cd api && npm run test",
     "test:web": "cd web && npm run test",
     "prisma:studio": "cd api && npx prisma studio",
-    "prisma:migrate": "cd api && npx prisma migrate dev"
+    "prisma:migrate": "cd api && npx prisma migrate dev",
+    "create-icons": "python create-icons.py"
   },
   "keywords": [
     "orden",
@@ -32,9 +33,9 @@
     "planeación",
     "ejecución"
   ],
-  "author": "Juan Diego López",
+  "author": "Juan Diego Arevalo",
   "license": "MIT",
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^9.2.1"
   }
 }
