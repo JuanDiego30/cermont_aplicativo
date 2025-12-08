@@ -5,11 +5,10 @@ import request from 'supertest';
 import app from '../app';
 import { prisma } from '../config/database';
 
-// Skip integration tests if DATABASE_URL is not configured
-const DATABASE_URL = process.env.DATABASE_URL;
-const isDbConfigured = DATABASE_URL && DATABASE_URL.startsWith('postgres');
+// Los tests de integración con DB requieren RUN_INTEGRATION_TESTS=true
+const RUN_INTEGRATION_TESTS = process.env.RUN_INTEGRATION_TESTS === 'true';
 
-describe.skipIf(!isDbConfigured)('Ordenes API Integration', () => {
+describe.skipIf(!RUN_INTEGRATION_TESTS)('Ordenes API Integration', () => {
     let token: string;
 
     beforeEach(async () => {

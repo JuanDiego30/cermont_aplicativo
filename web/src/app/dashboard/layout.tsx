@@ -1,52 +1,43 @@
-// 📁 web/src/app/dashboard/layout.tsx
+"use client";
+import React from "react";
+import { SidebarProvider, useSidebar } from "@/context/SidebarContext";
+import AppHeader from "@/layout/AppHeader";
+import AppSidebar from "@/layout/AppSidebar";
+import Backdrop from "@/layout/Backdrop";
 
-'use client';
+function AdminLayoutContent({ children }: { children: React.ReactNode }) {
+  const { isExpanded, isHovered, isMobileOpen } = useSidebar();
 
-import { AppHeader } from '@/components/layout/app-header';
-import { AppSidebar } from '@/components/layout/app-sidebar';
-import { OfflineIndicator } from '@/components/offline/offline-indicator';
-import { Providers } from '@/app/providers';
-import { useAuth } from '@/features/auth/hooks/use-auth';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isLoading && !user) {
-      router.push('/login');
-    }
-  }, [user, isLoading, router]);
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="mb-4 text-4xl animate-spin">⟳</div>
-          <p className="text-gray-600">Cargando...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
+  const mainContentMargin = isMobileOpen
+    ? "ml-0"
+    : isExpanded || isHovered
+      ? "lg:ml-[290px]"
+      : "lg:ml-[90px]";
 
   return (
-    <Providers>
-      <div className="flex h-screen flex-col">
+    <div className="min-h-screen xl:flex bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-sans">
+      <AppSidebar />
+      <Backdrop />
+      <div
+        className={`flex-1 transition-all duration-300 ease-in-out ${mainContentMargin}`}
+      >
         <AppHeader />
-        <div className="flex flex-1 overflow-hidden">
-          <AppSidebar />
-          <main className="flex-1 overflow-y-auto bg-gray-50">
-            <div className="p-4 sm:p-6">{children}</div>
-          </main>
-        </div>
-        <OfflineIndicator />
+        <main className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+          {children}
+        </main>
       </div>
-    </Providers>
+    </div>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <SidebarProvider>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
+    </SidebarProvider>
   );
 }

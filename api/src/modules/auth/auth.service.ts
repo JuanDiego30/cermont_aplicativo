@@ -11,7 +11,7 @@ const logger = createLogger('AuthService');
 const REFRESH_TOKEN_DAYS = 7;
 
 export class AuthService {
-  constructor(private readonly repository: AuthRepository = authRepository) {}
+  constructor(private readonly repository: AuthRepository = authRepository) { }
 
   async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, env.BCRYPT_ROUNDS);
@@ -41,6 +41,12 @@ export class AuthService {
     });
 
     return token;
+  }
+
+  async generateTokens(user: any): Promise<{ accessToken: string; refreshToken: string }> {
+    const accessToken = this.generateAccessToken(user.id, user.email, user.role);
+    const refreshToken = await this.generateRefreshToken(user.id);
+    return { accessToken, refreshToken };
   }
 
   validateToken(token: string): TokenPayload | null {
@@ -186,9 +192,9 @@ export class AuthService {
     }
 
     const hashedPassword = await this.hashPassword(data.newPassword);
-    
+
     await this.repository.resetPasswordTransaction(resetToken.id, resetToken.userId, hashedPassword);
-    
+
     logger.info('Contraseña reseteada exitosamente', { userId: resetToken.userId });
   }
 

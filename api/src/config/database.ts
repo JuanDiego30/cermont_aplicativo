@@ -1,4 +1,11 @@
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+
+// Pool de conexiones PostgreSQL
+const connectionString = process.env.DATABASE_URL || 'postgresql://dummy:dummy@localhost:5432/dummy';
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
 
 // Singleton pattern para evitar múltiples conexiones en desarrollo
 declare global {
@@ -6,11 +13,16 @@ declare global {
   var prisma: PrismaClient | undefined;
 }
 
-export const prisma = globalThis.prisma || new PrismaClient({
-  log: process.env.NODE_ENV === 'development' 
-    ? ['query', 'info', 'warn', 'error'] 
-    : ['error'],
-});
+function createPrismaClient(): PrismaClient {
+  return new PrismaClient({
+    adapter,
+    log: process.env.NODE_ENV === 'development' 
+      ? ['query', 'info', 'warn', 'error'] 
+      : ['error'],
+  });
+}
+
+export const prisma = globalThis.prisma || createPrismaClient();
 
 if (process.env.NODE_ENV !== 'production') {
   globalThis.prisma = prisma;

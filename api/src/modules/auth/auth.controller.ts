@@ -123,6 +123,25 @@ export class AuthController {
         await authService.resetPassword(data);
         res.json({ message: 'Contraseña actualizada exitosamente' });
     });
+    googleCallback = asyncHandler(async (req: Request, res: Response) => {
+        const user = req.user as any;
+        if (!user) throw new AppError('Error en autenticación de Google', 401);
+
+        // Generar tokens directamente usando el servicio
+        const tokens = await authService.generateTokens(user);
+
+        res.cookie('refreshToken', tokens.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+            path: '/'
+        });
+
+        // Redirigir al frontend
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+        res.redirect(`${frontendUrl}/auth/success?token=${tokens.accessToken}`);
+    });
 }
 
 export const authController = new AuthController();

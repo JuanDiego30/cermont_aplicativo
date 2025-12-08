@@ -1,9 +1,7 @@
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { prisma } from '../../config/database.js';
 import { AppError } from '../../shared/errors/AppError.js';
 import type { CreateUserDTO, UpdateUserDTO, UserFiltersDTO } from './usuarios.types.js';
-
-const prisma = new PrismaClient();
 
 export class UsuariosService {
 

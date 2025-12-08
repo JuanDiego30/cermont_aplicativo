@@ -3,6 +3,7 @@
 // ============================================
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { EstadoEjecucion } from '@prisma/client';
 
 // Mock de Prisma
 vi.mock('../config/database', () => ({
@@ -29,8 +30,54 @@ vi.mock('../config/database', () => ({
   },
 }));
 
-// @ts-expect-error - Module is mocked above
 import { prisma } from '../config/database';
+
+// Helper para crear mock de ejecución completo
+const createMockEjecucion = (overrides = {}) => ({
+  id: 'exec-1',
+  ordenId: 'order-1',
+  planeacionId: 'plan-1',
+  estado: 'EN_PROGRESO' as EstadoEjecucion,
+  avancePercentaje: 0,
+  horasActuales: 0,
+  horasEstimadas: 8,
+  fechaInicio: new Date(),
+  fechaTermino: null,
+  ubicacionGPS: null,
+  observacionesInicio: null,
+  observaciones: null,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  ...overrides,
+});
+
+// Helper para crear mock de tarea
+const createMockTarea = (overrides = {}) => ({
+  id: 'task-1',
+  ejecucionId: 'exec-1',
+  descripcion: 'Tarea de prueba',
+  completada: false,
+  horasEstimadas: 2,
+  horasReales: null,
+  observaciones: null,
+  completadaEn: null,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  ...overrides,
+});
+
+// Helper para crear mock de checklist
+const createMockChecklist = (overrides = {}) => ({
+  id: 'check-1',
+  ejecucionId: 'exec-1',
+  item: 'Verificar seguridad',
+  completada: false,
+  completadoPor: null,
+  completadoEn: null,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  ...overrides,
+});
 
 describe('Ejecución Service', () => {
   beforeEach(() => {
@@ -39,86 +86,68 @@ describe('Ejecución Service', () => {
 
   describe('Start Execution', () => {
     it('should start execution for an order', async () => {
-      const mockEjecucion = {
-        id: 'exec-1',
-        ordenId: 'order-1',
-        planeacionId: 'plan-1',
-        estado: 'en_progreso',
-        progreso: 0,
-        fechaInicioReal: new Date(),
-        ejecutorId: 'user-1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const mockEjecucion = createMockEjecucion();
 
-      vi.mocked(prisma.ejecucion.create).mockResolvedValue(mockEjecucion as any);
+      vi.mocked(prisma.ejecucion.create).mockResolvedValue(mockEjecucion);
 
       const result = await prisma.ejecucion.create({
         data: {
           ordenId: 'order-1',
           planeacionId: 'plan-1',
-          estado: 'en_progreso',
-          progreso: 0,
-          ejecutorId: 'user-1',
-          fechaInicioReal: new Date(),
+          estado: 'EN_PROGRESO',
+          avancePercentaje: 0,
+          horasEstimadas: 8,
+          fechaInicio: new Date(),
         },
       });
 
       expect(result.id).toBe('exec-1');
-      expect(result.estado).toBe('en_progreso');
-      expect(result.progreso).toBe(0);
+      expect(result.estado).toBe('EN_PROGRESO');
+      expect(result.avancePercentaje).toBe(0);
     });
 
     it('should record GPS location on start', async () => {
       const ubicacion = {
-        lat: 7.8939,
-        lng: -72.5078,
-        accuracy: 10,
-        timestamp: new Date().toISOString(),
+        latitud: 7.8939,
+        longitud: -72.5078,
       };
 
-      const mockEjecucion = {
-        id: 'exec-1',
-        ordenId: 'order-1',
-        ubicacionInicio: ubicacion,
-        estado: 'en_progreso',
-      };
+      const mockEjecucion = createMockEjecucion({
+        ubicacionGPS: ubicacion,
+      });
 
-      vi.mocked(prisma.ejecucion.create).mockResolvedValue(mockEjecucion as any);
+      vi.mocked(prisma.ejecucion.create).mockResolvedValue(mockEjecucion);
 
       const result = await prisma.ejecucion.create({
         data: {
           ordenId: 'order-1',
           planeacionId: 'plan-1',
-          estado: 'en_progreso',
-          ejecutorId: 'user-1',
-          ubicacionInicio: ubicacion,
+          estado: 'EN_PROGRESO',
+          horasEstimadas: 8,
+          fechaInicio: new Date(),
+          ubicacionGPS: ubicacion,
         },
       });
 
-      expect(result.ubicacionInicio).toBeDefined();
-      expect(result.ubicacionInicio.lat).toBe(7.8939);
+      expect(result.ubicacionGPS).toBeDefined();
+      expect((result.ubicacionGPS as typeof ubicacion).latitud).toBe(7.8939);
     });
   });
 
   describe('Update Progress', () => {
     it('should update execution progress', async () => {
-      const mockEjecucion = {
-        id: 'exec-1',
-        ordenId: 'order-1',
-        estado: 'en_progreso',
-        progreso: 50,
-        updatedAt: new Date(),
-      };
+      const mockEjecucion = createMockEjecucion({
+        avancePercentaje: 50,
+      });
 
-      vi.mocked(prisma.ejecucion.update).mockResolvedValue(mockEjecucion as any);
+      vi.mocked(prisma.ejecucion.update).mockResolvedValue(mockEjecucion);
 
       const result = await prisma.ejecucion.update({
         where: { id: 'exec-1' },
-        data: { progreso: 50 },
+        data: { avancePercentaje: 50 },
       });
 
-      expect(result.progreso).toBe(50);
+      expect(result.avancePercentaje).toBe(50);
     });
 
     it('should validate progress is between 0 and 100', () => {
@@ -138,37 +167,34 @@ describe('Ejecución Service', () => {
 
   describe('Complete Task', () => {
     it('should mark task as completed', async () => {
-      const mockTarea = {
-        id: 'task-1',
-        ejecucionId: 'exec-1',
-        descripcion: 'Tarea de prueba',
-        estado: 'completada',
-        completadaAt: new Date(),
-      };
+      const mockTarea = createMockTarea({
+        completada: true,
+        completadaEn: new Date(),
+      });
 
-      vi.mocked(prisma.tareaEjecucion.update).mockResolvedValue(mockTarea as any);
+      vi.mocked(prisma.tareaEjecucion.update).mockResolvedValue(mockTarea);
 
       const result = await prisma.tareaEjecucion.update({
         where: { id: 'task-1' },
         data: {
-          estado: 'completada',
-          completadaAt: new Date(),
+          completada: true,
+          completadaEn: new Date(),
         },
       });
 
-      expect(result.estado).toBe('completada');
-      expect(result.completadaAt).toBeDefined();
+      expect(result.completada).toBe(true);
+      expect(result.completadaEn).toBeDefined();
     });
 
     it('should recalculate progress when task is completed', async () => {
       const tasks = [
-        { id: 'task-1', estado: 'completada' },
-        { id: 'task-2', estado: 'completada' },
-        { id: 'task-3', estado: 'pendiente' },
-        { id: 'task-4', estado: 'pendiente' },
+        { id: 'task-1', completada: true },
+        { id: 'task-2', completada: true },
+        { id: 'task-3', completada: false },
+        { id: 'task-4', completada: false },
       ];
 
-      const completedCount = tasks.filter((t) => t.estado === 'completada').length;
+      const completedCount = tasks.filter((t) => t.completada).length;
       const totalCount = tasks.length;
       const progress = Math.round((completedCount / totalCount) * 100);
 
@@ -178,39 +204,36 @@ describe('Ejecución Service', () => {
 
   describe('Complete Checklist Item', () => {
     it('should mark checklist item as completed', async () => {
-      const mockChecklist = {
-        id: 'check-1',
-        ejecucionId: 'exec-1',
-        descripcion: 'Verificar seguridad',
-        completado: true,
-        completadoAt: new Date(),
+      const mockChecklist = createMockChecklist({
+        completada: true,
+        completadoEn: new Date(),
         completadoPor: 'user-1',
-      };
+      });
 
-      vi.mocked(prisma.checklistEjecucion.update).mockResolvedValue(mockChecklist as any);
+      vi.mocked(prisma.checklistEjecucion.update).mockResolvedValue(mockChecklist);
 
       const result = await prisma.checklistEjecucion.update({
         where: { id: 'check-1' },
         data: {
-          completado: true,
-          completadoAt: new Date(),
+          completada: true,
+          completadoEn: new Date(),
           completadoPor: 'user-1',
         },
       });
 
-      expect(result.completado).toBe(true);
+      expect(result.completada).toBe(true);
     });
 
     it('should validate mandatory checklist items before completion', async () => {
       const checklists = [
-        { id: 'check-1', obligatorio: true, completado: true },
-        { id: 'check-2', obligatorio: true, completado: true },
-        { id: 'check-3', obligatorio: false, completado: false },
+        { id: 'check-1', obligatorio: true, completada: true },
+        { id: 'check-2', obligatorio: true, completada: true },
+        { id: 'check-3', obligatorio: false, completada: false },
       ];
 
       const mandatoryCompleted = checklists
         .filter((c) => c.obligatorio)
-        .every((c) => c.completado);
+        .every((c) => c.completada);
 
       expect(mandatoryCompleted).toBe(true);
     });
@@ -218,32 +241,26 @@ describe('Ejecución Service', () => {
 
   describe('Complete Execution', () => {
     it('should complete execution', async () => {
-      const mockEjecucion = {
-        id: 'exec-1',
-        ordenId: 'order-1',
-        estado: 'completada',
-        progreso: 100,
-        fechaFinReal: new Date(),
-        ubicacionFin: {
-          lat: 7.8939,
-          lng: -72.5078,
-        },
-      };
+      const mockEjecucion = createMockEjecucion({
+        estado: 'COMPLETADA' as EstadoEjecucion,
+        avancePercentaje: 100,
+        fechaTermino: new Date(),
+      });
 
-      vi.mocked(prisma.ejecucion.update).mockResolvedValue(mockEjecucion as any);
+      vi.mocked(prisma.ejecucion.update).mockResolvedValue(mockEjecucion);
       vi.mocked(prisma.order.update).mockResolvedValue({ id: 'order-1', estado: 'completada' } as any);
 
       const result = await prisma.ejecucion.update({
         where: { id: 'exec-1' },
         data: {
-          estado: 'completada',
-          progreso: 100,
-          fechaFinReal: new Date(),
+          estado: 'COMPLETADA',
+          avancePercentaje: 100,
+          fechaTermino: new Date(),
         },
       });
 
-      expect(result.estado).toBe('completada');
-      expect(result.progreso).toBe(100);
+      expect(result.estado).toBe('COMPLETADA');
+      expect(result.avancePercentaje).toBe(100);
     });
 
     it('should update order status when execution completes', async () => {
@@ -263,31 +280,33 @@ describe('Ejecución Service', () => {
 
   describe('Pause and Resume', () => {
     it('should pause execution', async () => {
-      vi.mocked(prisma.ejecucion.update).mockResolvedValue({
-        id: 'exec-1',
-        estado: 'pausada',
-      } as any);
+      const mockEjecucion = createMockEjecucion({
+        estado: 'PAUSADA' as EstadoEjecucion,
+      });
+
+      vi.mocked(prisma.ejecucion.update).mockResolvedValue(mockEjecucion);
 
       const result = await prisma.ejecucion.update({
         where: { id: 'exec-1' },
-        data: { estado: 'pausada' },
+        data: { estado: 'PAUSADA' },
       });
 
-      expect(result.estado).toBe('pausada');
+      expect(result.estado).toBe('PAUSADA');
     });
 
     it('should resume execution', async () => {
-      vi.mocked(prisma.ejecucion.update).mockResolvedValue({
-        id: 'exec-1',
-        estado: 'en_progreso',
-      } as any);
+      const mockEjecucion = createMockEjecucion({
+        estado: 'EN_PROGRESO' as EstadoEjecucion,
+      });
+
+      vi.mocked(prisma.ejecucion.update).mockResolvedValue(mockEjecucion);
 
       const result = await prisma.ejecucion.update({
         where: { id: 'exec-1' },
-        data: { estado: 'en_progreso' },
+        data: { estado: 'EN_PROGRESO' },
       });
 
-      expect(result.estado).toBe('en_progreso');
+      expect(result.estado).toBe('EN_PROGRESO');
     });
   });
 });
