@@ -1,3 +1,10 @@
+/**
+ * Rutas de autenticación para Cermont. Define endpoints públicos para login, registro,
+ * verificación de tokens, refresh, recuperación y reset de contraseña, además de integración
+ * OAuth 2.0 con Google (initiate + callback). Rutas protegidas requieren authMiddleware.
+ * Utiliza Passport.js para manejar flujo OAuth automáticamente con deserialización de usuario.
+ */
+
 import { Router } from 'express';
 import { authController } from './auth.controller.js';
 import { authMiddleware } from './auth.middleware.js';
@@ -16,8 +23,8 @@ router.post('/reset-password', authController.resetPassword);
 import passport from 'passport';
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 router.get('/google/callback',
-    passport.authenticate('google', { session: false, failureRedirect: '/login' }),
-    authController.googleCallback
+  passport.authenticate('google', { session: false, failureRedirect: '/login' }),
+  authController.googleCallback
 );
 
 // Rutas protegidas
@@ -25,3 +32,4 @@ router.post('/logout', authController.logout);
 router.get('/me', authMiddleware, authController.me);
 
 export default router;
+

@@ -55,12 +55,14 @@ model User {
   updatedAt DateTime  @updatedAt
 
   // Relations
-  refreshTokens         RefreshToken[]
-  auditLogs             AuditLog[]     @relation("UserAuditLogs")
-  ordenes               Order[]        @relation("OrderCreator")
-  asignaciones          Order[]        @relation("OrderAssignee")
-  planeacionesAprobadas Planeacion[]   @relation("PlaneacionAprobador")
-  pushSubscriptions     PushSubscription[]
+  refreshTokens              RefreshToken[]
+  auditLogs                  AuditLog[]     @relation("UserAuditLogs")
+  ordenes                    Order[]        @relation("OrderCreator")
+  asignaciones               Order[]        @relation("OrderAssignee")
+  planeacionesAprobadas      Planeacion[]   @relation("PlaneacionAprobador")
+  inspeccionesHESRealizadas  InspeccionHES[]
+  inspeccionesLineasVida     InspeccionLineaVida[] @relation("InspectorLineaVida")
+  pushSubscriptions          PushSubscription[]
 
   @@map("users")
 }
@@ -109,6 +111,12 @@ model Order {
   fechaFinEstimada DateTime?
   fechaInicio      DateTime?
   fechaFin         DateTime?
+  
+  // HES Integration
+  requiereHES      Boolean          @default(true)
+  cumplimientoHES  Boolean          @default(false)
+  equiposHES       OrdenEquipoHES[]
+  inspeccionesHES  InspeccionHES[]
 
   // Relations
   creadorId  String?
@@ -240,6 +248,14 @@ model KitTipico {
 model Planeacion {
   id                      String           @id @default(uuid())
   estado                  EstadoPlaneacion @default(borrador)
+  
+  // Campos del formulario OPE-001
+  empresa                 String?
+  ubicacion               String?
+  fechaEstimadaInicio     DateTime?
+  fechaEstimadaFin        DateTime?
+  descripcionTrabajo      String?
+  
   cronograma              Json // Array de actividades con fechas
   manoDeObra              Json // Array de asignaciones de personal
   herramientasAdicionales Json? // Herramientas extra fuera del kit
@@ -252,12 +268,15 @@ model Planeacion {
   ordenId String @unique
   orden   Order  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
 
-  kitId String
-  kit   KitTipico @relation(fields: [kitId], references: [id])
+  kitId String?
+  kit   KitTipico? @relation(fields: [kitId], references: [id])
 
   aprobadoPor User? @relation("PlaneacionAprobador", fields: [aprobadoPorId], references: [id])
 
   ejecucion Ejecucion?
+  
+  // Items específicos (materiales, herramientas, equipos, seguridad)
+  items ItemPlaneacion[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -388,4 +407,209 @@ model PushSubscription {
 
   @@index([userId])
   @@map("push_subscriptions")
+}
+
+// ============================================
+// ITEMS DE PLANEACIÓN DETALLADOS
+// ============================================
+
+model ItemPlaneacion {
+  id           String  @id @default(uuid())
+  planeacionId String
+  tipo         String // MATERIAL, HERRAMIENTA, EQUIPO, SEGURIDAD
+  descripcion  String
+  cantidad     Int     @default(1)
+  unidad       String  @default("UND") // UND, M, KG, L, PAQ
+  observaciones String?
+
+  planeacion Planeacion @relation(fields: [planeacionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([planeacionId])
+  @@index([tipo])
+  @@map("items_planeacion")
+}
+
+// ============================================
+// INSPECCIÓN LÍNEAS DE VIDA
+// ============================================
+
+enum EstadoInspeccion {
+  CONFORME
+  NO_CONFORME
+  PENDIENTE
+}
+
+model InspeccionLineaVida {
+  id              String   @id @default(uuid())
+  numeroLinea     String   @unique
+  fabricante      String
+  diametroCable   String   @default("8mm")
+  tipoCable       String   @default("Acero Inoxidable")
+  ubicacion       String
+  especificaciones Json?   // Datos adicionales de la línea
+  
+  fechaInspeccion          DateTime  @default(now())
+  fechaInstalacion         DateTime?
+  fechaUltimoMantenimiento DateTime?
+  
+  estado            EstadoInspeccion @default(PENDIENTE)
+  accionesCorrectivas String?
+  observaciones       String?
+  fotosEvidencia      String[] // URLs de fotos
+  
+  inspectorId String
+  inspector   User   @relation("InspectorLineaVida", fields: [inspectorId], references: [id])
+  
+  componentes ComponenteLineaVida[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([numeroLinea])
+  @@index([inspectorId])
+  @@index([estado])
+  @@map("inspecciones_linea_vida")
+}
+
+model ComponenteLineaVida {
+  id           String @id @default(uuid())
+  inspeccionId String
+  nombre       String // PLACA_ANCLAJE_SUPERIOR, CABLE, TENSOR, etc
+  hallazgos    String?
+  estado       String // C (Conforme), NC (No Conforme)
+  accionCorrectiva String?
+  
+  condiciones CondicionComponente[]
+  
+  inspeccion InspeccionLineaVida @relation(fields: [inspeccionId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([inspeccionId])
+  @@map("componentes_linea_vida")
+}
+
+model CondicionComponente {
+  id           String @id @default(uuid())
+  componenteId String
+  tipoAfeccion String // Grietas, Corrosión, Desgaste, etc
+  descripcion  String
+  estado       String // C o NC
+  
+  componente ComponenteLineaVida @relation(fields: [componenteId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([componenteId])
+  @@map("condiciones_componente")
+}
+
+// ============================================
+// HES - SEGURIDAD EN ALTURAS
+// ============================================
+
+model EquipoHES {
+  id                String   @id @default(uuid())
+  numero            String   @unique
+  marca             String
+  tipo              String   // ARNES, ESLINGA, ASCENDEDOR, etc.
+  estado            String   @default("DISPONIBLE") // DISPONIBLE, EN_MANTENIMIENTO, RECHAZADO
+  
+  // Información de inspecciones
+  ultimaInspeccion  DateTime?
+  proximaInspeccion DateTime?
+  
+  // Detalles técnicos
+  especificaciones  Json? // Guardar especificaciones del equipo
+  
+  // Relaciones
+  inspecciones      InspeccionHES[]
+  ordenes           OrdenEquipoHES[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([estado])
+  @@index([tipo])
+  @@map("equipos_hes")
+}
+
+model InspeccionHES {
+  id                String   @id @default(uuid())
+  
+  // Equipo inspeccionado
+  equipoId          String
+  equipo            EquipoHES @relation(fields: [equipoId], references: [id])
+  
+  // Inspector
+  inspectorId       String
+  inspector         User     @relation(fields: [inspectorId], references: [id])
+  
+  // Orden relacionada (opcional)
+  ordenId           String?
+  orden             Order?   @relation(fields: [ordenId], references: [id])
+  
+  // Fecha
+  fechaInspeccion   DateTime @default(now())
+  
+  // Resultados individuales
+  items             InspeccionItem[]
+  
+  // Resultado final
+  estado            String   // OK, RECHAZADO
+  observaciones     String?  // @db.Text en postgres es implicito String grande en prisma
+  fotosEvidencia    String[] // URLs de fotos
+  
+  // Auditoría
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([equipoId])
+  @@index([inspectorId])
+  @@index([ordenId])
+  @@index([estado])
+  @@map("inspecciones_hes")
+}
+
+model InspeccionItem {
+  id                  String @id @default(uuid())
+  
+  inspeccionId        String
+  inspeccion          InspeccionHES @relation(fields: [inspeccionId], references: [id], onDelete: Cascade)
+  
+  // Rubro a inspeccionar
+  rubro               String // ARNÉS, COSTURAS, ANILLOS, etc.
+  descripcion         String?
+  
+  // Resultado
+  estado              String // OK, RECHAZADO
+  notas               String?
+  
+  @@index([inspeccionId])
+  @@map("inspeccion_items")
+}
+
+model OrdenEquipoHES {
+  id                String   @id @default(uuid())
+  ordenId           String
+  orden             Order    @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  
+  equipoId          String
+  equipo            EquipoHES @relation(fields: [equipoId], references: [id])
+  
+  cantidad          Int      @default(1)
+  estado            String   @default("ASIGNADO") // ASIGNADO, DEVUELTO, DAÑADO
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([ordenId, equipoId])
+  @@index([ordenId])
+  @@index([equipoId])
+  @@map("orden_equipos_hes")
 }

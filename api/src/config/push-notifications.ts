@@ -1,14 +1,14 @@
-// ============================================
-// Push Notifications - Cermont FSM
-// ============================================
+/**
+ * Gestor de notificaciones push (Web Push API) para Cermont. Maneja suscripciones
+ * de usuarios, envío de notificaciones a dispositivos individuales, broadcast masivo
+ * y proporciona funciones predefinidas para eventos comunes (órdenes asignadas,
+ * cambios de estado, tareas completadas). Elimina automáticamente suscripciones
+ * expiradas y gestiona errores silenciosamente para mejor UX.
+ */
 
 import webpush from 'web-push';
 import { prisma } from './database.js';
 import { logger } from './logger.js';
-
-// ============================================
-// Inicialización
-// ============================================
 
 export function initPushNotifications() {
   const vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
@@ -28,10 +28,6 @@ export function initPushNotifications() {
   }
 }
 
-// ============================================
-// Tipos
-// ============================================
-
 interface PushPayload {
   title: string;
   body?: string;
@@ -46,19 +42,11 @@ interface PushPayload {
   }>;
 }
 
-// ============================================
-// Funciones de Notificación
-// ============================================
-
-/**
- * Enviar notificación push a un usuario
- */
 export async function sendPushNotification(
   userId: string,
   payload: PushPayload
 ): Promise<void> {
   try {
-    // Obtener suscripciones del usuario
     const subscriptions = await prisma.pushSubscription.findMany({
       where: { userId },
     });
@@ -90,13 +78,11 @@ export async function sendPushNotification(
       )
     );
 
-    // Manejar suscripciones inválidas
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
       if (result.status === 'rejected') {
         const error = result.reason as any;
         if (error.statusCode === 410 || error.statusCode === 404) {
-          // Suscripción expirada, eliminar
           await prisma.pushSubscription.delete({
             where: { id: subscriptions[i].id },
           });
@@ -114,9 +100,6 @@ export async function sendPushNotification(
   }
 }
 
-/**
- * Enviar notificación a múltiples usuarios
- */
 export async function sendPushToUsers(
   userIds: string[],
   payload: PushPayload
@@ -126,9 +109,6 @@ export async function sendPushToUsers(
   );
 }
 
-/**
- * Broadcast a todos los usuarios con suscripción
- */
 export async function broadcastPush(
   payload: PushPayload,
   excludeUserIds?: string[]
@@ -154,13 +134,6 @@ export async function broadcastPush(
   }
 }
 
-// ============================================
-// Notificaciones Predefinidas
-// ============================================
-
-/**
- * Notificar nueva orden asignada
- */
 export async function notifyNewOrderAssigned(
   userId: string,
   ordenNumero: string
@@ -177,9 +150,6 @@ export async function notifyNewOrderAssigned(
   });
 }
 
-/**
- * Notificar cambio de estado de orden
- */
 export async function notifyOrderStatusChange(
   userId: string,
   ordenNumero: string,
@@ -193,9 +163,6 @@ export async function notifyOrderStatusChange(
   });
 }
 
-/**
- * Notificar tarea completada
- */
 export async function notifyTaskCompleted(
   userId: string,
   ordenNumero: string,
@@ -209,9 +176,6 @@ export async function notifyTaskCompleted(
   });
 }
 
-/**
- * Notificar recordatorio
- */
 export async function notifyReminder(
   userId: string,
   title: string,
@@ -235,3 +199,4 @@ export default {
   notifyTaskCompleted,
   notifyReminder,
 };
+

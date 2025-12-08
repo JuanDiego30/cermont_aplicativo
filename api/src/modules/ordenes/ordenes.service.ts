@@ -1,66 +1,65 @@
-import { prisma } from '../../config/database.js';
-import { NotFoundError } from '../../shared/errors/index.js';
+import { ordenesRepository, type OrderFilters } from './ordenes.repository.js';
+import { NotFoundError, ValidationError } from '../../shared/errors/index.js';
 import { createLogger } from '../../shared/utils/logger.js';
-import type { CreateOrderDTO, UpdateOrderDTO, OrderFiltersDTO } from './ordenes.types.js';
+import type { CreateOrderDTO, UpdateOrderDTO, OrderFiltersDTO, OrderStatus } from './ordenes.types.js';
+import { prisma } from '../../config/database.js';
 
 const logger = createLogger('OrdenesService');
 
+/**
+ * State machine for order status transitions
+ * Defines valid transitions from each state
+ */
+const STATE_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+    planeacion: ['ejecucion', 'cancelada'],
+    ejecucion: ['pausada', 'completada', 'cancelada'],
+    pausada: ['ejecucion', 'cancelada'],
+    completada: [], // Terminal state
+    cancelada: ['planeacion'], // Can reopen
+};
+
 export class OrdenesService {
+    /**
+     * Validate if a status transition is allowed
+     */
+    private validateStatusTransition(currentStatus: OrderStatus, newStatus: OrderStatus): void {
+        if (currentStatus === newStatus) return; // No change
+
+        const allowedTransitions = STATE_TRANSITIONS[currentStatus];
+
+        if (!allowedTransitions.includes(newStatus)) {
+            throw new ValidationError(
+                `Transición de estado no permitida: ${currentStatus} → ${newStatus}. ` +
+                `Transiciones válidas desde "${currentStatus}": ${allowedTransitions.join(', ') || 'ninguna'}`
+            );
+        }
+    }
 
     async findAll(filters: OrderFiltersDTO) {
-        const { estado, prioridad, cliente, search, page = 1, limit = 10 } = filters;
-        const skip = (page - 1) * limit;
+        logger.debug('Fetching orders with filters', filters);
 
-        const where: Record<string, unknown> = {};
+        const repositoryFilters: OrderFilters = {
+            estado: filters.estado as OrderStatus | undefined,
+            prioridad: filters.prioridad as any,
+            cliente: filters.cliente,
+            search: filters.search,
+            page: filters.page,
+            limit: filters.limit,
+        };
 
-        if (estado) where.estado = estado;
-        if (prioridad) where.prioridad = prioridad;
-        if (cliente) where.cliente = { contains: cliente, mode: 'insensitive' };
-        if (search) {
-            where.OR = [
-                { numero: { contains: search, mode: 'insensitive' } },
-                { descripcion: { contains: search, mode: 'insensitive' } },
-                { cliente: { contains: search, mode: 'insensitive' } },
-            ];
-        }
-
-        const [ordenes, total] = await Promise.all([
-            prisma.order.findMany({
-                where,
-                skip,
-                take: limit,
-                orderBy: { createdAt: 'desc' },
-                include: {
-                    creador: { select: { id: true, name: true, email: true } },
-                    asignado: { select: { id: true, name: true, email: true } },
-                    items: true,
-                },
-            }),
-            prisma.order.count({ where }),
-        ]);
+        const result = await ordenesRepository.findMany(repositoryFilters);
 
         return {
-            data: ordenes,
+            data: result.data,
             meta: {
-                total,
-                page,
-                limit,
-                totalPages: Math.ceil(total / limit),
-                hasMore: page * limit < total,
+                ...result.meta,
+                hasMore: result.meta.page * result.meta.limit < result.meta.total,
             },
         };
     }
 
     async findById(id: string) {
-        const orden = await prisma.order.findUnique({
-            where: { id },
-            include: {
-                creador: { select: { id: true, name: true, email: true } },
-                asignado: { select: { id: true, name: true, email: true } },
-                items: true,
-                evidencias: true,
-            },
-        });
+        const orden = await ordenesRepository.findById(id);
 
         if (!orden) {
             throw new NotFoundError('Orden', id);
@@ -79,103 +78,116 @@ export class OrdenesService {
         const lastNum = lastOrder?.numero ? parseInt(lastOrder.numero.replace('ORD-', '')) : 0;
         const numero = `ORD-${String(lastNum + 1).padStart(5, '0')}`;
 
-        const orden = await prisma.order.create({
-            data: {
-                numero,
-                descripcion: data.descripcion,
-                cliente: data.cliente,
-                prioridad: data.prioridad || 'media',
-                estado: 'planeacion',
-                fechaFinEstimada: data.fechaFinEstimada ? new Date(data.fechaFinEstimada) : null,
-                creadorId: userId,
-            },
-            include: {
-                creador: { select: { id: true, name: true, email: true } },
-            },
+        const orden = await ordenesRepository.create({
+            numero,
+            descripcion: data.descripcion,
+            cliente: data.cliente,
+            prioridad: data.prioridad || 'media',
+            fechaFinEstimada: data.fechaFinEstimada ? new Date(data.fechaFinEstimada) : undefined,
+            creadorId: userId,
         });
 
-        logger.info('Orden creada', { orderId: orden.id, numero: orden.numero });
-        return orden;
+        logger.info('Orden creada', { orderId: orden.id, numero: orden.numero, creadorId: userId });
+
+        // Fetch with relations
+        return this.findById(orden.id);
     }
 
     async update(id: string, data: UpdateOrderDTO) {
-        const existing = await prisma.order.findUnique({ where: { id } });
+        const existing = await ordenesRepository.findById(id);
         if (!existing) {
             throw new NotFoundError('Orden', id);
         }
 
-        const updated = await prisma.order.update({
-            where: { id },
-            data: {
-                descripcion: data.descripcion,
-                cliente: data.cliente,
-                estado: data.estado,
-                prioridad: data.prioridad,
-                asignadoId: data.asignadoId,
-                fechaFinEstimada: data.fechaFinEstimada ? new Date(data.fechaFinEstimada) : undefined,
-                fechaInicio: data.fechaInicio ? new Date(data.fechaInicio) : undefined,
-                fechaFin: data.fechaFin ? new Date(data.fechaFin) : undefined,
-            },
-            include: {
-                creador: { select: { id: true, name: true, email: true } },
-                asignado: { select: { id: true, name: true, email: true } },
-            },
-        });
+        // Validate state transition if estado is being changed
+        if (data.estado && data.estado !== existing.estado) {
+            this.validateStatusTransition(existing.estado as OrderStatus, data.estado);
+        }
 
-        logger.info('Orden actualizada', { orderId: id });
-        return updated;
+        const updateData: any = {};
+
+        if (data.descripcion !== undefined) updateData.descripcion = data.descripcion;
+        if (data.cliente !== undefined) updateData.cliente = data.cliente;
+        if (data.estado !== undefined) updateData.estado = data.estado;
+        if (data.prioridad !== undefined) updateData.prioridad = data.prioridad;
+        if (data.asignadoId !== undefined) updateData.asignadoId = data.asignadoId;
+        if (data.fechaFinEstimada !== undefined) {
+            updateData.fechaFinEstimada = data.fechaFinEstimada ? new Date(data.fechaFinEstimada) : null;
+        }
+        if (data.fechaInicio !== undefined) {
+            updateData.fechaInicio = data.fechaInicio ? new Date(data.fechaInicio) : null;
+        }
+        if (data.fechaFin !== undefined) {
+            updateData.fechaFin = data.fechaFin ? new Date(data.fechaFin) : null;
+        }
+
+        await ordenesRepository.update(id, updateData);
+
+        logger.info('Orden actualizada', { orderId: id, changes: Object.keys(updateData) });
+
+        return this.findById(id);
     }
 
     async delete(id: string) {
-        const orden = await prisma.order.findUnique({ where: { id } });
+        const orden = await ordenesRepository.findById(id);
         if (!orden) {
             throw new NotFoundError('Orden', id);
         }
 
-        await prisma.order.delete({ where: { id } });
-        logger.info('Orden eliminada', { orderId: id });
+        await ordenesRepository.delete(id);
+        logger.info('Orden eliminada', { orderId: id, numero: orden.numero });
+
         return { message: 'Orden eliminada exitosamente' };
     }
 
     async assignResponsable(id: string, asignadoId: string) {
-        const orden = await prisma.order.update({
-            where: { id },
-            data: { asignadoId },
-            include: {
-                asignado: { select: { id: true, name: true, email: true } },
-            },
-        });
+        const orden = await ordenesRepository.findById(id);
+        if (!orden) {
+            throw new NotFoundError('Orden', id);
+        }
+
+        await ordenesRepository.update(id, { asignadoId });
 
         logger.info('Orden asignada', { orderId: id, asignadoId });
-        return orden;
+
+        return this.findById(id);
     }
 
-    async changeStatus(id: string, estado: string) {
-        const updateData: Record<string, unknown> = { estado };
-        
+    async changeStatus(id: string, newStatus: OrderStatus) {
+        const orden = await ordenesRepository.findById(id);
+        if (!orden) {
+            throw new NotFoundError('Orden', id);
+        }
+
+        // Validate transition
+        this.validateStatusTransition(orden.estado as OrderStatus, newStatus);
+
+        const updateData: Record<string, unknown> = { estado: newStatus };
+
         // Set dates based on status change
-        if (estado === 'ejecucion' && !await this.hasStartDate(id)) {
+        if (newStatus === 'ejecucion' && !orden.fechaInicio) {
             updateData.fechaInicio = new Date();
         }
-        if (estado === 'completada') {
+        if (newStatus === 'completada') {
             updateData.fechaFin = new Date();
         }
 
-        const orden = await prisma.order.update({
-            where: { id },
-            data: updateData,
+        await ordenesRepository.update(id, updateData as any);
+
+        logger.info('Estado de orden cambiado', {
+            orderId: id,
+            from: orden.estado,
+            to: newStatus
         });
 
-        logger.info('Estado de orden cambiado', { orderId: id, estado });
-        return orden;
+        return this.findById(id);
     }
 
-    private async hasStartDate(id: string): Promise<boolean> {
-        const orden = await prisma.order.findUnique({ 
-            where: { id }, 
-            select: { fechaInicio: true } 
-        });
-        return !!orden?.fechaInicio;
+    /**
+     * Get order statistics
+     */
+    async getStats() {
+        return ordenesRepository.getStats();
     }
 }
 

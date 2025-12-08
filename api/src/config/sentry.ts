@@ -1,6 +1,10 @@
-// ============================================
-// Sentry Error Tracking - Cermont FSM
-// ============================================
+/**
+ * Sistema de rastreo y monitoreo de errores usando Sentry para Cermont. Captura
+ * excepciones no manejadas, rechazos de promesas, errores HTTP y eventos personalizados
+ * con contexto enriquecido (usuario, request, tags). Configura muestreo de performance
+ * monitoring diferenciado por ambiente (10% production, 100% development) y proporciona
+ * middleware para Express que automáticamente reporta errores con stack traces completos.
+ */
 
 import * as Sentry from '@sentry/node';
 import type { Express, Request, Response, NextFunction, ErrorRequestHandler } from 'express';
@@ -18,27 +22,19 @@ export function initSentry(_app: Express) {
     dsn,
     environment: process.env.NODE_ENV || 'development',
     integrations: [
-      // HTTP integration
       Sentry.httpIntegration(),
-      // Capture unhandled exceptions
       Sentry.onUncaughtExceptionIntegration(),
-      // Capture unhandled promise rejections
       Sentry.onUnhandledRejectionIntegration(),
     ],
-    // Performance monitoring
     tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-    // Attach stack traces
     attachStacktrace: true,
-    // Max breadcrumbs
     maxBreadcrumbs: 50,
-    // Debug mode
     debug: process.env.NODE_ENV !== 'production',
   });
 
   logger.info('Sentry initialized successfully');
 }
 
-// Middleware para capturar errores - Sentry v8+
 export function sentryErrorHandler(): ErrorRequestHandler {
   return (err: Error, _req: Request, _res: Response, next: NextFunction) => {
     Sentry.captureException(err);
@@ -46,7 +42,6 @@ export function sentryErrorHandler(): ErrorRequestHandler {
   };
 }
 
-// Capturar excepciones manualmente
 export function captureException(
   error: Error,
   context?: Record<string, any>
@@ -60,7 +55,6 @@ export function captureException(
     Sentry.captureException(error);
   });
 
-  // También log local
   logger.error('Exception captured', {
     message: error.message,
     stack: error.stack,
@@ -68,7 +62,6 @@ export function captureException(
   });
 }
 
-// Capturar eventos custom
 export function captureEvent(
   message: string,
   level: Sentry.SeverityLevel = 'info',
@@ -80,7 +73,6 @@ export function captureEvent(
   });
 }
 
-// Agregar contexto de usuario
 export function setUserContext(user: {
   id: string;
   email?: string;
@@ -93,7 +85,6 @@ export function setUserContext(user: {
   });
 }
 
-// Middleware para agregar contexto de request
 export function sentryRequestContext(
   req: Request,
   _res: Response,
@@ -124,3 +115,4 @@ export default {
   setUserContext,
   sentryRequestContext,
 };
+

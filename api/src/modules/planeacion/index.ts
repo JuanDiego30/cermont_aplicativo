@@ -34,6 +34,9 @@ router.patch('/:id', roleMiddleware('admin', 'supervisor', 'tecnico'), planeacio
 // ACCIONES DE FLUJO DE TRABAJO
 // ==========================================
 
+// Obtener resumen para dashboard
+router.get('/:id/resumen', planeacionController.getResumen);
+
 // Enviar a revisión (técnico envía para aprobación)
 router.post('/:id/enviar-revision', roleMiddleware('admin', 'supervisor', 'tecnico'), planeacionController.enviarARevision);
 
@@ -51,6 +54,16 @@ router.post('/:id/completar', roleMiddleware('admin', 'supervisor', 'tecnico'), 
 
 // Cancelar planeación (solo supervisores y admin)
 router.post('/:id/cancelar', roleMiddleware('admin', 'supervisor'), planeacionController.cancelar);
+
+// ==========================================
+// GESTIÓN DE ITEMS
+// ==========================================
+
+// Agregar item a planeación
+router.post('/:id/items', roleMiddleware('admin', 'supervisor', 'tecnico'), planeacionController.addItem);
+
+// Eliminar item de planeación
+router.delete('/:id/items/:itemId', roleMiddleware('admin', 'supervisor', 'tecnico'), planeacionController.removeItem);
 
 // Eliminar planeación (solo admin)
 router.delete('/:id', roleMiddleware('admin'), planeacionController.delete);

@@ -5,7 +5,7 @@
 import { PlaneacionRepository, planeacionRepository } from './planeacion.repository.js';
 import { logger } from '../../config/logger.js';
 import { AppError } from '../../shared/errors/AppError.js';
-import { EstadoPlaneacion } from './planeacion.types.js';
+import { EstadoPlaneacion, TipoItemPlaneacion } from './planeacion.types.js';
 import type { 
     CreatePlaneacionDTO, 
     UpdatePlaneacionDTO, 
@@ -29,8 +29,10 @@ export class PlaneacionService {
             throw new AppError('Ya existe una planeación para esta orden', 409);
         }
 
-        // Validar coherencia de fechas en cronograma
-        this.validarCronograma(data.cronograma);
+        // Validar coherencia de fechas en cronograma si existe
+        if (data.cronograma && data.cronograma.length > 0) {
+            this.validarCronograma(data.cronograma);
+        }
 
         return await this.repository.create(data);
     }
@@ -194,6 +196,53 @@ export class PlaneacionService {
         }
 
         await this.repository.delete(id);
+    }
+
+    /**
+     * Generar resumen para dashboard
+     */
+    async generateResumen(id: string) {
+        logger.info(`Generando resumen de planeación ${id}`);
+        
+        const resumen = await this.repository.generateResumen(id);
+        if (!resumen) {
+            throw new AppError('Planeación no encontrada', 404);
+        }
+        
+        return resumen;
+    }
+
+    /**
+     * Agregar item a planeación
+     */
+    async addItem(planeacionId: string, item: { tipo: string; descripcion: string; cantidad?: number; unidad?: string; observaciones?: string }) {
+        const planeacion = await this.findById(planeacionId);
+        
+        // Solo se puede agregar items si está en borrador o revisión
+        if (![EstadoPlaneacion.BORRADOR, EstadoPlaneacion.EN_REVISION].includes(planeacion.estado as EstadoPlaneacion)) {
+            throw new AppError('Solo se pueden agregar items a planeaciones en borrador o revisión', 400);
+        }
+        
+        return await this.repository.addItem(planeacionId, {
+            tipo: item.tipo as TipoItemPlaneacion,
+            descripcion: item.descripcion,
+            cantidad: item.cantidad || 1,
+            unidad: item.unidad || 'UND',
+            observaciones: item.observaciones,
+        });
+    }
+
+    /**
+     * Eliminar item de planeación
+     */
+    async removeItem(planeacionId: string, itemId: string) {
+        const planeacion = await this.findById(planeacionId);
+        
+        if (![EstadoPlaneacion.BORRADOR, EstadoPlaneacion.EN_REVISION].includes(planeacion.estado as EstadoPlaneacion)) {
+            throw new AppError('Solo se pueden eliminar items de planeaciones en borrador o revisión', 400);
+        }
+        
+        return await this.repository.removeItem(itemId);
     }
 
     /**

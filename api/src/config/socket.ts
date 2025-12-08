@@ -1,6 +1,10 @@
-// ============================================
-// Socket.IO Manager - Cermont FSM
-// ============================================
+/**
+ * Gestor de comunicación en tiempo real usando Socket.IO para Cermont. Maneja conexiones
+ * WebSocket autenticadas con JWT, salas (rooms) para órdenes/ejecuciones/chat, y tracking
+ * de usuarios conectados. Proporciona handlers para eventos de negocio (actualizaciones
+ * de órdenes, progreso de ejecución, evidencias, chat) y funciones de emisión desde
+ * servicios backend hacia clientes específicos, grupos o broadcast global.
+ */
 
 import { Server as HTTPServer } from 'http';
 import { Server, Socket } from 'socket.io';
@@ -9,12 +13,7 @@ import { logger } from './logger.js';
 
 export let io: Server;
 
-// Map de usuarios conectados
 const connectedUsers = new Map<string, Set<string>>();
-
-// ============================================
-// Inicialización
-// ============================================
 
 export function initSocket(httpServer: HTTPServer): Server {
   io = new Server(httpServer, {
@@ -23,12 +22,11 @@ export function initSocket(httpServer: HTTPServer): Server {
       credentials: true,
     },
     transports: ['websocket', 'polling'],
-    maxHttpBufferSize: 1e6, // 1MB
+    maxHttpBufferSize: 1e6,
     pingInterval: 25000,
     pingTimeout: 60000,
   });
 
-  // Middleware de autenticación
   io.use((socket: Socket, next: (err?: Error) => void) => {
     const token = socket.handshake.auth.token;
 
@@ -48,7 +46,6 @@ export function initSocket(httpServer: HTTPServer): Server {
     }
   });
 
-  // Conexión
   io.on('connection', (socket: Socket) => {
     const userId = socket.data.userId;
     logger.info(`User connected via Socket.IO`, {
@@ -56,25 +53,20 @@ export function initSocket(httpServer: HTTPServer): Server {
       userId,
     });
 
-    // Registrar usuario conectado
     if (!connectedUsers.has(userId)) {
       connectedUsers.set(userId, new Set());
     }
     connectedUsers.get(userId)!.add(socket.id);
 
-    // Unirse a sala personal
     socket.join(`user:${userId}`);
 
-    // Notificar que está online
     socket.broadcast.emit('user:online', { userId });
 
-    // Setup handlers
     setupOrdenHandlers(socket);
     setupEjecucionHandlers(socket);
     setupEvidenciaHandlers(socket);
     setupChatHandlers(socket);
 
-    // Disconnect
     socket.on('disconnect', (reason: string) => {
       logger.info(`User disconnected`, {
         socketId: socket.id,
@@ -82,19 +74,16 @@ export function initSocket(httpServer: HTTPServer): Server {
         reason,
       });
 
-      // Remover de usuarios conectados
       const userSockets = connectedUsers.get(userId);
       if (userSockets) {
         userSockets.delete(socket.id);
         if (userSockets.size === 0) {
           connectedUsers.delete(userId);
-          // Notificar offline solo si no hay más sockets
           socket.broadcast.emit('user:offline', { userId });
         }
       }
     });
 
-    // Error handling
     socket.on('error', (error: Error) => {
       logger.error('Socket error:', {
         socketId: socket.id,
@@ -108,12 +97,7 @@ export function initSocket(httpServer: HTTPServer): Server {
   return io;
 }
 
-// ============================================
-// Handlers de Órdenes
-// ============================================
-
 function setupOrdenHandlers(socket: Socket) {
-  // Suscribirse a actualizaciones de una orden
   socket.on('orden:subscribe', (ordenId: string) => {
     socket.join(`orden:${ordenId}`);
     logger.debug(`User subscribed to orden`, {
@@ -122,7 +106,6 @@ function setupOrdenHandlers(socket: Socket) {
     });
   });
 
-  // Desuscribirse
   socket.on('orden:unsubscribe', (ordenId: string) => {
     socket.leave(`orden:${ordenId}`);
     logger.debug(`User unsubscribed from orden`, {
@@ -132,12 +115,7 @@ function setupOrdenHandlers(socket: Socket) {
   });
 }
 
-// ============================================
-// Handlers de Ejecución
-// ============================================
-
 function setupEjecucionHandlers(socket: Socket) {
-  // Suscribirse a ejecución
   socket.on('ejecucion:subscribe', (ejecucionId: string) => {
     socket.join(`ejecucion:${ejecucionId}`);
     logger.debug(`User subscribed to ejecucion`, {
@@ -146,7 +124,6 @@ function setupEjecucionHandlers(socket: Socket) {
     });
   });
 
-  // Actualización de progreso en vivo
   socket.on('ejecucion:progress', (data: { ejecucionId: string; avance: number }) => {
     io.to(`ejecucion:${data.ejecucionId}`).emit('ejecucion:update', {
       ejecucionId: data.ejecucionId,
@@ -156,18 +133,12 @@ function setupEjecucionHandlers(socket: Socket) {
     });
   });
 
-  // Desuscribirse
   socket.on('ejecucion:unsubscribe', (ejecucionId: string) => {
     socket.leave(`ejecucion:${ejecucionId}`);
   });
 }
 
-// ============================================
-// Handlers de Evidencias
-// ============================================
-
 function setupEvidenciaHandlers(socket: Socket) {
-  // Nueva evidencia subida
   socket.on('evidencia:uploaded', (data: {
     ordenId: string;
     ejecucionId: string;
@@ -182,17 +153,11 @@ function setupEvidenciaHandlers(socket: Socket) {
   });
 }
 
-// ============================================
-// Handlers de Chat (opcional)
-// ============================================
-
 function setupChatHandlers(socket: Socket) {
-  // Unirse a sala de chat de orden
   socket.on('chat:join', (ordenId: string) => {
     socket.join(`chat:${ordenId}`);
   });
 
-  // Enviar mensaje
   socket.on('chat:message', (data: {
     ordenId: string;
     message: string;
@@ -205,19 +170,11 @@ function setupChatHandlers(socket: Socket) {
     });
   });
 
-  // Salir de sala
   socket.on('chat:leave', (ordenId: string) => {
     socket.leave(`chat:${ordenId}`);
   });
 }
 
-// ============================================
-// Funciones de Emisión desde Servicios
-// ============================================
-
-/**
- * Notificar actualización de orden
- */
 export function notifyOrdenUpdated(ordenId: string, data: any) {
   if (!io) return;
 
@@ -229,9 +186,6 @@ export function notifyOrdenUpdated(ordenId: string, data: any) {
   logger.debug('Orden update emitted', { ordenId });
 }
 
-/**
- * Notificar cambio de estado de orden
- */
 export function notifyOrdenEstadoChanged(
   ordenId: string,
   estado: string,
@@ -247,9 +201,6 @@ export function notifyOrdenEstadoChanged(
   });
 }
 
-/**
- * Notificar progreso de ejecución
- */
 export function notifyEjecucionProgress(
   ejecucionId: string,
   progress: number,
@@ -265,9 +216,6 @@ export function notifyEjecucionProgress(
   });
 }
 
-/**
- * Notificar nueva evidencia
- */
 export function notifyEvidenciaUploaded(
   ordenId: string,
   evidencia: any
@@ -280,9 +228,6 @@ export function notifyEvidenciaUploaded(
   });
 }
 
-/**
- * Notificar a usuarios específicos
- */
 export function notifyUsers(
   userIds: string[],
   event: string,
@@ -298,9 +243,6 @@ export function notifyUsers(
   });
 }
 
-/**
- * Notificar a un usuario específico
- */
 export function notifyUser(userId: string, event: string, data: any) {
   if (!io) return;
 
@@ -310,9 +252,6 @@ export function notifyUser(userId: string, event: string, data: any) {
   });
 }
 
-/**
- * Broadcast a todos los usuarios conectados
- */
 export function broadcastToAll(event: string, data: any) {
   if (!io) return;
 
@@ -322,16 +261,10 @@ export function broadcastToAll(event: string, data: any) {
   });
 }
 
-/**
- * Obtener usuarios conectados
- */
 export function getConnectedUsers(): string[] {
   return Array.from(connectedUsers.keys());
 }
 
-/**
- * Verificar si un usuario está conectado
- */
 export function isUserConnected(userId: string): boolean {
   return connectedUsers.has(userId);
 }
@@ -348,3 +281,4 @@ export default {
   getConnectedUsers,
   isUserConnected,
 };
+
