@@ -26,8 +26,39 @@ vi.mock('../config/database', () => ({
   },
 }));
 
-// @ts-expect-error - Module is mocked above
 import { prisma } from '../config/database';
+
+// Helper para crear mock de usuario completo
+const createMockUser = (overrides = {}) => ({
+  id: 'user-1',
+  email: 'test@cermont.com',
+  googleId: null,
+  password: 'hashedPassword',
+  name: 'Test User',
+  role: 'tecnico' as const,
+  phone: null,
+  avatar: null,
+  active: true,
+  lastLogin: null,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  ...overrides,
+});
+
+// Helper para crear mock de refresh token completo
+const createMockRefreshToken = (overrides = {}) => ({
+  id: 'token-1',
+  token: 'refresh-token-value',
+  userId: 'user-1',
+  family: 'family-1',
+  expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+  isRevoked: false,
+  ipAddress: null,
+  userAgent: null,
+  lastUsedAt: null,
+  createdAt: new Date(),
+  ...overrides,
+});
 
 describe('Auth Service', () => {
   beforeEach(() => {
@@ -52,16 +83,9 @@ describe('Auth Service', () => {
     });
 
     it('should find user by email', async () => {
-      const mockUser = {
-        id: 'user-1',
-        email: 'test@cermont.com',
+      const mockUser = createMockUser({
         password: await bcrypt.hash('password123', 12),
-        name: 'Test User',
-        role: 'tecnico',
-        active: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      });
 
       vi.mocked(prisma.user.findUnique).mockResolvedValue(mockUser);
 
@@ -89,16 +113,11 @@ describe('Auth Service', () => {
 
   describe('User Registration', () => {
     it('should create new user', async () => {
-      const newUser = {
+      const newUser = createMockUser({
         id: 'new-user-1',
         email: 'newuser@cermont.com',
-        password: 'hashedPassword',
         name: 'New User',
-        role: 'tecnico',
-        active: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      });
 
       vi.mocked(prisma.user.findUnique).mockResolvedValue(null);
       vi.mocked(prisma.user.create).mockResolvedValue(newUser);
@@ -124,16 +143,11 @@ describe('Auth Service', () => {
     });
 
     it('should prevent duplicate email registration', async () => {
-      const existingUser = {
+      const existingUser = createMockUser({
         id: 'existing-1',
         email: 'existing@cermont.com',
-        password: 'hashedPassword',
         name: 'Existing User',
-        role: 'tecnico',
-        active: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      });
 
       vi.mocked(prisma.user.findUnique).mockResolvedValue(existingUser);
 
@@ -148,13 +162,7 @@ describe('Auth Service', () => {
 
   describe('Refresh Token', () => {
     it('should create refresh token', async () => {
-      const mockToken = {
-        id: 'token-1',
-        token: 'refresh-token-value',
-        userId: 'user-1',
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        createdAt: new Date(),
-      };
+      const mockToken = createMockRefreshToken();
 
       vi.mocked(prisma.refreshToken.create).mockResolvedValue(mockToken);
 
@@ -162,6 +170,7 @@ describe('Auth Service', () => {
         data: {
           token: 'refresh-token-value',
           userId: 'user-1',
+          family: 'family-1',
           expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         },
       });

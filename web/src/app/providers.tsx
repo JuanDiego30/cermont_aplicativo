@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
+import { ThemeProvider } from '../context/ThemeContext';
 import { Toaster } from 'sonner';
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -31,15 +32,17 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
-      <Toaster 
-        position="top-right" 
-        richColors 
-        closeButton
-        toastOptions={{
-          duration: 4000,
-        }}
-      />
+      <ThemeProvider>
+        {children}
+        <Toaster
+          position="top-right"
+          richColors
+          closeButton
+          toastOptions={{
+            duration: 4000,
+          }}
+        />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

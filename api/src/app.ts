@@ -29,7 +29,15 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
+
+// Passport Config
+import passport from 'passport';
+import { configureGoogleStrategy } from './modules/auth/strategies/google.strategy.js';
+
+app.use(passport.initialize());
+configureGoogleStrategy();
 
 // Servir archivos estáticos de uploads
 const uploadsDir = env.UPLOAD_DIR || path.join(process.cwd(), 'uploads');

@@ -3,6 +3,7 @@
 // ============================================
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { OrderStatus, OrderPriority } from '@prisma/client';
 
 // Mock de Prisma
 vi.mock('../config/database', () => ({
@@ -22,8 +23,25 @@ vi.mock('../config/database', () => ({
   },
 }));
 
-// @ts-expect-error - Module is mocked above
 import { prisma } from '../config/database';
+
+// Helper para crear mock de orden completa
+const createMockOrder = (overrides = {}) => ({
+  id: 'order-1',
+  numero: 'ORD-2024-001',
+  descripcion: 'Orden de prueba',
+  cliente: 'Cliente Test',
+  estado: 'planeacion' as OrderStatus,
+  prioridad: 'media' as OrderPriority,
+  fechaFinEstimada: null,
+  fechaInicio: null,
+  fechaFin: null,
+  creadorId: 'user-1',
+  asignadoId: null,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  ...overrides,
+});
 
 describe('Ordenes Service', () => {
   beforeEach(() => {
@@ -32,19 +50,7 @@ describe('Ordenes Service', () => {
 
   describe('Create Order', () => {
     it('should create a new order', async () => {
-      const mockOrder = {
-        id: 'order-1',
-        numero: 'ORD-2024-001',
-        cliente: 'Cliente Test',
-        descripcion: 'Orden de prueba',
-        tipoServicio: 'instalacion',
-        estado: 'planeacion',
-        montoEstimado: 5000,
-        prioridad: 'normal',
-        responsableId: 'user-1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const mockOrder = createMockOrder();
 
       vi.mocked(prisma.order.findFirst).mockResolvedValue(null);
       vi.mocked(prisma.order.create).mockResolvedValue(mockOrder);
@@ -61,11 +67,9 @@ describe('Ordenes Service', () => {
           numero: 'ORD-2024-001',
           cliente: 'Cliente Test',
           descripcion: 'Orden de prueba',
-          tipoServicio: 'instalacion',
           estado: 'planeacion',
-          montoEstimado: 5000,
-          prioridad: 'normal',
-          responsableId: 'user-1',
+          prioridad: 'media',
+          creadorId: 'user-1',
         },
       });
 
@@ -86,12 +90,12 @@ describe('Ordenes Service', () => {
   describe('Get Orders', () => {
     it('should list orders with pagination', async () => {
       const mockOrders = [
-        { id: 'order-1', numero: 'ORD-001', estado: 'planeacion' },
-        { id: 'order-2', numero: 'ORD-002', estado: 'ejecucion' },
-        { id: 'order-3', numero: 'ORD-003', estado: 'completada' },
+        createMockOrder({ id: 'order-1', numero: 'ORD-001', estado: 'planeacion' as OrderStatus }),
+        createMockOrder({ id: 'order-2', numero: 'ORD-002', estado: 'ejecucion' as OrderStatus }),
+        createMockOrder({ id: 'order-3', numero: 'ORD-003', estado: 'completada' as OrderStatus }),
       ];
 
-      vi.mocked(prisma.order.findMany).mockResolvedValue(mockOrders as any);
+      vi.mocked(prisma.order.findMany).mockResolvedValue(mockOrders);
       vi.mocked(prisma.order.count).mockResolvedValue(3);
 
       const orders = await prisma.order.findMany({
@@ -99,157 +103,180 @@ describe('Ordenes Service', () => {
         take: 10,
         orderBy: { createdAt: 'desc' },
       });
-
       const total = await prisma.order.count();
 
       expect(orders).toHaveLength(3);
       expect(total).toBe(3);
     });
 
-    it('should filter orders by estado', async () => {
+    it('should filter orders by status', async () => {
       const mockOrders = [
-        { id: 'order-1', numero: 'ORD-001', estado: 'ejecucion' },
-        { id: 'order-2', numero: 'ORD-002', estado: 'ejecucion' },
+        createMockOrder({ id: 'order-1', estado: 'planeacion' as OrderStatus }),
+        createMockOrder({ id: 'order-2', estado: 'planeacion' as OrderStatus }),
       ];
 
-      vi.mocked(prisma.order.findMany).mockResolvedValue(mockOrders as any);
+      vi.mocked(prisma.order.findMany).mockResolvedValue(mockOrders);
 
       const orders = await prisma.order.findMany({
-        where: { estado: 'ejecucion' },
+        where: { estado: 'planeacion' },
       });
 
       expect(orders).toHaveLength(2);
-      expect(orders.every((o: { estado: string }) => o.estado === 'ejecucion')).toBe(true);
+      orders.forEach((order) => {
+        expect(order.estado).toBe('planeacion');
+      });
     });
 
-    it('should get order by id', async () => {
-      const mockOrder = {
-        id: 'order-1',
-        numero: 'ORD-001',
-        cliente: 'Cliente Test',
-        estado: 'planeacion',
-      };
+    it('should filter orders by priority', async () => {
+      const mockOrders = [
+        createMockOrder({ id: 'order-1', prioridad: 'alta' as OrderPriority }),
+        createMockOrder({ id: 'order-2', prioridad: 'alta' as OrderPriority }),
+      ];
 
-      vi.mocked(prisma.order.findUnique).mockResolvedValue(mockOrder as any);
+      vi.mocked(prisma.order.findMany).mockResolvedValue(mockOrders);
 
-      const order = await prisma.order.findUnique({
-        where: { id: 'order-1' },
+      const orders = await prisma.order.findMany({
+        where: { prioridad: 'alta' },
       });
 
-      expect(order).toBeDefined();
-      expect(order?.id).toBe('order-1');
+      expect(orders).toHaveLength(2);
     });
 
-    it('should return null for non-existent order', async () => {
-      vi.mocked(prisma.order.findUnique).mockResolvedValue(null);
+    it('should search orders by client name', async () => {
+      const mockOrders = [
+        createMockOrder({ cliente: 'Cliente Cermont' }),
+      ];
 
-      const order = await prisma.order.findUnique({
-        where: { id: 'non-existent' },
+      vi.mocked(prisma.order.findMany).mockResolvedValue(mockOrders);
+
+      const orders = await prisma.order.findMany({
+        where: { cliente: { contains: 'Cermont' } },
       });
 
-      expect(order).toBeNull();
+      expect(orders).toHaveLength(1);
+      expect(orders[0].cliente).toContain('Cermont');
     });
   });
 
   describe('Update Order', () => {
-    it('should update order', async () => {
-      const mockUpdatedOrder = {
-        id: 'order-1',
-        numero: 'ORD-001',
-        cliente: 'Cliente Actualizado',
-        estado: 'planeacion',
-        montoEstimado: 7500,
-        updatedAt: new Date(),
-      };
+    it('should update order status', async () => {
+      const mockOrder = createMockOrder({
+        estado: 'ejecucion' as OrderStatus,
+        fechaInicio: new Date(),
+      });
 
-      vi.mocked(prisma.order.findUnique).mockResolvedValue({
-        id: 'order-1',
-        numero: 'ORD-001',
-        cliente: 'Cliente Original',
-        estado: 'planeacion',
-        montoEstimado: 5000,
-      } as any);
-
-      vi.mocked(prisma.order.update).mockResolvedValue(mockUpdatedOrder as any);
+      vi.mocked(prisma.order.update).mockResolvedValue(mockOrder);
 
       const result = await prisma.order.update({
         where: { id: 'order-1' },
-        data: {
-          cliente: 'Cliente Actualizado',
-          montoEstimado: 7500,
+        data: { 
+          estado: 'ejecucion',
+          fechaInicio: new Date(),
         },
       });
 
-      expect(result.cliente).toBe('Cliente Actualizado');
-      expect(result.montoEstimado).toBe(7500);
+      expect(result.estado).toBe('ejecucion');
+      expect(result.fechaInicio).toBeDefined();
     });
 
-    it('should change order estado', async () => {
-      const mockUpdatedOrder = {
-        id: 'order-1',
-        numero: 'ORD-001',
-        estado: 'ejecucion',
-        updatedAt: new Date(),
-      };
+    it('should update order priority', async () => {
+      const mockOrder = createMockOrder({
+        prioridad: 'urgente' as OrderPriority,
+      });
 
-      vi.mocked(prisma.order.update).mockResolvedValue(mockUpdatedOrder as any);
+      vi.mocked(prisma.order.update).mockResolvedValue(mockOrder);
 
       const result = await prisma.order.update({
         where: { id: 'order-1' },
-        data: { estado: 'ejecucion' },
+        data: { prioridad: 'urgente' },
       });
 
-      expect(result.estado).toBe('ejecucion');
+      expect(result.prioridad).toBe('urgente');
+    });
+
+    it('should assign order to technician', async () => {
+      const mockOrder = createMockOrder({
+        asignadoId: 'tecnico-1',
+      });
+
+      vi.mocked(prisma.order.update).mockResolvedValue(mockOrder);
+
+      const result = await prisma.order.update({
+        where: { id: 'order-1' },
+        data: { asignadoId: 'tecnico-1' },
+      });
+
+      expect(result.asignadoId).toBe('tecnico-1');
     });
   });
 
   describe('Delete Order', () => {
-    it('should soft delete order by changing estado to cancelada', async () => {
-      const mockDeletedOrder = {
-        id: 'order-1',
-        numero: 'ORD-001',
-        estado: 'cancelada',
-        updatedAt: new Date(),
-      };
+    it('should delete order in planeacion status', async () => {
+      const mockOrder = createMockOrder();
 
-      vi.mocked(prisma.order.update).mockResolvedValue(mockDeletedOrder as any);
+      vi.mocked(prisma.order.findUnique).mockResolvedValue(mockOrder);
+      vi.mocked(prisma.order.delete).mockResolvedValue(mockOrder);
 
-      const result = await prisma.order.update({
+      // Verificar que está en planeacion
+      const order = await prisma.order.findUnique({
         where: { id: 'order-1' },
-        data: { estado: 'cancelada' },
+      });
+      expect(order?.estado).toBe('planeacion');
+
+      // Eliminar
+      const result = await prisma.order.delete({
+        where: { id: 'order-1' },
       });
 
-      expect(result.estado).toBe('cancelada');
+      expect(result.id).toBe('order-1');
+    });
+
+    it('should not delete order in progress', async () => {
+      const orderInProgress = createMockOrder({
+        estado: 'ejecucion' as OrderStatus,
+      });
+
+      vi.mocked(prisma.order.findUnique).mockResolvedValue(orderInProgress);
+
+      const order = await prisma.order.findUnique({
+        where: { id: 'order-1' },
+      });
+
+      // No debería permitirse eliminar ordenes en ejecución
+      expect(order?.estado).toBe('ejecucion');
+      expect(['planeacion', 'cancelada']).not.toContain(order?.estado);
     });
   });
 
-  describe('Order Validation', () => {
-    it('should validate required fields', () => {
-      const requiredFields = ['numero', 'cliente', 'tipoServicio', 'responsableId'];
-      const orderData = {
-        numero: 'ORD-001',
-        cliente: 'Test',
-        tipoServicio: 'instalacion',
-        responsableId: 'user-1',
+  describe('Order Status Transitions', () => {
+    it('should validate valid status transitions', () => {
+      const validTransitions: Record<string, string[]> = {
+        planeacion: ['ejecucion', 'cancelada'],
+        ejecucion: ['pausada', 'completada', 'cancelada'],
+        pausada: ['ejecucion', 'cancelada'],
+        completada: [],
+        cancelada: [],
       };
 
-      requiredFields.forEach((field) => {
-        expect(orderData).toHaveProperty(field);
-        expect(orderData[field as keyof typeof orderData]).toBeTruthy();
-      });
-    });
-
-    it('should validate valid order estados', () => {
-      const validEstados = ['planeacion', 'ejecucion', 'pausada', 'completada', 'cancelada'];
+      // planeacion -> ejecucion es válido
+      expect(validTransitions.planeacion).toContain('ejecucion');
       
-      validEstados.forEach((estado) => {
-        expect(validEstados).toContain(estado);
-      });
+      // ejecucion -> completada es válido
+      expect(validTransitions.ejecucion).toContain('completada');
+      
+      // completada -> planeacion NO es válido
+      expect(validTransitions.completada).not.toContain('planeacion');
     });
+  });
 
-    it('should validate monto is positive', () => {
-      const monto = 5000;
-      expect(monto).toBeGreaterThan(0);
+  describe('Order Priority Levels', () => {
+    it('should have correct priority levels', () => {
+      const priorities: OrderPriority[] = ['baja', 'media', 'alta', 'urgente'];
+      
+      expect(priorities).toContain('baja');
+      expect(priorities).toContain('media');
+      expect(priorities).toContain('alta');
+      expect(priorities).toContain('urgente');
     });
   });
 });

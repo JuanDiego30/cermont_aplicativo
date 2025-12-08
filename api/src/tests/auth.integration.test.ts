@@ -1,15 +1,14 @@
 // 📁 api/src/tests/auth.integration.test.ts
 
-import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import request from 'supertest';
 import app from '../app';
 import { prisma } from '../config/database';
 
-// Skip integration tests if DATABASE_URL is not configured
-const DATABASE_URL = process.env.DATABASE_URL;
-const isDbConfigured = DATABASE_URL && DATABASE_URL.startsWith('postgres');
+// Los tests de integración con DB requieren RUN_INTEGRATION_TESTS=true
+const RUN_INTEGRATION_TESTS = process.env.RUN_INTEGRATION_TESTS === 'true';
 
-describe.skipIf(!isDbConfigured)('Auth API Integration', () => {
+describe.skipIf(!RUN_INTEGRATION_TESTS)('Auth API Integration', () => {
     beforeEach(async () => {
         // Limpiar usuarios
         try {

@@ -1,7 +1,6 @@
-import { PrismaClient, User, Prisma } from '@prisma/client';
+import { User, Prisma } from '@prisma/client';
+import { prisma } from '../../config/database.js';
 import type { UserFiltersDTO, CreateUserDTO, UpdateUserDTO } from './usuarios.types.js';
-
-const prisma = new PrismaClient();
 
 export interface PaginatedUsers {
   data: Omit<User, 'password'>[];
@@ -67,6 +66,7 @@ export class UsuariosRepository {
         select: {
           id: true,
           email: true,
+          googleId: true,
           name: true,
           role: true,
           phone: true,

@@ -51,7 +51,7 @@ export function OfflineIndicator({
       {/* Estado Offline */}
       {!isOnline && (
         <div className="mb-3 p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-400 dark:border-yellow-600 rounded text-yellow-800 dark:text-yellow-200 text-sm flex items-center gap-2">
-          <WifiOffIcon className="w-4 h-4 flex-shrink-0" />
+          <WifiOffIcon className="w-4 h-4 shrink-0" />
           <span>Modo offline. Los cambios se sincronizarán cuando estés conectado.</span>
         </div>
       )}
@@ -59,7 +59,7 @@ export function OfflineIndicator({
       {/* Items pendientes */}
       {pendingItems > 0 && (
         <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-400 dark:border-blue-600 rounded text-blue-800 dark:text-blue-200 text-sm flex items-center gap-2">
-          <CloudUploadIcon className="w-4 h-4 flex-shrink-0" />
+          <CloudUploadIcon className="w-4 h-4 shrink-0" />
           <span>
             {pendingItems} cambio{pendingItems > 1 ? 's' : ''} pendiente{pendingItems > 1 ? 's' : ''}
           </span>
@@ -69,7 +69,7 @@ export function OfflineIndicator({
       {/* Error de sincronización */}
       {syncError && (
         <div className="mb-3 p-2 bg-red-50 dark:bg-red-900/20 border border-red-400 dark:border-red-600 rounded text-red-800 dark:text-red-200 text-sm flex items-center gap-2">
-          <AlertCircleIcon className="w-4 h-4 flex-shrink-0" />
+          <AlertCircleIcon className="w-4 h-4 shrink-0" />
           <span>Error: {syncError}</span>
         </div>
       )}

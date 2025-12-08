@@ -3,7 +3,7 @@
 // ============================================
 
 import * as Sentry from '@sentry/node';
-import type { Express, Request, Response, NextFunction } from 'express';
+import type { Express, Request, Response, NextFunction, ErrorRequestHandler } from 'express';
 import { logger } from './logger.js';
 
 export function initSentry(_app: Express) {
@@ -19,7 +19,7 @@ export function initSentry(_app: Express) {
     environment: process.env.NODE_ENV || 'development',
     integrations: [
       // HTTP integration
-      Sentry.httpIntegration({ tracing: true }),
+      Sentry.httpIntegration(),
       // Capture unhandled exceptions
       Sentry.onUncaughtExceptionIntegration(),
       // Capture unhandled promise rejections
@@ -38,9 +38,12 @@ export function initSentry(_app: Express) {
   logger.info('Sentry initialized successfully');
 }
 
-// Middleware para capturar errores
-export function sentryErrorHandler(): ReturnType<typeof Sentry.Handlers.errorHandler> {
-  return Sentry.Handlers.errorHandler();
+// Middleware para capturar errores - Sentry v8+
+export function sentryErrorHandler(): ErrorRequestHandler {
+  return (err: Error, _req: Request, _res: Response, next: NextFunction) => {
+    Sentry.captureException(err);
+    next(err);
+  };
 }
 
 // Capturar excepciones manualmente

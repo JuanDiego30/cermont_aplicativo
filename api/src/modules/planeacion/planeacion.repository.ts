@@ -2,7 +2,8 @@
 // PLANEACIÓN REPOSITORY - Cermont FSM
 // ============================================
 
-import { PrismaClient, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import { prisma } from '../../config/database.js';
 import { logger } from '../../config/logger.js';
 import type { 
     CreatePlaneacionDTO, 
@@ -11,8 +12,6 @@ import type {
     PlaneacionConRelaciones 
 } from './planeacion.types.js';
 import { EstadoPlaneacion } from './planeacion.types.js';
-
-const prisma = new PrismaClient();
 
 // Includes comunes para planeación
 const planeacionIncludes = {
