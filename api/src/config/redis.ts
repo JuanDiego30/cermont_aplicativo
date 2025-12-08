@@ -1,6 +1,10 @@
-// ============================================
-// Redis Client & Cache Manager - Cermont FSM
-// ============================================
+/**
+ * Cliente Redis y gestor de cache distribuido para Cermont. Proporciona conexión
+ * singleton a Redis con reconexión automática, y clase CacheManager con operaciones
+ * estándar (get/set/delete), patrón cache-aside (getOrSet), operaciones de hash,
+ * contadores e incrementadores con TTL. Incluye prefijo automático de claves,
+ * manejo robusto de errores y sincronización con Prisma para invalidación.
+ */
 
 import { createClient } from 'redis';
 import { logger } from './logger.js';
@@ -8,10 +12,6 @@ import { logger } from './logger.js';
 export type RedisClient = ReturnType<typeof createClient>;
 
 let redisClient: RedisClient | null = null;
-
-// ============================================
-// Inicialización de Redis
-// ============================================
 
 export async function initRedis(): Promise<RedisClient> {
   try {
@@ -65,10 +65,6 @@ export function isRedisConnected(): boolean {
   return redisClient?.isOpen || false;
 }
 
-// ============================================
-// Cache Manager
-// ============================================
-
 export class CacheManager {
   private client: RedisClient;
   private defaultTTL: number;
@@ -79,7 +75,7 @@ export class CacheManager {
     options?: { defaultTTL?: number; prefix?: string }
   ) {
     this.client = client;
-    this.defaultTTL = options?.defaultTTL || 300; // 5 minutos
+    this.defaultTTL = options?.defaultTTL || 300;
     this.prefix = options?.prefix || 'cermont:';
   }
 
@@ -87,9 +83,6 @@ export class CacheManager {
     return `${this.prefix}${key}`;
   }
 
-  /**
-   * Obtener valor del cache
-   */
   async get<T>(key: string): Promise<T | null> {
     try {
       const value = await this.client.get(this.getKey(key));
@@ -101,9 +94,6 @@ export class CacheManager {
     }
   }
 
-  /**
-   * Guardar valor en cache
-   */
   async set<T>(
     key: string,
     value: T,
@@ -120,9 +110,6 @@ export class CacheManager {
     }
   }
 
-  /**
-   * Eliminar del cache
-   */
   async delete(key: string): Promise<void> {
     try {
       await this.client.del(this.getKey(key));
@@ -131,9 +118,6 @@ export class CacheManager {
     }
   }
 
-  /**
-   * Eliminar por patrón
-   */
   async deletePattern(pattern: string): Promise<void> {
     try {
       const keys = await this.client.keys(this.getKey(pattern));
@@ -146,9 +130,6 @@ export class CacheManager {
     }
   }
 
-  /**
-   * Verificar si existe en cache
-   */
   async exists(key: string): Promise<boolean> {
     try {
       const result = await this.client.exists(this.getKey(key));
@@ -159,9 +140,6 @@ export class CacheManager {
     }
   }
 
-  /**
-   * Incrementar contador
-   */
   async increment(key: string, ttl: number = this.defaultTTL): Promise<number> {
     try {
       const fullKey = this.getKey(key);
@@ -176,9 +154,6 @@ export class CacheManager {
     }
   }
 
-  /**
-   * Decrementar contador
-   */
   async decrement(key: string): Promise<number> {
     try {
       return await this.client.decr(this.getKey(key));
@@ -188,34 +163,25 @@ export class CacheManager {
     }
   }
 
-  /**
-   * Get or Set (cache-aside pattern)
-   */
   async getOrSet<T>(
     key: string,
     fn: () => Promise<T>,
     ttl: number = this.defaultTTL
   ): Promise<T> {
-    // Intentar obtener del cache
     const cached = await this.get<T>(key);
     if (cached !== null) {
       logger.debug(`Cache hit for key: ${key}`);
       return cached;
     }
 
-    // Si no está en cache, obtener del origin
     logger.debug(`Cache miss for key: ${key}`);
     const value = await fn();
 
-    // Guardar en cache
     await this.set(key, value, ttl);
 
     return value;
   }
 
-  /**
-   * Hash operations
-   */
   async hSet(key: string, field: string, value: any): Promise<void> {
     try {
       await this.client.hSet(
@@ -253,9 +219,6 @@ export class CacheManager {
     }
   }
 
-  /**
-   * Obtener TTL restante
-   */
   async ttl(key: string): Promise<number> {
     try {
       return await this.client.ttl(this.getKey(key));
@@ -265,9 +228,6 @@ export class CacheManager {
     }
   }
 
-  /**
-   * Limpiar todo el cache con el prefix
-   */
   async flush(): Promise<void> {
     try {
       const keys = await this.client.keys(`${this.prefix}*`);
@@ -281,16 +241,12 @@ export class CacheManager {
   }
 }
 
-// ============================================
-// Instancia global
-// ============================================
-
 export let cacheManager: CacheManager;
 
 export async function initCacheManager(): Promise<CacheManager> {
   const client = await initRedis();
   cacheManager = new CacheManager(client, {
-    defaultTTL: 300, // 5 minutos
+    defaultTTL: 300,
     prefix: 'cermont:',
   });
   return cacheManager;
@@ -302,3 +258,4 @@ export function getCacheManager(): CacheManager {
   }
   return cacheManager;
 }
+

@@ -1,27 +1,26 @@
+/**
+ * Capa de acceso a datos (Data Access Layer) para autenticación en Cermont. Abstrae
+ * todas las operaciones con base de datos (Prisma) relacionadas con usuarios, refresh tokens,
+ * password reset tokens y audit logs. Proporciona métodos CRUD, rotación de tokens con
+ * family pattern para detección de reuso, revocación en cascada, limpieza automática de
+ * tokens expirados, y transacciones atómicas para reseteo seguro de contraseña con
+ * revocación de todas las sesiones anteriores.
+ */
+
 import { User, RefreshToken, PasswordResetToken, Prisma } from '@prisma/client';
 import { prisma } from '../../config/database.js';
 
-// Type for refresh token with user relation
 type RefreshTokenWithUser = RefreshToken & { user: User };
 
 export class AuthRepository {
-  /**
-   * Buscar usuario por email
-   */
   async findByEmail(email: string): Promise<User | null> {
     return prisma.user.findUnique({ where: { email } });
   }
 
-  /**
-   * Buscar usuario por ID
-   */
   async findById(id: string): Promise<User | null> {
     return prisma.user.findUnique({ where: { id } });
   }
 
-  /**
-   * Crear nuevo usuario
-   */
   async createUser(data: {
     email: string;
     password: string;
@@ -40,9 +39,6 @@ export class AuthRepository {
     });
   }
 
-  /**
-   * Actualizar último login del usuario
-   */
   async updateLastLogin(userId: string): Promise<void> {
     await prisma.user.update({
       where: { id: userId },
@@ -50,9 +46,6 @@ export class AuthRepository {
     });
   }
 
-  /**
-   * Actualizar contraseña del usuario
-   */
   async updatePassword(userId: string, hashedPassword: string): Promise<void> {
     await prisma.user.update({
       where: { id: userId },
@@ -60,9 +53,6 @@ export class AuthRepository {
     });
   }
 
-  /**
-   * Crear refresh token
-   */
   async createRefreshToken(data: {
     token: string;
     userId: string;
@@ -74,9 +64,6 @@ export class AuthRepository {
     return prisma.refreshToken.create({ data });
   }
 
-  /**
-   * Buscar refresh token con usuario
-   */
   async findRefreshToken(token: string): Promise<RefreshTokenWithUser | null> {
     return prisma.refreshToken.findUnique({
       where: { token },
@@ -84,9 +71,6 @@ export class AuthRepository {
     });
   }
 
-  /**
-   * Revocar refresh token por ID
-   */
   async revokeRefreshToken(id: string): Promise<void> {
     await prisma.refreshToken.update({
       where: { id },
@@ -94,9 +78,6 @@ export class AuthRepository {
     });
   }
 
-  /**
-   * Revocar refresh token por valor del token
-   */
   async revokeRefreshTokenByValue(token: string): Promise<void> {
     await prisma.refreshToken.updateMany({
       where: { token },
@@ -104,9 +85,6 @@ export class AuthRepository {
     });
   }
 
-  /**
-   * Revocar todos los tokens de una familia
-   */
   async revokeTokenFamily(family: string): Promise<void> {
     await prisma.refreshToken.updateMany({
       where: { family },
@@ -114,9 +92,6 @@ export class AuthRepository {
     });
   }
 
-  /**
-   * Revocar todos los tokens de un usuario
-   */
   async revokeAllUserTokens(userId: string): Promise<void> {
     await prisma.refreshToken.updateMany({
       where: { userId },
@@ -124,9 +99,6 @@ export class AuthRepository {
     });
   }
 
-  /**
-   * Limpiar tokens expirados
-   */
   async cleanExpiredTokens(): Promise<number> {
     const result = await prisma.refreshToken.deleteMany({
       where: {
@@ -139,9 +111,6 @@ export class AuthRepository {
     return result.count;
   }
 
-  /**
-   * Crear registro de auditoría
-   */
   async createAuditLog(data: {
     entityType: string;
     entityId: string;
@@ -151,7 +120,7 @@ export class AuthRepository {
     userAgent?: string;
     changes?: Prisma.InputJsonValue;
   }): Promise<void> {
-    await prisma.auditLog.create({ 
+    await prisma.auditLog.create({
       data: {
         entityType: data.entityType,
         entityId: data.entityId,
@@ -160,13 +129,10 @@ export class AuthRepository {
         ip: data.ip,
         userAgent: data.userAgent,
         changes: data.changes,
-      } 
+      }
     });
   }
 
-  /**
-   * Crear token de reset de contraseña
-   */
   async createPasswordResetToken(data: {
     token: string;
     userId: string;
@@ -176,18 +142,12 @@ export class AuthRepository {
     return prisma.passwordResetToken.create({ data });
   }
 
-  /**
-   * Buscar token de reset de contraseña
-   */
   async findPasswordResetToken(token: string): Promise<PasswordResetToken | null> {
     return prisma.passwordResetToken.findUnique({
       where: { token },
     });
   }
 
-  /**
-   * Transacción para resetear contraseña
-   */
   async resetPasswordTransaction(resetTokenId: string, userId: string, hashedPassword: string): Promise<void> {
     await prisma.$transaction([
       prisma.user.update({
@@ -206,5 +166,5 @@ export class AuthRepository {
   }
 }
 
-// Export singleton instance
 export const authRepository = new AuthRepository();
+

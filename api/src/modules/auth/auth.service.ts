@@ -1,3 +1,11 @@
+/**
+ * Servicio central de autenticación para Cermont que maneja lógica de login, registro,
+ * refresh de tokens, logout, reset de contraseña y validación JWT. Implementa hash seguro
+ * de contraseñas con bcrypt, generación de access/refresh tokens con family pattern para
+ * detección de reuso, auditoría de eventos (login, register), y transacciones atómicas
+ * para cambios críticos. Proporciona métodos tipo signature para integración con controller y repository.
+ */
+
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
@@ -211,3 +219,4 @@ export class AuthService {
 }
 
 export const authService = new AuthService();
+

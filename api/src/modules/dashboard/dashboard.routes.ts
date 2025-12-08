@@ -1,3 +1,10 @@
+/**
+ * Rutas del dashboard para Cermont. Todas las rutas requieren autenticación via authMiddleware
+ * y autorización basada en roles (solo admin y supervisor). Cada ruta mapea a un método
+ * del controller que retorna datos JSON para visualización en gráficos y métricas del panel.
+ * Soporta query parameters (dias) para filtrado temporal de datos.
+ */
+
 import { Router } from 'express';
 import { dashboardController } from './dashboard.controller.js';
 import { authMiddleware, roleMiddleware } from '../auth/auth.middleware.js';
@@ -32,3 +39,4 @@ router.get('/ordenes-prioridad', dashboardController.getOrdenesPorPrioridad);
 router.get('/tecnicos', dashboardController.getResumenTecnicos);
 
 export default router;
+

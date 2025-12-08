@@ -17,6 +17,13 @@ export enum EstadoPlaneacion {
     CANCELADA = 'cancelada',
 }
 
+export enum TipoItemPlaneacion {
+    MATERIAL = 'MATERIAL',
+    HERRAMIENTA = 'HERRAMIENTA',
+    EQUIPO = 'EQUIPO',
+    SEGURIDAD = 'SEGURIDAD',
+}
+
 // ============================================
 // SCHEMAS - Validación con Zod
 // ============================================
@@ -55,30 +62,58 @@ const asignacionSchema = z.object({
     horasEstimadas: z.number().positive(),
 });
 
+// Schema para item de planeación (materiales, herramientas, equipos, seguridad)
+const itemPlaneacionSchema = z.object({
+    tipo: z.nativeEnum(TipoItemPlaneacion),
+    descripcion: z.string().min(1, 'Descripción requerida'),
+    cantidad: z.number().int().positive('Cantidad debe ser positiva').default(1),
+    unidad: z.string().default('UND'),
+    observaciones: z.string().optional(),
+});
+
 // ============================================
 // SCHEMAS PRINCIPALES
 // ============================================
 
 export const createPlaneacionSchema = z.object({
     ordenId: z.string().uuid('ID de orden inválido'),
-    kitId: z.string().uuid('ID de kit inválido'),
-    cronograma: z.array(actividadSchema).min(1, 'Al menos una actividad requerida'),
-    manoDeObra: z.array(asignacionSchema).min(1, 'Al menos una asignación requerida'),
+    kitId: z.string().uuid('ID de kit inválido').optional(),
+    
+    // Campos del formulario OPE-001
+    empresa: z.string().optional(),
+    ubicacion: z.string().optional(),
+    fechaEstimadaInicio: z.coerce.date().optional(),
+    fechaEstimadaFin: z.coerce.date().optional(),
+    descripcionTrabajo: z.string().optional(),
+    
+    cronograma: z.array(actividadSchema).optional().default([]),
+    manoDeObra: z.array(asignacionSchema).optional().default([]),
     herramientasAdicionales: z.array(herramientaSchema).optional(),
     documentosApoyo: z.array(z.string()).optional(),
     observaciones: z.string().max(2000).optional(),
-}).refine(data => {
-    // Validar que fechas de cronograma sean coherentes
-    return data.cronograma.every(act => act.fechaFin >= act.fechaInicio);
-}, { message: 'Fechas de actividades inválidas' });
+    
+    // Items específicos del formulario
+    items: z.array(itemPlaneacionSchema).optional(),
+});
 
 export const updatePlaneacionSchema = z.object({
-    kitId: z.string().uuid().optional(),
+    kitId: z.string().uuid().optional().nullable(),
+    
+    // Campos del formulario
+    empresa: z.string().optional(),
+    ubicacion: z.string().optional(),
+    fechaEstimadaInicio: z.coerce.date().optional(),
+    fechaEstimadaFin: z.coerce.date().optional(),
+    descripcionTrabajo: z.string().optional(),
+    
     cronograma: z.array(actividadSchema).optional(),
     manoDeObra: z.array(asignacionSchema).optional(),
     herramientasAdicionales: z.array(herramientaSchema).optional(),
     documentosApoyo: z.array(z.string()).optional(),
     observaciones: z.string().max(2000).optional(),
+    
+    // Items específicos
+    items: z.array(itemPlaneacionSchema).optional(),
 });
 
 export const aprobarPlaneacionSchema = z.object({
@@ -105,12 +140,33 @@ export type CreatePlaneacionDTO = z.infer<typeof createPlaneacionSchema>;
 export type UpdatePlaneacionDTO = z.infer<typeof updatePlaneacionSchema>;
 export type AprobarPlaneacionDTO = z.infer<typeof aprobarPlaneacionSchema>;
 export type PlaneacionFilters = z.infer<typeof planeacionFiltersSchema>;
+export type ItemPlaneacionInput = z.infer<typeof itemPlaneacionSchema>;
+
+export interface ItemPlaneacion {
+    id: string;
+    planeacionId: string;
+    tipo: TipoItemPlaneacion;
+    descripcion: string;
+    cantidad: number;
+    unidad: string;
+    observaciones?: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
 
 export interface Planeacion {
     id: string;
     ordenId: string;
-    kitId: string;
+    kitId?: string | null;
     estado: EstadoPlaneacion;
+    
+    // Campos del formulario OPE-001
+    empresa?: string;
+    ubicacion?: string;
+    fechaEstimadaInicio?: Date;
+    fechaEstimadaFin?: Date;
+    descripcionTrabajo?: string;
+    
     cronograma: Actividad[];
     manoDeObra: AsignacionManoObra[];
     herramientasAdicionales?: Herramienta[];
@@ -130,14 +186,15 @@ export interface PlaneacionConRelaciones extends Planeacion {
         cliente: string;
         estado: string;
     };
-    kit: {
+    kit?: {
         id: string;
         nombre: string;
         descripcion: string;
-    };
+    } | null;
     aprobadoPor?: {
         id: string;
         name: string;
         email: string;
     };
+    items?: ItemPlaneacion[];
 }

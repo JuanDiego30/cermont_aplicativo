@@ -1,153 +1,304 @@
 // ============================================
-// Prometheus Metrics - Cermont FSM
+// Redis Client & Cache Manager - Cermont FSM
 // ============================================
 
-import promClient from 'prom-client';
-import type { Request, Response, NextFunction } from 'express';
+import { createClient } from 'redis';
+import { logger } from './logger.js';
 
-// Crear registro
-const register = new promClient.Registry();
+export type RedisClient = ReturnType<typeof createClient>;
 
-// Métricas default de Node.js
-promClient.collectDefaultMetrics({ register });
+let redisClient: RedisClient | null = null;
 
 // ============================================
-// HTTP Metrics
+// Inicialización de Redis
 // ============================================
 
-export const httpRequestDuration = new promClient.Histogram({
-  name: 'http_request_duration_seconds',
-  help: 'Duration of HTTP requests in seconds',
-  labelNames: ['method', 'route', 'status_code'],
-  buckets: [0.01, 0.05, 0.1, 0.5, 1, 2, 5],
-  registers: [register],
-});
-
-export const httpRequestsTotal = new promClient.Counter({
-  name: 'http_requests_total',
-  help: 'Total number of HTTP requests',
-  labelNames: ['method', 'route', 'status_code'],
-  registers: [register],
-});
-
-export const httpRequestsInFlight = new promClient.Gauge({
-  name: 'http_requests_in_flight',
-  help: 'Number of HTTP requests currently being processed',
-  registers: [register],
-});
-
-// ============================================
-// Database Metrics
-// ============================================
-
-export const dbConnectionPoolUsed = new promClient.Gauge({
-  name: 'db_connection_pool_used',
-  help: 'Number of used database connections',
-  registers: [register],
-});
-
-export const dbConnectionPoolMax = new promClient.Gauge({
-  name: 'db_connection_pool_max',
-  help: 'Maximum database connections',
-  registers: [register],
-});
-
-export const dbQueryDuration = new promClient.Histogram({
-  name: 'db_query_duration_seconds',
-  help: 'Database query duration in seconds',
-  labelNames: ['query_type', 'table'],
-  buckets: [0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1],
-  registers: [register],
-});
-
-export const dbQueriesTotal = new promClient.Counter({
-  name: 'db_queries_total',
-  help: 'Total number of database queries',
-  labelNames: ['query_type', 'table', 'status'],
-  registers: [register],
-});
-
-// ============================================
-// Cache Metrics
-// ============================================
-
-export const cacheHits = new promClient.Counter({
-  name: 'cache_hits_total',
-  help: 'Total number of cache hits',
-  labelNames: ['cache_type'],
-  registers: [register],
-});
-
-export const cacheMisses = new promClient.Counter({
-  name: 'cache_misses_total',
-  help: 'Total number of cache misses',
-  labelNames: ['cache_type'],
-  registers: [register],
-});
-
-// ============================================
-// Business Metrics
-// ============================================
-
-export const ordenesCreated = new promClient.Counter({
-  name: 'ordenes_created_total',
-  help: 'Total number of orders created',
-  labelNames: ['tipo_servicio'],
-  registers: [register],
-});
-
-export const ordenesCompleted = new promClient.Counter({
-  name: 'ordenes_completed_total',
-  help: 'Total number of orders completed',
-  labelNames: ['tipo_servicio'],
-  registers: [register],
-});
-
-export const activeUsers = new promClient.Gauge({
-  name: 'active_users',
-  help: 'Number of currently active users',
-  registers: [register],
-});
-
-// ============================================
-// Middleware
-// ============================================
-
-export function metricsMiddleware(req: Request, res: Response, next: NextFunction) {
-  const start = Date.now();
-  httpRequestsInFlight.inc();
-
-  res.on('finish', () => {
-    const duration = (Date.now() - start) / 1000;
-    const route = req.route?.path || req.path || '/';
-    const statusCode = String(res.statusCode);
-
-    httpRequestDuration
-      .labels(req.method, route, statusCode)
-      .observe(duration);
-
-    httpRequestsTotal
-      .labels(req.method, route, statusCode)
-      .inc();
-
-    httpRequestsInFlight.dec();
-  });
-
-  next();
-}
-
-// ============================================
-// Metrics Endpoint
-// ============================================
-
-export async function metricsEndpoint(_req: Request, res: Response) {
+export async function initRedis(): Promise<RedisClient> {
   try {
-    res.set('Content-Type', register.contentType);
-    const metrics = await register.metrics();
-    res.end(metrics);
+    const client = createClient({
+      socket: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379'),
+        reconnectStrategy: (retries: number) => {
+          if (retries > 10) {
+            logger.error('Redis max reconnection attempts reached');
+            return new Error('Max reconnection attempts reached');
+          }
+          return Math.min(retries * 100, 3000);
+        },
+      },
+      password: process.env.REDIS_PASSWORD || undefined,
+    });
+
+    client.on('error', (err: Error) => logger.error('Redis error:', err));
+    client.on('connect', () => logger.info('Redis connecting...'));
+    client.on('ready', () => logger.info('Redis ready'));
+    client.on('reconnecting', () => logger.warn('Redis reconnecting...'));
+
+    await client.connect();
+    redisClient = client;
+
+    logger.info('Redis connected successfully');
+    return client;
   } catch (error) {
-    res.status(500).end(String(error));
+    logger.error('Failed to connect to Redis:', error);
+    throw error;
   }
 }
 
-export { register };
+export function getRedisClient(): RedisClient {
+  if (!redisClient) {
+    throw new Error('Redis not initialized. Call initRedis() first.');
+  }
+  return redisClient;
+}
+
+export async function closeRedis(): Promise<void> {
+  if (redisClient) {
+    await redisClient.quit();
+    redisClient = null;
+    logger.info('Redis connection closed');
+  }
+}
+
+export function isRedisConnected(): boolean {
+  return redisClient?.isOpen || false;
+}
+
+// ============================================
+// Cache Manager
+// ============================================
+
+export class CacheManager {
+  private client: RedisClient;
+  private defaultTTL: number;
+  private prefix: string;
+
+  constructor(
+    client: RedisClient,
+    options?: { defaultTTL?: number; prefix?: string }
+  ) {
+    this.client = client;
+    this.defaultTTL = options?.defaultTTL || 300; // 5 minutos
+    this.prefix = options?.prefix || 'cermont:';
+  }
+
+  private getKey(key: string): string {
+    return `${this.prefix}${key}`;
+  }
+
+  /**
+   * Obtener valor del cache
+   */
+  async get<T>(key: string): Promise<T | null> {
+    try {
+      const value = await this.client.get(this.getKey(key));
+      if (!value) return null;
+      return JSON.parse(value) as T;
+    } catch (error) {
+      logger.error(`Cache get error for key ${key}:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Guardar valor en cache
+   */
+  async set<T>(
+    key: string,
+    value: T,
+    ttl: number = this.defaultTTL
+  ): Promise<void> {
+    try {
+      await this.client.setEx(
+        this.getKey(key),
+        ttl,
+        JSON.stringify(value)
+      );
+    } catch (error) {
+      logger.error(`Cache set error for key ${key}:`, error);
+    }
+  }
+
+  /**
+   * Eliminar del cache
+   */
+  async delete(key: string): Promise<void> {
+    try {
+      await this.client.del(this.getKey(key));
+    } catch (error) {
+      logger.error(`Cache delete error for key ${key}:`, error);
+    }
+  }
+
+  /**
+   * Eliminar por patrón
+   */
+  async deletePattern(pattern: string): Promise<void> {
+    try {
+      const keys = await this.client.keys(this.getKey(pattern));
+      if (keys.length > 0) {
+        await this.client.del(keys);
+        logger.debug(`Deleted ${keys.length} keys matching pattern: ${pattern}`);
+      }
+    } catch (error) {
+      logger.error(`Cache delete pattern error for ${pattern}:`, error);
+    }
+  }
+
+  /**
+   * Verificar si existe en cache
+   */
+  async exists(key: string): Promise<boolean> {
+    try {
+      const result = await this.client.exists(this.getKey(key));
+      return result === 1;
+    } catch (error) {
+      logger.error(`Cache exists error for key ${key}:`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Incrementar contador
+   */
+  async increment(key: string, ttl: number = this.defaultTTL): Promise<number> {
+    try {
+      const fullKey = this.getKey(key);
+      const result = await this.client.incr(fullKey);
+      if (result === 1) {
+        await this.client.expire(fullKey, ttl);
+      }
+      return result;
+    } catch (error) {
+      logger.error(`Cache increment error for key ${key}:`, error);
+      return 0;
+    }
+  }
+
+  /**
+   * Decrementar contador
+   */
+  async decrement(key: string): Promise<number> {
+    try {
+      return await this.client.decr(this.getKey(key));
+    } catch (error) {
+      logger.error(`Cache decrement error for key ${key}:`, error);
+      return 0;
+    }
+  }
+
+  /**
+   * Get or Set (cache-aside pattern)
+   */
+  async getOrSet<T>(
+    key: string,
+    fn: () => Promise<T>,
+    ttl: number = this.defaultTTL
+  ): Promise<T> {
+    // Intentar obtener del cache
+    const cached = await this.get<T>(key);
+    if (cached !== null) {
+      logger.debug(`Cache hit for key: ${key}`);
+      return cached;
+    }
+
+    // Si no está en cache, obtener del origin
+    logger.debug(`Cache miss for key: ${key}`);
+    const value = await fn();
+
+    // Guardar en cache
+    await this.set(key, value, ttl);
+
+    return value;
+  }
+
+  /**
+   * Hash operations
+   */
+  async hSet(key: string, field: string, value: any): Promise<void> {
+    try {
+      await this.client.hSet(
+        this.getKey(key),
+        field,
+        JSON.stringify(value)
+      );
+    } catch (error) {
+      logger.error(`Cache hSet error for key ${key}:`, error);
+    }
+  }
+
+  async hGet<T>(key: string, field: string): Promise<T | null> {
+    try {
+      const value = await this.client.hGet(this.getKey(key), field);
+      if (!value) return null;
+      return JSON.parse(value) as T;
+    } catch (error) {
+      logger.error(`Cache hGet error for key ${key}:`, error);
+      return null;
+    }
+  }
+
+  async hGetAll<T>(key: string): Promise<Record<string, T>> {
+    try {
+      const data = await this.client.hGetAll(this.getKey(key));
+      const result: Record<string, T> = {};
+      for (const [field, value] of Object.entries(data)) {
+        result[field] = JSON.parse(value as string);
+      }
+      return result;
+    } catch (error) {
+      logger.error(`Cache hGetAll error for key ${key}:`, error);
+      return {};
+    }
+  }
+
+  /**
+   * Obtener TTL restante
+   */
+  async ttl(key: string): Promise<number> {
+    try {
+      return await this.client.ttl(this.getKey(key));
+    } catch (error) {
+      logger.error(`Cache ttl error for key ${key}:`, error);
+      return -1;
+    }
+  }
+
+  /**
+   * Limpiar todo el cache con el prefix
+   */
+  async flush(): Promise<void> {
+    try {
+      const keys = await this.client.keys(`${this.prefix}*`);
+      if (keys.length > 0) {
+        await this.client.del(keys);
+        logger.info(`Flushed ${keys.length} cache keys`);
+      }
+    } catch (error) {
+      logger.error('Cache flush error:', error);
+    }
+  }
+}
+
+// ============================================
+// Instancia global
+// ============================================
+
+export let cacheManager: CacheManager;
+
+export async function initCacheManager(): Promise<CacheManager> {
+  const client = await initRedis();
+  cacheManager = new CacheManager(client, {
+    defaultTTL: 300, // 5 minutos
+    prefix: 'cermont:',
+  });
+  return cacheManager;
+}
+
+export function getCacheManager(): CacheManager {
+  if (!cacheManager) {
+    throw new Error('CacheManager not initialized. Call initCacheManager() first.');
+  }
+  return cacheManager;
+}

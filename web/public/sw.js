@@ -3,14 +3,12 @@
 // Cache first + Network fallback strategy
 // ============================================
 
-const CACHE_NAME = 'cermont-v1';
-const API_CACHE = 'cermont-api-v1';
+const CACHE_NAME = 'cermont-v2';
+const API_CACHE = 'cermont-api-v2';
 
+// Solo cachear recursos que definitivamente existen
 const STATIC_ASSETS = [
   '/',
-  '/offline',
-  '/manifest.json',
-  '/logo.svg',
   '/favicon.ico',
 ];
 
@@ -29,13 +27,31 @@ self.addEventListener('install', (event) => {
   
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
+      .then(async (cache) => {
         console.log('[SW] Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
+        // Cachear recursos uno por uno con manejo de errores
+        const cachePromises = STATIC_ASSETS.map(async (url) => {
+          try {
+            const response = await fetch(url);
+            if (response.ok) {
+              await cache.put(url, response);
+              console.log('[SW] Cached:', url);
+            } else {
+              console.warn('[SW] Failed to cache (not ok):', url);
+            }
+          } catch (error) {
+            console.warn('[SW] Failed to cache:', url, error.message);
+          }
+        });
+        await Promise.allSettled(cachePromises);
+        return;
       })
       .then(() => {
         console.log('[SW] Installed successfully');
         return self.skipWaiting();
+      })
+      .catch((error) => {
+        console.error('[SW] Installation failed:', error);
       })
   );
 });

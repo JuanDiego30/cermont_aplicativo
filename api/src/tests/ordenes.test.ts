@@ -38,6 +38,8 @@ const createMockOrder = (overrides = {}) => ({
   fechaFin: null,
   creadorId: 'user-1',
   asignadoId: null,
+  requiereHES: false,
+  cumplimientoHES: false,
   createdAt: new Date(),
   updatedAt: new Date(),
   ...overrides,

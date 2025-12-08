@@ -202,6 +202,57 @@ export class PlaneacionController {
             message: 'Planeación eliminada',
         });
     });
+
+    /**
+     * GET /api/planeacion/:id/resumen
+     * Obtener resumen de planeación para dashboard
+     */
+    getResumen = asyncHandler(async (req: Request, res: Response) => {
+        const { id } = req.params;
+        const resumen = await planeacionService.generateResumen(id);
+        
+        res.json({
+            success: true,
+            data: resumen,
+        });
+    });
+
+    /**
+     * POST /api/planeacion/:id/items
+     * Agregar item a planeación
+     */
+    addItem = asyncHandler(async (req: Request, res: Response) => {
+        const { id } = req.params;
+        const { tipo, descripcion, cantidad, unidad, observaciones } = req.body;
+        
+        const item = await planeacionService.addItem(id, {
+            tipo,
+            descripcion,
+            cantidad,
+            unidad,
+            observaciones,
+        });
+        
+        res.status(201).json({
+            success: true,
+            message: 'Item agregado',
+            data: item,
+        });
+    });
+
+    /**
+     * DELETE /api/planeacion/:id/items/:itemId
+     * Eliminar item de planeación
+     */
+    removeItem = asyncHandler(async (req: Request, res: Response) => {
+        const { id, itemId } = req.params;
+        await planeacionService.removeItem(id, itemId);
+        
+        res.json({
+            success: true,
+            message: 'Item eliminado',
+        });
+    });
 }
 
 export const planeacionController = new PlaneacionController();

@@ -16,6 +16,10 @@ import ejecucionRoutes from './modules/ejecucion/index.js';
 import evidenciasRoutes from './modules/evidencias/index.js';
 import dashboardRoutes from './modules/dashboard/index.js';
 import reportesRoutes from './modules/reportes/index.js';
+import hesRoutes from './modules/hes/hes.routes.js';
+import lineasVidaRoutes from './modules/lineas-vida/index.js';
+import costosRoutes from './modules/costos/costos.routes.js';
+import checklistsRoutes from './modules/checklists/checklists.routes.js';
 
 const app = express();
 
@@ -28,7 +32,6 @@ app.use(cors({
     credentials: true,
 }));
 app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 
@@ -58,7 +61,10 @@ app.use('/api/ejecucion', ejecucionRoutes);
 app.use('/api/evidencias', evidenciasRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/reportes', reportesRoutes);
-
+app.use('/api/hes', hesRoutes);
+app.use('/api/lineas-vida', lineasVidaRoutes);
+app.use('/api/costos', costosRoutes);
+app.use('/api/checklists', checklistsRoutes);
 // 404 handler
 app.use(notFoundHandler);
 
