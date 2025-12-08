@@ -1,0 +1,47 @@
+# ============================================
+# Kustomization - Cermont FSM
+# ============================================
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: cermont
+
+resources:
+  - namespace.yaml
+  # API
+  - api/deployment.yaml
+  - api/service.yaml
+  - api/configmap.yaml
+  - api/hpa.yaml
+  - api/pdb.yaml
+  - api/ingress.yaml
+  # Web
+  - web/deployment.yaml
+  - web/service.yaml
+  - web/configmap.yaml
+  - web/hpa.yaml
+  - web/ingress.yaml
+  # Database
+  - database/statefulset.yaml
+  # Redis
+  - redis/deployment.yaml
+
+# Configuración de replicas
+replicas:
+  - name: cermont-api
+    count: 3
+  - name: cermont-web
+    count: 3
+
+# Labels comunes
+commonLabels:
+  app.kubernetes.io/name: cermont
+  app.kubernetes.io/instance: production
+  app.kubernetes.io/version: v1.0.0
+  app.kubernetes.io/managed-by: kustomize
+
+# Anotaciones comunes
+commonAnnotations:
+  team: devops
+  environment: production

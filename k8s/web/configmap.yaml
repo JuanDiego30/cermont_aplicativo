@@ -1,0 +1,13 @@
+# ============================================
+# Web ConfigMap - Cermont FSM
+# ============================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cermont-web-config
+  namespace: cermont
+data:
+  api-url: "https://api.cermont.com"
+  app-name: "CERMONT FSM"
+  environment: "production"

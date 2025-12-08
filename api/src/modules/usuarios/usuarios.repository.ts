@@ -165,7 +165,7 @@ export class UsuariosRepository {
     });
 
     return result.reduce(
-      (acc, item) => ({ ...acc, [item.role]: item._count }),
+      (acc: Record<string, number>, item: { role: string; _count: number }) => ({ ...acc, [item.role]: item._count }),
       {} as Record<string, number>
     );
   }

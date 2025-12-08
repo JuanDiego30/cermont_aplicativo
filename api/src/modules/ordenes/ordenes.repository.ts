@@ -1,12 +1,12 @@
-import { Order, OrderItem, Prisma } from '@prisma/client';
+import type { Order, OrderItem, Prisma } from '@prisma/client';
 import { prisma } from '../../config/database.js';
 import type { OrderStatus, OrderPriority } from './ordenes.types.js';
 
-export interface OrderWithRelations extends Order {
+type OrderWithRelations = Order & {
   items?: OrderItem[];
   creador?: { id: string; name: string; email: string } | null;
   asignado?: { id: string; name: string; email: string } | null;
-}
+};
 
 export interface OrderFilters {
   estado?: OrderStatus;
@@ -226,11 +226,11 @@ export class OrdenesRepository {
     return {
       total,
       porEstado: porEstado.reduce(
-        (acc, item) => ({ ...acc, [item.estado]: item._count }),
+        (acc: Record<string, number>, item: { estado: string; _count: number }) => ({ ...acc, [item.estado]: item._count }),
         {} as Record<string, number>
       ),
       porPrioridad: porPrioridad.reduce(
-        (acc, item) => ({ ...acc, [item.prioridad]: item._count }),
+        (acc: Record<string, number>, item: { prioridad: string; _count: number }) => ({ ...acc, [item.prioridad]: item._count }),
         {} as Record<string, number>
       ),
     };

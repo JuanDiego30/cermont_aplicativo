@@ -28,7 +28,7 @@ export const errorHandler = (
   // Handle Zod validation errors
   if (err instanceof ZodError) {
     const errors: Record<string, string[]> = {};
-    err.errors.forEach((e) => {
+    err.issues.forEach((e) => {
       const path = e.path.join('.');
       if (!errors[path]) {
         errors[path] = [];

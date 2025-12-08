@@ -35,9 +35,9 @@ function loadEnv(): Env {
     return envSchema.parse(process.env);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const missingVars = error.errors.map((e) => `${e.path.join('.')}: ${e.message}`);
+      const missingVars = error.issues.map((e: z.ZodIssue) => `${e.path.join('.')}: ${e.message}`);
       console.error('❌ Environment validation failed:');
-      missingVars.forEach((v) => console.error(`   - ${v}`));
+      missingVars.forEach((v: string) => console.error(`   - ${v}`));
       
       if (process.env.NODE_ENV !== 'test') {
         process.exit(1);

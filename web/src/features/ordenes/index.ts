@@ -10,6 +10,7 @@ export { OrderStats } from './components/OrderStats';
 
 // Hooks - React Query based
 export * from './hooks/use-orders';
+export * from './hooks/use-ordenes';
 
 // API layer
 export { ordenesApi } from './api/ordenes.api';
