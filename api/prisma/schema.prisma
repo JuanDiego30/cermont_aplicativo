@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  engineType = "library"
 }
 
 datasource db {
@@ -41,23 +42,25 @@ enum OrderPriority {
 // ============================================
 
 model User {
-  id           String         @id @default(uuid())
-  email        String         @unique
-  password     String
-  name         String
-  role         UserRole       @default(tecnico)
-  phone        String?
-  avatar       String?
-  active       Boolean        @default(true)
-  lastLogin    DateTime?
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  name      String
+  role      UserRole  @default(tecnico)
+  phone     String?
+  avatar    String?
+  active    Boolean   @default(true)
+  lastLogin DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   // Relations
-  refreshTokens RefreshToken[]
-  auditLogs     AuditLog[]     @relation("UserAuditLogs")
-  ordenes       Order[]        @relation("OrderCreator")
-  asignaciones  Order[]        @relation("OrderAssignee")
+  refreshTokens         RefreshToken[]
+  auditLogs             AuditLog[]     @relation("UserAuditLogs")
+  ordenes               Order[]        @relation("OrderCreator")
+  asignaciones          Order[]        @relation("OrderAssignee")
+  planeacionesAprobadas Planeacion[]   @relation("PlaneacionAprobador")
+  pushSubscriptions     PushSubscription[]
 
   @@map("users")
 }
@@ -106,19 +109,22 @@ model Order {
   fechaFinEstimada DateTime?
   fechaInicio      DateTime?
   fechaFin         DateTime?
-  
+
   // Relations
-  creadorId    String?
-  creador      User?   @relation("OrderCreator", fields: [creadorId], references: [id])
-  asignadoId   String?
-  asignado     User?   @relation("OrderAssignee", fields: [asignadoId], references: [id])
-  
-  items        OrderItem[]
-  evidencias   Evidence[]
-  costos       Cost[]
-  
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  creadorId  String?
+  creador    User?   @relation("OrderCreator", fields: [creadorId], references: [id])
+  asignadoId String?
+  asignado   User?   @relation("OrderAssignee", fields: [asignadoId], references: [id])
+
+  items               OrderItem[]
+  evidencias          Evidence[]
+  costos              Cost[]
+  planeacion          Planeacion?
+  ejecucion           Ejecucion?
+  evidenciasEjecucion EvidenciaEjecucion[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([estado])
   @@index([cliente])
@@ -145,11 +151,11 @@ model OrderItem {
 }
 
 model Evidence {
-  id          String @id @default(uuid())
+  id          String  @id @default(uuid())
   tipo        String // 'foto', 'documento', 'video'
   url         String
   descripcion String?
-  
+
   // Relations
   orderId String
   orden   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
@@ -164,7 +170,7 @@ model Cost {
   id          String  @id @default(uuid())
   concepto    String
   monto       Float
-  tipo        String  // 'material', 'mano_obra', 'transporte', 'otros'
+  tipo        String // 'material', 'mano_obra', 'transporte', 'otros'
   descripcion String?
 
   // Relations
@@ -195,4 +201,191 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([userId])
   @@map("audit_logs")
+}
+
+// ============================================
+// PLANEACIÓN Y KITS TÍPICOS
+// ============================================
+
+enum EstadoPlaneacion {
+  borrador
+  en_revision
+  aprobada
+  en_ejecucion
+  completada
+  cancelada
+}
+
+model KitTipico {
+  id                    String   @id @default(uuid())
+  nombre                String   @unique
+  descripcion           String
+  herramientas          Json // Array de { nombre, cantidad, codigo? }
+  equipos               Json // Array de { nombre, cantidad, certificacion? }
+  documentos            String[] // Lista de documentos requeridos
+  checklistItems        String[] // Items del checklist
+  duracionEstimadaHoras Int
+  costoEstimado         Float
+  activo                Boolean  @default(true)
+
+  // Relations
+  planeaciones Planeacion[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("kits_tipicos")
+}
+
+model Planeacion {
+  id                      String           @id @default(uuid())
+  estado                  EstadoPlaneacion @default(borrador)
+  cronograma              Json // Array de actividades con fechas
+  manoDeObra              Json // Array de asignaciones de personal
+  herramientasAdicionales Json? // Herramientas extra fuera del kit
+  documentosApoyo         String[]
+  observaciones           String?
+  aprobadoPorId           String?
+  fechaAprobacion         DateTime?
+
+  // Relations
+  ordenId String @unique
+  orden   Order  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+
+  kitId String
+  kit   KitTipico @relation(fields: [kitId], references: [id])
+
+  aprobadoPor User? @relation("PlaneacionAprobador", fields: [aprobadoPorId], references: [id])
+
+  ejecucion Ejecucion?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ordenId])
+  @@index([kitId])
+  @@index([estado])
+  @@map("planeaciones")
+}
+
+// ============================================
+// EJECUCIÓN Y SEGUIMIENTO
+// ============================================
+
+enum EstadoEjecucion {
+  NO_INICIADA
+  EN_PROGRESO
+  PAUSADA
+  COMPLETADA
+  CANCELADA
+}
+
+model Ejecucion {
+  id                  String          @id @default(uuid())
+  ordenId             String          @unique
+  planeacionId        String          @unique
+  estado              EstadoEjecucion @default(NO_INICIADA)
+  avancePercentaje    Int             @default(0)
+  horasActuales       Float           @default(0)
+  horasEstimadas      Float
+  fechaInicio         DateTime
+  fechaTermino        DateTime?
+  ubicacionGPS        Json? // { latitud, longitud }
+  observacionesInicio String?
+  observaciones       String?
+
+  // Relations
+  orden               Order                @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  planeacion          Planeacion           @relation(fields: [planeacionId], references: [id])
+  tareas              TareaEjecucion[]
+  checklists          ChecklistEjecucion[]
+  evidenciasEjecucion EvidenciaEjecucion[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ordenId])
+  @@index([estado])
+  @@map("ejecuciones")
+}
+
+model TareaEjecucion {
+  id             String    @id @default(uuid())
+  ejecucionId    String
+  descripcion    String
+  completada     Boolean   @default(false)
+  horasEstimadas Float
+  horasReales    Float?
+  observaciones  String?
+  completadaEn   DateTime?
+
+  ejecucion Ejecucion @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ejecucionId])
+  @@map("tareas_ejecucion")
+}
+
+model ChecklistEjecucion {
+  id            String    @id @default(uuid())
+  ejecucionId   String
+  item          String
+  completada    Boolean   @default(false)
+  completadoPor String?
+  completadoEn  DateTime?
+
+  ejecucion Ejecucion @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ejecucionId])
+  @@map("checklist_ejecucion")
+}
+
+model EvidenciaEjecucion {
+  id            String    @id @default(uuid())
+  ejecucionId   String
+  ordenId       String
+  tipo          String // FOTO, VIDEO, DOCUMENTO, FIRMA, AUDIO
+  nombreArchivo String
+  rutaArchivo   String
+  tamano        Int
+  mimeType      String    @default("application/octet-stream")
+  descripcion   String
+  ubicacionGPS  Json? // { latitud, longitud }
+  tags          String[]
+  subidoPor     String
+  verificada    Boolean   @default(false)
+  verificadoPor String?
+  verificadoEn  DateTime?
+
+  ejecucion Ejecucion @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
+  orden     Order     @relation(fields: [ordenId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ejecucionId])
+  @@index([ordenId])
+  @@map("evidencias_ejecucion")
+}
+
+// Push Notifications Subscriptions
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  endpoint  String   @unique
+  auth      String
+  p256dh    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_subscriptions")
 }

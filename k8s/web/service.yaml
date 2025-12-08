@@ -1,0 +1,20 @@
+# ============================================
+# Web Service - Cermont FSM
+# ============================================
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: cermont-web
+  namespace: cermont
+  labels:
+    app: cermont-web
+spec:
+  type: ClusterIP
+  selector:
+    app: cermont-web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000
+      protocol: TCP

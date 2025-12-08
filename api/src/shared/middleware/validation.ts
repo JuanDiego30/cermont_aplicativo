@@ -29,7 +29,8 @@ export function validateBody<T extends ZodSchema>(schema: T) {
 export function validateQuery<T extends ZodSchema>(schema: T) {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      req.query = await schema.parseAsync(req.query);
+      const parsed = await schema.parseAsync(req.query);
+      Object.assign(req.query, parsed);
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -51,7 +52,8 @@ export function validateQuery<T extends ZodSchema>(schema: T) {
 export function validateParams<T extends ZodSchema>(schema: T) {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      req.params = await schema.parseAsync(req.params);
+      const parsed = await schema.parseAsync(req.params);
+      Object.assign(req.params, parsed);
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -71,7 +73,7 @@ export function validateParams<T extends ZodSchema>(schema: T) {
  * Formatear errores de Zod a un formato más legible
  */
 function formatZodErrors(error: z.ZodError): Array<{ field: string; message: string }> {
-  return error.errors.map((e) => ({
+  return error.issues.map((e) => ({
     field: e.path.join('.'),
     message: e.message,
   }));

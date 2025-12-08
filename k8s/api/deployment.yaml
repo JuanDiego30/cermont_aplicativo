@@ -1,0 +1,170 @@
+# ============================================
+# API Deployment - Cermont FSM
+# ============================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cermont-api
+  namespace: cermont
+  labels:
+    app: cermont-api
+    version: v1
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: cermont-api
+  template:
+    metadata:
+      labels:
+        app: cermont-api
+        version: v1
+    spec:
+      serviceAccountName: cermont-api
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+
+      # Init container para migraciones
+      initContainers:
+        - name: migrate
+          image: cermont-api:latest
+          imagePullPolicy: Always
+          command: ["npm", "run", "db:migrate:deploy"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: cermont-api-secrets
+                  key: database-url
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+
+      containers:
+        - name: api
+          image: cermont-api:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 3001
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "3001"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: cermont-api-secrets
+                  key: database-url
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: cermont-api-secrets
+                  key: jwt-secret
+            - name: REDIS_URL
+              value: "redis://redis-master:6379"
+            - name: FRONTEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: cermont-api-config
+                  key: frontend-url
+            - name: ELASTICSEARCH_URL
+              value: "http://elasticsearch:9200"
+            - name: LOG_LEVEL
+              value: "info"
+
+          # Health checks
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+
+          # Startup probe
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 30
+
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          volumeMounts:
+            - name: uploads
+              mountPath: /app/uploads
+            - name: tmp
+              mountPath: /tmp
+            - name: logs
+              mountPath: /app/logs
+
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: cermont-api-uploads
+        - name: tmp
+          emptyDir: {}
+        - name: logs
+          emptyDir: {}
+
+      # Pod anti-affinity para distribuir en nodos
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - cermont-api
+                topologyKey: kubernetes.io/hostname

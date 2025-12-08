@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
+import { Toaster } from 'sonner';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -16,9 +17,29 @@ export function Providers({ children }: { children: React.ReactNode }) {
       })
   );
 
+  // Registrar Service Worker
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    navigator.serviceWorker
+      .register('/sw.js')
+      .then((registration) => {
+        console.log('SW registered: ', registration);
+      })
+      .catch((error) => {
+        console.log('SW registration failed: ', error);
+      });
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       {children}
+      <Toaster 
+        position="top-right" 
+        richColors 
+        closeButton
+        toastOptions={{
+          duration: 4000,
+        }}
+      />
     </QueryClientProvider>
   );
 }
