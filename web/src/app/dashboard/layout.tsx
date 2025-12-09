@@ -4,6 +4,18 @@ import { SidebarProvider, useSidebar } from "@/context/SidebarContext";
 import AppHeader from "@/layout/AppHeader";
 import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
+import dynamic from "next/dynamic";
+
+// Importar componentes dinámicos para evitar SSR
+const AsistenteIA = dynamic(
+  () => import("@/components/chat/AsistenteIA"),
+  { ssr: false }
+);
+
+const OfflineIndicator = dynamic(
+  () => import("@/components/offline/OfflineIndicator"),
+  { ssr: false }
+);
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
@@ -26,6 +38,10 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+      
+      {/* Componentes globales flotantes */}
+      <AsistenteIA />
+      <OfflineIndicator />
     </div>
   );
 }

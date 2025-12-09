@@ -50,10 +50,11 @@ interface ChecklistTemplate {
 // ============================================
 
 const fetchTemplates = async (tipo?: string) => {
-    const response = await apiClient.get("/checklists/templates", {
-        params: tipo ? { tipo } : {},
-    });
-    return response.data.data as ChecklistTemplate[];
+    const params: Record<string, string> = {};
+    if (tipo) params.tipo = tipo;
+
+    const response = await apiClient.get<any>("/checklists/templates", params);
+    return response.data as ChecklistTemplate[];
 };
 
 const ejecutarChecklist = async (data: {
@@ -63,8 +64,8 @@ const ejecutarChecklist = async (data: {
     firmaDigital?: string;
     observacionesGenerales?: string;
 }) => {
-    const response = await apiClient.post("/checklists/ejecutar", data);
-    return response.data.data;
+    const response = await apiClient.post<any>("/checklists/ejecutar", data);
+    return response.data;
 };
 
 // ============================================
@@ -306,8 +307,8 @@ export function ChecklistForm({ ordenId, tipoTrabajo, onComplete }: ChecklistFor
                                             </span>
                                             <span
                                                 className={`${item.completado
-                                                        ? "text-gray-500 line-through"
-                                                        : "text-gray-900 dark:text-white"
+                                                    ? "text-gray-500 line-through"
+                                                    : "text-gray-900 dark:text-white"
                                                     }`}
                                             >
                                                 {item.descripcion}

@@ -30,7 +30,7 @@ interface CostoItem {
     createdAt: string;
 }
 
-interface ResumenCostos {
+export interface ResumenCostos {
     totalPresupuestado: number;
     totalReal: number;
     varianza: number;
@@ -52,13 +52,13 @@ interface ResumenCostos {
 // ============================================
 
 const fetchResumenCostos = async (ordenId: string): Promise<ResumenCostos> => {
-    const response = await apiClient.get(`/costos/resumen/${ordenId}`);
-    return response.data.data;
+    const response = await apiClient.get<any>(`/costos/resumen/${ordenId}`);
+    return response.data;
 };
 
 const fetchCostosByOrden = async (ordenId: string) => {
-    const response = await apiClient.get(`/costos/orden/${ordenId}`);
-    return response.data.data;
+    const response = await apiClient.get<any>(`/costos/orden/${ordenId}`);
+    return response.data;
 };
 
 const registrarCosto = async (data: {
@@ -68,12 +68,12 @@ const registrarCosto = async (data: {
     tipo: string;
     descripcion?: string;
 }) => {
-    const response = await apiClient.post("/costos/registrar", data);
-    return response.data.data;
+    const response = await apiClient.post<any>("/costos/registrar", data);
+    return response.data;
 };
 
 const eliminarCosto = async (costoId: string) => {
-    const response = await apiClient.delete(`/costos/${costoId}`);
+    const response = await apiClient.delete<any>(`/costos/${costoId}`);
     return response.data;
 };
 
@@ -211,8 +211,8 @@ export function CosteoPanel({ ordenId, editable = true }: CosteoPanelProps) {
                             <div
                                 key={i}
                                 className={`flex items-center gap-2 text-sm ${alerta.tipo === "danger"
-                                        ? "text-red-700 dark:text-red-400"
-                                        : "text-amber-700 dark:text-amber-400"
+                                    ? "text-red-700 dark:text-red-400"
+                                    : "text-amber-700 dark:text-amber-400"
                                     }`}
                             >
                                 <AlertTriangle className="w-4 h-4" />
@@ -247,14 +247,14 @@ export function CosteoPanel({ ordenId, editable = true }: CosteoPanelProps) {
                     {/* Varianza */}
                     <div
                         className={`p-4 rounded-xl border ${varianzaPositiva
-                                ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
-                                : "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                            ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+                            : "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
                             }`}
                     >
                         <p
                             className={`text-sm font-medium ${varianzaPositiva
-                                    ? "text-red-600 dark:text-red-400"
-                                    : "text-green-600 dark:text-green-400"
+                                ? "text-red-600 dark:text-red-400"
+                                : "text-green-600 dark:text-green-400"
                                 }`}
                         >
                             Varianza
@@ -267,8 +267,8 @@ export function CosteoPanel({ ordenId, editable = true }: CosteoPanelProps) {
                             )}
                             <p
                                 className={`text-2xl font-bold ${varianzaPositiva
-                                        ? "text-red-900 dark:text-red-100"
-                                        : "text-green-900 dark:text-green-100"
+                                    ? "text-red-900 dark:text-red-100"
+                                    : "text-green-900 dark:text-green-100"
                                     }`}
                             >
                                 {varianzaPositiva ? "+" : ""}
@@ -276,8 +276,8 @@ export function CosteoPanel({ ordenId, editable = true }: CosteoPanelProps) {
                             </p>
                             <span
                                 className={`text-sm ${varianzaPositiva
-                                        ? "text-red-600 dark:text-red-400"
-                                        : "text-green-600 dark:text-green-400"
+                                    ? "text-red-600 dark:text-red-400"
+                                    : "text-green-600 dark:text-green-400"
                                     }`}
                             >
                                 ({resumen?.porcentajeVarianza || 0}%)

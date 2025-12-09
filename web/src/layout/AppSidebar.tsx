@@ -13,7 +13,11 @@ import {
     PieChart,
     Settings,
     MoreHorizontal,
-    ChevronDown
+    ChevronDown,
+    Wrench,
+    FileText,
+    Map,
+    Bot,
 } from "lucide-react";
 
 type NavItem = {
@@ -48,6 +52,21 @@ const navItems: NavItem[] = [
         icon: <Users size={20} />,
         name: "Técnicos",
         path: "/dashboard/tecnicos",
+    },
+    {
+        icon: <Wrench size={20} />,
+        name: "Mantenimientos",
+        path: "/dashboard/mantenimientos",
+    },
+    {
+        icon: <FileText size={20} />,
+        name: "Formularios",
+        path: "/dashboard/formularios",
+    },
+    {
+        icon: <Map size={20} />,
+        name: "Mapa GPS",
+        path: "/dashboard/mapa",
     },
     {
         name: "Reportes",

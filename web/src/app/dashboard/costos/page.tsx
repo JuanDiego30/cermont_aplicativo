@@ -14,10 +14,11 @@ import {
 } from "lucide-react";
 
 const fetchResumenPeriodo = async (fechaInicio: string, fechaFin: string) => {
-  const response = await apiClient.get(`/costos/periodo`, {
-    params: { fechaInicio, fechaFin },
+  const response = await apiClient.get<any>(`/costos/periodo`, {
+    fechaInicio,
+    fechaFin
   });
-  return response.data.data;
+  return response.data;
 };
 
 export default function CostosPage() {
