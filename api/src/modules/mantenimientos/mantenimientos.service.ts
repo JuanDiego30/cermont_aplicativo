@@ -3,7 +3,7 @@
 // Lógica de negocio para mantenimientos
 // ============================================
 
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../config/database.js';
 import { 
   CrearMantenimientoInput, 
   ActualizarMantenimientoInput,
@@ -11,12 +11,10 @@ import {
   CrearEquipoInput,
   FiltrosMantenimiento,
   EstadoMantenimiento,
-  TipoMantenimiento,
   Mantenimiento,
   MantenimientoResumen,
+  Equipo,
 } from './mantenimientos.types.js';
-
-const prisma = new PrismaClient();
 
 // ============================================
 // SERVICIO DE MANTENIMIENTOS

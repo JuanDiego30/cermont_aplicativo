@@ -3,7 +3,7 @@
 // Lógica de negocio para formularios dinámicos
 // ============================================
 
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../config/database.js';
 import {
   CrearTemplateInput,
   ActualizarTemplateInput,
@@ -11,8 +11,6 @@ import {
   SchemaFormulario,
   FormularioTemplate,
 } from './formularios.types.js';
-
-const prisma = new PrismaClient();
 
 // ============================================
 // SERVICIO DE FORMULARIOS
