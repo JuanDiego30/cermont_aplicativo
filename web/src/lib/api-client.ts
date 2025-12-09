@@ -47,6 +47,46 @@ class ApiClient {
       headers,
     });
 
+    if (response.status === 401) {
+      // Intentar refresh token
+      try {
+        const refreshResponse = await fetch(`${this.baseUrl}/auth/refresh`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }); // Cookie httpOnly se envía automáticamente
+
+        if (refreshResponse.ok) {
+          const { token: newToken } = await refreshResponse.json();
+          useAuthStore.getState().setToken(newToken);
+
+          // Reintentar petición original con nuevo token
+          const newHeaders = {
+            ...headers,
+            Authorization: `Bearer ${newToken}`,
+          };
+
+          const retryResponse = await fetch(url, {
+            ...fetchOptions,
+            headers: newHeaders,
+          });
+
+          if (retryResponse.ok) {
+            if (retryResponse.status === 204) return {} as T;
+            return retryResponse.json();
+          }
+        } else {
+          // Si falla el refresh, logout
+          useAuthStore.getState().logout();
+          throw new Error('Sesión expirada');
+        }
+      } catch (error) {
+        useAuthStore.getState().logout();
+        throw error;
+      }
+    }
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       const error: ApiError = {

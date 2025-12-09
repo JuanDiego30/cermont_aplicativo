@@ -20,6 +20,8 @@ import hesRoutes from './modules/hes/hes.routes.js';
 import lineasVidaRoutes from './modules/lineas-vida/index.js';
 import costosRoutes from './modules/costos/costos.routes.js';
 import checklistsRoutes from './modules/checklists/checklists.routes.js';
+import mantenimientosRoutes from './modules/mantenimientos/mantenimientos.routes.js';
+import formulariosRoutes from './modules/formularios/formularios.routes.js';
 
 const app = express();
 
@@ -65,6 +67,8 @@ app.use('/api/hes', hesRoutes);
 app.use('/api/lineas-vida', lineasVidaRoutes);
 app.use('/api/costos', costosRoutes);
 app.use('/api/checklists', checklistsRoutes);
+app.use('/api/mantenimientos', mantenimientosRoutes);
+app.use('/api/formularios', formulariosRoutes);
 // 404 handler
 app.use(notFoundHandler);
 

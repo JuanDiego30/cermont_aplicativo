@@ -63,6 +63,8 @@ model User {
   inspeccionesHESRealizadas  InspeccionHES[]
   inspeccionesLineasVida     InspeccionLineaVida[] @relation("InspectorLineaVida")
   pushSubscriptions          PushSubscription[]
+  mantenimientosAsignados    Mantenimiento[] @relation("MantenimientosTecnico")
+  mantenimientosCreados      Mantenimiento[] @relation("MantenimientosCreador")
 
   @@map("users")
 }
@@ -613,3 +615,147 @@ model OrdenEquipoHES {
   @@index([equipoId])
   @@map("orden_equipos_hes")
 }
+
+// ============================================
+// MANTENIMIENTOS - Control de Equipos
+// ============================================
+
+enum TipoMantenimiento {
+  PREVENTIVO
+  CORRECTIVO
+  PREDICTIVO
+}
+
+enum EstadoMantenimiento {
+  PROGRAMADO
+  EN_PROGRESO
+  COMPLETADO
+  CANCELADO
+  PENDIENTE
+}
+
+enum PrioridadMantenimiento {
+  BAJA
+  MEDIA
+  ALTA
+  CRITICA
+}
+
+model Equipo {
+  id                         String    @id @default(uuid())
+  codigo                     String    @unique
+  nombre                     String
+  marca                      String?
+  modelo                     String?
+  serie                      String?
+  ubicacion                  String?
+  fechaAdquisicion           DateTime?
+  fechaUltimoMantenimiento   DateTime?
+  intervaloMantenimientoDias Int?
+  activo                     Boolean   @default(true)
+  notas                      String?
+  
+  creadoPorId                String?
+  
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
+
+  // Relations
+  mantenimientos             Mantenimiento[]
+
+  @@index([codigo])
+  @@index([activo])
+  @@map("equipos")
+}
+
+model Mantenimiento {
+  id                   String                 @id @default(uuid())
+  
+  equipoId             String
+  equipo               Equipo                 @relation(fields: [equipoId], references: [id], onDelete: Cascade)
+  
+  tipo                 TipoMantenimiento
+  estado               EstadoMantenimiento    @default(PROGRAMADO)
+  prioridad            PrioridadMantenimiento @default(MEDIA)
+  
+  titulo               String
+  descripcion          String?
+  
+  fechaProgramada      DateTime
+  fechaInicio          DateTime?
+  fechaFin             DateTime?
+  
+  tecnicoAsignadoId    String?
+  tecnicoAsignado      User?                  @relation("MantenimientosTecnico", fields: [tecnicoAsignadoId], references: [id])
+  
+  estimacionHoras      Float?
+  horasReales          Float?
+  costoTotal           Float?
+  
+  notas                String?
+  observaciones        String?
+  trabajoRealizado     String?
+  repuestosUtilizados  String?                // JSON stringified
+  
+  esRecurrente         Boolean                @default(false)
+  frecuenciaDias       Int?
+  mantenimientoPadreId String?
+  
+  creadoPorId          String?
+  creadoPor            User?                  @relation("MantenimientosCreador", fields: [creadoPorId], references: [id])
+  actualizadoPorId     String?
+  
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+
+  @@index([equipoId])
+  @@index([estado])
+  @@index([fechaProgramada])
+  @@index([tecnicoAsignadoId])
+  @@map("mantenimientos")
+}
+
+// ============================================
+// FORMULARIOS DINÁMICOS
+// ============================================
+
+model FormularioTemplate {
+  id          String   @id @default(uuid())
+  nombre      String
+  descripcion String?
+  schema      String   // JSON Schema del formulario
+  version     Int      @default(1)
+  activo      Boolean  @default(true)
+  
+  creadoPorId String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  respuestas  FormularioRespuesta[]
+
+  @@index([activo])
+  @@map("formulario_templates")
+}
+
+model FormularioRespuesta {
+  id            String   @id @default(uuid())
+  
+  templateId    String
+  template      FormularioTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  
+  ordenId       String?
+  
+  respuestas    String   // JSON con las respuestas
+  
+  completadoPorId String?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([templateId])
+  @@index([ordenId])
+  @@map("formulario_respuestas")
+}
+
