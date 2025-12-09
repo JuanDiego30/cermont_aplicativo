@@ -63,7 +63,7 @@ router.get('/equipos/:id', asyncHandler(async (req: Request, res: Response) => {
  * Crear nuevo equipo
  */
 router.post('/equipos', 
-  roleMiddleware(['ADMIN', 'SUPERVISOR']),
+  roleMiddleware('admin', 'supervisor'),
   asyncHandler(async (req: Request, res: Response) => {
     const data = crearEquipoSchema.parse(req.body);
     const userId = req.user?.userId!;
@@ -83,7 +83,7 @@ router.post('/equipos',
  * Actualizar equipo
  */
 router.put('/equipos/:id', 
-  roleMiddleware(['ADMIN', 'SUPERVISOR']),
+  roleMiddleware('admin', 'supervisor'),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const data = crearEquipoSchema.partial().parse(req.body);
@@ -157,7 +157,7 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
  * GET /api/mantenimientos/resumen
  * Dashboard de mantenimientos
  */
-router.get('/resumen', asyncHandler(async (req: Request, res: Response) => {
+router.get('/resumen', asyncHandler(async (_req: Request, res: Response) => {
   const resumen = await mantenimientosService.getResumen();
 
   res.json({
@@ -189,7 +189,7 @@ router.get('/calendario', asyncHandler(async (req: Request, res: Response) => {
  * GET /api/mantenimientos/alertas
  * Alertas de equipos que necesitan mantenimiento
  */
-router.get('/alertas', asyncHandler(async (req: Request, res: Response) => {
+router.get('/alertas', asyncHandler(async (_req: Request, res: Response) => {
   const alertas = await mantenimientosService.getAlertasMantenimiento();
 
   res.json({
@@ -292,10 +292,11 @@ router.post('/:id/cancelar', asyncHandler(async (req: Request, res: Response) =>
   const userId = req.user?.userId!;
 
   if (!motivo) {
-    return res.status(400).json({
+    res.status(400).json({
       status: 'error',
       message: 'Debe proporcionar un motivo de cancelación',
     });
+    return;
   }
 
   const mantenimiento = await mantenimientosService.cancelarMantenimiento(id, motivo, userId);
