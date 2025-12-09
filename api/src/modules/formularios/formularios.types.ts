@@ -87,8 +87,8 @@ export const actualizarTemplateSchema = z.object({
 
 export const guardarRespuestaSchema = z.object({
   templateId: z.string().uuid('ID de template inválido'),
-  ordenId: z.string().uuid().optional(),
-  respuestas: z.record(z.any()), // Objeto clave-valor con respuestas
+  ordenId: z.string().uuid('ID de orden inválido').optional(),
+  respuestas: z.record(z.string(), z.any()), // Objeto clave-valor con respuestas
 });
 
 // ============================================

@@ -13,7 +13,6 @@ import {
   EstadoMantenimiento,
   Mantenimiento,
   MantenimientoResumen,
-  Equipo,
 } from './mantenimientos.types.js';
 
 // ============================================

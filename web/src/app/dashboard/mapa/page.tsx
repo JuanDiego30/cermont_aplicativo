@@ -352,8 +352,8 @@ export default function MapaPage() {
                 markers={markers}
                 center={{ lat: 7.8941, lng: -72.5078 }}
                 zoom={13}
-                showClustering={true}
-                showRoutes={true}
+                showCurrentLocation={true}
+                showFilters={true}
               />
             </div>
           </div>
