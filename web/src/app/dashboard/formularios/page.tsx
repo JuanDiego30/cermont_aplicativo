@@ -103,7 +103,7 @@ export default function FormulariosPage() {
           </button>
         </div>
         <FormBuilder
-          onSave={(schema) => {
+          onSave={async (schema) => {
             console.log('Schema guardado:', schema);
             setMostrarBuilder(false);
           }}

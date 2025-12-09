@@ -59,7 +59,7 @@ router.get('/templates/:id', asyncHandler(async (req: Request, res: Response) =>
  * Crear nuevo template
  */
 router.post('/templates',
-  roleMiddleware(['ADMIN', 'SUPERVISOR']),
+  roleMiddleware('admin', 'supervisor'),
   asyncHandler(async (req: Request, res: Response) => {
     const data = crearTemplateSchema.parse(req.body);
     const userId = req.user?.userId!;
@@ -79,7 +79,7 @@ router.post('/templates',
  * Actualizar template
  */
 router.put('/templates/:id',
-  roleMiddleware(['ADMIN', 'SUPERVISOR']),
+  roleMiddleware('admin', 'supervisor'),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const data = actualizarTemplateSchema.parse(req.body);
@@ -100,17 +100,18 @@ router.put('/templates/:id',
  * Duplicar template
  */
 router.post('/templates/:id/duplicar',
-  roleMiddleware(['ADMIN', 'SUPERVISOR']),
+  roleMiddleware('admin', 'supervisor'),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const { nombre } = req.body;
     const userId = req.user?.userId!;
 
     if (!nombre) {
-      return res.status(400).json({
+      res.status(400).json({
         status: 'error',
         message: 'Debe proporcionar un nombre para la copia',
       });
+      return;
     }
 
     const template = await formulariosService.duplicarTemplate(id, nombre, userId);
@@ -128,7 +129,7 @@ router.post('/templates/:id/duplicar',
  * Desactivar template
  */
 router.delete('/templates/:id',
-  roleMiddleware(['ADMIN']),
+  roleMiddleware('admin'),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
 
@@ -229,7 +230,7 @@ router.get('/respuestas/:id', asyncHandler(async (req: Request, res: Response) =
  * Eliminar respuesta
  */
 router.delete('/respuestas/:id',
-  roleMiddleware(['ADMIN', 'SUPERVISOR']),
+  roleMiddleware('admin', 'supervisor'),
   asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
 

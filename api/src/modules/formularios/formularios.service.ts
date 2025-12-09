@@ -9,7 +9,6 @@ import {
   ActualizarTemplateInput,
   GuardarRespuestaInput,
   SchemaFormulario,
-  FormularioTemplate,
 } from './formularios.types.js';
 
 // ============================================
@@ -96,7 +95,7 @@ class FormulariosService {
   /**
    * Actualizar template
    */
-  async actualizarTemplate(id: string, data: ActualizarTemplateInput, userId: string) {
+  async actualizarTemplate(id: string, data: ActualizarTemplateInput, _userId: string) {
     const templateActual = await prisma.formularioTemplate.findUnique({
       where: { id }
     });
