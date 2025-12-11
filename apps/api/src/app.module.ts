@@ -1,0 +1,82 @@
+/**
+ * Root Application Module
+ * Imports all feature modules and configures global providers
+ */
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+
+// Core modules
+import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsuariosModule } from './modules/usuarios/usuarios.module';
+import { OrdenesModule } from './modules/ordenes/ordenes.module';
+import { PlaneacionModule } from './modules/planeacion/planeacion.module';
+import { KitsModule } from './modules/kits/kits.module';
+import { EjecucionModule } from './modules/ejecucion/ejecucion.module';
+import { EvidenciasModule } from './modules/evidencias/evidencias.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { ReportesModule } from './modules/reportes/reportes.module';
+import { HesModule } from './modules/hes/hes.module';
+import { LineasVidaModule } from './modules/lineas-vida/lineas-vida.module';
+import { CostosModule } from './modules/costos/costos.module';
+import { ChecklistsModule } from './modules/checklists/checklists.module';
+import { MantenimientosModule } from './modules/mantenimientos/mantenimientos.module';
+import { FormulariosModule } from './modules/formularios/formularios.module';
+import { CierreAdministrativoModule } from './modules/cierre-administrativo/cierre-administrativo.module';
+
+// Common providers
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { HealthController } from './health.controller';
+
+@Module({
+    imports: [
+        // Configuration
+        ConfigModule.forRoot({
+            isGlobal: true,
+            envFilePath: '.env',
+        }),
+
+        // Static files (uploads)
+        ServeStaticModule.forRoot({
+            rootPath: join(process.cwd(), 'uploads'),
+            serveRoot: '/uploads',
+        }),
+
+        // Core
+        PrismaModule,
+
+        // Feature modules
+        AuthModule,
+        UsuariosModule,
+        OrdenesModule,
+        PlaneacionModule,
+        KitsModule,
+        EjecucionModule,
+        EvidenciasModule,
+        DashboardModule,
+        ReportesModule,
+        HesModule,
+        LineasVidaModule,
+        CostosModule,
+        ChecklistsModule,
+        MantenimientosModule,
+        FormulariosModule,
+        CierreAdministrativoModule,
+    ],
+    controllers: [HealthController],
+    providers: [
+        {
+            provide: APP_FILTER,
+            useClass: HttpExceptionFilter,
+        },
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: LoggingInterceptor,
+        },
+    ],
+})
+export class AppModule { }
