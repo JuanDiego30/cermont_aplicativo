@@ -1,41 +1,17 @@
 {
-  "name": "cermont-aplicativo",
+  "name": "cermont-app",
   "version": "1.0.0",
-  "description": "Sistema de Gestión de Órdenes de Servicio",
-  "main": "index.js",
+  "description": "Cermont - Sistema de Gestión de Órdenes de Trabajo",
+  "private": true,
   "scripts": {
     "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
-    "dev:api": "cd api && npm run dev",
-    "dev:web": "cd web && npm run dev",
-    "build": "npm run build:api && npm run build:web",
-    "build:api": "cd api && npm run build",
-    "build:web": "cd web && npm run build",
-    "start": "concurrently \"npm run start:api\" \"npm run start:web\"",
-    "start:api": "cd api && npm start",
-    "start:web": "cd web && npm start",
-    "type-check": "npm run type-check:api && npm run type-check:web",
-    "type-check:api": "cd api && npm run type-check",
-    "type-check:web": "cd web && npm run type-check",
-    "lint": "npm run lint:api && npm run lint:web",
-    "lint:api": "cd api && npm run lint",
-    "lint:web": "cd web && npm run lint",
-    "test": "npm run test:api && npm run test:web",
-    "test:api": "cd api && npm run test",
-    "test:web": "cd web && npm run test",
-    "prisma:studio": "cd api && npx prisma studio",
-    "prisma:migrate": "cd api && npx prisma migrate dev",
-    "create-icons": "python create-icons.py"
+    "dev:api": "cd apps/api && npm run dev",
+    "dev:web": "cd apps/web && npm run dev",
+    "install:all": "npm install && cd apps/api && npm install && cd ../web && npm install",
+    "build:api": "cd apps/api && npm run build",
+    "build:web": "cd apps/web && npm run build"
   },
-  "keywords": [
-    "orden",
-    "servicio",
-    "gestión",
-    "planeación",
-    "ejecución"
-  ],
-  "author": "Juan Diego Arevalo",
-  "license": "MIT",
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^8.2.2"
   }
 }
