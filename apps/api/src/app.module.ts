@@ -1,11 +1,15 @@
 /**
- * Root Application Module
- * Imports all feature modules and configures global providers
+ * @module AppModule
+ *
+ * Módulo raíz: registra módulos de negocio y configura providers globales.
+ *
+ * Uso: Importado por NestFactory.create(AppModule) en main.ts.
  */
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { ScheduleModule } from '@nestjs/schedule';
 import { join } from 'path';
 
 // Core modules
@@ -26,6 +30,11 @@ import { ChecklistsModule } from './modules/checklists/checklists.module';
 import { MantenimientosModule } from './modules/mantenimientos/mantenimientos.module';
 import { FormulariosModule } from './modules/formularios/formularios.module';
 import { CierreAdministrativoModule } from './modules/cierre-administrativo/cierre-administrativo.module';
+
+// New modules
+import { ArchivadoModule } from './modules/archivado/archivado.module';
+import { SyncModule } from './modules/sync/sync.module';
+import { PdfGenerationModule } from './modules/pdf-generation/pdf-generation.module';
 
 // Common providers
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -66,6 +75,14 @@ import { HealthController } from './health.controller';
         MantenimientosModule,
         FormulariosModule,
         CierreAdministrativoModule,
+
+        // New modules (Módulos 1-4 según documento)
+        ArchivadoModule,    // Módulo 4: Archivado automático
+        SyncModule,         // Módulo 1: Sincronización offline
+        PdfGenerationModule, // Generación de informes PDF
+
+        // Schedule module for CRON jobs
+        ScheduleModule.forRoot(),
     ],
     controllers: [HealthController],
     providers: [

@@ -1,3 +1,10 @@
+/**
+ * @dto LoginDto
+ *
+ * DTO de login con validaciones para autenticación por email/password.
+ *
+ * Uso: Body de POST /auth/login (ValidationPipe global).
+ */
 import { IsEmail, IsString, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 

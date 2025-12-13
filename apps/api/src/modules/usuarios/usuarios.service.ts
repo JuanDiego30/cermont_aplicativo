@@ -1,3 +1,10 @@
+/**
+ * @service UsuariosService
+ *
+ * Gestiona operaciones de usuarios (listar, consultar, crear, actualizar y desactivar).
+ *
+ * Uso: Consumido por UsuariosController; persiste con PrismaService.
+ */
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
@@ -5,6 +12,14 @@ import * as bcrypt from 'bcryptjs';
 @Injectable()
 export class UsuariosService {
     constructor(private readonly prisma: PrismaService) { }
+
+    /**
+     * @refactor PRIORIDAD_ALTA
+     *
+     * Problema: Métodos `create/update` reciben `dto: any` (sin DTOs ni validación) y usan `any` en `where/updateData`.
+     *
+     * Solución sugerida: Crear DTOs (CreateUsuarioDto/UpdateUsuarioDto) con class-validator y tipar filtros/where.
+     */
 
     async findAll(filters: { role?: string; active?: boolean }) {
         const where: any = {};

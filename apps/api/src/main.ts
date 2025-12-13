@@ -1,15 +1,19 @@
 /**
- * NestJS Application Entry Point
- * Cermont API - Sistema de Gestión de Órdenes
+ * @util MainBootstrap
+ *
+ * Punto de entrada de la API NestJS (bootstrap, CORS, ValidationPipe y Swagger).
+ *
+ * Uso: Se ejecuta al iniciar el servidor (node dist/main.js).
  */
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+    const logger = new Logger('Bootstrap');
     const app = await NestFactory.create(AppModule);
 
     // Global prefix for API routes
@@ -17,7 +21,10 @@ async function bootstrap() {
 
     // CORS configuration
     app.enableCors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+        origin:
+            process.env.CORS_ORIGIN ||
+            process.env.FRONTEND_URL ||
+            'http://localhost:3000',
         credentials: true,
     });
 
@@ -49,9 +56,9 @@ async function bootstrap() {
     const port = process.env.PORT || 3001;
     await app.listen(port);
 
-    console.log(`🚀 Cermont API running on port ${port}`);
-    console.log(`📚 Swagger docs: http://localhost:${port}/docs`);
-    console.log(`💚 Health check: http://localhost:${port}/api/health`);
+    logger.log(`Cermont API running on port ${port}`);
+    logger.log(`Swagger docs: http://localhost:${port}/docs`);
+    logger.log(`Health check: http://localhost:${port}/api/health`);
 }
 
 bootstrap();

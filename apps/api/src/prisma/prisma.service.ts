@@ -1,19 +1,56 @@
 /**
- * Prisma Service
- * Handles database connection lifecycle
+ * @service PrismaService
+ *
+ * Cliente Prisma (PostgreSQL) con ciclo de vida NestJS (connect/disconnect).
+ *
+ * Uso: Inyectar PrismaService desde PrismaModule para acceso a BD.
  */
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+    private readonly logger = new Logger(PrismaService.name);
+    private readonly pool: Pool;
+
+    /**
+     * Prisma 7.x: asegura inicialización explícita del cliente.
+     * Prisma 7 requiere `adapter` o `accelerateUrl`.
+     */
+    constructor() {
+        const connectionString = process.env.DATABASE_URL;
+        if (!connectionString) {
+            throw new Error('DATABASE_URL is not set');
+        }
+
+        // Crear pool y adapter en variables locales antes de super()
+        const pool = new Pool({ connectionString });
+        const adapter = new PrismaPg(pool);
+
+        const options: Prisma.PrismaClientOptions = {
+            adapter,
+            log:
+                process.env.NODE_ENV === 'production'
+                    ? ['error']
+                    : ['query', 'info', 'warn', 'error'],
+        };
+
+        super(options);
+
+        // Asignar el pool a la propiedad de la clase después de super()
+        this.pool = pool;
+    }
+
     async onModuleInit() {
         await this.$connect();
-        console.log('📦 Database connected');
+        this.logger.log('Database connected');
     }
 
     async onModuleDestroy() {
         await this.$disconnect();
-        console.log('📦 Database disconnected');
+        await this.pool.end();
+        this.logger.log('Database disconnected');
     }
 }

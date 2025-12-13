@@ -1,17 +1,42 @@
 // 📁 web/src/lib/api-client.ts
+// ✅ Cliente API unificado con manejo de refresh tokens y errores estructurados
 
 import { useAuthStore } from '@/stores/authStore';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+function buildApiBaseUrl(rawUrl: string): string {
+  const trimmed = rawUrl.trim().replace(/\/+$/, '');
+  return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+}
+
+const API_BASE_URL = buildApiBaseUrl(
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+);
 
 interface RequestOptions extends RequestInit {
   params?: Record<string, string>;
+  includeAuth?: boolean;
 }
 
-interface ApiError {
+export interface ApiError {
   message: string;
-  status: number;
+  statusCode?: number;
+  status?: number;
+  errors?: Record<string, string[]>;
   data?: unknown;
+}
+
+export class ApiException extends Error {
+  public readonly statusCode: number;
+  public readonly errors?: Record<string, string[]>;
+  public readonly data?: unknown;
+
+  constructor(message: string, statusCode: number, errors?: Record<string, string[]>, data?: unknown) {
+    super(message);
+    this.name = 'ApiException';
+    this.statusCode = statusCode;
+    this.errors = errors;
+    this.data = data;
+  }
 }
 
 class ApiClient {
@@ -27,7 +52,7 @@ class ApiClient {
   }
 
   private async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-    const { params, ...fetchOptions } = options;
+    const { params, includeAuth = true, ...fetchOptions } = options;
 
     // Build URL with query params
     let url = `${this.baseUrl}${endpoint}`;
@@ -38,13 +63,14 @@ class ApiClient {
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...this.getAuthHeader(),
+      ...(includeAuth ? this.getAuthHeader() : {}),
       ...(options.headers as Record<string, string> || {}),
     };
 
     const response = await fetch(url, {
       ...fetchOptions,
       headers,
+      credentials: 'include', // ✅ Siempre incluir cookies para refresh tokens
     });
 
     if (response.status === 401) {
@@ -55,6 +81,7 @@ class ApiClient {
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include', // ✅ Forzar envío de cookies HttpOnly
         }); // Cookie httpOnly se envía automáticamente
 
         if (refreshResponse.ok) {
@@ -70,6 +97,7 @@ class ApiClient {
           const retryResponse = await fetch(url, {
             ...fetchOptions,
             headers: newHeaders,
+            credentials: 'include',
           });
 
           if (retryResponse.ok) {
@@ -88,18 +116,25 @@ class ApiClient {
     }
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      const error: ApiError = {
-        message: errorData.message || 'An error occurred',
-        status: response.status,
-        data: errorData,
-      };
-      throw error;
+      let errorData: ApiError = { message: 'Error de servidor' };
+      
+      try {
+        errorData = await response.json();
+      } catch {
+        // Use default error message
+      }
+
+      throw new ApiException(
+        errorData.message || 'Error en la petición',
+        response.status,
+        errorData.errors,
+        errorData.data
+      );
     }
 
     // Handle no content response
     if (response.status === 204) {
-      return {} as T;
+      return undefined as T;
     }
 
     return response.json();
@@ -109,10 +144,11 @@ class ApiClient {
     return this.request<T>(endpoint, { method: 'GET', params });
   }
 
-  async post<T>(endpoint: string, data?: unknown): Promise<T> {
+  async post<T>(endpoint: string, data?: unknown, options?: { includeAuth?: boolean }): Promise<T> {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: data ? JSON.stringify(data) : undefined,
+      includeAuth: options?.includeAuth,
     });
   }
 
@@ -132,6 +168,81 @@ class ApiClient {
 
   async delete<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: 'DELETE' });
+  }
+
+  /**
+   * Upload genérico con multipart/form-data.
+   * Útil para endpoints que requieren archivo + campos extra.
+   */
+  async uploadForm<T>(endpoint: string, formData: FormData, options?: { includeAuth?: boolean }): Promise<T> {
+    const includeAuth = options?.includeAuth ?? true;
+    const url = `${this.baseUrl}${endpoint}`;
+
+    const buildHeaders = (tokenOverride?: string): Record<string, string> => {
+      if (!includeAuth) return {};
+      if (tokenOverride) return { Authorization: `Bearer ${tokenOverride}` };
+      return this.getAuthHeader();
+    };
+
+    let response = await fetch(url, {
+      method: 'POST',
+      headers: buildHeaders(),
+      body: formData,
+      credentials: 'include',
+    });
+
+    if (response.status === 401 && includeAuth) {
+      try {
+        const refreshResponse = await fetch(`${this.baseUrl}/auth/refresh`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        if (refreshResponse.ok) {
+          const { token: newToken } = await refreshResponse.json();
+          useAuthStore.getState().setToken(newToken);
+
+          response = await fetch(url, {
+            method: 'POST',
+            headers: buildHeaders(newToken),
+            body: formData,
+            credentials: 'include',
+          });
+        } else {
+          useAuthStore.getState().logout();
+          throw new ApiException('Sesión expirada', 401);
+        }
+      } catch (error) {
+        useAuthStore.getState().logout();
+        throw error;
+      }
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new ApiException(
+        errorData.message || 'Error en la petición',
+        response.status,
+        errorData.errors,
+        errorData.data
+      );
+    }
+
+    if (response.status === 204) return undefined as T;
+    return response.json();
+  }
+
+  /**
+   * Upload file with multipart/form-data
+   */
+  async upload<T>(endpoint: string, file: File, fieldName = 'file'): Promise<T> {
+    const formData = new FormData();
+    formData.append(fieldName, file);
+
+    return this.uploadForm<T>(endpoint, formData);
   }
 }
 

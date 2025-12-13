@@ -1,3 +1,10 @@
+/**
+ * @service AuthService
+ *
+ * Gestiona login/registro y emisión de access/refresh tokens con persistencia en BD.
+ *
+ * Uso: AuthController delega aquí la autenticación y rotación de refresh tokens.
+ */
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -37,6 +44,13 @@ export class AuthService {
     return token;
   }
 
+  /**
+   * @refactor PRIORIDAD_MEDIA
+   *
+   * Problema: `generateTokens` usa `any` y asume shape de usuario sin contrato.
+   *
+   * Solución sugerida: Definir interfaz/DTO (p.ej. AuthUser) y tipar el payload (id/email/role).
+   */
   async generateTokens(user: any) {
     const accessToken = this.generateAccessToken(user.id, user.email, user.role);
     const refreshToken = await this.generateRefreshToken(user.id);
@@ -51,6 +65,13 @@ export class AuthService {
     return this.prisma.user.findUnique({ where: { id } });
   }
 
+  /**
+   * @refactor PRIORIDAD_MEDIA
+   *
+   * Problema: `login` y `register` duplican construcción de respuesta y emisión de tokens.
+   *
+   * Solución sugerida: Extraer métodos privados `buildAuthResponse(user)` y `issueTokens(user, ip, userAgent)`.
+   */
   async login(dto: LoginDto, ip?: string, userAgent?: string) {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (!user || !user.active) throw new UnauthorizedException('Credenciales invalidas o usuario inactivo');

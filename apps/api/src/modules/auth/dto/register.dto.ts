@@ -1,3 +1,10 @@
+/**
+ * @dto RegisterDto
+ *
+ * DTO de registro con validaciones para crear un usuario inicial.
+ *
+ * Uso: Body de POST /auth/register (ValidationPipe global).
+ */
 import { IsEmail, IsString, MinLength, IsOptional, IsEnum } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 

@@ -46,7 +46,9 @@ class SyncManager {
    * Manejar conexión online
    */
   private handleOnline(): void {
-    console.log('[SyncManager] Conectado a internet');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[SyncManager] Conectado a internet');
+    }
     this.isOnline = true;
     this.notify({ status: 'idle', pendingItems: 0 });
     
@@ -59,7 +61,9 @@ class SyncManager {
    * Manejar desconexión
    */
   private handleOffline(): void {
-    console.log('[SyncManager] Sin conexión a internet');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[SyncManager] Sin conexión a internet');
+    }
     this.isOnline = false;
     this.stopAutoSync();
     this.notify({ status: 'offline', pendingItems: 0 });
@@ -111,7 +115,9 @@ class SyncManager {
   startAutoSync(): void {
     if (this.syncInterval) return;
 
-    console.log('[SyncManager] Iniciando sync automático');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[SyncManager] Iniciando sync automático');
+    }
 
     this.syncInterval = setInterval(() => {
       if (this.isOnline && !this.isSyncing) {
