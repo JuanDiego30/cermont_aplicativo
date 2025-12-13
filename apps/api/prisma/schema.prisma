@@ -1,14 +1,12 @@
 // Prisma Schema para Cermont - Sistema de Gestión de Órdenes
-// Versión: 1.0.0
+// Versión: 2.0.0 - CORREGIDO
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // ============================================
@@ -37,8 +35,84 @@ enum OrderPriority {
   urgente
 }
 
+enum EstadoPlaneacion {
+  borrador
+  en_revision
+  aprobada
+  en_ejecucion
+  completada
+  cancelada
+}
+
+enum EstadoEjecucion {
+  NO_INICIADA
+  EN_PROGRESO
+  PAUSADA
+  COMPLETADA
+  CANCELADA
+}
+
+enum EstadoInspeccion {
+  CONFORME
+  NO_CONFORME
+  PENDIENTE
+}
+
+enum TipoMantenimiento {
+  PREVENTIVO
+  CORRECTIVO
+  PREDICTIVO
+}
+
+enum EstadoMantenimiento {
+  PROGRAMADO
+  EN_PROGRESO
+  COMPLETADO
+  CANCELADO
+  PENDIENTE
+}
+
+enum PrioridadMantenimiento {
+  BAJA
+  MEDIA
+  ALTA
+  CRITICA
+}
+
+enum EstadoActa {
+  BORRADOR
+  GENERADA
+  ENVIADA
+  FIRMADA
+  RECHAZADA
+}
+
+enum EstadoSES {
+  NO_CREADA
+  CREADA
+  ENVIADA
+  APROBADA
+  RECHAZADA
+}
+
+enum EstadoFactura {
+  NO_CREADA
+  GENERADA
+  ENVIADA
+  APROBADA
+  PAGADA
+  RECHAZADA
+}
+
+enum TipoArchivo {
+  ORDENES_CSV
+  EVIDENCIAS_ZIP
+  INFORMES_PDF
+  BACKUP_COMPLETO
+}
+
 // ============================================
-// MODELS
+// MODELS - USUARIOS Y AUTENTICACIÓN
 // ============================================
 
 model User {
@@ -57,15 +131,18 @@ model User {
 
   // Relations
   refreshTokens             RefreshToken[]
-  auditLogs                 AuditLog[]            @relation("UserAuditLogs")
-  ordenes                   Order[]               @relation("OrderCreator")
-  asignaciones              Order[]               @relation("OrderAssignee")
-  planeacionesAprobadas     Planeacion[]          @relation("PlaneacionAprobador")
+  auditLogs                 AuditLog[]
+  ordenes                   Order[]                    @relation("OrderCreator")
+  asignaciones              Order[]                    @relation("OrderAssignee")
+  planeacionesAprobadas     Planeacion[]               @relation("PlaneacionAprobador")
   inspeccionesHESRealizadas InspeccionHES[]
-  inspeccionesLineasVida    InspeccionLineaVida[] @relation("InspectorLineaVida")
+  inspeccionesLineasVida    InspeccionLineaVida[]      @relation("InspectorLineaVida")
   pushSubscriptions         PushSubscription[]
-  mantenimientosAsignados   Mantenimiento[]       @relation("MantenimientosTecnico")
-  mantenimientosCreados     Mantenimiento[]       @relation("MantenimientosCreador")
+  mantenimientosAsignados   Mantenimiento[]            @relation("MantenimientosTecnico")
+  mantenimientosCreados     Mantenimiento[]            @relation("MantenimientosCreador")
+  checklistsCompletados     ChecklistEjecucion[]       @relation("ChecklistCompletadoPor")
+  checklistItemsCompletados ChecklistItemEjecucion[]   @relation("ItemCompletadoPor")
+  fotosCargadas             FotoEvidencia[]            @relation("FotoCargadaPor")
 
   @@map("users")
 }
@@ -82,7 +159,6 @@ model RefreshToken {
   lastUsedAt DateTime?
   createdAt  DateTime  @default(now())
 
-  // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -104,6 +180,10 @@ model PasswordResetToken {
   @@map("password_reset_tokens")
 }
 
+// ============================================
+// MODELS - ÓRDENES DE TRABAJO
+// ============================================
+
 model Order {
   id               String        @id @default(uuid())
   numero           String        @unique
@@ -115,18 +195,13 @@ model Order {
   fechaInicio      DateTime?
   fechaFin         DateTime?
 
-  // Presupuesto y Costos
-  presupuestoEstimado Float?
-  impuestosAplicables Float? @default(0) // Porcentaje (ej: 19 para 19%)
-  margenUtilidad      Float? @default(0) // Porcentaje
+  presupuestoEstimado Float? @default(0)
+  impuestosAplicables Float? @default(0)
+  margenUtilidad      Float? @default(0)
 
-  // HES Integration
-  requiereHES     Boolean          @default(true)
-  cumplimientoHES Boolean          @default(false)
-  equiposHES      OrdenEquipoHES[]
-  inspeccionesHES InspeccionHES[]
+  requiereHES     Boolean @default(true)
+  cumplimientoHES Boolean @default(false)
 
-  // Relations
   creadorId  String?
   creador    User?   @relation("OrderCreator", fields: [creadorId], references: [id])
   asignadoId String?
@@ -138,8 +213,9 @@ model Order {
   planeacion          Planeacion?
   ejecucion           Ejecucion?
   evidenciasEjecucion EvidenciaEjecucion[]
+  equiposHES          OrdenEquipoHES[]
+  inspeccionesHES     InspeccionHES[]
 
-  // Cierre Administrativo
   acta                 Acta?
   ses                  SES?
   factura              Factura?
@@ -151,6 +227,8 @@ model Order {
   @@index([estado])
   @@index([cliente])
   @@index([numero])
+  @@index([creadorId])
+  @@index([asignadoId])
   @@map("orders")
 }
 
@@ -161,7 +239,6 @@ model OrderItem {
   completado  Boolean @default(false)
   notas       String?
 
-  // Relations
   orderId String
   orden   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
@@ -174,11 +251,10 @@ model OrderItem {
 
 model Evidence {
   id          String  @id @default(uuid())
-  tipo        String // 'foto', 'documento', 'video'
+  tipo        String
   url         String
   descripcion String?
 
-  // Relations
   orderId String
   orden   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
@@ -192,10 +268,9 @@ model Cost {
   id          String  @id @default(uuid())
   concepto    String
   monto       Float
-  tipo        String // 'material', 'mano_obra', 'transporte', 'otros'
+  tipo        String
   descripcion String?
 
-  // Relations
   orderId String
   orden   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
@@ -216,9 +291,8 @@ model AuditLog {
   userAgent  String?
   createdAt  DateTime @default(now())
 
-  // Relations
   userId String
-  user   User   @relation("UserAuditLogs", fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
 
   @@index([entityType, entityId])
   @@index([userId])
@@ -229,28 +303,18 @@ model AuditLog {
 // PLANEACIÓN Y KITS TÍPICOS
 // ============================================
 
-enum EstadoPlaneacion {
-  borrador
-  en_revision
-  aprobada
-  en_ejecucion
-  completada
-  cancelada
-}
-
 model KitTipico {
   id                    String   @id @default(uuid())
   nombre                String   @unique
   descripcion           String
-  herramientas          Json // Array de { nombre, cantidad, codigo? }
-  equipos               Json // Array de { nombre, cantidad, certificacion? }
-  documentos            String[] // Lista de documentos requeridos
-  checklistItems        String[] // Items del checklist
+  herramientas          Json
+  equipos               Json
+  documentos            String[]
+  checklistItems        String[]
   duracionEstimadaHoras Int
   costoEstimado         Float
   activo                Boolean  @default(true)
 
-  // Relations
   planeaciones Planeacion[]
 
   createdAt DateTime @default(now())
@@ -263,22 +327,20 @@ model Planeacion {
   id     String           @id @default(uuid())
   estado EstadoPlaneacion @default(borrador)
 
-  // Campos del formulario OPE-001
   empresa             String?
   ubicacion           String?
   fechaEstimadaInicio DateTime?
   fechaEstimadaFin    DateTime?
   descripcionTrabajo  String?
 
-  cronograma              Json // Array de actividades con fechas
-  manoDeObra              Json // Array de asignaciones de personal
-  herramientasAdicionales Json? // Herramientas extra fuera del kit
+  cronograma              Json
+  manoDeObra              Json
+  herramientasAdicionales Json?
   documentosApoyo         String[]
   observaciones           String?
   aprobadoPorId           String?
   fechaAprobacion         DateTime?
 
-  // Relations
   ordenId String @unique
   orden   Order  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
 
@@ -288,9 +350,7 @@ model Planeacion {
   aprobadoPor User? @relation("PlaneacionAprobador", fields: [aprobadoPorId], references: [id])
 
   ejecucion Ejecucion?
-
-  // Items específicos (materiales, herramientas, equipos, seguridad)
-  items ItemPlaneacion[]
+  items     ItemPlaneacion[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -298,20 +358,32 @@ model Planeacion {
   @@index([ordenId])
   @@index([kitId])
   @@index([estado])
+  @@index([aprobadoPorId])
   @@map("planeaciones")
+}
+
+model ItemPlaneacion {
+  id            String  @id @default(uuid())
+  planeacionId  String
+  tipo          String
+  descripcion   String
+  cantidad      Int     @default(1)
+  unidad        String  @default("UND")
+  observaciones String?
+
+  planeacion Planeacion @relation(fields: [planeacionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([planeacionId])
+  @@index([tipo])
+  @@map("items_planeacion")
 }
 
 // ============================================
 // EJECUCIÓN Y SEGUIMIENTO
 // ============================================
-
-enum EstadoEjecucion {
-  NO_INICIADA
-  EN_PROGRESO
-  PAUSADA
-  COMPLETADA
-  CANCELADA
-}
 
 model Ejecucion {
   id                  String          @id @default(uuid())
@@ -323,21 +395,23 @@ model Ejecucion {
   horasEstimadas      Float
   fechaInicio         DateTime
   fechaTermino        DateTime?
-  ubicacionGPS        Json? // { latitud, longitud }
+  ubicacionGPS        Json?
   observacionesInicio String?
   observaciones       String?
+  sincronizado        Boolean         @default(false)
 
-  // Relations
   orden               Order                @relation(fields: [ordenId], references: [id], onDelete: Cascade)
   planeacion          Planeacion           @relation(fields: [planeacionId], references: [id])
   tareas              TareaEjecucion[]
   checklists          ChecklistEjecucion[]
   evidenciasEjecucion EvidenciaEjecucion[]
+  fotosEvidencia      FotoEvidencia[]      @relation("EjecucionFotos")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([ordenId])
+  @@index([planeacionId])
   @@index([estado])
   @@map("ejecuciones")
 }
@@ -361,52 +435,140 @@ model TareaEjecucion {
   @@map("tareas_ejecucion")
 }
 
+// ============================================
+// CHECKLISTS - TEMPLATES Y EJECUCIÓN
+// ============================================
+
+model ChecklistTemplate {
+  id          String                  @id @default(uuid())
+  nombre      String
+  tipo        String
+  descripcion String?
+  activo      Boolean                 @default(true)
+  items       ChecklistTemplateItem[]
+  checklists  ChecklistEjecucion[]    @relation("TemplateChecklistEjecucion")
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+
+  @@index([tipo, activo])
+  @@map("checklist_templates")
+}
+
+model ChecklistTemplateItem {
+  id                   String                   @id @default(uuid())
+  templateId           String
+  template             ChecklistTemplate        @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  nombre               String
+  descripcion          String?
+  tipo                 String
+  requereCertificacion Boolean                  @default(false)
+  orden                Int                      @default(0)
+  createdAt            DateTime                 @default(now())
+  itemsEjecucion       ChecklistItemEjecucion[] @relation("TemplateItemRef")
+
+  @@index([templateId])
+  @@map("checklist_template_items")
+}
+
 model ChecklistEjecucion {
-  id            String    @id @default(uuid())
-  ejecucionId   String
-  item          String
-  completada    Boolean   @default(false)
-  completadoPor String?
-  completadoEn  DateTime?
+  id              String    @id @default(uuid())
+  ejecucionId     String
+  templateId      String?
+  nombre          String
+  descripcion     String?
+  completada      Boolean   @default(false)
+  completadoPorId String?
+  completadoEn    DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  ejecucion Ejecucion @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  ejecucion     Ejecucion              @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
+  template      ChecklistTemplate?     @relation("TemplateChecklistEjecucion", fields: [templateId], references: [id])
+  completadoPor User?                  @relation("ChecklistCompletadoPor", fields: [completadoPorId], references: [id])
+  items         ChecklistItemEjecucion[]
+  fotosEvidencia FotoEvidencia[]       @relation("ChecklistFotos")
 
   @@index([ejecucionId])
+  @@index([templateId])
+  @@index([completadoPorId])
   @@map("checklist_ejecucion")
 }
 
+model ChecklistItemEjecucion {
+  id              String    @id @default(uuid())
+  checklistId     String
+  templateItemId  String?
+  nombre          String
+  estado          String    @default("pendiente")
+  completado      Boolean   @default(false)
+  completadoPorId String?
+  completadoEn    DateTime?
+  observaciones   String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  checklist     ChecklistEjecucion     @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+  templateItem  ChecklistTemplateItem? @relation("TemplateItemRef", fields: [templateItemId], references: [id])
+  completadoPor User?                  @relation("ItemCompletadoPor", fields: [completadoPorId], references: [id])
+  fotosAdjuntas FotoEvidencia[]        @relation("ItemFotos")
+
+  @@index([checklistId])
+  @@index([templateItemId])
+  @@index([completadoPorId])
+  @@map("checklist_item_ejecucion")
+}
+
+model FotoEvidencia {
+  id              String    @id @default(uuid())
+  ejecucionId     String?
+  checklistId     String?
+  checklistItemId String?
+  url             String
+  descripcion     String?
+  fase            String?
+  cargadoPorId    String?
+  cargadoEn       DateTime  @default(now())
+  sincronizado    Boolean   @default(false)
+
+  ejecucion     Ejecucion?              @relation("EjecucionFotos", fields: [ejecucionId], references: [id], onDelete: SetNull)
+  checklist     ChecklistEjecucion?     @relation("ChecklistFotos", fields: [checklistId], references: [id], onDelete: SetNull)
+  checklistItem ChecklistItemEjecucion? @relation("ItemFotos", fields: [checklistItemId], references: [id], onDelete: SetNull)
+  cargadoPor    User?                   @relation("FotoCargadaPor", fields: [cargadoPorId], references: [id])
+
+  @@index([ejecucionId])
+  @@index([checklistId])
+  @@index([checklistItemId])
+  @@index([cargadoPorId])
+  @@map("fotos_evidencia")
+}
+
 model EvidenciaEjecucion {
-  id            String    @id @default(uuid())
+  id            String   @id @default(uuid())
   ejecucionId   String
   ordenId       String
-  tipo          String // FOTO, VIDEO, DOCUMENTO, FIRMA, AUDIO
+  tipo          String
   nombreArchivo String
   rutaArchivo   String
   tamano        Int
-  mimeType      String    @default("application/octet-stream")
+  mimeType      String   @default("application/octet-stream")
   descripcion   String
-  ubicacionGPS  Json? // { latitud, longitud }
+  ubicacionGPS  Json?
   tags          String[]
   subidoPor     String
-  verificada    Boolean   @default(false)
+  verificada    Boolean  @default(false)
   verificadoPor String?
   verificadoEn  DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   ejecucion Ejecucion @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
-  orden     Order     @relation(fields: [ordenId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  orden     Order     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
 
   @@index([ejecucionId])
   @@index([ordenId])
   @@map("evidencias_ejecucion")
 }
 
-// Push Notifications Subscriptions
 model PushSubscription {
   id        String   @id @default(uuid())
   userId    String
@@ -416,7 +578,6 @@ model PushSubscription {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -424,37 +585,8 @@ model PushSubscription {
 }
 
 // ============================================
-// ITEMS DE PLANEACIÓN DETALLADOS
-// ============================================
-
-model ItemPlaneacion {
-  id            String  @id @default(uuid())
-  planeacionId  String
-  tipo          String // MATERIAL, HERRAMIENTA, EQUIPO, SEGURIDAD
-  descripcion   String
-  cantidad      Int     @default(1)
-  unidad        String  @default("UND") // UND, M, KG, L, PAQ
-  observaciones String?
-
-  planeacion Planeacion @relation(fields: [planeacionId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([planeacionId])
-  @@index([tipo])
-  @@map("items_planeacion")
-}
-
-// ============================================
 // INSPECCIÓN LÍNEAS DE VIDA
 // ============================================
-
-enum EstadoInspeccion {
-  CONFORME
-  NO_CONFORME
-  PENDIENTE
-}
 
 model InspeccionLineaVida {
   id               String @id @default(uuid())
@@ -463,7 +595,7 @@ model InspeccionLineaVida {
   diametroCable    String @default("8mm")
   tipoCable        String @default("Acero Inoxidable")
   ubicacion        String
-  especificaciones Json? // Datos adicionales de la línea
+  especificaciones Json?
 
   fechaInspeccion          DateTime  @default(now())
   fechaInstalacion         DateTime?
@@ -472,7 +604,7 @@ model InspeccionLineaVida {
   estado              EstadoInspeccion @default(PENDIENTE)
   accionesCorrectivas String?
   observaciones       String?
-  fotosEvidencia      String[] // URLs de fotos
+  fotosEvidencia      String[]
 
   inspectorId String
   inspector   User   @relation("InspectorLineaVida", fields: [inspectorId], references: [id])
@@ -491,9 +623,9 @@ model InspeccionLineaVida {
 model ComponenteLineaVida {
   id               String  @id @default(uuid())
   inspeccionId     String
-  nombre           String // PLACA_ANCLAJE_SUPERIOR, CABLE, TENSOR, etc
+  nombre           String
   hallazgos        String?
-  estado           String // C (Conforme), NC (No Conforme)
+  estado           String
   accionCorrectiva String?
 
   condiciones CondicionComponente[]
@@ -510,9 +642,9 @@ model ComponenteLineaVida {
 model CondicionComponente {
   id           String @id @default(uuid())
   componenteId String
-  tipoAfeccion String // Grietas, Corrosión, Desgaste, etc
+  tipoAfeccion String
   descripcion  String
-  estado       String // C o NC
+  estado       String
 
   componente ComponenteLineaVida @relation(fields: [componenteId], references: [id], onDelete: Cascade)
 
@@ -531,17 +663,14 @@ model EquipoHES {
   id     String @id @default(uuid())
   numero String @unique
   marca  String
-  tipo   String // ARNES, ESLINGA, ASCENDEDOR, etc.
-  estado String @default("DISPONIBLE") // DISPONIBLE, EN_MANTENIMIENTO, RECHAZADO
+  tipo   String
+  estado String @default("DISPONIBLE")
 
-  // Información de inspecciones
   ultimaInspeccion  DateTime?
   proximaInspeccion DateTime?
 
-  // Detalles técnicos
-  especificaciones Json? // Guardar especificaciones del equipo
+  especificaciones Json?
 
-  // Relaciones
   inspecciones InspeccionHES[]
   ordenes      OrdenEquipoHES[]
 
@@ -556,30 +685,23 @@ model EquipoHES {
 model InspeccionHES {
   id String @id @default(uuid())
 
-  // Equipo inspeccionado
   equipoId String
   equipo   EquipoHES @relation(fields: [equipoId], references: [id])
 
-  // Inspector
   inspectorId String
   inspector   User   @relation(fields: [inspectorId], references: [id])
 
-  // Orden relacionada (opcional)
   ordenId String?
   orden   Order?  @relation(fields: [ordenId], references: [id])
 
-  // Fecha
   fechaInspeccion DateTime @default(now())
 
-  // Resultados individuales
   items InspeccionItem[]
 
-  // Resultado final
-  estado         String // OK, RECHAZADO
-  observaciones  String? // @db.Text en postgres es implicito String grande en prisma
-  fotosEvidencia String[] // URLs de fotos
+  estado         String
+  observaciones  String?
+  fotosEvidencia String[]
 
-  // Auditoría
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -596,12 +718,10 @@ model InspeccionItem {
   inspeccionId String
   inspeccion   InspeccionHES @relation(fields: [inspeccionId], references: [id], onDelete: Cascade)
 
-  // Rubro a inspeccionar
-  rubro       String // ARNÉS, COSTURAS, ANILLOS, etc.
+  rubro       String
   descripcion String?
 
-  // Resultado
-  estado String // OK, RECHAZADO
+  estado String
   notas  String?
 
   @@index([inspeccionId])
@@ -617,7 +737,7 @@ model OrdenEquipoHES {
   equipo   EquipoHES @relation(fields: [equipoId], references: [id])
 
   cantidad Int    @default(1)
-  estado   String @default("ASIGNADO") // ASIGNADO, DEVUELTO, DAÑADO
+  estado   String @default("ASIGNADO")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -629,29 +749,8 @@ model OrdenEquipoHES {
 }
 
 // ============================================
-// MANTENIMIENTOS - Control de Equipos
+// MANTENIMIENTOS
 // ============================================
-
-enum TipoMantenimiento {
-  PREVENTIVO
-  CORRECTIVO
-  PREDICTIVO
-}
-
-enum EstadoMantenimiento {
-  PROGRAMADO
-  EN_PROGRESO
-  COMPLETADO
-  CANCELADO
-  PENDIENTE
-}
-
-enum PrioridadMantenimiento {
-  BAJA
-  MEDIA
-  ALTA
-  CRITICA
-}
 
 model Equipo {
   id                         String    @id @default(uuid())
@@ -672,7 +771,6 @@ model Equipo {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
   mantenimientos Mantenimiento[]
 
   @@index([codigo])
@@ -707,7 +805,7 @@ model Mantenimiento {
   notas               String?
   observaciones       String?
   trabajoRealizado    String?
-  repuestosUtilizados String? // JSON stringified
+  repuestosUtilizados String?
 
   esRecurrente         Boolean @default(false)
   frecuenciaDias       Int?
@@ -724,6 +822,7 @@ model Mantenimiento {
   @@index([estado])
   @@index([fechaProgramada])
   @@index([tecnicoAsignadoId])
+  @@index([creadoPorId])
   @@map("mantenimientos")
 }
 
@@ -735,7 +834,7 @@ model FormularioTemplate {
   id          String  @id @default(uuid())
   nombre      String
   descripcion String?
-  schema      String // JSON Schema del formulario
+  schema      String
   version     Int     @default(1)
   activo      Boolean @default(true)
 
@@ -744,7 +843,6 @@ model FormularioTemplate {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
   respuestas FormularioRespuesta[]
 
   @@index([activo])
@@ -759,7 +857,7 @@ model FormularioRespuesta {
 
   ordenId String?
 
-  respuestas String // JSON con las respuestas
+  respuestas String
 
   completadoPorId String?
 
@@ -775,31 +873,6 @@ model FormularioRespuesta {
 // CIERRE ADMINISTRATIVO
 // ============================================
 
-enum EstadoActa {
-  BORRADOR
-  GENERADA
-  ENVIADA
-  FIRMADA
-  RECHAZADA
-}
-
-enum EstadoSES {
-  NO_CREADA
-  CREADA
-  ENVIADA
-  APROBADA
-  RECHAZADA
-}
-
-enum EstadoFactura {
-  NO_CREADA
-  GENERADA
-  ENVIADA
-  APROBADA
-  PAGADA
-  RECHAZADA
-}
-
 model Acta {
   id      String @id @default(uuid())
   numero  String @unique
@@ -808,37 +881,31 @@ model Acta {
 
   estado EstadoActa @default(BORRADOR)
 
-  // Datos del acta
   fechaEmision       DateTime  @default(now())
   fechaEntrega       DateTime?
-  trabajosRealizados String // Descripción detallada
+  trabajosRealizados String
   observaciones      String?
 
-  // Firmas
-  firmaTecnico       String? // URL de imagen de firma
-  firmaCliente       String? // URL de imagen de firma
+  firmaTecnico       String?
+  firmaCliente       String?
   nombreFirmaTecnico String?
   nombreFirmaCliente String?
   cedulaFirmaTecnico String?
   cedulaFirmaCliente String?
   fechaFirma         DateTime?
 
-  // Archivos
-  archivoActaPDF String? // URL del PDF generado
-  adjuntos       String[] // URLs de archivos adjuntos
+  archivoActaPDF String?
+  adjuntos       String[]
 
-  // Alertas
   alertaEnviada Boolean @default(false)
   diasSinFirmar Int     @default(0)
 
-  // Auditoría
   creadoPorId   String?
   aprobadoPorId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
   cierreAdministrativo CierreAdministrativo?
 
   @@index([ordenId])
@@ -855,31 +922,26 @@ model SES {
 
   estado EstadoSES @default(NO_CREADA)
 
-  // Datos de SAP Ariba
   fechaCreacion   DateTime  @default(now())
   fechaEnvio      DateTime?
   fechaAprobacion DateTime?
 
-  codigoAriba String? // Código en plataforma Ariba
-  urlAriba    String? // URL en plataforma Ariba
+  codigoAriba String?
+  urlAriba    String?
 
-  // Detalles
   descripcionServicio String
   valorTotal          Float
   observaciones       String?
 
-  // Alertas
   alertaEnviada  Boolean @default(false)
   diasSinAprobar Int     @default(0)
 
-  // Auditoría
   creadoPorId   String?
   aprobadoPorId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
   cierreAdministrativo CierreAdministrativo?
 
   @@index([ordenId])
@@ -896,41 +958,33 @@ model Factura {
 
   estado EstadoFactura @default(NO_CREADA)
 
-  // Datos de facturación
   fechaEmision     DateTime  @default(now())
   fechaVencimiento DateTime?
   fechaAprobacion  DateTime?
   fechaPago        DateTime?
 
-  // Montos
   subtotal   Float
   impuestos  Float
   valorTotal Float
 
-  // Detalles
-  conceptos     String // JSON con desglose de conceptos
+  conceptos     String
   observaciones String?
 
-  // Archivos
-  archivoFacturaPDF String? // URL del PDF
-  adjuntos          String[] // URLs de archivos adicionales
+  archivoFacturaPDF String?
+  adjuntos          String[]
 
-  // Integración Ariba
   codigoAriba String?
   urlAriba    String?
 
-  // Alertas
   alertaEnviada Boolean @default(false)
   diasVencidos  Int     @default(0)
 
-  // Auditoría
   creadoPorId   String?
   aprobadoPorId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
   cierreAdministrativo CierreAdministrativo?
 
   @@index([ordenId])
@@ -944,7 +998,6 @@ model CierreAdministrativo {
   ordenId String @unique
   orden   Order  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
 
-  // Referencias a documentos
   actaId String? @unique
   acta   Acta?   @relation(fields: [actaId], references: [id])
 
@@ -954,22 +1007,18 @@ model CierreAdministrativo {
   facturaId String?  @unique
   factura   Factura? @relation(fields: [facturaId], references: [id])
 
-  // Estado del cierre
-  porcentajeCompletado Int     @default(0) // 0-100
+  porcentajeCompletado Int     @default(0)
   estaCompleto         Boolean @default(false)
 
-  // Fechas importantes
   fechaInicioOrden    DateTime
   fechaFinOrden       DateTime?
   fechaInicioCierre   DateTime  @default(now())
   fechaCierreCompleto DateTime?
 
-  // Métricas
-  diasParaCierre Int @default(0) // Días desde fin de orden hasta cierre completo
+  diasParaCierre Int @default(0)
 
-  // Observaciones
   observaciones String?
-  bloqueos      String? // JSON con problemas que impiden el cierre
+  bloqueos      String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -983,37 +1032,25 @@ model CierreAdministrativo {
 // ARCHIVO HISTÓRICO
 // ============================================
 
-enum TipoArchivo {
-  ORDENES_CSV
-  EVIDENCIAS_ZIP
-  INFORMES_PDF
-  BACKUP_COMPLETO
-}
-
 model ArchivoHistorico {
   id   String      @id @default(uuid())
   tipo TipoArchivo
 
-  // Período archivado
-  mes  Int // 1-12
+  mes  Int
   anio Int
 
-  // Información del archivo
   nombreArchivo String
   rutaArchivo   String
   tamanioBytes  BigInt
 
-  // Contenido
   cantidadOrdenes    Int     @default(0)
   cantidadEvidencias Int     @default(0)
   descripcion        String?
 
-  // Estado
   disponible    Boolean   @default(true)
   descargado    Boolean   @default(false)
   fechaDescarga DateTime?
 
-  // Auditoría
   creadoPorId    String?
   fechaArchivado DateTime @default(now())
 
@@ -1025,3 +1062,4 @@ model ArchivoHistorico {
   @@index([disponible])
   @@map("archivos_historicos")
 }
+

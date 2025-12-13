@@ -1,4 +1,11 @@
-import { Controller, Post, Get, Body, Res, Req, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+/**
+ * @controller AuthController
+ *
+ * Endpoints REST para autenticación: login/registro/refresh/logout y perfil actual.
+ *
+ * Uso: POST /auth/login, POST /auth/refresh, GET /auth/me.
+ */
+import { Controller, Post, Get, Body, Res, Req, HttpCode, HttpStatus, UseGuards, BadRequestException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
@@ -15,6 +22,14 @@ const COOKIE_OPTIONS = {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: '/',
 };
+
+/**
+ * @refactor PRIORIDAD_BAJA
+ *
+ * Problema: `COOKIE_OPTIONS.maxAge` es un magic number.
+ *
+ * Solución sugerida: Extraer constante `REFRESH_COOKIE_MAX_AGE_MS` y reusarla junto a REFRESH_TOKEN_DAYS.
+ */
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -46,7 +61,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     async refresh(@Req() req: Request, @Body() body: { refreshToken?: string }, @Res({ passthrough: true }) res: Response) {
         const refreshToken = req.cookies?.refreshToken || body.refreshToken;
-        if (!refreshToken) throw new Error('Refresh token requerido');
+        if (!refreshToken) throw new BadRequestException('Refresh token requerido');
         const result = await this.authService.refresh(refreshToken, req.ip, req.get('user-agent'));
         res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
         return { token: result.accessToken };
@@ -69,7 +84,7 @@ export class AuthController {
     @ApiBearerAuth()
     async me(@CurrentUser() user: JwtPayload) {
         const userData = await this.authService.findUserById(user.userId);
-        if (!userData) throw new Error('Usuario no encontrado');
+        if (!userData) throw new NotFoundException('Usuario no encontrado');
         return { user: { id: userData.id, email: userData.email, name: userData.name, role: userData.role, avatar: userData.avatar, phone: userData.phone } };
     }
 }

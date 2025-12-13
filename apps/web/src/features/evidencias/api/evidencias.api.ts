@@ -79,7 +79,6 @@ export const evidenciasApi = {
    * Subir evidencia
    */
   upload: async (data: UploadEvidenciaInput): Promise<Evidencia> => {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
     const formData = new FormData();
     formData.append('archivo', data.archivo);
     formData.append('ejecucionId', data.ejecucionId);
@@ -94,26 +93,10 @@ export const evidenciasApi = {
       formData.append('metadatos', JSON.stringify(data.metadatos));
     }
 
-    // Obtener token de autorización
-    const authData = typeof window !== 'undefined' ? localStorage.getItem('cermont-auth') : null;
-    const token = authData ? JSON.parse(authData)?.state?.token : null;
-    
-    const headers: HeadersInit = {};
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const response = await fetch(`${API_URL}/evidencias/upload`, {
-      method: 'POST',
-      headers,
-      body: formData,
-    });
-    
-    if (!response.ok) {
-      throw new Error('Error al subir evidencia');
-    }
-    
-    const result = await response.json() as { status: string; data: Evidencia };
+    const result = await apiClient.uploadForm<{ status: string; data: Evidencia }>(
+      '/evidencias/upload',
+      formData
+    );
     return result.data;
   },
 

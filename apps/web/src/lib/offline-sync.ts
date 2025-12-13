@@ -72,13 +72,17 @@ class IndexedDBManager {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
       request.onerror = () => {
-        console.error('Error abriendo IndexedDB:', request.error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('[OfflineSync] Error abriendo IndexedDB:', request.error);
+        }
         reject(request.error);
       };
 
       request.onsuccess = () => {
         this.db = request.result;
-        console.log('IndexedDB inicializado correctamente');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[OfflineSync] IndexedDB inicializado correctamente');
+        }
         resolve(request.result);
       };
 
@@ -305,7 +309,9 @@ class OfflineSyncManager {
 
     try {
       const pendingItems = await this.getPendingSyncItems();
-      console.log(`[OfflineSync] Sincronizando ${pendingItems.length} items...`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[OfflineSync] Sincronizando ${pendingItems.length} items...`);
+      }
 
       for (const item of pendingItems) {
         try {
@@ -328,7 +334,9 @@ class OfflineSyncManager {
 
       this.emit({ type: 'sync_complete', payload: { synced: pendingItems.length } });
     } catch (error) {
-      console.error('[OfflineSync] Error en sincronización:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[OfflineSync] Error en sincronización:', error);
+      }
       this.emit({ type: 'sync_error', payload: error });
     } finally {
       this.isSyncing = false;
@@ -336,7 +344,9 @@ class OfflineSyncManager {
   }
 
   private async syncItem(item: SyncQueueItem): Promise<any> {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+    const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const trimmed = rawBaseUrl.trim().replace(/\/+$/, '');
+    const baseUrl = trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
     
     const response = await fetch(`${baseUrl}${item.endpoint}`, {
       method: item.method,

@@ -1,18 +1,24 @@
 /**
- * Logging Interceptor
- * Logs request/response timing
+ * @interceptor LoggingInterceptor
+ *
+ * Registra método/URL/status y duración por request.
+ *
+ * Uso: Registrado como APP_INTERCEPTOR global en AppModule.
  */
 import {
     Injectable,
     NestInterceptor,
     ExecutionContext,
     CallHandler,
+    Logger,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
+    private readonly logger = new Logger(LoggingInterceptor.name);
+
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
         const request = context.switchToHttp().getRequest();
         const method = request.method;
@@ -24,7 +30,7 @@ export class LoggingInterceptor implements NestInterceptor {
                 const response = context.switchToHttp().getResponse();
                 const statusCode = response.statusCode;
                 const duration = Date.now() - now;
-                console.log(`${method} ${url} ${statusCode} - ${duration}ms`);
+                this.logger.log(`${method} ${url} ${statusCode} - ${duration}ms`);
             }),
         );
     }

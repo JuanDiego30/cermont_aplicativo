@@ -1,4 +1,12 @@
+/**
+ * @module AuthModule
+ *
+ * Módulo de autenticación con JWT (Passport) y configuración del JwtModule.
+ *
+ * Uso: Importar en AppModule para habilitar endpoints y guard JWT.
+ */
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
@@ -8,10 +16,23 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 @Module({
     imports: [
         PassportModule.register({ defaultStrategy: 'jwt' }),
-        JwtModule.register({
+        JwtModule.registerAsync({
             global: true,
-            secret: process.env.JWT_SECRET || 'cermont-secret-key-change-in-production',
-            signOptions: { expiresIn: 900 }, // 15 minutes in seconds
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => {
+                const secret = configService.get<string>('JWT_SECRET');
+                if (!secret) {
+                    throw new Error('JWT_SECRET is required');
+                }
+
+                return {
+                    secret,
+                    signOptions: {
+                        expiresIn: 900, // 15 minutos en segundos
+                    },
+                };
+            },
         }),
     ],
     controllers: [AuthController],

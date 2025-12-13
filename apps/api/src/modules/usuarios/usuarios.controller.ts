@@ -1,3 +1,10 @@
+/**
+ * @controller UsuariosController
+ *
+ * Endpoints REST para administración de usuarios (requiere JWT + roles).
+ *
+ * Uso: GET /usuarios, POST /usuarios, PUT /usuarios/:id, DELETE /usuarios/:id.
+ */
 import { Controller, Get, Post, Put, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { UsuariosService } from './usuarios.service';
@@ -11,6 +18,14 @@ import { Roles } from '../../common/decorators/roles.decorator';
 @ApiBearerAuth()
 export class UsuariosController {
     constructor(private readonly usuariosService: UsuariosService) { }
+
+    /**
+     * @refactor PRIORIDAD_MEDIA
+     *
+     * Problema: Handlers están comprimidos en una sola línea y usan `dto: any`, afectando legibilidad y validación.
+     *
+     * Solución sugerida: Formatear métodos en múltiples líneas y reemplazar `any` por DTOs con class-validator.
+     */
 
     @Get() @Roles('admin', 'supervisor')
     findAll(@Query('role') role?: string, @Query('active') active?: boolean) { return this.usuariosService.findAll({ role, active }); }

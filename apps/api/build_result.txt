@@ -1,0 +1,337 @@
+﻿
+> cermont-api@1.0.0 build
+> nest build
+
+node.exe : [96msrc/m
+odules/auth/strategie
+s/jwt.strategy.ts[0m
+:[93m8[0m:[93m15[
+0m - 
+[91merror[0m[90m 
+TS2345: [0mArgument 
+of type '[{ 
+jwtFromRequest: JwtFr
+omRequestFunction<any
+>; ignoreExpiration: 
+false; secretOrKey: 
+string | undefined; 
+}]' is not 
+assignable to 
+parameter of type 
+'[opt: StrategyOption
+sWithRequest] | 
+[opt: StrategyOptions
+WithoutRequest]'.
+En línea: 1 
+Carácter: 1
++ & "C:\Program Files
+\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: ([96msr   
+ c/module...thout    
+Request]'.:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+  Type '[{ 
+jwtFromRequest: JwtFr
+omRequestFunction<any
+>; ignoreExpiration: 
+false; secretOrKey: 
+string | undefined; 
+}]' is not 
+assignable to type 
+'[opt: StrategyOption
+sWithoutRequest]'.
+    Type '{ 
+jwtFromRequest: JwtFr
+omRequestFunction<any
+>; ignoreExpiration: 
+false; secretOrKey: 
+string | undefined; 
+}' is not assignable 
+to type 'StrategyOpti
+onsWithoutRequest'.
+      Type '{ 
+jwtFromRequest: JwtFr
+omRequestFunction<any
+>; ignoreExpiration: 
+false; secretOrKey: 
+string | undefined; 
+}' is not assignable 
+to type 'Omit<WithSec
+retOrKey, "secretOrKe
+yProvider"> & { 
+passReqToCallback?: 
+false | undefined; 
+}'.
+        Type '{ 
+jwtFromRequest: JwtFr
+omRequestFunction<any
+>; ignoreExpiration: 
+false; secretOrKey: 
+string | undefined; 
+}' is not assignable 
+to type 'Omit<WithSec
+retOrKey, "secretOrKe
+yProvider">'.
+          Types of 
+property 
+'secretOrKey' are 
+incompatible.
+            Type 
+'string | undefined' 
+is not assignable to 
+type 'string | Buffer
+<ArrayBufferLike>'.
+              Type 
+'undefined' is not 
+assignable to type 
+'string | Buffer<Arra
+yBufferLike>'.
+
+[7m  8[0m         
+super({
+[7m   [0m [91m    
+          ~[0m
+[7m  9[0m          
+   jwtFromRequest: Ex
+tractJwt.fromAuthHead
+erAsBearerToken(),
+[7m   [0m [91m~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~[0m
+[7m...[0m 
+[7m 11[0m          
+   secretOrKey: proce
+ss.env.JWT_SECRET,
+[7m   [0m [91m~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~[0m
+[7m 12[0m         
+});
+[7m   [0m 
+[91m~~~~~~~~~[0m
+[96msrc/modules/kits
+/kits.service.ts[0m:
+[93m264[0m:[93m13
+[0m - 
+[91merror[0m[90m 
+TS2322: [0mType '{ 
+ejecucionId: string; 
+item: string; 
+completada: boolean; 
+}[]' is not 
+assignable to type 'C
+hecklistEjecucionCrea
+teManyInput | Checkli
+stEjecucionCreateMany
+Input[]'.
+  Type '{ 
+ejecucionId: string; 
+item: string; 
+completada: boolean; 
+}[]' is not 
+assignable to type 'C
+hecklistEjecucionCrea
+teManyInput[]'.
+    Property 
+'nombre' is missing 
+in type '{ 
+ejecucionId: string; 
+item: string; 
+completada: boolean; 
+}' but required in 
+type 'ChecklistEjecuc
+ionCreateManyInput'.
+
+[7m264[0m          
+   data: [
+[7m   [0m [91m    
+        ~~~~[0m
+
+  [96mnode_modules/.
+prisma/client/index.d
+.ts[0m:[93m54414[0
+m:[93m5[0m
+    [7m54414[0m    
+ nombre: string
+    [7m     [0m 
+[96m    ~~~~~~[0m
+    'nombre' is 
+declared here.
+[96msrc/modules/kits
+/kits.service.ts[0m:
+[93m338[0m:[93m13
+[0m - 
+[91merror[0m[90m 
+TS2322: [0mType '{ 
+ejecucionId: string; 
+item: string; 
+completada: boolean; 
+}[]' is not 
+assignable to type 'C
+hecklistEjecucionCrea
+teManyInput | Checkli
+stEjecucionCreateMany
+Input[]'.
+  Type '{ 
+ejecucionId: string; 
+item: string; 
+completada: boolean; 
+}[]' is not 
+assignable to type 'C
+hecklistEjecucionCrea
+teManyInput[]'.
+    Property 
+'nombre' is missing 
+in type '{ 
+ejecucionId: string; 
+item: string; 
+completada: boolean; 
+}' but required in 
+type 'ChecklistEjecuc
+ionCreateManyInput'.
+
+[7m338[0m          
+   data: [
+[7m   [0m [91m    
+        ~~~~[0m
+
+  [96mnode_modules/.
+prisma/client/index.d
+.ts[0m:[93m54414[0
+m:[93m5[0m
+    [7m54414[0m    
+ nombre: string
+    [7m     [0m 
+[96m    ~~~~~~[0m
+    'nombre' is 
+declared here.
+[96msrc/modules/sync
+/sync.service.ts[0m:
+[93m151[0m:[93m21
+[0m - 
+[91merror[0m[90m 
+TS2322: [0mType 
+'string | null' is 
+not assignable to 
+type 'UserUpdateOneWi
+thoutChecklistsComple
+tadosNestedInput | 
+undefined'.
+  Type 'null' is not 
+assignable to type 'U
+serUpdateOneWithoutCh
+ecklistsCompletadosNe
+stedInput | 
+undefined'.
+
+[7m151[0m          
+           
+completadoPor: 
+datos.completada ? 
+userId : null,
+[7m   [0m [91m    
+                
+~~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.
+prisma/client/index.d
+.ts[0m:[93m54390[0
+m:[93m5[0m
+    [7m54390[0m    
+ completadoPor?: User
+UpdateOneWithoutCheck
+listsCompletadosNeste
+dInput
+    [7m     [0m 
+[96m    
+~~~~~~~~~~~~~[0m
+    The expected 
+type comes from 
+property 
+'completadoPor' 
+which is declared 
+here on type '(Withou
+t<ChecklistEjecucionU
+pdateInput, Checklist
+EjecucionUncheckedUpd
+ateInput> & Checklist
+EjecucionUncheckedUpd
+ateInput) | 
+(Without<...> & Check
+listEjecucionUpdateIn
+put)'
+[96msrc/modules/sync
+/sync.service.ts[0m:
+[93m171[0m:[93m21
+[0m - 
+[91merror[0m[90m 
+TS2322: [0mType 
+'string | null' is 
+not assignable to 
+type 'UserCreateNeste
+dOneWithoutChecklists
+CompletadosInput | 
+undefined'.
+  Type 'null' is not 
+assignable to type 'U
+serCreateNestedOneWit
+houtChecklistsComplet
+adosInput | 
+undefined'.
+
+[7m171[0m          
+           
+completadoPor: 
+datos.completada ? 
+userId : null,
+[7m   [0m [91m    
+                
+~~~~~~~~~~~~~[0m
+
+  [96mnode_modules/.
+prisma/client/index.d
+.ts[0m:[93m54360[0
+m:[93m5[0m
+    [7m54360[0m    
+ completadoPor?: User
+CreateNestedOneWithou
+tChecklistsCompletado
+sInput
+    [7m     [0m 
+[96m    
+~~~~~~~~~~~~~[0m
+    The expected 
+type comes from 
+property 
+'completadoPor' 
+which is declared 
+here on type '(Withou
+t<ChecklistEjecucionC
+reateInput, Checklist
+EjecucionUncheckedCre
+ateInput> & Checklist
+EjecucionUncheckedCre
+ateInput) | 
+(Without<...> & Check
+listEjecucionCreateIn
+put)'
+
+Found 5 error(s).
+

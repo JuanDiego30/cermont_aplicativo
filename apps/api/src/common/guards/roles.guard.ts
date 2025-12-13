@@ -1,30 +1,77 @@
 /**
- * Roles Authorization Guard
+ * @guard RolesGuard
+ *
+ * Autoriza acceso validando roles declarados con @Roles() sobre rutas.
+ *
+ * Uso: @UseGuards(JwtAuthGuard, RolesGuard) + @Roles('admin').
  */
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import {
+    Injectable,
+    CanActivate,
+    ExecutionContext,
+    ForbiddenException,
+    Logger,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
+import { JwtPayload } from '../decorators/current-user.decorator';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-    constructor(private reflector: Reflector) { }
+    private readonly logger = new Logger(RolesGuard.name);
+
+    constructor(private readonly reflector: Reflector) {}
 
     canActivate(context: ExecutionContext): boolean {
-        const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
-            context.getHandler(),
-            context.getClass(),
-        ]);
+        const requiredRoles = this.getRequiredRoles(context);
 
         if (!requiredRoles || requiredRoles.length === 0) {
             return true;
         }
 
-        const { user } = context.switchToHttp().getRequest();
+        const user = this.extractUser(context);
+        const hasPermission = this.userHasRequiredRole(user, requiredRoles);
 
-        if (!user || !requiredRoles.includes(user.role)) {
-            throw new ForbiddenException('No tienes permisos para acceder a este recurso');
+        if (!hasPermission) {
+            const email = user?.email ?? 'unknown';
+            const role = user?.role ?? 'unknown';
+
+            this.logger.warn(
+                `Acceso denegado: Usuario ${email} (rol: ${role}) intentó acceder a ruta que requiere: ${requiredRoles.join(', ')}`,
+            );
+
+            throw new ForbiddenException(`Requiere uno de estos roles: ${requiredRoles.join(', ')}`);
         }
 
         return true;
+    }
+
+    /**
+     * Extrae roles requeridos del metadata
+     */
+    private getRequiredRoles(context: ExecutionContext): string[] | undefined {
+        return this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
+            context.getHandler(),
+            context.getClass(),
+        ]);
+    }
+
+    /**
+     * Extrae usuario del request
+     */
+    private extractUser(context: ExecutionContext): JwtPayload {
+        const request = context.switchToHttp().getRequest();
+        return request.user as JwtPayload;
+    }
+
+    /**
+     * Verifica si el usuario tiene alguno de los roles requeridos
+     */
+    private userHasRequiredRole(user: JwtPayload, requiredRoles: string[]): boolean {
+        if (!user || !user.role) {
+            return false;
+        }
+
+        return requiredRoles.some((role) => user.role.toLowerCase() === role.toLowerCase());
     }
 }
