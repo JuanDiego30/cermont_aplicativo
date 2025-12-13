@@ -246,7 +246,7 @@ export function AsistenteIA({ onAction: _onAction, contextData: _contextData, cl
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-50 group ${className}`}
+        className={`fixed bottom-6 right-6 w-14 h-14 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-50 group ${className}`}
       >
         <MessageSquare className="w-6 h-6" />
         <span className="absolute -top-2 -right-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
@@ -264,7 +264,7 @@ export function AsistenteIA({ onAction: _onAction, contextData: _contextData, cl
     return (
       <div className="fixed bottom-6 right-6 z-50">
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-72 border">
-          <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-600 to-blue-700 rounded-t-xl">
+          <div className="flex items-center justify-between p-3 bg-linear-to-r from-blue-600 to-blue-700 rounded-t-xl">
             <div className="flex items-center gap-2 text-white">
               <Bot className="w-5 h-5" />
               <span className="font-medium text-sm">Asistente CERMONT</span>
@@ -292,9 +292,9 @@ export function AsistenteIA({ onAction: _onAction, contextData: _contextData, cl
   // Chat completo
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-96 max-h-[600px] flex flex-col border overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-96 max-h-150 flex flex-col border overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-600 to-blue-700">
+        <div className="flex items-center justify-between p-4 bg-linear-to-r from-blue-600 to-blue-700">
           <div className="flex items-center gap-3 text-white">
             <div className="relative">
               <Bot className="w-8 h-8" />
@@ -332,7 +332,7 @@ export function AsistenteIA({ onAction: _onAction, contextData: _contextData, cl
                 className="flex items-center gap-1.5 px-2.5 py-1 bg-white dark:bg-gray-800 border rounded-full text-xs hover:bg-blue-50 hover:border-blue-300 transition"
               >
                 {sug.icon}
-                <span className="truncate max-w-[120px]">{sug.text}</span>
+                <span className="truncate max-w-30">{sug.text}</span>
               </button>
             ))}
           </div>
@@ -346,10 +346,10 @@ export function AsistenteIA({ onAction: _onAction, contextData: _contextData, cl
               className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
             >
               {/* Avatar */}
-              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+              <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                 message.role === 'user' 
                   ? 'bg-blue-600 text-white' 
-                  : 'bg-gradient-to-br from-purple-500 to-blue-500 text-white'
+                  : 'bg-linear-to-br from-purple-500 to-blue-500 text-white'
               }`}>
                 {message.role === 'user' ? (
                   <User className="w-4 h-4" />
@@ -387,7 +387,7 @@ export function AsistenteIA({ onAction: _onAction, contextData: _contextData, cl
           {/* Typing indicator */}
           {isTyping && (
             <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-linear-to-br from-purple-500 to-blue-500 flex items-center justify-center">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
               <div className="bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-bl-md px-4 py-3">

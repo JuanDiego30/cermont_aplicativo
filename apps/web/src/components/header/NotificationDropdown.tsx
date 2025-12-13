@@ -89,7 +89,7 @@ export default function NotificationDropdown() {
             >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-red-500 rounded-full">
+                    <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-4.5 h-4.5 px-1 text-[10px] font-bold text-white bg-red-500 rounded-full">
                         {unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                 )}
@@ -128,7 +128,7 @@ export default function NotificationDropdown() {
                                     className={`flex items-start gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors ${!notification.read ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
                                         }`}
                                 >
-                                    <div className="flex-shrink-0 mt-0.5">
+                                    <div className="shrink-0 mt-0.5">
                                         {getIcon(notification.type)}
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -143,7 +143,7 @@ export default function NotificationDropdown() {
                                         </p>
                                     </div>
                                     {!notification.read && (
-                                        <div className="flex-shrink-0">
+                                        <div className="shrink-0">
                                             <span className="block w-2 h-2 bg-blue-500 rounded-full" />
                                         </div>
                                     )}

@@ -5,6 +5,7 @@ import AppHeader from "@/layout/AppHeader";
 import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
 import dynamic from "next/dynamic";
+import { ProtectedRoute } from "@/components/common/ProtectedRoute";
 
 // Importar componentes dinámicos para evitar SSR
 const AsistenteIA = dynamic(
@@ -52,8 +53,10 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
-      <AdminLayoutContent>{children}</AdminLayoutContent>
-    </SidebarProvider>
+    <ProtectedRoute>
+      <SidebarProvider>
+        <AdminLayoutContent>{children}</AdminLayoutContent>
+      </SidebarProvider>
+    </ProtectedRoute>
   );
 }

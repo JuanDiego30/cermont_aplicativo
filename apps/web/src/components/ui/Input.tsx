@@ -1,4 +1,5 @@
 // 📁 web/src/components/ui/input.tsx
+// Diseño TailAdmin - Componente Input mejorado
 
 import React from 'react';
 import { cn } from '@/lib/cn';
@@ -9,36 +10,51 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   helperText?: string;
   required?: boolean;
   icon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, label, error, helperText, required, icon, ...props }, ref) => (
+  ({ className, type, label, error, helperText, required, icon, rightIcon, ...props }, ref) => (
     <div className="w-full">
       {label && (
-        <label className="text-sm font-medium text-gray-700 mb-1 block">
+        <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
           {label}
-          {required && <span className="text-red-500">*</span>}
+          {required && <span className="text-error-500 ml-0.5">*</span>}
         </label>
       )}
 
       <div className="relative">
-        {icon && <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">{icon}</div>}
+        {icon && (
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+            {icon}
+          </span>
+        )}
 
         <input
           type={type}
           className={cn(
-            'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-            error && 'border-red-500 focus-visible:ring-red-500',
+            'h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400',
+            'focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10',
+            'dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800',
+            'disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400 dark:disabled:bg-gray-800',
+            error && 'border-error-500 focus:border-error-500 focus:ring-error-500/10 dark:border-error-500',
             icon && 'pl-10',
+            rightIcon && 'pr-10',
             className
           )}
           ref={ref}
           {...props}
         />
+
+        {rightIcon && (
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+            {rightIcon}
+          </span>
+        )}
       </div>
 
-      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-      {helperText && <p className="text-gray-500 text-xs mt-1">{helperText}</p>}
+      {error && <p className="mt-1.5 text-sm text-error-500">{error}</p>}
+      {helperText && !error && <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400">{helperText}</p>}
     </div>
   )
 );

@@ -7,3 +7,5 @@ export * from './dashboard';
 export * from './planeacion';
 export * from './ejecucion';
 export * from './evidencias';
+export * from './tecnicos';
+export * from './reportes-financieros';
