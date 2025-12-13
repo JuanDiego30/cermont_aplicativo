@@ -461,7 +461,7 @@ export function DynamicFormRenderer({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl p-6">
+      <div className="bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-xl p-6">
         <div className="flex items-start justify-between">
           <div>
             <span className="inline-block px-2 py-1 bg-white/20 rounded text-xs font-medium mb-2">

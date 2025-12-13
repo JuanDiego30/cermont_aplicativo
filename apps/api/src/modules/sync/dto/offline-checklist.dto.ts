@@ -40,13 +40,13 @@ export class UbicacionGPSDto {
     @IsNumber()
     @Min(-90)
     @Max(90)
-    latitude: number;
+    latitude!: number;
 
     @ApiProperty({ example: -72.5078, description: 'Longitud GPS' })
     @IsNumber()
     @Min(-180)
     @Max(180)
-    longitude: number;
+    longitude!: number;
 
     @ApiPropertyOptional({ example: 10, description: 'Precisión en metros' })
     @IsOptional()
@@ -58,15 +58,15 @@ export class UbicacionGPSDto {
 export class OfflineChecklistItemDto {
     @ApiProperty({ example: 'uuid-item-123' })
     @IsUUID()
-    id: string;
+    id!: string;
 
     @ApiProperty({ example: 'Verificar arnés de seguridad' })
     @IsString()
-    nombre: string;
+    nombre!: string;
 
     @ApiProperty({ enum: EstadoItemChecklist, example: 'completado' })
     @IsEnum(EstadoItemChecklist)
-    estado: EstadoItemChecklist;
+    estado!: EstadoItemChecklist;
 
     @ApiPropertyOptional({ example: '2024-12-13T10:30:00Z' })
     @IsOptional()
@@ -86,7 +86,7 @@ export class OfflineChecklistItemDto {
 
     @ApiProperty({ example: 'uuid-checklist-456' })
     @IsUUID()
-    checklistId: string;
+    checklistId!: string;
 
     @ApiPropertyOptional({ example: 1 })
     @IsOptional()
@@ -102,7 +102,7 @@ export class OfflineChecklistItemDto {
 export class CreateOfflineChecklistDto {
     @ApiProperty({ description: 'ID de la ejecución a preparar para offline' })
     @IsUUID()
-    ejecucionId: string;
+    ejecucionId!: string;
 
     @ApiPropertyOptional({ description: 'Identificador único del dispositivo' })
     @IsOptional()
@@ -113,11 +113,11 @@ export class CreateOfflineChecklistDto {
 export class SyncPayloadDto {
     @ApiProperty({ description: 'ID de la ejecución' })
     @IsUUID()
-    ejecucionId: string;
+    ejecucionId!: string;
 
     @ApiProperty({ description: 'ID de la orden' })
     @IsUUID()
-    ordenId: string;
+    ordenId!: string;
 
     @ApiPropertyOptional({ description: 'Número de la orden' })
     @IsOptional()
@@ -129,15 +129,15 @@ export class SyncPayloadDto {
     @ArrayMinSize(1)
     @ValidateNested({ each: true })
     @Type(() => OfflineChecklistItemDto)
-    items: OfflineChecklistItemDto[];
+    items!: OfflineChecklistItemDto[];
 
     @ApiProperty({ description: 'Timestamp de generación del payload' })
     @IsDateString()
-    timestamp: string;
+    timestamp!: string;
 
     @ApiProperty({ description: 'ID único del dispositivo' })
     @IsString()
-    deviceId: string;
+    deviceId!: string;
 
     @ApiPropertyOptional({ description: 'Firma digital del técnico (base64)' })
     @IsOptional()
@@ -153,15 +153,15 @@ export class SyncPayloadDto {
     @ApiProperty({ example: 1, description: 'Versión del schema' })
     @IsNumber()
     @Min(1)
-    schemaVersion: number;
+    schemaVersion!: number;
 }
 
 export class SyncResultDto {
     @ApiProperty({ example: true })
-    success: boolean;
+    success!: boolean;
 
     @ApiProperty({ example: 'Sincronización completada. 15 items actualizados.' })
-    message: string;
+    message!: string;
 
     @ApiPropertyOptional({ example: 15 })
     itemsSincronizados?: number;
@@ -178,10 +178,10 @@ export class SyncResultDto {
 
 export class OfflinePayloadResponseDto {
     @ApiProperty({ example: true })
-    success: boolean;
+    success!: boolean;
 
     @ApiProperty({ description: 'Payload listo para trabajo offline' })
-    data: {
+    data!: {
         ejecucionId: string;
         ordenId: string;
         numeroOrden: string;
@@ -192,7 +192,7 @@ export class OfflinePayloadResponseDto {
     };
 
     @ApiProperty({ example: 'Modo offline activado. Sincronización automática cuando conecte.' })
-    message: string;
+    message!: string;
 }
 
 // ============================================
@@ -203,17 +203,17 @@ export class ValidateSyncIntegrityDto {
     @ApiProperty({ type: [String], description: 'IDs de items a validar' })
     @IsArray()
     @IsUUID(undefined, { each: true })
-    itemIds: string[];
+    itemIds!: string[];
 
     @ApiProperty({ description: 'ID de la ejecución' })
     @IsUUID()
-    ejecucionId: string;
+    ejecucionId!: string;
 }
 
 export class ForceResyncDto {
     @ApiProperty({ description: 'ID de la ejecución a resincronizar' })
     @IsUUID()
-    ejecucionId: string;
+    ejecucionId!: string;
 
     @ApiPropertyOptional({ description: 'Forzar sobreescritura de datos locales' })
     @IsOptional()

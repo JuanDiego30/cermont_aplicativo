@@ -453,7 +453,7 @@ export function MapaGPS({
   return (
     <div className={`relative bg-gray-100 dark:bg-gray-900 rounded-xl overflow-hidden ${className}`}>
       {/* Mapa */}
-      <div ref={mapRef} className="w-full h-full min-h-[400px]" />
+      <div ref={mapRef} className="w-full h-full min-h-100" />
 
       {/* Loading */}
       {isLoading && (
@@ -466,7 +466,7 @@ export function MapaGPS({
       )}
 
       {/* Controles superiores */}
-      <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-[1000]">
+      <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-1000">
         {/* Filtros */}
         {showFilters && (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2">
@@ -535,7 +535,7 @@ export function MapaGPS({
 
       {/* Panel de información del marcador seleccionado */}
       {selectedMarker && (
-        <div className="absolute bottom-4 left-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 z-[1000]">
+        <div className="absolute bottom-4 left-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 z-1000">
           <div className="flex items-start gap-3">
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center text-white"
@@ -574,7 +574,7 @@ export function MapaGPS({
       )}
 
       {/* Leyenda */}
-      <div className="absolute bottom-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-3 z-[1000]">
+      <div className="absolute bottom-4 right-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-3 z-1000">
         <p className="text-xs font-semibold text-gray-500 mb-2">Leyenda</p>
         <div className="space-y-1 text-xs">
           <div className="flex items-center gap-2">

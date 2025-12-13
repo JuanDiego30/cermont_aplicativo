@@ -19,7 +19,7 @@ export function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     try {
       await login.mutateAsync(formData);
       router.push('/dashboard');
@@ -33,8 +33,8 @@ export function LoginForm() {
     <form onSubmit={handleSubmit} className="space-y-5">
       {/* Email Field */}
       <div>
-        <label 
-          htmlFor="email" 
+        <label
+          htmlFor="email"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
         >
           Correo electrónico <span className="text-error-500">*</span>
@@ -52,8 +52,8 @@ export function LoginForm() {
 
       {/* Password Field */}
       <div>
-        <label 
-          htmlFor="password" 
+        <label
+          htmlFor="password"
           className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
         >
           Contraseña <span className="text-error-500">*</span>
@@ -66,6 +66,7 @@ export function LoginForm() {
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             placeholder="Ingresa tu contraseña"
             required
+            autoComplete="current-password"
             className="w-full h-12 px-4 pr-12 text-gray-800 bg-gray-50 border border-gray-200 rounded-lg outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:bg-gray-800 dark:text-white dark:border-gray-700 dark:focus:border-brand-400 transition-colors"
           />
           <button
@@ -85,14 +86,14 @@ export function LoginForm() {
       {/* Remember & Forgot */}
       <div className="flex items-center justify-between">
         <label className="flex items-center gap-2 cursor-pointer">
-          <input 
-            type="checkbox" 
+          <input
+            type="checkbox"
             className="w-4 h-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700"
           />
           <span className="text-sm text-gray-600 dark:text-gray-400">Recordarme</span>
         </label>
-        <Link 
-          href="/forgot-password" 
+        <Link
+          href="/forgot-password"
           className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
         >
           ¿Olvidaste tu contraseña?
@@ -112,8 +113,8 @@ export function LoginForm() {
       )}
 
       {/* Submit Button */}
-      <button 
-        type="submit" 
+      <button
+        type="submit"
         disabled={login.isPending}
         className="w-full h-12 flex items-center justify-center gap-2 bg-brand-500 text-white font-medium rounded-lg hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors dark:focus:ring-offset-gray-900"
       >
@@ -138,7 +139,7 @@ export function LoginForm() {
       </div>
 
       {/* Social Login */}
-      <button 
+      <button
         type="button"
         className="w-full h-12 flex items-center justify-center gap-3 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 transition-colors"
       >
@@ -154,8 +155,8 @@ export function LoginForm() {
       {/* Register Link */}
       <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
         ¿No tienes cuenta?{' '}
-        <Link 
-          href="/register" 
+        <Link
+          href="/register"
           className="font-medium text-brand-500 hover:text-brand-600 dark:text-brand-400"
         >
           Regístrate aquí

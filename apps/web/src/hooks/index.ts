@@ -1,4 +1,5 @@
 export { useAuth } from './useAuth';
+export { useRequireAuth } from './useRequireAuth';
 export { useOrdenes } from './useOrdenes';
 export * from './useOrders';
 export * from './useUsers';
@@ -8,3 +9,4 @@ export { useDisclosure } from './useDisclosure';
 export { usePagination } from './usePagination';
 export { useLocalStorage } from './useLocalStorage';
 export { useDebounce } from './useDebounce';
+export * from './useDashboard';

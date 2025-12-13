@@ -1,0 +1,43 @@
+﻿ANALISIS DE CERMONT - 20251213_104741
+==================================
+
+1. ESTRUCTURA:
+--------------
+10996 archivos TypeScript encontrados
+
+2. MODULOS BACKEND:
+------------------
+admin
+archivado
+auth
+checklists
+cierre-administrativo
+costos
+dashboard
+ejecucion
+evidencias
+formularios
+hes
+kits
+lineas-vida
+mantenimientos
+ordenes
+pdf-generation
+planeacion
+reportes
+sync
+usuarios
+weather
+
+3. DEPENDENCIAS OUTDATED (root):
+-------------------------------
+C:\Users\camil\Downloads\Compressed\aplicativo_cermont_prueba\cermont_aplicativo\node_modules\concurrently:concurrently@8.2.2:concurrently@8.2.2:concurrently@9.2.1:cermont_aplicativo
+
+4. VULNERABILIDADES (moderate+):
+-------------------------------
+found 0 vulnerabilities
+
+5. TAMANO DEL CODIGO:
+--------------------
+apps/api/src: 356192 bytes
+apps/web/src: 988254 bytes

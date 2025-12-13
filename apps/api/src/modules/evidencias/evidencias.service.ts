@@ -1,3 +1,4 @@
+﻿import { Express } from 'express';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as fs from 'fs';
@@ -20,3 +21,4 @@ export class EvidenciasService {
         return { message: 'Evidencia eliminada' };
     }
 }
+

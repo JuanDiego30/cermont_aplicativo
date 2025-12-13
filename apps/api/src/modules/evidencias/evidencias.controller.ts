@@ -1,3 +1,4 @@
+﻿import { Express } from 'express';
 import { Controller, Get, Post, Delete, Param, Body, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
@@ -17,3 +18,4 @@ export class EvidenciasController {
     upload(@UploadedFile() file: Express.Multer.File, @Body() dto: any, @CurrentUser() user: JwtPayload) { return this.evidenciasService.upload(file, dto, user.userId); }
     @Delete(':id') remove(@Param('id') id: string) { return this.evidenciasService.remove(id); }
 }
+

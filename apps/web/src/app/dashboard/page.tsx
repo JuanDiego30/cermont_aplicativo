@@ -44,7 +44,7 @@ interface MetricCardProps {
 
 function MetricCard({ title, value, icon, trend, badge, iconBgColor, iconColor }: MetricCardProps) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/3">
       <div className="flex items-center justify-between">
         <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ${iconBgColor}`}>
           <span className={iconColor}>{icon}</span>
@@ -113,7 +113,7 @@ function RecentOrdersTable({ orders }: { orders: RecentOrder[] }) {
   };
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+    <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3">
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
           Órdenes Recientes
@@ -191,7 +191,7 @@ function QuickAccess() {
   ];
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/3">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
         Acceso Rápido
       </h3>
@@ -225,7 +225,7 @@ function RecentActivity() {
   ];
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+    <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3">
       <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
           Actividad Reciente
@@ -260,7 +260,7 @@ function MonthlyTarget() {
   const progress = 68;
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/3">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
           Objetivo Mensual
