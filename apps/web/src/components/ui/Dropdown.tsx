@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: Dropdown.tsx
+ * FUNCION: Menú desplegable posicionado con cierre automático al hacer clic afuera
+ * IMPLEMENTACION: useRef + useEffect para detectar clics externos, renderizado condicional
+ * DEPENDENCIAS: react, @/lib/cn
+ * EXPORTS: Dropdown, DropdownItem (default: Dropdown)
+ */
 "use client";
 import React, { useEffect, useRef } from "react";
 import { cn } from "@/lib/cn";

@@ -1,6 +1,10 @@
-// 📁 web/src/components/ui/input.tsx
-// Diseño TailAdmin - Componente Input mejorado
-
+/**
+ * ARCHIVO: Input.tsx
+ * FUNCION: Componente Input para formularios con soporte de label, error y iconos
+ * IMPLEMENTACION: Input HTML nativo con estilos Tailwind, estados de error y helper text
+ * DEPENDENCIAS: React, cn utility
+ * EXPORTS: Input, InputProps (interface)
+ */
 import React from 'react';
 import { cn } from '@/lib/cn';
 

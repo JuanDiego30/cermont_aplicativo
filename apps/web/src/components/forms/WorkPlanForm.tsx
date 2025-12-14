@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: WorkPlanForm.tsx
+ * FUNCION: Formulario para crear planes de trabajo asociados a órdenes
+ * IMPLEMENTACION: Formulario controlado con useState, validación manual de campos requeridos
+ * DEPENDENCIAS: Button, Input, Textarea (UI), WorkPlanCreate (types)
+ * EXPORTS: WorkPlanForm (componente)
+ */
 'use client';
 
 import { useState } from 'react';

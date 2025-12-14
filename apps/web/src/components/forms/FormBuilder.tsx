@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: FormBuilder.tsx
+ * FUNCION: Constructor visual de formularios dinámicos con drag-and-drop
+ * IMPLEMENTACION: Editor de campos con tipos (text, number, select, photo, etc.), preview y validación
+ * DEPENDENCIAS: Lucide icons, React hooks para estado y memoización
+ * EXPORTS: FormBuilder, FormTemplate, FormField, FieldType (tipos)
+ */
 'use client';
 
 import React, { useState, useCallback } from 'react';

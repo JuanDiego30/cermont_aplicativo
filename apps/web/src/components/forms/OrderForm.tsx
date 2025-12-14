@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: OrderForm.tsx
+ * FUNCION: Formulario para crear órdenes de trabajo con prioridad y fecha estimada
+ * IMPLEMENTACION: Formulario controlado con validación de campos obligatorios y longitud mínima
+ * DEPENDENCIAS: CreateOrderInput, OrderPriority (types/order)
+ * EXPORTS: OrderForm (componente)
+ */
 'use client';
 
 import { useState } from 'react';

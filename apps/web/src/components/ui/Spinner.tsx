@@ -1,8 +1,10 @@
-// ============================================
-// SPINNER COMPONENT - Cermont FSM
-// Loading spinner
-// ============================================
-
+/**
+ * ARCHIVO: Spinner.tsx
+ * FUNCION: Componentes de indicadores de carga (spinner, overlay, card)
+ * IMPLEMENTACION: SVG animado con clases Tailwind, variantes de tamaño sm/md/lg
+ * DEPENDENCIAS: react, @/lib/cn
+ * EXPORTS: Spinner, LoadingOverlay, LoadingCard
+ */
 import React from 'react';
 import { cn } from '@/lib/cn';
 

@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: LoginForm.tsx
+ * FUNCION: Formulario de inicio de sesión con soporte para login social (Google)
+ * IMPLEMENTACION: Formulario controlado con useAuth para autenticación y redirección post-login
+ * DEPENDENCIAS: useAuth (hook), Next.js navigation, EyeIcon/EyeOffIcon (icons)
+ * EXPORTS: LoginForm (componente)
+ */
 'use client';
 
 import { useState } from 'react';

@@ -1,6 +1,10 @@
-// 📁 web/src/components/ui/Avatar.tsx
-// Diseño TailAdmin - Componente Avatar mejorado
-
+/**
+ * ARCHIVO: Avatar.tsx
+ * FUNCION: Componente Avatar para mostrar imagenes de perfil o iniciales de usuario
+ * IMPLEMENTACION: Soporta imagen, fallback a iniciales con color generado, indicador de estado
+ * DEPENDENCIAS: React, Next.js Image, cn utility
+ * EXPORTS: Avatar, AvatarGroup, AvatarProps (interface), AvatarGroupProps (interface)
+ */
 import React from 'react';
 import { cn } from '@/lib/cn';
 import Image from 'next/image';

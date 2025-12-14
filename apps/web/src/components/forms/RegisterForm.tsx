@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: RegisterForm.tsx
+ * FUNCION: Formulario de registro de nuevos usuarios con validación de contraseña
+ * IMPLEMENTACION: Formulario controlado con validación de coincidencia de contraseñas y longitud mínima
+ * DEPENDENCIAS: useAuth (hook), Next.js navigation, EyeIcon/EyeOffIcon (icons)
+ * EXPORTS: RegisterForm (componente)
+ */
 'use client';
 
 import { useState } from 'react';

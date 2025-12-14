@@ -1,6 +1,10 @@
-// 📁 web/src/components/ui/Badge.tsx
-// Diseño TailAdmin - Componente Badge mejorado
-
+/**
+ * ARCHIVO: Badge.tsx
+ * FUNCION: Componente Badge para mostrar etiquetas de estado, categorias o contadores
+ * IMPLEMENTACION: Usa class-variance-authority (cva) para variantes de estilo con soporte dark mode
+ * DEPENDENCIAS: React, class-variance-authority, cn utility
+ * EXPORTS: Badge (componente), badgeVariants (funcion cva)
+ */
 import React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/cn';

@@ -1,15 +1,14 @@
+/**
+ * ARCHIVO: OfflineIndicator.tsx
+ * FUNCION: Indicadores visuales de estado offline y sincronización pendiente
+ * IMPLEMENTACION: Hook useOfflineIndicator para estado, iconos dinámicos según conexión/sync
+ * DEPENDENCIAS: react, @/lib/useOfflineSync, lucide-react
+ * EXPORTS: OfflineIndicator, OfflineBadge
+ */
 "use client";
-
 import React from "react";
 import { useOfflineIndicator } from "@/lib/useOfflineSync";
 import { WifiOff, RefreshCw, CloudOff, Cloud } from "lucide-react";
-
-/**
- * ============================================
- * OFFLINE INDICATOR - Cermont FSM
- * Visual indicator for offline status and pending sync
- * ============================================
- */
 
 export function OfflineIndicator() {
     const { isOnline, pendingCount, isSyncing, showIndicator } = useOfflineIndicator();

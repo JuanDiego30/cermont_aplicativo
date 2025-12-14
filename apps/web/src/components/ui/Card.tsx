@@ -1,6 +1,10 @@
-// 📁 web/src/components/ui/card.tsx
-// Diseño TailAdmin - Componente Card mejorado
-
+/**
+ * ARCHIVO: Card.tsx
+ * FUNCION: Componente Card contenedor con subcomponentes para estructura de tarjetas
+ * IMPLEMENTACION: Composicion de componentes (Header, Title, Content, Footer) con forwardRef
+ * DEPENDENCIAS: React, cn utility
+ * EXPORTS: Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter
+ */
 import React from 'react';
 import { cn } from '@/lib/cn';
 

@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: Select.tsx
+ * FUNCION: Componente select/dropdown nativo con soporte para validación
+ * IMPLEMENTACION: Usa forwardRef, renderiza opciones desde array, muestra errores
+ * DEPENDENCIAS: react, @/lib/cn
+ * EXPORTS: Select (named export)
+ */
 import { cn } from '@/lib/cn';
 import { forwardRef } from 'react';
 
