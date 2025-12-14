@@ -1,50 +1,58 @@
 /**
  * @repository EvidenciaRepository
+ * Usa el modelo Evidence de Prisma
  */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../prisma/prisma.service';
-import { IEvidenciaRepository, EvidenciaData, CreateEvidenciaData } from '../../domain/repositories';
+import { IEvidenciaRepository, EvidenciaData, CreateEvidenciaData } from '../../application/dto';
 
 @Injectable()
 export class EvidenciaRepository implements IEvidenciaRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findByOrdenId(ordenId: string): Promise<EvidenciaData[]> {
-    const evidencias = await this.prisma.evidencia.findMany({
-      where: { ordenId },
+    const evidencias = await this.prisma.evidence.findMany({
+      where: { orderId: ordenId },
       orderBy: { createdAt: 'desc' },
     });
     return evidencias.map(this.toDomain);
   }
 
   async findById(id: string): Promise<EvidenciaData | null> {
-    const evidencia = await this.prisma.evidencia.findUnique({ where: { id } });
+    const evidencia = await this.prisma.evidence.findUnique({ where: { id } });
     return evidencia ? this.toDomain(evidencia) : null;
   }
 
   async create(data: CreateEvidenciaData): Promise<EvidenciaData> {
-    const evidencia = await this.prisma.evidencia.create({ data });
+    const evidencia = await this.prisma.evidence.create({
+      data: {
+        orderId: data.ordenId,
+        tipo: data.tipo,
+        url: data.url,
+        descripcion: data.descripcion || null,
+      },
+    });
     return this.toDomain(evidencia);
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.evidencia.delete({ where: { id } });
+    await this.prisma.evidence.delete({ where: { id } });
   }
 
   async count(ordenId: string): Promise<number> {
-    return this.prisma.evidencia.count({ where: { ordenId } });
+    return this.prisma.evidence.count({ where: { orderId: ordenId } });
   }
 
   private toDomain(raw: any): EvidenciaData {
     return {
       id: raw.id,
-      ordenId: raw.ordenId,
+      ordenId: raw.orderId,
       tipo: raw.tipo,
       url: raw.url,
       descripcion: raw.descripcion,
-      latitud: raw.latitud,
-      longitud: raw.longitud,
-      creadoPorId: raw.creadoPorId,
+      latitud: null,
+      longitud: null,
+      creadoPorId: null,
       createdAt: raw.createdAt,
     };
   }

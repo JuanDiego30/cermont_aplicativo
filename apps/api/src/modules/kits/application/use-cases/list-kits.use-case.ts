@@ -9,7 +9,7 @@ export class ListKitsUseCase {
   constructor(
     @Inject(KIT_REPOSITORY)
     private readonly repo: IKitRepository,
-  ) {}
+  ) { }
 
   async execute(categoria?: string): Promise<KitResponse[]> {
     const kits = categoria
@@ -22,7 +22,7 @@ export class ListKitsUseCase {
       descripcion: k.descripcion,
       categoria: k.categoria,
       items: k.items,
-      createdAt: k.createdAt.toISOString(),
+      createdAt: k.createdAt?.toISOString() ?? new Date().toISOString(),
     }));
   }
 }

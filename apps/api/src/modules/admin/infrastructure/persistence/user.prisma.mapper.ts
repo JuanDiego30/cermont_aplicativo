@@ -4,6 +4,7 @@
  * Mapea entre Prisma model y Domain Entity.
  */
 
+import { UserRole } from '@prisma/client';
 import { UserEntity, type PersistenceData } from '../../domain/entities/user.entity';
 
 /**
@@ -14,7 +15,7 @@ interface PrismaUser {
   email: string;
   name: string;
   password: string;
-  role: string;
+  role: UserRole;
   phone: string | null;
   avatar: string | null;
   active: boolean;
@@ -51,7 +52,7 @@ export class UserPrismaMapper {
     email: string;
     name: string;
     password: string;
-    role: string;
+    role: UserRole;
     phone?: string;
     avatar?: string;
     active: boolean;
@@ -62,7 +63,7 @@ export class UserPrismaMapper {
       email: persistence.email,
       name: persistence.name,
       password: persistence.passwordHash,
-      role: persistence.role,
+      role: persistence.role as UserRole,
       phone: persistence.phone ?? undefined,
       avatar: persistence.avatar ?? undefined,
       active: persistence.active,
@@ -76,7 +77,7 @@ export class UserPrismaMapper {
     email: string;
     name: string;
     password: string;
-    role: string;
+    role: UserRole;
     phone: string | null;
     avatar: string | null;
     active: boolean;
@@ -87,7 +88,7 @@ export class UserPrismaMapper {
       email: persistence.email,
       name: persistence.name,
       password: persistence.passwordHash,
-      role: persistence.role,
+      role: persistence.role as UserRole,
       phone: persistence.phone ?? null,
       avatar: persistence.avatar ?? null,
       active: persistence.active,

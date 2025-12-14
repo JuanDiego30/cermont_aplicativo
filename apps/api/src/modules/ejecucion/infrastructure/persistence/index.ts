@@ -1,1 +1,1 @@
-export * from './ejecucion.repository';
+// Persistence exports (placeholder - repository not yet implemented)

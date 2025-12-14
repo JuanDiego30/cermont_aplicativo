@@ -3,16 +3,23 @@
  */
 import { z } from 'zod';
 
-// DTOs
+// DTOs para creación usando modelo KitTipico de Prisma
 export const CreateKitSchema = z.object({
   nombre: z.string().min(3),
   descripcion: z.string().optional(),
-  categoria: z.enum(['electrico', 'mecanico', 'seguridad', 'herramientas', 'general']),
+  herramientas: z.any().optional(),
+  equipos: z.any().optional(),
+  documentos: z.array(z.string()).optional(),
+  checklistItems: z.array(z.string()).optional(),
+  duracionEstimadaHoras: z.number().optional(),
+  costoEstimado: z.number().optional(),
+  // También soportar items para compatibilidad
   items: z.array(z.object({
     nombre: z.string(),
     cantidad: z.number().int().min(1),
     unidad: z.string().optional(),
-  })).min(1),
+  })).optional(),
+  categoria: z.string().optional(),
 });
 
 export type CreateKitDto = z.infer<typeof CreateKitSchema>;
@@ -28,8 +35,10 @@ export interface KitResponse {
   id: string;
   nombre: string;
   descripcion?: string;
-  categoria: string;
-  items: KitItemData[];
+  categoria?: string;
+  items?: KitItemData[];
+  herramientas?: any;
+  equipos?: any;
   createdAt: string;
 }
 
@@ -40,10 +49,17 @@ export interface KitData {
   id: string;
   nombre: string;
   descripcion?: string;
-  categoria: string;
-  items: KitItemData[];
-  createdAt: Date;
-  updatedAt: Date;
+  categoria?: string;
+  items?: KitItemData[];
+  herramientas?: any;
+  equipos?: any;
+  documentos?: string[];
+  checklistItems?: string[];
+  duracionEstimadaHoras?: number;
+  costoEstimado?: number;
+  activo?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface IKitRepository {

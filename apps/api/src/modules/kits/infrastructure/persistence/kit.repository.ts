@@ -1,74 +1,83 @@
 /**
  * @repository KitRepository
+ * Usa el modelo KitTipico de Prisma
  */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../prisma/prisma.service';
-import { IKitRepository, KitData, CreateKitDto } from '../../application/dto';
+import { CreateKitDto, KitData, IKitRepository } from '../../application/dto';
 
 @Injectable()
 export class KitRepository implements IKitRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(): Promise<KitData[]> {
-    const kits = await this.prisma.kit.findMany({
-      include: { items: true },
+    const kits = await this.prisma.kitTipico.findMany({
+      where: { activo: true },
+      orderBy: { nombre: 'asc' },
     });
-    return kits.map(this.toDomain);
+
+    return kits.map(this.mapToKitData);
   }
 
   async findById(id: string): Promise<KitData | null> {
-    const kit = await this.prisma.kit.findUnique({
+    const kit = await this.prisma.kitTipico.findUnique({
       where: { id },
-      include: { items: true },
     });
-    return kit ? this.toDomain(kit) : null;
+
+    return kit ? this.mapToKitData(kit) : null;
   }
 
   async findByCategoria(categoria: string): Promise<KitData[]> {
-    const kits = await this.prisma.kit.findMany({
-      where: { categoria },
-      include: { items: true },
+    const kits = await this.prisma.kitTipico.findMany({
+      where: {
+        activo: true,
+        nombre: { contains: categoria, mode: 'insensitive' },
+      },
+      orderBy: { nombre: 'asc' },
     });
-    return kits.map(this.toDomain);
+
+    return kits.map(this.mapToKitData);
   }
 
   async create(data: CreateKitDto): Promise<KitData> {
-    const kit = await this.prisma.kit.create({
+    const kit = await this.prisma.kitTipico.create({
       data: {
         nombre: data.nombre,
-        descripcion: data.descripcion,
-        categoria: data.categoria,
-        items: {
-          create: data.items.map((item) => ({
-            nombre: item.nombre,
-            cantidad: item.cantidad,
-            unidad: item.unidad,
-          })),
-        },
+        descripcion: data.descripcion || '',
+        herramientas: data.herramientas || data.items || [],
+        equipos: data.equipos || [],
+        documentos: data.documentos || [],
+        checklistItems: data.checklistItems || [],
+        duracionEstimadaHoras: data.duracionEstimadaHoras || 0,
+        costoEstimado: data.costoEstimado || 0,
+        activo: true,
       },
-      include: { items: true },
     });
-    return this.toDomain(kit);
+
+    return this.mapToKitData(kit);
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.kit.delete({ where: { id } });
+    await this.prisma.kitTipico.update({
+      where: { id },
+      data: { activo: false },
+    });
   }
 
-  private toDomain(raw: any): KitData {
+  private mapToKitData(kit: any): KitData {
     return {
-      id: raw.id,
-      nombre: raw.nombre,
-      descripcion: raw.descripcion,
-      categoria: raw.categoria,
-      items: raw.items.map((i: any) => ({
-        id: i.id,
-        nombre: i.nombre,
-        cantidad: i.cantidad,
-        unidad: i.unidad,
-      })),
-      createdAt: raw.createdAt,
-      updatedAt: raw.updatedAt,
+      id: kit.id,
+      nombre: kit.nombre,
+      descripcion: kit.descripcion,
+      herramientas: kit.herramientas,
+      equipos: kit.equipos,
+      documentos: kit.documentos,
+      checklistItems: kit.checklistItems,
+      duracionEstimadaHoras: kit.duracionEstimadaHoras,
+      costoEstimado: kit.costoEstimado,
+      activo: kit.activo,
+      createdAt: kit.createdAt,
+      updatedAt: kit.updatedAt,
     };
   }
 }

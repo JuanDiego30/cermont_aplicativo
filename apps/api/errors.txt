@@ -1,0 +1,57 @@
+﻿src/modules/admin/infrastructure/persistence/user.repository.ts(95,9): error TS2322: Type '{ email: string; name: string; password: string; role: string; phone: string | null; avatar: string | null; active: boolean; lastLogin: Date | null; }' is not assignable to type '(Without<UserUpdateInput, UserUncheckedUpdateInput> & UserUncheckedUpdateInput) | (Without<...> & UserUpdateInput)'.
+  Type '{ email: string; name: string; password: string; role: string; phone: string | null; avatar: string | null; active: boolean; lastLogin: Date | null; }' is not assignable to type 'Without<UserUncheckedUpdateInput, UserUpdateInput> & UserUpdateInput'.
+    Types of property 'role' are incompatible.
+      Type 'string' is not assignable to type 'UserRole | EnumUserRoleFieldUpdateOperationsInput | undefined'.
+src/modules/admin/infrastructure/persistence/user.repository.ts(100,9): error TS2322: Type '{ id: string; email: string; name: string; password: string; role: string; phone?: string | undefined; avatar?: string | undefined; active: boolean; }' is not assignable to type '(Without<UserCreateInput, UserUncheckedCreateInput> & UserUncheckedCreateInput) | (Without<...> & UserCreateInput)'.
+  Type '{ id: string; email: string; name: string; password: string; role: string; phone?: string | undefined; avatar?: string | undefined; active: boolean; }' is not assignable to type 'Without<UserUncheckedCreateInput, UserCreateInput> & UserCreateInput'.
+    Type '{ id: string; email: string; name: string; password: string; role: string; phone?: string | undefined; avatar?: string | undefined; active: boolean; }' is not assignable to type 'UserCreateInput'.
+      Types of property 'role' are incompatible.
+        Type 'string' is not assignable to type 'UserRole | undefined'.
+src/modules/admin/infrastructure/persistence/user.repository.ts(122,16): error TS2322: Type 'string' is not assignable to type 'UserRole | EnumUserRoleFilter<"User"> | undefined'.
+src/modules/admin/infrastructure/persistence/user.repository.ts(159,16): error TS2322: Type 'string' is not assignable to type 'UserRole | EnumUserRoleFilter<"User"> | undefined'.
+src/modules/archivado/archivado.module.refactored.ts(8,10): error TS2305: Module '"./infrastructure/persistence"' has no exported member 'ArchivadoRepository'.
+src/modules/archivado/infrastructure/persistence/index.ts(1,15): error TS2307: Cannot find module './archivado.repository' or its corresponding type declarations.
+src/modules/checklists/infrastructure/persistence/checklist.repository.ts(154,7): error TS2322: Type '{ checklistId: string; templateItemId: string; nombre: string; completado: boolean; observaciones: string | undefined; }' is not assignable to type '(Without<ChecklistItemEjecucionCreateInput, ChecklistItemEjecucionUncheckedCreateInput> & ChecklistItemEjecucionUncheckedCreateInput) | (Without<...> & ChecklistItemEjecucionCreateInput)'.
+  Type '{ checklistId: string; templateItemId: string; nombre: string; completado: boolean; observaciones: string | undefined; }' is not assignable to type 'Without<ChecklistItemEjecucionCreateInput, ChecklistItemEjecucionUncheckedCreateInput> & ChecklistItemEjecucionUncheckedCreateInput'.
+    Property 'estado' is missing in type '{ checklistId: string; templateItemId: string; nombre: string; completado: boolean; observaciones: string | undefined; }' but required in type 'ChecklistItemEjecucionUncheckedCreateInput'.
+src/modules/checklists/infrastructure/persistence/checklist.repository.ts(180,7): error TS2353: Object literal may only specify known properties, and 'activo' does not exist in type 'ChecklistData'.
+src/modules/cierre-administrativo/cierre-administrativo.module.refactored.ts(7,10): error TS2305: Module '"./infrastructure/persistence"' has no exported member 'CierreRepository'.
+src/modules/cierre-administrativo/infrastructure/persistence/index.ts(1,15): error TS2307: Cannot find module './cierre.repository' or its corresponding type declarations.
+src/modules/costos/infrastructure/persistence/costo.repository.ts(84,5): error TS2741: Property 'ordenId' is missing in type '{ costoPresupuestado: number; costoReal: number; varianza: number; varianzaPorcentual: number; desglosePorTipo: Record<string, number>; }' but required in type 'CostoAnalysis'.
+src/modules/costos/infrastructure/persistence/costo.repository.ts(99,7): error TS2353: Object literal may only specify known properties, and 'monto' does not exist in type 'CostoData'.
+src/modules/ejecucion/infrastructure/persistence/ejecucion.repository.ts(8,3): error TS2305: Module '"../../application/dto"' has no exported member 'IEjecucionRepository'.
+src/modules/ejecucion/infrastructure/persistence/ejecucion.repository.ts(37,30): error TS2339: Property 'horasEstimadas' does not exist on type '{ tecnicoId: string; observaciones?: string | undefined; }'.
+src/modules/ejecucion/infrastructure/persistence/ejecucion.repository.ts(39,28): error TS2339: Property 'ubicacionGPS' does not exist on type '{ tecnicoId: string; observaciones?: string | undefined; }'.
+src/modules/ejecucion/infrastructure/persistence/ejecucion.repository.ts(49,29): error TS2339: Property 'horasActuales' does not exist on type '{ avance: number; observaciones?: string | undefined; }'.
+src/modules/ejecucion/infrastructure/persistence/ejecucion.repository.ts(61,29): error TS2339: Property 'horasReales' does not exist on type '{ observacionesFinales?: string | undefined; firmaDigital?: string | undefined; }'.
+src/modules/ejecucion/infrastructure/persistence/ejecucion.repository.ts(62,29): error TS2339: Property 'observaciones' does not exist on type '{ observacionesFinales?: string | undefined; firmaDigital?: string | undefined; }'.
+src/modules/evidencias/infrastructure/persistence/evidencia.repository.ts(7,10): error TS2305: Module '"../../application/dto"' has no exported member 'IEvidenciaRepository'.
+src/modules/evidencias/infrastructure/persistence/evidencia.repository.ts(7,52): error TS2305: Module '"../../application/dto"' has no exported member 'EvidenciaData'.
+src/modules/evidencias/infrastructure/persistence/evidencia.repository.ts(29,23): error TS2339: Property 'ordenId' does not exist on type '{ tipo: "foto" | "video" | "documento" | "firma"; descripcion?: string | undefined; latitud?: number | undefined; longitud?: number | undefined; }'.
+src/modules/formularios/infrastructure/persistence/formulario.repository.ts(14,24): error TS2339: Property 'formulario' does not exist on type 'PrismaService'.
+src/modules/formularios/infrastructure/persistence/formulario.repository.ts(20,24): error TS2339: Property 'formulario' does not exist on type 'PrismaService'.
+src/modules/formularios/infrastructure/persistence/formulario.repository.ts(24,24): error TS2339: Property 'formulario' does not exist on type 'PrismaService'.
+src/modules/formularios/infrastructure/persistence/formulario.repository.ts(31,24): error TS2339: Property 'formulario' does not exist on type 'PrismaService'.
+src/modules/formularios/infrastructure/persistence/formulario.repository.ts(42,24): error TS2551: Property 'formularioRespuestaLegacy' does not exist on type 'PrismaService'. Did you mean 'formularioRespuesta'?
+src/modules/formularios/infrastructure/persistence/formulario.repository.ts(53,24): error TS2551: Property 'formularioRespuestaLegacy' does not exist on type 'PrismaService'. Did you mean 'formularioRespuesta'?
+src/modules/hes/infrastructure/persistence/hes.repository.ts(22,24): error TS2339: Property 'hES' does not exist on type 'PrismaService'.
+src/modules/hes/infrastructure/persistence/hes.repository.ts(29,24): error TS2339: Property 'hES' does not exist on type 'PrismaService'.
+src/modules/hes/infrastructure/persistence/hes.repository.ts(33,24): error TS2339: Property 'hES' does not exist on type 'PrismaService'.
+src/modules/hes/infrastructure/persistence/hes.repository.ts(40,24): error TS2339: Property 'hES' does not exist on type 'PrismaService'.
+src/modules/kits/infrastructure/persistence/index.ts(1,15): error TS2307: Cannot find module './kit.repository' or its corresponding type declarations.
+src/modules/lineas-vida/infrastructure/persistence/linea-vida.repository.ts(14,24): error TS2339: Property 'lineaVida' does not exist on type 'PrismaService'.
+src/modules/lineas-vida/infrastructure/persistence/linea-vida.repository.ts(20,24): error TS2339: Property 'lineaVida' does not exist on type 'PrismaService'.
+src/modules/lineas-vida/infrastructure/persistence/linea-vida.repository.ts(27,24): error TS2339: Property 'lineaVida' does not exist on type 'PrismaService'.
+src/modules/lineas-vida/infrastructure/persistence/linea-vida.repository.ts(42,24): error TS2551: Property 'inspeccionLineaVidaLegacy' does not exist on type 'PrismaService'. Did you mean 'inspeccionLineaVida'?
+src/modules/lineas-vida/infrastructure/persistence/linea-vida.repository.ts(49,24): error TS2551: Property 'inspeccionLineaVidaLegacy' does not exist on type 'PrismaService'. Did you mean 'inspeccionLineaVida'?
+src/modules/lineas-vida/infrastructure/persistence/linea-vida.repository.ts(62,24): error TS2339: Property 'lineaVida' does not exist on type 'PrismaService'.
+src/modules/mantenimientos/infrastructure/persistence/index.ts(1,15): error TS2307: Cannot find module './mantenimiento.repository' or its corresponding type declarations.
+src/modules/mantenimientos/mantenimientos.module.refactored.ts(7,10): error TS2305: Module '"./infrastructure/persistence"' has no exported member 'MantenimientoRepository'.
+src/modules/pdf-generation/infrastructure/persistence/index.ts(1,15): error TS2307: Cannot find module './pdf.repository' or its corresponding type declarations.
+src/modules/pdf-generation/pdf-generation.module.refactored.ts(8,10): error TS2305: Module '"./infrastructure/persistence"' has no exported member 'PDFRepository'.
+src/modules/planeacion/infrastructure/persistence/index.ts(1,15): error TS2307: Cannot find module './planeacion.repository' or its corresponding type declarations.
+src/modules/reportes/infrastructure/persistence/index.ts(1,15): error TS2307: Cannot find module './reporte.repository' or its corresponding type declarations.
+src/modules/sync/infrastructure/persistence/index.ts(1,15): error TS2307: Cannot find module './sync.repository' or its corresponding type declarations.
+src/modules/sync/sync.module.refactored.ts(7,10): error TS2305: Module '"./infrastructure/persistence"' has no exported member 'SyncRepository'.
+src/modules/weather/infrastructure/services/open-meteo-weather.service.ts(48,23): error TS18046: 'data' is of type 'unknown'.
+src/modules/weather/infrastructure/services/open-meteo-weather.service.ts(73,21): error TS18046: 'data' is of type 'unknown'.

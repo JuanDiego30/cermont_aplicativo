@@ -1,1 +1,1 @@
-export * from './reporte.repository';
+// Persistence exports (placeholder - repository not yet implemented)

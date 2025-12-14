@@ -1,22 +1,50 @@
-export default function EvidenciasPage() {
+/**
+ * @file page.tsx
+ * @description Página de evidencias - Server Component
+ */
+
+import { Suspense } from 'react';
+import { Camera } from 'lucide-react';
+import { EvidenciaCardSkeleton } from '@/features/evidencias';
+import { EvidenciasDashboard } from './client';
+
+export const metadata = {
+  title: 'Evidencias | Cermont',
+  description: 'Gestión de evidencias fotográficas',
+};
+
+export default async function EvidenciasPage() {
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Evidencias</h1>
-          <p className="text-gray-500 dark:text-gray-400">Galería de fotos y documentos</p>
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+          <Camera className="w-5 h-5 text-white" />
         </div>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-          Subir Evidencia
-        </button>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Evidencias
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Gestión de fotografías y documentación de trabajos
+          </p>
+        </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
-        <div className="text-center py-12 text-gray-500">
-          <p className="text-lg mb-2">No hay evidencias</p>
-          <p className="text-sm">Sube fotos y documentos de tus trabajos</p>
-        </div>
-      </div>
+      {/* Dashboard interactivo */}
+      <Suspense fallback={<EvidenciasGridSkeleton />}>
+        <EvidenciasDashboard />
+      </Suspense>
+    </div>
+  );
+}
+
+function EvidenciasGridSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <EvidenciaCardSkeleton key={i} />
+      ))}
     </div>
   );
 }

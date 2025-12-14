@@ -6,6 +6,7 @@
  */
 
 import { Injectable } from '@nestjs/common';
+import { Prisma, UserRole } from '@prisma/client';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import {
   IUserRepository,
@@ -45,10 +46,10 @@ export class UserRepository implements IUserRepository {
     const skip = (page - 1) * pageSize;
 
     // Construir where clause dinámicamente
-    const where: Record<string, unknown> = {};
+    const where: Prisma.UserWhereInput = {};
 
     if (role) {
-      where.role = role;
+      where.role = role as UserRole;
     }
 
     if (active !== undefined) {
@@ -119,7 +120,7 @@ export class UserRepository implements IUserRepository {
 
   async countByRole(role: string): Promise<number> {
     return this.prisma.user.count({
-      where: { role, active: true },
+      where: { role: role as UserRole, active: true },
     });
   }
 
@@ -156,7 +157,7 @@ export class UserRepository implements IUserRepository {
 
   async findByRole(role: string): Promise<UserEntity[]> {
     const users = await this.prisma.user.findMany({
-      where: { role },
+      where: { role: role as UserRole },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -165,7 +166,7 @@ export class UserRepository implements IUserRepository {
 
   async countAdmins(): Promise<number> {
     return this.prisma.user.count({
-      where: { role: 'admin', active: true },
+      where: { role: 'admin' as UserRole, active: true },
     });
   }
 }
