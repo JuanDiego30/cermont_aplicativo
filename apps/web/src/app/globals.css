@@ -802,3 +802,206 @@ span.flatpickr-weekday,
   cursor: grabbing;
 }
 
+/* ============================================
+   UTILIDADES ADICIONALES - CERMONT APP
+   ============================================ */
+
+/* Animaciones suaves para transiciones de página */
+@utility animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+@utility animate-slide-up {
+  animation: slideUp 0.4s ease-out forwards;
+}
+
+@utility animate-slide-down {
+  animation: slideDown 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilo para cards con hover elevado */
+@utility card-hover {
+  @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5;
+}
+
+/* Gradientes de marca */
+@utility gradient-brand {
+  @apply bg-linear-to-r from-brand-600 to-brand-500;
+}
+
+@utility gradient-brand-subtle {
+  @apply bg-linear-to-r from-brand-50 to-blue-50 dark:from-brand-900/20 dark:to-blue-900/20;
+}
+
+/* Focus ring consistente */
+@utility focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:ring-offset-2 dark:focus:ring-offset-gray-900;
+}
+
+/* Botones primarios consistentes */
+@utility btn-primary {
+  @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-medium
+         bg-brand-600 text-white hover:bg-brand-700 
+         transition-colors focus-ring
+         disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Botones secundarios */
+@utility btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-medium
+         bg-white text-gray-700 border border-gray-200
+         hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700
+         transition-colors focus-ring
+         disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Botón ghost/transparente */
+@utility btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-medium
+         text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800
+         transition-colors focus-ring
+         disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Input base */
+@utility input-base {
+  @apply w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600
+         bg-white dark:bg-gray-700
+         text-gray-900 dark:text-white
+         placeholder:text-gray-400 dark:placeholder:text-gray-500
+         focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500
+         transition-colors
+         disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Input con error */
+@utility input-error {
+  @apply border-red-500 focus:border-red-500 focus:ring-red-500/20;
+}
+
+/* Badge/Chip estilos */
+@utility badge {
+  @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+@utility badge-success {
+  @apply bg-success-50 text-success-700 dark:bg-success-900/30 dark:text-success-400;
+}
+
+@utility badge-warning {
+  @apply bg-warning-50 text-warning-700 dark:bg-warning-900/30 dark:text-warning-400;
+}
+
+@utility badge-error {
+  @apply bg-error-50 text-error-700 dark:bg-error-900/30 dark:text-error-400;
+}
+
+@utility badge-info {
+  @apply bg-blue-light-50 text-blue-light-700 dark:bg-blue-light-900/30 dark:text-blue-light-400;
+}
+
+/* Skeleton loading animación */
+@utility skeleton {
+  @apply bg-gray-200 dark:bg-gray-700 animate-pulse rounded;
+}
+
+/* Prose para contenido legal/texto largo */
+/* En Tailwind CSS v4, las clases prose del plugin typography se reemplazan por estilos nativos */
+.prose-legal {
+  max-width: none;
+  color: var(--color-gray-600);
+  line-height: 1.75;
+  
+  /* Headings */
+  & h1, & h2, & h3, & h4, & h5, & h6 {
+    color: var(--color-gray-900);
+    font-weight: 600;
+    line-height: 1.25;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+  }
+  
+  & h1 { font-size: 2.25em; }
+  & h2 { font-size: 1.5em; }
+  & h3 { font-size: 1.25em; }
+  
+  /* Paragraphs */
+  & p {
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+  
+  /* Links */
+  & a {
+    color: var(--color-brand-600);
+    text-decoration: underline;
+    font-weight: 500;
+  }
+  
+  /* Strong */
+  & strong {
+    color: var(--color-gray-900);
+    font-weight: 600;
+  }
+  
+  /* Lists */
+  & ul, & ol {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    padding-left: 1.5em;
+  }
+  
+  & li {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+}
+
+/* Dark mode para prose-legal */
+.dark .prose-legal {
+  color: var(--color-gray-300);
+  
+  & h1, & h2, & h3, & h4, & h5, & h6 {
+    color: var(--color-white);
+  }
+  
+  & a {
+    color: var(--color-brand-400);
+  }
+  
+  & strong {
+    color: var(--color-white);
+  }
+}
+

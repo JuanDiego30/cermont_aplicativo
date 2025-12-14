@@ -1,162 +1,148 @@
 /**
  * @repository ChecklistRepository
+ * Usa los modelos ChecklistTemplate y ChecklistEjecucion de Prisma
  */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import {
-  IChecklistRepository,
+  CreateChecklistDto,
   ChecklistData,
-  CreateChecklistInput,
-  ChecklistOrdenData,
-  ChecklistOrdenItemData,
-} from '../../domain/repositories';
+  IChecklistRepository,
+  ToggleItemDto,
+  ItemResponseData,
+} from '../../application/dto';
 
 @Injectable()
 export class ChecklistRepository implements IChecklistRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(): Promise<ChecklistData[]> {
-    const checklists = await this.prisma.checklist.findMany({
+    const templates = await this.prisma.checklistTemplate.findMany({
+      where: { activo: true },
       include: { items: { orderBy: { orden: 'asc' } } },
     });
-    return checklists.map(this.toDomain);
+
+    return templates.map(this.mapToChecklistData);
   }
 
   async findById(id: string): Promise<ChecklistData | null> {
-    const checklist = await this.prisma.checklist.findUnique({
+    const template = await this.prisma.checklistTemplate.findUnique({
       where: { id },
       include: { items: { orderBy: { orden: 'asc' } } },
     });
-    return checklist ? this.toDomain(checklist) : null;
+
+    return template ? this.mapToChecklistData(template) : null;
   }
 
   async findByTipo(tipo: string): Promise<ChecklistData[]> {
-    const checklists = await this.prisma.checklist.findMany({
-      where: { tipo },
+    const templates = await this.prisma.checklistTemplate.findMany({
+      where: { tipo, activo: true },
       include: { items: { orderBy: { orden: 'asc' } } },
     });
-    return checklists.map(this.toDomain);
+
+    return templates.map(this.mapToChecklistData);
   }
 
-  async create(data: CreateChecklistInput): Promise<ChecklistData> {
-    const checklist = await this.prisma.checklist.create({
+  async create(data: CreateChecklistDto): Promise<ChecklistData> {
+    const template = await this.prisma.checklistTemplate.create({
       data: {
         nombre: data.nombre,
         descripcion: data.descripcion,
         tipo: data.tipo,
+        activo: true,
         items: {
-          create: data.items.map((item) => ({
-            descripcion: item.descripcion,
-            requerido: item.requerido,
-            orden: item.orden,
+          create: data.items.map((item, index) => ({
+            nombre: item.descripcion,
+            tipo: 'item',
+            orden: item.orden ?? index,
+            requereCertificacion: item.requerido,
           })),
         },
       },
       include: { items: { orderBy: { orden: 'asc' } } },
     });
-    return this.toDomain(checklist);
+
+    return this.mapToChecklistData(template);
   }
 
   async delete(id: string): Promise<void> {
-    await this.prisma.checklist.delete({ where: { id } });
-  }
-
-  async findByOrden(ordenId: string): Promise<ChecklistOrdenData[]> {
-    const checklistsOrden = await this.prisma.checklistOrden.findMany({
-      where: { ordenId },
-      include: {
-        checklist: { include: { items: true } },
-        items: true,
-      },
+    await this.prisma.checklistTemplate.update({
+      where: { id },
+      data: { activo: false },
     });
-
-    return checklistsOrden.map((co) => ({
-      id: co.id,
-      checklistId: co.checklistId,
-      ordenId: co.ordenId,
-      completado: co.completado,
-      items: co.items.map((i) => ({
-        itemId: i.itemId,
-        completado: i.completado,
-        observaciones: i.observaciones ?? undefined,
-      })),
-    }));
   }
 
-  async assignToOrden(ordenId: string, checklistId: string): Promise<ChecklistOrdenData> {
-    const assignment = await this.prisma.checklistOrden.create({
-      data: {
-        ordenId,
-        checklistId,
-        completado: false,
-      },
+  async findByEjecucion(ejecucionId: string): Promise<any[]> {
+    return this.prisma.checklistEjecucion.findMany({
+      where: { ejecucionId },
+      include: { items: true },
+    });
+  }
+
+  async createForEjecucion(ejecucionId: string, templateId: string): Promise<any> {
+    const template = await this.prisma.checklistTemplate.findUnique({
+      where: { id: templateId },
       include: { items: true },
     });
 
-    return {
-      id: assignment.id,
-      checklistId: assignment.checklistId,
-      ordenId: assignment.ordenId,
-      completado: assignment.completado,
-      items: [],
-    };
+    if (!template) {
+      throw new Error('Template no encontrado');
+    }
+
+    return this.prisma.checklistEjecucion.create({
+      data: {
+        ejecucionId,
+        templateId,
+        nombre: template.nombre,
+        descripcion: template.descripcion,
+        items: {
+          create: template.items.map((item) => ({
+            templateItemId: item.id,
+            nombre: item.nombre,
+            estado: 'pendiente',
+            completado: false,
+          })),
+        },
+      },
+      include: { items: true },
+    });
   }
 
   async toggleItem(
-    ordenId: string,
     checklistId: string,
     itemId: string,
-    completado: boolean,
-    observaciones?: string,
-  ): Promise<ChecklistOrdenItemData> {
-    const checklistOrden = await this.prisma.checklistOrden.findFirst({
-      where: { ordenId, checklistId },
-    });
-
-    if (!checklistOrden) {
-      throw new Error('Checklist no asignado a esta orden');
-    }
-
-    const item = await this.prisma.checklistOrdenItem.upsert({
-      where: {
-        checklistOrdenId_itemId: {
-          checklistOrdenId: checklistOrden.id,
-          itemId,
-        },
-      },
-      create: {
-        checklistOrdenId: checklistOrden.id,
-        itemId,
-        completado,
-        observaciones,
-      },
-      update: {
-        completado,
-        observaciones,
+    data: ToggleItemDto,
+  ): Promise<ItemResponseData> {
+    const item = await this.prisma.checklistItemEjecucion.update({
+      where: { id: itemId },
+      data: {
+        completado: data.completado,
+        observaciones: data.observaciones,
+        estado: data.completado ? 'completado' : 'pendiente',
+        completadoEn: data.completado ? new Date() : null,
       },
     });
 
     return {
-      itemId: item.itemId,
+      itemId: item.id,
       completado: item.completado,
       observaciones: item.observaciones ?? undefined,
     };
   }
 
-  private toDomain(raw: any): ChecklistData {
+  private mapToChecklistData(template: any): ChecklistData {
     return {
-      id: raw.id,
-      nombre: raw.nombre,
-      descripcion: raw.descripcion,
-      tipo: raw.tipo,
-      items: raw.items.map((i: any) => ({
-        id: i.id,
-        descripcion: i.descripcion,
-        requerido: i.requerido,
-        orden: i.orden,
+      id: template.id,
+      nombre: template.nombre,
+      descripcion: template.descripcion,
+      tipo: template.tipo,
+      activo: template.activo,
+      items: template.items.map((item: any) => ({
+        id: item.id,
+        descripcion: item.nombre,
+        requerido: item.requereCertificacion,
+        orden: item.orden,
       })),
-      createdAt: raw.createdAt,
-      updatedAt: raw.updatedAt,
     };
   }
 }

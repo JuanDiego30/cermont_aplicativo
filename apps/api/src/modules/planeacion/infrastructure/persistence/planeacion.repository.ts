@@ -1,49 +1,71 @@
 /**
  * @repository PlaneacionRepository
- * @description Implementación Prisma del repositorio de planeación
+ * Usa el modelo Planeacion de Prisma
  */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../prisma/prisma.service';
-import { IPlaneacionRepository, PlaneacionData } from '../../domain/repositories';
+import { CreatePlaneacionDto } from '../../application/dto';
+
+export const PLANEACION_REPOSITORY = Symbol('PLANEACION_REPOSITORY');
+
+export interface PlaneacionData {
+  ordenId: string;
+  cronograma: Record<string, unknown>;
+  manoDeObra: Record<string, unknown>;
+  observaciones?: string;
+  kitId?: string;
+}
+
+export interface IPlaneacionRepository {
+  findByOrdenId(ordenId: string): Promise<any>;
+  create(ordenId: string, data: CreatePlaneacionDto): Promise<any>;
+  update(id: string, data: Partial<PlaneacionData>): Promise<any>;
+  aprobar(id: string, aprobadorId: string): Promise<any>;
+  rechazar(id: string, motivo: string): Promise<any>;
+}
 
 @Injectable()
 export class PlaneacionRepository implements IPlaneacionRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findByOrdenId(ordenId: string): Promise<PlaneacionData | null> {
-    const planeacion = await this.prisma.planeacion.findUnique({
+  async findByOrdenId(ordenId: string): Promise<any> {
+    return this.prisma.planeacion.findUnique({
       where: { ordenId },
+      include: {
+        kit: true,
+        items: true,
+      },
     });
-
-    if (!planeacion) return null;
-
-    return this.toDomain(planeacion);
   }
 
-  async createOrUpdate(ordenId: string, data: Partial<PlaneacionData>): Promise<PlaneacionData> {
-    const planeacion = await this.prisma.planeacion.upsert({
-      where: { ordenId },
-      create: {
+  async create(ordenId: string, data: CreatePlaneacionDto): Promise<any> {
+    return this.prisma.planeacion.create({
+      data: {
         ordenId,
-        cronograma: data.cronograma ?? {},
-        manoDeObra: data.manoDeObra ?? {},
+        cronograma: (data.cronograma || {}) as object,
+        manoDeObra: (data.manoDeObra || {}) as object,
+        documentosApoyo: [],
         observaciones: data.observaciones,
         kitId: data.kitId,
         estado: 'borrador',
       },
-      update: {
-        cronograma: data.cronograma,
-        manoDeObra: data.manoDeObra,
+    });
+  }
+
+  async update(id: string, data: Partial<PlaneacionData>): Promise<any> {
+    return this.prisma.planeacion.update({
+      where: { id },
+      data: {
+        cronograma: data.cronograma as object | undefined,
+        manoDeObra: data.manoDeObra as object | undefined,
         observaciones: data.observaciones,
         kitId: data.kitId,
       },
     });
-
-    return this.toDomain(planeacion);
   }
 
-  async aprobar(id: string, aprobadorId: string): Promise<PlaneacionData> {
-    const planeacion = await this.prisma.planeacion.update({
+  async aprobar(id: string, aprobadorId: string): Promise<any> {
+    return this.prisma.planeacion.update({
       where: { id },
       data: {
         estado: 'aprobada',
@@ -51,35 +73,15 @@ export class PlaneacionRepository implements IPlaneacionRepository {
         fechaAprobacion: new Date(),
       },
     });
-
-    return this.toDomain(planeacion);
   }
 
-  async rechazar(id: string, motivo: string): Promise<PlaneacionData> {
-    const planeacion = await this.prisma.planeacion.update({
+  async rechazar(id: string, motivo: string): Promise<any> {
+    return this.prisma.planeacion.update({
       where: { id },
       data: {
-        estado: 'rechazada',
+        estado: 'borrador',
         observaciones: motivo,
       },
     });
-
-    return this.toDomain(planeacion);
-  }
-
-  private toDomain(raw: any): PlaneacionData {
-    return {
-      id: raw.id,
-      ordenId: raw.ordenId,
-      estado: raw.estado,
-      cronograma: raw.cronograma ?? {},
-      manoDeObra: raw.manoDeObra ?? {},
-      observaciones: raw.observaciones,
-      aprobadoPorId: raw.aprobadoPorId,
-      fechaAprobacion: raw.fechaAprobacion,
-      kitId: raw.kitId,
-      createdAt: raw.createdAt,
-      updatedAt: raw.updatedAt,
-    };
   }
 }

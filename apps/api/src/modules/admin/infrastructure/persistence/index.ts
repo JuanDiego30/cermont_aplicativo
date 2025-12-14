@@ -1,6 +1,2 @@
-/**
- * @barrel Persistence
- */
-
-export * from './user.repository';
+// Persistence layer exports
 export * from './user.prisma.mapper';

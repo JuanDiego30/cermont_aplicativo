@@ -1,0 +1,468 @@
+﻿
+> cermont-api@1.0.0 build
+> nest build
+
+node.exe : [96msrc/modules/admin/infrastructure/persistence/user.repository.ts
+[0m:[93m95[0m:[93m9[0m - [91merror[0m[90m TS2322: [0mType '{ email: 
+string; name: string; password: string; role: string; phone: string | null; 
+avatar: string | null; active: boolean; lastLogin: Date | null; }' is not 
+assignable to type '(Without<UserUpdateInput, UserUncheckedUpdateInput> & 
+UserUncheckedUpdateInput) | (Without<...> & UserUpdateInput)'.
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([96msrc/module...rUpdateInput)'. 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  Type '{ email: string; name: string; password: string; role: string; phone: 
+string | null; avatar: string | null; active: boolean; lastLogin: Date | null; 
+}' is not assignable to type 'Without<UserUncheckedUpdateInput, 
+UserUpdateInput> & UserUpdateInput'.
+    Types of property 'role' are incompatible.
+      Type 'string' is not assignable to type 'UserRole | 
+EnumUserRoleFieldUpdateOperationsInput | undefined'.
+
+[7m95[0m         data: UserPrismaMapper.toUpdateData(user),
+[7m  [0m [91m        ~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m6785[0m:[93m5[0m
+    [7m6785[0m     data: XOR<UserUpdateInput, UserUncheckedUpdateInput>
+    [7m    [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on 
+type '{ select?: UserSelect<DefaultArgs> | null | undefined; omit?: 
+UserOmit<DefaultArgs> | null | undefined; include?: UserInclude<DefaultArgs> | 
+null | undefined; data: (Without<...> & UserUncheckedUpdateInput) | 
+(Without<...> & UserUpdateInput); where: UserWhereUniqueInput; }'
+[96msrc/modules/admin/infrastructure/persistence/user.repository.ts[0m:[93m1
+00[0m:[93m9[0m - [91merror[0m[90m TS2322: [0mType '{ id: string; email: 
+string; name: string; password: string; role: string; phone?: string | 
+undefined; avatar?: string | undefined; active: boolean; }' is not assignable 
+to type '(Without<UserCreateInput, UserUncheckedCreateInput> & 
+UserUncheckedCreateInput) | (Without<...> & UserCreateInput)'.
+  Type '{ id: string; email: string; name: string; password: string; role: 
+string; phone?: string | undefined; avatar?: string | undefined; active: 
+boolean; }' is not assignable to type 'Without<UserUncheckedCreateInput, 
+UserCreateInput> & UserCreateInput'.
+    Type '{ id: string; email: string; name: string; password: string; role: 
+string; phone?: string | undefined; avatar?: string | undefined; active: 
+boolean; }' is not assignable to type 'UserCreateInput'.
+      Types of property 'role' are incompatible.
+        Type 'string' is not assignable to type 'UserRole | undefined'.
+
+[7m100[0m         data: UserPrismaMapper.toCreateData(user),
+[7m   [0m [91m        ~~~~[0m
+
+  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m6733[0m:[93m5[0m
+    [7m6733[0m     data: XOR<UserCreateInput, UserUncheckedCreateInput>
+    [7m    [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on 
+type '{ select?: UserSelect<DefaultArgs> | null | undefined; omit?: 
+UserOmit<DefaultArgs> | null | undefined; include?: UserInclude<DefaultArgs> | 
+null | undefined; data: (Without<...> & UserUncheckedCreateInput) | 
+(Without<...> & UserCreateInput); }'
+[96msrc/modules/admin/infrastructure/persistence/user.repository.ts[0m:[93m1
+22[0m:[93m16[0m - [91merror[0m[90m TS2322: [0mType 'string' is not 
+assignable to type 'UserRole | EnumUserRoleFilter<"User"> | undefined'.
+
+[7m122[0m       where: { role, active: true },
+[7m   [0m [91m               ~~~~[0m
+[96msrc/modules/admin/infrastructure/persistence/user.repository.ts[0m:[93m1
+59[0m:[93m16[0m - [91merror[0m[90m TS2322: [0mType 'string' is not 
+assignable to type 'UserRole | EnumUserRoleFilter<"User"> | undefined'.
+
+[7m159[0m       where: { role },
+[7m   [0m [91m               ~~~~[0m
+[96msrc/modules/archivado/archivado.module.refactored.ts[0m:[93m8[0m:[93m1
+0[0m - [91merror[0m[90m TS2305: [0mModule 
+'"./infrastructure/persistence"' has no exported member 'ArchivadoRepository'.
+
+[7m8[0m import { ArchivadoRepository } from './infrastructure/persistence';
+[7m [0m [91m         ~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/archivado/infrastructure/persistence/index.ts[0m:[93m1[0m:
+[93m15[0m - [91merror[0m[90m TS2307: [0mCannot find module 
+'./archivado.repository' or its corresponding type declarations.
+
+[7m1[0m export * from './archivado.repository';
+[7m [0m [91m              ~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/checklists/infrastructure/persistence/checklist.repository.ts
+[0m:[93m180[0m:[93m7[0m - [91merror[0m[90m TS2353: [0mObject literal 
+may only specify known properties, and 'activo' does not exist in type 
+'ChecklistData'.
+
+[7m180[0m       activo: raw.activo,
+[7m   [0m [91m      ~~~~~~[0m
+[96msrc/modules/cierre-administrativo/cierre-administrativo.module.refactored.
+ts[0m:[93m7[0m:[93m10[0m - [91merror[0m[90m TS2305: [0mModule 
+'"./infrastructure/persistence"' has no exported member 'CierreRepository'.
+
+[7m7[0m import { CierreRepository } from './infrastructure/persistence';
+[7m [0m [91m         ~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/cierre-administrativo/infrastructure/persistence/index.ts[0m:
+[93m1[0m:[93m15[0m - [91merror[0m[90m TS2307: [0mCannot find module 
+'./cierre.repository' or its corresponding type declarations.
+
+[7m1[0m export * from './cierre.repository';
+[7m [0m [91m              ~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/costos/infrastructure/persistence/costo.repository.ts[0m:[93
+m84[0m:[93m5[0m - [91merror[0m[90m TS2741: [0mProperty 'ordenId' is 
+missing in type '{ costoPresupuestado: number; costoReal: number; varianza: 
+number; varianzaPorcentual: number; desglosePorTipo: Record<string, number>; 
+}' but required in type 'CostoAnalysis'.
+
+[7m84[0m     return {
+[7m  [0m [91m    ~~~~~~[0m
+
+  
+[96msrc/modules/costos/application/dto/costo.dto.ts[0m:[93m40[0m:[93m3[0m
+    [7m40[0m   ordenId: string;
+    [7m  [0m [96m  ~~~~~~~[0m
+    'ordenId' is declared here.
+[96msrc/modules/costos/infrastructure/persistence/costo.repository.ts[0m:[93
+m99[0m:[93m7[0m - [91merror[0m[90m TS2353: [0mObject literal may only 
+specify known properties, and 'monto' does not exist in type 'CostoData'.
+
+[7m99[0m       monto: raw.monto,
+[7m  [0m [91m      ~~~~~[0m
+[96msrc/modules/ejecucion/infrastructure/persistence/ejecucion.repository.ts[
+0m:[93m8[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule 
+'"../../application/dto"' has no exported member 'IEjecucionRepository'.
+
+[7m8[0m   IEjecucionRepository,
+[7m [0m [91m  ~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/ejecucion/infrastructure/persistence/ejecucion.repository.ts[
+0m:[93m37[0m:[93m30[0m - [91merror[0m[90m TS2339: [0mProperty 
+'horasEstimadas' does not exist on type '{ tecnicoId: string; observaciones?: 
+string | undefined; }'.
+
+[7m37[0m         horasEstimadas: data.horasEstimadas || 0,
+[7m  [0m [91m                             ~~~~~~~~~~~~~~[0m
+[96msrc/modules/ejecucion/infrastructure/persistence/ejecucion.repository.ts[
+0m:[93m39[0m:[93m28[0m - [91merror[0m[90m TS2339: [0mProperty 
+'ubicacionGPS' does not exist on type '{ tecnicoId: string; observaciones?: 
+string | undefined; }'.
+
+[7m39[0m         ubicacionGPS: data.ubicacionGPS as any,
+[7m  [0m [91m                           ~~~~~~~~~~~~[0m
+[96msrc/modules/ejecucion/infrastructure/persistence/ejecucion.repository.ts[
+0m:[93m49[0m:[93m29[0m - [91merror[0m[90m TS2339: [0mProperty 
+'horasActuales' does not exist on type '{ avance: number; observaciones?: 
+string | undefined; }'.
+
+[7m49[0m         horasActuales: data.horasActuales,
+[7m  [0m [91m                            ~~~~~~~~~~~~~[0m
+[96msrc/modules/ejecucion/infrastructure/persistence/ejecucion.repository.ts[
+0m:[93m61[0m:[93m29[0m - [91merror[0m[90m TS2339: [0mProperty 
+'horasReales' does not exist on type '{ observacionesFinales?: string | 
+undefined; firmaDigital?: string | undefined; }'.
+
+[7m61[0m         horasActuales: data.horasReales,
+[7m  [0m [91m                            ~~~~~~~~~~~[0m
+[96msrc/modules/ejecucion/infrastructure/persistence/ejecucion.repository.ts[
+0m:[93m62[0m:[93m29[0m - [91merror[0m[90m TS2339: [0mProperty 
+'observaciones' does not exist on type '{ observacionesFinales?: string | 
+undefined; firmaDigital?: string | undefined; }'.
+
+[7m62[0m         observaciones: data.observaciones,
+[7m  [0m [91m                            ~~~~~~~~~~~~~[0m
+[96msrc/modules/evidencias/infrastructure/persistence/evidencia.repository.ts
+[0m:[93m7[0m:[93m10[0m - [91merror[0m[90m TS2305: [0mModule 
+'"../../application/dto"' has no exported member 'IEvidenciaRepository'.
+
+[7m7[0m import { IEvidenciaRepository, UploadEvidenciaDto, EvidenciaData } 
+from '../../application/dto';
+[7m [0m [91m         ~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/evidencias/infrastructure/persistence/evidencia.repository.ts
+[0m:[93m7[0m:[93m52[0m - [91merror[0m[90m TS2305: [0mModule 
+'"../../application/dto"' has no exported member 'EvidenciaData'.
+
+[7m7[0m import { IEvidenciaRepository, UploadEvidenciaDto, EvidenciaData } 
+from '../../application/dto';
+[7m [0m [91m                                                   
+~~~~~~~~~~~~~[0m
+[96msrc/modules/evidencias/infrastructure/persistence/evidencia.repository.ts
+[0m:[93m29[0m:[93m23[0m - [91merror[0m[90m TS2339: [0mProperty 
+'ordenId' does not exist on type '{ tipo: "foto" | "video" | "documento" | 
+"firma"; descripcion?: string | undefined; latitud?: number | undefined; 
+longitud?: number | undefined; }'.
+
+[7m29[0m         orderId: data.ordenId,
+[7m  [0m [91m                      ~~~~~~~[0m
+[96msrc/modules/kits/infrastructure/persistence/kit.repository.ts[0m:[93m41
+[0m:[93m28[0m - [91merror[0m[90m TS2339: [0mProperty 'herramientas' does 
+not exist on type '{ items: { cantidad: number; nombre: string; unidad?: 
+string | undefined; }[]; nombre: string; categoria: "herramientas" | 
+"seguridad" | "electrico" | "mecanico" | "general"; descripcion?: string | 
+undefined; }'.
+
+[7m41[0m         herramientas: data.herramientas as any || [],
+[7m  [0m [91m                           ~~~~~~~~~~~~[0m
+[96msrc/modules/kits/infrastructure/persistence/kit.repository.ts[0m:[93m42
+[0m:[93m23[0m - [91merror[0m[90m TS2339: [0mProperty 'equipos' does not 
+exist on type '{ items: { cantidad: number; nombre: string; unidad?: string | 
+undefined; }[]; nombre: string; categoria: "herramientas" | "seguridad" | 
+"electrico" | "mecanico" | "general"; descripcion?: string | undefined; }'.
+
+[7m42[0m         equipos: data.equipos as any || [],
+[7m  [0m [91m                      ~~~~~~~[0m
+[96msrc/modules/kits/infrastructure/persistence/kit.repository.ts[0m:[93m43
+[0m:[93m26[0m - [91merror[0m[90m TS2339: [0mProperty 'documentos' does 
+not exist on type '{ items: { cantidad: number; nombre: string; unidad?: 
+string | undefined; }[]; nombre: string; categoria: "herramientas" | 
+"seguridad" | "electrico" | "mecanico" | "general"; descripcion?: string | 
+undefined; }'.
+
+[7m43[0m         documentos: data.documentos || [],
+[7m  [0m [91m                         ~~~~~~~~~~[0m
+[96msrc/modules/kits/infrastructure/persistence/kit.repository.ts[0m:[93m44
+[0m:[93m30[0m - [91merror[0m[90m TS2339: [0mProperty 'checklistItems' 
+does not exist on type '{ items: { cantidad: number; nombre: string; unidad?: 
+string | undefined; }[]; nombre: string; categoria: "herramientas" | 
+"seguridad" | "electrico" | "mecanico" | "general"; descripcion?: string | 
+undefined; }'.
+
+[7m44[0m         checklistItems: data.checklistItems || [],
+[7m  [0m [91m                             ~~~~~~~~~~~~~~[0m
+[96msrc/modules/kits/infrastructure/persistence/kit.repository.ts[0m:[93m45
+[0m:[93m37[0m - [91merror[0m[90m TS2339: [0mProperty 
+'duracionEstimadaHoras' does not exist on type '{ items: { cantidad: number; 
+nombre: string; unidad?: string | undefined; }[]; nombre: string; categoria: 
+"herramientas" | "seguridad" | "electrico" | "mecanico" | "general"; 
+descripcion?: string | undefined; }'.
+
+[7m45[0m         duracionEstimadaHoras: data.duracionEstimadaHoras || 0,
+[7m  [0m [91m                                    ~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/kits/infrastructure/persistence/kit.repository.ts[0m:[93m46
+[0m:[93m29[0m - [91merror[0m[90m TS2339: [0mProperty 'costoEstimado' 
+does not exist on type '{ items: { cantidad: number; nombre: string; unidad?: 
+string | undefined; }[]; nombre: string; categoria: "herramientas" | 
+"seguridad" | "electrico" | "mecanico" | "general"; descripcion?: string | 
+undefined; }'.
+
+[7m46[0m         costoEstimado: data.costoEstimado || 0,
+[7m  [0m [91m                            ~~~~~~~~~~~~~[0m
+[96msrc/modules/kits/infrastructure/persistence/kit.repository.ts[0m:[93m65
+[0m:[93m7[0m - [91merror[0m[90m TS2353: [0mObject literal may only 
+specify known properties, and 'herramientas' does not exist in type 'KitData'.
+
+[7m65[0m       herramientas: raw.herramientas,
+[7m  [0m [91m      ~~~~~~~~~~~~[0m
+[96msrc/modules/mantenimientos/infrastructure/persistence/index.ts[0m:[93m1
+[0m:[93m15[0m - [91merror[0m[90m TS2307: [0mCannot find module 
+'./mantenimiento.repository' or its corresponding type declarations.
+
+[7m1[0m export * from './mantenimiento.repository';
+[7m [0m [91m              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/mantenimientos/mantenimientos.module.refactored.ts[0m:[93m7
+[0m:[93m10[0m - [91merror[0m[90m TS2305: [0mModule 
+'"./infrastructure/persistence"' has no exported member 
+'MantenimientoRepository'.
+
+[7m7[0m import { MantenimientoRepository } from 
+'./infrastructure/persistence';
+[7m [0m [91m         ~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/pdf-generation/infrastructure/persistence/index.ts[0m:[93m1
+[0m:[93m15[0m - [91merror[0m[90m TS2307: [0mCannot find module 
+'./pdf.repository' or its corresponding type declarations.
+
+[7m1[0m export * from './pdf.repository';
+[7m [0m [91m              ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/pdf-generation/pdf-generation.module.refactored.ts[0m:[93m8
+[0m:[93m10[0m - [91merror[0m[90m TS2305: [0mModule 
+'"./infrastructure/persistence"' has no exported member 'PDFRepository'.
+
+[7m8[0m import { PDFRepository } from './infrastructure/persistence';
+[7m [0m [91m         ~~~~~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m8[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule 
+'"../../application/dto"' has no exported member 'IPlaneacionRepository'.
+
+[7m8[0m   IPlaneacionRepository,
+[7m [0m [91m  ~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m10[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule 
+'"../../application/dto"' has no exported member 'PlaneacionData'.
+
+[7m10[0m   PlaneacionData,
+[7m  [0m [91m  ~~~~~~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m35[0m:[93m23[0m - [91merror[0m[90m TS2339: [0mProperty 
+'empresa' does not exist on type '{ cronograma: Record<string, unknown>; 
+manoDeObra: Record<string, unknown>; observaciones?: string | undefined; 
+kitId?: string | undefined; }'.
+
+[7m35[0m         empresa: data.empresa,
+[7m  [0m [91m                      ~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m36[0m:[93m25[0m - [91merror[0m[90m TS2339: [0mProperty 
+'ubicacion' does not exist on type '{ cronograma: Record<string, unknown>; 
+manoDeObra: Record<string, unknown>; observaciones?: string | undefined; 
+kitId?: string | undefined; }'.
+
+[7m36[0m         ubicacion: data.ubicacion,
+[7m  [0m [91m                        ~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m37[0m:[93m35[0m - [91merror[0m[90m TS2339: [0mProperty 
+'fechaEstimadaInicio' does not exist on type '{ cronograma: Record<string, 
+unknown>; manoDeObra: Record<string, unknown>; observaciones?: string | 
+undefined; kitId?: string | undefined; }'.
+
+[7m37[0m         fechaEstimadaInicio: data.fechaEstimadaInicio ? new 
+Date(data.fechaEstimadaInicio) : null,
+[7m  [0m [91m                                  ~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m37[0m:[93m71[0m - [91merror[0m[90m TS2339: [0mProperty 
+'fechaEstimadaInicio' does not exist on type '{ cronograma: Record<string, 
+unknown>; manoDeObra: Record<string, unknown>; observaciones?: string | 
+undefined; kitId?: string | undefined; }'.
+
+[7m37[0m         fechaEstimadaInicio: data.fechaEstimadaInicio ? new 
+Date(data.fechaEstimadaInicio) : null,
+[7m  [0m [91m                                                               
+       ~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m38[0m:[93m32[0m - [91merror[0m[90m TS2339: [0mProperty 
+'fechaEstimadaFin' does not exist on type '{ cronograma: Record<string, 
+unknown>; manoDeObra: Record<string, unknown>; observaciones?: string | 
+undefined; kitId?: string | undefined; }'.
+
+[7m38[0m         fechaEstimadaFin: data.fechaEstimadaFin ? new 
+Date(data.fechaEstimadaFin) : null,
+[7m  [0m [91m                               ~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m38[0m:[93m65[0m - [91merror[0m[90m TS2339: [0mProperty 
+'fechaEstimadaFin' does not exist on type '{ cronograma: Record<string, 
+unknown>; manoDeObra: Record<string, unknown>; observaciones?: string | 
+undefined; kitId?: string | undefined; }'.
+
+[7m38[0m         fechaEstimadaFin: data.fechaEstimadaFin ? new 
+Date(data.fechaEstimadaFin) : null,
+[7m  [0m [91m                                                               
+ ~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m39[0m:[93m34[0m - [91merror[0m[90m TS2339: [0mProperty 
+'descripcionTrabajo' does not exist on type '{ cronograma: Record<string, 
+unknown>; manoDeObra: Record<string, unknown>; observaciones?: string | 
+undefined; kitId?: string | undefined; }'.
+
+[7m39[0m         descripcionTrabajo: data.descripcionTrabajo,
+[7m  [0m [91m                                 ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m42[0m:[93m39[0m - [91merror[0m[90m TS2339: [0mProperty 
+'herramientasAdicionales' does not exist on type '{ cronograma: Record<string, 
+unknown>; manoDeObra: Record<string, unknown>; observaciones?: string | 
+undefined; kitId?: string | undefined; }'.
+
+[7m42[0m         herramientasAdicionales: data.herramientasAdicionales as 
+any,
+[7m  [0m [91m                                      
+~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m43[0m:[93m31[0m - [91merror[0m[90m TS2339: [0mProperty 
+'documentosApoyo' does not exist on type '{ cronograma: Record<string, 
+unknown>; manoDeObra: Record<string, unknown>; observaciones?: string | 
+undefined; kitId?: string | undefined; }'.
+
+[7m43[0m         documentosApoyo: data.documentosApoyo || [],
+[7m  [0m [91m                              ~~~~~~~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m48[0m:[93m23[0m - [91merror[0m[90m TS2339: [0mProperty 
+'empresa' does not exist on type '{ cronograma: Record<string, unknown>; 
+manoDeObra: Record<string, unknown>; observaciones?: string | undefined; 
+kitId?: string | undefined; }'.
+
+[7m48[0m         empresa: data.empresa,
+[7m  [0m [91m                      ~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m49[0m:[93m25[0m - [91merror[0m[90m TS2339: [0mProperty 
+'ubicacion' does not exist on type '{ cronograma: Record<string, unknown>; 
+manoDeObra: Record<string, unknown>; observaciones?: string | undefined; 
+kitId?: string | undefined; }'.
+
+[7m49[0m         ubicacion: data.ubicacion,
+[7m  [0m [91m                        ~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m50[0m:[93m35[0m - [91merror[0m[90m TS2339: [0mProperty 
+'fechaEstimadaInicio' does not exist on type '{ cronograma: Record<string, 
+unknown>; manoDeObra: Record<string, unknown>; observaciones?: string | 
+undefined; kitId?: string | undefined; }'.
+
+[7m50[0m         fechaEstimadaInicio: data.fechaEstimadaInicio ? new 
+Date(data.fechaEstimadaInicio) : undefined,
+[7m  [0m [91m                                  ~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m50[0m:[93m71[0m - [91merror[0m[90m TS2339: [0mProperty 
+'fechaEstimadaInicio' does not exist on type '{ cronograma: Record<string, 
+unknown>; manoDeObra: Record<string, unknown>; observaciones?: string | 
+undefined; kitId?: string | undefined; }'.
+
+[7m50[0m         fechaEstimadaInicio: data.fechaEstimadaInicio ? new 
+Date(data.fechaEstimadaInicio) : undefined,
+[7m  [0m [91m                                                               
+       ~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m51[0m:[93m32[0m - [91merror[0m[90m TS2339: [0mProperty 
+'fechaEstimadaFin' does not exist on type '{ cronograma: Record<string, 
+unknown>; manoDeObra: Record<string, unknown>; observaciones?: string | 
+undefined; kitId?: string | undefined; }'.
+
+[7m51[0m         fechaEstimadaFin: data.fechaEstimadaFin ? new 
+Date(data.fechaEstimadaFin) : undefined,
+[7m  [0m [91m                               ~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m51[0m:[93m65[0m - [91merror[0m[90m TS2339: [0mProperty 
+'fechaEstimadaFin' does not exist on type '{ cronograma: Record<string, 
+unknown>; manoDeObra: Record<string, unknown>; observaciones?: string | 
+undefined; kitId?: string | undefined; }'.
+
+Found 54 error(s).
+
+[7m51[0m         fechaEstimadaFin: data.fechaEstimadaFin ? new 
+Date(data.fechaEstimadaFin) : undefined,
+[7m  [0m [91m                                                               
+ ~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m52[0m:[93m34[0m - [91merror[0m[90m TS2339: [0mProperty 
+'descripcionTrabajo' does not exist on type '{ cronograma: Record<string, 
+unknown>; manoDeObra: Record<string, unknown>; observaciones?: string | 
+undefined; kitId?: string | undefined; }'.
+
+[7m52[0m         descripcionTrabajo: data.descripcionTrabajo,
+[7m  [0m [91m                                 ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m55[0m:[93m39[0m - [91merror[0m[90m TS2339: [0mProperty 
+'herramientasAdicionales' does not exist on type '{ cronograma: Record<string, 
+unknown>; manoDeObra: Record<string, unknown>; observaciones?: string | 
+undefined; kitId?: string | undefined; }'.
+
+[7m55[0m         herramientasAdicionales: data.herramientasAdicionales as 
+any,
+[7m  [0m [91m                                      
+~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/planeacion/infrastructure/persistence/planeacion.repository.ts
+[0m:[93m56[0m:[93m31[0m - [91merror[0m[90m TS2339: [0mProperty 
+'documentosApoyo' does not exist on type '{ cronograma: Record<string, 
+unknown>; manoDeObra: Record<string, unknown>; observaciones?: string | 
+undefined; kitId?: string | undefined; }'.
+
+[7m56[0m         documentosApoyo: data.documentosApoyo,
+[7m  [0m [91m                              ~~~~~~~~~~~~~~~[0m
+[96msrc/modules/sync/infrastructure/persistence/sync.repository.ts[0m:[93m10
+3[0m:[93m7[0m - [91merror[0m[90m TS2353: [0mObject literal may only 
+specify known properties, and 'createdAt' does not exist in type 'PendingSync'.
+
+[7m103[0m       createdAt: raw.createdAt,
+[7m   [0m [91m      ~~~~~~~~~[0m
+[96msrc/modules/weather/infrastructure/services/open-meteo-weather.service.ts
+[0m:[93m48[0m:[93m23[0m - [91merror[0m[90m TS18046: [0m'data' is of 
+type 'unknown'.
+
+[7m48[0m       const current = data.current;
+[7m  [0m [91m                      ~~~~[0m
+[96msrc/modules/weather/infrastructure/services/open-meteo-weather.service.ts
+[0m:[93m73[0m:[93m21[0m - [91merror[0m[90m TS18046: [0m'data' is of 
+type 'unknown'.
+
+[7m73[0m       const daily = data.daily;
+[7m  [0m [91m                    ~~~~[0m
+

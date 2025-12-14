@@ -11,7 +11,7 @@ export class CreateKitUseCase {
     @Inject(KIT_REPOSITORY)
     private readonly repo: IKitRepository,
     private readonly eventEmitter: EventEmitter2,
-  ) {}
+  ) { }
 
   async execute(dto: CreateKitDto): Promise<{ message: string; data: KitResponse }> {
     const kit = await this.repo.create(dto);
@@ -26,7 +26,7 @@ export class CreateKitUseCase {
         descripcion: kit.descripcion,
         categoria: kit.categoria,
         items: kit.items,
-        createdAt: kit.createdAt.toISOString(),
+        createdAt: kit.createdAt?.toISOString() ?? new Date().toISOString(),
       },
     };
   }

@@ -1,1 +1,1 @@
-export * from './sync.repository';
+// Persistence exports (placeholder - repository not yet implemented)
