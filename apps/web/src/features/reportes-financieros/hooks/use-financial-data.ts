@@ -1,48 +1,84 @@
+'use client';
+
 /**
  * @file use-financial-data.ts
- * @description TanStack Query hooks para datos financieros
+ * @description SWR hooks for financial reports
  */
 
-import { useQuery } from '@tanstack/react-query';
+import useSWR from 'swr';
+import { useMutation } from '@/hooks/use-mutation';
+import { swrKeys } from '@/lib/swr-config';
 import { financieroApi } from '../api/financiero.api';
-import type { FinancialFilters, FinancialResponse } from '../api/financiero.types';
-
-// Query keys factory
-export const financialKeys = {
-  all: ['financial'] as const,
-  data: () => [...financialKeys.all, 'data'] as const,
-  dataByFilters: (filters: FinancialFilters) => [...financialKeys.data(), filters] as const,
-  summary: () => [...financialKeys.all, 'summary'] as const,
-  summaryByPeriod: (periodo: string) => [...financialKeys.summary(), periodo] as const,
-};
+import type {
+  FinancialFilters,
+  FinancialResponse,
+  FinancialSummary,
+  ExportConfig,
+  PeriodoTipo,
+} from '../api/financiero.types';
 
 /**
  * Hook para obtener datos financieros
  */
-export function useFinancialData(
-  filters: FinancialFilters,
-  options?: {
-    initialData?: FinancialResponse;
-    enabled?: boolean;
-  }
-) {
-  return useQuery({
-    queryKey: financialKeys.dataByFilters(filters),
-    queryFn: () => financieroApi.getData(filters),
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    gcTime: 10 * 60 * 1000, // 10 minutos
-    initialData: options?.initialData,
-    enabled: options?.enabled ?? true,
+export function useFinancialData(filters: FinancialFilters) {
+  return useSWR(
+    swrKeys.financial.report(filters),
+    () => financieroApi.getData(filters),
+    { revalidateOnFocus: false }
+  );
+}
+
+/**
+ * Hook para obtener resumen financiero (KPIs)
+ */
+export function useFinancialSummary(periodo: PeriodoTipo) {
+  return useSWR(
+    swrKeys.financial.summary({ periodo }),
+    () => financieroApi.getSummary(periodo),
+    { revalidateOnFocus: false }
+  );
+}
+
+/**
+ * Hook para exportar reporte financiero
+ */
+export function useExportFinancialReport() {
+  return useMutation({
+    mutationFn: async ({
+      filters,
+      config,
+    }: {
+      filters: FinancialFilters;
+      config: ExportConfig;
+    }) => {
+      const blob = await financieroApi.export(filters, config);
+      
+      // Crear enlace de descarga
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `reporte-financiero.${config.formato}`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      return blob;
+    },
   });
 }
 
 /**
- * Hook para obtener resumen financiero
+ * Hook combinado para datos financieros con KPIs
  */
-export function useFinancialSummary(periodo: string) {
-  return useQuery({
-    queryKey: financialKeys.summaryByPeriod(periodo),
-    queryFn: () => financieroApi.getSummary(periodo),
-    staleTime: 5 * 60 * 1000,
-  });
+export function useFinancialReport(filters: FinancialFilters) {
+  const { data: reportData, error: reportError, isLoading: reportLoading } = useFinancialData(filters);
+  const { data: summaryData, error: summaryError, isLoading: summaryLoading } = useFinancialSummary(filters.periodo);
+
+  return {
+    data: reportData?.data,
+    summary: summaryData || reportData?.summary,
+    isLoading: reportLoading || summaryLoading,
+    error: reportError || summaryError,
+  };
 }

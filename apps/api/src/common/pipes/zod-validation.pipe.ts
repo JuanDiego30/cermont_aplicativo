@@ -22,11 +22,16 @@ interface ZodSchemaLike<T> {
     safeParse(value: unknown): { success: true; data: T } | { success: false; error: ZodErrorLike };
 }
 
+interface ZodIssueLike {
+    // Zod v4 usa PropertyKey (string | number | symbol)
+    path: Array<PropertyKey>;
+    message: string;
+}
+
 interface ZodErrorLike {
-    errors: Array<{
-        path: Array<string | number>;
-        message: string;
-    }>;
+    // Zod v3 expone `errors`, Zod v4 usa `issues`
+    errors?: ZodIssueLike[];
+    issues?: ZodIssueLike[];
 }
 
 /**
@@ -69,8 +74,10 @@ export class ZodValidationPipe<T> implements PipeTransform<unknown, T> {
      * Formatea errores de Zod a nuestro formato estándar
      */
     private formatZodErrors(error: ZodErrorLike): ValidationErrorItem[] {
-        return error.errors.map((issue) => ({
-            field: issue.path.join('.') || 'value',
+        const issues = error.issues ?? error.errors ?? [];
+
+        return issues.map((issue) => ({
+            field: issue.path.map((p) => (typeof p === 'symbol' ? p.toString() : String(p))).join('.') || 'value',
             message: issue.message,
             value: undefined, // No exponemos el valor por seguridad
         }));

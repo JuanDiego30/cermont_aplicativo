@@ -1,48 +1,59 @@
-# Cermont API - Backend
+# =========================================
+# Cermont API - Multi-stage Dockerfile
+# =========================================
+
+# Stage 1: Build
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copiar package files
-COPY package*.json ./
-COPY prisma ./prisma/
+# Install pnpm
+RUN npm install -g pnpm
 
-# Instalar dependencias
-RUN npm ci
+# Copy package files
+COPY package.json pnpm-lock.yaml ./
+COPY prisma ./prisma
 
-# Copiar código fuente
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Generate Prisma client
+RUN pnpm prisma generate
+
+# Copy source code
 COPY . .
 
-# Generar cliente Prisma
-RUN npx prisma generate
+# Build application
+RUN pnpm run build
 
-# Compilar TypeScript
-RUN npm run build
-
-# --- Producción ---
+# =========================================
+# Stage 2: Production
 FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Copiar solo lo necesario
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/prisma ./prisma
-COPY scripts ./scripts
+# Install pnpm
+RUN npm install -g pnpm
 
-# Crear directorio para uploads
-RUN mkdir -p uploads && chmod 755 uploads
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs \
+    && adduser -S nestjs -u 1001
 
-# Variables de entorno por defecto
-ENV NODE_ENV=production
-ENV PORT=3001
+# Copy necessary files from builder
+COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nestjs:nodejs /app/package.json ./
+COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
 
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1
+# Switch to non-root user
+USER nestjs
 
+# Expose port
 EXPOSE 3001
 
-# Script de inicio (espera DB + migra + inicia)
-CMD ["sh", "./scripts/prestart.sh"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3001/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
+
+# Default command
+CMD ["node", "dist/main.js"]

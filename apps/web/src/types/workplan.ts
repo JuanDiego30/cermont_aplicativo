@@ -1,5 +1,10 @@
-// Work plan types
-
+/**
+ * ARCHIVO: workplan.ts
+ * FUNCION: Define tipos para planes de trabajo y tareas asociadas
+ * IMPLEMENTACION: Interfaces para WorkPlan, WorkPlanTask, CostItem con estados y categorías
+ * DEPENDENCIAS: Ninguna (tipos puros)
+ * EXPORTS: WorkPlan, WorkPlanStatus, WorkPlanTask, TaskStatus, CostItem, CostCategory, WorkPlanCreate, WorkPlanUpdate, WorkPlanFilters
+ */
 export interface WorkPlan {
   id: string;
   nombre: string;

@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: kit.ts
+ * FUNCION: Define tipos para kits de materiales y su asignación a órdenes
+ * IMPLEMENTACION: Interfaces para Kit, KitItem, CreateKitInput, UpdateKitInput, KitAssignment
+ * DEPENDENCIAS: Ninguna (tipos puros)
+ * EXPORTS: Kit, KitItem, CreateKitInput, UpdateKitInput, KitAssignment
+ */
 export interface Kit {
   id: string;
   codigo: string;

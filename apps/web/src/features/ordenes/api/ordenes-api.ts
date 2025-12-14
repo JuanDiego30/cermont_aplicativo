@@ -84,4 +84,12 @@ export const ordenesApi = {
             };
         }>('/ordenes/stats');
     },
+    /**
+     * Asignar técnico (responsable)
+     */
+    assignTechnician: async (id: string, tecnicoId: string) => {
+        return apiClient.patch<{ status: string; data: Orden }>(`/ordenes/${id}`, {
+            responsableId: tecnicoId,
+        });
+    },
 };

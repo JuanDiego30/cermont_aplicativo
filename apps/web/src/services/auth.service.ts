@@ -1,8 +1,10 @@
 /**
- * Auth Service
- * Centraliza las llamadas a la API de autenticación
+ * ARCHIVO: auth.service.ts
+ * FUNCION: Gestiona autenticacion, sesiones y recuperacion de contrasena
+ * IMPLEMENTACION: Patron Service Layer con JWT tokens (access + refresh)
+ * DEPENDENCIAS: @/lib/api (apiClient), @/types/user
+ * EXPORTS: authService, LoginResponse, RefreshResponse
  */
-
 import { apiClient } from '@/lib/api';
 import type { LoginCredentials, RegisterData, User } from '@/types/user';
 

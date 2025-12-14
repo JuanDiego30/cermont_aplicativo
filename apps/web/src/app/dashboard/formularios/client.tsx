@@ -7,8 +7,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { 
-  Plus, 
+import {
+  Plus,
   Search,
   LayoutGrid,
   List,
@@ -17,15 +17,15 @@ import {
   Clock,
   BarChart3,
 } from 'lucide-react';
-import { 
+import {
   usePlantillasFormulario,
   PlantillaCard,
   EstadoFormulario,
   ESTADO_FORMULARIO_CONFIG,
   PlantillaCardSkeleton,
 } from '@/features/formularios';
-import { 
-  useDuplicarPlantilla, 
+import {
+  useDuplicarPlantilla,
   useEliminarPlantilla,
   useCambiarEstadoPlantilla,
 } from '@/features/formularios';
@@ -37,7 +37,7 @@ export function FormulariosDashboard() {
   const [busqueda, setBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState<EstadoFormulario | ''>('');
 
-  const { data: plantillasData, isLoading } = usePlantillasFormulario({
+  const { data: plantillas = [], isLoading } = usePlantillasFormulario({
     estado: filtroEstado || undefined,
     busqueda: busqueda || undefined,
   });
@@ -45,26 +45,22 @@ export function FormulariosDashboard() {
   const duplicarMutation = useDuplicarPlantilla();
   const eliminarMutation = useEliminarPlantilla();
 
-  const plantillas = plantillasData?.data || [];
-
   // Stats
   const stats = {
     total: plantillas.length,
     activos: plantillas.filter(p => p.estado === 'ACTIVO').length,
-    respuestasTotal: plantillas.reduce((acc, p) => acc + p.totalRespuestas, 0),
+    respuestasTotal: plantillas.reduce((acc, p) => acc + (p.totalRespuestas || 0), 0),
   };
 
   const handleDuplicate = (id: string) => {
-    duplicarMutation.mutate(id, {
-      onSuccess: () => toast.success('Formulario duplicado'),
-    });
+    duplicarMutation.mutateAsync(id)
+      .then(() => toast.success('Formulario duplicado'));
   };
 
   const handleDelete = (id: string) => {
     if (confirm('¿Eliminar este formulario? Esta acción no se puede deshacer.')) {
-      eliminarMutation.mutate(id, {
-        onSuccess: () => toast.success('Formulario eliminado'),
-      });
+      eliminarMutation.mutateAsync(id)
+        .then(() => toast.success('Formulario eliminado'));
     }
   };
 
@@ -162,7 +158,7 @@ export function FormulariosDashboard() {
 
       {/* Grid de plantillas */}
       {isLoading ? (
-        <div className={vista === 'grid' 
+        <div className={vista === 'grid'
           ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
           : 'space-y-4'
         }>
@@ -188,7 +184,7 @@ export function FormulariosDashboard() {
           </button>
         </div>
       ) : (
-        <div className={vista === 'grid' 
+        <div className={vista === 'grid'
           ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'
           : 'space-y-4'
         }>

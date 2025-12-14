@@ -1,7 +1,10 @@
-// ============================================
-// WEATHER API SERVICE - Cliente para API Meteorológica
-// ============================================
-
+/**
+ * ARCHIVO: weather.service.ts
+ * FUNCION: Consulta datos meteorologicos, pronosticos y alertas climaticas
+ * IMPLEMENTACION: Patron Service Layer con API Open-Meteo, soporte geolocalizacion
+ * DEPENDENCIAS: @/lib/api-client (apiClient)
+ * EXPORTS: weatherApi, WeatherData, WeatherSummary, WeatherAlert, etc.
+ */
 import { apiClient } from '@/lib/api-client';
 
 // Tipos

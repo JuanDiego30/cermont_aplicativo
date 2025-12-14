@@ -1,13 +1,13 @@
 /**
- * 📁 app/not-found.tsx
- *
- * ✨ 404 Page - Server Component
- * Página para rutas no encontradas
+ * ARCHIVO: not-found.tsx
+ * FUNCION: Página 404 para rutas no encontradas en la aplicación
+ * IMPLEMENTACION: Server Component que muestra error visual con enlaces a inicio y dashboard
+ * DEPENDENCIAS: next/link, next, lucide-react
+ * EXPORTS: NotFound (Server Component default), metadata
  */
-
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { Home, ArrowLeft, LayoutDashboard } from 'lucide-react';
+import { Home, LayoutDashboard } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Página no encontrada',

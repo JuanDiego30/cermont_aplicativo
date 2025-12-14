@@ -1,7 +1,14 @@
+/**
+ * ARCHIVO: authStore.ts
+ * FUNCION: Store global para estado de autenticación
+ * IMPLEMENTACION: Zustand con persist middleware, integración con authApi
+ * DEPENDENCIAS: zustand, @/types/user, @/lib/api-client, @/features/auth/api/auth-api
+ * EXPORTS: useAuthStore, useAuth
+ */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User } from '@/types/user';
-import { apiClient } from '@/lib/api-client';
+import { authApi } from '@/features/auth/api/auth-api';
 
 interface AuthState {
   user: User | null;
@@ -9,7 +16,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  
+
   // Acciones
   setAuth: (user: User, token: string) => void;
   setUser: (user: User) => void;
@@ -30,15 +37,15 @@ export const useAuthStore = create<AuthState>()(
       error: null,
 
       setAuth: (user, token) => set({ user, token, isAuthenticated: true, error: null }),
-      
+
       setUser: (user) => set({ user, isAuthenticated: true }),
-      
+
       setToken: (token) => set({ token, isAuthenticated: !!token }),
-      
+
       setIsLoading: (isLoading) => set({ isLoading }),
-      
+
       setError: (error) => set({ error }),
-      
+
       clearAuth: () => {
         set({
           user: null,
@@ -52,7 +59,7 @@ export const useAuthStore = create<AuthState>()(
       logout: async () => {
         try {
           // Intentar llamar al endpoint de logout en el backend
-          await apiClient.post('/auth/logout', {});
+          await authApi.logout();
         } catch {
           // Ignorar errores del backend, limpiar estado de todas formas
         } finally {

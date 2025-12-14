@@ -1,10 +1,10 @@
 /**
- * 📁 app/loading.tsx
- *
- * ✨ Global Loading State - Server Component
- * Loading UI mientras se carga la página principal
+ * ARCHIVO: loading.tsx
+ * FUNCION: Estado de carga global mostrado durante navegación entre páginas
+ * IMPLEMENTACION: Server Component con spinner animado CSS y logo CERMONT
+ * DEPENDENCIAS: ninguna (solo React implícito)
+ * EXPORTS: Loading (Server Component default)
  */
-
 export default function Loading() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">

@@ -6,8 +6,8 @@ import { z } from 'zod';
 
 // ==================== DTOs ====================
 export const CreatePlaneacionSchema = z.object({
-  cronograma: z.record(z.unknown()).optional().default({}),
-  manoDeObra: z.record(z.unknown()).optional().default({}),
+  cronograma: z.record(z.string(), z.unknown()).optional().default({}),
+  manoDeObra: z.record(z.string(), z.unknown()).optional().default({}),
   observaciones: z.string().optional(),
   kitId: z.string().uuid().optional(),
 });

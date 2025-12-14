@@ -1,12 +1,13 @@
+/**
+ * ARCHIVO: useOfflineSync.ts
+ * FUNCION: Hook para sincronización offline de órdenes, formularios e inspecciones
+ * IMPLEMENTACION: Gestiona OfflineSyncManager, suscribe a eventos y expone métodos save/sync/clear
+ * DEPENDENCIAS: React hooks, getOfflineSyncManager de @/lib/offline-sync
+ * EXPORTS: useOfflineSync, UseOfflineSyncReturn (interface)
+ */
 'use client';
-
 import { useState, useEffect, useCallback } from 'react';
 import { getOfflineSyncManager, SyncEvent, SyncQueueItem } from '@/lib/offline-sync';
-
-// ============================================
-// HOOK: useOfflineSync
-// ============================================
-
 export interface UseOfflineSyncReturn {
   isOnline: boolean;
   isSyncing: boolean;

@@ -61,11 +61,8 @@ export function InformesDashboard() {
     generarMutation.mutate({
       tipo,
       formato: 'PDF',
-    }, {
-      onSuccess: () => {
-        toast.success('Informe en cola de generación');
-      },
     });
+    toast.success('Informe en cola de generación');
   };
 
   const handleDescargar = (id: string, nombre: string) => {

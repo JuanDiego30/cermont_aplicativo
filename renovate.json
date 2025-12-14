@@ -1,0 +1,29 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:base"
+    ],
+    "minimumReleaseAge": "1440 minutes",
+    "rangeStrategy": "bump",
+    "packageRules": [
+        {
+            "matchDepTypes": [
+                "devDependencies"
+            ],
+            "automerge": true,
+            "automergeType": "pr"
+        },
+        {
+            "matchPackagePatterns": [
+                "@cermont/*"
+            ],
+            "enabled": false
+        }
+    ],
+    "vulnerabilityAlerts": {
+        "enabled": true,
+        "labels": [
+            "security"
+        ]
+    }
+}

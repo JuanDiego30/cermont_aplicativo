@@ -1,6 +1,9 @@
 /**
- * Roles de usuario en el sistema
- * Sincronizado con el backend (api/src/modules/auth/auth.types.ts)
+ * ARCHIVO: user.ts
+ * FUNCION: Define tipos de usuario, roles y autenticación
+ * IMPLEMENTACION: Interfaces TypeScript sincronizadas con backend
+ * DEPENDENCIAS: Ninguna (tipos puros)
+ * EXPORTS: UserRole, User, AuthResponse, UserPublic, LoginCredentials, RegisterData, UpdateUserData
  */
 export type UserRole = 'admin' | 'supervisor' | 'tecnico' | 'administrativo';
 

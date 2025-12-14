@@ -4,7 +4,7 @@
  * Mapea entre Prisma model y Domain Entity.
  */
 
-import { UserRole } from '@prisma/client';
+import { UserRole } from '.prisma/client';
 import { UserEntity, type PersistenceData } from '../../domain/entities/user.entity';
 
 /**

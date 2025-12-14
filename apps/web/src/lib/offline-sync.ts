@@ -1,13 +1,11 @@
 /**
- * CERMONT - Sistema de Sincronización Offline
- * 
- * Este módulo proporciona:
- * - Almacenamiento offline con IndexedDB
- * - Cola de sincronización para operaciones pendientes
- * - Detección de conexión/desconexión
- * - Sincronización automática al reconectar
+ * ARCHIVO: offline-sync.ts
+ * FUNCION: Sistema completo de sincronización offline con IndexedDB
+ * IMPLEMENTACION: Clases IndexedDBManager y OfflineSyncManager con patrón Singleton,
+ *                 cola de sincronización, event emitter y manejo de reconexión
+ * DEPENDENCIAS: IndexedDB API nativa, fetch
+ * EXPORTS: getOfflineSyncManager, OfflineSyncManager, tipos SyncQueueItem, OfflineData
  */
-
 // ============================================
 // TYPES
 // ============================================

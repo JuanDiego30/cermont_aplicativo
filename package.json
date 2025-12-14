@@ -3,22 +3,41 @@
   "version": "1.0.0",
   "description": "Cermont - Sistema de Gestión de Órdenes de Trabajo",
   "private": true,
-  "scripts": {
-    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
-    "dev:api": "cd apps/api && npm run dev",
-    "dev:web": "cd apps/web && npm run dev",
-    "install:all": "npm install && cd apps/api && npm install && cd ../web && npm install",
-    "build": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/build-all.ps1",
-    "build:api": "cd apps/api && npm run build",
-    "build:web": "cd apps/web && npm run build",
-    "setup": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/setup.ps1",
-    "diagnose": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/diagnose.ps1",
-    "report": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/generate-report.ps1",
-    "fix:deps": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/fix-dependencies.ps1",
-    "fix:types": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/fix-multer-types.ps1",
-    "validate": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/validate-typescript.ps1"
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "pnpm": ">=9.0.0"
   },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
-  }
+  "scripts": {
+    "dev": "pnpm --filter api dev & pnpm --filter web dev",
+    "dev:api": "pnpm --filter api dev",
+    "dev:web": "pnpm --filter web dev",
+    "build": "pnpm --filter api build && pnpm --filter web build",
+    "build:api": "pnpm --filter api build",
+    "build:web": "pnpm --filter web build",
+    "start": "pnpm --filter api start:prod",
+    "start:api": "pnpm --filter api start:prod",
+    "start:web": "pnpm --filter web start",
+    "lint": "pnpm --filter api lint && pnpm --filter web lint",
+    "lint:api": "pnpm --filter api lint",
+    "lint:web": "pnpm --filter web lint",
+    "typecheck": "pnpm --filter api typecheck && pnpm --filter web typecheck",
+    "typecheck:api": "pnpm --filter api typecheck",
+    "typecheck:web": "pnpm --filter web typecheck",
+    "test": "pnpm --filter api test",
+    "test:watch": "pnpm --filter api test:watch",
+    "test:cov": "pnpm --filter api test:cov",
+    "test:e2e": "pnpm --filter api test:e2e",
+    "prisma:generate": "pnpm --filter api exec prisma generate",
+    "prisma:migrate": "pnpm --filter api exec prisma migrate dev",
+    "prisma:migrate:deploy": "pnpm --filter api exec prisma migrate deploy",
+    "prisma:migrate:reset": "pnpm --filter api exec prisma migrate reset --force",
+    "prisma:studio": "pnpm --filter api exec prisma studio",
+    "prisma:seed": "pnpm --filter api exec tsx prisma/seed.ts",
+    "audit": "pnpm audit --recursive",
+    "audit:fix": "pnpm audit --recursive --fix",
+    "outdated": "pnpm outdated --recursive",
+    "clean": "pnpm -r exec rm -rf node_modules .next dist build out",
+    "install:all": "pnpm install"
+  },
+  "devDependencies": {}
 }

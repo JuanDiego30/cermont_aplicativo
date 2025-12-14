@@ -1,17 +1,15 @@
 /**
- * 📁 app/error.tsx
- *
- * ✨ Error Boundary - Client Component
- *
- * Captura errores en las páginas y muestra una UI amigable.
- * A diferencia de global-error.tsx, este mantiene el layout.
+ * ARCHIVO: error.tsx
+ * FUNCION: Error boundary para capturar errores a nivel de página manteniendo el layout
+ * IMPLEMENTACION: Client Component con reset callback, logging de errores y UI amigable con acciones
+ * DEPENDENCIAS: react, next/link, lucide-react
+ * EXPORTS: Error (Client Component default)
  */
-
 'use client';
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { AlertCircle, RefreshCw, Home, ArrowLeft } from 'lucide-react';
+import { AlertCircle, RefreshCw, Home } from 'lucide-react';
 
 interface ErrorProps {
   error: Error & { digest?: string };

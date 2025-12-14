@@ -8,7 +8,7 @@ export * from './api/financiero.types';
 export { financieroApi } from './api/financiero.api';
 
 // Hooks
-export { useFinancialData, useFinancialSummary, financialKeys } from './hooks/use-financial-data';
+export { useFinancialData, useFinancialSummary } from './hooks/use-financial-data';
 
 // Components
 export { FinancialKPICard, FinancialKPICardSkeleton } from './components/financial-kpi-card';

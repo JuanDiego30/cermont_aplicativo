@@ -6,7 +6,8 @@
  * Uso: Inyectar PrismaService desde PrismaModule para acceso a BD.
  */
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { Prisma, PrismaClient } from '@prisma/client';
+// Prisma 7 con pnpm: importar desde el cliente generado localmente
+import { Prisma, PrismaClient } from '.prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 

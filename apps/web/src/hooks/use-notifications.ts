@@ -1,9 +1,11 @@
-// ============================================
-// useNotifications Hook - Cermont FSM
-// ============================================
-
+/**
+ * ARCHIVO: use-notifications.ts
+ * FUNCION: Hooks para notificaciones en tiempo real y Web Push
+ * IMPLEMENTACION: useNotifications suscribe a eventos Socket.IO, usePushNotifications gestiona Web Push API
+ * DEPENDENCIAS: use-socket, sonner (toast), Web Push API, Service Workers
+ * EXPORTS: useNotifications, usePushNotifications, urlBase64ToUint8Array
+ */
 'use client';
-
 import { useEffect, useCallback, useState } from 'react';
 import { useSocket } from './use-socket';
 import { toast } from 'sonner';

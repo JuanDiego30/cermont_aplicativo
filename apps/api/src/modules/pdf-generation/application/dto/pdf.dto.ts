@@ -29,7 +29,7 @@ export const GenerateReportePDFSchema = z.object({
   tipoReporte: z.enum(['ordenes', 'mantenimientos', 'inspecciones', 'costos']),
   fechaInicio: z.string(),
   fechaFin: z.string(),
-  filtros: z.record(z.unknown()).optional(),
+  filtros: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type GenerateReportePDFDto = z.infer<typeof GenerateReportePDFSchema>;

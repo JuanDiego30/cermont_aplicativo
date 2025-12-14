@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import useSWR from "swr";
+import { useMutation, useInvalidate } from "@/hooks/use-mutation";
 import { apiClient } from "@/lib/api-client";
 import {
     TrendingUp,
@@ -117,7 +118,6 @@ interface CosteoPanelProps {
 }
 
 export function CosteoPanel({ ordenId, editable = true }: CosteoPanelProps) {
-    const queryClient = useQueryClient();
     const [showForm, setShowForm] = useState(false);
     const [newCosto, setNewCosto] = useState({
         concepto: "",
@@ -127,22 +127,24 @@ export function CosteoPanel({ ordenId, editable = true }: CosteoPanelProps) {
     });
 
     // Queries
-    const { data: resumen, isLoading: loadingResumen } = useQuery({
-        queryKey: ["costos-resumen", ordenId],
-        queryFn: () => fetchResumenCostos(ordenId),
-    });
+    const { data: resumen, isLoading: loadingResumen } = useSWR(
+        ["costos-resumen", ordenId],
+        () => fetchResumenCostos(ordenId)
+    );
 
-    const { data: orden, isLoading: loadingCostos } = useQuery({
-        queryKey: ["costos-orden", ordenId],
-        queryFn: () => fetchCostosByOrden(ordenId),
-    });
+    const { data: orden, isLoading: loadingCostos } = useSWR(
+        ["costos-orden", ordenId],
+        () => fetchCostosByOrden(ordenId)
+    );
+
+    const invalidate = useInvalidate();
 
     // Mutations
     const addMutation = useMutation({
         mutationFn: registrarCosto,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["costos-resumen", ordenId] });
-            queryClient.invalidateQueries({ queryKey: ["costos-orden", ordenId] });
+            invalidate("costos-resumen");
+            invalidate("costos-orden");
             setShowForm(false);
             setNewCosto({ concepto: "", monto: 0, tipo: "material", descripcion: "" });
         },
@@ -151,8 +153,8 @@ export function CosteoPanel({ ordenId, editable = true }: CosteoPanelProps) {
     const deleteMutation = useMutation({
         mutationFn: eliminarCosto,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["costos-resumen", ordenId] });
-            queryClient.invalidateQueries({ queryKey: ["costos-orden", ordenId] });
+            invalidate("costos-resumen");
+            invalidate("costos-orden");
         },
     });
 

@@ -10,7 +10,7 @@ export const FormFieldSchema = z.object({
   requerido: z.boolean().default(false),
   opciones: z.array(z.string()).optional(),
   placeholder: z.string().optional(),
-  validacion: z.record(z.unknown()).optional(),
+  validacion: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const CreateFormularioSchema = z.object({
@@ -25,7 +25,7 @@ export type CreateFormularioDto = z.infer<typeof CreateFormularioSchema>;
 export const SubmitFormularioSchema = z.object({
   formularioId: z.string().uuid(),
   ordenId: z.string().uuid().optional(),
-  respuestas: z.record(z.unknown()),
+  respuestas: z.record(z.string(), z.unknown()),
 });
 
 export type SubmitFormularioDto = z.infer<typeof SubmitFormularioSchema>;

@@ -50,6 +50,30 @@ export const ordenesApi = {
   },
 
   /**
+   * Alias for changeStatus (used by mutations)
+   */
+  changeEstado: async (id: string, estado: OrderStatus): Promise<Order> => {
+    return ordersService.changeStatus(id, estado);
+  },
+
+  /**
+   * Asigna un técnico a una orden
+   */
+  asignarTecnico: async (ordenId: string, tecnicoId: string): Promise<Order> => {
+    // TODO: Implement proper service call
+    console.log('Assigning tecnico', tecnicoId, 'to order', ordenId);
+    return {} as Order;
+  },
+
+  /**
+   * Exporta órdenes a Excel
+   */
+  exportToExcel: async (): Promise<Blob> => {
+    // TODO: Implement proper service call
+    return new Blob();
+  },
+
+  /**
    * Obtiene estadísticas de órdenes
    */
   getStats: async () => {

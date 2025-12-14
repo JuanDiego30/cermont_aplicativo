@@ -24,8 +24,8 @@ export function KitsDashboard() {
     if (busqueda) {
       const search = busqueda.toLowerCase();
       return (
-        k.codigo.toLowerCase().includes(search) ||
-        k.nombre.toLowerCase().includes(search)
+        (k.codigo?.toLowerCase() || '').includes(search) ||
+        (k.nombre?.toLowerCase() || '').includes(search)
       );
     }
     return true;

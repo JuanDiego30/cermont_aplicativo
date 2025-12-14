@@ -1,6 +1,8 @@
 'use client';
 
 import { useOrders } from '../hooks/use-orders';
+import { ORDER_STATUS_CONFIG, ORDER_PRIORITY_CONFIG } from '../config/orden.config';
+import { formatOrderDate, formatOrderType, formatOrderStatus } from '../utils/orden.utils';
 import type { OrderStatus, OrderPriority } from '@/types/order';
 
 interface OrdersListProps {
@@ -12,23 +14,8 @@ interface OrdersListProps {
   onOrderClick?: (orderId: string) => void;
 }
 
-const estadoColors: Record<OrderStatus, string> = {
-  planeacion: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200',
-  ejecucion: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  completada: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-  cancelada: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-  pausada: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-};
-
-const prioridadColors: Record<OrderPriority, string> = {
-  baja: 'border-l-gray-400',
-  media: 'border-l-blue-400',
-  alta: 'border-l-orange-400',
-  urgente: 'border-l-red-500',
-};
-
 export function OrdersList({ filters, onOrderClick }: OrdersListProps) {
-  const { data, isLoading, error, refetch } = useOrders(filters);
+  const { data, isLoading, mutate, error } = useOrders(filters);
 
   if (isLoading) {
     return (
@@ -45,7 +32,7 @@ export function OrdersList({ filters, onOrderClick }: OrdersListProps) {
       <div className="p-4 border border-red-300 bg-red-50 dark:bg-red-900/20 rounded-lg">
         <p className="text-red-600 dark:text-red-400">Error: {error.message}</p>
         <button
-          onClick={() => refetch()}
+          onClick={() => mutate()}
           className="mt-2 text-sm text-red-700 hover:text-red-900 underline"
         >
           Reintentar
@@ -110,7 +97,7 @@ export function OrdersList({ filters, onOrderClick }: OrdersListProps) {
             <tr
               key={order.id}
               onClick={() => onOrderClick?.(order.id)}
-              className={`border-l-4 ${prioridadColors[order.prioridad]} hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors`}
+              className={`border-l-4 ${ORDER_PRIORITY_CONFIG[order.prioridad]?.border} hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors`}
             >
               <td className="px-6 py-4 whitespace-nowrap">
                 <span className="text-sm font-medium text-gray-900 dark:text-white">
@@ -124,14 +111,14 @@ export function OrdersList({ filters, onOrderClick }: OrdersListProps) {
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <span className="text-sm text-gray-600 dark:text-gray-400 capitalize">
-                  {order.tipo?.replace('_', ' ') || '-'}
+                  {formatOrderType(order.tipo)}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <span
-                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${estadoColors[order.estado]}`}
+                  className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${ORDER_STATUS_CONFIG[order.estado]?.color}`}
                 >
-                  {order.estado.replace('_', ' ')}
+                  {formatOrderStatus(order.estado)}
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
@@ -140,7 +127,7 @@ export function OrdersList({ filters, onOrderClick }: OrdersListProps) {
                 </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                {new Date(order.createdAt).toLocaleDateString('es-CO')}
+                {formatOrderDate(order.createdAt)}
               </td>
             </tr>
           ))}

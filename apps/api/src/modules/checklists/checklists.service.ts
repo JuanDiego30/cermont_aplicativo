@@ -7,6 +7,12 @@ interface ChecklistItemInput {
     tipo?: string;
 }
 
+interface UpdateChecklistItemDto {
+    estado?: string;
+    observaciones?: string;
+    completado?: boolean;
+}
+
 @Injectable()
 export class ChecklistsService {
     constructor(private readonly prisma: PrismaService) { }
@@ -187,7 +193,7 @@ export class ChecklistsService {
         });
     }
 
-    async updateChecklistItem(itemId: string, updateDto: any, userId: string) {
+    async updateChecklistItem(itemId: string, updateDto: UpdateChecklistItemDto, userId: string) {
         const item = await this.prisma.checklistItemEjecucion.findUnique({
             where: { id: itemId },
         });

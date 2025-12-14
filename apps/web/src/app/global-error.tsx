@@ -1,12 +1,10 @@
 /**
- * 📁 app/global-error.tsx
- *
- * ✨ Global Error Boundary - Client Component
- *
- * Este componente captura errores críticos a nivel de aplicación.
- * Es necesario incluir <html> y <body> porque reemplaza el layout raíz.
+ * ARCHIVO: global-error.tsx
+ * FUNCION: Error boundary global que captura errores críticos a nivel de aplicación
+ * IMPLEMENTACION: Client Component con html/body propios (reemplaza layout), detalles de error en dev y logging
+ * DEPENDENCIAS: react, lucide-react
+ * EXPORTS: GlobalError (Client Component default)
  */
-
 'use client';
 
 import { useEffect } from 'react';

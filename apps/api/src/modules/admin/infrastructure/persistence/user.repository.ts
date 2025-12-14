@@ -6,7 +6,7 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { Prisma, UserRole } from '@prisma/client';
+import { Prisma, UserRole } from '.prisma/client';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import {
   IUserRepository,

@@ -17,7 +17,7 @@ import {
   RefreshCw,
   MapPin,
 } from 'lucide-react';
-import { useWeather } from '@/hooks/useWeather';
+import { useWeatherSummary } from '@/hooks/useWeather';
 import type { WeatherData, WeatherAlert, HourlyForecast } from '@/services/weather.service';
 
 // Declaración de tipo para Leaflet (cargado dinámicamente desde CDN)
@@ -54,15 +54,25 @@ export const WeatherMap: React.FC<WeatherMapProps> = ({
 
   // Hook de datos meteorológicos
   const {
-    current,
-    rainfall,
-    alerts,
-    hourly,
+    data,
     isLoading,
-    isError,
-    isFetching,
-    refetch,
-  } = useWeather({ refetchInterval: refreshInterval });
+    error,
+    isValidating: isFetching,
+    mutate: refetch
+  } = useWeatherSummary({
+    lat: CANO_LIMON.lat,
+    lon: CANO_LIMON.lon,
+    refreshInterval
+  });
+
+  const {
+    current,
+    rainfall = [],
+    alerts = [],
+    hourlyNext12: hourly = [],
+  } = data || {};
+
+  const isError = !!error;
 
   // ============================================
   // INICIALIZAR MAPA LEAFLET
@@ -146,10 +156,10 @@ export const WeatherMap: React.FC<WeatherMapProps> = ({
     if (!leafletMapRef.current || !current || !mapLoaded) return;
 
     const L = (window as any).L;
-    
+
     // Actualizar o crear círculo de nubes
     const cloudOpacity = (current.cloudCover || 0) / 100;
-    
+
     // Añadir círculo de cobertura de nubes
     L.circle([CANO_LIMON.lat, CANO_LIMON.lon], {
       color: 'gray',

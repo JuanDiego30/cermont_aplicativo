@@ -1,5 +1,10 @@
-// Costing types
-
+/**
+ * ARCHIVO: costing.ts
+ * FUNCION: Define tipos para costeo y presupuestos de órdenes
+ * IMPLEMENTACION: Interfaces para Costing, CostingItem, categorías y análisis de costos
+ * DEPENDENCIAS: Ninguna (tipos puros)
+ * EXPORTS: Costing, CostingStatus, CostingItem, CostingCategory, CostingCreate, CostingItemCreate, CostingAnalysis
+ */
 export interface Costing {
   id: string;
   ordenId: string;

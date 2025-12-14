@@ -1,34 +1,40 @@
 /**
  * @repository IEvidenciaRepository
+ * @description Interfaz del repositorio de evidencias
  */
+import { EvidenciaEntity } from '../entities/evidencia.entity';
+
 export const EVIDENCIA_REPOSITORY = Symbol('EVIDENCIA_REPOSITORY');
 
-export interface EvidenciaData {
-  id: string;
-  ordenId: string;
-  tipo: string;
-  url: string;
-  descripcion?: string;
-  latitud?: number;
-  longitud?: number;
-  creadoPorId: string;
-  createdAt: Date;
-}
-
-export interface CreateEvidenciaData {
-  ordenId: string;
-  tipo: string;
-  url: string;
-  descripcion?: string;
-  latitud?: number;
-  longitud?: number;
-  creadoPorId: string;
+export interface EvidenciaFilters {
+  ordenId?: string;
+  ejecucionId?: string;
+  tipo?: string;
 }
 
 export interface IEvidenciaRepository {
-  findByOrdenId(ordenId: string): Promise<EvidenciaData[]>;
-  findById(id: string): Promise<EvidenciaData | null>;
-  create(data: CreateEvidenciaData): Promise<EvidenciaData>;
+  /**
+   * Busca evidencias con filtros
+   */
+  findAll(filters: EvidenciaFilters): Promise<EvidenciaEntity[]>;
+
+  /**
+   * Busca por ID
+   */
+  findById(id: string): Promise<EvidenciaEntity | null>;
+
+  /**
+   * Crea una nueva evidencia
+   */
+  create(evidencia: EvidenciaEntity): Promise<EvidenciaEntity>;
+
+  /**
+   * Elimina una evidencia
+   */
   delete(id: string): Promise<void>;
-  count(ordenId: string): Promise<number>;
+
+  /**
+   * Cuenta evidencias
+   */
+  count(filters: EvidenciaFilters): Promise<number>;
 }

@@ -37,9 +37,8 @@ import {
 
 @ApiTags('Ordenes')
 @Controller('ordenes')
-@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-export class OrdenesControllerRefactored {
+export class OrdenesController {
   constructor(
     private readonly listOrdenesUseCase: ListOrdenesUseCase,
     private readonly getOrdenByIdUseCase: GetOrdenByIdUseCase,
@@ -47,7 +46,7 @@ export class OrdenesControllerRefactored {
     private readonly updateOrdenUseCase: UpdateOrdenUseCase,
     private readonly changeOrdenEstadoUseCase: ChangeOrdenEstadoUseCase,
     private readonly deleteOrdenUseCase: DeleteOrdenUseCase,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'Listar órdenes' })

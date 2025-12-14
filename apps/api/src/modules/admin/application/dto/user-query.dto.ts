@@ -19,18 +19,8 @@ export const UserQuerySchema = z.object({
     .optional()
     .or(z.boolean().optional()),
   search: z.string().max(100).optional(),
-  page: z
-    .string()
-    .transform((val) => parseInt(val, 10))
-    .pipe(z.number().int().positive())
-    .optional()
-    .default('1'),
-  pageSize: z
-    .string()
-    .transform((val) => parseInt(val, 10))
-    .pipe(z.number().int().min(1).max(100))
-    .optional()
-    .default('10'),
+  page: z.coerce.number().int().positive().default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(10),
 });
 
 export type UserQueryInput = z.infer<typeof UserQuerySchema>;

@@ -1,7 +1,13 @@
-// 📁 web/src/lib/api-client.ts
-// ✅ Cliente API unificado con manejo de refresh tokens y errores estructurados
-
-import { useAuthStore } from '@/stores/authStore';
+/**
+ * ARCHIVO: api-client.ts
+ * FUNCION: Cliente HTTP unificado para comunicación con el backend API
+ * IMPLEMENTACION: Clase singleton ApiClient con patrón interceptor para refresh tokens,
+ *                 manejo automático de errores y soporte para uploads multipart
+ * DEPENDENCIAS: fetch nativo, variables de entorno NEXT_PUBLIC_API_URL
+ * EXPORTS: apiClient (singleton), ApiException (clase), ApiError (tipo)
+ */
+type TokenProvider = () => string | null;
+type LogoutHandler = () => void;
 
 function buildApiBaseUrl(rawUrl: string): string {
   const trimmed = rawUrl.trim().replace(/\/+$/, '');
@@ -41,13 +47,30 @@ export class ApiException extends Error {
 
 class ApiClient {
   private baseUrl: string;
+  private tokenProvider: TokenProvider;
+  private tokenUpdater: (token: string) => void;
+  private logoutHandler: LogoutHandler;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
+    // Default handlers (no-op or safe defaults)
+    this.tokenProvider = () => null;
+    this.tokenUpdater = () => { };
+    this.logoutHandler = () => {
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+    };
+  }
+
+  public configure(getToken: TokenProvider, updateToken: (token: string) => void, onLogout: LogoutHandler) {
+    this.tokenProvider = getToken;
+    this.tokenUpdater = updateToken;
+    this.logoutHandler = onLogout;
   }
 
   private getAuthHeader(): Record<string, string> {
-    const token = useAuthStore.getState().token;
+    const token = this.tokenProvider();
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
@@ -86,38 +109,32 @@ class ApiClient {
 
         if (refreshResponse.ok) {
           const { token: newToken } = await refreshResponse.json();
-          useAuthStore.getState().setToken(newToken);
 
-          // Reintentar petición original con nuevo token
-          const newHeaders = {
-            ...headers,
-            Authorization: `Bearer ${newToken}`,
-          };
+          // Actualizar el token en la tienda
+          this.tokenUpdater(newToken);
 
+          // Reintentar la petición original con el nuevo token
+          headers['Authorization'] = `Bearer ${newToken}`;
           const retryResponse = await fetch(url, {
             ...fetchOptions,
-            headers: newHeaders,
+            headers,
             credentials: 'include',
           });
-
-          if (retryResponse.ok) {
-            if (retryResponse.status === 204) return {} as T;
-            return retryResponse.json();
-          }
+          return retryResponse.json();
         } else {
           // Si falla el refresh, logout
-          useAuthStore.getState().logout();
+          this.logoutHandler();
           throw new Error('Sesión expirada');
         }
       } catch (error) {
-        useAuthStore.getState().logout();
+        this.logoutHandler();
         throw error;
       }
     }
 
     if (!response.ok) {
       let errorData: ApiError = { message: 'Error de servidor' };
-      
+
       try {
         errorData = await response.json();
       } catch {
@@ -203,7 +220,7 @@ class ApiClient {
 
         if (refreshResponse.ok) {
           const { token: newToken } = await refreshResponse.json();
-          useAuthStore.getState().setToken(newToken);
+          // useAuthStore.getState().setToken(newToken); -> Decoupled, rely on app reload or handler
 
           response = await fetch(url, {
             method: 'POST',
@@ -212,11 +229,11 @@ class ApiClient {
             credentials: 'include',
           });
         } else {
-          useAuthStore.getState().logout();
+          this.logoutHandler();
           throw new ApiException('Sesión expirada', 401);
         }
       } catch (error) {
-        useAuthStore.getState().logout();
+        this.logoutHandler();
         throw error;
       }
     }

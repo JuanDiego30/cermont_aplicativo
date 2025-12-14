@@ -1,33 +1,156 @@
+/**
+ * @service DashboardService
+ * @description Servicio para métricas y estadísticas del dashboard
+ * 
+ * Principios aplicados:
+ * - SRP: Solo maneja lógica de dashboard
+ * - Clean Code: Código legible con nombres descriptivos
+ * - Type Safety: Interfaces para todos los retornos
+ */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
+// ============================================================================
+// Interfaces
+// ============================================================================
+
+export interface DashboardStats {
+  totalOrdenes: number;
+  totalUsuarios: number;
+  ordenesRecientes: number;
+  porEstado: Record<string, number>;
+}
+
+export interface DashboardMetricas {
+  totalOrders: number;
+  completedOrders: number;
+  pendingOrders: number;
+  techniciansActive: number;
+}
+
+export interface OrdenResumen {
+  id: string;
+  numero: string;
+  cliente: string;
+  estado: string;
+  prioridad: string;
+  createdAt: Date;
+}
+
+export interface PaginatedOrdenes {
+  data: OrdenResumen[];
+}
+
+// ============================================================================
+// Constantes
+// ============================================================================
+
+const DIAS_RECIENTES = 7;
+const ORDENES_RECIENTES_LIMIT = 10;
+const ESTADOS_PENDIENTES = ['planeacion', 'ejecucion', 'pausada'];
+const ESTADO_COMPLETADA = 'completada';
+
+// ============================================================================
+// Service
+// ============================================================================
+
 @Injectable()
 export class DashboardService {
-    constructor(private readonly prisma: PrismaService) { }
-    async getStats() {
-        const [totalOrdenes, ordenesPorEstado, totalUsuarios, ordenesRecientes] = await Promise.all([
-            this.prisma.order.count(),
-            this.prisma.order.groupBy({ by: ['estado'], _count: { id: true } }),
-            this.prisma.user.count({ where: { active: true } }),
-            this.prisma.order.count({ where: { createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } } })
-        ]);
-        return { totalOrdenes, totalUsuarios, ordenesRecientes, porEstado: ordenesPorEstado.reduce((acc, item) => { acc[item.estado] = item._count.id; return acc; }, {} as Record<string, number>) };
-    }
-    async getOrdenesRecientes() { const ordenes = await this.prisma.order.findMany({ take: 10, orderBy: { createdAt: 'desc' }, select: { id: true, numero: true, cliente: true, estado: true, prioridad: true, createdAt: true } }); return { data: ordenes }; }
+  constructor(private readonly prisma: PrismaService) { }
 
-    async getMetricas() {
-        const [totalOrders, completedOrders, pendingOrders, techniciansActive] = await Promise.all([
-            this.prisma.order.count(),
-            this.prisma.order.count({ where: { estado: 'completada' } }),
-            this.prisma.order.count({ where: { estado: { in: ['planeacion', 'ejecucion', 'pausada'] } } }),
-            this.prisma.user.count({ where: { role: 'tecnico', active: true } })
-        ]);
+  /**
+   * Obtiene estadísticas generales del dashboard
+   */
+  async getStats(): Promise<DashboardStats> {
+    const fechaReciente = this.calcularFechaReciente(DIAS_RECIENTES);
 
-        return {
-            totalOrders,
-            completedOrders,
-            pendingOrders,
-            techniciansActive
-        };
-    }
+    const [totalOrdenes, ordenesPorEstado, totalUsuarios, ordenesRecientes] =
+      await Promise.all([
+        this.prisma.order.count(),
+        this.prisma.order.groupBy({
+          by: ['estado'],
+          _count: { id: true }
+        }),
+        this.prisma.user.count({ where: { active: true } }),
+        this.prisma.order.count({
+          where: { createdAt: { gte: fechaReciente } }
+        }),
+      ]);
+
+    return {
+      totalOrdenes,
+      totalUsuarios,
+      ordenesRecientes,
+      porEstado: this.transformarEstadosAObjeto(ordenesPorEstado),
+    };
+  }
+
+  /**
+   * Obtiene las órdenes más recientes
+   */
+  async getOrdenesRecientes(): Promise<PaginatedOrdenes> {
+    const ordenes = await this.prisma.order.findMany({
+      take: ORDENES_RECIENTES_LIMIT,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        numero: true,
+        cliente: true,
+        estado: true,
+        prioridad: true,
+        createdAt: true,
+      },
+    });
+
+    return { data: ordenes };
+  }
+
+  /**
+   * Obtiene métricas para widgets del dashboard
+   */
+  async getMetricas(): Promise<DashboardMetricas> {
+    const [totalOrders, completedOrders, pendingOrders, techniciansActive] =
+      await Promise.all([
+        this.prisma.order.count(),
+        this.prisma.order.count({
+          where: { estado: ESTADO_COMPLETADA }
+        }),
+        this.prisma.order.count({
+          where: { estado: { in: ESTADOS_PENDIENTES as any } }
+        }),
+        this.prisma.user.count({
+          where: { role: 'tecnico', active: true }
+        }),
+      ]);
+
+    return {
+      totalOrders,
+      completedOrders,
+      pendingOrders,
+      techniciansActive,
+    };
+  }
+
+  // ==========================================================================
+  // Private Methods
+  // ==========================================================================
+
+  /**
+   * Calcula fecha límite para consultas recientes
+   */
+  private calcularFechaReciente(dias: number): Date {
+    return new Date(Date.now() - dias * 24 * 60 * 60 * 1000);
+  }
+
+  /**
+   * Transforma agrupación de Prisma a objeto Record
+   */
+  private transformarEstadosAObjeto(
+    agrupacion: Array<{ estado: string; _count: { id: number } }>,
+  ): Record<string, number> {
+    return agrupacion.reduce((acc, item) => {
+      acc[item.estado] = item._count.id;
+      return acc;
+    }, {} as Record<string, number>);
+  }
 }

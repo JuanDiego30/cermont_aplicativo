@@ -1,5 +1,12 @@
+/**
+ * ARCHIVO: validators/index.ts
+ * FUNCION: Schemas de validación Zod para formularios y entidades del sistema
+ * IMPLEMENTACION: Zod schemas con mensajes en español, validaciones de campos
+ *                 requeridos, formatos email/UUID y restricciones de longitud
+ * DEPENDENCIAS: zod
+ * EXPORTS: Schemas (login, register, order, workPlan, user) y tipos inferidos
+ */
 import { z } from 'zod';
-
 // Auth validators
 export const loginSchema = z.object({
     email: z.string().email('Email inválido'),

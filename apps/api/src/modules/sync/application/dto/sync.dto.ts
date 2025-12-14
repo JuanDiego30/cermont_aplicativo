@@ -8,7 +8,7 @@ export const SyncItemSchema = z.object({
   entityType: z.enum(['orden', 'evidencia', 'checklist', 'ejecucion']),
   entityId: z.string().optional(),
   action: z.enum(['create', 'update', 'delete']),
-  data: z.record(z.unknown()),
+  data: z.record(z.string(), z.unknown()),
   localId: z.string(),
   timestamp: z.string(),
 });

@@ -1,10 +1,11 @@
+/**
+ * ARCHIVO: use-offline.ts
+ * FUNCION: Hook para gestión de estado offline y sincronización de datos
+ * IMPLEMENTACION: Monitorea conectividad, gestiona cola de acciones pendientes y sincroniza con IndexedDB
+ * DEPENDENCIAS: React hooks, offlineDb, syncManager de @/lib/offline
+ * EXPORTS: useOffline, UseOfflineReturn (interface)
+ */
 'use client';
-
-// ============================================
-// USE OFFLINE HOOK - Cermont FSM
-// Hook para gestión de estado offline
-// ============================================
-
 import { useEffect, useState, useCallback } from 'react';
 import { offlineDb, syncManager, type SyncEvent, type SyncStatus } from '@/lib/offline';
 

@@ -3,8 +3,8 @@
 // Cache first + Network fallback strategy
 // ============================================
 
-const CACHE_NAME = 'cermont-v2';
-const API_CACHE = 'cermont-api-v2';
+const CACHE_NAME = 'cermont-v3';
+const API_CACHE = 'cermont-api-v3';
 
 // Solo cachear recursos que definitivamente existen
 const STATIC_ASSETS = [
@@ -92,6 +92,22 @@ self.addEventListener('fetch', (event) => {
   // Solo manejar requests del mismo origen
   if (url.origin !== location.origin) {
     return;
+  }
+
+  // ============================================
+  // SKIP NEXT.JS INTERNAL REQUESTS (HMR, DevTools, etc.)
+  // ============================================
+  if (
+    url.pathname.startsWith('/_next/') ||
+    url.pathname.startsWith('/__nextjs') ||
+    url.pathname.includes('webpack-hmr') ||
+    url.pathname.includes('turbopack') ||
+    url.pathname.includes('hot-update') ||
+    url.pathname.includes('on-demand-entries') ||
+    url.pathname.endsWith('.hot-update.js') ||
+    url.pathname.endsWith('.hot-update.json')
+  ) {
+    return; // Let the browser handle these normally
   }
 
   // ============================================

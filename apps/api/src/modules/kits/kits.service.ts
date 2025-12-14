@@ -60,6 +60,51 @@
 
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Prisma } from '.prisma/client';
+
+// ============================================================================
+// Interfaces - DTOs tipados para evitar 'any'
+// ============================================================================
+
+interface HerramientaKit {
+    nombre: string;
+    cantidad: number;
+    certificacion: boolean;
+}
+
+interface EquipoKit {
+    nombre: string;
+    cantidad: number;
+    certificacion: boolean;
+}
+
+interface DocumentoKit {
+    nombre: string;
+    requerido: boolean;
+}
+
+interface ActividadKit {
+    nombre: string;
+    duracion?: number;
+    orden: number;
+}
+
+interface CreateKitDto {
+    nombre: string;
+    descripcion?: string;
+    herramientas?: HerramientaKit[];
+    equipos?: EquipoKit[];
+    documentos?: string[];
+    actividades?: ActividadKit[];
+    duracionEstimada?: number;
+    activo?: boolean;
+}
+
+interface UpdateKitDto extends Partial<CreateKitDto> { }
+
+// ============================================================================
+// Kits predefinidos
+// ============================================================================
 
 // Kits típicos predefinidos según actividades de CERMONT
 const KITS_PREDEFINIDOS = {
@@ -244,19 +289,43 @@ export class KitsService {
     /**
      * Crear un nuevo kit personalizado
      */
-    async create(dto: any) {
-        const kit = await this.prisma.kitTipico.create({ data: dto });
+    async create(dto: CreateKitDto) {
+        const { herramientas, equipos, ...rest } = dto;
+        const kit = await this.prisma.kitTipico.create({
+            data: {
+                ...rest,
+                nombre: dto.nombre,
+                descripcion: dto.descripcion || '',
+                // Cast arrays to any for JSON compatibility
+                herramientas: (herramientas ?? []) as any,
+                equipos: (equipos ?? []) as any,
+                // Provide defaults for required fields
+                duracionEstimadaHoras: dto.duracionEstimada || 0,
+                costoEstimado: 0,
+                documentos: dto.documentos || [],
+                checklistItems: dto.actividades?.map(a => a.nombre) || [],
+            }
+        });
         return { message: 'Kit creado', data: kit };
     }
 
     /**
      * Actualizar un kit existente
      */
-    async update(id: string, dto: any) {
+    async update(id: string, dto: UpdateKitDto) {
         await this.findOne(id);
+        const { herramientas, equipos, ...rest } = dto;
+
+        const updateData: any = { ...rest };
+        if (herramientas) updateData.herramientas = herramientas;
+        if (equipos) updateData.equipos = equipos;
+        if (dto.actividades) updateData.checklistItems = dto.actividades.map(a => a.nombre);
+        if (dto.documentos) updateData.documentos = dto.documentos;
+        if (dto.duracionEstimada) updateData.duracionEstimadaHoras = dto.duracionEstimada;
+
         const kit = await this.prisma.kitTipico.update({
             where: { id },
-            data: dto,
+            data: updateData,
         });
         return { message: 'Kit actualizado', data: kit };
     }

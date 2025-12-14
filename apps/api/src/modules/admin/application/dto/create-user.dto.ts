@@ -33,7 +33,7 @@ export const CreateUserSchema = z.object({
     ),
 
   role: z.enum(USER_ROLES, {
-    errorMap: () => ({ message: `Rol inválido. Roles válidos: ${USER_ROLES.join(', ')}` }),
+    message: `Rol inválido. Roles válidos: ${USER_ROLES.join(', ')}`,
   }),
 
   phone: z

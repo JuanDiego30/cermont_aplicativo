@@ -19,7 +19,7 @@ export type CreateLineaVidaDto = z.infer<typeof CreateLineaVidaSchema>;
 export const InspeccionLineaVidaSchema = z.object({
   lineaVidaId: z.string().uuid(),
   tipo: z.enum(['visual', 'funcional', 'certificacion']),
-  resultados: z.record(z.unknown()),
+  resultados: z.record(z.string(), z.unknown()),
   aprobado: z.boolean(),
   observaciones: z.string().optional(),
   proximaInspeccion: z.string().optional(),

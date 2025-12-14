@@ -39,11 +39,13 @@ export const TipoOrdenEnum = z.enum([
 
 export const CreateOrdenSchema = z.object({
   clienteId: z
-    .string({ required_error: 'El cliente es requerido' })
+    .string()
+    .min(1, 'El cliente es requerido')
     .uuid('ID de cliente inválido'),
   
   ubicacion: z
-    .string({ required_error: 'La ubicación es requerida' })
+    .string()
+    .min(1, 'La ubicación es requerida')
     .min(3, 'La ubicación debe tener al menos 3 caracteres')
     .max(200, 'La ubicación no puede exceder 200 caracteres'),
   
@@ -63,7 +65,8 @@ export const CreateOrdenSchema = z.object({
     .optional(),
   
   fechaProgramada: z
-    .string({ required_error: 'La fecha programada es requerida' })
+    .string()
+    .min(1, 'La fecha programada es requerida')
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Formato de fecha inválido (YYYY-MM-DD)'),
 });
 

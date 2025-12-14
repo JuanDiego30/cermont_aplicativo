@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useMutation } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api';
+import { useMutation } from '@/hooks/use-mutation';
+import { apiClient } from '@/lib/api-client';
 import { ArrowLeft, Save } from 'lucide-react';
 
 interface ComponenteInspeccion {
@@ -167,8 +167,8 @@ export default function NuevaInspeccionLineaVidaPage() {
                             <div
                                 key={comp.nombre}
                                 className={`p-4 rounded-lg border ${comp.estado === 'NC'
-                                        ? 'border-red-300 bg-red-50 dark:bg-red-900/10'
-                                        : 'border-gray-200 dark:border-gray-700'
+                                    ? 'border-red-300 bg-red-50 dark:bg-red-900/10'
+                                    : 'border-gray-200 dark:border-gray-700'
                                     }`}
                             >
                                 <div className="flex justify-between items-center mb-2">
@@ -180,8 +180,8 @@ export default function NuevaInspeccionLineaVidaPage() {
                                             type="button"
                                             onClick={() => updateComponente(idx, 'estado', 'C')}
                                             className={`px-3 py-1 rounded text-sm font-medium ${comp.estado === 'C'
-                                                    ? 'bg-green-600 text-white'
-                                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                ? 'bg-green-600 text-white'
+                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                                 }`}
                                         >
                                             Conforme
@@ -190,8 +190,8 @@ export default function NuevaInspeccionLineaVidaPage() {
                                             type="button"
                                             onClick={() => updateComponente(idx, 'estado', 'NC')}
                                             className={`px-3 py-1 rounded text-sm font-medium ${comp.estado === 'NC'
-                                                    ? 'bg-red-600 text-white'
-                                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                ? 'bg-red-600 text-white'
+                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                                 }`}
                                         >
                                             No Conforme

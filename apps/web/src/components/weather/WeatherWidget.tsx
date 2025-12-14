@@ -15,7 +15,7 @@ import {
   AlertTriangle,
   RefreshCw,
 } from 'lucide-react';
-import { useWeather } from '@/hooks/useWeather';
+import { useWeatherSummary } from '@/hooks/useWeather';
 
 interface WeatherWidgetProps {
   className?: string;
@@ -26,9 +26,24 @@ export const WeatherWidget: React.FC<WeatherWidgetProps> = ({
   className = '',
   compact = false,
 }) => {
-  const { current, alerts, isLoading, isFetching, refetch } = useWeather({
-    refetchInterval: 5 * 60 * 1000, // 5 minutos
+  // Coordenadas de Caño Limón
+  const CANO_LIMON = { lat: 5.3667, lon: -71.7994 };
+
+  const {
+    data,
+    isLoading,
+    isValidating: isFetching,
+    mutate: refetch
+  } = useWeatherSummary({
+    lat: CANO_LIMON.lat,
+    lon: CANO_LIMON.lon,
+    refreshInterval: 5 * 60 * 1000, // 5 minutos
   });
+
+  const {
+    current,
+    alerts = [],
+  } = data || {};
 
   if (isLoading) {
     return (

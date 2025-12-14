@@ -1,6 +1,6 @@
-// ============================================
-// PLANEACIÓN FEATURE INDEX - Cermont FSM
-// ============================================
+/**
+ * @file index.ts
+ * @description Public exports for Planeacion feature
+ */
 
-export * from './api/planeacion.api';
-export * from './hooks/use-planeacion';
+export * from './components/PlaneacionTimeline';

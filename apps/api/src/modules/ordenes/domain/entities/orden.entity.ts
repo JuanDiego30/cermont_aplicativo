@@ -16,7 +16,7 @@ export interface OrdenProps {
   fechaFin?: Date;
   fechaFinEstimada?: Date;
   presupuestoEstimado?: number;
-  creadorId: string;
+  creadorId?: string;
   asignadoId?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -39,7 +39,7 @@ export class OrdenEntity {
     private props: OrdenProps,
     private _creador?: OrdenCreador,
     private _asignado?: OrdenAsignado,
-  ) {}
+  ) { }
 
   // Getters
   get id(): string { return this.props.id; }
@@ -52,7 +52,7 @@ export class OrdenEntity {
   get fechaFin(): Date | undefined { return this.props.fechaFin; }
   get fechaFinEstimada(): Date | undefined { return this.props.fechaFinEstimada; }
   get presupuestoEstimado(): number | undefined { return this.props.presupuestoEstimado; }
-  get creadorId(): string { return this.props.creadorId; }
+  get creadorId(): string | undefined { return this.props.creadorId; }
   get asignadoId(): string | undefined { return this.props.asignadoId; }
   get createdAt(): Date { return this.props.createdAt; }
   get updatedAt(): Date { return this.props.updatedAt; }
