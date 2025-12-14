@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: InspeccionLineaVidaForm.tsx
+ * FUNCION: Formulario de inspección de líneas de vida vertical según formato OPE-006
+ * IMPLEMENTACION: Evaluación de componentes con condiciones C/NC, cálculo automático de estado general
+ * DEPENDENCIAS: Button, Input, Textarea, Card, Badge (UI), useCallback para optimización
+ * EXPORTS: InspeccionLineaVidaForm, InspeccionLineaVidaFormData, ComponenteLineaVida (tipos)
+ */
 'use client';
 
 import { useState, useCallback } from 'react';

@@ -1,6 +1,10 @@
-// 📁 web/src/components/ui/button.tsx
-// Diseño TailAdmin - Componente Button mejorado
-
+/**
+ * ARCHIVO: Button.tsx
+ * FUNCION: Componente Button reutilizable con multiples variantes y estados
+ * IMPLEMENTACION: Usa cva para variantes (primary, secondary, ghost, etc.) con soporte loading
+ * DEPENDENCIAS: React, class-variance-authority, cn utility
+ * EXPORTS: Button, buttonVariants, ButtonProps (interface)
+ */
 import React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/cn';

@@ -1,5 +1,10 @@
-// 📁 web/src/components/ui/dialog.tsx
-
+/**
+ * ARCHIVO: Dialog.tsx
+ * FUNCION: Sistema de diálogos modales con Context API para estado compartido
+ * IMPLEMENTACION: DialogContext provee estado isOpen/open/close, backdrop con cierre al clic
+ * DEPENDENCIAS: react, @/lib/cn
+ * EXPORTS: Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter
+ */
 'use client';
 
 import React, { createContext, useContext, useState, useCallback } from 'react';

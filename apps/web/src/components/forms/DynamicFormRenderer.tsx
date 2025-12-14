@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: DynamicFormRenderer.tsx
+ * FUNCION: Renderizador de formularios dinámicos creados con FormBuilder
+ * IMPLEMENTACION: Renderiza campos según tipo, maneja validación, fotos, archivos y geolocalización
+ * DEPENDENCIAS: Lucide icons, FormBuilder types, Geolocation API
+ * EXPORTS: DynamicFormRenderer, FormSubmission (tipo)
+ */
 'use client';
 
 import React, { useState, useCallback } from 'react';

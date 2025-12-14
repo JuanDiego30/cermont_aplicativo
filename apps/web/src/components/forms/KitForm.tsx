@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: KitForm.tsx
+ * FUNCION: Formulario para crear kits de herramientas/materiales con items dinámicos
+ * IMPLEMENTACION: Gestión CRUD de items en tabla editable con categorías configurables
+ * DEPENDENCIAS: Button, Input, Textarea (UI), CreateKitInput, KitItem (types/kit)
+ * EXPORTS: KitForm (componente)
+ */
 'use client';
 
 import { useState } from 'react';

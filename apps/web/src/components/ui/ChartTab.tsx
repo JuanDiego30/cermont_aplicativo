@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: ChartTab.tsx
+ * FUNCION: Componente de pestañas para selección de períodos en gráficos
+ * IMPLEMENTACION: Estado local para tab activo, callback onChange para notificar cambios
+ * DEPENDENCIAS: react, @/lib/cn
+ * EXPORTS: ChartTab (default export)
+ */
 "use client";
 import React, { useState } from "react";
 import { cn } from "@/lib/cn";

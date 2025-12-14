@@ -1,6 +1,10 @@
-// 📁 web/src/components/ui/Breadcrumb.tsx
-// Diseño TailAdmin - Componente Breadcrumb mejorado
-
+/**
+ * ARCHIVO: Breadcrumb.tsx
+ * FUNCION: Componentes de navegacion contextual (migas de pan) y encabezado de pagina
+ * IMPLEMENTACION: Renderiza lista de enlaces con separadores y soporte para titulo/acciones
+ * DEPENDENCIAS: React, Next.js Link, lucide-react (iconos), cn utility
+ * EXPORTS: Breadcrumb, PageHeader, BreadcrumbItem (interface), BreadcrumbProps (interface)
+ */
 import React from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/cn';

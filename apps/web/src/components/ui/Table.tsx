@@ -1,6 +1,10 @@
-// 📁 web/src/components/ui/Table.tsx
-// Diseño TailAdmin - Componente Table mejorado
-
+/**
+ * ARCHIVO: Table.tsx
+ * FUNCION: Sistema de componentes de tabla responsivo para listados de datos
+ * IMPLEMENTACION: Componentes atómicos (Table, TableHeader, TableBody, TableRow, TableCell) con wrapper responsive
+ * DEPENDENCIAS: react, @/lib/cn
+ * EXPORTS: TableWrapper, Table, TableHeader, TableBody, TableRow, TableCell
+ */
 import React, { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 

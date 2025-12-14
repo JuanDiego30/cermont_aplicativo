@@ -1,6 +1,10 @@
-// 📁 web/src/components/ui/alert.tsx
-// Diseño TailAdmin - Componente Alert mejorado
-
+/**
+ * ARCHIVO: Alert.tsx
+ * FUNCION: Componente Alert para mostrar mensajes de feedback al usuario
+ * IMPLEMENTACION: Usa cva para variantes (success, error, warning, info) con iconos automaticos
+ * DEPENDENCIAS: React, class-variance-authority, lucide-react, cn utility
+ * EXPORTS: Alert, AlertTitle, AlertDescription, AlertProps (interface)
+ */
 import React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/cn';

@@ -1,6 +1,10 @@
-// 📁 web/src/components/ui/MetricCard.tsx
-// Diseño TailAdmin - Componente MetricCard para estadísticas del dashboard
-
+/**
+ * ARCHIVO: MetricCard.tsx
+ * FUNCION: Tarjetas de métricas con indicadores de tendencia para dashboard
+ * IMPLEMENTACION: Muestra valor, icono opcional y badge de tendencia (+/-%) con iconos lucide
+ * DEPENDENCIAS: react, @/lib/cn, lucide-react (TrendingUp, TrendingDown)
+ * EXPORTS: MetricCard, MetricsGrid, MetricCardProps, MetricsGridProps
+ */
 import React from 'react';
 import { cn } from '@/lib/cn';
 import { TrendingUp, TrendingDown } from 'lucide-react';

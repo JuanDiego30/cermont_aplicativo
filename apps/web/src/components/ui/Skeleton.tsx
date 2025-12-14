@@ -1,5 +1,10 @@
-// 📁 web/src/components/ui/Skeleton.tsx
-
+/**
+ * ARCHIVO: Skeleton.tsx
+ * FUNCION: Componentes Skeleton para estados de carga (loading placeholders)
+ * IMPLEMENTACION: Divs con animacion pulse y variantes predefinidas para dashboard/tabla
+ * DEPENDENCIAS: React, cn utility
+ * EXPORTS: Skeleton, SkeletonDashboard, SkeletonTable
+ */
 import { cn } from '@/lib/cn';
 
 function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {

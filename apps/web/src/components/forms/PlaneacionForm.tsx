@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: PlaneacionForm.tsx
+ * FUNCION: Formulario de planeación de obra con gestión de items (OPE-001)
+ * IMPLEMENTACION: Manejo de items por tipo (Material/Herramienta/Equipo/Seguridad) con tabs y CRUD dinámico
+ * DEPENDENCIAS: Button, Input, Textarea, Card, Badge, Select (UI)
+ * EXPORTS: PlaneacionForm, PlaneacionFormData, ItemPlaneacion, TipoItem (tipos)
+ */
 'use client';
 
 import { useState } from 'react';

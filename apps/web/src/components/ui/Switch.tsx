@@ -1,6 +1,10 @@
-// 📁 web/src/components/ui/Switch.tsx
-// Diseño TailAdmin - Componente Switch/Toggle mejorado
-
+/**
+ * ARCHIVO: Switch.tsx
+ * FUNCION: Componente toggle/switch accesible con soporte para etiquetas y descripciones
+ * IMPLEMENTACION: Input checkbox oculto + div visual, manejo de teclado (Enter/Space), múltiples tamaños
+ * DEPENDENCIAS: react, @/lib/cn
+ * EXPORTS: Switch, SwitchGroup, SwitchProps, SwitchGroupProps
+ */
 import React from 'react';
 import { cn } from '@/lib/cn';
 

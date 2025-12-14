@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: Textarea.tsx
+ * FUNCION: Componente de área de texto reutilizable con soporte para validación
+ * IMPLEMENTACION: Usa forwardRef para exponer ref, cn() para estilos condicionales
+ * DEPENDENCIAS: react, @/lib/cn
+ * EXPORTS: Textarea (named export)
+ */
 import { cn } from '@/lib/cn';
 import { forwardRef } from 'react';
 
