@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import dynamic from "next/dynamic";
-import { useDashboardMetrics } from "../../hooks/useDashboard";
+import { useDashboardMetrics } from "@/features/dashboard/hooks/use-dashboard";
 import Link from "next/link";
 import {
   ClipboardList,
@@ -343,7 +343,7 @@ function DashboardSkeleton() {
 }
 
 export default function DashboardPage() {
-  const { data: metrics, isLoading, isError } = useDashboardMetrics();
+  const { data: metrics, isLoading, error } = useDashboardMetrics();
 
   // Mock data para órdenes recientes
   const recentOrders: RecentOrder[] = [
@@ -358,7 +358,7 @@ export default function DashboardPage() {
     return <DashboardSkeleton />;
   }
 
-  if (isError) {
+  if (error) {
     return (
       <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center dark:border-red-800 dark:bg-red-900/20">
         <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />

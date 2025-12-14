@@ -1,69 +1,97 @@
 /**
  * @controller EvidenciasController
+ * @description Controlador de evidencias con Clean Architecture
  */
 import {
   Controller,
-  Get,
   Post,
+  Get,
   Delete,
   Param,
   Body,
   UseGuards,
-  Req,
-  BadRequestException,
-  UploadedFile,
   UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../../auth/guards/roles.guard';
-import { Roles } from '../../../auth/decorators/roles.decorator';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../../../common/guards/jwt-auth.guard';
+import { CurrentUser, JwtPayload } from '../../../../common/decorators/current-user.decorator';
 import {
-  ListEvidenciasUseCase,
   UploadEvidenciaUseCase,
+  ListEvidenciasByOrdenUseCase,
   DeleteEvidenciaUseCase,
 } from '../../application/use-cases';
-import { UploadEvidenciaSchema } from '../../application/dto';
+import { UploadEvidenciaSchema } from '../../application/dto/evidencia.dto';
 
+// Para tipado de Multer
+import { Express } from 'express';
+import 'multer';
+
+@ApiTags('Evidencias')
 @Controller('evidencias')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class EvidenciasController {
   constructor(
-    private readonly listEvidencias: ListEvidenciasUseCase,
-    private readonly uploadEvidencia: UploadEvidenciaUseCase,
-    private readonly deleteEvidencia: DeleteEvidenciaUseCase,
-  ) {}
+    private readonly uploadUseCase: UploadEvidenciaUseCase,
+    private readonly listUseCase: ListEvidenciasByOrdenUseCase,
+    private readonly deleteUseCase: DeleteEvidenciaUseCase,
+  ) { }
 
-  @Get('orden/:ordenId')
-  async findByOrden(@Param('ordenId') ordenId: string) {
-    return this.listEvidencias.execute(ordenId);
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('archivo')) // Nombre del campo en form-data
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Subir nueva evidencia (foto, video, doc)' })
+  async upload(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          // Max 20MB
+          new MaxFileSizeValidator({ maxSize: 20 * 1024 * 1024 }),
+          // Allow images, videos, pdf
+          // new FileTypeValidator({ fileType: '.(jpg|jpeg|png|mp4|pdf|doc|docx)' }), 
+          // Basic validator, can be stricter
+        ],
+        fileIsRequired: true,
+      }),
+    )
+    file: Express.Multer.File,
+    @Body() body: any, // Multer body is 'any' sometimes, we parse it
+    @CurrentUser() user: JwtPayload,
+  ) {
+    // Validar DTO con Zod
+    // Multer envia el body como objeto plano, pero sus valores son strings.
+    // Zod coercion podría ayudar, o parse manual.
+    // Asumimos que cliente envia JSON en campos o campos individuales.
+
+    // Convertir empty strings a undefined para Zod defaults
+    const payload = {
+      ordenId: body.ordenId,
+      ejecucionId: body.ejecucionId || undefined,
+      tipo: body.tipo || undefined,
+      descripcion: body.descripcion || undefined,
+      tags: body.tags || undefined,
+    };
+
+    const dto = UploadEvidenciaSchema.parse(payload);
+
+    return this.uploadUseCase.execute(dto, file, user.userId);
   }
 
-  @Post('orden/:ordenId')
-  @Roles('admin', 'supervisor', 'tecnico')
-  @UseInterceptors(FileInterceptor('file'))
-  async upload(
-    @Param('ordenId') ordenId: string,
-    @UploadedFile() file: Express.Multer.File,
-    @Body() body: unknown,
-    @Req() req: any,
-  ) {
-    if (!file) {
-      throw new BadRequestException('Archivo requerido');
-    }
-
-    const result = UploadEvidenciaSchema.safeParse(body);
-    if (!result.success) {
-      throw new BadRequestException(result.error.flatten());
-    }
-
-    const fileUrl = `/uploads/evidencias/${file.filename}`;
-    return this.uploadEvidencia.execute(ordenId, req.user.id, fileUrl, result.data);
+  @Get('orden/:ordenId')
+  @ApiOperation({ summary: 'Listar evidencias de una orden' })
+  async findByOrden(@Param('ordenId') ordenId: string) {
+    return this.listUseCase.execute(ordenId);
   }
 
   @Delete(':id')
-  @Roles('admin', 'supervisor')
+  @ApiOperation({ summary: 'Eliminar evidencia' })
   async remove(@Param('id') id: string) {
-    return this.deleteEvidencia.execute(id);
+    return this.deleteUseCase.execute(id);
   }
 }

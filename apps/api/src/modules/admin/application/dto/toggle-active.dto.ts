@@ -11,10 +11,15 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
  * Schema Zod para validación
  */
 export const ToggleActiveSchema = z.object({
-  active: z.boolean({
-    required_error: 'El campo active es requerido',
-    invalid_type_error: 'El campo active debe ser booleano',
-  }),
+  active: z
+    .any()
+    .refine((value) => value !== undefined, {
+      message: 'El campo active es requerido',
+    })
+    .refine((value) => typeof value === 'boolean', {
+      message: 'El campo active debe ser booleano',
+    })
+    .transform((value) => value as boolean),
   reason: z.string().max(500).optional(),
 });
 

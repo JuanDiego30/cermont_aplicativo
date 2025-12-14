@@ -1,10 +1,16 @@
+/**
+ * @module useOrders
+ * @description Hooks para gestión de órdenes usando SWR.
+ */
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import useSWR from 'swr';
+import { useMutation, useInvalidate } from './use-mutation';
 import { ordersService, ListOrdersParams } from '@/services/orders.service';
+import { swrKeys } from '@/lib/swr-config';
 import type { CreateOrderInput, UpdateOrderInput, OrderStatus, OrderPriority } from '@/types/order';
 
-// Query keys
+// Query keys factory
 export const orderKeys = {
   all: ['orders'] as const,
   lists: () => [...orderKeys.all, 'list'] as const,
@@ -18,44 +24,45 @@ export const orderKeys = {
  * Hook para listar órdenes
  */
 export function useOrders(params?: ListOrdersParams) {
-  return useQuery({
-    queryKey: orderKeys.list(params),
-    queryFn: () => ordersService.list(params),
-  });
+  return useSWR(
+    swrKeys.orders.list(params),
+    () => ordersService.list(params),
+    { revalidateOnFocus: false }
+  );
 }
 
 /**
  * Hook para obtener una orden específica
  */
 export function useOrder(id: string) {
-  return useQuery({
-    queryKey: orderKeys.detail(id),
-    queryFn: () => ordersService.getById(id),
-    enabled: !!id,
-  });
+  return useSWR(
+    id ? swrKeys.orders.detail(id) : null,
+    () => ordersService.getById(id),
+    { revalidateOnFocus: false }
+  );
 }
 
 /**
  * Hook para estadísticas de órdenes
  */
 export function useOrderStats() {
-  return useQuery({
-    queryKey: orderKeys.stats(),
-    queryFn: () => ordersService.getStats(),
-  });
+  return useSWR(
+    swrKeys.orders.stats(),
+    () => ordersService.getStats(),
+    { revalidateOnFocus: false }
+  );
 }
 
 /**
  * Hook para crear orden
  */
 export function useCreateOrder() {
-  const queryClient = useQueryClient();
+  const invalidate = useInvalidate();
 
   return useMutation({
     mutationFn: (data: CreateOrderInput) => ordersService.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: orderKeys.stats() });
+      invalidate('orders');
     },
   });
 }
@@ -64,14 +71,13 @@ export function useCreateOrder() {
  * Hook para actualizar orden
  */
 export function useUpdateOrder() {
-  const queryClient = useQueryClient();
+  const invalidate = useInvalidate();
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateOrderInput }) => 
       ordersService.update(id, data),
-    onSuccess: (updatedOrder) => {
-      queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
-      queryClient.setQueryData(orderKeys.detail(updatedOrder.id), updatedOrder);
+    onSuccess: () => {
+      invalidate('orders');
     },
   });
 }
@@ -80,13 +86,12 @@ export function useUpdateOrder() {
  * Hook para eliminar orden
  */
 export function useDeleteOrder() {
-  const queryClient = useQueryClient();
+  const invalidate = useInvalidate();
 
   return useMutation({
     mutationFn: (id: string) => ordersService.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: orderKeys.stats() });
+      invalidate('orders');
     },
   });
 }
@@ -95,15 +100,13 @@ export function useDeleteOrder() {
  * Hook para cambiar estado de orden
  */
 export function useChangeOrderStatus() {
-  const queryClient = useQueryClient();
+  const invalidate = useInvalidate();
 
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: OrderStatus }) => 
       ordersService.changeStatus(id, status),
-    onSuccess: (updatedOrder) => {
-      queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
-      queryClient.setQueryData(orderKeys.detail(updatedOrder.id), updatedOrder);
-      queryClient.invalidateQueries({ queryKey: orderKeys.stats() });
+    onSuccess: () => {
+      invalidate('orders');
     },
   });
 }
@@ -112,14 +115,28 @@ export function useChangeOrderStatus() {
  * Hook para cambiar prioridad de orden
  */
 export function useChangeOrderPriority() {
-  const queryClient = useQueryClient();
+  const invalidate = useInvalidate();
 
   return useMutation({
     mutationFn: ({ id, priority }: { id: string; priority: OrderPriority }) => 
       ordersService.changePriority(id, priority),
-    onSuccess: (updatedOrder) => {
-      queryClient.invalidateQueries({ queryKey: orderKeys.lists() });
-      queryClient.setQueryData(orderKeys.detail(updatedOrder.id), updatedOrder);
+    onSuccess: () => {
+      invalidate('orders');
+    },
+  });
+}
+
+/**
+ * Hook para asignar técnico a orden
+ */
+export function useAssignOrderTechnician() {
+  const invalidate = useInvalidate();
+
+  return useMutation({
+    mutationFn: ({ id, technicianId }: { id: string; technicianId: string }) => 
+      ordersService.assignTechnician(id, technicianId),
+    onSuccess: () => {
+      invalidate('orders');
     },
   });
 }

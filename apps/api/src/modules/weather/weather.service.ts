@@ -30,6 +30,7 @@ export class WeatherService {
   };
 
   // Caché simple en memoria (en producción usar Redis)
+  // Usa any para flexibilidad
   private cache: Map<string, { data: any; expiry: number }> = new Map();
   private readonly CACHE_TTL = 30 * 60 * 1000; // 30 minutos
 
@@ -37,6 +38,10 @@ export class WeatherService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
   ) { }
+
+  // ... (omitting middle of file for brevity in logic, but tool replace needs exact match. 
+  // Actually I should split this into two edits or use multi_replace if they are far apart.
+  // Lines 34 and 477 are far apart. Using multi_replace.)
 
   // ============================================
   // CLIMA ACTUAL

@@ -7,11 +7,12 @@
 
 import { useState } from 'react';
 import { Filter, Upload, Search, Camera } from 'lucide-react';
-import { 
-  useEvidencias, 
+import {
+  useEvidencias,
   EvidenciaCard,
   useUploadEvidencia,
-  useDeleteEvidencia 
+  useDeleteEvidencia,
+  type Evidencia
 } from '@/features/evidencias';
 import { toast } from 'sonner';
 
@@ -25,14 +26,14 @@ const TIPOS_EVIDENCIA = [
 export function EvidenciasDashboard() {
   const [filtroTipo, setFiltroTipo] = useState('');
   const [busqueda, setBusqueda] = useState('');
-  
+
   const { data, isLoading } = useEvidencias();
   const subirMutation = useUploadEvidencia();
   const eliminarMutation = useDeleteEvidencia();
 
-  const evidencias = data?.data || [];
-  
-  const evidenciasFiltradas = evidencias.filter((e) => {
+  const evidencias = data || [];
+
+  const evidenciasFiltradas = evidencias.filter((e: Evidencia) => {
     if (filtroTipo && e.tipo !== filtroTipo) return false;
     if (busqueda && !e.descripcion?.toLowerCase().includes(busqueda.toLowerCase())) return false;
     return true;
@@ -40,17 +41,16 @@ export function EvidenciasDashboard() {
 
   const handleUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    
+
     // Por ahora solo mostrar toast, la funcionalidad completa requiere modal de asignación
     toast.info(`${files.length} archivo(s) seleccionado(s). Se requiere asignar a una orden.`);
   };
 
   const handleDelete = (id: string) => {
     if (confirm('¿Eliminar esta evidencia?')) {
-      eliminarMutation.mutate(id, {
-        onSuccess: () => toast.success('Evidencia eliminada'),
-        onError: () => toast.error('Error al eliminar'),
-      });
+      eliminarMutation.mutateAsync(id)
+        .then(() => toast.success('Evidencia eliminada'))
+        .catch(() => toast.error('Error al eliminar'));
     }
   };
 
@@ -116,14 +116,14 @@ export function EvidenciasDashboard() {
           <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <p className="text-lg text-gray-500 mb-2">Sin evidencias</p>
           <p className="text-sm text-gray-400">
-            {filtroTipo || busqueda 
-              ? 'No hay evidencias que coincidan con los filtros' 
+            {filtroTipo || busqueda
+              ? 'No hay evidencias que coincidan con los filtros'
               : 'Sube fotografías de los trabajos realizados'}
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {evidenciasFiltradas.map((evidencia) => (
+          {evidenciasFiltradas.map((evidencia: Evidencia) => (
             <EvidenciaCard
               key={evidencia.id}
               evidencia={evidencia}

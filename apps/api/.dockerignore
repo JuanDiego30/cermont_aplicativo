@@ -1,0 +1,36 @@
+# Node modules
+node_modules
+npm-debug.log
+
+# Build artifacts
+dist
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Documentation
+README.md
+docs
+
+# Tests
+test
+*.test.ts
+*.spec.ts
+coverage
+
+# Environment files (never include in image)
+.env
+.env.*
+
+# IDE
+.vscode
+.idea
+
+# Uploads (mount as volume in production)
+uploads

@@ -7,9 +7,10 @@
  */
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { join } from 'path';
 
 // Core modules
@@ -56,6 +57,26 @@ import { HealthController } from './health.controller';
             isGlobal: true,
             envFilePath: '.env',
         }),
+
+        // Rate limiting - Múltiples límites para diferentes escenarios
+        // Previene ataques DDoS y brute force
+        ThrottlerModule.forRoot([
+            {
+                name: 'short',
+                ttl: 10000, // 10 segundos
+                limit: 100,  // INCREASED: 100 requests (was 20)
+            },
+            {
+                name: 'medium',
+                ttl: 60000, // 60 segundos
+                limit: 500, // INCREASED: 500 requests (was 100)
+            },
+            {
+                name: 'long',
+                ttl: 3600000, // 1 hora
+                limit: 5000,  // INCREASED: 5000 requests (was 1000)
+            },
+        ]),
 
         // Static files (uploads)
         ServeStaticModule.forRoot({
@@ -122,6 +143,11 @@ import { HealthController } from './health.controller';
         {
             provide: APP_INTERCEPTOR,
             useClass: LoggingInterceptor,
+        },
+        // Rate limiting guard (applies globally)
+        {
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard,
         },
     ],
 })

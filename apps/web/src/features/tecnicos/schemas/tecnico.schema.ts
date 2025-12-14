@@ -14,9 +14,9 @@ const TecnicoBaseSchema = z.object({
     .trim(),
 
   cargo: z.enum(
-    ['Técnico Senior', 'Técnico de Campo', 'Supervisor HES', 'Aprendiz', 'Coordinador'],
+    ['Técnico Senior', 'Técnico de Campo', 'Supervisor HES', 'Aprendiz', 'Coordinador'] as const,
     {
-      errorMap: () => ({ message: 'Selecciona un cargo válido' }),
+      message: 'Selecciona un cargo válido',
     }
   ),
 

@@ -8,10 +8,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Filter, Search, Calendar } from 'lucide-react';
-import { 
-  useMantenimientos, 
-  MantenimientoCard, 
-  EstadoMantenimiento, 
+import {
+  useMantenimientos,
+  MantenimientoCard,
+  EstadoMantenimiento,
   TipoMantenimiento,
   ESTADO_MANTENIMIENTO_CONFIG,
   TIPO_MANTENIMIENTO_CONFIG,
@@ -22,19 +22,16 @@ export function MantenimientosDashboard() {
   const [filtroEstado, setFiltroEstado] = useState<EstadoMantenimiento | ''>('');
   const [filtroTipo, setFiltroTipo] = useState<TipoMantenimiento | ''>('');
   const [busqueda, setBusqueda] = useState('');
-  
-  const { data, isLoading } = useMantenimientos();
 
-  const mantenimientos = data?.data || [];
-  
+  const { data: mantenimientos = [], isLoading } = useMantenimientos();
+
   const mantenimientosFiltrados = mantenimientos.filter((m) => {
     if (filtroEstado && m.estado !== filtroEstado) return false;
     if (filtroTipo && m.tipo !== filtroTipo) return false;
     if (busqueda) {
       const search = busqueda.toLowerCase();
       return (
-        m.equipoNombre?.toLowerCase().includes(search) ||
-        m.descripcion?.toLowerCase().includes(search)
+        m.observaciones?.toLowerCase().includes(search)
       );
     }
     return true;
@@ -115,8 +112,8 @@ export function MantenimientosDashboard() {
         <div className="text-center py-16 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
           <p className="text-lg text-gray-500 mb-2">Sin mantenimientos</p>
           <p className="text-sm text-gray-400">
-            {filtroEstado || filtroTipo || busqueda 
-              ? 'No hay mantenimientos que coincidan con los filtros' 
+            {filtroEstado || filtroTipo || busqueda
+              ? 'No hay mantenimientos que coincidan con los filtros'
               : 'Programa un nuevo mantenimiento para comenzar'}
           </p>
         </div>

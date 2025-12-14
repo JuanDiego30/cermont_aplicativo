@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: AppSidebar.tsx
+ * FUNCION: Sidebar principal de navegación con soporte responsive y submenús colapsables
+ * IMPLEMENTACION: Componente con estado local para submenús, animaciones CSS y hover detection
+ * DEPENDENCIAS: React, Next.js (Link, Image, usePathname), SidebarContext, lucide-react
+ * EXPORTS: AppSidebar (default)
+ */
 "use client";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
@@ -87,6 +94,53 @@ const AppSidebar: React.FC = () => {
     const pathname = usePathname();
     const showFullLogo = isExpanded || isHovered || isMobileOpen;
 
+    // Estados y refs - definidos antes de usarse
+    const [openSubmenu, setOpenSubmenu] = useState<{ index: number } | null>(null);
+    const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>({});
+    const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+    const isActive = useCallback((path: string) => path === pathname, [pathname]);
+
+    const handleSubmenuToggle = (index: number) => {
+        setOpenSubmenu((prevOpenSubmenu) => {
+            if (prevOpenSubmenu && prevOpenSubmenu.index === index) {
+                return null;
+            }
+            return { index };
+        });
+    };
+
+    // Sincronizar submenú abierto con la ruta actual
+    useEffect(() => {
+        let submenuMatched = false;
+        navItems.forEach((nav, index) => {
+            if (nav.subItems) {
+                nav.subItems.forEach((subItem) => {
+                    if (isActive(subItem.path)) {
+                        setOpenSubmenu({ index });
+                        submenuMatched = true;
+                    }
+                });
+            }
+        });
+        if (!submenuMatched) {
+            setOpenSubmenu(null);
+        }
+    }, [pathname, isActive]);
+
+    // Calcular altura del submenú para animación
+    useEffect(() => {
+        if (openSubmenu !== null) {
+            const key = `main-${openSubmenu.index}`;
+            if (subMenuRefs.current[key]) {
+                setSubMenuHeight((prevHeights) => ({
+                    ...prevHeights,
+                    [key]: subMenuRefs.current[key]?.scrollHeight || 0,
+                }));
+            }
+        }
+    }, [openSubmenu]);
+
     const renderMenuItems = (navItems: NavItem[]) => (
         <ul className="flex flex-col gap-4">
             {navItems.map((nav, index) => (
@@ -173,53 +227,6 @@ const AppSidebar: React.FC = () => {
             ))}
         </ul>
     );
-
-    const [openSubmenu, setOpenSubmenu] = useState<{
-        index: number;
-    } | null>(null);
-    const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>({});
-    const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
-
-    const isActive = useCallback((path: string) => path === pathname, [pathname]);
-
-    useEffect(() => {
-        let submenuMatched = false;
-        navItems.forEach((nav, index) => {
-            if (nav.subItems) {
-                nav.subItems.forEach((subItem) => {
-                    if (isActive(subItem.path)) {
-                        setOpenSubmenu({ index });
-                        submenuMatched = true;
-                    }
-                });
-            }
-        });
-
-        if (!submenuMatched) {
-            setOpenSubmenu(null);
-        }
-    }, [pathname, isActive]);
-
-    useEffect(() => {
-        if (openSubmenu !== null) {
-            const key = `main-${openSubmenu.index}`;
-            if (subMenuRefs.current[key]) {
-                setSubMenuHeight((prevHeights) => ({
-                    ...prevHeights,
-                    [key]: subMenuRefs.current[key]?.scrollHeight || 0,
-                }));
-            }
-        }
-    }, [openSubmenu]);
-
-    const handleSubmenuToggle = (index: number) => {
-        setOpenSubmenu((prevOpenSubmenu) => {
-            if (prevOpenSubmenu && prevOpenSubmenu.index === index) {
-                return null;
-            }
-            return { index };
-        });
-    };
 
     return (
         <aside

@@ -198,4 +198,15 @@ export const ejecucionApi = {
   registrarUbicacion: async (id: string, ubicacion: UbicacionGPS): Promise<void> => {
     await apiClient.post(`/ejecucion/${id}/ubicacion`, ubicacion);
   },
+
+  /**
+   * Registrar actividad en la ejecución
+   */
+  registrarActividad: async (id: string, data: { descripcion: string; tipo: string }): Promise<Ejecucion> => {
+    const response = await apiClient.post<{ status: string; data: Ejecucion }>(
+      `/ejecucion/${id}/actividad`,
+      data
+    );
+    return response.data;
+  },
 };

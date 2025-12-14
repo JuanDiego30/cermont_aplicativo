@@ -1,11 +1,15 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
+/**
+ * Representa datos de sincronización pendiente
+ * 'datos' es Record<string, unknown> porque su estructura varía según el 'tipo'
+ */
 export interface PendingSync {
     id: string;
     tipo: 'EJECUCION' | 'CHECKLIST' | 'EVIDENCIA' | 'TAREA' | 'COSTO';
     operacion: 'CREATE' | 'UPDATE' | 'DELETE';
-    datos: any;
+    datos: Record<string, unknown>;
     timestamp: string;
     ordenId?: string;
     ejecucionId?: string;
@@ -82,12 +86,12 @@ export class SyncService {
 
         if (operacion === 'UPDATE' && datos.ejecucionId) {
             await this.prisma.ejecucion.update({
-                where: { id: datos.ejecucionId },
+                where: { id: datos.ejecucionId as string },
                 data: {
-                    avancePercentaje: datos.avance,
-                    horasActuales: datos.horasActuales,
-                    observaciones: datos.observaciones,
-                    ubicacionGPS: datos.ubicacionGPS,
+                    avancePercentaje: datos.avance as number,
+                    horasActuales: datos.horasActuales as number,
+                    observaciones: datos.observaciones as string | undefined,
+                    ubicacionGPS: datos.ubicacionGPS as any,
                     updatedAt: new Date(),
                 },
             });
@@ -97,7 +101,7 @@ export class SyncService {
                 id: item.id,
                 tipo: item.tipo,
                 mensaje: 'Ejecución actualizada',
-                nuevoId: datos.ejecucionId,
+                nuevoId: datos.ejecucionId as string,
             };
         }
 
@@ -115,10 +119,10 @@ export class SyncService {
                     ordenId,
                     planeacionId: planeacion.id,
                     estado: 'EN_PROGRESO',
-                    fechaInicio: new Date(datos.fechaInicio || Date.now()),
-                    horasEstimadas: datos.horasEstimadas || 8,
-                    observacionesInicio: datos.observaciones,
-                    ubicacionGPS: datos.ubicacionGPS,
+                    fechaInicio: new Date((datos.fechaInicio as string) || Date.now()),
+                    horasEstimadas: (datos.horasEstimadas as number) || 8,
+                    observacionesInicio: datos.observaciones as string,
+                    ubicacionGPS: datos.ubicacionGPS as any,
                 },
             });
 
@@ -145,9 +149,9 @@ export class SyncService {
 
         if (operacion === 'UPDATE' && datos.checklistId) {
             await this.prisma.checklistEjecucion.update({
-                where: { id: datos.checklistId },
+                where: { id: datos.checklistId as string },
                 data: {
-                    completada: datos.completada,
+                    completada: datos.completada as boolean,
                     completadoPorId: datos.completada ? userId : null,
                     completadoEn: datos.completada ? new Date() : null,
                 },
@@ -158,16 +162,16 @@ export class SyncService {
                 id: item.id,
                 tipo: item.tipo,
                 mensaje: 'Checklist actualizado',
-                nuevoId: datos.checklistId,
+                nuevoId: datos.checklistId as string,
             };
         }
 
         if (operacion === 'CREATE' && datos.ejecucionId) {
             const checklist = await this.prisma.checklistEjecucion.create({
                 data: {
-                    ejecucionId: datos.ejecucionId,
-                    nombre: datos.nombre || datos.item || 'Checklist sin nombre',
-                    completada: datos.completada || false,
+                    ejecucionId: datos.ejecucionId as string,
+                    nombre: (datos.nombre as string) || (datos.item as string) || 'Checklist sin nombre',
+                    completada: (datos.completada as boolean) || false,
                     completadoPorId: datos.completada ? userId : null,
                     completadoEn: datos.completada ? new Date() : null,
                 },
@@ -194,16 +198,16 @@ export class SyncService {
             // Aquí solo registramos los metadatos
             const evidencia = await this.prisma.evidenciaEjecucion.create({
                 data: {
-                    ejecucionId: datos.ejecucionId,
-                    ordenId: datos.ordenId,
-                    tipo: datos.tipo || 'FOTO',
-                    nombreArchivo: datos.nombreArchivo,
-                    rutaArchivo: datos.rutaArchivo,
-                    tamano: datos.tamano || 0,
-                    mimeType: datos.mimeType || 'image/jpeg',
-                    descripcion: datos.descripcion || '',
-                    ubicacionGPS: datos.ubicacionGPS,
-                    tags: datos.tags || [],
+                    ejecucionId: datos.ejecucionId as string,
+                    ordenId: datos.ordenId as string,
+                    tipo: (datos.tipo as string) || 'FOTO',
+                    nombreArchivo: datos.nombreArchivo as string,
+                    rutaArchivo: datos.rutaArchivo as string,
+                    tamano: (datos.tamano as number) || 0,
+                    mimeType: (datos.mimeType as string) || 'image/jpeg',
+                    descripcion: (datos.descripcion as string) || '',
+                    ubicacionGPS: datos.ubicacionGPS as any,
+                    tags: (datos.tags as string[]) || [],
                     subidoPor: userId,
                 },
             });
@@ -226,11 +230,11 @@ export class SyncService {
 
         if (operacion === 'UPDATE' && datos.tareaId) {
             await this.prisma.tareaEjecucion.update({
-                where: { id: datos.tareaId },
+                where: { id: datos.tareaId as string },
                 data: {
-                    completada: datos.completada,
-                    horasReales: datos.horasReales,
-                    observaciones: datos.observaciones,
+                    completada: datos.completada as boolean,
+                    horasReales: datos.horasReales as number | null,
+                    observaciones: datos.observaciones as string | null,
                     completadaEn: datos.completada ? new Date() : null,
                 },
             });
@@ -240,19 +244,19 @@ export class SyncService {
                 id: item.id,
                 tipo: item.tipo,
                 mensaje: 'Tarea actualizada',
-                nuevoId: datos.tareaId,
+                nuevoId: datos.tareaId as string,
             };
         }
 
         if (operacion === 'CREATE' && datos.ejecucionId) {
             const tarea = await this.prisma.tareaEjecucion.create({
                 data: {
-                    ejecucionId: datos.ejecucionId,
-                    descripcion: datos.descripcion,
-                    horasEstimadas: datos.horasEstimadas || 1,
-                    completada: datos.completada || false,
-                    horasReales: datos.horasReales,
-                    observaciones: datos.observaciones,
+                    ejecucionId: datos.ejecucionId as string,
+                    descripcion: datos.descripcion as string,
+                    horasEstimadas: (datos.horasEstimadas as number) || 1,
+                    completada: (datos.completada as boolean) || false,
+                    horasReales: datos.horasReales as number | null,
+                    observaciones: datos.observaciones as string | null,
                 },
             });
 
@@ -275,11 +279,11 @@ export class SyncService {
         if (operacion === 'CREATE' && datos.ordenId) {
             const costo = await this.prisma.cost.create({
                 data: {
-                    orderId: datos.ordenId,
-                    concepto: datos.concepto,
-                    monto: datos.monto,
-                    tipo: datos.tipo,
-                    descripcion: datos.descripcion,
+                    orderId: datos.ordenId as string,
+                    concepto: datos.concepto as string,
+                    monto: datos.monto as number,
+                    tipo: datos.tipo as string,
+                    descripcion: datos.descripcion as string | undefined,
                 },
             });
 

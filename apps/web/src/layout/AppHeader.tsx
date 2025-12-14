@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: AppHeader.tsx
+ * FUNCION: Header principal con búsqueda, notificaciones, toggle tema y menú usuario
+ * IMPLEMENTACION: Barra fija con dropdowns, integración con SidebarContext para toggles
+ * DEPENDENCIAS: React, SidebarContext, lucide-react
+ * EXPORTS: AppHeader (default)
+ */
 "use client";
 import React, { useState, useRef, useEffect } from "react";
 import { useSidebar } from "../context/SidebarContext";

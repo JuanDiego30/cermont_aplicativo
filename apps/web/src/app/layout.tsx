@@ -1,14 +1,26 @@
 /**
- * 📁 app/layout.tsx
- *
- * ✨ Root Layout - Next.js 16 App Router
- * Server Component con configuración optimizada
+ * ARCHIVO: layout.tsx
+ * FUNCION: Root Layout de la aplicación Next.js App Router
+ * IMPLEMENTACION: Define estructura HTML, metadata SEO, viewport, fuente Outfit y envuelve contenido con Providers
+ * DEPENDENCIAS: next, next/font/google, ./globals.css, ./providers
+ * EXPORTS: RootLayout (Server Component default), metadata, viewport
  */
-
 import type { Metadata, Viewport } from 'next';
 import { Outfit } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
+
+function getMetadataBase(): URL {
+  const rawBaseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+
+  try {
+    return new URL(rawBaseUrl);
+  } catch {
+    return new URL('http://localhost:3000');
+  }
+}
 
 // Configuración de fuente optimizada
 const outfit = Outfit({
@@ -20,6 +32,7 @@ const outfit = Outfit({
 
 // Metadata global de la aplicación
 export const metadata: Metadata = {
+  metadataBase: getMetadataBase(),
   title: {
     template: '%s | CERMONT S.A.S',
     default: 'CERMONT S.A.S - Sistema de Gestión de Órdenes',

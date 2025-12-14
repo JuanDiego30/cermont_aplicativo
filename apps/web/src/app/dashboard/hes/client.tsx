@@ -81,8 +81,8 @@ export function HESDashboard() {
     if (busqueda) {
       const search = busqueda.toLowerCase();
       return (
-        e.codigo.toLowerCase().includes(search) ||
-        e.marca.toLowerCase().includes(search)
+        (e.codigo?.toLowerCase() || '').includes(search) ||
+        (e.marca?.toLowerCase() || '').includes(search)
       );
     }
     return true;

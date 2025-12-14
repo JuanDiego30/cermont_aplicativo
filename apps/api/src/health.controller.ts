@@ -3,9 +3,12 @@
  *
  * Endpoints para verificar el estado del servicio y sus dependencias.
  * Inspirado en fastapi-template: health checks completos para Docker/K8s.
+ * 
+ * Rate limiting desactivado para estos endpoints (SkipThrottle).
  */
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { PrismaService } from './prisma/prisma.service';
 
 interface HealthStatus {
@@ -24,6 +27,7 @@ interface HealthStatus {
 
 @ApiTags('Health')
 @Controller('health')
+@SkipThrottle() // Health checks no deben tener rate limiting
 export class HealthController {
     constructor(private readonly prisma: PrismaService) {}
 

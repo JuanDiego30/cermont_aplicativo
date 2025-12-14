@@ -5,14 +5,14 @@
  * ✨ Este archivo define qué exporta el módulo para uso externo
  */
 
-// API & Types
-export * from './api/tecnicos.types';
+// API & Types (explicit exports to avoid duplicates)
+export type { Tecnico, TecnicoFilters, PaginatedTecnicos, TecnicoStats, TecnicoEstado } from './api/tecnicos.types';
 export { tecnicosApi } from './api/tecnicos.api';
 
 // Hooks
-export { 
-  useTecnicos, 
-  useTecnico, 
+export {
+  useTecnicos,
+  useTecnico,
   useTecnicosStats,
   useSuspenseTecnicos,
   usePrefetchTecnico,

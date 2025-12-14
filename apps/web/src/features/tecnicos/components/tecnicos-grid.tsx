@@ -28,7 +28,7 @@ export function TecnicosGrid({ initialData, initialFilters }: TecnicosGridProps)
     hasActiveFilters,
   } = useTecnicosFilters(initialFilters, { syncWithUrl: true });
 
-  const { data, isLoading, isError, error, isFetching } = useTecnicos(filters, {
+  const { data, isLoading, error, isValidating: isFetching } = useTecnicos(filters, {
     initialData,
   });
 
@@ -38,7 +38,7 @@ export function TecnicosGrid({ initialData, initialFilters }: TecnicosGridProps)
   }
 
   // Error
-  if (isError) {
+  if (error) {
     return (
       <div className="text-center py-12">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-500/20 mb-4">

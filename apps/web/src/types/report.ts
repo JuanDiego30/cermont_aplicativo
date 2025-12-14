@@ -1,5 +1,10 @@
-// Report types
-
+/**
+ * ARCHIVO: report.ts
+ * FUNCION: Define tipos para reportes y estadísticas del dashboard
+ * IMPLEMENTACION: Interfaces TypeScript para Reports, DashboardStats y OrderStats
+ * DEPENDENCIAS: Ninguna (tipos puros)
+ * EXPORTS: Report, ReportType, ReportFormat, ReportStatus, ReportRequest, DashboardStats, OrderStats
+ */
 export interface Report {
   id: string;
   tipo: ReportType;

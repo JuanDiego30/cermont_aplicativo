@@ -4,28 +4,18 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useCreateOrder } from '../hooks/use-orders';
 import type { CreateOrderInput, OrderPriority, OrderType } from '@/types/order';
+import { ORDER_TYPE_OPTIONS, PRIORITY_OPTIONS } from '../config/orden.config';
 
 interface CreateOrderFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
 }
 
-const orderTypes: { value: OrderType; label: string }[] = [
-  { value: 'instalacion', label: 'Instalación' },
-  { value: 'mantenimiento', label: 'Mantenimiento' },
-  { value: 'reparacion', label: 'Reparación' },
-  { value: 'inspeccion', label: 'Inspección' },
-];
-
-const priorities: { value: OrderPriority; label: string }[] = [
-  { value: 'baja', label: 'Baja' },
-  { value: 'media', label: 'Media' },
-  { value: 'alta', label: 'Alta' },
-  { value: 'urgente', label: 'Urgente' },
-];
+const orderTypes = ORDER_TYPE_OPTIONS;
+const priorities = PRIORITY_OPTIONS;
 
 export function CreateOrderForm({ onSuccess, onCancel }: CreateOrderFormProps) {
-  const { mutate: createOrder, isPending, error: _error } = useCreateOrder();
+  const { mutateAsync: createOrder, isPending, error: _error } = useCreateOrder();
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
@@ -45,15 +35,14 @@ export function CreateOrderForm({ onSuccess, onCancel }: CreateOrderFormProps) {
 
   const onSubmit = (data: CreateOrderInput) => {
     setServerError(null);
-    createOrder(data, {
-      onSuccess: () => {
+    createOrder(data)
+      .then(() => {
         reset();
         onSuccess?.();
-      },
-      onError: (err: any) => {
+      })
+      .catch((err: any) => {
         setServerError(err.message || 'Error al crear la orden');
-      },
-    });
+      });
   };
 
   return (

@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: SidebarContext.tsx
+ * FUNCION: Gestiona el estado global del sidebar (expandido, hover, móvil, submenús)
+ * IMPLEMENTACION: React Context con múltiples estados y handlers para interactividad responsive
+ * DEPENDENCIAS: React (createContext, useContext, useState, useEffect)
+ * EXPORTS: SidebarProvider (componente), useSidebar (hook)
+ */
 "use client";
 import React, { createContext, useContext, useState, useEffect } from "react";
 

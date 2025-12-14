@@ -178,7 +178,9 @@ const AppSidebar: React.FC = () => {
                   src="/logo.svg"
                   alt="Cermont Logo"
                   fill
+                  priority
                   className="object-contain"
+                  style={{ width: 'auto', height: 'auto' }}
                 />
               </div>
               <span className="text-xl font-bold text-gray-900 dark:text-white">Cermont</span>
@@ -189,7 +191,9 @@ const AppSidebar: React.FC = () => {
                 src="/logo.svg"
                 alt="Cermont Logo"
                 fill
+                priority
                 className="object-contain"
+                style={{ width: 'auto', height: 'auto' }}
               />
             </div>
           )}

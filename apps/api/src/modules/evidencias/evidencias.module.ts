@@ -1,7 +1,53 @@
+/**
+ * @module EvidenciasModule
+ * @description Módulo de evidencias con Clean Architecture
+ */
 import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
-import { EvidenciasController } from './evidencias.controller';
+
+// Domain
+import { EVIDENCIA_REPOSITORY } from './domain/repositories/evidencia.repository.interface';
+
+// Application
+import {
+    UploadEvidenciaUseCase,
+    ListEvidenciasByOrdenUseCase,
+    DeleteEvidenciaUseCase,
+} from './application/use-cases';
+
+// Infrastructure
+import { EvidenciasController } from './infrastructure/controllers';
+import { PrismaEvidenciaRepository } from './infrastructure/persistence';
 import { EvidenciasService } from './evidencias.service';
 
-@Module({ imports: [MulterModule.register({ dest: './uploads', limits: { fileSize: 10 * 1024 * 1024 } })], controllers: [EvidenciasController], providers: [EvidenciasService], exports: [EvidenciasService] })
+const useCaseProviders = [
+    UploadEvidenciaUseCase,
+    ListEvidenciasByOrdenUseCase,
+    DeleteEvidenciaUseCase,
+];
+
+@Module({
+    imports: [
+        MulterModule.register({
+            dest: './uploads',
+            limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
+        }),
+    ],
+    controllers: [EvidenciasController],
+    providers: [
+        // Repositorio
+        {
+            provide: EVIDENCIA_REPOSITORY,
+            useClass: PrismaEvidenciaRepository,
+        },
+        PrismaEvidenciaRepository,
+
+        // Use Cases
+        ...useCaseProviders,
+
+        // Service (Legacy/Simpler implementation support)
+        EvidenciasService,
+    ],
+    exports: [EVIDENCIA_REPOSITORY, EvidenciasService],
+})
 export class EvidenciasModule { }

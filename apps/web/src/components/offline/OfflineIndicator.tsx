@@ -13,24 +13,24 @@ interface OfflineIndicatorProps {
   position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 }
 
-export function OfflineIndicator({ 
+export function OfflineIndicator({
   className,
-  position = 'bottom-right' 
+  position = 'bottom-right'
 }: OfflineIndicatorProps) {
-  const { 
-    isOnline, 
-    isSyncing, 
-    pendingItems, 
-    syncError, 
+  const {
+    isOnline,
+    isSyncing,
+    pendingItems,
+    syncError,
     lastSync,
     progress,
-    manualSync 
+    manualSync
   } = useOffline();
 
-  // No mostrar si todo está bien
-  if (isOnline && pendingItems === 0 && !syncError) {
-    return null;
-  }
+  // Always show the indicator, but minimal style when online/synced
+  // if (isOnline && pendingItems === 0 && !syncError) {
+  //   return null;
+  // }
 
   const positionClasses = {
     'bottom-right': 'bottom-4 right-4',
@@ -48,6 +48,13 @@ export function OfflineIndicator({
         className
       )}
     >
+      {/* Estado Online (Nuevo) */}
+      {isOnline && !syncError && (
+        <div className="mb-3 p-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-400 dark:border-emerald-600 rounded text-emerald-800 dark:text-emerald-200 text-sm flex items-center gap-2">
+          <WifiIcon className="w-4 h-4 shrink-0" />
+          <span>Conectado (Online)</span>
+        </div>
+      )}
       {/* Estado Offline */}
       {!isOnline && (
         <div className="mb-3 p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-400 dark:border-yellow-600 rounded text-yellow-800 dark:text-yellow-200 text-sm flex items-center gap-2">
@@ -129,10 +136,10 @@ function formatRelativeTime(date: Date): string {
 
   if (diffMins < 1) return 'hace un momento';
   if (diffMins < 60) return `hace ${diffMins} min`;
-  
+
   const diffHours = Math.floor(diffMins / 60);
   if (diffHours < 24) return `hace ${diffHours}h`;
-  
+
   return date.toLocaleDateString();
 }
 
@@ -143,7 +150,14 @@ function formatRelativeTime(date: Date): string {
 function WifiOffIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414" />
+    </svg>
+  );
+}
+
+function WifiIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
     </svg>
   );
 }

@@ -1,41 +1,65 @@
-// ============================================
-// PLANEACIÓN HOOKS - Cermont FSM
-// Hooks para planeación y kits
-// ============================================
-
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { planeacionApi, CreatePlaneacionInput, UpdatePlaneacionInput, PlaneacionItem } from '../api/planeacion.api';
-import { toast } from 'sonner';
+/**
+ * @file use-planeacion.ts
+ * @description SWR hooks for planeación management
+ */
+
+import useSWR from 'swr';
+import { useMutation, useInvalidate } from '@/hooks/use-mutation';
+import { swrKeys } from '@/lib/swr-config';
+import {
+  planeacionApi,
+  type Planeacion,
+  type CreatePlaneacionInput,
+  type UpdatePlaneacionInput,
+  type PlaneacionItem,
+  type KitTipico,
+} from '../api/planeacion.api';
 
 /**
- * Hook para obtener planeación por orden
+ * Hook para obtener la planeación por orden ID
  */
-export function usePlaneacion(ordenId: string) {
-  return useQuery({
-    queryKey: ['planeacion', ordenId],
-    queryFn: () => planeacionApi.getByOrdenId(ordenId),
-    enabled: !!ordenId,
-    retry: 1,
-  });
+export function usePlaneacionByOrden(ordenId: string | undefined) {
+  return useSWR(
+    ordenId ? swrKeys.planeacion.detail(ordenId) : null,
+    () => (ordenId ? planeacionApi.getByOrdenId(ordenId) : null),
+    { revalidateOnFocus: false }
+  );
+}
+
+/**
+ * Hook para obtener kits típicos
+ */
+export function useKitsTipicos(categoria?: string) {
+  return useSWR(
+    categoria ? `kits:tipicos:${categoria}` : 'kits:tipicos',
+    () => planeacionApi.getKits(categoria),
+    { revalidateOnFocus: false }
+  );
+}
+
+/**
+ * Hook para obtener un kit típico por ID
+ */
+export function useKitTipico(id: string | undefined) {
+  return useSWR(
+    id ? `kits:tipico:${id}` : null,
+    () => (id ? planeacionApi.getKitById(id) : null),
+    { revalidateOnFocus: false }
+  );
 }
 
 /**
  * Hook para crear planeación
  */
 export function useCreatePlaneacion() {
-  const queryClient = useQueryClient();
-
+  const invalidate = useInvalidate();
   return useMutation({
     mutationFn: (data: CreatePlaneacionInput) => planeacionApi.create(data),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['planeacion', data.ordenId] });
-      queryClient.invalidateQueries({ queryKey: ['orden', data.ordenId] });
-      toast.success('Planeación creada exitosamente');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Error al crear planeación');
+    onSuccess: () => {
+      invalidate('planeacion');
+      invalidate('ordenes');
     },
   });
 }
@@ -44,17 +68,12 @@ export function useCreatePlaneacion() {
  * Hook para actualizar planeación
  */
 export function useUpdatePlaneacion() {
-  const queryClient = useQueryClient();
-
+  const invalidate = useInvalidate();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdatePlaneacionInput }) =>
       planeacionApi.update(id, data),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['planeacion', data.ordenId] });
-      toast.success('Planeación actualizada');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Error al actualizar planeación');
+    onSuccess: () => {
+      invalidate('planeacion');
     },
   });
 }
@@ -63,22 +82,17 @@ export function useUpdatePlaneacion() {
  * Hook para agregar item a planeación
  */
 export function useAddPlaneacionItem() {
-  const queryClient = useQueryClient();
-
+  const invalidate = useInvalidate();
   return useMutation({
-    mutationFn: ({ 
-      planeacionId, 
-      item 
-    }: { 
-      planeacionId: string; 
+    mutationFn: ({
+      planeacionId,
+      item,
+    }: {
+      planeacionId: string;
       item: Omit<PlaneacionItem, 'id' | 'planeacionId'>;
     }) => planeacionApi.addItem(planeacionId, item),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['planeacion'] });
-      toast.success('Item agregado');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Error al agregar item');
+      invalidate('planeacion');
     },
   });
 }
@@ -87,17 +101,12 @@ export function useAddPlaneacionItem() {
  * Hook para eliminar item de planeación
  */
 export function useRemovePlaneacionItem() {
-  const queryClient = useQueryClient();
-
+  const invalidate = useInvalidate();
   return useMutation({
     mutationFn: ({ planeacionId, itemId }: { planeacionId: string; itemId: string }) =>
       planeacionApi.removeItem(planeacionId, itemId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['planeacion'] });
-      toast.success('Item eliminado');
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Error al eliminar item');
+      invalidate('planeacion');
     },
   });
 }
@@ -105,40 +114,13 @@ export function useRemovePlaneacionItem() {
 /**
  * Hook para aplicar kit a planeación
  */
-export function useApplyKit() {
-  const queryClient = useQueryClient();
-
+export function useApplyKitToPlaneacion() {
+  const invalidate = useInvalidate();
   return useMutation({
     mutationFn: ({ planeacionId, kitId }: { planeacionId: string; kitId: string }) =>
       planeacionApi.applyKit(planeacionId, kitId),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['planeacion', data.ordenId] });
-      toast.success('Kit aplicado exitosamente');
+    onSuccess: () => {
+      invalidate('planeacion');
     },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Error al aplicar kit');
-    },
-  });
-}
-
-/**
- * Hook para obtener kits típicos
- */
-export function useKits(categoria?: string) {
-  return useQuery({
-    queryKey: ['kits', categoria],
-    queryFn: () => planeacionApi.getKits(categoria),
-    staleTime: 10 * 60 * 1000, // 10 minutos
-  });
-}
-
-/**
- * Hook para obtener kit por ID
- */
-export function useKit(id: string) {
-  return useQuery({
-    queryKey: ['kit', id],
-    queryFn: () => planeacionApi.getKitById(id),
-    enabled: !!id,
   });
 }

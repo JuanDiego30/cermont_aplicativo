@@ -1,12 +1,12 @@
 /**
- * ============================================
- * USE OFFLINE SYNC HOOK - Cermont FSM
- * React hook for offline-first operations
- * ============================================
+ * ARCHIVO: useOfflineSync.ts
+ * FUNCION: React Hook para operaciones offline-first con sincronización automática
+ * IMPLEMENTACION: Usa offlineManager para IndexedDB, detecta conexión, cola operaciones
+ *                 pendientes y sincroniza cuando hay conexión disponible
+ * DEPENDENCIAS: React hooks, offline-manager, api-client
+ * EXPORTS: useOfflineSync, useOfflineIndicator
  */
-
 "use client";
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { offlineManager, PendingSyncItem } from './offline-manager';
 import { apiClient } from './api-client';

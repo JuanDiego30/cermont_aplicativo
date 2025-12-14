@@ -1,7 +1,10 @@
+'use client';
+
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import useSWR from 'swr';
 import { apiClient } from '../../lib/api';
 import { CheckCircle, AlertTriangle, XCircle, Shield, Package } from 'lucide-react';
+import { swrKeys } from '@/lib/swr-config';
 
 interface HESStatusReport {
     totalEquipos: number;
@@ -14,16 +17,17 @@ interface HESStatusReport {
 }
 
 export function HESDashboard() {
-    const { data, isLoading, isError } = useQuery({
-        queryKey: ['hes-status-report'],
-        queryFn: async () => {
+    const { data, isLoading, error } = useSWR<HESStatusReport>(
+        swrKeys.hes.stats(),
+        async () => {
             const res = await apiClient.get<{ status: string; report: HESStatusReport }>('/hes/status-report');
             return res.report;
         },
-    });
+        { revalidateOnFocus: false }
+    );
 
     if (isLoading) return <div className="p-4 text-center">Cargando métricas HES...</div>;
-    if (isError || !data) return <div className="p-4 text-center text-red-500">Error al cargar datos HES</div>;
+    if (error || !data) return <div className="p-4 text-center text-red-500">Error al cargar datos HES</div>;
 
     return (
         <div className="space-y-6">
@@ -78,7 +82,7 @@ export function HESDashboard() {
                         </div>
                     </div>
                     <div className="mt-4 text-sm text-gray-500">
-                        En reparación externa o interna
+                        Equipos en reparación
                     </div>
                 </div>
 
@@ -86,7 +90,7 @@ export function HESDashboard() {
                 <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
                     <div className="flex justify-between items-start">
                         <div>
-                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Equipos Rechazados</p>
+                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Rechazados</p>
                             <h3 className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{data.rechazados}</h3>
                         </div>
                         <div className="p-2 bg-red-100 rounded-lg dark:bg-red-900/20">
@@ -94,9 +98,14 @@ export function HESDashboard() {
                         </div>
                     </div>
                     <div className="mt-4 text-sm text-gray-500">
-                        No aptos para uso
+                        Equipos fuera de servicio
                     </div>
                 </div>
+            </div>
+
+            {/* Footer */}
+            <div className="text-sm text-gray-500 dark:text-gray-400 text-right">
+                Última actualización: {data.ultimaActualizacion}
             </div>
         </div>
     );

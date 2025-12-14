@@ -1,6 +1,7 @@
 'use client';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSWRConfig } from 'swr';
+import { useMutation } from './use-mutation';
 import { useAuthStore } from '@/stores/authStore';
 import { apiClient } from '@/lib/api';
 import type { LoginCredentials, RegisterData, User } from '@/types/user';
@@ -13,11 +14,11 @@ interface LoginResponse {
 }
 
 export function useAuth() {
-  const queryClient = useQueryClient();
+  const { mutate } = useSWRConfig();
   const { setAuth, logout: clearAuth } = useAuthStore();
 
-  const login = useMutation({
-    mutationFn: async (credentials: LoginCredentials) => {
+  const login = useMutation<LoginResponse, LoginCredentials>({
+    mutationFn: async (credentials) => {
       const response = await apiClient.post<LoginResponse>('/auth/login', credentials);
       return response;
     },
@@ -26,8 +27,8 @@ export function useAuth() {
     },
   });
 
-  const register = useMutation({
-    mutationFn: async (data: RegisterData) => {
+  const register = useMutation<LoginResponse, RegisterData>({
+    mutationFn: async (data) => {
       const response = await apiClient.post<LoginResponse>('/auth/register', data);
       return response;
     },
@@ -36,13 +37,14 @@ export function useAuth() {
     },
   });
 
-  const logout = useMutation({
+  const logout = useMutation<void, void>({
     mutationFn: async () => {
       await apiClient.post('/auth/logout', {});
     },
     onSuccess: () => {
       clearAuth();
-      queryClient.clear();
+      // Limpiar toda la caché de SWR
+      mutate(() => true, undefined, { revalidate: false });
     },
   });
 

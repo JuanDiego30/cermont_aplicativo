@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import useSWR from "swr";
+import { useMutation, useInvalidate } from "@/hooks/use-mutation";
 import { apiClient } from "@/lib/api-client";
 import {
     CheckCircle2,
@@ -76,7 +77,7 @@ interface ChecklistFormProps {
 }
 
 export function ChecklistForm({ ordenId, tipoTrabajo, onComplete }: ChecklistFormProps) {
-    const queryClient = useQueryClient();
+    const invalidate = useInvalidate();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [selectedTemplate, setSelectedTemplate] = useState<ChecklistTemplate | null>(null);
     const [items, setItems] = useState<ChecklistItem[]>([]);
@@ -84,15 +85,15 @@ export function ChecklistForm({ ordenId, tipoTrabajo, onComplete }: ChecklistFor
     const [isSigning, setIsSigning] = useState(false);
     const [signingStarted, setSigningStarted] = useState(false);
 
-    const { data: templates = [], isLoading: loadingTemplates } = useQuery({
-        queryKey: ["checklist-templates", tipoTrabajo],
-        queryFn: () => fetchTemplates(tipoTrabajo),
-    });
+    const { data: templates = [], isLoading: loadingTemplates } = useSWR(
+        ["checklist-templates", tipoTrabajo],
+        () => fetchTemplates(tipoTrabajo)
+    );
 
     const submitMutation = useMutation({
         mutationFn: ejecutarChecklist,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["checklists-orden", ordenId] });
+            invalidate("checklists-orden");
             onComplete?.();
         },
     });

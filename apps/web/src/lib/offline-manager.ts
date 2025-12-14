@@ -1,10 +1,11 @@
 /**
- * ============================================
- * OFFLINE MANAGER - Cermont FSM
- * IndexedDB-based offline data storage
- * ============================================
+ * ARCHIVO: offline-manager.ts
+ * FUNCION: Gestor de almacenamiento offline con IndexedDB para datos y caché
+ * IMPLEMENTACION: Clase OfflineManager con operaciones CRUD genéricas, cola de
+ *                 sincronización pendiente, caché con TTL y gestión de reintentos
+ * DEPENDENCIAS: IndexedDB API nativa, crypto.randomUUID
+ * EXPORTS: offlineManager (singleton), PendingSyncItem, CacheItem, STORES
  */
-
 const DB_NAME = 'cermont-offline-db';
 const DB_VERSION = 1;
 

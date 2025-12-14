@@ -13,7 +13,7 @@ import { USER_ROLES, type UserRoleType } from '../../domain/value-objects/user-r
  */
 export const ChangeRoleSchema = z.object({
   role: z.enum(USER_ROLES, {
-    errorMap: () => ({ message: `Rol inválido. Roles válidos: ${USER_ROLES.join(', ')}` }),
+    message: `Rol inválido. Roles válidos: ${USER_ROLES.join(', ')}`,
   }),
 });
 

@@ -2,30 +2,36 @@
  * @useCase DeleteEvidenciaUseCase
  */
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { EVIDENCIA_REPOSITORY, IEvidenciaRepository } from '../../domain/repositories';
+import {
+  IEvidenciaRepository,
+  EVIDENCIA_REPOSITORY,
+} from '../../domain/repositories/evidencia.repository.interface';
+import * as fs from 'fs';
 
 @Injectable()
 export class DeleteEvidenciaUseCase {
   constructor(
     @Inject(EVIDENCIA_REPOSITORY)
-    private readonly repo: IEvidenciaRepository,
-    private readonly eventEmitter: EventEmitter2,
-  ) {}
+    private readonly evidenciaRepository: IEvidenciaRepository,
+  ) { }
 
-  async execute(id: string): Promise<{ message: string }> {
-    const evidencia = await this.repo.findById(id);
+  async execute(id: string): Promise<void> {
+    const evidencia = await this.evidenciaRepository.findById(id);
+
     if (!evidencia) {
       throw new NotFoundException('Evidencia no encontrada');
     }
 
-    await this.repo.delete(id);
+    // Borrar archivo (Infrastructure concern leaked here for simplicity, 
+    // ideally inject IFileStorageService)
+    try {
+      if (fs.existsSync(evidencia.rutaArchivo)) {
+        fs.unlinkSync(evidencia.rutaArchivo);
+      }
+    } catch (e) {
+      console.error('Error deleting file:', e);
+    }
 
-    this.eventEmitter.emit('evidencia.deleted', {
-      evidenciaId: id,
-      ordenId: evidencia.ordenId,
-    });
-
-    return { message: 'Evidencia eliminada' };
+    await this.evidenciaRepository.delete(id);
   }
 }

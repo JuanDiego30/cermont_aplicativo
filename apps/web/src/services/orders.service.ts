@@ -1,8 +1,10 @@
 /**
- * Orders Service
- * Centraliza las llamadas a la API de órdenes
+ * ARCHIVO: orders.service.ts
+ * FUNCION: Gestiona operaciones CRUD y acciones sobre ordenes de trabajo
+ * IMPLEMENTACION: Patron Service Layer con objeto literal y metodos async
+ * DEPENDENCIAS: @/lib/api (apiClient), @/types/order
+ * EXPORTS: ordersService, PaginatedOrders, ListOrdersParams
  */
-
 import { apiClient } from '@/lib/api';
 import type { Order, CreateOrderInput, UpdateOrderInput, OrderFilters, OrderStatus, OrderPriority } from '@/types/order';
 
@@ -30,7 +32,7 @@ export const ordersService = {
    */
   list: async (params?: ListOrdersParams): Promise<PaginatedOrders> => {
     const queryParams = new URLSearchParams();
-    
+
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
@@ -96,5 +98,12 @@ export const ordersService = {
     pendingCount: number;
   }> => {
     return apiClient.get('/orders/stats');
+  },
+
+  /**
+   * Asignar técnico a la orden
+   */
+  assignTechnician: async (id: string, technicianId: string): Promise<Order> => {
+    return apiClient.patch<Order>(`/orders/${id}/technician`, { technicianId });
   },
 };

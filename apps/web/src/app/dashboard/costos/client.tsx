@@ -7,9 +7,9 @@
 
 import { useState } from 'react';
 import { Calendar, RefreshCw, Download, TrendingUp, TrendingDown, AlertTriangle } from 'lucide-react';
-import { 
-  useResumenPeriodo, 
-  CostoCard, 
+import {
+  useResumenPeriodo,
+  CostoCard,
   formatCostoCurrency as formatCurrency,
   CostoCardSkeleton,
 } from '@/features/costos';
@@ -23,21 +23,21 @@ export function CostosDashboard() {
   });
   const [fechaFin, setFechaFin] = useState(() => new Date().toISOString().split('T')[0]);
 
-  const { data: resumen, isLoading, isError, refetch } = useResumenPeriodo({ fechaInicio, fechaFin });
+  const { data: resumen, isLoading, error, mutate } = useResumenPeriodo({ fechaInicio, fechaFin });
   const { data: costosData, isLoading: loadingCostos } = useCostos({ fechaInicio, fechaFin });
 
   const costos = costosData?.data || [];
   const varianzaTotal = resumen?.varianzaTotal || 0;
   const varianzaPositiva = varianzaTotal > 0;
 
-  if (isError) {
+  if (error) {
     return (
       <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center dark:border-red-800 dark:bg-red-900/20">
         <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
         <h3 className="text-lg font-semibold text-red-700 dark:text-red-400">Error</h3>
         <p className="text-red-600 dark:text-red-300">No se pudo cargar datos de costos.</p>
-        <button 
-          onClick={() => refetch()}
+        <button
+          onClick={() => mutate()}
           className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
         >
           Reintentar
@@ -52,23 +52,23 @@ export function CostosDashboard() {
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
         <div className="flex items-center gap-4">
           <Calendar className="w-5 h-5 text-gray-400" />
-          <input 
-            type="date" 
-            value={fechaInicio} 
-            onChange={(e) => setFechaInicio(e.target.value)} 
-            className="px-3 py-2 border rounded-xl bg-white dark:bg-gray-900 dark:border-gray-700" 
+          <input
+            type="date"
+            value={fechaInicio}
+            onChange={(e) => setFechaInicio(e.target.value)}
+            className="px-3 py-2 border rounded-xl bg-white dark:bg-gray-900 dark:border-gray-700"
           />
           <span className="text-gray-500">a</span>
-          <input 
-            type="date" 
-            value={fechaFin} 
-            onChange={(e) => setFechaFin(e.target.value)} 
-            className="px-3 py-2 border rounded-xl bg-white dark:bg-gray-900 dark:border-gray-700" 
+          <input
+            type="date"
+            value={fechaFin}
+            onChange={(e) => setFechaFin(e.target.value)}
+            className="px-3 py-2 border rounded-xl bg-white dark:bg-gray-900 dark:border-gray-700"
           />
         </div>
         <div className="flex gap-3">
-          <button 
-            onClick={() => refetch()} 
+          <button
+            onClick={() => mutate()}
             className="px-4 py-2 border rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-700"
           >
             <RefreshCw className="w-4 h-4" />
@@ -105,15 +105,14 @@ export function CostosDashboard() {
               {formatCurrency(resumen?.totalReal || 0)}
             </p>
           </div>
-          <div className={`rounded-2xl border p-5 ${
-            varianzaPositiva 
-              ? 'border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800' 
-              : 'border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800'
-          }`}>
+          <div className={`rounded-2xl border p-5 ${varianzaPositiva
+            ? 'border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800'
+            : 'border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800'
+            }`}>
             <p className={`text-sm ${varianzaPositiva ? 'text-red-600' : 'text-green-600'}`}>Varianza</p>
             <div className="flex items-center gap-2">
-              {varianzaPositiva 
-                ? <TrendingUp className="w-5 h-5 text-red-500" /> 
+              {varianzaPositiva
+                ? <TrendingUp className="w-5 h-5 text-red-500" />
                 : <TrendingDown className="w-5 h-5 text-green-500" />
               }
               <p className={`text-2xl font-bold ${varianzaPositiva ? 'text-red-900 dark:text-red-100' : 'text-green-900 dark:text-green-100'}`}>

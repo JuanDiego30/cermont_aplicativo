@@ -1,10 +1,10 @@
 /**
- * 📁 app/page.tsx
- *
- * ✨ Landing Page - Server Component
- * Página principal de CERMONT S.A.S
+ * ARCHIVO: page.tsx
+ * FUNCION: Landing page principal de CERMONT S.A.S con secciones Hero, Features, About, Testimonials y CTA
+ * IMPLEMENTACION: Server Component que renderiza secciones con Suspense para lazy loading y skeleton fallbacks
+ * DEPENDENCIAS: next, react, @/components/landing
+ * EXPORTS: HomePage (Server Component default), metadata
  */
-
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import {

@@ -1,5 +1,10 @@
-// Notification types
-
+/**
+ * ARCHIVO: notification.ts
+ * FUNCION: Define tipos para el sistema de notificaciones
+ * IMPLEMENTACION: Interfaces para Notification, tipos, preferencias y filtros
+ * DEPENDENCIAS: Ninguna (tipos puros)
+ * EXPORTS: Notification, NotificationType, NotificationPreferences, NotificationFilters
+ */
 export interface Notification {
   id: string;
   tipo: NotificationType;

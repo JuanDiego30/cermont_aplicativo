@@ -1,5 +1,11 @@
+/**
+ * ARCHIVO: ThemeContext.tsx
+ * FUNCION: Provee gestión global del tema (light/dark) para toda la aplicación
+ * IMPLEMENTACION: Usa React Context para compartir estado del tema, persiste en localStorage
+ * DEPENDENCIAS: React (createContext, useState, useContext, useEffect)
+ * EXPORTS: ThemeProvider (componente), useTheme (hook)
+ */
 "use client";
-
 import type React from "react";
 import { createContext, useState, useContext, useEffect } from "react";
 

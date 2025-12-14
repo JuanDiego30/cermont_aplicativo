@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: uiStore.ts
+ * FUNCION: Store global para estado de UI (tema, sidebar)
+ * IMPLEMENTACION: Zustand con middleware persist para localStorage
+ * DEPENDENCIAS: zustand, zustand/middleware
+ * EXPORTS: useUIStore, useInitializeTheme
+ */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 

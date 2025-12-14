@@ -1,13 +1,17 @@
 /**
  * @file use-tecnicos.ts
- * @description TanStack Query hooks para fetching de técnicos
+ * @description SWR hooks para fetching de técnicos
  */
 
-import { useQuery, useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
+'use client';
+
+import useSWR, { useSWRConfig } from 'swr';
+import { useMutation, useInvalidate } from '@/hooks/use-mutation';
 import { tecnicosApi } from '../api/tecnicos.api';
+import { swrKeys } from '@/lib/swr-config';
 import type { TecnicoFilters, PaginatedTecnicos, Tecnico, TecnicoStats } from '../api/tecnicos.types';
 
-// Query keys factory (para consistencia y type safety)
+// Query keys factory (compatibilidad)
 export const tecnicosKeys = {
   all: ['tecnicos'] as const,
   lists: () => [...tecnicosKeys.all, 'list'] as const,
@@ -27,63 +31,68 @@ export function useTecnicos(
     enabled?: boolean;
   }
 ) {
-  return useQuery({
-    queryKey: tecnicosKeys.list(filters),
-    queryFn: () => tecnicosApi.getAll(filters),
-    staleTime: 2 * 60 * 1000, // 2 minutos
-    gcTime: 5 * 60 * 1000, // 5 minutos
-    placeholderData: (prev) => prev, // Mantener datos anteriores durante refetch
-    initialData: options?.initialData,
-    enabled: options?.enabled ?? true,
-  });
+  return useSWR<PaginatedTecnicos>(
+    options?.enabled !== false ? swrKeys.tecnicos.list(filters) : null,
+    () => tecnicosApi.getAll(filters),
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 2 * 60 * 1000,
+      fallbackData: options?.initialData,
+    }
+  );
 }
 
 /**
  * Hook para un técnico específico
  */
 export function useTecnico(id: string, options?: { enabled?: boolean }) {
-  return useQuery({
-    queryKey: tecnicosKeys.detail(id),
-    queryFn: () => tecnicosApi.getById(id),
-    enabled: (options?.enabled ?? true) && !!id,
-    staleTime: 5 * 60 * 1000,
-  });
+  return useSWR<Tecnico>(
+    (options?.enabled !== false) && id ? swrKeys.tecnicos.detail(id) : null,
+    () => tecnicosApi.getById(id),
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 5 * 60 * 1000,
+    }
+  );
 }
 
 /**
  * Hook para estadísticas de técnicos
  */
 export function useTecnicosStats(options?: { enabled?: boolean }) {
-  return useQuery({
-    queryKey: tecnicosKeys.stats(),
-    queryFn: () => tecnicosApi.getStats(),
-    staleTime: 1 * 60 * 1000, // 1 minuto
-    enabled: options?.enabled ?? true,
-  });
+  return useSWR<TecnicoStats>(
+    options?.enabled !== false ? swrKeys.tecnicos.stats() : null,
+    () => tecnicosApi.getStats(),
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 1 * 60 * 1000,
+    }
+  );
 }
 
 /**
- * Hook con Suspense (para Server Components boundary)
+ * Hook con Suspense - SWR soporta suspense nativamente
  */
 export function useSuspenseTecnicos(filters: TecnicoFilters = {}) {
-  return useSuspenseQuery({
-    queryKey: tecnicosKeys.list(filters),
-    queryFn: () => tecnicosApi.getAll(filters),
-  });
+  return useSWR<PaginatedTecnicos>(
+    swrKeys.tecnicos.list(filters),
+    () => tecnicosApi.getAll(filters),
+    { suspense: true }
+  );
 }
 
 /**
  * Hook para prefetch (hover, focus)
  */
 export function usePrefetchTecnico() {
-  const queryClient = useQueryClient();
+  const { mutate } = useSWRConfig();
 
   return (id: string) => {
-    queryClient.prefetchQuery({
-      queryKey: tecnicosKeys.detail(id),
-      queryFn: () => tecnicosApi.getById(id),
-      staleTime: 5 * 60 * 1000,
-    });
+    mutate(
+      swrKeys.tecnicos.detail(id),
+      () => tecnicosApi.getById(id),
+      { revalidate: false }
+    );
   };
 }
 
@@ -91,13 +100,14 @@ export function usePrefetchTecnico() {
  * Hook para invalidar queries
  */
 export function useInvalidateTecnicos() {
-  const queryClient = useQueryClient();
+  const invalidate = useInvalidate();
 
   return {
-    all: () => queryClient.invalidateQueries({ queryKey: tecnicosKeys.all }),
-    lists: () => queryClient.invalidateQueries({ queryKey: tecnicosKeys.lists() }),
-    detail: (id: string) =>
-      queryClient.invalidateQueries({ queryKey: tecnicosKeys.detail(id) }),
-    stats: () => queryClient.invalidateQueries({ queryKey: tecnicosKeys.stats() }),
+    all: () => invalidate('tecnicos'),
+    lists: () => invalidate('tecnicos:list'),
+    detail: (id: string) => invalidate(`tecnicos:detail:${id}`),
+    stats: () => invalidate('tecnicos:stats'),
   };
 }
+
+

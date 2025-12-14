@@ -1,8 +1,10 @@
 /**
- * Users Service
- * Centraliza las llamadas a la API de usuarios
+ * ARCHIVO: users.service.ts
+ * FUNCION: Gestiona operaciones CRUD sobre usuarios y asignacion de roles
+ * IMPLEMENTACION: Patron Service Layer con paginacion y filtros avanzados
+ * DEPENDENCIAS: @/lib/api (apiClient), @/types/user
+ * EXPORTS: usersService, PaginatedUsers, ListUsersParams, CreateUserInput, UpdateUserInput
  */
-
 import { apiClient } from '@/lib/api';
 import type { User, UserRole } from '@/types/user';
 

@@ -1,5 +1,11 @@
-// Error handling utilities
-
+/**
+ * ARCHIVO: errors.ts
+ * FUNCION: Clases de error tipadas y utilidades de manejo de errores
+ * IMPLEMENTACION: Jerarquía de clases Error (ApiError, ValidationError, NetworkError,
+ *                 AuthError), mapeo de mensajes HTTP y utilidad withRetry con backoff
+ * DEPENDENCIAS: Ninguna externa
+ * EXPORTS: ApiError, ValidationError, NetworkError, AuthError, getErrorMessage, withRetry
+ */
 export class ApiError extends Error {
   constructor(
     message: string,

@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useQuery } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api';
+import useSWR from 'swr';
+import { apiClient } from '@/lib/api-client';
 import {
   ArrowLeft,
   Plus,
@@ -34,14 +34,14 @@ export default function LineasVidaPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterEstado, setFilterEstado] = useState<string>('');
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['lineas-vida', filterEstado],
-    queryFn: async () => {
+  const { data, isLoading, error } = useSWR(
+    ['/hes/lineas-vida', filterEstado],
+    async () => {
       const params = filterEstado ? `?estado=${filterEstado}` : '';
       const res = await apiClient.get<{ status: string; inspecciones: InspeccionLineaVida[] }>(`/hes/lineas-vida${params}`);
       return res.inspecciones || [];
-    },
-  });
+    }
+  );
 
   const filteredData = (data || []).filter((item: InspeccionLineaVida) =>
     item.numeroLinea.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -56,7 +56,7 @@ export default function LineasVidaPage() {
     );
   }
 
-  if (isError) {
+  if (error) {
     return (
       <div className="p-6 text-center text-red-500">
         Error al cargar las inspecciones de líneas de vida

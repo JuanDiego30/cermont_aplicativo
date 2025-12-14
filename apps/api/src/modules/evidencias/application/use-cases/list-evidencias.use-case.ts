@@ -1,36 +1,39 @@
 /**
- * @useCase ListEvidenciasUseCase
+ * @useCase ListEvidenciasByOrdenUseCase
  */
 import { Injectable, Inject } from '@nestjs/common';
-import { EVIDENCIA_REPOSITORY, IEvidenciaRepository } from '../../domain/repositories';
-import { ListEvidenciasResponse } from '../dto';
+import {
+  IEvidenciaRepository,
+  EVIDENCIA_REPOSITORY,
+} from '../../domain/repositories/evidencia.repository.interface';
+import { EvidenciaResponse } from '../dto/evidencia.dto';
+import { EvidenciaEntity } from '../../domain/entities/evidencia.entity';
 
 @Injectable()
-export class ListEvidenciasUseCase {
+export class ListEvidenciasByOrdenUseCase {
   constructor(
     @Inject(EVIDENCIA_REPOSITORY)
-    private readonly repo: IEvidenciaRepository,
-  ) {}
+    private readonly evidenciaRepository: IEvidenciaRepository,
+  ) { }
 
-  async execute(ordenId: string): Promise<ListEvidenciasResponse> {
-    const [evidencias, total] = await Promise.all([
-      this.repo.findByOrdenId(ordenId),
-      this.repo.count(ordenId),
-    ]);
+  async execute(ordenId: string): Promise<EvidenciaResponse[]> {
+    const evidencias = await this.evidenciaRepository.findAll({ ordenId });
+    return evidencias.map(this.mapToResponse);
+  }
 
+  private mapToResponse(entity: EvidenciaEntity): EvidenciaResponse {
     return {
-      data: evidencias.map((e) => ({
-        id: e.id,
-        ordenId: e.ordenId,
-        tipo: e.tipo,
-        url: e.url,
-        descripcion: e.descripcion,
-        latitud: e.latitud,
-        longitud: e.longitud,
-        creadoPorId: e.creadoPorId,
-        createdAt: e.createdAt.toISOString(),
-      })),
-      total,
+      id: entity.id,
+      ejecucionId: entity.ejecucionId,
+      ordenId: entity.ordenId,
+      tipo: entity.tipo,
+      nombreArchivo: entity.nombreArchivo,
+      url: `/uploads/${entity.nombreArchivo}`,
+      descripcion: entity.descripcion,
+      tags: entity.tags,
+      subidoPor: entity.subidoPor,
+      createdAt: entity.createdAt.toISOString(),
+      sincronizado: false,
     };
   }
 }

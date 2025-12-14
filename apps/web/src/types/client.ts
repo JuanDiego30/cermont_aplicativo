@@ -1,5 +1,10 @@
-// Client types
-
+/**
+ * ARCHIVO: client.ts
+ * FUNCION: Define tipos para gestión de clientes
+ * IMPLEMENTACION: Interfaces para Client, ClientCreate, ClientUpdate y filtros
+ * DEPENDENCIAS: Ninguna (tipos puros)
+ * EXPORTS: Client, ClientCreate, ClientUpdate, ClientFilters
+ */
 export interface Client {
   id: string;
   nombre: string;

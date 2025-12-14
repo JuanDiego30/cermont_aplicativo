@@ -1,6 +1,9 @@
 /**
- * Estados de una orden de servicio
- * Sincronizado con el backend (api/src/modules/ordenes/ordenes.types.ts)
+ * ARCHIVO: order.ts
+ * FUNCION: Define tipos para órdenes de servicio (versión inglés)
+ * IMPLEMENTACION: Interfaces TypeScript para Order, OrderItem, filtros y DTOs
+ * DEPENDENCIAS: Ninguna (tipos puros)
+ * EXPORTS: OrderStatus, OrderPriority, OrderType, Order, OrderItem, CreateOrderInput, UpdateOrderInput, OrderFilters
  */
 export type OrderStatus = 
   | 'planeacion'
