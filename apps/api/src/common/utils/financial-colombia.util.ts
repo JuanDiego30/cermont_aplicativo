@@ -1,11 +1,10 @@
 /**
- * @util Cálculos Financieros Colombia
- * @description Utilidades para cálculos financieros específicos de Colombia
- * 
- * Principio DRY: Centraliza lógica de cálculos usada en múltiples módulos
- * (costos, ordenes, reportes, facturación)
+ * ARCHIVO: financial-colombia.util.ts
+ * FUNCION: Cálculos financieros específicos para Colombia (IVA 19%, formato COP)
+ * IMPLEMENTACION: Funciones puras con constantes fiscales colombianas e Intl.NumberFormat
+ * DEPENDENCIAS: Ninguna (vanilla TypeScript)
+ * EXPORTS: IVA_COLOMBIA, calcularIVA, formatearMonedaCOP, calcularDesgloseConIVA, etc.
  */
-
 /**
  * Tasa de IVA en Colombia (19%)
  */

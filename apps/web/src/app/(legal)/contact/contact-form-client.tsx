@@ -1,5 +1,11 @@
+/**
+ * ARCHIVO: contact-form-client.tsx
+ * FUNCION: Formulario de contacto con validación y categorías de consulta
+ * IMPLEMENTACION: Client Component con useTransition, validación inline y estado de éxito
+ * DEPENDENCIAS: react, lucide-react
+ * EXPORTS: ContactFormClient (default)
+ */
 'use client';
-
 import { useState, useTransition } from 'react';
 import { Send, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
@@ -26,11 +32,6 @@ const CATEGORIES = [
   { value: 'sugerencia', label: 'Sugerencia o Feedback' },
   { value: 'otro', label: 'Otro' },
 ] as const;
-
-/**
- * Formulario de contacto (Client Component)
- * Maneja validación y envío del formulario
- */
 export default function ContactFormClient() {
   const [isPending, startTransition] = useTransition();
   const [formData, setFormData] = useState<FormData>({

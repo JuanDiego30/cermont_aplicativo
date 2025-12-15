@@ -134,7 +134,7 @@ export default function TechniciansPage() {
           { label: "En Servicio", value: mockTecnicos.filter(t => !t.disponible && t.estado === "activo").length, icon: <Clock className="w-5 h-5 text-amber-500" /> },
           { label: "Calificación Prom.", value: (mockTecnicos.reduce((acc, t) => acc + t.calificacion, 0) / mockTecnicos.length).toFixed(1), icon: <Star className="w-5 h-5 text-yellow-500" /> },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+          <div key={stat.label} className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
                 {stat.icon}
@@ -181,7 +181,7 @@ export default function TechniciansPage() {
         {filteredTecnicos.map((tecnico) => (
           <div 
             key={tecnico.id} 
-            className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden hover:shadow-lg transition-shadow"
+            className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 overflow-hidden hover:shadow-lg transition-shadow"
           >
             {/* Header de la tarjeta */}
             <div className="relative p-6 pb-4">
@@ -193,7 +193,7 @@ export default function TechniciansPage() {
               
               <div className="flex items-start gap-4">
                 <div className="relative">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xl font-bold">
+                  <div className="w-16 h-16 rounded-full bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xl font-bold">
                     {tecnico.nombre.split(' ').map(n => n[0]).join('')}
                   </div>
                   <span className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-white dark:border-gray-900 ${tecnico.disponible ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>

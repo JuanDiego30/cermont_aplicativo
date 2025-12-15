@@ -1,16 +1,9 @@
 /**
- * @util MainBootstrap
- *
- * Punto de entrada de la API NestJS (bootstrap, CORS, ValidationPipe y Swagger).
- * 
- * Seguridad aplicada:
- * - Helmet (headers HTTP de seguridad)
- * - CORS configurado
- * - ValidationPipe global
- * - Rate limiting (ThrottlerGuard)
- * - Request ID para tracing
- *
- * Uso: Se ejecuta al iniciar el servidor (node dist/main.js).
+ * ARCHIVO: main.ts
+ * FUNCION: Punto de entrada de la API NestJS con bootstrap completo
+ * IMPLEMENTACION: Configura Helmet, CORS, ValidationPipe, Swagger y middleware de seguridad
+ * DEPENDENCIAS: @nestjs/core, @nestjs/swagger, helmet, cookie-parser, uuid
+ * EXPORTS: Ninguno (ejecuta bootstrap al iniciar)
  */
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';

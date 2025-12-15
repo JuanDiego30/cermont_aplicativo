@@ -1,8 +1,10 @@
 /**
- * @file tecnicos.types.ts
- * @description Tipos TypeScript para el feature de Técnicos
+ * ARCHIVO: tecnicos.types.ts
+ * FUNCION: Definiciones de tipos TypeScript para el módulo técnicos
+ * IMPLEMENTACION: Union types, interfaces para entidades, filtros, stats e inputs
+ * DEPENDENCIAS: Ninguna (archivo de tipos puros)
+ * EXPORTS: TecnicoEstado, TecnicoCargo, Tecnico, TecnicoFilters, TecnicoStats, CreateTecnicoInput, UpdateTecnicoInput, PaginatedTecnicos
  */
-
 // Enums como union types (mejor para TypeScript)
 export type TecnicoEstado = 'activo' | 'inactivo' | 'vacaciones';
 export type TecnicoCargo = 

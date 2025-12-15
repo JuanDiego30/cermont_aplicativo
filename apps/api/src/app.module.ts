@@ -1,9 +1,9 @@
 /**
- * @module AppModule
- *
- * Módulo raíz: registra módulos de negocio y configura providers globales.
- *
- * Uso: Importado por NestFactory.create(AppModule) en main.ts.
+ * ARCHIVO: app.module.ts
+ * FUNCION: Módulo raíz de la aplicación NestJS que orquesta todos los módulos
+ * IMPLEMENTACION: Configura providers globales, filtros, interceptores y rate limiting
+ * DEPENDENCIAS: @nestjs/core, @nestjs/config, @nestjs/throttler, módulos de negocio
+ * EXPORTS: AppModule (clase decorada con @Module)
  */
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -38,6 +38,7 @@ import { SyncModule } from './modules/sync/sync.module';
 import { PdfGenerationModule } from './modules/pdf-generation/pdf-generation.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { WeatherModule } from './modules/weather/weather.module';
+import { EmailModule } from './modules/email/email.module';
 
 // Common providers
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -111,6 +112,7 @@ import { HealthController } from './health.controller';
         PdfGenerationModule, // Generación de informes PDF
         AdminModule,        // Módulo 3: Administración RBAC
         WeatherModule,      // Módulo Meteorológico (Open-Meteo + NASA)
+        EmailModule,        // Módulo Gmail Integration
 
         // Schedule module for CRON jobs
         ScheduleModule.forRoot(),

@@ -1,10 +1,11 @@
-'use client';
-
 /**
- * @file use-kits.ts
- * @description SWR hooks for kits management
+ * ARCHIVO: use-kits.ts
+ * FUNCION: Hooks SWR para gestión de kits (CRUD + cambio de estado)
+ * IMPLEMENTACION: Usa useSWR para fetching y useMutation para operaciones de escritura
+ * DEPENDENCIAS: swr, @/hooks/use-mutation, @/lib/swr-config, kitsService
+ * EXPORTS: useKits, useKit, useKitsSugeridos, useCreateKit, useUpdateKit, useDeleteKit, useChangeKitEstado
  */
-
+'use client';
 import useSWR from 'swr';
 import { useMutation, useInvalidate } from '@/hooks/use-mutation';
 import { swrKeys } from '@/lib/swr-config';

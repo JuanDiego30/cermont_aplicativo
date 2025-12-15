@@ -1,14 +1,14 @@
 /**
- * 📁 app/(auth)/layout.tsx
- *
- * ✨ Layout compartido para rutas de autenticación (login, register)
- * Server Component - No requiere 'use client'
+ * ARCHIVO: layout.tsx
+ * FUNCION: Layout compartido para rutas de autenticación (login, register, forgot-password)
+ * IMPLEMENTACION: Server Component con panel de formulario y branding lateral con Antigravity
+ * DEPENDENCIAS: next/link, lucide-react, auth-branding-client
+ * EXPORTS: AuthLayout (default), metadata
  */
-
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
+import { AuthBrandingClient } from './auth-branding-client';
 
 export const metadata: Metadata = {
   title: {
@@ -44,74 +44,8 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         </div>
       </div>
 
-      {/* Right side - Branding (hidden on mobile) */}
-      <AuthBranding />
-    </div>
-  );
-}
-
-/**
- * Componente de branding para el lado derecho
- * Server Component - Renderizado estático
- */
-function AuthBranding() {
-  return (
-    <div className="hidden lg:flex lg:w-1/2 bg-brand-950 dark:bg-white/5 items-center justify-center">
-      <div className="relative flex flex-col items-center max-w-md text-center px-8">
-        {/* Logo */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="relative w-32 h-32">
-            <Image
-              src="/logo.svg"
-              alt="Cermont"
-              fill
-              className="object-contain"
-              priority
-            />
-          </div>
-        </div>
-
-        {/* Title */}
-        <h2 className="text-3xl font-bold text-white mb-4">
-          CERMONT S.A.S
-        </h2>
-
-        {/* Description */}
-        <p className="text-gray-400 dark:text-white/60 leading-relaxed">
-          Sistema de Gestión de Órdenes de Servicio Industrial.
-          Optimiza tus procesos de mantenimiento y servicio técnico.
-        </p>
-
-        {/* Features list */}
-        <ul className="mt-8 space-y-3 text-left">
-          {[
-            'Gestión integral de órdenes de trabajo',
-            'Seguimiento en tiempo real',
-            'Reportes y métricas avanzadas',
-            'Soporte offline para técnicos',
-          ].map((feature, index) => (
-            <li
-              key={index}
-              className="flex items-center gap-3 text-gray-400 dark:text-white/60"
-            >
-              <span className="shrink-0 w-5 h-5 rounded-full bg-brand-500/20 flex items-center justify-center">
-                <svg
-                  className="w-3 h-3 text-brand-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </span>
-              {feature}
-            </li>
-          ))}
-        </ul>
-      </div>
+      {/* Right side - Branding with Antigravity effect (hidden on mobile) */}
+      <AuthBrandingClient />
     </div>
   );
 }

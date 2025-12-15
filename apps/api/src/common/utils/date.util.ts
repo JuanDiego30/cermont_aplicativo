@@ -1,10 +1,10 @@
 /**
- * @util Date Utilities
- * @description Utilidades para manejo de fechas
- * 
- * Principio DRY: Centraliza lógica de fechas usada en múltiples módulos
+ * ARCHIVO: date.util.ts
+ * FUNCION: Utilidades centralizadas para manejo de fechas
+ * IMPLEMENTACION: Funciones puras usando Date nativo e Intl.DateTimeFormat para Colombia
+ * DEPENDENCIAS: Ninguna (vanilla TypeScript)
+ * EXPORTS: calcularDiasEntre, diasDesde, diasHasta, formatearFechaColombia, etc.
  */
-
 /**
  * Calcula días entre dos fechas
  */

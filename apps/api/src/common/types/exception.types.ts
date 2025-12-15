@@ -1,10 +1,10 @@
 /**
- * @file exception.types.ts
- * @description Tipos para manejo de excepciones - sin 'any'
- *
- * Incluye type guards para identificación segura de tipos de excepciones
+ * ARCHIVO: exception.types.ts
+ * FUNCION: Tipos e interfaces para manejo tipado de excepciones (100% type-safe)
+ * IMPLEMENTACION: Interfaces readonly + Type guards para validación runtime
+ * DEPENDENCIAS: @nestjs/common (HttpStatus)
+ * EXPORTS: HttpExceptionResponse, PrismaErrorCode, type guards, getHttpErrorName
  */
-
 import { HttpStatus } from '@nestjs/common';
 
 /**

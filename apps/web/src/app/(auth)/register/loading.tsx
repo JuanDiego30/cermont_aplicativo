@@ -1,9 +1,10 @@
 /**
- * 📁 app/(auth)/register/loading.tsx
- *
- * ✨ Loading state para la página de registro
+ * ARCHIVO: loading.tsx (register)
+ * FUNCION: Estado de carga (skeleton) para la página de registro
+ * IMPLEMENTACION: Componente estático con animación pulse de Tailwind
+ * DEPENDENCIAS: Tailwind CSS
+ * EXPORTS: RegisterLoading (default)
  */
-
 export default function RegisterLoading() {
   return (
     <div className="animate-pulse space-y-5">

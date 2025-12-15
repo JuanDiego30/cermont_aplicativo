@@ -1,10 +1,10 @@
 /**
- * 📁 app/(auth)/login/page.tsx
- *
- * ✨ Página de login refactorizada
- * Server Component con metadata + Client Component para el form
+ * ARCHIVO: page.tsx (login)
+ * FUNCION: Página de inicio de sesión del sistema CERMONT
+ * IMPLEMENTACION: Server Component con metadata SEO y Client Component para formulario
+ * DEPENDENCIAS: next/Metadata, LoginFormClient
+ * EXPORTS: LoginPage (default), metadata
  */
-
 import type { Metadata } from 'next';
 import { LoginFormClient } from './login-form-client';
 

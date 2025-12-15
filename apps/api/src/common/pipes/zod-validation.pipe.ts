@@ -1,12 +1,10 @@
 /**
- * @file zod-validation.pipe.ts
- * @description Pipe de validación con Zod
- *
- * Alternativa a class-validator con schemas declarativos
- * 
- * NOTA: Requiere instalar zod: pnpm add zod
+ * ARCHIVO: zod-validation.pipe.ts
+ * FUNCION: Pipe de validación usando Zod schemas para DTOs y payloads
+ * IMPLEMENTACION: Wrapper sobre ZodSchema.safeParse con formateo de errores estándar
+ * DEPENDENCIAS: @nestjs/common, tipos locales (ValidationErrorItem)
+ * EXPORTS: ZodValidationPipe, createZodValidationPipe
  */
-
 import {
     PipeTransform,
     Injectable,

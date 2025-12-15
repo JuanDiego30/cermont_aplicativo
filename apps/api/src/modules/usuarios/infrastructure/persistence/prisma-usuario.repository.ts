@@ -1,7 +1,9 @@
 /**
- * @repository PrismaUsuarioRepository
- * @description Implementación de IUsuarioRepository usando Prisma
- * @layer Infrastructure
+ * ARCHIVO: prisma-usuario.repository.ts
+ * FUNCION: Implementación concreta del repositorio de usuarios con Prisma ORM
+ * IMPLEMENTACION: CRUD completo con paginación, filtros y mapeo entidad-dominio
+ * DEPENDENCIAS: NestJS, PrismaService, IUsuarioRepository, Prisma Client
+ * EXPORTS: PrismaUsuarioRepository
  */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../prisma/prisma.service';

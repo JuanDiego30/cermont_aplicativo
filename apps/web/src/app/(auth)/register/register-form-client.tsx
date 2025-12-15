@@ -1,10 +1,10 @@
 /**
- * 📁 app/(auth)/register/register-form-client.tsx
- *
- * ✨ Client Component para el formulario de registro
- * Con validación Zod y mejor UX
+ * ARCHIVO: register-form-client.tsx
+ * FUNCION: Formulario de registro con validación de contraseña y campos obligatorios
+ * IMPLEMENTACION: Client Component con useTransition, validaciones inline y useAuth
+ * DEPENDENCIAS: react, next/navigation, next/link, lucide-react, @/hooks/useAuth
+ * EXPORTS: RegisterFormClient
  */
-
 'use client';
 
 import { useState, useTransition } from 'react';

@@ -1,6 +1,11 @@
-// @/features/kits - Stub module with React Query-compatible hooks
-// TODO: Implement full kits management feature
-
+/**
+ * ARCHIVO: index.tsx
+ * FUNCION: Módulo principal de Kits - Define interfaces, tipos y exports stub
+ * IMPLEMENTACION: Provee interfaces Kit, KitItem, KitFilters y componentes placeholder
+ * DEPENDENCIAS: Ninguna (módulo raíz)
+ * EXPORTS: Kit, KitItem, KitFilters, EstadoKit, KitCard, KitCardSkeleton, useKits, ESTADO_KIT_CONFIG
+ * TODO: Implementar funcionalidad completa de gestión de kits
+ */
 export interface Kit {
     id: string;
     nombre: string;

@@ -57,17 +57,18 @@ export class AuthControllerRefactored {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const dto = LoginSchema.parse(body);
+    const parsed = LoginSchema.safeParse(body);
+    if (!parsed.success) throw new BadRequestException(parsed.error.flatten());
     const context = { ip: req.ip, userAgent: req.get('user-agent') };
 
-    const result = await this.loginUseCase.execute(dto, context);
+    const loginResult = await this.loginUseCase.execute(parsed.data, context);
 
-    res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
+    res.cookie('refreshToken', loginResult.refreshToken, COOKIE_OPTIONS);
 
     return {
-      message: result.message,
-      token: result.token,
-      user: result.user,
+      message: loginResult.message,
+      token: loginResult.token,
+      user: loginResult.user,
     };
   }
 
@@ -80,17 +81,18 @@ export class AuthControllerRefactored {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const dto = RegisterSchema.parse(body);
+    const parsed = RegisterSchema.safeParse(body);
+    if (!parsed.success) throw new BadRequestException(parsed.error.flatten());
     const context = { ip: req.ip, userAgent: req.get('user-agent') };
 
-    const result = await this.registerUseCase.execute(dto, context);
+    const registerResult = await this.registerUseCase.execute(parsed.data, context);
 
-    res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
+    res.cookie('refreshToken', registerResult.refreshToken, COOKIE_OPTIONS);
 
     return {
-      message: result.message,
-      token: result.token,
-      user: result.user,
+      message: registerResult.message,
+      token: registerResult.token,
+      user: registerResult.user,
     };
   }
 

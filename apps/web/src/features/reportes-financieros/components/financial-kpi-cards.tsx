@@ -1,10 +1,10 @@
 /**
- * @file financial-kpi-cards.tsx
- * @description Grupo de tarjetas KPI financieras
- * 
- * ✨ Server Component
+ * ARCHIVO: financial-kpi-cards.tsx
+ * FUNCION: Grid de 4 tarjetas KPI (Ingresos, Egresos, Utilidad, Margen)
+ * IMPLEMENTACION: Server Component, mapea FinancialSummary a FinancialKPICard
+ * DEPENDENCIAS: FinancialKPICard, FinancialSummary types
+ * EXPORTS: FinancialKPICards, FinancialKPICardsSkeleton
  */
-
 import { FinancialKPICard, FinancialKPICardSkeleton } from './financial-kpi-card';
 import type { FinancialSummary } from '../api/financiero.types';
 

@@ -1,8 +1,10 @@
 /**
- * @file index.ts
- * @description API pública del feature reportes-financieros
+ * ARCHIVO: index.ts
+ * FUNCION: Barrel file - API pública del feature reportes-financieros
+ * IMPLEMENTACION: Re-exporta tipos, API client, hooks, componentes y utilidades
+ * DEPENDENCIAS: Todos los módulos internos del feature
+ * EXPORTS: financieroApi, hooks (useFinancialData, useFinancialSummary), componentes KPI y utilidades
  */
-
 // API & Types
 export * from './api/financiero.types';
 export { financieroApi } from './api/financiero.api';

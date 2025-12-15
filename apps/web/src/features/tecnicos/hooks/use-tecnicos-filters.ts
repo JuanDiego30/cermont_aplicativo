@@ -1,8 +1,10 @@
 /**
- * @file use-tecnicos-filters.ts
- * @description Hook para manejo de estado de filtros de técnicos
+ * ARCHIVO: use-tecnicos-filters.ts
+ * FUNCION: Hook para manejo de filtros con sincronización URL
+ * IMPLEMENTACION: Estado local + URLSearchParams para persistencia de filtros en navegación
+ * DEPENDENCIAS: react, next/navigation, TecnicoFilters
+ * EXPORTS: useTecnicosFilters
  */
-
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';

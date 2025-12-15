@@ -1,5 +1,12 @@
+/**
+ * ARCHIVO: page.tsx (Profile Page)
+ * FUNCION: Página de perfil de usuario con edición de datos y avatar
+ * IMPLEMENTACION: Usa useDropzone para subida de avatar, formulario controlado,
+ *                 integración con authStore para datos del usuario actual
+ * DEPENDENCIAS: React, react-dropzone, Next.js Image/Link, lucide-react, authStore
+ * EXPORTS: ProfilePage (default)
+ */
 'use client';
-
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Image from 'next/image';
@@ -94,7 +101,7 @@ export default function ProfilePage() {
                                     className="rounded-full object-cover"
                                 />
                             ) : (
-                                <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold">
+                                <div className="w-full h-full rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold">
                                     {getInitials(formData.name || 'US')}
                                 </div>
                             )}

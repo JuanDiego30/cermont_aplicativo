@@ -1,10 +1,10 @@
 /**
- * @file tecnicos-filters.tsx
- * @description Componente de filtros de técnicos
- * 
- * ✨ Client Component - Necesita interactividad
+ * ARCHIVO: tecnicos-filters.tsx
+ * FUNCION: Barra de filtros con búsqueda y selector de disponibilidad
+ * IMPLEMENTACION: Client Component - Input controlado + select con callbacks
+ * DEPENDENCIAS: lucide-react (Search, Filter, X), TecnicoFilters type
+ * EXPORTS: TecnicosFilters
  */
-
 'use client';
 
 import { Search, Filter, X } from 'lucide-react';

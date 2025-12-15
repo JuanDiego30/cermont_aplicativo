@@ -1,10 +1,11 @@
-'use client';
-
 /**
- * @file use-financial-data.ts
- * @description SWR hooks for financial reports
+ * ARCHIVO: use-financial-data.ts
+ * FUNCION: Custom hooks SWR para consumo de datos financieros
+ * IMPLEMENTACION: Hooks useFinancialData, useFinancialSummary, useExportFinancialReport con cache SWR
+ * DEPENDENCIAS: swr, useMutation, swrKeys, financieroApi
+ * EXPORTS: useFinancialData, useFinancialSummary, useExportFinancialReport, useFinancialReport
  */
-
+'use client';
 import useSWR from 'swr';
 import { useMutation } from '@/hooks/use-mutation';
 import { swrKeys } from '@/lib/swr-config';

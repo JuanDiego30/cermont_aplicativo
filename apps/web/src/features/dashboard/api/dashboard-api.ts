@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: dashboard-api.ts
+ * FUNCION: Cliente API para datos del dashboard
+ * IMPLEMENTACION: Usa apiClient compartido, métodos getMetrics, getOrdersStatus, getTechniciansStats
+ * DEPENDENCIAS: @/lib/api-client
+ * EXPORTS: dashboardApi, DashboardMetrics, OrderStatusData (interfaces)
+ */
 import { apiClient } from '@/lib/api-client';
 
 export interface DashboardMetrics {

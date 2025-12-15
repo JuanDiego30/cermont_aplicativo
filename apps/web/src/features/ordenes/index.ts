@@ -1,8 +1,10 @@
 /**
- * @fileoverview Ordenes Feature Module
- * Feature-based organization for orders functionality
+ * ARCHIVO: index.ts
+ * FUNCION: Barrel file del módulo de órdenes que centraliza exports
+ * IMPLEMENTACION: Re-exporta componentes, hooks, APIs y tipos del feature
+ * DEPENDENCIAS: Componentes locales, hooks, ordenesApi, tipos de @/types/order
+ * EXPORTS: OrdersList, CreateOrderForm, OrderStats, hooks, ordenesApi, tipos Order
  */
-
 // Components from feature
 export { OrdersList } from './components/OrdersList';
 export { CreateOrderForm } from './components/CreateOrderForm';

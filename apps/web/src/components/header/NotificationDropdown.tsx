@@ -1,5 +1,12 @@
+/**
+ * ARCHIVO: NotificationDropdown.tsx
+ * FUNCION: Dropdown de notificaciones con contador, tipos de alerta y estado leído/no leído
+ * IMPLEMENTACION: Estado local con mock data, iconos por tipo, click-outside detection
+ * DEPENDENCIAS: lucide-react icons (Bell, Clock, CheckCircle, AlertTriangle)
+ * EXPORTS: export default NotificationDropdown
+ * @todo Integrar con API real de notificaciones en producción
+ */
 'use client';
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Bell, X, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
 

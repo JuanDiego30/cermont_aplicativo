@@ -1,9 +1,11 @@
+/**
+ * ARCHIVO: WeatherWidget.tsx
+ * FUNCION: Widget compacto que muestra datos meteorológicos de Caño Limón
+ * IMPLEMENTACION: Usa hook useWeatherSummary para obtener clima y renderiza tarjeta con temp, humedad, viento y alertas
+ * DEPENDENCIAS: React, lucide-react (iconos), useWeatherSummary hook
+ * EXPORTS: WeatherWidget (named), default export
+ */
 'use client';
-
-// ============================================
-// WEATHER WIDGET - Widget compacto para Dashboard
-// ============================================
-
 import React from 'react';
 import {
   Cloud,

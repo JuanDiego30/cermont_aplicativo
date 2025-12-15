@@ -1,10 +1,11 @@
-'use client';
-
 /**
- * @file use-evidencias.ts
- * @description SWR hooks for evidencias management
+ * ARCHIVO: use-evidencias.ts
+ * FUNCION: Hooks SWR para gestión de estado de evidencias
+ * IMPLEMENTACION: useSWR para fetch, useMutation para upload/delete con invalidación
+ * DEPENDENCIAS: swr, @/hooks/use-mutation, evidencias.api
+ * EXPORTS: useEvidencias, useEvidencia, useUploadEvidencia, useDeleteEvidencia
  */
-
+'use client';
 import useSWR from 'swr';
 import { useMutation, useInvalidate } from '@/hooks/use-mutation';
 import { swrKeys } from '@/lib/swr-config';

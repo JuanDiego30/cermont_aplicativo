@@ -1,7 +1,9 @@
 /**
- * @controller UsuariosController (Refactorizado)
- * @description Controlador de usuarios con Clean Architecture
- * @layer Infrastructure
+ * ARCHIVO: usuarios.controller.ts
+ * FUNCION: Controlador REST para endpoints de usuarios con autorización RBAC
+ * IMPLEMENTACION: Valida DTOs con Zod, delega a use cases, protege con JWT y roles
+ * DEPENDENCIAS: NestJS, Swagger, Guards JWT/Roles, Use Cases, DTOs Zod
+ * EXPORTS: UsuariosControllerRefactored
  */
 import {
   Controller,
@@ -15,6 +17,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../../common/guards/jwt-auth.guard';
@@ -50,8 +53,9 @@ export class UsuariosControllerRefactored {
   @Roles('admin', 'supervisor')
   @ApiOperation({ summary: 'Listar usuarios' })
   async findAll(@Query() query: unknown) {
-    const parsedQuery = UsuarioQuerySchema.parse(query);
-    return this.listUsuariosUseCase.execute(parsedQuery);
+    const result = UsuarioQuerySchema.safeParse(query);
+    if (!result.success) throw new BadRequestException(result.error.flatten());
+    return this.listUsuariosUseCase.execute(result.data);
   }
 
   @Get(':id')
@@ -66,16 +70,18 @@ export class UsuariosControllerRefactored {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Crear usuario' })
   async create(@Body() body: unknown) {
-    const dto = CreateUsuarioSchema.parse(body);
-    return this.createUsuarioUseCase.execute(dto);
+    const result = CreateUsuarioSchema.safeParse(body);
+    if (!result.success) throw new BadRequestException(result.error.flatten());
+    return this.createUsuarioUseCase.execute(result.data);
   }
 
   @Put(':id')
   @Roles('admin')
   @ApiOperation({ summary: 'Actualizar usuario' })
   async update(@Param('id') id: string, @Body() body: unknown) {
-    const dto = UpdateUsuarioSchema.parse(body);
-    return this.updateUsuarioUseCase.execute(id, dto);
+    const result = UpdateUsuarioSchema.safeParse(body);
+    if (!result.success) throw new BadRequestException(result.error.flatten());
+    return this.updateUsuarioUseCase.execute(id, result.data);
   }
 
   @Delete(':id')

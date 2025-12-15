@@ -1,7 +1,11 @@
-// 📁 web/src/components/layout/app-sidebar.tsx
-
+/**
+ * ARCHIVO: app-sidebar.tsx
+ * FUNCION: Sidebar de navegación con control de acceso basado en roles (RBAC)
+ * IMPLEMENTACION: Filtra MENU_ITEMS según rol del usuario, incluye backdrop móvil integrado
+ * DEPENDENCIAS: useUIStore, useAuth, usePathname, next/link, cn utility
+ * EXPORTS: export function AppSidebar
+ */
 'use client';
-
 import { useUIStore } from '@/stores';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import Link from 'next/link';

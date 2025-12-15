@@ -229,7 +229,7 @@ export function ChecklistForm({ ordenId, tipoTrabajo, onComplete }: ChecklistFor
         <div className="space-y-6">
             {/* Template Selection */}
             {!selectedTemplate ? (
-                <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/3">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                         Seleccionar Checklist
                     </h3>
@@ -254,7 +254,7 @@ export function ChecklistForm({ ordenId, tipoTrabajo, onComplete }: ChecklistFor
             ) : (
                 <>
                     {/* Progress Header */}
-                    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+                    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/3">
                         <div className="flex items-center justify-between mb-4">
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -283,13 +283,13 @@ export function ChecklistForm({ ordenId, tipoTrabajo, onComplete }: ChecklistFor
                     </div>
 
                     {/* Checklist Items */}
-                    <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] divide-y divide-gray-200 dark:divide-gray-800">
+                    <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 divide-y divide-gray-200 dark:divide-gray-800">
                         {items.map((item, index) => (
                             <div key={item.id} className="p-4">
                                 <div className="flex items-start gap-4">
                                     <button
                                         onClick={() => toggleItem(item.id)}
-                                        className={`mt-0.5 flex-shrink-0 ${item.completado ? "text-green-500" : "text-gray-400"
+                                        className={`mt-0.5 shrink-0 ${item.completado ? "text-green-500" : "text-gray-400"
                                             }`}
                                     >
                                         {item.completado ? (
@@ -371,7 +371,7 @@ export function ChecklistForm({ ordenId, tipoTrabajo, onComplete }: ChecklistFor
                     </div>
 
                     {/* Observaciones */}
-                    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+                    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/3">
                         <h4 className="font-medium text-gray-900 dark:text-white mb-3">
                             Observaciones Generales
                         </h4>
@@ -385,7 +385,7 @@ export function ChecklistForm({ ordenId, tipoTrabajo, onComplete }: ChecklistFor
                     </div>
 
                     {/* Digital Signature */}
-                    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+                    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/3">
                         <h4 className="font-medium text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                             <Pencil className="w-4 h-4" />
                             Firma Digital

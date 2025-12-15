@@ -1,8 +1,10 @@
 /**
- * @file use-tecnicos.ts
- * @description SWR hooks para fetching de técnicos
+ * ARCHIVO: use-tecnicos.ts
+ * FUNCION: Hooks SWR para fetching y cache de técnicos
+ * IMPLEMENTACION: Usa SWR con keys factory, soporta suspense, prefetch e invalidación
+ * DEPENDENCIAS: swr, tecnicosApi, swrKeys
+ * EXPORTS: useTecnicos, useTecnico, useTecnicosStats, useSuspenseTecnicos, usePrefetchTecnico, useInvalidateTecnicos, tecnicosKeys
  */
-
 'use client';
 
 import useSWR, { useSWRConfig } from 'swr';

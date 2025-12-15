@@ -1,8 +1,10 @@
 /**
- * @file client.tsx
- * @description Componentes client para ejecución
+ * ARCHIVO: ejecucion/client.tsx
+ * FUNCION: Dashboard de ejecución con columnas Kanban (progreso/pausadas/finalizadas)
+ * IMPLEMENTACION: Agrupa ejecuciones por estado, acciones pausar/reanudar/finalizar
+ * DEPENDENCIAS: next/navigation, @/features/ejecucion (hooks y componentes)
+ * EXPORTS: EjecucionDashboard
  */
-
 'use client';
 
 import { useRouter } from 'next/navigation';

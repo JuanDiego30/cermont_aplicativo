@@ -1,7 +1,11 @@
-// 📁 web/src/components/layout/app-header.tsx
-
+/**
+ * ARCHIVO: app-header.tsx
+ * FUNCION: Header principal simplificado con logo, toggle sidebar y botón logout
+ * IMPLEMENTACION: Componente stateless que usa hooks de auth y UI store
+ * DEPENDENCIAS: useAuth, useUIStore, Button, next/link
+ * EXPORTS: export function AppHeader
+ */
 'use client';
-
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import { useUIStore } from '@/stores';
 import { Button } from '@/components/ui/Button';

@@ -1,10 +1,10 @@
 /**
- * @file period-selector.tsx
- * @description Selector de período para reportes
- * 
- * ✨ Client Component - Necesita interactividad
+ * ARCHIVO: period-selector.tsx
+ * FUNCION: Selector de período (1m, 3m, 6m, 1y) con botones de exportación
+ * IMPLEMENTACION: Client Component con select nativo y callbacks para PDF/Excel
+ * DEPENDENCIAS: lucide-react (Download, FileSpreadsheet), PeriodoTipo
+ * EXPORTS: PeriodSelector
  */
-
 'use client';
 
 import { Download, FileSpreadsheet } from 'lucide-react';

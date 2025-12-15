@@ -1,8 +1,15 @@
-"use client";
+/**
+ * ARCHIVO: use-tecnicos-mutations.ts
+ * FUNCION: Hooks para mutaciones CRUD de técnicos
+ * IMPLEMENTACION: Usa useMutation con invalidación automática del cache SWR
+ * DEPENDENCIAS: @/hooks/use-mutation, tecnicosApi
+ * EXPORTS: useCreateTecnico, useUpdateTecnico, useDeleteTecnico, useToggleDisponibilidad
+ */
+'use client';
 
-import { useMutation, useInvalidate } from "@/hooks/use-mutation";
-import { tecnicosApi } from "../api/tecnicos.api";
-import type { Tecnico, CreateTecnicoInput, UpdateTecnicoInput } from "../api/tecnicos.types";
+import { useMutation, useInvalidate } from '@/hooks/use-mutation';
+import { tecnicosApi } from '../api/tecnicos.api';
+import type { CreateTecnicoInput, UpdateTecnicoInput } from '../api/tecnicos.types';
 
 /**
  * Hook para crear técnico

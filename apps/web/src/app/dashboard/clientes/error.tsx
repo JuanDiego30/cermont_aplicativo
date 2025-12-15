@@ -1,10 +1,11 @@
 /**
- * @file error.tsx
- * @description Error boundary para clientes
+ * ARCHIVO: clientes/error.tsx
+ * FUNCION: Error boundary para la pagina de clientes
+ * IMPLEMENTACION: Muestra mensaje de error con boton de reintentar
+ * DEPENDENCIAS: React useEffect, lucide-react icons
+ * EXPORTS: ClientesError (default) - Client Component
  */
-
 'use client';
-
 import { useEffect } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 

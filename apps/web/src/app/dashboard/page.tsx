@@ -1,8 +1,19 @@
+/**
+ * ARCHIVO: page.tsx (Dashboard Principal)
+ * FUNCION: Página principal del dashboard con métricas, gráficos y resumen operativo
+ * IMPLEMENTACION: Usa hooks personalizados para métricas, gráficos dinámicos (SSR disabled),
+ *                 componentes de tarjetas métricas, tablas de órdenes recientes y accesos rápidos
+ * DEPENDENCIAS: React, Next.js dynamic, useDashboardMetrics, lucide-react, componentes de gráficos
+ * EXPORTS: DashboardPage (default), MetricCard, RecentOrdersTable, QuickAccess, RecentActivity
+ */
 "use client";
 import React from "react";
 import dynamic from "next/dynamic";
 import { useDashboardMetrics } from "@/features/dashboard/hooks/use-dashboard";
 import Link from "next/link";
+import CountUp from "@/components/CountUp";
+import SpotlightCard from "@/components/SpotlightCard";
+import SplitText from "@/components/SplitText";
 import {
   ClipboardList,
   CheckCircle,
@@ -43,8 +54,15 @@ interface MetricCardProps {
 }
 
 function MetricCard({ title, value, icon, trend, badge, iconBgColor, iconColor }: MetricCardProps) {
+  const numericValue = typeof value === 'number' ? value : parseInt(String(value), 10);
+  const isNumeric = !isNaN(numericValue);
+
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/3">
+    <SpotlightCard
+      className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900/50"
+      spotlightColor="rgba(59, 130, 246, 0.15)"
+    >
+      <div className="p-6">
       <div className="flex items-center justify-between">
         <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ${iconBgColor}`}>
           <span className={iconColor}>{icon}</span>
@@ -65,10 +83,23 @@ function MetricCard({ title, value, icon, trend, badge, iconBgColor, iconColor }
         )}
       </div>
       <div className="mt-4">
-        <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
+        <p className="text-2xl font-bold text-gray-900 dark:text-white">
+          {isNumeric ? (
+            <CountUp
+              to={numericValue}
+              from={0}
+              duration={1.5}
+              separator=","
+              className="tabular-nums"
+            />
+          ) : (
+            value
+          )}
+        </p>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{title}</p>
       </div>
-    </div>
+      </div>
+    </SpotlightCard>
   );
 }
 
@@ -384,7 +415,15 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Dashboard
+            <SplitText
+              text="Dashboard"
+              className="inline"
+              delay={50}
+              from={{ opacity: 0, y: 20 }}
+              to={{ opacity: 1, y: 0 }}
+              threshold={0.1}
+              tag="span"
+            />
           </h1>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Bienvenido de vuelta. Aquí está el resumen de tu operación.

@@ -1,10 +1,10 @@
 /**
- * @util String Utilities
- * @description Utilidades para manejo de strings
- * 
- * Principio DRY: Centraliza lógica de strings usada en múltiples módulos
+ * ARCHIVO: string.util.ts
+ * FUNCION: Utilidades centralizadas para manejo y validación de strings
+ * IMPLEMENTACION: Funciones puras para formateo, normalización y validación de texto
+ * DEPENDENCIAS: Ninguna (vanilla TypeScript)
+ * EXPORTS: generarNumeroOrden, capitalizar, slugify, esEmailValido, etc.
  */
-
 /**
  * Genera un número de orden secuencial con formato
  * Ej: ORD-000001

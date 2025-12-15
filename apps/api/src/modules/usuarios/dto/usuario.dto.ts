@@ -1,7 +1,10 @@
-// ============================================
-// USER DTOs - Validación para gestión de usuarios
-// ============================================
-
+/**
+ * ARCHIVO: usuario.dto.ts
+ * FUNCION: DTOs con validación class-validator para usuarios (legacy)
+ * IMPLEMENTACION: Decoradores de validación y Swagger para documentación de API
+ * DEPENDENCIAS: class-validator, @nestjs/swagger
+ * EXPORTS: UserRoleDto, CreateUserDto, UpdateUserDto, ChangePasswordDto, UpdateUserRoleDto
+ */
 import {
   IsString,
   IsEmail,

@@ -1,8 +1,14 @@
+/**
+ * ARCHIVO: Sidebar.tsx
+ * FUNCION: Barra lateral de navegación del dashboard con menú de módulos
+ * IMPLEMENTACION: Renderiza lista de enlaces con iconos, detecta ruta activa
+ *                 mediante usePathname para resaltar el elemento seleccionado
+ * DEPENDENCIAS: Next.js Link/usePathname
+ * EXPORTS: Sidebar (named export)
+ */
 'use client';
-
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
 const menuItems = [
   { href: '/dashboard', label: 'Inicio', icon: '🏠' },
   { href: '/dashboard/ordenes', label: 'Órdenes', icon: '📋' },

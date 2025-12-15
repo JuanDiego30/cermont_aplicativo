@@ -1,5 +1,11 @@
+/**
+ * ARCHIVO: TaskList.tsx
+ * FUNCION: Componente de lista de tareas con checkboxes y progreso
+ * IMPLEMENTACION: Lista ordenada con toggles, barra de progreso visual
+ * DEPENDENCIAS: @/types/workplan (WorkPlanTask)
+ * EXPORTS: TaskList
+ */
 'use client';
-
 import type { WorkPlanTask } from '@/types/workplan';
 
 interface TaskListProps {

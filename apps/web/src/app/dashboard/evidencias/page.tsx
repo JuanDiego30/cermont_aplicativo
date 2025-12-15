@@ -1,8 +1,10 @@
 /**
- * @file page.tsx
- * @description Página de evidencias - Server Component
+ * ARCHIVO: evidencias/page.tsx
+ * FUNCION: Server Component para gestión de evidencias fotográficas
+ * IMPLEMENTACION: Renderiza header y carga dashboard con Suspense boundary
+ * DEPENDENCIAS: React Suspense, lucide-react, @/features/evidencias, ./client
+ * EXPORTS: EvidenciasPage (default), EvidenciasGridSkeleton
  */
-
 import { Suspense } from 'react';
 import { Camera } from 'lucide-react';
 import { EvidenciaCardSkeleton } from '@/features/evidencias';
@@ -18,7 +20,7 @@ export default async function EvidenciasPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-lg bg-linear-to-br from-purple-500 to-purple-600 flex items-center justify-center">
           <Camera className="w-5 h-5 text-white" />
         </div>
         <div>

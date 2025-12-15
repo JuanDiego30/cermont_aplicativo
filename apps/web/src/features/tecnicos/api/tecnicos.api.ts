@@ -6,7 +6,7 @@
  * EXPORTS: tecnicosApi
  */
 
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/api-client';
 import type {
   Tecnico,
   TecnicoFilters,

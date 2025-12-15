@@ -1,9 +1,10 @@
 /**
- * @repository IUsuarioRepository
- * @description Interface del repositorio de usuarios
- * @layer Domain
+ * ARCHIVO: usuario.repository.interface.ts
+ * FUNCION: Contrato de repositorio para persistencia de usuarios (Domain Layer)
+ * IMPLEMENTACION: Define interface IUsuarioRepository y token de inyección Symbol
+ * DEPENDENCIAS: Ninguna (capa de dominio pura)
+ * EXPORTS: USUARIO_REPOSITORY (Symbol), IUsuarioRepository, UsuarioData
  */
-
 export const USUARIO_REPOSITORY = Symbol('USUARIO_REPOSITORY');
 
 export interface UsuarioData {

@@ -1,5 +1,11 @@
+/**
+ * ARCHIVO: MapaGPS.tsx
+ * FUNCION: Mapa GPS interactivo para rastrear órdenes, técnicos, vehículos y alertas
+ * IMPLEMENTACION: Leaflet desde CDN, marcadores personalizados, rutas de seguimiento, geolocalización del usuario
+ * DEPENDENCIAS: React, lucide-react, Leaflet (CDN dinámico)
+ * EXPORTS: MapaGPS (named), default, interfaces (GPSLocation, MapMarker, RouteTrack)
+ */
 'use client';
-
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   MapPin,

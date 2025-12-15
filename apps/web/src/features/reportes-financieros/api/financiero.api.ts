@@ -1,9 +1,9 @@
 /**
- * @file financiero.api.ts
- * @description API client para reportes financieros
+ * ARCHIVO: financiero.api.ts
+ * FUNCION: Cliente API para operaciones de reportes financieros
+ * IMPLEMENTACION: Usa apiClient centralizado (baseURL + JWT + refresh)
+ * EXPORTS: financieroApi (objeto con métodos async)
  */
-
-import axios from 'axios';
 import type {
   FinancialFilters,
   FinancialResponse,
@@ -12,61 +12,35 @@ import type {
   ExportConfig,
 } from './financiero.types';
 
-// Configuración del cliente API
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Interceptor para agregar token de autenticación
-api.interceptors.request.use((config) => {
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+import { apiClient } from '@/lib/api-client';
 
 export const financieroApi = {
   /**
    * Obtiene datos financieros según filtros
    */
   async getData(filters: FinancialFilters): Promise<FinancialResponse> {
-    const params = new URLSearchParams();
-    
-    params.append('periodo', filters.periodo);
-    if (filters.fechaInicio) params.append('fechaInicio', filters.fechaInicio);
-    if (filters.fechaFin) params.append('fechaFin', filters.fechaFin);
-    if (filters.categoria) params.append('categoria', filters.categoria);
+    const params: Record<string, string> = {
+      periodo: filters.periodo,
+    };
+    if (filters.fechaInicio) params.fechaInicio = filters.fechaInicio;
+    if (filters.fechaFin) params.fechaFin = filters.fechaFin;
+    if (filters.categoria) params.categoria = filters.categoria;
 
-    const response = await api.get<FinancialResponse>(`/api/reportes/financieros?${params}`);
-    return response.data;
+    return apiClient.get<FinancialResponse>('/reportes/financieros', params);
   },
 
   /**
    * Obtiene resumen de KPIs financieros
    */
   async getSummary(periodo: string): Promise<FinancialSummary> {
-    const response = await api.get<FinancialSummary>(`/api/reportes/financieros/summary`, {
-      params: { periodo },
-    });
-    return response.data;
+    return apiClient.get<FinancialSummary>('/reportes/financieros/summary', { periodo });
   },
 
   /**
    * Exporta reporte financiero
    */
   async export(filters: FinancialFilters, config: ExportConfig): Promise<Blob> {
-    const response = await api.post(
-      '/api/reportes/financieros/export',
-      { filters, config },
-      { responseType: 'blob' }
-    );
-    return response.data;
+    return apiClient.postBlob('/reportes/financieros/export', { filters, config });
   },
 };
 

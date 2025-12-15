@@ -1,10 +1,9 @@
 /**
- * Health Check Controller
- *
- * Endpoints para verificar el estado del servicio y sus dependencias.
- * Inspirado en fastapi-template: health checks completos para Docker/K8s.
- * 
- * Rate limiting desactivado para estos endpoints (SkipThrottle).
+ * ARCHIVO: health.controller.ts
+ * FUNCION: Controlador de health checks para monitoreo y orquestación K8s/Docker
+ * IMPLEMENTACION: Expone endpoints /health, /health/ready y /health/live con verificación de BD
+ * DEPENDENCIAS: @nestjs/common, @nestjs/swagger, @nestjs/throttler, PrismaService
+ * EXPORTS: HealthController (clase controlador)
  */
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';

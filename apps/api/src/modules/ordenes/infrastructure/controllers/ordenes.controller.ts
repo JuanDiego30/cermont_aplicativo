@@ -16,6 +16,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../../common/guards/jwt-auth.guard';
@@ -37,6 +38,7 @@ import {
 
 @ApiTags('Ordenes')
 @Controller('ordenes')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class OrdenesController {
   constructor(
@@ -51,8 +53,9 @@ export class OrdenesController {
   @Get()
   @ApiOperation({ summary: 'Listar órdenes' })
   async findAll(@Query() query: unknown) {
-    const parsedQuery = OrdenQuerySchema.parse(query);
-    return this.listOrdenesUseCase.execute(parsedQuery);
+    const result = OrdenQuerySchema.safeParse(query);
+    if (!result.success) throw new BadRequestException(result.error.flatten());
+    return this.listOrdenesUseCase.execute(result.data);
   }
 
   @Get(':id')
@@ -65,22 +68,25 @@ export class OrdenesController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Crear orden' })
   async create(@Body() body: unknown, @CurrentUser() user: JwtPayload) {
-    const dto = CreateOrdenSchema.parse(body);
-    return this.createOrdenUseCase.execute(dto, user.userId);
+    const result = CreateOrdenSchema.safeParse(body);
+    if (!result.success) throw new BadRequestException(result.error.flatten());
+    return this.createOrdenUseCase.execute(result.data, user.userId);
   }
 
   @Put(':id')
   @ApiOperation({ summary: 'Actualizar orden' })
   async update(@Param('id') id: string, @Body() body: unknown) {
-    const dto = UpdateOrdenSchema.parse(body);
-    return this.updateOrdenUseCase.execute(id, dto);
+    const result = UpdateOrdenSchema.safeParse(body);
+    if (!result.success) throw new BadRequestException(result.error.flatten());
+    return this.updateOrdenUseCase.execute(id, result.data);
   }
 
   @Patch(':id/estado')
   @ApiOperation({ summary: 'Cambiar estado de orden' })
   async changeEstado(@Param('id') id: string, @Body() body: unknown) {
-    const dto = ChangeEstadoSchema.parse(body);
-    return this.changeOrdenEstadoUseCase.execute(id, dto);
+    const result = ChangeEstadoSchema.safeParse(body);
+    if (!result.success) throw new BadRequestException(result.error.flatten());
+    return this.changeOrdenEstadoUseCase.execute(id, result.data);
   }
 
   @Delete(':id')

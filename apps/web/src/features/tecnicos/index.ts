@@ -1,10 +1,10 @@
 /**
- * @file index.ts
- * @description API pública del feature tecnicos
- * 
- * ✨ Este archivo define qué exporta el módulo para uso externo
+ * ARCHIVO: index.ts
+ * FUNCION: Barrel file - API pública del módulo técnicos
+ * IMPLEMENTACION: Re-exporta tipos, hooks, componentes y utilidades del feature
+ * DEPENDENCIAS: Submódulos api, hooks, components, schemas, utils
+ * EXPORTS: Tipos, tecnicosApi, hooks SWR, componentes UI, schemas Zod, utils
  */
-
 // API & Types (explicit exports to avoid duplicates)
 export type { Tecnico, TecnicoFilters, PaginatedTecnicos, TecnicoStats, TecnicoEstado } from './api/tecnicos.types';
 export { tecnicosApi } from './api/tecnicos.api';

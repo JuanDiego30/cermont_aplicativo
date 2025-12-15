@@ -1,10 +1,10 @@
 /**
- * @file index.ts
- * @description Public API for clientes feature module
- * 
- * Exports types, hooks, services, and components for client management
+ * ARCHIVO: index.tsx
+ * FUNCION: Punto de entrada público del módulo de clientes
+ * IMPLEMENTACION: Re-exporta tipos, hooks, servicios y componentes placeholder
+ * DEPENDENCIAS: ./types, ./hooks, ./services
+ * EXPORTS: ClienteTypes, useClientes hooks, clientesService, componentes UI
  */
-
 // Types
 export * from './types/clientes.types';
 

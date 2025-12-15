@@ -5,7 +5,7 @@
  * DEPENDENCIAS: @/lib/api (apiClient), @/types/user
  * EXPORTS: authService, LoginResponse, RefreshResponse
  */
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/api-client';
 import type { LoginCredentials, RegisterData, User } from '@/types/user';
 
 export interface LoginResponse {

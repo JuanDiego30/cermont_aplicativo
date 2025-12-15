@@ -1,10 +1,11 @@
-'use client';
-
 /**
- * @file use-mantenimientos.ts
- * @description SWR hooks for mantenimientos management
+ * ARCHIVO: use-mantenimientos.ts
+ * FUNCION: Hooks SWR para gestión de mantenimientos (CRUD + stats)
+ * IMPLEMENTACION: Usa useSWR para fetching y useMutation para operaciones de escritura
+ * DEPENDENCIAS: swr, @/hooks/use-mutation, @/lib/swr-config, mantenimientosApi
+ * EXPORTS: useMantenimientos, useMantenimiento, useMantenimientosStats, useCreateMantenimiento, useUpdateMantenimiento, useDeleteMantenimiento
  */
-
+'use client';
 import useSWR from 'swr';
 import { useMutation, useInvalidate } from '@/hooks/use-mutation';
 import { swrKeys } from '@/lib/swr-config';

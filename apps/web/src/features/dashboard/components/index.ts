@@ -1,8 +1,10 @@
 /**
- * @file index.ts
- * @description Public exports for Dashboard components
+ * ARCHIVO: index.ts
+ * FUNCION: Barrel file para componentes del dashboard
+ * IMPLEMENTACION: Re-exporta todos los componentes de visualización
+ * DEPENDENCIAS: Componentes locales (CompletionTarget, DashboardMetrics, etc.)
+ * EXPORTS: CompletionTarget, DashboardMetrics, MonthlyOrdersChart, RecentOrdersTable, StatisticsChart, StatsCard
  */
-
 export * from './CompletionTarget';
 export * from './DashboardMetrics';
 export * from './MonthlyOrdersChart';

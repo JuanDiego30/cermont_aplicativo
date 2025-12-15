@@ -1,8 +1,10 @@
 /**
- * @file index.ts
- * @description Public exports for Mantenimientos module
+ * ARCHIVO: index.ts
+ * FUNCION: Barrel file para el módulo de Mantenimientos
+ * IMPLEMENTACION: Re-exporta tipos, API, hooks, componentes y utilidades
+ * DEPENDENCIAS: Submódulos internos (types, api, hooks, components, utils)
+ * EXPORTS: Mantenimiento, mantenimientosApi, useMantenimientos, MantenimientoCard, etc.
  */
-
 export * from './types/mantenimiento.types';
 export * from './api/mantenimientos.api';
 export * from './hooks/use-mantenimientos';

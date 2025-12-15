@@ -1,8 +1,10 @@
 /**
- * @file orden.schema.ts
- * @description Esquemas Zod para validación de órdenes
+ * ARCHIVO: orden.schema.ts
+ * FUNCION: Define esquemas Zod para validación de formularios de órdenes
+ * IMPLEMENTACION: Usa Zod para definir enums, schemas de creación, actualización y filtros
+ * DEPENDENCIAS: zod
+ * EXPORTS: EstadoOrdenEnum, PrioridadOrdenEnum, TipoOrdenEnum, CreateOrdenSchema, UpdateOrdenSchema, OrdenFilterSchema, ChangeEstadoSchema y tipos inferidos
  */
-
 import { z } from 'zod';
 
 // ============================================

@@ -1,5 +1,11 @@
+/**
+ * ARCHIVO: InspeccionForm.tsx
+ * FUNCION: Formulario de inspección de equipos HES (Seguridad en Alturas)
+ * IMPLEMENTACION: Valida rubros de inspección, marca OK/Rechazado, envía a API y revalida caché SWR
+ * DEPENDENCIAS: React, SWR (useSWRConfig), useMutation hook, apiClient, lucide-react
+ * EXPORTS: InspeccionForm (named)
+ */
 'use client';
-
 import React, { useState } from 'react';
 import { useSWRConfig } from 'swr';
 import { useMutation } from '@/hooks/use-mutation';
@@ -43,8 +49,6 @@ export function InspeccionForm({
             estado: 'OK',
         }))
     );
-    const [_fotos, _setFotos] = useState<File[]>([]);
-    const [_observaciones, _setObservaciones] = useState('');
 
     const mutation = useMutation({
         mutationFn: async () => {

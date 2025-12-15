@@ -1,5 +1,11 @@
+/**
+ * ARCHIVO: PlaneacionTimeline.tsx
+ * FUNCION: Componente visual de timeline para planes de trabajo
+ * IMPLEMENTACION: Renderiza lista vertical con indicadores de estado y progreso
+ * DEPENDENCIAS: @/types/workplan (WorkPlan)
+ * EXPORTS: PlaneacionTimeline
+ */
 'use client';
-
 import type { WorkPlan } from '@/types/workplan';
 
 interface PlaneacionTimelineProps {

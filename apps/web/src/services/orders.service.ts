@@ -5,7 +5,7 @@
  * DEPENDENCIAS: @/lib/api (apiClient), @/types/order
  * EXPORTS: ordersService, PaginatedOrders, ListOrdersParams
  */
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/api-client';
 import type { Order, CreateOrderInput, UpdateOrderInput, OrderFilters, OrderStatus, OrderPriority } from '@/types/order';
 
 export interface PaginatedOrders {

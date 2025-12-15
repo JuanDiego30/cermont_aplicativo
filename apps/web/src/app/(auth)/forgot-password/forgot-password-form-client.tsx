@@ -1,9 +1,10 @@
 /**
- * 📁 app/(auth)/forgot-password/forgot-password-form-client.tsx
- *
- * ✨ Client Component para el formulario de recuperación de contraseña
+ * ARCHIVO: forgot-password-form-client.tsx
+ * FUNCION: Formulario para solicitar restablecimiento de contraseña por email
+ * IMPLEMENTACION: Client Component con useTransition, estado de éxito y validación
+ * DEPENDENCIAS: react, next/link, lucide-react
+ * EXPORTS: ForgotPasswordFormClient
  */
-
 'use client';
 
 import { useState, useTransition } from 'react';

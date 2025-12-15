@@ -4,21 +4,10 @@
  */
 
 import { apiClient } from '@/lib/api-client';
+import { filtersToParams } from '@/lib/utils/params';
 import type { Costo, CostoFilters, ResumenPeriodo } from '../index';
 
 const BASE_URL = '/costos';
-
-// Helper to convert filters to params object
-function filtersToParams(filters?: Record<string, unknown>): Record<string, string> | undefined {
-    if (!filters) return undefined;
-    const params: Record<string, string> = {};
-    Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-            params[key] = String(value);
-        }
-    });
-    return Object.keys(params).length > 0 ? params : undefined;
-}
 
 export const costosService = {
     /**

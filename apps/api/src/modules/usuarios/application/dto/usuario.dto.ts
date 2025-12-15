@@ -1,7 +1,9 @@
 /**
- * @dto Usuario DTOs
- * @description DTOs con validación Zod para usuarios
- * @layer Application
+ * ARCHIVO: usuario.dto.ts
+ * FUNCION: DTOs con validación Zod para operaciones CRUD de usuarios
+ * IMPLEMENTACION: Schemas Zod con transformaciones y validaciones tipadas
+ * DEPENDENCIAS: zod
+ * EXPORTS: CreateUsuarioSchema/Dto, UpdateUsuarioSchema/Dto, UsuarioQuerySchema/Dto, UsuarioResponse, UsuarioListResponse
  */
 import { z } from 'zod';
 

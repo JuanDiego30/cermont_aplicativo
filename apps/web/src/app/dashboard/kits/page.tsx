@@ -1,8 +1,10 @@
 /**
- * @file page.tsx
- * @description Página de kits - Server Component
+ * ARCHIVO: kits/page.tsx
+ * FUNCION: Server Component para la página de kits de herramientas
+ * IMPLEMENTACION: Renderiza header, estadísticas y carga dashboard con Suspense
+ * DEPENDENCIAS: React Suspense, lucide-react, @/features/kits, ./client
+ * EXPORTS: metadata, KitsPage (default)
  */
-
 import { Suspense } from 'react';
 import { Briefcase } from 'lucide-react';
 import { KitCardSkeleton } from '@/features/kits';
@@ -30,7 +32,7 @@ export default async function KitsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-lg bg-linear-to-br from-amber-500 to-amber-600 flex items-center justify-center">
           <Briefcase className="w-5 h-5 text-white" />
         </div>
         <div>
@@ -45,19 +47,19 @@ export default async function KitsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">
           <p className="text-sm text-gray-500">Total</p>
           <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">
           <p className="text-sm text-gray-500">Disponibles</p>
           <p className="text-2xl font-bold text-green-600">{stats.disponibles}</p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">
           <p className="text-sm text-gray-500">En Uso</p>
           <p className="text-2xl font-bold text-blue-600">{stats.enUso}</p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">
           <p className="text-sm text-gray-500">Mantenimiento</p>
           <p className="text-2xl font-bold text-yellow-600">{stats.mantenimiento}</p>
         </div>

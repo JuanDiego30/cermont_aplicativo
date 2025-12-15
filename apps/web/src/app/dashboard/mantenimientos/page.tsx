@@ -1,8 +1,10 @@
 /**
- * @file page.tsx
- * @description Página de mantenimientos - Server Component
+ * ARCHIVO: mantenimientos/page.tsx
+ * FUNCION: Server Component para gestión de mantenimientos preventivos/correctivos
+ * IMPLEMENTACION: Renderiza header, estadísticas y dashboard con Suspense
+ * DEPENDENCIAS: React Suspense, lucide-react, @/features/mantenimientos, ./client
+ * EXPORTS: metadata, MantenimientosPage (default)
  */
-
 import { Suspense } from 'react';
 import { Wrench } from 'lucide-react';
 import { MantenimientoCardSkeleton } from '@/features/mantenimientos';
@@ -30,7 +32,7 @@ export default async function MantenimientosPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-lg bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center">
           <Wrench className="w-5 h-5 text-white" />
         </div>
         <div>
@@ -45,19 +47,19 @@ export default async function MantenimientosPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">
           <p className="text-sm text-gray-500">Programados</p>
           <p className="text-2xl font-bold text-blue-600">{stats.programados}</p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">
           <p className="text-sm text-gray-500">En Progreso</p>
           <p className="text-2xl font-bold text-purple-600">{stats.enProgreso}</p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">
           <p className="text-sm text-gray-500">Vencidos</p>
           <p className="text-2xl font-bold text-red-600">{stats.vencidos}</p>
         </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">
           <p className="text-sm text-gray-500">Completados (mes)</p>
           <p className="text-2xl font-bold text-green-600">{stats.completadosMes}</p>
         </div>

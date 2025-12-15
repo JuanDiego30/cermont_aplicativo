@@ -168,7 +168,7 @@ export function CosteoPanel({ ordenId, editable = true }: CosteoPanelProps) {
 
     if (loadingResumen || loadingCostos) {
         return (
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+            <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/3">
                 <div className="animate-pulse space-y-4">
                     <div className="h-6 bg-gray-200 rounded w-1/3" />
                     <div className="grid grid-cols-3 gap-4">
@@ -187,7 +187,7 @@ export function CosteoPanel({ ordenId, editable = true }: CosteoPanelProps) {
     return (
         <div className="space-y-6">
             {/* Header con Resumen */}
-            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3">
                 <div className="p-6 border-b border-gray-200 dark:border-gray-800">
                     <div className="flex items-center justify-between">
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
@@ -291,7 +291,7 @@ export function CosteoPanel({ ordenId, editable = true }: CosteoPanelProps) {
 
             {/* Formulario para agregar costo */}
             {showForm && (
-                <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
+                <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/3">
                     <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                         Registrar Nuevo Costo
                     </h4>
@@ -380,7 +380,7 @@ export function CosteoPanel({ ordenId, editable = true }: CosteoPanelProps) {
             )}
 
             {/* Tabla de Costos */}
-            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3">
                 <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
                     <h4 className="font-semibold text-gray-900 dark:text-white">
                         Desglose de Costos ({costos.length})

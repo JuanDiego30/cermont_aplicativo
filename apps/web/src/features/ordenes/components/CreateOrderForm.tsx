@@ -1,5 +1,11 @@
+/**
+ * ARCHIVO: CreateOrderForm.tsx
+ * FUNCION: Formulario para crear nuevas órdenes de trabajo
+ * IMPLEMENTACION: Usa react-hook-form para validación, useCreateOrder para mutación
+ * DEPENDENCIAS: react-hook-form, useCreateOrder, ORDER_TYPE_OPTIONS, PRIORITY_OPTIONS
+ * EXPORTS: CreateOrderForm (componente React)
+ */
 'use client';
-
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useCreateOrder } from '../hooks/use-orders';

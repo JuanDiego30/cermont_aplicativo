@@ -1,8 +1,10 @@
 /**
- * @file client.tsx
- * @description Componentes client para kits
+ * ARCHIVO: kits/client.tsx
+ * FUNCION: Dashboard interactivo para gestión de kits de herramientas
+ * IMPLEMENTACION: Filtrado por estado/búsqueda, grid de KitCards con navegación
+ * DEPENDENCIAS: React hooks, next/navigation, lucide-react, @/features/kits
+ * EXPORTS: KitsDashboard
  */
-
 'use client';
 
 import { useState } from 'react';

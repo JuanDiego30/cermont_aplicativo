@@ -1,10 +1,10 @@
 /**
- * @file page.tsx
- * @description Página de Técnicos - Refactorizada con Server Components
- * 
- * ✨ Server Component - Fetch de datos en el servidor
+ * ARCHIVO: tecnicos/page.tsx
+ * FUNCION: Pagina de gestion de tecnicos con Server Components
+ * IMPLEMENTACION: Suspense para stats y grid, filtros via searchParams
+ * DEPENDENCIAS: React Suspense, Next.js Link, features/tecnicos
+ * EXPORTS: TecnicosPage (default), generateMetadata - Server Component
  */
-
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';

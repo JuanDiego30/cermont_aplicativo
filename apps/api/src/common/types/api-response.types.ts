@@ -1,12 +1,9 @@
 /**
- * @file api-response.types.ts
- * @description Tipos estrictos para respuestas API - 100% type-safe, sin 'any'
- *
- * Principios:
- * - Eliminación total de 'any'
- * - Propiedades readonly para inmutabilidad
- * - Type guards para validación en runtime
- * - Compatibilidad con Swagger/OpenAPI
+ * ARCHIVO: api-response.types.ts
+ * FUNCION: Tipos estrictos para respuestas API estandarizadas (type-safe)
+ * IMPLEMENTACION: Interfaces readonly + Type guards + Factory functions
+ * DEPENDENCIAS: Ninguna (tipos puros)
+ * EXPORTS: SuccessResponse, ErrorResponse, PaginatedResponse, factories y guards
  */
 
 /**

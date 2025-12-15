@@ -10,7 +10,7 @@ const Calendar = dynamic(
     {
         ssr: false,
         loading: () => (
-            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 p-6 flex items-center justify-center min-h-[400px]">
+            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 p-6 flex items-center justify-center min-h-100">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
         )

@@ -1,10 +1,10 @@
 /**
- * 📁 app/(auth)/forgot-password/page.tsx
- *
- * ✨ Página de recuperación de contraseña
- * Server Component con metadata
+ * ARCHIVO: page.tsx (forgot-password)
+ * FUNCION: Página de recuperación de contraseña olvidada
+ * IMPLEMENTACION: Server Component con metadata SEO y Client Component para formulario
+ * DEPENDENCIAS: next/Metadata, ForgotPasswordFormClient
+ * EXPORTS: ForgotPasswordPage (default), metadata
  */
-
 import type { Metadata } from 'next';
 import { ForgotPasswordFormClient } from './forgot-password-form-client';
 

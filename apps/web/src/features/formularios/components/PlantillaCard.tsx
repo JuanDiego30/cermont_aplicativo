@@ -1,8 +1,10 @@
 /**
- * @file PlantillaCard.tsx
- * @description Pure component for displaying a form template
+ * ARCHIVO: PlantillaCard.tsx
+ * FUNCION: Card presentacional para mostrar plantilla de formulario
+ * IMPLEMENTACION: Muestra nombre, descripción, estado, conteo de campos y acciones
+ * DEPENDENCIAS: formulario.types, formulario.utils (ESTADO_CONFIG)
+ * EXPORTS: PlantillaCard
  */
-
 import { Plantilla } from '../types/formulario.types';
 import { ESTADO_FORMULARIO_CONFIG } from '../utils/formulario.utils';
 

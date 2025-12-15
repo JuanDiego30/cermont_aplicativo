@@ -282,7 +282,7 @@ export default function ReportesOperativosPage() {
                                 <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-medium">
+                                            <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-medium">
                                                 {tech.nombre.split(' ').map(n => n[0]).join('')}
                                             </div>
                                             <span className="text-sm font-medium text-gray-900 dark:text-white">

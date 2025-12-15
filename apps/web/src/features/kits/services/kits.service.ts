@@ -1,24 +1,15 @@
 /**
- * @file kits.service.ts
- * @description API service for kits module
+ * ARCHIVO: kits.service.ts
+ * FUNCION: Servicio API para operaciones CRUD de kits
+ * IMPLEMENTACION: Usa apiClient para llamadas HTTP a /kits endpoint
+ * DEPENDENCIAS: @/lib/api (apiClient)
+ * EXPORTS: kitsService (list, getById, create, update, delete, changeEstado, getSugeridos)
  */
-
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/api-client';
+import { filtersToParams } from '@/lib/utils/params';
 import type { Kit, KitFilters, EstadoKit } from '../index';
 
 const BASE_URL = '/kits';
-
-// Helper to convert filters to params object
-function filtersToParams(filters?: Record<string, unknown>): Record<string, string> | undefined {
-    if (!filters) return undefined;
-    const params: Record<string, string> = {};
-    Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-            params[key] = String(value);
-        }
-    });
-    return Object.keys(params).length > 0 ? params : undefined;
-}
 
 export const kitsService = {
     /**

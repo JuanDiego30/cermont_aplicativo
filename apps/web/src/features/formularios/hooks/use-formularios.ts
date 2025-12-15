@@ -1,10 +1,11 @@
-'use client';
-
 /**
- * @file use-formularios.ts
- * @description SWR hooks for formularios management
+ * ARCHIVO: use-formularios.ts
+ * FUNCION: Hooks SWR para gestión de estado de formularios/plantillas
+ * IMPLEMENTACION: Hooks CRUD con aliases en español para compatibilidad
+ * DEPENDENCIAS: swr, @/hooks/use-mutation, formularios.api
+ * EXPORTS: useFormularios, useCreateFormulario, useUpdateFormulario, useDeleteFormulario
  */
-
+'use client';
 import useSWR from 'swr';
 import { useMutation, useInvalidate } from '@/hooks/use-mutation';
 import { swrKeys } from '@/lib/swr-config';

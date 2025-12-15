@@ -1,12 +1,13 @@
+/**
+ * ARCHIVO: layout.tsx (legal)
+ * FUNCION: Layout compartido para páginas legales (términos, privacidad, contacto)
+ * IMPLEMENTACION: Client Component con header sticky, navegación y footer
+ * DEPENDENCIAS: next/link, lucide-react
+ * EXPORTS: LegalLayout (default)
+ */
 'use client';
-
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-
-/**
- * Layout compartido para páginas legales (términos, privacidad, etc.)
- * Proporciona navegación consistente y estilo unificado
- */
 export default function LegalLayout({
   children,
 }: {

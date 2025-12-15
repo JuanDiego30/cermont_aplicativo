@@ -14,6 +14,8 @@ function buildApiBaseUrl(rawUrl: string): string {
   return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
 }
 
+export { buildApiBaseUrl };
+
 const API_BASE_URL = buildApiBaseUrl(
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 );
@@ -157,6 +159,75 @@ class ApiClient {
     return response.json();
   }
 
+  private async requestBlob(endpoint: string, options: RequestOptions = {}): Promise<Blob> {
+    const { params, includeAuth = true, ...fetchOptions } = options;
+
+    let url = `${this.baseUrl}${endpoint}`;
+    if (params) {
+      const searchParams = new URLSearchParams(params);
+      url += `?${searchParams.toString()}`;
+    }
+
+    const headers: Record<string, string> = {
+      ...(includeAuth ? this.getAuthHeader() : {}),
+      ...(options.headers as Record<string, string> || {}),
+    };
+
+    const doFetch = async (tokenOverride?: string) => {
+      const h = { ...headers };
+      if (includeAuth && tokenOverride) h['Authorization'] = `Bearer ${tokenOverride}`;
+      return fetch(url, {
+        ...fetchOptions,
+        headers: h,
+        credentials: 'include',
+      });
+    };
+
+    let response = await doFetch();
+
+    if (response.status === 401 && includeAuth) {
+      try {
+        const refreshResponse = await fetch(`${this.baseUrl}/auth/refresh`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+        });
+
+        if (refreshResponse.ok) {
+          const { token: newToken } = await refreshResponse.json();
+          this.tokenUpdater(newToken);
+          response = await doFetch(newToken);
+        } else {
+          this.logoutHandler();
+          throw new ApiException('Sesión expirada', 401);
+        }
+      } catch (error) {
+        this.logoutHandler();
+        throw error;
+      }
+    }
+
+    if (!response.ok) {
+      let errorData: ApiError = { message: 'Error de servidor' };
+      try {
+        errorData = await response.json();
+      } catch {
+        // ignore
+      }
+
+      throw new ApiException(
+        errorData.message || 'Error en la petición',
+        response.status,
+        errorData.errors,
+        errorData.data
+      );
+    }
+
+    return response.blob();
+  }
+
   async get<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
     return this.request<T>(endpoint, { method: 'GET', params });
   }
@@ -185,6 +256,20 @@ class ApiClient {
 
   async delete<T>(endpoint: string): Promise<T> {
     return this.request<T>(endpoint, { method: 'DELETE' });
+  }
+
+  async getBlob(endpoint: string, params?: Record<string, string>): Promise<Blob> {
+    return this.requestBlob(endpoint, { method: 'GET', params });
+  }
+
+  async postBlob(endpoint: string, data?: unknown): Promise<Blob> {
+    return this.requestBlob(endpoint, {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   }
 
   /**

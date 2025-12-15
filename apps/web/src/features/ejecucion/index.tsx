@@ -1,7 +1,10 @@
-// ============================================
-// EJECUCIÓN FEATURE INDEX - Cermont FSM
-// ============================================
-
+/**
+ * ARCHIVO: index.tsx
+ * FUNCION: Barrel export y stubs para el módulo de ejecución
+ * IMPLEMENTACION: Re-exporta API, hooks y componentes; provee stubs de compatibilidad
+ * DEPENDENCIAS: ejecucion.api, use-ejecucion, ResumenEjecucion, TaskList
+ * EXPORTS: API, hooks, componentes y stubs (EjecucionCard, useMisEjecuciones, etc.)
+ */
 export * from './api/ejecucion.api';
 export * from './hooks/use-ejecucion';
 export * from './components/ResumenEjecucion';
