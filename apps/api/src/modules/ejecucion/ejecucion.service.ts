@@ -200,4 +200,35 @@ export class EjecucionService {
       data: { estado: estado as any, ...fechas },
     });
   }
+
+  /**
+   * Obtiene estadísticas de ejecuciones
+   */
+  async getStats() {
+    const enProgreso = await this.prisma.ejecucion.count({
+      where: { estado: 'EN_PROGRESO' },
+    });
+
+    const pausadas = await this.prisma.ejecucion.count({
+      where: { estado: 'PAUSADA' },
+    });
+
+    // Ejecuciones completadas hoy
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const finalizadasHoy = await this.prisma.ejecucion.count({
+      where: {
+        estado: 'COMPLETADA',
+        updatedAt: {
+          gte: hoy,
+        },
+      },
+    });
+
+    return {
+      enProgreso,
+      pausadas,
+      finalizadasHoy,
+    };
+  }
 }

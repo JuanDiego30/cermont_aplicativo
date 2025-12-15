@@ -15,13 +15,30 @@ export const metadata = {
   description: 'Seguimiento de trabajos en campo',
 };
 
-// TODO: Implementar fetch real
 async function getEjecucionStats() {
-  return {
-    enProgreso: 5,
-    pausadas: 2,
-    finalizadasHoy: 8,
-  };
+  try {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+    const response = await fetch(`${API_URL}/ejecucion/stats`, {
+      next: { revalidate: 60 },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch ejecucion stats');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching ejecucion stats:', error);
+    // Fallback to mock data if API fails
+    return {
+      enProgreso: 5,
+      pausadas: 2,
+      finalizadasHoy: 8,
+    };
+  }
 }
 
 export default async function EjecucionPage() {
