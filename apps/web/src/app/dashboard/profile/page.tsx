@@ -94,7 +94,7 @@ export default function ProfilePage() {
                                     className="rounded-full object-cover"
                                 />
                             ) : (
-                                <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold">
+                                <div className="w-full h-full rounded-full bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold">
                                     {getInitials(formData.name || 'US')}
                                 </div>
                             )}

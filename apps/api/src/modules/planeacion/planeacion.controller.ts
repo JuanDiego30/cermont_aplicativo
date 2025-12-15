@@ -11,6 +11,12 @@ import { CurrentUser, JwtPayload } from '../../common/decorators/current-user.de
 export class PlaneacionController {
     constructor(private readonly planeacionService: PlaneacionService) { }
     @Get('orden/:ordenId') findByOrden(@Param('ordenId') ordenId: string) { return this.planeacionService.findByOrden(ordenId); }
+
+    @Get()
+    findAll() {
+        return this.planeacionService.findAll();
+    }
+
     @Post('orden/:ordenId') createOrUpdate(@Param('ordenId') ordenId: string, @Body() dto: any) { return this.planeacionService.createOrUpdate(ordenId, dto); }
     @Put(':id/aprobar') aprobar(@Param('id') id: string, @CurrentUser() user: JwtPayload) { return this.planeacionService.aprobar(id, user.userId); }
     @Put(':id/rechazar') rechazar(@Param('id') id: string, @Body('motivo') motivo: string) { return this.planeacionService.rechazar(id, motivo); }

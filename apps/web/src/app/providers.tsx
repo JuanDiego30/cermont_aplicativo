@@ -19,28 +19,7 @@ import { swrConfig } from '@/lib/swr-config';
 // Auth Initialization Hook
 // ============================================================================
 
-/**
- * Hook para inicializar y validar la autenticación al cargar la app
- */
-function useAuthInitialization() {
-  useEffect(() => {
-    const initAuth = async () => {
-      const { token, clearAuth } = useAuthStore.getState();
 
-      if (token) {
-        try {
-          // Verificar si el token sigue siendo válido
-          await apiClient.get('/auth/me');
-        } catch {
-          // Token inválido - limpiar autenticación
-          clearAuth();
-        }
-      }
-    };
-
-    initAuth();
-  }, []);
-}
 
 // ============================================================================
 // Service Worker Registration Hook
@@ -96,16 +75,31 @@ interface ProvidersProps {
 }
 
 export function Providers({ children }: ProvidersProps) {
-  // Inicializar autenticación
-  useAuthInitialization();
-
-  // Configurar cliente API con auth store
+  // Configurar cliente API y verificar sesión al inicio
   useEffect(() => {
+    // 1. Configurar cliente
     apiClient.configure(
       () => useAuthStore.getState().token,
       (token) => useAuthStore.getState().setToken(token),
       () => useAuthStore.getState().logout()
     );
+
+    // 2. Verificar sesión
+    const initAuth = async () => {
+      const { token, clearAuth } = useAuthStore.getState();
+
+      if (token) {
+        try {
+          // Verificar si el token sigue siendo válido
+          await apiClient.get('/auth/me');
+        } catch {
+          // Token inválido - limpiar autenticación
+          clearAuth();
+        }
+      }
+    };
+
+    initAuth();
   }, []);
 
   // Registrar Service Worker

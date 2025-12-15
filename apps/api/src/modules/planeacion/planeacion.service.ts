@@ -76,6 +76,22 @@ export class PlaneacionService {
   }
 
   /**
+   * Obtiene todas las planeaciones
+   */
+  async findAll() {
+    return this.prisma.planeacion.findMany({
+      include: {
+        items: true,
+        kit: true,
+        orden: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  /**
    * Crea o actualiza planeación para una orden
    * Implementa patrón Upsert para simplificar lógica
    */

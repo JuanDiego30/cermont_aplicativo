@@ -22,7 +22,7 @@ export function StatCard({ label, value, icon, trend, className }: StatCardProps
   return (
     <div
       className={cn(
-        'rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]',
+        'rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3',
         className
       )}
     >

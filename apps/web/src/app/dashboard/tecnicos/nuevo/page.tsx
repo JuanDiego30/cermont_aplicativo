@@ -3,16 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { tecnicosApi } from '@/features/tecnicos/api/tecnicos.api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
@@ -42,6 +36,7 @@ export default function NuevoTecnicoPage() {
         nombre: '',
         email: '',
         telefono: '',
+        cargo: 'Técnico de Campo' as const,
         especialidad: 'general',
         ubicacion: 'arauca',
     });
@@ -95,6 +90,7 @@ export default function NuevoTecnicoPage() {
                 nombre: formData.nombre.trim(),
                 email: formData.email.trim(),
                 telefono: formData.telefono.trim(),
+                cargo: formData.cargo,
                 especialidad: formData.especialidad,
                 ubicacion: formData.ubicacion,
             });
@@ -206,20 +202,12 @@ export default function NuevoTecnicoPage() {
                             <label htmlFor="especialidad" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Especialidad *
                             </label>
-                            <Select value={formData.especialidad} onValueChange={(value) =>
-                                handleSelectChange('especialidad', value)
-                            }>
-                                <SelectTrigger id="especialidad">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {ESPECIALIDADES.map(esp => (
-                                        <SelectItem key={esp.value} value={esp.value}>
-                                            {esp.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <Select 
+                                id="especialidad"
+                                value={formData.especialidad} 
+                                onChange={(e) => handleSelectChange('especialidad', e.target.value)}
+                                options={ESPECIALIDADES}
+                            />
                         </div>
 
                         {/* Ubicación */}
@@ -227,20 +215,12 @@ export default function NuevoTecnicoPage() {
                             <label htmlFor="ubicacion" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Ubicación Base *
                             </label>
-                            <Select value={formData.ubicacion} onValueChange={(value) =>
-                                handleSelectChange('ubicacion', value)
-                            }>
-                                <SelectTrigger id="ubicacion">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {UBICACIONES.map(loc => (
-                                        <SelectItem key={loc.value} value={loc.value}>
-                                            {loc.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <Select 
+                                id="ubicacion"
+                                value={formData.ubicacion} 
+                                onChange={(e) => handleSelectChange('ubicacion', e.target.value)}
+                                options={UBICACIONES}
+                            />
                         </div>
 
                         {/* Botones - Responsive para móvil */}
