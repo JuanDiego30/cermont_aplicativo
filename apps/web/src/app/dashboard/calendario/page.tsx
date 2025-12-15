@@ -10,7 +10,7 @@ const Calendar = dynamic(
     {
         ssr: false,
         loading: () => (
-            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 p-6 flex items-center justify-center min-h-[400px]">
+            <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 p-6 flex items-center justify-center min-h-100">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             </div>
         )
@@ -20,12 +20,16 @@ const Calendar = dynamic(
 export default function CalendarioPage() {
     const handleEventClick = (eventId: string) => {
         console.log('Event clicked:', eventId);
-        // TODO: Navegar a la orden
+        // Navigate to order detail page
+        window.location.href = `/dashboard/ordenes/${eventId}`;
     };
 
     const handleDateSelect = (start: Date, end: Date) => {
         console.log('Date selected:', start, end);
-        // TODO: Abrir modal para crear nueva orden
+        // Navigate to create order page with pre-selected dates
+        const startDate = start.toISOString().split('T')[0];
+        const endDate = end.toISOString().split('T')[0];
+        window.location.href = `/dashboard/ordenes/nueva?start=${startDate}&end=${endDate}`;
     };
 
     return (

@@ -1,9 +1,9 @@
 /**
- * @guard RolesGuard
- *
- * Autoriza acceso validando roles declarados con @Roles() sobre rutas.
- *
- * Uso: @UseGuards(JwtAuthGuard, RolesGuard) + @Roles('admin').
+ * ARCHIVO: roles.guard.ts
+ * FUNCION: Guard de autorización basado en roles (RBAC)
+ * IMPLEMENTACION: Lee metadata @Roles() via Reflector, compara con user.role del JWT
+ * DEPENDENCIAS: @nestjs/common, @nestjs/core (Reflector), roles.decorator, JwtPayload
+ * EXPORTS: RolesGuard (guard inyectable)
  */
 import {
     Injectable,

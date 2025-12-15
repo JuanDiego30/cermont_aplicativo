@@ -1,8 +1,10 @@
 /**
- * @file evidencia.types.ts
- * @description Type definitions for Evidencias module
+ * ARCHIVO: evidencia.types.ts
+ * FUNCION: Definiciones de tipos TypeScript para el módulo de evidencias
+ * IMPLEMENTACION: Interfaces y types para Evidencia, filtros e inputs
+ * DEPENDENCIAS: Ninguna (tipos puros)
+ * EXPORTS: TipoEvidencia, Evidencia, CreateEvidenciaInput, EvidenciaFilters
  */
-
 export type TipoEvidencia = 'foto' | 'video' | 'documento' | 'audio';
 
 export interface Evidencia {

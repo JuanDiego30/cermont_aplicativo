@@ -3,7 +3,7 @@
 import { useSWRConfig } from 'swr';
 import { useMutation } from './use-mutation';
 import { useAuthStore } from '@/stores/authStore';
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/api-client';
 import type { LoginCredentials, RegisterData, User } from '@/types/user';
 
 // Tipo interno para la respuesta del login que incluye el user completo
@@ -15,7 +15,7 @@ interface LoginResponse {
 
 export function useAuth() {
   const { mutate } = useSWRConfig();
-  const { setAuth, logout: clearAuth } = useAuthStore();
+  const { user, token, isAuthenticated, setAuth, logout: clearAuth } = useAuthStore();
 
   const login = useMutation<LoginResponse, LoginCredentials>({
     mutationFn: async (credentials) => {
@@ -48,5 +48,5 @@ export function useAuth() {
     },
   });
 
-  return { login, register, logout };
+  return { user, token, isAuthenticated, login, register, logout };
 }

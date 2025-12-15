@@ -1,10 +1,11 @@
+/**
+ * ARCHIVO: OfflineIndicator.tsx
+ * FUNCION: Indicador visual de estado offline/online con sincronización pendiente
+ * IMPLEMENTACION: Usa hook useOffline para estado de conexión, muestra progreso de sync y errores
+ * DEPENDENCIAS: React, useOffline hook, cn utility
+ * EXPORTS: OfflineIndicator (named), default export
+ */
 'use client';
-
-// ============================================
-// OFFLINE INDICATOR - Cermont FSM
-// Componente visual para estado offline/sync
-// ============================================
-
 import { useOffline } from '@/hooks/use-offline';
 import { cn } from '@/lib/cn';
 

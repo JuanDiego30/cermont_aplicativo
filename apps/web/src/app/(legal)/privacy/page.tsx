@@ -1,6 +1,12 @@
+/**
+ * ARCHIVO: page.tsx (privacy)
+ * FUNCION: Página de Política de Privacidad conforme a Ley 1581/2012 y RGPD
+ * IMPLEMENTACION: Server Component con contenido estático estructurado en secciones
+ * DEPENDENCIAS: next/Metadata, lucide-react
+ * EXPORTS: PrivacyPage (default), metadata
+ */
 import type { Metadata } from 'next';
 import { Shield, Eye, Lock, Database, UserCheck, Globe, Clock, Mail, AlertCircle } from 'lucide-react';
-
 export const metadata: Metadata = {
   title: 'Política de Privacidad',
   description: 'Política de privacidad y protección de datos personales del sistema Cermont.',
@@ -9,12 +15,6 @@ export const metadata: Metadata = {
     follow: true,
   },
 };
-
-/**
- * Página de Política de Privacidad
- * Server Component - contenido estático
- * Cumple con la Ley 1581 de 2012 (Colombia) y RGPD
- */
 export default function PrivacyPage() {
   return (
     <article className="prose prose-gray dark:prose-invert max-w-none">

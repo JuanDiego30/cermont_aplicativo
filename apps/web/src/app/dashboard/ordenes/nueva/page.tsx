@@ -1,5 +1,11 @@
+/**
+ * ARCHIVO: ordenes/nueva/page.tsx
+ * FUNCION: Formulario para crear una nueva orden de trabajo
+ * IMPLEMENTACION: Formulario controlado con validacion y llamada a createOrden
+ * DEPENDENCIAS: React, Next.js router, useCreateOrden hook, UI components
+ * EXPORTS: NewOrderPage (default) - Client Component
+ */
 "use client";
-
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";

@@ -1,8 +1,10 @@
 /**
- * @file MantenimientoCard.tsx
- * @description Pure component for maintenance card
+ * ARCHIVO: MantenimientoCard.tsx
+ * FUNCION: Componente de tarjeta para visualizar un mantenimiento
+ * IMPLEMENTACION: Renderiza tipo, estado, fecha y observaciones con colores semánticos
+ * DEPENDENCIAS: mantenimiento.types
+ * EXPORTS: MantenimientoCard
  */
-
 import { Mantenimiento } from '../types/mantenimiento.types';
 
 interface MantenimientoCardProps {

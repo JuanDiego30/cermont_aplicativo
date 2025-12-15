@@ -1,9 +1,9 @@
 /**
- * @guard JwtAuthGuard
- *
- * Protege rutas verificando JWT; permite bypass automático con @Public().
- *
- * Uso: @UseGuards(JwtAuthGuard) en controllers o handlers.
+ * ARCHIVO: jwt-auth.guard.ts
+ * FUNCION: Guard de autenticación JWT con soporte para rutas públicas
+ * IMPLEMENTACION: Extiende AuthGuard('jwt'), verifica decorator @Public() via Reflector
+ * DEPENDENCIAS: @nestjs/passport, @nestjs/core (Reflector), public.decorator
+ * EXPORTS: JwtAuthGuard (guard inyectable)
  */
 import { Injectable, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';

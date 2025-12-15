@@ -7,7 +7,7 @@ import { PrismaService } from '../../prisma/prisma.service';
  */
 export interface PendingSync {
     id: string;
-    tipo: 'EJECUCION' | 'CHECKLIST' | 'EVIDENCIA' | 'TAREA' | 'COSTO';
+    tipo: 'EJECUCION' | 'CHECKLIST' | 'EVIDENCIA' | 'TAREA' | 'COSTO' | 'FORMULARIO';
     operacion: 'CREATE' | 'UPDATE' | 'DELETE';
     datos: Record<string, unknown>;
     timestamp: string;
@@ -75,6 +75,8 @@ export class SyncService {
                 return this.syncTarea(item, userId);
             case 'COSTO':
                 return this.syncCosto(item, userId);
+            case 'FORMULARIO':
+                return this.syncFormulario(item, userId);
             default:
                 throw new BadRequestException(`Tipo de sincronización desconocido: ${item.tipo}`);
         }
@@ -297,6 +299,33 @@ export class SyncService {
         }
 
         throw new BadRequestException('Operación de costo no válida');
+    }
+
+    // Sincronizar formulario
+    private async syncFormulario(item: PendingSync, userId: string): Promise<SyncResult> {
+        const { operacion, datos } = item;
+
+        if (operacion === 'CREATE' && datos.templateId) {
+            const respuesta = await this.prisma.formularioRespuesta.create({
+                data: {
+                    templateId: datos.templateId as string,
+                    ordenId: datos.ordenId as string | undefined, // Opcional
+                    respuestas: JSON.stringify(datos.respuestas),
+                    completadoPorId: userId,
+                    createdAt: (datos.createdAt as string) ? new Date(datos.createdAt as string) : new Date(),
+                },
+            });
+
+            return {
+                success: true,
+                id: item.id,
+                tipo: item.tipo,
+                mensaje: 'Formulario sincronizado',
+                nuevoId: respuesta.id,
+            };
+        }
+
+        throw new BadRequestException('Operación de formulario no válida');
     }
 
     // =====================================================

@@ -1,8 +1,10 @@
 /**
- * @file tecnico-status.utils.ts
- * @description Utilidades para estados y cálculos de técnicos
+ * ARCHIVO: tecnico-status.utils.ts
+ * FUNCION: Utilidades para estados, colores y cálculos de técnicos
+ * IMPLEMENTACION: Funciones puras para calcular stats, obtener colores de badges y avatares
+ * DEPENDENCIAS: Tipos de tecnicos.types
+ * EXPORTS: calculateTecnicosStats, getTecnicoEstadoColor, getDisponibilidadColor, getTecnicoInitials, getAvatarGradient, formatOrdenesCount
  */
-
 import type { Tecnico, TecnicoStats, TecnicoEstado } from '../api/tecnicos.types';
 
 /**

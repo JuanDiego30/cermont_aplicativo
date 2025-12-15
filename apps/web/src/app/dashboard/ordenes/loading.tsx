@@ -1,5 +1,11 @@
+/**
+ * ARCHIVO: ordenes/loading.tsx
+ * FUNCION: Estado de carga para la pagina de ordenes
+ * IMPLEMENTACION: Skeletons animados para header, filtros y tabla
+ * DEPENDENCIAS: SkeletonTable de @/components/ui/Skeleton
+ * EXPORTS: OrdenesLoading (default)
+ */
 import { SkeletonTable } from '@/components/ui/Skeleton';
-
 export default function OrdenesLoading() {
   return (
     <div className="p-6 space-y-6">

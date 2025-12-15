@@ -1,8 +1,10 @@
 /**
- * @file client.tsx
- * @description Componentes client para mantenimientos
+ * ARCHIVO: mantenimientos/client.tsx
+ * FUNCION: Dashboard interactivo para mantenimientos con filtros múltiples
+ * IMPLEMENTACION: Filtrado por estado/tipo/búsqueda, grid de MantenimientoCards
+ * DEPENDENCIAS: React hooks, next/navigation, lucide-react, @/features/mantenimientos
+ * EXPORTS: MantenimientosDashboard
  */
-
 'use client';
 
 import { useState } from 'react';

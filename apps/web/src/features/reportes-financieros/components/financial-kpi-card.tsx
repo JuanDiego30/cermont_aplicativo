@@ -1,10 +1,10 @@
 /**
- * @file financial-kpi-card.tsx
- * @description Componente de tarjeta KPI financiero
- * 
- * ✨ Server Component
+ * ARCHIVO: financial-kpi-card.tsx
+ * FUNCION: Tarjeta individual de KPI financiero con icono y tendencia
+ * IMPLEMENTACION: Server Component con iconos Lucide y badges de tendencia
+ * DEPENDENCIAS: lucide-react, formatCurrency, formatPercent, FinancialKPI types
+ * EXPORTS: FinancialKPICard, FinancialKPICardSkeleton
  */
-
 import { DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { formatCurrency, formatPercent } from '../utils/currency.utils';
 import type { FinancialKPI } from '../api/financiero.types';

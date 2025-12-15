@@ -1,11 +1,9 @@
 /**
- * @module UsuariosModule
- * @description Módulo de usuarios con Clean Architecture
- *
- * Estructura:
- * - Domain: Entities y Repository interfaces
- * - Application: Use Cases y DTOs
- * - Infrastructure: Controllers y Persistence
+ * ARCHIVO: usuarios.module.ts
+ * FUNCION: Módulo principal de gestión de usuarios con arquitectura limpia
+ * IMPLEMENTACION: Inyección de dependencias con providers para use cases y repositorios
+ * DEPENDENCIAS: NestJS Module, Use Cases, Repository Interface, Prisma Repository
+ * EXPORTS: ListUsuariosUseCase, GetUsuarioByIdUseCase
  */
 import { Module } from '@nestjs/common';
 

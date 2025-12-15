@@ -1,5 +1,11 @@
+/**
+ * ARCHIVO: StatsCard.tsx
+ * FUNCION: Tarjeta genérica de estadística con título, valor, tendencia e icono
+ * IMPLEMENTACION: Client Component con props tipadas y colorClasses dinámicos
+ * DEPENDENCIAS: React (solo tipos)
+ * EXPORTS: StatsCard
+ */
 'use client';
-
 interface StatsCardProps {
   title: string;
   value: string | number;

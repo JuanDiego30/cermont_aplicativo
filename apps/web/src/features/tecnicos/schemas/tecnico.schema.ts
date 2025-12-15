@@ -1,8 +1,10 @@
 /**
- * @file tecnico.schema.ts
- * @description Schemas Zod para validación de técnicos
+ * ARCHIVO: tecnico.schema.ts
+ * FUNCION: Schemas Zod para validación de formularios de técnicos
+ * IMPLEMENTACION: Define schemas para crear, actualizar, filtrar y toggle disponibilidad
+ * DEPENDENCIAS: zod
+ * EXPORTS: CreateTecnicoSchema, UpdateTecnicoSchema, FilterTecnicoSchema, ToggleDisponibilidadSchema
  */
-
 import { z } from 'zod';
 
 // Schema base para técnico

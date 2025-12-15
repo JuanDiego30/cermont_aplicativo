@@ -79,6 +79,31 @@ export class KitsController {
     constructor(private readonly kitsService: KitsService) { }
 
     /**
+     * ✅ OBTENER ESTADÍSTICAS DE KITS
+     * GET /kits/stats
+     */
+    @Get('stats')
+    @ApiOperation({
+        summary: 'Obtener estadísticas de kits',
+        description: 'Devuelve el total de kits y su distribución por estado (disponibles, en uso, mantenimiento)',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Estadísticas obtenidas correctamente',
+        schema: {
+            example: {
+                total: 24,
+                disponibles: 18,
+                enUso: 4,
+                mantenimiento: 2,
+            },
+        },
+    })
+    async getStats() {
+        return this.kitsService.getStats();
+    }
+
+    /**
      * ✅ OBTENER TODOS LOS KITS ACTIVOS
      * GET /kits
      */

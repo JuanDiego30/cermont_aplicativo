@@ -1,8 +1,10 @@
 /**
- * @file loading.tsx
- * @description Loading state para la página de técnicos
+ * ARCHIVO: tecnicos/loading.tsx
+ * FUNCION: Estado de carga para la pagina de tecnicos
+ * IMPLEMENTACION: Skeletons para header, stats y grid
+ * DEPENDENCIAS: TecnicosStatsSkeleton, TecnicosGridSkeleton
+ * EXPORTS: TecnicosLoading (default)
  */
-
 import { TecnicosStatsSkeleton, TecnicosGridSkeleton } from '@/features/tecnicos';
 
 export default function TecnicosLoading() {

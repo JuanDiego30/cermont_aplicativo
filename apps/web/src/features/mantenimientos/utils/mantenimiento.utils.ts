@@ -1,8 +1,10 @@
 /**
- * @file mantenimiento.utils.ts
- * @description Utility functions and constants for Mantenimientos
+ * ARCHIVO: mantenimiento.utils.ts
+ * FUNCION: Utilidades y constantes de configuración para mantenimientos
+ * IMPLEMENTACION: Mapas de configuración para estados y tipos con labels y colores
+ * DEPENDENCIAS: mantenimiento.types
+ * EXPORTS: ESTADO_MANTENIMIENTO_CONFIG, TIPO_MANTENIMIENTO_CONFIG
  */
-
 import { EstadoMantenimiento, TipoMantenimiento } from '../types/mantenimiento.types';
 
 export const ESTADO_MANTENIMIENTO_CONFIG: Record<EstadoMantenimiento, { label: string; color: string }> = {

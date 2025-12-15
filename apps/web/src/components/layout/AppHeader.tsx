@@ -1,5 +1,12 @@
+/**
+ * ARCHIVO: AppHeader.tsx
+ * FUNCION: Componente header completo con menú de usuario, notificaciones, búsqueda y toggle de tema
+ * IMPLEMENTACION: Usa dropdowns con refs para cerrar al clic externo, integra stores de UI y Auth
+ * DEPENDENCIAS: useUIStore, useAuthStore, next/link, next/image, iconos personalizados
+ * EXPORTS: export default AppHeader
+ * @deprecated Usar app-header.tsx en su lugar (versión simplificada)
+ */
 'use client';
-
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -75,7 +82,7 @@ const AppHeader: React.FC = () => {
               <input
                 type="text"
                 placeholder="Buscar..."
-                className="h-11 w-[300px] rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-4 text-sm text-gray-800 placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500"
+                className="h-11 w-75 rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-4 text-sm text-gray-800 placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500"
               />
             </div>
           </div>

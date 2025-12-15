@@ -12,10 +12,10 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  BadRequestException,
   ParseFilePipe,
   MaxFileSizeValidator,
   FileTypeValidator,
-  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
@@ -78,9 +78,10 @@ export class EvidenciasController {
       tags: body.tags || undefined,
     };
 
-    const dto = UploadEvidenciaSchema.parse(payload);
+    const result = UploadEvidenciaSchema.safeParse(payload);
+    if (!result.success) throw new BadRequestException(result.error.flatten());
 
-    return this.uploadUseCase.execute(dto, file, user.userId);
+    return this.uploadUseCase.execute(result.data, file, user.userId);
   }
 
   @Get('orden/:ordenId')

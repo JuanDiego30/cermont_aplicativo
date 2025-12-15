@@ -1,23 +1,15 @@
 /**
- * @file formularios.api.ts
- * @description API service for Formularios module
+ * ARCHIVO: formularios.api.ts
+ * FUNCION: Cliente API para gestión de plantillas de formularios
+ * IMPLEMENTACION: CRUD completo + duplicar + cambiar estado via apiClient
+ * DEPENDENCIAS: @/lib/api-client, formulario.types
+ * EXPORTS: formulariosApi (getAll, getById, create, update, delete, duplicate)
  */
-
 import { apiClient } from '@/lib/api-client';
+import { filtersToParams } from '@/lib/utils/params';
 import type { Plantilla, CreatePlantillaInput, PlantillaFilters, EstadoFormulario } from '../types/formulario.types';
 
 const BASE_URL = '/formularios/plantillas';
-
-function filtersToParams(filters?: PlantillaFilters): Record<string, string> | undefined {
-    if (!filters) return undefined;
-    const params: Record<string, string> = {};
-    Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-            params[key] = String(value);
-        }
-    });
-    return params;
-}
 
 export const formulariosApi = {
     getAll: async (filters?: PlantillaFilters): Promise<Plantilla[]> => {

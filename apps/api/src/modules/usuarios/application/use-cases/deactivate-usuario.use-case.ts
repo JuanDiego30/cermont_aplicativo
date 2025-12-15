@@ -1,7 +1,9 @@
 /**
- * @useCase DeactivateUsuarioUseCase
- * @description Caso de uso para desactivar un usuario
- * @layer Application
+ * ARCHIVO: deactivate-usuario.use-case.ts
+ * FUNCION: Caso de uso para desactivación lógica de usuarios (soft delete)
+ * IMPLEMENTACION: Verifica existencia, desactiva usuario, emite evento usuario.deactivated
+ * DEPENDENCIAS: NestJS, EventEmitter2, IUsuarioRepository
+ * EXPORTS: DeactivateUsuarioUseCase
  */
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';

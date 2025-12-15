@@ -1,16 +1,14 @@
+/**
+ * ARCHIVO: page.tsx (contact)
+ * FUNCION: Página de contacto con información y formulario de mensajes
+ * IMPLEMENTACION: Server Component con grid de info de contacto y Client Component para form
+ * DEPENDENCIAS: next/Metadata, react/Suspense, lucide-react, ContactFormClient
+ * EXPORTS: ContactPage (default), metadata
+ */
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Clock, 
-  MessageSquare,
-  Headphones,
-  Building2
-} from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, MessageSquare, Headphones, Building2 } from 'lucide-react';
 import ContactFormClient from './contact-form-client';
-
 export const metadata: Metadata = {
   title: 'Contacto',
   description: 'Contáctanos para soporte técnico, consultas comerciales o información sobre el sistema Cermont.',
@@ -19,11 +17,6 @@ export const metadata: Metadata = {
     follow: true,
   },
 };
-
-/**
- * Página de Contacto
- * Server Component con formulario cliente
- */
 export default function ContactPage() {
   return (
     <div className="not-prose">

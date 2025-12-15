@@ -8,7 +8,7 @@
  */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { Prisma } from '.prisma/client';
+import type { Prisma } from '.prisma/client';
 
 // ============================================================================
 // Interfaces y DTOs
@@ -139,6 +139,40 @@ export class MantenimientosService {
     return {
       message: 'Mantenimiento actualizado',
       data: mantenimiento,
+    };
+  }
+
+  /**
+   * Obtiene estadísticas de mantenimientos
+   */
+  async getStats() {
+    const total = await this.prisma.mantenimiento.count();
+    
+    const programados = await this.prisma.mantenimiento.count({
+      where: { estado: 'PROGRAMADO' },
+    });
+
+    const enProgreso = await this.prisma.mantenimiento.count({
+      where: { estado: 'EN_PROGRESO' },
+    });
+
+    const completados = await this.prisma.mantenimiento.count({
+      where: { estado: 'COMPLETADO' },
+    });
+
+    const atrasados = await this.prisma.mantenimiento.count({
+      where: {
+        estado: { in: ['PROGRAMADO', 'EN_PROGRESO'] },
+        fechaProgramada: { lt: new Date() },
+      },
+    });
+
+    return {
+      total,
+      programados,
+      enProgreso,
+      completados,
+      atrasados,
     };
   }
 }

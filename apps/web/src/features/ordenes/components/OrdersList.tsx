@@ -1,5 +1,11 @@
+/**
+ * ARCHIVO: OrdersList.tsx
+ * FUNCION: Componente tabla que muestra listado de órdenes con filtros
+ * IMPLEMENTACION: Usa useOrders hook, renderiza tabla con estados de carga y error
+ * DEPENDENCIAS: useOrders, ORDER_STATUS_CONFIG, ORDER_PRIORITY_CONFIG, utils de formato
+ * EXPORTS: OrdersList (componente React)
+ */
 'use client';
-
 import { useOrders } from '../hooks/use-orders';
 import { ORDER_STATUS_CONFIG, ORDER_PRIORITY_CONFIG } from '../config/orden.config';
 import { formatOrderDate, formatOrderType, formatOrderStatus } from '../utils/orden.utils';

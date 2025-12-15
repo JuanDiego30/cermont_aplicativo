@@ -5,6 +5,7 @@
 
 import { offlineDb, type SyncQueueItem } from './db';
 import { SW_CONFIG } from './sw-config';
+import { buildApiBaseUrl } from '../api-client';
 
 export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'error' | 'offline';
 
@@ -30,7 +31,7 @@ class SyncManager {
   private apiBaseUrl: string;
 
   constructor() {
-    this.apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    this.apiBaseUrl = buildApiBaseUrl(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001');
 
     if (typeof window !== 'undefined') {
       // Detectar cambios de conectividad
@@ -239,7 +240,8 @@ class SyncManager {
    */
   private async syncItem(item: SyncQueueItem): Promise<void> {
     const { endpoint, method, payload } = item;
-    const url = `${this.apiBaseUrl}${endpoint}`;
+    const url = `${this.apiBaseUrl}${this.normalizeEndpoint(endpoint)}`;
+    const token = this.getAuthToken();
 
     console.log(`[SyncManager] ${method} ${endpoint}`);
 
@@ -247,6 +249,7 @@ class SyncManager {
       method,
       headers: {
         'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       credentials: 'include',
       body: payload ? JSON.stringify(payload) : undefined,
@@ -269,13 +272,15 @@ class SyncManager {
   }): Promise<Response | null> {
     if (this.isOnline) {
       // Ejecutar inmediatamente
-      const url = `${this.apiBaseUrl}${action.endpoint}`;
+      const url = `${this.apiBaseUrl}${this.normalizeEndpoint(action.endpoint)}`;
+      const token = this.getAuthToken();
       
       try {
         const response = await fetch(url, {
           method: action.method,
           headers: {
             'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
           credentials: 'include',
           body: action.payload ? JSON.stringify(action.payload) : undefined,
@@ -330,6 +335,26 @@ class SyncManager {
    */
   getSyncingStatus(): boolean {
     return this.isSyncing;
+  }
+
+  private normalizeEndpoint(endpoint: string): string {
+    let e = endpoint.trim();
+    if (!e.startsWith('/')) e = `/${e}`;
+    if (e === '/api') return '';
+    if (e.startsWith('/api/')) return e.slice(4);
+    return e;
+  }
+
+  private getAuthToken(): string {
+    if (typeof localStorage === 'undefined') return '';
+    const raw = localStorage.getItem('cermont-auth');
+    if (!raw) return '';
+    try {
+      const parsed = JSON.parse(raw) as { state?: { token?: string | null } };
+      return parsed.state?.token || '';
+    } catch {
+      return '';
+    }
   }
 }
 

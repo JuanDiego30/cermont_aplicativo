@@ -1,10 +1,11 @@
-'use client';
-
 /**
- * @file use-ejecucion.ts
- * @description SWR hooks for ejecución management
+ * ARCHIVO: use-ejecucion.ts
+ * FUNCION: Hooks SWR para gestión de estado de ejecución de órdenes
+ * IMPLEMENTACION: useSWR para fetching, useMutation para operaciones de ejecución
+ * DEPENDENCIAS: swr, @/hooks/use-mutation, ejecucion.api
+ * EXPORTS: useEjecucionByOrden, useIniciarEjecucion, usePausarEjecucion, etc.
  */
-
+'use client';
 import useSWR from 'swr';
 import { useMutation, useInvalidate } from '@/hooks/use-mutation';
 import { swrKeys } from '@/lib/swr-config';

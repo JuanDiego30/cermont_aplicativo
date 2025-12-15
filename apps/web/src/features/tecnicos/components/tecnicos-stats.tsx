@@ -1,10 +1,10 @@
 /**
- * @file tecnicos-stats.tsx
- * @description Componente de estadísticas de técnicos
- * 
- * ✨ Server Component - No necesita 'use client'
+ * ARCHIVO: tecnicos-stats.tsx
+ * FUNCION: Componente que muestra estadísticas de técnicos en grid de cards
+ * IMPLEMENTACION: Server Component - Renderiza 4 StatCards con iconos lucide-react
+ * DEPENDENCIAS: lucide-react, StatCard, TecnicoStats
+ * EXPORTS: TecnicosStats, TecnicosStatsSkeleton
  */
-
 import { Shield, CheckCircle, Clock, Star } from 'lucide-react';
 import { StatCard } from './stat-card';
 import type { TecnicoStats } from '../api/tecnicos.types';
@@ -53,7 +53,7 @@ export function TecnicosStatsSkeleton() {
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] animate-pulse"
+          className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3 animate-pulse"
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-700" />

@@ -1,8 +1,10 @@
 /**
- * @file use-clientes.ts
- * @description SWR hooks for clientes module
+ * ARCHIVO: use-clientes.ts
+ * FUNCION: Hooks SWR para gestión de clientes (CRUD + estadísticas)
+ * IMPLEMENTACION: Usa SWR para cache/revalidación y useMutation para operaciones
+ * DEPENDENCIAS: swr, sonner, clientesService, swrKeys, useMutation
+ * EXPORTS: clientesKeys, useClientes, useCliente, useClientesStats, mutaciones
  */
-
 'use client';
 
 import useSWR from 'swr';

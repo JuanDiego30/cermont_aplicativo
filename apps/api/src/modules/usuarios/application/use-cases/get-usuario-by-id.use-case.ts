@@ -1,7 +1,9 @@
 /**
- * @useCase GetUsuarioByIdUseCase
- * @description Caso de uso para obtener un usuario por ID
- * @layer Application
+ * ARCHIVO: get-usuario-by-id.use-case.ts
+ * FUNCION: Caso de uso para obtener detalle de un usuario por ID
+ * IMPLEMENTACION: Busca usuario por ID, lanza NotFoundException si no existe
+ * DEPENDENCIAS: NestJS, IUsuarioRepository
+ * EXPORTS: GetUsuarioByIdUseCase
  */
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { USUARIO_REPOSITORY, IUsuarioRepository } from '../../domain/repositories';

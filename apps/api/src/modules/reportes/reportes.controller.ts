@@ -9,6 +9,19 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 @ApiBearerAuth()
 export class ReportesController {
     constructor(private readonly reportesService: ReportesService) { }
-    @Get('ordenes') reporteOrdenes(@Query('desde') desde?: string, @Query('hasta') hasta?: string) { return this.reportesService.reporteOrdenes(desde, hasta); }
-    @Get('orden/:id') reporteOrden(@Param('id') id: string) { return this.reportesService.reporteOrden(id); }
+    
+    @Get('ordenes') 
+    reporteOrdenes(@Query('desde') desde?: string, @Query('hasta') hasta?: string) { 
+        return this.reportesService.reporteOrdenes(desde, hasta); 
+    }
+    
+    @Get('financieros')
+    reporteFinanciero(@Query('periodo') periodo?: string) {
+        return this.reportesService.reporteFinanciero(periodo);
+    }
+    
+    @Get('orden/:id') 
+    reporteOrden(@Param('id') id: string) { 
+        return this.reportesService.reporteOrden(id); 
+    }
 }

@@ -1,9 +1,11 @@
-// ============================================
-// PLANEACIÓN API - Cermont FSM
-// Cliente API para planeación
-// ============================================
-
-import { apiClient } from '@/lib/api';
+/**
+ * ARCHIVO: planeacion.api.ts
+ * FUNCION: Cliente API REST para gestión de planeación de órdenes
+ * IMPLEMENTACION: Métodos HTTP via apiClient para CRUD de planeación y kits
+ * DEPENDENCIAS: @/lib/api (apiClient)
+ * EXPORTS: Interfaces (Planeacion, PlaneacionItem, KitTipico), planeacionApi
+ */
+import { apiClient } from '@/lib/api-client';
 
 export interface Planeacion {
   id: string;

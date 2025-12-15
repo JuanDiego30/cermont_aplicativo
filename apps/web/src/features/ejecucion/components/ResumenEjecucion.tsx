@@ -1,5 +1,11 @@
+/**
+ * ARCHIVO: ResumenEjecucion.tsx
+ * FUNCION: Dashboard visual de resumen de planeación y ejecución de órdenes
+ * IMPLEMENTACION: Cards con métricas, barras de progreso y cronograma
+ * DEPENDENCIAS: react, @/components/ui/Card, @/components/ui/Badge
+ * EXPORTS: ResumenEjecucion, ResumenEjecucionData (interface)
+ */
 'use client';
-
 import { useMemo } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -118,7 +124,7 @@ function ProgressBar({ value, max, label }: { value: number; max: number; label?
       )}
       <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
         <div 
-          className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300"
+          className="h-full bg-linear-to-r from-blue-500 to-blue-600 transition-all duration-300"
           style={{ width: `${percentage}%` }}
         />
       </div>

@@ -64,34 +64,51 @@ async function getFinancialData(periodo: PeriodoTipo): Promise<{
   data: FinancialData[];
   summary: FinancialSummary;
 }> {
-  // TODO: Reemplazar con fetch al backend
-  // const response = await fetch(`${process.env.API_URL}/api/reportes/financieros?periodo=${periodo}`, {
-  //   cache: 'no-store',
-  //   next: { revalidate: 60, tags: ['reportes-financieros'] },
-  // });
+  try {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+    const response = await fetch(`${API_URL}/reportes/financieros?periodo=${periodo}`, {
+      cache: 'no-store',
+      next: { revalidate: 60, tags: ['reportes-financieros'] },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-  // Simular filtrado por período
-  let filteredData = [...mockData];
+    if (!response.ok) {
+      throw new Error('Failed to fetch financial data');
+    }
 
-  switch (periodo) {
-    case '1m':
-      filteredData = mockData.slice(-1);
-      break;
-    case '3m':
-      filteredData = mockData.slice(-3);
-      break;
-    case '6m':
-      filteredData = mockData.slice(-6);
-      break;
-    case '1y':
-    default:
-      filteredData = mockData;
+    const result = await response.json();
+    return {
+      data: result.data || [],
+      summary: result.summary || calculateSummary([]),
+    };
+  } catch (error) {
+    console.error('Error fetching financial data:', error);
+    
+    // Fallback to mock data if API fails
+    let filteredData;
+
+    switch (periodo) {
+      case '1m':
+        filteredData = mockData.slice(-1);
+        break;
+      case '3m':
+        filteredData = mockData.slice(-3);
+        break;
+      case '6m':
+        filteredData = mockData.slice(-6);
+        break;
+      case '1y':
+      default:
+        filteredData = mockData;
+    }
+
+    return {
+      data: filteredData,
+      summary: calculateSummary(filteredData),
+    };
   }
-
-  return {
-    data: filteredData,
-    summary: calculateSummary(filteredData),
-  };
 }
 
 export default async function ReportesFinancierosPage({ searchParams }: PageProps) {

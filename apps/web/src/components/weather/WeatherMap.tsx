@@ -1,10 +1,11 @@
+/**
+ * ARCHIVO: WeatherMap.tsx
+ * FUNCION: Mapa meteorológico interactivo con datos de clima en tiempo real
+ * IMPLEMENTACION: Carga Leaflet desde CDN, muestra ubicación de Caño Limón con datos de Open-Meteo, alertas y pronóstico
+ * DEPENDENCIAS: React, lucide-react, useWeatherSummary, Leaflet (CDN dinámico)
+ * EXPORTS: WeatherMap (named), default export
+ */
 'use client';
-
-// ============================================
-// WEATHER MAP COMPONENT - Mapa meteorológico interactivo
-// Integrado con Leaflet y datos de Open-Meteo
-// ============================================
-
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   Cloud,
@@ -75,7 +76,7 @@ export const WeatherMap: React.FC<WeatherMapProps> = ({
   const isError = !!error;
 
   // ============================================
-  // INICIALIZAR MAPA LEAFLET
+  // INICIALIZAR MAPA LEAFLET CON RAINVIEWER
   // ============================================
 
   useEffect(() => {
@@ -101,18 +102,60 @@ export const WeatherMap: React.FC<WeatherMapProps> = ({
       document.body.appendChild(script);
     };
 
-    const initializeMap = () => {
+    const initializeMap = async () => {
       const L = (window as any).L;
       if (!L || !mapRef.current || leafletMapRef.current) return;
 
       // Crear mapa
-      const map = L.map(mapRef.current).setView([CANO_LIMON.lat, CANO_LIMON.lon], 10);
+      const map = L.map(mapRef.current).setView([CANO_LIMON.lat, CANO_LIMON.lon], 7);
 
       // Capa base: OpenStreetMap
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
         maxZoom: 18,
       }).addTo(map);
+
+      // ============================================
+      // RAINVIEWER - Radar de precipitación en tiempo real (Open Source)
+      // ============================================
+      try {
+        // Obtener timestamps de RainViewer
+        const rainviewerResponse = await fetch('https://api.rainviewer.com/public/weather-maps.json');
+        const rainviewerData = await rainviewerResponse.json();
+
+        if (rainviewerData.radar?.past?.length > 0) {
+          // Usar el timestamp más reciente
+          const latestRadar = rainviewerData.radar.past[rainviewerData.radar.past.length - 1];
+
+          // Capa de radar de precipitación
+          const radarLayer = L.tileLayer(
+            `https://tilecache.rainviewer.com${latestRadar.path}/512/{z}/{x}/{y}/2/1_1.png`,
+            {
+              attribution: 'RainViewer.com',
+              opacity: 0.6,
+              maxZoom: 18,
+            }
+          );
+          radarLayer.addTo(map);
+
+          // Agregar animación de radar (opcional - cicla a través de los frames pasados)
+          let currentFrame = rainviewerData.radar.past.length - 1;
+          const radarFrames = rainviewerData.radar.past;
+
+          // Actualizar radar cada 2 segundos para animación
+          const radarInterval = setInterval(() => {
+            radarLayer.setUrl(
+              `https://tilecache.rainviewer.com${radarFrames[currentFrame].path}/512/{z}/{x}/{y}/2/1_1.png`
+            );
+            currentFrame = (currentFrame + 1) % radarFrames.length;
+          }, 2000);
+
+          // Limpiar intervalo al desmontar
+          (map as any)._radarInterval = radarInterval;
+        }
+      } catch (e) {
+        console.warn('RainViewer no disponible, continuando sin radar:', e);
+      }
 
       // Marcador de Caño Limón
       const mainMarker = L.marker([CANO_LIMON.lat, CANO_LIMON.lon], {
@@ -134,6 +177,29 @@ export const WeatherMap: React.FC<WeatherMapProps> = ({
         </div>
       `);
 
+      // Leyenda del radar
+      const legend = L.control({ position: 'bottomright' });
+      legend.onAdd = function () {
+        const div = L.DomUtil.create('div', 'bg-white/90 p-2 rounded shadow text-xs');
+        div.innerHTML = `
+          <div class="font-semibold mb-1">🌧️ Precipitación</div>
+          <div class="flex items-center gap-1">
+            <span class="w-3 h-3 rounded" style="background: #0000FF40"></span> Leve
+          </div>
+          <div class="flex items-center gap-1">
+            <span class="w-3 h-3 rounded" style="background: #00FF0080"></span> Moderada
+          </div>
+          <div class="flex items-center gap-1">
+            <span class="w-3 h-3 rounded" style="background: #FFFF00A0"></span> Fuerte
+          </div>
+          <div class="flex items-center gap-1">
+            <span class="w-3 h-3 rounded" style="background: #FF0000C0"></span> Intensa
+          </div>
+        `;
+        return div;
+      };
+      legend.addTo(map);
+
       leafletMapRef.current = map;
       setMapLoaded(true);
     };
@@ -142,6 +208,10 @@ export const WeatherMap: React.FC<WeatherMapProps> = ({
 
     return () => {
       if (leafletMapRef.current) {
+        // Limpiar intervalo del radar
+        if ((leafletMapRef.current as any)._radarInterval) {
+          clearInterval((leafletMapRef.current as any)._radarInterval);
+        }
         leafletMapRef.current.remove();
         leafletMapRef.current = null;
       }

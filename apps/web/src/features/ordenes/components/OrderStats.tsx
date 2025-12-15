@@ -1,5 +1,11 @@
+/**
+ * ARCHIVO: OrderStats.tsx
+ * FUNCION: Dashboard de estadísticas de órdenes (total, pendientes, en progreso, completadas)
+ * IMPLEMENTACION: Usa useOrderStats hook, renderiza grid de StatCards con colores
+ * DEPENDENCIAS: useOrderStats hook
+ * EXPORTS: OrderStats (componente React)
+ */
 'use client';
-
 import { useOrderStats } from '../hooks/use-orders';
 
 interface StatCardProps {

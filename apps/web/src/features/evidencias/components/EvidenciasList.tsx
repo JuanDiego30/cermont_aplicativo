@@ -1,8 +1,10 @@
 /**
- * @file EvidenciasList.tsx
- * @description Container component for list of evidences
+ * ARCHIVO: EvidenciasList.tsx
+ * FUNCION: Contenedor conectado que renderiza lista de evidencias
+ * IMPLEMENTACION: Usa hooks SWR para fetch, maneja loading/error/empty states
+ * DEPENDENCIAS: EvidenciaCard, use-evidencias hooks
+ * EXPORTS: EvidenciasList
  */
-
 import { EvidenciaCard } from './EvidenciaCard';
 import { useEvidencias, useDeleteEvidencia } from '../hooks/use-evidencias';
 

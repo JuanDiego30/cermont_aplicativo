@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: planeacion/page.tsx
+ * FUNCION: Client Component para planeación de obra (materiales, herramientas, personal)
+ * IMPLEMENTACION: CRUD con formulario modal, tabla de planeaciones, estadísticas
+ * DEPENDENCIAS: React hooks, @/components/forms/PlaneacionForm, @/components/ui
+ * EXPORTS: PlaneacionPage (default)
+ */
 'use client';
 
 import React, { useState, useEffect } from 'react';

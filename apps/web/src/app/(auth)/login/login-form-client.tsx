@@ -1,10 +1,10 @@
 /**
- * 📁 app/(auth)/login/login-form-client.tsx
- *
- * ✨ Client Component para el formulario de login
- * Utiliza React 19 features y mejor manejo de errores
+ * ARCHIVO: login-form-client.tsx
+ * FUNCION: Formulario de inicio de sesión con validación y manejo de errores
+ * IMPLEMENTACION: Client Component con useTransition, useAuth hook y estado controlado
+ * DEPENDENCIAS: react, next/navigation, lucide-react, @/hooks/useAuth
+ * EXPORTS: LoginFormClient
  */
-
 'use client';
 
 import { useState, useTransition } from 'react';

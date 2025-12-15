@@ -1,8 +1,10 @@
 /**
- * @file financiero.types.ts
- * @description Tipos TypeScript para el feature de Reportes Financieros
+ * ARCHIVO: financiero.types.ts
+ * FUNCION: Definiciones de tipos TypeScript para reportes financieros
+ * IMPLEMENTACION: Interfaces y types para datos financieros, KPIs, filtros y respuestas API
+ * DEPENDENCIAS: Ninguna (solo tipos nativos)
+ * EXPORTS: PeriodoTipo, FinancialData, FinancialKPI, FinancialSummary, FinancialFilters, etc.
  */
-
 // Período de tiempo
 export type PeriodoTipo = '1m' | '3m' | '6m' | '1y' | 'custom';
 

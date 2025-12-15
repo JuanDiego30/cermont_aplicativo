@@ -1,5 +1,11 @@
+/**
+ * ARCHIVO: HESDashboard.tsx
+ * FUNCION: Panel de métricas de seguridad HES (equipos disponibles, en mantenimiento, rechazados)
+ * IMPLEMENTACION: Consulta API /hes/status-report via SWR, muestra KPIs en tarjetas con iconos
+ * DEPENDENCIAS: React, SWR, apiClient, lucide-react, swrKeys
+ * EXPORTS: HESDashboard (named)
+ */
 'use client';
-
 import React from 'react';
 import useSWR from 'swr';
 import { apiClient } from '../../lib/api';

@@ -1,8 +1,10 @@
 /**
- * @file client.tsx
- * @description Componentes client para evidencias
+ * ARCHIVO: evidencias/client.tsx
+ * FUNCION: Dashboard de evidencias con upload, filtrado y eliminación
+ * IMPLEMENTACION: Grid de EvidenciaCards, filtros tipo/búsqueda, subida múltiple
+ * DEPENDENCIAS: React hooks, lucide-react, @/features/evidencias, sonner (toast)
+ * EXPORTS: EvidenciasDashboard
  */
-
 'use client';
 
 import { useState } from 'react';

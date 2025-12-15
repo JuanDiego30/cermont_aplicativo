@@ -1,10 +1,10 @@
 /**
- * @file financial-chart.tsx
- * @description Gráfico de evolución financiera
- * 
- * ✨ Server Component - Visualización simple sin librerías externas
+ * ARCHIVO: financial-chart.tsx
+ * FUNCION: Componente de gráfico de barras para evolución financiera
+ * IMPLEMENTACION: Server Component con barras CSS puras (sin librerías externas)
+ * DEPENDENCIAS: formatCurrency, FinancialData types
+ * EXPORTS: FinancialChart, FinancialChartSkeleton
  */
-
 import { formatCurrency } from '../utils/currency.utils';
 import type { FinancialData } from '../api/financiero.types';
 

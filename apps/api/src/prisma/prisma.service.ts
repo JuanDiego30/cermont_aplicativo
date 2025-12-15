@@ -1,9 +1,9 @@
 /**
- * @service PrismaService
- *
- * Cliente Prisma (PostgreSQL) con ciclo de vida NestJS (connect/disconnect).
- *
- * Uso: Inyectar PrismaService desde PrismaModule para acceso a BD.
+ * ARCHIVO: prisma.service.ts
+ * FUNCION: Cliente Prisma para PostgreSQL con gestión de ciclo de vida NestJS
+ * IMPLEMENTACION: Extiende PrismaClient, usa adapter pg-pool para Prisma 7.x
+ * DEPENDENCIAS: @prisma/client, @prisma/adapter-pg, pg (Pool)
+ * EXPORTS: PrismaService (servicio inyectable)
  */
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 // Prisma 7 con pnpm: importar desde el cliente generado localmente

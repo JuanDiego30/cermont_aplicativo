@@ -1,6 +1,12 @@
+/**
+ * ARCHIVO: page.tsx (terms)
+ * FUNCION: Página de Términos de Servicio del sistema Cermont
+ * IMPLEMENTACION: Server Component con contenido legal estructurado en secciones
+ * DEPENDENCIAS: next/Metadata, lucide-react
+ * EXPORTS: TermsPage (default), metadata
+ */
 import type { Metadata } from 'next';
 import { FileText, Scale, ShieldCheck, AlertTriangle, Clock, Mail } from 'lucide-react';
-
 export const metadata: Metadata = {
   title: 'Términos de Servicio',
   description: 'Términos y condiciones de uso del sistema de gestión Cermont para servicios de aire acondicionado.',
@@ -9,11 +15,6 @@ export const metadata: Metadata = {
     follow: true,
   },
 };
-
-/**
- * Página de Términos de Servicio
- * Server Component - contenido estático
- */
 export default function TermsPage() {
   return (
     <article className="prose prose-gray dark:prose-invert max-w-none">

@@ -1,7 +1,11 @@
-// 📁 web/src/app/dashboard/ordenes/_components/ordenes-table.tsx
-
+/**
+ * ARCHIVO: ordenes-table.tsx
+ * FUNCION: Tabla paginada de ordenes de trabajo con estados y acciones
+ * IMPLEMENTACION: Tabla HTML con hook useOrdenes, paginacion y badges de estado
+ * DEPENDENCIAS: useOrdenes hook, Skeleton, Button, Badge, Next.js Link
+ * EXPORTS: OrdenesTable (named)
+ */
 'use client';
-
 import { useOrdenes } from '@/features/ordenes/hooks/use-ordenes';
 import { useState } from 'react';
 import { Skeleton } from '@/components/ui/Skeleton';

@@ -1,9 +1,12 @@
 /**
- * @file clientes.service.ts
- * @description API service for clientes (clients) module
+ * ARCHIVO: clientes.service.ts
+ * FUNCION: Servicio API para operaciones CRUD de clientes
+ * IMPLEMENTACION: Wrapper sobre apiClient con métodos tipados para cada endpoint
+ * DEPENDENCIAS: @/lib/api (apiClient), tipos de clientes
+ * EXPORTS: clientesService (list, getById, create, update, delete, toggleEstado, getStats)
  */
-
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/api-client';
+import { filtersToParams } from '@/lib/utils/params';
 import type {
     Cliente,
     ClienteFilters,
@@ -14,18 +17,6 @@ import type {
 } from '../types/clientes.types';
 
 const BASE_URL = '/clientes';
-
-// Helper to convert filters to params object
-function filtersToParams(filters?: ClienteFilters): Record<string, string> | undefined {
-    if (!filters) return undefined;
-    const params: Record<string, string> = {};
-    Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-            params[key] = String(value);
-        }
-    });
-    return Object.keys(params).length > 0 ? params : undefined;
-}
 
 export const clientesService = {
     /**

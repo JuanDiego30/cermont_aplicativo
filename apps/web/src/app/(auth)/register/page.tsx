@@ -1,10 +1,10 @@
 /**
- * 📁 app/(auth)/register/page.tsx
- *
- * ✨ Página de registro refactorizada
- * Server Component con metadata + Client Component para el form
+ * ARCHIVO: page.tsx (register)
+ * FUNCION: Página de registro de nuevos usuarios en CERMONT
+ * IMPLEMENTACION: Server Component con metadata SEO y Client Component para formulario
+ * DEPENDENCIAS: next/Metadata, RegisterFormClient
+ * EXPORTS: RegisterPage (default), metadata
  */
-
 import type { Metadata } from 'next';
 import { RegisterFormClient } from './register-form-client';
 

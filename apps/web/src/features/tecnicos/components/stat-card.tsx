@@ -1,10 +1,10 @@
 /**
- * @file stat-card.tsx
- * @description Componente de tarjeta de estadística reutilizable
- * 
- * ✨ Server Component - No necesita 'use client'
+ * ARCHIVO: stat-card.tsx
+ * FUNCION: Tarjeta de estadística reutilizable con icono, valor y trend opcional
+ * IMPLEMENTACION: Server Component - Layout flex con soporte para tema oscuro
+ * DEPENDENCIAS: @/lib/cn
+ * EXPORTS: StatCard
  */
-
 import { cn } from '@/lib/cn';
 
 interface StatCardProps {
@@ -22,7 +22,7 @@ export function StatCard({ label, value, icon, trend, className }: StatCardProps
   return (
     <div
       className={cn(
-        'rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]',
+        'rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3',
         className
       )}
     >

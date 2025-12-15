@@ -1,8 +1,10 @@
 /**
- * @file EvidenciaCardSkeleton.tsx
- * @description Skeleton loader for EvidenciaCard
+ * ARCHIVO: EvidenciaCardSkeleton.tsx
+ * FUNCION: Skeleton loader para estados de carga de EvidenciaCard
+ * IMPLEMENTACION: Divs animados con pulse que simulan la estructura del card
+ * DEPENDENCIAS: Tailwind CSS (animate-pulse)
+ * EXPORTS: EvidenciaCardSkeleton
  */
-
 export function EvidenciaCardSkeleton() {
     return (
         <div className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden animate-pulse">

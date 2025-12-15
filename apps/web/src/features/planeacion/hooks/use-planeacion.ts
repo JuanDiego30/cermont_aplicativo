@@ -1,10 +1,11 @@
-'use client';
-
 /**
- * @file use-planeacion.ts
- * @description SWR hooks for planeación management
+ * ARCHIVO: use-planeacion.ts
+ * FUNCION: Hooks SWR para gestión de estado de planeación
+ * IMPLEMENTACION: useSWR para fetching, useMutation para operaciones CRUD
+ * DEPENDENCIAS: swr, @/hooks/use-mutation, planeacion.api
+ * EXPORTS: usePlaneacionByOrden, useKitsTipicos, useCreatePlaneacion, etc.
  */
-
+'use client';
 import useSWR from 'swr';
 import { useMutation, useInvalidate } from '@/hooks/use-mutation';
 import { swrKeys } from '@/lib/swr-config';

@@ -1,7 +1,9 @@
 /**
- * @useCase ListUsuariosUseCase
- * @description Caso de uso para listar usuarios
- * @layer Application
+ * ARCHIVO: list-usuarios.use-case.ts
+ * FUNCION: Caso de uso para listar usuarios con paginación y filtros
+ * IMPLEMENTACION: Aplica filtros (rol, activo, búsqueda), calcula paginación
+ * DEPENDENCIAS: NestJS, IUsuarioRepository
+ * EXPORTS: ListUsuariosUseCase
  */
 import { Injectable, Inject } from '@nestjs/common';
 import { USUARIO_REPOSITORY, IUsuarioRepository } from '../../domain/repositories';

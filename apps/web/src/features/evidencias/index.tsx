@@ -1,8 +1,10 @@
-// ============================================
-// EVIDENCIAS FEATURE INDEX - Cermont FSM
-// ============================================
-
-// Types
+/**
+ * ARCHIVO: index.tsx
+ * FUNCION: Barrel export alternativo del módulo de evidencias (DEPRECADO)
+ * IMPLEMENTACION: Re-exporta componentes - usar index.ts preferentemente
+ * DEPENDENCIAS: Submódulos de evidencias
+ * EXPORTS: EvidenciaCard, EvidenciaCardSkeleton, EvidenciasList
+ */
 export * from './types/evidencia.types';
 
 // API

@@ -1,10 +1,10 @@
 /**
- * @file tecnicos-grid.tsx
- * @description Grid de técnicos con data fetching
- * 
- * ✨ Client Component - Maneja estado y queries
+ * ARCHIVO: tecnicos-grid.tsx
+ * FUNCION: Grid principal de técnicos con filtros, paginación y estados
+ * IMPLEMENTACION: Client Component - Usa hooks SWR, maneja loading/error/empty states
+ * DEPENDENCIAS: useTecnicos, useTecnicosFilters, TecnicoCard, TecnicosFilters, lucide-react
+ * EXPORTS: TecnicosGrid, TecnicosGridSkeleton
  */
-
 'use client';
 
 import { useTecnicos } from '../hooks/use-tecnicos';

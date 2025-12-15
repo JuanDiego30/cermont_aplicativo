@@ -18,7 +18,7 @@ export function CostoCard({ costo }: CostoCardProps) {
                     <span className="text-xs font-medium text-gray-500 uppercase tracking-wider block mb-1">
                         {COSTO_TYPE_LABELS[costo.tipo]}
                     </span>
-                    <h4 className="font-medium text-gray-900 dark:text-white truncate pr-2 max-w-[200px]" title={costo.concepto}>
+                    <h4 className="font-medium text-gray-900 dark:text-white truncate pr-2 max-w-50" title={costo.concepto}>
                         {costo.concepto}
                     </h4>
                 </div>

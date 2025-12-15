@@ -1,8 +1,10 @@
 /**
- * @file clientes.types.ts
- * @description Types for the clientes (clients) module
+ * ARCHIVO: clientes.types.ts
+ * FUNCION: Definiciones de tipos TypeScript para el módulo de clientes
+ * IMPLEMENTACION: Interfaces y tipos para entidad Cliente, filtros, inputs y respuestas
+ * DEPENDENCIAS: Ninguna (tipos puros)
+ * EXPORTS: Cliente, EstadoCliente, ClienteFilters, CreateClienteInput, UpdateClienteInput, etc.
  */
-
 export interface Cliente {
     id: string;
     nombre: string;

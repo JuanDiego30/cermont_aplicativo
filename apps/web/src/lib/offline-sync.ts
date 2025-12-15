@@ -6,6 +6,8 @@
  * DEPENDENCIAS: IndexedDB API nativa, fetch
  * EXPORTS: getOfflineSyncManager, OfflineSyncManager, tipos SyncQueueItem, OfflineData
  */
+
+import { buildApiBaseUrl } from './api-client';
 // ============================================
 // TYPES
 // ============================================
@@ -342,15 +344,15 @@ class OfflineSyncManager {
   }
 
   private async syncItem(item: SyncQueueItem): Promise<any> {
-    const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-    const trimmed = rawBaseUrl.trim().replace(/\/+$/, '');
-    const baseUrl = trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+    const baseUrl = buildApiBaseUrl(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001');
+    const endpoint = this.normalizeEndpoint(item.endpoint);
     
-    const response = await fetch(`${baseUrl}${item.endpoint}`, {
+    const token = this.getAuthToken();
+    const response = await fetch(`${baseUrl}${endpoint}`, {
       method: item.method,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.getAuthToken()}`,
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       },
       body: item.method !== 'DELETE' ? JSON.stringify(item.data) : undefined,
     });
@@ -363,10 +365,24 @@ class OfflineSyncManager {
   }
 
   private getAuthToken(): string {
-    if (typeof localStorage !== 'undefined') {
-      return localStorage.getItem('auth_token') || '';
+    if (typeof localStorage === 'undefined') return '';
+    const raw = localStorage.getItem('cermont-auth');
+    if (!raw) return '';
+    try {
+      const parsed = JSON.parse(raw) as { state?: { token?: string | null } };
+      return parsed.state?.token || '';
+    } catch {
+      return '';
     }
-    return '';
+  }
+
+  private normalizeEndpoint(endpoint: string): string {
+    let e = endpoint.trim();
+    if (!e.startsWith('/')) e = `/${e}`;
+    // Evitar /api/api: el baseUrl ya incluye /api
+    if (e === '/api') return '';
+    if (e.startsWith('/api/')) return e.slice(4);
+    return e;
   }
 
   // ============================================

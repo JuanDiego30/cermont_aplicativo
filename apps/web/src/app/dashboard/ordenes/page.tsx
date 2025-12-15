@@ -1,3 +1,10 @@
+/**
+ * ARCHIVO: ordenes/page.tsx
+ * FUNCION: Pagina principal de gestion de ordenes de trabajo
+ * IMPLEMENTACION: Tabla/cards con filtrado, busqueda y estadisticas dinamicas
+ * DEPENDENCIAS: React, Next.js Link, lucide-react icons, useOrdenes hook
+ * EXPORTS: OrdersPage (default) - Client Component
+ */
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
@@ -106,7 +113,7 @@ export default function OrdersPage() {
               { label: "Completadas", value: ordenes.filter((o: any) => o.estado === "completada").length, color: "text-emerald-600" },
               { label: "Urgentes", value: ordenes.filter((o: any) => o.prioridad === "urgente").length, color: "text-red-600" },
             ].map((stat) => (
-              <div key={stat.label} className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+              <div key={stat.label} className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">
                 <p className="text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
                 <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
               </div>
@@ -114,7 +121,7 @@ export default function OrdersPage() {
           </div>
 
           {/* Filtros y búsqueda */}
-          <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+          <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3">
             <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 dark:border-gray-800">
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -127,7 +134,7 @@ export default function OrdersPage() {
                 />
               </div>
               <div className="flex items-center gap-3 overflow-x-auto pb-1 sm:pb-0">
-                <div className="relative min-w-[140px]">
+                <div className="relative min-w-35">
                   <select
                     value={filterEstado}
                     onChange={(e) => setFilterEstado(e.target.value)}

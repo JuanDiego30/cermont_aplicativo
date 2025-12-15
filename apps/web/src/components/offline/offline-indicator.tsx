@@ -1,6 +1,11 @@
-// 📁 web/src/components/offline/offline-indicator.tsx
+/**
+ * ARCHIVO: offline-indicator.tsx
+ * FUNCION: Indicador simple de estado de conexión online/offline
+ * IMPLEMENTACION: Escucha eventos del navegador (online/offline) y muestra notificación flotante
+ * DEPENDENCIAS: React (useEffect, useState), lucide-react (Wifi, WifiOff)
+ * EXPORTS: OfflineIndicator (named), default export
+ */
 'use client';
-
 import { useEffect, useState } from 'react';
 import { WifiOff, Wifi } from 'lucide-react';
 

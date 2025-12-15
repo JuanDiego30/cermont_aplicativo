@@ -1,24 +1,15 @@
 /**
- * @file evidencias.api.ts
- * @description API service for Evidencias module
+ * ARCHIVO: evidencias.api.ts
+ * FUNCION: Cliente API para gestión de evidencias (CRUD + upload)
+ * IMPLEMENTACION: Usa apiClient con FormData para subida de archivos
+ * DEPENDENCIAS: @/lib/api-client, evidencia.types
+ * EXPORTS: evidenciasApi (getAll, getById, upload, delete)
  */
-
-import { apiClient } from '@/lib/api-client'; // Import specific client that has uploadForm
+import { apiClient } from '@/lib/api-client';
+import { filtersToParams } from '@/lib/utils/params';
 import type { Evidencia, CreateEvidenciaInput, EvidenciaFilters } from '../types/evidencia.types';
 
 const BASE_URL = '/evidencias';
-
-// Helper for query params
-function filtersToParams(filters?: EvidenciaFilters): Record<string, string> | undefined {
-  if (!filters) return undefined;
-  const params: Record<string, string> = {};
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
-      params[key] = String(value);
-    }
-  });
-  return params;
-}
 
 export const evidenciasApi = {
   /**

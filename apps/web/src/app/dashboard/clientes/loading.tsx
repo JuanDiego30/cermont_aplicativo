@@ -1,8 +1,10 @@
 /**
- * @file loading.tsx
- * @description Loading state para clientes
+ * ARCHIVO: clientes/loading.tsx
+ * FUNCION: Estado de carga para la pagina de clientes
+ * IMPLEMENTACION: Skeletons para header, stats y grid
+ * DEPENDENCIAS: ClientesGridSkeleton de @/features/clientes
+ * EXPORTS: ClientesLoading (default)
  */
-
 import { ClientesGridSkeleton } from '@/features/clientes';
 
 export default function ClientesLoading() {
@@ -23,7 +25,7 @@ export default function ClientesLoading() {
       {/* Stats skeleton */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+          <div key={i} className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3">
             <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-2" />
             <div className="h-8 w-12 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
           </div>

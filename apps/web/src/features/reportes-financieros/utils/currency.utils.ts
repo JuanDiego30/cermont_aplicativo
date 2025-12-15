@@ -1,8 +1,10 @@
 /**
- * @file currency.utils.ts
- * @description Utilidades para formateo de moneda y cálculos financieros
+ * ARCHIVO: currency.utils.ts
+ * FUNCION: Utilidades de formateo monetario y cálculos financieros
+ * IMPLEMENTACION: Funciones puras para COP, porcentajes, márgenes y variaciones
+ * DEPENDENCIAS: Intl.NumberFormat (API nativa)
+ * EXPORTS: formatCurrency, formatPercent, calculateMargin, calculateVariation, isTrendPositive, getMarginColor, formatNumber
  */
-
 /**
  * Formatea un valor numérico a moneda colombiana
  */

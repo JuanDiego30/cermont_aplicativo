@@ -1,10 +1,11 @@
 /**
- * @file error.tsx
- * @description Error boundary para la página de técnicos
+ * ARCHIVO: tecnicos/error.tsx
+ * FUNCION: Error boundary para la pagina de tecnicos
+ * IMPLEMENTACION: Muestra error con opcion de reintentar o ir al dashboard
+ * DEPENDENCIAS: React useEffect, lucide-react icons
+ * EXPORTS: TecnicosError (default) - Client Component
  */
-
 'use client';
-
 import { useEffect } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 

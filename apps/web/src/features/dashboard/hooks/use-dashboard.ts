@@ -1,10 +1,11 @@
-'use client';
-
 /**
- * @file use-dashboard.ts
- * @description SWR hooks for dashboard data
+ * ARCHIVO: use-dashboard.ts
+ * FUNCION: Custom hooks SWR para datos del dashboard
+ * IMPLEMENTACION: Hooks useDashboardMetrics, useOrdersStatus, useTechniciansStats con auto-refresh
+ * DEPENDENCIAS: swr, swrKeys, dashboardApi
+ * EXPORTS: useDashboardMetrics, useOrdersStatus, useTechniciansStats, useDashboard, useDashboardRecent
  */
-
+'use client';
 import useSWR from 'swr';
 import { swrKeys } from '@/lib/swr-config';
 import { dashboardApi, type DashboardMetrics, type OrderStatusData } from '../api/dashboard-api';

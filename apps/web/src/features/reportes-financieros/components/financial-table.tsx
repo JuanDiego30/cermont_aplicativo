@@ -1,10 +1,10 @@
 /**
- * @file financial-table.tsx
- * @description Tabla de datos financieros detallados
- * 
- * ✨ Server Component
+ * ARCHIVO: financial-table.tsx
+ * FUNCION: Tabla detallada de datos financieros por período
+ * IMPLEMENTACION: Server Component con thead, tbody y tfoot para totales
+ * DEPENDENCIAS: formatCurrency, getMarginColor, FinancialData, FinancialSummary types
+ * EXPORTS: FinancialTable, FinancialTableSkeleton
  */
-
 import { formatCurrency, getMarginColor } from '../utils/currency.utils';
 import type { FinancialData, FinancialSummary } from '../api/financiero.types';
 

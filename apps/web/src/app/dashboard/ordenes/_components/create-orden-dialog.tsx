@@ -1,6 +1,11 @@
-// 📁 web/src/app/dashboard/ordenes/_components/create-orden-dialog.tsx
+/**
+ * ARCHIVO: create-orden-dialog.tsx
+ * FUNCION: Dialogo modal para crear ordenes rapidas
+ * IMPLEMENTACION: Dialog con formulario basico y useCreateOrden hook
+ * DEPENDENCIAS: Dialog UI components, Button, Input, useCreateOrden
+ * EXPORTS: CreateOrdenDialog (named)
+ */
 'use client';
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/Dialog';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';

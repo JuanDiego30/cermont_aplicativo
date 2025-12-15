@@ -1,8 +1,10 @@
 /**
- * @file formulario.types.ts
- * @description Type definitions for Formularios module
+ * ARCHIVO: formulario.types.ts
+ * FUNCION: Definiciones de tipos para módulo de formularios/plantillas
+ * IMPLEMENTACION: Interfaces para Campo, Plantilla, filtros e inputs de creación
+ * DEPENDENCIAS: Ninguna (tipos puros)
+ * EXPORTS: EstadoFormulario, Campo, Plantilla, PlantillaFilters, CreatePlantillaInput
  */
-
 export type EstadoFormulario = 'borrador' | 'activo' | 'archivado' | 'ACTIVO' | 'INACTIVO' | 'BORRADOR';
 
 export interface Campo {

@@ -589,5 +589,36 @@ export class KitsService {
             data: results,
         };
     }
+
+    /**
+     * Obtener estadísticas de kits
+     * Devuelve el total de kits y su distribución por estado
+     */
+    async getStats() {
+        // Contar todos los kits
+        const total = await this.prisma.kitTipico.count();
+
+        // Contar kits disponibles (activos)
+        const disponibles = await this.prisma.kitTipico.count({
+            where: { activo: true },
+        });
+
+        // Contar kits en uso (asociados a ejecuciones activas)
+        const enUso = await this.prisma.ejecucion.count({
+            where: {
+                estado: { in: ['NO_INICIADA', 'EN_PROGRESO', 'PAUSADA'] },
+            },
+        });
+
+        // Kits en mantenimiento (inactivos temporalmente)
+        const mantenimiento = total - disponibles;
+
+        return {
+            total,
+            disponibles,
+            enUso: Math.min(enUso, disponibles), // No puede haber más en uso que disponibles
+            mantenimiento,
+        };
+    }
 }
 

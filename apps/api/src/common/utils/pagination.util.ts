@@ -1,19 +1,10 @@
 /**
- * @util PaginationUtil
- *
- * Utilidad genérica para paginación con Prisma.
- * 100% type-safe - sin 'any'
- *
- * Uso:
- *   const result = await PaginationUtil.paginate({
- *     model: this.prisma.orden,
- *     query: { page: 1, limit: 10 },
- *     where: { active: true },
- *     orderBy: { createdAt: 'desc' },
- *     include: { cliente: true },
- *   });
+ * ARCHIVO: pagination.util.ts
+ * FUNCION: Utilidad genérica type-safe para paginación con Prisma
+ * IMPLEMENTACION: Clase estática con métodos para normalizar, calcular y ejecutar paginación
+ * DEPENDENCIAS: ../types/api-response.types, ../dto/pagination.dto
+ * EXPORTS: PaginationUtil, PaginationQuery, PaginatedResult, PaginationQueryDto, etc.
  */
-
 import type { PaginationMeta } from '../types/api-response.types';
 import { createPaginationMeta } from '../types/api-response.types';
 

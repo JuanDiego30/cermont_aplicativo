@@ -1,9 +1,11 @@
-// ============================================
-// EJECUCIÓN API - Cermont FSM
-// Cliente API para ejecución de órdenes
-// ============================================
-
-import { apiClient } from '@/lib/api';
+/**
+ * ARCHIVO: ejecucion.api.ts
+ * FUNCION: Cliente API REST para gestión de ejecución de órdenes FSM
+ * IMPLEMENTACION: Métodos HTTP para iniciar, pausar, reanudar, completar ejecuciones
+ * DEPENDENCIAS: @/lib/api (apiClient)
+ * EXPORTS: Interfaces (Ejecucion, TareaEjecucion, ChecklistEjecucion), ejecucionApi
+ */
+import { apiClient } from '@/lib/api-client';
 
 export interface Ejecucion {
   id: string;

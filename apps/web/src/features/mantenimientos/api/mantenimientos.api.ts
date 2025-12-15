@@ -1,23 +1,15 @@
 /**
- * @file mantenimientos.api.ts
- * @description API service for Mantenimientos module
+ * ARCHIVO: mantenimientos.api.ts
+ * FUNCION: Cliente API para operaciones CRUD de mantenimientos
+ * IMPLEMENTACION: Usa apiClient para llamadas HTTP a /mantenimientos endpoint
+ * DEPENDENCIAS: @/lib/api-client, mantenimiento.types
+ * EXPORTS: mantenimientosApi (getAll, getById, create, update, delete)
  */
-
 import { apiClient } from '@/lib/api-client';
+import { filtersToParams } from '@/lib/utils/params';
 import type { Mantenimiento, CreateMantenimientoInput, MantenimientoFilters } from '../types/mantenimiento.types';
 
 const BASE_URL = '/mantenimientos';
-
-function filtersToParams(filters?: MantenimientoFilters): Record<string, string> | undefined {
-    if (!filters) return undefined;
-    const params: Record<string, string> = {};
-    Object.entries(filters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-            params[key] = String(value);
-        }
-    });
-    return params;
-}
 
 export const mantenimientosApi = {
     getAll: async (filters?: MantenimientoFilters): Promise<Mantenimiento[]> => {

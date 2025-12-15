@@ -1,13 +1,9 @@
 /**
- * @filter PrismaExceptionFilters
- *
- * Captura errores de Prisma y los convierte a respuestas HTTP estándar.
- * Usa PrismaErrorMapper para separar responsabilidades (SRP).
- *
- * Incluye 3 filters especializados:
- * - PrismaExceptionFilter: Errores conocidos (P2xxx)
- * - PrismaValidationFilter: Errores de validación de query
- * - PrismaConnectionFilter: Errores de conexión
+ * ARCHIVO: prisma-exception.filter.ts
+ * FUNCION: Filtros de excepción para errores de Prisma ORM
+ * IMPLEMENTACION: 4 filters especializados: Known, Validation, Connection, Panic
+ * DEPENDENCIAS: @nestjs/common, @prisma/client, express, PrismaErrorMapper
+ * EXPORTS: PrismaExceptionFilter, PrismaValidationFilter, PrismaConnectionFilter, PrismaPanicFilter
  */
 import {
     ExceptionFilter,

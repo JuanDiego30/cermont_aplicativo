@@ -1,8 +1,10 @@
 /**
- * @file EvidenciaCard.tsx
- * @description Pure presentational component for an evidence item
+ * ARCHIVO: EvidenciaCard.tsx
+ * FUNCION: Componente presentacional para mostrar una evidencia individual
+ * IMPLEMENTACION: Card con preview de imagen/tipo, overlay de acciones hover
+ * DEPENDENCIAS: evidencia.types
+ * EXPORTS: EvidenciaCard
  */
-
 import { Evidencia } from '../types/evidencia.types';
 
 interface EvidenciaCardProps {

@@ -9,5 +9,11 @@ export * from './financial';
 export * from './date';
 export * from './string';
 
+// Utilidades de parámetros URL (DRY: filtersToParams centralizado)
+export * from './params';
+
+// Utilidades de manejo de errores (DRY: getErrorMessage centralizado)
+export * from './error';
+
 // Re-export cn from parent lib folder
 export { cn } from '../cn';

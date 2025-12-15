@@ -1,8 +1,10 @@
 /**
- * @file MantenimientoCardSkeleton.tsx
- * @description Skeleton loader for MantenimientoCard
+ * ARCHIVO: MantenimientoCardSkeleton.tsx
+ * FUNCION: Skeleton loader para MantenimientoCard durante estados de carga
+ * IMPLEMENTACION: Divs con animate-pulse y colores de placeholder
+ * DEPENDENCIAS: Tailwind CSS
+ * EXPORTS: MantenimientoCardSkeleton
  */
-
 export function MantenimientoCardSkeleton() {
     return (
         <div className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 animate-pulse">

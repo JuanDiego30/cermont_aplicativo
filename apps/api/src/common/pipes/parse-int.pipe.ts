@@ -1,8 +1,10 @@
 /**
- * @file parse-int.pipe.ts
- * @description Pipe para parseo seguro de integers con validación
+ * ARCHIVO: parse-int.pipe.ts
+ * FUNCION: Pipes para parseo seguro de parámetros HTTP (int, UUID, bool)
+ * IMPLEMENTACION: Usa PipeTransform de NestJS con validación y mensajes personalizados
+ * DEPENDENCIAS: @nestjs/common (PipeTransform, Injectable, BadRequestException)
+ * EXPORTS: ParseIntSafePipe, ParseIdPipe, ParseUuidPipe, ParseBoolPipe, ParseIntPipeOptions
  */
-
 import {
     PipeTransform,
     Injectable,

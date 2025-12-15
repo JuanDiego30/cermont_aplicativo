@@ -1,10 +1,10 @@
 /**
- * @file tecnico-card.tsx
- * @description Tarjeta individual de técnico
- * 
- * ✨ Server Component - No necesita 'use client'
+ * ARCHIVO: tecnico-card.tsx
+ * FUNCION: Tarjeta visual con info completa de un técnico
+ * IMPLEMENTACION: Server Component - Avatar, rating, contacto, certificaciones y estado
+ * DEPENDENCIAS: next/link, lucide-react, tecnico-status.utils
+ * EXPORTS: TecnicoCard, TecnicoCardSkeleton
  */
-
 import Link from 'next/link';
 import {
   MapPin,
@@ -36,7 +36,7 @@ export function TecnicoCard({ tecnico }: TecnicoCardProps) {
   );
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden hover:shadow-lg transition-shadow">
+    <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 overflow-hidden hover:shadow-lg transition-shadow">
       {/* Header de la tarjeta */}
       <div className="relative p-6 pb-4">
         <div className="absolute top-4 right-4">
@@ -55,7 +55,7 @@ export function TecnicoCard({ tecnico }: TecnicoCardProps) {
               />
             ) : (
               <div
-                className={`w-16 h-16 rounded-full bg-gradient-to-br ${avatarGradient} flex items-center justify-center text-white text-xl font-bold`}
+                className={`w-16 h-16 rounded-full bg-linear-to-br ${avatarGradient} flex items-center justify-center text-white text-xl font-bold`}
               >
                 {getTecnicoInitials(tecnico.nombre)}
               </div>
@@ -163,7 +163,7 @@ export function TecnicoCard({ tecnico }: TecnicoCardProps) {
 // Skeleton para loading
 export function TecnicoCardSkeleton() {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden animate-pulse">
+    <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/3 overflow-hidden animate-pulse">
       <div className="p-6 pb-4">
         <div className="flex items-start gap-4">
           <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700" />

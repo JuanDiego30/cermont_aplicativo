@@ -1,9 +1,10 @@
 /**
- * 📁 app/(auth)/login/loading.tsx
- *
- * ✨ Loading state para la página de login
+ * ARCHIVO: loading.tsx (login)
+ * FUNCION: Estado de carga (skeleton) para la página de login
+ * IMPLEMENTACION: Componente estático con animación pulse de Tailwind
+ * DEPENDENCIAS: Tailwind CSS
+ * EXPORTS: LoginLoading (default)
  */
-
 export default function LoginLoading() {
   return (
     <div className="animate-pulse space-y-5">

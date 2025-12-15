@@ -1,8 +1,10 @@
 /**
- * @file index.ts
- * @description Public exports for Formularios module
+ * ARCHIVO: index.ts
+ * FUNCION: Barrel export del módulo de formularios/plantillas dinámicas
+ * IMPLEMENTACION: Re-exporta tipos, API, hooks, componentes y utils
+ * DEPENDENCIAS: Todos los submódulos de formularios
+ * EXPORTS: Plantilla, formulariosApi, useFormularios, PlantillaCard
  */
-
 export * from './types/formulario.types';
 export * from './api/formularios.api';
 export * from './hooks/use-formularios';

@@ -5,7 +5,7 @@
  * DEPENDENCIAS: @/lib/api (apiClient), @/types/user
  * EXPORTS: usersService, PaginatedUsers, ListUsersParams, CreateUserInput, UpdateUserInput
  */
-import { apiClient } from '@/lib/api';
+import { apiClient } from '@/lib/api-client';
 import type { User, UserRole } from '@/types/user';
 
 export interface PaginatedUsers {

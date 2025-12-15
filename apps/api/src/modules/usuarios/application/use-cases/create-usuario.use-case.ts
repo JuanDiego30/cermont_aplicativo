@@ -1,7 +1,9 @@
 /**
- * @useCase CreateUsuarioUseCase
- * @description Caso de uso para crear un usuario
- * @layer Application
+ * ARCHIVO: create-usuario.use-case.ts
+ * FUNCION: Caso de uso para creación de nuevos usuarios
+ * IMPLEMENTACION: Valida email único, hashea password con bcrypt, emite evento usuario.created
+ * DEPENDENCIAS: NestJS, bcryptjs, EventEmitter2, IUsuarioRepository
+ * EXPORTS: CreateUsuarioUseCase
  */
 import { Injectable, Inject, ConflictException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';

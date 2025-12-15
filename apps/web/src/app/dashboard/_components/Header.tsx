@@ -1,5 +1,12 @@
+/**
+ * ARCHIVO: Header.tsx
+ * FUNCION: Cabecera principal del dashboard con búsqueda, notificaciones y perfil
+ * IMPLEMENTACION: Barra de búsqueda con shortcut Ctrl+K, toggle de sidebar móvil,
+ *                 dropdowns de notificaciones y usuario, toggle de tema
+ * DEPENDENCIAS: React, lucide-react, ThemeToggleButton, NotificationDropdown, UserDropdown, uiStore
+ * EXPORTS: Header (named export)
+ */
 'use client';
-
 import { useState, useRef, useEffect } from 'react';
 import { Search, Menu, X } from 'lucide-react';
 import ThemeToggleButton from '@/components/common/ThemeToggleButton';

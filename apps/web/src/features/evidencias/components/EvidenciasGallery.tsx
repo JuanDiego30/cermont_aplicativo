@@ -1,5 +1,11 @@
+/**
+ * ARCHIVO: EvidenciasGallery.tsx
+ * FUNCION: Galería interactiva de evidencias con filtros por etapa
+ * IMPLEMENTACION: Grid filtrable por ANTES/DURANTE/DESPUES con thumbnails
+ * DEPENDENCIAS: React useState, @/types/evidence
+ * EXPORTS: EvidenciasGallery
+ */
 'use client';
-
 import { useState } from 'react';
 import type { Evidence, EvidenceStage } from '@/types/evidence';
 
@@ -88,7 +94,7 @@ export function EvidenciasGallery({ evidences, onSelect, onUpload }: EvidenciasG
                 
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity flex items-end">
-                  <div className="p-2 w-full bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="p-2 w-full bg-linear-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                     <p className="text-white text-sm truncate">{evidence.nombre}</p>
                   </div>
                 </div>

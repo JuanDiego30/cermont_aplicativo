@@ -1,58 +1,53 @@
-/**
- * @file page.tsx
- * @description Página de formularios - Server Component
- */
+'use client';
 
-import { Suspense } from 'react';
-import { FileText } from 'lucide-react';
-import { PlantillaCardSkeleton } from '@/features/formularios';
-import { FormulariosDashboard } from './client';
+import { availableSchemas } from '@/lib/form-schemas';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { FileText, Plus, Shield } from 'lucide-react';
+import Link from 'next/link';
 
-export const metadata = {
-  title: 'Formularios | Cermont',
-  description: 'Gestión de formularios dinámicos',
-};
-
-export default async function FormulariosPage() {
+export default function FormulariosPage() {
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center">
-          <FileText className="w-5 h-5 text-white" />
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Formularios
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Diseño y gestión de formularios dinámicos
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Formularios</h1>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Selecciona un formulario para iniciar el diligenciamiento
           </p>
         </div>
       </div>
 
-      {/* Dashboard interactivo */}
-      <Suspense fallback={<FormulariosLoadingSkeleton />}>
-        <FormulariosDashboard />
-      </Suspense>
-    </div>
-  );
-}
-
-function FormulariosLoadingSkeleton() {
-  return (
-    <div className="space-y-6">
-      {/* Stats skeleton */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="h-20 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse" />
-        ))}
-      </div>
-      
-      {/* Grid skeleton */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <PlantillaCardSkeleton key={i} />
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {availableSchemas.map((schema) => (
+          <Card key={schema.id} className="hover:shadow-md transition-shadow dark:bg-gray-800 dark:border-gray-700">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                {schema.codigo}
+              </CardTitle>
+              {schema.categoria === 'seguridad' ? (
+                <Shield className="h-4 w-4 text-orange-500" />
+              ) : (
+                <FileText className="h-4 w-4 text-blue-500" />
+              )}
+            </CardHeader>
+            <CardContent>
+              <h3 className="text-lg font-bold mb-2 text-gray-900 dark:text-white line-clamp-2 min-h-14">
+                {schema.name}
+              </h3>
+              <div className="flex items-center justify-between mt-4">
+                <span className="text-xs text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded capitalize">
+                  {schema.categoria}
+                </span>
+                <Link href={`/dashboard/formularios/nueva/${schema.id}`}>
+                  <Button size="sm" className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Crear
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </div>

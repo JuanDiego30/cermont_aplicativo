@@ -1,7 +1,9 @@
 /**
- * @useCase UpdateUsuarioUseCase
- * @description Caso de uso para actualizar un usuario
- * @layer Application
+ * ARCHIVO: update-usuario.use-case.ts
+ * FUNCION: Caso de uso para actualización parcial de datos de usuario
+ * IMPLEMENTACION: Verifica existencia, hashea password si cambia, emite evento usuario.updated
+ * DEPENDENCIAS: NestJS, bcryptjs, EventEmitter2, IUsuarioRepository
+ * EXPORTS: UpdateUsuarioUseCase
  */
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';

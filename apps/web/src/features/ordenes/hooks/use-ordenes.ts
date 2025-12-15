@@ -1,6 +1,10 @@
-// 📁 web/src/features/ordenes/hooks/use-ordenes.ts
-// Hook canónico para gestión de órdenes con SWR
-
+/**
+ * ARCHIVO: use-ordenes.ts
+ * FUNCION: Hooks de React para gestión de órdenes con SWR y mutaciones
+ * IMPLEMENTACION: Usa SWR para queries, useMutation para cambios, soporte offline
+ * DEPENDENCIAS: swr, sonner, ordenesApi, useOffline, useMutation, swrKeys
+ * EXPORTS: useOrdenes, useOrden, useCreateOrden, useUpdateOrden, useDeleteOrden, useChangeOrdenEstado, useAsignarTecnico, useOrdenesStats, ordenesKeys
+ */
 'use client';
 
 import useSWR from 'swr';

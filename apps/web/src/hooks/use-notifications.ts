@@ -9,6 +9,7 @@
 import { useEffect, useCallback, useState } from 'react';
 import { useSocket } from './use-socket';
 import { toast } from 'sonner';
+import { apiClient } from '@/lib/api-client';
 
 interface Notification {
   id: string;
@@ -208,11 +209,8 @@ export function usePushNotifications() {
       setSubscription(sub);
 
       // Enviar suscripción al backend
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/subscribe`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subscription: sub.toJSON() }),
-        credentials: 'include',
+      await apiClient.post('/notifications/subscribe', {
+        subscription: sub.toJSON(),
       });
 
       return sub;
@@ -229,11 +227,8 @@ export function usePushNotifications() {
       await subscription.unsubscribe();
 
       // Notificar al backend
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notifications/unsubscribe`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ endpoint: subscription.endpoint }),
-        credentials: 'include',
+      await apiClient.post('/notifications/unsubscribe', {
+        endpoint: subscription.endpoint,
       });
 
       setSubscription(null);

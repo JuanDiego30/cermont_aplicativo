@@ -1,8 +1,10 @@
 /**
- * @file formulario.utils.ts
- * @description Utility functions and constants for Formularios
+ * ARCHIVO: formulario.utils.ts
+ * FUNCION: Constantes y utilidades para el módulo de formularios
+ * IMPLEMENTACION: Mapeos de config para estados y tipos de campo con labels/colores
+ * DEPENDENCIAS: formulario.types (EstadoFormulario)
+ * EXPORTS: ESTADO_FORMULARIO_CONFIG, TIPO_CAMPO_CONFIG
  */
-
 import { EstadoFormulario } from '../types/formulario.types';
 
 export const ESTADO_FORMULARIO_CONFIG: Record<EstadoFormulario, { label: string; color: string }> = {

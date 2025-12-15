@@ -1,13 +1,9 @@
 /**
- * @file logger.service.ts
- * @description Enterprise Logger Service using Winston
- * @pattern Singleton
- *
- * Features:
- * - JSON structured logging
- * - File rotation (daily)
- * - Console output for development
- * - Log levels based on environment
+ * ARCHIVO: logger.service.ts
+ * FUNCION: Servicio de logging empresarial con Winston (JSON estructurado)
+ * IMPLEMENTACION: Singleton pattern + rotación de archivos + console en dev
+ * DEPENDENCIAS: winston, path (Node.js)
+ * EXPORTS: LoggerService, ContextualLogger, LogLevel, LogContext, logger
  */
 import * as winston from 'winston';
 import * as path from 'path';
