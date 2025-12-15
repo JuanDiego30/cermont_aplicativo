@@ -118,9 +118,9 @@ const AntigravityInner: React.FC<AntigravityProps> = ({
     const globalRotation = state.clock.getElapsedTime() * rotationSpeed;
 
     particles.forEach((particle, i) => {
-      let { t, speed, mx, my, mz, cz, randomRadiusOffset } = particle;
+      const { speed, mx, my, mz, cz, randomRadiusOffset } = particle;
 
-      t = particle.t += speed / 2;
+      const t = particle.t += speed / 2;
 
       const projectionFactor = 1 - cz / 50;
       const projectedTargetX = targetX * projectionFactor;

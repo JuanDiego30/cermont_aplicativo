@@ -3,7 +3,7 @@
 import { availableSchemas } from '@/lib/form-schemas';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { FileText, Plus, Shield, Search } from 'lucide-react';
+import { FileText, Plus, Shield } from 'lucide-react';
 import Link from 'next/link';
 
 export default function FormulariosPage() {

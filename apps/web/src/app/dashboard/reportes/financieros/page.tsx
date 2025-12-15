@@ -87,7 +87,7 @@ async function getFinancialData(periodo: PeriodoTipo): Promise<{
     console.error('Error fetching financial data:', error);
     
     // Fallback to mock data if API fails
-    let filteredData = [...mockData];
+    let filteredData;
 
     switch (periodo) {
       case '1m':

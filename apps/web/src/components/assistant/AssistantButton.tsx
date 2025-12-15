@@ -8,7 +8,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, Sparkles } from 'lucide-react';
+import { X, Send, Bot, Sparkles } from 'lucide-react';
 import { useAuth } from '@/stores/authStore';
 import { Button } from '@/components/ui/Button';
 
