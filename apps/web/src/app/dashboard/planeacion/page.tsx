@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiClient } from '@/lib/api-client';
 import { PlaneacionForm } from '@/components/forms/PlaneacionForm';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -33,10 +34,10 @@ export default function PlaneacionPage() {
 
   const fetchPlaneaciones = async () => {
     try {
-      const response = await fetch('/api/planeacion');
-      if (response.ok) {
-        const data = await response.json();
-        setPlaneaciones(data.data || []);
+      const response = await apiClient.get<{ data: Planeacion[] } | Planeacion[]>('/planeacion');
+      if (response) {
+        const data = Array.isArray(response) ? response : (response.data || []);
+        setPlaneaciones(data);
       }
     } catch (error) {
       console.error('Error fetching planeaciones:', error);

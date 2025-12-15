@@ -53,7 +53,7 @@ export function TecnicosStatsSkeleton() {
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] animate-pulse"
+          className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/3 animate-pulse"
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-700" />

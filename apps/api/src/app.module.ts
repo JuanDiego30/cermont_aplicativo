@@ -38,6 +38,8 @@ import { SyncModule } from './modules/sync/sync.module';
 import { PdfGenerationModule } from './modules/pdf-generation/pdf-generation.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { WeatherModule } from './modules/weather/weather.module';
+import { EmailModule } from './modules/email/email.module';
+import { TecnicosModule } from './modules/tecnicos/tecnicos.module';
 
 // Common providers
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -111,6 +113,8 @@ import { HealthController } from './health.controller';
         PdfGenerationModule, // Generación de informes PDF
         AdminModule,        // Módulo 3: Administración RBAC
         WeatherModule,      // Módulo Meteorológico (Open-Meteo + NASA)
+        EmailModule,
+        TecnicosModule,
 
         // Schedule module for CRON jobs
         ScheduleModule.forRoot(),

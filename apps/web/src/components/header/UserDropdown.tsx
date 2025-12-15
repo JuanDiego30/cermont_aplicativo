@@ -42,7 +42,7 @@ export default function UserDropdown() {
                 className="flex items-center gap-2 sm:gap-3 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
             >
                 {/* Avatar */}
-                <span className="overflow-hidden rounded-full h-9 w-9 sm:h-11 sm:w-11 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm sm:text-base">
+                <span className="overflow-hidden rounded-full h-9 w-9 sm:h-11 sm:w-11 bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium text-sm sm:text-base">
                     {user?.avatar ? (
                         <Image
                             width={44}
@@ -57,7 +57,7 @@ export default function UserDropdown() {
                 </span>
 
                 {/* Name - hidden on mobile */}
-                <span className="hidden sm:block font-medium text-sm max-w-[120px] truncate">
+                <span className="hidden sm:block font-medium text-sm max-w-30 truncate">
                     {user?.name || 'Usuario'}
                 </span>
 
