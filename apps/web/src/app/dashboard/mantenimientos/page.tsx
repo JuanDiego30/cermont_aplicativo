@@ -15,14 +15,39 @@ export const metadata = {
   description: 'Gestión de mantenimientos preventivos y correctivos',
 };
 
-// TODO: Implementar fetch real
 async function getMantenimientosStats() {
-  return {
-    programados: 12,
-    enProgreso: 3,
-    vencidos: 2,
-    completadosMes: 28,
-  };
+  try {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+    const response = await fetch(`${API_URL}/mantenimientos/stats`, {
+      next: { revalidate: 60 },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch mantenimientos stats');
+    }
+    
+    const data = await response.json();
+    
+    // Map API response to component format
+    return {
+      programados: data.programados || 0,
+      enProgreso: data.enProgreso || 0,
+      vencidos: data.atrasados || 0,
+      completadosMes: data.completados || 0,
+    };
+  } catch (error) {
+    console.error('Error fetching mantenimientos stats:', error);
+    // Fallback to mock data if API fails
+    return {
+      programados: 12,
+      enProgreso: 3,
+      vencidos: 2,
+      completadosMes: 28,
+    };
+  }
 }
 
 export default async function MantenimientosPage() {

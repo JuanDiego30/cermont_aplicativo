@@ -141,4 +141,38 @@ export class MantenimientosService {
       data: mantenimiento,
     };
   }
+
+  /**
+   * Obtiene estadísticas de mantenimientos
+   */
+  async getStats() {
+    const total = await this.prisma.mantenimiento.count();
+    
+    const programados = await this.prisma.mantenimiento.count({
+      where: { estado: 'PROGRAMADO' },
+    });
+
+    const enProgreso = await this.prisma.mantenimiento.count({
+      where: { estado: 'EN_PROGRESO' },
+    });
+
+    const completados = await this.prisma.mantenimiento.count({
+      where: { estado: 'COMPLETADO' },
+    });
+
+    const atrasados = await this.prisma.mantenimiento.count({
+      where: {
+        estado: { in: ['PROGRAMADO', 'EN_PROGRESO'] },
+        fechaProgramada: { lt: new Date() },
+      },
+    });
+
+    return {
+      total,
+      programados,
+      enProgreso,
+      completados,
+      atrasados,
+    };
+  }
 }
