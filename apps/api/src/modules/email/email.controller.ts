@@ -9,15 +9,50 @@ interface UserWithGmail extends JwtPayload {
 }
 
 @Controller('emails')
-@UseGuards(JwtAuthGuard)
 export class EmailController {
     constructor(private readonly emailService: EmailService) { }
+
+    /**
+     * POST /api/emails/contact
+     * Enviar mensaje de contacto (sin autenticación)
+     */
+    @Post('contact')
+    async sendContactMessage(
+        @Body() body: {
+            name: string;
+            email: string;
+            subject: string;
+            category: string;
+            message: string;
+        }
+    ) {
+        try {
+            // Log the contact message
+            console.log('Contact form submission:', body);
+            
+            // In a real application, you would:
+            // 1. Send an email notification to the company
+            // 2. Store the message in the database
+            // 3. Send a confirmation email to the sender
+            
+            return {
+                success: true,
+                message: 'Mensaje enviado correctamente. Te contactaremos pronto.',
+            };
+        } catch (error) {
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Error al enviar el mensaje',
+            };
+        }
+    }
 
     /**
      * GET /api/emails/auth-url
      * Obtener URL para autorizarse con Google
      */
     @Get('auth-url')
+    @UseGuards(JwtAuthGuard)
     getAuthUrl() {
         return {
             authUrl: this.emailService.getAuthUrl(),
@@ -30,6 +65,7 @@ export class EmailController {
      * Callback después de autorizar en Google
      */
     @Post('auth-callback')
+    @UseGuards(JwtAuthGuard)
     async authCallback(
         @Body() body: { code: string },
         @CurrentUser() user: JwtPayload
@@ -57,6 +93,7 @@ export class EmailController {
      * Obtener lista de emails
      */
     @Get()
+    @UseGuards(JwtAuthGuard)
     async getEmails(
         @Query('accessToken') accessToken: string,
         @Query('maxResults') maxResults?: string,
@@ -94,6 +131,7 @@ export class EmailController {
      * Obtener contenido completo de un email
      */
     @Get(':messageId')
+    @UseGuards(JwtAuthGuard)
     async getEmailContent(
         @Query('accessToken') accessToken: string,
         @Query('messageId') messageIdParam: string // fallback if param not working
@@ -120,6 +158,7 @@ export class EmailController {
     }
 
     @Get('content/:messageId')
+    @UseGuards(JwtAuthGuard)
     async getEmailContentReal(
         @Query('accessToken') accessToken: string,
         @Param('messageId') messageId: string

@@ -90,16 +90,18 @@ export default function ContactFormClient() {
 
     startTransition(async () => {
       try {
-        // Simular envío del formulario
-        // En producción, reemplazar con llamada API real
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+        const response = await fetch(`${API_URL}/emails/contact`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
+
+        const result = await response.json();
         
-        // TODO: Integrar con endpoint real
-        // await fetch('/api/contact', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(formData),
-        // });
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Failed to send message');
+        }
 
         setSubmitStatus('success');
         setFormData({
@@ -109,7 +111,8 @@ export default function ContactFormClient() {
           category: '',
           message: '',
         });
-      } catch {
+      } catch (error) {
+        console.error('Error sending contact form:', error);
         setSubmitStatus('error');
       }
     });

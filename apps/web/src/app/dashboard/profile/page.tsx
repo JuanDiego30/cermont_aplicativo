@@ -24,19 +24,42 @@ export default function ProfilePage() {
         phone: user?.phone || '',
     });
 
-    const onDrop = useCallback((acceptedFiles: File[]) => {
+    const onDrop = useCallback(async (acceptedFiles: File[]) => {
         const file = acceptedFiles[0];
         if (file) {
             setIsUploading(true);
-            const reader = new FileReader();
-            reader.onload = () => {
-                setAvatar(reader.result as string);
+            try {
+                // Convert to base64 for preview
+                const reader = new FileReader();
+                reader.onload = () => {
+                    setAvatar(reader.result as string);
+                };
+                reader.readAsDataURL(file);
+
+                // Upload to API
+                const formData = new FormData();
+                formData.append('avatar', file);
+                
+                const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+                const response = await fetch(`${API_URL}/usuarios/${user?.id}`, {
+                    method: 'PATCH',
+                    body: formData,
+                    // Note: Don't set Content-Type header, let browser set it with boundary
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to upload avatar');
+                }
+
+                console.log('Avatar uploaded successfully');
+            } catch (error) {
+                console.error('Error uploading avatar:', error);
+                alert('Error al subir el avatar. Por favor intenta nuevamente.');
+            } finally {
                 setIsUploading(false);
-                // TODO: Subir a API
-            };
-            reader.readAsDataURL(file);
+            }
         }
-    }, []);
+    }, [user?.id]);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
@@ -54,10 +77,30 @@ export default function ProfilePage() {
             .slice(0, 2);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: Guardar en API
-        console.log('Guardando perfil:', formData);
+        
+        try {
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+            const response = await fetch(`${API_URL}/usuarios/${user?.id}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update profile');
+            }
+
+            const updatedUser = await response.json();
+            console.log('Profile updated successfully:', updatedUser);
+            alert('Perfil actualizado correctamente');
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            alert('Error al actualizar el perfil. Por favor intenta nuevamente.');
+        }
     };
 
     return (
