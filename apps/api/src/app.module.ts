@@ -31,6 +31,7 @@ import { ChecklistsModule } from './modules/checklists/checklists.module';
 import { MantenimientosModule } from './modules/mantenimientos/mantenimientos.module';
 import { FormulariosModule } from './modules/formularios/formularios.module';
 import { CierreAdministrativoModule } from './modules/cierre-administrativo/cierre-administrativo.module';
+import { ClientesModule } from './modules/clientes/clientes.module';
 
 // New modules
 import { ArchivadoModule } from './modules/archivado/archivado.module';
@@ -105,6 +106,7 @@ import { HealthController } from './health.controller';
         MantenimientosModule,
         FormulariosModule,
         CierreAdministrativoModule,
+        ClientesModule,
 
         // New modules (Módulos 1-4 según documento)
         ArchivadoModule,    // Módulo 4: Archivado automático

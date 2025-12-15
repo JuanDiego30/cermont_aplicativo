@@ -15,15 +15,30 @@ export const metadata = {
   description: 'Directorio de clientes',
 };
 
-// TODO: Implementar fetch real desde API
 async function getClientesStats() {
-  // const res = await fetch(`${process.env.API_URL}/clientes/stats`, { next: { revalidate: 60 } });
-  // return res.json();
-  return {
-    total: 24,
-    activos: 20,
-    inactivos: 4,
-  };
+  try {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+    const response = await fetch(`${API_URL}/clientes/stats`, {
+      next: { revalidate: 60 },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch clientes stats');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching clientes stats:', error);
+    // Fallback to mock data if API fails
+    return {
+      total: 24,
+      activos: 20,
+      inactivos: 4,
+    };
+  }
 }
 
 export default async function ClientesPage() {

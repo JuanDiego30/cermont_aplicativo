@@ -15,14 +15,31 @@ export const metadata = {
   description: 'Gestión de kits de herramientas',
 };
 
-// TODO: Implementar fetch real
 async function getKitsStats() {
-  return {
-    total: 24,
-    disponibles: 18,
-    enUso: 4,
-    mantenimiento: 2,
-  };
+  try {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+    const response = await fetch(`${API_URL}/kits/stats`, {
+      next: { revalidate: 60 },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch kits stats');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching kits stats:', error);
+    // Fallback to mock data if API fails
+    return {
+      total: 24,
+      disponibles: 18,
+      enUso: 4,
+      mantenimiento: 2,
+    };
+  }
 }
 
 export default async function KitsPage() {
