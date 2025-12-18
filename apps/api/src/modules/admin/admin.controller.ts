@@ -38,6 +38,7 @@ import {
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { UserRoleEnum } from './interfaces/permissions.interface';
 import { CurrentUser, JwtPayload } from '../../common/decorators/current-user.decorator';
 
 @ApiTags('Admin')
@@ -169,7 +170,7 @@ export class AdminController {
     @Roles('admin', 'supervisor')
     @ApiOperation({ summary: 'Obtener permisos de un rol' })
     @ApiParam({ name: 'role', description: 'Rol a consultar' })
-    async getPermissions(@Param('role') role: 'admin' | 'supervisor' | 'tecnico') {
+    async getPermissions(@Param('role') role: UserRoleEnum) {
         return this.adminService.getUserPermissions(role);
     }
 }

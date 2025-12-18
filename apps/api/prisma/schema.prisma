@@ -145,6 +145,10 @@ model User {
   checklistItemsCompletados ChecklistItemEjecucion[]   @relation("ItemCompletadoPor")
   fotosCargadas             FotoEvidencia[]            @relation("FotoCargadaPor")
 
+  @@index([role])
+  @@index([active])
+  @@index([role, active])
+  @@index([createdAt(sort: Desc)])
   @@map("users")
 }
 
@@ -230,6 +234,13 @@ model Order {
   @@index([numero])
   @@index([creadorId])
   @@index([asignadoId])
+  @@index([prioridad])
+  @@index([fechaInicio])
+  @@index([createdAt(sort: Desc)])
+  @@index([estado, fechaInicio])
+  @@index([asignadoId, estado])
+  @@index([cliente, estado])
+  @@index([estado, prioridad, fechaInicio])
   @@map("orders")
 }
 
@@ -262,6 +273,8 @@ model Evidence {
   createdAt DateTime @default(now())
 
   @@index([orderId])
+  @@index([tipo])
+  @@index([createdAt(sort: Desc)])
   @@map("evidences")
 }
 
@@ -279,6 +292,8 @@ model Cost {
   updatedAt DateTime @updatedAt
 
   @@index([orderId])
+  @@index([tipo])
+  @@index([createdAt(sort: Desc)])
   @@map("costs")
 }
 

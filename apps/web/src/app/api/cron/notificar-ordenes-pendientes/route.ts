@@ -20,9 +20,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
     const startTime = Date.now();
-    
+
     // Obtener órdenes pendientes
     const ordenesResponse = await fetch(`${apiUrl}/api/ordenes?status=PENDIENTE&status=EN_PROCESO`, {
       headers: {
@@ -31,16 +31,16 @@ export async function GET(request: NextRequest) {
     });
 
     const ordenes = ordenesResponse.ok ? await ordenesResponse.json() : [];
-    
+
     // Filtrar órdenes con más de 24 horas de antigüedad
     const ahora = Date.now();
-    const ordenesUrgentes = Array.isArray(ordenes) 
+    const ordenesUrgentes = Array.isArray(ordenes)
       ? ordenes.filter((orden: { createdAt?: string }) => {
-          if (!orden.createdAt) return false;
-          const createdAt = new Date(orden.createdAt).getTime();
-          const horasTranscurridas = (ahora - createdAt) / (1000 * 60 * 60);
-          return horasTranscurridas > 24;
-        })
+        if (!orden.createdAt) return false;
+        const createdAt = new Date(orden.createdAt).getTime();
+        const horasTranscurridas = (ahora - createdAt) / (1000 * 60 * 60);
+        return horasTranscurridas > 24;
+      })
       : [];
 
     // Enviar notificaciones si hay órdenes urgentes
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('[Cron] Error en notificar-ordenes-pendientes:', error);
-    
+
     return NextResponse.json(
       {
         success: false,

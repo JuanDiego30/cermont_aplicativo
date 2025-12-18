@@ -52,7 +52,7 @@ Variables principales:
 - `JWT_EXPIRES_IN`: Duración access token (default: 15m)
 - `JWT_REFRESH_EXPIRES_IN`: Duración refresh token (default: 7d)
 - `FRONTEND_URL`: URL del frontend para CORS
-- `PORT`: Puerto del API (default: 3001)
+- `PORT`: Puerto del API (default: 4000)
 
 ### 3. Iniciar base de datos (Docker)
 
@@ -127,7 +127,7 @@ cermont_aplicativo/
 ### Global (desde raíz)
 
 - `npm run dev` - Inicia API + Web en paralelo
-- `npm run dev:api` - Solo backend (puerto 3001)
+- `npm run dev:api` - Solo backend (puerto 4000)
 - `npm run dev:web` - Solo frontend (puerto 3000)
 - `npm run install:all` - Instala todas las dependencias
 
@@ -149,9 +149,9 @@ cermont_aplicativo/
 ## URLs de Desarrollo
 
 - **Frontend**: http://localhost:3000
-- **API**: http://localhost:3001/api
-- **Swagger Docs**: http://localhost:3001/docs
-- **Health Check**: http://localhost:3001/api/health
+- **API**: http://localhost:4000/api
+- **Swagger Docs**: http://localhost:4000/docs
+- **Health Check**: http://localhost:4000/api/health
 
 ## Características Principales
 

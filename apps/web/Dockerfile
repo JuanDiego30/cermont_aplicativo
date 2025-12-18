@@ -13,7 +13,7 @@ RUN npm ci
 COPY . .
 
 # Variables de build (se pueden sobrescribir en docker-compose)
-ARG NEXT_PUBLIC_API_URL=http://localhost:3001/api
+ARG NEXT_PUBLIC_API_URL=http://localhost:4000/api
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 # Build de producción

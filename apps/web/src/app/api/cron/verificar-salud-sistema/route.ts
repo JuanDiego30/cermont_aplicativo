@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const startTime = Date.now();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
     // Verificar servicios en paralelo
     const checks = await Promise.all([

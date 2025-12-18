@@ -5,13 +5,17 @@
  *
  * Uso: Importado por NestFactory.create(AppModule) en main.ts.
  */
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { CacheModule } from '@nestjs/cache-manager';
+import { WinstonModule } from 'nest-winston';
 import { join } from 'path';
+import * as winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
 
 // Core modules
 import { PrismaModule } from './prisma/prisma.module';
@@ -51,6 +55,9 @@ import {
 } from './common/filters/prisma-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { HealthController } from './health.controller';
+import { CustomThrottleGuard } from './common/guards/throttle.guard';
+import { LoggerService } from './logger.service';
+import { SecurityMiddleware } from './common/middleware/security.middleware';
 
 @Module({
     imports: [
@@ -79,6 +86,65 @@ import { HealthController } from './health.controller';
                 limit: 5000,  // INCREASED: 5000 requests (was 1000)
             },
         ]),
+
+        // In-memory cache for expensive operations (dashboard stats, KPIs)
+        CacheModule.register({
+            isGlobal: true,
+            ttl: 300000, // 5 minutos en ms
+            max: 100,    // Máximo 100 items en caché
+        }),
+
+        // Winston logging configuration
+        WinstonModule.forRoot({
+            level: process.env.LOG_LEVEL || 'info',
+            format: winston.format.combine(
+                winston.format.timestamp({
+                    format: 'YYYY-MM-DD HH:mm:ss'
+                }),
+                winston.format.errors({ stack: true }),
+                winston.format.json()
+            ),
+            defaultMeta: { service: 'cermont-api' },
+            transports: [
+                // Console transport for development
+                new winston.transports.Console({
+                    format: winston.format.combine(
+                        winston.format.colorize(),
+                        winston.format.simple()
+                    )
+                }),
+
+                // Error log file
+                new DailyRotateFile({
+                    filename: 'logs/error-%DATE%.log',
+                    datePattern: 'YYYY-MM-DD',
+                    level: 'error',
+                    maxSize: '20m',
+                    maxFiles: '14d'
+                }),
+
+                // Combined log file
+                new DailyRotateFile({
+                    filename: 'logs/combined-%DATE%.log',
+                    datePattern: 'YYYY-MM-DD',
+                    maxSize: '20m',
+                    maxFiles: '14d'
+                }),
+
+                // Performance log file
+                new DailyRotateFile({
+                    filename: 'logs/performance-%DATE%.log',
+                    datePattern: 'YYYY-MM-DD',
+                    level: 'info',
+                    maxSize: '20m',
+                    maxFiles: '14d',
+                    format: winston.format.combine(
+                        winston.format.timestamp(),
+                        winston.format.json()
+                    )
+                })
+            ]
+        }),
 
         // Static files (uploads)
         ServeStaticModule.forRoot({
@@ -151,8 +217,16 @@ import { HealthController } from './health.controller';
         // Rate limiting guard (applies globally)
         {
             provide: APP_GUARD,
-            useClass: ThrottlerGuard,
+            useClass: CustomThrottleGuard,
         },
+        // Global logger service
+        LoggerService,
     ],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+    configure(consumer: MiddlewareConsumer) {
+        consumer
+            .apply(SecurityMiddleware)
+            .forRoutes('*'); // Aplicar a todas las rutas
+    }
+}

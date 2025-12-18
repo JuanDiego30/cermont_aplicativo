@@ -1,16 +1,21 @@
 /**
  * @middleware SecurityMiddleware
  *
- * Aplica headers de seguridad HTTP usando helmet.
- * Incluye: HSTS, XSS Protection, Content-Type Options, Frame Options.
+ * Middleware de seguridad avanzado que incluye:
+ * - Headers de seguridad HTTP (Helmet)
+ * - Request ID único para tracing
+ * - Validación de Content-Type
+ * - Protección contra header bombing
+ * - Logging de requests sospechosos
  *
  * Uso: Registrado globalmente en main.ts.
- * 
- * Basado en: OWASP Security Headers Best Practices
+ *
+ * Basado en: OWASP Security Headers + Additional Security Measures
  */
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class SecurityMiddleware implements NestMiddleware {
@@ -48,6 +53,65 @@ export class SecurityMiddleware implements NestMiddleware {
     });
 
     use(req: Request, res: Response, next: NextFunction): void {
-        this.helmetMiddleware(req, res, next);
+        // 1. Aplicar headers de seguridad con Helmet
+        this.helmetMiddleware(req, res, (err?: any) => {
+            if (err) {
+                return next(err);
+            }
+
+            // 2. Request ID único para tracing
+            const requestId = req.headers['x-request-id'] as string || uuidv4();
+            req.headers['x-request-id'] = requestId;
+            res.setHeader('x-request-id', requestId);
+
+            // 3. Headers de seguridad adicionales
+            res.setHeader('X-Content-Type-Options', 'nosniff');
+            res.setHeader('X-Frame-Options', 'DENY');
+            res.setHeader('X-XSS-Protection', '1; mode=block');
+            res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+            res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+
+            // 4. Validar Content-Type para requests con body
+            if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+                const contentType = req.headers['content-type'];
+                if (!contentType || !contentType.includes('application/json')) {
+                    // Para endpoints API que esperan JSON, rechazar otros tipos
+                    if (req.path.startsWith('/api/') && !req.path.includes('/upload')) {
+                        res.status(400).json({
+                            statusCode: 400,
+                            message: 'Content-Type must be application/json',
+                            error: 'Bad Request'
+                        });
+                        return;
+                    }
+                }
+            }
+
+            // 5. Validar tamaño de headers (protección contra header bombing)
+            const headerSize = JSON.stringify(req.headers).length;
+            if (headerSize > 8192) { // 8KB límite
+                res.status(431).json({
+                    statusCode: 431,
+                    message: 'Request Header Fields Too Large',
+                    error: 'Header Too Large'
+                });
+                return;
+            }
+
+            // 6. Validar User-Agent (básico)
+            const userAgent = req.headers['user-agent'];
+            if (!userAgent || userAgent.length < 10) {
+                // Log suspicious request (se hará en el interceptor de logging)
+                console.warn(`Suspicious request without proper User-Agent: ${req.ip} ${req.method} ${req.path}`);
+            }
+
+            // 7. Rate limiting headers (informational)
+            res.setHeader('X-RateLimit-Reset', Math.floor(Date.now() / 1000) + 60);
+
+            // 8. Timestamp del servidor
+            res.setHeader('X-Timestamp', Date.now().toString());
+
+            next();
+        });
     }
 }

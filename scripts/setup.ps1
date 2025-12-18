@@ -66,7 +66,7 @@ JWT_EXPIRES_IN="15m"
 JWT_REFRESH_EXPIRES_IN="7d"
 
 # API
-PORT=3001
+PORT=4000
 NODE_ENV=development
 
 # FRONTEND URL
@@ -75,14 +75,15 @@ FRONTEND_URL="http://localhost:3000"
 # GOOGLE OAUTH (Optional)
 GOOGLE_CLIENT_ID=""
 GOOGLE_CLIENT_SECRET=""
-GOOGLE_CALLBACK_URL="http://localhost:3001/auth/google/callback"
+GOOGLE_CALLBACK_URL="http://localhost:4000/auth/google/callback"
 
 # WEATHER API (Optional - Open-Meteo is free and doesn't require key)
 # OPENWEATHER_API_KEY=""
 "@ | Out-File -FilePath "apps/api/.env" -Encoding UTF8
     Write-Host "  Archivo .env creado" -ForegroundColor Green
     Write-Host "  IMPORTANTE: Edita apps/api/.env con tu DATABASE_URL" -ForegroundColor Yellow
-} else {
+}
+else {
     Write-Host "  Archivo .env existente encontrado" -ForegroundColor Green
 }
 
@@ -111,6 +112,6 @@ Write-Host "  2. Ejecutar migraciones: cd apps/api && npx prisma migrate dev" -F
 Write-Host "  3. (Opcional) Seed: cd apps/api && npm run seed" -ForegroundColor White
 Write-Host "  4. Iniciar desarrollo: npm run dev" -ForegroundColor White
 Write-Host ""
-Write-Host "Documentacion API: http://localhost:3001/api" -ForegroundColor Yellow
+Write-Host "Documentacion API: http://localhost:4000/api" -ForegroundColor Yellow
 Write-Host "Frontend: http://localhost:3000" -ForegroundColor Yellow
 Write-Host ""

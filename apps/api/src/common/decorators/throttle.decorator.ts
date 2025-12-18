@@ -9,7 +9,6 @@
 
 import { SetMetadata, applyDecorators } from '@nestjs/common';
 import { SkipThrottle as NestSkipThrottle, Throttle as NestThrottle } from '@nestjs/throttler';
-import { ThrottlerLimit } from '@nestjs/throttler';
 
 /**
  * Opciones de configuración para rate limiting
@@ -329,7 +328,7 @@ export function createThrottleConfigFromEnv(
   const name = process.env[`${prefix}_NAME`] || defaults.name;
 
   const config: ThrottleOptions = { limit, ttl, name };
-  
+
   // Validar configuración cargada
   validateThrottleOptions(config);
 

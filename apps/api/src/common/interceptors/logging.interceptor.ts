@@ -18,11 +18,12 @@ import {
     NestInterceptor,
     ExecutionContext,
     CallHandler,
-    Logger,
+    Inject,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
+import { LoggerService } from '../logging/logger.service';
 
 interface LogContext {
     requestId: string;
@@ -38,7 +39,7 @@ interface LogContext {
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
-    private readonly logger = new Logger(LoggingInterceptor.name);
+    constructor(@Inject(LoggerService) private readonly logger: LoggerService) { }
 
     intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
         const request = context.switchToHttp().getRequest();
@@ -49,7 +50,10 @@ export class LoggingInterceptor implements NestInterceptor {
 
         // Log inicial de request entrante (solo en desarrollo)
         if (process.env.NODE_ENV !== 'production') {
-            this.logger.debug(`[${requestId}] → ${method} ${url}`);
+            this.logger.debug(`[${requestId}] → ${method} ${url}`, 'LoggingInterceptor', {
+                requestId,
+                type: 'http_request_start'
+            });
         }
 
         return next.handle().pipe(
@@ -89,31 +93,34 @@ export class LoggingInterceptor implements NestInterceptor {
     }
 
     private logSuccess(ctx: LogContext): void {
-        const message = `[${ctx.requestId}] ${ctx.method} ${ctx.url} ${ctx.statusCode} - ${ctx.duration}ms`;
-        
-        // En producción, log estructurado
-        if (process.env.NODE_ENV === 'production') {
-            this.logger.log({
-                message,
-                ...ctx,
-                type: 'http_request',
-            });
-        } else {
-            // En desarrollo, log legible
-            const userInfo = ctx.userId ? ` [user:${ctx.userId}]` : '';
-            this.logger.log(`${message}${userInfo}`);
-        }
+        // Usar método especializado de LoggerService para logging de API
+        this.logger.logApiRequest(
+            ctx.method,
+            ctx.url,
+            ctx.statusCode,
+            ctx.duration,
+            ctx.userId,
+            {
+                requestId: ctx.requestId,
+                userEmail: ctx.userEmail,
+                ip: ctx.ip,
+                userAgent: ctx.userAgent,
+            }
+        );
     }
 
     private logError(ctx: LogContext, error: Error): void {
-        const message = `[${ctx.requestId}] ${ctx.method} ${ctx.url} ERROR - ${ctx.duration}ms`;
-        
-        this.logger.error({
-            message,
-            ...ctx,
-            type: 'http_error',
-            errorName: error.name,
-            errorMessage: error.message,
+        // Usar método especializado de LoggerService para logging de errores
+        this.logger.logErrorWithStack(error, 'LoggingInterceptor', {
+            requestId: ctx.requestId,
+            method: ctx.method,
+            url: ctx.url,
+            statusCode: ctx.statusCode,
+            duration: ctx.duration,
+            userId: ctx.userId,
+            userEmail: ctx.userEmail,
+            ip: ctx.ip,
+            userAgent: ctx.userAgent,
         });
     }
 
@@ -134,7 +141,7 @@ export class LoggingInterceptor implements NestInterceptor {
     private getHeader(request: Record<string, unknown>, header: string): string | undefined {
         const headers = request.headers as Record<string, string | string[]> | undefined;
         if (!headers) return undefined;
-        
+
         const value = headers[header];
         return Array.isArray(value) ? value[0] : value;
     }

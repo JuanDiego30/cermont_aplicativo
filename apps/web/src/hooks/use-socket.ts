@@ -36,7 +36,7 @@ export function useSocket() {
       setState((prev) => ({ ...prev, connecting: true }));
 
       socketInstance = io(
-        process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+        process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
         {
           auth: { token },
           transports: ['websocket', 'polling'],

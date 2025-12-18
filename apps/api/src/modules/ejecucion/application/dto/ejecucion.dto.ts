@@ -25,6 +25,7 @@ export const CompletarEjecucionSchema = z.object({
   observacionesFinales: z.string().optional(),
   firmaDigital: z.string().optional(),
   horasReales: z.number().optional(),
+  horasActuales: z.number(),
   observaciones: z.string().optional(),
 });
 
