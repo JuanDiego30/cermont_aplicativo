@@ -12,7 +12,7 @@ export class GetCurrentUserUseCase {
   constructor(
     @Inject(AUTH_REPOSITORY)
     private readonly authRepository: IAuthRepository,
-  ) {}
+  ) { }
 
   async execute(userId: string): Promise<MeResponse> {
     const user = await this.authRepository.findUserById(userId);
@@ -24,11 +24,11 @@ export class GetCurrentUserUseCase {
     return {
       user: {
         id: user.id,
-        email: user.email,
+        email: user.email.getValue(),
         name: user.name,
         role: user.role,
-        avatar: user.avatar,
-        phone: user.phone,
+        avatar: user.avatar ?? undefined,
+        phone: user.phone ?? undefined,
       },
     };
   }

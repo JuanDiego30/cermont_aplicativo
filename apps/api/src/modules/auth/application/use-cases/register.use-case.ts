@@ -1,96 +1,119 @@
-/**
- * @useCase RegisterUseCase
- * @description Caso de uso para registrar un nuevo usuario
- * @layer Application
- */
+
 import { Injectable, Inject, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ConfigService } from '@nestjs/config';
+import { v4 as uuidv4 } from 'uuid';
+import * as bcrypt from 'bcryptjs';
 import { AUTH_REPOSITORY, IAuthRepository } from '../../domain/repositories';
-import { AuthSessionEntity } from '../../domain/entities';
-import { Credentials } from '../../domain/value-objects';
-import { UserRegisteredEvent } from '../../domain/events';
-import { RegisterDto, LoginResponse, AuthContext } from '../dto';
+import { Email } from '../../domain/value-objects/email.vo';
+import { Password } from '../../domain/value-objects/password.vo';
+
+interface RegisterDto {
+  email: string;
+  password: string;
+  name: string;
+  role?: 'admin' | 'supervisor' | 'tecnico' | 'administrativo';
+  phone?: string;
+}
+
+interface AuthContext {
+  ip?: string;
+  userAgent?: string;
+}
+
+export interface RegisterResult {
+  message: string;
+  token: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    avatar?: string;
+    phone?: string;
+  };
+}
 
 @Injectable()
 export class RegisterUseCase {
+  private readonly REFRESH_TOKEN_DAYS = 7;
+
   constructor(
     @Inject(AUTH_REPOSITORY)
     private readonly authRepository: IAuthRepository,
     private readonly jwtService: JwtService,
-    private readonly eventEmitter: EventEmitter2,
-  ) {}
+    private readonly configService: ConfigService,
+  ) { }
 
-  async execute(dto: RegisterDto, context: AuthContext): Promise<LoginResponse> {
-    // 1. Verificar si el email ya existe
-    const existing = await this.authRepository.findUserByEmail(dto.email);
+  async execute(dto: RegisterDto, context: AuthContext): Promise<RegisterResult> {
+    // 1. Validate inputs via VOs
+    const email = Email.create(dto.email);
+    Password.create(dto.password); // Validate length
 
+    // 2. Check if user exists
+    const existing = await this.authRepository.findByEmail(email.getValue());
     if (existing) {
       throw new ConflictException('El email ya está registrado');
     }
 
-    // 2. Crear credenciales y hashear password
-    const credentials = Credentials.create(dto.email, dto.password);
-    const hashedCredentials = await credentials.hash(12);
+    // 3. Hash password
+    const rounds = this.configService.get<number>('BCRYPT_ROUNDS') ?? 12;
+    const hashedPassword = await bcrypt.hash(dto.password, rounds);
 
-    // 3. Crear usuario
-    const user = await this.authRepository.createUser({
-      email: hashedCredentials.email,
-      password: hashedCredentials.password,
+    // 4. Create user - map 'administrativo' to 'tecnico' as fallback
+    const role = dto.role === 'administrativo' ? 'tecnico' : (dto.role ?? 'tecnico');
+    const user = await this.authRepository.create({
+      email: email.getValue(),
+      password: hashedPassword,
       name: dto.name,
-      role: dto.role ?? 'tecnico',
-      phone: dto.phone,
+      role: role as 'admin' | 'supervisor' | 'tecnico',
+      phone: dto.phone ?? null,
+      avatar: null,
+      active: true,
+      lastLogin: null,
     });
 
-    // 4. Generar tokens
+    // 5. Issue tokens
     const accessToken = this.jwtService.sign({
       userId: user.id,
-      email: user.email,
+      email: user.email.getValue(),
       role: user.role,
     });
 
-    // 5. Crear sesión
-    const session = AuthSessionEntity.create(
-      user.id,
-      context.ip,
-      context.userAgent,
-    );
-    await this.authRepository.createSession(session);
+    const refreshToken = uuidv4();
+    const family = uuidv4();
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + this.REFRESH_TOKEN_DAYS);
 
-    // 6. Registrar auditoría
-    await this.authRepository.createAuditLog({
-      entityType: 'User',
-      entityId: user.id,
-      action: 'REGISTER',
+    await this.authRepository.createRefreshToken({
+      token: refreshToken,
       userId: user.id,
+      family,
+      expiresAt,
+      ipAddress: context.ip,
+      userAgent: context.userAgent,
+    });
+
+    // 6. Audit log
+    await this.authRepository.createAuditLog({
+      userId: user.id,
+      action: 'REGISTER',
       ip: context.ip,
       userAgent: context.userAgent,
     });
 
-    // 7. Emitir evento
-    this.eventEmitter.emit(
-      'auth.user.registered',
-      new UserRegisteredEvent(
-        user.id,
-        user.email,
-        user.name,
-        user.role,
-        context.ip,
-        context.userAgent,
-      ),
-    );
-
     return {
       message: 'Usuario registrado exitosamente',
       token: accessToken,
-      refreshToken: session.refreshToken,
+      refreshToken,
       user: {
         id: user.id,
-        email: user.email,
+        email: user.email.getValue(),
         name: user.name,
         role: user.role,
-        avatar: user.avatar,
-        phone: user.phone,
+        avatar: user.avatar ?? undefined,
+        phone: user.phone ?? undefined,
       },
     };
   }

@@ -17,7 +17,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../../common/guards/jwt-auth.guard';
 import { CurrentUser, JwtPayload } from '../../../../common/decorators/current-user.decorator';
 import {
@@ -34,6 +34,7 @@ import {
   ChangeEstadoSchema,
   OrdenQuerySchema,
 } from '../../application/dto';
+import { OrderStateService } from '../../application/services/order-state.service';
 
 @ApiTags('Ordenes')
 @Controller('ordenes')
@@ -47,6 +48,7 @@ export class OrdenesController {
     private readonly updateOrdenUseCase: UpdateOrdenUseCase,
     private readonly changeOrdenEstadoUseCase: ChangeOrdenEstadoUseCase,
     private readonly deleteOrdenUseCase: DeleteOrdenUseCase,
+    private readonly orderStateService: OrderStateService,
   ) { }
 
   @Get()
@@ -60,6 +62,18 @@ export class OrdenesController {
   @ApiOperation({ summary: 'Obtener orden por ID' })
   async findOne(@Param('id') id: string) {
     return this.getOrdenByIdUseCase.execute(id);
+  }
+
+  @Get(':id/state')
+  @ApiOperation({ summary: 'Obtener estado detallado de la orden (flujo 14 pasos)' })
+  async getState(@Param('id') id: string) {
+    return this.orderStateService.getStateInfo(id);
+  }
+
+  @Get(':id/state/history')
+  @ApiOperation({ summary: 'Obtener historial de cambios de estado de la orden' })
+  async getStateHistory(@Param('id') id: string) {
+    return this.orderStateService.getStateHistory(id);
   }
 
   @Post()

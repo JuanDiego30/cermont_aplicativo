@@ -5,7 +5,7 @@
 
 import useSWR from 'swr';
 import { useMutation, useInvalidate } from '@/hooks/use-mutation';
-import { ordenesApi } from '../api/ordenes-api';
+import { ordenesApi, type OrdenStateInfo } from '../api/ordenes-api';
 import { useOffline } from '@/hooks/use-offline';
 import { toast } from 'sonner';
 import { swrKeys } from '@/lib/swr-config';
@@ -192,6 +192,17 @@ export function useOrdenesStats() {
   return useSWR(
     swrKeys.ordenes.stats(),
     () => ordenesApi.getStats(),
+    { revalidateOnFocus: false }
+  );
+}
+
+/**
+ * Hook para obtener el estado detallado de una orden (flujo 14 pasos)
+ */
+export function useOrdenEstado(id: string) {
+  return useSWR<OrdenStateInfo>(
+    id ? `ordenes:state:${id}` : null,
+    () => ordenesApi.getState(id),
     { revalidateOnFocus: false }
   );
 }

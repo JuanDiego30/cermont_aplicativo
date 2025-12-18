@@ -2,7 +2,7 @@
 'use client';
 
 import { DashboardTemplate, ColumnConfig } from '@/components/shared/DashboardTemplate';
-import { Mantenimiento } from '../types/mantenimiento.types';
+import type { Mantenimiento } from '../types/mantenimiento.types';
 import { formatFecha, formatEstado, formatPrioridad } from '@/lib/utils/formatters';
 
 const columns: ColumnConfig<Mantenimiento>[] = [
@@ -37,7 +37,7 @@ export function MantenimientosDashboard() {
             subtitle="Gestión de mantenimientos preventivos y correctivos"
             apiEndpoint="/api/mantenimientos"
             columns={columns}
-            renderForm={(onClose, item) => (
+            renderForm={(onClose: () => void, item?: Mantenimiento) => (
                 <div className="p-4">
                     <h2>Formulario Mantenimiento (TODO)</h2>
                     <button onClick={onClose}>Cerrar</button>

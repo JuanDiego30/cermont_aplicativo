@@ -44,6 +44,9 @@ import { AdminModule } from './modules/admin/admin.module';
 import { WeatherModule } from './modules/weather/weather.module';
 import { EmailModule } from './modules/email/email.module';
 import { TecnicosModule } from './modules/tecnicos/tecnicos.module';
+import { FormsModule } from './modules/forms/forms.module';
+import { AlertasModule } from './modules/alertas/alertas.module';
+import { KpisModule } from './modules/kpis/kpis.module';
 
 // Common providers
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -57,7 +60,6 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { HealthController } from './health.controller';
 import { CustomThrottleGuard } from './common/guards/throttle.guard';
 import { LoggerService } from './logger.service';
-import { SecurityMiddleware } from './common/middleware/security.middleware';
 
 @Module({
     imports: [
@@ -181,6 +183,9 @@ import { SecurityMiddleware } from './common/middleware/security.middleware';
         WeatherModule,      // Módulo Meteorológico (Open-Meteo + NASA)
         EmailModule,
         TecnicosModule,
+        FormsModule,        // Motor de Formularios Dinámicos
+        AlertasModule,      // Sistema de Alertas Automáticas
+        KpisModule,         // Dashboard KPIs y Métricas
 
         // Schedule module for CRON jobs
         ScheduleModule.forRoot(),
@@ -224,9 +229,12 @@ import { SecurityMiddleware } from './common/middleware/security.middleware';
     ],
 })
 export class AppModule implements NestModule {
+    // Security middleware avanzado duplicaba parte de la configuración
+    // ya aplicada en main.ts (helmet, requestId, headers). Para reducir
+    // complejidad y evitar conflictos de headers/CSP, se eliminó su uso
+    // global aquí. Si se requiere en el futuro, se puede aplicar de forma
+    // más granular por rutas específicas.
     configure(consumer: MiddlewareConsumer) {
-        consumer
-            .apply(SecurityMiddleware)
-            .forRoutes('*'); // Aplicar a todas las rutas
+        // No se aplican middlewares adicionales globales por ahora.
     }
 }

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * ═══════════════════════════════════════════════════════════════════════════
  * EVIDENCIAS SERVICE - CERMONT APLICATIVO (REFACTORIZADO)
  * ═══════════════════════════════════════════════════════════════════════════
@@ -14,7 +14,9 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
+import sanitize from 'sanitize-filename';
+// file-type es ESM, usamos import dinámico en el método
 
 /**
  * Tipos de evidencia permitidos
@@ -172,13 +174,16 @@ export class EvidenciasService {
       // 1. Validar tipo
       const tipo = dto.tipo ?? 'FOTO';
 
-      // 2. Validaciones de seguridad
+      // 2. Validaciones de seguridad básicas
       this.validateFileExtension(file.originalname, tipo);
       this.validateMimeType(file.mimetype);
       this.validateFileSize(file.size, tipo);
 
-      // 3. Sanitizar nombre
-      const safeFilename = this.sanitizeFilename(file.originalname);
+      // 3. Validación profunda del contenido real del archivo
+      await this.validateRealFileType(file.path, file.mimetype);
+
+      // 4. Sanitizar nombre usando sanitize-filename
+      const safeFilename = sanitize(file.originalname) || `file-${Date.now()}`;
 
       // 4. Parsear tags
       const tags = this.parseTags(dto.tags);
@@ -392,6 +397,67 @@ export class EvidenciasService {
         error: err.message,
       });
     }
+  }
+
+  /**
+   * Validación profunda del tipo de archivo usando file-type
+   * Detecta archivos con extensión falsa (ej: .exe renombrado a .jpg)
+   */
+  private async validateRealFileType(filePath: string, declaredMimeType: string): Promise<void> {
+    try {
+      // Import dinámico porque file-type es ESM
+      const { fileTypeFromFile } = await import('file-type');
+
+      const detectedType = await fileTypeFromFile(filePath);
+
+      // Si no se puede detectar, permitir (pueden ser archivos de texto)
+      if (!detectedType) {
+        this.logger.debug('No se pudo detectar tipo de archivo - permitiendo', { filePath });
+        return;
+      }
+
+      // Verificar que el mime detectado coincida con la categoría declarada
+      const declaredCategory = this.getMimeCategory(declaredMimeType);
+      const detectedCategory = this.getMimeCategory(detectedType.mime);
+
+      if (declaredCategory !== detectedCategory) {
+        this.logger.warn('Tipo de archivo no coincide con contenido real', {
+          filePath,
+          declaredMimeType,
+          detectedMime: detectedType.mime,
+        });
+        throw new BadRequestException(
+          `El archivo no coincide con su extensión. Declarado: ${declaredMimeType}, Detectado: ${detectedType.mime}`
+        );
+      }
+
+      this.logger.debug('Validación profunda de archivo exitosa', {
+        filePath,
+        detectedMime: detectedType.mime,
+      });
+    } catch (error) {
+      // Si es nuestro BadRequestException, re-lanzar
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      // Otros errores (ej: archivo no existe), loggear y continuar
+      const err = error as Error;
+      this.logger.warn('Error en validación profunda de archivo', {
+        filePath,
+        error: err.message,
+      });
+    }
+  }
+
+  /**
+   * Obtiene la categoría general del mime type (image, video, application, audio)
+   */
+  private getMimeCategory(mimeType: string): string {
+    if (mimeType.startsWith('image/')) return 'image';
+    if (mimeType.startsWith('video/')) return 'video';
+    if (mimeType.startsWith('audio/')) return 'audio';
+    if (mimeType.startsWith('application/')) return 'application';
+    return 'unknown';
   }
 }
 

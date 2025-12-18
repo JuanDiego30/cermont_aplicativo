@@ -28,7 +28,7 @@ async function main() {
           name: 'Administrador',
           role: 'admin',
           phone: '+57 3001234567',
-          isActive: true,
+          active: true,
         },
       });
 
@@ -57,7 +57,7 @@ async function main() {
           name: 'Técnico de Prueba',
           role: 'tecnico',
           phone: '+57 3007654321',
-          isActive: true,
+          active: true,
         },
       });
 

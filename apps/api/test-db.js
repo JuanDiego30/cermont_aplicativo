@@ -6,7 +6,7 @@ async function main() {
         const users = await prisma.user.findMany();
         console.log('Users found:', users.length);
         users.forEach(u => {
-            console.log(`- ${u.email} (${u.role}) - Active: ${u.isActive}`);
+            console.log(`- ${u.email} (${u.role}) - Active: ${u.active}`);
         });
     } catch (e) {
         console.error('Error listing users:', e);

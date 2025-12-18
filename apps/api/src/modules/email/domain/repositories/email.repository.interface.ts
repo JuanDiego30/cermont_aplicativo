@@ -1,31 +1,14 @@
-import { Email } from '../entities/email.entity';
 
-/**
- * Interfaz: IEmailService
- * Define el contrato para servicios de email (Nodemailer, SendGrid, etc.)
- */
-export interface IEmailService {
+import { EmailMessage } from '../entities/email-message.entity';
+
+export interface EmailRepository {
     /**
-     * Enviar un email
+     * Envía el mensaje real mediante el proveedor externo (Nodemailer/SendGrid)
      */
-    send(email: Email): Promise<{
-        success: boolean;
-        messageId?: string;
-        error?: string;
-    }>;
+    send(email: EmailMessage): Promise<void>;
 
     /**
-     * Enviar múltiples emails en bulk
+     * Guarda el historial de envío (opcional, si se requiere log en BD)
      */
-    sendBulk(emails: Email[]): Promise<{
-        success: boolean;
-        sent: number;
-        failed: number;
-        errors: string[];
-    }>;
+    logSentEmail(email: EmailMessage): Promise<void>;
 }
-
-/**
- * Token de inyección para IEmailService
- */
-export const EMAIL_SERVICE_TOKEN = 'IEmailService';

@@ -10,6 +10,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { Observable } from 'rxjs';
+import type { JwtPayload } from '../decorators/current-user.decorator';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -34,21 +35,26 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     /**
-     * Manejo de errores personalizado
-     */
-    /**
-     * @refactor PRIORIDAD_BAJA
+     * Manejo de errores personalizado.
      *
-     * Problema: `handleRequest` usa `any` por defecto para el tipo de usuario.
-     *
-     * Solución sugerida: Tipar con JwtPayload (o el tipo real de request.user) para mejorar type-safety.
+     * Mantiene la firma genérica de `AuthGuard` para cumplir con la interfaz,
+     * pero aplica la validación de usuario y lanza Unauthorized en caso de error.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    handleRequest<TUser = any>(err: unknown, user: TUser | undefined, _info: unknown): TUser {
+    handleRequest<TUser = any>(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        err: any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        user: any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        _info: any,
+        _context: ExecutionContext,
+        _status?: any,
+    ): TUser {
         if (err || !user) {
-            throw (err as Error) || new UnauthorizedException('Token inválido o expirado');
+            throw err || new UnauthorizedException('Token inválido o expirado');
         }
 
-        return user;
+        return user as TUser;
     }
 }
