@@ -76,7 +76,7 @@ ssh ${REMOTE_USER}@${REMOTE_HOST} << EOF
     docker compose -f docker-compose.prod.yml ps
     
     # Health check
-    curl -s http://localhost:3001/api/health || echo "API health check pendiente"
+    curl -s http://localhost:4000/api/health || echo "API health check pendiente"
 EOF
 
 echo -e "${GREEN}✅ Deploy completado exitosamente!${NC}"

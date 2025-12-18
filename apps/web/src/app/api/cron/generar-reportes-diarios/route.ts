@@ -20,10 +20,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
     const startTime = Date.now();
     const fecha = new Date().toISOString().split('T')[0];
-    
+
     // Generar reporte diario
     const reporteResponse = await fetch(`${apiUrl}/api/reportes/generar`, {
       method: 'POST',
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('[Cron] Error en generar-reportes-diarios:', error);
-    
+
     return NextResponse.json(
       {
         success: false,

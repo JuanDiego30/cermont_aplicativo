@@ -75,7 +75,7 @@ services:
         condition: service_healthy
     environment:
       NODE_ENV: production
-      PORT: 3001
+      PORT: 4000
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       DB_HOST: db
       DB_PORT: 5432
@@ -90,9 +90,9 @@ services:
       - "traefik.http.routers.api.rule=Host(`api.${DOMAIN}`)"
       - "traefik.http.routers.api.entrypoints=websecure"
       - "traefik.http.routers.api.tls.certresolver=letsencrypt"
-      - "traefik.http.services.api.loadbalancer.server.port=3001"
+      - "traefik.http.services.api.loadbalancer.server.port=4000"
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health/live"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/api/health/live"]
       interval: 30s
       timeout: 10s
       retries: 3

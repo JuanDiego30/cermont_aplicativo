@@ -9,12 +9,12 @@ import { NextRequest, NextResponse } from 'next/server';
 // Verificar que el cron viene de Vercel
 function isValidCronRequest(request: NextRequest): boolean {
   const authHeader = request.headers.get('authorization');
-  
+
   // En producción, verificar con CRON_SECRET
   if (process.env.CRON_SECRET) {
     return authHeader === `Bearer ${process.env.CRON_SECRET}`;
   }
-  
+
   // En desarrollo, permitir sin verificación
   return process.env.NODE_ENV === 'development';
 }
@@ -29,9 +29,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
     const startTime = Date.now();
-    
+
     // Llamar al backend para limpiar órdenes archivadas mayores a 90 días
     const response = await fetch(`${apiUrl}/api/ordenes/cleanup`, {
       method: 'POST',
@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('[Cron] Error en limpiar-ordenes-archivadas:', error);
-    
+
     return NextResponse.json(
       {
         success: false,

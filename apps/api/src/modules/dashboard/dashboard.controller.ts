@@ -36,6 +36,7 @@ import {
     Get,
     Query,
     UseGuards,
+    UseInterceptors,
     Logger,
     BadRequestException,
     HttpCode,
@@ -50,6 +51,7 @@ import {
     ApiResponse,
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 import { DashboardService } from './dashboard.service';
 import { KpiCalculatorService } from './services/kpi-calculator.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -82,13 +84,16 @@ export class DashboardController {
     // ═══════════════════════════════════════════════════════════════════════
 
     /**
-     * ✅ ESTADÍSTICAS BÁSICAS
+     * ✅ ESTADÍSTICAS BÁSICAS (CACHED)
      */
     @Get('stats')
+    @UseInterceptors(CacheInterceptor)
+    @CacheKey('dashboard:stats')
+    @CacheTTL(300000) // 5 minutos
     @Throttle({ default: { limit: 50, ttl: 60000 } })
     @HttpCode(HttpStatus.OK)
     @ApiOperation({
-        summary: 'Estadísticas básicas del dashboard',
+        summary: 'Estadísticas básicas del dashboard (cached 5min)',
         description: 'Contadores generales: órdenes totales, activas, completadas',
     })
     @ApiResponse({ status: 200, description: 'Estadísticas obtenidas' })
@@ -326,7 +331,7 @@ export class DashboardController {
 
             this.logger.log('Tendencias obtenidas', {
                 ...context,
-                puntosDatos: tendencias.data?.series?.length,
+                puntosDatos: tendencias.ordenes_completadas?.length ?? 0,
             });
 
             return tendencias;

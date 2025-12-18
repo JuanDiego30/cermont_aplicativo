@@ -2,7 +2,7 @@
 # Uso: .\scripts\generate-sdk.ps1
 
 param(
-    [string]$ApiUrl = "http://localhost:3001/docs-json"
+    [string]$ApiUrl = "http://localhost:4000/docs-json"
 )
 
 $ErrorActionPreference = "Stop"
@@ -61,7 +61,7 @@ import type { paths } from './types';
 
 // Cliente base con configuración
 export const api = createClient<paths>({
-    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
     headers: {
         'Content-Type': 'application/json',
     },
@@ -70,7 +70,7 @@ export const api = createClient<paths>({
 // Cliente con autenticación
 export function createAuthenticatedClient(token: string) {
     return createClient<paths>({
-        baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+        baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,

@@ -5,9 +5,11 @@
   "private": true,
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "dev": "turbo run dev",
+    "cleanup": "powershell -ExecutionPolicy Bypass -File scripts/cleanup-dev.ps1",
+    "dev": "pnpm run cleanup && turbo run dev",
+    "dev:clean": "pnpm run cleanup && turbo run dev",
     "dev:api": "pnpm --filter @cermont/api dev",
-    "dev:web": "pnpm --filter @cermont/web dev",
+    "dev:web": "pnpm run cleanup && pnpm --filter @cermont/web dev",
     "build": "turbo run build",
     "build:api": "pnpm --filter @cermont/api build",
     "build:web": "pnpm --filter @cermont/web build",

@@ -17,3 +17,6 @@ export * from './date.util';
 
 // Utilidades de strings
 export * from './string.util';
+
+// Utilidades de sanitización
+export * from './sanitize.util';

@@ -29,7 +29,7 @@ interface HealthStatus {
 @Controller('health')
 @SkipThrottle() // Health checks no deben tener rate limiting
 export class HealthController {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService) { }
 
     @Get()
     @ApiOperation({ summary: 'Health check básico' })
@@ -84,6 +84,69 @@ export class HealthController {
         return {
             status: 'ok',
             timestamp: new Date().toISOString(),
+        };
+    }
+
+    @Get('full')
+    @ApiOperation({ summary: 'Health check completo - DB, memoria, sistema' })
+    @ApiResponse({ status: 200, description: 'Estado completo del sistema' })
+    async full(): Promise<Record<string, unknown>> {
+        const startTime = Date.now();
+        const memUsage = process.memoryUsage();
+
+        let dbStatus: { status: string; latency?: number; error?: string };
+        try {
+            await this.prisma.$queryRaw`SELECT 1`;
+            dbStatus = {
+                status: 'ok',
+                latency: Date.now() - startTime,
+            };
+        } catch (error) {
+            dbStatus = {
+                status: 'error',
+                error: error instanceof Error ? error.message : 'Unknown error',
+            };
+        }
+
+        return {
+            status: dbStatus.status === 'ok' ? 'ok' : 'degraded',
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime(),
+            version: process.env.npm_package_version || '1.0.0',
+            checks: {
+                database: dbStatus,
+                memory: {
+                    status: memUsage.heapUsed < 300 * 1024 * 1024 ? 'ok' : 'warning',
+                    heapUsed: Math.round(memUsage.heapUsed / 1024 / 1024) + ' MB',
+                    heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024) + ' MB',
+                    rss: Math.round(memUsage.rss / 1024 / 1024) + ' MB',
+                },
+            },
+        };
+    }
+
+    @Get('metrics')
+    @ApiOperation({ summary: 'Métricas del sistema' })
+    @ApiResponse({ status: 200, description: 'Métricas de performance' })
+    metrics(): Record<string, unknown> {
+        const memUsage = process.memoryUsage();
+
+        return {
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime(),
+            memory: {
+                heapUsed: Math.round(memUsage.heapUsed / 1024 / 1024) + ' MB',
+                heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024) + ' MB',
+                rss: Math.round(memUsage.rss / 1024 / 1024) + ' MB',
+                external: Math.round(memUsage.external / 1024 / 1024) + ' MB',
+            },
+            process: {
+                pid: process.pid,
+                version: process.version,
+                platform: process.platform,
+                arch: process.arch,
+            },
+            environment: process.env.NODE_ENV || 'development',
         };
     }
 }

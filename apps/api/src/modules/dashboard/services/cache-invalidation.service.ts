@@ -1,0 +1,55 @@
+import { Injectable } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+
+/**
+ * Servicio para invalidar caché cuando datos cambian
+ */
+@Injectable()
+export class CacheInvalidationService {
+  constructor(@Inject(CACHE_MANAGER) private cache: Cache) {}
+
+  /**
+   * Invalidar caché de dashboard cuando hay cambios
+   */
+  async invalidateDashboard(): Promise<void> {
+    await Promise.all([
+      this.cache.del('dashboard:stats'),
+      this.cache.del('dashboard:metricas'),
+      this.cache.del('dashboard:ordenes-recientes'),
+      this.cache.del('dashboard:overview'),
+      this.cache.del('dashboard:kpis'),
+      this.cache.del('dashboard:costs'),
+      this.cache.del('dashboard:performance'),
+    ]);
+    console.log('✅ Caché de dashboard invalidado');
+  }
+
+  /**
+   * Invalidar caché específico
+   */
+  async invalidateKey(key: string): Promise<void> {
+    await this.cache.del(key);
+    console.log(`✅ Caché "${key}" invalidado`);
+  }
+
+  /**
+   * Limpiar TODO el caché
+   */
+  async clearAll(): Promise<void> {
+    // Para cache-manager, intentar diferentes métodos
+    try {
+      if ((this.cache as any).store?.reset) {
+        await (this.cache as any).store.reset();
+      } else if ((this.cache as any).clear) {
+        await (this.cache as any).clear();
+      } else {
+        console.warn('⚠️ No se pudo resetear el caché completamente: método no disponible');
+      }
+    } catch (error) {
+      console.warn('⚠️ No se pudo resetear el caché completamente:', error);
+    }
+    console.log('✅ TODO el caché fue limpiado');
+  }
+}

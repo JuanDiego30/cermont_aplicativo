@@ -274,7 +274,7 @@ class OfflineSyncManager {
     };
 
     await this.db.put(STORES.SYNC_QUEUE, queueItem);
-    
+
     // Intentar sincronizar inmediatamente si está online
     if (this.isOnline) {
       this.startSync();
@@ -314,11 +314,11 @@ class OfflineSyncManager {
       for (const item of pendingItems) {
         try {
           await this.syncItem(item);
-          
+
           // Marcar como sincronizado y eliminar de la cola
           await this.removeSyncItem(item.id);
           this.emit({ type: 'item_synced', payload: item });
-          
+
         } catch (error) {
           // Incrementar reintentos
           item.retries++;
@@ -342,10 +342,10 @@ class OfflineSyncManager {
   }
 
   private async syncItem(item: SyncQueueItem): Promise<any> {
-    const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
     const trimmed = rawBaseUrl.trim().replace(/\/+$/, '');
     const baseUrl = trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
-    
+
     const response = await fetch(`${baseUrl}${item.endpoint}`, {
       method: item.method,
       headers: {
@@ -457,15 +457,15 @@ class OfflineSyncManager {
 
   async getCachedData<T>(key: string): Promise<T | null> {
     const cached = await this.db.get<{ key: string; data: T; expiresAt: number }>(STORES.CACHE, key);
-    
+
     if (!cached) return null;
-    
+
     // Verificar si expiró
     if (Date.now() > cached.expiresAt) {
       await this.db.delete(STORES.CACHE, key);
       return null;
     }
-    
+
     return cached.data;
   }
 

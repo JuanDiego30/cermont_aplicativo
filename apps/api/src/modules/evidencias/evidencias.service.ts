@@ -90,7 +90,7 @@ const UPLOAD_SECURITY_CONFIG = {
 export class EvidenciasService {
   private readonly logger = new Logger(EvidenciasService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * ✅ OBTENER EVIDENCIAS POR ORDEN
@@ -297,12 +297,12 @@ export class EvidenciasService {
     const ext = path.extname(filename).toLowerCase();
     const allowedExts =
       UPLOAD_SECURITY_CONFIG.allowedExtensions[
-        tipo as keyof typeof UPLOAD_SECURITY_CONFIG.allowedExtensions
-      ];
+      tipo as keyof typeof UPLOAD_SECURITY_CONFIG.allowedExtensions
+      ] as readonly string[];
 
     if (!allowedExts.includes(ext)) {
       throw new BadRequestException(
-        `Extensión no permitida para ${tipo}: ${allowedExts.join(', ')}`,
+        `Extensión no permitida para ${tipo}: ${[...allowedExts].join(', ')}`,
       );
     }
   }
@@ -318,7 +318,7 @@ export class EvidenciasService {
   private validateFileSize(size: number, tipo: TipoEvidencia): void {
     const maxSize =
       UPLOAD_SECURITY_CONFIG.maxFileSizes[
-        tipo as keyof typeof UPLOAD_SECURITY_CONFIG.maxFileSizes
+      tipo as keyof typeof UPLOAD_SECURITY_CONFIG.maxFileSizes
       ];
 
     if (size > maxSize) {

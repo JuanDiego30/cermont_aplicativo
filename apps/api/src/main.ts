@@ -4,6 +4,7 @@
  * Punto de entrada de la API NestJS (bootstrap, CORS, ValidationPipe y Swagger).
  * 
  * Seguridad aplicada:
+ * - Validación estricta de variables de entorno
  * - Helmet (headers HTTP de seguridad)
  * - CORS configurado
  * - ValidationPipe global
@@ -16,17 +17,29 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { v4 as uuidv4 } from 'uuid';
 import { AppModule } from './app.module';
+import { validateEnv } from './config/env.validation';
 
 // Request ID header name
 const REQUEST_ID_HEADER = 'x-request-id';
 
 async function bootstrap() {
-    const logger = new Logger('Bootstrap');
-    const app = await NestFactory.create(AppModule);
+    // =====================================================
+    // ENVIRONMENT VALIDATION (fail fast if invalid)
+    // =====================================================
+    const env = validateEnv();
+
+    const app = await NestFactory.create(AppModule, {
+        logger: false, // Disable default NestJS logger
+    });
+
+    // Get Winston logger instance
+    const logger = app.get(WINSTON_MODULE_PROVIDER);
+
 
     // Global prefix for API routes
     app.setGlobalPrefix('api');
@@ -105,10 +118,10 @@ async function bootstrap() {
     const port = process.env.PORT || 4000;
     await app.listen(port);
 
-    logger.log(`🚀 Cermont API running on port ${port}`);
-    logger.log(`📚 Swagger docs: http://localhost:${port}/docs`);
-    logger.log(`❤️ Health check: http://localhost:${port}/api/health`);
-    logger.log(`🔒 Security: ${process.env.NODE_ENV === 'production' ? 'PRODUCTION MODE' : 'DEVELOPMENT MODE'}`);
+    logger.log(`🚀 Cermont API running on port ${port}`, 'Bootstrap');
+    logger.log(`📚 Swagger docs: http://localhost:${port}/docs`, 'Bootstrap');
+    logger.log(`❤️ Health check: http://localhost:${port}/api/health`, 'Bootstrap');
+    logger.log(`🔒 Security: ${process.env.NODE_ENV === 'production' ? 'PRODUCTION MODE' : 'DEVELOPMENT MODE'}`, 'Bootstrap');
 }
 
 bootstrap();

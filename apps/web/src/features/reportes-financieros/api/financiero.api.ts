@@ -14,7 +14,7 @@ import type {
 
 // Configuración del cliente API
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -37,7 +37,7 @@ export const financieroApi = {
    */
   async getData(filters: FinancialFilters): Promise<FinancialResponse> {
     const params = new URLSearchParams();
-    
+
     params.append('periodo', filters.periodo);
     if (filters.fechaInicio) params.append('fechaInicio', filters.fechaInicio);
     if (filters.fechaFin) params.append('fechaFin', filters.fechaFin);

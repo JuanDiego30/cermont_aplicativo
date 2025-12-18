@@ -41,7 +41,7 @@ export class EmailService {
         const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
         const clientSecret = this.configService.get<string>('GOOGLE_CLIENT_SECRET');
         const redirectUri = this.configService.get<string>('GOOGLE_REDIRECT_URI')
-            || 'http://localhost:3001/email/callback';
+            || 'http://localhost:4000/email/callback';
 
         this.oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
     }

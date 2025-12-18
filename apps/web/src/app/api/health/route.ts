@@ -32,7 +32,7 @@ const startTime = Date.now();
 export async function GET(request: Request): Promise<NextResponse<HealthResponse>> {
   const url = new URL(request.url);
   const verbose = url.searchParams.get('verbose') === 'true';
-  
+
   // Información básica
   const response: HealthResponse = {
     status: 'healthy',
@@ -44,25 +44,25 @@ export async function GET(request: Request): Promise<NextResponse<HealthResponse
       api: true,
     },
   };
-  
+
   // Añadir región de Vercel si está disponible
   const region = request.headers.get('x-vercel-id')?.split(':')[0];
   if (region) {
     response.region = region;
   }
-  
+
   // Health check detallado si se solicita
   if (verbose) {
     try {
       // Verificar conexión al backend API
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
       const apiCheck = await fetch(`${apiUrl}/health`, {
         method: 'GET',
         signal: AbortSignal.timeout(5000),
       }).catch(() => null);
-      
+
       response.checks.api = apiCheck?.ok ?? false;
-      
+
       // Si algún check falla, marcar como degradado
       if (!response.checks.api) {
         response.status = 'degraded';
@@ -72,9 +72,9 @@ export async function GET(request: Request): Promise<NextResponse<HealthResponse
       response.checks.api = false;
     }
   }
-  
+
   const statusCode = response.status === 'healthy' ? 200 : 503;
-  
+
   return NextResponse.json(response, {
     status: statusCode,
     headers: {
