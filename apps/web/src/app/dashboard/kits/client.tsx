@@ -14,18 +14,22 @@ export function KitsDashboard() {
   const router = useRouter();
   const [filtroEstado, setFiltroEstado] = useState<EstadoKit | ''>('');
   const [busqueda, setBusqueda] = useState('');
-  
+
   const { data, isLoading } = useKits();
 
   const kits = data?.data || [];
-  
+
   const kitsFiltrados = kits.filter((k) => {
-    if (filtroEstado && k.estado !== filtroEstado) return false;
+    if (filtroEstado) {
+      if (filtroEstado === 'activo' && !k.activo) return false;
+      if (filtroEstado === 'inactivo' && k.activo) return false;
+    }
+
     if (busqueda) {
       const search = busqueda.toLowerCase();
       return (
-        (k.codigo?.toLowerCase() || '').includes(search) ||
-        (k.nombre?.toLowerCase() || '').includes(search)
+        (k.nombre?.toLowerCase() || '').includes(search) ||
+        (k.descripcion?.toLowerCase() || '').includes(search)
       );
     }
     return true;
@@ -89,8 +93,8 @@ export function KitsDashboard() {
         <div className="text-center py-16 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
           <p className="text-lg text-gray-500 mb-2">Sin kits</p>
           <p className="text-sm text-gray-400">
-            {filtroEstado || busqueda 
-              ? 'No hay kits que coincidan con los filtros' 
+            {filtroEstado || busqueda
+              ? 'No hay kits que coincidan con los filtros'
               : 'Crea un nuevo kit para comenzar'}
           </p>
         </div>

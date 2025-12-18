@@ -9,7 +9,8 @@ export interface SyncQueueItem {
   id?: number;
   endpoint: string;
   method: 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  payload?: unknown;
+  payload?: any; // Changed from unknown to any to support Blob/File storage
+  contentType?: 'application/json' | 'multipart/form-data';
   timestamp: number;
   retries: number;
 }
@@ -48,7 +49,7 @@ export class OfflineDatabase {
         Object.entries(SW_CONFIG.db.stores).forEach(([storeName, config]) => {
           if (!db.objectStoreNames.contains(storeName)) {
             const store = db.createObjectStore(storeName, config);
-            
+
             // Agregar índices según el store
             if (storeName === 'ordenes') {
               store.createIndex('estado', 'estado', { unique: false });

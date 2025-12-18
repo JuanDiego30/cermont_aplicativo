@@ -2,13 +2,15 @@
  * ARCHIVO: layout.tsx
  * FUNCION: Root Layout de la aplicación Next.js App Router
  * IMPLEMENTACION: Define estructura HTML, metadata SEO, viewport, fuente Outfit y envuelve contenido con Providers
- * DEPENDENCIAS: next, next/font/google, ./globals.css, ./providers
+ * DEPENDENCIAS: next, next/font/google, ./globals.css, ./providers, @vercel/analytics, @vercel/speed-insights
  * EXPORTS: RootLayout (Server Component default), metadata, viewport
  */
 import type { Metadata, Viewport } from 'next';
 import { Outfit } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 function getMetadataBase(): URL {
   const rawBaseUrl =
@@ -118,6 +120,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body
         className={`${outfit.className} antialiased bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100`}
       >
+        {/* Vercel Analytics - Tracking de usuarios y eventos */}
+        <Analytics />
+        {/* Vercel Speed Insights - Métricas Core Web Vitals */}
+        <SpeedInsights />
         <Providers>{children}</Providers>
       </body>
     </html>

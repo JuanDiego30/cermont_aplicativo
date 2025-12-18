@@ -242,11 +242,12 @@ export function AsistenteIA({ onAction: _onAction, contextData: _contextData, cl
   };
 
   // Botón flotante
+  // On mobile, position above bottom nav (bottom-24), on desktop use normal position (bottom-6)
   if (!isOpen) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 w-14 h-14 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-50 group ${className}`}
+        className={`fixed bottom-24 right-4 md:bottom-6 md:right-6 w-14 h-14 bg-linear-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-40 group ${className}`}
       >
         <MessageSquare className="w-6 h-6" />
         <span className="absolute -top-2 -right-2 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
@@ -262,7 +263,7 @@ export function AsistenteIA({ onAction: _onAction, contextData: _contextData, cl
   // Chat minimizado
   if (isMinimized) {
     return (
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40">
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-72 border">
           <div className="flex items-center justify-between p-3 bg-linear-to-r from-blue-600 to-blue-700 rounded-t-xl">
             <div className="flex items-center gap-2 text-white">
@@ -291,8 +292,8 @@ export function AsistenteIA({ onAction: _onAction, contextData: _contextData, cl
 
   // Chat completo
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-96 max-h-150 flex flex-col border overflow-hidden">
+    <div className="fixed bottom-24 right-4 md:bottom-6 md:right-6 z-40 max-md:left-4 max-md:right-4">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full md:w-96 max-h-[calc(100vh-120px)] md:max-h-150 flex flex-col border overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 bg-linear-to-r from-blue-600 to-blue-700">
           <div className="flex items-center gap-3 text-white">
@@ -346,11 +347,10 @@ export function AsistenteIA({ onAction: _onAction, contextData: _contextData, cl
               className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
             >
               {/* Avatar */}
-              <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                message.role === 'user' 
-                  ? 'bg-blue-600 text-white' 
+              <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${message.role === 'user'
+                  ? 'bg-blue-600 text-white'
                   : 'bg-linear-to-br from-purple-500 to-blue-500 text-white'
-              }`}>
+                }`}>
                 {message.role === 'user' ? (
                   <User className="w-4 h-4" />
                 ) : (
@@ -360,24 +360,23 @@ export function AsistenteIA({ onAction: _onAction, contextData: _contextData, cl
 
               {/* Mensaje */}
               <div className={`max-w-[75%] ${message.role === 'user' ? 'text-right' : ''}`}>
-                <div className={`rounded-2xl px-4 py-2.5 ${
-                  message.role === 'user'
+                <div className={`rounded-2xl px-4 py-2.5 ${message.role === 'user'
                     ? 'bg-blue-600 text-white rounded-br-md'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-md'
-                }`}>
-                  <div 
+                  }`}>
+                  <div
                     className="text-sm whitespace-pre-wrap"
-                    dangerouslySetInnerHTML={{ 
+                    dangerouslySetInnerHTML={{
                       __html: message.content
                         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                         .replace(/\n/g, '<br>')
-                    }} 
+                    }}
                   />
                 </div>
                 <p className="text-xs text-gray-400 mt-1 px-2">
-                  {message.timestamp.toLocaleTimeString('es-CO', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
+                  {message.timestamp.toLocaleTimeString('es-CO', {
+                    hour: '2-digit',
+                    minute: '2-digit'
                   })}
                 </p>
               </div>

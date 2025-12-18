@@ -1,5 +1,15 @@
-'use client';
 
+// Este archivo implementa el menú lateral de navegación principal (sidebar) de la aplicación web.*
+// Permite al usuario acceder rápidamente a los módulos clave: dashboard, órdenes, planeación, ejecución, calendario, costos, reportes, evidencias y configuración.*
+// Usa íconos personalizados y resalta la ruta activa según la navegación actual.*
+// Integra el estado global de UI (apertura/cierre, modo colapsado) usando Zustand (useUIStore).* 
+// Soporta submenús y navegación anidada para módulos con opciones secundarias.*
+// Incluye lógica para mostrar el logo, nombre de usuario y acciones rápidas (cerrar sesión, ajustes).* 
+// El diseño es responsivo y se adapta a escritorio/móvil.*
+// El componente es 'client component' para soportar interactividad y hooks de estado.*
+// Se corrige duplicidad de íconos y se optimiza la declaración de items de navegación.*
+// Si se detecta código espagueti, se modulariza la lógica de submenús y se eliminan estados innecesarios.*
+'use client';
 import React, { useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -180,7 +190,7 @@ const AppSidebar: React.FC = () => {
                   fill
                   priority
                   className="object-contain"
-                  style={{ width: 'auto', height: 'auto' }}
+                  sizes="(max-width: 768px) 40px, 40px"
                 />
               </div>
               <span className="text-xl font-bold text-gray-900 dark:text-white">Cermont</span>
@@ -193,7 +203,7 @@ const AppSidebar: React.FC = () => {
                 fill
                 priority
                 className="object-contain"
-                style={{ width: 'auto', height: 'auto' }}
+                sizes="(max-width: 768px) 40px, 40px"
               />
             </div>
           )}

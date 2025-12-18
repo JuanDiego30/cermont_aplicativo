@@ -44,10 +44,10 @@ export function useMantenimientosStats() {
       const data = await mantenimientosApi.getAll();
       return {
         total: data.length,
-        programados: data.filter((m) => m.estado === 'programado').length,
-        enProceso: data.filter((m) => m.estado === 'en_proceso').length,
-        completados: data.filter((m) => m.estado === 'completado').length,
-        cancelados: data.filter((m) => m.estado === 'cancelado').length,
+        programados: data.filter((m) => m.estado === 'PROGRAMADO').length,
+        enProceso: data.filter((m) => m.estado === 'EN_PROGRESO').length,
+        completados: data.filter((m) => m.estado === 'COMPLETADO').length,
+        cancelados: data.filter((m) => m.estado === 'CANCELADO').length,
       };
     },
     { revalidateOnFocus: false }

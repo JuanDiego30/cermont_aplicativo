@@ -92,9 +92,14 @@ export function Providers({ children }: ProvidersProps) {
         try {
           // Verificar si el token sigue siendo válido
           await apiClient.get('/auth/me');
-        } catch {
-          // Token inválido - limpiar autenticación
-          clearAuth();
+        } catch (error: any) {
+          // Solo limpiar si es error de autenticación (401)
+          // Si es error de red (offline), mantenemos la sesión para permitir trabajo offline
+          if (error?.statusCode === 401 || error?.status === 401) {
+            clearAuth();
+          } else {
+            console.warn('⚠️ Error verificando sesión (posible offline):', error);
+          }
         }
       }
     };

@@ -38,6 +38,7 @@ import {
 @ApiTags('Ordenes')
 @Controller('ordenes')
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 export class OrdenesController {
   constructor(
     private readonly listOrdenesUseCase: ListOrdenesUseCase,

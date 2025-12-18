@@ -60,16 +60,12 @@ async function bootstrap() {
         next();
     });
 
-    // CORS configuration
-    // Configurar CORS
+    // CORS configuration - Development friendly
     app.enableCors({
-        origin: [
-            'http://localhost:3000',
-            'http://127.0.0.1:3000',
-            'http://localhost:3001',
-            'http://127.0.0.1:3001',
-        ],
+        origin: true, // Allow all origins in development
         credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'x-request-id'],
     });
 
     // Cookie parser middleware
@@ -106,7 +102,7 @@ async function bootstrap() {
     // =====================================================
     // START SERVER
     // =====================================================
-    const port = process.env.PORT || 3001;
+    const port = process.env.PORT || 4000;
     await app.listen(port);
 
     logger.log(`🚀 Cermont API running on port ${port}`);

@@ -1,19 +1,23 @@
 ﻿/**
- * @service EvidenciasService
- * @description Servicio de gestión de evidencias de ejecución
- * 
- * Principios aplicados:
- * - SRP: Cada método tiene una responsabilidad clara
- * - Type Safety: DTOs tipados, sin uso de 'any'
- * - Clean Code: Métodos legibles y documentados
+ * ═══════════════════════════════════════════════════════════════════════════
+ * EVIDENCIAS SERVICE - CERMONT APLICATIVO (REFACTORIZADO)
+ * ═══════════════════════════════════════════════════════════════════════════
  */
-import { Injectable, NotFoundException } from '@nestjs/common';
+
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import * as fs from 'fs';
+import * as fs from 'fs/promises';
 import * as path from 'path';
+import { existsSync } from 'fs';
 
 /**
- * Tipo de evidencia
+ * Tipos de evidencia permitidos
  */
 type TipoEvidencia = 'FOTO' | 'VIDEO' | 'DOCUMENTO' | 'AUDIO';
 
@@ -39,115 +43,357 @@ interface UploadedFile {
 }
 
 /**
- * Resultado de listado de evidencias
+ * Resultado de listado
  */
 export interface EvidenciasResult {
   data: unknown[];
 }
 
+/**
+ * Configuración de seguridad
+ */
+const UPLOAD_SECURITY_CONFIG = {
+  allowedExtensions: {
+    FOTO: ['.jpg', '.jpeg', '.png', '.webp', '.heic'],
+    VIDEO: ['.mp4', '.mov', '.avi', '.webm'],
+    DOCUMENTO: ['.pdf', '.doc', '.docx', '.xls', '.xlsx'],
+    AUDIO: ['.mp3', '.wav', '.m4a', '.aac'],
+  },
+  allowedMimeTypes: [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/heic',
+    'video/mp4',
+    'video/quicktime',
+    'video/x-msvideo',
+    'video/webm',
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'audio/mpeg',
+    'audio/wav',
+    'audio/mp4',
+    'audio/aac',
+  ] as string[],
+  maxFileSizes: {
+    FOTO: 10 * 1024 * 1024,
+    VIDEO: 100 * 1024 * 1024,
+    DOCUMENTO: 20 * 1024 * 1024,
+    AUDIO: 20 * 1024 * 1024,
+  },
+} as const;
+
 @Injectable()
 export class EvidenciasService {
-  constructor(private readonly prisma: PrismaService) { }
+  private readonly logger = new Logger(EvidenciasService.name);
+
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Obtiene evidencias de una orden
+   * ✅ OBTENER EVIDENCIAS POR ORDEN
    */
   async findByOrden(ordenId: string): Promise<EvidenciasResult> {
-    const evidencias = await this.prisma.evidenciaEjecucion.findMany({
-      where: { ordenId },
-      orderBy: { createdAt: 'desc' },
-    });
+    const context = { action: 'FIND_BY_ORDEN', ordenId };
+    this.logger.log('Obteniendo evidencias por orden', context);
 
-    return { data: evidencias };
+    try {
+      const evidencias = await this.prisma.evidenciaEjecucion.findMany({
+        where: { ordenId },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      this.logger.log('Evidencias obtenidas exitosamente', {
+        ...context,
+        count: evidencias.length,
+      });
+
+      return { data: evidencias };
+    } catch (error) {
+      const err = error as Error;
+      this.logger.error('Error obteniendo evidencias por orden', {
+        ...context,
+        error: err.message,
+        stack: err.stack,
+      });
+      throw new InternalServerErrorException('Error obteniendo evidencias');
+    }
   }
 
   /**
-   * Obtiene evidencias de una ejecución específica
+   * ✅ OBTENER EVIDENCIAS POR EJECUCIÓN
    */
   async findByEjecucion(ejecucionId: string): Promise<EvidenciasResult> {
-    const evidencias = await this.prisma.evidenciaEjecucion.findMany({
-      where: { ejecucionId },
-      orderBy: { createdAt: 'desc' },
-    });
+    const context = { action: 'FIND_BY_EJECUCION', ejecucionId };
+    this.logger.log('Obteniendo evidencias por ejecución', context);
 
-    return { data: evidencias };
+    try {
+      const evidencias = await this.prisma.evidenciaEjecucion.findMany({
+        where: { ejecucionId },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      this.logger.log('Evidencias obtenidas exitosamente', {
+        ...context,
+        count: evidencias.length,
+      });
+
+      return { data: evidencias };
+    } catch (error) {
+      const err = error as Error;
+      this.logger.error('Error obteniendo evidencias por ejecución', {
+        ...context,
+        error: err.message,
+        stack: err.stack,
+      });
+      throw new InternalServerErrorException('Error obteniendo evidencias');
+    }
   }
 
   /**
-   * Sube una nueva evidencia
+   * ✅ SUBIR NUEVA EVIDENCIA (CON VALIDACIÓN DE SEGURIDAD)
    */
   async upload(file: UploadedFile, dto: UploadEvidenciaDto, userId: string) {
-    const tags = this.parseTags(dto.tags);
-
-    // Construir datos base
-    const createData = {
+    const context = {
+      action: 'UPLOAD_EVIDENCIA',
       ordenId: dto.ordenId,
-      tipo: dto.tipo ?? 'FOTO',
-      nombreArchivo: file.originalname,
-      rutaArchivo: file.path,
-      tamano: file.size,
+      ejecucionId: dto.ejecucionId,
+      userId,
+      filename: file.originalname,
+      size: file.size,
       mimeType: file.mimetype,
-      descripcion: dto.descripcion ?? '',
-      subidoPor: userId,
-      tags,
-      // Fallback a string vacío si es undefined para satisfacer Prisma si es requerido
-      ejecucionId: dto.ejecucionId ?? '',
     };
 
-    const evidencia = await this.prisma.evidenciaEjecucion.create({
-      data: createData,
-    });
+    this.logger.log('Iniciando upload de evidencia', context);
 
-    return {
-      message: 'Evidencia subida',
-      data: evidencia,
-    };
+    try {
+      // 1. Validar tipo
+      const tipo = dto.tipo ?? 'FOTO';
+
+      // 2. Validaciones de seguridad
+      this.validateFileExtension(file.originalname, tipo);
+      this.validateMimeType(file.mimetype);
+      this.validateFileSize(file.size, tipo);
+
+      // 3. Sanitizar nombre
+      const safeFilename = this.sanitizeFilename(file.originalname);
+
+      // 4. Parsear tags
+      const tags = this.parseTags(dto.tags);
+
+      // 5. Validar relaciones
+      await this.validateRelaciones(dto.ordenId, dto.ejecucionId);
+
+      // 6. Crear datos para Prisma
+      // ✅ Según schema: ejecucionId es String (no opcional), pero puede omitirse en create
+      const createData: {
+        ordenId: string;
+        tipo: string;
+        nombreArchivo: string;
+        rutaArchivo: string;
+        tamano: number;
+        mimeType: string;
+        descripcion: string;
+        subidoPor: string;
+        tags: string[];
+        ejecucionId: string; // ✅ Requerido según schema
+      } = {
+        ordenId: dto.ordenId,
+        ejecucionId: dto.ejecucionId || '', // ✅ Fallback a string vacío como en original
+        tipo: tipo as string,
+        nombreArchivo: safeFilename,
+        rutaArchivo: file.path,
+        tamano: file.size,
+        mimeType: file.mimetype,
+        descripcion: dto.descripcion ?? '',
+        subidoPor: userId,
+        tags,
+      };
+
+      const evidencia = await this.prisma.evidenciaEjecucion.create({
+        data: createData,
+      });
+
+      this.logger.log('Evidencia subida exitosamente', {
+        ...context,
+        evidenciaId: evidencia.id,
+      });
+
+      return {
+        message: 'Evidencia subida',
+        data: evidencia,
+      };
+    } catch (error) {
+      const err = error as Error;
+
+      // Rollback: eliminar archivo físico
+      await this.deleteFileIfExists(file.path);
+
+      this.logger.error('Error subiendo evidencia', {
+        ...context,
+        error: err.message,
+        stack: err.stack,
+      });
+
+      if (
+        err instanceof BadRequestException ||
+        err instanceof NotFoundException
+      ) {
+        throw err;
+      }
+
+      throw new InternalServerErrorException('Error subiendo evidencia');
+    }
   }
 
   /**
-   * Elimina una evidencia y su archivo físico
+   * ✅ ELIMINAR EVIDENCIA
    */
   async remove(id: string) {
-    const evidencia = await this.prisma.evidenciaEjecucion.findUnique({
-      where: { id },
-    });
+    const context = { action: 'REMOVE_EVIDENCIA', evidenciaId: id };
+    this.logger.log('Eliminando evidencia', context);
 
-    if (!evidencia) {
-      throw new NotFoundException('Evidencia no encontrada');
+    try {
+      const evidencia = await this.prisma.evidenciaEjecucion.findUnique({
+        where: { id },
+      });
+
+      if (!evidencia) {
+        throw new NotFoundException('Evidencia no encontrada');
+      }
+
+      // Eliminar de BD primero
+      await this.prisma.evidenciaEjecucion.delete({ where: { id } });
+
+      // Eliminar archivo físico
+      await this.deleteFileIfExists(evidencia.rutaArchivo);
+
+      this.logger.log('Evidencia eliminada exitosamente', context);
+
+      return { message: 'Evidencia eliminada' };
+    } catch (error) {
+      const err = error as Error;
+      this.logger.error('Error eliminando evidencia', {
+        ...context,
+        error: err.message,
+        stack: err.stack,
+      });
+
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
+
+      throw new InternalServerErrorException('Error eliminando evidencia');
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // MÉTODOS PRIVADOS
+  // ═══════════════════════════════════════════════════════════════════════
+
+  private validateFileExtension(filename: string, tipo: TipoEvidencia): void {
+    const ext = path.extname(filename).toLowerCase();
+    const allowedExts =
+      UPLOAD_SECURITY_CONFIG.allowedExtensions[
+        tipo as keyof typeof UPLOAD_SECURITY_CONFIG.allowedExtensions
+      ];
+
+    if (!allowedExts.includes(ext)) {
+      throw new BadRequestException(
+        `Extensión no permitida para ${tipo}: ${allowedExts.join(', ')}`,
+      );
+    }
+  }
+
+  private validateMimeType(mimetype: string): void {
+    const allowedTypes: string[] = UPLOAD_SECURITY_CONFIG.allowedMimeTypes;
+
+    if (!allowedTypes.includes(mimetype)) {
+      throw new BadRequestException(`Tipo de archivo no permitido: ${mimetype}`);
+    }
+  }
+
+  private validateFileSize(size: number, tipo: TipoEvidencia): void {
+    const maxSize =
+      UPLOAD_SECURITY_CONFIG.maxFileSizes[
+        tipo as keyof typeof UPLOAD_SECURITY_CONFIG.maxFileSizes
+      ];
+
+    if (size > maxSize) {
+      const maxSizeMB = (maxSize / (1024 * 1024)).toFixed(2);
+      throw new BadRequestException(
+        `Archivo muy grande. Máximo para ${tipo}: ${maxSizeMB} MB`,
+      );
+    }
+  }
+
+  private sanitizeFilename(filename: string): string {
+    let sanitized = filename.replace(/\.\.[\/\\]/g, '');
+    sanitized = sanitized.replace(/[<>:"|?*]/g, '');
+
+    if (sanitized.length > 255) {
+      const ext = path.extname(sanitized);
+      const base = path.basename(sanitized, ext).substring(0, 250);
+      sanitized = base + ext;
     }
 
-    // Eliminar archivo físico si existe
-    await this.deleteFileIfExists(evidencia.rutaArchivo);
-
-    // Eliminar registro de BD
-    await this.prisma.evidenciaEjecucion.delete({ where: { id } });
-
-    return { message: 'Evidencia eliminada' };
+    return sanitized;
   }
 
-  // =====================================================
-  // MÉTODOS PRIVADOS - Helpers
-  // =====================================================
-
-  /**
-   * Parsea string de tags separados por coma
-   */
   private parseTags(tagsString?: string): string[] {
-    if (!tagsString) return [];
-    return tagsString.split(',').map((tag) => tag.trim()).filter(Boolean);
+    if (!tagsString || tagsString.trim() === '') {
+      return [];
+    }
+
+    return tagsString
+      .split(',')
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0 && tag.length <= 50)
+      .slice(0, 10);
   }
 
-  /**
-   * Elimina archivo del sistema de archivos si existe
-   */
+  private async validateRelaciones(
+    ordenId: string,
+    ejecucionId?: string,
+  ): Promise<void> {
+    // ✅ Según schema: tabla se llama "orders" (@@map)
+    const orden = await this.prisma.order.findUnique({
+      where: { id: ordenId },
+    });
+
+    if (!orden) {
+      throw new NotFoundException(`Orden ${ordenId} no encontrada`);
+    }
+
+    if (ejecucionId) {
+      // ✅ Según schema: tabla se llama "ejecuciones"
+      const ejecucion = await this.prisma.ejecucion.findUnique({
+        where: { id: ejecucionId },
+      });
+
+      if (!ejecucion) {
+        throw new NotFoundException(`Ejecución ${ejecucionId} no encontrada`);
+      }
+    }
+  }
+
   private async deleteFileIfExists(filePath: string): Promise<void> {
     try {
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+      if (existsSync(filePath)) {
+        await fs.unlink(filePath);
+        this.logger.log('Archivo físico eliminado', { filePath });
       }
     } catch (error) {
-      // Log error but don't fail the operation
-      console.error(`Error deleting file ${filePath}:`, error);
+      const err = error as Error;
+      this.logger.warn('Error eliminando archivo físico', {
+        filePath,
+        error: err.message,
+      });
     }
   }
 }
+
+
+

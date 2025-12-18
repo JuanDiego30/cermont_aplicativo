@@ -19,6 +19,8 @@ import {
   Shield,
   BarChart3
 } from "lucide-react";
+import { SpotlightCard } from "@/components/ui/SpotlightCard";
+import { Counter } from "@/components/ui/Counter";
 
 // Dynamic imports for charts (avoid SSR issues)
 const MonthlyOrdersChart = dynamic(() => import("@/components/charts/MonthlyOrdersChart"), { ssr: false });
@@ -44,7 +46,7 @@ interface MetricCardProps {
 
 function MetricCard({ title, value, icon, trend, badge, iconBgColor, iconColor }: MetricCardProps) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/3">
+    <SpotlightCard className="p-6 bg-white dark:bg-white/5 border-gray-200 dark:border-gray-800">
       <div className="flex items-center justify-between">
         <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ${iconBgColor}`}>
           <span className={iconColor}>{icon}</span>
@@ -65,10 +67,12 @@ function MetricCard({ title, value, icon, trend, badge, iconBgColor, iconColor }
         )}
       </div>
       <div className="mt-4">
-        <p className="text-2xl font-bold text-gray-900 dark:text-white">{value}</p>
+        <p className="text-2xl font-bold text-gray-900 dark:text-white">
+          {typeof value === 'number' ? <Counter value={value} duration={1.5} /> : value}
+        </p>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{title}</p>
       </div>
-    </div>
+    </SpotlightCard>
   );
 }
 
@@ -200,14 +204,16 @@ function QuickAccess() {
           <Link
             key={link.title}
             href={link.href}
-            className="flex flex-col items-center justify-center p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
+            className="group block rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
           >
-            <div className={`w-10 h-10 rounded-lg ${link.color} flex items-center justify-center text-white mb-2 group-hover:scale-110 transition-transform`}>
-              {link.icon}
-            </div>
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              {link.title}
-            </span>
+            <SpotlightCard className="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800 border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors h-full">
+              <div className={`w-10 h-10 rounded-lg ${link.color} flex items-center justify-center text-white mb-2 group-hover:scale-110 transition-transform`}>
+                {link.icon}
+              </div>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {link.title}
+              </span>
+            </SpotlightCard>
           </Link>
         ))}
       </div>

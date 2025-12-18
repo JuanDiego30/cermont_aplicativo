@@ -7,6 +7,7 @@ import {
   Post,
   Get,
   Delete,
+  Query,
   Param,
   Body,
   UseGuards,
@@ -25,6 +26,7 @@ import {
   UploadEvidenciaUseCase,
   ListEvidenciasByOrdenUseCase,
   DeleteEvidenciaUseCase,
+  ListAllEvidenciasUseCase,
 } from '../../application/use-cases';
 import { UploadEvidenciaSchema } from '../../application/dto/evidencia.dto';
 
@@ -41,7 +43,17 @@ export class EvidenciasController {
     private readonly uploadUseCase: UploadEvidenciaUseCase,
     private readonly listUseCase: ListEvidenciasByOrdenUseCase,
     private readonly deleteUseCase: DeleteEvidenciaUseCase,
+    private readonly listAllUseCase: ListAllEvidenciasUseCase,
   ) { }
+
+  @Get()
+  @ApiOperation({ summary: 'Listar todas las evidencias (filtros opcionales)' })
+  async findAll(
+    @Query('ordenId') ordenId?: string,
+    @Query('tipo') tipo?: string,
+  ) {
+    return this.listAllUseCase.execute({ ordenId, tipo });
+  }
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('archivo')) // Nombre del campo en form-data

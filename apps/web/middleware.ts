@@ -1,7 +1,8 @@
 /**
  * ARCHIVO: middleware.ts
- * FUNCION: Edge Middleware para autenticación, seguridad, rate limiting y geolocalización
- * IMPLEMENTACION: Basado en patrones de vercel/examples (jwt-authentication, add-header, rate-limit)
+ * FUNCION: Edge Middleware para autenticación, seguridad, rate limiting, geolocalización,
+ *          IP blocking, modo mantenimiento y redirects optimizados
+ * IMPLEMENTACION: Basado en patrones de vercel/examples (jwt-authentication, add-header, rate-limit, ip-blocking)
  * DEPENDENCIAS: next/server
  * EXPORTS: middleware, config
  */
@@ -13,6 +14,9 @@ const PROTECTED_API_ROUTES = ['/api/ordenes', '/api/users', '/api/clientes', '/a
 
 // Rutas públicas (no requieren autenticación)
 const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];
+
+// Rutas excluidas del middleware
+const EXCLUDED_ROUTES = ['/maintenance', '/offline', '/api/health', '/api/cron'];
 
 // Nombre de la cookie de autenticación
 const AUTH_COOKIE_NAME = 'cermont-auth';
@@ -52,6 +56,20 @@ function isPublicRoute(pathname: string): boolean {
 }
 
 /**
+ * Verifica si la ruta está excluida del middleware
+ */
+function isExcludedRoute(pathname: string): boolean {
+  return EXCLUDED_ROUTES.some(route => pathname.startsWith(route));
+}
+
+/**
+ * Verifica si el modo mantenimiento está activo
+ */
+function isMaintenanceMode(): boolean {
+  return process.env.MAINTENANCE_MODE === 'true';
+}
+
+/**
  * Añade headers de seguridad a la respuesta
  * Basado en: vercel/examples/edge-middleware/add-header
  */
@@ -88,25 +106,29 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
 /**
  * Extrae información de geolocalización del request
  * Basado en: vercel/examples/edge-middleware/geolocation
+ * Nota: request.geo solo está disponible en Vercel Edge Runtime
  */
 function getGeolocationInfo(request: NextRequest): { country: string; city: string; region: string } {
   return {
-    country: request.headers.get('x-vercel-ip-country') || 
-             request.geo?.country || 'CO',
-    city: request.headers.get('x-vercel-ip-city') || 
-          request.geo?.city || 'Unknown',
-    region: request.headers.get('x-vercel-ip-country-region') || 
-            request.geo?.region || 'Unknown',
+    country: request.headers.get('x-vercel-ip-country') || 'CO',
+    city: request.headers.get('x-vercel-ip-city') || 'Unknown',
+    region: request.headers.get('x-vercel-ip-country-region') || 'Unknown',
   };
 }
 
 /**
  * Obtiene la IP del cliente para rate limiting
+ * Nota: request.ip solo está disponible en Vercel Edge Runtime
  */
+/**
+ * Lista de IPs bloqueadas (en memoria para desarrollo)
+ * En producción usar @upstash/redis
+ */
+const blockedIPs = new Set<string>();
+
 function getClientIp(request: NextRequest): string {
   return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
          request.headers.get('x-real-ip') ||
-         request.ip ||
          '127.0.0.1';
 }
 
@@ -137,7 +159,31 @@ function checkRateLimit(ip: string): { success: boolean; remaining: number } {
 
 /**
  * Middleware principal
- * Basado en: vercel/examples/edge-middleware/jwt-authentication
+ * Ba0. Excluir rutas específicas del middleware
+  if (isExcludedRoute(pathname)) {
+    return NextResponse.next();
+  }
+  
+  // 0.1 Verificar IP bloqueada
+  if (blockedIPs.has(ip)) {
+    return NextResponse.json(
+      { 
+        error: 'Forbidden',
+        message: 'Tu IP ha sido bloqueada. Contacta al administrador.'
+      },
+      { status: 403 }
+    );
+  }
+  
+  // 0.2 Modo mantenimiento (excepto para admins)
+  if (isMaintenanceMode()) {
+    const isAdmin = request.cookies.get('cermont-role')?.value === 'admin';
+    if (!isAdmin && !pathname.startsWith('/api/')) {
+      return NextResponse.redirect(new URL('/maintenance', request.url));
+    }
+  }
+  
+  // sado en: vercel/examples/edge-middleware/jwt-authentication
  */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

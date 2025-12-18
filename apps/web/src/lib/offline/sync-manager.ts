@@ -30,7 +30,7 @@ class SyncManager {
   private apiBaseUrl: string;
 
   constructor() {
-    this.apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    this.apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
     if (typeof window !== 'undefined') {
       // Detectar cambios de conectividad
@@ -51,7 +51,7 @@ class SyncManager {
     }
     this.isOnline = true;
     this.notify({ status: 'idle', pendingItems: 0 });
-    
+
     // Sincronizar inmediatamente al reconectar
     this.sync();
     this.startAutoSync();
@@ -101,7 +101,7 @@ class SyncManager {
    */
   async getStatus(): Promise<SyncEvent> {
     const pendingItems = await offlineDb.countSyncQueue();
-    
+
     return {
       status: this.isSyncing ? 'syncing' : (this.isOnline ? 'idle' : 'offline'),
       pendingItems,
@@ -176,7 +176,7 @@ class SyncManager {
 
       for (let i = 0; i < queue.length; i++) {
         const item = queue[i];
-        
+
         try {
           await this.syncItem(item);
           successCount++;
@@ -198,7 +198,7 @@ class SyncManager {
           // Incrementar retries
           if (item.id !== undefined) {
             await offlineDb.incrementRetry(item.id);
-            
+
             // Si excede max retries, eliminar
             if ((item.retries || 0) >= SW_CONFIG.sync.retryAttempts) {
               console.warn(`[SyncManager] Item ${item.id} excedió retries, eliminando`);
@@ -238,18 +238,36 @@ class SyncManager {
    * Sincronizar un item individual
    */
   private async syncItem(item: SyncQueueItem): Promise<void> {
-    const { endpoint, method, payload } = item;
+    const { endpoint, method, payload, contentType = 'application/json' } = item;
     const url = `${this.apiBaseUrl}${endpoint}`;
 
-    console.log(`[SyncManager] ${method} ${endpoint}`);
+    console.log(`[SyncManager] ${method} ${endpoint} (${contentType})`);
+
+    let body: BodyInit | undefined;
+    let headers: Record<string, string> = {};
+
+    if (contentType === 'multipart/form-data' && payload) {
+      // Reconstruir FormData a partir del payload guardado
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value instanceof Blob || value instanceof File) {
+          formData.append(key, value);
+        } else {
+          formData.append(key, String(value));
+        }
+      });
+      body = formData;
+      // No setear Content-Type header para multipart, fetch lo hace automático con boundary
+    } else {
+      headers['Content-Type'] = 'application/json';
+      body = payload ? JSON.stringify(payload) : undefined;
+    }
 
     const response = await fetch(url, {
       method,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       credentials: 'include',
-      body: payload ? JSON.stringify(payload) : undefined,
+      body,
     });
 
     if (!response.ok) {
@@ -258,9 +276,51 @@ class SyncManager {
   }
 
   /**
+   * Encolar Upload Multipart
+   */
+  async queueUpload(action: {
+    endpoint: string;
+    formData: FormData;
+  }): Promise<Response | null> {
+    // Serializar FormData para storage
+    const payload: Record<string, any> = {};
+    action.formData.forEach((value, key) => {
+      payload[key] = value;
+    });
+
+    if (this.isOnline) {
+      // Intentar enviar directo
+      const url = `${this.apiBaseUrl}${action.endpoint}`;
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          credentials: 'include',
+          body: action.formData
+        });
+        return response;
+      } catch (error) {
+        console.warn('[SyncManager] Fallo upload online, encolando:', error);
+        await this.addToQueue({
+          endpoint: action.endpoint,
+          method: 'POST',
+          payload,
+          contentType: 'multipart/form-data'
+        });
+        return null;
+      }
+    } else {
+      await this.addToQueue({
+        endpoint: action.endpoint,
+        method: 'POST',
+        payload,
+        contentType: 'multipart/form-data'
+      });
+      return null;
+    }
+  }
+
+  /**
    * Encolar acción para sincronización
-   * Si estamos online, ejecutar inmediatamente
-   * Si estamos offline, agregar a cola
    */
   async queueAction(action: {
     endpoint: string;
@@ -270,7 +330,7 @@ class SyncManager {
     if (this.isOnline) {
       // Ejecutar inmediatamente
       const url = `${this.apiBaseUrl}${action.endpoint}`;
-      
+
       try {
         const response = await fetch(url, {
           method: action.method,
@@ -302,13 +362,15 @@ class SyncManager {
     endpoint: string;
     method: 'POST' | 'PUT' | 'PATCH' | 'DELETE';
     payload?: unknown;
+    contentType?: 'application/json' | 'multipart/form-data';
   }): Promise<void> {
     console.log(`[SyncManager] Agregando a cola: ${action.method} ${action.endpoint}`);
-    
+
     await offlineDb.addToSyncQueue({
       endpoint: action.endpoint,
       method: action.method,
       payload: action.payload,
+      contentType: action.contentType || 'application/json',
     });
 
     const pendingItems = await offlineDb.countSyncQueue();

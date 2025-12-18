@@ -67,6 +67,26 @@ export class EjecucionService {
   }
 
   /**
+   * Busca ejecuciones asignadas a un usuario (via orden)
+   */
+  async findForUser(userId: string) {
+    return this.prisma.ejecucion.findMany({
+      where: {
+        orden: {
+          asignadoId: userId,
+        },
+      },
+      include: {
+        orden: true,
+        tareas: true,
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
+  }
+
+  /**
    * Inicia la ejecución de una orden
    * Requiere que exista planeación aprobada
    */

@@ -45,7 +45,7 @@ import { CurrentUser, JwtPayload } from '../../common/decorators/current-user.de
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class AdminController {
-    constructor(private readonly adminService: AdminService) {}
+    constructor(private readonly adminService: AdminService) { }
 
     // ============================================
     // USUARIOS
@@ -169,7 +169,7 @@ export class AdminController {
     @Roles('admin', 'supervisor')
     @ApiOperation({ summary: 'Obtener permisos de un rol' })
     @ApiParam({ name: 'role', description: 'Rol a consultar' })
-    async getPermissions(@Param('role') role: string) {
-        return this.adminService.getUserPermissions(role as any);
+    async getPermissions(@Param('role') role: 'admin' | 'supervisor' | 'tecnico') {
+        return this.adminService.getUserPermissions(role);
     }
 }
