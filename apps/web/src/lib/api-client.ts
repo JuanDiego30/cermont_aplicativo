@@ -8,14 +8,28 @@
  */
 type TokenProvider = () => string | null;
 type LogoutHandler = () => void;
+import { syncManager } from '@/lib/offline/sync-manager';
 
 function buildApiBaseUrl(rawUrl: string): string {
+  // En el navegador, detectar si estamos en un tunnel (devtunnels, ngrok, etc.)
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    // Si estamos en un tunnel o dominio externo, usar el proxy de Next.js
+    if (hostname.includes('devtunnels.ms') ||
+      hostname.includes('ngrok') ||
+      hostname.includes('vercel.app') ||
+      (!hostname.includes('localhost') && !hostname.includes('127.0.0.1'))) {
+      return '/api/proxy'; // Usa el proxy de Next.js
+    }
+  }
+
+  // Desarrollo local - usar URL directa
   const trimmed = rawUrl.trim().replace(/\/+$/, '');
   return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
 }
 
 const API_BASE_URL = buildApiBaseUrl(
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
 );
 
 interface RequestOptions extends RequestInit {
@@ -127,7 +141,9 @@ class ApiClient {
           throw new Error('Sesión expirada');
         }
       } catch (error) {
-        this.logoutHandler();
+        // Si hay un error de red (fetch throws), NO cerramos sesión
+        // Permitimos que el usuario siga trabajando offline
+        // this.logoutHandler(); // Comentado para evitar logout en desconexión
         throw error;
       }
     }
@@ -189,7 +205,7 @@ class ApiClient {
 
   /**
    * Upload genérico con multipart/form-data.
-   * Útil para endpoints que requieren archivo + campos extra.
+   * Modificado para soporte Offline (colas de sincronización)
    */
   async uploadForm<T>(endpoint: string, formData: FormData, options?: { includeAuth?: boolean }): Promise<T> {
     const includeAuth = options?.includeAuth ?? true;
@@ -201,55 +217,79 @@ class ApiClient {
       return this.getAuthHeader();
     };
 
-    let response = await fetch(url, {
-      method: 'POST',
-      headers: buildHeaders(),
-      body: formData,
-      credentials: 'include',
-    });
+    try {
+      // Verificar si estamos offline
+      if (!syncManager.getOnlineStatus()) {
+        throw new Error('Offline mode detected');
+      }
 
-    if (response.status === 401 && includeAuth) {
-      try {
-        const refreshResponse = await fetch(`${this.baseUrl}/auth/refresh`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-        });
+      let response = await fetch(url, {
+        method: 'POST',
+        headers: buildHeaders(),
+        body: formData,
+        credentials: 'include',
+      });
 
-        if (refreshResponse.ok) {
-          const { token: newToken } = await refreshResponse.json();
-          // useAuthStore.getState().setToken(newToken); -> Decoupled, rely on app reload or handler
-
-          response = await fetch(url, {
+      if (response.status === 401 && includeAuth) {
+        try {
+          const refreshResponse = await fetch(`${this.baseUrl}/auth/refresh`, {
             method: 'POST',
-            headers: buildHeaders(newToken),
-            body: formData,
+            headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
           });
-        } else {
-          this.logoutHandler();
-          throw new ApiException('Sesión expirada', 401);
+
+          if (refreshResponse.ok) {
+            const { token: newToken } = await refreshResponse.json();
+            this.tokenUpdater(newToken);
+
+            response = await fetch(url, {
+              method: 'POST',
+              headers: buildHeaders(newToken),
+              body: formData,
+              credentials: 'include',
+            });
+          } else {
+            this.logoutHandler();
+            throw new ApiException('Sesión expirada', 401);
+          }
+        } catch (authError) {
+          throw authError; // Let outer catch handle network errors
         }
-      } catch (error) {
-        this.logoutHandler();
-        throw error;
       }
-    }
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new ApiException(
-        errorData.message || 'Error en la petición',
-        response.status,
-        errorData.errors,
-        errorData.data
-      );
-    }
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new ApiException(
+          errorData.message || 'Error en la petición',
+          response.status,
+          errorData.errors,
+          errorData.data
+        );
+      }
 
-    if (response.status === 204) return undefined as T;
-    return response.json();
+      if (response.status === 204) return undefined as T;
+      return response.json();
+
+    } catch (error: unknown) {
+      // Detectar si es error de red o modo offline
+      const err = error as Error;
+      const isNetworkError = err.message === 'Failed to fetch' || err.message === 'Offline mode detected' || err.name === 'TypeError';
+
+      if (isNetworkError) {
+        console.log('[ApiClient] Detectado error de red/offline, encolando upload:', endpoint);
+
+        // Encolar para sincronización
+        await syncManager.queueUpload({
+          endpoint,
+          formData
+        });
+
+        // Lanzar error especial que la UI puede manejar como "Guardado Offline"
+        throw new ApiException('Guardado en cola offline', 0, undefined, { offline: true });
+      }
+
+      throw error;
+    }
   }
 
   /**

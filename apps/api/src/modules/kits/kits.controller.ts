@@ -1,45 +1,35 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * KITS CONTROLLER - CERMONT APLICATIVO
+ * KITS CONTROLLER - CERMONT APLICATIVO (REFACTORIZADO)
  * ═══════════════════════════════════════════════════════════════════════════
  * 
  * PROPÓSITO:
- * Controlador REST API que expone endpoints para gestionar los "Kits Típicos"
- * utilizados en la planeación y ejecución de trabajos técnicos.
+ * Gestión de Kits Típicos para planeación y ejecución de trabajos técnicos
  * 
- * ENDPOINTS DISPONIBLES:
+ * FUNCIONALIDADES:
+ * 1. CRUD de kits personalizados (BD)
+ * 2. Consulta de kits predefinidos (hardcoded)
+ * 3. Aplicación de kits a ejecuciones (genera checklists automáticos)
+ * 4. Sincronización de kits predefinidos a BD
  * 
- * 1. GESTIÓN DE KITS PERSONALIZADOS (Base de datos):
- *    GET    /kits                    → Lista todos los kits activos
- *    GET    /kits/:id                → Obtiene un kit específico
- *    POST   /kits                    → Crea un nuevo kit (admin/supervisor)
- *    PUT    /kits/:id                → Actualiza un kit (admin/supervisor)
- *    DELETE /kits/:id                → Desactiva un kit (solo admin)
- * 
- * 2. KITS PREDEFINIDOS (Hardcoded):
- *    GET    /kits/predefinidos                → Lista todos los kits predefinidos
- *    GET    /kits/predefinidos/:tipo          → Obtiene kit por tipo
- *    POST   /kits/predefinidos/sync           → Sincroniza a BD (solo admin)
- * 
- * 3. APLICACIÓN DE KITS A EJECUCIONES:
- *    POST   /kits/:id/aplicar/:ejecucionId              → Aplica kit guardado
- *    POST   /kits/predefinidos/:tipo/aplicar/:ejecucionId → Aplica kit predefinido
- * 
- * ROLES Y PERMISOS:
- * - Lectura (GET): Todos los usuarios autenticados
- * - Creación/Edición: admin, supervisor
- * - Eliminación/Sincronización: solo admin
- * 
- * FLUJO DE USO TÍPICO:
- * 1. Técnico consulta kits disponibles: GET /kits/predefinidos
- * 2. Al crear ejecución, aplica kit: POST /kits/predefinidos/LINEA_VIDA/aplicar/{ejecucionId}
- * 3. Sistema crea automáticamente todos los checklists necesarios
- * 4. Técnico verifica items en campo usando ChecklistsController
+ * ENDPOINTS:
+ * - GET    /kits                                      → Listar kits activos
+ * - GET    /kits/:id                                  → Obtener kit específico
+ * - POST   /kits                                      → Crear kit personalizado
+ * - PUT    /kits/:id                                  → Actualizar kit
+ * - PATCH  /kits/:id/estado                           → Cambiar estado
+ * - DELETE /kits/:id                                  → Desactivar kit
+ * - GET    /kits/predefinidos                         → Listar kits hardcoded
+ * - GET    /kits/predefinidos/:tipo                   → Obtener kit predefinido
+ * - POST   /kits/predefinidos/sync                    → Sincronizar a BD
+ * - POST   /kits/:id/aplicar/:ejecucionId             → Aplicar kit guardado
+ * - POST   /kits/predefinidos/:tipo/aplicar/:ejecucionId → Aplicar kit predefinido
  * 
  * SEGURIDAD:
- * - Requiere JWT válido (@UseGuards(JwtAuthGuard))
- * - Valida roles específicos (@Roles decorator)
- * - Audita todas las modificaciones
+ * - JWT requerido en todos los endpoints
+ * - RBAC: admin/supervisor para escritura, todos para lectura
+ * - Rate limiting por tipo de operación
+ * - Validación de DTOs con class-validator
  * 
  * ═══════════════════════════════════════════════════════════════════════════
  */
@@ -49,12 +39,15 @@ import {
     Get,
     Post,
     Put,
+    Patch,
     Delete,
     Param,
     Body,
     UseGuards,
     HttpCode,
     HttpStatus,
+    Logger,
+    Req,
 } from '@nestjs/common';
 import {
     ApiTags,
@@ -64,11 +57,11 @@ import {
     ApiResponse,
     ApiBody,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { KitsService } from './kits.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
-import { CurrentUser, JwtPayload } from '../../common/decorators/current-user.decorator';
 import { CreateKitDto, UpdateKitDto } from './dto/kit.dto';
 
 @ApiTags('Kits Típicos')
@@ -76,49 +69,257 @@ import { CreateKitDto, UpdateKitDto } from './dto/kit.dto';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class KitsController {
+    private readonly logger = new Logger(KitsController.name);
+
     constructor(private readonly kitsService: KitsService) { }
 
+    // ═══════════════════════════════════════════════════════════════════════
+    // KITS GUARDADOS EN BD
+    // ═══════════════════════════════════════════════════════════════════════
+
     /**
-     * ✅ OBTENER TODOS LOS KITS ACTIVOS
-     * GET /kits
+     * ✅ LISTAR TODOS LOS KITS ACTIVOS
      */
     @Get()
+    @Throttle({ default: { limit: 100, ttl: 60000 } })
     @ApiOperation({
-        summary: 'Obtener todos los kits típicos activos',
-        description:
-            'Lista todos los kits almacenados en la base de datos que están marcados como activos',
+        summary: 'Listar kits típicos activos',
+        description: 'Obtiene todos los kits almacenados en BD que están activos',
     })
-    @ApiResponse({
-        status: 200,
-        description: 'Lista de kits obtenida correctamente',
-        schema: {
-            example: {
-                data: [
-                    {
-                        id: 'uuid',
-                        nombre: 'Kit Inspección Líneas de Vida',
-                        descripcion: 'Herramientas y equipos para...',
-                        duracionEstimadaHoras: 4,
-                        costoEstimado: 150000,
-                        activo: true,
-                    },
-                ],
-            },
-        },
-    })
+    @ApiResponse({ status: 200, description: 'Lista de kits obtenida' })
     async findAll() {
-        return this.kitsService.findAll();
+        const context = { action: 'LIST_KITS' };
+        this.logger.log('Listando kits activos', context);
+
+        try {
+            return await this.kitsService.findAll();
+        } catch (error) {
+            const err = error as Error;
+            this.logger.error('Error listando kits', {
+                ...context,
+                error: err.message,
+                stack: err.stack,
+            });
+            throw error;
+        }
     }
 
     /**
-     * ✅ OBTENER KITS PREDEFINIDOS (HARDCODED)
-     * GET /kits/predefinidos
+     * ✅ OBTENER KIT POR ID
+     */
+    @Get(':id')
+    @Throttle({ default: { limit: 100, ttl: 60000 } })
+    @ApiOperation({ summary: 'Obtener kit por ID' })
+    @ApiParam({ name: 'id', description: 'UUID del kit' })
+    @ApiResponse({ status: 200, description: 'Kit obtenido' })
+    @ApiResponse({ status: 404, description: 'Kit no encontrado' })
+    async findOne(@Param('id') id: string) {
+        const context = { action: 'GET_KIT', kitId: id };
+        this.logger.log('Obteniendo kit', context);
+
+        try {
+            return await this.kitsService.findOne(id);
+        } catch (error) {
+            const err = error as Error;
+            this.logger.error('Error obteniendo kit', {
+                ...context,
+                error: err.message,
+                stack: err.stack,
+            });
+            throw error;
+        }
+    }
+
+    /**
+     * ✅ CREAR KIT PERSONALIZADO
+     */
+    @Post()
+    @Roles('admin', 'supervisor')
+    @Throttle({ default: { limit: 20, ttl: 60000 } })
+    @HttpCode(HttpStatus.CREATED)
+    @ApiOperation({
+        summary: 'Crear kit típico personalizado',
+        description: 'Crea un nuevo kit adaptado a necesidades específicas',
+    })
+    @ApiBody({ type: CreateKitDto })
+    @ApiResponse({ status: 201, description: 'Kit creado exitosamente' })
+    @ApiResponse({ status: 400, description: 'Datos inválidos' })
+    @ApiResponse({ status: 403, description: 'Permisos insuficientes' })
+    async create(@Body() dto: CreateKitDto, @Req() req: any) {
+        const context = {
+            action: 'CREATE_KIT',
+            userId: req.user?.userId,
+            kitNombre: dto.nombre,
+        };
+        this.logger.log('Creando kit personalizado', context);
+
+        try {
+            const result = await this.kitsService.create(dto);
+
+            this.logger.log('Kit creado exitosamente', {
+                ...context,
+                kitId: result.data?.id,
+            });
+
+            return result;
+        } catch (error) {
+            const err = error as Error;
+            this.logger.error('Error creando kit', {
+                ...context,
+                error: err.message,
+                stack: err.stack,
+            });
+            throw error;
+        }
+    }
+
+    /**
+     * ✅ ACTUALIZAR KIT EXISTENTE
+     */
+    @Put(':id')
+    @Roles('admin', 'supervisor')
+    @Throttle({ default: { limit: 20, ttl: 60000 } })
+    @ApiOperation({ summary: 'Actualizar kit existente' })
+    @ApiParam({ name: 'id', description: 'UUID del kit' })
+    @ApiBody({ type: UpdateKitDto })
+    @ApiResponse({ status: 200, description: 'Kit actualizado' })
+    @ApiResponse({ status: 404, description: 'Kit no encontrado' })
+    @ApiResponse({ status: 403, description: 'Permisos insuficientes' })
+    async update(
+        @Param('id') id: string,
+        @Body() dto: UpdateKitDto,
+        @Req() req: any,
+    ) {
+        const context = {
+            action: 'UPDATE_KIT',
+            kitId: id,
+            userId: req.user?.userId,
+        };
+        this.logger.log('Actualizando kit', context);
+
+        try {
+            const result = await this.kitsService.update(id, dto);
+
+            this.logger.log('Kit actualizado exitosamente', context);
+
+            return result;
+        } catch (error) {
+            const err = error as Error;
+            this.logger.error('Error actualizando kit', {
+                ...context,
+                error: err.message,
+                stack: err.stack,
+            });
+            throw error;
+        }
+    }
+
+    /**
+     * ✅ CAMBIAR ESTADO DE KIT
+     */
+    @Patch(':id/estado')
+    @Roles('admin', 'supervisor')
+    @Throttle({ default: { limit: 20, ttl: 60000 } })
+    @ApiOperation({
+        summary: 'Cambiar estado de un kit',
+        description: 'Activa o desactiva un kit sin eliminarlo',
+    })
+    @ApiParam({ name: 'id', description: 'UUID del kit' })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                estado: {
+                    type: 'string',
+                    enum: ['activo', 'inactivo'],
+                    example: 'inactivo',
+                },
+            },
+        },
+    })
+    @ApiResponse({ status: 200, description: 'Estado actualizado' })
+    @ApiResponse({ status: 404, description: 'Kit no encontrado' })
+    async changeEstado(
+        @Param('id') id: string,
+        @Body('estado') estado: string,
+        @Req() req: any,
+    ) {
+        const context = {
+            action: 'CHANGE_KIT_ESTADO',
+            kitId: id,
+            estado,
+            userId: req.user?.userId,
+        };
+        this.logger.log('Cambiando estado de kit', context);
+
+        try {
+            const result = await this.kitsService.changeEstado(id, estado);
+
+            this.logger.log('Estado de kit actualizado', context);
+
+            return result;
+        } catch (error) {
+            const err = error as Error;
+            this.logger.error('Error cambiando estado de kit', {
+                ...context,
+                error: err.message,
+                stack: err.stack,
+            });
+            throw error;
+        }
+    }
+
+    /**
+     * ✅ DESACTIVAR KIT (SOFT DELETE)
+     */
+    @Delete(':id')
+    @Roles('admin')
+    @Throttle({ default: { limit: 10, ttl: 60000 } })
+    @ApiOperation({
+        summary: 'Desactivar kit',
+        description: 'Marca el kit como inactivo (no elimina físicamente)',
+    })
+    @ApiParam({ name: 'id', description: 'UUID del kit' })
+    @ApiResponse({ status: 200, description: 'Kit desactivado' })
+    @ApiResponse({ status: 404, description: 'Kit no encontrado' })
+    @ApiResponse({ status: 403, description: 'Solo admin puede desactivar' })
+    async remove(@Param('id') id: string, @Req() req: any) {
+        const context = {
+            action: 'DELETE_KIT',
+            kitId: id,
+            userId: req.user?.userId,
+        };
+        this.logger.log('Desactivando kit', context);
+
+        try {
+            const result = await this.kitsService.remove(id);
+
+            this.logger.log('Kit desactivado exitosamente', context);
+
+            return result;
+        } catch (error) {
+            const err = error as Error;
+            this.logger.error('Error desactivando kit', {
+                ...context,
+                error: err.message,
+                stack: err.stack,
+            });
+            throw error;
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // KITS PREDEFINIDOS (HARDCODED)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /**
+     * ✅ LISTAR KITS PREDEFINIDOS
      */
     @Get('predefinidos')
+    @Throttle({ default: { limit: 100, ttl: 60000 } })
     @ApiOperation({
-        summary: 'Obtener lista de kits predefinidos',
-        description:
-            'Retorna los 4 kits predefinidos hardcoded: LINEA_VIDA, CCTV, ELECTRICO, INSTRUMENTACION',
+        summary: 'Listar kits predefinidos',
+        description: 'Obtiene los 4 kits hardcoded: LINEA_VIDA, CCTV, ELECTRICO, INSTRUMENTACION',
     })
     @ApiResponse({
         status: 200,
@@ -130,14 +331,6 @@ export class KitsController {
                         tipo: 'LINEA_VIDA',
                         nombre: 'Kit Inspección Líneas de Vida',
                         descripcion: 'Herramientas y equipos para inspección...',
-                        herramientas: [
-                            { nombre: 'Calibrador pie de rey', cantidad: 1, certificacion: true },
-                        ],
-                        equipos: [
-                            { nombre: 'Arnés de seguridad', cantidad: 1, certificacion: true },
-                        ],
-                        documentos: ['Formato Inspección Líneas de Vida Vertical'],
-                        checklistItems: ['Verificar estado general del cable de acero'],
                         duracionEstimadaHoras: 4,
                     },
                 ],
@@ -145,18 +338,26 @@ export class KitsController {
         },
     })
     async getPredefinedKits() {
-        return this.kitsService.getPredefinedKits();
+        this.logger.log('Obteniendo kits predefinidos');
+
+        try {
+            return await this.kitsService.getPredefinedKits();
+        } catch (error) {
+            const err = error as Error;
+            this.logger.error('Error obteniendo kits predefinidos', {
+                error: err.message,
+                stack: err.stack,
+            });
+            throw error;
+        }
     }
 
     /**
-     * ✅ OBTENER UN KIT PREDEFINIDO ESPECÍFICO
-     * GET /kits/predefinidos/:tipo
+     * ✅ OBTENER KIT PREDEFINIDO POR TIPO
      */
     @Get('predefinidos/:tipo')
-    @ApiOperation({
-        summary: 'Obtener un kit predefinido por tipo',
-        description: 'Tipos válidos: LINEA_VIDA, CCTV, ELECTRICO, INSTRUMENTACION',
-    })
+    @Throttle({ default: { limit: 100, ttl: 60000 } })
+    @ApiOperation({ summary: 'Obtener kit predefinido por tipo' })
     @ApiParam({
         name: 'tipo',
         description: 'Tipo de kit',
@@ -165,28 +366,39 @@ export class KitsController {
     @ApiResponse({ status: 200, description: 'Kit predefinido obtenido' })
     @ApiResponse({ status: 404, description: 'Kit predefinido no encontrado' })
     async getPredefinedKit(@Param('tipo') tipo: string) {
-        return this.kitsService.getPredefinedKit(tipo.toUpperCase());
+        const context = { action: 'GET_PREDEFINED_KIT', tipo };
+        this.logger.log('Obteniendo kit predefinido', context);
+
+        try {
+            return await this.kitsService.getPredefinedKit(tipo.toUpperCase());
+        } catch (error) {
+            const err = error as Error;
+            this.logger.error('Error obteniendo kit predefinido', {
+                ...context,
+                error: err.message,
+                stack: err.stack,
+            });
+            throw error;
+        }
     }
 
     /**
-     * ✅ SINCRONIZAR KITS PREDEFINIDOS A LA BASE DE DATOS
-     * POST /kits/predefinidos/sync
-     * Requiere: rol ADMIN
+     * ✅ SINCRONIZAR KITS PREDEFINIDOS A BD
      */
     @Post('predefinidos/sync')
     @Roles('admin')
+    @Throttle({ default: { limit: 5, ttl: 60000 } })
     @HttpCode(HttpStatus.OK)
     @ApiOperation({
-        summary: 'Sincronizar kits predefinidos a la base de datos',
-        description:
-            'Migra los kits hardcoded a la base de datos para hacerlos editables. Solo admin.',
+        summary: 'Sincronizar kits predefinidos a BD',
+        description: 'Migra los kits hardcoded a la base de datos (solo admin)',
     })
     @ApiResponse({
         status: 200,
         description: 'Sincronización completada',
         schema: {
             example: {
-                message: 'Sincronización de kits completada',
+                message: 'Sincronización completada',
                 data: [
                     { tipo: 'LINEA_VIDA', status: 'created', id: 'uuid' },
                     { tipo: 'CCTV', status: 'exists', id: 'uuid' },
@@ -194,128 +406,56 @@ export class KitsController {
             },
         },
     })
-    async syncPredefinedKits() {
-        return this.kitsService.syncPredefinedKits();
+    async syncPredefinedKits(@Req() req: any) {
+        const context = { action: 'SYNC_PREDEFINED_KITS', userId: req.user?.userId };
+        this.logger.log('Sincronizando kits predefinidos', context);
+
+        try {
+            const result = await this.kitsService.syncPredefinedKits();
+
+            this.logger.log('Kits predefinidos sincronizados', {
+                ...context,
+                count: result.data?.length,
+            });
+
+            return result;
+        } catch (error) {
+            const err = error as Error;
+            this.logger.error('Error sincronizando kits predefinidos', {
+                ...context,
+                error: err.message,
+                stack: err.stack,
+            });
+            throw error;
+        }
     }
 
-    /**
-     * ✅ OBTENER UN KIT POR ID
-     * GET /kits/:id
-     */
-    @Get(':id')
-    @ApiOperation({ summary: 'Obtener un kit por ID' })
-    @ApiParam({ name: 'id', description: 'UUID del kit' })
-    @ApiResponse({ status: 200, description: 'Kit obtenido correctamente' })
-    @ApiResponse({ status: 404, description: 'Kit no encontrado' })
-    async findOne(@Param('id') id: string) {
-        return this.kitsService.findOne(id);
-    }
+    // ═══════════════════════════════════════════════════════════════════════
+    // APLICACIÓN DE KITS A EJECUCIONES
+    // ═══════════════════════════════════════════════════════════════════════
 
     /**
-     * ✅ CREAR UN NUEVO KIT PERSONALIZADO
-     * POST /kits
-     * Requiere: rol ADMIN o SUPERVISOR
-     */
-    @Post()
-    @Roles('admin', 'supervisor')
-    @HttpCode(HttpStatus.CREATED)
-    @ApiOperation({
-        summary: 'Crear un nuevo kit típico personalizado',
-        description: 'Permite crear kits adaptados a necesidades específicas del cliente',
-    })
-    @ApiBody({
-        type: CreateKitDto,
-        examples: {
-            example1: {
-                summary: 'Kit personalizado ejemplo',
-                value: {
-                    nombre: 'Kit Mantenimiento Predictivo',
-                    descripcion: 'Kit especializado para análisis vibracional',
-                    herramientas: [
-                        { nombre: 'Analizador de vibraciones', cantidad: 1, certificacion: true },
-                    ],
-                    equipos: [{ nombre: 'EPP completo', cantidad: 1, certificacion: true }],
-                    documentos: ['Formato de análisis vibracional'],
-                    checklistItems: ['Tomar lecturas en puntos críticos'],
-                    duracionEstimadaHoras: 6,
-                    costoEstimado: 500000,
-                },
-            },
-        },
-    })
-    @ApiResponse({ status: 201, description: 'Kit creado exitosamente' })
-    @ApiResponse({ status: 403, description: 'No tiene permisos suficientes' })
-    async create(@Body() dto: CreateKitDto) {
-        return this.kitsService.create(dto);
-    }
-
-    /**
-     * ✅ ACTUALIZAR UN KIT EXISTENTE
-     * PUT /kits/:id
-     * Requiere: rol ADMIN o SUPERVISOR
-     */
-    @Put(':id')
-    @Roles('admin', 'supervisor')
-    @ApiOperation({ summary: 'Actualizar un kit típico existente' })
-    @ApiParam({ name: 'id', description: 'UUID del kit a actualizar' })
-    @ApiBody({ type: UpdateKitDto })
-    @ApiResponse({ status: 200, description: 'Kit actualizado correctamente' })
-    @ApiResponse({ status: 404, description: 'Kit no encontrado' })
-    @ApiResponse({ status: 403, description: 'No tiene permisos suficientes' })
-    async update(@Param('id') id: string, @Body() dto: UpdateKitDto) {
-        return this.kitsService.update(id, dto);
-    }
-
-    /**
-     * ✅ DESACTIVAR UN KIT (SOFT DELETE)
-     * DELETE /kits/:id
-     * Requiere: rol ADMIN
-     */
-    @Delete(':id')
-    @Roles('admin')
-    @ApiOperation({
-        summary: 'Desactivar un kit típico',
-        description: 'No elimina físicamente, solo marca como inactivo',
-    })
-    @ApiParam({ name: 'id', description: 'UUID del kit a desactivar' })
-    @ApiResponse({ status: 200, description: 'Kit desactivado correctamente' })
-    @ApiResponse({ status: 404, description: 'Kit no encontrado' })
-    @ApiResponse({ status: 403, description: 'No tiene permisos suficientes' })
-    async remove(@Param('id') id: string) {
-        return this.kitsService.remove(id);
-    }
-
-    /**
-     * ✅ APLICAR KIT GUARDADO A UNA EJECUCIÓN
-     * POST /kits/:id/aplicar/:ejecucionId
-     * 
-     * Crea automáticamente todos los checklists necesarios basados en el kit
+     * ✅ APLICAR KIT GUARDADO A EJECUCIÓN
      */
     @Post(':id/aplicar/:ejecucionId')
+    @Throttle({ default: { limit: 30, ttl: 60000 } })
     @ApiOperation({
-        summary: 'Aplicar kit guardado a una ejecución',
-        description:
-            'Crea automáticamente todos los checklists de verificación (herramientas, equipos, actividades) para la ejecución especificada',
+        summary: 'Aplicar kit guardado a ejecución',
+        description: 'Crea automáticamente checklists basados en el kit',
     })
-    @ApiParam({ name: 'id', description: 'UUID del kit a aplicar' })
+    @ApiParam({ name: 'id', description: 'UUID del kit' })
     @ApiParam({ name: 'ejecucionId', description: 'UUID de la ejecución' })
     @ApiResponse({
         status: 200,
-        description: 'Kit aplicado correctamente, checklists creados',
+        description: 'Kit aplicado correctamente',
         schema: {
             example: {
-                message: 'Kit aplicado a la ejecución correctamente',
+                message: 'Kit aplicado correctamente',
                 data: {
-                    kitAplicado: 'Kit Inspección Líneas de Vida',
+                    kitAplicado: 'Kit Inspección',
                     totalHerramientas: 6,
                     totalEquipos: 6,
-                    totalActividades: 10,
                     itemsCreados: 22,
-                    checklist: {
-                        id: 'uuid',
-                        nombre: 'Kit: Kit Inspección Líneas de Vida',
-                        items: [],
-                    },
                 },
             },
         },
@@ -324,68 +464,104 @@ export class KitsController {
     async applyKitToExecution(
         @Param('id') kitId: string,
         @Param('ejecucionId') ejecucionId: string,
-        @CurrentUser() user: JwtPayload,
+        @Req() req: any,
     ) {
-        return this.kitsService.applyKitToExecution(kitId, ejecucionId, user.userId);
+        const context = {
+            action: 'APPLY_KIT',
+            kitId,
+            ejecucionId,
+            userId: req.user?.userId,
+        };
+        this.logger.log('Aplicando kit a ejecución', context);
+
+        try {
+            const result = await this.kitsService.applyKitToExecution(
+                kitId,
+                ejecucionId,
+                req.user?.userId || 'system',
+            );
+
+            this.logger.log('Kit aplicado exitosamente', {
+                ...context,
+                itemsCreados: result.data?.itemsCreados,
+            });
+
+            return result;
+        } catch (error) {
+            const err = error as Error;
+            this.logger.error('Error aplicando kit', {
+                ...context,
+                error: err.message,
+                stack: err.stack,
+            });
+            throw error;
+        }
     }
 
     /**
-     * ✅ APLICAR KIT PREDEFINIDO A UNA EJECUCIÓN
-     * POST /kits/predefinidos/:tipo/aplicar/:ejecucionId
-     * 
-     * Usa los kits hardcoded para crear checklists organizados
+     * ✅ APLICAR KIT PREDEFINIDO A EJECUCIÓN
      */
     @Post('predefinidos/:tipo/aplicar/:ejecucionId')
+    @Throttle({ default: { limit: 30, ttl: 60000 } })
     @ApiOperation({
-        summary: 'Aplicar kit predefinido a una ejecución',
-        description:
-            'Aplica un kit predefinido (LINEA_VIDA, CCTV, etc.) creando todos los checklists con emojis visuales',
+        summary: 'Aplicar kit predefinido a ejecución',
+        description: 'Aplica kit hardcoded creando checklists con emojis',
     })
     @ApiParam({
         name: 'tipo',
-        description: 'Tipo de kit predefinido',
+        description: 'Tipo de kit',
         enum: ['LINEA_VIDA', 'CCTV', 'ELECTRICO', 'INSTRUMENTACION'],
     })
     @ApiParam({ name: 'ejecucionId', description: 'UUID de la ejecución' })
     @ApiResponse({
         status: 200,
-        description: 'Kit predefinido aplicado correctamente',
+        description: 'Kit predefinido aplicado',
         schema: {
             example: {
-                message: 'Kit "Kit Inspección Líneas de Vida" aplicado correctamente',
+                message: 'Kit "LINEA_VIDA" aplicado correctamente',
                 data: {
                     kitAplicado: 'Kit Inspección Líneas de Vida',
                     duracionEstimada: '4 horas',
-                    totalHerramientas: 6,
-                    totalEquipos: 6,
-                    totalDocumentos: 4,
-                    totalActividades: 10,
                     itemsCreados: 26,
-                    checklist: {
-                        id: 'uuid',
-                        nombre: 'Kit Inspección Líneas de Vida',
-                        items: [
-                            {
-                                nombre: '🔧 Calibrador pie de rey (Cant: 1)',
-                                observaciones: '⚠️ CERTIFICACIÓN REQUERIDA',
-                            },
-                        ],
-                    },
                 },
             },
         },
     })
-    @ApiResponse({ status: 404, description: 'Kit predefinido o ejecución no encontrada' })
+    @ApiResponse({ status: 404, description: 'Kit o ejecución no encontrada' })
     async applyPredefinedKitToExecution(
         @Param('tipo') tipo: string,
         @Param('ejecucionId') ejecucionId: string,
-        @CurrentUser() user: JwtPayload,
+        @Req() req: any,
     ) {
-        return this.kitsService.applyPredefinedKitToExecution(
-            tipo.toUpperCase(),
+        const context = {
+            action: 'APPLY_PREDEFINED_KIT',
+            tipo,
             ejecucionId,
-            user.userId,
-        );
+            userId: req.user?.userId,
+        };
+        this.logger.log('Aplicando kit predefinido', context);
+
+        try {
+            const result = await this.kitsService.applyPredefinedKitToExecution(
+                tipo.toUpperCase(),
+                ejecucionId,
+                req.user?.userId || 'system',
+            );
+
+            this.logger.log('Kit predefinido aplicado exitosamente', {
+                ...context,
+                itemsCreados: result.data?.itemsCreados,
+            });
+
+            return result;
+        } catch (error) {
+            const err = error as Error;
+            this.logger.error('Error aplicando kit predefinido', {
+                ...context,
+                error: err.message,
+                stack: err.stack,
+            });
+            throw error;
+        }
     }
 }
-

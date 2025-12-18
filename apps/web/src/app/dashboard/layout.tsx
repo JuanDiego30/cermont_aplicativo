@@ -13,6 +13,11 @@ const AsistenteIA = dynamic(
   { ssr: false }
 );
 
+const MobileBottomNav = dynamic(
+  () => import("@/components/layout/MobileBottomNav"),
+  { ssr: false }
+);
+
 const OfflineIndicator = dynamic(
   () => import("@/components/offline/OfflineIndicator"),
   { ssr: false }
@@ -35,11 +40,15 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
         className={`flex-1 transition-all duration-300 ease-in-out ${mainContentMargin}`}
       >
         <AppHeader />
-        <main className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+        {/* Added pb-24 for mobile bottom nav, md:pb-6 for desktop */}
+        <main className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6 pb-24 md:pb-6">
           {children}
         </main>
       </div>
-      
+
+      {/* Mobile Bottom Navigation */}
+      <MobileBottomNav />
+
       {/* Componentes globales flotantes */}
       <AsistenteIA />
       <OfflineIndicator />
@@ -60,3 +69,4 @@ export default function DashboardLayout({
     </ProtectedRoute>
   );
 }
+

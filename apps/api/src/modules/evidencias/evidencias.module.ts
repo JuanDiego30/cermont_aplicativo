@@ -13,6 +13,7 @@ import {
     UploadEvidenciaUseCase,
     ListEvidenciasByOrdenUseCase,
     DeleteEvidenciaUseCase,
+    ListAllEvidenciasUseCase,
 } from './application/use-cases';
 
 // Infrastructure
@@ -24,6 +25,7 @@ const useCaseProviders = [
     UploadEvidenciaUseCase,
     ListEvidenciasByOrdenUseCase,
     DeleteEvidenciaUseCase,
+    ListAllEvidenciasUseCase,
 ];
 
 @Module({

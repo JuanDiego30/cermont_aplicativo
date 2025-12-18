@@ -3,20 +3,19 @@
 // ============================================
 // OFFLINE INDICATOR - Cermont FSM
 // Componente visual para estado offline/sync
+// Versión compacta para móvil, expandida en desktop
 // ============================================
 
+import { useState } from 'react';
 import { useOffline } from '@/hooks/use-offline';
 import { cn } from '@/lib/cn';
+import { Wifi, WifiOff, RefreshCw, AlertCircle, ChevronUp, ChevronDown } from 'lucide-react';
 
 interface OfflineIndicatorProps {
   className?: string;
-  position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 }
 
-export function OfflineIndicator({
-  className,
-  position = 'bottom-right'
-}: OfflineIndicatorProps) {
+export function OfflineIndicator({ className }: OfflineIndicatorProps) {
   const {
     isOnline,
     isSyncing,
@@ -27,61 +26,189 @@ export function OfflineIndicator({
     manualSync
   } = useOffline();
 
-  // Always show the indicator, but minimal style when online/synced
-  // if (isOnline && pendingItems === 0 && !syncError) {
-  //   return null;
-  // }
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const positionClasses = {
-    'bottom-right': 'bottom-4 right-4',
-    'bottom-left': 'bottom-4 left-4',
-    'top-right': 'top-4 right-4',
-    'top-left': 'top-4 left-4',
-  };
-
-  return (
-    <div
+  // ============================================
+  // MOBILE VIEW - Compact icon only
+  // ============================================
+  const MobileIndicator = () => (
+    <button
+      onClick={() => setIsExpanded(!isExpanded)}
       className={cn(
-        'fixed z-50 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700',
-        'rounded-lg shadow-lg max-w-xs transition-all duration-300',
-        positionClasses[position],
+        'fixed top-20 right-4 z-50 md:hidden',
+        'flex items-center justify-center',
+        'w-10 h-10 rounded-full shadow-lg',
+        'transition-all duration-300 ease-out',
+        'active:scale-95',
+        // Background color based on status
+        isOnline && !syncError
+          ? 'bg-emerald-500 hover:bg-emerald-600'
+          : syncError
+            ? 'bg-red-500 hover:bg-red-600'
+            : 'bg-amber-500 hover:bg-amber-600',
         className
       )}
     >
-      {/* Estado Online (Nuevo) */}
-      {isOnline && !syncError && (
-        <div className="mb-3 p-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-400 dark:border-emerald-600 rounded text-emerald-800 dark:text-emerald-200 text-sm flex items-center gap-2">
-          <WifiIcon className="w-4 h-4 shrink-0" />
-          <span>Conectado (Online)</span>
+      {/* Icon */}
+      {isSyncing ? (
+        <RefreshCw className="w-5 h-5 text-white animate-spin" />
+      ) : isOnline ? (
+        <Wifi className="w-5 h-5 text-white" />
+      ) : (
+        <WifiOff className="w-5 h-5 text-white" />
+      )}
+
+      {/* Pending items badge */}
+      {pendingItems > 0 && (
+        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white ring-2 ring-white">
+          {pendingItems > 9 ? '9+' : pendingItems}
+        </span>
+      )}
+
+      {/* Error indicator */}
+      {syncError && (
+        <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-white">
+          <AlertCircle className="w-3 h-3 text-red-500" />
+        </span>
+      )}
+    </button>
+  );
+
+  // ============================================
+  // MOBILE EXPANDED PANEL
+  // ============================================
+  const MobileExpandedPanel = () => (
+    <div
+      className={cn(
+        'fixed top-32 right-4 z-50 md:hidden',
+        'w-64 p-4 rounded-xl shadow-xl',
+        'bg-white dark:bg-gray-800',
+        'border border-gray-200 dark:border-gray-700',
+        'transform transition-all duration-300',
+        isExpanded
+          ? 'opacity-100 translate-y-0'
+          : 'opacity-0 -translate-y-4 pointer-events-none'
+      )}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          {isOnline ? (
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          ) : (
+            <div className="w-2 h-2 rounded-full bg-amber-500" />
+          )}
+          <span className="text-sm font-medium text-gray-900 dark:text-white">
+            {isOnline ? 'Conectado' : 'Sin conexión'}
+          </span>
+        </div>
+        <button
+          onClick={() => setIsExpanded(false)}
+          className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+        >
+          <ChevronUp className="w-4 h-4 text-gray-500" />
+        </button>
+      </div>
+
+      {/* Pending items */}
+      {pendingItems > 0 && (
+        <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+          {pendingItems} cambio{pendingItems > 1 ? 's' : ''} pendiente{pendingItems > 1 ? 's' : ''}
         </div>
       )}
-      {/* Estado Offline */}
+
+      {/* Sync error */}
+      {syncError && (
+        <div className="flex items-center gap-2 p-2 mb-3 text-xs text-red-600 bg-red-50 dark:bg-red-900/20 rounded-lg">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span className="truncate">{syncError}</span>
+        </div>
+      )}
+
+      {/* Sync progress */}
+      {isSyncing && progress && (
+        <div className="mb-3">
+          <div className="flex justify-between text-xs text-gray-500 mb-1">
+            <span>Sincronizando...</span>
+            <span>{progress.current}/{progress.total}</span>
+          </div>
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+            <div
+              className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+              style={{ width: `${(progress.current / progress.total) * 100}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Last sync */}
+      {lastSync && (
+        <div className="text-xs text-gray-400">
+          Última sync: {formatRelativeTime(lastSync)}
+        </div>
+      )}
+
+      {/* Sync button */}
+      {pendingItems > 0 && !isSyncing && isOnline && (
+        <button
+          onClick={() => manualSync()}
+          className="w-full mt-3 px-3 py-2 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center justify-center gap-2"
+        >
+          <RefreshCw className="w-3 h-3" />
+          Sincronizar ahora
+        </button>
+      )}
+    </div>
+  );
+
+  // ============================================
+  // DESKTOP VIEW - Full indicator
+  // ============================================
+  const DesktopIndicator = () => (
+    <div
+      className={cn(
+        'fixed bottom-24 right-4 z-40 hidden md:block',
+        'p-4 bg-white dark:bg-gray-800',
+        'border border-gray-200 dark:border-gray-700',
+        'rounded-lg shadow-lg max-w-xs transition-all duration-300',
+        className
+      )}
+    >
+      {/* Online status - Removed as per user request (redundant with header icon) */}
+      {/* {isOnline && !syncError && (
+        <div className="mb-3 p-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-400 dark:border-emerald-600 rounded text-emerald-800 dark:text-emerald-200 text-sm flex items-center gap-2">
+          <Wifi className="w-4 h-4 shrink-0" />
+          <span>Conectado (Online)</span>
+        </div>
+      )} */ }
+
+      {/* Offline status */}
       {!isOnline && (
         <div className="mb-3 p-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-400 dark:border-yellow-600 rounded text-yellow-800 dark:text-yellow-200 text-sm flex items-center gap-2">
-          <WifiOffIcon className="w-4 h-4 shrink-0" />
+          <WifiOff className="w-4 h-4 shrink-0" />
           <span>Modo offline. Los cambios se sincronizarán cuando estés conectado.</span>
         </div>
       )}
 
-      {/* Items pendientes */}
+      {/* Pending items */}
       {pendingItems > 0 && (
         <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-400 dark:border-blue-600 rounded text-blue-800 dark:text-blue-200 text-sm flex items-center gap-2">
-          <CloudUploadIcon className="w-4 h-4 shrink-0" />
+          <RefreshCw className="w-4 h-4 shrink-0" />
           <span>
             {pendingItems} cambio{pendingItems > 1 ? 's' : ''} pendiente{pendingItems > 1 ? 's' : ''}
           </span>
         </div>
       )}
 
-      {/* Error de sincronización */}
+      {/* Sync error */}
       {syncError && (
         <div className="mb-3 p-2 bg-red-50 dark:bg-red-900/20 border border-red-400 dark:border-red-600 rounded text-red-800 dark:text-red-200 text-sm flex items-center gap-2">
-          <AlertCircleIcon className="w-4 h-4 shrink-0" />
+          <AlertCircle className="w-4 h-4 shrink-0" />
           <span>Error: {syncError}</span>
         </div>
       )}
 
-      {/* Progreso de sincronización */}
+      {/* Sync progress */}
       {isSyncing && progress && (
         <div className="mb-3">
           <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-1">
@@ -97,7 +224,7 @@ export function OfflineIndicator({
         </div>
       )}
 
-      {/* Acciones */}
+      {/* Actions */}
       <div className="flex items-center gap-2">
         {pendingItems > 0 && !isSyncing && isOnline && (
           <button
@@ -110,7 +237,7 @@ export function OfflineIndicator({
 
         {isSyncing && (
           <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <SpinnerIcon className="w-4 h-4 animate-spin" />
+            <RefreshCw className="w-4 h-4 animate-spin" />
             <span>Sincronizando...</span>
           </div>
         )}
@@ -122,6 +249,14 @@ export function OfflineIndicator({
         )}
       </div>
     </div>
+  );
+
+  return (
+    <>
+      <MobileIndicator />
+      <MobileExpandedPanel />
+      <DesktopIndicator />
+    </>
   );
 }
 
@@ -141,50 +276,6 @@ function formatRelativeTime(date: Date): string {
   if (diffHours < 24) return `hace ${diffHours}h`;
 
   return date.toLocaleDateString();
-}
-
-// ============================================
-// ICONS
-// ============================================
-
-function WifiOffIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    </svg>
-  );
-}
-
-function WifiIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
-    </svg>
-  );
-}
-
-function CloudUploadIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-    </svg>
-  );
-}
-
-function AlertCircleIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-  );
-}
-
-function SpinnerIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-    </svg>
-  );
 }
 
 export default OfflineIndicator;

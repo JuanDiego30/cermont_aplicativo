@@ -9,6 +9,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useSidebar } from "../context/SidebarContext";
 import { Menu, Bell, Sun, Moon, Search, Settings, LogOut, User, ChevronDown } from "lucide-react";
+import { HeaderConnectionIndicator } from "@/components/ui/HeaderConnectionIndicator";
 
 const AppHeader: React.FC = () => {
     const { toggleMobileSidebar, toggleSidebar } = useSidebar();
@@ -96,6 +97,9 @@ const AppHeader: React.FC = () => {
                     >
                         {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                     </button>
+
+                    {/* Connection Status Indicator */}
+                    <HeaderConnectionIndicator />
 
                     {/* Notifications */}
                     <div className="relative" ref={notificationRef}>

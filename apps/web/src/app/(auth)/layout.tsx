@@ -67,6 +67,7 @@ function AuthBranding() {
               fill
               className="object-contain"
               priority
+              sizes="128px"
             />
           </div>
         </div>

@@ -47,7 +47,7 @@ export interface PaginatedOrdenes {
 
 const DIAS_RECIENTES = 7;
 const ORDENES_RECIENTES_LIMIT = 10;
-const ESTADOS_PENDIENTES = ['planeacion', 'ejecucion', 'pausada'];
+const ESTADOS_PENDIENTES = ['planeacion', 'ejecucion', 'pausada'] as const;
 const ESTADO_COMPLETADA = 'completada';
 
 // ============================================================================
@@ -116,7 +116,7 @@ export class DashboardService {
           where: { estado: ESTADO_COMPLETADA }
         }),
         this.prisma.order.count({
-          where: { estado: { in: ESTADOS_PENDIENTES as any } }
+          where: { estado: { in: [...ESTADOS_PENDIENTES] } }
         }),
         this.prisma.user.count({
           where: { role: 'tecnico', active: true }

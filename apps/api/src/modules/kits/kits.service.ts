@@ -343,6 +343,20 @@ export class KitsService {
     }
 
     /**
+     * Cambiar estado activo/inactivo
+     */
+    async changeEstado(id: string, estado: string) {
+        await this.findOne(id);
+        const nuevoEstado = estado === 'disponible' || estado === 'active' || estado === 'activo';
+
+        const kit = await this.prisma.kitTipico.update({
+            where: { id },
+            data: { activo: nuevoEstado },
+        });
+        return { message: 'Estado actualizado', data: kit };
+    }
+
+    /**
      * Obtener todos los kits predefinidos (hardcoded)
      */
     async getPredefinedKits() {

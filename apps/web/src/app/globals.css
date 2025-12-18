@@ -271,6 +271,24 @@
   background-color: #344054;
 }
 
+/* Alias for no-scrollbar (compatibility with scrollbar-hide) */
+@utility scrollbar-hide {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* iOS safe area padding for bottom navigation */
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
 @layer utilities {
   input[type='date']::-webkit-inner-spin-button,
   input[type='time']::-webkit-inner-spin-button,

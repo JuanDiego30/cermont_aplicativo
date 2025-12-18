@@ -149,15 +149,15 @@ const AppSidebar: React.FC = () => {
                         <button
                             onClick={() => handleSubmenuToggle(index)}
                             className={`menu-item group ${openSubmenu?.index === index
-                                    ? "menu-item-active"
-                                    : "menu-item-inactive"
+                                ? "menu-item-active"
+                                : "menu-item-inactive"
                                 } cursor-pointer ${!isExpanded && !isHovered ? "lg:justify-center" : "lg:justify-start"
                                 }`}
                         >
                             <span
                                 className={`${openSubmenu?.index === index
-                                        ? "menu-item-icon-active"
-                                        : "menu-item-icon-inactive"
+                                    ? "menu-item-icon-active"
+                                    : "menu-item-icon-inactive"
                                     }`}
                             >
                                 {nav.icon}
@@ -181,8 +181,8 @@ const AppSidebar: React.FC = () => {
                             >
                                 <span
                                     className={`${isActive(nav.path)
-                                            ? "menu-item-icon-active"
-                                            : "menu-item-icon-inactive"
+                                        ? "menu-item-icon-active"
+                                        : "menu-item-icon-inactive"
                                         }`}
                                 >
                                     {nav.icon}
@@ -212,8 +212,8 @@ const AppSidebar: React.FC = () => {
                                         <Link
                                             href={subItem.path}
                                             className={`menu-dropdown-item ${isActive(subItem.path)
-                                                    ? "menu-dropdown-item-active"
-                                                    : "menu-dropdown-item-inactive"
+                                                ? "menu-dropdown-item-active"
+                                                : "menu-dropdown-item-inactive"
                                                 }`}
                                         >
                                             {subItem.name}
@@ -232,10 +232,10 @@ const AppSidebar: React.FC = () => {
         <aside
             className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
         ${isExpanded || isMobileOpen
-                    ? "w-[290px]"
+                    ? "w-72.5"
                     : isHovered
-                        ? "w-[290px]"
-                        : "w-[90px]"
+                        ? "w-72.5"
+                        : "w-22.5"
                 }
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
         lg:translate-x-0`}
@@ -254,7 +254,11 @@ const AppSidebar: React.FC = () => {
                         height={40}
                         className="object-contain transition-[width] duration-200"
                         priority
-                        style={{ width: showFullLogo ? 150 : 40, height: 'auto' }}
+                        style={{
+                            width: showFullLogo ? '150px' : '40px',
+                            height: 'auto',
+                            objectFit: 'contain'
+                        }}
                     />
                 </Link>
             </div>
@@ -263,9 +267,9 @@ const AppSidebar: React.FC = () => {
                     <div className="flex flex-col gap-4">
                         <div>
                             <h2
-                                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered
-                                        ? "lg:justify-center"
-                                        : "justify-start"
+                                className={`mb-4 text-xs uppercase flex leading-5 text-gray-400 ${!isExpanded && !isHovered
+                                    ? "lg:justify-center"
+                                    : "justify-start"
                                     }`}
                             >
                                 {isExpanded || isHovered || isMobileOpen ? (
