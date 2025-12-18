@@ -88,7 +88,7 @@ export const TransitionStateSchema = z.object({
     'PAGO_RECIBIDO',
   ]),
   notas: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type TransitionStateDto = z.infer<typeof TransitionStateSchema>;
