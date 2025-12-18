@@ -2,15 +2,16 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
+import PDFDocument from 'pdfkit';
 
-// Usamos una aproximacion simple sin dependencia de PDFKit
-// Para produccion, instalar pdfkit: npm install pdfkit @types/pdfkit
+// PDFKit está instalado - generación nativa de PDFs sin Chromium
 
 export interface GeneratedPDF {
   nombreArchivo: string;
   rutaArchivo: string;
   url: string;
   tamano: number;
+  formato: 'pdf' | 'html';
 }
 
 @Injectable()
@@ -23,6 +24,239 @@ export class PdfGenerationService {
     if (!fs.existsSync(this.uploadsPath)) {
       fs.mkdirSync(this.uploadsPath, { recursive: true });
     }
+  }
+
+  // =====================================================
+  // GENERACIÓN PDF NATIVA CON PDFKIT (LIGERO - SIN CHROMIUM)
+  // =====================================================
+
+  /**
+   * Genera un PDF nativo usando PDFKit (sin dependencia de Chromium)
+   * Ideal para VPS con recursos limitados
+   */
+  async generarPDFNativo(
+    ordenId: string,
+    tipo: 'informe-tecnico' | 'acta-entrega' = 'informe-tecnico',
+  ): Promise<GeneratedPDF> {
+    const orden = await this.prisma.order.findUnique({
+      where: { id: ordenId },
+      include: {
+        planeacion: { include: { kit: true, items: true } },
+        ejecucion: {
+          include: {
+            checklists: true,
+            tareas: true,
+            evidenciasEjecucion: true,
+          },
+        },
+        costos: true,
+        acta: true,
+      },
+    });
+
+    if (!orden) throw new NotFoundException('Orden no encontrada');
+
+    const nombreArchivo = `${tipo}-${orden.numero.replace(/\//g, '-')}.pdf`;
+    const rutaArchivo = path.join(this.uploadsPath, nombreArchivo);
+
+    return new Promise((resolve, reject) => {
+      const doc = new PDFDocument({
+        size: 'LETTER',
+        margins: { top: 50, bottom: 50, left: 50, right: 50 },
+        info: {
+          Title: `${tipo === 'informe-tecnico' ? 'Informe Técnico' : 'Acta de Entrega'} - ${orden.numero}`,
+          Author: 'CERMONT S.A.S.',
+          Subject: `Orden de Trabajo ${orden.numero}`,
+          Creator: 'Sistema Cermont',
+        },
+      });
+
+      const writeStream = fs.createWriteStream(rutaArchivo);
+      doc.pipe(writeStream);
+
+      // Generar contenido según tipo
+      if (tipo === 'informe-tecnico') {
+        this.generarContenidoInformeTecnicoPDF(doc, orden);
+      } else {
+        this.generarContenidoActaEntregaPDF(doc, orden);
+      }
+
+      doc.end();
+
+      writeStream.on('finish', () => {
+        const stats = fs.statSync(rutaArchivo);
+        this.logger.log(`PDF generado: ${nombreArchivo} (${stats.size} bytes)`);
+        resolve({
+          nombreArchivo,
+          rutaArchivo,
+          url: `/uploads/pdfs/${nombreArchivo}`,
+          tamano: stats.size,
+          formato: 'pdf',
+        });
+      });
+
+      writeStream.on('error', (error) => {
+        this.logger.error(`Error generando PDF: ${error.message}`);
+        reject(error);
+      });
+    });
+  }
+
+  private generarContenidoInformeTecnicoPDF(doc: PDFKit.PDFDocument, orden: any): void {
+    const fecha = new Date().toLocaleDateString('es-CO', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
+    // Header
+    doc.fontSize(24).fillColor('#2563eb').text('CERMONT S.A.S.', { align: 'center' });
+    doc.moveDown(0.3);
+    doc.fontSize(16).fillColor('#1a365d').text('INFORME TÉCNICO DE EJECUCIÓN', { align: 'center' });
+    doc.fontSize(10).fillColor('#4a5568').text('Construcción y Mantenimiento Industrial', { align: 'center' });
+    doc.moveDown(1);
+
+    // Línea separadora
+    doc.moveTo(50, doc.y).lineTo(562, doc.y).stroke('#1a365d');
+    doc.moveDown(1);
+
+    // Información General
+    doc.fontSize(12).fillColor('#1a365d').text('1. INFORMACIÓN GENERAL', { underline: true });
+    doc.moveDown(0.5);
+    doc.fontSize(10).fillColor('#333');
+    doc.text(`Orden de Trabajo: ${orden.numero}`);
+    doc.text(`Fecha del Informe: ${fecha}`);
+    doc.text(`Cliente: ${orden.cliente}`);
+    doc.text(`Ubicación: ${orden.planeacion?.ubicacion || 'No especificada'}`);
+    doc.text(`Estado: ${orden.estado.toUpperCase()}`);
+    doc.text(`Prioridad: ${orden.prioridad.toUpperCase()}`);
+    doc.moveDown(1);
+
+    // Descripción
+    doc.fontSize(12).fillColor('#1a365d').text('2. DESCRIPCIÓN DEL TRABAJO', { underline: true });
+    doc.moveDown(0.5);
+    doc.fontSize(10).fillColor('#333').text(orden.descripcion, { align: 'justify' });
+    doc.moveDown(1);
+
+    // Actividades
+    const tareas = orden.ejecucion?.tareas || [];
+    doc.fontSize(12).fillColor('#1a365d').text('3. ACTIVIDADES EJECUTADAS', { underline: true });
+    doc.moveDown(0.5);
+    if (tareas.length > 0) {
+      tareas.forEach((t: any, i: number) => {
+        doc.fontSize(10).fillColor('#333');
+        doc.text(`${i + 1}. ${t.descripcion} - ${t.completada ? '✓ Completada' : '○ Pendiente'}`);
+      });
+    } else {
+      doc.fontSize(10).fillColor('#718096').text('Sin tareas registradas');
+    }
+    doc.moveDown(1);
+
+    // Checklist
+    const checklists = orden.ejecucion?.checklists || [];
+    doc.fontSize(12).fillColor('#1a365d').text('4. VERIFICACIÓN DE CHECKLIST', { underline: true });
+    doc.moveDown(0.5);
+    const completados = checklists.filter((c: any) => c.completada).length;
+    doc.fontSize(10).fillColor('#333').text(`Completados: ${completados} / ${checklists.length}`);
+    doc.moveDown(1);
+
+    // Datos de ejecución
+    doc.fontSize(12).fillColor('#1a365d').text('5. DATOS DE EJECUCIÓN', { underline: true });
+    doc.moveDown(0.5);
+    doc.fontSize(10).fillColor('#333');
+    doc.text(`Fecha Inicio: ${orden.ejecucion?.fechaInicio ? new Date(orden.ejecucion.fechaInicio).toLocaleDateString('es-CO') : 'N/A'}`);
+    doc.text(`Fecha Término: ${orden.ejecucion?.fechaTermino ? new Date(orden.ejecucion.fechaTermino).toLocaleDateString('es-CO') : 'En progreso'}`);
+    doc.text(`Horas Estimadas: ${orden.ejecucion?.horasEstimadas || 0} horas`);
+    doc.text(`Horas Reales: ${orden.ejecucion?.horasActuales || 0} horas`);
+    doc.text(`Avance: ${orden.ejecucion?.avancePercentaje || 0}%`);
+    doc.moveDown(1);
+
+    // Observaciones
+    doc.fontSize(12).fillColor('#1a365d').text('6. OBSERVACIONES', { underline: true });
+    doc.moveDown(0.5);
+    doc.fontSize(10).fillColor('#333').text(orden.ejecucion?.observaciones || 'Sin observaciones adicionales.', { align: 'justify' });
+    doc.moveDown(2);
+
+    // Firmas
+    doc.fontSize(10).fillColor('#333');
+    const firmaY = doc.y;
+    doc.text('_________________________', 100, firmaY);
+    doc.text('Técnico Responsable', 100, firmaY + 15);
+    doc.text('_________________________', 350, firmaY);
+    doc.text('Supervisor', 350, firmaY + 15);
+
+    // Footer
+    doc.fontSize(8).fillColor('#718096');
+    doc.text(`CERMONT S.A.S. - Arauca, Colombia | Generado el ${fecha}`, 50, 720, { align: 'center' });
+  }
+
+  private generarContenidoActaEntregaPDF(doc: PDFKit.PDFDocument, orden: any): void {
+    const fecha = new Date().toLocaleDateString('es-CO', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+    const totalCostos = orden.costos?.reduce((sum: number, c: any) => sum + c.monto, 0) || 0;
+
+    // Header
+    doc.fontSize(24).fillColor('#2563eb').text('CERMONT S.A.S.', { align: 'center' });
+    doc.moveDown(0.3);
+    doc.fontSize(16).fillColor('#1a365d').text('ACTA DE ENTREGA DE TRABAJOS', { align: 'center' });
+    doc.fontSize(10).fillColor('#4a5568').text('NIT: XXX.XXX.XXX-X | Arauca, Colombia', { align: 'center' });
+    doc.moveDown(1);
+
+    doc.moveTo(50, doc.y).lineTo(562, doc.y).stroke('#1a365d');
+    doc.moveDown(1);
+
+    // Datos del servicio
+    doc.fontSize(12).fillColor('#1a365d').text('DATOS DEL SERVICIO', { underline: true });
+    doc.moveDown(0.5);
+    doc.fontSize(10).fillColor('#333');
+    doc.text(`Orden N°: ${orden.numero}`);
+    doc.text(`Cliente: ${orden.cliente}`);
+    doc.text(`Fecha de Entrega: ${fecha}`);
+    doc.text(`Acta N°: ${orden.acta?.numero || 'Pendiente'}`);
+    doc.moveDown(1);
+
+    // Descripción
+    doc.fontSize(12).fillColor('#1a365d').text('DESCRIPCIÓN DE TRABAJOS REALIZADOS', { underline: true });
+    doc.moveDown(0.5);
+    doc.fontSize(10).fillColor('#333').text(orden.descripcion, { align: 'justify' });
+    doc.moveDown(1);
+
+    // Resumen
+    doc.fontSize(12).fillColor('#1a365d').text('RESUMEN DE EJECUCIÓN', { underline: true });
+    doc.moveDown(0.5);
+    doc.fontSize(10).fillColor('#333');
+    doc.text(`Fecha Inicio: ${orden.ejecucion?.fechaInicio ? new Date(orden.ejecucion.fechaInicio).toLocaleDateString('es-CO') : 'N/A'}`);
+    doc.text(`Fecha Término: ${orden.ejecucion?.fechaTermino ? new Date(orden.ejecucion.fechaTermino).toLocaleDateString('es-CO') : 'N/A'}`);
+    doc.text(`Horas Trabajadas: ${orden.ejecucion?.horasActuales || 0} horas`);
+    doc.text(`Evidencias: ${orden.ejecucion?.evidenciasEjecucion?.length || 0} archivos`);
+    doc.moveDown(1);
+
+    // Conformidad
+    doc.fontSize(12).fillColor('#1a365d').text('CONFORMIDAD', { underline: true });
+    doc.moveDown(0.5);
+    doc.fontSize(10).fillColor('#333').text(
+      'El Cliente declara que ha recibido a satisfacción los trabajos descritos en la presente acta, ' +
+      'los cuales fueron ejecutados conforme a las especificaciones técnicas acordadas.',
+      { align: 'justify' }
+    );
+    doc.moveDown(0.5);
+    doc.fontSize(11).text(`Valor del servicio: $ ${totalCostos.toLocaleString('es-CO')} COP`);
+    doc.moveDown(2);
+
+    // Firmas
+    const firmaY = doc.y;
+    doc.fontSize(10).fillColor('#333');
+    doc.text('_________________________', 100, firmaY);
+    doc.text('ENTREGA - CERMONT S.A.S.', 100, firmaY + 15);
+    doc.text('_________________________', 350, firmaY);
+    doc.text('RECIBE - CLIENTE', 350, firmaY + 15);
+
+    // Footer
+    doc.fontSize(8).fillColor('#718096');
+    doc.text(`Este documento constituye constancia de la entrega formal | Generado el ${fecha}`, 50, 720, { align: 'center' });
   }
 
   // =====================================================
@@ -64,6 +298,7 @@ export class PdfGenerationService {
       rutaArchivo,
       url: `/uploads/pdfs/${nombreArchivo}`,
       tamano: stats.size,
+      formato: 'html' as const,
     };
   }
 
@@ -334,6 +569,7 @@ export class PdfGenerationService {
       rutaArchivo,
       url: `/uploads/pdfs/${nombreArchivo}`,
       tamano: stats.size,
+      formato: 'html' as const,
     };
   }
 

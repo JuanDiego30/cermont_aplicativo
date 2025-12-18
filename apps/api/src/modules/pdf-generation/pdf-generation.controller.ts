@@ -39,6 +39,18 @@ export class PdfGenerationController {
         return this.pdfService.listarPDFs(ordenId);
     }
 
+    @Post('nativo/:ordenId')
+    @ApiOperation({
+        summary: 'Generar PDF nativo (sin Chromium)',
+        description: 'Genera un PDF real usando PDFKit. Más ligero y rápido que HTML.'
+    })
+    generarPDFNativo(
+        @Param('ordenId') ordenId: string,
+        @Query('tipo') tipo: 'informe-tecnico' | 'acta-entrega' = 'informe-tecnico',
+    ): Promise<GeneratedPDF> {
+        return this.pdfService.generarPDFNativo(ordenId, tipo);
+    }
+
     @Get('ver/:nombreArchivo')
     @ApiOperation({ summary: 'Visualizar un PDF generado' })
     async verPDF(

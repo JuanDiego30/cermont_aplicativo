@@ -13,7 +13,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 // Domain
 import { ORDEN_REPOSITORY } from './domain/repositories';
 
-// Application - Use Cases
+// Application - Use Cases & Services
 import {
   ListOrdenesUseCase,
   GetOrdenByIdUseCase,
@@ -22,6 +22,7 @@ import {
   ChangeOrdenEstadoUseCase,
   DeleteOrdenUseCase,
 } from './application/use-cases';
+import { OrderStateService } from './application/services/order-state.service';
 
 // Infrastructure
 import { PrismaOrdenRepository } from './infrastructure/persistence';
@@ -52,12 +53,14 @@ const useCaseProviders = [
     },
     PrismaOrdenRepository,
 
-    // Use Cases
+    // Use Cases & Application Services
     ...useCaseProviders,
+    OrderStateService,
   ],
   exports: [
     ORDEN_REPOSITORY,
     ...useCaseProviders,
+    OrderStateService,
   ],
 })
 export class OrdenesModule { }

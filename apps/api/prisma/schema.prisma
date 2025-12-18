@@ -1,5 +1,5 @@
-// Prisma Schema para Cermont - Sistema de Gestión de Órdenes
-// Versión: 2.0.0 - CORREGIDO
+// Prisma Schema para Cermont
+// Version 2.0.0
 
 generator client {
   provider = "prisma-client-js"
@@ -112,8 +112,56 @@ enum TipoArchivo {
   BACKUP_COMPLETO
 }
 
+// Estado detallado de orden (14 pasos del flujo)
+enum OrderSubState {
+  // Solicitud (Pasos 1-4)
+  SOLICITUD_RECIBIDA        // Paso 1: Cliente solicita servicio
+  VISITA_PROGRAMADA         // Paso 2: Visita tÃÂ©cnica programada
+  PROPUESTA_ELABORADA       // Paso 3: Propuesta econÃÂ³mica creada
+  PROPUESTA_APROBADA        // Paso 4: Cliente aprueba propuesta
+  
+  // PlaneaciÃÂ³n (Paso 5)
+  PLANEACION_INICIADA       // 5.1: Cronograma en elaboraciÃÂ³n
+  PLANEACION_APROBADA       // 5.6: PlaneaciÃÂ³n lista
+  
+  // EjecuciÃÂ³n (Paso 6)
+  EJECUCION_INICIADA        // 6.1: Trabajos iniciados
+  EJECUCION_COMPLETADA      // 6.5: Trabajos finalizados
+  
+  // Informe (Paso 7)
+  INFORME_GENERADO          // 7: Informe tÃÂ©cnico entregado
+  
+  // Cierre TÃÂ©cnico (Pasos 8-9)
+  ACTA_ELABORADA            // 8: Acta creada
+  ACTA_FIRMADA              // 9: Acta firmada por cliente
+  
+  // Cierre Administrativo (Pasos 10-13)
+  SES_APROBADA              // 11: SES aprobada en ARIBA
+  FACTURA_APROBADA          // 13: Factura aprobada
+  
+  // Final (Paso 14)
+  PAGO_RECIBIDO             // 14: Pago confirmado
+}
+
+enum TipoAlerta {
+  ACTA_SIN_FIRMAR           // Acta pendiente de firma >7 dÃÂ­as
+  SES_PENDIENTE             // SES sin aprobar >5 dÃÂ­as
+  FACTURA_VENCIDA           // Factura sin pagar
+  RECURSO_FALTANTE          // Kit incompleto
+  CERTIFICACION_VENCIDA     // CertificaciÃÂ³n tÃÂ©cnico prÃÂ³xima a vencer
+  RETRASO_CRONOGRAMA        // Actividad retrasada
+  PROPUESTA_SIN_RESPUESTA   // Propuesta enviada sin respuesta >15 dÃÂ­as
+}
+
+enum PrioridadAlerta {
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
+
 // ============================================
-// MODELS - USUARIOS Y AUTENTICACIÓN
+// MODELS - USUARIOS Y AUTENTICACION
 // ============================================
 
 model User {
@@ -144,6 +192,12 @@ model User {
   checklistsCompletados     ChecklistEjecucion[]       @relation("ChecklistCompletadoPor")
   checklistItemsCompletados ChecklistItemEjecucion[]   @relation("ItemCompletadoPor")
   fotosCargadas             FotoEvidencia[]            @relation("FotoCargadaPor")
+  formulariosCompletados    FormularioInstancia[]      @relation("FormulariosCompletados")
+  
+  // Nuevas relaciones para flujo 14 pasos
+  stateChanges              OrderStateHistory[]        @relation("StateChangeUser")
+  visitasRealizadas         VisitaTecnica[]            @relation("VisitaTecnico")
+  alertasAsignadas          AlertaAutomatica[]         @relation("AlertaUsuario")
 
   @@index([role])
   @@index([active])
@@ -186,7 +240,7 @@ model PasswordResetToken {
 }
 
 // ============================================
-// MODELS - ÓRDENES DE TRABAJO
+// MODELS - ÃâRDENES DE TRABAJO
 // ============================================
 
 model Order {
@@ -195,6 +249,7 @@ model Order {
   descripcion      String
   cliente          String
   estado           OrderStatus   @default(planeacion)
+  subEstado        OrderSubState @default(SOLICITUD_RECIBIDA)
   prioridad        OrderPriority @default(media)
   fechaFinEstimada DateTime?
   fechaInicio      DateTime?
@@ -221,15 +276,24 @@ model Order {
   equiposHES          OrdenEquipoHES[]
   inspeccionesHES     InspeccionHES[]
 
-  acta                 Acta?
-  ses                  SES?
-  factura              Factura?
-  cierreAdministrativo CierreAdministrativo?
+  acta                  Acta?
+  ses                   SES?
+  factura               Factura?
+  cierreAdministrativo  CierreAdministrativo?
+  formularioInstancias  FormularioInstancia[]
+
+  // Nuevas relaciones para flujo 14 pasos
+  visitas       VisitaTecnica[]
+  propuesta     PropuestaEconomica?
+  stateHistory  OrderStateHistory[]
+  comparativa   ComparativaCostos?
+  alertas       AlertaAutomatica[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([estado])
+  @@index([subEstado])
   @@index([cliente])
   @@index([numero])
   @@index([creadorId])
@@ -316,7 +380,7 @@ model AuditLog {
 }
 
 // ============================================
-// PLANEACIÓN Y KITS TÍPICOS
+// PLANEACIÃâN Y KITS TÃÂPICOS
 // ============================================
 
 model KitTipico {
@@ -398,7 +462,7 @@ model ItemPlaneacion {
 }
 
 // ============================================
-// EJECUCIÓN Y SEGUIMIENTO
+// EJECUCIÃâN Y SEGUIMIENTO
 // ============================================
 
 model Ejecucion {
@@ -452,7 +516,7 @@ model TareaEjecucion {
 }
 
 // ============================================
-// CHECKLISTS - TEMPLATES Y EJECUCIÓN
+// CHECKLISTS - TEMPLATES Y EJECUCIÃâN
 // ============================================
 
 model ChecklistTemplate {
@@ -601,7 +665,7 @@ model PushSubscription {
 }
 
 // ============================================
-// INSPECCIÓN LÍNEAS DE VIDA
+// INSPECCIÃâN LÃÂNEAS DE VIDA
 // ============================================
 
 model InspeccionLineaVida {
@@ -843,7 +907,7 @@ model Mantenimiento {
 }
 
 // ============================================
-// FORMULARIOS DINÁMICOS
+// FORMULARIOS DINAMICOS
 // ============================================
 
 model FormularioTemplate {
@@ -1045,7 +1109,7 @@ model CierreAdministrativo {
 }
 
 // ============================================
-// ARCHIVO HISTÓRICO
+// ARCHIVO HISTÃâRICO
 // ============================================
 
 model ArchivoHistorico {
@@ -1080,7 +1144,7 @@ model ArchivoHistorico {
 }
 
 // ============================================
-// MODELOS ADICIONALES - KITS Y SINCRONIZACIÓN
+// MODELOS ADICIONALES - KITS Y SINCRONIZACIÃâN
 // ============================================
 
 // Modelo Kit (usado en kits.repository.ts)
@@ -1219,3 +1283,229 @@ model PendingSync {
   @@map("pending_syncs")
 }
 
+// ============================================
+// DYNAMIC FORMS ENGINE
+// ============================================
+
+enum TipoFormulario {
+  CHECKLIST
+  INSPECCION
+  MANTENIMIENTO
+  REPORTE
+  CERTIFICACION
+  HES
+  OTRO
+}
+
+/// Template de formulario dinÃÂ¡mico
+/// Define la estructura y campos de un formulario reutilizable
+model FormTemplate {
+  id          String         @id @default(uuid())
+  nombre      String         @unique
+  tipo        TipoFormulario
+  categoria   String         // "HES", "LÃÂ­neas de Vida", "CCTV", etc.
+  version     String         @default("1.0")
+  activo      Boolean        @default(true)
+
+  // JSON Schema completo del formulario
+  schema      Json           // Estructura de secciones y campos
+  uiSchema    Json?          // ConfiguraciÃÂ³n UI opcional (colores, layout, etc.)
+
+  // Metadata
+  descripcion String?
+  tags        String[]
+
+  // Relaciones
+  instancias  FormularioInstancia[]
+
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([tipo, activo])
+  @@index([categoria])
+  @@map("form_templates")
+}
+
+/// Instancia de un formulario completado
+/// Almacena los datos capturados para un formulario especÃÂ­fico
+model FormularioInstancia {
+  id              String        @id @default(uuid())
+  templateId      String
+  template        FormTemplate  @relation(fields: [templateId], references: [id])
+
+  // RelaciÃÂ³n con orden (opcional)
+  ordenId         String?
+  orden           Order?        @relation(fields: [ordenId], references: [id])
+
+  // Datos capturados del formulario
+  data            Json          // Respuestas del formulario en JSON
+
+  // Quien completÃÂ³ el formulario
+  completadoPorId String?
+  completadoPor   User?         @relation("FormulariosCompletados", fields: [completadoPorId], references: [id])
+  completadoEn    DateTime?
+
+  // Estado
+  estado          String        @default("borrador") // borrador, completado, validado
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([templateId])
+  @@index([ordenId])
+  @@index([completadoPorId])
+  @@map("formularios_instancias")
+}
+
+// ============================================
+// MODELS - FLUJO 14 PASOS / STATE MACHINE
+// ============================================
+
+model OrderStateHistory {
+  id          String         @id @default(uuid())
+  ordenId     String
+  orden       Order          @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  
+  fromState   OrderSubState?
+  toState     OrderSubState
+  
+  userId      String?
+  user        User?          @relation("StateChangeUser", fields: [userId], references: [id])
+  
+  notas       String?
+  metadata    Json?          // Datos adicionales del cambio
+  
+  createdAt   DateTime       @default(now())
+  
+  @@index([ordenId, createdAt(sort: Desc)])
+  @@index([userId])
+  @@map("order_state_history")
+}
+
+model VisitaTecnica {
+  id                String    @id @default(uuid())
+  ordenId           String
+  orden             Order     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  
+  fechaProgramada   DateTime
+  fechaRealizada    DateTime?
+  duracionMinutos   Int?
+  
+  tecnicoId         String
+  tecnico           User      @relation("VisitaTecnico", fields: [tecnicoId], references: [id])
+  
+  // Datos recolectados en visita
+  mediciones        Json?     // Medidas tomadas en campo
+  fotosUrl          String[]  // URLs de fotos tomadas
+  observaciones     String?
+  coordenadas       Json?     // {lat, lng}
+  
+  completada        Boolean   @default(false)
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([ordenId])
+  @@index([tecnicoId])
+  @@index([fechaProgramada])
+  @@map("visitas_tecnicas")
+}
+
+model PropuestaEconomica {
+  id                  String    @id @default(uuid())
+  ordenId             String    @unique
+  orden               Order     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  
+  // Costos estimados desglosados
+  costoManoObra       Float     @default(0)
+  costoMateriales     Float     @default(0)
+  costoEquipos        Float     @default(0)
+  costoTransporte     Float     @default(0)
+  otrosCostos         Float     @default(0)
+  
+  // CÃÂ¡lculos
+  subtotal            Float     @default(0)
+  impuestos           Float     @default(0)  // IVA + otros
+  margenUtilidad      Float     @default(0)  // % de ganancia
+  total               Float     @default(0)  // Total a facturar
+  
+  // Estado de la propuesta
+  numeroVersion       Int       @default(1)
+  aprobada            Boolean   @default(false)
+  numeroPO            String?   // Purchase Order del cliente
+  fechaEnvio          DateTime?
+  fechaAprobacion     DateTime?
+  fechaRechazo        DateTime?
+  motivoRechazo       String?
+  
+  // Archivo PDF de la propuesta
+  urlArchivo          String?
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  
+  @@index([ordenId])
+  @@map("propuestas_economicas")
+}
+
+model AlertaAutomatica {
+  id            String          @id @default(uuid())
+  tipo          TipoAlerta
+  prioridad     PrioridadAlerta @default(INFO)
+  
+  ordenId       String
+  orden         Order           @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  
+  titulo        String
+  mensaje       String
+  
+  usuarioId     String?
+  usuario       User?           @relation("AlertaUsuario", fields: [usuarioId], references: [id])
+  
+  leida         Boolean         @default(false)
+  resuelta      Boolean         @default(false)
+  
+  metadata      Json?           // Datos adicionales
+  
+  createdAt     DateTime        @default(now())
+  leidaAt       DateTime?
+  resueltaAt    DateTime?
+  
+  @@index([usuarioId, leida])
+  @@index([tipo, createdAt(sort: Desc)])
+  @@index([ordenId])
+  @@index([prioridad, resuelta])
+  @@map("alertas_automaticas")
+}
+
+model ComparativaCostos {
+  id              String    @id @default(uuid())
+  ordenId         String    @unique
+  orden           Order     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  
+  // Estimados (de la propuesta)
+  estimadoManoObra      Float   @default(0)
+  estimadoMateriales    Float   @default(0)
+  estimadoEquipos       Float   @default(0)
+  estimadoTransporte    Float   @default(0)
+  estimadoOtros         Float   @default(0)
+  totalEstimado         Float   @default(0)
+  
+  // Reales (de la ejecuciÃÂ³n)
+  realManoObra          Float   @default(0)
+  realMateriales        Float   @default(0)
+  realEquipos           Float   @default(0)
+  realTransporte        Float   @default(0)
+  realOtros             Float   @default(0)
+  totalReal             Float   @default(0)
+  
+  // Varianza calculada
+  varianzaPorcentaje    Float   @default(0)
+  margenRealizado       Float   @default(0)
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@index([ordenId])
+  @@map("comparativa_costos")
+}

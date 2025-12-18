@@ -68,6 +68,32 @@ export const ChangeEstadoSchema = z.object({
 export type ChangeEstadoDto = z.infer<typeof ChangeEstadoSchema>;
 
 // ==========================================
+// Transition State DTO (para OrderStateService)
+// ==========================================
+export const TransitionStateSchema = z.object({
+  toState: z.enum([
+    'SOLICITUD_RECIBIDA',
+    'VISITA_PROGRAMADA',
+    'PROPUESTA_ELABORADA',
+    'PROPUESTA_APROBADA',
+    'PLANEACION_INICIADA',
+    'PLANEACION_APROBADA',
+    'EJECUCION_INICIADA',
+    'EJECUCION_COMPLETADA',
+    'INFORME_GENERADO',
+    'ACTA_ELABORADA',
+    'ACTA_FIRMADA',
+    'SES_APROBADA',
+    'FACTURA_APROBADA',
+    'PAGO_RECIBIDO',
+  ]),
+  notas: z.string().optional(),
+  metadata: z.record(z.unknown()).optional(),
+});
+
+export type TransitionStateDto = z.infer<typeof TransitionStateSchema>;
+
+// ==========================================
 // Query Orden DTO
 // ==========================================
 export const OrdenQuerySchema = z.object({

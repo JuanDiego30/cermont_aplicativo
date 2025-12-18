@@ -3,6 +3,16 @@
 import { apiClient } from '@/lib/api-client';
 import type { Orden, CreateOrdenDTO, UpdateOrdenDTO } from '@/types/orden';
 
+export interface OrdenStateInfo {
+    id: string;
+    numero: string;
+    estado: string;
+    subEstado: string;
+    paso: number;
+    siguientesEstados: string[];
+    esFinal: boolean;
+}
+
 export const ordenesApi = {
     /**
      * Listar órdenes con filtros
@@ -91,5 +101,26 @@ export const ordenesApi = {
         return apiClient.patch<{ status: string; data: Orden }>(`/ordenes/${id}`, {
             responsableId: tecnicoId,
         });
+    },
+
+    /**
+     * Obtener estado detallado (flujo 14 pasos)
+     */
+    getState: async (id: string): Promise<OrdenStateInfo> => {
+        return apiClient.get<OrdenStateInfo>(`/ordenes/${id}/state`);
+    },
+
+    /**
+     * Obtener historial de estados de la orden
+     */
+    getStateHistory: async (id: string) => {
+        return apiClient.get<Array<{
+            id: string;
+            fromState: string | null;
+            toState: string;
+            notas: string | null;
+            usuario: string;
+            fecha: string;
+        }>>(`/ordenes/${id}/state/history`);
     },
 };

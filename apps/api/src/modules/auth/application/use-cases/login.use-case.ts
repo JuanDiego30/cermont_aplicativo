@@ -1,87 +1,111 @@
-/**
- * @useCase LoginUseCase
- * @description Caso de uso para iniciar sesión
- * @layer Application
- */
+
 import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { v4 as uuidv4 } from 'uuid';
+import * as bcrypt from 'bcryptjs';
 import { AUTH_REPOSITORY, IAuthRepository } from '../../domain/repositories';
-import { AuthSessionEntity } from '../../domain/entities';
-import { Credentials } from '../../domain/value-objects';
-import { UserLoggedInEvent } from '../../domain/events';
-import { LoginDto, LoginResponse, AuthContext } from '../dto';
+import { Email } from '../../domain/value-objects/email.vo';
+import { Password } from '../../domain/value-objects/password.vo';
+
+interface LoginDto {
+  email: string;
+  password: string;
+}
+
+interface AuthContext {
+  ip?: string;
+  userAgent?: string;
+}
+
+export interface LoginResult {
+  message: string;
+  token: string;
+  refreshToken: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    avatar?: string;
+    phone?: string;
+  };
+}
 
 @Injectable()
 export class LoginUseCase {
+  private readonly REFRESH_TOKEN_DAYS = 7;
+
   constructor(
     @Inject(AUTH_REPOSITORY)
     private readonly authRepository: IAuthRepository,
     private readonly jwtService: JwtService,
-    private readonly eventEmitter: EventEmitter2,
-  ) {}
+  ) { }
 
-  async execute(dto: LoginDto, context: AuthContext): Promise<LoginResponse> {
-    // 1. Buscar usuario por email
-    const user = await this.authRepository.findUserByEmail(dto.email);
+  async execute(dto: LoginDto, context: AuthContext): Promise<LoginResult> {
+    // 1. Validate inputs via VOs
+    const email = Email.create(dto.email);
+    Password.create(dto.password); // Validate length
 
-    if (!user || !user.active) {
+    // 2. Find user
+    const user = await this.authRepository.findByEmail(email.getValue());
+    if (!user) {
       throw new UnauthorizedException('Credenciales inválidas o usuario inactivo');
     }
 
-    // 2. Verificar contraseña
-    const credentials = Credentials.fromHashed(user.email, user.password);
-    const isValid = await credentials.verify(dto.password);
+    // 3. Check if can login
+    if (!user.canLogin()) {
+      throw new UnauthorizedException('Credenciales inválidas o usuario inactivo');
+    }
 
+    // 4. Verify password
+    const isValid = await bcrypt.compare(dto.password, user.getPasswordHash());
     if (!isValid) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    // 3. Generar tokens
+    // 5. Issue tokens
     const accessToken = this.jwtService.sign({
       userId: user.id,
-      email: user.email,
+      email: user.email.getValue(),
       role: user.role,
     });
 
-    // 4. Crear sesión con refresh token
-    const session = AuthSessionEntity.create(
-      user.id,
-      context.ip,
-      context.userAgent,
-    );
-    await this.authRepository.createSession(session);
+    const refreshToken = uuidv4();
+    const family = uuidv4();
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + this.REFRESH_TOKEN_DAYS);
 
-    // 5. Actualizar último login
-    await this.authRepository.updateLastLogin(user.id);
-
-    // 6. Registrar auditoría
-    await this.authRepository.createAuditLog({
-      entityType: 'User',
-      entityId: user.id,
-      action: 'LOGIN',
+    await this.authRepository.createRefreshToken({
+      token: refreshToken,
       userId: user.id,
-      ip: context.ip,
+      family,
+      expiresAt,
+      ipAddress: context.ip,
       userAgent: context.userAgent,
     });
 
-    // 7. Emitir evento
-    this.eventEmitter.emit(
-      'auth.user.logged-in',
-      new UserLoggedInEvent(user.id, user.email, context.ip, context.userAgent),
-    );
+    // 6. Update last login & audit
+    await Promise.all([
+      this.authRepository.updateLastLogin(user.id),
+      this.authRepository.createAuditLog({
+        userId: user.id,
+        action: 'LOGIN',
+        ip: context.ip,
+        userAgent: context.userAgent,
+      }),
+    ]);
 
     return {
       message: 'Login exitoso',
       token: accessToken,
-      refreshToken: session.refreshToken,
+      refreshToken,
       user: {
         id: user.id,
-        email: user.email,
+        email: user.email.getValue(),
         name: user.name,
         role: user.role,
-        avatar: user.avatar,
-        phone: user.phone,
+        avatar: user.avatar ?? undefined,
+        phone: user.phone ?? undefined,
       },
     };
   }

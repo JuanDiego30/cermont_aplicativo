@@ -2,20 +2,42 @@
  * @module AuthModule
  *
  * Módulo de autenticación con JWT (Passport) y configuración del JwtModule.
- *
- * Uso: Importar en AppModule para habilitar endpoints y guard JWT.
+ * Implementa DDD con use cases, repositorio, y controlador de infrastructure.
  */
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { AuthController } from './auth.controller';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+
+// Infrastructure
+import { AuthControllerRefactored } from './infrastructure/controllers/auth.controller';
+import { PrismaAuthRepository } from './infrastructure/persistence/prisma-auth.repository';
+
+// Application - Use Cases
+import {
+    LoginUseCase,
+    RegisterUseCase,
+    RefreshTokenUseCase,
+    LogoutUseCase,
+    GetCurrentUserUseCase,
+} from './application/use-cases';
+
+// Domain
+import { AUTH_REPOSITORY } from './domain/repositories';
+
+// Legacy (for gradual migration)
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
+// Prisma
+import { PrismaModule } from '../../prisma/prisma.module';
+
 @Module({
     imports: [
+        PrismaModule,
         PassportModule.register({ defaultStrategy: 'jwt' }),
+        EventEmitterModule.forRoot(),
         JwtModule.registerAsync({
             global: true,
             imports: [ConfigModule],
@@ -25,7 +47,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
                 if (!secret) {
                     throw new Error('JWT_SECRET is required');
                 }
-
                 return {
                     secret,
                     signOptions: {
@@ -35,8 +56,23 @@ import { JwtStrategy } from './strategies/jwt.strategy';
             },
         }),
     ],
-    controllers: [AuthController],
-    providers: [AuthService, JwtStrategy],
-    exports: [AuthService, JwtModule],
+    controllers: [AuthControllerRefactored],
+    providers: [
+        // Repository implementation
+        {
+            provide: AUTH_REPOSITORY,
+            useClass: PrismaAuthRepository,
+        },
+        // Use Cases
+        LoginUseCase,
+        RegisterUseCase,
+        RefreshTokenUseCase,
+        LogoutUseCase,
+        GetCurrentUserUseCase,
+        // Legacy service (can be removed after full migration)
+        AuthService,
+        JwtStrategy,
+    ],
+    exports: [AuthService, JwtModule, AUTH_REPOSITORY],
 })
 export class AuthModule { }

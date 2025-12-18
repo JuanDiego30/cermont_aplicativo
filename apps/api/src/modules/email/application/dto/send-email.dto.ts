@@ -1,51 +1,67 @@
-import { IsEmail, IsString, IsArray, IsOptional, MinLength, MaxLength } from 'class-validator';
+
+import { IsString, IsEmail, IsNotEmpty, IsOptional, IsArray, IsObject, ValidateNested, ArrayMaxSize } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-/**
- * DTO: Enviar Email
- * Valida datos de entrada para envío de emails
- */
-export class SendEmailDto {
-    @ApiProperty({
-        description: 'Email del remitente',
-        example: 'noreply@cermont.com',
-    })
-    @IsEmail()
-    from!: string;
-
-    @ApiProperty({
-        description: 'Lista de emails destinatarios',
-        example: ['cliente@example.com'],
-        type: [String],
-    })
-    @IsArray()
-    @IsEmail({}, { each: true })
-    to!: string[];
-
-    @ApiProperty({
-        description: 'Asunto del email',
-        example: 'Orden de trabajo #1234 creada',
-    })
+class AttachmentDto {
+    @ApiProperty()
     @IsString()
-    @MinLength(1)
-    @MaxLength(200)
+    @IsNotEmpty()
+    filename!: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    content!: string | Buffer;
+
+    @ApiProperty({ required: false })
+    @IsString()
+    @IsOptional()
+    contentType?: string;
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    size?: number;
+}
+
+export class SendEmailDto {
+    @ApiProperty({ description: 'Destinatario del correo' })
+    @IsEmail()
+    @IsNotEmpty()
+    to!: string;
+
+    @ApiProperty({ description: 'Asunto del correo' })
+    @IsString()
+    @IsNotEmpty()
     subject!: string;
 
-    @ApiProperty({
-        description: 'Cuerpo del email en texto plano',
-        example: 'Su orden de trabajo ha sido creada exitosamente.',
-        required: false,
-    })
-    @IsOptional()
+    @ApiProperty({ description: 'Contenido HTML del correo' })
     @IsString()
-    text?: string;
+    @IsNotEmpty()
+    content!: string;
 
-    @ApiProperty({
-        description: 'Cuerpo del email en HTML',
-        example: '<p>Su orden de trabajo ha sido <strong>creada</strong>.</p>',
-        required: false,
-    })
+    @ApiProperty({ required: false, type: [String] })
     @IsOptional()
-    @IsString()
-    html?: string;
+    @IsArray()
+    @IsEmail({}, { each: true })
+    @ArrayMaxSize(50)
+    cc?: string[];
+
+    @ApiProperty({ required: false, type: [String] })
+    @IsOptional()
+    @IsArray()
+    @IsEmail({}, { each: true })
+    @ArrayMaxSize(50)
+    bcc?: string[];
+
+    @ApiProperty({ required: false, type: [AttachmentDto] })
+    @IsOptional()
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => AttachmentDto)
+    attachments?: AttachmentDto[];
+
+    @ApiProperty({ required: false })
+    @IsOptional()
+    @IsObject()
+    metadata?: Record<string, any>;
 }
