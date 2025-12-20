@@ -10,7 +10,9 @@ build/
 # Environment
 .env
 .env.local
+.env.production
 !.env.example
+!.env.production.example
 
 # IDE
 .vscode/

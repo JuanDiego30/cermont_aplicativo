@@ -5,15 +5,16 @@
  *
  * Uso: Habilitada por AuthModule y consumida por JwtAuthGuard.
  */
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-    constructor(private readonly configService: ConfigService) {
-        const secret = configService.get<string>('JWT_SECRET');
+    constructor(@Inject(ConfigService) configService: ConfigService) {
+        // Fallback a process.env si ConfigService no está disponible
+        const secret = configService?.get<string>('JWT_SECRET') || process.env.JWT_SECRET;
         if (!secret) {
             throw new Error('JWT_SECRET is required');
         }

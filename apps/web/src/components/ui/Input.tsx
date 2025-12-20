@@ -41,12 +41,15 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             'focus:border-brand-300 focus:outline-none focus:ring-3 focus:ring-brand-500/10',
             'dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800',
             'disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400 dark:disabled:bg-gray-800',
+            'transition-colors',
             error && 'border-error-500 focus:border-error-500 focus:ring-error-500/10 dark:border-error-500',
             icon && 'pl-10',
             rightIcon && 'pr-10',
             className
           )}
           ref={ref}
+          aria-invalid={error ? 'true' : undefined}
+          aria-describedby={error ? `${props.id}-error` : helperText ? `${props.id}-helper` : undefined}
           {...props}
         />
 
@@ -57,8 +60,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
       </div>
 
-      {error && <p className="mt-1.5 text-sm text-error-500">{error}</p>}
-      {helperText && !error && <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400">{helperText}</p>}
+      {error && <p id={`${props.id}-error`} className="mt-1.5 text-sm text-error-500" role="alert">{error}</p>}
+      {helperText && !error && <p id={`${props.id}-helper`} className="mt-1.5 text-sm text-gray-500 dark:text-gray-400">{helperText}</p>}
     </div>
   )
 );

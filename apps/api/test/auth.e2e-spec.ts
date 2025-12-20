@@ -18,8 +18,7 @@ describe('AuthController (e2e)', () => {
     const testUser = {
         email: `test-${Date.now()}@cermont.test`,
         password: 'TestPassword123!',
-        nombre: 'Test',
-        apellido: 'User',
+        name: 'Test User',
     };
 
     let accessToken: string;
@@ -31,7 +30,7 @@ describe('AuthController (e2e)', () => {
         }).compile();
 
         app = moduleFixture.createNestApplication();
-        
+
         // Configurar igual que main.ts
         app.setGlobalPrefix('api');
         app.useGlobalPipes(
@@ -46,7 +45,7 @@ describe('AuthController (e2e)', () => {
         );
 
         prisma = app.get(PrismaService);
-        
+
         await app.init();
     });
 
@@ -59,7 +58,7 @@ describe('AuthController (e2e)', () => {
         } catch {
             // Ignorar si no existe
         }
-        
+
         await app.close();
     });
 
@@ -120,7 +119,7 @@ describe('AuthController (e2e)', () => {
 
             expect(response.body).toHaveProperty('accessToken');
             expect(response.body).toHaveProperty('refreshToken');
-            
+
             accessToken = response.body.accessToken;
             refreshToken = response.body.refreshToken;
         });
@@ -180,7 +179,7 @@ describe('AuthController (e2e)', () => {
 
             expect(response.body).toHaveProperty('accessToken');
             expect(response.body).toHaveProperty('refreshToken');
-            
+
             // Actualizar tokens para siguientes tests
             accessToken = response.body.accessToken;
             refreshToken = response.body.refreshToken;

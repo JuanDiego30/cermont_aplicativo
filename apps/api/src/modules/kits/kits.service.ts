@@ -264,17 +264,23 @@ const KITS_PREDEFINIDOS = {
 
 @Injectable()
 export class KitsService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(private readonly prisma: PrismaService) {}
 
     /**
      * Obtener todos los kits activos de la base de datos
      */
     async findAll() {
-        const kits = await this.prisma.kitTipico.findMany({
-            where: { activo: true },
-            orderBy: { nombre: 'asc' },
-        });
-        return { data: kits };
+        try {
+            const kits = await this.prisma.kitTipico.findMany({
+                where: { activo: true },
+                orderBy: { nombre: 'asc' },
+            });
+            return { data: kits };
+        } catch (error) {
+            const err = error as Error;
+            console.error('[KitsService.findAll] Error:', err.message, err.stack);
+            throw error;
+        }
     }
 
     /**

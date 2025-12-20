@@ -2,7 +2,7 @@
  * @module KpisModule
  */
 import { Module } from '@nestjs/common';
-import { KpisController } from './kpis.controller';
+import { KpisController } from './infrastructure/controllers/kpis.controller';
 import { KpisService } from './kpis.service';
 import { PrismaModule } from '../../prisma/prisma.module';
 

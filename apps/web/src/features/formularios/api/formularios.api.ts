@@ -6,7 +6,7 @@
 import { apiClient } from '@/lib/api-client';
 import type { Plantilla, CreatePlantillaInput, PlantillaFilters, EstadoFormulario } from '../types/formulario.types';
 
-const BASE_URL = '/formularios/plantillas';
+const BASE_URL = '/formularios/templates';
 
 function filtersToParams(filters?: PlantillaFilters): Record<string, string> | undefined {
     if (!filters) return undefined;

@@ -45,7 +45,16 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [theme, isInitialized]);
 
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+    const newTheme = theme === "light" ? "dark" : "light";
+
+    // Usar View Transitions API - el efecto visual está en CSS
+    if ('startViewTransition' in document) {
+      (document as Document & { startViewTransition: (cb: () => void) => void }).startViewTransition(() => {
+        setTheme(newTheme);
+      });
+    } else {
+      setTheme(newTheme);
+    }
   };
 
   return (

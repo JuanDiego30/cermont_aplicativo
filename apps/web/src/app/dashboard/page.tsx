@@ -1,7 +1,9 @@
 "use client";
 import React from "react";
 import dynamic from "next/dynamic";
-import { useDashboardMetrics } from "@/features/dashboard/hooks/use-dashboard";
+import { useDashboardStats, useDashboardMetricas, useOrdenesRecientes, useDashboardOverview } from "@/features/dashboard/hooks/use-dashboard";
+import { ResumenAlertasWidget as ResumenAlertas } from "@/features/alertas";
+import { DashboardOverview } from "@/features/dashboard/components/DashboardOverview";
 import Link from "next/link";
 import {
   ClipboardList,
@@ -21,6 +23,9 @@ import {
 } from "lucide-react";
 import { SpotlightCard } from "@/components/ui/SpotlightCard";
 import { Counter } from "@/components/ui/Counter";
+import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Skeleton } from "@/components/ui/LoadingSkeleton";
 
 // Dynamic imports for charts (avoid SSR issues)
 const MonthlyOrdersChart = dynamic(() => import("@/components/charts/MonthlyOrdersChart"), { ssr: false });
@@ -46,9 +51,9 @@ interface MetricCardProps {
 
 function MetricCard({ title, value, icon, trend, badge, iconBgColor, iconColor }: MetricCardProps) {
   return (
-    <SpotlightCard className="p-6 bg-white dark:bg-white/5 border-gray-200 dark:border-gray-800">
+    <SpotlightCard className="p-6 bg-white dark:bg-white/5 border-gray-200 dark:border-gray-800 transition-all hover:shadow-lg">
       <div className="flex items-center justify-between">
-        <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ${iconBgColor}`}>
+        <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl ${iconBgColor} transition-transform hover:scale-110`}>
           <span className={iconColor}>{icon}</span>
         </div>
         {trend && (
@@ -124,13 +129,14 @@ function RecentOrdersTable({ orders }: { orders: RecentOrder[] }) {
         </h3>
         <Link
           href="/dashboard/ordenes"
-          className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400"
+          className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 transition-colors"
+          aria-label="Ver todas las órdenes"
         >
           Ver todas →
         </Link>
       </div>
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full" role="table" aria-label="Tabla de órdenes recientes">
           <thead className="bg-gray-50 dark:bg-gray-800/50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -154,7 +160,7 @@ function RecentOrdersTable({ orders }: { orders: RecentOrder[] }) {
             {orders.map((order) => (
               <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <Link href={`/dashboard/ordenes/${order.id}`} className="font-medium text-blue-600 hover:underline">
+                  <Link href={`/dashboard/ordenes/${order.id}`} className="font-medium text-blue-600 hover:underline" aria-label={`Ver orden ${order.numero}`}>
                     #{order.numero}
                   </Link>
                 </td>
@@ -204,9 +210,10 @@ function QuickAccess() {
           <Link
             key={link.title}
             href={link.href}
-            className="group block rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+            className="group block rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-all"
+            aria-label={link.title}
           >
-            <SpotlightCard className="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800 border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-colors h-full">
+            <SpotlightCard className="flex flex-col items-center justify-center p-4 bg-gray-50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-800 border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all h-full">
               <div className={`w-10 h-10 rounded-lg ${link.color} flex items-center justify-center text-white mb-2 group-hover:scale-110 transition-transform`}>
                 {link.icon}
               </div>
@@ -239,8 +246,8 @@ function RecentActivity() {
       </div>
       <div className="divide-y divide-gray-200 dark:divide-gray-800">
         {activities.map((activity, index) => (
-          <div key={index} className="flex items-start gap-4 px-6 py-4">
-            <div className="mt-0.5">{activity.icon}</div>
+          <div key={index} className="flex items-start gap-4 px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+            <div className="mt-0.5" aria-hidden="true">{activity.icon}</div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 dark:text-white">
                 {activity.message}
@@ -253,7 +260,7 @@ function RecentActivity() {
         ))}
       </div>
       <div className="px-6 py-3 bg-gray-50 dark:bg-gray-800/50 rounded-b-2xl">
-        <Link href="/dashboard/actividad" className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400">
+        <Link href="/dashboard/actividad" className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 transition-colors" aria-label="Ver toda la actividad">
           Ver toda la actividad →
         </Link>
       </div>
@@ -271,14 +278,14 @@ function MonthlyTarget() {
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
           Objetivo Mensual
         </h3>
-        <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+        <button className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors" aria-label="Más opciones">
           <MoreHorizontal className="w-5 h-5" />
         </button>
       </div>
 
       {/* Circular Progress */}
       <div className="flex flex-col items-center justify-center py-4">
-        <div className="relative w-40 h-40">
+        <div className="relative w-40 h-40" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
           <svg className="w-full h-full transform -rotate-90">
             <circle
               cx="80"
@@ -298,7 +305,7 @@ function MonthlyTarget() {
               fill="none"
               strokeDasharray={`${(progress / 100) * 440} 440`}
               strokeLinecap="round"
-              className="text-blue-500"
+              className="text-blue-500 transition-all duration-500"
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -349,39 +356,25 @@ function DashboardSkeleton() {
 }
 
 export default function DashboardPage() {
-  const { data: metrics, isLoading, error } = useDashboardMetrics();
+  const { data: stats, isLoading: loadingStats } = useDashboardStats();
+  const { data: metricas, isLoading: loadingMetricas } = useDashboardMetricas();
+  const { data: ordenesRecientes, isLoading: loadingOrdenes } = useOrdenesRecientes();
+  const { data: overview, isLoading: loadingOverview } = useDashboardOverview();
 
-  // Mock data para órdenes recientes
-  const recentOrders: RecentOrder[] = [
-    { id: '1', numero: '2024-001', cliente: 'Ecopetrol S.A.', estado: 'completada', fecha: '08/12/2024', prioridad: 'alta' },
-    { id: '2', numero: '2024-002', cliente: 'Cementos Argos', estado: 'ejecucion', fecha: '07/12/2024', prioridad: 'media' },
-    { id: '3', numero: '2024-003', cliente: 'Drummond Ltd', estado: 'planeacion', fecha: '06/12/2024', prioridad: 'urgente' },
-    { id: '4', numero: '2024-004', cliente: 'Cerrejón', estado: 'ejecucion', fecha: '05/12/2024', prioridad: 'baja' },
-    { id: '5', numero: '2024-005', cliente: 'Pacific Rubiales', estado: 'planeacion', fecha: '04/12/2024', prioridad: 'alta' },
-  ];
+  // Mock data para órdenes recientes (usar datos reales cuando estén disponibles)
+  const recentOrders: RecentOrder[] = ordenesRecientes?.data?.slice(0, 5).map((o: any) => ({
+    id: o.id,
+    numero: o.numero || o.id.slice(0, 8),
+    cliente: o.cliente || 'Sin cliente',
+    estado: o.estado || 'planeacion',
+    fecha: o.createdAt ? new Date(o.createdAt).toLocaleDateString('es-ES') : '-',
+    prioridad: o.prioridad || 'media',
+  })) || [];
+
+  const isLoading = loadingStats || loadingMetricas;
 
   if (isLoading) {
     return <DashboardSkeleton />;
-  }
-
-  if (error) {
-    return (
-      <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center dark:border-red-800 dark:bg-red-900/20">
-        <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-red-700 dark:text-red-400 mb-2">
-          Error al cargar el dashboard
-        </h3>
-        <p className="text-red-600 dark:text-red-300 mb-4">
-          No se pudieron cargar las métricas. Por favor, verifica que estés autenticado.
-        </p>
-        <Link
-          href="/login"
-          className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-        >
-          Iniciar Sesión
-        </Link>
-      </div>
-    );
   }
 
   return (
@@ -408,7 +401,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           title="Total Órdenes"
-          value={metrics?.totalOrders || 0}
+          value={stats?.ordenes?.total || 0}
           icon={<ClipboardList className="w-6 h-6" />}
           trend={{ value: 12.5, isPositive: true }}
           iconBgColor="bg-blue-100 dark:bg-blue-500/20"
@@ -416,7 +409,7 @@ export default function DashboardPage() {
         />
         <MetricCard
           title="Completadas"
-          value={metrics?.completedOrders || 0}
+          value={stats?.ordenes?.completadas || 0}
           icon={<CheckCircle className="w-6 h-6" />}
           trend={{ value: 8.2, isPositive: true }}
           iconBgColor="bg-emerald-100 dark:bg-emerald-500/20"
@@ -424,7 +417,7 @@ export default function DashboardPage() {
         />
         <MetricCard
           title="En Ejecución"
-          value={metrics?.pendingOrders || 0}
+          value={stats?.ordenes?.activas || 0}
           icon={<Clock className="w-6 h-6" />}
           badge={{ text: 'En curso', color: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20' }}
           iconBgColor="bg-amber-100 dark:bg-amber-500/20"
@@ -432,13 +425,16 @@ export default function DashboardPage() {
         />
         <MetricCard
           title="Técnicos Activos"
-          value={metrics?.techniciansActive || 0}
+          value={stats?.tecnicos?.activos || 0}
           icon={<Users className="w-6 h-6" />}
           badge={{ text: 'Online', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20' }}
           iconBgColor="bg-purple-100 dark:bg-purple-500/20"
           iconColor="text-purple-600"
         />
       </div>
+
+      {/* Resumen de Alertas */}
+      <ResumenAlertas />
 
       {/* Second Row - Charts */}
       <div className="grid grid-cols-12 gap-5">
@@ -453,20 +449,55 @@ export default function DashboardPage() {
       {/* Third Row - Recent Orders and Efficiency */}
       <div className="grid grid-cols-12 gap-5">
         <div className="col-span-12 lg:col-span-8">
-          <RecentOrdersTable orders={recentOrders} />
+          {loadingOrdenes ? (
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} variant="rectangular" height={60} />
+              ))}
+            </div>
+          ) : recentOrders.length > 0 ? (
+            <RecentOrdersTable orders={recentOrders} />
+          ) : (
+            <EmptyState
+              icon={<FileText className="w-8 h-8 text-gray-400" />}
+              title="No hay órdenes recientes"
+              description="Las órdenes aparecerán aquí cuando se creen nuevas"
+            />
+          )}
         </div>
         <div className="col-span-12 lg:col-span-4">
           <EfficiencyGauge />
         </div>
       </div>
 
-      {/* Fourth Row - Quick Access and Activity */}
+      {/* Fourth Row - Overview y Quick Access */}
       <div className="grid grid-cols-12 gap-5">
         <div className="col-span-12 lg:col-span-7">
-          <QuickAccess />
+          {loadingOverview ? (
+            <Card className="p-6">
+              <Skeleton variant="text" width="40%" className="mb-4" />
+              <div className="grid grid-cols-3 gap-4">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} variant="rectangular" height={100} />
+                ))}
+              </div>
+            </Card>
+          ) : overview ? (
+            <DashboardOverview />
+          ) : null}
         </div>
         <div className="col-span-12 lg:col-span-5">
+          <QuickAccess />
+        </div>
+      </div>
+
+      {/* Fifth Row - Activity and Monthly Target */}
+      <div className="grid grid-cols-12 gap-5">
+        <div className="col-span-12 lg:col-span-7">
           <RecentActivity />
+        </div>
+        <div className="col-span-12 lg:col-span-5">
+          <MonthlyTarget />
         </div>
       </div>
     </div>

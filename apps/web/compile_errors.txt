@@ -1,0 +1,19 @@
+src/app/dashboard/alertas/page.tsx(34,47): error TS2339: Property 'mutate' does not exist on type 'SWRMutationResponse<void, any, string, never>'.
+src/app/dashboard/alertas/page.tsx(35,42): error TS2339: Property 'isPending' does not exist on type 'SWRMutationResponse<void, any, string, never>'.
+src/app/dashboard/alertas/page.tsx(37,68): error TS2339: Property 'isPending' does not exist on type 'SWRMutationResponse<void, any, string, never>'.
+src/app/dashboard/archivado/page.tsx(40,42): error TS2339: Property 'mutate' does not exist on type 'SWRMutationResponse<{ message: string; archivadas: number; }, any, string, never>'.
+src/app/dashboard/archivado/page.tsx(41,37): error TS2339: Property 'isPending' does not exist on type 'SWRMutationResponse<{ message: string; archivadas: number; }, any, string, never>'.
+src/app/dashboard/ejecucion/client.tsx(73,56): error TS2345: Argument of type 'string' is not assignable to parameter of type '{ id: string; ubicacion?: UbicacionGPS | undefined; }'.
+src/app/dashboard/page.tsx(437,8): error TS2693: 'ResumenAlertas' only refers to a type, but is being used as a value here.
+src/app/dashboard/reportes/operativos/page.tsx(34,22): error TS2339: Property 'mutate' does not exist on type 'SWRMutationResponse<void, any, string, ReporteQueryDto>'.
+src/app/dashboard/reportes/operativos/page.tsx(59,40): error TS2339: Property 'isPending' does not exist on type 'SWRMutationResponse<void, any, string, ReporteQueryDto>'.
+src/app/dashboard/reportes/operativos/page.tsx(67,40): error TS2339: Property 'isPending' does not exist on type 'SWRMutationResponse<void, any, string, ReporteQueryDto>'.
+src/features/alertas/components/AlertasList.tsx(141,46): error TS2339: Property 'mutate' does not exist on type 'SWRMutationResponse<void, any, string, string>'.
+src/features/alertas/components/AlertasList.tsx(142,41): error TS2339: Property 'isPending' does not exist on type 'SWRMutationResponse<void, any, string, string>'.
+src/features/alertas/components/AlertasList.tsx(154,49): error TS2339: Property 'mutate' does not exist on type 'SWRMutationResponse<void, any, string, string>'.
+src/features/alertas/components/AlertasList.tsx(155,44): error TS2339: Property 'isPending' does not exist on type 'SWRMutationResponse<void, any, string, string>'.
+src/features/dashboard/components/DashboardOverview.tsx(54,38): error TS2339: Property 'mutate' does not exist on type 'SWRMutationResponse<{ message: string; data: any; meta: any; }, any, string, never>'.
+src/features/dashboard/components/DashboardOverview.tsx(55,33): error TS2339: Property 'isPending' does not exist on type 'SWRMutationResponse<{ message: string; data: any; meta: any; }, any, string, never>'.
+src/features/dashboard/components/DashboardOverview.tsx(57,59): error TS2339: Property 'isPending' does not exist on type 'SWRMutationResponse<{ message: string; data: any; meta: any; }, any, string, never>'.
+src/features/dashboard/components/DashboardOverview.tsx(90,50): error TS2339: Property 'tiempoPromedio' does not exist on type '{ ordenesCompletadas: number; ordenesEnProgreso: number; eficiencia: number; }'.
+src/features/dashboard/components/DashboardOverview.tsx(156,34): error TS2339: Property 'varianza' does not exist on type '{ ingresos: number; costos: number; margen: number; }'.

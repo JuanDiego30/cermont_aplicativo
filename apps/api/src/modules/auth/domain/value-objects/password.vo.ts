@@ -1,5 +1,5 @@
 
-import { DomainError } from '@/common/errors/domain-error.base';
+import { DomainError } from '../../../../common/errors/domain-error.base';
 
 export class InvalidPasswordError extends DomainError {
     constructor() {

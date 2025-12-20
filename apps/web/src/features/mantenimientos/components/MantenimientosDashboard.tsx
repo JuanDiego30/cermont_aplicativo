@@ -35,7 +35,7 @@ export function MantenimientosDashboard() {
         <DashboardTemplate<Mantenimiento>
             title="Mantenimientos"
             subtitle="Gestión de mantenimientos preventivos y correctivos"
-            apiEndpoint="/api/mantenimientos"
+            apiEndpoint="/mantenimientos"
             columns={columns}
             renderForm={(onClose: () => void, item?: Mantenimiento) => (
                 <div className="p-4">

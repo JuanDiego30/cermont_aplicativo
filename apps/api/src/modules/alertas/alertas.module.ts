@@ -4,7 +4,7 @@
  * Módulo de alertas automáticas con CRONs integrados.
  */
 import { Module } from '@nestjs/common';
-import { AlertasController } from './alertas.controller';
+import { AlertasController } from './infrastructure/controllers/alertas.controller';
 import { AlertasService } from './alertas.service';
 import { PrismaModule } from '../../prisma/prisma.module';
 

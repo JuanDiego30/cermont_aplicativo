@@ -27,20 +27,24 @@
     },
     "typecheck": {
       "dependsOn": ["^build"],
-      "outputs": []
+      "outputs": [],
+      "inputs": ["$TURBO_DEFAULT$", "tsconfig.json", "tsconfig.*.json"]
     },
     "test": {
       "dependsOn": ["^build"],
       "outputs": ["coverage/**"],
-      "env": ["NODE_ENV"]
+      "env": ["NODE_ENV"],
+      "inputs": ["$TURBO_DEFAULT$", "jest.config.*", "**/*.spec.ts", "**/*.test.ts"]
     },
     "test:e2e": {
       "dependsOn": ["build"],
       "outputs": ["playwright-report/**", "test-results/**"],
-      "env": ["BASE_URL", "CI"]
+      "env": ["BASE_URL", "CI"],
+      "cache": false
     },
     "prisma:generate": {
-      "cache": false
+      "cache": false,
+      "outputs": ["node_modules/.prisma/**", "node_modules/@prisma/client/**"]
     },
     "prisma:migrate": {
       "cache": false

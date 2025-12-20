@@ -1,5 +1,5 @@
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { EmailRepository } from '../../domain/repositories/email.repository.interface';
@@ -10,12 +10,13 @@ export class NodemailerEmailService implements EmailRepository {
     private readonly transporter: nodemailer.Transporter;
     private readonly logger = new Logger(NodemailerEmailService.name);
 
-    constructor(private readonly configService: ConfigService) {
-        const host = this.configService.get<string>('SMTP_HOST');
-        const port = this.configService.get<number>('SMTP_PORT');
-        const user = this.configService.get<string>('SMTP_USER');
-        const pass = this.configService.get<string>('SMTP_PASS');
-        const secure = this.configService.get<boolean>('SMTP_SECURE', false);
+    constructor(@Inject(ConfigService) private readonly configService: ConfigService) {
+        // Fallback a process.env si ConfigService no está disponible
+        const host = this.configService?.get<string>('SMTP_HOST') || process.env.SMTP_HOST;
+        const port = this.configService?.get<number>('SMTP_PORT') || Number(process.env.SMTP_PORT) || 587;
+        const user = this.configService?.get<string>('SMTP_USER') || process.env.SMTP_USER;
+        const pass = this.configService?.get<string>('SMTP_PASS') || process.env.SMTP_PASS;
+        const secure = this.configService?.get<boolean>('SMTP_SECURE') || process.env.SMTP_SECURE === 'true';
 
         if (!host || !user || !pass) {
             this.logger.warn('SMTP configuration missing. Emails may fail.');

@@ -90,17 +90,17 @@ const nextConfig = {
         ];
     },
 
-    // Rewrites para proxy al backend - permite acceso via tunnel único
-    async rewrites() {
-        const apiUrl = process.env.BACKEND_URL || 'http://localhost:4000';
-        return [
-            {
-                // Proxy todas las llamadas /api/proxy/* al backend
-                source: '/api/proxy/:path*',
-                destination: `${apiUrl}/api/:path*`,
-            },
-        ];
-    },
+    // Rewrites para proxy al backend - DESHABILITADO: Ahora usa /api/proxy route handler
+    // async rewrites() {
+    //     const apiUrl = process.env.BACKEND_URL || 'http://localhost:4000';
+    //     return [
+    //         {
+    //             // Proxy todas las llamadas /api/proxy/* al backend
+    //             source: '/api/proxy/:path*',
+    //             destination: `${apiUrl}/api/:path*`,
+    //         },
+    //     ];
+    // },
 
     // Redirects comunes
     async redirects() {

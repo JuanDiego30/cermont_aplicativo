@@ -1,12 +1,17 @@
 import { Module } from '@nestjs/common';
-import { PdfGenerationController } from './pdf-generation.controller';
-import { PdfGenerationService } from './pdf-generation.service';
 import { PrismaModule } from '../../prisma/prisma.module';
+import { PDFController } from './infrastructure/controllers/pdf.controller';
+import { PdfGenerationService } from './pdf-generation.service';
+import { GeneratePDFUseCase, GenerateReportePDFUseCase } from './application/use-cases';
 
 @Module({
     imports: [PrismaModule],
-    controllers: [PdfGenerationController],
-    providers: [PdfGenerationService],
+    controllers: [PDFController],
+    providers: [
+        PdfGenerationService,
+        GeneratePDFUseCase,
+        GenerateReportePDFUseCase,
+    ],
     exports: [PdfGenerationService],
 })
 export class PdfGenerationModule { }

@@ -54,8 +54,14 @@ export class OrdenesController {
   @Get()
   @ApiOperation({ summary: 'Listar órdenes' })
   async findAll(@Query() query: unknown) {
-    const parsedQuery = OrdenQuerySchema.parse(query);
-    return this.listOrdenesUseCase.execute(parsedQuery);
+    try {
+      const parsedQuery = OrdenQuerySchema.parse(query);
+      return await this.listOrdenesUseCase.execute(parsedQuery);
+    } catch (error) {
+      const err = error as Error;
+      console.error('[OrdenesController.findAll] Error:', err.message, err.stack);
+      throw error;
+    }
   }
 
   @Get(':id')

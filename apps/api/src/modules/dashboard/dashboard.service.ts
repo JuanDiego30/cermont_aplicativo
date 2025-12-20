@@ -56,7 +56,7 @@ const ESTADO_COMPLETADA = 'completada';
 
 @Injectable()
 export class DashboardService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Obtiene estadísticas generales del dashboard
@@ -109,26 +109,33 @@ export class DashboardService {
    * Obtiene métricas para widgets del dashboard
    */
   async getMetricas(): Promise<DashboardMetricas> {
-    const [totalOrders, completedOrders, pendingOrders, techniciansActive] =
-      await Promise.all([
-        this.prisma.order.count(),
-        this.prisma.order.count({
-          where: { estado: ESTADO_COMPLETADA }
-        }),
-        this.prisma.order.count({
-          where: { estado: { in: [...ESTADOS_PENDIENTES] } }
-        }),
-        this.prisma.user.count({
-          where: { role: 'tecnico', active: true }
-        }),
-      ]);
+    try {
 
-    return {
-      totalOrders,
-      completedOrders,
-      pendingOrders,
-      techniciansActive,
-    };
+      const [totalOrders, completedOrders, pendingOrders, techniciansActive] =
+        await Promise.all([
+          this.prisma.order.count(),
+          this.prisma.order.count({
+            where: { estado: ESTADO_COMPLETADA }
+          }),
+          this.prisma.order.count({
+            where: { estado: { in: [...ESTADOS_PENDIENTES] } }
+          }),
+          this.prisma.user.count({
+            where: { role: 'tecnico', active: true }
+          }),
+        ]);
+
+      return {
+        totalOrders,
+        completedOrders,
+        pendingOrders,
+        techniciansActive,
+      };
+    } catch (error) {
+      const err = error as Error;
+      console.error('[DashboardService.getMetricas] Error:', err.message, err.stack);
+      throw error;
+    }
   }
 
   // ==========================================================================

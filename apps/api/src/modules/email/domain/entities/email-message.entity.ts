@@ -2,7 +2,7 @@
 import { EmailAddress } from '../value-objects/email-address.vo';
 import { EmailSubject } from '../value-objects/email-subject.vo';
 import { EmailContent } from '../value-objects/email-content.vo';
-import { BusinessRuleViolationError } from '@/common/errors/domain-error.base';
+import { BusinessRuleViolationError } from '../../../../common/errors/domain-error.base';
 
 export interface Attachment {
     filename: string;
