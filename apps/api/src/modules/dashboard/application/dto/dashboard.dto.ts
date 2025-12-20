@@ -1,50 +1,47 @@
 /**
  * @module Dashboard - Clean Architecture
  */
-import { z } from 'zod';
+// Re-export DTOs from separate files
+export { DashboardQueryDto } from './dashboard-query.dto';
+export {
+  DashboardStatsDto,
+  TendenciaDto,
+  OrdenResumenDto,
+  DashboardResponse,
+} from './dashboard-response.dto';
 
-// DTOs
-export const DashboardQuerySchema = z.object({
-  fechaInicio: z.string().optional(),
-  fechaFin: z.string().optional(),
-  tecnicoId: z.string().uuid().optional(),
-});
-
-export type DashboardQueryDto = z.infer<typeof DashboardQuerySchema>;
-
-export interface DashboardStats {
-  totalOrdenes: number;
-  ordenesPorEstado: Record<string, number>;
-  ordenesPorPrioridad: Record<string, number>;
-  promedioCompletado: number;
-  ordenesCompletadasHoy: number;
-  ordenesEnProgreso: number;
-  tecnicosActivos: number;
-}
-
-export interface DashboardTrendData {
-  fecha: string;
-  completadas: number;
-  creadas: number;
-}
-
-export interface DashboardResponse {
-  stats: DashboardStats;
-  tendencia: DashboardTrendData[];
-  ultimasOrdenes: Array<{
-    id: string;
-    numero: string;
-    estado: string;
-    prioridad: string;
-    fechaCreacion: string;
-  }>;
-}
+// Import types for interface
+import type { DashboardQueryDto } from './dashboard-query.dto';
+import type { DashboardStatsDto, TendenciaDto, OrdenResumenDto } from './dashboard-response.dto';
 
 // Repository Interface
 export const DASHBOARD_REPOSITORY = Symbol('DASHBOARD_REPOSITORY');
 
 export interface IDashboardRepository {
-  getStats(filters?: DashboardQueryDto): Promise<DashboardStats>;
-  getTendencia(dias: number): Promise<DashboardTrendData[]>;
-  getUltimasOrdenes(limit: number): Promise<any[]>;
+  /**
+   * Obtiene estadísticas generales del dashboard
+   */
+  getStats(filters?: DashboardQueryDto): Promise<DashboardStatsDto>;
+
+  /**
+   * Obtiene tendencia de órdenes e ingresos
+   * @param dias - Número de días hacia atrás
+   */
+  getTendencia(dias: number): Promise<TendenciaDto[]>;
+
+  /**
+   * Obtiene las últimas órdenes creadas
+   * @param limit - Cantidad de órdenes a retornar
+   */
+  getUltimasOrdenes(limit: number): Promise<OrdenResumenDto[]>;
+
+  /**
+   * Obtiene alertas activas del sistema
+   */
+  getAlertasActivas(): Promise<any[]>;
+
+  /**
+   * Obtiene resumen de cierre administrativo
+   */
+  getResumenCierre(): Promise<any>;
 }

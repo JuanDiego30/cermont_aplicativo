@@ -14,7 +14,7 @@ import type { JwtPayload } from '../decorators/current-user.decorator';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-    constructor(private reflector: Reflector) {
+    constructor(private readonly reflector: Reflector) {
         super();
     }
 
@@ -22,13 +22,16 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
      * Verifica si la ruta es pública antes de validar el token
      */
     canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
-        const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-            context.getHandler(),
-            context.getClass(),
-        ]);
+        // Verificar si reflector está disponible y tiene el método
+        if (this.reflector && typeof this.reflector.getAllAndOverride === 'function') {
+            const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+                context.getHandler(),
+                context.getClass(),
+            ]);
 
-        if (isPublic) {
-            return true;
+            if (isPublic) {
+                return true;
+            }
         }
 
         return super.canActivate(context);

@@ -10,13 +10,14 @@
  */
 
 import { Module } from '@nestjs/common';
-import { KitsController } from './kits.controller';
+import { PrismaModule } from '../../prisma/prisma.module';
+import { KitsController } from './infrastructure/controllers/kits.controller';
 import { KitsService } from './kits.service';
-import { PrismaService } from '../../prisma/prisma.service';
 
 @Module({
+    imports: [PrismaModule],
     controllers: [KitsController],
-    providers: [KitsService, PrismaService],
+    providers: [KitsService],
     exports: [KitsService],
 })
 export class KitsModule { }

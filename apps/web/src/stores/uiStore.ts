@@ -15,7 +15,7 @@ interface UIState {
   theme: Theme;
   toggleTheme: () => void;
   setTheme: (theme: Theme) => void;
-  
+
   // Sidebar
   isExpanded: boolean;
   isMobileOpen: boolean;
@@ -34,7 +34,7 @@ export const useUIStore = create<UIState>()(
       toggleTheme: () =>
         set((state) => {
           const newTheme = state.theme === 'light' ? 'dark' : 'light';
-          // Apply to document
+
           if (typeof window !== 'undefined') {
             if (newTheme === 'dark') {
               document.documentElement.classList.add('dark');
@@ -42,6 +42,7 @@ export const useUIStore = create<UIState>()(
               document.documentElement.classList.remove('dark');
             }
           }
+
           return { theme: newTheme };
         }),
       setTheme: (theme) =>

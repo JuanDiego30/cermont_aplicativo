@@ -6,13 +6,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { 
+import {
   useMisEjecuciones,
   EjecucionCard,
-  usePausarEjecucion, 
-  useReanudarEjecucion, 
-  useFinalizarEjecucion 
+  usePausarEjecucion,
+  useReanudarEjecucion,
+  useFinalizarEjecucion
 } from '@/features/ejecucion';
+import { Card } from '@/components/ui/Card';
+import { Play } from 'lucide-react';
 
 export function EjecucionDashboard() {
   const router = useRouter();
@@ -23,8 +25,10 @@ export function EjecucionDashboard() {
 
   if (isLoading) {
     return (
-      <div className="text-center py-12 text-gray-500">
-        Cargando ejecuciones...
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="h-64 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"></div>
+        ))}
       </div>
     );
   }
@@ -36,12 +40,17 @@ export function EjecucionDashboard() {
 
   if (ejecuciones.length === 0) {
     return (
-      <div className="text-center py-16">
-        <p className="text-lg text-gray-500 mb-2">Sin ejecuciones activas</p>
-        <p className="text-sm text-gray-400">
-          Las órdenes en ejecución aparecerán aquí
+      <Card className="p-12 text-center">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+          <Play className="w-8 h-8 text-gray-400" />
+        </div>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          Sin ejecuciones activas
+        </h3>
+        <p className="text-gray-600 dark:text-gray-400">
+          Las órdenes en ejecución aparecerán aquí cuando se inicien trabajos en campo
         </p>
-      </div>
+      </Card>
     );
   }
 
@@ -49,32 +58,38 @@ export function EjecucionDashboard() {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* En Progreso */}
       <div>
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-blue-500" />
-          En Progreso ({enProgreso.length})
-        </h3>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="w-3 h-3 rounded-full bg-blue-500 animate-pulse" />
+          <h3 className="font-semibold text-gray-900 dark:text-white">
+            En Progreso ({enProgreso.length})
+          </h3>
+        </div>
         <div className="space-y-4">
           {enProgreso.map((ejecucion) => (
             <EjecucionCard
               key={ejecucion.id}
               ejecucion={ejecucion}
               onPause={() => pausarMutation.mutate({ id: ejecucion.id, motivo: 'Pausado por usuario' })}
-              onFinish={() => finalizarMutation.mutate(ejecucion.id)}
+              onFinish={() => finalizarMutation.mutate({ id: ejecucion.id })}
               onView={() => router.push(`/dashboard/ejecucion/${ejecucion.id}`)}
             />
           ))}
           {enProgreso.length === 0 && (
-            <p className="text-sm text-gray-400 text-center py-4">Sin órdenes</p>
+            <Card className="p-8 text-center">
+              <p className="text-sm text-gray-400">Sin órdenes en progreso</p>
+            </Card>
           )}
         </div>
       </div>
 
       {/* Pausadas */}
       <div>
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-yellow-500" />
-          Pausadas ({pausadas.length})
-        </h3>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="w-3 h-3 rounded-full bg-yellow-500" />
+          <h3 className="font-semibold text-gray-900 dark:text-white">
+            Pausadas ({pausadas.length})
+          </h3>
+        </div>
         <div className="space-y-4">
           {pausadas.map((ejecucion) => (
             <EjecucionCard
@@ -85,17 +100,21 @@ export function EjecucionDashboard() {
             />
           ))}
           {pausadas.length === 0 && (
-            <p className="text-sm text-gray-400 text-center py-4">Sin órdenes</p>
+            <Card className="p-8 text-center">
+              <p className="text-sm text-gray-400">Sin órdenes pausadas</p>
+            </Card>
           )}
         </div>
       </div>
 
       {/* Finalizadas hoy */}
       <div>
-        <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-green-500" />
-          Finalizadas Hoy ({finalizadas.length})
-        </h3>
+        <div className="flex items-center gap-2 mb-4">
+          <span className="w-3 h-3 rounded-full bg-green-500" />
+          <h3 className="font-semibold text-gray-900 dark:text-white">
+            Finalizadas Hoy ({finalizadas.length})
+          </h3>
+        </div>
         <div className="space-y-4">
           {finalizadas.slice(0, 5).map((ejecucion) => (
             <EjecucionCard
@@ -105,7 +124,9 @@ export function EjecucionDashboard() {
             />
           ))}
           {finalizadas.length === 0 && (
-            <p className="text-sm text-gray-400 text-center py-4">Sin órdenes</p>
+            <Card className="p-8 text-center">
+              <p className="text-sm text-gray-400">Sin órdenes finalizadas hoy</p>
+            </Card>
           )}
         </div>
       </div>

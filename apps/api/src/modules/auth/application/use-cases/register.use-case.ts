@@ -42,7 +42,9 @@ export class RegisterUseCase {
   constructor(
     @Inject(AUTH_REPOSITORY)
     private readonly authRepository: IAuthRepository,
+    @Inject(JwtService)
     private readonly jwtService: JwtService,
+    @Inject(ConfigService)
     private readonly configService: ConfigService,
   ) { }
 

@@ -6,7 +6,7 @@
  */
 import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
-import { FormsController } from './forms.controller';
+import { FormsController } from './infrastructure/controllers/forms.controller';
 import { FormsService } from './forms.service';
 import { FormParserService } from './infrastructure/services/form-parser.service';
 import { PrismaModule } from '../../prisma/prisma.module';

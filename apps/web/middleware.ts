@@ -76,22 +76,22 @@ function isMaintenanceMode(): boolean {
 function addSecurityHeaders(response: NextResponse): NextResponse {
   // Prevenir MIME type sniffing
   response.headers.set('X-Content-Type-Options', 'nosniff');
-  
+
   // Prevenir clickjacking
   response.headers.set('X-Frame-Options', 'DENY');
-  
+
   // Protección XSS
   response.headers.set('X-XSS-Protection', '1; mode=block');
-  
+
   // Política de referrer
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
+
   // Permisos del navegador
   response.headers.set(
     'Permissions-Policy',
     'camera=(), microphone=(), geolocation=(self), interest-cohort=()'
   );
-  
+
   // HSTS (solo en producción)
   if (process.env.NODE_ENV === 'production') {
     response.headers.set(
@@ -99,7 +99,7 @@ function addSecurityHeaders(response: NextResponse): NextResponse {
       'max-age=31536000; includeSubDomains; preload'
     );
   }
-  
+
   return response;
 }
 
@@ -128,8 +128,8 @@ const blockedIPs = new Set<string>();
 
 function getClientIp(request: NextRequest): string {
   return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-         request.headers.get('x-real-ip') ||
-         '127.0.0.1';
+    request.headers.get('x-real-ip') ||
+    '127.0.0.1';
 }
 
 /**
@@ -143,38 +143,44 @@ const RATE_LIMIT_MAX = 100; // 100 requests por minuto
 function checkRateLimit(ip: string): { success: boolean; remaining: number } {
   const now = Date.now();
   const record = rateLimitMap.get(ip);
-  
+
   if (!record || now - record.lastReset > RATE_LIMIT_WINDOW) {
     rateLimitMap.set(ip, { count: 1, lastReset: now });
     return { success: true, remaining: RATE_LIMIT_MAX - 1 };
   }
-  
+
   if (record.count >= RATE_LIMIT_MAX) {
     return { success: false, remaining: 0 };
   }
-  
+
   record.count++;
   return { success: true, remaining: RATE_LIMIT_MAX - record.count };
 }
 
 /**
  * Middleware principal
- * Ba0. Excluir rutas específicas del middleware
+ * Basado en: vercel/examples/edge-middleware/jwt-authentication
+ */
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const ip = getClientIp(request);
+
+  // 0. Excluir rutas específicas del middleware
   if (isExcludedRoute(pathname)) {
     return NextResponse.next();
   }
-  
+
   // 0.1 Verificar IP bloqueada
   if (blockedIPs.has(ip)) {
     return NextResponse.json(
-      { 
+      {
         error: 'Forbidden',
         message: 'Tu IP ha sido bloqueada. Contacta al administrador.'
       },
       { status: 403 }
     );
   }
-  
+
   // 0.2 Modo mantenimiento (excepto para admins)
   if (isMaintenanceMode()) {
     const isAdmin = request.cookies.get('cermont-role')?.value === 'admin';
@@ -182,25 +188,19 @@ function checkRateLimit(ip: string): { success: boolean; remaining: number } {
       return NextResponse.redirect(new URL('/maintenance', request.url));
     }
   }
-  
-  // sado en: vercel/examples/edge-middleware/jwt-authentication
- */
-export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const ip = getClientIp(request);
-  
+
   // 1. Rate Limiting (solo para API routes)
   if (pathname.startsWith('/api/')) {
     const rateLimit = checkRateLimit(ip);
-    
+
     if (!rateLimit.success) {
       return NextResponse.json(
-        { 
+        {
           error: 'Too Many Requests',
           message: 'Has excedido el límite de solicitudes. Intenta de nuevo en un minuto.',
           retryAfter: 60
         },
-        { 
+        {
           status: 429,
           headers: {
             'Retry-After': '60',
@@ -211,59 +211,59 @@ export async function middleware(request: NextRequest) {
       );
     }
   }
-  
+
   // 2. Obtener token de autenticación
   const token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
   const isAuthenticated = !!token;
-  
+
   // 3. Geolocalización
   const geo = getGeolocationInfo(request);
-  
+
   // 4. Manejo de rutas protegidas
   if (isProtectedRoute(pathname) && !isAuthenticated) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
-  
+
   // 5. Manejo de API routes protegidas
   if (isProtectedApiRoute(pathname) && !isAuthenticated) {
     return NextResponse.json(
-      { 
+      {
         error: 'Unauthorized',
         message: 'Autenticación requerida para acceder a este recurso'
       },
       { status: 401 }
     );
   }
-  
+
   // 6. Redirigir usuarios autenticados fuera de rutas públicas de auth
   if (isPublicRoute(pathname) && isAuthenticated && pathname !== '/') {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
-  
+
   // 7. Crear respuesta con headers personalizados
   const response = NextResponse.next();
-  
+
   // Añadir headers de geolocalización para uso en la app
   response.headers.set('x-user-country', geo.country);
   response.headers.set('x-user-city', geo.city);
   response.headers.set('x-user-region', geo.region);
-  
+
   // Añadir headers de rate limit
   if (pathname.startsWith('/api/')) {
     const rateLimit = checkRateLimit(ip);
     response.headers.set('X-RateLimit-Limit', RATE_LIMIT_MAX.toString());
     response.headers.set('X-RateLimit-Remaining', rateLimit.remaining.toString());
   }
-  
+
   // Añadir headers de seguridad
   addSecurityHeaders(response);
-  
+
   // Cache headers para recursos estáticos
   if (pathname.startsWith('/_next/static')) {
     response.headers.set('Cache-Control', 'public, max-age=31536000, immutable');
   }
-  
+
   return response;
 }

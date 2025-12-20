@@ -1,13 +1,18 @@
 
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@/prisma/prisma.service';
+import { Injectable, Inject, Logger } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
 import { IAuthRepository } from '../../domain/repositories';
 import { AuthUserEntity, AuthUserProps } from '../../domain/entities/auth-user.entity';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class PrismaAuthRepository implements IAuthRepository {
-    constructor(private readonly prisma: PrismaService) { }
+    private readonly logger = new Logger(PrismaAuthRepository.name);
+
+    constructor(
+        @Inject(PrismaService)
+        private readonly prisma: PrismaService,
+    ) {}
 
     async findByEmail(email: string): Promise<AuthUserEntity | null> {
         const user = await this.prisma.user.findUnique({ where: { email } });
@@ -129,7 +134,18 @@ export class PrismaAuthRepository implements IAuthRepository {
             isExpired,
             rotate: (ip?: string, userAgent?: string) => {
                 const newToken = uuidv4();
-                return { refreshToken: newToken };
+                const expiresAt = new Date();
+                expiresAt.setDate(expiresAt.getDate() + 7); // 7 días
+
+                return {
+                    refreshToken: newToken,
+                    token: newToken,
+                    userId: rt.userId,
+                    family: rt.family,
+                    expiresAt,
+                    ipAddress: ip,
+                    userAgent,
+                };
             },
         };
     }
@@ -145,9 +161,15 @@ export class PrismaAuthRepository implements IAuthRepository {
         }
     }
 
-    async createSession(session: { refreshToken: string }): Promise<void> {
-        // Session creation handled by createRefreshToken with full data
-        // This is a minimal implementation for interface compatibility
+    async createSession(session: any): Promise<void> {
+        await this.createRefreshToken({
+            token: session.token || session.refreshToken,
+            userId: session.userId,
+            family: session.family,
+            expiresAt: session.expiresAt,
+            ipAddress: session.ipAddress,
+            userAgent: session.userAgent,
+        });
     }
 
     private mapUser(user: any): AuthUserEntity {

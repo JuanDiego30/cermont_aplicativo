@@ -112,6 +112,21 @@ export function useCompletarEjecucion() {
 }
 
 /**
+ * Hook para finalizar ejecución (alias de completar)
+ */
+export function useFinalizarEjecucion() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: ({ id, ubicacion }: { id: string; ubicacion?: UbicacionGPS }) =>
+      ejecucionApi.completar(id, ubicacion),
+    onSuccess: () => {
+      invalidate('ejecucion');
+      invalidate('ordenes');
+    },
+  });
+}
+
+/**
  * Hook para completar tarea
  */
 export function useCompletarTarea() {

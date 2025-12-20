@@ -1,5 +1,5 @@
 // Prisma Schema para Cermont
-// Version 2.0.0
+// Version 2.1.0 - Corregido y Optimizado
 
 generator client {
   provider = "prisma-client-js"
@@ -8,10 +8,11 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 // ============================================
-// ENUMS
+// ENUMS (CONSISTENTES EN snake_case)
 // ============================================
 
 enum UserRole {
@@ -19,6 +20,7 @@ enum UserRole {
   supervisor
   tecnico
   administrativo
+  gerente
 }
 
 enum OrderStatus {
@@ -46,182 +48,287 @@ enum EstadoPlaneacion {
 }
 
 enum EstadoEjecucion {
-  NO_INICIADA
-  EN_PROGRESO
-  PAUSADA
-  COMPLETADA
-  CANCELADA
+  no_iniciada
+  en_progreso
+  pausada
+  completada
+  cancelada
 }
 
 enum EstadoInspeccion {
-  CONFORME
-  NO_CONFORME
-  PENDIENTE
+  conforme
+  no_conforme
+  pendiente
 }
 
 enum TipoMantenimiento {
-  PREVENTIVO
-  CORRECTIVO
-  PREDICTIVO
+  preventivo
+  correctivo
+  predictivo
 }
 
 enum EstadoMantenimiento {
-  PROGRAMADO
-  EN_PROGRESO
-  COMPLETADO
-  CANCELADO
-  PENDIENTE
+  programado
+  en_progreso
+  completado
+  cancelado
+  pendiente
 }
 
 enum PrioridadMantenimiento {
-  BAJA
-  MEDIA
-  ALTA
-  CRITICA
+  baja
+  media
+  alta
+  critica
 }
 
 enum EstadoActa {
-  BORRADOR
-  GENERADA
-  ENVIADA
-  FIRMADA
-  RECHAZADA
+  borrador
+  generada
+  enviada
+  firmada
+  rechazada
 }
 
 enum EstadoSES {
-  NO_CREADA
-  CREADA
-  ENVIADA
-  APROBADA
-  RECHAZADA
+  no_creada
+  creada
+  enviada
+  aprobada
+  rechazada
 }
 
 enum EstadoFactura {
-  NO_CREADA
-  GENERADA
-  ENVIADA
-  APROBADA
-  PAGADA
-  RECHAZADA
+  no_creada
+  generada
+  enviada
+  aprobada
+  pagada
+  rechazada
 }
 
 enum TipoArchivo {
-  ORDENES_CSV
-  EVIDENCIAS_ZIP
-  INFORMES_PDF
-  BACKUP_COMPLETO
+  ordenes_csv
+  evidencias_zip
+  informes_pdf
+  backup_completo
 }
 
-// Estado detallado de orden (14 pasos del flujo)
 enum OrderSubState {
   // Solicitud (Pasos 1-4)
-  SOLICITUD_RECIBIDA        // Paso 1: Cliente solicita servicio
-  VISITA_PROGRAMADA         // Paso 2: Visita tÃÂ©cnica programada
-  PROPUESTA_ELABORADA       // Paso 3: Propuesta econÃÂ³mica creada
-  PROPUESTA_APROBADA        // Paso 4: Cliente aprueba propuesta
+  solicitud_recibida
+  visita_programada
+  propuesta_elaborada
+  propuesta_aprobada
   
-  // PlaneaciÃÂ³n (Paso 5)
-  PLANEACION_INICIADA       // 5.1: Cronograma en elaboraciÃÂ³n
-  PLANEACION_APROBADA       // 5.6: PlaneaciÃÂ³n lista
+  // Planeación (Paso 5)
+  planeacion_iniciada
+  planeacion_aprobada
   
-  // EjecuciÃÂ³n (Paso 6)
-  EJECUCION_INICIADA        // 6.1: Trabajos iniciados
-  EJECUCION_COMPLETADA      // 6.5: Trabajos finalizados
+  // Ejecución (Paso 6)
+  ejecucion_iniciada
+  ejecucion_completada
   
   // Informe (Paso 7)
-  INFORME_GENERADO          // 7: Informe tÃÂ©cnico entregado
+  informe_generado
   
-  // Cierre TÃÂ©cnico (Pasos 8-9)
-  ACTA_ELABORADA            // 8: Acta creada
-  ACTA_FIRMADA              // 9: Acta firmada por cliente
+  // Cierre Técnico (Pasos 8-9)
+  acta_elaborada
+  acta_firmada
   
   // Cierre Administrativo (Pasos 10-13)
-  SES_APROBADA              // 11: SES aprobada en ARIBA
-  FACTURA_APROBADA          // 13: Factura aprobada
+  ses_aprobada
+  factura_aprobada
   
   // Final (Paso 14)
-  PAGO_RECIBIDO             // 14: Pago confirmado
+  pago_recibido
 }
 
 enum TipoAlerta {
-  ACTA_SIN_FIRMAR           // Acta pendiente de firma >7 dÃÂ­as
-  SES_PENDIENTE             // SES sin aprobar >5 dÃÂ­as
-  FACTURA_VENCIDA           // Factura sin pagar
-  RECURSO_FALTANTE          // Kit incompleto
-  CERTIFICACION_VENCIDA     // CertificaciÃÂ³n tÃÂ©cnico prÃÂ³xima a vencer
-  RETRASO_CRONOGRAMA        // Actividad retrasada
-  PROPUESTA_SIN_RESPUESTA   // Propuesta enviada sin respuesta >15 dÃÂ­as
+  acta_sin_firmar
+  ses_pendiente
+  factura_vencida
+  recurso_faltante
+  certificacion_vencida
+  retraso_cronograma
+  propuesta_sin_respuesta
 }
 
 enum PrioridadAlerta {
-  INFO
-  WARNING
-  ERROR
-  CRITICAL
+  info
+  warning
+  error
+  critical
+}
+
+enum TipoFormulario {
+  checklist
+  inspeccion
+  mantenimiento
+  reporte
+  certificacion
+  hes
+  otro
+}
+
+enum EstadoFormulario {
+  borrador
+  en_revision
+  completado
+  rechazado
+}
+
+enum TipoEvidencia {
+  foto
+  video
+  documento
+  audio
+  otro
+}
+
+enum TipoCosto {
+  material
+  mano_obra
+  equipo
+  transporte
+  otro
 }
 
 // ============================================
-// MODELS - USUARIOS Y AUTENTICACION
+// USUARIOS Y AUTENTICACIÓN
 // ============================================
 
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  googleId  String?   @unique
-  password  String
-  name      String
-  role      UserRole  @default(tecnico)
-  phone     String?
-  avatar    String?
-  active    Boolean   @default(true)
-  lastLogin DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  // Relations
-  refreshTokens             RefreshToken[]
-  auditLogs                 AuditLog[]
-  ordenes                   Order[]                    @relation("OrderCreator")
-  asignaciones              Order[]                    @relation("OrderAssignee")
-  planeacionesAprobadas     Planeacion[]               @relation("PlaneacionAprobador")
-  inspeccionesHESRealizadas InspeccionHES[]
-  inspeccionesLineasVida    InspeccionLineaVida[]      @relation("InspectorLineaVida")
-  pushSubscriptions         PushSubscription[]
-  mantenimientosAsignados   Mantenimiento[]            @relation("MantenimientosTecnico")
-  mantenimientosCreados     Mantenimiento[]            @relation("MantenimientosCreador")
-  checklistsCompletados     ChecklistEjecucion[]       @relation("ChecklistCompletadoPor")
-  checklistItemsCompletados ChecklistItemEjecucion[]   @relation("ItemCompletadoPor")
-  fotosCargadas             FotoEvidencia[]            @relation("FotoCargadaPor")
-  formulariosCompletados    FormularioInstancia[]      @relation("FormulariosCompletados")
+  id              String    @id @default(uuid())
+  email           String    @unique
+  password        String?   // Nullable para OAuth
+  name            String
+  role            UserRole  @default(tecnico)
+  phone           String?
+  avatar          String?
+  active          Boolean   @default(true)
   
-  // Nuevas relaciones para flujo 14 pasos
-  stateChanges              OrderStateHistory[]        @relation("StateChangeUser")
-  visitasRealizadas         VisitaTecnica[]            @relation("VisitaTecnico")
-  alertasAsignadas          AlertaAutomatica[]         @relation("AlertaUsuario")
+  // OAuth
+  googleId        String?   @unique
+  authProvider    String    @default("local")
+  emailVerified   Boolean   @default(false)
+  emailVerifiedAt DateTime?
+  
+  // Seguridad
+  lastLogin       DateTime?
+  loginAttempts   Int       @default(0)
+  lockedUntil     DateTime?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  @@index([role])
-  @@index([active])
+  // Relaciones de autenticación
+  refreshTokens        RefreshToken[]
+  passwordResetTokens  PasswordResetToken[]
+  auditLogs            AuditLog[]
+
+  // Relaciones de órdenes
+  ordenes              Order[]              @relation("OrderCreator")
+  asignaciones         Order[]              @relation("OrderAssignee")
+  ordenesAnuladas      Order[]              @relation("OrderCanceller")
+
+  // Relaciones de planeación
+  planeacionesAprobadas   Planeacion[]      @relation("PlaneacionAprobador")
+  planeacionesRechazadas  Planeacion[]      @relation("PlaneacionRechazador")
+  planeacionesCreadas     Planeacion[]      @relation("PlaneacionCreador")
+
+  // Relaciones de ejecución
+  ejecucionesIniciadas    Ejecucion[]       @relation("EjecucionIniciador")
+  ejecucionesFinalizadas  Ejecucion[]       @relation("EjecucionFinalizador")
+  tareasCompletadas       TareaEjecucion[]  @relation("TareaCompletador")
+
+  // Relaciones de checklist
+  checklistsCompletados       ChecklistEjecucion[]       @relation("ChecklistCompletadoPor")
+  checklistItemsCompletados   ChecklistItemEjecucion[]   @relation("ItemCompletadoPor")
+
+  // Relaciones de evidencias
+  orderItemsCompletados  OrderItem[]        @relation("ItemCompletador")
+  evidenciasSubidas      Evidence[]         @relation("EvidenciaSubidor")
+  fotosCargadas          FotoEvidencia[]    @relation("FotoCargadaPor")
+
+  // Relaciones de costos
+  costosCreados          Cost[]             @relation("CostoCreador")
+
+  // Relaciones de inspecciones
+  inspeccionesHESRealizadas  InspeccionHES[]         @relation("InspectorHES")
+  inspeccionesLineasVida     InspeccionLineaVida[]   @relation("InspectorLineaVida")
+
+  // Relaciones de mantenimientos
+  mantenimientosAsignados  Mantenimiento[]  @relation("MantenimientosTecnico")
+  mantenimientosCreados    Mantenimiento[]  @relation("MantenimientosCreador")
+
+  // Relaciones de formularios
+  formulariosCompletados  FormularioInstancia[]  @relation("FormulariosCompletados")
+  formulariosRevisados    FormularioInstancia[]  @relation("FormulariosRevisados")
+
+  // Relaciones de cierre administrativo
+  actasCreadas           Acta[]   @relation("ActaCreador")
+  actasAprobadas         Acta[]   @relation("ActaAprobador")
+  sesCreadas             SES[]    @relation("SESCreador")
+  sesAprobadas           SES[]    @relation("SESAprobador")
+  facturasCreadas        Factura[] @relation("FacturaCreador")
+  facturasAprobadas      Factura[] @relation("FacturaAprobador")
+
+  // Relaciones de flujo 14 pasos
+  stateChanges           OrderStateHistory[]     @relation("StateChangeUser")
+  visitasRealizadas      VisitaTecnica[]         @relation("VisitaTecnico")
+  propuestasCreadas      PropuestaEconomica[]    @relation("PropuestaCreador")
+  propuestasAprobadas    PropuestaEconomica[]    @relation("PropuestaAprobador")
+  propuestasRechazadas   PropuestaEconomica[]    @relation("PropuestaRechazador")
+  alertasAsignadas       AlertaAutomatica[]      @relation("AlertaUsuario")
+  alertasResueltas       AlertaAutomatica[]      @relation("AlertaResuelto")
+
+  // Relaciones de equipos
+  equiposCreados         Equipo[]                @relation("EquipoCreador")
+
+  // Relaciones de kits
+  kitsCreados            KitTipico[]             @relation("KitCreador")
+
+  // Relaciones de archivos
+  archivosCreados        ArchivoHistorico[]      @relation("ArchivoCreador")
+
+  // Relaciones de notificaciones
+  pushSubscriptions      PushSubscription[]
+
+  // Relaciones de templates
+  checklistTemplatesCreados  ChecklistTemplate[]  @relation("TemplateCreador")
+  formTemplatesCreados       FormTemplate[]       @relation("FormTemplateCreador")
+  formularioTemplatesCreados FormularioTemplate[] @relation("FormularioTemplateCreador")
+
   @@index([role, active])
+  @@index([email])
+  @@index([googleId])
+  @@index([authProvider])
+  @@index([active])
+  @@index([emailVerified])
   @@index([createdAt(sort: Desc)])
   @@map("users")
 }
 
 model RefreshToken {
-  id         String    @id @default(uuid())
-  token      String    @unique
-  userId     String
-  family     String
-  expiresAt  DateTime
-  isRevoked  Boolean   @default(false)
-  ipAddress  String?
-  userAgent  String?
-  lastUsedAt DateTime?
-  createdAt  DateTime  @default(now())
+  id            String    @id @default(uuid())
+  token         String    @unique
+  userId        String
+  family        String
+  expiresAt     DateTime
+  isRevoked     Boolean   @default(false)
+  ipAddress     String?
+  userAgent     String?
+  lastUsedAt    DateTime?
+  revokedAt     DateTime?
+  revokedReason String?
+  createdAt     DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
-  @@index([token])
+  @@index([userId, isRevoked])
+  @@index([family])
+  @@index([expiresAt])
   @@map("refresh_tokens")
 }
 
@@ -232,229 +339,309 @@ model PasswordResetToken {
   email     String
   expiresAt DateTime
   usedAt    DateTime?
+  ipAddress String?
   createdAt DateTime  @default(now())
 
-  @@index([token])
-  @@index([userId])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, usedAt])
+  @@index([expiresAt])
   @@map("password_reset_tokens")
 }
 
 // ============================================
-// MODELS - ÃâRDENES DE TRABAJO
+// ÓRDENES DE TRABAJO
 // ============================================
 
 model Order {
-  id               String        @id @default(uuid())
-  numero           String        @unique
-  descripcion      String
-  cliente          String
-  estado           OrderStatus   @default(planeacion)
-  subEstado        OrderSubState @default(SOLICITUD_RECIBIDA)
-  prioridad        OrderPriority @default(media)
-  fechaFinEstimada DateTime?
-  fechaInicio      DateTime?
-  fechaFin         DateTime?
+  id                  String        @id @default(uuid())
+  numero              String        @unique
+  descripcion         String
+  cliente             String
+  contactoCliente     String?
+  telefonoCliente     String?
+  direccion           String?
+  
+  estado              OrderStatus   @default(planeacion)
+  subEstado           OrderSubState @default(solicitud_recibida)
+  prioridad           OrderPriority @default(media)
+  
+  fechaFinEstimada    DateTime?
+  fechaInicio         DateTime?
+  fechaFin            DateTime?
 
-  presupuestoEstimado Float? @default(0)
-  impuestosAplicables Float? @default(0)
-  margenUtilidad      Float? @default(0)
+  // Costos
+  presupuestoEstimado Float?        @default(0)
+  costoReal           Float?        @default(0)
+  varianzaCosto       Float?        @default(0)
+  impuestosAplicables Float?        @default(0)
+  margenUtilidad      Float?        @default(0)
 
-  requiereHES     Boolean @default(true)
-  cumplimientoHES Boolean @default(false)
+  // HES
+  requiereHES         Boolean       @default(true)
+  cumplimientoHES     Boolean       @default(false)
 
-  creadorId  String?
-  creador    User?   @relation("OrderCreator", fields: [creadorId], references: [id])
-  asignadoId String?
-  asignado   User?   @relation("OrderAssignee", fields: [asignadoId], references: [id])
+  // Observaciones y cancelación
+  observaciones       String?
+  motivoCancelacion   String?
+  canceladaEn         DateTime?
+  canceladaPorId      String?
 
+  creadorId           String?
+  asignadoId          String?
+
+  creador             User?         @relation("OrderCreator", fields: [creadorId], references: [id], onDelete: SetNull)
+  asignado            User?         @relation("OrderAssignee", fields: [asignadoId], references: [id], onDelete: SetNull)
+  canceladaPor        User?         @relation("OrderCanceller", fields: [canceladaPorId], references: [id], onDelete: SetNull)
+
+  // Relaciones básicas
   items               OrderItem[]
   evidencias          Evidence[]
   costos              Cost[]
+
+  // Relaciones de proceso
   planeacion          Planeacion?
   ejecucion           Ejecucion?
   evidenciasEjecucion EvidenciaEjecucion[]
+
+  // Relaciones HES
   equiposHES          OrdenEquipoHES[]
   inspeccionesHES     InspeccionHES[]
 
-  acta                  Acta?
-  ses                   SES?
-  factura               Factura?
-  cierreAdministrativo  CierreAdministrativo?
-  formularioInstancias  FormularioInstancia[]
+  // Relaciones de cierre
+  acta                     Acta?
+  ses                      SES?
+  factura                  Factura?
+  cierreAdministrativo     CierreAdministrativo?
 
-  // Nuevas relaciones para flujo 14 pasos
-  visitas       VisitaTecnica[]
-  propuesta     PropuestaEconomica?
-  stateHistory  OrderStateHistory[]
-  comparativa   ComparativaCostos?
-  alertas       AlertaAutomatica[]
+  // Relaciones de flujo 14 pasos
+  visitas                  VisitaTecnica[]
+  propuesta                PropuestaEconomica?
+  stateHistory             OrderStateHistory[]
+  comparativa              ComparativaCostos?
+  alertas                  AlertaAutomatica[]
+  formularioInstancias     FormularioInstancia[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt                DateTime              @default(now())
+  updatedAt                DateTime              @updatedAt
 
-  @@index([estado])
-  @@index([subEstado])
-  @@index([cliente])
+  // Índices simples
   @@index([numero])
   @@index([creadorId])
   @@index([asignadoId])
+  @@index([estado])
+  @@index([subEstado])
   @@index([prioridad])
-  @@index([fechaInicio])
-  @@index([createdAt(sort: Desc)])
-  @@index([estado, fechaInicio])
-  @@index([asignadoId, estado])
-  @@index([cliente, estado])
+  @@index([requiereHES, cumplimientoHES])
+  
+  // Índices compuestos para queries comunes
   @@index([estado, prioridad, fechaInicio])
+  @@index([subEstado, createdAt(sort: Desc)])
+  @@index([cliente, estado])
+  @@index([asignadoId, estado])
+  @@index([asignadoId, estado, createdAt(sort: Desc)]) // Para listar órdenes del técnico
+  @@index([estado, createdAt(sort: Desc)]) // Para dashboard y listados
+  @@index([estado, prioridad, createdAt(sort: Desc)]) // Para ordenar por prioridad
+  @@index([creadorId, createdAt(sort: Desc)]) // Para órdenes creadas por usuario
   @@map("orders")
 }
 
 model OrderItem {
-  id          String  @id @default(uuid())
-  descripcion String
-  cantidad    Int     @default(1)
-  completado  Boolean @default(false)
-  notas       String?
+  id              String    @id @default(uuid())
+  descripcion     String
+  cantidad        Int       @default(1)
+  unidad          String    @default("UND")
+  completado      Boolean   @default(false)
+  completadoEn    DateTime?
+  completadoPorId String?
+  notas           String?
 
-  orderId String
-  orden   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId         String
+  orden           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  completadoPor   User?     @relation("ItemCompletador", fields: [completadoPorId], references: [id], onDelete: SetNull)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@index([orderId])
+  @@index([orderId, completado])
+  @@index([completadoPorId])
   @@map("order_items")
 }
 
 model Evidence {
-  id          String  @id @default(uuid())
-  tipo        String
-  url         String
-  descripcion String?
+  id            String        @id @default(uuid())
+  tipo          TipoEvidencia
+  url           String
+  urlThumbnail  String?
+  descripcion   String?
+  tamanoBytes   BigInt?
+  mimeType      String?
+  metadata      Json?
 
-  orderId String
-  orden   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId       String
+  subidoPorId   String?
 
-  createdAt DateTime @default(now())
+  orden         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  subidoPor     User?         @relation("EvidenciaSubidor", fields: [subidoPorId], references: [id], onDelete: SetNull)
+
+  createdAt     DateTime      @default(now())
 
   @@index([orderId])
-  @@index([tipo])
+  @@index([orderId, tipo])
+  @@index([subidoPorId])
+  @@index([subidoPorId, createdAt(sort: Desc)])
   @@index([createdAt(sort: Desc)])
   @@map("evidences")
 }
 
 model Cost {
-  id          String  @id @default(uuid())
-  concepto    String
-  monto       Float
-  tipo        String
-  descripcion String?
+  id              String    @id @default(uuid())
+  concepto        String
+  monto           Float
+  tipo            TipoCosto
+  descripcion     String?
+  cantidad        Int?      @default(1)
+  precioUnitario  Float?
+  facturable      Boolean   @default(true)
+  facturado       Boolean   @default(false)
+  numeroFactura   String?
 
-  orderId String
-  orden   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId         String
+  creadoPorId     String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  orden           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  creadoPor       User?     @relation("CostoCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@index([orderId])
-  @@index([tipo])
-  @@index([createdAt(sort: Desc)])
+  @@index([orderId, tipo])
+  @@index([orderId, facturado])
+  @@index([facturado])
+  @@index([creadoPorId])
+  @@index([tipo, facturado])
   @@map("costs")
 }
 
 model AuditLog {
-  id         String   @id @default(uuid())
-  entityType String
-  entityId   String
-  action     String
-  changes    Json?
-  ip         String?
-  userAgent  String?
-  createdAt  DateTime @default(now())
+  id           String   @id @default(uuid())
+  entityType   String
+  entityId     String
+  action       String
+  changes      Json?
+  previousData Json?
+  newData      Json?
+  ip           String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([entityType, entityId])
-  @@index([userId])
+  @@index([userId, action])
+  @@index([createdAt(sort: Desc)])
   @@map("audit_logs")
 }
 
 // ============================================
-// PLANEACIÃâN Y KITS TÃÂPICOS
+// PLANEACIÓN Y KITS TÍPICOS
 // ============================================
 
 model KitTipico {
-  id                    String   @id @default(uuid())
-  nombre                String   @unique
+  id                    String      @id @default(uuid())
+  nombre                String      @unique
+  codigo                String?
   descripcion           String
+  categoria             String?
   herramientas          Json
   equipos               Json
+  materiales            Json?
   documentos            String[]
   checklistItems        String[]
   duracionEstimadaHoras Int
   costoEstimado         Float
-  activo                Boolean  @default(true)
+  activo                Boolean     @default(true)
 
-  planeaciones Planeacion[]
+  creadoPorId           String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  planeaciones          Planeacion[]
 
+  creadoPor             User?       @relation("KitCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  @@index([activo, categoria])
+  @@index([codigo])
   @@map("kits_tipicos")
 }
 
 model Planeacion {
-  id     String           @id @default(uuid())
-  estado EstadoPlaneacion @default(borrador)
+  id                      String            @id @default(uuid())
+  estado                  EstadoPlaneacion  @default(borrador)
 
-  empresa             String?
-  ubicacion           String?
-  fechaEstimadaInicio DateTime?
-  fechaEstimadaFin    DateTime?
-  descripcionTrabajo  String?
+  empresa                 String?
+  ubicacion               String?
+  fechaEstimadaInicio     DateTime?
+  fechaEstimadaFin        DateTime?
+  descripcionTrabajo      String?
 
   cronograma              Json
   manoDeObra              Json
   herramientasAdicionales Json?
+  materialesAdicionales   Json?
   documentosApoyo         String[]
   observaciones           String?
+
+  motivoRechazo           String?
+  rechazadoEn             DateTime?
+  rechazadoPorId          String?
+
   aprobadoPorId           String?
   fechaAprobacion         DateTime?
 
-  ordenId String @unique
-  orden   Order  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  ordenId                 String            @unique
+  kitId                   String?
+  creadoPorId             String?
 
-  kitId String?
-  kit   KitTipico? @relation(fields: [kitId], references: [id])
+  orden                   Order             @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  kit                     KitTipico?        @relation(fields: [kitId], references: [id], onDelete: SetNull)
+  aprobadoPor             User?             @relation("PlaneacionAprobador", fields: [aprobadoPorId], references: [id], onDelete: SetNull)
+  rechazadoPor            User?             @relation("PlaneacionRechazador", fields: [rechazadoPorId], references: [id], onDelete: SetNull)
+  creadoPor               User?             @relation("PlaneacionCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
 
-  aprobadoPor User? @relation("PlaneacionAprobador", fields: [aprobadoPorId], references: [id])
+  ejecucion               Ejecucion?
+  items                   ItemPlaneacion[]
 
-  ejecucion Ejecucion?
-  items     ItemPlaneacion[]
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  @@index([estado])
   @@index([ordenId])
   @@index([kitId])
-  @@index([estado])
   @@index([aprobadoPorId])
+  @@index([creadoPorId])
+  @@index([estado, createdAt(sort: Desc)])
+  @@index([aprobadoPorId, estado])
   @@map("planeaciones")
 }
 
 model ItemPlaneacion {
-  id            String  @id @default(uuid())
+  id            String     @id @default(uuid())
   planeacionId  String
   tipo          String
   descripcion   String
-  cantidad      Int     @default(1)
-  unidad        String  @default("UND")
+  cantidad      Int        @default(1)
+  unidad        String     @default("UND")
   observaciones String?
 
-  planeacion Planeacion @relation(fields: [planeacionId], references: [id], onDelete: Cascade)
+  planeacion    Planeacion @relation(fields: [planeacionId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 
   @@index([planeacionId])
   @@index([tipo])
@@ -462,14 +649,14 @@ model ItemPlaneacion {
 }
 
 // ============================================
-// EJECUCIÃâN Y SEGUIMIENTO
+// EJECUCIÓN Y SEGUIMIENTO
 // ============================================
 
 model Ejecucion {
   id                  String          @id @default(uuid())
   ordenId             String          @unique
   planeacionId        String          @unique
-  estado              EstadoEjecucion @default(NO_INICIADA)
+  estado              EstadoEjecucion @default(no_iniciada)
   avancePercentaje    Int             @default(0)
   horasActuales       Float           @default(0)
   horasEstimadas      Float
@@ -480,145 +667,178 @@ model Ejecucion {
   observaciones       String?
   sincronizado        Boolean         @default(false)
 
+  iniciadoPorId       String?
+  finalizadoPorId     String?
+
   orden               Order                @relation(fields: [ordenId], references: [id], onDelete: Cascade)
-  planeacion          Planeacion           @relation(fields: [planeacionId], references: [id])
+  planeacion          Planeacion           @relation(fields: [planeacionId], references: [id], onDelete: Cascade)
+  iniciadoPor         User?                @relation("EjecucionIniciador", fields: [iniciadoPorId], references: [id], onDelete: SetNull)
+  finalizadoPor       User?                @relation("EjecucionFinalizador", fields: [finalizadoPorId], references: [id], onDelete: SetNull)
+
   tareas              TareaEjecucion[]
   checklists          ChecklistEjecucion[]
   evidenciasEjecucion EvidenciaEjecucion[]
   fotosEvidencia      FotoEvidencia[]      @relation("EjecucionFotos")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
 
   @@index([ordenId])
   @@index([planeacionId])
   @@index([estado])
+  @@index([sincronizado])
+  @@index([iniciadoPorId])
+  @@index([finalizadoPorId])
+  @@index([estado, fechaInicio(sort: Desc)])
+  @@index([iniciadoPorId, estado])
   @@map("ejecuciones")
 }
 
 model TareaEjecucion {
-  id             String    @id @default(uuid())
-  ejecucionId    String
-  descripcion    String
-  completada     Boolean   @default(false)
-  horasEstimadas Float
-  horasReales    Float?
-  observaciones  String?
-  completadaEn   DateTime?
+  id              String    @id @default(uuid())
+  ejecucionId     String
+  descripcion     String
+  completada      Boolean   @default(false)
+  horasEstimadas  Float
+  horasReales     Float?
+  observaciones   String?
+  completadaEn    DateTime?
+  completadaPorId String?
 
-  ejecucion Ejecucion @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
+  ejecucion       Ejecucion @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
+  completadaPor   User?     @relation("TareaCompletador", fields: [completadaPorId], references: [id], onDelete: SetNull)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  @@index([ejecucionId])
+  @@index([ejecucionId, completada])
+  @@index([completadaPorId])
   @@map("tareas_ejecucion")
 }
 
 // ============================================
-// CHECKLISTS - TEMPLATES Y EJECUCIÃâN
+// CHECKLISTS - TEMPLATES Y EJECUCIÓN
 // ============================================
 
 model ChecklistTemplate {
   id          String                  @id @default(uuid())
-  nombre      String
+  nombre      String                  @unique
   tipo        String
+  categoria   String?
   descripcion String?
   activo      Boolean                 @default(true)
+  
+  creadoPorId String?
+
   items       ChecklistTemplateItem[]
   checklists  ChecklistEjecucion[]    @relation("TemplateChecklistEjecucion")
+
+  creadoPor   User?                   @relation("TemplateCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+
   createdAt   DateTime                @default(now())
   updatedAt   DateTime                @updatedAt
 
   @@index([tipo, activo])
+  @@index([categoria])
+  @@index([creadoPorId])
   @@map("checklist_templates")
 }
 
 model ChecklistTemplateItem {
   id                   String                   @id @default(uuid())
   templateId           String
-  template             ChecklistTemplate        @relation(fields: [templateId], references: [id], onDelete: Cascade)
   nombre               String
   descripcion          String?
   tipo                 String
   requereCertificacion Boolean                  @default(false)
+  criticidad           String?                  @default("normal")
   orden                Int                      @default(0)
-  createdAt            DateTime                 @default(now())
+  
+  template             ChecklistTemplate        @relation(fields: [templateId], references: [id], onDelete: Cascade)
   itemsEjecucion       ChecklistItemEjecucion[] @relation("TemplateItemRef")
 
-  @@index([templateId])
+  createdAt            DateTime                 @default(now())
+
+  @@index([templateId, orden])
   @@map("checklist_template_items")
 }
 
 model ChecklistEjecucion {
-  id              String    @id @default(uuid())
+  id              String                   @id @default(uuid())
   ejecucionId     String
   templateId      String?
   nombre          String
   descripcion     String?
-  completada      Boolean   @default(false)
+  completada      Boolean                  @default(false)
   completadoPorId String?
   completadoEn    DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  
+  ejecucion       Ejecucion                @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
+  template        ChecklistTemplate?       @relation("TemplateChecklistEjecucion", fields: [templateId], references: [id], onDelete: SetNull)
+  completadoPor   User?                    @relation("ChecklistCompletadoPor", fields: [completadoPorId], references: [id], onDelete: SetNull)
+  
+  items           ChecklistItemEjecucion[]
+  fotosEvidencia  FotoEvidencia[]          @relation("ChecklistFotos")
 
-  ejecucion     Ejecucion              @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
-  template      ChecklistTemplate?     @relation("TemplateChecklistEjecucion", fields: [templateId], references: [id])
-  completadoPor User?                  @relation("ChecklistCompletadoPor", fields: [completadoPorId], references: [id])
-  items         ChecklistItemEjecucion[]
-  fotosEvidencia FotoEvidencia[]       @relation("ChecklistFotos")
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
 
-  @@index([ejecucionId])
+  @@index([ejecucionId, completada])
   @@index([templateId])
   @@index([completadoPorId])
   @@map("checklist_ejecucion")
 }
 
 model ChecklistItemEjecucion {
-  id              String    @id @default(uuid())
+  id              String                 @id @default(uuid())
   checklistId     String
   templateItemId  String?
   nombre          String
-  estado          String    @default("pendiente")
-  completado      Boolean   @default(false)
+  estado          String                 @default("pendiente")
+  completado      Boolean                @default(false)
   completadoPorId String?
   completadoEn    DateTime?
   observaciones   String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  
+  checklist       ChecklistEjecucion     @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+  templateItem    ChecklistTemplateItem? @relation("TemplateItemRef", fields: [templateItemId], references: [id], onDelete: SetNull)
+  completadoPor   User?                  @relation("ItemCompletadoPor", fields: [completadoPorId], references: [id], onDelete: SetNull)
+  fotosAdjuntas   FotoEvidencia[]        @relation("ItemFotos")
 
-  checklist     ChecklistEjecucion     @relation(fields: [checklistId], references: [id], onDelete: Cascade)
-  templateItem  ChecklistTemplateItem? @relation("TemplateItemRef", fields: [templateItemId], references: [id])
-  completadoPor User?                  @relation("ItemCompletadoPor", fields: [completadoPorId], references: [id])
-  fotosAdjuntas FotoEvidencia[]        @relation("ItemFotos")
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
 
-  @@index([checklistId])
+  @@index([checklistId, estado])
   @@index([templateItemId])
   @@index([completadoPorId])
   @@map("checklist_item_ejecucion")
 }
 
 model FotoEvidencia {
-  id              String    @id @default(uuid())
+  id              String                  @id @default(uuid())
   ejecucionId     String?
   checklistId     String?
   checklistItemId String?
   url             String
+  urlThumbnail    String?
   descripcion     String?
   fase            String?
+  tamanoBytes     BigInt?
+  mimeType        String?
   cargadoPorId    String?
-  cargadoEn       DateTime  @default(now())
-  sincronizado    Boolean   @default(false)
+  cargadoEn       DateTime                @default(now())
+  sincronizado    Boolean                 @default(false)
 
-  ejecucion     Ejecucion?              @relation("EjecucionFotos", fields: [ejecucionId], references: [id], onDelete: SetNull)
-  checklist     ChecklistEjecucion?     @relation("ChecklistFotos", fields: [checklistId], references: [id], onDelete: SetNull)
-  checklistItem ChecklistItemEjecucion? @relation("ItemFotos", fields: [checklistItemId], references: [id], onDelete: SetNull)
-  cargadoPor    User?                   @relation("FotoCargadaPor", fields: [cargadoPorId], references: [id])
+  ejecucion       Ejecucion?              @relation("EjecucionFotos", fields: [ejecucionId], references: [id], onDelete: SetNull)
+  checklist       ChecklistEjecucion?     @relation("ChecklistFotos", fields: [checklistId], references: [id], onDelete: SetNull)
+  checklistItem   ChecklistItemEjecucion? @relation("ItemFotos", fields: [checklistItemId], references: [id], onDelete: SetNull)
+  cargadoPor      User?                   @relation("FotoCargadaPor", fields: [cargadoPorId], references: [id], onDelete: SetNull)
 
   @@index([ejecucionId])
   @@index([checklistId])
   @@index([checklistItemId])
   @@index([cargadoPorId])
+  @@index([sincronizado])
   @@map("fotos_evidencia")
 }
 
@@ -629,7 +849,7 @@ model EvidenciaEjecucion {
   tipo          String
   nombreArchivo String
   rutaArchivo   String
-  tamano        Int
+  tamano        BigInt
   mimeType      String   @default("application/octet-stream")
   descripcion   String
   ubicacionGPS  Json?
@@ -638,14 +858,16 @@ model EvidenciaEjecucion {
   verificada    Boolean  @default(false)
   verificadoPor String?
   verificadoEn  DateTime?
+  
+  ejecucion     Ejecucion @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
+  orden         Order     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  ejecucion Ejecucion @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
-  orden     Order     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
-
   @@index([ejecucionId])
-  @@index([ordenId])
+  @@index([ordenId, tipo])
+  @@index([verificada])
   @@map("evidencias_ejecucion")
 }
 
@@ -655,81 +877,86 @@ model PushSubscription {
   endpoint  String   @unique
   auth      String
   p256dh    String
+  deviceId  String?
+  activa    Boolean  @default(true)
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
+  @@index([userId, activa])
   @@map("push_subscriptions")
 }
 
 // ============================================
-// INSPECCIÃâN LÃÂNEAS DE VIDA
+// INSPECCIÓN LÍNEAS DE VIDA
 // ============================================
 
 model InspeccionLineaVida {
-  id               String @id @default(uuid())
-  numeroLinea      String @unique
-  fabricante       String
-  diametroCable    String @default("8mm")
-  tipoCable        String @default("Acero Inoxidable")
-  ubicacion        String
-  especificaciones Json?
+  id                       String           @id @default(uuid())
+  numeroLinea              String           @unique
+  fabricante               String
+  diametroCable            String           @default("8mm")
+  tipoCable                String           @default("Acero Inoxidable")
+  ubicacion                String
+  especificaciones         Json?
 
-  fechaInspeccion          DateTime  @default(now())
+  fechaInspeccion          DateTime         @default(now())
   fechaInstalacion         DateTime?
   fechaUltimoMantenimiento DateTime?
+  proximaInspeccion        DateTime?
 
-  estado              EstadoInspeccion @default(PENDIENTE)
-  accionesCorrectivas String?
-  observaciones       String?
-  fotosEvidencia      String[]
+  estado                   EstadoInspeccion @default(pendiente)
+  accionesCorrectivas      String?
+  observaciones            String?
+  fotosEvidencia           String[]
 
-  inspectorId String
-  inspector   User   @relation("InspectorLineaVida", fields: [inspectorId], references: [id])
+  inspectorId              String
+  
+  inspector                User                  @relation("InspectorLineaVida", fields: [inspectorId], references: [id], onDelete: Restrict)
+  componentes              ComponenteLineaVida[]
 
-  componentes ComponenteLineaVida[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt                DateTime         @default(now())
+  updatedAt                DateTime         @updatedAt
 
   @@index([numeroLinea])
   @@index([inspectorId])
   @@index([estado])
+  @@index([proximaInspeccion])
   @@map("inspecciones_linea_vida")
 }
 
 model ComponenteLineaVida {
-  id               String  @id @default(uuid())
+  id               String                @id @default(uuid())
   inspeccionId     String
   nombre           String
   hallazgos        String?
   estado           String
   accionCorrectiva String?
 
-  condiciones CondicionComponente[]
+  inspeccion       InspeccionLineaVida   @relation(fields: [inspeccionId], references: [id], onDelete: Cascade)
+  condiciones      CondicionComponente[]
 
-  inspeccion InspeccionLineaVida @relation(fields: [inspeccionId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
 
   @@index([inspeccionId])
   @@map("componentes_linea_vida")
 }
 
 model CondicionComponente {
-  id           String @id @default(uuid())
+  id           String              @id @default(uuid())
   componenteId String
   tipoAfeccion String
   descripcion  String
   estado       String
+  severidad    String?             @default("media")
 
-  componente ComponenteLineaVida @relation(fields: [componenteId], references: [id], onDelete: Cascade)
+  componente   ComponenteLineaVida @relation(fields: [componenteId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
 
   @@index([componenteId])
   @@map("condiciones_componente")
@@ -740,52 +967,61 @@ model CondicionComponente {
 // ============================================
 
 model EquipoHES {
-  id     String @id @default(uuid())
-  numero String @unique
-  marca  String
-  tipo   String
-  estado String @default("DISPONIBLE")
-
+  id                String          @id @default(uuid())
+  numero            String          @unique
+  codigo            String?
+  marca             String
+  modelo            String?
+  tipo              String
+  estado            String          @default("disponible")
+  
+  fechaCompra       DateTime?
+  fechaFabricacion  DateTime?
+  vidaUtilAnios     Int?
+  
   ultimaInspeccion  DateTime?
   proximaInspeccion DateTime?
 
-  especificaciones Json?
+  especificaciones  Json?
+  observaciones     String?
 
-  inspecciones InspeccionHES[]
-  ordenes      OrdenEquipoHES[]
+  inspecciones      InspeccionHES[]
+  ordenes           OrdenEquipoHES[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
 
   @@index([estado])
   @@index([tipo])
+  @@index([proximaInspeccion])
   @@map("equipos_hes")
 }
 
 model InspeccionHES {
-  id String @id @default(uuid())
+  id              String          @id @default(uuid())
 
-  equipoId String
-  equipo   EquipoHES @relation(fields: [equipoId], references: [id])
+  equipoId        String
+  inspectorId     String
+  ordenId         String?
 
-  inspectorId String
-  inspector   User   @relation(fields: [inspectorId], references: [id])
+  fechaInspeccion DateTime        @default(now())
+  estado          String
+  observaciones   String?
+  fotosEvidencia  String[]
+  
+  aprobada        Boolean         @default(false)
+  aprobadaEn      DateTime?
 
-  ordenId String?
-  orden   Order?  @relation(fields: [ordenId], references: [id])
+  equipo          EquipoHES       @relation(fields: [equipoId], references: [id], onDelete: Restrict)
+  inspector       User            @relation("InspectorHES", fields: [inspectorId], references: [id], onDelete: Restrict)
+  orden           Order?          @relation(fields: [ordenId], references: [id], onDelete: SetNull)
 
-  fechaInspeccion DateTime @default(now())
+  items           InspeccionItem[]
 
-  items InspeccionItem[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
-  estado         String
-  observaciones  String?
-  fotosEvidencia String[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([equipoId])
+  @@index([equipoId, fechaInspeccion(sort: Desc)])
   @@index([inspectorId])
   @@index([ordenId])
   @@index([estado])
@@ -793,38 +1029,43 @@ model InspeccionHES {
 }
 
 model InspeccionItem {
-  id String @id @default(uuid())
+  id           String        @id @default(uuid())
 
   inspeccionId String
+  rubro        String
+  descripcion  String?
+  estado       String
+  conforme     Boolean       @default(true)
+  notas        String?
+
   inspeccion   InspeccionHES @relation(fields: [inspeccionId], references: [id], onDelete: Cascade)
-
-  rubro       String
-  descripcion String?
-
-  estado String
-  notas  String?
 
   @@index([inspeccionId])
   @@map("inspeccion_items")
 }
 
 model OrdenEquipoHES {
-  id      String @id @default(uuid())
-  ordenId String
-  orden   Order  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  id        String    @id @default(uuid())
+  ordenId   String
+  equipoId  String
 
-  equipoId String
-  equipo   EquipoHES @relation(fields: [equipoId], references: [id])
+  cantidad  Int       @default(1)
+  estado    String    @default("asignado")
+  
+  fechaAsignacion DateTime @default(now())
+  fechaDevolucion DateTime?
+  observaciones   String?
 
-  cantidad Int    @default(1)
-  estado   String @default("ASIGNADO")
+  orden     Order     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  equipo    EquipoHES @relation(fields: [equipoId], references: [id], onDelete: Restrict)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@unique([ordenId, equipoId])
   @@index([ordenId])
   @@index([equipoId])
+  @@index([estado])
   @@map("orden_equipos_hes")
 }
 
@@ -833,116 +1074,128 @@ model OrdenEquipoHES {
 // ============================================
 
 model Equipo {
-  id                         String    @id @default(uuid())
-  codigo                     String    @unique
+  id                         String        @id @default(uuid())
+  codigo                     String        @unique
   nombre                     String
   marca                      String?
   modelo                     String?
   serie                      String?
+  categoria                  String?
   ubicacion                  String?
+  
   fechaAdquisicion           DateTime?
   fechaUltimoMantenimiento   DateTime?
   intervaloMantenimientoDias Int?
-  activo                     Boolean   @default(true)
+  proximoMantenimiento       DateTime?
+  
+  valorAdquisicion           Float?
+  vidaUtilEstimada           Int?
+  
+  activo                     Boolean       @default(true)
   notas                      String?
 
-  creadoPorId String?
+  creadoPorId                String?
+  
+  creadoPor                  User?         @relation("EquipoCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+  mantenimientos             Mantenimiento[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  mantenimientos Mantenimiento[]
+  createdAt                  DateTime      @default(now())
+  updatedAt                  DateTime      @updatedAt
 
   @@index([codigo])
   @@index([activo])
+  @@index([categoria])
+  @@index([proximoMantenimiento])
   @@map("equipos")
 }
 
 model Mantenimiento {
-  id String @id @default(uuid())
+  id                   String                 @id @default(uuid())
 
-  equipoId String
-  equipo   Equipo @relation(fields: [equipoId], references: [id], onDelete: Cascade)
+  equipoId             String
+  tipo                 TipoMantenimiento
+  estado               EstadoMantenimiento    @default(programado)
+  prioridad            PrioridadMantenimiento @default(media)
 
-  tipo      TipoMantenimiento
-  estado    EstadoMantenimiento    @default(PROGRAMADO)
-  prioridad PrioridadMantenimiento @default(MEDIA)
+  titulo               String
+  descripcion          String?
 
-  titulo      String
-  descripcion String?
+  fechaProgramada      DateTime
+  fechaInicio          DateTime?
+  fechaFin             DateTime?
 
-  fechaProgramada DateTime
-  fechaInicio     DateTime?
-  fechaFin        DateTime?
+  tecnicoAsignadoId    String?
+  estimacionHoras      Float?
+  horasReales          Float?
+  costoEstimado        Float?
+  costoReal            Float?
 
-  tecnicoAsignadoId String?
-  tecnicoAsignado   User?   @relation("MantenimientosTecnico", fields: [tecnicoAsignadoId], references: [id])
+  notas                String?
+  observaciones        String?
+  trabajoRealizado     String?
+  repuestosUtilizados  String?
+  materialesUsados     Json?
 
-  estimacionHoras Float?
-  horasReales     Float?
-  costoTotal      Float?
-
-  notas               String?
-  observaciones       String?
-  trabajoRealizado    String?
-  repuestosUtilizados String?
-
-  esRecurrente         Boolean @default(false)
+  esRecurrente         Boolean                @default(false)
   frecuenciaDias       Int?
   mantenimientoPadreId String?
 
-  creadoPorId      String?
-  creadoPor        User?   @relation("MantenimientosCreador", fields: [creadoPorId], references: [id])
-  actualizadoPorId String?
+  creadoPorId          String?
+  actualizadoPorId     String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  equipo               Equipo                 @relation(fields: [equipoId], references: [id], onDelete: Cascade)
+  tecnicoAsignado      User?                  @relation("MantenimientosTecnico", fields: [tecnicoAsignadoId], references: [id], onDelete: SetNull)
+  creadoPor            User?                  @relation("MantenimientosCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
 
   @@index([equipoId])
   @@index([estado])
   @@index([fechaProgramada])
   @@index([tecnicoAsignadoId])
-  @@index([creadoPorId])
+  @@index([prioridad, estado])
   @@map("mantenimientos")
 }
 
 // ============================================
-// FORMULARIOS DINAMICOS
+// FORMULARIOS DINÁMICOS
 // ============================================
 
 model FormularioTemplate {
-  id          String  @id @default(uuid())
+  id          String   @id @default(uuid())
   nombre      String
   descripcion String?
   schema      String
-  version     Int     @default(1)
-  activo      Boolean @default(true)
+  version     Int      @default(1)
+  activo      Boolean  @default(true)
 
   creadoPorId String?
+  
+  creadoPor   User?    @relation("FormularioTemplateCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+  respuestas  FormularioRespuesta[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  respuestas FormularioRespuesta[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([activo])
+  @@index([creadoPorId])
   @@map("formulario_templates")
 }
 
 model FormularioRespuesta {
-  id String @id @default(uuid())
+  id              String             @id @default(uuid())
 
-  templateId String
-  template   FormularioTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
-
-  ordenId String?
-
-  respuestas String
+  templateId      String
+  ordenId         String?
+  respuestas      String
 
   completadoPorId String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  template        FormularioTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
 
   @@index([templateId])
   @@index([ordenId])
@@ -954,14 +1207,12 @@ model FormularioRespuesta {
 // ============================================
 
 model Acta {
-  id      String @id @default(uuid())
-  numero  String @unique
-  ordenId String @unique
-  orden   Order  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  id                 String     @id @default(uuid())
+  numero             String     @unique
+  ordenId            String     @unique
+  estado             EstadoActa @default(borrador)
 
-  estado EstadoActa @default(BORRADOR)
-
-  fechaEmision       DateTime  @default(now())
+  fechaEmision       DateTime   @default(now())
   fechaEntrega       DateTime?
   trabajosRealizados String
   observaciones      String?
@@ -972,225 +1223,259 @@ model Acta {
   nombreFirmaCliente String?
   cedulaFirmaTecnico String?
   cedulaFirmaCliente String?
+  cargoFirmaTecnico  String?
+  cargoFirmaCliente  String?
   fechaFirma         DateTime?
 
-  archivoActaPDF String?
-  adjuntos       String[]
+  archivoActaPDF     String?
+  adjuntos           String[]
 
-  alertaEnviada Boolean @default(false)
-  diasSinFirmar Int     @default(0)
+  alertaEnviada      Boolean    @default(false)
+  diasSinFirmar      Int        @default(0)
 
-  creadoPorId   String?
-  aprobadoPorId String?
+  creadoPorId        String?
+  aprobadoPorId      String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  orden              Order      @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  creadoPor          User?      @relation("ActaCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+  aprobadoPor        User?      @relation("ActaAprobador", fields: [aprobadoPorId], references: [id], onDelete: SetNull)
 
   cierreAdministrativo CierreAdministrativo?
 
-  @@index([ordenId])
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
   @@index([estado])
   @@index([numero])
+  @@index([ordenId])
+  @@index([creadoPorId])
+  @@index([aprobadoPorId])
+  @@index([estado, fechaEmision(sort: Desc)])
+  @@index([diasSinFirmar])
   @@map("actas")
 }
 
 model SES {
-  id        String @id @default(uuid())
-  numeroSES String @unique
-  ordenId   String @unique
-  orden     Order  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  id                  String    @id @default(uuid())
+  numeroSES           String    @unique
+  ordenId             String    @unique
+  estado              EstadoSES @default(no_creada)
 
-  estado EstadoSES @default(NO_CREADA)
+  fechaCreacion       DateTime  @default(now())
+  fechaEnvio          DateTime?
+  fechaAprobacion     DateTime?
 
-  fechaCreacion   DateTime  @default(now())
-  fechaEnvio      DateTime?
-  fechaAprobacion DateTime?
-
-  codigoAriba String?
-  urlAriba    String?
+  codigoAriba         String?
+  urlAriba            String?
+  numeroPO            String?
 
   descripcionServicio String
   valorTotal          Float
   observaciones       String?
 
-  alertaEnviada  Boolean @default(false)
-  diasSinAprobar Int     @default(0)
+  alertaEnviada       Boolean   @default(false)
+  diasSinAprobar      Int       @default(0)
 
-  creadoPorId   String?
-  aprobadoPorId String?
+  creadoPorId         String?
+  aprobadoPorId       String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  orden               Order     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  creadoPor           User?     @relation("SESCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+  aprobadoPor         User?     @relation("SESAprobador", fields: [aprobadoPorId], references: [id], onDelete: SetNull)
 
   cierreAdministrativo CierreAdministrativo?
 
-  @@index([ordenId])
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
   @@index([estado])
   @@index([numeroSES])
+  @@index([ordenId])
+  @@index([creadoPorId])
+  @@index([aprobadoPorId])
+  @@index([estado, fechaCreacion(sort: Desc)])
+  @@index([diasSinAprobar])
   @@map("ses")
 }
 
 model Factura {
-  id            String @id @default(uuid())
-  numeroFactura String @unique
-  ordenId       String @unique
-  orden         Order  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  id               String        @id @default(uuid())
+  numeroFactura    String        @unique
+  ordenId          String        @unique
+  estado           EstadoFactura @default(no_creada)
 
-  estado EstadoFactura @default(NO_CREADA)
-
-  fechaEmision     DateTime  @default(now())
+  fechaEmision     DateTime      @default(now())
   fechaVencimiento DateTime?
   fechaAprobacion  DateTime?
   fechaPago        DateTime?
 
-  subtotal   Float
-  impuestos  Float
-  valorTotal Float
+  subtotal         Float
+  impuestos        Float
+  descuentos       Float?        @default(0)
+  valorTotal       Float
 
-  conceptos     String
-  observaciones String?
+  conceptos        String
+  observaciones    String?
 
   archivoFacturaPDF String?
   adjuntos          String[]
 
-  codigoAriba String?
-  urlAriba    String?
+  codigoAriba      String?
+  urlAriba         String?
+  numeroSAP        String?
 
-  alertaEnviada Boolean @default(false)
-  diasVencidos  Int     @default(0)
+  alertaEnviada    Boolean       @default(false)
+  diasVencidos     Int           @default(0)
 
-  creadoPorId   String?
-  aprobadoPorId String?
+  creadoPorId      String?
+  aprobadoPorId    String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  orden            Order         @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  creadoPor        User?         @relation("FacturaCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+  aprobadoPor      User?         @relation("FacturaAprobador", fields: [aprobadoPorId], references: [id], onDelete: SetNull)
 
   cierreAdministrativo CierreAdministrativo?
 
-  @@index([ordenId])
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
   @@index([estado])
   @@index([numeroFactura])
+  @@index([ordenId])
+  @@index([fechaVencimiento])
+  @@index([creadoPorId])
+  @@index([aprobadoPorId])
+  @@index([estado, fechaVencimiento])
+  @@index([diasVencidos])
   @@map("facturas")
 }
 
 model CierreAdministrativo {
-  id      String @id @default(uuid())
-  ordenId String @unique
-  orden   Order  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  id                   String    @id @default(uuid())
+  ordenId              String    @unique
 
-  actaId String? @unique
-  acta   Acta?   @relation(fields: [actaId], references: [id])
+  actaId               String?   @unique
+  sesId                String?   @unique
+  facturaId            String?   @unique
 
-  sesId String? @unique
-  ses   SES?    @relation(fields: [sesId], references: [id])
+  porcentajeCompletado Int       @default(0)
+  estaCompleto         Boolean   @default(false)
 
-  facturaId String?  @unique
-  factura   Factura? @relation(fields: [facturaId], references: [id])
+  fechaInicioOrden     DateTime
+  fechaFinOrden        DateTime?
+  fechaInicioCierre    DateTime  @default(now())
+  fechaCierreCompleto  DateTime?
 
-  porcentajeCompletado Int     @default(0)
-  estaCompleto         Boolean @default(false)
+  diasParaCierre       Int       @default(0)
+  diasTranscurridos    Int       @default(0)
 
-  fechaInicioOrden    DateTime
-  fechaFinOrden       DateTime?
-  fechaInicioCierre   DateTime  @default(now())
-  fechaCierreCompleto DateTime?
+  observaciones        String?
+  bloqueos             String?
 
-  diasParaCierre Int @default(0)
+  orden                Order     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  acta                 Acta?     @relation(fields: [actaId], references: [id], onDelete: SetNull)
+  ses                  SES?      @relation(fields: [sesId], references: [id], onDelete: SetNull)
+  factura              Factura?  @relation(fields: [facturaId], references: [id], onDelete: SetNull)
 
-  observaciones String?
-  bloqueos      String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([ordenId])
   @@index([estaCompleto])
+  @@index([porcentajeCompletado])
   @@map("cierre_administrativo")
 }
 
 // ============================================
-// ARCHIVO HISTÃâRICO
+// ARCHIVO HISTÓRICO
 // ============================================
 
 model ArchivoHistorico {
-  id   String      @id @default(uuid())
-  tipo TipoArchivo
+  id                 String      @id @default(uuid())
+  tipo               TipoArchivo
 
-  mes  Int
-  anio Int
+  mes                Int
+  anio               Int
 
-  nombreArchivo String
-  rutaArchivo   String
-  tamanioBytes  BigInt
+  nombreArchivo      String
+  rutaArchivo        String
+  tamanioBytes       BigInt
 
-  cantidadOrdenes    Int     @default(0)
-  cantidadEvidencias Int     @default(0)
+  cantidadOrdenes    Int         @default(0)
+  cantidadEvidencias Int         @default(0)
   descripcion        String?
 
-  disponible    Boolean   @default(true)
-  descargado    Boolean   @default(false)
-  fechaDescarga DateTime?
+  disponible         Boolean     @default(true)
+  descargado         Boolean     @default(false)
+  fechaDescarga      DateTime?
 
-  creadoPorId    String?
-  fechaArchivado DateTime @default(now())
+  creadoPorId        String?
+  fechaArchivado     DateTime    @default(now())
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  creadoPor          User?       @relation("ArchivoCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
 
   @@unique([mes, anio, tipo])
   @@index([mes, anio])
   @@index([disponible])
+  @@index([tipo])
   @@map("archivos_historicos")
 }
 
 // ============================================
-// MODELOS ADICIONALES - KITS Y SINCRONIZACIÃâN
+// MODELOS ADICIONALES - KITS Y SINCRONIZACIÓN
 // ============================================
 
-// Modelo Kit (usado en kits.repository.ts)
 model Kit {
-  id          String    @id @default(uuid())
+  id          String   @id @default(uuid())
   nombre      String
+  codigo      String?  @unique
   descripcion String?
   categoria   String?
-  activo      Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  activo      Boolean  @default(true)
+  
+  items       KitItem[]
 
-  items KitItem[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
+  @@index([activo])
+  @@index([categoria])
   @@map("kits")
 }
 
 model KitItem {
-  id       String @id @default(uuid())
-  kitId    String
-  nombre   String
-  cantidad Int    @default(1)
-  unidad   String @default("UND")
+  id          String   @id @default(uuid())
+  kitId       String
+  nombre      String
+  descripcion String?
+  cantidad    Int      @default(1)
+  unidad      String   @default("UND")
 
-  kit Kit @relation(fields: [kitId], references: [id], onDelete: Cascade)
+  kit         Kit      @relation(fields: [kitId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([kitId])
   @@map("kit_items")
 }
 
-// Modelo Formulario (usado en formularios.repository.ts)
 model Formulario {
-  id          String  @id @default(uuid())
+  id          String                       @id @default(uuid())
   nombre      String
   descripcion String?
   categoria   String?
   campos      Json
-  activo      Boolean @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  activo      Boolean                      @default(true)
+  
+  respuestas  FormularioRespuestaLegacy[]
 
-  respuestas FormularioRespuestaLegacy[]
+  createdAt   DateTime                     @default(now())
+  updatedAt   DateTime                     @updatedAt
 
+  @@index([activo])
   @@map("formularios")
 }
 
@@ -1200,17 +1485,17 @@ model FormularioRespuestaLegacy {
   ordenId      String?
   respuestas   Json
   creadoPorId  String?
+
+  formulario   Formulario @relation(fields: [formularioId], references: [id], onDelete: Cascade)
+
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
-
-  formulario Formulario @relation(fields: [formularioId], references: [id], onDelete: Cascade)
 
   @@index([formularioId])
   @@index([ordenId])
   @@map("formulario_respuestas_legacy")
 }
 
-// Modelo HES adicional (usado en hes.repository.ts)
 model HES {
   id            String   @id @default(uuid())
   equipoId      String?
@@ -1220,49 +1505,57 @@ model HES {
   observaciones String?
   aprobado      Boolean  @default(false)
   inspectorId   String
+
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  @@index([equipoId])
+  @@index([ordenId])
+  @@index([inspectorId])
   @@map("hes_registros")
 }
 
-// Modelo LineaVida (usado en lineas-vida.repository.ts)
 model LineaVida {
-  id                       String    @id @default(uuid())
-  ubicacion                String
-  tipo                     String?
-  longitud                 Float?
-  capacidadUsuarios        Int?
-  fechaInstalacion         DateTime?
-  fechaProximaInspeccion   DateTime?
-  observaciones            String?
-  estado                   String    @default("activo")
-  createdAt                DateTime  @default(now())
-  updatedAt                DateTime  @updatedAt
+  id                     String                       @id @default(uuid())
+  codigo                 String?                      @unique
+  ubicacion              String
+  tipo                   String?
+  longitud               Float?
+  capacidadUsuarios      Int?
+  fechaInstalacion       DateTime?
+  fechaProximaInspeccion DateTime?
+  observaciones          String?
+  estado                 String                       @default("activo")
 
-  inspecciones InspeccionLineaVidaLegacy[]
+  inspecciones           InspeccionLineaVidaLegacy[]
 
+  createdAt              DateTime                     @default(now())
+  updatedAt              DateTime                     @updatedAt
+
+  @@index([estado])
+  @@index([fechaProximaInspeccion])
   @@map("lineas_vida")
 }
 
 model InspeccionLineaVidaLegacy {
-  id            String     @id @default(uuid())
+  id            String    @id @default(uuid())
   lineaVidaId   String
   tipo          String?
   resultados    Json?
-  aprobado      Boolean    @default(false)
+  aprobado      Boolean   @default(false)
   observaciones String?
   inspectorId   String
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
 
-  lineaVida LineaVida @relation(fields: [lineaVidaId], references: [id], onDelete: Cascade)
+  lineaVida     LineaVida @relation(fields: [lineaVidaId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   @@index([lineaVidaId])
+  @@index([inspectorId])
   @@map("inspecciones_linea_vida_legacy")
 }
 
-// Modelo PendingSync (usado en sync.repository.ts)
 model PendingSync {
   id         String   @id @default(uuid())
   userId     String
@@ -1275,11 +1568,14 @@ model PendingSync {
   timestamp  DateTime
   status     String   @default("pending")
   error      String?
+  retryCount Int      @default(0)
+
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  @@index([userId])
-  @@index([status])
+  @@index([userId, status])
+  @@index([status, timestamp])
+  @@index([entityType])
   @@map("pending_syncs")
 }
 
@@ -1287,73 +1583,61 @@ model PendingSync {
 // DYNAMIC FORMS ENGINE
 // ============================================
 
-enum TipoFormulario {
-  CHECKLIST
-  INSPECCION
-  MANTENIMIENTO
-  REPORTE
-  CERTIFICACION
-  HES
-  OTRO
-}
-
-/// Template de formulario dinÃÂ¡mico
-/// Define la estructura y campos de un formulario reutilizable
 model FormTemplate {
-  id          String         @id @default(uuid())
-  nombre      String         @unique
+  id          String              @id @default(uuid())
+  nombre      String              @unique
   tipo        TipoFormulario
-  categoria   String         // "HES", "LÃÂ­neas de Vida", "CCTV", etc.
-  version     String         @default("1.0")
-  activo      Boolean        @default(true)
+  categoria   String
+  version     String              @default("1.0")
+  activo      Boolean             @default(true)
 
-  // JSON Schema completo del formulario
-  schema      Json           // Estructura de secciones y campos
-  uiSchema    Json?          // ConfiguraciÃÂ³n UI opcional (colores, layout, etc.)
+  schema      Json
+  uiSchema    Json?
 
-  // Metadata
   descripcion String?
   tags        String[]
 
-  // Relaciones
+  creadoPorId String?
+  
+  creadoPor   User?               @relation("FormTemplateCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
   instancias  FormularioInstancia[]
 
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
 
   @@index([tipo, activo])
   @@index([categoria])
+  @@index([creadoPorId])
   @@map("form_templates")
 }
 
-/// Instancia de un formulario completado
-/// Almacena los datos capturados para un formulario especÃÂ­fico
 model FormularioInstancia {
-  id              String        @id @default(uuid())
+  id              String           @id @default(uuid())
   templateId      String
-  template        FormTemplate  @relation(fields: [templateId], references: [id])
-
-  // RelaciÃÂ³n con orden (opcional)
   ordenId         String?
-  orden           Order?        @relation(fields: [ordenId], references: [id])
 
-  // Datos capturados del formulario
-  data            Json          // Respuestas del formulario en JSON
+  data            Json
 
-  // Quien completÃÂ³ el formulario
   completadoPorId String?
-  completadoPor   User?         @relation("FormulariosCompletados", fields: [completadoPorId], references: [id])
   completadoEn    DateTime?
+  revisadoPorId   String?
+  revisadoEn      DateTime?
 
-  // Estado
-  estado          String        @default("borrador") // borrador, completado, validado
+  estado          EstadoFormulario @default(borrador)
+  observaciones   String?
 
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  template        FormTemplate     @relation(fields: [templateId], references: [id], onDelete: Restrict)
+  orden           Order?           @relation(fields: [ordenId], references: [id], onDelete: SetNull)
+  completadoPor   User?            @relation("FormulariosCompletados", fields: [completadoPorId], references: [id], onDelete: SetNull)
+  revisadoPor     User?            @relation("FormulariosRevisados", fields: [revisadoPorId], references: [id], onDelete: SetNull)
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   @@index([templateId])
   @@index([ordenId])
   @@index([completadoPorId])
+  @@index([estado])
   @@map("formularios_instancias")
 }
 
@@ -1362,150 +1646,161 @@ model FormularioInstancia {
 // ============================================
 
 model OrderStateHistory {
-  id          String         @id @default(uuid())
-  ordenId     String
-  orden       Order          @relation(fields: [ordenId], references: [id], onDelete: Cascade)
-  
-  fromState   OrderSubState?
-  toState     OrderSubState
-  
-  userId      String?
-  user        User?          @relation("StateChangeUser", fields: [userId], references: [id])
-  
-  notas       String?
-  metadata    Json?          // Datos adicionales del cambio
-  
-  createdAt   DateTime       @default(now())
-  
+  id        String         @id @default(uuid())
+  ordenId   String
+
+  fromState OrderSubState?
+  toState   OrderSubState
+
+  userId    String?
+  notas     String?
+  metadata  Json?
+
+  orden     Order          @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  user      User?          @relation("StateChangeUser", fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime       @default(now())
+
   @@index([ordenId, createdAt(sort: Desc)])
   @@index([userId])
+  @@index([toState])
   @@map("order_state_history")
 }
 
 model VisitaTecnica {
-  id                String    @id @default(uuid())
-  ordenId           String
-  orden             Order     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
-  
-  fechaProgramada   DateTime
-  fechaRealizada    DateTime?
-  duracionMinutos   Int?
-  
-  tecnicoId         String
-  tecnico           User      @relation("VisitaTecnico", fields: [tecnicoId], references: [id])
-  
-  // Datos recolectados en visita
-  mediciones        Json?     // Medidas tomadas en campo
-  fotosUrl          String[]  // URLs de fotos tomadas
-  observaciones     String?
-  coordenadas       Json?     // {lat, lng}
-  
-  completada        Boolean   @default(false)
-  
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  
+  id              String    @id @default(uuid())
+  ordenId         String
+  fechaProgramada DateTime
+  fechaRealizada  DateTime?
+  duracionMinutos Int?
+
+  tecnicoId       String
+
+  mediciones      Json?
+  fotosUrl        String[]
+  observaciones   String?
+  coordenadas     Json?
+
+  completada      Boolean   @default(false)
+
+  orden           Order     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  tecnico         User      @relation("VisitaTecnico", fields: [tecnicoId], references: [id], onDelete: Restrict)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
   @@index([ordenId])
   @@index([tecnicoId])
   @@index([fechaProgramada])
+  @@index([completada])
   @@map("visitas_tecnicas")
 }
 
 model PropuestaEconomica {
-  id                  String    @id @default(uuid())
-  ordenId             String    @unique
-  orden               Order     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  id                 String    @id @default(uuid())
+  ordenId            String    @unique
+
+  costoManoObra      Float     @default(0)
+  costoMateriales    Float     @default(0)
+  costoEquipos       Float     @default(0)
+  costoTransporte    Float     @default(0)
+  otrosCostos        Float     @default(0)
+
+  subtotal           Float     @default(0)
+  impuestos          Float     @default(0)
+  margenUtilidad     Float     @default(0)
+  total              Float     @default(0)
+
+  numeroVersion      Int       @default(1)
+  aprobada           Boolean   @default(false)
+  numeroPO           String?
+  fechaEnvio         DateTime?
+  fechaAprobacion    DateTime?
+  fechaRechazo       DateTime?
+  motivoRechazo      String?
+
+  urlArchivo         String?
   
-  // Costos estimados desglosados
-  costoManoObra       Float     @default(0)
-  costoMateriales     Float     @default(0)
-  costoEquipos        Float     @default(0)
-  costoTransporte     Float     @default(0)
-  otrosCostos         Float     @default(0)
-  
-  // CÃÂ¡lculos
-  subtotal            Float     @default(0)
-  impuestos           Float     @default(0)  // IVA + otros
-  margenUtilidad      Float     @default(0)  // % de ganancia
-  total               Float     @default(0)  // Total a facturar
-  
-  // Estado de la propuesta
-  numeroVersion       Int       @default(1)
-  aprobada            Boolean   @default(false)
-  numeroPO            String?   // Purchase Order del cliente
-  fechaEnvio          DateTime?
-  fechaAprobacion     DateTime?
-  fechaRechazo        DateTime?
-  motivoRechazo       String?
-  
-  // Archivo PDF de la propuesta
-  urlArchivo          String?
-  
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-  
-  @@index([ordenId])
+  creadoPorId        String?
+  aprobadaPorId      String?
+  rechazadaPorId     String?
+
+  orden              Order     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  creadoPor          User?     @relation("PropuestaCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+  aprobadaPor        User?     @relation("PropuestaAprobador", fields: [aprobadaPorId], references: [id], onDelete: SetNull)
+  rechazadaPor       User?     @relation("PropuestaRechazador", fields: [rechazadaPorId], references: [id], onDelete: SetNull)
+
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([aprobada])
+  @@index([numeroVersion])
   @@map("propuestas_economicas")
 }
 
 model AlertaAutomatica {
-  id            String          @id @default(uuid())
-  tipo          TipoAlerta
-  prioridad     PrioridadAlerta @default(INFO)
-  
-  ordenId       String
-  orden         Order           @relation(fields: [ordenId], references: [id], onDelete: Cascade)
-  
-  titulo        String
-  mensaje       String
-  
-  usuarioId     String?
-  usuario       User?           @relation("AlertaUsuario", fields: [usuarioId], references: [id])
-  
-  leida         Boolean         @default(false)
-  resuelta      Boolean         @default(false)
-  
-  metadata      Json?           // Datos adicionales
-  
-  createdAt     DateTime        @default(now())
-  leidaAt       DateTime?
-  resueltaAt    DateTime?
-  
+  id          String          @id @default(uuid())
+  tipo        TipoAlerta
+  prioridad   PrioridadAlerta @default(info)
+
+  ordenId     String
+
+  titulo      String
+  mensaje     String
+
+  usuarioId   String?
+  leida       Boolean         @default(false)
+  resuelta    Boolean         @default(false)
+  resueltaPor String?
+
+  metadata    Json?
+
+  orden       Order           @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  usuario     User?           @relation("AlertaUsuario", fields: [usuarioId], references: [id], onDelete: SetNull)
+  resuelto    User?           @relation("AlertaResuelto", fields: [resueltaPor], references: [id], onDelete: SetNull)
+
+  createdAt   DateTime        @default(now())
+  leidaAt     DateTime?
+  resueltaAt  DateTime?
+
+  @@index([usuarioId])
   @@index([usuarioId, leida])
+  @@index([usuarioId, resuelta])
   @@index([tipo, createdAt(sort: Desc)])
   @@index([ordenId])
   @@index([prioridad, resuelta])
+  @@index([prioridad, leida, createdAt(sort: Desc)])
   @@map("alertas_automaticas")
 }
 
 model ComparativaCostos {
-  id              String    @id @default(uuid())
-  ordenId         String    @unique
-  orden           Order     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
-  
-  // Estimados (de la propuesta)
-  estimadoManoObra      Float   @default(0)
-  estimadoMateriales    Float   @default(0)
-  estimadoEquipos       Float   @default(0)
-  estimadoTransporte    Float   @default(0)
-  estimadoOtros         Float   @default(0)
-  totalEstimado         Float   @default(0)
-  
-  // Reales (de la ejecuciÃÂ³n)
-  realManoObra          Float   @default(0)
-  realMateriales        Float   @default(0)
-  realEquipos           Float   @default(0)
-  realTransporte        Float   @default(0)
-  realOtros             Float   @default(0)
-  totalReal             Float   @default(0)
-  
-  // Varianza calculada
-  varianzaPorcentaje    Float   @default(0)
-  margenRealizado       Float   @default(0)
-  
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  
-  @@index([ordenId])
+  id                     String   @id @default(uuid())
+  ordenId                String   @unique
+
+  estimadoManoObra       Float    @default(0)
+  estimadoMateriales     Float    @default(0)
+  estimadoEquipos        Float    @default(0)
+  estimadoTransporte     Float    @default(0)
+  estimadoOtros          Float    @default(0)
+  totalEstimado          Float    @default(0)
+
+  realManoObra           Float    @default(0)
+  realMateriales         Float    @default(0)
+  realEquipos            Float    @default(0)
+  realTransporte         Float    @default(0)
+  realOtros              Float    @default(0)
+  totalReal              Float    @default(0)
+
+  varianzaPorcentaje     Float    @default(0)
+  varianzaAbsoluta       Float    @default(0)
+  margenRealizado        Float    @default(0)
+
+  orden                  Order    @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
   @@map("comparativa_costos")
 }
+
+

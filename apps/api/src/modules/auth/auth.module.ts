@@ -14,14 +14,12 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AuthControllerRefactored } from './infrastructure/controllers/auth.controller';
 import { PrismaAuthRepository } from './infrastructure/persistence/prisma-auth.repository';
 
-// Application - Use Cases
-import {
-    LoginUseCase,
-    RegisterUseCase,
-    RefreshTokenUseCase,
-    LogoutUseCase,
-    GetCurrentUserUseCase,
-} from './application/use-cases';
+// Application - Use Cases (direct imports to avoid circular dependency)
+import { LoginUseCase } from './application/use-cases/login.use-case';
+import { RegisterUseCase } from './application/use-cases/register.use-case';
+import { RefreshTokenUseCase } from './application/use-cases/refresh-token.use-case';
+import { LogoutUseCase } from './application/use-cases/logout.use-case';
+import { GetCurrentUserUseCase } from './application/use-cases/get-current-user.use-case';
 
 // Domain
 import { AUTH_REPOSITORY } from './domain/repositories';
@@ -35,15 +33,16 @@ import { PrismaModule } from '../../prisma/prisma.module';
 
 @Module({
     imports: [
+        ConfigModule, // Necesario para ConfigService en JwtStrategy
         PrismaModule,
         PassportModule.register({ defaultStrategy: 'jwt' }),
-        EventEmitterModule.forRoot(),
+        // EventEmitterModule ya está configurado globalmente en AppModule
         JwtModule.registerAsync({
             global: true,
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => {
-                const secret = configService.get<string>('JWT_SECRET');
+                const secret = configService.get<string>('JWT_SECRET') || process.env.JWT_SECRET;
                 if (!secret) {
                     throw new Error('JWT_SECRET is required');
                 }
@@ -73,6 +72,16 @@ import { PrismaModule } from '../../prisma/prisma.module';
         AuthService,
         JwtStrategy,
     ],
-    exports: [AuthService, JwtModule, AUTH_REPOSITORY],
+    exports: [
+        AuthService,
+        JwtModule,
+        AUTH_REPOSITORY,
+        // Export use cases para que estén disponibles si se necesitan en otros módulos
+        LoginUseCase,
+        RegisterUseCase,
+        RefreshTokenUseCase,
+        LogoutUseCase,
+        GetCurrentUserUseCase,
+    ],
 })
 export class AuthModule { }

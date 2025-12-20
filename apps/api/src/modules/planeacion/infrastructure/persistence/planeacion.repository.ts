@@ -5,41 +5,38 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { CreatePlaneacionDto } from '../../application/dto';
-
-export const PLANEACION_REPOSITORY = Symbol('PLANEACION_REPOSITORY');
-
-export interface PlaneacionData {
-  ordenId: string;
-  cronograma: Record<string, unknown>;
-  manoDeObra: Record<string, unknown>;
-  observaciones?: string;
-  kitId?: string;
-}
-
-export interface IPlaneacionRepository {
-  findByOrdenId(ordenId: string): Promise<any>;
-  create(ordenId: string, data: CreatePlaneacionDto): Promise<any>;
-  update(id: string, data: Partial<PlaneacionData>): Promise<any>;
-  aprobar(id: string, aprobadorId: string): Promise<any>;
-  rechazar(id: string, motivo: string): Promise<any>;
-}
+import { IPlaneacionRepository, PlaneacionData } from '../../domain/repositories/planeacion.repository.interface';
 
 @Injectable()
 export class PlaneacionRepository implements IPlaneacionRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findByOrdenId(ordenId: string): Promise<any> {
-    return this.prisma.planeacion.findUnique({
+  async findByOrdenId(ordenId: string): Promise<PlaneacionData | null> {
+    const planeacion = await this.prisma.planeacion.findUnique({
       where: { ordenId },
       include: {
         kit: true,
         items: true,
       },
     });
+    if (!planeacion) return null;
+    return this.mapToPlaneacionData(planeacion);
   }
 
-  async create(ordenId: string, data: CreatePlaneacionDto): Promise<any> {
-    return this.prisma.planeacion.create({
+  async createOrUpdate(ordenId: string, data: Partial<PlaneacionData>): Promise<PlaneacionData> {
+    const existing = await this.prisma.planeacion.findUnique({
+      where: { ordenId },
+    });
+
+    if (existing) {
+      return this.update(existing.id, data);
+    }
+
+    return this.create(ordenId, data as CreatePlaneacionDto);
+  }
+
+  async create(ordenId: string, data: CreatePlaneacionDto): Promise<PlaneacionData> {
+    const planeacion = await this.prisma.planeacion.create({
       data: {
         ordenId,
         cronograma: (data.cronograma || {}) as object,
@@ -50,10 +47,11 @@ export class PlaneacionRepository implements IPlaneacionRepository {
         estado: 'borrador',
       },
     });
+    return this.mapToPlaneacionData(planeacion);
   }
 
-  async update(id: string, data: Partial<PlaneacionData>): Promise<any> {
-    return this.prisma.planeacion.update({
+  async update(id: string, data: Partial<PlaneacionData>): Promise<PlaneacionData> {
+    const planeacion = await this.prisma.planeacion.update({
       where: { id },
       data: {
         cronograma: data.cronograma as object | undefined,
@@ -62,10 +60,11 @@ export class PlaneacionRepository implements IPlaneacionRepository {
         kitId: data.kitId,
       },
     });
+    return this.mapToPlaneacionData(planeacion);
   }
 
-  async aprobar(id: string, aprobadorId: string): Promise<any> {
-    return this.prisma.planeacion.update({
+  async aprobar(id: string, aprobadorId: string): Promise<PlaneacionData> {
+    const planeacion = await this.prisma.planeacion.update({
       where: { id },
       data: {
         estado: 'aprobada',
@@ -73,15 +72,33 @@ export class PlaneacionRepository implements IPlaneacionRepository {
         fechaAprobacion: new Date(),
       },
     });
+    return this.mapToPlaneacionData(planeacion);
   }
 
-  async rechazar(id: string, motivo: string): Promise<any> {
-    return this.prisma.planeacion.update({
+  async rechazar(id: string, motivo: string): Promise<PlaneacionData> {
+    const planeacion = await this.prisma.planeacion.update({
       where: { id },
       data: {
         estado: 'borrador',
         observaciones: motivo,
       },
     });
+    return this.mapToPlaneacionData(planeacion);
+  }
+
+  private mapToPlaneacionData(planeacion: any): PlaneacionData {
+    return {
+      id: planeacion.id,
+      ordenId: planeacion.ordenId,
+      estado: planeacion.estado,
+      cronograma: planeacion.cronograma as Record<string, unknown>,
+      manoDeObra: planeacion.manoDeObra as Record<string, unknown>,
+      observaciones: planeacion.observaciones,
+      aprobadoPorId: planeacion.aprobadoPorId,
+      fechaAprobacion: planeacion.fechaAprobacion,
+      kitId: planeacion.kitId,
+      createdAt: planeacion.createdAt,
+      updatedAt: planeacion.updatedAt,
+    };
   }
 }

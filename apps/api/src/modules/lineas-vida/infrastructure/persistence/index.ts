@@ -1,1 +1,1 @@
-// Persistence exports (placeholder - repository not yet implemented)
+export * from './prisma-linea-vida.repository';

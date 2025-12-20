@@ -84,8 +84,10 @@ export default function OrdersPage() {
 
       {/* Loading & Error States */}
       {isLoading && (
-        <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-          Cargando órdenes...
+        <div className="space-y-3">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-20 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"></div>
+          ))}
         </div>
       )}
 

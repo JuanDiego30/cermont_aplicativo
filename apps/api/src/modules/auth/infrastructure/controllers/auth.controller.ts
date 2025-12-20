@@ -14,16 +14,17 @@ import {
   HttpStatus,
   UseGuards,
   BadRequestException,
+  Inject,
+  Logger,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Response, Request } from 'express';
-import {
-  LoginUseCase,
-  RegisterUseCase,
-  RefreshTokenUseCase,
-  LogoutUseCase,
-  GetCurrentUserUseCase,
-} from '../../application/use-cases';
+// Application - Use Cases (direct imports to avoid circular dependency)
+import { LoginUseCase } from '../../application/use-cases/login.use-case';
+import { RegisterUseCase } from '../../application/use-cases/register.use-case';
+import { RefreshTokenUseCase } from '../../application/use-cases/refresh-token.use-case';
+import { LogoutUseCase } from '../../application/use-cases/logout.use-case';
+import { GetCurrentUserUseCase } from '../../application/use-cases/get-current-user.use-case';
 import { LoginSchema, RegisterSchema } from '../../application/dto';
 import { Public } from '../../../../common/decorators/public.decorator';
 import { CurrentUser, JwtPayload } from '../../../../common/decorators/current-user.decorator';
@@ -40,13 +41,17 @@ const COOKIE_OPTIONS = {
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthControllerRefactored {
+  private readonly logger = new Logger(AuthControllerRefactored.name);
+
   constructor(
-    private readonly loginUseCase: LoginUseCase,
-    private readonly registerUseCase: RegisterUseCase,
-    private readonly refreshTokenUseCase: RefreshTokenUseCase,
-    private readonly logoutUseCase: LogoutUseCase,
-    private readonly getCurrentUserUseCase: GetCurrentUserUseCase,
-  ) {}
+    @Inject(LoginUseCase) private readonly loginUseCase: LoginUseCase,
+    @Inject(RegisterUseCase) private readonly registerUseCase: RegisterUseCase,
+    @Inject(RefreshTokenUseCase) private readonly refreshTokenUseCase: RefreshTokenUseCase,
+    @Inject(LogoutUseCase) private readonly logoutUseCase: LogoutUseCase,
+    @Inject(GetCurrentUserUseCase) private readonly getCurrentUserUseCase: GetCurrentUserUseCase,
+  ) {
+    this.logger.log('[AuthController] Constructor - all use cases injected successfully');
+  }
 
   @Post('login')
   @Public()
@@ -57,9 +62,20 @@ export class AuthControllerRefactored {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const dto = LoginSchema.parse(body);
+    // Validar body con Zod
+    const parseResult = LoginSchema.safeParse(body);
+    if (!parseResult.success) {
+      const errors = parseResult.error.issues.map(i => {
+        const path = i.path.length > 0 ? i.path.join('.') : 'root';
+        return `${path}: ${i.message}`;
+      }).join(', ');
+      throw new BadRequestException(`Validación fallida: ${errors}`);
+    }
+
+    const dto = parseResult.data;
     const context = { ip: req.ip, userAgent: req.get('user-agent') };
 
+    this.logger.log(`Login attempt for: ${dto.email}`);
     const result = await this.loginUseCase.execute(dto, context);
 
     res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
@@ -146,6 +162,12 @@ export class AuthControllerRefactored {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Obtener usuario actual' })
   async me(@CurrentUser() user: JwtPayload) {
+    if (!user || !user.userId) {
+      throw new BadRequestException('Usuario no autenticado');
+    }
+    if (!this.getCurrentUserUseCase) {
+      throw new BadRequestException('GetCurrentUserUseCase no está disponible');
+    }
     return this.getCurrentUserUseCase.execute(user.userId);
   }
 }

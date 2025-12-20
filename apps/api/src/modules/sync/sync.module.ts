@@ -25,7 +25,7 @@ import { SyncRepository } from './infrastructure/persistence/sync.repository';
 @Module({
     imports: [
         PrismaModule,
-        EventEmitterModule.forRoot(),
+        // EventEmitterModule ya está configurado globalmente en AppModule
     ],
     controllers: [SyncController],
     providers: [
