@@ -4,6 +4,7 @@
  */
 import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
+import { PrismaModule } from '../../prisma/prisma.module';
 
 // Domain
 import { EVIDENCIA_REPOSITORY } from './domain/repositories/evidencia.repository.interface';
@@ -30,6 +31,7 @@ const useCaseProviders = [
 
 @Module({
     imports: [
+        PrismaModule,
         MulterModule.register({
             dest: './uploads',
             limits: { fileSize: 20 * 1024 * 1024 }, // 20MB

@@ -9,6 +9,7 @@
  */
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { PrismaModule } from '../../prisma/prisma.module';
 
 // Domain
 import { ORDEN_REPOSITORY } from './domain/repositories';
@@ -41,7 +42,7 @@ const useCaseProviders = [
 ];
 
 @Module({
-  imports: [EventEmitterModule.forRoot()],
+  imports: [PrismaModule, EventEmitterModule.forRoot()],
   controllers: [
     OrdenesController, // Clean Architecture Controller
   ],

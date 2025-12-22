@@ -30,7 +30,7 @@ export class PrismaLineaVidaRepository implements ILineaVidaRepository {
                 fabricante: 'Desconocido',
                 ubicacion: data.ubicacion,
                 inspectorId,
-                estado: 'PENDIENTE',
+                estado: 'pendiente' as any,
                 observaciones: data.observaciones,
             },
         });
@@ -44,14 +44,13 @@ export class PrismaLineaVidaRepository implements ILineaVidaRepository {
     }
 
     async createInspeccion(data: InspeccionLineaVidaDto, inspectorId: string): Promise<any> {
-        // Por ahora crear como una nueva inspección
         return this.prisma.inspeccionLineaVida.create({
             data: {
                 numeroLinea: data.lineaVidaId,
                 fabricante: 'Desconocido',
                 ubicacion: 'Sin ubicación',
                 inspectorId,
-                estado: data.aprobado ? 'APROBADA' : 'RECHAZADA',
+                estado: (data.aprobado ? 'conforme' : 'no_conforme') as any,
                 observaciones: data.observaciones,
             },
         });
