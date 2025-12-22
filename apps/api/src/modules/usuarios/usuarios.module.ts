@@ -8,6 +8,7 @@
  * - Infrastructure: Controllers y Persistence
  */
 import { Module } from '@nestjs/common';
+import { PrismaModule } from '../../prisma/prisma.module';
 
 // Infrastructure Layer
 import { UsuariosControllerRefactored } from './infrastructure/controllers/usuarios.controller';
@@ -26,6 +27,7 @@ import { USUARIO_REPOSITORY } from './domain/repositories';
 import { PrismaUsuarioRepository } from './infrastructure/persistence';
 
 @Module({
+    imports: [PrismaModule],
     controllers: [UsuariosControllerRefactored],
     providers: [
         // Repositories
