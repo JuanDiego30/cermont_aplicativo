@@ -4,6 +4,8 @@
  * Role como Value Object con validación y jerarquía.
  */
 
+import { ValidationError } from '../exceptions';
+
 export const USER_ROLES = ['admin', 'supervisor', 'tecnico', 'administrativo'] as const;
 export type UserRoleType = typeof USER_ROLES[number];
 
@@ -22,6 +24,7 @@ export class UserRole {
 
   private constructor(role: UserRoleType) {
     this.value = role;
+    Object.freeze(this); // Inmutabilidad
   }
 
   /**
@@ -30,11 +33,15 @@ export class UserRole {
    */
   static create(role: string): UserRole {
     const normalizedRole = role?.toLowerCase().trim();
-    
+
     if (!this.isValid(normalizedRole)) {
-      throw new Error(`Rol inválido: ${role}. Roles válidos: ${USER_ROLES.join(', ')}`);
+      throw new ValidationError(
+        `Rol inválido: ${role}. Roles válidos: ${USER_ROLES.join(', ')}`,
+        'role',
+        role,
+      );
     }
-    
+
     return new UserRole(normalizedRole as UserRoleType);
   }
 
@@ -114,12 +121,12 @@ export class UserRole {
   canAssignRole(targetRole: UserRole): boolean {
     // Solo admin puede asignar cualquier rol
     if (this.isAdmin()) return true;
-    
+
     // Supervisor puede asignar roles menores (no admin, no supervisor)
     if (this.isSupervisor()) {
       return targetRole.getHierarchyLevel() < this.getHierarchyLevel();
     }
-    
+
     // Otros no pueden asignar roles
     return false;
   }
@@ -136,5 +143,40 @@ export class UserRole {
    */
   static getAllRoles(): readonly UserRoleType[] {
     return USER_ROLES;
+  }
+
+  /**
+   * Verificar si puede gestionar usuarios
+   */
+  canManageUsers(): boolean {
+    return this.isAdmin();
+  }
+
+  /**
+   * Verificar si puede gestionar órdenes
+   */
+  canManageOrders(): boolean {
+    return this.isAdmin() || this.isSupervisor();
+  }
+
+  /**
+   * Verificar si puede ejecutar trabajos
+   */
+  canExecuteOrders(): boolean {
+    return this.isTecnico();
+  }
+
+  /**
+   * Verificar si puede ver dashboard completo
+   */
+  canViewFullDashboard(): boolean {
+    return this.isAdmin() || this.isSupervisor();
+  }
+
+  /**
+   * Serialización JSON
+   */
+  toJSON(): string {
+    return this.value;
   }
 }

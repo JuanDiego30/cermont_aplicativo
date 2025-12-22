@@ -20,7 +20,9 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiParam, ApiBody } from '@nestjs/swagger';
 import { BaseService, PaginatedResult } from './base.service';
+import { WhereClause, OrderByClause } from './base.repository';
 
+/** Query parameters for list endpoints */
 export interface ListQueryParams {
     page?: number;
     pageSize?: number;
@@ -29,11 +31,17 @@ export interface ListQueryParams {
     search?: string;
 }
 
+/** Find options for service queries */
+export interface FindOptions {
+    where?: WhereClause;
+    orderBy?: OrderByClause;
+}
+
 /**
  * Abstract controller with standard CRUD operations.
  * Extend this and add @Controller('route') decorator.
  */
-export abstract class BaseController<T, TCreate = any, TUpdate = any> {
+export abstract class BaseController<T, TCreate = Partial<T>, TUpdate = Partial<T>> {
     constructor(protected readonly service: BaseService<T, TCreate, TUpdate>) { }
 
     @Get()
@@ -45,7 +53,7 @@ export abstract class BaseController<T, TCreate = any, TUpdate = any> {
         const { page, pageSize, sortBy, sortOrder, search } = query;
 
         // Build options from query
-        const options: any = {};
+        const options: FindOptions = {};
 
         if (sortBy) {
             options.orderBy = { [sortBy]: sortOrder || 'desc' };
@@ -114,7 +122,7 @@ export abstract class BaseController<T, TCreate = any, TUpdate = any> {
      * Override in child class to implement search logic
      * Example: return { OR: [{ name: { contains: search } }, { email: { contains: search } }] }
      */
-    protected buildSearchFilter(search: string): Record<string, any> {
+    protected buildSearchFilter(search: string): WhereClause {
         return {};
     }
 }

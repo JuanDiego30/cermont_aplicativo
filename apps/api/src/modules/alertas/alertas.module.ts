@@ -1,17 +1,84 @@
 /**
  * @module AlertasModule
- *
- * Módulo de alertas automáticas con CRONs integrados.
+ * 
+ * Módulo NestJS para gestión de alertas
  */
+
 import { Module } from '@nestjs/common';
-import { AlertasController } from './infrastructure/controllers/alertas.controller';
-import { AlertasService } from './alertas.service';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PrismaModule } from '../../prisma/prisma.module';
+import { AlertasController, PreferenciasController } from './infrastructure/controllers';
+import {
+  EnviarAlertaUseCase,
+  ObtenerHistorialAlertasUseCase,
+  MarcarComoLeidaUseCase,
+  ActualizarPreferenciasUseCase,
+  ReintentarEnvioUseCase,
+  DetectarActasSinFirmarUseCase,
+} from './application/use-cases';
+import {
+  AlertaRepository,
+  PreferenciaAlertaRepository,
+} from './infrastructure/persistence';
+import {
+  ALERTA_REPOSITORY,
+  PREFERENCIA_ALERTA_REPOSITORY,
+} from './domain/repositories';
+import {
+  EmailSenderService,
+  PushNotificationService,
+  SmsSenderService,
+  InAppNotificationService,
+  NotificationSenderFactory,
+} from './infrastructure/services';
+import { NotificationQueueService } from './infrastructure/queue';
+import { AlertasGateway } from './infrastructure/gateway/alertas.gateway';
 
 @Module({
-    imports: [PrismaModule],
-    controllers: [AlertasController],
-    providers: [AlertasService],
-    exports: [AlertasService],
+  imports: [PrismaModule, EventEmitterModule],
+  controllers: [AlertasController, PreferenciasController],
+  providers: [
+    // Repositories
+    {
+      provide: ALERTA_REPOSITORY,
+      useClass: AlertaRepository,
+    },
+    {
+      provide: PREFERENCIA_ALERTA_REPOSITORY,
+      useClass: PreferenciaAlertaRepository,
+    },
+    // Use Cases
+    EnviarAlertaUseCase,
+    ObtenerHistorialAlertasUseCase,
+    MarcarComoLeidaUseCase,
+    ActualizarPreferenciasUseCase,
+    ReintentarEnvioUseCase,
+    DetectarActasSinFirmarUseCase,
+    // Notification Services (Strategy Pattern)
+    EmailSenderService,
+    PushNotificationService,
+    SmsSenderService,
+    InAppNotificationService,
+    NotificationSenderFactory,
+    // WebSocket Gateway
+    AlertasGateway,
+    {
+      provide: 'AlertasGateway',
+      useExisting: AlertasGateway,
+    },
+    // Notification Queue Service
+    NotificationQueueService,
+    {
+      provide: 'NotificationQueueService',
+      useExisting: NotificationQueueService,
+    },
+  ],
+  exports: [
+    ALERTA_REPOSITORY,
+    PREFERENCIA_ALERTA_REPOSITORY,
+    EnviarAlertaUseCase,
+    ReintentarEnvioUseCase,
+    DetectarActasSinFirmarUseCase,
+  ],
 })
-export class AlertasModule { }
+export class AlertasModule {}

@@ -1,21 +1,57 @@
+/**
+ * @module ChecklistsModule
+ * 
+ * Módulo NestJS para gestión de checklists
+ */
+
 import { Module } from '@nestjs/common';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { ChecklistsController } from './infrastructure/controllers';
-import { ChecklistsService } from './checklists.service';
-import { CHECKLIST_REPOSITORY } from './application/dto';
 import { ChecklistRepository } from './infrastructure/persistence';
+import {
+  CHECKLIST_REPOSITORY,
+} from './domain/repositories';
+import {
+  CreateChecklistUseCase,
+  ListChecklistsUseCase,
+  AssignChecklistToOrdenUseCase,
+  AssignChecklistToEjecucionUseCase,
+  GetChecklistsByOrdenUseCase,
+  GetChecklistsByEjecucionUseCase,
+  ToggleChecklistItemUseCase,
+  UpdateChecklistItemUseCase,
+  CompleteChecklistUseCase,
+  ArchiveChecklistUseCase,
+} from './application/use-cases';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, EventEmitterModule],
   controllers: [ChecklistsController],
   providers: [
+    // Repository
     {
       provide: CHECKLIST_REPOSITORY,
       useClass: ChecklistRepository,
     },
-    ChecklistsService,
+    // Use Cases
+    CreateChecklistUseCase,
+    ListChecklistsUseCase,
+    AssignChecklistToOrdenUseCase,
+    AssignChecklistToEjecucionUseCase,
+    GetChecklistsByOrdenUseCase,
+    GetChecklistsByEjecucionUseCase,
+    ToggleChecklistItemUseCase,
+    UpdateChecklistItemUseCase,
+    CompleteChecklistUseCase,
+    ArchiveChecklistUseCase,
   ],
-  exports: [ChecklistsService, CHECKLIST_REPOSITORY],
+  exports: [
+    CHECKLIST_REPOSITORY,
+    CreateChecklistUseCase,
+    ListChecklistsUseCase,
+    GetChecklistsByOrdenUseCase,
+    GetChecklistsByEjecucionUseCase,
+  ],
 })
-export class ChecklistsModule { }
-
+export class ChecklistsModule {}

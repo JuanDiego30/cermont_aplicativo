@@ -6,6 +6,7 @@
  */
 
 import { hash, compare } from 'bcryptjs';
+import { ValidationError } from '../exceptions';
 
 export interface PasswordStrengthResult {
   isValid: boolean;
@@ -15,12 +16,13 @@ export interface PasswordStrengthResult {
 
 export class Password {
   private readonly hashedValue: string;
-  
-  private static readonly SALT_ROUNDS = 10;
+
+  private static readonly SALT_ROUNDS = 12; // OWASP recomienda mínimo 12
   private static readonly MIN_LENGTH = 8;
 
   private constructor(hashedPassword: string) {
     this.hashedValue = hashedPassword;
+    Object.freeze(this); // Inmutabilidad
   }
 
   /**
@@ -29,9 +31,13 @@ export class Password {
    */
   static async createFromPlainText(plainPassword: string): Promise<Password> {
     const validation = this.validatePasswordStrength(plainPassword);
-    
+
     if (!validation.isValid) {
-      throw new Error(validation.feedback.join('. '));
+      throw new ValidationError(
+        validation.feedback.join('. '),
+        'password',
+        '[PROTECTED]',
+      );
     }
 
     const hashed = await hash(plainPassword, this.SALT_ROUNDS);
@@ -43,7 +49,7 @@ export class Password {
    */
   static fromHash(hashedPassword: string): Password {
     if (!hashedPassword || hashedPassword.length < 20) {
-      throw new Error('Hash de password inválido');
+      throw new ValidationError('Hash de password inválido', 'passwordHash');
     }
     return new Password(hashedPassword);
   }
@@ -130,7 +136,7 @@ export class Password {
   static generateTemporary(length: number = 12): string {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
     let password = '';
-    
+
     // Asegurar al menos uno de cada tipo
     password += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 26)];
     password += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)];
@@ -144,5 +150,23 @@ export class Password {
 
     // Mezclar caracteres
     return password.split('').sort(() => Math.random() - 0.5).join('');
+  }
+
+  /**
+   * NO exponer valor hasheado en logs/JSON
+   */
+  toString(): string {
+    return '[PROTECTED]';
+  }
+
+  toJSON(): string {
+    return '[PROTECTED]';
+  }
+
+  /**
+   * Para serializar a BD (alias de getHash)
+   */
+  toPersistence(): string {
+    return this.hashedValue;
   }
 }

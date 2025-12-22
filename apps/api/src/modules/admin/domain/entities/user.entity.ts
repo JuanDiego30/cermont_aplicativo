@@ -18,6 +18,7 @@ import {
   type UserDomainEvent,
   type UserUpdateChanges,
 } from '../events';
+import { ValidationError, BusinessRuleViolationError } from '../exceptions';
 
 export interface UserProps {
   id: UserId;
@@ -63,6 +64,7 @@ export class UserEntity {
 
   private constructor(props: UserProps) {
     this.props = props;
+    this.validate(); // Validar invariantes
   }
 
   // ============================================
@@ -75,15 +77,15 @@ export class UserEntity {
   static async create(data: CreateUserData): Promise<UserEntity> {
     // Validaciones de dominio
     if (!data.name || data.name.trim().length < 2) {
-      throw new Error('Nombre debe tener al menos 2 caracteres');
+      throw new ValidationError('Nombre debe tener al menos 2 caracteres', 'name');
     }
 
     if (data.name.length > 100) {
-      throw new Error('Nombre no puede exceder 100 caracteres');
+      throw new ValidationError('Nombre no puede exceder 100 caracteres', 'name');
     }
 
     if (data.phone && !/^\+?[\d\s-]{7,20}$/.test(data.phone)) {
-      throw new Error('Formato de teléfono inválido');
+      throw new ValidationError('Formato de teléfono inválido', 'phone', data.phone);
     }
 
     const user = new UserEntity({
@@ -194,10 +196,10 @@ export class UserEntity {
 
     if (data.name !== undefined && data.name !== this.props.name) {
       if (data.name.trim().length < 2) {
-        throw new Error('Nombre debe tener al menos 2 caracteres');
+        throw new ValidationError('Nombre debe tener al menos 2 caracteres', 'name');
       }
       if (data.name.length > 100) {
-        throw new Error('Nombre no puede exceder 100 caracteres');
+        throw new ValidationError('Nombre no puede exceder 100 caracteres', 'name');
       }
       changes.name = { old: this.props.name, new: data.name.trim() };
       this.props.name = data.name.trim();
@@ -205,7 +207,7 @@ export class UserEntity {
 
     if (data.phone !== undefined && data.phone !== this.props.phone) {
       if (data.phone && !/^\+?[\d\s-]{7,20}$/.test(data.phone)) {
-        throw new Error('Formato de teléfono inválido');
+        throw new ValidationError('Formato de teléfono inválido', 'phone', data.phone);
       }
       changes.phone = { old: this.props.phone, new: data.phone || undefined };
       this.props.phone = data.phone?.trim() || undefined;
@@ -231,7 +233,7 @@ export class UserEntity {
     const newRole = UserRole.create(newRoleString);
 
     if (this.props.role.equals(newRole)) {
-      throw new Error('El usuario ya tiene ese rol');
+      throw new BusinessRuleViolationError('El usuario ya tiene ese rol', 'ROLE_UNCHANGED');
     }
 
     const oldRole = this.props.role.getValue();
@@ -282,7 +284,7 @@ export class UserEntity {
    */
   activate(): void {
     if (this.props.active) {
-      throw new Error('El usuario ya está activo');
+      throw new BusinessRuleViolationError('El usuario ya está activo', 'ALREADY_ACTIVE');
     }
     this.props.active = true;
     this.props.updatedAt = new Date();
@@ -293,7 +295,7 @@ export class UserEntity {
    */
   deactivate(deactivatedBy: string, reason?: string): void {
     if (!this.props.active) {
-      throw new Error('El usuario ya está desactivado');
+      throw new BusinessRuleViolationError('El usuario ya está desactivado', 'ALREADY_INACTIVE');
     }
 
     this.props.active = false;
@@ -383,5 +385,24 @@ export class UserEntity {
 
   clearDomainEvents(): void {
     this.domainEvents = [];
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // VALIDACIONES DE INVARIANTES
+  // ═══════════════════════════════════════════════════════════════
+
+  /**
+   * Valida invariantes de dominio
+   * Se ejecuta en el constructor
+   */
+  private validate(): void {
+    // Invariante: Un usuario ADMIN no puede estar inactivo
+    if (this.props.role.isAdmin() && !this.props.active) {
+      throw new BusinessRuleViolationError(
+        'Un usuario ADMIN no puede estar inactivo',
+        'ADMIN_MUST_BE_ACTIVE',
+        { userId: this.props.id.getValue(), role: this.props.role.getValue() },
+      );
+    }
   }
 }

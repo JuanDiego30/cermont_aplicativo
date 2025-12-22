@@ -36,7 +36,7 @@ import {
 @Injectable()
 export class AdminService {
     private readonly logger = new Logger(AdminService.name);
-    private readonly SALT_ROUNDS = 10;
+    private readonly SALT_ROUNDS = 12; // OWASP recomienda mínimo 12
 
     constructor(private readonly prisma: PrismaService) {}
 

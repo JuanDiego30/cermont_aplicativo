@@ -5,7 +5,7 @@
  *
  * Uso: @UseGuards(JwtAuthGuard) en controllers o handlers.
  */
-import { Injectable, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { Injectable, ExecutionContext, UnauthorizedException, Logger } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
@@ -14,6 +14,8 @@ import type { JwtPayload } from '../decorators/current-user.decorator';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
+    private readonly logger = new Logger(JwtAuthGuard.name);
+
     constructor(private readonly reflector: Reflector) {
         super();
     }
@@ -43,18 +45,17 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
      * Mantiene la firma genérica de `AuthGuard` para cumplir con la interfaz,
      * pero aplica la validación de usuario y lanza Unauthorized en caso de error.
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    handleRequest<TUser = any>(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        err: any,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        user: any,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        _info: any,
+    handleRequest<TUser = JwtPayload>(
+        err: unknown,
+        user: unknown,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        _info: unknown,
         _context: ExecutionContext,
-        _status?: any,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        _status?: unknown,
     ): TUser {
         if (err || !user) {
+            this.logger.warn(`Auth failed: ${err || 'No user found'}`);
             throw err || new UnauthorizedException('Token inválido o expirado');
         }
 
