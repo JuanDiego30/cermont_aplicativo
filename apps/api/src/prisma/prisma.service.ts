@@ -1,26 +1,29 @@
 /**
  * @service PrismaService
- *
- * Cliente Prisma (PostgreSQL) con ciclo de vida NestJS (connect/disconnect).
- *
- * Uso: Inyectar PrismaService desde PrismaModule para acceso a BD.
- * 
- * NOTA: Prisma maneja las conexiones PostgreSQL automáticamente.
- * Compatible con PostgreSQL 12+ y funciona perfectamente con Docker.
+ * Cliente Prisma (PostgreSQL) con ciclo de vida NestJS.
+ * Prisma 7+ requiere un adapter explícito para conexión a BD
  */
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { PrismaClient } from '.prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
     private readonly logger = new Logger(PrismaService.name);
+    private pool: Pool;
 
     constructor() {
-        super({
-            log: process.env.NODE_ENV === 'production'
-                ? ['error']
-                : ['query', 'info', 'warn', 'error'],
-        });
+        const connectionString = process.env.DATABASE_URL ||
+            'postgresql://postgres:admin@localhost:5432/cermont_fsm';
+
+        const pool = new Pool({ connectionString });
+        const adapter = new PrismaPg(pool);
+
+        super({ adapter });
+
+        this.pool = pool;
+        this.logger.log('PrismaService instantiated');
     }
 
     async onModuleInit() {
@@ -30,6 +33,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
     async onModuleDestroy() {
         await this.$disconnect();
+        await this.pool.end();
         this.logger.log('PostgreSQL Database disconnected');
     }
 }

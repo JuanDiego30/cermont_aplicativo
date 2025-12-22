@@ -9,7 +9,7 @@ import { IEjecucionRepository, EjecucionData } from '../../domain/repositories/e
 
 @Injectable()
 export class EjecucionRepository implements IEjecucionRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findByOrdenId(ordenId: string): Promise<EjecucionData | null> {
     const ejecucion = await this.prisma.ejecucion.findUnique({
@@ -37,7 +37,7 @@ export class EjecucionRepository implements IEjecucionRepository {
       data: {
         ordenId,
         planeacionId: planeacion.id,
-        estado: EstadoEjecucion.EN_PROGRESO,
+        estado: 'en_progreso' as any,
         fechaInicio: new Date(),
         avancePercentaje: 0,
         horasEstimadas: 8, // Default
@@ -75,7 +75,7 @@ export class EjecucionRepository implements IEjecucionRepository {
     const ejecucion = await this.prisma.ejecucion.update({
       where: { id },
       data: {
-        estado: EstadoEjecucion.COMPLETADA,
+        estado: 'completada' as any,
         fechaTermino: new Date(),
         avancePercentaje: 100,
         observaciones: data.observacionesFinales,

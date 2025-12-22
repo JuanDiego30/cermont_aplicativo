@@ -14,7 +14,7 @@ import {
 
 @Injectable()
 export class CostoRepository implements ICostoRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findByOrden(ordenId: string): Promise<CostoData[]> {
     const costos = await this.prisma.cost.findMany({
@@ -44,11 +44,11 @@ export class CostoRepository implements ICostoRepository {
 
   async create(data: RegistrarCostoDto): Promise<CostoData> {
     const total = data.cantidad * data.precioUnitario;
-    
+
     const costo = await this.prisma.cost.create({
       data: {
         orderId: data.ordenId,
-        tipo: data.tipo,
+        tipo: data.tipo as any,
         concepto: data.descripcion,
         monto: total,
         descripcion: data.proveedor ? `Proveedor: ${data.proveedor}` : undefined,

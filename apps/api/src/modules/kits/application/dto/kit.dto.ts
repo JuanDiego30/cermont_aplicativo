@@ -67,5 +67,10 @@ export interface IKitRepository {
   findById(id: string): Promise<KitData | null>;
   findByCategoria(categoria: string): Promise<KitData[]>;
   create(data: CreateKitDto): Promise<KitData>;
+  update(id: string, data: Partial<CreateKitDto>): Promise<KitData>;
   delete(id: string): Promise<void>;
+  changeEstado(id: string, activo: boolean): Promise<KitData>;
+  // Métodos para aplicar kits a ejecuciones
+  applyKitToExecution(kitId: string, ejecucionId: string): Promise<any>;
+  syncPredefinedKits(): Promise<any[]>;
 }

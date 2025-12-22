@@ -2,17 +2,94 @@
  * @module AdminModule
  *
  * Módulo de administración para gestión de usuarios, roles y permisos.
- * Usa el controller refactorizado de la capa de infraestructura.
+ * Arquitectura limpia con separación de capas:
+ * - Domain: Entidades, Value Objects, Eventos, Interfaces de repositorio
+ * - Application: Casos de uso, DTOs, Mappers, Event Handlers
+ * - Infrastructure: Controllers, Persistencia (Prisma)
  */
 import { Module } from '@nestjs/common';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PrismaModule } from '../../prisma/prisma.module';
+
+// Infrastructure
 import { AdminController } from './infrastructure/controllers';
+import { UserRepository } from './infrastructure/persistence/user.repository';
+
+// Application - Use Cases
+import {
+  CreateUserUseCase,
+  UpdateUserUseCase,
+  ChangeUserRoleUseCase,
+  ToggleUserActiveUseCase,
+  ResetPasswordUseCase,
+  ListUsersUseCase,
+  GetUserByIdUseCase,
+  GetUserStatsUseCase,
+} from './application/use-cases';
+
+// Application - Event Handlers
+import {
+  UserCreatedHandler,
+  RoleChangedHandler,
+  UserDeactivatedHandler,
+  PasswordResetHandler,
+} from './application/event-handlers';
+
+// Domain - Repository Interface Token
+import { USER_REPOSITORY } from './domain/repositories/user.repository.interface';
+
+// Legacy Service (mantenido por compatibilidad)
 import { AdminService } from './admin.service';
 
 @Module({
-    imports: [PrismaModule],
-    controllers: [AdminController],
-    providers: [AdminService],
-    exports: [AdminService],
+  imports: [
+    PrismaModule,
+    // EventEmitterModule para manejo de eventos de dominio
+    EventEmitterModule.forRoot(),
+  ],
+  controllers: [AdminController],
+  providers: [
+    // ✅ Repository (inyección por interfaz)
+    {
+      provide: USER_REPOSITORY,
+      useClass: UserRepository,
+    },
+
+    // ✅ Use Cases
+    CreateUserUseCase,
+    UpdateUserUseCase,
+    ChangeUserRoleUseCase,
+    ToggleUserActiveUseCase,
+    ResetPasswordUseCase,
+    ListUsersUseCase,
+    GetUserByIdUseCase,
+    GetUserStatsUseCase,
+
+    // ✅ Event Handlers
+    UserCreatedHandler,
+    RoleChangedHandler,
+    UserDeactivatedHandler,
+    PasswordResetHandler,
+
+    // Legacy Service (mantenido por compatibilidad)
+    AdminService,
+  ],
+  exports: [
+    // Exportar casos de uso para uso en otros módulos si es necesario
+    CreateUserUseCase,
+    UpdateUserUseCase,
+    ChangeUserRoleUseCase,
+    ToggleUserActiveUseCase,
+    ResetPasswordUseCase,
+    ListUsersUseCase,
+    GetUserByIdUseCase,
+    GetUserStatsUseCase,
+    
+    // Exportar repositorio para uso en otros módulos
+    USER_REPOSITORY,
+    
+    // Legacy Service (mantenido por compatibilidad)
+    AdminService,
+  ],
 })
 export class AdminModule {}

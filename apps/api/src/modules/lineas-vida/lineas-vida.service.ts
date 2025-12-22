@@ -2,12 +2,15 @@
  * @service LineasVidaService
  * @description Servicio para gestión de inspecciones de líneas de vida
  * 
+ * REFACTORIZADO: Ahora usa repositorio en lugar de Prisma directamente
+ * 
  * Principios aplicados:
  * - Type Safety: DTOs tipados
  * - Clean Code: Código legible y bien formateado
+ * - Dependency Inversion: Usa repositorio en lugar de Prisma
  */
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { LINEA_VIDA_REPOSITORY, ILineaVidaRepository, InspeccionLineaVidaDto } from './application/dto';
 
 // ============================================================================
 // Interfaces y DTOs
@@ -34,32 +37,26 @@ export interface InspeccionResponse<T> {
 
 @Injectable()
 export class LineasVidaService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    @Inject(LINEA_VIDA_REPOSITORY)
+    private readonly repository: ILineaVidaRepository,
+  ) { }
 
   /**
    * Lista todas las inspecciones de líneas de vida
+   * REFACTORIZADO: Usa repositorio
    */
   async findAll(): Promise<InspeccionResponse<unknown[]>> {
-    const lineas = await this.prisma.inspeccionLineaVida.findMany({
-      include: { componentes: true },
-      orderBy: { fechaInspeccion: 'desc' },
-    });
-
+    const lineas = await this.repository.findAll();
     return { data: lineas };
   }
 
   /**
    * Obtiene una inspección por ID con sus componentes y condiciones
+   * REFACTORIZADO: Usa repositorio
    */
   async findOne(id: string) {
-    const inspeccion = await this.prisma.inspeccionLineaVida.findUnique({
-      where: { id },
-      include: {
-        componentes: {
-          include: { condiciones: true },
-        },
-      },
-    });
+    const inspeccion = await this.repository.findById(id);
 
     if (!inspeccion) {
       throw new NotFoundException(`Inspección con ID ${id} no encontrada`);
@@ -70,21 +67,22 @@ export class LineasVidaService {
 
   /**
    * Crea una nueva inspección de línea de vida
+   * REFACTORIZADO: Usa repositorio
    */
   async create(
     dto: CreateInspeccionLineaVidaDto,
     inspectorId: string,
   ): Promise<InspeccionResponse<unknown>> {
-    const inspeccion = await this.prisma.inspeccionLineaVida.create({
-      data: {
-        numeroLinea: dto.numeroLinea,
-        fabricante: dto.fabricante || 'Desconocido',
-        ubicacion: dto.ubicacion,
-        inspectorId,
-        estado: (dto.estado ?? 'PENDIENTE') as any,
-        observaciones: dto.observaciones,
-      },
-    });
+    // Convertir DTO del servicio al DTO del repositorio
+    const inspeccionDto: InspeccionLineaVidaDto = {
+      lineaVidaId: dto.numeroLinea,
+      tipo: 'visual', // Valor por defecto, debería venir en el DTO
+      resultados: {},
+      aprobado: dto.estado === 'APROBADA',
+      observaciones: dto.observaciones,
+    };
+
+    const inspeccion = await this.repository.createInspeccion(inspeccionDto, inspectorId);
 
     return {
       message: 'Inspección creada exitosamente',

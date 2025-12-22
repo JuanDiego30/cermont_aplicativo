@@ -116,7 +116,7 @@ export class AuthService {
   async login(dto: LoginDto, ip?: string, userAgent?: string): Promise<AuthResponse> {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
 
-    if (!user || !user.active) {
+    if (!user || !user.active || !user.password) {
       throw new UnauthorizedException('Credenciales invalidas o usuario inactivo');
     }
 

@@ -52,4 +52,33 @@ export class HESRepository implements IHESRepository {
       },
     });
   }
+
+  /**
+   * Obtiene todos los equipos HES ordenados por número
+   */
+  async findAllEquipos(): Promise<any[]> {
+    return this.prisma.equipoHES.findMany({
+      orderBy: { numero: 'asc' },
+    });
+  }
+
+  /**
+   * Obtiene un equipo HES por ID con sus inspecciones
+   */
+  async findEquipoById(id: string): Promise<any> {
+    return this.prisma.equipoHES.findUnique({
+      where: { id },
+      include: { inspecciones: true },
+    });
+  }
+
+  /**
+   * Actualiza la fecha de última inspección de un equipo
+   */
+  async updateEquipoUltimaInspeccion(equipoId: string, fecha: Date): Promise<any> {
+    return this.prisma.equipoHES.update({
+      where: { id: equipoId },
+      data: { ultimaInspeccion: fecha },
+    });
+  }
 }

@@ -118,7 +118,7 @@ export class SyncService {
                 data: {
                     ordenId,
                     planeacionId: planeacion.id,
-                    estado: 'EN_PROGRESO',
+                    estado: 'en_progreso' as any,
                     fechaInicio: new Date((datos.fechaInicio as string) || Date.now()),
                     horasEstimadas: (datos.horasEstimadas as number) || 8,
                     observacionesInicio: datos.observaciones as string,
@@ -282,7 +282,7 @@ export class SyncService {
                     orderId: datos.ordenId as string,
                     concepto: datos.concepto as string,
                     monto: datos.monto as number,
-                    tipo: datos.tipo as string,
+                    tipo: datos.tipo as any,
                     descripcion: datos.descripcion as string | undefined,
                 },
             });

@@ -58,7 +58,15 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+/**
+ * @service KitsService
+ * 
+ * REFACTORIZADO: Ahora usa repositorio en lugar de Prisma directamente
+ * 
+ * Gestiona kits típicos de herramientas, equipos y actividades
+ */
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { KIT_REPOSITORY, IKitRepository, CreateKitDto, KitData } from './application/dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Prisma } from '.prisma/client';
 
@@ -89,17 +97,7 @@ interface ActividadKit {
     orden: number;
 }
 
-interface CreateKitDto {
-    nombre: string;
-    descripcion?: string;
-    herramientas?: HerramientaKit[];
-    equipos?: EquipoKit[];
-    documentos?: string[];
-    actividades?: ActividadKit[];
-    duracionEstimada?: number;
-    activo?: boolean;
-}
-
+// CreateKitDto ya está importado desde './application/dto'
 interface UpdateKitDto extends Partial<CreateKitDto> { }
 
 // ============================================================================
@@ -264,17 +262,19 @@ const KITS_PREDEFINIDOS = {
 
 @Injectable()
 export class KitsService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        @Inject(KIT_REPOSITORY)
+        private readonly repository: IKitRepository,
+        private readonly prisma: PrismaService, // Mantenido temporalmente para métodos complejos
+    ) {}
 
     /**
      * Obtener todos los kits activos de la base de datos
+     * REFACTORIZADO: Usa repositorio
      */
     async findAll() {
         try {
-            const kits = await this.prisma.kitTipico.findMany({
-                where: { activo: true },
-                orderBy: { nombre: 'asc' },
-            });
+            const kits = await this.repository.findAll();
             return { data: kits };
         } catch (error) {
             const err = error as Error;
@@ -285,80 +285,51 @@ export class KitsService {
 
     /**
      * Obtener un kit específico por ID
+     * REFACTORIZADO: Usa repositorio
      */
     async findOne(id: string) {
-        const kit = await this.prisma.kitTipico.findUnique({ where: { id } });
+        const kit = await this.repository.findById(id);
         if (!kit) throw new NotFoundException('Kit no encontrado');
         return kit;
     }
 
     /**
      * Crear un nuevo kit personalizado
+     * REFACTORIZADO: Usa repositorio
      */
     async create(dto: CreateKitDto) {
-        const { herramientas, equipos, ...rest } = dto;
-        const kit = await this.prisma.kitTipico.create({
-            data: {
-                ...rest,
-                nombre: dto.nombre,
-                descripcion: dto.descripcion || '',
-                // Cast arrays to any for JSON compatibility
-                herramientas: (herramientas ?? []) as any,
-                equipos: (equipos ?? []) as any,
-                // Provide defaults for required fields
-                duracionEstimadaHoras: dto.duracionEstimada || 0,
-                costoEstimado: 0,
-                documentos: dto.documentos || [],
-                checklistItems: dto.actividades?.map(a => a.nombre) || [],
-            }
-        });
+        const kit = await this.repository.create(dto);
         return { message: 'Kit creado', data: kit };
     }
 
     /**
      * Actualizar un kit existente
+     * REFACTORIZADO: Usa repositorio
      */
     async update(id: string, dto: UpdateKitDto) {
         await this.findOne(id);
-        const { herramientas, equipos, ...rest } = dto;
-
-        const updateData: any = { ...rest };
-        if (herramientas) updateData.herramientas = herramientas;
-        if (equipos) updateData.equipos = equipos;
-        if (dto.actividades) updateData.checklistItems = dto.actividades.map(a => a.nombre);
-        if (dto.documentos) updateData.documentos = dto.documentos;
-        if (dto.duracionEstimada) updateData.duracionEstimadaHoras = dto.duracionEstimada;
-
-        const kit = await this.prisma.kitTipico.update({
-            where: { id },
-            data: updateData,
-        });
+        const kit = await this.repository.update(id, dto);
         return { message: 'Kit actualizado', data: kit };
     }
 
     /**
      * Desactivar un kit (soft delete)
+     * REFACTORIZADO: Usa repositorio
      */
     async remove(id: string) {
         await this.findOne(id);
-        await this.prisma.kitTipico.update({
-            where: { id },
-            data: { activo: false },
-        });
+        await this.repository.delete(id);
         return { message: 'Kit desactivado' };
     }
 
     /**
      * Cambiar estado activo/inactivo
+     * REFACTORIZADO: Usa repositorio
      */
     async changeEstado(id: string, estado: string) {
         await this.findOne(id);
         const nuevoEstado = estado === 'disponible' || estado === 'active' || estado === 'activo';
-
-        const kit = await this.prisma.kitTipico.update({
-            where: { id },
-            data: { activo: nuevoEstado },
-        });
+        const kit = await this.repository.changeEstado(id, nuevoEstado);
         return { message: 'Estado actualizado', data: kit };
     }
 
@@ -387,6 +358,7 @@ export class KitsService {
     /**
      * ✅ CORREGIDO: Aplicar kit de base de datos a una ejecución
      * Crea checklists basados en el kit almacenado en PostgreSQL
+     * NOTA: Este método requiere lógica compleja con múltiples modelos, se mantiene aquí
      */
     async applyKitToExecution(
         kitId: string,
@@ -575,6 +547,7 @@ export class KitsService {
     /**
      * Sincronizar kits predefinidos a la base de datos
      * Útil para migrar de hardcoded a configurables
+     * NOTA: Este método requiere lógica compleja, se mantiene aquí
      */
     async syncPredefinedKits() {
         const results = [];

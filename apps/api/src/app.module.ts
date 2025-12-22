@@ -12,6 +12,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { CacheModule } from '@nestjs/cache-manager';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { WinstonModule } from 'nest-winston';
 import { join } from 'path';
 import * as winston from 'winston';
@@ -59,7 +60,7 @@ import {
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { HealthController } from './health.controller';
 import { CustomThrottleGuard } from './common/guards/throttle.guard';
-import { LoggerService } from './logger.service';
+import { LoggerService } from './common/logging/logger.service';
 
 @Module({
     imports: [
@@ -189,6 +190,9 @@ import { LoggerService } from './logger.service';
 
         // Schedule module for CRON jobs
         ScheduleModule.forRoot(),
+
+        // Event Emitter for domain events (global)
+        EventEmitterModule.forRoot(),
     ],
     controllers: [HealthController],
     providers: [

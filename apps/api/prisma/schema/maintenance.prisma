@@ -1,0 +1,88 @@
+// ============================================
+// MANTENIMIENTOS
+// ============================================
+
+model Equipo {
+  id                         String        @id @default(uuid())
+  codigo                     String        @unique
+  nombre                     String
+  marca                      String?
+  modelo                     String?
+  serie                      String?
+  categoria                  String?
+  ubicacion                  String?
+  
+  fechaAdquisicion           DateTime?
+  fechaUltimoMantenimiento   DateTime?
+  intervaloMantenimientoDias Int?
+  proximoMantenimiento       DateTime?
+  
+  valorAdquisicion           Float?
+  vidaUtilEstimada           Int?
+  
+  activo                     Boolean       @default(true)
+  notas                      String?
+
+  creadoPorId                String?
+  
+  creadoPor                  User?         @relation("EquipoCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+  mantenimientos             Mantenimiento[]
+
+  createdAt                  DateTime      @default(now())
+  updatedAt                  DateTime      @updatedAt
+
+  @@index([codigo])
+  @@index([activo])
+  @@index([categoria])
+  @@index([proximoMantenimiento])
+  @@map("equipos")
+}
+
+model Mantenimiento {
+  id                   String                 @id @default(uuid())
+
+  equipoId             String
+  tipo                 TipoMantenimiento
+  estado               EstadoMantenimiento    @default(programado)
+  prioridad            PrioridadMantenimiento @default(media)
+
+  titulo               String
+  descripcion          String?
+
+  fechaProgramada      DateTime
+  fechaInicio          DateTime?
+  fechaFin             DateTime?
+
+  tecnicoAsignadoId    String?
+  estimacionHoras      Float?
+  horasReales          Float?
+  costoEstimado        Float?
+  costoReal            Float?
+
+  notas                String?
+  observaciones        String?
+  trabajoRealizado     String?
+  repuestosUtilizados  String?
+  materialesUsados     Json?
+
+  esRecurrente         Boolean                @default(false)
+  frecuenciaDias       Int?
+  mantenimientoPadreId String?
+
+  creadoPorId          String?
+  actualizadoPorId     String?
+
+  equipo               Equipo                 @relation(fields: [equipoId], references: [id], onDelete: Cascade)
+  tecnicoAsignado      User?                  @relation("MantenimientosTecnico", fields: [tecnicoAsignadoId], references: [id], onDelete: SetNull)
+  creadoPor            User?                  @relation("MantenimientosCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+
+  @@index([equipoId])
+  @@index([estado])
+  @@index([fechaProgramada])
+  @@index([tecnicoAsignadoId])
+  @@index([prioridad, estado])
+  @@map("mantenimientos")
+}

@@ -81,6 +81,13 @@ export interface IChecklistRepository {
   create(data: CreateChecklistDto): Promise<ChecklistData>;
   delete(id: string): Promise<void>;
   findByEjecucion(ejecucionId: string): Promise<any[]>;
+  findChecklistById(id: string): Promise<any>;
   createForEjecucion(ejecucionId: string, templateId: string): Promise<any>;
+  createEmpty(ejecucionId: string, nombre: string): Promise<any>;
   toggleItem(checklistId: string, itemId: string, data: ToggleItemDto): Promise<ItemResponseData>;
+  addItems(checklistId: string, items: any[]): Promise<void>;
+  updateItem(itemId: string, data: any): Promise<any>;
+  completarChecklist(id: string, userId: string): Promise<any>;
+  getStatistics(ejecucionId: string): Promise<any>;
+  deleteChecklist(id: string): Promise<void>;
 }

@@ -14,7 +14,7 @@ interface PrismaUser {
   id: string;
   email: string;
   name: string;
-  password: string;
+  password: string | null;
   role: UserRole;
   phone: string | null;
   avatar: string | null;
@@ -33,7 +33,7 @@ export class UserPrismaMapper {
       id: prismaUser.id,
       email: prismaUser.email,
       name: prismaUser.name,
-      passwordHash: prismaUser.password,
+      passwordHash: prismaUser.password || '',
       role: prismaUser.role,
       phone: prismaUser.phone,
       avatar: prismaUser.avatar,

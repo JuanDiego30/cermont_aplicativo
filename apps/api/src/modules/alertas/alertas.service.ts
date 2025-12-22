@@ -8,9 +8,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../../prisma/prisma.service';
 
-// String literal types matching Prisma enums
-type TipoAlerta = 'ACTA_SIN_FIRMAR' | 'SES_PENDIENTE' | 'FACTURA_VENCIDA' | 'RECURSO_FALTANTE' | 'CERTIFICACION_VENCIDA' | 'RETRASO_CRONOGRAMA' | 'PROPUESTA_SIN_RESPUESTA';
-type PrioridadAlerta = 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
+// String literal types matching Prisma enums (lowercase)
+type TipoAlerta = 'acta_sin_firmar' | 'ses_pendiente' | 'factura_vencida' | 'recurso_faltante' | 'certificacion_vencida' | 'retraso_cronograma' | 'propuesta_sin_respuesta';
+type PrioridadAlerta = 'info' | 'warning' | 'error' | 'critical';
 
 @Injectable()
 export class AlertasService {
@@ -31,7 +31,7 @@ export class AlertasService {
 
         const actasPendientes = await this.prisma.acta.findMany({
             where: {
-                estado: { in: ['GENERADA', 'ENVIADA'] },
+                estado: { in: ['generada', 'enviada'] as any },
                 fechaEmision: { lt: fechaLimite },
                 alertaEnviada: false,
             },
@@ -41,13 +41,14 @@ export class AlertasService {
         });
 
         for (const acta of actasPendientes) {
+            const orden = (acta as any).orden;
             await this.crearAlerta({
                 ordenId: acta.ordenId,
-                tipo: 'ACTA_SIN_FIRMAR',
-                prioridad: 'WARNING',
+                tipo: 'acta_sin_firmar',
+                prioridad: 'warning',
                 titulo: `Acta ${acta.numero} pendiente de firma`,
-                mensaje: `El acta de la orden ${acta.orden.numero} lleva más de 7 días sin firmar`,
-                usuarioId: acta.orden.asignadoId,
+                mensaje: `El acta de la orden ${orden?.numero || acta.ordenId} lleva más de 7 días sin firmar`,
+                usuarioId: orden?.asignadoId,
             });
 
             await this.prisma.acta.update({
@@ -72,7 +73,7 @@ export class AlertasService {
 
         const sesPendientes = await this.prisma.sES.findMany({
             where: {
-                estado: { in: ['CREADA', 'ENVIADA'] },
+                estado: { in: ['creada', 'enviada'] as any },
                 fechaCreacion: { lt: fechaLimite },
                 alertaEnviada: false,
             },
@@ -82,12 +83,13 @@ export class AlertasService {
         });
 
         for (const ses of sesPendientes) {
+            const orden = (ses as any).orden;
             await this.crearAlerta({
                 ordenId: ses.ordenId,
-                tipo: 'SES_PENDIENTE',
-                prioridad: 'WARNING',
+                tipo: 'ses_pendiente',
+                prioridad: 'warning',
                 titulo: `SES ${ses.numeroSES} sin aprobar`,
-                mensaje: `La SES de la orden ${ses.orden.numero} lleva más de 5 días sin aprobar en ARIBA`,
+                mensaje: `La SES de la orden ${orden?.numero || ses.ordenId} lleva más de 5 días sin aprobar en ARIBA`,
             });
 
             await this.prisma.sES.update({
@@ -111,7 +113,7 @@ export class AlertasService {
 
         const facturasVencidas = await this.prisma.factura.findMany({
             where: {
-                estado: { in: ['GENERADA', 'ENVIADA', 'APROBADA'] },
+                estado: { in: ['generada', 'enviada', 'aprobada'] as any },
                 fechaVencimiento: { lt: hoy },
                 alertaEnviada: false,
             },
@@ -121,15 +123,16 @@ export class AlertasService {
         });
 
         for (const factura of facturasVencidas) {
+            const orden = (factura as any).orden;
             const diasVencidos = this.calcularDias(factura.fechaVencimiento!);
-            const prioridad = diasVencidos > 30 ? 'CRITICAL' : diasVencidos > 15 ? 'ERROR' : 'WARNING';
+            const prioridad: PrioridadAlerta = diasVencidos > 30 ? 'critical' : diasVencidos > 15 ? 'error' : 'warning';
 
             await this.crearAlerta({
                 ordenId: factura.ordenId,
-                tipo: 'FACTURA_VENCIDA',
+                tipo: 'factura_vencida',
                 prioridad,
                 titulo: `Factura ${factura.numeroFactura} vencida`,
-                mensaje: `La factura de la orden ${factura.orden.numero} está vencida hace ${diasVencidos} días`,
+                mensaje: `La factura de la orden ${orden?.numero || factura.ordenId} está vencida hace ${diasVencidos} días`,
             });
 
             await this.prisma.factura.update({
@@ -167,8 +170,8 @@ export class AlertasService {
         for (const propuesta of propuestasPendientes) {
             await this.crearAlerta({
                 ordenId: propuesta.ordenId,
-                tipo: 'PROPUESTA_SIN_RESPUESTA',
-                prioridad: 'INFO',
+                tipo: 'propuesta_sin_respuesta',
+                prioridad: 'info',
                 titulo: `Propuesta sin respuesta - ${propuesta.orden.cliente}`,
                 mensaje: `La propuesta para ${propuesta.orden.numero} lleva más de 15 días sin respuesta del cliente`,
             });
@@ -243,7 +246,7 @@ export class AlertasService {
     async getResumenAlertas() {
         const [total, criticas, noLeidas, porTipo] = await Promise.all([
             this.prisma.alertaAutomatica.count({ where: { resuelta: false } }),
-            this.prisma.alertaAutomatica.count({ where: { resuelta: false, prioridad: 'CRITICAL' } }),
+            this.prisma.alertaAutomatica.count({ where: { resuelta: false, prioridad: 'critical' as any } }),
             this.prisma.alertaAutomatica.count({ where: { leida: false, resuelta: false } }),
             this.prisma.alertaAutomatica.groupBy({
                 by: ['tipo'],
@@ -293,7 +296,7 @@ export class AlertasService {
             data: {
                 ordenId: data.ordenId,
                 tipo: data.tipo as any,
-                prioridad: data.prioridad,
+                prioridad: data.prioridad as any,
                 titulo: data.titulo,
                 mensaje: data.mensaje,
                 usuarioId: data.usuarioId,
