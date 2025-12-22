@@ -549,7 +549,7 @@ export class PdfGenerationService {
         data: {
           numero: numeroActa,
           ordenId,
-          estado: 'GENERADA',
+          estado: 'generada' as any,
           trabajosRealizados: orden.descripcion,
           archivoActaPDF: `/uploads/pdfs/${nombreArchivo}`,
         },
@@ -558,7 +558,7 @@ export class PdfGenerationService {
       await this.prisma.acta.update({
         where: { id: orden.acta.id },
         data: {
-          estado: 'GENERADA',
+          estado: 'generada' as any,
           archivoActaPDF: `/uploads/pdfs/${nombreArchivo}`,
         },
       });

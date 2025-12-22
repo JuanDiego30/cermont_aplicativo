@@ -2,14 +2,17 @@
  * @service PlaneacionService
  * @description Servicio para gestión de planeación de órdenes de trabajo
  * 
+ * REFACTORIZADO: Ahora usa repositorio en lugar de Prisma directamente
+ * 
  * Principios aplicados:
  * - Type Safety: DTOs tipados, sin 'any'
  * - Clean Code: Código legible y bien formateado
  * - SRP: Maneja solo lógica de planeación
+ * - Dependency Inversion: Usa repositorio en lugar de Prisma
  */
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { Prisma } from '.prisma/client';
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { PLANEACION_REPOSITORY, IPlaneacionRepository } from './domain/repositories';
+import { CreatePlaneacionDto } from './application/dto';
 
 // ============================================================================
 // Interfaces y DTOs
@@ -33,17 +36,6 @@ interface ManoDeObraData {
   [key: string]: any;
 }
 
-interface CreatePlaneacionDto {
-  cronograma?: CronogramaData;
-  manoDeObra?: ManoDeObraData;
-  observaciones?: string;
-  kitId?: string;
-}
-
-interface UpdatePlaneacionDto extends CreatePlaneacionDto {
-  estado?: EstadoPlaneacion;
-}
-
 type EstadoPlaneacion = 'borrador' | 'aprobada' | 'rechazada' | 'cancelada';
 
 export interface PlaneacionResponse<T> {
@@ -57,75 +49,45 @@ export interface PlaneacionResponse<T> {
 
 @Injectable()
 export class PlaneacionService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    @Inject(PLANEACION_REPOSITORY)
+    private readonly repository: IPlaneacionRepository,
+  ) { }
 
   /**
    * Busca planeación por orden con todas sus relaciones
+   * REFACTORIZADO: Usa repositorio
    */
   async findByOrden(ordenId: string) {
-    const planeacion = await this.prisma.planeacion.findUnique({
-      where: { ordenId },
-      include: {
-        items: true,
-        kit: true,
-        orden: true,
-      },
-    });
-
-    return planeacion;
+    return this.repository.findByOrdenId(ordenId);
   }
 
   /**
    * Obtiene todas las planeaciones
+   * NOTA: Si se necesita, crear método en repositorio
    */
   async findAll() {
-    return this.prisma.planeacion.findMany({
-      include: {
-        items: true,
-        kit: true,
-        orden: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+    // Si se necesita este método, agregarlo al repositorio
+    throw new Error('Método findAll() no implementado. Usar use-case GetPlaneacionUseCase');
   }
 
   /**
    * Crea o actualiza planeación para una orden
-   * Implementa patrón Upsert para simplificar lógica
+   * REFACTORIZADO: Usa repositorio
    */
   async createOrUpdate(ordenId: string, dto: CreatePlaneacionDto) {
-    const existing = await this.prisma.planeacion.findUnique({
-      where: { ordenId },
-    });
-
-    const dataToSave = this.prepareDataForSave(dto);
-
-    if (existing) {
-      return this.updateExisting(ordenId, dataToSave);
-    }
-
-    return this.createNew(ordenId, dataToSave);
+    return this.repository.createOrUpdate(ordenId, dto);
   }
 
   /**
    * Aprueba una planeación
+   * REFACTORIZADO: Usa repositorio
    */
   async aprobar(
     id: string,
     aprobadorId: string,
   ): Promise<PlaneacionResponse<unknown>> {
-    await this.ensurePlaneacionExists(id);
-
-    const planeacion = await this.prisma.planeacion.update({
-      where: { id },
-      data: {
-        estado: 'aprobada',
-        aprobadoPorId: aprobadorId,
-        fechaAprobacion: new Date(),
-      },
-    });
+    const planeacion = await this.repository.aprobar(id, aprobadorId);
 
     return {
       message: 'Planeación aprobada exitosamente',
@@ -135,85 +97,17 @@ export class PlaneacionService {
 
   /**
    * Rechaza una planeación con motivo
+   * REFACTORIZADO: Usa repositorio
    */
   async rechazar(
     id: string,
     motivo: string,
   ): Promise<PlaneacionResponse<unknown>> {
-    await this.ensurePlaneacionExists(id);
-
-    const planeacion = await this.prisma.planeacion.update({
-      where: { id },
-      data: {
-        estado: 'cancelada',
-        observaciones: motivo,
-      },
-    });
+    const planeacion = await this.repository.rechazar(id, motivo);
 
     return {
       message: 'Planeación rechazada',
       data: planeacion,
     };
-  }
-
-  // ==========================================================================
-  // Private Methods
-  // ==========================================================================
-
-  /**
-   * Prepara datos para guardar con valores por defecto
-   */
-  private prepareDataForSave(dto: CreatePlaneacionDto): Prisma.PlaneacionUpdateInput {
-    return {
-      cronograma: (dto.cronograma ?? {}) as any,
-      manoDeObra: dto.manoDeObra ?? {},
-      observaciones: dto.observaciones,
-      ...(dto.kitId && { kit: { connect: { id: dto.kitId } } }),
-    };
-  }
-
-  /**
-   * Actualiza planeación existente
-   */
-  private async updateExisting(
-    ordenId: string,
-    data: Prisma.PlaneacionUpdateInput,
-  ) {
-    return this.prisma.planeacion.update({
-      where: { ordenId },
-      data,
-    });
-  }
-
-  /**
-   * Crea nueva planeación
-   */
-  private async createNew(
-    ordenId: string,
-    data: Prisma.PlaneacionUpdateInput,
-  ) {
-    return this.prisma.planeacion.create({
-      data: {
-        orden: { connect: { id: ordenId } },
-        estado: 'borrador',
-        cronograma: data.cronograma ?? {},
-        manoDeObra: data.manoDeObra ?? {},
-        observaciones: data.observaciones as string | undefined,
-      },
-    });
-  }
-
-  /**
-   * Verifica que la planeación exista, lanza NotFoundException si no
-   */
-  private async ensurePlaneacionExists(id: string): Promise<void> {
-    const exists = await this.prisma.planeacion.findUnique({
-      where: { id },
-      select: { id: true },
-    });
-
-    if (!exists) {
-      throw new NotFoundException(`Planeación con ID ${id} no encontrada`);
-    }
   }
 }

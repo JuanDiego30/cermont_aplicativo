@@ -45,4 +45,8 @@ export interface IHESRepository {
   findById(id: string): Promise<any>;
   findByEquipo(equipoId: string): Promise<any[]>;
   create(data: CreateHESDto, inspectorId: string): Promise<any>;
+  // Métodos para equipos HES
+  findAllEquipos(): Promise<any[]>;
+  findEquipoById(id: string): Promise<any>;
+  updateEquipoUltimaInspeccion(equipoId: string, fecha: Date): Promise<any>;
 }

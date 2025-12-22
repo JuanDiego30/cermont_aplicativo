@@ -12,14 +12,14 @@ import { PrismaService } from '../../../../prisma/prisma.service';
 // String literal aliases alineados con los enums de Prisma
 type OrderStatus = 'planeacion' | 'ejecucion' | 'pausada' | 'completada' | 'cancelada';
 type TipoAlerta =
-    | 'ACTA_SIN_FIRMAR'
-    | 'SES_PENDIENTE'
-    | 'FACTURA_VENCIDA'
-    | 'RECURSO_FALTANTE'
-    | 'CERTIFICACION_VENCIDA'
-    | 'RETRASO_CRONOGRAMA'
-    | 'PROPUESTA_SIN_RESPUESTA';
-type PrioridadAlerta = 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
+    | 'acta_sin_firmar'
+    | 'ses_pendiente'
+    | 'factura_vencida'
+    | 'recurso_faltante'
+    | 'certificacion_vencida'
+    | 'retraso_cronograma'
+    | 'propuesta_sin_respuesta';
+type PrioridadAlerta = 'info' | 'warning' | 'error' | 'critical';
 import {
     OrderSubState,
     isValidTransition,
@@ -87,7 +87,7 @@ export class OrderStateService {
         const updatedOrden = await this.prisma.order.update({
             where: { id: ordenId },
             data: {
-                subEstado: toState,
+                subEstado: toState as any,
                 estado: newMainState,
             },
         });
@@ -96,8 +96,8 @@ export class OrderStateService {
         await this.prisma.orderStateHistory.create({
             data: {
                 ordenId,
-                fromState: currentState,
-                toState,
+                fromState: currentState as any,
+                toState: toState as any,
                 userId,
                 notas,
                 metadata: metadata
@@ -213,8 +213,8 @@ export class OrderStateService {
                     // Crear alerta si acta no se firma en 7 días
                     await this.createAlert(
                         ordenId,
-                        'ACTA_SIN_FIRMAR',
-                        'WARNING',
+                        'acta_sin_firmar',
+                        'warning',
                         'Acta pendiente de firma',
                         'El acta de entrega lleva más de 7 días sin firmar',
                     );
@@ -255,8 +255,8 @@ export class OrderStateService {
         await this.prisma.alertaAutomatica.create({
             data: {
                 ordenId,
-                tipo,
-                prioridad,
+                tipo: tipo as any,
+                prioridad: prioridad as any,
                 titulo,
                 mensaje,
             },

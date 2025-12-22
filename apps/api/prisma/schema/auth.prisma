@@ -1,0 +1,175 @@
+// ============================================
+// USUARIOS Y AUTENTICACIÓN
+// ============================================
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  password        String?   // Nullable para OAuth
+  name            String
+  role            UserRole  @default(tecnico)
+  phone           String?
+  avatar          String?
+  active          Boolean   @default(true)
+  
+  // OAuth
+  googleId        String?   @unique
+  authProvider    String    @default("local")
+  emailVerified   Boolean   @default(false)
+  emailVerifiedAt DateTime?
+  
+  // Seguridad
+  lastLogin       DateTime?
+  loginAttempts   Int       @default(0)
+  lockedUntil     DateTime?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relaciones de autenticación
+  refreshTokens        RefreshToken[]
+  passwordResetTokens  PasswordResetToken[]
+  auditLogs            AuditLog[]
+
+  // Relaciones de órdenes
+  ordenes              Order[]              @relation("OrderCreator")
+  asignaciones         Order[]              @relation("OrderAssignee")
+  ordenesAnuladas      Order[]              @relation("OrderCanceller")
+
+  // Relaciones de planeación
+  planeacionesAprobadas   Planeacion[]      @relation("PlaneacionAprobador")
+  planeacionesRechazadas  Planeacion[]      @relation("PlaneacionRechazador")
+  planeacionesCreadas     Planeacion[]      @relation("PlaneacionCreador")
+
+  // Relaciones de ejecución
+  ejecucionesIniciadas    Ejecucion[]       @relation("EjecucionIniciador")
+  ejecucionesFinalizadas  Ejecucion[]       @relation("EjecucionFinalizador")
+  tareasCompletadas       TareaEjecucion[]  @relation("TareaCompletador")
+
+  // Relaciones de checklist
+  checklistsCompletados       ChecklistEjecucion[]       @relation("ChecklistCompletadoPor")
+  checklistItemsCompletados   ChecklistItemEjecucion[]   @relation("ItemCompletadoPor")
+
+  // Relaciones de evidencias
+  orderItemsCompletados  OrderItem[]        @relation("ItemCompletador")
+  evidenciasSubidas      Evidence[]         @relation("EvidenciaSubidor")
+  fotosCargadas          FotoEvidencia[]    @relation("FotoCargadaPor")
+
+  // Relaciones de costos
+  costosCreados          Cost[]             @relation("CostoCreador")
+
+  // Relaciones de inspecciones
+  inspeccionesHESRealizadas  InspeccionHES[]         @relation("InspectorHES")
+  inspeccionesLineasVida     InspeccionLineaVida[]   @relation("InspectorLineaVida")
+
+  // Relaciones de mantenimientos
+  mantenimientosAsignados  Mantenimiento[]  @relation("MantenimientosTecnico")
+  mantenimientosCreados    Mantenimiento[]  @relation("MantenimientosCreador")
+
+  // Relaciones de formularios
+  formulariosCompletados  FormularioInstancia[]  @relation("FormulariosCompletados")
+  formulariosRevisados    FormularioInstancia[]  @relation("FormulariosRevisados")
+
+  // Relaciones de cierre administrativo
+  actasCreadas           Acta[]   @relation("ActaCreador")
+  actasAprobadas         Acta[]   @relation("ActaAprobador")
+  sesCreadas             SES[]    @relation("SESCreador")
+  sesAprobadas           SES[]    @relation("SESAprobador")
+  facturasCreadas        Factura[] @relation("FacturaCreador")
+  facturasAprobadas      Factura[] @relation("FacturaAprobador")
+
+  // Relaciones de flujo 14 pasos
+  stateChanges           OrderStateHistory[]     @relation("StateChangeUser")
+  visitasRealizadas      VisitaTecnica[]         @relation("VisitaTecnico")
+  propuestasCreadas      PropuestaEconomica[]    @relation("PropuestaCreador")
+  propuestasAprobadas    PropuestaEconomica[]    @relation("PropuestaAprobador")
+  propuestasRechazadas   PropuestaEconomica[]    @relation("PropuestaRechazador")
+  alertasAsignadas       AlertaAutomatica[]      @relation("AlertaUsuario")
+  alertasResueltas       AlertaAutomatica[]      @relation("AlertaResuelto")
+
+  // Relaciones de equipos
+  equiposCreados         Equipo[]                @relation("EquipoCreador")
+
+  // Relaciones de kits
+  kitsCreados            KitTipico[]             @relation("KitCreador")
+
+  // Relaciones de archivos
+  archivosCreados        ArchivoHistorico[]      @relation("ArchivoCreador")
+
+  // Relaciones de notificaciones
+  pushSubscriptions      PushSubscription[]
+
+  // Relaciones de templates
+  checklistTemplatesCreados  ChecklistTemplate[]  @relation("TemplateCreador")
+  formTemplatesCreados       FormTemplate[]       @relation("FormTemplateCreador")
+  formularioTemplatesCreados FormularioTemplate[] @relation("FormularioTemplateCreador")
+
+  @@index([role, active])
+  @@index([email])
+  @@index([googleId])
+  @@index([authProvider])
+  @@index([active])
+  @@index([emailVerified])
+  @@index([createdAt(sort: Desc)])
+  @@map("users")
+}
+
+model RefreshToken {
+  id            String    @id @default(uuid())
+  token         String    @unique
+  userId        String
+  family        String
+  expiresAt     DateTime
+  isRevoked     Boolean   @default(false)
+  ipAddress     String?
+  userAgent     String?
+  lastUsedAt    DateTime?
+  revokedAt     DateTime?
+  revokedReason String?
+  createdAt     DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRevoked])
+  @@index([family])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  token     String    @unique
+  userId    String
+  email     String
+  expiresAt DateTime
+  usedAt    DateTime?
+  ipAddress String?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, usedAt])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  entityType   String
+  entityId     String
+  action       String
+  changes      Json?
+  previousData Json?
+  newData      Json?
+  ip           String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([userId, action])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_logs")
+}

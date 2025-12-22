@@ -64,6 +64,44 @@ export class KitRepository implements IKitRepository {
     });
   }
 
+  async update(id: string, data: Partial<CreateKitDto>): Promise<KitData> {
+    const updateData: any = {};
+    if (data.nombre) updateData.nombre = data.nombre;
+    if (data.descripcion !== undefined) updateData.descripcion = data.descripcion;
+    if (data.herramientas) updateData.herramientas = data.herramientas;
+    if (data.equipos) updateData.equipos = data.equipos;
+    if (data.documentos) updateData.documentos = data.documentos;
+    if (data.checklistItems) updateData.checklistItems = data.checklistItems;
+    if (data.duracionEstimadaHoras !== undefined) updateData.duracionEstimadaHoras = data.duracionEstimadaHoras;
+    if (data.costoEstimado !== undefined) updateData.costoEstimado = data.costoEstimado;
+
+    const kit = await this.prisma.kitTipico.update({
+      where: { id },
+      data: updateData,
+    });
+
+    return this.mapToKitData(kit);
+  }
+
+  async changeEstado(id: string, activo: boolean): Promise<KitData> {
+    const kit = await this.prisma.kitTipico.update({
+      where: { id },
+      data: { activo },
+    });
+
+    return this.mapToKitData(kit);
+  }
+
+  async applyKitToExecution(kitId: string, ejecucionId: string): Promise<any> {
+    // Este método requiere lógica compleja, se mantiene en el servicio por ahora
+    throw new Error('Método applyKitToExecution debe implementarse en el servicio');
+  }
+
+  async syncPredefinedKits(): Promise<any[]> {
+    // Este método requiere lógica compleja, se mantiene en el servicio por ahora
+    throw new Error('Método syncPredefinedKits debe implementarse en el servicio');
+  }
+
   private mapToKitData(kit: any): KitData {
     return {
       id: kit.id,

@@ -64,4 +64,25 @@ export class EvidenciaEntity {
     perteneceAOrden(ordenId: string): boolean {
         return this.props.ordenId === ordenId;
     }
+
+    /**
+     * Convierte entidad a formato de persistencia
+     */
+    toPersistence(): Omit<EvidenciaProps, 'id'> & { id?: string } {
+        return {
+            id: this.props.id,
+            ejecucionId: this.props.ejecucionId,
+            ordenId: this.props.ordenId,
+            tipo: this.props.tipo,
+            nombreArchivo: this.props.nombreArchivo,
+            rutaArchivo: this.props.rutaArchivo,
+            tamano: this.props.tamano,
+            mimeType: this.props.mimeType,
+            descripcion: this.props.descripcion,
+            tags: this.props.tags,
+            subidoPor: this.props.subidoPor,
+            createdAt: this.props.createdAt,
+            updatedAt: this.props.updatedAt,
+        };
+    }
 }

@@ -1,0 +1,97 @@
+// ============================================
+// CHECKLISTS - TEMPLATES Y EJECUCIÓN
+// ============================================
+
+model ChecklistTemplate {
+  id          String                  @id @default(uuid())
+  nombre      String                  @unique
+  tipo        String
+  categoria   String?
+  descripcion String?
+  activo      Boolean                 @default(true)
+  
+  creadoPorId String?
+
+  items       ChecklistTemplateItem[]
+  checklists  ChecklistEjecucion[]    @relation("TemplateChecklistEjecucion")
+
+  creadoPor   User?                   @relation("TemplateCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+
+  @@index([tipo, activo])
+  @@index([categoria])
+  @@index([creadoPorId])
+  @@map("checklist_templates")
+}
+
+model ChecklistTemplateItem {
+  id                   String                   @id @default(uuid())
+  templateId           String
+  nombre               String
+  descripcion          String?
+  tipo                 String
+  requereCertificacion Boolean                  @default(false)
+  criticidad           String?                  @default("normal")
+  orden                Int                      @default(0)
+  
+  template             ChecklistTemplate        @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  itemsEjecucion       ChecklistItemEjecucion[] @relation("TemplateItemRef")
+
+  createdAt            DateTime                 @default(now())
+
+  @@index([templateId, orden])
+  @@map("checklist_template_items")
+}
+
+model ChecklistEjecucion {
+  id              String                   @id @default(uuid())
+  ejecucionId     String
+  templateId      String?
+  nombre          String
+  descripcion     String?
+  completada      Boolean                  @default(false)
+  completadoPorId String?
+  completadoEn    DateTime?
+  
+  ejecucion       Ejecucion                @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
+  template        ChecklistTemplate?       @relation("TemplateChecklistEjecucion", fields: [templateId], references: [id], onDelete: SetNull)
+  completadoPor   User?                    @relation("ChecklistCompletadoPor", fields: [completadoPorId], references: [id], onDelete: SetNull)
+  
+  items           ChecklistItemEjecucion[]
+  fotosEvidencia  FotoEvidencia[]          @relation("ChecklistFotos")
+
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+
+  @@index([ejecucionId, completada])
+  @@index([templateId])
+  @@index([completadoPorId])
+  @@map("checklist_ejecucion")
+}
+
+model ChecklistItemEjecucion {
+  id              String                 @id @default(uuid())
+  checklistId     String
+  templateItemId  String?
+  nombre          String
+  estado          String                 @default("pendiente")
+  completado      Boolean                @default(false)
+  completadoPorId String?
+  completadoEn    DateTime?
+  observaciones   String?
+  
+  checklist       ChecklistEjecucion     @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+  templateItem    ChecklistTemplateItem? @relation("TemplateItemRef", fields: [templateItemId], references: [id], onDelete: SetNull)
+  completadoPor   User?                  @relation("ItemCompletadoPor", fields: [completadoPorId], references: [id], onDelete: SetNull)
+  fotosAdjuntas   FotoEvidencia[]        @relation("ItemFotos")
+
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  @@index([checklistId, estado])
+  @@index([templateItemId])
+  @@index([completadoPorId])
+  @@map("checklist_item_ejecucion")
+}

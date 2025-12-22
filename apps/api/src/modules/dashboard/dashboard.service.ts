@@ -56,7 +56,7 @@ const ESTADO_COMPLETADA = 'completada';
 
 @Injectable()
 export class DashboardService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   /**
    * Obtiene estadísticas generales del dashboard

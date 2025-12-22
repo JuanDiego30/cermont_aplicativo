@@ -144,7 +144,7 @@ export class ArchivadoService {
                 mes_anio_tipo: {
                     mes,
                     anio,
-                    tipo: 'ORDENES_CSV',
+                    tipo: 'ordenes_csv' as any,
                 },
             },
         });
@@ -168,11 +168,11 @@ export class ArchivadoService {
                 mes_anio_tipo: {
                     mes,
                     anio,
-                    tipo: 'ORDENES_CSV',
+                    tipo: 'ordenes_csv' as any,
                 },
             },
             create: {
-                tipo: 'ORDENES_CSV',
+                tipo: 'ordenes_csv' as any,
                 mes,
                 anio,
                 nombreArchivo,
@@ -359,11 +359,11 @@ export class ArchivadoService {
                 mes_anio_tipo: {
                     mes,
                     anio,
-                    tipo: 'EVIDENCIAS_ZIP',
+                    tipo: 'evidencias_zip' as any,
                 },
             },
             create: {
-                tipo: 'EVIDENCIAS_ZIP',
+                tipo: 'evidencias_zip' as any,
                 mes,
                 anio,
                 nombreArchivo: nombreZip,

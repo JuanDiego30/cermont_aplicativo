@@ -112,14 +112,14 @@ export class KpisService {
     private async getFinancieroKPIs() {
         // Total facturado (facturas aprobadas/pagadas)
         const facturas = await this.prisma.factura.findMany({
-            where: { estado: { in: ['APROBADA', 'PAGADA'] } },
+            where: { estado: { in: ['aprobada', 'pagada'] as any } },
             select: { valorTotal: true },
         });
         const facturado = facturas.reduce((sum, f) => sum + f.valorTotal, 0);
 
         // Por cobrar (facturas enviadas no pagadas)
         const porCobrarResult = await this.prisma.factura.findMany({
-            where: { estado: { in: ['GENERADA', 'ENVIADA', 'APROBADA'] } },
+            where: { estado: { in: ['generada', 'enviada', 'aprobada'] as any } },
             select: { valorTotal: true },
         });
         const porCobrar = porCobrarResult.reduce((sum, f) => sum + f.valorTotal, 0);
@@ -170,7 +170,7 @@ export class KpisService {
 
         // Promedio días acta a firma
         const actasFirmadas = await this.prisma.acta.findMany({
-            where: { estado: 'FIRMADA', fechaFirma: { not: null } },
+            where: { estado: 'firmada' as any, fechaFirma: { not: null } },
             select: { fechaEmision: true, fechaFirma: true },
         });
 
@@ -183,7 +183,7 @@ export class KpisService {
 
         // Promedio SES a aprobación
         const sesAprobadas = await this.prisma.sES.findMany({
-            where: { estado: 'APROBADA', fechaAprobacion: { not: null } },
+            where: { estado: 'aprobada' as any, fechaAprobacion: { not: null } },
             select: { fechaCreacion: true, fechaAprobacion: true },
         });
 
@@ -207,7 +207,7 @@ export class KpisService {
     private async getAlertasKPIs() {
         const [total, criticas, porTipo] = await Promise.all([
             this.prisma.alertaAutomatica.count({ where: { resuelta: false } }),
-            this.prisma.alertaAutomatica.count({ where: { resuelta: false, prioridad: 'CRITICAL' } }),
+            this.prisma.alertaAutomatica.count({ where: { resuelta: false, prioridad: 'critical' as any } }),
             this.prisma.alertaAutomatica.groupBy({
                 by: ['tipo'],
                 where: { resuelta: false },
@@ -243,7 +243,7 @@ export class KpisService {
         // Ingresos por mes (facturas pagadas)
         const facturas = await this.prisma.factura.findMany({
             where: {
-                estado: 'PAGADA',
+                estado: 'pagada' as any,
                 fechaPago: { gte: hace12Meses },
             },
             select: { fechaPago: true, valorTotal: true },

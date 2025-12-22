@@ -1,0 +1,182 @@
+// ============================================
+// ENUMS (CONSISTENTES EN snake_case)
+// ============================================
+
+enum UserRole {
+  admin
+  supervisor
+  tecnico
+  administrativo
+  gerente
+}
+
+enum OrderStatus {
+  planeacion
+  ejecucion
+  pausada
+  completada
+  cancelada
+}
+
+enum OrderPriority {
+  baja
+  media
+  alta
+  urgente
+}
+
+enum EstadoPlaneacion {
+  borrador
+  en_revision
+  aprobada
+  en_ejecucion
+  completada
+  cancelada
+}
+
+enum EstadoEjecucion {
+  no_iniciada
+  en_progreso
+  pausada
+  completada
+  cancelada
+}
+
+enum EstadoInspeccion {
+  conforme
+  no_conforme
+  pendiente
+}
+
+enum TipoMantenimiento {
+  preventivo
+  correctivo
+  predictivo
+}
+
+enum EstadoMantenimiento {
+  programado
+  en_progreso
+  completado
+  cancelado
+  pendiente
+}
+
+enum PrioridadMantenimiento {
+  baja
+  media
+  alta
+  critica
+}
+
+enum EstadoActa {
+  borrador
+  generada
+  enviada
+  firmada
+  rechazada
+}
+
+enum EstadoSES {
+  no_creada
+  creada
+  enviada
+  aprobada
+  rechazada
+}
+
+enum EstadoFactura {
+  no_creada
+  generada
+  enviada
+  aprobada
+  pagada
+  rechazada
+}
+
+enum TipoArchivo {
+  ordenes_csv
+  evidencias_zip
+  informes_pdf
+  backup_completo
+}
+
+enum OrderSubState {
+  // Solicitud (Pasos 1-4)
+  solicitud_recibida
+  visita_programada
+  propuesta_elaborada
+  propuesta_aprobada
+  
+  // Planeación (Paso 5)
+  planeacion_iniciada
+  planeacion_aprobada
+  
+  // Ejecución (Paso 6)
+  ejecucion_iniciada
+  ejecucion_completada
+  
+  // Informe (Paso 7)
+  informe_generado
+  
+  // Cierre Técnico (Pasos 8-9)
+  acta_elaborada
+  acta_firmada
+  
+  // Cierre Administrativo (Pasos 10-13)
+  ses_aprobada
+  factura_aprobada
+  
+  // Final (Paso 14)
+  pago_recibido
+}
+
+enum TipoAlerta {
+  acta_sin_firmar
+  ses_pendiente
+  factura_vencida
+  recurso_faltante
+  certificacion_vencida
+  retraso_cronograma
+  propuesta_sin_respuesta
+}
+
+enum PrioridadAlerta {
+  info
+  warning
+  error
+  critical
+}
+
+enum TipoFormulario {
+  checklist
+  inspeccion
+  mantenimiento
+  reporte
+  certificacion
+  hes
+  otro
+}
+
+enum EstadoFormulario {
+  borrador
+  en_revision
+  completado
+  rechazado
+}
+
+enum TipoEvidencia {
+  foto
+  video
+  documento
+  audio
+  otro
+}
+
+enum TipoCosto {
+  material
+  mano_obra
+  equipo
+  transporte
+  otro
+}

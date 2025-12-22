@@ -23,7 +23,7 @@ import {
 import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { throwError } from 'rxjs';
-import { LoggerService } from '../../logger.service';
+import { LoggerService } from '../logging/logger.service';
 
 interface LogContext {
     requestId: string;

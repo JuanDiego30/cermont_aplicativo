@@ -1,0 +1,12 @@
+// Prisma Schema para Cermont - BASE
+// Version 2.1.0 - Modular Schema
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../../node_modules/.prisma/client"
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+datasource db {
+  provider = "postgresql"
+}

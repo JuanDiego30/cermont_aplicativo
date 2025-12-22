@@ -34,7 +34,7 @@ export class FormsService {
         const template = await this.prisma.formTemplate.create({
             data: {
                 nombre: dto.nombre,
-                tipo: dto.tipo,
+                tipo: dto.tipo as any,
                 categoria: dto.categoria,
                 version: dto.version || '1.0',
                 schema: dto.schema as unknown as Prisma.InputJsonValue,
@@ -94,7 +94,13 @@ export class FormsService {
         }
 
         const data: Prisma.FormTemplateUpdateInput = {
-            ...dto,
+            nombre: dto.nombre,
+            tipo: dto.tipo as any,
+            categoria: dto.categoria,
+            version: dto.version,
+            descripcion: dto.descripcion,
+            tags: dto.tags,
+            activo: dto.activo,
             schema: dto.schema ? (dto.schema as unknown as Prisma.InputJsonValue) : undefined,
             uiSchema: dto.uiSchema ? (dto.uiSchema as unknown as Prisma.InputJsonValue) : undefined,
         };
@@ -140,7 +146,7 @@ export class FormsService {
                 data: dto.data as unknown as Prisma.InputJsonValue,
                 completadoPorId: userId,
                 completadoEn: dto.estado === 'completado' ? new Date() : null,
-                estado: dto.estado || 'borrador',
+                estado: (dto.estado || 'borrador') as any,
             },
             include: {
                 template: { select: { nombre: true, tipo: true } },
@@ -157,7 +163,7 @@ export class FormsService {
 
         if (filters?.templateId) where.templateId = filters.templateId;
         if (filters?.ordenId) where.ordenId = filters.ordenId;
-        if (filters?.estado) where.estado = filters.estado;
+        if (filters?.estado) where.estado = filters.estado as any;
 
         return this.prisma.formularioInstancia.findMany({
             where,
@@ -191,10 +197,10 @@ export class FormsService {
         await this.findInstanceById(id);
 
         const data: Prisma.FormularioInstanciaUpdateInput = {
-            ...dto,
             data: dto.data ? (dto.data as unknown as Prisma.InputJsonValue) : undefined,
             completadoPor: { connect: { id: userId } },
             completadoEn: dto.estado === 'completado' ? new Date() : undefined,
+            estado: dto.estado as any,
         };
 
         return this.prisma.formularioInstancia.update({

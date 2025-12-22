@@ -4,14 +4,22 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
+/**
+ * @service EvidenciasService
+ * 
+ * REFACTORIZADO: Ahora usa repositorio en lugar de Prisma directamente
+ */
 import {
   Injectable,
   NotFoundException,
   BadRequestException,
   InternalServerErrorException,
   Logger,
+  Inject,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { EVIDENCIA_REPOSITORY, IEvidenciaRepository } from './domain/repositories/evidencia.repository.interface';
+import { EvidenciaEntity } from './domain/entities/evidencia.entity';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { existsSync, readFileSync } from 'fs';
@@ -92,27 +100,44 @@ const UPLOAD_SECURITY_CONFIG = {
 export class EvidenciasService {
   private readonly logger = new Logger(EvidenciasService.name);
 
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    @Inject(EVIDENCIA_REPOSITORY)
+    private readonly repository: IEvidenciaRepository,
+    private readonly prisma: PrismaService, // Mantenido temporalmente para validaciones
+  ) { }
 
   /**
    * ✅ OBTENER EVIDENCIAS POR ORDEN
+   * REFACTORIZADO: Usa repositorio
    */
   async findByOrden(ordenId: string): Promise<EvidenciasResult> {
     const context = { action: 'FIND_BY_ORDEN', ordenId };
     this.logger.log('Obteniendo evidencias por orden', context);
 
     try {
-      const evidencias = await this.prisma.evidenciaEjecucion.findMany({
-        where: { ordenId },
-        orderBy: { createdAt: 'desc' },
-      });
+      const evidencias = await this.repository.findAll({ ordenId });
+      const data = evidencias.map(e => ({
+        id: e.id,
+        ejecucionId: e.ejecucionId,
+        ordenId: e.ordenId,
+        tipo: e.tipo,
+        nombreArchivo: e.nombreArchivo,
+        rutaArchivo: e.rutaArchivo,
+        tamano: e.tamano,
+        mimeType: e.mimeType,
+        descripcion: e.descripcion,
+        tags: e.tags,
+        subidoPor: e.subidoPor,
+        createdAt: e.createdAt,
+        updatedAt: e.updatedAt,
+      }));
 
       this.logger.log('Evidencias obtenidas exitosamente', {
         ...context,
         count: evidencias.length,
       });
 
-      return { data: evidencias };
+      return { data };
     } catch (error) {
       const err = error as Error;
       this.logger.error('Error obteniendo evidencias por orden', {
@@ -126,23 +151,36 @@ export class EvidenciasService {
 
   /**
    * ✅ OBTENER EVIDENCIAS POR EJECUCIÓN
+   * REFACTORIZADO: Usa repositorio
    */
   async findByEjecucion(ejecucionId: string): Promise<EvidenciasResult> {
     const context = { action: 'FIND_BY_EJECUCION', ejecucionId };
     this.logger.log('Obteniendo evidencias por ejecución', context);
 
     try {
-      const evidencias = await this.prisma.evidenciaEjecucion.findMany({
-        where: { ejecucionId },
-        orderBy: { createdAt: 'desc' },
-      });
+      const evidencias = await this.repository.findAll({ ejecucionId });
+      const data = evidencias.map(e => ({
+        id: e.id,
+        ejecucionId: e.ejecucionId,
+        ordenId: e.ordenId,
+        tipo: e.tipo,
+        nombreArchivo: e.nombreArchivo,
+        rutaArchivo: e.rutaArchivo,
+        tamano: e.tamano,
+        mimeType: e.mimeType,
+        descripcion: e.descripcion,
+        tags: e.tags,
+        subidoPor: e.subidoPor,
+        createdAt: e.createdAt,
+        updatedAt: e.updatedAt,
+      }));
 
       this.logger.log('Evidencias obtenidas exitosamente', {
         ...context,
         count: evidencias.length,
       });
 
-      return { data: evidencias };
+      return { data };
     } catch (error) {
       const err = error as Error;
       this.logger.error('Error obteniendo evidencias por ejecución', {
@@ -217,9 +255,21 @@ export class EvidenciasService {
         tags,
       };
 
-      const evidencia = await this.prisma.evidenciaEjecucion.create({
-        data: createData,
+      // Crear entidad de dominio
+      const evidenciaEntity = EvidenciaEntity.create({
+        ejecucionId: createData.ejecucionId,
+        ordenId: createData.ordenId,
+        tipo: createData.tipo as any,
+        nombreArchivo: createData.nombreArchivo,
+        rutaArchivo: createData.rutaArchivo,
+        tamano: createData.tamano,
+        mimeType: createData.mimeType,
+        descripcion: createData.descripcion,
+        tags: createData.tags,
+        subidoPor: createData.subidoPor,
       });
+
+      const evidencia = await this.repository.create(evidenciaEntity);
 
       this.logger.log('Evidencia subida exitosamente', {
         ...context,
@@ -228,7 +278,21 @@ export class EvidenciasService {
 
       return {
         message: 'Evidencia subida',
-        data: evidencia,
+        data: {
+          id: evidencia.id,
+          ejecucionId: evidencia.ejecucionId,
+          ordenId: evidencia.ordenId,
+          tipo: evidencia.tipo,
+          nombreArchivo: evidencia.nombreArchivo,
+          rutaArchivo: evidencia.rutaArchivo,
+          tamano: evidencia.tamano,
+          mimeType: evidencia.mimeType,
+          descripcion: evidencia.descripcion,
+          tags: evidencia.tags,
+          subidoPor: evidencia.subidoPor,
+          createdAt: evidencia.createdAt,
+          updatedAt: evidencia.updatedAt,
+        },
       };
     } catch (error) {
       const err = error as Error;
@@ -255,25 +319,24 @@ export class EvidenciasService {
 
   /**
    * ✅ ELIMINAR EVIDENCIA
+   * REFACTORIZADO: Usa repositorio
    */
   async remove(id: string) {
     const context = { action: 'REMOVE_EVIDENCIA', evidenciaId: id };
     this.logger.log('Eliminando evidencia', context);
 
     try {
-      const evidencia = await this.prisma.evidenciaEjecucion.findUnique({
-        where: { id },
-      });
+      const evidencia = await this.repository.findById(id);
 
       if (!evidencia) {
         throw new NotFoundException('Evidencia no encontrada');
       }
 
-      // Eliminar de BD primero
-      await this.prisma.evidenciaEjecucion.delete({ where: { id } });
-
-      // Eliminar archivo físico
+      // Eliminar archivo físico primero
       await this.deleteFileIfExists(evidencia.rutaArchivo);
+
+      // Eliminar de BD
+      await this.repository.delete(id);
 
       this.logger.log('Evidencia eliminada exitosamente', context);
 

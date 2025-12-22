@@ -130,6 +130,82 @@ export class ChecklistRepository implements IChecklistRepository {
     };
   }
 
+  async findChecklistById(id: string): Promise<any> {
+    return this.prisma.checklistEjecucion.findUnique({
+      where: { id },
+      include: { items: true, template: true },
+    });
+  }
+
+  async createEmpty(ejecucionId: string, nombre: string): Promise<any> {
+    return this.prisma.checklistEjecucion.create({
+      data: {
+        ejecucionId,
+        nombre,
+        descripcion: '',
+      },
+      include: { items: true },
+    });
+  }
+
+  async addItems(checklistId: string, items: any[]): Promise<void> {
+    await this.prisma.checklistItemEjecucion.createMany({
+      data: items.map((item) => ({
+        checklistId,
+        nombre: item.nombre,
+        estado: 'pendiente',
+        completado: false,
+      })),
+    });
+  }
+
+  async updateItem(itemId: string, data: any): Promise<any> {
+    return this.prisma.checklistItemEjecucion.update({
+      where: { id: itemId },
+      data,
+    });
+  }
+
+  async completarChecklist(id: string, userId: string): Promise<any> {
+    return this.prisma.checklistEjecucion.update({
+      where: { id },
+      data: {
+        completada: true,
+        completadoPorId: userId,
+        completadoEn: new Date(),
+      },
+    });
+  }
+
+  async getStatistics(ejecucionId: string): Promise<any> {
+    const checklists = await this.prisma.checklistEjecucion.findMany({
+      where: { ejecucionId },
+      include: { items: true },
+    });
+
+    const totalChecklists = checklists.length;
+    const completedChecklists = checklists.filter((c) => c.completada).length;
+    const totalItems = checklists.reduce((sum, c) => sum + c.items.length, 0);
+    const completedItems = checklists.reduce(
+      (sum, c) => sum + c.items.filter((i) => i.completado).length,
+      0
+    );
+
+    return {
+      totalChecklists,
+      completedChecklists,
+      pendingChecklists: totalChecklists - completedChecklists,
+      totalItems,
+      completedItems,
+      pendingItems: totalItems - completedItems,
+      completionPercentage: totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0,
+    };
+  }
+
+  async deleteChecklist(id: string): Promise<void> {
+    await this.prisma.checklistEjecucion.delete({ where: { id } });
+  }
+
   private mapToChecklistData(template: any): ChecklistData {
     return {
       id: template.id,
