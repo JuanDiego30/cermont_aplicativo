@@ -1,1 +1,7 @@
-export * from './checklist.repository.interface';
+export {
+  IChecklistRepository,
+  CHECKLIST_REPOSITORY,
+  PaginatedResult,
+  ChecklistFilters,
+  PaginationQuery,
+} from './checklist.repository.interface';

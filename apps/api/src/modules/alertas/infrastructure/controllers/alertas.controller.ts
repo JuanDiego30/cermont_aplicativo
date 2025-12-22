@@ -1,68 +1,133 @@
 /**
  * @controller AlertasController
- *
- * API REST para gestión de alertas automáticas.
+ * 
+ * Controller HTTP para gestión de alertas
  */
-import {
-    Controller,
-    Get,
-    Post,
-    Param,
-    UseGuards,
-} from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
-import { AlertasService } from '../../alertas.service';
-import { JwtAuthGuard } from '../../../../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../../../../common/guards/roles.guard';
-import { Roles } from '../../../../common/decorators/roles.decorator';
-import { CurrentUser, JwtPayload } from '../../../../common/decorators/current-user.decorator';
 
-@ApiTags('Alertas')
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  HttpCode,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiUnauthorizedResponse,
+  ApiNotFoundResponse,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../../../common/guards/jwt-auth.guard';
+import { CurrentUser, JwtPayload } from '../../../../common/decorators/current-user.decorator';
+import { EnviarAlertaUseCase } from '../../application/use-cases/enviar-alerta.use-case';
+import { ObtenerHistorialAlertasUseCase } from '../../application/use-cases/obtener-historial-alertas.use-case';
+import { MarcarComoLeidaUseCase } from '../../application/use-cases/marcar-como-leida.use-case';
+import {
+  EnviarAlertaDto,
+  AlertaResponseDto,
+  HistorialQueryDto,
+  PaginatedAlertasResponseDto,
+} from '../../application/dto';
+
+@ApiTags('alertas')
 @Controller('alertas')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class AlertasController {
-    constructor(private readonly alertasService: AlertasService) { }
+  constructor(
+    private readonly enviarAlertaUseCase: EnviarAlertaUseCase,
+    private readonly obtenerHistorialUseCase: ObtenerHistorialAlertasUseCase,
+    private readonly marcarComoLeidaUseCase: MarcarComoLeidaUseCase,
+  ) {}
 
-    @Get('mis-alertas')
-    @ApiOperation({ summary: 'Obtener alertas del usuario actual' })
-    getMisAlertas(@CurrentUser() user: JwtPayload) {
-        return this.alertasService.getAlertasUsuario(user.userId);
-    }
+  @Post()
+  @HttpCode(201)
+  @ApiOperation({ summary: 'Enviar una alerta a un usuario' })
+  @ApiOkResponse({ type: AlertaResponseDto, description: 'Alerta creada exitosamente' })
+  @ApiBadRequestResponse({ description: 'Datos inválidos' })
+  @ApiUnauthorizedResponse({ description: 'No autorizado' })
+  async enviarAlerta(
+    @Body() dto: EnviarAlertaDto,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<AlertaResponseDto> {
+    return await this.enviarAlertaUseCase.execute(dto);
+  }
 
-    @Get('todas')
-    @Roles('admin', 'administrativo')
-    @ApiOperation({ summary: 'Obtener todas las alertas pendientes (admin)' })
-    getTodasAlertas() {
-        return this.alertasService.getTodasAlertasPendientes();
-    }
+  @Get()
+  @ApiOperation({ summary: 'Obtener historial de alertas del usuario actual' })
+  @ApiOkResponse({ type: PaginatedAlertasResponseDto })
+  @ApiUnauthorizedResponse({ description: 'No autorizado' })
+  async obtenerHistorial(
+    @Query() query: HistorialQueryDto,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<PaginatedAlertasResponseDto> {
+    return await this.obtenerHistorialUseCase.execute(user.userId, query);
+  }
 
-    @Get('resumen')
-    @Roles('admin', 'administrativo', 'supervisor')
-    @ApiOperation({ summary: 'Obtener resumen de alertas para dashboard' })
-    getResumen() {
-        return this.alertasService.getResumenAlertas();
-    }
+  @Get('pendientes')
+  @ApiOperation({ summary: 'Obtener alertas pendientes del usuario actual' })
+  @ApiOkResponse({ type: [AlertaResponseDto] })
+  @ApiUnauthorizedResponse({ description: 'No autorizado' })
+  async obtenerPendientes(
+    @CurrentUser() user: JwtPayload,
+  ): Promise<AlertaResponseDto[]> {
+    // TODO: Implementar use case para obtener pendientes
+    const result = await this.obtenerHistorialUseCase.execute(user.userId, {
+      soloNoLeidas: true,
+      limit: 50,
+    });
+    return result.items;
+  }
 
-    @Post(':id/leer')
-    @ApiOperation({ summary: 'Marcar alerta como leída' })
-    marcarLeida(@Param('id') id: string) {
-        return this.alertasService.marcarLeida(id);
-    }
+  @Get('pendientes/badge')
+  @ApiOperation({ summary: 'Obtener count de alertas no leídas (para badge)' })
+  @ApiOkResponse({ schema: { type: 'object', properties: { count: { type: 'number' } } } })
+  @ApiUnauthorizedResponse({ description: 'No autorizado' })
+  async obtenerBadge(@CurrentUser() user: JwtPayload): Promise<{ count: number }> {
+    const result = await this.obtenerHistorialUseCase.execute(user.userId, {
+      soloNoLeidas: true,
+      limit: 1,
+    });
+    return { count: result.total };
+  }
 
-    @Post(':id/resolver')
-    @ApiOperation({ summary: 'Marcar alerta como resuelta' })
-    marcarResuelta(@Param('id') id: string) {
-        return this.alertasService.marcarResuelta(id);
+  @Get(':id')
+  @ApiOperation({ summary: 'Obtener alerta específica por ID' })
+  @ApiOkResponse({ type: AlertaResponseDto })
+  @ApiNotFoundResponse({ description: 'Alerta no encontrada' })
+  @ApiUnauthorizedResponse({ description: 'No autorizado' })
+  async obtenerAlerta(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<AlertaResponseDto> {
+    // TODO: Implementar use case para obtener por ID
+    const result = await this.obtenerHistorialUseCase.execute(user.userId, {
+      limit: 1,
+    });
+    const alerta = result.items.find((a) => a.id === id);
+    if (!alerta) {
+      throw new Error('Alerta no encontrada');
     }
+    return alerta;
+  }
 
-    @Post('ejecutar-verificacion')
-    @Roles('admin')
-    @ApiOperation({ summary: 'Ejecutar verificación manual de alertas' })
-    async ejecutarVerificacion() {
-        await this.alertasService.checkActasSinFirmar();
-        await this.alertasService.checkSESPendientes();
-        await this.alertasService.checkFacturasVencidas();
-        return { message: 'Verificación de alertas ejecutada' };
-    }
+  @Patch(':id/leida')
+  @HttpCode(204)
+  @ApiOperation({ summary: 'Marcar alerta como leída' })
+  @ApiOkResponse({ description: 'Alerta marcada como leída' })
+  @ApiNotFoundResponse({ description: 'Alerta no encontrada' })
+  @ApiUnauthorizedResponse({ description: 'No autorizado' })
+  async marcarComoLeida(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<void> {
+    await this.marcarComoLeidaUseCase.execute(id, user.userId);
+  }
 }

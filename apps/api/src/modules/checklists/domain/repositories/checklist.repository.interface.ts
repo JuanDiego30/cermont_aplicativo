@@ -1,53 +1,102 @@
 /**
- * @repository IChecklistRepository
+ * @interface IChecklistRepository
+ * 
+ * Interfaz del repositorio de checklists.
+ * Define el contrato que debe implementar cualquier persistencia.
  */
-export const CHECKLIST_REPOSITORY = Symbol('CHECKLIST_REPOSITORY');
 
-export interface ChecklistData {
-  id: string;
-  nombre: string;
-  descripcion?: string;
-  tipo: string;
-  items: ChecklistItemData[];
-  createdAt: Date;
-  updatedAt: Date;
+import { Checklist } from '../entities/checklist.entity';
+
+/**
+ * Resultado paginado
+ */
+export interface PaginatedResult<T> {
+  items: T[];
+  total: number;
 }
 
-export interface ChecklistItemData {
-  id: string;
-  descripcion: string;
-  requerido: boolean;
-  orden: number;
+/**
+ * Filtros para búsqueda
+ */
+export interface ChecklistFilters {
+  tipo?: string;
+  categoria?: string;
+  status?: string;
+  activo?: boolean;
+  ordenId?: string;
+  ejecucionId?: string;
+  search?: string;
 }
 
-export interface ChecklistOrdenData {
-  id: string;
-  checklistId: string;
-  ordenId: string;
-  completado: boolean;
-  items: ChecklistOrdenItemData[];
+/**
+ * Query de paginación
+ */
+export interface PaginationQuery {
+  page: number;
+  limit: number;
 }
 
-export interface ChecklistOrdenItemData {
-  itemId: string;
-  completado: boolean;
-  observaciones?: string;
-}
-
-export interface CreateChecklistInput {
-  nombre: string;
-  descripcion?: string;
-  tipo: string;
-  items: { descripcion: string; requerido: boolean; orden: number }[];
-}
-
+/**
+ * Interfaz del repositorio de checklists
+ */
 export interface IChecklistRepository {
-  findAll(): Promise<ChecklistData[]>;
-  findById(id: string): Promise<ChecklistData | null>;
-  findByTipo(tipo: string): Promise<ChecklistData[]>;
-  create(data: CreateChecklistInput): Promise<ChecklistData>;
+  /**
+   * Guarda un checklist (create o update)
+   */
+  save(checklist: Checklist): Promise<Checklist>;
+
+  /**
+   * Encuentra por ID
+   */
+  findById(id: string): Promise<Checklist | null>;
+
+  /**
+   * Encuentra plantilla por ID
+   */
+  findTemplateById(id: string): Promise<Checklist | null>;
+
+  /**
+   * Encuentra instancia por ID (asignada a orden/ejecución)
+   */
+  findInstanceById(id: string): Promise<Checklist | null>;
+
+  /**
+   * Lista checklists con filtros y paginación
+   */
+  list(filters: ChecklistFilters, pagination: PaginationQuery): Promise<PaginatedResult<Checklist>>;
+
+  /**
+   * Encuentra todas las plantillas
+   */
+  findAllTemplates(filters?: ChecklistFilters): Promise<Checklist[]>;
+
+  /**
+   * Encuentra por tipo
+   */
+  findByTipo(tipo: string): Promise<Checklist[]>;
+
+  /**
+   * Encuentra checklists asignados a una orden
+   */
+  findByOrden(ordenId: string): Promise<Checklist[]>;
+
+  /**
+   * Encuentra checklists asignados a una ejecución
+   */
+  findByEjecucion(ejecucionId: string): Promise<Checklist[]>;
+
+  /**
+   * Verifica si existe checklist asignado a orden/ejecución
+   */
+  existsAssigned(templateId: string, ordenId?: string, ejecucionId?: string): Promise<boolean>;
+
+  /**
+   * Elimina un checklist
+   */
   delete(id: string): Promise<void>;
-  findByOrden(ordenId: string): Promise<ChecklistOrdenData[]>;
-  assignToOrden(ordenId: string, checklistId: string): Promise<ChecklistOrdenData>;
-  toggleItem(ordenId: string, checklistId: string, itemId: string, completado: boolean, observaciones?: string): Promise<ChecklistOrdenItemData>;
 }
+
+/**
+ * Token para inyección de dependencias
+ */
+export const CHECKLIST_REPOSITORY = Symbol('IChecklistRepository');

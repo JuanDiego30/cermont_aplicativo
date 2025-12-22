@@ -1,0 +1,20 @@
+/**
+ * @file error-codes.ts
+ * @description Constantes de códigos de error de dominio y aplicación
+ */
+
+export enum ErrorCodes {
+    // Domain Errors
+    ENTITY_NOT_FOUND = 'ENTITY_NOT_FOUND',
+    BUSINESS_RULE_VIOLATION = 'BUSINESS_RULE_VIOLATION',
+    INVALID_OPERATION = 'INVALID_OPERATION',
+    INVALID_ENTITY_STATE = 'INVALID_ENTITY_STATE',
+    DUPLICATE_ENTITY = 'DUPLICATE_ENTITY',
+    INSUFFICIENT_PERMISSION = 'INSUFFICIENT_PERMISSION',
+
+    // Application Errors
+    UNEXPECTED_ERROR = 'UNEXPECTED_ERROR',
+    VALIDATION_ERROR = 'VALIDATION_ERROR',
+    UNAUTHORIZED = 'UNAUTHORIZED',
+    FORBIDDEN = 'FORBIDDEN',
+}

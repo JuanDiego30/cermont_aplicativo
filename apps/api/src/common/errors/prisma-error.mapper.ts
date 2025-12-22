@@ -15,6 +15,7 @@ import type {
     PrismaErrorResponse,
 } from '../types/exception.types';
 import { getHttpErrorName, isPrismaErrorMeta } from '../types/exception.types';
+import { ErrorCodes } from './error-codes';
 
 /**
  * Mapeo de códigos Prisma a respuestas HTTP
@@ -25,18 +26,21 @@ const PRISMA_ERROR_MAP: Record<PrismaErrorCode, PrismaErrorMapping> = {
         status: HttpStatus.BAD_REQUEST,
         message: 'El valor es demasiado largo para el campo',
         logLevel: 'warn',
+        appCode: ErrorCodes.VALIDATION_ERROR,
     },
     // Record not found in where condition
     P2001: {
         status: HttpStatus.NOT_FOUND,
         message: 'Registro no encontrado en la condición de búsqueda',
         logLevel: 'debug',
+        appCode: ErrorCodes.ENTITY_NOT_FOUND,
     },
     // Unique constraint violation
     P2002: {
         status: HttpStatus.CONFLICT,
         message: 'El registro ya existe (violación de unicidad)',
         logLevel: 'warn',
+        appCode: ErrorCodes.DUPLICATE_ENTITY,
     },
     // Foreign key constraint violation
     P2003: {
@@ -175,6 +179,7 @@ const PRISMA_ERROR_MAP: Record<PrismaErrorCode, PrismaErrorMapping> = {
         status: HttpStatus.NOT_FOUND,
         message: 'Registro no encontrado',
         logLevel: 'debug',
+        appCode: ErrorCodes.ENTITY_NOT_FOUND,
     },
     // Feature not supported
     P2026: {
@@ -264,11 +269,11 @@ export class PrismaErrorMapper {
      */
     static buildMessage(baseMessage: string, meta: unknown): string {
         const fieldInfo = this.extractFieldInfo(meta);
-        
+
         if (fieldInfo) {
             return `${baseMessage} (campo: ${fieldInfo})`;
         }
-        
+
         return baseMessage;
     }
 
@@ -288,7 +293,7 @@ export class PrismaErrorMapper {
             statusCode: mapping.status,
             message,
             error: getHttpErrorName(mapping.status),
-            code,
+            code: mapping.appCode ?? code,
             timestamp: new Date().toISOString(),
             path,
             field,

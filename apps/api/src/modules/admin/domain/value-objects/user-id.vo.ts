@@ -5,6 +5,7 @@
  */
 
 import { randomUUID } from 'crypto';
+import { ValidationError } from '../exceptions';
 
 // Regex para validar UUID v4
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -14,6 +15,7 @@ export class UserId {
 
   private constructor(id: string) {
     this.value = id;
+    Object.freeze(this); // Inmutabilidad
   }
 
   /**
@@ -29,7 +31,7 @@ export class UserId {
    */
   static fromString(id: string): UserId {
     if (!this.isValidUUID(id)) {
-      throw new Error(`UUID inválido: ${id}`);
+      throw new ValidationError(`UUID inválido: ${id}`, 'userId', id);
     }
     return new UserId(id.toLowerCase());
   }

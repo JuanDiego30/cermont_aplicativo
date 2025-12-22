@@ -82,6 +82,7 @@ export interface PrismaErrorMapping {
     readonly status: HttpStatus;
     readonly message: string;
     readonly logLevel?: 'warn' | 'error' | 'debug';
+    readonly appCode?: string;
 }
 
 /**
@@ -115,14 +116,14 @@ export function isHttpExceptionResponse(value: unknown): value is HttpExceptionR
     if (!isPlainObject(value)) {
         return false;
     }
-    
+
     // Debe tener al menos message o statusCode
     const hasMessage = 'message' in value && (
-        typeof value.message === 'string' || 
+        typeof value.message === 'string' ||
         Array.isArray(value.message)
     );
     const hasStatusCode = 'statusCode' in value && typeof value.statusCode === 'number';
-    
+
     return hasMessage || hasStatusCode;
 }
 
@@ -133,7 +134,7 @@ export function isValidationExceptionResponse(value: unknown): value is Validati
     if (!isHttpExceptionResponse(value)) {
         return false;
     }
-    
+
     if ('errors' in value && value.errors !== undefined) {
         if (!Array.isArray(value.errors)) {
             return false;
@@ -145,7 +146,7 @@ export function isValidationExceptionResponse(value: unknown): value is Validati
                 typeof err.message === 'string',
         );
     }
-    
+
     return true;
 }
 
@@ -163,7 +164,7 @@ export function isPrismaErrorMeta(value: unknown): value is PrismaErrorMeta {
     if (!isPlainObject(value)) {
         return false;
     }
-    
+
     // Verificar propiedades opcionales con tipos correctos
     if ('target' in value && !Array.isArray(value.target)) {
         return false;
@@ -174,7 +175,7 @@ export function isPrismaErrorMeta(value: unknown): value is PrismaErrorMeta {
     if ('model_name' in value && typeof value.model_name !== 'string') {
         return false;
     }
-    
+
     return true;
 }
 
@@ -187,11 +188,11 @@ export function extractExceptionMessage(
     if (typeof exceptionResponse === 'string') {
         return exceptionResponse;
     }
-    
+
     if (Array.isArray(exceptionResponse.message)) {
         return exceptionResponse.message.join(', ');
     }
-    
+
     return exceptionResponse.message ?? 'Error desconocido';
 }
 
@@ -215,6 +216,6 @@ export function getHttpErrorName(status: HttpStatus): string {
         [HttpStatus.SERVICE_UNAVAILABLE]: 'Service Unavailable',
         [HttpStatus.GATEWAY_TIMEOUT]: 'Gateway Timeout',
     };
-    
+
     return errorNames[status] ?? 'Error';
 }

@@ -16,6 +16,7 @@ import {
   IUserRepository,
   USER_REPOSITORY,
 } from '../../domain/repositories/user.repository.interface';
+import { UserEntity } from '../../domain/entities/user.entity';
 import { UserMapper } from '../mappers/user.mapper';
 import { UserResponseDto } from '../dto/user-response.dto';
 
@@ -33,7 +34,7 @@ export class ChangeUserRoleUseCase {
     @Inject(USER_REPOSITORY)
     private readonly userRepository: IUserRepository,
     private readonly eventEmitter: EventEmitter2,
-  ) {}
+  ) { }
 
   /**
    * Ejecuta el cambio de rol
@@ -84,9 +85,9 @@ export class ChangeUserRoleUseCase {
   /**
    * Publica eventos de dominio
    */
-  private publishDomainEvents(user: any): void {
+  private publishDomainEvents(user: UserEntity): void {
     const events = user.getDomainEvents();
-    events.forEach((event: any) => {
+    events.forEach((event) => {
       this.eventEmitter.emit(event.eventName, event);
     });
     user.clearDomainEvents();

@@ -1,35 +1,55 @@
 /**
- * @useCase ListChecklistsUseCase
+ * Use Case: ListChecklistsUseCase
+ * 
+ * Lista checklists con filtros y paginación
  */
-import { Injectable, Inject } from '@nestjs/common';
-import { CHECKLIST_REPOSITORY, IChecklistRepository } from '../../domain/repositories';
-import { ChecklistResponse } from '../dto';
+
+import { Injectable, Inject, Logger } from '@nestjs/common';
+import {
+  IChecklistRepository,
+  CHECKLIST_REPOSITORY,
+} from '../../domain/repositories';
+import { ListChecklistsQueryDto } from '../dto/list-checklists-query.dto';
+import { PaginatedChecklistsResponseDto } from '../dto/checklist-response.dto';
+import { ChecklistMapper } from '../mappers/checklist.mapper';
 
 @Injectable()
 export class ListChecklistsUseCase {
+  private readonly logger = new Logger(ListChecklistsUseCase.name);
+
   constructor(
     @Inject(CHECKLIST_REPOSITORY)
-    private readonly repo: IChecklistRepository,
+    private readonly repository: IChecklistRepository,
   ) {}
 
-  async execute(tipo?: string): Promise<ChecklistResponse[]> {
-    const checklists = tipo
-      ? await this.repo.findByTipo(tipo)
-      : await this.repo.findAll();
+  async execute(query: ListChecklistsQueryDto): Promise<PaginatedChecklistsResponseDto> {
+    // Validar paginación
+    const page = Math.max(1, query.page || 1);
+    const limit = Math.min(100, Math.max(1, query.limit || 20));
 
-    return checklists.map((c) => ({
-      id: c.id,
-      nombre: c.nombre,
-      descripcion: c.descripcion,
-      tipo: c.tipo,
-      items: c.items.map((i) => ({
-        id: i.id,
-        descripcion: i.descripcion,
-        requerido: i.requerido,
-        orden: i.orden,
-      })),
-      createdAt: c.createdAt.toISOString(),
-      updatedAt: c.updatedAt.toISOString(),
-    }));
+    // Construir filtros
+    const filters = {
+      tipo: query.tipo,
+      categoria: query.categoria,
+      status: query.status,
+      activo: query.activo,
+      search: query.search,
+      ordenId: query.ordenId,
+      ejecucionId: query.ejecucionId,
+    };
+
+    // Obtener checklists del repositorio
+    const result = await this.repository.list(filters, { page, limit });
+
+    // Mapear a DTOs
+    const items = ChecklistMapper.toResponseDtoArray(result.items);
+
+    return {
+      items,
+      total: result.total,
+      page,
+      limit,
+      totalPages: Math.ceil(result.total / limit),
+    };
   }
 }

@@ -59,14 +59,14 @@ export class ArchivadoController {
   async archivar(@Body() body: unknown, @Req() req: any) {
     const result = ArchivarOrdenSchema.safeParse(body);
     if (!result.success) throw new BadRequestException(result.error.flatten());
-    return this.archivarOrden.execute(result.data, req.user.id);
+    return this.archivarOrden.execute({ ...result.data, archivedBy: req.user.id });
   }
 
   @Delete(':ordenId')
   @Roles('admin')
   @ApiOperation({ summary: 'Desarchivar una orden' })
-  async desarchivar(@Param('ordenId') ordenId: string) {
-    return this.desarchivarOrden.execute({ ordenId });
+  async desarchivar(@Param('ordenId') ordenId: string, @Req() req: any) {
+    return this.desarchivarOrden.execute({ ordenId, unarchivedBy: req.user.id });
   }
 
   // =====================================================
