@@ -11,9 +11,9 @@ import {
     IArchivedOrderRepository,
     ArchivedOrderQueryFilters,
     PaginatedResult,
-    ArchivedOrderEntity,
-    ArchivedOrderId,
-} from '../../domain';
+} from '../../domain/repositories/archived-order.repository.interface';
+import { ArchivedOrderEntity } from '../../domain/entities/archived-order.entity';
+import { ArchivedOrderId } from '../../domain/value-objects/archived-order-id.vo';
 
 @Injectable()
 export class ArchivedOrderRepository implements IArchivedOrderRepository {

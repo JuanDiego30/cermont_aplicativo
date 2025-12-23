@@ -14,10 +14,12 @@
 2. ✅ **Estructura Prisma clara** - Modelo `Cost` identificado
 3. ✅ **Decimal.js obligatorio** - Precisión financiera crítica
 4. ✅ **Domain Services** - Para cálculos complejos
-5. ✅ **Specifications Pattern** - Reglas de negocio reutilizables
-6. ✅ **Budget Validation** - Validación automática de presupuesto
+5. ✅ **Specifications Pattern** - Para reglas de negocio reutilizables
+6. ✅ **Budget Validation** - Validación robusta de presupuesto
 7. ✅ **Export functionality** - CSV/Excel para contabilidad
-8. ✅ **Consistencia** - Mismo patrón que `/alertas` y `/checklists`
+8. ✅ **Testing strategy** - Unit, Integration, E2E con casos financieros
+9. ✅ **Performance** - Caching de análisis, queries optimizadas
+10. ✅ **Consistencia** - Mismo patrón que `/alertas` y `/checklists`
 
 ---
 
@@ -28,14 +30,13 @@
 3. ✅ **SOLID Principles** en todas las capas
 4. ✅ **Rich Domain Model** (no anémico)
 5. ✅ **TypeScript estricto** (0 `any` en código crítico)
-6. ✅ **Precisión financiera** (Decimal.js obligatorio, NO number)
-7. ✅ **Validación presupuestal** automática
+6. ✅ **Precisión financiera** (100% Decimal.js, NO `number`)
+7. ✅ **Validación de presupuesto** automática
 8. ✅ **Domain Events** para desacoplamiento
-9. ✅ **Domain Services** para cálculos complejos
-10. ✅ **Specifications** para reglas de negocio
-11. ✅ **Testing completo** (>85% coverage)
-12. ✅ **Export functionality** (CSV, Excel)
-13. ✅ **Auditoría completa** (quién, cuándo, por qué)
+9. ✅ **Testing completo** (>90% coverage, casos financieros)
+10. ✅ **Exportación** (CSV/Excel para contabilidad)
+11. ✅ **Auditoría completa** (quién, cuándo, qué, por qué)
+12. ✅ **Performance optimizado** (caching, índices)
 
 ---
 
@@ -47,7 +48,7 @@
 - `COSTOS_AUDIT_REPORT.md` - Análisis de violaciones SOLID/DDD
 - `COSTOS_ARCHITECTURE_DIAGRAM.md` - Diagrama de arquitectura actual vs objetivo
 - `COSTOS_BUSINESS_FLOWS.md` - Flujos de negocio documentados
-- `COSTOS_FINANCIAL_RISKS.md` - Análisis de riesgos financieros
+- `COSTOS_FINANCIAL_RISKS.md` - Matriz de riesgos financieros
 
 ---
 
@@ -57,7 +58,7 @@
 
 **Implementar:**
 - `CostoId.vo.ts` - UUID v4
-- `Money.vo.ts` - **CRÍTICO: Usar Decimal.js, NO number**
+- `Money.vo.ts` - **CRÍTICO: Usa Decimal.js, NO number**
 - `CostoType.vo.ts` - MATERIAL, MANO_OBRA, TRANSPORTE, EQUIPO, SUBCONTRATO, OTROS
 - `CostoCategory.vo.ts` - DIRECTO, INDIRECTO
 - `BudgetLimit.vo.ts` - Límite presupuestal con alertas
@@ -114,22 +115,22 @@
 ### **Task 3.1: Use Cases Refactorizados**
 
 **Implementar:**
-1. `RegistrarCostoUseCase` - Registrar con validación presupuestal
+1. `RegistrarCostoUseCase` - Registrar con validación de presupuesto
 2. `UpdateCostoUseCase` - Actualizar (validar 30 días)
-3. `DeleteCostoUseCase` - Eliminar (requiere justificación)
+3. `DeleteCostoUseCase` - Eliminar (solo ADMIN/COORDINADOR)
 4. `GetCostoByIdUseCase` - Obtener por ID
-5. `ListCostosUseCase` - Listar con filtros y paginación
-6. `ListCostosByOrdenUseCase` - Listar por orden con totales
-7. `GetAnalisisCostosUseCase` - Análisis financiero completo
+5. `ListCostosByOrdenUseCase` - Listar por orden con totales
+6. `ListCostosUseCase` - Listar con filtros y paginación
+7. `GetAnalisisCostosUseCase` - Análisis financiero (con cache)
 8. `GetBudgetSummaryUseCase` - Resumen presupuestal
-9. `CalculateProfitabilityUseCase` - Rentabilidad
+9. `CalculateProfitabilityUseCase` - Rentabilidad (margen, ROI)
 10. `ExportCostosUseCase` - Exportar CSV/Excel
 
 ### **Task 3.2: DTOs y Validación**
 
 **Implementar:**
 - `RegistrarCostoDto` - Con validación Zod + class-validator
-- `UpdateCostoDto` - Actualizar costo
+- `UpdateCostoDto` - Con validación
 - `CostoResponseDto` - DTO de respuesta
 - `CostoAnalysisResponseDto` - Análisis financiero
 - `BudgetSummaryDto` - Resumen presupuestal
@@ -153,7 +154,7 @@
 ### **Task 3.5: Validators**
 
 **Implementar:**
-- `BudgetLimitValidator` - Validación presupuestal
+- `BudgetLimitValidator` - Validación de presupuesto
 - `CostAmountValidator` - Validación de montos
 
 ---
@@ -180,18 +181,18 @@
 ### **Task 4.3: Exporters**
 
 **Implementar:**
-- `CSVExporter` - Exportar a CSV
-- `ExcelExporter` - Exportar a Excel (múltiples sheets)
+- `CSVExporter` - Exportación CSV
+- `ExcelExporter` - Exportación Excel (múltiples sheets)
 
 ---
 
-## ✅ **FASE 5: TESTING (2 días)**
+## ✅ **FASE 5: TESTING (3 días)**
 
 ### **Task 5.1: Tests Unitarios**
-- Value Objects (100% coverage, especialmente Money)
+- Value Objects (100% coverage, casos financieros)
 - Entities (100% coverage)
 - Domain Services (95% coverage)
-- Use Cases (90% coverage)
+- Use Cases (95% coverage)
 
 ### **Task 5.2: Tests de Integración**
 - Repository Prisma
@@ -200,7 +201,7 @@
 
 ### **Task 5.3: Tests E2E**
 - Endpoints principales
-- Flujo completo de registro → análisis → export
+- Flujos completos
 
 ---
 
@@ -218,12 +219,12 @@
 
 | Métrica | Target |
 |---------|--------|
-| Code Coverage | >85% |
+| Code Coverage | >90% |
 | SOLID Violations | 0 |
 | DDD Compliance | 100% |
 | Type Safety | 0 `any` en prod |
-| Financial Precision | 100% Decimal.js |
-| Budget Validation | 100% |
+| **Decimal.js Usage** | **100% para dinero** |
+| Financial Accuracy | 0 errores de redondeo |
 | Performance | <200ms queries |
 | Documentation | 100% JSDoc |
 
@@ -231,12 +232,28 @@
 
 ## ⚠️ **REQUISITOS CRÍTICOS**
 
-1. **Decimal.js OBLIGATORIO** - NO usar `number` para dinero
-2. **Validación presupuestal** - Antes de guardar
-3. **Auditoría completa** - Quién, cuándo, por qué
-4. **ISO 4217** - Monedas válidas (COP, USD)
-5. **Restricción de edición** - No editar después de 30 días
-6. **Justificación obligatoria** - Si excede presupuesto o elimina
+### **1. Decimal.js OBLIGATORIO**
+- ❌ **NUNCA usar `number` para dinero**
+- ✅ **SIEMPRE usar `Decimal` de Decimal.js**
+- ✅ Validar precisión de 2 decimales
+- ✅ Operaciones aritméticas seguras
+
+### **2. Validación de Presupuesto**
+- ✅ Validar antes de guardar
+- ✅ Alertas automáticas (>80%)
+- ✅ Justificación obligatoria si excede
+- ✅ Eventos de dominio
+
+### **3. Auditoría Completa**
+- ✅ Quién registró/modificó/eliminó
+- ✅ Cuándo
+- ✅ Qué cambió
+- ✅ Por qué (justificación)
+
+### **4. Performance**
+- ✅ Caching de análisis (5 min TTL)
+- ✅ Queries agregadas optimizadas
+- ✅ Índices en BD (ordenId, tipo, createdAt)
 
 ---
 
@@ -255,12 +272,13 @@
 - [ ] Repository con queries optimizadas
 - [ ] Controller con Swagger
 - [ ] Exporters (CSV, Excel) funcionando
-- [ ] Tests unitarios (>85%)
+- [ ] Tests unitarios (>90%)
 - [ ] Tests de integración
 - [ ] Tests E2E
 - [ ] Documentación completa
 - [ ] Zero TypeScript errors
 - [ ] **100% Decimal.js para dinero**
+- [ ] Validación presupuestal funcionando
 - [ ] Production-ready code
 
 ---

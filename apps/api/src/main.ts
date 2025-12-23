@@ -17,7 +17,7 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+// Logger nativo de NestJS - Sin dependencias externas
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { v4 as uuidv4 } from 'uuid';
@@ -54,10 +54,10 @@ async function bootstrap() {
             process.exit(1);
         }
 
-        console.log('🔍 Step 3: Getting Winston logger...');
-        // Get Winston logger instance
-        const logger = app.get(WINSTON_MODULE_PROVIDER);
-        console.log('✅ Step 3: Logger obtained');
+        console.log('🔍 Step 3: Configuring logger...');
+        // Usar Logger nativo de NestJS
+        const logger = new Logger('Bootstrap');
+        console.log('✅ Step 3: Logger configured');
 
 
         // Global prefix for API routes
@@ -146,9 +146,9 @@ async function bootstrap() {
         // =====================================================
         await app.listen(port);
 
-        logger.info(`🚀 Cermont API running on port ${port}`, { context: 'Bootstrap' });
-        logger.info(`❤️ Health check: http://localhost:${port}/api/health`, { context: 'Bootstrap' });
-        logger.info(`🔒 Security: ${process.env.NODE_ENV === 'production' ? 'PRODUCTION MODE' : 'DEVELOPMENT MODE'}`, { context: 'Bootstrap' });
+        logger.log(`🚀 Cermont API running on port ${port}`, { context: 'Bootstrap' });
+        logger.log(`❤️ Health check: http://localhost:${port}/api/health`, { context: 'Bootstrap' });
+        logger.log(`🔒 Security: ${process.env.NODE_ENV === 'production' ? 'PRODUCTION MODE' : 'DEVELOPMENT MODE'}`, { context: 'Bootstrap' });
     } catch (error) {
         console.error('❌ Error during bootstrap:', error);
         if (error instanceof Error) {

@@ -22,6 +22,7 @@ export const UpdateAvanceSchema = z.object({
 export type UpdateAvanceDto = z.infer<typeof UpdateAvanceSchema>;
 
 export const CompletarEjecucionSchema = z.object({
+  completadoPorId: z.string().uuid().optional(),
   observacionesFinales: z.string().optional(),
   firmaDigital: z.string().optional(),
   horasReales: z.number().optional(),

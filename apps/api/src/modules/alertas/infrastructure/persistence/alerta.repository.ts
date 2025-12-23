@@ -17,7 +17,7 @@ import { EstadoAlertaEnum } from '../../domain/value-objects/estado-alerta.vo';
 
 @Injectable()
 export class AlertaRepository implements IAlertaRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async save(alerta: Alerta): Promise<Alerta> {
     const persistence = AlertaPrismaMapper.toPersistence(alerta);
@@ -32,8 +32,6 @@ export class AlertaRepository implements IAlertaRepository {
         mensaje: persistence.mensaje,
         usuarioId: persistence.usuarioId,
         ordenId: persistence.ordenId,
-        // canales, estado, intentosEnvio se guardan en metadata
-        // hasta que se cree migración para agregar estos campos
         metadata: persistence.metadata,
         resuelta: persistence.resuelta,
         leida: persistence.leida,
@@ -132,23 +130,22 @@ export class AlertaRepository implements IAlertaRepository {
   }
 
   async findFallidasParaReintentar(): Promise<Alerta[]> {
-    // Buscar alertas que no fueron resueltas
-    // Nota: intentosEnvio está en metadata, filtrar después
     const results = await this.prisma.alertaAutomatica.findMany({
       where: {
         resuelta: false,
         leida: false,
+        createdAt: {
+          gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Últimas 24h
+        },
       },
       orderBy: { createdAt: 'asc' },
     });
 
-    // Filtrar por intentosEnvio desde metadata
     const alertas = results.map((r) => AlertaPrismaMapper.toDomain(r));
     return alertas.filter((a) => a.getIntentosEnvio() < 3);
   }
 
   async marcarComoEnviada(id: string, canal: string): Promise<void> {
-    // Obtener alerta actual para preservar metadata
     const alerta = await this.prisma.alertaAutomatica.findUnique({
       where: { id },
     });
@@ -208,4 +205,3 @@ export class AlertaRepository implements IAlertaRepository {
     });
   }
 }
-

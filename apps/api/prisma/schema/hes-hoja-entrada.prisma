@@ -1,0 +1,87 @@
+// ============================================
+// HES - HOJA DE ENTRADA DE SERVICIO
+// ============================================
+
+enum EstadoHES {
+  BORRADOR
+  COMPLETADO
+  ANULADO
+}
+
+enum TipoServicio {
+  MANTENIMIENTO_PREVENTIVO
+  MANTENIMIENTO_CORRECTIVO
+  REPARACION
+  INSTALACION
+  INSPECCION
+  DIAGNOSTICO
+  GARANTIA
+}
+
+enum Prioridad {
+  BAJA
+  MEDIA
+  ALTA
+  URGENTE
+}
+
+enum NivelRiesgo {
+  BAJO
+  MEDIO
+  ALTO
+  CRITICO
+}
+
+model HojaEntradaServicio {
+  id                    String        @id @default(uuid())
+  numero                String        @unique  // HES-YYYY-0001
+  ordenId               String        @unique  // Relación 1:1 con orden
+  
+  // Estado
+  estado                EstadoHES     @default(BORRADOR)
+  version               Int           @default(1)
+  
+  // Información del servicio
+  tipoServicio          TipoServicio
+  prioridad             Prioridad
+  nivelRiesgo           NivelRiesgo   @default(BAJO)
+  
+  // Cliente (JSON)
+  clienteInfo           Json
+  
+  // Condiciones de entrada (JSON)
+  condicionesEntrada    Json?
+  
+  // Diagnóstico (JSON)
+  diagnosticoPreliminar Json?
+  
+  // Seguridad (JSON)
+  requerimientosSeguridad Json?
+  
+  // Firmas (JSON con base64 + metadata)
+  firmaCliente          Json?
+  firmaTecnico          Json?
+  firmadoClienteAt      DateTime?
+  firmadoTecnicoAt      DateTime?
+  
+  // Audit
+  creadoPor             String
+  completadoEn          DateTime?
+  anuladoEn             DateTime?
+  anuladoPor            String?
+  motivoAnulacion       String?
+  
+  // Relaciones
+  orden                 Order         @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  
+  @@index([numero])
+  @@index([ordenId])
+  @@index([estado])
+  @@index([tipoServicio])
+  @@index([creadoPor])
+  @@map("hojas_entrada_servicio")
+}
+

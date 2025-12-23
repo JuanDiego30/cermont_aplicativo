@@ -14,8 +14,8 @@ async function main() {
 
   // --- 1. USUARIOS ---
   const adminEmail = 'root@cermont.com';
-  const adminPassword = 'admin123456';
-  const hashedPassword = await bcrypt.hash(adminPassword, 10);
+  const adminPassword = 'admin'; // Contraseña simple para desarrollo
+  const hashedPassword = await bcrypt.hash(adminPassword, 12); // Usar 12 rounds (OWASP)
 
   // Upsert Admin
   const admin = await prisma.user.upsert({
@@ -35,13 +35,15 @@ async function main() {
       active: true,
     },
   });
-  console.log('✓ Usuario admin sincronizado (Password set to admin123456)');
+  console.log('✓ Usuario admin sincronizado');
+  console.log(`  📧 Email: ${adminEmail}`);
+  console.log(`  🔑 Password: ${adminPassword}`);
 
   // Crear Técnicos
   const tecnicos = [];
   for (let i = 1; i <= 5; i++) {
     const email = `tecnico${i}@cermont.com`;
-    const techPassword = await bcrypt.hash('tecnico123456', 10);
+    const techPassword = await bcrypt.hash('tecnico123456', 12);
     const user = await prisma.user.upsert({
       where: { email },
       update: { password: techPassword },

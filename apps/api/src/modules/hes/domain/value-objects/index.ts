@@ -1,0 +1,11 @@
+export * from './hes-id.vo';
+export * from './hes-numero.vo';
+export * from './tipo-servicio.vo';
+export * from './prioridad.vo';
+export * from './estado-hes.vo';
+export * from './nivel-riesgo.vo';
+export * from './direccion.vo';
+export * from './coordenadas-gps.vo';
+export * from './telefono.vo';
+export * from './epp-requerido.vo';
+

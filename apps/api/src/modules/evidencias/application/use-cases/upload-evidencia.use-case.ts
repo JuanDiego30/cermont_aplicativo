@@ -1,77 +1,106 @@
 /**
  * @useCase UploadEvidenciaUseCase
- * @description Sube una nueva evidencia
+ * @description Handles file upload, validation, and domain event emission
  */
-import { Injectable, Inject, BadRequestException } from '@nestjs/common';
+
+import { Injectable, Inject, Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Evidencia } from '../../domain/entities';
+import { FileValidatorService } from '../../domain/services';
 import {
   IEvidenciaRepository,
   EVIDENCIA_REPOSITORY,
-} from '../../domain/repositories/evidencia.repository.interface';
-import { UploadEvidenciaDto, EvidenciaResponse } from '../dto/evidencia.dto';
-import { EvidenciaEntity } from '../../domain/entities/evidencia.entity';
+} from '../../domain/repositories';
+import {
+  IStorageProvider,
+  STORAGE_PROVIDER,
+} from '../../infrastructure/storage/storage-provider.interface';
+import { EvidenciaMapper } from '../mappers';
+import { UploadEvidenciaDto, EvidenciaResponse } from '../dto';
 
-// Interface para el archivo (abstracción)
-export interface FileUpload {
-  originalname: string;
-  path: string;
-  size: number;
-  mimetype: string;
+export interface UploadEvidenciaCommand {
+  file: Express.Multer.File;
+  dto: UploadEvidenciaDto;
+  uploadedBy: string;
+}
+
+export interface UploadEvidenciaResult {
+  success: boolean;
+  evidencia?: EvidenciaResponse;
+  errors?: string[];
 }
 
 @Injectable()
 export class UploadEvidenciaUseCase {
+  private readonly logger = new Logger(UploadEvidenciaUseCase.name);
+  private readonly fileValidator = new FileValidatorService();
+
   constructor(
     @Inject(EVIDENCIA_REPOSITORY)
-    private readonly evidenciaRepository: IEvidenciaRepository,
+    private readonly repository: IEvidenciaRepository,
+    @Inject(STORAGE_PROVIDER)
+    private readonly storage: IStorageProvider,
+    private readonly eventEmitter: EventEmitter2,
   ) { }
 
-  async execute(
-    dto: UploadEvidenciaDto,
-    file: FileUpload,
-    userId: string,
-  ): Promise<EvidenciaResponse> {
-    if (!file) {
-      throw new BadRequestException('Archivo no proporcionado');
-    }
+  async execute(command: UploadEvidenciaCommand): Promise<UploadEvidenciaResult> {
+    const { file, dto, uploadedBy } = command;
 
-    const tags = dto.tags ? dto.tags.split(',').map((t) => t.trim()).filter(Boolean) : [];
-
-    // Crear Entidad
-    // Nota: El archivo ya fue guardado por Multer (Infraestructura) antes de llegar aquí.
-    // En Clean Architecture puro, el UseCase debería recibir el stream y guardarlo,
-    // pero NestJS con Multer guarda primero. Aceptamos esto como pragmatismo.
-
-    const entity = EvidenciaEntity.create({
-      ejecucionId: dto.ejecucionId ?? '',
-      ordenId: dto.ordenId,
-      tipo: dto.tipo ?? 'FOTO',
-      nombreArchivo: file.originalname,
-      rutaArchivo: file.path,
-      tamano: file.size,
+    this.logger.log(`Uploading evidencia for orden ${dto.ordenId}`, {
+      filename: file.originalname,
+      size: file.size,
       mimeType: file.mimetype,
-      descripcion: dto.descripcion ?? '',
-      tags: tags,
-      subidoPor: userId,
     });
 
-    const saved = await this.evidenciaRepository.create(entity);
+    try {
+      // 1. Validate file
+      const validation = this.fileValidator.validateFile(file);
+      if (!validation.isValid) {
+        this.logger.warn('File validation failed', { errors: validation.errors });
+        return { success: false, errors: validation.errors };
+      }
 
-    return this.mapToResponse(saved);
-  }
+      // 2. Create domain entity
+      const evidencia = Evidencia.create({
+        ejecucionId: dto.ejecucionId || '',
+        ordenId: dto.ordenId,
+        mimeType: file.mimetype,
+        originalFilename: validation.sanitizedFilename,
+        fileBytes: file.size,
+        descripcion: dto.descripcion,
+        tags: dto.tags ? dto.tags.split(',').map((t) => t.trim()) : [],
+        uploadedBy,
+      });
 
-  private mapToResponse(entity: EvidenciaEntity): EvidenciaResponse {
-    return {
-      id: entity.id,
-      ejecucionId: entity.ejecucionId,
-      ordenId: entity.ordenId,
-      tipo: entity.tipo,
-      nombreArchivo: entity.nombreArchivo,
-      url: `/uploads/${entity.nombreArchivo}`, // O lógica de URL
-      descripcion: entity.descripcion,
-      tags: entity.tags,
-      subidoPor: entity.subidoPor,
-      createdAt: entity.createdAt.toISOString(),
-      sincronizado: false, // Default since it was removed from entity props but exists in DTO?
-    };
+      // 3. Upload to storage
+      await this.storage.upload(file.buffer, evidencia.storagePath.getValue());
+      this.logger.log(`File uploaded to ${evidencia.storagePath.getValue()}`);
+
+      // 4. Save to repository
+      const saved = await this.repository.save(evidencia);
+
+      // 5. Emit domain events (for async processing)
+      const events = saved.pullDomainEvents();
+      for (const event of events) {
+        this.eventEmitter.emit(event.eventName, event);
+        this.logger.debug(`Emitted event: ${event.eventName}`);
+      }
+
+      this.logger.log(`Evidencia created: ${saved.id.getValue()}`);
+
+      return {
+        success: true,
+        evidencia: EvidenciaMapper.toResponse(saved),
+      };
+    } catch (error) {
+      this.logger.error('Upload failed', {
+        error: (error as Error).message,
+        stack: (error as Error).stack,
+      });
+      return {
+        success: false,
+        errors: [(error as Error).message],
+      };
+    }
   }
 }

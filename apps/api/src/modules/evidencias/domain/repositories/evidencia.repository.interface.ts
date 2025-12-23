@@ -1,40 +1,73 @@
 /**
- * @repository IEvidenciaRepository
- * @description Interfaz del repositorio de evidencias
+ * @interface IEvidenciaRepository
+ * @description Repository interface for Evidencia persistence
  */
-import { EvidenciaEntity } from '../entities/evidencia.entity';
 
-export const EVIDENCIA_REPOSITORY = Symbol('EVIDENCIA_REPOSITORY');
+import { Evidencia } from '../entities';
 
-export interface EvidenciaFilters {
+export interface FindEvidenciasOptions {
   ordenId?: string;
   ejecucionId?: string;
-  tipo?: string;
+  uploadedBy?: string;
+  status?: string;
+  includeDeleted?: boolean;
+  skip?: number;
+  take?: number;
 }
 
 export interface IEvidenciaRepository {
   /**
-   * Busca evidencias con filtros
+   * Save (create or update) an evidencia
    */
-  findAll(filters: EvidenciaFilters): Promise<EvidenciaEntity[]>;
+  save(evidencia: Evidencia): Promise<Evidencia>;
 
   /**
-   * Busca por ID
+   * Find by ID
    */
-  findById(id: string): Promise<EvidenciaEntity | null>;
+  findById(id: string): Promise<Evidencia | null>;
 
   /**
-   * Crea una nueva evidencia
+   * Find by multiple IDs
    */
-  create(evidencia: EvidenciaEntity): Promise<EvidenciaEntity>;
+  findByIds(ids: string[]): Promise<Evidencia[]>;
 
   /**
-   * Elimina una evidencia
+   * Find evidencias by filter options
    */
-  delete(id: string): Promise<void>;
+  findMany(options: FindEvidenciasOptions): Promise<Evidencia[]>;
 
   /**
-   * Cuenta evidencias
+   * Count evidencias by filter
    */
-  count(filters: EvidenciaFilters): Promise<number>;
+  count(options: FindEvidenciasOptions): Promise<number>;
+
+  /**
+   * Check if file exists at path
+   */
+  existsByPath(path: string): Promise<boolean>;
+
+  /**
+   * Soft delete
+   */
+  softDelete(id: string, deletedBy: string): Promise<void>;
+
+  /**
+   * Restore from soft delete
+   */
+  restore(id: string): Promise<void>;
+
+  /**
+   * Permanent delete
+   */
+  permanentDelete(id: string): Promise<void>;
+
+  /**
+   * Find deleted evidencias (trash)
+   */
+  findDeleted(ordenId?: string): Promise<Evidencia[]>;
 }
+
+/**
+ * Token for dependency injection
+ */
+export const EVIDENCIA_REPOSITORY = Symbol('IEvidenciaRepository');

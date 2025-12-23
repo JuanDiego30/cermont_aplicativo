@@ -1,31 +1,44 @@
 /**
- * @useCase ListHESUseCase
+ * Use Case: ListHESUseCase
+ * 
+ * Lista HES con filtros opcionales
  */
+
 import { Injectable, Inject } from '@nestjs/common';
-import { HES_REPOSITORY, IHESRepository, HESQueryDto, HESResponse } from '../dto';
+import { HES } from '../../domain/entities/hes.entity';
+import { IHESRepository, HES_REPOSITORY } from '../../domain/repositories';
+import { ListHESQueryDto } from '../dto/list-hes-query.dto';
 
 @Injectable()
 export class ListHESUseCase {
   constructor(
     @Inject(HES_REPOSITORY)
-    private readonly repo: IHESRepository,
+    private readonly repository: IHESRepository,
   ) {}
 
-  async execute(filters: HESQueryDto): Promise<HESResponse[]> {
-    const inspecciones = filters.equipoId
-      ? await this.repo.findByEquipo(filters.equipoId)
-      : await this.repo.findAll(filters);
+  async execute(query: ListHESQueryDto): Promise<HES[]> {
+    const filters: any = {};
 
-    return inspecciones.map((h) => ({
-      id: h.id,
-      equipoId: h.equipoId,
-      ordenId: h.ordenId,
-      tipo: h.tipo,
-      resultados: h.resultados,
-      observaciones: h.observaciones,
-      aprobado: h.aprobado,
-      inspectorId: h.inspectorId,
-      createdAt: h.createdAt.toISOString(),
-    }));
+    if (query.estado) {
+      filters.estado = query.estado;
+    }
+
+    if (query.tipoServicio) {
+      filters.tipoServicio = query.tipoServicio;
+    }
+
+    if (query.ordenId) {
+      filters.ordenId = query.ordenId;
+    }
+
+    if (query.fechaDesde) {
+      filters.fechaDesde = new Date(query.fechaDesde);
+    }
+
+    if (query.fechaHasta) {
+      filters.fechaHasta = new Date(query.fechaHasta);
+    }
+
+    return this.repository.findAll(filters);
   }
 }

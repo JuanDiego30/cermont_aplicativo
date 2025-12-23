@@ -5,8 +5,7 @@
  * No tiene dependencias de framework.
  */
 
-import { Email } from '../value-objects/email.vo';
-import { Password } from '../value-objects/password.vo';
+import { Email, Password } from '../../../../common/domain/value-objects';
 import { UserRole } from '../value-objects/user-role.vo';
 import { UserId } from '../value-objects/user-id.vo';
 import {
@@ -18,7 +17,7 @@ import {
   type UserDomainEvent,
   type UserUpdateChanges,
 } from '../events';
-import { ValidationError, BusinessRuleViolationError } from '../exceptions';
+import { ValidationError, BusinessRuleViolationError } from '../../../../common/domain/exceptions';
 
 export interface UserProps {
   id: UserId;

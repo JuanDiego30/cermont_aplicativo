@@ -1,16 +1,15 @@
 /**
  * @file logger.service.ts
- * @description Enterprise Logger Service using Winston
+ * @description Enterprise Logger Service usando Logger nativo de NestJS
  * @pattern Singleton
  *
  * Features:
- * - JSON structured logging
- * - File rotation (daily)
- * - Console output for development
- * - Log levels based on environment
+ * - Logger nativo de NestJS (sin dependencias externas)
+ * - Console output
+ * - Log levels basados en environment
  */
-import * as winston from 'winston';
-import * as path from 'path';
+
+import { Logger } from '@nestjs/common';
 
 export enum LogLevel {
     DEBUG = 'debug',
@@ -25,50 +24,8 @@ export interface LogContext {
     [key: string]: unknown;
 }
 
-// Create logs directory path
-const logsDir = path.join(process.cwd(), 'logs');
-
-// Configure Winston
-const winstonLogger = winston.createLogger({
-    level: process.env.LOG_LEVEL || 'info',
-    format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.errors({ stack: true }),
-        winston.format.json()
-    ),
-    defaultMeta: { service: 'cermont-api' },
-    transports: [
-        // Error log file
-        new winston.transports.File({
-            filename: path.join(logsDir, 'error.log'),
-            level: 'error',
-            maxsize: 5242880, // 5MB
-            maxFiles: 5,
-        }),
-        // Combined log file
-        new winston.transports.File({
-            filename: path.join(logsDir, 'combined.log'),
-            maxsize: 5242880, // 5MB
-            maxFiles: 5,
-        }),
-    ],
-});
-
-// Add console logging in development
-if (process.env.NODE_ENV !== 'production') {
-    winstonLogger.add(
-        new winston.transports.Console({
-            format: winston.format.combine(
-                winston.format.colorize(),
-                winston.format.printf(({ level, message, timestamp, context, ...meta }) => {
-                    const ctx = context ? `[${context}]` : '';
-                    const metaStr = Object.keys(meta).length > 2 ? ` ${JSON.stringify(meta)}` : '';
-                    return `${timestamp} ${level} ${ctx} ${message}${metaStr}`;
-                })
-            ),
-        })
-    );
-}
+// Logger nativo de NestJS
+const nestLogger = new Logger('CermontAPI');
 
 export class LoggerService {
     private static instance: LoggerService;
@@ -83,19 +40,27 @@ export class LoggerService {
     }
 
     public debug(context: string, message: string, meta?: LogContext): void {
-        winstonLogger.debug(message, { context, ...meta });
+        const metaStr = meta && Object.keys(meta).length > 0 ? ` ${JSON.stringify(meta)}` : '';
+        nestLogger.debug(`[${context}] ${message}${metaStr}`);
     }
 
     public info(context: string, message: string, meta?: LogContext): void {
-        winstonLogger.info(message, { context, ...meta });
+        const metaStr = meta && Object.keys(meta).length > 0 ? ` ${JSON.stringify(meta)}` : '';
+        nestLogger.log(`[${context}] ${message}${metaStr}`);
     }
 
     public warn(context: string, message: string, meta?: LogContext): void {
-        winstonLogger.warn(message, { context, ...meta });
+        const metaStr = meta && Object.keys(meta).length > 0 ? ` ${JSON.stringify(meta)}` : '';
+        nestLogger.warn(`[${context}] ${message}${metaStr}`);
     }
 
     public error(context: string, message: string, meta?: LogContext & { error?: Error }): void {
-        winstonLogger.error(message, { context, ...meta });
+        const metaStr = meta && Object.keys(meta).length > 0 ? ` ${JSON.stringify(meta)}` : '';
+        if (meta?.error) {
+            nestLogger.error(`[${context}] ${message}${metaStr}`, meta.error.stack);
+        } else {
+            nestLogger.error(`[${context}] ${message}${metaStr}`);
+        }
     }
 
     /**
@@ -110,22 +75,34 @@ export class LoggerService {
  * Contextual logger for specific services
  */
 export class ContextualLogger {
-    constructor(private readonly context: string) { }
+    private readonly logger: Logger;
+
+    constructor(private readonly context: string) {
+        this.logger = new Logger(context);
+    }
 
     debug(message: string, meta?: LogContext): void {
-        winstonLogger.debug(message, { context: this.context, ...meta });
+        const metaStr = meta && Object.keys(meta).length > 0 ? ` ${JSON.stringify(meta)}` : '';
+        this.logger.debug(`${message}${metaStr}`);
     }
 
     info(message: string, meta?: LogContext): void {
-        winstonLogger.info(message, { context: this.context, ...meta });
+        const metaStr = meta && Object.keys(meta).length > 0 ? ` ${JSON.stringify(meta)}` : '';
+        this.logger.log(`${message}${metaStr}`);
     }
 
     warn(message: string, meta?: LogContext): void {
-        winstonLogger.warn(message, { context: this.context, ...meta });
+        const metaStr = meta && Object.keys(meta).length > 0 ? ` ${JSON.stringify(meta)}` : '';
+        this.logger.warn(`${message}${metaStr}`);
     }
 
     error(message: string, meta?: LogContext & { error?: Error }): void {
-        winstonLogger.error(message, { context: this.context, ...meta });
+        const metaStr = meta && Object.keys(meta).length > 0 ? ` ${JSON.stringify(meta)}` : '';
+        if (meta?.error) {
+            this.logger.error(`${message}${metaStr}`, meta.error.stack);
+        } else {
+            this.logger.error(`${message}${metaStr}`);
+        }
     }
 }
 

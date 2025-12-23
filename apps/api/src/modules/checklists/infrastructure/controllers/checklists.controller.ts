@@ -70,7 +70,7 @@ export class ChecklistsController {
     private readonly updateItemUseCase: UpdateChecklistItemUseCase,
     private readonly completeChecklist: CompleteChecklistUseCase,
     private readonly archiveChecklist: ArchiveChecklistUseCase,
-  ) {}
+  ) { }
 
   @Post()
   @HttpCode(201)

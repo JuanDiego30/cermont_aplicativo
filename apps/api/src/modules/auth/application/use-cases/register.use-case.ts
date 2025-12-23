@@ -5,8 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcryptjs';
 import { AUTH_REPOSITORY, IAuthRepository } from '../../domain/repositories';
-import { Email } from '../../domain/value-objects/email.vo';
-import { Password } from '../../domain/value-objects/password.vo';
+import { Email, Password } from '../../domain/value-objects';
 
 interface RegisterDto {
   email: string;
@@ -51,7 +50,7 @@ export class RegisterUseCase {
   async execute(dto: RegisterDto, context: AuthContext): Promise<RegisterResult> {
     // 1. Validate inputs via VOs
     const email = Email.create(dto.email);
-    Password.create(dto.password); // Validate length
+    // Password validation happens in createFromPlainText
 
     // 2. Check if user exists
     const existing = await this.authRepository.findByEmail(email.getValue());
@@ -59,15 +58,15 @@ export class RegisterUseCase {
       throw new ConflictException('El email ya está registrado');
     }
 
-    // 3. Hash password
-    const rounds = this.configService.get<number>('BCRYPT_ROUNDS') ?? 12;
-    const hashedPassword = await bcrypt.hash(dto.password, rounds);
+    // 3. Create Password VO (hashes internally)
+    // const rounds = this.configService.get<number>('BCRYPT_ROUNDS') ?? 12; // Encapsulated in Password VO
+    const passwordVO = await Password.createFromPlainText(dto.password);
 
     // 4. Create user - map 'administrativo' to 'tecnico' as fallback
     const role = dto.role === 'administrativo' ? 'tecnico' : (dto.role ?? 'tecnico');
     const user = await this.authRepository.create({
       email: email.getValue(),
-      password: hashedPassword,
+      password: passwordVO.getHash(),
       name: dto.name,
       role: role as 'admin' | 'supervisor' | 'tecnico',
       phone: dto.phone ?? null,

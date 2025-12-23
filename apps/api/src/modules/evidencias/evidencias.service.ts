@@ -1,14 +1,12 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * EVIDENCIAS SERVICE - CERMONT APLICATIVO (REFACTORIZADO)
+ * EVIDENCIAS SERVICE - CERMONT APLICATIVO (LEGACY WRAPPER)
  * ═══════════════════════════════════════════════════════════════════════════
+ * 
+ * @deprecated This service is maintained for backward compatibility.
+ * Use the new Use Cases (UploadEvidenciaUseCase, etc.) for new code.
  */
 
-/**
- * @service EvidenciasService
- * 
- * REFACTORIZADO: Ahora usa repositorio en lugar de Prisma directamente
- */
 import {
   Injectable,
   NotFoundException,
@@ -18,13 +16,15 @@ import {
   Inject,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { EVIDENCIA_REPOSITORY, IEvidenciaRepository } from './domain/repositories/evidencia.repository.interface';
-import { EvidenciaEntity } from './domain/entities/evidencia.entity';
+import {
+  EVIDENCIA_REPOSITORY,
+  IEvidenciaRepository,
+} from './domain/repositories';
+import { Evidencia } from './domain/entities';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync } from 'fs';
 import sanitize from 'sanitize-filename';
-// file-type es ESM, usamos import dinámico en el método
 
 /**
  * Tipos de evidencia permitidos
@@ -103,34 +103,19 @@ export class EvidenciasService {
   constructor(
     @Inject(EVIDENCIA_REPOSITORY)
     private readonly repository: IEvidenciaRepository,
-    private readonly prisma: PrismaService, // Mantenido temporalmente para validaciones
+    private readonly prisma: PrismaService,
   ) { }
 
   /**
    * ✅ OBTENER EVIDENCIAS POR ORDEN
-   * REFACTORIZADO: Usa repositorio
    */
   async findByOrden(ordenId: string): Promise<EvidenciasResult> {
     const context = { action: 'FIND_BY_ORDEN', ordenId };
     this.logger.log('Obteniendo evidencias por orden', context);
 
     try {
-      const evidencias = await this.repository.findAll({ ordenId });
-      const data = evidencias.map(e => ({
-        id: e.id,
-        ejecucionId: e.ejecucionId,
-        ordenId: e.ordenId,
-        tipo: e.tipo,
-        nombreArchivo: e.nombreArchivo,
-        rutaArchivo: e.rutaArchivo,
-        tamano: e.tamano,
-        mimeType: e.mimeType,
-        descripcion: e.descripcion,
-        tags: e.tags,
-        subidoPor: e.subidoPor,
-        createdAt: e.createdAt,
-        updatedAt: e.updatedAt,
-      }));
+      const evidencias = await this.repository.findMany({ ordenId });
+      const data = evidencias.map((e) => this.mapEvidenciaToResponse(e));
 
       this.logger.log('Evidencias obtenidas exitosamente', {
         ...context,
@@ -151,29 +136,14 @@ export class EvidenciasService {
 
   /**
    * ✅ OBTENER EVIDENCIAS POR EJECUCIÓN
-   * REFACTORIZADO: Usa repositorio
    */
   async findByEjecucion(ejecucionId: string): Promise<EvidenciasResult> {
     const context = { action: 'FIND_BY_EJECUCION', ejecucionId };
     this.logger.log('Obteniendo evidencias por ejecución', context);
 
     try {
-      const evidencias = await this.repository.findAll({ ejecucionId });
-      const data = evidencias.map(e => ({
-        id: e.id,
-        ejecucionId: e.ejecucionId,
-        ordenId: e.ordenId,
-        tipo: e.tipo,
-        nombreArchivo: e.nombreArchivo,
-        rutaArchivo: e.rutaArchivo,
-        tamano: e.tamano,
-        mimeType: e.mimeType,
-        descripcion: e.descripcion,
-        tags: e.tags,
-        subidoPor: e.subidoPor,
-        createdAt: e.createdAt,
-        updatedAt: e.updatedAt,
-      }));
+      const evidencias = await this.repository.findMany({ ejecucionId });
+      const data = evidencias.map((e) => this.mapEvidenciaToResponse(e));
 
       this.logger.log('Evidencias obtenidas exitosamente', {
         ...context,
@@ -223,76 +193,35 @@ export class EvidenciasService {
       // 4. Sanitizar nombre usando sanitize-filename
       const safeFilename = sanitize(file.originalname) || `file-${Date.now()}`;
 
-      // 4. Parsear tags
+      // 5. Parsear tags
       const tags = this.parseTags(dto.tags);
 
-      // 5. Validar relaciones
+      // 6. Validar relaciones
       await this.validateRelaciones(dto.ordenId, dto.ejecucionId);
 
-      // 6. Crear datos para Prisma
-      // ✅ Según schema: ejecucionId es String (no opcional), pero puede omitirse en create
-      const createData: {
-        ordenId: string;
-        tipo: string;
-        nombreArchivo: string;
-        rutaArchivo: string;
-        tamano: number;
-        mimeType: string;
-        descripcion: string;
-        subidoPor: string;
-        tags: string[];
-        ejecucionId: string; // ✅ Requerido según schema
-      } = {
+      // 7. Create domain entity using new Evidencia aggregate
+      const evidencia = Evidencia.create({
+        ejecucionId: dto.ejecucionId || '',
         ordenId: dto.ordenId,
-        ejecucionId: dto.ejecucionId || '', // ✅ Fallback a string vacío como en original
-        tipo: tipo as string,
-        nombreArchivo: safeFilename,
-        rutaArchivo: file.path,
-        tamano: file.size,
         mimeType: file.mimetype,
-        descripcion: dto.descripcion ?? '',
-        subidoPor: userId,
+        originalFilename: safeFilename,
+        fileBytes: file.size,
+        descripcion: dto.descripcion,
         tags,
-      };
-
-      // Crear entidad de dominio
-      const evidenciaEntity = EvidenciaEntity.create({
-        ejecucionId: createData.ejecucionId,
-        ordenId: createData.ordenId,
-        tipo: createData.tipo as any,
-        nombreArchivo: createData.nombreArchivo,
-        rutaArchivo: createData.rutaArchivo,
-        tamano: createData.tamano,
-        mimeType: createData.mimeType,
-        descripcion: createData.descripcion,
-        tags: createData.tags,
-        subidoPor: createData.subidoPor,
+        uploadedBy: userId,
       });
 
-      const evidencia = await this.repository.create(evidenciaEntity);
+      // 8. Save using repository
+      const saved = await this.repository.save(evidencia);
 
       this.logger.log('Evidencia subida exitosamente', {
         ...context,
-        evidenciaId: evidencia.id,
+        evidenciaId: saved.id.getValue(),
       });
 
       return {
         message: 'Evidencia subida',
-        data: {
-          id: evidencia.id,
-          ejecucionId: evidencia.ejecucionId,
-          ordenId: evidencia.ordenId,
-          tipo: evidencia.tipo,
-          nombreArchivo: evidencia.nombreArchivo,
-          rutaArchivo: evidencia.rutaArchivo,
-          tamano: evidencia.tamano,
-          mimeType: evidencia.mimeType,
-          descripcion: evidencia.descripcion,
-          tags: evidencia.tags,
-          subidoPor: evidencia.subidoPor,
-          createdAt: evidencia.createdAt,
-          updatedAt: evidencia.updatedAt,
-        },
+        data: this.mapEvidenciaToResponse(saved),
       };
     } catch (error) {
       const err = error as Error;
@@ -319,7 +248,6 @@ export class EvidenciasService {
 
   /**
    * ✅ ELIMINAR EVIDENCIA
-   * REFACTORIZADO: Usa repositorio
    */
   async remove(id: string) {
     const context = { action: 'REMOVE_EVIDENCIA', evidenciaId: id };
@@ -333,10 +261,10 @@ export class EvidenciasService {
       }
 
       // Eliminar archivo físico primero
-      await this.deleteFileIfExists(evidencia.rutaArchivo);
+      await this.deleteFileIfExists(evidencia.storagePath.getValue());
 
-      // Eliminar de BD
-      await this.repository.delete(id);
+      // Eliminar de BD (permanent delete for legacy compatibility)
+      await this.repository.permanentDelete(id);
 
       this.logger.log('Evidencia eliminada exitosamente', context);
 
@@ -358,8 +286,29 @@ export class EvidenciasService {
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // MÉTODOS PRIVADOS
+  // PRIVATE HELPER METHODS
   // ═══════════════════════════════════════════════════════════════════════
+
+  /**
+   * Map new Evidencia aggregate to legacy response format
+   */
+  private mapEvidenciaToResponse(e: Evidencia) {
+    return {
+      id: e.id.getValue(),
+      ejecucionId: e.ejecucionId,
+      ordenId: e.ordenId,
+      tipo: e.fileType.toSpanish(),
+      nombreArchivo: e.originalFilename,
+      rutaArchivo: e.storagePath.getValue(),
+      tamano: e.fileSize.getBytes(),
+      mimeType: e.mimeType.getValue(),
+      descripcion: e.descripcion,
+      tags: e.tags,
+      subidoPor: e.uploadedBy,
+      createdAt: e.uploadedAt,
+      updatedAt: e.updatedAt,
+    };
+  }
 
   private validateFileExtension(filename: string, tipo: TipoEvidencia): void {
     const ext = path.extname(filename).toLowerCase();
@@ -379,7 +328,9 @@ export class EvidenciasService {
     const allowedTypes: string[] = UPLOAD_SECURITY_CONFIG.allowedMimeTypes;
 
     if (!allowedTypes.includes(mimetype)) {
-      throw new BadRequestException(`Tipo de archivo no permitido: ${mimetype}`);
+      throw new BadRequestException(
+        `Tipo de archivo no permitido: ${mimetype}`,
+      );
     }
   }
 
@@ -395,19 +346,6 @@ export class EvidenciasService {
         `Archivo muy grande. Máximo para ${tipo}: ${maxSizeMB} MB`,
       );
     }
-  }
-
-  private sanitizeFilename(filename: string): string {
-    let sanitized = filename.replace(/\.\.[\/\\]/g, '');
-    sanitized = sanitized.replace(/[<>:"|?*]/g, '');
-
-    if (sanitized.length > 255) {
-      const ext = path.extname(sanitized);
-      const base = path.basename(sanitized, ext).substring(0, 250);
-      sanitized = base + ext;
-    }
-
-    return sanitized;
   }
 
   private parseTags(tagsString?: string): string[] {
@@ -426,7 +364,6 @@ export class EvidenciasService {
     ordenId: string,
     ejecucionId?: string,
   ): Promise<void> {
-    // ✅ Según schema: tabla se llama "orders" (@@map)
     const orden = await this.prisma.order.findUnique({
       where: { id: ordenId },
     });
@@ -436,7 +373,6 @@ export class EvidenciasService {
     }
 
     if (ejecucionId) {
-      // ✅ Según schema: tabla se llama "ejecuciones"
       const ejecucion = await this.prisma.ejecucion.findUnique({
         where: { id: ejecucionId },
       });
@@ -462,24 +398,22 @@ export class EvidenciasService {
     }
   }
 
-  /**
-   * Validación profunda del tipo de archivo usando file-type
-   * Detecta archivos con extensión falsa (ej: .exe renombrado a .jpg)
-   */
-  private async validateRealFileType(filePath: string, declaredMimeType: string): Promise<void> {
+  private async validateRealFileType(
+    filePath: string,
+    declaredMimeType: string,
+  ): Promise<void> {
     try {
-      // Import dinámico porque file-type es ESM
       const { fileTypeFromFile } = await import('file-type');
-
       const detectedType = await fileTypeFromFile(filePath);
 
-      // Si no se puede detectar, permitir (pueden ser archivos de texto)
       if (!detectedType) {
-        this.logger.debug('No se pudo detectar tipo de archivo - permitiendo', { filePath });
+        this.logger.debug(
+          'No se pudo detectar tipo de archivo - permitiendo',
+          { filePath },
+        );
         return;
       }
 
-      // Verificar que el mime detectado coincida con la categoría declarada
       const declaredCategory = this.getMimeCategory(declaredMimeType);
       const detectedCategory = this.getMimeCategory(detectedType.mime);
 
@@ -490,7 +424,7 @@ export class EvidenciasService {
           detectedMime: detectedType.mime,
         });
         throw new BadRequestException(
-          `El archivo no coincide con su extensión. Declarado: ${declaredMimeType}, Detectado: ${detectedType.mime}`
+          `El archivo no coincide con su extensión. Declarado: ${declaredMimeType}, Detectado: ${detectedType.mime}`,
         );
       }
 
@@ -499,11 +433,9 @@ export class EvidenciasService {
         detectedMime: detectedType.mime,
       });
     } catch (error) {
-      // Si es nuestro BadRequestException, re-lanzar
       if (error instanceof BadRequestException) {
         throw error;
       }
-      // Otros errores (ej: archivo no existe), loggear y continuar
       const err = error as Error;
       this.logger.warn('Error en validación profunda de archivo', {
         filePath,
@@ -512,9 +444,6 @@ export class EvidenciasService {
     }
   }
 
-  /**
-   * Obtiene la categoría general del mime type (image, video, application, audio)
-   */
   private getMimeCategory(mimeType: string): string {
     if (mimeType.startsWith('image/')) return 'image';
     if (mimeType.startsWith('video/')) return 'video';
@@ -523,6 +452,3 @@ export class EvidenciasService {
     return 'unknown';
   }
 }
-
-
-
