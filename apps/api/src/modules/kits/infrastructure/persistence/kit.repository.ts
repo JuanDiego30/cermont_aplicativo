@@ -4,11 +4,22 @@
  */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../prisma/prisma.service';
-import { CreateKitDto, KitData, IKitRepository } from '../../application/dto';
+import { CreateKitDto } from '../../application/dto';
+
+// Legacy types
+type KitData = any;
+interface IKitRepository {
+  findAll(): Promise<KitData[]>;
+  findById(id: string): Promise<KitData | null>;
+  findByCategoria(categoria: string): Promise<KitData[]>;
+  create(data: CreateKitDto): Promise<KitData>;
+  update(id: string, data: Partial<CreateKitDto>): Promise<KitData>;
+  delete(id: string): Promise<void>;
+}
 
 @Injectable()
 export class KitRepository implements IKitRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findAll(): Promise<KitData[]> {
     const kits = await this.prisma.kitTipico.findMany({
@@ -44,8 +55,8 @@ export class KitRepository implements IKitRepository {
       data: {
         nombre: data.nombre,
         descripcion: data.descripcion || '',
-        herramientas: data.herramientas || data.items || [],
-        equipos: data.equipos || [],
+        herramientas: (data.herramientas || data.items || []) as any,
+        equipos: (data.equipos || []) as any,
         documentos: data.documentos || [],
         checklistItems: data.checklistItems || [],
         duracionEstimadaHoras: data.duracionEstimadaHoras || 0,

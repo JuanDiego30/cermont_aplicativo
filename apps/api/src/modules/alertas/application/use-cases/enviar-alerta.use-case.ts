@@ -25,7 +25,6 @@ import {
   PREFERENCIA_ALERTA_REPOSITORY,
 } from '../../domain/repositories/preferencia-alerta.repository.interface';
 import { Alerta } from '../../domain/entities/alerta.entity';
-import { CanalNotificacion } from '../../domain/value-objects/canal-notificacion.vo';
 import { CanalNotificacionEnum } from '../../domain/value-objects/canal-notificacion.vo';
 import { EnviarAlertaDto } from '../dto/enviar-alerta.dto';
 import { AlertaResponseDto } from '../dto/alerta-response.dto';
@@ -43,7 +42,7 @@ export class EnviarAlertaUseCase {
     private readonly eventEmitter: EventEmitter2,
     @Inject('NotificationQueueService')
     private readonly notificationQueue: NotificationQueueService,
-  ) {}
+  ) { }
 
   async execute(dto: EnviarAlertaDto): Promise<AlertaResponseDto> {
     const context = {
@@ -62,8 +61,9 @@ export class EnviarAlertaUseCase {
       );
 
       // 2. Determinar canales a usar
-      let canales: CanalNotificacionEnum[] = dto.canales || [];
-      if (canales.length === 0) {
+      let canales: string[] = dto.canales || [];
+
+      if (!canales || canales.length === 0) {
         if (!preferencias) {
           // Sin preferencias explícitas, usar canales por defecto
           canales = [CanalNotificacionEnum.EMAIL, CanalNotificacionEnum.IN_APP];
@@ -139,4 +139,3 @@ export class EnviarAlertaUseCase {
     }
   }
 }
-

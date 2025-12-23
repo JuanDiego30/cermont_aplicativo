@@ -1,3 +1,10 @@
-export * from './list-formularios.use-case';
-export * from './create-formulario.use-case';
-export * from './submit-formulario.use-case';
+export * from './create-template.use-case';
+export * from './update-template.use-case';
+export * from './publish-template.use-case';
+export * from './archive-template.use-case';
+export * from './submit-form.use-case';
+export * from './get-template.use-case';
+export * from './list-templates.use-case';
+export * from './get-submission.use-case';
+export * from './list-submissions.use-case';
+

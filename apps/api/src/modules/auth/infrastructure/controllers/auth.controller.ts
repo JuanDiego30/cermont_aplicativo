@@ -14,6 +14,7 @@ import {
   HttpStatus,
   UseGuards,
   BadRequestException,
+  UnauthorizedException,
   Inject,
   Logger,
 } from '@nestjs/common';
@@ -62,29 +63,42 @@ export class AuthControllerRefactored {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    // Validar body con Zod
-    const parseResult = LoginSchema.safeParse(body);
-    if (!parseResult.success) {
-      const errors = parseResult.error.issues.map(i => {
-        const path = i.path.length > 0 ? i.path.join('.') : 'root';
-        return `${path}: ${i.message}`;
-      }).join(', ');
-      throw new BadRequestException(`Validación fallida: ${errors}`);
+    try {
+      // Validar body con Zod
+      const parseResult = LoginSchema.safeParse(body);
+      if (!parseResult.success) {
+        const errors = parseResult.error.issues.map(i => {
+          const path = i.path.length > 0 ? i.path.join('.') : 'root';
+          return `${path}: ${i.message}`;
+        }).join(', ');
+        this.logger.warn(`Login validation failed: ${errors}`, { body });
+        throw new BadRequestException(`Validación fallida: ${errors}`);
+      }
+
+      const dto = parseResult.data;
+      const context = { ip: req.ip, userAgent: req.get('user-agent') };
+
+      this.logger.log(`Login attempt for: ${dto.email}`);
+      const result = await this.loginUseCase.execute(dto, context);
+
+      res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
+
+      return {
+        message: result.message,
+        token: result.token,
+        user: result.user,
+      };
+    } catch (error) {
+      // Log del error para debugging
+      if (error instanceof BadRequestException || error instanceof UnauthorizedException) {
+        this.logger.warn(`Login ${error.constructor.name}: ${error.message}`, { body });
+        throw error;
+      }
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Login error: ${errorMessage}`, errorStack);
+      throw error;
     }
-
-    const dto = parseResult.data;
-    const context = { ip: req.ip, userAgent: req.get('user-agent') };
-
-    this.logger.log(`Login attempt for: ${dto.email}`);
-    const result = await this.loginUseCase.execute(dto, context);
-
-    res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
-
-    return {
-      message: result.message,
-      token: result.token,
-      user: result.user,
-    };
   }
 
   @Post('register')

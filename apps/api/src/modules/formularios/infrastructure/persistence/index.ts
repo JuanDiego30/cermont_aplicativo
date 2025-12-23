@@ -1,1 +1,3 @@
-export * from './formulario.repository';
+export * from './form-template.repository';
+export * from './form-submission.repository';
+

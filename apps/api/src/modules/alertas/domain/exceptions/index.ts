@@ -2,7 +2,7 @@
  * Domain Exceptions
  * 
  * Excepciones personalizadas del dominio.
+ * Consolidado: Usa excepciones comunes del sistema.
  */
-export { ValidationError } from './validation.error';
-export { BusinessRuleViolationError } from './business-rule-violation.error';
+export { ValidationError, BusinessRuleViolationError } from '../../../../common/domain/exceptions';
 

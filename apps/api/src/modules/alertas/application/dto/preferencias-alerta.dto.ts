@@ -4,33 +4,10 @@
  * DTOs para preferencias de alertas
  */
 
-import { IsEnum, IsArray, IsBoolean, IsOptional, IsString, Matches, ValidateNested } from 'class-validator';
+import { IsEnum, IsArray, IsBoolean, IsOptional, IsString, Matches } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import { TipoAlertaEnum } from '../../domain/value-objects/tipo-alerta.vo';
 import { CanalNotificacionEnum } from '../../domain/value-objects/canal-notificacion.vo';
-
-export class HorariosPermitidosDto {
-  @ApiProperty({
-    example: '09:00',
-    description: 'Hora de inicio (formato HH:MM)',
-  })
-  @IsString()
-  @Matches(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/, {
-    message: 'Formato de horario inválido. Use HH:MM (24h)',
-  })
-  inicio!: string;
-
-  @ApiProperty({
-    example: '18:00',
-    description: 'Hora de fin (formato HH:MM)',
-  })
-  @IsString()
-  @Matches(/^([0-1][0-9]|2[0-3]):[0-5][0-9]$/, {
-    message: 'Formato de horario inválido. Use HH:MM (24h)',
-  })
-  fin!: string;
-}
 
 export class ActualizarPreferenciasDto {
   @ApiProperty({
@@ -60,14 +37,14 @@ export class ActualizarPreferenciasDto {
   noMolestar?: boolean;
 
   @ApiPropertyOptional({
-    type: HorariosPermitidosDto,
     example: { inicio: '09:00', fin: '18:00' },
     description: 'Horarios permitidos para recibir notificaciones (formato HH:MM)',
   })
   @IsOptional()
-  @ValidateNested()
-  @Type(() => HorariosPermitidosDto)
-  horariosPermitidos?: HorariosPermitidosDto;
+  horariosPermitidos?: {
+    inicio: string;
+    fin: string;
+  };
 }
 
 export class PreferenciaResponseDto {

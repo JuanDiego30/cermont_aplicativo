@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { Inject } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+// Cache type viene de cache-manager como peer dependency de @nestjs/cache-manager
+// TypeScript lo resuelve automáticamente desde node_modules
+import type { Cache } from 'cache-manager';
 
 /**
  * Servicio para invalidar caché cuando datos cambian

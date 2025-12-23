@@ -56,6 +56,7 @@ model Order {
   // Relaciones HES
   equiposHES          OrdenEquipoHES[]
   inspeccionesHES     InspeccionHES[]
+  hojaEntradaServicio HojaEntradaServicio?
 
   // Relaciones de cierre
   acta                     Acta?

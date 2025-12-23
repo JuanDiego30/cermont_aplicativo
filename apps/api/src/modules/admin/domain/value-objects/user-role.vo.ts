@@ -4,7 +4,7 @@
  * Role como Value Object con validación y jerarquía.
  */
 
-import { ValidationError } from '../exceptions';
+import { ValidationError } from '../../../../common/domain/exceptions';
 
 export const USER_ROLES = ['admin', 'supervisor', 'tecnico', 'administrativo'] as const;
 export type UserRoleType = typeof USER_ROLES[number];

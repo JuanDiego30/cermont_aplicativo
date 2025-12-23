@@ -106,6 +106,13 @@ model EvidenciaEjecucion {
   verificada    Boolean  @default(false)
   verificadoPor String?
   verificadoEn  DateTime?
+
+  // New fields for DDD refactor
+  thumbnailPath String?
+  status        String   @default("READY")
+  metadata      Json?
+  deletedAt     DateTime?
+  deletedBy     String?
   
   ejecucion     Ejecucion @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
   orden         Order     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
@@ -116,5 +123,7 @@ model EvidenciaEjecucion {
   @@index([ejecucionId])
   @@index([ordenId, tipo])
   @@index([verificada])
+  @@index([status])
+  @@index([deletedAt])
   @@map("evidencias_ejecucion")
 }

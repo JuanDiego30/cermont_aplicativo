@@ -82,7 +82,7 @@ export class EjecucionController {
   async avance(@Param('id') id: string, @Body() body: unknown) {
     const result = UpdateAvanceSchema.safeParse(body);
     if (!result.success) throw new BadRequestException(result.error.flatten());
-    return this.updateAvance.execute(id, result.data.avance, result.data.observaciones);
+    return this.updateAvance.execute(id, result.data.avance, result.data.observaciones ?? '');
   }
 
   @Put(':id/completar')

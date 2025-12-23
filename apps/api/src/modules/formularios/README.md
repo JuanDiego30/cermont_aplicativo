@@ -1,16 +1,17 @@
-# Formularios Module
+# Forms Module
 
 ## Description
-Legacy forms module for dynamic questionnaires.
+Dynamic form engine with JSON Schema support.
 
 ## Features
-- Template management
-- Response collection
-- Order association
+- Template-based forms
+- JSON Schema validation
+- Form instance management
+- Version control
 
 ## Endpoints
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/formularios/templates` | List templates |
-| POST | `/formularios` | Submit response |
-| GET | `/formularios/orden/:id` | Get by order |
+| GET | `/forms/templates` | List form templates |
+| POST | `/forms/templates` | Create template |
+| POST | `/forms/instancias` | Create form instance |

@@ -1,77 +1,18 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
- * KITS SERVICE - CERMONT APLICATIVO
+ * KITS SERVICE - CERMONT APLICATIVO (LEGACY)
  * ═══════════════════════════════════════════════════════════════════════════
  * 
- * PROPÓSITO:
- * Este servicio gestiona los "Kits Típicos" que son plantillas predefinidas de
- * herramientas, equipos, documentos y actividades necesarias para realizar
- * trabajos específicos en CERMONT (inspecciones de líneas de vida, mantenimiento
- * CCTV, trabajos eléctricos, instrumentación, etc.).
- * 
- * FUNCIONALIDADES PRINCIPALES:
- * 
- * 1. GESTIÓN DE KITS PERSONALIZADOS (Base de datos):
- *    - Crear, leer, actualizar y desactivar kits almacenados en PostgreSQL
- *    - Permite a los administradores crear kits personalizados según necesidades
- * 
- * 2. KITS PREDEFINIDOS (Hardcoded):
- *    - Contiene 4 kits estándar: LINEA_VIDA, CCTV, ELECTRICO, INSTRUMENTACION
- *    - Cada kit incluye:
- *      • Herramientas requeridas (con indicador si requiere certificación)
- *      • Equipos de seguridad (EPP) necesarios
- *      • Documentos obligatorios a completar
- *      • Checklist de actividades paso a paso
- *      • Duración estimada del trabajo
- * 
- * 3. APLICACIÓN DE KITS A EJECUCIONES:
- *    - Cuando se inicia una ejecución de trabajo, se puede aplicar un kit
- *    - El sistema crea automáticamente todos los checklists necesarios
- *    - Convierte los items del kit en tareas verificables con emojis visuales
- * 
- * 4. SINCRONIZACIÓN:
- *    - Permite sincronizar los kits predefinidos a la base de datos
- *    - Útil para migrar de hardcoded a configurables
- * 
- * FLUJO DE USO TÍPICO:
- * 1. Técnico recibe orden de inspección de línea de vida
- * 2. Al crear la ejecución, se aplica el kit "LINEA_VIDA"
- * 3. El sistema genera automáticamente 3 tipos de checklists:
- *    - 🔧 Verificación de herramientas (6 items)
- *    - 🛡️ Verificación de equipos de seguridad (6 items)
- *    - 📄 Documentos a completar (4 items)
- *    - 📋 Actividades a realizar (10 items)
- * 4. El técnico va marcando cada item como completado en campo
- * 5. Al finalizar, se valida que todos los items estén OK
- * 
- * SOLUCIÓN A FALLAS IDENTIFICADAS:
- * - ✅ Falla #1: "No se tienen todas las herramientas porque el alcance no se
- *               ha detallado a fondo" → Ahora hay listados típicos predefinidos
- * - ✅ Falla #2: "Al momento de ejecutar no se tienen herramientas completas
- *               por olvido" → El checklist obliga a verificar antes de iniciar
- * 
- * INTEGRACIÓN CON OTROS MÓDULOS:
- * - Se conecta con ChecklistsService para crear los items verificables
- * - Se conecta con EjecucionesService para aplicar el kit al iniciar trabajo
- * - Se conecta con PlaneacionService para estimar duración y recursos
+ * LEGACY SERVICE: Uses Prisma directly for backward compatibility.
+ * For new features, use the Use Cases in application/use-cases/
  * 
  * ═══════════════════════════════════════════════════════════════════════════
  */
-
-/**
- * @service KitsService
- * 
- * REFACTORIZADO: Ahora usa repositorio en lugar de Prisma directamente
- * 
- * Gestiona kits típicos de herramientas, equipos y actividades
- */
-import { Injectable, NotFoundException, Inject } from '@nestjs/common';
-import { KIT_REPOSITORY, IKitRepository, CreateKitDto, KitData } from './application/dto';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { Prisma } from '.prisma/client';
 
 // ============================================================================
-// Interfaces - DTOs tipados para evitar 'any'
+// Interfaces
 // ============================================================================
 
 interface HerramientaKit {
@@ -86,25 +27,21 @@ interface EquipoKit {
     certificacion: boolean;
 }
 
-interface DocumentoKit {
+interface CreateKitDtoLegacy {
     nombre: string;
-    requerido: boolean;
+    descripcion?: string;
+    herramientas?: HerramientaKit[];
+    equipos?: EquipoKit[];
+    documentos?: string[];
+    checklistItems?: string[];
+    duracionEstimadaHoras?: number;
+    costoEstimado?: number;
 }
-
-interface ActividadKit {
-    nombre: string;
-    duracion?: number;
-    orden: number;
-}
-
-// CreateKitDto ya está importado desde './application/dto'
-interface UpdateKitDto extends Partial<CreateKitDto> { }
 
 // ============================================================================
 // Kits predefinidos
 // ============================================================================
 
-// Kits típicos predefinidos según actividades de CERMONT
 const KITS_PREDEFINIDOS = {
     LINEA_VIDA: {
         nombre: 'Kit Inspección Líneas de Vida',
@@ -262,74 +199,102 @@ const KITS_PREDEFINIDOS = {
 
 @Injectable()
 export class KitsService {
-    constructor(
-        @Inject(KIT_REPOSITORY)
-        private readonly repository: IKitRepository,
-        private readonly prisma: PrismaService, // Mantenido temporalmente para métodos complejos
-    ) {}
+    private readonly logger = new Logger(KitsService.name);
+
+    constructor(private readonly prisma: PrismaService) {
+        this.logger.warn('KitsService: Legacy service. Use Use Cases for new features.');
+    }
 
     /**
-     * Obtener todos los kits activos de la base de datos
-     * REFACTORIZADO: Usa repositorio
+     * @deprecated Use ListKitsUseCase instead
      */
     async findAll() {
         try {
-            const kits = await this.repository.findAll();
+            const kits = await this.prisma.kitTipico.findMany({
+                where: { activo: true },
+                orderBy: { createdAt: 'desc' },
+            });
             return { data: kits };
         } catch (error) {
             const err = error as Error;
-            console.error('[KitsService.findAll] Error:', err.message, err.stack);
+            this.logger.error('[findAll] Error:', err.message);
             throw error;
         }
     }
 
     /**
-     * Obtener un kit específico por ID
-     * REFACTORIZADO: Usa repositorio
+     * @deprecated Use GetKitUseCase instead
      */
     async findOne(id: string) {
-        const kit = await this.repository.findById(id);
+        const kit = await this.prisma.kitTipico.findUnique({ where: { id } });
         if (!kit) throw new NotFoundException('Kit no encontrado');
         return kit;
     }
 
     /**
-     * Crear un nuevo kit personalizado
-     * REFACTORIZADO: Usa repositorio
+     * @deprecated Use CreateKitUseCase instead
      */
-    async create(dto: CreateKitDto) {
-        const kit = await this.repository.create(dto);
+    async create(dto: CreateKitDtoLegacy) {
+        const kit = await this.prisma.kitTipico.create({
+            data: {
+                nombre: dto.nombre,
+                descripcion: dto.descripcion ?? '',
+                herramientas: (dto.herramientas ?? []) as object,
+                equipos: (dto.equipos ?? []) as object,
+                documentos: dto.documentos ?? [],
+                checklistItems: dto.checklistItems ?? [],
+                duracionEstimadaHoras: dto.duracionEstimadaHoras ?? 0,
+                costoEstimado: dto.costoEstimado ?? 0,
+                activo: true,
+            },
+        });
         return { message: 'Kit creado', data: kit };
     }
 
     /**
-     * Actualizar un kit existente
-     * REFACTORIZADO: Usa repositorio
+     * @deprecated Use UpdateKitUseCase instead
      */
-    async update(id: string, dto: UpdateKitDto) {
+    async update(id: string, dto: Partial<CreateKitDtoLegacy>) {
         await this.findOne(id);
-        const kit = await this.repository.update(id, dto);
+        const updateData: Record<string, unknown> = {};
+        if (dto.nombre) updateData['nombre'] = dto.nombre;
+        if (dto.descripcion !== undefined) updateData['descripcion'] = dto.descripcion ?? null;
+        if (dto.herramientas) updateData['herramientas'] = dto.herramientas as object;
+        if (dto.equipos) updateData['equipos'] = dto.equipos as object;
+        if (dto.documentos) updateData['documentos'] = dto.documentos;
+        if (dto.checklistItems) updateData['checklistItems'] = dto.checklistItems;
+        if (dto.duracionEstimadaHoras !== undefined) updateData['duracionEstimadaHoras'] = dto.duracionEstimadaHoras;
+        if (dto.costoEstimado !== undefined) updateData['costoEstimado'] = dto.costoEstimado;
+
+        const kit = await this.prisma.kitTipico.update({
+            where: { id },
+            data: updateData,
+        });
         return { message: 'Kit actualizado', data: kit };
     }
 
     /**
-     * Desactivar un kit (soft delete)
-     * REFACTORIZADO: Usa repositorio
+     * @deprecated Use DeleteKitUseCase instead
      */
     async remove(id: string) {
         await this.findOne(id);
-        await this.repository.delete(id);
+        await this.prisma.kitTipico.update({
+            where: { id },
+            data: { activo: false },
+        });
         return { message: 'Kit desactivado' };
     }
 
     /**
-     * Cambiar estado activo/inactivo
-     * REFACTORIZADO: Usa repositorio
+     * @deprecated Use ActivateKitUseCase or DeactivateKitUseCase instead
      */
     async changeEstado(id: string, estado: string) {
         await this.findOne(id);
         const nuevoEstado = estado === 'disponible' || estado === 'active' || estado === 'activo';
-        const kit = await this.repository.changeEstado(id, nuevoEstado);
+        const kit = await this.prisma.kitTipico.update({
+            where: { id },
+            data: { activo: nuevoEstado },
+        });
         return { message: 'Estado actualizado', data: kit };
     }
 
@@ -350,24 +315,16 @@ export class KitsService {
      */
     async getPredefinedKit(tipo: string) {
         const kit = KITS_PREDEFINIDOS[tipo as keyof typeof KITS_PREDEFINIDOS];
-        if (!kit)
-            throw new NotFoundException(`Kit predefinido ${tipo} no encontrado`);
+        if (!kit) throw new NotFoundException(`Kit predefinido ${tipo} no encontrado`);
         return { tipo, ...kit };
     }
 
     /**
-     * ✅ CORREGIDO: Aplicar kit de base de datos a una ejecución
-     * Crea checklists basados en el kit almacenado en PostgreSQL
-     * NOTA: Este método requiere lógica compleja con múltiples modelos, se mantiene aquí
+     * Aplicar kit de base de datos a una ejecución
      */
-    async applyKitToExecution(
-        kitId: string,
-        ejecucionId: string,
-        userId: string,
-    ) {
+    async applyKitToExecution(kitId: string, ejecucionId: string, userId: string) {
         const kit = await this.findOne(kitId);
 
-        // Verificar que la ejecución existe
         const ejecucion = await this.prisma.ejecucion.findUnique({
             where: { id: ejecucionId },
         });
@@ -376,12 +333,10 @@ export class KitsService {
             throw new NotFoundException('Ejecución no encontrada');
         }
 
-        // Obtener datos del kit
-        const checklistItems = (kit.checklistItems as string[]) || [];
-        const herramientas = (kit.herramientas as any[]) || [];
-        const equipos = (kit.equipos as any[]) || [];
+        const checklistItems = (kit.checklistItems as unknown as string[]) || [];
+        const herramientas = (kit.herramientas as unknown as HerramientaKit[]) || [];
+        const equipos = (kit.equipos as unknown as EquipoKit[]) || [];
 
-        // ✅ FIX: Crear checklist principal primero
         const checklistPrincipal = await this.prisma.checklistEjecucion.create({
             data: {
                 ejecucionId,
@@ -391,7 +346,6 @@ export class KitsService {
             },
         });
 
-        // Crear items de verificación de herramientas
         const herramientasItems = herramientas.map((h) => ({
             checklistId: checklistPrincipal.id,
             nombre: `${h.nombre} (Cant: ${h.cantidad})`,
@@ -400,7 +354,6 @@ export class KitsService {
             observaciones: h.certificacion ? 'REQUIERE CERTIFICACIÓN' : null,
         }));
 
-        // Crear items de verificación de equipos
         const equiposItems = equipos.map((e) => ({
             checklistId: checklistPrincipal.id,
             nombre: `${e.nombre} (Cant: ${e.cantidad})`,
@@ -409,7 +362,6 @@ export class KitsService {
             observaciones: e.certificacion ? 'REQUIERE CERTIFICACIÓN' : null,
         }));
 
-        // Crear items de actividades
         const actividadesItems = checklistItems.map((item) => ({
             checklistId: checklistPrincipal.id,
             nombre: item,
@@ -417,18 +369,12 @@ export class KitsService {
             completado: false,
         }));
 
-        // Insertar todos los items del checklist
-        if (
-            herramientasItems.length > 0 ||
-            equiposItems.length > 0 ||
-            actividadesItems.length > 0
-        ) {
+        if (herramientasItems.length > 0 || equiposItems.length > 0 || actividadesItems.length > 0) {
             await this.prisma.checklistItemEjecucion.createMany({
                 data: [...herramientasItems, ...equiposItems, ...actividadesItems],
             });
         }
 
-        // Obtener checklist completo con items
         const checklistCompleto = await this.prisma.checklistEjecucion.findUnique({
             where: { id: checklistPrincipal.id },
             include: { items: true },
@@ -448,19 +394,12 @@ export class KitsService {
     }
 
     /**
-     * ✅ CORREGIDO: Aplicar kit predefinido a una ejecución
-     * Usa los kits hardcoded para crear checklists organizados
+     * Aplicar kit predefinido a una ejecución
      */
-    async applyPredefinedKitToExecution(
-        tipo: string,
-        ejecucionId: string,
-        userId: string,
-    ) {
+    async applyPredefinedKitToExecution(tipo: string, ejecucionId: string, userId: string) {
         const kit = KITS_PREDEFINIDOS[tipo as keyof typeof KITS_PREDEFINIDOS];
-        if (!kit)
-            throw new NotFoundException(`Kit predefinido ${tipo} no encontrado`);
+        if (!kit) throw new NotFoundException(`Kit predefinido ${tipo} no encontrado`);
 
-        // Verificar que la ejecución existe
         const ejecucion = await this.prisma.ejecucion.findUnique({
             where: { id: ejecucionId },
         });
@@ -469,7 +408,6 @@ export class KitsService {
             throw new NotFoundException('Ejecución no encontrada');
         }
 
-        // ✅ FIX: Crear checklist principal
         const checklistPrincipal = await this.prisma.checklistEjecucion.create({
             data: {
                 ejecucionId,
@@ -479,7 +417,6 @@ export class KitsService {
             },
         });
 
-        // Crear items de verificación de herramientas
         const herramientasItems = kit.herramientas.map((h) => ({
             checklistId: checklistPrincipal.id,
             nombre: `🔧 ${h.nombre} (Cant: ${h.cantidad})`,
@@ -488,7 +425,6 @@ export class KitsService {
             observaciones: h.certificacion ? '⚠️ CERTIFICACIÓN REQUERIDA' : null,
         }));
 
-        // Crear items de verificación de equipos
         const equiposItems = kit.equipos.map((e) => ({
             checklistId: checklistPrincipal.id,
             nombre: `🛡️ ${e.nombre} (Cant: ${e.cantidad})`,
@@ -497,7 +433,6 @@ export class KitsService {
             observaciones: e.certificacion ? '⚠️ CERTIFICACIÓN REQUERIDA' : null,
         }));
 
-        // Crear items de documentos requeridos
         const documentosItems = kit.documentos.map((doc) => ({
             checklistId: checklistPrincipal.id,
             nombre: `📄 ${doc}`,
@@ -505,7 +440,6 @@ export class KitsService {
             completado: false,
         }));
 
-        // Crear items de actividades
         const actividadesItems = kit.checklistItems.map((item) => ({
             checklistId: checklistPrincipal.id,
             nombre: `📋 ${item}`,
@@ -513,17 +447,10 @@ export class KitsService {
             completado: false,
         }));
 
-        // Insertar todos los items del checklist
         await this.prisma.checklistItemEjecucion.createMany({
-            data: [
-                ...herramientasItems,
-                ...equiposItems,
-                ...documentosItems,
-                ...actividadesItems,
-            ],
+            data: [...herramientasItems, ...equiposItems, ...documentosItems, ...actividadesItems],
         });
 
-        // Obtener checklist completo con items
         const checklistCompleto = await this.prisma.checklistEjecucion.findUnique({
             where: { id: checklistPrincipal.id },
             include: { items: true },
@@ -546,14 +473,12 @@ export class KitsService {
 
     /**
      * Sincronizar kits predefinidos a la base de datos
-     * Útil para migrar de hardcoded a configurables
-     * NOTA: Este método requiere lógica compleja, se mantiene aquí
      */
     async syncPredefinedKits() {
-        const results = [];
+        const results: Array<{ tipo: string; status: string; id: string }> = [];
 
         for (const [tipo, kit] of Object.entries(KITS_PREDEFINIDOS)) {
-            const existingKit = await this.prisma.kitTipico.findUnique({
+            const existingKit = await this.prisma.kitTipico.findFirst({
                 where: { nombre: kit.nombre },
             });
 
@@ -562,8 +487,8 @@ export class KitsService {
                     data: {
                         nombre: kit.nombre,
                         descripcion: kit.descripcion,
-                        herramientas: kit.herramientas,
-                        equipos: kit.equipos,
+                        herramientas: kit.herramientas as object,
+                        equipos: kit.equipos as object,
                         documentos: kit.documentos,
                         checklistItems: kit.checklistItems,
                         duracionEstimadaHoras: kit.duracionEstimadaHoras,
@@ -583,4 +508,3 @@ export class KitsService {
         };
     }
 }
-

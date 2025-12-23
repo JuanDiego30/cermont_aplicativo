@@ -1,6 +1,5 @@
 
-import { Email } from '../value-objects/email.vo';
-import { Password } from '../value-objects/password.vo';
+import { Email, Password } from '../value-objects';
 
 export type UserRole = 'admin' | 'supervisor' | 'tecnico';
 
@@ -40,7 +39,7 @@ export class AuthUserEntity {
         return new AuthUserEntity(
             props.id,
             Email.create(props.email),
-            Password.fromHashed(props.password),
+            Password.fromHash(props.password),
             props.name,
             props.role,
             props.phone ?? null,
@@ -61,7 +60,7 @@ export class AuthUserEntity {
      * Get the hashed password for comparison
      */
     getPasswordHash(): string {
-        return this.passwordHash.getValue();
+        return this.passwordHash.getHash();
     }
 
     /**

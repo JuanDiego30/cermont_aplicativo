@@ -1,83 +1,37 @@
 /**
  * @file logger.service.ts
- * @description Servicio de logging centralizado con Winston
+ * @description Servicio de logging centralizado usando Logger nativo de NestJS
  * 
  * Características:
- * - Formato estructurado JSON para producción
- * - Formato legible para desarrollo
- * - Transports a consola y archivos
+ * - Logger nativo de NestJS (sin dependencias externas)
+ * - Formato estructurado para producción
  * - Métodos semánticos (info, error, warn, debug, audit, performance)
+ * - Compatible con el Logger de @nestjs/common
  */
 
-import { Injectable } from '@nestjs/common';
-import * as winston from 'winston';
-import * as path from 'path';
+import { Injectable, Logger } from '@nestjs/common';
 
 /**
  * Servicio de logging centralizado
- * Reemplaza console.log en toda la aplicación
+ * Usa Logger nativo de NestJS - Sin dependencias externas
  */
 @Injectable()
 export class LoggerService {
-    private logger: winston.Logger;
+    private readonly logger: Logger;
 
     constructor() {
-        const isProduction = process.env.NODE_ENV === 'production';
-        const logLevel = process.env.LOG_LEVEL || (isProduction ? 'info' : 'debug');
-        const logsDir = path.join(process.cwd(), 'logs');
-
-        this.logger = winston.createLogger({
-            level: logLevel,
-            format: winston.format.combine(
-                winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-                winston.format.errors({ stack: true }),
-                isProduction
-                    ? winston.format.json()
-                    : winston.format.combine(
-                        winston.format.colorize(),
-                        winston.format.printf(({ timestamp, level, message, context, ...meta }) => {
-                            const metaStr = Object.keys(meta).length
-                                ? `\n${JSON.stringify(meta, null, 2)}`
-                                : '';
-                            const ctxStr = context ? `[${context}] ` : '';
-                            return `${timestamp} ${level} ${ctxStr}${message}${metaStr}`;
-                        }),
-                    ),
-            ),
-            defaultMeta: {
-                service: 'cermont-api',
-                version: process.env.npm_package_version || '1.0.0',
-                environment: process.env.NODE_ENV || 'development',
-            },
-            transports: [
-                // Console transport
-                new winston.transports.Console({
-                    level: logLevel,
-                }),
-
-                // Error log file
-                new winston.transports.File({
-                    filename: path.join(logsDir, 'error.log'),
-                    level: 'error',
-                    maxsize: 10 * 1024 * 1024, // 10MB
-                    maxFiles: 5,
-                }),
-
-                // Combined log file
-                new winston.transports.File({
-                    filename: path.join(logsDir, 'combined.log'),
-                    maxsize: 10 * 1024 * 1024, // 10MB
-                    maxFiles: 10,
-                }),
-            ],
-        });
+        this.logger = new Logger('CermontAPI');
     }
 
     /**
      * Log de información general
      */
     info(message: string, context?: string, meta?: Record<string, unknown>): void {
-        this.logger.info(message, { context, ...meta });
+        const contextStr = context ? `[${context}] ` : '';
+        const metaStr = meta && Object.keys(meta).length > 0 
+            ? ` ${JSON.stringify(meta)}` 
+            : '';
+        this.logger.log(`${contextStr}${message}${metaStr}`);
     }
 
     /**
@@ -89,37 +43,53 @@ export class LoggerService {
         context?: string,
         meta?: Record<string, unknown>,
     ): void {
-        const errorMeta =
-            error instanceof Error
-                ? {
-                    errorName: error.name,
-                    errorMessage: error.message,
-                    stack: error.stack,
-                }
-                : { errorMessage: error };
-
-        this.logger.error(message, { context, ...errorMeta, ...meta });
+        const contextStr = context ? `[${context}] ` : '';
+        if (error instanceof Error) {
+            this.logger.error(
+                `${contextStr}${message}: ${error.message}`,
+                error.stack,
+            );
+        } else if (error) {
+            this.logger.error(`${contextStr}${message}: ${error}`);
+        } else {
+            this.logger.error(`${contextStr}${message}`);
+        }
+        if (meta && Object.keys(meta).length > 0) {
+            this.logger.error(`Meta: ${JSON.stringify(meta)}`);
+        }
     }
 
     /**
      * Log de advertencia
      */
     warn(message: string, context?: string, meta?: Record<string, unknown>): void {
-        this.logger.warn(message, { context, ...meta });
+        const contextStr = context ? `[${context}] ` : '';
+        const metaStr = meta && Object.keys(meta).length > 0 
+            ? ` ${JSON.stringify(meta)}` 
+            : '';
+        this.logger.warn(`${contextStr}${message}${metaStr}`);
     }
 
     /**
      * Log de debug (solo en desarrollo)
      */
     debug(message: string, context?: string, meta?: Record<string, unknown>): void {
-        this.logger.debug(message, { context, ...meta });
+        const contextStr = context ? `[${context}] ` : '';
+        const metaStr = meta && Object.keys(meta).length > 0 
+            ? ` ${JSON.stringify(meta)}` 
+            : '';
+        this.logger.debug(`${contextStr}${message}${metaStr}`);
     }
 
     /**
      * Log de verbose (más detallado que debug)
      */
     verbose(message: string, context?: string, meta?: Record<string, unknown>): void {
-        this.logger.verbose(message, { context, ...meta });
+        const contextStr = context ? `[${context}] ` : '';
+        const metaStr = meta && Object.keys(meta).length > 0 
+            ? ` ${JSON.stringify(meta)}` 
+            : '';
+        this.logger.verbose(`${contextStr}${message}${metaStr}`);
     }
 
     /**
@@ -132,14 +102,12 @@ export class LoggerService {
         resource: string,
         details?: Record<string, unknown>,
     ): void {
-        this.logger.info(`AUDIT: ${action}`, {
-            context: 'AUDIT',
-            action,
-            userId,
-            resource,
-            timestamp: new Date().toISOString(),
-            ...details,
-        });
+        const detailsStr = details && Object.keys(details).length > 0
+            ? ` ${JSON.stringify(details)}`
+            : '';
+        this.logger.log(
+            `[AUDIT] ${action} - User: ${userId}, Resource: ${resource}${detailsStr}`,
+        );
     }
 
     /**
@@ -152,15 +120,15 @@ export class LoggerService {
         threshold: number = 1000,
         meta?: Record<string, unknown>,
     ): void {
-        const level = durationMs > threshold ? 'warn' : 'info';
-        this.logger[level](`PERF: ${label} - ${durationMs}ms`, {
-            context: 'PERFORMANCE',
-            label,
-            durationMs,
-            threshold,
-            slow: durationMs > threshold,
-            ...meta,
-        });
+        const metaStr = meta && Object.keys(meta).length > 0
+            ? ` ${JSON.stringify(meta)}`
+            : '';
+        const message = `[PERF] ${label} - ${durationMs}ms${metaStr}`;
+        if (durationMs > threshold) {
+            this.logger.warn(message);
+        } else {
+            this.logger.log(message);
+        }
     }
 
     /**
@@ -173,15 +141,15 @@ export class LoggerService {
         durationMs: number,
         userId?: string,
     ): void {
-        const level = statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'info';
-        this.logger[level](`${method} ${url} ${statusCode} - ${durationMs}ms`, {
-            context: 'HTTP',
-            method,
-            url,
-            statusCode,
-            durationMs,
-            userId,
-        });
+        const userIdStr = userId ? ` User: ${userId}` : '';
+        const message = `[HTTP] ${method} ${url} ${statusCode} - ${durationMs}ms${userIdStr}`;
+        if (statusCode >= 500) {
+            this.logger.error(message);
+        } else if (statusCode >= 400) {
+            this.logger.warn(message);
+        } else {
+            this.logger.log(message);
+        }
     }
 
     /**
@@ -195,16 +163,18 @@ export class LoggerService {
         userId?: string,
         meta?: Record<string, unknown>,
     ): void {
-        const level = statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'info';
-        this.logger[level](`${method} ${url} ${statusCode} - ${durationMs}ms`, {
-            context: 'HTTP',
-            method,
-            url,
-            statusCode,
-            durationMs,
-            userId,
-            ...meta,
-        });
+        const userIdStr = userId ? ` User: ${userId}` : '';
+        const metaStr = meta && Object.keys(meta).length > 0
+            ? ` ${JSON.stringify(meta)}`
+            : '';
+        const message = `[HTTP] ${method} ${url} ${statusCode} - ${durationMs}ms${userIdStr}${metaStr}`;
+        if (statusCode >= 500) {
+            this.logger.error(message);
+        } else if (statusCode >= 400) {
+            this.logger.warn(message);
+        } else {
+            this.logger.log(message);
+        }
     }
 
     /**
@@ -215,11 +185,12 @@ export class LoggerService {
         context: string,
         meta?: Record<string, unknown>,
     ): void {
-        this.logger.error(error.message, {
-            context,
-            errorName: error.name,
-            stack: error.stack,
-            ...meta,
-        });
+        const metaStr = meta && Object.keys(meta).length > 0
+            ? ` ${JSON.stringify(meta)}`
+            : '';
+        this.logger.error(
+            `[${context}] ${error.message}${metaStr}`,
+            error.stack,
+        );
     }
 }

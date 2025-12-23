@@ -11,11 +11,13 @@ import { z } from 'zod';
 export const LoginSchema = z.object({
   email: z
     .string()
+    .min(1, 'Email es requerido')
     .email('Email inválido')
     .transform((e) => e.toLowerCase().trim()),
   password: z
     .string()
-    .min(8, 'La contraseña debe tener al menos 8 caracteres'),
+    .min(1, 'Contraseña es requerida')
+    .min(6, 'La contraseña debe tener al menos 6 caracteres'), // Reducido de 8 a 6 para compatibilidad
 });
 
 export type LoginDto = z.infer<typeof LoginSchema>;

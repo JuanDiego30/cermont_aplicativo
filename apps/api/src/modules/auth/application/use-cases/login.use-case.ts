@@ -3,8 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcryptjs';
 import { AUTH_REPOSITORY, IAuthRepository } from '../../domain/repositories';
-import { Email } from '../../domain/value-objects/email.vo';
-import { Password } from '../../domain/value-objects/password.vo';
+import { Email, Password } from '../../domain/value-objects';
 
 interface LoginDto {
   email: string;
@@ -55,15 +54,26 @@ export class LoginUseCase {
 
   async execute(dto: LoginDto, context: AuthContext): Promise<LoginResult> {
     try {
+      // Validar que el DTO tenga los campos requeridos
+      if (!dto.email || !dto.password) {
+        this.logger.warn('Login attempt with missing credentials', { hasEmail: !!dto.email, hasPassword: !!dto.password });
+        throw new UnauthorizedException('Email y contraseña son requeridos');
+      }
+
       // 1. Validate inputs via VOs
-      const email = Email.create(dto.email);
-      Password.create(dto.password); // Validate length
+      let email: Email;
+      try {
+        email = Email.create(dto.email);
+      } catch (error) {
+        this.logger.warn(`Invalid email format: ${dto.email}`, error);
+        throw new UnauthorizedException('Email inválido');
+      }
 
       // 2. Find user
       const user = await this.authRepository.findByEmail(email.getValue());
       if (!user) {
         this.logger.warn(`Login attempt failed: User not found for email ${dto.email}`);
-        throw new UnauthorizedException('Credenciales inválidas o usuario inactivo');
+        throw new UnauthorizedException('Credenciales inválidas');
       }
 
       this.logger.log(`User found: ${user.id}, active: ${user.active}, canLogin: ${user.canLogin()}`);
@@ -71,14 +81,19 @@ export class LoginUseCase {
       // 3. Check if can login
       if (!user.canLogin()) {
         this.logger.warn(`Login attempt blocked: User ${user.email.getValue()} is inactive or disabled`);
-        throw new UnauthorizedException('Credenciales inválidas o usuario inactivo');
+        throw new UnauthorizedException('Usuario inactivo o deshabilitado');
       }
 
       // 4. Verify password
       const passwordHash = user.getPasswordHash();
+      if (!passwordHash) {
+        this.logger.warn(`User ${user.id} has no password hash`);
+        throw new UnauthorizedException('Credenciales inválidas');
+      }
+
       this.logger.debug(`Comparing password for user ${user.id}, hash length: ${passwordHash.length}`);
       const isValid = await bcrypt.compare(dto.password, passwordHash);
-      
+
       if (!isValid) {
         this.logger.warn(`Login attempt failed: Invalid password for user ${user.id} (email: ${dto.email})`);
         throw new UnauthorizedException('Credenciales inválidas');
@@ -146,7 +161,7 @@ export class LoginUseCase {
       }
       // Handle domain errors (InvalidEmailError, InvalidPasswordError, etc.)
       const err = error as Error;
-      if (err.name === 'InvalidEmailError' || err.name === 'InvalidPasswordError') {
+      if (err.name === 'ValidationError') {
         this.logger.warn(`Validation error during login: ${err.message}`);
         throw new UnauthorizedException('Credenciales inválidas');
       }

@@ -1,36 +1,35 @@
 /**
- * @service EjecucionService
- * @description Servicio para gestión de ejecución de órdenes de trabajo
- * 
- * REFACTORIZADO: Ahora usa repositorio en lugar de Prisma directamente
- * 
- * Principios aplicados:
- * - Type Safety: DTOs tipados, sin 'any'
- * - Clean Code: Código legible con responsabilidades claras
- * - SRP: Maneja solo lógica de ejecución
- * - Dependency Inversion: Usa repositorio en lugar de Prisma
+ * Service: EjecucionService
+ * NOTE: This service is deprecated. Use Use Cases instead.
  */
-import { Injectable, BadRequestException, NotFoundException, Inject } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, Inject, Logger } from '@nestjs/common';
 import { EJECUCION_REPOSITORY, IEjecucionRepository } from './domain/repositories';
+import { Ejecucion } from './domain/entities';
+import { EjecucionId, ProgressPercentage, GeoLocation } from './domain/value-objects';
+import { PrismaService } from '../../prisma/prisma.service';
 
 // ============================================================================
-// Interfaces y DTOs
+// Interfaces y DTOs (Legacy)
 // ============================================================================
 
 interface IniciarEjecucionDto {
   horasEstimadas?: number;
   observaciones?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface UpdateAvanceDto {
   avance: number;
   horasActuales?: number;
   observaciones?: string;
+  tecnicoId?: string;
 }
 
 interface CompletarEjecucionDto {
   horasActuales: number;
   observaciones?: string;
+  completadoPorId?: string;
 }
 
 export interface EjecucionResponse<T> {
@@ -39,49 +38,42 @@ export interface EjecucionResponse<T> {
 }
 
 // ============================================================================
-// Constantes
+// Service (DEPRECATED)
 // ============================================================================
 
-const HORAS_ESTIMADAS_DEFAULT = 8;
-const ESTADO_EN_PROGRESO = 'en_progreso';
-const ESTADO_COMPLETADA = 'completada';
-const AVANCE_COMPLETO = 100;
-
-// ============================================================================
-// Service
-// ============================================================================
-
+/**
+ * @deprecated Use Use Cases instead
+ */
 @Injectable()
 export class EjecucionService {
+  private readonly logger = new Logger(EjecucionService.name);
+
   constructor(
     @Inject(EJECUCION_REPOSITORY)
     private readonly repository: IEjecucionRepository,
-  ) { }
+    private readonly prisma: PrismaService,
+  ) {
+    this.logger.warn('EjecucionService is DEPRECATED. Use Use Cases instead.');
+  }
 
   /**
-   * Busca ejecución por orden con todas sus relaciones
-   * REFACTORIZADO: Usa repositorio
+   * Busca ejecución por orden
+   * @deprecated Use GetEjecucionUseCase instead
    */
   async findByOrden(ordenId: string) {
     return this.repository.findByOrdenId(ordenId);
   }
 
   /**
-   * Busca ejecuciones asignadas a un usuario (via orden)
-   * NOTA: Este método requiere lógica adicional en el repositorio
-   * Por ahora mantiene uso directo de Prisma, pero debería moverse al repositorio
+   * Busca ejecuciones asignadas a un usuario
    */
   async findForUser(userId: string) {
-    // TODO: Mover esta lógica al repositorio
-    // Por ahora se mantiene para compatibilidad
-    throw new Error('Método findForUser() debe implementarse en el repositorio');
+    return this.repository.findByTecnico(userId);
   }
 
   /**
    * Inicia la ejecución de una orden
-   * REFACTORIZADO: Usa repositorio (el repositorio ya valida planeación)
-   * NOTA: Este método requiere tecnicoId, pero el DTO no lo incluye
-   * Se mantiene para compatibilidad, pero debería actualizarse
+   * @deprecated Use IniciarEjecucionUseCase instead
    */
   async iniciar(
     ordenId: string,
@@ -92,54 +84,119 @@ export class EjecucionService {
       throw new BadRequestException('Se requiere ID del técnico para iniciar ejecución');
     }
 
-    // El repositorio ya maneja la validación de planeación y actualización de orden
-    const ejecucion = await this.repository.iniciar(
+    // Check if execution already exists
+    const existing = await this.repository.exists(ordenId);
+    if (existing) {
+      throw new BadRequestException('Ya existe una ejecución para esta orden');
+    }
+
+    // Get planeacion
+    const planeacion = await this.prisma.planeacion.findUnique({
+      where: { ordenId },
+    });
+
+    if (!planeacion || planeacion.estado !== 'aprobada') {
+      throw new BadRequestException('No existe planeación aprobada para esta orden');
+    }
+
+    // Create domain entity
+    const ejecucion = Ejecucion.create({
       ordenId,
-      tecnicoId,
-      dto.observaciones,
-    );
+      planeacionId: planeacion.id,
+      horasEstimadas: dto.horasEstimadas || 8,
+    });
+
+    // Start with location if provided
+    const location = dto.latitude && dto.longitude
+      ? GeoLocation.create({ latitude: dto.latitude, longitude: dto.longitude })
+      : undefined;
+
+    ejecucion.start(tecnicoId, location, dto.observaciones);
+
+    // Save
+    const saved = await this.repository.save(ejecucion);
+
+    // Update order
+    await this.prisma.order.update({
+      where: { id: ordenId },
+      data: { estado: 'ejecucion', fechaInicio: new Date() },
+    });
 
     return {
       message: 'Ejecución iniciada exitosamente',
-      data: ejecucion,
+      data: this.toResponseData(saved),
     };
   }
 
   /**
    * Actualiza el avance de una ejecución
-   * REFACTORIZADO: Usa repositorio
+   * @deprecated Use UpdateAvanceUseCase instead
    */
   async updateAvance(
     id: string,
     dto: UpdateAvanceDto,
   ): Promise<EjecucionResponse<unknown>> {
-    const ejecucion = await this.repository.updateAvance(
-      id,
-      dto.avance,
-      dto.observaciones,
-    );
+    const ejecucion = await this.repository.findById(EjecucionId.create(id));
+    if (!ejecucion) {
+      throw new NotFoundException(`Ejecución ${id} no encontrada`);
+    }
+
+    const newProgress = ProgressPercentage.fromValue(dto.avance);
+    ejecucion.updateProgress(newProgress, dto.tecnicoId || '', dto.observaciones);
+
+    const saved = await this.repository.save(ejecucion);
 
     return {
       message: 'Avance actualizado',
-      data: ejecucion,
+      data: this.toResponseData(saved),
     };
   }
 
   /**
-   * Completa una ejecución y actualiza la orden
-   * REFACTORIZADO: Usa repositorio (el repositorio ya actualiza la orden)
+   * Completa una ejecución
+   * @deprecated Use CompletarEjecucionUseCase instead
    */
   async completar(
     id: string,
     dto: CompletarEjecucionDto,
   ): Promise<EjecucionResponse<unknown>> {
-    const ejecucion = await this.repository.completar(id, {
-      observacionesFinales: dto.observaciones,
+    const ejecucion = await this.repository.findById(EjecucionId.create(id));
+    if (!ejecucion) {
+      throw new NotFoundException(`Ejecución ${id} no encontrada`);
+    }
+
+    // Force progress to 100% if not already
+    if (!ejecucion.getProgress().isComplete()) {
+      ejecucion.updateProgress(ProgressPercentage.complete(), dto.completadoPorId || '', 'Completando ejecución');
+    }
+
+    ejecucion.complete(dto.completadoPorId || '', dto.observaciones);
+
+    const saved = await this.repository.save(ejecucion);
+
+    // Update order
+    await this.prisma.order.update({
+      where: { id: saved.getOrdenId() },
+      data: { estado: 'completada', fechaFin: new Date() },
     });
 
     return {
       message: 'Ejecución completada exitosamente',
-      data: ejecucion,
+      data: this.toResponseData(saved),
+    };
+  }
+
+  private toResponseData(e: Ejecucion): Record<string, unknown> {
+    return {
+      id: e.getId().getValue(),
+      ordenId: e.getOrdenId(),
+      tecnicoId: e.getStartedBy() || '',
+      estado: e.getStatus().getValue(),
+      avance: e.getProgress().getValue(),
+      horasReales: e.getTotalWorkedTime().getTotalHours(),
+      fechaInicio: e.getStartedAt()?.toISOString(),
+      fechaFin: e.getCompletedAt()?.toISOString(),
+      observaciones: e.getObservaciones(),
     };
   }
 }

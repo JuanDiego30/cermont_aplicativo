@@ -13,15 +13,13 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { CacheModule } from '@nestjs/cache-manager';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { WinstonModule } from 'nest-winston';
+// Logger nativo de NestJS - Sin dependencias externas
 import { join } from 'path';
-import * as winston from 'winston';
-import DailyRotateFile from 'winston-daily-rotate-file';
 
 // Core modules
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { UsuariosModule } from './modules/usuarios/usuarios.module';
+
 import { OrdenesModule } from './modules/ordenes/ordenes.module';
 import { PlaneacionModule } from './modules/planeacion/planeacion.module';
 import { KitsModule } from './modules/kits/kits.module';
@@ -45,7 +43,7 @@ import { AdminModule } from './modules/admin/admin.module';
 import { WeatherModule } from './modules/weather/weather.module';
 import { EmailModule } from './modules/email/email.module';
 import { TecnicosModule } from './modules/tecnicos/tecnicos.module';
-import { FormsModule } from './modules/forms/forms.module';
+
 import { AlertasModule } from './modules/alertas/alertas.module';
 import { KpisModule } from './modules/kpis/kpis.module';
 
@@ -97,57 +95,8 @@ import { LoggerService } from './common/logging/logger.service';
             max: 100,    // Máximo 100 items en caché
         }),
 
-        // Winston logging configuration
-        WinstonModule.forRoot({
-            level: process.env.LOG_LEVEL || 'info',
-            format: winston.format.combine(
-                winston.format.timestamp({
-                    format: 'YYYY-MM-DD HH:mm:ss'
-                }),
-                winston.format.errors({ stack: true }),
-                winston.format.json()
-            ),
-            defaultMeta: { service: 'cermont-api' },
-            transports: [
-                // Console transport for development
-                new winston.transports.Console({
-                    format: winston.format.combine(
-                        winston.format.colorize(),
-                        winston.format.simple()
-                    )
-                }),
-
-                // Error log file
-                new DailyRotateFile({
-                    filename: 'logs/error-%DATE%.log',
-                    datePattern: 'YYYY-MM-DD',
-                    level: 'error',
-                    maxSize: '20m',
-                    maxFiles: '14d'
-                }),
-
-                // Combined log file
-                new DailyRotateFile({
-                    filename: 'logs/combined-%DATE%.log',
-                    datePattern: 'YYYY-MM-DD',
-                    maxSize: '20m',
-                    maxFiles: '14d'
-                }),
-
-                // Performance log file
-                new DailyRotateFile({
-                    filename: 'logs/performance-%DATE%.log',
-                    datePattern: 'YYYY-MM-DD',
-                    level: 'info',
-                    maxSize: '20m',
-                    maxFiles: '14d',
-                    format: winston.format.combine(
-                        winston.format.timestamp(),
-                        winston.format.json()
-                    )
-                })
-            ]
-        }),
+        // Logger nativo de NestJS (configurado en main.ts)
+        // No requiere módulo adicional - LoggerService usa Logger de @nestjs/common
 
         // Static files (uploads)
         ServeStaticModule.forRoot({
@@ -160,7 +109,7 @@ import { LoggerService } from './common/logging/logger.service';
 
         // Feature modules
         AuthModule,
-        UsuariosModule,
+
         OrdenesModule,
         PlaneacionModule,
         KitsModule,
@@ -184,7 +133,7 @@ import { LoggerService } from './common/logging/logger.service';
         WeatherModule,      // Módulo Meteorológico (Open-Meteo + NASA)
         EmailModule,
         TecnicosModule,
-        FormsModule,        // Motor de Formularios Dinámicos
+
         AlertasModule,      // Sistema de Alertas Automáticas
         KpisModule,         // Dashboard KPIs y Métricas
 
