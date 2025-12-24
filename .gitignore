@@ -1,33 +1,39 @@
 # Dependencies
 node_modules/
+.pnpm-store/
 
-# Build
+# Build outputs
 dist/
-build/
 .next/
-*.tsbuildinfo
+.angular/
 
-# Environment
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Environment files
 .env
 .env.local
-.env.production
-!.env.example
-!.env.production.example
+.env.*.local
 
 # IDE
-.vscode/
 .idea/
-.vs/
+.vscode/
+*.swp
+*.swo
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Logs
-*.log
+# Turbo
+.turbo/
 
-# Legacy (pendiente eliminar)
-web_legacy/
+# Test coverage
+coverage/
 
-# Uploads
-uploads/
+# Misc
+*.tsbuildinfo
+*.zip
