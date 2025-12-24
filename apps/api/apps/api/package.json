@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "ajv-formats": "^3.0.1",
-    "decimal.js": "^10.6.0"
-  }
-}

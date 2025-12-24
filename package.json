@@ -1,48 +1,19 @@
 {
-  "name": "cermont-app",
-  "version": "1.0.0",
-  "description": "Cermont - Sistema de Gestión de Órdenes de Trabajo",
-  "private": true,
-  "packageManager": "pnpm@9.15.4",
-  "scripts": {
-    "cleanup": "powershell -ExecutionPolicy Bypass -File scripts/cleanup-dev.ps1",
-    "dev": "pnpm run cleanup && turbo run dev",
-    "dev:clean": "pnpm run cleanup && turbo run dev",
-    "dev:api": "pnpm --filter @cermont/api dev",
-    "dev:web": "pnpm run cleanup && pnpm --filter @cermont/web dev",
-    "build": "turbo run build",
-    "build:api": "pnpm --filter @cermont/api build",
-    "build:web": "pnpm --filter @cermont/web build",
-    "start": "pnpm --filter @cermont/api start:prod",
-    "start:api": "pnpm --filter @cermont/api start:prod",
-    "start:web": "pnpm --filter @cermont/web start",
-    "lint": "turbo run lint",
-    "lint:api": "pnpm --filter @cermont/api lint",
-    "lint:web": "pnpm --filter @cermont/web lint",
-    "typecheck": "turbo run typecheck",
-    "typecheck:api": "pnpm --filter @cermont/api typecheck",
-    "typecheck:web": "pnpm --filter @cermont/web typecheck",
-    "test": "turbo run test",
-    "test:watch": "pnpm --filter @cermont/api test:watch",
-    "test:cov": "pnpm --filter @cermont/api test:cov",
-    "test:e2e": "turbo run test:e2e",
-    "test:e2e:web": "pnpm --filter @cermont/web test:e2e",
-    "prisma:generate": "pnpm --filter @cermont/api exec prisma generate",
-    "prisma:migrate": "pnpm --filter @cermont/api exec prisma migrate dev",
-    "prisma:migrate:deploy": "pnpm --filter @cermont/api exec prisma migrate deploy",
-    "prisma:migrate:reset": "pnpm --filter @cermont/api exec prisma migrate reset --force",
-    "prisma:studio": "pnpm --filter @cermont/api exec prisma studio",
-    "prisma:seed": "pnpm --filter @cermont/api exec tsx prisma/seed.ts",
-    "audit": "pnpm audit --recursive",
-    "audit:fix": "pnpm audit --recursive --fix",
-    "outdated": "pnpm outdated --recursive",
-    "clean": "turbo run clean && rm -rf .turbo node_modules"
-  },
-  "devDependencies": {
-    "turbo": "^2.7.1"
-  },
-  "engines": {
-    "node": ">=18.0.0",
-    "pnpm": ">=9.0.0"
-  }
+    "name": "cermont-monorepo",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "build": "turbo run build",
+        "dev": "turbo run dev",
+        "test": "turbo run test",
+        "lint": "turbo run lint",
+        "clean": "turbo run clean && rm -rf node_modules"
+    },
+    "devDependencies": {
+        "turbo": "latest"
+    },
+    "packageManager": "pnpm@9.1.0",
+    "engines": {
+        "node": ">=20.0.0"
+    }
 }

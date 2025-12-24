@@ -1,3 +1,0 @@
-src/app/dashboard/ejecucion/client.tsx(72,45): error TS2339: Property 'trigger' does not exist on type 'MutationResult<Ejecucion, { id: string; motivo?: string | undefined; }>'.
-src/app/dashboard/ejecucion/client.tsx(73,49): error TS2339: Property 'trigger' does not exist on type 'MutationResult<Ejecucion, { id: string; ubicacion?: UbicacionGPS | undefined; }>'.
-src/app/dashboard/ejecucion/client.tsx(98,48): error TS2339: Property 'trigger' does not exist on type 'MutationResult<Ejecucion, string>'.
