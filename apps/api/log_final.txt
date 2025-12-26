@@ -1,0 +1,6 @@
+
+> @cermont/api@1.0.0 typecheck C:\Users\camil\Downloads\Compressed\aplicativo_cermont_prueba\cermont_aplicativo\apps\api
+> tsc --noEmit
+
+src/modules/orders/dto/create-order.dto.ts(3,10): error TS2305: Module '"@prisma/client"' has no exported member '$Enums'.
+ ELIFECYCLE  Command failed with exit code 2.
