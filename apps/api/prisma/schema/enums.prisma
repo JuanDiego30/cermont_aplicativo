@@ -11,11 +11,12 @@ enum UserRole {
 }
 
 enum OrderStatus {
+  pendiente
   planeacion
   ejecucion
-  pausada
   completada
   cancelada
+  pausada
 }
 
 enum OrderPriority {

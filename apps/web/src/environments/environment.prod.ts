@@ -1,5 +1,8 @@
+
 export const environment = {
   production: true,
   apiUrl: 'https://api.cermont.com/api',
-  jwtSecret: 'cermont-secret'
+  appName: 'Cermont',
+  version: '1.0.0',
+  enableDebug: false,
 };

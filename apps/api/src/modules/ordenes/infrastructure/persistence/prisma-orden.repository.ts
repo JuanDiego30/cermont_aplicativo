@@ -57,6 +57,70 @@ export class PrismaOrdenRepository implements IOrdenRepository {
   }
 
   /**
+   * Busca órdenes con búsqueda full-text
+   */
+  async findWithFullTextSearch(query: {
+    searchTerm?: string;
+    estado?: string;
+    prioridad?: string;
+    page: number;
+    limit: number;
+  }): Promise<{ items: any[]; total: number; page: number; limit: number; totalPages: number; hasMore: boolean }> {
+    const { searchTerm, estado, prioridad, page, limit } = query;
+    const skip = (page - 1) * limit;
+
+    const where: any = {
+      deletedAt: null, // Excluir eliminados
+      ...(estado && { estado }),
+      ...(prioridad && { prioridad }),
+      ...(searchTerm && {
+        OR: [
+          { numero: { contains: searchTerm, mode: 'insensitive' } },
+          { descripcion: { contains: searchTerm, mode: 'insensitive' } },
+          { cliente: { contains: searchTerm, mode: 'insensitive' } },
+          { 
+            asignado: { 
+              name: { contains: searchTerm, mode: 'insensitive' } 
+            } 
+          },
+        ],
+      }),
+    };
+
+    const [items, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: [
+          { prioridad: 'desc' }, // Urgente primero
+          { createdAt: 'desc' },
+        ],
+        include: {
+          asignado: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              phone: true,
+            },
+          },
+        },
+      }),
+      this.prisma.order.count({ where }),
+    ]);
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      hasMore: page * limit < total,
+    };
+  }
+
+  /**
    * Busca una orden por ID
    */
   async findById(id: string): Promise<OrdenEntity | null> {

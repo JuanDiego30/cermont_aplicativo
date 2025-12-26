@@ -11,7 +11,7 @@ model Order {
   telefonoCliente     String?
   direccion           String?
   
-  estado              OrderStatus   @default(planeacion)
+  estado              OrderStatus   @default(pendiente)
   subEstado           OrderSubState @default(solicitud_recibida)
   prioridad           OrderPriority @default(media)
   
@@ -75,10 +75,22 @@ model Order {
   createdAt                DateTime              @default(now())
   updatedAt                DateTime              @updatedAt
 
-  @@index([estado, prioridad, fechaInicio])
-  @@index([subEstado, createdAt(sort: Desc)])
+  deletedAt     DateTime? @map("deleted_at")
+  deletedBy     String?   @map("deleted_by")
+  deleteReason  String?   @map("delete_reason")
+
+  @@index([deletedAt])
+  @@index([prioridad])
+  @@index([cliente])
+  @@index([asignadoId])
+  @@index([fechaInicio])
+  @@index([createdAt])
+  @@index([estado, prioridad])
   @@index([cliente, estado])
   @@index([asignadoId, estado])
+  @@index([fechaInicio, fechaFin])
+  @@index([estado, prioridad, fechaInicio])
+  @@index([subEstado, createdAt(sort: Desc)])
   @@index([creadorId])
   @@index([numero])
   @@index([requiereHES, cumplimientoHES])

@@ -1,6 +1,5 @@
-import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
+import { Router, CanActivateFn } from '@angular/router';
 import { StorageService } from '../services/storage.service';
 
 /**
@@ -26,7 +25,6 @@ function isTokenExpired(token: string): boolean {
 }
 
 export const authGuard: CanActivateFn = (route, state) => {
-    const authService = inject(AuthService);
     const storage = inject(StorageService);
     const router = inject(Router);
 
@@ -34,7 +32,7 @@ export const authGuard: CanActivateFn = (route, state) => {
 
     // Check if token exists
     if (!token) {
-        router.navigate(['/signin'], { queryParams: { returnUrl: state.url } });
+        router.navigate(['/auth/signin'], { queryParams: { returnUrl: state.url } });
         return false;
     }
 
@@ -42,8 +40,8 @@ export const authGuard: CanActivateFn = (route, state) => {
     if (isTokenExpired(token)) {
         // Clear expired token
         storage.removeToken();
-        storage.removeItem('refreshToken');
-        router.navigate(['/signin'], { queryParams: { returnUrl: state.url } });
+        storage.removeRefreshToken();
+        router.navigate(['/auth/signin'], { queryParams: { returnUrl: state.url } });
         return false;
     }
 

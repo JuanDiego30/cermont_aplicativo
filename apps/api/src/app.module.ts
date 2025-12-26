@@ -8,6 +8,7 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
@@ -199,10 +200,15 @@ import { LoggerService } from './common/logging/logger.service';
             provide: APP_INTERCEPTOR,
             useClass: LoggingInterceptor,
         },
-        // Rate limiting guard (applies globally)
+        // Rate limiting guard (applies global, pero JWT va después)
         {
             provide: APP_GUARD,
             useClass: CustomThrottleGuard,
+        },
+        // JWT Guard global (todas las rutas protegidas por defecto)
+        {
+            provide: APP_GUARD,
+            useClass: JwtAuthGuard,
         },
         // Global logger service
         LoggerService,

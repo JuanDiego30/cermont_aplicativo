@@ -10,7 +10,7 @@ import {
   IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { OrdenPrioridad } from './create-orden.dto';
+import { Prioridad } from './create-orden.dto';
 import { OrdenEstado } from './update-orden.dto';
 
 export class QueryOrdenesDto {
@@ -46,11 +46,11 @@ export class QueryOrdenesDto {
 
   @ApiPropertyOptional({
     description: 'Filtrar por prioridad',
-    enum: OrdenPrioridad,
+    enum: Prioridad,
   })
   @IsOptional()
-  @IsEnum(OrdenPrioridad)
-  prioridad?: OrdenPrioridad;
+  @IsEnum(Prioridad)
+  prioridad?: Prioridad;
 
   @ApiPropertyOptional({
     description: 'Buscar por número, descripción o cliente',

@@ -1,0 +1,56 @@
+/* Utilidades para line-clamp (si no está en Tailwind) */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Transiciones suaves para hover */
+tr {
+  transition: background-color 150ms ease-in-out;
+}
+
+/* Animación de carga */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Estilos para badges */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+/* Botones personalizados */
+.btn-primary {
+  @apply px-4 py-2 bg-cermont-primary-500 text-white rounded-lg font-medium
+         hover:bg-cermont-primary-600 focus:outline-none focus:ring-2
+         focus:ring-cermont-primary-500 focus:ring-offset-2
+         transition-colors duration-200;
+}
+
+.btn-outline {
+  @apply px-4 py-2 border-2 border-cermont-primary-500 text-cermont-primary-500
+         rounded-lg font-medium hover:bg-cermont-primary-50
+         focus:outline-none focus:ring-2 focus:ring-cermont-primary-500
+         focus:ring-offset-2 transition-colors duration-200;
+}
+
+/* Input personalizado */
+.input {
+  @apply block w-full rounded-lg border-gray-300 dark:border-gray-600
+         bg-white dark:bg-gray-800 text-gray-900 dark:text-white
+         shadow-sm focus:border-cermont-primary-500 focus:ring-cermont-primary-500
+         transition-colors duration-200;
+}
+
+/* Card */
+.card {
+  @apply bg-white dark:bg-gray-800 rounded-xl shadow-md p-6;
+}

@@ -1,28 +1,8 @@
+import { IsString, IsEnum, IsOptional, IsNumber, IsBoolean, IsUUID, IsDateString, Min, MaxLength } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  IsEnum,
-  IsDateString,
-  IsUUID,
-  IsNumber,
-  Min,
-  MaxLength,
-  IsArray,
-  IsBoolean,
-  MinLength,
-} from 'class-validator';
+import { Type } from 'class-transformer';
 
-export enum OrdenTipo {
-  MANTENIMIENTO = 'MANTENIMIENTO',
-  INSTALACION = 'INSTALACION',
-  REPARACION = 'REPARACION',
-  INSPECCION = 'INSPECCION',
-  EMERGENCIA = 'EMERGENCIA',
-}
-
-export enum OrdenPrioridad {
+export enum Prioridad {
   BAJA = 'baja',
   MEDIA = 'media',
   ALTA = 'alta',
@@ -31,102 +11,66 @@ export enum OrdenPrioridad {
 
 export class CreateOrdenDto {
   @ApiProperty({
-    description: 'Descripción detallada de la orden de trabajo',
-    example: 'Mantenimiento preventivo - Torre 5G Sector Norte',
+    description: 'Descripción detallada del trabajo a realizar',
+    example: 'Mantenimiento preventivo de transformador 500kVA',
     maxLength: 1000,
   })
   @IsString()
-  @IsNotEmpty()
-  @MinLength(10, { message: 'La descripción debe tener al menos 10 caracteres' })
   @MaxLength(1000, { message: 'La descripción no puede exceder 1000 caracteres' })
   descripcion!: string;
 
   @ApiProperty({
-    description: 'Nombre del cliente',
-    example: 'Ecopetrol S.A.',
+    description: 'Nombre del cliente o empresa',
+    example: 'Empresa Eléctrica del Norte S.A.',
     maxLength: 200,
   })
   @IsString()
-  @IsNotEmpty()
-  @MinLength(2, { message: 'El cliente debe tener al menos 2 caracteres' })
-  @MaxLength(200, { message: 'El cliente no puede exceder 200 caracteres' })
+  @MaxLength(200, { message: 'El nombre del cliente no puede exceder 200 caracteres' })
   cliente!: string;
 
-  @ApiPropertyOptional({
-    description: 'Contacto del cliente',
-    example: 'Juan Pérez',
-    maxLength: 200,
+  @ApiProperty({
+    enum: Prioridad,
+    description: 'Nivel de prioridad de la orden',
+    example: Prioridad.ALTA,
+    default: Prioridad.MEDIA,
   })
-  @IsOptional()
-  @IsString()
-  @MaxLength(200)
-  contactoCliente?: string;
+  @IsEnum(Prioridad, { message: 'Prioridad inválida. Valores permitidos: baja, media, alta, urgente' })
+  prioridad!: Prioridad;
 
   @ApiPropertyOptional({
-    description: 'Teléfono del cliente',
-    example: '+57 300 123 4567',
+    description: 'Fecha estimada de finalización (ISO 8601)',
+    example: '2025-01-15T10:00:00Z',
   })
   @IsOptional()
-  @IsString()
-  telefonoCliente?: string;
-
-  @ApiPropertyOptional({
-    description: 'Dirección del cliente',
-    example: 'Carrera 15 #45-67, Bogotá',
-  })
-  @IsOptional()
-  @IsString()
-  direccion?: string;
-
-  @ApiPropertyOptional({
-    description: 'Prioridad de la orden',
-    enum: OrdenPrioridad,
-    default: OrdenPrioridad.MEDIA,
-  })
-  @IsOptional()
-  @IsEnum(OrdenPrioridad, {
-    message: 'La prioridad debe ser: baja, media, alta o urgente',
-  })
-  prioridad?: OrdenPrioridad;
-
-  @ApiPropertyOptional({
-    description: 'ID del técnico asignado',
-    format: 'uuid',
-  })
-  @IsOptional()
-  @IsUUID('4', { message: 'El ID del asignado debe ser un UUID válido' })
-  asignadoId?: string;
-
-  @ApiPropertyOptional({
-    description: 'Fecha estimada de finalización',
-    example: '2025-03-15T17:00:00.000Z',
-  })
-  @IsOptional()
-  @IsDateString()
+  @IsDateString({}, { message: 'Fecha de finalización debe estar en formato ISO 8601' })
   fechaFinEstimada?: string;
 
   @ApiPropertyOptional({
-    description: 'Presupuesto estimado en pesos colombianos',
+    description: 'Presupuesto estimado en moneda local',
+    example: 1500000,
     minimum: 0,
   })
   @IsOptional()
-  @IsNumber({}, { message: 'El presupuesto debe ser un número' })
-  @Min(0, { message: 'El presupuesto debe ser positivo' })
+  @IsNumber({}, { message: 'Presupuesto debe ser un número' })
+  @Min(0, { message: 'Presupuesto no puede ser negativo' })
+  @Type(() => Number)
   presupuestoEstimado?: number;
 
   @ApiPropertyOptional({
-    description: 'Indica si la orden requiere HES',
-    default: true,
+    description: 'UUID del técnico asignado',
+    example: '550e8400-e29b-41d4-a716-446655440000',
   })
   @IsOptional()
-  @IsBoolean({ message: 'requiereHES debe ser booleano' })
-  requiereHES?: boolean;
+  @IsUUID('4', { message: 'ID de técnico debe ser un UUID válido' })
+  asignadoId?: string;
 
   @ApiPropertyOptional({
-    description: 'Observaciones adicionales',
+    description: 'Indica si requiere Hoja de Especificaciones de Seguridad (HES)',
+    example: true,
+    default: false,
   })
   @IsOptional()
-  @IsString()
-  observaciones?: string;
+  @IsBoolean({ message: 'requiereHES debe ser un valor booleano' })
+  requiereHES?: boolean;
 }
 

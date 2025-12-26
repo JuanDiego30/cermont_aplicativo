@@ -1,0 +1,40 @@
+/* Estilos para el componente de formulario de órdenes */
+
+/* Animación de carga */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Botones personalizados */
+.btn-primary {
+  @apply px-4 py-2 bg-cermont-primary-500 text-white rounded-lg font-medium
+         hover:bg-cermont-primary-600 focus:outline-none focus:ring-2
+         focus:ring-cermont-primary-500 focus:ring-offset-2
+         transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-outline {
+  @apply px-4 py-2 border-2 border-cermont-primary-500 text-cermont-primary-500
+         rounded-lg font-medium hover:bg-cermont-primary-50
+         focus:outline-none focus:ring-2 focus:ring-cermont-primary-500
+         focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+/* Input personalizado */
+.input {
+  @apply block w-full rounded-lg border-gray-300 dark:border-gray-600
+         bg-white dark:bg-gray-800 text-gray-900 dark:text-white
+         shadow-sm focus:border-cermont-primary-500 focus:ring-cermont-primary-500
+         transition-colors duration-200 px-3 py-2;
+}
+
+/* Card */
+.card {
+  @apply bg-white dark:bg-gray-800 rounded-xl shadow-md p-6;
+}
