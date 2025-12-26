@@ -151,6 +151,15 @@ export class AuthService {
   }
 
   /**
+   * Verificar si el usuario está autenticado
+   */
+  isAuthenticated(): boolean {
+    const token = this.getToken();
+    if (!token) return false;
+    return this.isTokenValid(token);
+  }
+
+  /**
    * Verificar si usuario tiene un rol específico
    */
   hasRole(roles: string | string[]): boolean {

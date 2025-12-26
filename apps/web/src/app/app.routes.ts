@@ -126,16 +126,17 @@ export const routes: Routes = [
       },
     ]
   },
-  // auth pages (lazy loading)
+  // Rutas públicas de autenticación
   {
     path: 'auth',
-    loadChildren: () => import('./pages/auth-pages/auth.routes').then(m => m.AUTH_ROUTES)
+    loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },
-  // solo para admin (ejemplo)
+  
+  // Módulo de Administración (COMPLETO)
   {
     path: 'admin',
-    canActivate: [authGuard, roleGuard(['admin'])],
-    loadChildren: () => import('./pages/admin/admin.routes').then(m => m.ADMIN_ROUTES)
+    canActivate: [authGuard],
+    loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES)
   },
   // error pages
   {

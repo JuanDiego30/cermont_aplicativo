@@ -57,24 +57,23 @@ export class OrdenResponseDto {
     deletedAt?: Date;
 }
 
-export class PaginationMeta {
-    @ApiProperty({ example: 150 })
-    total!: number;
-
-    @ApiProperty({ example: 1 })
-    page!: number;
-
-    @ApiProperty({ example: 10 })
-    limit!: number;
-
-    @ApiProperty({ example: 15 })
-    totalPages!: number;
-}
-
 export class PaginatedOrdenesResponseDto {
     @ApiProperty({ type: [OrdenResponseDto] })
     data!: OrdenResponseDto[];
 
-    @ApiProperty({ type: PaginationMeta })
-    meta!: PaginationMeta;
+    @ApiProperty({
+        description: 'Información de paginación',
+        example: {
+            total: 150,
+            page: 1,
+            limit: 10,
+            totalPages: 15
+        }
+    })
+    meta!: {
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    };
 }

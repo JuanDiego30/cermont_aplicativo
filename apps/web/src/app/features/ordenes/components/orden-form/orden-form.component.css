@@ -13,28 +13,67 @@
 
 /* Botones personalizados */
 .btn-primary {
-  @apply px-4 py-2 bg-cermont-primary-500 text-white rounded-lg font-medium
-         hover:bg-cermont-primary-600 focus:outline-none focus:ring-2
-         focus:ring-cermont-primary-500 focus:ring-offset-2
-         transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #2563eb;
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btn-outline {
-  @apply px-4 py-2 border-2 border-cermont-primary-500 text-cermont-primary-500
-         rounded-lg font-medium hover:bg-cermont-primary-50
-         focus:outline-none focus:ring-2 focus:ring-cermont-primary-500
-         focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  padding: 0.5rem 1rem;
+  border: 2px solid #3b82f6;
+  color: #3b82f6;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-outline:hover {
+  background-color: #eff6ff;
+}
+
+.btn-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Input personalizado */
 .input {
-  @apply block w-full rounded-lg border-gray-300 dark:border-gray-600
-         bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-         shadow-sm focus:border-cermont-primary-500 focus:ring-cermont-primary-500
-         transition-colors duration-200 px-3 py-2;
+  display: block;
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid #d1d5db;
+  background-color: white;
+  color: #111827;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  padding: 0.5rem 0.75rem;
+}
+
+.input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 /* Card */
 .card {
-  @apply bg-white dark:bg-gray-800 rounded-xl shadow-md p-6;
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
 }

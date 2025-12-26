@@ -128,32 +128,32 @@ import { LoggerService } from './common/logging/logger.service';
         // Core
         PrismaModule,
 
-        // Feature modules - MINIMAL SET FOR TESTING
+        // Feature modules - ACTIVATED
         AuthModule,
         OrdenesModule,
         PlaneacionModule,
         KitsModule,
         EjecucionModule,
         DashboardModule,
-        // ReportesModule,
-        // HesModule,
-        // LineasVidaModule,
-        // CostosModule,
-        // ChecklistsModule,
-        // MantenimientosModule, // DELETED
-        // FormulariosModule,
-        // CierreAdministrativoModule,
+        ReportesModule,    // ✅ Activado
+        HesModule,         // ✅ Activado
+        // LineasVidaModule, // TODO: Create LineasVidaModule
+        CostosModule,      // ✅ Activado
+        ChecklistsModule,  // ✅ Activado
+        // MantenimientosModule, // DELETED - CERMONT uses order-based maintenance
+        FormulariosModule, // ✅ Activado
+        CierreAdministrativoModule, // ✅ Activado
 
-        // New modules (Módulos 1-4 según documento) - DISABLED
-        // ArchivadoModule,    // Módulo 4: Archivado automático
-        // SyncModule,         // Módulo 1: Sincronización offline
-        // PdfGenerationModule, // Generación de informes PDF
-        // AdminModule,        // Módulo 3: Administración RBAC
-        // WeatherModule,      // Módulo Meteorológico (Open-Meteo + NASA)
-        // EmailModule,
-        // TecnicosModule,
+        // New modules - ACTIVATED
+        // ArchivadoModule,    // Replaced by ArchivadoHistoricoModule
+        SyncModule,         // ✅ Activado - Módulo 1: Sincronización offline
+        PdfGenerationModule, // ✅ Activado - Generación de informes PDF
+        AdminModule,        // ✅ Activado - Módulo 3: Administración RBAC
+        WeatherModule,      // ✅ Activado - Módulo Meteorológico (Open-Meteo + NASA)
+        // EmailModule,       // DELETED - Redundant with AlertasModule
+        TecnicosModule,     // ✅ Activado
 
-        // AlertasModule,      // Sistema de Alertas Automáticas
+        AlertasModule,      // ✅ Activado - Sistema de Alertas Automáticas
         KpisModule,         // Dashboard KPIs y Métricas
 
         // NEW MODULES - Phase 3 Backend Refactoring

@@ -1,0 +1,196 @@
+<div class="container mx-auto px-4 py-6">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Órdenes de Trabajo</h1>
+      <p class="text-gray-600 dark:text-gray-400 mt-1">Gestión y seguimiento de órdenes</p>
+    </div>
+    <a routerLink="nueva"
+      class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+      Nueva Orden
+    </a>
+  </div>
+
+  <!-- Filtros y búsqueda -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
+    <div class="flex flex-col md:flex-row gap-4">
+      <div class="flex-1">
+        <input type="text" placeholder="Buscar órdenes..."
+          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          [(ngModel)]="searchTerm" (input)="onSearchChange()">
+      </div>
+      <div class="flex gap-2">
+        <select
+          class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          [(ngModel)]="estadoFilter" (change)="onFilterChange()">
+          <option value="">Todos los estados</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="en_progreso">En Progreso</option>
+          <option value="completada">Completada</option>
+          <option value="cancelada">Cancelada</option>
+        </select>
+        <select
+          class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          [(ngModel)]="prioridadFilter" (change)="onFilterChange()">
+          <option value="">Todas las prioridades</option>
+          <option value="baja">Baja</option>
+          <option value="media">Media</option>
+          <option value="alta">Alta</option>
+          <option value="urgente">Urgente</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  @if (loading()) {
+  <div class="flex justify-center items-center py-12">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    <span class="ml-3 text-gray-600 dark:text-gray-400">Cargando órdenes...</span>
+  </div>
+  }
+
+  @if (error()) {
+  <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+    <div class="flex items-center">
+      <svg class="w-6 h-6 text-red-600 dark:text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <p class="text-red-800 dark:text-red-200">{{ error() }}</p>
+    </div>
+  </div>
+  }
+
+  @if (ordenes().length > 0) {
+  <!-- Tabla de órdenes -->
+  <div
+    class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Orden
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Cliente
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Estado
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Prioridad
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Fecha Estimada
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Presupuesto
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              Acciones
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          @for (orden of ordenes(); track orden.id) {
+          <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div>
+                <div class="text-sm font-medium text-gray-900 dark:text-white">
+                  {{ orden.numeroOrden }}
+                </div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ orden.descripcion | slice:0:50 }}...
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+              {{ orden.cliente }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                [class]="getEstadoBadgeClass(orden.estado)">
+                {{ orden.estado }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                [class]="getPrioridadBadgeClass(orden.prioridad)">
+                {{ orden.prioridad }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+              {{ formatDate(orden.fechaFinEstimada) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+              {{ formatCurrency(orden.presupuestoEstimado) }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <div class="flex space-x-2">
+                <a [routerLink]="[orden.id]"
+                  class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
+                  Ver
+                </a>
+                <a [routerLink]="[orden.id, 'editar']"
+                  class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
+                  Editar
+                </a>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  @if (totalPages() > 1) {
+  <div class="flex justify-between items-center mt-6">
+    <div class="text-sm text-gray-700 dark:text-gray-300">
+      Mostrando página {{ currentPage() }} de {{ totalPages() }} ({{ totalItems() }} total)
+    </div>
+    <div class="flex space-x-2">
+      <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1"
+        class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700">
+        Anterior
+      </button>
+      <span class="px-3 py-1 text-sm text-gray-700 dark:text-gray-300">
+        Página {{ currentPage() }} de {{ totalPages() }}
+      </span>
+      <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()"
+        class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700">
+        Siguiente
+      </button>
+    </div>
+  </div>
+  }
+  }
+
+  @if (!loading() && ordenes().length === 0) {
+  <div class="text-center py-12">
+    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No hay órdenes</h3>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+      Comienza creando tu primera orden de trabajo.
+    </p>
+    <div class="mt-6">
+      <a routerLink="nueva"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+        Crear Orden
+      </a>
+    </div>
+  </div>
+  }
+</div>

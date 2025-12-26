@@ -1,82 +1,93 @@
-import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpErrorResponse } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { catchError, switchMap, throwError, BehaviorSubject, filter, take } from 'rxjs';
-import { StorageService } from '../services/storage.service';
-import { AuthService } from '../services/auth.service';
+import { Injectable } from '@angular/core';
+import {
+    HttpRequest,
+    HttpHandler,
+    HttpEvent,
+    HttpInterceptor,
+    HttpErrorResponse
+} from '@angular/common/http';
+import { Observable, throwError, BehaviorSubject } from 'rxjs';
+import { catchError, switchMap, filter, take } from 'rxjs/operators';
+import { AuthService } from '../auth/auth.service';
 
-let isRefreshing = false;
-const refreshTokenSubject = new BehaviorSubject<string | null>(null);
+@Injectable()
+export class JwtInterceptor implements HttpInterceptor {
+    private isRefreshing = false;
+    private refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
-function addToken(request: HttpRequest<any>, token: string): HttpRequest<any> {
-    return request.clone({
-        setHeaders: {
-            Authorization: `Bearer ${token}`
+    constructor(private authService: AuthService) { }
+
+    intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+        // No agregar token a las rutas de autenticación
+        if (this.isAuthRequest(request.url)) {
+            return next.handle(request);
         }
-    });
-}
 
-function isAuthRequest(url: string): boolean {
-    return url.includes('/auth/login') ||
-        url.includes('/auth/register') ||
-        url.includes('/auth/refresh');
-}
+        // Agregar token a la petición
+        const token = this.authService.getToken();
+        if (token) {
+            request = this.addToken(request, token);
+        }
 
-export const jwtInterceptor: HttpInterceptorFn = (request: HttpRequest<any>, next: HttpHandlerFn) => {
-    const storage = inject(StorageService);
-    const authService = inject(AuthService);
-
-    // No agregar token a las rutas de autenticación
-    if (isAuthRequest(request.url)) {
-        return next(request);
-    }
-
-    // Agregar token a la petición
-    const token = storage.getToken();
-    if (token) {
-        request = addToken(request, token);
-    }
-
-    return next(request).pipe(
-        catchError((error: HttpErrorResponse) => {
-            if (error.status === 401 && !isAuthRequest(request.url)) {
-                return handleUnauthorizedError(request, next, authService, storage);
-            }
-            return throwError(() => error);
-        })
-    );
-};
-
-function handleUnauthorizedError(
-    request: HttpRequest<any>,
-    next: HttpHandlerFn,
-    authService: AuthService,
-    storage: StorageService
-) {
-    if (!isRefreshing) {
-        isRefreshing = true;
-        refreshTokenSubject.next(null);
-
-        return authService.refreshToken().pipe(
-            switchMap((response: any) => {
-                isRefreshing = false;
-                const newToken = response.accessToken || storage.getToken();
-                refreshTokenSubject.next(newToken);
-                return next(addToken(request, newToken));
-            }),
+        return next.handle(request).pipe(
             catchError(error => {
-                isRefreshing = false;
-                authService.logout();
+                if (error instanceof HttpErrorResponse && error.status === 401) {
+                    return this.handle401Error(request, next);
+                }
                 return throwError(() => error);
             })
         );
-    } else {
-        // Si ya se está refrescando, esperar a que termine
-        return refreshTokenSubject.pipe(
-            filter(token => token != null),
-            take(1),
-            switchMap(token => {
-                return next(addToken(request, token!));
-            })
-        );
+    }
+
+    /**
+     * Agrega el token JWT al header de la petición
+     */
+    private addToken(request: HttpRequest<unknown>, token: string): HttpRequest<unknown> {
+        return request.clone({
+            setHeaders: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+    }
+
+    /**
+     * Verifica si la URL es de autenticación
+     */
+    private isAuthRequest(url: string): boolean {
+        return url.includes('/auth/login') ||
+            url.includes('/auth/register') ||
+            url.includes('/auth/refresh');
+    }
+
+    /**
+     * Maneja error 401 (No autorizado) intentando refrescar el token
+     */
+    private handle401Error(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+        if (!this.isRefreshing) {
+            this.isRefreshing = true;
+            this.refreshTokenSubject.next(null);
+
+            return this.authService.refreshToken().pipe(
+                switchMap((response: { accessToken: string }) => {
+                    this.isRefreshing = false;
+                    this.refreshTokenSubject.next(response.accessToken);
+                    return next.handle(this.addToken(request, response.accessToken));
+                }),
+                catchError(error => {
+                    this.isRefreshing = false;
+                    this.authService.logout();
+                    return throwError(() => error);
+                })
+            );
+        } else {
+            // Si ya se está refrescando, esperar a que termine
+            return this.refreshTokenSubject.pipe(
+                filter(token => token != null),
+                take(1),
+                switchMap(token => {
+                    return next.handle(this.addToken(request, token!));
+                })
+            );
+        }
     }
 }

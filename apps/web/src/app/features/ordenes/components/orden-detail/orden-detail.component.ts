@@ -49,10 +49,12 @@ export class OrdenDetailComponent implements OnInit {
     // Lógica de transiciones permitidas
     const transitions: Record<OrdenEstado, OrdenEstado[]> = {
       [OrdenEstado.PENDIENTE]: [OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
-      [OrdenEstado.PLANEACION]: [OrdenEstado.EJECUCION, OrdenEstado.PENDIENTE, OrdenEstado.CANCELADA],
-      [OrdenEstado.EJECUCION]: [OrdenEstado.FINALIZADA, OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
-      [OrdenEstado.FINALIZADA]: [OrdenEstado.PENDIENTE],
+      [OrdenEstado.PLANEACION]: [OrdenEstado.EN_PROGRESO, OrdenEstado.PENDIENTE, OrdenEstado.CANCELADA],
+      [OrdenEstado.EN_PROGRESO]: [OrdenEstado.EJECUCION, OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
+      [OrdenEstado.EJECUCION]: [OrdenEstado.COMPLETADA, OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
+      [OrdenEstado.COMPLETADA]: [OrdenEstado.ARCHIVADA],
       [OrdenEstado.CANCELADA]: [OrdenEstado.PENDIENTE],
+      [OrdenEstado.ARCHIVADA]: [],
     };
     
     return transitions[currentEstado as OrdenEstado] || [];
@@ -112,7 +114,7 @@ export class OrdenDetailComponent implements OnInit {
     if (!orden || !estado) return;
 
     // Validar que requiere motivo para ciertos estados
-    const requiresReason = [OrdenEstado.CANCELADA, OrdenEstado.FINALIZADA].includes(estado as OrdenEstado);
+    const requiresReason = [OrdenEstado.CANCELADA, OrdenEstado.COMPLETADA].includes(estado as OrdenEstado);
     if (requiresReason && !this.motivoCambio().trim()) {
       alert('Debes proporcionar un motivo para este cambio de estado');
       return;
@@ -197,11 +199,13 @@ export class OrdenDetailComponent implements OnInit {
 
   getEstadoColor(estado: OrdenEstado): string {
     const colors: Record<OrdenEstado, string> = {
-      [OrdenEstado.PENDIENTE]: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-      [OrdenEstado.PLANEACION]: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-      [OrdenEstado.EJECUCION]: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-      [OrdenEstado.FINALIZADA]: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-      [OrdenEstado.CANCELADA]: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+      [OrdenEstado.PENDIENTE]: 'bg-gray-100 text-gray-800',
+      [OrdenEstado.PLANEACION]: 'bg-blue-100 text-blue-800',
+      [OrdenEstado.EN_PROGRESO]: 'bg-yellow-100 text-yellow-800',
+      [OrdenEstado.EJECUCION]: 'bg-orange-100 text-orange-800',
+      [OrdenEstado.COMPLETADA]: 'bg-green-100 text-green-800',
+      [OrdenEstado.CANCELADA]: 'bg-red-100 text-red-800',
+      [OrdenEstado.ARCHIVADA]: 'bg-gray-100 text-gray-600',
     };
     return colors[estado] || 'bg-gray-100 text-gray-800';
   }
@@ -240,10 +244,16 @@ export class OrdenDetailComponent implements OnInit {
     const icons: Record<OrdenEstado, string> = {
       [OrdenEstado.PENDIENTE]: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
       [OrdenEstado.PLANEACION]: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
+      [OrdenEstado.EN_PROGRESO]: 'M13 10V3L4 14h7v7l9-11h-7z',
       [OrdenEstado.EJECUCION]: 'M13 10V3L4 14h7v7l9-11h-7z',
-      [OrdenEstado.FINALIZADA]: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+      [OrdenEstado.COMPLETADA]: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
       [OrdenEstado.CANCELADA]: 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z',
+      [OrdenEstado.ARCHIVADA]: 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4',
     };
     return icons[estado] || '';
+  }
+
+  goBack() {
+    this.router.navigate(['/ordenes']);
   }
 }

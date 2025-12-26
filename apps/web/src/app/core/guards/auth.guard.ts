@@ -1,49 +1,19 @@
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
-import { StorageService } from '../services/storage.service';
-
-/**
- * Check if JWT token is expired
- */
-function isTokenExpired(token: string): boolean {
-    try {
-        // JWT format: header.payload.signature
-        const payload = token.split('.')[1];
-        if (!payload) return true;
-
-        // Decode base64 payload
-        const decoded = JSON.parse(atob(payload));
-
-        // Check expiration (exp is in seconds, Date.now() is in ms)
-        if (!decoded.exp) return false; // No expiration = valid
-
-        const currentTime = Math.floor(Date.now() / 1000);
-        return decoded.exp < currentTime;
-    } catch {
-        return true; // Invalid token format = expired
-    }
-}
+import { AuthService } from '../services/auth.service';
 
 export const authGuard: CanActivateFn = (route, state) => {
-    const storage = inject(StorageService);
-    const router = inject(Router);
+  const authService = inject(AuthService);
+  const router = inject(Router);
 
-    const token = storage.getToken();
-
-    // Check if token exists
-    if (!token) {
-        router.navigate(['/auth/signin'], { queryParams: { returnUrl: state.url } });
-        return false;
-    }
-
-    // Check if token is expired
-    if (isTokenExpired(token)) {
-        // Clear expired token
-        storage.removeToken();
-        storage.removeRefreshToken();
-        router.navigate(['/auth/signin'], { queryParams: { returnUrl: state.url } });
-        return false;
-    }
-
+  if (authService.isAuthenticated()) {
     return true;
+  }
+
+  // Guardar URL de destino para redirigir después del login
+  router.navigate(['/auth/login'], {
+    queryParams: { returnUrl: state.url }
+  });
+  
+  return false;
 };

@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 export const ORDENES_ROUTES: Routes = [
     {
         path: '',
-        loadComponent: () => import('./components/ordenes-list.component')
+        loadComponent: () => import('./components/ordenes-list/ordenes-list.component')
             .then(m => m.OrdenesListComponent)
     },
     {
