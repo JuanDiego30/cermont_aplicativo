@@ -8,7 +8,6 @@
  * - OCP: Extensible mediante use cases
  */
 import { Module } from '@nestjs/common';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PrismaModule } from '../../prisma/prisma.module';
 
 // Domain
@@ -18,9 +17,12 @@ import { ORDEN_REPOSITORY } from './domain/repositories';
 import {
   ListOrdenesUseCase,
   GetOrdenByIdUseCase,
+  FindOrdenUseCase,
   CreateOrdenUseCase,
   UpdateOrdenUseCase,
   ChangeOrdenEstadoUseCase,
+  AsignarTecnicoOrdenUseCase,
+  GetHistorialEstadosUseCase,
   DeleteOrdenUseCase,
 } from './application/use-cases';
 import { OrderStateService } from './application/services/order-state.service';
@@ -35,14 +37,17 @@ import { OrdenesController } from './infrastructure/controllers';
 const useCaseProviders = [
   ListOrdenesUseCase,
   GetOrdenByIdUseCase,
+  FindOrdenUseCase,
   CreateOrdenUseCase,
   UpdateOrdenUseCase,
   ChangeOrdenEstadoUseCase,
+  AsignarTecnicoOrdenUseCase,
+  GetHistorialEstadosUseCase,
   DeleteOrdenUseCase,
 ];
 
 @Module({
-  imports: [PrismaModule, EventEmitterModule.forRoot()],
+  imports: [PrismaModule],
   controllers: [
     OrdenesController, // Clean Architecture Controller
   ],
@@ -62,6 +67,9 @@ const useCaseProviders = [
     ORDEN_REPOSITORY,
     ...useCaseProviders,
     OrderStateService,
+    FindOrdenUseCase,
+    AsignarTecnicoOrdenUseCase,
+    GetHistorialEstadosUseCase,
   ],
 })
 export class OrdenesModule { }

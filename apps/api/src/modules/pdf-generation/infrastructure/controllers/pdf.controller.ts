@@ -1,119 +1,108 @@
-/**
- * @controller PDFController
- * @description Controlador unificado de generación de PDFs
- */
 import {
   Controller,
-  Get,
   Post,
-  Param,
-  Query,
   Body,
   Res,
+  HttpStatus,
   UseGuards,
-  Req,
-  BadRequestException,
+  Get,
+  Param,
+  Logger,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Response } from 'express';
-import { JwtAuthGuard } from '../../../../common/guards/jwt-auth.guard';
-import { RolesGuard } from '../../../../common/guards/roles.guard';
-import { Roles } from '../../../../common/decorators/roles.decorator';
-import { GeneratePDFUseCase, GenerateReportePDFUseCase } from '../../application/use-cases';
-import { GeneratePDFSchema, GenerateReportePDFSchema } from '../../application/dto';
-import { PdfGenerationService } from '../../pdf-generation.service';
-import type { GeneratedPDF } from '../../pdf-generation.service';
-import * as fs from 'fs';
-import * as path from 'path';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import {
+  GeneratePdfUseCase,
+  GenerateReporteOrdenUseCase,
+  GenerateReporteMantenimientoUseCase,
+  GenerateCertificadoInspeccionUseCase,
+  GetPdfCachedUseCase,
+} from '../../application/use-cases';
+import {
+  GeneratePdfDto,
+  GenerateReporteOrdenDto,
+  GenerateReporteMantenimientoDto,
+  GenerateCertificadoDto,
+  PdfResponseDto,
+} from '../../application/dto';
 
 @ApiTags('PDF Generation')
-@Controller('pdf')
-@UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
-export class PDFController {
+@UseGuards(JwtAuthGuard)
+@Controller('pdf')
+export class PdfController {
+  private readonly logger = new Logger(PdfController.name);
+
   constructor(
-    private readonly generatePDF: GeneratePDFUseCase,
-    private readonly generateReportePDF: GenerateReportePDFUseCase,
-    private readonly pdfService: PdfGenerationService,
-  ) {}
+    private readonly generatePdfUseCase: GeneratePdfUseCase,
+    private readonly generateReporteOrdenUseCase: GenerateReporteOrdenUseCase,
+    private readonly generateReporteMantenimientoUseCase: GenerateReporteMantenimientoUseCase,
+    private readonly generateCertificadoUseCase: GenerateCertificadoInspeccionUseCase,
+    private readonly getPdfCachedUseCase: GetPdfCachedUseCase,
+  ) { }
 
-  // =====================================================
-  // ENDPOINTS DDD (Use Cases)
-  // =====================================================
-
-  @Post('generar')
-  @Roles('admin', 'supervisor', 'tecnico')
-  @ApiOperation({ summary: 'Generar PDF genérico' })
-  async generate(@Body() body: unknown, @Req() req: any, @Res() res: Response) {
-    const result = GeneratePDFSchema.safeParse(body);
-    if (!result.success) throw new BadRequestException(result.error.flatten());
-
-    const pdfResult = await this.generatePDF.execute(result.data, req.user.id);
-
-    // Read and send file
-    const fileBuffer = fs.readFileSync(pdfResult.path);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${pdfResult.filename}"`);
-    res.send(fileBuffer);
+  @Post('generate')
+  @ApiOperation({ summary: 'Generar PDF desde HTML personalizado' })
+  @ApiResponse({ status: 201, type: PdfResponseDto })
+  async generatePdf(@Body() dto: GeneratePdfDto, @Res() res: Response) {
+    const result = await this.generatePdfUseCase.execute(dto);
+    this.sendPdfResponse(res, result);
   }
 
-  @Post('reporte')
-  @Roles('admin', 'supervisor')
-  @ApiOperation({ summary: 'Generar reporte PDF' })
-  async generateReporte(@Body() body: unknown, @Req() req: any, @Res() res: Response) {
-    const result = GenerateReportePDFSchema.safeParse(body);
-    if (!result.success) throw new BadRequestException(result.error.flatten());
-
-    const pdfResult = await this.generateReportePDF.execute(result.data, req.user.id);
-
-    // Read and send file
-    const fileBuffer = fs.readFileSync(pdfResult.path);
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${pdfResult.filename}"`);
-    res.send(fileBuffer);
-  }
-
-  // =====================================================
-  // ENDPOINTS ADICIONALES (Servicio directo)
-  // =====================================================
-
-  @Post('informe-tecnico/:ordenId')
-  @ApiOperation({ summary: 'Generar informe técnico para una orden' })
-  generarInformeTecnico(@Param('ordenId') ordenId: string): Promise<GeneratedPDF> {
-    return this.pdfService.generarInformeTecnico(ordenId);
-  }
-
-  @Post('acta-entrega/:ordenId')
-  @ApiOperation({ summary: 'Generar acta de entrega para una orden' })
-  generarActaEntrega(@Param('ordenId') ordenId: string): Promise<GeneratedPDF> {
-    return this.pdfService.generarActaEntrega(ordenId);
-  }
-
-  @Get('listar')
-  @ApiOperation({ summary: 'Listar PDFs generados' })
-  listarPDFs(@Query('ordenId') ordenId?: string): Promise<unknown> {
-    return this.pdfService.listarPDFs(ordenId);
-  }
-
-  @Post('nativo/:ordenId')
-  @ApiOperation({
-    summary: 'Generar PDF nativo (sin Chromium)',
-    description: 'Genera un PDF real usando PDFKit. Más ligero y rápido que HTML.'
-  })
-  generarPDFNativo(
-    @Param('ordenId') ordenId: string,
-    @Query('tipo') tipo: 'informe-tecnico' | 'acta-entrega' = 'informe-tecnico',
-  ): Promise<GeneratedPDF> {
-    return this.pdfService.generarPDFNativo(ordenId, tipo);
-  }
-
-  @Get('ver/:nombreArchivo')
-  @ApiOperation({ summary: 'Visualizar un PDF generado' })
-  async verPDF(
-    @Param('nombreArchivo') nombreArchivo: string,
+  @Post('reporte-orden')
+  @ApiOperation({ summary: 'Generar reporte de orden de trabajo' })
+  @ApiResponse({ status: 201, type: PdfResponseDto })
+  async generateReporteOrden(
+    @Body() dto: GenerateReporteOrdenDto,
     @Res() res: Response,
   ) {
-    const filePath = path.join(process.cwd(), 'uploads', 'pdfs', nombreArchivo);
-    res.sendFile(filePath);
+    const result = await this.generateReporteOrdenUseCase.execute(dto);
+    this.sendPdfResponse(res, result);
+  }
+
+  @Post('reporte-mantenimiento')
+  @ApiOperation({ summary: 'Generar reporte de mantenimiento' })
+  @ApiResponse({ status: 201, type: PdfResponseDto })
+  async generateReporteMantenimiento(
+    @Body() dto: GenerateReporteMantenimientoDto,
+    @Res() res: Response,
+  ) {
+    const result = await this.generateReporteMantenimientoUseCase.execute(dto);
+    this.sendPdfResponse(res, result);
+  }
+
+  @Post('certificado-inspeccion')
+  @ApiOperation({ summary: 'Generar certificado de inspección' })
+  @ApiResponse({ status: 201, type: PdfResponseDto })
+  async generateCertificado(
+    @Body() dto: GenerateCertificadoDto,
+    @Res() res: Response,
+  ) {
+    const result = await this.generateCertificadoUseCase.execute(dto);
+    this.sendPdfResponse(res, result);
+  }
+
+  @Get(':filename')
+  @ApiOperation({ summary: 'Obtener PDF cacheado' })
+  @ApiResponse({ status: 200, type: PdfResponseDto })
+  async getPdf(@Param('filename') filename: string, @Res() res: Response) {
+    const result = await this.getPdfCachedUseCase.execute(filename);
+    this.sendPdfResponse(res, result);
+  }
+
+  private sendPdfResponse(res: Response, result: PdfResponseDto) {
+    res.setHeader('Content-Type', result.mimeType);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=${result.filename}`,
+    );
+    res.setHeader('Content-Length', result.size);
+    res.status(HttpStatus.CREATED).send(Buffer.from(result.buffer, 'base64'));
   }
 }

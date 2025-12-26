@@ -1,29 +1,38 @@
 import { Module } from '@nestjs/common';
-import { EventEmitterModule } from '@nestjs/event-emitter';
-import { PrismaModule } from '../../prisma/prisma.module';
-import { PDFController } from './infrastructure/controllers/pdf.controller';
-import { PdfGenerationService } from './pdf-generation.service';
-import { GeneratePDFUseCase, GenerateReportePDFUseCase } from './application/use-cases';
-import { PDF_SERVICE, PDF_REPOSITORY } from './application/dto';
-import { HTMLPDFService } from './infrastructure/services';
-import { PrismaPDFRepository } from './infrastructure/persistence';
+import { ConfigModule } from '@nestjs/config';
+import { PrismaModule } from '@/prisma/prisma.module';
+import { PdfController } from './infrastructure/controllers/pdf.controller';
+import {
+    GeneratePdfUseCase,
+    GenerateReporteOrdenUseCase,
+    GenerateReporteMantenimientoUseCase,
+    GenerateCertificadoInspeccionUseCase,
+    GetPdfCachedUseCase,
+} from './application/use-cases';
+import { PuppeteerPdfService, PdfStorageService } from './infrastructure/services';
+import { PDF_GENERATOR } from './domain/interfaces/pdf-generator.interface';
 
 @Module({
-    imports: [PrismaModule, EventEmitterModule.forRoot()],
-    controllers: [PDFController],
+    imports: [PrismaModule, ConfigModule],
+    controllers: [PdfController],
     providers: [
-        PdfGenerationService,
+        PdfStorageService,
         {
-            provide: PDF_SERVICE,
-            useClass: HTMLPDFService,
+            provide: PDF_GENERATOR,
+            useClass: PuppeteerPdfService,
         },
-        {
-            provide: PDF_REPOSITORY,
-            useClass: PrismaPDFRepository,
-        },
-        GeneratePDFUseCase,
-        GenerateReportePDFUseCase,
+        // Use Cases
+        GeneratePdfUseCase,
+        GenerateReporteOrdenUseCase,
+        GenerateReporteMantenimientoUseCase,
+        GenerateCertificadoInspeccionUseCase,
+        GetPdfCachedUseCase,
     ],
-    exports: [PdfGenerationService],
+    exports: [
+        GeneratePdfUseCase,
+        GenerateReporteOrdenUseCase,
+        GenerateReporteMantenimientoUseCase,
+        GenerateCertificadoInspeccionUseCase,
+    ],
 })
 export class PdfGenerationModule { }

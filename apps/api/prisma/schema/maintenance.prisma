@@ -26,8 +26,13 @@ model Equipo {
   creadoPorId                String?
   
   creadoPor                  User?         @relation("EquipoCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
-  mantenimientos             Mantenimiento[]
-
+  // Relación inversa comentada o eliminada si ya no se usa directamente,
+  // pero como Mantenimiento ahora usa activoId genérico, no hay relación directa @relation en Prisma
+  // a menos que mantengamos un campo equipoId opcional o definamos una relación polimórfica (que Prisma no soporta nativamente bien).
+  // Para este refactor se pidió usar activoId (String). 
+  // Sin embargo, para mantener integridad referencial si es un Equipo, podríamos dejarlo opcional o solo manejarlo por ID.
+  // EL USUARIO PIDIÓ: activoId: string.
+  
   createdAt                  DateTime      @default(now())
   updatedAt                  DateTime      @updatedAt
 
@@ -41,48 +46,60 @@ model Equipo {
 model Mantenimiento {
   id                   String                 @id @default(uuid())
 
-  equipoId             String
+  titulo               String
+  descripcion          String?
+  
   tipo                 TipoMantenimiento
   estado               EstadoMantenimiento    @default(programado)
   prioridad            PrioridadMantenimiento @default(media)
+  periodicidad         MantenimientoPeriodicidad @default(NO_APLICA)
 
-  titulo               String
-  descripcion          String?
-
+  // Programación
   fechaProgramada      DateTime
+  duracionEstimada     Float?                 // Horas
+
+  // Ejecución
   fechaInicio          DateTime?
   fechaFin             DateTime?
+  
+  // Activo (Polimórfico lógico)
+  activoId             String
+  activoTipo           String?                // 'equipo', 'orden', 'linea_vida', etc.
 
-  tecnicoAsignadoId    String?
-  estimacionHoras      Float?
-  horasReales          Float?
-  costoEstimado        Float?
-  costoReal            Float?
+  // Recursos Asignados
+  tecnicoId            String?
+  tecnico              User?                  @relation("MantenimientosTecnico", fields: [tecnicoId], references: [id], onDelete: SetNull)
 
-  notas                String?
+  // Detalles
+  tareas               String[]               @default([])
+  materiales           String[]               @default([])
   observaciones        String?
-  trabajoRealizado     String?
-  repuestosUtilizados  String?
-  materialesUsados     Json?
 
-  esRecurrente         Boolean                @default(false)
-  frecuenciaDias       Int?
-  mantenimientoPadreId String?
+  // Resultados
+  trabajoRealizado     String?
+  tareasCompletadas    String[]               @default([])
+  problemasEncontrados String[]               @default([])
+  repuestosUtilizados  String[]               @default([])
+  
+  completado           Boolean                @default(false)
+  requiereSeguimiento  Boolean                @default(false)
+  calificacionFinal    Float?                 // 0-10
+  recomendaciones      String?
+  evidenciaIds         String[]               @default([])
+
+  // Costos
+  costoTotal           Float?
 
   creadoPorId          String?
-  actualizadoPorId     String?
-
-  equipo               Equipo                 @relation(fields: [equipoId], references: [id], onDelete: Cascade)
-  tecnicoAsignado      User?                  @relation("MantenimientosTecnico", fields: [tecnicoAsignadoId], references: [id], onDelete: SetNull)
   creadoPor            User?                  @relation("MantenimientosCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
 
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
 
-  @@index([equipoId])
+  @@index([activoId])
   @@index([estado])
   @@index([fechaProgramada])
-  @@index([tecnicoAsignadoId])
+  @@index([tecnicoId])
   @@index([prioridad, estado])
   @@map("mantenimientos")
 }

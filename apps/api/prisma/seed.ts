@@ -14,7 +14,7 @@ async function main() {
 
   // --- 1. USUARIOS ---
   const adminEmail = 'root@cermont.com';
-  const adminPassword = 'admin'; // Contraseña simple para desarrollo
+  const adminPassword = 'Cermont2025!'; // Contraseña utilizada por el usuario
   const hashedPassword = await bcrypt.hash(adminPassword, 12); // Usar 12 rounds (OWASP)
 
   // Upsert Admin

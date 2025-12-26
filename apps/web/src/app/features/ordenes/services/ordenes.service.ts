@@ -1,101 +1,85 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { HttpParams } from '@angular/common/http';
-import { ApiService } from '../../../core/services/api.service';
+import { OrdenesApi, PaginatedOrdenes, OrdenesStats } from '../../../core/api/ordenes.api';
 import {
     Orden,
     CreateOrdenDto,
     UpdateOrdenDto,
+    ChangeEstadoOrdenDto,
+    AsignarTecnicoOrdenDto,
     ListOrdenesQuery,
-    OrderEstado
+    HistorialEstado
 } from '../../../core/models/orden.model';
 
-export interface PaginatedOrdenes {
-    data: Orden[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-}
-
-export interface OrdenesStats {
-    total: number;
-    planeacion: number;
-    ejecucion: number;
-    completadas: number;
-    canceladas: number;
-}
+// Re-export types for components
+export type { PaginatedOrdenes, OrdenesStats };
 
 @Injectable({
     providedIn: 'root'
 })
 export class OrdenesService {
-    private readonly api = inject(ApiService);
+    private readonly ordenesApi = inject(OrdenesApi);
 
     /**
      * Lista todas las órdenes con filtros opcionales
      */
     list(params?: ListOrdenesQuery): Observable<PaginatedOrdenes> {
-        let httpParams = new HttpParams();
-
-        if (params) {
-            if (params.page) httpParams = httpParams.set('page', params.page.toString());
-            if (params.limit) httpParams = httpParams.set('limit', params.limit.toString());
-            if (params.search) httpParams = httpParams.set('search', params.search);
-            if (params.estado) httpParams = httpParams.set('estado', params.estado);
-            if (params.prioridad) httpParams = httpParams.set('prioridad', params.prioridad);
-            if (params.asignadoId) httpParams = httpParams.set('asignadoId', params.asignadoId);
-        }
-
-        return this.api.get<PaginatedOrdenes>('/ordenes', httpParams);
+        return this.ordenesApi.list(params);
     }
 
     /**
      * Obtiene una orden por ID
      */
     getById(id: string): Observable<Orden> {
-        return this.api.get<Orden>(`/ordenes/${id}`);
+        return this.ordenesApi.getById(id);
     }
 
     /**
      * Crea una nueva orden
      */
     create(data: CreateOrdenDto): Observable<Orden> {
-        return this.api.post<Orden>('/ordenes', data);
+        return this.ordenesApi.create(data);
     }
 
     /**
      * Actualiza una orden existente
      */
     update(id: string, data: UpdateOrdenDto): Observable<Orden> {
-        return this.api.patch<Orden>(`/ordenes/${id}`, data);
+        return this.ordenesApi.update(id, data);
     }
 
     /**
      * Elimina una orden
      */
     delete(id: string): Observable<void> {
-        return this.api.delete<void>(`/ordenes/${id}`);
+        return this.ordenesApi.delete(id);
     }
 
     /**
      * Cambia el estado de una orden
      */
-    changeEstado(id: string, estado: OrderEstado): Observable<Orden> {
-        return this.api.patch<Orden>(`/ordenes/${id}/estado`, { estado });
+    changeEstado(id: string, dto: ChangeEstadoOrdenDto): Observable<Orden> {
+        return this.ordenesApi.changeEstado(id, dto);
     }
 
     /**
      * Asigna un técnico a una orden
      */
-    asignarTecnico(ordenId: string, tecnicoId: string): Observable<Orden> {
-        return this.api.patch<Orden>(`/ordenes/${ordenId}/asignar`, { tecnicoId });
+    asignarTecnico(ordenId: string, dto: AsignarTecnicoOrdenDto): Observable<Orden> {
+        return this.ordenesApi.asignarTecnico(ordenId, dto);
+    }
+
+    /**
+     * Obtiene el historial de cambios de estado de una orden
+     */
+    getHistorial(id: string): Observable<HistorialEstado[]> {
+        return this.ordenesApi.getHistorial(id);
     }
 
     /**
      * Obtiene estadísticas de órdenes
      */
     getStats(): Observable<OrdenesStats> {
-        return this.api.get<OrdenesStats>('/ordenes/stats');
+        return this.ordenesApi.getStats();
     }
 }

@@ -180,3 +180,14 @@ enum TipoCosto {
   transporte
   otro
 }
+
+enum MantenimientoPeriodicidad {
+  SEMANAL
+  QUINCENAL
+  MENSUAL
+  BIMESTRAL
+  TRIMESTRAL
+  SEMESTRAL
+  ANUAL
+  NO_APLICA
+}

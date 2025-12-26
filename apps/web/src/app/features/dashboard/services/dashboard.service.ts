@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { HttpParams } from '@angular/common/http';
-import { ApiService } from '../../../core/services/api.service';
+import { DashboardApi } from '../../../core/api/dashboard.api';
 import {
     DashboardStats,
     DashboardMetricas,
@@ -15,41 +14,41 @@ import {
     providedIn: 'root'
 })
 export class DashboardService {
-    private readonly api = inject(ApiService);
+    private readonly dashboardApi = inject(DashboardApi);
 
     /**
      * Estadísticas básicas del dashboard
      */
     getStats(): Observable<DashboardStats> {
-        return this.api.get<DashboardStats>('/dashboard/stats');
+        return this.dashboardApi.getStats();
     }
 
     /**
      * Métricas generales
      */
     getMetricas(): Observable<DashboardMetricas> {
-        return this.api.get<DashboardMetricas>('/dashboard/metricas');
+        return this.dashboardApi.getMetricas();
     }
 
     /**
      * Órdenes recientes (últimas 10)
      */
     getOrdenesRecientes(): Observable<{ data: OrdenReciente[] }> {
-        return this.api.get<{ data: OrdenReciente[] }>('/dashboard/ordenes-recientes');
+        return this.dashboardApi.getOrdenesRecientes();
     }
 
     /**
      * KPIs consolidados (solo supervisor/admin)
      */
     getKPIs(): Observable<KPIConsolidado> {
-        return this.api.get<KPIConsolidado>('/dashboard/kpis');
+        return this.dashboardApi.getKPIs();
     }
 
     /**
      * Desglose de costos
      */
     getCostosBreakdown(): Observable<{ data: CostoBreakdown[] }> {
-        return this.api.get<{ data: CostoBreakdown[] }>('/dashboard/costs/breakdown');
+        return this.dashboardApi.getCostosBreakdown();
     }
 
     /**
@@ -60,21 +59,13 @@ export class DashboardService {
         hasta: string;
         granularidad?: 'DIA' | 'SEMANA' | 'MES';
     }): Observable<PerformanceTrend[]> {
-        let httpParams = new HttpParams()
-            .set('desde', params.desde)
-            .set('hasta', params.hasta);
-
-        if (params.granularidad) {
-            httpParams = httpParams.set('granularidad', params.granularidad);
-        }
-
-        return this.api.get<PerformanceTrend[]>('/dashboard/performance/trends', httpParams);
+        return this.dashboardApi.getPerformanceTrends(params);
     }
 
     /**
      * Refrescar KPIs (solo admin)
      */
     refreshKPIs(): Observable<{ message: string }> {
-        return this.api.get<{ message: string }>('/dashboard/kpis/refresh');
+        return this.dashboardApi.refreshKPIs();
     }
 }

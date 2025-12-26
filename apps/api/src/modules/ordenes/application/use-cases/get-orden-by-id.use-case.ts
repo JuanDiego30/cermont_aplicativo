@@ -5,7 +5,7 @@
  */
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { ORDEN_REPOSITORY, IOrdenRepository } from '../../domain/repositories';
-import { OrdenDetailResponse } from '../dto';
+import { OrdenDetailResponseZod } from '../dto';
 
 @Injectable()
 export class GetOrdenByIdUseCase {
@@ -14,7 +14,7 @@ export class GetOrdenByIdUseCase {
     private readonly ordenRepository: IOrdenRepository,
   ) {}
 
-  async execute(id: string): Promise<OrdenDetailResponse> {
+  async execute(id: string): Promise<OrdenDetailResponseZod> {
     const orden = await this.ordenRepository.findById(id);
 
     if (!orden) {

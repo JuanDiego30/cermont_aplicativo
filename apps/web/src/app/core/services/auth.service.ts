@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, tap, map, catchError, of } from 'rxjs';
-import { ApiService } from './api.service';
+import { Observable, tap } from 'rxjs';
+import { AuthApi } from '../api/auth.api';
 import { StorageService } from './storage.service';
 import { User, LoginDto, AuthResponse } from '../models/user.model';
 
@@ -9,7 +9,7 @@ import { User, LoginDto, AuthResponse } from '../models/user.model';
     providedIn: 'root'
 })
 export class AuthService {
-    private readonly api = inject(ApiService);
+    private readonly authApi = inject(AuthApi);
     private readonly storage = inject(StorageService);
     private readonly router = inject(Router);
 
@@ -30,18 +30,16 @@ export class AuthService {
     }
 
     login(credentials: LoginDto): Observable<AuthResponse> {
-        return this.api.post<AuthResponse>('/auth/login', credentials).pipe(
+        return this.authApi.login(credentials).pipe(
             tap(response => {
-                // Handle both token field names for compatibility
-                const accessToken = response.token || response.access_token;
-                const refreshToken = response.refreshToken || response.refresh_token;
+                this.currentUserSignal.set(response.user);
+            })
+        );
+    }
 
-                if (accessToken) {
-                    this.storage.setToken(accessToken);
-                }
-                if (refreshToken) {
-                    this.storage.setItem('refreshToken', refreshToken);
-                }
+    register(data: any): Observable<AuthResponse> {
+        return this.authApi.register(data).pipe(
+            tap(response => {
                 this.currentUserSignal.set(response.user);
             })
         );
@@ -51,25 +49,25 @@ export class AuthService {
      * Refrescar token de acceso
      */
     refreshToken(): Observable<AuthResponse> {
-        const refreshToken = this.storage.getItem('refreshToken');
-        if (!refreshToken) {
-            throw new Error('No refresh token available');
-        }
-        return this.api.post<AuthResponse>('/auth/refresh', { refresh_token: refreshToken }).pipe(
-            tap(response => {
-                this.storage.setToken(response.access_token);
-                if (response.refresh_token) {
-                    this.storage.setItem('refreshToken', response.refresh_token);
-                }
+        return this.authApi.refreshToken();
+    }
+
+    /**
+     * Get current user profile
+     */
+    getMe(): Observable<User> {
+        return this.authApi.getMe().pipe(
+            tap(user => {
+                this.currentUserSignal.set(user);
             })
         );
     }
 
     logout(): void {
-        // Opcional: llamar al endpoint de logout del backend
-        this.api.post('/auth/logout', {}).subscribe({
+        // Call backend logout endpoint (optional, continue even if it fails)
+        this.authApi.logout().subscribe({
             next: () => { },
-            error: () => { } // Continuar con logout local aunque falle
+            error: () => { } // Continue with local logout even if backend call fails
         });
 
         this.storage.removeToken();

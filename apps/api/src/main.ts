@@ -108,19 +108,18 @@ async function bootstrap() {
             new ValidationPipe({
                 whitelist: true,
                 forbidNonWhitelisted: true,
-                transform: true,
-                transformOptions: {
-                    enableImplicitConversion: true,
-                },
+                // TEMPORARILY DISABLED - circular dependency in DTOs
+                // transform: true,
+                // transformOptions: {
+                //     enableImplicitConversion: true,
+                // },
             }),
         );
 
-        // =====================================================
         // SWAGGER DOCUMENTATION
         // =====================================================
-        // Temporalmente deshabilitado debido a dependencia circular
-        // TODO: Corregir dependencia circular en DTOs y reactivar Swagger
         const port = process.env.PORT || 4000;
+
         try {
             const config = new DocumentBuilder()
                 .setTitle('Cermont API')
@@ -133,10 +132,10 @@ async function bootstrap() {
                 )
                 .build();
             const document = SwaggerModule.createDocument(app, config, {
-                deepScanRoutes: false, // Evitar escaneo profundo que causa dependencias circulares
+                deepScanRoutes: true,
             });
             SwaggerModule.setup('docs', app, document);
-            logger.log('📚 Swagger docs: http://localhost:' + port + '/docs', 'Bootstrap');
+            logger.log(`📚 Swagger docs: http://localhost:${port}/docs`, 'Bootstrap');
         } catch (swaggerError) {
             logger.warn('⚠️ Swagger deshabilitado debido a error: ' + (swaggerError instanceof Error ? swaggerError.message : 'Unknown error'));
         }

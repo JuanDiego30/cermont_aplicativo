@@ -4,11 +4,13 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { OrdenesService, PaginatedOrdenes } from '../services/ordenes.service';
 import { Orden, OrderEstado, OrderPriority } from '../../../core/models/orden.model';
+import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+import { SearchFilterComponent, FilterField } from '../../../shared/components/search-filter/search-filter.component';
 
 @Component({
     selector: 'app-ordenes-list',
     standalone: true,
-    imports: [CommonModule, RouterModule, FormsModule],
+    imports: [CommonModule, RouterModule, FormsModule, StatusBadgeComponent, SearchFilterComponent],
     template: `
     <div class="space-y-6">
       <!-- Header -->
@@ -24,40 +26,11 @@ import { Orden, OrderEstado, OrderPriority } from '../../../core/models/orden.mo
       </div>
 
       <!-- Filters -->
-      <div class="p-4 bg-white border border-gray-200 rounded-xl dark:bg-gray-800 dark:border-gray-700">
-        <div class="grid gap-4 md:grid-cols-4">
-          <div>
-            <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Buscar</label>
-            <input type="text" 
-                   [(ngModel)]="searchTerm"
-                   (ngModelChange)="onSearch()"
-                   placeholder="Buscar por número, cliente..."
-                   class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-          </div>
-          <div>
-            <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Estado</label>
-            <select [(ngModel)]="selectedEstado" (ngModelChange)="loadOrdenes()"
-                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-              <option value="">Todos</option>
-              <option value="planeacion">Planeación</option>
-              <option value="ejecucion">Ejecución</option>
-              <option value="pausada">Pausada</option>
-              <option value="completada">Completada</option>
-            </select>
-          </div>
-          <div>
-            <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Prioridad</label>
-            <select [(ngModel)]="selectedPrioridad" (ngModelChange)="loadOrdenes()"
-                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-              <option value="">Todas</option>
-              <option value="baja">Baja</option>
-              <option value="media">Media</option>
-              <option value="alta">Alta</option>
-              <option value="urgente">Urgente</option>
-            </select>
-          </div>
-        </div>
-      </div>
+      <app-search-filter
+        [fields]="filterFields"
+        [columns]="4"
+        (filterChange)="onFilterChange($event)">
+      </app-search-filter>
 
       <!-- Table -->
       <div class="overflow-hidden bg-white border border-gray-200 rounded-xl dark:bg-gray-800 dark:border-gray-700">
@@ -92,14 +65,10 @@ import { Orden, OrderEstado, OrderPriority } from '../../../core/models/orden.mo
                   <td class="px-6 py-4 text-gray-600 dark:text-gray-300">{{ orden.descripcion | slice:0:50 }}...</td>
                   <td class="px-6 py-4 text-gray-600 dark:text-gray-300">{{ orden.cliente }}</td>
                   <td class="px-6 py-4">
-                    <span [class]="getEstadoBadgeClass(orden.estado)" class="px-2.5 py-1 text-xs font-medium rounded-full">
-                      {{ orden.estado }}
-                    </span>
+                    <app-status-badge [status]="orden.estado" [type]="'orden'"></app-status-badge>
                   </td>
                   <td class="px-6 py-4">
-                    <span [class]="getPrioridadBadgeClass(orden.prioridad)" class="px-2.5 py-1 text-xs font-medium rounded-full">
-                      {{ orden.prioridad }}
-                    </span>
+                    <app-status-badge [status]="orden.prioridad" [type]="'general'"></app-status-badge>
                   </td>
                   <td class="px-6 py-4">
                     <a [routerLink]="[orden.id]" class="text-brand-500 hover:text-brand-600 font-medium">
@@ -124,6 +93,9 @@ import { Orden, OrderEstado, OrderPriority } from '../../../core/models/orden.mo
                       class="px-3 py-1.5 text-sm border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700">
                 Anterior
               </button>
+              <span class="px-3 py-1.5 text-sm">
+                Página {{ currentPage() }} de {{ totalPages() }}
+              </span>
               <button (click)="goToPage(currentPage() + 1)" 
                       [disabled]="currentPage() === totalPages()"
                       class="px-3 py-1.5 text-sm border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -153,6 +125,40 @@ export class OrdenesListComponent implements OnInit {
     selectedPrioridad = '';
 
     Math = Math;
+
+    filterFields: FilterField[] = [
+      {
+        key: 'search',
+        label: 'Buscar',
+        type: 'text',
+        placeholder: 'Buscar por número, cliente...'
+      },
+      {
+        key: 'estado',
+        label: 'Estado',
+        type: 'select',
+        options: [
+          { value: '', label: 'Todos' },
+          { value: 'planeacion', label: 'Planeación' },
+          { value: 'ejecucion', label: 'Ejecución' },
+          { value: 'pausada', label: 'Pausada' },
+          { value: 'completada', label: 'Completada' },
+          { value: 'cancelada', label: 'Cancelada' }
+        ]
+      },
+      {
+        key: 'prioridad',
+        label: 'Prioridad',
+        type: 'select',
+        options: [
+          { value: '', label: 'Todas' },
+          { value: 'baja', label: 'Baja' },
+          { value: 'media', label: 'Media' },
+          { value: 'alta', label: 'Alta' },
+          { value: 'urgente', label: 'Urgente' }
+        ]
+      }
+    ];
 
     ngOnInit() {
         this.loadOrdenes();
@@ -185,6 +191,14 @@ export class OrdenesListComponent implements OnInit {
         this.loadOrdenes();
     }
 
+    onFilterChange(filters: Record<string, any>) {
+        this.searchTerm = filters['search'] || '';
+        this.selectedEstado = filters['estado'] || '';
+        this.selectedPrioridad = filters['prioridad'] || '';
+        this.currentPage.set(1);
+        this.loadOrdenes();
+    }
+
     goToPage(page: number) {
         if (page >= 1 && page <= this.totalPages()) {
             this.currentPage.set(page);
@@ -192,24 +206,4 @@ export class OrdenesListComponent implements OnInit {
         }
     }
 
-    getEstadoBadgeClass(estado: OrderEstado): string {
-        const classes: Record<string, string> = {
-            'planeacion': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-            'ejecucion': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-            'pausada': 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
-            'completada': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-            'cancelada': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-        };
-        return classes[estado] || 'bg-gray-100 text-gray-800';
-    }
-
-    getPrioridadBadgeClass(prioridad: OrderPriority): string {
-        const classes: Record<string, string> = {
-            'baja': 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
-            'media': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-            'alta': 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-            'urgente': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-        };
-        return classes[prioridad] || 'bg-gray-100 text-gray-800';
-    }
 }

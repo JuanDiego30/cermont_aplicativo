@@ -67,6 +67,7 @@ model User {
   mantenimientosCreados    Mantenimiento[]  @relation("MantenimientosCreador")
 
   // Relaciones de formularios
+  formTemplatesCreados    FormTemplate[]         @relation("FormTemplateCreador")
   formulariosCompletados  FormularioInstancia[]  @relation("FormulariosCompletados")
   formulariosRevisados    FormularioInstancia[]  @relation("FormulariosRevisados")
 
@@ -101,8 +102,10 @@ model User {
 
   // Relaciones de templates
   checklistTemplatesCreados  ChecklistTemplate[]  @relation("TemplateCreador")
-  formTemplatesCreados       FormTemplate[]       @relation("FormTemplateCreador")
   formularioTemplatesCreados FormularioTemplate[] @relation("FormularioTemplateCreador")
+  
+  // Relaciones de certificaciones
+  certificaciones        Certificado[]
 
   @@index([role, active])
   @@index([email])

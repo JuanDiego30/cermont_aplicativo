@@ -6,5 +6,8 @@ export * from './user.model';
 export * from './orden.model';
 export * from './hes.model';
 export * from './dashboard.model';
+export * from './mantenimiento.model';
+export * from './kit.model';
+export * from './tecnico.model';
 
 

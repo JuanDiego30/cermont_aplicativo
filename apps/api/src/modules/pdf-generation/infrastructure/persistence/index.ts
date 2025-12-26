@@ -1,1 +1,2 @@
-export * from './pdf.repository';
+// Legacy persistence exports removed - using PdfStorageService now
+export { };

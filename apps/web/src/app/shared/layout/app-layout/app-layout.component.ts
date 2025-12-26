@@ -6,6 +6,8 @@ import { BackdropComponent } from '../backdrop/backdrop.component';
 import { RouterModule } from '@angular/router';
 import { AppHeaderComponent } from '../app-header/app-header.component';
 import { AsistenteIAComponent } from '../../components/chat/asistente-ia.component';
+import { BottomNavComponent } from '../../components/common/bottom-nav/bottom-nav.component';
+import { MobileHeaderComponent } from '../../components/common/mobile-header/mobile-header.component';
 
 @Component({
   selector: 'app-layout',
@@ -15,7 +17,9 @@ import { AsistenteIAComponent } from '../../components/chat/asistente-ia.compone
     AppHeaderComponent,
     AppSidebarComponent,
     BackdropComponent,
-    AsistenteIAComponent
+    AsistenteIAComponent,
+    BottomNavComponent,
+    MobileHeaderComponent
   ],
   templateUrl: './app-layout.component.html',
 })

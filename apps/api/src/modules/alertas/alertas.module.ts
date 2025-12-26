@@ -5,7 +5,7 @@
  */
 
 import { Module } from '@nestjs/common';
-import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { AlertasController, PreferenciasController } from './infrastructure/controllers';
 import {
@@ -35,7 +35,7 @@ import { NotificationQueueService } from './infrastructure/queue';
 import { AlertasGateway } from './infrastructure/gateway/alertas.gateway';
 
 @Module({
-  imports: [PrismaModule, EventEmitterModule],
+  imports: [PrismaModule, ConfigModule],
   controllers: [AlertasController, PreferenciasController],
   providers: [
     // Repositories
@@ -81,4 +81,4 @@ import { AlertasGateway } from './infrastructure/gateway/alertas.gateway';
     DetectarActasSinFirmarUseCase,
   ],
 })
-export class AlertasModule {}
+export class AlertasModule { }

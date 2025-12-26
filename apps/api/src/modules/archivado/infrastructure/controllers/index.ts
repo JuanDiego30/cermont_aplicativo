@@ -1,1 +1,0 @@
-export * from './archivado.controller';
