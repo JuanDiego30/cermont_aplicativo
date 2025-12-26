@@ -1,4 +1,4 @@
-ï»¿import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -20,12 +20,12 @@ export class OrdenesListComponent implements OnInit {
   loading = signal(false);
   error = signal<string | null>(null);
 
-  // Filtros y bÃºsqueda
+  // Filtros y búsqueda
   searchTerm = signal('');
   estadoFilter = signal<string>('');
   prioridadFilter = signal<string>('');
 
-  // PaginaciÃ³n
+  // Paginación
   currentPage = signal(1);
   pageSize = signal(10);
   totalItems = signal(0);
@@ -62,7 +62,7 @@ export class OrdenesListComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        this.error.set('Error al cargar las Ã³rdenes');
+        this.error.set('Error al cargar las órdenes');
         this.loading.set(false);
         console.error('Error loading orders:', err);
       }
