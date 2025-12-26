@@ -1,0 +1,125 @@
+<nav class="fixed top-0 left-0 right-0 z-[9999] transition-all duration-300" [ngClass]="{
+    'bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-lg': isScrolled(),
+    'bg-transparent': !isScrolled()
+  }">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-20 items-center justify-between">
+            <!-- Logo -->
+            <a routerLink="/" class="flex items-center gap-3 group">
+                <img src="/logo.png" alt="Cermont Logo"
+                    class="h-12 w-auto transition-transform duration-300 group-hover:scale-105" />
+            </a>
+
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center gap-8">
+                <button (click)="scrollToSection('servicios')"
+                    class="text-gray-700 dark:text-gray-300 hover:text-cermont-primary-600 dark:hover:text-cermont-primary-400 font-medium transition-colors duration-200">
+                    Servicios
+                </button>
+                <button (click)="scrollToSection('nosotros')"
+                    class="text-gray-700 dark:text-gray-300 hover:text-cermont-primary-600 dark:hover:text-cermont-primary-400 font-medium transition-colors duration-200">
+                    Nosotros
+                </button>
+                <button (click)="scrollToSection('proyectos')"
+                    class="text-gray-700 dark:text-gray-300 hover:text-cermont-primary-600 dark:hover:text-cermont-primary-400 font-medium transition-colors duration-200">
+                    Proyectos
+                </button>
+                <button (click)="scrollToSection('contacto')"
+                    class="text-gray-700 dark:text-gray-300 hover:text-cermont-primary-600 dark:hover:text-cermont-primary-400 font-medium transition-colors duration-200">
+                    Contacto
+                </button>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-4">
+                <!-- Theme Toggle -->
+                <button (click)="themeService.toggleTheme()"
+                    class="flex h-10 w-10 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
+                    [attr.aria-label]="themeService.theme() === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'">
+                    @if (themeService.theme() === 'light') {
+                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-cermont-primary-600 transition-colors"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    } @else {
+                    <svg class="w-5 h-5 text-gray-400 group-hover:text-cermont-primary-400 transition-colors"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    }
+                </button>
+
+                <!-- Login Button (Desktop) -->
+                <a routerLink="/auth/login"
+                    class="hidden md:inline-flex px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-cermont-primary-600 dark:hover:text-cermont-primary-400 transition-colors">
+                    Iniciar Sesión
+                </a>
+
+                <!-- Register Button (Desktop) -->
+                <a routerLink="/auth/register"
+                    class="hidden md:inline-flex px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-cermont-primary-600 to-cermont-primary-700 rounded-lg hover:from-cermont-primary-700 hover:to-cermont-primary-800 shadow-lg shadow-cermont-primary-500/30 transition-all duration-300">
+                    Registrarse
+                </a>
+
+                <!-- Mobile Menu Toggle -->
+                <button (click)="toggleMobileMenu()"
+                    class="md:hidden flex h-10 w-10 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    aria-label="Toggle mobile menu">
+                    @if (!isMobileMenuOpen()) {
+                    <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    } @else {
+                    <svg class="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    @if (isMobileMenuOpen()) {
+    <div class="md:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 animate-slide-in-top">
+        <div class="px-4 py-6 space-y-4">
+            <button (click)="scrollToSection('servicios')"
+                class="block w-full text-left px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                Servicios
+            </button>
+            <button (click)="scrollToSection('nosotros')"
+                class="block w-full text-left px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                Nosotros
+            </button>
+            <button (click)="scrollToSection('proyectos')"
+                class="block w-full text-left px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                Proyectos
+            </button>
+            <button (click)="scrollToSection('contacto')"
+                class="block w-full text-left px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                Contacto
+            </button>
+
+            <div class="pt-4 space-y-3 border-t border-gray-200 dark:border-gray-800">
+                <a routerLink="/auth/login"
+                    class="block w-full text-center px-4 py-3 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                    Iniciar Sesión
+                </a>
+                <a routerLink="/auth/register"
+                    class="block w-full text-center px-4 py-3 text-white bg-gradient-to-r from-cermont-primary-600 to-cermont-primary-700 rounded-lg hover:from-cermont-primary-700 hover:to-cermont-primary-800 transition-all">
+                    Registrarse
+                </a>
+            </div>
+        </div>
+    </div>
+    }
+</nav>
+
+<!-- Spacer para compensar navbar fixed -->
+<div class="h-20"></div>

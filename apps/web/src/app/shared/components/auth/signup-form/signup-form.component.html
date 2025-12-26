@@ -94,7 +94,8 @@
           <div class="relative">
             <app-input-field [type]="showPassword ? 'text' : 'password'" placeholder="Enter your password"
               [value]="password" name="password" class="form-input" required />
-            <span (click)="togglePasswordVisibility()" class="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2">
+            <span (click)="togglePasswordVisibility()"
+              class="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2">
               @if (showPassword) {
               <svg width="1em" height="1em" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"
                 class="fill-gray-500 dark:fill-gray-400 size-5">
@@ -139,9 +140,9 @@
 
     <div class="mt-5">
       <p class="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-        Don't have an account?
-        <a routerLink="/signup" class="text-brand-500 hover:text-brand-600 dark:text-brand-400">
-          Sign Up
+        ¿Ya tienes una cuenta?
+        <a routerLink="/auth/login" class="text-brand-500 hover:text-brand-600 dark:text-brand-400">
+          Iniciar Sesión
         </a>
       </p>
     </div>
