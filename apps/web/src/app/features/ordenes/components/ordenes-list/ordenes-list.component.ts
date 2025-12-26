@@ -56,7 +56,7 @@ export class OrdenesListComponent implements OnInit {
     this.ordenesService.list(query).subscribe({
       next: (response: PaginatedOrdenes) => {
         // Handle both data and items properties
-        this.ordenes.set(response.data ?? response.items ?? []);
+        this.ordenes.set(response.data ?? []);
         this.totalItems.set(response.total);
         this.totalPages.set(Math.ceil(response.total / this.pageSize()));
         this.loading.set(false);
