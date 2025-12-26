@@ -47,7 +47,7 @@ export const routes: Routes = [
       {
         path: 'ordenes',
         loadChildren: () => import('./features/ordenes/ordenes.routes')
-          .then(m => m.ordenesRoutes),
+          .then(m => m.ORDENES_ROUTES),
       },
       {
         path: 'ecommerce',
