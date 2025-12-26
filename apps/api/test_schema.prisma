@@ -1,0 +1,8 @@
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:admin@localhost:5432/cermont_fsm"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}

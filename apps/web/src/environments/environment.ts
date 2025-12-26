@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:4000/api',
+  apiUrl: '/api', // Usar proxy en desarrollo (relativo)
   jwtSecret: 'cermont-secret'
 };

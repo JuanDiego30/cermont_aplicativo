@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ThemeService } from '../../../services/theme.service';
+import { ThemeService } from '../../../../core/services/theme.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -12,11 +12,7 @@ import { CommonModule } from '@angular/common';
 })
 export class ThemeToggleTwoComponent {
 
-  theme$;
-
-  constructor(private themeService: ThemeService) {
-    this.theme$ = this.themeService.theme$;
-  }
+  constructor(private themeService: ThemeService) { }
 
   toggleTheme() {
     this.themeService.toggleTheme();

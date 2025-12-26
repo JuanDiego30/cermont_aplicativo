@@ -1,89 +1,53 @@
-/**
- * @useCase GeneratePDFUseCase
- */
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import * as fs from 'fs';
-import * as path from 'path';
-import {
-  PDF_SERVICE,
-  IPDFService,
-  PDF_REPOSITORY,
-  IPDFRepository,
-  GeneratePDFDto,
-  PDFResult,
-} from '../dto';
-
-const UPLOAD_DIR = './uploads/pdfs';
+import { Injectable, Logger, Inject } from '@nestjs/common';
+import { GeneratePdfDto } from '../dto/generate-pdf.dto';
+import { PdfResponseDto } from '../dto/pdf-response.dto';
+import { IPdfGenerator, PDF_GENERATOR } from '../../domain/interfaces/pdf-generator.interface';
+import { PdfStorageService } from '../../infrastructure/services/pdf-storage.service';
 
 @Injectable()
-export class GeneratePDFUseCase {
+export class GeneratePdfUseCase {
+  private readonly logger = new Logger(GeneratePdfUseCase.name);
+
   constructor(
-    @Inject(PDF_SERVICE)
-    private readonly pdfService: IPDFService,
-    @Inject(PDF_REPOSITORY)
-    private readonly repo: IPDFRepository,
-    private readonly eventEmitter: EventEmitter2,
-  ) {}
+    @Inject(PDF_GENERATOR)
+    private readonly pdfGenerator: IPdfGenerator,
+    private readonly storage: PdfStorageService,
+  ) { }
 
-  async execute(dto: GeneratePDFDto, userId: string): Promise<PDFResult> {
-    // Get data based on template type
-    let data: Record<string, unknown>;
-    switch (dto.templateType) {
-      case 'orden_trabajo':
-      case 'reporte_ejecucion':
-      case 'acta_entrega':
-        data = await this.repo.getOrdenData(dto.entityId);
-        break;
-      case 'inspeccion_hes':
-        data = await this.repo.getHESData(dto.entityId);
-        break;
-      case 'inspeccion_linea_vida':
-        data = await this.repo.getLineaVidaData(dto.entityId);
-        break;
-      case 'checklist':
-        data = await this.repo.getChecklistData(dto.entityId);
-        break;
-      default:
-        throw new NotFoundException(`Template ${dto.templateType} no encontrado`);
+  async execute(dto: GeneratePdfDto): Promise<PdfResponseDto> {
+    try {
+      this.logger.log('Generando PDF desde HTML personalizado');
+
+      const buffer = await this.pdfGenerator.generateFromHtml(dto.html, {
+        format: dto.pageSize,
+        landscape: dto.orientation === 'landscape',
+        displayHeaderFooter: dto.displayHeaderFooter,
+        headerTemplate: dto.headerTemplate,
+        footerTemplate: dto.footerTemplate,
+        margin: dto.margin,
+      });
+
+      const filename = dto.filename
+        ? `${dto.filename}.pdf`
+        : `custom-pdf-${Date.now()}.pdf`;
+
+      let url: string | undefined;
+      if (dto.saveToStorage) {
+        await this.storage.save(buffer, filename);
+        url = this.storage.getPublicUrl(filename);
+      }
+
+      return {
+        buffer: buffer.toString('base64'),
+        filename,
+        mimeType: 'application/pdf',
+        size: buffer.length,
+        url,
+        generatedAt: new Date(),
+      };
+    } catch (error) {
+      this.logger.error('Error generando PDF personalizado', error);
+      throw error;
     }
-
-    if (!data) {
-      throw new NotFoundException('Entidad no encontrada para generar PDF');
-    }
-
-    // Add options to data
-    data.options = dto.options || {};
-
-    // Generate PDF
-    const pdfBuffer = await this.pdfService.generateFromTemplate(dto.templateType, data);
-
-    // Ensure directory exists
-    if (!fs.existsSync(UPLOAD_DIR)) {
-      fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-    }
-
-    // Save file
-    const filename = `${dto.templateType}_${dto.entityId}_${Date.now()}.pdf`;
-    const filepath = path.join(UPLOAD_DIR, filename);
-    fs.writeFileSync(filepath, pdfBuffer);
-
-    // Record in database
-    await this.repo.savePDFRecord(filename, filepath, dto.templateType, dto.entityId, userId);
-
-    this.eventEmitter.emit('pdf.generated', {
-      filename,
-      templateType: dto.templateType,
-      entityId: dto.entityId,
-      userId,
-    });
-
-    return {
-      filename,
-      path: filepath,
-      size: pdfBuffer.length,
-      mimeType: 'application/pdf',
-      generatedAt: new Date().toISOString(),
-    };
   }
 }

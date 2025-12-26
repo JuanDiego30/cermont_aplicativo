@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { LabelComponent } from '../../form/label/label.component';
 import { CheckboxComponent } from '../../form/input/checkbox.component';
 import { InputFieldComponent } from '../../form/input/input-field.component';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
 import { FormsModule } from '@angular/forms';
 
 
@@ -22,6 +23,8 @@ import { FormsModule } from '@angular/forms';
   styles: ``
 })
 export class SignupFormComponent {
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   showPassword = false;
   isChecked = false;
@@ -36,10 +39,20 @@ export class SignupFormComponent {
   }
 
   onSignIn() {
-    console.log('First Name:', this.fname);
-    console.log('Last Name:', this.lname);
-    console.log('Email:', this.email);
-    console.log('Password:', this.password);
-    console.log('Remember Me:', this.isChecked);
+    this.authService.register({
+      name: `${this.fname} ${this.lname}`,
+      email: this.email,
+      password: this.password,
+      role: 'tecnico', // Default role for self-registration, adjust as needed
+      phone: '0000000000' // Placeholder or add phone field to form
+    }).subscribe({
+      next: () => {
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        console.error('Registration failed', err);
+        // Handle error (show message to user)
+      }
+    });
   }
 }

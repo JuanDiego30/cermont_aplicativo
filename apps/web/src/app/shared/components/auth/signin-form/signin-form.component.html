@@ -72,8 +72,8 @@
       }
 
       <div>
-        <app-label>Correo electrónico <span class="text-error-500">*</span></app-label>
-        <input type="email" formControlName="email" placeholder="info@gmail.com"
+        <app-label for="emailMobile">Correo electrónico <span class="text-error-500">*</span></app-label>
+        <input type="email" id="emailMobile" name="emailMobile" formControlName="email" placeholder="info@gmail.com"
           class="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:focus:border-brand-800"
           [class.border-error-500]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" />
         @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
@@ -82,10 +82,10 @@
       </div>
 
       <div>
-        <app-label>Contraseña <span class="text-error-500">*</span></app-label>
+        <app-label for="passwordMobile">Contraseña <span class="text-error-500">*</span></app-label>
         <div class="relative">
-          <input [type]="showPassword ? 'text' : 'password'" formControlName="password"
-            placeholder="Ingrese su contraseña"
+          <input [type]="showPassword ? 'text' : 'password'" id="passwordMobile" name="passwordMobile"
+            formControlName="password" placeholder="Ingrese su contraseña"
             class="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:focus:border-brand-800"
             [class.border-error-500]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" />
           <span (click)="togglePasswordVisibility()"
@@ -211,8 +211,8 @@
       }
 
       <div>
-        <app-label>Correo electrónico <span class="text-error-500">*</span></app-label>
-        <input type="email" formControlName="email" placeholder="info@gmail.com"
+        <app-label for="emailDesktop">Correo electrónico <span class="text-error-500">*</span></app-label>
+        <input type="email" id="emailDesktop" name="email" formControlName="email" placeholder="info@gmail.com"
           class="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:focus:border-brand-800"
           [class.border-error-500]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" />
         @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
@@ -221,10 +221,10 @@
       </div>
 
       <div>
-        <app-label>Contraseña <span class="text-error-500">*</span></app-label>
+        <app-label for="passwordDesktop">Contraseña <span class="text-error-500">*</span></app-label>
         <div class="relative">
-          <input [type]="showPassword ? 'text' : 'password'" formControlName="password"
-            placeholder="Ingrese su contraseña"
+          <input [type]="showPassword ? 'text' : 'password'" id="passwordDesktop" name="password"
+            formControlName="password" placeholder="Ingrese su contraseña"
             class="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:focus:border-brand-800"
             [class.border-error-500]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" />
           <span (click)="togglePasswordVisibility()"

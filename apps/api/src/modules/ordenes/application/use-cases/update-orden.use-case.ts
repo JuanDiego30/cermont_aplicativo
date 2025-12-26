@@ -6,7 +6,7 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ORDEN_REPOSITORY, IOrdenRepository } from '../../domain/repositories';
-import { UpdateOrdenDto, OrdenResponse } from '../dto';
+import { UpdateOrdenDto, OrdenResponseZod } from '../dto';
 
 @Injectable()
 export class UpdateOrdenUseCase {
@@ -19,7 +19,7 @@ export class UpdateOrdenUseCase {
   async execute(
     id: string,
     dto: UpdateOrdenDto,
-  ): Promise<{ message: string; data: OrdenResponse }> {
+  ): Promise<{ message: string; data: OrdenResponseZod }> {
     // Buscar orden existente
     const orden = await this.ordenRepository.findById(id);
 
@@ -32,7 +32,7 @@ export class UpdateOrdenUseCase {
       descripcion: dto.descripcion,
       cliente: dto.cliente,
       prioridad: dto.prioridad,
-      fechaFinEstimada: dto.fechaFinEstimada,
+      fechaFinEstimada: dto.fechaFinEstimada ? new Date(dto.fechaFinEstimada) : undefined,
       presupuestoEstimado: dto.presupuestoEstimado,
       asignadoId: dto.asignadoId ?? undefined,
     });

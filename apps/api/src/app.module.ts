@@ -28,24 +28,31 @@ import { EvidenciasModule } from './modules/evidencias/evidencias.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { ReportesModule } from './modules/reportes/reportes.module';
 import { HesModule } from './modules/hes/hes.module';
-import { LineasVidaModule } from './modules/lineas-vida/lineas-vida.module';
+// TODO: Create LineasVidaModule - currently disabled
+// import { LineasVidaModule } from './modules/lineas-vida/lineas-vida.module';
 import { CostosModule } from './modules/costos/costos.module';
 import { ChecklistsModule } from './modules/checklists/checklists.module';
-import { MantenimientosModule } from './modules/mantenimientos/mantenimientos.module';
+// DELETED: MantenimientosModule - CERMONT uses order-based maintenance, not scheduled preventive maintenance
 import { FormulariosModule } from './modules/formularios/formularios.module';
 import { CierreAdministrativoModule } from './modules/cierre-administrativo/cierre-administrativo.module';
 
 // New modules
-import { ArchivadoModule } from './modules/archivado/archivado.module';
+// DELETED: ArchivadoModule - Replaced by archivado-historico module (coming in Phase 3)
 import { SyncModule } from './modules/sync/sync.module';
 import { PdfGenerationModule } from './modules/pdf-generation/pdf-generation.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { WeatherModule } from './modules/weather/weather.module';
-import { EmailModule } from './modules/email/email.module';
+// DELETED: EmailModule - Redundant with AlertasModule (email functionality moved there)
 import { TecnicosModule } from './modules/tecnicos/tecnicos.module';
 
 import { AlertasModule } from './modules/alertas/alertas.module';
 import { KpisModule } from './modules/kpis/kpis.module';
+
+// NEW MODULES - Phase 3 Backend Refactoring
+import { CertificacionesModule } from './modules/certificaciones/certificaciones.module';
+import { ClientesModule } from './modules/clientes/clientes.module';
+import { FacturacionModule } from './modules/facturacion/facturacion.module';
+import { ArchivadoHistoricoModule } from './modules/archivado-historico/archivado-historico.module';
 
 // Common providers
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -66,6 +73,18 @@ import { LoggerService } from './common/logging/logger.service';
         ConfigModule.forRoot({
             isGlobal: true,
             envFilePath: '.env',
+        }),
+
+        // Event Emitter for domain events (MUST be before feature modules)
+        EventEmitterModule.forRoot({
+            global: true,
+            wildcard: false,
+            delimiter: '.',
+            newListener: false,
+            removeListener: false,
+            maxListeners: 20,
+            verboseMemoryLeak: true,
+            ignoreErrors: false,
         }),
 
         // Rate limiting - Múltiples límites para diferentes escenarios
@@ -107,41 +126,42 @@ import { LoggerService } from './common/logging/logger.service';
         // Core
         PrismaModule,
 
-        // Feature modules
+        // Feature modules - MINIMAL SET FOR TESTING
         AuthModule,
-
         OrdenesModule,
         PlaneacionModule,
         KitsModule,
         EjecucionModule,
-        EvidenciasModule,
         DashboardModule,
-        ReportesModule,
-        HesModule,
-        LineasVidaModule,
-        CostosModule,
-        ChecklistsModule,
-        MantenimientosModule,
-        FormulariosModule,
-        CierreAdministrativoModule,
+        // ReportesModule,
+        // HesModule,
+        // LineasVidaModule,
+        // CostosModule,
+        // ChecklistsModule,
+        // MantenimientosModule, // DELETED
+        // FormulariosModule,
+        // CierreAdministrativoModule,
 
-        // New modules (Módulos 1-4 según documento)
-        ArchivadoModule,    // Módulo 4: Archivado automático
-        SyncModule,         // Módulo 1: Sincronización offline
-        PdfGenerationModule, // Generación de informes PDF
-        AdminModule,        // Módulo 3: Administración RBAC
-        WeatherModule,      // Módulo Meteorológico (Open-Meteo + NASA)
-        EmailModule,
-        TecnicosModule,
+        // New modules (Módulos 1-4 según documento) - DISABLED
+        // ArchivadoModule,    // Módulo 4: Archivado automático
+        // SyncModule,         // Módulo 1: Sincronización offline
+        // PdfGenerationModule, // Generación de informes PDF
+        // AdminModule,        // Módulo 3: Administración RBAC
+        // WeatherModule,      // Módulo Meteorológico (Open-Meteo + NASA)
+        // EmailModule,
+        // TecnicosModule,
 
-        AlertasModule,      // Sistema de Alertas Automáticas
+        // AlertasModule,      // Sistema de Alertas Automáticas
         KpisModule,         // Dashboard KPIs y Métricas
+
+        // NEW MODULES - Phase 3 Backend Refactoring
+        CertificacionesModule,    // Gestión de certificaciones técnicos/equipos
+        ClientesModule,           // Gestión de clientes (SIERRACOL)
+        FacturacionModule,        // SES Ariba + Facturación
+        ArchivadoHistoricoModule, // Archivado automático mensual
 
         // Schedule module for CRON jobs
         ScheduleModule.forRoot(),
-
-        // Event Emitter for domain events (global)
-        EventEmitterModule.forRoot(),
     ],
     controllers: [HealthController],
     providers: [

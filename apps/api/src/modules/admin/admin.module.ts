@@ -8,7 +8,6 @@
  * - Infrastructure: Controllers, Persistencia (Prisma)
  */
 import { Module } from '@nestjs/common';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PrismaModule } from '../../prisma/prisma.module';
 
 // Infrastructure
@@ -44,8 +43,7 @@ import { AdminService } from './admin.service';
 @Module({
   imports: [
     PrismaModule,
-    // EventEmitterModule para manejo de eventos de dominio
-    EventEmitterModule.forRoot(),
+    // EventEmitterModule is already registered globally in AppModule
   ],
   controllers: [AdminController],
   providers: [
@@ -84,12 +82,12 @@ import { AdminService } from './admin.service';
     ListUsersUseCase,
     GetUserByIdUseCase,
     GetUserStatsUseCase,
-    
+
     // Exportar repositorio para uso en otros módulos
     USER_REPOSITORY,
-    
+
     // Legacy Service (mantenido por compatibilidad)
     AdminService,
   ],
 })
-export class AdminModule {}
+export class AdminModule { }

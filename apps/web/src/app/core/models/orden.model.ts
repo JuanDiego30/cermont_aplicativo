@@ -31,53 +31,107 @@ export interface Orden {
   numero: string;
   descripcion: string;
   cliente: string;
+  contactoCliente?: string;
+  telefonoCliente?: string;
+  direccion?: string;
   prioridad: OrderPriority;
   estado: OrderEstado;
+  creadorId?: string;
   asignadoId?: string;
   asignado?: {
     id: string;
-    nombre: string;
-    email: string;
+    name: string;
   };
-  fechaInicio?: Date;
-  fechaFinEstimada?: Date;
-  fechaFinReal?: Date;
+  creador?: {
+    id: string;
+    name: string;
+  };
+  fechaInicio?: string; // ISO string
+  fechaFin?: string; // ISO string
+  fechaFinEstimada?: string; // ISO string
   presupuestoEstimado?: number;
   costoReal?: number;
+  observaciones?: string;
   requiereHES?: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  cumplimientoHES?: boolean;
+  createdAt: string; // ISO string
+  updatedAt: string; // ISO string
+}
+
+export interface HistorialEstado {
+  id: string;
+  ordenId: string;
+  estadoAnterior?: OrderEstado;
+  estadoNuevo: OrderEstado;
+  motivo: string;
+  observaciones?: string;
+  usuarioId?: string;
+  createdAt: string; // ISO string
 }
 
 export interface CreateOrdenDto {
   descripcion: string;
   cliente: string;
+  contactoCliente?: string;
+  telefonoCliente?: string;
+  direccion?: string;
   prioridad?: OrderPriority;
   asignadoId?: string;
-  fechaFinEstimada?: Date;
+  fechaFinEstimada?: string; // ISO string
   presupuestoEstimado?: number;
   requiereHES?: boolean;
+  observaciones?: string;
 }
 
 export interface UpdateOrdenDto {
   descripcion?: string;
   cliente?: string;
+  contactoCliente?: string;
+  telefonoCliente?: string;
+  direccion?: string;
   prioridad?: OrderPriority;
   estado?: OrderEstado;
   asignadoId?: string;
-  fechaFinEstimada?: Date;
+  fechaInicio?: string; // ISO string
+  fechaFin?: string; // ISO string
+  fechaFinEstimada?: string; // ISO string
   presupuestoEstimado?: number;
   costoReal?: number;
+  margenUtilidad?: number;
+  impuestosAplicables?: number;
   requiereHES?: boolean;
+  observaciones?: string;
+}
+
+export interface ChangeEstadoOrdenDto {
+  nuevoEstado: OrderEstado;
+  motivo: string;
+  usuarioId?: string;
+  observaciones?: string;
+}
+
+export interface AsignarTecnicoOrdenDto {
+  tecnicoId: string;
+  fechaInicio?: string; // ISO string
+  instrucciones?: string;
+  motivoAsignacion?: string;
 }
 
 export interface ListOrdenesQuery {
   page?: number;
   limit?: number;
-  search?: string;
   estado?: OrderEstado;
   prioridad?: OrderPriority;
+  search?: string;
+  cliente?: string;
   asignadoId?: string;
+  creadorId?: string;
+  fechaDesde?: string; // ISO string
+  fechaHasta?: string; // ISO string
+  soloVencidas?: boolean;
+  soloSinAsignar?: boolean;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 }
 
 

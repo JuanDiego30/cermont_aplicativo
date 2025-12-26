@@ -1,0 +1,30 @@
+// ============================================
+// CERTIFICACIONES Y HABILITACIONES
+// ============================================
+
+model Certificado {
+  id                String    @id @default(uuid())
+  
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  tipo              String    // TIPO_A, TIPO_B, ALTURAS, etc.
+  nombre            String    // Nombre display
+  entidad           String    // Entidad certificadora
+  numero            String    // Nro certificado
+  
+  fechaExpedicion   DateTime
+  fechaVencimiento  DateTime
+  
+  archivo           String?   // URL al documento
+  observaciones     String?
+  
+  activo            Boolean   @default(true)
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([userId, activo])
+  @@index([fechaVencimiento])
+  @@map("certificados")
+}

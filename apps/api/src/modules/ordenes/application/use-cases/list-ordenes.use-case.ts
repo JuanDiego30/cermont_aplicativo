@@ -5,7 +5,7 @@
  */
 import { Injectable, Inject } from '@nestjs/common';
 import { ORDEN_REPOSITORY, IOrdenRepository } from '../../domain/repositories';
-import { OrdenQueryDto, OrdenListResponse } from '../dto';
+import { OrdenQueryDto, OrdenListResponseZod } from '../dto';
 
 @Injectable()
 export class ListOrdenesUseCase {
@@ -14,7 +14,7 @@ export class ListOrdenesUseCase {
     private readonly ordenRepository: IOrdenRepository,
   ) {}
 
-  async execute(query: OrdenQueryDto): Promise<OrdenListResponse> {
+  async execute(query: OrdenQueryDto): Promise<OrdenListResponseZod> {
     const result = await this.ordenRepository.findAll({
       estado: query.estado,
       cliente: query.cliente,

@@ -1,0 +1,54 @@
+/**
+ * ErrorInterceptor - Centralized HTTP error handling
+ * 
+ * Handles:
+ * - 401 Unauthorized → Logout + redirect to login
+ * - 403 Forbidden → Show permission error
+ * - 500+ Server errors → Show generic error
+ * - Network errors → Show connection error
+ */
+import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { StorageService } from '../services/storage.service';
+
+export const errorInterceptor: HttpInterceptorFn = (req, next) => {
+  const router = inject(Router);
+  const storage = inject(StorageService);
+
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) => {
+      // Skip error handling for auth endpoints (login, register)
+      const isAuthEndpoint = req.url.includes('/auth/login') || req.url.includes('/auth/register');
+      
+      if (error.status === 401 && !isAuthEndpoint) {
+        // Unauthorized - Clear session and redirect to login
+        storage.removeToken();
+        storage.removeItem('refreshToken');
+        router.navigate(['/signin'], { 
+          queryParams: { returnUrl: router.url } 
+        });
+        
+        console.warn('401 Unauthorized - Session expired');
+      } else if (error.status === 403) {
+        // Forbidden - User doesn't have permission
+        console.warn('403 Forbidden - Insufficient permissions');
+        // You can inject a notification service here to show a toast
+      } else if (error.status >= 500) {
+        // Server error
+        console.error('Server error:', error.status, error.message);
+        // You can inject a notification service here to show a toast
+      } else if (error.status === 0) {
+        // Network error (CORS, connection refused, etc.)
+        console.error('Network error - Check if backend is running');
+        // You can inject a notification service here to show a toast
+      }
+
+      // Re-throw error so components can handle it if needed
+      return throwError(() => error);
+    })
+  );
+};
+

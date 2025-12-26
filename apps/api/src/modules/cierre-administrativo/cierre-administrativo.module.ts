@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../prisma/prisma.module';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CierreAdministrativoController } from './infrastructure/controllers/cierre-administrativo.controller';
 import { CierreAdministrativoService } from './cierre-administrativo.service';
 import { CIERRE_REPOSITORY } from './application/dto';
@@ -12,7 +11,7 @@ import {
 } from './application/use-cases';
 
 @Module({
-  imports: [PrismaModule, EventEmitterModule.forRoot()],
+  imports: [PrismaModule],
   controllers: [CierreAdministrativoController],
   providers: [
     // Repository binding

@@ -6,7 +6,7 @@
  * Implementa Strategy Pattern
  */
 
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { INotificationSender } from './notification-sender.interface';
 import { Alerta } from '../../domain/entities/alerta.entity';
@@ -25,13 +25,18 @@ export class EmailSenderService implements INotificationSender {
   private readonly logger = new Logger(EmailSenderService.name);
   private transporter: any;
 
-  constructor(private readonly config: ConfigService) {
+  constructor(@Optional() @Inject(ConfigService) private readonly config: ConfigService | null) {
     this.initializeTransporter();
   }
 
   private initializeTransporter(): void {
     if (!nodemailer) {
       this.logger.warn('nodemailer no disponible. Emails no se enviarán.');
+      return;
+    }
+
+    if (!this.config) {
+      this.logger.warn('ConfigService no disponible. Emails no se enviarán.');
       return;
     }
 
@@ -58,7 +63,7 @@ export class EmailSenderService implements INotificationSender {
         // Modo desarrollo: usar Ethereal Email (gratuito, solo para testing)
         this.logger.warn('SMTP no configurado. Usando Ethereal Email para desarrollo.');
         this.logger.warn('Para producción, configure SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS');
-        
+
         // Ethereal Email es un servicio gratuito para testing
         // Se puede usar en desarrollo sin configuración
         this.transporter = null; // Se creará bajo demanda
@@ -79,7 +84,7 @@ export class EmailSenderService implements INotificationSender {
     }
 
     const htmlContent = this.buildHtmlEmail(alerta);
-    const fromEmail = this.config.get('SMTP_FROM') || this.config.get('SMTP_USER') || 'noreply@cermont.com';
+    const fromEmail = this.config?.get('SMTP_FROM') || this.config?.get('SMTP_USER') || 'noreply@cermont.com';
 
     try {
       // Si no hay transporter configurado, usar Ethereal Email (solo desarrollo)

@@ -6,7 +6,6 @@
 import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 import { memoryStorage } from 'multer';
 import { PrismaModule } from '../../prisma/prisma.module';
 
@@ -49,7 +48,6 @@ const useCaseProviders = [
     imports: [
         PrismaModule,
         ConfigModule,
-        EventEmitterModule.forRoot(),
         MulterModule.registerAsync({
             imports: [ConfigModule],
             useFactory: (config: ConfigService) => ({
