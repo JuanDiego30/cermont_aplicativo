@@ -15,8 +15,8 @@
 <div class="space-y-1">
   @for (user of users; track $index) {
   <div
-    class="flex cursor-pointer items-center gap-3 rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-white/[0.03]"
-    [ngClass]="{ 'bg-gray-100 dark:bg-white/[0.03]': user.active }">
+    class="flex cursor-pointer items-center gap-3 rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-white/5"
+    [ngClass]="{ 'bg-gray-100 dark:bg-white/5': user.active }">
     <div class="w-12 h-12 overflow-hidden rounded-full">
       <img [src]="user.image" [alt]="user.name" />
     </div>

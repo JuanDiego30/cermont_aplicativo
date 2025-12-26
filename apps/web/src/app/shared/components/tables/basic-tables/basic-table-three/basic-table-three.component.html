@@ -1,4 +1,4 @@
-<div class="rounded-2xl border border-gray-200 bg-white pt-4 dark:border-white/[0.05] dark:bg-white/[0.03]">
+<div class="rounded-2xl border border-gray-200 bg-white pt-4 dark:border-white/5 dark:bg-white/5">
   <div class="flex flex-col gap-2 px-5 mb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
     <div>
       <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">
@@ -24,7 +24,7 @@
   <div class="overflow-hidden">
     <div class="max-w-full px-5 overflow-x-auto sm:px-6">
       <table class="min-w-full">
-        <thead class="border-gray-100 border-y dark:border-white/[0.05]">
+        <thead class="border-gray-100 border-y dark:border-white/5">
           <tr>
             <th class="py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">Name</th>
             <th class="px-4 py-3 font-normal text-gray-500 text-start text-theme-sm dark:text-gray-400">Date</th>
@@ -36,7 +36,7 @@
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
+        <tbody class="divide-y divide-gray-100 dark:divide-white/5">
           @for (item of currentItems; track $index) {
           <tr>
             <td class="px-4 py-4">
@@ -113,7 +113,7 @@
   </div>
 
   <!-- Pagination Controls -->
-  <div class="px-6 py-4 border-t border-gray-200 dark:border-white/[0.05]">
+  <div class="px-6 py-4 border-t border-gray-200 dark:border-white/5">
     <div class="flex items-center justify-between">
       <!-- Previous Button -->
       <app-button
@@ -138,7 +138,7 @@
             class="flex h-10 w-10 items-center justify-center rounded-lg text-theme-sm font-medium"
             [ngClass]="{
               'bg-brand-500 text-white': currentPage === idx + 1,
-              'text-gray-700 hover:bg-brand-500/[0.08] dark:hover:bg-brand-500 dark:hover:text-white hover:text-brand-500 dark:text-gray-400': currentPage !== idx + 1
+              'text-gray-700 hover:bg-brand-500/10 dark:hover:bg-brand-500 dark:hover:text-white hover:text-brand-500 dark:text-gray-400': currentPage !== idx + 1
             }"
           >
             {{ idx + 1 }}
