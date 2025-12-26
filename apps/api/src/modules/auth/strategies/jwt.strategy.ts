@@ -5,57 +5,46 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../prisma/prisma.service';
 
 export interface JwtPayload {
-  userId: string;
+  sub: string;
   email: string;
   role: string;
-  iat?: number;
-  exp?: number;
 }
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
-    private readonly configService: ConfigService,
-    private readonly prisma: PrismaService,
+    private configService: ConfigService,
+    private prisma: PrismaService
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET') || 'dev-secret-change-in-production',
+      secretOrKey: configService.get<string>('JWT_SECRET') || 'your-secret-key-change-in-production',
     });
   }
 
   async validate(payload: JwtPayload) {
-    // CRÍTICO: Verificar que el usuario existe y está activo en CADA request
+    // Verificar que el usuario existe y está activo
     const user = await this.prisma.user.findUnique({
-      where: { id: payload.userId },
+      where: { id: payload.sub },
       select: {
         id: true,
         email: true,
         name: true,
         role: true,
         active: true,
-        avatar: true,
-        phone: true,
       },
     });
 
-    if (!user) {
-      throw new UnauthorizedException('Usuario no encontrado');
+    if (!user || !user.active) {
+      throw new UnauthorizedException('Usuario no válido o inactivo');
     }
 
-    if (!user.active) {
-      throw new UnauthorizedException('Usuario desactivado');
-    }
-
-    // Este objeto se adjunta a request.user
     return {
       userId: user.id,
       email: user.email,
       name: user.name,
       role: user.role,
-      avatar: user.avatar,
-      phone: user.phone,
     };
   }
 }

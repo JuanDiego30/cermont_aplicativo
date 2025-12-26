@@ -44,6 +44,9 @@ async function bootstrap() {
             }),
         );
 
+        // Global Exception Filter (ya configurado en app.module.ts)
+        // No es necesario agregarlo aquí ya que está en los providers del módulo
+
         // Swagger Documentation
         const config = new DocumentBuilder()
             .setTitle('Cermont API')

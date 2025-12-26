@@ -85,9 +85,9 @@ export class OrdenesService {
 
         if (params) {
             Object.keys(params).forEach(key => {
-                const value = (params as any)[key];
+                const value = (params as Record<string, unknown>)[key];
                 if (value !== undefined && value !== null) {
-                    httpParams = httpParams.set(key, value.toString());
+                    httpParams = httpParams.set(key, String(value));
                 }
             });
         }
@@ -136,8 +136,8 @@ export class OrdenesService {
     /**
      * Obtiene estadísticas de órdenes
      */
-    getEstadisticas(): Observable<any> {
-        return this.http.get(`${this.API_URL}/estadisticas`).pipe(
+    getEstadisticas(): Observable<Record<string, unknown>> {
+        return this.http.get<Record<string, unknown>>(`${this.API_URL}/estadisticas`).pipe(
             catchError(this.handleError)
         );
     }
@@ -150,9 +150,9 @@ export class OrdenesService {
 
         if (params) {
             Object.keys(params).forEach(key => {
-                const value = (params as any)[key];
+                const value = (params as Record<string, unknown>)[key];
                 if (value !== undefined && value !== null) {
-                    httpParams = httpParams.set(key, value.toString());
+                    httpParams = httpParams.set(key, String(value));
                 }
             });
         }

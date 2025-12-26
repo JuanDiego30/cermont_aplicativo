@@ -1,0 +1,8 @@
+.input {
+  @apply block w-full rounded-lg border-gray-300 shadow-sm focus:border-cermont-primary-500 focus:ring-cermont-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white px-3 py-2;
+}
+
+.btn-primary {
+  @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-cermont-primary-500 text-white hover:bg-cermont-primary-600 focus:ring-cermont-primary-500 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+

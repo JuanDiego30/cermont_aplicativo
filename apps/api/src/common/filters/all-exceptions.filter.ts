@@ -19,7 +19,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
         let status = HttpStatus.INTERNAL_SERVER_ERROR;
         let message = 'Error interno del servidor';
-        let errors: any = undefined;
+        let errors: unknown = undefined;
 
         // HTTP Exception
         if (exception instanceof HttpException) {
@@ -27,45 +27,44 @@ export class AllExceptionsFilter implements ExceptionFilter {
             const exceptionResponse = exception.getResponse();
 
             if (typeof exceptionResponse === 'object') {
-                message = (exceptionResponse as any).message || exception.message;
-                errors = (exceptionResponse as any).errors;
+                message = (exceptionResponse as { message?: string }).message || exception.message;
+                errors = (exceptionResponse as { errors?: unknown }).errors;
             } else {
                 message = String(exceptionResponse);
             }
         }
-        // Prisma Exceptions (check by name since instanceof may not work with generated client)
-        else if (exception instanceof Error) {
-            const errorName = exception.constructor.name;
+        // Prisma Known Request Error (check by code property)
+        else if (this.isPrismaKnownError(exception)) {
+            status = HttpStatus.BAD_REQUEST;
+            const prismaError = exception as { code: string; meta?: { target?: unknown } };
 
-            if (errorName === 'PrismaClientKnownRequestError') {
-                status = HttpStatus.BAD_REQUEST;
-                const prismaError = exception as any;
-
-                switch (prismaError.code) {
-                    case 'P2002':
-                        message = 'Ya existe un registro con estos datos únicos';
-                        errors = {
-                            field: prismaError.meta?.target,
-                            constraint: 'unique_violation'
-                        };
-                        break;
-                    case 'P2025':
-                        status = HttpStatus.NOT_FOUND;
-                        message = 'Registro no encontrado';
-                        break;
-                    case 'P2003':
-                        message = 'Violación de restricción de clave foránea';
-                        break;
-                    default:
-                        message = 'Error en la base de datos';
-                }
-            } else if (errorName === 'PrismaClientValidationError') {
-                status = HttpStatus.BAD_REQUEST;
-                message = 'Error de validación en los datos';
-            } else {
-                // Generic Error
-                message = exception.message;
+            switch (prismaError.code) {
+                case 'P2002':
+                    message = 'Ya existe un registro con estos datos únicos';
+                    errors = {
+                        field: prismaError.meta?.target,
+                        constraint: 'unique_violation'
+                    };
+                    break;
+                case 'P2025':
+                    status = HttpStatus.NOT_FOUND;
+                    message = 'Registro no encontrado';
+                    break;
+                case 'P2003':
+                    message = 'Violación de restricción de clave foránea';
+                    break;
+                default:
+                    message = 'Error en la base de datos';
             }
+        }
+        // Prisma Validation Error
+        else if (this.isPrismaValidationError(exception)) {
+            status = HttpStatus.BAD_REQUEST;
+            message = 'Error de validación en los datos';
+        }
+        // Unknown Error
+        else if (exception instanceof Error) {
+            message = exception.message;
         }
 
         // Log del error
@@ -84,5 +83,23 @@ export class AllExceptionsFilter implements ExceptionFilter {
             path: request.url,
             method: request.method,
         });
+    }
+
+    private isPrismaKnownError(error: unknown): boolean {
+        return (
+            typeof error === 'object' &&
+            error !== null &&
+            'code' in error &&
+            typeof (error as { code: unknown }).code === 'string' &&
+            (error as { code: string }).code.startsWith('P')
+        );
+    }
+
+    private isPrismaValidationError(error: unknown): boolean {
+        return (
+            typeof error === 'object' &&
+            error !== null &&
+            error.constructor?.name === 'PrismaClientValidationError'
+        );
     }
 }

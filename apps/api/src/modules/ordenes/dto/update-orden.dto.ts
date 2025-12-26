@@ -25,7 +25,7 @@ export class UpdateOrdenDto extends PartialType(CreateOrdenDto) {
         example: 1650000
     })
     @IsNumber()
-    @Min(0)
+    @Min(0, { message: 'El costo real no puede ser negativo' })
     @IsOptional()
     costoReal?: number;
 }

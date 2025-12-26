@@ -9,12 +9,16 @@ const config: Config = {
     },
     collectCoverageFrom: [
         '**/*.(t|j)s',
+        '!**/*.module.ts',
+        '!**/main.ts',
+        '!**/index.ts',
     ],
     coverageDirectory: '../coverage',
     testEnvironment: 'node',
     moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/$1',
     },
+    setupFilesAfterEnv: ['<rootDir>/../test/setup.ts'],
 };
 
 export default config;

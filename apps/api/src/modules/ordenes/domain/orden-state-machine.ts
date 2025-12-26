@@ -1,11 +1,12 @@
 import { BadRequestException } from '@nestjs/common';
 
 export enum OrdenEstado {
-  PENDIENTE = 'PENDIENTE',
-  PLANEACION = 'PLANEACION',
-  EJECUCION = 'EJECUCION',
-  FINALIZADA = 'FINALIZADA',
-  CANCELADA = 'CANCELADA',
+  PENDIENTE = 'pendiente',
+  PLANEACION = 'planeacion',
+  EJECUCION = 'ejecucion',
+  COMPLETADA = 'completada',
+  CANCELADA = 'cancelada',
+  PAUSADA = 'pausada',
 }
 
 /**
@@ -14,35 +15,26 @@ export enum OrdenEstado {
 export class OrdenStateMachine {
   // Transiciones permitidas desde cada estado
   private static readonly TRANSITIONS: Record<OrdenEstado, OrdenEstado[]> = {
-    [OrdenEstado.PENDIENTE]: [
-      OrdenEstado.PLANEACION,
-      OrdenEstado.CANCELADA,
-    ],
+    [OrdenEstado.PENDIENTE]: [OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
     [OrdenEstado.PLANEACION]: [
       OrdenEstado.EJECUCION,
       OrdenEstado.PENDIENTE,
       OrdenEstado.CANCELADA,
+      OrdenEstado.PAUSADA,
     ],
     [OrdenEstado.EJECUCION]: [
-      OrdenEstado.FINALIZADA,
+      OrdenEstado.COMPLETADA,
       OrdenEstado.PLANEACION,
       OrdenEstado.CANCELADA,
+      OrdenEstado.PAUSADA,
     ],
-    [OrdenEstado.FINALIZADA]: [
-      // Estado terminal, solo puede reabrir a PENDIENTE en casos excepcionales
-      OrdenEstado.PENDIENTE,
-    ],
-    [OrdenEstado.CANCELADA]: [
-      // Puede reactivarse a PENDIENTE
-      OrdenEstado.PENDIENTE,
-    ],
+    [OrdenEstado.COMPLETADA]: [OrdenEstado.PENDIENTE],
+    [OrdenEstado.CANCELADA]: [OrdenEstado.PENDIENTE],
+    [OrdenEstado.PAUSADA]: [OrdenEstado.PLANEACION, OrdenEstado.EJECUCION, OrdenEstado.CANCELADA],
   };
 
   // Transiciones que requieren motivo obligatorio
-  private static readonly REQUIRES_REASON: OrdenEstado[] = [
-    OrdenEstado.CANCELADA,
-    OrdenEstado.FINALIZADA,
-  ];
+  private static readonly REQUIRES_REASON: OrdenEstado[] = [OrdenEstado.CANCELADA, OrdenEstado.COMPLETADA];
 
   /**
    * Valida si una transición de estado es permitida

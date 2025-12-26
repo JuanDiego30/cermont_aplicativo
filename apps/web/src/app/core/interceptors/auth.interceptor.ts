@@ -1,53 +1,52 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { catchError, throwError, switchMap } from 'rxjs';
 import { AuthService } from '../services/auth.service';
-import { catchError, switchMap, throwError } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-    const authService = inject(AuthService);
+  const authService = inject(AuthService);
+  const router = inject(Router);
 
-    // No agregar token a rutas de autenticación
-    if (
-        req.url.includes('/auth/login') ||
-        req.url.includes('/auth/register') ||
-        req.url.includes('/auth/refresh')
-    ) {
-        return next(req);
-    }
+  // Obtener token
+  const token = authService.getToken();
 
-    // Agregar token JWT al header
-    const token = authService.getToken();
-    if (token) {
-        req = req.clone({
-            setHeaders: {
-                Authorization: `Bearer ${token}`
-            }
-        });
-    }
+  // Clonar request y agregar token si existe
+  let authReq = req;
+  if (token) {
+    authReq = req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  }
 
-    return next(req).pipe(
-        catchError((error: HttpErrorResponse) => {
-            // Si es error 401, intentar refresh del token
-            if (error.status === 401 && !req.url.includes('/auth/refresh')) {
-                return authService.refreshToken().pipe(
-                    switchMap(response => {
-                        // Reintentar la petición original con el nuevo token
-                        const clonedReq = req.clone({
-                            setHeaders: {
-                                Authorization: `Bearer ${response.token}`
-                            }
-                        });
-                        return next(clonedReq);
-                    }),
-                    catchError(refreshError => {
-                        // Si el refresh falla, hacer logout
-                        authService.logout();
-                        return throwError(() => refreshError);
-                    })
-                );
-            }
+  // Manejar respuesta y errores
+  return next(authReq).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401) {
+        // Token expirado o inválido - intentar refresh
+        return authService.refreshToken().pipe(
+          switchMap(() => {
+            // Retry original request con nuevo token
+            const newToken = authService.getToken();
+            const retryReq = req.clone({
+              setHeaders: {
+                Authorization: `Bearer ${newToken}`
+              }
+            });
+            return next(retryReq);
+          }),
+          catchError((refreshError) => {
+            // Refresh falló - logout y redirigir a login
+            authService.logout();
+            router.navigate(['/auth/login']);
+            return throwError(() => refreshError);
+          })
+        );
+      }
 
-            return throwError(() => error);
-        })
-    );
+      return throwError(() => error);
+    })
+  );
 };
