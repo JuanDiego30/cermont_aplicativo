@@ -6,6 +6,7 @@ export enum UserRoleEnum {
     ADMIN = 'admin',
     SUPERVISOR = 'supervisor',
     TECNICO = 'tecnico',
+    ADMINISTRATIVO = 'administrativo',
 }
 
 // ============================================
@@ -185,3 +186,31 @@ export class PaginatedUsersResponse {
     @ApiProperty()
     hasMore!: boolean;
 }
+
+// ============================================
+// ADDITIONAL DTOs REQUIRED BY INDEX
+// ============================================
+
+export class AdminChangePasswordDto {
+    @ApiProperty({ example: 'NewSecure@2025!' })
+    @IsString()
+    @MinLength(8)
+    newPassword!: string;
+}
+
+export class ToggleUserActiveDto {
+    @ApiProperty({ example: true })
+    @IsBoolean()
+    active!: boolean;
+}
+
+export class AdminActionResponseDto {
+    @ApiProperty({ example: true })
+    success!: boolean;
+
+    @ApiProperty({ example: 'Operación completada' })
+    message!: string;
+}
+
+export class ListUsersResponseDto extends PaginatedUsersResponse { }
+

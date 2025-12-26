@@ -38,7 +38,7 @@ export class AdminService {
     private readonly logger = new Logger(AdminService.name);
     private readonly SALT_ROUNDS = 12; // OWASP recomienda mínimo 12
 
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService) { }
 
     // ============================================
     // CRUD USUARIOS
@@ -370,7 +370,10 @@ export class AdminService {
         phone: string | null;
         avatar: string | null;
         active: boolean;
+        emailVerified?: boolean;
         lastLogin: Date | null;
+        loginAttempts?: number;
+        lockedUntil?: Date | null;
         createdAt: Date;
     }): UserResponseDto {
         return {
@@ -381,7 +384,10 @@ export class AdminService {
             phone: user.phone ?? undefined,
             avatar: user.avatar ?? undefined,
             active: user.active,
+            emailVerified: user.emailVerified ?? false,
             lastLogin: user.lastLogin?.toISOString(),
+            loginAttempts: user.loginAttempts ?? 0,
+            lockedUntil: user.lockedUntil?.toISOString() ?? null,
             createdAt: user.createdAt.toISOString(),
         };
     }
