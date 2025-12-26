@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Prioridad } from './create-orden.dto';
+import { OrdenEstado } from './update-orden.dto';
 
 // Re-export para facilitar imports
 export { OrdenEstado } from './update-orden.dto';
