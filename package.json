@@ -7,7 +7,8 @@
         "dev": "turbo run dev",
         "test": "turbo run test",
         "lint": "turbo run lint",
-        "clean": "turbo run clean && rm -rf node_modules"
+        "fix:tailwind": "pnpm --filter @cermont/web exec tailwindcss -i ./src/styles.css -o ./dist/styles.css",
+        "clean": "rimraf dist .angular apps/*/dist apps/*/.angular"
     },
     "devDependencies": {
         "turbo": "latest"
