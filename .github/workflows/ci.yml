@@ -59,7 +59,7 @@ jobs:
         working-directory: apps/api
         run: pnpm build
 
-  frontend-test:
+  frontend-build:
     runs-on: ubuntu-latest
     
     steps:
@@ -77,10 +77,6 @@ jobs:
           
       - name: Install dependencies
         run: pnpm install
-        
-      - name: Run frontend tests
-        working-directory: apps/web
-        run: pnpm test:ci || echo "Tests not configured yet"
         
       - name: Build frontend
         working-directory: apps/web
@@ -106,5 +102,4 @@ jobs:
         run: pnpm install
         
       - name: Run linter
-        run: pnpm lint || echo "Linter not configured yet"
-
+        run: pnpm lint
