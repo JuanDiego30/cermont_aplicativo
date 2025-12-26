@@ -1,250 +1,141 @@
-
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, throwError, BehaviorSubject, of } from 'rxjs';
-import { tap, catchError, switchMap } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
-
-// Interfaces
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-  avatar?: string | null;
-  phone?: string | null;
-}
-
-export interface LoginDto {
-  email: string;
-  password: string;
-}
-
-export interface RegisterDto {
-  email: string;
-  password: string;
-  name: string;
-  role?: 'admin' | 'supervisor' | 'tecnico';
-  phone?: string;
-}
-
-export interface AuthResponse {
-  message: string;
-  token: string;
-  user: User;
-}
+import { Observable, BehaviorSubject, tap, catchError, throwError } from 'rxjs';
+import { AuthApi } from '../api/auth.api';
+import { User } from '../models/user.model';
+import { LoginDto, RegisterDto, AuthResponse } from '../models/auth.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly http = inject(HttpClient);
+  private readonly api = inject(AuthApi);
   private readonly router = inject(Router);
-  private readonly API_URL = `${environment.apiUrl}/auth`;
 
-  // Keys para localStorage
-  private readonly TOKEN_KEY = 'access_token';
-  private readonly USER_KEY = 'current_user';
+  // Estado de autenticación
+  private readonly currentUserSubject = new BehaviorSubject<User | null>(null);
+  public readonly currentUser$ = this.currentUserSubject.asObservable();
 
-  // Signals para estado reactivo
-  private currentUserSignal = signal<User | null>(this.getUserFromStorage());
-  readonly currentUser = this.currentUserSignal.asReadonly();
-  readonly isAuthenticated = computed(() => !!this.currentUserSignal());
-
-  // Subject para refresh token (evitar múltiples llamadas simultáneas)
-  private isRefreshing = false;
-  private refreshTokenSubject = new BehaviorSubject<string | null>(null);
+  // Signals para componentes
+  public readonly currentUserSignal = signal<User | null>(null);
+  public readonly isAuthenticated = computed(() => !!this.currentUserSignal());
+  public readonly isAdmin = computed(() => this.currentUserSignal()?.role === 'admin');
+  public readonly isSupervisor = computed(() => this.currentUserSignal()?.role === 'supervisor');
+  public readonly isTecnico = computed(() => this.currentUserSignal()?.role === 'tecnico');
 
   constructor() {
-    // Al iniciar, validar token si existe
-    const token = this.getToken();
-    if (token && this.isTokenValid(token)) {
-      // Obtener perfil del usuario
-      this.getMe().subscribe({
-        error: () => this.logout() // Si falla, hacer logout
-      });
-    } else if (token) {
-      // Token expirado, intentar refresh
-      this.refreshToken().subscribe({
-        error: () => this.logout()
-      });
-    }
+    this.loadUserFromStorage();
   }
 
-  /**
-   * Login de usuario
-   */
-  login(credentials: LoginDto): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/login`, credentials).pipe(
+  login(dto: LoginDto): Observable<AuthResponse> {
+    return this.api.login(dto).pipe(
       tap(response => this.handleAuthSuccess(response)),
-      catchError(this.handleError)
-    );
-  }
-
-  /**
-   * Registro de usuario
-   */
-  register(data: RegisterDto): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/register`, data).pipe(
-      tap(response => this.handleAuthSuccess(response)),
-      catchError(this.handleError)
-    );
-  }
-
-  /**
-   * Refrescar token de acceso
-   */
-  refreshToken(): Observable<{ token: string }> {
-    if (this.isRefreshing) {
-      // Si ya se está refrescando, esperar al resultado
-      return this.refreshTokenSubject.pipe(
-        switchMap(token => {
-          if (token) {
-            return of({ token });
-          }
-          return throwError(() => new Error('Token refresh fallido'));
-        })
-      );
-    }
-
-    this.isRefreshing = true;
-    this.refreshTokenSubject.next(null);
-
-    return this.http.post<{ token: string }>(`${this.API_URL}/refresh`, {}).pipe(
-      tap(response => {
-        this.setToken(response.token);
-        this.isRefreshing = false;
-        this.refreshTokenSubject.next(response.token);
-      }),
-      catchError(err => {
-        this.isRefreshing = false;
-        this.logout();
-        return throwError(() => err);
+      catchError(error => {
+        console.error('Login error:', error);
+        return throwError(() => error);
       })
     );
   }
 
-  /**
-   * Obtener perfil del usuario actual
-   */
-  getMe(): Observable<User> {
-    return this.http.get<User>(`${this.API_URL}/me`).pipe(
-      tap(user => {
-        this.setUser(user);
-        this.currentUserSignal.set(user);
-      }),
-      catchError(this.handleError)
+  register(dto: RegisterDto): Observable<AuthResponse> {
+    return this.api.register(dto).pipe(
+      tap(response => this.handleAuthSuccess(response)),
+      catchError(error => {
+        console.error('Register error:', error);
+        return throwError(() => error);
+      })
     );
   }
 
-  /**
-   * Cerrar sesión
-   */
   logout(): void {
-    // Llamar endpoint de logout (continuar aunque falle)
-    this.http.post(`${this.API_URL}/logout`, {}).subscribe();
-
-    // Limpiar estado local
-    this.clearAuth();
-    this.router.navigate(['/auth/signin']);
+    this.api.logout().subscribe({
+      next: () => this.clearAuthData(),
+      error: () => this.clearAuthData(),
+    });
   }
 
-  /**
-   * Verificar si el usuario está autenticado
-   */
-  isAuthenticated(): boolean {
-    const token = this.getToken();
-    if (!token) return false;
-    return this.isTokenValid(token);
-  }
-
-  /**
-   * Verificar si usuario tiene un rol específico
-   */
-  hasRole(roles: string | string[]): boolean {
-    const user = this.currentUserSignal();
-    if (!user) return false;
-
-    const rolesArray = Array.isArray(roles) ? roles : [roles];
-    return rolesArray.includes(user.role);
-  }
-
-  /**
-   * Obtener token de acceso
-   */
-  getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
-  }
-
-  /**
-   * Verificar si el token es válido (no expirado)
-   */
-  private isTokenValid(token: string): boolean {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const expiry = payload.exp * 1000;
-      return Date.now() < expiry;
-    } catch {
-      return false;
+  refreshToken(): Observable<any> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      return throwError(() => new Error('No refresh token available'));
     }
+
+    return this.api.refresh(refreshToken).pipe(
+      tap(response => {
+        this.setToken(response.accessToken);
+        this.setRefreshToken(response.refreshToken);
+      }),
+      catchError(error => {
+        this.clearAuthData();
+        return throwError(() => error);
+      })
+    );
   }
 
-  /**
-   * Guardar token en localStorage
-   */
-  private setToken(token: string): void {
-    localStorage.setItem(this.TOKEN_KEY, token);
-  }
-
-  /**
-   * Guardar usuario en localStorage y signal
-   */
-  private setUser(user: User): void {
-    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-    this.currentUserSignal.set(user);
-  }
-
-  /**
-   * Obtener usuario desde localStorage
-   */
-  private getUserFromStorage(): User | null {
-    const userStr = localStorage.getItem(this.USER_KEY);
-    return userStr ? JSON.parse(userStr) : null;
-  }
-
-  /**
-   * Manejar éxito de autenticación
-   */
   private handleAuthSuccess(response: AuthResponse): void {
     this.setToken(response.token);
+    this.setRefreshToken(response.refreshToken);
     this.setUser(response.user);
+    this.currentUserSignal.set(response.user);
+    this.currentUserSubject.next(response.user);
   }
 
-  /**
-   * Limpiar toda la información de autenticación
-   */
-  private clearAuth(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
+  private clearAuthData(): void {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('current_user');
     this.currentUserSignal.set(null);
+    this.currentUserSubject.next(null);
+    this.router.navigate(['/auth/login']);
   }
 
-  /**
-   * Manejar errores HTTP
-   */
-  private handleError(error: HttpErrorResponse): Observable<never> {
-    let errorMessage = 'Ha ocurrido un error';
+  private loadUserFromStorage(): void {
+    const token = this.getToken();
+    const userStr = localStorage.getItem('current_user');
 
-    if (error.error instanceof ErrorEvent) {
-      // Error del cliente
-      errorMessage = `Error: ${error.error.message}`;
-    } else {
-      // Error del servidor
-      errorMessage = error.error?.message || `Error ${error.status}: ${error.statusText}`;
+    if (token && userStr) {
+      try {
+        const user = JSON.parse(userStr) as User;
+        this.currentUserSignal.set(user);
+        this.currentUserSubject.next(user);
+      } catch (error) {
+        console.error('Error parsing user from storage:', error);
+        this.clearAuthData();
+      }
     }
+  }
 
-    console.error('Error en AuthService:', errorMessage, error);
-    return throwError(() => new Error(errorMessage));
+  // Token management
+  getToken(): string | null {
+    return localStorage.getItem('access_token');
+  }
+
+  private setToken(token: string): void {
+    localStorage.setItem('access_token', token);
+  }
+
+  private getRefreshToken(): string | null {
+    return localStorage.getItem('refresh_token');
+  }
+
+  private setRefreshToken(token: string): void {
+    localStorage.setItem('refresh_token', token);
+  }
+
+  private setUser(user: User): void {
+    localStorage.setItem('current_user', JSON.stringify(user));
+  }
+
+  // Role checks
+  hasRole(roles: string[]): boolean {
+    const user = this.currentUserSignal();
+    return user ? roles.includes(user.role) : false;
+  }
+
+  hasPermission(resource: string, action: string): boolean {
+    const user = this.currentUserSignal();
+    if (!user) return false;
+    if (user.role === 'admin') return true;
+    return false;
   }
 }
