@@ -17,8 +17,7 @@ import { BadgesComponent } from './pages/ui-elements/badges/badges.component';
 import { ButtonsComponent } from './pages/ui-elements/buttons/buttons.component';
 import { ImagesComponent } from './pages/ui-elements/images/images.component';
 import { VideosComponent } from './pages/ui-elements/videos/videos.component';
-import { SignInComponent } from './pages/auth-pages/sign-in/sign-in.component';
-import { SignUpComponent } from './pages/auth-pages/sign-up/sign-up.component';
+
 import { CalenderComponent } from './pages/calender/calender.component';
 
 export const routes: Routes = [
@@ -63,6 +62,11 @@ export const routes: Routes = [
         path: 'profile',
         component: ProfileComponent,
         title: 'Perfil | Cermont'
+      },
+      {
+        path: 'perfil',
+        loadComponent: () => import('./features/perfil/perfil.component').then(m => m.PerfilComponent),
+        title: 'Mi Perfil | Cermont'
       },
       {
         path: 'form-elements',
@@ -131,7 +135,7 @@ export const routes: Routes = [
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },
-  
+
   // Módulo de Administración (COMPLETO)
   {
     path: 'admin',

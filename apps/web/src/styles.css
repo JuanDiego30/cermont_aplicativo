@@ -21,116 +21,137 @@
   --breakpoint-2xl: 1536px;
   --breakpoint-3xl: 2000px;
 
-  /* Brand Colors (TailAdmin) */
-  --color-brand-25: #f2f7ff;
-  --color-brand-50: #ecf3ff;
-  --color-brand-100: #dde9ff;
-  --color-brand-200: #c2d6ff;
-  --color-brand-300: #9cb9ff;
-  --color-brand-400: #7592ff;
-  --color-brand-500: #465fff;
-  --color-brand-600: #3641f5;
-  --color-brand-700: #2a31d8;
-  --color-brand-800: #252dae;
-  --color-brand-900: #262e89;
-  --color-brand-950: #161950;
+  /* Brand Colors (TailAdmin) - Mapped to Cermont Primary for backwards compatibility */
+  --color-brand-25: #E6F0FF;
+  --color-brand-50: #CCE0FF;
+  --color-brand-100: #99C2FF;
+  --color-brand-200: #66A3FF;
+  --color-brand-300: #3385FF;
+  --color-brand-400: #0052CC;
+  --color-brand-500: #0052CC;
+  --color-brand-600: #0043A3;
+  --color-brand-700: #00357A;
+  --color-brand-800: #002652;
+  --color-brand-900: #001829;
+  --color-brand-950: #0F172A;
 
-  /* Cermont Primary (Sky Blue) */
-  --color-cermont-primary-50: #f0f9ff;
-  --color-cermont-primary-100: #e0f2fe;
-  --color-cermont-primary-200: #bae6fd;
-  --color-cermont-primary-300: #7dd3fc;
-  --color-cermont-primary-400: #38bdf8;
-  --color-cermont-primary-500: #0ea5e9;
-  --color-cermont-primary-600: #0284c7;
-  --color-cermont-primary-700: #0369a1;
-  --color-cermont-primary-800: #075985;
-  --color-cermont-primary-900: #0c4a6e;
+  /* Cermont Primary - Azul Cobalto */
+  --color-cermont-primary-50: #E6F0FF;
+  --color-cermont-primary-100: #CCE0FF;
+  --color-cermont-primary-200: #99C2FF;
+  --color-cermont-primary-300: #66A3FF;
+  --color-cermont-primary-400: #3385FF;
+  --color-cermont-primary-500: #0052CC;
+  --color-cermont-primary-600: #0043A3;
+  --color-cermont-primary-700: #00357A;
+  --color-cermont-primary-800: #002652;
+  --color-cermont-primary-900: #001829;
 
-  /* Blue Light */
-  --color-blue-light-25: #f5fbff;
-  --color-blue-light-50: #f0f9ff;
-  --color-blue-light-100: #e0f2fe;
-  --color-blue-light-200: #b9e6fe;
-  --color-blue-light-300: #7cd4fd;
-  --color-blue-light-400: #36bffa;
-  --color-blue-light-500: #0ba5ec;
-  --color-blue-light-600: #0086c9;
-  --color-blue-light-700: #026aa2;
-  --color-blue-light-800: #065986;
-  --color-blue-light-900: #0b4a6f;
-  --color-blue-light-950: #062c41;
+  /* Cermont Secondary - Verde Esmeralda */
+  --color-cermont-secondary-50: #E8F7ED;
+  --color-cermont-secondary-100: #D1F0DB;
+  --color-cermont-secondary-200: #A3E0B7;
+  --color-cermont-secondary-300: #75D193;
+  --color-cermont-secondary-400: #47C16F;
+  --color-cermont-secondary-500: #2E9B4A;
+  --color-cermont-secondary-600: #257C3B;
+  --color-cermont-secondary-700: #1C5D2C;
+  --color-cermont-secondary-800: #133E1D;
+  --color-cermont-secondary-900: #0A1F0F;
 
-  /* Gray Scale */
-  --color-gray-25: #fcfcfd;
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f2f4f7;
-  --color-gray-200: #e4e7ec;
-  --color-gray-300: #d0d5dd;
-  --color-gray-400: #98a2b3;
-  --color-gray-500: #667085;
-  --color-gray-600: #475467;
-  --color-gray-700: #344054;
-  --color-gray-800: #1d2939;
-  --color-gray-900: #101828;
+  /* Extended - Grays (Sophisticated Neutrals) */
+  --color-gray-25: #F8FAFC;
+  --color-gray-50: #F8FAFC;
+  --color-gray-100: #F1F5F9;
+  --color-gray-200: #E2E8F0;
+  --color-gray-300: #CBD5E1;
+  --color-gray-400: #94A3B8;
+  --color-gray-500: #64748B;
+  --color-gray-600: #475569;
+  --color-gray-700: #334155;
+  --color-gray-800: #1E293B;
+  --color-gray-900: #0F172A;
   --color-gray-950: #0c111d;
-  --color-gray-dark: #1a2231;
 
-  /* Orange */
-  --color-orange-25: #fffaf5;
-  --color-orange-50: #fff6ed;
-  --color-orange-100: #ffead5;
-  --color-orange-200: #fddcab;
-  --color-orange-300: #feb273;
-  --color-orange-400: #fd853a;
-  --color-orange-500: #fb6514;
-  --color-orange-600: #ec4a0a;
-  --color-orange-700: #c4320a;
-  --color-orange-800: #9c2a10;
-  --color-orange-900: #7e2410;
-  --color-orange-950: #511c10;
+  /* Extended - Accent Cyan */
+  --color-cermont-accent-cyan-50: #ECFEFF;
+  --color-cermont-accent-cyan-100: #CFFAFE;
+  --color-cermont-accent-cyan-200: #A5F3FC;
+  --color-cermont-accent-cyan-300: #67E8F9;
+  --color-cermont-accent-cyan-400: #22D3EE;
+  --color-cermont-accent-cyan-500: #06B6D4;
+  --color-cermont-accent-cyan-600: #0891B2;
+  --color-cermont-accent-cyan-700: #0E7490;
+  --color-cermont-accent-cyan-800: #155E75;
+  --color-cermont-accent-cyan-900: #164E63;
 
-  /* Success */
-  --color-success-25: #f6fef9;
-  --color-success-50: #ecfdf3;
-  --color-success-100: #d1fadf;
+  /* Extended - Accent Teal */
+  --color-cermont-accent-teal-50: #F0FDFA;
+  --color-cermont-accent-teal-100: #CCFBF1;
+  --color-cermont-accent-teal-200: #99F6E4;
+  --color-cermont-accent-teal-300: #5EEAD4;
+  --color-cermont-accent-teal-400: #2DD4BF;
+  --color-cermont-accent-teal-500: #14B8A6;
+  --color-cermont-accent-teal-600: #0D9488;
+  --color-cermont-accent-teal-700: #0F766E;
+  --color-cermont-accent-teal-800: #115E59;
+  --color-cermont-accent-teal-900: #134E4A;
+
+  /* Success - Verde Éxito */
+  --color-success-25: #F0FDF4;
+  --color-success-50: #F0FDF4;
+  --color-success-100: #DCFCE7;
   --color-success-200: #a6f4c5;
   --color-success-300: #6ce9a6;
   --color-success-400: #32d583;
-  --color-success-500: #12b76a;
+  --color-success-500: #22C55E;
   --color-success-600: #039855;
-  --color-success-700: #027a48;
+  --color-success-700: #15803D;
   --color-success-800: #05603a;
-  --color-success-900: #054f31;
+  --color-success-900: #14532D;
   --color-success-950: #053321;
 
-  /* Error */
-  --color-error-25: #fffbfa;
-  --color-error-50: #fef3f2;
-  --color-error-100: #fee4e2;
-  --color-error-200: #fecdca;
-  --color-error-300: #fda29b;
-  --color-error-400: #f97066;
-  --color-error-500: #f04438;
-  --color-error-600: #d92d20;
-  --color-error-700: #b42318;
-  --color-error-800: #912018;
-  --color-error-900: #7a271a;
-  --color-error-950: #55160c;
-
-  /* Warning */
-  --color-warning-25: #fffcf5;
-  --color-warning-50: #fffaeb;
-  --color-warning-100: #fef0c7;
+  /* Warning - Naranja Advertencia */
+  --color-warning-25: #FFFBEB;
+  --color-warning-50: #FFFBEB;
+  --color-warning-100: #FEF3C7;
   --color-warning-200: #fedf89;
   --color-warning-300: #fec84b;
   --color-warning-400: #fdb022;
-  --color-warning-500: #f79009;
+  --color-warning-500: #F59E0B;
   --color-warning-600: #dc6803;
-  --color-warning-700: #b54708;
+  --color-warning-700: #B45309;
   --color-warning-800: #93370d;
-  --color-warning-900: #7a2e0e;
+  --color-warning-900: #78350F;
   --color-warning-950: #4e1d09;
+
+  /* Error - Rojo Elegante */
+  --color-error-25: #FEF2F2;
+  --color-error-50: #FEF2F2;
+  --color-error-100: #FEE2E2;
+  --color-error-200: #fecdca;
+  --color-error-300: #fda29b;
+  --color-error-400: #f97066;
+  --color-error-500: #EF4444;
+  --color-error-600: #d92d20;
+  --color-error-700: #B91C1C;
+  --color-error-800: #912018;
+  --color-error-900: #7F1D1D;
+  --color-error-950: #55160c;
+
+  /* Info - Azul Informativo */
+  --color-info-25: #EFF6FF;
+  --color-info-50: #EFF6FF;
+  --color-info-100: #DBEAFE;
+  --color-info-200: #b9e6fe;
+  --color-info-300: #7cd4fd;
+  --color-info-400: #36bffa;
+  --color-info-500: #3B82F6;
+  --color-info-600: #0086c9;
+  --color-info-700: #1D4ED8;
+  --color-info-800: #065986;
+  --color-info-900: #1E3A8A;
+  --color-info-950: #062c41;
 
   /* Shadows */
   --shadow-theme-xs: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
@@ -138,6 +159,15 @@
   --shadow-theme-md: 0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06);
   --shadow-theme-lg: 0px 12px 16px -4px rgba(16, 24, 40, 0.08), 0px 4px 6px -2px rgba(16, 24, 40, 0.03);
   --shadow-theme-xl: 0px 20px 24px -4px rgba(16, 24, 40, 0.08), 0px 8px 8px -4px rgba(16, 24, 40, 0.03);
+
+  /* Gradients */
+  --image-gradient-hero: linear-gradient(135deg, #0052CC 0%, #2E9B4A 100%);
+  --image-gradient-blue: linear-gradient(135deg, #0052CC 0%, #06B6D4 100%);
+  --image-gradient-green: linear-gradient(135deg, #2E9B4A 0%, #14B8A6 100%);
+  --image-gradient-professional: linear-gradient(135deg, #0043A3 0%, #257C3B 100%);
+  --image-gradient-light: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+  --image-gradient-dark: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+  --image-gradient-overlay: linear-gradient(180deg, rgba(0, 82, 204, 0) 0%, rgba(0, 82, 204, 0.8) 100%);
 }
 
 /* ========================================
@@ -624,3 +654,175 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   display: none;
   -webkit-appearance: none;
 }
+
+/* ============================================
+   VIEW TRANSITIONS - Hexagonal con Blur
+   ============================================ */
+
+/* Variables para posición del centro */
+:root {
+  --x: 50vw;
+  --y: 50vh;
+}
+
+/* Configuración de timing */
+::view-transition-group(root) {
+  animation-duration: 0.7s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Estado nuevo con máscara hexagonal difuminada */
+::view-transition-new(root) {
+  mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><filter id="hexBlur"><feGaussianBlur stdDeviation="2.5"/></filter></defs><polygon points="50,3 93.3,25 93.3,75 50,97 6.7,75 6.7,25" fill="white" filter="url(%23hexBlur)"/></svg>') 
+    center / 0 no-repeat;
+  animation: hexagon-expand 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+  transform-origin: var(--x) var(--y);
+}
+
+/* Ocultar estado viejo */
+::view-transition-old(root) {
+  animation: none;
+  z-index: -1;
+  opacity: 0;
+}
+
+/* Modo oscuro: mismo efecto */
+.dark::view-transition-new(root) {
+  mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><filter id="hexBlur"><feGaussianBlur stdDeviation="2.5"/></filter></defs><polygon points="50,3 93.3,25 93.3,75 50,97 6.7,75 6.7,25" fill="white" filter="url(%23hexBlur)"/></svg>') 
+    center / 0 no-repeat;
+  animation: hexagon-expand 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  animation-fill-mode: both;
+  transform-origin: var(--x) var(--y);
+}
+
+.dark::view-transition-old(root) {
+  animation: none;
+  z-index: -1;
+  opacity: 0;
+}
+
+/* Animación de expansión hexagonal */
+@keyframes hexagon-expand {
+  from {
+    mask-size: 0;
+  }
+  to {
+    mask-size: 350vmax;
+  }
+}
+
+/* Soporte para navegadores sin View Transition API */
+@supports not (view-transition-name: root) {
+  * {
+    transition: background-color 0.3s ease, color 0.3s ease !important;
+  }
+}
+
+/* Animation utilities */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Spinner utility */
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+   AUTH FORMS UTILITIES
+   ============================================ */
+
+.label {
+  @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5;
+}
+
+.input {
+  @apply w-full px-4 py-3 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-cermont-primary-500 focus:border-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500;
+}
+
+.input-error {
+  @apply border-error-500 focus:ring-error-500;
+}
+
+.error-message {
+  @apply text-xs text-error-500 mt-1;
+}
+
+.checkbox {
+  @apply w-5 h-5 text-cermont-primary-600 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded focus:ring-cermont-primary-500 cursor-pointer;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-cermont-primary-600 to-cermont-primary-700 rounded-lg hover:from-cermont-primary-700 hover:to-cermont-primary-800 shadow-lg shadow-cermont-primary-500/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-outline {
+  @apply inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:border-cermont-primary-500 dark:hover:border-cermont-primary-500 hover:text-cermont-primary-600 dark:hover:text-cermont-primary-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-danger {
+  @apply inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-white bg-error-600 rounded-lg hover:bg-error-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.link-cermont {
+  @apply text-cermont-primary-600 dark:text-cermont-primary-400 hover:underline;
+}
+
+.card {
+  @apply bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-6 md:p-8;
+}
+
+/* Alert Styles */
+.alert-success {
+  @apply flex items-center gap-3 p-4 bg-success-50 dark:bg-success-900/20 border border-success-200 dark:border-success-800 text-success-800 dark:text-success-200 rounded-lg;
+}
+
+.alert-error {
+  @apply flex items-center gap-3 p-4 bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800 text-error-800 dark:text-error-200 rounded-lg;
+}
+
+.alert-warning {
+  @apply flex items-center gap-3 p-4 bg-warning-50 dark:bg-warning-900/20 border border-warning-200 dark:border-warning-800 text-warning-800 dark:text-warning-200 rounded-lg;
+}
+
+.alert-info {
+  @apply flex items-center gap-3 p-4 bg-cermont-primary-50 dark:bg-cermont-primary-900/20 border border-cermont-primary-200 dark:border-cermont-primary-800 text-cermont-primary-800 dark:text-cermont-primary-200 rounded-lg;
+}
+
+/* Badge Styles */
+.badge-success {
+  @apply inline-flex items-center px-3 py-1 text-xs font-medium bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400 rounded-full;
+}
+
+.badge-gray {
+  @apply inline-flex items-center px-3 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full;
+}
+
