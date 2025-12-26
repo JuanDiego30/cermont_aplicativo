@@ -1,54 +1,42 @@
-/**
- * @dto Admin DTOs
- * 
- * DTOs para gestión de usuarios, roles y permisos.
- */
+import { IsEmail, IsString, IsEnum, IsOptional, IsBoolean, IsInt, Min, Max, MinLength, MaxLength } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import {
-    IsString,
-    IsEmail,
-    IsEnum,
-    IsOptional,
-    IsBoolean,
-    MinLength,
-    MaxLength,
-    Matches,
-} from 'class-validator';
-import { UserRoleEnum } from '../interfaces/permissions.interface';
+import { Type } from 'class-transformer';
+
+export enum UserRoleEnum {
+    ADMIN = 'admin',
+    SUPERVISOR = 'supervisor',
+    TECNICO = 'tecnico',
+}
 
 // ============================================
 // CREATE USER
 // ============================================
-
 export class CreateUserDto {
-    @ApiProperty({ example: 'tecnico@cermont.com', description: 'Email del usuario' })
-    @IsEmail({}, { message: 'Email inválido' })
+    @ApiProperty({ example: 'tecnico@cermont.com' })
+    @IsEmail()
     email!: string;
 
-    @ApiProperty({ example: 'Juan Pérez', description: 'Nombre completo' })
+    @ApiProperty({ example: 'Tecnico@2025!', minLength: 8 })
     @IsString()
-    @MinLength(3, { message: 'Nombre debe tener al menos 3 caracteres' })
-    @MaxLength(100, { message: 'Nombre no puede exceder 100 caracteres' })
-    name!: string;
-
-    @ApiProperty({ example: 'SecurePass123!', description: 'Contraseña' })
-    @IsString()
-    @MinLength(8, { message: 'Contraseña debe tener al menos 8 caracteres' })
-    @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
-        message: 'Contraseña debe contener mayúsculas, minúsculas y números',
-    })
+    @MinLength(8)
     password!: string;
 
-    @ApiProperty({ enum: UserRoleEnum, example: 'tecnico', description: 'Rol asignado' })
-    @IsEnum(UserRoleEnum, { message: 'Rol inválido' })
+    @ApiProperty({ example: 'Juan Técnico' })
+    @IsString()
+    @MinLength(2)
+    @MaxLength(200)
+    name!: string;
+
+    @ApiProperty({ example: 'tecnico', enum: UserRoleEnum })
+    @IsEnum(UserRoleEnum)
     role!: UserRoleEnum;
 
-    @ApiPropertyOptional({ example: '+57 3001234567', description: 'Teléfono' })
+    @ApiPropertyOptional({ example: '+573001234567' })
     @IsOptional()
     @IsString()
     phone?: string;
 
-    @ApiPropertyOptional({ example: 'https://example.com/avatar.jpg', description: 'URL avatar' })
+    @ApiPropertyOptional({ example: 'https://example.com/avatar.jpg' })
     @IsOptional()
     @IsString()
     avatar?: string;
@@ -57,16 +45,15 @@ export class CreateUserDto {
 // ============================================
 // UPDATE USER
 // ============================================
-
 export class UpdateUserDto {
-    @ApiPropertyOptional({ example: 'Juan Pérez Actualizado' })
+    @ApiPropertyOptional({ example: 'Juan Técnico Actualizado' })
     @IsOptional()
     @IsString()
-    @MinLength(3)
-    @MaxLength(100)
+    @MinLength(2)
+    @MaxLength(200)
     name?: string;
 
-    @ApiPropertyOptional({ example: '+57 3009876543' })
+    @ApiPropertyOptional({ example: '+573001234567' })
     @IsOptional()
     @IsString()
     phone?: string;
@@ -80,106 +67,121 @@ export class UpdateUserDto {
 // ============================================
 // UPDATE ROLE
 // ============================================
-
 export class UpdateUserRoleDto {
-    @ApiProperty({ enum: UserRoleEnum, example: 'supervisor', description: 'Nuevo rol' })
-    @IsEnum(UserRoleEnum, { message: 'Rol inválido' })
+    @ApiProperty({ example: 'supervisor', enum: UserRoleEnum })
+    @IsEnum(UserRoleEnum)
     role!: UserRoleEnum;
 }
 
 // ============================================
-// CHANGE PASSWORD (ADMIN)
+// LIST USERS QUERY
 // ============================================
-
-export class AdminChangePasswordDto {
-    @ApiProperty({ example: 'NewSecurePass456!', description: 'Nueva contraseña' })
-    @IsString()
-    @MinLength(8)
-    @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
-        message: 'Contraseña debe contener mayúsculas, minúsculas y números',
-    })
-    newPassword!: string;
-}
-
-// ============================================
-// TOGGLE ACTIVE
-// ============================================
-
-export class ToggleUserActiveDto {
-    @ApiProperty({ example: false, description: 'Estado activo' })
-    @IsBoolean()
-    active!: boolean;
-}
-
-// ============================================
-// RESPONSE DTOs
-// ============================================
-
-export class UserResponseDto {
-    @ApiProperty({ example: 'uuid-user-123' })
-    id!: string;
-
-    @ApiProperty({ example: 'tecnico@cermont.com' })
-    email!: string;
-
-    @ApiProperty({ example: 'Juan Pérez' })
-    name!: string;
-
-    @ApiProperty({ enum: UserRoleEnum, example: 'tecnico' })
-    role!: UserRoleEnum;
-
-    @ApiPropertyOptional({ example: '+57 3001234567' })
-    phone?: string;
-
-    @ApiPropertyOptional({ example: 'https://example.com/avatar.jpg' })
-    avatar?: string;
-
-    @ApiProperty({ example: true })
-    active!: boolean;
-
-    @ApiPropertyOptional({ example: '2024-12-13T10:00:00Z' })
-    lastLogin?: string;
-
-    @ApiProperty({ example: '2024-12-01T08:00:00Z' })
-    createdAt!: string;
-}
-
-export class AdminActionResponseDto {
-    @ApiProperty({ example: true })
-    success!: boolean;
-
-    @ApiProperty({ example: 'Usuario creado exitosamente' })
-    message!: string;
-
-    @ApiPropertyOptional()
-    data?: UserResponseDto;
-}
-
-// ============================================
-// LIST USERS
-// ============================================
-
 export class ListUsersQueryDto {
-    @ApiPropertyOptional({ enum: UserRoleEnum, description: 'Filtrar por rol' })
+    @ApiPropertyOptional({ enum: UserRoleEnum })
     @IsOptional()
     @IsEnum(UserRoleEnum)
     role?: UserRoleEnum;
 
-    @ApiPropertyOptional({ example: true, description: 'Filtrar por estado activo' })
+    @ApiPropertyOptional()
     @IsOptional()
+    @Type(() => Boolean)
     @IsBoolean()
     active?: boolean;
 
-    @ApiPropertyOptional({ example: 'juan', description: 'Buscar por nombre o email' })
+    @ApiPropertyOptional()
     @IsOptional()
     @IsString()
     search?: string;
+
+    @ApiPropertyOptional({ default: 1, minimum: 1 })
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @Min(1)
+    page?: number = 1;
+
+    @ApiPropertyOptional({ default: 10, minimum: 1, maximum: 100 })
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    @Min(1)
+    @Max(100)
+    limit?: number = 10;
+
+    @ApiPropertyOptional({ enum: ['name', 'email', 'role', 'createdAt', 'lastLogin'] })
+    @IsOptional()
+    @IsString()
+    sortBy?: string;
+
+    @ApiPropertyOptional({ enum: ['asc', 'desc'] })
+    @IsOptional()
+    @IsString()
+    sortOrder?: 'asc' | 'desc';
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @Type(() => Boolean)
+    @IsBoolean()
+    locked?: boolean;
 }
 
-export class ListUsersResponseDto {
+// ============================================
+// RESPONSES
+// ============================================
+export class UserResponseDto {
+    @ApiProperty()
+    id!: string;
+
+    @ApiProperty()
+    email!: string;
+
+    @ApiProperty()
+    name!: string;
+
+    @ApiProperty({ enum: UserRoleEnum })
+    role!: UserRoleEnum;
+
+    @ApiPropertyOptional()
+    phone?: string;
+
+    @ApiPropertyOptional()
+    avatar?: string;
+
+    @ApiProperty()
+    active!: boolean;
+
+    @ApiProperty()
+    emailVerified!: boolean;
+
+    @ApiPropertyOptional()
+    lastLogin?: string;
+
+    @ApiPropertyOptional()
+    lockedUntil?: string | null;
+
+    @ApiProperty()
+    loginAttempts!: number;
+
+    @ApiProperty()
+    createdAt!: string;
+}
+
+export class PaginatedUsersResponse {
     @ApiProperty({ type: [UserResponseDto] })
     data!: UserResponseDto[];
 
-    @ApiProperty({ example: 25 })
+    @ApiProperty()
     total!: number;
+
+    @ApiProperty()
+    page!: number;
+
+    @ApiProperty()
+    limit!: number;
+
+    @ApiProperty()
+    totalPages!: number;
+
+    @ApiProperty()
+    hasMore!: boolean;
 }

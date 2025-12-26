@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -7,8 +7,12 @@ import {
   User,
   CreateUserDto,
   UpdateUserDto,
-  UserQueryParams,
-  PaginatedUsersResponse
+  UpdateUserRoleDto,
+  ListUsersQuery,
+  PaginatedUsers,
+  UserStats,
+  RolePermissions,
+  RevokeTokensResult
 } from '../models/user.model';
 
 @Injectable({
@@ -16,141 +20,138 @@ import {
 })
 export class AdminService {
   private readonly http = inject(HttpClient);
-  private readonly API_URL = `${environment.apiUrl}/admin/users`;
+  private readonly API_URL = `${environment.apiUrl}/admin`;
+
+  // ============================================
+  // USER CRUD
+  // ============================================
 
   /**
-   * Obtiene todos los usuarios con paginación y filtros
+   * Get paginated list of users with optional filters
    */
-  getUsers(params?: UserQueryParams): Observable<PaginatedUsersResponse> {
-    let httpParams = new HttpParams();
+  getUsers(query?: ListUsersQuery): Observable<PaginatedUsers> {
+    let params = new HttpParams();
 
-    if (params) {
-      Object.keys(params).forEach(key => {
-        const value = (params as any)[key];
+    if (query) {
+      Object.entries(query).forEach(([key, value]) => {
         if (value !== undefined && value !== null) {
-          httpParams = httpParams.set(key, value.toString());
+          params = params.set(key, String(value));
         }
       });
     }
 
-    return this.http.get<PaginatedUsersResponse>(this.API_URL, { params: httpParams }).pipe(
+    return this.http.get<PaginatedUsers>(`${this.API_URL}/users`, { params }).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
-   * Obtiene un usuario por su ID
+   * Get user by ID
    */
   getUserById(id: string): Observable<User> {
-    return this.http.get<User>(`${this.API_URL}/${id}`).pipe(
+    return this.http.get<User>(`${this.API_URL}/users/${id}`).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
-   * Crea un nuevo usuario
+   * Create new user
    */
-  createUser(user: CreateUserDto): Observable<User> {
-    return this.http.post<User>(this.API_URL, user).pipe(
+  createUser(dto: CreateUserDto): Observable<User> {
+    return this.http.post<User>(`${this.API_URL}/users`, dto).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
-   * Actualiza un usuario existente
+   * Update user
    */
-  updateUser(id: string, user: UpdateUserDto): Observable<User> {
-    return this.http.patch<User>(`${this.API_URL}/${id}`, user).pipe(
+  updateUser(id: string, dto: UpdateUserDto): Observable<User> {
+    return this.http.patch<User>(`${this.API_URL}/users/${id}`, dto).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
-   * Cambia el rol de un usuario
+   * Update user role
    */
-  changeUserRole(id: string, role: string): Observable<User> {
-    return this.http.patch<User>(`${this.API_URL}/${id}/role`, { role }).pipe(
+  updateUserRole(id: string, dto: UpdateUserRoleDto): Observable<User> {
+    return this.http.patch<User>(`${this.API_URL}/users/${id}/role`, dto).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
-   * Activa un usuario
+   * Activate user
    */
   activateUser(id: string): Observable<User> {
-    return this.http.patch<User>(`${this.API_URL}/${id}/activate`, {}).pipe(
+    return this.http.post<User>(`${this.API_URL}/users/${id}/activate`, {}).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
-   * Desactiva un usuario
+   * Deactivate user
    */
   deactivateUser(id: string): Observable<User> {
-    return this.http.patch<User>(`${this.API_URL}/${id}/deactivate`, {}).pipe(
+    return this.http.post<User>(`${this.API_URL}/users/${id}/deactivate`, {}).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
-   * Resetea la contraseña de un usuario
+   * Reset user password
    */
-  resetUserPassword(id: string, newPassword: string): Observable<void> {
-    return this.http.post<void>(`${this.API_URL}/${id}/reset-password`, { password: newPassword }).pipe(
+  resetUserPassword(id: string, newPassword: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.API_URL}/users/${id}/reset-password`, {
+      newPassword
+    }).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
-   * Revoca todos los tokens activos de un usuario
+   * Revoke all user tokens
    */
-  revokeUserTokens(id: string): Observable<void> {
-    return this.http.post<void>(`${this.API_URL}/${id}/revoke-tokens`, {}).pipe(
+  revokeUserTokens(id: string, reason: string): Observable<RevokeTokensResult> {
+    return this.http.post<RevokeTokensResult>(`${this.API_URL}/users/${id}/revoke-tokens`, {
+      reason
+    }).pipe(
       catchError(this.handleError)
     );
   }
 
+  // ============================================
+  // STATISTICS
+  // ============================================
+
   /**
-   * Obtiene estadísticas de usuarios
+   * Get user statistics
    */
-  getUserStats(): Observable<any> {
-    return this.http.get(`${this.API_URL}/stats/overview`).pipe(
+  getUserStats(): Observable<UserStats> {
+    return this.http.get<UserStats>(`${this.API_URL}/stats`).pipe(
       catchError(this.handleError)
     );
   }
 
+  // ============================================
+  // ROLES & PERMISSIONS
+  // ============================================
+
   /**
-   * Obtiene actividad reciente de usuarios
+   * Get all roles with their permissions
    */
-  getUserActivity(): Observable<any> {
-    return this.http.get(`${this.API_URL}/stats/activity`).pipe(
+  getAllRolesPermissions(): Observable<RolePermissions[]> {
+    return this.http.get<RolePermissions[]>(`${this.API_URL}/roles`).pipe(
       catchError(this.handleError)
     );
   }
 
-  /**
-   * Obtiene logs de auditoría
-   */
-  getAuditLogs(params?: { page?: number; limit?: number }): Observable<any> {
-    let httpParams = new HttpParams();
-    if (params) {
-      Object.keys(params).forEach(key => {
-        const value = (params as any)[key];
-        if (value !== undefined && value !== null) {
-          httpParams = httpParams.set(key, value.toString());
-        }
-      });
-    }
+  // ============================================
+  // ERROR HANDLING
+  // ============================================
 
-    return this.http.get(`${this.API_URL}/audit-logs`, { params: httpParams }).pipe(
-      catchError(this.handleError)
-    );
-  }
-
-  /**
-   * Maneja errores HTTP
-   */
-  private handleError(error: any): Observable<never> {
+  private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'Ha ocurrido un error';
 
     if (error.error instanceof ErrorEvent) {
@@ -159,8 +160,7 @@ export class AdminService {
       errorMessage = error.error?.message || `Error ${error.status}: ${error.statusText}`;
     }
 
-    console.error('Error en AdminService:', errorMessage, error);
+    console.error('AdminService Error:', errorMessage);
     return throwError(() => new Error(errorMessage));
   }
 }
-
