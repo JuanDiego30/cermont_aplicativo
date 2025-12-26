@@ -107,11 +107,12 @@ model User {
   // Relaciones de certificaciones
   certificaciones        Certificado[]
 
-  @@index([role, active])
   @@index([email])
+  @@index([role])
+  @@index([active])
+  @@index([email, active])
   @@index([googleId])
   @@index([authProvider])
-  @@index([active])
   @@index([emailVerified])
   @@index([createdAt(sort: Desc)])
   @@map("users")
@@ -133,9 +134,12 @@ model RefreshToken {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([token])
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([userId, expiresAt])
   @@index([userId, isRevoked])
   @@index([family])
-  @@index([expiresAt])
   @@map("refresh_tokens")
 }
 

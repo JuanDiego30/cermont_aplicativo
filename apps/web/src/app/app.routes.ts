@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 import { EcommerceComponent } from './pages/dashboard/ecommerce/ecommerce.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { FormElementsComponent } from './pages/forms/form-elements/form-elements.component';
@@ -125,16 +126,16 @@ export const routes: Routes = [
       },
     ]
   },
-  // auth pages
+  // auth pages (lazy loading)
   {
-    path: 'signin',
-    component: SignInComponent,
-    title: 'Iniciar Sesión | Cermont'
+    path: 'auth',
+    loadChildren: () => import('./pages/auth-pages/auth.routes').then(m => m.AUTH_ROUTES)
   },
+  // solo para admin (ejemplo)
   {
-    path: 'signup',
-    component: SignUpComponent,
-    title: 'Registrarse | Cermont'
+    path: 'admin',
+    canActivate: [authGuard, roleGuard(['admin'])],
+    loadChildren: () => import('./pages/admin/admin.routes').then(m => m.ADMIN_ROUTES)
   },
   // error pages
   {

@@ -1,10 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { OrdenPrioridad } from './create-orden.dto';
-import { OrdenEstado } from './update-orden.dto';
+import { Prioridad } from './create-orden.dto';
 
 // Re-export para facilitar imports
 export { OrdenEstado } from './update-orden.dto';
-export { OrdenPrioridad } from './create-orden.dto';
+export { Prioridad as OrdenPrioridad } from './create-orden.dto';
 
 export class OrdenResponseDto {
   @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })

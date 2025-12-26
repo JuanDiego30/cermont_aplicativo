@@ -10,6 +10,7 @@ import { OrdenEntity } from '../../domain/entities';
 import { ChangeEstadoOrdenDto } from '../dto/change-estado-orden.dto';
 import { OrdenResponseDto, OrdenEstado, OrdenPrioridad } from '../dto/orden-response.dto';
 import { OrdenEstadoChangedEvent } from '../../domain/events/orden-estado-changed.event';
+import { OrdenStateMachine, OrdenEstado as DomainOrdenEstado } from '../../domain/orden-state-machine';
 
 @Injectable()
 export class ChangeOrdenEstadoUseCase {
@@ -35,12 +36,12 @@ export class ChangeOrdenEstadoUseCase {
         throw new NotFoundException(`Orden no encontrada: ${id}`);
       }
 
-      // Validar transición
-      if (!orden.estado.canTransitionTo(dto.nuevoEstado)) {
-        throw new BadRequestException(
-          `No se puede cambiar de ${orden.estado.value} a ${dto.nuevoEstado}`,
-        );
-      }
+      // Validar transición de estado
+      OrdenStateMachine.validateTransition(
+        orden.estado.value as DomainOrdenEstado,
+        dto.nuevoEstado as DomainOrdenEstado,
+        dto.motivo,
+      );
 
       const estadoAnterior = orden.estado.value;
 

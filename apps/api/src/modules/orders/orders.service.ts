@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateOrderDto, UpdateOrderDto } from './dtos';
-import type { Prisma } from '.prisma/client';
 
 @Injectable()
 export class OrdersService {
@@ -56,9 +55,9 @@ export class OrdersService {
             const { page = 1, limit = 10, status } = options;
             const skip = (page - 1) * limit;
 
-            const where: Prisma.OrderWhereInput = {};
+            const where: Record<string, any> = {};
             if (status) {
-                where.estado = status as any;
+                where.estado = status;
             }
 
             const [data, total] = await Promise.all([

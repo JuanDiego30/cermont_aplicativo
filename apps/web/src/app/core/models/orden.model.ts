@@ -1,118 +1,87 @@
-/**
- * Orden Model - Sincronizado con backend NestJS
- * @see apps/api/src/modules/ordenes/dto/orden.dto.ts
- */
+export enum OrdenEstado {
+  PENDIENTE = 'pendiente',
+  PLANEACION = 'planeacion',
+  EN_PROGRESO = 'en_progreso',
+  EJECUCION = 'ejecucion',
+  COMPLETADA = 'completada',
+  CANCELADA = 'cancelada',
+  ARCHIVADA = 'archivada',
+}
 
-export enum OrderPriority {
+export enum Prioridad {
   BAJA = 'baja',
   MEDIA = 'media',
   ALTA = 'alta',
-  URGENTE = 'urgente'
-}
-
-export enum OrderEstado {
-  PLANEACION = 'planeacion',
-  EJECUCION = 'ejecucion',
-  PAUSADA = 'pausada',
-  COMPLETADA = 'completada',
-  CANCELADA = 'cancelada',
-  ARCHIVADA = 'archivada'
-}
-
-export enum OrderType {
-  INSTALACION = 'instalacion',
-  MANTENIMIENTO = 'mantenimiento',
-  REPARACION = 'reparacion',
-  INSPECCION = 'inspeccion'
+  URGENTE = 'urgente',
 }
 
 export interface Orden {
   id: string;
-  numero: string;
+  numeroOrden: string;
   descripcion: string;
   cliente: string;
-  contactoCliente?: string;
-  telefonoCliente?: string;
-  direccion?: string;
-  prioridad: OrderPriority;
-  estado: OrderEstado;
-  creadorId?: string;
-  asignadoId?: string;
-  asignado?: {
-    id: string;
-    name: string;
-  };
-  creador?: {
-    id: string;
-    name: string;
-  };
-  fechaInicio?: string; // ISO string
-  fechaFin?: string; // ISO string
-  fechaFinEstimada?: string; // ISO string
-  presupuestoEstimado?: number;
-  costoReal?: number;
-  observaciones?: string;
+  clienteId?: string;
+  estado: OrdenEstado;
+  prioridad: Prioridad;
+  fechaInicio: string;
+  fechaFin?: string | null;
+  fechaFinEstimada?: string | null;
+  fechaRealInicio?: string | null;
+  fechaRealFin?: string | null;
+  presupuestoEstimado?: number | null;
+  costoEstimado?: number | null;
+  costoReal?: number | null;
+  ubicacion?: string | null;
+  notas?: string | null;
+  asignadoId?: string | null;
+  tecnicoId?: string | null;
   requiereHES?: boolean;
-  cumplimientoHES?: boolean;
-  createdAt: string; // ISO string
-  updatedAt: string; // ISO string
+  tecnico?: TecnicoBasico | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
 }
 
-export interface HistorialEstado {
+export interface TecnicoBasico {
   id: string;
-  ordenId: string;
-  estadoAnterior?: OrderEstado;
-  estadoNuevo: OrderEstado;
-  motivo: string;
-  observaciones?: string;
-  usuarioId?: string;
-  createdAt: string; // ISO string
+  name: string;
+  email: string;
+  phone?: string | null;
 }
 
 export interface CreateOrdenDto {
+  numeroOrden?: string;
   descripcion: string;
-  cliente: string;
-  contactoCliente?: string;
-  telefonoCliente?: string;
-  direccion?: string;
-  prioridad?: OrderPriority;
-  asignadoId?: string;
-  fechaFinEstimada?: string; // ISO string
+  cliente?: string;
+  clienteId?: string;
+  prioridad?: Prioridad;
+  fechaInicio?: string;
+  fechaFinEstimada?: string;
   presupuestoEstimado?: number;
+  costoEstimado?: number;
+  ubicacion?: string;
+  notas?: string;
+  asignadoId?: string;
+  tecnicoId?: string;
   requiereHES?: boolean;
-  observaciones?: string;
 }
 
-export interface UpdateOrdenDto {
-  descripcion?: string;
-  cliente?: string;
-  contactoCliente?: string;
-  telefonoCliente?: string;
-  direccion?: string;
-  prioridad?: OrderPriority;
-  estado?: OrderEstado;
-  asignadoId?: string;
-  fechaInicio?: string; // ISO string
-  fechaFin?: string; // ISO string
-  fechaFinEstimada?: string; // ISO string
-  presupuestoEstimado?: number;
+export interface UpdateOrdenDto extends Partial<CreateOrdenDto> {
+  fechaRealInicio?: string;
+  fechaRealFin?: string;
   costoReal?: number;
-  margenUtilidad?: number;
-  impuestosAplicables?: number;
-  requiereHES?: boolean;
-  observaciones?: string;
 }
 
 export interface ChangeEstadoOrdenDto {
-  nuevoEstado: OrderEstado;
-  motivo: string;
+  nuevoEstado: OrdenEstado;
+  motivo?: string;
   usuarioId?: string;
   observaciones?: string;
 }
 
 export interface AsignarTecnicoOrdenDto {
   tecnicoId: string;
-  fechaInicio?: string; // ISO string
+  fechaInicio?: string;
   instrucciones?: string;
   motivoAsignacion?: string;
 }
@@ -120,18 +89,51 @@ export interface AsignarTecnicoOrdenDto {
 export interface ListOrdenesQuery {
   page?: number;
   limit?: number;
-  estado?: OrderEstado;
-  prioridad?: OrderPriority;
+  estado?: OrdenEstado;
+  prioridad?: Prioridad;
   search?: string;
+  buscar?: string;
   cliente?: string;
+  clienteId?: string;
   asignadoId?: string;
+  tecnicoId?: string;
   creadorId?: string;
-  fechaDesde?: string; // ISO string
-  fechaHasta?: string; // ISO string
+  fechaDesde?: string;
+  fechaHasta?: string;
   soloVencidas?: boolean;
   soloSinAsignar?: boolean;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
 }
 
+export interface PaginatedOrdenes {
+  items: Orden[];
+  data?: Orden[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  hasMore?: boolean;
+  meta?: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
 
+export interface HistorialEstado {
+  id: string;
+  orderId: string;
+  estadoAnterior: OrdenEstado;
+  estadoNuevo: OrdenEstado;
+  motivo?: string | null;
+  changedById: string;
+  changedAt: string;
+}
+
+export interface OrdenesStats {
+  total: number;
+  porEstado: Record<OrdenEstado, number>;
+  porPrioridad: Record<Prioridad, number>;
+}

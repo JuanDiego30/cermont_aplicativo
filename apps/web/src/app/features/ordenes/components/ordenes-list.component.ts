@@ -1,11 +1,9 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { OrdenesService, PaginatedOrdenes } from '../services/ordenes.service';
-import { Orden, OrderEstado, OrderPriority } from '../../../core/models/orden.model';
-import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
-import { SearchFilterComponent, FilterField } from '../../../shared/components/search-filter/search-filter.component';
+import { OrdenesService } from '../../services/ordenes.service';
+import { Orden, OrdenEstado, Prioridad, ListOrdenesQuery } from '../../../../core/models/orden.model';
 
 @Component({
     selector: 'app-ordenes-list',

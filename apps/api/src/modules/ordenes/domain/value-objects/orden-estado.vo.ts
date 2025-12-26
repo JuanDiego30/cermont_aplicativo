@@ -4,19 +4,21 @@
  * @layer Domain
  */
 export type EstadoOrden =
+  | 'pendiente'
   | 'planeacion'
   | 'ejecucion'
-  | 'pausada'
   | 'completada'
-  | 'cancelada';
+  | 'cancelada'
+  | 'pausada';
 
 export class OrdenEstado {
   private static readonly VALID_TRANSITIONS: Record<EstadoOrden, EstadoOrden[]> = {
-    planeacion: ['ejecucion', 'cancelada'],
-    ejecucion: ['pausada', 'completada', 'cancelada'],
-    pausada: ['ejecucion', 'cancelada'],
-    completada: [],
-    cancelada: [],
+    pendiente: ['planeacion', 'cancelada'],
+    planeacion: ['ejecucion', 'pendiente', 'cancelada', 'pausada'],
+    ejecucion: ['completada', 'planeacion', 'cancelada', 'pausada'],
+    completada: ['pendiente'],
+    cancelada: ['pendiente'],
+    pausada: ['planeacion', 'ejecucion', 'cancelada'],
   };
 
   private constructor(private readonly _value: EstadoOrden) {
@@ -28,7 +30,7 @@ export class OrdenEstado {
   }
 
   get isActive(): boolean {
-    return ['planeacion', 'ejecucion', 'pausada'].includes(this._value);
+    return ['pendiente', 'planeacion', 'ejecucion', 'pausada'].includes(this._value);
   }
 
   get isFinal(): boolean {
@@ -47,6 +49,10 @@ export class OrdenEstado {
     return new OrdenEstado(value);
   }
 
+  static pendiente(): OrdenEstado {
+    return new OrdenEstado('pendiente');
+  }
+
   static planeacion(): OrdenEstado {
     return new OrdenEstado('planeacion');
   }
@@ -55,16 +61,16 @@ export class OrdenEstado {
     return new OrdenEstado('ejecucion');
   }
 
-  static pausada(): OrdenEstado {
-    return new OrdenEstado('pausada');
-  }
-
   static completada(): OrdenEstado {
     return new OrdenEstado('completada');
   }
 
   static cancelada(): OrdenEstado {
     return new OrdenEstado('cancelada');
+  }
+
+  static pausada(): OrdenEstado {
+    return new OrdenEstado('pausada');
   }
 
   canTransitionTo(newState: EstadoOrden): boolean {
