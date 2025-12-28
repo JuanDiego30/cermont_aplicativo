@@ -40,6 +40,9 @@ import { AUTH_REPOSITORY } from './domain/repositories';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
+// Lib Services
+import { PasswordService } from '../../lib/services/password.service';
+
 // Prisma
 import { PrismaModule } from '../../prisma/prisma.module';
 
@@ -72,6 +75,8 @@ import { PrismaModule } from '../../prisma/prisma.module';
         PasswordResetController,
     ],
     providers: [
+        // Shared Services
+        PasswordService,
         // Repository implementation
         {
             provide: AUTH_REPOSITORY,
@@ -96,6 +101,7 @@ import { PrismaModule } from '../../prisma/prisma.module';
         JwtStrategy,
     ],
     exports: [
+        PasswordService,
         AuthService,
         JwtModule,
         AUTH_REPOSITORY,
