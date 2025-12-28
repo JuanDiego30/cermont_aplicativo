@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { OrdenesApi, PaginatedOrdenes, OrdenesStats } from '../../../core/api/ordenes.api';
+import { OrdenesApi } from '../../../core/api/ordenes.api';
 import {
     Orden,
     CreateOrdenDto,
@@ -8,7 +8,9 @@ import {
     ChangeEstadoOrdenDto,
     AsignarTecnicoOrdenDto,
     ListOrdenesQuery,
-    HistorialEstado
+    HistorialEstado,
+    PaginatedOrdenes,
+    OrdenesStats
 } from '../../../core/models/orden.model';
 
 // Re-export types for components
