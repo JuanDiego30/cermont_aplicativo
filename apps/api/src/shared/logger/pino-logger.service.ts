@@ -1,48 +1,41 @@
-import { Injectable, LogLevel, Scope } from '@nestjs/common';
-import pino, { Logger as PinoLogger } from 'pino';
+import { Injectable, Logger, Scope } from '@nestjs/common';
 
 interface LogContext {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
+/**
+ * PinoLoggerService - Wrapper around NestJS Logger
+ * Uses NestJS Logger which integrates well with the framework
+ * Can be replaced with actual Pino when pino-pretty is installed
+ */
 @Injectable({ scope: Scope.TRANSIENT })
 export class PinoLoggerService {
-  private logger: PinoLogger;
-  private context: string = '';
+  private logger: Logger;
+  private contextName: string = 'Application';
 
   constructor() {
-    this.logger = pino({
-      level: process.env.LOG_LEVEL || 'info',
-      transport: {
-        target: 'pino-pretty',
-        options: {
-          colorize: true,
-          singleLine: false,
-          levelFirst: false,
-          translateTime: 'SYS:standard',
-          ignore: 'pid,hostname',
-          messageFormat: '{levelLabel} [{context}] {msg}',
-        },
-      },
-      timestamp: pino.stdTimeFunctions.isoTime,
-    });
+    this.logger = new Logger(this.contextName);
   }
 
   setContext(context: string): void {
-    this.context = context;
+    this.contextName = context;
+    this.logger = new Logger(context);
   }
 
-  private createLogEntry(message: string, meta?: LogContext) {
-    return {
-      context: this.context,
-      timestamp: new Date().toISOString(),
-      ...meta,
-    };
+  private formatMessage(message: string, meta?: LogContext): string {
+    if (meta && Object.keys(meta).length > 0) {
+      return `${message} ${JSON.stringify(meta)}`;
+    }
+    return message;
   }
 
   log(message: string, context?: string, meta?: LogContext): void {
-    const ctx = context || this.context;
-    this.logger.info(this.createLogEntry(message, meta), `[${ctx}] ${message}`);
+    const ctx = context || this.contextName;
+    if (context && context !== this.contextName) {
+      this.logger = new Logger(ctx);
+    }
+    this.logger.log(this.formatMessage(message, meta));
   }
 
   error(
@@ -51,48 +44,43 @@ export class PinoLoggerService {
     context?: string,
     meta?: LogContext,
   ): void {
-    const ctx = context || this.context;
-    const errorMeta = {
-      ...this.createLogEntry(message, meta),
-      trace,
-      severity: 'ERROR',
-    };
-    this.logger.error(errorMeta, `[${ctx}] ${message}`);
+    const ctx = context || this.contextName;
+    if (context && context !== this.contextName) {
+      this.logger = new Logger(ctx);
+    }
+    const fullMeta = { ...meta, trace };
+    this.logger.error(this.formatMessage(message, fullMeta), trace);
   }
 
   warn(message: string, context?: string, meta?: LogContext): void {
-    const ctx = context || this.context;
-    const warnMeta = {
-      ...this.createLogEntry(message, meta),
-      severity: 'WARN',
-    };
-    this.logger.warn(warnMeta, `[${ctx}] ${message}`);
+    const ctx = context || this.contextName;
+    if (context && context !== this.contextName) {
+      this.logger = new Logger(ctx);
+    }
+    this.logger.warn(this.formatMessage(message, meta));
   }
 
   debug(message: string, context?: string, meta?: LogContext): void {
-    const ctx = context || this.context;
-    const debugMeta = {
-      ...this.createLogEntry(message, meta),
-      severity: 'DEBUG',
-    };
-    this.logger.debug(debugMeta, `[${ctx}] ${message}`);
+    const ctx = context || this.contextName;
+    if (context && context !== this.contextName) {
+      this.logger = new Logger(ctx);
+    }
+    this.logger.debug(this.formatMessage(message, meta));
   }
 
   verbose(message: string, context?: string, meta?: LogContext): void {
-    const ctx = context || this.context;
-    const verboseMeta = {
-      ...this.createLogEntry(message, meta),
-      severity: 'VERBOSE',
-    };
-    this.logger.trace(verboseMeta, `[${ctx}] ${message}`);
+    const ctx = context || this.contextName;
+    if (context && context !== this.contextName) {
+      this.logger = new Logger(ctx);
+    }
+    this.logger.verbose(this.formatMessage(message, meta));
   }
 
   fatal(message: string, context?: string, meta?: LogContext): void {
-    const ctx = context || this.context;
-    const fatalMeta = {
-      ...this.createLogEntry(message, meta),
-      severity: 'FATAL',
-    };
-    this.logger.fatal(fatalMeta, `[${ctx}] ${message}`);
+    const ctx = context || this.contextName;
+    if (context && context !== this.contextName) {
+      this.logger = new Logger(ctx);
+    }
+    this.logger.fatal(this.formatMessage(message, meta));
   }
 }

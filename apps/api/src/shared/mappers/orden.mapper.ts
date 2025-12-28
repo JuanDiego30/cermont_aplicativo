@@ -5,12 +5,12 @@
 
 import { Monto, OrdenNumero, OrdenEstado } from '../value-objects';
 
-// DTOs
+// DTOs con definite assignment
 export class CreateOrdenDTO {
-  numero: string;
-  monto: number;
-  estado: string;
-  clienteId: string;
+  numero!: string;
+  monto!: number;
+  estado!: string;
+  clienteId!: string;
   descripcion?: string;
 }
 
@@ -21,14 +21,14 @@ export class UpdateOrdenDTO {
 }
 
 export class OrdenResponseDTO {
-  id: string;
-  numero: string;
-  monto: number;
-  estado: string;
-  clienteId: string;
+  id!: string;
+  numero!: string;
+  monto!: number;
+  estado!: string;
+  clienteId!: string;
   descripcion?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt!: string;
+  updatedAt!: string;
 }
 
 // Mapper
@@ -51,16 +51,20 @@ export class OrdenMapper {
    * REGLA 4: Entity → Response DTO
    * Formatea entidad para respuesta HTTP
    */
-  static toDTO(entity: any): OrdenResponseDTO {
+  static toDTO(entity: Record<string, unknown>): OrdenResponseDTO {
+    const numeroValue = entity.numero as OrdenNumero | string;
+    const montoValue = entity.monto as Monto | number;
+    const estadoValue = entity.estado as OrdenEstado | string;
+
     return {
-      id: entity.id,
-      numero: entity.numero instanceof OrdenNumero ? entity.numero.getValue() : entity.numero,
-      monto: entity.monto instanceof Monto ? entity.monto.getValue() : entity.monto,
-      estado: entity.estado instanceof OrdenEstado ? entity.estado.getValue() : entity.estado,
-      clienteId: entity.clienteId,
-      descripcion: entity.descripcion,
-      createdAt: entity.createdAt?.toISOString() || new Date().toISOString(),
-      updatedAt: entity.updatedAt?.toISOString() || new Date().toISOString(),
+      id: entity.id as string,
+      numero: numeroValue instanceof OrdenNumero ? numeroValue.getValue() : String(numeroValue),
+      monto: montoValue instanceof Monto ? montoValue.getValue() : Number(montoValue),
+      estado: estadoValue instanceof OrdenEstado ? estadoValue.getValue() : String(estadoValue),
+      clienteId: entity.clienteId as string,
+      descripcion: entity.descripcion as string | undefined,
+      createdAt: (entity.createdAt as Date)?.toISOString?.() || new Date().toISOString(),
+      updatedAt: (entity.updatedAt as Date)?.toISOString?.() || new Date().toISOString(),
     };
   }
 
@@ -68,14 +72,14 @@ export class OrdenMapper {
    * REGLA 4: Database → Domain Entity
    * Convierte row de BD a entidad de dominio
    */
-  static fromDatabase(raw: any) {
+  static fromDatabase(raw: Record<string, unknown>) {
     return {
-      id: raw.id,
-      numero: OrdenNumero.create(raw.numero),
-      monto: Monto.create(raw.monto),
-      estado: OrdenEstado.create(raw.estado),
-      clienteId: raw.clienteId,
-      descripcion: raw.descripcion,
+      id: raw.id as string,
+      numero: OrdenNumero.create(raw.numero as string),
+      monto: Monto.create(raw.monto as number),
+      estado: OrdenEstado.create(raw.estado as string),
+      clienteId: raw.clienteId as string,
+      descripcion: raw.descripcion as string,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
     };
@@ -85,20 +89,24 @@ export class OrdenMapper {
    * REGLA 4: Domain Entity → Persistence
    * Convierte entidad a formato de BD
    */
-  static toPersistence(entity: any) {
+  static toPersistence(entity: Record<string, unknown>) {
+    const numeroValue = entity.numero as OrdenNumero | string;
+    const montoValue = entity.monto as Monto | number;
+    const estadoValue = entity.estado as OrdenEstado | string;
+
     return {
-      numero: entity.numero instanceof OrdenNumero ? entity.numero.getValue() : entity.numero,
-      monto: entity.monto instanceof Monto ? entity.monto.getValue() : entity.monto,
-      estado: entity.estado instanceof OrdenEstado ? entity.estado.getValue() : entity.estado,
-      clienteId: entity.clienteId,
-      descripcion: entity.descripcion,
+      numero: numeroValue instanceof OrdenNumero ? numeroValue.getValue() : String(numeroValue),
+      monto: montoValue instanceof Monto ? montoValue.getValue() : Number(montoValue),
+      estado: estadoValue instanceof OrdenEstado ? estadoValue.getValue() : String(estadoValue),
+      clienteId: entity.clienteId as string,
+      descripcion: entity.descripcion as string,
     };
   }
 
   /**
    * Convertir array de entities a DTOs
    */
-  static toDTOArray(entities: any[]): OrdenResponseDTO[] {
+  static toDTOArray(entities: Record<string, unknown>[]): OrdenResponseDTO[] {
     return entities.map((entity) => this.toDTO(entity));
   }
 }
