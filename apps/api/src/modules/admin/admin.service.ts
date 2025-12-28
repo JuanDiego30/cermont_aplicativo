@@ -17,7 +17,7 @@ import {
     ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { hash } from 'bcryptjs';
+import { PasswordService } from '../../lib/services/password.service';
 import {
     UserRoleEnum,
     hasPermission,
@@ -36,9 +36,11 @@ import {
 @Injectable()
 export class AdminService {
     private readonly logger = new Logger(AdminService.name);
-    private readonly SALT_ROUNDS = 12; // OWASP recomienda mínimo 12
 
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly passwordService: PasswordService,
+    ) { }
 
     // ============================================
     // CRUD USUARIOS
@@ -63,8 +65,8 @@ export class AdminService {
                 throw new ConflictException(`Email ${dto.email} ya está registrado`);
             }
 
-            // Hashear contraseña
-            const hashedPassword = await hash(dto.password, this.SALT_ROUNDS);
+            // Hashear contraseña usando servicio centralizado
+            const hashedPassword = await this.passwordService.hash(dto.password);
 
             // Crear usuario
             const newUser = await this.prisma.user.create({
@@ -270,7 +272,8 @@ export class AdminService {
             throw new NotFoundException(`Usuario ${userId} no encontrado`);
         }
 
-        const hashedPassword = await hash(newPassword, this.SALT_ROUNDS);
+        // Hashear contraseña usando servicio centralizado
+        const hashedPassword = await this.passwordService.hash(newPassword);
 
         await this.prisma.user.update({
             where: { id: userId },
