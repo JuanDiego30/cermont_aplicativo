@@ -3,23 +3,35 @@
  *
  * Módulo de autenticación con JWT (Passport) y configuración del JwtModule.
  * Implementa DDD con use cases, repositorio, y controlador de infrastructure.
+ * Incluye 2FA y recuperación de contraseña.
  */
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 
-// Infrastructure
+// Infrastructure - Controllers
 import { AuthControllerRefactored } from './infrastructure/controllers/auth.controller';
+import { Auth2FAController } from './infrastructure/controllers/auth-2fa.controller';
+import { PasswordResetController } from './infrastructure/controllers/password-reset.controller';
 import { PrismaAuthRepository } from './infrastructure/persistence/prisma-auth.repository';
 
-// Application - Use Cases (direct imports to avoid circular dependency)
+// Application - Use Cases (Auth)
 import { LoginUseCase } from './application/use-cases/login.use-case';
 import { RegisterUseCase } from './application/use-cases/register.use-case';
 import { RefreshTokenUseCase } from './application/use-cases/refresh-token.use-case';
 import { LogoutUseCase } from './application/use-cases/logout.use-case';
 import { GetCurrentUserUseCase } from './application/use-cases/get-current-user.use-case';
+
+// Application - Use Cases (2FA)
+import { Send2FACodeUseCase } from './application/use-cases/send-2fa-code.use-case';
+import { Verify2FACodeUseCase } from './application/use-cases/verify-2fa-code.use-case';
+import { Toggle2FAUseCase } from './application/use-cases/toggle-2fa.use-case';
+
+// Application - Use Cases (Password Reset)
+import { ForgotPasswordUseCase } from './application/use-cases/forgot-password.use-case';
+import { ValidateResetTokenUseCase } from './application/use-cases/validate-reset-token.use-case';
+import { ResetPasswordUseCase } from './application/use-cases/reset-password.use-case';
 
 // Domain
 import { AUTH_REPOSITORY } from './domain/repositories';
@@ -33,10 +45,9 @@ import { PrismaModule } from '../../prisma/prisma.module';
 
 @Module({
     imports: [
-        ConfigModule, // Necesario para ConfigService en JwtStrategy
+        ConfigModule,
         PrismaModule,
         PassportModule.register({ defaultStrategy: 'jwt' }),
-        // EventEmitterModule ya está configurado globalmente en AppModule
         JwtModule.registerAsync({
             global: true,
             imports: [ConfigModule],
@@ -55,20 +66,32 @@ import { PrismaModule } from '../../prisma/prisma.module';
             },
         }),
     ],
-    controllers: [AuthControllerRefactored],
+    controllers: [
+        AuthControllerRefactored,
+        Auth2FAController,
+        PasswordResetController,
+    ],
     providers: [
         // Repository implementation
         {
             provide: AUTH_REPOSITORY,
             useClass: PrismaAuthRepository,
         },
-        // Use Cases
+        // Use Cases - Auth
         LoginUseCase,
         RegisterUseCase,
         RefreshTokenUseCase,
         LogoutUseCase,
         GetCurrentUserUseCase,
-        // Legacy service (can be removed after full migration)
+        // Use Cases - 2FA
+        Send2FACodeUseCase,
+        Verify2FACodeUseCase,
+        Toggle2FAUseCase,
+        // Use Cases - Password Reset
+        ForgotPasswordUseCase,
+        ValidateResetTokenUseCase,
+        ResetPasswordUseCase,
+        // Legacy service
         AuthService,
         JwtStrategy,
     ],
@@ -76,12 +99,17 @@ import { PrismaModule } from '../../prisma/prisma.module';
         AuthService,
         JwtModule,
         AUTH_REPOSITORY,
-        // Export use cases para que estén disponibles si se necesitan en otros módulos
         LoginUseCase,
         RegisterUseCase,
         RefreshTokenUseCase,
         LogoutUseCase,
         GetCurrentUserUseCase,
+        Send2FACodeUseCase,
+        Verify2FACodeUseCase,
+        Toggle2FAUseCase,
+        ForgotPasswordUseCase,
+        ValidateResetTokenUseCase,
+        ResetPasswordUseCase,
     ],
 })
 export class AuthModule { }

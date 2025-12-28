@@ -1,17 +1,20 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../prisma/prisma.service';
 
 export interface JwtPayload {
-  sub: string;
+  sub?: string;      // Standard JWT claim (for compatibility)
+  userId?: string;   // Our custom claim (used by login.use-case.ts)
   email: string;
   role: string;
 }
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
+  private readonly logger = new Logger(JwtStrategy.name);
+
   constructor(
     private configService: ConfigService,
     private prisma: PrismaService
@@ -24,9 +27,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
+    // ✅ FIX: Accept both 'sub' (standard) and 'userId' (our custom claim)
+    const userId = payload.sub || payload.userId;
+
+    if (!userId) {
+      this.logger.warn('JWT validation failed: No userId or sub in token');
+      throw new UnauthorizedException('Token inválido: falta identificador de usuario');
+    }
+
     // Verificar que el usuario existe y está activo
     const user = await this.prisma.user.findUnique({
-      where: { id: payload.sub },
+      where: { id: userId },
       select: {
         id: true,
         email: true,
@@ -36,8 +47,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       },
     });
 
-    if (!user || !user.active) {
-      throw new UnauthorizedException('Usuario no válido o inactivo');
+    if (!user) {
+      this.logger.warn(`JWT validation failed: User not found - ${userId}`);
+      throw new UnauthorizedException('Usuario no válido');
+    }
+
+    if (!user.active) {
+      this.logger.warn(`JWT validation failed: User inactive - ${userId}`);
+      throw new UnauthorizedException('Usuario inactivo');
     }
 
     return {
@@ -48,3 +65,4 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     };
   }
 }
+

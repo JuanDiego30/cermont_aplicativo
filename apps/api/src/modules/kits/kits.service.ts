@@ -202,7 +202,7 @@ export class KitsService {
     private readonly logger = new Logger(KitsService.name);
 
     constructor(private readonly prisma: PrismaService) {
-        this.logger.warn('KitsService: Legacy service. Use Use Cases for new features.');
+        this.logger.log('ℹ️  KitsService: Legacy service. Consider migrating to Use Cases.');
     }
 
     /**
