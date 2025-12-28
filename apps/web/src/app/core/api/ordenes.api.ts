@@ -1,101 +1,68 @@
-/**
- * OrdenesApi - Orders API client
- * Handles all order-related operations
- */
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiBaseService } from './api-base.service';
-import {
-  Orden,
-  CreateOrdenDto,
-  UpdateOrdenDto,
-  ChangeEstadoOrdenDto,
-  AsignarTecnicoOrdenDto,
-  ListOrdenesQuery,
-  HistorialEstado
-} from '../models/orden.model';
+import { environment } from '@env/environment';
 
-export interface PaginatedOrdenes {
-  data: Orden[];
+interface Orden {
+  id?: string;
+  numero: string;
+  cliente: string;
+  descripcion: string;
+  fecha: string;
+  estado: 'pendiente' | 'en_progreso' | 'completada';
+  total: number;
+}
+
+interface PaginatedResponse<T> {
+  data: T[];
   total: number;
   page: number;
   limit: number;
-  totalPages: number;
-}
-
-export interface OrdenesStats {
-  total: number;
-  planeacion: number;
-  ejecucion: number;
-  completadas: number;
-  canceladas: number;
 }
 
 @Injectable({
   providedIn: 'root'
 })
-export class OrdenesApi extends ApiBaseService {
-  /**
-   * List all orders with optional filters
-   */
-  list(params?: ListOrdenesQuery): Observable<PaginatedOrdenes> {
-    return this.get<PaginatedOrdenes>('/ordenes', params);
+export class OrdenesApi {
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/ordenes`;
+
+  list(
+    page: number = 1,
+    limit: number = 10,
+    filters?: any
+  ): Observable<PaginatedResponse<Orden>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', limit.toString());
+
+    if (filters?.search) {
+      params = params.set('search', filters.search);
+    }
+    if (filters?.estado) {
+      params = params.set('estado', filters.estado);
+    }
+
+    return this.http.get<PaginatedResponse<Orden>>(this.apiUrl, { params });
   }
 
-  /**
-   * Get order by ID
-   */
   getById(id: string): Observable<Orden> {
-    return this.get<Orden>(`/ordenes/${id}`);
+    return this.http.get<Orden>(`${this.apiUrl}/${id}`);
   }
 
-  /**
-   * Create new order
-   */
-  create(data: CreateOrdenDto): Observable<Orden> {
-    return this.post<Orden>('/ordenes', data);
+  create(orden: Orden): Observable<Orden> {
+    return this.http.post<Orden>(this.apiUrl, orden);
   }
 
-  /**
-   * Update existing order
-   */
-  update(id: string, data: UpdateOrdenDto): Observable<Orden> {
-    return this.patch<Orden>(`/ordenes/${id}`, data);
+  update(id: string, orden: Orden): Observable<Orden> {
+    return this.http.put<Orden>(`${this.apiUrl}/${id}`, orden);
   }
 
-  /**
-   * Delete order
-   */
   delete(id: string): Observable<void> {
-    return this.deleteRequest<void>(`/ordenes/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  /**
-   * Change order status
-   */
-  changeEstado(id: string, dto: ChangeEstadoOrdenDto): Observable<Orden> {
-    return this.post<Orden>(`/ordenes/${id}/cambiar-estado`, dto);
-  }
-
-  /**
-   * Assign technician to order
-   */
-  asignarTecnico(ordenId: string, dto: AsignarTecnicoOrdenDto): Observable<Orden> {
-    return this.post<Orden>(`/ordenes/${ordenId}/asignar-tecnico`, dto);
-  }
-
-  /**
-   * Get order status history
-   */
-  getHistorial(id: string): Observable<HistorialEstado[]> {
-    return this.get<HistorialEstado[]>(`/ordenes/${id}/historial`);
-  }
-
-  /**
-   * Get order statistics
-   */
-  getStats(): Observable<OrdenesStats> {
-    return this.get<OrdenesStats>('/ordenes/stats');
+  getStats(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/stats`);
   }
 }
-
