@@ -13,14 +13,14 @@ export abstract class BaseService<T> {
   constructor(
     protected readonly logger: PinoLoggerService,
   ) {
-    this.logger.setContext(this.serviceName);
+    // serviceName is abstract, setContext is handled in each method
   }
 
   /**
    * Obtener todos los registros
    */
   protected async getAll(
-    repository: any,
+    repository: { findMany: (args: { skip?: number; take?: number }) => Promise<T[]> },
     skip?: number,
     take?: number,
   ): Promise<T[]> {
@@ -28,31 +28,37 @@ export abstract class BaseService<T> {
       this.logger.log('Obteniendo todos los registros', this.serviceName);
       return await repository.findMany({ skip, take });
     } catch (error) {
-      this.handleError('Error obteniendo registros', error);
+      return this.handleError('Error obteniendo registros', error as Error);
     }
   }
 
   /**
    * Obtener por ID
    */
-  protected async getById(repository: any, id: string): Promise<T | null> {
+  protected async getById(
+    repository: { findById: (id: string) => Promise<T | null> },
+    id: string,
+  ): Promise<T | null> {
     try {
       this.logger.log(`Obteniendo registro por ID: ${id}`, this.serviceName);
       return await repository.findById(id);
     } catch (error) {
-      this.handleError(`Error obteniendo registro ${id}`, error);
+      return this.handleError(`Error obteniendo registro ${id}`, error as Error);
     }
   }
 
   /**
    * Crear nuevo
    */
-  protected async create(repository: any, data: Partial<T>): Promise<T> {
+  protected async create(
+    repository: { create: (data: Partial<T>) => Promise<T> },
+    data: Partial<T>,
+  ): Promise<T> {
     try {
       this.logger.log('Creando nuevo registro', this.serviceName, { data });
       return await repository.create(data);
     } catch (error) {
-      this.handleError('Error creando registro', error);
+      return this.handleError('Error creando registro', error as Error);
     }
   }
 
@@ -60,7 +66,7 @@ export abstract class BaseService<T> {
    * Actualizar
    */
   protected async update(
-    repository: any,
+    repository: { update: (id: string, data: Partial<T>) => Promise<T> },
     id: string,
     data: Partial<T>,
   ): Promise<T> {
@@ -68,26 +74,29 @@ export abstract class BaseService<T> {
       this.logger.log(`Actualizando registro ${id}`, this.serviceName, { data });
       return await repository.update(id, data);
     } catch (error) {
-      this.handleError(`Error actualizando registro ${id}`, error);
+      return this.handleError(`Error actualizando registro ${id}`, error as Error);
     }
   }
 
   /**
    * Eliminar
    */
-  protected async delete(repository: any, id: string): Promise<T> {
+  protected async delete(
+    repository: { delete: (id: string) => Promise<T> },
+    id: string,
+  ): Promise<T> {
     try {
       this.logger.log(`Eliminando registro ${id}`, this.serviceName);
       return await repository.delete(id);
     } catch (error) {
-      this.handleError(`Error eliminando registro ${id}`, error);
+      return this.handleError(`Error eliminando registro ${id}`, error as Error);
     }
   }
 
   /**
    * Manejo centralizado de errores
    */
-  protected handleError(message: string, error: Error): void {
+  protected handleError(message: string, error: Error): never {
     this.logger.error(message, error.stack, this.serviceName, {
       errorMessage: error.message,
       errorName: error.name,
@@ -98,7 +107,7 @@ export abstract class BaseService<T> {
   /**
    * Validación genérica
    */
-  protected validateInput(data: any, requiredFields: string[]): boolean {
+  protected validateInput(data: Record<string, unknown>, requiredFields: string[]): boolean {
     for (const field of requiredFields) {
       if (!data[field]) {
         throw new Error(`Campo requerido faltante: ${field}`);
