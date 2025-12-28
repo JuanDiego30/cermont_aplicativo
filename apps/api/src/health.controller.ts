@@ -10,6 +10,7 @@ import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PrismaService } from './prisma/prisma.service';
+import { Public } from './common/decorators/public.decorator'; // ✅ Import Public decorator
 
 interface HealthStatus {
     status: 'ok' | 'degraded' | 'error';
@@ -32,6 +33,7 @@ export class HealthController {
     constructor(private readonly prisma: PrismaService) { }
 
     @Get()
+    @Public() // ✅ Health checks don't require JWT
     @ApiOperation({ summary: 'Health check básico' })
     @ApiResponse({ status: 200, description: 'Servicio operativo' })
     check() {
@@ -43,6 +45,7 @@ export class HealthController {
     }
 
     @Get('ready')
+    @Public() // ✅ Public
     @ApiOperation({ summary: 'Readiness check - verifica DB y dependencias' })
     @ApiResponse({ status: 200, description: 'Servicio listo para recibir tráfico' })
     @ApiResponse({ status: 503, description: 'Servicio no disponible' })
@@ -78,6 +81,7 @@ export class HealthController {
     }
 
     @Get('live')
+    @Public() // ✅ Public
     @ApiOperation({ summary: 'Liveness check - verifica que el proceso responde' })
     @ApiResponse({ status: 200, description: 'Proceso activo' })
     live() {
@@ -88,6 +92,7 @@ export class HealthController {
     }
 
     @Get('full')
+    @Public() // ✅ Public
     @ApiOperation({ summary: 'Health check completo - DB, memoria, sistema' })
     @ApiResponse({ status: 200, description: 'Estado completo del sistema' })
     async full(): Promise<Record<string, unknown>> {
@@ -126,6 +131,7 @@ export class HealthController {
     }
 
     @Get('metrics')
+    @Public() // ✅ Public
     @ApiOperation({ summary: 'Métricas del sistema' })
     @ApiResponse({ status: 200, description: 'Métricas de performance' })
     metrics(): Record<string, unknown> {

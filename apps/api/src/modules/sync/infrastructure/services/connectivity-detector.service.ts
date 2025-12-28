@@ -48,9 +48,9 @@ export class ConnectivityDetectorService {
 
         try {
             // First, check if we can reach our own server's health endpoint
-            const serverUrl = this.configService.get<string>('API_URL', 'http://localhost:3000');
+            const serverUrl = this.configService.get<string>('API_URL', 'http://localhost:4000');
             const healthResponse = await firstValueFrom(
-                this.httpService.get(`${serverUrl}/health`, {
+                this.httpService.get(`${serverUrl}/api/health`, {
                     timeout: this.CHECK_TIMEOUT_MS,
                 }).pipe(
                     timeout(this.CHECK_TIMEOUT_MS),
@@ -98,7 +98,7 @@ export class ConnectivityDetectorService {
                 internetReachable,
             });
         } else {
-            this.logger.debug('Connectivity check: ONLINE', {
+            this.logger.log('Connectivity check: ONLINE ✅', {
                 latencyMs,
             });
         }

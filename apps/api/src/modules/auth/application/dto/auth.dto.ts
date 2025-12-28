@@ -18,6 +18,11 @@ export const LoginSchema = z.object({
     .string()
     .min(1, 'Contraseña es requerida')
     .min(6, 'La contraseña debe tener al menos 6 caracteres'), // Reducido de 8 a 6 para compatibilidad
+  // ✅ Campo opcional para "Recordarme" - permite tokens de mayor duración
+  rememberMe: z
+    .boolean()
+    .optional()
+    .default(false),
 });
 
 export type LoginDto = z.infer<typeof LoginSchema>;

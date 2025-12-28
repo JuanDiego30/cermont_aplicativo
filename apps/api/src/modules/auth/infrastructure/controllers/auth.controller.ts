@@ -64,6 +64,11 @@ export class AuthControllerRefactored {
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
+      // ✅ Log del body recibido (sin password)
+      const bodyPreview = { ...(body as Record<string, unknown>) };
+      if (bodyPreview.password) bodyPreview.password = '***';
+      this.logger.log(`Login request received: ${JSON.stringify(bodyPreview)}`);
+
       // Validar body con Zod
       const parseResult = LoginSchema.safeParse(body);
       if (!parseResult.success) {
@@ -71,14 +76,14 @@ export class AuthControllerRefactored {
           const path = i.path.length > 0 ? i.path.join('.') : 'root';
           return `${path}: ${i.message}`;
         }).join(', ');
-        this.logger.warn(`Login validation failed: ${errors}`, { body });
+        this.logger.warn(`❌ Login validation failed: ${errors}`, { body: bodyPreview });
         throw new BadRequestException(`Validación fallida: ${errors}`);
       }
 
       const dto = parseResult.data;
       const context = { ip: req.ip, userAgent: req.get('user-agent') };
 
-      this.logger.log(`Login attempt for: ${dto.email}`);
+      this.logger.log(`✅ Login validation passed for: ${dto.email} | rememberMe: ${dto.rememberMe}`);
       const result = await this.loginUseCase.execute(dto, context);
 
       res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);

@@ -68,10 +68,10 @@
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
           <!-- Email -->
           <div>
-            <label class="label">
+            <label for="email" class="label">
               Correo Electrónico <span class="text-error-500">*</span>
             </label>
-            <input type="email" formControlName="email" class="input"
+            <input id="email" name="email" type="email" formControlName="email" class="input"
               [class.input-error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
               placeholder="usuario@ejemplo.com" autocomplete="email" />
             @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
@@ -81,11 +81,12 @@
 
           <!-- Password -->
           <div>
-            <label class="label">
+            <label for="password" class="label">
               Contraseña <span class="text-error-500">*</span>
             </label>
             <div class="relative">
-              <input [type]="showPassword() ? 'text' : 'password'" formControlName="password" class="input pr-10"
+              <input id="password" name="password" [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password" class="input pr-10"
                 [class.input-error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
                 placeholder="••••••••" autocomplete="current-password" />
               <button type="button" (click)="togglePasswordVisibility()"
@@ -112,8 +113,8 @@
 
           <!-- Remember Me & Forgot Password -->
           <div class="flex items-center justify-between">
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" formControlName="rememberMe" class="checkbox" />
+            <label for="rememberMe" class="flex items-center gap-2 cursor-pointer">
+              <input id="rememberMe" name="rememberMe" type="checkbox" formControlName="rememberMe" class="checkbox" />
               <span class="text-sm text-gray-700 dark:text-gray-300">Recordarme</span>
             </label>
             <a routerLink="/auth/forgot-password"
@@ -138,10 +139,11 @@
         @if (requires2FA()) {
         <form [formGroup]="twoFactorForm" (ngSubmit)="onSubmit2FA()" class="space-y-6">
           <div>
-            <label class="label">
+            <label for="code" class="label">
               Código de Autenticación <span class="text-error-500">*</span>
             </label>
-            <input type="text" formControlName="code" class="input text-center text-2xl tracking-widest font-mono"
+            <input id="code" name="code" type="text" formControlName="code"
+              class="input text-center text-2xl tracking-widest font-mono"
               [class.input-error]="twoFactorForm.get('code')?.invalid && twoFactorForm.get('code')?.touched"
               placeholder="000000" maxlength="6" autocomplete="off" />
             @if (twoFactorForm.get('code')?.invalid && twoFactorForm.get('code')?.touched) {
@@ -301,17 +303,17 @@
         @if (!requires2FA()) {
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
           <div>
-            <label class="label">Correo <span class="text-error-500">*</span></label>
-            <input type="email" formControlName="email" class="input"
+            <label for="email-mobile" class="label">Correo <span class="text-error-500">*</span></label>
+            <input id="email-mobile" name="email" type="email" formControlName="email" class="input"
               [class.input-error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
-              placeholder="usuario@ejemplo.com" />
+              placeholder="usuario@ejemplo.com" autocomplete="email" />
           </div>
 
           <div>
-            <label class="label">Contraseña <span class="text-error-500">*</span></label>
+            <label for="password-mobile" class="label">Contraseña <span class="text-error-500">*</span></label>
             <div class="relative">
-              <input [type]="showPassword() ? 'text' : 'password'" formControlName="password" class="input pr-10"
-                placeholder="••••••••" />
+              <input id="password-mobile" name="password" [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password" class="input pr-10" placeholder="••••••••" autocomplete="current-password" />
               <button type="button" (click)="togglePasswordVisibility()"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -323,8 +325,9 @@
           </div>
 
           <div class="flex items-center justify-between">
-            <label class="flex items-center gap-2">
-              <input type="checkbox" formControlName="rememberMe" class="checkbox" />
+            <label for="rememberMe-mobile" class="flex items-center gap-2">
+              <input id="rememberMe-mobile" name="rememberMe" type="checkbox" formControlName="rememberMe"
+                class="checkbox" />
               <span class="text-sm text-gray-700 dark:text-gray-300">Recordarme</span>
             </label>
             <a routerLink="/auth/forgot-password"
@@ -351,8 +354,10 @@
         <!-- 2FA Form Mobile -->
         @if (requires2FA()) {
         <form [formGroup]="twoFactorForm" (ngSubmit)="onSubmit2FA()" class="space-y-4">
-          <input type="text" formControlName="code" class="input text-center text-2xl tracking-widest font-mono"
-            placeholder="000000" maxlength="6" />
+          <label for="code-mobile" class="sr-only">Código de Autenticación</label>
+          <input id="code-mobile" name="code" type="text" formControlName="code"
+            class="input text-center text-2xl tracking-widest font-mono" placeholder="000000" maxlength="6"
+            autocomplete="off" />
 
           <button type="submit" class="btn-primary w-full" [disabled]="twoFactorForm.invalid || loading()">
             @if (loading()) {

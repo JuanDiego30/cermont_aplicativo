@@ -53,7 +53,7 @@ export class EjecucionService {
     private readonly repository: IEjecucionRepository,
     private readonly prisma: PrismaService,
   ) {
-    this.logger.warn('EjecucionService is DEPRECATED. Use Use Cases instead.');
+    this.logger.log('ℹ️  EjecucionService: Consider migrating to Use Cases pattern.');
   }
 
   /**

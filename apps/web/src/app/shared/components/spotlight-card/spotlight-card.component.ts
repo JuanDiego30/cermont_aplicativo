@@ -1,11 +1,12 @@
-import { Component, ElementRef, HostListener, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, HostListener, ViewChild, AfterViewInit, ChangeDetectorRef, ChangeDetectionStrategy, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-    selector: 'app-spotlight-card',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
+  selector: 'app-spotlight-card',
+  standalone: true,
+  imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
     <div 
       #card
       class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 p-8 transition-all duration-300 hover:border-cermont-primary-500 dark:hover:border-cermont-primary-500 group"
@@ -23,40 +24,52 @@ import { CommonModule } from '@angular/common';
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     :host {
       display: block;
     }
   `]
 })
 export class SpotlightCardComponent implements AfterViewInit {
-    @ViewChild('card', { static: false }) card!: ElementRef<HTMLDivElement>;
-    @ViewChild('spotlight', { static: false }) spotlight!: ElementRef<HTMLDivElement>;
+  @ViewChild('card', { static: false }) card!: ElementRef<HTMLDivElement>;
+  @ViewChild('spotlight', { static: false }) spotlight!: ElementRef<HTMLDivElement>;
 
-    spotlightGradient = '';
+  spotlightGradient = 'transparent';
 
-    ngAfterViewInit(): void {
-        this.updateSpotlight({ clientX: 0, clientY: 0 } as MouseEvent);
-    }
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
+  ) { }
 
-    @HostListener('mousemove', ['$event'])
-    onMouseMove(event: MouseEvent): void {
-        this.updateSpotlight(event);
-    }
+  ngAfterViewInit(): void {
+    // Run outside Angular to avoid NG0100 error
+    this.ngZone.runOutsideAngular(() => {
+      setTimeout(() => {
+        this.spotlightGradient = 'transparent';
+      }, 0);
+    });
+  }
 
-    private updateSpotlight(event: MouseEvent): void {
-        if (!this.card || !this.spotlight) return;
+  @HostListener('mousemove', ['$event'])
+  onMouseMove(event: MouseEvent): void {
+    this.updateSpotlight(event);
+  }
 
-        const rect = this.card.nativeElement.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
+  private updateSpotlight(event: MouseEvent): void {
+    if (!this.card || !this.spotlight) return;
 
-        this.spotlightGradient = `
+    const rect = this.card.nativeElement.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    this.spotlightGradient = `
       radial-gradient(
         600px circle at ${x}px ${y}px,
         rgba(0, 191, 255, 0.15),
         transparent 40%
       )
     `;
-    }
+    this.cdr.markForCheck();
+  }
 }
+

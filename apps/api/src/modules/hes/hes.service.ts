@@ -39,7 +39,7 @@ export class HesService {
   private readonly logger = new Logger(HesService.name);
 
   constructor(private readonly prisma: PrismaService) {
-    this.logger.warn('HesService: Legacy service for equipos. Use Use Cases for HES documents.');
+    this.logger.log('ℹ️  HesService: Legacy service. Consider migrating to Use Cases.');
   }
 
   /**

@@ -8,6 +8,7 @@ import { Email, Password } from '../../domain/value-objects';
 interface LoginDto {
   email: string;
   password: string;
+  rememberMe?: boolean; // ✅ Campo opcional para "Recordarme"
 }
 
 interface AuthContext {
@@ -32,7 +33,9 @@ export interface LoginResult {
 @Injectable()
 export class LoginUseCase {
   private readonly logger = new Logger(LoginUseCase.name);
-  private readonly REFRESH_TOKEN_DAYS = 7;
+  // ✅ Duración de tokens según rememberMe
+  private readonly REFRESH_TOKEN_DAYS_DEFAULT = 7;
+  private readonly REFRESH_TOKEN_DAYS_REMEMBER = 30;
 
   constructor(
     @Inject(AUTH_REPOSITORY)
@@ -59,6 +62,10 @@ export class LoginUseCase {
         this.logger.warn('Login attempt with missing credentials', { hasEmail: !!dto.email, hasPassword: !!dto.password });
         throw new UnauthorizedException('Email y contraseña son requeridos');
       }
+
+      // ✅ Log del intento con rememberMe
+      const rememberMe = dto.rememberMe ?? false;
+      this.logger.log(`Login attempt for: ${dto.email} | rememberMe: ${rememberMe}`);
 
       // 1. Validate inputs via VOs
       let email: Email;
@@ -110,8 +117,10 @@ export class LoginUseCase {
 
       const refreshToken = uuidv4();
       const family = uuidv4();
+      // ✅ Duración dinámica según rememberMe
+      const tokenDays = rememberMe ? this.REFRESH_TOKEN_DAYS_REMEMBER : this.REFRESH_TOKEN_DAYS_DEFAULT;
       const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + this.REFRESH_TOKEN_DAYS);
+      expiresAt.setDate(expiresAt.getDate() + tokenDays);
 
       await this.authRepository.createRefreshToken({
         token: refreshToken,
@@ -140,7 +149,7 @@ export class LoginUseCase {
         });
       });
 
-      this.logger.log(`User ${user.id} logged in successfully`);
+      this.logger.log(`✅ User ${user.id} logged in successfully | Token expires: ${rememberMe ? '30 days' : '7 days'}`);
 
       return {
         message: 'Login exitoso',

@@ -280,7 +280,7 @@ export class AuthService {
   }
 
   /**
-   * Limpiar datos de autenticación
+   * Limpiar datos de autenticación (privado)
    */
   private clearAuthData(): void {
     localStorage.removeItem('cermont_access_token');
@@ -288,6 +288,14 @@ export class AuthService {
     localStorage.removeItem('cermont_user');
     localStorage.removeItem('cermont_remember_me');
     this.userSubject.next(null);
+  }
+
+  /**
+   * Limpiar autenticación local (público - para interceptor)
+   * No llama al API de logout, solo limpia estado local
+   */
+  clearLocalAuth(): void {
+    this.clearAuthData();
   }
 
   /**

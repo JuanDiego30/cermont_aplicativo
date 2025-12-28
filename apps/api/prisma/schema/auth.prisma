@@ -22,6 +22,7 @@ model User {
   lastLogin       DateTime?
   loginAttempts   Int       @default(0)
   lockedUntil     DateTime?
+  twoFactorEnabled Boolean  @default(false)
   
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -29,6 +30,7 @@ model User {
   // Relaciones de autenticación
   refreshTokens        RefreshToken[]
   passwordResetTokens  PasswordResetToken[]
+  twoFactorTokens      TwoFactorToken[]
   auditLogs            AuditLog[]
 
   // Relaciones de órdenes
@@ -180,3 +182,23 @@ model AuditLog {
   @@index([createdAt(sort: Desc)])
   @@map("audit_logs")
 }
+
+model TwoFactorToken {
+  id          String    @id @default(uuid())
+  userId      String
+  code        String
+  expiresAt   DateTime
+  verified    Boolean   @default(false)
+  verifiedAt  DateTime?
+  attempts    Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([code])
+  @@index([expiresAt])
+  @@index([userId, verified])
+  @@map("two_factor_tokens")
+}
+
