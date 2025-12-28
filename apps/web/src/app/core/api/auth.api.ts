@@ -1,41 +1,63 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { LoginDto, RegisterDto, AuthResponse, RefreshTokenResponse } from '../models/auth.model';
+import { map } from 'rxjs/operators';
+import { environment } from '@env/environment';
+
+interface LoginResponse {
+  token: string;
+  user: {
+    id: string;
+    nombre: string;
+    email: string;
+    rol: string;
+  };
+}
+
+interface RegisterRequest {
+  nombre: string;
+  email: string;
+  password: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthApi {
-  private readonly http = inject(HttpClient);
-  private readonly API_URL = `${environment.apiUrl}/auth`;
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/auth`;
+  private tokenKey = 'auth_token';
 
-  login(dto: LoginDto): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/login`, dto);
+  login(email: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, {
+      email,
+      password
+    }).pipe(
+      map((response) => {
+        localStorage.setItem(this.tokenKey, response.token);
+        return response;
+      })
+    );
   }
 
-  register(dto: RegisterDto): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.API_URL}/register`, dto);
+  register(data: RegisterRequest): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}/register`, data).pipe(
+      map((response) => {
+        localStorage.setItem(this.tokenKey, response.token);
+        return response;
+      })
+    );
   }
 
-  refresh(refreshToken: string): Observable<RefreshTokenResponse> {
-    return this.http.post<RefreshTokenResponse>(`${this.API_URL}/refresh`, { refreshToken });
+  logout(): void {
+    localStorage.removeItem(this.tokenKey);
   }
 
-  logout(): Observable<void> {
-    return this.http.post<void>(`${this.API_URL}/logout`, {});
+  getToken(): string | null {
+    return localStorage.getItem(this.tokenKey);
   }
 
-  forgotPassword(email: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.API_URL}/forgot-password`, { email });
-  }
-
-  resetPassword(token: string, newPassword: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.API_URL}/reset-password`, { token, newPassword });
-  }
-
-  verifyEmail(token: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.API_URL}/verify-email`, { token });
+  isLoggedIn(): boolean {
+    return !!this.getToken();
   }
 }
