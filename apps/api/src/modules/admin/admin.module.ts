@@ -40,13 +40,23 @@ import { USER_REPOSITORY } from './domain/repositories/user.repository.interface
 // Legacy Service (mantenido por compatibilidad)
 import { AdminService } from './admin.service';
 
+// Shared Services
+import { PasswordService } from '../../lib/services/password.service';
+
+// Import AuthModule for PasswordService dependency
+import { AuthModule } from '../auth/auth.module';
+
 @Module({
   imports: [
     PrismaModule,
+    AuthModule, // Para acceder a PasswordService
     // EventEmitterModule is already registered globally in AppModule
   ],
   controllers: [AdminController],
   providers: [
+    // ✅ Shared Services
+    PasswordService,
+    
     // ✅ Repository (inyección por interfaz)
     {
       provide: USER_REPOSITORY,
@@ -73,6 +83,9 @@ import { AdminService } from './admin.service';
     AdminService,
   ],
   exports: [
+    // Exportar PasswordService para uso en otros módulos
+    PasswordService,
+    
     // Exportar casos de uso para uso en otros módulos si es necesario
     CreateUserUseCase,
     UpdateUserUseCase,
