@@ -12,9 +12,9 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../../prisma/prisma.service';
+import { PasswordService } from '../../lib/services/password.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
@@ -52,6 +52,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly passwordService: PasswordService,
   ) { }
 
   // =====================================================
@@ -59,12 +60,11 @@ export class AuthService {
   // =====================================================
 
   async hashPassword(password: string): Promise<string> {
-    const rounds = this.configService.get<number>('BCRYPT_ROUNDS') ?? 12;
-    return bcrypt.hash(password, rounds);
+    return this.passwordService.hash(password);
   }
 
   async comparePassword(plain: string, hashed: string): Promise<boolean> {
-    return bcrypt.compare(plain, hashed);
+    return this.passwordService.compare(plain, hashed);
   }
 
   generateAccessToken(userId: string, email: string, role: string): string {
