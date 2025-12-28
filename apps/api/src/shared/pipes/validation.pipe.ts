@@ -15,13 +15,13 @@ export class GlobalValidationPipe implements PipeTransform {
       throw new BadRequestException('Validation failed: No data provided');
     }
 
-    // Si no hay DTO, pasar directamente
-    if (!metadata.type || metadata.type === 'custom') {
+    // Si no hay DTO o metatype, pasar directamente
+    if (!metadata.type || metadata.type === 'custom' || !metadata.metatype) {
       return value;
     }
 
     const object = plainToClass(metadata.metatype, value);
-    const errors = await validate(object, {
+    const errors = await validate(object as object, {
       whitelist: true,
       forbidNonWhitelisted: true,
       skipMissingProperties: false,
