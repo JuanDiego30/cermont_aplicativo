@@ -1,49 +1,118 @@
-<!-- Mobile-First Dashboard Layout -->
+<!-- Dashboard Mejorado con Métricas Reales -->
 <div class="space-y-6">
-
-  <!-- Mobile: Horizontal Scroll Stat Cards -->
-  <app-mobile-stat-cards></app-mobile-stat-cards>
-
-  <!-- Mobile: Progress Overview Section -->
-  <div class="lg:hidden">
-    <app-mobile-progress-section></app-mobile-progress-section>
+  <!-- Seção de Título -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Dashboard</h1>
+    <p class="text-gray-600 dark:text-gray-400">Bienvenido de vuelta, Admin. Aquí está un resumen de tu negocio.</p>
   </div>
 
-  <!-- Desktop Layout: Grid -->
-  <div class="hidden lg:grid grid-cols-12 gap-4 md:gap-6">
-    <div class="col-span-12 space-y-6 xl:col-span-7">
+  <!-- Métricas Principales (4 Tarjetas) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <app-metric-card
+      [metric]="{
+        label: 'Total Órdenes',
+        value: metrics.totalOrders,
+        icon: '📦',
+        trend: { value: 12, direction: 'up' },
+        color: 'primary'
+      }"
+    ></app-metric-card>
+
+    <app-metric-card
+      [metric]="{
+        label: 'Ingresos Totales',
+        value: '$' + (metrics.revenue | number: '1.0-0'),
+        icon: '💰',
+        trend: { value: 8, direction: 'up' },
+        color: 'success'
+      }"
+    ></app-metric-card>
+
+    <app-metric-card
+      [metric]="{
+        label: 'Clientes Activos',
+        value: metrics.activeCustomers,
+        icon: '👥',
+        trend: { value: 5, direction: 'up' },
+        color: 'info'
+      }"
+    ></app-metric-card>
+
+    <app-metric-card
+      [metric]="{
+        label: 'Tasa Compleción',
+        value: metrics.completionRate + '%',
+        icon: '✅',
+        trend: { value: 2, direction: 'up' },
+        color: 'warning'
+      }"
+    ></app-metric-card>
+  </div>
+
+  <!-- Estado de Órdenes -->
+  <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Estado de Órdenes</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div *ngFor="let status of orderStatuses" class="p-4 rounded-lg" [ngClass]="getStatusBgClass(status.color)">
+        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{{ status.status }}</p>
+        <p class="text-2xl font-bold" [ngClass]="getStatusTextClass(status.color)">
+          {{ status.count }}
+        </p>
+        <p class="text-xs mt-2" [ngClass]="getStatusTextClass(status.color)">
+          {{ ((status.count / metrics.totalOrders) * 100) | number: '1.0-0' }}% del total
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid Principal: Componentes Existentes -->
+  <div class="hidden lg:grid grid-cols-12 gap-6">
+    <!-- Columna Izquierda (7/12) -->
+    <div class="col-span-12 xl:col-span-7 space-y-6">
       <div><app-ecommerce-metrics /></div>
       <div><app-monthly-sales-chart /></div>
     </div>
 
+    <!-- Columna Derecha (5/12) -->
     <div class="col-span-12 xl:col-span-5">
       <app-monthly-target />
     </div>
 
+    <!-- Ancho Completo -->
     <div class="col-span-12">
       <app-statics-chart />
     </div>
 
+    <!-- Demográfico -->
     <div class="col-span-12 xl:col-span-5">
       <app-demographic-card />
     </div>
 
+    <!-- Órdenes Recientes -->
     <div class="col-span-12 xl:col-span-7">
       <app-recent-orders />
     </div>
   </div>
 
-  <!-- Mobile: Recent Activity List -->
-  <div class="lg:hidden">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+  <!-- Mobile: Vistas Alternativas -->
+  <div class="lg:hidden space-y-6">
+    <!-- Sección de Progreso Mobile -->
+    <div>
+      <app-mobile-progress-section></app-mobile-progress-section>
+    </div>
+
+    <!-- Actividad Reciente -->
+    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm">
       <div class="flex items-center justify-between mb-4">
         <h3 class="font-semibold text-gray-900 dark:text-white">Actividad Reciente</h3>
-        <button class="text-sm text-brand-500 hover:text-brand-600 font-medium">Ver todo</button>
+        <button class="text-sm text-cermont-primary-500 hover:text-cermont-primary-600 font-medium">
+          Ver todo
+        </button>
       </div>
 
       <div class="space-y-4">
         <!-- Activity Item 1 -->
-        <div class="flex items-center gap-4 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
+        <div class="flex items-center gap-4 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
           <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
             <span class="text-green-600 dark:text-green-400">✓</span>
           </div>
@@ -55,7 +124,7 @@
         </div>
 
         <!-- Activity Item 2 -->
-        <div class="flex items-center gap-4 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
+        <div class="flex items-center gap-4 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
           <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
             <span class="text-blue-600 dark:text-blue-400">📋</span>
           </div>
@@ -67,7 +136,7 @@
         </div>
 
         <!-- Activity Item 3 -->
-        <div class="flex items-center gap-4 p-3 rounded-xl bg-gray-50 dark:bg-gray-700/50">
+        <div class="flex items-center gap-4 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
           <div class="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
             <span class="text-yellow-600 dark:text-yellow-400">⚠️</span>
           </div>
@@ -80,5 +149,4 @@
       </div>
     </div>
   </div>
-
 </div>
