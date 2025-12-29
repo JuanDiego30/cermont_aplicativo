@@ -54,7 +54,7 @@ import { CertificacionesModule } from './modules/certificaciones/certificaciones
 import { ClientesModule } from './modules/clientes/clientes.module';
 import { FacturacionModule } from './modules/facturacion/facturacion.module';
 import { ArchivadoHistoricoModule } from './modules/archivado-historico/archivado-historico.module';
-import { OrdersModule } from './modules/orders/orders.module';
+
 
 // Common providers
 import { HttpExceptionFilter, AllExceptionsFilter } from './common/filters';
@@ -161,7 +161,7 @@ import { LoggerService } from './common/logging/logger.service';
         ClientesModule,           // Gestión de clientes (SIERRACOL)
         FacturacionModule,        // SES Ariba + Facturación
         ArchivadoHistoricoModule, // Archivado automático mensual
-        OrdersModule,             // NEW: Standardized English Orders module
+
 
         // Schedule module for CRON jobs
         ScheduleModule.forRoot(),
