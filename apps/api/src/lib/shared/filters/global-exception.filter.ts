@@ -7,7 +7,7 @@ import {
     Injectable,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { LoggerService } from '@/lib/logging/logger.service';
+import { LoggerService } from '../../logging/logger.service';
 
 interface ErrorResponse {
     statusCode: number;
