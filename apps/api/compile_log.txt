@@ -2,67 +2,26 @@
 > @cermont/api@1.0.0 build C:\Users\camil\Downloads\Compressed\aplicativo_cermont_prueba\cermont_aplicativo\apps\api
 > nest build
 
+[96mprisma/seed_root.ts[0m:[93m8[0m:[93m38[0m - [91merror[0m[90m TS2307: [0mCannot find module '.prisma/client' or its corresponding type declarations.
+
+[7m8[0m import { PrismaClient, Prisma } from '.prisma/client';
+[7m [0m [91m                                     ~~~~~~~~~~~~~~~~[0m
 [96mprisma/seed_root.ts[0m:[93m9[0m:[93m26[0m - [91merror[0m[90m TS2307: [0mCannot find module '@prisma/adapter-pg' or its corresponding type declarations.
 
 [7m9[0m import { PrismaPg } from '@prisma/adapter-pg';
 [7m [0m [91m                         ~~~~~~~~~~~~~~~~~~~~[0m
-[96mprisma/seed_root.ts[0m:[93m37[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'active' does not exist in type '(Without<UserUpdateInput, UserUncheckedUpdateInput> & UserUncheckedUpdateInput) | (Without<...> & UserUpdateInput)'.
+[96mprisma/verify-stats.ts[0m:[93m1[0m:[93m30[0m - [91merror[0m[90m TS2307: [0mCannot find module '.prisma/client' or its corresponding type declarations.
 
-[7m37[0m             active: true,
-[7m  [0m [91m            ~~~~~~[0m
-
-  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m1966[0m:[93m5[0m
-    [7m1966[0m     update: XOR<UserUpdateInput, UserUncheckedUpdateInput>
-    [7m    [0m [96m    ~~~~~~[0m
-    The expected type comes from property 'update' which is declared here on type '{ select?: UserSelect<DefaultArgs> | null | undefined; include?: UserInclude<DefaultArgs> | null | undefined; where: UserWhereUniqueInput; create: (Without<...> & UserUncheckedCreateInput) | (Without<...> & UserCreateInput); update: (Without<...> & UserUncheckedUpdateInput) | (Without<...> & UserUpdateInput); }'
-[96mprisma/seed_root.ts[0m:[93m44[0m:[93m13[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'active' does not exist in type '(Without<UserCreateInput, UserUncheckedCreateInput> & UserUncheckedCreateInput) | (Without<...> & UserCreateInput)'.
-
-[7m44[0m             active: true,
-[7m  [0m [91m            ~~~~~~[0m
-
-  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m1962[0m:[93m5[0m
-    [7m1962[0m     create: XOR<UserCreateInput, UserUncheckedCreateInput>
-    [7m    [0m [96m    ~~~~~~[0m
-    The expected type comes from property 'create' which is declared here on type '{ select?: UserSelect<DefaultArgs> | null | undefined; include?: UserInclude<DefaultArgs> | null | undefined; where: UserWhereUniqueInput; create: (Without<...> & UserUncheckedCreateInput) | (Without<...> & UserCreateInput); update: (Without<...> & UserUncheckedUpdateInput) | (Without<...> & UserUpdateInput); }'
+[7m1[0m import { PrismaClient } from '.prisma/client';
+[7m [0m [91m                             ~~~~~~~~~~~~~~~~[0m
 [96mprisma/verify-stats.ts[0m:[93m2[0m:[93m26[0m - [91merror[0m[90m TS2307: [0mCannot find module '@prisma/adapter-pg' or its corresponding type declarations.
 
 [7m2[0m import { PrismaPg } from '@prisma/adapter-pg';
 [7m [0m [91m                         ~~~~~~~~~~~~~~~~~~~~[0m
-[96mprisma/verify-stats.ts[0m:[93m8[0m:[93m35[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'adapter' does not exist in type 'Subset<PrismaClientOptions, PrismaClientOptions>'.
+[96msrc/common/filters/prisma-exception.filter.ts[0m:[93m19[0m:[93m24[0m - [91merror[0m[90m TS2307: [0mCannot find module '.prisma/client' or its corresponding type declarations.
 
-[7m8[0m const prisma = new PrismaClient({ adapter });
-[7m [0m [91m                                  ~~~~~~~[0m
-[96mprisma/verify-stats.ts[0m:[93m17[0m:[93m43[0m - [91merror[0m[90m TS2551: [0mProperty 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'orden'?
-
-[7m17[0m         const totalOrdenes = await prisma.order.count();
-[7m  [0m [91m                                          ~~~~~[0m
-
-  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m173[0m:[93m7[0m
-    [7m173[0m   get orden(): Prisma.OrdenDelegate<ExtArgs>;
-    [7m   [0m [96m      ~~~~~[0m
-    'orden' is declared here.
-[96mprisma/verify-stats.ts[0m:[93m21[0m:[93m47[0m - [91merror[0m[90m TS2551: [0mProperty 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'orden'?
-
-[7m21[0m         const ordenesPorEstado = await prisma.order.groupBy({
-[7m  [0m [91m                                              ~~~~~[0m
-
-  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m173[0m:[93m7[0m
-    [7m173[0m   get orden(): Prisma.OrdenDelegate<ExtArgs>;
-    [7m   [0m [96m      ~~~~~[0m
-    'orden' is declared here.
-[96mprisma/verify-stats.ts[0m:[93m28[0m:[93m66[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'active' does not exist in type 'UserWhereInput'.
-
-[7m28[0m         const totalUsuarios = await prisma.user.count({ where: { active: true } });
-[7m  [0m [91m                                                                 ~~~~~~[0m
-[96mprisma/verify-stats.ts[0m:[93m32[0m:[93m47[0m - [91merror[0m[90m TS2551: [0mProperty 'order' does not exist on type 'PrismaClient<PrismaClientOptions, never, DefaultArgs>'. Did you mean 'orden'?
-
-[7m32[0m         const ordenesRecientes = await prisma.order.count({
-[7m  [0m [91m                                              ~~~~~[0m
-
-  [96mnode_modules/.prisma/client/index.d.ts[0m:[93m173[0m:[93m7[0m
-    [7m173[0m   get orden(): Prisma.OrdenDelegate<ExtArgs>;
-    [7m   [0m [96m      ~~~~~[0m
-    'orden' is declared here.
+[7m19[0m import { Prisma } from '.prisma/client';
+[7m  [0m [91m                       ~~~~~~~~~~~~~~~~[0m
 [96msrc/modules/admin/admin.service.ts[0m:[93m78[0m:[93m21[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'phone' does not exist in type '(Without<UserCreateInput, UserUncheckedCreateInput> & UserUncheckedCreateInput) | (Without<...> & UserCreateInput)'.
 
 [7m78[0m                     phone: dto.phone,
@@ -172,14 +131,14 @@
     [7m4432[0m     changes?: string | null
     [7m    [0m [96m    ~~~~~~~[0m
     The expected type comes from property 'changes' which is declared here on type '(Without<AuditLogCreateInput, AuditLogUncheckedCreateInput> & AuditLogUncheckedCreateInput) | (Without<...> & AuditLogCreateInput)'
-[96msrc/modules/admin/infrastructure/persistence/user.prisma.mapper.ts[0m:[93m7[0m:[93m10[0m - [91merror[0m[90m TS2305: [0mModule '".prisma/client"' has no exported member 'UserRole'.
+[96msrc/modules/admin/infrastructure/persistence/user.prisma.mapper.ts[0m:[93m7[0m:[93m26[0m - [91merror[0m[90m TS2307: [0mCannot find module '.prisma/client' or its corresponding type declarations.
 
 [7m7[0m import { UserRole } from '.prisma/client';
-[7m [0m [91m         ~~~~~~~~[0m
-[96msrc/modules/admin/infrastructure/persistence/user.repository.ts[0m:[93m9[0m:[93m18[0m - [91merror[0m[90m TS2305: [0mModule '".prisma/client"' has no exported member 'UserRole'.
+[7m [0m [91m                         ~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/admin/infrastructure/persistence/user.repository.ts[0m:[93m9[0m:[93m34[0m - [91merror[0m[90m TS2307: [0mCannot find module '.prisma/client' or its corresponding type declarations.
 
 [7m9[0m import { Prisma, UserRole } from '.prisma/client';
-[7m [0m [91m                 ~~~~~~~~[0m
+[7m [0m [91m                                 ~~~~~~~~~~~~~~~~[0m
 [96msrc/modules/admin/infrastructure/persistence/user.repository.ts[0m:[93m31[0m:[93m38[0m - [91merror[0m[90m TS2345: [0mArgument of type '{ name: string; email: string; password: string; id: string; role: string; status: string; createdAt: Date; updatedAt: Date; }' is not assignable to parameter of type 'PrismaUser'.
   Type '{ name: string; email: string; password: string; id: string; role: string; status: string; createdAt: Date; updatedAt: Date; }' is missing the following properties from type 'PrismaUser': phone, avatar, active, lastLogin
 
@@ -190,10 +149,6 @@
 
 [7m41[0m     return UserPrismaMapper.toDomain(user);
 [7m  [0m [91m                                     ~~~~[0m
-[96msrc/modules/admin/infrastructure/persistence/user.repository.ts[0m:[93m56[0m:[93m13[0m - [91merror[0m[90m TS2339: [0mProperty 'active' does not exist on type 'UserWhereInput'.
-
-[7m56[0m       where.active = active;
-[7m  [0m [91m            ~~~~~~[0m
 [96msrc/modules/admin/infrastructure/persistence/user.repository.ts[0m:[93m77[0m:[93m23[0m - [91merror[0m[90m TS2345: [0mArgument of type '(prismaUser: PrismaUser) => UserEntity' is not assignable to parameter of type '(value: { name: string; email: string; password: string; id: string; role: string; status: string; createdAt: Date; updatedAt: Date; }, index: number, array: { name: string; email: string; ... 5 more ...; updatedAt: Date; }[]) => UserEntity'.
   Types of parameters 'prismaUser' and 'value' are incompatible.
     Type '{ name: string; email: string; password: string; id: string; role: string; status: string; createdAt: Date; updatedAt: Date; }' is missing the following properties from type 'PrismaUser': phone, avatar, active, lastLogin
@@ -845,6 +800,10 @@
 
 [7m417[0m     await this.prisma.checklistEjecucion.delete({
 [7m   [0m [91m                      ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/cierre-administrativo/cierre-administrativo.service.ts[0m:[93m14[0m:[93m24[0m - [91merror[0m[90m TS2307: [0mCannot find module '.prisma/client' or its corresponding type declarations.
+
+[7m14[0m import { Prisma } from '.prisma/client';
+[7m  [0m [91m                       ~~~~~~~~~~~~~~~~[0m
 [96msrc/modules/cierre-administrativo/cierre-administrativo.service.ts[0m:[93m70[0m:[93m19[0m - [91merror[0m[90m TS2339: [0mProperty 'cierreAdministrativo' does not exist on type 'PrismaService'.
 
 [7m70[0m       this.prisma.cierreAdministrativo.findUnique({ where: { ordenId } }),
@@ -1620,10 +1579,14 @@
 
 [7m277[0m         const ses = await this.prisma.sES.findUnique({
 [7m   [0m [91m                                      ~~~[0m
-[96msrc/modules/formularios/formularios.service.ts[0m:[93m7[0m:[93m15[0m - [91merror[0m[90m TS2305: [0mModule '".prisma/client"' has no exported member 'TipoFormulario'.
+[96msrc/modules/formularios/formularios.service.ts[0m:[93m6[0m:[93m24[0m - [91merror[0m[90m TS2307: [0mCannot find module '.prisma/client' or its corresponding type declarations.
+
+[7m6[0m import { Prisma } from '.prisma/client';
+[7m [0m [91m                       ~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/formularios/formularios.service.ts[0m:[93m7[0m:[93m37[0m - [91merror[0m[90m TS2307: [0mCannot find module '.prisma/client' or its corresponding type declarations.
 
 [7m7[0m import type { TipoFormulario } from '.prisma/client';
-[7m [0m [91m              ~~~~~~~~~~~~~~[0m
+[7m [0m [91m                                    ~~~~~~~~~~~~~~~~[0m
 [96msrc/modules/formularios/formularios.service.ts[0m:[93m26[0m:[93m44[0m - [91merror[0m[90m TS2339: [0mProperty 'formTemplate' does not exist on type 'PrismaService'.
 
 [7m26[0m         const existing = await this.prisma.formTemplate.findUnique({
@@ -1632,10 +1595,6 @@
 
 [7m34[0m         const template = await this.prisma.formTemplate.create({
 [7m  [0m [91m                                           ~~~~~~~~~~~~[0m
-[96msrc/modules/formularios/formularios.service.ts[0m:[93m53[0m:[93m29[0m - [91merror[0m[90m TS2694: [0mNamespace '"C:/Users/camil/Downloads/Compressed/aplicativo_cermont_prueba/cermont_aplicativo/apps/api/node_modules/.prisma/client/index".Prisma' has no exported member 'FormTemplateWhereInput'.
-
-[7m53[0m         const where: Prisma.FormTemplateWhereInput = {};
-[7m  [0m [91m                            ~~~~~~~~~~~~~~~~~~~~~~[0m
 [96msrc/modules/formularios/formularios.service.ts[0m:[93m59[0m:[93m28[0m - [91merror[0m[90m TS2339: [0mProperty 'formTemplate' does not exist on type 'PrismaService'.
 
 [7m59[0m         return this.prisma.formTemplate.findMany({
@@ -1648,10 +1607,6 @@
 
 [7m88[0m             const existing = await this.prisma.formTemplate.findFirst({
 [7m  [0m [91m                                               ~~~~~~~~~~~~[0m
-[96msrc/modules/formularios/formularios.service.ts[0m:[93m96[0m:[93m28[0m - [91merror[0m[90m TS2694: [0mNamespace '"C:/Users/camil/Downloads/Compressed/aplicativo_cermont_prueba/cermont_aplicativo/apps/api/node_modules/.prisma/client/index".Prisma' has no exported member 'FormTemplateUpdateInput'.
-
-[7m96[0m         const data: Prisma.FormTemplateUpdateInput = {
-[7m  [0m [91m                           ~~~~~~~~~~~~~~~~~~~~~~~[0m
 [96msrc/modules/formularios/formularios.service.ts[0m:[93m108[0m:[93m28[0m - [91merror[0m[90m TS2339: [0mProperty 'formTemplate' does not exist on type 'PrismaService'.
 
 [7m108[0m         return this.prisma.formTemplate.update({
@@ -1673,10 +1628,6 @@
 
 [7m142[0m         const instancia = await this.prisma.formularioInstancia.create({
 [7m   [0m [91m                                            ~~~~~~~~~~~~~~~~~~~[0m
-[96msrc/modules/formularios/formularios.service.ts[0m:[93m162[0m:[93m29[0m - [91merror[0m[90m TS2694: [0mNamespace '"C:/Users/camil/Downloads/Compressed/aplicativo_cermont_prueba/cermont_aplicativo/apps/api/node_modules/.prisma/client/index".Prisma' has no exported member 'FormularioInstanciaWhereInput'.
-
-[7m162[0m         const where: Prisma.FormularioInstanciaWhereInput = {};
-[7m   [0m [91m                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
 [96msrc/modules/formularios/formularios.service.ts[0m:[93m168[0m:[93m28[0m - [91merror[0m[90m TS2339: [0mProperty 'formularioInstancia' does not exist on type 'PrismaService'.
 
 [7m168[0m         return this.prisma.formularioInstancia.findMany({
@@ -1685,10 +1636,6 @@
 
 [7m180[0m         const instancia = await this.prisma.formularioInstancia.findUnique({
 [7m   [0m [91m                                            ~~~~~~~~~~~~~~~~~~~[0m
-[96msrc/modules/formularios/formularios.service.ts[0m:[93m199[0m:[93m28[0m - [91merror[0m[90m TS2694: [0mNamespace '"C:/Users/camil/Downloads/Compressed/aplicativo_cermont_prueba/cermont_aplicativo/apps/api/node_modules/.prisma/client/index".Prisma' has no exported member 'FormularioInstanciaUpdateInput'.
-
-[7m199[0m         const data: Prisma.FormularioInstanciaUpdateInput = {
-[7m   [0m [91m                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
 [96msrc/modules/formularios/formularios.service.ts[0m:[93m206[0m:[93m28[0m - [91merror[0m[90m TS2339: [0mProperty 'formularioInstancia' does not exist on type 'PrismaService'.
 
 [7m206[0m         return this.prisma.formularioInstancia.update({
@@ -2032,6 +1979,10 @@
     [7m173[0m   get orden(): Prisma.OrdenDelegate<ExtArgs>;
     [7m   [0m [96m      ~~~~~[0m
     'orden' is declared here.
+[96msrc/modules/ordenes/application/services/order-state.service.ts[0m:[93m9[0m:[93m24[0m - [91merror[0m[90m TS2307: [0mCannot find module '.prisma/client' or its corresponding type declarations.
+
+[7m9[0m import { Prisma } from '.prisma/client';
+[7m [0m [91m                       ~~~~~~~~~~~~~~~~[0m
 [96msrc/modules/ordenes/application/services/order-state.service.ts[0m:[93m67[0m:[93m41[0m - [91merror[0m[90m TS2551: [0mProperty 'order' does not exist on type 'PrismaService'. Did you mean 'orden'?
 
 [7m67[0m         const orden = await this.prisma.order.findUnique({
@@ -2288,6 +2239,10 @@
     [7m173[0m   get orden(): Prisma.OrdenDelegate<ExtArgs>;
     [7m   [0m [96m      ~~~~~[0m
     'orden' is declared here.
+[96msrc/modules/reportes/reportes.service.ts[0m:[93m12[0m:[93m24[0m - [91merror[0m[90m TS2307: [0mCannot find module '.prisma/client' or its corresponding type declarations.
+
+[7m12[0m import { Prisma } from '.prisma/client';
+[7m  [0m [91m                       ~~~~~~~~~~~~~~~~[0m
 [96msrc/modules/reportes/reportes.service.ts[0m:[93m66[0m:[93m39[0m - [91merror[0m[90m TS2551: [0mProperty 'order' does not exist on type 'PrismaService'. Did you mean 'orden'?
 
 [7m66[0m     const ordenes = await this.prisma.order.findMany({
@@ -2306,14 +2261,6 @@
     [7m173[0m   get orden(): Prisma.OrdenDelegate<ExtArgs>;
     [7m   [0m [96m      ~~~~~[0m
     'orden' is declared here.
-[96msrc/modules/reportes/reportes.service.ts[0m:[93m111[0m:[93m57[0m - [91merror[0m[90m TS2724: [0m'"C:/Users/camil/Downloads/Compressed/aplicativo_cermont_prueba/cermont_aplicativo/apps/api/node_modules/.prisma/client/index".Prisma' has no exported member named 'OrderWhereInput'. Did you mean 'OrdenWhereInput'?
-
-[7m111[0m   private buildDateFilter(filtro: FiltroFechas): Prisma.OrderWhereInput {
-[7m   [0m [91m                                                        ~~~~~~~~~~~~~~~[0m
-[96msrc/modules/reportes/reportes.service.ts[0m:[93m112[0m:[93m25[0m - [91merror[0m[90m TS2724: [0m'"C:/Users/camil/Downloads/Compressed/aplicativo_cermont_prueba/cermont_aplicativo/apps/api/node_modules/.prisma/client/index".Prisma' has no exported member named 'OrderWhereInput'. Did you mean 'OrdenWhereInput'?
-
-[7m112[0m     const where: Prisma.OrderWhereInput = {};
-[7m   [0m [91m                        ~~~~~~~~~~~~~~~[0m
 [96msrc/modules/sync/infrastructure/persistence/sync.repository.ts[0m:[93m14[0m:[93m38[0m - [91merror[0m[90m TS2339: [0mProperty 'pendingSync' does not exist on type 'PrismaService'.
 
 [7m14[0m     const record = await this.prisma.pendingSync.create({
@@ -2490,6 +2437,6 @@
     [7m    [0m [96m    ~~~~[0m
     The expected type comes from property 'data' which is declared here on type '{ select?: UserSelect<DefaultArgs> | null | undefined; include?: UserInclude<DefaultArgs> | null | undefined; data: (Without<UserUpdateInput, UserUncheckedUpdateInput> & UserUncheckedUpdateInput) | (Without<...> & UserUpdateInput); where: UserWhereUniqueInput; }'
 
-Found 475 error(s).
+Found 468 error(s).
 
  ELIFECYCLE  Command failed with exit code 1.

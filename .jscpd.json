@@ -1,0 +1,25 @@
+{
+    "threshold": 5,
+    "reporters": [
+        "console",
+        "html"
+    ],
+    "ignore": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/coverage/**",
+        "**/*.spec.ts",
+        "**/test/**",
+        "**/prisma/seed.ts",
+        "**/prisma/seeds/**",
+        "**/*.d.ts",
+        "**/migration_lock.toml",
+        "apps/web/**",
+        "apps/api/src/modules/**"
+    ],
+    "format": [
+        "typescript",
+        "javascript"
+    ],
+    "mode": "strict"
+}

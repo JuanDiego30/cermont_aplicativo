@@ -51,22 +51,37 @@ import { PrismaModule } from '../../prisma/prisma.module';
         ConfigModule,
         PrismaModule,
         PassportModule.register({ defaultStrategy: 'jwt' }),
+        /*
         JwtModule.registerAsync({
             global: true,
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => {
-                const secret = configService.get<string>('JWT_SECRET') || process.env.JWT_SECRET;
-                if (!secret) {
-                    throw new Error('JWT_SECRET is required');
+                console.log('[DEBUG] AuthModule: Loading JWT Secret...');
+                try {
+                   const secret = configService.get<string>('JWT_SECRET') || process.env.JWT_SECRET;
+                   console.log('[DEBUG] JWT Secret Found:', !!secret);
+                   if (!secret) {
+                       throw new Error('JWT_SECRET is required');
+                   }
+                   return {
+                       secret,
+                       signOptions: {
+                           expiresIn: 900,
+                       },
+                   };
+                } catch (e) {
+                   console.error('[DEBUG] JWT Config Error', e);
+                   throw e;
                 }
-                return {
-                    secret,
-                    signOptions: {
-                        expiresIn: 900, // 15 minutos en segundos
-                    },
-                };
             },
+        }),
+        */
+        // FIX TEMPORAL DEBUG
+        JwtModule.register({
+            global: true,
+            secret: 'dev_secret_key_cambiar_en_produccion_1234567890abcdef',
+            signOptions: { expiresIn: '15m' },
         }),
     ],
     controllers: [

@@ -3,8 +3,8 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CreateFormTemplateDto, UpdateFormTemplateDto } from './application/dto/form-template.dto';
 import { SubmitFormDto } from './application/dto/submit-form.dto';
 import { FormParserService } from './infrastructure/services/form-parser.service';
-import { Prisma } from '.prisma/client';
-import type { TipoFormulario } from '.prisma/client';
+import { Prisma } from '@prisma/client';
+import type { TipoFormulario } from '@prisma/client';
 
 @Injectable()
 export class FormulariosService {

@@ -7,11 +7,16 @@
         "dev": "turbo run dev",
         "test": "turbo run test",
         "lint": "turbo run lint",
+        "lint:fix": "turbo run lint:fix",
+        "typecheck": "turbo run typecheck",
+        "duplication": "jscpd .",
+        "check": "pnpm run duplication && turbo run lint typecheck test build",
         "fix:tailwind": "pnpm --filter @cermont/web exec tailwindcss -i ./src/styles.css -o ./dist/styles.css",
         "clean": "rimraf dist .angular apps/*/dist apps/*/.angular"
     },
     "devDependencies": {
-        "turbo": "latest"
+        "jscpd": "^4.0.5",
+        "turbo": "^2.7.2"
     },
     "packageManager": "pnpm@9.1.0",
     "engines": {
