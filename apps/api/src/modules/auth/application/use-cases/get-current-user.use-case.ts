@@ -22,14 +22,11 @@ export class GetCurrentUserUseCase {
     }
 
     return {
-      user: {
-        id: user.id,
-        email: user.email.getValue(),
-        name: user.name,
-        role: user.role,
-        avatar: user.avatar ?? undefined,
-        phone: user.phone ?? undefined,
-      },
+      id: user.id,
+      email: user.email.getValue(),
+      name: user.name,
+      role: user.role,
+      avatar: user.avatar ?? undefined,
     };
   }
 }

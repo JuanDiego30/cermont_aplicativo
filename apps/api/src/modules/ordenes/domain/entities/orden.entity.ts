@@ -16,6 +16,7 @@ export interface OrdenProps {
   fechaFin?: Date;
   fechaFinEstimada?: Date;
   presupuestoEstimado?: number;
+  costoReal?: number;
   creadorId?: string;
   asignadoId?: string;
   createdAt: Date;
@@ -62,6 +63,8 @@ export class OrdenEntity {
   get domainEvents(): readonly any[] {
     return [...this._domainEvents];
   }
+
+  get costoReal(): number | undefined { return this.props.costoReal; }
 
   // Factory Methods
   static create(
@@ -204,6 +207,7 @@ export class OrdenEntity {
       fechaFin: this.fechaFin?.toISOString(),
       fechaFinEstimada: this.fechaFinEstimada?.toISOString(),
       presupuestoEstimado: this.presupuestoEstimado,
+      costoReal: this.costoReal,
       creadorId: this.creadorId,
       asignadoId: this.asignadoId,
       creador: this.creador,

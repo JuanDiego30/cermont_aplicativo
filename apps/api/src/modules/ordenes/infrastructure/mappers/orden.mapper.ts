@@ -1,11 +1,9 @@
-import { Orden as PrismaOrden, User as PrismaUser, EstadoOrden, PrioridadOrden } from '@prisma/client';
+import { Order as PrismaOrden, User as PrismaUser, OrderStatus, OrderPriority } from '@prisma/client';
 import { OrdenResponseDto } from '../../application/dto/orden-response.dto';
 import { OrdenEntity } from '../../domain/entities/orden.entity';
-// Assumes Orden Entity exists or maps directly to Response for now.
-// Ideally should map to Domain Entity first.
 
 export class OrdenMapper {
-    static toDomain(orden: PrismaOrden & { creador?: PrismaUser | null; tecnico?: PrismaUser | null }): OrdenEntity {
+    static toDomain(orden: PrismaOrden & { creador?: PrismaUser | null; asignado?: PrismaUser | null }): OrdenEntity {
         return OrdenEntity.fromPersistence(
             {
                 id: orden.id,
@@ -18,13 +16,13 @@ export class OrdenMapper {
                 fechaFin: orden.fechaFin ?? undefined,
                 fechaFinEstimada: orden.fechaFinEstimada ?? undefined,
                 presupuestoEstimado: orden.presupuestoEstimado ? Number(orden.presupuestoEstimado) : undefined,
-                creadorId: orden.creadorId,
-                asignadoId: orden.tecnicoId, // Correctly mapped from tecnicoId
+                creadorId: orden.creadorId ?? undefined,
+                asignadoId: orden.asignadoId ?? undefined,
                 createdAt: orden.createdAt,
                 updatedAt: orden.updatedAt,
             },
             orden.creador ? { id: orden.creador.id, name: orden.creador.name } : undefined,
-            orden.tecnico ? { id: orden.tecnico.id, name: orden.tecnico.name } : undefined
+            orden.asignado ? { id: orden.asignado.id, name: orden.asignado.name } : undefined
         );
     }
 
@@ -34,27 +32,27 @@ export class OrdenMapper {
             numero: orden.numero.value,
             descripcion: orden.descripcion,
             cliente: orden.cliente,
-            estado: orden.estado.value,
-            prioridad: orden.prioridad.value,
+            estado: orden.estado.value as OrderStatus,
+            prioridad: orden.prioridad.value as OrderPriority,
             fechaInicio: orden.fechaInicio,
             fechaFin: orden.fechaFin,
             fechaFinEstimada: orden.fechaFinEstimada,
             presupuestoEstimado: orden.presupuestoEstimado,
             creadorId: orden.creadorId,
-            tecnicoId: orden.asignadoId,
+            asignadoId: orden.asignadoId,
             createdAt: orden.createdAt,
             updatedAt: orden.updatedAt,
         };
     }
 
-    static toResponse(orden: PrismaOrden & { creador?: PrismaUser; tecnico?: PrismaUser }): OrdenResponseDto {
+    static toResponse(orden: PrismaOrden & { creador?: PrismaUser; asignado?: PrismaUser }): OrdenResponseDto {
         return {
             id: orden.id,
             numero: orden.numero,
             descripcion: orden.descripcion,
             cliente: orden.cliente,
-            estado: orden.estado,
-            prioridad: orden.prioridad,
+            estado: orden.estado as unknown as any,
+            prioridad: orden.prioridad as unknown as any,
             fechaInicio: orden.fechaInicio?.toISOString(),
             fechaFin: orden.fechaFin?.toISOString(),
             fechaFinEstimada: orden.fechaFinEstimada?.toISOString(),
@@ -63,9 +61,9 @@ export class OrdenMapper {
                 id: orden.creador.id,
                 name: orden.creador.name,
             } : undefined,
-            asignado: orden.tecnico ? {
-                id: orden.tecnico.id,
-                name: orden.tecnico.name,
+            asignado: orden.asignado ? {
+                id: orden.asignado.id,
+                name: orden.asignado.name,
             } : undefined,
             createdAt: orden.createdAt.toISOString(),
             updatedAt: orden.updatedAt.toISOString(),

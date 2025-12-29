@@ -65,7 +65,7 @@ export class LoggerService extends Logger {
         super.debug(message, context || this.context);
     }
 
-    verbose(message: string, context?: string): void {
+    verbose(message: string, context?: string, metadata?: any): void {
         const logEntry: LogEntry = {
             timestamp: new Date().toISOString(),
             level: 'verbose',

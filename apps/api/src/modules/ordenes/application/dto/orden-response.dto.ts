@@ -42,13 +42,13 @@ export class OrdenResponseDto {
   asignadoId?: string;
 
   @ApiPropertyOptional({ example: '2025-03-15T08:00:00.000Z' })
-  fechaInicio?: Date;
+  fechaInicio?: string;
 
   @ApiPropertyOptional({ example: '2025-03-15T17:00:00.000Z' })
-  fechaFin?: Date;
+  fechaFin?: string;
 
   @ApiPropertyOptional({ example: '2025-03-15T17:00:00.000Z' })
-  fechaFinEstimada?: Date;
+  fechaFinEstimada?: string;
 
   @ApiPropertyOptional({ example: 250000 })
   presupuestoEstimado?: number;
@@ -66,10 +66,10 @@ export class OrdenResponseDto {
   cumplimientoHES?: boolean;
 
   @ApiProperty({ example: '2024-12-24T18:00:00.000Z' })
-  createdAt!: Date;
+  createdAt!: string;
 
   @ApiProperty({ example: '2024-12-24T18:00:00.000Z' })
-  updatedAt!: Date;
+  updatedAt!: string;
 
   @ApiPropertyOptional({ example: { id: '123', name: 'Usuario Creador' } })
   creador?: { id: string; name: string };
@@ -124,6 +124,6 @@ export class HistorialEstadoDto {
   usuarioId?: string;
 
   @ApiProperty({ example: '2024-12-24T18:00:00.000Z' })
-  createdAt!: Date;
+  createdAt!: string;
 }
 
