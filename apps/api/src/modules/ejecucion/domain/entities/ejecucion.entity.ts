@@ -149,6 +149,14 @@ export class Ejecucion {
         return this.completedAt;
     }
 
+    public getCreatedAt(): Date {
+        return this.createdAt;
+    }
+
+    public getUpdatedAt(): Date {
+        return this.updatedAt;
+    }
+
     public getTimeLogs(): TimeLog[] {
         return [...this.timeLogs];
     }

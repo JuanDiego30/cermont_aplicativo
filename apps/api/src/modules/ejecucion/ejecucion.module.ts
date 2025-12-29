@@ -7,6 +7,7 @@ import {
   IniciarEjecucionUseCase,
   UpdateAvanceUseCase,
   CompletarEjecucionUseCase,
+  GetMisEjecucionesUseCase,
 } from './application/use-cases';
 import { EJECUCION_REPOSITORY } from './domain/repositories';
 import { EjecucionRepository } from './infrastructure/persistence/ejecucion.repository';
@@ -27,12 +28,14 @@ import { EjecucionRepository } from './infrastructure/persistence/ejecucion.repo
     IniciarEjecucionUseCase,
     UpdateAvanceUseCase,
     CompletarEjecucionUseCase,
+    GetMisEjecucionesUseCase,
   ],
   exports: [
     EjecucionService,
     EJECUCION_REPOSITORY,
     GetEjecucionUseCase,
     IniciarEjecucionUseCase,
+    GetMisEjecucionesUseCase,
   ],
 })
 export class EjecucionModule { }

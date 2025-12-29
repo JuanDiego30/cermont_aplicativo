@@ -20,17 +20,17 @@ import { RolesGuard } from '../../../../common/guards/roles.guard';
 import { Roles } from '../../../../common/decorators/roles.decorator';
 import { CurrentUser, JwtPayload } from '../../../../common/decorators/current-user.decorator';
 import {
-  GetEjecucionUseCase,
-  IniciarEjecucionUseCase,
-  UpdateAvanceUseCase,
-  CompletarEjecucionUseCase,
-} from '../../application/use-cases';
-import {
   IniciarEjecucionSchema,
   UpdateAvanceSchema,
   CompletarEjecucionSchema,
 } from '../../application/dto';
-import { EjecucionService } from '../../ejecucion.service';
+import {
+  GetEjecucionUseCase,
+  IniciarEjecucionUseCase,
+  UpdateAvanceUseCase,
+  CompletarEjecucionUseCase,
+  GetMisEjecucionesUseCase,
+} from '../../application/use-cases';
 
 @ApiTags('Ejecucion')
 @Controller('ejecucion')
@@ -42,8 +42,8 @@ export class EjecucionController {
     private readonly iniciarEjecucion: IniciarEjecucionUseCase,
     private readonly updateAvance: UpdateAvanceUseCase,
     private readonly completarEjecucion: CompletarEjecucionUseCase,
-    private readonly ejecucionService: EjecucionService,
-  ) {}
+    private readonly getMisEjecuciones: GetMisEjecucionesUseCase,
+  ) { }
 
   // =====================================================
   // ENDPOINTS DDD (Use Cases)
@@ -64,7 +64,7 @@ export class EjecucionController {
   @Get('mis-ejecuciones')
   @ApiOperation({ summary: 'Obtener ejecuciones del técnico actual' })
   findMine(@CurrentUser() user: JwtPayload) {
-    return this.ejecucionService.findForUser(user.userId);
+    return this.getMisEjecuciones.execute(user.userId);
   }
 
   @Post('orden/:ordenId/iniciar')
