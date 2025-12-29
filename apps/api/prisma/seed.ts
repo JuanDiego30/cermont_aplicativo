@@ -24,7 +24,7 @@ async function main() {
       password: hashedPassword,
       name: 'Administrador',
       role: 'admin',
-      active: true,
+      status: 'ACTIVE',
     },
     create: {
       email: adminEmail,
@@ -32,7 +32,7 @@ async function main() {
       name: 'Administrador',
       role: 'admin',
       phone: faker.phone.number(),
-      active: true,
+      status: 'ACTIVE',
     },
   });
   console.log('✓ Usuario admin sincronizado');
@@ -53,7 +53,7 @@ async function main() {
         name: faker.person.fullName(),
         role: 'tecnico',
         phone: faker.phone.number(),
-        active: true,
+        status: 'ACTIVE',
       },
     });
     console.log(`✓ Técnico ${i} sincronizado`);
@@ -143,15 +143,14 @@ async function main() {
       data: {
         titulo: `Mantenimiento ${faker.commerce.productName()}`,
         descripcion: faker.lorem.paragraph(),
-        frecuenciaDias: 30, // integer
-
-        estado: 'programado', // Enum EstadoMantenimiento
         prioridad: 'media',   // Enum PrioridadMantenimiento
+        periodicidad: 'MENSUAL',
 
-        equipoId: equipo.id,
+        activoId: equipo.id,
+        activoTipo: 'equipo',
         fechaProgramada: faker.date.future(),
 
-        tecnicoAsignadoId: tecnicos[0].id,
+        tecnicoId: tecnicos[0].id,
         tipo: 'preventivo' // Enum TipoMantenimiento
       }
     });
