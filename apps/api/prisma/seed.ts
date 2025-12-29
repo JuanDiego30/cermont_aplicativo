@@ -24,7 +24,7 @@ async function main() {
       password: hashedPassword,
       name: 'Administrador',
       role: 'admin',
-      status: 'ACTIVE',
+      active: true,
     },
     create: {
       email: adminEmail,
@@ -32,7 +32,7 @@ async function main() {
       name: 'Administrador',
       role: 'admin',
       phone: faker.phone.number(),
-      status: 'ACTIVE',
+      active: true,
     },
   });
   console.log('✓ Usuario admin sincronizado');
@@ -53,7 +53,7 @@ async function main() {
         name: faker.person.fullName(),
         role: 'tecnico',
         phone: faker.phone.number(),
-        status: 'ACTIVE',
+        active: true,
       },
     });
     console.log(`✓ Técnico ${i} sincronizado`);

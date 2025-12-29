@@ -20,7 +20,7 @@ export class GetHistorialEstadosUseCase {
     private readonly prisma: PrismaService,
     @Inject(ORDEN_REPOSITORY)
     private readonly ordenRepository: IOrdenRepository,
-  ) {}
+  ) { }
 
   async execute(ordenId: string): Promise<HistorialEstadoDto[]> {
     try {
@@ -42,18 +42,15 @@ export class GetHistorialEstadosUseCase {
       });
 
       // Convertir a DTOs
-      // Nota: OrderStateHistory guarda sub-estados, pero adaptamos a estados principales
-      // Para un historial completo de estados principales, se necesitaría un modelo adicional
-      // Por ahora, usamos el estado actual de la orden como referencia
       const historial: HistorialEstadoDto[] = historialSubEstados.map((h) => ({
         id: h.id,
         ordenId: h.ordenId,
-        estadoAnterior: undefined, // Los sub-estados no mapean directamente a estados principales
-        estadoNuevo: orden.estado.value as OrdenEstado, // Usar estado actual como referencia
-        motivo: h.notas || 'Cambio de sub-estado',
+        estadoAnterior: undefined,
+        estadoNuevo: (orden.estado.value || 'pendiente') as unknown as OrdenEstado,
+        motivo: h.notas || 'Cambio de estado',
         observaciones: h.notas || undefined,
         usuarioId: h.userId || undefined,
-        createdAt: h.createdAt,
+        createdAt: h.createdAt.toISOString(),
       }));
 
       // Si no hay historial, crear una entrada inicial con el estado actual
@@ -62,11 +59,11 @@ export class GetHistorialEstadosUseCase {
           id: orden.id,
           ordenId: orden.id,
           estadoAnterior: undefined,
-          estadoNuevo: orden.estado.value as OrdenEstado,
+          estadoNuevo: (orden.estado.value || 'pendiente') as unknown as OrdenEstado,
           motivo: 'Estado inicial',
           observaciones: undefined,
           usuarioId: orden.creadorId || undefined,
-          createdAt: orden.createdAt,
+          createdAt: orden.createdAt.toISOString(),
         });
       }
 
@@ -77,4 +74,3 @@ export class GetHistorialEstadosUseCase {
     }
   }
 }
-

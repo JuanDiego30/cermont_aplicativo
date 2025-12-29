@@ -20,7 +20,7 @@ export class ChangeOrdenEstadoUseCase {
     @Inject(ORDEN_REPOSITORY)
     private readonly ordenRepository: IOrdenRepository,
     private readonly eventEmitter: EventEmitter2,
-  ) {}
+  ) { }
 
   async execute(
     id: string,
@@ -81,13 +81,13 @@ export class ChangeOrdenEstadoUseCase {
       prioridad: orden.prioridad.value as OrdenPrioridad,
       creadorId: orden.creadorId,
       asignadoId: orden.asignadoId,
-      fechaInicio: orden.fechaInicio,
-      fechaFin: orden.fechaFin,
-      fechaFinEstimada: orden.fechaFinEstimada,
+      fechaInicio: orden.fechaInicio?.toISOString(),
+      fechaFin: orden.fechaFin?.toISOString(),
+      fechaFinEstimada: orden.fechaFinEstimada?.toISOString(),
       presupuestoEstimado: orden.presupuestoEstimado,
-      observaciones: undefined,
-      createdAt: orden.createdAt,
-      updatedAt: orden.updatedAt,
+      costoReal: orden.costoReal,
+      createdAt: orden.createdAt.toISOString(),
+      updatedAt: orden.updatedAt.toISOString(),
       creador: orden.creador,
       asignado: orden.asignado,
     };
