@@ -6,7 +6,7 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { Prisma, UserRole } from '.prisma/client';
+import { Prisma, UserRole } from '@prisma/client';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import {
   IUserRepository,
@@ -19,7 +19,7 @@ import { UserPrismaMapper } from './user.prisma.mapper';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findById(id: string): Promise<UserEntity | null> {
     const user = await this.prisma.user.findUnique({

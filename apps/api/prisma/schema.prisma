@@ -1,8 +1,9 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Prisma Schema CONSOLIDATED for Cermont V2.1
+// Generated from prisma/schema_backup
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 datasource db {
@@ -10,51 +11,1935 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User model
+// ============================================
+// USUARIOS Y AUTENTICACIÓN
+// ============================================
+
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String
-  role      String   @default("USER") // USER, ADMIN, MANAGER
-  status    String   @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+  id       String   @id @default(uuid())
+  email    String   @unique
+  password String? // Nullable para OAuth
+  name     String
+  role     UserRole @default(tecnico)
+  phone    String?
+  avatar   String?
+  active   Boolean  @default(true)
+
+  // OAuth
+  googleId        String?   @unique
+  authProvider    String    @default("local")
+  emailVerified   Boolean   @default(false)
+  emailVerifiedAt DateTime?
+
+  // Seguridad
+  lastLogin        DateTime?
+  loginAttempts    Int       @default(0)
+  lockedUntil      DateTime?
+  twoFactorEnabled Boolean   @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
-  ordenes   Orden[]
+  // Relaciones de autenticación
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  twoFactorTokens     TwoFactorToken[]
+  auditLogs           AuditLog[]
+
+  // Relaciones de órdenes
+  ordenes         Order[] @relation("OrderCreator")
+  asignaciones    Order[] @relation("OrderAssignee")
+  ordenesAnuladas Order[] @relation("OrderCanceller")
+
+  // Relaciones de planeación
+  planeacionesAprobadas  Planeacion[] @relation("PlaneacionAprobador")
+  planeacionesRechazadas Planeacion[] @relation("PlaneacionRechazador")
+  planeacionesCreadas    Planeacion[] @relation("PlaneacionCreador")
+
+  // Relaciones de ejecución
+  ejecucionesIniciadas   Ejecucion[]      @relation("EjecucionIniciador")
+  ejecucionesFinalizadas Ejecucion[]      @relation("EjecucionFinalizador")
+  tareasCompletadas      TareaEjecucion[] @relation("TareaCompletador")
+
+  // Relaciones de checklist
+  checklistsCompletados     ChecklistEjecucion[]     @relation("ChecklistCompletadoPor")
+  checklistItemsCompletados ChecklistItemEjecucion[] @relation("ItemCompletadoPor")
+
+  // Relaciones de evidencias
+  orderItemsCompletados OrderItem[]     @relation("ItemCompletador")
+  evidenciasSubidas     Evidence[]      @relation("EvidenciaSubidor")
+  fotosCargadas         FotoEvidencia[] @relation("FotoCargadaPor")
+
+  // Relaciones de costos
+  costosCreados Cost[] @relation("CostoCreador")
+
+  // Relaciones de inspecciones
+  inspeccionesHESRealizadas InspeccionHES[]       @relation("InspectorHES")
+  inspeccionesLineasVida    InspeccionLineaVida[] @relation("InspectorLineaVida")
+
+  // Relaciones de mantenimientos
+  mantenimientosAsignados Mantenimiento[] @relation("MantenimientosTecnico")
+  mantenimientosCreados   Mantenimiento[] @relation("MantenimientosCreador")
+
+  // Relaciones de formularios
+  formTemplatesCreados   FormTemplate[]        @relation("FormTemplateCreador")
+  formulariosCompletados FormularioInstancia[] @relation("FormulariosCompletados")
+  formulariosRevisados   FormularioInstancia[] @relation("FormulariosRevisados")
+
+  // Relaciones de cierre administrativo
+  actasCreadas      Acta[]    @relation("ActaCreador")
+  actasAprobadas    Acta[]    @relation("ActaAprobador")
+  sesCreadas        SES[]     @relation("SESCreador")
+  sesAprobadas      SES[]     @relation("SESAprobador")
+  facturasCreadas   Factura[] @relation("FacturaCreador")
+  facturasAprobadas Factura[] @relation("FacturaAprobador")
+
+  // Relaciones de flujo 14 pasos
+  stateChanges         OrderStateHistory[]  @relation("StateChangeUser")
+  visitasRealizadas    VisitaTecnica[]      @relation("VisitaTecnico")
+  propuestasCreadas    PropuestaEconomica[] @relation("PropuestaCreador")
+  propuestasAprobadas  PropuestaEconomica[] @relation("PropuestaAprobador")
+  propuestasRechazadas PropuestaEconomica[] @relation("PropuestaRechazador")
+  alertasAsignadas     AlertaAutomatica[]   @relation("AlertaUsuario")
+  alertasResueltas     AlertaAutomatica[]   @relation("AlertaResuelto")
+
+  // Relaciones de equipos
+  equiposCreados Equipo[] @relation("EquipoCreador")
+
+  // Relaciones de kits
+  kitsCreados KitTipico[] @relation("KitCreador")
+
+  // Relaciones de archivos
+  archivosCreados ArchivoHistorico[] @relation("ArchivoCreador")
+
+  // Relaciones de notificaciones
+  pushSubscriptions PushSubscription[]
+
+  // Relaciones de templates
+  checklistTemplatesCreados  ChecklistTemplate[]  @relation("TemplateCreador")
+  formularioTemplatesCreados FormularioTemplate[] @relation("FormularioTemplateCreador")
+
+  // Relaciones de certificaciones
+  certificaciones Certificado[]
+
+  @@index([email])
+  @@index([role])
+  @@index([active])
+  @@index([email, active])
+  @@index([googleId])
+  @@index([authProvider])
+  @@index([emailVerified])
+  @@index([createdAt(sort: Desc)])
+  @@map("users")
 }
 
-// Orden model
-model Orden {
-  id        String   @id @default(cuid())
-  title     String
-  description String?
-  status    String   @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
-  priority  String   @default("NORMAL") // LOW, NORMAL, HIGH, URGENT
-  dueDate   DateTime?
+model RefreshToken {
+  id            String    @id @default(uuid())
+  token         String    @unique
+  userId        String
+  family        String
+  expiresAt     DateTime
+  isRevoked     Boolean   @default(false)
+  ipAddress     String?
+  userAgent     String?
+  lastUsedAt    DateTime?
+  revokedAt     DateTime?
+  revokedReason String?
+  createdAt     DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([userId, expiresAt])
+  @@index([userId, isRevoked])
+  @@index([family])
+  @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  token     String    @unique
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  email     String
+  expiresAt DateTime
+  usedAt    DateTime?
+  ipAddress String?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, usedAt])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  entityType   String
+  entityId     String
+  action       String
+  changes      Json?
+  previousData Json?
+  newData      Json?
+  ip           String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([userId, action])
+  @@index([createdAt(sort: Desc)])
+  @@map("audit_logs")
+}
+
+model TwoFactorToken {
+  id         String    @id @default(uuid())
+  userId     String
+  code       String
+  expiresAt  DateTime
+  verified   Boolean   @default(false)
+  verifiedAt DateTime?
+  attempts   Int       @default(0)
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([code])
+  @@index([expiresAt])
+  @@index([userId, verified])
+  @@map("two_factor_tokens")
+}
+
+// ============================================
+// CERTIFICACIONES Y HABILITACIONES
+// ============================================
+
+model Certificado {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tipo    String // TIPO_A, TIPO_B, ALTURAS, etc.
+  nombre  String // Nombre display
+  entidad String // Entidad certificadora
+  numero  String // Nro certificado
+
+  fechaExpedicion  DateTime
+  fechaVencimiento DateTime
+
+  archivo       String? // URL al documento
+  observaciones String?
+
+  activo Boolean @default(true)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Indexes
+  @@index([userId, activo])
+  @@index([fechaVencimiento])
+  @@map("certificados")
+}
+
+// ============================================
+// CHECKLISTS - TEMPLATES Y EJECUCIÓN
+// ============================================
+
+model ChecklistTemplate {
+  id          String  @id @default(uuid())
+  nombre      String  @unique
+  tipo        String
+  categoria   String?
+  descripcion String?
+  activo      Boolean @default(true)
+
+  creadoPorId String?
+
+  items      ChecklistTemplateItem[]
+  checklists ChecklistEjecucion[]    @relation("TemplateChecklistEjecucion")
+
+  creadoPor User? @relation("TemplateCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tipo, activo])
+  @@index([categoria])
+  @@index([creadoPorId])
+  @@map("checklist_templates")
+}
+
+model ChecklistTemplateItem {
+  id                   String  @id @default(uuid())
+  templateId           String
+  nombre               String
+  descripcion          String?
+  tipo                 String
+  requereCertificacion Boolean @default(false)
+  criticidad           String? @default("normal")
+  orden                Int     @default(0)
+
+  template       ChecklistTemplate        @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  itemsEjecucion ChecklistItemEjecucion[] @relation("TemplateItemRef")
+
+  createdAt DateTime @default(now())
+
+  @@index([templateId, orden])
+  @@map("checklist_template_items")
+}
+
+model ChecklistEjecucion {
+  id              String    @id @default(uuid())
+  ejecucionId     String
+  templateId      String?
+  nombre          String
+  descripcion     String?
+  completada      Boolean   @default(false)
+  completadoPorId String?
+  completadoEn    DateTime?
+
+  ejecucion     Ejecucion          @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
+  template      ChecklistTemplate? @relation("TemplateChecklistEjecucion", fields: [templateId], references: [id], onDelete: SetNull)
+  completadoPor User?              @relation("ChecklistCompletadoPor", fields: [completadoPorId], references: [id], onDelete: SetNull)
+
+  items          ChecklistItemEjecucion[]
+  fotosEvidencia FotoEvidencia[]          @relation("ChecklistFotos")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ejecucionId, completada])
+  @@index([templateId])
+  @@index([completadoPorId])
+  @@map("checklist_ejecucion")
+}
+
+model ChecklistItemEjecucion {
+  id              String    @id @default(uuid())
+  checklistId     String
+  templateItemId  String?
+  nombre          String
+  estado          String    @default("pendiente")
+  completado      Boolean   @default(false)
+  completadoPorId String?
+  completadoEn    DateTime?
+  observaciones   String?
+
+  checklist     ChecklistEjecucion     @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+  templateItem  ChecklistTemplateItem? @relation("TemplateItemRef", fields: [templateItemId], references: [id], onDelete: SetNull)
+  completadoPor User?                  @relation("ItemCompletadoPor", fields: [completadoPorId], references: [id], onDelete: SetNull)
+  fotosAdjuntas FotoEvidencia[]        @relation("ItemFotos")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([checklistId, estado])
+  @@index([templateItemId])
+  @@index([completadoPorId])
+  @@map("checklist_item_ejecucion")
+}
+
+// ============================================
+// CIERRE ADMINISTRATIVO
+// ============================================
+
+model Acta {
+  id      String     @id @default(uuid())
+  numero  String     @unique
+  ordenId String     @unique
+  estado  EstadoActa @default(borrador)
+
+  fechaEmision       DateTime  @default(now())
+  fechaEntrega       DateTime?
+  trabajosRealizados String
+  observaciones      String?
+
+  firmaTecnico       String?
+  firmaCliente       String?
+  nombreFirmaTecnico String?
+  nombreFirmaCliente String?
+  cedulaFirmaTecnico String?
+  cedulaFirmaCliente String?
+  cargoFirmaTecnico  String?
+  cargoFirmaCliente  String?
+  fechaFirma         DateTime?
+
+  archivoActaPDF String?
+  adjuntos       String[]
+
+  alertaEnviada Boolean @default(false)
+  diasSinFirmar Int     @default(0)
+
+  creadoPorId   String?
+  aprobadoPorId String?
+
+  orden       Order @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  creadoPor   User? @relation("ActaCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+  aprobadoPor User? @relation("ActaAprobador", fields: [aprobadoPorId], references: [id], onDelete: SetNull)
+
+  cierreAdministrativo CierreAdministrativo?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([estado])
+  @@index([numero])
+  @@index([creadoPorId])
+  @@map("actas")
+}
+
+model SES {
+  id        String    @id @default(uuid())
+  numeroSES String    @unique
+  ordenId   String    @unique
+  estado    EstadoSES @default(no_creada)
+
+  fechaCreacion   DateTime  @default(now())
+  fechaEnvio      DateTime?
+  fechaAprobacion DateTime?
+
+  codigoAriba String?
+  urlAriba    String?
+  numeroPO    String?
+
+  descripcionServicio String
+  valorTotal          Float
+  observaciones       String?
+
+  alertaEnviada  Boolean @default(false)
+  diasSinAprobar Int     @default(0)
+
+  creadoPorId   String?
+  aprobadoPorId String?
+
+  orden       Order @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  creadoPor   User? @relation("SESCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+  aprobadoPor User? @relation("SESAprobador", fields: [aprobadoPorId], references: [id], onDelete: SetNull)
+
+  cierreAdministrativo CierreAdministrativo?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([estado])
+  @@index([numeroSES])
+  @@index([creadoPorId])
+  @@map("ses")
+}
+
+model Factura {
+  id            String        @id @default(uuid())
+  numeroFactura String        @unique
+  ordenId       String        @unique
+  estado        EstadoFactura @default(no_creada)
+
+  fechaEmision     DateTime  @default(now())
+  fechaVencimiento DateTime?
+  fechaAprobacion  DateTime?
+  fechaPago        DateTime?
+
+  subtotal   Float
+  impuestos  Float
+  descuentos Float? @default(0)
+  valorTotal Float
+
+  conceptos     String
+  observaciones String?
+
+  archivoFacturaPDF String?
+  adjuntos          String[]
+
+  codigoAriba String?
+  urlAriba    String?
+  numeroSAP   String?
+
+  alertaEnviada Boolean @default(false)
+  diasVencidos  Int     @default(0)
+
+  creadoPorId   String?
+  aprobadoPorId String?
+
+  orden       Order @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  creadoPor   User? @relation("FacturaCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+  aprobadoPor User? @relation("FacturaAprobador", fields: [aprobadoPorId], references: [id], onDelete: SetNull)
+
+  cierreAdministrativo CierreAdministrativo?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([estado])
+  @@index([numeroFactura])
+  @@index([creadoPorId])
+  @@map("facturas")
+}
+
+model CierreAdministrativo {
+  id      String @id @default(uuid())
+  ordenId String @unique
+  orden   Order  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+
+  actaId String? @unique
+  acta   Acta?   @relation(fields: [actaId], references: [id])
+
+  sesId String? @unique
+  ses   SES?    @relation(fields: [sesId], references: [id])
+
+  facturaId String?  @unique
+  factura   Factura? @relation(fields: [facturaId], references: [id])
+
+  porcentajeCompletado Int     @default(0)
+  estaCompleto         Boolean @default(false)
+
+  fechaInicioOrden    DateTime
+  fechaFinOrden       DateTime?
+  fechaInicioCierre   DateTime  @default(now())
+  fechaCierreCompleto DateTime?
+
+  diasParaCierre    Int @default(0)
+  diasTranscurridos Int @default(0)
+
+  observaciones String?
+  bloqueos      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ordenId])
+  @@index([estaCompleto])
+  @@map("cierre_administrativo")
+}
+
+// ============================================
+// ENUMS (CONSISTENTES EN snake_case)
+// ============================================
+
+enum UserRole {
+  admin
+  supervisor
+  tecnico
+  administrativo
+  gerente
+}
+
+enum OrderStatus {
+  pendiente
+  planeacion
+  ejecucion
+  completada
+  cancelada
+  pausada
+}
+
+enum OrderPriority {
+  baja
+  media
+  alta
+  urgente
+}
+
+enum EstadoPlaneacion {
+  borrador
+  en_revision
+  aprobada
+  en_ejecucion
+  completada
+  cancelada
+}
+
+enum EstadoEjecucion {
+  no_iniciada
+  en_progreso
+  pausada
+  completada
+  cancelada
+}
+
+enum EstadoInspeccion {
+  conforme
+  no_conforme
+  pendiente
+}
+
+enum TipoMantenimiento {
+  preventivo
+  correctivo
+  predictivo
+}
+
+enum EstadoMantenimiento {
+  programado
+  en_progreso
+  completado
+  cancelado
+  pendiente
+}
+
+enum PrioridadMantenimiento {
+  baja
+  media
+  alta
+  critica
+}
+
+enum EstadoActa {
+  borrador
+  generada
+  enviada
+  firmada
+  rechazada
+}
+
+enum EstadoSES {
+  no_creada
+  creada
+  enviada
+  aprobada
+  rechazada
+}
+
+enum EstadoFactura {
+  no_creada
+  generada
+  enviada
+  aprobada
+  pagada
+  rechazada
+}
+
+enum TipoArchivo {
+  ordenes_csv
+  evidencias_zip
+  informes_pdf
+  backup_completo
+}
+
+enum OrderSubState {
+  // Solicitud (Pasos 1-4)
+  solicitud_recibida
+  visita_programada
+  propuesta_elaborada
+  propuesta_aprobada
+
+  // Planeación (Paso 5)
+  planeacion_iniciada
+  planeacion_aprobada
+
+  // Ejecución (Paso 6)
+  ejecucion_iniciada
+  ejecucion_completada
+
+  // Informe (Paso 7)
+  informe_generado
+
+  // Cierre Técnico (Pasos 8-9)
+  acta_elaborada
+  acta_firmada
+
+  // Cierre Administrativo (Pasos 10-13)
+  ses_aprobada
+  factura_aprobada
+
+  // Final (Paso 14)
+  pago_recibido
+}
+
+enum TipoAlerta {
+  acta_sin_firmar
+  ses_pendiente
+  factura_vencida
+  recurso_faltante
+  certificacion_vencida
+  retraso_cronograma
+  propuesta_sin_respuesta
+}
+
+enum PrioridadAlerta {
+  info
+  warning
+  error
+  critical
+}
+
+enum TipoFormulario {
+  checklist
+  inspeccion
+  mantenimiento
+  reporte
+  certificacion
+  hes
+  otro
+}
+
+enum EstadoFormulario {
+  borrador
+  en_revision
+  completado
+  rechazado
+}
+
+enum TipoEvidencia {
+  foto
+  video
+  documento
+  audio
+  otro
+}
+
+enum TipoCosto {
+  material
+  mano_obra
+  equipo
+  transporte
+  otro
+}
+
+enum MantenimientoPeriodicidad {
+  SEMANAL
+  QUINCENAL
+  MENSUAL
+  BIMESTRAL
+  TRIMESTRAL
+  SEMESTRAL
+  ANUAL
+  NO_APLICA
+}
+
+// ============================================
+// EJECUCIÓN Y SEGUIMIENTO
+// ============================================
+
+model Ejecucion {
+  id                  String          @id @default(uuid())
+  ordenId             String          @unique
+  planeacionId        String          @unique
+  estado              EstadoEjecucion @default(no_iniciada)
+  avancePercentaje    Int             @default(0)
+  horasActuales       Float           @default(0)
+  horasEstimadas      Float
+  fechaInicio         DateTime
+  fechaTermino        DateTime?
+  ubicacionGPS        Json?
+  observacionesInicio String?
+  observaciones       String?
+  sincronizado        Boolean         @default(false)
+
+  iniciadoPorId   String?
+  finalizadoPorId String?
+
+  orden         Order      @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  planeacion    Planeacion @relation(fields: [planeacionId], references: [id], onDelete: Cascade)
+  iniciadoPor   User?      @relation("EjecucionIniciador", fields: [iniciadoPorId], references: [id], onDelete: SetNull)
+  finalizadoPor User?      @relation("EjecucionFinalizador", fields: [finalizadoPorId], references: [id], onDelete: SetNull)
+
+  tareas              TareaEjecucion[]
+  checklists          ChecklistEjecucion[]
+  evidenciasEjecucion EvidenciaEjecucion[]
+  fotosEvidencia      FotoEvidencia[]      @relation("EjecucionFotos")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([estado])
+  @@index([sincronizado])
+  @@index([iniciadoPorId])
+  @@index([finalizadoPorId])
+  @@map("ejecuciones")
+}
+
+model TareaEjecucion {
+  id              String    @id @default(uuid())
+  ejecucionId     String
+  descripcion     String
+  completada      Boolean   @default(false)
+  horasEstimadas  Float
+  horasReales     Float?
+  observaciones   String?
+  completadaEn    DateTime?
+  completadaPorId String?
+
+  ejecucion     Ejecucion @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
+  completadaPor User?     @relation("TareaCompletador", fields: [completadaPorId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ejecucionId, completada])
+  @@index([completadaPorId])
+  @@map("tareas_ejecucion")
+}
+
+model FotoEvidencia {
+  id              String   @id @default(uuid())
+  ejecucionId     String?
+  checklistId     String?
+  checklistItemId String?
+  url             String
+  urlThumbnail    String?
+  descripcion     String?
+  fase            String?
+  tamanoBytes     BigInt?
+  mimeType        String?
+  cargadoPorId    String?
+  cargadoEn       DateTime @default(now())
+  sincronizado    Boolean  @default(false)
+
+  ejecucion     Ejecucion?              @relation("EjecucionFotos", fields: [ejecucionId], references: [id], onDelete: SetNull)
+  checklist     ChecklistEjecucion?     @relation("ChecklistFotos", fields: [checklistId], references: [id], onDelete: SetNull)
+  checklistItem ChecklistItemEjecucion? @relation("ItemFotos", fields: [checklistItemId], references: [id], onDelete: SetNull)
+  cargadoPor    User?                   @relation("FotoCargadaPor", fields: [cargadoPorId], references: [id], onDelete: SetNull)
+
+  @@index([ejecucionId])
+  @@index([checklistId])
+  @@index([checklistItemId])
+  @@index([cargadoPorId])
+  @@index([sincronizado])
+  @@map("fotos_evidencia")
+}
+
+model EvidenciaEjecucion {
+  id            String    @id @default(uuid())
+  ejecucionId   String
+  ordenId       String
+  tipo          String
+  nombreArchivo String
+  rutaArchivo   String
+  tamano        BigInt
+  mimeType      String    @default("application/octet-stream")
+  descripcion   String
+  ubicacionGPS  Json?
+  tags          String[]
+  subidoPor     String
+  verificada    Boolean   @default(false)
+  verificadoPor String?
+  verificadoEn  DateTime?
+
+  // New fields for DDD refactor
+  thumbnailPath String?
+  status        String    @default("READY")
+  metadata      Json?
+  deletedAt     DateTime?
+  deletedBy     String?
+
+  ejecucion Ejecucion @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
+  orden     Order     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ejecucionId])
+  @@index([ordenId, tipo])
+  @@index([verificada])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("evidencias_ejecucion")
+}
+
+// ============================================
+// FORMULARIOS DINÁMICOS MODERNOS
+// ============================================
+
+model FormTemplate {
+  id        String         @id @default(uuid())
+  nombre    String         @unique
+  tipo      TipoFormulario
+  categoria String
+  version   String         @default("1.0")
+  activo    Boolean        @default(true)
+
+  schema   Json
+  uiSchema Json?
+
+  descripcion String?
+  tags        String[]
+
+  creadoPorId String?
+  creadoPor   User?   @relation("FormTemplateCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+
+  instancias FormularioInstancia[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tipo, activo])
+  @@index([categoria])
+  @@index([creadoPorId])
+  @@map("form_templates")
+}
+
+model FormularioInstancia {
+  id         String       @id @default(uuid())
+  templateId String
+  template   FormTemplate @relation(fields: [templateId], references: [id])
+
+  ordenId String?
+  orden   Order?  @relation(fields: [ordenId], references: [id])
+
+  data Json
+
+  completadoPorId String?
+  completadoPor   User?   @relation("FormulariosCompletados", fields: [completadoPorId], references: [id])
+
+  revisadoPorId String?
+  revisadoPor   User?   @relation("FormulariosRevisados", fields: [revisadoPorId], references: [id])
+
+  completadoEn DateTime?
+  revisadoEn   DateTime?
+
+  estado String @default("borrador")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([templateId])
+  @@index([ordenId])
+  @@index([completadoPorId])
+  @@index([estado])
+  @@map("formularios_instancias")
+}
+
+// ============================================
+// FORMULARIOS DINÁMICOS - LEGACY COMPATIBILITY
+// ============================================
+
+model FormularioTemplate {
+  id          String  @id @default(uuid())
+  nombre      String
+  descripcion String?
+  schema      String
+  version     Int     @default(1)
+  activo      Boolean @default(true)
+
+  creadoPorId String?
+
+  creadoPor  User?                 @relation("FormularioTemplateCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+  respuestas FormularioRespuesta[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([activo])
+  @@index([creadoPorId])
+  @@map("formulario_templates")
+}
+
+model FormularioRespuesta {
+  id String @id @default(uuid())
+
+  templateId String
+  ordenId    String?
+  respuestas String
+
+  completadoPorId String?
+
+  template FormularioTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([templateId])
+  @@index([ordenId])
+  @@map("formulario_respuestas")
+}
+
+// ============================================
+// HES - HOJA DE ENTRADA DE SERVICIO
+// ============================================
+
+enum EstadoHES {
+  BORRADOR
+  COMPLETADO
+  ANULADO
+}
+
+enum TipoServicio {
+  MANTENIMIENTO_PREVENTIVO
+  MANTENIMIENTO_CORRECTIVO
+  REPARACION
+  INSTALACION
+  INSPECCION
+  DIAGNOSTICO
+  GARANTIA
+}
+
+enum Prioridad {
+  BAJA
+  MEDIA
+  ALTA
+  URGENTE
+}
+
+enum NivelRiesgo {
+  BAJO
+  MEDIO
+  ALTO
+  CRITICO
+}
+
+model HojaEntradaServicio {
+  id      String @id @default(uuid())
+  numero  String @unique // HES-YYYY-0001
+  ordenId String @unique // Relación 1:1 con orden
+
+  // Estado
+  estado  EstadoHES @default(BORRADOR)
+  version Int       @default(1)
+
+  // Información del servicio
+  tipoServicio TipoServicio
+  prioridad    Prioridad
+  nivelRiesgo  NivelRiesgo  @default(BAJO)
+
+  // Cliente (JSON)
+  clienteInfo Json
+
+  // Condiciones de entrada (JSON)
+  condicionesEntrada Json?
+
+  // Diagnóstico (JSON)
+  diagnosticoPreliminar Json?
+
+  // Seguridad (JSON)
+  requerimientosSeguridad Json?
+
+  // Firmas (JSON con base64 + metadata)
+  firmaCliente     Json?
+  firmaTecnico     Json?
+  firmadoClienteAt DateTime?
+  firmadoTecnicoAt DateTime?
+
+  // Audit
+  creadoPor       String
+  completadoEn    DateTime?
+  anuladoEn       DateTime?
+  anuladoPor      String?
+  motivoAnulacion String?
+
+  // Relaciones
+  orden Order @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([numero])
+  @@index([ordenId])
+  @@index([estado])
+  @@index([tipoServicio])
+  @@index([creadoPor])
+  @@map("hojas_entrada_servicio")
+}
+
+// ============================================
+// HES - SEGURIDAD EN ALTURAS
+// ============================================
+
+model EquipoHES {
+  id     String  @id @default(uuid())
+  numero String  @unique
+  codigo String?
+  marca  String
+  modelo String?
+  tipo   String
+  estado String  @default("disponible")
+
+  fechaCompra      DateTime?
+  fechaFabricacion DateTime?
+  vidaUtilAnios    Int?
+
+  ultimaInspeccion  DateTime?
+  proximaInspeccion DateTime?
+
+  especificaciones Json?
+  observaciones    String?
+
+  inspecciones InspeccionHES[]
+  ordenes      OrdenEquipoHES[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([estado])
+  @@index([tipo])
+  @@index([proximaInspeccion])
+  @@map("equipos_hes")
+}
+
+model InspeccionHES {
+  id String @id @default(uuid())
+
+  equipoId    String
+  inspectorId String
+  ordenId     String?
+
+  fechaInspeccion DateTime @default(now())
+  estado          String
+  observaciones   String?
+  fotosEvidencia  String[]
+
+  aprobada   Boolean   @default(false)
+  aprobadaEn DateTime?
+
+  equipo    EquipoHES @relation(fields: [equipoId], references: [id], onDelete: Restrict)
+  inspector User      @relation("InspectorHES", fields: [inspectorId], references: [id], onDelete: Restrict)
+  orden     Order?    @relation(fields: [ordenId], references: [id], onDelete: SetNull)
+
+  items InspeccionItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([equipoId, fechaInspeccion(sort: Desc)])
+  @@index([inspectorId])
+  @@index([ordenId])
+  @@index([estado])
+  @@map("inspecciones_hes")
+}
+
+model InspeccionItem {
+  id String @id @default(uuid())
+
+  inspeccionId String
+  rubro        String
+  descripcion  String?
+  estado       String
+  conforme     Boolean @default(true)
+  notas        String?
+
+  inspeccion InspeccionHES @relation(fields: [inspeccionId], references: [id], onDelete: Cascade)
+
+  @@index([inspeccionId])
+  @@map("inspeccion_items")
+}
+
+model OrdenEquipoHES {
+  id       String @id @default(uuid())
+  ordenId  String
+  equipoId String
+
+  cantidad Int    @default(1)
+  estado   String @default("asignado")
+
+  fechaAsignacion DateTime  @default(now())
+  fechaDevolucion DateTime?
+  observaciones   String?
+
+  orden  Order     @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  equipo EquipoHES @relation(fields: [equipoId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([ordenId, equipoId])
+  @@index([ordenId])
+  @@index([equipoId])
+  @@index([estado])
+  @@map("orden_equipos_hes")
+}
+
+// ============================================
+// INSPECCIÓN LÍNEAS DE VIDA
+// ============================================
+
+model InspeccionLineaVida {
+  id               String @id @default(uuid())
+  numeroLinea      String @unique
+  fabricante       String
+  diametroCable    String @default("8mm")
+  tipoCable        String @default("Acero Inoxidable")
+  ubicacion        String
+  especificaciones Json?
+
+  fechaInspeccion          DateTime  @default(now())
+  fechaInstalacion         DateTime?
+  fechaUltimoMantenimiento DateTime?
+  proximaInspeccion        DateTime?
+
+  estado              EstadoInspeccion @default(pendiente)
+  accionesCorrectivas String?
+  observaciones       String?
+  fotosEvidencia      String[]
+
+  inspectorId String
+
+  inspector   User                  @relation("InspectorLineaVida", fields: [inspectorId], references: [id], onDelete: Restrict)
+  componentes ComponenteLineaVida[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([numeroLinea])
+  @@index([inspectorId])
+  @@index([estado])
+  @@index([proximaInspeccion])
+  @@map("inspecciones_linea_vida")
+}
+
+model ComponenteLineaVida {
+  id               String  @id @default(uuid())
+  inspeccionId     String
+  nombre           String
+  hallazgos        String?
+  estado           String
+  accionCorrectiva String?
+
+  inspeccion  InspeccionLineaVida   @relation(fields: [inspeccionId], references: [id], onDelete: Cascade)
+  condiciones CondicionComponente[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([inspeccionId])
+  @@map("componentes_linea_vida")
+}
+
+model CondicionComponente {
+  id           String  @id @default(uuid())
+  componenteId String
+  tipoAfeccion String
+  descripcion  String
+  estado       String
+  severidad    String? @default("media")
+
+  componente ComponenteLineaVida @relation(fields: [componenteId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([componenteId])
+  @@map("condiciones_componente")
+}
+
+// ============================================
+// MODELOS LEGACY - COMPATIBILIDAD
+// ============================================
+
+model Kit {
+  id          String   @id @default(uuid())
+  nombre      String
+  descripcion String?
+  categoria   String?
+  activo      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items KitItem[]
+
+  @@map("kits")
+}
+
+model KitItem {
+  id       String @id @default(uuid())
+  kitId    String
+  nombre   String
+  cantidad Int    @default(1)
+  unidad   String @default("UND")
+
+  kit Kit @relation(fields: [kitId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([kitId])
+  @@map("kit_items")
+}
+
+model Formulario {
+  id          String   @id @default(uuid())
+  nombre      String
+  descripcion String?
+  categoria   String?
+  campos      Json
+  activo      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  respuestas FormularioRespuestaLegacy[]
+
+  @@map("formularios")
+}
+
+model FormularioRespuestaLegacy {
+  id           String   @id @default(uuid())
+  formularioId String
+  ordenId      String?
+  respuestas   Json
+  creadoPorId  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  formulario Formulario @relation(fields: [formularioId], references: [id], onDelete: Cascade)
+
+  @@index([formularioId])
+  @@index([ordenId])
+  @@map("formulario_respuestas_legacy")
+}
+
+model HES {
+  id            String   @id @default(uuid())
+  equipoId      String?
+  ordenId       String?
+  tipo          String
+  resultados    Json?
+  observaciones String?
+  aprobado      Boolean  @default(false)
+  inspectorId   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("hes_registros")
+}
+
+model LineaVida {
+  id                     String    @id @default(uuid())
+  ubicacion              String
+  tipo                   String?
+  longitud               Float?
+  capacidadUsuarios      Int?
+  fechaInstalacion       DateTime?
+  fechaProximaInspeccion DateTime?
+  observaciones          String?
+  estado                 String    @default("activo")
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  inspecciones InspeccionLineaVidaLegacy[]
+
+  @@map("lineas_vida")
+}
+
+model InspeccionLineaVidaLegacy {
+  id            String   @id @default(uuid())
+  lineaVidaId   String
+  tipo          String?
+  resultados    Json?
+  aprobado      Boolean  @default(false)
+  observaciones String?
+  inspectorId   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  lineaVida LineaVida @relation(fields: [lineaVidaId], references: [id], onDelete: Cascade)
+
+  @@index([lineaVidaId])
+  @@map("inspecciones_linea_vida_legacy")
+}
+
+// ============================================
+// MANTENIMIENTOS
+// ============================================
+
+model Equipo {
+  id        String  @id @default(uuid())
+  codigo    String  @unique
+  nombre    String
+  marca     String?
+  modelo    String?
+  serie     String?
+  categoria String?
+  ubicacion String?
+
+  fechaAdquisicion           DateTime?
+  fechaUltimoMantenimiento   DateTime?
+  intervaloMantenimientoDias Int?
+  proximoMantenimiento       DateTime?
+
+  valorAdquisicion Float?
+  vidaUtilEstimada Int?
+
+  activo Boolean @default(true)
+  notas  String?
+
+  creadoPorId String?
+
+  creadoPor User? @relation("EquipoCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+  // Relación inversa comentada o eliminada si ya no se usa directamente,
+  // pero como Mantenimiento ahora usa activoId genérico, no hay relación directa @relation en Prisma
+  // a menos que mantengamos un campo equipoId opcional o definamos una relación polimórfica (que Prisma no soporta nativamente bien).
+  // Para este refactor se pidió usar activoId (String). 
+  // Sin embargo, para mantener integridad referencial si es un Equipo, podríamos dejarlo opcional o solo manejarlo por ID.
+  // EL USUARIO PIDIÓ: activoId: string.
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([codigo])
+  @@index([activo])
+  @@index([categoria])
+  @@index([proximoMantenimiento])
+  @@map("equipos")
+}
+
+model Mantenimiento {
+  id String @id @default(uuid())
+
+  titulo      String
+  descripcion String?
+
+  tipo         TipoMantenimiento
+  estado       EstadoMantenimiento       @default(programado)
+  prioridad    PrioridadMantenimiento    @default(media)
+  periodicidad MantenimientoPeriodicidad @default(NO_APLICA)
+
+  // Programación
+  fechaProgramada  DateTime
+  duracionEstimada Float? // Horas
+
+  // Ejecución
+  fechaInicio DateTime?
+  fechaFin    DateTime?
+
+  // Activo (Polimórfico lógico)
+  activoId   String
+  activoTipo String? // 'equipo', 'orden', 'linea_vida', etc.
+
+  // Recursos Asignados
+  tecnicoId String?
+  tecnico   User?   @relation("MantenimientosTecnico", fields: [tecnicoId], references: [id], onDelete: SetNull)
+
+  // Detalles
+  tareas        String[] @default([])
+  materiales    String[] @default([])
+  observaciones String?
+
+  // Resultados
+  trabajoRealizado     String?
+  tareasCompletadas    String[] @default([])
+  problemasEncontrados String[] @default([])
+  repuestosUtilizados  String[] @default([])
+
+  completado          Boolean  @default(false)
+  requiereSeguimiento Boolean  @default(false)
+  calificacionFinal   Float? // 0-10
+  recomendaciones     String?
+  evidenciaIds        String[] @default([])
+
+  // Costos
+  costoTotal Float?
+
+  creadoPorId String?
+  creadoPor   User?   @relation("MantenimientosCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([activoId])
+  @@index([estado])
+  @@index([fechaProgramada])
+  @@index([tecnicoId])
+  @@index([prioridad, estado])
+  @@map("mantenimientos")
+}
+
+// ============================================
+// ÓRDENES DE TRABAJO
+// ============================================
+
+model Order {
+  id              String  @id @default(uuid())
+  numero          String  @unique
+  descripcion     String
+  cliente         String
+  contactoCliente String?
+  telefonoCliente String?
+  direccion       String?
+
+  estado    OrderStatus   @default(pendiente)
+  subEstado OrderSubState @default(solicitud_recibida)
+  prioridad OrderPriority @default(media)
+
+  fechaFinEstimada DateTime?
+  fechaInicio      DateTime?
+  fechaFin         DateTime?
+
+  // Costos
+  presupuestoEstimado Float? @default(0)
+  costoReal           Float? @default(0)
+  varianzaCosto       Float? @default(0)
+  impuestosAplicables Float? @default(0)
+  margenUtilidad      Float? @default(0)
+
+  // HES
+  requiereHES     Boolean @default(true)
+  cumplimientoHES Boolean @default(false)
+
+  // Observaciones y cancelación
+  observaciones     String?
+  motivoCancelacion String?
+  canceladaEn       DateTime?
+  canceladaPorId    String?
+
+  creadorId  String?
+  asignadoId String?
+
+  creador      User? @relation("OrderCreator", fields: [creadorId], references: [id], onDelete: SetNull)
+  asignado     User? @relation("OrderAssignee", fields: [asignadoId], references: [id], onDelete: SetNull)
+  canceladaPor User? @relation("OrderCanceller", fields: [canceladaPorId], references: [id], onDelete: SetNull)
+
+  // Relaciones básicas
+  items      OrderItem[]
+  evidencias Evidence[]
+  costos     Cost[]
+
+  // Relaciones de proceso
+  planeacion          Planeacion?
+  ejecucion           Ejecucion?
+  evidenciasEjecucion EvidenciaEjecucion[]
+
+  // Relaciones HES
+  equiposHES          OrdenEquipoHES[]
+  inspeccionesHES     InspeccionHES[]
+  hojaEntradaServicio HojaEntradaServicio?
+
+  // Relaciones de cierre
+  acta                 Acta?
+  ses                  SES?
+  factura              Factura?
+  cierreAdministrativo CierreAdministrativo?
+
+  // Relaciones de flujo 14 pasos
+  visitas              VisitaTecnica[]
+  propuesta            PropuestaEconomica?
+  stateHistory         OrderStateHistory[]
+  comparativa          ComparativaCostos?
+  alertas              AlertaAutomatica[]
+  formularioInstancias FormularioInstancia[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deletedAt    DateTime? @map("deleted_at")
+  deletedBy    String?   @map("deleted_by")
+  deleteReason String?   @map("delete_reason")
+
+  @@index([deletedAt])
+  @@index([prioridad])
+  @@index([cliente])
+  @@index([asignadoId])
+  @@index([fechaInicio])
+  @@index([createdAt])
+  @@index([estado, prioridad])
+  @@index([cliente, estado])
+  @@index([asignadoId, estado])
+  @@index([fechaInicio, fechaFin])
+  @@index([estado, prioridad, fechaInicio])
+  @@index([subEstado, createdAt(sort: Desc)])
+  @@index([creadorId])
+  @@index([numero])
+  @@index([requiereHES, cumplimientoHES])
+  @@map("orders")
+}
+
+model OrderItem {
+  id              String    @id @default(uuid())
+  descripcion     String
+  cantidad        Int       @default(1)
+  unidad          String    @default("UND")
+  completado      Boolean   @default(false)
+  completadoEn    DateTime?
+  completadoPorId String?
+  notas           String?
+
+  orderId       String
+  orden         Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  completadoPor User?  @relation("ItemCompletador", fields: [completadoPorId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId, completado])
+  @@map("order_items")
+}
+
+model Evidence {
+  id           String        @id @default(uuid())
+  tipo         TipoEvidencia
+  url          String
+  urlThumbnail String?
+  descripcion  String?
+  tamanoBytes  BigInt?
+  mimeType     String?
+  metadata     Json?
+
+  orderId     String
+  subidoPorId String?
+
+  orden     Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  subidoPor User? @relation("EvidenciaSubidor", fields: [subidoPorId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId, tipo])
+  @@index([subidoPorId])
+  @@index([createdAt(sort: Desc)])
+  @@map("evidences")
+}
+
+model Cost {
+  id             String    @id @default(uuid())
+  concepto       String
+  monto          Float
+  tipo           TipoCosto
+  descripcion    String?
+  cantidad       Int?      @default(1)
+  precioUnitario Float?
+  facturable     Boolean   @default(true)
+  facturado      Boolean   @default(false)
+  numeroFactura  String?
+
+  orderId     String
+  creadoPorId String?
+
+  orden     Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  creadoPor User? @relation("CostoCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId, tipo])
+  @@index([facturado])
+  @@index([creadoPorId])
+  @@map("costs")
+}
+
+// ============================================
+// FLUJO 14 PASOS - STATE MACHINE
+// ============================================
+
+model OrderStateHistory {
+  id      String @id @default(uuid())
+  ordenId String
+  orden   Order  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+
+  fromState OrderSubState?
+  toState   OrderSubState
+
+  userId String?
+  user   User?   @relation("StateChangeUser", fields: [userId], references: [id])
+
+  notas    String?
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([ordenId, createdAt(sort: Desc)])
+  @@index([userId])
+  @@map("order_state_history")
+}
+
+model VisitaTecnica {
+  id      String @id @default(uuid())
+  ordenId String
+  orden   Order  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+
+  fechaProgramada DateTime
+  fechaRealizada  DateTime?
+  duracionMinutos Int?
+
+  tecnicoId String
+  tecnico   User   @relation("VisitaTecnico", fields: [tecnicoId], references: [id])
+
+  mediciones    Json?
+  fotosUrl      String[]
+  observaciones String?
+  coordenadas   Json?
+
+  completada Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ordenId])
+  @@index([tecnicoId])
+  @@index([fechaProgramada])
+  @@map("visitas_tecnicas")
+}
+
+model PropuestaEconomica {
+  id      String @id @default(uuid())
+  ordenId String @unique
+  orden   Order  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+
+  costoManoObra   Float @default(0)
+  costoMateriales Float @default(0)
+  costoEquipos    Float @default(0)
+  costoTransporte Float @default(0)
+  otrosCostos     Float @default(0)
+
+  subtotal       Float @default(0)
+  impuestos      Float @default(0)
+  margenUtilidad Float @default(0)
+  total          Float @default(0)
+
+  numeroVersion   Int       @default(1)
+  aprobada        Boolean   @default(false)
+  numeroPO        String?
+  fechaEnvio      DateTime?
+  fechaAprobacion DateTime?
+  fechaRechazo    DateTime?
+  motivoRechazo   String?
+
+  urlArchivo String?
+
+  creadoPorId    String?
+  aprobadoPorId  String?
+  rechazadoPorId String?
+
+  creadoPor    User? @relation("PropuestaCreador", fields: [creadoPorId], references: [id])
+  aprobadoPor  User? @relation("PropuestaAprobador", fields: [aprobadoPorId], references: [id])
+  rechazadoPor User? @relation("PropuestaRechazador", fields: [rechazadoPorId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ordenId])
+  @@index([creadoPorId])
+  @@map("propuestas_economicas")
+}
+
+model AlertaAutomatica {
+  id        String          @id @default(uuid())
+  tipo      TipoAlerta
+  prioridad PrioridadAlerta @default(info)
+
+  ordenId String
+  orden   Order  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+
+  titulo  String
+  mensaje String
+
+  usuarioId String?
+  usuario   User?   @relation("AlertaUsuario", fields: [usuarioId], references: [id])
+
+  resueltoPorId String?
+  resueltoPor   User?   @relation("AlertaResuelto", fields: [resueltoPorId], references: [id])
+
+  leida    Boolean @default(false)
+  resuelta Boolean @default(false)
+
+  metadata Json?
+
+  createdAt  DateTime  @default(now())
+  leidaAt    DateTime?
+  resueltaAt DateTime?
+
+  @@index([usuarioId, leida])
+  @@index([tipo, createdAt(sort: Desc)])
+  @@index([ordenId])
+  @@index([prioridad, resuelta])
+  @@map("alertas_automaticas")
+}
+
+model ComparativaCostos {
+  id      String @id @default(uuid())
+  ordenId String @unique
+  orden   Order  @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+
+  estimadoManoObra   Float @default(0)
+  estimadoMateriales Float @default(0)
+  estimadoEquipos    Float @default(0)
+  estimadoTransporte Float @default(0)
+  estimadoOtros      Float @default(0)
+  totalEstimado      Float @default(0)
+
+  realManoObra   Float @default(0)
+  realMateriales Float @default(0)
+  realEquipos    Float @default(0)
+  realTransporte Float @default(0)
+  realOtros      Float @default(0)
+  totalReal      Float @default(0)
+
+  varianzaPorcentaje Float @default(0)
+  margenRealizado    Float @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ordenId])
+  @@map("comparativa_costos")
+}
+
+// ============================================
+// PLANEACIÓN Y KITS TÍPICOS
+// ============================================
+
+model KitTipico {
+  id                    String   @id @default(uuid())
+  nombre                String   @unique
+  codigo                String?
+  descripcion           String
+  categoria             String?
+  herramientas          Json
+  equipos               Json
+  materiales            Json?
+  documentos            String[]
+  checklistItems        String[]
+  duracionEstimadaHoras Int
+  costoEstimado         Float
+  activo                Boolean  @default(true)
+
+  creadoPorId String?
+
+  planeaciones Planeacion[]
+
+  creadoPor User? @relation("KitCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([activo, categoria])
+  @@index([codigo])
+  @@map("kits_tipicos")
+}
+
+model Planeacion {
+  id     String           @id @default(uuid())
+  estado EstadoPlaneacion @default(borrador)
+
+  empresa             String?
+  ubicacion           String?
+  fechaEstimadaInicio DateTime?
+  fechaEstimadaFin    DateTime?
+  descripcionTrabajo  String?
+
+  cronograma              Json
+  manoDeObra              Json
+  herramientasAdicionales Json?
+  materialesAdicionales   Json?
+  documentosApoyo         String[]
+  observaciones           String?
+
+  motivoRechazo  String?
+  rechazadoEn    DateTime?
+  rechazadoPorId String?
+
+  aprobadoPorId   String?
+  fechaAprobacion DateTime?
+
+  ordenId     String  @unique
+  kitId       String?
+  creadoPorId String?
+
+  orden        Order      @relation(fields: [ordenId], references: [id], onDelete: Cascade)
+  kit          KitTipico? @relation(fields: [kitId], references: [id], onDelete: SetNull)
+  aprobadoPor  User?      @relation("PlaneacionAprobador", fields: [aprobadoPorId], references: [id], onDelete: SetNull)
+  rechazadoPor User?      @relation("PlaneacionRechazador", fields: [rechazadoPorId], references: [id], onDelete: SetNull)
+  creadoPor    User?      @relation("PlaneacionCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+
+  ejecucion Ejecucion?
+  items     ItemPlaneacion[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([estado])
+  @@index([kitId])
+  @@index([aprobadoPorId])
+  @@map("planeaciones")
+}
+
+model ItemPlaneacion {
+  id            String  @id @default(uuid())
+  planeacionId  String
+  tipo          String
+  descripcion   String
+  cantidad      Int     @default(1)
+  unidad        String  @default("UND")
+  observaciones String?
+
+  planeacion Planeacion @relation(fields: [planeacionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([planeacionId])
+  @@index([tipo])
+  @@map("items_planeacion")
+}
+
+// ============================================
+// SISTEMA - NOTIFICACIONES Y ARCHIVOS
+// ============================================
+
+model PushSubscription {
+  id       String  @id @default(uuid())
+  userId   String
+  endpoint String  @unique
+  auth     String
+  p256dh   String
+  deviceId String?
+  activa   Boolean @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, activa])
+  @@map("push_subscriptions")
+}
+
+// ============================================
+// ARCHIVO HISTÓRICO
+// ============================================
+
+model ArchivoHistorico {
+  id   String      @id @default(uuid())
+  tipo TipoArchivo
+
+  mes  Int
+  anio Int
+
+  nombreArchivo String
+  rutaArchivo   String
+  tamanioBytes  BigInt
+
+  cantidadOrdenes    Int     @default(0)
+  cantidadEvidencias Int     @default(0)
+  descripcion        String?
+
+  disponible    Boolean   @default(true)
+  descargado    Boolean   @default(false)
+  fechaDescarga DateTime?
+
+  creadoPorId    String?
+  creadoPor      User?    @relation("ArchivoCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
+  fechaArchivado DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([mes, anio, tipo])
+  @@index([mes, anio])
+  @@index([disponible])
+  @@index([creadoPorId])
+  @@map("archivos_historicos")
+}
+
+// ============================================
+// SINCRONIZACIÓN OFFLINE
+// ============================================
+
+model PendingSync {
+  id         String   @id @default(uuid())
+  userId     String
+  deviceId   String?
+  entityType String
+  entityId   String?
+  action     String
+  data       Json?
+  localId    String?
+  timestamp  DateTime
+  status     String   @default("pending")
+  error      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
   @@index([userId])
   @@index([status])
-}
-
-// AuditLog model
-model AuditLog {
-  id        String   @id @default(cuid())
-  action    String
-  entity    String
-  entityId  String
-  userId    String
-  changes   String?
-  createdAt DateTime @default(now())
-
-  // Indexes
-  @@index([userId])
-  @@index([entity])
-  @@index([createdAt])
+  @@map("pending_syncs")
 }

@@ -5,9 +5,7 @@
 // Variables de entorno se cargan automáticamente por tsx
 // No se requiere importar dotenv explícitamente
 import { resolve } from 'path';
-import { PrismaClient, Prisma } from '.prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { Pool } from 'pg';
+import { PrismaClient, Prisma } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
 // Cargar variables de entorno desde .env
@@ -18,11 +16,7 @@ if (!connectionString) {
     throw new Error('DATABASE_URL is not set. Make sure .env file exists in apps/api directory.');
 }
 
-const pool = new Pool({ connectionString });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({
-    adapter,
-} as Prisma.PrismaClientOptions);
+const prisma = new PrismaClient();
 
 async function main() {
     const email = 'root@cermont.com';

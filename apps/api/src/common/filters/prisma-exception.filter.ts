@@ -16,7 +16,7 @@ import {
     HttpStatus,
     Logger,
 } from '@nestjs/common';
-import { Prisma } from '.prisma/client';
+import { Prisma } from '@prisma/client';
 import { Response, Request } from 'express';
 import { PrismaErrorMapper } from '../errors/prisma-error.mapper';
 import type { PrismaErrorResponse } from '../types/exception.types';

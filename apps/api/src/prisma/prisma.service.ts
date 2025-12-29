@@ -4,36 +4,35 @@
  * Prisma 7+ requiere un adapter explícito para conexión a BD
  */
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient } from '.prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
-import { Pool } from 'pg';
+import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
     private readonly logger = new Logger(PrismaService.name);
-    private pool: Pool;
 
     constructor() {
-        const connectionString = process.env.DATABASE_URL ||
-            'postgresql://postgres:admin@localhost:5432/cermont_fsm';
-
-        const pool = new Pool({ connectionString });
-        const adapter = new PrismaPg(pool);
-
-        super({ adapter });
-
-        this.pool = pool;
-        this.logger.log('PrismaService instantiated');
+        super({
+            datasources: {
+                db: {
+                    url: process.env.DATABASE_URL
+                }
+            },
+        });
+        this.logger.log('PrismaService instantiated (Standard)');
     }
 
     async onModuleInit() {
-        await this.$connect();
-        this.logger.log('PostgreSQL Database connected');
+        this.logger.log('Connecting to database...');
+        try {
+            await this.$connect();
+            this.logger.log('PostgreSQL Database connected successfully');
+        } catch (error) {
+            this.logger.error('Failed to connect to database', error);
+            throw error;
+        }
     }
 
     async onModuleDestroy() {
         await this.$disconnect();
-        await this.pool.end();
-        this.logger.log('PostgreSQL Database disconnected');
     }
 }

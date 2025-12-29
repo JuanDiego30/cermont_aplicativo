@@ -6,7 +6,7 @@
  */
 import { Injectable, Logger, BadRequestException, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { Prisma } from '.prisma/client';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../prisma/prisma.service';
 
 // String literal aliases alineados con los enums de Prisma

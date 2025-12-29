@@ -1,0 +1,2574 @@
+{
+  "statistics": {
+    "detectionDate": "2025-12-29T21:47:51.119Z",
+    "formats": {
+      "typescript": {
+        "sources": {
+          "apps/api/src/lib/shared/filters/global-exception.filter.ts": {
+            "lines": 93,
+            "tokens": 831,
+            "sources": 1,
+            "clones": 4,
+            "duplicatedLines": 20,
+            "duplicatedTokens": 260,
+            "percentage": 21.51,
+            "percentageTokens": 31.29,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/domain/value-objects/password.vo.ts": {
+            "lines": 172,
+            "tokens": 1291,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/domain/value-objects/email.vo.ts": {
+            "lines": 128,
+            "tokens": 857,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/domain/exceptions/validation.error.ts": {
+            "lines": 25,
+            "tokens": 165,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 7,
+            "duplicatedTokens": 56,
+            "percentage": 28,
+            "percentageTokens": 33.94,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/domain/exceptions/business-rule-violation.error.ts": {
+            "lines": 26,
+            "tokens": 181,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 7,
+            "duplicatedTokens": 56,
+            "percentage": 26.92,
+            "percentageTokens": 30.94,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/domain/events/domain-events.ts": {
+            "lines": 102,
+            "tokens": 725,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/shared/value-objects/index.ts": {
+            "lines": 127,
+            "tokens": 1234,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/shared/pipes/validation.pipe.ts": {
+            "lines": 61,
+            "tokens": 579,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/shared/mappers/orden.mapper.ts": {
+            "lines": 112,
+            "tokens": 1082,
+            "sources": 1,
+            "clones": 4,
+            "duplicatedLines": 22,
+            "duplicatedTokens": 368,
+            "percentage": 19.64,
+            "percentageTokens": 34.01,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/shared/logger/pino-logger.service.ts": {
+            "lines": 86,
+            "tokens": 981,
+            "sources": 1,
+            "clones": 10,
+            "duplicatedLines": 50,
+            "duplicatedTokens": 844,
+            "percentage": 58.14,
+            "percentageTokens": 86.03,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/shared/logger/logger.module.ts": {
+            "lines": 9,
+            "tokens": 78,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/shared/interceptors/http-error.interceptor.ts": {
+            "lines": 74,
+            "tokens": 586,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/shared/base/base.service.ts": {
+            "lines": 118,
+            "tokens": 1094,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/lib/services/password.service.ts": {
+            "lines": 60,
+            "tokens": 442,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/lib/logging/logger.service.ts": {
+            "lines": 94,
+            "tokens": 940,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/lib/base/base.service.ts": {
+            "lines": 122,
+            "tokens": 1236,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/lib/base/base.repository.ts": {
+            "lines": 33,
+            "tokens": 531,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/validators/is-valid-uuid.validator.ts": {
+            "lines": 32,
+            "tokens": 267,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/utils/string.util.ts": {
+            "lines": 101,
+            "tokens": 714,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/utils/sanitize.util.ts": {
+            "lines": 124,
+            "tokens": 881,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/utils/pagination.util.ts": {
+            "lines": 180,
+            "tokens": 1490,
+            "sources": 1,
+            "clones": 4,
+            "duplicatedLines": 34,
+            "duplicatedTokens": 264,
+            "percentage": 18.89,
+            "percentageTokens": 17.72,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/utils/index.ts": {
+            "lines": 22,
+            "tokens": 77,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/utils/financial-colombia.util.ts": {
+            "lines": 86,
+            "tokens": 493,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/utils/date.util.ts": {
+            "lines": 115,
+            "tokens": 803,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 10,
+            "duplicatedTokens": 104,
+            "percentage": 8.7,
+            "percentageTokens": 12.95,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/types/index.ts": {
+            "lines": 7,
+            "tokens": 24,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/types/exception.types.ts": {
+            "lines": 221,
+            "tokens": 1629,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 6,
+            "duplicatedTokens": 62,
+            "percentage": 2.71,
+            "percentageTokens": 3.81,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/types/api-response.types.ts": {
+            "lines": 229,
+            "tokens": 1482,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 6,
+            "duplicatedTokens": 62,
+            "percentage": 2.62,
+            "percentageTokens": 4.18,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/services/logger.service.ts": {
+            "lines": 110,
+            "tokens": 1250,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/pipes/zod-validation.pipe.ts": {
+            "lines": 93,
+            "tokens": 567,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/pipes/parse-int.pipe.ts": {
+            "lines": 153,
+            "tokens": 1108,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/pipes/index.ts": {
+            "lines": 7,
+            "tokens": 24,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/middleware/security.middleware.ts": {
+            "lines": 117,
+            "tokens": 984,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/middleware/request-id.middleware.ts": {
+            "lines": 43,
+            "tokens": 250,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/middleware/index.ts": {
+            "lines": 7,
+            "tokens": 22,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/logging/logger.service.ts": {
+            "lines": 196,
+            "tokens": 1832,
+            "sources": 1,
+            "clones": 10,
+            "duplicatedLines": 66,
+            "duplicatedTokens": 982,
+            "percentage": 33.67,
+            "percentageTokens": 53.6,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/logging/index.ts": {
+            "lines": 6,
+            "tokens": 14,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/interfaces/use-case.interface.ts": {
+            "lines": 56,
+            "tokens": 240,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/interfaces/repository.interface.ts": {
+            "lines": 104,
+            "tokens": 489,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/interfaces/index.ts": {
+            "lines": 7,
+            "tokens": 24,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/interceptors/transform.interceptor.ts": {
+            "lines": 111,
+            "tokens": 794,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/interceptors/logging.interceptor.ts": {
+            "lines": 148,
+            "tokens": 1403,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/guards/throttle.guard.ts": {
+            "lines": 21,
+            "tokens": 171,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/guards/roles.guard.ts": {
+            "lines": 77,
+            "tokens": 612,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/guards/jwt-auth.guard.ts": {
+            "lines": 64,
+            "tokens": 476,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/filters/prisma-exception.filter.ts": {
+            "lines": 197,
+            "tokens": 1508,
+            "sources": 1,
+            "clones": 6,
+            "duplicatedLines": 34,
+            "duplicatedTokens": 368,
+            "percentage": 17.26,
+            "percentageTokens": 24.4,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/filters/http-exception.filter.ts": {
+            "lines": 50,
+            "tokens": 474,
+            "sources": 1,
+            "clones": 4,
+            "duplicatedLines": 34,
+            "duplicatedTokens": 286,
+            "percentage": 68,
+            "percentageTokens": 60.34,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/filters/all-exceptions.filter.ts": {
+            "lines": 105,
+            "tokens": 995,
+            "sources": 1,
+            "clones": 4,
+            "duplicatedLines": 34,
+            "duplicatedTokens": 284,
+            "percentage": 32.38,
+            "percentageTokens": 28.54,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/exceptions/index.ts": {
+            "lines": 6,
+            "tokens": 14,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/exceptions/domain.exception.ts": {
+            "lines": 167,
+            "tokens": 969,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/errors/prisma-error.mapper.ts": {
+            "lines": 317,
+            "tokens": 2157,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/errors/index.ts": {
+            "lines": 13,
+            "tokens": 47,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/errors/error-codes.ts": {
+            "lines": 20,
+            "tokens": 116,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/errors/domain-error.base.ts": {
+            "lines": 179,
+            "tokens": 1283,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 14,
+            "duplicatedTokens": 110,
+            "percentage": 7.82,
+            "percentageTokens": 8.57,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/errors/application-error.base.ts": {
+            "lines": 227,
+            "tokens": 1778,
+            "sources": 1,
+            "clones": 10,
+            "duplicatedLines": 60,
+            "duplicatedTokens": 500,
+            "percentage": 26.43,
+            "percentageTokens": 28.12,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/dto/pagination.dto.ts": {
+            "lines": 142,
+            "tokens": 1021,
+            "sources": 1,
+            "clones": 4,
+            "duplicatedLines": 36,
+            "duplicatedTokens": 312,
+            "percentage": 25.35,
+            "percentageTokens": 30.56,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/dto/api-response.dto.ts": {
+            "lines": 281,
+            "tokens": 2230,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 18,
+            "duplicatedTokens": 142,
+            "percentage": 6.41,
+            "percentageTokens": 6.37,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/decorators/throttle.decorator.ts": {
+            "lines": 336,
+            "tokens": 1166,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/decorators/roles.decorator.ts": {
+            "lines": 32,
+            "tokens": 180,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/decorators/public.decorator.ts": {
+            "lines": 4,
+            "tokens": 50,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/decorators/current-user.decorator.ts": {
+            "lines": 39,
+            "tokens": 267,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/decorators/api-response.decorator.ts": {
+            "lines": 180,
+            "tokens": 1239,
+            "sources": 1,
+            "clones": 4,
+            "duplicatedLines": 38,
+            "duplicatedTokens": 220,
+            "percentage": 21.11,
+            "percentageTokens": 17.76,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/config/throttler.config.ts": {
+            "lines": 52,
+            "tokens": 342,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/config/security.config.ts": {
+            "lines": 124,
+            "tokens": 909,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/base/base.service.ts": {
+            "lines": 194,
+            "tokens": 1552,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/base/base.repository.ts": {
+            "lines": 168,
+            "tokens": 1336,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/base/base.controller.ts": {
+            "lines": 128,
+            "tokens": 1184,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/prisma/prisma.service.ts": {
+            "lines": 38,
+            "tokens": 250,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/prisma/prisma.module.ts": {
+            "lines": 12,
+            "tokens": 82,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/config/env.validation.ts": {
+            "lines": 67,
+            "tokens": 570,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/index.ts": {
+            "lines": 151,
+            "tokens": 783,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/main.ts": {
+            "lines": 77,
+            "tokens": 698,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/health.controller.ts": {
+            "lines": 158,
+            "tokens": 1616,
+            "sources": 1,
+            "clones": 4,
+            "duplicatedLines": 38,
+            "duplicatedTokens": 350,
+            "percentage": 24.05,
+            "percentageTokens": 21.66,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/app.module.ts": {
+            "lines": 231,
+            "tokens": 1005,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/scripts/export-openapi.ts": {
+            "lines": 35,
+            "tokens": 287,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/prisma/verify-stats.ts": {
+            "lines": 46,
+            "tokens": 489,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 6,
+            "duplicatedTokens": 50,
+            "percentage": 13.04,
+            "percentageTokens": 10.22,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/prisma/seed_root.ts": {
+            "lines": 60,
+            "tokens": 464,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 6,
+            "duplicatedTokens": 50,
+            "percentage": 10,
+            "percentageTokens": 10.78,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/verify-prisma.ts": {
+            "lines": 4,
+            "tokens": 46,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/test-db.ts": {
+            "lines": 52,
+            "tokens": 473,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 18,
+            "duplicatedTokens": 145,
+            "percentage": 34.62,
+            "percentageTokens": 30.66,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/seed-test-user.ts": {
+            "lines": 58,
+            "tokens": 518,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 18,
+            "duplicatedTokens": 145,
+            "percentage": 31.03,
+            "percentageTokens": 27.99,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/jest.config.ts": {
+            "lines": 24,
+            "tokens": 173,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 7853,
+          "tokens": 59224,
+          "sources": 80,
+          "clones": 42,
+          "duplicatedLines": 291,
+          "duplicatedTokens": 3010,
+          "percentage": 3.71,
+          "percentageTokens": 5.08,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      },
+      "javascript": {
+        "sources": {
+          "report/html/js/prism.js": {
+            "lines": 16,
+            "tokens": 4581,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/prisma/simple-seed.js": {
+            "lines": 44,
+            "tokens": 425,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/test-db.js": {
+            "lines": 18,
+            "tokens": 188,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "analyze_duplication.js": {
+            "lines": 13,
+            "tokens": 234,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          }
+        },
+        "total": {
+          "lines": 91,
+          "tokens": 5428,
+          "sources": 4,
+          "clones": 0,
+          "duplicatedLines": 0,
+          "duplicatedTokens": 0,
+          "percentage": 0,
+          "percentageTokens": 0,
+          "newDuplicatedLines": 0,
+          "newClones": 0
+        }
+      }
+    },
+    "total": {
+      "lines": 7944,
+      "tokens": 64652,
+      "sources": 84,
+      "clones": 42,
+      "duplicatedLines": 291,
+      "duplicatedTokens": 3010,
+      "percentage": 3.66,
+      "percentageTokens": 4.66,
+      "newDuplicatedLines": 0,
+      "newClones": 0
+    }
+  },
+  "duplicates": [
+    {
+      "format": "typescript",
+      "lines": 8,
+      "fragment": ".prototype);\r\n    }\r\n\r\n    toJSON(): Record<string, unknown> {\r\n        return {\r\n            name: this.name,\r\n            message: this.message,\r\n            rule",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\domain\\exceptions\\business-rule-violation.error.ts",
+        "start": 15,
+        "end": 22,
+        "startLoc": {
+          "line": 15,
+          "column": 27,
+          "position": 95
+        },
+        "endLoc": {
+          "line": 22,
+          "column": 5,
+          "position": 151
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\domain\\exceptions\\validation.error.ts",
+        "start": 15,
+        "end": 22,
+        "startLoc": {
+          "line": 15,
+          "column": 16,
+          "position": 89
+        },
+        "endLoc": {
+          "line": 22,
+          "column": 6,
+          "position": 145
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": " {\r\n    const numeroValue = entity.numero as OrdenNumero | string;\r\n    const montoValue = entity.monto as Monto | number;\r\n    const estadoValue = entity.estado as OrdenEstado | string;\r\n\r\n    return {\r\n      numero",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\shared\\mappers\\orden.mapper.ts",
+        "start": 92,
+        "end": 98,
+        "startLoc": {
+          "line": 92,
+          "column": 2,
+          "position": 827
+        },
+        "endLoc": {
+          "line": 98,
+          "column": 7,
+          "position": 903
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\shared\\mappers\\orden.mapper.ts",
+        "start": 54,
+        "end": 60,
+        "startLoc": {
+          "line": 54,
+          "column": 17,
+          "position": 364
+        },
+        "endLoc": {
+          "line": 60,
+          "column": 3,
+          "position": 440
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": "\r\n      numero: numeroValue instanceof OrdenNumero ? numeroValue.getValue() : String(numeroValue),\r\n      monto: montoValue instanceof Monto ? montoValue.getValue() : Number(montoValue),\r\n      estado: estadoValue instanceof OrdenEstado ? estadoValue.getValue() : String(estadoValue),\r\n      clienteId: entity.clienteId as string,\r\n      descripcion: entity.descripcion as string,",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\shared\\mappers\\orden.mapper.ts",
+        "start": 97,
+        "end": 102,
+        "startLoc": {
+          "line": 97,
+          "column": 2,
+          "position": 900
+        },
+        "endLoc": {
+          "line": 102,
+          "column": 2,
+          "position": 1008
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\shared\\mappers\\orden.mapper.ts",
+        "start": 60,
+        "end": 65,
+        "startLoc": {
+          "line": 60,
+          "column": 2,
+          "position": 451
+        },
+        "endLoc": {
+          "line": 65,
+          "column": 2,
+          "position": 559
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": "): void {\r\n    const ctx = context || this.contextName;\r\n    if (context && context !== this.contextName) {\r\n      this.logger = new Logger(ctx);\r\n    }\r\n    const",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\shared\\logger\\pino-logger.service.ts",
+        "start": 46,
+        "end": 51,
+        "startLoc": {
+          "line": 46,
+          "column": 3,
+          "position": 420
+        },
+        "endLoc": {
+          "line": 51,
+          "column": 6,
+          "position": 486
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\shared\\logger\\pino-logger.service.ts",
+        "start": 33,
+        "end": 38,
+        "startLoc": {
+          "line": 33,
+          "column": 11,
+          "position": 288
+        },
+        "endLoc": {
+          "line": 38,
+          "column": 5,
+          "position": 354
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": "(message: string, context?: string, meta?: LogContext): void {\r\n    const ctx = context || this.contextName;\r\n    if (context && context !== this.contextName) {\r\n      this.logger = new Logger(ctx);\r\n    }\r\n    this.logger.warn",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\shared\\logger\\pino-logger.service.ts",
+        "start": 55,
+        "end": 60,
+        "startLoc": {
+          "line": 55,
+          "column": 5,
+          "position": 535
+        },
+        "endLoc": {
+          "line": 60,
+          "column": 5,
+          "position": 624
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\shared\\logger\\pino-logger.service.ts",
+        "start": 33,
+        "end": 38,
+        "startLoc": {
+          "line": 33,
+          "column": 4,
+          "position": 269
+        },
+        "endLoc": {
+          "line": 38,
+          "column": 4,
+          "position": 358
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": "(message: string, context?: string, meta?: LogContext): void {\r\n    const ctx = context || this.contextName;\r\n    if (context && context !== this.contextName) {\r\n      this.logger = new Logger(ctx);\r\n    }\r\n    this.logger.debug",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\shared\\logger\\pino-logger.service.ts",
+        "start": 63,
+        "end": 68,
+        "startLoc": {
+          "line": 63,
+          "column": 6,
+          "position": 647
+        },
+        "endLoc": {
+          "line": 68,
+          "column": 6,
+          "position": 736
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\shared\\logger\\pino-logger.service.ts",
+        "start": 33,
+        "end": 38,
+        "startLoc": {
+          "line": 33,
+          "column": 4,
+          "position": 269
+        },
+        "endLoc": {
+          "line": 38,
+          "column": 4,
+          "position": 358
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": "(message: string, context?: string, meta?: LogContext): void {\r\n    const ctx = context || this.contextName;\r\n    if (context && context !== this.contextName) {\r\n      this.logger = new Logger(ctx);\r\n    }\r\n    this.logger.verbose",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\shared\\logger\\pino-logger.service.ts",
+        "start": 71,
+        "end": 76,
+        "startLoc": {
+          "line": 71,
+          "column": 8,
+          "position": 759
+        },
+        "endLoc": {
+          "line": 76,
+          "column": 8,
+          "position": 848
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\shared\\logger\\pino-logger.service.ts",
+        "start": 33,
+        "end": 38,
+        "startLoc": {
+          "line": 33,
+          "column": 4,
+          "position": 269
+        },
+        "endLoc": {
+          "line": 38,
+          "column": 4,
+          "position": 358
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": "(message: string, context?: string, meta?: LogContext): void {\r\n    const ctx = context || this.contextName;\r\n    if (context && context !== this.contextName) {\r\n      this.logger = new Logger(ctx);\r\n    }\r\n    this.logger.fatal",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\shared\\logger\\pino-logger.service.ts",
+        "start": 79,
+        "end": 84,
+        "startLoc": {
+          "line": 79,
+          "column": 6,
+          "position": 871
+        },
+        "endLoc": {
+          "line": 84,
+          "column": 6,
+          "position": 960
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\shared\\logger\\pino-logger.service.ts",
+        "start": 33,
+        "end": 38,
+        "startLoc": {
+          "line": 33,
+          "column": 4,
+          "position": 269
+        },
+        "endLoc": {
+          "line": 38,
+          "column": 4,
+          "position": 358
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 8,
+      "fragment": "<\r\n    TModel,\r\n    TWhere = Record<string, unknown>,\r\n    TOrderBy = Record<string, 'asc' | 'desc'>,\r\n    TInclude = Record<string, boolean | object>,\r\n    TSelect = Record<string, boolean>,\r\n> {\r\n    model",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\utils\\pagination.util.ts",
+        "start": 54,
+        "end": 61,
+        "startLoc": {
+          "line": 54,
+          "column": 16,
+          "position": 327
+        },
+        "endLoc": {
+          "line": 61,
+          "column": 6,
+          "position": 409
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\utils\\pagination.util.ts",
+        "start": 36,
+        "end": 43,
+        "startLoc": {
+          "line": 36,
+          "column": 20,
+          "position": 134
+        },
+        "endLoc": {
+          "line": 43,
+          "column": 9,
+          "position": 216
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 11,
+      "fragment": ");\r\n\r\n        return {\r\n            data,\r\n            meta: createPaginationMeta(total, normalized.page, normalized.limit),\r\n        };\r\n    }\r\n\r\n    /**\r\n     * Crea metadata de paginación\r\n     */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\utils\\pagination.util.ts",
+        "start": 163,
+        "end": 173,
+        "startLoc": {
+          "line": 163,
+          "column": 6,
+          "position": 1361
+        },
+        "endLoc": {
+          "line": 173,
+          "column": 8,
+          "position": 1411
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\utils\\pagination.util.ts",
+        "start": 147,
+        "end": 157,
+        "startLoc": {
+          "line": 147,
+          "column": 2,
+          "position": 1248
+        },
+        "endLoc": {
+          "line": 157,
+          "column": 8,
+          "position": 1298
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": "(fecha: Date): string {\r\n  return new Intl.DateTimeFormat('es-CO', {\r\n    year: 'numeric',\r\n    month: 'long',\r\n    day: 'numeric',\r\n    ",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\utils\\date.util.ts",
+        "start": 69,
+        "end": 74,
+        "startLoc": {
+          "line": 69,
+          "column": 27,
+          "position": 432
+        },
+        "endLoc": {
+          "line": 74,
+          "column": 5,
+          "position": 484
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\utils\\date.util.ts",
+        "start": 58,
+        "end": 63,
+        "startLoc": {
+          "line": 58,
+          "column": 23,
+          "position": 356
+        },
+        "endLoc": {
+          "line": 63,
+          "column": 3,
+          "position": 408
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": "function isPlainObject(value: unknown): value is Record<string, unknown> {\r\n    return typeof value === 'object' && value !== null && !Array.isArray(value);\r\n}\r\n\r\n/**\r\n * Verifica si es una respuesta exitosa\r\n */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\types\\api-response.types.ts",
+        "start": 94,
+        "end": 100,
+        "startLoc": {
+          "line": 94,
+          "column": 2,
+          "position": 497
+        },
+        "endLoc": {
+          "line": 100,
+          "column": 4,
+          "position": 559
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\types\\exception.types.ts",
+        "start": 108,
+        "end": 114,
+        "startLoc": {
+          "line": 108,
+          "column": 1,
+          "position": 656
+        },
+        "endLoc": {
+          "line": 114,
+          "column": 4,
+          "position": 718
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": "(message: string, context?: string, meta?: Record<string, unknown>): void {\r\n        const contextStr = context ? `[${context}] ` : '';\r\n        const metaStr = meta && Object.keys(meta).length > 0 \r\n            ? ` ${JSON.stringify(meta)}` \r\n            : '';\r\n        this.logger.warn",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
+        "start": 65,
+        "end": 70,
+        "startLoc": {
+          "line": 65,
+          "column": 5,
+          "position": 492
+        },
+        "endLoc": {
+          "line": 70,
+          "column": 5,
+          "position": 600
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
+        "start": 29,
+        "end": 34,
+        "startLoc": {
+          "line": 29,
+          "column": 5,
+          "position": 92
+        },
+        "endLoc": {
+          "line": 34,
+          "column": 4,
+          "position": 200
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": "(message: string, context?: string, meta?: Record<string, unknown>): void {\r\n        const contextStr = context ? `[${context}] ` : '';\r\n        const metaStr = meta && Object.keys(meta).length > 0 \r\n            ? ` ${JSON.stringify(meta)}` \r\n            : '';\r\n        this.logger.debug",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
+        "start": 76,
+        "end": 81,
+        "startLoc": {
+          "line": 76,
+          "column": 6,
+          "position": 629
+        },
+        "endLoc": {
+          "line": 81,
+          "column": 6,
+          "position": 737
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
+        "start": 29,
+        "end": 34,
+        "startLoc": {
+          "line": 29,
+          "column": 5,
+          "position": 92
+        },
+        "endLoc": {
+          "line": 34,
+          "column": 4,
+          "position": 200
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": "(message: string, context?: string, meta?: Record<string, unknown>): void {\r\n        const contextStr = context ? `[${context}] ` : '';\r\n        const metaStr = meta && Object.keys(meta).length > 0 \r\n            ? ` ${JSON.stringify(meta)}` \r\n            : '';\r\n        this.logger.verbose",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
+        "start": 87,
+        "end": 92,
+        "startLoc": {
+          "line": 87,
+          "column": 8,
+          "position": 766
+        },
+        "endLoc": {
+          "line": 92,
+          "column": 8,
+          "position": 874
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
+        "start": 29,
+        "end": 34,
+        "startLoc": {
+          "line": 29,
+          "column": 5,
+          "position": 92
+        },
+        "endLoc": {
+          "line": 34,
+          "column": 4,
+          "position": 200
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 13,
+      "fragment": "}`;\r\n        if (statusCode >= 500) {\r\n            this.logger.error(message);\r\n        } else if (statusCode >= 400) {\r\n            this.logger.warn(message);\r\n        } else {\r\n            this.logger.log(message);\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Log de error con stack trace completo\r\n     */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
+        "start": 170,
+        "end": 182,
+        "startLoc": {
+          "line": 170,
+          "column": 8,
+          "position": 1600
+        },
+        "endLoc": {
+          "line": 182,
+          "column": 8,
+          "position": 1692
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
+        "start": 145,
+        "end": 157,
+        "startLoc": {
+          "line": 145,
+          "column": 10,
+          "position": 1336
+        },
+        "endLoc": {
+          "line": 157,
+          "column": 8,
+          "position": 1428
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": ",\r\n        meta?: Record<string, unknown>,\r\n    ): void {\r\n        const metaStr = meta && Object.keys(meta).length > 0\r\n            ? ` ${JSON.stringify(meta)}`\r\n            : '';\r\n        this",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
+        "start": 185,
+        "end": 191,
+        "startLoc": {
+          "line": 185,
+          "column": 7,
+          "position": 1713
+        },
+        "endLoc": {
+          "line": 191,
+          "column": 5,
+          "position": 1788
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
+        "start": 120,
+        "end": 126,
+        "startLoc": {
+          "line": 120,
+          "column": 5,
+          "position": 1075
+        },
+        "endLoc": {
+          "line": 126,
+          "column": 6,
+          "position": 1150
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": ", host: ArgumentsHost): void {\r\n        const ctx = host.switchToHttp();\r\n        const response = ctx.getResponse<Response>();\r\n        const request = ctx.getRequest<Request>();\r\n\r\n        // Estos son errores de programación, logueamos como error",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\filters\\prisma-exception.filter.ts",
+        "start": 101,
+        "end": 106,
+        "startLoc": {
+          "line": 101,
+          "column": 28,
+          "position": 675
+        },
+        "endLoc": {
+          "line": 106,
+          "column": 59,
+          "position": 743
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\lib\\shared\\filters\\global-exception.filter.ts",
+        "start": 25,
+        "end": 39,
+        "startLoc": {
+          "line": 25,
+          "column": 8,
+          "position": 177
+        },
+        "endLoc": {
+          "line": 39,
+          "column": 46,
+          "position": 228
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": ", host: ArgumentsHost): void {\r\n        const ctx = host.switchToHttp();\r\n        const response = ctx.getResponse<Response>();\r\n        const request = ctx.getRequest<Request>();\r\n\r\n        // Error crítico de infraestructura",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\filters\\prisma-exception.filter.ts",
+        "start": 136,
+        "end": 141,
+        "startLoc": {
+          "line": 136,
+          "column": 32,
+          "position": 968
+        },
+        "endLoc": {
+          "line": 141,
+          "column": 36,
+          "position": 1036
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\lib\\shared\\filters\\global-exception.filter.ts",
+        "start": 25,
+        "end": 39,
+        "startLoc": {
+          "line": 25,
+          "column": 8,
+          "position": 177
+        },
+        "endLoc": {
+          "line": 39,
+          "column": 46,
+          "position": 228
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": ", host: ArgumentsHost): void {\r\n        const ctx = host.switchToHttp();\r\n        const response = ctx.getResponse<Response>();\r\n        const request = ctx.getRequest<Request>();\r\n\r\n        // Error crítico - requiere atención inmediata",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\filters\\prisma-exception.filter.ts",
+        "start": 171,
+        "end": 176,
+        "startLoc": {
+          "line": 171,
+          "column": 27,
+          "position": 1271
+        },
+        "endLoc": {
+          "line": 176,
+          "column": 47,
+          "position": 1339
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\lib\\shared\\filters\\global-exception.filter.ts",
+        "start": 25,
+        "end": 39,
+        "startLoc": {
+          "line": 25,
+          "column": 8,
+          "position": 177
+        },
+        "endLoc": {
+          "line": 39,
+          "column": 46,
+          "position": 228
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 8,
+      "fragment": "\r\n                path: request.url,\r\n                method: request.method,\r\n            },\r\n        );\r\n\r\n        const errorResponse: PrismaErrorResponse = {\r\n            statusCode: HttpStatus.INTERNAL_SERVER_ERROR",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\filters\\prisma-exception.filter.ts",
+        "start": 180,
+        "end": 187,
+        "startLoc": {
+          "line": 180,
+          "column": 2,
+          "position": 1371
+        },
+        "endLoc": {
+          "line": 187,
+          "column": 22,
+          "position": 1424
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\filters\\prisma-exception.filter.ts",
+        "start": 110,
+        "end": 117,
+        "startLoc": {
+          "line": 110,
+          "column": 2,
+          "position": 772
+        },
+        "endLoc": {
+          "line": 117,
+          "column": 12,
+          "position": 825
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": " {\r\n        const ctx = host.switchToHttp();\r\n        const response = ctx.getResponse<Response>();\r\n        const request = ctx.getRequest<Request>();\r\n\r\n        const",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\filters\\http-exception.filter.ts",
+        "start": 15,
+        "end": 20,
+        "startLoc": {
+          "line": 15,
+          "column": 2,
+          "position": 118
+        },
+        "endLoc": {
+          "line": 20,
+          "column": 6,
+          "position": 176
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\filters\\prisma-exception.filter.ts",
+        "start": 34,
+        "end": 39,
+        "startLoc": {
+          "line": 34,
+          "column": 5,
+          "position": 170
+        },
+        "endLoc": {
+          "line": 39,
+          "column": 46,
+          "position": 228
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 11,
+      "fragment": "import {\r\n    ExceptionFilter,\r\n    Catch,\r\n    ArgumentsHost,\r\n    HttpException,\r\n    HttpStatus,\r\n    Logger,\r\n} from '@nestjs/common';\r\nimport { Response, Request } from 'express';\r\n\r\n@Catch()",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\filters\\all-exceptions.filter.ts",
+        "start": 1,
+        "end": 11,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 11,
+          "column": 2,
+          "position": 65
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\filters\\http-exception.filter.ts",
+        "start": 1,
+        "end": 11,
+        "startLoc": {
+          "line": 1,
+          "column": 1,
+          "position": 0
+        },
+        "endLoc": {
+          "line": 11,
+          "column": 14,
+          "position": 65
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": ", host: ArgumentsHost) {\r\n        const ctx = host.switchToHttp();\r\n        const response = ctx.getResponse<Response>();\r\n        const request = ctx.getRequest<Request>();\r\n\r\n        let",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\filters\\all-exceptions.filter.ts",
+        "start": 15,
+        "end": 20,
+        "startLoc": {
+          "line": 15,
+          "column": 8,
+          "position": 110
+        },
+        "endLoc": {
+          "line": 20,
+          "column": 4,
+          "position": 175
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\filters\\http-exception.filter.ts",
+        "start": 15,
+        "end": 39,
+        "startLoc": {
+          "line": 15,
+          "column": 14,
+          "position": 111
+        },
+        "endLoc": {
+          "line": 39,
+          "column": 46,
+          "position": 228
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": "\r\n        if (exception instanceof HttpException) {\r\n            status = exception.getStatus();\r\n            const exceptionResponse = exception.getResponse();\r\n\r\n            if (typeof exceptionResponse === 'object'",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\filters\\all-exceptions.filter.ts",
+        "start": 24,
+        "end": 29,
+        "startLoc": {
+          "line": 24,
+          "column": 18,
+          "position": 216
+        },
+        "endLoc": {
+          "line": 29,
+          "column": 9,
+          "position": 272
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\lib\\shared\\filters\\global-exception.filter.ts",
+        "start": 33,
+        "end": 38,
+        "startLoc": {
+          "line": 33,
+          "column": 1,
+          "position": 279
+        },
+        "endLoc": {
+          "line": 38,
+          "column": 9,
+          "position": 335
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 15,
+      "fragment": "\r\n        );\r\n\r\n        // Respuesta estructurada\r\n        response.status(status).json({\r\n            success: false,\r\n            statusCode: status,\r\n            message,\r\n            errors,\r\n            timestamp: new Date().toISOString(),\r\n            path: request.url,\r\n            method: request.method,\r\n        });\r\n    }\r\n\r",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\filters\\all-exceptions.filter.ts",
+        "start": 73,
+        "end": 87,
+        "startLoc": {
+          "line": 73,
+          "column": 2,
+          "position": 709
+        },
+        "endLoc": {
+          "line": 87,
+          "column": 2,
+          "position": 807
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\filters\\http-exception.filter.ts",
+        "start": 36,
+        "end": 50,
+        "startLoc": {
+          "line": 36,
+          "column": 6,
+          "position": 374
+        },
+        "endLoc": {
+          "line": 50,
+          "column": 2,
+          "position": 472
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 8,
+      "fragment": ";\r\n    }\r\n\r\n    override toJSON(): Record<string, unknown> {\r\n        return {\r\n            ...super.toJSON(),\r\n            entityName: this.entityName,\r\n            field",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\errors\\domain-error.base.ts",
+        "start": 146,
+        "end": 153,
+        "startLoc": {
+          "line": 146,
+          "column": 6,
+          "position": 1054
+        },
+        "endLoc": {
+          "line": 153,
+          "column": 6,
+          "position": 1109
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\errors\\domain-error.base.ts",
+        "start": 66,
+        "end": 73,
+        "startLoc": {
+          "line": 66,
+          "column": 3,
+          "position": 423
+        },
+        "endLoc": {
+          "line": 73,
+          "column": 9,
+          "position": 478
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": ";\r\n    }\r\n\r\n    override toHttpResponse(path: string): Record<string, unknown> {\r\n        return {\r\n            ...super.toHttpResponse(path),\r\n            requiredRoles",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\errors\\application-error.base.ts",
+        "start": 118,
+        "end": 124,
+        "startLoc": {
+          "line": 118,
+          "column": 14,
+          "position": 930
+        },
+        "endLoc": {
+          "line": 124,
+          "column": 14,
+          "position": 980
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\errors\\application-error.base.ts",
+        "start": 90,
+        "end": 96,
+        "startLoc": {
+          "line": 90,
+          "column": 2,
+          "position": 716
+        },
+        "endLoc": {
+          "line": 96,
+          "column": 7,
+          "position": 766
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": ";\r\n    }\r\n\r\n    override toHttpResponse(path: string): Record<string, unknown> {\r\n        return {\r\n            ...super.toHttpResponse(path),\r\n            resource",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\errors\\application-error.base.ts",
+        "start": 142,
+        "end": 148,
+        "startLoc": {
+          "line": 142,
+          "column": 11,
+          "position": 1143
+        },
+        "endLoc": {
+          "line": 148,
+          "column": 9,
+          "position": 1193
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\errors\\application-error.base.ts",
+        "start": 90,
+        "end": 96,
+        "startLoc": {
+          "line": 90,
+          "column": 2,
+          "position": 716
+        },
+        "endLoc": {
+          "line": 96,
+          "column": 7,
+          "position": 766
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": ";\r\n    }\r\n\r\n    override toHttpResponse(path: string): Record<string, unknown> {\r\n        return {\r\n            ...super.toHttpResponse(path),\r\n            conflictingField",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\errors\\application-error.base.ts",
+        "start": 162,
+        "end": 168,
+        "startLoc": {
+          "line": 162,
+          "column": 17,
+          "position": 1300
+        },
+        "endLoc": {
+          "line": 168,
+          "column": 17,
+          "position": 1350
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\errors\\application-error.base.ts",
+        "start": 90,
+        "end": 96,
+        "startLoc": {
+          "line": 90,
+          "column": 2,
+          "position": 716
+        },
+        "endLoc": {
+          "line": 96,
+          "column": 7,
+          "position": 766
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": ";\r\n    }\r\n\r\n    override toHttpResponse(path: string): Record<string, unknown> {\r\n        return {\r\n            ...super.toHttpResponse(path),\r\n            retryAfter",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\errors\\application-error.base.ts",
+        "start": 190,
+        "end": 196,
+        "startLoc": {
+          "line": 190,
+          "column": 11,
+          "position": 1504
+        },
+        "endLoc": {
+          "line": 196,
+          "column": 11,
+          "position": 1554
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\errors\\application-error.base.ts",
+        "start": 90,
+        "end": 96,
+        "startLoc": {
+          "line": 90,
+          "column": 2,
+          "position": 716
+        },
+        "endLoc": {
+          "line": 96,
+          "column": 7,
+          "position": 766
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": ";\r\n    }\r\n\r\n    override toHttpResponse(path: string): Record<string, unknown> {\r\n        return {\r\n            ...super.toHttpResponse(path),\r\n            serviceName",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\errors\\application-error.base.ts",
+        "start": 218,
+        "end": 224,
+        "startLoc": {
+          "line": 218,
+          "column": 12,
+          "position": 1708
+        },
+        "endLoc": {
+          "line": 224,
+          "column": 12,
+          "position": 1758
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\errors\\application-error.base.ts",
+        "start": 90,
+        "end": 96,
+        "startLoc": {
+          "line": 90,
+          "column": 2,
+          "position": 716
+        },
+        "endLoc": {
+          "line": 96,
+          "column": 7,
+          "position": 766
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 14,
+      "fragment": " {\r\n    @ApiPropertyOptional({\r\n        description: 'Campo por el cual ordenar',\r\n        example: 'createdAt',\r\n    })\r\n    @IsOptional()\r\n    @IsString({ message: 'sortBy debe ser un string' })\r\n    sortBy?: string;\r\n\r\n    @ApiPropertyOptional({\r\n        enum: ['asc', 'desc'],\r\n        default: 'desc',\r\n        description: 'Dirección del ordenamiento',\r\n    ",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\dto\\pagination.dto.ts",
+        "start": 88,
+        "end": 101,
+        "startLoc": {
+          "line": 88,
+          "column": 19,
+          "position": 610
+        },
+        "endLoc": {
+          "line": 101,
+          "column": 5,
+          "position": 711
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\dto\\pagination.dto.ts",
+        "start": 63,
+        "end": 76,
+        "startLoc": {
+          "line": 63,
+          "column": 13,
+          "position": 432
+        },
+        "endLoc": {
+          "line": 76,
+          "column": 9,
+          "position": 533
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": ",\r\n    })\r\n    @IsOptional()\r\n    @IsIn(['asc', 'desc'], { message: 'sortOrder debe ser \"asc\" o \"desc\"' })\r\n    sortOrder?: 'asc' | 'desc' = 'desc';\r\n\r",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\dto\\pagination.dto.ts",
+        "start": 100,
+        "end": 105,
+        "startLoc": {
+          "line": 100,
+          "column": 29,
+          "position": 708
+        },
+        "endLoc": {
+          "line": 105,
+          "column": 2,
+          "position": 763
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\dto\\pagination.dto.ts",
+        "start": 76,
+        "end": 81,
+        "startLoc": {
+          "line": 76,
+          "column": 7,
+          "position": 538
+        },
+        "endLoc": {
+          "line": 81,
+          "column": 2,
+          "position": 593
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 10,
+      "fragment": "(\r\n        statusCode: number,\r\n        message: string,\r\n        path: string,\r\n        options?: {\r\n            error?: string;\r\n            code?: string;\r\n            errors?: ValidationErrorItem[];\r\n        },\r\n    ):",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\dto\\api-response.dto.ts",
+        "start": 106,
+        "end": 115,
+        "startLoc": {
+          "line": 106,
+          "column": 7,
+          "position": 797
+        },
+        "endLoc": {
+          "line": 115,
+          "column": 2,
+          "position": 868
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\dto\\api-response.dto.ts",
+        "start": 84,
+        "end": 93,
+        "startLoc": {
+          "line": 84,
+          "column": 12,
+          "position": 614
+        },
+        "endLoc": {
+          "line": 93,
+          "column": 2,
+          "position": 685
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 15,
+      "fragment": ": { $ref: getSchemaPath(model) },\r\n                        },\r\n                    },\r\n                ],\r\n            },\r\n        }),\r\n    );\r\n};\r\n\r\n/**\r\n * Documenta respuesta paginada estándar\r\n *\r\n * Uso:\r\n * @ApiPaginatedResponse(UserDto, { description: 'Lista de usuarios paginada' })\r\n */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\decorators\\api-response.decorator.ts",
+        "start": 67,
+        "end": 81,
+        "startLoc": {
+          "line": 67,
+          "column": 5,
+          "position": 489
+        },
+        "endLoc": {
+          "line": 81,
+          "column": 4,
+          "position": 542
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\decorators\\api-response.decorator.ts",
+        "start": 41,
+        "end": 52,
+        "startLoc": {
+          "line": 41,
+          "column": 33,
+          "position": 291
+        },
+        "endLoc": {
+          "line": 52,
+          "column": 4,
+          "position": 344
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 6,
+      "fragment": " = <TModel extends Type<unknown>>(\r\n    model: TModel,\r\n    options?: { description?: string },\r\n) => {\r\n    return applyDecorators(\r\n        ApiExtraModels(PaginatedResponseDto",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\common\\decorators\\api-response.decorator.ts",
+        "start": 82,
+        "end": 87,
+        "startLoc": {
+          "line": 82,
+          "column": 21,
+          "position": 550
+        },
+        "endLoc": {
+          "line": 87,
+          "column": 21,
+          "position": 607
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\common\\decorators\\api-response.decorator.ts",
+        "start": 53,
+        "end": 58,
+        "startLoc": {
+          "line": 53,
+          "column": 19,
+          "position": 352
+        },
+        "endLoc": {
+          "line": 58,
+          "column": 22,
+          "position": 409
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 14,
+      "fragment": "\r\n            await this.prisma.$queryRaw`SELECT 1`;\r\n            dbStatus = {\r\n                status: 'ok',\r\n                latency: Date.now() - startTime,\r\n            };\r\n        } catch (error) {\r\n            dbStatus = {\r\n                status: 'error',\r\n                error: error instanceof Error ? error.message : 'Unknown error',\r\n            };\r\n        }\r\n\r\n        return",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\health.controller.ts",
+        "start": 103,
+        "end": 116,
+        "startLoc": {
+          "line": 103,
+          "column": 2,
+          "position": 958
+        },
+        "endLoc": {
+          "line": 116,
+          "column": 7,
+          "position": 1071
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\health.controller.ts",
+        "start": 57,
+        "end": 70,
+        "startLoc": {
+          "line": 57,
+          "column": 44,
+          "position": 487
+        },
+        "endLoc": {
+          "line": 70,
+          "column": 6,
+          "position": 600
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": ",\r\n            timestamp: new Date().toISOString(),\r\n            uptime: process.uptime(),\r\n            version: process.env.npm_package_version || '1.0.0',\r\n            checks: {\r\n                database: dbStatus,\r\n                ",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\health.controller.ts",
+        "start": 117,
+        "end": 123,
+        "startLoc": {
+          "line": 117,
+          "column": 11,
+          "position": 1095
+        },
+        "endLoc": {
+          "line": 123,
+          "column": 17,
+          "position": 1157
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\health.controller.ts",
+        "start": 73,
+        "end": 79,
+        "startLoc": {
+          "line": 73,
+          "column": 14,
+          "position": 637
+        },
+        "endLoc": {
+          "line": 79,
+          "column": 13,
+          "position": 699
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 7,
+      "fragment": "e);\r\n        process.exit(1);\r\n    })\r\n    .finally(async () => {\r\n        await prisma.$disconnect();\r\n    });\r\n",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\prisma\\seed_root.ts",
+        "start": 55,
+        "end": 61,
+        "startLoc": {
+          "line": 55,
+          "column": 2,
+          "position": 414
+        },
+        "endLoc": {
+          "line": 61,
+          "column": 1,
+          "position": 464
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\prisma\\verify-stats.ts",
+        "start": 41,
+        "end": 47,
+        "startLoc": {
+          "line": 41,
+          "column": 2,
+          "position": 439
+        },
+        "endLoc": {
+          "line": 47,
+          "column": 1,
+          "position": 489
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 11,
+      "fragment": ";\r\n\r\n// Crear pool de conexión con el adaptador\r\nconst connectionString = process.env.DATABASE_URL ||\r\n    'postgresql://postgres:admin@localhost:5432/cermont_fsm';\r\n\r\nconst pool = new Pool({ connectionString });\r\nconst adapter = new PrismaPg(pool);\r\nconst prisma = new PrismaClient({ adapter });\r\n\r\nasync function seedTestUser",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\seed-test-user.ts",
+        "start": 4,
+        "end": 14,
+        "startLoc": {
+          "line": 4,
+          "column": 11,
+          "position": 56
+        },
+        "endLoc": {
+          "line": 14,
+          "column": 13,
+          "position": 145
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\test-db.ts",
+        "start": 3,
+        "end": 13,
+        "startLoc": {
+          "line": 3,
+          "column": 5,
+          "position": 39
+        },
+        "endLoc": {
+          "line": 13,
+          "column": 15,
+          "position": 128
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 9,
+      "fragment": ", error);\r\n        process.exit(1);\r\n    } finally {\r\n        await prisma.$disconnect();\r\n        await pool.end();\r\n    }\r\n}\r\n\r\nseedTestUser",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\seed-test-user.ts",
+        "start": 50,
+        "end": 58,
+        "startLoc": {
+          "line": 50,
+          "column": 19,
+          "position": 457
+        },
+        "endLoc": {
+          "line": 58,
+          "column": 13,
+          "position": 513
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\test-db.ts",
+        "start": 44,
+        "end": 52,
+        "startLoc": {
+          "line": 44,
+          "column": 23,
+          "position": 412
+        },
+        "endLoc": {
+          "line": 52,
+          "column": 15,
+          "position": 468
+        }
+      }
+    }
+  ],
+  "filename": "C:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\cermont_aplicativo\\node_modules\\.pnpm\\@jscpd+html-reporter@4.0.1\\node_modules\\@jscpd\\html-reporter\\dist\\templates\\main.pug"
+}

@@ -80,6 +80,7 @@ import { GlobalExceptionFilter } from './lib/shared/filters/global-exception.fil
         }),
 
         // Event Emitter for domain events (MUST be before feature modules)
+        /*
         EventEmitterModule.forRoot({
             global: true,
             wildcard: false,
@@ -90,9 +91,10 @@ import { GlobalExceptionFilter } from './lib/shared/filters/global-exception.fil
             verboseMemoryLeak: true,
             ignoreErrors: false,
         }),
+        */
 
         // Rate limiting - Múltiples límites para diferentes escenarios
-        // Previene ataques DDoS y brute force
+        /*
         ThrottlerModule.forRoot([
             {
                 name: 'short',
@@ -110,65 +112,71 @@ import { GlobalExceptionFilter } from './lib/shared/filters/global-exception.fil
                 limit: 5000,  // INCREASED: 5000 requests (was 1000)
             },
         ]),
+        */
 
         // In-memory cache for expensive operations (dashboard stats, KPIs)
+        /*
         CacheModule.register({
             isGlobal: true,
             ttl: 300000, // 5 minutos en ms
             max: 100,    // Máximo 100 items en caché
         }),
+        */
 
         // Logger nativo de NestJS (configurado en main.ts)
         // No requiere módulo adicional - LoggerService usa Logger de @nestjs/common
 
         // Static files (uploads)
+        /*
         ServeStaticModule.forRoot({
             rootPath: join(process.cwd(), 'uploads'),
             serveRoot: '/uploads',
         }),
+        */
 
         // Core
         PrismaModule,
 
         // Feature modules - ACTIVATED
         AuthModule,
-        OrdenesModule,
-        PlaneacionModule,
-        KitsModule,
-        EjecucionModule,
-        DashboardModule,
-        ReportesModule,    // ✅ Activado
-        HesModule,         // ✅ Activado
+        // OrdenesModule,
+        // PlaneacionModule,
+        // KitsModule,
+        // EjecucionModule,
+        // DashboardModule,
+        // ReportesModule,    // ✅ Activado
+        // HesModule,         // ✅ Activado
         // LineasVidaModule, // TODO: Create LineasVidaModule
-        CostosModule,      // ✅ Activado
-        ChecklistsModule,  // ✅ Activado
+        // CostosModule,      // ✅ Activado
+        // ChecklistsModule,  // ✅ Activado
         // MantenimientosModule, // DELETED - CERMONT uses order-based maintenance
-        FormulariosModule, // ✅ Activado
-        CierreAdministrativoModule, // ✅ Activado
+        // FormulariosModule, // ✅ Activado
+        // CierreAdministrativoModule, // ✅ Activado
 
         // New modules - ACTIVATED
         // ArchivadoModule,    // Replaced by ArchivadoHistoricoModule
-        SyncModule,         // ✅ Activado - Módulo 1: Sincronización offline
-        PdfGenerationModule, // ✅ Activado - Generación de informes PDF
-        AdminModule,        // ✅ Activado - Módulo 3: Administración RBAC
-        WeatherModule,      // ✅ Activado - Módulo Meteorológico (Open-Meteo + NASA)
+        // SyncModule,         // ✅ Activado - Módulo 1: Sincronización offline
+        // PdfGenerationModule, // ✅ Activado - Generación de informes PDF
+        // AdminModule,        // ✅ Activado - Módulo 3: Administración RBAC
+        // WeatherModule,      // ✅ Activado - Módulo Meteorológico (Open-Meteo + NASA)
         // EmailModule,       // DELETED - Redundant with AlertasModule
-        TecnicosModule,     // ✅ Activado
+        // TecnicosModule,     // ✅ Activado
 
-        AlertasModule,      // ✅ Activado - Sistema de Alertas Automáticas
-        KpisModule,         // Dashboard KPIs y Métricas
+        // AlertasModule,      // ✅ Activado - Sistema de Alertas Automáticas
+        // KpisModule,         // Dashboard KPIs y Métricas
 
         // NEW MODULES - Phase 3 Backend Refactoring
-        CertificacionesModule,    // Gestión de certificaciones técnicos/equipos
-        ClientesModule,           // Gestión de clientes (SIERRACOL)
-        FacturacionModule,        // SES Ariba + Facturación
-        ArchivadoHistoricoModule, // Archivado automático mensual
+        // CertificacionesModule,    // Gestión de certificaciones técnicos/equipos
+        // ClientesModule,           // Gestión de clientes (SIERRACOL)
+        // FacturacionModule,        // SES Ariba + Facturación
+        // ArchivadoHistoricoModule, // Archivado automático mensual
 
         // Schedule module for CRON jobs
-        ScheduleModule.forRoot(),
+        // ScheduleModule.forRoot(),
     ],
     controllers: [HealthController],
     providers: [
+        /*
         // Filtros de excepciones (orden importa: más específico primero)
         // Prisma errors - más específicos
         {
@@ -208,6 +216,7 @@ import { GlobalExceptionFilter } from './lib/shared/filters/global-exception.fil
         },
         // Global logger service
         LoggerService,
+        */
     ],
 })
 export class AppModule implements NestModule {
