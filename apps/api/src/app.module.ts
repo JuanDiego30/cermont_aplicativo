@@ -57,7 +57,6 @@ import { ArchivadoHistoricoModule } from './modules/archivado-historico/archivad
 
 
 // Common providers
-import { HttpExceptionFilter, AllExceptionsFilter } from './common/filters';
 import {
     PrismaExceptionFilter,
     PrismaValidationFilter,
@@ -67,10 +66,13 @@ import {
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { HealthController } from './health.controller';
 import { CustomThrottleGuard } from './common/guards/throttle.guard';
-import { LoggerService } from './common/logging/logger.service';
+// import { LoggerService } from './common/logging/logger.service'; // REMOVED LEGACY
+import { LoggerService } from './lib/logging/logger.service'; // NEW
+import { GlobalExceptionFilter } from './lib/shared/filters/global-exception.filter'; // NEW
 
 @Module({
     imports: [
+        // ... imports remain same ...
         // Configuration
         ConfigModule.forRoot({
             isGlobal: true,
@@ -162,7 +164,6 @@ import { LoggerService } from './common/logging/logger.service';
         FacturacionModule,        // SES Ariba + Facturación
         ArchivadoHistoricoModule, // Archivado automático mensual
 
-
         // Schedule module for CRON jobs
         ScheduleModule.forRoot(),
     ],
@@ -186,19 +187,14 @@ import { LoggerService } from './common/logging/logger.service';
             provide: APP_FILTER,
             useClass: PrismaExceptionFilter,
         },
-        // HTTP exception - catch-all para el resto
+        // HTTP exception - catch-all para el resto (Global Filter REPLACES HttpExceptionFilter and AllExceptionsFilter)
         {
             provide: APP_FILTER,
-            useClass: HttpExceptionFilter,
-        },
-        // Global catch-all exception filter
-        {
-            provide: APP_FILTER,
-            useClass: AllExceptionsFilter,
+            useClass: GlobalExceptionFilter, // NEW GLOBAL FILTER
         },
         {
             provide: APP_INTERCEPTOR,
-            useClass: LoggingInterceptor,
+            useClass: LoggingInterceptor, // Keep logging interceptor? Or remove if LoggerService covers it? Keep for now.
         },
         // Rate limiting guard (applies global, pero JWT va después)
         {
