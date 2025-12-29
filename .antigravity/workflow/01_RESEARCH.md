@@ -1,16 +1,38 @@
-# 🧪 Phase 1: Research Template
+# 🧪 Phase A: Research (solo lectura)
 
-**Objective**: [Analyze intended change]
+## Objetivo (1–2 frases)
+- ...
 
-## 1. Context Analysis
-- [ ] Read related files (List them).
-- [ ] Check dependencies (`package.json`).
-- [ ] Check database schema implications.
+## Scope permitido (obligatorio: rutas exactas)
+> Antigravity NO puede leer ni modificar fuera de estas rutas.
+- ...
+- ...
 
-## 2. Technical debt Audit
-- [ ] Are there clones? (Run `jscpd`).
-- [ ] Are there type errors? (Run `typecheck`).
+## Archivos revisados (paths exactos)
+- ...
+- ...
 
-## 3. Findings
-- Finding 1...
-- Finding 2...
+## Hallazgos (con evidencia)
+### Arquitectura/patrón existente
+- ...
+
+### Duplicidad detectada (si aplica)
+- Herramienta/forma de detección:
+- Fragmentos repetidos:
+- Propuesta de extracción a `shared/` o `packages/`:
+
+### Dependencias y riesgos
+- ¿Se requiere nueva dependencia? (sí/no)
+- Si sí:
+  - Alternativas sin nueva dependencia:
+  - Riesgo de peer-deps / Angular/Nest / Prisma:
+  - Impacto en bundle/build:
+
+### DB/Prisma (si aplica)
+- Modelos afectados:
+- Migración requerida: (sí/no)
+- Riesgos:
+
+## Decisiones que requieren confirmación del usuario
+- ...
+
