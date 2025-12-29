@@ -15,8 +15,8 @@ import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PasswordService } from '../../lib/services/password.service';
-import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './application/dto/login.dto';
+import { RegisterDto } from './application/dto/register.dto';
 
 /**
  * Tipo para usuario autenticado (evita any)

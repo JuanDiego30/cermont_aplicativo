@@ -26,7 +26,8 @@ import { RegisterUseCase } from '../../application/use-cases/register.use-case';
 import { RefreshTokenUseCase } from '../../application/use-cases/refresh-token.use-case';
 import { LogoutUseCase } from '../../application/use-cases/logout.use-case';
 import { GetCurrentUserUseCase } from '../../application/use-cases/get-current-user.use-case';
-import { LoginSchema, RegisterSchema } from '../../application/dto';
+import { LoginDto } from '../../application/dto/login.dto';
+import { RegisterDto } from '../../application/dto/register.dto';
 import { Public } from '../../../../common/decorators/public.decorator';
 import { CurrentUser, JwtPayload } from '../../../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../../../common/guards/jwt-auth.guard';
@@ -59,31 +60,15 @@ export class AuthControllerRefactored {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Iniciar sesión' })
   async login(
-    @Body() body: unknown,
+    @Body() dto: LoginDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
-      // ✅ Log del body recibido (sin password)
-      const bodyPreview = { ...(body as Record<string, unknown>) };
-      if (bodyPreview.password) bodyPreview.password = '***';
-      this.logger.log(`Login request received: ${JSON.stringify(bodyPreview)}`);
+      // ✅ Log del request (email only for privacy)
+      this.logger.log(`Login request received: ${dto.email}`);
 
-      // Validar body con Zod
-      const parseResult = LoginSchema.safeParse(body);
-      if (!parseResult.success) {
-        const errors = parseResult.error.issues.map(i => {
-          const path = i.path.length > 0 ? i.path.join('.') : 'root';
-          return `${path}: ${i.message}`;
-        }).join(', ');
-        this.logger.warn(`❌ Login validation failed: ${errors}`, { body: bodyPreview });
-        throw new BadRequestException(`Validación fallida: ${errors}`);
-      }
-
-      const dto = parseResult.data;
       const context = { ip: req.ip, userAgent: req.get('user-agent') };
-
-      this.logger.log(`✅ Login validation passed for: ${dto.email} | rememberMe: ${dto.rememberMe}`);
       const result = await this.loginUseCase.execute(dto, context);
 
       res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
@@ -96,7 +81,7 @@ export class AuthControllerRefactored {
     } catch (error) {
       // Log del error para debugging
       if (error instanceof BadRequestException || error instanceof UnauthorizedException) {
-        this.logger.warn(`Login ${error.constructor.name}: ${error.message}`, { body });
+        this.logger.warn(`Login ${error.constructor.name}: ${error.message}`);
         throw error;
       }
       const errorMessage = error instanceof Error ? error.message : String(error);
@@ -111,11 +96,10 @@ export class AuthControllerRefactored {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Registrar nuevo usuario' })
   async register(
-    @Body() body: unknown,
+    @Body() dto: RegisterDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const dto = RegisterSchema.parse(body);
     const context = { ip: req.ip, userAgent: req.get('user-agent') };
 
     const result = await this.registerUseCase.execute(dto, context);

@@ -7,13 +7,7 @@ import * as bcrypt from 'bcryptjs';
 import { AUTH_REPOSITORY, IAuthRepository } from '../../domain/repositories';
 import { Email, Password } from '../../domain/value-objects';
 
-interface RegisterDto {
-  email: string;
-  password: string;
-  name: string;
-  role?: 'admin' | 'supervisor' | 'tecnico' | 'administrativo';
-  phone?: string;
-}
+import { RegisterDto } from '../dto/register.dto';
 
 interface AuthContext {
   ip?: string;

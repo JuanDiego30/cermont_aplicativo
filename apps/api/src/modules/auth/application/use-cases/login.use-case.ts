@@ -5,11 +5,7 @@ import * as bcrypt from 'bcryptjs';
 import { AUTH_REPOSITORY, IAuthRepository } from '../../domain/repositories';
 import { Email, Password } from '../../domain/value-objects';
 
-interface LoginDto {
-  email: string;
-  password: string;
-  rememberMe?: boolean; // ✅ Campo opcional para "Recordarme"
-}
+import { LoginDto } from '../dto/login.dto';
 
 interface AuthContext {
   ip?: string;
