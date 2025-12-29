@@ -15,6 +15,11 @@ export class PrismaTecnicoRepository implements ITecnicoRepository {
     async findById(id: string): Promise<TecnicoEntity | null> {
         const user = await this.prisma.user.findUnique({
             where: { id, role: 'tecnico' },
+            include: {
+                asignaciones: {
+                    select: { estado: true }
+                }
+            }
         });
 
         if (!user) return null;
@@ -42,6 +47,11 @@ export class PrismaTecnicoRepository implements ITecnicoRepository {
         const users = await this.prisma.user.findMany({
             where,
             orderBy: { name: 'asc' },
+            include: {
+                asignaciones: {
+                    select: { estado: true }
+                }
+            }
         });
 
         return users.map(u => this.mapToEntity(u));
@@ -54,6 +64,11 @@ export class PrismaTecnicoRepository implements ITecnicoRepository {
                 active: true,
             },
             orderBy: { name: 'asc' },
+            include: {
+                asignaciones: {
+                    select: { estado: true }
+                }
+            }
         });
 
         return users
@@ -72,6 +87,11 @@ export class PrismaTecnicoRepository implements ITecnicoRepository {
         const user = await this.prisma.user.update({
             where: { id: tecnico.id },
             data,
+            include: {
+                asignaciones: {
+                    select: { estado: true }
+                }
+            }
         });
 
         return this.mapToEntity(user);
@@ -101,16 +121,25 @@ export class PrismaTecnicoRepository implements ITecnicoRepository {
     }
 
     private mapToEntity(user: any): TecnicoEntity {
+        // Calculate stats from assignments
+        const assignments = user.asignaciones || [];
+        const activeOrders = assignments.filter((a: any) =>
+            a.estado !== 'completada' && a.estado !== 'cancelada'
+        ).length;
+        const completedOrders = assignments.filter((a: any) =>
+            a.estado === 'completada'
+        ).length;
+
         const props: TecnicoProps = {
             id: user.id,
             userId: user.id,
             nombre: user.name || '',
             email: user.email,
             telefono: user.phone || undefined,
-            disponibilidad: user.active ? 'disponible' : 'baja',
+            disponibilidad: user.active ? 'disponible' : 'baja', // Logic could be refined based on activeOrders
             especialidades: ['general'],
-            ordenesActivas: 0,
-            ordenesCompletadas: 0,
+            ordenesActivas: activeOrders,
+            ordenesCompletadas: completedOrders,
             calificacionPromedio: undefined,
             active: user.active,
             createdAt: user.createdAt,
