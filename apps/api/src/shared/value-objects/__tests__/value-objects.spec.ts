@@ -56,13 +56,9 @@ describe('Monto Value Object', () => {
       expect(monto.isPositivo()).toBe(true);
     });
 
-<<<<<<< HEAD
-
-=======
     it('debe rechazar montos negativos (regla de dominio)', () => {
       expect(() => Monto.create(-50)).toThrow('Monto no puede ser negativo');
     });
->>>>>>> 2b4be7381cb50170e0f792c7de0434441359cab7
   });
 });
 
