@@ -4,7 +4,7 @@
 // ============================================
 
 export class Monto {
-  private constructor(private readonly value: number) {}
+  private constructor(private readonly value: number) { }
 
   static create(value: number): Monto {
     if (value < 0) throw new Error('Monto no puede ser negativo');
@@ -49,14 +49,15 @@ export class Monto {
 }
 
 export class OrdenNumero {
-  private constructor(private readonly value: string) {}
+  private constructor(private readonly value: string) { }
 
   static create(value: string): OrdenNumero {
     if (!value || value.length === 0)
       throw new Error('OrdenNumero no puede ser vacío');
-    if (!/^ORD-\d{6,}$/.test(value))
+    const normalized = value.toUpperCase();
+    if (!/^ORD-\d{6,}$/.test(normalized))
       throw new Error('Formato inválido: debe ser ORD-XXXXXX');
-    return new OrdenNumero(value.toUpperCase());
+    return new OrdenNumero(normalized);
   }
 
   static generar(): OrdenNumero {
@@ -83,7 +84,7 @@ export class OrdenEstado {
   readonly PAUSADA = 'PAUSADA';
   readonly CANCELADA = 'CANCELADA';
 
-  private constructor(private readonly value: string) {}
+  private constructor(private readonly value: string) { }
 
   static create(estado: string): OrdenEstado {
     const validos = ['PENDIENTE', 'EN_PROCESO', 'COMPLETADA', 'PAUSADA', 'CANCELADA'];

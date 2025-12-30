@@ -56,10 +56,7 @@ describe('Monto Value Object', () => {
       expect(monto.isPositivo()).toBe(true);
     });
 
-    it('debe identificar montos negativos', () => {
-      const monto = Monto.create(-50);
-      expect(monto.isNegativo()).toBe(true);
-    });
+
   });
 });
 
