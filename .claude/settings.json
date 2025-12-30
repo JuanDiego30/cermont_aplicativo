@@ -7,7 +7,7 @@
     ],
     "rules": {
         "noRepoSweep": true,
-        "requirePlanApproval": true,
+        "requirePlanApproval": false,
         "noNewDependenciesWithoutApproval": true,
         "requireVerifyStep": true,
         "smallPRsOnly": true

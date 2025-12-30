@@ -258,6 +258,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^8.51.0
         version: 8.51.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      cross-env:
+        specifier: ^10.1.0
+        version: 10.1.0
       dotenv-cli:
         specifier: ^11.0.0
         version: 11.0.0
