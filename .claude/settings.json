@@ -1,0 +1,15 @@
+{
+    "project": "cermont_aplicativo",
+    "defaultBranch": "main",
+    "preferredDocs": [
+        "ANTIGRAVITY.md",
+        ".antigravity/workflow/Estructura.md"
+    ],
+    "rules": {
+        "noRepoSweep": true,
+        "requirePlanApproval": true,
+        "noNewDependenciesWithoutApproval": true,
+        "requireVerifyStep": true,
+        "smallPRsOnly": true
+    }
+}
