@@ -101,19 +101,16 @@ describe('OrdenEstado Value Object', () => {
     });
 
     describe('getAllowedTransitions', () => {
-        it('planeacion puede ir a ejecucion, pendiente, cancelada o pausada', () => {
+        it('planeacion puede ir a ejecucion o cancelada', () => {
             const transitions = OrdenEstado.planeacion().getAllowedTransitions();
             expect(transitions).toContain('ejecucion');
             expect(transitions).toContain('cancelada');
-            expect(transitions).toContain('pendiente');
-            expect(transitions).toContain('pausada');
-            expect(transitions).toHaveLength(4);
+            expect(transitions).toHaveLength(2);
         });
 
-        it('completada puede volver a pendiente', () => {
+        it('completada no tiene transiciones', () => {
             const transitions = OrdenEstado.completada().getAllowedTransitions();
-            expect(transitions).toContain('pendiente');
-            expect(transitions).toHaveLength(1);
+            expect(transitions).toHaveLength(0);
         });
     });
 
