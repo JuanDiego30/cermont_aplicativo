@@ -52,8 +52,9 @@ export class OrdenNumero {
   private constructor(private readonly value: string) { }
 
   static create(value: string): OrdenNumero {
-    if (!value || value.length === 0)
+    if (!value || value.length === 0) {
       throw new Error('OrdenNumero no puede ser vacío');
+    }
     const normalized = value.toUpperCase();
     if (!/^ORD-\d{6,}$/.test(normalized))
       throw new Error('Formato inválido: debe ser ORD-XXXXXX');
@@ -87,9 +88,17 @@ export class OrdenEstado {
   private constructor(private readonly value: string) { }
 
   static create(estado: string): OrdenEstado {
-    const validos = ['PENDIENTE', 'EN_PROCESO', 'COMPLETADA', 'PAUSADA', 'CANCELADA'];
+    const validos = [
+      'PENDIENTE',
+      'EN_PROCESO',
+      'COMPLETADA',
+      'PAUSADA',
+      'CANCELADA',
+    ];
     if (!validos.includes(estado.toUpperCase())) {
-      throw new Error(`Estado inválido: ${estado}. Debe ser uno de: ${validos.join(', ')}`);
+      throw new Error(
+        `Estado inválido: ${estado}. Debe ser uno de: ${validos.join(', ')}`,
+      );
     }
     return new OrdenEstado(estado.toUpperCase());
   }

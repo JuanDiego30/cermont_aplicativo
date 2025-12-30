@@ -18,19 +18,16 @@ export class OrdenStateMachine {
     [OrdenEstado.PENDIENTE]: [OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
     [OrdenEstado.PLANEACION]: [
       OrdenEstado.EJECUCION,
-      OrdenEstado.PENDIENTE,
       OrdenEstado.CANCELADA,
-      OrdenEstado.PAUSADA,
     ],
     [OrdenEstado.EJECUCION]: [
       OrdenEstado.COMPLETADA,
-      OrdenEstado.PLANEACION,
-      OrdenEstado.CANCELADA,
       OrdenEstado.PAUSADA,
+      OrdenEstado.CANCELADA,
     ],
-    [OrdenEstado.COMPLETADA]: [OrdenEstado.PENDIENTE],
-    [OrdenEstado.CANCELADA]: [OrdenEstado.PENDIENTE],
-    [OrdenEstado.PAUSADA]: [OrdenEstado.PLANEACION, OrdenEstado.EJECUCION, OrdenEstado.CANCELADA],
+    [OrdenEstado.COMPLETADA]: [],
+    [OrdenEstado.CANCELADA]: [],
+    [OrdenEstado.PAUSADA]: [OrdenEstado.EJECUCION, OrdenEstado.CANCELADA],
   };
 
   // Transiciones que requieren motivo obligatorio
@@ -46,7 +43,7 @@ export class OrdenStateMachine {
   ): void {
     // Validar que la transición esté permitida
     const allowedTransitions = this.TRANSITIONS[fromEstado];
-    
+
     if (!allowedTransitions.includes(toEstado)) {
       throw new BadRequestException(
         `No se puede cambiar de ${fromEstado} a ${toEstado}. ` +
