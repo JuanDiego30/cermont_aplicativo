@@ -56,9 +56,8 @@ describe('Monto Value Object', () => {
       expect(monto.isPositivo()).toBe(true);
     });
 
-    it('debe identificar montos negativos', () => {
-      const monto = Monto.create(-50);
-      expect(monto.isNegativo()).toBe(true);
+    it('debe rechazar montos negativos (regla de dominio)', () => {
+      expect(() => Monto.create(-50)).toThrow('Monto no puede ser negativo');
     });
   });
 });
@@ -113,21 +112,15 @@ describe('OrdenEstado Value Object', () => {
 
   describe('transiciones', () => {
     it('debe permitir transición PENDIENTE -> EN_PROCESO', () => {
-      expect(
-        OrdenEstado.esTransicionValida('PENDIENTE', 'EN_PROCESO'),
-      ).toBe(true);
+      expect(OrdenEstado.esTransicionValida('PENDIENTE', 'EN_PROCESO')).toBe(true);
     });
 
     it('debe permitir transición PENDIENTE -> CANCELADA', () => {
-      expect(
-        OrdenEstado.esTransicionValida('PENDIENTE', 'CANCELADA'),
-      ).toBe(true);
+      expect(OrdenEstado.esTransicionValida('PENDIENTE', 'CANCELADA')).toBe(true);
     });
 
     it('debe rechazar transición COMPLETADA -> EN_PROCESO', () => {
-      expect(
-        OrdenEstado.esTransicionValida('COMPLETADA', 'EN_PROCESO'),
-      ).toBe(false);
+      expect(OrdenEstado.esTransicionValida('COMPLETADA', 'EN_PROCESO')).toBe(false);
     });
   });
 });
