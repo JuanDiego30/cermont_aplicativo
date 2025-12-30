@@ -12,13 +12,18 @@ export type EstadoOrden =
   | 'pausada';
 
 export class OrdenEstado {
+  /**
+   * IMPORTANT:
+   * Keep transitions aligned with unit tests under
+   * `modules/ordenes/domain/value-objects/__tests__/orden-estado.vo.spec.ts`.
+   */
   private static readonly VALID_TRANSITIONS: Record<EstadoOrden, EstadoOrden[]> = {
     pendiente: ['planeacion', 'cancelada'],
-    planeacion: ['ejecucion', 'pendiente', 'cancelada', 'pausada'],
-    ejecucion: ['completada', 'planeacion', 'cancelada', 'pausada'],
-    completada: ['pendiente'],
-    cancelada: ['pendiente'],
-    pausada: ['planeacion', 'ejecucion', 'cancelada'],
+    planeacion: ['ejecucion', 'cancelada'],
+    ejecucion: ['completada', 'pausada', 'cancelada'],
+    completada: [],
+    cancelada: [],
+    pausada: ['ejecucion', 'cancelada'],
   };
 
   private constructor(private readonly _value: EstadoOrden) {
@@ -79,9 +84,7 @@ export class OrdenEstado {
 
   transitionTo(newState: EstadoOrden): OrdenEstado {
     if (!this.canTransitionTo(newState)) {
-      throw new Error(
-        `Transición inválida de ${this._value} a ${newState}`,
-      );
+      throw new Error(`Transición inválida de ${this._value} a ${newState}`);
     }
     return OrdenEstado.create(newState);
   }
