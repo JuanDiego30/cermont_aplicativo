@@ -1,6 +1,6 @@
 {
   "statistics": {
-    "detectionDate": "2025-12-30T01:10:47.850Z",
+    "detectionDate": "2025-12-30T01:35:46.434Z",
     "formats": {
       "typescript": {
         "sources": {
@@ -77,8 +77,8 @@
             "newClones": 0
           },
           "apps/api/src/shared/value-objects/index.ts": {
-            "lines": 128,
-            "tokens": 1248,
+            "lines": 137,
+            "tokens": 1276,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -966,13 +966,13 @@
           }
         },
         "total": {
-          "lines": 7854,
-          "tokens": 59238,
+          "lines": 7863,
+          "tokens": 59266,
           "sources": 80,
           "clones": 42,
           "duplicatedLines": 291,
           "duplicatedTokens": 3010,
-          "percentage": 3.71,
+          "percentage": 3.7,
           "percentageTokens": 5.08,
           "newDuplicatedLines": 0,
           "newClones": 0
@@ -1044,8 +1044,8 @@
       }
     },
     "total": {
-      "lines": 7945,
-      "tokens": 64666,
+      "lines": 7954,
+      "tokens": 64694,
       "sources": 84,
       "clones": 42,
       "duplicatedLines": 291,

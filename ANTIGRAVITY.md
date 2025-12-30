@@ -41,3 +41,19 @@ Stability is the only metric that matters.
 ## 📁 Directory conventions
 - `.antigravity/`: governance + workflow templates.
 - `apps/api/src/shared/` o `packages/`: lugar preferido para extraer utilidades comunes y reducir duplicidad.
+## ⚡ Fast lane (Auto-approval)
+
+Antigravity puede saltar la aprobación explícita de Phase B → Phase C **solo si** se cumplen TODAS:
+
+- Cambio ≤ 3 archivos.
+- No se agregan dependencias ni se modifica pnpm-lock.yaml.
+- No se toca DB/Prisma/migrations.
+- No se toca seguridad/auth.
+- No hay repo sweep (solo rutas declaradas).
+- El cambio es: docs, stubs/enlaces, fixes de lint/test, o correcciones pequeñas y localizadas.
+
+Si se cumple Fast lane:
+- Puede pasar directo a Implement y Verify.
+Si NO se cumple:
+- Mantener “User approval required”.
+
