@@ -43,7 +43,7 @@ export class SignupFormComponent {
       name: `${this.fname} ${this.lname}`,
       email: this.email,
       password: this.password,
-      role: 'tecnico', // Default role for self-registration, adjust as needed
+      // role: 'tecnico' removed as it's not in RegisterDto
       phone: '0000000000' // Placeholder or add phone field to form
     }).subscribe({
       next: () => {

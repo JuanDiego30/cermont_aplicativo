@@ -63,7 +63,7 @@ export class KitsApi extends ApiBaseService {
    * Remove item from kit
    */
   removeItem(kitId: string, itemId: string): Observable<{ message: string; data: Kit }> {
-    return this.delete<{ message: string; data: Kit }>(`/kits/${kitId}/items/${itemId}`);
+    return this.deleteRequest<{ message: string; data: Kit }>(`/kits/${kitId}/items/${itemId}`);
   }
 
   /**

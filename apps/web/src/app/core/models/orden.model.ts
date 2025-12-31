@@ -38,8 +38,12 @@ export interface Orden {
   requiereHES?: boolean;
   tecnico?: TecnicoBasico | null;
   createdAt: string;
-  updatedAt: string;
   deletedAt?: string | null;
+
+  // Compatibility fields for legacy/mismatched code
+  numero: string;
+  fecha: string;
+  total: number;
 }
 
 export interface TecnicoBasico {

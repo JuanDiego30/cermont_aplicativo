@@ -1,0 +1,221 @@
+﻿
+> @cermont/web@0.0.0 build C:\Users\camil\Downloads\Compressed\aplicativo_cermont_prueba\cermont_aplicativo\apps\web
+> ng build
+
+node.exe : Node.js 
+version v25.2.1 
+detected.
+En C:\Users\camil\App
+Data\Roaming\npm\pnpm
+.ps1: 24 Carácter: 5
++     & "node$exe"  "
+$basedir/node_modules
+/pnpm/bin/pnpm.cjs" 
+$args
++     ~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (Node.js   
+  version v25.2.1    
+ detected.:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+Odd numbered Node.js 
+versions will not 
+enter LTS status and 
+should not be used 
+for production. For 
+more information, 
+please see https://no
+dejs.org/en/about/pre
+vious-releases/.
+[33mÔØ»[39m Building...
+[32mÔ£ö[39m Building...
+Application bundle generation failed. [6.908 seconds] - 2025-12-31T05:12:57.279Z
+
+[1m[31m[31mX [41;
+31m[[41;97mERROR[41
+;31m][0m 
+[1mTS2345: Argument 
+of type 'MonoTypeOper
+atorFunction<Orden>' 
+is not assignable to 
+parameter of type 'Op
+eratorFunction<Orden,
+ Orden>'.
+  Types of 
+parameters 'source' 
+and 'source' are 
+incompatible.
+    Type 'import("C:/
+Users/camil/Downloads
+/Compressed/aplicativ
+o_cermont_prueba/cerm
+ont_aplicativo/node_m
+odules/.pnpm/rxjs@7.8
+.2/node_modules/rxjs/
+dist/types/internal/O
+bservable").Observabl
+e<import("C:/Users/ca
+mil/Downloads/Compres
+sed/aplicativo_cermon
+t_prueba/cermont_apli
+cativo/apps/web/src/a
+pp/core/models/orden.
+model").Orden>' is 
+not assignable to 
+type 'import("C:/User
+s/camil/Downloads/Com
+pressed/aplicativo_ce
+rmont_prueba/cermont_
+aplicativo/node_modul
+es/.pnpm/rxjs@7.8.2/n
+ode_modules/rxjs/dist
+/types/internal/Obser
+vable").Observable<Or
+den>'.
+      Type 'import("C
+:/Users/camil/Downloa
+ds/Compressed/aplicat
+ivo_cermont_prueba/ce
+rmont_aplicativo/apps
+/web/src/app/core/mod
+els/orden.model").Ord
+en' is not 
+assignable to type 
+'Orden'.
+        Types of 
+property 'estado' 
+are incompatible.
+          Type 
+'OrdenEstado' is not 
+assignable to type 
+'"pendiente" | 
+"en_progreso" | 
+"completada"'.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/
+ordenes/pages/ordenes
+-form/ordenes-form.co
+mponent.ts:71:8:
+[37m      71 Ôöé    
+     
+[32mtap((orden: 
+Orden) => {[37m
+         ÔòÁ         
+[32m~~~~~~~~~~~~~~~~
+~~~~~~~[0m
+
+
+[31mX [41;31m[[41;
+97mERROR[41;31m][0m
+ [1mTS2554: 
+Expected 0-1 
+arguments, but got 
+3.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/
+ordenes/pages/ordenes
+-list/ordenes-list.co
+mponent.ts:63:31:
+[37m      63 Ôöé    
+ this.ordenesApi.list
+(page, 
+[32mthis.pageSize, 
+filters[37m)
+         ÔòÁ         
+                     
+  [32m~~~~~~~~~~~~~~
+~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;
+97mERROR[41;31m][0m
+ [1mTS2345: 
+Argument of type 'Mon
+oTypeOperatorFunction
+<PaginatedResponse<Or
+den>>' is not 
+assignable to 
+parameter of type 'Op
+eratorFunction<Pagina
+tedOrdenes, Paginated
+Response<Orden>>'.
+  Types of 
+parameters 'source' 
+and 'source' are 
+incompatible.
+    Type 'Observable<
+PaginatedOrdenes>' 
+is not assignable to 
+type 'Observable<Pagi
+natedResponse<Orden>>
+'.
+      Type 
+'PaginatedOrdenes' 
+is not assignable to 
+type 'PaginatedRespon
+se<Orden>'.
+        Types of 
+property 'data' are 
+incompatible.
+          Type 'impor
+t("C:/Users/camil/Dow
+nloads/Compressed/apl
+icativo_cermont_prueb
+a/cermont_aplicativo/
+apps/web/src/app/core
+/models/orden.model")
+.Orden[]' is not 
+assignable to type 
+'Orden[]'.
+            Type 'imp
+ort("C:/Users/camil/D
+ownloads/Compressed/a
+plicativo_cermont_pru
+eba/cermont_aplicativ
+o/apps/web/src/app/co
+re/models/orden.model
+").Orden' is not 
+assignable to type 
+'Orden'.
+              Types 
+of property 'estado' 
+are incompatible.
+                Type 
+'OrdenEstado' is not 
+assignable to type 
+'"pendiente" | 
+"en_progreso" | 
+"completada" | 
+"cancelada"'.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/
+ordenes/pages/ordenes
+-list/ordenes-list.co
+mponent.ts:65:8:
+[37m      65 Ôöé    
+     
+[32mtap((response: P
+aginatedResponse<Orde
+n>) => {[37m
+         ÔòÁ         
+[32m~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~[0m
+
+[39m[22m
+ÔÇëELIFECYCLEÔÇë Command failed with exit code 1.

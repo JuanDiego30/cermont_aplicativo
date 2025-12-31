@@ -4,16 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { OrdenesApi } from '@app/core/api/ordenes.api';
 import { ToastService } from '@app/shared/services/toast.service';
 import { catchError, tap, throwError } from 'rxjs';
-
-interface Orden {
-  id?: string;
-  numero: string;
-  cliente: string;
-  descripcion: string;
-  fecha: string;
-  estado: 'pendiente' | 'en_progreso' | 'completada';
-  total: number;
-}
+import { Orden } from '@app/core/models/orden.model';
 
 @Component({
   selector: 'app-ordenes-form',

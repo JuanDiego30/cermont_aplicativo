@@ -35,7 +35,6 @@ interface OrderStatus {
     StatisticsChartComponent,
     DemographicCardComponent,
     RecentOrdersComponent,
-    MobileStatCardsComponent,
     MobileProgressSectionComponent,
   ],
   templateUrl: './ecommerce.component.html',

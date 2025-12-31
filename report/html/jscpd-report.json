@@ -1,6 +1,6 @@
 {
   "statistics": {
-    "detectionDate": "2025-12-30T01:35:46.434Z",
+    "detectionDate": "2025-12-31T05:04:07.181Z",
     "formats": {
       "typescript": {
         "sources": {
@@ -1016,6 +1016,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "apps/api/.eslintrc.js": {
+            "lines": 16,
+            "tokens": 131,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "analyze_duplication.js": {
             "lines": 13,
             "tokens": 234,
@@ -1030,9 +1042,9 @@
           }
         },
         "total": {
-          "lines": 91,
-          "tokens": 5428,
-          "sources": 4,
+          "lines": 107,
+          "tokens": 5559,
+          "sources": 5,
           "clones": 0,
           "duplicatedLines": 0,
           "duplicatedTokens": 0,
@@ -1044,14 +1056,14 @@
       }
     },
     "total": {
-      "lines": 7954,
-      "tokens": 64694,
-      "sources": 84,
+      "lines": 7970,
+      "tokens": 64825,
+      "sources": 85,
       "clones": 42,
       "duplicatedLines": 291,
       "duplicatedTokens": 3010,
-      "percentage": 3.66,
-      "percentageTokens": 4.65,
+      "percentage": 3.65,
+      "percentageTokens": 4.64,
       "newDuplicatedLines": 0,
       "newClones": 0
     }

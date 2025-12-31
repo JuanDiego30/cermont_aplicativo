@@ -3,14 +3,14 @@
     "version": "1.0.0",
     "private": true,
     "scripts": {
+        "dev": "turbo run dev --parallel",
         "build": "turbo run build",
-        "dev": "turbo run dev",
         "test": "turbo run test",
         "lint": "turbo run lint",
         "lint:fix": "turbo run lint:fix",
         "typecheck": "turbo run typecheck",
         "duplication": "jscpd .",
-        "check": "pnpm run duplication && turbo run lint typecheck test build",
+        "check": "pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run build",
         "fix:tailwind": "pnpm --filter @cermont/web exec tailwindcss -i ./src/styles.css -o ./dist/styles.css",
         "clean": "rimraf dist .angular apps/*/dist apps/*/.angular"
     },

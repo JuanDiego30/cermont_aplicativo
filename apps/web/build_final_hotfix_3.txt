@@ -1,0 +1,80 @@
+﻿
+> @cermont/web@0.0.0 build C:\Users\camil\Downloads\Compressed\aplicativo_cermont_prueba\cermont_aplicativo\apps\web
+> ng build
+
+node.exe : Node.js 
+version v25.2.1 
+detected.
+En C:\Users\camil\App
+Data\Roaming\npm\pnpm
+.ps1: 24 Carácter: 5
++     & "node$exe"  "
+$basedir/node_modules
+/pnpm/bin/pnpm.cjs" 
+$args
++     ~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (Node.js   
+  version v25.2.1    
+ detected.:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+Odd numbered Node.js 
+versions will not 
+enter LTS status and 
+should not be used 
+for production. For 
+more information, 
+please see https://no
+dejs.org/en/about/pre
+vious-releases/.
+[33mÔØ»[39m Building...
+[32mÔ£ö[39m Building...
+[1mInitial chunk files[22m  [2m | [22m[1mNames[22m                      [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mmain-3I46NXYD.js[39m     [2m | [22m[2mmain[22m                       [2m | [22m  [36m1.42 MB[39m[2m | [22m              [36m322.57 kB[39m
+[32mscripts-7Y6ZKYBT.js[39m  [2m | [22m[2mscripts[22m                    [2m | [22m[36m580.58 kB[39m[2m | [22m              [36m129.93 kB[39m
+[32mchunk-3X4S4Z7L.js[39m    [2m | [22m[2m-[22m                          [2m | [22m[36m196.94 kB[39m[2m | [22m               [36m56.38 kB[39m
+[32mstyles-OKAMPCK4.css[39m  [2m | [22m[2mstyles[22m                     [2m | [22m[36m160.11 kB[39m[2m | [22m               [36m16.67 kB[39m
+[32mchunk-XBVW3WGW.js[39m    [2m | [22m[2m-[22m                          [2m | [22m [36m93.80 kB[39m[2m | [22m               [36m23.50 kB[39m
+[32mchunk-CKJCZPTY.js[39m    [2m | [22m[2m-[22m                          [2m | [22m [36m48.34 kB[39m[2m | [22m                [36m9.76 kB[39m
+[32mpolyfills-5IGYU2T7.js[39m[2m | [22m[2mpolyfills[22m                  [2m | [22m [36m35.68 kB[39m[2m | [22m               [36m11.57 kB[39m
+[32mchunk-4AY6KVBT.js[39m    [2m | [22m[2m-[22m                          [2m | [22m [36m21.70 kB[39m[2m | [22m                [36m6.25 kB[39m
+[32mchunk-FLBHFKGQ.js[39m    [2m | [22m[2m-[22m                          [2m | [22m  [36m3.77 kB[39m[2m | [22m                [36m1.14 kB[39m
+[32mchunk-232PFOAJ.js[39m    [2m | [22m[2m-[22m                          [2m | [22m  [36m2.19 kB[39m[2m | [22m              [36m643 bytes[39m
+[32mchunk-6NE7JDAX.js[39m    [2m | [22m[2m-[22m                          [2m | [22m  [36m1.96 kB[39m[2m | [22m              [36m849 bytes[39m
+[32mchunk-XHDR4ZKO.js[39m    [2m | [22m[2m-[22m                          [2m | [22m  [36m1.48 kB[39m[2m | [22m              [36m458 bytes[39m
+[32mchunk-HQD6RLHK.js[39m    [2m | [22m[2m-[22m                          [2m | [22m[36m282 bytes[39m[2m | [22m              [36m282 bytes[39m
+[32mchunk-AQCVMHGY.js[39m    [2m | [22m[2m-[22m                          [2m | [22m[36m264 bytes[39m[2m | [22m              [36m264 bytes[39m
+
+[1m [22m                    [2m | [22m[1mInitial total[22m              [2m | [22m  [1m2.57 MB[22m[2m | [22m              [1m580.27 kB[22m
+
+[1mLazy chunk files[22m     [2m | [22m[1mNames[22m                      [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mchunk-MIXJVWIY.js[39m    [2m | [22m[2mapexcharts-esm[22m             [2m | [22m[36m577.87 kB[39m[2m | [22m              [36m129.53 kB[39m
+[32mchunk-SDGMXKLC.js[39m    [2m | [22m[2mlanding-component[22m          [2m | [22m [36m41.50 kB[39m[2m | [22m                [36m9.91 kB[39m
+[32mchunk-6GWKFXZ5.js[39m    [2m | [22m[2mlogin-component[22m            [2m | [22m [36m23.39 kB[39m[2m | [22m                [36m6.21 kB[39m
+[32mchunk-EZ6OJC6X.js[39m    [2m | [22m[2mperfil-component[22m           [2m | [22m [36m18.58 kB[39m[2m | [22m                [36m4.95 kB[39m
+[32mmain-7EP6GT2C.css[39m    [2m | [22m[2m-[22m                          [2m | [22m [36m15.75 kB[39m[2m | [22m                [36m2.59 kB[39m
+[32mchunk-XL32OT43.js[39m    [2m | [22m[2muser-detail-component[22m      [2m | [22m [36m13.11 kB[39m[2m | [22m                [36m3.93 kB[39m
+[32mchunk-B7Q7WNFV.js[39m    [2m | [22m[2muser-form-component[22m        [2m | [22m [36m12.67 kB[39m[2m | [22m                [36m3.91 kB[39m
+[32mchunk-Z4JADYLN.js[39m    [2m | [22m[2mordenes-list-component[22m     [2m | [22m [36m12.57 kB[39m[2m | [22m                [36m3.64 kB[39m
+[32mchunk-BIS25Z5U.js[39m    [2m | [22m[2mroles-permissions-component[22m[2m | [22m [36m11.19 kB[39m[2m | [22m                [36m3.43 kB[39m
+[32mchunk-OWUYNB57.js[39m    [2m | [22m[2morden-form-component[22m       [2m | [22m [36m10.62 kB[39m[2m | [22m                [36m3.40 kB[39m
+[32mchunk-U7ZE5J4P.js[39m    [2m | [22m[2mreset-password-component[22m   [2m | [22m  [36m9.94 kB[39m[2m | [22m                [36m3.17 kB[39m
+[32mchunk-LE3VHWJO.js[39m    [2m | [22m[2morden-detail-component[22m     [2m | [22m  [36m9.19 kB[39m[2m | [22m                [36m2.98 kB[39m
+[32mchunk-SUJT5AMK.js[39m    [2m | [22m[2mforgot-password-component[22m  [2m | [22m  [36m7.26 kB[39m[2m | [22m                [36m2.46 kB[39m
+[32mchunk-TJOT3DUR.js[39m    [2m | [22m[2mdashboard-main-component[22m   [2m | [22m  [36m6.74 kB[39m[2m | [22m                [36m2.09 kB[39m
+[32mchunk-HW22JAFT.js[39m    [2m | [22m[2musers-list-component[22m       [2m | [22m  [36m6.40 kB[39m[2m | [22m                [36m2.19 kB[39m
+[2m...and 10 more lazy chunks files. Use "--verbose" to show all the files.[22m
+
+Application bundle generation complete. [8.493 seconds] - 2025-12-31T05:14:04.798Z
+
+Output location: C:\Users\camil\Downloads\Compressed\aplicativo_cermont_prueba\cermont_aplicativo\apps\web\dist\ng-tailadmin
+

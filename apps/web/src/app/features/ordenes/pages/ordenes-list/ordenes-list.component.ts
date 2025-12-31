@@ -3,22 +3,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { OrdenesApi } from '@app/core/api/ordenes.api';
 import { ToastService } from '@app/shared/services/toast.service';
 import { catchError, tap, throwError } from 'rxjs';
-
-interface Orden {
-  id: string;
-  numero: string;
-  cliente: string;
-  fecha: string;
-  estado: 'pendiente' | 'en_progreso' | 'completada' | 'cancelada';
-  total: number;
-}
-
-interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-}
+import { Orden, PaginatedOrdenes } from '@app/core/models/orden.model';
 
 @Component({
   selector: 'app-ordenes-list',
@@ -60,10 +45,14 @@ export class OrdenesListComponent implements OnInit {
     this.loading = true;
     const filters = this.searchForm.value;
 
-    this.ordenesApi.list(page, this.pageSize, filters)
+    this.ordenesApi.list({
+      page,
+      limit: this.pageSize,
+      ...filters
+    })
       .pipe(
-        tap((response: PaginatedResponse<Orden>) => {
-          this.ordenes = response.data;
+        tap((response: PaginatedOrdenes) => {
+          this.ordenes = response.items || response.data || [];
           this.total = response.total;
           this.currentPage = page;
           this.loading = false;

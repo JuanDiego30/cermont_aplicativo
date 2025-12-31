@@ -9,6 +9,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 // Infrastructure - Controllers
 import { AuthControllerRefactored } from './infrastructure/controllers/auth.controller';
@@ -50,6 +51,7 @@ import { PrismaModule } from '../../prisma/prisma.module';
     imports: [
         ConfigModule,
         PrismaModule,
+        EventEmitterModule.forRoot(),
         PassportModule.register({ defaultStrategy: 'jwt' }),
         /*
         JwtModule.registerAsync({

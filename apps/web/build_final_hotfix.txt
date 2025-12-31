@@ -1,0 +1,414 @@
+﻿
+> @cermont/web@0.0.0 build C:\Users\camil\Downloads\Compressed\aplicativo_cermont_prueba\cermont_aplicativo\apps\web
+> ng build
+
+node.exe : Node.js 
+version v25.2.1 
+detected.
+En C:\Users\camil\App
+Data\Roaming\npm\pnpm
+.ps1: 24 Carácter: 5
++     & "node$exe"  "
+$basedir/node_modules
+/pnpm/bin/pnpm.cjs" 
+$args
++     ~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (Node.js   
+  version v25.2.1    
+ detected.:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+Odd numbered Node.js 
+versions will not 
+enter LTS status and 
+should not be used 
+for production. For 
+more information, 
+please see https://no
+dejs.org/en/about/pre
+vious-releases/.
+[33mÔØ»[39m Building...
+[32mÔ£ö[39m Building...
+Application bundle generation failed. [6.376 seconds] - 2025-12-31T05:10:51.367Z
+
+[1m[31m[31mX [41;
+31m[[41;97mERROR[41
+;31m][0m 
+[1mTS2300: 
+Duplicate identifier 
+'updatedAt'.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/core/mode
+ls/orden.model.ts:41:
+2:
+[37m      41 Ôöé   
+[32mupdatedAt[37m: 
+string;
+         ÔòÁ   
+[32m~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;
+97mERROR[41;31m][0m
+ [1mTS2300: 
+Duplicate identifier 
+'updatedAt'.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/core/mode
+ls/orden.model.ts:42:
+2:
+[37m      42 Ôöé   
+[32mupdatedAt[37m: 
+string;
+         ÔòÁ   
+[32m~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;
+97mERROR[41;31m][0m
+ [1mTS2345: 
+Argument of type 'Mon
+oTypeOperatorFunction
+<Orden>' is not 
+assignable to 
+parameter of type 'Op
+eratorFunction<Orden,
+ Orden>'.
+  Types of 
+parameters 'source' 
+and 'source' are 
+incompatible.
+    Type 'import("C:/
+Users/camil/Downloads
+/Compressed/aplicativ
+o_cermont_prueba/cerm
+ont_aplicativo/node_m
+odules/.pnpm/rxjs@7.8
+.2/node_modules/rxjs/
+dist/types/internal/O
+bservable").Observabl
+e<import("C:/Users/ca
+mil/Downloads/Compres
+sed/aplicativo_cermon
+t_prueba/cermont_apli
+cativo/apps/web/src/a
+pp/core/models/orden.
+model").Orden>' is 
+not assignable to 
+type 'import("C:/User
+s/camil/Downloads/Com
+pressed/aplicativo_ce
+rmont_prueba/cermont_
+aplicativo/node_modul
+es/.pnpm/rxjs@7.8.2/n
+ode_modules/rxjs/dist
+/types/internal/Obser
+vable").Observable<Or
+den>'.
+      Type 'import("C
+:/Users/camil/Downloa
+ds/Compressed/aplicat
+ivo_cermont_prueba/ce
+rmont_aplicativo/apps
+/web/src/app/core/mod
+els/orden.model").Ord
+en' is not 
+assignable to type 
+'Orden'.
+        Property 
+'numero' is optional 
+in type 'Orden' but 
+required in type 
+'Orden'.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/
+ordenes/pages/ordenes
+-form/ordenes-form.co
+mponent.ts:71:8:
+[37m      71 Ôöé    
+     
+[32mtap((orden: 
+Orden) => {[37m
+         ÔòÁ         
+[32m~~~~~~~~~~~~~~~~
+~~~~~~~[0m
+
+
+[31mX [41;31m[[41;
+97mERROR[41;31m][0m
+ [1mTS2554: 
+Expected 0-1 
+arguments, but got 
+3.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/
+ordenes/pages/ordenes
+-list/ordenes-list.co
+mponent.ts:63:31:
+[37m      63 Ôöé    
+ this.ordenesApi.list
+(page, 
+[32mthis.pageSize, 
+filters[37m)
+         ÔòÁ         
+                     
+  [32m~~~~~~~~~~~~~~
+~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;
+97mERROR[41;31m][0m
+ [1mTS2345: 
+Argument of type 'Mon
+oTypeOperatorFunction
+<PaginatedResponse<Or
+den>>' is not 
+assignable to 
+parameter of type 'Op
+eratorFunction<Pagina
+tedOrdenes, Paginated
+Response<Orden>>'.
+  Types of 
+parameters 'source' 
+and 'source' are 
+incompatible.
+    Type 'Observable<
+PaginatedOrdenes>' 
+is not assignable to 
+type 'Observable<Pagi
+natedResponse<Orden>>
+'.
+      Type 
+'PaginatedOrdenes' 
+is not assignable to 
+type 'PaginatedRespon
+se<Orden>'.
+        Types of 
+property 'data' are 
+incompatible.
+          Type 'impor
+t("C:/Users/camil/Dow
+nloads/Compressed/apl
+icativo_cermont_prueb
+a/cermont_aplicativo/
+apps/web/src/app/core
+/models/orden.model")
+.Orden[]' is not 
+assignable to type 
+'Orden[]'.
+            Type 'imp
+ort("C:/Users/camil/D
+ownloads/Compressed/a
+plicativo_cermont_pru
+eba/cermont_aplicativ
+o/apps/web/src/app/co
+re/models/orden.model
+").Orden' is not 
+assignable to type 
+'Orden'.
+              
+Property 'numero' is 
+optional in type 
+'Orden' but required 
+in type 'Orden'.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/
+ordenes/pages/ordenes
+-list/ordenes-list.co
+mponent.ts:65:8:
+[37m      65 Ôöé    
+     
+[32mtap((response: P
+aginatedResponse<Orde
+n>) => {[37m
+         ÔòÁ         
+[32m~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;
+97mERROR[41;31m][0m
+ [1mTS1117: An 
+object literal 
+cannot have multiple 
+properties with the 
+same name.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/shared/co
+mponents/auth/signup-
+form/signup-form.comp
+onent.ts:46:6:
+[37m      46 Ôöé    
+   
+[32mpassword[37m: 
+this.password,
+         ÔòÁ       
+[32m~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;
+97mERROR[41;31m][0m
+ [1mNG8002: Can't 
+bind to 
+'isSidebarOpen' 
+since it isn't a 
+known property of 'ap
+p-ai-sidebar-history'
+.
+1. If 'app-ai-sidebar
+-history' is an 
+Angular component 
+and it has 
+'isSidebarOpen' 
+input, then verify 
+that it is included 
+in the 
+'@Component.imports' 
+of this component.
+2. If 'app-ai-sidebar
+-history' is a Web 
+Component then add 'C
+USTOM_ELEMENTS_SCHEMA
+' to the 
+'@Component.schemas' 
+of this component to 
+suppress this 
+message.
+3. To allow any 
+property add 
+'NO_ERRORS_SCHEMA' 
+to the 
+'@Component.schemas' 
+of this 
+component.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/shared/la
+yout/generator-layout
+/generator-layout.com
+ponent.html:96:26:
+[37m      96 Ôöé 
+...-sidebar-history 
+[32m[isSidebarOpen]="
+sidebarOpen"[37m 
+(closeSidebar)="...
+         ÔòÁ         
+            [32m~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~[0m
+
+  Error occurs in 
+the template of 
+component GeneratorLa
+youtComponent.
+
+    src/app/shared/la
+yout/generator-layout
+/generator-layout.com
+ponent.ts:8:15:
+[37m      8 Ôöé   
+templateUrl: [32m'./
+generator-layout.comp
+onent.html'[37m,
+        ÔòÁ          
+      [32m~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~[0m
+
+
+[31mX [41;31m[[41;
+97mERROR[41;31m][0m
+ [1mTS2593: Cannot 
+find name 
+'describe'. Do you 
+need to install type 
+definitions for a 
+test runner? Try 
+`npm i --save-dev 
+@types/jest` or `npm 
+i --save-dev 
+@types/mocha` and 
+then add 'jest' or 
+'mocha' to the types 
+field in your 
+tsconfig.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/dummy.spec.ts
+:0:0:
+[37m      0 Ôöé 
+[32m[37m
+        ÔòÁ 
+[32m^[0m
+
+
+[31mX [41;31m[[41;
+97mERROR[41;31m][0m
+ [1mTS2593: Cannot 
+find name 'it'. Do 
+you need to install 
+type definitions for 
+a test runner? Try 
+`npm i --save-dev 
+@types/jest` or `npm 
+i --save-dev 
+@types/mocha` and 
+then add 'jest' or 
+'mocha' to the types 
+field in your 
+tsconfig.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/dummy.spec.ts
+:2:2:
+[37m      2 Ôöé   
+[32mit[37m('should 
+run at least one 
+spec', () => {
+        ÔòÁ   
+[32m~~[0m
+
+
+[31mX [41;31m[[41;
+97mERROR[41;31m][0m
+ [1mTS2304: Cannot 
+find name 
+'expect'.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/dummy.spec.ts
+:3:4:
+[37m      3 Ôöé     
+[32mexpect[37m(true
+).toBeTrue();
+        ÔòÁ     
+[32m~~~~~~[0m
+
+[39m[22m
+ÔÇëELIFECYCLEÔÇë Command failed with exit code 1.
