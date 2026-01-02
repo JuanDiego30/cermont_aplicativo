@@ -1,117 +1,91 @@
-# 🎨 CERMONT FRONTEND SHARED COMPONENTS AGENT
+# 🧩 CERMONT FRONTEND SHARED AGENT
 
-**Responsabilidad:** Button, Input, Card, Loader componentes reutilizables
+**ID:** 20
+**Responsabilidad:** Componentes reutilizables, directivas, pipes comunes
+**Reglas:** DRY (Don't Repeat Yourself), Type Safety
 **Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
+
+---
+
+## 🎯 OBJETIVO
+Construir una librería de bloques constructivos ("Lego blocks") robusta, documentada y libre de `any`, usada por todas las features.
+
+---
+
+## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+
+### ❌ Violaciones Críticas de Type Safety (Fix Prioritario)
+Componentes de UI compartidos con tipado débil.
+
+| Archivo | Línea | Violación | Solución |
+|---------|-------|-----------|----------|
+| `table-dropdown.component.ts` | 20-21 | `dropdownButton: any`, `dropdownContent: any` | Tipar con `ElementRef` o `TemplateRef` |
+| `countdown-timer.component.ts` | 21 | `intervalId: any` | `ReturnType<typeof setInterval>` |
+| `asistente-ia.component.ts` | 20 | `data?: any` | Definir interfaz `AsistenteData` |
 
 ---
 
 ## 🚀 INVOCACIÓN RÁPIDA
 
 ```
-Actúa como CERMONT FRONTEND SHARED COMPONENTS AGENT.
+Actúa como CERMONT SHARED COMPONENT AGENT.
 
 EJECUTA SIN PREGUNTAR:
-1. ANÁLISIS: apps/web/src/app/shared/components/
-   - ¿Existen componentes base?
-   - ¿Button component existe?
-   - ¿Input component existe?
-   - ¿Consistent styling?
+1. ANÁLISIS: apps/web/src/app/shared/**
+   - CORREGIR TIPOS EN DROPDOWNS/TIMERS (Prioridad 1)
+   - Identificar código duplicado en features para promover a shared
+   - Revisar accesibilidad de componentes base
 
 2. PLAN: 3-4 pasos
 
-3. IMPLEMENTACIÓN: Si se aprueba
+3. IMPLEMENTACIÓN: Componentes sólidos
 
-4. VERIFICACIÓN: Componentes en uso en LoginComponent
+4. VERIFICACIÓN: Uso en múltiples features sin errores
 ```
 
 ---
 
-## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
+## 📋 PRINCIPIOS DE COMPONENTES COMPARTIDOS
 
-1. **Button Component**
-   - ¿Existe apps/web/src/app/shared/components/button/?
-   - ¿Soporta variantes (primary, secondary, danger)?
-   - ¿Soporta loading state?
-   - ¿ARIA accessible?
+1. **Agnósticos al Contexto**
+   - Un `Datepicker` no debe saber nada sobre "Órdenes" o "Usuarios". Solo fechas.
 
-2. **Input Component**
-   - ¿ControlValueAccessor implementado?
-   - ¿Muestra errores?
-   - ¿Validación visual?
+2. **API Clara**
+   - `@Input()` bien definidos y requeridos donde aplique.
+   - `@Output()` para eventos, no mutar inputs.
 
-3. **Styling**
-   - ¿Usa CSS variables de design system?
-   - ¿Dark mode soportado?
-   - ¿Responsive (mobile, tablet, desktop)?
-
-4. **Usage**
-   - ¿LoginComponent usa <app-button>?
-   - ¿LoginComponent usa <app-form-input>?
-   - ¿Sin duplicación de código?
+3. **Content Projection**
+   - Usar `<ng-content>` para flexibilidad máxima (ej: Card Header/Body).
 
 ---
 
-## ✅ CHECKLIST IMPLEMENTACIÓN
+## 🔍 QUÉ ANALIZAR Y CORREGIR
 
-- [ ] Button component creado (primary, secondary, danger)
-- [ ] Input component creado (ControlValueAccessor)
-- [ ] Card component creado
-- [ ] Loader component creado
-- [ ] Todos accesibles (ARIA)
-- [ ] Responsive design
-- [ ] Dark mode support
-- [ ] LoginComponent usa shared components
-- [ ] 0 duplicación de estilos
-- [ ] Lighthouse >90 (Accessibility)
+1. **Fix de Tipos (Prioridad 1)**
+   ```typescript
+   // countdown-timer
+   private intervalId: ReturnType<typeof setInterval> | null = null;
+   
+   // table-dropdown
+   @ViewChild('btn') dropdownButton!: ElementRef<HTMLButtonElement>;
+   ```
 
----
-
-## 🧪 VERIFICACIÓN
-
-```bash
-cd apps/web && pnpm run build
-
-# Componentes presentes
-ls -la src/app/shared/components/
-
-# Esperado:
-# button/
-# form-input/
-# card/
-# loader/
-
-# LoginComponent usa componentes
-grep -r "<app-button\|<app-form-input" src/app/features/auth/
-
-# Esperado: >3 líneas
-
-# Lighthouse Accessibility
-# Chrome DevTools → Lighthouse → Accessibility
-# Esperado: >90
-
-# No duplicación de estilos
-find src/app/features -name "*.css" -exec grep -l "btn-\|form-\|card" {} \;
-
-# Esperado: 0 líneas (estilos en shared/styles)
-```
+2. **Documentación (Storybook style)**
+   - ¿Es fácil para otro dev saber cómo usar el componente?
 
 ---
 
-## 📝 FORMATO ENTREGA
+## ✅ CHECKLIST DE ENTREGA
 
-A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+- [ ] **Cero `any` en shared components**
+- [ ] Componentes totalmente desacoplados de negocio
+- [ ] Accesibilidad (Keyboard nav, Focus trap)
+- [ ] Tests unitarios de comportamiento UI
+- [ ] Estilos encapsulados
 
 ---
 
-##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+## 📝 FORMATO RESPUESTA
 
-### Type Safety en Shared Components
-
-| Archivo | Linea | Codigo |
-|---------|-------|--------|
-| `table-dropdown.component.ts` | 20-21 | `dropdownButton: any; dropdownContent: any` |
-| `countdown-timer.component.ts` | 21 | `private intervalId: any` |
-| `asistente-ia.component.ts` | 20 | `data?: any` |
-
-### Fix: Tipar dropdowns, usar `ReturnType<typeof setInterval>` para intervalId
+A) **ANÁLISIS** | B) **PLAN** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN**

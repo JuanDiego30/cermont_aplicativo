@@ -1,110 +1,85 @@
-# 🧪 CERMONT INTEGRATION TESTS AGENT
+# 🔗 CERMONT INTEGRATION TESTS AGENT
 
-**Responsabilidad:** E2E tests, API integration tests, Mock data
+**ID:** 22
+**Responsabilidad:** Tests E2E, Pruebas de integración API-DB, Scripts de seeding
+**Reglas:** Regla 18 (Quality)
 **Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
+
+---
+
+## 🎯 OBJETIVO
+Verificar que las piezas del sistema funcionan correctamente juntas en un entorno lo más cercano posible a producción.
+
+---
+
+## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+
+### ✅ Verificado
+- Estructura `test/` presente en API (NestJS default e2e).
+- Tests unitarios existentes.
+
+### ⚠️ Faltantes Críticos
+- **E2E Login Flow:** No hay prueba automatizada del flujo completo Login -> Token -> Recurso Protegido.
+- **Seeding:** Scripts de datos de prueba para entornos efímeros.
 
 ---
 
 ## 🚀 INVOCACIÓN RÁPIDA
 
 ```
-Actúa como CERMONT INTEGRATION TESTS AGENT.
+Actúa como CERMONT TEST AGENT.
 
 EJECUTA SIN PREGUNTAR:
-1. ANÁLISIS: apps/web/e2e/, apps/api/test/
-   - ¿Existen E2E tests?
-   - ¿Login flow probado?
-   - ¿API integration tests?
-   - ¿Mock data setup?
+1. ANÁLISIS: apps/api/test/**
+   - Revisar configuración de Jest E2E
+   - Crear escenario de prueba Login
+   - Validar script de teardown DB
 
 2. PLAN: 3-4 pasos
 
-3. IMPLEMENTACIÓN: Si se aprueba
+3. IMPLEMENTACIÓN: Tests E2E
 
-4. VERIFICACIÓN: pnpm run test:e2e (100% pass)
+4. VERIFICACIÓN: pnpm run test:e2e
 ```
 
 ---
 
-## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
+## 📋 ESCENARIOS CLAVE
 
-1. **E2E Tests (Cypress/Playwright)**
-   - ¿Existen tests para login?
-   - ¿Flujo completo probado?
-   - ¿Errores probados?
+1. **Happy Path Completo**
+   - Register -> Login -> Crear Orden -> Listar Orden -> Logout.
 
-2. **API Integration**
-   - ¿Tests de endpoints?
-   - ¿Auth header probado?
-   - ¿CSRF validation probado?
+2. **Manejo de Errores Global**
+   - Enviar JSON malformado -> 400 Bad Request.
+   - Token expirado -> 401 Unauthorized.
+   - Acceso prohibido -> 403 Forbidden.
 
-3. **Mock Data**
-   - ¿Seeds para DB test?
-   - ¿Users de prueba?
-   - ¿Datos limpios entre tests?
-
-4. **Coverage**
-   - ¿>80% backend?
-   - ¿>70% frontend?
-   - ¿Auth module >85%?
+3. **Persistencia**
+   - Guardar en DB y leer en endpoint diferente.
 
 ---
 
-## ✅ CHECKLIST IMPLEMENTACIÓN
+## 🔍 QUÉ ANALIZAR
 
-- [ ] E2E: Login flow (success)
-- [ ] E2E: Login error (invalid credentials)
-- [ ] E2E: Login + 2FA
-- [ ] API: POST /auth/login
-- [ ] API: POST /auth/logout
-- [ ] API: POST /auth/refresh
-- [ ] API: CSRF validation
-- [ ] Seeding script funciona
-- [ ] Tests pasan (100%)
-- [ ] Coverage >80% auth module
+1. **Entorno de Prueba**
+   - ¿Usa una DB real (Docker container) o SQLite en memoria? (Preferible contenedor real para paridad).
+
+2. **Velocidad**
+   - Los tests E2E son lentos. ¿Se pueden paralelizar?
 
 ---
 
-## 🧪 VERIFICACIÓN
+## ✅ CHECKLIST DE ENTREGA
 
-```bash
-# E2E tests
-cd apps/web && pnpm run e2e
-
-# Esperado: todos los tests en verde
-
-# API integration tests
-cd apps/api && pnpm run test:integration
-
-# Esperado: >90% pass rate
-
-# Coverage
-pnpm run test:cov
-
-# Esperado: >80% overall
-
-# Seed data
-pnpm run db:seed
-
-# Esperado: 5-10 users de prueba creados
-```
+- [ ] Test E2E de Autenticación pasando
+- [ ] Test E2E de Flujo de Órdenes básico
+- [ ] Scripts de Seed/Clean DB funcionales
+- [ ] CI pipeline ejecutando E2E
+- [ ] Reporte de resultados claro
 
 ---
 
-## 📝 FORMATO ENTREGA
+## 📝 FORMATO RESPUESTA
 
-A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
-
----
-
-##  ESTADO ACTUAL (Research 2026-01-02)
-
-### Verificado
-- Estructura test/ presente en api
-- Tests unitarios existentes
-
-### Pendiente
-- E2E tests para login flow
-- API integration tests
-- Mock data seeding scripts
+A) **ANÁLISIS** | B) **PLAN** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN**

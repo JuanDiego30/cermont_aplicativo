@@ -1,8 +1,26 @@
 # 🔄 CERMONT BACKEND SYNC AGENT
 
-**Responsabilidad:** Sincronización offline, idempotencia, conflictos
+**ID:** 05
+**Responsabilidad:** Sincronización offline, idempotencia, resolución de conflictos
+**Reglas:** Core + Type Safety
 **Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
+
+---
+
+## 🎯 OBJETIVO
+Garantizar la integridad de los datos en escenarios de conectividad intermitente, manejando colas de sincronización y resolución de conflictos.
+
+---
+
+## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+
+### ❌ Violaciones Críticas de Type Safety (Fix Prioritario)
+Se detectó el uso de `any` en los controladores, lo que compromete la seguridad de tipos en la capa de entrada.
+
+| Archivo | Línea | Violación | Solución |
+|---------|-------|-----------|----------|
+| `sync.controller.ts` | 94, 131, 138, 170 | `@Req() req: any` (4 ocurrencias) | Crear interfaz `AuthenticatedRequest` |
 
 ---
 
@@ -13,90 +31,61 @@ Actúa como CERMONT BACKEND SYNC AGENT.
 
 EJECUTA SIN PREGUNTAR:
 1. ANÁLISIS: apps/api/src/modules/sync/**
-   - Queue de cambios offline, idempotencia
-   - Conflictos (last-write-wins o merge)
-   - Timestamps y versionado
+   - CORREGIR TIPOS EN CONTROLLER (Prioridad 1)
+   - Revisar mecanismos de idempotencia
+   - Estrategia de resolución de conflictos
 
-2. PLAN: 3-4 pasos
+2. PLAN: 3-4 pasos (incluyendo fix de tipos)
 
-3. IMPLEMENTACIÓN: Si se aprueba
+3. IMPLEMENTACIÓN: Código robusto y tipado
 
 4. VERIFICACIÓN: pnpm run test -- --testPathPattern=sync
 ```
 
 ---
 
-## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
+## 📋 REGLAS CRÍTICAS
 
-1. **Queue Offline**
-   - ¿Frontend guarda cambios en IndexedDB?
-   - ¿Sincroniza cuando online?
-   - ¿No pierde datos?
+1. **Idempotencia**
+   - Cada operación debe tener un `idempotency_key` único generado en cliente.
+   - Reintentar la misma operación N veces no debe duplicar datos.
 
-2. **Idempotencia**
-   - ¿Cada operación tiene idempotency_key?
-   - ¿Si llega 2x, solo procesa 1x?
-   - ¿DB.unique(idempotency_key)?
+2. **Resolución de Conflictos**
+   - Definir estrategia: *Last Write Wins* (basado en timestamp cliente) o *Merge Inteligente*.
+   - Notificar al usuario si un conflicto requiere intervención manual.
 
-3. **Conflictos**
-   - ¿Last-write-wins (timestamp)?
-   - ¿Merge inteligente?
-   - ¿Notificar usuario de conflicto?
-
-4. **Versionado**
-   - ¿Cada cambio incrementa version?
-   - ¿vector clock o timestamp?
-   - ¿Sync solo cambios desde version X?
-
-5. **Bandwidth**
-   - ¿Sync delta (no full dump)?
-   - ¿Comprimir JSON?
+3. **Atomicidad**
+   - Lotes de sincronización deben ser atómicos (Todo o Nada) dentro de lo posible.
 
 ---
 
-## ✅ CHECKLIST IMPLEMENTACIÓN
+## 🔍 QUÉ ANALIZAR Y CORREGIR
 
-- [ ] Queue de cambios en IndexedDB
-- [ ] Idempotency key en cada operación
-- [ ] Conflictos resueltos (last-write-wins)
-- [ ] Versionado en cambios
-- [ ] Sync delta (no full)
-- [ ] Manejo de errores de red
+1. **Fix de Tipos (sync.controller.ts)**
+   ```typescript
+   import { Request } from 'express';
+   interface AuthenticatedRequest extends Request {
+       user: { id: string; email: string; role: string };
+   }
+   // Usar AuthenticatedRequest en lugar de any
+   ```
 
----
-
-## 🧪 VERIFICACIÓN
-
-```bash
-cd apps/api
-
-pnpm run test -- --testPathPattern=sync
-
-# Verificar idempotencia
-grep -r "idempotency\|idempotent" src/modules/sync/
-
-# Esperado: Implementación presente
-
-# Verificar conflictos
-grep -r "conflict\|merge\|last.*write" src/modules/sync/
-
-# Esperado: Resolución de conflictos
-```
+2. **Eficiencia**
+   - ¿Sync Delta? (Solo enviar lo que cambió desde la última vez).
+   - Compresión de payload para redes lentas.
 
 ---
 
-## 📝 FORMATO ENTREGA
+## ✅ CHECKLIST DE ENTREGA
 
-A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+- [ ] **Controller fuertemente tipado (sin any)**
+- [ ] Idempotencia verificada con tests
+- [ ] Manejo de conflictos implementado
+- [ ] Endpoints de sync eficientes
+- [ ] Tests de escenarios offline/reconexión
 
 ---
 
-##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+## 📝 FORMATO RESPUESTA
 
-### Type Safety - `@Req() req: any` en Controller
-
-| Archivo | Linea | Codigo |
-|---------|-------|--------|
-| `sync.controller.ts` | 94, 131, 138, 170 | `@Req() req: any` (4 veces) |
-
-### Fix: Crear `AuthenticatedRequest` interface y tipar todos los req
+A) **ANÁLISIS** | B) **PLAN** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN**

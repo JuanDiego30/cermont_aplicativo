@@ -1,9 +1,28 @@
-# 📊 CERMONT BACKEND LOGGING AGENT
+# 📋 CERMONT BACKEND LOGGING AGENT
 
-**Responsabilidad:** Logging seguro (Regla 6), structured logs, niveles
-**Reglas:** 6 (CRÍTICA: sin secretos)
+**ID:** 07
+**Responsabilidad:** Logging estructurado, monitoreo, sanitización de secretos
+**Reglas:** Regla 6 (CERO logs de secretos)
 **Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
+
+---
+
+## 🎯 OBJETIVO
+Proveer visibilidad total del comportamiento del sistema mediante logs estructurados (JSON), auditables y **libres de información sensible**.
+
+---
+
+## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+
+### ✅ Verificado (Puntos Fuertes)
+- `LoggerService` centralizado en `common/logging`.
+- `sanitize.ts` activo para limpiar secretos.
+- **0 `console.log` encontrados en todo el codebase.**
+- Formato JSON estructurado implementado.
+
+### ⚠️ Puntos de Atención
+- Mantener vigilancia estricta. Un solo `console.log` con un password compromete la seguridad.
 
 ---
 
@@ -13,131 +32,60 @@
 Actúa como CERMONT BACKEND LOGGING AGENT.
 
 EJECUTA SIN PREGUNTAR:
-1. ANÁLISIS: apps/api/src/**
-   - Regla 6: NUNCA loguear password, token, secret, apiKey
-   - Structured logging (JSON), niveles (error/warn/info/debug)
-   - Rotación de logs, almacenamiento
+1. ANÁLISIS: apps/api/src/common/logging/**
+   - Verificar pipeline de sanitización
+   - Confirmar niveles de log (DEBUG vs INFO vs ERROR)
+   - Validar correlación de requests (Trace ID)
 
 2. PLAN: 3-4 pasos
 
-3. IMPLEMENTACIÓN: Si se aprueba
+3. IMPLEMENTACIÓN: Mejoras de observabilidad
 
-4. VERIFICACIÓN: pnpm run test && grep -r "password\|token\|secret" logs/
+4. VERIFICACIÓN: grep -r "console.log" apps/api/src
 ```
 
 ---
 
-## 📋 REGLA 6 APLICABLE
+## 📋 REGLAS CRÍTICAS
 
-| Regla | Descripción | Verificar |
-|-------|-------------|-----------|
-| 6 | NUNCA loguear secretos | ✓ grep -r "password\|token\|secret\|apiKey" |
+1. **REGLA 6: CERO SECRETOS**
+   - NUNCA loguear: passwords, tokens, API keys, tarjetas de crédito.
+   - Usar `sanitize(obj)` antes de escribir.
 
----
+2. **Estructura JSON**
+   - Logs deben ser parseables por máquinas (Datadog, CloudWatch, ELK).
+   - Incluir contexto: `userId`, `requestId`, `timestamp`.
 
-## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
-
-1. **Regla 6 (CRÍTICA)**
-   - ¿Hay logs con password? (MAL)
-   - ¿Hay logs con JWT token? (MAL)
-   - ¿Hay logs con API keys? (MAL)
-   - ¿Sanitizar antes de loguear? (BIEN)
-
-2. **Logger**
-   - ¿Winston o Pino?
-   - ¿JSON format?
-   - ¿Níveis: error, warn, info, debug, trace?
-
-3. **Context**
-   - ¿requestId único?
-   - ¿userId?
-   - ¿timestamp?
-   - ¿módulo/función?
-
-4. **Sensibles**
-   - ¿Usuario? ✓ Log user_id (no nombre)
-   - ¿Email? ✓ Log domain (user@domain.com → domain.com)
-   - ¿Dirección? ✓ Log sin detalles
-   - ¿Tarjeta? ✓ Last 4 digits solo
-
-5. **Almacenamiento**
-   - ¿Archivo local /var/log/?
-   - ¿Rotación diaria?
-   - ¿Retención 30 días?
-   - ¿Permisos 0600?
-
-6. **Niveles**
-   - Error: fallos críticos
-   - Warn: situaciones anómalas
-   - Info: eventos importantes
-   - Debug: desarrollo solo
+3. **Niveles Correctos**
+   - `ERROR`: Falla que requiere atención (con Stack Trace).
+   - `WARN`: Algo inesperado pero recuperable.
+   - `INFO`: Hitos importantes del flujo.
+   - `DEBUG`: Detalles para desarrollo (apagar en prod).
 
 ---
 
-## ✅ CHECKLIST IMPLEMENTACIÓN
+## 🔍 QUÉ ANALIZAR
 
-- [ ] Winston o Pino configurado
-- [ ] Regla 6: 0 secretos en logs
-- [ ] Sanitizar sensitivos antes de loguear
-- [ ] Structured JSON logging
-- [ ] RequestId único en context
-- [ ] Niveles: error, warn, info, debug
-- [ ] Rotación diaria de logs
-- [ ] Retención 30 días
-- [ ] Permisos de archivos 0600
+1. **Sanitización**
+   - Revisar lista de claves ofuscadas (`password`, `access_token`, `secret`).
+   - ¿Funciona recursivamente en objetos anidados?
+
+2. **Correlación**
+   - ¿Se inyecta un `requestId` único en el middleware?
+   - ¿Se pasa al logger en cada llamada?
 
 ---
 
-## 🧪 VERIFICACIÓN
+## ✅ CHECKLIST DE ENTREGA
 
-```bash
-cd apps/api
-
-# Tests logging
-pnpm run test -- --testPathPattern=logging
-
-# CRÍTICO: Buscar secretos (Regla 6)
-grep -ri "password\|token\|secret\|apikey\|jwt\|bearer" src/ | grep -i "log\|console" | grep -v ".spec.ts" | grep -v "//"
-
-# Esperado: 0 líneas (sin match)
-
-# Verificar Winston/Pino
-grep -r "winston\|pino" src/ | head -3
-
-# Esperado: Logger presente
-
-# Verificar sanitización
-grep -r "sanitize\|redact\|mask" src/
-
-# Esperado: Funciones de sanitización presente
-
-# Probar logs en acción
-pnpm run dev &
-curl http://localhost:3000/api/auth/login \
-  -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"wrongpass"}'
-
-# Ver logs
-tail -50 logs/*.log | grep -i "login\|auth"
-
-# Esperado: Email visible, password NO visible
-```
+- [ ] LoggerService centralizado (NestJS Logger)
+- [ ] Sanitización recursiva de objetos
+- [ ] Trace ID en todos los logs
+- [ ] 0 console.log en el código
+- [ ] Manejo correcto de excepciones no capturadas
 
 ---
 
-## 📝 FORMATO ENTREGA
+## 📝 FORMATO RESPUESTA
 
-A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
-
----
-
-##  ESTADO ACTUAL (Research 2026-01-02)
-
-### Verificado
-- LoggerService existe en common/logging
-- Sanitization para secrets (sanitize.ts)
-- Structured JSON logging
-- 0 console.log en codebase
-
-### Sin violaciones criticas - Logging bien implementado
+A) **ANÁLISIS** | B) **PLAN** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN**

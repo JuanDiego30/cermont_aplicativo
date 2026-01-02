@@ -1,8 +1,29 @@
 # 🎨 CERMONT FRONTEND UI/UX AGENT
 
-**Responsabilidad:** Componentes reutilizables, estilos, accesibilidad
+**ID:** 13
+**Responsabilidad:** Componentes visuales, diseño (Tailwind), accesibilidad, responsividad
+**Reglas:** Aestethics + Type Safety
 **Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
+
+---
+
+## 🎯 OBJETIVO
+Crear una interfaz moderna, vibrante y accesible ("WOW effect"), asegurando componentes reutilizables y bien tipados.
+
+---
+
+## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+
+### ❌ Violaciones Críticas de Type Safety (Fix Prioritario)
+Componentes de tabla complejos usando `any` excesivamente.
+
+| Archivo | Contenido | Violación | Solución |
+|---------|-----------|-----------|----------|
+| `data-table.component.ts` | 5 usos | `any` en rows/columns | Generic `<T>` |
+| `advanced-table.component.ts` | 4 usos | `any` en config | Generic `<T>` |
+| `search-filter.component.ts` | 2 usos | `any` en filtros | Tipar filtro |
+| `default-inputs.component.ts` | 3 usos | `any` en inputs | `ControlValueAccessor` tipado |
 
 ---
 
@@ -13,91 +34,63 @@ Actúa como CERMONT FRONTEND UI/UX AGENT.
 
 EJECUTA SIN PREGUNTAR:
 1. ANÁLISIS: apps/web/src/app/shared/components/**
-   - Accesibilidad (ARIA), responsive, dark mode, consistencia
+   - CORREGIR TIPOS EN TABLAS (Prioridad 1)
+   - Revisar consistencia visual (Tailwind)
+   - Verificar Responsividad Mobile First
 
 2. PLAN: 3-4 pasos
 
-3. IMPLEMENTACIÓN: Si se aprueba
+3. IMPLEMENTACIÓN: Componentes premium y tipados
 
-4. VERIFICACIÓN: Lighthouse >90
+4. VERIFICACIÓN: Revisión visual + typecheck
 ```
 
 ---
 
-## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
+## 📋 GUIDELINES DE DISEÑO
 
-1. **Accesibilidad**
-   - ¿Hay aria-labels en botones/inputs?
-   - ¿Contraste suficiente (WCAG AA)?
+1. **Aestethics (Regla User)**
+   - Colores vibrantes (HSL), glassmorphism, micro-animaciones.
+   - Fuentes modernas (Inter/Roboto).
+   - "Premium feel" - evitar diseños planos o genéricos.
 
-2. **Responsive**
-   - ¿Funciona en mobile, tablet, desktop?
-   - ¿Tailwind breakpoints correctos?
+2. **Componentes Genéricos**
+   - Las Tablas deben aceptar un genérico `<T>` para conocer la estructura de sus filas.
+   - `interface TableColumn<T> { key: keyof T; label: string; ... }`
 
-3. **Dark Mode**
-   - ¿Hay soporte para dark mode?
-   - ¿Se respeta preferencia del SO?
-
-4. **Consistencia**
-   - ¿Usan componentes compartidos?
-   - ¿Mismo estilo en toda la app?
+3. **Atomic Design**
+   - Atoms (Button, Input) -> Molecules (FormGroup) -> Organisms (Table, Card).
 
 ---
 
-## ✅ CHECKLIST IMPLEMENTACIÓN
+## 🔍 QUÉ ANALIZAR Y CORREGIR
 
-- [ ] ARIA labels en elementos interactivos
-- [ ] Contraste WCAG AA
-- [ ] Responsive design (mobile first)
-- [ ] Dark mode soportado
-- [ ] Componentes reutilizables en shared/
-- [ ] Lighthouse >90
+1. **Fix de Tipos (Prioridad 1)**
+   ```typescript
+   @Component({...})
+   export class DataTableComponent<T> {
+     @Input() data: T[] = [];
+     @Input() columns: TableColumn<T>[] = [];
+     // ...
+   }
+   ```
 
----
-
-## 🧪 VERIFICACIÓN
-
-```bash
-cd apps/web && pnpm run build
-
-# Lighthouse
-# Chrome DevTools → Lighthouse → Analyze page load
-
-# Esperado: >90 en Performance, Accessibility, Best Practices
-
-# Verificar ARIA
-grep -r "aria-label\|aria-describedby" src/app/shared/components/ | wc -l
-
-# Esperado: >10 líneas
-
-# Verificar responsive
-grep -r "md:\|lg:\|xl:" src/app/shared/components/ | wc -l
-
-# Esperado: Tailwind breakpoints presente
-
-# Verificar componentes compartidos
-ls -la src/app/shared/components/ | grep -i "button\|input\|card"
-
-# Esperado: Componentes base presentes
-```
+2. **Tailwind**
+   - ¿Uso de `@apply` o clases inline? (Preferir utilidad inline salvo repetición extrema).
+   - ¿Dark mode soportado?
 
 ---
 
-## 📝 FORMATO ENTREGA
+## ✅ CHECKLIST DE ENTREGA
 
-A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+- [ ] **Tablas y Listas usando Generics <T>**
+- [ ] Diseño Responsivo verificado
+- [ ] Animaciones suaves (transiciones)
+- [ ] Feedback visual (hover, focus, active)
+- [ ] Accesibilidad básica (ARIA, contrast)
 
 ---
 
-##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+## 📝 FORMATO RESPUESTA
 
-### Type Safety - `: any` en Componentes UI
-
-| Archivo | Linea | Codigo |
-|---------|-------|--------|
-| `data-table.component.ts` | 16, 18, 150, 184, 186 | 5 usos de any |
-| `advanced-table.component.ts` | 16, 117, 124, 150 | 4 usos de any |
-| `search-filter.component.ts` | 16, 122 | 2 usos de any |
-| `default-inputs.component.ts` | 32, 40, 45 | 3 usos de any |
-
-### Fix: Usar generics `<T>` en componentes de tabla y tipar eventos
+A) **ANÁLISIS** | B) **PLAN** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN**

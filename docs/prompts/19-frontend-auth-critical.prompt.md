@@ -1,117 +1,97 @@
-# 🔐 CERMONT FRONTEND AUTH CRITICAL AGENT
+# 🛡️ CERMONT FRONTEND AUTH CRITICAL AGENT
 
-**Responsabilidad:** Reparar login/logout, CSRF, token refresh, 2FA
-**Patrón:** SIN PREGUNTAS (Regla 1)
+**ID:** 19
+**Responsabilidad:** Login/Logout, CSRF, Token Refresh, 2FA en cliente, Seguridad de sesión
+**Reglas:** Regla 41 (Memory Leak en Auth), Regla 6 (Secretos)
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
+
+---
+
+## 🎯 OBJETIVO
+Blindar la puerta de entrada de la aplicación. Gestionar la sesión de usuario de forma segura, resistente y sin fugas de memoria.
+
+---
+
+## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+
+### 🚨 Memory Leaks en Componentes Auth
+Se detectaron suscripciones huérfanas en componentes críticos de acceso. **Fix Mandatorio.**
+
+| Componente | Línea | Problema | Solución |
+|------------|-------|----------|----------|
+| `signin-form.component.ts` | 52 | subscribe sin `takeUntil` | Implementar `destroy$` pattern |
+| `signup-form.component.ts` | 48 | subscribe sin `takeUntil` | Implementar `destroy$` pattern |
+| `auth.service.ts` | 67, 196 | subscribe internos | Revisar lógica de desuscripción |
+
+### ⚠️ Type Safety
+- `signin-form.component.ts` L56: `error: (err: any)` -> Usar `HttpErrorResponse`.
 
 ---
 
 ## 🚀 INVOCACIÓN RÁPIDA
 
 ```
-Actúa como CERMONT FRONTEND AUTH CRITICAL AGENT.
+Actúa como CERMONT FRONTEND AUTH AGENT.
 
 EJECUTA SIN PREGUNTAR:
-1. ANÁLISIS: apps/web/src/app/core/{auth,services,interceptors}
-   - Verificar AuthInterceptor existe
-   - Verificar CSRF token flow
-   - Verificar memory leaks (takeUntil)
-   - Verificar token refresh automático
+1. ANÁLISIS: apps/web/src/app/core/auth/**
+   - CORREGIR LEAKS EN LOGIN/SIGNUP (Prioridad 1)
+   - Revisar manejo de tokens (Storage vs Cookie)
+   - Validar flujo de Refresh Token silencioso
 
 2. PLAN: 3-4 pasos
 
-3. IMPLEMENTACIÓN: Si se aprueba
+3. IMPLEMENTACIÓN: Auth segura y sin leaks
 
-4. VERIFICACIÓN: Login funciona 200 OK
+4. VERIFICACIÓN: Profiler de Memoria + Login flow manual
 ```
 
 ---
 
-## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
+## 📋 REGLAS DE SEGURIDAD CLIENTE
 
-1. **AuthInterceptor**
-   - ¿Existe apps/web/src/app/core/interceptors/auth.interceptor.ts?
-   - ¿Se registra en app.config.ts?
-   - ¿Agrega Authorization header?
-   - ¿Agrega CSRF header?
+1. **Almacenamiento de Tokens**
+   - Preferencia: `HttpOnly Cookies` (Backend set-cookie).
+   - Si se usa LocalStorage: Riesgo XSS. Mitigar con CSP estricto.
 
-2. **CSRF Token Flow**
-   - ¿AuthService guarda CSRF después de login?
-   - ¿AuthService limpia CSRF en logout?
-   - ¿Interceptor incluye X-CSRF-Token header?
+2. **Estado de Sesión**
+   - Sincronizar UI con estado del token (`isAuthenticated$`).
+   - Redirigir a `/login` inmediatamente si el token expira/es inválido.
 
-3. **Memory Leaks**
-   - ¿LoginComponent usa takeUntil(destroy$)?
-   - ¿Todos los componentes con subscripciones limpian?
-   - ¿No hay console warnings?
-
-4. **Token Refresh**
-   - ¿AuthService.refreshToken() funciona?
-   - ¿Interceptor reintenta request en 401?
-   - ¿No refresh infinito?
+3. **Limpieza**
+   - Al hacer Logout: Borrar TODO (Storage, Cache, State).
+   - "Nuclear option" para evitar data leaks entre usuarios.
 
 ---
 
-## ✅ CHECKLIST IMPLEMENTACIÓN
+## 🔍 QUÉ ANALIZAR Y CORREGIR
 
-- [ ] AuthInterceptor creado y registrado
-- [ ] Login POST 200 OK (no 401)
-- [ ] Token guardado en localStorage
-- [ ] CSRF token guardado
-- [ ] Token enviado en Authorization header
-- [ ] CSRF token enviado en X-CSRF-Token header
-- [ ] Logout limpia tokens
-- [ ] 401 dispara refresh automático
-- [ ] No memory leaks
-- [ ] 2FA flow funciona
+1. **Fix Memory Leaks (Prioridad 1)**
+   ```typescript
+   private destroy$ = new Subject<void>();
+   login() {
+     this.auth.login(...).pipe(takeUntil(this.destroy$)).subscribe(...)
+   }
+   ngOnDestroy() { this.destroy$.next(); }
+   ```
 
----
-
-## 🧪 VERIFICACIÓN
-
-```bash
-cd apps/web && pnpm run build
-
-# Network tab: POST /api/auth/login
-# Esperado: 200 OK, response con token, csrfToken, user
-
-# localStorage
-# Esperado: cermont_access_token, cermont_csrf_token, cermont_user
-
-# Verificar interceptor
-grep -r "AuthInterceptor" src/app/app.config.ts | head -5
-# Esperado: HTTP_INTERCEPTORS, useClass: AuthInterceptor
-
-# Verificar memory leaks
-grep -r "takeUntil\|destroy\$" src/app/features/ | wc -l
-# Esperado: >10 líneas
-
-# Lighthouse
-# Esperado: Performance >85
-```
+2. **Manejo de Errores Login**
+   - Mensajes genéricos ("Credenciales inválidas") para seguridad.
+   - No revelar si el email existe o no.
 
 ---
 
-## 📝 FORMATO ENTREGA
+## ✅ CHECKLIST DE ENTREGA
 
-A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+- [ ] **0 Memory Leaks en flujo Login/Logout**
+- [ ] Auto-logout por inactividad (opcional)
+- [ ] CSRF Token enviado en headers
+- [ ] 2FA Prompt en frontend funcional
+- [ ] Redirección segura post-login
 
 ---
 
-##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+## 📝 FORMATO RESPUESTA
 
-### Memory Leaks en Auth Components
-
-| Componente | Lineas | Problema |
-|------------|--------|----------|
-| `signin-form.component.ts` | 52 | subscribe sin takeUntil |
-| `signup-form.component.ts` | 48 | subscribe sin takeUntil |
-| `auth.service.ts` | 67, 196 | 2 subscribe sin cleanup |
-
-### Type Safety
-
-| Archivo | Linea | Codigo |
-|---------|-------|--------|
-| `signin-form.component.ts` | 56 | `error: (err: any)` |
-
-### Fix: Agregar takeUntil(destroy$) y tipar errores como HttpErrorResponse
+A) **ANÁLISIS** | B) **PLAN** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN**

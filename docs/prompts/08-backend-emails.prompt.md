@@ -1,9 +1,27 @@
-# 💌 CERMONT BACKEND EMAILS AGENT
+# 📧 CERMONT BACKEND EMAILS AGENT
 
-**Responsabilidad:** Notificaciones por email (SMTP local)
-**Restricción:** OSS only - NO SendGrid, AWS SES, Twilio
+**ID:** 08
+**Responsabilidad:** Envío de correos transaccionales, colas de trabajo (BullMQ), templates HTML
+**Reglas:** Core + Type Safety
 **Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
+
+---
+
+## 🎯 OBJETIVO
+Gestionar comunicaciones asíncronas fiables mediante colas, asegurando entregabilidad y tipado en los trabajos de background.
+
+---
+
+## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+
+### ❌ Violaciones Críticas de Type Safety (Fix Prioritario)
+La implementación de BullMQ carece de tipado, usando `any` para las colas y workers. esto es peligroso para el manejo de jobs.
+
+| Archivo | Línea | Violación | Solución |
+|---------|-------|-----------|----------|
+| `email-queue.service.ts` | 9-11 | `let Queue: any`, `let Worker: any` | Importar tipos de `bullmq` |
+| `email-queue.service.ts` | 30-33 | Propiedades de clase como `any` | Tipar `Queue<EmailJobData>`, `Worker`, etc. |
 
 ---
 
@@ -13,88 +31,61 @@
 Actúa como CERMONT BACKEND EMAILS AGENT.
 
 EJECUTA SIN PREGUNTAR:
-1. ANÁLISIS: apps/api/src/modules/notifications/**
-   - SMTP config (Nodemailer local)
-   - Reintentos, manejo de errores
-   - NO servicios pagos
+1. ANÁLISIS: apps/api/src/modules/emails/**
+   - CORREGIR TIPOS BULLMQ (Prioridad 1)
+   - Revisar configuración SMTP/Provider
+   - Validar diseño de templates HTML
 
-2. PLAN: 3-4 pasos
+2. PLAN: 3-4 pasos (incluyendo fix de tipos)
 
-3. IMPLEMENTACIÓN: Si se aprueba
+3. IMPLEMENTACIÓN: Colas robustas y tipadas
 
 4. VERIFICACIÓN: pnpm run test -- --testPathPattern=emails
 ```
 
 ---
 
-## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
+## 📋 PUNTOS CLAVE
 
-1. **SMTP Local**
-   - ¿Se usa Nodemailer?
-   - ¿Configurado para SMTP local (Mailpit, Postfix)?
-   - ¿NO hay SendGrid, SES, Twilio?
+1. **Procesamiento Asíncrono**
+   - El envío de email NO debe bloquear el request HTTP. Siempre usar Queue.
+   - Configurar retries (backoff exponencial) para fallos de red.
 
-2. **Configuración**
-   - ¿Variables en .env: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS?
-   - ¿Sin secretos hardcodeados?
+2. **Tipado de Jobs**
+   - Definir interfaz `EmailJobData` (to, subject, template, variables).
+   - La Queue y el Worker deben usar este genérico.
 
-3. **Reintentos**
-   - ¿Hay lógica de reintento (máx 3 intentos)?
-   - ¿Backoff exponencial?
-
-4. **Plantillas**
-   - ¿Existen plantillas de email (HTML)?
-   - ¿Variables interpoladas correctamente?
+3. **Templates**
+   - Usar motor de plantillas (Handlebars, EJS) o HTML raw bien estructurado.
+   - Diseño responsive básico.
 
 ---
 
-## ✅ CHECKLIST IMPLEMENTACIÓN
+## 🔍 QUÉ ANALIZAR Y CORREGIR
 
-- [ ] Nodemailer con SMTP local
-- [ ] Configuración en .env (no hardcoded)
-- [ ] 3 reintentos con backoff
-- [ ] Plantillas HTML para cada email
-- [ ] Tests de envío
-- [ ] CERO dependencias de servicios pagos
+1. **Fix de Tipos (Prioridad 1)**
+   ```typescript
+   import { Queue, Worker } from 'bullmq';
+   // Instalar tipos si faltan: pnpm add -D @types/bullmq (usualmente viene incluido)
+   private emailQueue: Queue<EmailJobData>;
+   ```
 
----
-
-## 🧪 VERIFICACIÓN
-
-```bash
-cd apps/api && pnpm run test -- --testPathPattern=emails
-
-# Buscar servicios pagos
-grep -r "SendGrid\|AWS.SES\|Twilio\|Firebase\|mailgun" src/
-
-# Esperado: 0 ocurrencias
-
-# Verificar Nodemailer
-grep -r "nodemailer\|SMTP" src/modules/notifications/
-
-# Esperado: Nodemailer presente
-
-# Verificar plantillas
-ls -la src/modules/notifications/templates/ | grep -i ".html\|.hbs"
-
-# Esperado: Al menos 3 plantillas (confirmation, tracking, etc)
-```
+2. **Dead Letter Queue (DLQ)**
+   - ¿A dónde van los emails que fallan definitivamente?
+   - Implementar monitoreo básico de fallos.
 
 ---
 
-## 📝 FORMATO ENTREGA
+## ✅ CHECKLIST DE ENTREGA
 
-A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+- [ ] **Tipado estricto de BullMQ (Queue, Worker, Job)**
+- [ ] Procesamiento asíncrono verificado
+- [ ] Retries configurados
+- [ ] Templates HTML probados
+- [ ] Provider SMTP configurado (env vars)
 
 ---
 
-##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+## 📝 FORMATO RESPUESTA
 
-### Type Safety - BullMQ sin tipos
-
-| Archivo | Linea | Codigo |
-|---------|-------|--------|
-| `email-queue.service.ts` | 9-11 | `let Queue: any; let Worker: any; let QueueEvents: any;` |
-| `email-queue.service.ts` | 30-33 | `queue: any; worker: any; queueEvents: any; deadLetterQueue: any;` |
-
-### Fix: Importar tipos de BullMQ o crear interfaces wrapper
+A) **ANÁLISIS** | B) **PLAN** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN**

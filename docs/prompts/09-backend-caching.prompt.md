@@ -1,8 +1,27 @@
-# 💾 CERMONT BACKEND CACHING AGENT
+# ⚡ CERMONT BACKEND CACHING AGENT
 
-**Responsabilidad:** Caching in-memory (@nestjs/cache-manager)
+**ID:** 09
+**Responsabilidad:** Estrategias de caché (Redis/Memory), invalidación, performance
+**Reglas:** Core + Type Safety
 **Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
+
+---
+
+## 🎯 OBJETIVO
+Optimizar el rendimiento reduciendo carga en BD y APIs externas mediante estrategias de caché inteligentes y tipadas.
+
+---
+
+## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+
+### ❌ Violaciones Críticas de Type Safety (Fix Prioritario)
+El servicio de clima (y probablemente otros) usa una caché en memoria mal tipada.
+
+| Archivo | Línea | Violación | Solución |
+|---------|-------|-----------|----------|
+| `weather.service.ts` | 34 | `Map<string, { data: any... }>` | Usar `Map<string, CacheEntry<WeatherData>>` |
+| `weather.service.ts` | 481 | `setCache(key, data: any)` | Usar Genéricos `<T>` |
 
 ---
 
@@ -12,80 +31,61 @@
 Actúa como CERMONT BACKEND CACHING AGENT.
 
 EJECUTA SIN PREGUNTAR:
-1. ANÁLISIS: apps/api/src/common/caching/**
-   - TTL correcto, invalidación en mutaciones
-   - No cachear secretos
+1. ANÁLISIS: apps/api/src/modules/** (Búsqueda de caching manual)
+   - CORREGIR TIPOS EN CACHÉ MANUAL (Prioridad 1)
+   - Evaluar uso de `CacheModule` de NestJS vs Map manual
+   - Verificar TTLs
 
-2. PLAN: 3-4 pasos
+2. PLAN: 3-4 pasos (incluyendo fix de tipos)
 
-3. IMPLEMENTACIÓN: Si se aprueba
+3. IMPLEMENTACIÓN: Caching tipado y eficiente
 
-4. VERIFICACIÓN: pnpm run test -- --testPathPattern=cache
+4. VERIFICACIÓN: pnpm run test -- --testPathPattern=caching
 ```
 
 ---
 
-## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
+## 📋 PUNTOS CLAVE
 
-1. **TTL**
-   - ¿Los caches tienen TTL razonable (1-24 horas)?
-   - ¿Thumbnails cachean por 7 días?
+1. **Tipado de Caché**
+   - Guardar `any` en caché es una fuente común de bugs de runtime al recuperar datos.
+   - Usar interfaces genéricas `CacheEntry<T>`.
 
-2. **Invalidación**
-   - ¿Al actualizar un recurso, se invalida su caché?
-   - ¿Al deletear, se invalida?
+2. **Estrategia**
+   - Definir TTL (Time To Live) apropiado para cada dato.
+   - Política de desalojo (LRU) si es memoria local.
+   - Usar Redis para caché distribuida (si hay múltiples instancias).
 
-3. **Secretos**
-   - ¿Hay JWT, passwords, tokens en caché? (NO DEBERÍA)
-
-4. **Hit/Miss**
-   - ¿Los logs registran cache hit/miss?
-   - ¿Se puede monitorear efectividad?
+3. **Invalidación**
+   - ¿Cómo se limpia la caché cuando los datos cambian? (Invalidación proactiva vs TTL).
 
 ---
 
-## ✅ CHECKLIST IMPLEMENTACIÓN
+## 🔍 QUÉ ANALIZAR Y CORREGIR
 
-- [ ] @nestjs/cache-manager instalado
-- [ ] TTL configurado por tipo de dato
-- [ ] Invalidación en CREATE/UPDATE/DELETE
-- [ ] Sin secretos cacheados
-- [ ] Logs de hit/miss
-- [ ] Tests de cache
+1. **Fix de Tipos (Prioridad 1)**
+   ```typescript
+   interface CacheEntry<T> {
+     data: T;
+     expiry: number;
+   }
+   private cache = new Map<string, CacheEntry<unknown>>(); // O específico
+   ```
 
----
-
-## 🧪 VERIFICACIÓN
-
-```bash
-cd apps/api && pnpm run test -- --testPathPattern=cache
-
-# Verificar cache-manager
-grep -r "@nestjs/cache-manager\|@UseInterceptors.*Cache" src/
-
-# Esperado: Decoradores de cache presente
-
-# Verificar TTL
-grep -r "ttl.*3600\|ttl.*86400" src/
-
-# Esperado: TTL values presentes
-```
+2. **Unificación**
+   - ¿Estamos usando `CacheManager` de NestJS? Es preferible a Maps manuales dispersos.
 
 ---
 
-## 📝 FORMATO ENTREGA
+## ✅ CHECKLIST DE ENTREGA
 
-A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+- [ ] **Caché manual fuertemente tipada (Generic T)**
+- [ ] TTLs configurados y respetados
+- [ ] Uso preferente de CacheModule/Redis
+- [ ] Invalidación correcta en actualizaciones
 
 ---
 
-##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+## 📝 FORMATO RESPUESTA
 
-### Type Safety en Cache
-
-| Archivo | Linea | Codigo |
-|---------|-------|--------|
-| `weather.service.ts` | 34 | `Map<string, { data: any; expiry: number }>` |
-| `weather.service.ts` | 481 | `setCache(key: string, data: any)` |
-
-### Fix: Usar generics `Map<string, CacheEntry<T>>` para tipar cache
+A) **ANÁLISIS** | B) **PLAN** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN**
