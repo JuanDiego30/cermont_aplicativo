@@ -61,3 +61,16 @@ Para CUALQUIER problema frontend:
 ## 📝 FORMATO ENTREGA
 
 NUNCA implementes: Solo recomienda orden de ejecución de agentes
+
+---
+
+##  ESTADO ACTUAL (Research 2026-01-02)
+
+### Estructura Verificada
+- core/, features/, pages/, shared/ presentes
+- Lazy loading configurado en app.routes.ts
+- Guards y services organizados
+
+### Issues Cross-Cutting
+- 50+ memory leaks (subscribe sin takeUntil) - ver prompt 14
+- 30+ any types - ver prompts 12, 13, 20

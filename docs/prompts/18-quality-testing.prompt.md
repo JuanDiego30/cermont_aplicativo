@@ -101,3 +101,16 @@ pnpm run e2e
 ## 📝 FORMATO ENTREGA
 
 A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+
+---
+
+##  ESTADO ACTUAL (Research 2026-01-02)
+
+### Verificado
+- Tests en Auth module (12 archivos)
+- Tests en PDF module (5 use cases)
+- Jest configurado
+
+### Pendiente
+- Revisar coverage total del proyecto
+- E2E tests (ver prompt 22)

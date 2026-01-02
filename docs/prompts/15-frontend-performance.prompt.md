@@ -97,3 +97,15 @@ grep -r "trackBy" src/app/ | wc -l
 ## 📝 FORMATO ENTREGA
 
 A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+
+---
+
+##  ESTADO ACTUAL (Research 2026-01-02)
+
+### Verificado
+- Lazy loading usando loadComponent y loadChildren
+- Bundle optimization pendiente de revisar
+
+### Memory Leaks (Relacionado)
+- 50+ suscripciones sin takeUntil causan degradacion de performance
+- Ver prompt 14-frontend-state para detalles
