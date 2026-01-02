@@ -6,7 +6,7 @@
  */
 
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { LandingNavbarComponent } from '../../shared/components/landing-navbar/landing-navbar.component';
 import { HeroSectionComponent } from '../../features/landing/components/hero-section/hero-section.component';
@@ -20,7 +20,6 @@ import { LandingFooterComponent } from '../../shared/components/landing/landing-
   selector: 'app-landing',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     LandingNavbarComponent,
     HeroSectionComponent,
@@ -28,8 +27,8 @@ import { LandingFooterComponent } from '../../shared/components/landing/landing-
     AboutSectionComponent,
     TestimonialSectionComponent,
     CTASectionComponent,
-    LandingFooterComponent,
-  ],
+    LandingFooterComponent
+],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.css'
 })

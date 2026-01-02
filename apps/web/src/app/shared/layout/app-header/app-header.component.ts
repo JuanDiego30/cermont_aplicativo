@@ -5,7 +5,7 @@
 
 import { Component, ElementRef, ViewChild, OnInit, OnDestroy, signal, inject, PLATFORM_ID } from '@angular/core';
 import { SidebarService } from '../../services/sidebar.service';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ThemeToggleButtonComponent } from '../../components/common/theme-toggle/theme-toggle-button.component';
 import { NotificationDropdownComponent } from '../../components/header/notification-dropdown/notification-dropdown.component';
@@ -15,13 +15,12 @@ import { ConnectionIndicatorComponent } from '../../components/header/connection
 @Component({
   selector: 'app-header',
   imports: [
-    CommonModule,
     RouterModule,
     ThemeToggleButtonComponent,
     NotificationDropdownComponent,
     UserDropdownComponent,
-    ConnectionIndicatorComponent,
-  ],
+    ConnectionIndicatorComponent
+],
   templateUrl: './app-header.component.html',
 })
 export class AppHeaderComponent implements OnInit, OnDestroy {

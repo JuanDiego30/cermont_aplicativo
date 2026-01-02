@@ -32,13 +32,15 @@ interface MetricData {
       </div>
 
       <!-- Trend -->
-      <div *ngIf="metric.trend" [ngClass]="getTrendClasses()">
-        <span class="font-medium text-sm">
-          {{ metric.trend.direction === 'up' ? '↑' : '↓' }}
-          {{ metric.trend.value }}%
-        </span>
-        <span class="text-xs ml-2">vs mes anterior</span>
-      </div>
+      @if (metric.trend) {
+        <div [ngClass]="getTrendClasses()">
+          <span class="font-medium text-sm">
+            {{ metric.trend.direction === 'up' ? '↑' : '↓' }}
+            {{ metric.trend.value }}%
+          </span>
+          <span class="text-xs ml-2">vs mes anterior</span>
+        </div>
+      }
     </div>
   `,
   styles: []

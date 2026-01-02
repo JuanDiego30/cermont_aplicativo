@@ -4,7 +4,7 @@
  */
 
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 interface Value {
   icon: string;
@@ -14,7 +14,7 @@ interface Value {
 @Component({
   selector: 'app-about-section',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './about-section.component.html',
   styleUrl: './about-section.component.css'
 })

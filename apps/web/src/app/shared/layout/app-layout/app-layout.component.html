@@ -5,7 +5,7 @@
   </div>
   <div class="flex-1 transition-all duration-300 ease-in-out" [ngClass]="{
         'xl:ml-[290px]': (isExpanded$ | async) || (isHovered$ | async),
-        'xl:ml-[90px]': !(isExpanded$ | async) && !(isHovered$ | async),
+      'xl:ml-[90px]': (isExpanded$ | async) === false && (isHovered$ | async) === false,
         'ml-0': (isMobileOpen$ | async)
       }">
     <!-- Mobile Header - Only visible on mobile -->

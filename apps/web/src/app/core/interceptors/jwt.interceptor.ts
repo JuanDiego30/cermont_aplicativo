@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
     HttpRequest,
     HttpHandler,
@@ -15,7 +15,7 @@ export class JwtInterceptor implements HttpInterceptor {
     private isRefreshing = false;
     private refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
-    constructor(private authService: AuthService) { }
+    private readonly authService = inject(AuthService);
 
     intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
         // No agregar token a las rutas de autenticación

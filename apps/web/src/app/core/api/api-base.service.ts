@@ -6,7 +6,7 @@
  */
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, timer } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
@@ -25,7 +25,15 @@ export class ApiBaseService {
     return this.http.get<T>(`${this.apiUrl}${path}`, {
       params: httpParams
     }).pipe(
-      retry(1),
+      retry({
+        count: 1,
+        delay: (error: HttpErrorResponse) => {
+          if (error.status === 0 || error.status >= 500) {
+            return timer(300);
+          }
+          return throwError(() => error);
+        }
+      }),
       catchError(this.handleError)
     );
   }

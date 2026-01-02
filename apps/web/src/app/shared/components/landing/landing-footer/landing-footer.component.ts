@@ -4,7 +4,7 @@
  */
 
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 
 interface FooterLink {
@@ -15,7 +15,7 @@ interface FooterLink {
 @Component({
   selector: 'app-landing-footer',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './landing-footer.component.html',
   styleUrl: './landing-footer.component.css'
 })

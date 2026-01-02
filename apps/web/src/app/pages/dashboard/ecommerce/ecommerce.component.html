@@ -53,15 +53,17 @@
   <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
     <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Estado de Órdenes</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div *ngFor="let status of orderStatuses" class="p-4 rounded-lg" [ngClass]="getStatusBgClass(status.color)">
-        <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{{ status.status }}</p>
-        <p class="text-2xl font-bold" [ngClass]="getStatusTextClass(status.color)">
-          {{ status.count }}
-        </p>
-        <p class="text-xs mt-2" [ngClass]="getStatusTextClass(status.color)">
-          {{ ((status.count / metrics.totalOrders) * 100) | number: '1.0-0' }}% del total
-        </p>
-      </div>
+      @for (status of orderStatuses; track status.status) {
+        <div class="p-4 rounded-lg" [ngClass]="getStatusBgClass(status.color)">
+          <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{{ status.status }}</p>
+          <p class="text-2xl font-bold" [ngClass]="getStatusTextClass(status.color)">
+            {{ status.count }}
+          </p>
+          <p class="text-xs mt-2" [ngClass]="getStatusTextClass(status.color)">
+            {{ ((status.count / metrics.totalOrders) * 100) | number: '1.0-0' }}% del total
+          </p>
+        </div>
+      }
     </div>
   </div>
 

@@ -1,5 +1,5 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+﻿import { Component, OnInit, inject, signal, computed } from '@angular/core';
+
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { OrdenesService } from '../../services/ordenes.service';
@@ -8,7 +8,7 @@ import { Orden, OrdenEstado, Prioridad, HistorialEstado, ChangeEstadoOrdenDto } 
 @Component({
   selector: 'app-orden-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule],
   templateUrl: './orden-detail.component.html',
   styleUrls: ['./orden-detail.component.css']
 })
@@ -28,7 +28,7 @@ export class OrdenDetailComponent implements OnInit {
   motivoCambio = signal('');
   changingEstado = signal(false);
 
-  // Modal de asignar técnico
+  // Modal de asignar tÃ©cnico
   showAsignarTecnicoModal = signal(false);
   tecnicoId = signal('');
   assigningTecnico = signal(false);
@@ -46,7 +46,7 @@ export class OrdenDetailComponent implements OnInit {
     const currentEstado = this.orden()?.estado;
     if (!currentEstado) return [];
     
-    // Lógica de transiciones permitidas
+    // LÃ³gica de transiciones permitidas
     const transitions: Record<OrdenEstado, OrdenEstado[]> = {
       [OrdenEstado.PENDIENTE]: [OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
       [OrdenEstado.PLANEACION]: [OrdenEstado.EN_PROGRESO, OrdenEstado.PENDIENTE, OrdenEstado.CANCELADA],
@@ -166,7 +166,7 @@ export class OrdenDetailComponent implements OnInit {
         this.assigningTecnico.set(false);
       },
       error: (err) => {
-        alert(err.message || 'Error al asignar técnico');
+        alert(err.message || 'Error al asignar tÃ©cnico');
         this.assigningTecnico.set(false);
       }
     });
@@ -257,3 +257,4 @@ export class OrdenDetailComponent implements OnInit {
     this.router.navigate(['/ordenes']);
   }
 }
+

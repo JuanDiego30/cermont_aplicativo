@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
   selector: 'app-confirmation-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     @if (show) {
       <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" (click)="onCancel()">

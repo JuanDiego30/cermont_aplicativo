@@ -69,7 +69,8 @@ export class OrdenesApi {
    * Update existing order
    */
   update(id: string, data: UpdateOrdenDto): Observable<Orden> {
-    return this.http.put<Orden>(`${this.apiUrl}/${id}`, data);
+    // Backend expone PATCH /ordenes/:id
+    return this.http.patch<Orden>(`${this.apiUrl}/${id}`, data);
   }
 
   /**
@@ -83,7 +84,8 @@ export class OrdenesApi {
    * Change order status
    */
   changeEstado(id: string, dto: ChangeEstadoOrdenDto): Observable<Orden> {
-    return this.http.patch<Orden>(`${this.apiUrl}/${id}/estado`, dto);
+    // Backend expone POST /ordenes/:id/cambiar-estado
+    return this.http.post<Orden>(`${this.apiUrl}/${id}/cambiar-estado`, dto);
   }
 
   /**

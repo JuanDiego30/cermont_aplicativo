@@ -5,19 +5,19 @@
  * Header con navegación sticky, menú móvil y toggle de tema
  */
 
-import { Component, OnInit, OnDestroy, signal, inject, PLATFORM_ID, HostListener } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, signal, inject, PLATFORM_ID, HostListener } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ThemeToggleButtonComponent } from '../../common/theme-toggle/theme-toggle-button.component';
 
 @Component({
   selector: 'app-landing-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, ThemeToggleButtonComponent],
+  imports: [RouterModule, ThemeToggleButtonComponent],
   templateUrl: './landing-header.component.html',
   styleUrl: './landing-header.component.css'
 })
-export class LandingHeaderComponent implements OnInit, OnDestroy {
+export class LandingHeaderComponent implements OnInit {
   private readonly platformId = inject(PLATFORM_ID);
   
   isScrolled = signal(false);
@@ -33,10 +33,6 @@ export class LandingHeaderComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.isScrolled.set(window.scrollY > 20);
     }
-  }
-
-  ngOnDestroy(): void {
-    // Cleanup handled by HostListener
   }
 
   toggleMobileMenu(): void {

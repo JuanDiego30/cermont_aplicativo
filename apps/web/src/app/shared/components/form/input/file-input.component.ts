@@ -1,11 +1,9 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-file-input',
-  imports: [
-    CommonModule
-  ],
+  imports: [],
   template: `
     <input
       type="file"
@@ -20,9 +18,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class FileInputComponent {
 
   @Input() className: string = '';
-  @Output() change = new EventEmitter<Event>();
+  @Output() fileChange = new EventEmitter<Event>();
 
   onChange(event: Event) {
-    this.change.emit(event);
+    this.fileChange.emit(event);
   }
 }

@@ -70,7 +70,39 @@ export class GetHistorialEstadosUseCase {
         };
       });
 
-      // Si no hay historial, crear una entrada inicial con el estado actual
+      // Fallback: si no hay historial en orderStateHistory, intentar desde auditLog
+      if (historial.length === 0) {
+        const auditEntries = await this.prisma.auditLog.findMany({
+          where: {
+            entityType: 'Order',
+            entityId: ordenId,
+            action: 'ORDER_STATUS_CHANGED',
+          },
+          orderBy: { createdAt: 'asc' },
+          select: {
+            id: true,
+            userId: true,
+            changes: true,
+            createdAt: true,
+          },
+        });
+
+        for (const a of auditEntries) {
+          const changes = (a.changes || {}) as any;
+          historial.push({
+            id: a.id,
+            ordenId,
+            estadoAnterior: changes.from as OrdenEstado | undefined,
+            estadoNuevo: (changes.to || orden.estado.value || 'pendiente') as OrdenEstado,
+            motivo: changes.motivo || 'Cambio de estado',
+            observaciones: changes.observaciones || undefined,
+            usuarioId: a.userId || undefined,
+            createdAt: a.createdAt.toISOString(),
+          });
+        }
+      }
+
+      // Si aún no hay historial, crear una entrada inicial con el estado actual
       if (historial.length === 0) {
         historial.push({
           id: orden.id,

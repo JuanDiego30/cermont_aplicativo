@@ -50,25 +50,59 @@ export class ChangeOrdenEstadoUseCase {
       // Cambiar estado
       orden.changeEstado(dto.nuevoEstado);
 
-      // Persistir
-      const updated = await this.ordenRepository.update(orden);
+      // Persistir + auditoría + historial en una transacción
+      const updated = await this.prisma.$transaction(async (tx) => {
+        const persisted = await this.ordenRepository.update(orden);
 
-      // Auditoría (sin depender del historial de sub-estados)
-      await this.prisma.auditLog.create({
-        data: {
-          entityType: 'Order',
-          entityId: updated.id,
-          action: 'ORDER_STATUS_CHANGED',
-          userId: dto.usuarioId,
-          changes: {
-            from: estadoAnterior,
-            to: dto.nuevoEstado,
-            motivo: dto.motivo,
-            observaciones: dto.observaciones,
+        // Auditoría
+        await tx.auditLog.create({
+          data: {
+            entityType: 'Order',
+            entityId: persisted.id,
+            action: 'ORDER_STATUS_CHANGED',
+            userId: dto.usuarioId,
+            changes: {
+              from: estadoAnterior,
+              to: dto.nuevoEstado,
+              motivo: dto.motivo,
+              observaciones: dto.observaciones,
+            },
+            previousData: { estado: estadoAnterior },
+            newData: { estado: dto.nuevoEstado },
           },
-          previousData: { estado: estadoAnterior },
-          newData: { estado: dto.nuevoEstado },
-        },
+        });
+
+        // Historial (OrderStateHistory) - registrar para que /historial lo refleje.
+        // Como este endpoint cambia "estado" (main state) y no el flujo de 14 pasos,
+        // mapeamos a un sub-estado representativo por estado principal.
+        const toSubStateByEstado: Record<string, string> = {
+          pendiente: 'solicitud_recibida',
+          planeacion: 'planeacion_iniciada',
+          ejecucion: 'ejecucion_iniciada',
+          pausada: 'ejecucion_iniciada',
+          completada: 'pago_recibido',
+          cancelada: 'solicitud_recibida',
+        };
+
+        const fromSubState = toSubStateByEstado[String(estadoAnterior)];
+        const toSubState = toSubStateByEstado[String(dto.nuevoEstado)];
+
+        if (!toSubState) {
+          throw new BadRequestException(`No se pudo mapear el estado a sub-estado: ${String(dto.nuevoEstado)}`);
+        }
+
+        await tx.orderStateHistory.create({
+          data: {
+            ordenId: persisted.id,
+            fromState: fromSubState as any,
+            toState: toSubState as any,
+            userId: dto.usuarioId,
+            notas: dto.motivo,
+            metadata: dto.observaciones ? ({ observaciones: dto.observaciones } as any) : undefined,
+          },
+        });
+
+        return persisted;
       });
 
       // Emitir evento de dominio

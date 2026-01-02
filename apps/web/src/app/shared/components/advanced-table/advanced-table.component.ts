@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 
 export interface TableColumn {
@@ -19,7 +19,7 @@ export interface TableAction {
 @Component({
   selector: 'app-advanced-table',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   template: `
     <div class="space-y-4">
       <!-- Header con búsqueda y filtros -->
@@ -41,39 +41,56 @@ export interface TableAction {
         <table class="w-full text-sm">
           <thead class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
             <tr>
-              <th *ngIf="selectable" class="px-4 py-3 text-left">
-                <input type="checkbox" class="checkbox" />
-              </th>
-              <th *ngFor="let col of columns" class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">
-                <div class="flex items-center justify-between">
-                  <span>{{ col.label }}</span>
-                  <span *ngIf="col.sortable" class="cursor-pointer text-gray-500">↕</span>
-                </div>
-              </th>
-              <th *ngIf="actions.length" class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Acciones</th>
+              @if (selectable) {
+                <th class="px-4 py-3 text-left">
+                  <input type="checkbox" class="checkbox" />
+                </th>
+              }
+              @for (col of columns; track col.key) {
+                <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">
+                  <div class="flex items-center justify-between">
+                    <span>{{ col.label }}</span>
+                    @if (col.sortable) {
+                      <span class="cursor-pointer text-gray-500">↕</span>
+                    }
+                  </div>
+                </th>
+              }
+              @if (actions.length) {
+                <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Acciones</th>
+              }
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let item of filteredData" class="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
-              <td *ngIf="selectable" class="px-4 py-3">
-                <input type="checkbox" class="checkbox" />
-              </td>
-              <td *ngFor="let col of columns" class="px-4 py-3 text-gray-900 dark:text-white">
-                {{ getValueByKey(item, col.key) }}
-              </td>
-              <td *ngIf="actions.length" class="px-4 py-3">
-                <div class="flex items-center gap-2">
-                  <button
-                    *ngFor="let action of actions"
-                    (click)="action.onClick(item)"
-                    [title]="action.label"
-                    class="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition text-sm"
-                  >
-                    {{ action.icon || action.label }}
-                  </button>
-                </div>
-              </td>
-            </tr>
+            @for (item of filteredData; track $index) {
+              <tr class="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+                @if (selectable) {
+                  <td class="px-4 py-3">
+                    <input type="checkbox" class="checkbox" />
+                  </td>
+                }
+                @for (col of columns; track col.key) {
+                  <td class="px-4 py-3 text-gray-900 dark:text-white">
+                    {{ getValueByKey(item, col.key) }}
+                  </td>
+                }
+                @if (actions.length) {
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-2">
+                      @for (action of actions; track action.label) {
+                        <button
+                          (click)="action.onClick(item)"
+                          [title]="action.label"
+                          class="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition text-sm"
+                        >
+                          {{ action.icon || action.label }}
+                        </button>
+                      }
+                    </div>
+                  </td>
+                }
+              </tr>
+            }
           </tbody>
         </table>
       </div>

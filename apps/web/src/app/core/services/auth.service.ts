@@ -18,9 +18,9 @@ export interface User {
 
 export interface AuthResponse {
   user: User;
-  accessToken: string;
-  refreshToken: string;
+  token: string;
   requires2FA?: boolean;
+  message?: string;
 }
 
 export interface LoginDto {
@@ -72,9 +72,9 @@ export class AuthService {
    * Registro de nuevo usuario
    */
   register(registerDto: RegisterDto): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, registerDto).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, registerDto, { withCredentials: true }).pipe(
       tap(response => {
-        if (response.user && response.accessToken) {
+        if (response.user && response.token) {
           this.handleAuthSuccess(response);
         }
       }),
@@ -86,14 +86,14 @@ export class AuthService {
    * Login con soporte para 2FA y "Recordarme"
    */
   login(loginDto: LoginDto): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, loginDto).pipe(
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, loginDto, { withCredentials: true }).pipe(
       tap(response => {
         // Si requiere 2FA, no guardar tokens todavía
         if (response.requires2FA) {
           return;
         }
 
-        if (response.user && response.accessToken) {
+        if (response.user && response.token) {
           this.handleAuthSuccess(response, loginDto.rememberMe);
         }
       }),
@@ -173,18 +173,16 @@ export class AuthService {
   /**
    * Refresh token
    */
-  refreshToken(): Observable<AuthResponse> {
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      return throwError(() => new Error('No refresh token'));
-    }
-
-    return this.http.post<AuthResponse>(`${this.apiUrl}/refresh`, { refreshToken }).pipe(
+  refreshToken(): Observable<{ token: string }> {
+    // Backend soporta refreshToken vía cookie (preferred). Requiere withCredentials.
+    return this.http.post<{ token: string }>(`${this.apiUrl}/refresh`, {}, { withCredentials: true }).pipe(
       tap(response => {
-        this.saveTokens(response.accessToken, response.refreshToken);
+        if (response?.token) {
+          this.saveToken(response.token);
+        }
       }),
       catchError(error => {
-        this.logout();
+        this.clearLocalAuth();
         return throwError(() => error);
       })
     );
@@ -194,7 +192,7 @@ export class AuthService {
    * Logout
    */
   logout(): void {
-    this.http.post(`${this.apiUrl}/logout`, {}).subscribe({
+    this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).subscribe({
       complete: () => {
         this.clearAuthData();
         this.router.navigate(['/auth/login']);
@@ -221,7 +219,16 @@ export class AuthService {
    * Obtener access token
    */
   getAccessToken(): string | null {
-    return localStorage.getItem('cermont_access_token');
+    // Fuente principal
+    const primary = localStorage.getItem('cermont_access_token');
+    if (primary) return primary;
+
+    // Retrocompatibilidad (llaves legadas encontradas en el repo)
+    return (
+      localStorage.getItem('auth_token') ||
+      localStorage.getItem('authToken') ||
+      localStorage.getItem('access_token')
+    );
   }
 
   // Alias for backward compatibility
@@ -230,19 +237,12 @@ export class AuthService {
   }
 
   /**
-   * Obtener refresh token
-   */
-  getRefreshToken(): string | null {
-    return localStorage.getItem('cermont_refresh_token');
-  }
-
-  /**
    * Manejar éxito de autenticación
    */
   private handleAuthSuccess(response: AuthResponse, rememberMe: boolean = false): void {
     this.userSubject.next(response.user);
     this.saveUserToStorage(response.user);
-    this.saveTokens(response.accessToken, response.refreshToken);
+    this.saveToken(response.token);
 
     // Guardar flag de "recordarme"
     if (rememberMe) {
@@ -251,11 +251,10 @@ export class AuthService {
   }
 
   /**
-   * Guardar tokens
+   * Guardar token
    */
-  private saveTokens(accessToken: string, refreshToken: string): void {
-    localStorage.setItem('cermont_access_token', accessToken);
-    localStorage.setItem('cermont_refresh_token', refreshToken);
+  private saveToken(token: string): void {
+    localStorage.setItem('cermont_access_token', token);
   }
 
   /**
@@ -284,7 +283,9 @@ export class AuthService {
    */
   private clearAuthData(): void {
     localStorage.removeItem('cermont_access_token');
-    localStorage.removeItem('cermont_refresh_token');
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('access_token');
     localStorage.removeItem('cermont_user');
     localStorage.removeItem('cermont_remember_me');
     this.userSubject.next(null);

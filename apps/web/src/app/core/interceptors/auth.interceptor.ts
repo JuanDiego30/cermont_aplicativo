@@ -57,9 +57,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401) {
         // Token expirado o inválido - intentar refresh
         return authService.refreshToken().pipe(
-          switchMap(() => {
+          switchMap((refreshResponse) => {
             // Retry original request con nuevo token
-            const newToken = authService.getToken();
+            const newToken = refreshResponse?.token || authService.getToken();
             const retryReq = req.clone({
               setHeaders: {
                 Authorization: `Bearer ${newToken}`

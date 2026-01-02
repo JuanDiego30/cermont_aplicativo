@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, timer } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
@@ -27,7 +27,16 @@ export class ApiService {
             headers: this.getHeaders(),
             params: httpParams
         }).pipe(
-            retry(1),
+            retry({
+                count: 1,
+                delay: (error: any) => {
+                    const status = error?.status;
+                    if (status === 0 || status >= 500) {
+                        return timer(300);
+                    }
+                    return throwError(() => error);
+                }
+            }),
             catchError(this.handleError)
         );
     }

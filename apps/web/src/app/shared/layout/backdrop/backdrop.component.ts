@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SidebarService } from '../../services/sidebar.service';
 import { CommonModule } from '@angular/common';
 
@@ -11,9 +11,10 @@ import { CommonModule } from '@angular/common';
 })
 
 export class BackdropComponent {
+  private readonly sidebarService = inject(SidebarService);
   readonly isMobileOpen$;
 
-  constructor(private sidebarService: SidebarService) {
+  constructor() {
     this.isMobileOpen$ = this.sidebarService.isMobileOpen$;
   }
 

@@ -1,11 +1,11 @@
-import { Component, Inject, Renderer2, DOCUMENT } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Renderer2, inject, DOCUMENT } from '@angular/core';
+
 import { ThemeService } from '../../../../core/services/theme.service';
 
 @Component({
   selector: 'app-theme-toggle-two',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './theme-toggle-two.component.html',
   styles: [`
     :host {
@@ -53,13 +53,13 @@ import { ThemeService } from '../../../../core/services/theme.service';
   `]
 })
 export class ThemeToggleTwoComponent {
+  private readonly themeService = inject(ThemeService);
+  private readonly document = inject(DOCUMENT);
+  private readonly renderer = inject(Renderer2);
+
   isDark = false;
 
-  constructor(
-    private themeService: ThemeService,
-    @Inject(DOCUMENT) private document: Document,
-    private renderer: Renderer2
-  ) {
+  constructor() {
     // Sync with service state
     this.isDark = this.themeService.isDark;
 

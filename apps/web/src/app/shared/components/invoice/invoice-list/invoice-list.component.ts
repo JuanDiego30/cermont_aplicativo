@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, HostListener } from '@angular/core';
+import { Component, ElementRef, HostListener, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TableDropdownComponent } from '../../common/table-dropdown/table-dropdown.component';
 
@@ -266,7 +266,7 @@ export class InvoiceListComponent {
   showFilter: boolean = false;
   itemsPerPage: number = 10;
 
-  constructor(private elementRef: ElementRef) {}
+  private readonly elementRef = inject(ElementRef);
 
   @HostListener('document:click', ['$event'])
   handleClickOutside(event: MouseEvent) {
@@ -337,8 +337,6 @@ export class InvoiceListComponent {
   get allPaginatedSelected(): boolean {
     return this.paginatedInvoices.length > 0 && this.paginatedInvoices.every(invoice => this.selected.includes(invoice.id));
   }
-
-  ngOnInit(): void {}
 
   toggleSelectAll(): void {
     if (this.allPaginatedSelected) {

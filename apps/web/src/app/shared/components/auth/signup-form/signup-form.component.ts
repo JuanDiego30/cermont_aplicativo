@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
 import { LabelComponent } from '../../form/label/label.component';
 import { CheckboxComponent } from '../../form/input/checkbox.component';
@@ -12,13 +12,12 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-signup-form',
   standalone: true,
   imports: [
-    CommonModule,
     LabelComponent,
     CheckboxComponent,
     InputFieldComponent,
     RouterModule,
-    FormsModule,
-  ],
+    FormsModule
+],
   templateUrl: './signup-form.component.html',
   styles: ``
 })

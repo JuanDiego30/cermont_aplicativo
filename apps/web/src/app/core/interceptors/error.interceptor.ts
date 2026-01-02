@@ -12,22 +12,21 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { StorageService } from '../services/storage.service';
+import { AuthService } from '../services/auth.service';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
-  const storage = inject(StorageService);
+  const authService = inject(AuthService);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      // Skip error handling for auth endpoints (login, register)
-      const isAuthEndpoint = req.url.includes('/auth/login') || req.url.includes('/auth/register');
+      // Skip error handling for auth endpoints to avoid loops (login/register/refresh/logout/2fa/etc)
+      const isAuthEndpoint = req.url.includes('/auth/');
       
       if (error.status === 401 && !isAuthEndpoint) {
         // Unauthorized - Clear session and redirect to login
-        storage.removeToken();
-        storage.removeItem('refreshToken');
-        router.navigate(['/signin'], { 
+        authService.clearLocalAuth();
+        router.navigate(['/auth/login'], { 
           queryParams: { returnUrl: router.url } 
         });
         

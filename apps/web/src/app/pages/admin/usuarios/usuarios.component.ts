@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
+
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AdvancedTableComponent, TableColumn, TableAction } from '../../../shared/components/advanced-table/advanced-table.component';
 import { ModalComponent, ModalConfig, ModalAction } from '../../../shared/components/modal/modal.component';
@@ -17,12 +17,11 @@ interface Usuario {
   selector: 'app-usuarios',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     AdvancedTableComponent,
-    ModalComponent,
-  ],
+    ModalComponent
+],
   template: `
     <div class="space-y-6">
       <!-- Header -->
@@ -115,15 +114,17 @@ interface Usuario {
           </div>
 
           <!-- Contraseña (solo crear) -->
-          <div *ngIf="!editingId" class="form-group">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contraseña</label>
-            <input
-              type="password"
-              formControlName="password"
-              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cermont-primary-500"
-              placeholder="••••••••"
-            />
-          </div>
+          @if (!editingId) {
+            <div class="form-group">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contraseña</label>
+              <input
+                type="password"
+                formControlName="password"
+                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-cermont-primary-500"
+                placeholder="••••••••"
+              />
+            </div>
+          }
 
           <!-- Estado -->
           <div class="form-group">
@@ -153,6 +154,7 @@ interface Usuario {
   styles: []
 })
 export class UsuariosComponent implements OnInit {
+  private readonly fb = inject(FormBuilder);
   columns: TableColumn[] = [
     { key: 'nombre', label: 'Nombre', sortable: true },
     { key: 'email', label: 'Email', sortable: true },
@@ -171,7 +173,13 @@ export class UsuariosComponent implements OnInit {
   editingId: string | null = null;
   usuarioToDelete: Usuario | null = null;
 
-  usuarioForm: FormGroup;
+  usuarioForm: FormGroup = this.fb.group({
+    nombre: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    rol: ['operador', Validators.required],
+    password: ['', Validators.required],
+    activo: [true],
+  });
   modalConfig: ModalConfig = {
     title: 'Nuevo Usuario',
     subtitle: 'Completa los datos para crear un nuevo usuario',
@@ -224,16 +232,6 @@ export class UsuariosComponent implements OnInit {
       onClick: () => this.deleteUsuario(),
     },
   ];
-
-  constructor(private fb: FormBuilder) {
-    this.usuarioForm = this.fb.group({
-      nombre: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      rol: ['operador', Validators.required],
-      password: ['', Validators.required],
-      activo: [true],
-    });
-  }
 
   ngOnInit() {
     this.loadUsuarios();
