@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Public } from '../../../../common/decorators/public.decorator';
+import { maskEmailForLogs } from '../../../../common/utils/pii.util';
 import { ForgotPasswordUseCase } from '../../application/use-cases/forgot-password.use-case';
 import { ResetPasswordUseCase } from '../../application/use-cases/reset-password.use-case';
 import { ValidateResetTokenUseCase } from '../../application/use-cases/validate-reset-token.use-case';
@@ -64,7 +65,7 @@ export class PasswordResetController {
         }
 
         const { email } = parseResult.data;
-        this.logger.log(`Password reset requested for email: ${email}`);
+        this.logger.log(`Password reset requested for email: ${maskEmailForLogs(email)}`);
 
         return await this.forgotPasswordUseCase.execute(email);
     }

@@ -13,6 +13,7 @@
  * - Si excede presupuesto, requiere justificación
  */
 
+import { Logger } from '@nestjs/common';
 import { CostoId } from '../value-objects/costo-id.vo';
 import { Money } from '../value-objects/money.vo';
 import { CostoType } from '../value-objects/costo-type.vo';
@@ -30,6 +31,8 @@ import {
 } from '../events';
 
 export class Costo {
+  private static readonly logger = new Logger(Costo.name);
+
   private _domainEvents: any[] = [];
 
   // Configuración
@@ -83,7 +86,7 @@ export class Costo {
     const suggestedCategory = type.getSuggestedCategory();
     if (category.getValue() !== suggestedCategory) {
       // Warning pero no error - permitir override manual
-      console.warn(
+      Costo.logger.warn(
         `Tipo ${type.getValue()} sugiere categoría ${suggestedCategory}, pero se asignó ${category.getValue()}`,
       );
     }

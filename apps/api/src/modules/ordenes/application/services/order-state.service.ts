@@ -165,11 +165,11 @@ export class OrderStateService {
             where: { ordenId },
             orderBy: { createdAt: 'desc' },
             include: {
-                user: { select: { name: true, email: true } },
+                user: { select: { name: true } },
             },
         });
 
-        return history.map((h: { id: string; fromState: string | null; toState: string; notas: string | null; user: { name: string; email: string } | null; createdAt: Date }) => ({
+        return history.map((h: { id: string; fromState: string | null; toState: string; notas: string | null; user: { name: string } | null; createdAt: Date }) => ({
             id: h.id,
             fromState: h.fromState,
             toState: h.toState,
@@ -260,7 +260,11 @@ export class OrderStateService {
                     break;
             }
         } catch (error) {
-            this.logger.error(`Error en trigger para estado ${state}:`, error);
+            const err = error as Error;
+            this.logger.error(
+                `Error en trigger para estado ${state}: ${err?.message ?? String(error)}`,
+                err?.stack,
+            );
         }
     }
 

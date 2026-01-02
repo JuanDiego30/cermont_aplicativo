@@ -5,6 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { LabelComponent } from '../../form/label/label.component';
 import { ButtonComponent } from '../../ui/button/button.component';
+import { logError } from '../../../../core/utils/logger';
 
 @Component({
   selector: 'app-signin-form',
@@ -53,7 +54,7 @@ export class SigninFormComponent {
         this.router.navigate(['/dashboard']);
       },
       error: (err: any) => {
-        console.error('Login error', err);
+        logError('Login error', err);
         // Extract error message if available in valid format
         const msg = err.error?.message || err.statusText || 'Error al iniciar sesión';
         this.error.set(msg);

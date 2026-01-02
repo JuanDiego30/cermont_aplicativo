@@ -12,6 +12,7 @@ import { ChangeEstadoOrdenDto } from '../dto/change-estado-orden.dto';
 import { OrdenResponseDto, OrdenEstado, OrdenPrioridad } from '../dto/orden-response.dto';
 import { OrdenEstadoChangedEvent } from '../../domain/events/orden-estado-changed.event';
 import { OrdenStateMachine, OrdenEstado as DomainOrdenEstado } from '../../domain/orden-state-machine';
+import { OrdenMapper } from '../../infrastructure/mappers/orden.mapper';
 
 @Injectable()
 export class ChangeOrdenEstadoUseCase {
@@ -84,7 +85,27 @@ export class ChangeOrdenEstadoUseCase {
 
       // Persistir + auditoría + historial en una transacción
       const updated = await this.prisma.$transaction(async (tx) => {
-        const persisted = await this.ordenRepository.update(orden);
+        const updateData: Record<string, unknown> = {
+          estado: orden.estado.value,
+          updatedAt: new Date(),
+        };
+
+        if (String(orden.estado.value) === 'ejecucion') {
+          updateData.fechaInicio = new Date();
+        } else if (String(orden.estado.value) === 'completada') {
+          updateData.fechaFin = new Date();
+        }
+
+        const updatedOrder = await tx.order.update({
+          where: { id: orden.id },
+          data: updateData,
+          include: {
+            creador: { select: { id: true, name: true } },
+            asignado: { select: { id: true, name: true } },
+          },
+        });
+
+        const persisted = OrdenMapper.toDomain(updatedOrder);
 
         // Auditoría
         await tx.auditLog.create({
@@ -152,7 +173,11 @@ export class ChangeOrdenEstadoUseCase {
       // Convertir a DTO de respuesta
       return this.toResponseDto(updated);
     } catch (error) {
-      this.logger.error('Error cambiando estado de orden', error);
+      const err = error as Error;
+      this.logger.error(
+        `Error cambiando estado de orden: ${err?.message ?? String(error)}`,
+        err?.stack,
+      );
       throw error;
     }
   }

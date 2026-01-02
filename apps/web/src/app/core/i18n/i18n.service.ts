@@ -9,6 +9,7 @@
  * - Fallback a español
  */
 import { Injectable, signal, computed, inject } from '@angular/core';
+import { logError, logWarn } from '../utils/logger';
 
 export type SupportedLanguage = 'es' | 'en';
 
@@ -74,7 +75,7 @@ export class I18nService {
       // Actualizar el lang del documento HTML
       this.updateDocumentLang(this.currentLangSignal());
     } catch (error) {
-      console.error('[I18nService] Error loading translations:', error);
+      logError('[I18nService] Error loading translations', error);
     }
   }
 
@@ -83,7 +84,7 @@ export class I18nService {
    */
   setLanguage(lang: SupportedLanguage): void {
     if (!SUPPORTED_LANGUAGES.includes(lang)) {
-      console.warn(`[I18nService] Language ${lang} not supported`);
+      logWarn(`[I18nService] Language ${lang} not supported`);
       return;
     }
 

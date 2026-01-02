@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { logError } from '../utils/logger';
 
 export interface Usuario {
     userId: string;
@@ -191,7 +192,7 @@ export class AuthService {
             errorMessage = error.error?.message || `Error ${error.status}: ${error.statusText}`;
         }
 
-        console.error('Error en AuthService:', errorMessage);
+        logError('Error en AuthService', error, { errorMessage });
         return throwError(() => new Error(errorMessage));
     }
 }

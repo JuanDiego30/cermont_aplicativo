@@ -3,7 +3,12 @@ import { OrdenResponseDto } from '../../application/dto/orden-response.dto';
 import { OrdenEntity } from '../../domain/entities/orden.entity';
 
 export class OrdenMapper {
-    static toDomain(orden: PrismaOrden & { creador?: PrismaUser | null; asignado?: PrismaUser | null }): OrdenEntity {
+    static toDomain(
+        orden: PrismaOrden & {
+            creador?: Pick<PrismaUser, 'id' | 'name'> | null;
+            asignado?: Pick<PrismaUser, 'id' | 'name'> | null;
+        }
+    ): OrdenEntity {
         return OrdenEntity.fromPersistence(
             {
                 id: orden.id,

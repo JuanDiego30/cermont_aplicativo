@@ -17,10 +17,11 @@ export interface User {
 }
 
 export interface AuthResponse {
-  user: User;
-  token: string;
+  user?: User;
+  token?: string;
   requires2FA?: boolean;
   message?: string;
+  expiresIn?: number;
 }
 
 export interface LoginDto {

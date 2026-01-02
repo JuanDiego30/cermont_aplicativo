@@ -12,13 +12,14 @@
  *
  * Basado en: OWASP Security Headers + Additional Security Measures
  */
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import { randomUUID } from 'crypto';
 
 @Injectable()
 export class SecurityMiddleware implements NestMiddleware {
+    private readonly logger = new Logger(SecurityMiddleware.name);
     private readonly helmetMiddleware = helmet({
         // Content Security Policy - Define fuentes permitidas
         contentSecurityPolicy: {
@@ -102,7 +103,9 @@ export class SecurityMiddleware implements NestMiddleware {
             const userAgent = req.headers['user-agent'];
             if (!userAgent || userAgent.length < 10) {
                 // Log suspicious request (se hará en el interceptor de logging)
-                console.warn(`Suspicious request without proper User-Agent: ${req.ip} ${req.method} ${req.path}`);
+                this.logger.warn(
+                    `Suspicious request without proper User-Agent: ip=${req.ip} method=${req.method} path=${req.path}`,
+                );
             }
 
             // 7. Rate limiting headers (informational)

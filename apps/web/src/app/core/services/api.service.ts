@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError, timer } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { logError } from '../utils/logger';
 
 @Injectable({
     providedIn: 'root'
@@ -136,7 +137,7 @@ export class ApiService {
             errorMessage = `Código: ${error.status}\nMensaje: ${error.message || error.error?.message || 'Error desconocido'}`;
         }
         
-        console.error('API Error:', errorMessage, error);
+        logError('API Error', error, { errorMessage });
         return throwError(() => error);
     }
 }

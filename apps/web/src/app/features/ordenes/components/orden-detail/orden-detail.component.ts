@@ -4,6 +4,7 @@ import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { OrdenesService } from '../../services/ordenes.service';
 import { Orden, OrdenEstado, Prioridad, HistorialEstado, ChangeEstadoOrdenDto } from '../../../../core/models/orden.model';
+import { logError } from '../../../../core/utils/logger';
 
 @Component({
   selector: 'app-orden-detail',
@@ -90,7 +91,7 @@ export class OrdenDetailComponent implements OnInit {
         this.historial.set(historial);
       },
       error: (err) => {
-        console.error('Error al cargar historial:', err);
+        logError('Error al cargar historial', err);
       }
     });
   }

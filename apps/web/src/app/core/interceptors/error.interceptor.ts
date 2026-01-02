@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
+import { logError, logWarn } from '../utils/logger';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
@@ -30,18 +31,18 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           queryParams: { returnUrl: router.url } 
         });
         
-        console.warn('401 Unauthorized - Session expired');
+        logWarn('401 Unauthorized - Session expired');
       } else if (error.status === 403) {
         // Forbidden - User doesn't have permission
-        console.warn('403 Forbidden - Insufficient permissions');
+        logWarn('403 Forbidden - Insufficient permissions');
         // You can inject a notification service here to show a toast
       } else if (error.status >= 500) {
         // Server error
-        console.error('Server error:', error.status, error.message);
+        logError('Server error', error, { status: error.status });
         // You can inject a notification service here to show a toast
       } else if (error.status === 0) {
         // Network error (CORS, connection refused, etc.)
-        console.error('Network error - Check if backend is running');
+        logError('Network error - Check if backend is running', error);
         // You can inject a notification service here to show a toast
       }
 
