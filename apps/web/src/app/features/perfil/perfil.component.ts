@@ -1,9 +1,10 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService, User, UpdateUserDto } from '../../core/services/user.service';
 import { AvatarEditorComponent } from '../../shared/components/avatar-editor/avatar-editor.component';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-perfil',
@@ -12,10 +13,11 @@ import { AvatarEditorComponent } from '../../shared/components/avatar-editor/ava
     templateUrl: './perfil.component.html',
     styleUrls: ['./perfil.component.css']
 })
-export class PerfilComponent implements OnInit {
+export class PerfilComponent implements OnInit, OnDestroy {
     private readonly fb = inject(FormBuilder);
     private readonly authService = inject(AuthService);
     private readonly userService = inject(UserService);
+    private readonly destroy$ = new Subject<void>();
 
     user = signal<User | null>(null);
     profileForm!: FormGroup;
@@ -34,6 +36,11 @@ export class PerfilComponent implements OnInit {
             this.user.set(currentUser as User);
         }
         this.initializeForms();
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     initializeForms(): void {
@@ -81,19 +88,21 @@ export class PerfilComponent implements OnInit {
 
         const updateData: UpdateUserDto = this.profileForm.value;
 
-        this.userService.updateUser(userId, updateData).subscribe({
-            next: (updatedUser) => {
-                this.user.set(updatedUser);
-                this.success.set('Perfil actualizado exitosamente');
-                this.saving.set(false);
-                setTimeout(() => this.success.set(null), 3000);
-            },
-            error: (err) => {
-                this.error.set(err.error?.message || 'Error al actualizar el perfil');
-                this.saving.set(false);
-                setTimeout(() => this.error.set(null), 3000);
-            }
-        });
+        this.userService.updateUser(userId, updateData)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (updatedUser) => {
+                    this.user.set(updatedUser);
+                    this.success.set('Perfil actualizado exitosamente');
+                    this.saving.set(false);
+                    setTimeout(() => this.success.set(null), 3000);
+                },
+                error: (err) => {
+                    this.error.set(err.error?.message || 'Error al actualizar el perfil');
+                    this.saving.set(false);
+                    setTimeout(() => this.error.set(null), 3000);
+                }
+            });
     }
 
     changePassword(): void {
@@ -108,19 +117,21 @@ export class PerfilComponent implements OnInit {
 
         const { currentPassword, newPassword } = this.passwordForm.value;
 
-        this.userService.changePassword(currentPassword, newPassword).subscribe({
-            next: () => {
-                this.success.set('Contraseña actualizada exitosamente');
-                this.passwordForm.reset();
-                this.saving.set(false);
-                setTimeout(() => this.success.set(null), 3000);
-            },
-            error: (err) => {
-                this.error.set(err.error?.message || 'Error al cambiar la contraseña');
-                this.saving.set(false);
-                setTimeout(() => this.error.set(null), 3000);
-            }
-        });
+        this.userService.changePassword(currentPassword, newPassword)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: () => {
+                    this.success.set('Contraseña actualizada exitosamente');
+                    this.passwordForm.reset();
+                    this.saving.set(false);
+                    setTimeout(() => this.success.set(null), 3000);
+                },
+                error: (err) => {
+                    this.error.set(err.error?.message || 'Error al cambiar la contraseña');
+                    this.saving.set(false);
+                    setTimeout(() => this.error.set(null), 3000);
+                }
+            });
     }
 
     setActiveTab(tab: 'profile' | 'security' | 'preferences'): void {

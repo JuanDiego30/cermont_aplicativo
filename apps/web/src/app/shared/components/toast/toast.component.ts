@@ -1,6 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Toast, ToastService } from './toast.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-toast-container',
@@ -48,15 +49,23 @@ import { Toast, ToastService } from './toast.service';
     }
   `]
 })
-export class ToastComponent implements OnInit {
+export class ToastComponent implements OnInit, OnDestroy {
   toasts: Toast[] = [];
+  private readonly destroy$ = new Subject<void>();
 
   private readonly toastService = inject(ToastService);
 
   ngOnInit() {
-    this.toastService.toasts.subscribe(toasts => {
-      this.toasts = toasts;
-    });
+    this.toastService.toasts
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(toasts => {
+        this.toasts = toasts;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   removeToast(id: string) {
