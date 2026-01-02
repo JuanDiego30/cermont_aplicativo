@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, interval } from 'rxjs';
+import { Injectable, OnDestroy } from '@angular/core';
+import { BehaviorSubject, Observable, interval, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { logError } from '../utils/logger';
 
 interface SyncQueueItem {
@@ -13,14 +14,20 @@ interface SyncQueueItem {
 @Injectable({
     providedIn: 'root',
 })
-export class SyncService {
+export class SyncService implements OnDestroy {
     private syncQueue: SyncQueueItem[] = [];
     private isSyncing = false;
     private syncStatus$ = new BehaviorSubject<'idle' | 'syncing' | 'synced'>('idle');
+    private readonly destroy$ = new Subject<void>();
 
     constructor() {
         this.loadQueueFromStorage();
         this.setupPeriodicSync();
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     /**
@@ -95,12 +102,14 @@ export class SyncService {
      * Configurar sincronización periódica
      */
     private setupPeriodicSync(): void {
-        interval(30000).subscribe(() => {
-            // Intentar sincronizar cada 30 segundos
-            if (navigator.onLine && !this.isSyncing) {
-                this.sync();
-            }
-        });
+        interval(30000)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => {
+                // Intentar sincronizar cada 30 segundos
+                if (navigator.onLine && !this.isSyncing) {
+                    this.sync();
+                }
+            });
     }
 
     /**
