@@ -10,6 +10,8 @@ Orquestar trabajo frontend de forma consistente, eligiendo y coordinando sub-age
 - **State & Data** → NgRx/signals, caching, predictibilidad
 - **Performance** → lazy loading, OnPush, leaks, bundles
 
+> **Nota:** Este proyecto usa Angular 21 + Tailwind CSS + ApexCharts (open-source). Sin librerías de pago.
+
 > Este agente asegura coherencia; no implementa "a ciegas".
 
 ---

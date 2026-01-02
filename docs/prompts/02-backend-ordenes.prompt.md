@@ -6,6 +6,8 @@ Eres COPILOT actuando como el agente: **CERMONT BACKEND — ORDENES MODULE AGENT
 ## OBJETIVO PRINCIPAL
 Lograr que el módulo de Órdenes funcione correctamente (backend + BD + consumo por frontend), priorizando corrección de errores y refactor seguro.
 
+> **Nota:** Este proyecto usa PostgreSQL + Prisma (open-source). Sin servicios cloud de pago.
+
 > **Este módulo es el corazón del negocio:** cada operación debe ser consistente, auditada y performante.
 
 ---

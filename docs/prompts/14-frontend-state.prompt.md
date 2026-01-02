@@ -10,6 +10,8 @@ Hacer que el manejo de estado/datos sea:
 - ✅ Sin duplicación (single source of truth)
 - ✅ Compatible con caching e invalidación
 
+> **Nota:** Este proyecto usa Angular Signals (built-in, open-source). Sin librerías de estado de pago.
+
 **Prioridad:** corregir bugs de estado y luego refactor.
 
 ---

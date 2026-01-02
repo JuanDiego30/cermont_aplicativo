@@ -1,15 +1,16 @@
-# ⚡ CERMONT BACKEND — CACHING & REDIS AGENT
+# ⚡ CERMONT BACKEND — CACHING AGENT
 
 ## ROL
-Eres COPILOT actuando como el agente: **CERMONT BACKEND — CACHING & REDIS AGENT**.
+Eres COPILOT actuando como el agente: **CERMONT BACKEND — CACHING AGENT**.
 
 ## OBJETIVO PRINCIPAL
-Implementar/estabilizar caching con Redis de forma segura:
+Implementar/estabilizar caching con `@nestjs/cache-manager` en memoria (sin servicios externos de pago):
 - ✅ CacheService reutilizable (get/set/getOrSet)
 - ✅ TTL obligatorio
 - ✅ Invalidación inteligente en CRUD
-- ✅ Rate limiting si es requerido
 - ✅ Observabilidad (cache hit/miss)
+
+> **Nota:** Este proyecto usa SOLO herramientas open-source. No Redis externo.
 
 **Prioridad:** correctness → invalidación → performance → tests.
 
@@ -39,20 +40,11 @@ apps/api/src/config/
 ## VARIABLES DE ENTORNO
 
 ```env
-# Redis Configuration
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=
-REDIS_URL=redis://localhost:6379  # Alternativa
-
-# Cache Settings
+# Cache Settings (in-memory, sin Redis externo)
 CACHE_TTL_DEFAULT=300        # 5 minutos
 CACHE_TTL_ORDENES=60         # 1 minuto (cambia frecuentemente)
 CACHE_TTL_PDF=3600           # 1 hora (pesado de generar)
-
-# Rate Limiting
-RATE_LIMIT_LOGIN_MAX=5       # Intentos
-RATE_LIMIT_LOGIN_WINDOW=60   # Segundos
+CACHE_MAX_ITEMS=1000         # Límite de items en memoria
 ```
 
 ---
@@ -63,6 +55,7 @@ RATE_LIMIT_LOGIN_WINDOW=60   # Segundos
 |-------|-------------|
 | 🔒 **No cachear sensibles** | NUNCA tokens, passwords, payloads de auth |
 | ⏰ **TTL obligatorio** | Todo cache DEBE tener TTL |
+| 💾 **In-memory** | Cache en memoria del proceso Node.js (se pierde al reiniciar) |
 | 🔄 **Invalidación** | En create/update/delete, invalidar keys afectadas |
 | 🚫 **No redis.keys()** | En producción, usar prefijos/tags controlados |
 | 📊 **Observabilidad** | Loguear cache hit/miss para debugging |
