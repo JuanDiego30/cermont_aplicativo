@@ -87,3 +87,34 @@ grep -r ": any" src/app/core/state/ | wc -l
 ## 📝 FORMATO ENTREGA
 
 A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+
+---
+
+##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+
+### Memory Leaks (Regla 41) - 50+ suscripciones sin takeUntil
+
+| Componente | Lineas | Problema |
+|------------|--------|----------|
+| `app-sidebar.component.ts` | 157, 166, 216, 252 | 4 subscribe() sin cleanup |
+| `signin-form.component.ts` | 52 | subscribe sin takeUntil |
+| `admin-users.component.ts` | 75, 102, 121, 142 | 4 subscribe() sin cleanup |
+| `dashboard.component.ts` | 63 | subscribe sin takeUntil |
+| `user-form.component.ts` | 59, 68, 137, 148 | 4 subscribe() sin cleanup |
+| `orden-detail.component.ts` | 76, 89, 131, 163, 190 | 5 subscribe() sin cleanup |
+
+### Fix Requerido
+
+`typescript
+// Agregar a CADA componente:
+private destroy$ = new Subject<void>();
+
+ngOnDestroy(): void {
+  this.destroy$.next();
+  this.destroy$.complete();
+}
+
+// Cambiar TODAS las suscripciones a:
+.pipe(takeUntil(this.destroy$))
+.subscribe({...});
+`

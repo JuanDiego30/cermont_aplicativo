@@ -97,3 +97,18 @@ file test.pdf
 ## 📝 FORMATO ENTREGA
 
 A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+
+---
+
+##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+
+### Type Safety - `data: any` en Templates
+
+| Archivo | Linea | Codigo |
+|---------|-------|--------|
+| `mantenimiento.template.ts` | 4 | `static generate(data: any)` |
+| `orden.template.ts` | 4, 128, 182, 206 | Multiples any |
+| `certificado.template.ts` | 4 | `static generate(data: any)` |
+| `generate-*.use-case.ts` | 39-52 | templateData: any |
+
+### Fix: Crear interfaces OrdenPDFData, ClienteData, TecnicoData para templates

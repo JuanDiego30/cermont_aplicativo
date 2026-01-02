@@ -86,3 +86,18 @@ ls -la src/app/shared/components/ | grep -i "button\|input\|card"
 ## 📝 FORMATO ENTREGA
 
 A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+
+---
+
+##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+
+### Type Safety - `: any` en Componentes UI
+
+| Archivo | Linea | Codigo |
+|---------|-------|--------|
+| `data-table.component.ts` | 16, 18, 150, 184, 186 | 5 usos de any |
+| `advanced-table.component.ts` | 16, 117, 124, 150 | 4 usos de any |
+| `search-filter.component.ts` | 16, 122 | 2 usos de any |
+| `default-inputs.component.ts` | 32, 40, 45 | 3 usos de any |
+
+### Fix: Usar generics `<T>` en componentes de tabla y tipar eventos

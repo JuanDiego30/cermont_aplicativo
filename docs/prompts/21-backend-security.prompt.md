@@ -102,3 +102,18 @@ pnpm run test
 ## 📝 FORMATO ENTREGA
 
 A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+
+---
+
+##  ESTADO ACTUAL (Research 2026-01-02)
+
+### CORS - Bien Configurado
+- `credentials: true` presente en main.ts
+- `allowedHeaders` incluye Authorization
+- Faltante: Agregar `X-CSRF-Token` a allowedHeaders y exposedHeaders
+
+### Rate Limiting - Configurado
+- ThrottlerModule habilitado en app.module.ts
+
+### Validation - Bien Configurado
+- ValidationPipe global con whitelist y forbidNonWhitelisted

@@ -95,3 +95,23 @@ grep -r "takeUntil\|destroy\$" src/app/features/ | wc -l
 ## 📝 FORMATO ENTREGA
 
 A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+
+---
+
+##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+
+### Memory Leaks en Auth Components
+
+| Componente | Lineas | Problema |
+|------------|--------|----------|
+| `signin-form.component.ts` | 52 | subscribe sin takeUntil |
+| `signup-form.component.ts` | 48 | subscribe sin takeUntil |
+| `auth.service.ts` | 67, 196 | 2 subscribe sin cleanup |
+
+### Type Safety
+
+| Archivo | Linea | Codigo |
+|---------|-------|--------|
+| `signin-form.component.ts` | 56 | `error: (err: any)` |
+
+### Fix: Agregar takeUntil(destroy$) y tipar errores como HttpErrorResponse
