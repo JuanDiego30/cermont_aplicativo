@@ -3,7 +3,7 @@
  * 
  * Identificador único de un Kit (UUID)
  */
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { ValidationError } from '../../../../common/domain/exceptions';
 
 export class KitId {
@@ -12,7 +12,7 @@ export class KitId {
     }
 
     public static generate(): KitId {
-        return new KitId(uuidv4());
+        return new KitId(randomUUID());
     }
 
     public static create(value: string): KitId {

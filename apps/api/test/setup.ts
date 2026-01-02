@@ -20,6 +20,12 @@ beforeAll(async () => {
     }
 
     console.log('🔄 Resetting test database...');
+
+    const testDatabaseUrl = process.env.TEST_DATABASE_URL;
+    if (!testDatabaseUrl) {
+        console.warn('⚠️ TEST_DATABASE_URL no está configurada; se omite el reset de DB (unit tests).');
+        return;
+    }
     
     try {
         // Resetear DB con Prisma
@@ -27,13 +33,14 @@ beforeAll(async () => {
             stdio: 'pipe',
             env: {
                 ...process.env,
-                DATABASE_URL: process.env.TEST_DATABASE_URL || process.env.DATABASE_URL,
+                DATABASE_URL: testDatabaseUrl,
             },
         });
         
         console.log('✅ Test database reset complete');
     } catch (error) {
-        console.error('❌ Failed to reset test database:', error);
+        const message = error instanceof Error ? error.message : String(error);
+        console.warn('⚠️ Failed to reset test database (continuando):', message);
         // No fallar si la DB ya está limpia
     }
 });

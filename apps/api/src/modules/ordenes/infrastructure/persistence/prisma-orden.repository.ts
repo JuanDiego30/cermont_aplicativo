@@ -124,8 +124,9 @@ export class PrismaOrdenRepository implements IOrdenRepository {
    * Busca una orden por ID
    */
   async findById(id: string): Promise<OrdenEntity | null> {
-    const order = await this.prisma.order.findUnique({
-      where: { id },
+    // findUnique no permite combinar con deletedAt; usamos findFirst para excluir soft-deleted
+    const order = await this.prisma.order.findFirst({
+      where: { id, deletedAt: null },
       include: {
         creador: { select: { id: true, name: true } },
         asignado: { select: { id: true, name: true } },
@@ -142,7 +143,7 @@ export class PrismaOrdenRepository implements IOrdenRepository {
    */
   async findByNumero(numero: string): Promise<OrdenEntity | null> {
     const order = await this.prisma.order.findFirst({
-      where: { numero },
+      where: { numero, deletedAt: null },
       include: {
         creador: { select: { id: true, name: true } },
         asignado: { select: { id: true, name: true } },
@@ -239,7 +240,13 @@ export class PrismaOrdenRepository implements IOrdenRepository {
    * Elimina una orden
    */
   async delete(id: string): Promise<void> {
-    await this.prisma.order.delete({ where: { id } });
+    await this.prisma.order.update({
+      where: { id },
+      data: {
+        deletedAt: new Date(),
+        deleteReason: 'deleted',
+      },
+    });
   }
 
   /**
@@ -265,7 +272,9 @@ export class PrismaOrdenRepository implements IOrdenRepository {
    * Construye la cláusula WHERE de Prisma desde los filtros
    */
   private buildWhereClause(filters: OrdenFilters): Record<string, unknown> {
-    const where: Record<string, unknown> = {};
+    const where: Record<string, unknown> = {
+      deletedAt: null,
+    };
 
     if (filters.estado) {
       where.estado = filters.estado;

@@ -15,7 +15,7 @@ import { ValidationRule, ValidationResult } from '../value-objects/validation-ru
 import { CalculationFormula } from '../value-objects/calculation-formula.vo';
 import { BusinessRuleViolationError } from '../exceptions';
 import { ValidationError } from '../../../../common/domain/exceptions';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { ConditionalLogicConfig } from '../services/conditional-logic-evaluator.service';
 
 // Re-export para compatibilidad
@@ -59,7 +59,7 @@ export class FormField {
     order?: number;
     isRequired?: boolean;
   }): FormField {
-    const id = props.id || uuidv4();
+    const id = props.id || randomUUID();
 
     // Validar label
     if (!props.label || props.label.trim().length < FormField.MIN_LABEL_LENGTH) {

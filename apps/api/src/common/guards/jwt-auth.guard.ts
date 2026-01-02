@@ -55,8 +55,8 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         _status?: unknown,
     ): TUser {
         if (err || !user) {
-            this.logger.warn(`Auth failed: ${err || 'No user found'}`);
-            throw err || new UnauthorizedException('Token inválido o expirado');
+            this.logger.warn('Auth failed');
+            throw err || new UnauthorizedException('No autorizado');
         }
 
         return user as TUser;

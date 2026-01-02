@@ -4,6 +4,7 @@
  * @layer Domain
  */
 export enum OrderState {
+  PENDIENTE = 'pendiente',
   PLANEACION = 'planeacion',
   EJECUCION = 'ejecucion',
   PAUSADA = 'pausada',

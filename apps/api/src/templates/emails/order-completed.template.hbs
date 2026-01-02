@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Orden completada</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <h2>Orden completada</h2>
+    <p>La orden{{#if ordenNumero}} ({{ordenNumero}}){{/if}} ha sido marcada como completada.</p>
+    {{#if resumen}}
+      <p><strong>Resumen:</strong> {{resumen}}</p>
+    {{/if}}
+    {{#if orderUrl}}
+      <p>
+        Ver detalles: <a href="{{orderUrl}}">{{orderUrl}}</a>
+      </p>
+    {{/if}}
+    <p style="font-size: 12px; color: #666;">Este es un mensaje automático. No respondas a este correo.</p>
+  </body>
+</html>

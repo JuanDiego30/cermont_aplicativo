@@ -3,7 +3,12 @@
  * @description Value Object que representa un Refresh Token
  * @layer Domain
  */
-import { v4 as uuidv4, validate as uuidValidate } from 'uuid';
+import { randomUUID } from 'crypto';
+
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const isUuid = (value: string): boolean => UUID_REGEX.test(value);
 
 export class RefreshToken {
   private static readonly TOKEN_EXPIRY_DAYS = 7;
@@ -38,14 +43,14 @@ export class RefreshToken {
   }
 
   static create(family?: string): RefreshToken {
-    const token = uuidv4();
+    const token = randomUUID();
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + RefreshToken.TOKEN_EXPIRY_DAYS);
     
     return new RefreshToken(
       token,
       expiresAt,
-      family ?? uuidv4(),
+      family ?? randomUUID(),
     );
   }
 
@@ -54,8 +59,8 @@ export class RefreshToken {
     expiresAt: Date,
     family: string,
   ): RefreshToken | null {
-    if (!uuidValidate(value)) return null;
-    if (!uuidValidate(family)) return null;
+    if (!isUuid(value)) return null;
+    if (!isUuid(family)) return null;
     
     return new RefreshToken(value, expiresAt, family);
   }

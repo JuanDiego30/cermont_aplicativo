@@ -3,6 +3,7 @@
  * @description Domain service for validating uploaded files
  */
 
+import { Injectable } from '@nestjs/common';
 import { FileType } from '../value-objects/file-type.vo';
 import { FileSize } from '../value-objects/file-size.vo';
 import { MimeType } from '../value-objects/mime-type.vo';
@@ -17,20 +18,29 @@ export interface FileValidationResult {
     errors: string[];
 }
 
+@Injectable()
 export class FileValidatorService {
     private static readonly DANGEROUS_EXTENSIONS = [
         'exe', 'bat', 'cmd', 'sh', 'php', 'js', 'vbs', 'ps1', 'jar', 'msi',
     ];
 
+    // Some formats can be container-based and may be detected generically by magic bytes
+    // (e.g., docx/xlsx are ZIP containers). We allow these as "inconclusive".
+    private static readonly CONTENT_SNIFF_INCONCLUSIVE_MIMES = new Set([
+        'application/zip',
+        'application/octet-stream',
+    ]);
+
     /**
      * Validate an uploaded file
      * @param file - Multer file object
      */
-    public validateFile(file: {
+    public async validateFile(file: {
         mimetype: string;
         originalname: string;
         size: number;
-    }): FileValidationResult {
+        buffer?: Buffer;
+    }): Promise<FileValidationResult> {
         const errors: string[] = [];
         let fileType: FileType | undefined;
         let mimeType: MimeType | undefined;
@@ -80,11 +90,44 @@ export class FileValidatorService {
             errors.push('Invalid filename after sanitization');
         }
 
+        // 7. Deep validation (magic bytes) - optional but recommended
+        if (file.buffer && file.buffer.length > 0 && mimeType) {
+            const head = file.buffer.subarray(0, Math.min(file.buffer.length, 64));
+            const detectedMime = this.detectMimeFromMagicBytes(head);
+
+            if (detectedMime && !FileValidatorService.CONTENT_SNIFF_INCONCLUSIVE_MIMES.has(detectedMime)) {
+                // If detected is not even supported, reject early.
+                try {
+                    MimeType.create(detectedMime);
+                } catch {
+                    errors.push(`File content type is not supported: ${detectedMime}`);
+                }
+
+                const expectedMime = mimeType.getValue().toLowerCase();
+                const equivalents: Record<string, string[]> = {
+                    'image/jpeg': ['image/jpeg', 'image/jpg'],
+                    'image/jpg': ['image/jpeg', 'image/jpg'],
+                    'audio/mpeg': ['audio/mpeg', 'audio/mp3'],
+                    'audio/mp3': ['audio/mpeg', 'audio/mp3'],
+                };
+
+                const allowedDetected = equivalents[expectedMime] || [expectedMime];
+                if (!allowedDetected.includes(detectedMime)) {
+                    errors.push(
+                        `File content (${detectedMime}) does not match declared MIME (${expectedMime})`,
+                    );
+                }
+            }
+        }
+
         return {
             isValid: errors.length === 0,
-            fileType: fileType || FileType.document(),
-            mimeType: mimeType || MimeType.create('application/pdf'),
-            fileSize: fileSize || FileSize.create(file.size, FileType.document()),
+            fileType: fileType ?? FileType.document(),
+            mimeType: mimeType ?? MimeType.create('application/pdf'),
+            fileSize:
+                fileSize ??
+                // Safe fallback that will not throw and will never be used when invalid
+                FileSize.create(1, FileType.document()),
             sanitizedFilename,
             errors,
         };
@@ -108,4 +151,69 @@ export class FileValidatorService {
         const allowed = equivalents[expectedExtension] || [expectedExtension];
         return allowed.includes(extension.toLowerCase());
     }
+
+    private detectMimeFromMagicBytes(head: Buffer): string | undefined {
+        // PDF
+        if (head.length >= 5 && head.subarray(0, 5).toString('utf8') === '%PDF-') {
+            return 'application/pdf';
+        }
+
+        // PNG
+        if (
+            head.length >= 8 &&
+            head[0] === 0x89 &&
+            head[1] === 0x50 &&
+            head[2] === 0x4e &&
+            head[3] === 0x47 &&
+            head[4] === 0x0d &&
+            head[5] === 0x0a &&
+            head[6] === 0x1a &&
+            head[7] === 0x0a
+        ) {
+            return 'image/png';
+        }
+
+        // JPEG
+        if (head.length >= 3 && head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff) {
+            return 'image/jpeg';
+        }
+
+        // WEBP (RIFF....WEBP)
+        if (
+            head.length >= 12 &&
+            head.subarray(0, 4).toString('ascii') === 'RIFF' &&
+            head.subarray(8, 12).toString('ascii') === 'WEBP'
+        ) {
+            return 'image/webp';
+        }
+
+        // WAV (RIFF....WAVE)
+        if (
+            head.length >= 12 &&
+            head.subarray(0, 4).toString('ascii') === 'RIFF' &&
+            head.subarray(8, 12).toString('ascii') === 'WAVE'
+        ) {
+            return 'audio/wav';
+        }
+
+        // MP3 (ID3 or frame sync)
+        if (head.length >= 3 && head.subarray(0, 3).toString('ascii') === 'ID3') {
+            return 'audio/mpeg';
+        }
+        if (head.length >= 2 && head[0] === 0xff && (head[1] & 0xe0) === 0xe0) {
+            return 'audio/mpeg';
+        }
+
+        // MP4/MOV family: [size][ftyp][brand]
+        if (head.length >= 12 && head.subarray(4, 8).toString('ascii') === 'ftyp') {
+            const brand = head.subarray(8, 12).toString('ascii');
+            if (brand === 'qt  ') {
+                return 'video/quicktime';
+            }
+            return 'video/mp4';
+        }
+
+        return undefined;
+    }
+
 }

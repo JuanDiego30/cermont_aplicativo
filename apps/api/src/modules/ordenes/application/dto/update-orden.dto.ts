@@ -3,6 +3,7 @@ import { CreateOrdenDto } from './create-orden.dto';
 import { IsEnum, IsOptional, IsDateString, IsNumber, Min } from 'class-validator';
 
 export enum OrdenEstado {
+  PENDIENTE = 'pendiente',
   PLANEACION = 'planeacion',
   EJECUCION = 'ejecucion',
   PAUSADA = 'pausada',

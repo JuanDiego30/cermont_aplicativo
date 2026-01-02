@@ -5,6 +5,7 @@
  */
 import { Injectable, Inject, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { PrismaService } from '../../../../prisma/prisma.service';
 import { ORDEN_REPOSITORY, IOrdenRepository } from '../../domain/repositories';
 import { OrdenEntity } from '../../domain/entities';
 import { ChangeEstadoOrdenDto } from '../dto/change-estado-orden.dto';
@@ -19,6 +20,7 @@ export class ChangeOrdenEstadoUseCase {
   constructor(
     @Inject(ORDEN_REPOSITORY)
     private readonly ordenRepository: IOrdenRepository,
+    private readonly prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
   ) { }
 
@@ -50,6 +52,24 @@ export class ChangeOrdenEstadoUseCase {
 
       // Persistir
       const updated = await this.ordenRepository.update(orden);
+
+      // Auditoría (sin depender del historial de sub-estados)
+      await this.prisma.auditLog.create({
+        data: {
+          entityType: 'Order',
+          entityId: updated.id,
+          action: 'ORDER_STATUS_CHANGED',
+          userId: dto.usuarioId,
+          changes: {
+            from: estadoAnterior,
+            to: dto.nuevoEstado,
+            motivo: dto.motivo,
+            observaciones: dto.observaciones,
+          },
+          previousData: { estado: estadoAnterior },
+          newData: { estado: dto.nuevoEstado },
+        },
+      });
 
       // Emitir evento de dominio
       const evento = new OrdenEstadoChangedEvent(

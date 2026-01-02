@@ -1,3 +1,8 @@
+---
+description: "Agente especializado para logging estructurado y observabilidad en Cermont: Winston, centralización de logs, métricas, trazabilidad, sanitización de datos sensibles."
+tools: []
+---
+
 # 🔍 BACKEND LOGGING & OBSERVABILITY AGENT
 
 **Especialidad:** Centralización de logs, structured logging, observabilidad, métricas, trazabilidad  

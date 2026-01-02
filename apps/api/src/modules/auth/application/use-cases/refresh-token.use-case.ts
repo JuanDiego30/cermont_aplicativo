@@ -9,19 +9,22 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AUTH_REPOSITORY, IAuthRepository } from '../../domain/repositories';
 import { TokenRefreshedEvent } from '../../domain/events';
 import { TokenResponse, AuthContext } from '../dto';
+import { BaseAuthUseCase } from './base-auth.use-case';
 
 @Injectable()
-export class RefreshTokenUseCase {
+export class RefreshTokenUseCase extends BaseAuthUseCase {
   private readonly logger = new Logger(RefreshTokenUseCase.name);
 
   constructor(
     @Inject(AUTH_REPOSITORY)
     private readonly authRepository: IAuthRepository,
     @Inject(JwtService)
-    private readonly jwtService: JwtService,
+    jwtService: JwtService,
     @Inject(EventEmitter2)
     private readonly eventEmitter: EventEmitter2,
-  ) { }
+  ) {
+    super(jwtService);
+  }
 
   async execute(refreshToken: string, context: AuthContext): Promise<TokenResponse> {
     try {
@@ -29,8 +32,8 @@ export class RefreshTokenUseCase {
       const session = await this.authRepository.findSessionByToken(refreshToken);
 
       if (!session) {
-        this.logger.warn(`Refresh attempt failed: Invalid token ${refreshToken.substring(0, 10)}...`);
-        throw new UnauthorizedException('Refresh token inválido');
+        this.logger.warn('Refresh attempt failed: invalid token');
+        throw new UnauthorizedException('No autorizado');
       }
 
       // 2. Verificar si está revocado (posible reutilización)
@@ -38,13 +41,13 @@ export class RefreshTokenUseCase {
         this.logger.warn(`Refresh attempt blocked: Token reused (Family ${session.family})`);
         // Revocar toda la familia (seguridad ante robo de token)
         await this.authRepository.revokeSessionFamily(session.family);
-        throw new UnauthorizedException('Token reutilizado detectado');
+        throw new UnauthorizedException('No autorizado');
       }
 
       // 3. Verificar expiración
       if (session.isExpired) {
         this.logger.debug(`Refresh token expired`);
-        throw new UnauthorizedException('Refresh token expirado');
+        throw new UnauthorizedException('No autorizado');
       }
 
       // 4. Revocar token actual
@@ -54,13 +57,14 @@ export class RefreshTokenUseCase {
       const user = await this.authRepository.findUserById(session.userId);
 
       if (!user || !user.active) {
-        throw new UnauthorizedException('Usuario no encontrado o inactivo');
+        throw new UnauthorizedException('No autorizado');
       }
 
       // 6. Generar nuevo access token
-      const newAccessToken = this.jwtService.sign({
-        userId: user.id,
-        email: user.email,
+        const emailValue = typeof (user as any).email === 'string' ? (user as any).email : user.email.getValue();
+      const newAccessToken = this.signAccessToken({
+        id: user.id,
+          email: emailValue,
         role: user.role,
       });
 
@@ -84,9 +88,7 @@ export class RefreshTokenUseCase {
         refreshToken: newSession.refreshToken,
       };
     } catch (error) {
-      if (error instanceof UnauthorizedException) {
-        throw error;
-      }
+      if (this.isHttpExceptionLike(error)) throw error as any;
       const err = error as Error;
       this.logger.error(`Unexpected error during refresh token execution: ${err.message}`, err.stack);
       throw new InternalServerErrorException('Error procesando la solicitud de refresh');

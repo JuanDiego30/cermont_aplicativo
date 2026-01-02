@@ -1,3 +1,8 @@
+---
+description: "Agente especializado para envío de emails y notificaciones en Cermont: Nodemailer, plantillas, notificaciones push, webhooks, reintentos."
+tools: []
+---
+
 # 📫 BACKEND EMAILS & NOTIFICATIONS AGENT
 
 **Especialidad:** Envío de emails, notificaciones push, webhooks, plantillas, reintentos  

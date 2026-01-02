@@ -31,14 +31,17 @@ import { RegisterDto } from '../../application/dto/register.dto';
 import { Public } from '../../../../common/decorators/public.decorator';
 import { CurrentUser, JwtPayload } from '../../../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../../../common/guards/jwt-auth.guard';
+import { AUTH_CONSTANTS } from '../../auth.constants';
 
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días
-  path: '/',
-};
+function createRefreshCookieOptions(days: number) {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict' as const,
+    maxAge: days * 24 * 60 * 60 * 1000,
+    path: '/',
+  };
+}
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -71,7 +74,11 @@ export class AuthControllerRefactored {
       const context = { ip: req.ip, userAgent: req.get('user-agent') };
       const result = await this.loginUseCase.execute(dto, context);
 
-      res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
+      const refreshDays = dto.rememberMe
+        ? AUTH_CONSTANTS.REFRESH_TOKEN_DAYS_REMEMBER
+        : AUTH_CONSTANTS.REFRESH_TOKEN_DAYS_DEFAULT;
+
+      res.cookie('refreshToken', result.refreshToken, createRefreshCookieOptions(refreshDays));
 
       return {
         message: result.message,
@@ -104,7 +111,11 @@ export class AuthControllerRefactored {
 
     const result = await this.registerUseCase.execute(dto, context);
 
-    res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
+    res.cookie(
+      'refreshToken',
+      result.refreshToken,
+      createRefreshCookieOptions(AUTH_CONSTANTS.REFRESH_TOKEN_DAYS_DEFAULT),
+    );
 
     return {
       message: result.message,
@@ -119,10 +130,10 @@ export class AuthControllerRefactored {
   @ApiOperation({ summary: 'Refrescar access token' })
   async refresh(
     @Req() req: Request,
-    @Body() body: { refreshToken?: string },
+    @Body() body: { refreshToken?: string } = {},
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshToken = req.cookies?.refreshToken || body.refreshToken;
+    const refreshToken = req.cookies?.refreshToken || body?.refreshToken;
 
     if (!refreshToken) {
       throw new BadRequestException('Refresh token requerido');
@@ -131,7 +142,12 @@ export class AuthControllerRefactored {
     const context = { ip: req.ip, userAgent: req.get('user-agent') };
     const result = await this.refreshTokenUseCase.execute(refreshToken, context);
 
-    res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
+    // RefreshTokenUseCase rota la sesión con expiración fija (default)
+    res.cookie(
+      'refreshToken',
+      result.refreshToken,
+      createRefreshCookieOptions(AUTH_CONSTANTS.REFRESH_TOKEN_DAYS_DEFAULT),
+    );
 
     return { token: result.token };
   }
@@ -144,10 +160,10 @@ export class AuthControllerRefactored {
   async logout(
     @CurrentUser() user: JwtPayload,
     @Req() req: Request,
-    @Body() body: { refreshToken?: string },
+    @Body() body: { refreshToken?: string } = {},
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshToken = req.cookies?.refreshToken || body.refreshToken;
+    const refreshToken = req.cookies?.refreshToken || body?.refreshToken;
 
     const result = await this.logoutUseCase.execute(
       user.userId,

@@ -9,7 +9,7 @@ import {
     GenerateCertificadoInspeccionUseCase,
     GetPdfCachedUseCase,
 } from './application/use-cases';
-import { PuppeteerPdfService, PdfStorageService } from './infrastructure/services';
+import { PuppeteerPdfService, PdfStorageService, PdfGenerationQueueService } from './infrastructure/services';
 import { PDF_GENERATOR } from './domain/interfaces/pdf-generator.interface';
 
 @Module({
@@ -17,6 +17,7 @@ import { PDF_GENERATOR } from './domain/interfaces/pdf-generator.interface';
     controllers: [PdfController],
     providers: [
         PdfStorageService,
+        PdfGenerationQueueService,
         {
             provide: PDF_GENERATOR,
             useClass: PuppeteerPdfService,

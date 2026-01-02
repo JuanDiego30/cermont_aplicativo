@@ -20,8 +20,33 @@ export class LocalStorageProvider implements IStorageProvider {
         this.baseUrl = this.config.get<string>('BASE_URL', 'http://localhost:3001');
     }
 
+    private normalizeRelativePath(filePath: string): string {
+        const normalized = filePath.replace(/\\/g, '/');
+        if (path.isAbsolute(normalized)) {
+            throw new Error('Absolute paths are not allowed');
+        }
+        if (normalized.includes('..')) {
+            throw new Error('Path traversal is not allowed');
+        }
+        return normalized;
+    }
+
+    private resolveSafePath(filePath: string): string {
+        const relative = this.normalizeRelativePath(filePath);
+        const base = path.resolve(this.basePath);
+        const full = path.resolve(base, relative);
+
+        // Ensure the resolved path is within base
+        if (full !== base && !full.startsWith(base + path.sep)) {
+            throw new Error('Invalid storage path');
+        }
+
+        return full;
+    }
+
     async upload(buffer: Buffer, filePath: string): Promise<UploadResult> {
-        const fullPath = path.join(this.basePath, filePath);
+        const safeRelative = this.normalizeRelativePath(filePath);
+        const fullPath = this.resolveSafePath(safeRelative);
         const directory = path.dirname(fullPath);
 
         // Ensure directory exists
@@ -30,39 +55,43 @@ export class LocalStorageProvider implements IStorageProvider {
         // Write file
         await fs.writeFile(fullPath, buffer);
 
-        this.logger.log(`File saved to ${fullPath}`);
+        // Do not log full paths
+        this.logger.log(`File saved`, { path: safeRelative, size: buffer.length });
 
         return {
-            path: filePath,
-            url: `${this.baseUrl}/uploads/${filePath}`,
+            path: safeRelative,
+            url: `${this.baseUrl}/uploads/${safeRelative}`,
             size: buffer.length,
         };
     }
 
     async download(filePath: string): Promise<Buffer> {
-        const fullPath = path.join(this.basePath, filePath);
+        const safeRelative = this.normalizeRelativePath(filePath);
+        const fullPath = this.resolveSafePath(safeRelative);
 
         try {
             return await fs.readFile(fullPath);
         } catch (error) {
-            this.logger.error(`Failed to read file: ${filePath}`);
+            this.logger.error(`Failed to read file`, { path: safeRelative });
             throw new Error(`File not found: ${filePath}`);
         }
     }
 
     async delete(filePath: string): Promise<void> {
-        const fullPath = path.join(this.basePath, filePath);
+        const safeRelative = this.normalizeRelativePath(filePath);
+        const fullPath = this.resolveSafePath(safeRelative);
 
         try {
             await fs.unlink(fullPath);
-            this.logger.log(`File deleted: ${filePath}`);
+            this.logger.log(`File deleted`, { path: safeRelative });
         } catch (error) {
-            this.logger.warn(`File not found for deletion: ${filePath}`);
+            this.logger.warn(`File not found for deletion`, { path: safeRelative });
         }
     }
 
     async exists(filePath: string): Promise<boolean> {
-        const fullPath = path.join(this.basePath, filePath);
+        const safeRelative = this.normalizeRelativePath(filePath);
+        const fullPath = this.resolveSafePath(safeRelative);
 
         try {
             await fs.access(fullPath);
@@ -73,6 +102,7 @@ export class LocalStorageProvider implements IStorageProvider {
     }
 
     async getUrl(filePath: string): Promise<string> {
-        return `${this.baseUrl}/uploads/${filePath}`;
+        const safeRelative = this.normalizeRelativePath(filePath);
+        return `${this.baseUrl}/uploads/${safeRelative}`;
     }
 }

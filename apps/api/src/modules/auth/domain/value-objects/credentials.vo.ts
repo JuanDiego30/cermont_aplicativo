@@ -7,7 +7,8 @@ import * as bcrypt from 'bcryptjs';
 
 export class Credentials {
   private static readonly EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  private static readonly MIN_PASSWORD_LENGTH = 6;
+  // Alineado con recomendaciones OWASP / Password VO (mínimo 8)
+  private static readonly MIN_PASSWORD_LENGTH = 8;
 
   private constructor(
     private readonly _email: string,
@@ -36,8 +37,9 @@ export class Credentials {
       throw new Error('Email inválido');
     }
 
-    if (password.length < Credentials.MIN_PASSWORD_LENGTH) {
-      throw new Error(`La contraseña debe tener al menos ${Credentials.MIN_PASSWORD_LENGTH} caracteres`);
+    const passwordValidation = Credentials.validatePassword(password);
+    if (!passwordValidation.valid) {
+      throw new Error(passwordValidation.errors.join('. '));
     }
 
     return new Credentials(normalizedEmail, password, false);
@@ -71,6 +73,26 @@ export class Credentials {
 
     if (password.length < Credentials.MIN_PASSWORD_LENGTH) {
       errors.push(`Mínimo ${Credentials.MIN_PASSWORD_LENGTH} caracteres`);
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      errors.push('Debe contener al menos una mayúscula');
+    }
+
+    if (!/[a-z]/.test(password)) {
+      errors.push('Debe contener al menos una minúscula');
+    }
+
+    if (!/\d/.test(password)) {
+      errors.push('Debe contener al menos un número');
+    }
+
+    if (/\s/.test(password)) {
+      errors.push('No debe contener espacios');
+    }
+
+    if (!/[^a-zA-Z\d]/.test(password)) {
+      errors.push('Debe contener al menos un carácter especial');
     }
 
     return { valid: errors.length === 0, errors };

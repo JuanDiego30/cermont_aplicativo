@@ -12,7 +12,7 @@ export class BusinessRuleViolationError extends Error {
     ) {
         super(message);
         this.name = 'BusinessRuleViolationError';
-        Object.setPrototypeOf(this, BusinessRuleViolationError.prototype);
+        Object.setPrototypeOf(this, new.target.prototype);
     }
 
     toJSON(): Record<string, unknown> {

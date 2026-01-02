@@ -2,6 +2,12 @@ import { BaseTemplate } from './base.template';
 
 export class OrdenTemplate extends BaseTemplate {
     static generate(data: any): string {
+        const estado = String(data.estado ?? '').toLowerCase();
+        const prioridad = String(data.prioridad ?? '').toLowerCase();
+
+        const cliente = this.normalizeCliente(data.cliente);
+        const tecnico = this.normalizeTecnico(data.tecnico ?? data.asignado);
+
         const content = `
       <h1>Orden de Trabajo #${data.numero}</h1>
       
@@ -10,7 +16,7 @@ export class OrdenTemplate extends BaseTemplate {
           <div class="info-label">Estado</div>
           <div class="info-value">
             <span class="badge badge-${this.getEstadoBadgeClass(data.estado)}">
-              ${data.estado}
+              ${estado || 'N/A'}
             </span>
           </div>
         </div>
@@ -18,13 +24,13 @@ export class OrdenTemplate extends BaseTemplate {
           <div class="info-label">Prioridad</div>
           <div class="info-value">
             <span class="badge badge-${this.getPrioridadBadgeClass(data.prioridad)}">
-              ${data.prioridad}
+              ${prioridad || 'N/A'}
             </span>
           </div>
         </div>
         <div class="info-item">
           <div class="info-label">Tipo</div>
-          <div class="info-value">${data.tipo}</div>
+          <div class="info-value">${data.subEstado || 'N/A'}</div>
         </div>
         <div class="info-item">
           <div class="info-label">Fecha Creación</div>
@@ -35,12 +41,12 @@ export class OrdenTemplate extends BaseTemplate {
       <h2>Información General</h2>
       <div class="info-grid">
         <div class="info-item">
-          <div class="info-label">Título</div>
-          <div class="info-value">${data.titulo}</div>
+          <div class="info-label">Descripción</div>
+          <div class="info-value">${data.descripcion || 'N/A'}</div>
         </div>
         <div class="info-item">
           <div class="info-label">Ubicación</div>
-          <div class="info-value">${data.ubicacion || 'N/A'}</div>
+          <div class="info-value">${data.direccion || 'N/A'}</div>
         </div>
         <div class="info-item">
           <div class="info-label">Fecha Programada</div>
@@ -51,44 +57,57 @@ export class OrdenTemplate extends BaseTemplate {
         <div class="info-item">
           <div class="info-label">Costo Estimado</div>
           <div class="info-value">
-            ${data.costoEstimado ? `$${data.costoEstimado.toLocaleString('es-CO')}` : 'N/A'}
+            ${data.presupuestoEstimado ? `$${Number(data.presupuestoEstimado).toLocaleString('es-CO')}` : 'N/A'}
           </div>
         </div>
       </div>
 
       ${data.descripcion ? `
-        <h2>Descripción</h2>
+        <h2>Detalle</h2>
         <p>${data.descripcion}</p>
       ` : ''}
 
-      ${data.cliente ? `
+      ${data.observaciones ? `
+        <h2>Observaciones</h2>
+        <p>${data.observaciones}</p>
+      ` : ''}
+
+      ${cliente ? `
         <h2>Información del Cliente</h2>
         <div class="info-grid">
           <div class="info-item">
             <div class="info-label">Nombre/Empresa</div>
-            <div class="info-value">${data.cliente.nombre}</div>
+            <div class="info-value">${cliente.nombre}</div>
           </div>
           <div class="info-item">
             <div class="info-label">Email</div>
-            <div class="info-value">${data.cliente.email || 'N/A'}</div>
+            <div class="info-value">${cliente.email || 'N/A'}</div>
           </div>
           <div class="info-item">
             <div class="info-label">Teléfono</div>
-            <div class="info-value">${data.cliente.telefono || 'N/A'}</div>
+            <div class="info-value">${cliente.telefono || 'N/A'}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Contacto</div>
+            <div class="info-value">${cliente.contacto || 'N/A'}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Dirección</div>
+            <div class="info-value">${cliente.direccion || 'N/A'}</div>
           </div>
         </div>
       ` : ''}
 
-      ${data.tecnico ? `
+      ${tecnico ? `
         <h2>Técnico Asignado</h2>
         <div class="info-grid">
           <div class="info-item">
             <div class="info-label">Nombre</div>
-            <div class="info-value">${data.tecnico.nombre}</div>
+            <div class="info-value">${tecnico.nombre}</div>
           </div>
           <div class="info-item">
             <div class="info-label">Email</div>
-            <div class="info-value">${data.tecnico.email || 'N/A'}</div>
+            <div class="info-value">${tecnico.email || 'N/A'}</div>
           </div>
         </div>
       ` : ''}
@@ -119,11 +138,6 @@ export class OrdenTemplate extends BaseTemplate {
         </table>
       ` : ''}
 
-      ${data.observaciones ? `
-        <h2>Observaciones</h2>
-        <p>${data.observaciones}</p>
-      ` : ''}
-
       <div class="signature-section">
         <div class="signature-box">
           <div class="signature-line">
@@ -142,24 +156,65 @@ export class OrdenTemplate extends BaseTemplate {
     }
 
     private static getEstadoBadgeClass(estado: string): string {
+        const normalized = String(estado || '').toLowerCase();
         const map: Record<string, string> = {
-            COMPLETADA: 'success',
-            EN_PROGRESO: 'info',
-            PENDIENTE: 'warning',
-            CANCELADA: 'danger',
-            ASIGNADA: 'info',
+          completada: 'success',
+          ejecucion: 'info',
+          planeacion: 'info',
+          pendiente: 'warning',
+          cancelada: 'danger',
+          pausada: 'warning',
         };
-        return map[estado] || 'info';
+        return map[normalized] || 'info';
     }
 
     private static getPrioridadBadgeClass(prioridad: string): string {
+        const normalized = String(prioridad || '').toLowerCase();
         const map: Record<string, string> = {
-            CRITICA: 'danger',
-            URGENTE: 'danger',
-            ALTA: 'warning',
-            MEDIA: 'info',
-            BAJA: 'success',
+          urgente: 'danger',
+          alta: 'warning',
+          media: 'info',
+          baja: 'success',
         };
-        return map[prioridad] || 'info';
+        return map[normalized] || 'info';
     }
+
+      private static normalizeCliente(cliente: any):
+        | { nombre: string; email?: string; telefono?: string; contacto?: string; direccion?: string }
+        | null {
+        if (!cliente) return null;
+
+        // Caso antiguo: { nombre, email, telefono }
+        if (typeof cliente === 'object') {
+          const nombre = String(cliente.nombre ?? '').trim();
+          if (!nombre) return null;
+          return {
+            nombre,
+            email: cliente.email ? String(cliente.email) : undefined,
+            telefono: cliente.telefono ? String(cliente.telefono) : undefined,
+            contacto: cliente.contacto ? String(cliente.contacto) : undefined,
+            direccion: cliente.direccion ? String(cliente.direccion) : undefined,
+          };
+        }
+
+        // Caso prisma actual: string
+        const nombre = String(cliente).trim();
+        if (!nombre) return null;
+        return { nombre };
+      }
+
+      private static normalizeTecnico(tecnico: any):
+        | { nombre: string; email?: string }
+        | null {
+        if (!tecnico || typeof tecnico !== 'object') return null;
+
+        // soporta { nombre } (antiguo) y { name } (User prisma)
+        const nombre = String(tecnico.nombre ?? tecnico.name ?? '').trim();
+        if (!nombre) return null;
+
+        return {
+          nombre,
+          email: tecnico.email ? String(tecnico.email) : undefined,
+        };
+      }
 }

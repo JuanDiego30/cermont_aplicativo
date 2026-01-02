@@ -3,7 +3,7 @@
  * 
  * Item individual dentro de un kit (herramienta, equipo, material, etc.)
  */
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { ItemType, ItemTypeEnum } from '../value-objects/item-type.vo';
 import { Cantidad } from '../value-objects/cantidad.vo';
 import { CostoUnitario, CostoTotal } from '../value-objects/costo.vo';
@@ -70,8 +70,8 @@ export class KitItem {
             : props.itemType;
 
         return new KitItem({
-            id: uuidv4(),
-            itemId: props.itemId || uuidv4(),
+            id: randomUUID(),
+            itemId: props.itemId || randomUUID(),
             itemType,
             nombre: props.nombre,
             descripcion: props.descripcion,

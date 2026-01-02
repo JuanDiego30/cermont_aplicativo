@@ -6,27 +6,11 @@ import { IPdfGenerator, IPdfGeneratorOptions } from '../../domain/interfaces/pdf
 export class PuppeteerPdfService implements IPdfGenerator {
     private readonly logger = new Logger(PuppeteerPdfService.name);
     private browser: puppeteer.Browser | null = null;
+    private initializing: Promise<void> | null = null;
 
     async onModuleInit() {
-        try {
-            this.logger.log('Inicializando navegador Puppeteer...');
-            this.browser = await puppeteer.launch({
-                headless: true,
-                args: [
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--disable-dev-shm-usage',
-                    '--disable-accelerated-2d-canvas',
-                    '--no-first-run',
-                    '--no-zygote',
-                    '--disable-gpu',
-                ],
-            });
-            this.logger.log('Navegador Puppeteer iniciado correctamente');
-        } catch (error) {
-            this.logger.error('Error iniciando navegador Puppeteer', error);
-            throw error;
-        }
+        // Lazy loading: el navegador se inicia bajo demanda en getPage().
+        this.logger.log('Puppeteer configurado en modo lazy (se inicia bajo demanda)');
     }
 
     async onModuleDestroy() {
@@ -108,9 +92,39 @@ export class PuppeteerPdfService implements IPdfGenerator {
     }
 
     private async getPage(): Promise<puppeteer.Page> {
-        if (!this.browser) {
-            await this.onModuleInit();
-        }
+        await this.ensureBrowser();
         return this.browser!.newPage();
+    }
+
+    private async ensureBrowser(): Promise<void> {
+        if (this.browser) return;
+
+        if (!this.initializing) {
+            this.initializing = (async () => {
+                try {
+                    this.logger.log('Inicializando navegador Puppeteer...');
+                    this.browser = await puppeteer.launch({
+                        headless: true,
+                        args: [
+                            '--no-sandbox',
+                            '--disable-setuid-sandbox',
+                            '--disable-dev-shm-usage',
+                            '--disable-accelerated-2d-canvas',
+                            '--no-first-run',
+                            '--no-zygote',
+                            '--disable-gpu',
+                        ],
+                    });
+                    this.logger.log('Navegador Puppeteer iniciado correctamente');
+                } catch (error) {
+                    this.logger.error('Error iniciando navegador Puppeteer', error);
+                    throw error;
+                }
+            })().finally(() => {
+                this.initializing = null;
+            });
+        }
+
+        await this.initializing;
     }
 }

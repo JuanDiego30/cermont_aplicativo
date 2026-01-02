@@ -7,32 +7,51 @@ type OrderStatus = 'planeacion' | 'ejecucion' | 'pausada' | 'completada' | 'canc
  */
 export enum OrderSubState {
     // Solicitud (Pasos 1-4)
-    SOLICITUD_RECIBIDA = 'SOLICITUD_RECIBIDA',
-    VISITA_PROGRAMADA = 'VISITA_PROGRAMADA',
-    PROPUESTA_ELABORADA = 'PROPUESTA_ELABORADA',
-    PROPUESTA_APROBADA = 'PROPUESTA_APROBADA',
+    SOLICITUD_RECIBIDA = 'solicitud_recibida',
+    VISITA_PROGRAMADA = 'visita_programada',
+    PROPUESTA_ELABORADA = 'propuesta_elaborada',
+    PROPUESTA_APROBADA = 'propuesta_aprobada',
 
     // Planeación (Paso 5)
-    PLANEACION_INICIADA = 'PLANEACION_INICIADA',
-    PLANEACION_APROBADA = 'PLANEACION_APROBADA',
+    PLANEACION_INICIADA = 'planeacion_iniciada',
+    PLANEACION_APROBADA = 'planeacion_aprobada',
 
     // Ejecución (Paso 6)
-    EJECUCION_INICIADA = 'EJECUCION_INICIADA',
-    EJECUCION_COMPLETADA = 'EJECUCION_COMPLETADA',
+    EJECUCION_INICIADA = 'ejecucion_iniciada',
+    EJECUCION_COMPLETADA = 'ejecucion_completada',
 
     // Informe (Paso 7)
-    INFORME_GENERADO = 'INFORME_GENERADO',
+    INFORME_GENERADO = 'informe_generado',
 
     // Cierre Técnico (Pasos 8-9)
-    ACTA_ELABORADA = 'ACTA_ELABORADA',
-    ACTA_FIRMADA = 'ACTA_FIRMADA',
+    ACTA_ELABORADA = 'acta_elaborada',
+    ACTA_FIRMADA = 'acta_firmada',
 
     // Cierre Administrativo (Pasos 10-13)
-    SES_APROBADA = 'SES_APROBADA',
-    FACTURA_APROBADA = 'FACTURA_APROBADA',
+    SES_APROBADA = 'ses_aprobada',
+    FACTURA_APROBADA = 'factura_aprobada',
 
     // Final (Paso 14)
-    PAGO_RECIBIDO = 'PAGO_RECIBIDO',
+    PAGO_RECIBIDO = 'pago_recibido',
+}
+
+/**
+ * Intenta normalizar un input a un OrderSubState válido.
+ * - Acepta valores snake_case (los que persiste Prisma)
+ * - Acepta el nombre del enum (por ejemplo, 'PROPUESTA_APROBADA')
+ */
+export function parseOrderSubState(input: string): OrderSubState | null {
+    if (!input) return null;
+
+    const trimmed = input.trim();
+
+    const values = Object.values(OrderSubState) as string[];
+    if (values.includes(trimmed)) {
+        return trimmed as OrderSubState;
+    }
+
+    const byKey = (OrderSubState as Record<string, string>)[trimmed];
+    return byKey ? (byKey as OrderSubState) : null;
 }
 
 /**
