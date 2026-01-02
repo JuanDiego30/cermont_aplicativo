@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AdminService } from '../../../../core/services/admin.service';
 import { UserRole } from '../../../../core/models/user.model';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-user-form',
@@ -12,7 +13,8 @@ import { UserRole } from '../../../../core/models/user.model';
   templateUrl: './user-form.component.html',
   styleUrls: ['./user-form.component.css']
 })
-export class UserFormComponent implements OnInit {
+export class UserFormComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
   private readonly fb = inject(FormBuilder);
   private readonly adminService = inject(AdminService);
   private readonly router = inject(Router);
@@ -56,33 +58,42 @@ export class UserFormComponent implements OnInit {
     });
 
     // Monitorear cambios en la contraseña para validación en tiempo real
-    this.form.get('password')?.valueChanges.subscribe(password => {
-      if (password) {
-        this.validatePasswordStrength(password);
-      }
-    });
+    this.form.get('password')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(password => {
+        if (password) {
+          this.validatePasswordStrength(password);
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   loadUser(id: string): void {
     this.loading.set(true);
-    this.adminService.getUserById(id).subscribe({
-      next: (user) => {
-        this.form.patchValue({
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          phone: user.phone || '',
-          avatar: user.avatar || '',
-        });
-        // En modo edición, el password es opcional
-        this.form.get('email')?.disable();
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.error.set('Error al cargar el usuario');
-        this.loading.set(false);
-      }
-    });
+    this.adminService.getUserById(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (user) => {
+          this.form.patchValue({
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            phone: user.phone || '',
+            avatar: user.avatar || '',
+          });
+          // En modo edición, el password es opcional
+          this.form.get('email')?.disable();
+          this.loading.set(false);
+        },
+        error: (err) => {
+          this.error.set('Error al cargar el usuario');
+          this.loading.set(false);
+        }
+      });
   }
 
   validatePasswordStrength(password: string): void {
@@ -133,27 +144,31 @@ export class UserFormComponent implements OnInit {
     if (this.isEditMode() && this.userId) {
       // Actualizar usuario (sin password)
       const { email, password, ...updateDto } = formValue;
-      
-      this.adminService.updateUser(this.userId, updateDto).subscribe({
-        next: (user) => {
-          this.router.navigate(['/admin/users', user.id]);
-        },
-        error: (err) => {
-          this.error.set(err.error?.message || 'Error al actualizar usuario');
-          this.loading.set(false);
-        }
-      });
+
+      this.adminService.updateUser(this.userId, updateDto)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (user) => {
+            this.router.navigate(['/admin/users', user.id]);
+          },
+          error: (err) => {
+            this.error.set(err.error?.message || 'Error al actualizar usuario');
+            this.loading.set(false);
+          }
+        });
     } else {
       // Crear nuevo usuario
-      this.adminService.createUser(formValue).subscribe({
-        next: (user) => {
-          this.router.navigate(['/admin/users', user.id]);
-        },
-        error: (err) => {
-          this.error.set(err.error?.message || 'Error al crear usuario');
-          this.loading.set(false);
-        }
-      });
+      this.adminService.createUser(formValue)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (user) => {
+            this.router.navigate(['/admin/users', user.id]);
+          },
+          error: (err) => {
+            this.error.set(err.error?.message || 'Error al crear usuario');
+            this.loading.set(false);
+          }
+        });
     }
   }
 
