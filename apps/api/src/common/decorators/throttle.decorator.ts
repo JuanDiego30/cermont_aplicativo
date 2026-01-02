@@ -30,11 +30,11 @@ export const THROTTLE_PRESETS = {
    * Rate limit estricto para autenticación
    * Previene ataques de fuerza bruta
    * 
-   * @example 5 intentos por minuto
+   * @example 5 intentos cada 15 minutos
    */
   AUTH: {
     limit: 5,
-    ttl: 60_000, // 1 minuto
+    ttl: 15 * 60_000, // 15 minutos
     name: 'auth',
   } as ThrottleOptions,
 

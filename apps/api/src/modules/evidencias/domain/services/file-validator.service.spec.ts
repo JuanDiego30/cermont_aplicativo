@@ -51,7 +51,7 @@ describe('FileValidatorService', () => {
     const result = await service.validateFile({
       mimetype: 'image/png',
       originalname: 'foto.png',
-      size: 50 * 1024 * 1024, // 50MB (sobre el límite de imagen)
+      size: 51 * 1024 * 1024, // 51MB (sobre el límite de 50MB)
       buffer: Buffer.from([
         0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
       ]),

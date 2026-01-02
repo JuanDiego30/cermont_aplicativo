@@ -9,6 +9,7 @@
  */
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../prisma/prisma.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 // Domain
 import { ORDEN_REPOSITORY } from './domain/repositories';
@@ -30,6 +31,9 @@ import { OrderStateService } from './application/services/order-state.service';
 // Infrastructure
 import { PrismaOrdenRepository } from './infrastructure/persistence';
 import { OrdenesController } from './infrastructure/controllers';
+import { OrdenesNotificationsHandler } from './infrastructure/event-handlers/ordenes-notifications.handler';
+import { OrdenesWebhookHandler } from './infrastructure/event-handlers/ordenes-webhook.handler';
+import { OrdenesWebhookService } from './infrastructure/services/ordenes-webhook.service';
 
 /**
  * Providers de Use Cases
@@ -47,7 +51,7 @@ const useCaseProviders = [
 ];
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, NotificationsModule],
   controllers: [
     OrdenesController, // Clean Architecture Controller
   ],
@@ -62,6 +66,11 @@ const useCaseProviders = [
     // Use Cases & Application Services
     ...useCaseProviders,
     OrderStateService,
+
+    // Event handlers & outbound integrations
+    OrdenesNotificationsHandler,
+    OrdenesWebhookHandler,
+    OrdenesWebhookService,
   ],
   exports: [
     ORDEN_REPOSITORY,

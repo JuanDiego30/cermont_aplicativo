@@ -125,15 +125,37 @@ export class FormField {
       ? FieldValue.create(props.defaultValue)
       : undefined;
 
-    const validations = (props.validations || []).map((v: any) => {
-      // Reconstruir ValidationRule desde persistencia
-      // Esto es simplificado - en producción necesitarías un mapper más robusto
-      if (v.type === 'REQUIRED') return ValidationRule.required();
-      if (v.type === 'MIN_LENGTH') return ValidationRule.minLength(v.value);
-      if (v.type === 'MAX_LENGTH') return ValidationRule.maxLength(v.value);
-      if (v.type === 'PATTERN') return ValidationRule.pattern(new RegExp(v.value));
-      return ValidationRule.required();
-    });
+    const validations = (props.validations || [])
+      .map((v: any) => {
+        // Reconstruir ValidationRule desde persistencia
+        // Mantenerlo tolerante a datos legacy
+        switch (String(v?.type || '').toUpperCase()) {
+          case 'REQUIRED':
+            return ValidationRule.required();
+          case 'MIN_LENGTH':
+            return ValidationRule.minLength(Number(v.value));
+          case 'MAX_LENGTH':
+            return ValidationRule.maxLength(Number(v.value));
+          case 'MIN_VALUE':
+            return ValidationRule.minValue(Number(v.value));
+          case 'MAX_VALUE':
+            return ValidationRule.maxValue(Number(v.value));
+          case 'EMAIL':
+            return ValidationRule.email();
+          case 'URL':
+            return ValidationRule.url();
+          case 'PATTERN': {
+            // v.value puede venir como string (source) o como regex serializado legacy
+            const patternSource = typeof v.value === 'string'
+              ? v.value
+              : (v.value?.source ?? String(v.value ?? ''));
+            return ValidationRule.pattern(new RegExp(patternSource));
+          }
+          default:
+            return null;
+        }
+      })
+      .filter(Boolean) as ValidationRule[];
 
     const calculationFormula = props.calculationFormula
       ? CalculationFormula.create(props.calculationFormula)
@@ -367,7 +389,9 @@ export class FormField {
       defaultValue: this._defaultValue?.getValue(),
       validations: this._validations.map((v) => ({
         type: v.getType(),
-        value: v.getValue(),
+        value: v.getType() === 'PATTERN' && v.getValue() instanceof RegExp
+          ? v.getValue().source
+          : v.getValue(),
       })),
       conditionalLogic: this._conditionalLogic,
       calculationFormula: this._calculationFormula?.getFormula(),

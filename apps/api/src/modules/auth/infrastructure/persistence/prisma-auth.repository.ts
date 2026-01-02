@@ -20,6 +20,9 @@ export class PrismaAuthRepository implements IAuthRepository {
         avatar: true,
         active: true,
         lastLogin: true,
+        loginAttempts: true,
+        lockedUntil: true,
+        twoFactorEnabled: true,
     } as const;
 
     constructor(
@@ -69,6 +72,32 @@ export class PrismaAuthRepository implements IAuthRepository {
         await this.prisma.user.update({
             where: { id: userId },
             data: { lastLogin: new Date() },
+        });
+    }
+
+    async incrementLoginAttempts(
+        userId: string,
+        lockUntil?: Date,
+    ): Promise<{ loginAttempts: number; lockedUntil: Date | null }> {
+        const updated = await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                loginAttempts: { increment: 1 },
+                ...(lockUntil ? { lockedUntil: lockUntil, loginAttempts: 0 } : {}),
+            },
+            select: { loginAttempts: true, lockedUntil: true },
+        });
+
+        return {
+            loginAttempts: updated.loginAttempts,
+            lockedUntil: updated.lockedUntil,
+        };
+    }
+
+    async resetLoginAttempts(userId: string): Promise<void> {
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: { loginAttempts: 0, lockedUntil: null },
         });
     }
 
@@ -213,6 +242,9 @@ export class PrismaAuthRepository implements IAuthRepository {
             avatar: user.avatar,
             active: user.active,
             lastLogin: user.lastLogin,
+            loginAttempts: user.loginAttempts,
+            lockedUntil: user.lockedUntil,
+            twoFactorEnabled: user.twoFactorEnabled,
         });
     }
 }

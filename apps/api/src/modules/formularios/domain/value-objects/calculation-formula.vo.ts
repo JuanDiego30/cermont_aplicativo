@@ -5,6 +5,7 @@
  */
 
 import { ValidationError } from '../../../../common/domain/exceptions';
+import { ArithmeticExpressionEvaluator } from '../utils/arithmetic-expression-evaluator';
 
 export class CalculationFormula {
   private constructor(private readonly _formula: string) {
@@ -45,8 +46,7 @@ export class CalculationFormula {
     try {
       // Intentar parsear fórmula básica
       const testExpression = this._formula.replace(/[a-zA-Z_][a-zA-Z0-9_]*/g, '1');
-      // eslint-disable-next-line no-eval
-      const result = eval(testExpression);
+      const result = ArithmeticExpressionEvaluator.evaluate(testExpression);
       return typeof result === 'number' && !isNaN(result);
     } catch {
       return false;

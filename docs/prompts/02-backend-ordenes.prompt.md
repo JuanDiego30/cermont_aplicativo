@@ -1,165 +1,141 @@
-# 📋 CERMONT BACKEND — ORDENES MODULE AGENT
+# 📦 CERMONT BACKEND ÓRDENES AGENT
 
-## ROL
-Eres COPILOT actuando como el agente: **CERMONT BACKEND — ORDENES MODULE AGENT**.
-
-## OBJETIVO PRINCIPAL
-Lograr que el módulo de Órdenes funcione correctamente (backend + BD + consumo por frontend), priorizando corrección de errores y refactor seguro.
-
-> **Nota:** Este proyecto usa PostgreSQL + Prisma (open-source). Sin servicios cloud de pago.
-
-> **Este módulo es el corazón del negocio:** cada operación debe ser consistente, auditada y performante.
+**Responsabilidad:** Máquina de estados, historial, cálculos, webhooks  
+**Reglas:** 11-20  
+**Patrón:** SIN PREGUNTAS  
+**Última actualización:** 2026-01-02
 
 ---
 
-## SCOPE OBLIGATORIO
-
-### Rutas Principales
-```
-apps/api/src/modules/ordenes/**
-├── controllers/
-│   └── ordenes.controller.ts
-├── services/
-│   ├── ordenes.service.ts
-│   └── order-state.service.ts
-├── repositories/
-│   └── ordenes.repository.ts
-├── dto/
-│   ├── create-orden.dto.ts
-│   ├── update-orden.dto.ts
-│   ├── change-status.dto.ts
-│   └── filter-ordenes.dto.ts
-├── domain/
-│   ├── entities/
-│   │   └── orden.entity.ts
-│   ├── value-objects/
-│   │   ├── orden-numero.vo.ts
-│   │   ├── orden-estado.vo.ts
-│   │   └── prioridad.vo.ts
-│   └── events/
-│       ├── orden-created.event.ts
-│       └── orden-status-changed.event.ts
-└── ordenes.module.ts
-```
-
-### Integraciones (NO romper contratos)
-- `sync` → cambios offline deben reflejarse
-- `evidencias` → orden tiene muchas evidencias
-- `formularios` → orden tiene formularios asociados
-- `pdf-generation` → genera reportes por ordenId
-- `dashboard/kpis` → estadísticas por estado
-
----
-
-## MÁQUINA DE ESTADOS (OBLIGATORIA)
+## 🚀 INVOCACIÓN RÁPIDA
 
 ```
-CREADA → ASIGNADA → EN_EJECUCION → COMPLETADA
-                  ↓               ↓
-               DEVUELTA ←──── CANCELADA
-                  ↓
-            EN_EJECUCION (reactivación)
-```
+Actúa como CERMONT BACKEND ÓRDENES AGENT.
 
-### Tabla de Transiciones Válidas
-```typescript
-const STATE_TRANSITIONS: Record<OrdenEstado, OrdenEstado[]> = {
-  CREADA: ['ASIGNADA', 'CANCELADA'],
-  ASIGNADA: ['EN_EJECUCION', 'CANCELADA'],
-  EN_EJECUCION: ['COMPLETADA', 'DEVUELTA', 'CANCELADA'],
-  DEVUELTA: ['EN_EJECUCION', 'CANCELADA'],
-  COMPLETADA: [],  // Estado final
-  CANCELADA: [],   // Estado final
-};
+EJECUTA SIN PREGUNTAR:
+1. ANÁLISIS: apps/api/src/modules/ordenes/**
+   - Máquina de estados (11 estados verificados)
+   - Historial, webhooks, cálculos
+   - Validaciones antes de cambios
+   
+2. PLAN: 3-4 pasos
+
+3. IMPLEMENTACIÓN: Si se aprueba
+
+4. VERIFICACIÓN: pnpm run test -- --testPathPattern=ordenes
 ```
 
 ---
 
-## REGLAS CRÍTICAS (NO NEGOCIABLES)
+## 📋 REGLAS 11-20 APLICABLES
 
-| Regla | Descripción |
-|-------|-------------|
-| 📝 **Historial siempre** | Todo cambio de estado DEBE registrar: quién, cuándo, estado_anterior, estado_nuevo, motivo |
-| 🚫 **Transiciones válidas** | Rechazar cualquier transición no definida en STATE_TRANSITIONS con 400 |
-| 🗑️ **No borrar** | Nunca eliminar órdenes físicamente; usar CANCELADA o archivar |
-| 👷 **Validar técnico** | No asignar técnico sin verificar disponibilidad (si existe esa lógica) |
-| 📄 **Paginación siempre** | Listados NUNCA traer todo; usar skip/take/cursor |
+| Regla | Descripción | Verificar |
+|-------|-------------|-----------|
+| 11 | Máquina estados DRAFT→...→CLOSED | ✓ Transiciones válidas |
+| 12 | Historial en order_history | ✓ Tabla con cambios |
+| 13 | Validar totales pre-confirmar | ✓ SUM(items) == total |
+| 14 | No editar orden confirmada | ✓ Guard en update |
+| 15 | Costos en backend | ✓ Cálculos en NestJS |
+| 16 | Webhook con idempotencia | ✓ Idempotency key |
+| 17 | Cancelar DRAFT/PENDING | ✓ Guard en cancel |
+| 18 | Email confirmación+recibo | ✓ Nodemailer |
+| 19 | Impresión con QR | ✓ QR library |
+| 20 | Reportes (filtros) | ✓ Query filters |
 
 ---
 
-## FLUJO DE TRABAJO OBLIGATORIO
+## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
 
-### 1) ANÁLISIS (sin cambiar código)
-Ubica e identifica:
-- a) **Errores de flujo:** cambios de estado sin auditoría, reglas inconsistentes
-- b) **Performance:** N+1 queries, includes excesivos, listados sin paginar
-- c) **Inconsistencias BD:** estados como string sin enum, constraints faltantes
-- d) **Contratos frontend:** DTOs/responses que consume el frontend
+1. **Estados (Regla 11)**
+   - ¿Estados: DRAFT → PENDING → CONFIRMED → SHIPPED → DELIVERED → CLOSED?
+   - ¿Transiciones validadas?
+   - ¿No hay saltos inválidos?
 
-### 2) PLAN (3–6 pasos mergeables)
-Cada paso debe incluir:
-- Archivos exactos a tocar
-- Objetivo (bugfix/refactor/performance)
-- Criterio de éxito verificable
+2. **Historial (Regla 12)**
+   - ¿Tabla order_history existe?
+   - ¿Registra: usuario, timestamp, estado_anterior, estado_nuevo?
+   - ¿No se pierden cambios?
 
-**Ejemplo de criterios:**
-- ✅ "Transición COMPLETADA → EN_EJECUCION devuelve 400"
-- ✅ "Listado pagina correctamente con skip/take"
-- ✅ "Historial se registra en cada cambio de estado"
+3. **Validaciones (Regla 13)**
+   - Antes de CONFIRMED, ¿se suma items?
+   - ¿Total_items * precio == total_order?
+   - ¿Descuentos incluidos?
 
-### 3) EJECUCIÓN
+4. **Regla 14: No editar confirmada**
+   - ¿Status === CONFIRMED bloquea update?
+   - ¿Error 403 si intenta?
 
-**Bugfix primero:**
-- Centraliza lógica de `changeStatus` en `OrderStateService`
-- Implementa validación de transiciones con STATE_TRANSITIONS
-- Asegura registro de historial en cada transición
+5. **Cálculos (Regla 15)**
+   - Subtotal, impuestos, descuentos, envío = ¿en backend?
+   - ¿Frontend SOLO muestra?
 
-**Refactor después:**
-- Usa enum/Value Object para `OrdenEstado` (no strings sueltos)
-- Implementa mapper `Orden → OrdenResponseDTO`
-- Optimiza queries con select/include selectivo
+6. **Webhooks (Regla 16)**
+   - ¿Se envía a carrier (DHL, FedEx)?
+   - ¿Idempotency key en request?
+   - ¿Retry logic si falla?
 
-### 4) VERIFICACIÓN (obligatorio)
+7. **Cancela (Regla 17)**
+   - ¿Status DRAFT → permite cancel?
+   - ¿Status PENDING → permite cancel?
+   - ¿Status CONFIRMED+ → NO cancel?
+
+8. **Emails (Regla 18)**
+   - ¿Email confirmación con PDF?
+   - ¿Email tracking cuando shipped?
+
+9. **QR (Regla 19)**
+   - ¿Printable con QR?
+   - ¿Contiene order_id en QR?
+
+10. **Reportes (Regla 20)**
+    - ¿Filtros: date range, status, customer?
+    - ¿Export CSV/PDF?
+
+---
+
+## ✅ CHECKLIST IMPLEMENTACIÓN
+
+- [ ] 6 estados máquina: DRAFT, PENDING, CONFIRMED, SHIPPED, DELIVERED, CLOSED
+- [ ] order_history registra TODOS cambios
+- [ ] Validación de totales pre-CONFIRMED
+- [ ] Status CONFIRMED bloquea edición
+- [ ] Cálculos (subtotal, impuestos, descuento, envío) en backend
+- [ ] Webhook a carrier con idempotencia
+- [ ] Cancela solo en DRAFT/PENDING
+- [ ] Email confirmación + tracking
+- [ ] Impresión con QR order_id
+- [ ] Reportes con filtros
+
+---
+
+## 🧪 VERIFICACIÓN
 
 ```bash
 cd apps/api
-pnpm run lint
-pnpm run build
+
+# Tests órdenes
 pnpm run test -- --testPathPattern=ordenes
-pnpm run test:cov -- --testPathPattern=ordenes
-```
 
-**Escenarios a verificar:**
-| Escenario | Resultado Esperado |
-|-----------|-------------------|
-| Transición válida | 200 + nuevo estado + historial creado |
-| Transición inválida | 400 + "Transición no permitida" |
-| Listado paginado | 200 + items[] + total + hasMore |
-| Filtro por estado | 200 + solo órdenes del estado filtrado |
-| Orden inexistente | 404 |
+# Esperado: >80% cobertura
 
----
+# Verificar máquina estados
+grep -r "DRAFT\|PENDING\|CONFIRMED\|SHIPPED" src/modules/ordenes/
 
-## FORMATO DE RESPUESTA OBLIGATORIO
+# Esperado: Todos los estados presentes
 
-```
-A) Análisis: hallazgos + riesgos + deudas técnicas
-B) Plan: pasos numerados (3–6) con archivos y criterios de éxito
-C) Cambios: lista exacta de archivos editados y qué se cambió
-D) Verificación: comandos ejecutados y resultados
-E) Pendientes: mejoras recomendadas (máximo 5 bullets)
+# Verificar cálculos
+grep -r "calculateTotal\|subtotal\|discount" src/modules/ordenes/
+
+# Esperado: Funciones presentes en backend
+
+# Verificar webhooks
+grep -r "webhook\|carrier\|idempotency" src/modules/ordenes/
+
+# Esperado: Implementación encontrada
 ```
 
 ---
 
-## NOTAS PARA INTEGRACIÓN FRONTEND↔BACKEND↔DB
+## 📝 FORMATO ENTREGA
 
-1. **Paginación:** Frontend debe enviar `?skip=0&take=20` y recibir `{ items, total, hasMore }`
-2. **Estados:** Usar el enum exacto que define el backend
-3. **DTOs:** Verificar que relaciones (técnico, cliente, evidencias) se incluyan según necesidad
-4. **Filtros:** Soportar `?estado=EN_EJECUCION&prioridad=ALTA&tecnicoId=xxx`
-
----
-
-## EMPIEZA AHORA
-Primero entrega **A) Análisis** del módulo ordenes en el repo, luego el **Plan**.
+A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**

@@ -13,6 +13,11 @@ export interface AuthUserProps {
     avatar?: string | null;
     active: boolean;
     lastLogin?: Date | null;
+
+    // Seguridad (schema.prisma)
+    loginAttempts?: number;
+    lockedUntil?: Date | null;
+    twoFactorEnabled?: boolean;
 }
 
 /**
@@ -30,6 +35,9 @@ export class AuthUserEntity {
         public readonly avatar: string | null,
         public readonly active: boolean,
         public readonly lastLogin: Date | null,
+        public readonly loginAttempts: number,
+        public readonly lockedUntil: Date | null,
+        public readonly twoFactorEnabled: boolean,
     ) { }
 
     /**
@@ -46,7 +54,14 @@ export class AuthUserEntity {
             props.avatar ?? null,
             props.active,
             props.lastLogin ?? null,
+            props.loginAttempts ?? 0,
+            props.lockedUntil ?? null,
+            props.twoFactorEnabled ?? false,
         );
+    }
+
+    isLocked(now = new Date()): boolean {
+        return Boolean(this.lockedUntil && this.lockedUntil.getTime() > now.getTime());
     }
 
     /**

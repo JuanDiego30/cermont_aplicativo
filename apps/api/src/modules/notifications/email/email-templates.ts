@@ -5,6 +5,7 @@ import Handlebars from 'handlebars';
 export type EmailTemplateName =
   | 'welcome'
   | 'password-reset'
+  | 'two-factor-code'
   | 'order-assigned'
   | 'order-completed';
 
@@ -59,6 +60,8 @@ export function renderEmailTemplate(
       ? 'welcome.template.hbs'
       : name === 'password-reset'
         ? 'password-reset.template.hbs'
+        : name === 'two-factor-code'
+          ? 'two-factor-code.template.hbs'
         : name === 'order-assigned'
           ? 'order-assigned.template.hbs'
           : 'order-completed.template.hbs';

@@ -12,6 +12,9 @@ export interface JwtPayload {
     email: string;
     role: string;
 
+    /** JWT ID (para invalidación) */
+    jti?: string;
+
     /** Issued at (timestamp) */
     iat?: number;
     /** Expiration (timestamp) */

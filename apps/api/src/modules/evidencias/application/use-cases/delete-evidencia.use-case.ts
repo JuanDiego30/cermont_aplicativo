@@ -39,10 +39,17 @@ export class DeleteEvidenciaUseCase {
       if (permanent) {
         // Permanent delete - also emit event for storage cleanup
         await this.repository.permanentDelete(id);
+
+        const extraThumbnailPaths: string[] = [];
+        const thumbs = evidencia.metadata?.thumbnails;
+        if (thumbs?.s150) extraThumbnailPaths.push(thumbs.s150);
+        if (thumbs?.s300) extraThumbnailPaths.push(thumbs.s300);
+
         this.eventEmitter.emit('evidencia.deleted', {
           evidenciaId: id,
           filePath: evidencia.storagePath.getValue(),
           thumbnailPath: evidencia.thumbnailPath?.getValue(),
+          extraThumbnailPaths,
           deletedBy,
           isSoftDelete: false,
         });

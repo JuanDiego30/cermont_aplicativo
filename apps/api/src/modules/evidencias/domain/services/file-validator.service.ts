@@ -178,39 +178,13 @@ export class FileValidatorService {
             return 'image/jpeg';
         }
 
-        // WEBP (RIFF....WEBP)
+        // GIF (GIF87a / GIF89a)
         if (
-            head.length >= 12 &&
-            head.subarray(0, 4).toString('ascii') === 'RIFF' &&
-            head.subarray(8, 12).toString('ascii') === 'WEBP'
+            head.length >= 6 &&
+            (head.subarray(0, 6).toString('ascii') === 'GIF87a' ||
+                head.subarray(0, 6).toString('ascii') === 'GIF89a')
         ) {
-            return 'image/webp';
-        }
-
-        // WAV (RIFF....WAVE)
-        if (
-            head.length >= 12 &&
-            head.subarray(0, 4).toString('ascii') === 'RIFF' &&
-            head.subarray(8, 12).toString('ascii') === 'WAVE'
-        ) {
-            return 'audio/wav';
-        }
-
-        // MP3 (ID3 or frame sync)
-        if (head.length >= 3 && head.subarray(0, 3).toString('ascii') === 'ID3') {
-            return 'audio/mpeg';
-        }
-        if (head.length >= 2 && head[0] === 0xff && (head[1] & 0xe0) === 0xe0) {
-            return 'audio/mpeg';
-        }
-
-        // MP4/MOV family: [size][ftyp][brand]
-        if (head.length >= 12 && head.subarray(4, 8).toString('ascii') === 'ftyp') {
-            const brand = head.subarray(8, 12).toString('ascii');
-            if (brand === 'qt  ') {
-                return 'video/quicktime';
-            }
-            return 'video/mp4';
+            return 'image/gif';
         }
 
         return undefined;

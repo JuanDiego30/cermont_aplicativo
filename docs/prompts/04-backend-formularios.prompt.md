@@ -1,234 +1,146 @@
-# 📝 CERMONT BACKEND — FORMULARIOS MODULE AGENT
+# 📋 CERMONT BACKEND FORMULARIOS AGENT
 
-## ROL
-Eres COPILOT actuando como el agente: **CERMONT BACKEND — FORMULARIOS MODULE AGENT**.
-
-## OBJETIVO PRINCIPAL
-Estabilizar y refactorizar el motor de Formularios dinámicos para que:
-- ✅ Valide correctamente (obligatorios/tipos/reglas)
-- ✅ Soporte dependencias y cálculos sin hardcode
-- ✅ Registre historial de cambios
-- ✅ Funcione consistente con BD y consumo desde frontend
-
-**Prioridad:** bugfix + refactor (no features innecesarios).
+**Responsabilidad:** JSON Schema validation, dynamic forms, drafts, versioning  
+**Reglas:** 31-40  
+**Patrón:** SIN PREGUNTAS  
+**Última actualización:** 2026-01-02
 
 ---
 
-## SCOPE OBLIGATORIO
+## 🚀 INVOCACIÓN RÁPIDA
 
-### Rutas Principales
 ```
-apps/api/src/modules/formularios/**
-├── controllers/
-│   ├── form-templates.controller.ts
-│   └── form-submissions.controller.ts
-├── services/
-│   ├── form-template.service.ts
-│   ├── form-submission.service.ts
-│   ├── form-validator.service.ts
-│   ├── calculation-engine.service.ts
-│   └── conditional-logic-evaluator.service.ts
-├── domain/
-│   ├── entities/
-│   │   ├── form-template.entity.ts
-│   │   ├── form-field.entity.ts
-│   │   └── form-submission.entity.ts
-│   └── value-objects/
-│       ├── field-type.vo.ts
-│       ├── validation-rule.vo.ts
-│       └── submission-status.vo.ts
-└── formularios.module.ts
-```
+Actúa como CERMONT BACKEND FORMULARIOS AGENT.
 
-### Integraciones (NO romper contratos)
-- `ordenes` → Formularios asociados a órdenes
-- `evidencias` → Campos tipo FILE vinculan evidencias
-- `kpis/reportes` → Métricas basadas en respuestas
-- `sync` → Formularios llenados offline
+EJECUTA SIN PREGUNTAR:
+1. ANÁLISIS: apps/api/src/modules/formularios/**
+   - JSON Schema validación (no strings)
+   - Tipos: string, number, bool, date, select, checkbox
+   - Draft autosave, historial versiones
+   
+2. PLAN: 3-4 pasos
 
----
+3. IMPLEMENTACIÓN: Si se aprueba
 
-## TIPOS DE CAMPOS SOPORTADOS
-
-```typescript
-enum FieldType {
-  TEXT = 'TEXT',
-  NUMBER = 'NUMBER',
-  SELECT = 'SELECT',
-  MULTISELECT = 'MULTISELECT',
-  DATE = 'DATE',
-  DATETIME = 'DATETIME',
-  CHECKBOX = 'CHECKBOX',
-  RADIO = 'RADIO',
-  FILE = 'FILE',
-  SIGNATURE = 'SIGNATURE',
-  CALCULATED = 'CALCULATED',  // Calculado dinámicamente
-}
-
-enum SubmissionStatus {
-  BORRADOR = 'BORRADOR',
-  COMPLETADO = 'COMPLETADO',
-}
+4. VERIFICACIÓN: pnpm run test -- --testPathPattern=formularios
 ```
 
 ---
 
-## REGLAS CRÍTICAS (NO NEGOCIABLES)
+## 📋 REGLAS 31-40 APLICABLES
 
-| Regla | Descripción |
-|-------|-------------|
-| ✅ **Obligatorios** | Nunca permitir guardar si faltan campos obligatorios |
-| 📝 **Historial** | Modificar respuestas existentes DEBE crear registro de auditoría |
-| 🔗 **Dependencias** | No ejecutar cálculos si dependencias no están completas/validadas |
-| 🏛️ **Centralizar** | Nunca hardcodear validaciones en controllers; usar `FormValidatorService` |
-| 💾 **Estados** | Respetar flujo BORRADOR → COMPLETADO |
-
----
-
-## MOTOR DE VALIDACIÓN
-
-```typescript
-// Estructura esperada de validación
-interface ValidationRule {
-  type: 'required' | 'min' | 'max' | 'minLength' | 'maxLength' | 'pattern' | 'enum';
-  value?: any;
-  message: string;
-}
-
-interface ConditionalRule {
-  fieldId: string;        // Campo que depende
-  dependsOn: string;      // Campo del que depende
-  condition: 'equals' | 'notEquals' | 'greaterThan' | 'lessThan' | 'contains';
-  value: any;             // Valor a comparar
-  action: 'show' | 'hide' | 'require' | 'disable';
-}
-
-interface CalculatedField {
-  fieldId: string;
-  formula: string;        // Ej: "{{field1}} * {{field2}}"
-  dependencies: string[]; // IDs de campos requeridos
-}
-```
+| Regla | Descripción | Verificar |
+|-------|-------------|-----------|
+| 31 | JSON Schema validation | ✓ ajv o joi usado |
+| 32 | Required vs optional explícito | ✓ Schema properties |
+| 33 | Tipos: string, number, bool, date, select, checkbox | ✓ Todos presentes |
+| 34 | Select con options predefinidas | ✓ No text libre |
+| 35 | Regex: email, phone, URL | ✓ Pattern en schema |
+| 36 | Mensaje error personalizado | ✓ message field |
+| 37 | Frontend valida UI, backend SIEMPRE | ✓ Backend revalida |
+| 38 | Draft auto cada 30s | ✓ setInterval(save, 30000) |
+| 39 | Historial versiones | ✓ form_versions tabla |
+| 40 | Export CSV/PDF | ✓ Download endpoint |
 
 ---
 
-## FLUJO DE TRABAJO OBLIGATORIO
+## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
 
-### 1) ANÁLISIS (sin tocar código)
-Ubica e identifica:
-- a) **Dónde se definen plantillas/esquemas**
-- b) **Dónde se valida** (validator service vs controllers - hay duplicación?)
-- c) **Dónde se guardan respuestas** y cómo cambian de BORRADOR → COMPLETADO
-- d) **Si existe historial** de cambios y dónde falla
+1. **JSON Schema (Regla 31)**
+   - ¿Se usa ajv o joi?
+   - ¿Schema definido en JSON?
+   - ¿No hardcoded strings?
 
-Detecta:
-- Validaciones duplicadas
-- Reglas condicionales dispersas
-- Typing débil (any, strings sueltas)
-- Bugs: "guardar incompleto", "cálculos erróneos", "dependencias ignoradas"
+2. **Required/Optional (Regla 32)**
+   - ¿"required": ["field1", "field2"]?
+   - ¿Clear en schema?
 
-### 2) PLAN (3–6 pasos mergeables)
-Prioridad: **validación/guardado → refactor de engine → tests**
+3. **Tipos (Regla 33)**
+   - ¿type: "string", "number", "boolean", etc?
+   - ¿date con format: "date-time"?
+   - ¿select con enum?
 
-### 3) EJECUCIÓN
+4. **Select (Regla 34)**
+   - ¿"enum": ["opcion1", "opcion2"]?
+   - ¿No text libre (type: string sin enum)?
 
-**Bugfix primero:**
-```typescript
-// Validación centralizada
-class FormValidatorService {
-  validate(template: FormTemplate, answers: Record<string, any>): ValidationResult {
-    const errors: FieldError[] = [];
-    
-    for (const field of template.fields) {
-      // 1. Evaluar si campo es visible (condicionales)
-      if (!this.isFieldVisible(field, answers)) continue;
-      
-      // 2. Validar obligatorios
-      if (field.required && this.isEmpty(answers[field.id])) {
-        errors.push({ fieldId: field.id, message: 'Campo obligatorio' });
-        continue;
-      }
-      
-      // 3. Validar tipo
-      const typeError = this.validateType(field.type, answers[field.id]);
-      if (typeError) errors.push(typeError);
-      
-      // 4. Validar reglas adicionales
-      for (const rule of field.validationRules) {
-        const ruleError = this.validateRule(rule, answers[field.id]);
-        if (ruleError) errors.push(ruleError);
-      }
-    }
-    
-    return { isValid: errors.length === 0, errors };
-  }
-}
-```
+5. **Regex (Regla 35)**
+   - ¿Email: "pattern": "^[^@]+@[^@]+$"?
+   - ¿Phone: "pattern": "^\\+?[0-9]{10,}$"?
+   - ¿URL: "pattern": "https?://"?
 
-**Refactor después:**
-- Divide en funciones pequeñas: `validarTipo`, `evaluarCondicion`, `calcularCampo`
-- Usa enums/Value Objects para tipos de campo/operadores/estados
-- Implementa mappers claros `Plantilla→DTO` y `Respuesta→DTO`
+6. **Errores (Regla 36)**
+   - ¿"errorMessage": "debe ser email válido"?
+   - ¿No genéricos "Invalid"?
 
-### 4) VERIFICACIÓN (obligatorio)
+7. **Validación Backend (Regla 37)**
+   - ¿Backend SIEMPRE valida?
+   - ¿Frontend puede deshabilitar JS, backend no?
+
+8. **Draft Autosave (Regla 38)**
+   - ¿Cada 30 segundos?
+   - ¿POST /formularios/{id}/draft?
+   - ¿No perder datos?
+
+9. **Historial (Regla 39)**
+   - ¿form_versions tabla existe?
+   - ¿version, created_at, data JSON?
+   - ¿GET /formularios/{id}/history?
+
+10. **Export (Regla 40)**
+    - ¿GET /formularios/{id}/export?format=csv|pdf?
+    - ¿Genera archivo?
+
+---
+
+## ✅ CHECKLIST IMPLEMENTACIÓN
+
+- [ ] JSON Schema con ajv o joi
+- [ ] Required vs optional en schema
+- [ ] Tipos: string, number, boolean, date, select, checkbox
+- [ ] Select con enum (no text libre)
+- [ ] Regex para email, phone, URL
+- [ ] Mensajes de error personalizados
+- [ ] Backend revalida SIEMPRE
+- [ ] Draft autosave cada 30s
+- [ ] form_versions tabla con historial
+- [ ] Export CSV/PDF funciona
+
+---
+
+## 🧪 VERIFICACIÓN
 
 ```bash
 cd apps/api
-pnpm run lint
-pnpm run build
+
+# Tests formularios
 pnpm run test -- --testPathPattern=formularios
-```
 
-**Escenarios a verificar:**
-| Escenario | Resultado Esperado |
-|-----------|-------------------|
-| Obligatorio faltante | 400 + lista de errores por campo |
-| Tipo inválido (texto en NUMBER) | 400 + error específico |
-| Condición no cumplida | Campo oculto/ignorado según regla |
-| Cálculo con dependencia faltante | Error controlado |
-| Modificar respuesta existente | 200 + historial creado |
+# Esperado: >70% cobertura
+
+# Verificar JSON Schema
+grep -r "ajv\|joi\|schema" src/modules/formularios/ | grep -i "validate\|schema"
+
+# Esperado: Validación presente
+
+# Verificar tipos
+grep -r "type.*string\|type.*number\|enum" src/modules/formularios/
+
+# Esperado: Esquema con tipos
+
+# Verificar autosave
+grep -r "setInterval\|30000\|draft" src/modules/formularios/
+
+# Esperado: Draft autosave presente
+
+# Verificar historial
+grep -r "versions\|history" src/modules/formularios/
+
+# Esperado: Versionado presente
+```
 
 ---
 
-## FORMATO DE RESPUESTA OBLIGATORIO
+## 📝 FORMATO ENTREGA
 
-```
-A) Análisis: hallazgos + riesgos + deuda técnica
-B) Plan: 3–6 pasos con archivos y criterios de éxito
-C) Cambios: archivos editados y qué cambió
-D) Verificación: comandos ejecutados y resultados
-E) Pendientes: mejoras recomendadas (máx 5)
-```
-
----
-
-## NOTAS DE INTEGRACIÓN FRONTEND↔BACKEND
-
-1. **Renderizado:** Frontend recibe schema con campos, tipos, validaciones, condiciones
-2. **Payload submit:**
-   ```json
-   {
-     "templateId": "uuid",
-     "ordenId": "uuid",
-     "status": "BORRADOR" | "COMPLETADO",
-     "answers": {
-       "field_1": "valor",
-       "field_2": 123
-     }
-   }
-   ```
-3. **Response errores:**
-   ```json
-   {
-     "statusCode": 400,
-     "errors": [
-       { "fieldId": "field_1", "message": "Campo obligatorio" },
-       { "fieldId": "field_2", "message": "Debe ser mayor a 0" }
-     ]
-   }
-   ```
-
----
-
-## EMPIEZA AHORA
-Primero entrega **A) Análisis** del módulo formularios en el repo, luego el **Plan**.
+A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**

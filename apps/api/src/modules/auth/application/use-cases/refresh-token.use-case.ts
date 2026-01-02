@@ -72,6 +72,18 @@ export class RefreshTokenUseCase extends BaseAuthUseCase {
       const newSession = session.rotate(context.ip, context.userAgent);
       await this.authRepository.createSession(newSession);
 
+      // Audit log
+      try {
+        await this.authRepository.createAuditLog({
+          userId: session.userId,
+          action: 'REFRESH',
+          ip: context.ip,
+          userAgent: context.userAgent,
+        });
+      } catch {
+        // no-op
+      }
+
       // 8. Emitir evento
       this.eventEmitter.emit(
         'auth.token.refreshed',

@@ -1,5 +1,7 @@
 export type EmailAddress = string;
 
+import type { EmailTemplateName } from './email-templates';
+
 export interface SendEmailInput {
   to: EmailAddress | EmailAddress[];
   subject: string;
@@ -7,6 +9,13 @@ export interface SendEmailInput {
   text?: string;
   from?: EmailAddress;
   replyTo?: EmailAddress;
+
+  /**
+   * Plantilla de email (Handlebars) registrada en el módulo de notificaciones.
+   * Si se envía, se renderiza a html/text encolando el email.
+   */
+  template?: EmailTemplateName;
+  templateData?: Record<string, unknown>;
 
   /**
    * Número máximo de intentos (reintentos) ante fallo.

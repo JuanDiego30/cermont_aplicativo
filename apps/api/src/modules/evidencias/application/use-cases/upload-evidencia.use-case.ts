@@ -3,8 +3,15 @@
  * @description Handles file upload, validation, and domain event emission
  */
 
-import { Injectable, Inject, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  Logger,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { createHash } from 'crypto';
 import { Evidencia } from '../../domain/entities';
 import { FileValidatorService } from '../../domain/services';
 import {
@@ -23,6 +30,7 @@ export interface UploadEvidenciaCommand {
   file: Express.Multer.File;
   dto: UploadEvidenciaDto;
   uploadedBy: string;
+  uploaderRole?: string;
 }
 
 export interface UploadEvidenciaResult {
@@ -47,7 +55,7 @@ export class UploadEvidenciaUseCase {
   ) { }
 
   async execute(command: UploadEvidenciaCommand): Promise<UploadEvidenciaResult> {
-    const { file, dto, uploadedBy } = command;
+    const { file, dto, uploadedBy, uploaderRole } = command;
 
     this.logger.log(`Uploading evidencia for orden ${dto.ordenId}`, {
       filename: file.originalname,
@@ -60,6 +68,16 @@ export class UploadEvidenciaUseCase {
       const orden = await this.ordenRepository.findById(dto.ordenId);
       if (!orden) {
         throw new NotFoundException('Orden no encontrada');
+      }
+
+      const role = uploaderRole?.toLowerCase();
+      const isPrivileged = role === 'admin' || role === 'supervisor';
+      const canUpload =
+        isPrivileged ||
+        orden.creadorId === uploadedBy ||
+        orden.asignadoId === uploadedBy;
+      if (!canUpload) {
+        throw new ForbiddenException('No autorizado');
       }
 
       // 1. Validate file
@@ -85,6 +103,10 @@ export class UploadEvidenciaUseCase {
       }
 
       // 2. Create domain entity
+      const sha256 = file.buffer
+        ? createHash('sha256').update(file.buffer).digest('hex')
+        : undefined;
+
       const evidencia = Evidencia.create({
         ejecucionId: dto.ejecucionId || '',
         ordenId: dto.ordenId,
@@ -99,6 +121,7 @@ export class UploadEvidenciaUseCase {
             .filter(Boolean)
           : [],
         uploadedBy,
+        sha256,
       });
 
       // 3. Upload to storage

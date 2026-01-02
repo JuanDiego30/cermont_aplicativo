@@ -41,6 +41,7 @@ describe('UploadEvidenciaUseCase', () => {
 
     const result = await makeUseCase().execute({
       uploadedBy: 'user-1',
+      uploaderRole: 'tecnico',
       dto: { ordenId: 'orden-404' } as any,
       file: {
         originalname: 'x.pdf',

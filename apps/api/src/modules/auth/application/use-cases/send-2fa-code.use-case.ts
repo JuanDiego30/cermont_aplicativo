@@ -16,7 +16,6 @@ export class Send2FACodeUseCase {
         private readonly prisma: PrismaService,
         private readonly eventEmitter: EventEmitter2,
     ) {
-        this.logger.log('Send2FACodeUseCase instantiated');
     }
 
     async execute(email: string): Promise<Send2FACodeResult> {
@@ -28,17 +27,20 @@ export class Send2FACodeUseCase {
                     id: true,
                     email: true,
                     name: true,
-                    twoFactorEnabled: true
+                    twoFactorEnabled: true,
+                    role: true,
                 }
             });
 
             if (!user) {
-                this.logger.warn(`2FA code request failed: User not found for email ${email}`);
+                this.logger.warn('2FA code request failed: User not found');
                 throw new NotFoundException('Usuario no encontrado');
             }
 
-            if (!user.twoFactorEnabled) {
-                this.logger.warn(`2FA code request failed: 2FA not enabled for user ${user.id}`);
+            // Regla 2: admin SIEMPRE requiere 2FA.
+            const isAdmin = String(user.role) === 'admin';
+            if (!user.twoFactorEnabled && !isAdmin) {
+                this.logger.warn('2FA code request failed: 2FA not enabled');
                 throw new BadRequestException('El usuario no tiene 2FA habilitado');
             }
 
@@ -76,7 +78,20 @@ export class Send2FACodeUseCase {
                 expiresAt
             });
 
-            this.logger.log(`2FA code generated for user ${user.id}, expires at ${expiresAt.toISOString()}`);
+            // Audit log (sin secretos)
+            await this.prisma.auditLog.create({
+                data: {
+                    entityType: 'User',
+                    entityId: user.id,
+                    action: '2FA_CODE_SENT',
+                    userId: user.id,
+                    changes: {
+                        expiresAt: expiresAt.toISOString(),
+                    } as any,
+                },
+            });
+
+            this.logger.log(`2FA code generated for user ${user.id}`);
 
             return {
                 message: 'Código de verificación enviado exitosamente',

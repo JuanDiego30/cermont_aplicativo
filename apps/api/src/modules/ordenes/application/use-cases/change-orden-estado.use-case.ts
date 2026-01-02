@@ -38,6 +38,38 @@ export class ChangeOrdenEstadoUseCase {
         throw new NotFoundException(`Orden no encontrada: ${id}`);
       }
 
+      // Reglas 13/17: Validaciones previas a ciertos cambios de estado.
+      // - Cancelar: solo permitido en estados iniciales (pendiente/planeacion).
+      // - Pasar a ejecución: requiere técnico asignado y al menos 1 item.
+      const estadoActual = String(orden.estado.value);
+      const nuevoEstado = String(dto.nuevoEstado);
+
+      if (nuevoEstado === 'cancelada') {
+        const cancellableStates = new Set(['pendiente', 'planeacion']);
+        if (!cancellableStates.has(estadoActual)) {
+          throw new BadRequestException(
+            `No se puede cancelar una orden en estado: ${estadoActual}`,
+          );
+        }
+      }
+
+      if (nuevoEstado === 'ejecucion') {
+        if (!orden.asignadoId) {
+          throw new BadRequestException(
+            'No se puede iniciar ejecución sin técnico asignado',
+          );
+        }
+
+        const itemsCount = await this.prisma.orderItem.count({
+          where: { orderId: id },
+        });
+        if (itemsCount <= 0) {
+          throw new BadRequestException(
+            'No se puede iniciar ejecución sin items registrados en la orden',
+          );
+        }
+      }
+
       // Validar transición de estado
       OrdenStateMachine.validateTransition(
         orden.estado.value as DomainOrdenEstado,

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, MinLength, MaxLength, IsOptional, IsBoolean } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, MaxLength, IsOptional, IsBoolean, Length } from 'class-validator';
 
 export class LoginDto {
     @ApiProperty({
@@ -29,4 +29,13 @@ export class LoginDto {
     @IsOptional()
     @IsBoolean()
     rememberMe?: boolean;
+
+    @ApiPropertyOptional({
+        description: 'Código 2FA (obligatorio para admin)',
+        example: '123456',
+    })
+    @IsOptional()
+    @IsString()
+    @Length(6, 6, { message: 'El código 2FA debe tener 6 dígitos' })
+    twoFactorCode?: string;
 }

@@ -15,11 +15,13 @@ import {
   UseGuards,
   BadRequestException,
   UnauthorizedException,
+  ForbiddenException,
   Inject,
   Logger,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Response, Request } from 'express';
+import { randomUUID } from 'crypto';
 // Application - Use Cases (direct imports to avoid circular dependency)
 import { LoginUseCase } from '../../application/use-cases/login.use-case';
 import { RegisterUseCase } from '../../application/use-cases/register.use-case';
@@ -32,6 +34,9 @@ import { Public } from '../../../../common/decorators/public.decorator';
 import { CurrentUser, JwtPayload } from '../../../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../../../common/guards/jwt-auth.guard';
 import { AUTH_CONSTANTS } from '../../auth.constants';
+import { ThrottleAuth } from '../../../../common/decorators/throttle.decorator';
+
+type RequestWithCookies = Request & { cookies?: Record<string, string> };
 
 function createRefreshCookieOptions(days: number) {
   return {
@@ -41,6 +46,24 @@ function createRefreshCookieOptions(days: number) {
     maxAge: days * 24 * 60 * 60 * 1000,
     path: '/',
   };
+}
+
+function createCsrfCookieOptions(days: number) {
+  return {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict' as const,
+    maxAge: days * 24 * 60 * 60 * 1000,
+    path: '/',
+  };
+}
+
+function assertCsrf(req: Request) {
+  const cookieToken = (req as RequestWithCookies).cookies?.[AUTH_CONSTANTS.CSRF_COOKIE_NAME];
+  const headerToken = req.header(AUTH_CONSTANTS.CSRF_HEADER_NAME);
+  if (!cookieToken || !headerToken || cookieToken !== headerToken) {
+    throw new ForbiddenException('CSRF token requerido');
+  }
 }
 
 @ApiTags('Auth')
@@ -60,6 +83,7 @@ export class AuthControllerRefactored {
 
   @Post('login')
   @Public()
+  @ThrottleAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Iniciar sesión' })
   async login(
@@ -68,8 +92,8 @@ export class AuthControllerRefactored {
     @Res({ passthrough: true }) res: Response,
   ) {
     try {
-      // ✅ Log del request (email only for privacy)
-      this.logger.log(`Login request received: ${dto.email}`);
+      // Regla 6: no loguear email ni secretos
+      this.logger.log('Login request received');
 
       const context = { ip: req.ip, userAgent: req.get('user-agent') };
       const result = await this.loginUseCase.execute(dto, context);
@@ -80,9 +104,14 @@ export class AuthControllerRefactored {
 
       res.cookie('refreshToken', result.refreshToken, createRefreshCookieOptions(refreshDays));
 
+      // Regla 5: CSRF (double submit cookie)
+      const csrfToken = randomUUID();
+      res.cookie(AUTH_CONSTANTS.CSRF_COOKIE_NAME, csrfToken, createCsrfCookieOptions(refreshDays));
+
       return {
         message: result.message,
         token: result.token,
+        csrfToken,
         user: result.user,
       };
     } catch (error) {
@@ -117,15 +146,24 @@ export class AuthControllerRefactored {
       createRefreshCookieOptions(AUTH_CONSTANTS.REFRESH_TOKEN_DAYS_DEFAULT),
     );
 
+    const csrfToken = randomUUID();
+    res.cookie(
+      AUTH_CONSTANTS.CSRF_COOKIE_NAME,
+      csrfToken,
+      createCsrfCookieOptions(AUTH_CONSTANTS.REFRESH_TOKEN_DAYS_DEFAULT),
+    );
+
     return {
       message: result.message,
       token: result.token,
+      csrfToken,
       user: result.user,
     };
   }
 
   @Post('refresh')
   @Public()
+  @ThrottleAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refrescar access token' })
   async refresh(
@@ -133,7 +171,11 @@ export class AuthControllerRefactored {
     @Body() body: { refreshToken?: string } = {},
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshToken = req.cookies?.refreshToken || body?.refreshToken;
+    const refreshToken = (req as RequestWithCookies).cookies?.refreshToken || body?.refreshToken;
+
+    if ((req as RequestWithCookies).cookies?.refreshToken) {
+      assertCsrf(req);
+    }
 
     if (!refreshToken) {
       throw new BadRequestException('Refresh token requerido');
@@ -149,7 +191,15 @@ export class AuthControllerRefactored {
       createRefreshCookieOptions(AUTH_CONSTANTS.REFRESH_TOKEN_DAYS_DEFAULT),
     );
 
-    return { token: result.token };
+    // Rotar CSRF token junto con refresh
+    const csrfToken = randomUUID();
+    res.cookie(
+      AUTH_CONSTANTS.CSRF_COOKIE_NAME,
+      csrfToken,
+      createCsrfCookieOptions(AUTH_CONSTANTS.REFRESH_TOKEN_DAYS_DEFAULT),
+    );
+
+    return { token: result.token, csrfToken };
   }
 
   @Post('logout')
@@ -163,15 +213,22 @@ export class AuthControllerRefactored {
     @Body() body: { refreshToken?: string } = {},
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshToken = req.cookies?.refreshToken || body?.refreshToken;
+    const refreshToken = (req as RequestWithCookies).cookies?.refreshToken || body?.refreshToken;
+
+    if ((req as RequestWithCookies).cookies?.refreshToken) {
+      assertCsrf(req);
+    }
 
     const result = await this.logoutUseCase.execute(
       user.userId,
       refreshToken,
       req.ip,
+      user.jti,
+      user.exp,
     );
 
     res.clearCookie('refreshToken', { path: '/' });
+    res.clearCookie(AUTH_CONSTANTS.CSRF_COOKIE_NAME, { path: '/' });
 
     return result;
   }

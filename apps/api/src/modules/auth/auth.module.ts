@@ -40,6 +40,7 @@ import { AUTH_REPOSITORY } from './domain/repositories';
 // Legacy (for gradual migration)
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { Auth2FAEmailHandler } from './infrastructure/event-handlers/auth-2fa-email.handler';
 
 // Lib Services
 import { PasswordService } from '../../lib/services/password.service';
@@ -47,11 +48,13 @@ import { PasswordService } from '../../lib/services/password.service';
 // Prisma
 import { PrismaModule } from '../../prisma/prisma.module';
 import { AUTH_CONSTANTS } from './auth.constants';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
     imports: [
         ConfigModule,
         PrismaModule,
+        NotificationsModule,
         CacheModule.register({
             ttl: 300000, // 5 minutos (ms) - TTL por defecto; Auth puede sobreescribir por key
             max: 1000,
@@ -62,16 +65,40 @@ import { AUTH_CONSTANTS } from './auth.constants';
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => {
+                const expiresIn =
+                    configService.get<string>(AUTH_CONSTANTS.JWT_EXPIRES_IN_ENV) ??
+                    AUTH_CONSTANTS.JWT_DEFAULT_EXPIRES_IN;
+
+                const privateKey =
+                    configService.get<string>(AUTH_CONSTANTS.JWT_PRIVATE_KEY_ENV) ??
+                    process.env[AUTH_CONSTANTS.JWT_PRIVATE_KEY_ENV];
+                const publicKey =
+                    configService.get<string>(AUTH_CONSTANTS.JWT_PUBLIC_KEY_ENV) ??
+                    process.env[AUTH_CONSTANTS.JWT_PUBLIC_KEY_ENV];
+
+                // Regla 1: RS256 (asymmetric). Fallback a HS* solo en no-producción.
+                if (privateKey && publicKey) {
+                    return {
+                        privateKey,
+                        publicKey,
+                        signOptions: {
+                            algorithm: 'RS256' as any,
+                            expiresIn: expiresIn as any,
+                        },
+                    };
+                }
+
+                const nodeEnv = configService.get<string>('NODE_ENV') ?? process.env.NODE_ENV ?? 'development';
+                if (nodeEnv === 'production') {
+                    throw new Error('JWT_PRIVATE_KEY y JWT_PUBLIC_KEY son requeridos en producción');
+                }
+
                 const secret =
                     configService.get<string>(AUTH_CONSTANTS.JWT_SECRET_ENV) ??
                     process.env[AUTH_CONSTANTS.JWT_SECRET_ENV];
                 if (!secret) {
-                    throw new Error('JWT_SECRET is required');
+                    throw new Error('JWT_SECRET (fallback) is required');
                 }
-
-                const expiresIn =
-                    configService.get<string>(AUTH_CONSTANTS.JWT_EXPIRES_IN_ENV) ??
-                    AUTH_CONSTANTS.JWT_DEFAULT_EXPIRES_IN;
 
                 return {
                     secret,
@@ -110,6 +137,7 @@ import { AUTH_CONSTANTS } from './auth.constants';
         // Legacy service
         AuthService,
         JwtStrategy,
+        Auth2FAEmailHandler,
     ],
     exports: [
         PasswordService,

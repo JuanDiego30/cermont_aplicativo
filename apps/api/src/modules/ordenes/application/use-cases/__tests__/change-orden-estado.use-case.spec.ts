@@ -13,7 +13,7 @@ describe('ChangeOrdenEstadoUseCase', () => {
     OrdenEntity.fromPersistence(
       {
         id: ordenId,
-        numero: 'ORD-0001',
+        numero: 'ORD-000001',
         descripcion: 'Orden de prueba para cambio de estado',
         cliente: 'Cliente',
         estado,

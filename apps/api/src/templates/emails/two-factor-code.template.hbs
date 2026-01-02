@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Código de verificación</title>
+  </head>
+  <body>
+    <h2>Código de verificación</h2>
+
+    {{#if name}}
+      <p>Hola {{name}},</p>
+    {{else}}
+      <p>Hola,</p>
+    {{/if}}
+
+    <p>Tu código de verificación (2FA) es:</p>
+
+    <p style="font-size: 24px; font-weight: bold; letter-spacing: 2px;">
+      {{code}}
+    </p>
+
+    {{#if expiresAt}}
+      <p>Expira el {{expiresAt}}.</p>
+    {{/if}}
+
+    <p>Si no solicitaste este código, ignora este mensaje.</p>
+  </body>
+</html>

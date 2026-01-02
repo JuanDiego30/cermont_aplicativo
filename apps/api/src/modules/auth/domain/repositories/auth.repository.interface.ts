@@ -9,6 +9,10 @@ export interface IAuthRepository {
   findUserById(id: string): Promise<AuthUserEntity | null>;
   create(data: Omit<AuthUserProps, 'id'>): Promise<AuthUserEntity>;
   updateLastLogin(userId: string): Promise<void>;
+
+  // Regla 7: lockout (5 intentos fallidos => 15 min)
+  incrementLoginAttempts(userId: string, lockUntil?: Date): Promise<{ loginAttempts: number; lockedUntil: Date | null }>;
+  resetLoginAttempts(userId: string): Promise<void>;
   createRefreshToken(data: {
     token: string;
     userId: string;
