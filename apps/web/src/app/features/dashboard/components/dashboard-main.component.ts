@@ -1,15 +1,16 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { DashboardService } from '../services/dashboard.service';
 import { DashboardStats, DashboardMetricas, OrdenReciente } from '../../../core/models/dashboard.model';
 import { logError } from '../../../core/utils/logger';
 
 @Component({
-    selector: 'app-dashboard-main',
-    standalone: true,
-    imports: [CommonModule, RouterModule],
-    template: `
+  selector: 'app-dashboard-main',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
     <div class="space-y-6">
       <!-- Header -->
       <div class="flex items-center justify-between">
@@ -138,46 +139,58 @@ import { logError } from '../../../core/utils/logger';
     </div>
   `
 })
-export class DashboardMainComponent implements OnInit {
-    private readonly dashboardService = inject(DashboardService);
+export class DashboardMainComponent implements OnInit, OnDestroy {
+  private readonly dashboardService = inject(DashboardService);
+  private readonly destroy$ = new Subject<void>();
 
-    stats = signal<DashboardStats | null>(null);
-    metricas = signal<DashboardMetricas | null>(null);
-    ordenesRecientes = signal<OrdenReciente[]>([]);
-    lastUpdate = new Date();
+  stats = signal<DashboardStats | null>(null);
+  metricas = signal<DashboardMetricas | null>(null);
+  ordenesRecientes = signal<OrdenReciente[]>([]);
+  lastUpdate = new Date();
 
-    ngOnInit() {
-        this.loadDashboardData();
-    }
+  ngOnInit() {
+    this.loadDashboardData();
+  }
 
-    loadDashboardData() {
-        // Load stats
-        this.dashboardService.getStats().subscribe({
-            next: (data) => this.stats.set(data),
+  loadDashboardData() {
+    // Load stats
+    this.dashboardService.getStats()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => this.stats.set(data),
         error: (err) => logError('Error loading stats', err)
-        });
+      });
 
-        // Load metricas
-        this.dashboardService.getMetricas().subscribe({
-            next: (data) => this.metricas.set(data),
-          error: (err) => logError('Error loading metricas', err)
-        });
+    // Load metricas
+    this.dashboardService.getMetricas()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => this.metricas.set(data),
+        error: (err) => logError('Error loading metricas', err)
+      });
 
-        // Load recent orders
-        this.dashboardService.getOrdenesRecientes().subscribe({
-            next: (response) => this.ordenesRecientes.set(response.data || []),
-          error: (err) => logError('Error loading ordenes recientes', err)
-        });
-    }
+    // Load recent orders
+    this.dashboardService.getOrdenesRecientes()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => this.ordenesRecientes.set(response.data || []),
+        error: (err) => logError('Error loading ordenes recientes', err)
+      });
+  }
 
-    getEstadoBadgeClass(estado: string): string {
-        const classes: Record<string, string> = {
-            'planeacion': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-            'ejecucion': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-            'pausada': 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
-            'completada': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-            'cancelada': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-        };
-        return classes[estado] || 'bg-gray-100 text-gray-800';
-    }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  getEstadoBadgeClass(estado: string): string {
+    const classes: Record<string, string> = {
+      'planeacion': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+      'ejecucion': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+      'pausada': 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+      'completada': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+      'cancelada': 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+    };
+    return classes[estado] || 'bg-gray-100 text-gray-800';
+  }
 }

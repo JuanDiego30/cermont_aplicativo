@@ -1,8 +1,30 @@
 import { BaseTemplate } from './base.template';
 
+/**
+ * Typed interface for CertificadoTemplate data
+ * Replaces `any` with proper typing (Agent 06 fix)
+ */
+export interface CertificadoPDFData {
+  tipo: string;
+  numeroCertificado?: string;
+  fechaInspeccion: Date | string;
+  fechaVencimiento: Date | string;
+  aprobado: boolean;
+  observaciones?: string;
+  elemento: {
+    codigo: string;
+    tipo: string;
+    ubicacion: string;
+  };
+  inspector?: {
+    nombre: string;
+    licencia?: string;
+  };
+}
+
 export class CertificadoTemplate extends BaseTemplate {
-    static generate(data: any): string {
-        const content = `
+  static generate(data: CertificadoPDFData): string {
+    const content = `
       <div style="text-align: center; margin: 50px 0;">
         <h1 style="font-size: 32px; color: #0066cc; margin-bottom: 10px;">
           CERTIFICADO DE INSPECCIÓN
@@ -91,6 +113,6 @@ export class CertificadoTemplate extends BaseTemplate {
       </div>
     `;
 
-        return this.wrap(`Certificado de Inspección - ${data.numeroCertificado}`, content);
-    }
+    return this.wrap(`Certificado de Inspección - ${data.numeroCertificado}`, content);
+  }
 }

@@ -1,8 +1,36 @@
 import { BaseTemplate } from './base.template';
 
+/**
+ * Typed interface for MantenimientoTemplate data
+ * Replaces `any` with proper typing (Agent 06 fix)
+ */
+export interface MantenimientoPDFData {
+  titulo: string;
+  tipo: string;
+  estado: string;
+  prioridad: string;
+  fechaProgramada: Date | string;
+  fechaInicio?: Date | string;
+  fechaFin?: Date | string;
+  duracionEstimada?: number;
+  descripcion?: string;
+  trabajoRealizado?: string;
+  recomendaciones?: string;
+  calificacionFinal?: number;
+  costoTotal?: number;
+  tecnico?: {
+    nombre: string;
+    email?: string;
+  };
+  tareas?: string[];
+  tareasCompletadas?: string[];
+  problemasEncontrados?: string[];
+  repuestosUtilizados?: string[];
+}
+
 export class MantenimientoTemplate extends BaseTemplate {
-    static generate(data: any): string {
-        const content = `
+  static generate(data: MantenimientoPDFData): string {
+    const content = `
       <h1>Reporte de Mantenimiento</h1>
       
       <div class="info-grid">
@@ -143,17 +171,17 @@ export class MantenimientoTemplate extends BaseTemplate {
       </div>
     `;
 
-        return this.wrap('Reporte de Mantenimiento', content);
-    }
+    return this.wrap('Reporte de Mantenimiento', content);
+  }
 
-    private static getEstadoBadgeClass(estado: string): string {
-        const map: Record<string, string> = {
-            COMPLETADO: 'success',
-            EN_PROGRESO: 'info',
-            PROGRAMADO: 'warning',
-            CANCELADO: 'danger',
-            VENCIDO: 'danger',
-        };
-        return map[estado] || 'info';
-    }
+  private static getEstadoBadgeClass(estado: string): string {
+    const map: Record<string, string> = {
+      COMPLETADO: 'success',
+      EN_PROGRESO: 'info',
+      PROGRAMADO: 'warning',
+      CANCELADO: 'danger',
+      VENCIDO: 'danger',
+    };
+    return map[estado] || 'info';
+  }
 }
