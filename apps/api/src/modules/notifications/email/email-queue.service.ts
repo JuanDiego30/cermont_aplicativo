@@ -5,7 +5,31 @@ import { EmailService } from './email.service';
 import type { SendEmailInput } from './email.types';
 import { renderEmailTemplate } from './email-templates';
 
-// BullMQ types (opcional)
+// BullMQ types (local interfaces to avoid hard dependency)
+interface BullQueue {
+  add: (name: string, data: any, opts?: any) => Promise<any>;
+  close: () => Promise<void>;
+}
+
+interface BullWorker {
+  close: () => Promise<void>;
+  on: (event: string, callback: (...args: any[]) => void) => void;
+}
+
+interface BullQueueEvents {
+  close: () => Promise<void>;
+  on: (event: string, callback: (...args: any[]) => void) => void;
+}
+
+interface BullJob {
+  id?: string;
+  data: EmailJobPayload;
+  attemptsMade: number;
+  opts: {
+    attempts: number;
+  };
+}
+
 let Queue: any;
 let Worker: any;
 let QueueEvents: any;
@@ -27,16 +51,16 @@ type EmailJobPayload = {
 export class EmailQueueService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(EmailQueueService.name);
 
-  private queue: any;
-  private worker: any;
-  private queueEvents: any;
-  private deadLetterQueue: any;
+  private queue: BullQueue | any; // Allow fallback to any for mock or real instance alignment
+  private worker: BullWorker | any;
+  private queueEvents: BullQueueEvents | any;
+  private deadLetterQueue: BullQueue | any;
   private useBullMQ = false;
 
   constructor(
     private readonly config: ConfigService,
     private readonly emailService: EmailService,
-  ) {}
+  ) { }
 
   async onModuleInit(): Promise<void> {
     try {
@@ -150,24 +174,30 @@ export class EmailQueueService implements OnModuleInit, OnModuleDestroy {
 
     this.queue = {
       add: async (_name: string, payload: any) => {
-        await this.processJob({ data: payload });
+        // Mock job object matches BullJob structure partially
+        await this.processJob({
+          data: payload,
+          attemptsMade: 0,
+          opts: { attempts: 3 },
+          id: 'mock-' + Date.now()
+        } as BullJob);
       },
-      close: async () => {},
+      close: async () => { },
     };
   }
 
   private setupEventListeners(): void {
     if (!this.queueEvents || !this.worker) return;
 
-    this.queueEvents.on('completed', ({ jobId }: any) => {
+    this.queueEvents.on('completed', ({ jobId }: { jobId: string }) => {
       this.logger.debug(`✅ Email job ${jobId} completado`);
     });
 
-    this.queueEvents.on('failed', ({ jobId, failedReason }: any) => {
+    this.queueEvents.on('failed', ({ jobId, failedReason }: { jobId: string; failedReason: string }) => {
       this.logger.error(`❌ Email job ${jobId} falló: ${failedReason}`);
     });
 
-    this.worker.on('failed', async (job: any, err: Error) => {
+    this.worker.on('failed', async (job: BullJob, err: Error) => {
       try {
         const attempts = job?.opts?.attempts ?? 1;
         const attemptsMade = job?.attemptsMade ?? 0;
@@ -190,8 +220,8 @@ export class EmailQueueService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  private async processJob(job: any): Promise<void> {
-    const payload = job.data as EmailJobPayload;
+  private async processJob(job: BullJob): Promise<void> {
+    const payload = job.data;
 
     const input = payload.email;
 
