@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
@@ -27,6 +27,9 @@ export interface LoginResponse {
     providedIn: 'root'
 })
 export class AuthService {
+    private readonly http = inject(HttpClient);
+    private readonly router = inject(Router);
+
     private readonly API_URL = `${environment.apiUrl}/auth`;
     private readonly TOKEN_KEY = 'access_token';
     private readonly REFRESH_TOKEN_KEY = 'refresh_token';
@@ -34,11 +37,6 @@ export class AuthService {
 
     private currentUserSubject = new BehaviorSubject<Usuario | null>(this.getUserFromStorage());
     public currentUser$ = this.currentUserSubject.asObservable();
-
-    constructor(
-        private http: HttpClient,
-        private router: Router
-    ) { }
 
     /**
      * Realiza el login del usuario

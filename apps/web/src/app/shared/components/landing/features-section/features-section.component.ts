@@ -4,7 +4,7 @@
  */
 
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 interface Service {
   icon: string;
@@ -16,7 +16,7 @@ interface Service {
 @Component({
   selector: 'app-features-section',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './features-section.component.html',
   styleUrl: './features-section.component.css'
 })

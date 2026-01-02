@@ -9,7 +9,7 @@
       (isHovered$ | async)
     ),
     'translate-x-0': isMobileOpen$ | async,
-    '-translate-x-full': !(isMobileOpen$ | async),
+    '-translate-x-full': (isMobileOpen$ | async) === false,
     'xl:translate-x-0': true
   }" (mouseenter)="onSidebarMouseEnter()" (mouseleave)="sidebarService.setHovered(false)">
   <div class="py-8 flex" [ngClass]="{

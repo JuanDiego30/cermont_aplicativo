@@ -56,11 +56,14 @@ const useCaseProviders = [
             useFactory: (config: ConfigService) => ({
                 storage: memoryStorage(), // Use memory for processing before save
                 limits: {
-                    fileSize: config.get<number>('MAX_UPLOAD_SIZE', 100 * 1024 * 1024), // 100MB default
-                },
-            }),
-            inject: [ConfigService],
-        }),
+                    fileSize:
+                        // Prefer prompt-aligned env var (MB), fallback to legacy bytes env var.
+                        ((config.get<number>('MAX_FILE_SIZE_MB') ?? 10) * 1024 * 1024) ||
+                        config.get<number>('MAX_UPLOAD_SIZE', 100 * 1024 * 1024),
+                 },
+             }),
+             inject: [ConfigService],
+         }),
     ],
     controllers: [EvidenciasController],
     providers: [

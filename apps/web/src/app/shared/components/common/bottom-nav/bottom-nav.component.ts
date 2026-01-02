@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
     selector: 'app-bottom-nav',
     standalone: true,
-    imports: [CommonModule, RouterModule, RouterLink, RouterLinkActive],
+    imports: [RouterModule, RouterLink, RouterLinkActive],
     template: `
     <!-- Bottom Navigation Bar - Mobile Only -->
     <nav class="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 lg:hidden safe-area-bottom">

@@ -3,7 +3,7 @@
  * @description Handles file upload, validation, and domain event emission
  */
 
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject, Logger, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Evidencia } from '../../domain/entities';
 import { FileValidatorService } from '../../domain/services';
@@ -15,6 +15,7 @@ import {
   IStorageProvider,
   STORAGE_PROVIDER,
 } from '../../infrastructure/storage/storage-provider.interface';
+import { ORDEN_REPOSITORY, IOrdenRepository } from '../../../ordenes/domain/repositories';
 import { EvidenciaMapper } from '../mappers';
 import { UploadEvidenciaDto, EvidenciaResponse } from '../dto';
 
@@ -39,6 +40,8 @@ export class UploadEvidenciaUseCase {
     private readonly repository: IEvidenciaRepository,
     @Inject(STORAGE_PROVIDER)
     private readonly storage: IStorageProvider,
+    @Inject(ORDEN_REPOSITORY)
+    private readonly ordenRepository: IOrdenRepository,
     private readonly eventEmitter: EventEmitter2,
     private readonly fileValidator: FileValidatorService,
   ) { }
@@ -53,6 +56,12 @@ export class UploadEvidenciaUseCase {
     });
 
     try {
+      // 0. Validate required link: Orden must exist
+      const orden = await this.ordenRepository.findById(dto.ordenId);
+      if (!orden) {
+        throw new NotFoundException('Orden no encontrada');
+      }
+
       // 1. Validate file
       const validation = await this.fileValidator.validateFile({
         mimetype: file.mimetype,
@@ -113,6 +122,9 @@ export class UploadEvidenciaUseCase {
         evidencia: EvidenciaMapper.toResponse(saved),
       };
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        return { success: false, errors: [(error as Error).message] };
+      }
       this.logger.error('Upload failed', {
         error: (error as Error).message,
         stack: (error as Error).stack,

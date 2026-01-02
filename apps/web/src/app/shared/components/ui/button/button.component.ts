@@ -1,29 +1,29 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { SafeHtmlPipe } from '../../../pipe/safe-html.pipe';
 
 @Component({
   selector: 'app-button',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     SafeHtmlPipe,
   ],
   templateUrl: './button.component.html',
   styles: ``,
-  host: {
-
-  },
 })
 export class ButtonComponent {
 
   @Input() size: 'sm' | 'md' = 'md';
   @Input() variant: 'primary' | 'outline' = 'primary';
   @Input() disabled = false;
+  @Input() loading = false;
   @Input() className = '';
   @Input() startIcon?: string; // SVG or icon class, or use ng-content for more flexibility
   @Input() endIcon?: string;
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
+  @Input() ariaLabel?: string;
 
   @Output() btnClick = new EventEmitter<Event>();
 
@@ -40,11 +40,11 @@ export class ButtonComponent {
   }
 
   get disabledClasses(): string {
-    return this.disabled ? 'cursor-not-allowed opacity-50' : '';
+    return (this.disabled || this.loading) ? 'cursor-not-allowed opacity-50' : '';
   }
 
   onClick(event: Event) {
-    if (!this.disabled) {
+    if (!this.disabled && !this.loading) {
       this.btnClick.emit(event);
     }
   }

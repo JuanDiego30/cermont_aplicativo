@@ -1,11 +1,11 @@
 import { Component, Input, Output, EventEmitter, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { UploadService } from '../../../core/services/upload.service';
 
 @Component({
     selector: 'app-avatar-editor',
     standalone: true,
-    imports: [CommonModule],
+    imports: [],
     template: `
     <div class="relative inline-block">
       <!-- Avatar Display -->

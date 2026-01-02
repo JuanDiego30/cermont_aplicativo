@@ -6,7 +6,7 @@
  */
 
 import { Component, OnInit, OnDestroy, signal, inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 
 interface SyncProgress {
   current: number;
@@ -16,7 +16,7 @@ interface SyncProgress {
 @Component({
   selector: 'app-connection-indicator',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './connection-indicator.component.html',
   styleUrl: './connection-indicator.component.css'
 })

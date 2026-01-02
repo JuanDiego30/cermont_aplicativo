@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 interface Particle {
     x: number;
@@ -14,7 +14,7 @@ interface Particle {
 @Component({
     selector: 'app-antigravity-background',
     standalone: true,
-    imports: [CommonModule],
+    imports: [],
     template: `
     <canvas 
       #canvas

@@ -1,10 +1,10 @@
-import { Component, ElementRef, HostListener, ViewChild, AfterViewInit, ChangeDetectorRef, ChangeDetectionStrategy, NgZone } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ElementRef, HostListener, ViewChild, AfterViewInit, ChangeDetectorRef, ChangeDetectionStrategy, NgZone, inject } from '@angular/core';
+
 
 @Component({
   selector: 'app-spotlight-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div 
@@ -36,10 +36,8 @@ export class SpotlightCardComponent implements AfterViewInit {
 
   spotlightGradient = 'transparent';
 
-  constructor(
-    private cdr: ChangeDetectorRef,
-    private ngZone: NgZone
-  ) { }
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly ngZone = inject(NgZone);
 
   ngAfterViewInit(): void {
     // Run outside Angular to avoid NG0100 error

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, QueryList, ViewChildren, ChangeDetectorRef } from '@angular/core';
+import { Component, ElementRef, QueryList, ViewChildren, ChangeDetectorRef, inject } from '@angular/core';
 import { SidebarService } from '../../services/sidebar.service';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { SafeHtmlPipe } from '../../pipe/safe-html.pipe';
@@ -26,6 +26,9 @@ type NavItem = {
   templateUrl: './app-sidebar.component.html',
 })
 export class AppSidebarComponent {
+  public readonly sidebarService = inject(SidebarService);
+  private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   // Main nav items - Navegación completa de CERMONT
   navItems: NavItem[] = [
@@ -142,11 +145,7 @@ export class AppSidebarComponent {
 
   private subscription: Subscription = new Subscription();
 
-  constructor(
-    public sidebarService: SidebarService,
-    private router: Router,
-    private cdr: ChangeDetectorRef
-  ) {
+  constructor() {
     this.isExpanded$ = this.sidebarService.isExpanded$;
     this.isMobileOpen$ = this.sidebarService.isMobileOpen$;
     this.isHovered$ = this.sidebarService.isHovered$;

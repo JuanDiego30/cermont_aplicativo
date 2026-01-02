@@ -15,6 +15,7 @@ import {
   UseInterceptors,
   UploadedFiles,
   BadRequestException,
+  PayloadTooLargeException,
   HttpStatus,
   HttpCode,
   Res,
@@ -119,6 +120,7 @@ export class EvidenciasController {
     const { buffer, filename, mimeType } = await this.downloadUseCase.execute({
       id,
       requestedBy: user.userId,
+      requesterRole: user.role,
     });
 
     res.setHeader('Content-Type', mimeType);
@@ -170,10 +172,12 @@ export class EvidenciasController {
       throw new BadRequestException('Archivo requerido (campo "archivo" o "file")');
     }
 
-    // Extra guardrail: enforce max size here as well (Multer has limits too)
-    const MAX_SIZE_BYTES = 100 * 1024 * 1024;
-    if (file.size > MAX_SIZE_BYTES) {
-      throw new BadRequestException(`Archivo excede el tamaño máximo (${MAX_SIZE_BYTES} bytes)`);
+    // Multer enforces the hard upper bound. Domain validation enforces per-type limits.
+    // If the file already exceeds Multer limits, it may not reach this handler.
+    // Keep a minimal fallback to return 413 when `file.size` is unexpectedly huge.
+    const MAX_SIZE_BYTES_FALLBACK = 100 * 1024 * 1024;
+    if (file.size > MAX_SIZE_BYTES_FALLBACK) {
+      throw new PayloadTooLargeException('Archivo demasiado grande');
     }
 
     // Parse and validate body with Zod

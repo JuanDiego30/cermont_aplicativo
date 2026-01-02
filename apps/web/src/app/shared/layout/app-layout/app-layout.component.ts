@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SidebarService } from '../../services/sidebar.service';
 import { CommonModule } from '@angular/common';
 import { AppSidebarComponent } from '../app-sidebar/app-sidebar.component';
@@ -25,11 +25,13 @@ import { MobileHeaderComponent } from '../../components/common/mobile-header/mob
 })
 
 export class AppLayoutComponent {
+  public readonly sidebarService = inject(SidebarService);
+
   readonly isExpanded$;
   readonly isHovered$;
   readonly isMobileOpen$;
 
-  constructor(public sidebarService: SidebarService) {
+  constructor() {
     this.isExpanded$ = this.sidebarService.isExpanded$;
     this.isHovered$ = this.sidebarService.isHovered$;
     this.isMobileOpen$ = this.sidebarService.isMobileOpen$;

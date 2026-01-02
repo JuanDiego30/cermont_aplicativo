@@ -241,10 +241,6 @@ export class ProductListTableComponent {
   perPage: number = 7;
   showFilter: boolean = false;
 
-  ngOnInit() {
-    // Initialize component
-  }
-
   sortedProducts(): Product[] {
     return [...this.products].sort((a, b) => {
       let valA: any = a[this.sort.key];

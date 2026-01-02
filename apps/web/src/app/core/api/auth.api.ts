@@ -26,13 +26,13 @@ interface RegisterRequest {
 export class AuthApi {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/auth`;
-  private tokenKey = 'auth_token';
+  private tokenKey = 'cermont_access_token';
 
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, {
       email,
       password
-    }).pipe(
+    }, { withCredentials: true }).pipe(
       map((response) => {
         localStorage.setItem(this.tokenKey, response.token);
         return response;
@@ -41,7 +41,7 @@ export class AuthApi {
   }
 
   register(data: RegisterRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/register`, data).pipe(
+    return this.http.post<LoginResponse>(`${this.apiUrl}/register`, data, { withCredentials: true }).pipe(
       map((response) => {
         localStorage.setItem(this.tokenKey, response.token);
         return response;

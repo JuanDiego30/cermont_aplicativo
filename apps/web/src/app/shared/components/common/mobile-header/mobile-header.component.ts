@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 import { ThemeService } from '../../../../core/services/theme.service';
 import { DashboardService } from '../../../../features/dashboard/services/dashboard.service';
@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-mobile-header',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [RouterModule],
   templateUrl: './mobile-header.component.html',
   styles: [`
     .safe-area-top {

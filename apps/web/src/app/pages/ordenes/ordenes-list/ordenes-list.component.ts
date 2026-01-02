@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { AdvancedTableComponent, TableColumn, TableAction } from '../../../shared/components/advanced-table/advanced-table.component';
 
@@ -16,7 +16,7 @@ interface Orden {
 @Component({
   selector: 'app-ordenes-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdvancedTableComponent],
+  imports: [FormsModule, AdvancedTableComponent],
   template: `
     <div class="space-y-6">
       <!-- Header -->

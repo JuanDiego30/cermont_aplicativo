@@ -1,4 +1,4 @@
-.card {
+﻿.card {
   background: var(--bg-card, white);
   border-radius: 0.5rem;
   padding: 1rem;
@@ -14,7 +14,7 @@
 
 /* small helpers */
 .input { width: 100%; padding: .5rem; border-radius: .375rem }
-/* Estilos para el componente de detalle de órdenes */
+/* Estilos para el componente de detalle de Ã³rdenes */
 
 .btn-primary {
   padding: 0.5rem 1rem;

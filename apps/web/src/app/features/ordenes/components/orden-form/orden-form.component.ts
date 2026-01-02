@@ -1,5 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+﻿import { Component, OnInit, inject, signal } from '@angular/core';
+
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { OrdenesService } from '../../services/ordenes.service';
@@ -8,7 +8,7 @@ import { Prioridad } from '../../../../core/models/orden.model';
 @Component({
   selector: 'app-orden-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule],
   templateUrl: './orden-form.component.html',
   styleUrls: ['./orden-form.component.css']
 })
@@ -125,9 +125,9 @@ export class OrdenFormComponent implements OnInit {
 
     const errors = control.errors;
     if (errors['required']) return 'Este campo es requerido';
-    if (errors['maxlength']) return `Máximo ${errors['maxlength'].requiredLength} caracteres`;
-    if (errors['min']) return `El valor mínimo es ${errors['min'].min}`;
+    if (errors['maxlength']) return `MÃ¡ximo ${errors['maxlength'].requiredLength} caracteres`;
+    if (errors['min']) return `El valor mÃ­nimo es ${errors['min'].min}`;
 
-    return 'Campo inválido';
+    return 'Campo invÃ¡lido';
   }
 }

@@ -33,15 +33,23 @@ export class StorageService {
     }
 
     getToken(): string | null {
-        return this.getItem('authToken');
+        // Fuente principal
+        const primary = this.getItem('cermont_access_token');
+        if (primary) return primary;
+
+        // Retrocompatibilidad
+        return this.getItem('auth_token') || this.getItem('authToken') || this.getItem('access_token');
     }
 
     setToken(token: string): void {
-        this.setItem('authToken', token);
+        this.setItem('cermont_access_token', token);
     }
 
     removeToken(): void {
+        this.removeItem('cermont_access_token');
+        this.removeItem('auth_token');
         this.removeItem('authToken');
+        this.removeItem('access_token');
     }
 
     getRefreshToken(): string | null {

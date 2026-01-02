@@ -8,6 +8,8 @@ import {
   OnInit,
   OnDestroy,
   HostListener
+  ,
+  inject
 } from '@angular/core';
 
 @Component({
@@ -21,12 +23,12 @@ import {
 export class ModalComponent {
 
   @Input() isOpen = false;
-  @Output() close = new EventEmitter<void>();
+  @Output() closed = new EventEmitter<void>();
   @Input() className = '';
   @Input() showCloseButton = true;
   @Input() isFullscreen = false;
 
-  constructor(private el: ElementRef) {}
+  private readonly el = inject(ElementRef);
 
   ngOnInit() {
     if (this.isOpen) {
@@ -44,7 +46,7 @@ export class ModalComponent {
 
   onBackdropClick(event: MouseEvent) {
     if (!this.isFullscreen) {
-      this.close.emit();
+      this.closed.emit();
     }
   }
 
@@ -55,7 +57,7 @@ export class ModalComponent {
   @HostListener('document:keydown.escape', ['$event'])
   onEscape(event: KeyboardEvent) {
     if (this.isOpen) {
-      this.close.emit();
+      this.closed.emit();
     }
   }
 }

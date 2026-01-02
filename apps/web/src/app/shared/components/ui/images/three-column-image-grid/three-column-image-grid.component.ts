@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 
 @Component({
     selector: 'app-three-column-image-grid',
     standalone: true,
-    imports: [CommonModule],
+    imports: [],
     template: `
     <div class="grid grid-cols-3 gap-4">
       <img class="rounded-lg" src="assets/images/grid-image/image-01.jpg" alt="Image 1" />

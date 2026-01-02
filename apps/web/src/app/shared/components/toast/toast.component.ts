@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Toast, ToastService } from './toast.service';
 
@@ -8,26 +8,27 @@ import { Toast, ToastService } from './toast.service';
   imports: [CommonModule],
   template: `
     <div class="fixed bottom-4 right-4 z-[9999] space-y-3">
-      <div
-        *ngFor="let toast of toasts"
-        [@fadeInOut]
-        [ngClass]="getToastClasses(toast.type)"
-        class="max-w-sm p-4 rounded-lg shadow-lg flex items-center gap-3 animate-slideUp"
-      >
-        <!-- Icon -->
-        <span class="text-xl">{{ getIcon(toast.type) }}</span>
-
-        <!-- Message -->
-        <p class="flex-1 text-sm font-medium">{{ toast.message }}</p>
-
-        <!-- Close Button -->
-        <button
-          (click)="removeToast(toast.id)"
-          class="text-2xl hover:opacity-70 transition w-6 h-6 flex items-center justify-center"
+      @for (toast of toasts; track toast.id) {
+        <div
+          [@fadeInOut]
+          [ngClass]="getToastClasses(toast.type)"
+          class="max-w-sm p-4 rounded-lg shadow-lg flex items-center gap-3 animate-slideUp"
         >
-          ×
-        </button>
-      </div>
+          <!-- Icon -->
+          <span class="text-xl">{{ getIcon(toast.type) }}</span>
+
+          <!-- Message -->
+          <p class="flex-1 text-sm font-medium">{{ toast.message }}</p>
+
+          <!-- Close Button -->
+          <button
+            (click)="removeToast(toast.id)"
+            class="text-2xl hover:opacity-70 transition w-6 h-6 flex items-center justify-center"
+          >
+            ×
+          </button>
+        </div>
+      }
     </div>
   `,
   styles: [`
@@ -50,7 +51,7 @@ import { Toast, ToastService } from './toast.service';
 export class ToastComponent implements OnInit {
   toasts: Toast[] = [];
 
-  constructor(private toastService: ToastService) {}
+  private readonly toastService = inject(ToastService);
 
   ngOnInit() {
     this.toastService.toasts.subscribe(toasts => {

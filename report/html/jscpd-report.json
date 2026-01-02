@@ -1,6 +1,6 @@
 {
   "statistics": {
-    "detectionDate": "2025-12-30T01:35:46.434Z",
+    "detectionDate": "2026-01-02T15:27:46.452Z",
     "formats": {
       "typescript": {
         "sources": {
@@ -54,19 +54,31 @@
           },
           "apps/api/src/common/domain/exceptions/business-rule-violation.error.ts": {
             "lines": 26,
-            "tokens": 181,
+            "tokens": 183,
             "sources": 1,
             "clones": 1,
             "duplicatedLines": 7,
             "duplicatedTokens": 56,
             "percentage": 26.92,
-            "percentageTokens": 30.94,
+            "percentageTokens": 30.6,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/common/domain/events/domain-events.ts": {
             "lines": 102,
             "tokens": 725,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/templates/emails/alerta-email.template.ts": {
+            "lines": 101,
+            "tokens": 193,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -172,15 +184,27 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
-          "apps/api/src/lib/logging/logger.service.ts": {
-            "lines": 94,
-            "tokens": 940,
+          "apps/api/src/lib/logging/sanitize.ts": {
+            "lines": 132,
+            "tokens": 1356,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
             "duplicatedTokens": 0,
             "percentage": 0,
             "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/lib/logging/logger.service.ts": {
+            "lines": 349,
+            "tokens": 4015,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 16,
+            "duplicatedTokens": 226,
+            "percentage": 4.58,
+            "percentageTokens": 5.63,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -378,7 +402,7 @@
           },
           "apps/api/src/common/middleware/security.middleware.ts": {
             "lines": 117,
-            "tokens": 984,
+            "tokens": 982,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -390,7 +414,7 @@
           },
           "apps/api/src/common/middleware/request-id.middleware.ts": {
             "lines": 43,
-            "tokens": 250,
+            "tokens": 246,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -413,14 +437,14 @@
             "newClones": 0
           },
           "apps/api/src/common/logging/logger.service.ts": {
-            "lines": 196,
-            "tokens": 1832,
+            "lines": 10,
+            "tokens": 18,
             "sources": 1,
-            "clones": 10,
-            "duplicatedLines": 66,
-            "duplicatedTokens": 982,
-            "percentage": 33.67,
-            "percentageTokens": 53.6,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -496,6 +520,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "apps/api/src/common/interceptors/http-logging.interceptor.ts": {
+            "lines": 66,
+            "tokens": 727,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "apps/api/src/common/guards/throttle.guard.ts": {
             "lines": 21,
             "tokens": 171,
@@ -510,7 +546,7 @@
           },
           "apps/api/src/common/guards/roles.guard.ts": {
             "lines": 77,
-            "tokens": 612,
+            "tokens": 603,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -522,7 +558,7 @@
           },
           "apps/api/src/common/guards/jwt-auth.guard.ts": {
             "lines": 64,
-            "tokens": 476,
+            "tokens": 469,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -869,8 +905,8 @@
             "newClones": 0
           },
           "apps/api/src/app.module.ts": {
-            "lines": 231,
-            "tokens": 1005,
+            "lines": 200,
+            "tokens": 1223,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -953,8 +989,20 @@
             "newClones": 0
           },
           "apps/api/jest.config.ts": {
-            "lines": 24,
-            "tokens": 173,
+            "lines": 25,
+            "tokens": 181,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/jest.auth.config.ts": {
+            "lines": 28,
+            "tokens": 170,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -966,14 +1014,14 @@
           }
         },
         "total": {
-          "lines": 7863,
-          "tokens": 59266,
-          "sources": 80,
-          "clones": 42,
-          "duplicatedLines": 291,
-          "duplicatedTokens": 3010,
-          "percentage": 3.7,
-          "percentageTokens": 5.08,
+          "lines": 8229,
+          "tokens": 63179,
+          "sources": 84,
+          "clones": 38,
+          "duplicatedLines": 266,
+          "duplicatedTokens": 2632,
+          "percentage": 3.23,
+          "percentageTokens": 4.17,
           "newDuplicatedLines": 0,
           "newClones": 0
         }
@@ -983,6 +1031,18 @@
           "report/html/js/prism.js": {
             "lines": 16,
             "tokens": 4581,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/scripts/jest-wrapper.cjs": {
+            "lines": 88,
+            "tokens": 928,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1016,6 +1076,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "apps/api/.eslintrc.js": {
+            "lines": 16,
+            "tokens": 131,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "analyze_duplication.js": {
             "lines": 13,
             "tokens": 234,
@@ -1030,9 +1102,9 @@
           }
         },
         "total": {
-          "lines": 91,
-          "tokens": 5428,
-          "sources": 4,
+          "lines": 195,
+          "tokens": 6487,
+          "sources": 6,
           "clones": 0,
           "duplicatedLines": 0,
           "duplicatedTokens": 0,
@@ -1044,14 +1116,14 @@
       }
     },
     "total": {
-      "lines": 7954,
-      "tokens": 64694,
-      "sources": 84,
-      "clones": 42,
-      "duplicatedLines": 291,
-      "duplicatedTokens": 3010,
-      "percentage": 3.66,
-      "percentageTokens": 4.65,
+      "lines": 8424,
+      "tokens": 69666,
+      "sources": 90,
+      "clones": 38,
+      "duplicatedLines": 266,
+      "duplicatedTokens": 2632,
+      "percentage": 3.16,
+      "percentageTokens": 3.78,
       "newDuplicatedLines": 0,
       "newClones": 0
     }
@@ -1068,13 +1140,13 @@
         "end": 22,
         "startLoc": {
           "line": 15,
-          "column": 27,
-          "position": 95
+          "column": 7,
+          "position": 97
         },
         "endLoc": {
           "line": 22,
           "column": 5,
-          "position": 151
+          "position": 153
         }
       },
       "secondFile": {
@@ -1347,6 +1419,42 @@
     },
     {
       "format": "typescript",
+      "lines": 9,
+      "fragment": "): void {\r\n        const level: LogLevel = statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'log';\r\n        this.write(level, `[HTTP] ${method} ${sanitizeUrl(url)} ${statusCode} - ${durationMs}ms`, 'HTTP', {\r\n            method,\r\n            url: sanitizeUrl(url),\r\n            statusCode,\r\n            durationMs,\r\n            userId,\r\n            ",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\lib\\logging\\logger.service.ts",
+        "start": 140,
+        "end": 148,
+        "startLoc": {
+          "line": 140,
+          "column": 5,
+          "position": 1674
+        },
+        "endLoc": {
+          "line": 148,
+          "column": 13,
+          "position": 1787
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\lib\\logging\\logger.service.ts",
+        "start": 122,
+        "end": 130,
+        "startLoc": {
+          "line": 122,
+          "column": 7,
+          "position": 1481
+        },
+        "endLoc": {
+          "line": 130,
+          "column": 9,
+          "position": 1594
+        }
+      }
+    },
+    {
+      "format": "typescript",
       "lines": 8,
       "fragment": "<\r\n    TModel,\r\n    TWhere = Record<string, unknown>,\r\n    TOrderBy = Record<string, 'asc' | 'desc'>,\r\n    TInclude = Record<string, boolean | object>,\r\n    TSelect = Record<string, boolean>,\r\n> {\r\n    model",
       "tokens": 0,
@@ -1486,186 +1594,6 @@
           "line": 114,
           "column": 4,
           "position": 718
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 6,
-      "fragment": "(message: string, context?: string, meta?: Record<string, unknown>): void {\r\n        const contextStr = context ? `[${context}] ` : '';\r\n        const metaStr = meta && Object.keys(meta).length > 0 \r\n            ? ` ${JSON.stringify(meta)}` \r\n            : '';\r\n        this.logger.warn",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
-        "start": 65,
-        "end": 70,
-        "startLoc": {
-          "line": 65,
-          "column": 5,
-          "position": 492
-        },
-        "endLoc": {
-          "line": 70,
-          "column": 5,
-          "position": 600
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
-        "start": 29,
-        "end": 34,
-        "startLoc": {
-          "line": 29,
-          "column": 5,
-          "position": 92
-        },
-        "endLoc": {
-          "line": 34,
-          "column": 4,
-          "position": 200
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 6,
-      "fragment": "(message: string, context?: string, meta?: Record<string, unknown>): void {\r\n        const contextStr = context ? `[${context}] ` : '';\r\n        const metaStr = meta && Object.keys(meta).length > 0 \r\n            ? ` ${JSON.stringify(meta)}` \r\n            : '';\r\n        this.logger.debug",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
-        "start": 76,
-        "end": 81,
-        "startLoc": {
-          "line": 76,
-          "column": 6,
-          "position": 629
-        },
-        "endLoc": {
-          "line": 81,
-          "column": 6,
-          "position": 737
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
-        "start": 29,
-        "end": 34,
-        "startLoc": {
-          "line": 29,
-          "column": 5,
-          "position": 92
-        },
-        "endLoc": {
-          "line": 34,
-          "column": 4,
-          "position": 200
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 6,
-      "fragment": "(message: string, context?: string, meta?: Record<string, unknown>): void {\r\n        const contextStr = context ? `[${context}] ` : '';\r\n        const metaStr = meta && Object.keys(meta).length > 0 \r\n            ? ` ${JSON.stringify(meta)}` \r\n            : '';\r\n        this.logger.verbose",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
-        "start": 87,
-        "end": 92,
-        "startLoc": {
-          "line": 87,
-          "column": 8,
-          "position": 766
-        },
-        "endLoc": {
-          "line": 92,
-          "column": 8,
-          "position": 874
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
-        "start": 29,
-        "end": 34,
-        "startLoc": {
-          "line": 29,
-          "column": 5,
-          "position": 92
-        },
-        "endLoc": {
-          "line": 34,
-          "column": 4,
-          "position": 200
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 13,
-      "fragment": "}`;\r\n        if (statusCode >= 500) {\r\n            this.logger.error(message);\r\n        } else if (statusCode >= 400) {\r\n            this.logger.warn(message);\r\n        } else {\r\n            this.logger.log(message);\r\n        }\r\n    }\r\n\r\n    /**\r\n     * Log de error con stack trace completo\r\n     */",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
-        "start": 170,
-        "end": 182,
-        "startLoc": {
-          "line": 170,
-          "column": 8,
-          "position": 1600
-        },
-        "endLoc": {
-          "line": 182,
-          "column": 8,
-          "position": 1692
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
-        "start": 145,
-        "end": 157,
-        "startLoc": {
-          "line": 145,
-          "column": 10,
-          "position": 1336
-        },
-        "endLoc": {
-          "line": 157,
-          "column": 8,
-          "position": 1428
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 7,
-      "fragment": ",\r\n        meta?: Record<string, unknown>,\r\n    ): void {\r\n        const metaStr = meta && Object.keys(meta).length > 0\r\n            ? ` ${JSON.stringify(meta)}`\r\n            : '';\r\n        this",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
-        "start": 185,
-        "end": 191,
-        "startLoc": {
-          "line": 185,
-          "column": 7,
-          "position": 1713
-        },
-        "endLoc": {
-          "line": 191,
-          "column": 5,
-          "position": 1788
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\common\\logging\\logger.service.ts",
-        "start": 120,
-        "end": 126,
-        "startLoc": {
-          "line": 120,
-          "column": 5,
-          "position": 1075
-        },
-        "endLoc": {
-          "line": 126,
-          "column": 6,
-          "position": 1150
         }
       }
     },

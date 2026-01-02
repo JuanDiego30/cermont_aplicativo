@@ -1,4 +1,4 @@
-import { Component, NgZone, ElementRef, ViewChild } from '@angular/core';
+import { Component, NgZone, ElementRef, ViewChild, inject } from '@angular/core';
 import * as am5 from "@amcharts/amcharts5";
 import * as am5map from "@amcharts/amcharts5/map";
 import am5geodata_worldLow from "@amcharts/amcharts5-geodata/worldLow";
@@ -11,7 +11,7 @@ export class CountryMapComponent {
   @ViewChild('chartdiv', { static: true }) chartdiv!: ElementRef;
   root!: am5.Root;
 
-  constructor(private zone: NgZone) { }
+  private readonly zone = inject(NgZone);
 
   ngOnInit() {
     this.zone.runOutsideAngular(() => {

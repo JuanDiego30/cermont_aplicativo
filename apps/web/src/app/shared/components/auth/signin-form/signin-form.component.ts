@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -10,12 +10,11 @@ import { ButtonComponent } from '../../ui/button/button.component';
   selector: 'app-signin-form',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     LabelComponent,
     ButtonComponent,
-    RouterModule,
-  ],
+    RouterModule
+],
   templateUrl: './signin-form.component.html',
   styles: ``
 })

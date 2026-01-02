@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -73,9 +73,8 @@ export interface PaginatedResponse<T> {
     providedIn: 'root'
 })
 export class OrdenesService {
+    private readonly http = inject(HttpClient);
     private readonly API_URL = `${environment.apiUrl}/ordenes`;
-
-    constructor(private http: HttpClient) { }
 
     /**
      * Obtiene todas las órdenes con paginación y filtros
@@ -119,7 +118,7 @@ export class OrdenesService {
      * Actualiza una orden existente
      */
     update(id: string, orden: UpdateOrdenDto): Observable<Orden> {
-        return this.http.put<Orden>(`${this.API_URL}/${id}`, orden).pipe(
+        return this.http.patch<Orden>(`${this.API_URL}/${id}`, orden).pipe(
             catchError(this.handleError)
         );
     }
@@ -137,7 +136,7 @@ export class OrdenesService {
      * Obtiene estadísticas de órdenes
      */
     getEstadisticas(): Observable<Record<string, unknown>> {
-        return this.http.get<Record<string, unknown>>(`${this.API_URL}/estadisticas`).pipe(
+        return this.http.get<Record<string, unknown>>(`${this.API_URL}/stats`).pipe(
             catchError(this.handleError)
         );
     }

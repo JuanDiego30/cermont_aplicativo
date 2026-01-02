@@ -7,7 +7,7 @@
  */
 
 import { Component, OnInit, signal, inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 export interface ChatMessage {
@@ -29,7 +29,7 @@ interface QuickSuggestion {
 @Component({
   selector: 'app-asistente-ia',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './asistente-ia.component.html',
   styleUrl: './asistente-ia.component.css'
 })

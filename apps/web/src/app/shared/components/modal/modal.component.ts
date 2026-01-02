@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface ModalConfig {
@@ -22,52 +22,61 @@ export interface ModalAction {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div *ngIf="isOpen" class="modal-overlay" (click)="onBackdropClick()">
-      <div 
-        class="modal-content"
-        [ngClass]="getSizeClass()"
-        (click)="$event.stopPropagation()"
-      >
-        <!-- Header -->
-        <div class="modal-header border-b border-gray-200 dark:border-gray-800 flex items-center justify-between p-6">
-          <div>
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ config.title }}</h2>
-            <p *ngIf="config.subtitle" class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ config.subtitle }}</p>
-          </div>
-          <button 
-            *ngIf="config.closeButton !== false"
-            (click)="close()"
-            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-gray-800"
-          >
-            ×
-          </button>
-        </div>
-
-        <!-- Body -->
-        <div class="modal-body p-6 overflow-y-auto max-h-[calc(100vh-300px)]">
-          <ng-content></ng-content>
-        </div>
-
-        <!-- Footer -->
+    @if (isOpen) {
+      <div class="modal-overlay" (click)="onBackdropClick()">
         <div 
-          *ngIf="actions.length"
-          class="modal-footer border-t border-gray-200 dark:border-gray-800 p-6 flex gap-3 justify-end"
+          class="modal-content"
+          [ngClass]="getSizeClass()"
+          (click)="$event.stopPropagation()"
         >
-          <button
-            *ngFor="let action of actions"
-            (click)="action.onClick()"
-            [disabled]="action.disabled || action.loading"
-            [ngClass]="getActionClasses(action)"
-          >
-            <span *ngIf="!action.loading">{{ action.label }}</span>
-            <span *ngIf="action.loading" class="inline-flex items-center gap-2">
-              <span class="spinner"></span>
-              Procesando...
-            </span>
-          </button>
+          <!-- Header -->
+          <div class="modal-header border-b border-gray-200 dark:border-gray-800 flex items-center justify-between p-6">
+            <div>
+              <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ config.title }}</h2>
+              @if (config.subtitle) {
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ config.subtitle }}</p>
+              }
+            </div>
+            @if (config.closeButton !== false) {
+              <button 
+                (click)="close()"
+                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                ×
+              </button>
+            }
+          </div>
+
+          <!-- Body -->
+          <div class="modal-body p-6 overflow-y-auto max-h-[calc(100vh-300px)]">
+            <ng-content></ng-content>
+          </div>
+
+          <!-- Footer -->
+          @if (actions.length) {
+            <div class="modal-footer border-t border-gray-200 dark:border-gray-800 p-6 flex gap-3 justify-end">
+              @for (action of actions; track action.label) {
+                <button
+                  (click)="action.onClick()"
+                  [disabled]="action.disabled || action.loading"
+                  [ngClass]="getActionClasses(action)"
+                >
+                  @if (!action.loading) {
+                    <span>{{ action.label }}</span>
+                  }
+                  @if (action.loading) {
+                    <span class="inline-flex items-center gap-2">
+                      <span class="spinner"></span>
+                      Procesando...
+                    </span>
+                  }
+                </button>
+              }
+            </div>
+          }
         </div>
       </div>
-    </div>
+    }
   `,
   styles: [`
     .modal-overlay {
