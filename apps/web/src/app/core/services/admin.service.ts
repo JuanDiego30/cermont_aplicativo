@@ -3,6 +3,7 @@ import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http'
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { logError } from '../utils/logger';
 import {
   User,
   CreateUserDto,
@@ -160,7 +161,7 @@ export class AdminService {
       errorMessage = error.error?.message || `Error ${error.status}: ${error.statusText}`;
     }
 
-    console.error('AdminService Error:', errorMessage);
+    logError('AdminService Error', error, { errorMessage });
     return throwError(() => new Error(errorMessage));
   }
 }

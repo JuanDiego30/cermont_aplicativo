@@ -98,6 +98,14 @@ export class AuthControllerRefactored {
       const context = { ip: req.ip, userAgent: req.get('user-agent') };
       const result = await this.loginUseCase.execute(dto, context);
 
+      if ('requires2FA' in result && result.requires2FA) {
+        return {
+          message: result.message,
+          requires2FA: true,
+          expiresIn: result.expiresIn,
+        };
+      }
+
       const refreshDays = dto.rememberMe
         ? AUTH_CONSTANTS.REFRESH_TOKEN_DAYS_REMEMBER
         : AUTH_CONSTANTS.REFRESH_TOKEN_DAYS_DEFAULT;

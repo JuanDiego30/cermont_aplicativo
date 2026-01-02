@@ -12,17 +12,20 @@
  * - Operaciones aritméticas solo entre misma moneda
  */
 
+import { Logger } from '@nestjs/common';
+import { ValidationError, BusinessRuleViolationError, InvalidCurrencyException } from '../exceptions';
+
+const logger = new Logger('Money');
+
 // Decimal.js es open source y gratuito
 let Decimal: any;
 try {
   Decimal = require('decimal.js');
-} catch (error) {
+} catch {
   // Si no está instalado, usar fallback (no recomendado para producción)
-  console.warn('⚠️  decimal.js no está instalado. Instalar con: npm install decimal.js');
-  console.warn('⚠️  Usando Number como fallback (NO RECOMENDADO para producción)');
+  logger.warn('decimal.js no está instalado. Instalar con: npm install decimal.js');
+  logger.warn('Usando Number como fallback (NO RECOMENDADO para producción)');
 }
-
-import { ValidationError, BusinessRuleViolationError, InvalidCurrencyException } from '../exceptions';
 
 export class Money {
   private static readonly VALID_CURRENCIES = ['COP', 'USD', 'EUR'];

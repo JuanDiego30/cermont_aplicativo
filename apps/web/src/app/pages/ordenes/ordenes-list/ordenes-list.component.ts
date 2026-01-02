@@ -184,17 +184,14 @@ export class OrdenesListComponent implements OnInit {
   }
 
   verOrden(orden: Orden) {
-    console.log('Ver orden:', orden);
     // Implementar navegación a detalle
   }
 
   editarOrden(orden: Orden) {
-    console.log('Editar orden:', orden);
     // Implementar edición
   }
 
   eliminarOrden(orden: Orden) {
-    console.log('Eliminar orden:', orden);
     // Implementar eliminación con confirmación
   }
 }

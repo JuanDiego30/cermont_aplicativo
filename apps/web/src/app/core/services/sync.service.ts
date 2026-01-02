@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, interval } from 'rxjs';
+import { logError } from '../utils/logger';
 
 interface SyncQueueItem {
     id: string;
@@ -72,7 +73,7 @@ export class SyncService {
         try {
             localStorage.setItem('sync_queue', JSON.stringify(this.syncQueue));
         } catch (error) {
-            console.error('Error guardando cola de sincronización:', error);
+            logError('Error guardando cola de sincronización', error);
         }
     }
 
@@ -86,7 +87,7 @@ export class SyncService {
                 this.syncQueue = JSON.parse(stored);
             }
         } catch (error) {
-            console.error('Error cargando cola de sincronización:', error);
+            logError('Error cargando cola de sincronización', error);
         }
     }
 
@@ -123,7 +124,7 @@ export class SyncService {
             this.saveQueueToStorage();
             this.syncStatus$.next('synced');
         } catch (error) {
-            console.error('Error durante sincronización:', error);
+            logError('Error durante sincronización', error);
             this.syncStatus$.next('idle');
         } finally {
             this.isSyncing = false;

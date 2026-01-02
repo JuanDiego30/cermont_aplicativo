@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { DashboardService } from '../services/dashboard.service';
 import { DashboardStats, DashboardMetricas, OrdenReciente } from '../../../core/models/dashboard.model';
+import { logError } from '../../../core/utils/logger';
 
 @Component({
     selector: 'app-dashboard-main',
@@ -153,19 +154,19 @@ export class DashboardMainComponent implements OnInit {
         // Load stats
         this.dashboardService.getStats().subscribe({
             next: (data) => this.stats.set(data),
-            error: (err) => console.error('Error loading stats:', err)
+        error: (err) => logError('Error loading stats', err)
         });
 
         // Load metricas
         this.dashboardService.getMetricas().subscribe({
             next: (data) => this.metricas.set(data),
-            error: (err) => console.error('Error loading metricas:', err)
+          error: (err) => logError('Error loading metricas', err)
         });
 
         // Load recent orders
         this.dashboardService.getOrdenesRecientes().subscribe({
             next: (response) => this.ordenesRecientes.set(response.data || []),
-            error: (err) => console.error('Error loading ordenes recientes:', err)
+          error: (err) => logError('Error loading ordenes recientes', err)
         });
     }
 

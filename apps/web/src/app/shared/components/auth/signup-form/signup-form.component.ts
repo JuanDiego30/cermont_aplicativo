@@ -6,6 +6,7 @@ import { InputFieldComponent } from '../../form/input/input-field.component';
 import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { FormsModule } from '@angular/forms';
+import { logError } from '../../../../core/utils/logger';
 
 
 @Component({
@@ -49,7 +50,7 @@ export class SignupFormComponent {
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
-        console.error('Registration failed', err);
+        logError('Registration failed', err);
         // Handle error (show message to user)
       }
     });

@@ -8,20 +8,28 @@ import { LoginDto } from '../dto/login.dto';
 import { AuthContext } from '../dto/auth-types.dto';
 import { BaseAuthUseCase } from './base-auth.use-case';
 import { Verify2FACodeUseCase } from './verify-2fa-code.use-case';
+import { Send2FACodeUseCase } from './send-2fa-code.use-case';
 
-export interface LoginResult {
-  message: string;
-  token: string;
-  refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-    avatar?: string;
-    phone?: string;
-  };
-}
+export type LoginResult =
+  | {
+      requires2FA: true;
+      message: string;
+      expiresIn?: number;
+    }
+  | {
+      requires2FA?: false;
+      message: string;
+      token: string;
+      refreshToken: string;
+      user: {
+        id: string;
+        email: string;
+        name: string;
+        role: string;
+        avatar?: string;
+        phone?: string;
+      };
+    };
 
 @Injectable()
 export class LoginUseCase extends BaseAuthUseCase {
@@ -35,6 +43,7 @@ export class LoginUseCase extends BaseAuthUseCase {
     @Inject(JwtService)
     jwtService: JwtService,
     private readonly verify2FACodeUseCase: Verify2FACodeUseCase,
+    private readonly send2FACodeUseCase: Send2FACodeUseCase,
   ) {
     super(jwtService);
     // Verificar que las dependencias estén disponibles
@@ -126,7 +135,14 @@ export class LoginUseCase extends BaseAuthUseCase {
             ip: context.ip,
             userAgent: context.userAgent,
           });
-          throw new UnauthorizedException('2FA requerido');
+
+          // Disparar envío de código (email) y responder 200 con requires2FA
+          const sendResult = await this.send2FACodeUseCase.execute(user.email.getValue());
+          return {
+            requires2FA: true,
+            message: '2FA requerido',
+            expiresIn: sendResult.expiresIn,
+          };
         }
 
         // Verifica y marca como usado el token 2FA

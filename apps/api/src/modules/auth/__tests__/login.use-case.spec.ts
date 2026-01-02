@@ -24,9 +24,14 @@ describe('LoginUseCase', () => {
     execute: jest.fn(),
   };
 
+  const mockSend2FACodeUseCase = {
+    execute: jest.fn(),
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockVerify2FACodeUseCase.execute.mockResolvedValue({ valid: true, userId: 'user-1' });
+    mockSend2FACodeUseCase.execute.mockResolvedValue({ message: 'sent', expiresIn: 300 });
     mockAuthRepository.incrementLoginAttempts.mockResolvedValue(undefined);
     mockAuthRepository.resetLoginAttempts.mockResolvedValue(undefined);
   });
@@ -58,6 +63,7 @@ describe('LoginUseCase', () => {
       mockAuthRepository as any,
       mockJwtService as any,
       mockVerify2FACodeUseCase as any,
+      mockSend2FACodeUseCase as any,
     );
 
     const result = await useCase.execute(
@@ -65,10 +71,49 @@ describe('LoginUseCase', () => {
       { ip: '127.0.0.1', userAgent: 'jest' },
     );
 
+    if (result.requires2FA) {
+      throw new Error('Expected token response, got requires2FA');
+    }
     expect(result.token).toBe('access-token');
     expect(result.refreshToken).toBeDefined();
     expect(mockAuthRepository.findByEmail).toHaveBeenCalledWith('test@example.com');
     expect(mockAuthRepository.createRefreshToken).toHaveBeenCalledTimes(1);
+  });
+
+  it('login admin sin twoFactorCode retorna requires2FA y envía código', async () => {
+    (bcrypt.compare as unknown as jest.Mock).mockResolvedValue(true);
+
+    const user = {
+      id: 'admin-1',
+      active: true,
+      role: 'admin',
+      name: 'Admin',
+      avatar: null,
+      phone: null,
+      loginAttempts: 0,
+      email: { getValue: () => 'admin@cermont.com' },
+      canLogin: jest.fn(() => true),
+      isLocked: jest.fn(() => false),
+      getPasswordHash: jest.fn(() => 'hashed'),
+    };
+
+    mockAuthRepository.findByEmail.mockResolvedValue(user);
+    mockAuthRepository.createAuditLog.mockResolvedValue(undefined);
+
+    const useCase = new LoginUseCase(
+      mockAuthRepository as any,
+      mockJwtService as any,
+      mockVerify2FACodeUseCase as any,
+      mockSend2FACodeUseCase as any,
+    );
+
+    const result = await useCase.execute(
+      { email: 'admin@cermont.com', password: 'Password1!' } as any,
+      { ip: '127.0.0.1', userAgent: 'jest' },
+    );
+
+    expect(result.requires2FA).toBe(true);
+    expect(mockSend2FACodeUseCase.execute).toHaveBeenCalledWith('admin@cermont.com');
   });
 
   it('login con rememberMe=true usa refresh token de 7 días', async () => {
@@ -98,6 +143,7 @@ describe('LoginUseCase', () => {
       mockAuthRepository as any,
       mockJwtService as any,
       mockVerify2FACodeUseCase as any,
+      mockSend2FACodeUseCase as any,
     );
 
     const before = Date.now();
@@ -120,6 +166,7 @@ describe('LoginUseCase', () => {
       mockAuthRepository as any,
       mockJwtService as any,
       mockVerify2FACodeUseCase as any,
+      mockSend2FACodeUseCase as any,
     );
 
     await expect(
@@ -150,6 +197,7 @@ describe('LoginUseCase', () => {
       mockAuthRepository as any,
       mockJwtService as any,
       mockVerify2FACodeUseCase as any,
+      mockSend2FACodeUseCase as any,
     );
 
     await expect(
@@ -165,6 +213,7 @@ describe('LoginUseCase', () => {
       mockAuthRepository as any,
       mockJwtService as any,
       mockVerify2FACodeUseCase as any,
+      mockSend2FACodeUseCase as any,
     );
 
     await expect(
@@ -178,6 +227,7 @@ describe('LoginUseCase', () => {
       mockAuthRepository as any,
       mockJwtService as any,
       mockVerify2FACodeUseCase as any,
+      mockSend2FACodeUseCase as any,
     );
 
     await expect(
@@ -203,6 +253,7 @@ describe('LoginUseCase', () => {
       mockAuthRepository as any,
       mockJwtService as any,
       mockVerify2FACodeUseCase as any,
+      mockSend2FACodeUseCase as any,
     );
 
     await expect(
@@ -230,6 +281,7 @@ describe('LoginUseCase', () => {
       mockAuthRepository as any,
       mockJwtService as any,
       mockVerify2FACodeUseCase as any,
+      mockSend2FACodeUseCase as any,
     );
 
     await expect(
@@ -249,6 +301,7 @@ describe('LoginUseCase', () => {
       mockAuthRepository as any,
       mockJwtService as any,
       mockVerify2FACodeUseCase as any,
+      mockSend2FACodeUseCase as any,
     );
 
     await expect(
@@ -263,6 +316,7 @@ describe('LoginUseCase', () => {
       mockAuthRepository as any,
       mockJwtService as any,
       mockVerify2FACodeUseCase as any,
+      mockSend2FACodeUseCase as any,
     );
 
     await expect(
@@ -276,6 +330,7 @@ describe('LoginUseCase', () => {
       mockAuthRepository as any,
       mockJwtService as any,
       mockVerify2FACodeUseCase as any,
+      mockSend2FACodeUseCase as any,
     );
 
     await expect(

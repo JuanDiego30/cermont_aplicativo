@@ -3,6 +3,7 @@ import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http'
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { logError } from '../core/utils/logger';
 
 export interface Orden {
     id: string;
@@ -182,7 +183,7 @@ export class OrdenesService {
             }
         }
 
-        console.error('Error en OrdenesService:', errorMessage, error);
+        logError('Error en OrdenesService', error, { errorMessage });
         return throwError(() => new Error(errorMessage));
     }
 }

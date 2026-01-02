@@ -7,7 +7,7 @@
  * - Clean Code: Código legible con nombres descriptivos
  * - Type Safety: Interfaces para todos los retornos
  */
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 // ============================================================================
@@ -56,6 +56,8 @@ const ESTADO_COMPLETADA = 'completada';
 
 @Injectable()
 export class DashboardService {
+  private readonly logger = new Logger(DashboardService.name);
+
   constructor(private readonly prisma: PrismaService) { }
 
   /**
@@ -133,7 +135,7 @@ export class DashboardService {
       };
     } catch (error) {
       const err = error as Error;
-      console.error('[DashboardService.getMetricas] Error:', err.message, err.stack);
+      this.logger.error('Error en getMetricas', err.stack);
       throw error;
     }
   }

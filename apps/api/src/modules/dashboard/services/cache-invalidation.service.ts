@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 // Cache type viene de cache-manager como peer dependency de @nestjs/cache-manager
 // TypeScript lo resuelve automáticamente desde node_modules
@@ -9,6 +9,8 @@ import type { Cache } from 'cache-manager';
  */
 @Injectable()
 export class CacheInvalidationService {
+  private readonly logger = new Logger(CacheInvalidationService.name);
+
   constructor(@Inject(CACHE_MANAGER) private cache: Cache) {}
 
   /**
@@ -24,7 +26,7 @@ export class CacheInvalidationService {
       this.cache.del('dashboard:costs'),
       this.cache.del('dashboard:performance'),
     ]);
-    console.log('✅ Caché de dashboard invalidado');
+    this.logger.log('Caché de dashboard invalidado');
   }
 
   /**
@@ -32,7 +34,7 @@ export class CacheInvalidationService {
    */
   async invalidateKey(key: string): Promise<void> {
     await this.cache.del(key);
-    console.log(`✅ Caché "${key}" invalidado`);
+    this.logger.log(`Caché "${key}" invalidado`);
   }
 
   /**
@@ -46,11 +48,12 @@ export class CacheInvalidationService {
       } else if ((this.cache as any).clear) {
         await (this.cache as any).clear();
       } else {
-        console.warn('⚠️ No se pudo resetear el caché completamente: método no disponible');
+        this.logger.warn('No se pudo resetear el caché completamente: método no disponible');
       }
     } catch (error) {
-      console.warn('⚠️ No se pudo resetear el caché completamente:', error);
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`No se pudo resetear el caché completamente: ${message}`);
     }
-    console.log('✅ TODO el caché fue limpiado');
+    this.logger.log('TODO el caché fue limpiado');
   }
 }

@@ -32,6 +32,26 @@ describe('ChangeOrdenEstadoUseCase', () => {
     };
 
     const tx = {
+      order: {
+        update: jest.fn().mockResolvedValue({
+          id: ordenId,
+          numero: 'ORD-000001',
+          descripcion: 'Orden de prueba para cambio de estado',
+          cliente: 'Cliente',
+          estado: 'planeacion',
+          prioridad: 'media',
+          fechaInicio: null,
+          fechaFin: null,
+          fechaFinEstimada: null,
+          presupuestoEstimado: null,
+          creadorId: 'u1',
+          asignadoId: null,
+          createdAt: new Date('2025-01-01T00:00:00.000Z'),
+          updatedAt: new Date('2025-01-01T00:00:00.000Z'),
+          creador: { id: 'u1', name: 'User' },
+          asignado: null,
+        } as any),
+      },
       auditLog: { create: jest.fn().mockResolvedValue({ id: 'a1' }) },
       orderStateHistory: { create: jest.fn().mockResolvedValue({ id: 'h1' }) },
     };

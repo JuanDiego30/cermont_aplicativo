@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { OrdenesService, PaginatedOrdenes } from '../../services/ordenes.service';
 import { Orden, OrdenEstado, Prioridad, ListOrdenesQuery } from '../../../../core/models';
+import { logError } from '../../../../core/utils/logger';
 
 @Component({
   selector: 'app-ordenes-list',
@@ -64,7 +65,7 @@ export class OrdenesListComponent implements OnInit {
       error: (err) => {
         this.error.set('Error al cargar las órdenes');
         this.loading.set(false);
-        console.error('Error loading orders:', err);
+        logError('Error loading orders', err);
       }
     });
   }

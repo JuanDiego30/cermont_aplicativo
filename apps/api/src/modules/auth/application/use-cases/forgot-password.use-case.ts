@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException, BadRequestException } from '@nes
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { maskEmailForLogs } from '../../../../common/utils/pii.util';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcryptjs';
 
@@ -39,7 +40,7 @@ export class ForgotPasswordUseCase {
             if (!user) {
                 // Simular delay para evitar timing attacks
                 await this.delay(500 + Math.random() * 500);
-                this.logger.log(`Password reset requested for non-existent email: ${email}`);
+                this.logger.log(`Password reset requested for non-existent email: ${maskEmailForLogs(email)}`);
                 return successMessage;
             }
 
