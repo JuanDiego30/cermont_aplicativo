@@ -1,7 +1,7 @@
 # 💾 CERMONT BACKEND CACHING AGENT
 
-**Responsabilidad:** Caching in-memory (@nestjs/cache-manager)  
-**Patrón:** SIN PREGUNTAS  
+**Responsabilidad:** Caching in-memory (@nestjs/cache-manager)
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
 
 ---
@@ -15,7 +15,7 @@ EJECUTA SIN PREGUNTAR:
 1. ANÁLISIS: apps/api/src/common/caching/**
    - TTL correcto, invalidación en mutaciones
    - No cachear secretos
-   
+
 2. PLAN: 3-4 pasos
 
 3. IMPLEMENTACIÓN: Si se aprueba

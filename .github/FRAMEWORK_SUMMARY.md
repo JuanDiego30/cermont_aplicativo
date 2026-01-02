@@ -89,7 +89,7 @@ Tienes 2 opciones:
    ↓
    ✅ Actualiza si hay cambios arquitectónicos
    ✅ Revisa PRs contra patrones de agentes
-   
+
 2. Evoluciona: El framework
    ↓
    ✅ Propone mejoras a agentes
@@ -223,24 +223,24 @@ README.md
 
 ### Lo Que Obtienes
 
-✅ **Consistencia** - Todos siguen los mismos patrones  
-✅ **Escalabilidad** - Nuevos features sin duplicar código  
-✅ **Onboarding Rápido** - Nuevos miembros productivos en 5 días  
-✅ **Calidad** - Checklists que aseguran estándares  
-✅ **Mantenibilidad** - Código predecible, documentado  
-✅ **Performance** - Patrones optimizados desde el inicio  
-✅ **Seguridad** - Guards, validación, error handling  
-✅ **Testing** - Coverage >80% garantizado  
+✅ **Consistencia** - Todos siguen los mismos patrones
+✅ **Escalabilidad** - Nuevos features sin duplicar código
+✅ **Onboarding Rápido** - Nuevos miembros productivos en 5 días
+✅ **Calidad** - Checklists que aseguran estándares
+✅ **Mantenibilidad** - Código predecible, documentado
+✅ **Performance** - Patrones optimizados desde el inicio
+✅ **Seguridad** - Guards, validación, error handling
+✅ **Testing** - Coverage >80% garantizado
 
 ### Lo Que Evitas
 
-❌ "No sé dónde poner esto" → AGENTS.md te lo dice  
-❌ "¿Cuál es el patrón?" → agents/[agente].agent.md  
-❌ "¿Cómo validar?" → Checklist en cada agente  
-❌ "¿Se me olvida algo?" → TASK_TEMPLATE.md completo  
-❌ "Código inconsistente" → Patrones obligatorios  
-❌ "Memory leaks" → frontend-performance.agent.md  
-❌ "N+1 queries" → backend-[feature].agent.md  
+❌ "No sé dónde poner esto" → AGENTS.md te lo dice
+❌ "¿Cuál es el patrón?" → agents/[agente].agent.md
+❌ "¿Cómo validar?" → Checklist en cada agente
+❌ "¿Se me olvida algo?" → TASK_TEMPLATE.md completo
+❌ "Código inconsistente" → Patrones obligatorios
+❌ "Memory leaks" → frontend-performance.agent.md
+❌ "N+1 queries" → backend-[feature].agent.md
 
 ---
 
@@ -370,9 +370,9 @@ Cada agente es experto en su área:
 
 ---
 
-**Framework Status:** ✅ **PRODUCTION-READY**  
-**Versión:** 1.0  
-**Última actualización:** 2026-01-02  
+**Framework Status:** ✅ **PRODUCTION-READY**
+**Versión:** 1.0
+**Última actualización:** 2026-01-02
 **Creado para:** Máxima escalabilidad y mantenibilidad
 
 🚀 **¡Bienvenido a Cermont con un framework de clase mundial!**

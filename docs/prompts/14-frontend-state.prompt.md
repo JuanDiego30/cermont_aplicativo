@@ -1,7 +1,7 @@
 # 💾 CERMONT FRONTEND STATE AGENT
 
-**Responsabilidad:** State Management (Angular Signals o NgRx)  
-**Patrón:** SIN PREGUNTAS, Regla 41  
+**Responsabilidad:** State Management (Angular Signals o NgRx)
+**Patrón:** SIN PREGUNTAS, Regla 41
 **Última actualización:** 2026-01-02
 
 ---
@@ -15,7 +15,7 @@ EJECUTA SIN PREGUNTAR:
 1. ANÁLISIS: apps/web/src/app/core/state/**
    - No duplicación, memory leaks, tipos tipados
    - Regla 41: Estado en UNA fuente de verdad (backend)
-   
+
 2. PLAN: 3-4 pasos
 
 3. IMPLEMENTACIÓN: Si se aprueba

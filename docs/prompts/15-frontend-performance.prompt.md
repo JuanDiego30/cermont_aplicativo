@@ -1,7 +1,7 @@
 # ⚡ CERMONT FRONTEND PERFORMANCE AGENT
 
-**Responsabilidad:** Lazy loading, OnPush, trackBy, memory  
-**Patrón:** SIN PREGUNTAS  
+**Responsabilidad:** Lazy loading, OnPush, trackBy, memory
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
 
 ---
@@ -16,7 +16,7 @@ EJECUTA SIN PREGUNTAR:
    - Lazy loading, OnPush, trackBy
    - Core Web Vitals, bundle size
    - Memory leaks, suscripciones sin cleanup
-   
+
 2. PLAN: 3-4 pasos
 
 3. IMPLEMENTACIÓN: Si se aprueba

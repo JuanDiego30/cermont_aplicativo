@@ -1,7 +1,7 @@
 # 📚 CERMONT BACKEND API DOCS AGENT
 
-**Responsabilidad:** Swagger/OpenAPI (@nestjs/swagger)  
-**Patrón:** SIN PREGUNTAS  
+**Responsabilidad:** Swagger/OpenAPI (@nestjs/swagger)
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
 
 ---
@@ -15,7 +15,7 @@ EJECUTA SIN PREGUNTAR:
 1. ANÁLISIS: apps/api/src/main.ts, **/*controller.ts
    - @Api*, DTOs documentados
    - Ejemplos, error codes
-   
+
 2. PLAN: 3-4 pasos
 
 3. IMPLEMENTACIÓN: Si se aprueba

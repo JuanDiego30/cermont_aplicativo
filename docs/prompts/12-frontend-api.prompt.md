@@ -1,7 +1,7 @@
 # 🔗 CERMONT FRONTEND API AGENT
 
-**Responsabilidad:** Integración Angular ↔ NestJS (Regla 41)  
-**Patrón:** SIN PREGUNTAS  
+**Responsabilidad:** Integración Angular ↔ NestJS (Regla 41)
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
 
 ---
@@ -15,7 +15,7 @@ EJECUTA SIN PREGUNTAR:
 1. ANÁLISIS: apps/web/src/app/core/services/**
    - Interceptors de auth, URLs correctas, error handling
    - Regla 41: Backend es fuente de verdad
-   
+
 2. PLAN: 3-4 pasos
 
 3. IMPLEMENTACIÓN: Si se aprueba

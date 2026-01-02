@@ -6,23 +6,23 @@ tools: []
 # CERMONT BACKEND — SYNC MODULE AGENT
 
 ## Qué hace (accomplishes)
-Maneja la sincronización de datos entre dispositivos offline y servidor: colas de cambios, resolución de conflictos, reintento de fallos, y garantía de consistencia.  
+Maneja la sincronización de datos entre dispositivos offline y servidor: colas de cambios, resolución de conflictos, reintento de fallos, y garantía de consistencia.
 Es crítico porque móviles/campo pueden perder conexión y no pueden bloquearse.
 
 ## Scope (dónde trabaja)
-- Scope: `apps/api/src/modules/sync/**` (queue service, conflict resolver, SyncLog repository).  
+- Scope: `apps/api/src/modules/sync/**` (queue service, conflict resolver, SyncLog repository).
 - Integración: `ordenes`, `evidencias`, `formularios`, `dispositivos`.
 
 ## Cuándo usarlo
-- Cambios en la lógica de sync (qué eventos sincronizar, qué prioridad).  
-- Manejo de conflictos (último escritor gana, merge, user elige).  
-- Performance: optimizar colas, evitar duplicados, batching.  
+- Cambios en la lógica de sync (qué eventos sincronizar, qué prioridad).
+- Manejo de conflictos (último escritor gana, merge, user elige).
+- Performance: optimizar colas, evitar duplicados, batching.
 - Recovery: qué pasa si sync se interrumpe, reintento.
 
 ## Límites (CRÍTICOS)
-- No pierde cambios: todo se registra en cola aunque falle upload.  
-- No deja datos inconsistentes: versioning + timestamps en cada cambio.  
-- No sincroniza datos borrados sin confirmación (soft delete).  
+- No pierde cambios: todo se registra en cola aunque falle upload.
+- No deja datos inconsistentes: versioning + timestamps en cada cambio.
+- No sincroniza datos borrados sin confirmación (soft delete).
 - No permite que conflictos bloqueen todo; usa estrategia clara (LWW, merge, etc).
 
 ## Arquitectura Sync (patrón obligatorio)
@@ -60,7 +60,7 @@ export class SyncQueueService {
     private conflictResolver: ConflictResolverService,
     private logger: LoggerService
   ) {}
-  
+
   // En dispositivo: agregar a cola local
   async enqueueOffline(evento: SyncEvent): Promise<void> {
     await this.queueRepo.add({
@@ -71,11 +71,11 @@ export class SyncQueueService {
     });
     this.logger.log(`Evento encolado (offline): ${evento.tipo}`, 'SyncQueueService');
   }
-  
+
   // En servidor: recibir cola
   async procesarColaDelDispositivo(deviceId: string, eventos: SyncEvent[]): Promise<SyncResult> {
     const resultados: SyncResult = { exitosos: [], fallidos: [], conflictos: [] };
-    
+
     for (const evento of eventos) {
       try {
         // 1. Verificar si ya existe (duplicado)
@@ -85,7 +85,7 @@ export class SyncQueueService {
           resultados.exitosos.push(evento.id);
           continue;
         }
-        
+
         // 2. Validar versión (detectar conflicto)
         const ultimaVersion = await this.obtenerUltimaVersion(evento.entityType, evento.entityId);
         if (evento.version < ultimaVersion) {
@@ -100,13 +100,13 @@ export class SyncQueueService {
           // Sin conflicto
           resultados.exitosos.push(evento.id);
         }
-        
+
       } catch (error) {
         this.logger.error(`Error procesando evento ${evento.id}: ${error.message}`, error);
         resultados.fallidos.push({ eventoId: evento.id, error: error.message });
       }
     }
-    
+
     return resultados;
   }
 }
@@ -116,13 +116,13 @@ export class SyncQueueService {
 ```typescript
 @Injectable()
 export class ConflictResolverService {
-  
+
   async resolver(eventoLocal: SyncEvent, versionServidor: number): Promise<ResolucionConflicto> {
     // Estrategia 1: Last-Writer-Wins (más simple)
     if (eventoLocal.timestamp > new Date(versionServidor)) {
       return { aceptar: true };
     }
-    
+
     // Estrategia 2: Pedir al usuario
     return {
       aceptar: false,
@@ -137,10 +137,10 @@ export class ConflictResolverService {
 export class SincronizarDto {
   @IsUUID()
   deviceId: string;
-  
+
   @IsArray()
   eventos: SyncEvent[];
-  
+
   @IsDateString()
   ultimaSincronizacion: Date;
 }
@@ -154,26 +154,26 @@ export class SyncResultDto {
 ```
 
 ## Reglas GEMINI críticas para Sync
-- Regla 1: NO duplicar lógica de conflictos; centralizar en `ConflictResolverService`.  
-- Regla 2: Base class para procesadores de eventos.  
-- Regla 5: try/catch en procesar eventos + Logger detallado.  
-- Regla 8: Funciones pequeñas; resolver conflicto, procesar evento, etc.  
+- Regla 1: NO duplicar lógica de conflictos; centralizar en `ConflictResolverService`.
+- Regla 2: Base class para procesadores de eventos.
+- Regla 5: try/catch en procesar eventos + Logger detallado.
+- Regla 8: Funciones pequeñas; resolver conflicto, procesar evento, etc.
 - Regla 13: Paginación en cambios pendientes (no enviar mega-payloads).
 
 ## Entradas ideales (qué confirmar)
-- Eventos a sincronizar (qué acciones del usuario generan sync).  
-- Estrategia de conflictos (LWW, merge, manual).  
+- Eventos a sincronizar (qué acciones del usuario generan sync).
+- Estrategia de conflictos (LWW, merge, manual).
 - Restricciones: "sin librerías de sync complejas", "simple", etc.
 
 ## Salidas esperadas (output)
-- Servicio de cola + conflict resolver.  
-- DTOs de sincronización.  
+- Servicio de cola + conflict resolver.
+- DTOs de sincronización.
 - Tests: sin duplicados, conflictos resueltos, reintento.
 
 ## Checklist Sync "Done"
-- ✅ Colas procesadas sin perder eventos (idempotency).  
-- ✅ Versioning en cada cambio (evitar sobrescribir).  
-- ✅ Conflicto resolver funciona (LWW o merge).  
-- ✅ Reintento automático si falla.  
-- ✅ Historial de sync (auditoría).  
+- ✅ Colas procesadas sin perder eventos (idempotency).
+- ✅ Versioning en cada cambio (evitar sobrescribir).
+- ✅ Conflicto resolver funciona (LWW o merge).
+- ✅ Reintento automático si falla.
+- ✅ Historial de sync (auditoría).
 - ✅ Tests: eventos duplicados, conflictos, reintento.

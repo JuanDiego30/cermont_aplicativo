@@ -1,8 +1,8 @@
 # 💌 CERMONT BACKEND EMAILS AGENT
 
-**Responsabilidad:** Notificaciones por email (SMTP local)  
-**Restricción:** OSS only - NO SendGrid, AWS SES, Twilio  
-**Patrón:** SIN PREGUNTAS  
+**Responsabilidad:** Notificaciones por email (SMTP local)
+**Restricción:** OSS only - NO SendGrid, AWS SES, Twilio
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
 
 ---
@@ -17,7 +17,7 @@ EJECUTA SIN PREGUNTAR:
    - SMTP config (Nodemailer local)
    - Reintentos, manejo de errores
    - NO servicios pagos
-   
+
 2. PLAN: 3-4 pasos
 
 3. IMPLEMENTACIÓN: Si se aprueba

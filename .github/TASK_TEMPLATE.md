@@ -296,5 +296,5 @@ Ejemplos:
 
 ---
 
-**Plantilla versión:** 1.0  
+**Plantilla versión:** 1.0
 **Última actualización:** 2026-01-02

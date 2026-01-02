@@ -1,7 +1,7 @@
 # ⚙️ CERMONT DEVOPS CI/CD AGENT
 
-**Responsabilidad:** GitHub Actions, Docker, Deployment  
-**Patrón:** SIN PREGUNTAS  
+**Responsabilidad:** GitHub Actions, Docker, Deployment
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
 
 ---
@@ -15,7 +15,7 @@ EJECUTA SIN PREGUNTAR:
 1. ANÁLISIS: .github/workflows/**, Dockerfiles
    - CI pasa antes de merge
    - Tests en pipeline, deps sin vulnerabilidades
-   
+
 2. PLAN: 3-4 pasos
 
 3. IMPLEMENTACIÓN: Si se aprueba

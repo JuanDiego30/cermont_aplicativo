@@ -5,8 +5,8 @@ tools: []
 
 # 📚 BACKEND API DOCUMENTATION AGENT
 
-**Especialidad:** Documentación automática de APIs, Swagger/OpenAPI, ejemplos, error codes  
-**Stack:** @nestjs/swagger, OpenAPI 3.0, Swagger UI, ReDoc  
+**Especialidad:** Documentación automática de APIs, Swagger/OpenAPI, ejemplos, error codes
+**Stack:** @nestjs/swagger, OpenAPI 3.0, Swagger UI, ReDoc
 **Ubicación:** `apps/api/src/`
 
 ---
@@ -244,5 +244,5 @@ export class OrdenEntity {
 
 ---
 
-**Status:** ✅ Listo para uso  
+**Status:** ✅ Listo para uso
 **Última actualización:** 2026-01-02

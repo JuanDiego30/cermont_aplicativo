@@ -5,8 +5,8 @@ tools: []
 
 # 🔍 BACKEND LOGGING & OBSERVABILITY AGENT
 
-**Especialidad:** Centralización de logs, structured logging, observabilidad, métricas, trazabilidad  
-**Stack:** Winston/Bunyan, ELK Stack, Datadog, NewRelic, o solución custom  
+**Especialidad:** Centralización de logs, structured logging, observabilidad, métricas, trazabilidad
+**Stack:** Winston/Bunyan, ELK Stack, Datadog, NewRelic, o solución custom
 **Ubicación:** `apps/api/src/common/logging/**`, `apps/api/src/config/logger.config.ts`
 
 ---
@@ -235,5 +235,5 @@ export class AppModule {}
 
 ---
 
-**Status:** ✅ Listo para uso  
+**Status:** ✅ Listo para uso
 **Última actualización:** 2026-01-02

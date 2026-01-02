@@ -1,6 +1,6 @@
 {
   "statistics": {
-    "detectionDate": "2026-01-02T20:51:44.598Z",
+    "detectionDate": "2026-01-02T21:40:11.510Z",
     "formats": {
       "typescript": {
         "sources": {
@@ -268,6 +268,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "apps/api/src/common/utils/pii.util.ts": {
+            "lines": 13,
+            "tokens": 174,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "apps/api/src/common/utils/pagination.util.ts": {
             "lines": 180,
             "tokens": 1490,
@@ -401,8 +413,8 @@
             "newClones": 0
           },
           "apps/api/src/common/middleware/security.middleware.ts": {
-            "lines": 117,
-            "tokens": 982,
+            "lines": 120,
+            "tokens": 1014,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -533,8 +545,8 @@
             "newClones": 0
           },
           "apps/api/src/common/guards/throttle.guard.ts": {
-            "lines": 21,
-            "tokens": 171,
+            "lines": 25,
+            "tokens": 232,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1014,14 +1026,14 @@
           }
         },
         "total": {
-          "lines": 8229,
-          "tokens": 63343,
-          "sources": 84,
+          "lines": 8249,
+          "tokens": 63610,
+          "sources": 85,
           "clones": 38,
           "duplicatedLines": 266,
           "duplicatedTokens": 2632,
-          "percentage": 3.23,
-          "percentageTokens": 4.16,
+          "percentage": 3.22,
+          "percentageTokens": 4.14,
           "newDuplicatedLines": 0,
           "newClones": 0
         }
@@ -1116,14 +1128,14 @@
       }
     },
     "total": {
-      "lines": 8424,
-      "tokens": 69830,
-      "sources": 90,
+      "lines": 8444,
+      "tokens": 70097,
+      "sources": 91,
       "clones": 38,
       "duplicatedLines": 266,
       "duplicatedTokens": 2632,
-      "percentage": 3.16,
-      "percentageTokens": 3.77,
+      "percentage": 3.15,
+      "percentageTokens": 3.75,
       "newDuplicatedLines": 0,
       "newClones": 0
     }

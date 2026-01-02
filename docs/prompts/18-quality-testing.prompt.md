@@ -1,7 +1,7 @@
 # 🧪 CERMONT QUALITY TESTING AGENT
 
-**Responsabilidad:** Tests, cobertura, calidad de código  
-**Patrón:** SIN PREGUNTAS  
+**Responsabilidad:** Tests, cobertura, calidad de código
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
 
 ---
@@ -15,7 +15,7 @@ EJECUTA SIN PREGUNTAR:
 1. ANÁLISIS: Apps/api y apps/web
    - Cobertura de tests (métricas)
    - Módulos críticos sin tests
-   
+
 2. PLAN: 3-4 pasos
 
 3. IMPLEMENTACIÓN: Si se aprueba

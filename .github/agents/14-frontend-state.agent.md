@@ -6,23 +6,23 @@ tools: []
 # CERMONT FRONTEND — STATE & DATA MANAGEMENT AGENT
 
 ## Qué hace (accomplishes)
-Garantiza que el estado de la app sea predecible, rastreable y performante: patrones claros de flujo de datos, cache inteligente (no redundante), sincronización con servidor. [mcp_tool_github-mcp-direct_get_file_contents:0]  
+Garantiza que el estado de la app sea predecible, rastreable y performante: patrones claros de flujo de datos, cache inteligente (no redundante), sincronización con servidor. [mcp_tool_github-mcp-direct_get_file_contents:0]
 Es el "cerebro" de la app: errores aquí causan bugs silenciosos y rendimiento pobre.
 
 ## Scope (dónde trabaja)
-- Scope: `apps/web/src/app/core/state/**` (store, effects, selectors) o `apps/web/src/app/core/signals/**` (si usa Angular signals).  
+- Scope: `apps/web/src/app/core/state/**` (store, effects, selectors) o `apps/web/src/app/core/signals/**` (si usa Angular signals).
 - Integración: todos los features consumen estado centralizado.
 
 ## Cuándo usarlo
-- Agregar nuevo estado (nuevos datos a sincronizar).  
-- Refactor: centralizar estado disperso en componentes.  
-- Optimizar: eliminar suscripciones innecesarias, mejorar selectors.  
+- Agregar nuevo estado (nuevos datos a sincronizar).
+- Refactor: centralizar estado disperso en componentes.
+- Optimizar: eliminar suscripciones innecesarias, mejorar selectors.
 - Cache: definir qué cachear y por cuénto tiempo.
 
 ## Límites (CRÍTICOS)
-- No duplica estado; si existe similar, extiende.  
-- No cachea sin validación de stale data (TTL, invalidación).  
-- No suscribe en el constructor; usar `OnInit` o `OnDestroy` correctamente.  
+- No duplica estado; si existe similar, extiende.
+- No cachea sin validación de stale data (TTL, invalidación).
+- No suscribe en el constructor; usar `OnInit` o `OnDestroy` correctamente.
 - No almacena estado complejo en localStorage sin serializar/validar.
 
 ## Patrones State Management (obligatorios)
@@ -150,16 +150,16 @@ export class OrdenesEffects {
       ofType(loadOrdenes),
       switchMap((action) =>
         this.ordenesService.list(action.filtros, action.page).pipe(
-          map((response) => loadOrdenesSuccess({ 
-            ordenes: response.data, 
-            total: response.total 
+          map((response) => loadOrdenesSuccess({
+            ordenes: response.data,
+            total: response.total
           })),
           catchError((error) => of(loadOrdenesFailure({ error: error.message })))
         )
       )
     )
   );
-  
+
   changeOrdenEstado$ = createEffect(() =>
     this.actions$.pipe(
       ofType(changeOrdenEstado),
@@ -171,7 +171,7 @@ export class OrdenesEffects {
       )
     )
   );
-  
+
   constructor(
     private actions$: Actions,
     private ordenesService: OrdenesService
@@ -185,17 +185,17 @@ export class OrdenesFacade {
   cargando$ = this.store.select(selectOrdenesCargando);
   error$ = this.store.select(selectOrdenError);
   selectedOrden$ = this.store.select(selectSelectedOrden);
-  
+
   constructor(private store: Store) {}
-  
+
   loadOrdenes(filtros: OrdenFiltros, page: number = 1): void {
     this.store.dispatch(loadOrdenes({ filtros, page }));
   }
-  
+
   selectOrden(id: string): void {
     this.store.dispatch(selectOrden({ id }));
   }
-  
+
   changeEstado(id: string, estado: OrdenEstado): void {
     this.store.dispatch(changeOrdenEstado({ id, estado }));
   }
@@ -221,25 +221,25 @@ export class OrdenesSignalService {
     loading: false,
     error: null
   });
-  
+
   // Public signals (derived)
   ordenes = computed(() => this.state().ordenes);
   selectedId = computed(() => this.state().selectedId);
   loading = computed(() => this.state().loading);
   error = computed(() => this.state().error);
-  selectedOrden = computed(() => 
+  selectedOrden = computed(() =>
     this.ordenes().find(o => o.id === this.selectedId())
   );
   count = computed(() => this.ordenes().length);
-  
+
   constructor(
     private api: OrdenesService,
     private logger: LoggerService
   ) {}
-  
+
   loadOrdenes(filtros: OrdenFiltros): void {
     this.state.update(s => ({ ...s, loading: true, error: null }));
-    
+
     this.api.list(filtros).subscribe({
       next: (response) => {
         this.state.update(s => ({
@@ -258,11 +258,11 @@ export class OrdenesSignalService {
       }
     });
   }
-  
+
   selectOrden(id: string): void {
     this.state.update(s => ({ ...s, selectedId: id }));
   }
-  
+
   clearSelection(): void {
     this.state.update(s => ({ ...s, selectedId: null }));
   }
@@ -286,9 +286,9 @@ export class OrdenesListComponent implements OnInit {
   ordenes$ = this.facade.ordenes$;
   cargando$ = this.facade.cargando$;
   error$ = this.facade.error$;
-  
+
   constructor(private facade: OrdenesFacade) {}
-  
+
   ngOnInit(): void {
     this.facade.loadOrdenes({}, 1);
   }
@@ -307,7 +307,7 @@ export class OrdenesListComponent implements OnInit {
 })
 export class OrdenesListComponent implements OnInit {
   constructor(public ordenesService: OrdenesSignalService) {}
-  
+
   ngOnInit(): void {
     this.ordenesService.loadOrdenes({});
   }
@@ -315,27 +315,27 @@ export class OrdenesListComponent implements OnInit {
 ```
 
 ## Reglas GEMINI para State
-- Regla 1: NO estado en componentes (si es compartido); centralizar.  
-- Regla 5: Manejo de errores en effects/signals.  
-- Regla 10: Caching con validación de stale data.  
+- Regla 1: NO estado en componentes (si es compartido); centralizar.
+- Regla 5: Manejo de errores en effects/signals.
+- Regla 10: Caching con validación de stale data.
 - Regla 13: Selectors optimizados (never recreate arrays).
 
 ## Entradas ideales (qué confirmar)
-- Qué datos son compartidos entre componentes.  
-- TTL/estrategia de cache.  
+- Qué datos son compartidos entre componentes.
+- TTL/estrategia de cache.
 - NgRx vs Signals (depende de complejidad).
 
 ## Salidas esperadas (output)
-- Actions, reducers, selectors (si NgRx) o signals.  
-- Facade para abstraer store.  
-- Effects para sync con API.  
+- Actions, reducers, selectors (si NgRx) o signals.
+- Facade para abstraer store.
+- Effects para sync con API.
 - Tests: state changes, selectors, effects.
 
 ## Checklist State "Done"
-- ✅ Estado centralizado (no disperso en componentes).  
-- ✅ Acciones claras (load, select, update, delete).  
-- ✅ Selectors optimizados (recomposicione mínimas).  
-- ✅ Effects manejan API calls.  
-- ✅ Facade abstrae store de componentes.  
-- ✅ Cache con validación de TTL.  
+- ✅ Estado centralizado (no disperso en componentes).
+- ✅ Acciones claras (load, select, update, delete).
+- ✅ Selectors optimizados (recomposicione mínimas).
+- ✅ Effects manejan API calls.
+- ✅ Facade abstrae store de componentes.
+- ✅ Cache con validación de TTL.
 - ✅ Tests: acciones, reducers, selectors, effects.

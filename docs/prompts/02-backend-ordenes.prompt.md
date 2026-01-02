@@ -1,8 +1,8 @@
 # 📦 CERMONT BACKEND ÓRDENES AGENT
 
-**Responsabilidad:** Máquina de estados, historial, cálculos, webhooks  
-**Reglas:** 11-20  
-**Patrón:** SIN PREGUNTAS  
+**Responsabilidad:** Máquina de estados, historial, cálculos, webhooks
+**Reglas:** 11-20
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
 
 ---
@@ -17,7 +17,7 @@ EJECUTA SIN PREGUNTAR:
    - Máquina de estados (11 estados verificados)
    - Historial, webhooks, cálculos
    - Validaciones antes de cambios
-   
+
 2. PLAN: 3-4 pasos
 
 3. IMPLEMENTACIÓN: Si se aprueba
