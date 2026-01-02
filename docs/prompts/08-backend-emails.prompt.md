@@ -9,7 +9,10 @@ Hacer que el módulo de notificaciones/emails sea confiable y seguro:
 - ✅ Plantillas tipadas con contexto
 - ✅ Reintentos (máx 3) con backoff
 - ✅ Manejo de fallos sin tumbar el request
-- ✅ Logging estructurado sin exponer secretos
+- ✅ Logging estructurado (sin exponer secretos)
+- ✅ Integración con eventos de negocio (orden asignada/completada, reset password, alertas)
+
+> **Nota:** Este proyecto usa SOLO herramientas open-source. Nodemailer + Ethereal (dev) / SMTP propio (prod).
 
 **Prioridad:** bugfix + hardening + tests mínimos.
 
@@ -46,12 +49,13 @@ apps/api/src/modules/notifications/**
 ## VARIABLES DE ENTORNO REQUERIDAS
 
 ```env
-# SMTP Configuration
-SMTP_HOST=smtp.gmail.com
+# SMTP Configuration (Ethereal para dev, SMTP propio para prod)
+# En desarrollo: dejar vacío para usar Ethereal automáticamente
+SMTP_HOST=           # Vacío = Ethereal (dev)
 SMTP_PORT=587
 SMTP_SECURE=false
-SMTP_USER=notificaciones@cermont.co
-SMTP_PASS=<app-password>
+SMTP_USER=           # Vacío = Ethereal (dev)
+SMTP_PASS=           # Vacío = Ethereal (dev)
 
 # Email Settings
 EMAIL_FROM="Cermont <notificaciones@cermont.co>"

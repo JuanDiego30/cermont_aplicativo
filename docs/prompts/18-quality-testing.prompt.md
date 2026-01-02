@@ -9,6 +9,8 @@ Elevar la calidad del repo (backend + frontend) con estrategia de testing:
 - ✅ Asegurar casos críticos cubiertos
 - ✅ Mantener tests verdes y cobertura >70% en áreas críticas
 
+> **Nota:** Este proyecto usa Jest (backend) y Jasmine/Karma (frontend) - herramientas open-source.
+
 **Por defecto:** revisar y proponer. Solo escribir tests si el usuario lo pide.
 
 ---
@@ -23,12 +25,13 @@ apps/api/test/**                 # Backend e2e tests (si existe)
 apps/web/e2e/**                  # Frontend e2e tests (si existe)
 ```
 
-### Frameworks
+### Frameworks y Comandos Reales (según package.json)
 | Área | Framework | Comandos |
 |------|-----------|----------|
 | Backend | Jest | `pnpm run test`, `pnpm run test:cov` |
-| Frontend | Jasmine/Karma o Jest | `pnpm run test` |
-| E2E | Playwright/Cypress | `pnpm run e2e` |
+| Frontend | Jasmine+Karma | `pnpm run test` |
+| E2E Backend | Jest | `pnpm run test:e2e` |
+| Monorepo | Turbo | `pnpm run check` (lint + typecheck + test + build) |
 
 ---
 

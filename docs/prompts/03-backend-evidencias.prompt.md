@@ -44,7 +44,7 @@ apps/api/src/modules/evidencias/**
 - `ordenes` → Evidencia pertenece a Orden
 - `formularios` → Evidencia puede asociarse a FormSubmission
 - `auth/guards` → Permisos de upload/download
-- `storage (S3/local)` → Almacenamiento de archivos
+- `storage (local)` → Almacenamiento local en filesystem
 
 ---
 
@@ -52,13 +52,8 @@ apps/api/src/modules/evidencias/**
 
 ### Variables de Entorno
 ```env
-# Storage
-STORAGE_PROVIDER=local  # o 's3'
+# Storage (solo local - sin servicios de pago)
 STORAGE_PATH=./uploads
-S3_BUCKET=cermont-evidencias
-S3_REGION=us-east-1
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
 
 # Límites
 MAX_FILE_SIZE_MB=10

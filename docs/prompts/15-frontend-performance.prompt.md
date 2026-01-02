@@ -11,6 +11,8 @@ Mejorar performance real (UX rápida) sin romper funcionalidad:
 - ✅ Reducir bundle inicial
 - ✅ Optimizar listas grandes (trackBy)
 
+> **Nota:** Este proyecto usa Turbo (build), Angular 21 con lazy loading nativo (open-source).
+
 **Prioridad:** bugs/perf regressions primero; luego refactor.
 
 ---

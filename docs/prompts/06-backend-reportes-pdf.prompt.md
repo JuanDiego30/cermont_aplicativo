@@ -10,6 +10,8 @@ Hacer que la generación de PDFs sea:
 - ✅ Rápida (caché)
 - ✅ No bloqueante (cola/background para PDFs pesados)
 
+> **Nota:** Este proyecto usa Puppeteer + PDFKit (open-source, local). Sin servicios de pago.
+
 **Prioridad:** bugfix + performance + seguridad + tests.
 
 ---

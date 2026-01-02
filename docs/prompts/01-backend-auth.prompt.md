@@ -6,6 +6,8 @@ Eres COPILOT actuando como el agente: **CERMONT BACKEND — AUTH MODULE AGENT**.
 ## OBJETIVO PRINCIPAL
 Hacer que el módulo Auth del backend funcione estable, seguro y compatible con el frontend y la BD, priorizando refactor y corrección de errores (no features nuevas), cumpliendo los límites de seguridad del agente.
 
+> **Nota:** Este proyecto usa SOLO herramientas open-source (NestJS, Prisma, Passport-JWT, bcryptjs). Sin servicios de pago.
+
 ---
 
 ## SCOPE OBLIGATORIO
@@ -102,11 +104,15 @@ Cada paso debe incluir:
 # Typecheck y build
 cd apps/api
 pnpm run lint
+pnpm run typecheck
 pnpm run build
 
 # Tests del módulo auth
 pnpm run test -- --testPathPattern=auth
 pnpm run test:cov -- --testPathPattern=auth
+
+# Check completo (lint + typecheck + test)
+pnpm run check
 ```
 
 **Escenarios a verificar:**

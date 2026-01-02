@@ -10,6 +10,8 @@ Mejorar/estabilizar UI y UX en Angular sin romper lógica de negocio:
 - ✅ Diseño responsive (mobile/tablet/desktop)
 - ✅ Consistencia visual (tokens CSS)
 
+> **Nota:** Este proyecto usa Tailwind CSS 4 + Angular CDK (open-source). Sin librerías UI de pago.
+
 **Prioridad:** arreglar issues de usabilidad/accesibilidad existentes y estandarizar componentes.
 
 ---

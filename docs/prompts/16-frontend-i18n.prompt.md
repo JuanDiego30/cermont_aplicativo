@@ -11,6 +11,8 @@ Implementar/estabilizar i18n en el frontend de Cermont:
 - ✅ Formateo de fechas/números por locale
 - ✅ Fallback seguro
 
+> **Nota:** Este proyecto puede usar ngx-translate o Angular i18n (ambos open-source). Sin servicios de traducción de pago.
+
 **Prioridad:** corregir hardcodes y asegurar infraestructura estable.
 
 ---

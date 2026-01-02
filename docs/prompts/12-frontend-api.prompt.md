@@ -11,6 +11,8 @@ Lograr que la integración Angular ↔ NestJS sea estable y mantenible:
 - ✅ Manejo de errores centralizado
 - ✅ Retry lógico (solo donde aplica)
 
+> **Nota:** Este proyecto usa Angular 21 + RxJS (open-source). Sin SDKs de pago.
+
 **Prioridad:** corregir errores reales de integración y contratos; luego refactor.
 
 ---

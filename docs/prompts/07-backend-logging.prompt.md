@@ -10,6 +10,8 @@ Implementar/estandarizar logging estructurado y observabilidad en Cermont API pa
 - ✅ Centralizar logs (eliminar console.log)
 - ✅ Preparar métricas/eventos de negocio y auditoría
 
+> **Nota:** Este proyecto usa Pino + pino-pretty (open-source). Sin servicios de logging de pago.
+
 ---
 
 ## SCOPE OBLIGATORIO
