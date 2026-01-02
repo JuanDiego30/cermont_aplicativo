@@ -222,3 +222,15 @@ export class PdfController {
 - ✅ No bloquea (cola para batch).
 - ✅ Permisos validados en descarga.
 - ✅ Tests: generación, cache, permisos.
+
+---
+
+##  RESEARCH FINDINGS (2026-01-02)
+
+### Type Safety Violations
+- mantenimiento.template.ts L4: data: any
+- orden.template.ts L4,128,182,206: Multiples any
+- certificado.template.ts L4: data: any
+- generate-*.use-case.ts L39-52: templateData: any
+
+### Fix: Crear interfaces OrdenPDFData, ClienteData, TecnicoData

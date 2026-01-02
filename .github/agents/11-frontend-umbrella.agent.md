@@ -185,3 +185,15 @@ export const NUEVO_FEATURE_ROUTES: Routes = [
 ## Documento de Decisión Arquitectónica
 
 Para cambios significativos (pasar de NgRx a Signals, cambiar routing, etc.), crear ADR en `.github/adr/NNNN-decision.md`.
+
+---
+
+##  RESEARCH FINDINGS (2026-01-02)
+
+### Structure: OK
+- core/, features/, pages/, shared/
+- Lazy loading en app.routes.ts
+
+### Cross-Cutting Issues
+- 50+ memory leaks (ver agent 14)
+- 30+ any types (ver agents 12,13)

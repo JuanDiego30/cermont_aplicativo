@@ -110,3 +110,16 @@ export class LoginDto {
 - ✅ Logout revoca token (lista negra o validación en refresh).
 - ✅ Audit log para login/logout/cambios de permisos.
 - ✅ Tests: login válido, token expirado, rol incorrecto, entrada inválida.
+
+---
+
+##  RESEARCH FINDINGS (2026-01-02)
+
+### Status: OK
+- Password hashing con bcrypt presente
+- JWT configurado (HS256)
+- 2FA implementation existe
+- Rate limiting configurado
+- 12 archivos de test en __tests__/
+
+### Sin violaciones criticas de any encontradas

@@ -246,3 +246,13 @@ export class OrdenEntity {
 
 **Status:** ✅ Listo para uso
 **Última actualización:** 2026-01-02
+
+---
+
+##  RESEARCH FINDINGS (2026-01-02)
+
+### Status: OK
+- Swagger en main.ts
+- DocumentBuilder con BearerAuth
+- Tags definidos
+- /api/docs disponible

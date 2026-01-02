@@ -249,3 +249,13 @@ export class OrdenesService {
 
 **Status:** ✅ Listo para uso
 **Última actualización:** 2026-01-02
+
+---
+
+##  RESEARCH FINDINGS (2026-01-02)
+
+### Type Safety Violations
+- email-queue.service.ts L9-11: Queue, Worker, QueueEvents como any
+- email-queue.service.ts L30-33: queue, worker, queueEvents, deadLetterQueue como any
+
+### Fix: Importar tipos de BullMQ o crear interfaces wrapper

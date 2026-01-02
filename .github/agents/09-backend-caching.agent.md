@@ -267,3 +267,13 @@ export class AppModule {}
 
 **Status:** ✅ Listo para uso
 **Última actualización:** 2026-01-02
+
+---
+
+##  RESEARCH FINDINGS (2026-01-02)
+
+### Type Safety Violations
+- weather.service.ts L34: Map con data: any
+- weather.service.ts L481: setCache(data: any)
+
+### Fix: Usar generics Map<string, CacheEntry<T>>

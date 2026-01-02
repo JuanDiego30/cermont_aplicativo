@@ -119,3 +119,15 @@ export class OrderHistoryEntry {
 - ✅ Value Objects para estado, no strings.
 - ✅ No N+1: queries optimizadas con include selectivo.
 - ✅ Tests: transiciones, permisos, filtros.
+
+---
+
+##  RESEARCH FINDINGS (2026-01-02)
+
+### Type Safety Violations
+- orden.entity.ts L37: _domainEvents: any[]
+- orden.entity.ts L194: addDomainEvent(event: any)
+- orden.dto.ts L139-143: items, evidencias, costos, planeacion, ejecucion como any
+- prisma-orden.repository.ts L68,72: where: any, items: any[]
+
+### Fix: Crear interfaces DomainEvent, OrdenItemDTO, EvidenciaDTO
