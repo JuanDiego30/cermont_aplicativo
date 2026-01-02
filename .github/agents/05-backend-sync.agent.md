@@ -177,3 +177,12 @@ export class SyncResultDto {
 - ✅ Reintento automático si falla.
 - ✅ Historial de sync (auditoría).
 - ✅ Tests: eventos duplicados, conflictos, reintento.
+
+---
+
+##  RESEARCH FINDINGS (2026-01-02)
+
+### Type Safety Violations
+- sync.controller.ts L94,131,138,170: @Req() req: any (4 veces)
+
+### Fix: Crear AuthenticatedRequest interface

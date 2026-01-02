@@ -339,3 +339,21 @@ export class OrdenesListComponent implements OnInit {
 - ✅ Facade abstrae store de componentes.
 - ✅ Cache con validación de TTL.
 - ✅ Tests: acciones, reducers, selectors, effects.
+
+---
+
+##  RESEARCH FINDINGS (2026-01-02)
+
+### CRITICAL: 50+ Memory Leaks
+Componentes con subscribe() sin takeUntil:
+- app-sidebar.component.ts L157,166,216,252
+- admin-users.component.ts L75,102,121,142
+- user-form.component.ts L59,68,137,148
+- orden-detail.component.ts L76,89,131,163,190
+- dashboard-main.component.ts L155,161,167
+- Y 20+ mas...
+
+### Fix OBLIGATORIO:
+private destroy$ = new Subject<void>();
+ngOnDestroy() { this.destroy$.next(); }
+.pipe(takeUntil(this.destroy$)).subscribe()

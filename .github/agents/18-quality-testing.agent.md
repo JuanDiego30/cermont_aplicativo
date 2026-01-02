@@ -133,3 +133,16 @@ Antes de analizar tests:
 - ✅ Casos de error cubiertos (try/catch, validaciones, edge cases).
 - ✅ Mocks correctos (sin acceso a BD/API real).
 - ✅ Nombres claros y AAA bien estructurado.
+
+---
+
+##  RESEARCH FINDINGS (2026-01-02)
+
+### Status: OK
+- Auth tests (12 archivos)
+- PDF tests (5 use cases)
+- Jest configurado
+
+### Pendiente
+- Coverage total review
+- E2E tests

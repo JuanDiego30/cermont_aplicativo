@@ -299,3 +299,13 @@ export class LocaleDatePipe implements PipeTransform {
 
 **Status:** ✅ Listo para uso
 **Última actualización:** 2026-01-02
+
+---
+
+##  RESEARCH FINDINGS (2026-01-02)
+
+### Status: OK
+- i18n.service.ts presente
+- translate.pipe.ts
+- es.json/en.json (136 lineas)
+- ngx-translate configurado

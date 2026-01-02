@@ -310,3 +310,15 @@ export class ModalComponent {
 - ✅ Color contrast: 4.5:1 texto, 3:1 gráficos.
 - ✅ Usa CSS variables (colores, spacing).
 - ✅ Tests: render, interacción, a11y.
+
+---
+
+##  RESEARCH FINDINGS (2026-01-02)
+
+### Type Safety Violations (14 any)
+- data-table.component.ts L16,18,150,184,186
+- advanced-table.component.ts L16,117,124,150
+- search-filter.component.ts L16,122
+- default-inputs.component.ts L32,40,45
+
+### Fix: Usar generics <T> en tablas

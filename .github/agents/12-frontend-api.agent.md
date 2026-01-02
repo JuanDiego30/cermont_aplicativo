@@ -315,3 +315,13 @@ export class AuthInterceptor implements HttpInterceptor {
 - ✅ Retry lógico (no reintentar errores 4xx).
 - ✅ Auth interceptor agrega Bearer token.
 - ✅ Tests: OK, error 404, 500, timeout.
+
+---
+
+##  RESEARCH FINDINGS (2026-01-02)
+
+### Type Safety Violations
+- api.service.ts L33,129: error: any
+- auth.service.ts L306: handleError(error: any)
+
+### Fix: Usar HttpErrorResponse de Angular

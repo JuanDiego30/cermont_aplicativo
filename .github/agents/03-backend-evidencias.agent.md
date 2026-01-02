@@ -160,3 +160,14 @@ async download(@Param('id') id: string, @Request() req): Promise<any> {
 - ✅ Audit log: quién, cuándo, qué subió.
 - ✅ No loguea paths completos.
 - ✅ Tests: upload válido, inválido, permisos.
+
+---
+
+##  RESEARCH FINDINGS (2026-01-02)
+
+### Status: OK
+- UPLOAD_SECURITY_CONFIG presente
+- MIME type whitelist
+- Max file sizes configurados
+
+### Sin violaciones criticas de any

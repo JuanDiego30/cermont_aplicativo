@@ -179,3 +179,14 @@ export class FormulariosService {
 - ✅ Historial: cambios en respuestas registrados.
 - ✅ No permite guardar incompleto si es obligatorio.
 - ✅ Tests: validación, dependencias, cálculos.
+
+---
+
+##  RESEARCH FINDINGS (2026-01-02)
+
+### Status: OK
+- AJV JSON Schema validation presente
+- Estructura DDD correcta
+- Dynamic forms implementation
+
+### Sin violaciones criticas de any
