@@ -1,9 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrdenesApi } from '@app/core/api/ordenes.api';
-import { ToastService } from '@app/shared/services/toast.service';
-import { catchError, tap, throwError } from 'rxjs';
+import { ToastService } from '@app/shared/components/toast/toast.service';
+import { catchError, tap, throwError, Subject, takeUntil } from 'rxjs';
 
 interface Orden {
   id?: string;
@@ -20,12 +20,13 @@ interface Orden {
   templateUrl: './ordenes-form.component.html',
   styleUrls: ['./ordenes-form.component.scss']
 })
-export class OrdenesFormComponent implements OnInit {
+export class OrdenesFormComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private ordenesApi = inject(OrdenesApi);
   private toastService = inject(ToastService);
+  private readonly destroy$ = new Subject<void>();
 
   form!: FormGroup;
   loading = false;
@@ -43,6 +44,11 @@ export class OrdenesFormComponent implements OnInit {
     this.checkEditMode();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private initForm(): void {
     this.form = this.fb.group({
       numero: ['', [Validators.required, Validators.minLength(3)]],
@@ -55,24 +61,27 @@ export class OrdenesFormComponent implements OnInit {
   }
 
   private checkEditMode(): void {
-    this.route.params.subscribe((params) => {
-      if (params['id']) {
-        this.isEditMode = true;
-        this.ordenId = params['id'];
-        this.loadOrden(params['id']);
-      }
-    });
+    this.route.params
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params) => {
+        if (params['id']) {
+          this.isEditMode = true;
+          this.ordenId = params['id'];
+          this.loadOrden(params['id']);
+        }
+      });
   }
 
   private loadOrden(id: string): void {
     this.loading = true;
     this.ordenesApi.getById(id)
       .pipe(
-        tap((orden: Orden) => {
+        takeUntil(this.destroy$),
+        tap((orden: any) => {
           this.form.patchValue(orden);
           this.loading = false;
         }),
-        catchError((err) => {
+        catchError((err: any) => {
           this.loading = false;
           this.toastService.error('Error cargando orden');
           this.router.navigate(['/ordenes']);
@@ -101,12 +110,13 @@ export class OrdenesFormComponent implements OnInit {
   private createOrden(formData: Orden): void {
     this.ordenesApi.create(formData)
       .pipe(
+        takeUntil(this.destroy$),
         tap(() => {
           this.loading = false;
           this.toastService.success('Orden creada correctamente');
           this.router.navigate(['/ordenes']);
         }),
-        catchError((err) => {
+        catchError((err: any) => {
           this.loading = false;
           this.toastService.error(err.error?.message || 'Error creando orden');
           return throwError(() => err);
@@ -120,6 +130,7 @@ export class OrdenesFormComponent implements OnInit {
 
     this.ordenesApi.update(this.ordenId, formData)
       .pipe(
+        takeUntil(this.destroy$),
         tap(() => {
           this.loading = false;
           this.toastService.success('Orden actualizada correctamente');

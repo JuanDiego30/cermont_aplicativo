@@ -1,8 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { OrdenesApi } from '@app/core/api/ordenes.api';
-import { ToastService } from '@app/shared/services/toast.service';
-import { catchError, tap, throwError } from 'rxjs';
+import { ToastService } from '@app/shared/components/toast/toast.service';
+import { catchError, tap, throwError, Subject, takeUntil } from 'rxjs';
 
 interface Orden {
   id: string;
@@ -25,10 +25,11 @@ interface PaginatedResponse<T> {
   templateUrl: './ordenes-list.component.html',
   styleUrls: ['./ordenes-list.component.scss']
 })
-export class OrdenesListComponent implements OnInit {
+export class OrdenesListComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private ordenesApi = inject(OrdenesApi);
   private toastService = inject(ToastService);
+  private readonly destroy$ = new Subject<void>();
 
   ordenes: Orden[] = [];
   loading = false;
@@ -49,6 +50,11 @@ export class OrdenesListComponent implements OnInit {
     this.loadOrdenes(1);
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private initForm(): void {
     this.searchForm = this.fb.group({
       search: [''],
@@ -62,13 +68,14 @@ export class OrdenesListComponent implements OnInit {
 
     this.ordenesApi.list(page, this.pageSize, filters)
       .pipe(
-        tap((response: PaginatedResponse<Orden>) => {
+        takeUntil(this.destroy$),
+        tap((response: any) => {
           this.ordenes = response.data;
           this.total = response.total;
           this.currentPage = page;
           this.loading = false;
         }),
-        catchError((err) => {
+        catchError((err: any) => {
           this.loading = false;
           this.toastService.error('Error cargando órdenes');
           return throwError(() => err);
@@ -94,6 +101,7 @@ export class OrdenesListComponent implements OnInit {
     this.loading = true;
     this.ordenesApi.delete(id)
       .pipe(
+        takeUntil(this.destroy$),
         tap(() => {
           this.toastService.success('Orden eliminada correctamente');
           this.loadOrdenes(this.currentPage);

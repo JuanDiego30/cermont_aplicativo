@@ -1,10 +1,11 @@
-﻿import { Component, inject, signal, OnInit } from '@angular/core';
+﻿import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { OrdenesService, PaginatedOrdenes } from '../../services/ordenes.service';
 import { Orden, OrdenEstado, Prioridad, ListOrdenesQuery } from '../../../../core/models';
 import { logError } from '../../../../core/utils/logger';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-ordenes-list',
@@ -13,8 +14,9 @@ import { logError } from '../../../../core/utils/logger';
   templateUrl: './ordenes-list.component.html',
   styleUrls: ['./ordenes-list.component.css']
 })
-export class OrdenesListComponent implements OnInit {
+export class OrdenesListComponent implements OnInit, OnDestroy {
   private readonly ordenesService = inject(OrdenesService);
+  private readonly destroy$ = new Subject<void>();
 
   // Signals para el estado
   ordenes = signal<Orden[]>([]);
@@ -42,6 +44,11 @@ export class OrdenesListComponent implements OnInit {
     this.loadOrdenes();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   loadOrdenes() {
     this.loading.set(true);
     this.error.set(null);
@@ -54,20 +61,22 @@ export class OrdenesListComponent implements OnInit {
       prioridad: (this.prioridadFilter() as Prioridad) || undefined
     };
 
-    this.ordenesService.list(query).subscribe({
-      next: (response: PaginatedOrdenes) => {
-        // Handle both data and items properties
-        this.ordenes.set(response.data ?? []);
-        this.totalItems.set(response.total);
-        this.totalPages.set(Math.ceil(response.total / this.pageSize()));
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.error.set('Error al cargar las órdenes');
-        this.loading.set(false);
-        logError('Error loading orders', err);
-      }
-    });
+    this.ordenesService.list(query)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response: PaginatedOrdenes) => {
+          // Handle both data and items properties
+          this.ordenes.set(response.data ?? []);
+          this.totalItems.set(response.total);
+          this.totalPages.set(Math.ceil(response.total / this.pageSize()));
+          this.loading.set(false);
+        },
+        error: (err) => {
+          this.error.set('Error al cargar las órdenes');
+          this.loading.set(false);
+          logError('Error loading orders', err);
+        }
+      });
   }
 
   onSearchChange() {
