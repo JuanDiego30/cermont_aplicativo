@@ -95,3 +95,16 @@ pnpm run db:seed
 ## 📝 FORMATO ENTREGA
 
 A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+
+---
+
+##  ESTADO ACTUAL (Research 2026-01-02)
+
+### Verificado
+- Estructura test/ presente en api
+- Tests unitarios existentes
+
+### Pendiente
+- E2E tests para login flow
+- API integration tests
+- Mock data seeding scripts

@@ -79,3 +79,15 @@ curl http://localhost:3000/api/docs
 ## 📝 FORMATO ENTREGA
 
 A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+
+---
+
+##  ESTADO ACTUAL (Research 2026-01-02)
+
+### Verificado
+- Swagger configurado en main.ts
+- DocumentBuilder con BearerAuth
+- Tags definidos (auth, orders, maintenance, users)
+- Disponible en /api/docs
+
+### Sin violaciones criticas - API Docs bien configurado
