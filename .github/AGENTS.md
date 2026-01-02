@@ -1,13 +1,13 @@
 # 🤖 CERMONT AGENTS — COMPLETE REFERENCE GUIDE
 
-Este archivo es tu **guía maestra** para navegar la suite de **18 agentes especializados** de Cermont. Cada agente es un experto en su área y proporciona patrones, límites, y checklists específicos.
+Este archivo es tu **guía maestra** para navegar la suite de **22 agentes especializados** de Cermont. Cada agente es un experto en su área y proporciona patrones, límites, y checklists específicos.
 
 ## 📋 Tabla de Contenidos
 
 1. [Cómo Usar Estos Agentes](#cómo-usar-estos-agentes)
-2. [Backend Agents (10)](#backend-agents)
-3. [Frontend Agents (6)](#frontend-agents)
-4. [DevOps Agents (1)](#devops-agents)
+2. [Backend Agents (11)](#backend-agents)
+3. [Frontend Agents (8)](#frontend-agents)
+4. [DevOps & Testing Agents (3)](#devops-agents)
 5. [Decisión Rápida: ¿Cuál Agente?](#decisión-rápida-cuál-agente)
 6. [Reglas GEMINI Transversales](#reglas-gemini-transversales)
 7. [Checklist "Listo para Producción"](#checklist-listo-para-producción)
@@ -26,7 +26,7 @@ Este archivo es tu **guía maestra** para navegar la suite de **18 agentes espec
 
 ---
 
-## Backend Agents (10)
+## Backend Agents (11)
 
 ### 1️⃣ backend-auth.agent.md
 **Cuando:** Autenticación, autorización, roles, permisos, sesiones
@@ -87,9 +87,15 @@ Este archivo es tu **guía maestra** para navegar la suite de **18 agentes espec
 **Scope:** Tests en `apps/api/**` y `apps/web/**`
 [Ver archivo](./agents/quality-testing.agent.md)
 
+### 2️⃣1️⃣ backend-security.agent.md (🔥 NUEVO)
+**Cuando:** CORS, Rate Limiting, CSRF, Input Validation
+**Scope:** `apps/api/src/main.ts`, `apps/api/src/modules/auth/**`
+**Reglas:** 5, 6, 7
+[Ver archivo](./agents/21-backend-security.agent.md)
+
 ---
 
-## Frontend Agents (6)
+## Frontend Agents (8)
 
 ### 1️⃣️ frontend.agent.md (Umbrella)
 **Cuando:** Decisiones arquitectónicas, nuevos features, patrones transversales
@@ -122,14 +128,37 @@ Este archivo es tu **guía maestra** para navegar la suite de **18 agentes espec
 **Stack:** ngx-translate, Angular i18n
 [Ver archivo](./agents/frontend-internationalization.agent.md)
 
+### 1️⃣9️⃣ frontend-auth-critical.agent.md (🔥 NUEVO)
+**Cuando:** Login/Logout, CSRF token, Token refresh, 2FA, Memory leaks
+**Scope:** `apps/web/src/app/core/{auth,services,interceptors}/**`
+**Reglas:** 1, 5, 41
+[Ver archivo](./agents/19-frontend-auth-critical.agent.md)
+
+### 2️⃣0️⃣ frontend-shared-components.agent.md (🔥 NUEVO)
+**Cuando:** Button, Input, Card, Loader - Componentes reutilizables
+**Scope:** `apps/web/src/app/shared/components/**`
+**Enfoque:** DRY, Accesibilidad, Dark mode
+[Ver archivo](./agents/20-frontend-shared-components.agent.md)
+
 ---
 
-## DevOps Agents (1)
+## DevOps & Testing Agents (3)
 
 ### 1️⃣⃣ devops-ci-cd.agent.md
 **Cuando:** Despliegues, Docker, GitHub Actions, monitoring
 **Scope:** `.github/workflows/`, `docker/`, infraestructura
 [Ver archivo](./agents/devops-ci-cd.agent.md)
+
+### 1️⃣8️⃣ quality-testing.agent.md
+**Cuando:** Tests (unit, integration, e2e), cobertura, CI
+**Scope:** Tests en `apps/api/**` y `apps/web/**`
+[Ver archivo](./agents/18-quality-testing.agent.md)
+
+### 2️⃣2️⃣ integration-tests.agent.md (🔥 NUEVO)
+**Cuando:** E2E tests, API integration tests, Mock data, Seeding
+**Scope:** `apps/web/e2e/**`, `apps/api/test/**`
+**Enfoque:** Coverage >80%, Cypress/Playwright
+[Ver archivo](./agents/22-integration-tests.agent.md)
 
 ---
 
@@ -215,12 +244,11 @@ Además:
 ## 📊 Estádísticas del Framework
 
 ```
-Agentes Especializados:     18 (era 13)
-Documentación Total:       ~220 KB
-Áreas Backend Cubiertas:    10 agentes
-Áreas Frontend Cubiertas:   6 agentes
-Áreas DevOps Cubiertas:     1 agente
-Areas Testing:              Incluida en todos
+Agentes Especializados:     22 (era 18)
+Documentación Total:       ~280 KB
+Áreas Backend Cubiertas:    11 agentes
+Áreas Frontend Cubiertas:   8 agentes
+Áreas DevOps/Testing:       3 agentes
 
 Cobertura:
   ✅ Logging & Observabilidad
@@ -228,6 +256,10 @@ Cobertura:
   ✅ Caching & Rate Limiting
   ✅ API Documentation
   ✅ Internationalization (i18n)
+  ✅ Auth Critical (Login, CSRF, 2FA)
+  ✅ Shared Components
+  ✅ Backend Security (CORS, Rate Limit)
+  ✅ Integration Tests (E2E, API)
 ```
 
 ---
@@ -281,5 +313,5 @@ Cobertura:
 ---
 
 **Última actualización:** 2026-01-02
-**Total de agentes:** 18 | **Cobertura:** Backend (10), Frontend (6), DevOps (1), Testing (incluido)
+**Total de agentes:** 22 | **Cobertura:** Backend (11), Frontend (8), DevOps/Testing (3)
 **Status:** ✅ **Completo y optimizado para producción**
