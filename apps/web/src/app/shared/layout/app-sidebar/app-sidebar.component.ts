@@ -4,7 +4,7 @@ import { SidebarService } from '../../services/sidebar.service';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { SafeHtmlPipe } from '../../pipe/safe-html.pipe';
 import { SidebarWidgetComponent } from './app-sidebar-widget.component';
-import { combineLatest, Subscription } from 'rxjs';
+import { combineLatest, Subscription, firstValueFrom } from 'rxjs';
 
 type NavItem = {
   name: string;
@@ -164,17 +164,9 @@ export class AppSidebarComponent {
     // Subscribe to combined observables to close submenus when all are false
     this.subscription.add(
       combineLatest([this.isExpanded$, this.isMobileOpen$, this.isHovered$]).subscribe(
-        (vals: any) => {
-          const [isExpanded, isMobileOpen, isHovered] = vals;
+        ([isExpanded, isMobileOpen, isHovered]) => {
           if (!isExpanded && !isMobileOpen && !isHovered) {
-            // this.openSubmenu = null;
-            // this.savedSubMenuHeights = { ...this.subMenuHeights };
-            // this.subMenuHeights = {};
             this.cdr.detectChanges();
-          } else {
-            // Restore saved heights when reopening
-            // this.subMenuHeights = { ...this.savedSubMenuHeights };
-            // this.cdr.detectChanges();
           }
         }
       )
@@ -212,12 +204,11 @@ export class AppSidebarComponent {
     }
   }
 
-  onSidebarMouseEnter() {
-    this.isExpanded$.subscribe(expanded => {
-      if (!expanded) {
-        this.sidebarService.setHovered(true);
-      }
-    }).unsubscribe();
+  async onSidebarMouseEnter(): Promise<void> {
+    const expanded = await firstValueFrom(this.isExpanded$);
+    if (!expanded) {
+      this.sidebarService.setHovered(true);
+    }
   }
 
   private setActiveMenuFromRoute(currentUrl: string) {
@@ -248,12 +239,11 @@ export class AppSidebarComponent {
     });
   }
 
-  onSubmenuClick() {
-    this.isMobileOpen$.subscribe(isMobile => {
-      if (isMobile) {
-        this.sidebarService.setMobileOpen(false);
-      }
-    }).unsubscribe();
+  async onSubmenuClick(): Promise<void> {
+    const isMobile = await firstValueFrom(this.isMobileOpen$);
+    if (isMobile) {
+      this.sidebarService.setMobileOpen(false);
+    }
   }
 
 

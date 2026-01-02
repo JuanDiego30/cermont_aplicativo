@@ -135,10 +135,55 @@ export interface OrdenListResponse {
   totalPages: number;
 }
 
-export interface OrdenDetailResponse extends OrdenResponse {
-  items?: any[];
-  evidencias?: any[];
-  costos?: any[];
-  planeacion?: any;
-  ejecucion?: any;
+// ==========================================
+// Sub-DTOs for OrdenDetailResponse
+// Replaces any types with strongly typed interfaces
+// ==========================================
+export interface OrdenItemDTO {
+  id: string;
+  descripcion: string;
+  cantidad: number;
+  unidad: string;
+  precioUnitario?: number;
+  total?: number;
 }
+
+export interface EvidenciaDTO {
+  id: string;
+  tipo: 'foto' | 'documento' | 'video';
+  url: string;
+  descripcion?: string;
+  fechaCaptura: string;
+}
+
+export interface CostoDTO {
+  id: string;
+  concepto: string;
+  monto: number;
+  tipo: 'material' | 'mano_obra' | 'transporte' | 'otro';
+  fecha: string;
+}
+
+export interface PlaneacionDTO {
+  id: string;
+  fechaProgramada?: string;
+  observaciones?: string;
+  aprobada: boolean;
+}
+
+export interface EjecucionDTO {
+  id: string;
+  estado: string;
+  fechaInicio?: string;
+  fechaFin?: string;
+  observaciones?: string;
+}
+
+export interface OrdenDetailResponse extends OrdenResponse {
+  items?: OrdenItemDTO[];
+  evidencias?: EvidenciaDTO[];
+  costos?: CostoDTO[];
+  planeacion?: PlaneacionDTO;
+  ejecucion?: EjecucionDTO;
+}
+

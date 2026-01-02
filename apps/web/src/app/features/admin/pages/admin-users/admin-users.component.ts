@@ -1,8 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { Subject, takeUntil, catchError, tap, throwError } from 'rxjs';
 import { AdminApi } from '@app/core/api/admin.api';
 import { ToastService } from '@app/shared/services/toast.service';
-import { catchError, tap, throwError } from 'rxjs';
 
 interface Usuario {
   id: string;
@@ -25,7 +25,8 @@ interface PaginatedResponse<T> {
   templateUrl: './admin-users.component.html',
   styleUrls: ['./admin-users.component.scss']
 })
-export class AdminUsersComponent implements OnInit {
+export class AdminUsersComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
   private fb = inject(FormBuilder);
   private adminApi = inject(AdminApi);
   private toastService = inject(ToastService);
@@ -60,6 +61,7 @@ export class AdminUsersComponent implements OnInit {
 
     this.adminApi.listUsers(page, this.pageSize, filters)
       .pipe(
+        takeUntil(this.destroy$),
         tap((response: PaginatedResponse<Usuario>) => {
           this.usuarios = response.data;
           this.total = response.total;
@@ -89,6 +91,7 @@ export class AdminUsersComponent implements OnInit {
 
     this.adminApi.updateUserRole(usuarioId, nuevoRol)
       .pipe(
+        takeUntil(this.destroy$),
         tap(() => {
           this.toastService.success('Rol actualizado correctamente');
           this.loadUsuarios(this.currentPage);
@@ -108,6 +111,7 @@ export class AdminUsersComponent implements OnInit {
 
     this.adminApi.updateUserStatus(usuarioId, nuevoEstado)
       .pipe(
+        takeUntil(this.destroy$),
         tap(() => {
           this.toastService.success(`Usuario ${nuevoEstado} correctamente`);
           this.loadUsuarios(this.currentPage);
@@ -129,6 +133,7 @@ export class AdminUsersComponent implements OnInit {
     this.loading = true;
     this.adminApi.deleteUser(usuarioId)
       .pipe(
+        takeUntil(this.destroy$),
         tap(() => {
           this.toastService.success('Usuario eliminado correctamente');
           this.loadUsuarios(this.currentPage);
@@ -144,5 +149,10 @@ export class AdminUsersComponent implements OnInit {
 
   getEstadoClass(estado: string): string {
     return estado === 'activo' ? 'badge-success' : 'badge-danger';
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

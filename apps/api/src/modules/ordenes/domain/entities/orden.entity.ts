@@ -33,8 +33,21 @@ export interface OrdenAsignado {
   name: string;
 }
 
+/**
+ * Domain Event interface for Orden aggregate
+ * Replaces any[] with strongly typed events
+ */
+export interface OrdenDomainEvent {
+  eventName: 'orden.estado.changed' | 'orden.created' | 'orden.assigned' | 'orden.completed';
+  ordenId: string;
+  occurredAt: Date;
+  fromEstado?: string;
+  toEstado?: string;
+  metadata?: Record<string, unknown>;
+}
+
 export class OrdenEntity {
-  private _domainEvents: any[] = [];
+  private _domainEvents: OrdenDomainEvent[] = [];
 
   private constructor(
     private props: OrdenProps,
@@ -60,7 +73,7 @@ export class OrdenEntity {
   get creador(): OrdenCreador | undefined { return this._creador; }
   get asignado(): OrdenAsignado | undefined { return this._asignado; }
 
-  get domainEvents(): readonly any[] {
+  get domainEvents(): readonly OrdenDomainEvent[] {
     return [...this._domainEvents];
   }
 
@@ -191,7 +204,7 @@ export class OrdenEntity {
     this._domainEvents = [];
   }
 
-  protected addDomainEvent(event: any): void {
+  protected addDomainEvent(event: OrdenDomainEvent): void {
     this._domainEvents.push(event);
   }
 
