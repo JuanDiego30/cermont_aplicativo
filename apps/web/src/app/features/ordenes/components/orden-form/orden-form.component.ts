@@ -1,9 +1,10 @@
-﻿import { Component, OnInit, inject, signal } from '@angular/core';
+﻿import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { OrdenesService } from '../../services/ordenes.service';
 import { Prioridad } from '../../../../core/models/orden.model';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-orden-form',
@@ -12,11 +13,12 @@ import { Prioridad } from '../../../../core/models/orden.model';
   templateUrl: './orden-form.component.html',
   styleUrls: ['./orden-form.component.css']
 })
-export class OrdenFormComponent implements OnInit {
+export class OrdenFormComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly ordenesService = inject(OrdenesService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroy$ = new Subject<void>();
 
   form!: FormGroup;
   loading = signal(false);
@@ -38,6 +40,11 @@ export class OrdenFormComponent implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   initForm(): void {
     this.form = this.fb.group({
       descripcion: ['', [Validators.required, Validators.maxLength(1000)]],
@@ -52,25 +59,27 @@ export class OrdenFormComponent implements OnInit {
 
   loadOrden(id: string): void {
     this.loading.set(true);
-    this.ordenesService.getById(id).subscribe({
-      next: (orden) => {
-        this.form.patchValue({
-          descripcion: orden.descripcion,
-          cliente: orden.cliente,
-          prioridad: orden.prioridad,
-          fechaFinEstimada: orden.fechaFinEstimada ?
-            new Date(orden.fechaFinEstimada).toISOString().split('T')[0] : '',
-          presupuestoEstimado: orden.presupuestoEstimado,
-          asignadoId: orden.asignadoId || '',
-          requiereHES: orden.requiereHES,
-        });
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.error.set('Error al cargar la orden');
-        this.loading.set(false);
-      }
-    });
+    this.ordenesService.getById(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (orden) => {
+          this.form.patchValue({
+            descripcion: orden.descripcion,
+            cliente: orden.cliente,
+            prioridad: orden.prioridad,
+            fechaFinEstimada: orden.fechaFinEstimada ?
+              new Date(orden.fechaFinEstimada).toISOString().split('T')[0] : '',
+            presupuestoEstimado: orden.presupuestoEstimado,
+            asignadoId: orden.asignadoId || '',
+            requiereHES: orden.requiereHES,
+          });
+          this.loading.set(false);
+        },
+        error: (err) => {
+          this.error.set('Error al cargar la orden');
+          this.loading.set(false);
+        }
+      });
   }
 
   onSubmit(): void {
@@ -95,15 +104,17 @@ export class OrdenFormComponent implements OnInit {
       ? this.ordenesService.update(this.ordenId, dto)
       : this.ordenesService.create(dto);
 
-    request$.subscribe({
-      next: (orden) => {
-        this.router.navigate(['/ordenes', orden.id]);
-      },
-      error: (err) => {
-        this.error.set(err.message || 'Error al guardar la orden');
-        this.loading.set(false);
-      }
-    });
+    request$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (orden) => {
+          this.router.navigate(['/ordenes', orden.id]);
+        },
+        error: (err) => {
+          this.error.set(err.message || 'Error al guardar la orden');
+          this.loading.set(false);
+        }
+      });
   }
 
   onCancel(): void {
