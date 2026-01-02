@@ -22,12 +22,36 @@ export class ProcessSyncBatchUseCase {
   async execute(userId: string, batch: SyncBatchDto): Promise<SyncResponse> {
     const results: SyncResult[] = [];
 
+    // Deduplicación intra-batch para evitar replays accidentales.
+    const seen = new Set<string>();
+
     for (const item of batch.items) {
       try {
+        const dedupeKey = `${batch.deviceId}:${item.localId}`;
+        if (seen.has(dedupeKey)) {
+          results.push({
+            localId: item.localId,
+            success: true,
+          });
+          continue;
+        }
+        seen.add(dedupeKey);
+
         const pending = await this.repo.savePending(userId, {
           ...item,
           deviceId: batch.deviceId,
         });
+
+        // Idempotencia / replay protection:
+        // si ya está sincronizado o actualmente procesándose, no re-ejecutar.
+        if (pending.status === 'synced' || pending.status === 'processing') {
+          results.push({
+            localId: item.localId,
+            serverId: pending.entityId ?? pending.id,
+            success: true,
+          });
+          continue;
+        }
 
         // Emit event for each entity processor to handle
         this.eventEmitter.emit(`sync.${item.entityType}.${item.action}`, {

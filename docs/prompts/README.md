@@ -1,6 +1,6 @@
 # 🤖 PROMPTS DE AGENTES CERMONT
 
-Este directorio contiene los **18 prompts** listos para usar con cada agente especializado.
+Este directorio contiene los **22 prompts** listos para usar con cada agente especializado.
 
 ## 📋 Cómo Usar
 
@@ -10,7 +10,7 @@ Este directorio contiene los **18 prompts** listos para usar con cada agente esp
 
 ## 📁 Índice de Prompts
 
-### Backend (10)
+### Backend (11)
 | # | Agente | Archivo | Enfoque |
 |---|--------|---------|---------|
 | 1 | Auth | [01-backend-auth.prompt.md](./01-backend-auth.prompt.md) | JWT, guards, roles |
@@ -23,8 +23,9 @@ Este directorio contiene los **18 prompts** listos para usar con cada agente esp
 | 8 | Emails | [08-backend-emails.prompt.md](./08-backend-emails.prompt.md) | Notificaciones |
 | 9 | Caching | [09-backend-caching.prompt.md](./09-backend-caching.prompt.md) | Redis, TTL |
 | 10 | API Docs | [10-backend-api-docs.prompt.md](./10-backend-api-docs.prompt.md) | Swagger |
+| 21 | Security | [21-backend-security.prompt.md](./21-backend-security.prompt.md) | CORS, Rate Limit, CSRF |
 
-### Frontend (6)
+### Frontend (8)
 | # | Agente | Archivo | Enfoque |
 |---|--------|---------|---------|
 | 11 | Umbrella | [11-frontend-umbrella.prompt.md](./11-frontend-umbrella.prompt.md) | Arquitectura |
@@ -33,13 +34,17 @@ Este directorio contiene los **18 prompts** listos para usar con cada agente esp
 | 14 | State | [14-frontend-state.prompt.md](./14-frontend-state.prompt.md) | NgRx/Signals |
 | 15 | Performance | [15-frontend-performance.prompt.md](./15-frontend-performance.prompt.md) | Optimización |
 | 16 | i18n | [16-frontend-i18n.prompt.md](./16-frontend-i18n.prompt.md) | Multi-idioma |
+| 19 | Auth Critical | [19-frontend-auth-critical.prompt.md](./19-frontend-auth-critical.prompt.md) | Login, CSRF, 2FA |
+| 20 | Shared Components | [20-frontend-shared-components.prompt.md](./20-frontend-shared-components.prompt.md) | Button, Input, Card |
 
-### DevOps & Quality (2)
+### DevOps & Quality (3)
 | # | Agente | Archivo | Enfoque |
 |---|--------|---------|---------|
 | 17 | DevOps | [17-devops-ci-cd.prompt.md](./17-devops-ci-cd.prompt.md) | CI/CD, Docker |
 | 18 | Testing | [18-quality-testing.prompt.md](./18-quality-testing.prompt.md) | Jest, coverage |
+| 22 | Integration Tests | [22-integration-tests.prompt.md](./22-integration-tests.prompt.md) | E2E, API tests |
 
 ---
 
 **Última actualización:** 2026-01-02
+

@@ -23,8 +23,9 @@ export class SyncRepository implements ISyncRepository {
       },
     });
 
-    // Si ya fue sincronizado, devolvemos el registro sin mutar.
-    if (existing && existing.status === 'synced') {
+    // Si ya fue sincronizado o está en proceso, devolvemos el registro sin mutar.
+    // Esto evita replays que reseteen el status a 'pending'.
+    if (existing && (existing.status === 'synced' || existing.status === 'processing')) {
       return {
         id: existing.id,
         userId: existing.userId,
@@ -83,6 +84,21 @@ export class SyncRepository implements ISyncRepository {
       status: (record.status as any) || 'pending',
       error: record.error ?? undefined,
     };
+  }
+
+  async tryMarkAsProcessing(id: string): Promise<boolean> {
+    const result = await this.prisma.pendingSync.updateMany({
+      where: {
+        id,
+        status: { in: ['pending', 'failed'] },
+      },
+      data: {
+        status: 'processing',
+        error: null,
+      },
+    });
+
+    return result.count > 0;
   }
 
   async markAsSynced(id: string, serverId: string): Promise<void> {
@@ -177,7 +193,7 @@ export class SyncRepository implements ISyncRepository {
     const records = await this.prisma.pendingSync.findMany({
       where: {
         userId,
-        status: { in: ['pending', 'failed', 'conflict'] },
+        status: { in: ['pending', 'processing', 'failed', 'conflict'] },
       },
       orderBy: { createdAt: 'asc' },
     });

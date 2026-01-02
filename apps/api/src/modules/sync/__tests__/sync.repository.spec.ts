@@ -10,6 +10,7 @@ describe('SyncRepository', () => {
       findUnique: jest.fn(),
       upsert: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn(),
       findMany: jest.fn(),
     },
   } as unknown as PrismaService;
@@ -106,5 +107,18 @@ describe('SyncRepository', () => {
 
     const result = await repo.getPendingByUser('u1');
     expect(result[0].status).toBe('conflict');
+  });
+
+  it('tryMarkAsProcessing: retorna true si adquiere lock', async () => {
+    mockPrisma.pendingSync.updateMany = jest.fn().mockResolvedValue({ count: 1 });
+    const ok = await repo.tryMarkAsProcessing('p1');
+    expect(ok).toBe(true);
+    expect(mockPrisma.pendingSync.updateMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('tryMarkAsProcessing: retorna false si no actualiza', async () => {
+    mockPrisma.pendingSync.updateMany = jest.fn().mockResolvedValue({ count: 0 });
+    const ok = await repo.tryMarkAsProcessing('p1');
+    expect(ok).toBe(false);
   });
 });

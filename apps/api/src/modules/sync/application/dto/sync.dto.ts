@@ -55,12 +55,13 @@ export interface PendingSync {
   data: Record<string, unknown>;
   localId: string;
   timestamp: Date;
-  status: 'pending' | 'synced' | 'failed' | 'conflict';
+  status: 'pending' | 'processing' | 'synced' | 'failed' | 'conflict';
   error?: string;
 }
 
 export interface ISyncRepository {
   savePending(userId: string, item: SyncItemDto & { deviceId: string }): Promise<PendingSync>;
+  tryMarkAsProcessing(id: string): Promise<boolean>;
   markAsSynced(id: string, serverId: string): Promise<void>;
   markAsFailed(id: string, error: string): Promise<void>;
   markAsConflict(id: string, error: string): Promise<void>;

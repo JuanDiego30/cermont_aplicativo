@@ -99,6 +99,18 @@ export class SyncBatchEventHandlersService {
       return;
     }
 
+    // Replay protection: no reprocesar items ya resueltos.
+    if (pending.status === 'synced' || pending.status === 'conflict') {
+      return;
+    }
+
+    // Lock ligero en BD para evitar doble ejecución concurrente.
+    const acquired = await this.repo.tryMarkAsProcessing(pending.id);
+    if (!acquired) {
+      this.logger.debug(`PendingSync ya en procesamiento: ${pending.id}`);
+      return;
+    }
+
     const localTimestamp = pending.timestamp;
 
     // Conflicto (LWW simple): si el servidor fue modificado después del cambio offline.
