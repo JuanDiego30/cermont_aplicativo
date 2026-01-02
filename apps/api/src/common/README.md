@@ -85,7 +85,7 @@ async findAll(@Query() query: PaginationQueryDto) {
     where: { activo: true },
     orderBy: { createdAt: 'desc' },
   });
-  
+
   return result;
 }
 
@@ -99,7 +99,7 @@ async findAll(@Query() query: PaginationQueryDto) {
     }),
     this.prisma.usuario.count(),
   ]);
-  
+
   return PaginatedResponseDto.create(data, total, query.page!, query.limit!);
 }
 ```
@@ -107,11 +107,11 @@ async findAll(@Query() query: PaginationQueryDto) {
 ### Errores Personalizados
 
 ```typescript
-import { 
-  NotFoundError, 
+import {
+  NotFoundError,
   ConflictError,
   EntityNotFoundError,
-  BusinessRuleViolationError 
+  BusinessRuleViolationError
 } from '@/common';
 
 // Errores de aplicación (incluyen HTTP status)
@@ -170,7 +170,7 @@ import { JwtAuthGuard, RolesGuard, Roles, CurrentUser, Public } from '@/common';
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
-  
+
   @Get('me')
   getProfile(@CurrentUser() user: JwtPayload) {
     return user;

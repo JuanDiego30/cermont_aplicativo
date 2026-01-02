@@ -121,11 +121,11 @@ async sync(@Body() changes: any[]) {
 ```typescript
 @Post('sync')
 async sync(@Body() payload: { idempotencyKey: string; changes: any[] }) {
-  const existing = await this.db.findOne({ 
-    idempotency_key: payload.idempotencyKey 
+  const existing = await this.db.findOne({
+    idempotency_key: payload.idempotencyKey
   });
   if (existing) return existing; // Ya procesado
-  
+
   const result = { idempotency_key: payload.idempotencyKey, data: {} };
   for (const change of payload.changes) {
     result.data = await this.db.update(change);
@@ -154,7 +154,7 @@ async getPDF(@Param('id') id) {
   const cacheKey = `pdf_${id}`;
   const cached = await this.cache.get(cacheKey);
   if (cached) return cached; // Desde caché
-  
+
   const pdf = await this.pdfService.generate(id);
   await this.cache.set(cacheKey, pdf, { ttl: 86400 }); // 24h
   return pdf;
@@ -201,7 +201,7 @@ async createOrder(@Body() dto: CreateOrderDTO) {
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
   const tax = subtotal * 0.19; // Ley de impuestos
   const total = subtotal + tax;
-  
+
   return this.db.save({
     items,
     subtotal,
@@ -222,13 +222,13 @@ async createOrder(@Body() dto: CreateOrderDTO) {
 @Injectable()
 export class OrderState {
   orders$ = new BehaviorSubject([]);
-  
+
   getOrders() {
     this.api.get('/orders').subscribe(orders => {
       this.orders$.next(orders); // Copia local
     });
   }
-  
+
   cancelOrder(id) {
     this.api.post(`/orders/${id}/cancel`).subscribe(() => {
       const orders = this.orders$.value;
@@ -248,7 +248,7 @@ export class OrderState {
   orders$ = this.api.get('/orders').pipe(
     shareReplay(1) // Compartir suscripción
   );
-  
+
   cancelOrder(id) {
     return this.api.post(`/orders/${id}/cancel`).pipe(
       switchMap(() => this.api.get('/orders')), // Recargar desde backend
@@ -469,7 +469,7 @@ async login(@Body() dto: LoginDTO) {
 ```typescript
 async login(@Body() dto: LoginDTO, @Req() request) {
   const result = await this.authService.login(dto);
-  
+
   await this.auditLog.create({
     action: 'AUTH_LOGIN',
     user_id: result.user.id,
@@ -477,7 +477,7 @@ async login(@Body() dto: LoginDTO, @Req() request) {
     ip: request.ip,
     user_agent: request.headers['user-agent']
   });
-  
+
   return result;
 }
 ```

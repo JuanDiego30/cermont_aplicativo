@@ -5,8 +5,8 @@ tools: []
 
 # 🌐 FRONTEND INTERNATIONALIZATION (i18n) AGENT
 
-**Especialidad:** Multi-idioma, traducción de UI, formateo de fechas/números, RTL support  
-**Stack:** ngx-translate, Angular i18n, Intl API  
+**Especialidad:** Multi-idioma, traducción de UI, formateo de fechas/números, RTL support
+**Stack:** ngx-translate, Angular i18n, Intl API
 **Ubicación:** `apps/web/src/assets/i18n/`, `apps/web/src/app/core/i18n/`
 
 ---
@@ -122,7 +122,7 @@ export class I18nService {
   template: `
     <div class="orders-container">
       <h1>{{ 'ORDERS.TITLE' | translate }}</h1>
-      
+
       <div *ngFor="let order of orders" class="order-card">
         <p>{{ 'ORDERS.NUMBER' | translate }}: {{ order.number }}</p>
         <p>{{ 'ORDERS.STATUS' | translate }}: {{ order.status }}</p>
@@ -145,7 +145,7 @@ export class OrdersListComponent {
   template: `
     <header>
       <h1>{{ title$ | async }}</h1>
-      
+
       <select (change)="changeLanguage($event)">
         <option value="es" i18n="@@language.es">Español</option>
         <option value="en" i18n="@@language.en">English</option>
@@ -248,7 +248,7 @@ export class LocaleDatePipe implements PipeTransform {
   transform(value: Date | string, format: string = 'short'): string {
     const date = new Date(value);
     const lang = this.i18n.getCurrentLanguage();
-    
+
     return new Intl.DateTimeFormat(this.getLocale(), {
       year: 'numeric',
       month: format === 'short' ? 'short' : 'long',
@@ -297,5 +297,5 @@ export class LocaleDatePipe implements PipeTransform {
 
 ---
 
-**Status:** ✅ Listo para uso  
+**Status:** ✅ Listo para uso
 **Última actualización:** 2026-01-02

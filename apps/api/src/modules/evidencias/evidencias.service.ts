@@ -171,7 +171,6 @@ export class EvidenciasService {
       ordenId: dto.ordenId,
       ejecucionId: dto.ejecucionId,
       userId,
-      filename: file.originalname,
       size: file.size,
       mimeType: file.mimetype,
     };

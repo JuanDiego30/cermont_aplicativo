@@ -5,8 +5,8 @@ tools: []
 
 # ⚡ BACKEND CACHING & REDIS AGENT
 
-**Especialidad:** Multi-layer caching, Redis, invalidación inteligente, rate limiting, session storage  
-**Stack:** Redis, ioredis, @nestjs/cache-manager, Bull  
+**Especialidad:** Multi-layer caching, Redis, invalidación inteligente, rate limiting, session storage
+**Stack:** Redis, ioredis, @nestjs/cache-manager, Bull
 **Ubicación:** `apps/api/src/common/caching/**`
 
 ---
@@ -54,11 +54,11 @@ export class CacheService {
   async get<T>(key: string): Promise<T | undefined> {
     try {
       const value = await this.cacheManager.get<T>(key);
-      
+
       if (value) {
         this.logger.debug('CACHE_HIT', { key });
       }
-      
+
       return value;
     } catch (error) {
       this.logger.warn('Cache get error', { key });
@@ -83,14 +83,14 @@ export class CacheService {
     ttl: number = 300
   ): Promise<T> {
     let cached = await this.get<T>(key);
-    
+
     if (cached) {
       return cached;
     }
 
     const fresh = await factory();
     await this.set(key, fresh, ttl);
-    
+
     return fresh;
   }
 
@@ -107,10 +107,10 @@ export class CacheService {
   // Invalidar por patrón
   async invalidateByPattern(pattern: string): Promise<void> {
     const redis = (this.cacheManager.store as any).getClient();
-    
+
     try {
       const keys = await redis.keys(pattern);
-      
+
       if (keys.length > 0) {
         await redis.del(...keys);
         this.logger.debug('CACHE_PATTERN_INVALIDATED', {
@@ -183,7 +183,7 @@ export class OrdenesService {
   // Listar órdenes (cacheada)
   async findAll(filtros: OrdenFiltros): Promise<Orden[]> {
     const cacheKey = `ordenes:all:${JSON.stringify(filtros)}`;
-    
+
     return this.cache.getOrSet(
       cacheKey,
       () => this.prisma.orden.findMany({ where: filtros }),
@@ -265,5 +265,5 @@ export class AppModule {}
 
 ---
 
-**Status:** ✅ Listo para uso  
+**Status:** ✅ Listo para uso
 **Última actualización:** 2026-01-02

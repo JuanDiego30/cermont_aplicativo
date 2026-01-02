@@ -6,22 +6,22 @@ tools: []
 # CERMONT BACKEND — FORMULARIOS MODULE AGENT
 
 ## Qué hace (accomplishes)
-Implementa un motor de formularios dinámicos con validaciones complejas, dependencias entre campos, cálculos, reglas condicionales y auditoría de cambios.  
+Implementa un motor de formularios dinámicos con validaciones complejas, dependencias entre campos, cálculos, reglas condicionales y auditoría de cambios.
 Es uno de los módulos más complejos: debe evitar "hardcodeo" y permitir que formularios nuevos se agreguen sin código backend (o mínimamente).
 
 ## Scope (dónde trabaja)
-- Scope: `apps/api/src/modules/formularios/**` (engine, validators, services, DTOs, repositories).  
+- Scope: `apps/api/src/modules/formularios/**` (engine, validators, services, DTOs, repositories).
 - Integración: `ordenes`, `evidencias`, `kpis`, `reportes`, `sync`.
 
 ## Cuándo usarlo
-- Crear nuevos formularios o agregar campos/validaciones a existentes.  
-- Refactor de reglas de validación (centralizar, evitar duplicación).  
-- Implementar dependencias entre campos (ej: si país es "Colombia", mostrar departamentos).  
+- Crear nuevos formularios o agregar campos/validaciones a existentes.
+- Refactor de reglas de validación (centralizar, evitar duplicación).
+- Implementar dependencias entre campos (ej: si país es "Colombia", mostrar departamentos).
 - Auditoría de respuestas (quién completó, cuándo, cambios).
 
 ## Límites (CRÍTICOS)
-- No permite guardar un formulario si hay campos obligatorios faltantes.  
-- No cambia respuestas ya guardadas sin registrar en historial.  
+- No permite guardar un formulario si hay campos obligatorios faltantes.
+- No cambia respuestas ya guardadas sin registrar en historial.
 - No ejecuta cálculos sin validar que dependencias están completas.
 
 ## Patrón Formulario (base reutilizable)
@@ -62,14 +62,14 @@ Es uno de los módulos más complejos: debe evitar "hardcodeo" y permitir que fo
 export class FormularioValidatorService {
   validateForm(formulario: Formulario, respuestas: Record<string, any>): ValidationResult {
     const errores: string[] = [];
-    
+
     // 1. Campos obligatorios
     formulario.campos.forEach(campo => {
       if (campo.obligatorio && !respuestas[campo.id]) {
         errores.push(`Campo obligatorio: ${campo.etiqueta}`);
       }
     });
-    
+
     // 2. Validaciones de tipo
     formulario.campos.forEach(campo => {
       const valor = respuestas[campo.id];
@@ -77,7 +77,7 @@ export class FormularioValidatorService {
         errores.push(`${campo.etiqueta}: tipo inválido`);
       }
     });
-    
+
     return {
       valido: errores.length === 0,
       errores
@@ -91,10 +91,10 @@ export class FormularioValidatorService {
 export class GuardarFormularioDto {
   @IsUUID()
   formularioId: string;
-  
+
   @IsUUID()
   ordenId: string;
-  
+
   @IsObject()
   respuestas: Record<string, any>;
 }
@@ -121,19 +121,19 @@ export class FormulariosService {
     private validator: FormularioValidatorService,
     private logger: LoggerService
   ) {}
-  
+
   async guardarRespuestas(dto: GuardarFormularioDto, usuario: User): Promise<FormularioResponse> {
     try {
       // 1. Obtener plantilla
       const plantilla = await this.formularioRepo.findById(dto.formularioId);
       if (!plantilla) throw new NotFoundException('Formulario no encontrado');
-      
+
       // 2. Validar respuestas
       const validacion = this.validator.validateForm(plantilla, dto.respuestas);
       if (!validacion.valido) {
         throw new BadRequestException(validacion.errores.join(', '));
       }
-      
+
       // 3. Guardar respuestas
       const respuesta = await this.respuestasRepo.save({
         formularioId: dto.formularioId,
@@ -143,10 +143,10 @@ export class FormulariosService {
         completadoEn: new Date(),
         estado: 'COMPLETADO'
       });
-      
+
       this.logger.log(`Formulario guardado: ${respuesta.id} por ${usuario.id}`, 'FormulariosService');
       return respuesta;
-      
+
     } catch (error) {
       this.logger.error(`Error al guardar formulario: ${error.message}`, error, 'FormulariosService');
       throw error;
@@ -156,26 +156,26 @@ export class FormulariosService {
 ```
 
 ## Reglas GEMINI críticas para Formularios
-- Regla 1: NO hardcodear validaciones de campos; centralizar en `FormularioValidatorService`.  
-- Regla 3: Value Objects para tipos de campos, operadores, condiciones.  
-- Regla 4: Mapper `Plantilla (domain) → FormularioResponse (DTO)`.  
-- Regla 5: try/catch en guardar + Logger.  
+- Regla 1: NO hardcodear validaciones de campos; centralizar en `FormularioValidatorService`.
+- Regla 3: Value Objects para tipos de campos, operadores, condiciones.
+- Regla 4: Mapper `Plantilla (domain) → FormularioResponse (DTO)`.
+- Regla 5: try/catch en guardar + Logger.
 - Regla 8: Funciones pequeñas; `evaluarCondicion`, `validarTipo` como métodos privados.
 
 ## Entradas ideales (qué confirmar)
-- Estructura del formulario (campos, tipos, validaciones, dependencias).  
+- Estructura del formulario (campos, tipos, validaciones, dependencias).
 - Integración: qué módulos consumen este formulario (órdenes, kpis, etc.).
 
 ## Salidas esperadas (output)
-- Motor flexible de formularios (engine + validator + calculator).  
-- DTOs + models para formularios y respuestas.  
+- Motor flexible de formularios (engine + validator + calculator).
+- DTOs + models para formularios y respuestas.
 - Tests: validación correcta/incorrecta, dependencias, cálculos.
 
 ## Checklist Formularios "Done"
-- ✅ Validación centralizada (NO en controllers).  
-- ✅ Soporta tipos: text, number, select, date, boolean, textarea.  
-- ✅ Soporta condiciones: if/then para mostrar/ocultar campos.  
-- ✅ Cálculos: campos que se rellenan automáticamente (NO manualmente).  
-- ✅ Historial: cambios en respuestas registrados.  
-- ✅ No permite guardar incompleto si es obligatorio.  
+- ✅ Validación centralizada (NO en controllers).
+- ✅ Soporta tipos: text, number, select, date, boolean, textarea.
+- ✅ Soporta condiciones: if/then para mostrar/ocultar campos.
+- ✅ Cálculos: campos que se rellenan automáticamente (NO manualmente).
+- ✅ Historial: cambios en respuestas registrados.
+- ✅ No permite guardar incompleto si es obligatorio.
 - ✅ Tests: validación, dependencias, cálculos.

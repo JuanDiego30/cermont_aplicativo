@@ -1,8 +1,8 @@
 # 🔐 CERMONT BACKEND AUTH AGENT
 
-**Responsabilidad:** Autenticación, autorización, 2FA, audit logs  
-**Reglas:** 1-10 (y Regla 6: sin secretos en logs)  
-**Patrón:** SIN PREGUNTAS  
+**Responsabilidad:** Autenticación, autorización, 2FA, audit logs
+**Reglas:** 1-10 (y Regla 6: sin secretos en logs)
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
 
 ---
@@ -17,7 +17,7 @@ EJECUTA SIN PREGUNTAR:
    - JWT (RS256), 2FA, audit log, refresh token rotation
    - Rate limiting, expiración correcta
    - Regla 6: ¿hay secretos en logs?
-   
+
 2. PLAN: 3-4 pasos
 
 3. IMPLEMENTACIÓN: Si se aprueba

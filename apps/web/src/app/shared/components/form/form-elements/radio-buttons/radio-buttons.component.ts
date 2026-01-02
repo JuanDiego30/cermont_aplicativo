@@ -18,7 +18,7 @@ export class RadioButtonsComponent {
   selectedValue: string = 'option2';
 
   handleRadioChange(value: string) {
-    console.log(value,'value')
+    void value;
     this.selectedValue = value;
   }
 }

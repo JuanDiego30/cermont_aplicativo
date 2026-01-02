@@ -380,7 +380,7 @@ git push origin main
 
 ## 🌟 Bienvenida de Nuevo!
 
-Te han sumado al equipo porque creemos en ti. 
+Te han sumado al equipo porque creemos en ti.
 
 **Recuerda:**
 - Los agentes están para ayudarte (no asustar)
@@ -393,6 +393,6 @@ Si tienes sugerencias, crea una PR y actualiza este archivo.
 
 ---
 
-**Onboarding versión:** 1.0  
-**Última actualización:** 2026-01-02  
+**Onboarding versión:** 1.0
+**Última actualización:** 2026-01-02
 **Estado:** 🙋 "Bienvenido a Cermont!"

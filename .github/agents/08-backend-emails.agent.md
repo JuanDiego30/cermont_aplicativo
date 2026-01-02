@@ -5,8 +5,8 @@ tools: []
 
 # 📫 BACKEND EMAILS & NOTIFICATIONS AGENT
 
-**Especialidad:** Envío de emails, notificaciones push, webhooks, plantillas, reintentos  
-**Stack:** Nodemailer, SendGrid, AWS SES, Bull Queue, Twilio (SMS)  
+**Especialidad:** Envío de emails, notificaciones push, webhooks, plantillas, reintentos
+**Stack:** Nodemailer, SendGrid, AWS SES, Bull Queue, Twilio (SMS)
 **Ubicación:** `apps/api/src/modules/notifications/**`
 
 ---
@@ -132,7 +132,7 @@ export class NotificationsService {
     resetToken: string
   ): Promise<void> {
     const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-    
+
     await this.emailService.send({
       to: email,
       subject: 'Restablecer contraseña',
@@ -146,7 +146,7 @@ export class NotificationsService {
     context: Record<string, any>
   ): Promise<void> {
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@cermont.com';
-    
+
     await this.emailService.send({
       to: adminEmail,
       subject: `🚨 CRITICAL ERROR: ${error.message}`,
@@ -247,5 +247,5 @@ export class OrdenesService {
 
 ---
 
-**Status:** ✅ Listo para uso  
+**Status:** ✅ Listo para uso
 **Última actualización:** 2026-01-02

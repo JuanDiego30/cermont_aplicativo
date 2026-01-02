@@ -1,8 +1,8 @@
 # 📋 CERMONT BACKEND FORMULARIOS AGENT
 
-**Responsabilidad:** JSON Schema validation, dynamic forms, drafts, versioning  
-**Reglas:** 31-40  
-**Patrón:** SIN PREGUNTAS  
+**Responsabilidad:** JSON Schema validation, dynamic forms, drafts, versioning
+**Reglas:** 31-40
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
 
 ---
@@ -17,7 +17,7 @@ EJECUTA SIN PREGUNTAR:
    - JSON Schema validación (no strings)
    - Tipos: string, number, bool, date, select, checkbox
    - Draft autosave, historial versiones
-   
+
 2. PLAN: 3-4 pasos
 
 3. IMPLEMENTACIÓN: Si se aprueba

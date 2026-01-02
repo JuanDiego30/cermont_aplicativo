@@ -1,7 +1,7 @@
 # ☂️ CERMONT FRONTEND UMBRELLA AGENT
 
-**Responsabilidad:** Coordinador de cambios frontend  
-**Patrón:** SIN PREGUNTAS  
+**Responsabilidad:** Coordinador de cambios frontend
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
 
 ---
@@ -17,7 +17,7 @@ Para CUALQUIER problema frontend:
    - UI/UX
    - State Management
    - Performance
-   
+
 2. RECOMIENDA qué sub-agente ejecutar
 
 3. VALIDA separación (Regla 41: Frontend NO toca lógica)

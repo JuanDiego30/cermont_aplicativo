@@ -15,7 +15,7 @@ export const UploadEvidenciaSchema = z.object({
   ejecucionId: z.string().uuid('ejecucionId debe ser UUID válido').optional(),
   tipo: z.enum(['FOTO', 'VIDEO', 'DOCUMENTO', 'AUDIO']).optional(),
   descripcion: z.string().max(500, 'Máximo 500 caracteres').optional(),
-  tags: z.string().optional(), // Comma-separated
+  tags: z.string().max(1000, 'Máximo 1000 caracteres').optional(), // Comma-separated
 });
 
 export type UploadEvidenciaDto = z.infer<typeof UploadEvidenciaSchema>;

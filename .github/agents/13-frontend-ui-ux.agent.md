@@ -6,23 +6,23 @@ tools: []
 # CERMONT FRONTEND — UI/UX AGENT
 
 ## Qué hace (accomplishes)
-Garantiza UI consistente, accesible y responsive en toda la app Angular: componentes reutilizables (shared), patrones de interacción claros, dark mode support, accesibilidad WCAG 2.1 AA. [mcp_tool_github-mcp-direct_get_file_contents:0]  
+Garantiza UI consistente, accesible y responsive en toda la app Angular: componentes reutilizables (shared), patrones de interacción claros, dark mode support, accesibilidad WCAG 2.1 AA. [mcp_tool_github-mcp-direct_get_file_contents:0]
 Es el "rostro" de Cermont: errores aquí afectan la percepcón del usuario.
 
 ## Scope (dónde trabaja)
-- Scope: `apps/web/src/app/shared/components/**` (componentes reutilizables, estilos, templates).  
+- Scope: `apps/web/src/app/shared/components/**` (componentes reutilizables, estilos, templates).
 - Integración: todos los features usan shared components.
 
 ## Cuándo usarlo
-- Crear componentes nuevos o refactorizar existentes.  
-- Mejorar accesibilidad (a11y): ARIA, keyboard navigation, focus management.  
-- Responsive design: mobile-first, breakpoints coherentes.  
+- Crear componentes nuevos o refactorizar existentes.
+- Mejorar accesibilidad (a11y): ARIA, keyboard navigation, focus management.
+- Responsive design: mobile-first, breakpoints coherentes.
 - Consistencia visual: spacing, tipografía, colores, iconografía.
 
 ## Límites (CRÍTICOS)
-- No duplica componentes; si existe similar, extiende/refactoriza.  
-- No rompe accesibilidad: `[attr.aria-*]`, `role`, labels en inputs siempre.  
-- No hardcodea colores/espacios; usar CSS variables + design tokens.  
+- No duplica componentes; si existe similar, extiende/refactoriza.
+- No rompe accesibilidad: `[attr.aria-*]`, `role`, labels en inputs siempre.
+- No hardcodea colores/espacios; usar CSS variables + design tokens.
 - Responsive obligatorio: mobile, tablet, desktop.
 
 ## Patrones UI/UX (obligatorios)
@@ -56,26 +56,26 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
       transition: all var(--duration-normal) var(--ease-standard);
       border: none;
     }
-    
+
     .btn--primary {
       background: var(--color-primary);
       color: var(--color-btn-primary-text);
     }
-    
+
     .btn--primary:hover:not(:disabled) {
       background: var(--color-primary-hover);
     }
-    
+
     .btn--secondary {
       background: var(--color-secondary);
       color: var(--color-text);
     }
-    
+
     .btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
-    
+
     .spinner-small {
       display: inline-block;
       width: 12px;
@@ -86,7 +86,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
       border-radius: 50%;
       animation: spin 0.6s linear infinite;
     }
-    
+
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
@@ -97,7 +97,7 @@ export class ButtonComponent {
   @Input() isLoading = false;
   @Input() isDisabled = false;
   @Output() clicked = new EventEmitter<void>();
-  
+
   onClick(): void {
     if (!this.isDisabled && !this.isLoading) {
       this.clicked.emit();
@@ -130,30 +130,30 @@ export class ButtonComponent {
       flex-direction: column;
       margin-bottom: var(--space-16);
     }
-    
+
     .form-label {
       font-weight: 500;
       margin-bottom: var(--space-8);
       display: flex;
       gap: var(--space-4);
     }
-    
+
     .form-label__required {
       color: var(--color-error);
     }
-    
+
     .form-hint {
       font-size: var(--font-size-sm);
       color: var(--color-text-secondary);
       margin-top: var(--space-4);
     }
-    
+
     .form-error {
       color: var(--color-error);
       font-size: var(--font-size-sm);
       margin-top: var(--space-4);
     }
-    
+
     .form-field--error input,
     .form-field--error textarea,
     .form-field--error select {
@@ -167,7 +167,7 @@ export class FormFieldComponent {
   @Input() hint: string = '';
   @Input() errorMessage: string = '';
   @Input() fieldId: string = `field_${Math.random().toString(36).substr(2, 9)}`;
-  
+
   get hasError(): boolean {
     return !!this.errorMessage;
   }
@@ -211,7 +211,7 @@ export class FormFieldComponent {
       justify-content: center;
       z-index: 1000;
     }
-    
+
     .modal {
       background: var(--color-surface);
       border-radius: var(--radius-lg);
@@ -221,7 +221,7 @@ export class FormFieldComponent {
       max-height: 90vh;
       overflow-y: auto;
     }
-    
+
     .modal__header {
       display: flex;
       justify-content: space-between;
@@ -229,12 +229,12 @@ export class FormFieldComponent {
       padding: var(--space-16);
       border-bottom: 1px solid var(--color-border);
     }
-    
+
     .modal__title {
       margin: 0;
       font-size: var(--font-size-lg);
     }
-    
+
     .modal__close {
       background: none;
       border: none;
@@ -248,15 +248,15 @@ export class FormFieldComponent {
       justify-content: center;
       border-radius: var(--radius-sm);
     }
-    
+
     .modal__close:hover {
       background: var(--color-secondary);
     }
-    
+
     .modal__body {
       padding: var(--space-16);
     }
-    
+
     .modal__footer {
       padding: var(--space-16);
       border-top: 1px solid var(--color-border);
@@ -272,12 +272,12 @@ export class ModalComponent {
   @Input() isOpen = false;
   @Input() showFooter = false;
   @Output() closed = new EventEmitter<void>();
-  
+
   close(): void {
     this.isOpen = false;
     this.closed.emit();
   }
-  
+
   onBackdropClick(): void {
     this.close();
   }
@@ -285,28 +285,28 @@ export class ModalComponent {
 ```
 
 ## Reglas GEMINI para UI/UX
-- Regla 1: No duplicar componentes; reutilizar shared.  
-- Regla 8: Componentes pequeños, una responsabilidad.  
-- Accesibilidad: `role`, `aria-*`, labels, keyboard navigation.  
+- Regla 1: No duplicar componentes; reutilizar shared.
+- Regla 8: Componentes pequeños, una responsabilidad.
+- Accesibilidad: `role`, `aria-*`, labels, keyboard navigation.
 - Responsive: mobile-first, breakpoints claros.
 
 ## Entradas ideales (qué confirmar)
-- Componente nuevo o refactor existente.  
-- Requisitos de accesibilidad (WCAG 2.1 AA mínimo).  
+- Componente nuevo o refactor existente.
+- Requisitos de accesibilidad (WCAG 2.1 AA mínimo).
 - Breakpoints target (mobile, tablet, desktop).
 
 ## Salidas esperadas (output)
-- Componente reutilizable (shared).  
-- Template accesible (ARIA, labels, keyboard).  
-- Estilos responsive (CSS variables, media queries).  
+- Componente reutilizable (shared).
+- Template accesible (ARIA, labels, keyboard).
+- Estilos responsive (CSS variables, media queries).
 - Tests: render, interacción, accesibilidad.
 
 ## Checklist UI/UX "Done"
-- ✅ Componente en `shared/components/`.  
-- ✅ Template con `role`, `aria-*`, labels.  
-- ✅ Keyboard navigation (Tab, Enter, Escape).  
-- ✅ Focus indicators visibles.  
-- ✅ Responsive: mobile, tablet, desktop.  
-- ✅ Color contrast: 4.5:1 texto, 3:1 gráficos.  
-- ✅ Usa CSS variables (colores, spacing).  
+- ✅ Componente en `shared/components/`.
+- ✅ Template con `role`, `aria-*`, labels.
+- ✅ Keyboard navigation (Tab, Enter, Escape).
+- ✅ Focus indicators visibles.
+- ✅ Responsive: mobile, tablet, desktop.
+- ✅ Color contrast: 4.5:1 texto, 3:1 gráficos.
+- ✅ Usa CSS variables (colores, spacing).
 - ✅ Tests: render, interacción, a11y.

@@ -31,7 +31,6 @@ export class FormInModalComponent {
   }
 
   handleSave() {
-    console.log('Saving changes...');
     this.closeModal();
   }
 }

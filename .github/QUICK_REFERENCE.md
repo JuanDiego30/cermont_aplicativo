@@ -214,7 +214,7 @@ it('should emit clicked event', () => {
 @Injectable({ providedIn: 'root' })
 export class OrdenesService {
   constructor(private api: ApiService) {}
-  
+
   getOrdenes(filtros: OrdenFiltros): Observable<Orden[]> {
     return this.api.get<Orden[]>('/ordenes', { params: filtros })
       .pipe(
@@ -228,7 +228,7 @@ export class OrdenesService {
 @Component({ ... })
 export class OrdenesListComponent implements OnInit {
   ordenes$ = this.service.getOrdenes(filtros);
-  
+
   constructor(private service: OrdenesService) {}
 }
 
@@ -396,6 +396,6 @@ WORKFLOWS CI/CD          → .github/workflows/
 
 ---
 
-**Última actualización:** 2026-01-02  
-**Versión:** 1.0  
+**Última actualización:** 2026-01-02
+**Versión:** 1.0
 **📖 Siempre ten esto a mano!**

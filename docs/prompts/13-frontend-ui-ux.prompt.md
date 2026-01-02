@@ -1,7 +1,7 @@
 # 🎨 CERMONT FRONTEND UI/UX AGENT
 
-**Responsabilidad:** Componentes reutilizables, estilos, accesibilidad  
-**Patrón:** SIN PREGUNTAS  
+**Responsabilidad:** Componentes reutilizables, estilos, accesibilidad
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
 
 ---
@@ -14,7 +14,7 @@ Actúa como CERMONT FRONTEND UI/UX AGENT.
 EJECUTA SIN PREGUNTAR:
 1. ANÁLISIS: apps/web/src/app/shared/components/**
    - Accesibilidad (ARIA), responsive, dark mode, consistencia
-   
+
 2. PLAN: 3-4 pasos
 
 3. IMPLEMENTACIÓN: Si se aprueba

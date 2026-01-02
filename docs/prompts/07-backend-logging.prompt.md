@@ -1,8 +1,8 @@
 # 📊 CERMONT BACKEND LOGGING AGENT
 
-**Responsabilidad:** Logging seguro (Regla 6), structured logs, niveles  
-**Reglas:** 6 (CRÍTICA: sin secretos)  
-**Patrón:** SIN PREGUNTAS  
+**Responsabilidad:** Logging seguro (Regla 6), structured logs, niveles
+**Reglas:** 6 (CRÍTICA: sin secretos)
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
 
 ---
@@ -17,7 +17,7 @@ EJECUTA SIN PREGUNTAR:
    - Regla 6: NUNCA loguear password, token, secret, apiKey
    - Structured logging (JSON), niveles (error/warn/info/debug)
    - Rotación de logs, almacenamiento
-   
+
 2. PLAN: 3-4 pasos
 
 3. IMPLEMENTACIÓN: Si se aprueba

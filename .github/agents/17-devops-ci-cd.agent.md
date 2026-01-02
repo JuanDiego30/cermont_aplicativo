@@ -6,7 +6,7 @@ tools: []
 # CERMONT DEVOPS / CI-CD AGENT
 
 ## Qué hace (accomplishes)
-Orcuesta el ciclo de vida del código: tests automáticos → build → Docker → despliegue en dev/staging/prod. [mcp_tool_github-mcp-direct_get_file_contents:0]  
+Orcuesta el ciclo de vida del código: tests automáticos → build → Docker → despliegue en dev/staging/prod. [mcp_tool_github-mcp-direct_get_file_contents:0]
 Garantiza que cada commit es testeado, integrado y desplegado de forma confiable y reproducible.
 
 ## Scope (dónde trabaja)
@@ -14,9 +14,9 @@ Garantiza que cada commit es testeado, integrado y desplegado de forma confiable
 - Ambientes: desarrollo local, dev (servidor de test), staging (pre-prod), prod.
 
 ## Cuándo usarlo
-- Crear/actualizar workflows de CI-CD.  
-- Mejorar tiempo de build/deployment.  
-- Agregar nuevos ambientes o herramientas de monitoreo.  
+- Crear/actualizar workflows de CI-CD.
+- Mejorar tiempo de build/deployment.
+- Agregar nuevos ambientes o herramientas de monitoreo.
 - Refactor: dockerizar cambios, optimizar layers, seguridad.
 
 ## Límites (CRÍTICOS)
@@ -58,62 +58,62 @@ on:
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [20.x]
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Lint (ESLint)
         run: npm run lint
-      
+
       - name: Format check (Prettier)
         run: npm run format:check
-      
+
       - name: Type check (TypeScript)
         run: npm run type-check
-      
+
       - name: Unit tests
         run: npm run test -- --coverage
-      
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
           file: ./coverage/lcov.info
-      
+
       - name: Build API
         run: npm run build:api
-      
+
       - name: Build Web
         run: npm run build:web
-  
+
   docker-build:
     needs: lint-and-test
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      
+
       - name: Build and push API
         uses: docker/build-push-action@v5
         with:
@@ -125,7 +125,7 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/cermont-api:${{ github.sha }}
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/cermont-api:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/cermont-api:buildcache,mode=max
-      
+
       - name: Build and push Web
         uses: docker/build-push-action@v5
         with:
@@ -156,10 +156,10 @@ jobs:
   deploy-dev:
     runs-on: ubuntu-latest
     environment: development
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Deploy to Dev Server via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -172,19 +172,19 @@ jobs:
             docker-compose -f docker-compose.dev.yml pull
             docker-compose -f docker-compose.dev.yml up -d
             docker-compose exec -T api npm run migrate
-      
+
       - name: Smoke tests on Dev
         run: |
           curl -f http://${{ secrets.DEV_HOST }}:3000/health || exit 1
           curl -f http://${{ secrets.DEV_HOST }}:4200 || exit 1
-      
+
       - name: Notify Slack (success)
         if: success()
         run: |
           curl -X POST ${{ secrets.SLACK_WEBHOOK }} \
             -H 'Content-Type: application/json' \
             -d '{"text":"✅ Deploy a Dev exitoso"}'
-      
+
       - name: Notify Slack (failure)
         if: failure()
         run: |
@@ -214,10 +214,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -228,17 +228,17 @@ jobs:
             cd /app/cermont
             git pull origin main
             docker-compose -f docker-compose.${{ github.event.inputs.environment }}.yml pull
-            
+
             # Backup antes de deploy
             docker-compose -f docker-compose.${{ github.event.inputs.environment }}.yml exec -T api pg_dump -U postgres cermont > backup_$(date +%s).sql
-            
+
             docker-compose -f docker-compose.${{ github.event.inputs.environment }}.yml up -d
             docker-compose -f docker-compose.${{ github.event.inputs.environment }}.yml exec -T api npm run migrate
-      
+
       - name: Health check
         run: |
           curl -f http://${{ secrets[format('{0}_HOST', github.event.inputs.environment | upper)] }}/api/health || exit 1
-      
+
       - name: Create Release
         uses: actions/create-release@v1
         env:
@@ -331,12 +331,12 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-  
+
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
-  
+
   api:
     build:
       context: .
@@ -355,7 +355,7 @@ services:
       - postgres
       - redis
     command: npm run start:api -- --watch
-  
+
   web:
     build:
       context: .
@@ -380,14 +380,14 @@ export class HealthController {
     private db: PrismaService,
     private redis: RedisService
   ) {}
-  
+
   @Get()
   async check(): Promise<HealthDto> {
     const dbOk = await this.checkDb();
     const redisOk = await this.checkRedis();
-    
+
     const allHealthy = dbOk && redisOk;
-    
+
     return {
       status: allHealthy ? 'healthy' : 'degraded',
       timestamp: new Date(),

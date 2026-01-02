@@ -6,23 +6,23 @@ tools: []
 # CERMONT FRONTEND — PERFORMANCE AGENT
 
 ## Qué hace (accomplishes)
-Garantiza que Cermont sea rápido: lazy loading de features, change detection optimizado, sin memory leaks, bundles pequeños, carga de assets eficiente. [mcp_tool_github-mcp-direct_get_file_contents:0]  
+Garantiza que Cermont sea rápido: lazy loading de features, change detection optimizado, sin memory leaks, bundles pequeños, carga de assets eficiente. [mcp_tool_github-mcp-direct_get_file_contents:0]
 Es crítico: users esperan respuesta <1s; cada 100ms de delay = ~1% abandono.
 
 ## Scope (dónde trabaja)
-- Scope: arquitectura routing, change detection, lazy loading, observables, imports.  
+- Scope: arquitectura routing, change detection, lazy loading, observables, imports.
 - Integración: impacta toda la app.
 
 ## Cuándo usarlo
-- Mejorar Core Web Vitals (LCP, FID, CLS).  
-- Refactor: cambiar de Default a OnPush detection.  
-- Lazy load: nuevas rutas o features grandes.  
+- Mejorar Core Web Vitals (LCP, FID, CLS).
+- Refactor: cambiar de Default a OnPush detection.
+- Lazy load: nuevas rutas o features grandes.
 - Memory leaks: encontrar y eliminar suscripciones no canceladas.
 
 ## Límites (CRÍTICOS)
-- No cambia a OnPush sin garantía de que inputs son únicos/immutables.  
-- No agrega features sin lazy loading (si no son críticas para inicial load).  
-- No deja suscripciones sin cancelar (usar `takeUntil`, `unsubscribe` en `ngOnDestroy`).  
+- No cambia a OnPush sin garantía de que inputs son únicos/immutables.
+- No agrega features sin lazy loading (si no son críticas para inicial load).
+- No deja suscripciones sin cancelar (usar `takeUntil`, `unsubscribe` en `ngOnDestroy`).
 - No importa módulos innecesarios en el bundle principal.
 
 ## Patrones Performance (obligatorios)
@@ -35,7 +35,7 @@ const routes: Routes = [
   { path: '', redirectTo: '/ordenes', pathMatch: 'full' },
   { path: 'login', loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent) },
   { path: 'dashboard', loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) },
-  
+
   // 2. Lazy loaded modules (cargan cuando se navega)
   {
     path: 'ordenes',
@@ -52,7 +52,7 @@ const routes: Routes = [
     loadChildren: () => import('./features/reportes/reportes.routes').then(m => m.REPORTES_ROUTES),
     data: { title: 'Reportes' }
   },
-  
+
   // 3. Wildcard al final
   { path: '**', component: NotFoundComponent }
 ];
@@ -96,7 +96,7 @@ export class OrdenCardComponent {
 })
 export class OrdenFormComponent {
   constructor(private cdr: ChangeDetectorRef) {}
-  
+
   onSave(): void {
     // Si algo cambió SIN ser via @Input, forzar check
     this.cdr.markForCheck();
@@ -113,16 +113,16 @@ export class OrdenFormComponent {
 })
 export class OrdenesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  
+
   constructor(
     private store: Store,
     private logger: LoggerService
   ) {}
-  
+
   ngOnInit(): void {
     this.store.dispatch(loadOrdenes({ filtros: {} }));
   }
-  
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -136,9 +136,9 @@ export class OrdenesComponent implements OnInit, OnDestroy {
 })
 export class OrdenesComponent implements OnInit {
   ordenes$ = this.store.select(selectAllOrdenes); // Observable, async pipe desuscribe
-  
+
   constructor(private store: Store) {}
-  
+
   ngOnInit(): void {
     this.store.dispatch(loadOrdenes({ filtros: {} }));
   }
@@ -150,7 +150,7 @@ export class OrdenesComponent implements OnInit {
 })
 export class OrdenesComponent {
   private destroyRef = inject(DestroyRef);
-  
+
   constructor(private api: ApiService) {
     this.api.getOrdenes().pipe(
       takeUntilDestroyed(this.destroyRef)
@@ -176,12 +176,12 @@ export class OrdenesComponent {
 export class OrdenesListComponent {
   @Input() ordenes: Orden[] = [];
   @Output() selected = new EventEmitter<Orden>();
-  
+
   // TrackBy para que Angular no recree elementos innecesarios
   trackByOrdenId(index: number, orden: Orden): string {
     return orden.id;
   }
-  
+
   selectOrden(orden: Orden): void {
     this.selected.emit(orden);
   }
@@ -245,34 +245,34 @@ export class OrdenesComponent {}
 ```
 
 ## Reglas GEMINI para Performance
-- Regla 1: OnPush por defecto (Default es último recurso).  
-- Regla 5: Manejo de errores + logs sin afectar performance.  
-- Regla 10: Lazy loading de features grandes.  
+- Regla 1: OnPush por defecto (Default es último recurso).
+- Regla 5: Manejo de errores + logs sin afectar performance.
+- Regla 10: Lazy loading de features grandes.
 - Regla 13: trackBy en *ngFor (especialmente listas largas).
 
 ## Herramientas de Medición
-- Lighthouse (Chrome DevTools)  
-- Angular DevTools (perfilado de change detection)  
-- Web Vitals: LCP (<2.5s), FID (<100ms), CLS (<0.1)  
+- Lighthouse (Chrome DevTools)
+- Angular DevTools (perfilado de change detection)
+- Web Vitals: LCP (<2.5s), FID (<100ms), CLS (<0.1)
 - Bundle Analyzer: `ng build --stats-json`
 
 ## Entradas ideales (qué confirmar)
-- ¿Core Web Vitals actuales?  
-- Qué features son pesadas (candidatos a lazy load).  
+- ¿Core Web Vitals actuales?
+- Qué features son pesadas (candidatos a lazy load).
 - Qué componentes tienen listas largas (necesitan OnPush + trackBy).
 
 ## Salidas esperadas (output)
-- Reducir bundle principal.  
-- LCP/FID/CLS dentro de targets.  
-- No memory leaks (DevTools).  
+- Reducir bundle principal.
+- LCP/FID/CLS dentro de targets.
+- No memory leaks (DevTools).
 - Tests: performance, memory, carga.
 
 ## Checklist Performance "Done"
-- ✅ Lazy loading de features grandes.  
-- ✅ Change detection: OnPush donde aplique.  
-- ✅ trackBy en *ngFor (especialmente >50 items).  
-- ✅ No memory leaks (suscripciones canceladas).  
-- ✅ tree-shaking habilitado (imports selectivos).  
-- ✅ Images lazy loaded.  
-- ✅ Bundle <500KB gzip (inicial).  
+- ✅ Lazy loading de features grandes.
+- ✅ Change detection: OnPush donde aplique.
+- ✅ trackBy en *ngFor (especialmente >50 items).
+- ✅ No memory leaks (suscripciones canceladas).
+- ✅ tree-shaking habilitado (imports selectivos).
+- ✅ Images lazy loaded.
+- ✅ Bundle <500KB gzip (inicial).
 - ✅ Lighthouse: >90 Performance.

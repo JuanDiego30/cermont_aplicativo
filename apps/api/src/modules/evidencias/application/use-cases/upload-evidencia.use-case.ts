@@ -58,7 +58,6 @@ export class UploadEvidenciaUseCase {
     const { file, dto, uploadedBy, uploaderRole } = command;
 
     this.logger.log(`Uploading evidencia for orden ${dto.ordenId}`, {
-      filename: file.originalname,
       size: file.size,
       mimeType: file.mimetype,
     });
@@ -126,7 +125,10 @@ export class UploadEvidenciaUseCase {
 
       // 3. Upload to storage
       await this.storage.upload(file.buffer, evidencia.storagePath.getValue());
-      this.logger.log(`File uploaded to ${evidencia.storagePath.getValue()}`);
+      this.logger.log('File uploaded', {
+        evidenciaId: evidencia.id.getValue(),
+        size: file.size,
+      });
 
       // 4. Save to repository
       const saved = await this.repository.save(evidencia);

@@ -1,7 +1,7 @@
 # 📄 CERMONT BACKEND REPORTES PDF AGENT
 
-**Responsabilidad:** Generación de PDFs, Puppeteer/PDFKit, tablas, headers, footers  
-**Patrón:** SIN PREGUNTAS  
+**Responsabilidad:** Generación de PDFs, Puppeteer/PDFKit, tablas, headers, footers
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
 
 ---
@@ -16,7 +16,7 @@ EJECUTA SIN PREGUNTAR:
    - Puppeteer o PDFKit instalado
    - Headers, footers, tablas, QR
    - Caché de PDFs, limpieza
-   
+
 2. PLAN: 3-4 pasos
 
 3. IMPLEMENTACIÓN: Si se aprueba

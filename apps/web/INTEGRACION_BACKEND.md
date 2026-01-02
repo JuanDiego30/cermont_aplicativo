@@ -1,6 +1,6 @@
 # 🔧 **INTEGRACIÓN FRONTEND - BACKEND CERMONT**
 
-**Fecha:** 2024-12-24  
+**Fecha:** 2024-12-24
 **Estado:** ✅ Servicios y Componentes Base Completados
 
 ---
@@ -330,15 +330,15 @@ this.pdfApi.generateReporteOrden({
 ### **Ejemplo: Componentes Compartidos**
 ```html
 <!-- Loading Spinner -->
-<app-loading-spinner 
-  [message]="'Cargando datos...'" 
+<app-loading-spinner
+  [message]="'Cargando datos...'"
   [size]="'md'"
   [fullScreen]="true">
 </app-loading-spinner>
 
 <!-- Status Badge -->
-<app-status-badge 
-  [status]="orden.estado" 
+<app-status-badge
+  [status]="orden.estado"
   [type]="'orden'">
 </app-status-badge>
 
@@ -392,5 +392,5 @@ this.pdfApi.generateReporteOrden({
 
 ---
 
-**Estado Actual:** ✅ Servicios y componentes base completados  
+**Estado Actual:** ✅ Servicios y componentes base completados
 **Siguiente Paso:** Crear componentes de UI para cada módulo

@@ -1,7 +1,7 @@
 # 🔄 CERMONT BACKEND SYNC AGENT
 
-**Responsabilidad:** Sincronización offline, idempotencia, conflictos  
-**Patrón:** SIN PREGUNTAS  
+**Responsabilidad:** Sincronización offline, idempotencia, conflictos
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
 
 ---
@@ -16,7 +16,7 @@ EJECUTA SIN PREGUNTAR:
    - Queue de cambios offline, idempotencia
    - Conflictos (last-write-wins o merge)
    - Timestamps y versionado
-   
+
 2. PLAN: 3-4 pasos
 
 3. IMPLEMENTACIÓN: Si se aprueba

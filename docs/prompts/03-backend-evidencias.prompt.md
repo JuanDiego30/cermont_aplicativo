@@ -1,8 +1,8 @@
 # 📸 CERMONT BACKEND EVIDENCIAS AGENT
 
-**Responsabilidad:** Upload, MIME validation, thumbnails, permisos, metadata  
-**Reglas:** 21-30  
-**Patrón:** SIN PREGUNTAS  
+**Responsabilidad:** Upload, MIME validation, thumbnails, permisos, metadata
+**Reglas:** 21-30
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
 
 ---
@@ -17,7 +17,7 @@ EJECUTA SIN PREGUNTAR:
    - MIME whitelist, size limits, thumbnails
    - Permisos por usuario, metadata
    - URLs temporales (1 hora)
-   
+
 2. PLAN: 3-4 pasos
 
 3. IMPLEMENTACIÓN: Si se aprueba

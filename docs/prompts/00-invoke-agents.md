@@ -1,7 +1,7 @@
 # 🤖 CERMONT AGENTES - INVOCACIÓN Y 41 REGLAS
 
-**Última actualización:** 2026-01-02  
-**Estado:** 18 agentes + 41 reglas documentadas  
+**Última actualización:** 2026-01-02
+**Estado:** 18 agentes + 41 reglas documentadas
 **Patrón:** SIN PREGUNTAS (análisis → plan → implementación → verificación)
 
 ---
@@ -138,7 +138,7 @@ Actúa como CERMONT [NOMBRE] AGENT.
 
 EJECUTA SIN PREGUNTAR:
 
-1. ANÁLISIS: 
+1. ANÁLISIS:
    - apps/api/src/modules/[modulo]/**
    - ¿Qué existe?
    - ¿Qué falta?

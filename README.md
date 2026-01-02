@@ -34,7 +34,7 @@ npm run start:web    # Terminal 2
 
 ### 🎯 Para Cualquier Tarea de Desarrollo
 
-1. **Necesito entender cómo funciona...** 
+1. **Necesito entender cómo funciona...**
    → Abre [`.github/AGENTS.md`](.github/AGENTS.md) - Índice maestro de todos los agentes
 
 2. **Voy a trabajar en una tarea...**
@@ -331,7 +331,7 @@ Propietario. © 2024-2026 Cermont
 
 ## 🎯 Visión del Proyecto
 
-Cermont busca ser la **solución integral de gestión de órdenes** más confiable, performante y mantenible para empresas medianas. 
+Cermont busca ser la **solución integral de gestión de órdenes** más confiable, performante y mantenible para empresas medianas.
 
 **Pilares:**
 - 🎯 **Usabilidad:** UI/UX accesible e intuitiva
@@ -357,6 +357,6 @@ Cermont busca ser la **solución integral de gestión de órdenes** más confiab
 
 ---
 
-**Status:** ✅ Producción-Ready  
-**Última actualización:** 2026-01-02  
+**Status:** ✅ Producción-Ready
+**Última actualización:** 2026-01-02
 **Documentación:** Completa y centralizada en `.github/`
