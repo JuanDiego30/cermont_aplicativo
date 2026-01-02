@@ -1,12 +1,12 @@
 # 🤖 CERMONT AGENTS — COMPLETE REFERENCE GUIDE
 
-Este archivo es tu **guía maestra** para navegar la suite de 13 agentes especializados de Cermont. Cada agente es un experto en su área y proporciona patrones, límites, y checklists específicos.
+Este archivo es tu **guía maestra** para navegar la suite de **18 agentes especializados** de Cermont. Cada agente es un experto en su área y proporciona patrones, límites, y checklists específicos.
 
 ## 📋 Tabla de Contenidos
 
 1. [Cómo Usar Estos Agentes](#cómo-usar-estos-agentes)
-2. [Backend Agents (7)](#backend-agents)
-3. [Frontend Agents (5)](#frontend-agents)
+2. [Backend Agents (10)](#backend-agents)
+3. [Frontend Agents (6)](#frontend-agents)
 4. [DevOps Agents (1)](#devops-agents)
 5. [Decisión Rápida: ¿Cuál Agente?](#decisión-rápida-cuál-agente)
 6. [Reglas GEMINI Transversales](#reglas-gemini-transversales)
@@ -16,333 +16,120 @@ Este archivo es tu **guía maestra** para navegar la suite de 13 agentes especia
 
 ## Cómo Usar Estos Agentes
 
-### 📌 Patrón de Uso
+### 📋 Patrón de Uso
 
 1. **Identifica el área** (backend, frontend, devops)
-2. **Elige el agente específico** (ej: "backend-formularios")
+2. **Elige el agente específco** (ej: "backend-formularios")
 3. **Consulta el archivo** `.github/agents/[nombre].agent.md`
 4. **Sigue patrones** y **checklists** del agente
 5. **Valida contra límites** del agente (lo que NO puede hacer)
 
-### 💡 Ejemplos
-
-**Escenario 1: Agregar nuevo endpoint de órdenes**
-```
-👤 Dev: "Necesito crear GET /ordenes/{id}/historial"
-🤖 Acción:
-   1. Consulta: backend-ordenes.agent.md
-   2. Consulta: backend-api-integration.agent.md (si es backend)
-   3. Consulta: frontend-api-integration.agent.md (para consumirlo)
-   4. Sigue patrón de endpoint (DTOs, validación, logs)
-   5. Tests (unitarios + integración)
-   6. Valida contra checklist
-```
-
-**Escenario 2: Refactorizar componente lento**
-```
-👤 Dev: "El listado de órdenes carga lento"
-🤖 Acción:
-   1. Consulta: frontend-performance.agent.md
-   2. Consulta: frontend-state-data.agent.md
-   3. Aplica OnPush change detection
-   4. Agrega trackBy en *ngFor
-   5. Revisa suscripciones (memory leaks)
-   6. Ejecuta Lighthouse, valida >90 Performance
-```
-
-**Escenario 3: Desplegar a producción**
-```
-👤 DevOps: "Necesito desplegar v1.2.0"
-🤖 Acción:
-   1. Consulta: devops-ci-cd.agent.md
-   2. Verifica: tests pasados, build exitoso
-   3. Ejecuta: workflow deploy-prod.yml
-   4. Valida: health checks, smoke tests
-   5. Monitorea: logs, alertas
-```
-
 ---
 
-## Backend Agents
+## Backend Agents (10)
 
 ### 1️⃣ backend-auth.agent.md
 **Cuando:** Autenticación, autorización, roles, permisos, sesiones  
-**Scope:** `apps/api/src/modules/auth/**`
-
-| Patrón | Descripción |
-|--------|-------------|
-| Guards | `JwtAuthGuard`, `RolesGuard` |
-| Estrategia | JWT + Refresh tokens |
-| Roles | Enum basado (ADMIN, TECNICO, CLIENTE) |
-| Validación | Permisos en @UseGuards |
-
-**Quick Check:**
-- ¿Nuevo endpoint requiere auth? → `@UseGuards(JwtAuthGuard)`
-- ¿Validar rol específico? → `@Roles('ADMIN')`
-- ¿Cambiar permisos? → Actualiza `enum RoleType`
-
-[📖 Ver archivo completo](./agents/backend-auth.agent.md)
-
----
+**Scope:** `apps/api/src/modules/auth/**`  
+[Ver archivo](./agents/backend-auth.agent.md)
 
 ### 2️⃣ backend-ordenes.agent.md
 **Cuando:** Gestión de órdenes, estado, asignación, workflows  
-**Scope:** `apps/api/src/modules/ordenes/**`
-
-| Patrón | Descripción |
-|--------|-------------|
-| Estados | PENDIENTE → ASIGNADA → EN_PROGRESO → COMPLETADA |
-| Transiciones | Validar antes de cambiar estado |
-| Asignación | Solo ADMIN puede asignar técnico |
-| Historial | Registrar cambios en `OrdenHistorial` |
-
-**Quick Check:**
-- Nuevo estado? → Agregar a enum, validar transiciones
-- Cambio crítico? → Registra en historial
-- Query N+1? → Usa `.include()` correctamente
-
-[📖 Ver archivo completo](./agents/backend-ordenes.agent.md)
-
----
+**Scope:** `apps/api/src/modules/ordenes/**`  
+[Ver archivo](./agents/backend-ordenes.agent.md)
 
 ### 3️⃣ backend-evidencias.agent.md
 **Cuando:** Subida de archivos, almacenamiento, metadata, integridad  
-**Scope:** `apps/api/src/modules/evidencias/**`
-
-| Patrón | Descripción |
-|--------|-------------|
-| Subida | Validar tamaño, tipo MIME, virus scan |
-| Almacenamiento | S3, CloudStorage o local |
-| Metadata | Guardar hash SHA256, usuario, fecha |
-| Seguridad | Nunca confiar en extension; validar contenido |
-
-**Quick Check:**
-- ¿Nuevo tipo de archivo? → Validar MIME en whitelist
-- ¿Verificar integridad? → Usar hash SHA256
-- ¿Scan de virus? → Integrar ClamAV o servicio similar
-
-[📖 Ver archivo completo](./agents/backend-evidencias.agent.md)
-
----
+**Scope:** `apps/api/src/modules/evidencias/**`  
+[Ver archivo](./agents/backend-evidencias.agent.md)
 
 ### 4️⃣ backend-formularios.agent.md
 **Cuando:** Formularios dinámicos, validación, cálculos, dependencias  
-**Scope:** `apps/api/src/modules/formularios/**`
-
-| Patrón | Descripción |
-|--------|-------------|
-| Validación | Centralizado en `FormularioValidatorService` |
-| Campos | Soporta types: text, number, select, date, checkbox |
-| Dependencias | Si field A = X, mostrar/ocultar field B |
-| Cálculos | Campos auto-llenos (no manualmente) |
-| Historial | Auditoría de cambios en respuestas |
-
-**Quick Check:**
-- Validación nueva? → No hardcodear en controller
-- Campo dependiente? → Usar `condition` object
-- Auto-cálculo? → Usar `calculator` function
-
-[📖 Ver archivo completo](./agents/backend-formularios.agent.md)
-
----
+**Scope:** `apps/api/src/modules/formularios/**`  
+[Ver archivo](./agents/backend-formularios.agent.md)
 
 ### 5️⃣ backend-sync.agent.md
 **Cuando:** Sincronización offline, conflictos, consistencia  
-**Scope:** `apps/api/src/modules/sync/**`
-
-| Patrón | Descripción |
-|--------|-------------|
-| Eventos | SyncEvent registra cada cambio |
-| Cola | Colas locales (dispositivo) + servidor |
-| Conflictos | Last-Writer-Wins (LWW) por defecto |
-| Idempotencia | Duplicados ignorados (mismo evento ID) |
-
-**Quick Check:**
-- ¿Nuevo evento a sincronizar? → Agregar a `SyncEventType`
-- ¿Manejar conflicto? → Usa `ConflictResolverService`
-- ¿Evitar duplicados? → Usa idempotency key
-
-[📖 Ver archivo completo](./agents/backend-sync.agent.md)
-
----
+**Scope:** `apps/api/src/modules/sync/**`  
+[Ver archivo](./agents/backend-sync.agent.md)
 
 ### 6️⃣ backend-reportes-pdf.agent.md
 **Cuando:** Generación de PDFs, plantillas, reportes  
-**Scope:** `apps/api/src/modules/pdf-generation/**`
+**Scope:** `apps/api/src/modules/pdf-generation/**`  
+[Ver archivo](./agents/backend-reportes-pdf.agent.md)
 
-| Patrón | Descripción |
-|--------|-------------|
-| Plantillas | Handlebars/EJS (reutilizables) |
-| Caching | Cache por 24h (key = params) |
-| Permisos | Validar acceso antes de generar |
-| Performance | Usar colas para batch (no síncrono) |
+### 7️⃣ backend-logging-observability.agent.md (🌟 NUEVO)
+**Cuando:** Centralización de logs, observabilidad, métricas, trazabilidad  
+**Scope:** `apps/api/src/common/logging/**`  
+**Stack:** Winston/Bunyan, ELK Stack  
+[Ver archivo](./agents/backend-logging-observability.agent.md)
 
-**Quick Check:**
-- Nuevo tipo de PDF? → Crear plantilla reutilizable
-- Validar datos? → Antes de renderizar
-- Performance crítica? → Usar queue async
+### 8️⃣ backend-emails-notifications.agent.md (🌟 NUEVO)
+**Cuando:** Envío de emails, notificaciones, webhooks, plantillas, reintentos  
+**Scope:** `apps/api/src/modules/notifications/**`  
+**Stack:** Nodemailer, SendGrid, AWS SES, Bull Queue  
+[Ver archivo](./agents/backend-emails-notifications.agent.md)
 
-[📖 Ver archivo completo](./agents/backend-reportes-pdf.agent.md)
+### 9️⃣ backend-caching-redis.agent.md (🌟 NUEVO)
+**Cuando:** Multi-layer caching, Redis, invalidación inteligente, rate limiting  
+**Scope:** `apps/api/src/common/caching/**`  
+**Stack:** Redis, ioredis, @nestjs/cache-manager  
+[Ver archivo](./agents/backend-caching-redis.agent.md)
 
----
+### 1️⃣️ backend-api-documentation.agent.md (🌟 NUEVO)
+**Cuando:** Documentación automática de APIs, Swagger/OpenAPI, ejemplos  
+**Scope:** `apps/api/src/`  
+**Stack:** @nestjs/swagger, OpenAPI 3.0  
+[Ver archivo](./agents/backend-api-documentation.agent.md)
 
-### 7️⃣ quality-testing.agent.md
+### 1️⃣⃣ quality-testing.agent.md
 **Cuando:** Tests (unit, integration, e2e), cobertura, CI  
-**Scope:** Tests en `apps/api/**` y `apps/web/**`
-
-| Patrón | Descripción |
-|--------|-------------|
-| Unit | Jest para servicios, utilidades |
-| Integration | Test contra BD real (PostgreSQL) |
-| E2E | Cypress/Playwright para flujos críticos |
-| Cobertura | >80% crítico, >70% general |
-| CI | Tests obligatorios en cada PR |
-
-**Quick Check:**
-- Nuevo feature? → Tests unitarios + integración
-- Cambio crítico? → E2E también
-- Coverage bajo? → Identifica líneas sin tests
-
-[📖 Ver archivo completo](./agents/quality-testing.agent.md)
+**Scope:** Tests en `apps/api/**` y `apps/web/**`  
+[Ver archivo](./agents/quality-testing.agent.md)
 
 ---
 
-## Frontend Agents
+## Frontend Agents (6)
 
-### 8️⃣ frontend.agent.md (Umbrella)
+### 1️⃣️ frontend.agent.md (Umbrella)
 **Cuando:** Decisiones arquitectónicas, nuevos features, patrones transversales  
-**Scope:** Toda la app `apps/web/`
+**Scope:** Toda la app `apps/web/`  
+[Ver archivo](./agents/frontend.agent.md)
 
-**Reglas Globales:**
-- Smart (container) vs Presentational (dumb) components
-- Lazy loading obligatorio para nuevas rutas
-- Estado centralizado si es compartido
-- API via servicios (no en componentes)
-- OnPush change detection por defecto
-- ARIA + keyboard navigation obligatorio
-
-**Arquitectura:**
-```
-core/ → guards, interceptors, services, state
-shared/ → componentes reutilizables, directives
-features/ → módulos con sus propias rutas
-```
-
-[📖 Ver archivo completo](./agents/frontend.agent.md)
-
----
-
-### 9️⃣ frontend-api-integration.agent.md
+### 1️⃣⃣ frontend-api-integration.agent.md
 **Cuando:** Nuevos endpoints, error handling, interceptors  
-**Scope:** `apps/web/src/app/core/services/**`
+**Scope:** `apps/web/src/app/core/services/**`  
+[Ver archivo](./agents/frontend-api-integration.agent.md)
 
-| Patrón | Descripción |
-|--------|-------------|
-| ApiService | Base centralizada (GET, POST, PATCH, DELETE) |
-| Servicios | Uno por feature (OrdenesService, EvidenciasService) |
-| Error Handler | Centralizado (toastr, redirecciones, logs) |
-| Caching | TTL configurable, invalidación en cambios |
-| Retry | Automático con backoff (no en 4xx) |
-
-**Quick Check:**
-- ¿Nuevo endpoint? → Agregar método en servicio
-- ¿DTOs sincronizados? → Deben matchear backend
-- ¿Error handling? → Usa `ApiErrorHandler`
-- ¿Cache? → Si lectura frecuente, cachear
-
-[📖 Ver archivo completo](./agents/frontend-api-integration.agent.md)
-
----
-
-### 🔟 frontend-ui-ux.agent.md
+### 1️⃣⃣ frontend-ui-ux.agent.md
 **Cuando:** Componentes nuevos, accesibilidad, responsive  
-**Scope:** `apps/web/src/app/shared/components/**`
+**Scope:** `apps/web/src/app/shared/components/**`  
+[Ver archivo](./agents/frontend-ui-ux.agent.md)
 
-| Patrón | Descripción |
-|--------|-------------|
-| Componentes | Reutilizables, pequeños, single responsibility |
-| ARIA | role, aria-label, aria-describedby obligatorio |
-| Keyboard | Tab, Enter, Escape siempre funcionar |
-| Focus | Visible indicators en todos los elementos |
-| Responsive | Mobile-first, breakpoints claros |
-| CSS Variables | Nunca hardcodear colores/spacing |
-
-**Quick Check:**
-- ¿Componente nuevo? → Va a `shared/components/`
-- ¿Duplicado? → Refactoriza el existente
-- ¿ARIA correcta? → Revisa template
-- ¿Mobile? → Testea en phone
-
-[📖 Ver archivo completo](./agents/frontend-ui-ux.agent.md)
-
----
-
-### 1️⃣1️⃣ frontend-state-data.agent.md
+### 1️⃣⃣ frontend-state-data.agent.md
 **Cuando:** Estado compartido, data flow, sincronización  
-**Scope:** `apps/web/src/app/core/state/**` (NgRx o Signals)
+**Scope:** `apps/web/src/app/core/state/**`  
+[Ver archivo](./agents/frontend-state-data.agent.md)
 
-| Patrón | Descripción |
-|--------|-------------|
-| NgRx | Actions → Reducer → Selectors → Effects |
-| Signals | signal → computed → effect (Angular 16+) |
-| Facade | Abstrae store de componentes |
-| Cache | TTL + invalidación inteligente |
-| Compartir | Si 2+ componentes lo usan → state |
-
-**Quick Check:**
-- ¿Estado compartido? → Centralizar en NgRx/Signals
-- ¿Selector nuevo? → Optimizar con `createSelector`
-- ¿Effect nuevo? → Manejar errores, logging
-- ¿Memory leak? → Verificar suscripciones
-
-[📖 Ver archivo completo](./agents/frontend-state-data.agent.md)
-
----
-
-### 1️⃣2️⃣ frontend-performance.agent.md
+### 1️⃣⃣ frontend-performance.agent.md
 **Cuando:** Bundle grande, UX lenta, memory leaks  
-**Scope:** Toda la app `apps/web/`
+**Scope:** Toda la app `apps/web/`  
+[Ver archivo](./agents/frontend-performance.agent.md)
 
-| Patrón | Descripción |
-|--------|-------------|
-| Lazy Loading | Features en rutas, precarga background |
-| OnPush | Change detection Strategy.OnPush |
-| TrackBy | En *ngFor, especialmente >10 items |
-| Unsubscribe | takeUntil, takeUntilDestroyed, async pipe |
-| Tree-Shaking | Imports selectivos, lodash-es |
-| Images | loading="lazy", srcset, webp |
-
-**Quick Check:**
-- Bundle >500KB gzip? → Lazy load más features
-- Memory leak? → Verifica DevTools, unsubscribes
-- Lento en mobile? → Usa Lighthouse Performance
-- Listas largas? → OnPush + trackBy
-
-[📖 Ver archivo completo](./agents/frontend-performance.agent.md)
+### 1️⃣⃣ frontend-internationalization.agent.md (🌟 NUEVO)
+**Cuando:** Multi-idioma, traducción de UI, formateo de fechas/números, RTL support  
+**Scope:** `apps/web/src/assets/i18n/`, `apps/web/src/app/core/i18n/`  
+**Stack:** ngx-translate, Angular i18n  
+[Ver archivo](./agents/frontend-internationalization.agent.md)
 
 ---
 
-## DevOps Agents
+## DevOps Agents (1)
 
-### 1️⃣3️⃣ devops-ci-cd.agent.md
+### 1️⃣⃣ devops-ci-cd.agent.md
 **Cuando:** Despliegues, Docker, GitHub Actions, monitoring  
-**Scope:** `.github/workflows/`, `docker/`, infraestructura
-
-| Patrón | Descripción |
-|--------|-------------|
-| CI | Tests → Build → Docker push (automático) |
-| CD | Deploy a Dev (automático), Staging/Prod (manual) |
-| Docker | Multi-stage, health checks, no root user |
-| Secrets | Variables de entorno, nunca en código |
-| Monitoring | Health checks, logs, alertas |
-
-**Quick Check:**
-- Tests pasados? → Build automático
-- Docker optimizado? → Multi-stage, pequeño
-- Secrets seguros? → En secrets de GitHub
-- Health checks? → En todos los containers
-
-[📖 Ver archivo completo](./agents/devops-ci-cd.agent.md)
+**Scope:** `.github/workflows/`, `docker/`, infraestructura  
+[Ver archivo](./agents/devops-ci-cd.agent.md)
 
 ---
 
@@ -352,16 +139,21 @@ features/ → módulos con sus propias rutas
 
 | Tarea | Agentes |
 |------|----------|
-| Agregar nuevo endpoint API | backend-[feature].agent.md → frontend-api-integration.agent.md |
-| Crear nuevo componente | frontend-ui-ux.agent.md → frontend.agent.md |
-| Optimizar performance | frontend-performance.agent.md → devops-ci-cd.agent.md |
-| Mejorar tests | quality-testing.agent.md |
-| Desplegar a producción | devops-ci-cd.agent.md |
-| Agregar autenticación | backend-auth.agent.md → frontend-api-integration.agent.md |
-| Subir archivos | backend-evidencias.agent.md → frontend-api-integration.agent.md |
-| Sincronizar datos offline | backend-sync.agent.md → frontend-state-data.agent.md |
-| Generar reportes PDF | backend-reportes-pdf.agent.md → frontend-api-integration.agent.md |
-| Crear formulario dinámico | backend-formularios.agent.md → frontend-ui-ux.agent.md |
+| Agregar nuevo endpoint API | backend-[feature] → frontend-api-integration |
+| Crear nuevo componente | frontend-ui-ux → frontend |
+| Optimizar performance | frontend-performance → devops-ci-cd |
+| Mejorar tests | quality-testing |
+| Desplegar a producción | devops-ci-cd |
+| Agregar autenticación | backend-auth → frontend-api-integration |
+| Subir archivos | backend-evidencias → frontend-api-integration |
+| Sincronizar datos offline | backend-sync → frontend-state-data |
+| Generar reportes PDF | backend-reportes-pdf → frontend-api-integration |
+| Crear formulario dinámico | backend-formularios → frontend-ui-ux |
+| Configurar logging | backend-logging-observability |
+| Enviar emails/notificaciones | backend-emails-notifications |
+| Implementar caching | backend-caching-redis |
+| Documentar API | backend-api-documentation |
+| Soporte multi-idioma | frontend-internationalization |
 
 ---
 
@@ -369,19 +161,20 @@ features/ → módulos con sus propias rutas
 
 **Aplicables a TODOS los agentes:**
 
-1. **DI (Dependency Injection)** - Inyectar servicios, no instanciar
-2. **Centralización** - No duplicar código; reutilizar
-3. **Type Safety** - No `any`; tipado fuerte siempre
-4. **Error Handling** - try/catch + Logger en puntos críticos
-5. **Logging** - No logs de secrets; level INFO en prod
-6. **Caching Inteligente** - TTL + invalidación
-7. **Testing** - Unit → Integration → E2E
-8. **Funciones Pequeñas** - Single responsibility
-9. **Documentación** - Código auto-documental + comentarios para "por qué"
-10. **Performance** - Lazy load, cache, optimize queries
-11. **Security** - Validar entrada, escape output, secrets en env
-12. **Accessibility** - ARIA, keyboard, focus (front)
-13. **Monitoring** - Health checks, logs, alertas (devops)
+1. **G**eneral - DI (Dependency Injection) obligatorio
+2. **E**specializado - Centralización (no duplicar código)
+3. **M**antible - Type Safety (no `any`)
+4. **I**ntegrado - Error Handling + Logging
+5. **N**avegable - Caching Inteligente
+6. **I**mplementado - Testing (Unit → Integration → E2E)
+
+Además:
+- ✅ Funciones pequeñas (single responsibility)
+- ✅ Documentación clara (código + comentarios)
+- ✅ Performance optimizado (lazy load, cache)
+- ✅ Seguridad (validación, secrets en env)
+- ✅ Accesibilidad (ARIA, keyboard, focus)
+- ✅ Monitoring (health checks, logs, alertas)
 
 ---
 
@@ -394,6 +187,10 @@ features/ → módulos con sus propias rutas
 - [ ] Secrets: en env vars, nunca en código
 - [ ] Health checks: endpoints `/health`
 - [ ] Documentación: endpoints, models, flows
+- [ ] Logging centralizado (Winston, ELK)
+- [ ] Notificaciones/emails configuradas
+- [ ] Caching implementado (Redis)
+- [ ] API documentada (Swagger)
 
 ### ✅ Frontend
 - [ ] Componentes: reutilizables, accesibles
@@ -403,6 +200,7 @@ features/ → módulos con sus propias rutas
 - [ ] A11y: ARIA, keyboard, contrast
 - [ ] Responsive: mobile, tablet, desktop
 - [ ] Bundle: <500KB gzip
+- [ ] Multi-idioma soportado (i18n)
 
 ### ✅ DevOps
 - [ ] Docker: multi-stage, health checks
@@ -414,17 +212,74 @@ features/ → módulos con sus propias rutas
 
 ---
 
+## 📊 Estádísticas del Framework
+
+```
+Agentes Especializados:     18 (era 13)
+Documentación Total:       ~220 KB
+Áreas Backend Cubiertas:    10 agentes
+Áreas Frontend Cubiertas:   6 agentes
+Áreas DevOps Cubiertas:     1 agente
+Areas Testing:              Incluida en todos
+
+Cobertura:
+  ✅ Logging & Observabilidad
+  ✅ Emails & Notificaciones
+  ✅ Caching & Rate Limiting
+  ✅ API Documentation
+  ✅ Internationalization (i18n)
+```
+
+---
+
+## 🌟 Lo Nuevo en Esta Versión
+
+### 5 Agentes Añadidos
+
+1. **backend-logging-observability.agent.md**
+   - Winston/Bunyan setup global
+   - Structured logging JSON
+   - Log levels configurables
+   - Auditoria y métricas de negocio
+
+2. **backend-emails-notifications.agent.md**
+   - EmailService multi-proveedor
+   - NotificationsService façade
+   - Plantillas EJS reutilizables
+   - Reintentos automáticos
+
+3. **backend-caching-redis.agent.md**
+   - Multi-layer caching (memory + Redis)
+   - CacheService con patrón getOrSet
+   - Invalidación por patrón
+   - Rate Limiting guard
+
+4. **backend-api-documentation.agent.md**
+   - Swagger/OpenAPI 3.0 automático
+   - Decoradores @Api* en endpoints
+   - DTOs documentadas
+   - Error responses catalogadas
+
+5. **frontend-internationalization.agent.md**
+   - ngx-translate setup
+   - I18nService centralizado
+   - Archivos JSON de traducción
+   - Soporte para más idiomas (es, en, pt)
+   - Formateo por locale (fechas, números)
+
+---
+
 ## 📞 Soporte & Escalabilidad
 
 **¿Qué hacer si...**
 
-- ❓ **No encuentras el patrón** → Consulta el agente relevant, revisa "Patrón Obligatorio"
-- ❓ **Necesitas excepción** → Documenta decisión arquitectónica en `.github/adr/`
-- ❓ **El agente no cubre tu caso** → Propón actualización/nuevo agente
-- ❓ **Conflicto entre agentes** → Consulta `frontend.agent.md` o `backend.agent.md` (umbrellas)
+- ❓ **No encuentras el patrón** → Consulta el agente relevante
+- ❓ **Necesitas excepción** → Documenta en `.github/adr/`
+- ❓ **El agente no cubre tu caso** → Propone actualización
+- ❓ **Conflicto entre agentes** → Consulta umbrella (frontend.agent.md o backend agents)
 
 ---
 
 **Última actualización:** 2026-01-02  
-**Total de agentes:** 13 | **Cobertura:** Backend, Frontend, DevOps, Testing  
-**Status:** ✅ Completo y optimizado para producción
+**Total de agentes:** 18 | **Cobertura:** Backend (10), Frontend (6), DevOps (1), Testing (incluido)  
+**Status:** ✅ **Completo y optimizado para producción**
