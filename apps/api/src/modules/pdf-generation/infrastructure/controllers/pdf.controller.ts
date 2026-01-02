@@ -93,16 +93,20 @@ export class PdfController {
   @ApiResponse({ status: 200, type: PdfResponseDto })
   async getPdf(@Param('filename') filename: string, @Res() res: Response) {
     const result = await this.getPdfCachedUseCase.execute(filename);
-    this.sendPdfResponse(res, result);
+    this.sendPdfResponse(res, result, HttpStatus.OK);
   }
 
-  private sendPdfResponse(res: Response, result: PdfResponseDto) {
+  private sendPdfResponse(
+    res: Response,
+    result: PdfResponseDto,
+    status: HttpStatus = HttpStatus.CREATED,
+  ) {
     res.setHeader('Content-Type', result.mimeType);
     res.setHeader(
       'Content-Disposition',
       `attachment; filename=${result.filename}`,
     );
     res.setHeader('Content-Length', result.size);
-    res.status(HttpStatus.CREATED).send(Buffer.from(result.buffer, 'base64'));
+    res.status(status).send(Buffer.from(result.buffer, 'base64'));
   }
 }

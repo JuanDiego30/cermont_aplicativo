@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { TipoCertificacion, TipoCertificacionTecnico } from '../value-objects/tipo-certificacion.vo';
 import { EstadoVigencia } from '../value-objects/estado-vigencia.vo';
 
@@ -75,7 +75,7 @@ export class CertificacionTecnico {
         }
 
         return new CertificacionTecnico({
-            id: props.id || uuidv4(),
+                id: props.id || randomUUID(),
             tecnicoId: props.tecnicoId,
             tipo: TipoCertificacion.tecnico(props.tipo),
             entidadCertificadora: props.entidadCertificadora.trim(),

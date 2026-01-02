@@ -1,18 +1,11 @@
-
-import { Injectable, Inject, ConflictException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { v4 as uuidv4 } from 'uuid';
-import * as bcrypt from 'bcryptjs';
 import { AUTH_REPOSITORY, IAuthRepository } from '../../domain/repositories';
 import { Email, Password } from '../../domain/value-objects';
 
 import { RegisterDto } from '../dto/register.dto';
-
-interface AuthContext {
-  ip?: string;
-  userAgent?: string;
-}
+import { AuthContext } from '../dto/auth-types.dto';
+import { BaseAuthUseCase } from './base-auth.use-case';
 
 export interface RegisterResult {
   message: string;
@@ -29,17 +22,17 @@ export interface RegisterResult {
 }
 
 @Injectable()
-export class RegisterUseCase {
-  private readonly REFRESH_TOKEN_DAYS = 7;
+export class RegisterUseCase extends BaseAuthUseCase {
+  private readonly logger = new Logger(RegisterUseCase.name);
 
   constructor(
     @Inject(AUTH_REPOSITORY)
     private readonly authRepository: IAuthRepository,
     @Inject(JwtService)
-    private readonly jwtService: JwtService,
-    @Inject(ConfigService)
-    private readonly configService: ConfigService,
-  ) { }
+    jwtService: JwtService,
+  ) {
+    super(jwtService);
+  }
 
   async execute(dto: RegisterDto, context: AuthContext): Promise<RegisterResult> {
     // 1. Validate inputs via VOs
@@ -70,16 +63,13 @@ export class RegisterUseCase {
     });
 
     // 5. Issue tokens
-    const accessToken = this.jwtService.sign({
-      userId: user.id,
+    const accessToken = this.signAccessToken({
+      id: user.id,
       email: user.email.getValue(),
       role: user.role,
     });
 
-    const refreshToken = uuidv4();
-    const family = uuidv4();
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + this.REFRESH_TOKEN_DAYS);
+    const { token: refreshToken, family, expiresAt } = this.createRefreshToken(this.getRefreshTokenDays(false));
 
     await this.authRepository.createRefreshToken({
       token: refreshToken,
@@ -90,12 +80,20 @@ export class RegisterUseCase {
       userAgent: context.userAgent,
     });
 
-    // 6. Audit log
-    await this.authRepository.createAuditLog({
-      userId: user.id,
-      action: 'REGISTER',
-      ip: context.ip,
-      userAgent: context.userAgent,
+    // 6. Audit log (best-effort)
+    Promise.allSettled([
+      this.authRepository.createAuditLog({
+        userId: user.id,
+        action: 'REGISTER',
+        ip: context.ip,
+        userAgent: context.userAgent,
+      }),
+    ]).then((results) => {
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          this.logger.error(`Failed to execute post-register action ${index}: ${result.reason}`);
+        }
+      });
     });
 
     return {

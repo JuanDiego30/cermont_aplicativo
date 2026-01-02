@@ -11,6 +11,10 @@ import {
   ORDEN_REPOSITORY,
 } from '../../domain/repositories/orden.repository.interface';
 import { OrdenEstado } from '../dto/update-orden.dto';
+import {
+  getMainStateFromSubState,
+  parseOrderSubState,
+} from '../../domain/enums/order-sub-state.enum';
 
 @Injectable()
 export class GetHistorialEstadosUseCase {
@@ -42,16 +46,29 @@ export class GetHistorialEstadosUseCase {
       });
 
       // Convertir a DTOs
-      const historial: HistorialEstadoDto[] = historialSubEstados.map((h) => ({
-        id: h.id,
-        ordenId: h.ordenId,
-        estadoAnterior: undefined,
-        estadoNuevo: (orden.estado.value || 'pendiente') as unknown as OrdenEstado,
-        motivo: h.notas || 'Cambio de estado',
-        observaciones: h.notas || undefined,
-        usuarioId: h.userId || undefined,
-        createdAt: h.createdAt.toISOString(),
-      }));
+      const historial: HistorialEstadoDto[] = historialSubEstados.map((h) => {
+        const fromSub = h.fromState ? parseOrderSubState(String(h.fromState)) : null;
+        const toSub = parseOrderSubState(String(h.toState));
+
+        const estadoAnterior = fromSub
+          ? (getMainStateFromSubState(fromSub) as unknown as OrdenEstado)
+          : undefined;
+
+        const estadoNuevo = toSub
+          ? (getMainStateFromSubState(toSub) as unknown as OrdenEstado)
+          : ((orden.estado.value || 'pendiente') as unknown as OrdenEstado);
+
+        return {
+          id: h.id,
+          ordenId: h.ordenId,
+          estadoAnterior,
+          estadoNuevo,
+          motivo: h.notas || 'Cambio de sub-estado',
+          observaciones: h.notas || undefined,
+          usuarioId: h.userId || undefined,
+          createdAt: h.createdAt.toISOString(),
+        };
+      });
 
       // Si no hay historial, crear una entrada inicial con el estado actual
       if (historial.length === 0) {

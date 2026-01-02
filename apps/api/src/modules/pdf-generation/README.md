@@ -12,6 +12,8 @@ PDF report and document generation service.
 ## Endpoints
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/pdf/orden/:id` | Generate order PDF |
-| GET | `/pdf/ejecucion/:id` | Generate execution PDF |
-| GET | `/pdf/checklist/:id` | Generate checklist PDF |
+| POST | `/api/pdf/generate` | Generar PDF desde HTML personalizado |
+| POST | `/api/pdf/reporte-orden` | Generar reporte de orden de trabajo |
+| POST | `/api/pdf/reporte-mantenimiento` | Generar reporte de mantenimiento |
+| POST | `/api/pdf/certificado-inspeccion` | Generar certificado de inspección |
+| GET | `/api/pdf/:filename` | Obtener PDF guardado/cacheado |

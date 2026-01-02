@@ -5,6 +5,7 @@ import {
     IsOptional,
     IsEnum,
     IsString,
+    IsBoolean,
 } from 'class-validator';
 import { PdfPageSize } from './generate-pdf.dto';
 
@@ -55,6 +56,22 @@ export class GenerateCertificadoDto {
     @IsOptional()
     @IsString()
     observaciones?: string;
+
+    @ApiPropertyOptional({
+        description: 'Guardar el PDF en storage para descarga posterior',
+        example: false,
+    })
+    @IsOptional()
+    @IsBoolean()
+    saveToStorage?: boolean = false;
+
+    @ApiPropertyOptional({
+        description: 'Habilitar caché del PDF (TTL + key única)',
+        example: true,
+    })
+    @IsOptional()
+    @IsBoolean()
+    enableCache?: boolean = true;
 
     @ApiPropertyOptional({
         description: 'Tamaño de página',

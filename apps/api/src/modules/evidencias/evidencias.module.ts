@@ -11,6 +11,7 @@ import { PrismaModule } from '../../prisma/prisma.module';
 
 // Domain
 import { EVIDENCIA_REPOSITORY } from './domain/repositories';
+import { FileValidatorService } from './domain/services';
 
 // Application - Use Cases
 import {
@@ -18,6 +19,7 @@ import {
     ListEvidenciasUseCase,
     GetEvidenciaUseCase,
     DeleteEvidenciaUseCase,
+    DownloadEvidenciaUseCase,
     ProcessEvidenciaUseCase,
 } from './application/use-cases';
 
@@ -41,6 +43,7 @@ const useCaseProviders = [
     ListEvidenciasUseCase,
     GetEvidenciaUseCase,
     DeleteEvidenciaUseCase,
+    DownloadEvidenciaUseCase,
     ProcessEvidenciaUseCase,
 ];
 
@@ -61,6 +64,9 @@ const useCaseProviders = [
     ],
     controllers: [EvidenciasController],
     providers: [
+        // Domain Services
+        FileValidatorService,
+
         // Repository
         {
             provide: EVIDENCIA_REPOSITORY,

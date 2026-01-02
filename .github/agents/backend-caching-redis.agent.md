@@ -1,3 +1,8 @@
+---
+description: "Agente especializado para caching multi-layer con Redis en Cermont: cache de datos, rate limiting, session storage, invalidación inteligente."
+tools: []
+---
+
 # ⚡ BACKEND CACHING & REDIS AGENT
 
 **Especialidad:** Multi-layer caching, Redis, invalidación inteligente, rate limiting, session storage  

@@ -1,16 +1,12 @@
-import { Injectable, Inject, UnauthorizedException, Logger, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, Inject, UnauthorizedException, Logger, InternalServerErrorException, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { v4 as uuidv4 } from 'uuid';
 import * as bcrypt from 'bcryptjs';
 import { AUTH_REPOSITORY, IAuthRepository } from '../../domain/repositories';
-import { Email, Password } from '../../domain/value-objects';
+import { Email } from '../../domain/value-objects';
 
 import { LoginDto } from '../dto/login.dto';
-
-interface AuthContext {
-  ip?: string;
-  userAgent?: string;
-}
+import { AuthContext } from '../dto/auth-types.dto';
+import { BaseAuthUseCase } from './base-auth.use-case';
 
 export interface LoginResult {
   message: string;
@@ -27,18 +23,16 @@ export interface LoginResult {
 }
 
 @Injectable()
-export class LoginUseCase {
+export class LoginUseCase extends BaseAuthUseCase {
   private readonly logger = new Logger(LoginUseCase.name);
-  // ✅ Duración de tokens según rememberMe
-  private readonly REFRESH_TOKEN_DAYS_DEFAULT = 7;
-  private readonly REFRESH_TOKEN_DAYS_REMEMBER = 30;
 
   constructor(
     @Inject(AUTH_REPOSITORY)
     private readonly authRepository: IAuthRepository,
     @Inject(JwtService)
-    private readonly jwtService: JwtService,
+    jwtService: JwtService,
   ) {
+    super(jwtService);
     // Verificar que las dependencias estén disponibles
     if (!this.authRepository) {
       this.logger.error('AUTH_REPOSITORY no está inyectado');
@@ -61,21 +55,20 @@ export class LoginUseCase {
 
       // ✅ Log del intento con rememberMe
       const rememberMe = dto.rememberMe ?? false;
-      this.logger.log(`Login attempt for: ${dto.email} | rememberMe: ${rememberMe}`);
+      this.logger.log(`Login attempt | rememberMe: ${rememberMe}`);
 
       // 1. Validate inputs via VOs
       let email: Email;
       try {
         email = Email.create(dto.email);
       } catch (error) {
-        this.logger.warn(`Invalid email format: ${dto.email}`, error);
+        this.logger.warn('Invalid email format', error as Error);
         throw new UnauthorizedException('Email inválido');
       }
-
       // 2. Find user
       const user = await this.authRepository.findByEmail(email.getValue());
       if (!user) {
-        this.logger.warn(`Login attempt failed: User not found for email ${dto.email}`);
+        this.logger.warn('Login attempt failed: user not found');
         throw new UnauthorizedException('Credenciales inválidas');
       }
 
@@ -83,8 +76,8 @@ export class LoginUseCase {
 
       // 3. Check if can login
       if (!user.canLogin()) {
-        this.logger.warn(`Login attempt blocked: User ${user.email.getValue()} is inactive or disabled`);
-        throw new UnauthorizedException('Usuario inactivo o deshabilitado');
+        this.logger.warn(`Login attempt blocked: userId=${user.id} inactive/disabled`);
+        throw new ForbiddenException('Usuario bloqueado');
       }
 
       // 4. Verify password
@@ -98,25 +91,21 @@ export class LoginUseCase {
       const isValid = await bcrypt.compare(dto.password, passwordHash);
 
       if (!isValid) {
-        this.logger.warn(`Login attempt failed: Invalid password for user ${user.id} (email: ${dto.email})`);
+        this.logger.warn(`Login attempt failed: invalid password for userId=${user.id}`);
         throw new UnauthorizedException('Credenciales inválidas');
       }
 
       this.logger.log(`Password verified successfully for user ${user.id}`);
 
       // 5. Issue tokens
-      const accessToken = this.jwtService.sign({
-        userId: user.id,
+      const accessToken = this.signAccessToken({
+        id: user.id,
         email: user.email.getValue(),
         role: user.role,
       });
 
-      const refreshToken = uuidv4();
-      const family = uuidv4();
-      // ✅ Duración dinámica según rememberMe
-      const tokenDays = rememberMe ? this.REFRESH_TOKEN_DAYS_REMEMBER : this.REFRESH_TOKEN_DAYS_DEFAULT;
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + tokenDays);
+      const tokenDays = this.getRefreshTokenDays(rememberMe);
+      const { token: refreshToken, family, expiresAt } = this.createRefreshToken(tokenDays);
 
       await this.authRepository.createRefreshToken({
         token: refreshToken,
@@ -161,8 +150,8 @@ export class LoginUseCase {
         },
       };
     } catch (error) {
-      if (error instanceof UnauthorizedException) {
-        throw error;
+      if (this.isHttpExceptionLike(error)) {
+        throw error as any;
       }
       // Handle domain errors (InvalidEmailError, InvalidPasswordError, etc.)
       const err = error as Error;

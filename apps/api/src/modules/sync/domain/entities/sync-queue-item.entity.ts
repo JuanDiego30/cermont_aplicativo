@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { SyncStatus, SyncStatusType } from '../value-objects/sync-status.vo';
 import { SyncPriority, SyncPriorityType } from '../value-objects/sync-priority.vo';
 import { DeviceId } from '../value-objects/device-id.vo';
@@ -85,7 +85,7 @@ export class SyncQueueItem {
         timestamp?: Date;
     }): SyncQueueItem {
         return new SyncQueueItem({
-            id: uuidv4(),
+            id: randomUUID(),
             tipo: props.tipo,
             operacion: props.operacion,
             datos: props.datos,

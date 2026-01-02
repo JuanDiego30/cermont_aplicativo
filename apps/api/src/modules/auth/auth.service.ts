@@ -12,7 +12,7 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PasswordService } from '../../lib/services/password.service';
 import { LoginDto } from './application/dto/login.dto';
@@ -68,7 +68,8 @@ export class AuthService {
   }
 
   generateAccessToken(userId: string, email: string, role: string): string {
-    return this.jwtService.sign({ userId, email, role });
+    // Mantiene compatibilidad: preserva `userId` y añade `sub` (claim estándar)
+    return this.jwtService.sign({ sub: userId, userId, email, role });
   }
 
   async generateRefreshToken(
@@ -76,7 +77,7 @@ export class AuthService {
     ip?: string,
     userAgent?: string,
   ): Promise<string> {
-    const token = uuidv4();
+    const token = randomUUID();
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + this.REFRESH_TOKEN_DAYS);
 
@@ -85,7 +86,7 @@ export class AuthService {
         token,
         userId,
         expiresAt,
-        family: uuidv4(),
+        family: randomUUID(),
         ipAddress: ip ?? null,
         userAgent: userAgent ?? null,
       },
@@ -117,12 +118,12 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
 
     if (!user || !user.active || !user.password) {
-      throw new UnauthorizedException('Credenciales invalidas o usuario inactivo');
+      throw new UnauthorizedException('Credenciales inválidas');
     }
 
     const isValid = await this.comparePassword(dto.password, user.password);
     if (!isValid) {
-      throw new UnauthorizedException('Credenciales invalidas');
+      throw new UnauthorizedException('Credenciales inválidas');
     }
 
     // Registrar auditoría y actualizar último login
@@ -174,7 +175,7 @@ export class AuthService {
     });
 
     if (!storedToken) {
-      throw new UnauthorizedException('Refresh token invalido');
+      throw new UnauthorizedException('No autorizado');
     }
 
     // Detectar reutilización de token (posible robo)
@@ -183,11 +184,11 @@ export class AuthService {
         where: { family: storedToken.family },
         data: { isRevoked: true },
       });
-      throw new UnauthorizedException('Token reutilizado detectado');
+      throw new UnauthorizedException('No autorizado');
     }
 
     if (new Date() > storedToken.expiresAt) {
-      throw new UnauthorizedException('Refresh token expirado');
+      throw new UnauthorizedException('No autorizado');
     }
 
     // Revocar token actual y emitir nuevos
@@ -201,6 +202,8 @@ export class AuthService {
       ip,
       userAgent,
     );
+
+    await this.createAuditLog(storedToken.user.id, 'REFRESH', ip, userAgent);
 
     return { accessToken, refreshToken: newRefreshToken };
   }
@@ -217,6 +220,19 @@ export class AuthService {
         where: { token: refreshToken },
         data: { isRevoked: true },
       });
+    }
+
+    // Auditoría best-effort (no romper logout si el token es inválido/expiró)
+    if (accessToken) {
+      try {
+        const payload = this.jwtService.verify(accessToken) as { sub?: string; userId?: string };
+        const userId = payload?.sub ?? payload?.userId;
+        if (userId) {
+          await this.createAuditLog(userId, 'LOGOUT');
+        }
+      } catch {
+        // ignore
+      }
     }
   }
 

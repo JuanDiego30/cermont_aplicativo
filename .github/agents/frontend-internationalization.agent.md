@@ -1,3 +1,8 @@
+---
+description: "Agente especializado para internacionalización (i18n) en Frontend de Cermont: multi-idioma, ngx-translate, formateo de fechas/números por locale, soporte RTL."
+tools: []
+---
+
 # 🌐 FRONTEND INTERNATIONALIZATION (i18n) AGENT
 
 **Especialidad:** Multi-idioma, traducción de UI, formateo de fechas/números, RTL support  

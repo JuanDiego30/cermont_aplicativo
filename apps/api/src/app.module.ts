@@ -5,7 +5,7 @@
  *
  * Uso: Importado por NestFactory.create(AppModule) en main.ts.
  */
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
@@ -46,6 +46,8 @@ import { WeatherModule } from './modules/weather/weather.module';
 // DELETED: EmailModule - Redundant with AlertasModule (email functionality moved there)
 import { TecnicosModule } from './modules/tecnicos/tecnicos.module';
 
+import { NotificationsModule } from './modules/notifications/notifications.module';
+
 import { AlertasModule } from './modules/alertas/alertas.module';
 import { KpisModule } from './modules/kpis/kpis.module';
 
@@ -63,12 +65,13 @@ import {
     PrismaConnectionFilter,
     PrismaPanicFilter,
 } from './common/filters/prisma-exception.filter';
-import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { HttpLoggingInterceptor } from './common/interceptors/http-logging.interceptor';
 import { HealthController } from './health.controller';
 import { CustomThrottleGuard } from './common/guards/throttle.guard';
 // import { LoggerService } from './common/logging/logger.service'; // REMOVED LEGACY
 import { LoggerService } from './lib/logging/logger.service'; // NEW
 import { GlobalExceptionFilter } from './lib/shared/filters/global-exception.filter'; // NEW
+import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 
 @Module({
     imports: [
@@ -80,7 +83,6 @@ import { GlobalExceptionFilter } from './lib/shared/filters/global-exception.fil
         }),
 
         // Event Emitter for domain events (MUST be before feature modules)
-        /*
         EventEmitterModule.forRoot({
             global: true,
             wildcard: false,
@@ -91,7 +93,7 @@ import { GlobalExceptionFilter } from './lib/shared/filters/global-exception.fil
             verboseMemoryLeak: true,
             ignoreErrors: false,
         }),
-        */
+
 
         // Rate limiting - Múltiples límites para diferentes escenarios
         /*
@@ -115,13 +117,11 @@ import { GlobalExceptionFilter } from './lib/shared/filters/global-exception.fil
         */
 
         // In-memory cache for expensive operations (dashboard stats, KPIs)
-        /*
         CacheModule.register({
             isGlobal: true,
             ttl: 300000, // 5 minutos en ms
             max: 100,    // Máximo 100 items en caché
         }),
-        */
 
         // Logger nativo de NestJS (configurado en main.ts)
         // No requiere módulo adicional - LoggerService usa Logger de @nestjs/common
@@ -139,6 +139,7 @@ import { GlobalExceptionFilter } from './lib/shared/filters/global-exception.fil
 
         // Feature modules - ACTIVATED
         AuthModule,
+        NotificationsModule,
         // OrdenesModule,
         // PlaneacionModule,
         // KitsModule,
@@ -176,47 +177,12 @@ import { GlobalExceptionFilter } from './lib/shared/filters/global-exception.fil
     ],
     controllers: [HealthController],
     providers: [
-        /*
-        // Filtros de excepciones (orden importa: más específico primero)
-        // Prisma errors - más específicos
-        {
-            provide: APP_FILTER,
-            useClass: PrismaPanicFilter,
-        },
-        {
-            provide: APP_FILTER,
-            useClass: PrismaConnectionFilter,
-        },
-        {
-            provide: APP_FILTER,
-            useClass: PrismaValidationFilter,
-        },
-        {
-            provide: APP_FILTER,
-            useClass: PrismaExceptionFilter,
-        },
-        // HTTP exception - catch-all para el resto (Global Filter REPLACES HttpExceptionFilter and AllExceptionsFilter)
-        {
-            provide: APP_FILTER,
-            useClass: GlobalExceptionFilter, // NEW GLOBAL FILTER
-        },
+        // Logging global de requests (sin activar guards/filtros globales aún)
         {
             provide: APP_INTERCEPTOR,
-            useClass: LoggingInterceptor, // Keep logging interceptor? Or remove if LoggerService covers it? Keep for now.
+            useClass: HttpLoggingInterceptor,
         },
-        // Rate limiting guard (applies global, pero JWT va después)
-        {
-            provide: APP_GUARD,
-            useClass: CustomThrottleGuard,
-        },
-        // JWT Guard global (todas las rutas protegidas por defecto)
-        {
-            provide: APP_GUARD,
-            useClass: JwtAuthGuard,
-        },
-        // Global logger service
         LoggerService,
-        */
     ],
 })
 export class AppModule implements NestModule {
@@ -226,6 +192,9 @@ export class AppModule implements NestModule {
     // global aquí. Si se requiere en el futuro, se puede aplicar de forma
     // más granular por rutas específicas.
     configure(consumer: MiddlewareConsumer) {
-        // No se aplican middlewares adicionales globales por ahora.
+        // Correlation ID para todos los requests
+        consumer
+            .apply(RequestIdMiddleware)
+            .forRoutes({ path: '*', method: RequestMethod.ALL });
     }
 }

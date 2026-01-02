@@ -13,14 +13,14 @@ import {
   Body,
   UseGuards,
   UseInterceptors,
-  UploadedFile,
-  ParseFilePipe,
-  MaxFileSizeValidator,
+  UploadedFiles,
   BadRequestException,
   HttpStatus,
   HttpCode,
+  Res,
+  StreamableFile,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
   ApiTags,
   ApiOperation,
@@ -28,6 +28,7 @@ import {
   ApiConsumes,
   ApiResponse,
 } from '@nestjs/swagger';
+import type { Response } from 'express';
 import { JwtAuthGuard } from '../../../../common/guards/jwt-auth.guard';
 import {
   CurrentUser,
@@ -38,6 +39,7 @@ import {
   ListEvidenciasUseCase,
   GetEvidenciaUseCase,
   DeleteEvidenciaUseCase,
+  DownloadEvidenciaUseCase,
 } from '../../application/use-cases';
 import {
   UploadEvidenciaSchema,
@@ -54,6 +56,7 @@ export class EvidenciasController {
     private readonly listUseCase: ListEvidenciasUseCase,
     private readonly getUseCase: GetEvidenciaUseCase,
     private readonly deleteUseCase: DeleteEvidenciaUseCase,
+    private readonly downloadUseCase: DownloadEvidenciaUseCase,
   ) { }
 
   /**
@@ -85,17 +88,6 @@ export class EvidenciasController {
   }
 
   /**
-   * Get single evidencia by ID
-   */
-  @Get(':id')
-  @ApiOperation({ summary: 'Get evidencia by ID' })
-  @ApiResponse({ status: 200, description: 'Evidencia details' })
-  @ApiResponse({ status: 404, description: 'Not found' })
-  async findOne(@Param('id') id: string) {
-    return this.getUseCase.execute(id);
-  }
-
-  /**
    * List evidencias by orden (legacy endpoint for compatibility)
    */
   @Get('orden/:ordenId')
@@ -113,27 +105,77 @@ export class EvidenciasController {
   }
 
   /**
+   * Download evidencia file
+   */
+  @Get(':id/download')
+  @ApiOperation({ summary: 'Download evidencia file' })
+  @ApiResponse({ status: 200, description: 'File download' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  async download(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtPayload,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { buffer, filename, mimeType } = await this.downloadUseCase.execute({
+      id,
+      requestedBy: user.userId,
+    });
+
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`,
+    );
+
+    return new StreamableFile(buffer);
+  }
+
+  /**
+   * Get single evidencia by ID
+   */
+  @Get(':id')
+  @ApiOperation({ summary: 'Get evidencia by ID' })
+  @ApiResponse({ status: 200, description: 'Evidencia details' })
+  @ApiResponse({ status: 404, description: 'Not found' })
+  async findOne(@Param('id') id: string) {
+    return this.getUseCase.execute(id);
+  }
+
+  /**
    * Upload new evidencia
    */
   @Post('upload')
-  @UseInterceptors(FileInterceptor('archivo'))
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'archivo', maxCount: 1 },
+      { name: 'file', maxCount: 1 },
+    ]),
+  )
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload new evidencia (photo, video, doc)' })
   @ApiResponse({ status: 201, description: 'Evidencia created' })
   @ApiResponse({ status: 400, description: 'Validation error' })
   async upload(
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 100 * 1024 * 1024 }), // 100MB max
-        ],
-        fileIsRequired: true,
-      }),
-    )
-    file: Express.Multer.File,
+    @UploadedFiles()
+    files: {
+      archivo?: Express.Multer.File[];
+      file?: Express.Multer.File[];
+    },
     @Body() body: Record<string, string>,
     @CurrentUser() user: JwtPayload,
   ) {
+    const file = files?.archivo?.[0] ?? files?.file?.[0];
+
+    if (!file) {
+      throw new BadRequestException('Archivo requerido (campo "archivo" o "file")');
+    }
+
+    // Extra guardrail: enforce max size here as well (Multer has limits too)
+    const MAX_SIZE_BYTES = 100 * 1024 * 1024;
+    if (file.size > MAX_SIZE_BYTES) {
+      throw new BadRequestException(`Archivo excede el tamaño máximo (${MAX_SIZE_BYTES} bytes)`);
+    }
+
     // Parse and validate body with Zod
     const parseResult = UploadEvidenciaSchema.safeParse({
       ordenId: body.ordenId,

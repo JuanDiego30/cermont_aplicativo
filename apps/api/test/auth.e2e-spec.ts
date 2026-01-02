@@ -6,7 +6,7 @@
  */
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 
@@ -23,6 +23,21 @@ describe('AuthController (e2e)', () => {
 
     let accessToken: string;
     let refreshToken: string;
+
+    function extractRefreshTokenCookie(setCookieHeader?: string[] | string): string {
+        const cookies = Array.isArray(setCookieHeader) ? setCookieHeader : (setCookieHeader ? [setCookieHeader] : []);
+        const refreshCookie = cookies.find((c) => c.startsWith('refreshToken='));
+        if (!refreshCookie) {
+            throw new Error('Expected refreshToken cookie to be set');
+        }
+        // Cookie header should be the key=value pair
+        return refreshCookie.split(';')[0];
+    }
+
+    function extractRefreshTokenValue(setCookieHeader?: string[] | string): string {
+        const cookiePair = extractRefreshTokenCookie(setCookieHeader);
+        return cookiePair.replace(/^refreshToken=/, '');
+    }
 
     beforeAll(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -69,13 +84,13 @@ describe('AuthController (e2e)', () => {
                 .send(testUser)
                 .expect(201);
 
-            expect(response.body).toHaveProperty('accessToken');
-            expect(response.body).toHaveProperty('refreshToken');
+            expect(response.body).toHaveProperty('token');
+            expect(response.body).toHaveProperty('user');
             expect(response.body.user).toHaveProperty('email', testUser.email);
             expect(response.body.user).not.toHaveProperty('password');
 
-            accessToken = response.body.accessToken;
-            refreshToken = response.body.refreshToken;
+            accessToken = response.body.token;
+            refreshToken = extractRefreshTokenValue(response.headers['set-cookie']);
         });
 
         it('should reject duplicate email', async () => {
@@ -117,11 +132,11 @@ describe('AuthController (e2e)', () => {
                 })
                 .expect(200);
 
-            expect(response.body).toHaveProperty('accessToken');
-            expect(response.body).toHaveProperty('refreshToken');
+            expect(response.body).toHaveProperty('token');
+            expect(response.body).toHaveProperty('user');
 
-            accessToken = response.body.accessToken;
-            refreshToken = response.body.refreshToken;
+            accessToken = response.body.token;
+            refreshToken = extractRefreshTokenValue(response.headers['set-cookie']);
         });
 
         it('should reject invalid password', async () => {
@@ -177,12 +192,11 @@ describe('AuthController (e2e)', () => {
                 .send({ refreshToken })
                 .expect(200);
 
-            expect(response.body).toHaveProperty('accessToken');
-            expect(response.body).toHaveProperty('refreshToken');
+            expect(response.body).toHaveProperty('token');
 
             // Actualizar tokens para siguientes tests
-            accessToken = response.body.accessToken;
-            refreshToken = response.body.refreshToken;
+            accessToken = response.body.token;
+            refreshToken = extractRefreshTokenValue(response.headers['set-cookie']);
         });
 
         it('should reject invalid refresh token', async () => {

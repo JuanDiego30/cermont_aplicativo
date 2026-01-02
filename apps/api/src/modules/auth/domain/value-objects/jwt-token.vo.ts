@@ -6,6 +6,8 @@
 import { JwtService } from '@nestjs/jwt';
 
 export interface JwtPayload {
+  /** Standard JWT subject */
+  readonly sub?: string;
   readonly userId: string;
   readonly email: string;
   readonly role: string;
@@ -55,8 +57,9 @@ export class JwtToken {
     jwtService: JwtService,
     payload: { userId: string; email: string; role: string },
   ): JwtToken {
-    const token = jwtService.sign(payload);
-    return new JwtToken(token, payload);
+    const enrichedPayload = { sub: payload.userId, ...payload };
+    const token = jwtService.sign(enrichedPayload);
+    return new JwtToken(token, enrichedPayload);
   }
 
   static fromString(

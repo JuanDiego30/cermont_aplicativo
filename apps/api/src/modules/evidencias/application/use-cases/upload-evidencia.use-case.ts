@@ -33,7 +33,6 @@ export interface UploadEvidenciaResult {
 @Injectable()
 export class UploadEvidenciaUseCase {
   private readonly logger = new Logger(UploadEvidenciaUseCase.name);
-  private readonly fileValidator = new FileValidatorService();
 
   constructor(
     @Inject(EVIDENCIA_REPOSITORY)
@@ -41,6 +40,7 @@ export class UploadEvidenciaUseCase {
     @Inject(STORAGE_PROVIDER)
     private readonly storage: IStorageProvider,
     private readonly eventEmitter: EventEmitter2,
+    private readonly fileValidator: FileValidatorService,
   ) { }
 
   async execute(command: UploadEvidenciaCommand): Promise<UploadEvidenciaResult> {
@@ -54,10 +54,25 @@ export class UploadEvidenciaUseCase {
 
     try {
       // 1. Validate file
-      const validation = this.fileValidator.validateFile(file);
+      const validation = await this.fileValidator.validateFile({
+        mimetype: file.mimetype,
+        originalname: file.originalname,
+        size: file.size,
+        buffer: file.buffer,
+      });
       if (!validation.isValid) {
         this.logger.warn('File validation failed', { errors: validation.errors });
         return { success: false, errors: validation.errors };
+      }
+
+      // 1.1 Validate declared tipo matches detected content (if provided)
+      if (dto.tipo && validation.fileType.toSpanish() !== dto.tipo) {
+        return {
+          success: false,
+          errors: [
+            `Tipo declarado (${dto.tipo}) no coincide con el tipo detectado (${validation.fileType.toSpanish()})`,
+          ],
+        };
       }
 
       // 2. Create domain entity
@@ -68,7 +83,12 @@ export class UploadEvidenciaUseCase {
         originalFilename: validation.sanitizedFilename,
         fileBytes: file.size,
         descripcion: dto.descripcion,
-        tags: dto.tags ? dto.tags.split(',').map((t) => t.trim()) : [],
+        tags: dto.tags
+          ? dto.tags
+            .split(',')
+            .map((t) => t.trim())
+            .filter(Boolean)
+          : [],
         uploadedBy,
       });
 

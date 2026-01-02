@@ -66,6 +66,22 @@ export class GenerateReporteOrdenDto {
     incluirHistorial?: boolean = false;
 
     @ApiPropertyOptional({
+        description: 'Guardar el PDF en storage para descarga posterior',
+        example: false,
+    })
+    @IsOptional()
+    @IsBoolean()
+    saveToStorage?: boolean = false;
+
+    @ApiPropertyOptional({
+        description: 'Habilitar caché del PDF (key única)',
+        example: true,
+    })
+    @IsOptional()
+    @IsBoolean()
+    enableCache?: boolean = true;
+
+    @ApiPropertyOptional({
         description: 'Tamaño de página',
         enum: PdfPageSize,
         example: PdfPageSize.A4,

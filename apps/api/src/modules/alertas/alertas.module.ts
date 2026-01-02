@@ -7,6 +7,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from '../../prisma/prisma.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { AlertasController, PreferenciasController } from './infrastructure/controllers';
 import {
   EnviarAlertaUseCase,
@@ -35,7 +36,7 @@ import { NotificationQueueService } from './infrastructure/queue';
 import { AlertasGateway } from './infrastructure/gateway/alertas.gateway';
 
 @Module({
-  imports: [PrismaModule, ConfigModule],
+  imports: [PrismaModule, ConfigModule, NotificationsModule],
   controllers: [AlertasController, PreferenciasController],
   providers: [
     // Repositories

@@ -17,6 +17,7 @@ const config: Config = {
     testEnvironment: 'node',
     moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/$1',
+        '^uuid$': '<rootDir>/../test/mocks/uuid.ts',
     },
     setupFilesAfterEnv: ['<rootDir>/../test/setup.ts'],
 };

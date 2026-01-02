@@ -10,7 +10,7 @@ import { OfflineSyncService } from '../services/offline-sync.service';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { IOfflinePayload } from '../interfaces/sync-state.interface';
 
-describe.skip('OfflineSyncService', () => {
+describe('OfflineSyncService', () => {
     let service: OfflineSyncService;
     let prisma: PrismaService;
 
@@ -26,6 +26,9 @@ describe.skip('OfflineSyncService', () => {
         auditLog: {
             create: jest.fn(),
             findMany: jest.fn(),
+        },
+        syncLog: {
+            create: jest.fn(),
         },
         $transaction: jest.fn(),
     };

@@ -3,11 +3,24 @@ import { Injectable, Inject, Logger } from '@nestjs/common';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { IAuthRepository } from '../../domain/repositories';
 import { AuthUserEntity, AuthUserProps } from '../../domain/entities/auth-user.entity';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
+import { AUTH_CONSTANTS } from '../../auth.constants';
 
 @Injectable()
 export class PrismaAuthRepository implements IAuthRepository {
     private readonly logger = new Logger(PrismaAuthRepository.name);
+
+    private readonly userSelect = {
+        id: true,
+        email: true,
+        password: true,
+        name: true,
+        role: true,
+        phone: true,
+        avatar: true,
+        active: true,
+        lastLogin: true,
+    } as const;
 
     constructor(
         @Inject(PrismaService)
@@ -15,13 +28,19 @@ export class PrismaAuthRepository implements IAuthRepository {
     ) {}
 
     async findByEmail(email: string): Promise<AuthUserEntity | null> {
-        const user = await this.prisma.user.findUnique({ where: { email } });
+        const user = await this.prisma.user.findUnique({
+            where: { email },
+            select: this.userSelect,
+        });
         if (!user) return null;
         return this.mapUser(user);
     }
 
     async findById(id: string): Promise<AuthUserEntity | null> {
-        const user = await this.prisma.user.findUnique({ where: { id } });
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+            select: this.userSelect,
+        });
         if (!user) return null;
         return this.mapUser(user);
     }
@@ -41,6 +60,7 @@ export class PrismaAuthRepository implements IAuthRepository {
                 avatar: data.avatar,
                 active: data.active,
             },
+            select: this.userSelect,
         });
         return this.mapUser(user);
     }
@@ -75,7 +95,17 @@ export class PrismaAuthRepository implements IAuthRepository {
     async findRefreshToken(token: string) {
         const rt = await this.prisma.refreshToken.findUnique({
             where: { token },
-            include: { user: true },
+            select: {
+                id: true,
+                token: true,
+                userId: true,
+                family: true,
+                expiresAt: true,
+                isRevoked: true,
+                user: {
+                    select: this.userSelect,
+                },
+            },
         });
         if (!rt) return null;
         return {
@@ -133,9 +163,9 @@ export class PrismaAuthRepository implements IAuthRepository {
             isRevoked: rt.isRevoked,
             isExpired,
             rotate: (ip?: string, userAgent?: string) => {
-                const newToken = uuidv4();
+                const newToken = randomUUID();
                 const expiresAt = new Date();
-                expiresAt.setDate(expiresAt.getDate() + 7); // 7 días
+                expiresAt.setDate(expiresAt.getDate() + AUTH_CONSTANTS.REFRESH_TOKEN_DAYS_DEFAULT);
 
                 return {
                     refreshToken: newToken,

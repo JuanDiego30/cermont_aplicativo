@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 
 /**
  * Device ID Value Object
@@ -19,7 +19,7 @@ export class DeviceId {
     }
 
     static generate(): DeviceId {
-        return new DeviceId(uuidv4());
+        return new DeviceId(randomUUID());
     }
 
     static fromUserAgent(userAgent: string, userId: string): DeviceId {

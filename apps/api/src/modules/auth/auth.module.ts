@@ -6,6 +6,7 @@
  * Incluye 2FA y recuperación de contraseña.
  */
 import { Module } from '@nestjs/common';
+import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -45,43 +46,38 @@ import { PasswordService } from '../../lib/services/password.service';
 
 // Prisma
 import { PrismaModule } from '../../prisma/prisma.module';
+import { AUTH_CONSTANTS } from './auth.constants';
 
 @Module({
     imports: [
         ConfigModule,
         PrismaModule,
+        CacheModule.register({
+            ttl: 300000, // 5 minutos (ms) - TTL por defecto; Auth puede sobreescribir por key
+            max: 1000,
+        }),
         PassportModule.register({ defaultStrategy: 'jwt' }),
-        /*
         JwtModule.registerAsync({
             global: true,
             imports: [ConfigModule],
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => {
-                console.log('[DEBUG] AuthModule: Loading JWT Secret...');
-                try {
-                   const secret = configService.get<string>('JWT_SECRET') || process.env.JWT_SECRET;
-                   console.log('[DEBUG] JWT Secret Found:', !!secret);
-                   if (!secret) {
-                       throw new Error('JWT_SECRET is required');
-                   }
-                   return {
-                       secret,
-                       signOptions: {
-                           expiresIn: 900,
-                       },
-                   };
-                } catch (e) {
-                   console.error('[DEBUG] JWT Config Error', e);
-                   throw e;
+                const secret =
+                    configService.get<string>(AUTH_CONSTANTS.JWT_SECRET_ENV) ??
+                    process.env[AUTH_CONSTANTS.JWT_SECRET_ENV];
+                if (!secret) {
+                    throw new Error('JWT_SECRET is required');
                 }
+
+                const expiresIn =
+                    configService.get<string>(AUTH_CONSTANTS.JWT_EXPIRES_IN_ENV) ??
+                    AUTH_CONSTANTS.JWT_DEFAULT_EXPIRES_IN;
+
+                return {
+                    secret,
+                    signOptions: { expiresIn: expiresIn as any },
+                };
             },
-        }),
-        */
-        // FIX TEMPORAL DEBUG
-        JwtModule.register({
-            global: true,
-            secret: 'dev_secret_key_cambiar_en_produccion_1234567890abcdef',
-            signOptions: { expiresIn: '15m' },
         }),
     ],
     controllers: [

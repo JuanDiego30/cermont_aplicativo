@@ -10,7 +10,7 @@ export class GetPdfCachedUseCase {
 
     async execute(filename: string): Promise<PdfResponseDto> {
         try {
-            const buffer = await this.storage.get(filename);
+            const buffer = await this.storage.getCached(filename);
 
             if (!buffer) {
                 throw new NotFoundException(`PDF no encontrado en caché: ${filename}`);
@@ -22,7 +22,7 @@ export class GetPdfCachedUseCase {
                 mimeType: 'application/pdf',
                 size: buffer.length,
                 url: this.storage.getPublicUrl(filename),
-                generatedAt: new Date(), // We don't track file creation time in this simple storage service yet
+                generatedAt: new Date(),
             };
         } catch (error) {
             this.logger.error('Error recuperando PDF de caché', error);
