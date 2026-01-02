@@ -1,8 +1,36 @@
-# 💾 CERMONT FRONTEND STATE AGENT
+# 🧠 CERMONT FRONTEND STATE AGENT
 
-**Responsabilidad:** State Management (Angular Signals o NgRx)
-**Patrón:** SIN PREGUNTAS, Regla 41
+**ID:** 14
+**Responsabilidad:** Gestión de estado (Signals, RxJS), Data Flow, Memory Leaks
+**Reglas:** Regla 41 (Memory Leaks Críticos)
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
+
+---
+
+## 🎯 OBJETIVO
+Gestionar el flujo de datos de forma reactiva y eficiente, asegurando cero fugas de memoria mediante la correcta limpieza de suscripciones.
+
+---
+
+## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+
+### 🚨 CRÍTICO: 50+ Memory Leaks Detectados
+Múltiples componentes se suscriben a Observables sin desuscribirse. Esto degrada el navegador con el tiempo.
+
+**Componentes Afectados (Muestra):**
+- `app-sidebar.component.ts` (4 leaks)
+- `signin-form.component.ts` (1 leak)
+- `admin-users.component.ts` (4 leaks)
+- `dashboard.component.ts` (1 leak)
+- `user-form.component.ts` (4 leaks)
+- `orden-detail.component.ts` (5 leaks)
+- `dashboard-main.component.ts` (3 leaks)
+- **Total: > 50 suscripciones abiertas.**
+
+### Solución Obligatoria (Pattern: takeUntilDestroyed)
+1. Usar operador `takeUntil(destroy$)` (Clásico) o
+2. Usar `takeUntilDestroyed` (Angular 16+ con injection context).
 
 ---
 
@@ -12,109 +40,67 @@
 Actúa como CERMONT FRONTEND STATE AGENT.
 
 EJECUTA SIN PREGUNTAR:
-1. ANÁLISIS: apps/web/src/app/core/state/**
-   - No duplicación, memory leaks, tipos tipados
-   - Regla 41: Estado en UNA fuente de verdad (backend)
+1. ANÁLISIS: apps/web/src/**
+   - BUSCAR .subscribe() SIN takeUntil/AsyncPipe
+   - Implementar patrón de limpieza masiva
+   - Evaluar migración a Signals donde aplique
 
-2. PLAN: 3-4 pasos
+2. PLAN: 3-4 pasos (Foco en Memory Leaks)
 
-3. IMPLEMENTACIÓN: Si se aprueba
+3. IMPLEMENTACIÓN: Refactoring de suscripciones
 
-4. VERIFICACIÓN: pnpm run test -- --include=state
+4. VERIFICACIÓN: Revisión de código + Profiling
 ```
 
 ---
 
-## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
+## 📋 PATRONES DE ESTADO
 
-1. **Duplicación**
-   - ¿Hay estado local + estado en backend? (MAL)
-   - ¿Frontend solo consume del backend? (BIEN)
+1. **Async Pipe (Preferido)**
+   - `<div *ngIf="data$ | async as data">`
+   - Maneja suscripción/desuscripción automáticamente.
 
-2. **Memory Leaks**
-   - ¿Las suscripciones usan takeUntil(destroy$)?
-   - ¿No hay leaks en observables?
+2. **Signals (Angular Moderno)**
+   - `user = toSignal(user$)`
+   - Reactividad granular sin overhead de suscripciones manuales.
 
-3. **Tipos**
-   - ¿Todo está tipado (interfaces)?
-   - ¿No hay `any`?
-
-4. **Regla 41**
-   - ¿Backend es fuente de verdad?
-   - ¿Frontend recibe cambios por suscripciones?
-
----
-
-## ✅ CHECKLIST IMPLEMENTACIÓN
-
-- [ ] UNA fuente de verdad (backend)
-- [ ] Angular Signals sin memory leaks
-- [ ] takeUntil(destroy$) en todo lado
-- [ ] Tipado correcto (no any)
-- [ ] No estado duplicado
-- [ ] Tests de state
+3. **Suscripción Manual (Último recurso)**
+   ```typescript
+   private destroy$ = new Subject<void>();
+   
+   ngOnInit() {
+     this.data$.pipe(takeUntil(this.destroy$)).subscribe(...);
+   }
+   
+   ngOnDestroy() {
+     this.destroy$.next();
+     this.destroy$.complete();
+   }
+   ```
 
 ---
 
-## 🧪 VERIFICACIÓN
+## 🔍 QUÉ ANALIZAR Y CORREGIR
 
-```bash
-cd apps/web && pnpm run test -- --include=state
+1. **Barrido de Leaks**
+   - Buscar regex: `\.subscribe\(`
+   - Verificar si tiene `takeUntil` o si la suscripción se guarda en una variable que se limpia.
 
-# Verificar Signals
-grep -r "signal\|effect\|computed" src/app/core/state/ | wc -l
-
-# Esperado: >5 líneas
-
-# Verificar takeUntil
-grep -r "takeUntil" src/app/ | wc -l
-
-# Esperado: >10 líneas
-
-# Verificar memory leaks
-grep -r "subscribe(" src/app/ | grep -v "takeUntil\|async pipe" | wc -l
-
-# Esperado: <5 líneas (potenciales leaks)
-
-# Verificar any
-grep -r ": any" src/app/core/state/ | wc -l
-
-# Esperado: 0
-```
+2. **Store/Service State**
+   - ¿Servicios con `BehaviorSubject`?
+   - ¿Se limpian al cerrar sesión?
 
 ---
 
-## 📝 FORMATO ENTREGA
+## ✅ CHECKLIST DE ENTREGA
 
-A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+- [ ] **0 Memory Leaks (Todas las suscripciones cerradas)**
+- [ ] Uso prioritario de AsyncPipe
+- [ ] Implementación correcta de ngOnDestroy
+- [ ] Estado consistente entre rutas
 
 ---
 
-##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+## 📝 FORMATO RESPUESTA
 
-### Memory Leaks (Regla 41) - 50+ suscripciones sin takeUntil
-
-| Componente | Lineas | Problema |
-|------------|--------|----------|
-| `app-sidebar.component.ts` | 157, 166, 216, 252 | 4 subscribe() sin cleanup |
-| `signin-form.component.ts` | 52 | subscribe sin takeUntil |
-| `admin-users.component.ts` | 75, 102, 121, 142 | 4 subscribe() sin cleanup |
-| `dashboard.component.ts` | 63 | subscribe sin takeUntil |
-| `user-form.component.ts` | 59, 68, 137, 148 | 4 subscribe() sin cleanup |
-| `orden-detail.component.ts` | 76, 89, 131, 163, 190 | 5 subscribe() sin cleanup |
-
-### Fix Requerido
-
-`typescript
-// Agregar a CADA componente:
-private destroy$ = new Subject<void>();
-
-ngOnDestroy(): void {
-  this.destroy$.next();
-  this.destroy$.complete();
-}
-
-// Cambiar TODAS las suscripciones a:
-.pipe(takeUntil(this.destroy$))
-.subscribe({...});
-`
+A) **ANÁLISIS** | B) **PLAN** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN**

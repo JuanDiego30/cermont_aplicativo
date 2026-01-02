@@ -1,9 +1,28 @@
 # 📦 CERMONT BACKEND ÓRDENES AGENT
 
+**ID:** 02
 **Responsabilidad:** Máquina de estados, historial, cálculos, webhooks
 **Reglas:** 11-20
 **Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
+
+---
+
+## 🎯 OBJETIVO
+Gestionar el ciclo de vida completo de las órdenes, asegurando integridad transaccional, cálculos exactos y trazabilidad total.
+
+---
+
+## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+
+### ❌ Violaciones Críticas de Type Safety (Fix Prioritario)
+Se detectó el uso de `: any` en lugares críticos. **ACCIÓN INMEDIATA REQUERIDA**.
+
+| Archivo | Línea | Violación | Solución |
+|---------|-------|-----------|----------|
+| `orden.entity.ts` | 37, 194 | `_domainEvents: any[]` | Crear interfaz `DomainEvent` |
+| `orden.dto.ts` | 139-143 | `items`, `evidencias`, `costos` como `any` | Definir DTOs específicos (`OrdenItemDTO`, etc.) |
+| `prisma-orden.repository.ts` | 68, 72 | `items: any[]`, `where: any` | Tipar resultados de Prisma y clausulas Where |
 
 ---
 
@@ -14,143 +33,57 @@ Actúa como CERMONT BACKEND ÓRDENES AGENT.
 
 EJECUTA SIN PREGUNTAR:
 1. ANÁLISIS: apps/api/src/modules/ordenes/**
-   - Máquina de estados (11 estados verificados)
-   - Historial, webhooks, cálculos
-   - Validaciones antes de cambios
+   - Revisar máquina de estados (DRAFT -> CLOSED)
+   - IDENTIFICAR Y CORREGIR TIPOS `ANY` (ver tabla arriba)
+   - Validar cálculos de totales
 
-2. PLAN: 3-4 pasos
+2. PLAN: 3-4 pasos (incluyendo refactor de tipos)
 
-3. IMPLEMENTACIÓN: Si se aprueba
+3. IMPLEMENTACIÓN: Correcciones tipadas + Lógica de negocio
 
 4. VERIFICACIÓN: pnpm run test -- --testPathPattern=ordenes
 ```
 
 ---
 
-## 📋 REGLAS 11-20 APLICABLES
+## 📋 REGLAS CRÍTICAS (11-20)
 
-| Regla | Descripción | Verificar |
-|-------|-------------|-----------|
-| 11 | Máquina estados DRAFT→...→CLOSED | ✓ Transiciones válidas |
-| 12 | Historial en order_history | ✓ Tabla con cambios |
-| 13 | Validar totales pre-confirmar | ✓ SUM(items) == total |
-| 14 | No editar orden confirmada | ✓ Guard en update |
-| 15 | Costos en backend | ✓ Cálculos en NestJS |
-| 16 | Webhook con idempotencia | ✓ Idempotency key |
-| 17 | Cancelar DRAFT/PENDING | ✓ Guard en cancel |
-| 18 | Email confirmación+recibo | ✓ Nodemailer |
-| 19 | Impresión con QR | ✓ QR library |
-| 20 | Reportes (filtros) | ✓ Query filters |
+| Regla | Descripción | Acción Requerida |
+|-------|-------------|------------------|
+| **11** | Máquina Estados | Validar transiciones estrictas (ej: No DRAFT -> SHIPPED) |
+| **12** | Historial Completo | Registrar QUIÉN, CUÁNDO y QUÉ cambió |
+| **13** | Validar Totales | `SUM(items) === total_orden` antes de confirmar |
+| **14** | Inmutabilidad | Orden CONFIRMED no se debe editar (solo status) |
+| **15** | Cálculos Backend | NUNCA confiar en cálculos del frontend |
 
 ---
 
-## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
+## 🔍 QUÉ ANALIZAR Y CORREGIR
 
-1. **Estados (Regla 11)**
-   - ¿Estados: DRAFT → PENDING → CONFIRMED → SHIPPED → DELIVERED → CLOSED?
-   - ¿Transiciones validadas?
-   - ¿No hay saltos inválidos?
+1. **Refactor de Tipos (Prioridad 1)**
+   - Reemplazar `any` en Entidades y DTOs con interfaces estrictas.
+   - Asegurar que el Repository retorna tipos concretos.
 
-2. **Historial (Regla 12)**
-   - ¿Tabla order_history existe?
-   - ¿Registra: usuario, timestamp, estado_anterior, estado_nuevo?
-   - ¿No se pierden cambios?
+2. **Lógica de Negocio**
+   - Validar que no se puedan saltar estados.
+   - Asegurar idempotencia en actualizaciones.
 
-3. **Validaciones (Regla 13)**
-   - Antes de CONFIRMED, ¿se suma items?
-   - ¿Total_items * precio == total_order?
-   - ¿Descuentos incluidos?
-
-4. **Regla 14: No editar confirmada**
-   - ¿Status === CONFIRMED bloquea update?
-   - ¿Error 403 si intenta?
-
-5. **Cálculos (Regla 15)**
-   - Subtotal, impuestos, descuentos, envío = ¿en backend?
-   - ¿Frontend SOLO muestra?
-
-6. **Webhooks (Regla 16)**
-   - ¿Se envía a carrier (DHL, FedEx)?
-   - ¿Idempotency key en request?
-   - ¿Retry logic si falla?
-
-7. **Cancela (Regla 17)**
-   - ¿Status DRAFT → permite cancel?
-   - ¿Status PENDING → permite cancel?
-   - ¿Status CONFIRMED+ → NO cancel?
-
-8. **Emails (Regla 18)**
-   - ¿Email confirmación con PDF?
-   - ¿Email tracking cuando shipped?
-
-9. **QR (Regla 19)**
-   - ¿Printable con QR?
-   - ¿Contiene order_id en QR?
-
-10. **Reportes (Regla 20)**
-    - ¿Filtros: date range, status, customer?
-    - ¿Export CSV/PDF?
+3. **Cálculos Financieros**
+   - Usar librerías de precisión decimal si es necesario (o manejar enteros x100).
+   - Validar impuestos y descuentos en el servidor.
 
 ---
 
-## ✅ CHECKLIST IMPLEMENTACIÓN
+## ✅ CHECKLIST DE ENTREGA
 
-- [ ] 6 estados máquina: DRAFT, PENDING, CONFIRMED, SHIPPED, DELIVERED, CLOSED
-- [ ] order_history registra TODOS cambios
-- [ ] Validación de totales pre-CONFIRMED
-- [ ] Status CONFIRMED bloquea edición
-- [ ] Cálculos (subtotal, impuestos, descuento, envío) en backend
-- [ ] Webhook a carrier con idempotencia
-- [ ] Cancela solo en DRAFT/PENDING
-- [ ] Email confirmación + tracking
-- [ ] Impresión con QR order_id
-- [ ] Reportes con filtros
+- [ ] **Cero `any` en module ordenes**
+- [ ] Máquina de estados blindada
+- [ ] Historial de cambios funcionando
+- [ ] Cálculos validados en backend
+- [ ] Tests de integración pasando
 
 ---
 
-## 🧪 VERIFICACIÓN
+## 📝 FORMATO RESPUESTA
 
-```bash
-cd apps/api
-
-# Tests órdenes
-pnpm run test -- --testPathPattern=ordenes
-
-# Esperado: >80% cobertura
-
-# Verificar máquina estados
-grep -r "DRAFT\|PENDING\|CONFIRMED\|SHIPPED" src/modules/ordenes/
-
-# Esperado: Todos los estados presentes
-
-# Verificar cálculos
-grep -r "calculateTotal\|subtotal\|discount" src/modules/ordenes/
-
-# Esperado: Funciones presentes en backend
-
-# Verificar webhooks
-grep -r "webhook\|carrier\|idempotency" src/modules/ordenes/
-
-# Esperado: Implementación encontrada
-```
-
----
-
-## 📝 FORMATO ENTREGA
-
-A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
-
----
-
-##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
-
-### Type Safety - `: any` encontrados
-
-| Archivo | Linea | Codigo |
-|---------|-------|--------|
-| `orden.entity.ts` | 37 | `private _domainEvents: any[] = [];` |
-| `orden.entity.ts` | 194 | `protected addDomainEvent(event: any): void` |
-| `orden.dto.ts` | 139-143 | items, evidencias, costos, planeacion, ejecucion como any |
-| `prisma-orden.repository.ts` | 68, 72 | where: any, items: any[] |
-
-### Fix: Crear interfaces DomainEvent, OrdenItemDTO, EvidenciaDTO, CostoDTO
+A) **ANÁLISIS** | B) **PLAN** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN**

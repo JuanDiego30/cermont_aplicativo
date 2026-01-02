@@ -1,8 +1,29 @@
 # 📄 CERMONT BACKEND REPORTES PDF AGENT
 
-**Responsabilidad:** Generación de PDFs, Puppeteer/PDFKit, tablas, headers, footers
+**ID:** 06
+**Responsabilidad:** Generación de documentos PDF (Puppeteer/PDFKit), plantillas
+**Reglas:** Core + Type Safety
 **Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
+
+---
+
+## 🎯 OBJETIVO
+Generar reportes PDF profesionales, visualmente fieles y optimizados, asegurando el tipado estricto de los datos inyectados en las plantillas.
+
+---
+
+## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+
+### ❌ Violaciones Críticas de Type Safety (Fix Prioritario)
+Múltiples plantillas y casos de uso utilizan `any`, lo que hace frágil la generación de documentos. **ACCIÓN INMEDIATA REQUERIDA**.
+
+| Archivo | Línea | Violación | Solución |
+|---------|-------|-----------|----------|
+| `mantenimiento.template.ts` | 4 | `generate(data: any)` | Crear interfaz `MantenimientoPDFData` |
+| `orden.template.ts` | 4, 128, 182, 206 | `generate(data: any)`, maps con `any` | Crear `OrdenPDFData`, `ClienteData`, `TecnicoData` |
+| `certificado.template.ts` | 4 | `generate(data: any)` | Crear `CertificadoPDFData` |
+| `generate-*.use-case.ts` | 39-52 | `templateData: any` | Usar interfaces específicas |
 
 ---
 
@@ -13,102 +34,64 @@ Actúa como CERMONT BACKEND REPORTES PDF AGENT.
 
 EJECUTA SIN PREGUNTAR:
 1. ANÁLISIS: apps/api/src/modules/reportes/**
-   - Puppeteer o PDFKit instalado
-   - Headers, footers, tablas, QR
-   - Caché de PDFs, limpieza
+   - CORREGIR TIPOS EN TEMPLATES (Prioridad 1)
+   - Verificar motor de renderizado (Puppeteer vs PDFKit)
+   - Revisar caché de archivos generados
 
-2. PLAN: 3-4 pasos
+2. PLAN: 3-4 pasos (incluyendo refactor de tipos)
 
-3. IMPLEMENTACIÓN: Si se aprueba
+3. IMPLEMENTACIÓN: Plantillas tipadas + Generación eficiente
 
 4. VERIFICACIÓN: pnpm run test -- --testPathPattern=reportes
 ```
 
 ---
 
-## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
+## 📋 PUNTOS CLAVE
 
-1. **Engine**
-   - ¿Puppeteer (Chrome headless)?
-   - ¿PDFKit (Node.js nativo)?
-   - ¿Ambos soportados?
+1. **Tipado de Plantillas**
+   - NUNCA usar `any` para `data`. Definir interfaces que reflejen exactamente qué campos necesita el reporte.
+   - Normalizar datos ANTES de llamar al template.
 
-2. **Generación**
-   - ¿GET /reportes/orden/{id}/pdf?
-   - ¿Retorna Buffer o archivo?
-   - ¿Content-Type: application/pdf?
+2. **Performance**
+   - Generar PDFs es costoso. Implementar caché (ej: 24h) para reportes inmutables.
+   - Limpieza periódica de archivos temporales.
 
-3. **Contenido**
-   - ¿Headers con logo?
-   - ¿Footers con página/total?
-   - ¿Tablas de items?
-   - ¿Código QR con order_id?
-
-4. **Performance**
-   - ¿Caché de PDFs generados?
-   - ¿TTL 24 horas?
-   - ¿Limpieza de archivos viejos?
-
-5. **Errores**
-   - ¿Manejo si Puppeteer falla?
-   - ¿Fallback a PDFKit?
+3. **Calidad Visual**
+   - Headers, Footers, paginación correcta ("Página X de Y").
+   - QR Codes para validación física.
 
 ---
 
-## ✅ CHECKLIST IMPLEMENTACIÓN
+## 🔍 QUÉ ANALIZAR Y CORREGIR
 
-- [ ] Puppeteer instalado y configurado
-- [ ] HTML template con estilos
-- [ ] Headers y footers en PDF
-- [ ] Tablas de orden_items
-- [ ] QR con order_id
-- [ ] Caché de PDFs (24h)
-- [ ] Limpieza de archivos expirados
-- [ ] Manejo de errores
+1. **Fix de Tipos (Prioridad 1)**
+   ```typescript
+   interface OrdenPDFData {
+     numero: string;
+     cliente: { nombre: string; nit: string };
+     items: Array<{ descripcion: string; cantidad: number }>;
+     // ...
+   }
+   static generate(data: OrdenPDFData): string { ... }
+   ```
 
----
-
-## 🧪 VERIFICACIÓN
-
-```bash
-cd apps/api
-
-pnpm run test -- --testPathPattern=reportes
-
-# Verificar Puppeteer
-grep -r "puppeteer\|PDFDocument" src/modules/reportes/
-
-# Esperado: Engine presente
-
-# Verificar QR
-grep -r "qr\|QRCode" src/modules/reportes/
-
-# Esperado: QR generation presente
-
-# Generar PDF real
-curl http://localhost:3000/api/reportes/orden/123/pdf > test.pdf
-file test.pdf
-
-# Esperado: PDF file
-```
+2. **Manejo de Errores**
+   - ¿Qué pasa si falla Puppeteer? (Timeout, memoria).
+   - Fallback o retry logic.
 
 ---
 
-## 📝 FORMATO ENTREGA
+## ✅ CHECKLIST DE ENTREGA
 
-A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+- [ ] **Interfaces estrictas para TODOS los templates (0 any)**
+- [ ] Generación de PDF con header/footer/QR
+- [ ] Caché de archivos generados
+- [ ] Tests de generación exitosa
+- [ ] Limpieza de temporales configurada
 
 ---
 
-##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+## 📝 FORMATO RESPUESTA
 
-### Type Safety - `data: any` en Templates
-
-| Archivo | Linea | Codigo |
-|---------|-------|--------|
-| `mantenimiento.template.ts` | 4 | `static generate(data: any)` |
-| `orden.template.ts` | 4, 128, 182, 206 | Multiples any |
-| `certificado.template.ts` | 4 | `static generate(data: any)` |
-| `generate-*.use-case.ts` | 39-52 | templateData: any |
-
-### Fix: Crear interfaces OrdenPDFData, ClienteData, TecnicoData para templates
+A) **ANÁLISIS** | B) **PLAN** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN**

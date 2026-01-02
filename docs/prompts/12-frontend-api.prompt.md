@@ -1,8 +1,27 @@
-# 🔗 CERMONT FRONTEND API AGENT
+# 🌐 CERMONT FRONTEND API AGENT
 
-**Responsabilidad:** Integración Angular ↔ NestJS (Regla 41)
+**ID:** 12
+**Responsabilidad:** Consume de API, Interceptores, Manejo de Errores, Tipado de respuestas
+**Reglas:** Core + Type Safety
 **Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
+
+---
+
+## 🎯 OBJETIVO
+Proveer una capa de abstracción limpia y tipada para la comunicación con el Backend, manejando errores y tokens automáticamente.
+
+---
+
+## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+
+### ❌ Violaciones Críticas de Type Safety (Fix Prioritario)
+Manejo de errores genérico usando `any`.
+
+| Archivo | Línea | Violación | Solución |
+|---------|-------|-----------|----------|
+| `api.service.ts` | 33, 129 | `error: any` | Usar `HttpErrorResponse` |
+| `auth.service.ts` | 306 | `handleError(error: any)` | Tipar error devuelto |
 
 ---
 
@@ -13,88 +32,64 @@ Actúa como CERMONT FRONTEND API AGENT.
 
 EJECUTA SIN PREGUNTAR:
 1. ANÁLISIS: apps/web/src/app/core/services/**
-   - Interceptors de auth, URLs correctas, error handling
-   - Regla 41: Backend es fuente de verdad
+   - CORREGIR TIPOS DE ERROR (Prioridad 1)
+   - Revisar Interceptores (Auth, Error, Loading)
+   - Validar entorno (environment.ts)
 
 2. PLAN: 3-4 pasos
 
-3. IMPLEMENTACIÓN: Si se aprueba
+3. IMPLEMENTACIÓN: Servicios tipados
 
-4. VERIFICACIÓN: pnpm run test -- --include=api
+4. VERIFICACIÓN: pnpm run typecheck
 ```
 
 ---
 
-## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
+## 📋 PUNTOS CLAVE
 
-1. **Interceptor de Auth**
-   - ¿Existe HttpInterceptor para agregar Authorization?
-   - ¿Adjunta Bearer token correctamente?
-   - ¿Maneja 401 (logout si token expirado)?
+1. **Tipado Estricto**
+   - `get<T>(url): Observable<T>`
+   - NUNCA devolver `any` al componente.
+   - Usar DTOs compartidos (si es monorepo, importar de `libs` o definir interfaces espejo).
 
-2. **URLs Base**
-   - ¿La API base es `http://localhost:3000/api` en dev?
-   - ¿Está en environment (no hardcodeada)?
+2. **Manejo de Errores**
+   - Interceptor global para notificaciones (Toast al usuario en 4xx/5xx).
+   - Logging de errores silenciosos.
+   - `catchError` en el servicio para transformación de datos.
 
-3. **Error Handling**
-   - ¿Errores de API se muestran legiblemente?
-   - ¿Errores 5xx vs 4xx tratados distinto?
-
-4. **Regla 41 (CRÍTICA)**
-   - ¿Frontend SOLO consume API?
-   - ¿NO hay lógica de negocio en frontend?
-   - ¿Los cambios de estado se envían al backend?
+3. **Autenticación**
+   - Inyectar Token automáticamente.
+   - Manejar 401 (Refresh Token flow) transparente para el usuario.
 
 ---
 
-## ✅ CHECKLIST IMPLEMENTACIÓN
+## 🔍 QUÉ ANALIZAR Y CORREGIR
 
-- [ ] HttpInterceptor para Authorization
-- [ ] API base en environment
-- [ ] Error handling 4xx vs 5xx
-- [ ] 401 redirige a login
-- [ ] Regla 41: SIN lógica de negocio
-- [ ] Tests de integración
+1. **Fix de Tipos (Prioridad 1)**
+   ```typescript
+   import { HttpErrorResponse } from '@angular/common/http';
+   // ...
+   private handleError(error: HttpErrorResponse) {
+     if (error.status === 0) { ... }
+     // ...
+   }
+   ```
 
----
-
-## 🧪 VERIFICACIÓN
-
-```bash
-cd apps/web && pnpm run test -- --include=api
-
-# Verificar interceptor
-grep -r "HttpInterceptor\|Authorization\|Bearer" src/
-
-# Esperado: Interceptor presente
-
-# Verificar URLs
-grep -r "environment\|API_BASE" src/
-
-# Esperado: URLs en environment
-
-# Verificar Regla 41
-grep -r "this\.calculate\|this\.validate" src/app/ | grep -v "service\|api" | grep -v ".spec.ts"
-
-# Esperado: 0 lógica en componentes (solo en servicios que consumen API)
-```
+2. **Cancelación**
+   - ¿Se cancelan requests viejos en búsquedas (switchMap)?
 
 ---
 
-## 📝 FORMATO ENTREGA
+## ✅ CHECKLIST DE ENTREGA
 
-A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+- [ ] **Manejo de errores tipado con HttpErrorResponse**
+- [ ] Interceptor de Auth funcionando
+- [ ] Tokens adjuntos automáticamente
+- [ ] Refresh flow transparente probado
+- [ ] Environment configurado
 
 ---
 
-##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+## 📝 FORMATO RESPUESTA
 
-### Type Safety - `: any` en Services
-
-| Archivo | Linea | Codigo |
-|---------|-------|--------|
-| `api.service.ts` | 33 | `delay: (error: any) =>` |
-| `api.service.ts` | 129 | `private handleError(error: any)` |
-| `auth.service.ts` | 306 | `private handleError(error: any)` |
-
-### Fix: Usar `HttpErrorResponse` de Angular en lugar de any
+A) **ANÁLISIS** | B) **PLAN** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN**

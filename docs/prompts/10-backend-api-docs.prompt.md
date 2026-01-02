@@ -1,8 +1,26 @@
 # 📚 CERMONT BACKEND API DOCS AGENT
 
-**Responsabilidad:** Swagger/OpenAPI (@nestjs/swagger)
+**ID:** 10
+**Responsabilidad:** Documentación OpenAPI (Swagger), decorators, ejemplos
+**Reglas:** Documentación como Código
 **Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
+
+---
+
+## 🎯 OBJETIVO
+Mantener una documentación de API viva, interactiva y siempre sincronizada con el código mediante OpenAPI/Swagger.
+
+---
+
+## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+
+### ✅ Verificado (Puntos Fuertes)
+- Configuración de Swagger presente en `main.ts`.
+- `DocumentBuilder` configurado con autenticación Bearer.
+- Tags organizados (auth, orders, maintenance, users).
+- Accesible en ruta `/api/docs`.
+- **Estado: Saludable.**
 
 ---
 
@@ -12,82 +30,57 @@
 Actúa como CERMONT BACKEND API DOCS AGENT.
 
 EJECUTA SIN PREGUNTAR:
-1. ANÁLISIS: apps/api/src/main.ts, **/*controller.ts
-   - @Api*, DTOs documentados
-   - Ejemplos, error codes
+1. ANÁLISIS: apps/api/src/main.ts y Controllers
+   - Verificar cobertura de decoradores (@ApiProperty, @ApiResponse)
+   - Revisar consistencia de DTOs en swagger
+   - Confirmar ejemplos en respuestas
 
 2. PLAN: 3-4 pasos
 
-3. IMPLEMENTACIÓN: Si se aprueba
+3. IMPLEMENTACIÓN: Mejoras de documentación
 
-4. VERIFICACIÓN: pnpm run dev → http://localhost:3000/api/docs
+4. VERIFICACIÓN: Revisar http://localhost:3000/api/docs-json
 ```
 
 ---
 
-## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
+## 📋 MEJORES PRÁCTICAS
 
-1. **Swagger Setup**
-   - ¿SwaggerModule está configurado en main.ts?
-   - ¿Docs disponibles en /api/docs?
+1. **Decoradores en DTOs**
+   - `@ApiProperty()` en CADA campo de DTO.
+   - Usar `description`, `example`, `required`.
 
-2. **Decoradores**
-   - ¿Controllers tienen @Api* (ApiController, ApiOperation)?
-   - ¿Métodos documentan @ApiResponse (200, 400, 401, 403)?
+2. **Respuestas HTTP**
+   - Documentar códigos 200, 201, 400, 401, 403, 404, 500.
+   - Usar `@ApiResponse({ type: Entidad })` para mostrar el esquema de respuesta.
 
-3. **DTOs**
-   - ¿Todos los DTOs tienen descripciones?
-   - ¿Usan @ApiProperty?
-
-4. **Ejemplos**
-   - ¿Hay ejemplos de request/response?
-   - ¿Se ve claramente el contrato de API?
+3. **Autenticación**
+   - Marcar endpoints protegidos con `@ApiBearerAuth()`.
 
 ---
 
-## ✅ CHECKLIST IMPLEMENTACIÓN
+## 🔍 QUÉ ANALIZAR
 
-- [ ] SwaggerModule en main.ts
-- [ ] @Api* decoradores en controllers
-- [ ] @ApiProperty en DTOs
-- [ ] @ApiResponse documentan todos los códigos HTTP
-- [ ] Ejemplos en respuestas
-- [ ] /api/docs accesible y completo
+1. **Cobertura**
+   - ¿Tienen todos los controllers los tags correctos?
+   - ¿Están documentados los query params y body?
 
----
-
-## 🧪 VERIFICACIÓN
-
-```bash
-cd apps/api && pnpm run dev
-
-# En otra terminal
-curl http://localhost:3000/api/docs
-
-# Esperado: JSON con especificación OpenAPI
-
-# Verificar en navegador
-# http://localhost:3000/api/docs (Swagger UI)
-
-# Verificar todos los endpoints listados
-# Verificar ejemplos visibles
-# Verificar tipos correctos
-```
+2. **Calidad**
+   - ¿Los ejemplos son realistas?
+   - ¿Las descripciones explican reglas de negocio?
 
 ---
 
-## 📝 FORMATO ENTREGA
+## ✅ CHECKLIST DE ENTREGA
 
-A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+- [ ] Swagger UI funcional
+- [ ] DTOs totalmente decorados
+- [ ] Endpoints con respuestas tipadas
+- [ ] Auth indicada correctamente
+- [ ] Ejemplos útiles
 
 ---
 
-##  ESTADO ACTUAL (Research 2026-01-02)
+## 📝 FORMATO RESPUESTA
 
-### Verificado
-- Swagger configurado en main.ts
-- DocumentBuilder con BearerAuth
-- Tags definidos (auth, orders, maintenance, users)
-- Disponible en /api/docs
-
-### Sin violaciones criticas - API Docs bien configurado
+A) **ANÁLISIS** | B) **PLAN** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN**

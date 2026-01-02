@@ -1,119 +1,94 @@
-# 🔒 CERMONT BACKEND SECURITY AGENT
+# 👮 CERMONT BACKEND SECURITY AGENT
 
-**Responsabilidad:** CORS, Rate Limiting, Input Validation, CSRF
-**Patrón:** SIN PREGUNTAS (Regla 5, 6, 7)
+**ID:** 21
+**Responsabilidad:** CORS, Helmet, Rate Limiting, Validation, Headers de seguridad
+**Reglas:** OWASP Top 10
+**Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
+
+---
+
+## 🎯 OBJETIVO
+Implementar capas de defensa en profundidad para proteger la API contra ataques comunes y abusos.
+
+---
+
+## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+
+### ✅ Verificado (Puntos Fuertes)
+- **CORS:** Configurado con `credentials: true`. `allowedHeaders` incluye Authorization.
+- **Rate Limiting:** `ThrottlerModule` habilitado globalmente.
+- **Validación:** `ValidationPipe` global con whitelist activo.
+
+### ⚠️ Ajustes Pendientes
+- Agregar `X-CSRF-Token` a `allowedHeaders` y `exposedHeaders` en CORS.
+- Verificar headers de seguridad (Helmet).
 
 ---
 
 ## 🚀 INVOCACIÓN RÁPIDA
 
 ```
-Actúa como CERMONT BACKEND SECURITY AGENT.
+Actúa como CERMONT SECURITY AGENT.
 
 EJECUTA SIN PREGUNTAR:
-1. ANÁLISIS: apps/api/src/main.ts, auth.controller.ts
-   - ¿CORS tiene credentials: true?
-   - ¿Throttler global configurado?
-   - ¿ValidationPipe global?
-   - ¿CSRF protection completa?
+1. ANÁLISIS: apps/api/src/main.ts y app.module.ts
+   - Validar configuración CORS final
+   - Confirmar activación de Helmet
+   - Auditar configuración de Throttler
 
 2. PLAN: 3-4 pasos
 
-3. IMPLEMENTACIÓN: Si se aprueba
+3. IMPLEMENTACIÓN: Endurecimiento (Hardening)
 
-4. VERIFICACIÓN: pnpm run test (cobertura >70%)
+4. VERIFICACIÓN: securityheaders.com (simulado) / curl tests
 ```
 
 ---
 
-## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
+## 📋 CAPAS DE SEGURIDAD
 
-1. **CORS**
-   - ¿enableCors() tiene credentials: true?
-   - ¿allowedHeaders incluye Authorization, X-CSRF-Token?
-   - ¿exposedHeaders incluye X-CSRF-Token?
+1. **Red/Transporte**
+   - TLS 1.2+ obligatorio (infra).
+   - CORS estricto (Origins whitelist, no `*`).
 
-2. **Rate Limiting**
-   - ¿Throttler está configurado globalmente?
-   - ¿Login tiene @ThrottleAuth()?
-   - ¿Límites: 5 intentos / 15 minutos?
+2. **Aplicación**
+   - Helmet (HSTS, No-Sniff, XSS Filter).
+   - Rate Limiting (DDoS mitigation simple).
+   - Request Size limit (Prevenir body flooding).
 
-3. **Validation**
-   - ¿ValidationPipe global en main.ts?
-   - ¿forbidNonWhitelisted: true?
-   - ¿Errores formateados?
-
-4. **CSRF**
-   - ¿assertCsrf() en logout, refresh?
-   - ¿Tokens rotados después de refresh?
-   - ¿No tokens reutilizables?
+3. **Datos**
+   - Validación de entrada (Class Validator).
+   - Sanitización de salida (Class Transformer).
 
 ---
 
-## ✅ CHECKLIST IMPLEMENTACIÓN
+## 🔍 QUÉ ANALIZAR Y CORREGIR
 
-- [ ] CORS credentials: true
-- [ ] CORS headers válidos
-- [ ] Throttler global (5/15min)
-- [ ] ValidationPipe global
-- [ ] forbidNonWhitelisted: true
-- [ ] CSRF en logout
-- [ ] CSRF en refresh
-- [ ] Tokens rotados
-- [ ] 0 hardcoded secrets
-- [ ] Logs sanitizados
+1. **CORS Tuning**
+   ```typescript
+   app.enableCors({
+     origin: process.env.ALLOWED_ORIGINS.split(','),
+     credentials: true,
+     exposedHeaders: ['X-CSRF-Token', 'Content-Disposition'],
+   });
+   ```
 
----
-
-## 🧪 VERIFICACIÓN
-
-```bash
-cd apps/api && pnpm run build
-
-# CORS config
-grep -A 5 "enableCors" src/main.ts
-
-# Esperado: credentials: true, allowedHeaders
-
-# Throttler
-grep -r "Throttler\|ThrottleAuth" src/
-
-# Esperado: Global + login endpoint
-
-# ValidationPipe
-grep -A 3 "useGlobalPipes" src/main.ts
-
-# Esperado: ValidationPipe({...})
-
-# CSRF
-grep -r "assertCsrf\|CSRF" src/modules/auth/
-
-# Esperado: En logout, refresh
-
-# Security tests
-pnpm run test
-
-# Esperado: >70% cobertura
-```
+2. **Dependencias**
+   - `npm audit` regular.
 
 ---
 
-## 📝 FORMATO ENTREGA
+## ✅ CHECKLIST DE ENTREGA
 
-A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+- [ ] CORS estricto y funcional para frontend
+- [ ] Helmet protegiendo headers
+- [ ] Rate Limit activo (100 req/min por IP default)
+- [ ] Pipes de validación globales
+- [ ] Logs de seguridad activos (intentos fallidos)
 
 ---
 
-##  ESTADO ACTUAL (Research 2026-01-02)
+## 📝 FORMATO RESPUESTA
 
-### CORS - Bien Configurado
-- `credentials: true` presente en main.ts
-- `allowedHeaders` incluye Authorization
-- Faltante: Agregar `X-CSRF-Token` a allowedHeaders y exposedHeaders
-
-### Rate Limiting - Configurado
-- ThrottlerModule habilitado en app.module.ts
-
-### Validation - Bien Configurado
-- ValidationPipe global con whitelist y forbidNonWhitelisted
+A) **ANÁLISIS** | B) **PLAN** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN**

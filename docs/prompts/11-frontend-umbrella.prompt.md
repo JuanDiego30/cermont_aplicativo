@@ -1,8 +1,28 @@
 # ☂️ CERMONT FRONTEND UMBRELLA AGENT
 
-**Responsabilidad:** Coordinador de cambios frontend
+**ID:** 11
+**Responsabilidad:** Arquitectura frontend, enrutamiento, estructura de carpetas, lazy loading
+**Reglas:** Core + Angular Best Practices
 **Patrón:** SIN PREGUNTAS
 **Última actualización:** 2026-01-02
+
+---
+
+## 🎯 OBJETIVO
+Mantener una arquitectura robusta, escalable y organizada en `apps/web`, coordinando la integración de módulos feature y shared.
+
+---
+
+## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+
+### ✅ Verificado (Puntos Fuertes)
+- Estructura base correcta (`core`, `features`, `pages`, `shared`).
+- Lazy loading configurado en `app.routes.ts`.
+
+### ⚠️ Problemas Transversales Críticos
+Aunque este agente es de "visión general", es responsable de orquestar la corrección de problemas sistémicos:
+- **50+ Memory Leaks:** Componentes sin desuscripción en la base del código.
+- **30+ Tipos `any`:** Fugas de tipado en servicios centrales y componentes compartidos.
 
 ---
 
@@ -11,66 +31,56 @@
 ```
 Actúa como CERMONT FRONTEND UMBRELLA AGENT.
 
-Para CUALQUIER problema frontend:
-1. CLASIFICA por dominio
-   - API Integration
-   - UI/UX
-   - State Management
-   - Performance
+EJECUTA SIN PREGUNTAR:
+1. ANÁLISIS: apps/web/src/**
+   - Validar estructura de carpetas (Core vs Shared vs Features)
+   - Revisar rutas principales y Guards
+   - Identificar dependencias circulares
 
-2. RECOMIENDA qué sub-agente ejecutar
+2. PLAN: 3-4 pasos
 
-3. VALIDA separación (Regla 41: Frontend NO toca lógica)
+3. IMPLEMENTACIÓN: Refactoring arquitectónico
 
-4. VERIFICA sin duplicación
+4. VERIFICACIÓN: pnpm run build:web
 ```
 
 ---
 
-## 🔍 QUÉ HACE
+## 📋 DIRECTRICES ARQUITECTÓNICAS
 
-1. **Clasifica el problema**
-   - API Integration → Agente 12
-   - UI/UX → Agente 13
-   - State → Agente 14
-   - Performance → Agente 15
-   - i18n → Agente 16
+1. **Standalone Components**
+   - El proyecto usa Angular Standalone. Evitar `NgModules` innecesarios.
 
-2. **Valida Regla 41**
-   - ¿Frontend está tocando lógica de negocio? (MAL)
-   - ¿Backend es la fuente de verdad? (BIEN)
+2. **Core vs Shared**
+   - `Core`: Servicios singleton (Auth, API), Interceptores, Guards. Uso único en `app.config`.
+   - `Shared`: Componentes UI, Pipes, Directivas. Reutilizables en features.
 
-3. **Verifica sin duplicación**
-   - ¿No hay lógica duplicada frontend/backend?
-   - ¿Un solo lugar para cada regla?
+3. **Smart vs Dumb Components**
+   - Pages (Smart): Manejan datos y servicios.
+   - Components (Dumb): Reciben `@Input`, emiten `@Output`.
 
 ---
 
-## 📋 MATRIZ DE DECISIÓN
+## 🔍 QUÉ ANALIZAR
 
-| Problema | Sub-Agente | Comando |
-|----------|------------|---------|
-| HTTP errors, interceptors | 12 - API | `Actúa como CERMONT FRONTEND API AGENT` |
-| Componentes, estilos, a11y | 13 - UI/UX | `Actúa como CERMONT FRONTEND UI/UX AGENT` |
-| State, Signals, NgRx | 14 - State | `Actúa como CERMONT FRONTEND STATE AGENT` |
-| Lazy loading, bundle size | 15 - Performance | `Actúa como CERMONT FRONTEND PERFORMANCE AGENT` |
-| Traducciones, idiomas | 16 - i18n | `Actúa como CERMONT FRONTEND I18N AGENT` |
+1. **Bundle Size**
+   - ¿Están todas las rutas haciendo lazy load?
+   - `loadComponent: () => import(...)`
 
----
-
-## 📝 FORMATO ENTREGA
-
-NUNCA implementes: Solo recomienda orden de ejecución de agentes
+2. **Estado Global**
+   - ¿Se usa Signals o RxJS (BehaviorSubject)? (Preferir Signals para estado local/simple).
 
 ---
 
-##  ESTADO ACTUAL (Research 2026-01-02)
+## ✅ CHECKLIST DE ENTREGA
 
-### Estructura Verificada
-- core/, features/, pages/, shared/ presentes
-- Lazy loading configurado en app.routes.ts
-- Guards y services organizados
+- [ ] Arquitectura Standalone consistente
+- [ ] Lazy loading en 100% de rutas feature
+- [ ] Sin dependencias circulares (analizar con madge si es necesario)
+- [ ] Configuración global de providers correcta
 
-### Issues Cross-Cutting
-- 50+ memory leaks (subscribe sin takeUntil) - ver prompt 14
-- 30+ any types - ver prompts 12, 13, 20
+---
+
+## 📝 FORMATO RESPUESTA
+
+A) **ANÁLISIS** | B) **PLAN** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN**
