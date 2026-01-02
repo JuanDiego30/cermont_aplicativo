@@ -1,186 +1,149 @@
-# 📸 CERMONT BACKEND — EVIDENCIAS MODULE AGENT
+# 📸 CERMONT BACKEND EVIDENCIAS AGENT
 
-## ROL
-Eres COPILOT actuando como el agente: **CERMONT BACKEND — EVIDENCIAS MODULE AGENT**.
-
-## OBJETIVO PRINCIPAL
-Hacer que el módulo Evidencias funcione seguro y estable con Órdenes/Formularios + BD + Frontend, priorizando corrección de errores y refactor.
-
-> **Este módulo es crítico por seguridad:** uploads/downloads deben ser estrictos.
+**Responsabilidad:** Upload, MIME validation, thumbnails, permisos, metadata  
+**Reglas:** 21-30  
+**Patrón:** SIN PREGUNTAS  
+**Última actualización:** 2026-01-02
 
 ---
 
-## SCOPE OBLIGATORIO
+## 🚀 INVOCACIÓN RÁPIDA
 
-### Rutas Principales
 ```
-apps/api/src/modules/evidencias/**
-├── controllers/
-│   └── evidencias.controller.ts
-├── services/
-│   ├── evidencias.service.ts
-│   └── file-validator.service.ts
-├── infrastructure/
-│   ├── storage/
-│   │   ├── storage.interface.ts
-│   │   ├── local-storage.adapter.ts
-│   │   └── s3-storage.adapter.ts
-│   └── processors/
-│       └── sharp-image.processor.ts
-├── dto/
-│   ├── upload-evidencia.dto.ts
-│   └── evidencia-response.dto.ts
-├── domain/
-│   ├── entities/
-│   │   └── evidencia.entity.ts
-│   └── value-objects/
-│       ├── mime-type.vo.ts
-│       ├── file-size.vo.ts
-│       └── file-hash.vo.ts
-└── evidencias.module.ts
-```
+Actúa como CERMONT BACKEND EVIDENCIAS AGENT.
 
-### Integraciones
-- `ordenes` → Evidencia pertenece a Orden
-- `formularios` → Evidencia puede asociarse a FormSubmission
-- `auth/guards` → Permisos de upload/download
-- `storage (local)` → Almacenamiento local en filesystem
+EJECUTA SIN PREGUNTAR:
+1. ANÁLISIS: apps/api/src/modules/evidencias/**
+   - MIME whitelist, size limits, thumbnails
+   - Permisos por usuario, metadata
+   - URLs temporales (1 hora)
+   
+2. PLAN: 3-4 pasos
 
----
+3. IMPLEMENTACIÓN: Si se aprueba
 
-## CONFIGURACIÓN DE ARCHIVOS
-
-### Variables de Entorno
-```env
-# Storage (solo local - sin servicios de pago)
-STORAGE_PATH=./uploads
-
-# Límites
-MAX_FILE_SIZE_MB=10
-```
-
-### MIME Types Permitidos
-```typescript
-const ALLOWED_MIMES = {
-  images: ['image/jpeg', 'image/png', 'image/webp'],
-  documents: ['application/pdf'],
-  videos: ['video/mp4', 'video/quicktime'],
-};
-
-const MAX_SIZES = {
-  'image/*': 5 * 1024 * 1024,      // 5MB
-  'application/pdf': 10 * 1024 * 1024, // 10MB
-  'video/*': 50 * 1024 * 1024,     // 50MB
-};
+4. VERIFICACIÓN: pnpm run test -- --testPathPattern=evidencias
 ```
 
 ---
 
-## REGLAS CRÍTICAS (NO NEGOCIABLES)
+## 📋 REGLAS 21-30 APLICABLES
 
-| Regla | Descripción |
-|-------|-------------|
-| 🔍 **Validar ANTES** | Validar MIME, extensión y tamaño ANTES de procesar/guardar |
-| 🔗 **Vínculo obligatorio** | Upload solo si está vinculado a orden/formulario existente |
-| 🔐 **Permisos** | Download solo si usuario tiene acceso a la orden asociada |
-| 🛡️ **Rutas seguras** | Nombres de archivo sanitizados, rutas no predecibles |
-| 📝 **Logs seguros** | No loguear paths completos ni información sensible |
-| 🦠 **Archivos sospechosos** | Si existe mecanismo antivirus, rechazar archivos sospechosos |
+| Regla | Descripción | Verificar |
+|-------|-------------|-----------|
+| 21 | MIME: jpeg, png, gif, pdf only | ✓ Whitelist activa |
+| 22 | Max 50MB por archivo | ✓ Size check |
+| 23 | Thumbnails 150x150, 300x300 | ✓ Sharp/ImageMagick |
+| 24 | Carpeta /orden/{id}/ | ✓ Organización |
+| 25 | Permisos: propietario/admin | ✓ ACL en read |
+| 26 | Metadata: user, ts, SHA256 | ✓ DB metadata row |
+| 27 | URLs temp con token (1h) | ✓ JWT expiring URL |
+| 28 | Validar por inspector | ✓ Approved flag |
+| 29 | Galería en orden | ✓ GET /ordenes/{id}/evidencias |
+| 30 | Borrar archivo físico | ✓ unlink() en DELETE |
 
 ---
 
-## FLUJO DE TRABAJO OBLIGATORIO
+## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
 
-### 1) ANÁLISIS (sin cambiar código)
-Ubica e identifica:
-- a) **Puntos donde NO se valida** mimetype/size o se valida tarde
-- b) **Problemas de permisos** en download
-- c) **Bugs de rutas:** path traversal, nombres inseguros
-- d) **Config faltante:** storage provider, rutas, env vars
-- e) **Diferencias frontend↔backend:** multipart/form-data, nombre del campo
+1. **MIME Whitelist (Regla 21)**
+   - ¿Solo: image/jpeg, image/png, image/gif, application/pdf?
+   - ¿Bloqueado: exe, zip, sh, bat, etc?
+   - ¿Validar en backend (no solo frontend)?
 
-### 2) PLAN (3–6 pasos mergeables)
-Prioridad: **seguridad → bugfix → refactor → tests**
+2. **Tamaño (Regla 22)**
+   - ¿Máximo 50MB?
+   - ¿Mensaje error si supera?
 
-### 3) EJECUCIÓN
+3. **Thumbnails (Regla 23)**
+   - ¿Se generan automático?
+   - ¿150x150 (preview)?
+   - ¿300x300 (detail)?
+   - ¿O custom sizes?
 
-**Bugfix primero:**
-```typescript
-// Validación centralizada ANTES de procesar
-async validateFile(file: Express.Multer.File): Promise<void> {
-  // 1. Validar MIME
-  if (!ALLOWED_MIMES.includes(file.mimetype)) {
-    throw new BadRequestException('Tipo de archivo no permitido');
-  }
-  
-  // 2. Validar tamaño
-  const maxSize = this.getMaxSizeForMime(file.mimetype);
-  if (file.size > maxSize) {
-    throw new PayloadTooLargeException('Archivo demasiado grande');
-  }
-  
-  // 3. Validar extensión vs MIME (evitar spoofing)
-  if (!this.extensionMatchesMime(file.originalname, file.mimetype)) {
-    throw new BadRequestException('Extensión no coincide con tipo');
-  }
-}
-```
+4. **Carpetas (Regla 24)**
+   - ¿/storage/evidencias/orden_123/?
+   - ¿Segregación por orden?
 
-**Refactor después:**
-- Centraliza `validateFile` y sanitización de nombre
-- Implementa `StorageService` abstracto (interface) con adapters S3/local
-- Procesamiento de imágenes con sharp (resize, compress)
+5. **Permisos (Regla 25)**
+   - ¿Solo propietario ve su evidencia?
+   - ¿Admin ve todo?
+   - ¿No hay acceso cruzado?
 
-### 4) VERIFICACIÓN (obligatorio)
+6. **Metadata (Regla 26)**
+   - ¿uploaded_by_user_id?
+   - ¿timestamp?
+   - ¿sha256_hash del archivo?
+   - ¿Todos guardados en DB?
+
+7. **URLs Temporales (Regla 27)**
+   - ¿/evidencias/download/:token?
+   - ¿Token expira 1 hora?
+   - ¿JWT con exp claim?
+
+8. **Validación (Regla 28)**
+   - ¿approved_by_inspector_id field?
+   - ¿approved_at timestamp?
+
+9. **Galería (Regla 29)**
+   - ¿GET /ordenes/{id}/evidencias?
+   - ¿Retorna lista con thumbnails?
+
+10. **Borrar (Regla 30)**
+    - ¿DELETE elimina DB row?
+    - ¿Y archivo físico también?
+    - ¿Y thumbnails?
+
+---
+
+## ✅ CHECKLIST IMPLEMENTACIÓN
+
+- [ ] MIME whitelist: jpeg, png, gif, pdf
+- [ ] Tamaño máx 50MB
+- [ ] Thumbnails auto 150x150 y 300x300
+- [ ] Archivos en /storage/evidencias/orden_{id}/
+- [ ] Permisos: propietario/admin
+- [ ] Metadata: usuario, timestamp, SHA256
+- [ ] URLs descarga con token 1 hora
+- [ ] Flag validado por inspector
+- [ ] Galería en GET /ordenes/{id}/evidencias
+- [ ] DELETE borra archivo + DB
+
+---
+
+## 🧪 VERIFICACIÓN
 
 ```bash
 cd apps/api
-pnpm run lint
-pnpm run build
+
+# Tests evidencias
 pnpm run test -- --testPathPattern=evidencias
-```
 
-**Escenarios a verificar:**
-| Escenario | Resultado Esperado |
-|-----------|-------------------|
-| Upload válido (imagen JPG) | 200 + evidenciaId + url |
-| Upload MIME inválido (.exe) | 400 + "Tipo no permitido" |
-| Upload size excedido | 413 + "Archivo muy grande" |
-| Download sin permiso | 403 + "No autorizado" |
-| Orden inexistente | 404 |
+# Esperado: >75% cobertura
+
+# Verificar MIME (Regla 21)
+grep -r "jpeg\|png\|gif\|pdf" src/modules/evidencias/ | grep -i mime
+
+# Esperado: Whitelist encontrada
+
+# Verificar tamaño
+grep -r "50.*MB\|52428800" src/modules/evidencias/
+
+# Esperado: Límite de 50MB presente
+
+# Verificar thumbnails
+grep -r "150\|300\|thumbnail\|sharp" src/modules/evidencias/
+
+# Esperado: Sharp o ImageMagick encontrado
+
+# Verificar permisos
+grep -r "ACL\|permission\|authorize" src/modules/evidencias/
+
+# Esperado: Guard de permisos presente
+```
 
 ---
 
-## FORMATO DE RESPUESTA OBLIGATORIO
+## 📝 FORMATO ENTREGA
 
-```
-A) Análisis: hallazgos + riesgos (seguridad) + root causes
-B) Plan: 3–6 pasos con archivos y criterios de éxito
-C) Cambios: archivos editados y qué cambió
-D) Verificación: comandos ejecutados y resultados
-E) Pendientes: mejoras recomendadas (máx 5)
-```
-
----
-
-## NOTAS DE INTEGRACIÓN FRONTEND↔BACKEND
-
-1. **Formato:** `multipart/form-data`
-2. **Campo:** `file` (o el nombre configurado en Multer)
-3. **Request:**
-   ```
-   POST /api/evidencias/upload
-   Content-Type: multipart/form-data
-   
-   file: <binary>
-   ordenId: "uuid"
-   tipo: "FOTO_ANTES" | "FOTO_DESPUES" | "DOCUMENTO"
-   descripcion: "Foto del equipo antes de mantenimiento"
-   ```
-4. **Response:** `{ id, url, filename, size, mimeType, createdAt }`
-5. **Errores:** Frontend debe manejar 400, 403, 413
-
----
-
-## EMPIEZA AHORA
-Primero entrega **A) Análisis** del módulo evidencias en el repo, luego el **Plan**.
+A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**

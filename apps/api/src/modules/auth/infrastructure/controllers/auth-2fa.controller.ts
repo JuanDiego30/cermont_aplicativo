@@ -18,6 +18,8 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { JwtAuthGuard } from '../../../../common/guards/jwt-auth.guard';
 import { CurrentUser, JwtPayload } from '../../../../common/decorators/current-user.decorator';
 import { Public } from '../../../../common/decorators/public.decorator';
+import { ThrottleAuth } from '../../../../common/decorators/throttle.decorator';
+import { PrismaService } from '../../../../prisma/prisma.service';
 import { Send2FACodeUseCase } from '../../application/use-cases/send-2fa-code.use-case';
 import { Verify2FACodeUseCase } from '../../application/use-cases/verify-2fa-code.use-case';
 import { Toggle2FAUseCase } from '../../application/use-cases/toggle-2fa.use-case';
@@ -33,11 +35,11 @@ export class Auth2FAController {
     private readonly logger = new Logger(Auth2FAController.name);
 
     constructor(
+        private readonly prisma: PrismaService,
         private readonly send2FACodeUseCase: Send2FACodeUseCase,
         private readonly verify2FACodeUseCase: Verify2FACodeUseCase,
         private readonly toggle2FAUseCase: Toggle2FAUseCase,
     ) {
-        this.logger.log('Auth2FAController instantiated');
     }
 
     /**
@@ -46,6 +48,7 @@ export class Auth2FAController {
      */
     @Post('send')
     @Public()
+    @ThrottleAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOperation({
         summary: 'Enviar código 2FA',
@@ -71,7 +74,7 @@ export class Auth2FAController {
         }
 
         const { email } = parseResult.data;
-        this.logger.log(`2FA code request for email: ${email}`);
+        this.logger.log('2FA code request received');
 
         return await this.send2FACodeUseCase.execute(email);
     }
@@ -82,6 +85,7 @@ export class Auth2FAController {
      */
     @Post('verify')
     @Public()
+    @ThrottleAuth()
     @HttpCode(HttpStatus.OK)
     @ApiOperation({
         summary: 'Verificar código 2FA',
@@ -106,7 +110,7 @@ export class Auth2FAController {
         }
 
         const { email, code } = parseResult.data;
-        this.logger.log(`2FA verification attempt for email: ${email}`);
+        this.logger.log('2FA verification attempt received');
 
         return await this.verify2FACodeUseCase.execute(email, code);
     }
@@ -170,11 +174,15 @@ export class Auth2FAController {
         }
     })
     async getTwoFactorStatus(@CurrentUser() user: JwtPayload) {
-        // El estado de 2FA debería estar en el token JWT o consultarse a la DB
-        // Por ahora retornamos un placeholder que indicará que se necesita consultar la DB
+        const record = await this.prisma.user.findUnique({
+            where: { id: user.userId },
+            select: { twoFactorEnabled: true, role: true },
+        });
+
+        const isAdmin = String(record?.role) === 'admin';
+
         return {
-            twoFactorEnabled: false,
-            message: 'Consulta el perfil del usuario para el estado real'
+            twoFactorEnabled: Boolean(record?.twoFactorEnabled) || isAdmin,
         };
     }
 }

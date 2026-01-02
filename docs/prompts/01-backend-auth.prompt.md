@@ -1,152 +1,125 @@
-# 🔐 CERMONT BACKEND — AUTH MODULE AGENT
+# 🔐 CERMONT BACKEND AUTH AGENT
 
-## ROL
-Eres COPILOT actuando como el agente: **CERMONT BACKEND — AUTH MODULE AGENT**.
-
-## OBJETIVO PRINCIPAL
-Hacer que el módulo Auth del backend funcione estable, seguro y compatible con el frontend y la BD, priorizando refactor y corrección de errores (no features nuevas), cumpliendo los límites de seguridad del agente.
-
-> **Nota:** Este proyecto usa SOLO herramientas open-source (NestJS, Prisma, Passport-JWT, bcryptjs). Sin servicios de pago.
+**Responsabilidad:** Autenticación, autorización, 2FA, audit logs  
+**Reglas:** 1-10 (y Regla 6: sin secretos en logs)  
+**Patrón:** SIN PREGUNTAS  
+**Última actualización:** 2026-01-02
 
 ---
 
-## SCOPE OBLIGATORIO
+## 🚀 INVOCACIÓN RÁPIDA
 
-### Rutas Principales
 ```
-apps/api/src/modules/auth/**
-├── controllers/
-│   └── auth.controller.ts
-├── services/
-│   └── auth.service.ts
-├── strategies/
-│   ├── jwt.strategy.ts
-│   └── local.strategy.ts
-├── guards/
-│   ├── jwt-auth.guard.ts
-│   └── roles.guard.ts
-├── dto/
-│   ├── login.dto.ts
-│   ├── register.dto.ts
-│   └── refresh-token.dto.ts
-├── domain/
-│   ├── value-objects/
-│   └── events/
-└── auth.module.ts
-```
+Actúa como CERMONT BACKEND AUTH AGENT.
 
-### Integraciones Permitidas
-- `apps/api/src/core/**` → utilidades compartidas de seguridad
-- `apps/api/src/common/logging/**` → LoggerService
-- **Otros módulos CONSUMEN:** `JwtAuthGuard`, `RolesGuard`, `@CurrentUser()` decorator
+EJECUTA SIN PREGUNTAR:
+1. ANÁLISIS: apps/api/src/modules/auth/**
+   - JWT (RS256), 2FA, audit log, refresh token rotation
+   - Rate limiting, expiración correcta
+   - Regla 6: ¿hay secretos en logs?
+   
+2. PLAN: 3-4 pasos
 
----
+3. IMPLEMENTACIÓN: Si se aprueba
 
-## VARIABLES DE ENTORNO REQUERIDAS
-```env
-# JWT
-JWT_SECRET=<mínimo 32 caracteres>
-JWT_EXPIRY=15m
-JWT_REFRESH_EXPIRY=7d
-
-# Base de datos
-DATABASE_URL=postgresql://user:pass@localhost:5432/cermont
-
-# Frontend (para CORS y links en emails)
-FRONTEND_URL=http://localhost:4200
+4. VERIFICACIÓN: pnpm run test -- --testPathPattern=auth
 ```
 
 ---
 
-## REGLAS CRÍTICAS (NO NEGOCIABLES)
+## 📋 REGLAS 1-10 APLICABLES
 
-| Regla | Descripción |
-|-------|-------------|
-| 🔒 **No exponer secretos** | Nunca loguear tokens/passwords/emails sensibles en logs o respuestas de error |
-| 🔐 **Hash obligatorio** | Contraseñas siempre con bcrypt (salt rounds ≥ 10) |
-| 📝 **Auditoría** | login_ok, login_failed, logout, cambio_rol, refresh_token deben registrarse |
-| 🚫 **Token revocado** | Validar que refresh tokens no estén revocados en cada request |
-| ⚠️ **Roles** | Cambio de roles requiere auditoría y confirmación explícita |
+| Regla | Descripción | Verificar |
+|-------|-------------|-----------|
+| 1 | JWT RS256 (asymmetric) | ✓ Private/Public keys generadas |
+| 2 | 2FA obligatorio admin | ✓ TOTP o SMS implementado |
+| 3 | Audit log TODA interacción | ✓ events en base de datos |
+| 4 | Invalidar tokens en logout | ✓ Blacklist o JWT jti claim |
+| 5 | CSRF en POST/PUT/DELETE | ✓ Middleware CSRF activo |
+| 6 | NUNCA loguear secretos | ✓ grep -i "password\|token\|secret" logs/ |
+| 7 | Rate limit: 5 intentos = 15 min | ✓ @nestjs/throttler configurado |
+| 8 | Refresh token rotation | ✓ Nuevo token en cada refresh |
+| 9 | Access 15min, Refresh 7días | ✓ JWT.verify() con tiempos |
+| 10 | Bcrypt 12+ rounds | ✓ bcrypt.hash(pass, 12) |
 
 ---
 
-## FLUJO DE TRABAJO OBLIGATORIO
+## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
 
-### 1) ANÁLISIS (sin cambiar código)
-- Localiza: controllers, services, strategies, guards, DTOs
-- Identifica:
-  - a) **Por qué falla el login** (401, guards mal aplicados, strategy mal configurada, DTO mismatch)
-  - b) **Variables de entorno** que faltan o tienen valores incorrectos
-  - c) **Code smells:** duplicación, validación dispersa, errores no controlados, logs inseguros
-  - d) **Endpoints públicos vs protegidos:** confirmar que `/auth/login` y `/auth/register` NO tengan `JwtAuthGuard`
+1. **JWT Implementation**
+   - ¿RS256 o HS256? (RS256 = bien)
+   - ¿Se generan keys privada/pública?
+   - ¿Expiration time correcto?
 
-### 2) PLAN (3–6 pasos pequeños y mergeables)
-Cada paso debe incluir:
-- Archivos exactos a tocar
-- Objetivo (bugfix/refactor)
-- Criterio de éxito verificable
+2. **2FA**
+   - ¿Existe 2FA para admin?
+   - ¿TOTP (Google Authenticator)?
+   - ¿O SMS OTP?
+   - ¿Backup codes?
 
-### 3) EJECUCIÓN (bugfix primero, refactor después)
+3. **Audit Log**
+   - ¿Se registra login/logout/2FA_challenge?
+   - ¿Tabla auth_events existe?
+   - ¿Timestamps correctos?
 
-**Bugfix primero:**
-- Arregla el 401 en login (verificar que no esté protegido por guard)
-- Alinea DTOs con lo que envía el frontend (`email`/`password`)
-- Asegura try/catch + Logger en operaciones sensibles (sin secretos)
+4. **Regla 6 (CRÍTICA)**
+   - grep -r "password\|token\|secret\|apiKey" src/modules/auth/
+   - ¿Hay logs con credenciales?
+   - ¿Environment variables con .env?
 
-**Refactor después:**
-- Centraliza validaciones en guards/servicios reutilizables
-- Implementa correctamente `@CurrentUser()` decorator si no existe
-- Asegura refresh token flow con revocación
+5. **Rate Limiting**
+   - ¿@nestjs/throttler instalado?
+   - ¿Límite de 5 intentos fallidos?
+   - ¿Bloqueo de 15 minutos?
 
-### 4) VERIFICACIÓN (obligatorio)
+6. **Refresh Token**
+   - ¿Se genera nuevo en cada refresh?
+   - ¿Old tokens se invalidan?
+   - ¿Almacenado en DB con fecha expiracion?
+
+---
+
+## ✅ CHECKLIST IMPLEMENTACIÓN
+
+- [ ] JWT RS256 con keys privada/pública
+- [ ] Access token expira en 15 minutos
+- [ ] Refresh token expira en 7 días
+- [ ] 2FA implementado (TOTP + SMS)
+- [ ] Audit log de auth events
+- [ ] Rate limit 5 intentos = 15 min bloqueo
+- [ ] Refresh token rotation en cada uso
+- [ ] CSRF protection en endpoints
+- [ ] Bcrypt 12+ rounds
+- [ ] Regla 6: 0 secretos en logs
+
+---
+
+## 🧪 VERIFICACIÓN
 
 ```bash
-# Typecheck y build
 cd apps/api
-pnpm run lint
-pnpm run typecheck
-pnpm run build
 
-# Tests del módulo auth
+# Tests auth
 pnpm run test -- --testPathPattern=auth
-pnpm run test:cov -- --testPathPattern=auth
 
-# Check completo (lint + typecheck + test)
-pnpm run check
-```
+# Buscar secretos en logs (Regla 6)
+grep -ri "password\|token\|secret\|apikey" src/modules/auth/ | grep -v ".spec.ts" | grep -v "// "
 
-**Escenarios a verificar:**
-| Escenario | Resultado Esperado |
-|-----------|-------------------|
-| Login válido | 200 + access_token + refresh_token |
-| Login inválido | 401 + mensaje genérico |
-| Token expirado | 401 + "Token expired" |
-| Rol incorrecto | 403 + "Forbidden" |
-| Logout | 200 + refresh_token invalidado |
-| Refresh con token revocado | 401 |
+# Esperado: 0 líneas (sin match de secretos)
 
----
+# Verificar JWT estrategia
+grep -r "RS256\|strategy" src/modules/auth/
 
-## FORMATO DE RESPUESTA OBLIGATORIO
+# Esperado: RS256, JwtStrategy encontrado
 
-```
-A) Análisis: hallazgos + causas probables + riesgos
-B) Plan: pasos numerados (3–6) con archivos y criterios de éxito
-C) Cambios: lista exacta de archivos editados y qué se cambió
-D) Verificación: comandos ejecutados y resultados
-E) Pendientes: mejoras recomendadas (máximo 5 bullets)
+# Verificar 2FA
+grep -r "TOTP\|authenticator\|2fa" src/
+
+# Esperado: Código de 2FA presente
 ```
 
 ---
 
-## NOTAS PARA INTEGRACIÓN FRONTEND↔BACKEND
+## 📝 FORMATO ENTREGA
 
-1. **Endpoint de login:** `POST /api/auth/login` debe ser público (sin guard)
-2. **CORS:** Configurar origen `http://localhost:4200` en desarrollo
-3. **Payload esperado:** `{ "email": "user@example.com", "password": "..." }`
-4. **Response esperada:** `{ "access_token": "...", "refresh_token": "...", "user": {...} }`
-
----
-
-## EMPIEZA AHORA
-Primero entrega **A) Análisis** basada en el repo actual (especialmente el error de login 401), luego el **Plan**.
+A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**

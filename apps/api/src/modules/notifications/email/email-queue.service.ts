@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 
 import { EmailService } from './email.service';
 import type { SendEmailInput } from './email.types';
+import { renderEmailTemplate } from './email-templates';
 
 // BullMQ types (opcional)
 let Queue: any;
@@ -191,7 +192,21 @@ export class EmailQueueService implements OnModuleInit, OnModuleDestroy {
 
   private async processJob(job: any): Promise<void> {
     const payload = job.data as EmailJobPayload;
-    await this.emailService.sendEmail(payload.email);
+
+    const input = payload.email;
+
+    // Permite encolar por plantilla sin acoplar a controllers/handlers.
+    if (input.template && !input.html && !input.text) {
+      const rendered = renderEmailTemplate(input.template, input.templateData ?? {});
+      await this.emailService.sendEmail({
+        ...input,
+        html: rendered.html,
+        text: rendered.text,
+      });
+      return;
+    }
+
+    await this.emailService.sendEmail(input);
   }
 
   private async close(): Promise<void> {

@@ -74,6 +74,7 @@ export class DownloadEvidenciaUseCase {
     const isPrivileged = role === 'admin' || role === 'supervisor';
     const canAccess =
       isPrivileged ||
+      evidencia.uploadedBy === requestedBy ||
       orden.creadorId === requestedBy ||
       orden.asignadoId === requestedBy;
     if (!canAccess) {

@@ -9,6 +9,10 @@ export interface ImageProcessingResult {
         width?: number;
         height?: number;
         format?: string;
+        thumbnails?: {
+            s150?: string;
+            s300?: string;
+        };
     };
 }
 

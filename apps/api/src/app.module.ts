@@ -96,25 +96,23 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 
 
         // Rate limiting - Múltiples límites para diferentes escenarios
-        /*
         ThrottlerModule.forRoot([
             {
                 name: 'short',
                 ttl: 10000, // 10 segundos
-                limit: 100,  // INCREASED: 100 requests (was 20)
+                limit: 100,  // 100 requests
             },
             {
                 name: 'medium',
                 ttl: 60000, // 60 segundos
-                limit: 500, // INCREASED: 500 requests (was 100)
+                limit: 500, // 500 requests
             },
             {
                 name: 'long',
                 ttl: 3600000, // 1 hora
-                limit: 5000,  // INCREASED: 5000 requests (was 1000)
+                limit: 5000,  // 5000 requests
             },
         ]),
-        */
 
         // In-memory cache for expensive operations (dashboard stats, KPIs)
         CacheModule.register({
@@ -140,40 +138,39 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
         // Feature modules - ACTIVATED
         AuthModule,
         NotificationsModule,
-        // OrdenesModule,
-        // PlaneacionModule,
-        // KitsModule,
-        // EjecucionModule,
-        // DashboardModule,
-        // ReportesModule,    // ✅ Activado
-        // HesModule,         // ✅ Activado
+        OrdenesModule,
+        PlaneacionModule,
+        KitsModule,
+        EjecucionModule,
+        DashboardModule,
+        ReportesModule,
+        HesModule,
         // LineasVidaModule, // TODO: Create LineasVidaModule
-        // CostosModule,      // ✅ Activado
-        // ChecklistsModule,  // ✅ Activado
+        CostosModule,
+        ChecklistsModule,
         // MantenimientosModule, // DELETED - CERMONT uses order-based maintenance
-        // FormulariosModule, // ✅ Activado
-        // CierreAdministrativoModule, // ✅ Activado
+        FormulariosModule,
+        CierreAdministrativoModule,
+        EvidenciasModule,
 
         // New modules - ACTIVATED
-        // ArchivadoModule,    // Replaced by ArchivadoHistoricoModule
-        // SyncModule,         // ✅ Activado - Módulo 1: Sincronización offline
-        // PdfGenerationModule, // ✅ Activado - Generación de informes PDF
-        // AdminModule,        // ✅ Activado - Módulo 3: Administración RBAC
-        // WeatherModule,      // ✅ Activado - Módulo Meteorológico (Open-Meteo + NASA)
-        // EmailModule,       // DELETED - Redundant with AlertasModule
-        // TecnicosModule,     // ✅ Activado
+        SyncModule,
+        PdfGenerationModule,
+        AdminModule,
+        WeatherModule,
+        TecnicosModule,
 
-        // AlertasModule,      // ✅ Activado - Sistema de Alertas Automáticas
-        // KpisModule,         // Dashboard KPIs y Métricas
+        AlertasModule,
+        KpisModule,
 
         // NEW MODULES - Phase 3 Backend Refactoring
-        // CertificacionesModule,    // Gestión de certificaciones técnicos/equipos
-        // ClientesModule,           // Gestión de clientes (SIERRACOL)
-        // FacturacionModule,        // SES Ariba + Facturación
-        // ArchivadoHistoricoModule, // Archivado automático mensual
+        CertificacionesModule,
+        ClientesModule,
+        FacturacionModule,
+        ArchivadoHistoricoModule,
 
         // Schedule module for CRON jobs
-        // ScheduleModule.forRoot(),
+        ScheduleModule.forRoot(),
     ],
     controllers: [HealthController],
     providers: [

@@ -55,7 +55,7 @@ export interface PendingSync {
   data: Record<string, unknown>;
   localId: string;
   timestamp: Date;
-  status: 'pending' | 'synced' | 'failed';
+  status: 'pending' | 'synced' | 'failed' | 'conflict';
   error?: string;
 }
 
@@ -63,6 +63,7 @@ export interface ISyncRepository {
   savePending(userId: string, item: SyncItemDto & { deviceId: string }): Promise<PendingSync>;
   markAsSynced(id: string, serverId: string): Promise<void>;
   markAsFailed(id: string, error: string): Promise<void>;
+  markAsConflict(id: string, error: string): Promise<void>;
   getServerChanges(userId: string, since?: Date): Promise<any[]>;
   getPendingByUser(userId: string): Promise<PendingSync[]>;
 }

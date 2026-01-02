@@ -1,236 +1,87 @@
-# 📫 CERMONT BACKEND — EMAILS & NOTIFICATIONS AGENT
+# 💌 CERMONT BACKEND EMAILS AGENT
 
-## ROL
-Eres COPILOT actuando como el agente: **CERMONT BACKEND — EMAILS & NOTIFICATIONS AGENT**.
-
-## OBJETIVO PRINCIPAL
-Hacer que el módulo de notificaciones/emails sea confiable y seguro:
-- ✅ Envío por EmailService (Nodemailer/SMTP)
-- ✅ Plantillas tipadas con contexto
-- ✅ Reintentos (máx 3) con backoff
-- ✅ Manejo de fallos sin tumbar el request
-- ✅ Logging estructurado (sin exponer secretos)
-- ✅ Integración con eventos de negocio (orden asignada/completada, reset password, alertas)
-
-> **Nota:** Este proyecto usa SOLO herramientas open-source. Nodemailer + Ethereal (dev) / SMTP propio (prod).
-
-**Prioridad:** bugfix + hardening + tests mínimos.
+**Responsabilidad:** Notificaciones por email (SMTP local)  
+**Restricción:** OSS only - NO SendGrid, AWS SES, Twilio  
+**Patrón:** SIN PREGUNTAS  
+**Última actualización:** 2026-01-02
 
 ---
 
-## SCOPE OBLIGATORIO
+## 🚀 INVOCACIÓN RÁPIDA
 
-### Rutas Principales
 ```
-apps/api/src/modules/notifications/**
-├── controllers/
-│   └── notifications.controller.ts
-├── services/
-│   ├── email.service.ts
-│   ├── notifications.service.ts
-│   └── email-queue.service.ts
-├── templates/
-│   ├── welcome.template.ts
-│   ├── password-reset.template.ts
-│   ├── order-assigned.template.ts
-│   └── order-completed.template.ts
-├── dto/
-│   └── send-email.dto.ts
-└── notifications.module.ts
-```
+Actúa como CERMONT BACKEND EMAILS AGENT.
 
-### Integraciones Permitidas
-- `ordenes` → Notifica asignación, completado
-- `auth` → Notifica reset password, bienvenida
-- `LoggerService` → Log de envíos sin secretos
+EJECUTA SIN PREGUNTAR:
+1. ANÁLISIS: apps/api/src/modules/notifications/**
+   - SMTP config (Nodemailer local)
+   - Reintentos, manejo de errores
+   - NO servicios pagos
+   
+2. PLAN: 3-4 pasos
 
----
+3. IMPLEMENTACIÓN: Si se aprueba
 
-## VARIABLES DE ENTORNO REQUERIDAS
-
-```env
-# SMTP Configuration (Ethereal para dev, SMTP propio para prod)
-# En desarrollo: dejar vacío para usar Ethereal automáticamente
-SMTP_HOST=           # Vacío = Ethereal (dev)
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=           # Vacío = Ethereal (dev)
-SMTP_PASS=           # Vacío = Ethereal (dev)
-
-# Email Settings
-EMAIL_FROM="Cermont <notificaciones@cermont.co>"
-ADMIN_EMAIL=admin@cermont.co
-
-# Frontend (para links en emails)
-FRONTEND_URL=http://localhost:4200
-
-# Fallback para desarrollo
-SMTP_MOCK=false  # true para no enviar emails reales
+4. VERIFICACIÓN: pnpm run test -- --testPathPattern=emails
 ```
 
 ---
 
-## REGLAS CRÍTICAS (NO NEGOCIABLES)
+## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
 
-| Regla | Descripción |
-|-------|-------------|
-| 🔒 **No hardcodear** | Emails/host/puertos siempre por env/config |
-| 🚫 **No exponer secretos** | NUNCA loguear SMTP_PASS, tokens, links completos |
-| ⚡ **No bloquear** | Si falla SMTP, no romper la operación principal |
-| 🔄 **Reintentos** | Máximo 3 con backoff exponencial |
-| 📝 **Logging** | Registrar envíos exitosos/fallidos (sin datos sensibles) |
+1. **SMTP Local**
+   - ¿Se usa Nodemailer?
+   - ¿Configurado para SMTP local (Mailpit, Postfix)?
+   - ¿NO hay SendGrid, SES, Twilio?
+
+2. **Configuración**
+   - ¿Variables en .env: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS?
+   - ¿Sin secretos hardcodeados?
+
+3. **Reintentos**
+   - ¿Hay lógica de reintento (máx 3 intentos)?
+   - ¿Backoff exponencial?
+
+4. **Plantillas**
+   - ¿Existen plantillas de email (HTML)?
+   - ¿Variables interpoladas correctamente?
 
 ---
 
-## FLUJO DE TRABAJO OBLIGATORIO
+## ✅ CHECKLIST IMPLEMENTACIÓN
 
-### 1) ANÁLISIS (sin tocar código)
-Ubica e identifica:
-- a) **EmailService/NotificationsService** → ¿Existen? ¿Dónde?
-- b) **Env vars** → ¿Faltan? ¿Mal nombradas?
-- c) **Templates** → ¿Hardcodeados o estructurados?
-- d) **Error handling** → ¿Falla SMTP rompe todo?
-- e) **Logs** → ¿Exponen credenciales?
+- [ ] Nodemailer con SMTP local
+- [ ] Configuración en .env (no hardcoded)
+- [ ] 3 reintentos con backoff
+- [ ] Plantillas HTML para cada email
+- [ ] Tests de envío
+- [ ] CERO dependencias de servicios pagos
 
-### 2) PLAN (3–6 pasos mergeables)
+---
 
-### 3) EJECUCIÓN
-
-**EmailService:**
-```typescript
-@Injectable()
-export class EmailService {
-  private transporter: Transporter;
-  private readonly maxRetries = 3;
-  
-  constructor(
-    private readonly config: ConfigService,
-    private readonly logger: LoggerService,
-  ) {
-    this.transporter = nodemailer.createTransport({
-      host: config.get('SMTP_HOST'),
-      port: config.get('SMTP_PORT'),
-      secure: config.get('SMTP_SECURE') === 'true',
-      auth: {
-        user: config.get('SMTP_USER'),
-        pass: config.get('SMTP_PASS'),  // Nunca loguear
-      },
-    });
-  }
-  
-  async send(options: SendEmailDto): Promise<void> {
-    let lastError: Error | null = null;
-    
-    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
-      try {
-        await this.transporter.sendMail({
-          from: this.config.get('EMAIL_FROM'),
-          to: options.to,
-          subject: options.subject,
-          html: options.html,
-        });
-        
-        this.logger.log('Email sent successfully', {
-          to: this.maskEmail(options.to),
-          subject: options.subject,
-          attempt,
-        });
-        return;
-        
-      } catch (error) {
-        lastError = error;
-        this.logger.warn(`Email send failed (attempt ${attempt}/${this.maxRetries})`, {
-          to: this.maskEmail(options.to),
-          error: error.message,  // Solo mensaje, no stack completo
-        });
-        
-        if (attempt < this.maxRetries) {
-          await this.sleep(Math.pow(2, attempt) * 1000);  // Backoff exponencial
-        }
-      }
-    }
-    
-    // Después de todos los reintentos
-    this.logger.error('Email send failed permanently', lastError, {
-      to: this.maskEmail(options.to),
-      subject: options.subject,
-    });
-    
-    // NO lanzar error para no romper la operación principal
-    // O lanzar si es crítico según el caso
-  }
-  
-  private maskEmail(email: string): string {
-    const [user, domain] = email.split('@');
-    return `${user.substring(0, 2)}***@${domain}`;
-  }
-}
-```
-
-**NotificationsService:**
-```typescript
-@Injectable()
-export class NotificationsService {
-  constructor(
-    private readonly emailService: EmailService,
-    private readonly config: ConfigService,
-  ) {}
-  
-  async sendPasswordReset(email: string, token: string): Promise<void> {
-    const resetLink = `${this.config.get('FRONTEND_URL')}/reset-password?token=${token}`;
-    
-    await this.emailService.send({
-      to: email,
-      subject: 'Restablecer contraseña - Cermont',
-      html: this.templates.passwordReset({ resetLink }),
-    });
-  }
-  
-  async sendOrderAssigned(tecnico: User, orden: Orden): Promise<void> {
-    await this.emailService.send({
-      to: tecnico.email,
-      subject: `Orden asignada: ${orden.numero}`,
-      html: this.templates.orderAssigned({
-        tecnicoNombre: tecnico.nombre,
-        ordenNumero: orden.numero,
-        cliente: orden.cliente.nombre,
-        direccion: orden.direccion,
-      }),
-    });
-  }
-}
-```
-
-### 4) VERIFICACIÓN (obligatorio)
+## 🧪 VERIFICACIÓN
 
 ```bash
-cd apps/api
-pnpm run lint
-pnpm run build
-pnpm run test -- --testPathPattern=notifications
-```
+cd apps/api && pnpm run test -- --testPathPattern=emails
 
-**Escenarios a verificar:**
-| Escenario | Resultado Esperado |
-|-----------|-------------------|
-| Email enviado OK | Log con email mascarado |
-| SMTP falla | 3 reintentos con backoff |
-| Fallo permanente | Log error, operación continúa |
-| Password reset | Link correcto con FRONTEND_URL |
+# Buscar servicios pagos
+grep -r "SendGrid\|AWS.SES\|Twilio\|Firebase\|mailgun" src/
 
----
+# Esperado: 0 ocurrencias
 
-## FORMATO DE RESPUESTA OBLIGATORIO
+# Verificar Nodemailer
+grep -r "nodemailer\|SMTP" src/modules/notifications/
 
-```
-A) Análisis: hallazgos + riesgos + env vars requeridas
-B) Plan: 3–6 pasos con archivos y criterios de éxito
-C) Cambios: archivos editados y qué cambió
-D) Verificación: comandos ejecutados y resultados
-E) Pendientes: mejoras recomendadas (máx 5)
+# Esperado: Nodemailer presente
+
+# Verificar plantillas
+ls -la src/modules/notifications/templates/ | grep -i ".html\|.hbs"
+
+# Esperado: Al menos 3 plantillas (confirmation, tracking, etc)
 ```
 
 ---
 
-## EMPIEZA AHORA
-Primero entrega **A) Análisis** del módulo notifications en el repo, luego el **Plan**.
+## 📝 FORMATO ENTREGA
+
+A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**

@@ -8,6 +8,7 @@
 
 import { CalculationFormula } from '../value-objects/calculation-formula.vo';
 import { FormField } from '../entities/form-field.entity';
+import { ArithmeticExpressionEvaluator } from '../utils/arithmetic-expression-evaluator';
 
 export class CalculationEngineService {
   /**
@@ -82,21 +83,8 @@ export class CalculationEngineService {
    * - expr-eval: https://github.com/silentmatt/expr-eval
    */
   private safeEvaluate(expression: string): number {
-    // Validar que solo contiene números, operadores y paréntesis
-    const safePattern = /^[\d\s+\-*/().]+$/;
-    if (!safePattern.test(expression)) {
-      throw new Error('Invalid expression');
-    }
-
     try {
-      // ⚠️ En producción, usar math.js:
-      // const math = require('mathjs');
-      // return math.evaluate(expression);
-      
-      // Implementación básica (solo para desarrollo)
-      // eslint-disable-next-line no-eval
-      const result = eval(expression);
-      return typeof result === 'number' ? result : 0;
+      return ArithmeticExpressionEvaluator.evaluate(expression);
     } catch {
       throw new Error('Failed to evaluate expression');
     }

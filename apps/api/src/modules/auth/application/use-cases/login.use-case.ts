@@ -7,6 +7,7 @@ import { Email } from '../../domain/value-objects';
 import { LoginDto } from '../dto/login.dto';
 import { AuthContext } from '../dto/auth-types.dto';
 import { BaseAuthUseCase } from './base-auth.use-case';
+import { Verify2FACodeUseCase } from './verify-2fa-code.use-case';
 
 export interface LoginResult {
   message: string;
@@ -25,12 +26,15 @@ export interface LoginResult {
 @Injectable()
 export class LoginUseCase extends BaseAuthUseCase {
   private readonly logger = new Logger(LoginUseCase.name);
+  private readonly LOCK_MINUTES = 15;
+  private readonly MAX_ATTEMPTS = 5;
 
   constructor(
     @Inject(AUTH_REPOSITORY)
     private readonly authRepository: IAuthRepository,
     @Inject(JwtService)
     jwtService: JwtService,
+    private readonly verify2FACodeUseCase: Verify2FACodeUseCase,
   ) {
     super(jwtService);
     // Verificar que las dependencias estén disponibles
@@ -53,26 +57,28 @@ export class LoginUseCase extends BaseAuthUseCase {
         throw new UnauthorizedException('Email y contraseña son requeridos');
       }
 
-      // ✅ Log del intento con rememberMe
       const rememberMe = dto.rememberMe ?? false;
-      this.logger.log(`Login attempt | rememberMe: ${rememberMe}`);
 
       // 1. Validate inputs via VOs
       let email: Email;
       try {
         email = Email.create(dto.email);
       } catch (error) {
-        this.logger.warn('Invalid email format', error as Error);
+        this.logger.warn('Invalid email format');
         throw new UnauthorizedException('Email inválido');
       }
       // 2. Find user
       const user = await this.authRepository.findByEmail(email.getValue());
       if (!user) {
-        this.logger.warn('Login attempt failed: user not found');
+        this.logger.warn('Login attempt failed');
         throw new UnauthorizedException('Credenciales inválidas');
       }
 
-      this.logger.log(`User found: ${user.id}, active: ${user.active}, canLogin: ${user.canLogin()}`);
+      // 2.1 Lockout
+      if (user.isLocked()) {
+        this.logger.warn(`Login attempt blocked: user locked (${user.id})`);
+        throw new ForbiddenException('Usuario bloqueado temporalmente');
+      }
 
       // 3. Check if can login
       if (!user.canLogin()) {
@@ -87,15 +93,48 @@ export class LoginUseCase extends BaseAuthUseCase {
         throw new UnauthorizedException('Credenciales inválidas');
       }
 
-      this.logger.debug(`Comparing password for user ${user.id}, hash length: ${passwordHash.length}`);
       const isValid = await bcrypt.compare(dto.password, passwordHash);
 
       if (!isValid) {
-        this.logger.warn(`Login attempt failed: invalid password for userId=${user.id}`);
+        // Regla 7: 5 intentos => 15 min
+        const nextAttempts = (user.loginAttempts ?? 0) + 1;
+        const shouldLock = nextAttempts >= this.MAX_ATTEMPTS;
+        const lockUntil = shouldLock
+          ? new Date(Date.now() + this.LOCK_MINUTES * 60 * 1000)
+          : undefined;
+
+        await this.authRepository.incrementLoginAttempts(user.id, lockUntil);
+
+        // Audit (sin secretos)
+        await this.authRepository.createAuditLog({
+          userId: user.id,
+          action: shouldLock ? 'LOGIN_LOCKED' : 'LOGIN_FAILED',
+          ip: context.ip,
+          userAgent: context.userAgent,
+        });
+
+        this.logger.warn(`Login attempt failed for userId=${user.id}`);
         throw new UnauthorizedException('Credenciales inválidas');
       }
 
-      this.logger.log(`Password verified successfully for user ${user.id}`);
+      // Regla 2: 2FA obligatorio para admin (usa el flujo OTP existente)
+      if (user.role === 'admin') {
+        if (!dto.twoFactorCode) {
+          await this.authRepository.createAuditLog({
+            userId: user.id,
+            action: 'LOGIN_2FA_REQUIRED',
+            ip: context.ip,
+            userAgent: context.userAgent,
+          });
+          throw new UnauthorizedException('2FA requerido');
+        }
+
+        // Verifica y marca como usado el token 2FA
+        await this.verify2FACodeUseCase.execute(user.email.getValue(), dto.twoFactorCode);
+      }
+
+      // Reset intentos si llega aquí
+      await this.authRepository.resetLoginAttempts(user.id);
 
       // 5. Issue tokens
       const accessToken = this.signAccessToken({
@@ -134,7 +173,7 @@ export class LoginUseCase extends BaseAuthUseCase {
         });
       });
 
-      this.logger.log(`✅ User ${user.id} logged in successfully | Token expires: ${rememberMe ? '30 days' : '7 days'}`);
+      this.logger.log(`✅ User ${user.id} logged in successfully`);
 
       return {
         message: 'Login exitoso',

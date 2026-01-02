@@ -25,6 +25,7 @@ export abstract class BaseAuthUseCase {
       userId: user.id,
       email: user.email,
       role: user.role,
+      jti: randomUUID(),
     });
   }
 

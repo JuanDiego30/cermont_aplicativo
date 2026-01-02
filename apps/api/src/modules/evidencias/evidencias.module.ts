@@ -8,6 +8,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { memoryStorage } from 'multer';
 import { PrismaModule } from '../../prisma/prisma.module';
+import { OrdenesModule } from '../ordenes/ordenes.module';
 
 // Domain
 import { EVIDENCIA_REPOSITORY } from './domain/repositories';
@@ -21,10 +22,13 @@ import {
     DeleteEvidenciaUseCase,
     DownloadEvidenciaUseCase,
     ProcessEvidenciaUseCase,
+    GenerateEvidenciaDownloadTokenUseCase,
+    DownloadEvidenciaByTokenUseCase,
+    CleanupDeletedEvidenciaUseCase,
 } from './application/use-cases';
 
 // Infrastructure
-import { EvidenciasController } from './infrastructure/controllers';
+import { EvidenciasController, OrdenesEvidenciasController } from './infrastructure/controllers';
 import { PrismaEvidenciaRepository } from './infrastructure/persistence';
 import {
     STORAGE_PROVIDER,
@@ -45,12 +49,16 @@ const useCaseProviders = [
     DeleteEvidenciaUseCase,
     DownloadEvidenciaUseCase,
     ProcessEvidenciaUseCase,
+    GenerateEvidenciaDownloadTokenUseCase,
+    DownloadEvidenciaByTokenUseCase,
+    CleanupDeletedEvidenciaUseCase,
 ];
 
 @Module({
     imports: [
         PrismaModule,
         ConfigModule,
+        OrdenesModule,
         MulterModule.registerAsync({
             imports: [ConfigModule],
             useFactory: (config: ConfigService) => ({
@@ -58,14 +66,14 @@ const useCaseProviders = [
                 limits: {
                     fileSize:
                         // Prefer prompt-aligned env var (MB), fallback to legacy bytes env var.
-                        ((config.get<number>('MAX_FILE_SIZE_MB') ?? 10) * 1024 * 1024) ||
+                        ((config.get<number>('MAX_FILE_SIZE_MB') ?? 50) * 1024 * 1024) ||
                         config.get<number>('MAX_UPLOAD_SIZE', 100 * 1024 * 1024),
                  },
              }),
              inject: [ConfigService],
          }),
     ],
-    controllers: [EvidenciasController],
+    controllers: [EvidenciasController, OrdenesEvidenciasController],
     providers: [
         // Domain Services
         FileValidatorService,

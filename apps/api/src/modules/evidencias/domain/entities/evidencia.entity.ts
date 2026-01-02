@@ -20,6 +20,7 @@ import {
 } from '../events';
 
 export interface EvidenciaMetadata {
+    sha256?: string;
     width?: number;
     height?: number;
     duration?: number; // seconds for video/audio
@@ -28,6 +29,11 @@ export interface EvidenciaMetadata {
     capturedAt?: Date;
     cameraModel?: string;
     extractedText?: string; // OCR
+
+    thumbnails?: {
+        s150?: string;
+        s300?: string;
+    };
 }
 
 export interface EvidenciaProps {
@@ -49,6 +55,10 @@ export interface EvidenciaProps {
     updatedAt: Date;
     deletedAt?: Date;
     deletedBy?: string;
+
+    verificada: boolean;
+    verificadoPor?: string;
+    verificadoEn?: Date;
 }
 
 export interface CreateEvidenciaProps {
@@ -60,6 +70,7 @@ export interface CreateEvidenciaProps {
     descripcion?: string;
     tags?: string[];
     uploadedBy: string;
+    sha256?: string;
 }
 
 // Domain Events collected for later dispatch
@@ -106,9 +117,14 @@ export class Evidencia {
             status: EvidenciaStatus.pending(),
             descripcion: input.descripcion || '',
             tags: input.tags || [],
+            metadata: input.sha256 ? { sha256: input.sha256 } : undefined,
             uploadedBy: input.uploadedBy,
             uploadedAt: now,
             updatedAt: now,
+
+            verificada: false,
+            verificadoPor: undefined,
+            verificadoEn: undefined,
         });
 
         // Emit Upload Event
@@ -147,6 +163,9 @@ export class Evidencia {
         tags: string[];
         metadata?: EvidenciaMetadata;
         subidoPor: string;
+        verificada?: boolean;
+        verificadoPor?: string;
+        verificadoEn?: Date;
         createdAt: Date;
         updatedAt: Date;
         deletedAt?: Date;
@@ -177,6 +196,10 @@ export class Evidencia {
             updatedAt: data.updatedAt,
             deletedAt: data.deletedAt,
             deletedBy: data.deletedBy,
+
+            verificada: data.verificada ?? false,
+            verificadoPor: data.verificadoPor,
+            verificadoEn: data.verificadoEn,
         });
     }
 
@@ -239,6 +262,18 @@ export class Evidencia {
         return this.props.deletedBy;
     }
 
+    get verificada(): boolean {
+        return this.props.verificada;
+    }
+
+    get verificadoPor(): string | undefined {
+        return this.props.verificadoPor;
+    }
+
+    get verificadoEn(): Date | undefined {
+        return this.props.verificadoEn;
+    }
+
     // ============================================================
     // Domain Behavior
     // ============================================================
@@ -277,7 +312,8 @@ export class Evidencia {
             this.props.thumbnailPath = StoragePath.create(params.thumbnailPath);
         }
         if (params?.metadata) {
-            this.props.metadata = params.metadata;
+            const sha256 = this.props.metadata?.sha256;
+            this.props.metadata = sha256 ? { ...params.metadata, sha256 } : params.metadata;
         }
 
         this.addDomainEvent(
@@ -427,6 +463,9 @@ export class Evidencia {
             tags: this.props.tags,
             metadata: this.props.metadata,
             subidoPor: this.props.uploadedBy,
+            verificada: this.props.verificada,
+            verificadoPor: this.props.verificadoPor,
+            verificadoEn: this.props.verificadoEn,
             createdAt: this.props.uploadedAt,
             updatedAt: this.props.updatedAt,
             deletedAt: this.props.deletedAt,

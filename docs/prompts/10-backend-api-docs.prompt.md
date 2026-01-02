@@ -1,232 +1,81 @@
-# 📚 CERMONT BACKEND — API DOCUMENTATION AGENT (Swagger/OpenAPI)
+# 📚 CERMONT BACKEND API DOCS AGENT
 
-## ROL
-Eres COPILOT actuando como el agente: **CERMONT BACKEND — API DOCUMENTATION AGENT**.
-
-## OBJETIVO PRINCIPAL
-Mantener la documentación de la API siempre alineada con el código:
-- ✅ Swagger/OpenAPI configurado globalmente
-- ✅ Controllers con decoradores @Api*
-- ✅ DTOs documentados con @ApiProperty
-- ✅ Autenticación Bearer JWT documentada
-- ✅ Ejemplos realistas + códigos de error
-
-**Prioridad:** documentar lo existente sin cambiar contratos.
+**Responsabilidad:** Swagger/OpenAPI (@nestjs/swagger)  
+**Patrón:** SIN PREGUNTAS  
+**Última actualización:** 2026-01-02
 
 ---
 
-## SCOPE OBLIGATORIO
+## 🚀 INVOCACIÓN RÁPIDA
 
-### Archivos a Documentar (en orden de prioridad)
 ```
-apps/api/src/
-├── main.ts                              # Configuración Swagger
-├── modules/
-│   ├── auth/**/*.controller.ts          # 🔐 Endpoints de auth
-│   ├── auth/**/*.dto.ts
-│   ├── ordenes/**/*.controller.ts       # 📋 Endpoints de órdenes
-│   ├── ordenes/**/*.dto.ts
-│   ├── evidencias/**/*.controller.ts    # 📸 Endpoints de evidencias
-│   ├── evidencias/**/*.dto.ts
-│   ├── formularios/**/*.controller.ts   # 📝 Endpoints de formularios
-│   ├── formularios/**/*.dto.ts
-│   └── pdf-generation/**/*.controller.ts # 📄 Endpoints de PDF
+Actúa como CERMONT BACKEND API DOCS AGENT.
+
+EJECUTA SIN PREGUNTAR:
+1. ANÁLISIS: apps/api/src/main.ts, **/*controller.ts
+   - @Api*, DTOs documentados
+   - Ejemplos, error codes
+   
+2. PLAN: 3-4 pasos
+
+3. IMPLEMENTACIÓN: Si se aprueba
+
+4. VERIFICACIÓN: pnpm run dev → http://localhost:3000/api/docs
 ```
 
 ---
 
-## CONFIGURACIÓN SWAGGER (main.ts)
+## 🔍 QUÉ ANALIZAR (SIN CÓDIGO)
 
-```typescript
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+1. **Swagger Setup**
+   - ¿SwaggerModule está configurado en main.ts?
+   - ¿Docs disponibles en /api/docs?
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  
-  const config = new DocumentBuilder()
-    .setTitle('Cermont API')
-    .setDescription(`
-      API para el sistema de gestión de órdenes de mantenimiento.
-      
-      ## Autenticación
-      La mayoría de endpoints requieren Bearer token JWT.
-      Obtén uno mediante \`POST /api/auth/login\`.
-      
-      ## Códigos de Error
-      - **400** Bad Request: Datos de entrada inválidos
-      - **401** Unauthorized: Token faltante o inválido
-      - **403** Forbidden: Sin permisos para el recurso
-      - **404** Not Found: Recurso no existe
-      - **422** Unprocessable Entity: Validación de negocio fallida
-      - **500** Internal Server Error: Error del servidor
-    `)
-    .setVersion('1.0')
-    .addBearerAuth({
-      type: 'http',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
-      name: 'Authorization',
-      description: 'Ingresa tu JWT token',
-      in: 'header',
-    })
-    .addServer('http://localhost:3000', 'Local Development')
-    .addServer('https://api.cermont.co', 'Production')
-    .build();
-  
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document, {
-    swaggerOptions: {
-      persistAuthorization: true,
-      tagsSorter: 'alpha',
-      operationsSorter: 'alpha',
-    },
-  });
-  
-  await app.listen(3000);
-}
-```
+2. **Decoradores**
+   - ¿Controllers tienen @Api* (ApiController, ApiOperation)?
+   - ¿Métodos documentan @ApiResponse (200, 400, 401, 403)?
+
+3. **DTOs**
+   - ¿Todos los DTOs tienen descripciones?
+   - ¿Usan @ApiProperty?
+
+4. **Ejemplos**
+   - ¿Hay ejemplos de request/response?
+   - ¿Se ve claramente el contrato de API?
 
 ---
 
-## REGLAS CRÍTICAS (NO NEGOCIABLES)
+## ✅ CHECKLIST IMPLEMENTACIÓN
 
-| Regla | Descripción |
-|-------|-------------|
-| 📝 **Documentar lo real** | No inventar endpoints; documentar exactamente lo que existe |
-| 🚫 **No cambiar contratos** | No modificar responses/payloads "para que se vea bonito" |
-| 🔒 **No exponer secretos** | Ejemplos sin tokens/passwords reales |
-| ⚠️ **Errores consistentes** | Documentar 400/401/403/404/422/500 en cada endpoint |
-
----
-
-## DECORADORES REQUERIDOS
-
-### En Controllers:
-```typescript
-@ApiTags('Órdenes')
-@ApiBearerAuth()
-@Controller('ordenes')
-export class OrdenesController {
-  
-  @Get()
-  @ApiOperation({ summary: 'Listar órdenes', description: 'Obtiene lista paginada de órdenes con filtros opcionales' })
-  @ApiQuery({ name: 'skip', required: false, type: Number, example: 0 })
-  @ApiQuery({ name: 'take', required: false, type: Number, example: 20 })
-  @ApiQuery({ name: 'estado', required: false, enum: OrdenEstado })
-  @ApiResponse({ status: 200, description: 'Lista de órdenes', type: PaginatedOrdenesDto })
-  @ApiResponse({ status: 401, description: 'No autorizado' })
-  findAll(@Query() filters: FilterOrdenesDto) {}
-  
-  @Get(':id')
-  @ApiOperation({ summary: 'Obtener orden por ID' })
-  @ApiParam({ name: 'id', type: String, description: 'UUID de la orden' })
-  @ApiResponse({ status: 200, description: 'Orden encontrada', type: OrdenDto })
-  @ApiResponse({ status: 404, description: 'Orden no encontrada' })
-  findOne(@Param('id') id: string) {}
-  
-  @Post()
-  @ApiOperation({ summary: 'Crear nueva orden' })
-  @ApiBody({ type: CreateOrdenDto })
-  @ApiResponse({ status: 201, description: 'Orden creada', type: OrdenDto })
-  @ApiResponse({ status: 400, description: 'Datos inválidos' })
-  create(@Body() dto: CreateOrdenDto) {}
-}
-```
-
-### En DTOs:
-```typescript
-export class CreateOrdenDto {
-  @ApiProperty({
-    description: 'ID del cliente',
-    example: '123e4567-e89b-12d3-a456-426614174000',
-  })
-  @IsUUID()
-  clienteId: string;
-  
-  @ApiProperty({
-    description: 'Tipo de servicio',
-    enum: TipoServicio,
-    example: TipoServicio.MANTENIMIENTO_PREVENTIVO,
-  })
-  @IsEnum(TipoServicio)
-  tipoServicio: TipoServicio;
-  
-  @ApiPropertyOptional({
-    description: 'Notas adicionales',
-    example: 'Revisar filtros del sistema de aire acondicionado',
-  })
-  @IsOptional()
-  @IsString()
-  notas?: string;
-}
-
-export class OrdenDto {
-  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
-  id: string;
-  
-  @ApiProperty({ example: 'ORD-000123' })
-  numero: string;
-  
-  @ApiProperty({ enum: OrdenEstado, example: OrdenEstado.EN_EJECUCION })
-  estado: OrdenEstado;
-  
-  @ApiProperty({ type: () => ClienteDto })
-  cliente: ClienteDto;
-}
-```
+- [ ] SwaggerModule en main.ts
+- [ ] @Api* decoradores en controllers
+- [ ] @ApiProperty en DTOs
+- [ ] @ApiResponse documentan todos los códigos HTTP
+- [ ] Ejemplos en respuestas
+- [ ] /api/docs accesible y completo
 
 ---
 
-## FLUJO DE TRABAJO OBLIGATORIO
-
-### 1) ANÁLISIS (sin tocar código)
-Detecta:
-- a) **Swagger global** → ¿Configurado en main.ts? ¿Dónde se publica?
-- b) **Controllers sin tags** → ¿Cuáles faltan @ApiTags?
-- c) **DTOs sin documentar** → ¿Cuáles faltan @ApiProperty?
-- d) **Endpoints sin errores** → ¿Cuáles no tienen @ApiResponse para errores?
-- e) **Auth bearer** → ¿Está documentado el JWT?
-
-### 2) PLAN (3–6 pasos mergeables)
-
-### 3) EJECUCIÓN
-
-- Configurar Swagger global (DocumentBuilder + addBearerAuth + setup)
-- Añadir @ApiTags a todos los controllers
-- Documentar DTOs con @ApiProperty
-- Añadir @ApiResponse para errores comunes
-
-### 4) VERIFICACIÓN (obligatorio)
+## 🧪 VERIFICACIÓN
 
 ```bash
-cd apps/api
-pnpm run lint
-pnpm run build
-pnpm run start:dev
+cd apps/api && pnpm run dev
 
-# Abrir en navegador
-# http://localhost:3000/api/docs
-```
+# En otra terminal
+curl http://localhost:3000/api/docs
 
-**Verificar:**
-- Swagger carga sin errores
-- Auth Bearer aparece en "Authorize"
-- Cada endpoint tiene ejemplos
-- Errores 401/403/404 documentados
+# Esperado: JSON con especificación OpenAPI
 
----
+# Verificar en navegador
+# http://localhost:3000/api/docs (Swagger UI)
 
-## FORMATO DE RESPUESTA OBLIGATORIO
-
-```
-A) Análisis: gaps de documentación + módulos prioritarios
-B) Plan: 3–6 pasos con archivos y criterios de éxito
-C) Cambios: archivos editados y qué cambió
-D) Verificación: comandos ejecutados y resultados
-E) Pendientes: mejoras recomendadas (máx 5)
+# Verificar todos los endpoints listados
+# Verificar ejemplos visibles
+# Verificar tipos correctos
 ```
 
 ---
 
-## EMPIEZA AHORA
-Primero entrega **A) Análisis** de Swagger/docs actuales en el repo, luego el **Plan**.
+## 📝 FORMATO ENTREGA
+
+A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**

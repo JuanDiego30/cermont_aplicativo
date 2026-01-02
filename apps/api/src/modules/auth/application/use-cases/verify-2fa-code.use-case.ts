@@ -12,7 +12,6 @@ export class Verify2FACodeUseCase {
     private readonly MAX_ATTEMPTS = 5;
 
     constructor(private readonly prisma: PrismaService) {
-        this.logger.log('Verify2FACodeUseCase instantiated');
     }
 
     async execute(email: string, code: string): Promise<Verify2FACodeResult> {
@@ -24,7 +23,7 @@ export class Verify2FACodeUseCase {
             });
 
             if (!user) {
-                this.logger.warn(`2FA verification failed: User not found for email ${email}`);
+                this.logger.warn('2FA verification failed: User not found');
                 throw new UnauthorizedException('Credenciales inválidas');
             }
 
@@ -88,6 +87,15 @@ export class Verify2FACodeUseCase {
                     userId: user.id,
                     id: { not: twoFactorToken.id }
                 }
+            });
+
+            await this.prisma.auditLog.create({
+                data: {
+                    entityType: 'User',
+                    entityId: user.id,
+                    action: '2FA_VERIFIED',
+                    userId: user.id,
+                },
             });
 
             this.logger.log(`2FA code verified successfully for user ${user.id}`);

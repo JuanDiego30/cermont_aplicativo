@@ -6,11 +6,8 @@
 import { FileType } from './file-type.vo';
 
 export class FileSize {
-    // Limits in bytes
-    private static readonly MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
-    private static readonly MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
-    private static readonly MAX_DOCUMENT_SIZE = 20 * 1024 * 1024; // 20MB
-    private static readonly MAX_AUDIO_SIZE = 50 * 1024 * 1024; // 50MB
+    // Regla 22: Máximo 50MB por archivo
+    private static readonly MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
     private constructor(
         private readonly _bytes: number,
@@ -38,10 +35,8 @@ export class FileSize {
     }
 
     private static getMaxSizeForType(fileType: FileType): number {
-        if (fileType.isImage()) return FileSize.MAX_IMAGE_SIZE;
-        if (fileType.isVideo()) return FileSize.MAX_VIDEO_SIZE;
-        if (fileType.isAudio()) return FileSize.MAX_AUDIO_SIZE;
-        return FileSize.MAX_DOCUMENT_SIZE;
+        void fileType;
+        return FileSize.MAX_FILE_SIZE;
     }
 
     private static formatBytes(bytes: number): string {

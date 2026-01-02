@@ -52,11 +52,16 @@ export type ListEvidenciasQueryDto = z.infer<typeof ListEvidenciasQuerySchema>;
 // ============================================================
 
 export interface EvidenciaMetadataResponse {
+  sha256?: string;
   width?: number;
   height?: number;
   duration?: number;
   gpsLatitude?: number;
   gpsLongitude?: number;
+  thumbnails?: {
+    s150?: string;
+    s300?: string;
+  };
 }
 
 export interface EvidenciaResponse {

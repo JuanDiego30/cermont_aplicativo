@@ -12,14 +12,23 @@ describe('LoginUseCase', () => {
     createRefreshToken: jest.fn(),
     updateLastLogin: jest.fn(),
     createAuditLog: jest.fn(),
+    incrementLoginAttempts: jest.fn(),
+    resetLoginAttempts: jest.fn(),
   };
 
   const mockJwtService = {
     sign: jest.fn(),
   };
 
+  const mockVerify2FACodeUseCase = {
+    execute: jest.fn(),
+  };
+
   beforeEach(() => {
     jest.clearAllMocks();
+    mockVerify2FACodeUseCase.execute.mockResolvedValue({ valid: true, userId: 'user-1' });
+    mockAuthRepository.incrementLoginAttempts.mockResolvedValue(undefined);
+    mockAuthRepository.resetLoginAttempts.mockResolvedValue(undefined);
   });
 
   it('login válido retorna token + refreshToken', async () => {
@@ -33,8 +42,10 @@ describe('LoginUseCase', () => {
       name: 'Test User',
       avatar: null,
       phone: null,
+      loginAttempts: 0,
       email: { getValue: () => 'test@example.com' },
       canLogin: jest.fn(() => true),
+      isLocked: jest.fn(() => false),
       getPasswordHash: jest.fn(() => 'hashed'),
     };
 
@@ -43,7 +54,11 @@ describe('LoginUseCase', () => {
     mockAuthRepository.updateLastLogin.mockResolvedValue(undefined);
     mockAuthRepository.createAuditLog.mockResolvedValue(undefined);
 
-    const useCase = new LoginUseCase(mockAuthRepository as any, mockJwtService as any);
+    const useCase = new LoginUseCase(
+      mockAuthRepository as any,
+      mockJwtService as any,
+      mockVerify2FACodeUseCase as any,
+    );
 
     const result = await useCase.execute(
       { email: 'test@example.com', password: 'Password1!', rememberMe: false },
@@ -56,7 +71,7 @@ describe('LoginUseCase', () => {
     expect(mockAuthRepository.createRefreshToken).toHaveBeenCalledTimes(1);
   });
 
-  it('login con rememberMe=true usa refresh token de 30 días', async () => {
+  it('login con rememberMe=true usa refresh token de 7 días', async () => {
     (bcrypt.compare as unknown as jest.Mock).mockResolvedValue(true);
     mockJwtService.sign.mockReturnValue('access-token');
 
@@ -67,8 +82,10 @@ describe('LoginUseCase', () => {
       name: 'Test User',
       avatar: null,
       phone: null,
+      loginAttempts: 0,
       email: { getValue: () => 'test@example.com' },
       canLogin: jest.fn(() => true),
+      isLocked: jest.fn(() => false),
       getPasswordHash: jest.fn(() => 'hashed'),
     };
 
@@ -77,7 +94,11 @@ describe('LoginUseCase', () => {
     mockAuthRepository.updateLastLogin.mockResolvedValue(undefined);
     mockAuthRepository.createAuditLog.mockResolvedValue(undefined);
 
-    const useCase = new LoginUseCase(mockAuthRepository as any, mockJwtService as any);
+    const useCase = new LoginUseCase(
+      mockAuthRepository as any,
+      mockJwtService as any,
+      mockVerify2FACodeUseCase as any,
+    );
 
     const before = Date.now();
     await useCase.execute(
@@ -89,13 +110,17 @@ describe('LoginUseCase', () => {
     const callArg = (mockAuthRepository.createRefreshToken as jest.Mock).mock.calls[0][0];
     expect(callArg.expiresAt).toBeInstanceOf(Date);
     const expiresAtMs = new Date(callArg.expiresAt).getTime();
-    const daysMs = 30 * 24 * 60 * 60 * 1000;
+    const daysMs = 7 * 24 * 60 * 60 * 1000;
     expect(expiresAtMs).toBeGreaterThanOrEqual(before + daysMs - 2000);
     expect(expiresAtMs).toBeLessThanOrEqual(after + daysMs + 2000);
   });
 
   it('login con credenciales inválidas (sin email/password) retorna 401', async () => {
-    const useCase = new LoginUseCase(mockAuthRepository as any, mockJwtService as any);
+    const useCase = new LoginUseCase(
+      mockAuthRepository as any,
+      mockJwtService as any,
+      mockVerify2FACodeUseCase as any,
+    );
 
     await expect(
       useCase.execute({ email: '', password: '' } as any, {}),
@@ -112,14 +137,20 @@ describe('LoginUseCase', () => {
       name: 'Blocked',
       avatar: null,
       phone: null,
+      loginAttempts: 0,
       email: { getValue: () => 'blocked@example.com' },
       canLogin: jest.fn(() => false),
+      isLocked: jest.fn(() => false),
       getPasswordHash: jest.fn(() => 'hashed'),
     };
 
     mockAuthRepository.findByEmail.mockResolvedValue(user);
 
-    const useCase = new LoginUseCase(mockAuthRepository as any, mockJwtService as any);
+    const useCase = new LoginUseCase(
+      mockAuthRepository as any,
+      mockJwtService as any,
+      mockVerify2FACodeUseCase as any,
+    );
 
     await expect(
       useCase.execute(
@@ -130,7 +161,11 @@ describe('LoginUseCase', () => {
   });
 
   it('login con email inválido retorna 401', async () => {
-    const useCase = new LoginUseCase(mockAuthRepository as any, mockJwtService as any);
+    const useCase = new LoginUseCase(
+      mockAuthRepository as any,
+      mockJwtService as any,
+      mockVerify2FACodeUseCase as any,
+    );
 
     await expect(
       useCase.execute({ email: 'bad-email', password: 'Password1!' } as any, {}),
@@ -139,7 +174,11 @@ describe('LoginUseCase', () => {
 
   it('login falla si el usuario no existe (401)', async () => {
     mockAuthRepository.findByEmail.mockResolvedValue(null);
-    const useCase = new LoginUseCase(mockAuthRepository as any, mockJwtService as any);
+    const useCase = new LoginUseCase(
+      mockAuthRepository as any,
+      mockJwtService as any,
+      mockVerify2FACodeUseCase as any,
+    );
 
     await expect(
       useCase.execute({ email: 'test@example.com', password: 'Password1!' } as any, {}),
@@ -154,11 +193,17 @@ describe('LoginUseCase', () => {
       name: 'NoPass',
       avatar: null,
       phone: null,
+      loginAttempts: 0,
       email: { getValue: () => 'x@x.com' },
       canLogin: jest.fn(() => true),
+      isLocked: jest.fn(() => false),
       getPasswordHash: jest.fn(() => null),
     });
-    const useCase = new LoginUseCase(mockAuthRepository as any, mockJwtService as any);
+    const useCase = new LoginUseCase(
+      mockAuthRepository as any,
+      mockJwtService as any,
+      mockVerify2FACodeUseCase as any,
+    );
 
     await expect(
       useCase.execute({ email: 'x@x.com', password: 'Password1!' } as any, {}),
@@ -175,11 +220,17 @@ describe('LoginUseCase', () => {
       name: 'BadPass',
       avatar: null,
       phone: null,
+      loginAttempts: 0,
       email: { getValue: () => 'x@x.com' },
       canLogin: jest.fn(() => true),
+      isLocked: jest.fn(() => false),
       getPasswordHash: jest.fn(() => 'hashed'),
     });
-    const useCase = new LoginUseCase(mockAuthRepository as any, mockJwtService as any);
+    const useCase = new LoginUseCase(
+      mockAuthRepository as any,
+      mockJwtService as any,
+      mockVerify2FACodeUseCase as any,
+    );
 
     await expect(
       useCase.execute({ email: 'x@x.com', password: 'Password1!' } as any, {}),
@@ -194,7 +245,11 @@ describe('LoginUseCase', () => {
     mockAuthRepository.findByEmail.mockImplementation(() => {
       throw httpLike;
     });
-    const useCase = new LoginUseCase(mockAuthRepository as any, mockJwtService as any);
+    const useCase = new LoginUseCase(
+      mockAuthRepository as any,
+      mockJwtService as any,
+      mockVerify2FACodeUseCase as any,
+    );
 
     await expect(
       useCase.execute({ email: 'test@example.com', password: 'Password1!' } as any, {}),
@@ -204,7 +259,11 @@ describe('LoginUseCase', () => {
   it('si el repo lanza ValidationError, retorna 401 (no 500)', async () => {
     const validationErr = Object.assign(new Error('bad'), { name: 'ValidationError' });
     mockAuthRepository.findByEmail.mockRejectedValue(validationErr);
-    const useCase = new LoginUseCase(mockAuthRepository as any, mockJwtService as any);
+    const useCase = new LoginUseCase(
+      mockAuthRepository as any,
+      mockJwtService as any,
+      mockVerify2FACodeUseCase as any,
+    );
 
     await expect(
       useCase.execute({ email: 'test@example.com', password: 'Password1!' } as any, {}),
@@ -213,7 +272,11 @@ describe('LoginUseCase', () => {
 
   it('si ocurre error inesperado, retorna 500', async () => {
     mockAuthRepository.findByEmail.mockRejectedValue(new Error('boom'));
-    const useCase = new LoginUseCase(mockAuthRepository as any, mockJwtService as any);
+    const useCase = new LoginUseCase(
+      mockAuthRepository as any,
+      mockJwtService as any,
+      mockVerify2FACodeUseCase as any,
+    );
 
     await expect(
       useCase.execute({ email: 'test@example.com', password: 'Password1!' } as any, {}),

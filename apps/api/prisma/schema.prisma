@@ -1927,18 +1927,19 @@ model ArchivoHistorico {
 model PendingSync {
   id         String   @id @default(uuid())
   userId     String
-  deviceId   String?
+  deviceId   String
   entityType String
   entityId   String?
   action     String
   data       Json?
-  localId    String?
+  localId    String
   timestamp  DateTime
   status     String   @default("pending")
   error      String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+  @@unique([userId, deviceId, localId], name: "pendingSync_user_device_local")
   @@index([userId])
   @@index([status])
   @@map("pending_syncs")

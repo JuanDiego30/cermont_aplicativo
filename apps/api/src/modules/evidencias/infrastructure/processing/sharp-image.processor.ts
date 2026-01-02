@@ -48,26 +48,36 @@ export class SharpImageProcessor implements IImageProcessor {
             const image = sharp(fullPath);
             const metadata = await image.metadata();
 
-            // Generate thumbnail
-            const thumbnailPath = this.getThumbnailPath(filePath);
-            const thumbnailFullPath = path.join(this.basePath, thumbnailPath);
+            const thumb150Path = this.getThumbnailPath(filePath, 150);
+            const thumb300Path = this.getThumbnailPath(filePath, 300);
+            const thumb150FullPath = path.join(this.basePath, thumb150Path);
+            const thumb300FullPath = path.join(this.basePath, thumb300Path);
 
-            // Ensure thumbnail directory exists
-            await fs.mkdir(path.dirname(thumbnailFullPath), { recursive: true });
+            await fs.mkdir(path.dirname(thumb150FullPath), { recursive: true });
+            await fs.mkdir(path.dirname(thumb300FullPath), { recursive: true });
 
-            await image
-                .resize(200, 200, { fit: 'cover' })
+            await sharp(fullPath)
+                .resize(150, 150, { fit: 'cover' })
                 .jpeg({ quality: 80 })
-                .toFile(thumbnailFullPath);
+                .toFile(thumb150FullPath);
 
-            this.logger.log(`Thumbnail generated: ${thumbnailPath}`);
+            await sharp(fullPath)
+                .resize(300, 300, { fit: 'cover' })
+                .jpeg({ quality: 80 })
+                .toFile(thumb300FullPath);
+
+            this.logger.log(`Thumbnails generated`, { thumb150Path, thumb300Path });
 
             return {
-                thumbnailPath,
+                thumbnailPath: thumb150Path,
                 metadata: {
                     width: metadata.width,
                     height: metadata.height,
                     format: metadata.format,
+                    thumbnails: {
+                        s150: thumb150Path,
+                        s300: thumb300Path,
+                    },
                 },
             };
         } catch (error) {
@@ -112,9 +122,9 @@ export class SharpImageProcessor implements IImageProcessor {
         return sharp(fullPath).jpeg({ quality }).toBuffer();
     }
 
-    private getThumbnailPath(originalPath: string): string {
+    private getThumbnailPath(originalPath: string, size: 150 | 300): string {
         const dir = path.dirname(originalPath);
         const filename = path.basename(originalPath, path.extname(originalPath));
-        return path.join(dir, 'thumbnails', `${filename}-thumb.jpg`);
+        return path.join(dir, 'thumbnails', String(size), `${filename}-thumb.jpg`);
     }
 }

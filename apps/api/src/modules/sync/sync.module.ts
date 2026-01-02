@@ -40,6 +40,7 @@ import {
     SyncQueueService,
     ConflictResolverService,
     SyncProcessorService,
+    SyncBatchEventHandlersService,
 } from './infrastructure/services';
 
 @Module({
@@ -71,6 +72,7 @@ import {
         SyncQueueService,
         ConflictResolverService,
         SyncProcessorService,
+        SyncBatchEventHandlersService,
     ],
     exports: [
         ProcessSyncBatchUseCase,
@@ -80,6 +82,7 @@ import {
         SyncQueueService,
         ConnectivityDetectorService,
         ConflictResolverService,
+        SyncBatchEventHandlersService,
     ],
 })
 export class SyncModule { }

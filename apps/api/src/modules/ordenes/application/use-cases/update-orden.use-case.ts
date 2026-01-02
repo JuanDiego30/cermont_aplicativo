@@ -3,7 +3,7 @@
  * @description Caso de uso para actualizar una orden
  * @layer Application
  */
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ORDEN_REPOSITORY, IOrdenRepository } from '../../domain/repositories';
 import { UpdateOrdenDto, OrdenResponseZod } from '../dto';
@@ -25,6 +25,16 @@ export class UpdateOrdenUseCase {
 
     if (!orden) {
       throw new NotFoundException('Orden no encontrada');
+    }
+
+    // Regla 14: No permitir edición una vez que la orden está en ejecución o ya es final.
+    // En el contexto de órdenes de trabajo, consideramos editable solo: pendiente/planeacion.
+    const estadoActual = orden.estado.value;
+    const editableStates = new Set(['pendiente', 'planeacion']);
+    if (!editableStates.has(String(estadoActual))) {
+      throw new ForbiddenException(
+        `No se puede editar una orden en estado: ${String(estadoActual)}`,
+      );
     }
 
     // Actualizar detalles

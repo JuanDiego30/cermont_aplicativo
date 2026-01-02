@@ -35,12 +35,15 @@ import {
   CurrentUser,
   JwtPayload,
 } from '../../../../common/decorators/current-user.decorator';
+import { Public } from '../../../../common/decorators/public.decorator';
 import {
   UploadEvidenciaUseCase,
   ListEvidenciasUseCase,
   GetEvidenciaUseCase,
   DeleteEvidenciaUseCase,
   DownloadEvidenciaUseCase,
+  GenerateEvidenciaDownloadTokenUseCase,
+  DownloadEvidenciaByTokenUseCase,
 } from '../../application/use-cases';
 import {
   UploadEvidenciaSchema,
@@ -58,6 +61,8 @@ export class EvidenciasController {
     private readonly getUseCase: GetEvidenciaUseCase,
     private readonly deleteUseCase: DeleteEvidenciaUseCase,
     private readonly downloadUseCase: DownloadEvidenciaUseCase,
+    private readonly generateDownloadTokenUseCase: GenerateEvidenciaDownloadTokenUseCase,
+    private readonly downloadByTokenUseCase: DownloadEvidenciaByTokenUseCase,
   ) { }
 
   /**
@@ -122,6 +127,40 @@ export class EvidenciasController {
       requestedBy: user.userId,
       requesterRole: user.role,
     });
+
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename*=UTF-8''${encodeURIComponent(filename)}`,
+    );
+
+    return new StreamableFile(buffer);
+  }
+
+  /**
+   * Regla 27: URL temporal (token 1h)
+   */
+  @Get(':id/temp-url')
+  @ApiOperation({ summary: 'Generate temporary download URL (1h)' })
+  async getTempUrl(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.generateDownloadTokenUseCase.execute({
+      id,
+      requestedBy: user.userId,
+      requesterRole: user.role,
+    });
+  }
+
+  /**
+   * Regla 27: descarga usando token temporal
+   */
+  @Public()
+  @Get('download/:token')
+  @ApiOperation({ summary: 'Download evidencia using temporary token' })
+  async downloadByToken(
+    @Param('token') token: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { buffer, filename, mimeType } = await this.downloadByTokenUseCase.execute({ token });
 
     res.setHeader('Content-Type', mimeType);
     res.setHeader(
@@ -200,6 +239,7 @@ export class EvidenciasController {
       file,
       dto: parseResult.data,
       uploadedBy: user.userId,
+      uploaderRole: user.role,
     });
 
     if (!result.success) {

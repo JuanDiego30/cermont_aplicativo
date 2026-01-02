@@ -10,7 +10,12 @@ describe('LogoutUseCase', () => {
       emit: jest.fn(),
     };
 
-    const useCase = new LogoutUseCase(authRepository as any, eventEmitter as any);
+    const cache = {
+      set: jest.fn().mockResolvedValue(undefined),
+      get: jest.fn().mockResolvedValue(undefined),
+    };
+
+    const useCase = new LogoutUseCase(authRepository as any, eventEmitter as any, cache as any);
 
     const result = await useCase.execute('user-1', 'rt-1', '127.0.0.1');
 
@@ -29,7 +34,12 @@ describe('LogoutUseCase', () => {
       emit: jest.fn(),
     };
 
-    const useCase = new LogoutUseCase(authRepository as any, eventEmitter as any);
+    const cache = {
+      set: jest.fn().mockResolvedValue(undefined),
+      get: jest.fn().mockResolvedValue(undefined),
+    };
+
+    const useCase = new LogoutUseCase(authRepository as any, eventEmitter as any, cache as any);
 
     await useCase.execute('user-1');
 

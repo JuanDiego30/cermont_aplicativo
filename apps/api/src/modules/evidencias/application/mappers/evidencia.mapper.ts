@@ -60,11 +60,13 @@ export class EvidenciaMapper {
         metadata: EvidenciaMetadata,
     ): EvidenciaMetadataResponse {
         return {
+            sha256: metadata.sha256,
             width: metadata.width,
             height: metadata.height,
             duration: metadata.duration,
             gpsLatitude: metadata.gpsLatitude,
             gpsLongitude: metadata.gpsLongitude,
+            thumbnails: metadata.thumbnails,
         };
     }
 }
