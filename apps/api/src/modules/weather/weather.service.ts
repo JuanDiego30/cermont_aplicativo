@@ -16,6 +16,63 @@ import {
   WeatherHistorical,
 } from './dto/weather.dto';
 
+interface OpenMeteoCurrentResponse {
+  current: {
+    temperature_2m: number;
+    relative_humidity_2m: number;
+    apparent_temperature: number;
+    precipitation: number;
+    rain: number;
+    weather_code: number;
+    cloud_cover: number;
+    pressure_msl: number;
+    wind_speed_10m: number;
+    wind_direction_10m: number;
+    wind_gusts_10m: number;
+    uv_index: number;
+  };
+}
+
+interface OpenMeteoDailyResponse {
+  daily: {
+    time: string[];
+    precipitation_sum: number[];
+    rain_sum: number[];
+    precipitation_probability_max: number[];
+    weather_code: number[];
+    temperature_2m_max: number[];
+    temperature_2m_min: number[];
+  };
+}
+
+interface OpenMeteoHourlyResponse {
+  hourly: {
+    time: string[];
+    temperature_2m: number[];
+    relative_humidity_2m: number[];
+    precipitation_probability: number[];
+    precipitation: number[];
+    rain: number[];
+    weather_code: number[];
+    cloud_cover: number[];
+    wind_speed_10m: number[];
+  };
+}
+
+interface NasaPowerResponse {
+  properties: {
+    parameter: {
+      T2M: Record<string, number>;
+      T2M_MAX: Record<string, number>;
+      T2M_MIN: Record<string, number>;
+      PRECTOTCORR: Record<string, number>;
+      RH2M: Record<string, number>;
+      WS2M: Record<string, number>;
+      ALLSKY_SFC_SW_DWN: Record<string, number>;
+    };
+  };
+}
+
 @Injectable()
 export class WeatherService {
   private readonly logger = new Logger(WeatherService.name);
@@ -30,8 +87,9 @@ export class WeatherService {
   };
 
   // Caché simple en memoria (en producción usar Redis)
-  // Usa any para flexibilidad
-  private cache: Map<string, { data: any; expiry: number }> = new Map();
+  // Caché simple en memoria (en producción usar Redis)
+  // Store as unknown to allow different types
+  private cache: Map<string, { data: unknown; expiry: number }> = new Map();
   private readonly CACHE_TTL = 30 * 60 * 1000; // 30 minutos
 
   constructor(
@@ -97,7 +155,8 @@ export class WeatherService {
         ),
       );
 
-      const current = (response.data as any).current;
+      const responseData = response.data as OpenMeteoCurrentResponse;
+      const current = responseData.current;
       const weatherData: WeatherData = {
         location: {
           lat: latitude,
@@ -171,7 +230,8 @@ export class WeatherService {
         }),
       );
 
-      const daily = (response.data as any).daily;
+      const responseData = response.data as OpenMeteoDailyResponse;
+      const daily = responseData.daily;
       const forecasts: RainfallForecast[] = daily.time.map(
         (date: string, i: number) => ({
           date,
@@ -233,7 +293,8 @@ export class WeatherService {
         }),
       );
 
-      const hourly = (response.data as any).hourly;
+      const responseData = response.data as OpenMeteoHourlyResponse;
+      const hourly = responseData.hourly;
       const forecasts: HourlyForecast[] = hourly.time.map(
         (time: string, i: number) => ({
           time,
@@ -384,7 +445,8 @@ export class WeatherService {
         ),
       );
 
-      const params = (response.data as any).properties.parameter;
+      const responseData = response.data as NasaPowerResponse;
+      const params = responseData.properties.parameter;
       const dates = Object.keys(params.T2M);
 
       return {
@@ -478,7 +540,7 @@ export class WeatherService {
     return null;
   }
 
-  private setCache(key: string, data: any): void {
+  private setCache(key: string, data: unknown): void {
     this.cache.set(key, {
       data,
       expiry: Date.now() + this.CACHE_TTL,
