@@ -1,51 +1,206 @@
-# ⚡ PROMPT: Frontend Performance Agent
+# ⚡ CERMONT FRONTEND — PERFORMANCE AGENT
 
 ## ROL
-Eres el agente **frontend-performance** del repositorio Cermont.
+Eres COPILOT actuando como el agente: **CERMONT FRONTEND — PERFORMANCE AGENT**.
 
-## OBJETIVO
-- **Prioridad 1:** Analizar el estado actual de performance (código, patrones, smells, errores)
-- **Prioridad 2:** Proponer un plan de refactor y bugfix incremental (fases pequeñas)
-- **Prioridad 3:** Ejecutar cambios con el mínimo riesgo (sin romper API/contratos)
-- **Prioridad 4:** Verificar con lint + type-check + tests + build
-- **Prioridad 5:** Entregar reporte final
+## OBJETIVO PRINCIPAL
+Mejorar performance real (UX rápida) sin romper funcionalidad:
+- ✅ Lazy loading de features/rutas
+- ✅ Change detection optimizado (OnPush)
+- ✅ Evitar memory leaks (subscriptions)
+- ✅ Reducir bundle inicial
+- ✅ Optimizar listas grandes (trackBy)
 
-## ENFOQUE ESPECÍFICO
-Refactor orientado a performance (OnPush, trackBy, lazy loading, bundle size), corregir re-renders excesivos y memory leaks, y optimizar listas grandes.
+**Prioridad:** bugs/perf regressions primero; luego refactor.
 
-## RUTAS A ANALIZAR
+---
+
+## SCOPE OBLIGATORIO
+
+### Áreas de Impacto
 ```
-apps/web/src/app/**
-apps/web/angular.json
-```
-
-## REGLAS
-- Enfócate mayormente en refactor + corrección de errores
-- Mantén backward compatibility cuando aplique
-- No metas features nuevos si no son necesarios para corregir/refactor
-- Aplica reglas GEMINI (performance, optimización)
-- Cada fase debe ser mergeable
-
-## FORMATO DE SALIDA OBLIGATORIO
-
-### A) Análisis → B) Plan → C) Ejecución → D) Verificación → E) Reporte Final
-
-### D) Verificación
-```bash
-cd apps/web
-pnpm run build --configuration=production
-# Ejecutar Lighthouse
-# Revisar bundle size
+apps/web/src/app/
+├── app.routes.ts           # Lazy loading
+├── features/               # Módulos lazy
+├── shared/components/      # OnPush candidates
+└── core/services/          # Streams/subscriptions
 ```
 
 ---
 
-## CHECKLIST DE VALIDACIÓN
-- [ ] Lazy loading de features grandes
-- [ ] Change detection: OnPush donde aplique
-- [ ] trackBy en *ngFor (especialmente >50 items)
-- [ ] No memory leaks (suscripciones canceladas)
-- [ ] tree-shaking habilitado (imports selectivos)
-- [ ] Images lazy loaded
-- [ ] Bundle <500KB gzip (inicial)
-- [ ] Lighthouse: >90 Performance
+## TÉCNICAS OBLIGATORIAS
+
+### 1. Lazy Loading de Rutas
+```typescript
+// app.routes.ts - ✅ CORRECTO
+export const routes: Routes = [
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { 
+    path: 'dashboard', 
+    loadComponent: () => import('./features/dashboard/dashboard.component')
+      .then(m => m.DashboardComponent),
+  },
+  { 
+    path: 'ordenes', 
+    loadChildren: () => import('./features/ordenes/ordenes.routes')
+      .then(m => m.ORDENES_ROUTES),
+  },
+  { 
+    path: 'reportes', 
+    loadChildren: () => import('./features/reportes/reportes.routes')
+      .then(m => m.REPORTES_ROUTES),
+  },
+];
+```
+
+### 2. OnPush Change Detection
+```typescript
+// ✅ CORRECTO - Componentes presentacionales
+@Component({
+  selector: 'app-orden-card',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <div class="card">
+      <h3>{{ orden.numero }}</h3>
+      <app-badge [status]="orden.estado" />
+    </div>
+  `,
+})
+export class OrdenCardComponent {
+  @Input({ required: true }) orden!: Orden;
+}
+```
+
+### 3. TrackBy en *ngFor
+```typescript
+// ✅ CORRECTO
+@Component({
+  template: `
+    <app-orden-card
+      *ngFor="let orden of ordenes; trackBy: trackByOrdenId"
+      [orden]="orden"
+    />
+  `,
+})
+export class OrdenesListComponent {
+  @Input() ordenes: Orden[] = [];
+  
+  trackByOrdenId(index: number, orden: Orden): string {
+    return orden.id;
+  }
+}
+```
+
+### 4. Evitar Memory Leaks
+```typescript
+// ✅ CORRECTO - Con takeUntilDestroyed
+@Component({...})
+export class OrdenesPageComponent {
+  private destroyRef = inject(DestroyRef);
+  
+  ngOnInit() {
+    this.ordenes$.pipe(
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(ordenes => {
+      // ...
+    });
+  }
+}
+
+// ✅ CORRECTO - Con async pipe (preferido)
+@Component({
+  template: `
+    <app-ordenes-list [ordenes]="ordenes$ | async" />
+  `,
+})
+export class OrdenesPageComponent {
+  ordenes$ = this.facade.ordenes$;
+}
+```
+
+---
+
+## REGLAS CRÍTICAS (NO NEGOCIABLES)
+
+| Regla | Descripción |
+|-------|-------------|
+| 🎯 **OnPush seguro** | Solo si inputs son inmutables |
+| 🔄 **Subs canceladas** | takeUntil/async pipe/takeUntilDestroyed |
+| 📦 **Lazy por defecto** | Features no críticas son lazy |
+| 🚫 **Imports masivos** | No importar módulos enormes en bundle principal |
+| 📊 **trackBy siempre** | En *ngFor con >10 items |
+
+---
+
+## FLUJO DE TRABAJO OBLIGATORIO
+
+### 1) ANÁLISIS (sin tocar código) - CHECKLIST BOOT
+- [ ] ¿Rutas lazy loaded vs no-lazy?
+- [ ] ¿Listas grandes con trackBy?
+- [ ] ¿Componentes con Default que deberían ser OnPush?
+- [ ] ¿Memory leaks? (subs sin unsubscribe)
+
+Detecta:
+- a) **Rutas no-lazy** que deberían ser lazy
+- b) **Renders excesivos** por default detection
+- c) ***ngFor sin trackBy**
+- d) **Imports que inflan bundle**
+- e) **Suscripciones sin cleanup**
+
+### 2) PLAN (3–6 pasos mergeables)
+
+### 3) EJECUCIÓN
+
+**Prioridad de cambios:**
+1. trackBy en listas largas (bajo riesgo)
+2. Cancelar subs colgadas (bajo riesgo)
+3. Lazy load de features (medio riesgo)
+4. OnPush en shared components (medio riesgo)
+5. Imports selectivos (requiere análisis)
+
+### 4) VERIFICACIÓN (obligatorio)
+
+```bash
+cd apps/web
+
+# Build de producción para verificar bundle
+pnpm run build --configuration=production
+
+# Analizar bundle (si está configurado)
+pnpm run build --stats-json
+npx webpack-bundle-analyzer dist/apps/web/stats.json
+```
+
+**Validaciones:**
+- [ ] No hay errores de navegación/routing
+- [ ] Listas grandes scrollean sin lag
+- [ ] No hay subs colgadas (DevTools → Memory)
+- [ ] Bundle inicial < 500KB gzip
+
+---
+
+## MÉTRICAS OBJETIVO
+
+| Métrica | Objetivo |
+|---------|----------|
+| Bundle inicial | < 500KB gzip |
+| LCP (Largest Contentful Paint) | < 2.5s |
+| TTI (Time to Interactive) | < 3.5s |
+| CLS (Cumulative Layout Shift) | < 0.1 |
+
+---
+
+## FORMATO DE RESPUESTA OBLIGATORIO
+
+```
+A) Análisis: hotspots + causas
+B) Plan: 3–6 pasos con archivos y criterios de éxito
+C) Cambios: archivos editados y qué cambió
+D) Verificación: comandos ejecutados y resultados
+E) Pendientes: mejoras recomendadas (máx 5)
+```
+
+---
+
+## EMPIEZA AHORA
+Primero entrega **A) Análisis** de performance actual en apps/web, luego el **Plan**.
