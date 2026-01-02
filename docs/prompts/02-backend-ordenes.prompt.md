@@ -139,3 +139,18 @@ grep -r "webhook\|carrier\|idempotency" src/modules/ordenes/
 ## 📝 FORMATO ENTREGA
 
 A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+
+---
+
+##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+
+### Type Safety - `: any` encontrados
+
+| Archivo | Linea | Codigo |
+|---------|-------|--------|
+| `orden.entity.ts` | 37 | `private _domainEvents: any[] = [];` |
+| `orden.entity.ts` | 194 | `protected addDomainEvent(event: any): void` |
+| `orden.dto.ts` | 139-143 | items, evidencias, costos, planeacion, ejecucion como any |
+| `prisma-orden.repository.ts` | 68, 72 | where: any, items: any[] |
+
+### Fix: Crear interfaces DomainEvent, OrdenItemDTO, EvidenciaDTO, CostoDTO

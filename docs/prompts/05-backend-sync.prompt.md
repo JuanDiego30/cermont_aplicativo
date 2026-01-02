@@ -88,3 +88,15 @@ grep -r "conflict\|merge\|last.*write" src/modules/sync/
 ## 📝 FORMATO ENTREGA
 
 A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+
+---
+
+##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+
+### Type Safety - `@Req() req: any` en Controller
+
+| Archivo | Linea | Codigo |
+|---------|-------|--------|
+| `sync.controller.ts` | 94, 131, 138, 170 | `@Req() req: any` (4 veces) |
+
+### Fix: Crear `AuthenticatedRequest` interface y tipar todos los req

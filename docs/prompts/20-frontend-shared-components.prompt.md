@@ -101,3 +101,17 @@ find src/app/features -name "*.css" -exec grep -l "btn-\|form-\|card" {} \;
 ## 📝 FORMATO ENTREGA
 
 A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+
+---
+
+##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+
+### Type Safety en Shared Components
+
+| Archivo | Linea | Codigo |
+|---------|-------|--------|
+| `table-dropdown.component.ts` | 20-21 | `dropdownButton: any; dropdownContent: any` |
+| `countdown-timer.component.ts` | 21 | `private intervalId: any` |
+| `asistente-ia.component.ts` | 20 | `data?: any` |
+
+### Fix: Tipar dropdowns, usar `ReturnType<typeof setInterval>` para intervalId

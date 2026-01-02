@@ -84,3 +84,17 @@ grep -r "this\.calculate\|this\.validate" src/app/ | grep -v "service\|api" | gr
 ## 📝 FORMATO ENTREGA
 
 A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+
+---
+
+##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+
+### Type Safety - `: any` en Services
+
+| Archivo | Linea | Codigo |
+|---------|-------|--------|
+| `api.service.ts` | 33 | `delay: (error: any) =>` |
+| `api.service.ts` | 129 | `private handleError(error: any)` |
+| `auth.service.ts` | 306 | `private handleError(error: any)` |
+
+### Fix: Usar `HttpErrorResponse` de Angular en lugar de any

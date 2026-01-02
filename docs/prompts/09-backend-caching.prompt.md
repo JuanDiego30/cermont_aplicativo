@@ -76,3 +76,16 @@ grep -r "ttl.*3600\|ttl.*86400" src/
 ## 📝 FORMATO ENTREGA
 
 A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+
+---
+
+##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+
+### Type Safety en Cache
+
+| Archivo | Linea | Codigo |
+|---------|-------|--------|
+| `weather.service.ts` | 34 | `Map<string, { data: any; expiry: number }>` |
+| `weather.service.ts` | 481 | `setCache(key: string, data: any)` |
+
+### Fix: Usar generics `Map<string, CacheEntry<T>>` para tipar cache

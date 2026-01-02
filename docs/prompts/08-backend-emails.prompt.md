@@ -85,3 +85,16 @@ ls -la src/modules/notifications/templates/ | grep -i ".html\|.hbs"
 ## 📝 FORMATO ENTREGA
 
 A) **ANÁLISIS** | B) **PLAN (3-4 pasos)** | C) **IMPLEMENTACIÓN** | D) **VERIFICACIÓN** | E) **PENDIENTES (máx 5)**
+
+---
+
+##  VIOLACIONES ENCONTRADAS (Research 2026-01-02)
+
+### Type Safety - BullMQ sin tipos
+
+| Archivo | Linea | Codigo |
+|---------|-------|--------|
+| `email-queue.service.ts` | 9-11 | `let Queue: any; let Worker: any; let QueueEvents: any;` |
+| `email-queue.service.ts` | 30-33 | `queue: any; worker: any; queueEvents: any; deadLetterQueue: any;` |
+
+### Fix: Importar tipos de BullMQ o crear interfaces wrapper
