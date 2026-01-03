@@ -9,7 +9,7 @@ import { Component, ElementRef, HostListener, ViewChild, AfterViewInit, ChangeDe
   template: `
     <div 
       #card
-      class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 p-8 transition-all duration-300 hover:border-cermont-primary-500 dark:hover:border-cermont-primary-500 group"
+      class="relative overflow-hidden rounded-2xl bg-linear-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 p-8 transition-all duration-300 hover:border-cermont-primary-500 dark:hover:border-cermont-primary-500 group"
     >
       <!-- Spotlight Effect -->
       <div 

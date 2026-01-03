@@ -1,5 +1,5 @@
 
-import { Component, inject } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { LabelComponent } from '../../form/label/label.component';
 import { CheckboxComponent } from '../../form/input/checkbox.component';
 import { InputFieldComponent } from '../../form/input/input-field.component';
@@ -7,6 +7,8 @@ import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { logError } from '../../../../core/utils/logger';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Subject, takeUntil } from 'rxjs';
 
 
 @Component({
@@ -22,9 +24,10 @@ import { logError } from '../../../../core/utils/logger';
   templateUrl: './signup-form.component.html',
   styles: ``
 })
-export class SignupFormComponent {
+export class SignupFormComponent implements OnDestroy {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private readonly destroy$ = new Subject<void>();
 
   showPassword = false;
   isChecked = false;
@@ -45,14 +48,21 @@ export class SignupFormComponent {
       password: this.password,
       role: 'tecnico', // Default role for self-registration, adjust as needed
       phone: '0000000000' // Placeholder or add phone field to form
-    }).subscribe({
+    })
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
       next: () => {
         this.router.navigate(['/dashboard']);
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
         logError('Registration failed', err);
         // Handle error (show message to user)
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

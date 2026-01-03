@@ -1,5 +1,5 @@
 
-import { Component, Input, Output, EventEmitter, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild } from '@angular/core';
 import flatpickr from 'flatpickr';
 import { LabelComponent } from '../label/label.component';
 import "flatpickr/dist/flatpickr.css";
@@ -10,7 +10,7 @@ import "flatpickr/dist/flatpickr.css";
   templateUrl: './date-picker.component.html',
   styles: ``
 })
-export class DatePickerComponent {
+export class DatePickerComponent implements AfterViewInit, OnDestroy {
 
   @Input() id!: string;
   @Input() mode: 'single' | 'multiple' | 'range' | 'time' = 'single';
