@@ -1,13 +1,26 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '../../core/guards/auth.guard';
 import { roleGuard } from '../../core/guards/role.guard';
+import { AppLayoutComponent } from '../../shared/layout/app-layout/app-layout.component';
 
 export const ADMIN_ROUTES: Routes = [
   {
     path: '',
+    component: AppLayoutComponent,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['admin'] },
     children: [
+      {
+        path: '',
+        redirectTo: 'users',
+        pathMatch: 'full'
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () => import('../dashboard/components/dashboard-main.component')
+          .then(m => m.DashboardMainComponent),
+        title: 'Admin Dashboard | Cermont'
+      },
       {
         path: 'users',
         children: [

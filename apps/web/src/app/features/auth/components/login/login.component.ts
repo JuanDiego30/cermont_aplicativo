@@ -135,13 +135,13 @@ export class LoginComponent implements OnInit, OnDestroy {
     const user = this.authService.currentUserSignal();
     if (!user) return '/dashboard';
 
+    // All authenticated users go to /dashboard which has the AppLayoutComponent
+    // Admin-specific pages are accessible from the sidebar (/admin/users, /admin/roles, etc.)
     switch (user.role) {
       case 'admin':
-        return '/admin/dashboard';
       case 'supervisor':
-        return '/supervisor/dashboard';
+      case 'tecnico':
       case 'cliente':
-        return '/dashboard';
       default:
         return '/dashboard';
     }
