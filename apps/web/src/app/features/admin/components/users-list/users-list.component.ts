@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../../../core/services/admin.service';
 import { User, UserRole } from '../../../../core/models/user.model';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-users-list',
@@ -12,8 +13,9 @@ import { User, UserRole } from '../../../../core/models/user.model';
     templateUrl: './users-list.component.html',
     styleUrls: ['./users-list.component.css']
 })
-export class UsersListComponent implements OnInit {
+export class UsersListComponent implements OnInit, OnDestroy {
     private readonly adminService = inject(AdminService);
+    private readonly destroy$ = new Subject<void>();
 
     users = signal<User[]>([]);
     total = signal(0);
@@ -32,6 +34,11 @@ export class UsersListComponent implements OnInit {
         this.loadUsers();
     }
 
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
     loadUsers(): void {
         this.loading.set(true);
         this.error.set(null);
@@ -41,17 +48,19 @@ export class UsersListComponent implements OnInit {
             limit: this.pageSize(),
             search: this.searchTerm() || undefined,
             role: this.roleFilter() || undefined
-        }).subscribe({
-            next: (response) => {
-                this.users.set(response.data);
-                this.total.set(response.total);
-                this.loading.set(false);
-            },
-            error: () => {
-                this.error.set('Error al cargar usuarios');
-                this.loading.set(false);
-            }
-        });
+        })
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (response) => {
+                    this.users.set(response.data);
+                    this.total.set(response.total);
+                    this.loading.set(false);
+                },
+                error: () => {
+                    this.error.set('Error al cargar usuarios');
+                    this.loading.set(false);
+                }
+            });
     }
 
     onSearch(): void {
