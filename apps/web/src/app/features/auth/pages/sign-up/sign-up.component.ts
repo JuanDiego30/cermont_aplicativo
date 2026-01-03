@@ -1,20 +1,21 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthApi } from '@app/core/api/auth.api';
-import { ToastService } from '@app/shared/services/toast.service';
-import { catchError, tap, throwError } from 'rxjs';
+import { ToastService } from '@app/shared/components/toast/toast.service';
+import { catchError, tap, throwError, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-sign-up',
   templateUrl: './sign-up.component.html',
   styleUrls: ['./sign-up.component.scss']
 })
-export class SignUpComponent implements OnInit {
+export class SignUpComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private authApi = inject(AuthApi);
   private toastService = inject(ToastService);
+  private readonly destroy$ = new Subject<void>();
 
   form!: FormGroup;
   loading = false;
@@ -24,6 +25,11 @@ export class SignUpComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private initForm(): void {
@@ -58,6 +64,7 @@ export class SignUpComponent implements OnInit {
       password
     })
       .pipe(
+        takeUntil(this.destroy$),
         tap(() => {
           this.loading = false;
           this.toastService.success('Cuenta creada correctamente. Inicia sesión');
@@ -66,7 +73,7 @@ export class SignUpComponent implements OnInit {
         catchError((err) => {
           this.loading = false;
           this.error = err.error?.message || 'Error al crear la cuenta';
-          this.toastService.error(this.error);
+          this.toastService.error(this.error!);
           return throwError(() => err);
         })
       )
