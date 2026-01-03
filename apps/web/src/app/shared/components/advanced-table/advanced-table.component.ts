@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 
@@ -112,7 +112,7 @@ export interface TableAction {
   `,
   styles: []
 })
-export class AdvancedTableComponent {
+export class AdvancedTableComponent implements OnInit, OnChanges {
   @Input() columns: TableColumn[] = [];
   @Input() data: any[] = [];
   @Input() actions: TableAction[] = [];
@@ -128,7 +128,7 @@ export class AdvancedTableComponent {
     this.applyFilters();
   }
 
-  ngOnChanges() {
+  ngOnChanges(_changes: SimpleChanges) {
     this.applyFilters();
   }
 

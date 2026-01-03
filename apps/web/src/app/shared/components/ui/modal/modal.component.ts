@@ -4,12 +4,11 @@ import {
   Input,
   Output,
   EventEmitter,
-  ElementRef,
   OnInit,
   OnDestroy,
-  HostListener
-  ,
-  inject
+  OnChanges,
+  HostListener,
+  SimpleChanges
 } from '@angular/core';
 
 @Component({
@@ -20,15 +19,13 @@ import {
   templateUrl: './modal.component.html',
   styles: ``
 })
-export class ModalComponent {
+export class ModalComponent implements OnInit, OnDestroy, OnChanges {
 
   @Input() isOpen = false;
   @Output() closed = new EventEmitter<void>();
   @Input() className = '';
   @Input() showCloseButton = true;
   @Input() isFullscreen = false;
-
-  private readonly el = inject(ElementRef);
 
   ngOnInit() {
     if (this.isOpen) {
@@ -40,7 +37,7 @@ export class ModalComponent {
     document.body.style.overflow = 'unset';
   }
 
-  ngOnChanges() {
+  ngOnChanges(_changes: SimpleChanges) {
     document.body.style.overflow = this.isOpen ? 'hidden' : 'unset';
   }
 

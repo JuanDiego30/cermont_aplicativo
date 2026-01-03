@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, QueryList, ViewChildren, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren, ChangeDetectorRef, inject } from '@angular/core';
 import { SidebarService } from '../../services/sidebar.service';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { SafeHtmlPipe } from '../../pipe/safe-html.pipe';
 import { SidebarWidgetComponent } from './app-sidebar-widget.component';
-import { combineLatest, Subscription, firstValueFrom } from 'rxjs';
+import { combineLatest, firstValueFrom, Observable, Subscription } from 'rxjs';
 
 type NavItem = {
   name: string;
@@ -25,7 +25,7 @@ type NavItem = {
   ],
   templateUrl: './app-sidebar.component.html',
 })
-export class AppSidebarComponent {
+export class AppSidebarComponent implements OnInit, OnDestroy {
   public readonly sidebarService = inject(SidebarService);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -139,9 +139,9 @@ export class AppSidebarComponent {
   subMenuHeights: { [key: string]: number } = {};
   @ViewChildren('subMenu') subMenuRefs!: QueryList<ElementRef>;
 
-  readonly isExpanded$;
-  readonly isMobileOpen$;
-  readonly isHovered$;
+  readonly isExpanded$: Observable<boolean>;
+  readonly isMobileOpen$: Observable<boolean>;
+  readonly isHovered$: Observable<boolean>;
 
   private subscription: Subscription = new Subscription();
 
@@ -163,8 +163,8 @@ export class AppSidebarComponent {
 
     // Subscribe to combined observables to close submenus when all are false
     this.subscription.add(
-      combineLatest([this.isExpanded$, this.isMobileOpen$, this.isHovered$]).subscribe(
-        ([isExpanded, isMobileOpen, isHovered]: any) => {
+      combineLatest([this.isExpanded$, this.isMobileOpen$, this.isHovered$] as const).subscribe(
+        ([isExpanded, isMobileOpen, isHovered]) => {
           if (!isExpanded && !isMobileOpen && !isHovered) {
             this.cdr.detectChanges();
           }

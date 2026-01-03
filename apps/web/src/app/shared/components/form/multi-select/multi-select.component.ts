@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 export interface Option {
   value: string;
@@ -14,7 +14,7 @@ export interface Option {
   templateUrl: './multi-select.component.html',
   styles: ``
 })
-export class MultiSelectComponent {
+export class MultiSelectComponent implements OnInit {
 
   @Input() label: string = '';
   @Input() options: Option[] = [];

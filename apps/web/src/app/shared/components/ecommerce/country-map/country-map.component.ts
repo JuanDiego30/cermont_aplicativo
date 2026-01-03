@@ -1,4 +1,4 @@
-import { Component, NgZone, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import * as am5 from "@amcharts/amcharts5";
 import * as am5map from "@amcharts/amcharts5/map";
 import am5geodata_worldLow from "@amcharts/amcharts5-geodata/worldLow";
@@ -7,7 +7,7 @@ import am5geodata_worldLow from "@amcharts/amcharts5-geodata/worldLow";
   selector: 'app-country-map',
   template: `<div #chartdiv style="width: 100%; height: 300px; border-radius: 1rem;"></div>`,
 })
-export class CountryMapComponent {
+export class CountryMapComponent implements OnInit, OnDestroy {
   @ViewChild('chartdiv', { static: true }) chartdiv!: ElementRef;
   root!: am5.Root;
 

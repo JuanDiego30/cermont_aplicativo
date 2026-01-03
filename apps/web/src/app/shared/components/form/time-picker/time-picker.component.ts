@@ -1,5 +1,5 @@
 
-import { Component, Input, Output, EventEmitter, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild } from '@angular/core';
 import flatpickr from 'flatpickr';
 
 @Component({
@@ -8,7 +8,7 @@ import flatpickr from 'flatpickr';
   templateUrl: './time-picker.component.html',
   styles: ``
 })
-export class TimePickerComponent {
+export class TimePickerComponent implements AfterViewInit, OnDestroy {
 
   @Input() id!: string;
   @Input() label: string = 'Time Select Input';

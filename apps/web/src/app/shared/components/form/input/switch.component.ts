@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-switch',
@@ -30,7 +30,7 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
     </label>
   `
 })
-export class SwitchComponent {
+export class SwitchComponent implements OnInit {
 
   @Input() label!: string;
   @Input() defaultChecked: boolean = false;

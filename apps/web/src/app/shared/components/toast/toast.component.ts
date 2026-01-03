@@ -8,7 +8,7 @@ import { Subject, takeUntil } from 'rxjs';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="fixed bottom-4 right-4 z-[9999] space-y-3">
+    <div class="fixed bottom-4 right-4 z-9999 space-y-3">
       @for (toast of toasts; track toast.id) {
         <div
           [@fadeInOut]
