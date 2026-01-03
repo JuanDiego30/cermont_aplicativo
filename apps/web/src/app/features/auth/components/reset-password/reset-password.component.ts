@@ -1,8 +1,9 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-reset-password',
@@ -11,11 +12,12 @@ import { AuthService } from '../../../../core/services/auth.service';
     templateUrl: './reset-password.component.html',
     styleUrls: ['./reset-password.component.css']
 })
-export class ResetPasswordComponent implements OnInit {
+export class ResetPasswordComponent implements OnInit, OnDestroy {
     private readonly fb = inject(FormBuilder);
     private readonly authService = inject(AuthService);
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
+    private readonly destroy$ = new Subject<void>();
 
     resetPasswordForm!: FormGroup;
     loading = signal(false);
@@ -27,16 +29,23 @@ export class ResetPasswordComponent implements OnInit {
 
     ngOnInit(): void {
         // Obtener token de la URL
-        this.route.queryParams.subscribe(params => {
-            const token = params['token'];
-            if (!token) {
-                this.error.set('Token no válido o expirado');
-                return;
-            }
-            this.token.set(token);
-        });
+        this.route.queryParams
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(params => {
+                const token = params['token'];
+                if (!token) {
+                    this.error.set('Token no válido o expirado');
+                    return;
+                }
+                this.token.set(token);
+            });
 
         this.initializeForm();
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     initializeForm(): void {
@@ -69,18 +78,20 @@ export class ResetPasswordComponent implements OnInit {
 
         const newPassword = this.resetPasswordForm.get('newPassword')?.value;
 
-        this.authService.resetPassword(this.token()!, newPassword).subscribe({
-            next: () => {
-                this.success.set(true);
-                setTimeout(() => {
-                    this.router.navigate(['/auth/login']);
-                }, 3000);
-            },
-            error: (err) => {
-                this.error.set(err.message || 'Error al restablecer la contraseña');
-                this.loading.set(false);
-            }
-        });
+        this.authService.resetPassword(this.token()!, newPassword)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: () => {
+                    this.success.set(true);
+                    setTimeout(() => {
+                        this.router.navigate(['/auth/login']);
+                    }, 3000);
+                },
+                error: (err) => {
+                    this.error.set(err.message || 'Error al restablecer la contraseña');
+                    this.loading.set(false);
+                }
+            });
     }
 
     togglePasswordVisibility(field: 'password' | 'confirmPassword'): void {

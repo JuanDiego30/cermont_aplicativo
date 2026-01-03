@@ -1,9 +1,10 @@
-import { Component, inject, signal, OnInit, HostListener } from '@angular/core';
+import { Component, inject, signal, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 import { AntigravityBackgroundComponent } from '../../../../shared/components/antigravity-background/antigravity-background.component';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -12,11 +13,12 @@ import { AntigravityBackgroundComponent } from '../../../../shared/components/an
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly destroy$ = new Subject<void>();
 
   loginForm!: FormGroup;
   twoFactorForm!: FormGroup;
@@ -40,6 +42,11 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     this.initializeForms();
     this.checkMobile();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   checkMobile(): void {
@@ -69,23 +76,25 @@ export class LoginComponent implements OnInit {
 
     const { email, password, rememberMe } = this.loginForm.value;
 
-    this.authService.login({ email, password, rememberMe }).subscribe({
-      next: (response) => {
-        if (response.requires2FA) {
-          this.tempEmail.set(email);
-          this.tempPassword.set(password);
-          this.tempRememberMe.set(rememberMe);
-          this.requires2FA.set(true);
+    this.authService.login({ email, password, rememberMe })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.requires2FA) {
+            this.tempEmail.set(email);
+            this.tempPassword.set(password);
+            this.tempRememberMe.set(rememberMe);
+            this.requires2FA.set(true);
+            this.loading.set(false);
+          } else {
+            this.handleLoginSuccess();
+          }
+        },
+        error: (err) => {
+          this.error.set(err.message || 'Error al iniciar sesión');
           this.loading.set(false);
-        } else {
-          this.handleLoginSuccess();
         }
-      },
-      error: (err) => {
-        this.error.set(err.message || 'Error al iniciar sesión');
-        this.loading.set(false);
-      }
-    });
+      });
   }
 
   onSubmit2FA(): void {
@@ -104,15 +113,17 @@ export class LoginComponent implements OnInit {
       this.tempPassword(),
       code,
       this.tempRememberMe()
-    ).subscribe({
-      next: () => {
-        this.handleLoginSuccess();
-      },
-      error: (err) => {
-        this.error.set(err.message || 'Código 2FA inválido');
-        this.loading.set(false);
-      }
-    });
+    )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.handleLoginSuccess();
+        },
+        error: (err) => {
+          this.error.set(err.message || 'Código 2FA inválido');
+          this.loading.set(false);
+        }
+      });
   }
 
   handleLoginSuccess(): void {

@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../../../core/services/admin.service';
 import { User, UserRole } from '../../../../core/models/user.model';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-user-detail',
@@ -12,10 +13,11 @@ import { User, UserRole } from '../../../../core/models/user.model';
     templateUrl: './user-detail.component.html',
     styleUrls: ['./user-detail.component.css']
 })
-export class UserDetailComponent implements OnInit {
+export class UserDetailComponent implements OnInit, OnDestroy {
     private readonly adminService = inject(AdminService);
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
+    private readonly destroy$ = new Subject<void>();
 
     user = signal<User | null>(null);
     loading = signal(true);
@@ -37,20 +39,27 @@ export class UserDetailComponent implements OnInit {
         }
     }
 
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+
     loadUser(id: string): void {
         this.loading.set(true);
         this.error.set(null);
 
-        this.adminService.getUserById(id).subscribe({
-            next: (user) => {
-                this.user.set(user);
-                this.loading.set(false);
-            },
-            error: () => {
-                this.error.set('Error al cargar el usuario');
-                this.loading.set(false);
-            }
-        });
+        this.adminService.getUserById(id)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (user) => {
+                    this.user.set(user);
+                    this.loading.set(false);
+                },
+                error: () => {
+                    this.error.set('Error al cargar el usuario');
+                    this.loading.set(false);
+                }
+            });
     }
 
     toggleUserStatus(): void {
@@ -64,14 +73,16 @@ export class UserDetailComponent implements OnInit {
             ? this.adminService.deactivateUser(user.id)
             : this.adminService.activateUser(user.id);
 
-        observable.subscribe({
-            next: () => {
-                this.loadUser(user.id);
-            },
-            error: (err) => {
-                alert(err.message || `Error al ${action} usuario`);
-            }
-        });
+        observable
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: () => {
+                    this.loadUser(user.id);
+                },
+                error: (err) => {
+                    alert(err.message || `Error al ${action} usuario`);
+                }
+            });
     }
 
     openRevokeModal(): void {
@@ -93,15 +104,17 @@ export class UserDetailComponent implements OnInit {
             return;
         }
 
-        this.adminService.revokeUserTokens(user.id, reason).subscribe({
-            next: (result) => {
-                alert(`${result.tokensRevoked} tokens revocados exitosamente`);
-                this.closeRevokeModal();
-            },
-            error: (err) => {
-                alert(err.message || 'Error al revocar tokens');
-            }
-        });
+        this.adminService.revokeUserTokens(user.id, reason)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (result) => {
+                    alert(`${result.tokensRevoked} tokens revocados exitosamente`);
+                    this.closeRevokeModal();
+                },
+                error: (err) => {
+                    alert(err.message || 'Error al revocar tokens');
+                }
+            });
     }
 
     navigateToEdit(): void {

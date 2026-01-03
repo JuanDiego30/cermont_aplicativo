@@ -1,8 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-forgot-password',
@@ -11,10 +12,11 @@ import { AuthService } from '../../../../core/services/auth.service';
   templateUrl: './forgot-password.component.html',
   styleUrls: ['./forgot-password.component.css']
 })
-export class ForgotPasswordComponent {
+export class ForgotPasswordComponent implements OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly destroy$ = new Subject<void>();
 
   forgotPasswordForm: FormGroup;
   loading = signal(false);
@@ -28,6 +30,11 @@ export class ForgotPasswordComponent {
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   onSubmit(): void {
     if (this.forgotPasswordForm.invalid) {
       this.forgotPasswordForm.markAllAsTouched();
@@ -39,17 +46,19 @@ export class ForgotPasswordComponent {
 
     const email = this.forgotPasswordForm.get('email')?.value;
 
-    this.authService.forgotPassword(email).subscribe({
-      next: () => {
-        this.success.set(true);
-        this.emailSent.set(true);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.error.set(err.message || 'Error al enviar el correo');
-        this.loading.set(false);
-      }
-    });
+    this.authService.forgotPassword(email)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.success.set(true);
+          this.emailSent.set(true);
+          this.loading.set(false);
+        },
+        error: (err) => {
+          this.error.set(err.message || 'Error al enviar el correo');
+          this.loading.set(false);
+        }
+      });
   }
 
   resendEmail(): void {
