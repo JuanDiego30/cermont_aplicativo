@@ -164,7 +164,7 @@ export class AppSidebarComponent {
     // Subscribe to combined observables to close submenus when all are false
     this.subscription.add(
       combineLatest([this.isExpanded$, this.isMobileOpen$, this.isHovered$]).subscribe(
-        ([isExpanded, isMobileOpen, isHovered]) => {
+        ([isExpanded, isMobileOpen, isHovered]: any) => {
           if (!isExpanded && !isMobileOpen && !isHovered) {
             this.cdr.detectChanges();
           }
