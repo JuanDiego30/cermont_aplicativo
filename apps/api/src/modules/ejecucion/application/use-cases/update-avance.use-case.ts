@@ -14,8 +14,9 @@ import {
   IEjecucionRepository,
 } from "../../domain/repositories";
 import { EjecucionId, ProgressPercentage } from "../../domain/value-objects";
-import { Ejecucion } from "../../domain/entities";
 import { EjecucionResponse } from "../dto";
+import { toEjecucionResponse } from "../mappers/ejecucion-response.mapper";
+import { publishDomainEvents } from "../../../../shared/base/publish-domain-events";
 
 @Injectable()
 export class UpdateAvanceUseCase {
@@ -50,31 +51,11 @@ export class UpdateAvanceUseCase {
     const saved = await this.repo.save(ejecucion);
 
     // 5. Publish domain events
-    const domainEvents = saved.getDomainEvents();
-    for (const event of domainEvents) {
-      this.eventEmitter.emit(event.eventName, event);
-    }
-    saved.clearDomainEvents();
+    publishDomainEvents(saved, this.eventEmitter);
 
     return {
       message: `Avance actualizado a ${avance}%`,
-      data: this.toResponse(saved),
-    };
-  }
-
-  private toResponse(e: Ejecucion): EjecucionResponse {
-    return {
-      id: e.getId().getValue(),
-      ordenId: e.getOrdenId(),
-      tecnicoId: e.getStartedBy() || "",
-      estado: e.getStatus().getValue(),
-      avance: e.getProgress().getValue(),
-      horasReales: e.getTotalWorkedTime().getTotalHours(),
-      fechaInicio: e.getStartedAt()?.toISOString() || new Date().toISOString(),
-      fechaFin: e.getCompletedAt()?.toISOString(),
-      observaciones: e.getObservaciones(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      data: toEjecucionResponse(saved),
     };
   }
 }

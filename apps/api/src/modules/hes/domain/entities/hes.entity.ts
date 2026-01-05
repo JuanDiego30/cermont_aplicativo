@@ -32,6 +32,7 @@ import {
   HESSignedEvent,
   HESCancelledEvent,
 } from "../events";
+import { AggregateRoot } from "../../../../shared/base/aggregate-root";
 
 export interface CreateHESProps {
   numero?: HESNumero;
@@ -46,8 +47,7 @@ export interface CreateHESProps {
   year?: number;
 }
 
-export class HES {
-  private _domainEvents: any[] = [];
+export class HES extends AggregateRoot {
 
   private constructor(
     private readonly _id: HESId,
@@ -72,7 +72,9 @@ export class HES {
     private _anuladoPor?: string,
     private _motivoAnulacion?: string,
     private readonly _version: number = 1,
-  ) {}
+  ) {
+    super();
+  }
 
   public static create(props: CreateHESProps): HES {
     const hes = new HES(
@@ -406,14 +408,6 @@ export class HES {
 
   // Domain Events
   public addDomainEvent(event: any): void {
-    this._domainEvents.push(event);
-  }
-
-  public getDomainEvents(): any[] {
-    return [...this._domainEvents];
-  }
-
-  public clearDomainEvents(): void {
-    this._domainEvents = [];
+    super.addDomainEvent(event);
   }
 }

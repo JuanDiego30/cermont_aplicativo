@@ -10,4 +10,6 @@ export * from './tecnicos.api';
 export * from './mantenimientos.api';
 export * from './kits.api';
 export * from './evidencias.api';
+export * from './planeacion.api';
+export * from './reportes.api';
 

@@ -12,6 +12,7 @@
  */
 
 import { ValidationError } from "../exceptions";
+import { EnumValueObject } from "../../../../shared/base/enum-value-object";
 
 export enum EstadoAlertaEnum {
   PENDIENTE = "PENDIENTE", // No enviada aún
@@ -21,9 +22,9 @@ export enum EstadoAlertaEnum {
   LEIDA = "LEIDA", // Usuario la leyó
 }
 
-export class EstadoAlerta {
-  private constructor(private readonly _value: EstadoAlertaEnum) {
-    Object.freeze(this); // Inmutabilidad
+export class EstadoAlerta extends EnumValueObject<EstadoAlertaEnum> {
+  private constructor(value: EstadoAlertaEnum) {
+    super(value);
   }
 
   /**
@@ -62,13 +63,6 @@ export class EstadoAlerta {
 
   public static leida(): EstadoAlerta {
     return new EstadoAlerta(EstadoAlertaEnum.LEIDA);
-  }
-
-  /**
-   * Obtener el valor del estado
-   */
-  public getValue(): EstadoAlertaEnum {
-    return this._value;
   }
 
   /**
@@ -111,29 +105,5 @@ export class EstadoAlerta {
    */
   public puedeMarcarseComoLeida(): boolean {
     return this._value === EstadoAlertaEnum.ENVIADA;
-  }
-
-  /**
-   * Comparación por valor
-   */
-  public equals(other: EstadoAlerta): boolean {
-    if (!other || !(other instanceof EstadoAlerta)) {
-      return false;
-    }
-    return this._value === other._value;
-  }
-
-  /**
-   * Representación en string
-   */
-  public toString(): string {
-    return this._value;
-  }
-
-  /**
-   * Serialización JSON
-   */
-  public toJSON(): string {
-    return this._value;
   }
 }

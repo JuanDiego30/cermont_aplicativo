@@ -29,11 +29,10 @@ import {
   CostUpdatedEvent,
   CostDeletedEvent,
 } from "../events";
+import { AggregateRoot } from "../../../../shared/base/aggregate-root";
 
-export class Costo {
+export class Costo extends AggregateRoot {
   private static readonly logger = new Logger(Costo.name);
-
-  private _domainEvents: any[] = [];
 
   // Configuración
   private static readonly MIN_DESCRIPTION_LENGTH = 3;
@@ -56,6 +55,7 @@ export class Costo {
     private _updatedAt: Date | null,
     private _isDeleted: boolean,
   ) {
+    super();
     this.validate();
   }
 
@@ -335,22 +335,6 @@ export class Costo {
 
   public getUpdatedAt(): Date | null {
     return this._updatedAt;
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // DOMAIN EVENTS
-  // ═══════════════════════════════════════════════════════════════
-
-  public getDomainEvents(): any[] {
-    return [...this._domainEvents];
-  }
-
-  public clearDomainEvents(): void {
-    this._domainEvents = [];
-  }
-
-  private addDomainEvent(event: any): void {
-    this._domainEvents.push(event);
   }
 
   // ═══════════════════════════════════════════════════════════════

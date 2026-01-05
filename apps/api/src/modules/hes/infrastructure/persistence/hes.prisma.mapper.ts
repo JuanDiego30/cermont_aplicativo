@@ -21,46 +21,40 @@ import { Direccion } from "../../domain/value-objects/direccion.vo";
 import { CoordenadasGPS } from "../../domain/value-objects/coordenadas-gps.vo";
 import { Email } from "../../../../common/domain/value-objects/email.vo";
 import { EPPRequerido } from "../../domain/value-objects/epp-requerido.vo";
+import {
+  getHesParts,
+  mapClienteInfoCore,
+  mapCondicionesEntradaCore,
+  mapDiagnosticoPreliminarCore,
+  mapHesCore,
+} from "../../domain/mappers/hes-common.mapper";
 
 export class HESPrismaMapper {
   static toPrisma(hes: HES): any {
-    const clienteInfo = hes.getClienteInfo();
-    const condicionesEntrada = hes.getCondicionesEntrada();
-    const diagnostico = hes.getDiagnosticoPreliminar();
-    const seguridad = hes.getRequerimientosSeguridad();
-    const firmaCliente = hes.getFirmaCliente();
-    const firmaTecnico = hes.getFirmaTecnico();
+    const {
+      clienteInfo,
+      condicionesEntrada,
+      diagnosticoPreliminar: diagnostico,
+      requerimientosSeguridad: seguridad,
+      firmaCliente,
+      firmaTecnico,
+    } = getHesParts(hes);
 
     return {
-      id: hes.getId().getValue(),
-      numero: hes.getNumero(),
-      ordenId: hes.getOrdenId(),
-      estado: hes.getEstado().getValue(),
-      tipoServicio: hes.getTipoServicio().getValue(),
-      prioridad: hes.getPrioridad().getValue(),
-      nivelRiesgo: hes.getNivelRiesgo().getValue(),
+      ...mapHesCore(hes),
       clienteInfo: {
-        nombre: clienteInfo.getNombre(),
-        identificacion: clienteInfo.getIdentificacion(),
-        telefono: clienteInfo.getTelefono(),
-        email: clienteInfo.getEmail(),
-        direccion: clienteInfo.getDireccionCompleta(),
+        ...mapClienteInfoCore(clienteInfo),
         coordenadasGPS: clienteInfo.getCoordenadasGPS(),
       },
       condicionesEntrada: condicionesEntrada
         ? {
-            estadoGeneral: condicionesEntrada.getEstadoGeneral(),
-            equipoFuncional: condicionesEntrada.isEquipoFuncional(),
-            daniosVisibles: condicionesEntrada.getDaniosVisibles(),
             observaciones: condicionesEntrada.getObservaciones(),
-            fotosEntrada: condicionesEntrada.getFotosEntrada(),
+            ...mapCondicionesEntradaCore(condicionesEntrada),
           }
         : null,
       diagnosticoPreliminar: diagnostico
         ? {
-            descripcion: diagnostico.getDescripcion(),
-            causaProbable: diagnostico.getCausaProbable(),
-            accionesRecomendadas: diagnostico.getAccionesRecomendadas(),
+            ...mapDiagnosticoPreliminarCore(diagnostico),
             requiereRepuestos: diagnostico.requiereRepuestos(),
             repuestosNecesarios: diagnostico.getRepuestosNecesarios(),
             tiempoEstimado: diagnostico.getTiempoEstimado(),

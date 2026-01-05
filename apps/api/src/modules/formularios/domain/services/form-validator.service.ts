@@ -5,9 +5,8 @@
  */
 
 import { FormTemplate } from "../entities/form-template.entity";
-import { FormField } from "../entities/form-field.entity";
 import { FieldValue } from "../value-objects/field-value.vo";
-import { ConditionalLogicEvaluatorService } from "./conditional-logic-evaluator.service";
+import { isFieldVisible } from "./field-visibility";
 
 export interface ValidationErrorItem {
   fieldId: string;
@@ -15,9 +14,6 @@ export interface ValidationErrorItem {
 }
 
 export class FormValidatorService {
-  private static readonly conditionalLogicEvaluator =
-    new ConditionalLogicEvaluatorService();
-
   /**
    * Validar respuestas contra template
    */
@@ -36,7 +32,7 @@ export class FormValidatorService {
     const requiredFields = template.getRequiredFields();
     for (const field of requiredFields) {
       // Campos ocultos por lógica condicional no deben exigirse
-      if (!this.isFieldVisible(field, formData)) {
+      if (!isFieldVisible(field, formData)) {
         continue;
       }
 
@@ -65,7 +61,7 @@ export class FormValidatorService {
       }
 
       // Campos ocultos por lógica condicional se ignoran
-      if (!this.isFieldVisible(field, formData)) {
+      if (!isFieldVisible(field, formData)) {
         continue;
       }
 
@@ -84,18 +80,6 @@ export class FormValidatorService {
     }
 
     return errors;
-  }
-
-  private isFieldVisible(
-    field: FormField,
-    formData: Record<string, any>,
-  ): boolean {
-    const logic = field.getConditionalLogic();
-    if (!logic) return true;
-    return FormValidatorService.conditionalLogicEvaluator.evaluate(
-      logic,
-      formData,
-    );
   }
 
   /**

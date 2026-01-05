@@ -9,5 +9,7 @@ export * from './dashboard.model';
 export * from './mantenimiento.model';
 export * from './kit.model';
 export * from './tecnico.model';
+export * from './planeacion.model';
+export * from './reporte.model';
 
 

@@ -24,6 +24,7 @@ import {
   TemplatePublishedEvent,
   TemplateArchivedEvent,
 } from "../events";
+import { AggregateRoot } from "../../../../shared/base/aggregate-root";
 
 export interface CreateFormTemplateProps {
   name: string;
@@ -35,8 +36,7 @@ export interface CreateFormTemplateProps {
   fields?: FormField[];
 }
 
-export class FormTemplate {
-  private _domainEvents: any[] = [];
+export class FormTemplate extends AggregateRoot {
 
   private constructor(
     private readonly _id: FormTemplateId,
@@ -56,6 +56,7 @@ export class FormTemplate {
     private _previousVersionId?: FormTemplateId,
     private _isLatestVersion: boolean = true,
   ) {
+    super();
     this.validate();
   }
 
@@ -410,19 +411,6 @@ export class FormTemplate {
     if (!this._name || this._name.trim().length === 0) {
       throw new ValidationError("Template name is required", "name");
     }
-  }
-
-  // Domain Events
-  private addDomainEvent(event: any): void {
-    this._domainEvents.push(event);
-  }
-
-  public getDomainEvents(): any[] {
-    return [...this._domainEvents];
-  }
-
-  public clearDomainEvents(): void {
-    this._domainEvents = [];
   }
 
   // Getters

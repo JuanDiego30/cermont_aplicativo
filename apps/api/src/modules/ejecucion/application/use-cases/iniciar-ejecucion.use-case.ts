@@ -16,7 +16,9 @@ import {
 import { Ejecucion } from "../../domain/entities";
 import { GeoLocation } from "../../domain/value-objects";
 import { EjecucionResponse } from "../dto";
+import { toEjecucionResponse } from "../mappers/ejecucion-response.mapper";
 import { PrismaService } from "../../../../prisma/prisma.service";
+import { publishDomainEvents } from "../../../../shared/base/publish-domain-events";
 
 @Injectable()
 export class IniciarEjecucionUseCase {
@@ -81,31 +83,11 @@ export class IniciarEjecucionUseCase {
     });
 
     // 7. Publish domain events
-    const domainEvents = saved.getDomainEvents();
-    for (const event of domainEvents) {
-      this.eventEmitter.emit(event.eventName, event);
-    }
-    saved.clearDomainEvents();
+    publishDomainEvents(saved, this.eventEmitter);
 
     return {
       message: "Ejecución iniciada",
-      data: this.toResponse(saved),
-    };
-  }
-
-  private toResponse(e: Ejecucion): EjecucionResponse {
-    return {
-      id: e.getId().getValue(),
-      ordenId: e.getOrdenId(),
-      tecnicoId: e.getStartedBy() || "",
-      estado: e.getStatus().getValue(),
-      avance: e.getProgress().getValue(),
-      horasReales: e.getTotalWorkedTime().getTotalHours(),
-      fechaInicio: e.getStartedAt()?.toISOString() || new Date().toISOString(),
-      fechaFin: e.getCompletedAt()?.toISOString(),
-      observaciones: e.getObservaciones(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      data: toEjecucionResponse(saved),
     };
   }
 }
