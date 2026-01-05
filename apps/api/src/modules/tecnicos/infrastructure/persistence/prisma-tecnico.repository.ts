@@ -3,149 +3,149 @@
  * @description Prisma implementation of ITecnicoRepository
  * @layer Infrastructure
  */
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../../prisma/prisma.service';
-import { ITecnicoRepository, TecnicoFilters } from '../../domain/repositories';
-import { TecnicoEntity, TecnicoProps } from '../../domain/entities';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../../../prisma/prisma.service";
+import { ITecnicoRepository, TecnicoFilters } from "../../domain/repositories";
+import { TecnicoEntity, TecnicoProps } from "../../domain/entities";
 
 @Injectable()
 export class PrismaTecnicoRepository implements ITecnicoRepository {
-    constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-    async findById(id: string): Promise<TecnicoEntity | null> {
-        const user = await this.prisma.user.findUnique({
-            where: { id, role: 'tecnico' },
-            include: {
-                asignaciones: {
-                    select: { estado: true }
-                }
-            }
-        });
+  async findById(id: string): Promise<TecnicoEntity | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { id, role: "tecnico" },
+      include: {
+        asignaciones: {
+          select: { estado: true },
+        },
+      },
+    });
 
-        if (!user) return null;
+    if (!user) return null;
 
-        return this.mapToEntity(user);
+    return this.mapToEntity(user);
+  }
+
+  async findByUserId(userId: string): Promise<TecnicoEntity | null> {
+    return this.findById(userId);
+  }
+
+  async findAll(filters?: TecnicoFilters): Promise<TecnicoEntity[]> {
+    const where: any = { role: "tecnico" };
+
+    if (filters?.active !== undefined) {
+      where.active = filters.active;
+    }
+    if (filters?.search) {
+      where.OR = [
+        { name: { contains: filters.search, mode: "insensitive" } },
+        { email: { contains: filters.search, mode: "insensitive" } },
+      ];
     }
 
-    async findByUserId(userId: string): Promise<TecnicoEntity | null> {
-        return this.findById(userId);
+    const users = await this.prisma.user.findMany({
+      where,
+      orderBy: { name: "asc" },
+      include: {
+        asignaciones: {
+          select: { estado: true },
+        },
+      },
+    });
+
+    return users.map((u) => this.mapToEntity(u));
+  }
+
+  async findAvailable(): Promise<TecnicoEntity[]> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        role: "tecnico",
+        active: true,
+      },
+      orderBy: { name: "asc" },
+      include: {
+        asignaciones: {
+          select: { estado: true },
+        },
+      },
+    });
+
+    return users
+      .map((u) => this.mapToEntity(u))
+      .filter((t) => t.isAvailableForAssignment);
+  }
+
+  async save(tecnico: TecnicoEntity): Promise<TecnicoEntity> {
+    const data = {
+      name: tecnico.nombre,
+      phone: tecnico.telefono,
+      active: tecnico.active,
+      updatedAt: new Date(),
+    };
+
+    const user = await this.prisma.user.update({
+      where: { id: tecnico.id },
+      data,
+      include: {
+        asignaciones: {
+          select: { estado: true },
+        },
+      },
+    });
+
+    return this.mapToEntity(user);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id },
+      data: { active: false },
+    });
+  }
+
+  async count(filters?: TecnicoFilters): Promise<number> {
+    const where: any = { role: "tecnico" };
+
+    if (filters?.active !== undefined) {
+      where.active = filters.active;
+    }
+    if (filters?.search) {
+      where.OR = [
+        { name: { contains: filters.search, mode: "insensitive" } },
+        { email: { contains: filters.search, mode: "insensitive" } },
+      ];
     }
 
-    async findAll(filters?: TecnicoFilters): Promise<TecnicoEntity[]> {
-        const where: any = { role: 'tecnico' };
+    return this.prisma.user.count({ where });
+  }
 
-        if (filters?.active !== undefined) {
-            where.active = filters.active;
-        }
-        if (filters?.search) {
-            where.OR = [
-                { name: { contains: filters.search, mode: 'insensitive' } },
-                { email: { contains: filters.search, mode: 'insensitive' } },
-            ];
-        }
+  private mapToEntity(user: any): TecnicoEntity {
+    // Calculate stats from assignments
+    const assignments = user.asignaciones || [];
+    const activeOrders = assignments.filter(
+      (a: any) => a.estado !== "completada" && a.estado !== "cancelada",
+    ).length;
+    const completedOrders = assignments.filter(
+      (a: any) => a.estado === "completada",
+    ).length;
 
-        const users = await this.prisma.user.findMany({
-            where,
-            orderBy: { name: 'asc' },
-            include: {
-                asignaciones: {
-                    select: { estado: true }
-                }
-            }
-        });
+    const props: TecnicoProps = {
+      id: user.id,
+      userId: user.id,
+      nombre: user.name || "",
+      email: user.email,
+      telefono: user.phone || undefined,
+      disponibilidad: user.active ? "disponible" : "baja", // Logic could be refined based on activeOrders
+      especialidades: ["general"],
+      ordenesActivas: activeOrders,
+      ordenesCompletadas: completedOrders,
+      calificacionPromedio: undefined,
+      active: user.active,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
 
-        return users.map(u => this.mapToEntity(u));
-    }
-
-    async findAvailable(): Promise<TecnicoEntity[]> {
-        const users = await this.prisma.user.findMany({
-            where: {
-                role: 'tecnico',
-                active: true,
-            },
-            orderBy: { name: 'asc' },
-            include: {
-                asignaciones: {
-                    select: { estado: true }
-                }
-            }
-        });
-
-        return users
-            .map(u => this.mapToEntity(u))
-            .filter(t => t.isAvailableForAssignment);
-    }
-
-    async save(tecnico: TecnicoEntity): Promise<TecnicoEntity> {
-        const data = {
-            name: tecnico.nombre,
-            phone: tecnico.telefono,
-            active: tecnico.active,
-            updatedAt: new Date(),
-        };
-
-        const user = await this.prisma.user.update({
-            where: { id: tecnico.id },
-            data,
-            include: {
-                asignaciones: {
-                    select: { estado: true }
-                }
-            }
-        });
-
-        return this.mapToEntity(user);
-    }
-
-    async delete(id: string): Promise<void> {
-        await this.prisma.user.update({
-            where: { id },
-            data: { active: false },
-        });
-    }
-
-    async count(filters?: TecnicoFilters): Promise<number> {
-        const where: any = { role: 'tecnico' };
-
-        if (filters?.active !== undefined) {
-            where.active = filters.active;
-        }
-        if (filters?.search) {
-            where.OR = [
-                { name: { contains: filters.search, mode: 'insensitive' } },
-                { email: { contains: filters.search, mode: 'insensitive' } },
-            ];
-        }
-
-        return this.prisma.user.count({ where });
-    }
-
-    private mapToEntity(user: any): TecnicoEntity {
-        // Calculate stats from assignments
-        const assignments = user.asignaciones || [];
-        const activeOrders = assignments.filter((a: any) =>
-            a.estado !== 'completada' && a.estado !== 'cancelada'
-        ).length;
-        const completedOrders = assignments.filter((a: any) =>
-            a.estado === 'completada'
-        ).length;
-
-        const props: TecnicoProps = {
-            id: user.id,
-            userId: user.id,
-            nombre: user.name || '',
-            email: user.email,
-            telefono: user.phone || undefined,
-            disponibilidad: user.active ? 'disponible' : 'baja', // Logic could be refined based on activeOrders
-            especialidades: ['general'],
-            ordenesActivas: activeOrders,
-            ordenesCompletadas: completedOrders,
-            calificacionPromedio: undefined,
-            active: user.active,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt,
-        };
-
-        return TecnicoEntity.fromPersistence(props);
-    }
+    return TecnicoEntity.fromPersistence(props);
+  }
 }

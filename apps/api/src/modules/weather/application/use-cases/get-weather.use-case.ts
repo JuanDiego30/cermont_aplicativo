@@ -1,13 +1,13 @@
 /**
  * @useCase GetWeatherUseCase
  */
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject } from "@nestjs/common";
 import {
   WEATHER_SERVICE,
   IWeatherService,
   WeatherQueryDto,
   WeatherResponse,
-} from '../dto';
+} from "../dto";
 
 @Injectable()
 export class GetWeatherUseCase {

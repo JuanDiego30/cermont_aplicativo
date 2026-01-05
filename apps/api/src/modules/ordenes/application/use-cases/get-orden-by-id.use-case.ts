@@ -3,9 +3,9 @@
  * @description Caso de uso para obtener una orden por ID
  * @layer Application
  */
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { ORDEN_REPOSITORY, IOrdenRepository } from '../../domain/repositories';
-import { OrdenDetailResponseZod } from '../dto';
+import { Injectable, Inject, NotFoundException } from "@nestjs/common";
+import { ORDEN_REPOSITORY, IOrdenRepository } from "../../domain/repositories";
+import { OrdenDetailResponseZod } from "../dto";
 
 @Injectable()
 export class GetOrdenByIdUseCase {
@@ -18,7 +18,7 @@ export class GetOrdenByIdUseCase {
     const orden = await this.ordenRepository.findById(id);
 
     if (!orden) {
-      throw new NotFoundException('Orden no encontrada');
+      throw new NotFoundException("Orden no encontrada");
     }
 
     return {

@@ -4,17 +4,17 @@ import {
   Logger,
   NotFoundException,
   ForbiddenException,
-} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+} from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { ConfigService } from "@nestjs/config";
 import {
   IEvidenciaRepository,
   EVIDENCIA_REPOSITORY,
-} from '../../domain/repositories';
+} from "../../domain/repositories";
 import {
   ORDEN_REPOSITORY,
   IOrdenRepository,
-} from '../../../ordenes/domain/repositories';
+} from "../../../ordenes/domain/repositories";
 
 export interface GenerateEvidenciaDownloadTokenCommand {
   id: string;
@@ -30,7 +30,9 @@ export interface GenerateEvidenciaDownloadTokenResult {
 
 @Injectable()
 export class GenerateEvidenciaDownloadTokenUseCase {
-  private readonly logger = new Logger(GenerateEvidenciaDownloadTokenUseCase.name);
+  private readonly logger = new Logger(
+    GenerateEvidenciaDownloadTokenUseCase.name,
+  );
 
   constructor(
     @Inject(EVIDENCIA_REPOSITORY)
@@ -53,25 +55,25 @@ export class GenerateEvidenciaDownloadTokenUseCase {
 
     const orden = await this.ordenRepository.findById(evidencia.ordenId);
     if (!orden) {
-      throw new NotFoundException('Orden no encontrada');
+      throw new NotFoundException("Orden no encontrada");
     }
 
     const role = requesterRole?.toLowerCase();
-    const isPrivileged = role === 'admin' || role === 'supervisor';
+    const isPrivileged = role === "admin" || role === "supervisor";
     const canAccess =
       isPrivileged ||
       evidencia.uploadedBy === requestedBy ||
       orden.creadorId === requestedBy ||
       orden.asignadoId === requestedBy;
     if (!canAccess) {
-      throw new ForbiddenException('No autorizado');
+      throw new ForbiddenException("No autorizado");
     }
 
     const expiresInSeconds = 60 * 60; // 1h (Regla 27)
 
     const token = this.jwtService.sign(
       {
-        typ: 'evidencia_download',
+        typ: "evidencia_download",
         evidenciaId: id,
         requestedBy,
         role: requesterRole,
@@ -79,10 +81,13 @@ export class GenerateEvidenciaDownloadTokenUseCase {
       { expiresIn: expiresInSeconds },
     );
 
-    const baseUrl = this.config.get<string>('BASE_URL', 'http://localhost:3001');
+    const baseUrl = this.config.get<string>(
+      "BASE_URL",
+      "http://localhost:3001",
+    );
     const url = `${baseUrl}/evidencias/download/${token}`;
 
-    this.logger.debug('Generated temporary download token', {
+    this.logger.debug("Generated temporary download token", {
       evidenciaId: id,
       requestedBy,
       expiresInSeconds,

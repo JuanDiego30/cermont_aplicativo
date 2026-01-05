@@ -1,10 +1,10 @@
 /**
  * Aggregate Root: Costo
- * 
+ *
  * Representa un costo asociado a una orden de trabajo
- * 
+ *
  * ⚠️ CRÍTICO: Usa Money (Decimal.js) para precisión financiera
- * 
+ *
  * Invariantes:
  * - Monto debe ser > 0
  * - Tipo y categoría válidos
@@ -13,22 +13,22 @@
  * - Si excede presupuesto, requiere justificación
  */
 
-import { Logger } from '@nestjs/common';
-import { CostoId } from '../value-objects/costo-id.vo';
-import { Money } from '../value-objects/money.vo';
-import { CostoType } from '../value-objects/costo-type.vo';
-import { CostoCategory } from '../value-objects/costo-category.vo';
+import { Logger } from "@nestjs/common";
+import { CostoId } from "../value-objects/costo-id.vo";
+import { Money } from "../value-objects/money.vo";
+import { CostoType } from "../value-objects/costo-type.vo";
+import { CostoCategory } from "../value-objects/costo-category.vo";
 import {
   ValidationError,
   BusinessRuleViolationError,
   InvalidCostAmountException,
   CostNotEditableException,
-} from '../exceptions';
+} from "../exceptions";
 import {
   CostoRegisteredEvent,
   CostUpdatedEvent,
   CostDeletedEvent,
-} from '../events';
+} from "../events";
 
 export class Costo {
   private static readonly logger = new Logger(Costo.name);
@@ -168,18 +168,23 @@ export class Costo {
   public update(newAmount: Money, reason: string, updatedBy: string): void {
     if (!this.isEditable()) {
       throw new CostNotEditableException(
-        'No se puede editar costo con más de 30 días de antigüedad',
+        "No se puede editar costo con más de 30 días de antigüedad",
         this._id.getValue(),
         this._registeredAt,
       );
     }
 
     if (this._isDeleted) {
-      throw new BusinessRuleViolationError('No se puede editar costo eliminado');
+      throw new BusinessRuleViolationError(
+        "No se puede editar costo eliminado",
+      );
     }
 
     if (!reason || reason.trim().length === 0) {
-      throw new ValidationError('Se requiere razón para actualizar costo', 'reason');
+      throw new ValidationError(
+        "Se requiere razón para actualizar costo",
+        "reason",
+      );
     }
 
     const oldAmount = this._amount;
@@ -207,11 +212,14 @@ export class Costo {
    */
   public delete(reason: string, deletedBy: string): void {
     if (this._isDeleted) {
-      throw new BusinessRuleViolationError('Costo ya está eliminado');
+      throw new BusinessRuleViolationError("Costo ya está eliminado");
     }
 
     if (!reason || reason.trim().length === 0) {
-      throw new ValidationError('Se requiere justificación para eliminar costo', 'reason');
+      throw new ValidationError(
+        "Se requiere justificación para eliminar costo",
+        "reason",
+      );
     }
 
     this._isDeleted = true;
@@ -236,12 +244,12 @@ export class Costo {
    */
   public addJustification(justification: string): void {
     if (!justification || justification.trim().length === 0) {
-      throw new ValidationError('Justificación es requerida', 'justification');
+      throw new ValidationError("Justificación es requerida", "justification");
     }
     if (justification.length > Costo.MAX_JUSTIFICATION_LENGTH) {
       throw new ValidationError(
         `Justificación no puede exceder ${Costo.MAX_JUSTIFICATION_LENGTH} caracteres`,
-        'justification',
+        "justification",
       );
     }
     this._justification = justification.trim();
@@ -388,11 +396,14 @@ export class Costo {
   private validate(): void {
     // Invariantes
     if (!this._ordenId || this._ordenId.trim().length === 0) {
-      throw new ValidationError('ordenId es requerido', 'ordenId');
+      throw new ValidationError("ordenId es requerido", "ordenId");
     }
 
     if (this._amount.isZero()) {
-      throw new InvalidCostAmountException('Monto debe ser mayor a 0', this._amount.toJSON());
+      throw new InvalidCostAmountException(
+        "Monto debe ser mayor a 0",
+        this._amount.toJSON(),
+      );
     }
 
     if (
@@ -401,14 +412,14 @@ export class Costo {
     ) {
       throw new ValidationError(
         `Descripción debe tener al menos ${Costo.MIN_DESCRIPTION_LENGTH} caracteres`,
-        'description',
+        "description",
       );
     }
 
     if (this._description.length > Costo.MAX_DESCRIPTION_LENGTH) {
       throw new ValidationError(
         `Descripción no puede exceder ${Costo.MAX_DESCRIPTION_LENGTH} caracteres`,
-        'description',
+        "description",
       );
     }
 
@@ -416,9 +427,8 @@ export class Costo {
     if (this._type.requiresInvoice() && !this._invoiceNumber) {
       throw new ValidationError(
         `Tipo ${this._type.getValue()} requiere número de factura`,
-        'invoiceNumber',
+        "invoiceNumber",
       );
     }
   }
 }
-

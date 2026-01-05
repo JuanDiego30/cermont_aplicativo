@@ -1,11 +1,11 @@
 /**
  * @dto ChecklistResponseDto
- * 
+ *
  * DTO de respuesta para checklists
  */
 
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ChecklistStatusEnum } from '../../domain/value-objects/checklist-status.vo';
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ChecklistStatusEnum } from "../../domain/value-objects/checklist-status.vo";
 
 export class ChecklistItemResponseDto {
   @ApiProperty()
@@ -99,4 +99,3 @@ export class PaginatedChecklistsResponseDto {
   @ApiProperty()
   totalPages!: number;
 }
-

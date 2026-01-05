@@ -1,16 +1,16 @@
 /**
  * Value Object: NivelRiesgo
- * 
+ *
  * Nivel de riesgo del servicio
  */
 
-import { ValidationError } from '../../../../common/domain/exceptions';
+import { ValidationError } from "../../../../common/domain/exceptions";
 
 export enum NivelRiesgoEnum {
-  BAJO = 'BAJO',
-  MEDIO = 'MEDIO',
-  ALTO = 'ALTO',
-  CRITICO = 'CRITICO',
+  BAJO = "BAJO",
+  MEDIO = "MEDIO",
+  ALTO = "ALTO",
+  CRITICO = "CRITICO",
 }
 
 export class NivelRiesgo {
@@ -35,16 +35,17 @@ export class NivelRiesgo {
   }
 
   public static fromString(value: string): NivelRiesgo {
-    if (!value || value.trim() === '') {
-      throw new ValidationError('Nivel de riesgo no puede estar vacío');
+    if (!value || value.trim() === "") {
+      throw new ValidationError("Nivel de riesgo no puede estar vacío");
     }
 
     const upperValue = value.toUpperCase();
-    const enumValue = NivelRiesgoEnum[upperValue as keyof typeof NivelRiesgoEnum];
+    const enumValue =
+      NivelRiesgoEnum[upperValue as keyof typeof NivelRiesgoEnum];
 
     if (!enumValue) {
       throw new ValidationError(
-        `Nivel de riesgo inválido: ${value}. Valores válidos: ${Object.values(NivelRiesgoEnum).join(', ')}`
+        `Nivel de riesgo inválido: ${value}. Valores válidos: ${Object.values(NivelRiesgoEnum).join(", ")}`,
       );
     }
 
@@ -91,13 +92,13 @@ export class NivelRiesgo {
   public getColor(): string {
     switch (this._value) {
       case NivelRiesgoEnum.BAJO:
-        return '#28a745';
+        return "#28a745";
       case NivelRiesgoEnum.MEDIO:
-        return '#ffc107';
+        return "#ffc107";
       case NivelRiesgoEnum.ALTO:
-        return '#fd7e14';
+        return "#fd7e14";
       case NivelRiesgoEnum.CRITICO:
-        return '#dc3545';
+        return "#dc3545";
     }
   }
 
@@ -109,4 +110,3 @@ export class NivelRiesgo {
     return this._value;
   }
 }
-

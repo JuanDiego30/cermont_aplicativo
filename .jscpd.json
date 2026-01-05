@@ -1,25 +1,57 @@
 {
-    "threshold": 5,
+    "threshold": 2.5,
     "reporters": [
         "console",
-        "html"
+        "html",
+        "markdown"
     ],
     "ignore": [
+        "**/*.bak",
+        "**/*.bak.*",
         "**/node_modules/**",
+        "**/.pnpm-store/**",
         "**/dist/**",
+        "**/.next/**",
         "**/coverage/**",
+        "**/.turbo/**",
+        "**/report/**",
+        "**/pdf/**",
+        "**/docs/**",
         "**/*.spec.ts",
         "**/test/**",
         "**/prisma/seed.ts",
         "**/prisma/seeds/**",
         "**/*.d.ts",
         "**/migration_lock.toml",
-        "apps/web/**",
-        "apps/api/src/modules/**"
+        "**/.angular/**",
+        "**/ui-example/**",
+        "**/ecommerce/**",
+        "**/horizontal-card/**",
+        "**/card-with-link/**",
+        "**/card-with-image/**",
+        "**/card-with-icon/**",
+        "**/basic-tables/**",
+        "**/charts/**",
+        "**/form-elements/**",
+        "**/user-profile/**",
+        "**/ui/dropdown/**",
+        "**/ui/images/**",
+        "**/ui/videos/**",
+        "**/landing/**",
+        "**/landing-navbar/**",
+        "**/invoice/**",
+        "**/transactions/**",
+        "**/cards/**",
+        "**/shared/components/auth/**",
+        "**/chat/**",
+        "**/pages/**"
     ],
     "format": [
         "typescript",
         "javascript"
     ],
-    "mode": "strict"
+    "mode": "strict",
+    "minLines": 10,
+    "minTokens": 50,
+    "output": "./report"
 }

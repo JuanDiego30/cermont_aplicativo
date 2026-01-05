@@ -1,32 +1,32 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Prioridad } from './create-orden.dto';
-import { OrdenEstado } from './update-orden.dto';
-import { Prioridad as OrdenPrioridad } from './create-orden.dto';
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Prioridad } from "./create-orden.dto";
+import { OrdenEstado } from "./update-orden.dto";
+import { Prioridad as OrdenPrioridad } from "./create-orden.dto";
 
 // Re-export para facilitar imports
-export { OrdenEstado } from './update-orden.dto';
-export { Prioridad as OrdenPrioridad } from './create-orden.dto';
+export { OrdenEstado } from "./update-orden.dto";
+export { Prioridad as OrdenPrioridad } from "./create-orden.dto";
 
 export class OrdenResponseDto {
-  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
+  @ApiProperty({ example: "123e4567-e89b-12d3-a456-426614174000" })
   id!: string;
 
-  @ApiProperty({ example: 'ORD-2024-001' })
+  @ApiProperty({ example: "ORD-2024-001" })
   numero!: string;
 
-  @ApiProperty({ example: 'Mantenimiento preventivo - Torre 5G' })
+  @ApiProperty({ example: "Mantenimiento preventivo - Torre 5G" })
   descripcion!: string;
 
-  @ApiProperty({ example: 'Ecopetrol S.A.' })
+  @ApiProperty({ example: "Ecopetrol S.A." })
   cliente!: string;
 
-  @ApiPropertyOptional({ example: 'Juan Pérez' })
+  @ApiPropertyOptional({ example: "Juan Pérez" })
   contactoCliente?: string;
 
-  @ApiPropertyOptional({ example: '+57 300 123 4567' })
+  @ApiPropertyOptional({ example: "+57 300 123 4567" })
   telefonoCliente?: string;
 
-  @ApiPropertyOptional({ example: 'Carrera 15 #45-67, Bogotá' })
+  @ApiPropertyOptional({ example: "Carrera 15 #45-67, Bogotá" })
   direccion?: string;
 
   @ApiProperty({ enum: OrdenEstado })
@@ -35,19 +35,19 @@ export class OrdenResponseDto {
   @ApiProperty({ enum: OrdenPrioridad })
   prioridad!: OrdenPrioridad;
 
-  @ApiPropertyOptional({ example: '123e4567-e89b-12d3-a456-426614174000' })
+  @ApiPropertyOptional({ example: "123e4567-e89b-12d3-a456-426614174000" })
   creadorId?: string;
 
-  @ApiPropertyOptional({ example: '123e4567-e89b-12d3-a456-426614174001' })
+  @ApiPropertyOptional({ example: "123e4567-e89b-12d3-a456-426614174001" })
   asignadoId?: string;
 
-  @ApiPropertyOptional({ example: '2025-03-15T08:00:00.000Z' })
+  @ApiPropertyOptional({ example: "2025-03-15T08:00:00.000Z" })
   fechaInicio?: string;
 
-  @ApiPropertyOptional({ example: '2025-03-15T17:00:00.000Z' })
+  @ApiPropertyOptional({ example: "2025-03-15T17:00:00.000Z" })
   fechaFin?: string;
 
-  @ApiPropertyOptional({ example: '2025-03-15T17:00:00.000Z' })
+  @ApiPropertyOptional({ example: "2025-03-15T17:00:00.000Z" })
   fechaFinEstimada?: string;
 
   @ApiPropertyOptional({ example: 250000 })
@@ -56,7 +56,7 @@ export class OrdenResponseDto {
   @ApiPropertyOptional({ example: 245000 })
   costoReal?: number;
 
-  @ApiPropertyOptional({ example: 'Observaciones generales' })
+  @ApiPropertyOptional({ example: "Observaciones generales" })
   observaciones?: string;
 
   @ApiPropertyOptional({ example: true })
@@ -65,16 +65,16 @@ export class OrdenResponseDto {
   @ApiPropertyOptional({ example: false })
   cumplimientoHES?: boolean;
 
-  @ApiProperty({ example: '2024-12-24T18:00:00.000Z' })
+  @ApiProperty({ example: "2024-12-24T18:00:00.000Z" })
   createdAt!: string;
 
-  @ApiProperty({ example: '2024-12-24T18:00:00.000Z' })
+  @ApiProperty({ example: "2024-12-24T18:00:00.000Z" })
   updatedAt!: string;
 
-  @ApiPropertyOptional({ example: { id: '123', name: 'Usuario Creador' } })
+  @ApiPropertyOptional({ example: { id: "123", name: "Usuario Creador" } })
   creador?: { id: string; name: string };
 
-  @ApiPropertyOptional({ example: { id: '456', name: 'Técnico Asignado' } })
+  @ApiPropertyOptional({ example: { id: "456", name: "Técnico Asignado" } })
   asignado?: { id: string; name: string };
 }
 
@@ -102,10 +102,10 @@ export class PaginatedOrdenResponseDto {
 }
 
 export class HistorialEstadoDto {
-  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
+  @ApiProperty({ example: "123e4567-e89b-12d3-a456-426614174000" })
   id!: string;
 
-  @ApiProperty({ example: 'ORD-2024-001' })
+  @ApiProperty({ example: "ORD-2024-001" })
   ordenId!: string;
 
   @ApiPropertyOptional({ enum: OrdenEstado, example: OrdenEstado.PLANEACION })
@@ -114,16 +114,15 @@ export class HistorialEstadoDto {
   @ApiProperty({ enum: OrdenEstado, example: OrdenEstado.EJECUCION })
   estadoNuevo!: OrdenEstado;
 
-  @ApiProperty({ example: 'Técnico asignado' })
+  @ApiProperty({ example: "Técnico asignado" })
   motivo!: string;
 
-  @ApiPropertyOptional({ example: 'Observaciones del cambio' })
+  @ApiPropertyOptional({ example: "Observaciones del cambio" })
   observaciones?: string;
 
-  @ApiPropertyOptional({ example: '123e4567-e89b-12d3-a456-426614174002' })
+  @ApiPropertyOptional({ example: "123e4567-e89b-12d3-a456-426614174002" })
   usuarioId?: string;
 
-  @ApiProperty({ example: '2024-12-24T18:00:00.000Z' })
+  @ApiProperty({ example: "2024-12-24T18:00:00.000Z" })
   createdAt!: string;
 }
-

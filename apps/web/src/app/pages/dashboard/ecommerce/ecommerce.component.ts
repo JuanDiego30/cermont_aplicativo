@@ -7,7 +7,6 @@ import { MonthlyTargetComponent } from '../../../shared/components/ecommerce/mon
 import { StatisticsChartComponent } from '../../../shared/components/ecommerce/statics-chart/statics-chart.component';
 import { DemographicCardComponent } from '../../../shared/components/ecommerce/demographic-card/demographic-card.component';
 import { RecentOrdersComponent } from '../../../shared/components/ecommerce/recent-orders/recent-orders.component';
-import { MobileStatCardsComponent } from '../../../shared/components/common/mobile-stat-cards/mobile-stat-cards.component';
 import { MobileProgressSectionComponent } from '../../../shared/components/common/mobile-progress-section/mobile-progress-section.component';
 
 interface DashboardMetrics {
@@ -35,7 +34,6 @@ interface OrderStatus {
     StatisticsChartComponent,
     DemographicCardComponent,
     RecentOrdersComponent,
-    MobileStatCardsComponent,
     MobileProgressSectionComponent,
   ],
   templateUrl: './ecommerce.component.html',

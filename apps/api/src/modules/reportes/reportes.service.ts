@@ -1,15 +1,15 @@
 /**
  * @service ReportesService
  * @description Servicio para generación de reportes y análisis
- * 
+ *
  * Principios aplicados:
  * - Type Safety: Interfaces tipadas, sin 'any'
  * - Clean Code: Código legible y bien estructurado
  * - SRP: Solo maneja lógica de reportes
  */
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { Prisma } from "@prisma/client";
 
 // ============================================================================
 // Interfaces
@@ -43,8 +43,8 @@ export interface OrdenConCostos {
 // Constantes
 // ============================================================================
 
-const ESTADO_COMPLETADA = 'completada';
-const ESTADO_EN_EJECUCION = 'ejecucion';
+const ESTADO_COMPLETADA = "completada";
+const ESTADO_EN_EJECUCION = "ejecucion";
 
 // ============================================================================
 // Service
@@ -52,7 +52,7 @@ const ESTADO_EN_EJECUCION = 'ejecucion';
 
 @Injectable()
 export class ReportesService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Genera reporte de órdenes con filtro por fechas
@@ -142,7 +142,7 @@ export class ReportesService {
    * Cuenta órdenes por estado
    */
   private contarPorEstado(ordenes: OrdenConCostos[], estado: string): number {
-    return ordenes.filter(o => o.estado === estado).length;
+    return ordenes.filter((o) => o.estado === estado).length;
   }
 
   /**

@@ -1,1 +1,1 @@
-export * from './cierre-administrativo.controller';
+export * from "./cierre-administrativo.controller";

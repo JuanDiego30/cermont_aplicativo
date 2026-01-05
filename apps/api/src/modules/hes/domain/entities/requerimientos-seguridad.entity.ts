@@ -1,10 +1,10 @@
 /**
  * Entity: RequerimientosSeguridad
- * 
+ *
  * Requerimientos de seguridad y checklist
  */
 
-import { EPPRequerido } from '../value-objects/epp-requerido.vo';
+import { EPPRequerido } from "../value-objects/epp-requerido.vo";
 
 export interface CreateRequerimientosSeguridadProps {
   eppRequerido?: Array<{ tipo: string; descripcion?: string }>;
@@ -29,10 +29,12 @@ export class RequerimientosSeguridad {
     this.initializeChecklist();
   }
 
-  public static create(props: CreateRequerimientosSeguridadProps): RequerimientosSeguridad {
+  public static create(
+    props: CreateRequerimientosSeguridadProps,
+  ): RequerimientosSeguridad {
     const requerimientos = new RequerimientosSeguridad(
       (props.eppRequerido || []).map((epp) =>
-        EPPRequerido.fromString(epp.tipo, epp.descripcion)
+        EPPRequerido.fromString(epp.tipo, epp.descripcion),
       ),
       props.permisosNecesarios || [],
       props.riesgosIdentificados || [],
@@ -53,12 +55,12 @@ export class RequerimientosSeguridad {
   private initializeChecklist(): void {
     // Checklist obligatorio según normativa
     const itemsObligatorios = [
-      'Área de trabajo despejada',
-      'Herramientas en buen estado',
-      'EPP completo',
-      'Señalización colocada',
-      'Permisos obtenidos',
-      'Cliente informado de riesgos',
+      "Área de trabajo despejada",
+      "Herramientas en buen estado",
+      "EPP completo",
+      "Señalización colocada",
+      "Permisos obtenidos",
+      "Cliente informado de riesgos",
     ];
 
     itemsObligatorios.forEach((item) => {
@@ -82,7 +84,9 @@ export class RequerimientosSeguridad {
   public getPorcentajeCompletitud(): number {
     const total = this._checklistItems.size;
     if (total === 0) return 100;
-    const completados = Array.from(this._checklistItems.values()).filter((v) => v).length;
+    const completados = Array.from(this._checklistItems.values()).filter(
+      (v) => v,
+    ).length;
     return Math.round((completados / total) * 100);
   }
 
@@ -108,10 +112,18 @@ export class RequerimientosSeguridad {
 
   public tieneRiesgosAltos(): boolean {
     // Palabras clave que indican riesgo alto
-    const palabrasRiesgoAlto = ['electrico', 'altura', 'espacios confinados', 'quimicos', 'explosivo'];
+    const palabrasRiesgoAlto = [
+      "electrico",
+      "altura",
+      "espacios confinados",
+      "quimicos",
+      "explosivo",
+    ];
 
     return this._riesgosIdentificados.some((riesgo) =>
-      palabrasRiesgoAlto.some((palabra) => riesgo.toLowerCase().includes(palabra))
+      palabrasRiesgoAlto.some((palabra) =>
+        riesgo.toLowerCase().includes(palabra),
+      ),
     );
   }
 
@@ -119,4 +131,3 @@ export class RequerimientosSeguridad {
     return this._observaciones;
   }
 }
-

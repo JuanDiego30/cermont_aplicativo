@@ -1,12 +1,12 @@
 /**
  * @mapper ChecklistPrismaMapper
- * 
+ *
  * Mapea entre Prisma Model y Domain Entity
  */
 
-import { Checklist } from '../../domain/entities/checklist.entity';
-import { ChecklistItem } from '../../domain/entities/checklist-item.entity';
-import { ChecklistStatus } from '../../domain/value-objects/checklist-status.vo';
+import { Checklist } from "../../domain/entities/checklist.entity";
+import { ChecklistItem } from "../../domain/entities/checklist-item.entity";
+import { ChecklistStatus } from "../../domain/value-objects/checklist-status.vo";
 
 /**
  * Mapea desde Prisma Template a Domain Entity
@@ -20,7 +20,7 @@ export class ChecklistPrismaMapper {
     const items = (raw.items || []).map((item: any) =>
       ChecklistItem.fromPersistence({
         id: item.id,
-        label: item.nombre || item.descripcion || '',
+        label: item.nombre || item.descripcion || "",
         isRequired: item.requereCertificacion || false,
         isChecked: false, // Templates no tienen estado checked
         orden: item.orden || 0,
@@ -28,7 +28,7 @@ export class ChecklistPrismaMapper {
     );
 
     // Determinar status desde activo
-    const status = raw.activo ? 'ACTIVE' : 'DRAFT';
+    const status = raw.activo ? "ACTIVE" : "DRAFT";
 
     return Checklist.fromPersistence({
       id: raw.id,
@@ -67,9 +67,9 @@ export class ChecklistPrismaMapper {
     );
 
     // Determinar status desde completada
-    let status = 'ACTIVE';
+    let status = "ACTIVE";
     if (raw.completada) {
-      status = 'COMPLETED';
+      status = "COMPLETED";
     }
 
     return Checklist.fromPersistence({
@@ -103,12 +103,12 @@ export class ChecklistPrismaMapper {
       descripcion: persistence.description,
       tipo: persistence.tipo,
       categoria: persistence.categoria,
-      activo: persistence.status === 'ACTIVE',
+      activo: persistence.status === "ACTIVE",
       items: persistence.items.map((item, index) => ({
         id: item.id,
         nombre: item.label,
         descripcion: item.label, // Usar label como descripción también
-        tipo: 'item',
+        tipo: "item",
         orden: item.orden ?? index,
         requereCertificacion: item.isRequired,
       })),
@@ -135,7 +135,7 @@ export class ChecklistPrismaMapper {
       items: persistence.items.map((item) => ({
         id: item.id,
         nombre: item.label,
-        estado: item.isChecked ? 'completado' : 'pendiente',
+        estado: item.isChecked ? "completado" : "pendiente",
         completado: item.isChecked,
         completadoEn: item.checkedAt,
         observaciones: item.observaciones,
@@ -146,4 +146,3 @@ export class ChecklistPrismaMapper {
     };
   }
 }
-

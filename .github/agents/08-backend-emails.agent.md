@@ -39,7 +39,7 @@ interface EmailOptions {
   to: string;
   subject: string;
   template: string;
-  context: Record<string, any>;
+  context: Record<string, unknown>;
 }
 
 @Injectable()
@@ -143,7 +143,7 @@ export class NotificationsService {
 
   async notifyAdminOnCriticalError(
     error: Error,
-    context: Record<string, any>
+    context: Record<string, unknown>
   ): Promise<void> {
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@cermont.com';
 

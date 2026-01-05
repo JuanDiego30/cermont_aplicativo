@@ -3,19 +3,19 @@
  * @description Implementation of IEvidenciaRepository using Prisma
  */
 
-import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../../../prisma/prisma.service';
+import { Injectable, Logger } from "@nestjs/common";
+import { PrismaService } from "../../../../prisma/prisma.service";
 import {
   IEvidenciaRepository,
   FindEvidenciasOptions,
-} from '../../domain/repositories';
-import { Evidencia } from '../../domain/entities';
+} from "../../domain/repositories";
+import { Evidencia } from "../../domain/entities";
 
 @Injectable()
 export class PrismaEvidenciaRepository implements IEvidenciaRepository {
   private readonly logger = new Logger(PrismaEvidenciaRepository.name);
 
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async save(evidencia: Evidencia): Promise<Evidencia> {
     const data = evidencia.toPersistence() as Record<string, unknown>;
@@ -39,7 +39,7 @@ export class PrismaEvidenciaRepository implements IEvidenciaRepository {
         rutaArchivo: data.rutaArchivo as string,
         tamano: BigInt(data.tamano as number),
         thumbnailPath: (data.thumbnailPath as string) || null,
-        status: (data.status as string) || 'READY',
+        status: (data.status as string) || "READY",
         descripcion: data.descripcion as string,
         tags: data.tags as string[],
         metadata: metadataJson,
@@ -52,7 +52,7 @@ export class PrismaEvidenciaRepository implements IEvidenciaRepository {
       },
       update: {
         thumbnailPath: (data.thumbnailPath as string) || null,
-        status: (data.status as string) || 'READY',
+        status: (data.status as string) || "READY",
         descripcion: data.descripcion as string,
         tags: data.tags as string[],
         metadata: metadataJson,
@@ -90,7 +90,7 @@ export class PrismaEvidenciaRepository implements IEvidenciaRepository {
 
     const records = await this.prisma.evidenciaEjecucion.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       skip: options.skip,
       take: options.take,
     });
@@ -142,7 +142,7 @@ export class PrismaEvidenciaRepository implements IEvidenciaRepository {
         deletedAt: { not: null },
         ...(ordenId ? { ordenId } : {}),
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
 
     return records.map((r) => this.toDomain(r));

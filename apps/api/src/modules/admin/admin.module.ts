@@ -7,12 +7,12 @@
  * - Application: Casos de uso, DTOs, Mappers, Event Handlers
  * - Infrastructure: Controllers, Persistencia (Prisma)
  */
-import { Module } from '@nestjs/common';
-import { PrismaModule } from '../../prisma/prisma.module';
+import { Module } from "@nestjs/common";
+import { PrismaModule } from "../../prisma/prisma.module";
 
 // Infrastructure
-import { AdminController } from './infrastructure/controllers';
-import { UserRepository } from './infrastructure/persistence/user.repository';
+import { AdminController } from "./infrastructure/controllers";
+import { UserRepository } from "./infrastructure/persistence/user.repository";
 
 // Application - Use Cases
 import {
@@ -24,7 +24,7 @@ import {
   ListUsersUseCase,
   GetUserByIdUseCase,
   GetUserStatsUseCase,
-} from './application/use-cases';
+} from "./application/use-cases";
 
 // Application - Event Handlers
 import {
@@ -32,19 +32,19 @@ import {
   RoleChangedHandler,
   UserDeactivatedHandler,
   PasswordResetHandler,
-} from './application/event-handlers';
+} from "./application/event-handlers";
 
 // Domain - Repository Interface Token
-import { USER_REPOSITORY } from './domain/repositories/user.repository.interface';
+import { USER_REPOSITORY } from "./domain/repositories/user.repository.interface";
 
 // Legacy Service (mantenido por compatibilidad)
-import { AdminService } from './admin.service';
+import { AdminService } from "./admin.service";
 
 // Shared Services
-import { PasswordService } from '../../lib/services/password.service';
+import { PasswordService } from "../../lib/services/password.service";
 
 // Import AuthModule for PasswordService dependency
-import { AuthModule } from '../auth/auth.module';
+import { AuthModule } from "../auth/auth.module";
 
 @Module({
   imports: [
@@ -56,7 +56,7 @@ import { AuthModule } from '../auth/auth.module';
   providers: [
     // ✅ Shared Services
     PasswordService,
-    
+
     // ✅ Repository (inyección por interfaz)
     {
       provide: USER_REPOSITORY,
@@ -85,7 +85,7 @@ import { AuthModule } from '../auth/auth.module';
   exports: [
     // Exportar PasswordService para uso en otros módulos
     PasswordService,
-    
+
     // Exportar casos de uso para uso en otros módulos si es necesario
     CreateUserUseCase,
     UpdateUserUseCase,
@@ -103,4 +103,4 @@ import { AuthModule } from '../auth/auth.module';
     AdminService,
   ],
 })
-export class AdminModule { }
+export class AdminModule {}

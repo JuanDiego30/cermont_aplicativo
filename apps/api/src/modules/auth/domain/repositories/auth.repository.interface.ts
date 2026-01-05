@@ -1,17 +1,19 @@
+import { AuthUserEntity, AuthUserProps } from "../entities/auth-user.entity";
 
-import { AuthUserEntity, AuthUserProps } from '../entities/auth-user.entity';
-
-export const AUTH_REPOSITORY = 'AUTH_REPOSITORY';
+export const AUTH_REPOSITORY = "AUTH_REPOSITORY";
 
 export interface IAuthRepository {
   findByEmail(email: string): Promise<AuthUserEntity | null>;
   findById(id: string): Promise<AuthUserEntity | null>;
   findUserById(id: string): Promise<AuthUserEntity | null>;
-  create(data: Omit<AuthUserProps, 'id'>): Promise<AuthUserEntity>;
+  create(data: Omit<AuthUserProps, "id">): Promise<AuthUserEntity>;
   updateLastLogin(userId: string): Promise<void>;
 
   // Regla 7: lockout (5 intentos fallidos => 15 min)
-  incrementLoginAttempts(userId: string, lockUntil?: Date): Promise<{ loginAttempts: number; lockedUntil: Date | null }>;
+  incrementLoginAttempts(
+    userId: string,
+    lockUntil?: Date,
+  ): Promise<{ loginAttempts: number; lockedUntil: Date | null }>;
   resetLoginAttempts(userId: string): Promise<void>;
   createRefreshToken(data: {
     token: string;

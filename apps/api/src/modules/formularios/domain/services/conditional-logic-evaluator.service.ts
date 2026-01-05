@@ -1,17 +1,17 @@
 /**
  * Domain Service: ConditionalLogicEvaluatorService
- * 
+ *
  * Servicio de dominio para evaluar lógica condicional en formularios
  */
 
-import { FormField } from '../entities/form-field.entity';
-import { ConditionalOperator } from '../value-objects/conditional-operator.vo';
+import { FormField } from "../entities/form-field.entity";
+import { ConditionalOperator } from "../value-objects/conditional-operator.vo";
 
 export interface ConditionalLogicConfig {
   targetFieldId: string;
   operator: string;
   expectedValue: any;
-  action: 'SHOW' | 'HIDE';
+  action: "SHOW" | "HIDE";
 }
 
 export class ConditionalLogicEvaluatorService {
@@ -26,7 +26,7 @@ export class ConditionalLogicEvaluatorService {
     const operator = ConditionalOperator.fromString(logic.operator);
     const result = operator.evaluate(actualValue, logic.expectedValue);
 
-    return logic.action === 'SHOW' ? result : !result;
+    return logic.action === "SHOW" ? result : !result;
   }
 
   /**
@@ -100,4 +100,3 @@ export class ConditionalLogicEvaluatorService {
     return false;
   }
 }
-

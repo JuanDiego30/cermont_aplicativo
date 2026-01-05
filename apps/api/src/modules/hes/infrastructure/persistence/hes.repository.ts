@@ -1,16 +1,16 @@
 /**
  * Repository: HESRepository
- * 
+ *
  * Implementación Prisma de IHESRepository
  */
 
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../../prisma/prisma.service';
-import { IHESRepository } from '../../domain/repositories/hes.repository.interface';
-import { HES } from '../../domain/entities/hes.entity';
-import { HESId } from '../../domain/value-objects/hes-id.vo';
-import { HESNumero } from '../../domain/value-objects/hes-numero.vo';
-import { HESPrismaMapper } from './hes.prisma.mapper';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../../../prisma/prisma.service";
+import { IHESRepository } from "../../domain/repositories/hes.repository.interface";
+import { HES } from "../../domain/entities/hes.entity";
+import { HESId } from "../../domain/value-objects/hes-id.vo";
+import { HESNumero } from "../../domain/value-objects/hes-numero.vo";
+import { HESPrismaMapper } from "./hes.prisma.mapper";
 
 @Injectable()
 export class HESRepository implements IHESRepository {
@@ -112,7 +112,7 @@ export class HESRepository implements IHESRepository {
         },
       },
       orderBy: {
-        numero: 'desc',
+        numero: "desc",
       },
     });
 
@@ -164,7 +164,7 @@ export class HESRepository implements IHESRepository {
 
     const data = await (this.prisma as any).hojaEntradaServicio.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
 
     return data.map((d: any) => HESPrismaMapper.fromPrisma(d));
@@ -175,7 +175,7 @@ export class HESRepository implements IHESRepository {
     await (this.prisma as any).hojaEntradaServicio.update({
       where: { id: id.getValue() },
       data: {
-        estado: 'ANULADO',
+        estado: "ANULADO",
         anuladoEn: new Date(),
       },
     });

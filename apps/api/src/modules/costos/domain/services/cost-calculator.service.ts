@@ -1,24 +1,26 @@
 /**
  * Domain Service: CostCalculatorService
- * 
+ *
  * Servicio de dominio para cálculos financieros complejos
  * ⚠️ CRÍTICO: Usa Decimal.js para precisión absoluta
  */
 
-import { Logger } from '@nestjs/common';
-import { Costo } from '../entities/costo.entity';
-import { Money } from '../value-objects/money.vo';
-import { CostoType } from '../value-objects/costo-type.vo';
-import { CostoCategory } from '../value-objects/costo-category.vo';
+import { Logger } from "@nestjs/common";
+import { Costo } from "../entities/costo.entity";
+import { Money } from "../value-objects/money.vo";
+import { CostoType } from "../value-objects/costo-type.vo";
+import { CostoCategory } from "../value-objects/costo-category.vo";
 
-const logger = new Logger('CostCalculatorService');
+const logger = new Logger("CostCalculatorService");
 
 // Decimal.js es open source
 let Decimal: any;
 try {
-  Decimal = require('decimal.js');
+  Decimal = require("decimal.js");
 } catch {
-  logger.warn('decimal.js no está instalado. Instalar con: npm install decimal.js');
+  logger.warn(
+    "decimal.js no está instalado. Instalar con: npm install decimal.js",
+  );
 }
 
 export class CostCalculatorService {
@@ -27,7 +29,7 @@ export class CostCalculatorService {
    */
   public static calculateTotalByType(costos: Costo[], type: CostoType): Money {
     if (costos.length === 0) {
-      return Money.zero('COP'); // Default currency
+      return Money.zero("COP"); // Default currency
     }
 
     const currency = costos[0].getAmount().getCurrency();
@@ -50,7 +52,7 @@ export class CostCalculatorService {
     category: CostoCategory,
   ): Money {
     if (costos.length === 0) {
-      return Money.zero('COP');
+      return Money.zero("COP");
     }
 
     const currency = costos[0].getAmount().getCurrency();
@@ -70,7 +72,7 @@ export class CostCalculatorService {
    */
   public static calculateTotal(costos: Costo[]): Money {
     if (costos.length === 0) {
-      return Money.zero('COP');
+      return Money.zero("COP");
     }
 
     const currency = costos[0].getAmount().getCurrency();
@@ -91,7 +93,10 @@ export class CostCalculatorService {
    * @param costs - Costos totales
    * @returns Margen como porcentaje (0-100)
    */
-  public static calculateProfitMargin(revenue: Money, costs: Money): number | any {
+  public static calculateProfitMargin(
+    revenue: Money,
+    costs: Money,
+  ): number | any {
     if (revenue.isZero()) {
       return Decimal ? new Decimal(0) : 0;
     }
@@ -177,7 +182,7 @@ export class CostCalculatorService {
     const activeCostos = costos.filter((c) => !c.isDeleted());
 
     if (activeCostos.length === 0) {
-      const zero = Money.zero('COP');
+      const zero = Money.zero("COP");
       return {
         count: 0,
         total: zero,
@@ -195,7 +200,10 @@ export class CostCalculatorService {
 
     const total = this.calculateTotal(activeCostos);
     const average = total.divide(activeCostos.length);
-    const median = Money.create(amounts[Math.floor(amounts.length / 2)], currency);
+    const median = Money.create(
+      amounts[Math.floor(amounts.length / 2)],
+      currency,
+    );
     const min = Money.create(amounts[0], currency);
     const max = Money.create(amounts[amounts.length - 1], currency);
 
@@ -209,4 +217,3 @@ export class CostCalculatorService {
     };
   }
 }
-

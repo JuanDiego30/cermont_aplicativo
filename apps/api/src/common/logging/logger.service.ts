@@ -7,4 +7,4 @@
  * este archivo re-exporta la implementación única en src/lib/logging.
  */
 
-export { LoggerService } from '../../lib/logging/logger.service';
+export { LoggerService } from "../../lib/logging/logger.service";

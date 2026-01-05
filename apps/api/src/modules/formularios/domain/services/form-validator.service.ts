@@ -1,13 +1,13 @@
 /**
  * Domain Service: FormValidatorService
- * 
+ *
  * Servicio de dominio para validar submissions contra templates
  */
 
-import { FormTemplate } from '../entities/form-template.entity';
-import { FormField } from '../entities/form-field.entity';
-import { FieldValue } from '../value-objects/field-value.vo';
-import { ConditionalLogicEvaluatorService } from './conditional-logic-evaluator.service';
+import { FormTemplate } from "../entities/form-template.entity";
+import { FormField } from "../entities/form-field.entity";
+import { FieldValue } from "../value-objects/field-value.vo";
+import { ConditionalLogicEvaluatorService } from "./conditional-logic-evaluator.service";
 
 export interface ValidationErrorItem {
   fieldId: string;
@@ -15,7 +15,8 @@ export interface ValidationErrorItem {
 }
 
 export class FormValidatorService {
-  private static readonly conditionalLogicEvaluator = new ConditionalLogicEvaluatorService();
+  private static readonly conditionalLogicEvaluator =
+    new ConditionalLogicEvaluatorService();
 
   /**
    * Validar respuestas contra template
@@ -77,7 +78,7 @@ export class FormValidatorService {
       if (!validationResult.isValid) {
         errors.push({
           fieldId,
-          message: validationResult.error || 'Invalid value',
+          message: validationResult.error || "Invalid value",
         });
       }
     }
@@ -85,10 +86,16 @@ export class FormValidatorService {
     return errors;
   }
 
-  private isFieldVisible(field: FormField, formData: Record<string, any>): boolean {
+  private isFieldVisible(
+    field: FormField,
+    formData: Record<string, any>,
+  ): boolean {
     const logic = field.getConditionalLogic();
     if (!logic) return true;
-    return FormValidatorService.conditionalLogicEvaluator.evaluate(logic, formData);
+    return FormValidatorService.conditionalLogicEvaluator.evaluate(
+      logic,
+      formData,
+    );
   }
 
   /**
@@ -98,7 +105,7 @@ export class FormValidatorService {
     const errors: string[] = [];
 
     if (template.getFields().length === 0) {
-      errors.push('Template must have at least one field');
+      errors.push("Template must have at least one field");
     }
 
     for (const field of template.getFields()) {
@@ -110,4 +117,3 @@ export class FormValidatorService {
     return errors;
   }
 }
-

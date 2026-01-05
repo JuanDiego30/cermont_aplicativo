@@ -1,11 +1,11 @@
 /**
  * Domain Event: ChecklistCompletedEvent
- * 
+ *
  * Se publica cuando un checklist se completa
  */
 
 export class ChecklistCompletedEvent {
-  public readonly eventName = 'CHECKLIST_COMPLETED';
+  public readonly eventName = "CHECKLIST_COMPLETED";
   public readonly aggregateId: string;
   public readonly timestamp: Date;
   public readonly ordenId?: string;
@@ -38,4 +38,3 @@ export class ChecklistCompletedEvent {
     };
   }
 }
-

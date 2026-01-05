@@ -1,11 +1,11 @@
 /**
  * Domain Event: CostUpdatedEvent
- * 
+ *
  * Se publica cuando se actualiza un costo
  */
 
 export class CostUpdatedEvent {
-  public readonly eventName = 'COST_UPDATED';
+  public readonly eventName = "COST_UPDATED";
   public readonly aggregateId: string;
   public readonly timestamp: Date;
   public readonly ordenId: string;
@@ -46,4 +46,3 @@ export class CostUpdatedEvent {
     };
   }
 }
-

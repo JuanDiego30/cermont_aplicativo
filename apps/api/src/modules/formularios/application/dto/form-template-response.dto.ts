@@ -1,10 +1,10 @@
 /**
  * DTO: FormTemplateResponseDto
- * 
+ *
  * DTO de respuesta para template de formulario
  */
 
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class FormFieldResponseDto {
   @ApiProperty()
@@ -69,4 +69,3 @@ export class FormTemplateResponseDto {
   @ApiProperty()
   createdBy!: string;
 }
-

@@ -1,11 +1,11 @@
 /**
  * @module Cierre-Administrativo - Clean Architecture
  */
-import { z } from 'zod';
+import { z } from "zod";
 
 // DTOs
 export const CierreDocumentoSchema = z.object({
-  tipo: z.enum(['acta', 'ses', 'factura', 'otros']),
+  tipo: z.enum(["acta", "ses", "factura", "otros"]),
   numero: z.string().optional(),
   fechaDocumento: z.string(),
   observaciones: z.string().optional(),
@@ -42,12 +42,16 @@ export interface CierreResponse {
 }
 
 // Repository Interface
-export const CIERRE_REPOSITORY = Symbol('CIERRE_REPOSITORY');
+export const CIERRE_REPOSITORY = Symbol("CIERRE_REPOSITORY");
 
 export interface ICierreRepository {
   findByOrden(ordenId: string): Promise<any>;
   create(data: CreateCierreDto, userId: string): Promise<any>;
-  uploadDocumento(cierreId: string, documentoId: string, url: string): Promise<void>;
+  uploadDocumento(
+    cierreId: string,
+    documentoId: string,
+    url: string,
+  ): Promise<void>;
   aprobar(cierreId: string, userId: string): Promise<any>;
   rechazar(cierreId: string, motivo: string): Promise<any>;
 }

@@ -1,8 +1,8 @@
 /**
  * Value Object: CanalNotificacion
- * 
+ *
  * Representa un canal de envío de notificaciones
- * 
+ *
  * Canales disponibles:
  * - EMAIL: Notificaciones por correo electrónico
  * - PUSH: Notificaciones push (Firebase)
@@ -10,13 +10,13 @@
  * - IN_APP: Notificaciones en la aplicación (tiempo real)
  */
 
-import { ValidationError } from '../exceptions';
+import { ValidationError } from "../exceptions";
 
 export enum CanalNotificacionEnum {
-  EMAIL = 'EMAIL',
-  PUSH = 'PUSH',
-  SMS = 'SMS',
-  IN_APP = 'IN_APP',
+  EMAIL = "EMAIL",
+  PUSH = "PUSH",
+  SMS = "SMS",
+  IN_APP = "IN_APP",
 }
 
 export class CanalNotificacion {
@@ -29,10 +29,14 @@ export class CanalNotificacion {
    * @throws {ValidationError} si el canal es inválido
    */
   public static create(value: string): CanalNotificacion {
-    if (!Object.values(CanalNotificacionEnum).includes(value as CanalNotificacionEnum)) {
+    if (
+      !Object.values(CanalNotificacionEnum).includes(
+        value as CanalNotificacionEnum,
+      )
+    ) {
       throw new ValidationError(
-        `Canal inválido. Canales permitidos: ${Object.values(CanalNotificacionEnum).join(', ')}`,
-        'canal',
+        `Canal inválido. Canales permitidos: ${Object.values(CanalNotificacionEnum).join(", ")}`,
+        "canal",
         value,
       );
     }
@@ -68,10 +72,9 @@ export class CanalNotificacion {
    * Verificar si es en tiempo real
    */
   public isRealTime(): boolean {
-    return [
-      CanalNotificacionEnum.IN_APP,
-      CanalNotificacionEnum.PUSH,
-    ].includes(this._value);
+    return [CanalNotificacionEnum.IN_APP, CanalNotificacionEnum.PUSH].includes(
+      this._value,
+    );
   }
 
   /**
@@ -79,10 +82,10 @@ export class CanalNotificacion {
    */
   public getTiempoEstimadoEntrega(): number {
     const tiempos = {
-      [CanalNotificacionEnum.EMAIL]: 60,    // 1 minuto
-      [CanalNotificacionEnum.PUSH]: 5,      // 5 segundos
-      [CanalNotificacionEnum.SMS]: 30,      // 30 segundos
-      [CanalNotificacionEnum.IN_APP]: 1,    // Instantáneo
+      [CanalNotificacionEnum.EMAIL]: 60, // 1 minuto
+      [CanalNotificacionEnum.PUSH]: 5, // 5 segundos
+      [CanalNotificacionEnum.SMS]: 30, // 30 segundos
+      [CanalNotificacionEnum.IN_APP]: 1, // Instantáneo
     };
     return tiempos[this._value];
   }
@@ -111,4 +114,3 @@ export class CanalNotificacion {
     return this._value;
   }
 }
-

@@ -1,19 +1,25 @@
 /**
  * Value Object: EstadoHES
- * 
+ *
  * Estado del ciclo de vida de la HES
  */
 
-import { ValidationError, BusinessRuleViolationError } from '../../../../common/domain/exceptions';
+import {
+  ValidationError,
+  BusinessRuleViolationError,
+} from "../../../../common/domain/exceptions";
 
 export enum EstadoHESEnum {
-  BORRADOR = 'BORRADOR',
-  COMPLETADO = 'COMPLETADO',
-  ANULADO = 'ANULADO',
+  BORRADOR = "BORRADOR",
+  COMPLETADO = "COMPLETADO",
+  ANULADO = "ANULADO",
 }
 
 export class EstadoHES {
-  private static readonly VALID_TRANSITIONS: Map<EstadoHESEnum, EstadoHESEnum[]> = new Map([
+  private static readonly VALID_TRANSITIONS: Map<
+    EstadoHESEnum,
+    EstadoHESEnum[]
+  > = new Map([
     [EstadoHESEnum.BORRADOR, [EstadoHESEnum.COMPLETADO, EstadoHESEnum.ANULADO]],
     [EstadoHESEnum.COMPLETADO, [EstadoHESEnum.ANULADO]],
     [EstadoHESEnum.ANULADO, []],
@@ -36,8 +42,8 @@ export class EstadoHES {
   }
 
   public static fromString(value: string): EstadoHES {
-    if (!value || value.trim() === '') {
-      throw new ValidationError('Estado HES no puede estar vacío');
+    if (!value || value.trim() === "") {
+      throw new ValidationError("Estado HES no puede estar vacío");
     }
 
     const upperValue = value.toUpperCase();
@@ -45,7 +51,7 @@ export class EstadoHES {
 
     if (!enumValue) {
       throw new ValidationError(
-        `Estado HES inválido: ${value}. Valores válidos: ${Object.values(EstadoHESEnum).join(', ')}`
+        `Estado HES inválido: ${value}. Valores válidos: ${Object.values(EstadoHESEnum).join(", ")}`,
       );
     }
 
@@ -64,7 +70,7 @@ export class EstadoHES {
   public transitionTo(newState: EstadoHESEnum): EstadoHES {
     if (!this.canTransitionTo(newState)) {
       throw new BusinessRuleViolationError(
-        `No se puede transicionar de ${this._value} a ${newState}`
+        `No se puede transicionar de ${this._value} a ${newState}`,
       );
     }
 
@@ -91,4 +97,3 @@ export class EstadoHES {
     return this._value;
   }
 }
-

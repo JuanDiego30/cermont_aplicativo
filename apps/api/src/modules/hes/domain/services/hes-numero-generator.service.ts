@@ -1,12 +1,15 @@
 /**
  * Domain Service: HESNumeroGeneratorService
- * 
+ *
  * Genera números únicos de HES en formato HES-YYYY-0001
  */
 
-import { Injectable, Inject } from '@nestjs/common';
-import { HESNumero } from '../value-objects/hes-numero.vo';
-import { IHESRepository, HES_REPOSITORY } from '../repositories/hes.repository.interface';
+import { Injectable, Inject } from "@nestjs/common";
+import { HESNumero } from "../value-objects/hes-numero.vo";
+import {
+  IHESRepository,
+  HES_REPOSITORY,
+} from "../repositories/hes.repository.interface";
 
 @Injectable()
 export class HESNumeroGeneratorService {

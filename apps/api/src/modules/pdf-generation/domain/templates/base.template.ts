@@ -1,6 +1,6 @@
 export class BaseTemplate {
-    static getStyles(): string {
-        return `
+  static getStyles(): string {
+    return `
       <style>
         * {
           margin: 0;
@@ -181,32 +181,32 @@ export class BaseTemplate {
         }
       </style>
     `;
-    }
+  }
 
-    static getHeader(companyName: string = 'CERMONT'): string {
-        return `
+  static getHeader(companyName: string = "CERMONT"): string {
+    return `
       <div class="header">
         <div class="header-logo">
           <div class="company-name">${companyName}</div>
           <div class="document-info">
-            Fecha: ${new Date().toLocaleDateString('es-CO')}
+            Fecha: ${new Date().toLocaleDateString("es-CO")}
           </div>
         </div>
       </div>
     `;
-    }
+  }
 
-    static getFooter(): string {
-        return `
+  static getFooter(): string {
+    return `
       <div class="footer">
         <p>© ${new Date().getFullYear()} Cermont - Sistema de Gestión de Mantenimiento</p>
         <p>Documento generado automáticamente</p>
       </div>
     `;
-    }
+  }
 
-    static wrap(title: string, content: string): string {
-        return `
+  static wrap(title: string, content: string): string {
+    return `
       <!DOCTYPE html>
       <html lang="es">
       <head>
@@ -224,5 +224,5 @@ export class BaseTemplate {
       </body>
       </html>
     `;
-    }
+  }
 }

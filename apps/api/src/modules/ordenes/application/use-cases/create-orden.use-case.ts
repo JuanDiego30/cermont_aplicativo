@@ -3,11 +3,11 @@
  * @description Caso de uso para crear una orden
  * @layer Application
  */
-import { Injectable, Inject } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ORDEN_REPOSITORY, IOrdenRepository } from '../../domain/repositories';
-import { OrdenEntity } from '../../domain/entities';
-import { CreateOrdenDto, OrdenResponseZod } from '../dto';
+import { Injectable, Inject } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { ORDEN_REPOSITORY, IOrdenRepository } from "../../domain/repositories";
+import { OrdenEntity } from "../../domain/entities";
+import { CreateOrdenDto, OrdenResponseZod } from "../dto";
 
 @Injectable()
 export class CreateOrdenUseCase {
@@ -29,8 +29,10 @@ export class CreateOrdenUseCase {
       {
         descripcion: dto.descripcion,
         cliente: dto.cliente,
-        prioridad: dto.prioridad || 'media',
-        fechaFinEstimada: dto.fechaFinEstimada ? new Date(dto.fechaFinEstimada) : undefined,
+        prioridad: dto.prioridad || "media",
+        fechaFinEstimada: dto.fechaFinEstimada
+          ? new Date(dto.fechaFinEstimada)
+          : undefined,
         presupuestoEstimado: dto.presupuestoEstimado,
         creadorId,
         asignadoId: dto.asignadoId,
@@ -42,7 +44,7 @@ export class CreateOrdenUseCase {
     const saved = await this.ordenRepository.create(orden);
 
     // Emitir evento
-    this.eventEmitter.emit('orden.created', {
+    this.eventEmitter.emit("orden.created", {
       ordenId: saved.id,
       numero: saved.numero.value,
       cliente: saved.cliente,
@@ -50,7 +52,7 @@ export class CreateOrdenUseCase {
     });
 
     return {
-      message: 'Orden creada exitosamente',
+      message: "Orden creada exitosamente",
       data: {
         id: saved.id,
         numero: saved.numero.value,

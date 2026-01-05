@@ -1,1 +1,1 @@
-export * from './kpi.entity';
+export * from "./kpi.entity";

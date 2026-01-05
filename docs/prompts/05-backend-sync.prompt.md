@@ -15,12 +15,8 @@ Garantizar la integridad de los datos en escenarios de conectividad intermitente
 
 ## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
 
-### ❌ Violaciones Críticas de Type Safety (Fix Prioritario)
-Se detectó el uso de `any` en los controladores, lo que compromete la seguridad de tipos en la capa de entrada.
-
-| Archivo | Línea | Violación | Solución |
-|---------|-------|-----------|----------|
-| `sync.controller.ts` | 94, 131, 138, 170 | `@Req() req: any` (4 ocurrencias) | Crear interfaz `AuthenticatedRequest` |
+### ✅ Estado (Actualizado)
+El controlador legacy ya está tipado con una interfaz de request autenticada (evita `@Req() req: any`).
 
 ---
 
@@ -40,6 +36,8 @@ EJECUTA SIN PREGUNTAR:
 3. IMPLEMENTACIÓN: Código robusto y tipado
 
 4. VERIFICACIÓN: pnpm run test -- --testPathPattern=sync
+
+   (Monorepo) Alternativa estable: pnpm --filter @cermont/api test -- --testPathPattern=sync
 ```
 
 ---

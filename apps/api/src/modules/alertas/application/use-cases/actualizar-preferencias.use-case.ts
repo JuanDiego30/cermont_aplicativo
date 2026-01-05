@@ -1,20 +1,20 @@
 /**
  * Use Case: ActualizarPreferenciasUseCase
- * 
+ *
  * Actualiza preferencias de alertas del usuario
  */
 
-import { Injectable, Inject, Logger } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Injectable, Inject, Logger } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import {
   IPreferenciaAlertaRepository,
   PREFERENCIA_ALERTA_REPOSITORY,
-} from '../../domain/repositories/preferencia-alerta.repository.interface';
-import { PreferenciaAlerta } from '../../domain/entities/preferencia-alerta.entity';
-import { PreferenciaActualizadaEvent } from '../../domain/events/preferencia-actualizada.event';
-import { ActualizarPreferenciasDto } from '../dto/preferencias-alerta.dto';
-import { PreferenciaResponseDto } from '../dto/preferencias-alerta.dto';
-import { PreferenciaMapper } from '../mappers/preferencia.mapper';
+} from "../../domain/repositories/preferencia-alerta.repository.interface";
+import { PreferenciaAlerta } from "../../domain/entities/preferencia-alerta.entity";
+import { PreferenciaActualizadaEvent } from "../../domain/events/preferencia-actualizada.event";
+import { ActualizarPreferenciasDto } from "../dto/preferencias-alerta.dto";
+import { PreferenciaResponseDto } from "../dto/preferencias-alerta.dto";
+import { PreferenciaMapper } from "../mappers/preferencia.mapper";
 
 @Injectable()
 export class ActualizarPreferenciasUseCase {
@@ -43,7 +43,9 @@ export class ActualizarPreferenciasUseCase {
         tipoAlerta: dto.tipoAlerta,
         canalesPreferidos: dto.canalesPreferidos,
         noMolestar: dto.noMolestar,
-        horariosPermitidos: dto.horariosPermitidos as { inicio: string; fin: string } | undefined,
+        horariosPermitidos: dto.horariosPermitidos as
+          | { inicio: string; fin: string }
+          | undefined,
       });
     } else {
       preferencia.actualizarCanales(dto.canalesPreferidos);
@@ -55,7 +57,9 @@ export class ActualizarPreferenciasUseCase {
         }
       }
       if (dto.horariosPermitidos !== undefined) {
-        preferencia.actualizarHorarios(dto.horariosPermitidos as { inicio: string; fin: string });
+        preferencia.actualizarHorarios(
+          dto.horariosPermitidos as { inicio: string; fin: string },
+        );
       }
     }
 
@@ -80,4 +84,3 @@ export class ActualizarPreferenciasUseCase {
     return PreferenciaMapper.toResponseDto(savedPreferencia);
   }
 }
-

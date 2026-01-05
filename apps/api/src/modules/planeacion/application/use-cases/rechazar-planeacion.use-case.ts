@@ -1,10 +1,13 @@
 /**
  * @useCase RechazarPlaneacionUseCase
  */
-import { Injectable, Inject } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { PLANEACION_REPOSITORY, IPlaneacionRepository } from '../../domain/repositories';
-import { PlaneacionResponse } from '../dto';
+import { Injectable, Inject } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import {
+  PLANEACION_REPOSITORY,
+  IPlaneacionRepository,
+} from "../../domain/repositories";
+import { PlaneacionResponse } from "../dto";
 
 @Injectable()
 export class RechazarPlaneacionUseCase {
@@ -20,13 +23,13 @@ export class RechazarPlaneacionUseCase {
   ): Promise<{ message: string; data: PlaneacionResponse }> {
     const planeacion = await this.planeacionRepository.rechazar(id, motivo);
 
-    this.eventEmitter.emit('planeacion.rechazada', {
+    this.eventEmitter.emit("planeacion.rechazada", {
       planeacionId: id,
       motivo,
     });
 
     return {
-      message: 'Planeación rechazada',
+      message: "Planeación rechazada",
       data: {
         id: planeacion.id,
         ordenId: planeacion.ordenId,

@@ -1,8 +1,8 @@
-import { UploadEvidenciaUseCase } from '../upload-evidencia.use-case';
+import { UploadEvidenciaUseCase } from "../upload-evidencia.use-case";
 
 // Minimal unit tests focusing on orden existence guard.
 
-describe('UploadEvidenciaUseCase', () => {
+describe("UploadEvidenciaUseCase", () => {
   const evidenciaRepo = {
     save: jest.fn(),
   } as any;
@@ -36,18 +36,18 @@ describe('UploadEvidenciaUseCase', () => {
     jest.clearAllMocks();
   });
 
-  it('returns error when orden does not exist', async () => {
+  it("returns error when orden does not exist", async () => {
     ordenRepo.findById.mockResolvedValue(null);
 
     const result = await makeUseCase().execute({
-      uploadedBy: 'user-1',
-      uploaderRole: 'tecnico',
-      dto: { ordenId: 'orden-404' } as any,
+      uploadedBy: "user-1",
+      uploaderRole: "tecnico",
+      dto: { ordenId: "orden-404" } as any,
       file: {
-        originalname: 'x.pdf',
-        mimetype: 'application/pdf',
+        originalname: "x.pdf",
+        mimetype: "application/pdf",
         size: 10,
-        buffer: Buffer.from('x'),
+        buffer: Buffer.from("x"),
       } as any,
     });
 

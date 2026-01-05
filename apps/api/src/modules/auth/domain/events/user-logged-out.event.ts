@@ -4,7 +4,7 @@
  * @layer Domain
  */
 export class UserLoggedOutEvent {
-  readonly eventName = 'auth.user.logged-out' as const;
+  readonly eventName = "auth.user.logged-out" as const;
   readonly occurredAt: Date;
 
   constructor(

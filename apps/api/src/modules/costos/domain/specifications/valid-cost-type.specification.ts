@@ -1,10 +1,10 @@
 /**
  * Specification: ValidCostTypeSpecification
- * 
+ *
  * Verifica que el tipo de costo sea válido
  */
 
-import { Costo } from '../entities/costo.entity';
+import { Costo } from "../entities/costo.entity";
 
 export class ValidCostTypeSpecification {
   /**
@@ -16,4 +16,3 @@ export class ValidCostTypeSpecification {
     return cost.getType() !== null && cost.getCategory() !== null;
   }
 }
-

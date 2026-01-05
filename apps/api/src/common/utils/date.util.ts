@@ -1,7 +1,7 @@
 /**
  * @util Date Utilities
  * @description Utilidades para manejo de fechas
- * 
+ *
  * Principio DRY: Centraliza lógica de fechas usada en múltiples módulos
  */
 
@@ -56,10 +56,10 @@ export function fechaEnDias(dias: number): Date {
  * Formatea fecha a formato colombiano
  */
 export function formatearFechaColombia(fecha: Date): string {
-  return new Intl.DateTimeFormat('es-CO', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+  return new Intl.DateTimeFormat("es-CO", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   }).format(fecha);
 }
 
@@ -67,12 +67,12 @@ export function formatearFechaColombia(fecha: Date): string {
  * Formatea fecha y hora a formato colombiano
  */
 export function formatearFechaHoraColombia(fecha: Date): string {
-  return new Intl.DateTimeFormat('es-CO', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Intl.DateTimeFormat("es-CO", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   }).format(fecha);
 }
 

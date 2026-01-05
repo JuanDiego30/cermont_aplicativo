@@ -14,4 +14,3 @@ export class OrdenCreatedEvent {
     public readonly timestamp: Date = new Date(),
   ) {}
 }
-

@@ -15,37 +15,37 @@ export interface WeatherLocation {
 export interface WeatherData {
   location: WeatherLocation;
   timestamp: string;
-  temperature: number;        // °C
-  feelsLike: number;          // °C (sensación térmica)
-  humidity: number;           // %
-  pressure: number;           // hPa
-  windSpeed: number;          // m/s
-  windDirection: number;      // grados (0-360)
-  windGusts?: number;         // m/s
-  cloudCover: number;         // %
-  precipitation: number;      // mm
-  rain: number;               // mm
-  uvIndex?: number;           // índice UV
-  weatherCode: number;        // código WMO
-  description: string;        // descripción en español
-  icon: string;               // emoji del clima
+  temperature: number; // °C
+  feelsLike: number; // °C (sensación térmica)
+  humidity: number; // %
+  pressure: number; // hPa
+  windSpeed: number; // m/s
+  windDirection: number; // grados (0-360)
+  windGusts?: number; // m/s
+  cloudCover: number; // %
+  precipitation: number; // mm
+  rain: number; // mm
+  uvIndex?: number; // índice UV
+  weatherCode: number; // código WMO
+  description: string; // descripción en español
+  icon: string; // emoji del clima
 }
 
 // Pronóstico de lluvia diario
 export interface RainfallForecast {
-  date: string;               // YYYY-MM-DD
-  precipitationSum: number;   // mm total del día
-  rainSum: number;            // mm lluvia (sin nieve)
+  date: string; // YYYY-MM-DD
+  precipitationSum: number; // mm total del día
+  rainSum: number; // mm lluvia (sin nieve)
   precipitationProbability: number; // %
   weatherCode: number;
-  tempMax: number;            // °C
-  tempMin: number;            // °C
+  tempMax: number; // °C
+  tempMin: number; // °C
   description: string;
 }
 
 // Pronóstico por hora
 export interface HourlyForecast {
-  time: string;               // ISO datetime
+  time: string; // ISO datetime
   temperature: number;
   humidity: number;
   precipitationProbability: number;
@@ -59,15 +59,15 @@ export interface HourlyForecast {
 }
 
 // Alertas meteorológicas
-export type AlertSeverity = 'BAJA' | 'MEDIA' | 'ALTA' | 'CRITICA';
+export type AlertSeverity = "BAJA" | "MEDIA" | "ALTA" | "CRITICA";
 export type AlertType =
-  | 'VIENTO_FUERTE'
-  | 'RAFAGAS_VIENTO'
-  | 'CALOR_EXTREMO'
-  | 'UV_ALTO'
-  | 'LLUVIA_PROBABLE'
-  | 'TORMENTA'
-  | 'VISIBILIDAD_REDUCIDA';
+  | "VIENTO_FUERTE"
+  | "RAFAGAS_VIENTO"
+  | "CALOR_EXTREMO"
+  | "UV_ALTO"
+  | "LLUVIA_PROBABLE"
+  | "TORMENTA"
+  | "VISIBILIDAD_REDUCIDA";
 
 export interface WeatherAlert {
   type: AlertType;

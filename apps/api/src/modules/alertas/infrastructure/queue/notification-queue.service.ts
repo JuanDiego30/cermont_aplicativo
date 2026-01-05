@@ -1,19 +1,25 @@
 /**
  * @service NotificationQueueService
- * 
+ *
  * Servicio de cola para procesamiento asíncrono de notificaciones
  * Usa BullMQ (open source) para gestión de jobs con Redis
  */
 
-import { Injectable, Inject, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import {
+  Injectable,
+  Inject,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import {
   IAlertaRepository,
   ALERTA_REPOSITORY,
-} from '../../domain/repositories/alerta.repository.interface';
-import { NotificationSenderFactory } from '../services/notification-factory';
-import { PrismaService } from '../../../../prisma/prisma.service';
-import { CanalNotificacion } from '../../domain/value-objects/canal-notificacion.vo';
+} from "../../domain/repositories/alerta.repository.interface";
+import { NotificationSenderFactory } from "../services/notification-factory";
+import { PrismaService } from "../../../../prisma/prisma.service";
+import { CanalNotificacion } from "../../domain/value-objects/canal-notificacion.vo";
 
 // BullMQ types (se instalarán con npm install bullmq ioredis)
 let Queue: any;
@@ -22,13 +28,15 @@ let QueueEvents: any;
 
 try {
   // Intentar importar BullMQ si está instalado
-  const bullmq = require('bullmq');
+  const bullmq = require("bullmq");
   Queue = bullmq.Queue;
   Worker = bullmq.Worker;
   QueueEvents = bullmq.QueueEvents;
 } catch (error) {
   // Si no está instalado, usar implementación mock
-  Logger.warn('BullMQ no está instalado. Usando implementación mock. Instalar con: npm install bullmq ioredis');
+  Logger.warn(
+    "BullMQ no está instalado. Usando implementación mock. Instalar con: npm install bullmq ioredis",
+  );
 }
 
 @Injectable()
@@ -50,9 +58,9 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
   async onModuleInit(): Promise<void> {
     try {
       this.initializeQueue();
-      this.logger.log('NotificationQueueService inicializado');
+      this.logger.log("NotificationQueueService inicializado");
     } catch (error) {
-      this.logger.error('Error inicializando NotificationQueueService', error);
+      this.logger.error("Error inicializando NotificationQueueService", error);
       // No lanzar error para permitir que la app inicie sin Redis
     }
   }
@@ -75,48 +83,47 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
   private initializeBullMQ(): void {
     try {
       const redisConfig = {
-        host: this.config.get('REDIS_HOST') || 'localhost',
-        port: parseInt(this.config.get('REDIS_PORT') || '6379', 10),
-        password: this.config.get('REDIS_PASSWORD') || undefined,
+        host: this.config.get("REDIS_HOST") || "localhost",
+        port: parseInt(this.config.get("REDIS_PORT") || "6379", 10),
+        password: this.config.get("REDIS_PASSWORD") || undefined,
         maxRetriesPerRequest: null, // Requerido para BullMQ
       };
 
       // Cola para envío de alertas
-      this.queue = new Queue('notifications', { connection: redisConfig });
+      this.queue = new Queue("notifications", { connection: redisConfig });
 
       // Worker que procesa los jobs
-      this.worker = new Worker(
-        'notifications',
-        this.processJob.bind(this),
-        {
-          connection: redisConfig,
-          concurrency: 5, // Procesar 5 jobs simultáneamente
-          removeOnComplete: {
-            age: 3600, // Mantener jobs completados por 1 hora
-            count: 1000, // Máximo 1000 jobs completados
-          },
-          removeOnFail: {
-            age: 86400, // Mantener jobs fallidos por 24 horas
-          },
+      this.worker = new Worker("notifications", this.processJob.bind(this), {
+        connection: redisConfig,
+        concurrency: 5, // Procesar 5 jobs simultáneamente
+        removeOnComplete: {
+          age: 3600, // Mantener jobs completados por 1 hora
+          count: 1000, // Máximo 1000 jobs completados
         },
-      );
+        removeOnFail: {
+          age: 86400, // Mantener jobs fallidos por 24 horas
+        },
+      });
 
       // Escuchar eventos de la cola
-      this.queueEvents = new QueueEvents('notifications', {
+      this.queueEvents = new QueueEvents("notifications", {
         connection: redisConfig,
       });
 
       this.setupEventListeners();
-      this.logger.log('✅ BullMQ inicializado correctamente');
+      this.logger.log("✅ BullMQ inicializado correctamente");
     } catch (error) {
-      this.logger.error('Error inicializando BullMQ, usando implementación mock', error);
+      this.logger.error(
+        "Error inicializando BullMQ, usando implementación mock",
+        error,
+      );
       this.initializeMockQueue();
     }
   }
 
   private initializeMockQueue(): void {
     this.logger.warn(
-      'NotificationQueueService usando implementación mock. Para producción, instalar: npm install bullmq ioredis',
+      "NotificationQueueService usando implementación mock. Para producción, instalar: npm install bullmq ioredis",
     );
 
     // Mock implementation - procesa inmediatamente
@@ -127,7 +134,7 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
         try {
           await this.processJob({ data: payload });
         } catch (error) {
-          this.logger.error('[Queue Mock] Error procesando job:', error);
+          this.logger.error("[Queue Mock] Error procesando job:", error);
         }
       },
       getJobCounts: async () => ({
@@ -151,22 +158,18 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
   }): Promise<void> {
     try {
       if (this.useBullMQ) {
-        await this.queue.add(
-          'send-notification',
-          payload,
-          {
-            attempts: payload.isRetry ? 3 : 1,
-            backoff: {
-              type: 'exponential',
-              delay: 2000,
-            },
-            removeOnComplete: true,
-            removeOnFail: false,
+        await this.queue.add("send-notification", payload, {
+          attempts: payload.isRetry ? 3 : 1,
+          backoff: {
+            type: "exponential",
+            delay: 2000,
           },
-        );
+          removeOnComplete: true,
+          removeOnFail: false,
+        });
       } else {
         // Mock: procesar inmediatamente
-        await this.queue.add('send-notification', payload);
+        await this.queue.add("send-notification", payload);
       }
 
       this.logger.debug(`Alerta ${payload.alertaId} encolada para envío`, {
@@ -219,7 +222,11 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
       };
 
       // Enviar por cada canal
-      const resultados: Array<{ canal: string; exito: boolean; error?: string }> = [];
+      const resultados: Array<{
+        canal: string;
+        exito: boolean;
+        error?: string;
+      }> = [];
 
       for (const canalStr of canales) {
         try {
@@ -228,12 +235,18 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
           await sender.send(alerta, destinatario);
 
           // Marcar como enviada
-          await this.alertaRepository.marcarComoEnviada(alertaId, canal.getValue());
+          await this.alertaRepository.marcarComoEnviada(
+            alertaId,
+            canal.getValue(),
+          );
 
           resultados.push({ canal: canal.getValue(), exito: true });
-          this.logger.log(`✅ Alerta ${alertaId} enviada por ${canal.getValue()}`);
+          this.logger.log(
+            `✅ Alerta ${alertaId} enviada por ${canal.getValue()}`,
+          );
         } catch (error) {
-          const errorMsg = error instanceof Error ? error.message : String(error);
+          const errorMsg =
+            error instanceof Error ? error.message : String(error);
           resultados.push({ canal: canalStr, exito: false, error: errorMsg });
           this.logger.error(
             `❌ Error enviando alerta ${alertaId} por ${canalStr}:`,
@@ -250,11 +263,14 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
 
       // Si todos los canales fallaron, marcar como fallida
       if (resultados.every((r) => !r.exito)) {
-        alerta.marcarComoFallida('Todos los canales fallaron');
+        alerta.marcarComoFallida("Todos los canales fallaron");
         await this.alertaRepository.save(alerta);
       }
     } catch (error) {
-      this.logger.error(`[NotificationQueue] Error procesando ${alertaId}:`, error);
+      this.logger.error(
+        `[NotificationQueue] Error procesando ${alertaId}:`,
+        error,
+      );
       throw error;
     }
   }
@@ -267,23 +283,23 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
       return;
     }
 
-    this.queueEvents.on('completed', ({ jobId }: any) => {
+    this.queueEvents.on("completed", ({ jobId }: any) => {
       this.logger.debug(`✅ Job ${jobId} completado`);
     });
 
-    this.queueEvents.on('failed', ({ jobId, failedReason }: any) => {
+    this.queueEvents.on("failed", ({ jobId, failedReason }: any) => {
       this.logger.error(`❌ Job ${jobId} falló: ${failedReason}`);
     });
 
-    this.queueEvents.on('error', (error: any) => {
-      this.logger.error('❌ Error en NotificationQueue:', error);
+    this.queueEvents.on("error", (error: any) => {
+      this.logger.error("❌ Error en NotificationQueue:", error);
     });
 
-    this.worker.on('completed', (job: any) => {
+    this.worker.on("completed", (job: any) => {
       this.logger.debug(`✅ Job ${job.id} completado exitosamente`);
     });
 
-    this.worker.on('failed', (job: any, err: Error) => {
+    this.worker.on("failed", (job: any, err: Error) => {
       this.logger.error(`❌ Job ${job?.id} falló:`, err.message);
     });
   }
@@ -310,7 +326,7 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
         return await this.queue.getJobCounts();
       }
     } catch (error) {
-      this.logger.error('Error obteniendo stats de la cola:', error);
+      this.logger.error("Error obteniendo stats de la cola:", error);
       return { pending: 0, processing: 0, completed: 0, failed: 0 };
     }
   }
@@ -321,14 +337,14 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
   async clearQueue(): Promise<void> {
     try {
       if (this.useBullMQ && this.queue) {
-        await this.queue.clean(0, 'completed');
-        await this.queue.clean(0, 'failed');
-        this.logger.log('Cola limpiada exitosamente');
+        await this.queue.clean(0, "completed");
+        await this.queue.clean(0, "failed");
+        this.logger.log("Cola limpiada exitosamente");
       } else {
         await this.queue.clean();
       }
     } catch (error) {
-      this.logger.error('Error limpiando cola:', error);
+      this.logger.error("Error limpiando cola:", error);
       throw error;
     }
   }
@@ -347,9 +363,9 @@ export class NotificationQueueService implements OnModuleInit, OnModuleDestroy {
       if (this.queueEvents) {
         await this.queueEvents.close();
       }
-      this.logger.log('NotificationQueueService cerrado');
+      this.logger.log("NotificationQueueService cerrado");
     } catch (error) {
-      this.logger.error('Error cerrando NotificationQueueService:', error);
+      this.logger.error("Error cerrando NotificationQueueService:", error);
     }
   }
 }

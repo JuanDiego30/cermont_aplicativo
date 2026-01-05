@@ -1,15 +1,15 @@
-import { Module } from '@nestjs/common';
-import { PrismaModule } from '../../prisma/prisma.module';
-import { PlaneacionController } from './infrastructure/controllers/planeacion.controller';
-import { PlaneacionService } from './planeacion.service';
+import { Module } from "@nestjs/common";
+import { PrismaModule } from "../../prisma/prisma.module";
+import { PlaneacionController } from "./infrastructure/controllers/planeacion.controller";
+import { PlaneacionService } from "./planeacion.service";
 import {
   GetPlaneacionUseCase,
   CreateOrUpdatePlaneacionUseCase,
   AprobarPlaneacionUseCase,
   RechazarPlaneacionUseCase,
-} from './application/use-cases';
-import { PLANEACION_REPOSITORY } from './domain/repositories';
-import { PlaneacionRepository } from './infrastructure/persistence/planeacion.repository';
+} from "./application/use-cases";
+import { PLANEACION_REPOSITORY } from "./domain/repositories";
+import { PlaneacionRepository } from "./infrastructure/persistence/planeacion.repository";
 
 @Module({
   imports: [PrismaModule],
@@ -35,4 +35,4 @@ import { PlaneacionRepository } from './infrastructure/persistence/planeacion.re
     CreateOrUpdatePlaneacionUseCase,
   ],
 })
-export class PlaneacionModule { }
+export class PlaneacionModule {}

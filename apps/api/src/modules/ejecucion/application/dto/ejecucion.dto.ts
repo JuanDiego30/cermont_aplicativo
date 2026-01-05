@@ -2,7 +2,7 @@
  * @module Ejecucion - Clean Architecture
  * @description DTOs con Zod
  */
-import { z } from 'zod';
+import { z } from "zod";
 
 export const IniciarEjecucionSchema = z.object({
   tecnicoId: z.string().uuid(),
@@ -47,7 +47,7 @@ export interface EjecucionResponse {
 }
 
 // Repository Interface
-export const EJECUCION_REPOSITORY = Symbol('EJECUCION_REPOSITORY');
+export const EJECUCION_REPOSITORY = Symbol("EJECUCION_REPOSITORY");
 
 export interface IEjecucionRepository {
   findByOrdenId(ordenId: string): Promise<any>;

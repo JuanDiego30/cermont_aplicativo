@@ -1,1 +1,1 @@
-export { CierreRepository } from './cierre.repository';
+export { CierreRepository } from "./cierre.repository";

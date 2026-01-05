@@ -1,5 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import { Injectable, Logger } from "@nestjs/common";
+import { ThrottlerGuard } from "@nestjs/throttler";
 
 /**
  * Guard personalizado para rate limiting
@@ -9,9 +9,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 export class CustomThrottleGuard extends ThrottlerGuard {
   private readonly logger = new Logger(CustomThrottleGuard.name);
 
-  protected async handleRequest(
-    requestProps: any,
-  ): Promise<boolean> {
+  protected async handleRequest(requestProps: any): Promise<boolean> {
     const request = requestProps.context.switchToHttp().getRequest();
     const clientIp = request.ip ?? request.connection?.remoteAddress;
     const path = request.path;

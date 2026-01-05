@@ -1,20 +1,15 @@
 /**
  * @usecase ResetPasswordUseCase
- * 
+ *
  * Resetea la contraseña de un usuario (por admin).
  */
 
-import {
-  Inject,
-  Injectable,
-  NotFoundException,
-  Logger,
-} from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Inject, Injectable, NotFoundException, Logger } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import {
   IUserRepository,
   USER_REPOSITORY,
-} from '../../domain/repositories/user.repository.interface';
+} from "../../domain/repositories/user.repository.interface";
 
 export interface ResetPasswordCommand {
   userId: string;

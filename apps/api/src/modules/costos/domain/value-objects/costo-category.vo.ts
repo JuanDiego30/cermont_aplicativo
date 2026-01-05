@@ -1,14 +1,14 @@
 /**
  * Value Object: CostoCategory
- * 
+ *
  * Categoría de costo (DIRECTO o INDIRECTO)
  */
 
-import { ValidationError } from '../exceptions';
+import { ValidationError } from "../exceptions";
 
 export enum CostoCategoryEnum {
-  DIRECTO = 'DIRECTO',
-  INDIRECTO = 'INDIRECTO',
+  DIRECTO = "DIRECTO",
+  INDIRECTO = "INDIRECTO",
 }
 
 export class CostoCategory {
@@ -18,11 +18,15 @@ export class CostoCategory {
 
   public static create(value: string): CostoCategory {
     const normalized = value.toUpperCase().trim();
-    
-    if (!Object.values(CostoCategoryEnum).includes(normalized as CostoCategoryEnum)) {
+
+    if (
+      !Object.values(CostoCategoryEnum).includes(
+        normalized as CostoCategoryEnum,
+      )
+    ) {
       throw new ValidationError(
-        `Categoría inválida. Valores permitidos: ${Object.values(CostoCategoryEnum).join(', ')}`,
-        'category',
+        `Categoría inválida. Valores permitidos: ${Object.values(CostoCategoryEnum).join(", ")}`,
+        "category",
         value,
       );
     }
@@ -64,4 +68,3 @@ export class CostoCategory {
     return this._value;
   }
 }
-

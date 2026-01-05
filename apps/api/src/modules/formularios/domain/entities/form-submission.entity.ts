@@ -1,24 +1,30 @@
 /**
  * Aggregate Root: FormSubmission
- * 
+ *
  * Representa una submission (respuesta) de un formulario
- * 
+ *
  * Invariantes:
  * - Debe estar asociada a un template válido
  * - Respuestas deben validarse contra el template
  * - Solo puede enviarse una vez
  */
 
-import { FormSubmissionId } from '../value-objects/form-submission-id.vo';
-import { FormTemplateId } from '../value-objects/form-template-id.vo';
-import { TemplateVersion } from '../value-objects/template-version.vo';
-import { SubmissionStatus, SubmissionStatusEnum } from '../value-objects/submission-status.vo';
-import { FieldValue } from '../value-objects/field-value.vo';
-import { FormTemplate } from './form-template.entity';
-import { ValidationFailedException, SubmissionValidationError } from '../exceptions';
-import { FormSubmittedEvent, FormValidatedEvent } from '../events';
-import { ConditionalLogicEvaluatorService } from '../services/conditional-logic-evaluator.service';
-import { CalculationEngineService } from '../services/calculation-engine.service';
+import { FormSubmissionId } from "../value-objects/form-submission-id.vo";
+import { FormTemplateId } from "../value-objects/form-template-id.vo";
+import { TemplateVersion } from "../value-objects/template-version.vo";
+import {
+  SubmissionStatus,
+  SubmissionStatusEnum,
+} from "../value-objects/submission-status.vo";
+import { FieldValue } from "../value-objects/field-value.vo";
+import { FormTemplate } from "./form-template.entity";
+import {
+  ValidationFailedException,
+  SubmissionValidationError,
+} from "../exceptions";
+import { FormSubmittedEvent, FormValidatedEvent } from "../events";
+import { ConditionalLogicEvaluatorService } from "../services/conditional-logic-evaluator.service";
+import { CalculationEngineService } from "../services/calculation-engine.service";
 
 export interface CreateSubmissionProps {
   templateId: FormTemplateId;
@@ -31,7 +37,8 @@ export interface CreateSubmissionProps {
 export class FormSubmission {
   private _domainEvents: any[] = [];
 
-  private static readonly conditionalLogicEvaluator = new ConditionalLogicEvaluatorService();
+  private static readonly conditionalLogicEvaluator =
+    new ConditionalLogicEvaluatorService();
   private static readonly calculationEngine = new CalculationEngineService();
 
   private constructor(
@@ -49,7 +56,7 @@ export class FormSubmission {
     private _submittedAt?: Date,
     private _validatedAt?: Date,
     private _validatedBy?: string,
-  ) { }
+  ) {}
 
   /**
    * Factory method: Crear nueva submission
@@ -123,7 +130,7 @@ export class FormSubmission {
    */
   public setAnswer(fieldId: string, value: any): void {
     if (this.isComplete()) {
-      throw new Error('Cannot modify answers after submission');
+      throw new Error("Cannot modify answers after submission");
     }
 
     const fieldValue = FieldValue.create(value);
@@ -136,7 +143,7 @@ export class FormSubmission {
    */
   public submit(template: FormTemplate): void {
     if (this.isComplete()) {
-      throw new Error('Form already submitted');
+      throw new Error("Form already submitted");
     }
 
     // Aplicar defaults antes de validar
@@ -147,7 +154,7 @@ export class FormSubmission {
 
     if (errors.length > 0) {
       this._validationErrors = errors;
-      throw new ValidationFailedException('Form validation failed', errors);
+      throw new ValidationFailedException("Form validation failed", errors);
     }
 
     // Calcular campos calculados
@@ -173,7 +180,7 @@ export class FormSubmission {
    */
   public validate(validatedBy: string): void {
     if (!this.isSubmitted()) {
-      throw new Error('Can only validate submitted forms');
+      throw new Error("Can only validate submitted forms");
     }
 
     this._status = SubmissionStatus.validated();
@@ -244,7 +251,7 @@ export class FormSubmission {
       if (!validationResult.isValid) {
         errors.push({
           fieldId,
-          message: validationResult.error || 'Invalid value',
+          message: validationResult.error || "Invalid value",
         });
       }
     }
@@ -274,7 +281,10 @@ export class FormSubmission {
           continue;
         }
 
-        const result = FormSubmission.calculationEngine.calculate(formula, baseFormData);
+        const result = FormSubmission.calculationEngine.calculate(
+          formula,
+          baseFormData,
+        );
         if (result !== null) {
           this.setAnswer(field.getId(), result);
         }
@@ -290,7 +300,10 @@ export class FormSubmission {
 
       const defaultValue = field.getDefaultValue();
       if (defaultValue && !defaultValue.isEmpty()) {
-        this._answers.set(field.getId(), FieldValue.create(defaultValue.getValue()));
+        this._answers.set(
+          field.getId(),
+          FieldValue.create(defaultValue.getValue()),
+        );
       }
     }
   }
@@ -424,4 +437,3 @@ export class FormSubmission {
     return this._validationErrors.length > 0;
   }
 }
-

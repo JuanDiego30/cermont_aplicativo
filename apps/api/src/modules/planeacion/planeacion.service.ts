@@ -1,18 +1,21 @@
 /**
  * @service PlaneacionService
  * @description Servicio para gestión de planeación de órdenes de trabajo
- * 
+ *
  * REFACTORIZADO: Ahora usa repositorio en lugar de Prisma directamente
- * 
+ *
  * Principios aplicados:
  * - Type Safety: DTOs tipados, sin 'any'
  * - Clean Code: Código legible y bien formateado
  * - SRP: Maneja solo lógica de planeación
  * - Dependency Inversion: Usa repositorio en lugar de Prisma
  */
-import { Injectable, NotFoundException, Inject } from '@nestjs/common';
-import { PLANEACION_REPOSITORY, IPlaneacionRepository } from './domain/repositories';
-import { CreatePlaneacionDto } from './application/dto';
+import { Injectable, NotFoundException, Inject } from "@nestjs/common";
+import {
+  PLANEACION_REPOSITORY,
+  IPlaneacionRepository,
+} from "./domain/repositories";
+import { CreatePlaneacionDto } from "./application/dto";
 
 // ============================================================================
 // Interfaces y DTOs
@@ -36,7 +39,7 @@ interface ManoDeObraData {
   [key: string]: any;
 }
 
-type EstadoPlaneacion = 'borrador' | 'aprobada' | 'rechazada' | 'cancelada';
+type EstadoPlaneacion = "borrador" | "aprobada" | "rechazada" | "cancelada";
 
 export interface PlaneacionResponse<T> {
   message: string;
@@ -52,7 +55,7 @@ export class PlaneacionService {
   constructor(
     @Inject(PLANEACION_REPOSITORY)
     private readonly repository: IPlaneacionRepository,
-  ) { }
+  ) {}
 
   /**
    * Busca planeación por orden con todas sus relaciones
@@ -68,7 +71,9 @@ export class PlaneacionService {
    */
   async findAll() {
     // Si se necesita este método, agregarlo al repositorio
-    throw new Error('Método findAll() no implementado. Usar use-case GetPlaneacionUseCase');
+    throw new Error(
+      "Método findAll() no implementado. Usar use-case GetPlaneacionUseCase",
+    );
   }
 
   /**
@@ -90,7 +95,7 @@ export class PlaneacionService {
     const planeacion = await this.repository.aprobar(id, aprobadorId);
 
     return {
-      message: 'Planeación aprobada exitosamente',
+      message: "Planeación aprobada exitosamente",
       data: planeacion,
     };
   }
@@ -106,7 +111,7 @@ export class PlaneacionService {
     const planeacion = await this.repository.rechazar(id, motivo);
 
     return {
-      message: 'Planeación rechazada',
+      message: "Planeación rechazada",
       data: planeacion,
     };
   }

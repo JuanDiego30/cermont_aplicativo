@@ -1,18 +1,18 @@
 /**
  * Mapper: HESMapper
- * 
+ *
  * Mapea entre Domain Entities y DTOs
  */
 
-import { HES } from '../../domain/entities/hes.entity';
-import { HESResponseDto } from '../dto/hes-response.dto';
-import { CreateHESDto } from '../dto/create-hes.dto';
-import { TipoServicio } from '../../domain/value-objects/tipo-servicio.vo';
-import { Prioridad } from '../../domain/value-objects/prioridad.vo';
-import { ClienteInfo } from '../../domain/entities/cliente-info.entity';
-import { CondicionesEntrada } from '../../domain/entities/condiciones-entrada.entity';
-import { DiagnosticoPreliminar } from '../../domain/entities/diagnostico-preliminar.entity';
-import { RequerimientosSeguridad } from '../../domain/entities/requerimientos-seguridad.entity';
+import { HES } from "../../domain/entities/hes.entity";
+import { HESResponseDto } from "../dto/hes-response.dto";
+import { CreateHESDto } from "../dto/create-hes.dto";
+import { TipoServicio } from "../../domain/value-objects/tipo-servicio.vo";
+import { Prioridad } from "../../domain/value-objects/prioridad.vo";
+import { ClienteInfo } from "../../domain/entities/cliente-info.entity";
+import { CondicionesEntrada } from "../../domain/entities/condiciones-entrada.entity";
+import { DiagnosticoPreliminar } from "../../domain/entities/diagnostico-preliminar.entity";
+import { RequerimientosSeguridad } from "../../domain/entities/requerimientos-seguridad.entity";
 
 export class HESMapper {
   static toResponseDto(hes: HES): HESResponseDto {
@@ -55,7 +55,9 @@ export class HESMapper {
         : undefined,
       requerimientosSeguridad: seguridad
         ? {
-            eppRequerido: seguridad.getEPPRequerido().map((epp) => epp.toString()),
+            eppRequerido: seguridad
+              .getEPPRequerido()
+              .map((epp) => epp.toString()),
             checklistItems: Object.fromEntries(seguridad.getChecklistItems()),
             porcentajeCompletitud: seguridad.getPorcentajeCompletitud(),
           }
@@ -79,7 +81,12 @@ export class HESMapper {
     };
   }
 
-  static toDomain(dto: CreateHESDto, creadoPor: string, numero?: string, year?: number): HES {
+  static toDomain(
+    dto: CreateHESDto,
+    creadoPor: string,
+    numero?: string,
+    year?: number,
+  ): HES {
     const tipoServicio = TipoServicio.fromString(dto.tipoServicio);
     const prioridad = Prioridad.fromString(dto.prioridad);
     const clienteInfo = ClienteInfo.create(dto.clienteInfo);
@@ -110,4 +117,3 @@ export class HESMapper {
     });
   }
 }
-

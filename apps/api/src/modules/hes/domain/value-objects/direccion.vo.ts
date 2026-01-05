@@ -1,10 +1,10 @@
 /**
  * Value Object: Direccion
- * 
+ *
  * Dirección completa con validación
  */
 
-import { ValidationError } from '../../../../common/domain/exceptions';
+import { ValidationError } from "../../../../common/domain/exceptions";
 
 export interface DireccionProps {
   calle: string;
@@ -34,7 +34,7 @@ export class Direccion {
     return new Direccion(
       props.calle,
       props.ciudad,
-      props.pais || 'Colombia',
+      props.pais || "Colombia",
       props.numero,
       props.barrio,
       props.departamento,
@@ -43,20 +43,20 @@ export class Direccion {
   }
 
   private static validate(props: DireccionProps): void {
-    if (!props.calle || props.calle.trim() === '') {
-      throw new ValidationError('Calle es requerida');
+    if (!props.calle || props.calle.trim() === "") {
+      throw new ValidationError("Calle es requerida");
     }
 
     if (props.calle.length < 3) {
-      throw new ValidationError('Calle debe tener al menos 3 caracteres');
+      throw new ValidationError("Calle debe tener al menos 3 caracteres");
     }
 
-    if (!props.ciudad || props.ciudad.trim() === '') {
-      throw new ValidationError('Ciudad es requerida');
+    if (!props.ciudad || props.ciudad.trim() === "") {
+      throw new ValidationError("Ciudad es requerida");
     }
 
     if (props.ciudad.length < 2) {
-      throw new ValidationError('Ciudad debe tener al menos 2 caracteres');
+      throw new ValidationError("Ciudad debe tener al menos 2 caracteres");
     }
   }
 
@@ -97,7 +97,7 @@ export class Direccion {
       parts.push(`Código Postal: ${this._codigoPostal}`);
     }
 
-    return parts.join(', ');
+    return parts.join(", ");
   }
 
   public equals(other: Direccion): boolean {
@@ -110,4 +110,3 @@ export class Direccion {
     );
   }
 }
-

@@ -1,16 +1,16 @@
 /**
  * @valueObject TrendDirection
- * 
+ *
  * Representa la dirección de una tendencia (UP, DOWN, STABLE).
  */
 
-import { ValidationError } from '../exceptions';
-import { KpiValue } from './kpi-value.vo';
+import { ValidationError } from "../exceptions";
+import { KpiValue } from "./kpi-value.vo";
 
 export enum TrendDirectionEnum {
-  UP = 'UP',
-  DOWN = 'DOWN',
-  STABLE = 'STABLE',
+  UP = "UP",
+  DOWN = "DOWN",
+  STABLE = "STABLE",
 }
 
 export class TrendDirection {
@@ -28,8 +28,8 @@ export class TrendDirection {
   ): TrendDirection {
     if (current.getType() !== previous.getType()) {
       throw new ValidationError(
-        'Cannot compare KPI values of different types',
-        'trendDirection',
+        "Cannot compare KPI values of different types",
+        "trendDirection",
       );
     }
 
@@ -78,11 +78,11 @@ export class TrendDirection {
   public getIcon(): string {
     switch (this._value) {
       case TrendDirectionEnum.UP:
-        return '↑';
+        return "↑";
       case TrendDirectionEnum.DOWN:
-        return '↓';
+        return "↓";
       case TrendDirectionEnum.STABLE:
-        return '→';
+        return "→";
     }
   }
 
@@ -92,11 +92,11 @@ export class TrendDirection {
   public getColor(): string {
     switch (this._value) {
       case TrendDirectionEnum.UP:
-        return 'green';
+        return "green";
       case TrendDirectionEnum.DOWN:
-        return 'red';
+        return "red";
       case TrendDirectionEnum.STABLE:
-        return 'gray';
+        return "gray";
     }
   }
 
@@ -124,4 +124,3 @@ export class TrendDirection {
     return this._value;
   }
 }
-

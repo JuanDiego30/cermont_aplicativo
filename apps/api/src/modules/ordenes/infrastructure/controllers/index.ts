@@ -1,1 +1,1 @@
-export * from './ordenes.controller';
+export * from "./ordenes.controller";

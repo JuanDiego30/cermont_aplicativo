@@ -6,22 +6,22 @@ import {
   UseGuards,
   NotFoundException,
   ForbiddenException,
-} from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../../../common/guards/jwt-auth.guard';
+} from "@nestjs/common";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { JwtAuthGuard } from "../../../../common/guards/jwt-auth.guard";
 import {
   CurrentUser,
   JwtPayload,
-} from '../../../../common/decorators/current-user.decorator';
-import { ListEvidenciasUseCase } from '../../application/use-cases';
+} from "../../../../common/decorators/current-user.decorator";
+import { ListEvidenciasUseCase } from "../../application/use-cases";
 import {
   ORDEN_REPOSITORY,
   IOrdenRepository,
-} from '../../../ordenes/domain/repositories';
-import { Inject } from '@nestjs/common';
+} from "../../../ordenes/domain/repositories";
+import { Inject } from "@nestjs/common";
 
-@ApiTags('Ordenes')
-@Controller('ordenes')
+@ApiTags("Ordenes")
+@Controller("ordenes")
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class OrdenesEvidenciasController {
@@ -34,25 +34,27 @@ export class OrdenesEvidenciasController {
   /**
    * Regla 29: Galería en orden
    */
-  @Get(':ordenId/evidencias')
-  @ApiOperation({ summary: 'List evidencias for an orden (gallery)' })
+  @Get(":ordenId/evidencias")
+  @ApiOperation({ summary: "List evidencias for an orden (gallery)" })
   async listByOrden(
-    @Param('ordenId') ordenId: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
+    @Param("ordenId") ordenId: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
     @CurrentUser() user?: JwtPayload,
   ) {
     const orden = await this.ordenRepository.findById(ordenId);
     if (!orden) {
-      throw new NotFoundException('Orden no encontrada');
+      throw new NotFoundException("Orden no encontrada");
     }
 
     const role = user?.role?.toLowerCase();
-    const isPrivileged = role === 'admin' || role === 'supervisor';
+    const isPrivileged = role === "admin" || role === "supervisor";
     const canAccess =
-      isPrivileged || orden.creadorId === user?.userId || orden.asignadoId === user?.userId;
+      isPrivileged ||
+      orden.creadorId === user?.userId ||
+      orden.asignadoId === user?.userId;
     if (!canAccess) {
-      throw new ForbiddenException('No autorizado');
+      throw new ForbiddenException("No autorizado");
     }
 
     return this.listEvidenciasUseCase.execute({

@@ -2,4 +2,4 @@
  * @file DTO Index
  */
 
-export * from './evidencia.dto';
+export * from "./evidencia.dto";

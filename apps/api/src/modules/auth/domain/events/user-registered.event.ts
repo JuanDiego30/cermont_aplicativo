@@ -4,7 +4,7 @@
  * @layer Domain
  */
 export class UserRegisteredEvent {
-  readonly eventName = 'auth.user.registered' as const;
+  readonly eventName = "auth.user.registered" as const;
   readonly occurredAt: Date;
 
   constructor(

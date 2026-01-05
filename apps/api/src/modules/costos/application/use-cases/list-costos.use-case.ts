@@ -1,8 +1,13 @@
 /**
  * @useCase ListCostosUseCase
  */
-import { Injectable, Inject } from '@nestjs/common';
-import { COSTO_REPOSITORY, ICostoRepository, CostoQueryDto, CostoResponse } from '../dto';
+import { Injectable, Inject } from "@nestjs/common";
+import {
+  COSTO_REPOSITORY,
+  ICostoRepository,
+  CostoQueryDto,
+  CostoResponse,
+} from "../dto";
 
 @Injectable()
 export class ListCostosUseCase {

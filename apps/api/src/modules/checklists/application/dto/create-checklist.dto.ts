@@ -1,17 +1,26 @@
 /**
  * @dto CreateChecklistDto
- * 
+ *
  * DTO para crear una nueva plantilla de checklist
  */
 
-import { IsString, IsOptional, IsArray, MinLength, MaxLength, ArrayMinSize, ArrayMaxSize, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsString,
+  IsOptional,
+  IsArray,
+  MinLength,
+  MaxLength,
+  ArrayMinSize,
+  ArrayMaxSize,
+  ValidateNested,
+} from "class-validator";
+import { Type } from "class-transformer";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class ChecklistItemInputDto {
   @ApiProperty({
-    example: 'Verificar conexiones eléctricas',
-    description: 'Etiqueta del item',
+    example: "Verificar conexiones eléctricas",
+    description: "Etiqueta del item",
     minLength: 1,
     maxLength: 500,
   })
@@ -22,7 +31,7 @@ export class ChecklistItemInputDto {
 
   @ApiPropertyOptional({
     example: true,
-    description: 'Si el item es requerido',
+    description: "Si el item es requerido",
     default: false,
   })
   @IsOptional()
@@ -30,7 +39,7 @@ export class ChecklistItemInputDto {
 
   @ApiPropertyOptional({
     example: 0,
-    description: 'Orden del item en la lista',
+    description: "Orden del item en la lista",
     default: 0,
   })
   @IsOptional()
@@ -39,8 +48,8 @@ export class ChecklistItemInputDto {
 
 export class CreateChecklistDto {
   @ApiProperty({
-    example: 'Checklist de Mantenimiento Preventivo',
-    description: 'Nombre del checklist',
+    example: "Checklist de Mantenimiento Preventivo",
+    description: "Nombre del checklist",
     minLength: 3,
     maxLength: 100,
   })
@@ -50,8 +59,8 @@ export class CreateChecklistDto {
   name!: string;
 
   @ApiPropertyOptional({
-    example: 'Checklist para mantenimiento preventivo de equipos',
-    description: 'Descripción del checklist',
+    example: "Checklist para mantenimiento preventivo de equipos",
+    description: "Descripción del checklist",
     maxLength: 500,
   })
   @IsString()
@@ -60,15 +69,15 @@ export class CreateChecklistDto {
   description?: string;
 
   @ApiProperty({
-    example: 'mantenimiento',
-    description: 'Tipo de checklist',
+    example: "mantenimiento",
+    description: "Tipo de checklist",
   })
   @IsString()
   tipo!: string;
 
   @ApiPropertyOptional({
-    example: 'preventivo',
-    description: 'Categoría del checklist',
+    example: "preventivo",
+    description: "Categoría del checklist",
   })
   @IsString()
   @IsOptional()
@@ -76,7 +85,7 @@ export class CreateChecklistDto {
 
   @ApiProperty({
     type: [ChecklistItemInputDto],
-    description: 'Items del checklist',
+    description: "Items del checklist",
     minItems: 1,
     maxItems: 100,
   })
@@ -87,4 +96,3 @@ export class CreateChecklistDto {
   @Type(() => ChecklistItemInputDto)
   items!: ChecklistItemInputDto[];
 }
-

@@ -1,7 +1,7 @@
 /**
  * @module Weather - Clean Architecture
  */
-import { z } from 'zod';
+import { z } from "zod";
 
 // DTOs
 export const WeatherQuerySchema = z.object({
@@ -36,9 +36,13 @@ export interface WeatherResponse {
 }
 
 // Service Interface
-export const WEATHER_SERVICE = Symbol('WEATHER_SERVICE');
+export const WEATHER_SERVICE = Symbol("WEATHER_SERVICE");
 
 export interface IWeatherService {
   getCurrentWeather(lat: number, lon: number): Promise<CurrentWeather>;
-  getForecast(lat: number, lon: number, days: number): Promise<WeatherForecast[]>;
+  getForecast(
+    lat: number,
+    lon: number,
+    days: number,
+  ): Promise<WeatherForecast[]>;
 }

@@ -3,156 +3,164 @@
  * @description Image processing using Sharp library
  */
 
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import * as fs from 'fs/promises';
-import * as path from 'path';
+import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import * as fs from "fs/promises";
+import * as path from "path";
 import {
-    IImageProcessor,
-    ImageProcessingResult,
-} from './image-processor.interface';
+  IImageProcessor,
+  ImageProcessingResult,
+} from "./image-processor.interface";
 
 // Sharp can be optionally imported
-let sharp: typeof import('sharp') | null = null;
+let sharp: typeof import("sharp") | null = null;
 try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    sharp = require('sharp');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  sharp = require("sharp");
 } catch {
-    // Sharp not available
+  // Sharp not available
 }
 
 @Injectable()
 export class SharpImageProcessor implements IImageProcessor {
-    private readonly logger = new Logger(SharpImageProcessor.name);
-    private readonly basePath: string;
+  private readonly logger = new Logger(SharpImageProcessor.name);
+  private readonly basePath: string;
 
-    constructor(private readonly config: ConfigService) {
-        this.basePath = this.config.get<string>('UPLOAD_PATH', './uploads');
+  constructor(private readonly config: ConfigService) {
+    this.basePath = this.config.get<string>("UPLOAD_PATH", "./uploads");
 
-        if (!sharp) {
-            this.logger.warn(
-                'Sharp not installed. Image processing will be limited.',
-            );
-        }
+    if (!sharp) {
+      this.logger.warn(
+        "Sharp not installed. Image processing will be limited.",
+      );
+    }
+  }
+
+  async processImage(filePath: string): Promise<ImageProcessingResult> {
+    const safeRelative = this.normalizeRelativePath(filePath);
+    const fullPath = this.resolveSafePath(safeRelative);
+
+    if (!sharp) {
+      this.logger.warn("Sharp not available, skipping image processing");
+      return {};
     }
 
-    async processImage(filePath: string): Promise<ImageProcessingResult> {
-        const safeRelative = this.normalizeRelativePath(filePath);
-        const fullPath = this.resolveSafePath(safeRelative);
+    try {
+      const image = sharp(fullPath);
+      const metadata = await image.metadata();
 
-        if (!sharp) {
-            this.logger.warn('Sharp not available, skipping image processing');
-            return {};
-        }
+      const thumb150Path = this.getThumbnailPath(safeRelative, 150);
+      const thumb300Path = this.getThumbnailPath(safeRelative, 300);
+      const thumb150FullPath = this.resolveSafePath(thumb150Path);
+      const thumb300FullPath = this.resolveSafePath(thumb300Path);
 
-        try {
-            const image = sharp(fullPath);
-            const metadata = await image.metadata();
+      await fs.mkdir(path.dirname(thumb150FullPath), { recursive: true });
+      await fs.mkdir(path.dirname(thumb300FullPath), { recursive: true });
 
-            const thumb150Path = this.getThumbnailPath(safeRelative, 150);
-            const thumb300Path = this.getThumbnailPath(safeRelative, 300);
-            const thumb150FullPath = this.resolveSafePath(thumb150Path);
-            const thumb300FullPath = this.resolveSafePath(thumb300Path);
+      await sharp(fullPath)
+        .resize(150, 150, { fit: "cover" })
+        .jpeg({ quality: 80 })
+        .toFile(thumb150FullPath);
 
-            await fs.mkdir(path.dirname(thumb150FullPath), { recursive: true });
-            await fs.mkdir(path.dirname(thumb300FullPath), { recursive: true });
+      await sharp(fullPath)
+        .resize(300, 300, { fit: "cover" })
+        .jpeg({ quality: 80 })
+        .toFile(thumb300FullPath);
 
-            await sharp(fullPath)
-                .resize(150, 150, { fit: 'cover' })
-                .jpeg({ quality: 80 })
-                .toFile(thumb150FullPath);
+      this.logger.log(`Thumbnails generated`, { thumb150Path, thumb300Path });
 
-            await sharp(fullPath)
-                .resize(300, 300, { fit: 'cover' })
-                .jpeg({ quality: 80 })
-                .toFile(thumb300FullPath);
+      return {
+        thumbnailPath: thumb150Path,
+        metadata: {
+          width: metadata.width,
+          height: metadata.height,
+          format: metadata.format,
+          thumbnails: {
+            s150: thumb150Path,
+            s300: thumb300Path,
+          },
+        },
+      };
+    } catch (error) {
+      this.logger.error(`Image processing failed`, {
+        path: safeRelative,
+        error: (error as Error).message,
+      });
+      return {};
+    }
+  }
 
-            this.logger.log(`Thumbnails generated`, { thumb150Path, thumb300Path });
-
-            return {
-                thumbnailPath: thumb150Path,
-                metadata: {
-                    width: metadata.width,
-                    height: metadata.height,
-                    format: metadata.format,
-                    thumbnails: {
-                        s150: thumb150Path,
-                        s300: thumb300Path,
-                    },
-                },
-            };
-        } catch (error) {
-            this.logger.error(`Image processing failed`, {
-                path: safeRelative,
-                error: (error as Error).message,
-            });
-            return {};
-        }
+  async generateThumbnail(
+    inputPath: string,
+    outputPath: string,
+    width: number = 200,
+    height: number = 200,
+  ): Promise<string> {
+    if (!sharp) {
+      throw new Error("Sharp not available");
     }
 
-    async generateThumbnail(
-        inputPath: string,
-        outputPath: string,
-        width: number = 200,
-        height: number = 200,
-    ): Promise<string> {
-        if (!sharp) {
-            throw new Error('Sharp not available');
-        }
+    const safeInput = this.normalizeRelativePath(inputPath);
+    const safeOutput = this.normalizeRelativePath(outputPath);
+    const inputFullPath = this.resolveSafePath(safeInput);
+    const outputFullPath = this.resolveSafePath(safeOutput);
 
-        const safeInput = this.normalizeRelativePath(inputPath);
-        const safeOutput = this.normalizeRelativePath(outputPath);
-        const inputFullPath = this.resolveSafePath(safeInput);
-        const outputFullPath = this.resolveSafePath(safeOutput);
+    await fs.mkdir(path.dirname(outputFullPath), { recursive: true });
 
-        await fs.mkdir(path.dirname(outputFullPath), { recursive: true });
+    await sharp(inputFullPath)
+      .resize(width, height, { fit: "cover" })
+      .jpeg({ quality: 80 })
+      .toFile(outputFullPath);
 
-        await sharp(inputFullPath)
-            .resize(width, height, { fit: 'cover' })
-            .jpeg({ quality: 80 })
-            .toFile(outputFullPath);
+    return safeOutput;
+  }
 
-        return safeOutput;
+  async compress(inputPath: string, quality: number = 80): Promise<Buffer> {
+    const safeInput = this.normalizeRelativePath(inputPath);
+    if (!sharp) {
+      // Just return the original file
+      const fullPath = this.resolveSafePath(safeInput);
+      return fs.readFile(fullPath);
     }
 
-    async compress(inputPath: string, quality: number = 80): Promise<Buffer> {
-        const safeInput = this.normalizeRelativePath(inputPath);
-        if (!sharp) {
-            // Just return the original file
-            const fullPath = this.resolveSafePath(safeInput);
-            return fs.readFile(fullPath);
-        }
+    const fullPath = this.resolveSafePath(safeInput);
+    return sharp(fullPath).jpeg({ quality }).toBuffer();
+  }
 
-        const fullPath = this.resolveSafePath(safeInput);
-        return sharp(fullPath).jpeg({ quality }).toBuffer();
+  private getThumbnailPath(originalPath: string, size: 150 | 300): string {
+    const dir = path.posix.dirname(originalPath);
+    const filename = path.posix.basename(
+      originalPath,
+      path.posix.extname(originalPath),
+    );
+    return path.posix.join(
+      dir,
+      "thumbnails",
+      String(size),
+      `${filename}-thumb.jpg`,
+    );
+  }
+
+  private normalizeRelativePath(filePath: string): string {
+    const normalized = filePath.replace(/\\/g, "/");
+    if (path.isAbsolute(normalized)) {
+      throw new Error("Absolute paths are not allowed");
+    }
+    if (normalized.includes("..")) {
+      throw new Error("Path traversal is not allowed");
+    }
+    return normalized;
+  }
+
+  private resolveSafePath(filePath: string): string {
+    const relative = this.normalizeRelativePath(filePath);
+    const base = path.resolve(this.basePath);
+    const full = path.resolve(base, relative);
+
+    if (full !== base && !full.startsWith(base + path.sep)) {
+      throw new Error("Invalid storage path");
     }
 
-    private getThumbnailPath(originalPath: string, size: 150 | 300): string {
-        const dir = path.posix.dirname(originalPath);
-        const filename = path.posix.basename(originalPath, path.posix.extname(originalPath));
-        return path.posix.join(dir, 'thumbnails', String(size), `${filename}-thumb.jpg`);
-    }
-
-    private normalizeRelativePath(filePath: string): string {
-        const normalized = filePath.replace(/\\/g, '/');
-        if (path.isAbsolute(normalized)) {
-            throw new Error('Absolute paths are not allowed');
-        }
-        if (normalized.includes('..')) {
-            throw new Error('Path traversal is not allowed');
-        }
-        return normalized;
-    }
-
-    private resolveSafePath(filePath: string): string {
-        const relative = this.normalizeRelativePath(filePath);
-        const base = path.resolve(this.basePath);
-        const full = path.resolve(base, relative);
-
-        if (full !== base && !full.startsWith(base + path.sep)) {
-            throw new Error('Invalid storage path');
-        }
-
-        return full;
-    }
+    return full;
+  }
 }

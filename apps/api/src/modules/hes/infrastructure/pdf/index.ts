@@ -1,2 +1,1 @@
-export * from './hes-pdf-generator.service';
-
+export * from "./hes-pdf-generator.service";

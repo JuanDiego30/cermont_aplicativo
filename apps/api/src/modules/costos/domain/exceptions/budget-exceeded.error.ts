@@ -1,9 +1,9 @@
 /**
  * @exception BudgetExceededException
- * 
+ *
  * Excepción cuando un costo excede el límite presupuestal.
  */
-import { BusinessRuleViolationError } from '../../../../common/domain/exceptions';
+import { BusinessRuleViolationError } from "../../../../common/domain/exceptions";
 
 export class BudgetExceededException extends BusinessRuleViolationError {
   constructor(
@@ -12,13 +12,12 @@ export class BudgetExceededException extends BusinessRuleViolationError {
     public readonly currentTotal: unknown,
     public readonly exceedAmount: unknown,
   ) {
-    super(message, 'BUDGET_EXCEEDED', {
+    super(message, "BUDGET_EXCEEDED", {
       budgetLimit,
       currentTotal,
       exceedAmount,
     });
-    this.name = 'BudgetExceededException';
+    this.name = "BudgetExceededException";
     Object.setPrototypeOf(this, BudgetExceededException.prototype);
   }
 }
-

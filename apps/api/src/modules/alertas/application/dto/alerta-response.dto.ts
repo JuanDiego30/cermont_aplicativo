@@ -1,17 +1,17 @@
 /**
  * @dto AlertaResponseDto
- * 
+ *
  * DTO de respuesta para alertas
  */
 
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { TipoAlertaEnum } from '../../domain/value-objects/tipo-alerta.vo';
-import { PrioridadAlertaEnum } from '../../domain/value-objects/prioridad-alerta.vo';
-import { CanalNotificacionEnum } from '../../domain/value-objects/canal-notificacion.vo';
-import { EstadoAlertaEnum } from '../../domain/value-objects/estado-alerta.vo';
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { TipoAlertaEnum } from "../../domain/value-objects/tipo-alerta.vo";
+import { PrioridadAlertaEnum } from "../../domain/value-objects/prioridad-alerta.vo";
+import { CanalNotificacionEnum } from "../../domain/value-objects/canal-notificacion.vo";
+import { EstadoAlertaEnum } from "../../domain/value-objects/estado-alerta.vo";
 
 export class AlertaResponseDto {
-  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
+  @ApiProperty({ example: "123e4567-e89b-12d3-a456-426614174000" })
   id!: string;
 
   @ApiProperty({ enum: TipoAlertaEnum })
@@ -20,10 +20,12 @@ export class AlertaResponseDto {
   @ApiProperty({ enum: PrioridadAlertaEnum })
   prioridad!: PrioridadAlertaEnum;
 
-  @ApiProperty({ example: 'Acta pendiente de firma' })
+  @ApiProperty({ example: "Acta pendiente de firma" })
   titulo!: string;
 
-  @ApiProperty({ example: 'El acta de la orden ORD-123 lleva más de 7 días sin firmar' })
+  @ApiProperty({
+    example: "El acta de la orden ORD-123 lleva más de 7 días sin firmar",
+  })
   mensaje!: string;
 
   @ApiProperty({ enum: EstadoAlertaEnum })
@@ -64,4 +66,3 @@ export class PaginatedAlertasResponseDto {
   @ApiProperty({ example: 5 })
   totalPages!: number;
 }
-

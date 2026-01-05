@@ -8,34 +8,34 @@ import {
   Get,
   Param,
   Logger,
-} from '@nestjs/common';
-import { Response } from 'express';
+} from "@nestjs/common";
+import { Response } from "express";
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
-} from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+} from "@nestjs/swagger";
+import { JwtAuthGuard } from "../../../auth/guards/jwt-auth.guard";
 import {
   GeneratePdfUseCase,
   GenerateReporteOrdenUseCase,
   GenerateReporteMantenimientoUseCase,
   GenerateCertificadoInspeccionUseCase,
   GetPdfCachedUseCase,
-} from '../../application/use-cases';
+} from "../../application/use-cases";
 import {
   GeneratePdfDto,
   GenerateReporteOrdenDto,
   GenerateReporteMantenimientoDto,
   GenerateCertificadoDto,
   PdfResponseDto,
-} from '../../application/dto';
+} from "../../application/dto";
 
-@ApiTags('PDF Generation')
+@ApiTags("PDF Generation")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller('pdf')
+@Controller("pdf")
 export class PdfController {
   private readonly logger = new Logger(PdfController.name);
 
@@ -45,18 +45,18 @@ export class PdfController {
     private readonly generateReporteMantenimientoUseCase: GenerateReporteMantenimientoUseCase,
     private readonly generateCertificadoUseCase: GenerateCertificadoInspeccionUseCase,
     private readonly getPdfCachedUseCase: GetPdfCachedUseCase,
-  ) { }
+  ) {}
 
-  @Post('generate')
-  @ApiOperation({ summary: 'Generar PDF desde HTML personalizado' })
+  @Post("generate")
+  @ApiOperation({ summary: "Generar PDF desde HTML personalizado" })
   @ApiResponse({ status: 201, type: PdfResponseDto })
   async generatePdf(@Body() dto: GeneratePdfDto, @Res() res: Response) {
     const result = await this.generatePdfUseCase.execute(dto);
     this.sendPdfResponse(res, result);
   }
 
-  @Post('reporte-orden')
-  @ApiOperation({ summary: 'Generar reporte de orden de trabajo' })
+  @Post("reporte-orden")
+  @ApiOperation({ summary: "Generar reporte de orden de trabajo" })
   @ApiResponse({ status: 201, type: PdfResponseDto })
   async generateReporteOrden(
     @Body() dto: GenerateReporteOrdenDto,
@@ -66,8 +66,8 @@ export class PdfController {
     this.sendPdfResponse(res, result);
   }
 
-  @Post('reporte-mantenimiento')
-  @ApiOperation({ summary: 'Generar reporte de mantenimiento' })
+  @Post("reporte-mantenimiento")
+  @ApiOperation({ summary: "Generar reporte de mantenimiento" })
   @ApiResponse({ status: 201, type: PdfResponseDto })
   async generateReporteMantenimiento(
     @Body() dto: GenerateReporteMantenimientoDto,
@@ -77,8 +77,8 @@ export class PdfController {
     this.sendPdfResponse(res, result);
   }
 
-  @Post('certificado-inspeccion')
-  @ApiOperation({ summary: 'Generar certificado de inspección' })
+  @Post("certificado-inspeccion")
+  @ApiOperation({ summary: "Generar certificado de inspección" })
   @ApiResponse({ status: 201, type: PdfResponseDto })
   async generateCertificado(
     @Body() dto: GenerateCertificadoDto,
@@ -88,10 +88,10 @@ export class PdfController {
     this.sendPdfResponse(res, result);
   }
 
-  @Get(':filename')
-  @ApiOperation({ summary: 'Obtener PDF cacheado' })
+  @Get(":filename")
+  @ApiOperation({ summary: "Obtener PDF cacheado" })
   @ApiResponse({ status: 200, type: PdfResponseDto })
-  async getPdf(@Param('filename') filename: string, @Res() res: Response) {
+  async getPdf(@Param("filename") filename: string, @Res() res: Response) {
     const result = await this.getPdfCachedUseCase.execute(filename);
     this.sendPdfResponse(res, result, HttpStatus.OK);
   }
@@ -101,12 +101,12 @@ export class PdfController {
     result: PdfResponseDto,
     status: HttpStatus = HttpStatus.CREATED,
   ) {
-    res.setHeader('Content-Type', result.mimeType);
+    res.setHeader("Content-Type", result.mimeType);
     res.setHeader(
-      'Content-Disposition',
+      "Content-Disposition",
       `attachment; filename=${result.filename}`,
     );
-    res.setHeader('Content-Length', result.size);
-    res.status(status).send(Buffer.from(result.buffer, 'base64'));
+    res.setHeader("Content-Length", result.size);
+    res.status(status).send(Buffer.from(result.buffer, "base64"));
   }
 }

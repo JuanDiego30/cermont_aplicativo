@@ -1,8 +1,9 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, BehaviorSubject, tap, catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface User {
   id: string;
@@ -19,6 +20,7 @@ export interface User {
 export interface AuthResponse {
   user?: User;
   token?: string;
+  csrfToken?: string;
   requires2FA?: boolean;
   message?: string;
   expiresIn?: number;
@@ -44,7 +46,11 @@ export interface RegisterDto {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly apiUrl = `${environment.apiUrl}/auth`;
+
+  private readonly csrfHeaderName = 'x-csrf-token';
+  private readonly csrfStorageKey = 'cermont_csrf_token';
 
   // Estado de autenticación
   private userSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
@@ -64,9 +70,11 @@ export class AuthService {
 
   constructor() {
     // Sincronizar BehaviorSubject con Signal
-    this.user$.subscribe(user => {
-      this.currentUserSignal.set(user);
-    });
+    this.user$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(user => {
+        this.currentUserSignal.set(user);
+      });
   }
 
   /**
@@ -171,15 +179,27 @@ export class AuthService {
     );
   }
 
+  private buildCsrfRequestOptions(): { withCredentials: true; headers?: Record<string, string> } {
+    const csrfToken = this.getCsrfToken();
+    return csrfToken
+      ? { withCredentials: true, headers: { [this.csrfHeaderName]: csrfToken } }
+      : { withCredentials: true };
+  }
+
   /**
    * Refresh token
    */
   refreshToken(): Observable<{ token: string }> {
     // Backend soporta refreshToken vía cookie (preferred). Requiere withCredentials.
-    return this.http.post<{ token: string }>(`${this.apiUrl}/refresh`, {}, { withCredentials: true }).pipe(
+    const options = this.buildCsrfRequestOptions();
+
+    return this.http.post<{ token: string; csrfToken?: string }>(`${this.apiUrl}/refresh`, {}, options).pipe(
       tap(response => {
         if (response?.token) {
           this.saveToken(response.token);
+        }
+        if (response?.csrfToken) {
+          this.saveCsrfToken(response.csrfToken);
         }
       }),
       catchError(error => {
@@ -193,7 +213,9 @@ export class AuthService {
    * Logout
    */
   logout(): void {
-    this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).subscribe({
+    const options = this.buildCsrfRequestOptions();
+
+    this.http.post(`${this.apiUrl}/logout`, {}, options).subscribe({
       complete: () => {
         this.clearAuthData();
         this.router.navigate(['/auth/login']);
@@ -245,10 +267,22 @@ export class AuthService {
     this.saveUserToStorage(response.user);
     this.saveToken(response.token);
 
+    if (response.csrfToken) {
+      this.saveCsrfToken(response.csrfToken);
+    }
+
     // Guardar flag de "recordarme"
     if (rememberMe) {
       localStorage.setItem('cermont_remember_me', 'true');
     }
+  }
+
+  private getCsrfToken(): string | null {
+    return localStorage.getItem(this.csrfStorageKey);
+  }
+
+  private saveCsrfToken(token: string): void {
+    localStorage.setItem(this.csrfStorageKey, token);
   }
 
   /**
@@ -303,8 +337,8 @@ export class AuthService {
   /**
    * Manejo de errores
    */
-  private handleError(error: any): Observable<never> {
-    const message = error.error?.message || 'Error en la operación';
-    return throwError(() => new Error(message));
+  private handleError(error: unknown): Observable<never> {
+    const message = (error as { error?: { message?: string } })?.error?.message;
+    return throwError(() => new Error(message || 'Error en la operación'));
   }
 }

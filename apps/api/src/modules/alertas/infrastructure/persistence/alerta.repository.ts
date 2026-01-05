@@ -1,23 +1,23 @@
 /**
  * @repository AlertaRepository
- * 
+ *
  * Implementación del repositorio de alertas usando Prisma
  */
 
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../../prisma/prisma.service';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../../../prisma/prisma.service";
 import {
   IAlertaRepository,
   HistorialQuery,
   PaginatedResult,
-} from '../../domain/repositories/alerta.repository.interface';
-import { Alerta } from '../../domain/entities/alerta.entity';
-import { AlertaPrismaMapper } from './alerta.prisma.mapper';
-import { EstadoAlertaEnum } from '../../domain/value-objects/estado-alerta.vo';
+} from "../../domain/repositories/alerta.repository.interface";
+import { Alerta } from "../../domain/entities/alerta.entity";
+import { AlertaPrismaMapper } from "./alerta.prisma.mapper";
+import { EstadoAlertaEnum } from "../../domain/value-objects/estado-alerta.vo";
 
 @Injectable()
 export class AlertaRepository implements IAlertaRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async save(alerta: Alerta): Promise<Alerta> {
     const persistence = AlertaPrismaMapper.toPersistence(alerta);
@@ -68,10 +68,7 @@ export class AlertaRepository implements IAlertaRepository {
         resuelta: false,
         leida: false,
       },
-      orderBy: [
-        { prioridad: 'desc' },
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ prioridad: "desc" }, { createdAt: "desc" }],
     });
 
     return results.map((r) => AlertaPrismaMapper.toDomain(r));
@@ -113,10 +110,7 @@ export class AlertaRepository implements IAlertaRepository {
     const [items, total] = await Promise.all([
       this.prisma.alertaAutomatica.findMany({
         where,
-        orderBy: [
-          { prioridad: 'desc' },
-          { createdAt: 'desc' },
-        ],
+        orderBy: [{ prioridad: "desc" }, { createdAt: "desc" }],
         skip,
         take: query.limit,
       }),
@@ -138,7 +132,7 @@ export class AlertaRepository implements IAlertaRepository {
           gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Últimas 24h
         },
       },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: "asc" },
     });
 
     const alertas = results.map((r) => AlertaPrismaMapper.toDomain(r));
@@ -179,7 +173,10 @@ export class AlertaRepository implements IAlertaRepository {
     });
   }
 
-  async findExistentAlerta(ordenId: string, tipo: string): Promise<Alerta | null> {
+  async findExistentAlerta(
+    ordenId: string,
+    tipo: string,
+  ): Promise<Alerta | null> {
     const result = await this.prisma.alertaAutomatica.findFirst({
       where: {
         ordenId,

@@ -1,90 +1,91 @@
 /**
  * @valueObject CierreTotals
- * 
+ *
  * Financial totals calculated from line items.
  * Uses number for simplicity (consider Decimal.js for production).
  */
 
 export class CierreTotals {
-    private constructor(
-        private readonly totalMateriales: number,
-        private readonly totalManoObra: number,
-        private readonly totalOtros: number,
-        private readonly totalGeneral: number,
-    ) {
-        Object.freeze(this);
+  private constructor(
+    private readonly totalMateriales: number,
+    private readonly totalManoObra: number,
+    private readonly totalOtros: number,
+    private readonly totalGeneral: number,
+  ) {
+    Object.freeze(this);
+  }
+
+  static calculate(
+    items: { categoria: string; subtotal: number }[],
+  ): CierreTotals {
+    let materiales = 0;
+    let manoObra = 0;
+    let otros = 0;
+
+    for (const item of items) {
+      if (item.categoria === "MATERIAL") {
+        materiales += item.subtotal;
+      } else if (item.categoria === "MANO_OBRA") {
+        manoObra += item.subtotal;
+      } else {
+        otros += item.subtotal;
+      }
     }
 
-    static calculate(items: { categoria: string; subtotal: number }[]): CierreTotals {
-        let materiales = 0;
-        let manoObra = 0;
-        let otros = 0;
+    return new CierreTotals(
+      Math.round(materiales * 100) / 100,
+      Math.round(manoObra * 100) / 100,
+      Math.round(otros * 100) / 100,
+      Math.round((materiales + manoObra + otros) * 100) / 100,
+    );
+  }
 
-        for (const item of items) {
-            if (item.categoria === 'MATERIAL') {
-                materiales += item.subtotal;
-            } else if (item.categoria === 'MANO_OBRA') {
-                manoObra += item.subtotal;
-            } else {
-                otros += item.subtotal;
-            }
-        }
+  static fromValues(props: {
+    totalMateriales: number;
+    totalManoObra: number;
+    totalOtros: number;
+    totalGeneral: number;
+  }): CierreTotals {
+    return new CierreTotals(
+      props.totalMateriales,
+      props.totalManoObra,
+      props.totalOtros,
+      props.totalGeneral,
+    );
+  }
 
-        return new CierreTotals(
-            Math.round(materiales * 100) / 100,
-            Math.round(manoObra * 100) / 100,
-            Math.round(otros * 100) / 100,
-            Math.round((materiales + manoObra + otros) * 100) / 100,
-        );
-    }
+  getTotalMateriales(): number {
+    return this.totalMateriales;
+  }
 
-    static fromValues(props: {
-        totalMateriales: number;
-        totalManoObra: number;
-        totalOtros: number;
-        totalGeneral: number;
-    }): CierreTotals {
-        return new CierreTotals(
-            props.totalMateriales,
-            props.totalManoObra,
-            props.totalOtros,
-            props.totalGeneral,
-        );
-    }
+  getTotalManoObra(): number {
+    return this.totalManoObra;
+  }
 
-    getTotalMateriales(): number {
-        return this.totalMateriales;
-    }
+  getTotalOtros(): number {
+    return this.totalOtros;
+  }
 
-    getTotalManoObra(): number {
-        return this.totalManoObra;
-    }
+  getTotalGeneral(): number {
+    return this.totalGeneral;
+  }
 
-    getTotalOtros(): number {
-        return this.totalOtros;
-    }
+  toJSON(): Record<string, number> {
+    return {
+      totalMateriales: this.totalMateriales,
+      totalManoObra: this.totalManoObra,
+      totalOtros: this.totalOtros,
+      totalGeneral: this.totalGeneral,
+    };
+  }
 
-    getTotalGeneral(): number {
-        return this.totalGeneral;
-    }
+  equals(other: CierreTotals): boolean {
+    return (
+      other instanceof CierreTotals && this.totalGeneral === other.totalGeneral
+    );
+  }
 
-    toJSON(): Record<string, number> {
-        return {
-            totalMateriales: this.totalMateriales,
-            totalManoObra: this.totalManoObra,
-            totalOtros: this.totalOtros,
-            totalGeneral: this.totalGeneral,
-        };
-    }
-
-    equals(other: CierreTotals): boolean {
-        return (
-            other instanceof CierreTotals &&
-            this.totalGeneral === other.totalGeneral
-        );
-    }
-
-    toString(): string {
-        return `Total: ${this.totalGeneral}`;
-    }
+  toString(): string {
+    return `Total: ${this.totalGeneral}`;
+  }
 }

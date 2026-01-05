@@ -1,7 +1,7 @@
 /**
  * @util String Utilities
  * @description Utilidades para manejo de strings
- * 
+ *
  * Principio DRY: Centraliza lógica de strings usada en múltiples módulos
  */
 
@@ -9,16 +9,16 @@
  * Genera un número de orden secuencial con formato
  * Ej: ORD-000001
  */
-export function generarNumeroOrden(sequence: number, prefijo = 'ORD'): string {
-  return `${prefijo}-${String(sequence).padStart(6, '0')}`;
+export function generarNumeroOrden(sequence: number, prefijo = "ORD"): string {
+  return `${prefijo}-${String(sequence).padStart(6, "0")}`;
 }
 
 /**
  * Genera un código aleatorio
  */
 export function generarCodigo(longitud = 8): string {
-  const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let codigo = '';
+  const caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let codigo = "";
   for (let i = 0; i < longitud; i++) {
     codigo += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
   }
@@ -29,7 +29,7 @@ export function generarCodigo(longitud = 8): string {
  * Capitaliza la primera letra
  */
 export function capitalizar(texto: string): string {
-  if (!texto) return '';
+  if (!texto) return "";
   return texto.charAt(0).toUpperCase() + texto.slice(1).toLowerCase();
 }
 
@@ -39,9 +39,9 @@ export function capitalizar(texto: string): string {
 export function toTitleCase(texto: string): string {
   return texto
     .toLowerCase()
-    .split(' ')
+    .split(" ")
     .map((palabra) => capitalizar(palabra))
-    .join(' ');
+    .join(" ");
 }
 
 /**
@@ -50,8 +50,8 @@ export function toTitleCase(texto: string): string {
 export function normalizarParaBusqueda(texto: string): string {
   return texto
     .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Quitar acentos
     .trim();
 }
 
@@ -60,7 +60,7 @@ export function normalizarParaBusqueda(texto: string): string {
  */
 export function truncar(texto: string, maxLength: number): string {
   if (texto.length <= maxLength) return texto;
-  return texto.slice(0, maxLength - 3) + '...';
+  return texto.slice(0, maxLength - 3) + "...";
 }
 
 /**
@@ -68,8 +68,8 @@ export function truncar(texto: string, maxLength: number): string {
  */
 export function slugify(texto: string): string {
   return normalizarParaBusqueda(texto)
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 /**
@@ -78,7 +78,7 @@ export function slugify(texto: string): string {
 export function parseTags(tagsString?: string): string[] {
   if (!tagsString) return [];
   return tagsString
-    .split(',')
+    .split(",")
     .map((tag) => tag.trim())
     .filter(Boolean);
 }
@@ -97,5 +97,5 @@ export function esEmailValido(email: string): boolean {
 export function esTelefonoColombianoValido(telefono: string): boolean {
   // Formatos: 3001234567, +573001234567, 573001234567
   const regex = /^(\+57|57)?3[0-9]{9}$/;
-  return regex.test(telefono.replace(/\s/g, ''));
+  return regex.test(telefono.replace(/\s/g, ""));
 }

@@ -3,13 +3,13 @@
  * @description Handles soft deletion of evidencias
  */
 
-import { Injectable, Inject, Logger, NotFoundException } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Injectable, Inject, Logger, NotFoundException } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import {
   IEvidenciaRepository,
   EVIDENCIA_REPOSITORY,
-} from '../../domain/repositories';
-import { DeleteEvidenciaResponse } from '../dto';
+} from "../../domain/repositories";
+import { DeleteEvidenciaResponse } from "../dto";
 
 @Injectable()
 export class DeleteEvidenciaUseCase {
@@ -19,7 +19,7 @@ export class DeleteEvidenciaUseCase {
     @Inject(EVIDENCIA_REPOSITORY)
     private readonly repository: IEvidenciaRepository,
     private readonly eventEmitter: EventEmitter2,
-  ) { }
+  ) {}
 
   async execute(
     id: string,
@@ -45,7 +45,7 @@ export class DeleteEvidenciaUseCase {
         if (thumbs?.s150) extraThumbnailPaths.push(thumbs.s150);
         if (thumbs?.s300) extraThumbnailPaths.push(thumbs.s300);
 
-        this.eventEmitter.emit('evidencia.deleted', {
+        this.eventEmitter.emit("evidencia.deleted", {
           evidenciaId: id,
           filePath: evidencia.storagePath.getValue(),
           thumbnailPath: evidencia.thumbnailPath?.getValue(),
@@ -54,7 +54,10 @@ export class DeleteEvidenciaUseCase {
           isSoftDelete: false,
         });
         this.logger.log(`Evidencia permanently deleted: ${id}`);
-        return { success: true, message: 'Evidencia eliminada permanentemente' };
+        return {
+          success: true,
+          message: "Evidencia eliminada permanentemente",
+        };
       } else {
         // Soft delete
         evidencia.softDelete(deletedBy);
@@ -66,10 +69,10 @@ export class DeleteEvidenciaUseCase {
         }
 
         this.logger.log(`Evidencia soft deleted: ${id}`);
-        return { success: true, message: 'Evidencia movida a papelera' };
+        return { success: true, message: "Evidencia movida a papelera" };
       }
     } catch (error) {
-      this.logger.error('Delete failed', {
+      this.logger.error("Delete failed", {
         id,
         error: (error as Error).message,
       });

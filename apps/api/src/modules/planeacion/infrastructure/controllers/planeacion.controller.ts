@@ -18,7 +18,7 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
-} from '@nestjs/common';
+} from "@nestjs/common";
 import {
   ApiTags,
   ApiBearerAuth,
@@ -28,15 +28,15 @@ import {
   ApiBody,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
-} from '@nestjs/swagger';
+} from "@nestjs/swagger";
 
 // Guards y decoradores existentes
-import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../../auth/guards/roles.guard';
-import { Roles } from '../../../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from "../../../auth/guards/jwt-auth.guard";
+import { RolesGuard } from "../../../auth/guards/roles.guard";
+import { Roles } from "../../../auth/decorators/roles.decorator";
 
 // Rate limiting (ajustado a decoradores existentes)
-import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from "@nestjs/throttler";
 
 // Use cases existentes
 import {
@@ -44,16 +44,16 @@ import {
   CreateOrUpdatePlaneacionUseCase,
   AprobarPlaneacionUseCase,
   RechazarPlaneacionUseCase,
-} from '../../application/use-cases';
+} from "../../application/use-cases";
 
 // DTOs existentes (corregidos según lo que existe)
 import {
   CreatePlaneacionSchema,
   RechazarPlaneacionSchema,
-} from '../../application/dto';
+} from "../../application/dto";
 
-@ApiTags('Planeación')
-@Controller('planeacion')
+@ApiTags("Planeación")
+@Controller("planeacion")
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class PlaneacionController {
@@ -70,40 +70,43 @@ export class PlaneacionController {
    * ✅ OBTENER PLANEACIÓN POR ORDEN
    * GET /planeacion/:ordenId
    */
-  @Get(':ordenId')
+  @Get(":ordenId")
   @Throttle({ default: { limit: 200, ttl: 60000 } }) // 200 req/min
   @ApiOperation({
-    summary: 'Obtener planeación por ID de orden',
-    description: 'Retorna la planeación completa incluyendo actividades, recursos y costos estimados',
+    summary: "Obtener planeación por ID de orden",
+    description:
+      "Retorna la planeación completa incluyendo actividades, recursos y costos estimados",
   })
   @ApiParam({
-    name: 'ordenId',
-    description: 'UUID de la orden de trabajo',
-    example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
+    name: "ordenId",
+    description: "UUID de la orden de trabajo",
+    example: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
   })
   @ApiResponse({
     status: 200,
-    description: 'Planeación obtenida correctamente',
+    description: "Planeación obtenida correctamente",
   })
   @ApiNotFoundResponse({
-    description: 'Planeación no encontrada para esta orden',
+    description: "Planeación no encontrada para esta orden",
   })
-  async findByOrden(@Param('ordenId') ordenId: string) {
+  async findByOrden(@Param("ordenId") ordenId: string) {
     const context = {
-      action: 'GET_PLANEACION',
+      action: "GET_PLANEACION",
       ordenId,
     };
 
-    this.logger.log('Obteniendo planeación', context);
+    this.logger.log("Obteniendo planeación", context);
 
     try {
       const planeacion = await this.getPlaneacion.execute(ordenId);
 
       if (!planeacion) {
-        throw new NotFoundException(`Planeación no encontrada para la orden ${ordenId}`);
+        throw new NotFoundException(
+          `Planeación no encontrada para la orden ${ordenId}`,
+        );
       }
 
-      this.logger.log('Planeación obtenida exitosamente', {
+      this.logger.log("Planeación obtenida exitosamente", {
         ...context,
         planeacionId: planeacion.id,
       });
@@ -111,7 +114,7 @@ export class PlaneacionController {
       return planeacion;
     } catch (error) {
       const err = error as Error;
-      this.logger.error('Error obteniendo planeación', {
+      this.logger.error("Error obteniendo planeación", {
         ...context,
         error: err.message,
         stack: err.stack,
@@ -124,89 +127,89 @@ export class PlaneacionController {
    * ✅ CREAR O ACTUALIZAR PLANEACIÓN
    * POST /planeacion/:ordenId
    */
-  @Post(':ordenId')
-  @Roles('admin', 'supervisor', 'tecnico')
+  @Post(":ordenId")
+  @Roles("admin", "supervisor", "tecnico")
   @Throttle({ default: { limit: 30, ttl: 60000 } }) // 30 req/min
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Crear o actualizar planeación',
-    description: 'Crea una nueva planeación o actualiza una existente',
+    summary: "Crear o actualizar planeación",
+    description: "Crea una nueva planeación o actualiza una existente",
   })
   @ApiParam({
-    name: 'ordenId',
-    description: 'UUID de la orden de trabajo',
+    name: "ordenId",
+    description: "UUID de la orden de trabajo",
   })
   @ApiBody({
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
         fechaInicio: {
-          type: 'string',
-          format: 'date-time',
-          example: '2024-02-15T08:00:00Z',
+          type: "string",
+          format: "date-time",
+          example: "2024-02-15T08:00:00Z",
         },
         fechaFin: {
-          type: 'string',
-          format: 'date-time',
-          example: '2024-02-15T17:00:00Z',
+          type: "string",
+          format: "date-time",
+          example: "2024-02-15T17:00:00Z",
         },
         actividades: {
-          type: 'array',
+          type: "array",
           items: {
-            type: 'object',
+            type: "object",
             properties: {
-              descripcion: { type: 'string', example: 'Inspección visual' },
-              duracionEstimada: { type: 'number', example: 2 },
-              orden: { type: 'number', example: 1 },
+              descripcion: { type: "string", example: "Inspección visual" },
+              duracionEstimada: { type: "number", example: 2 },
+              orden: { type: "number", example: 1 },
             },
           },
         },
         recursosNecesarios: {
-          type: 'array',
+          type: "array",
           items: {
-            type: 'object',
+            type: "object",
             properties: {
-              nombre: { type: 'string', example: 'Arnés de seguridad' },
-              cantidad: { type: 'number', example: 2 },
-              tipo: { type: 'string', example: 'EQUIPO' },
+              nombre: { type: "string", example: "Arnés de seguridad" },
+              cantidad: { type: "number", example: 2 },
+              tipo: { type: "string", example: "EQUIPO" },
             },
           },
         },
         observaciones: {
-          type: 'string',
-          example: 'Cliente solicita trabajo en horario de menor actividad',
+          type: "string",
+          example: "Cliente solicita trabajo en horario de menor actividad",
         },
       },
     },
   })
   @ApiResponse({
     status: 200,
-    description: 'Planeación creada/actualizada correctamente',
+    description: "Planeación creada/actualizada correctamente",
   })
   @ApiResponse({
     status: 400,
-    description: 'Datos inválidos',
+    description: "Datos inválidos",
   })
   @ApiForbiddenResponse({
-    description: 'Usuario sin permisos suficientes',
+    description: "Usuario sin permisos suficientes",
   })
   async createOrUpdate(
-    @Param('ordenId') ordenId: string,
+    @Param("ordenId") ordenId: string,
     @Body() body: unknown,
   ) {
     const context = {
-      action: 'CREATE_UPDATE_PLANEACION',
+      action: "CREATE_UPDATE_PLANEACION",
       ordenId,
     };
 
-    this.logger.log('Creando/actualizando planeación', context);
+    this.logger.log("Creando/actualizando planeación", context);
 
     try {
       // Validar con Zod existente
       const validationResult = CreatePlaneacionSchema.safeParse(body);
       if (!validationResult.success) {
         throw new BadRequestException({
-          message: 'Datos inválidos',
+          message: "Datos inválidos",
           errors: validationResult.error.flatten(),
         });
       }
@@ -216,7 +219,7 @@ export class PlaneacionController {
         validationResult.data,
       );
 
-      this.logger.log('Planeación creada/actualizada exitosamente', {
+      this.logger.log("Planeación creada/actualizada exitosamente", {
         ...context,
         planeacionId: result.data?.id,
       });
@@ -224,7 +227,7 @@ export class PlaneacionController {
       return result;
     } catch (error) {
       const err = error as Error;
-      this.logger.error('Error creando/actualizando planeación', {
+      this.logger.error("Error creando/actualizando planeación", {
         ...context,
         error: err.message,
         stack: err.stack,
@@ -237,66 +240,73 @@ export class PlaneacionController {
    * ✅ APROBAR PLANEACIÓN
    * PUT /planeacion/:id/aprobar
    */
-  @Put(':id/aprobar')
-  @Roles('admin', 'supervisor')
+  @Put(":id/aprobar")
+  @Roles("admin", "supervisor")
   @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 aprobaciones/min
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Aprobar planeación',
-    description: 'Marca la planeación como aprobada, permitiendo iniciar la ejecución',
+    summary: "Aprobar planeación",
+    description:
+      "Marca la planeación como aprobada, permitiendo iniciar la ejecución",
   })
   @ApiParam({
-    name: 'id',
-    description: 'UUID de la planeación',
+    name: "id",
+    description: "UUID de la planeación",
   })
   @ApiResponse({
     status: 200,
-    description: 'Planeación aprobada correctamente',
+    description: "Planeación aprobada correctamente",
     schema: {
       example: {
-        message: 'Planeación aprobada exitosamente',
+        message: "Planeación aprobada exitosamente",
         data: {
-          id: 'uuid',
-          estado: 'APROBADA',
-          aprobadoPor: 'uuid-supervisor',
-          aprobadoEn: '2024-02-14T10:30:00Z',
+          id: "uuid",
+          estado: "APROBADA",
+          aprobadoPor: "uuid-supervisor",
+          aprobadoEn: "2024-02-14T10:30:00Z",
         },
       },
     },
   })
-  @ApiNotFoundResponse({ description: 'Planeación no encontrada' })
-  @ApiForbiddenResponse({ description: 'Solo supervisores pueden aprobar' })
+  @ApiNotFoundResponse({ description: "Planeación no encontrada" })
+  @ApiForbiddenResponse({ description: "Solo supervisores pueden aprobar" })
   @ApiResponse({
     status: 409,
-    description: 'Planeación ya fue aprobada',
+    description: "Planeación ya fue aprobada",
   })
-  async aprobar(@Param('id') id: string, @Body('userId') userId?: string) {
+  async aprobar(@Param("id") id: string, @Body("userId") userId?: string) {
     const context = {
-      action: 'APROBAR_PLANEACION',
+      action: "APROBAR_PLANEACION",
       planeacionId: id,
       userId,
     };
 
-    this.logger.log('Aprobando planeación', context);
+    this.logger.log("Aprobando planeación", context);
 
     try {
       // Llamada corregida: solo 2 parámetros según firma original
-      const result = await this.aprobarPlaneacion.execute(id, userId || 'system');
+      const result = await this.aprobarPlaneacion.execute(
+        id,
+        userId || "system",
+      );
 
-      this.logger.log('Planeación aprobada exitosamente', context);
+      this.logger.log("Planeación aprobada exitosamente", context);
 
       return {
-        message: 'Planeación aprobada exitosamente',
+        message: "Planeación aprobada exitosamente",
         data: result.data,
       };
     } catch (error) {
       const err = error as Error;
-      
+
       // Manejo de excepciones sin importar clases custom
-      if (err.message.includes('ya aprobada') || err.message.includes('already approved')) {
-        this.logger.warn('Intento de aprobar planeación ya aprobada', context);
+      if (
+        err.message.includes("ya aprobada") ||
+        err.message.includes("already approved")
+      ) {
+        this.logger.warn("Intento de aprobar planeación ya aprobada", context);
       } else {
-        this.logger.error('Error aprobando planeación', {
+        this.logger.error("Error aprobando planeación", {
           ...context,
           error: err.message,
           stack: err.stack,
@@ -310,64 +320,66 @@ export class PlaneacionController {
    * ✅ RECHAZAR PLANEACIÓN
    * PUT /planeacion/:id/rechazar
    */
-  @Put(':id/rechazar')
-  @Roles('admin', 'supervisor')
+  @Put(":id/rechazar")
+  @Roles("admin", "supervisor")
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Rechazar planeación',
-    description: 'Marca la planeación como rechazada, requiriendo ajustes antes de aprobar',
+    summary: "Rechazar planeación",
+    description:
+      "Marca la planeación como rechazada, requiriendo ajustes antes de aprobar",
   })
   @ApiParam({
-    name: 'id',
-    description: 'UUID de la planeación',
+    name: "id",
+    description: "UUID de la planeación",
   })
   @ApiBody({
     schema: {
-      type: 'object',
+      type: "object",
       properties: {
         motivo: {
-          type: 'string',
-          example: 'Los recursos asignados no son suficientes para la complejidad del trabajo',
+          type: "string",
+          example:
+            "Los recursos asignados no son suficientes para la complejidad del trabajo",
           minLength: 10,
           maxLength: 1000,
         },
       },
-      required: ['motivo'],
+      required: ["motivo"],
     },
   })
   @ApiResponse({
     status: 200,
-    description: 'Planeación rechazada correctamente',
+    description: "Planeación rechazada correctamente",
     schema: {
       example: {
-        message: 'Planeación rechazada',
+        message: "Planeación rechazada",
         data: {
-          id: 'uuid',
-          estado: 'RECHAZADA',
-          rechazadoPor: 'uuid-supervisor',
-          rechazadoEn: '2024-02-14T11:00:00Z',
-          motivoRechazo: 'Recursos insuficientes...',
+          id: "uuid",
+          estado: "RECHAZADA",
+          rechazadoPor: "uuid-supervisor",
+          rechazadoEn: "2024-02-14T11:00:00Z",
+          motivoRechazo: "Recursos insuficientes...",
         },
       },
     },
   })
-  @ApiNotFoundResponse({ description: 'Planeación no encontrada' })
-  @ApiForbiddenResponse({ description: 'Solo supervisores pueden rechazar' })
-  async rechazar(@Param('id') id: string, @Body() body: unknown) {
+  @ApiNotFoundResponse({ description: "Planeación no encontrada" })
+  @ApiForbiddenResponse({ description: "Solo supervisores pueden rechazar" })
+  async rechazar(@Param("id") id: string, @Body() body: unknown) {
     const context = {
-      action: 'RECHAZAR_PLANEACION',
+      action: "RECHAZAR_PLANEACION",
       planeacionId: id,
     };
 
-    this.logger.log('Rechazando planeación', context);
+    this.logger.log("Rechazando planeación", context);
 
     try {
       // Validar con Zod existente
       const validationResult = RechazarPlaneacionSchema.safeParse(body);
       if (!validationResult.success) {
         throw new BadRequestException({
-          message: 'Datos inválidos',
+          message: "Datos inválidos",
           errors: validationResult.error.flatten(),
         });
       }
@@ -378,15 +390,15 @@ export class PlaneacionController {
         validationResult.data.motivo,
       );
 
-      this.logger.log('Planeación rechazada exitosamente', context);
+      this.logger.log("Planeación rechazada exitosamente", context);
 
       return {
-        message: 'Planeación rechazada',
+        message: "Planeación rechazada",
         data: result.data,
       };
     } catch (error) {
       const err = error as Error;
-      this.logger.error('Error rechazando planeación', {
+      this.logger.error("Error rechazando planeación", {
         ...context,
         error: err.message,
         stack: err.stack,
@@ -395,5 +407,3 @@ export class PlaneacionController {
     }
   }
 }
-
-

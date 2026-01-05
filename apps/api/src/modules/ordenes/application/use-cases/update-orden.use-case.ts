@@ -3,10 +3,15 @@
  * @description Caso de uso para actualizar una orden
  * @layer Application
  */
-import { Injectable, Inject, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ORDEN_REPOSITORY, IOrdenRepository } from '../../domain/repositories';
-import { UpdateOrdenDto, OrdenResponseZod } from '../dto';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  ForbiddenException,
+} from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { ORDEN_REPOSITORY, IOrdenRepository } from "../../domain/repositories";
+import { UpdateOrdenDto, OrdenResponseZod } from "../dto";
 
 @Injectable()
 export class UpdateOrdenUseCase {
@@ -24,13 +29,13 @@ export class UpdateOrdenUseCase {
     const orden = await this.ordenRepository.findById(id);
 
     if (!orden) {
-      throw new NotFoundException('Orden no encontrada');
+      throw new NotFoundException("Orden no encontrada");
     }
 
     // Regla 14: No permitir edición una vez que la orden está en ejecución o ya es final.
     // En el contexto de órdenes de trabajo, consideramos editable solo: pendiente/planeacion.
     const estadoActual = orden.estado.value;
-    const editableStates = new Set(['pendiente', 'planeacion']);
+    const editableStates = new Set(["pendiente", "planeacion"]);
     if (!editableStates.has(String(estadoActual))) {
       throw new ForbiddenException(
         `No se puede editar una orden en estado: ${String(estadoActual)}`,
@@ -42,7 +47,9 @@ export class UpdateOrdenUseCase {
       descripcion: dto.descripcion,
       cliente: dto.cliente,
       prioridad: dto.prioridad,
-      fechaFinEstimada: dto.fechaFinEstimada ? new Date(dto.fechaFinEstimada) : undefined,
+      fechaFinEstimada: dto.fechaFinEstimada
+        ? new Date(dto.fechaFinEstimada)
+        : undefined,
       presupuestoEstimado: dto.presupuestoEstimado,
       asignadoId: dto.asignadoId ?? undefined,
     });
@@ -51,13 +58,13 @@ export class UpdateOrdenUseCase {
     const updated = await this.ordenRepository.update(orden);
 
     // Emitir evento
-    this.eventEmitter.emit('orden.updated', {
+    this.eventEmitter.emit("orden.updated", {
       ordenId: updated.id,
       changes: Object.keys(dto),
     });
 
     return {
-      message: 'Orden actualizada exitosamente',
+      message: "Orden actualizada exitosamente",
       data: {
         id: updated.id,
         numero: updated.numero.value,

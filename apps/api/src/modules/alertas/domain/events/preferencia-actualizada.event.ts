@@ -1,8 +1,8 @@
 /**
  * Domain Event: PreferenciaActualizadaEvent
- * 
+ *
  * Se publica cuando el usuario actualiza sus preferencias de alertas
- * 
+ *
  * @example
  * const event = new PreferenciaActualizadaEvent({
  *   usuarioId: 'user-123',
@@ -15,7 +15,7 @@
  */
 
 export class PreferenciaActualizadaEvent {
-  public readonly eventName = 'PREFERENCIA_ACTUALIZADA';
+  public readonly eventName = "PREFERENCIA_ACTUALIZADA";
   public readonly aggregateId: string;
   public readonly timestamp: Date;
   public readonly usuarioId: string;
@@ -46,4 +46,3 @@ export class PreferenciaActualizadaEvent {
     };
   }
 }
-

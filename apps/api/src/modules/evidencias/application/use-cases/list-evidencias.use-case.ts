@@ -3,13 +3,13 @@
  * @description Handles listing evidencias with filtering and pagination
  */
 
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject, Logger } from "@nestjs/common";
 import {
   IEvidenciaRepository,
   EVIDENCIA_REPOSITORY,
-} from '../../domain/repositories';
-import { EvidenciaMapper } from '../mappers';
-import { ListEvidenciasQueryDto, ListEvidenciasResponse } from '../dto';
+} from "../../domain/repositories";
+import { EvidenciaMapper } from "../mappers";
+import { ListEvidenciasQueryDto, ListEvidenciasResponse } from "../dto";
 
 @Injectable()
 export class ListEvidenciasUseCase {
@@ -18,14 +18,16 @@ export class ListEvidenciasUseCase {
   constructor(
     @Inject(EVIDENCIA_REPOSITORY)
     private readonly repository: IEvidenciaRepository,
-  ) { }
+  ) {}
 
-  async execute(query: ListEvidenciasQueryDto): Promise<ListEvidenciasResponse> {
+  async execute(
+    query: ListEvidenciasQueryDto,
+  ): Promise<ListEvidenciasResponse> {
     const page = query.page || 1;
     const limit = Math.min(query.limit || 50, 100);
     const skip = (page - 1) * limit;
 
-    this.logger.log('Listing evidencias', { query, skip, limit });
+    this.logger.log("Listing evidencias", { query, skip, limit });
 
     try {
       const [evidencias, total] = await Promise.all([
@@ -57,7 +59,7 @@ export class ListEvidenciasUseCase {
         },
       };
     } catch (error) {
-      this.logger.error('Failed to list evidencias', {
+      this.logger.error("Failed to list evidencias", {
         error: (error as Error).message,
       });
       throw error;

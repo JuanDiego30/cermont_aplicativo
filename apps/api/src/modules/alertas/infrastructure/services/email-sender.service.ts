@@ -1,19 +1,19 @@
 /**
  * @service EmailSenderService
- * 
+ *
  * Servicio para envío de alertas por correo electrónico
  * Implementa Strategy Pattern
  */
 
-import { Injectable, Logger } from '@nestjs/common';
-import { INotificationSender } from './notification-sender.interface';
-import { Alerta } from '../../domain/entities/alerta.entity';
-import { CanalNotificacionEnum } from '../../domain/value-objects/canal-notificacion.vo';
-import { NotificationsService } from '../../../notifications/notifications.service';
+import { Injectable, Logger } from "@nestjs/common";
+import { INotificationSender } from "./notification-sender.interface";
+import { Alerta } from "../../domain/entities/alerta.entity";
+import { CanalNotificacionEnum } from "../../domain/value-objects/canal-notificacion.vo";
+import { NotificationsService } from "../../../notifications/notifications.service";
 import {
   renderAlertaEmailHtml,
   renderAlertaEmailText,
-} from '../../../../templates/emails/alerta-email.template';
+} from "../../../../templates/emails/alerta-email.template";
 
 @Injectable()
 export class EmailSenderService implements INotificationSender {
@@ -23,7 +23,7 @@ export class EmailSenderService implements INotificationSender {
 
   async send(alerta: Alerta, destinatario: any): Promise<void> {
     if (!destinatario?.email) {
-      throw new Error('Usuario no tiene email registrado');
+      throw new Error("Usuario no tiene email registrado");
     }
 
     const prioridadLabel = alerta.getPrioridad().getValue();
@@ -35,14 +35,14 @@ export class EmailSenderService implements INotificationSender {
       prioridadLabel,
       prioridadCssClass,
       prioridadColor: alerta.getPrioridad().getColor(),
-      fechaLocaleString: alerta.getCreatedAt().toLocaleString('es-ES'),
+      fechaLocaleString: alerta.getCreatedAt().toLocaleString("es-ES"),
     });
 
     const textContent = renderAlertaEmailText({
       titulo: alerta.getTitulo(),
       mensaje: alerta.getMensaje(),
       prioridadLabel,
-      fechaLocaleString: alerta.getCreatedAt().toLocaleString('es-ES'),
+      fechaLocaleString: alerta.getCreatedAt().toLocaleString("es-ES"),
     });
 
     await this.notifications.sendEmail({

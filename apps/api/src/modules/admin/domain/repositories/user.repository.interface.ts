@@ -1,13 +1,13 @@
 /**
  * @interface IUserRepository
- * 
+ *
  * Interfaz del repositorio de usuarios.
  * Define el contrato que debe implementar cualquier persistencia.
- * 
+ *
  * Principio DIP: El dominio define la interfaz, la infraestructura implementa.
  */
 
-import { UserEntity } from '../entities/user.entity';
+import { UserEntity } from "../entities/user.entity";
 
 /**
  * Resultado paginado genérico
@@ -104,4 +104,4 @@ export interface IUserRepository {
 /**
  * Token para inyección de dependencias
  */
-export const USER_REPOSITORY = Symbol('IUserRepository');
+export const USER_REPOSITORY = Symbol("IUserRepository");

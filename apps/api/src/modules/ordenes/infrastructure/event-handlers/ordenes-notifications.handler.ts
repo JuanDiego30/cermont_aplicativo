@@ -1,10 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { Injectable, Logger } from "@nestjs/common";
+import { OnEvent } from "@nestjs/event-emitter";
 
-import { PrismaService } from '../../../../prisma/prisma.service';
-import { NotificationsService } from '../../../notifications/notifications.service';
-import { OrdenAsignadaEvent } from '../../domain/events/orden-asignada.event';
-import { OrdenEstadoChangedEvent } from '../../domain/events/orden-estado-changed.event';
+import { PrismaService } from "../../../../prisma/prisma.service";
+import { NotificationsService } from "../../../notifications/notifications.service";
+import { OrdenAsignadaEvent } from "../../domain/events/orden-asignada.event";
+import { OrdenEstadoChangedEvent } from "../../domain/events/orden-estado-changed.event";
 
 @Injectable()
 export class OrdenesNotificationsHandler {
@@ -18,10 +18,10 @@ export class OrdenesNotificationsHandler {
   private buildOrderUrl(ordenId: string): string | undefined {
     const baseUrl = process.env.WEB_BASE_URL?.trim();
     if (!baseUrl) return undefined;
-    return `${baseUrl.replace(/\/$/, '')}/ordenes/${ordenId}`;
+    return `${baseUrl.replace(/\/$/, "")}/ordenes/${ordenId}`;
   }
 
-  @OnEvent('orden.asignada')
+  @OnEvent("orden.asignada")
   async handleOrdenAsignada(event: OrdenAsignadaEvent): Promise<void> {
     try {
       const orden = await this.prisma.order.findUnique({
@@ -36,8 +36,8 @@ export class OrdenesNotificationsHandler {
 
       await this.notifications.enqueueEmail({
         to: recipient,
-        subject: `Orden asignada${event.numero ? ` (${event.numero})` : ''}`,
-        template: 'order-assigned',
+        subject: `Orden asignada${event.numero ? ` (${event.numero})` : ""}`,
+        template: "order-assigned",
         templateData: {
           ordenNumero: event.numero,
           descripcion: orden?.descripcion,
@@ -45,14 +45,16 @@ export class OrdenesNotificationsHandler {
         },
       });
     } catch (error) {
-      this.logger.error('Error enviando email de orden asignada', error);
+      this.logger.error("Error enviando email de orden asignada", error);
     }
   }
 
-  @OnEvent('orden.estado.changed')
-  async handleOrdenEstadoChanged(event: OrdenEstadoChangedEvent): Promise<void> {
+  @OnEvent("orden.estado.changed")
+  async handleOrdenEstadoChanged(
+    event: OrdenEstadoChangedEvent,
+  ): Promise<void> {
     try {
-      if (String(event.estadoNuevo) !== 'completada') return;
+      if (String(event.estadoNuevo) !== "completada") return;
 
       const orden = await this.prisma.order.findUnique({
         where: { id: event.ordenId },
@@ -66,8 +68,8 @@ export class OrdenesNotificationsHandler {
 
       await this.notifications.enqueueEmail({
         to: recipient,
-        subject: `Orden completada${event.numero ? ` (${event.numero})` : ''}`,
-        template: 'order-completed',
+        subject: `Orden completada${event.numero ? ` (${event.numero})` : ""}`,
+        template: "order-completed",
         templateData: {
           ordenNumero: event.numero,
           resumen: event.motivo,
@@ -75,7 +77,7 @@ export class OrdenesNotificationsHandler {
         },
       });
     } catch (error) {
-      this.logger.error('Error enviando email de orden completada', error);
+      this.logger.error("Error enviando email de orden completada", error);
     }
   }
 }

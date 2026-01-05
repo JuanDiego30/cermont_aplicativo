@@ -9,22 +9,25 @@ import {
   Logger,
   NotFoundException,
   ForbiddenException,
-} from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { createHash } from 'crypto';
-import { Evidencia } from '../../domain/entities';
-import { FileValidatorService } from '../../domain/services';
+} from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { createHash } from "crypto";
+import { Evidencia } from "../../domain/entities";
+import { FileValidatorService } from "../../domain/services";
 import {
   IEvidenciaRepository,
   EVIDENCIA_REPOSITORY,
-} from '../../domain/repositories';
+} from "../../domain/repositories";
 import {
   IStorageProvider,
   STORAGE_PROVIDER,
-} from '../../infrastructure/storage/storage-provider.interface';
-import { ORDEN_REPOSITORY, IOrdenRepository } from '../../../ordenes/domain/repositories';
-import { EvidenciaMapper } from '../mappers';
-import { UploadEvidenciaDto, EvidenciaResponse } from '../dto';
+} from "../../infrastructure/storage/storage-provider.interface";
+import {
+  ORDEN_REPOSITORY,
+  IOrdenRepository,
+} from "../../../ordenes/domain/repositories";
+import { EvidenciaMapper } from "../mappers";
+import { UploadEvidenciaDto, EvidenciaResponse } from "../dto";
 
 export interface UploadEvidenciaCommand {
   file: Express.Multer.File;
@@ -52,9 +55,11 @@ export class UploadEvidenciaUseCase {
     private readonly ordenRepository: IOrdenRepository,
     private readonly eventEmitter: EventEmitter2,
     private readonly fileValidator: FileValidatorService,
-  ) { }
+  ) {}
 
-  async execute(command: UploadEvidenciaCommand): Promise<UploadEvidenciaResult> {
+  async execute(
+    command: UploadEvidenciaCommand,
+  ): Promise<UploadEvidenciaResult> {
     const { file, dto, uploadedBy, uploaderRole } = command;
 
     this.logger.log(`Uploading evidencia for orden ${dto.ordenId}`, {
@@ -66,17 +71,17 @@ export class UploadEvidenciaUseCase {
       // 0. Validate required link: Orden must exist
       const orden = await this.ordenRepository.findById(dto.ordenId);
       if (!orden) {
-        throw new NotFoundException('Orden no encontrada');
+        throw new NotFoundException("Orden no encontrada");
       }
 
       const role = uploaderRole?.toLowerCase();
-      const isPrivileged = role === 'admin' || role === 'supervisor';
+      const isPrivileged = role === "admin" || role === "supervisor";
       const canUpload =
         isPrivileged ||
         orden.creadorId === uploadedBy ||
         orden.asignadoId === uploadedBy;
       if (!canUpload) {
-        throw new ForbiddenException('No autorizado');
+        throw new ForbiddenException("No autorizado");
       }
 
       // 1. Validate file
@@ -87,7 +92,9 @@ export class UploadEvidenciaUseCase {
         buffer: file.buffer,
       });
       if (!validation.isValid) {
-        this.logger.warn('File validation failed', { errors: validation.errors });
+        this.logger.warn("File validation failed", {
+          errors: validation.errors,
+        });
         return { success: false, errors: validation.errors };
       }
 
@@ -103,11 +110,11 @@ export class UploadEvidenciaUseCase {
 
       // 2. Create domain entity
       const sha256 = file.buffer
-        ? createHash('sha256').update(file.buffer).digest('hex')
+        ? createHash("sha256").update(file.buffer).digest("hex")
         : undefined;
 
       const evidencia = Evidencia.create({
-        ejecucionId: dto.ejecucionId || '',
+        ejecucionId: dto.ejecucionId || "",
         ordenId: dto.ordenId,
         mimeType: file.mimetype,
         originalFilename: validation.sanitizedFilename,
@@ -115,9 +122,9 @@ export class UploadEvidenciaUseCase {
         descripcion: dto.descripcion,
         tags: dto.tags
           ? dto.tags
-            .split(',')
-            .map((t) => t.trim())
-            .filter(Boolean)
+              .split(",")
+              .map((t) => t.trim())
+              .filter(Boolean)
           : [],
         uploadedBy,
         sha256,
@@ -125,7 +132,7 @@ export class UploadEvidenciaUseCase {
 
       // 3. Upload to storage
       await this.storage.upload(file.buffer, evidencia.storagePath.getValue());
-      this.logger.log('File uploaded', {
+      this.logger.log("File uploaded", {
         evidenciaId: evidencia.id.getValue(),
         size: file.size,
       });
@@ -150,7 +157,7 @@ export class UploadEvidenciaUseCase {
       if (error instanceof NotFoundException) {
         return { success: false, errors: [(error as Error).message] };
       }
-      this.logger.error('Upload failed', {
+      this.logger.error("Upload failed", {
         error: (error as Error).message,
         stack: (error as Error).stack,
       });

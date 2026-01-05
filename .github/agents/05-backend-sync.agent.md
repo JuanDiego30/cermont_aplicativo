@@ -182,7 +182,6 @@ export class SyncResultDto {
 
 ##  RESEARCH FINDINGS (2026-01-02)
 
-### Type Safety Violations
-- sync.controller.ts L94,131,138,170: @Req() req: any (4 veces)
-
-### Fix: Crear AuthenticatedRequest interface
+### Type Safety (Estado actual)
+- ✅ Fix aplicado: `apps/api/src/modules/sync/infrastructure/controllers/sync.controller.ts` ya no usa `@Req() req: any`.
+- Mantener `AuthenticatedRequest` (o equivalente) como contrato estándar para controllers autenticados.

@@ -1,12 +1,12 @@
 /**
  * @event UserDeactivatedEvent
- * 
+ *
  * Evento de dominio emitido cuando se desactiva un usuario.
  */
 
 export class UserDeactivatedEvent {
   readonly occurredAt: Date;
-  readonly eventName = 'UserDeactivatedEvent';
+  readonly eventName = "UserDeactivatedEvent";
 
   constructor(
     readonly userId: string,

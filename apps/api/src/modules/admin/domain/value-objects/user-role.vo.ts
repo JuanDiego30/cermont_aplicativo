@@ -1,13 +1,18 @@
 /**
  * @valueObject UserRole
- * 
+ *
  * Role como Value Object con validación y jerarquía.
  */
 
-import { ValidationError } from '../../../../common/domain/exceptions';
+import { ValidationError } from "../../../../common/domain/exceptions";
 
-export const USER_ROLES = ['admin', 'supervisor', 'tecnico', 'administrativo'] as const;
-export type UserRoleType = typeof USER_ROLES[number];
+export const USER_ROLES = [
+  "admin",
+  "supervisor",
+  "tecnico",
+  "administrativo",
+] as const;
+export type UserRoleType = (typeof USER_ROLES)[number];
 
 /**
  * Jerarquía de roles (mayor número = más permisos)
@@ -36,8 +41,8 @@ export class UserRole {
 
     if (!this.isValid(normalizedRole)) {
       throw new ValidationError(
-        `Rol inválido: ${role}. Roles válidos: ${USER_ROLES.join(', ')}`,
-        'role',
+        `Rol inválido: ${role}. Roles válidos: ${USER_ROLES.join(", ")}`,
+        "role",
         role,
       );
     }
@@ -70,28 +75,28 @@ export class UserRole {
    * Verifica si es admin
    */
   isAdmin(): boolean {
-    return this.value === 'admin';
+    return this.value === "admin";
   }
 
   /**
    * Verifica si es supervisor
    */
   isSupervisor(): boolean {
-    return this.value === 'supervisor';
+    return this.value === "supervisor";
   }
 
   /**
    * Verifica si es técnico
    */
   isTecnico(): boolean {
-    return this.value === 'tecnico';
+    return this.value === "tecnico";
   }
 
   /**
    * Verifica si es administrativo
    */
   isAdministrativo(): boolean {
-    return this.value === 'administrativo';
+    return this.value === "administrativo";
   }
 
   /**

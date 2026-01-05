@@ -1,10 +1,10 @@
 /**
  * Exception: FieldTypeMismatchException
- * 
+ *
  * Lanzada cuando el tipo de valor no coincide con el tipo de campo
  */
 
-import { BusinessRuleViolationError } from '../../../../common/domain/exceptions';
+import { BusinessRuleViolationError } from "../../../../common/domain/exceptions";
 
 export class FieldTypeMismatchException extends BusinessRuleViolationError {
   constructor(
@@ -14,7 +14,6 @@ export class FieldTypeMismatchException extends BusinessRuleViolationError {
     public readonly actualType: string,
   ) {
     super(message);
-    this.name = 'FieldTypeMismatchException';
+    this.name = "FieldTypeMismatchException";
   }
 }
-

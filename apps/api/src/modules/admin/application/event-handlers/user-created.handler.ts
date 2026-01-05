@@ -1,14 +1,14 @@
 /**
  * @eventHandler UserCreatedHandler
- * 
+ *
  * Maneja el evento UserCreatedEvent.
  * Responsabilidades: auditoría, notificaciones, etc.
  */
 
-import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
-import { UserCreatedEvent } from '../../domain/events/user-created.event';
-import { PrismaService } from '../../../../prisma/prisma.service';
+import { Injectable, Logger } from "@nestjs/common";
+import { OnEvent } from "@nestjs/event-emitter";
+import { UserCreatedEvent } from "../../domain/events/user-created.event";
+import { PrismaService } from "../../../../prisma/prisma.service";
 
 @Injectable()
 export class UserCreatedHandler {
@@ -16,15 +16,15 @@ export class UserCreatedHandler {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  @OnEvent('UserCreatedEvent')
+  @OnEvent("UserCreatedEvent")
   async handle(event: UserCreatedEvent): Promise<void> {
     try {
       // Registrar en auditoría
       await this.prisma.auditLog.create({
         data: {
-          action: 'USER_CREATED',
-          userId: event.createdBy ?? 'SYSTEM',
-          entityType: 'User',
+          action: "USER_CREATED",
+          userId: event.createdBy ?? "SYSTEM",
+          entityType: "User",
           entityId: event.userId,
           changes: {
             email: event.email,
@@ -34,7 +34,9 @@ export class UserCreatedHandler {
         },
       });
 
-      this.logger.log(`Auditoría registrada para usuario creado: ${event.email}`);
+      this.logger.log(
+        `Auditoría registrada para usuario creado: ${event.email}`,
+      );
 
       // Aquí se pueden agregar más acciones:
       // - Enviar email de bienvenida

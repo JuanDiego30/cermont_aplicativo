@@ -1,8 +1,8 @@
 /**
  * @useCase GetPendingSyncUseCase
  */
-import { Injectable, Inject } from '@nestjs/common';
-import { SYNC_REPOSITORY, ISyncRepository, PendingSync } from '../dto';
+import { Injectable, Inject } from "@nestjs/common";
+import { SYNC_REPOSITORY, ISyncRepository, PendingSync } from "../dto";
 
 @Injectable()
 export class GetPendingSyncUseCase {

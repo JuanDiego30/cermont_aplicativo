@@ -1,15 +1,15 @@
 /**
  * Repository: FormTemplateRepository
- * 
+ *
  * Implementación Prisma de IFormTemplateRepository
  */
 
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../../prisma/prisma.service';
-import { IFormTemplateRepository } from '../../domain/repositories/form-template.repository.interface';
-import { FormTemplate } from '../../domain/entities/form-template.entity';
-import { FormTemplateId } from '../../domain/value-objects/form-template-id.vo';
-import { FormTemplateMapper } from '../../application/mappers/form-template.mapper';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../../../prisma/prisma.service";
+import { IFormTemplateRepository } from "../../domain/repositories/form-template.repository.interface";
+import { FormTemplate } from "../../domain/entities/form-template.entity";
+import { FormTemplateId } from "../../domain/value-objects/form-template-id.vo";
+import { FormTemplateMapper } from "../../application/mappers/form-template.mapper";
 
 @Injectable()
 export class FormTemplateRepository implements IFormTemplateRepository {
@@ -66,7 +66,7 @@ export class FormTemplateRepository implements IFormTemplateRepository {
         tipo: contextType as any,
         activo: true,
       },
-      orderBy: { updatedAt: 'desc' },
+      orderBy: { updatedAt: "desc" },
     });
 
     return templates.map((t) => FormTemplateMapper.fromPrisma(t));
@@ -78,7 +78,7 @@ export class FormTemplateRepository implements IFormTemplateRepository {
         nombre: name,
         activo: true,
       },
-      orderBy: { version: 'desc' },
+      orderBy: { version: "desc" },
     });
 
     if (!template) {
@@ -93,7 +93,7 @@ export class FormTemplateRepository implements IFormTemplateRepository {
       where: {
         nombre: name,
       },
-      orderBy: { version: 'desc' },
+      orderBy: { version: "desc" },
     });
 
     return templates.map((t) => FormTemplateMapper.fromPrisma(t));
@@ -115,7 +115,7 @@ export class FormTemplateRepository implements IFormTemplateRepository {
       where: {
         activo: true,
       },
-      orderBy: { updatedAt: 'desc' },
+      orderBy: { updatedAt: "desc" },
     });
 
     return templates.map((t) => FormTemplateMapper.fromPrisma(t));
@@ -128,7 +128,7 @@ export class FormTemplateRepository implements IFormTemplateRepository {
       where: {
         activo: true,
       },
-      orderBy: { updatedAt: 'desc' },
+      orderBy: { updatedAt: "desc" },
     });
 
     return templates
@@ -144,4 +144,3 @@ export class FormTemplateRepository implements IFormTemplateRepository {
     });
   }
 }
-

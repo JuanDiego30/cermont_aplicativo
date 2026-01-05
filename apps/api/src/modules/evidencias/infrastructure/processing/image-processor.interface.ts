@@ -4,41 +4,41 @@
  */
 
 export interface ImageProcessingResult {
-    thumbnailPath?: string;
-    metadata?: {
-        width?: number;
-        height?: number;
-        format?: string;
-        thumbnails?: {
-            s150?: string;
-            s300?: string;
-        };
+  thumbnailPath?: string;
+  metadata?: {
+    width?: number;
+    height?: number;
+    format?: string;
+    thumbnails?: {
+      s150?: string;
+      s300?: string;
     };
+  };
 }
 
 export interface IImageProcessor {
-    /**
-     * Process an image (compress, generate thumbnail, extract metadata)
-     */
-    processImage(filePath: string): Promise<ImageProcessingResult>;
+  /**
+   * Process an image (compress, generate thumbnail, extract metadata)
+   */
+  processImage(filePath: string): Promise<ImageProcessingResult>;
 
-    /**
-     * Generate a thumbnail for an image
-     */
-    generateThumbnail(
-        inputPath: string,
-        outputPath: string,
-        width?: number,
-        height?: number,
-    ): Promise<string>;
+  /**
+   * Generate a thumbnail for an image
+   */
+  generateThumbnail(
+    inputPath: string,
+    outputPath: string,
+    width?: number,
+    height?: number,
+  ): Promise<string>;
 
-    /**
-     * Compress an image
-     */
-    compress(inputPath: string, quality?: number): Promise<Buffer>;
+  /**
+   * Compress an image
+   */
+  compress(inputPath: string, quality?: number): Promise<Buffer>;
 }
 
 /**
  * Token for dependency injection
  */
-export const IMAGE_PROCESSOR = Symbol('IImageProcessor');
+export const IMAGE_PROCESSOR = Symbol("IImageProcessor");

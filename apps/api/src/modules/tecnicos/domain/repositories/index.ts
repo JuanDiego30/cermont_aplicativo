@@ -1,1 +1,1 @@
-export * from './tecnico.repository.interface';
+export * from "./tecnico.repository.interface";

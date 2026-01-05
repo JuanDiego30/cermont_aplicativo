@@ -1,10 +1,11 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AdminService } from '../../../../core/services/admin.service';
 import { UserRole } from '../../../../core/models/user.model';
-import { Subject, takeUntil } from 'rxjs';
+import { getDefaultControlErrorMessage, hasControlError } from '../../../../shared/utils/form-errors.util';
+import { beginFormSubmit, subscribeSubmit } from '../../../../shared/utils/form-submit.util';
 
 @Component({
   selector: 'app-user-form',
@@ -13,8 +14,8 @@ import { Subject, takeUntil } from 'rxjs';
   templateUrl: './user-form.component.html',
   styleUrls: ['./user-form.component.css']
 })
-export class UserFormComponent implements OnInit, OnDestroy {
-  private readonly destroy$ = new Subject<void>();
+export class UserFormComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(FormBuilder);
   private readonly adminService = inject(AdminService);
   private readonly router = inject(Router);
@@ -59,7 +60,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
 
     // Monitorear cambios en la contraseña para validación en tiempo real
     this.form.get('password')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(password => {
         if (password) {
           this.validatePasswordStrength(password);
@@ -67,15 +68,10 @@ export class UserFormComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   loadUser(id: string): void {
     this.loading.set(true);
     this.adminService.getUserById(id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (user) => {
           this.form.patchValue({
@@ -131,13 +127,7 @@ export class UserFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    this.loading.set(true);
-    this.error.set(null);
+    if (!beginFormSubmit(this.form, this.loading, this.error)) return;
 
     const formValue = this.form.getRawValue(); // getRawValue incluye campos disabled
 
@@ -145,58 +135,44 @@ export class UserFormComponent implements OnInit, OnDestroy {
       // Actualizar usuario (sin password)
       const { email, password, ...updateDto } = formValue;
 
-      this.adminService.updateUser(this.userId, updateDto)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (user) => {
-            this.router.navigate(['/admin/users', user.id]);
-          },
-          error: (err) => {
-            this.error.set(err.error?.message || 'Error al actualizar usuario');
-            this.loading.set(false);
-          }
-        });
+      subscribeSubmit(
+        this.adminService.updateUser(this.userId, updateDto),
+        this.destroyRef,
+        this.loading,
+        this.error,
+        (user) => this.router.navigate(['/admin/users', user.id]),
+        'Error al actualizar usuario',
+      );
     } else {
       // Crear nuevo usuario
-      this.adminService.createUser(formValue)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (user) => {
-            this.router.navigate(['/admin/users', user.id]);
-          },
-          error: (err) => {
-            this.error.set(err.error?.message || 'Error al crear usuario');
-            this.loading.set(false);
-          }
-        });
+      subscribeSubmit(
+        this.adminService.createUser(formValue),
+        this.destroyRef,
+        this.loading,
+        this.error,
+        (user) => this.router.navigate(['/admin/users', user.id]),
+        'Error al crear usuario',
+      );
     }
   }
 
   onCancel(): void {
-    if (this.isEditMode() && this.userId) {
-      this.router.navigate(['/admin/users', this.userId]);
-    } else {
-      this.router.navigate(['/admin/users']);
-    }
+    const userId = this.userId;
+    const commands = this.isEditMode() && userId
+      ? ['/admin/users', userId]
+      : ['/admin/users'];
+
+    this.router.navigate(commands);
   }
 
   hasError(field: string, error: string): boolean {
-    const control = this.form.get(field);
-    return !!(control && control.hasError(error) && control.touched);
+    const form = this.form;
+    return hasControlError(form, field, error);
   }
 
   getErrorMessage(field: string): string {
-    const control = this.form.get(field);
-    if (!control || !control.errors || !control.touched) return '';
-
-    const errors = control.errors;
-    if (errors['required']) return 'Este campo es requerido';
-    if (errors['email']) return 'Email inválido';
-    if (errors['minlength']) return `Mínimo ${errors['minlength'].requiredLength} caracteres`;
-    if (errors['maxlength']) return `Máximo ${errors['maxlength'].requiredLength} caracteres`;
-    if (errors['pattern']) return 'Formato inválido';
-
-    return 'Campo inválido';
+    const form = this.form;
+    return getDefaultControlErrorMessage(form, field);
   }
 
   getPasswordStrengthLabel(): string {

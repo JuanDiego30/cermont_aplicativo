@@ -1,11 +1,11 @@
 /**
  * @mapper AlertaPrismaMapper
- * 
+ *
  * Mapea entre Prisma Model y Domain Entity
  */
 
-import { Alerta } from '../../domain/entities/alerta.entity';
-import { EstadoAlerta } from '../../domain/value-objects/estado-alerta.vo';
+import { Alerta } from "../../domain/entities/alerta.entity";
+import { EstadoAlerta } from "../../domain/value-objects/estado-alerta.vo";
 
 /**
  * Mapea desde Prisma a Domain Entity
@@ -16,27 +16,28 @@ export class AlertaPrismaMapper {
    */
   public static toDomain(raw: any): Alerta {
     // Mapear estado desde campos de Prisma
-    let estado = 'PENDIENTE';
+    let estado = "PENDIENTE";
     if (raw.resuelta) {
-      estado = 'LEIDA'; // Si está resuelta, considerarla leída
+      estado = "LEIDA"; // Si está resuelta, considerarla leída
     } else if (raw.leida) {
-      estado = 'ENVIADA'; // Si está leída, fue enviada
+      estado = "ENVIADA"; // Si está leída, fue enviada
     } else {
-      estado = 'PENDIENTE';
+      estado = "PENDIENTE";
     }
 
     // Mapear metadata (incluye canales, estado, intentosEnvio si están en metadata)
-    const metadata: Record<string, any> = (raw.metadata as Record<string, any>) || {};
+    const metadata: Record<string, any> =
+      (raw.metadata as Record<string, any>) || {};
     if (raw.ordenId) {
       metadata.ordenId = raw.ordenId;
     }
-    
+
     // Extraer campos del dominio desde metadata si existen
     const canalesFromMeta = metadata.canales;
     const intentosFromMeta = metadata.intentosEnvio;
 
     // Mapear canales desde metadata o usar defaults
-    const canales = canalesFromMeta || ['EMAIL', 'IN_APP'];
+    const canales = canalesFromMeta || ["EMAIL", "IN_APP"];
 
     return Alerta.fromPersistence({
       id: raw.id,
@@ -44,7 +45,7 @@ export class AlertaPrismaMapper {
       prioridad: raw.prioridad,
       titulo: raw.titulo,
       mensaje: raw.mensaje,
-      destinatarioId: raw.usuarioId || raw.destinatarioId || '',
+      destinatarioId: raw.usuarioId || raw.destinatarioId || "",
       canales,
       estado,
       intentosEnvio: intentosFromMeta || 0,
@@ -91,4 +92,3 @@ export class AlertaPrismaMapper {
     };
   }
 }
-

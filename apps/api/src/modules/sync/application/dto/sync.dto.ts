@@ -1,13 +1,13 @@
 /**
  * @module Sync - Clean Architecture
  */
-import { z } from 'zod';
+import { z } from "zod";
 
 // DTOs
 export const SyncItemSchema = z.object({
-  entityType: z.enum(['orden', 'evidencia', 'checklist', 'ejecucion']),
+  entityType: z.enum(["orden", "evidencia", "checklist", "ejecucion"]),
   entityId: z.string().optional(),
-  action: z.enum(['create', 'update', 'delete']),
+  action: z.enum(["create", "update", "delete"]),
   data: z.record(z.string(), z.unknown()),
   localId: z.string(),
   timestamp: z.string(),
@@ -43,7 +43,7 @@ export interface SyncResponse {
 }
 
 // Repository Interface
-export const SYNC_REPOSITORY = Symbol('SYNC_REPOSITORY');
+export const SYNC_REPOSITORY = Symbol("SYNC_REPOSITORY");
 
 export interface PendingSync {
   id: string;
@@ -55,12 +55,15 @@ export interface PendingSync {
   data: Record<string, unknown>;
   localId: string;
   timestamp: Date;
-  status: 'pending' | 'processing' | 'synced' | 'failed' | 'conflict';
+  status: "pending" | "processing" | "synced" | "failed" | "conflict";
   error?: string;
 }
 
 export interface ISyncRepository {
-  savePending(userId: string, item: SyncItemDto & { deviceId: string }): Promise<PendingSync>;
+  savePending(
+    userId: string,
+    item: SyncItemDto & { deviceId: string },
+  ): Promise<PendingSync>;
   tryMarkAsProcessing(id: string): Promise<boolean>;
   markAsSynced(id: string, serverId: string): Promise<void>;
   markAsFailed(id: string, error: string): Promise<void>;

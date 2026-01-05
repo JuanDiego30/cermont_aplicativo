@@ -1,10 +1,12 @@
-﻿import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+﻿import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { OrdenesService } from '../../services/ordenes.service';
 import { Prioridad } from '../../../../core/models/orden.model';
-import { Subject, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { getDefaultControlErrorMessage, hasControlError } from '../../../../shared/utils/form-errors.util';
+import { beginFormSubmit, subscribeSubmit } from '../../../../shared/utils/form-submit.util';
 
 @Component({
   selector: 'app-orden-form',
@@ -13,12 +15,12 @@ import { Subject, takeUntil } from 'rxjs';
   templateUrl: './orden-form.component.html',
   styleUrls: ['./orden-form.component.css']
 })
-export class OrdenFormComponent implements OnInit, OnDestroy {
+export class OrdenFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly ordenesService = inject(OrdenesService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly destroy$ = new Subject<void>();
+  private readonly destroyRef = inject(DestroyRef);
 
   form!: FormGroup;
   loading = signal(false);
@@ -40,11 +42,6 @@ export class OrdenFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
   initForm(): void {
     this.form = this.fb.group({
       descripcion: ['', [Validators.required, Validators.maxLength(1000)]],
@@ -60,7 +57,7 @@ export class OrdenFormComponent implements OnInit, OnDestroy {
   loadOrden(id: string): void {
     this.loading.set(true);
     this.ordenesService.getById(id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (orden) => {
           this.form.patchValue({
@@ -83,13 +80,7 @@ export class OrdenFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    this.loading.set(true);
-    this.error.set(null);
+    if (!beginFormSubmit(this.form, this.loading, this.error)) return;
 
     const formValue = this.form.value;
     const dto = {
@@ -104,17 +95,14 @@ export class OrdenFormComponent implements OnInit, OnDestroy {
       ? this.ordenesService.update(this.ordenId, dto)
       : this.ordenesService.create(dto);
 
-    request$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (orden) => {
-          this.router.navigate(['/ordenes', orden.id]);
-        },
-        error: (err) => {
-          this.error.set(err.message || 'Error al guardar la orden');
-          this.loading.set(false);
-        }
-      });
+    subscribeSubmit(
+      request$,
+      this.destroyRef,
+      this.loading,
+      this.error,
+      (orden) => this.router.navigate(['/ordenes', orden.id]),
+      'Error al guardar la orden',
+    );
   }
 
   onCancel(): void {
@@ -126,19 +114,10 @@ export class OrdenFormComponent implements OnInit, OnDestroy {
   }
 
   hasError(field: string, error: string): boolean {
-    const control = this.form.get(field);
-    return !!(control && control.hasError(error) && control.touched);
+    return hasControlError(this.form, field, error);
   }
 
   getErrorMessage(field: string): string {
-    const control = this.form.get(field);
-    if (!control || !control.errors || !control.touched) return '';
-
-    const errors = control.errors;
-    if (errors['required']) return 'Este campo es requerido';
-    if (errors['maxlength']) return `MÃ¡ximo ${errors['maxlength'].requiredLength} caracteres`;
-    if (errors['min']) return `El valor mÃ­nimo es ${errors['min'].min}`;
-
-    return 'Campo invÃ¡lido';
+    return getDefaultControlErrorMessage(this.form, field);
   }
 }

@@ -1,14 +1,17 @@
 /**
  * @module AlertasModule
- * 
+ *
  * Módulo NestJS para gestión de alertas
  */
 
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from '../../prisma/prisma.module';
-import { NotificationsModule } from '../notifications/notifications.module';
-import { AlertasController, PreferenciasController } from './infrastructure/controllers';
+import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { PrismaModule } from "../../prisma/prisma.module";
+import { NotificationsModule } from "../notifications/notifications.module";
+import {
+  AlertasController,
+  PreferenciasController,
+} from "./infrastructure/controllers";
 import {
   EnviarAlertaUseCase,
   ObtenerHistorialAlertasUseCase,
@@ -16,24 +19,24 @@ import {
   ActualizarPreferenciasUseCase,
   ReintentarEnvioUseCase,
   DetectarActasSinFirmarUseCase,
-} from './application/use-cases';
+} from "./application/use-cases";
 import {
   AlertaRepository,
   PreferenciaAlertaRepository,
-} from './infrastructure/persistence';
+} from "./infrastructure/persistence";
 import {
   ALERTA_REPOSITORY,
   PREFERENCIA_ALERTA_REPOSITORY,
-} from './domain/repositories';
+} from "./domain/repositories";
 import {
   EmailSenderService,
   PushNotificationService,
   SmsSenderService,
   InAppNotificationService,
   NotificationSenderFactory,
-} from './infrastructure/services';
-import { NotificationQueueService } from './infrastructure/queue';
-import { AlertasGateway } from './infrastructure/gateway/alertas.gateway';
+} from "./infrastructure/services";
+import { NotificationQueueService } from "./infrastructure/queue";
+import { AlertasGateway } from "./infrastructure/gateway/alertas.gateway";
 
 @Module({
   imports: [PrismaModule, ConfigModule, NotificationsModule],
@@ -64,13 +67,13 @@ import { AlertasGateway } from './infrastructure/gateway/alertas.gateway';
     // WebSocket Gateway
     AlertasGateway,
     {
-      provide: 'AlertasGateway',
+      provide: "AlertasGateway",
       useExisting: AlertasGateway,
     },
     // Notification Queue Service
     NotificationQueueService,
     {
-      provide: 'NotificationQueueService',
+      provide: "NotificationQueueService",
       useExisting: NotificationQueueService,
     },
   ],
@@ -82,4 +85,4 @@ import { AlertasGateway } from './infrastructure/gateway/alertas.gateway';
     DetectarActasSinFirmarUseCase,
   ],
 })
-export class AlertasModule { }
+export class AlertasModule {}

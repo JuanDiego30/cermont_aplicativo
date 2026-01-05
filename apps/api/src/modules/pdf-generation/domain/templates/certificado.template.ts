@@ -1,4 +1,4 @@
-import { BaseTemplate } from './base.template';
+import { BaseTemplate } from "./base.template";
 
 /**
  * Typed interface for CertificadoTemplate data
@@ -30,7 +30,7 @@ export class CertificadoTemplate extends BaseTemplate {
           CERTIFICADO DE INSPECCIÓN
         </h1>
         <p style="font-size: 18px; color: #666;">
-          ${data.tipo.replace(/_/g, ' ')}
+          ${data.tipo.replace(/_/g, " ")}
         </p>
       </div>
 
@@ -39,7 +39,7 @@ export class CertificadoTemplate extends BaseTemplate {
           Certificado No.
         </div>
         <div style="font-size: 24px; font-weight: bold; color: #0066cc;">
-          ${data.numeroCertificado || 'CERT-' + Date.now()}
+          ${data.numeroCertificado || "CERT-" + Date.now()}
         </div>
       </div>
 
@@ -59,11 +59,13 @@ export class CertificadoTemplate extends BaseTemplate {
         </div>
         <div class="info-item">
           <div class="info-label">Fecha de Inspección</div>
-          <div class="info-value">${new Date(data.fechaInspeccion).toLocaleDateString('es-CO')}</div>
+          <div class="info-value">${new Date(data.fechaInspeccion).toLocaleDateString("es-CO")}</div>
         </div>
       </div>
 
-      ${data.inspector ? `
+      ${
+        data.inspector
+          ? `
         <h2>Inspector Certificador</h2>
         <div class="info-grid">
           <div class="info-item">
@@ -72,28 +74,34 @@ export class CertificadoTemplate extends BaseTemplate {
           </div>
           <div class="info-item">
             <div class="info-label">Licencia</div>
-            <div class="info-value">${data.inspector.licencia || 'N/A'}</div>
+            <div class="info-value">${data.inspector.licencia || "N/A"}</div>
           </div>
         </div>
-      ` : ''}
+      `
+          : ""
+      }
 
       <h2>Resultado de la Inspección</h2>
       <div style="text-align: center; padding: 30px; margin: 20px 0;">
-        <div class="badge badge-${data.aprobado ? 'success' : 'danger'}" 
+        <div class="badge badge-${data.aprobado ? "success" : "danger"}" 
              style="font-size: 18px; padding: 15px 30px;">
-          ${data.aprobado ? '✓ APROBADO' : '✗ NO APROBADO'}
+          ${data.aprobado ? "✓ APROBADO" : "✗ NO APROBADO"}
         </div>
       </div>
 
-      ${data.observaciones ? `
+      ${
+        data.observaciones
+          ? `
         <h2>Observaciones</h2>
         <p>${data.observaciones}</p>
-      ` : ''}
+      `
+          : ""
+      }
 
       <div style="margin-top: 80px; padding-top: 30px; border-top: 2px solid #0066cc;">
         <p style="text-align: center; font-size: 11px; color: #666;">
           Este certificado tiene validez hasta: 
-          <strong>${new Date(data.fechaVencimiento).toLocaleDateString('es-CO')}</strong>
+          <strong>${new Date(data.fechaVencimiento).toLocaleDateString("es-CO")}</strong>
         </p>
       </div>
 
@@ -101,7 +109,7 @@ export class CertificadoTemplate extends BaseTemplate {
         <div class="signature-box">
           <div class="signature-line">
             <strong>Inspector Certificador</strong><br>
-            <small>${data.inspector?.nombre || ''}</small>
+            <small>${data.inspector?.nombre || ""}</small>
           </div>
         </div>
         <div class="signature-box">
@@ -113,6 +121,9 @@ export class CertificadoTemplate extends BaseTemplate {
       </div>
     `;
 
-    return this.wrap(`Certificado de Inspección - ${data.numeroCertificado}`, content);
+    return this.wrap(
+      `Certificado de Inspección - ${data.numeroCertificado}`,
+      content,
+    );
   }
 }

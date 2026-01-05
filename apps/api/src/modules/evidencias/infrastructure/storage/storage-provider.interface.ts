@@ -4,39 +4,39 @@
  */
 
 export interface UploadResult {
-    path: string;
-    url: string;
-    size: number;
+  path: string;
+  url: string;
+  size: number;
 }
 
 export interface IStorageProvider {
-    /**
-     * Upload a file to storage
-     */
-    upload(buffer: Buffer, path: string): Promise<UploadResult>;
+  /**
+   * Upload a file to storage
+   */
+  upload(buffer: Buffer, path: string): Promise<UploadResult>;
 
-    /**
-     * Download a file from storage
-     */
-    download(path: string): Promise<Buffer>;
+  /**
+   * Download a file from storage
+   */
+  download(path: string): Promise<Buffer>;
 
-    /**
-     * Delete a file from storage
-     */
-    delete(path: string): Promise<void>;
+  /**
+   * Delete a file from storage
+   */
+  delete(path: string): Promise<void>;
 
-    /**
-     * Check if file exists
-     */
-    exists(path: string): Promise<boolean>;
+  /**
+   * Check if file exists
+   */
+  exists(path: string): Promise<boolean>;
 
-    /**
-     * Get a public or signed URL for the file
-     */
-    getUrl(path: string, expiresInSeconds?: number): Promise<string>;
+  /**
+   * Get a public or signed URL for the file
+   */
+  getUrl(path: string, expiresInSeconds?: number): Promise<string>;
 }
 
 /**
  * Token for dependency injection
  */
-export const STORAGE_PROVIDER = Symbol('IStorageProvider');
+export const STORAGE_PROVIDER = Symbol("IStorageProvider");

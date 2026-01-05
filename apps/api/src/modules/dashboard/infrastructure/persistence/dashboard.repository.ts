@@ -2,15 +2,15 @@
  * @repository DashboardRepository
  * Implementación del repositorio de dashboard usando Prisma
  */
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../../prisma/prisma.service';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../../../prisma/prisma.service";
 import {
   IDashboardRepository,
   DashboardQueryDto,
   DashboardStatsDto,
   TendenciaDto,
   OrdenResumenDto,
-} from '../../application/dto';
+} from "../../application/dto";
 
 @Injectable()
 export class DashboardRepository implements IDashboardRepository {
@@ -30,7 +30,7 @@ export class DashboardRepository implements IDashboardRepository {
     }
 
     if (filters?.cliente) {
-      where.cliente = { contains: filters.cliente, mode: 'insensitive' };
+      where.cliente = { contains: filters.cliente, mode: "insensitive" };
     }
 
     if (filters?.estado) {
@@ -42,27 +42,34 @@ export class DashboardRepository implements IDashboardRepository {
     }
 
     // Contar órdenes por estado
-    const [total, planeacion, ejecucion, completadas, canceladas] = await Promise.all([
-      this.prisma.order.count({ where }),
-      this.prisma.order.count({ where: { ...where, estado: 'planeacion' } }),
-      this.prisma.order.count({ where: { ...where, estado: 'ejecucion' } }),
-      this.prisma.order.count({ where: { ...where, estado: 'completada' } }),
-      this.prisma.order.count({ where: { ...where, estado: 'cancelada' } }),
-    ]);
+    const [total, planeacion, ejecucion, completadas, canceladas] =
+      await Promise.all([
+        this.prisma.order.count({ where }),
+        this.prisma.order.count({ where: { ...where, estado: "planeacion" } }),
+        this.prisma.order.count({ where: { ...where, estado: "ejecucion" } }),
+        this.prisma.order.count({ where: { ...where, estado: "completada" } }),
+        this.prisma.order.count({ where: { ...where, estado: "cancelada" } }),
+      ]);
 
     // Estadísticas financieras (simplificado)
     const ordenesFinancieras = await this.prisma.order.findMany({
-      where: { ...where, estado: { in: ['ejecucion', 'completada'] } },
+      where: { ...where, estado: { in: ["ejecucion", "completada"] } },
     });
 
-    const ingresosEstimados = ordenesFinancieras.reduce((sum, o) => sum + (Number((o as any).presupuestoEstimado) || 0), 0);
+    const ingresosEstimados = ordenesFinancieras.reduce(
+      (sum, o) => sum + (Number((o as any).presupuestoEstimado) || 0),
+      0,
+    );
     const ingresosReales = ingresosEstimados; // Simplificado: usar presupuesto como ingresos
     const costosEstimados = ordenesFinancieras.reduce((sum, o) => {
       const presupuesto = Number((o as any).presupuestoEstimado) || 0;
       const margen = Number((o as any).margenUtilidad) || 0;
-      return sum + (presupuesto * (1 - margen / 100));
+      return sum + presupuesto * (1 - margen / 100);
     }, 0);
-    const costosReales = ordenesFinancieras.reduce((sum, o) => sum + (Number((o as any).costoReal) || 0), 0);
+    const costosReales = ordenesFinancieras.reduce(
+      (sum, o) => sum + (Number((o as any).costoReal) || 0),
+      0,
+    );
 
     // Estadísticas HES (simplificado)
     const ordenesConHES = await this.prisma.order.count({
@@ -71,7 +78,7 @@ export class DashboardRepository implements IDashboardRepository {
 
     // Estadísticas de cierre (simplificado)
     const ordenesCompletadas = await this.prisma.order.findMany({
-      where: { ...where, estado: 'completada', fechaFin: { not: null } },
+      where: { ...where, estado: "completada", fechaFin: { not: null } },
       select: { createdAt: true, fechaFin: true },
     });
 
@@ -80,7 +87,9 @@ export class DashboardRepository implements IDashboardRepository {
       .map((o) => {
         const inicio = new Date(o.createdAt);
         const fin = new Date(o.fechaFin!);
-        return Math.ceil((fin.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24));
+        return Math.ceil(
+          (fin.getTime() - inicio.getTime()) / (1000 * 60 * 60 * 24),
+        );
       });
 
     const promedioTiempoCierre =
@@ -101,8 +110,14 @@ export class DashboardRepository implements IDashboardRepository {
         ingresosReales,
         costosEstimados,
         costosReales,
-        margenEstimado: ingresosEstimados > 0 ? ((ingresosEstimados - costosEstimados) / ingresosEstimados) * 100 : 0,
-        margenReal: ingresosReales > 0 ? ((ingresosReales - costosReales) / ingresosReales) * 100 : 0,
+        margenEstimado:
+          ingresosEstimados > 0
+            ? ((ingresosEstimados - costosEstimados) / ingresosEstimados) * 100
+            : 0,
+        margenReal:
+          ingresosReales > 0
+            ? ((ingresosReales - costosReales) / ingresosReales) * 100
+            : 0,
       },
       hes: {
         ordenesConHES,
@@ -126,21 +141,29 @@ export class DashboardRepository implements IDashboardRepository {
     const ordenes = await this.prisma.order.findMany({
       where: {
         createdAt: { gte: fechaInicio },
-        estado: { in: ['ejecucion', 'completada'] },
+        estado: { in: ["ejecucion", "completada"] },
       },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: "asc" },
     });
 
     // Agrupar por día
-    const porDia = new Map<string, { ordenes: number; ingresos: number; gastos: number }>();
+    const porDia = new Map<
+      string,
+      { ordenes: number; ingresos: number; gastos: number }
+    >();
 
-      ordenes.forEach((orden) => {
-      const fecha = orden.createdAt.toISOString().split('T')[0];
-      const existente = porDia.get(fecha) || { ordenes: 0, ingresos: 0, gastos: 0 };
+    ordenes.forEach((orden) => {
+      const fecha = orden.createdAt.toISOString().split("T")[0];
+      const existente = porDia.get(fecha) || {
+        ordenes: 0,
+        ingresos: 0,
+        gastos: 0,
+      };
       const ordenAny = orden as any;
       porDia.set(fecha, {
         ordenes: existente.ordenes + 1,
-        ingresos: existente.ingresos + (Number(ordenAny.presupuestoEstimado) || 0),
+        ingresos:
+          existente.ingresos + (Number(ordenAny.presupuestoEstimado) || 0),
         gastos: existente.gastos + (Number(ordenAny.costoReal) || 0),
       });
     });
@@ -156,7 +179,7 @@ export class DashboardRepository implements IDashboardRepository {
   async getUltimasOrdenes(limit: number): Promise<OrdenResumenDto[]> {
     const ordenes = await this.prisma.order.findMany({
       take: limit,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       include: {
         asignado: {
           select: {
@@ -199,4 +222,3 @@ export class DashboardRepository implements IDashboardRepository {
     return {};
   }
 }
-

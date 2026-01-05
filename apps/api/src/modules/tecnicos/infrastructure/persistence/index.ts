@@ -1,1 +1,1 @@
-export * from './prisma-tecnico.repository';
+export * from "./prisma-tecnico.repository";

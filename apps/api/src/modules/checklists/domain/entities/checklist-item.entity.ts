@@ -1,15 +1,15 @@
 /**
  * Entity: ChecklistItem
- * 
+ *
  * Representa un ítem individual de un checklist
- * 
+ *
  * Invariantes:
  * - label no puede estar vacío
  * - checkedAt solo existe si isChecked es true
  */
 
-import { ChecklistItemId } from '../value-objects/checklist-item-id.vo';
-import { ValidationError, BusinessRuleViolationError } from '../exceptions';
+import { ChecklistItemId } from "../value-objects/checklist-item-id.vo";
+import { ValidationError, BusinessRuleViolationError } from "../exceptions";
 
 export class ChecklistItem {
   private static readonly MIN_LABEL_LENGTH = 1;
@@ -42,13 +42,13 @@ export class ChecklistItem {
     if (!props.label || props.label.trim().length < this.MIN_LABEL_LENGTH) {
       throw new ValidationError(
         `Label debe tener al menos ${this.MIN_LABEL_LENGTH} caracteres`,
-        'label',
+        "label",
       );
     }
     if (props.label.length > this.MAX_LABEL_LENGTH) {
       throw new ValidationError(
         `Label no puede exceder ${this.MAX_LABEL_LENGTH} caracteres`,
-        'label',
+        "label",
       );
     }
 
@@ -92,8 +92,8 @@ export class ChecklistItem {
   public markAsChecked(checkedAt?: Date): void {
     if (this._isChecked) {
       throw new BusinessRuleViolationError(
-        'El item ya está marcado como completado',
-        'YA_COMPLETADO',
+        "El item ya está marcado como completado",
+        "YA_COMPLETADO",
       );
     }
 
@@ -107,8 +107,8 @@ export class ChecklistItem {
   public uncheck(): void {
     if (!this._isChecked) {
       throw new BusinessRuleViolationError(
-        'El item no está marcado como completado',
-        'NO_COMPLETADO',
+        "El item no está marcado como completado",
+        "NO_COMPLETADO",
       );
     }
 
@@ -133,8 +133,8 @@ export class ChecklistItem {
   public updateObservaciones(observaciones: string): void {
     if (observaciones && observaciones.length > 1000) {
       throw new ValidationError(
-        'Observaciones no pueden exceder 1000 caracteres',
-        'observaciones',
+        "Observaciones no pueden exceder 1000 caracteres",
+        "observaciones",
       );
     }
     this._observaciones = observaciones?.trim() || undefined;
@@ -218,8 +218,8 @@ export class ChecklistItem {
     // Invariante: checkedAt solo existe si isChecked es true
     if (this._checkedAt && !this._isChecked) {
       throw new BusinessRuleViolationError(
-        'checkedAt no puede existir si isChecked es false',
-        'INVARIANTS_VIOLATION',
+        "checkedAt no puede existir si isChecked es false",
+        "INVARIANTS_VIOLATION",
       );
     }
 
@@ -229,4 +229,3 @@ export class ChecklistItem {
     }
   }
 }
-

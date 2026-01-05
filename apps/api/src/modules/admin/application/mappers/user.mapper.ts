@@ -1,14 +1,14 @@
 /**
  * @mapper UserMapper
- * 
+ *
  * Mapea entre Entity, DTOs y formatos de respuesta.
  * Principio SRP: Solo se encarga de transformaciones.
  */
 
-import { UserEntity } from '../../domain/entities/user.entity';
-import { UserResponseDto } from '../dto/user-response.dto';
-import { type CreateUserInput } from '../dto/create-user.dto';
-import { type CreateUserData } from '../../domain/entities/user.entity';
+import { UserEntity } from "../../domain/entities/user.entity";
+import { UserResponseDto } from "../dto/user-response.dto";
+import { type CreateUserInput } from "../dto/create-user.dto";
+import { type CreateUserData } from "../../domain/entities/user.entity";
 
 export class UserMapper {
   /**

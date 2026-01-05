@@ -1,21 +1,24 @@
 /**
  * Use Case: PublishTemplateUseCase
- * 
+ *
  * Publica un template de formulario (cambia estado de DRAFT a PUBLISHED)
  */
 
-import { Injectable, NotFoundException, Inject } from '@nestjs/common';
-import { FormTemplate } from '../../domain/entities/form-template.entity';
-import { FormTemplateId } from '../../domain/value-objects/form-template-id.vo';
-import { IFormTemplateRepository, FORM_TEMPLATE_REPOSITORY } from '../../domain/repositories';
-import { TemplateNotPublishableException } from '../../domain/exceptions';
+import { Injectable, NotFoundException, Inject } from "@nestjs/common";
+import { FormTemplate } from "../../domain/entities/form-template.entity";
+import { FormTemplateId } from "../../domain/value-objects/form-template-id.vo";
+import {
+  IFormTemplateRepository,
+  FORM_TEMPLATE_REPOSITORY,
+} from "../../domain/repositories";
+import { TemplateNotPublishableException } from "../../domain/exceptions";
 
 @Injectable()
 export class PublishTemplateUseCase {
   constructor(
     @Inject(FORM_TEMPLATE_REPOSITORY)
     private readonly templateRepository: IFormTemplateRepository,
-  ) { }
+  ) {}
 
   async execute(templateId: string): Promise<FormTemplate> {
     const id = FormTemplateId.create(templateId);
@@ -43,4 +46,3 @@ export class PublishTemplateUseCase {
     return saved;
   }
 }
-

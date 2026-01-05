@@ -1,6 +1,6 @@
 /**
  * Domain Event: HESCancelledEvent
- * 
+ *
  * Se dispara cuando una HES se anula
  */
 
@@ -13,4 +13,3 @@ export class HESCancelledEvent {
     },
   ) {}
 }
-

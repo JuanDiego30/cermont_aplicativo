@@ -3,16 +3,30 @@
  * @description Caso de uso para cambiar el estado de una orden
  * @layer Application
  */
-import { Injectable, Inject, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { PrismaService } from '../../../../prisma/prisma.service';
-import { ORDEN_REPOSITORY, IOrdenRepository } from '../../domain/repositories';
-import { OrdenEntity } from '../../domain/entities';
-import { ChangeEstadoOrdenDto } from '../dto/change-estado-orden.dto';
-import { OrdenResponseDto, OrdenEstado, OrdenPrioridad } from '../dto/orden-response.dto';
-import { OrdenEstadoChangedEvent } from '../../domain/events/orden-estado-changed.event';
-import { OrdenStateMachine, OrdenEstado as DomainOrdenEstado } from '../../domain/orden-state-machine';
-import { OrdenMapper } from '../../infrastructure/mappers/orden.mapper';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  BadRequestException,
+  Logger,
+} from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { PrismaService } from "../../../../prisma/prisma.service";
+import { OrderSubState as PrismaOrderSubState } from "@prisma/client";
+import { ORDEN_REPOSITORY, IOrdenRepository } from "../../domain/repositories";
+import { OrdenEntity } from "../../domain/entities";
+import { ChangeEstadoOrdenDto } from "../dto/change-estado-orden.dto";
+import {
+  OrdenResponseDto,
+  OrdenEstado,
+  OrdenPrioridad,
+} from "../dto/orden-response.dto";
+import { OrdenEstadoChangedEvent } from "../../domain/events/orden-estado-changed.event";
+import {
+  OrdenStateMachine,
+  OrdenEstado as DomainOrdenEstado,
+} from "../../domain/orden-state-machine";
+import { OrdenMapper } from "../../infrastructure/mappers/orden.mapper";
 
 @Injectable()
 export class ChangeOrdenEstadoUseCase {
@@ -23,7 +37,7 @@ export class ChangeOrdenEstadoUseCase {
     private readonly ordenRepository: IOrdenRepository,
     private readonly prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
-  ) { }
+  ) {}
 
   async execute(
     id: string,
@@ -45,8 +59,8 @@ export class ChangeOrdenEstadoUseCase {
       const estadoActual = String(orden.estado.value);
       const nuevoEstado = String(dto.nuevoEstado);
 
-      if (nuevoEstado === 'cancelada') {
-        const cancellableStates = new Set(['pendiente', 'planeacion']);
+      if (nuevoEstado === "cancelada") {
+        const cancellableStates = new Set(["pendiente", "planeacion"]);
         if (!cancellableStates.has(estadoActual)) {
           throw new BadRequestException(
             `No se puede cancelar una orden en estado: ${estadoActual}`,
@@ -54,10 +68,10 @@ export class ChangeOrdenEstadoUseCase {
         }
       }
 
-      if (nuevoEstado === 'ejecucion') {
+      if (nuevoEstado === "ejecucion") {
         if (!orden.asignadoId) {
           throw new BadRequestException(
-            'No se puede iniciar ejecución sin técnico asignado',
+            "No se puede iniciar ejecución sin técnico asignado",
           );
         }
 
@@ -66,7 +80,7 @@ export class ChangeOrdenEstadoUseCase {
         });
         if (itemsCount <= 0) {
           throw new BadRequestException(
-            'No se puede iniciar ejecución sin items registrados en la orden',
+            "No se puede iniciar ejecución sin items registrados en la orden",
           );
         }
       }
@@ -90,9 +104,9 @@ export class ChangeOrdenEstadoUseCase {
           updatedAt: new Date(),
         };
 
-        if (String(orden.estado.value) === 'ejecucion') {
+        if (String(orden.estado.value) === "ejecucion") {
           updateData.fechaInicio = new Date();
-        } else if (String(orden.estado.value) === 'completada') {
+        } else if (String(orden.estado.value) === "completada") {
           updateData.fechaFin = new Date();
         }
 
@@ -110,9 +124,9 @@ export class ChangeOrdenEstadoUseCase {
         // Auditoría
         await tx.auditLog.create({
           data: {
-            entityType: 'Order',
+            entityType: "Order",
             entityId: persisted.id,
-            action: 'ORDER_STATUS_CHANGED',
+            action: "ORDER_STATUS_CHANGED",
             userId: dto.usuarioId,
             changes: {
               from: estadoAnterior,
@@ -128,30 +142,34 @@ export class ChangeOrdenEstadoUseCase {
         // Historial (OrderStateHistory) - registrar para que /historial lo refleje.
         // Como este endpoint cambia "estado" (main state) y no el flujo de 14 pasos,
         // mapeamos a un sub-estado representativo por estado principal.
-        const toSubStateByEstado: Record<string, string> = {
-          pendiente: 'solicitud_recibida',
-          planeacion: 'planeacion_iniciada',
-          ejecucion: 'ejecucion_iniciada',
-          pausada: 'ejecucion_iniciada',
-          completada: 'pago_recibido',
-          cancelada: 'solicitud_recibida',
+        const toSubStateByEstado: Record<string, PrismaOrderSubState> = {
+          pendiente: PrismaOrderSubState.solicitud_recibida,
+          planeacion: PrismaOrderSubState.planeacion_iniciada,
+          ejecucion: PrismaOrderSubState.ejecucion_iniciada,
+          pausada: PrismaOrderSubState.ejecucion_iniciada,
+          completada: PrismaOrderSubState.pago_recibido,
+          cancelada: PrismaOrderSubState.solicitud_recibida,
         };
 
         const fromSubState = toSubStateByEstado[String(estadoAnterior)];
         const toSubState = toSubStateByEstado[String(dto.nuevoEstado)];
 
         if (!toSubState) {
-          throw new BadRequestException(`No se pudo mapear el estado a sub-estado: ${String(dto.nuevoEstado)}`);
+          throw new BadRequestException(
+            `No se pudo mapear el estado a sub-estado: ${String(dto.nuevoEstado)}`,
+          );
         }
 
         await tx.orderStateHistory.create({
           data: {
             ordenId: persisted.id,
-            fromState: fromSubState as any,
-            toState: toSubState as any,
+            fromState: fromSubState,
+            toState: toSubState,
             userId: dto.usuarioId,
             notas: dto.motivo,
-            metadata: dto.observaciones ? ({ observaciones: dto.observaciones } as any) : undefined,
+            metadata: dto.observaciones
+              ? { observaciones: dto.observaciones }
+              : undefined,
           },
         });
 
@@ -168,7 +186,7 @@ export class ChangeOrdenEstadoUseCase {
         dto.usuarioId,
         dto.observaciones,
       );
-      this.eventEmitter.emit('orden.estado.changed', evento);
+      this.eventEmitter.emit("orden.estado.changed", evento);
 
       // Convertir a DTO de respuesta
       return this.toResponseDto(updated);

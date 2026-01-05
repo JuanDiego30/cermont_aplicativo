@@ -1,23 +1,23 @@
 /**
  * Value Object: PrioridadAlerta
- * 
+ *
  * Representa la prioridad de una alerta
- * 
+ *
  * Jerarquía: CRITICAL > ERROR > WARNING > INFO
- * 
+ *
  * @example
  * const prioridad = PrioridadAlerta.create('CRITICAL');
  * prioridad.esCritica(); // true
  * prioridad.getNivelUrgencia(); // 1
  */
 
-import { ValidationError } from '../exceptions';
+import { ValidationError } from "../exceptions";
 
 export enum PrioridadAlertaEnum {
-  CRITICAL = 'CRITICAL', // Errores críticos, requiere acción inmediata
-  ERROR = 'ERROR',       // Errores importantes
-  WARNING = 'WARNING',   // Advertencias
-  INFO = 'INFO',         // Información general
+  CRITICAL = "CRITICAL", // Errores críticos, requiere acción inmediata
+  ERROR = "ERROR", // Errores importantes
+  WARNING = "WARNING", // Advertencias
+  INFO = "INFO", // Información general
 }
 
 export class PrioridadAlerta {
@@ -37,10 +37,12 @@ export class PrioridadAlerta {
    * @throws {ValidationError} si la prioridad es inválida
    */
   public static create(value: string): PrioridadAlerta {
-    if (!Object.values(PrioridadAlertaEnum).includes(value as PrioridadAlertaEnum)) {
+    if (
+      !Object.values(PrioridadAlertaEnum).includes(value as PrioridadAlertaEnum)
+    ) {
       throw new ValidationError(
-        `Prioridad inválida. Prioridades permitidas: ${Object.values(PrioridadAlertaEnum).join(', ')}`,
-        'prioridad',
+        `Prioridad inválida. Prioridades permitidas: ${Object.values(PrioridadAlertaEnum).join(", ")}`,
+        "prioridad",
         value,
       );
     }
@@ -80,10 +82,10 @@ export class PrioridadAlerta {
    */
   public getColor(): string {
     const colors = {
-      [PrioridadAlertaEnum.CRITICAL]: '#FF0000', // Rojo
-      [PrioridadAlertaEnum.ERROR]: '#FF6B6B',    // Rojo claro
-      [PrioridadAlertaEnum.WARNING]: '#FFA500',  // Naranja
-      [PrioridadAlertaEnum.INFO]: '#4CAF50',     // Verde
+      [PrioridadAlertaEnum.CRITICAL]: "#FF0000", // Rojo
+      [PrioridadAlertaEnum.ERROR]: "#FF6B6B", // Rojo claro
+      [PrioridadAlertaEnum.WARNING]: "#FFA500", // Naranja
+      [PrioridadAlertaEnum.INFO]: "#4CAF50", // Verde
     };
     return colors[this._value];
   }
@@ -112,4 +114,3 @@ export class PrioridadAlerta {
     return this._value;
   }
 }
-

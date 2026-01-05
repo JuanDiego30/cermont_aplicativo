@@ -1,16 +1,21 @@
 /**
  * Use Case: CompleteHESUseCase
- * 
+ *
  * Completa una HES (valida completitud y firmas)
  */
 
-import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { HES } from '../../domain/entities/hes.entity';
-import { HESId } from '../../domain/value-objects/hes-id.vo';
-import { HESValidatorService } from '../../domain/services/hes-validator.service';
-import { IHESRepository, HES_REPOSITORY } from '../../domain/repositories';
-import { HESIncompletoException } from '../../domain/exceptions';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { HES } from "../../domain/entities/hes.entity";
+import { HESId } from "../../domain/value-objects/hes-id.vo";
+import { HESValidatorService } from "../../domain/services/hes-validator.service";
+import { IHESRepository, HES_REPOSITORY } from "../../domain/repositories";
+import { HESIncompletoException } from "../../domain/exceptions";
 
 @Injectable()
 export class CompleteHESUseCase {
@@ -32,7 +37,9 @@ export class CompleteHESUseCase {
     // Validar completitud
     const validation = this.validator.validate(hes);
     if (!validation.isValid) {
-      throw new BadRequestException(`HES incompleta: ${validation.errors.join(', ')}`);
+      throw new BadRequestException(
+        `HES incompleta: ${validation.errors.join(", ")}`,
+      );
     }
 
     // Completar
@@ -58,4 +65,3 @@ export class CompleteHESUseCase {
     return saved;
   }
 }
-

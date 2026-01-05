@@ -1,46 +1,72 @@
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 
-import { EmailService } from './email.service';
-import type { SendEmailInput } from './email.types';
-import { renderEmailTemplate } from './email-templates';
+import { EmailService } from "./email.service";
+import type { SendEmailInput } from "./email.types";
+import { renderEmailTemplate } from "./email-templates";
 
 // BullMQ types (local interfaces to avoid hard dependency)
 interface BullQueue {
-  add: (name: string, data: any, opts?: any) => Promise<any>;
+  add: (
+    name: string,
+    data: EmailJobPayload,
+    opts?: unknown,
+  ) => Promise<unknown>;
   close: () => Promise<void>;
 }
 
 interface BullWorker {
   close: () => Promise<void>;
-  on: (event: string, callback: (...args: any[]) => void) => void;
+  on: (event: string, callback: (...args: unknown[]) => void) => void;
 }
 
 interface BullQueueEvents {
   close: () => Promise<void>;
-  on: (event: string, callback: (...args: any[]) => void) => void;
+  on: (event: string, callback: (...args: unknown[]) => void) => void;
 }
 
 interface BullJob {
   id?: string;
   data: EmailJobPayload;
-  attemptsMade: number;
-  opts: {
-    attempts: number;
+  attemptsMade?: number;
+  opts?: {
+    attempts?: number;
   };
 }
 
-let Queue: any;
-let Worker: any;
-let QueueEvents: any;
+type BullQueueConstructor = new (name: string, opts?: unknown) => BullQueue;
+type BullWorkerConstructor = new (
+  name: string,
+  processor: (job: BullJob) => Promise<void>,
+  opts?: unknown,
+) => BullWorker;
+type BullQueueEventsConstructor = new (
+  name: string,
+  opts?: unknown,
+) => BullQueueEvents;
+
+let QueueCtor: BullQueueConstructor | null = null;
+let WorkerCtor: BullWorkerConstructor | null = null;
+let QueueEventsCtor: BullQueueEventsConstructor | null = null;
 
 try {
-  const bullmq = require('bullmq');
-  Queue = bullmq.Queue;
-  Worker = bullmq.Worker;
-  QueueEvents = bullmq.QueueEvents;
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const bullmq: unknown = require("bullmq");
+
+  const bullmqRecord = bullmq as Record<string, unknown>;
+
+  QueueCtor = bullmqRecord.Queue as BullQueueConstructor;
+  WorkerCtor = bullmqRecord.Worker as BullWorkerConstructor;
+  QueueEventsCtor = bullmqRecord.QueueEvents as BullQueueEventsConstructor;
 } catch (error) {
-  Logger.warn('BullMQ no está instalado. EmailQueueService usará implementación mock.');
+  Logger.warn(
+    "BullMQ no está instalado. EmailQueueService usará implementación mock.",
+  );
 }
 
 type EmailJobPayload = {
@@ -51,23 +77,23 @@ type EmailJobPayload = {
 export class EmailQueueService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(EmailQueueService.name);
 
-  private queue: BullQueue | any; // Allow fallback to any for mock or real instance alignment
-  private worker: BullWorker | any;
-  private queueEvents: BullQueueEvents | any;
-  private deadLetterQueue: BullQueue | any;
+  private queue: BullQueue | null = null;
+  private worker: BullWorker | null = null;
+  private queueEvents: BullQueueEvents | null = null;
+  private deadLetterQueue: BullQueue | null = null;
   private useBullMQ = false;
 
   constructor(
     private readonly config: ConfigService,
     private readonly emailService: EmailService,
-  ) { }
+  ) {}
 
   async onModuleInit(): Promise<void> {
     try {
       this.initializeQueue();
-      this.logger.log('EmailQueueService inicializado');
+      this.logger.log("EmailQueueService inicializado");
     } catch (error) {
-      this.logger.error('Error inicializando EmailQueueService', error);
+      this.logger.error("Error inicializando EmailQueueService", error);
       // No lanzar para permitir que la app inicie sin Redis
     }
   }
@@ -86,52 +112,67 @@ export class EmailQueueService implements OnModuleInit, OnModuleDestroy {
     const attempts = email.maxAttempts ?? this.getDefaultAttempts();
 
     if (this.useBullMQ) {
-      await this.queue.add(
-        'send-email',
-        { email } satisfies EmailJobPayload,
-        {
-          attempts,
-          backoff: {
-            type: 'exponential',
-            delay: this.getBackoffBaseDelayMs(),
+      if (!this.queue) {
+        this.useBullMQ = false;
+        this.logger.warn(
+          "BullMQ marcado como activo pero queue no inicializada; usando mock.",
+        );
+      } else {
+        await this.queue.add(
+          "send-email",
+          { email } satisfies EmailJobPayload,
+          {
+            attempts,
+            backoff: {
+              type: "exponential",
+              delay: this.getBackoffBaseDelayMs(),
+            },
+            removeOnComplete: true,
+            removeOnFail: false,
           },
-          removeOnComplete: true,
-          removeOnFail: false,
-        },
-      );
+        );
 
-      this.logger.debug('Email encolado', { to: email.to, subject: email.subject });
-      return;
+        this.logger.debug("Email encolado", {
+          to: email.to,
+          subject: email.subject,
+        });
+        return;
+      }
     }
 
     // Mock: procesar inmediatamente
     try {
       await this.processJob({ data: { email } });
-      this.logger.debug('[Queue Mock] Email procesado inmediatamente', {
+      this.logger.debug("[Queue Mock] Email procesado inmediatamente", {
         to: email.to,
         subject: email.subject,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      this.logger.warn('[Queue Mock] Email falló', { to: email.to, subject: email.subject, error: errorMessage });
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      this.logger.warn("[Queue Mock] Email falló", {
+        to: email.to,
+        subject: email.subject,
+        error: errorMessage,
+      });
       // DLQ mock: no persistente; solo log.
     }
   }
 
   private getDefaultAttempts(): number {
-    const raw = this.config.get<string>('EMAIL_MAX_ATTEMPTS') || '3';
+    const raw = this.config.get<string>("EMAIL_MAX_ATTEMPTS") || "3";
     const parsed = Number.parseInt(raw, 10);
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 3;
   }
 
   private getBackoffBaseDelayMs(): number {
-    const raw = this.config.get<string>('EMAIL_RETRY_DELAY_MS') || '500';
+    const raw = this.config.get<string>("EMAIL_RETRY_DELAY_MS") || "500";
     const parsed = Number.parseInt(raw, 10);
     return Number.isFinite(parsed) && parsed >= 0 ? parsed : 500;
   }
 
   private initializeQueue(): void {
-    if (Queue && Worker && QueueEvents) {
+    if (QueueCtor && WorkerCtor && QueueEventsCtor) {
       this.useBullMQ = true;
       this.initializeBullMQ();
     } else {
@@ -142,16 +183,24 @@ export class EmailQueueService implements OnModuleInit, OnModuleDestroy {
 
   private initializeBullMQ(): void {
     const redisConfig = {
-      host: this.config.get('REDIS_HOST') || 'localhost',
-      port: Number.parseInt(this.config.get('REDIS_PORT') || '6379', 10),
-      password: this.config.get('REDIS_PASSWORD') || undefined,
+      host: this.config.get("REDIS_HOST") || "localhost",
+      port: Number.parseInt(this.config.get("REDIS_PORT") || "6379", 10),
+      password: this.config.get("REDIS_PASSWORD") || undefined,
       maxRetriesPerRequest: null,
     };
 
-    this.queue = new Queue('emails', { connection: redisConfig });
-    this.deadLetterQueue = new Queue('emails-dead-letter', { connection: redisConfig });
+    if (!QueueCtor || !WorkerCtor || !QueueEventsCtor) {
+      this.useBullMQ = false;
+      this.initializeMockQueue();
+      return;
+    }
 
-    this.worker = new Worker('emails', this.processJob.bind(this), {
+    this.queue = new QueueCtor("emails", { connection: redisConfig });
+    this.deadLetterQueue = new QueueCtor("emails-dead-letter", {
+      connection: redisConfig,
+    });
+
+    this.worker = new WorkerCtor("emails", this.processJob.bind(this), {
       connection: redisConfig,
       concurrency: 5,
       removeOnComplete: {
@@ -163,59 +212,89 @@ export class EmailQueueService implements OnModuleInit, OnModuleDestroy {
       },
     });
 
-    this.queueEvents = new QueueEvents('emails', { connection: redisConfig });
+    this.queueEvents = new QueueEventsCtor("emails", {
+      connection: redisConfig,
+    });
 
     this.setupEventListeners();
-    this.logger.log('✅ BullMQ inicializado para emails');
+    this.logger.log("✅ BullMQ inicializado para emails");
   }
 
   private initializeMockQueue(): void {
-    this.logger.warn('EmailQueueService usando implementación mock (sin Redis/BullMQ).');
+    this.logger.warn(
+      "EmailQueueService usando implementación mock (sin Redis/BullMQ).",
+    );
 
     this.queue = {
-      add: async (_name: string, payload: any) => {
-        // Mock job object matches BullJob structure partially
-        await this.processJob({
+      add: async (_name: string, payload: EmailJobPayload) => {
+        const mockJob: BullJob = {
           data: payload,
           attemptsMade: 0,
           opts: { attempts: 3 },
-          id: 'mock-' + Date.now()
-        } as BullJob);
+          id: "mock-" + Date.now(),
+        };
+
+        await this.processJob(mockJob);
       },
-      close: async () => { },
+      close: async () => {},
     };
   }
 
   private setupEventListeners(): void {
     if (!this.queueEvents || !this.worker) return;
 
-    this.queueEvents.on('completed', ({ jobId }: { jobId: string }) => {
-      this.logger.debug(`✅ Email job ${jobId} completado`);
+    this.queueEvents.on("completed", (...args: unknown[]) => {
+      const payload = (args[0] ?? {}) as { jobId?: unknown };
+      const jobId =
+        typeof payload.jobId === "string" ? payload.jobId : undefined;
+      if (jobId) this.logger.debug(`✅ Email job ${jobId} completado`);
     });
 
-    this.queueEvents.on('failed', ({ jobId, failedReason }: { jobId: string; failedReason: string }) => {
+    this.queueEvents.on("failed", (...args: unknown[]) => {
+      const payload = (args[0] ?? {}) as {
+        jobId?: unknown;
+        failedReason?: unknown;
+      };
+      const jobId =
+        typeof payload.jobId === "string" ? payload.jobId : "unknown";
+      const failedReason =
+        typeof payload.failedReason === "string"
+          ? payload.failedReason
+          : "unknown";
       this.logger.error(`❌ Email job ${jobId} falló: ${failedReason}`);
     });
 
-    this.worker.on('failed', async (job: BullJob, err: Error) => {
+    this.worker.on("failed", async (...args: unknown[]) => {
+      const job = args[0] as BullJob | undefined;
+      const err =
+        args[1] instanceof Error
+          ? args[1]
+          : new Error(String(args[1] ?? "unknown error"));
+
+      if (!job) {
+        this.logger.error("❌ Email job falló sin job asociado", {
+          error: err.message,
+        });
+        return;
+      }
       try {
         const attempts = job?.opts?.attempts ?? 1;
         const attemptsMade = job?.attemptsMade ?? 0;
 
         // DLQ: sólo cuando ya agotó intentos
         if (attemptsMade >= attempts) {
-          await this.deadLetterQueue?.add('dead-email', job.data, {
+          await this.deadLetterQueue?.add("dead-email", job.data, {
             removeOnComplete: true,
             removeOnFail: false,
           });
 
-          this.logger.error('📦 Email enviado a DLQ (emails-dead-letter)', {
+          this.logger.error("📦 Email enviado a DLQ (emails-dead-letter)", {
             jobId: job?.id,
             error: err.message,
           });
         }
       } catch (dlqError) {
-        this.logger.error('Error moviendo job a DLQ', dlqError);
+        this.logger.error("Error moviendo job a DLQ", dlqError);
       }
     });
   }
@@ -227,7 +306,10 @@ export class EmailQueueService implements OnModuleInit, OnModuleDestroy {
 
     // Permite encolar por plantilla sin acoplar a controllers/handlers.
     if (input.template && !input.html && !input.text) {
-      const rendered = renderEmailTemplate(input.template, input.templateData ?? {});
+      const rendered = renderEmailTemplate(
+        input.template,
+        input.templateData ?? {},
+      );
       await this.emailService.sendEmail({
         ...input,
         html: rendered.html,
@@ -246,7 +328,7 @@ export class EmailQueueService implements OnModuleInit, OnModuleDestroy {
       if (this.queue) await this.queue.close();
       if (this.deadLetterQueue) await this.deadLetterQueue.close();
     } catch (error) {
-      this.logger.error('Error cerrando EmailQueueService', error);
+      this.logger.error("Error cerrando EmailQueueService", error);
     }
   }
 }

@@ -3,9 +3,9 @@
  * @description Caso de uso para listar órdenes
  * @layer Application
  */
-import { Injectable, Inject } from '@nestjs/common';
-import { ORDEN_REPOSITORY, IOrdenRepository } from '../../domain/repositories';
-import { OrdenQueryDto, OrdenListResponseZod } from '../dto';
+import { Injectable, Inject } from "@nestjs/common";
+import { ORDEN_REPOSITORY, IOrdenRepository } from "../../domain/repositories";
+import { OrdenQueryDto, OrdenListResponseZod } from "../dto";
 
 @Injectable()
 export class ListOrdenesUseCase {

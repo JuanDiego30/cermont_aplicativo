@@ -1,9 +1,9 @@
-import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, DestroyRef, inject, signal, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
-import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-reset-password',
@@ -12,12 +12,12 @@ import { Subject, takeUntil } from 'rxjs';
     templateUrl: './reset-password.component.html',
     styleUrls: ['./reset-password.component.css']
 })
-export class ResetPasswordComponent implements OnInit, OnDestroy {
+export class ResetPasswordComponent implements OnInit {
     private readonly fb = inject(FormBuilder);
     private readonly authService = inject(AuthService);
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
-    private readonly destroy$ = new Subject<void>();
+    private readonly destroyRef = inject(DestroyRef);
 
     resetPasswordForm!: FormGroup;
     loading = signal(false);
@@ -30,7 +30,7 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         // Obtener token de la URL
         this.route.queryParams
-            .pipe(takeUntil(this.destroy$))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(params => {
                 const token = params['token'];
                 if (!token) {
@@ -41,11 +41,6 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
             });
 
         this.initializeForm();
-    }
-
-    ngOnDestroy(): void {
-        this.destroy$.next();
-        this.destroy$.complete();
     }
 
     initializeForm(): void {
@@ -79,7 +74,7 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
         const newPassword = this.resetPasswordForm.get('newPassword')?.value;
 
         this.authService.resetPassword(this.token()!, newPassword)
-            .pipe(takeUntil(this.destroy$))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: () => {
                     this.success.set(true);

@@ -1,12 +1,12 @@
 /**
  * @event RoleChangedEvent
- * 
+ *
  * Evento de dominio emitido cuando cambia el rol de un usuario.
  */
 
 export class RoleChangedEvent {
   readonly occurredAt: Date;
-  readonly eventName = 'RoleChangedEvent';
+  readonly eventName = "RoleChangedEvent";
 
   constructor(
     readonly userId: string,

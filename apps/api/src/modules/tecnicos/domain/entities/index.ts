@@ -1,1 +1,1 @@
-export * from './tecnico.entity';
+export * from "./tecnico.entity";

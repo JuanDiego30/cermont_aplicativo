@@ -122,12 +122,11 @@ export class OrderHistoryEntry {
 
 ---
 
-##  RESEARCH FINDINGS (2026-01-02)
+##  RESEARCH FINDINGS (2026-01-03)
 
-### Type Safety Violations
-- orden.entity.ts L37: _domainEvents: any[]
-- orden.entity.ts L194: addDomainEvent(event: any)
-- orden.dto.ts L139-143: items, evidencias, costos, planeacion, ejecucion como any
-- prisma-orden.repository.ts L68,72: where: any, items: any[]
-
-### Fix: Crear interfaces DomainEvent, OrdenItemDTO, EvidenciaDTO
+### Type Safety
+- ✅ orden.entity.ts: domain events tipados (sin any)
+- ✅ orden.dto.ts: sub-DTOs tipados (items/evidencias/costos/...)
+- ✅ prisma-orden.repository.ts: where/items tipados (Prisma.OrderWhereInput + payload)
+- ✅ orden.mapper.ts + ordenes.controller.ts: removidos casts/returns `any` en código de producción
+- ⚠️ Pendiente opcional: limpiar `any` en tests/mocks (no afecta runtime)

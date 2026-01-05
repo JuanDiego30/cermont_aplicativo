@@ -28,64 +28,64 @@ Este archivo es tu **guía maestra** para navegar la suite de **22 agentes espec
 
 ## Backend Agents (11)
 
-### 1️⃣ backend-auth.agent.md
+### 1️⃣ 01-backend-auth.agent.md
 **Cuando:** Autenticación, autorización, roles, permisos, sesiones
 **Scope:** `apps/api/src/modules/auth/**`
-[Ver archivo](./agents/backend-auth.agent.md)
+[Ver archivo](./agents/01-backend-auth.agent.md)
 
-### 2️⃣ backend-ordenes.agent.md
+### 2️⃣ 02-backend-ordenes.agent.md
 **Cuando:** Gestión de órdenes, estado, asignación, workflows
 **Scope:** `apps/api/src/modules/ordenes/**`
-[Ver archivo](./agents/backend-ordenes.agent.md)
+[Ver archivo](./agents/02-backend-ordenes.agent.md)
 
-### 3️⃣ backend-evidencias.agent.md
+### 3️⃣ 03-backend-evidencias.agent.md
 **Cuando:** Subida de archivos, almacenamiento, metadata, integridad
 **Scope:** `apps/api/src/modules/evidencias/**`
-[Ver archivo](./agents/backend-evidencias.agent.md)
+[Ver archivo](./agents/03-backend-evidencias.agent.md)
 
-### 4️⃣ backend-formularios.agent.md
+### 4️⃣ 04-backend-formularios.agent.md
 **Cuando:** Formularios dinámicos, validación, cálculos, dependencias
 **Scope:** `apps/api/src/modules/formularios/**`
-[Ver archivo](./agents/backend-formularios.agent.md)
+[Ver archivo](./agents/04-backend-formularios.agent.md)
 
-### 5️⃣ backend-sync.agent.md
+### 5️⃣ 05-backend-sync.agent.md
 **Cuando:** Sincronización offline, conflictos, consistencia
 **Scope:** `apps/api/src/modules/sync/**`
-[Ver archivo](./agents/backend-sync.agent.md)
+[Ver archivo](./agents/05-backend-sync.agent.md)
 
-### 6️⃣ backend-reportes-pdf.agent.md
+### 6️⃣ 06-backend-reportes-pdf.agent.md
 **Cuando:** Generación de PDFs, plantillas, reportes
 **Scope:** `apps/api/src/modules/pdf-generation/**`
-[Ver archivo](./agents/backend-reportes-pdf.agent.md)
+[Ver archivo](./agents/06-backend-reportes-pdf.agent.md)
 
-### 7️⃣ backend-logging-observability.agent.md (🌟 NUEVO)
+### 7️⃣ 07-backend-logging.agent.md
 **Cuando:** Centralización de logs, observabilidad, métricas, trazabilidad
 **Scope:** `apps/api/src/common/logging/**`
 **Stack:** Winston/Bunyan, ELK Stack
-[Ver archivo](./agents/backend-logging-observability.agent.md)
+[Ver archivo](./agents/07-backend-logging.agent.md)
 
-### 8️⃣ backend-emails-notifications.agent.md (🌟 NUEVO)
+### 8️⃣ 08-backend-emails.agent.md
 **Cuando:** Envío de emails, notificaciones, webhooks, plantillas, reintentos
 **Scope:** `apps/api/src/modules/notifications/**`
 **Stack:** Nodemailer, SendGrid, AWS SES, Bull Queue
-[Ver archivo](./agents/backend-emails-notifications.agent.md)
+[Ver archivo](./agents/08-backend-emails.agent.md)
 
-### 9️⃣ backend-caching-redis.agent.md (🌟 NUEVO)
+### 9️⃣ 09-backend-caching.agent.md
 **Cuando:** Multi-layer caching, Redis, invalidación inteligente, rate limiting
 **Scope:** `apps/api/src/common/caching/**`
 **Stack:** Redis, ioredis, @nestjs/cache-manager
-[Ver archivo](./agents/backend-caching-redis.agent.md)
+[Ver archivo](./agents/09-backend-caching.agent.md)
 
-### 1️⃣️ backend-api-documentation.agent.md (🌟 NUEVO)
+### 1️⃣️ 10-backend-api-docs.agent.md
 **Cuando:** Documentación automática de APIs, Swagger/OpenAPI, ejemplos
 **Scope:** `apps/api/src/`
 **Stack:** @nestjs/swagger, OpenAPI 3.0
-[Ver archivo](./agents/backend-api-documentation.agent.md)
+[Ver archivo](./agents/10-backend-api-docs.agent.md)
 
-### 1️⃣⃣ quality-testing.agent.md
+### 1️⃣8️⃣ 18-quality-testing.agent.md
 **Cuando:** Tests (unit, integration, e2e), cobertura, CI
 **Scope:** Tests en `apps/api/**` y `apps/web/**`
-[Ver archivo](./agents/quality-testing.agent.md)
+[Ver archivo](./agents/18-quality-testing.agent.md)
 
 ### 2️⃣1️⃣ backend-security.agent.md (🔥 NUEVO)
 **Cuando:** CORS, Rate Limiting, CSRF, Input Validation
@@ -97,36 +97,36 @@ Este archivo es tu **guía maestra** para navegar la suite de **22 agentes espec
 
 ## Frontend Agents (8)
 
-### 1️⃣️ frontend.agent.md (Umbrella)
+### 1️⃣️ 11-frontend-umbrella.agent.md (Umbrella)
 **Cuando:** Decisiones arquitectónicas, nuevos features, patrones transversales
 **Scope:** Toda la app `apps/web/`
-[Ver archivo](./agents/frontend.agent.md)
+[Ver archivo](./agents/11-frontend-umbrella.agent.md)
 
-### 1️⃣⃣ frontend-api-integration.agent.md
+### 1️⃣⃣ 12-frontend-api.agent.md
 **Cuando:** Nuevos endpoints, error handling, interceptors
 **Scope:** `apps/web/src/app/core/services/**`
-[Ver archivo](./agents/frontend-api-integration.agent.md)
+[Ver archivo](./agents/12-frontend-api.agent.md)
 
-### 1️⃣⃣ frontend-ui-ux.agent.md
+### 1️⃣⃣ 13-frontend-ui-ux.agent.md
 **Cuando:** Componentes nuevos, accesibilidad, responsive
 **Scope:** `apps/web/src/app/shared/components/**`
-[Ver archivo](./agents/frontend-ui-ux.agent.md)
+[Ver archivo](./agents/13-frontend-ui-ux.agent.md)
 
-### 1️⃣⃣ frontend-state-data.agent.md
+### 1️⃣⃣ 14-frontend-state.agent.md
 **Cuando:** Estado compartido, data flow, sincronización
 **Scope:** `apps/web/src/app/core/state/**`
-[Ver archivo](./agents/frontend-state-data.agent.md)
+[Ver archivo](./agents/14-frontend-state.agent.md)
 
-### 1️⃣⃣ frontend-performance.agent.md
+### 1️⃣⃣ 15-frontend-performance.agent.md
 **Cuando:** Bundle grande, UX lenta, memory leaks
 **Scope:** Toda la app `apps/web/`
-[Ver archivo](./agents/frontend-performance.agent.md)
+[Ver archivo](./agents/15-frontend-performance.agent.md)
 
-### 1️⃣⃣ frontend-internationalization.agent.md (🌟 NUEVO)
+### 1️⃣⃣ 16-frontend-i18n.agent.md
 **Cuando:** Multi-idioma, traducción de UI, formateo de fechas/números, RTL support
 **Scope:** `apps/web/src/assets/i18n/`, `apps/web/src/app/core/i18n/`
 **Stack:** ngx-translate, Angular i18n
-[Ver archivo](./agents/frontend-internationalization.agent.md)
+[Ver archivo](./agents/16-frontend-i18n.agent.md)
 
 ### 1️⃣9️⃣ frontend-auth-critical.agent.md (🔥 NUEVO)
 **Cuando:** Login/Logout, CSRF token, Token refresh, 2FA, Memory leaks
@@ -144,10 +144,10 @@ Este archivo es tu **guía maestra** para navegar la suite de **22 agentes espec
 
 ## DevOps & Testing Agents (3)
 
-### 1️⃣⃣ devops-ci-cd.agent.md
+### 1️⃣⃣ 17-devops-ci-cd.agent.md
 **Cuando:** Despliegues, Docker, GitHub Actions, monitoring
 **Scope:** `.github/workflows/`, `docker/`, infraestructura
-[Ver archivo](./agents/devops-ci-cd.agent.md)
+[Ver archivo](./agents/17-devops-ci-cd.agent.md)
 
 ### 1️⃣8️⃣ quality-testing.agent.md
 **Cuando:** Tests (unit, integration, e2e), cobertura, CI
@@ -168,21 +168,21 @@ Este archivo es tu **guía maestra** para navegar la suite de **22 agentes espec
 
 | Tarea | Agentes |
 |------|----------|
-| Agregar nuevo endpoint API | backend-[feature] → frontend-api-integration |
-| Crear nuevo componente | frontend-ui-ux → frontend |
-| Optimizar performance | frontend-performance → devops-ci-cd |
-| Mejorar tests | quality-testing |
-| Desplegar a producción | devops-ci-cd |
-| Agregar autenticación | backend-auth → frontend-api-integration |
-| Subir archivos | backend-evidencias → frontend-api-integration |
-| Sincronizar datos offline | backend-sync → frontend-state-data |
-| Generar reportes PDF | backend-reportes-pdf → frontend-api-integration |
-| Crear formulario dinámico | backend-formularios → frontend-ui-ux |
-| Configurar logging | backend-logging-observability |
-| Enviar emails/notificaciones | backend-emails-notifications |
-| Implementar caching | backend-caching-redis |
-| Documentar API | backend-api-documentation |
-| Soporte multi-idioma | frontend-internationalization |
+| Agregar nuevo endpoint API | 0X backend-[feature] → 12-frontend-api |
+| Crear nuevo componente | 13-frontend-ui-ux → 11-frontend-umbrella |
+| Optimizar performance | 15-frontend-performance → 17-devops-ci-cd |
+| Mejorar tests | 18-quality-testing / 22-integration-tests |
+| Desplegar a producción | 17-devops-ci-cd |
+| Agregar autenticación | 01-backend-auth → 12-frontend-api |
+| Subir archivos | 03-backend-evidencias → 12-frontend-api |
+| Sincronizar datos offline | 05-backend-sync → 14-frontend-state |
+| Generar reportes PDF | 06-backend-reportes-pdf → 12-frontend-api |
+| Crear formulario dinámico | 04-backend-formularios → 13-frontend-ui-ux |
+| Configurar logging | 07-backend-logging |
+| Enviar emails/notificaciones | 08-backend-emails |
+| Implementar caching | 09-backend-caching |
+| Documentar API | 10-backend-api-docs |
+| Soporte multi-idioma | 16-frontend-i18n |
 
 ---
 

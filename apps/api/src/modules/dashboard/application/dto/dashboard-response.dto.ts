@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from "@nestjs/swagger";
 
 export interface DashboardStatsDto {
   ordenes: {
@@ -70,4 +70,3 @@ export interface DashboardResponse {
     ordenesRecientes: number;
   };
 }
-

@@ -1,7 +1,7 @@
 /**
  * @util Cálculos Financieros Colombia
  * @description Utilidades para cálculos financieros específicos de Colombia
- * 
+ *
  * Principio DRY: Centraliza lógica de cálculos usada en múltiples módulos
  * (costos, ordenes, reportes, facturación)
  */
@@ -36,9 +36,9 @@ export function extraerBaseDeTotal(totalConIVA: number): number {
  * Formatea un monto como moneda colombiana
  */
 export function formatearMonedaCOP(monto: number): string {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(monto);

@@ -3,35 +3,37 @@
  * @description Pipe de validación con Zod
  *
  * Alternativa a class-validator con schemas declarativos
- * 
+ *
  * NOTA: Requiere instalar zod: pnpm add zod
  */
 
 import {
-    PipeTransform,
-    Injectable,
-    ArgumentMetadata,
-    BadRequestException,
-} from '@nestjs/common';
-import type { ValidationErrorItem } from '../types/api-response.types';
+  PipeTransform,
+  Injectable,
+  ArgumentMetadata,
+  BadRequestException,
+} from "@nestjs/common";
+import type { ValidationErrorItem } from "../types/api-response.types";
 
 /**
  * Interface para ZodSchema (evita dependencia directa de zod)
  */
 interface ZodSchemaLike<T> {
-    safeParse(value: unknown): { success: true; data: T } | { success: false; error: ZodErrorLike };
+  safeParse(
+    value: unknown,
+  ): { success: true; data: T } | { success: false; error: ZodErrorLike };
 }
 
 interface ZodIssueLike {
-    // Zod v4 usa PropertyKey (string | number | symbol)
-    path: Array<PropertyKey>;
-    message: string;
+  // Zod v4 usa PropertyKey (string | number | symbol)
+  path: Array<PropertyKey>;
+  message: string;
 }
 
 interface ZodErrorLike {
-    // Zod v3 expone `errors`, Zod v4 usa `issues`
-    errors?: ZodIssueLike[];
-    issues?: ZodIssueLike[];
+  // Zod v3 expone `errors`, Zod v4 usa `issues`
+  errors?: ZodIssueLike[];
+  issues?: ZodIssueLike[];
 }
 
 /**
@@ -40,7 +42,7 @@ interface ZodErrorLike {
  * Uso:
  * ```ts
  * import { z } from 'zod';
- * 
+ *
  * const userSchema = z.object({
  *   email: z.string().email(),
  *   name: z.string().min(2),
@@ -54,40 +56,45 @@ interface ZodErrorLike {
  */
 @Injectable()
 export class ZodValidationPipe<T> implements PipeTransform<unknown, T> {
-    constructor(private readonly schema: ZodSchemaLike<T>) {}
+  constructor(private readonly schema: ZodSchemaLike<T>) {}
 
-    transform(value: unknown, _metadata: ArgumentMetadata): T {
-        const result = this.schema.safeParse(value);
+  transform(value: unknown, _metadata: ArgumentMetadata): T {
+    const result = this.schema.safeParse(value);
 
-        if (!result.success) {
-            const errors = this.formatZodErrors(result.error);
-            throw new BadRequestException({
-                message: 'Error de validación',
-                errors,
-            });
-        }
-
-        return result.data;
+    if (!result.success) {
+      const errors = this.formatZodErrors(result.error);
+      throw new BadRequestException({
+        message: "Error de validación",
+        errors,
+      });
     }
 
-    /**
-     * Formatea errores de Zod a nuestro formato estándar
-     */
-    private formatZodErrors(error: ZodErrorLike): ValidationErrorItem[] {
-        const issues = error.issues ?? error.errors ?? [];
+    return result.data;
+  }
 
-        return issues.map((issue) => ({
-            field: issue.path.map((p) => (typeof p === 'symbol' ? p.toString() : String(p))).join('.') || 'value',
-            message: issue.message,
-            value: undefined, // No exponemos el valor por seguridad
-        }));
-    }
+  /**
+   * Formatea errores de Zod a nuestro formato estándar
+   */
+  private formatZodErrors(error: ZodErrorLike): ValidationErrorItem[] {
+    const issues = error.issues ?? error.errors ?? [];
+
+    return issues.map((issue) => ({
+      field:
+        issue.path
+          .map((p) => (typeof p === "symbol" ? p.toString() : String(p)))
+          .join(".") || "value",
+      message: issue.message,
+      value: undefined, // No exponemos el valor por seguridad
+    }));
+  }
 }
 
 /**
  * Factory function para crear ZodValidationPipe
  * Útil cuando se usa con decoradores
  */
-export function createZodValidationPipe<T>(schema: ZodSchemaLike<T>): ZodValidationPipe<T> {
-    return new ZodValidationPipe(schema);
+export function createZodValidationPipe<T>(
+  schema: ZodSchemaLike<T>,
+): ZodValidationPipe<T> {
+  return new ZodValidationPipe(schema);
 }

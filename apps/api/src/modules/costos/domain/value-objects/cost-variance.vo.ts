@@ -1,19 +1,19 @@
 /**
  * Value Object: CostVariance
- * 
+ *
  * Representa la desviación entre presupuesto y costo real
  */
 
 // Decimal.js es open source
 let Decimal: any;
 try {
-  Decimal = require('decimal.js');
+  Decimal = require("decimal.js");
 } catch (error) {
   // Fallback
 }
 
-import { Money } from './money.vo';
-import { ValidationError } from '../exceptions';
+import { Money } from "./money.vo";
+import { ValidationError } from "../exceptions";
 
 export class CostVariance {
   private constructor(
@@ -50,7 +50,8 @@ export class CostVariance {
       variancePercentage = Decimal ? new Decimal(0) : 0;
     } else {
       if (Decimal) {
-        variancePercentage = variance.getAmount()
+        variancePercentage = variance
+          .getAmount()
           .dividedBy(budgeted.getAmount())
           .times(100);
       } else {
@@ -104,7 +105,7 @@ export class CostVariance {
     if (Decimal) {
       return this._variancePercentage.toNumber();
     } else {
-      return typeof this._variancePercentage === 'number'
+      return typeof this._variancePercentage === "number"
         ? this._variancePercentage
         : parseFloat(String(this._variancePercentage));
     }
@@ -154,8 +155,7 @@ export class CostVariance {
   }
 
   public toString(): string {
-    const sign = this.isOverBudget() ? '+' : '';
+    const sign = this.isOverBudget() ? "+" : "";
     return `Variance: ${sign}${this._variance.format()} (${sign}${this.getVariancePercentageAsNumber().toFixed(2)}%)`;
   }
 }
-

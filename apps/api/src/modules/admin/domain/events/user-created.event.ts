@@ -1,12 +1,12 @@
 /**
  * @event UserCreatedEvent
- * 
+ *
  * Evento de dominio emitido cuando se crea un usuario.
  */
 
 export class UserCreatedEvent {
   readonly occurredAt: Date;
-  readonly eventName = 'UserCreatedEvent';
+  readonly eventName = "UserCreatedEvent";
 
   constructor(
     readonly userId: string,

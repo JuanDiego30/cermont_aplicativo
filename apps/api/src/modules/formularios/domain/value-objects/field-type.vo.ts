@@ -1,29 +1,29 @@
 /**
  * Value Object: FieldType
- * 
+ *
  * Tipo de campo de formulario con validaciones y metadatos
  */
 
 export enum FieldTypeEnum {
-  TEXT = 'TEXT',
-  TEXTAREA = 'TEXTAREA',
-  NUMBER = 'NUMBER',
-  EMAIL = 'EMAIL',
-  PHONE = 'PHONE',
-  DATE = 'DATE',
-  TIME = 'TIME',
-  DATETIME = 'DATETIME',
-  SELECT = 'SELECT',
-  RADIO = 'RADIO',
-  CHECKBOX = 'CHECKBOX',
-  MULTISELECT = 'MULTISELECT',
-  FILE = 'FILE',
-  IMAGE = 'IMAGE',
-  SIGNATURE = 'SIGNATURE',
-  GEOLOCATION = 'GEOLOCATION',
-  RATING = 'RATING',
-  SLIDER = 'SLIDER',
-  CALCULATED = 'CALCULATED',
+  TEXT = "TEXT",
+  TEXTAREA = "TEXTAREA",
+  NUMBER = "NUMBER",
+  EMAIL = "EMAIL",
+  PHONE = "PHONE",
+  DATE = "DATE",
+  TIME = "TIME",
+  DATETIME = "DATETIME",
+  SELECT = "SELECT",
+  RADIO = "RADIO",
+  CHECKBOX = "CHECKBOX",
+  MULTISELECT = "MULTISELECT",
+  FILE = "FILE",
+  IMAGE = "IMAGE",
+  SIGNATURE = "SIGNATURE",
+  GEOLOCATION = "GEOLOCATION",
+  RATING = "RATING",
+  SLIDER = "SLIDER",
+  CALCULATED = "CALCULATED",
 }
 
 export class FieldType {
@@ -109,7 +109,7 @@ export class FieldType {
 
   public static fromString(value: string): FieldType {
     const enumValue = Object.values(FieldTypeEnum).find(
-      (v) => v === value.toUpperCase()
+      (v) => v === value.toUpperCase(),
     );
     if (!enumValue) {
       throw new Error(`Invalid FieldType: ${value}`);
@@ -147,10 +147,9 @@ export class FieldType {
   }
 
   public allowsMultipleValues(): boolean {
-    return [
-      FieldTypeEnum.CHECKBOX,
-      FieldTypeEnum.MULTISELECT,
-    ].includes(this._value);
+    return [FieldTypeEnum.CHECKBOX, FieldTypeEnum.MULTISELECT].includes(
+      this._value,
+    );
   }
 
   public validateValue(value: any): boolean {
@@ -158,21 +157,23 @@ export class FieldType {
       case FieldTypeEnum.NUMBER:
       case FieldTypeEnum.RATING:
       case FieldTypeEnum.SLIDER:
-        return typeof value === 'number' && !isNaN(value);
+        return typeof value === "number" && !isNaN(value);
       case FieldTypeEnum.EMAIL:
-        return typeof value === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+        return (
+          typeof value === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+        );
       case FieldTypeEnum.PHONE:
-        return typeof value === 'string' && /^[\d\s\-\+\(\)]+$/.test(value);
+        return typeof value === "string" && /^[\d\s\-\+\(\)]+$/.test(value);
       case FieldTypeEnum.DATE:
       case FieldTypeEnum.TIME:
       case FieldTypeEnum.DATETIME:
         return !isNaN(new Date(value).getTime());
       case FieldTypeEnum.CHECKBOX:
-        return typeof value === 'boolean';
+        return typeof value === "boolean";
       case FieldTypeEnum.MULTISELECT:
         return Array.isArray(value);
       default:
-        return typeof value === 'string';
+        return typeof value === "string";
     }
   }
 
@@ -181,13 +182,13 @@ export class FieldType {
       case FieldTypeEnum.NUMBER:
       case FieldTypeEnum.RATING:
       case FieldTypeEnum.SLIDER:
-        return 'number';
+        return "number";
       case FieldTypeEnum.CHECKBOX:
-        return 'boolean';
+        return "boolean";
       case FieldTypeEnum.MULTISELECT:
-        return 'array';
+        return "array";
       default:
-        return 'string';
+        return "string";
     }
   }
 
@@ -199,4 +200,3 @@ export class FieldType {
     return this._value;
   }
 }
-

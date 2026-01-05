@@ -1,18 +1,18 @@
 /**
  * @module OrdenesModule
  * @description Módulo de órdenes con Clean Architecture
- * 
+ *
  * Principios aplicados:
  * - DIP: Inyección de dependencias con interfaces
  * - SRP: Separación en capas (domain, application, infrastructure)
  * - OCP: Extensible mediante use cases
  */
-import { Module } from '@nestjs/common';
-import { PrismaModule } from '../../prisma/prisma.module';
-import { NotificationsModule } from '../notifications/notifications.module';
+import { Module } from "@nestjs/common";
+import { PrismaModule } from "../../prisma/prisma.module";
+import { NotificationsModule } from "../notifications/notifications.module";
 
 // Domain
-import { ORDEN_REPOSITORY } from './domain/repositories';
+import { ORDEN_REPOSITORY } from "./domain/repositories";
 
 // Application - Use Cases & Services
 import {
@@ -25,15 +25,15 @@ import {
   AsignarTecnicoOrdenUseCase,
   GetHistorialEstadosUseCase,
   DeleteOrdenUseCase,
-} from './application/use-cases';
-import { OrderStateService } from './application/services/order-state.service';
+} from "./application/use-cases";
+import { OrderStateService } from "./application/services/order-state.service";
 
 // Infrastructure
-import { PrismaOrdenRepository } from './infrastructure/persistence';
-import { OrdenesController } from './infrastructure/controllers';
-import { OrdenesNotificationsHandler } from './infrastructure/event-handlers/ordenes-notifications.handler';
-import { OrdenesWebhookHandler } from './infrastructure/event-handlers/ordenes-webhook.handler';
-import { OrdenesWebhookService } from './infrastructure/services/ordenes-webhook.service';
+import { PrismaOrdenRepository } from "./infrastructure/persistence";
+import { OrdenesController } from "./infrastructure/controllers";
+import { OrdenesNotificationsHandler } from "./infrastructure/event-handlers/ordenes-notifications.handler";
+import { OrdenesWebhookHandler } from "./infrastructure/event-handlers/ordenes-webhook.handler";
+import { OrdenesWebhookService } from "./infrastructure/services/ordenes-webhook.service";
 
 /**
  * Providers de Use Cases
@@ -81,4 +81,4 @@ const useCaseProviders = [
     GetHistorialEstadosUseCase,
   ],
 })
-export class OrdenesModule { }
+export class OrdenesModule {}

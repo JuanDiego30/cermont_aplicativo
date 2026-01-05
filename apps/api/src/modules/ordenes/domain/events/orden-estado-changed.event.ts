@@ -3,7 +3,7 @@
  * @description Evento de dominio emitido cuando cambia el estado de una orden
  * @layer Domain
  */
-import { EstadoOrden } from '../value-objects';
+import { EstadoOrden } from "../value-objects";
 
 export class OrdenEstadoChangedEvent {
   constructor(
@@ -17,4 +17,3 @@ export class OrdenEstadoChangedEvent {
     public readonly timestamp: Date = new Date(),
   ) {}
 }
-

@@ -1,8 +1,8 @@
 /**
  * Domain Event: AlertaEnviadaEvent
- * 
+ *
  * Se publica cuando una alerta se envía exitosamente por un canal
- * 
+ *
  * @example
  * const event = new AlertaEnviadaEvent({
  *   alertaId: '123e4567-...',
@@ -13,7 +13,7 @@
  */
 
 export class AlertaEnviadaEvent {
-  public readonly eventName = 'ALERTA_ENVIADA';
+  public readonly eventName = "ALERTA_ENVIADA";
   public readonly aggregateId: string;
   public readonly timestamp: Date;
   public readonly canal: string;
@@ -45,4 +45,3 @@ export class AlertaEnviadaEvent {
     };
   }
 }
-

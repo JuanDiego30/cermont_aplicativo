@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import * as bcrypt from 'bcryptjs';
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import * as bcrypt from "bcryptjs";
 
 /**
  * Servicio centralizado para manejo de contraseñas
@@ -20,7 +20,7 @@ export class PasswordService {
    */
   async hash(password: string): Promise<string> {
     const rounds =
-      this.configService.get<number>('BCRYPT_ROUNDS') ?? this.SALT_ROUNDS;
+      this.configService.get<number>("BCRYPT_ROUNDS") ?? this.SALT_ROUNDS;
     return bcrypt.hash(password, rounds);
   }
 
@@ -47,13 +47,13 @@ export class PasswordService {
   validate(password: string): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
 
-    if (password.length < 8) errors.push('Mínimo 8 caracteres');
-    if (password.length > 128) errors.push('Máximo 128 caracteres');
-    if (!/[A-Z]/.test(password)) errors.push('Requiere mayúscula');
-    if (!/[a-z]/.test(password)) errors.push('Requiere minúscula');
-    if (!/\d/.test(password)) errors.push('Requiere número');
+    if (password.length < 8) errors.push("Mínimo 8 caracteres");
+    if (password.length > 128) errors.push("Máximo 128 caracteres");
+    if (!/[A-Z]/.test(password)) errors.push("Requiere mayúscula");
+    if (!/[a-z]/.test(password)) errors.push("Requiere minúscula");
+    if (!/\d/.test(password)) errors.push("Requiere número");
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(password))
-      errors.push('Requiere carácter especial');
+      errors.push("Requiere carácter especial");
 
     return { isValid: errors.length === 0, errors };
   }

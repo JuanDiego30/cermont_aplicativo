@@ -1,8 +1,8 @@
 /**
  * Aggregate Root: FormTemplate
- * 
+ *
  * Representa un template de formulario dinámico
- * 
+ *
  * Invariantes:
  * - Nombre no puede estar vacío
  * - Debe tener al menos 1 campo para publicar
@@ -10,17 +10,20 @@
  * - Solo PUBLISHED puede tener submissions
  */
 
-import { FormTemplateId } from '../value-objects/form-template-id.vo';
-import { TemplateVersion } from '../value-objects/template-version.vo';
-import { FormStatus, FormStatusEnum } from '../value-objects/form-status.vo';
-import { FormField } from './form-field.entity';
-import { BusinessRuleViolationError, TemplateNotPublishableException } from '../exceptions';
-import { ValidationError } from '../../../../common/domain/exceptions';
+import { FormTemplateId } from "../value-objects/form-template-id.vo";
+import { TemplateVersion } from "../value-objects/template-version.vo";
+import { FormStatus, FormStatusEnum } from "../value-objects/form-status.vo";
+import { FormField } from "./form-field.entity";
+import {
+  BusinessRuleViolationError,
+  TemplateNotPublishableException,
+} from "../exceptions";
+import { ValidationError } from "../../../../common/domain/exceptions";
 import {
   TemplateCreatedEvent,
   TemplatePublishedEvent,
   TemplateArchivedEvent,
-} from '../events';
+} from "../events";
 
 export interface CreateFormTemplateProps {
   name: string;
@@ -139,7 +142,9 @@ export class FormTemplate {
       props.updatedAt,
       props.publishedAt,
       props.archivedAt,
-      props.previousVersionId ? FormTemplateId.create(props.previousVersionId) : undefined,
+      props.previousVersionId
+        ? FormTemplateId.create(props.previousVersionId)
+        : undefined,
       props.isLatestVersion ?? true,
     );
   }
@@ -149,12 +154,14 @@ export class FormTemplate {
    */
   public addField(field: FormField): void {
     if (!this.canEdit()) {
-      throw new BusinessRuleViolationError('Cannot edit published template');
+      throw new BusinessRuleViolationError("Cannot edit published template");
     }
 
     // Validar que no exista campo con mismo ID
     if (this.hasField(field.getId())) {
-      throw new BusinessRuleViolationError(`Field with id ${field.getId()} already exists`);
+      throw new BusinessRuleViolationError(
+        `Field with id ${field.getId()} already exists`,
+      );
     }
 
     this._fields.push(field);
@@ -167,12 +174,14 @@ export class FormTemplate {
    */
   public removeField(fieldId: string): void {
     if (!this.canEdit()) {
-      throw new BusinessRuleViolationError('Cannot edit published template');
+      throw new BusinessRuleViolationError("Cannot edit published template");
     }
 
     const field = this.findField(fieldId);
     if (!field) {
-      throw new BusinessRuleViolationError(`Field with id ${fieldId} not found`);
+      throw new BusinessRuleViolationError(
+        `Field with id ${fieldId} not found`,
+      );
     }
 
     this._fields = this._fields.filter((f) => f.getId() !== fieldId);
@@ -185,12 +194,14 @@ export class FormTemplate {
    */
   public updateField(fieldId: string, updates: Partial<FormField>): void {
     if (!this.canEdit()) {
-      throw new BusinessRuleViolationError('Cannot edit published template');
+      throw new BusinessRuleViolationError("Cannot edit published template");
     }
 
     const field = this.findField(fieldId);
     if (!field) {
-      throw new BusinessRuleViolationError(`Field with id ${fieldId} not found`);
+      throw new BusinessRuleViolationError(
+        `Field with id ${fieldId} not found`,
+      );
     }
 
     // Actualizar campo (inmutabilidad)
@@ -210,7 +221,7 @@ export class FormTemplate {
     if (!this.canPublish()) {
       const reasons = this.getPublishValidationErrors();
       throw new TemplateNotPublishableException(
-        'Template cannot be published',
+        "Template cannot be published",
         reasons,
       );
     }
@@ -239,7 +250,7 @@ export class FormTemplate {
    */
   public archive(): void {
     if (this.isArchived()) {
-      throw new BusinessRuleViolationError('Template already archived');
+      throw new BusinessRuleViolationError("Template already archived");
     }
 
     if (!this._status.canTransitionTo(FormStatusEnum.ARCHIVED)) {
@@ -265,7 +276,9 @@ export class FormTemplate {
    */
   public createNewVersion(createdBy: string): FormTemplate {
     if (!this.isPublished()) {
-      throw new BusinessRuleViolationError('Can only version published templates');
+      throw new BusinessRuleViolationError(
+        "Can only version published templates",
+      );
     }
 
     const newVersion = FormTemplate.create({
@@ -293,12 +306,12 @@ export class FormTemplate {
     updatedBy: string;
   }): void {
     if (!this.canEdit()) {
-      throw new BusinessRuleViolationError('Cannot edit published template');
+      throw new BusinessRuleViolationError("Cannot edit published template");
     }
 
     if (updates.name) {
       if (updates.name.trim().length === 0) {
-        throw new ValidationError('Name cannot be empty', 'name');
+        throw new ValidationError("Name cannot be empty", "name");
       }
       this._name = updates.name.trim();
     }
@@ -317,8 +330,8 @@ export class FormTemplate {
     // Generación básica de schema
     // En producción, usar FormSchemaGeneratorService
     const schema: Record<string, any> = {
-      $schema: 'http://json-schema.org/draft-07/schema#',
-      type: 'object',
+      $schema: "http://json-schema.org/draft-07/schema#",
+      type: "object",
       properties: {},
       required: [],
     };
@@ -361,17 +374,14 @@ export class FormTemplate {
     // Validaciones:
     // - Al menos 1 campo
     // - Todos los campos tienen configuración válida
-    return (
-      this._fields.length > 0 &&
-      this._fields.every((f) => f.isValid())
-    );
+    return this._fields.length > 0 && this._fields.every((f) => f.isValid());
   }
 
   private getPublishValidationErrors(): string[] {
     const errors: string[] = [];
 
     if (this._fields.length === 0) {
-      errors.push('Template must have at least one field');
+      errors.push("Template must have at least one field");
     }
 
     for (const field of this._fields) {
@@ -398,7 +408,7 @@ export class FormTemplate {
 
   private validate(): void {
     if (!this._name || this._name.trim().length === 0) {
-      throw new ValidationError('Template name is required', 'name');
+      throw new ValidationError("Template name is required", "name");
     }
   }
 
@@ -509,4 +519,3 @@ export class FormTemplate {
     return this.findField(fieldId);
   }
 }
-

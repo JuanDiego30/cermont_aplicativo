@@ -1,11 +1,11 @@
 /**
  * @mapper PreferenciaMapper
- * 
+ *
  * Mapea entre Domain Entity y DTOs
  */
 
-import { PreferenciaAlerta } from '../../domain/entities/preferencia-alerta.entity';
-import { PreferenciaResponseDto } from '../dto/preferencias-alerta.dto';
+import { PreferenciaAlerta } from "../../domain/entities/preferencia-alerta.entity";
+import { PreferenciaResponseDto } from "../dto/preferencias-alerta.dto";
 
 export class PreferenciaMapper {
   /**
@@ -44,4 +44,3 @@ export class PreferenciaMapper {
     return preferencias.map((p) => this.toResponseDto(p));
   }
 }
-

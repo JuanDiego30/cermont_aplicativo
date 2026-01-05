@@ -1,5 +1,5 @@
-import { Module, Global } from '@nestjs/common';
-import { PinoLoggerService } from './pino-logger.service';
+import { Module, Global } from "@nestjs/common";
+import { PinoLoggerService } from "./pino-logger.service";
 
 @Global()
 @Module({

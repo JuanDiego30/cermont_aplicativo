@@ -1,16 +1,16 @@
 /**
  * Use Case: GetChecklistsByEjecucionUseCase
- * 
+ *
  * Obtiene todas las checklists asignadas a una ejecución
  */
 
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject, Logger } from "@nestjs/common";
 import {
   IChecklistRepository,
   CHECKLIST_REPOSITORY,
-} from '../../domain/repositories';
-import { ChecklistResponseDto } from '../dto/checklist-response.dto';
-import { ChecklistMapper } from '../mappers/checklist.mapper';
+} from "../../domain/repositories";
+import { ChecklistResponseDto } from "../dto/checklist-response.dto";
+import { ChecklistMapper } from "../mappers/checklist.mapper";
 
 @Injectable()
 export class GetChecklistsByEjecucionUseCase {
@@ -29,4 +29,3 @@ export class GetChecklistsByEjecucionUseCase {
     return ChecklistMapper.toResponseDtoArray(checklists);
   }
 }
-

@@ -1,13 +1,13 @@
 /**
  * @eventHandler PasswordResetHandler
- * 
+ *
  * Maneja el evento PasswordResetEvent.
  */
 
-import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
-import { PasswordResetEvent } from '../../domain/events/password-reset.event';
-import { PrismaService } from '../../../../prisma/prisma.service';
+import { Injectable, Logger } from "@nestjs/common";
+import { OnEvent } from "@nestjs/event-emitter";
+import { PasswordResetEvent } from "../../domain/events/password-reset.event";
+import { PrismaService } from "../../../../prisma/prisma.service";
 
 @Injectable()
 export class PasswordResetHandler {
@@ -15,15 +15,17 @@ export class PasswordResetHandler {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  @OnEvent('PasswordResetEvent')
+  @OnEvent("PasswordResetEvent")
   async handle(event: PasswordResetEvent): Promise<void> {
     try {
       // Registrar en auditoría
       await this.prisma.auditLog.create({
         data: {
-          action: event.isAdminReset ? 'PASSWORD_RESET_BY_ADMIN' : 'PASSWORD_CHANGED',
+          action: event.isAdminReset
+            ? "PASSWORD_RESET_BY_ADMIN"
+            : "PASSWORD_CHANGED",
           userId: event.resetBy,
-          entityType: 'User',
+          entityType: "User",
           entityId: event.userId,
           changes: {
             isAdminReset: event.isAdminReset,

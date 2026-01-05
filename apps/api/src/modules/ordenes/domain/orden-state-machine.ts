@@ -1,12 +1,12 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException } from "@nestjs/common";
 
 export enum OrdenEstado {
-  PENDIENTE = 'pendiente',
-  PLANEACION = 'planeacion',
-  EJECUCION = 'ejecucion',
-  COMPLETADA = 'completada',
-  CANCELADA = 'cancelada',
-  PAUSADA = 'pausada',
+  PENDIENTE = "pendiente",
+  PLANEACION = "planeacion",
+  EJECUCION = "ejecucion",
+  COMPLETADA = "completada",
+  CANCELADA = "cancelada",
+  PAUSADA = "pausada",
 }
 
 /**
@@ -16,10 +16,7 @@ export class OrdenStateMachine {
   // Transiciones permitidas desde cada estado
   private static readonly TRANSITIONS: Record<OrdenEstado, OrdenEstado[]> = {
     [OrdenEstado.PENDIENTE]: [OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
-    [OrdenEstado.PLANEACION]: [
-      OrdenEstado.EJECUCION,
-      OrdenEstado.CANCELADA,
-    ],
+    [OrdenEstado.PLANEACION]: [OrdenEstado.EJECUCION, OrdenEstado.CANCELADA],
     [OrdenEstado.EJECUCION]: [
       OrdenEstado.COMPLETADA,
       OrdenEstado.PAUSADA,
@@ -31,7 +28,10 @@ export class OrdenStateMachine {
   };
 
   // Transiciones que requieren motivo obligatorio
-  private static readonly REQUIRES_REASON: OrdenEstado[] = [OrdenEstado.CANCELADA, OrdenEstado.COMPLETADA];
+  private static readonly REQUIRES_REASON: OrdenEstado[] = [
+    OrdenEstado.CANCELADA,
+    OrdenEstado.COMPLETADA,
+  ];
 
   /**
    * Valida si una transición de estado es permitida
@@ -47,14 +47,14 @@ export class OrdenStateMachine {
     if (!allowedTransitions.includes(toEstado)) {
       throw new BadRequestException(
         `No se puede cambiar de ${fromEstado} a ${toEstado}. ` +
-        `Transiciones permitidas: ${allowedTransitions.join(', ')}`
+          `Transiciones permitidas: ${allowedTransitions.join(", ")}`,
       );
     }
 
     // Validar que tenga motivo si es requerido
     if (this.REQUIRES_REASON.includes(toEstado) && !motivo) {
       throw new BadRequestException(
-        `El campo "motivo" es obligatorio al cambiar a estado ${toEstado}`
+        `El campo "motivo" es obligatorio al cambiar a estado ${toEstado}`,
       );
     }
   }

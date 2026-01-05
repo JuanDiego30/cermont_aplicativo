@@ -6,10 +6,10 @@ import {
   HttpException,
   InternalServerErrorException,
   Logger,
-} from '@nestjs/common';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { PinoLoggerService } from '../logger/pino-logger.service';
+} from "@nestjs/common";
+import { Observable, throwError } from "rxjs";
+import { catchError } from "rxjs/operators";
+import { PinoLoggerService } from "../logger/pino-logger.service";
 
 @Injectable()
 export class HttpErrorInterceptor implements NestInterceptor {
@@ -31,7 +31,7 @@ export class HttpErrorInterceptor implements NestInterceptor {
 
           this.pinoLogger.log(
             `[${method}] ${url} - Status: ${status}`,
-            'HttpErrorInterceptor',
+            "HttpErrorInterceptor",
             {
               status,
               error: response,
@@ -47,7 +47,7 @@ export class HttpErrorInterceptor implements NestInterceptor {
         this.pinoLogger.error(
           `Unhandled error in ${method} ${url}`,
           error.stack,
-          'HttpErrorInterceptor',
+          "HttpErrorInterceptor",
           {
             method,
             url,
@@ -63,7 +63,7 @@ export class HttpErrorInterceptor implements NestInterceptor {
           () =>
             new InternalServerErrorException({
               statusCode: 500,
-              message: 'Internal server error',
+              message: "Internal server error",
               timestamp,
               path: url,
             }),

@@ -1,17 +1,17 @@
 /**
  * Use Case: ListChecklistsUseCase
- * 
+ *
  * Lista checklists con filtros y paginación
  */
 
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject, Logger } from "@nestjs/common";
 import {
   IChecklistRepository,
   CHECKLIST_REPOSITORY,
-} from '../../domain/repositories';
-import { ListChecklistsQueryDto } from '../dto/list-checklists-query.dto';
-import { PaginatedChecklistsResponseDto } from '../dto/checklist-response.dto';
-import { ChecklistMapper } from '../mappers/checklist.mapper';
+} from "../../domain/repositories";
+import { ListChecklistsQueryDto } from "../dto/list-checklists-query.dto";
+import { PaginatedChecklistsResponseDto } from "../dto/checklist-response.dto";
+import { ChecklistMapper } from "../mappers/checklist.mapper";
 
 @Injectable()
 export class ListChecklistsUseCase {
@@ -22,7 +22,9 @@ export class ListChecklistsUseCase {
     private readonly repository: IChecklistRepository,
   ) {}
 
-  async execute(query: ListChecklistsQueryDto): Promise<PaginatedChecklistsResponseDto> {
+  async execute(
+    query: ListChecklistsQueryDto,
+  ): Promise<PaginatedChecklistsResponseDto> {
     // Validar paginación
     const page = Math.max(1, query.page || 1);
     const limit = Math.min(100, Math.max(1, query.limit || 20));
