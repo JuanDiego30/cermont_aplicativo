@@ -1,11 +1,21 @@
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AdminService } from '../../../../core/services/admin.service';
 import { UserRole } from '../../../../core/models/user.model';
 import { getDefaultControlErrorMessage, hasControlError } from '../../../../shared/utils/form-errors.util';
 import { beginFormSubmit, subscribeSubmit } from '../../../../shared/utils/form-submit.util';
+
+type UserFormGroup = FormGroup<{
+  email: FormControl<string>;
+  password: FormControl<string>;
+  name: FormControl<string>;
+  role: FormControl<UserRole>;
+  phone: FormControl<string>;
+  avatar: FormControl<string>;
+}>;
 
 @Component({
   selector: 'app-user-form',
@@ -16,12 +26,12 @@ import { beginFormSubmit, subscribeSubmit } from '../../../../shared/utils/form-
 })
 export class UserFormComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly fb = inject(FormBuilder);
+  private readonly fb = inject(FormBuilder).nonNullable;
   private readonly adminService = inject(AdminService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  form!: FormGroup;
+  form!: UserFormGroup;
   loading = signal(false);
   error = signal<string | null>(null);
   isEditMode = signal(false);
@@ -59,7 +69,7 @@ export class UserFormComponent implements OnInit {
     });
 
     // Monitorear cambios en la contraseña para validación en tiempo real
-    this.form.get('password')?.valueChanges
+    this.form.controls.password.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(password => {
         if (password) {
@@ -82,7 +92,7 @@ export class UserFormComponent implements OnInit {
             avatar: user.avatar || '',
           });
           // En modo edición, el password es opcional
-          this.form.get('email')?.disable();
+          this.form.controls.email.disable();
           this.loading.set(false);
         },
         error: (err) => {

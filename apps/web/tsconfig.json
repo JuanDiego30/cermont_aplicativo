@@ -40,7 +40,12 @@
     "node_modules",
     "free-angular-tailwind-dashboard-main",
     "src-old",
-    "dist"
+    "dist",
+    "src/app/pages/demo-legacy",
+    "src/app/shared/components/cards",
+    "src/app/shared/components/ui-example",
+    "src/app/shared/components/faqs",
+    "src/app/shared/layout/generator-layout"
   ],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

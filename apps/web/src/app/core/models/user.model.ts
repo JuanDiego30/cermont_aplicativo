@@ -31,6 +31,7 @@ export interface CreateUserDto {
 
 export interface UpdateUserDto {
   name?: string;
+  role?: UserRole;
   phone?: string;
   avatar?: string;
 }

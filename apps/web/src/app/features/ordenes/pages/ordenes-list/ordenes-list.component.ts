@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { OrdenesApi } from '@app/core/api/ordenes.api';
-import { ToastService } from '@app/shared/components/toast/toast.service';
+import { ToastService } from '@app/shared/services/toast.service';
 import { catchError, tap, throwError, Subject, takeUntil } from 'rxjs';
 
 interface Orden {
@@ -66,7 +66,7 @@ export class OrdenesListComponent implements OnInit, OnDestroy {
     this.loading = true;
     const filters = this.searchForm.value;
 
-    this.ordenesApi.list(page, this.pageSize, filters)
+    this.ordenesApi.list({ page, limit: this.pageSize, ...filters })
       .pipe(
         takeUntil(this.destroy$),
         tap((response: any) => {

@@ -38,6 +38,7 @@ export interface RegisterDto {
   name: string;
   password: string;
   phone?: string;
+  role?: 'admin' | 'supervisor' | 'tecnico' | 'cliente';
 }
 
 @Injectable({
