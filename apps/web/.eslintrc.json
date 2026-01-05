@@ -20,6 +20,31 @@
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
       "rules": {
+        "no-restricted-imports": [
+          "warn",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@app/pages/*",
+                  "@app/pages/**",
+                  "./pages/*",
+                  "./pages/**"
+                ],
+                "message": "Evita acoplar features/core a pages/**. Preferir routing shell o mover páginas dentro de features/<dominio>/pages."
+              },
+              {
+                "group": [
+                  "@app/pages/demo-legacy/*",
+                  "@app/pages/demo-legacy/**",
+                  "./pages/demo-legacy/*",
+                  "./pages/demo-legacy/**"
+                ],
+                "message": "No dependas de demo-legacy desde features reales. Extraer/eliminar demo-legacy es parte de la Fase 3."
+              }
+            ]
+          }
+        ],
         "@angular-eslint/directive-selector": [
           "error",
           {

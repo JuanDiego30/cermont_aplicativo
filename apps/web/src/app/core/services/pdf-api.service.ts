@@ -1,6 +1,10 @@
-import { Injectable, inject } from '@angular/core';
+/**
+ * PdfApiService - PDF generation API client
+ * Migrated to extend ApiBaseService (consolidation)
+ */
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from './api.service';
+import { ApiBaseService } from '../api/api-base.service';
 
 export interface GeneratePdfDto {
   html: string;
@@ -37,42 +41,40 @@ export interface GenerateCertificadoDto {
 @Injectable({
   providedIn: 'root'
 })
-export class PdfApiService {
-  private readonly api = inject(ApiService);
-
+export class PdfApiService extends ApiBaseService {
   /**
    * Genera un PDF desde HTML personalizado
    */
   generatePdf(dto: GeneratePdfDto): Observable<Blob> {
-    return this.api.downloadPdf('/pdf/generate', dto);
+    return this.download('/pdf/generate', dto);
   }
 
   /**
    * Genera reporte PDF de una orden
    */
   generateReporteOrden(dto: GenerateReporteOrdenDto): Observable<Blob> {
-    return this.api.downloadPdf('/pdf/reporte-orden', dto);
+    return this.download('/pdf/reporte-orden', dto);
   }
 
   /**
    * Genera reporte PDF de un mantenimiento
    */
   generateReporteMantenimiento(dto: GenerateReporteMantenimientoDto): Observable<Blob> {
-    return this.api.downloadPdf('/pdf/reporte-mantenimiento', dto);
+    return this.download('/pdf/reporte-mantenimiento', dto);
   }
 
   /**
    * Genera certificado de inspección
    */
   generateCertificado(dto: GenerateCertificadoDto): Observable<Blob> {
-    return this.api.downloadPdf('/pdf/certificado-inspeccion', dto);
+    return this.download('/pdf/certificado-inspeccion', dto);
   }
 
   /**
    * Obtiene un PDF desde cache (si existe)
    */
   getCachedPdf(cacheKey: string): Observable<Blob> {
-    return this.api.downloadPdf(`/pdf/cached/${cacheKey}`);
+    return this.download(`/pdf/cached/${cacheKey}`);
   }
 
   /**
@@ -89,4 +91,3 @@ export class PdfApiService {
     window.URL.revokeObjectURL(url);
   }
 }
-
