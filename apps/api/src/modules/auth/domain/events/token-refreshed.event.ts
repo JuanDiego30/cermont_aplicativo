@@ -4,7 +4,7 @@
  * @layer Domain
  */
 export class TokenRefreshedEvent {
-  readonly eventName = 'auth.token.refreshed' as const;
+  readonly eventName = "auth.token.refreshed" as const;
   readonly occurredAt: Date;
 
   constructor(

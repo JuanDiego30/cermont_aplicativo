@@ -1,21 +1,24 @@
 /**
  * @valueObject DashboardRole
- * 
+ *
  * Representa el rol del usuario para el dashboard con permisos por KPI.
  */
 
-import { ValidationError } from '../exceptions';
-import { KpiTypeEnum } from './kpi-type.vo';
+import { ValidationError } from "../exceptions";
+import { KpiTypeEnum } from "./kpi-type.vo";
 
 export enum DashboardRoleEnum {
-  ADMIN = 'ADMIN',
-  COORDINADOR = 'COORDINADOR',
-  TECNICO = 'TECNICO',
-  CLIENTE = 'CLIENTE',
+  ADMIN = "ADMIN",
+  COORDINADOR = "COORDINADOR",
+  TECNICO = "TECNICO",
+  CLIENTE = "CLIENTE",
 }
 
 export class DashboardRole {
-  private static readonly ROLE_KPI_PERMISSIONS: Record<DashboardRoleEnum, KpiTypeEnum[]> = {
+  private static readonly ROLE_KPI_PERMISSIONS: Record<
+    DashboardRoleEnum,
+    KpiTypeEnum[]
+  > = {
     [DashboardRoleEnum.ADMIN]: [
       KpiTypeEnum.ORDENES_TOTALES,
       KpiTypeEnum.ORDENES_COMPLETADAS,
@@ -41,9 +44,7 @@ export class DashboardRole {
       KpiTypeEnum.ORDENES_PENDIENTES,
       KpiTypeEnum.CHECKLISTS_COMPLETADOS,
     ],
-    [DashboardRoleEnum.CLIENTE]: [
-      KpiTypeEnum.ORDENES_COMPLETADAS,
-    ],
+    [DashboardRoleEnum.CLIENTE]: [KpiTypeEnum.ORDENES_COMPLETADAS],
   };
 
   private constructor(private readonly _value: DashboardRoleEnum) {
@@ -55,10 +56,14 @@ export class DashboardRole {
    */
   public static create(value: string): DashboardRole {
     const normalized = value.toUpperCase();
-    if (!Object.values(DashboardRoleEnum).includes(normalized as DashboardRoleEnum)) {
+    if (
+      !Object.values(DashboardRoleEnum).includes(
+        normalized as DashboardRoleEnum,
+      )
+    ) {
       throw new ValidationError(
-        `Invalid dashboard role: ${value}. Valid values: ${Object.values(DashboardRoleEnum).join(', ')}`,
-        'dashboardRole',
+        `Invalid dashboard role: ${value}. Valid values: ${Object.values(DashboardRoleEnum).join(", ")}`,
+        "dashboardRole",
       );
     }
     return new DashboardRole(normalized as DashboardRoleEnum);
@@ -109,4 +114,3 @@ export class DashboardRole {
     return this._value;
   }
 }
-

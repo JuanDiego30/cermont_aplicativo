@@ -1,12 +1,12 @@
 /**
  * @event PasswordResetEvent
- * 
+ *
  * Evento de dominio emitido cuando se resetea una contraseña.
  */
 
 export class PasswordResetEvent {
   readonly occurredAt: Date;
-  readonly eventName = 'PasswordResetEvent';
+  readonly eventName = "PasswordResetEvent";
 
   constructor(
     readonly userId: string,

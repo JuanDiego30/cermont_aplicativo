@@ -1,4 +1,4 @@
 /**
  * Barrel file for Kit Exceptions
  */
-export * from './kit.exceptions';
+export * from "./kit.exceptions";

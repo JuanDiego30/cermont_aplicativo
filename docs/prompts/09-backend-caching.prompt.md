@@ -15,13 +15,10 @@ Optimizar el rendimiento reduciendo carga en BD y APIs externas mediante estrate
 
 ## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
 
-### ❌ Violaciones Críticas de Type Safety (Fix Prioritario)
-El servicio de clima (y probablemente otros) usa una caché en memoria mal tipada.
+### ✅ Estado (Actualizado)
+El módulo `weather` ya usa caché en memoria con `unknown` (sin `any`) y helper `setCache` tipado.
 
-| Archivo | Línea | Violación | Solución |
-|---------|-------|-----------|----------|
-| `weather.service.ts` | 34 | `Map<string, { data: any... }>` | Usar `Map<string, CacheEntry<WeatherData>>` |
-| `weather.service.ts` | 481 | `setCache(key, data: any)` | Usar Genéricos `<T>` |
+**Reto actual:** unificar estrategia (preferir `apps/api/src/common/caching/**` para caché transversal y Redis cuando aplique).
 
 ---
 
@@ -31,7 +28,7 @@ El servicio de clima (y probablemente otros) usa una caché en memoria mal tipad
 Actúa como CERMONT BACKEND CACHING AGENT.
 
 EJECUTA SIN PREGUNTAR:
-1. ANÁLISIS: apps/api/src/modules/** (Búsqueda de caching manual)
+1. ANÁLISIS: apps/api/src/common/caching/** + búsqueda de caching manual en módulos
    - CORREGIR TIPOS EN CACHÉ MANUAL (Prioridad 1)
    - Evaluar uso de `CacheModule` de NestJS vs Map manual
    - Verificar TTLs
@@ -40,7 +37,7 @@ EJECUTA SIN PREGUNTAR:
 
 3. IMPLEMENTACIÓN: Caching tipado y eficiente
 
-4. VERIFICACIÓN: pnpm run test -- --testPathPattern=caching
+4. VERIFICACIÓN: pnpm --filter @cermont/api test -- --testPathPattern=cache
 ```
 
 ---

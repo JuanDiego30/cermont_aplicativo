@@ -1,10 +1,13 @@
 /**
  * @useCase AprobarPlaneacionUseCase
  */
-import { Injectable, Inject } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { PLANEACION_REPOSITORY, IPlaneacionRepository } from '../../domain/repositories';
-import { PlaneacionResponse } from '../dto';
+import { Injectable, Inject } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import {
+  PLANEACION_REPOSITORY,
+  IPlaneacionRepository,
+} from "../../domain/repositories";
+import { PlaneacionResponse } from "../dto";
 
 @Injectable()
 export class AprobarPlaneacionUseCase {
@@ -20,13 +23,13 @@ export class AprobarPlaneacionUseCase {
   ): Promise<{ message: string; data: PlaneacionResponse }> {
     const planeacion = await this.planeacionRepository.aprobar(id, aprobadorId);
 
-    this.eventEmitter.emit('planeacion.aprobada', {
+    this.eventEmitter.emit("planeacion.aprobada", {
       planeacionId: id,
       aprobadorId,
     });
 
     return {
-      message: 'Planeación aprobada',
+      message: "Planeación aprobada",
       data: {
         id: planeacion.id,
         ordenId: planeacion.ordenId,

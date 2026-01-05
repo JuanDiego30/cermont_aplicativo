@@ -3,7 +3,7 @@
  * @description DTOs con validación Zod para órdenes
  * @layer Application
  */
-import { z } from 'zod';
+import { z } from "zod";
 
 // ==========================================
 // Create Orden DTO
@@ -11,16 +11,16 @@ import { z } from 'zod';
 export const CreateOrdenSchema = z.object({
   descripcion: z
     .string()
-    .min(10, 'La descripción debe tener al menos 10 caracteres')
-    .max(1000, 'La descripción no puede exceder 1000 caracteres'),
+    .min(10, "La descripción debe tener al menos 10 caracteres")
+    .max(1000, "La descripción no puede exceder 1000 caracteres"),
   cliente: z
     .string()
-    .min(2, 'El cliente debe tener al menos 2 caracteres')
-    .max(200, 'El cliente no puede exceder 200 caracteres'),
+    .min(2, "El cliente debe tener al menos 2 caracteres")
+    .max(200, "El cliente no puede exceder 200 caracteres"),
   prioridad: z
-    .enum(['baja', 'media', 'alta', 'urgente'])
+    .enum(["baja", "media", "alta", "urgente"])
     .optional()
-    .default('media'),
+    .default("media"),
   fechaFinEstimada: z
     .string()
     .datetime()
@@ -38,15 +38,15 @@ export type CreateOrdenDto = z.infer<typeof CreateOrdenSchema>;
 export const UpdateOrdenSchema = z.object({
   descripcion: z
     .string()
-    .min(10, 'La descripción debe tener al menos 10 caracteres')
-    .max(1000, 'La descripción no puede exceder 1000 caracteres')
+    .min(10, "La descripción debe tener al menos 10 caracteres")
+    .max(1000, "La descripción no puede exceder 1000 caracteres")
     .optional(),
   cliente: z
     .string()
-    .min(2, 'El cliente debe tener al menos 2 caracteres')
-    .max(200, 'El cliente no puede exceder 200 caracteres')
+    .min(2, "El cliente debe tener al menos 2 caracteres")
+    .max(200, "El cliente no puede exceder 200 caracteres")
     .optional(),
-  prioridad: z.enum(['baja', 'media', 'alta', 'urgente']).optional(),
+  prioridad: z.enum(["baja", "media", "alta", "urgente"]).optional(),
   fechaFinEstimada: z
     .string()
     .datetime()
@@ -62,7 +62,13 @@ export type UpdateOrdenDto = z.infer<typeof UpdateOrdenSchema>;
 // Change Estado DTO
 // ==========================================
 export const ChangeEstadoSchema = z.object({
-  estado: z.enum(['planeacion', 'ejecucion', 'pausada', 'completada', 'cancelada']),
+  estado: z.enum([
+    "planeacion",
+    "ejecucion",
+    "pausada",
+    "completada",
+    "cancelada",
+  ]),
 });
 
 export type ChangeEstadoDto = z.infer<typeof ChangeEstadoSchema>;
@@ -72,20 +78,20 @@ export type ChangeEstadoDto = z.infer<typeof ChangeEstadoSchema>;
 // ==========================================
 export const TransitionStateSchema = z.object({
   toState: z.enum([
-    'SOLICITUD_RECIBIDA',
-    'VISITA_PROGRAMADA',
-    'PROPUESTA_ELABORADA',
-    'PROPUESTA_APROBADA',
-    'PLANEACION_INICIADA',
-    'PLANEACION_APROBADA',
-    'EJECUCION_INICIADA',
-    'EJECUCION_COMPLETADA',
-    'INFORME_GENERADO',
-    'ACTA_ELABORADA',
-    'ACTA_FIRMADA',
-    'SES_APROBADA',
-    'FACTURA_APROBADA',
-    'PAGO_RECIBIDO',
+    "SOLICITUD_RECIBIDA",
+    "VISITA_PROGRAMADA",
+    "PROPUESTA_ELABORADA",
+    "PROPUESTA_APROBADA",
+    "PLANEACION_INICIADA",
+    "PLANEACION_APROBADA",
+    "EJECUCION_INICIADA",
+    "EJECUCION_COMPLETADA",
+    "INFORME_GENERADO",
+    "ACTA_ELABORADA",
+    "ACTA_FIRMADA",
+    "SES_APROBADA",
+    "FACTURA_APROBADA",
+    "PAGO_RECIBIDO",
   ]),
   notas: z.string().optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
@@ -97,9 +103,11 @@ export type TransitionStateDto = z.infer<typeof TransitionStateSchema>;
 // Query Orden DTO
 // ==========================================
 export const OrdenQuerySchema = z.object({
-  estado: z.enum(['planeacion', 'ejecucion', 'pausada', 'completada', 'cancelada']).optional(),
+  estado: z
+    .enum(["planeacion", "ejecucion", "pausada", "completada", "cancelada"])
+    .optional(),
   cliente: z.string().optional(),
-  prioridad: z.enum(['baja', 'media', 'alta', 'urgente']).optional(),
+  prioridad: z.enum(["baja", "media", "alta", "urgente"]).optional(),
   asignadoId: z.string().uuid().optional(),
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(20),
@@ -150,7 +158,7 @@ export interface OrdenItemDTO {
 
 export interface EvidenciaDTO {
   id: string;
-  tipo: 'foto' | 'documento' | 'video';
+  tipo: "foto" | "documento" | "video";
   url: string;
   descripcion?: string;
   fechaCaptura: string;
@@ -160,7 +168,7 @@ export interface CostoDTO {
   id: string;
   concepto: string;
   monto: number;
-  tipo: 'material' | 'mano_obra' | 'transporte' | 'otro';
+  tipo: "material" | "mano_obra" | "transporte" | "otro";
   fecha: string;
 }
 
@@ -186,4 +194,3 @@ export interface OrdenDetailResponse extends OrdenResponse {
   planeacion?: PlaneacionDTO;
   ejecucion?: EjecucionDTO;
 }
-

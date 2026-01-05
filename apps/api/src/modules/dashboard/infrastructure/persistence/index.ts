@@ -1,1 +1,1 @@
-export { DashboardRepository } from './dashboard.repository';
+export { DashboardRepository } from "./dashboard.repository";

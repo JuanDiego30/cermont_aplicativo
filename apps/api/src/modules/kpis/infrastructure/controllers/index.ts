@@ -1,1 +1,1 @@
-export * from './kpis.controller';
+export * from "./kpis.controller";

@@ -2,7 +2,7 @@ import { KeyValuePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 // EventInput removed - using any types for FullCalendar compatibility
 // Using any for CalendarOptions, DateSelectArg, EventClickArg to bypass TS2493
 type CalendarOptions = any;
@@ -28,7 +28,7 @@ type CalendarEvent = any;
   templateUrl: './calender.component.html',
   styles: ``
 })
-export class CalenderComponent {
+export class CalenderComponent implements OnInit {
 
   @ViewChild('calendar') calendarComponent!: FullCalendarComponent;
 

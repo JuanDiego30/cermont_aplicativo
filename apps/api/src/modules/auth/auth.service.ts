@@ -4,19 +4,23 @@
  * Gestiona login/registro y emisión de access/refresh tokens con persistencia en BD.
  *
  * Uso: AuthController delega aquí la autenticación y rotación de refresh tokens.
- * 
+ *
  * Principios aplicados:
  * - DRY: Métodos privados para lógica reutilizada (buildAuthResponse, issueTokens, createAuditLog)
  * - SRP: Cada método tiene una responsabilidad clara
  */
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { randomUUID } from 'crypto';
-import { PrismaService } from '../../prisma/prisma.service';
-import { PasswordService } from '../../lib/services/password.service';
-import { LoginDto } from './application/dto/login.dto';
-import { RegisterDto } from './application/dto/register.dto';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+} from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { ConfigService } from "@nestjs/config";
+import { randomUUID } from "crypto";
+import { PrismaService } from "../../prisma/prisma.service";
+import { PasswordService } from "../../lib/services/password.service";
+import { LoginDto } from "./application/dto/login.dto";
+import { RegisterDto } from "./application/dto/register.dto";
 
 /**
  * Tipo para usuario autenticado (evita any)
@@ -36,13 +40,13 @@ export interface AuthUser {
 export interface AuthResponse {
   token: string;
   refreshToken: string;
-  user: Omit<AuthUser, 'password'>;
+  user: Omit<AuthUser, "password">;
 }
 
 /**
  * Tipo de acción de auditoría
  */
-type AuditAction = 'LOGIN' | 'REGISTER' | 'LOGOUT' | 'REFRESH';
+type AuditAction = "LOGIN" | "REGISTER" | "LOGOUT" | "REFRESH";
 
 @Injectable()
 export class AuthService {
@@ -53,7 +57,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly passwordService: PasswordService,
-  ) { }
+  ) {}
 
   // =====================================================
   // MÉTODOS PÚBLICOS DE HASH Y TOKENS
@@ -114,21 +118,27 @@ export class AuthService {
   /**
    * Autentica un usuario existente
    */
-  async login(dto: LoginDto, ip?: string, userAgent?: string): Promise<AuthResponse> {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+  async login(
+    dto: LoginDto,
+    ip?: string,
+    userAgent?: string,
+  ): Promise<AuthResponse> {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
 
     if (!user || !user.active || !user.password) {
-      throw new UnauthorizedException('Credenciales inválidas');
+      throw new UnauthorizedException("Credenciales inválidas");
     }
 
     const isValid = await this.comparePassword(dto.password, user.password);
     if (!isValid) {
-      throw new UnauthorizedException('Credenciales inválidas');
+      throw new UnauthorizedException("Credenciales inválidas");
     }
 
     // Registrar auditoría y actualizar último login
     await Promise.all([
-      this.createAuditLog(user.id, 'LOGIN', ip, userAgent),
+      this.createAuditLog(user.id, "LOGIN", ip, userAgent),
       this.prisma.user.update({
         where: { id: user.id },
         data: { lastLogin: new Date() },
@@ -141,26 +151,32 @@ export class AuthService {
   /**
    * Registra un nuevo usuario
    */
-  async register(dto: RegisterDto, ip?: string, userAgent?: string): Promise<AuthResponse> {
-    const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
+  async register(
+    dto: RegisterDto,
+    ip?: string,
+    userAgent?: string,
+  ): Promise<AuthResponse> {
+    const existing = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
     if (existing) {
-      throw new ConflictException('El email ya esta registrado');
+      throw new ConflictException("El email ya esta registrado");
     }
 
     const hashedPassword = await this.hashPassword(dto.password);
-    const role = dto.role ?? 'tecnico';
+    const role = dto.role ?? "tecnico";
 
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
         password: hashedPassword,
         name: dto.name,
-        role: role as 'admin' | 'supervisor' | 'tecnico',
+        role: role as "admin" | "supervisor" | "tecnico",
         phone: dto.phone,
       },
     });
 
-    await this.createAuditLog(user.id, 'REGISTER', ip, userAgent);
+    await this.createAuditLog(user.id, "REGISTER", ip, userAgent);
 
     return this.buildAuthResponse(user, ip, userAgent);
   }
@@ -175,7 +191,7 @@ export class AuthService {
     });
 
     if (!storedToken) {
-      throw new UnauthorizedException('No autorizado');
+      throw new UnauthorizedException("No autorizado");
     }
 
     // Detectar reutilización de token (posible robo)
@@ -184,11 +200,11 @@ export class AuthService {
         where: { family: storedToken.family },
         data: { isRevoked: true },
       });
-      throw new UnauthorizedException('No autorizado');
+      throw new UnauthorizedException("No autorizado");
     }
 
     if (new Date() > storedToken.expiresAt) {
-      throw new UnauthorizedException('No autorizado');
+      throw new UnauthorizedException("No autorizado");
     }
 
     // Revocar token actual y emitir nuevos
@@ -197,13 +213,10 @@ export class AuthService {
       data: { isRevoked: true },
     });
 
-    const { accessToken, refreshToken: newRefreshToken } = await this.issueTokens(
-      storedToken.user,
-      ip,
-      userAgent,
-    );
+    const { accessToken, refreshToken: newRefreshToken } =
+      await this.issueTokens(storedToken.user, ip, userAgent);
 
-    await this.createAuditLog(storedToken.user.id, 'REFRESH', ip, userAgent);
+    await this.createAuditLog(storedToken.user.id, "REFRESH", ip, userAgent);
 
     return { accessToken, refreshToken: newRefreshToken };
   }
@@ -225,10 +238,13 @@ export class AuthService {
     // Auditoría best-effort (no romper logout si el token es inválido/expiró)
     if (accessToken) {
       try {
-        const payload = this.jwtService.verify(accessToken) as { sub?: string; userId?: string };
+        const payload = this.jwtService.verify(accessToken) as {
+          sub?: string;
+          userId?: string;
+        };
         const userId = payload?.sub ?? payload?.userId;
         if (userId) {
-          await this.createAuditLog(userId, 'LOGOUT');
+          await this.createAuditLog(userId, "LOGOUT");
         }
       } catch {
         // ignore
@@ -249,7 +265,11 @@ export class AuthService {
     ip?: string,
     userAgent?: string,
   ): Promise<AuthResponse> {
-    const { accessToken, refreshToken } = await this.issueTokens(user, ip, userAgent);
+    const { accessToken, refreshToken } = await this.issueTokens(
+      user,
+      ip,
+      userAgent,
+    );
 
     return {
       token: accessToken,
@@ -270,12 +290,20 @@ export class AuthService {
    * Aplica DRY: usado por login, register, refresh
    */
   private async issueTokens(
-    user: Pick<AuthUser, 'id' | 'email' | 'role'>,
+    user: Pick<AuthUser, "id" | "email" | "role">,
     ip?: string,
     userAgent?: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
-    const accessToken = this.generateAccessToken(user.id, user.email, user.role);
-    const refreshToken = await this.generateRefreshToken(user.id, ip, userAgent);
+    const accessToken = this.generateAccessToken(
+      user.id,
+      user.email,
+      user.role,
+    );
+    const refreshToken = await this.generateRefreshToken(
+      user.id,
+      ip,
+      userAgent,
+    );
 
     return { accessToken, refreshToken };
   }
@@ -292,7 +320,7 @@ export class AuthService {
   ): Promise<void> {
     await this.prisma.auditLog.create({
       data: {
-        entityType: 'User',
+        entityType: "User",
         entityId: userId,
         action,
         userId,

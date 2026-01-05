@@ -1,14 +1,14 @@
 /**
  * @service DashboardService
  * @description Servicio para métricas y estadísticas del dashboard
- * 
+ *
  * Principios aplicados:
  * - SRP: Solo maneja lógica de dashboard
  * - Clean Code: Código legible con nombres descriptivos
  * - Type Safety: Interfaces para todos los retornos
  */
-import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { Injectable, Logger } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
 
 // ============================================================================
 // Interfaces
@@ -47,8 +47,8 @@ export interface PaginatedOrdenes {
 
 const DIAS_RECIENTES = 7;
 const ORDENES_RECIENTES_LIMIT = 10;
-const ESTADOS_PENDIENTES = ['planeacion', 'ejecucion', 'pausada'] as const;
-const ESTADO_COMPLETADA = 'completada';
+const ESTADOS_PENDIENTES = ["planeacion", "ejecucion", "pausada"] as const;
+const ESTADO_COMPLETADA = "completada";
 
 // ============================================================================
 // Service
@@ -58,7 +58,7 @@ const ESTADO_COMPLETADA = 'completada';
 export class DashboardService {
   private readonly logger = new Logger(DashboardService.name);
 
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Obtiene estadísticas generales del dashboard
@@ -70,12 +70,12 @@ export class DashboardService {
       await Promise.all([
         this.prisma.order.count(),
         this.prisma.order.groupBy({
-          by: ['estado'],
-          _count: { id: true }
+          by: ["estado"],
+          _count: { id: true },
         }),
         this.prisma.user.count({ where: { active: true } }),
         this.prisma.order.count({
-          where: { createdAt: { gte: fechaReciente } }
+          where: { createdAt: { gte: fechaReciente } },
         }),
       ]);
 
@@ -93,7 +93,7 @@ export class DashboardService {
   async getOrdenesRecientes(): Promise<PaginatedOrdenes> {
     const ordenes = await this.prisma.order.findMany({
       take: ORDENES_RECIENTES_LIMIT,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       select: {
         id: true,
         numero: true,
@@ -112,18 +112,17 @@ export class DashboardService {
    */
   async getMetricas(): Promise<DashboardMetricas> {
     try {
-
       const [totalOrders, completedOrders, pendingOrders, techniciansActive] =
         await Promise.all([
           this.prisma.order.count(),
           this.prisma.order.count({
-            where: { estado: ESTADO_COMPLETADA }
+            where: { estado: ESTADO_COMPLETADA },
           }),
           this.prisma.order.count({
-            where: { estado: { in: [...ESTADOS_PENDIENTES] } }
+            where: { estado: { in: [...ESTADOS_PENDIENTES] } },
           }),
           this.prisma.user.count({
-            where: { role: 'tecnico', active: true }
+            where: { role: "tecnico", active: true },
           }),
         ]);
 
@@ -135,7 +134,7 @@ export class DashboardService {
       };
     } catch (error) {
       const err = error as Error;
-      this.logger.error('Error en getMetricas', err.stack);
+      this.logger.error("Error en getMetricas", err.stack);
       throw error;
     }
   }
@@ -157,9 +156,12 @@ export class DashboardService {
   private transformarEstadosAObjeto(
     agrupacion: Array<{ estado: string; _count: { id: number } }>,
   ): Record<string, number> {
-    return agrupacion.reduce((acc, item) => {
-      acc[item.estado] = item._count.id;
-      return acc;
-    }, {} as Record<string, number>);
+    return agrupacion.reduce(
+      (acc, item) => {
+        acc[item.estado] = item._count.id;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
   }
 }

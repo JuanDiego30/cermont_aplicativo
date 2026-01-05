@@ -1,17 +1,17 @@
 /**
  * Use Case: ObtenerHistorialAlertasUseCase
- * 
+ *
  * Obtiene historial paginado de alertas del usuario actual
  */
 
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject, Logger } from "@nestjs/common";
 import {
   IAlertaRepository,
   ALERTA_REPOSITORY,
-} from '../../domain/repositories/alerta.repository.interface';
-import { HistorialQueryDto } from '../dto/historial-query.dto';
-import { PaginatedAlertasResponseDto } from '../dto/alerta-response.dto';
-import { AlertaMapper } from '../mappers/alerta.mapper';
+} from "../../domain/repositories/alerta.repository.interface";
+import { HistorialQueryDto } from "../dto/historial-query.dto";
+import { PaginatedAlertasResponseDto } from "../dto/alerta-response.dto";
+import { AlertaMapper } from "../mappers/alerta.mapper";
 
 @Injectable()
 export class ObtenerHistorialAlertasUseCase {
@@ -53,4 +53,3 @@ export class ObtenerHistorialAlertasUseCase {
     };
   }
 }
-

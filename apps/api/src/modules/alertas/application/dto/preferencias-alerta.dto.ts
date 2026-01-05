@@ -1,19 +1,26 @@
 /**
  * @dto PreferenciasAlertaDto
- * 
+ *
  * DTOs para preferencias de alertas
  */
 
-import { IsEnum, IsArray, IsBoolean, IsOptional, IsString, Matches } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { TipoAlertaEnum } from '../../domain/value-objects/tipo-alerta.vo';
-import { CanalNotificacionEnum } from '../../domain/value-objects/canal-notificacion.vo';
+import {
+  IsEnum,
+  IsArray,
+  IsBoolean,
+  IsOptional,
+  IsString,
+  Matches,
+} from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { TipoAlertaEnum } from "../../domain/value-objects/tipo-alerta.vo";
+import { CanalNotificacionEnum } from "../../domain/value-objects/canal-notificacion.vo";
 
 export class ActualizarPreferenciasDto {
   @ApiProperty({
     enum: TipoAlertaEnum,
     example: TipoAlertaEnum.ORDEN_CREADA,
-    description: 'Tipo de alerta para la cual se configuran las preferencias',
+    description: "Tipo de alerta para la cual se configuran las preferencias",
   })
   @IsEnum(TipoAlertaEnum)
   tipoAlerta!: TipoAlertaEnum;
@@ -22,7 +29,7 @@ export class ActualizarPreferenciasDto {
     enum: CanalNotificacionEnum,
     isArray: true,
     example: [CanalNotificacionEnum.EMAIL, CanalNotificacionEnum.IN_APP],
-    description: 'Canales preferidos para este tipo de alerta',
+    description: "Canales preferidos para este tipo de alerta",
   })
   @IsArray()
   @IsEnum(CanalNotificacionEnum, { each: true })
@@ -37,8 +44,9 @@ export class ActualizarPreferenciasDto {
   noMolestar?: boolean;
 
   @ApiPropertyOptional({
-    example: { inicio: '09:00', fin: '18:00' },
-    description: 'Horarios permitidos para recibir notificaciones (formato HH:MM)',
+    example: { inicio: "09:00", fin: "18:00" },
+    description:
+      "Horarios permitidos para recibir notificaciones (formato HH:MM)",
   })
   @IsOptional()
   horariosPermitidos?: {
@@ -72,4 +80,3 @@ export class PreferenciaResponseDto {
   @ApiProperty()
   updatedAt!: Date;
 }
-

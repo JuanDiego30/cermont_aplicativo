@@ -1,2 +1,1 @@
-export * from './hes.mapper';
-
+export * from "./hes.mapper";

@@ -41,7 +41,7 @@ EJECUTA SIN PREGUNTAR:
 
 3. IMPLEMENTACIÓN: Refactoring arquitectónico
 
-4. VERIFICACIÓN: pnpm run build:web
+4. VERIFICACIÓN: pnpm --filter @cermont/web build
 ```
 
 ---

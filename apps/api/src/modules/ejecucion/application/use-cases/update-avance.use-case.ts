@@ -2,12 +2,20 @@
  * @useCase UpdateAvanceUseCase
  * Updates execution progress using domain entity.
  */
-import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { EJECUCION_REPOSITORY, IEjecucionRepository } from '../../domain/repositories';
-import { EjecucionId, ProgressPercentage } from '../../domain/value-objects';
-import { Ejecucion } from '../../domain/entities';
-import { EjecucionResponse } from '../dto';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import {
+  EJECUCION_REPOSITORY,
+  IEjecucionRepository,
+} from "../../domain/repositories";
+import { EjecucionId, ProgressPercentage } from "../../domain/value-objects";
+import { Ejecucion } from "../../domain/entities";
+import { EjecucionResponse } from "../dto";
 
 @Injectable()
 export class UpdateAvanceUseCase {
@@ -15,7 +23,7 @@ export class UpdateAvanceUseCase {
     @Inject(EJECUCION_REPOSITORY)
     private readonly repo: IEjecucionRepository,
     private readonly eventEmitter: EventEmitter2,
-  ) { }
+  ) {}
 
   async execute(
     id: string,
@@ -31,7 +39,7 @@ export class UpdateAvanceUseCase {
 
     // 2. Validate progress value
     if (avance < 0 || avance > 100) {
-      throw new BadRequestException('El avance debe estar entre 0 y 100');
+      throw new BadRequestException("El avance debe estar entre 0 y 100");
     }
 
     // 3. Update progress using domain method
@@ -58,7 +66,7 @@ export class UpdateAvanceUseCase {
     return {
       id: e.getId().getValue(),
       ordenId: e.getOrdenId(),
-      tecnicoId: e.getStartedBy() || '',
+      tecnicoId: e.getStartedBy() || "",
       estado: e.getStatus().getValue(),
       avance: e.getProgress().getValue(),
       horasReales: e.getTotalWorkedTime().getTotalHours(),

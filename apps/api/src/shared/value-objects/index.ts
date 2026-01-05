@@ -4,12 +4,12 @@
 // ============================================
 
 export class Monto {
-  private constructor(private readonly value: number) { }
+  private constructor(private readonly value: number) {}
 
   static create(value: number): Monto {
-    if (value < 0) throw new Error('Monto no puede ser negativo');
+    if (value < 0) throw new Error("Monto no puede ser negativo");
     if (value > 999999999)
-      throw new Error('Monto excede límite máximo permitido');
+      throw new Error("Monto excede límite máximo permitido");
     // Redondear a 2 decimales
     const rounded = Math.round(value * 100) / 100;
     return new Monto(rounded);
@@ -49,15 +49,15 @@ export class Monto {
 }
 
 export class OrdenNumero {
-  private constructor(private readonly value: string) { }
+  private constructor(private readonly value: string) {}
 
   static create(value: string): OrdenNumero {
     if (!value || value.length === 0) {
-      throw new Error('OrdenNumero no puede ser vacío');
+      throw new Error("OrdenNumero no puede ser vacío");
     }
     const normalized = value.toUpperCase();
     if (!/^ORD-\d{6,}$/.test(normalized))
-      throw new Error('Formato inválido: debe ser ORD-XXXXXX');
+      throw new Error("Formato inválido: debe ser ORD-XXXXXX");
     return new OrdenNumero(normalized);
   }
 
@@ -65,7 +65,7 @@ export class OrdenNumero {
     const timestamp = Date.now().toString().slice(-6);
     const random = Math.floor(Math.random() * 1000)
       .toString()
-      .padStart(3, '0');
+      .padStart(3, "0");
     return OrdenNumero.create(`ORD-${timestamp}${random}`);
   }
 
@@ -79,25 +79,25 @@ export class OrdenNumero {
 }
 
 export class OrdenEstado {
-  readonly PENDIENTE = 'PENDIENTE';
-  readonly EN_PROCESO = 'EN_PROCESO';
-  readonly COMPLETADA = 'COMPLETADA';
-  readonly PAUSADA = 'PAUSADA';
-  readonly CANCELADA = 'CANCELADA';
+  readonly PENDIENTE = "PENDIENTE";
+  readonly EN_PROCESO = "EN_PROCESO";
+  readonly COMPLETADA = "COMPLETADA";
+  readonly PAUSADA = "PAUSADA";
+  readonly CANCELADA = "CANCELADA";
 
-  private constructor(private readonly value: string) { }
+  private constructor(private readonly value: string) {}
 
   static create(estado: string): OrdenEstado {
     const validos = [
-      'PENDIENTE',
-      'EN_PROCESO',
-      'COMPLETADA',
-      'PAUSADA',
-      'CANCELADA',
+      "PENDIENTE",
+      "EN_PROCESO",
+      "COMPLETADA",
+      "PAUSADA",
+      "CANCELADA",
     ];
     if (!validos.includes(estado.toUpperCase())) {
       throw new Error(
-        `Estado inválido: ${estado}. Debe ser uno de: ${validos.join(', ')}`,
+        `Estado inválido: ${estado}. Debe ser uno de: ${validos.join(", ")}`,
       );
     }
     return new OrdenEstado(estado.toUpperCase());
@@ -126,9 +126,9 @@ export class OrdenEstado {
   // Validar transiciones permitidas
   static esTransicionValida(actual: string, nuevo: string): boolean {
     const transiciones: Record<string, string[]> = {
-      PENDIENTE: ['EN_PROCESO', 'CANCELADA'],
-      EN_PROCESO: ['COMPLETADA', 'PAUSADA', 'CANCELADA'],
-      PAUSADA: ['EN_PROCESO', 'CANCELADA'],
+      PENDIENTE: ["EN_PROCESO", "CANCELADA"],
+      EN_PROCESO: ["COMPLETADA", "PAUSADA", "CANCELADA"],
+      PAUSADA: ["EN_PROCESO", "CANCELADA"],
       COMPLETADA: [],
       CANCELADA: [],
     };

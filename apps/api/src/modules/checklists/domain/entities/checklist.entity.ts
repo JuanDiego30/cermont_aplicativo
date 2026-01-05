@@ -1,8 +1,8 @@
 /**
  * Aggregate Root: Checklist
- * 
+ *
  * Representa una plantilla de checklist o una instancia asignada a una orden/ejecución
- * 
+ *
  * Invariantes:
  * - Nombre no puede estar vacío
  * - Debe tener al menos 1 item
@@ -10,17 +10,20 @@
  * - Solo DRAFT puede editarse
  */
 
-import { ChecklistId } from '../value-objects/checklist-id.vo';
-import { ChecklistItemId } from '../value-objects/checklist-item-id.vo';
-import { ChecklistStatus, ChecklistStatusEnum } from '../value-objects/checklist-status.vo';
-import { ChecklistItem } from './checklist-item.entity';
-import { ValidationError, BusinessRuleViolationError } from '../exceptions';
+import { ChecklistId } from "../value-objects/checklist-id.vo";
+import { ChecklistItemId } from "../value-objects/checklist-item-id.vo";
+import {
+  ChecklistStatus,
+  ChecklistStatusEnum,
+} from "../value-objects/checklist-status.vo";
+import { ChecklistItem } from "./checklist-item.entity";
+import { ValidationError, BusinessRuleViolationError } from "../exceptions";
 import {
   ChecklistCreatedEvent,
   ChecklistAssignedEvent,
   ChecklistItemToggledEvent,
   ChecklistCompletedEvent,
-} from '../events';
+} from "../events";
 
 export class Checklist {
   private _domainEvents: any[] = [];
@@ -74,21 +77,24 @@ export class Checklist {
     if (!props.name || props.name.trim().length < this.MIN_NAME_LENGTH) {
       throw new ValidationError(
         `Nombre debe tener al menos ${this.MIN_NAME_LENGTH} caracteres`,
-        'name',
+        "name",
       );
     }
     if (props.name.length > this.MAX_NAME_LENGTH) {
       throw new ValidationError(
         `Nombre no puede exceder ${this.MAX_NAME_LENGTH} caracteres`,
-        'name',
+        "name",
       );
     }
 
     // Validar descripción
-    if (props.description && props.description.length > this.MAX_DESCRIPTION_LENGTH) {
+    if (
+      props.description &&
+      props.description.length > this.MAX_DESCRIPTION_LENGTH
+    ) {
       throw new ValidationError(
         `Descripción no puede exceder ${this.MAX_DESCRIPTION_LENGTH} caracteres`,
-        'description',
+        "description",
       );
     }
 
@@ -96,13 +102,13 @@ export class Checklist {
     if (!props.items || props.items.length < this.MIN_ITEMS) {
       throw new ValidationError(
         `Debe tener al menos ${this.MIN_ITEMS} item`,
-        'items',
+        "items",
       );
     }
     if (props.items.length > this.MAX_ITEMS) {
       throw new ValidationError(
         `No puede tener más de ${this.MAX_ITEMS} items`,
-        'items',
+        "items",
       );
     }
 
@@ -280,15 +286,15 @@ export class Checklist {
   }): void {
     if (!this._status.isDraft()) {
       throw new BusinessRuleViolationError(
-        'Solo se pueden agregar items a checklists en estado DRAFT',
-        'ESTADO_INVALIDO',
+        "Solo se pueden agregar items a checklists en estado DRAFT",
+        "ESTADO_INVALIDO",
       );
     }
 
     if (this._items.length >= Checklist.MAX_ITEMS) {
       throw new BusinessRuleViolationError(
         `No se pueden agregar más de ${Checklist.MAX_ITEMS} items`,
-        'MAX_ITEMS_ALCANZADO',
+        "MAX_ITEMS_ALCANZADO",
       );
     }
 
@@ -309,15 +315,15 @@ export class Checklist {
   public assignToOrden(ordenId: string): void {
     if (!this._status.puedeAsignarse()) {
       throw new BusinessRuleViolationError(
-        'Solo los checklists ACTIVE pueden asignarse',
-        'ESTADO_INVALIDO',
+        "Solo los checklists ACTIVE pueden asignarse",
+        "ESTADO_INVALIDO",
       );
     }
 
     if (this._ordenId) {
       throw new BusinessRuleViolationError(
-        'El checklist ya está asignado a una orden',
-        'YA_ASIGNADO',
+        "El checklist ya está asignado a una orden",
+        "YA_ASIGNADO",
       );
     }
 
@@ -342,15 +348,15 @@ export class Checklist {
   public assignToEjecucion(ejecucionId: string): void {
     if (!this._status.puedeAsignarse()) {
       throw new BusinessRuleViolationError(
-        'Solo los checklists ACTIVE pueden asignarse',
-        'ESTADO_INVALIDO',
+        "Solo los checklists ACTIVE pueden asignarse",
+        "ESTADO_INVALIDO",
       );
     }
 
     if (this._ejecucionId) {
       throw new BusinessRuleViolationError(
-        'El checklist ya está asignado a una ejecución',
-        'YA_ASIGNADO',
+        "El checklist ya está asignado a una ejecución",
+        "YA_ASIGNADO",
       );
     }
 
@@ -375,14 +381,18 @@ export class Checklist {
   public toggleItem(itemId: ChecklistItemId, userId?: string): void {
     if (this._status.isArchived()) {
       throw new BusinessRuleViolationError(
-        'No se puede modificar un checklist archivado',
-        'ESTADO_INVALIDO',
+        "No se puede modificar un checklist archivado",
+        "ESTADO_INVALIDO",
       );
     }
 
     const item = this._items.find((i) => i.getId().equals(itemId));
     if (!item) {
-      throw new ValidationError('Item no encontrado', 'itemId', itemId.getValue());
+      throw new ValidationError(
+        "Item no encontrado",
+        "itemId",
+        itemId.getValue(),
+      );
     }
 
     const wasChecked = item.getIsChecked();
@@ -408,17 +418,24 @@ export class Checklist {
   /**
    * Actualizar observaciones de un item
    */
-  public updateItemObservaciones(itemId: ChecklistItemId, observaciones: string): void {
+  public updateItemObservaciones(
+    itemId: ChecklistItemId,
+    observaciones: string,
+  ): void {
     if (this._status.isArchived()) {
       throw new BusinessRuleViolationError(
-        'No se puede modificar un checklist archivado',
-        'ESTADO_INVALIDO',
+        "No se puede modificar un checklist archivado",
+        "ESTADO_INVALIDO",
       );
     }
 
     const item = this._items.find((i) => i.getId().equals(itemId));
     if (!item) {
-      throw new ValidationError('Item no encontrado', 'itemId', itemId.getValue());
+      throw new ValidationError(
+        "Item no encontrado",
+        "itemId",
+        itemId.getValue(),
+      );
     }
 
     item.updateObservaciones(observaciones);
@@ -470,8 +487,8 @@ export class Checklist {
   public completeManually(userId: string): void {
     if (this._completada) {
       throw new BusinessRuleViolationError(
-        'El checklist ya está completado',
-        'YA_COMPLETADO',
+        "El checklist ya está completado",
+        "YA_COMPLETADO",
       );
     }
 
@@ -499,8 +516,8 @@ export class Checklist {
   public archive(): void {
     if (!this._status.puedeArchivarse()) {
       throw new BusinessRuleViolationError(
-        'Solo los checklists ACTIVE o COMPLETED pueden archivarse',
-        'ESTADO_INVALIDO',
+        "Solo los checklists ACTIVE o COMPLETED pueden archivarse",
+        "ESTADO_INVALIDO",
       );
     }
 
@@ -685,24 +702,23 @@ export class Checklist {
     if (this._items.length < Checklist.MIN_ITEMS) {
       throw new BusinessRuleViolationError(
         `Un checklist debe tener al menos ${Checklist.MIN_ITEMS} item`,
-        'MIN_ITEMS',
+        "MIN_ITEMS",
       );
     }
 
     if (this._items.length > Checklist.MAX_ITEMS) {
       throw new BusinessRuleViolationError(
         `Un checklist no puede tener más de ${Checklist.MAX_ITEMS} items`,
-        'MAX_ITEMS',
+        "MAX_ITEMS",
       );
     }
 
     // No puede estar asignado a orden y ejecución simultáneamente
     if (this._ordenId && this._ejecucionId) {
       throw new BusinessRuleViolationError(
-        'Un checklist no puede estar asignado a orden y ejecución simultáneamente',
-        'ASIGNACION_INVALIDA',
+        "Un checklist no puede estar asignado a orden y ejecución simultáneamente",
+        "ASIGNACION_INVALIDA",
       );
     }
   }
 }
-

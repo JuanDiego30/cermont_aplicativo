@@ -1,17 +1,17 @@
 /**
  * Use Case: CreateHESUseCase
- * 
+ *
  * Crea una nueva HES
  */
 
-import { Injectable, Inject, ConflictException } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { HES } from '../../domain/entities/hes.entity';
-import { HESNumeroGeneratorService } from '../../domain/services/hes-numero-generator.service';
-import { IHESRepository, HES_REPOSITORY } from '../../domain/repositories';
-import { NumeroHESDuplicadoException } from '../../domain/exceptions';
-import { CreateHESDto } from '../dto/create-hes.dto';
-import { HESMapper } from '../mappers/hes.mapper';
+import { Injectable, Inject, ConflictException } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { HES } from "../../domain/entities/hes.entity";
+import { HESNumeroGeneratorService } from "../../domain/services/hes-numero-generator.service";
+import { IHESRepository, HES_REPOSITORY } from "../../domain/repositories";
+import { NumeroHESDuplicadoException } from "../../domain/exceptions";
+import { CreateHESDto } from "../dto/create-hes.dto";
+import { HESMapper } from "../mappers/hes.mapper";
 
 @Injectable()
 export class CreateHESUseCase {
@@ -26,7 +26,9 @@ export class CreateHESUseCase {
     // Verificar que no exista HES para esta orden
     const existing = await this.repository.findByOrden(dto.ordenId);
     if (existing) {
-      throw new ConflictException(`Ya existe una HES para la orden ${dto.ordenId}`);
+      throw new ConflictException(
+        `Ya existe una HES para la orden ${dto.ordenId}`,
+      );
     }
 
     // Generar número único

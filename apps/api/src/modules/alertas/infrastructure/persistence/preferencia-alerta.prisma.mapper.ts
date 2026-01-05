@@ -1,10 +1,10 @@
 /**
  * @mapper PreferenciaAlertaPrismaMapper
- * 
+ *
  * Mapea entre Prisma Model y Domain Entity
  */
 
-import { PreferenciaAlerta } from '../../domain/entities/preferencia-alerta.entity';
+import { PreferenciaAlerta } from "../../domain/entities/preferencia-alerta.entity";
 
 /**
  * Mapea desde Prisma a Domain Entity
@@ -18,7 +18,7 @@ export class PreferenciaAlertaPrismaMapper {
       id: raw.id,
       usuarioId: raw.usuarioId,
       tipoAlerta: raw.tipoAlerta,
-      canalesPreferidos: raw.canalesPreferidos || ['EMAIL', 'IN_APP'],
+      canalesPreferidos: raw.canalesPreferidos || ["EMAIL", "IN_APP"],
       noMolestar: raw.noMolestar || false,
       horariosPermitidos: raw.horariosPermitidos
         ? {
@@ -54,4 +54,3 @@ export class PreferenciaAlertaPrismaMapper {
     };
   }
 }
-

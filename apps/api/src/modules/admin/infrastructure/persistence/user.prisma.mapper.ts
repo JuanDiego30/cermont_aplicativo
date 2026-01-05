@@ -1,11 +1,14 @@
 /**
  * @mapper UserPrismaMapper
- * 
+ *
  * Mapea entre Prisma model y Domain Entity.
  */
 
-import { UserRole } from '@prisma/client';
-import { UserEntity, type PersistenceData } from '../../domain/entities/user.entity';
+import { UserRole } from "@prisma/client";
+import {
+  UserEntity,
+  type PersistenceData,
+} from "../../domain/entities/user.entity";
 
 /**
  * Tipo del modelo Prisma User
@@ -33,7 +36,7 @@ export class UserPrismaMapper {
       id: prismaUser.id,
       email: prismaUser.email,
       name: prismaUser.name,
-      passwordHash: prismaUser.password || '',
+      passwordHash: prismaUser.password || "",
       role: prismaUser.role,
       phone: prismaUser.phone,
       avatar: prismaUser.avatar,

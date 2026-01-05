@@ -1,10 +1,10 @@
 /**
  * Domain Event: FormValidatedEvent
- * 
+ *
  * Disparado cuando un formulario es validado manualmente
  */
 
-import { DomainEvent } from '../../../../common/domain/events/domain-events';
+import { DomainEvent } from "../../../../common/domain/events/domain-events";
 
 export interface FormValidatedEventPayload {
   submissionId: string;
@@ -14,11 +14,10 @@ export interface FormValidatedEventPayload {
 
 export class FormValidatedEvent extends DomainEvent {
   constructor(public readonly payload: FormValidatedEventPayload) {
-    super('FormSubmission', payload.submissionId);
+    super("FormSubmission", payload.submissionId);
   }
 
   get eventName(): string {
-    return 'FormValidated';
+    return "FormValidated";
   }
 }
-

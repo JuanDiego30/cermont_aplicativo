@@ -1,11 +1,11 @@
 /**
  * Domain Event: ChecklistItemToggledEvent
- * 
+ *
  * Se publica cuando se togglea un item de checklist
  */
 
 export class ChecklistItemToggledEvent {
-  public readonly eventName = 'CHECKLIST_ITEM_TOGGLED';
+  public readonly eventName = "CHECKLIST_ITEM_TOGGLED";
   public readonly aggregateId: string;
   public readonly timestamp: Date;
   public readonly itemId: string;
@@ -38,4 +38,3 @@ export class ChecklistItemToggledEvent {
     };
   }
 }
-

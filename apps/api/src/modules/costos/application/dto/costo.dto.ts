@@ -1,12 +1,12 @@
 /**
  * @module Costos - Clean Architecture
  */
-import { z } from 'zod';
+import { z } from "zod";
 
 // DTOs
 export const RegistrarCostoSchema = z.object({
   ordenId: z.string().uuid(),
-  tipo: z.enum(['mano_obra', 'materiales', 'transporte', 'equipos', 'otros']),
+  tipo: z.enum(["mano_obra", "materiales", "transporte", "equipos", "otros"]),
   descripcion: z.string().min(3),
   cantidad: z.number().positive(),
   precioUnitario: z.number().positive(),
@@ -46,7 +46,7 @@ export interface CostoAnalysis {
 }
 
 // Repository Interface
-export const COSTO_REPOSITORY = Symbol('COSTO_REPOSITORY');
+export const COSTO_REPOSITORY = Symbol("COSTO_REPOSITORY");
 
 export interface CostoData {
   id: string;

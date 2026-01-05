@@ -3,18 +3,30 @@
  * @description Caso de uso para obtener el historial de cambios de estado de una orden
  * @layer Application
  */
-import { Injectable, Logger, Inject } from '@nestjs/common';
-import { PrismaService } from '../../../../prisma/prisma.service';
-import { HistorialEstadoDto } from '../dto/orden-response.dto';
+import { Injectable, Logger, Inject } from "@nestjs/common";
+import { PrismaService } from "../../../../prisma/prisma.service";
+import { HistorialEstadoDto } from "../dto/orden-response.dto";
 import {
   IOrdenRepository,
   ORDEN_REPOSITORY,
-} from '../../domain/repositories/orden.repository.interface';
-import { OrdenEstado } from '../dto/update-orden.dto';
+} from "../../domain/repositories/orden.repository.interface";
+import { OrdenEstado } from "../dto/update-orden.dto";
 import {
   getMainStateFromSubState,
   parseOrderSubState,
-} from '../../domain/enums/order-sub-state.enum';
+} from "../../domain/enums/order-sub-state.enum";
+
+function isOrdenEstadoValue(value: unknown): value is OrdenEstado {
+  return (
+    typeof value === "string" &&
+    (Object.values(OrdenEstado) as string[]).includes(value)
+  );
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return value as Record<string, unknown>;
+}
 
 @Injectable()
 export class GetHistorialEstadosUseCase {
@@ -24,7 +36,7 @@ export class GetHistorialEstadosUseCase {
     private readonly prisma: PrismaService,
     @Inject(ORDEN_REPOSITORY)
     private readonly ordenRepository: IOrdenRepository,
-  ) { }
+  ) {}
 
   async execute(ordenId: string): Promise<HistorialEstadoDto[]> {
     try {
@@ -39,7 +51,7 @@ export class GetHistorialEstadosUseCase {
       // Obtener historial de sub-estados (OrderStateHistory)
       const historialSubEstados = await this.prisma.orderStateHistory.findMany({
         where: { ordenId },
-        orderBy: { createdAt: 'asc' },
+        orderBy: { createdAt: "asc" },
         include: {
           user: { select: { id: true, name: true } },
         },
@@ -47,7 +59,9 @@ export class GetHistorialEstadosUseCase {
 
       // Convertir a DTOs
       const historial: HistorialEstadoDto[] = historialSubEstados.map((h) => {
-        const fromSub = h.fromState ? parseOrderSubState(String(h.fromState)) : null;
+        const fromSub = h.fromState
+          ? parseOrderSubState(String(h.fromState))
+          : null;
         const toSub = parseOrderSubState(String(h.toState));
 
         const estadoAnterior = fromSub
@@ -56,14 +70,14 @@ export class GetHistorialEstadosUseCase {
 
         const estadoNuevo = toSub
           ? (getMainStateFromSubState(toSub) as unknown as OrdenEstado)
-          : ((orden.estado.value || 'pendiente') as unknown as OrdenEstado);
+          : ((orden.estado.value || "pendiente") as unknown as OrdenEstado);
 
         return {
           id: h.id,
           ordenId: h.ordenId,
           estadoAnterior,
           estadoNuevo,
-          motivo: h.notas || 'Cambio de sub-estado',
+          motivo: h.notas || "Cambio de sub-estado",
           observaciones: h.notas || undefined,
           usuarioId: h.userId || undefined,
           createdAt: h.createdAt.toISOString(),
@@ -74,11 +88,11 @@ export class GetHistorialEstadosUseCase {
       if (historial.length === 0) {
         const auditEntries = await this.prisma.auditLog.findMany({
           where: {
-            entityType: 'Order',
+            entityType: "Order",
             entityId: ordenId,
-            action: 'ORDER_STATUS_CHANGED',
+            action: "ORDER_STATUS_CHANGED",
           },
-          orderBy: { createdAt: 'asc' },
+          orderBy: { createdAt: "asc" },
           select: {
             id: true,
             userId: true,
@@ -88,28 +102,46 @@ export class GetHistorialEstadosUseCase {
         });
 
         for (const a of auditEntries) {
-          const changes = (a.changes || {}) as any;
+          const changes = asRecord(a.changes);
+
+          const fromRaw = changes.from;
+          const toRaw = changes.to;
+          const motivo =
+            typeof changes.motivo === "string" ? changes.motivo : undefined;
+          const observaciones =
+            typeof changes.observaciones === "string"
+              ? changes.observaciones
+              : undefined;
+
+          const estadoAnterior = isOrdenEstadoValue(fromRaw)
+            ? fromRaw
+            : undefined;
+          const estadoNuevo = isOrdenEstadoValue(toRaw)
+            ? toRaw
+            : ((orden.estado.value || "pendiente") as unknown as OrdenEstado);
+
           historial.push({
             id: a.id,
             ordenId,
-            estadoAnterior: changes.from as OrdenEstado | undefined,
-            estadoNuevo: (changes.to || orden.estado.value || 'pendiente') as OrdenEstado,
-            motivo: changes.motivo || 'Cambio de estado',
-            observaciones: changes.observaciones || undefined,
+            estadoAnterior,
+            estadoNuevo,
+            motivo: motivo || "Cambio de estado",
+            observaciones,
             usuarioId: a.userId || undefined,
             createdAt: a.createdAt.toISOString(),
           });
         }
       }
 
-      // Si aún no hay historial, crear una entrada inicial con el estado actual
+      // Si aï¿½n no hay historial, crear una entrada inicial con el estado actual
       if (historial.length === 0) {
         historial.push({
           id: orden.id,
           ordenId: orden.id,
           estadoAnterior: undefined,
-          estadoNuevo: (orden.estado.value || 'pendiente') as unknown as OrdenEstado,
-          motivo: 'Estado inicial',
+          estadoNuevo: (orden.estado.value ||
+            "pendiente") as unknown as OrdenEstado,
+          motivo: "Estado inicial",
           observaciones: undefined,
           usuarioId: orden.creadorId || undefined,
           createdAt: orden.createdAt.toISOString(),
@@ -118,7 +150,7 @@ export class GetHistorialEstadosUseCase {
 
       return historial;
     } catch (error) {
-      this.logger.error('Error obteniendo historial de estados', error);
+      this.logger.error("Error obteniendo historial de estados", error);
       throw error;
     }
   }

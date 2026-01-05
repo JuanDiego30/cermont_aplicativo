@@ -1,16 +1,16 @@
 /**
  * @service NotificationSenderFactory
- * 
+ *
  * Factory Pattern para obtener el sender apropiado según el canal
  */
 
-import { Injectable, Logger } from '@nestjs/common';
-import { INotificationSender } from './notification-sender.interface';
-import { EmailSenderService } from './email-sender.service';
-import { PushNotificationService } from './push-notification.service';
-import { SmsSenderService } from './sms-sender.service';
-import { InAppNotificationService } from './in-app-notification.service';
-import { CanalNotificacionEnum } from '../../domain/value-objects/canal-notificacion.vo';
+import { Injectable, Logger } from "@nestjs/common";
+import { INotificationSender } from "./notification-sender.interface";
+import { EmailSenderService } from "./email-sender.service";
+import { PushNotificationService } from "./push-notification.service";
+import { SmsSenderService } from "./sms-sender.service";
+import { InAppNotificationService } from "./in-app-notification.service";
+import { CanalNotificacionEnum } from "../../domain/value-objects/canal-notificacion.vo";
 
 @Injectable()
 export class NotificationSenderFactory {
@@ -54,4 +54,3 @@ export class NotificationSenderFactory {
     return canales.map((canal) => this.getSender(canal));
   }
 }
-

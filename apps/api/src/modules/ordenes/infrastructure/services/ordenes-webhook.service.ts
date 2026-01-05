@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { Injectable } from '@nestjs/common';
+import axios from "axios";
+import { Injectable } from "@nestjs/common";
 
 type EstadoOrden = string;
 
@@ -16,16 +16,18 @@ export interface OrdenEstadoChangedWebhookPayload {
 
 @Injectable()
 export class OrdenesWebhookService {
-  async sendEstadoChanged(payload: OrdenEstadoChangedWebhookPayload): Promise<{ url: string; status: number }> {
+  async sendEstadoChanged(
+    payload: OrdenEstadoChangedWebhookPayload,
+  ): Promise<{ url: string; status: number }> {
     const url = process.env.ORDENES_WEBHOOK_URL?.trim();
     if (!url) {
-      return { url: '', status: 204 };
+      return { url: "", status: 204 };
     }
 
     const response = await axios.post(
       url,
       {
-        event: 'orden.estado.changed',
+        event: "orden.estado.changed",
         orden: {
           id: payload.ordenId,
           numero: payload.numero,
@@ -38,7 +40,7 @@ export class OrdenesWebhookService {
       },
       {
         headers: {
-          'Idempotency-Key': payload.idempotencyKey,
+          "Idempotency-Key": payload.idempotencyKey,
         },
         timeout: 10_000,
       },

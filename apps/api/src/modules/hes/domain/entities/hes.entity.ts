@@ -1,8 +1,8 @@
 /**
  * Aggregate Root: HES
- * 
+ *
  * Representa una Hoja de Entrada de Servicio
- * 
+ *
  * Invariantes:
  * - Nombre no puede estar vacío
  * - Debe tener información del cliente
@@ -11,24 +11,27 @@
  * - Checklist de seguridad debe estar completo para completar
  */
 
-import { HESId } from '../value-objects/hes-id.vo';
-import { HESNumero } from '../value-objects/hes-numero.vo';
-import { TipoServicio } from '../value-objects/tipo-servicio.vo';
-import { Prioridad } from '../value-objects/prioridad.vo';
-import { EstadoHES, EstadoHESEnum } from '../value-objects/estado-hes.vo';
-import { NivelRiesgo } from '../value-objects/nivel-riesgo.vo';
-import { ClienteInfo } from './cliente-info.entity';
-import { CondicionesEntrada } from './condiciones-entrada.entity';
-import { DiagnosticoPreliminar } from './diagnostico-preliminar.entity';
-import { RequerimientosSeguridad } from './requerimientos-seguridad.entity';
-import { FirmaDigital } from './firma-digital.entity';
-import { ValidationError, BusinessRuleViolationError } from '../../../../common/domain/exceptions';
+import { HESId } from "../value-objects/hes-id.vo";
+import { HESNumero } from "../value-objects/hes-numero.vo";
+import { TipoServicio } from "../value-objects/tipo-servicio.vo";
+import { Prioridad } from "../value-objects/prioridad.vo";
+import { EstadoHES, EstadoHESEnum } from "../value-objects/estado-hes.vo";
+import { NivelRiesgo } from "../value-objects/nivel-riesgo.vo";
+import { ClienteInfo } from "./cliente-info.entity";
+import { CondicionesEntrada } from "./condiciones-entrada.entity";
+import { DiagnosticoPreliminar } from "./diagnostico-preliminar.entity";
+import { RequerimientosSeguridad } from "./requerimientos-seguridad.entity";
+import { FirmaDigital } from "./firma-digital.entity";
+import {
+  ValidationError,
+  BusinessRuleViolationError,
+} from "../../../../common/domain/exceptions";
 import {
   HESCreatedEvent,
   HESCompletedEvent,
   HESSignedEvent,
   HESCancelledEvent,
-} from '../events';
+} from "../events";
 
 export interface CreateHESProps {
   numero?: HESNumero;
@@ -69,12 +72,13 @@ export class HES {
     private _anuladoPor?: string,
     private _motivoAnulacion?: string,
     private readonly _version: number = 1,
-  ) { }
+  ) {}
 
   public static create(props: CreateHESProps): HES {
     const hes = new HES(
       HESId.generate(),
-      props.numero || HESNumero.generate(props.year || new Date().getFullYear(), 1),
+      props.numero ||
+        HESNumero.generate(props.year || new Date().getFullYear(), 1),
       props.ordenId,
       EstadoHES.borrador(),
       props.tipoServicio,
@@ -113,14 +117,18 @@ export class HES {
 
   public actualizarClienteInfo(info: ClienteInfo): void {
     if (!this.puedeEditar()) {
-      throw new BusinessRuleViolationError('No se puede editar HES completada o anulada');
+      throw new BusinessRuleViolationError(
+        "No se puede editar HES completada o anulada",
+      );
     }
     this._clienteInfo = info;
   }
 
   public actualizarCondicionesEntrada(condiciones: CondicionesEntrada): void {
     if (!this.puedeEditar()) {
-      throw new BusinessRuleViolationError('No se puede editar HES completada o anulada');
+      throw new BusinessRuleViolationError(
+        "No se puede editar HES completada o anulada",
+      );
     }
     this._condicionesEntrada = condiciones;
     this.evaluarNivelRiesgo();
@@ -128,14 +136,20 @@ export class HES {
 
   public actualizarDiagnostico(diagnostico: DiagnosticoPreliminar): void {
     if (!this.puedeEditar()) {
-      throw new BusinessRuleViolationError('No se puede editar HES completada o anulada');
+      throw new BusinessRuleViolationError(
+        "No se puede editar HES completada o anulada",
+      );
     }
     this._diagnosticoPreliminar = diagnostico;
   }
 
-  public establecerRequerimientosSeguridad(requerimientos: RequerimientosSeguridad): void {
+  public establecerRequerimientosSeguridad(
+    requerimientos: RequerimientosSeguridad,
+  ): void {
     if (!this.puedeEditar()) {
-      throw new BusinessRuleViolationError('No se puede editar HES completada o anulada');
+      throw new BusinessRuleViolationError(
+        "No se puede editar HES completada o anulada",
+      );
     }
     this._requerimientosSeguridad = requerimientos;
     this.evaluarNivelRiesgo();
@@ -143,11 +157,11 @@ export class HES {
 
   public firmarPorCliente(firma: FirmaDigital): void {
     if (this.esAnulado()) {
-      throw new BusinessRuleViolationError('No se puede firmar HES anulada');
+      throw new BusinessRuleViolationError("No se puede firmar HES anulada");
     }
 
     if (this._firmaCliente) {
-      throw new BusinessRuleViolationError('Cliente ya firmó esta HES');
+      throw new BusinessRuleViolationError("Cliente ya firmó esta HES");
     }
 
     this._firmaCliente = firma;
@@ -156,7 +170,7 @@ export class HES {
     this.addDomainEvent(
       new HESSignedEvent({
         hesId: this._id.getValue(),
-        signedBy: 'cliente',
+        signedBy: "cliente",
         firmadoPor: firma.getFirmadoPor(),
       }),
     );
@@ -164,11 +178,11 @@ export class HES {
 
   public firmarPorTecnico(firma: FirmaDigital, tecnicoId: string): void {
     if (this.esAnulado()) {
-      throw new BusinessRuleViolationError('No se puede firmar HES anulada');
+      throw new BusinessRuleViolationError("No se puede firmar HES anulada");
     }
 
     if (this._firmaTecnico) {
-      throw new BusinessRuleViolationError('Técnico ya firmó esta HES');
+      throw new BusinessRuleViolationError("Técnico ya firmó esta HES");
     }
 
     this._firmaTecnico = firma;
@@ -177,7 +191,7 @@ export class HES {
     this.addDomainEvent(
       new HESSignedEvent({
         hesId: this._id.getValue(),
-        signedBy: 'tecnico',
+        signedBy: "tecnico",
         firmadoPor: firma.getFirmadoPor(),
       }),
     );
@@ -186,11 +200,13 @@ export class HES {
   public completar(): void {
     if (!this.puedeCompletar()) {
       const errores = this.validarCompletitud();
-      throw new ValidationError(`HES incompleta: ${errores.join(', ')}`);
+      throw new ValidationError(`HES incompleta: ${errores.join(", ")}`);
     }
 
     if (!this.tieneFirmas()) {
-      throw new BusinessRuleViolationError('Se requieren ambas firmas (cliente y técnico) para completar');
+      throw new BusinessRuleViolationError(
+        "Se requieren ambas firmas (cliente y técnico) para completar",
+      );
     }
 
     this._estado = this._estado.transitionTo(EstadoHESEnum.COMPLETADO);
@@ -207,11 +223,11 @@ export class HES {
 
   public anular(motivo: string, anuladoPor: string): void {
     if (this.esAnulado()) {
-      throw new BusinessRuleViolationError('HES ya está anulada');
+      throw new BusinessRuleViolationError("HES ya está anulada");
     }
 
-    if (!motivo || motivo.trim() === '') {
-      throw new ValidationError('Motivo de anulación es requerido');
+    if (!motivo || motivo.trim() === "") {
+      throw new ValidationError("Motivo de anulación es requerido");
     }
 
     this._estado = this._estado.transitionTo(EstadoHESEnum.ANULADO);
@@ -232,9 +248,9 @@ export class HES {
     let puntos = 0;
 
     // Evaluar tipo de servicio
-    if (this._tipoServicio.getValue() === 'REPARACION') {
+    if (this._tipoServicio.getValue() === "REPARACION") {
       puntos += 2;
-    } else if (this._tipoServicio.getValue() === 'INSTALACION') {
+    } else if (this._tipoServicio.getValue() === "INSTALACION") {
       puntos += 1;
     }
 
@@ -280,21 +296,24 @@ export class HES {
     const errores: string[] = [];
 
     if (!this._clienteInfo) {
-      errores.push('Falta información del cliente');
+      errores.push("Falta información del cliente");
     }
 
     if (!this._condicionesEntrada) {
-      errores.push('Falta información de condiciones de entrada');
-    } else if (this._tipoServicio.requiereFotosEntrada() && !this._condicionesEntrada.tieneFotos()) {
-      errores.push('Este tipo de servicio requiere fotos de entrada');
+      errores.push("Falta información de condiciones de entrada");
+    } else if (
+      this._tipoServicio.requiereFotosEntrada() &&
+      !this._condicionesEntrada.tieneFotos()
+    ) {
+      errores.push("Este tipo de servicio requiere fotos de entrada");
     }
 
     if (!this._diagnosticoPreliminar) {
-      errores.push('Falta diagnóstico preliminar');
+      errores.push("Falta diagnóstico preliminar");
     }
 
     if (!this._requerimientosSeguridad) {
-      errores.push('Faltan requerimientos de seguridad');
+      errores.push("Faltan requerimientos de seguridad");
     } else if (!this._requerimientosSeguridad.checklistCompletado()) {
       errores.push(
         `Checklist de seguridad incompleto (${this._requerimientosSeguridad.getPorcentajeCompletitud()}%)`,
@@ -398,4 +417,3 @@ export class HES {
     this._domainEvents = [];
   }
 }
-

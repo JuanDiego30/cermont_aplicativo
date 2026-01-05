@@ -1,1 +1,1 @@
-export * from './kpi-calculator.interface';
+export * from "./kpi-calculator.interface";

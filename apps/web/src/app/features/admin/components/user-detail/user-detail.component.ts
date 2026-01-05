@@ -1,10 +1,11 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../../../core/services/admin.service';
 import { User, UserRole } from '../../../../core/models/user.model';
-import { Subject, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { getRoleBadgeColor as getRoleBadgeColorUtil } from '../../../../core/utils/user-role-badge.util';
 
 @Component({
     selector: 'app-user-detail',
@@ -13,11 +14,11 @@ import { Subject, takeUntil } from 'rxjs';
     templateUrl: './user-detail.component.html',
     styleUrls: ['./user-detail.component.css']
 })
-export class UserDetailComponent implements OnInit, OnDestroy {
+export class UserDetailComponent implements OnInit {
     private readonly adminService = inject(AdminService);
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
-    private readonly destroy$ = new Subject<void>();
+    private readonly destroyRef = inject(DestroyRef);
 
     user = signal<User | null>(null);
     loading = signal(true);
@@ -39,17 +40,12 @@ export class UserDetailComponent implements OnInit, OnDestroy {
         }
     }
 
-    ngOnDestroy(): void {
-        this.destroy$.next();
-        this.destroy$.complete();
-    }
-
     loadUser(id: string): void {
         this.loading.set(true);
         this.error.set(null);
 
         this.adminService.getUserById(id)
-            .pipe(takeUntil(this.destroy$))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (user) => {
                     this.user.set(user);
@@ -74,7 +70,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
             : this.adminService.activateUser(user.id);
 
         observable
-            .pipe(takeUntil(this.destroy$))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: () => {
                     this.loadUser(user.id);
@@ -105,7 +101,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
         }
 
         this.adminService.revokeUserTokens(user.id, reason)
-            .pipe(takeUntil(this.destroy$))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (result) => {
                     alert(`${result.tokensRevoked} tokens revocados exitosamente`);
@@ -125,12 +121,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
     }
 
     getRoleBadgeColor(role: UserRole): string {
-        const colors: Record<UserRole, string> = {
-            [UserRole.ADMIN]: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-            [UserRole.SUPERVISOR]: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-            [UserRole.TECNICO]: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-        };
-        return colors[role] || 'bg-gray-100 text-gray-800';
+        return getRoleBadgeColorUtil(role);
     }
 
     formatDate(date: string | undefined): string {

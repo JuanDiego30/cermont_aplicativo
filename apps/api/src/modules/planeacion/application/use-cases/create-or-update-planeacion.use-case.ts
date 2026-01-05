@@ -1,10 +1,13 @@
 /**
  * @useCase CreateOrUpdatePlaneacionUseCase
  */
-import { Injectable, Inject } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { PLANEACION_REPOSITORY, IPlaneacionRepository } from '../../domain/repositories';
-import { CreatePlaneacionDto, PlaneacionResponse } from '../dto';
+import { Injectable, Inject } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import {
+  PLANEACION_REPOSITORY,
+  IPlaneacionRepository,
+} from "../../domain/repositories";
+import { CreatePlaneacionDto, PlaneacionResponse } from "../dto";
 
 @Injectable()
 export class CreateOrUpdatePlaneacionUseCase {
@@ -25,13 +28,13 @@ export class CreateOrUpdatePlaneacionUseCase {
       kitId: dto.kitId,
     });
 
-    this.eventEmitter.emit('planeacion.updated', {
+    this.eventEmitter.emit("planeacion.updated", {
       ordenId,
       planeacionId: planeacion.id,
     });
 
     return {
-      message: 'Planeación guardada',
+      message: "Planeación guardada",
       data: {
         id: planeacion.id,
         ordenId: planeacion.ordenId,

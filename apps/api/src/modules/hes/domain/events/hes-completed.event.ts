@@ -1,6 +1,6 @@
 /**
  * Domain Event: HESCompletedEvent
- * 
+ *
  * Se dispara cuando una HES se completa
  */
 
@@ -13,4 +13,3 @@ export class HESCompletedEvent {
     },
   ) {}
 }
-

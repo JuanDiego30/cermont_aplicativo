@@ -1,20 +1,20 @@
 /**
  * @usecase CreateUserUseCase
- * 
+ *
  * Crea un nuevo usuario en el sistema.
  * Contiene la lógica de orquestación (no reglas de negocio).
  */
 
-import { Inject, Injectable, ConflictException, Logger } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Inject, Injectable, ConflictException, Logger } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import {
   IUserRepository,
   USER_REPOSITORY,
-} from '../../domain/repositories/user.repository.interface';
-import { UserEntity } from '../../domain/entities/user.entity';
-import { type CreateUserInput } from '../dto/create-user.dto';
-import { UserMapper } from '../mappers/user.mapper';
-import { UserResponseDto } from '../dto/user-response.dto';
+} from "../../domain/repositories/user.repository.interface";
+import { UserEntity } from "../../domain/entities/user.entity";
+import { type CreateUserInput } from "../dto/create-user.dto";
+import { UserMapper } from "../mappers/user.mapper";
+import { UserResponseDto } from "../dto/user-response.dto";
 
 export interface CreateUserCommand extends CreateUserInput {
   createdBy: string;
@@ -41,7 +41,10 @@ export class CreateUserUseCase {
     }
 
     // 2. Crear entity (validaciones de dominio ocurren aquí)
-    const userData = UserMapper.createDtoToEntityData(command, command.createdBy);
+    const userData = UserMapper.createDtoToEntityData(
+      command,
+      command.createdBy,
+    );
     const user = await UserEntity.create(userData);
 
     // 3. Persistir

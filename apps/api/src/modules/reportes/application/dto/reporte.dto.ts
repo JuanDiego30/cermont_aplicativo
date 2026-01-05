@@ -1,7 +1,7 @@
 /**
  * @module Reportes - Clean Architecture
  */
-import { z } from 'zod';
+import { z } from "zod";
 
 // DTOs
 export const ReporteQuerySchema = z.object({
@@ -9,7 +9,7 @@ export const ReporteQuerySchema = z.object({
   fechaFin: z.string(),
   estado: z.string().optional(),
   tecnicoId: z.string().uuid().optional(),
-  formato: z.enum(['json', 'pdf', 'excel']).default('json'),
+  formato: z.enum(["json", "pdf", "excel"]).default("json"),
 });
 
 export type ReporteQueryDto = z.infer<typeof ReporteQuerySchema>;
@@ -42,7 +42,7 @@ export interface ReporteResponse {
 }
 
 // Repository Interface
-export const REPORTE_REPOSITORY = Symbol('REPORTE_REPOSITORY');
+export const REPORTE_REPOSITORY = Symbol("REPORTE_REPOSITORY");
 
 export interface IReporteRepository {
   getOrdenesReporte(filters: ReporteQueryDto): Promise<any[]>;

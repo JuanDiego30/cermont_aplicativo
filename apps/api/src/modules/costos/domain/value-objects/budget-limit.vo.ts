@@ -1,19 +1,19 @@
 /**
  * Value Object: BudgetLimit
- * 
+ *
  * Representa un límite presupuestal con umbral de alerta
  */
 
 // Decimal.js es open source
 let Decimal: any;
 try {
-  Decimal = require('decimal.js');
+  Decimal = require("decimal.js");
 } catch (error) {
   // Fallback
 }
 
-import { Money } from './money.vo';
-import { ValidationError } from '../exceptions';
+import { Money } from "./money.vo";
+import { ValidationError } from "../exceptions";
 
 export class BudgetLimit {
   private static readonly DEFAULT_ALERT_THRESHOLD = 0.8; // 80%
@@ -25,20 +25,37 @@ export class BudgetLimit {
     Object.freeze(this);
   }
 
-  public static create(limit: Money, alertThreshold?: number | any): BudgetLimit {
-    const threshold = alertThreshold !== undefined
-      ? (Decimal ? new Decimal(alertThreshold) : alertThreshold)
-      : (Decimal ? new Decimal(BudgetLimit.DEFAULT_ALERT_THRESHOLD) : BudgetLimit.DEFAULT_ALERT_THRESHOLD);
+  public static create(
+    limit: Money,
+    alertThreshold?: number | any,
+  ): BudgetLimit {
+    const threshold =
+      alertThreshold !== undefined
+        ? Decimal
+          ? new Decimal(alertThreshold)
+          : alertThreshold
+        : Decimal
+          ? new Decimal(BudgetLimit.DEFAULT_ALERT_THRESHOLD)
+          : BudgetLimit.DEFAULT_ALERT_THRESHOLD;
 
     // Validar threshold
     if (Decimal) {
       if (threshold.lessThan(0) || threshold.greaterThan(1)) {
-        throw new ValidationError('Alert threshold debe estar entre 0 y 1', 'alertThreshold');
+        throw new ValidationError(
+          "Alert threshold debe estar entre 0 y 1",
+          "alertThreshold",
+        );
       }
     } else {
-      const numThreshold = typeof threshold === 'number' ? threshold : parseFloat(String(threshold));
+      const numThreshold =
+        typeof threshold === "number"
+          ? threshold
+          : parseFloat(String(threshold));
       if (numThreshold < 0 || numThreshold > 1) {
-        throw new ValidationError('Alert threshold debe estar entre 0 y 1', 'alertThreshold');
+        throw new ValidationError(
+          "Alert threshold debe estar entre 0 y 1",
+          "alertThreshold",
+        );
       }
     }
 
@@ -57,16 +74,18 @@ export class BudgetLimit {
    */
   public alertRequired(currentTotal: Money): boolean {
     const utilizationPercentage = this.utilizationPercentage(currentTotal);
-    
+
     if (Decimal) {
       return utilizationPercentage.greaterThanOrEqualTo(this._alertThreshold);
     } else {
-      const numUtilization = typeof utilizationPercentage === 'number'
-        ? utilizationPercentage
-        : parseFloat(String(utilizationPercentage));
-      const numThreshold = typeof this._alertThreshold === 'number'
-        ? this._alertThreshold
-        : parseFloat(String(this._alertThreshold));
+      const numUtilization =
+        typeof utilizationPercentage === "number"
+          ? utilizationPercentage
+          : parseFloat(String(utilizationPercentage));
+      const numThreshold =
+        typeof this._alertThreshold === "number"
+          ? this._alertThreshold
+          : parseFloat(String(this._alertThreshold));
       return numUtilization >= numThreshold;
     }
   }
@@ -101,25 +120,29 @@ export class BudgetLimit {
    */
   public utilizationPercentageAsNumber(currentTotal: Money): number {
     const percentage = this.utilizationPercentage(currentTotal);
-    
+
     if (Decimal) {
       return percentage.times(100).toNumber();
     } else {
-      return (typeof percentage === 'number' ? percentage : parseFloat(String(percentage))) * 100;
+      return (
+        (typeof percentage === "number"
+          ? percentage
+          : parseFloat(String(percentage))) * 100
+      );
     }
   }
 
   /**
    * Obtener estado del presupuesto
    */
-  public getStatus(currentTotal: Money): 'OK' | 'WARNING' | 'EXCEEDED' {
+  public getStatus(currentTotal: Money): "OK" | "WARNING" | "EXCEEDED" {
     if (this.isExceeded(currentTotal)) {
-      return 'EXCEEDED';
+      return "EXCEEDED";
     }
     if (this.alertRequired(currentTotal)) {
-      return 'WARNING';
+      return "WARNING";
     }
-    return 'OK';
+    return "OK";
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -149,7 +172,9 @@ export class BudgetLimit {
   public toJSON(): any {
     return {
       limit: this._limit.toJSON(),
-      alertThreshold: Decimal ? this._alertThreshold.toString() : this._alertThreshold,
+      alertThreshold: Decimal
+        ? this._alertThreshold.toString()
+        : this._alertThreshold,
     };
   }
 
@@ -157,4 +182,3 @@ export class BudgetLimit {
     return `BudgetLimit(${this._limit.format()}, threshold: ${this._alertThreshold})`;
   }
 }
-

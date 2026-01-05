@@ -1,24 +1,30 @@
 /**
  * @dto ToggleItemDto
- * 
+ *
  * DTOs para toggle y actualización de items
  */
 
-import { IsString, IsUUID, IsOptional, IsBoolean, MaxLength } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsString,
+  IsUUID,
+  IsOptional,
+  IsBoolean,
+  MaxLength,
+} from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class ToggleChecklistItemDto {
   @ApiProperty({
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    description: 'ID de la orden o ejecución',
+    example: "123e4567-e89b-12d3-a456-426614174000",
+    description: "ID de la orden o ejecución",
   })
   @IsString()
   @IsUUID()
   ordenId?: string;
 
   @ApiPropertyOptional({
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    description: 'ID de la ejecución (alternativa a ordenId)',
+    example: "123e4567-e89b-12d3-a456-426614174000",
+    description: "ID de la ejecución (alternativa a ordenId)",
   })
   @IsString()
   @IsUUID()
@@ -26,16 +32,16 @@ export class ToggleChecklistItemDto {
   ejecucionId?: string;
 
   @ApiProperty({
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    description: 'ID del checklist',
+    example: "123e4567-e89b-12d3-a456-426614174000",
+    description: "ID del checklist",
   })
   @IsString()
   @IsUUID()
   checklistId!: string;
 
   @ApiProperty({
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    description: 'ID del item',
+    example: "123e4567-e89b-12d3-a456-426614174000",
+    description: "ID del item",
   })
   @IsString()
   @IsUUID()
@@ -44,24 +50,24 @@ export class ToggleChecklistItemDto {
 
 export class UpdateChecklistItemDto {
   @ApiProperty({
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    description: 'ID del checklist',
+    example: "123e4567-e89b-12d3-a456-426614174000",
+    description: "ID del checklist",
   })
   @IsString()
   @IsUUID()
   checklistId!: string;
 
   @ApiProperty({
-    example: '123e4567-e89b-12d3-a456-426614174000',
-    description: 'ID del item',
+    example: "123e4567-e89b-12d3-a456-426614174000",
+    description: "ID del item",
   })
   @IsString()
   @IsUUID()
   itemId!: string;
 
   @ApiPropertyOptional({
-    example: 'Item completado correctamente',
-    description: 'Observaciones del item',
+    example: "Item completado correctamente",
+    description: "Observaciones del item",
     maxLength: 1000,
   })
   @IsString()
@@ -69,4 +75,3 @@ export class UpdateChecklistItemDto {
   @IsOptional()
   observaciones?: string;
 }
-

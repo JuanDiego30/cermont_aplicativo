@@ -1,11 +1,11 @@
 /**
  * Domain Event: BudgetExceededEvent
- * 
+ *
  * Se publica cuando un costo excede el límite presupuestal
  */
 
 export class BudgetExceededEvent {
-  public readonly eventName = 'BUDGET_EXCEEDED';
+  public readonly eventName = "BUDGET_EXCEEDED";
   public readonly aggregateId: string;
   public readonly timestamp: Date;
   public readonly ordenId: string;
@@ -45,4 +45,3 @@ export class BudgetExceededEvent {
     };
   }
 }
-

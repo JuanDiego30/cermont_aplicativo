@@ -1,11 +1,11 @@
 /**
  * Domain Event: ChecklistAssignedEvent
- * 
+ *
  * Se publica cuando un checklist se asigna a una orden o ejecución
  */
 
 export class ChecklistAssignedEvent {
-  public readonly eventName = 'CHECKLIST_ASSIGNED';
+  public readonly eventName = "CHECKLIST_ASSIGNED";
   public readonly aggregateId: string;
   public readonly timestamp: Date;
   public readonly templateId?: string;
@@ -38,4 +38,3 @@ export class ChecklistAssignedEvent {
     };
   }
 }
-

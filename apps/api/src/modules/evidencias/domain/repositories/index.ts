@@ -2,4 +2,4 @@
  * @file Repositories Index
  */
 
-export * from './evidencia.repository.interface';
+export * from "./evidencia.repository.interface";

@@ -1,9 +1,12 @@
 /**
  * @useCase GetPlaneacionUseCase
  */
-import { Injectable, Inject } from '@nestjs/common';
-import { PLANEACION_REPOSITORY, IPlaneacionRepository } from '../../domain/repositories';
-import { PlaneacionResponse } from '../dto';
+import { Injectable, Inject } from "@nestjs/common";
+import {
+  PLANEACION_REPOSITORY,
+  IPlaneacionRepository,
+} from "../../domain/repositories";
+import { PlaneacionResponse } from "../dto";
 
 @Injectable()
 export class GetPlaneacionUseCase {

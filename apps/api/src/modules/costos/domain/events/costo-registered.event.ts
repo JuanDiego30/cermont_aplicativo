@@ -1,11 +1,11 @@
 /**
  * Domain Event: CostoRegisteredEvent
- * 
+ *
  * Se publica cuando se registra un nuevo costo
  */
 
 export class CostoRegisteredEvent {
-  public readonly eventName = 'COSTO_REGISTERED';
+  public readonly eventName = "COSTO_REGISTERED";
   public readonly aggregateId: string;
   public readonly timestamp: Date;
   public readonly ordenId: string;
@@ -46,4 +46,3 @@ export class CostoRegisteredEvent {
     };
   }
 }
-

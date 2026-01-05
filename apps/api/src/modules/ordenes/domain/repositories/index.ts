@@ -1,1 +1,1 @@
-export * from './orden.repository.interface';
+export * from "./orden.repository.interface";

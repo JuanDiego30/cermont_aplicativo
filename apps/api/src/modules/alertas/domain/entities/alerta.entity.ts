@@ -1,31 +1,33 @@
 /**
  * Aggregate Root: Alerta
- * 
+ *
  * Representa una notificación del sistema Cermont
- * 
+ *
  * Invariantes:
  * - Siempre tiene un tipo y prioridad válidos
  * - Máximo 3 intentos de reenvío
  * - Solo puede marcarse como leída si fue enviada
  * - Canales debe tener al menos 1 elemento
- * 
+ *
  * Domain Events:
  * - AlertaEnviadaEvent: cuando se envía exitosamente
  * - AlertaFallidaEvent: cuando falla el envío
  */
 
-import { AlertaId } from '../value-objects/alerta-id.vo';
-import { TipoAlerta } from '../value-objects/tipo-alerta.vo';
-import { PrioridadAlerta } from '../value-objects/prioridad-alerta.vo';
-import { CanalNotificacion } from '../value-objects/canal-notificacion.vo';
-import { EstadoAlerta, EstadoAlertaEnum } from '../value-objects/estado-alerta.vo';
-import { AlertaEnviadaEvent } from '../events/alerta-enviada.event';
-import { AlertaFallidaEvent } from '../events/alerta-fallida.event';
-import { ValidationError, BusinessRuleViolationError } from '../exceptions';
+import { AlertaId } from "../value-objects/alerta-id.vo";
+import { TipoAlerta } from "../value-objects/tipo-alerta.vo";
+import { PrioridadAlerta } from "../value-objects/prioridad-alerta.vo";
+import { CanalNotificacion } from "../value-objects/canal-notificacion.vo";
+import {
+  EstadoAlerta,
+  EstadoAlertaEnum,
+} from "../value-objects/estado-alerta.vo";
+import { AlertaEnviadaEvent } from "../events/alerta-enviada.event";
+import { AlertaFallidaEvent } from "../events/alerta-fallida.event";
+import { ValidationError, BusinessRuleViolationError } from "../exceptions";
+import { BaseDomainEntity } from "./base-domain.entity";
 
-export class Alerta {
-  private _domainEvents: any[] = [];
-
+export class Alerta extends BaseDomainEntity {
   // Configuración
   private static readonly MAX_INTENTOS = 3;
   private static readonly MIN_TITULO_LENGTH = 3;
@@ -46,9 +48,10 @@ export class Alerta {
     private _enviadaEn?: Date,
     private _leidaEn?: Date,
     private readonly _metadata?: Record<string, any>,
-    private readonly _createdAt: Date = new Date(),
-    private _updatedAt: Date = new Date(),
+    createdAt: Date = new Date(),
+    updatedAt: Date = new Date(),
   ) {
+    super(createdAt, updatedAt);
     this.validate();
   }
 
@@ -79,40 +82,43 @@ export class Alerta {
     if (!props.titulo || props.titulo.trim().length < this.MIN_TITULO_LENGTH) {
       throw new ValidationError(
         `Título debe tener al menos ${this.MIN_TITULO_LENGTH} caracteres`,
-        'titulo',
+        "titulo",
       );
     }
     if (props.titulo.length > this.MAX_TITULO_LENGTH) {
       throw new ValidationError(
         `Título no puede exceder ${this.MAX_TITULO_LENGTH} caracteres`,
-        'titulo',
+        "titulo",
       );
     }
 
     // Validar mensaje
-    if (!props.mensaje || props.mensaje.trim().length < this.MIN_MENSAJE_LENGTH) {
+    if (
+      !props.mensaje ||
+      props.mensaje.trim().length < this.MIN_MENSAJE_LENGTH
+    ) {
       throw new ValidationError(
         `Mensaje debe tener al menos ${this.MIN_MENSAJE_LENGTH} caracteres`,
-        'mensaje',
+        "mensaje",
       );
     }
     if (props.mensaje.length > this.MAX_MENSAJE_LENGTH) {
       throw new ValidationError(
         `Mensaje no puede exceder ${this.MAX_MENSAJE_LENGTH} caracteres`,
-        'mensaje',
+        "mensaje",
       );
     }
 
     // Validar destinatario
     if (!props.destinatarioId || props.destinatarioId.trim().length === 0) {
-      throw new ValidationError('Destinatario es requerido', 'destinatarioId');
+      throw new ValidationError("Destinatario es requerido", "destinatarioId");
     }
 
     // Validar canales
     if (!props.canales || props.canales.length === 0) {
       throw new ValidationError(
-        'Debe especificar al menos un canal de notificación',
-        'canales',
+        "Debe especificar al menos un canal de notificación",
+        "canales",
       );
     }
 
@@ -183,8 +189,8 @@ export class Alerta {
   public marcarComoEnviada(canal: CanalNotificacion): void {
     if (!this._estado.isPendiente() && !this._estado.isFallida()) {
       throw new BusinessRuleViolationError(
-        'Solo se pueden marcar como enviadas las alertas pendientes o fallidas',
-        'ESTADO_INVALIDO',
+        "Solo se pueden marcar como enviadas las alertas pendientes o fallidas",
+        "ESTADO_INVALIDO",
       );
     }
 
@@ -228,15 +234,15 @@ export class Alerta {
   public marcarComoLeida(): void {
     if (!this._estado.puedeMarcarseComoLeida()) {
       throw new BusinessRuleViolationError(
-        'Solo se pueden marcar como leídas las alertas que fueron enviadas',
-        'ESTADO_INVALIDO',
+        "Solo se pueden marcar como leídas las alertas que fueron enviadas",
+        "ESTADO_INVALIDO",
       );
     }
 
     if (this._leidaEn) {
       throw new BusinessRuleViolationError(
-        'La alerta ya fue marcada como leída',
-        'YA_LEIDA',
+        "La alerta ya fue marcada como leída",
+        "YA_LEIDA",
       );
     }
 
@@ -252,7 +258,7 @@ export class Alerta {
     if (this._intentosEnvio >= Alerta.MAX_INTENTOS) {
       throw new BusinessRuleViolationError(
         `Se alcanzó el máximo de intentos (${Alerta.MAX_INTENTOS})`,
-        'MAX_INTENTOS_ALCANZADO',
+        "MAX_INTENTOS_ALCANZADO",
       );
     }
 
@@ -265,8 +271,7 @@ export class Alerta {
    */
   public puedeReintentar(): boolean {
     return (
-      this._estado.isFallida() &&
-      this._intentosEnvio < Alerta.MAX_INTENTOS
+      this._estado.isFallida() && this._intentosEnvio < Alerta.MAX_INTENTOS
     );
   }
 
@@ -350,30 +355,6 @@ export class Alerta {
     return this._metadata ? { ...this._metadata } : undefined;
   }
 
-  public getCreatedAt(): Date {
-    return this._createdAt;
-  }
-
-  public getUpdatedAt(): Date {
-    return this._updatedAt;
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // DOMAIN EVENTS
-  // ═══════════════════════════════════════════════════════════════
-
-  public getDomainEvents(): any[] {
-    return [...this._domainEvents];
-  }
-
-  public clearDomainEvents(): void {
-    this._domainEvents = [];
-  }
-
-  private addDomainEvent(event: any): void {
-    this._domainEvents.push(event);
-  }
-
   // ═══════════════════════════════════════════════════════════════
   // PERSISTENCE
   // ═══════════════════════════════════════════════════════════════
@@ -420,24 +401,23 @@ export class Alerta {
     // Invariantes que involucren múltiples propiedades
     if (this._canales.length === 0) {
       throw new BusinessRuleViolationError(
-        'Una alerta debe tener al menos un canal de notificación',
-        'CANALES_VACIOS',
+        "Una alerta debe tener al menos un canal de notificación",
+        "CANALES_VACIOS",
       );
     }
 
     if (this._intentosEnvio < 0) {
       throw new BusinessRuleViolationError(
-        'El número de intentos no puede ser negativo',
-        'INTENTOS_NEGATIVOS',
+        "El número de intentos no puede ser negativo",
+        "INTENTOS_NEGATIVOS",
       );
     }
 
     if (this._intentosEnvio > Alerta.MAX_INTENTOS) {
       throw new BusinessRuleViolationError(
         `El número de intentos no puede exceder ${Alerta.MAX_INTENTOS}`,
-        'INTENTOS_EXCEDIDOS',
+        "INTENTOS_EXCEDIDOS",
       );
     }
   }
 }
-

@@ -4,17 +4,17 @@
  */
 
 export class EvidenciaProcessedEvent {
-    public readonly eventName = 'evidencia.processed';
-    public readonly occurredOn: Date;
+  public readonly eventName = "evidencia.processed";
+  public readonly occurredOn: Date;
 
-    constructor(
-        public readonly payload: {
-            evidenciaId: string;
-            thumbnailPath?: string;
-            metadata?: Record<string, unknown>;
-            processingDurationMs: number;
-        },
-    ) {
-        this.occurredOn = new Date();
-    }
+  constructor(
+    public readonly payload: {
+      evidenciaId: string;
+      thumbnailPath?: string;
+      metadata?: Record<string, unknown>;
+      processingDurationMs: number;
+    },
+  ) {
+    this.occurredOn = new Date();
+  }
 }

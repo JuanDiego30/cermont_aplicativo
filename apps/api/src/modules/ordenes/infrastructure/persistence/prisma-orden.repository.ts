@@ -2,31 +2,46 @@
  * @repository PrismaOrdenRepository
  * @description Implementación de IOrdenRepository usando Prisma
  * @layer Infrastructure
- * 
+ *
  * Principios aplicados:
  * - DIP: Implementa interfaz de dominio
  * - SRP: Solo responsable de persistencia
  * - OCP: Extensible sin modificar dominio
  */
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../../prisma/prisma.service';
+import { Injectable } from "@nestjs/common";
+import type { OrderPriority, OrderStatus, Prisma } from "@prisma/client";
+import { PrismaService } from "../../../../prisma/prisma.service";
 import {
   IOrdenRepository,
   OrdenFilters,
   OrdenListResult,
-} from '../../domain/repositories';
-import { OrdenEntity, OrdenProps } from '../../domain/entities';
-import { EstadoOrden, PrioridadLevel } from '../../domain/value-objects';
+} from "../../domain/repositories";
+import { OrdenEntity, OrdenProps } from "../../domain/entities";
+import { EstadoOrden, PrioridadLevel } from "../../domain/value-objects";
+
+type OrderFullTextItem = Prisma.OrderGetPayload<{
+  include: {
+    asignado: {
+      select: {
+        id: true;
+        name: true;
+        email: true;
+        phone: true;
+      };
+    };
+  };
+}>;
 
 @Injectable()
 export class PrismaOrdenRepository implements IOrdenRepository {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Busca todas las órdenes con filtros y paginación
    */
   async findAll(filters: OrdenFilters): Promise<OrdenListResult> {
-    const { page, limit, estado, cliente, prioridad, asignadoId, creadorId } = filters;
+    const { page, limit, estado, cliente, prioridad, asignadoId, creadorId } =
+      filters;
     const skip = (page - 1) * limit;
 
     const where = this.buildWhereClause(filters);
@@ -40,7 +55,7 @@ export class PrismaOrdenRepository implements IOrdenRepository {
           creador: { select: { id: true, name: true } },
           asignado: { select: { id: true, name: true } },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
       }),
       this.prisma.order.count({ where }),
     ]);
@@ -65,23 +80,30 @@ export class PrismaOrdenRepository implements IOrdenRepository {
     prioridad?: string;
     page: number;
     limit: number;
-  }): Promise<{ items: any[]; total: number; page: number; limit: number; totalPages: number; hasMore: boolean }> {
+  }): Promise<{
+    items: OrderFullTextItem[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasMore: boolean;
+  }> {
     const { searchTerm, estado, prioridad, page, limit } = query;
     const skip = (page - 1) * limit;
 
-    const where: any = {
+    const where: Prisma.OrderWhereInput = {
       deletedAt: null, // Excluir eliminados
-      ...(estado && { estado }),
-      ...(prioridad && { prioridad }),
+      ...(estado && { estado: estado as unknown as OrderStatus }),
+      ...(prioridad && { prioridad: prioridad as unknown as OrderPriority }),
       ...(searchTerm && {
         OR: [
-          { numero: { contains: searchTerm, mode: 'insensitive' } },
-          { descripcion: { contains: searchTerm, mode: 'insensitive' } },
-          { cliente: { contains: searchTerm, mode: 'insensitive' } },
-          { 
-            asignado: { 
-              name: { contains: searchTerm, mode: 'insensitive' } 
-            } 
+          { numero: { contains: searchTerm, mode: "insensitive" } },
+          { descripcion: { contains: searchTerm, mode: "insensitive" } },
+          { cliente: { contains: searchTerm, mode: "insensitive" } },
+          {
+            asignado: {
+              is: { name: { contains: searchTerm, mode: "insensitive" } },
+            },
           },
         ],
       }),
@@ -93,8 +115,8 @@ export class PrismaOrdenRepository implements IOrdenRepository {
         skip,
         take: limit,
         orderBy: [
-          { prioridad: 'desc' }, // Urgente primero
-          { createdAt: 'desc' },
+          { prioridad: "desc" }, // Urgente primero
+          { createdAt: "desc" },
         ],
         include: {
           asignado: {
@@ -218,9 +240,9 @@ export class PrismaOrdenRepository implements IOrdenRepository {
 
     // Actualizar fechas según el estado (lógica de negocio en infraestructura
     // solo para eficiencia - la validación está en el dominio)
-    if (estado === 'ejecucion') {
+    if (estado === "ejecucion") {
       updateData.fechaInicio = new Date();
-    } else if (estado === 'completada') {
+    } else if (estado === "completada") {
       updateData.fechaFin = new Date();
     }
 
@@ -244,7 +266,7 @@ export class PrismaOrdenRepository implements IOrdenRepository {
       where: { id },
       data: {
         deletedAt: new Date(),
-        deleteReason: 'deleted',
+        deleteReason: "deleted",
       },
     });
   }
@@ -271,24 +293,24 @@ export class PrismaOrdenRepository implements IOrdenRepository {
   /**
    * Construye la cláusula WHERE de Prisma desde los filtros
    */
-  private buildWhereClause(filters: OrdenFilters): Record<string, unknown> {
-    const where: Record<string, unknown> = {
+  private buildWhereClause(filters: OrdenFilters): Prisma.OrderWhereInput {
+    const where: Prisma.OrderWhereInput = {
       deletedAt: null,
     };
 
     if (filters.estado) {
-      where.estado = filters.estado;
+      where.estado = filters.estado as unknown as OrderStatus;
     }
 
     if (filters.cliente) {
       where.cliente = {
         contains: filters.cliente,
-        mode: 'insensitive',
+        mode: "insensitive",
       };
     }
 
     if (filters.prioridad) {
-      where.prioridad = filters.prioridad;
+      where.prioridad = filters.prioridad as unknown as OrderPriority;
     }
 
     if (filters.asignadoId) {
@@ -300,13 +322,14 @@ export class PrismaOrdenRepository implements IOrdenRepository {
     }
 
     if (filters.fechaDesde || filters.fechaHasta) {
-      where.createdAt = {};
+      const createdAt: Prisma.DateTimeFilter = {};
       if (filters.fechaDesde) {
-        (where.createdAt as Record<string, unknown>).gte = filters.fechaDesde;
+        createdAt.gte = filters.fechaDesde;
       }
       if (filters.fechaHasta) {
-        (where.createdAt as Record<string, unknown>).lte = filters.fechaHasta;
+        createdAt.lte = filters.fechaHasta;
       }
+      where.createdAt = createdAt;
     }
 
     return where;

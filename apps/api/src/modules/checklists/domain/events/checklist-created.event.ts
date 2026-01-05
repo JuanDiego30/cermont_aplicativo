@@ -1,11 +1,11 @@
 /**
  * Domain Event: ChecklistCreatedEvent
- * 
+ *
  * Se publica cuando se crea una nueva plantilla de checklist
  */
 
 export class ChecklistCreatedEvent {
-  public readonly eventName = 'CHECKLIST_CREATED';
+  public readonly eventName = "CHECKLIST_CREATED";
   public readonly aggregateId: string;
   public readonly timestamp: Date;
   public readonly name: string;
@@ -38,4 +38,3 @@ export class ChecklistCreatedEvent {
     };
   }
 }
-

@@ -1,16 +1,16 @@
-import { Module } from '@nestjs/common';
-import { PrismaModule } from '../../prisma/prisma.module';
-import { EjecucionController } from './infrastructure/controllers/ejecucion.controller';
-import { EjecucionService } from './ejecucion.service';
+import { Module } from "@nestjs/common";
+import { PrismaModule } from "../../prisma/prisma.module";
+import { EjecucionController } from "./infrastructure/controllers/ejecucion.controller";
+import { EjecucionService } from "./ejecucion.service";
 import {
   GetEjecucionUseCase,
   IniciarEjecucionUseCase,
   UpdateAvanceUseCase,
   CompletarEjecucionUseCase,
   GetMisEjecucionesUseCase,
-} from './application/use-cases';
-import { EJECUCION_REPOSITORY } from './domain/repositories';
-import { EjecucionRepository } from './infrastructure/persistence/ejecucion.repository';
+} from "./application/use-cases";
+import { EJECUCION_REPOSITORY } from "./domain/repositories";
+import { EjecucionRepository } from "./infrastructure/persistence/ejecucion.repository";
 
 @Module({
   imports: [PrismaModule],
@@ -38,4 +38,4 @@ import { EjecucionRepository } from './infrastructure/persistence/ejecucion.repo
     GetMisEjecucionesUseCase,
   ],
 })
-export class EjecucionModule { }
+export class EjecucionModule {}

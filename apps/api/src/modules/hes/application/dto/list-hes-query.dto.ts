@@ -1,11 +1,11 @@
 /**
  * DTO: ListHESQueryDto
- * 
+ *
  * DTO para listar HES con filtros
  */
 
-import { IsOptional, IsString, IsDateString } from 'class-validator';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString, IsDateString } from "class-validator";
+import { ApiPropertyOptional } from "@nestjs/swagger";
 
 export class ListHESQueryDto {
   @ApiPropertyOptional()
@@ -33,4 +33,3 @@ export class ListHESQueryDto {
   @IsDateString()
   fechaHasta?: string;
 }
-

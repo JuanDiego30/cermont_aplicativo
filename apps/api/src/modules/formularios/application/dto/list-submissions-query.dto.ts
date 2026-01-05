@@ -1,11 +1,11 @@
 /**
  * DTO: ListSubmissionsQueryDto
- * 
+ *
  * DTO para query de listado de submissions
  */
 
-import { IsString, IsOptional } from 'class-validator';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsOptional } from "class-validator";
+import { ApiPropertyOptional } from "@nestjs/swagger";
 
 export class ListSubmissionsQueryDto {
   @ApiPropertyOptional()
@@ -23,4 +23,3 @@ export class ListSubmissionsQueryDto {
   @IsString()
   contextId?: string;
 }
-

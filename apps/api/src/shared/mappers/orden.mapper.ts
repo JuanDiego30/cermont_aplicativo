@@ -3,7 +3,7 @@
 // REGLA 4: Separación de capas
 // ============================================
 
-import { Monto, OrdenNumero, OrdenEstado } from '../value-objects';
+import { Monto, OrdenNumero, OrdenEstado } from "../value-objects";
 
 // DTOs con definite assignment
 export class CreateOrdenDTO {
@@ -43,7 +43,7 @@ export class OrdenMapper {
       monto: Monto.create(dto.monto),
       estado: OrdenEstado.create(dto.estado),
       clienteId: dto.clienteId,
-      descripcion: dto.descripcion || '',
+      descripcion: dto.descripcion || "",
     };
   }
 
@@ -58,13 +58,24 @@ export class OrdenMapper {
 
     return {
       id: entity.id as string,
-      numero: numeroValue instanceof OrdenNumero ? numeroValue.getValue() : String(numeroValue),
-      monto: montoValue instanceof Monto ? montoValue.getValue() : Number(montoValue),
-      estado: estadoValue instanceof OrdenEstado ? estadoValue.getValue() : String(estadoValue),
+      numero:
+        numeroValue instanceof OrdenNumero
+          ? numeroValue.getValue()
+          : String(numeroValue),
+      monto:
+        montoValue instanceof Monto
+          ? montoValue.getValue()
+          : Number(montoValue),
+      estado:
+        estadoValue instanceof OrdenEstado
+          ? estadoValue.getValue()
+          : String(estadoValue),
       clienteId: entity.clienteId as string,
       descripcion: entity.descripcion as string | undefined,
-      createdAt: (entity.createdAt as Date)?.toISOString?.() || new Date().toISOString(),
-      updatedAt: (entity.updatedAt as Date)?.toISOString?.() || new Date().toISOString(),
+      createdAt:
+        (entity.createdAt as Date)?.toISOString?.() || new Date().toISOString(),
+      updatedAt:
+        (entity.updatedAt as Date)?.toISOString?.() || new Date().toISOString(),
     };
   }
 
@@ -95,9 +106,18 @@ export class OrdenMapper {
     const estadoValue = entity.estado as OrdenEstado | string;
 
     return {
-      numero: numeroValue instanceof OrdenNumero ? numeroValue.getValue() : String(numeroValue),
-      monto: montoValue instanceof Monto ? montoValue.getValue() : Number(montoValue),
-      estado: estadoValue instanceof OrdenEstado ? estadoValue.getValue() : String(estadoValue),
+      numero:
+        numeroValue instanceof OrdenNumero
+          ? numeroValue.getValue()
+          : String(numeroValue),
+      monto:
+        montoValue instanceof Monto
+          ? montoValue.getValue()
+          : Number(montoValue),
+      estado:
+        estadoValue instanceof OrdenEstado
+          ? estadoValue.getValue()
+          : String(estadoValue),
       clienteId: entity.clienteId as string,
       descripcion: entity.descripcion as string,
     };

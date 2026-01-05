@@ -1,8 +1,8 @@
 /**
  * Value Object: EstadoAlerta
- * 
+ *
  * Representa el estado de una alerta en su ciclo de vida
- * 
+ *
  * Estados:
  * - PENDIENTE: No enviada aún
  * - PROCESANDO: En cola de envío
@@ -11,14 +11,14 @@
  * - LEIDA: Usuario la leyó
  */
 
-import { ValidationError } from '../exceptions';
+import { ValidationError } from "../exceptions";
 
 export enum EstadoAlertaEnum {
-  PENDIENTE = 'PENDIENTE',   // No enviada aún
-  PROCESANDO = 'PROCESANDO', // En cola de envío
-  ENVIADA = 'ENVIADA',       // Enviada exitosamente
-  FALLIDA = 'FALLIDA',       // Fallo en envío
-  LEIDA = 'LEIDA',           // Usuario la leyó
+  PENDIENTE = "PENDIENTE", // No enviada aún
+  PROCESANDO = "PROCESANDO", // En cola de envío
+  ENVIADA = "ENVIADA", // Enviada exitosamente
+  FALLIDA = "FALLIDA", // Fallo en envío
+  LEIDA = "LEIDA", // Usuario la leyó
 }
 
 export class EstadoAlerta {
@@ -33,8 +33,8 @@ export class EstadoAlerta {
   public static create(value: string): EstadoAlerta {
     if (!Object.values(EstadoAlertaEnum).includes(value as EstadoAlertaEnum)) {
       throw new ValidationError(
-        `Estado inválido. Estados permitidos: ${Object.values(EstadoAlertaEnum).join(', ')}`,
-        'estado',
+        `Estado inválido. Estados permitidos: ${Object.values(EstadoAlertaEnum).join(", ")}`,
+        "estado",
         value,
       );
     }
@@ -137,4 +137,3 @@ export class EstadoAlerta {
     return this._value;
   }
 }
-

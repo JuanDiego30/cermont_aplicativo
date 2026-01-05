@@ -3,19 +3,19 @@
  * @description Request/Response DTOs with Zod validation
  */
 
-import { z } from 'zod';
-import { TipoEvidencia } from '../../domain/value-objects/file-type.vo';
+import { z } from "zod";
+import { TipoEvidencia } from "../../domain/value-objects/file-type.vo";
 
 // ============================================================
 // Upload DTOs
 // ============================================================
 
 export const UploadEvidenciaSchema = z.object({
-  ordenId: z.string().uuid('ordenId debe ser UUID válido'),
-  ejecucionId: z.string().uuid('ejecucionId debe ser UUID válido').optional(),
-  tipo: z.enum(['FOTO', 'VIDEO', 'DOCUMENTO', 'AUDIO']).optional(),
-  descripcion: z.string().max(500, 'Máximo 500 caracteres').optional(),
-  tags: z.string().max(1000, 'Máximo 1000 caracteres').optional(), // Comma-separated
+  ordenId: z.string().uuid("ordenId debe ser UUID válido"),
+  ejecucionId: z.string().uuid("ejecucionId debe ser UUID válido").optional(),
+  tipo: z.enum(["FOTO", "VIDEO", "DOCUMENTO", "AUDIO"]).optional(),
+  descripcion: z.string().max(500, "Máximo 500 caracteres").optional(),
+  tags: z.string().max(1000, "Máximo 1000 caracteres").optional(), // Comma-separated
 });
 
 export type UploadEvidenciaDto = z.infer<typeof UploadEvidenciaSchema>;
@@ -38,8 +38,8 @@ export type UpdateEvidenciaDto = z.infer<typeof UpdateEvidenciaSchema>;
 export const ListEvidenciasQuerySchema = z.object({
   ordenId: z.string().uuid().optional(),
   ejecucionId: z.string().uuid().optional(),
-  tipo: z.enum(['FOTO', 'VIDEO', 'DOCUMENTO', 'AUDIO']).optional(),
-  status: z.enum(['PENDING', 'PROCESSING', 'READY', 'FAILED']).optional(),
+  tipo: z.enum(["FOTO", "VIDEO", "DOCUMENTO", "AUDIO"]).optional(),
+  status: z.enum(["PENDING", "PROCESSING", "READY", "FAILED"]).optional(),
   includeDeleted: z.coerce.boolean().optional(),
   page: z.coerce.number().int().positive().optional().default(1),
   limit: z.coerce.number().int().positive().max(100).optional().default(50),

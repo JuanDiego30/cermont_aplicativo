@@ -9,7 +9,7 @@
         "lint": "turbo run lint",
         "lint:fix": "turbo run lint:fix",
         "typecheck": "turbo run typecheck",
-        "duplication": "jscpd .",
+        "duplication": "jscpd --config .jscpd.json apps/api/src apps/web/src",
         "check": "pnpm run duplication && turbo run lint typecheck test build",
         "fix:tailwind": "pnpm --filter @cermont/web exec tailwindcss -i ./src/styles.css -o ./dist/styles.css",
         "clean": "rimraf dist .angular apps/*/dist apps/*/.angular"

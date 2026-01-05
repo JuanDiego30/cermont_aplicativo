@@ -71,6 +71,9 @@ importers:
       '@prisma/client':
         specifier: 5.22.0
         version: 5.22.0(prisma@5.22.0)
+      '@types/sanitize-filename':
+        specifier: ^1.6.3
+        version: 1.6.3
       ajv:
         specifier: ^8.17.1
         version: 8.17.1
@@ -3604,6 +3607,10 @@ packages:
 
   '@types/readdir-glob@1.1.5':
     resolution: {integrity: sha512-raiuEPUYqXu+nvtY2Pe8s8FEmZ3x5yAH4VkLdihcPdalvsHltomrRC9BzuStrJ9yk06470hS0Crw0f1pXqD+Hg==}
+
+  '@types/sanitize-filename@1.6.3':
+    resolution: {integrity: sha512-1dAV8Va7KsiXNAstV2JmF4CRVG3Fsyl+VnBw87C9cCMccekpOqJBezS7MUnHYPChNAFee1WakwBXdfn7QJxzVg==}
+    deprecated: This is a stub types definition. sanitize-filename provides its own type definitions, so you do not need this installed.
 
   '@types/sarif@2.1.7':
     resolution: {integrity: sha512-kRz0VEkJqWLf1LLVN4pT1cg1Z9wAuvI6L97V3m2f5B76Tg8d413ddvLBPTEHAZJlnn4XSvu0FkZtViCQGVyrXQ==}
@@ -11628,6 +11635,10 @@ snapshots:
   '@types/readdir-glob@1.1.5':
     dependencies:
       '@types/node': 25.0.3
+
+  '@types/sanitize-filename@1.6.3':
+    dependencies:
+      sanitize-filename: 1.6.3
 
   '@types/sarif@2.1.7': {}
 

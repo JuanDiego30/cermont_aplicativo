@@ -1,10 +1,10 @@
 /**
  * Entity: DiagnosticoPreliminar
- * 
+ *
  * Diagnóstico preliminar realizado por el técnico
  */
 
-import { ValidationError } from '../../../../common/domain/exceptions';
+import { ValidationError } from "../../../../common/domain/exceptions";
 
 export interface CreateDiagnosticoProps {
   descripcion: string;
@@ -40,20 +40,27 @@ export class DiagnosticoPreliminar {
   }
 
   private validate(): void {
-    if (!this._descripcion || this._descripcion.trim() === '') {
-      throw new ValidationError('Descripción del diagnóstico es requerida');
+    if (!this._descripcion || this._descripcion.trim() === "") {
+      throw new ValidationError("Descripción del diagnóstico es requerida");
     }
 
     if (this._descripcion.length < 10) {
-      throw new ValidationError('Descripción del diagnóstico debe tener al menos 10 caracteres');
+      throw new ValidationError(
+        "Descripción del diagnóstico debe tener al menos 10 caracteres",
+      );
     }
 
-    if (this._requiereRepuestos && (!this._repuestosNecesarios || this._repuestosNecesarios.length === 0)) {
-      throw new ValidationError('Debe especificar los repuestos necesarios si requiere repuestos');
+    if (
+      this._requiereRepuestos &&
+      (!this._repuestosNecesarios || this._repuestosNecesarios.length === 0)
+    ) {
+      throw new ValidationError(
+        "Debe especificar los repuestos necesarios si requiere repuestos",
+      );
     }
 
     if (this._tiempoEstimado !== undefined && this._tiempoEstimado < 0) {
-      throw new ValidationError('Tiempo estimado no puede ser negativo');
+      throw new ValidationError("Tiempo estimado no puede ser negativo");
     }
   }
 
@@ -74,7 +81,9 @@ export class DiagnosticoPreliminar {
   }
 
   public getRepuestosNecesarios(): string[] | undefined {
-    return this._repuestosNecesarios ? [...this._repuestosNecesarios] : undefined;
+    return this._repuestosNecesarios
+      ? [...this._repuestosNecesarios]
+      : undefined;
   }
 
   public getTiempoEstimado(): number | undefined {
@@ -88,4 +97,3 @@ export class DiagnosticoPreliminar {
     );
   }
 }
-

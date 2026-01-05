@@ -1,6 +1,6 @@
 /**
  * Entity: CondicionesEntrada
- * 
+ *
  * Condiciones iniciales del equipo/instalación al momento de entrada
  */
 
@@ -21,7 +21,9 @@ export class CondicionesEntrada {
     private readonly _observaciones?: string,
   ) {}
 
-  public static create(props: CreateCondicionesEntradaProps): CondicionesEntrada {
+  public static create(
+    props: CreateCondicionesEntradaProps,
+  ): CondicionesEntrada {
     return new CondicionesEntrada(
       props.estadoGeneral,
       props.equipoFuncional,
@@ -60,13 +62,13 @@ export class CondicionesEntrada {
   }
 
   public getResumen(): string {
-    const daniosText = this._daniosVisibles.length > 0
-      ? `${this._daniosVisibles.length} daño(s) identificado(s)`
-      : 'Sin daños visibles';
+    const daniosText =
+      this._daniosVisibles.length > 0
+        ? `${this._daniosVisibles.length} daño(s) identificado(s)`
+        : "Sin daños visibles";
 
     return `Estado: ${this._estadoGeneral}. ${
-      this._equipoFuncional ? 'Funcional' : 'No funcional'
+      this._equipoFuncional ? "Funcional" : "No funcional"
     }. ${daniosText}.`;
   }
 }
-

@@ -1,11 +1,11 @@
 /**
  * @interface IChecklistRepository
- * 
+ *
  * Interfaz del repositorio de checklists.
  * Define el contrato que debe implementar cualquier persistencia.
  */
 
-import { Checklist } from '../entities/checklist.entity';
+import { Checklist } from "../entities/checklist.entity";
 
 /**
  * Resultado paginado
@@ -63,7 +63,10 @@ export interface IChecklistRepository {
   /**
    * Lista checklists con filtros y paginación
    */
-  list(filters: ChecklistFilters, pagination: PaginationQuery): Promise<PaginatedResult<Checklist>>;
+  list(
+    filters: ChecklistFilters,
+    pagination: PaginationQuery,
+  ): Promise<PaginatedResult<Checklist>>;
 
   /**
    * Encuentra todas las plantillas
@@ -88,7 +91,11 @@ export interface IChecklistRepository {
   /**
    * Verifica si existe checklist asignado a orden/ejecución
    */
-  existsAssigned(templateId: string, ordenId?: string, ejecucionId?: string): Promise<boolean>;
+  existsAssigned(
+    templateId: string,
+    ordenId?: string,
+    ejecucionId?: string,
+  ): Promise<boolean>;
 
   /**
    * Elimina un checklist
@@ -99,4 +106,4 @@ export interface IChecklistRepository {
 /**
  * Token para inyección de dependencias
  */
-export const CHECKLIST_REPOSITORY = Symbol('IChecklistRepository');
+export const CHECKLIST_REPOSITORY = Symbol("IChecklistRepository");

@@ -1,31 +1,39 @@
 /**
  * @module Checklists - Clean Architecture DTOs
  */
-import { z } from 'zod';
+import { z } from "zod";
 
 export const CreateChecklistSchema = z.object({
   nombre: z.string().min(3),
   descripcion: z.string().optional(),
-  tipo: z.enum(['seguridad', 'calidad', 'herramientas', 'epp', 'general']),
-  items: z.array(z.object({
-    descripcion: z.string(),
-    requerido: z.boolean().default(true),
-    orden: z.number().int().min(0),
-  })).min(1),
+  tipo: z.enum(["seguridad", "calidad", "herramientas", "epp", "general"]),
+  items: z
+    .array(
+      z.object({
+        descripcion: z.string(),
+        requerido: z.boolean().default(true),
+        orden: z.number().int().min(0),
+      }),
+    )
+    .min(1),
 });
 
 export type CreateChecklistDto = z.infer<typeof CreateChecklistSchema>;
 
 export const ChecklistItemResponseSchema = z.object({
   checklistId: z.string().uuid(),
-  items: z.array(z.object({
-    itemId: z.string().uuid(),
-    completado: z.boolean(),
-    observaciones: z.string().optional(),
-  })),
+  items: z.array(
+    z.object({
+      itemId: z.string().uuid(),
+      completado: z.boolean(),
+      observaciones: z.string().optional(),
+    }),
+  ),
 });
 
-export type ChecklistItemResponseDto = z.infer<typeof ChecklistItemResponseSchema>;
+export type ChecklistItemResponseDto = z.infer<
+  typeof ChecklistItemResponseSchema
+>;
 
 export const ToggleItemSchema = z.object({
   completado: z.boolean(),
@@ -66,7 +74,7 @@ export interface ChecklistData {
 }
 
 // Repository interface
-export const CHECKLIST_REPOSITORY = Symbol('CHECKLIST_REPOSITORY');
+export const CHECKLIST_REPOSITORY = Symbol("CHECKLIST_REPOSITORY");
 
 export interface ItemResponseData {
   itemId: string;
@@ -84,7 +92,11 @@ export interface IChecklistRepository {
   findChecklistById(id: string): Promise<any>;
   createForEjecucion(ejecucionId: string, templateId: string): Promise<any>;
   createEmpty(ejecucionId: string, nombre: string): Promise<any>;
-  toggleItem(checklistId: string, itemId: string, data: ToggleItemDto): Promise<ItemResponseData>;
+  toggleItem(
+    checklistId: string,
+    itemId: string,
+    data: ToggleItemDto,
+  ): Promise<ItemResponseData>;
   addItems(checklistId: string, items: any[]): Promise<void>;
   updateItem(itemId: string, data: any): Promise<any>;
   completarChecklist(id: string, userId: string): Promise<any>;

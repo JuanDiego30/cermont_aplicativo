@@ -1,12 +1,12 @@
 /**
  * Service: JSONSchemaValidatorService
- * 
+ *
  * Valida datos contra JSON Schema usando AJV
  */
 
-import { Injectable } from '@nestjs/common';
-import Ajv from 'ajv';
-import addFormats from 'ajv-formats';
+import { Injectable } from "@nestjs/common";
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
 
 @Injectable()
 export class JSONSchemaValidatorService {
@@ -47,7 +47,8 @@ export class JSONSchemaValidatorService {
         isValid: false,
         errors: [
           {
-            message: error instanceof Error ? error.message : 'Validation error',
+            message:
+              error instanceof Error ? error.message : "Validation error",
           },
         ],
       };
@@ -66,4 +67,3 @@ export class JSONSchemaValidatorService {
     }
   }
 }
-

@@ -1,8 +1,8 @@
 /**
  * Domain Event: AlertaFallidaEvent
- * 
+ *
  * Se publica cuando falla el envío de una alerta
- * 
+ *
  * @example
  * const event = new AlertaFallidaEvent({
  *   alertaId: '123e4567-...',
@@ -14,7 +14,7 @@
  */
 
 export class AlertaFallidaEvent {
-  public readonly eventName = 'ALERTA_FALLIDA';
+  public readonly eventName = "ALERTA_FALLIDA";
   public readonly aggregateId: string;
   public readonly timestamp: Date;
   public readonly error: string;
@@ -50,4 +50,3 @@ export class AlertaFallidaEvent {
     };
   }
 }
-

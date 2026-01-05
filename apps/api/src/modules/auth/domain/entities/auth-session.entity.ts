@@ -3,7 +3,7 @@
  * @description Entidad que representa una sesión de autenticación
  * @layer Domain
  */
-import { RefreshToken } from '../value-objects';
+import { RefreshToken } from "../value-objects";
 
 export interface AuthSessionProps {
   id: string;
@@ -23,15 +23,33 @@ export class AuthSessionEntity {
   private constructor(private props: AuthSessionProps) {}
 
   // Getters
-  get id(): string { return this.props.id; }
-  get userId(): string { return this.props.userId; }
-  get refreshToken(): string { return this.props.refreshToken; }
-  get family(): string { return this.props.family; }
-  get expiresAt(): Date { return this.props.expiresAt; }
-  get isRevoked(): boolean { return this.props.isRevoked; }
-  get ipAddress(): string | undefined { return this.props.ipAddress; }
-  get userAgent(): string | undefined { return this.props.userAgent; }
-  get createdAt(): Date { return this.props.createdAt; }
+  get id(): string {
+    return this.props.id;
+  }
+  get userId(): string {
+    return this.props.userId;
+  }
+  get refreshToken(): string {
+    return this.props.refreshToken;
+  }
+  get family(): string {
+    return this.props.family;
+  }
+  get expiresAt(): Date {
+    return this.props.expiresAt;
+  }
+  get isRevoked(): boolean {
+    return this.props.isRevoked;
+  }
+  get ipAddress(): string | undefined {
+    return this.props.ipAddress;
+  }
+  get userAgent(): string | undefined {
+    return this.props.userAgent;
+  }
+  get createdAt(): Date {
+    return this.props.createdAt;
+  }
 
   get isExpired(): boolean {
     return new Date() > this.props.expiresAt;
@@ -54,7 +72,7 @@ export class AuthSessionEntity {
     const token = RefreshToken.create();
 
     return new AuthSessionEntity({
-      id: '', // Será asignado por la base de datos
+      id: "", // Será asignado por la base de datos
       userId,
       refreshToken: token.value,
       family: token.family,
@@ -79,7 +97,7 @@ export class AuthSessionEntity {
     const newToken = RefreshToken.create(this.props.family);
 
     return new AuthSessionEntity({
-      id: '',
+      id: "",
       userId: this.props.userId,
       refreshToken: newToken.value,
       family: this.props.family,
@@ -93,10 +111,10 @@ export class AuthSessionEntity {
 
   validate(): { valid: boolean; reason?: string } {
     if (this.isRevoked) {
-      return { valid: false, reason: 'Token revocado' };
+      return { valid: false, reason: "Token revocado" };
     }
     if (this.isExpired) {
-      return { valid: false, reason: 'Token expirado' };
+      return { valid: false, reason: "Token expirado" };
     }
     return { valid: true };
   }

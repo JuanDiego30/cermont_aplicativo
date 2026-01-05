@@ -1,19 +1,19 @@
 /**
  * Use Case: DetectarActasSinFirmarUseCase
- * 
+ *
  * Detecta actas sin firmar por más de 7 días y crea alertas
  * Ejecutado por CRON diariamente a las 8 AM
  */
 
-import { Injectable, Inject, Logger } from '@nestjs/common';
-import { PrismaService } from '../../../../prisma/prisma.service';
+import { Injectable, Inject, Logger } from "@nestjs/common";
+import { PrismaService } from "../../../../prisma/prisma.service";
 import {
   IAlertaRepository,
   ALERTA_REPOSITORY,
-} from '../../domain/repositories/alerta.repository.interface';
-import { Alerta } from '../../domain/entities/alerta.entity';
-import { TipoAlertaEnum } from '../../domain/value-objects/tipo-alerta.vo';
-import { PrioridadAlertaEnum } from '../../domain/value-objects/prioridad-alerta.vo';
+} from "../../domain/repositories/alerta.repository.interface";
+import { Alerta } from "../../domain/entities/alerta.entity";
+import { TipoAlertaEnum } from "../../domain/value-objects/tipo-alerta.vo";
+import { PrioridadAlertaEnum } from "../../domain/value-objects/prioridad-alerta.vo";
 
 @Injectable()
 export class DetectarActasSinFirmarUseCase {
@@ -27,15 +27,17 @@ export class DetectarActasSinFirmarUseCase {
   ) {}
 
   async execute(): Promise<{ alertasCreadas: number }> {
-    this.logger.log('Verificando actas sin firmar...');
+    this.logger.log("Verificando actas sin firmar...");
 
     const fechaLimite = new Date();
-    fechaLimite.setDate(fechaLimite.getDate() - DetectarActasSinFirmarUseCase.DIAS_LIMITE);
+    fechaLimite.setDate(
+      fechaLimite.getDate() - DetectarActasSinFirmarUseCase.DIAS_LIMITE,
+    );
 
     // Buscar actas pendientes
     const actasPendientes = await this.prisma.acta.findMany({
       where: {
-        estado: { in: ['generada', 'enviada'] as any },
+        estado: { in: ["generada", "enviada"] as any },
         fechaEmision: { lt: fechaLimite },
         alertaEnviada: false,
       },
@@ -79,7 +81,7 @@ export class DetectarActasSinFirmarUseCase {
           titulo: `Acta ${acta.numero} pendiente de firma`,
           mensaje: `El acta de la orden ${orden?.numero || acta.ordenId} lleva más de ${DetectarActasSinFirmarUseCase.DIAS_LIMITE} días sin firmar`,
           destinatarioId: orden.asignadoId,
-          canales: ['EMAIL', 'IN_APP'], // Canales por defecto
+          canales: ["EMAIL", "IN_APP"], // Canales por defecto
           metadata: {
             ordenId: acta.ordenId,
             actaId: acta.id,
@@ -107,9 +109,7 @@ export class DetectarActasSinFirmarUseCase {
       }
     }
 
-    this.logger.log(
-      `${alertasCreadas} alertas de actas sin firmar generadas`,
-    );
+    this.logger.log(`${alertasCreadas} alertas de actas sin firmar generadas`);
 
     return { alertasCreadas };
   }
@@ -120,4 +120,3 @@ export class DetectarActasSinFirmarUseCase {
     return Math.floor(diff / (1000 * 60 * 60 * 24));
   }
 }
-

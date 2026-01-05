@@ -1,11 +1,11 @@
 /**
  * Domain Event: CostDeletedEvent
- * 
+ *
  * Se publica cuando se elimina un costo
  */
 
 export class CostDeletedEvent {
-  public readonly eventName = 'COST_DELETED';
+  public readonly eventName = "COST_DELETED";
   public readonly aggregateId: string;
   public readonly timestamp: Date;
   public readonly ordenId: string;
@@ -42,4 +42,3 @@ export class CostDeletedEvent {
     };
   }
 }
-

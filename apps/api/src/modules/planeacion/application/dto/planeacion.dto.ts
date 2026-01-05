@@ -2,7 +2,7 @@
  * @module Planeacion - Clean Architecture
  * @description DTOs, Repository Interface, Use Cases, Repository Implementation, Controller y Module
  */
-import { z } from 'zod';
+import { z } from "zod";
 
 // ==================== DTOs ====================
 export const CreatePlaneacionSchema = z.object({
@@ -21,7 +21,7 @@ export const AprobarPlaneacionSchema = z.object({
 export type AprobarPlaneacionDto = z.infer<typeof AprobarPlaneacionSchema>;
 
 export const RechazarPlaneacionSchema = z.object({
-  motivo: z.string().min(10, 'El motivo debe tener al menos 10 caracteres'),
+  motivo: z.string().min(10, "El motivo debe tener al menos 10 caracteres"),
 });
 
 export type RechazarPlaneacionDto = z.infer<typeof RechazarPlaneacionSchema>;

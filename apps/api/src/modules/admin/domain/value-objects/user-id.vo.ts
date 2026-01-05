@@ -1,14 +1,15 @@
 /**
  * @valueObject UserId
- * 
+ *
  * UserId tipado como UUID.
  */
 
-import { randomUUID } from 'crypto';
-import { ValidationError } from '../../../../common/domain/exceptions';
+import { randomUUID } from "crypto";
+import { ValidationError } from "../../../../common/domain/exceptions";
 
 // Regex para validar UUID v4
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export class UserId {
   private readonly value: string;
@@ -31,7 +32,7 @@ export class UserId {
    */
   static fromString(id: string): UserId {
     if (!this.isValidUUID(id)) {
-      throw new ValidationError(`UUID inválido: ${id}`, 'userId', id);
+      throw new ValidationError(`UUID inválido: ${id}`, "userId", id);
     }
     return new UserId(id.toLowerCase());
   }

@@ -1,10 +1,11 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../../../core/services/admin.service';
 import { User, UserRole } from '../../../../core/models/user.model';
-import { Subject, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { getRoleBadgeColor as getRoleBadgeColorUtil } from '../../../../core/utils/user-role-badge.util';
 
 @Component({
     selector: 'app-users-list',
@@ -13,9 +14,9 @@ import { Subject, takeUntil } from 'rxjs';
     templateUrl: './users-list.component.html',
     styleUrls: ['./users-list.component.css']
 })
-export class UsersListComponent implements OnInit, OnDestroy {
+export class UsersListComponent implements OnInit {
     private readonly adminService = inject(AdminService);
-    private readonly destroy$ = new Subject<void>();
+    private readonly destroyRef = inject(DestroyRef);
 
     users = signal<User[]>([]);
     total = signal(0);
@@ -34,11 +35,6 @@ export class UsersListComponent implements OnInit, OnDestroy {
         this.loadUsers();
     }
 
-    ngOnDestroy(): void {
-        this.destroy$.next();
-        this.destroy$.complete();
-    }
-
     loadUsers(): void {
         this.loading.set(true);
         this.error.set(null);
@@ -49,7 +45,7 @@ export class UsersListComponent implements OnInit, OnDestroy {
             search: this.searchTerm() || undefined,
             role: this.roleFilter() || undefined
         })
-            .pipe(takeUntil(this.destroy$))
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: (response) => {
                     this.users.set(response.data);
@@ -74,11 +70,6 @@ export class UsersListComponent implements OnInit, OnDestroy {
     }
 
     getRoleBadgeColor(role: UserRole): string {
-        const colors: Record<UserRole, string> = {
-            [UserRole.ADMIN]: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-            [UserRole.SUPERVISOR]: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-            [UserRole.TECNICO]: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-        };
-        return colors[role] || 'bg-gray-100 text-gray-800';
+        return getRoleBadgeColorUtil(role);
     }
 }

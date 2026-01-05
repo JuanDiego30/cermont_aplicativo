@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 /**
  * Cola en memoria para serializar generación de PDFs.
@@ -7,17 +7,17 @@ import { Injectable } from '@nestjs/common';
  */
 @Injectable()
 export class PdfGenerationQueueService {
-    private tail: Promise<void> = Promise.resolve();
+  private tail: Promise<void> = Promise.resolve();
 
-    enqueue<T>(task: () => Promise<T>): Promise<T> {
-        const run = this.tail.then(task, task);
+  enqueue<T>(task: () => Promise<T>): Promise<T> {
+    const run = this.tail.then(task, task);
 
-        // Mantener la cola viva incluso si una tarea falla
-        this.tail = run.then(
-            () => undefined,
-            () => undefined,
-        );
+    // Mantener la cola viva incluso si una tarea falla
+    this.tail = run.then(
+      () => undefined,
+      () => undefined,
+    );
 
-        return run;
-    }
+    return run;
+  }
 }

@@ -1,8 +1,8 @@
 /**
  * @useCase GetAnalisisCostosUseCase
  */
-import { Injectable, Inject } from '@nestjs/common';
-import { COSTO_REPOSITORY, ICostoRepository, CostoAnalysis } from '../dto';
+import { Injectable, Inject } from "@nestjs/common";
+import { COSTO_REPOSITORY, ICostoRepository, CostoAnalysis } from "../dto";
 
 @Injectable()
 export class GetAnalisisCostosUseCase {

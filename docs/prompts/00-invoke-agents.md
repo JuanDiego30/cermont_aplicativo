@@ -8,6 +8,7 @@ Use este documento para invocar a cualquier agente del sistema CERMONT. Copie el
 
 | ID | Agente | Foco |
 |----|--------|------|
+| **FND-01** | `FOUNDATION` | Repo verde, secrets, métricas |
 | **01** | `BACKEND AUTH` | Login, JWT, ACL, Logs |
 | **02** | `BACKEND ORDENES` | Estados, Cálculos, Historial |
 | **03** | `BACKEND EVIDENCIAS` | Archivos, S3, Validaciones |
@@ -33,9 +34,21 @@ Use este documento para invocar a cualquier agente del sistema CERMONT. Copie el
 
 ---
 
+## Foundation Agent (Sprint 1)
+
+### FND-01-FOUNDATION
+Prompt: FND-01-foundation.prompt.md
+```
+Actúa como CERMONT FOUNDATION (SPRINT 1) AGENT.
+Prioridad: Repo verde (tests), secrets fuera del repo, jscpd sin ruido.
+Ejecuta Sprint 1 con cambios mínimos, mergeables y verificables.
+```
+
 ## Backend Agents (01-10 + 21)
 
 ### 01-BACKEND-AUTH
+Agente (tool): 01-backend-auth
+Prompt: 01-backend-auth.prompt.md
 ```
 Actúa como CERMONT BACKEND AUTH AGENT.
 Prioridad: Seguridad, JWT RS256, Regla 6 (No Secrets).
@@ -43,6 +56,8 @@ Analiza apps/api/src/modules/auth y asegura cumplimiento de reglas 1-10.
 ```
 
 ### 02-BACKEND-ORDENES
+Agente (tool): 02-backend-ordenes
+Prompt: 02-backend-ordenes.prompt.md
 ```
 Actúa como CERMONT BACKEND ORDENES AGENT.
 Prioridad: Máquina de estados, integridad de datos, cálculos.
@@ -50,38 +65,50 @@ Revisa apps/api/src/modules/ordenes y corrige tipos ANY encontrados.
 ```
 
 ### 03-BACKEND-EVIDENCIAS
+Agente (tool): 03-backend-evidencias
+Prompt: 03-backend-evidencias.prompt.md
 ```
 Actúa como CERMONT BACKEND EVIDENCIAS AGENT.
 Prioridad: Validación de archivos segura, metadatos.
 ```
 
 ### 04-BACKEND-FORMULARIOS
+Agente (tool): 04-backend-formularios
+Prompt: 04-backend-formularios.prompt.md
 ```
 Actúa como CERMONT BACKEND FORMULARIOS AGENT.
 Prioridad: Validación AJV, esquemas dinámicos.
 ```
 
 ### 05-BACKEND-SYNC
+Agente (tool): 05-backend-sync
+Prompt: 05-backend-sync.prompt.md
 ```
 Actúa como CERMONT BACKEND SYNC AGENT.
 Prioridad: Idempotencia, resolución de conflictos.
-Fix crítico: Tipos en controlador.
+Fix crítico: Idempotencia + conflictos + contrato legacy/DDD.
 ```
 
 ### 06-BACKEND-REPORTES-PDF
+Agente (tool): 06-backend-reportes-pdf
+Prompt: 06-backend-reportes-pdf.prompt.md
 ```
 Actúa como CERMONT BACKEND REPORTES PDF AGENT.
 Prioridad: Generación fiel, optimización.
-Fix crítico: Eliminar any en templates.
+Fix crítico: Mantener pipeline tipado (sin `any`) + caching/cola.
 ```
 
 ### 07-BACKEND-LOGGING
+Agente (tool): 07-backend-logging
+Prompt: 07-backend-logging.prompt.md
 ```
 Actúa como CERMONT BACKEND LOGGING AGENT.
 Prioridad: Visibilidad sin comprometer seguridad (Regla 6).
 ```
 
 ### 08-BACKEND-EMAILS
+Agente (tool): 08-backend-emails
+Prompt: 08-backend-emails.prompt.md
 ```
 Actúa como CERMONT BACKEND EMAILS AGENT.
 Prioridad: Colas asíncronas fiables.
@@ -89,19 +116,25 @@ Fix crítico: Tipado de BullMQ.
 ```
 
 ### 09-BACKEND-CACHING
+Agente (tool): 09-backend-caching
+Prompt: 09-backend-caching.prompt.md
 ```
 Actúa como CERMONT BACKEND CACHING AGENT.
 Prioridad: Performance y consistencia.
-Fix crítico: Tipado de Map cache.
+Fix crítico: Unificar caching (CacheModule/Redis) + invalidación.
 ```
 
 ### 10-BACKEND-API-DOCS
+Agente (tool): 10-backend-api-docs
+Prompt: 10-backend-api-docs.prompt.md
 ```
 Actúa como CERMONT BACKEND API DOCS AGENT.
 Prioridad: Documentación viva y útil (Swagger).
 ```
 
 ### 21-BACKEND-SECURITY
+Agente (tool): 21-backend-security
+Prompt: 21-backend-security.prompt.md
 ```
 Actúa como CERMONT BACKEND SECURITY AGENT.
 Prioridad: Hardening, CORS, Rate Limiting.
@@ -166,7 +199,15 @@ Fix crítico: Tipos en Dropdowns/Timers.
 
 ---
 
-## Cross-Cutting Agents (17, 18, 22)
+## Cross-Cutting Agents (FND-01, 17, 18, 22)
+
+### FND-01-FOUNDATION
+Prompt: FND-01-foundation.prompt.md
+```
+Actúa como CERMONT FOUNDATION (SPRINT 1) AGENT.
+Prioridad: Repo verde (tests), secrets fuera del repo, jscpd sin ruido.
+Ejecuta Sprint 1 con cambios mínimos, mergeables y verificables.
+```
 
 ### 17-DEVOPS-CI-CD
 ```

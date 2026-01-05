@@ -1,1 +1,1 @@
-export * from './formularios.controller';
+export * from "./formularios.controller";

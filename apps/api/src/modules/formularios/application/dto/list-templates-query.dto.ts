@@ -1,14 +1,14 @@
 /**
  * DTO: ListTemplatesQueryDto
- * 
+ *
  * DTO para query de listado de templates
  */
 
-import { IsString, IsOptional, IsBoolean } from 'class-validator';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsOptional, IsBoolean } from "class-validator";
+import { ApiPropertyOptional } from "@nestjs/swagger";
 
 export class ListTemplatesQueryDto {
-  @ApiPropertyOptional({ example: 'inspeccion' })
+  @ApiPropertyOptional({ example: "inspeccion" })
   @IsOptional()
   @IsString()
   contextType?: string;
@@ -23,4 +23,3 @@ export class ListTemplatesQueryDto {
   @IsBoolean()
   activeOnly?: boolean;
 }
-

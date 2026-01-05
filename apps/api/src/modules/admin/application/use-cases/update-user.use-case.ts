@@ -1,18 +1,18 @@
 /**
  * @usecase UpdateUserUseCase
- * 
+ *
  * Actualiza información básica de un usuario.
  */
 
-import { Inject, Injectable, NotFoundException, Logger } from '@nestjs/common';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Inject, Injectable, NotFoundException, Logger } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import {
   IUserRepository,
   USER_REPOSITORY,
-} from '../../domain/repositories/user.repository.interface';
-import { UserMapper } from '../mappers/user.mapper';
-import { UserResponseDto } from '../dto/user-response.dto';
-import { type UpdateUserInput } from '../dto/update-user.dto';
+} from "../../domain/repositories/user.repository.interface";
+import { UserMapper } from "../mappers/user.mapper";
+import { UserResponseDto } from "../dto/user-response.dto";
+import { type UpdateUserInput } from "../dto/update-user.dto";
 
 export interface UpdateUserCommand extends UpdateUserInput {
   userId: string;

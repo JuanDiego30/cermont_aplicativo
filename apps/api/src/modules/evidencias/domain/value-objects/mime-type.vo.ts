@@ -4,67 +4,67 @@
  */
 
 export class MimeType {
-    private static readonly ALLOWED_IMAGE_TYPES = [
-        'image/jpeg',
-        'image/jpg',
-        'image/png',
-        'image/gif',
+  private static readonly ALLOWED_IMAGE_TYPES = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/gif",
+  ];
+
+  private static readonly ALLOWED_DOCUMENT_TYPES = ["application/pdf"];
+
+  private constructor(private readonly _value: string) {
+    Object.freeze(this);
+  }
+
+  public static create(value: string): MimeType {
+    MimeType.validate(value);
+    return new MimeType(value.toLowerCase());
+  }
+
+  private static validate(value: string): void {
+    const allAllowed = [
+      ...MimeType.ALLOWED_IMAGE_TYPES,
+      ...MimeType.ALLOWED_DOCUMENT_TYPES,
     ];
 
-    private static readonly ALLOWED_DOCUMENT_TYPES = ['application/pdf'];
-
-    private constructor(private readonly _value: string) {
-        Object.freeze(this);
+    if (!allAllowed.includes(value.toLowerCase())) {
+      throw new Error(`MIME type ${value} is not supported`);
     }
+  }
 
-    public static create(value: string): MimeType {
-        MimeType.validate(value);
-        return new MimeType(value.toLowerCase());
-    }
+  public getValue(): string {
+    return this._value;
+  }
 
-    private static validate(value: string): void {
-        const allAllowed = [
-            ...MimeType.ALLOWED_IMAGE_TYPES,
-            ...MimeType.ALLOWED_DOCUMENT_TYPES,
-        ];
+  public isImage(): boolean {
+    return MimeType.ALLOWED_IMAGE_TYPES.includes(this._value);
+  }
 
-        if (!allAllowed.includes(value.toLowerCase())) {
-            throw new Error(`MIME type ${value} is not supported`);
-        }
-    }
+  public isVideo(): boolean {
+    return false;
+  }
 
-    public getValue(): string {
-        return this._value;
-    }
+  public isDocument(): boolean {
+    return MimeType.ALLOWED_DOCUMENT_TYPES.includes(this._value);
+  }
 
-    public isImage(): boolean {
-        return MimeType.ALLOWED_IMAGE_TYPES.includes(this._value);
-    }
+  public isAudio(): boolean {
+    return false;
+  }
 
-    public isVideo(): boolean {
-        return false;
-    }
+  public getExtension(): string {
+    const map: Record<string, string> = {
+      "image/jpeg": "jpg",
+      "image/jpg": "jpg",
+      "image/png": "png",
+      "image/gif": "gif",
+      "application/pdf": "pdf",
+    };
+    return map[this._value] || "bin";
+  }
 
-    public isDocument(): boolean {
-        return MimeType.ALLOWED_DOCUMENT_TYPES.includes(this._value);
-    }
-
-    public isAudio(): boolean {
-        return false;
-    }
-
-    public getExtension(): string {
-        const map: Record<string, string> = {
-            'image/jpeg': 'jpg',
-            'image/jpg': 'jpg',
-            'image/png': 'png',
-            'image/gif': 'gif',
-            'application/pdf': 'pdf',
-        };
-        return map[this._value] || 'bin';
-    }
-
-    public equals(other: MimeType): boolean {
-        return this._value === other._value;
-    }
+  public equals(other: MimeType): boolean {
+    return this._value === other._value;
+  }
 }

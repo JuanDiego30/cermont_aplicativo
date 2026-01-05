@@ -1,14 +1,20 @@
 /**
  * Use Case: MarcarComoLeidaUseCase
- * 
+ *
  * Marca una alerta como leída
  */
 
-import { Injectable, Inject, NotFoundException, ForbiddenException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  ForbiddenException,
+  Logger,
+} from "@nestjs/common";
 import {
   IAlertaRepository,
   ALERTA_REPOSITORY,
-} from '../../domain/repositories/alerta.repository.interface';
+} from "../../domain/repositories/alerta.repository.interface";
 
 @Injectable()
 export class MarcarComoLeidaUseCase {
@@ -29,7 +35,7 @@ export class MarcarComoLeidaUseCase {
     // Validar que pertenece al usuario
     if (alerta.getDestinatarioId() !== usuarioId) {
       throw new ForbiddenException(
-        'No tienes permiso para marcar esta alerta como leída',
+        "No tienes permiso para marcar esta alerta como leída",
       );
     }
 
@@ -39,7 +45,8 @@ export class MarcarComoLeidaUseCase {
     // Guardar
     await this.alertaRepository.save(alerta);
 
-    this.logger.log(`Alerta ${alertaId} marcada como leída por usuario ${usuarioId}`);
+    this.logger.log(
+      `Alerta ${alertaId} marcada como leída por usuario ${usuarioId}`,
+    );
   }
 }
-

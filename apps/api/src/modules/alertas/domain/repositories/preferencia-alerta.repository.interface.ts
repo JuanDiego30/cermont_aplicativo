@@ -1,11 +1,11 @@
 /**
  * @interface IPreferenciaAlertaRepository
- * 
+ *
  * Interfaz del repositorio de preferencias de alertas.
  * Define el contrato que debe implementar cualquier persistencia.
  */
 
-import { PreferenciaAlerta } from '../entities/preferencia-alerta.entity';
+import { PreferenciaAlerta } from "../entities/preferencia-alerta.entity";
 
 /**
  * Interfaz del repositorio de preferencias
@@ -38,5 +38,6 @@ export interface IPreferenciaAlertaRepository {
 /**
  * Token para inyección de dependencias
  */
-export const PREFERENCIA_ALERTA_REPOSITORY = Symbol('IPreferenciaAlertaRepository');
-
+export const PREFERENCIA_ALERTA_REPOSITORY = Symbol(
+  "IPreferenciaAlertaRepository",
+);

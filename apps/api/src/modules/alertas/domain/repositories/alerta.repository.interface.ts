@@ -1,13 +1,13 @@
 /**
  * @interface IAlertaRepository
- * 
+ *
  * Interfaz del repositorio de alertas.
  * Define el contrato que debe implementar cualquier persistencia.
- * 
+ *
  * Principio DIP: El dominio define la interfaz, la infraestructura implementa.
  */
 
-import { Alerta } from '../entities/alerta.entity';
+import { Alerta } from "../entities/alerta.entity";
 
 /**
  * Resultado paginado genérico
@@ -83,5 +83,4 @@ export interface IAlertaRepository {
 /**
  * Token para inyección de dependencias
  */
-export const ALERTA_REPOSITORY = Symbol('IAlertaRepository');
-
+export const ALERTA_REPOSITORY = Symbol("IAlertaRepository");

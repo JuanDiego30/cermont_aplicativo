@@ -1,16 +1,16 @@
 /**
  * @repository PreferenciaAlertaRepository
- * 
+ *
  * Implementación del repositorio de preferencias usando Prisma
- * 
+ *
  * Nota: Si la tabla no existe aún, se creará en una migración futura
  */
 
-import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../../../prisma/prisma.service';
-import { IPreferenciaAlertaRepository } from '../../domain/repositories/preferencia-alerta.repository.interface';
-import { PreferenciaAlerta } from '../../domain/entities/preferencia-alerta.entity';
-import { PreferenciaAlertaPrismaMapper } from './preferencia-alerta.prisma.mapper';
+import { Injectable, Logger } from "@nestjs/common";
+import { PrismaService } from "../../../../prisma/prisma.service";
+import { IPreferenciaAlertaRepository } from "../../domain/repositories/preferencia-alerta.repository.interface";
+import { PreferenciaAlerta } from "../../domain/entities/preferencia-alerta.entity";
+import { PreferenciaAlertaPrismaMapper } from "./preferencia-alerta.prisma.mapper";
 
 @Injectable()
 export class PreferenciaAlertaRepository implements IPreferenciaAlertaRepository {
@@ -19,7 +19,8 @@ export class PreferenciaAlertaRepository implements IPreferenciaAlertaRepository
   constructor(private readonly prisma: PrismaService) {}
 
   async save(preferencia: PreferenciaAlerta): Promise<PreferenciaAlerta> {
-    const persistence = PreferenciaAlertaPrismaMapper.toPersistence(preferencia);
+    const persistence =
+      PreferenciaAlertaPrismaMapper.toPersistence(preferencia);
 
     try {
       // Intentar usar tabla preferenciaAlerta si existe
@@ -43,14 +44,14 @@ export class PreferenciaAlertaRepository implements IPreferenciaAlertaRepository
       // Por ahora, retornamos la entidad sin persistir
       // TODO: Crear migración para tabla preferenciaAlerta
       this.logger.warn(
-        'Tabla preferenciaAlerta no existe. Guardando en memoria temporal.',
+        "Tabla preferenciaAlerta no existe. Guardando en memoria temporal.",
       );
       return preferencia;
     } catch (error) {
       // Si la tabla no existe, loguear y retornar entidad sin persistir
-      if ((error as any).code === 'P2001' || (error as any).code === 'P2025') {
+      if ((error as any).code === "P2001" || (error as any).code === "P2025") {
         this.logger.warn(
-          'Tabla preferenciaAlerta no existe. Se requiere migración.',
+          "Tabla preferenciaAlerta no existe. Se requiere migración.",
         );
         return preferencia;
       }
@@ -71,7 +72,7 @@ export class PreferenciaAlertaRepository implements IPreferenciaAlertaRepository
       return results.map((r: any) => PreferenciaAlertaPrismaMapper.toDomain(r));
     } catch (error) {
       // Si la tabla no existe, retornar array vacío
-      if ((error as any).code === 'P2001') {
+      if ((error as any).code === "P2001") {
         return [];
       }
       throw error;
@@ -97,7 +98,7 @@ export class PreferenciaAlertaRepository implements IPreferenciaAlertaRepository
       return PreferenciaAlertaPrismaMapper.toDomain(result);
     } catch (error) {
       // Si la tabla no existe, retornar null
-      if ((error as any).code === 'P2001') {
+      if ((error as any).code === "P2001") {
         return null;
       }
       throw error;
@@ -111,12 +112,13 @@ export class PreferenciaAlertaRepository implements IPreferenciaAlertaRepository
       });
     } catch (error) {
       // Si la tabla no existe, no hacer nada
-      if ((error as any).code === 'P2001') {
-        this.logger.warn('Tabla preferenciaAlerta no existe. No se puede eliminar.');
+      if ((error as any).code === "P2001") {
+        this.logger.warn(
+          "Tabla preferenciaAlerta no existe. No se puede eliminar.",
+        );
         return;
       }
       throw error;
     }
   }
 }
-

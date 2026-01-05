@@ -16,14 +16,14 @@
  * ```
  */
 export interface IUseCase<TCommand, TResult> {
-    execute(command: TCommand): Promise<TResult> | TResult;
+  execute(command: TCommand): Promise<TResult> | TResult;
 }
 
 /**
  * Interface para casos de uso sin parámetros de entrada
  */
 export interface IUseCaseVoid<TResult> {
-    execute(): Promise<TResult> | TResult;
+  execute(): Promise<TResult> | TResult;
 }
 
 /**
@@ -31,26 +31,26 @@ export interface IUseCaseVoid<TResult> {
  * Separación CQRS: Commands vs Queries
  */
 export interface IQuery<TParams, TResult> {
-    execute(params: TParams): Promise<TResult>;
+  execute(params: TParams): Promise<TResult>;
 }
 
 /**
  * Interface para queries sin parámetros
  */
 export interface IQueryVoid<TResult> {
-    execute(): Promise<TResult>;
+  execute(): Promise<TResult>;
 }
 
 /**
  * Interface para handlers de comandos (CQRS pattern)
  */
 export interface ICommandHandler<TCommand, TResult = void> {
-    handle(command: TCommand): Promise<TResult>;
+  handle(command: TCommand): Promise<TResult>;
 }
 
 /**
  * Interface para handlers de queries (CQRS pattern)
  */
 export interface IQueryHandler<TQuery, TResult> {
-    handle(query: TQuery): Promise<TResult>;
+  handle(query: TQuery): Promise<TResult>;
 }

@@ -1,13 +1,13 @@
 /**
  * @module HES (Inspección de Equipos) - Clean Architecture
  */
-import { z } from 'zod';
+import { z } from "zod";
 
 // DTOs
 export const CreateHESSchema = z.object({
   equipoId: z.string().uuid(),
   ordenId: z.string().uuid().optional(),
-  tipo: z.enum(['pre_uso', 'periodica', 'extraordinaria']),
+  tipo: z.enum(["pre_uso", "periodica", "extraordinaria"]),
   resultados: z.record(z.string(), z.unknown()),
   observaciones: z.string().optional(),
   aprobado: z.boolean(),
@@ -38,7 +38,7 @@ export interface HESResponse {
 }
 
 // Repository Interface
-export const HES_REPOSITORY = Symbol('HES_REPOSITORY');
+export const HES_REPOSITORY = Symbol("HES_REPOSITORY");
 
 export interface IHESRepository {
   findAll(filters: HESQueryDto): Promise<any[]>;

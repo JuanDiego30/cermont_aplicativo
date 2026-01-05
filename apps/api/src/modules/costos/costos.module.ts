@@ -1,10 +1,14 @@
-import { Module } from '@nestjs/common';
-import { CostosController } from './infrastructure/controllers/costos.controller';
-import { CostosService } from './costos.service';
-import { COSTO_REPOSITORY } from './application/dto';
-import { CostoRepository } from './infrastructure/persistence';
-import { ListCostosUseCase, RegistrarCostoUseCase, GetAnalisisCostosUseCase } from './application/use-cases';
-import { PrismaModule } from '../../prisma/prisma.module';
+import { Module } from "@nestjs/common";
+import { CostosController } from "./infrastructure/controllers/costos.controller";
+import { CostosService } from "./costos.service";
+import { COSTO_REPOSITORY } from "./application/dto";
+import { CostoRepository } from "./infrastructure/persistence";
+import {
+  ListCostosUseCase,
+  RegistrarCostoUseCase,
+  GetAnalisisCostosUseCase,
+} from "./application/use-cases";
+import { PrismaModule } from "../../prisma/prisma.module";
 
 @Module({
   imports: [PrismaModule],
@@ -21,4 +25,4 @@ import { PrismaModule } from '../../prisma/prisma.module';
   ],
   exports: [CostosService],
 })
-export class CostosModule { }
+export class CostosModule {}

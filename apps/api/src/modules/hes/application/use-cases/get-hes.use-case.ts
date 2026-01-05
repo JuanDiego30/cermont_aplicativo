@@ -1,13 +1,13 @@
 /**
  * Use Case: GetHESUseCase
- * 
+ *
  * Obtiene una HES por ID
  */
 
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { HES } from '../../domain/entities/hes.entity';
-import { HESId } from '../../domain/value-objects/hes-id.vo';
-import { IHESRepository, HES_REPOSITORY } from '../../domain/repositories';
+import { Injectable, Inject, NotFoundException } from "@nestjs/common";
+import { HES } from "../../domain/entities/hes.entity";
+import { HESId } from "../../domain/value-objects/hes-id.vo";
+import { IHESRepository, HES_REPOSITORY } from "../../domain/repositories";
 
 @Injectable()
 export class GetHESUseCase {
@@ -27,4 +27,3 @@ export class GetHESUseCase {
     return hes;
   }
 }
-

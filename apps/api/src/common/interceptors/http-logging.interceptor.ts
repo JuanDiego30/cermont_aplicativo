@@ -4,11 +4,11 @@ import {
   Inject,
   Injectable,
   NestInterceptor,
-} from '@nestjs/common';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+} from "@nestjs/common";
+import { Observable, throwError } from "rxjs";
+import { catchError, tap } from "rxjs/operators";
 
-import { LoggerService } from '../logging/logger.service';
+import { LoggerService } from "../logging/logger.service";
 
 @Injectable()
 export class HttpLoggingInterceptor implements NestInterceptor {
@@ -23,7 +23,8 @@ export class HttpLoggingInterceptor implements NestInterceptor {
 
     const method = request?.method as string | undefined;
     const url = request?.url as string | undefined;
-    const requestId = (request?.requestId as string | undefined) || 'no-request-id';
+    const requestId =
+      (request?.requestId as string | undefined) || "no-request-id";
 
     const user = request?.user as { userId?: string } | undefined;
     const userId = user?.userId;
@@ -34,11 +35,18 @@ export class HttpLoggingInterceptor implements NestInterceptor {
         const durationMs = Date.now() - start;
 
         // Importante: no loguear body, headers ni PII (email, ip, user-agent).
-        this.logger.logApiRequest(method ?? 'UNKNOWN', url ?? 'UNKNOWN', statusCode, durationMs, userId, {
-          requestId,
-          controller: context.getClass()?.name,
-          handler: context.getHandler()?.name,
-        });
+        this.logger.logApiRequest(
+          method ?? "UNKNOWN",
+          url ?? "UNKNOWN",
+          statusCode,
+          durationMs,
+          userId,
+          {
+            requestId,
+            controller: context.getClass()?.name,
+            handler: context.getHandler()?.name,
+          },
+        );
       }),
       catchError((error) => {
         const statusCode = (response?.statusCode as number | undefined) ?? 0;
@@ -46,11 +54,11 @@ export class HttpLoggingInterceptor implements NestInterceptor {
 
         this.logger.logErrorWithStack(
           error instanceof Error ? error : new Error(String(error)),
-          'HttpLoggingInterceptor',
+          "HttpLoggingInterceptor",
           {
             requestId,
-            method: method ?? 'UNKNOWN',
-            url: url ?? 'UNKNOWN',
+            method: method ?? "UNKNOWN",
+            url: url ?? "UNKNOWN",
             statusCode,
             durationMs,
             userId,

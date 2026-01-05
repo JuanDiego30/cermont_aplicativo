@@ -4,105 +4,116 @@
  */
 
 export interface GeoLocationProps {
-    latitude: number;
-    longitude: number;
-    accuracy?: number;
-    timestamp?: Date;
+  latitude: number;
+  longitude: number;
+  accuracy?: number;
+  timestamp?: Date;
 }
 
 export class GeoLocation {
-    private readonly latitude: number;
-    private readonly longitude: number;
-    private readonly accuracy?: number;
-    private readonly timestamp?: Date;
+  private readonly latitude: number;
+  private readonly longitude: number;
+  private readonly accuracy?: number;
+  private readonly timestamp?: Date;
 
-    private constructor(props: GeoLocationProps) {
-        if (props.latitude < -90 || props.latitude > 90) {
-            throw new Error(`Invalid latitude: ${props.latitude}. Must be between -90 and 90.`);
-        }
-        if (props.longitude < -180 || props.longitude > 180) {
-            throw new Error(`Invalid longitude: ${props.longitude}. Must be between -180 and 180.`);
-        }
-        this.latitude = props.latitude;
-        this.longitude = props.longitude;
-        this.accuracy = props.accuracy;
-        this.timestamp = props.timestamp || new Date();
+  private constructor(props: GeoLocationProps) {
+    if (props.latitude < -90 || props.latitude > 90) {
+      throw new Error(
+        `Invalid latitude: ${props.latitude}. Must be between -90 and 90.`,
+      );
     }
-
-    public static create(props: GeoLocationProps): GeoLocation {
-        return new GeoLocation(props);
+    if (props.longitude < -180 || props.longitude > 180) {
+      throw new Error(
+        `Invalid longitude: ${props.longitude}. Must be between -180 and 180.`,
+      );
     }
+    this.latitude = props.latitude;
+    this.longitude = props.longitude;
+    this.accuracy = props.accuracy;
+    this.timestamp = props.timestamp || new Date();
+  }
 
-    public static fromJson(json: Record<string, unknown>): GeoLocation {
-        return new GeoLocation({
-            latitude: json['latitude'] as number,
-            longitude: json['longitude'] as number,
-            accuracy: json['accuracy'] as number | undefined,
-            timestamp: json['timestamp'] ? new Date(json['timestamp'] as string) : undefined,
-        });
-    }
+  public static create(props: GeoLocationProps): GeoLocation {
+    return new GeoLocation(props);
+  }
 
-    public getLatitude(): number {
-        return this.latitude;
-    }
+  public static fromJson(json: Record<string, unknown>): GeoLocation {
+    return new GeoLocation({
+      latitude: json["latitude"] as number,
+      longitude: json["longitude"] as number,
+      accuracy: json["accuracy"] as number | undefined,
+      timestamp: json["timestamp"]
+        ? new Date(json["timestamp"] as string)
+        : undefined,
+    });
+  }
 
-    public getLongitude(): number {
-        return this.longitude;
-    }
+  public getLatitude(): number {
+    return this.latitude;
+  }
 
-    public getAccuracy(): number | undefined {
-        return this.accuracy;
-    }
+  public getLongitude(): number {
+    return this.longitude;
+  }
 
-    public getTimestamp(): Date | undefined {
-        return this.timestamp;
-    }
+  public getAccuracy(): number | undefined {
+    return this.accuracy;
+  }
 
-    /**
-     * Calculate distance to another GeoLocation using Haversine formula.
-     * @returns Distance in meters
-     */
-    public distanceTo(other: GeoLocation): number {
-        const R = 6371000; // Earth radius in meters
-        const lat1 = this.toRadians(this.latitude);
-        const lat2 = this.toRadians(other.latitude);
-        const deltaLat = this.toRadians(other.latitude - this.latitude);
-        const deltaLon = this.toRadians(other.longitude - this.longitude);
+  public getTimestamp(): Date | undefined {
+    return this.timestamp;
+  }
 
-        const a =
-            Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-            Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  /**
+   * Calculate distance to another GeoLocation using Haversine formula.
+   * @returns Distance in meters
+   */
+  public distanceTo(other: GeoLocation): number {
+    const R = 6371000; // Earth radius in meters
+    const lat1 = this.toRadians(this.latitude);
+    const lat2 = this.toRadians(other.latitude);
+    const deltaLat = this.toRadians(other.latitude - this.latitude);
+    const deltaLon = this.toRadians(other.longitude - this.longitude);
 
-        return R * c;
-    }
+    const a =
+      Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+      Math.cos(lat1) *
+        Math.cos(lat2) *
+        Math.sin(deltaLon / 2) *
+        Math.sin(deltaLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-    public isWithinRadius(center: GeoLocation, radiusMeters: number): boolean {
-        return this.distanceTo(center) <= radiusMeters;
-    }
+    return R * c;
+  }
 
-    private toRadians(degrees: number): number {
-        return degrees * (Math.PI / 180);
-    }
+  public isWithinRadius(center: GeoLocation, radiusMeters: number): boolean {
+    return this.distanceTo(center) <= radiusMeters;
+  }
 
-    public toJson(): Record<string, unknown> {
-        return {
-            latitude: this.latitude,
-            longitude: this.longitude,
-            accuracy: this.accuracy,
-            timestamp: this.timestamp?.toISOString(),
-        };
-    }
+  private toRadians(degrees: number): number {
+    return degrees * (Math.PI / 180);
+  }
 
-    public format(): string {
-        return `${this.latitude.toFixed(6)}, ${this.longitude.toFixed(6)}`;
-    }
+  public toJson(): Record<string, unknown> {
+    return {
+      latitude: this.latitude,
+      longitude: this.longitude,
+      accuracy: this.accuracy,
+      timestamp: this.timestamp?.toISOString(),
+    };
+  }
 
-    public equals(other: GeoLocation): boolean {
-        return this.latitude === other.latitude && this.longitude === other.longitude;
-    }
+  public format(): string {
+    return `${this.latitude.toFixed(6)}, ${this.longitude.toFixed(6)}`;
+  }
 
-    public toString(): string {
-        return this.format();
-    }
+  public equals(other: GeoLocation): boolean {
+    return (
+      this.latitude === other.latitude && this.longitude === other.longitude
+    );
+  }
+
+  public toString(): string {
+    return this.format();
+  }
 }

@@ -15,15 +15,8 @@ Generar reportes PDF profesionales, visualmente fieles y optimizados, asegurando
 
 ## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
 
-### ❌ Violaciones Críticas de Type Safety (Fix Prioritario)
-Múltiples plantillas y casos de uso utilizan `any`, lo que hace frágil la generación de documentos. **ACCIÓN INMEDIATA REQUERIDA**.
-
-| Archivo | Línea | Violación | Solución |
-|---------|-------|-----------|----------|
-| `mantenimiento.template.ts` | 4 | `generate(data: any)` | Crear interfaz `MantenimientoPDFData` |
-| `orden.template.ts` | 4, 128, 182, 206 | `generate(data: any)`, maps con `any` | Crear `OrdenPDFData`, `ClienteData`, `TecnicoData` |
-| `certificado.template.ts` | 4 | `generate(data: any)` | Crear `CertificadoPDFData` |
-| `generate-*.use-case.ts` | 39-52 | `templateData: any` | Usar interfaces específicas |
+### ✅ Estado (Actualizado)
+Las plantillas y datos del módulo están tipados (p.ej. `OrdenPDFData`, `MantenimientoPDFData`, `CertificadoPDFData`). Mantener este estándar: **0 `any` en el pipeline de generación**.
 
 ---
 
@@ -33,7 +26,7 @@ Múltiples plantillas y casos de uso utilizan `any`, lo que hace frágil la gene
 Actúa como CERMONT BACKEND REPORTES PDF AGENT.
 
 EJECUTA SIN PREGUNTAR:
-1. ANÁLISIS: apps/api/src/modules/reportes/**
+1. ANÁLISIS: apps/api/src/modules/pdf-generation/**
    - CORREGIR TIPOS EN TEMPLATES (Prioridad 1)
    - Verificar motor de renderizado (Puppeteer vs PDFKit)
    - Revisar caché de archivos generados
@@ -42,7 +35,7 @@ EJECUTA SIN PREGUNTAR:
 
 3. IMPLEMENTACIÓN: Plantillas tipadas + Generación eficiente
 
-4. VERIFICACIÓN: pnpm run test -- --testPathPattern=reportes
+4. VERIFICACIÓN: pnpm --filter @cermont/api test -- --testPathPattern=pdf-generation
 ```
 
 ---

@@ -1,10 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { logError } from '../utils/logger';
+import { createHttpErrorHandler } from '../utils/http-error.util';
 
 export interface Usuario {
     userId: string;
@@ -38,6 +38,8 @@ export class AuthService {
 
     private currentUserSubject = new BehaviorSubject<Usuario | null>(this.getUserFromStorage());
     public currentUser$ = this.currentUserSubject.asObservable();
+
+    private readonly handleError = createHttpErrorHandler('AuthService');
 
     /**
      * Realiza el login del usuario
@@ -79,10 +81,7 @@ export class AuthService {
             return throwError(() => new Error('No refresh token available'));
         }
 
-        return this.http.post<{ accessToken: string }>(
-            `${this.API_URL}/refresh`,
-            { refreshToken }
-        ).pipe(
+        return this.http.post<{ accessToken: string }>(`${this.API_URL}/refresh`, { refreshToken }).pipe(
             tap(response => {
                 this.setToken(response.accessToken);
             }),
@@ -178,21 +177,4 @@ export class AuthService {
         this.setUser(response.user);
     }
 
-    /**
-     * Maneja errores HTTP
-     */
-    private handleError(error: HttpErrorResponse): Observable<never> {
-        let errorMessage = 'Ha ocurrido un error';
-
-        if (error.error instanceof ErrorEvent) {
-            // Error del cliente
-            errorMessage = `Error: ${error.error.message}`;
-        } else {
-            // Error del servidor
-            errorMessage = error.error?.message || `Error ${error.status}: ${error.statusText}`;
-        }
-
-        logError('Error en AuthService', error, { errorMessage });
-        return throwError(() => new Error(errorMessage));
-    }
 }

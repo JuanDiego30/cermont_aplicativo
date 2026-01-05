@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { logError } from '../utils/logger';
+import { buildHttpParams } from '../utils/http-params.util';
+import { createHttpErrorHandler } from '../utils/http-error.util';
 import {
   User,
   CreateUserDto,
@@ -22,6 +23,7 @@ import {
 export class AdminService {
   private readonly http = inject(HttpClient);
   private readonly API_URL = `${environment.apiUrl}/admin`;
+  private readonly handleError = createHttpErrorHandler('AdminService');
 
   // ============================================
   // USER CRUD
@@ -31,15 +33,7 @@ export class AdminService {
    * Get paginated list of users with optional filters
    */
   getUsers(query?: ListUsersQuery): Observable<PaginatedUsers> {
-    let params = new HttpParams();
-
-    if (query) {
-      Object.entries(query).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          params = params.set(key, String(value));
-        }
-      });
-    }
+    const params = buildHttpParams(query as unknown as Record<string, unknown> | undefined);
 
     return this.http.get<PaginatedUsers>(`${this.API_URL}/users`, { params }).pipe(
       catchError(this.handleError)
@@ -152,16 +146,4 @@ export class AdminService {
   // ERROR HANDLING
   // ============================================
 
-  private handleError(error: HttpErrorResponse): Observable<never> {
-    let errorMessage = 'Ha ocurrido un error';
-
-    if (error.error instanceof ErrorEvent) {
-      errorMessage = `Error: ${error.error.message}`;
-    } else {
-      errorMessage = error.error?.message || `Error ${error.status}: ${error.statusText}`;
-    }
-
-    logError('AdminService Error', error, { errorMessage });
-    return throwError(() => new Error(errorMessage));
-  }
 }

@@ -1,17 +1,17 @@
 /**
  * @service CierreAdministrativoService
  * @description Servicio para gestión del cierre administrativo de órdenes
- * 
+ *
  * Maneja: Actas, SES, Facturas y cierre final
- * 
+ *
  * Principios aplicados:
  * - Type Safety: DTOs tipados
  * - DRY: Método genérico para upsert
  * - Clean Code: Código legible y bien estructurado
  */
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { Prisma } from "@prisma/client";
 
 // ============================================================================
 // Interfaces y DTOs
@@ -60,7 +60,7 @@ export interface CierreCompleto {
 
 @Injectable()
 export class CierreAdministrativoService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Obtiene todos los documentos de cierre para una orden
@@ -91,13 +91,13 @@ export class CierreAdministrativoService {
       create: {
         orden: { connect: { id: ordenId } },
         numero: dto.numero!,
-        trabajosRealizados: dto.descripcion || 'Sin descripción',
+        trabajosRealizados: dto.descripcion || "Sin descripción",
         ...dto,
       },
     });
 
     return {
-      message: 'Acta guardada exitosamente',
+      message: "Acta guardada exitosamente",
       data: acta,
     };
   }
@@ -118,7 +118,7 @@ export class CierreAdministrativoService {
       create: {
         orden: { connect: { id: ordenId } },
         numeroSES: dto.numero,
-        descripcionServicio: 'Servicio general', // Default
+        descripcionServicio: "Servicio general", // Default
         valorTotal: dto.monto || 0,
         estado: dto.estado as any,
         observaciones: dto.observaciones,
@@ -126,7 +126,7 @@ export class CierreAdministrativoService {
     });
 
     return {
-      message: 'SES guardada exitosamente',
+      message: "SES guardada exitosamente",
       data: ses,
     };
   }
@@ -152,12 +152,12 @@ export class CierreAdministrativoService {
         impuestos: dto.iva || 0,
         valorTotal: dto.total || dto.monto,
         estado: dto.estado as any,
-        conceptos: 'Concepto general', // Default
+        conceptos: "Concepto general", // Default
       },
     });
 
     return {
-      message: 'Factura guardada exitosamente',
+      message: "Factura guardada exitosamente",
       data: factura,
     };
   }
@@ -170,7 +170,9 @@ export class CierreAdministrativoService {
     userId: string,
   ): Promise<CierreResponse<unknown>> {
     // Necesitamos fechaInicioOrden from Order
-    const orden = await this.prisma.order.findUnique({ where: { id: ordenId } });
+    const orden = await this.prisma.order.findUnique({
+      where: { id: ordenId },
+    });
 
     const cierreData = {
       completado: true,
@@ -184,7 +186,7 @@ export class CierreAdministrativoService {
       update: {
         estaCompleto: true,
         fechaCierreCompleto: new Date(),
-        observaciones: 'Cierre completado',
+        observaciones: "Cierre completado",
       },
       create: {
         orden: { connect: { id: ordenId } },
@@ -196,7 +198,7 @@ export class CierreAdministrativoService {
     });
 
     return {
-      message: 'Cierre administrativo completado',
+      message: "Cierre administrativo completado",
       data: cierre,
     };
   }

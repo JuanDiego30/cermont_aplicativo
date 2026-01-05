@@ -3,7 +3,7 @@
  * @description Value Object que representa un JWT Token con validación
  * @layer Domain
  */
-import { JwtService } from '@nestjs/jwt';
+import { JwtService } from "@nestjs/jwt";
 
 export interface JwtPayload {
   /** Standard JWT subject */
@@ -62,10 +62,7 @@ export class JwtToken {
     return new JwtToken(token, enrichedPayload);
   }
 
-  static fromString(
-    jwtService: JwtService,
-    token: string,
-  ): JwtToken | null {
+  static fromString(jwtService: JwtService, token: string): JwtToken | null {
     try {
       const payload = jwtService.verify<JwtPayload>(token);
       return new JwtToken(token, payload);
@@ -76,9 +73,9 @@ export class JwtToken {
 
   static decode(token: string): JwtPayload | null {
     try {
-      const [, payloadBase64] = token.split('.');
+      const [, payloadBase64] = token.split(".");
       const payload = JSON.parse(
-        Buffer.from(payloadBase64, 'base64').toString('utf8'),
+        Buffer.from(payloadBase64, "base64").toString("utf8"),
       );
       return payload as JwtPayload;
     } catch {

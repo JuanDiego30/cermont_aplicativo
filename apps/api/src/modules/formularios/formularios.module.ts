@@ -4,12 +4,12 @@
  * Módulo de formularios dinámicos con DDD completo.
  * Permite crear, gestionar, renderizar y procesar formularios configurables.
  */
-import { Module } from '@nestjs/common';
-import { MulterModule } from '@nestjs/platform-express';
-import { EventEmitterModule } from '@nestjs/event-emitter';
+import { Module } from "@nestjs/common";
+import { MulterModule } from "@nestjs/platform-express";
+import { EventEmitterModule } from "@nestjs/event-emitter";
 
 // Controllers
-import { FormulariosController } from './infrastructure/controllers/formularios.controller';
+import { FormulariosController } from "./infrastructure/controllers/formularios.controller";
 
 // Use Cases
 import {
@@ -22,23 +22,23 @@ import {
   SubmitFormUseCase,
   GetSubmissionUseCase,
   ListSubmissionsUseCase,
-} from './application/use-cases';
+} from "./application/use-cases";
 
 // Repositories
 import {
   FormTemplateRepository,
   FormSubmissionRepository,
-} from './infrastructure/persistence';
+} from "./infrastructure/persistence";
 import {
   IFormTemplateRepository,
   IFormSubmissionRepository,
   FORM_TEMPLATE_REPOSITORY,
   FORM_SUBMISSION_REPOSITORY,
-} from './domain/repositories';
+} from "./domain/repositories";
 
 // Services
-import { FormParserService } from './infrastructure/services/form-parser.service';
-import { JSONSchemaValidatorService } from './infrastructure/services/json-schema-validator.service';
+import { FormParserService } from "./infrastructure/services/form-parser.service";
+import { JSONSchemaValidatorService } from "./infrastructure/services/json-schema-validator.service";
 
 // Domain Services
 import {
@@ -46,11 +46,11 @@ import {
   ConditionalLogicEvaluatorService,
   CalculationEngineService,
   FormSchemaGeneratorService,
-} from './domain/services';
+} from "./domain/services";
 
 // Legacy (deprecar)
-import { FormulariosService } from './formularios.service';
-import { PrismaModule } from '../../prisma/prisma.module';
+import { FormulariosService } from "./formularios.service";
+import { PrismaModule } from "../../prisma/prisma.module";
 
 @Module({
   imports: [
@@ -122,4 +122,4 @@ import { PrismaModule } from '../../prisma/prisma.module';
     FormulariosService,
   ],
 })
-export class FormulariosModule { }
+export class FormulariosModule {}

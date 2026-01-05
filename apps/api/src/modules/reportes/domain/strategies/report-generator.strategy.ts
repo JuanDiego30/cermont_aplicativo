@@ -8,25 +8,25 @@
  */
 
 export interface ReportData {
-    title: string;
-    headers: string[];
-    rows: (string | number)[][];
-    metadata?: Record<string, unknown>;
+  title: string;
+  headers: string[];
+  rows: (string | number)[][];
+  metadata?: Record<string, unknown>;
 }
 
 export interface ReportGeneratorStrategy {
-    /**
-     * Generate the report in the specific format
-     */
-    generate(data: ReportData): Promise<Buffer>;
+  /**
+   * Generate the report in the specific format
+   */
+  generate(data: ReportData): Promise<Buffer>;
 
-    /**
-     * Get the MIME type for the generated file
-     */
-    getMimeType(): string;
+  /**
+   * Get the MIME type for the generated file
+   */
+  getMimeType(): string;
 
-    /**
-     * Get the file extension
-     */
-    getFileExtension(): string;
+  /**
+   * Get the file extension
+   */
+  getFileExtension(): string;
 }

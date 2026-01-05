@@ -1,10 +1,13 @@
-import { Module } from '@nestjs/common';
-import { ReportesController } from './infrastructure/controllers/reportes.controller';
-import { ReportesService } from './reportes.service';
-import { REPORTE_REPOSITORY } from './application/dto';
-import { ReporteRepository } from './infrastructure/persistence';
-import { GenerateReporteOrdenesUseCase, GetReporteOrdenDetalleUseCase } from './application/use-cases';
-import { PrismaModule } from '../../prisma/prisma.module';
+import { Module } from "@nestjs/common";
+import { ReportesController } from "./infrastructure/controllers/reportes.controller";
+import { ReportesService } from "./reportes.service";
+import { REPORTE_REPOSITORY } from "./application/dto";
+import { ReporteRepository } from "./infrastructure/persistence";
+import {
+  GenerateReporteOrdenesUseCase,
+  GetReporteOrdenDetalleUseCase,
+} from "./application/use-cases";
+import { PrismaModule } from "../../prisma/prisma.module";
 
 @Module({
   imports: [PrismaModule],
@@ -20,4 +23,4 @@ import { PrismaModule } from '../../prisma/prisma.module';
   ],
   exports: [ReportesService],
 })
-export class ReportesModule { }
+export class ReportesModule {}

@@ -1,15 +1,15 @@
 /**
  * Repository: FormSubmissionRepository
- * 
+ *
  * Implementación Prisma de IFormSubmissionRepository
  */
 
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../../prisma/prisma.service';
-import { IFormSubmissionRepository } from '../../domain/repositories/form-submission.repository.interface';
-import { FormSubmission } from '../../domain/entities/form-submission.entity';
-import { FormSubmissionId } from '../../domain/value-objects/form-submission-id.vo';
-import { FormTemplateId } from '../../domain/value-objects/form-template-id.vo';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../../../prisma/prisma.service";
+import { IFormSubmissionRepository } from "../../domain/repositories/form-submission.repository.interface";
+import { FormSubmission } from "../../domain/entities/form-submission.entity";
+import { FormSubmissionId } from "../../domain/value-objects/form-submission-id.vo";
+import { FormTemplateId } from "../../domain/value-objects/form-template-id.vo";
 
 @Injectable()
 export class FormSubmissionRepository implements IFormSubmissionRepository {
@@ -67,7 +67,7 @@ export class FormSubmissionRepository implements IFormSubmissionRepository {
       where: {
         templateId: templateId.getValue(),
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       include: {
         template: true,
       },
@@ -86,7 +86,7 @@ export class FormSubmissionRepository implements IFormSubmissionRepository {
       where: {
         ordenId: contextId,
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       include: {
         template: true,
       },
@@ -105,7 +105,7 @@ export class FormSubmissionRepository implements IFormSubmissionRepository {
 
   async findAll(): Promise<FormSubmission[]> {
     const submissions = await this.prisma.formularioInstancia.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       include: {
         template: true,
       },
@@ -124,12 +124,12 @@ export class FormSubmissionRepository implements IFormSubmissionRepository {
     return FormSubmission.fromPersistence({
       id: prismaData.id,
       templateId: prismaData.templateId,
-      templateVersion: prismaData.template?.version || '1.0',
+      templateVersion: prismaData.template?.version || "1.0",
       answers: prismaData.data || {},
-      status: prismaData.estado?.toUpperCase() || 'INCOMPLETE',
-      contextType: 'orden', // Simplificado
+      status: prismaData.estado?.toUpperCase() || "INCOMPLETE",
+      contextType: "orden", // Simplificado
       contextId: prismaData.ordenId,
-      submittedBy: prismaData.completadoPorId || '',
+      submittedBy: prismaData.completadoPorId || "",
       submittedAt: prismaData.completadoEn,
       validatedAt: prismaData.revisadoEn,
       validatedBy: prismaData.revisadoPorId,
@@ -138,4 +138,3 @@ export class FormSubmissionRepository implements IFormSubmissionRepository {
     });
   }
 }
-

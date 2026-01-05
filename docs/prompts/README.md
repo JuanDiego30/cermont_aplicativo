@@ -2,24 +2,29 @@
 
 Este directorio contiene los prompts especializados para cada uno de los 22 Agentes del Sistema Cermont (Antigravity).
 
-**Última Actualización:** 2026-01-02 (Refactor con hallazgos de Research)
+**Última Actualización:** 2026-01-05 (Foundation + ajustes Auth/Security)
 
 ---
 
 ## 📂 Organización
 
+### Foundation (Sprint 1)
+| ID | Agente | Responsabilidad | Status |
+|----|--------|----------------|--------|
+| `FND-01` | Foundation | Repo verde, secrets, métricas | ✅ OK |
+
 ### Backend Agents (01-10 + 21)
 | ID | Agente | Responsabilidad | Status |
 |----|--------|----------------|--------|
 | `01` | Auth | Login, JWT, ACL | ✅ OK |
-| `02` | Ordenes | Estados, Cálculos | ⚠️ Fix Types |
+| `02` | Ordenes | Estados, Cálculos | ✅ OK |
 | `03` | Evidencias | Archivos, S3 | ✅ OK |
 | `04` | Formularios | JSON Schema | ✅ OK |
-| `05` | Sync | Offline, Conflictos | ⚠️ Fix Controller Types |
-| `06` | Reportes | PDF Generation | ⚠️ Fix Template Types |
+| `05` | Sync | Offline, Conflictos | ✅ OK |
+| `06` | Reportes | PDF Generation | ✅ OK |
 | `07` | Logging | Logs, Secrets | ✅ OK |
-| `08` | Emails | BullMQ, Templates | ⚠️ Fix Queue Types |
-| `09` | Caching | Redis, TTL | ⚠️ Fix Cache Types |
+| `08` | Emails | BullMQ, Templates | ✅ OK |
+| `09` | Caching | Redis, TTL | ✅ OK |
 | `10` | API Docs | Swagger | ✅ OK |
 | `21` | Security | CORS, Rate Limit | ✅ OK |
 
@@ -32,7 +37,7 @@ Este directorio contiene los prompts especializados para cada uno de los 22 Agen
 | `14` | State | Signals, RxJS | 🚨 Memory Leaks |
 | `15` | Performance | Bundle, Vitals | ⚠️ Linked to Leaks |
 | `16` | I18n | Traducciones | ✅ OK |
-| `19` | Auth Crit. | Login Flow | 🚨 Auth Leaks |
+| `19` | Auth Crit. | Login Flow | ✅ Leaks corregidos |
 | `20` | Shared | Reusable | ⚠️ Shared Types |
 
 ### DevOps & Testing (17, 18, 22)
@@ -53,7 +58,7 @@ Este directorio contiene los prompts especializados para cada uno de los 22 Agen
 
 ---
 
-## 🔴 Research Findings (2026-01-02)
+## 🔴 Research Findings (2026-01-05)
 
 Todos los prompts han sido actualizados con una sección **"ESTADO ACTUAL Y VIOLACIONES"** que detalla:
 - **Violaciones de Type Safety (`: any`)** con archivo y línea específica.

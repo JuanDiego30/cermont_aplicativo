@@ -4,5 +4,4 @@ export {
   PaginatedResult,
   CostoFilters,
   PaginationQuery,
-} from './costo.repository.interface';
-
+} from "./costo.repository.interface";

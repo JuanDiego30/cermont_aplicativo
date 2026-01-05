@@ -227,10 +227,7 @@ export class PdfController {
 
 ##  RESEARCH FINDINGS (2026-01-02)
 
-### Type Safety Violations
-- mantenimiento.template.ts L4: data: any
-- orden.template.ts L4,128,182,206: Multiples any
-- certificado.template.ts L4: data: any
-- generate-*.use-case.ts L39-52: templateData: any
-
-### Fix: Crear interfaces OrdenPDFData, ClienteData, TecnicoData
+### Type Safety (Estado actual)
+- ✅ Plantillas tipadas: `OrdenPDFData`, `MantenimientoPDFData`, `CertificadoPDFData`.
+- ✅ Use-cases ya no declaran `templateData: any`.
+- Mantener la regla: no introducir `any` en el pipeline (DTO → normalización → template → generator).

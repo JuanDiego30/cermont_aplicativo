@@ -50,9 +50,9 @@ EJECUTA SIN PREGUNTAR:
 ## 📋 GUIDELINES DE DISEÑO
 
 1. **Aestethics (Regla User)**
-   - Colores vibrantes (HSL), glassmorphism, micro-animaciones.
-   - Fuentes modernas (Inter/Roboto).
-   - "Premium feel" - evitar diseños planos o genéricos.
+   - Respetar el design system existente (tokens/variables/utility classes).
+   - No hardcodear nuevos colores, tipografías o sombras fuera de los primitivos ya definidos.
+   - Prioridad: accesibilidad (focus, contraste) y consistencia visual.
 
 2. **Componentes Genéricos**
    - Las Tablas deben aceptar un genérico `<T>` para conocer la estructura de sus filas.

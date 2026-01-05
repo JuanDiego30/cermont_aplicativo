@@ -1,9 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
-import { EmailService } from './email/email.service';
-import { EmailQueueService } from './email/email-queue.service';
-import { renderEmailTemplate, type EmailTemplateName } from './email/email-templates';
-import type { SendEmailInput, SendEmailResult } from './email/email.types';
+import { EmailService } from "./email/email.service";
+import { EmailQueueService } from "./email/email-queue.service";
+import {
+  renderEmailTemplate,
+  type EmailTemplateName,
+} from "./email/email-templates";
+import type { SendEmailInput, SendEmailResult } from "./email/email.types";
 
 /**
  * Façade del módulo de notificaciones.
@@ -28,7 +31,10 @@ export class NotificationsService {
     await this.emailQueue.enqueueBatch(inputs);
   }
 
-  renderTemplate(name: EmailTemplateName, data: Record<string, unknown>): { html: string; text: string } {
+  renderTemplate(
+    name: EmailTemplateName,
+    data: Record<string, unknown>,
+  ): { html: string; text: string } {
     return renderEmailTemplate(name, data);
   }
 }

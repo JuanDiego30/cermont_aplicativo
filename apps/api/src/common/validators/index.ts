@@ -1,1 +1,1 @@
-export * from './is-valid-uuid.validator';
+export * from "./is-valid-uuid.validator";

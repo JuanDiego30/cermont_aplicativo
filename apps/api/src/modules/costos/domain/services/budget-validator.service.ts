@@ -1,18 +1,18 @@
 /**
  * Domain Service: BudgetValidatorService
- * 
+ *
  * Servicio de dominio para validación de presupuesto
  */
 
-import { Money } from '../value-objects/money.vo';
-import { BudgetLimit } from '../value-objects/budget-limit.vo';
-import { BudgetExceededException } from '../exceptions';
-import { BudgetAlertTriggeredEvent } from '../events';
+import { Money } from "../value-objects/money.vo";
+import { BudgetLimit } from "../value-objects/budget-limit.vo";
+import { BudgetExceededException } from "../exceptions";
+import { BudgetAlertTriggeredEvent } from "../events";
 
 export interface ValidationResult {
   isValid: boolean;
   error?: string;
-  status: 'OK' | 'WARNING' | 'EXCEEDED';
+  status: "OK" | "WARNING" | "EXCEEDED";
   utilizationPercentage: number;
   remainingBudget: Money;
 }
@@ -35,8 +35,8 @@ export class BudgetValidatorService {
     if (limit.isExceeded(newTotal)) {
       return {
         isValid: false,
-        error: 'El costo excede el límite presupuestal',
-        status: 'EXCEEDED',
+        error: "El costo excede el límite presupuestal",
+        status: "EXCEEDED",
         utilizationPercentage,
         remainingBudget,
       };
@@ -46,7 +46,7 @@ export class BudgetValidatorService {
     if (limit.alertRequired(newTotal)) {
       return {
         isValid: true,
-        status: 'WARNING',
+        status: "WARNING",
         utilizationPercentage,
         remainingBudget,
       };
@@ -54,7 +54,7 @@ export class BudgetValidatorService {
 
     return {
       isValid: true,
-      status: 'OK',
+      status: "OK",
       utilizationPercentage,
       remainingBudget,
     };
@@ -67,13 +67,14 @@ export class BudgetValidatorService {
     currentTotal: Money,
     limit: BudgetLimit,
   ): {
-    status: 'OK' | 'WARNING' | 'EXCEEDED';
+    status: "OK" | "WARNING" | "EXCEEDED";
     utilizationPercentage: number;
     remainingBudget: Money;
     alertRequired: boolean;
   } {
     const status = limit.getStatus(currentTotal);
-    const utilizationPercentage = limit.utilizationPercentageAsNumber(currentTotal);
+    const utilizationPercentage =
+      limit.utilizationPercentageAsNumber(currentTotal);
     const remainingBudget = limit.remainingBudget(currentTotal);
     const alertRequired = limit.alertRequired(currentTotal);
 
@@ -85,4 +86,3 @@ export class BudgetValidatorService {
     };
   }
 }
-

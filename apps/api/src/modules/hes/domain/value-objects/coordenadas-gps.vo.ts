@@ -1,10 +1,10 @@
 /**
  * Value Object: CoordenadasGPS
- * 
+ *
  * Coordenadas geográficas (latitud, longitud)
  */
 
-import { ValidationError } from '../../../../common/domain/exceptions';
+import { ValidationError } from "../../../../common/domain/exceptions";
 
 export class CoordenadasGPS {
   private constructor(
@@ -21,15 +21,19 @@ export class CoordenadasGPS {
 
   private static validate(latitud: number, longitud: number): void {
     if (isNaN(latitud) || isNaN(longitud)) {
-      throw new ValidationError('Latitud y longitud deben ser números válidos');
+      throw new ValidationError("Latitud y longitud deben ser números válidos");
     }
 
     if (latitud < -90 || latitud > 90) {
-      throw new ValidationError(`Latitud inválida: ${latitud}. Debe estar entre -90 y 90`);
+      throw new ValidationError(
+        `Latitud inválida: ${latitud}. Debe estar entre -90 y 90`,
+      );
     }
 
     if (longitud < -180 || longitud > 180) {
-      throw new ValidationError(`Longitud inválida: ${longitud}. Debe estar entre -180 y 180`);
+      throw new ValidationError(
+        `Longitud inválida: ${longitud}. Debe estar entre -180 y 180`,
+      );
     }
   }
 
@@ -59,4 +63,3 @@ export class CoordenadasGPS {
     );
   }
 }
-

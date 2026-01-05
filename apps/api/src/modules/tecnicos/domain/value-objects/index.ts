@@ -1,2 +1,2 @@
-export * from './tecnico-disponibilidad.vo';
-export * from './tecnico-especialidad.vo';
+export * from "./tecnico-disponibilidad.vo";
+export * from "./tecnico-especialidad.vo";

@@ -1,12 +1,20 @@
 /**
  * DTO: CreateFormTemplateDto
- * 
+ *
  * DTO para crear un nuevo template de formulario
  */
 
-import { IsString, IsNotEmpty, IsOptional, IsArray, IsBoolean, IsNumber, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsArray,
+  IsBoolean,
+  IsNumber,
+  ValidateNested,
+} from "class-validator";
+import { Type } from "class-transformer";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class CreateFormFieldDto {
   @ApiPropertyOptional()
@@ -14,12 +22,12 @@ export class CreateFormFieldDto {
   @IsString()
   id?: string;
 
-  @ApiProperty({ example: 'TEXT' })
+  @ApiProperty({ example: "TEXT" })
   @IsString()
   @IsNotEmpty()
   type!: string;
 
-  @ApiProperty({ example: 'Nombre del Cliente' })
+  @ApiProperty({ example: "Nombre del Cliente" })
   @IsString()
   @IsNotEmpty()
   label!: string;
@@ -56,17 +64,22 @@ export class CreateFormFieldDto {
 }
 
 export class CreateFormTemplateDto {
-  @ApiProperty({ example: 'Inspección Líneas de Vida' })
+  @ApiProperty({ example: "Inspección Líneas de Vida" })
   @IsString()
   @IsNotEmpty()
   name!: string;
 
-  @ApiPropertyOptional({ example: 'Formulario para inspección de líneas de vida verticales' })
+  @ApiPropertyOptional({
+    example: "Formulario para inspección de líneas de vida verticales",
+  })
   @IsOptional()
   @IsString()
   description?: string;
 
-  @ApiProperty({ example: 'inspeccion', enum: ['orden', 'checklist', 'inspeccion', 'encuesta'] })
+  @ApiProperty({
+    example: "inspeccion",
+    enum: ["orden", "checklist", "inspeccion", "encuesta"],
+  })
   @IsString()
   @IsNotEmpty()
   contextType!: string;
@@ -78,4 +91,3 @@ export class CreateFormTemplateDto {
   @Type(() => CreateFormFieldDto)
   fields?: CreateFormFieldDto[];
 }
-

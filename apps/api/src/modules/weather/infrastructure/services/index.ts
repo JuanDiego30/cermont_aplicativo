@@ -1,1 +1,1 @@
-export * from './open-meteo-weather.service';
+export * from "./open-meteo-weather.service";

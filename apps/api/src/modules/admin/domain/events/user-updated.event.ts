@@ -1,6 +1,6 @@
 /**
  * @event UserUpdatedEvent
- * 
+ *
  * Evento de dominio emitido cuando se actualiza un usuario.
  */
 
@@ -12,7 +12,7 @@ export interface UserUpdateChanges {
 
 export class UserUpdatedEvent {
   readonly occurredAt: Date;
-  readonly eventName = 'UserUpdatedEvent';
+  readonly eventName = "UserUpdatedEvent";
 
   constructor(
     readonly userId: string,

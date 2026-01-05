@@ -1,12 +1,12 @@
 /**
  * @mapper AlertaMapper
- * 
+ *
  * Mapea entre Domain Entity y DTOs
  * Pure functions sin efectos secundarios
  */
 
-import { Alerta } from '../../domain/entities/alerta.entity';
-import { AlertaResponseDto } from '../dto/alerta-response.dto';
+import { Alerta } from "../../domain/entities/alerta.entity";
+import { AlertaResponseDto } from "../dto/alerta-response.dto";
 
 export class AlertaMapper {
   /**
@@ -43,4 +43,3 @@ export class AlertaMapper {
     return alertas.map((alerta) => this.toResponseDto(alerta));
   }
 }
-

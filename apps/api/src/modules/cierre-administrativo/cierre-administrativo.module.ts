@@ -1,14 +1,14 @@
-import { Module } from '@nestjs/common';
-import { PrismaModule } from '../../prisma/prisma.module';
-import { CierreAdministrativoController } from './infrastructure/controllers/cierre-administrativo.controller';
-import { CierreAdministrativoService } from './cierre-administrativo.service';
-import { CIERRE_REPOSITORY } from './application/dto';
-import { CierreRepository } from './infrastructure/persistence';
+import { Module } from "@nestjs/common";
+import { PrismaModule } from "../../prisma/prisma.module";
+import { CierreAdministrativoController } from "./infrastructure/controllers/cierre-administrativo.controller";
+import { CierreAdministrativoService } from "./cierre-administrativo.service";
+import { CIERRE_REPOSITORY } from "./application/dto";
+import { CierreRepository } from "./infrastructure/persistence";
 import {
   CreateCierreUseCase,
   GetCierreByOrdenUseCase,
   AprobarCierreUseCase,
-} from './application/use-cases';
+} from "./application/use-cases";
 
 @Module({
   imports: [PrismaModule],
@@ -34,5 +34,4 @@ import {
     AprobarCierreUseCase,
   ],
 })
-export class CierreAdministrativoModule { }
-
+export class CierreAdministrativoModule {}

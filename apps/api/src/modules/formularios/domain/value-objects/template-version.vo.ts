@@ -1,10 +1,10 @@
 /**
  * Value Object: TemplateVersion
- * 
+ *
  * Versionado semántico para templates (major.minor.patch)
  */
 
-import { ValidationError } from '../../../../common/domain/exceptions';
+import { ValidationError } from "../../../../common/domain/exceptions";
 
 export class TemplateVersion {
   private constructor(
@@ -13,7 +13,7 @@ export class TemplateVersion {
     private readonly _patch: number,
   ) {
     if (_major < 0 || _minor < 0 || _patch < 0) {
-      throw new ValidationError('Version numbers must be non-negative');
+      throw new ValidationError("Version numbers must be non-negative");
     }
     Object.freeze(this);
   }
@@ -23,9 +23,11 @@ export class TemplateVersion {
   }
 
   public static create(version: string): TemplateVersion {
-    const parts = version.split('.').map(Number);
+    const parts = version.split(".").map(Number);
     if (parts.length !== 3 || parts.some(isNaN) || parts.some((p) => p < 0)) {
-      throw new ValidationError('Invalid version format. Use semver (e.g., 1.0.0)');
+      throw new ValidationError(
+        "Invalid version format. Use semver (e.g., 1.0.0)",
+      );
     }
     return new TemplateVersion(parts[0], parts[1], parts[2]);
   }
@@ -74,4 +76,3 @@ export class TemplateVersion {
     );
   }
 }
-

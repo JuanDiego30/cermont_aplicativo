@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { Injectable, Logger } from "@nestjs/common";
+import { OnEvent } from "@nestjs/event-emitter";
 
-import { NotificationsService } from '../../../notifications/notifications.service';
+import { NotificationsService } from "../../../notifications/notifications.service";
 
 type TwoFactorCodeGeneratedEvent = {
   userId: string;
@@ -17,14 +17,14 @@ export class Auth2FAEmailHandler {
 
   constructor(private readonly notifications: NotificationsService) {}
 
-  @OnEvent('auth.2fa.code-generated')
+  @OnEvent("auth.2fa.code-generated")
   async handle(event: TwoFactorCodeGeneratedEvent): Promise<void> {
     try {
       // Regla 6: nunca loguear el código
       await this.notifications.enqueueEmail({
         to: event.email,
-        subject: 'Tu código de verificación (2FA)',
-        template: 'two-factor-code',
+        subject: "Tu código de verificación (2FA)",
+        template: "two-factor-code",
         templateData: {
           name: event.name,
           code: event.code,
@@ -32,7 +32,7 @@ export class Auth2FAEmailHandler {
         },
       });
     } catch (error) {
-      this.logger.error('Error enviando email de 2FA', error as any);
+      this.logger.error("Error enviando email de 2FA", error as any);
     }
   }
 }

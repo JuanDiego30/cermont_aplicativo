@@ -1,10 +1,10 @@
 /**
  * Specification: CostEditableSpecification
- * 
+ *
  * Verifica que un costo sea editable (menos de 30 días)
  */
 
-import { Costo } from '../entities/costo.entity';
+import { Costo } from "../entities/costo.entity";
 
 export class CostEditableSpecification {
   /**
@@ -14,4 +14,3 @@ export class CostEditableSpecification {
     return cost.isEditable() && !cost.isDeleted();
   }
 }
-

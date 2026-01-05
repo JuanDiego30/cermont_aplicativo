@@ -4,7 +4,7 @@
 **Responsabilidad:** Máquina de estados, historial, cálculos, webhooks
 **Reglas:** 11-20
 **Patrón:** SIN PREGUNTAS
-**Última actualización:** 2026-01-02
+**Última actualización:** 2026-01-03
 
 ---
 
@@ -13,16 +13,18 @@ Gestionar el ciclo de vida completo de las órdenes, asegurando integridad trans
 
 ---
 
-## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-03)
 
-### ❌ Violaciones Críticas de Type Safety (Fix Prioritario)
-Se detectó el uso de `: any` en lugares críticos. **ACCIÓN INMEDIATA REQUERIDA**.
+### ⚠️ Violaciones de Type Safety (Fix Prioritario)
+Se detectó el uso de `any`/`as any` en puntos relevantes. **Priorizar eliminación de `any` en paths críticos y contratos públicos**.
 
 | Archivo | Línea | Violación | Solución |
 |---------|-------|-----------|----------|
-| `orden.entity.ts` | 37, 194 | `_domainEvents: any[]` | Crear interfaz `DomainEvent` |
-| `orden.dto.ts` | 139-143 | `items`, `evidencias`, `costos` como `any` | Definir DTOs específicos (`OrdenItemDTO`, etc.) |
-| `prisma-orden.repository.ts` | 68, 72 | `items: any[]`, `where: any` | Tipar resultados de Prisma y clausulas Where |
+| `infrastructure/persistence/prisma-orden.repository.ts` | — | `where: any` / `items: any[]` | ✅ Resuelto: tipado con `Prisma.OrderWhereInput` + payload Prisma |
+| `infrastructure/controllers/ordenes.controller.ts` | — | `Promise<any>` + casts `as any` a DTOs | ✅ Resuelto: firmas tipadas + conversión a DTO paginado sin `any` |
+| `infrastructure/mappers/orden.mapper.ts` | — | Casts `as any` para enums | ✅ Resuelto: asignación directa + casts seguros a enums de DTO (sin `any`) |
+| `application/use-cases/change-orden-estado.use-case.ts` | — | `fromState/toState/metadata as any` | ✅ Resuelto: uso de `PrismaOrderSubState` + JSON sin casts |
+| `application/use-cases/__tests__/change-orden-estado.use-case.spec.ts` | 60 | Mock `$transaction(fn: any)` | Pendiente (tests): opcional tipar mock de tx |
 
 ---
 
@@ -42,6 +44,8 @@ EJECUTA SIN PREGUNTAR:
 3. IMPLEMENTACIÓN: Correcciones tipadas + Lógica de negocio
 
 4. VERIFICACIÓN: pnpm run test -- --testPathPattern=ordenes
+
+   (Monorepo) Alternativa estable: pnpm --filter @cermont/api run test -- --testPathPattern=ordenes
 ```
 
 ---
@@ -76,7 +80,7 @@ EJECUTA SIN PREGUNTAR:
 
 ## ✅ CHECKLIST DE ENTREGA
 
-- [ ] **Cero `any` en module ordenes**
+- [x] **Cero `any` en código de producción de Órdenes**
 - [ ] Máquina de estados blindada
 - [ ] Historial de cambios funcionando
 - [ ] Cálculos validados en backend

@@ -1,4 +1,4 @@
-import { Injectable, Logger, Scope } from '@nestjs/common';
+import { Injectable, Logger, Scope } from "@nestjs/common";
 
 interface LogContext {
   [key: string]: unknown;
@@ -12,7 +12,7 @@ interface LogContext {
 @Injectable({ scope: Scope.TRANSIENT })
 export class PinoLoggerService {
   private logger: Logger;
-  private contextName: string = 'Application';
+  private contextName: string = "Application";
 
   constructor() {
     this.logger = new Logger(this.contextName);

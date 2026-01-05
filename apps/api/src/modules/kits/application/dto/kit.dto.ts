@@ -1,7 +1,7 @@
 /**
  * @module Kits - Clean Architecture
  */
-import { z } from 'zod';
+import { z } from "zod";
 
 // DTOs para creación usando modelo KitTipico de Prisma
 export const CreateKitSchema = z.object({
@@ -14,11 +14,15 @@ export const CreateKitSchema = z.object({
   duracionEstimadaHoras: z.number().optional(),
   costoEstimado: z.number().optional(),
   // También soportar items para compatibilidad
-  items: z.array(z.object({
-    nombre: z.string(),
-    cantidad: z.number().int().min(1),
-    unidad: z.string().optional(),
-  })).optional(),
+  items: z
+    .array(
+      z.object({
+        nombre: z.string(),
+        cantidad: z.number().int().min(1),
+        unidad: z.string().optional(),
+      }),
+    )
+    .optional(),
   categoria: z.string().optional(),
 });
 
@@ -43,7 +47,7 @@ export interface KitResponse {
 }
 
 // Repository Interface
-export const KIT_REPOSITORY = Symbol('KIT_REPOSITORY');
+export const KIT_REPOSITORY = Symbol("KIT_REPOSITORY");
 
 export interface KitData {
   id: string;

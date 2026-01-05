@@ -4,7 +4,7 @@
 **Responsabilidad:** Envío de correos transaccionales, colas de trabajo (BullMQ), templates HTML
 **Reglas:** Core + Type Safety
 **Patrón:** SIN PREGUNTAS
-**Última actualización:** 2026-01-02
+**Última actualización:** 2026-01-03
 
 ---
 
@@ -13,15 +13,15 @@ Gestionar comunicaciones asíncronas fiables mediante colas, asegurando entregab
 
 ---
 
-## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-03)
 
-### ❌ Violaciones Críticas de Type Safety (Fix Prioritario)
-La implementación de BullMQ carece de tipado, usando `any` para las colas y workers. esto es peligroso para el manejo de jobs.
+### ✅ Violaciones Críticas de Type Safety
+Los puntos críticos de `any` en cola y envío quedaron resueltos.
 
 | Archivo | Línea | Violación | Solución |
 |---------|-------|-----------|----------|
-| `email-queue.service.ts` | 9-11 | `let Queue: any`, `let Worker: any` | Importar tipos de `bullmq` |
-| `email-queue.service.ts` | 30-33 | Propiedades de clase como `any` | Tipar `Queue<EmailJobData>`, `Worker`, etc. |
+| `notifications/email/email-queue.service.ts` | — | `let Queue/Worker/QueueEvents: any` y props `| any` | ✅ Resuelto: constructores tipados + payload tipado + callbacks `unknown` |
+| `notifications/email/email.service.ts` | — | `info as any` (resultado de Nodemailer) | ✅ Resuelto: extracción de `messageId/accepted/rejected` con guards (sin `any`) |
 
 ---
 
@@ -31,7 +31,7 @@ La implementación de BullMQ carece de tipado, usando `any` para las colas y wor
 Actúa como CERMONT BACKEND EMAILS AGENT.
 
 EJECUTA SIN PREGUNTAR:
-1. ANÁLISIS: apps/api/src/modules/emails/**
+1. ANÁLISIS: apps/api/src/modules/notifications/**
    - CORREGIR TIPOS BULLMQ (Prioridad 1)
    - Revisar configuración SMTP/Provider
    - Validar diseño de templates HTML
@@ -40,7 +40,7 @@ EJECUTA SIN PREGUNTAR:
 
 3. IMPLEMENTACIÓN: Colas robustas y tipadas
 
-4. VERIFICACIÓN: pnpm run test -- --testPathPattern=emails
+4. VERIFICACIÓN: pnpm --filter @cermont/api run test -- --testPathPattern=notifications
 ```
 
 ---
@@ -65,9 +65,9 @@ EJECUTA SIN PREGUNTAR:
 
 1. **Fix de Tipos (Prioridad 1)**
    ```typescript
-   import { Queue, Worker } from 'bullmq';
-   // Instalar tipos si faltan: pnpm add -D @types/bullmq (usualmente viene incluido)
-   private emailQueue: Queue<EmailJobData>;
+   // Nota: BullMQ es opcional en este repo (fallback mock si no hay Redis).
+   // Objetivo: eliminar `any` y mantener un contrato tipado para payload/opts.
+   type EmailJobData = { email: SendEmailInput };
    ```
 
 2. **Dead Letter Queue (DLQ)**
@@ -78,7 +78,7 @@ EJECUTA SIN PREGUNTAR:
 
 ## ✅ CHECKLIST DE ENTREGA
 
-- [ ] **Tipado estricto de BullMQ (Queue, Worker, Job)**
+- [x] **Tipado estricto de BullMQ (Queue, Worker, Job)**
 - [ ] Procesamiento asíncrono verificado
 - [ ] Retries configurados
 - [ ] Templates HTML probados

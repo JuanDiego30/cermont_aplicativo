@@ -20,6 +20,7 @@ async function main() {
       name: 'Administrador',
       role: 'admin',
       active: true,
+      twoFactorEnabled: false,
     },
     create: {
       email: adminEmail,
@@ -28,6 +29,7 @@ async function main() {
       role: 'admin',
       phone: faker.phone.number(),
       active: true,
+      twoFactorEnabled: false,
     },
   });
   console.log('✓ Usuario admin sincronizado');
@@ -41,7 +43,7 @@ async function main() {
     const techPassword = await bcrypt.hash('tecnico123456', 12);
     const user = await prisma.user.upsert({
       where: { email },
-      update: { password: techPassword },
+      update: { password: techPassword, twoFactorEnabled: false },
       create: {
         email,
         password: techPassword,
@@ -49,6 +51,7 @@ async function main() {
         role: 'tecnico',
         phone: faker.phone.number(),
         active: true,
+        twoFactorEnabled: false,
       },
     });
     console.log(`✓ Técnico ${i} sincronizado`);

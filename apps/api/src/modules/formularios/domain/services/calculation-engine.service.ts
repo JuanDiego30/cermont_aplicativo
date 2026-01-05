@@ -1,14 +1,14 @@
 /**
  * Domain Service: CalculationEngineService
- * 
+ *
  * Servicio de dominio para calcular valores de campos calculados
- * 
+ *
  * ⚠️ IMPORTANTE: Usar evaluación segura de expresiones (NO eval() directo)
  */
 
-import { CalculationFormula } from '../value-objects/calculation-formula.vo';
-import { FormField } from '../entities/form-field.entity';
-import { ArithmeticExpressionEvaluator } from '../utils/arithmetic-expression-evaluator';
+import { CalculationFormula } from "../value-objects/calculation-formula.vo";
+import { FormField } from "../entities/form-field.entity";
+import { ArithmeticExpressionEvaluator } from "../utils/arithmetic-expression-evaluator";
 
 export class CalculationEngineService {
   /**
@@ -24,9 +24,10 @@ export class CalculationEngineService {
 
       // Reemplazar cada campo referenciado con su valor
       for (const [fieldId, value] of Object.entries(formData)) {
-        const numericValue = typeof value === 'number' ? value : Number(value) || 0;
+        const numericValue =
+          typeof value === "number" ? value : Number(value) || 0;
         // Reemplazar solo palabras completas (usar \b para word boundary)
-        const regex = new RegExp(`\\b${fieldId}\\b`, 'g');
+        const regex = new RegExp(`\\b${fieldId}\\b`, "g");
         expression = expression.replace(regex, String(numericValue));
       }
 
@@ -34,7 +35,7 @@ export class CalculationEngineService {
       // ⚠️ En producción, usar una librería como math.js o expr-eval
       const result = this.safeEvaluate(expression);
 
-      return typeof result === 'number' && !isNaN(result) ? result : null;
+      return typeof result === "number" && !isNaN(result) ? result : null;
     } catch (error) {
       return null;
     }
@@ -76,7 +77,7 @@ export class CalculationEngineService {
 
   /**
    * Evaluar expresión de forma segura
-   * 
+   *
    * ⚠️ NOTA: Esta es una implementación simplificada.
    * En producción, usar una librería como:
    * - math.js: https://mathjs.org/
@@ -86,8 +87,7 @@ export class CalculationEngineService {
     try {
       return ArithmeticExpressionEvaluator.evaluate(expression);
     } catch {
-      throw new Error('Failed to evaluate expression');
+      throw new Error("Failed to evaluate expression");
     }
   }
 }
-

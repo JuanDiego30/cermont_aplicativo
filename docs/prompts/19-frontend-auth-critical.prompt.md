@@ -4,7 +4,7 @@
 **Responsabilidad:** Login/Logout, CSRF, Token Refresh, 2FA en cliente, Seguridad de sesión
 **Reglas:** Regla 41 (Memory Leak en Auth), Regla 6 (Secretos)
 **Patrón:** SIN PREGUNTAS
-**Última actualización:** 2026-01-02
+**Última actualización:** 2026-01-02 (leaks auth corregidos)
 
 ---
 
@@ -13,19 +13,12 @@ Blindar la puerta de entrada de la aplicación. Gestionar la sesión de usuario 
 
 ---
 
-## 🔴 ESTADO ACTUAL Y VIOLACIONES (Research 2026-01-02)
+## ✅ ESTADO ACTUAL (2026-01-02)
 
-### 🚨 Memory Leaks en Componentes Auth
-Se detectaron suscripciones huérfanas en componentes críticos de acceso. **Fix Mandatorio.**
-
-| Componente | Línea | Problema | Solución |
-|------------|-------|----------|----------|
-| `signin-form.component.ts` | 52 | subscribe sin `takeUntil` | Implementar `destroy$` pattern |
-| `signup-form.component.ts` | 48 | subscribe sin `takeUntil` | Implementar `destroy$` pattern |
-| `auth.service.ts` | 67, 196 | subscribe internos | Revisar lógica de desuscripción |
-
-### ⚠️ Type Safety
-- `signin-form.component.ts` L56: `error: (err: any)` -> Usar `HttpErrorResponse`.
+- ✅ `signin-form.component.ts`: usa `takeUntil(this.destroy$)` y `HttpErrorResponse` en el handler de error.
+- ✅ `signup-form.component.ts`: implementa `destroy$` + `takeUntil` y tipado de error (`HttpErrorResponse`).
+- ✅ `auth.service.ts`: sincroniza `user$` → signal con `takeUntilDestroyed` y `handleError` sin `any`.
+- ⚠️ Seguir monitoreando otros componentes de `features/auth` (HTTP se completa solo, pero revisar si se añaden streams largos).
 
 ---
 

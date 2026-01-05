@@ -1,22 +1,22 @@
 /**
  * Value Object: ConditionalOperator
- * 
+ *
  * Operador para lógica condicional en formularios
  */
 
 export enum ConditionalOperatorEnum {
-  EQUALS = 'EQUALS',
-  NOT_EQUALS = 'NOT_EQUALS',
-  GREATER_THAN = 'GREATER_THAN',
-  LESS_THAN = 'LESS_THAN',
-  GREATER_THAN_OR_EQUAL = 'GREATER_THAN_OR_EQUAL',
-  LESS_THAN_OR_EQUAL = 'LESS_THAN_OR_EQUAL',
-  CONTAINS = 'CONTAINS',
-  NOT_CONTAINS = 'NOT_CONTAINS',
-  IS_EMPTY = 'IS_EMPTY',
-  IS_NOT_EMPTY = 'IS_NOT_EMPTY',
-  STARTS_WITH = 'STARTS_WITH',
-  ENDS_WITH = 'ENDS_WITH',
+  EQUALS = "EQUALS",
+  NOT_EQUALS = "NOT_EQUALS",
+  GREATER_THAN = "GREATER_THAN",
+  LESS_THAN = "LESS_THAN",
+  GREATER_THAN_OR_EQUAL = "GREATER_THAN_OR_EQUAL",
+  LESS_THAN_OR_EQUAL = "LESS_THAN_OR_EQUAL",
+  CONTAINS = "CONTAINS",
+  NOT_CONTAINS = "NOT_CONTAINS",
+  IS_EMPTY = "IS_EMPTY",
+  IS_NOT_EMPTY = "IS_NOT_EMPTY",
+  STARTS_WITH = "STARTS_WITH",
+  ENDS_WITH = "ENDS_WITH",
 }
 
 export class ConditionalOperator {
@@ -41,7 +41,9 @@ export class ConditionalOperator {
   }
 
   public static greaterThanOrEqual(): ConditionalOperator {
-    return new ConditionalOperator(ConditionalOperatorEnum.GREATER_THAN_OR_EQUAL);
+    return new ConditionalOperator(
+      ConditionalOperatorEnum.GREATER_THAN_OR_EQUAL,
+    );
   }
 
   public static lessThanOrEqual(): ConditionalOperator {
@@ -74,7 +76,7 @@ export class ConditionalOperator {
 
   public static fromString(value: string): ConditionalOperator {
     const enumValue = Object.values(ConditionalOperatorEnum).find(
-      (v) => v === value.toUpperCase()
+      (v) => v === value.toUpperCase(),
     );
     if (!enumValue) {
       throw new Error(`Invalid ConditionalOperator: ${value}`);
@@ -101,9 +103,17 @@ export class ConditionalOperator {
       case ConditionalOperatorEnum.NOT_CONTAINS:
         return !String(actualValue).includes(String(expectedValue));
       case ConditionalOperatorEnum.IS_EMPTY:
-        return !actualValue || actualValue === '' || (Array.isArray(actualValue) && actualValue.length === 0);
+        return (
+          !actualValue ||
+          actualValue === "" ||
+          (Array.isArray(actualValue) && actualValue.length === 0)
+        );
       case ConditionalOperatorEnum.IS_NOT_EMPTY:
-        return !!actualValue && actualValue !== '' && (!Array.isArray(actualValue) || actualValue.length > 0);
+        return (
+          !!actualValue &&
+          actualValue !== "" &&
+          (!Array.isArray(actualValue) || actualValue.length > 0)
+        );
       case ConditionalOperatorEnum.STARTS_WITH:
         return String(actualValue).startsWith(String(expectedValue));
       case ConditionalOperatorEnum.ENDS_WITH:
@@ -125,4 +135,3 @@ export class ConditionalOperator {
     return this._value;
   }
 }
-

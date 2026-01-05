@@ -1,9 +1,10 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { logError } from '../core/utils/logger';
+import { buildHttpParams } from '../core/utils/http-params.util';
+import { createHttpErrorHandler } from '../core/utils/http-error.util';
 
 export interface Orden {
     id: string;
@@ -76,23 +77,13 @@ export interface PaginatedResponse<T> {
 export class OrdenesService {
     private readonly http = inject(HttpClient);
     private readonly API_URL = `${environment.apiUrl}/ordenes`;
+    private readonly handleError = createHttpErrorHandler('OrdenesService');
 
     /**
      * Obtiene todas las órdenes con paginación y filtros
      */
     getAll(params?: QueryOrdenParams): Observable<PaginatedResponse<Orden>> {
-        let httpParams = new HttpParams();
-
-        if (params) {
-            Object.keys(params).forEach(key => {
-                const value = (params as Record<string, unknown>)[key];
-                if (value !== undefined && value !== null) {
-                    httpParams = httpParams.set(key, String(value));
-                }
-            });
-        }
-
-        return this.http.get<PaginatedResponse<Orden>>(this.API_URL, { params: httpParams }).pipe(
+        return this.http.get<PaginatedResponse<Orden>>(this.API_URL, { params: buildHttpParams(params as unknown as Record<string, unknown> | undefined) }).pipe(
             catchError(this.handleError)
         );
     }
@@ -146,44 +137,11 @@ export class OrdenesService {
      * Exporta órdenes a PDF
      */
     exportarPDF(params?: QueryOrdenParams): Observable<Blob> {
-        let httpParams = new HttpParams();
-
-        if (params) {
-            Object.keys(params).forEach(key => {
-                const value = (params as Record<string, unknown>)[key];
-                if (value !== undefined && value !== null) {
-                    httpParams = httpParams.set(key, String(value));
-                }
-            });
-        }
-
         return this.http.get(`${this.API_URL}/export/pdf`, {
-            params: httpParams,
+            params: buildHttpParams(params as unknown as Record<string, unknown> | undefined),
             responseType: 'blob'
         }).pipe(
             catchError(this.handleError)
         );
-    }
-
-    /**
-     * Maneja errores HTTP
-     */
-    private handleError(error: HttpErrorResponse): Observable<never> {
-        let errorMessage = 'Ha ocurrido un error';
-
-        if (error.error instanceof ErrorEvent) {
-            // Error del cliente
-            errorMessage = `Error: ${error.error.message}`;
-        } else {
-            // Error del servidor
-            if (error.error?.message) {
-                errorMessage = error.error.message;
-            } else {
-                errorMessage = `Error ${error.status}: ${error.statusText}`;
-            }
-        }
-
-        logError('Error en OrdenesService', error, { errorMessage });
-        return throwError(() => new Error(errorMessage));
     }
 }

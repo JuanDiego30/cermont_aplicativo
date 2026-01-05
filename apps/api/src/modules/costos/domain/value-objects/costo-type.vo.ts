@@ -1,18 +1,18 @@
 /**
  * Value Object: CostoType
- * 
+ *
  * Tipo de costo en el sistema
  */
 
-import { ValidationError } from '../exceptions';
+import { ValidationError } from "../exceptions";
 
 export enum CostoTypeEnum {
-  MATERIAL = 'material',
-  MANO_OBRA = 'mano_obra',
-  TRANSPORTE = 'transporte',
-  EQUIPO = 'equipo',
-  SUBCONTRATO = 'subcontrato',
-  OTROS = 'otro',
+  MATERIAL = "material",
+  MANO_OBRA = "mano_obra",
+  TRANSPORTE = "transporte",
+  EQUIPO = "equipo",
+  SUBCONTRATO = "subcontrato",
+  OTROS = "otro",
 }
 
 export class CostoType {
@@ -22,11 +22,11 @@ export class CostoType {
 
   public static create(value: string): CostoType {
     const normalized = value.toLowerCase().trim();
-    
+
     if (!Object.values(CostoTypeEnum).includes(normalized as CostoTypeEnum)) {
       throw new ValidationError(
-        `Tipo de costo inválido. Valores permitidos: ${Object.values(CostoTypeEnum).join(', ')}`,
-        'tipo',
+        `Tipo de costo inválido. Valores permitidos: ${Object.values(CostoTypeEnum).join(", ")}`,
+        "tipo",
         value,
       );
     }
@@ -59,10 +59,9 @@ export class CostoType {
    * Verificar si es costo directo
    */
   public isDirectCost(): boolean {
-    return [
-      CostoTypeEnum.MATERIAL,
-      CostoTypeEnum.MANO_OBRA,
-    ].includes(this._value);
+    return [CostoTypeEnum.MATERIAL, CostoTypeEnum.MANO_OBRA].includes(
+      this._value,
+    );
   }
 
   /**
@@ -75,8 +74,8 @@ export class CostoType {
   /**
    * Obtener categoría sugerida
    */
-  public getSuggestedCategory(): 'DIRECTO' | 'INDIRECTO' {
-    return this.isDirectCost() ? 'DIRECTO' : 'INDIRECTO';
+  public getSuggestedCategory(): "DIRECTO" | "INDIRECTO" {
+    return this.isDirectCost() ? "DIRECTO" : "INDIRECTO";
   }
 
   public equals(other: CostoType): boolean {
@@ -94,4 +93,3 @@ export class CostoType {
     return this._value;
   }
 }
-

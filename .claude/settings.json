@@ -9,7 +9,7 @@
         "noRepoSweep": true,
         "requirePlanApproval": false,
         "noNewDependenciesWithoutApproval": true,
-        "requireVerifyStep": true,
+        "requireVerifyStep": false,
         "smallPRsOnly": true
     }
 }

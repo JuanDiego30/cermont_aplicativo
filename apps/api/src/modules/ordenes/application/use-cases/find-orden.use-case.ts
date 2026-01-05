@@ -3,12 +3,12 @@
  * @description Caso de uso para obtener una orden por ID
  * @layer Application
  */
-import { Injectable, Logger, NotFoundException, Inject } from '@nestjs/common';
-import { OrdenEntity } from '../../domain/entities/orden.entity';
+import { Injectable, Logger, NotFoundException, Inject } from "@nestjs/common";
+import { OrdenEntity } from "../../domain/entities/orden.entity";
 import {
   IOrdenRepository,
   ORDEN_REPOSITORY,
-} from '../../domain/repositories/orden.repository.interface';
+} from "../../domain/repositories/orden.repository.interface";
 
 @Injectable()
 export class FindOrdenUseCase {
@@ -30,9 +30,8 @@ export class FindOrdenUseCase {
 
       return orden;
     } catch (error) {
-      this.logger.error('Error buscando orden', error);
+      this.logger.error("Error buscando orden", error);
       throw error;
     }
   }
 }
-

@@ -1,10 +1,10 @@
 /**
  * @interface INotificationSender
- * 
+ *
  * Interfaz para servicios de envío de notificaciones (Strategy Pattern)
  */
 
-import { Alerta } from '../../domain/entities/alerta.entity';
+import { Alerta } from "../../domain/entities/alerta.entity";
 
 export interface INotificationSender {
   /**
@@ -19,4 +19,3 @@ export interface INotificationSender {
    */
   getCanal(): string;
 }
-
