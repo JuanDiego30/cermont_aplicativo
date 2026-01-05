@@ -4,14 +4,14 @@
  * Publica un template de formulario (cambia estado de DRAFT a PUBLISHED)
  */
 
-import { Injectable, NotFoundException, Inject } from "@nestjs/common";
+import { Injectable, Inject } from "@nestjs/common";
 import { FormTemplate } from "../../domain/entities/form-template.entity";
-import { FormTemplateId } from "../../domain/value-objects/form-template-id.vo";
 import {
   IFormTemplateRepository,
   FORM_TEMPLATE_REPOSITORY,
 } from "../../domain/repositories";
 import { TemplateNotPublishableException } from "../../domain/exceptions";
+import { getTemplateOrThrow } from "./form-template.utils";
 
 @Injectable()
 export class PublishTemplateUseCase {
@@ -21,13 +21,7 @@ export class PublishTemplateUseCase {
   ) {}
 
   async execute(templateId: string): Promise<FormTemplate> {
-    const id = FormTemplateId.create(templateId);
-
-    // Buscar template
-    const template = await this.templateRepository.findById(id);
-    if (!template) {
-      throw new NotFoundException(`Template not found: ${templateId}`);
-    }
+    const template = await getTemplateOrThrow(this.templateRepository, templateId);
 
     // Publicar (valida internamente)
     try {
@@ -40,9 +34,6 @@ export class PublishTemplateUseCase {
       throw new Error(`Failed to publish template: ${message}`);
     }
 
-    // Guardar cambios
-    const saved = await this.templateRepository.save(template);
-
-    return saved;
+    return await this.templateRepository.save(template);
   }
 }

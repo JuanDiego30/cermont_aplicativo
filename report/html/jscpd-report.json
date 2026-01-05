@@ -1,6 +1,6 @@
 {
   "statistics": {
-    "detectionDate": "2026-01-05T22:48:21.267Z",
+    "detectionDate": "2026-01-05T23:01:21.588Z",
     "formats": {
       "typescript": {
         "sources": {
@@ -4520,11 +4520,11 @@
             "lines": 63,
             "tokens": 410,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 21,
-            "duplicatedTokens": 142,
-            "percentage": 33.33,
-            "percentageTokens": 34.63,
+            "clones": 1,
+            "duplicatedLines": 10,
+            "duplicatedTokens": 66,
+            "percentage": 15.87,
+            "percentageTokens": 16.1,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -4541,14 +4541,14 @@
             "newClones": 0
           },
           "apps/api/src/modules/formularios/application/use-cases/publish-template.use-case.ts": {
-            "lines": 48,
-            "tokens": 337,
+            "lines": 39,
+            "tokens": 274,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 15,
-            "duplicatedTokens": 119,
-            "percentage": 31.25,
-            "percentageTokens": 35.31,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -4612,6 +4612,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "apps/api/src/modules/formularios/application/use-cases/form-template.utils.ts": {
+            "lines": 18,
+            "tokens": 173,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "apps/api/src/modules/formularios/application/use-cases/create-template.use-case.ts": {
             "lines": 67,
             "tokens": 468,
@@ -4625,14 +4637,14 @@
             "newClones": 0
           },
           "apps/api/src/modules/formularios/application/use-cases/archive-template.use-case.ts": {
-            "lines": 39,
-            "tokens": 241,
+            "lines": 30,
+            "tokens": 178,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 26,
-            "duplicatedTokens": 195,
-            "percentage": 66.67,
-            "percentageTokens": 80.91,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -6221,14 +6233,14 @@
             "newClones": 0
           },
           "apps/api/src/modules/checklists/infrastructure/controllers/checklists.controller.ts": {
-            "lines": 224,
-            "tokens": 1903,
+            "lines": 213,
+            "tokens": 1892,
             "sources": 1,
-            "clones": 3,
-            "duplicatedLines": 38,
-            "duplicatedTokens": 198,
-            "percentage": 16.96,
-            "percentageTokens": 10.4,
+            "clones": 2,
+            "duplicatedLines": 22,
+            "duplicatedTokens": 122,
+            "percentage": 10.33,
+            "percentageTokens": 6.45,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -6341,14 +6353,14 @@
             "newClones": 0
           },
           "apps/api/src/modules/checklists/domain/entities/checklist.entity.ts": {
-            "lines": 709,
-            "tokens": 4876,
+            "lines": 690,
+            "tokens": 4715,
             "sources": 1,
-            "clones": 7,
-            "duplicatedLines": 87,
-            "duplicatedTokens": 549,
-            "percentage": 12.27,
-            "percentageTokens": 11.26,
+            "clones": 5,
+            "duplicatedLines": 53,
+            "duplicatedTokens": 307,
+            "percentage": 7.68,
+            "percentageTokens": 6.51,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -6521,14 +6533,14 @@
             "newClones": 0
           },
           "apps/api/src/modules/checklists/application/dto/toggle-item.dto.ts": {
-            "lines": 77,
-            "tokens": 404,
+            "lines": 63,
+            "tokens": 330,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 34,
-            "duplicatedTokens": 180,
-            "percentage": 44.16,
-            "percentageTokens": 44.55,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -7256,11 +7268,11 @@
             "lines": 143,
             "tokens": 1167,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 16,
-            "duplicatedTokens": 76,
-            "percentage": 11.19,
-            "percentageTokens": 6.51,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -9236,11 +9248,11 @@
             "lines": 76,
             "tokens": 578,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 31,
-            "duplicatedTokens": 160,
-            "percentage": 40.79,
-            "percentageTokens": 27.68,
+            "clones": 1,
+            "duplicatedLines": 14,
+            "duplicatedTokens": 73,
+            "percentage": 18.42,
+            "percentageTokens": 12.63,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -9305,14 +9317,14 @@
             "newClones": 0
           },
           "apps/api/src/modules/archivado-historico/archivado-historico.controller.ts": {
-            "lines": 96,
-            "tokens": 750,
+            "lines": 82,
+            "tokens": 733,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 17,
-            "duplicatedTokens": 87,
-            "percentage": 17.71,
-            "percentageTokens": 11.6,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -10086,28 +10098,28 @@
           }
         },
         "total": {
-          "lines": 82651,
-          "tokens": 596454,
-          "sources": 840,
-          "clones": 113,
-          "duplicatedLines": 1365,
-          "duplicatedTokens": 8982,
-          "percentage": 1.65,
-          "percentageTokens": 1.51,
+          "lines": 82593,
+          "tokens": 596238,
+          "sources": 841,
+          "clones": 107,
+          "duplicatedLines": 1272,
+          "duplicatedTokens": 8413,
+          "percentage": 1.54,
+          "percentageTokens": 1.41,
           "newDuplicatedLines": 0,
           "newClones": 0
         }
       }
     },
     "total": {
-      "lines": 82651,
-      "tokens": 596454,
-      "sources": 840,
-      "clones": 113,
-      "duplicatedLines": 1365,
-      "duplicatedTokens": 8982,
-      "percentage": 1.65,
-      "percentageTokens": 1.51,
+      "lines": 82593,
+      "tokens": 596238,
+      "sources": 841,
+      "clones": 107,
+      "duplicatedLines": 1272,
+      "duplicatedTokens": 8413,
+      "percentage": 1.54,
+      "percentageTokens": 1.41,
       "newDuplicatedLines": 0,
       "newClones": 0
     }
@@ -10974,78 +10986,6 @@
           "line": 14,
           "column": 7,
           "position": 67
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 12,
-      "fragment": "\n\nimport { Injectable, NotFoundException, Inject } from \"@nestjs/common\";\nimport { FormTemplate } from \"../../domain/entities/form-template.entity\";\nimport { FormTemplateId } from \"../../domain/value-objects/form-template-id.vo\";\nimport {\n  IFormTemplateRepository,\n  FORM_TEMPLATE_REPOSITORY,\n} from \"../../domain/repositories\";\n\n@Injectable()\nexport class ArchiveTemplateUseCase",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\formularios\\application\\use-cases\\archive-template.use-case.ts",
-        "start": 5,
-        "end": 16,
-        "startLoc": {
-          "line": 5,
-          "column": 4,
-          "position": 1
-        },
-        "endLoc": {
-          "line": 16,
-          "column": 23,
-          "position": 77
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\formularios\\application\\use-cases\\update-template.use-case.ts",
-        "start": 5,
-        "end": 16,
-        "startLoc": {
-          "line": 5,
-          "column": 4,
-          "position": 1
-        },
-        "endLoc": {
-          "line": 16,
-          "column": 19,
-          "position": 77
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 16,
-      "fragment": " {\n  constructor(\n    @Inject(FORM_TEMPLATE_REPOSITORY)\n    private readonly templateRepository: IFormTemplateRepository,\n  ) {}\n\n  async execute(templateId: string): Promise<FormTemplate> {\n    const id = FormTemplateId.create(templateId);\n\n    // Buscar template\n    const template = await this.templateRepository.findById(id);\n    if (!template) {\n      throw new NotFoundException(`Template not found: ${templateId}`);\n    }\n\n    // Archivar",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\formularios\\application\\use-cases\\archive-template.use-case.ts",
-        "start": 16,
-        "end": 31,
-        "startLoc": {
-          "line": 16,
-          "column": 23,
-          "position": 78
-        },
-        "endLoc": {
-          "line": 31,
-          "column": 12,
-          "position": 197
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\formularios\\application\\use-cases\\publish-template.use-case.ts",
-        "start": 17,
-        "end": 36,
-        "startLoc": {
-          "line": 17,
-          "column": 23,
-          "position": 91
-        },
-        "endLoc": {
-          "line": 36,
-          "column": 33,
-          "position": 229
         }
       }
     },
@@ -11992,17 +11932,17 @@
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\checklists\\infrastructure\\controllers\\checklists.controller.ts",
-        "start": 26,
-        "end": 36,
+        "start": 15,
+        "end": 25,
         "startLoc": {
-          "line": 26,
-          "column": 20,
-          "position": 84
+          "line": 15,
+          "column": 24,
+          "position": 73
         },
         "endLoc": {
-          "line": 36,
+          "line": 25,
           "column": 23,
-          "position": 156
+          "position": 145
         }
       },
       "secondFile": {
@@ -12167,58 +12107,22 @@
     },
     {
       "format": "typescript",
-      "lines": 18,
-      "fragment": "): void {\n    if (this._status.isArchived()) {\n      throw new BusinessRuleViolationError(\n        \"No se puede modificar un checklist archivado\",\n        \"ESTADO_INVALIDO\",\n      );\n    }\n\n    const item = this._items.find((i) => i.getId().equals(itemId));\n    if (!item) {\n      throw new ValidationError(\n        \"Item no encontrado\",\n        \"itemId\",\n        itemId.getValue(),\n      );\n    }\n\n    item",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\checklists\\domain\\entities\\checklist.entity.ts",
-        "start": 425,
-        "end": 442,
-        "startLoc": {
-          "line": 425,
-          "column": 3,
-          "position": 2876
-        },
-        "endLoc": {
-          "line": 442,
-          "column": 5,
-          "position": 2997
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\checklists\\domain\\entities\\checklist.entity.ts",
-        "start": 382,
-        "end": 399,
-        "startLoc": {
-          "line": 382,
-          "column": 7,
-          "position": 2607
-        },
-        "endLoc": {
-          "line": 399,
-          "column": 6,
-          "position": 2728
-        }
-      }
-    },
-    {
-      "format": "typescript",
       "lines": 12,
       "fragment": ";\n  }\n\n  public getCreatedAt(): Date {\n    return this._createdAt;\n  }\n\n  public getUpdatedAt(): Date {\n    return this._updatedAt;\n  }\n\n  // ═══════════════════════════════════════════════════════════════",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\checklists\\domain\\entities\\checklist.entity.ts",
-        "start": 622,
-        "end": 633,
+        "start": 603,
+        "end": 614,
         "startLoc": {
-          "line": 622,
+          "line": 603,
           "column": 14,
-          "position": 4262
+          "position": 4101
         },
         "endLoc": {
-          "line": 633,
+          "line": 614,
           "column": 67,
-          "position": 4317
+          "position": 4156
         }
       },
       "secondFile": {
@@ -12244,17 +12148,17 @@
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\checklists\\domain\\entities\\checklist.entity.ts",
-        "start": 643,
-        "end": 653,
+        "start": 624,
+        "end": 634,
         "startLoc": {
-          "line": 643,
+          "line": 624,
           "column": 10,
-          "position": 4381
+          "position": 4220
         },
         "endLoc": {
-          "line": 653,
+          "line": 634,
           "column": 2,
-          "position": 4456
+          "position": 4295
         }
       },
       "secondFile": {
@@ -12378,42 +12282,6 @@
           "line": 44,
           "column": 31,
           "position": 298
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 18,
-      "fragment": "\n  @ApiProperty({\n    example: \"123e4567-e89b-12d3-a456-426614174000\",\n    description: \"ID del checklist\",\n  })\n  @IsString()\n  @IsUUID()\n  checklistId!: string;\n\n  @ApiProperty({\n    example: \"123e4567-e89b-12d3-a456-426614174000\",\n    description: \"ID del item\",\n  })\n  @IsString()\n  @IsUUID()\n  itemId!: string;\n\n",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\checklists\\application\\dto\\toggle-item.dto.ts",
-        "start": 51,
-        "end": 68,
-        "startLoc": {
-          "line": 51,
-          "column": 2,
-          "position": 254
-        },
-        "endLoc": {
-          "line": 68,
-          "column": 1,
-          "position": 344
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\checklists\\application\\dto\\toggle-item.dto.ts",
-        "start": 33,
-        "end": 49,
-        "startLoc": {
-          "line": 33,
-          "column": 1,
-          "position": 154
-        },
-        "endLoc": {
-          "line": 49,
-          "column": 2,
-          "position": 244
         }
       }
     },
@@ -12707,42 +12575,6 @@
     },
     {
       "format": "typescript",
-      "lines": 17,
-      "fragment": ",\n  Query,\n  UseGuards,\n  HttpCode,\n} from \"@nestjs/common\";\nimport {\n  ApiTags,\n  ApiBearerAuth,\n  ApiOperation,\n  ApiOkResponse,\n  ApiBadRequestResponse,\n  ApiUnauthorizedResponse,\n  ApiNotFoundResponse,\n} from \"@nestjs/swagger\";\nimport { JwtAuthGuard } from \"../../../../common/guards/jwt-auth.guard\";\nimport {\n",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\alertas\\infrastructure\\controllers\\alertas.controller.ts",
-        "start": 13,
-        "end": 29,
-        "startLoc": {
-          "line": 13,
-          "column": 6,
-          "position": 29
-        },
-        "endLoc": {
-          "line": 29,
-          "column": 1,
-          "position": 105
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\checklists\\infrastructure\\controllers\\checklists.controller.ts",
-        "start": 14,
-        "end": 29,
-        "startLoc": {
-          "line": 14,
-          "column": 5,
-          "position": 33
-        },
-        "endLoc": {
-          "line": 29,
-          "column": 2,
-          "position": 109
-        }
-      }
-    },
-    {
-      "format": "typescript",
       "lines": 13,
       "fragment": ";\n    this.timestamp = props.timestamp;\n    Object.freeze(this); // Inmutabilidad\n  }\n\n  /**\n   * Serialización para logging/auditoría\n   */\n  public toJSON(): Record<string, unknown> {\n    return {\n      eventName: this.eventName,\n      aggregateId: this.aggregateId,\n      destinatarioId",
       "tokens": 0,
@@ -12835,17 +12667,17 @@
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\checklists\\domain\\entities\\checklist.entity.ts",
-        "start": 675,
-        "end": 686,
+        "start": 656,
+        "end": 667,
         "startLoc": {
-          "line": 675,
+          "line": 656,
           "column": 14,
-          "position": 4678
+          "position": 4517
         },
         "endLoc": {
-          "line": 686,
+          "line": 667,
           "column": 15,
-          "position": 4729
+          "position": 4568
         }
       }
     },
@@ -12979,17 +12811,17 @@
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\checklists\\domain\\entities\\checklist.entity.ts",
-        "start": 675,
-        "end": 686,
+        "start": 656,
+        "end": 667,
         "startLoc": {
-          "line": 675,
+          "line": 656,
           "column": 14,
-          "position": 4678
+          "position": 4517
         },
         "endLoc": {
-          "line": 686,
+          "line": 667,
           "column": 15,
-          "position": 4729
+          "position": 4568
         }
       }
     },
@@ -13843,17 +13675,17 @@
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\checklists\\infrastructure\\controllers\\checklists.controller.ts",
-        "start": 34,
-        "end": 46,
+        "start": 23,
+        "end": 35,
         "startLoc": {
-          "line": 34,
+          "line": 23,
           "column": 55,
-          "position": 149
+          "position": 138
         },
         "endLoc": {
-          "line": 46,
+          "line": 35,
           "column": 30,
-          "position": 199
+          "position": 188
         }
       }
     },
@@ -13885,42 +13717,6 @@
           "line": 6,
           "column": 7,
           "position": 22
-        },
-        "endLoc": {
-          "line": 20,
-          "column": 16,
-          "position": 95
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 18,
-      "fragment": "import {\n  Controller,\n  Get,\n  Post,\n  Body,\n  Param,\n  Query,\n  UseGuards,\n} from \"@nestjs/common\";\nimport {\n  ApiTags,\n  ApiOperation,\n  ApiResponse,\n  ApiBearerAuth,\n  ApiQuery,\n} from \"@nestjs/swagger\";\nimport { JwtAuthGuard } from \"../../common/guards/jwt-auth.guard\";\nimport { ArchivadoHistoricoService",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\archivado-historico\\archivado-historico.controller.ts",
-        "start": 1,
-        "end": 18,
-        "startLoc": {
-          "line": 1,
-          "column": 1,
-          "position": 0
-        },
-        "endLoc": {
-          "line": 18,
-          "column": 26,
-          "position": 87
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\certificaciones\\certificaciones.controller.ts",
-        "start": 1,
-        "end": 20,
-        "startLoc": {
-          "line": 1,
-          "column": 1,
-          "position": 0
         },
         "endLoc": {
           "line": 20,
