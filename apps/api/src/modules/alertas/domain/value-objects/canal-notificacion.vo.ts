@@ -11,6 +11,7 @@
  */
 
 import { ValidationError } from "../exceptions";
+import { EnumValueObject } from "../../../../shared/base/enum-value-object";
 
 export enum CanalNotificacionEnum {
   EMAIL = "EMAIL",
@@ -19,9 +20,9 @@ export enum CanalNotificacionEnum {
   IN_APP = "IN_APP",
 }
 
-export class CanalNotificacion {
-  private constructor(private readonly _value: CanalNotificacionEnum) {
-    Object.freeze(this); // Inmutabilidad
+export class CanalNotificacion extends EnumValueObject<CanalNotificacionEnum> {
+  private constructor(value: CanalNotificacionEnum) {
+    super(value);
   }
 
   /**
@@ -48,13 +49,6 @@ export class CanalNotificacion {
    */
   public static createMultiple(values: string[]): CanalNotificacion[] {
     return values.map((v) => this.create(v));
-  }
-
-  /**
-   * Obtener el valor del canal
-   */
-  public getValue(): CanalNotificacionEnum {
-    return this._value;
   }
 
   /**
@@ -88,29 +82,5 @@ export class CanalNotificacion {
       [CanalNotificacionEnum.IN_APP]: 1, // Instantáneo
     };
     return tiempos[this._value];
-  }
-
-  /**
-   * Comparación por valor
-   */
-  public equals(other: CanalNotificacion): boolean {
-    if (!other || !(other instanceof CanalNotificacion)) {
-      return false;
-    }
-    return this._value === other._value;
-  }
-
-  /**
-   * Representación en string
-   */
-  public toString(): string {
-    return this._value;
-  }
-
-  /**
-   * Serialización JSON
-   */
-  public toJSON(): string {
-    return this._value;
   }
 }

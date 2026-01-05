@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "@/prisma/prisma.service";
 import { KpiFiltersDto, OrdenesKpiDto } from "../dto";
+import { parseKpiDateRange } from "../utils/kpi-date-range";
 
 @Injectable()
 export class GetOrdenesKpisUseCase {
@@ -12,7 +13,21 @@ export class GetOrdenesKpisUseCase {
     try {
       this.logger.log("Calculando KPIs de órdenes", { filters });
 
-      const { fechaInicio, fechaFin } = this.parseFechas(filters);
+      const { fechaInicio, fechaFin } = parseKpiDateRange(filters, (now) => {
+        switch (filters.periodo) {
+          case "HOY":
+            return new Date(now.setHours(0, 0, 0, 0));
+          case "SEMANA":
+            return new Date(now.setDate(now.getDate() - 7));
+          case "TRIMESTRE":
+            return new Date(now.setMonth(now.getMonth() - 3));
+          case "ANO":
+            return new Date(now.setFullYear(now.getFullYear() - 1));
+          case "MES":
+          default:
+            return new Date(now.setMonth(now.getMonth() - 1));
+        }
+      });
 
       // Query para obtener estadísticas
       const [
@@ -66,41 +81,6 @@ export class GetOrdenesKpisUseCase {
       this.logger.error("Error calculando KPIs de órdenes", error);
       throw error;
     }
-  }
-
-  private parseFechas(filters: KpiFiltersDto): {
-    fechaInicio: Date;
-    fechaFin: Date;
-  } {
-    const ahora = new Date();
-    let fechaInicio: Date;
-    let fechaFin: Date = ahora;
-
-    if (filters.fechaInicio && filters.fechaFin) {
-      fechaInicio = new Date(filters.fechaInicio);
-      fechaFin = new Date(filters.fechaFin);
-    } else {
-      switch (filters.periodo) {
-        case "HOY":
-          fechaInicio = new Date(ahora.setHours(0, 0, 0, 0));
-          break;
-        case "SEMANA":
-          fechaInicio = new Date(ahora.setDate(ahora.getDate() - 7));
-          break;
-        case "TRIMESTRE":
-          fechaInicio = new Date(ahora.setMonth(ahora.getMonth() - 3));
-          break;
-        case "ANO":
-          fechaInicio = new Date(ahora.setFullYear(ahora.getFullYear() - 1));
-          break;
-        case "MES":
-        default:
-          fechaInicio = new Date(ahora.setMonth(ahora.getMonth() - 1));
-          break;
-      }
-    }
-
-    return { fechaInicio, fechaFin };
   }
 
   private async contarOrdenes(

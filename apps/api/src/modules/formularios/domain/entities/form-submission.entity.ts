@@ -23,8 +23,9 @@ import {
   SubmissionValidationError,
 } from "../exceptions";
 import { FormSubmittedEvent, FormValidatedEvent } from "../events";
-import { ConditionalLogicEvaluatorService } from "../services/conditional-logic-evaluator.service";
 import { CalculationEngineService } from "../services/calculation-engine.service";
+import { FormValidatorService } from "../services/form-validator.service";
+import { AggregateRoot } from "../../../../shared/base/aggregate-root";
 
 export interface CreateSubmissionProps {
   templateId: FormTemplateId;
@@ -34,12 +35,9 @@ export interface CreateSubmissionProps {
   submittedBy: string;
 }
 
-export class FormSubmission {
-  private _domainEvents: any[] = [];
-
-  private static readonly conditionalLogicEvaluator =
-    new ConditionalLogicEvaluatorService();
+export class FormSubmission extends AggregateRoot {
   private static readonly calculationEngine = new CalculationEngineService();
+  private static readonly validator = new FormValidatorService();
 
   private constructor(
     private readonly _id: FormSubmissionId,
@@ -56,7 +54,9 @@ export class FormSubmission {
     private _submittedAt?: Date,
     private _validatedAt?: Date,
     private _validatedBy?: string,
-  ) {}
+  ) {
+    super();
+  }
 
   /**
    * Factory method: Crear nueva submission
@@ -201,62 +201,7 @@ export class FormSubmission {
    * Validar respuestas contra template
    */
   private validateAnswers(template: FormTemplate): SubmissionValidationError[] {
-    const errors: SubmissionValidationError[] = [];
-
-    const formData = this.getFormDataObject();
-
-    // Validar campos requeridos
-    const requiredFields = template.getRequiredFields();
-    for (const field of requiredFields) {
-      // Campos ocultos por lógica condicional no deben exigirse
-      if (!this.isFieldVisible(field.getId(), template, formData)) {
-        continue;
-      }
-
-      // Campos calculados se rellenan automáticamente
-      if (field.isCalculated()) {
-        continue;
-      }
-
-      if (!this._answers.has(field.getId())) {
-        errors.push({
-          fieldId: field.getId(),
-          message: `Field "${field.getLabel()}" is required`,
-        });
-      }
-    }
-
-    // Validar tipo y reglas de cada respuesta
-    for (const [fieldId, value] of this._answers.entries()) {
-      const field = template.getField(fieldId);
-      if (!field) {
-        errors.push({
-          fieldId,
-          message: `Field "${fieldId}" does not exist in template`,
-        });
-        continue;
-      }
-
-      // Campos ocultos por lógica condicional se ignoran
-      if (!this.isFieldVisible(fieldId, template, formData)) {
-        continue;
-      }
-
-      // Campos calculados se ignoran (se recalculan en submit)
-      if (field.isCalculated()) {
-        continue;
-      }
-
-      const validationResult = field.validateValue(value.getValue());
-      if (!validationResult.isValid) {
-        errors.push({
-          fieldId,
-          message: validationResult.error || "Invalid value",
-        });
-      }
-    }
-
-    return errors;
+    return FormSubmission.validator.validate(this._answers, template);
   }
 
   /**
@@ -314,33 +259,6 @@ export class FormSubmission {
       obj[key] = value.getValue();
     }
     return obj;
-  }
-
-  private isFieldVisible(
-    fieldId: string,
-    template: FormTemplate,
-    formData: Record<string, any>,
-  ): boolean {
-    const field = template.getField(fieldId);
-    if (!field) return true;
-
-    const logic = field.getConditionalLogic();
-    if (!logic) return true;
-
-    return FormSubmission.conditionalLogicEvaluator.evaluate(logic, formData);
-  }
-
-  // Domain Events
-  private addDomainEvent(event: any): void {
-    this._domainEvents.push(event);
-  }
-
-  public getDomainEvents(): any[] {
-    return [...this._domainEvents];
-  }
-
-  public clearDomainEvents(): void {
-    this._domainEvents = [];
   }
 
   // Getters

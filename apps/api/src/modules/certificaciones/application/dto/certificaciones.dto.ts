@@ -12,22 +12,7 @@ import {
   TipoCertificacionEquipo,
 } from "../../domain/value-objects/tipo-certificacion.vo";
 
-/**
- * DTO para crear certificación de técnico
- */
-export class CreateCertificacionTecnicoDto {
-  @ApiProperty({ description: "ID del técnico" })
-  @IsString()
-  @IsNotEmpty()
-  tecnicoId!: string;
-
-  @ApiProperty({
-    enum: TipoCertificacionTecnico,
-    description: "Tipo de certificación",
-  })
-  @IsEnum(TipoCertificacionTecnico)
-  tipo!: TipoCertificacionTecnico;
-
+abstract class CreateCertificacionBaseDto {
   @ApiProperty({ description: "Entidad certificadora", example: "SENA" })
   @IsString()
   @IsNotEmpty()
@@ -61,9 +46,26 @@ export class CreateCertificacionTecnicoDto {
 }
 
 /**
+ * DTO para crear certificación de técnico
+ */
+export class CreateCertificacionTecnicoDto extends CreateCertificacionBaseDto {
+  @ApiProperty({ description: "ID del técnico" })
+  @IsString()
+  @IsNotEmpty()
+  tecnicoId!: string;
+
+  @ApiProperty({
+    enum: TipoCertificacionTecnico,
+    description: "Tipo de certificación",
+  })
+  @IsEnum(TipoCertificacionTecnico)
+  tipo!: TipoCertificacionTecnico;
+}
+
+/**
  * DTO para crear certificación de equipo
  */
-export class CreateCertificacionEquipoDto {
+export class CreateCertificacionEquipoDto extends CreateCertificacionBaseDto {
   @ApiProperty({ description: "ID del kit/equipo" })
   @IsString()
   @IsNotEmpty()
@@ -75,34 +77,6 @@ export class CreateCertificacionEquipoDto {
   })
   @IsEnum(TipoCertificacionEquipo)
   tipo!: TipoCertificacionEquipo;
-
-  @ApiProperty({ description: "Entidad certificadora", example: "ICONTEC" })
-  @IsString()
-  @IsNotEmpty()
-  entidadCertificadora!: string;
-
-  @ApiProperty({ description: "Número de certificado", example: "EQ-2024-001" })
-  @IsString()
-  @IsNotEmpty()
-  numeroCertificado!: string;
-
-  @ApiProperty({ description: "Fecha de emisión", example: "2024-01-15" })
-  @IsDateString()
-  fechaEmision!: string;
-
-  @ApiProperty({ description: "Fecha de vencimiento", example: "2025-01-15" })
-  @IsDateString()
-  fechaVencimiento!: string;
-
-  @ApiPropertyOptional({ description: "URL del archivo del certificado" })
-  @IsOptional()
-  @IsUrl()
-  archivoUrl?: string;
-
-  @ApiPropertyOptional({ description: "Observaciones adicionales" })
-  @IsOptional()
-  @IsString()
-  observaciones?: string;
 }
 
 /**

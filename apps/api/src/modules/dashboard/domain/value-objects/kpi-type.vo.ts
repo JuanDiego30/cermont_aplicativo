@@ -6,6 +6,7 @@
 
 import { ValidationError } from "../exceptions";
 import { DashboardRoleEnum } from "./dashboard-role.vo";
+import { EnumValueObject } from "../../../../shared/base/enum-value-object";
 
 export enum KpiTypeEnum {
   ORDENES_TOTALES = "ORDENES_TOTALES",
@@ -20,7 +21,7 @@ export enum KpiTypeEnum {
   TIEMPO_PROMEDIO_ORDEN = "TIEMPO_PROMEDIO_ORDEN",
 }
 
-export class KpiType {
+export class KpiType extends EnumValueObject<KpiTypeEnum> {
   private static readonly KPI_METADATA: Record<
     KpiTypeEnum,
     {
@@ -104,8 +105,8 @@ export class KpiType {
     },
   };
 
-  private constructor(private readonly _value: KpiTypeEnum) {
-    Object.freeze(this);
+  private constructor(value: KpiTypeEnum) {
+    super(value);
   }
 
   /**
@@ -120,13 +121,6 @@ export class KpiType {
       );
     }
     return new KpiType(normalized as KpiTypeEnum);
-  }
-
-  /**
-   * Obtiene el valor del tipo
-   */
-  public getValue(): KpiTypeEnum {
-    return this._value;
   }
 
   /**
@@ -165,27 +159,4 @@ export class KpiType {
     return KpiType.KPI_METADATA[this._value].unit;
   }
 
-  /**
-   * Compara con otro tipo
-   */
-  public equals(other: KpiType): boolean {
-    if (!other || !(other instanceof KpiType)) {
-      return false;
-    }
-    return this._value === other._value;
-  }
-
-  /**
-   * Serialización JSON
-   */
-  public toJSON(): string {
-    return this._value;
-  }
-
-  /**
-   * Representación string
-   */
-  public toString(): string {
-    return this._value;
-  }
 }

@@ -12,6 +12,7 @@
  */
 
 import { ValidationError } from "../exceptions";
+import { EnumValueObject } from "../../../../shared/base/enum-value-object";
 
 export enum TipoAlertaEnum {
   ORDEN_CREADA = "ORDEN_CREADA",
@@ -35,9 +36,9 @@ export enum TipoAlertaEnum {
   PROPUESTA_SIN_RESPUESTA = "PROPUESTA_SIN_RESPUESTA",
 }
 
-export class TipoAlerta {
-  private constructor(private readonly _value: TipoAlertaEnum) {
-    Object.freeze(this); // Inmutabilidad
+export class TipoAlerta extends EnumValueObject<TipoAlertaEnum> {
+  private constructor(value: TipoAlertaEnum) {
+    super(value);
   }
 
   /**
@@ -57,13 +58,6 @@ export class TipoAlerta {
 
   /**
    * Obtener el valor del tipo
-   */
-  public getValue(): TipoAlertaEnum {
-    return this._value;
-  }
-
-  /**
-   * Obtener categoría de la alerta
    */
   public getCategoria():
     | "ORDEN"
@@ -89,29 +83,5 @@ export class TipoAlerta {
       TipoAlertaEnum.FACTURA_VENCIDA,
     ];
     return tiposUrgentes.includes(this._value);
-  }
-
-  /**
-   * Comparación por valor
-   */
-  public equals(other: TipoAlerta): boolean {
-    if (!other || !(other instanceof TipoAlerta)) {
-      return false;
-    }
-    return this._value === other._value;
-  }
-
-  /**
-   * Representación en string
-   */
-  public toString(): string {
-    return this._value;
-  }
-
-  /**
-   * Serialización JSON
-   */
-  public toJSON(): string {
-    return this._value;
   }
 }

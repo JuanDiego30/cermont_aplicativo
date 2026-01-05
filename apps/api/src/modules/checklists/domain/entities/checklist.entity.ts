@@ -24,9 +24,9 @@ import {
   ChecklistItemToggledEvent,
   ChecklistCompletedEvent,
 } from "../events";
+import { AggregateRoot } from "../../../../shared/base/aggregate-root";
 
-export class Checklist {
-  private _domainEvents: any[] = [];
+export class Checklist extends AggregateRoot {
 
   // Configuración
   private static readonly MIN_NAME_LENGTH = 3;
@@ -53,6 +53,7 @@ export class Checklist {
     private readonly _createdAt: Date,
     private _updatedAt: Date,
   ) {
+    super();
     this.validate();
   }
 
@@ -627,22 +628,6 @@ export class Checklist {
 
   public getUpdatedAt(): Date {
     return this._updatedAt;
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // DOMAIN EVENTS
-  // ═══════════════════════════════════════════════════════════════
-
-  public getDomainEvents(): any[] {
-    return [...this._domainEvents];
-  }
-
-  public clearDomainEvents(): void {
-    this._domainEvents = [];
-  }
-
-  private addDomainEvent(event: any): void {
-    this._domainEvents.push(event);
   }
 
   // ═══════════════════════════════════════════════════════════════

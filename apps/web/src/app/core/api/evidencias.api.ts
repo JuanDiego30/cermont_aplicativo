@@ -29,7 +29,7 @@ export class EvidenciasApi extends ApiBaseService {
    * @param file File to upload
    * @param metadata Additional metadata (tipo, etapa, descripcion, etc.)
    */
-  upload(
+  uploadEvidence(
     ordenId: string,
     file: File,
     metadata: {
@@ -44,16 +44,16 @@ export class EvidenciasApi extends ApiBaseService {
     formData.append('ordenId', ordenId);
     formData.append('tipo', metadata.tipo);
     formData.append('etapa', metadata.etapa);
-    
+
     if (metadata.descripcion) {
       formData.append('descripcion', metadata.descripcion);
     }
-    
+
     if (metadata.coordenadas) {
       formData.append('coordenadas', JSON.stringify(metadata.coordenadas));
     }
 
-    return this.upload<UploadEvidenceResponse>('/evidencias/upload', formData);
+    return super.upload<UploadEvidenceResponse>('/evidencias/upload', formData);
   }
 
   /**
@@ -80,8 +80,8 @@ export class EvidenciasApi extends ApiBaseService {
   /**
    * Download evidence file
    */
-  download(id: string): Observable<Blob> {
-    return this.download(`/evidencias/${id}/download`);
+  downloadFile(id: string): Observable<Blob> {
+    return super.download(`/evidencias/${id}/download`);
   }
 }
 

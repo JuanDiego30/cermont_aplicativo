@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "@/prisma/prisma.service";
 import { KpiFiltersDto, FinancialKpiDto } from "../dto";
 import { Decimal } from "decimal.js";
+import { parseKpiDateRange } from "../utils/kpi-date-range";
 
 @Injectable()
 export class GetFinancialKpisUseCase {
@@ -13,7 +14,9 @@ export class GetFinancialKpisUseCase {
     try {
       this.logger.log("Calculando KPIs financieros", { filters });
 
-      const { fechaInicio, fechaFin } = this.parseFechas(filters);
+      const { fechaInicio, fechaFin } = parseKpiDateRange(filters, (now) =>
+        new Date(now.setMonth(now.getMonth() - 1)),
+      );
 
       const [costosData, ordenesCount] = await Promise.all([
         this.obtenerCostos(fechaInicio, fechaFin, filters.clienteId),
@@ -39,29 +42,6 @@ export class GetFinancialKpisUseCase {
       this.logger.error("Error calculando KPIs financieros", error);
       throw error;
     }
-  }
-
-  private parseFechas(filters: KpiFiltersDto): {
-    fechaInicio: Date;
-    fechaFin: Date;
-  } {
-    const ahora = new Date();
-    let fechaInicio: Date;
-    let fechaFin: Date = ahora;
-
-    if (filters.fechaInicio && filters.fechaFin) {
-      fechaInicio = new Date(filters.fechaInicio);
-      fechaFin = new Date(filters.fechaFin);
-    } else {
-      switch (filters.periodo) {
-        case "MES":
-        default:
-          fechaInicio = new Date(ahora.setMonth(ahora.getMonth() - 1));
-          break;
-      }
-    }
-
-    return { fechaInicio, fechaFin };
   }
 
   private async obtenerCostos(

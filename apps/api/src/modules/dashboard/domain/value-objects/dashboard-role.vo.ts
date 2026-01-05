@@ -6,6 +6,7 @@
 
 import { ValidationError } from "../exceptions";
 import { KpiTypeEnum } from "./kpi-type.vo";
+import { EnumValueObject } from "../../../../shared/base/enum-value-object";
 
 export enum DashboardRoleEnum {
   ADMIN = "ADMIN",
@@ -14,7 +15,7 @@ export enum DashboardRoleEnum {
   CLIENTE = "CLIENTE",
 }
 
-export class DashboardRole {
+export class DashboardRole extends EnumValueObject<DashboardRoleEnum> {
   private static readonly ROLE_KPI_PERMISSIONS: Record<
     DashboardRoleEnum,
     KpiTypeEnum[]
@@ -47,8 +48,8 @@ export class DashboardRole {
     [DashboardRoleEnum.CLIENTE]: [KpiTypeEnum.ORDENES_COMPLETADAS],
   };
 
-  private constructor(private readonly _value: DashboardRoleEnum) {
-    Object.freeze(this);
+  private constructor(value: DashboardRoleEnum) {
+    super(value);
   }
 
   /**
@@ -70,13 +71,6 @@ export class DashboardRole {
   }
 
   /**
-   * Obtiene el valor del rol
-   */
-  public getValue(): DashboardRoleEnum {
-    return this._value;
-  }
-
-  /**
    * Obtiene los KPIs autorizados para este rol
    */
   public getAuthorizedKpis(): KpiTypeEnum[] {
@@ -90,27 +84,4 @@ export class DashboardRole {
     return this.getAuthorizedKpis().includes(kpiType);
   }
 
-  /**
-   * Compara con otro rol
-   */
-  public equals(other: DashboardRole): boolean {
-    if (!other || !(other instanceof DashboardRole)) {
-      return false;
-    }
-    return this._value === other._value;
-  }
-
-  /**
-   * Serialización JSON
-   */
-  public toJSON(): string {
-    return this._value;
-  }
-
-  /**
-   * Representación string
-   */
-  public toString(): string {
-    return this._value;
-  }
 }

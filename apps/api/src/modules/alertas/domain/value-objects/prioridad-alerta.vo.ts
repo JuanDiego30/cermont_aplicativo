@@ -12,6 +12,7 @@
  */
 
 import { ValidationError } from "../exceptions";
+import { EnumValueObject } from "../../../../shared/base/enum-value-object";
 
 export enum PrioridadAlertaEnum {
   CRITICAL = "CRITICAL", // Errores críticos, requiere acción inmediata
@@ -20,7 +21,7 @@ export enum PrioridadAlertaEnum {
   INFO = "INFO", // Información general
 }
 
-export class PrioridadAlerta {
+export class PrioridadAlerta extends EnumValueObject<PrioridadAlertaEnum> {
   private static readonly HIERARCHY = [
     PrioridadAlertaEnum.CRITICAL,
     PrioridadAlertaEnum.ERROR,
@@ -28,8 +29,8 @@ export class PrioridadAlerta {
     PrioridadAlertaEnum.INFO,
   ];
 
-  private constructor(private readonly _value: PrioridadAlertaEnum) {
-    Object.freeze(this); // Inmutabilidad
+  private constructor(value: PrioridadAlertaEnum) {
+    super(value);
   }
 
   /**
@@ -47,13 +48,6 @@ export class PrioridadAlerta {
       );
     }
     return new PrioridadAlerta(value as PrioridadAlertaEnum);
-  }
-
-  /**
-   * Obtener el valor de la prioridad
-   */
-  public getValue(): PrioridadAlertaEnum {
-    return this._value;
   }
 
   /**
@@ -88,29 +82,5 @@ export class PrioridadAlerta {
       [PrioridadAlertaEnum.INFO]: "#4CAF50", // Verde
     };
     return colors[this._value];
-  }
-
-  /**
-   * Comparación por valor
-   */
-  public equals(other: PrioridadAlerta): boolean {
-    if (!other || !(other instanceof PrioridadAlerta)) {
-      return false;
-    }
-    return this._value === other._value;
-  }
-
-  /**
-   * Representación en string
-   */
-  public toString(): string {
-    return this._value;
-  }
-
-  /**
-   * Serialización JSON
-   */
-  public toJSON(): string {
-    return this._value;
   }
 }

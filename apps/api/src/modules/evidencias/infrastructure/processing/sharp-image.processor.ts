@@ -11,6 +11,10 @@ import {
   IImageProcessor,
   ImageProcessingResult,
 } from "./image-processor.interface";
+import {
+  normalizeRelativePath,
+  resolveSafePath,
+} from "../storage/safe-path";
 
 // Sharp can be optionally imported
 let sharp: typeof import("sharp") | null = null;
@@ -37,8 +41,8 @@ export class SharpImageProcessor implements IImageProcessor {
   }
 
   async processImage(filePath: string): Promise<ImageProcessingResult> {
-    const safeRelative = this.normalizeRelativePath(filePath);
-    const fullPath = this.resolveSafePath(safeRelative);
+    const safeRelative = normalizeRelativePath(filePath);
+    const fullPath = resolveSafePath(this.basePath, safeRelative);
 
     if (!sharp) {
       this.logger.warn("Sharp not available, skipping image processing");
@@ -51,8 +55,8 @@ export class SharpImageProcessor implements IImageProcessor {
 
       const thumb150Path = this.getThumbnailPath(safeRelative, 150);
       const thumb300Path = this.getThumbnailPath(safeRelative, 300);
-      const thumb150FullPath = this.resolveSafePath(thumb150Path);
-      const thumb300FullPath = this.resolveSafePath(thumb300Path);
+      const thumb150FullPath = resolveSafePath(this.basePath, thumb150Path);
+      const thumb300FullPath = resolveSafePath(this.basePath, thumb300Path);
 
       await fs.mkdir(path.dirname(thumb150FullPath), { recursive: true });
       await fs.mkdir(path.dirname(thumb300FullPath), { recursive: true });
@@ -100,10 +104,10 @@ export class SharpImageProcessor implements IImageProcessor {
       throw new Error("Sharp not available");
     }
 
-    const safeInput = this.normalizeRelativePath(inputPath);
-    const safeOutput = this.normalizeRelativePath(outputPath);
-    const inputFullPath = this.resolveSafePath(safeInput);
-    const outputFullPath = this.resolveSafePath(safeOutput);
+    const safeInput = normalizeRelativePath(inputPath);
+    const safeOutput = normalizeRelativePath(outputPath);
+    const inputFullPath = resolveSafePath(this.basePath, safeInput);
+    const outputFullPath = resolveSafePath(this.basePath, safeOutput);
 
     await fs.mkdir(path.dirname(outputFullPath), { recursive: true });
 
@@ -116,14 +120,14 @@ export class SharpImageProcessor implements IImageProcessor {
   }
 
   async compress(inputPath: string, quality: number = 80): Promise<Buffer> {
-    const safeInput = this.normalizeRelativePath(inputPath);
+    const safeInput = normalizeRelativePath(inputPath);
     if (!sharp) {
       // Just return the original file
-      const fullPath = this.resolveSafePath(safeInput);
+      const fullPath = resolveSafePath(this.basePath, safeInput);
       return fs.readFile(fullPath);
     }
 
-    const fullPath = this.resolveSafePath(safeInput);
+    const fullPath = resolveSafePath(this.basePath, safeInput);
     return sharp(fullPath).jpeg({ quality }).toBuffer();
   }
 
@@ -139,28 +143,5 @@ export class SharpImageProcessor implements IImageProcessor {
       String(size),
       `${filename}-thumb.jpg`,
     );
-  }
-
-  private normalizeRelativePath(filePath: string): string {
-    const normalized = filePath.replace(/\\/g, "/");
-    if (path.isAbsolute(normalized)) {
-      throw new Error("Absolute paths are not allowed");
-    }
-    if (normalized.includes("..")) {
-      throw new Error("Path traversal is not allowed");
-    }
-    return normalized;
-  }
-
-  private resolveSafePath(filePath: string): string {
-    const relative = this.normalizeRelativePath(filePath);
-    const base = path.resolve(this.basePath);
-    const full = path.resolve(base, relative);
-
-    if (full !== base && !full.startsWith(base + path.sep)) {
-      throw new Error("Invalid storage path");
-    }
-
-    return full;
   }
 }

@@ -1,6 +1,6 @@
 {
   "statistics": {
-    "detectionDate": "2026-01-05T21:20:59.633Z",
+    "detectionDate": "2026-01-05T22:48:21.267Z",
     "formats": {
       "typescript": {
         "sources": {
@@ -1300,6 +1300,30 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "apps/web/src/app/core/models/reporte.model.ts": {
+            "lines": 77,
+            "tokens": 552,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/web/src/app/core/models/planeacion.model.ts": {
+            "lines": 62,
+            "tokens": 437,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "apps/web/src/app/core/models/orden.model.ts": {
             "lines": 139,
             "tokens": 1150,
@@ -1337,8 +1361,8 @@
             "newClones": 0
           },
           "apps/web/src/app/core/models/index.ts": {
-            "lines": 13,
-            "tokens": 78,
+            "lines": 15,
+            "tokens": 98,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1516,6 +1540,30 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "apps/web/src/app/core/api/reportes.api.ts": {
+            "lines": 38,
+            "tokens": 244,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/web/src/app/core/api/planeacion.api.ts": {
+            "lines": 54,
+            "tokens": 352,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "apps/web/src/app/core/api/ordenes.api.ts": {
             "lines": 111,
             "tokens": 1166,
@@ -1553,8 +1601,8 @@
             "newClones": 0
           },
           "apps/web/src/app/core/api/index.ts": {
-            "lines": 13,
-            "tokens": 84,
+            "lines": 15,
+            "tokens": 104,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2849,32 +2897,44 @@
             "newClones": 0
           },
           "apps/api/src/modules/ordenes/application/use-cases/change-orden-estado.use-case.ts": {
-            "lines": 224,
-            "tokens": 1756,
+            "lines": 202,
+            "tokens": 1535,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 27,
-            "duplicatedTokens": 235,
-            "percentage": 12.05,
-            "percentageTokens": 13.38,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/ordenes/application/use-cases/asignar-tecnico-orden.use-case.ts": {
-            "lines": 127,
-            "tokens": 950,
+            "lines": 105,
+            "tokens": 729,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 27,
-            "duplicatedTokens": 235,
-            "percentage": 21.26,
-            "percentageTokens": 24.74,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/ordenes/application/services/order-state.service.ts": {
             "lines": 358,
             "tokens": 2534,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/modules/ordenes/application/mappers/orden-response.mapper.ts": {
+            "lines": 28,
+            "tokens": 282,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3004,6 +3064,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "apps/api/src/modules/kpis/application/utils/kpi-date-range.ts": {
+            "lines": 22,
+            "tokens": 218,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "apps/api/src/modules/kpis/application/use-cases/get-tecnicos-kpis.use-case.ts": {
             "lines": 103,
             "tokens": 903,
@@ -3017,26 +3089,26 @@
             "newClones": 0
           },
           "apps/api/src/modules/kpis/application/use-cases/get-ordenes-kpis.use-case.ts": {
-            "lines": 173,
-            "tokens": 1397,
+            "lines": 153,
+            "tokens": 1245,
             "sources": 1,
-            "clones": 5,
-            "duplicatedLines": 59,
-            "duplicatedTokens": 414,
-            "percentage": 34.1,
-            "percentageTokens": 29.63,
+            "clones": 3,
+            "duplicatedLines": 30,
+            "duplicatedTokens": 185,
+            "percentage": 19.61,
+            "percentageTokens": 14.86,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/kpis/application/use-cases/get-financial-kpis.use-case.ts": {
-            "lines": 118,
-            "tokens": 1104,
+            "lines": 98,
+            "tokens": 947,
             "sources": 1,
-            "clones": 3,
-            "duplicatedLines": 39,
-            "duplicatedTokens": 298,
-            "percentage": 33.05,
-            "percentageTokens": 26.99,
+            "clones": 1,
+            "duplicatedLines": 10,
+            "duplicatedTokens": 69,
+            "percentage": 10.2,
+            "percentageTokens": 7.29,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -3449,14 +3521,14 @@
             "newClones": 0
           },
           "apps/api/src/modules/hes/infrastructure/persistence/hes.prisma.mapper.ts": {
-            "lines": 229,
-            "tokens": 2195,
+            "lines": 223,
+            "tokens": 1991,
             "sources": 1,
             "clones": 1,
-            "duplicatedLines": 22,
-            "duplicatedTokens": 251,
-            "percentage": 9.61,
-            "percentageTokens": 11.44,
+            "duplicatedLines": 12,
+            "duplicatedTokens": 67,
+            "percentage": 5.38,
+            "percentageTokens": 3.37,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -3652,6 +3724,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "apps/api/src/modules/hes/domain/mappers/hes-common.mapper.ts": {
+            "lines": 88,
+            "tokens": 813,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "apps/api/src/modules/hes/domain/exceptions/numero-hes-duplicado.exception.ts": {
             "lines": 13,
             "tokens": 69,
@@ -3761,14 +3845,14 @@
             "newClones": 0
           },
           "apps/api/src/modules/hes/domain/entities/hes.entity.ts": {
-            "lines": 419,
-            "tokens": 3052,
+            "lines": 413,
+            "tokens": 3003,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 22,
-            "duplicatedTokens": 143,
-            "percentage": 5.25,
-            "percentageTokens": 4.69,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -3929,14 +4013,14 @@
             "newClones": 0
           },
           "apps/api/src/modules/hes/application/mappers/hes.mapper.ts": {
-            "lines": 119,
-            "tokens": 1040,
+            "lines": 107,
+            "tokens": 812,
             "sources": 1,
             "clones": 1,
-            "duplicatedLines": 22,
-            "duplicatedTokens": 251,
-            "percentage": 18.49,
-            "percentageTokens": 24.13,
+            "duplicatedLines": 12,
+            "duplicatedTokens": 67,
+            "percentage": 11.21,
+            "percentageTokens": 8.25,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -4205,20 +4289,32 @@
             "newClones": 0
           },
           "apps/api/src/modules/formularios/domain/services/form-validator.service.ts": {
-            "lines": 119,
-            "tokens": 814,
+            "lines": 103,
+            "tokens": 690,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 34,
-            "duplicatedTokens": 198,
-            "percentage": 28.57,
-            "percentageTokens": 24.32,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/formularios/domain/services/form-schema-generator.service.ts": {
             "lines": 72,
             "tokens": 494,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/modules/formularios/domain/services/field-visibility.ts": {
+            "lines": 26,
+            "tokens": 242,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4385,26 +4481,26 @@
             "newClones": 0
           },
           "apps/api/src/modules/formularios/domain/entities/form-template.entity.ts": {
-            "lines": 521,
-            "tokens": 3745,
+            "lines": 509,
+            "tokens": 3662,
             "sources": 1,
-            "clones": 4,
-            "duplicatedLines": 53,
-            "duplicatedTokens": 362,
-            "percentage": 10.17,
-            "percentageTokens": 9.67,
+            "clones": 2,
+            "duplicatedLines": 24,
+            "duplicatedTokens": 172,
+            "percentage": 4.72,
+            "percentageTokens": 4.7,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/formularios/domain/entities/form-submission.entity.ts": {
-            "lines": 439,
-            "tokens": 3203,
+            "lines": 357,
+            "tokens": 2612,
             "sources": 1,
-            "clones": 5,
-            "duplicatedLines": 73,
-            "duplicatedTokens": 414,
-            "percentage": 16.63,
-            "percentageTokens": 12.93,
+            "clones": 2,
+            "duplicatedLines": 22,
+            "duplicatedTokens": 110,
+            "percentage": 6.16,
+            "percentageTokens": 4.21,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -4660,27 +4756,39 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
-          "apps/api/src/modules/evidencias/infrastructure/storage/local-storage.provider.ts": {
-            "lines": 108,
-            "tokens": 1010,
+          "apps/api/src/modules/evidencias/infrastructure/storage/safe-path.ts": {
+            "lines": 24,
+            "tokens": 259,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 19,
-            "duplicatedTokens": 175,
-            "percentage": 17.59,
-            "percentageTokens": 17.33,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/modules/evidencias/infrastructure/storage/local-storage.provider.ts": {
+            "lines": 85,
+            "tokens": 804,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/evidencias/infrastructure/processing/sharp-image.processor.ts": {
-            "lines": 166,
-            "tokens": 1446,
+            "lines": 147,
+            "tokens": 1257,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 19,
-            "duplicatedTokens": 175,
-            "percentage": 11.45,
-            "percentageTokens": 12.1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -5237,26 +5345,26 @@
             "newClones": 0
           },
           "apps/api/src/modules/ejecucion/application/use-cases/update-avance.use-case.ts": {
-            "lines": 80,
-            "tokens": 664,
+            "lines": 61,
+            "tokens": 431,
             "sources": 1,
-            "clones": 4,
-            "duplicatedLines": 68,
-            "duplicatedTokens": 602,
-            "percentage": 85,
-            "percentageTokens": 90.66,
+            "clones": 2,
+            "duplicatedLines": 25,
+            "duplicatedTokens": 145,
+            "percentage": 40.98,
+            "percentageTokens": 33.64,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/ejecucion/application/use-cases/iniciar-ejecucion.use-case.ts": {
-            "lines": 111,
-            "tokens": 879,
+            "lines": 93,
+            "tokens": 659,
             "sources": 1,
-            "clones": 3,
-            "duplicatedLines": 44,
-            "duplicatedTokens": 364,
-            "percentage": 39.64,
-            "percentageTokens": 41.41,
+            "clones": 2,
+            "duplicatedLines": 23,
+            "duplicatedTokens": 142,
+            "percentage": 24.73,
+            "percentageTokens": 21.55,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -5285,14 +5393,26 @@
             "newClones": 0
           },
           "apps/api/src/modules/ejecucion/application/use-cases/completar-ejecucion.use-case.ts": {
-            "lines": 93,
-            "tokens": 751,
+            "lines": 74,
+            "tokens": 518,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 35,
-            "duplicatedTokens": 316,
-            "percentage": 37.63,
-            "percentageTokens": 42.08,
+            "clones": 1,
+            "duplicatedLines": 13,
+            "duplicatedTokens": 81,
+            "percentage": 17.57,
+            "percentageTokens": 15.64,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/modules/ejecucion/application/mappers/ejecucion-response.mapper.ts": {
+            "lines": 18,
+            "tokens": 243,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -5333,14 +5453,14 @@
             "newClones": 0
           },
           "apps/api/src/modules/dashboard/domain/value-objects/trend-direction.vo.ts": {
-            "lines": 126,
-            "tokens": 721,
+            "lines": 96,
+            "tokens": 587,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 40,
-            "duplicatedTokens": 172,
-            "percentage": 31.75,
-            "percentageTokens": 23.86,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -5369,14 +5489,14 @@
             "newClones": 0
           },
           "apps/api/src/modules/dashboard/domain/value-objects/kpi-type.vo.ts": {
-            "lines": 191,
-            "tokens": 1234,
+            "lines": 162,
+            "tokens": 1101,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 20,
-            "duplicatedTokens": 86,
-            "percentage": 10.47,
-            "percentageTokens": 6.97,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -5393,14 +5513,14 @@
             "newClones": 0
           },
           "apps/api/src/modules/dashboard/domain/value-objects/dashboard-role.vo.ts": {
-            "lines": 116,
-            "tokens": 669,
+            "lines": 87,
+            "tokens": 536,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 20,
-            "duplicatedTokens": 86,
-            "percentage": 17.24,
-            "percentageTokens": 12.86,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -5765,14 +5885,14 @@
             "newClones": 0
           },
           "apps/api/src/modules/costos/domain/entities/costo.entity.ts": {
-            "lines": 434,
-            "tokens": 2910,
+            "lines": 418,
+            "tokens": 2819,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 36,
-            "duplicatedTokens": 199,
-            "percentage": 8.29,
-            "percentageTokens": 6.84,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -6221,14 +6341,14 @@
             "newClones": 0
           },
           "apps/api/src/modules/checklists/domain/entities/checklist.entity.ts": {
-            "lines": 724,
-            "tokens": 4966,
+            "lines": 709,
+            "tokens": 4876,
             "sources": 1,
-            "clones": 8,
-            "duplicatedLines": 113,
-            "duplicatedTokens": 689,
-            "percentage": 15.61,
-            "percentageTokens": 13.87,
+            "clones": 7,
+            "duplicatedLines": 87,
+            "duplicatedTokens": 549,
+            "percentage": 12.27,
+            "percentageTokens": 11.26,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -6545,14 +6665,14 @@
             "newClones": 0
           },
           "apps/api/src/modules/certificaciones/application/dto/certificaciones.dto.ts": {
-            "lines": 205,
-            "tokens": 1293,
+            "lines": 179,
+            "tokens": 1089,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 52,
-            "duplicatedTokens": 332,
-            "percentage": 25.37,
-            "percentageTokens": 25.68,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -6893,26 +7013,38 @@
             "newClones": 0
           },
           "apps/api/src/modules/auth/application/dto/register.dto.ts": {
-            "lines": 59,
-            "tokens": 414,
+            "lines": 38,
+            "tokens": 246,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 21,
-            "duplicatedTokens": 179,
-            "percentage": 35.59,
-            "percentageTokens": 43.24,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/auth/application/dto/login.dto.ts": {
-            "lines": 50,
-            "tokens": 352,
+            "lines": 28,
+            "tokens": 180,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 21,
-            "duplicatedTokens": 179,
-            "percentage": 42,
-            "percentageTokens": 50.85,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/modules/auth/application/dto/email-password.dto.ts": {
+            "lines": 30,
+            "tokens": 257,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -7133,26 +7265,26 @@
             "newClones": 0
           },
           "apps/api/src/modules/alertas/domain/value-objects/tipo-alerta.vo.ts": {
-            "lines": 117,
-            "tokens": 667,
+            "lines": 87,
+            "tokens": 531,
             "sources": 1,
-            "clones": 4,
-            "duplicatedLines": 80,
-            "duplicatedTokens": 344,
-            "percentage": 68.38,
-            "percentageTokens": 51.57,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/alertas/domain/value-objects/prioridad-alerta.vo.ts": {
-            "lines": 116,
-            "tokens": 614,
+            "lines": 86,
+            "tokens": 478,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 20,
-            "duplicatedTokens": 86,
-            "percentage": 17.24,
-            "percentageTokens": 14.01,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -7169,26 +7301,26 @@
             "newClones": 0
           },
           "apps/api/src/modules/alertas/domain/value-objects/estado-alerta.vo.ts": {
-            "lines": 139,
-            "tokens": 727,
+            "lines": 109,
+            "tokens": 591,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 20,
-            "duplicatedTokens": 86,
-            "percentage": 14.39,
-            "percentageTokens": 11.83,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/alertas/domain/value-objects/canal-notificacion.vo.ts": {
-            "lines": 116,
-            "tokens": 607,
+            "lines": 86,
+            "tokens": 471,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 20,
-            "duplicatedTokens": 86,
-            "percentage": 17.24,
-            "percentageTokens": 14.17,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -7196,11 +7328,11 @@
             "lines": 82,
             "tokens": 362,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 20,
-            "duplicatedTokens": 86,
-            "percentage": 24.39,
-            "percentageTokens": 23.76,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -8500,9 +8632,45 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "apps/api/src/shared/base/publish-domain-events.ts": {
+            "lines": 21,
+            "tokens": 173,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/shared/base/enum-value-object.ts": {
+            "lines": 23,
+            "tokens": 216,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "apps/api/src/shared/base/base.service.ts": {
             "lines": 132,
             "tokens": 1019,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/shared/base/aggregate-root.ts": {
+            "lines": 15,
+            "tokens": 136,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9918,28 +10086,28 @@
           }
         },
         "total": {
-          "lines": 82745,
-          "tokens": 596770,
-          "sources": 826,
-          "clones": 133,
-          "duplicatedLines": 1759,
-          "duplicatedTokens": 11710,
-          "percentage": 2.13,
-          "percentageTokens": 1.96,
+          "lines": 82651,
+          "tokens": 596454,
+          "sources": 840,
+          "clones": 113,
+          "duplicatedLines": 1365,
+          "duplicatedTokens": 8982,
+          "percentage": 1.65,
+          "percentageTokens": 1.51,
           "newDuplicatedLines": 0,
           "newClones": 0
         }
       }
     },
     "total": {
-      "lines": 82745,
-      "tokens": 596770,
-      "sources": 826,
-      "clones": 133,
-      "duplicatedLines": 1759,
-      "duplicatedTokens": 11710,
-      "percentage": 2.13,
-      "percentageTokens": 1.96,
+      "lines": 82651,
+      "tokens": 596454,
+      "sources": 840,
+      "clones": 113,
+      "duplicatedLines": 1365,
+      "duplicatedTokens": 8982,
+      "percentage": 1.65,
+      "percentageTokens": 1.51,
       "newDuplicatedLines": 0,
       "newClones": 0
     }
@@ -10235,181 +10403,73 @@
     },
     {
       "format": "typescript",
-      "lines": 28,
-      "fragment": ");\n      throw error;\n    }\n  }\n\n  private toResponseDto(orden: OrdenEntity): OrdenResponseDto {\n    return {\n      id: orden.id,\n      numero: orden.numero.value,\n      descripcion: orden.descripcion,\n      cliente: orden.cliente,\n      estado: orden.estado.value as OrdenEstado,\n      prioridad: orden.prioridad.value as OrdenPrioridad,\n      creadorId: orden.creadorId,\n      asignadoId: orden.asignadoId,\n      fechaInicio: orden.fechaInicio?.toISOString(),\n      fechaFin: orden.fechaFin?.toISOString(),\n      fechaFinEstimada: orden.fechaFinEstimada?.toISOString(),\n      presupuestoEstimado: orden.presupuestoEstimado,\n      costoReal: orden.costoReal,\n      createdAt: orden.createdAt.toISOString(),\n      updatedAt: orden.updatedAt.toISOString(),\n      creador: orden.creador,\n      asignado: orden.asignado,\n    };\n  }\n}\n",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\ordenes\\application\\use-cases\\asignar-tecnico-orden.use-case.ts",
-        "start": 101,
-        "end": 128,
-        "startLoc": {
-          "line": 101,
-          "column": 6,
-          "position": 715
-        },
-        "endLoc": {
-          "line": 128,
-          "column": 1,
-          "position": 950
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\ordenes\\application\\use-cases\\change-orden-estado.use-case.ts",
-        "start": 198,
-        "end": 225,
-        "startLoc": {
-          "line": 198,
-          "column": 7,
-          "position": 1521
-        },
-        "endLoc": {
-          "line": 225,
-          "column": 1,
-          "position": 1756
-        }
-      }
-    },
-    {
-      "format": "typescript",
       "lines": 11,
       "fragment": "\n        createdAt: {\n          gte: fechaInicio,\n          lte: fechaFin,\n        },\n        ...(clienteId && { clienteId }),\n      },\n    });\n  }\n\n  private async calcularTiempoPromedio",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\kpis\\application\\use-cases\\get-ordenes-kpis.use-case.ts",
-        "start": 130,
-        "end": 140,
+        "start": 110,
+        "end": 120,
         "startLoc": {
-          "line": 130,
+          "line": 110,
           "column": 2,
-          "position": 1032
+          "position": 880
         },
         "endLoc": {
-          "line": 140,
+          "line": 120,
           "column": 23,
-          "position": 1090
+          "position": 938
         }
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\kpis\\application\\use-cases\\get-ordenes-kpis.use-case.ts",
-        "start": 112,
-        "end": 122,
+        "start": 92,
+        "end": 102,
         "startLoc": {
-          "line": 112,
+          "line": 92,
           "column": 2,
-          "position": 902
+          "position": 750
         },
         "endLoc": {
-          "line": 122,
+          "line": 102,
           "column": 16,
-          "position": 960
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 19,
-      "fragment": ", error);\n      throw error;\n    }\n  }\n\n  private parseFechas(filters: KpiFiltersDto): {\n    fechaInicio: Date;\n    fechaFin: Date;\n  } {\n    const ahora = new Date();\n    let fechaInicio: Date;\n    let fechaFin: Date = ahora;\n\n    if (filters.fechaInicio && filters.fechaFin) {\n      fechaInicio = new Date(filters.fechaInicio);\n      fechaFin = new Date(filters.fechaFin);\n    } else {\n      switch (filters.periodo) {\n        case \"MES\"",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\kpis\\application\\use-cases\\get-financial-kpis.use-case.ts",
-        "start": 39,
-        "end": 57,
-        "startLoc": {
-          "line": 39,
-          "column": 36,
-          "position": 472
-        },
-        "endLoc": {
-          "line": 57,
-          "column": 6,
-          "position": 629
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\kpis\\application\\use-cases\\get-ordenes-kpis.use-case.ts",
-        "start": 66,
-        "end": 84,
-        "startLoc": {
-          "line": 66,
-          "column": 35,
-          "position": 480
-        },
-        "endLoc": {
-          "line": 84,
-          "column": 6,
-          "position": 637
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 12,
-      "fragment": "\n        case \"MES\":\n        default:\n          fechaInicio = new Date(ahora.setMonth(ahora.getMonth() - 1));\n          break;\n      }\n    }\n\n    return { fechaInicio, fechaFin };\n  }\n\n  private async obtenerCostos",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\kpis\\application\\use-cases\\get-financial-kpis.use-case.ts",
-        "start": 56,
-        "end": 67,
-        "startLoc": {
-          "line": 56,
-          "column": 2,
-          "position": 625
-        },
-        "endLoc": {
-          "line": 67,
-          "column": 14,
-          "position": 695
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\kpis\\application\\use-cases\\get-ordenes-kpis.use-case.ts",
-        "start": 95,
-        "end": 106,
-        "startLoc": {
-          "line": 95,
-          "column": 2,
-          "position": 778
-        },
-        "endLoc": {
-          "line": 106,
-          "column": 14,
-          "position": 848
+          "position": 808
         }
       }
     },
     {
       "format": "typescript",
       "lines": 11,
-      "fragment": "};\n  }\n\n  private async contarOrdenes(\n    fechaInicio: Date,\n    fechaFin: Date,\n    clienteId?: string,\n  ): Promise<number> {\n    return this.prisma.order.count({\n      where: {\n        estado: \"completada\"",
+      "fragment": "\n  }\n\n  private async contarOrdenes(\n    fechaInicio: Date,\n    fechaFin: Date,\n    clienteId?: string,\n  ): Promise<number> {\n    return this.prisma.order.count({\n      where: {\n        estado: \"completada\"",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\kpis\\application\\use-cases\\get-financial-kpis.use-case.ts",
-        "start": 94,
-        "end": 104,
+        "start": 74,
+        "end": 84,
         "startLoc": {
-          "line": 94,
-          "column": 5,
-          "position": 915
+          "line": 74,
+          "column": 2,
+          "position": 760
         },
         "endLoc": {
-          "line": 104,
+          "line": 84,
           "column": 13,
-          "position": 986
+          "position": 829
         }
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\kpis\\application\\use-cases\\get-ordenes-kpis.use-case.ts",
-        "start": 103,
-        "end": 130,
+        "start": 83,
+        "end": 110,
         "startLoc": {
-          "line": 103,
+          "line": 83,
           "column": 2,
-          "position": 836
+          "position": 686
         },
         "endLoc": {
-          "line": 130,
+          "line": 110,
           "column": 7,
-          "position": 1026
+          "position": 874
         }
       }
     },
@@ -10703,37 +10763,37 @@
     },
     {
       "format": "typescript",
-      "lines": 23,
-      "fragment": " {\n    const clienteInfo = hes.getClienteInfo();\n    const condicionesEntrada = hes.getCondicionesEntrada();\n    const diagnostico = hes.getDiagnosticoPreliminar();\n    const seguridad = hes.getRequerimientosSeguridad();\n    const firmaCliente = hes.getFirmaCliente();\n    const firmaTecnico = hes.getFirmaTecnico();\n\n    return {\n      id: hes.getId().getValue(),\n      numero: hes.getNumero(),\n      ordenId: hes.getOrdenId(),\n      estado: hes.getEstado().getValue(),\n      tipoServicio: hes.getTipoServicio().getValue(),\n      prioridad: hes.getPrioridad().getValue(),\n      nivelRiesgo: hes.getNivelRiesgo().getValue(),\n      clienteInfo: {\n        nombre: clienteInfo.getNombre(),\n        identificacion: clienteInfo.getIdentificacion(),\n        telefono: clienteInfo.getTelefono(),\n        email: clienteInfo.getEmail(),\n        direccion: clienteInfo.getDireccionCompleta(),\n      ",
+      "lines": 13,
+      "fragment": " {\n    const {\n      clienteInfo,\n      condicionesEntrada,\n      diagnosticoPreliminar: diagnostico,\n      requerimientosSeguridad: seguridad,\n      firmaCliente,\n      firmaTecnico,\n    } = getHesParts(hes);\n\n    return {\n      ...mapHesCore(hes),\n      clienteInfo: mapClienteInfoCore",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\hes\\application\\mappers\\hes.mapper.ts",
-        "start": 18,
-        "end": 40,
+        "start": 25,
+        "end": 37,
         "startLoc": {
-          "line": 18,
+          "line": 25,
           "column": 15,
-          "position": 142
+          "position": 173
         },
         "endLoc": {
-          "line": 40,
-          "column": 7,
-          "position": 393
+          "line": 37,
+          "column": 19,
+          "position": 240
         }
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\hes\\infrastructure\\persistence\\hes.prisma.mapper.ts",
-        "start": 26,
-        "end": 48,
+        "start": 33,
+        "end": 45,
         "startLoc": {
-          "line": 26,
+          "line": 33,
           "column": 4,
-          "position": 246
+          "position": 277
         },
         "endLoc": {
-          "line": 48,
-          "column": 9,
-          "position": 497
+          "line": 45,
+          "column": 2,
+          "position": 344
         }
       }
     },
@@ -10852,176 +10912,32 @@
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\formularios\\domain\\entities\\form-template.entity.ts",
-        "start": 195,
-        "end": 207,
+        "start": 196,
+        "end": 208,
         "startLoc": {
-          "line": 195,
+          "line": 196,
           "column": 2,
-          "position": 1312
+          "position": 1319
         },
         "endLoc": {
-          "line": 207,
+          "line": 208,
           "column": 36,
-          "position": 1398
+          "position": 1405
         }
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\formularios\\domain\\entities\\form-template.entity.ts",
-        "start": 175,
-        "end": 187,
+        "start": 176,
+        "end": 188,
         "startLoc": {
-          "line": 175,
+          "line": 176,
           "column": 7,
-          "position": 1155
+          "position": 1162
         },
         "endLoc": {
-          "line": 187,
+          "line": 188,
           "column": 5,
-          "position": 1241
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 13,
-      "fragment": " addDomainEvent(event: any): void {\n    this._domainEvents.push(event);\n  }\n\n  public getDomainEvents(): any[] {\n    return [...this._domainEvents];\n  }\n\n  public clearDomainEvents(): void {\n    this._domainEvents = [];\n  }\n\n",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\formularios\\domain\\entities\\form-template.entity.ts",
-        "start": 416,
-        "end": 428,
-        "startLoc": {
-          "line": 416,
-          "column": 8,
-          "position": 2988
-        },
-        "endLoc": {
-          "line": 428,
-          "column": 1,
-          "position": 3072
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\hes\\domain\\entities\\hes.entity.ts",
-        "start": 408,
-        "end": 419,
-        "startLoc": {
-          "line": 408,
-          "column": 7,
-          "position": 2967
-        },
-        "endLoc": {
-          "line": 419,
-          "column": 2,
-          "position": 3051
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 12,
-      "fragment": ".entries()) {\n      const field = template.getField(fieldId);\n      if (!field) {\n        errors.push({\n          fieldId,\n          message: `Field \"${fieldId}\" does not exist in template`,\n        });\n        continue;\n      }\n\n      // Campos ocultos por lógica condicional se ignoran\n      if (!this.isFieldVisible(fieldId",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\formularios\\domain\\entities\\form-submission.entity.ts",
-        "start": 230,
-        "end": 241,
-        "startLoc": {
-          "line": 230,
-          "column": 9,
-          "position": 1633
-        },
-        "endLoc": {
-          "line": 241,
-          "column": 8,
-          "position": 1713
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\formularios\\domain\\services\\form-validator.service.ts",
-        "start": 57,
-        "end": 68,
-        "startLoc": {
-          "line": 57,
-          "column": 8,
-          "position": 394
-        },
-        "endLoc": {
-          "line": 68,
-          "column": 6,
-          "position": 474
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 24,
-      "fragment": ", formData)) {\n        continue;\n      }\n\n      // Campos calculados se ignoran (se recalculan en submit)\n      if (field.isCalculated()) {\n        continue;\n      }\n\n      const validationResult = field.validateValue(value.getValue());\n      if (!validationResult.isValid) {\n        errors.push({\n          fieldId,\n          message: validationResult.error || \"Invalid value\",\n        });\n      }\n    }\n\n    return errors;\n  }\n\n  /**\n   * Calcular campos calculados\n   */",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\formularios\\domain\\entities\\form-submission.entity.ts",
-        "start": 241,
-        "end": 264,
-        "startLoc": {
-          "line": 241,
-          "column": 9,
-          "position": 1717
-        },
-        "endLoc": {
-          "line": 264,
-          "column": 6,
-          "position": 1835
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\formularios\\domain\\services\\form-validator.service.ts",
-        "start": 68,
-        "end": 89,
-        "startLoc": {
-          "line": 68,
-          "column": 6,
-          "position": 475
-        },
-        "endLoc": {
-          "line": 89,
-          "column": 8,
-          "position": 593
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 18,
-      "fragment": "\n  }\n\n  // Domain Events\n  private addDomainEvent(event: any): void {\n    this._domainEvents.push(event);\n  }\n\n  public getDomainEvents(): any[] {\n    return [...this._domainEvents];\n  }\n\n  public clearDomainEvents(): void {\n    this._domainEvents = [];\n  }\n\n  // Getters\n  public getId(): FormSubmissionId",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\formularios\\domain\\entities\\form-submission.entity.ts",
-        "start": 330,
-        "end": 347,
-        "startLoc": {
-          "line": 330,
-          "column": 2,
-          "position": 2430
-        },
-        "endLoc": {
-          "line": 347,
-          "column": 17,
-          "position": 2536
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\formularios\\domain\\entities\\form-template.entity.ts",
-        "start": 412,
-        "end": 429,
-        "startLoc": {
-          "line": 412,
-          "column": 2,
-          "position": 2978
-        },
-        "endLoc": {
-          "line": 429,
-          "column": 15,
-          "position": 3084
+          "position": 1248
         }
       }
     },
@@ -11130,42 +11046,6 @@
           "line": 36,
           "column": 33,
           "position": 229
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 20,
-      "fragment": ");\n  }\n\n  private normalizeRelativePath(filePath: string): string {\n    const normalized = filePath.replace(/\\\\/g, \"/\");\n    if (path.isAbsolute(normalized)) {\n      throw new Error(\"Absolute paths are not allowed\");\n    }\n    if (normalized.includes(\"..\")) {\n      throw new Error(\"Path traversal is not allowed\");\n    }\n    return normalized;\n  }\n\n  private resolveSafePath(filePath: string): string {\n    const relative = this.normalizeRelativePath(filePath);\n    const base = path.resolve(this.basePath);\n    const full = path.resolve(base, relative);\n\n    if",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\evidencias\\infrastructure\\processing\\sharp-image.processor.ts",
-        "start": 141,
-        "end": 160,
-        "startLoc": {
-          "line": 141,
-          "column": 5,
-          "position": 1218
-        },
-        "endLoc": {
-          "line": 160,
-          "column": 3,
-          "position": 1393
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\evidencias\\infrastructure\\storage\\local-storage.provider.ts",
-        "start": 20,
-        "end": 39,
-        "startLoc": {
-          "line": 20,
-          "column": 24,
-          "position": 192
-        },
-        "endLoc": {
-          "line": 39,
-          "column": 43,
-          "position": 367
         }
       }
     },
@@ -11495,181 +11375,37 @@
     },
     {
       "format": "typescript",
-      "lines": 22,
-      "fragment": ",\n      data: this.toResponse(saved),\n    };\n  }\n\n  private toResponse(e: Ejecucion): EjecucionResponse {\n    return {\n      id: e.getId().getValue(),\n      ordenId: e.getOrdenId(),\n      tecnicoId: e.getStartedBy() || \"\",\n      estado: e.getStatus().getValue(),\n      avance: e.getProgress().getValue(),\n      horasReales: e.getTotalWorkedTime().getTotalHours(),\n      fechaInicio: e.getStartedAt()?.toISOString() || new Date().toISOString(),\n      fechaFin: e.getCompletedAt()?.toISOString(),\n      observaciones: e.getObservaciones(),\n      createdAt: new Date().toISOString(),\n      updatedAt: new Date().toISOString(),\n    };\n  }\n}\n",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\ejecucion\\application\\use-cases\\iniciar-ejecucion.use-case.ts",
-        "start": 91,
-        "end": 112,
-        "startLoc": {
-          "line": 91,
-          "column": 21,
-          "position": 657
-        },
-        "endLoc": {
-          "line": 112,
-          "column": 1,
-          "position": 879
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\ejecucion\\application\\use-cases\\update-avance.use-case.ts",
-        "start": 60,
-        "end": 81,
-        "startLoc": {
-          "line": 60,
-          "column": 3,
-          "position": 442
-        },
-        "endLoc": {
-          "line": 81,
-          "column": 1,
-          "position": 664
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 15,
-      "fragment": "\nimport {\n  Injectable,\n  Inject,\n  NotFoundException,\n  BadRequestException,\n} from \"@nestjs/common\";\nimport { EventEmitter2 } from \"@nestjs/event-emitter\";\nimport {\n  EJECUCION_REPOSITORY,\n  IEjecucionRepository,\n} from \"../../domain/repositories\";\nimport { EjecucionId, ProgressPercentage } from \"../../domain/value-objects\";\nimport { Ejecucion } from \"../../domain/entities\";\nimport { EjecucionResponse,",
+      "lines": 14,
+      "fragment": "\nimport {\n  Injectable,\n  Inject,\n  NotFoundException,\n  BadRequestException,\n} from \"@nestjs/common\";\nimport { EventEmitter2 } from \"@nestjs/event-emitter\";\nimport {\n  EJECUCION_REPOSITORY,\n  IEjecucionRepository,\n} from \"../../domain/repositories\";\nimport { EjecucionId, ProgressPercentage } from \"../../domain/value-objects\";\nimport { EjecucionResponse,",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\ejecucion\\application\\use-cases\\completar-ejecucion.use-case.ts",
         "start": 4,
-        "end": 18,
+        "end": 17,
         "startLoc": {
           "line": 4,
           "column": 4,
           "position": 1
         },
         "endLoc": {
-          "line": 18,
+          "line": 17,
           "column": 2,
-          "position": 95
+          "position": 82
         }
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\ejecucion\\application\\use-cases\\update-avance.use-case.ts",
         "start": 4,
-        "end": 18,
+        "end": 17,
         "startLoc": {
           "line": 4,
           "column": 4,
           "position": 1
         },
         "endLoc": {
-          "line": 18,
+          "line": 17,
           "column": 2,
-          "position": 95
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 22,
-      "fragment": ",\n      data: this.toResponse(saved),\n    };\n  }\n\n  private toResponse(e: Ejecucion): EjecucionResponse {\n    return {\n      id: e.getId().getValue(),\n      ordenId: e.getOrdenId(),\n      tecnicoId: e.getStartedBy() || \"\",\n      estado: e.getStatus().getValue(),\n      avance: e.getProgress().getValue(),\n      horasReales: e.getTotalWorkedTime().getTotalHours(),\n      fechaInicio: e.getStartedAt()?.toISOString() || new Date().toISOString(),\n      fechaFin: e.getCompletedAt()?.toISOString(),\n      observaciones: e.getObservaciones(),\n      createdAt: new Date().toISOString(),\n      updatedAt: new Date().toISOString(),\n    };\n  }\n}\n",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\ejecucion\\application\\use-cases\\completar-ejecucion.use-case.ts",
-        "start": 73,
-        "end": 94,
-        "startLoc": {
-          "line": 73,
-          "column": 23,
-          "position": 529
-        },
-        "endLoc": {
-          "line": 94,
-          "column": 1,
-          "position": 751
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\ejecucion\\application\\use-cases\\update-avance.use-case.ts",
-        "start": 60,
-        "end": 81,
-        "startLoc": {
-          "line": 60,
-          "column": 3,
-          "position": 442
-        },
-        "endLoc": {
-          "line": 81,
-          "column": 1,
-          "position": 664
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 21,
-      "fragment": ")) {\n      return false;\n    }\n    return this._value === other._value;\n  }\n\n  /**\n   * Serialización JSON\n   */\n  public toJSON(): string {\n    return this._value;\n  }\n\n  /**\n   * Representación string\n   */\n  public toString(): string {\n    return this._value;\n  }\n}\n",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\dashboard\\domain\\value-objects\\kpi-type.vo.ts",
-        "start": 172,
-        "end": 192,
-        "startLoc": {
-          "line": 172,
-          "column": 8,
-          "position": 1148
-        },
-        "endLoc": {
-          "line": 192,
-          "column": 1,
-          "position": 1234
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\dashboard\\domain\\value-objects\\trend-direction.vo.ts",
-        "start": 107,
-        "end": 127,
-        "startLoc": {
-          "line": 107,
-          "column": 15,
-          "position": 635
-        },
-        "endLoc": {
-          "line": 127,
-          "column": 1,
-          "position": 721
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 21,
-      "fragment": ")) {\n      return false;\n    }\n    return this._value === other._value;\n  }\n\n  /**\n   * Serialización JSON\n   */\n  public toJSON(): string {\n    return this._value;\n  }\n\n  /**\n   * Representación string\n   */\n  public toString(): string {\n    return this._value;\n  }\n}\n",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\dashboard\\domain\\value-objects\\dashboard-role.vo.ts",
-        "start": 97,
-        "end": 117,
-        "startLoc": {
-          "line": 97,
-          "column": 14,
-          "position": 583
-        },
-        "endLoc": {
-          "line": 117,
-          "column": 1,
-          "position": 669
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\dashboard\\domain\\value-objects\\trend-direction.vo.ts",
-        "start": 107,
-        "end": 127,
-        "startLoc": {
-          "line": 107,
-          "column": 15,
-          "position": 635
-        },
-        "endLoc": {
-          "line": 127,
-          "column": 1,
-          "position": 721
+          "position": 82
         }
       }
     },
@@ -11994,42 +11730,6 @@
           "line": 41,
           "column": 7,
           "position": 312
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 11,
-      "fragment": "\n\n  public getDomainEvents(): any[] {\n    return [...this._domainEvents];\n  }\n\n  public clearDomainEvents(): void {\n    this._domainEvents = [];\n  }\n\n  private",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\costos\\domain\\entities\\costo.entity.ts",
-        "start": 342,
-        "end": 352,
-        "startLoc": {
-          "line": 342,
-          "column": 67,
-          "position": 2234
-        },
-        "endLoc": {
-          "line": 352,
-          "column": 8,
-          "position": 2293
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\hes\\domain\\entities\\hes.entity.ts",
-        "start": 410,
-        "end": 428,
-        "startLoc": {
-          "line": 410,
-          "column": 2,
-          "position": 2994
-        },
-        "endLoc": {
-          "line": 428,
-          "column": 11,
-          "position": 3074
         }
       }
     },
@@ -12472,32 +12172,32 @@
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\checklists\\domain\\entities\\checklist.entity.ts",
-        "start": 424,
-        "end": 441,
+        "start": 425,
+        "end": 442,
         "startLoc": {
-          "line": 424,
+          "line": 425,
           "column": 3,
-          "position": 2869
+          "position": 2876
         },
         "endLoc": {
-          "line": 441,
+          "line": 442,
           "column": 5,
-          "position": 2990
+          "position": 2997
         }
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\checklists\\domain\\entities\\checklist.entity.ts",
-        "start": 381,
-        "end": 398,
+        "start": 382,
+        "end": 399,
         "startLoc": {
-          "line": 381,
+          "line": 382,
           "column": 7,
-          "position": 2600
+          "position": 2607
         },
         "endLoc": {
-          "line": 398,
+          "line": 399,
           "column": 6,
-          "position": 2721
+          "position": 2728
         }
       }
     },
@@ -12508,68 +12208,32 @@
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\checklists\\domain\\entities\\checklist.entity.ts",
-        "start": 621,
-        "end": 632,
+        "start": 622,
+        "end": 633,
         "startLoc": {
-          "line": 621,
+          "line": 622,
           "column": 14,
-          "position": 4255
+          "position": 4262
         },
         "endLoc": {
-          "line": 632,
+          "line": 633,
           "column": 67,
-          "position": 4310
+          "position": 4317
         }
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\formularios\\domain\\entities\\form-submission.entity.ts",
-        "start": 408,
-        "end": 419,
+        "start": 326,
+        "end": 337,
         "startLoc": {
-          "line": 408,
+          "line": 326,
           "column": 13,
-          "position": 2998
+          "position": 2407
         },
         "endLoc": {
-          "line": 419,
+          "line": 337,
           "column": 11,
-          "position": 3053
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 27,
-      "fragment": " {\n    return this._updatedAt;\n  }\n\n  // ═══════════════════════════════════════════════════════════════\n  // DOMAIN EVENTS\n  // ═══════════════════════════════════════════════════════════════\n\n  public getDomainEvents(): any[] {\n    return [...this._domainEvents];\n  }\n\n  public clearDomainEvents(): void {\n    this._domainEvents = [];\n  }\n\n  private addDomainEvent(event: any): void {\n    this._domainEvents.push(event);\n  }\n\n  // ═══════════════════════════════════════════════════════════════\n  // PERSISTENCE\n  // ═══════════════════════════════════════════════════════════════\n\n  public toPersistence(): {\n    id: string;\n    name",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\checklists\\domain\\entities\\checklist.entity.ts",
-        "start": 628,
-        "end": 654,
-        "startLoc": {
-          "line": 628,
-          "column": 5,
-          "position": 4294
-        },
-        "endLoc": {
-          "line": 654,
-          "column": 5,
-          "position": 4434
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\costos\\domain\\entities\\costo.entity.ts",
-        "start": 336,
-        "end": 362,
-        "startLoc": {
-          "line": 336,
-          "column": 5,
-          "position": 2211
-        },
-        "endLoc": {
-          "line": 362,
-          "column": 8,
-          "position": 2351
+          "position": 2462
         }
       }
     },
@@ -12580,32 +12244,32 @@
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\checklists\\domain\\entities\\checklist.entity.ts",
-        "start": 658,
-        "end": 668,
+        "start": 643,
+        "end": 653,
         "startLoc": {
-          "line": 658,
+          "line": 643,
           "column": 10,
-          "position": 4471
+          "position": 4381
         },
         "endLoc": {
-          "line": 668,
+          "line": 653,
           "column": 2,
-          "position": 4546
+          "position": 4456
         }
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\checklists\\domain\\entities\\checklist.entity.ts",
-        "start": 217,
-        "end": 227,
+        "start": 218,
+        "end": 228,
         "startLoc": {
-          "line": 217,
+          "line": 218,
           "column": 2,
-          "position": 1501
+          "position": 1508
         },
         "endLoc": {
-          "line": 227,
+          "line": 228,
           "column": 2,
-          "position": 1576
+          "position": 1583
         }
       }
     },
@@ -12827,42 +12491,6 @@
     },
     {
       "format": "typescript",
-      "lines": 27,
-      "fragment": "})\n  @IsString()\n  @IsNotEmpty()\n  numeroCertificado!: string;\n\n  @ApiProperty({ description: \"Fecha de emisión\", example: \"2024-01-15\" })\n  @IsDateString()\n  fechaEmision!: string;\n\n  @ApiProperty({ description: \"Fecha de vencimiento\", example: \"2025-01-15\" })\n  @IsDateString()\n  fechaVencimiento!: string;\n\n  @ApiPropertyOptional({ description: \"URL del archivo del certificado\" })\n  @IsOptional()\n  @IsUrl()\n  archivoUrl?: string;\n\n  @ApiPropertyOptional({ description: \"Observaciones adicionales\" })\n  @IsOptional()\n  @IsString()\n  observaciones?: string;\n}\n\n/**\n * DTO de respuesta de certificación\n */",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\certificaciones\\application\\dto\\certificaciones.dto.ts",
-        "start": 84,
-        "end": 110,
-        "startLoc": {
-          "line": 84,
-          "column": 2,
-          "position": 527
-        },
-        "endLoc": {
-          "line": 110,
-          "column": 4,
-          "position": 693
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\certificaciones\\application\\dto\\certificaciones.dto.ts",
-        "start": 39,
-        "end": 65,
-        "startLoc": {
-          "line": 39,
-          "column": 3,
-          "position": 218
-        },
-        "endLoc": {
-          "line": 65,
-          "column": 4,
-          "position": 384
-        }
-      }
-    },
-    {
-      "format": "typescript",
       "lines": 13,
       "fragment": "\n    @Req() req: Request,\n    @Body() body: { refreshToken?: string } = {},\n    @Res({ passthrough: true }) res: Response,\n  ) {\n    const refreshToken =\n      (req as RequestWithCookies).cookies?.refreshToken || body?.refreshToken;\n\n    if ((req as RequestWithCookies).cookies?.refreshToken) {\n      assertCsrf(req);\n    }\n\n    const",
       "tokens": 0,
@@ -13079,42 +12707,6 @@
     },
     {
       "format": "typescript",
-      "lines": 22,
-      "fragment": " {\n  @ApiProperty({\n    description: \"Correo electrónico del usuario\",\n    example: \"usuario@cermont.com\",\n  })\n  @IsEmail({}, { message: \"El correo electrónico no es válido\" })\n  @IsNotEmpty({ message: \"El correo electrónico es requerido\" })\n  email!: string;\n\n  @ApiProperty({\n    description: \"Contraseña del usuario\",\n    example: \"MiPasswordSegura123\",\n    minLength: 6,\n    maxLength: 100,\n  })\n  @IsString({ message: \"La contraseña debe ser texto\" })\n  @IsNotEmpty({ message: \"La contraseña es requerida\" })\n  @MinLength(6, { message: \"La contraseña debe tener al menos 6 caracteres\" })\n  @MaxLength(100, { message: \"La contraseña no puede exceder 100 caracteres\" })\n  password!: string;\n\n  @ApiPropertyOptional",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\auth\\application\\dto\\login.dto.ts",
-        "start": 13,
-        "end": 34,
-        "startLoc": {
-          "line": 13,
-          "column": 9,
-          "position": 65
-        },
-        "endLoc": {
-          "line": 34,
-          "column": 20,
-          "position": 244
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\auth\\application\\dto\\register.dto.ts",
-        "start": 12,
-        "end": 33,
-        "startLoc": {
-          "line": 12,
-          "column": 12,
-          "position": 61
-        },
-        "endLoc": {
-          "line": 33,
-          "column": 12,
-          "position": 240
-        }
-      }
-    },
-    {
-      "format": "typescript",
       "lines": 17,
       "fragment": ",\n  Query,\n  UseGuards,\n  HttpCode,\n} from \"@nestjs/common\";\nimport {\n  ApiTags,\n  ApiBearerAuth,\n  ApiOperation,\n  ApiOkResponse,\n  ApiBadRequestResponse,\n  ApiUnauthorizedResponse,\n  ApiNotFoundResponse,\n} from \"@nestjs/swagger\";\nimport { JwtAuthGuard } from \"../../../../common/guards/jwt-auth.guard\";\nimport {\n",
       "tokens": 0,
@@ -13146,150 +12738,6 @@
           "line": 29,
           "column": 2,
           "position": 109
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 21,
-      "fragment": ")) {\n      return false;\n    }\n    return this._value === other._value;\n  }\n\n  /**\n   * Representación en string\n   */\n  public toString(): string {\n    return this._value;\n  }\n\n  /**\n   * Serialización JSON\n   */\n  public toJSON(): string {\n    return this._value;\n  }\n}\n",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\alertas\\domain\\value-objects\\prioridad-alerta.vo.ts",
-        "start": 97,
-        "end": 117,
-        "startLoc": {
-          "line": 97,
-          "column": 16,
-          "position": 528
-        },
-        "endLoc": {
-          "line": 117,
-          "column": 1,
-          "position": 614
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\alertas\\domain\\value-objects\\tipo-alerta.vo.ts",
-        "start": 98,
-        "end": 118,
-        "startLoc": {
-          "line": 98,
-          "column": 11,
-          "position": 581
-        },
-        "endLoc": {
-          "line": 118,
-          "column": 1,
-          "position": 667
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 21,
-      "fragment": ")) {\n      return false;\n    }\n    return this._value === other._value;\n  }\n\n  /**\n   * Representación en string\n   */\n  public toString(): string {\n    return this._value;\n  }\n\n  /**\n   * Serialización JSON\n   */\n  public toJSON(): string {\n    return this._value;\n  }\n}\n",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\alertas\\domain\\value-objects\\estado-alerta.vo.ts",
-        "start": 120,
-        "end": 140,
-        "startLoc": {
-          "line": 120,
-          "column": 13,
-          "position": 641
-        },
-        "endLoc": {
-          "line": 140,
-          "column": 1,
-          "position": 727
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\alertas\\domain\\value-objects\\tipo-alerta.vo.ts",
-        "start": 98,
-        "end": 118,
-        "startLoc": {
-          "line": 98,
-          "column": 11,
-          "position": 581
-        },
-        "endLoc": {
-          "line": 118,
-          "column": 1,
-          "position": 667
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 21,
-      "fragment": ")) {\n      return false;\n    }\n    return this._value === other._value;\n  }\n\n  /**\n   * Representación en string\n   */\n  public toString(): string {\n    return this._value;\n  }\n\n  /**\n   * Serialización JSON\n   */\n  public toJSON(): string {\n    return this._value;\n  }\n}\n",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\alertas\\domain\\value-objects\\canal-notificacion.vo.ts",
-        "start": 97,
-        "end": 117,
-        "startLoc": {
-          "line": 97,
-          "column": 18,
-          "position": 521
-        },
-        "endLoc": {
-          "line": 117,
-          "column": 1,
-          "position": 607
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\alertas\\domain\\value-objects\\tipo-alerta.vo.ts",
-        "start": 98,
-        "end": 118,
-        "startLoc": {
-          "line": 98,
-          "column": 11,
-          "position": 581
-        },
-        "endLoc": {
-          "line": 118,
-          "column": 1,
-          "position": 667
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 21,
-      "fragment": ")) {\n      return false;\n    }\n    return this._value === other._value;\n  }\n\n  /**\n   * Representación en string\n   */\n  public toString(): string {\n    return this._value;\n  }\n\n  /**\n   * Serialización JSON\n   */\n  public toJSON(): string {\n    return this._value;\n  }\n}\n",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\alertas\\domain\\value-objects\\alerta-id.vo.ts",
-        "start": 63,
-        "end": 83,
-        "startLoc": {
-          "line": 63,
-          "column": 9,
-          "position": 276
-        },
-        "endLoc": {
-          "line": 83,
-          "column": 1,
-          "position": 362
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\alertas\\domain\\value-objects\\tipo-alerta.vo.ts",
-        "start": 98,
-        "end": 118,
-        "startLoc": {
-          "line": 98,
-          "column": 11,
-          "position": 581
-        },
-        "endLoc": {
-          "line": 118,
-          "column": 1,
-          "position": 667
         }
       }
     },
@@ -13387,17 +12835,17 @@
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\checklists\\domain\\entities\\checklist.entity.ts",
-        "start": 690,
-        "end": 701,
+        "start": 675,
+        "end": 686,
         "startLoc": {
-          "line": 690,
+          "line": 675,
           "column": 14,
-          "position": 4768
+          "position": 4678
         },
         "endLoc": {
-          "line": 701,
+          "line": 686,
           "column": 15,
-          "position": 4819
+          "position": 4729
         }
       }
     },
@@ -13423,17 +12871,17 @@
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\formularios\\domain\\entities\\form-submission.entity.ts",
-        "start": 408,
-        "end": 419,
+        "start": 326,
+        "end": 337,
         "startLoc": {
-          "line": 408,
+          "line": 326,
           "column": 13,
-          "position": 2998
+          "position": 2407
         },
         "endLoc": {
-          "line": 419,
+          "line": 337,
           "column": 11,
-          "position": 3053
+          "position": 2462
         }
       }
     },
@@ -13531,17 +12979,17 @@
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\checklists\\domain\\entities\\checklist.entity.ts",
-        "start": 690,
-        "end": 701,
+        "start": 675,
+        "end": 686,
         "startLoc": {
-          "line": 690,
+          "line": 675,
           "column": 14,
-          "position": 4768
+          "position": 4678
         },
         "endLoc": {
-          "line": 701,
+          "line": 686,
           "column": 15,
-          "position": 4819
+          "position": 4729
         }
       }
     },
@@ -14359,17 +13807,17 @@
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\ejecucion\\application\\use-cases\\iniciar-ejecucion.use-case.ts",
-        "start": 42,
-        "end": 53,
+        "start": 44,
+        "end": 55,
         "startLoc": {
-          "line": 42,
+          "line": 44,
           "column": 35,
-          "position": 306
+          "position": 332
         },
         "endLoc": {
-          "line": 53,
+          "line": 55,
           "column": 27,
-          "position": 384
+          "position": 410
         }
       }
     },

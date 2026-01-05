@@ -14,9 +14,10 @@ import {
   IEjecucionRepository,
 } from "../../domain/repositories";
 import { EjecucionId, ProgressPercentage } from "../../domain/value-objects";
-import { Ejecucion } from "../../domain/entities";
 import { EjecucionResponse, CompletarEjecucionDto } from "../dto";
+import { toEjecucionResponse } from "../mappers/ejecucion-response.mapper";
 import { PrismaService } from "../../../../prisma/prisma.service";
+import { publishDomainEvents } from "../../../../shared/base/publish-domain-events";
 
 @Injectable()
 export class CompletarEjecucionUseCase {
@@ -63,31 +64,11 @@ export class CompletarEjecucionUseCase {
     });
 
     // 6. Publish domain events
-    const domainEvents = saved.getDomainEvents();
-    for (const event of domainEvents) {
-      this.eventEmitter.emit(event.eventName, event);
-    }
-    saved.clearDomainEvents();
+    publishDomainEvents(saved, this.eventEmitter);
 
     return {
       message: "Ejecución completada",
-      data: this.toResponse(saved),
-    };
-  }
-
-  private toResponse(e: Ejecucion): EjecucionResponse {
-    return {
-      id: e.getId().getValue(),
-      ordenId: e.getOrdenId(),
-      tecnicoId: e.getStartedBy() || "",
-      estado: e.getStatus().getValue(),
-      avance: e.getProgress().getValue(),
-      horasReales: e.getTotalWorkedTime().getTotalHours(),
-      fechaInicio: e.getStartedAt()?.toISOString() || new Date().toISOString(),
-      fechaFin: e.getCompletedAt()?.toISOString(),
-      observaciones: e.getObservaciones(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      data: toEjecucionResponse(saved),
     };
   }
 }

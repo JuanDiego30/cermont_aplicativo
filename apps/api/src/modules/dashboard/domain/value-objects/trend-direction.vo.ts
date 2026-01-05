@@ -6,6 +6,7 @@
 
 import { ValidationError } from "../exceptions";
 import { KpiValue } from "./kpi-value.vo";
+import { EnumValueObject } from "../../../../shared/base/enum-value-object";
 
 export enum TrendDirectionEnum {
   UP = "UP",
@@ -13,9 +14,9 @@ export enum TrendDirectionEnum {
   STABLE = "STABLE",
 }
 
-export class TrendDirection {
-  private constructor(private readonly _value: TrendDirectionEnum) {
-    Object.freeze(this);
+export class TrendDirection extends EnumValueObject<TrendDirectionEnum> {
+  private constructor(value: TrendDirectionEnum) {
+    super(value);
   }
 
   /**
@@ -68,13 +69,6 @@ export class TrendDirection {
   /**
    * Obtiene el valor
    */
-  public getValue(): TrendDirectionEnum {
-    return this._value;
-  }
-
-  /**
-   * Obtiene el ícono
-   */
   public getIcon(): string {
     switch (this._value) {
       case TrendDirectionEnum.UP:
@@ -98,29 +92,5 @@ export class TrendDirection {
       case TrendDirectionEnum.STABLE:
         return "gray";
     }
-  }
-
-  /**
-   * Compara con otra dirección
-   */
-  public equals(other: TrendDirection): boolean {
-    if (!other || !(other instanceof TrendDirection)) {
-      return false;
-    }
-    return this._value === other._value;
-  }
-
-  /**
-   * Serialización JSON
-   */
-  public toJSON(): string {
-    return this._value;
-  }
-
-  /**
-   * Representación string
-   */
-  public toString(): string {
-    return this._value;
   }
 }

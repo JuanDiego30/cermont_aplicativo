@@ -14,7 +14,6 @@ import { EventEmitter2 } from "@nestjs/event-emitter";
 import { PrismaService } from "../../../../prisma/prisma.service";
 import { OrderSubState as PrismaOrderSubState } from "@prisma/client";
 import { ORDEN_REPOSITORY, IOrdenRepository } from "../../domain/repositories";
-import { OrdenEntity } from "../../domain/entities";
 import { ChangeEstadoOrdenDto } from "../dto/change-estado-orden.dto";
 import {
   OrdenResponseDto,
@@ -27,6 +26,7 @@ import {
   OrdenEstado as DomainOrdenEstado,
 } from "../../domain/orden-state-machine";
 import { OrdenMapper } from "../../infrastructure/mappers/orden.mapper";
+import { toOrdenResponseDto } from "../mappers/orden-response.mapper";
 
 @Injectable()
 export class ChangeOrdenEstadoUseCase {
@@ -189,7 +189,7 @@ export class ChangeOrdenEstadoUseCase {
       this.eventEmitter.emit("orden.estado.changed", evento);
 
       // Convertir a DTO de respuesta
-      return this.toResponseDto(updated);
+      return toOrdenResponseDto(updated);
     } catch (error) {
       const err = error as Error;
       this.logger.error(
@@ -198,27 +198,5 @@ export class ChangeOrdenEstadoUseCase {
       );
       throw error;
     }
-  }
-
-  private toResponseDto(orden: OrdenEntity): OrdenResponseDto {
-    return {
-      id: orden.id,
-      numero: orden.numero.value,
-      descripcion: orden.descripcion,
-      cliente: orden.cliente,
-      estado: orden.estado.value as OrdenEstado,
-      prioridad: orden.prioridad.value as OrdenPrioridad,
-      creadorId: orden.creadorId,
-      asignadoId: orden.asignadoId,
-      fechaInicio: orden.fechaInicio?.toISOString(),
-      fechaFin: orden.fechaFin?.toISOString(),
-      fechaFinEstimada: orden.fechaFinEstimada?.toISOString(),
-      presupuestoEstimado: orden.presupuestoEstimado,
-      costoReal: orden.costoReal,
-      createdAt: orden.createdAt.toISOString(),
-      updatedAt: orden.updatedAt.toISOString(),
-      creador: orden.creador,
-      asignado: orden.asignado,
-    };
   }
 }

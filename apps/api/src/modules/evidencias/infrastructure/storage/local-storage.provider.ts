@@ -8,6 +8,7 @@ import { ConfigService } from "@nestjs/config";
 import * as fs from "fs/promises";
 import * as path from "path";
 import { IStorageProvider, UploadResult } from "./storage-provider.interface";
+import { normalizeRelativePath, resolveSafePath } from "./safe-path";
 
 @Injectable()
 export class LocalStorageProvider implements IStorageProvider {
@@ -20,33 +21,9 @@ export class LocalStorageProvider implements IStorageProvider {
     this.baseUrl = this.config.get<string>("BASE_URL", "http://localhost:3001");
   }
 
-  private normalizeRelativePath(filePath: string): string {
-    const normalized = filePath.replace(/\\/g, "/");
-    if (path.isAbsolute(normalized)) {
-      throw new Error("Absolute paths are not allowed");
-    }
-    if (normalized.includes("..")) {
-      throw new Error("Path traversal is not allowed");
-    }
-    return normalized;
-  }
-
-  private resolveSafePath(filePath: string): string {
-    const relative = this.normalizeRelativePath(filePath);
-    const base = path.resolve(this.basePath);
-    const full = path.resolve(base, relative);
-
-    // Ensure the resolved path is within base
-    if (full !== base && !full.startsWith(base + path.sep)) {
-      throw new Error("Invalid storage path");
-    }
-
-    return full;
-  }
-
   async upload(buffer: Buffer, filePath: string): Promise<UploadResult> {
-    const safeRelative = this.normalizeRelativePath(filePath);
-    const fullPath = this.resolveSafePath(safeRelative);
+    const safeRelative = normalizeRelativePath(filePath);
+    const fullPath = resolveSafePath(this.basePath, safeRelative);
     const directory = path.dirname(fullPath);
 
     // Ensure directory exists
@@ -66,8 +43,8 @@ export class LocalStorageProvider implements IStorageProvider {
   }
 
   async download(filePath: string): Promise<Buffer> {
-    const safeRelative = this.normalizeRelativePath(filePath);
-    const fullPath = this.resolveSafePath(safeRelative);
+    const safeRelative = normalizeRelativePath(filePath);
+    const fullPath = resolveSafePath(this.basePath, safeRelative);
 
     try {
       return await fs.readFile(fullPath);
@@ -78,8 +55,8 @@ export class LocalStorageProvider implements IStorageProvider {
   }
 
   async delete(filePath: string): Promise<void> {
-    const safeRelative = this.normalizeRelativePath(filePath);
-    const fullPath = this.resolveSafePath(safeRelative);
+    const safeRelative = normalizeRelativePath(filePath);
+    const fullPath = resolveSafePath(this.basePath, safeRelative);
 
     try {
       await fs.unlink(fullPath);
@@ -90,8 +67,8 @@ export class LocalStorageProvider implements IStorageProvider {
   }
 
   async exists(filePath: string): Promise<boolean> {
-    const safeRelative = this.normalizeRelativePath(filePath);
-    const fullPath = this.resolveSafePath(safeRelative);
+    const safeRelative = normalizeRelativePath(filePath);
+    const fullPath = resolveSafePath(this.basePath, safeRelative);
 
     try {
       await fs.access(fullPath);
@@ -102,7 +79,7 @@ export class LocalStorageProvider implements IStorageProvider {
   }
 
   async getUrl(filePath: string): Promise<string> {
-    const safeRelative = this.normalizeRelativePath(filePath);
+    const safeRelative = normalizeRelativePath(filePath);
     return `${this.baseUrl}/uploads/${safeRelative}`;
   }
 }

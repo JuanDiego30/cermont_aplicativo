@@ -13,45 +13,33 @@ import { ClienteInfo } from "../../domain/entities/cliente-info.entity";
 import { CondicionesEntrada } from "../../domain/entities/condiciones-entrada.entity";
 import { DiagnosticoPreliminar } from "../../domain/entities/diagnostico-preliminar.entity";
 import { RequerimientosSeguridad } from "../../domain/entities/requerimientos-seguridad.entity";
+import {
+  getHesParts,
+  mapClienteInfoCore,
+  mapCondicionesEntradaCore,
+  mapDiagnosticoPreliminarCore,
+  mapHesCore,
+} from "../../domain/mappers/hes-common.mapper";
 
 export class HESMapper {
   static toResponseDto(hes: HES): HESResponseDto {
-    const clienteInfo = hes.getClienteInfo();
-    const condicionesEntrada = hes.getCondicionesEntrada();
-    const diagnostico = hes.getDiagnosticoPreliminar();
-    const seguridad = hes.getRequerimientosSeguridad();
-    const firmaCliente = hes.getFirmaCliente();
-    const firmaTecnico = hes.getFirmaTecnico();
+    const {
+      clienteInfo,
+      condicionesEntrada,
+      diagnosticoPreliminar: diagnostico,
+      requerimientosSeguridad: seguridad,
+      firmaCliente,
+      firmaTecnico,
+    } = getHesParts(hes);
 
     return {
-      id: hes.getId().getValue(),
-      numero: hes.getNumero(),
-      ordenId: hes.getOrdenId(),
-      estado: hes.getEstado().getValue(),
-      tipoServicio: hes.getTipoServicio().getValue(),
-      prioridad: hes.getPrioridad().getValue(),
-      nivelRiesgo: hes.getNivelRiesgo().getValue(),
-      clienteInfo: {
-        nombre: clienteInfo.getNombre(),
-        identificacion: clienteInfo.getIdentificacion(),
-        telefono: clienteInfo.getTelefono(),
-        email: clienteInfo.getEmail(),
-        direccion: clienteInfo.getDireccionCompleta(),
-      },
+      ...mapHesCore(hes),
+      clienteInfo: mapClienteInfoCore(clienteInfo),
       condicionesEntrada: condicionesEntrada
-        ? {
-            estadoGeneral: condicionesEntrada.getEstadoGeneral(),
-            equipoFuncional: condicionesEntrada.isEquipoFuncional(),
-            daniosVisibles: condicionesEntrada.getDaniosVisibles(),
-            fotosEntrada: condicionesEntrada.getFotosEntrada(),
-          }
+        ? mapCondicionesEntradaCore(condicionesEntrada)
         : undefined,
       diagnosticoPreliminar: diagnostico
-        ? {
-            descripcion: diagnostico.getDescripcion(),
-            causaProbable: diagnostico.getCausaProbable(),
-            accionesRecomendadas: diagnostico.getAccionesRecomendadas(),
-          }
+        ? mapDiagnosticoPreliminarCore(diagnostico)
         : undefined,
       requerimientosSeguridad: seguridad
         ? {
