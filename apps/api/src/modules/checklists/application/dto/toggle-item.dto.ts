@@ -13,24 +13,7 @@ import {
 } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
-export class ToggleChecklistItemDto {
-  @ApiProperty({
-    example: "123e4567-e89b-12d3-a456-426614174000",
-    description: "ID de la orden o ejecución",
-  })
-  @IsString()
-  @IsUUID()
-  ordenId?: string;
-
-  @ApiPropertyOptional({
-    example: "123e4567-e89b-12d3-a456-426614174000",
-    description: "ID de la ejecución (alternativa a ordenId)",
-  })
-  @IsString()
-  @IsUUID()
-  @IsOptional()
-  ejecucionId?: string;
-
+class ChecklistItemRefDto {
   @ApiProperty({
     example: "123e4567-e89b-12d3-a456-426614174000",
     description: "ID del checklist",
@@ -48,23 +31,26 @@ export class ToggleChecklistItemDto {
   itemId!: string;
 }
 
-export class UpdateChecklistItemDto {
+export class ToggleChecklistItemDto extends ChecklistItemRefDto {
   @ApiProperty({
     example: "123e4567-e89b-12d3-a456-426614174000",
-    description: "ID del checklist",
+    description: "ID de la orden o ejecución",
   })
   @IsString()
   @IsUUID()
-  checklistId!: string;
+  ordenId?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: "123e4567-e89b-12d3-a456-426614174000",
-    description: "ID del item",
+    description: "ID de la ejecución (alternativa a ordenId)",
   })
   @IsString()
   @IsUUID()
-  itemId!: string;
+  @IsOptional()
+  ejecucionId?: string;
+}
 
+export class UpdateChecklistItemDto extends ChecklistItemRefDto {
   @ApiPropertyOptional({
     example: "Item completado correctamente",
     description: "Observaciones del item",

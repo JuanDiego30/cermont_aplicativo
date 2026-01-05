@@ -380,21 +380,7 @@ export class Checklist extends AggregateRoot {
    * Toggle item
    */
   public toggleItem(itemId: ChecklistItemId, userId?: string): void {
-    if (this._status.isArchived()) {
-      throw new BusinessRuleViolationError(
-        "No se puede modificar un checklist archivado",
-        "ESTADO_INVALIDO",
-      );
-    }
-
-    const item = this._items.find((i) => i.getId().equals(itemId));
-    if (!item) {
-      throw new ValidationError(
-        "Item no encontrado",
-        "itemId",
-        itemId.getValue(),
-      );
-    }
+    const item = this.getUpdatableItemOrThrow(itemId);
 
     const wasChecked = item.getIsChecked();
     item.toggle();
@@ -423,21 +409,7 @@ export class Checklist extends AggregateRoot {
     itemId: ChecklistItemId,
     observaciones: string,
   ): void {
-    if (this._status.isArchived()) {
-      throw new BusinessRuleViolationError(
-        "No se puede modificar un checklist archivado",
-        "ESTADO_INVALIDO",
-      );
-    }
-
-    const item = this._items.find((i) => i.getId().equals(itemId));
-    if (!item) {
-      throw new ValidationError(
-        "Item no encontrado",
-        "itemId",
-        itemId.getValue(),
-      );
-    }
+    const item = this.getUpdatableItemOrThrow(itemId);
 
     item.updateObservaciones(observaciones);
     this._updatedAt = new Date();
@@ -454,22 +426,7 @@ export class Checklist extends AggregateRoot {
     const allItemsCompleted = this._items.every((i) => i.isCompleted());
 
     if (allRequiredCompleted && !this._completada) {
-      this._completada = true;
-      this._completadoPorId = userId || null;
-      this._completadoEn = new Date();
-      this._status = this._status.completar();
-      this._updatedAt = new Date();
-
-      // Registrar evento
-      this.addDomainEvent(
-        new ChecklistCompletedEvent({
-          checklistId: this._id.getValue(),
-          ordenId: this._ordenId || undefined,
-          ejecucionId: this._ejecucionId || undefined,
-          completedBy: userId,
-          timestamp: this._updatedAt,
-        }),
-      );
+      this.markAsCompleted(userId);
     } else if (!allItemsCompleted && this._completada) {
       // Si se desmarca un item, descompletar
       this._completada = false;
@@ -493,8 +450,12 @@ export class Checklist extends AggregateRoot {
       );
     }
 
+    this.markAsCompleted(userId);
+  }
+
+  private markAsCompleted(userId?: string): void {
     this._completada = true;
-    this._completadoPorId = userId;
+    this._completadoPorId = userId || null;
     this._completadoEn = new Date();
     this._status = this._status.completar();
     this._updatedAt = new Date();
@@ -509,6 +470,26 @@ export class Checklist extends AggregateRoot {
         timestamp: this._updatedAt,
       }),
     );
+  }
+
+  private getUpdatableItemOrThrow(itemId: ChecklistItemId): ChecklistItem {
+    if (this._status.isArchived()) {
+      throw new BusinessRuleViolationError(
+        "No se puede modificar un checklist archivado",
+        "ESTADO_INVALIDO",
+      );
+    }
+
+    const item = this._items.find((i) => i.getId().equals(itemId));
+    if (!item) {
+      throw new ValidationError(
+        "Item no encontrado",
+        "itemId",
+        itemId.getValue(),
+      );
+    }
+
+    return item;
   }
 
   /**

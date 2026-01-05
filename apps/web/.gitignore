@@ -40,3 +40,21 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Build artifacts and caches (extended)
+.turbo/
+**/.angular/cache/**
+*.tsbuildinfo
+
+# Logs and outputs
+*.log
+*output*.txt
+
+# Backup files
+*.bak
+*.backup
+*.bak.*
+
+# Template/demo files
+*.zip
+free-angular-tailwind-dashboard-main.zip
