@@ -22,16 +22,6 @@ export const routes: Routes = [
         loadChildren: () => import('./features/dashboard/dashboard.routes')
           .then(m => m.dashboardRoutes),
       },
-      {
-        path: 'ordenes',
-        loadChildren: () => import('./features/ordenes/ordenes.routes')
-          .then(m => m.ORDENES_ROUTES),
-      },
-      {
-        path: 'perfil',
-        loadComponent: () => import('./features/perfil/perfil.component').then(m => m.PerfilComponent),
-        title: 'Mi Perfil | Cermont'
-      },
     ]
   },
   // Rutas públicas de autenticación

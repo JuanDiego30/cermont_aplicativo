@@ -5,7 +5,7 @@
       {{ isEditMode() ? 'Editar Orden' : 'Nueva Orden de Trabajo' }}
     </h1>
     <p class="text-gray-600 dark:text-gray-400 mt-1">
-      {{ isEditMode() ? 'Actualiza la informaciÃ³n de la orden' : 'Completa el formulario para crear una nueva orden' }}
+      {{ isEditMode() ? 'Actualiza la información de la orden' : 'Completa el formulario para crear una nueva orden' }}
     </p>
   </div>
 
@@ -28,21 +28,15 @@
       <!-- DescripciÃ³n -->
       <div>
         <label for="descripcion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          DescripciÃ³n del trabajo <span class="text-red-500">*</span>
+          Descripción del trabajo <span class="text-red-500">*</span>
         </label>
-        <textarea
-          id="descripcion"
+        <app-text-area
           formControlName="descripcion"
-          rows="4"
-          class="input"
-          [class.border-red-500]="hasError('descripcion', 'required') || hasError('descripcion', 'maxlength')"
+          [rows]="4"
           placeholder="Describe detalladamente el trabajo a realizar..."
-        ></textarea>
-        @if (hasError('descripcion', 'required') || hasError('descripcion', 'maxlength')) {
-          <p class="mt-1 text-sm text-red-600 dark:text-red-400">
-            {{ getErrorMessage('descripcion') }}
-          </p>
-        }
+          [error]="hasError('descripcion', 'required') || hasError('descripcion', 'maxlength')"
+          [hint]="(hasError('descripcion', 'required') || hasError('descripcion', 'maxlength')) ? getErrorMessage('descripcion') : ''"
+        />
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
           {{ form.get('descripcion')?.value?.length || 0 }} / 1000 caracteres
         </p>
@@ -53,19 +47,14 @@
         <label for="cliente" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Cliente <span class="text-red-500">*</span>
         </label>
-        <input
-          type="text"
+        <app-input-field
           id="cliente"
+          type="text"
           formControlName="cliente"
-          class="input"
-          [class.border-red-500]="hasError('cliente', 'required') || hasError('cliente', 'maxlength')"
           placeholder="Nombre del cliente o empresa"
+          [error]="hasError('cliente', 'required') || hasError('cliente', 'maxlength')"
+          [hint]="(hasError('cliente', 'required') || hasError('cliente', 'maxlength')) ? getErrorMessage('cliente') : ''"
         />
-        @if (hasError('cliente', 'required') || hasError('cliente', 'maxlength')) {
-          <p class="mt-1 text-sm text-red-600 dark:text-red-400">
-            {{ getErrorMessage('cliente') }}
-          </p>
-        }
       </div>
 
       <!-- Grid de 2 columnas -->
@@ -129,20 +118,20 @@
           }
         </div>
 
-        <!-- TÃ©cnico asignado (opcional por ahora) -->
+        <!-- Técnico asignado (opcional por ahora) -->
         <div>
           <label for="asignadoId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            TÃ©cnico asignado
+            Técnico asignado
           </label>
           <input
             type="text"
             id="asignadoId"
             formControlName="asignadoId"
             class="input"
-            placeholder="UUID del tÃ©cnico (opcional)"
+            placeholder="UUID del técnico (opcional)"
           />
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Puedes asignar un tÃ©cnico mÃ¡s tarde desde la vista de detalle
+            Puedes asignar un técnico más tarde desde la vista de detalle
           </p>
         </div>
       </div>
@@ -162,13 +151,13 @@
             Requiere Hoja de Especificaciones de Seguridad (HES)
           </label>
           <p class="text-gray-500 dark:text-gray-400">
-            Marca esta casilla si el trabajo requiere documentaciÃ³n de seguridad adicional
+            Marca esta casilla si el trabajo requiere documentación de seguridad adicional
           </p>
         </div>
       </div>
     </div>
 
-    <!-- Botones de acciÃ³n -->
+    <!-- Botones de acción -->
     <div class="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
       <button
         type="button"

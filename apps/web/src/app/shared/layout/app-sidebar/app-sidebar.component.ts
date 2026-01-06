@@ -103,9 +103,12 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
     this.subscription.add(
       combineLatest([this.isExpanded$, this.isMobileOpen$, this.isHovered$] as const).subscribe(
         ([isExpanded, isMobileOpen, isHovered]) => {
-          if (!isExpanded && !isMobileOpen && !isHovered) {
-            this.cdr.detectChanges();
+          const isCollapsedReal = !isExpanded && !isMobileOpen && !isHovered;
+          if (isCollapsedReal) {
+            this.openSubmenu = null;
+            this.subMenuHeights = {};
           }
+          this.cdr.detectChanges();
         }
       )
     );
@@ -121,8 +124,27 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
     return this.router.url === path;
   }
 
-  toggleSubmenu(section: string, index: number) {
+  private getNavItem(section: string, index: number): NavItem | undefined {
+    const list = section === 'others' ? this.othersItems : this.navItems;
+    return list[index];
+  }
+
+  async toggleSubmenu(section: string, index: number) {
     const key = `${section}-${index}`;
+
+    const [isExpanded, isMobileOpen, isHovered] = await firstValueFrom(
+      combineLatest([this.isExpanded$, this.isMobileOpen$, this.isHovered$] as const)
+    );
+    const isCollapsedReal = !isExpanded && !isMobileOpen && !isHovered;
+
+    if (isCollapsedReal) {
+      const nav = this.getNavItem(section, index);
+      const firstSubItem = nav?.subItems?.[0];
+      if (firstSubItem?.path) {
+        await this.router.navigateByUrl(firstSubItem.path);
+      }
+      return;
+    }
 
     if (this.openSubmenu === key) {
       this.openSubmenu = null;

@@ -78,7 +78,7 @@ export interface FirmaDigital {
   imagen: string; // base64
   nombre: string;
   documento: string;
-  fecha: Date;
+  fecha: string;
   tipo: 'CLIENTE' | 'TECNICO';
 }
 
@@ -96,8 +96,8 @@ export interface HES {
   firmaCliente?: FirmaDigital;
   firmaTecnico?: FirmaDigital;
   tecnicoId?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface CreateHESDto {

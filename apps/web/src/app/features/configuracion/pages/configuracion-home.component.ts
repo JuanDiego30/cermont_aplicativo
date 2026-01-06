@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
     selector: 'app-configuracion-home',
@@ -21,40 +22,34 @@ import { CommonModule } from '@angular/common';
                     <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">General</h3>
                     <ul class="space-y-3">
                         <li class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                            <span class="text-gray-600 dark:text-gray-400">Nombre de la empresa</span>
-                            <span class="font-medium text-gray-800 dark:text-white">Cermont</span>
+                            <span class="text-gray-600 dark:text-gray-400">Usuario</span>
+                            <span class="font-medium text-gray-800 dark:text-white">{{ auth.currentUserSignal()?.name || '-' }}</span>
                         </li>
                         <li class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                            <span class="text-gray-600 dark:text-gray-400">Zona horaria</span>
-                            <span class="font-medium text-gray-800 dark:text-white">America/Bogota</span>
+                            <span class="text-gray-600 dark:text-gray-400">Rol</span>
+                            <span class="font-medium text-gray-800 dark:text-white">{{ auth.currentUserSignal()?.role || '-' }}</span>
                         </li>
                         <li class="flex items-center justify-between py-2">
-                            <span class="text-gray-600 dark:text-gray-400">Idioma</span>
-                            <span class="font-medium text-gray-800 dark:text-white">Español (CO)</span>
+                            <span class="text-gray-600 dark:text-gray-400">Email</span>
+                            <span class="font-medium text-gray-800 dark:text-white">{{ auth.currentUserSignal()?.email || '-' }}</span>
                         </li>
                     </ul>
                 </div>
                 
                 <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Notificaciones</h3>
+                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Seguridad</h3>
                     <ul class="space-y-3">
                         <li class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                            <span class="text-gray-600 dark:text-gray-400">Email</span>
-                            <div class="w-10 h-6 bg-blue-600 rounded-full relative">
-                                <div class="w-4 h-4 bg-white rounded-full absolute right-1 top-1"></div>
-                            </div>
+                            <span class="text-gray-600 dark:text-gray-400">Email verificado</span>
+                            <span class="font-medium text-gray-800 dark:text-white">{{ auth.currentUserSignal()?.emailVerified ? 'Sí' : 'No' }}</span>
                         </li>
                         <li class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
-                            <span class="text-gray-600 dark:text-gray-400">Push</span>
-                            <div class="w-10 h-6 bg-gray-300 dark:bg-gray-600 rounded-full relative">
-                                <div class="w-4 h-4 bg-white rounded-full absolute left-1 top-1"></div>
-                            </div>
+                            <span class="text-gray-600 dark:text-gray-400">2FA</span>
+                            <span class="font-medium text-gray-800 dark:text-white">{{ auth.currentUserSignal()?.twoFactorEnabled ? 'Habilitado' : 'Deshabilitado' }}</span>
                         </li>
                         <li class="flex items-center justify-between py-2">
-                            <span class="text-gray-600 dark:text-gray-400">SMS</span>
-                            <div class="w-10 h-6 bg-gray-300 dark:bg-gray-600 rounded-full relative">
-                                <div class="w-4 h-4 bg-white rounded-full absolute left-1 top-1"></div>
-                            </div>
+                            <span class="text-gray-600 dark:text-gray-400">Creado</span>
+                            <span class="font-medium text-gray-800 dark:text-white">{{ auth.currentUserSignal()?.createdAt ? (auth.currentUserSignal()?.createdAt | date:'short') : '-' }}</span>
                         </li>
                     </ul>
                 </div>
@@ -62,4 +57,6 @@ import { CommonModule } from '@angular/common';
         </div>
     `
 })
-export class ConfiguracionHomeComponent { }
+export class ConfiguracionHomeComponent {
+    readonly auth = inject(AuthService);
+}

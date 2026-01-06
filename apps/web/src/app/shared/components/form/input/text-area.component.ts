@@ -1,10 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 
 @Component({
   selector: 'app-text-area',
+  standalone: true,
   imports: [CommonModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => TextAreaComponent),
+      multi: true,
+    },
+  ],
   template: `
     <div class="relative">
       <textarea
@@ -38,9 +47,31 @@ export class TextAreaComponent {
 
   @Output() valueChange = new EventEmitter<string>();
 
+  private onChange: (value: string) => void = () => undefined;
+  private onTouched: () => void = () => undefined;
+
   onInput(event: Event) {
     const val = (event.target as HTMLTextAreaElement).value;
+    this.value = val;
+    this.onChange(val);
+    this.onTouched();
     this.valueChange.emit(val);
+  }
+
+  writeValue(value: string | null): void {
+    this.value = value ?? '';
+  }
+
+  registerOnChange(fn: (value: string) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
   }
 
   get textareaClasses(): string {

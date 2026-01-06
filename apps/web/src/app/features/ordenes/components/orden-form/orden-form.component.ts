@@ -1,28 +1,40 @@
 ﻿import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, NonNullableFormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { OrdenesService } from '../../services/ordenes.service';
-import { Prioridad } from '../../../../core/models/orden.model';
+import { CreateOrdenDto, Prioridad } from '../../../../core/models/orden.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { getDefaultControlErrorMessage, hasControlError } from '../../../../shared/utils/form-errors.util';
 import { beginFormSubmit, subscribeSubmit } from '../../../../shared/utils/form-submit.util';
+import { InputFieldComponent } from '../../../../shared/components/form/input/input-field.component';
+import { TextAreaComponent } from '../../../../shared/components/form/input/text-area.component';
+
+type OrdenFormControls = {
+  descripcion: FormControl<string>;
+  cliente: FormControl<string>;
+  prioridad: FormControl<Prioridad>;
+  fechaFinEstimada: FormControl<string>;
+  presupuestoEstimado: FormControl<string>;
+  asignadoId: FormControl<string>;
+  requiereHES: FormControl<boolean>;
+};
 
 @Component({
   selector: 'app-orden-form',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, InputFieldComponent, TextAreaComponent],
   templateUrl: './orden-form.component.html',
   styleUrls: ['./orden-form.component.css']
 })
 export class OrdenFormComponent implements OnInit {
-  private readonly fb = inject(FormBuilder);
+  private readonly fb = inject(NonNullableFormBuilder);
   private readonly ordenesService = inject(OrdenesService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
-  form!: FormGroup;
+  form!: FormGroup<OrdenFormControls>;
   loading = signal(false);
   error = signal<string | null>(null);
   isEditMode = signal(false);
@@ -48,7 +60,7 @@ export class OrdenFormComponent implements OnInit {
       cliente: ['', [Validators.required, Validators.maxLength(200)]],
       prioridad: [Prioridad.MEDIA, Validators.required],
       fechaFinEstimada: [''],
-      presupuestoEstimado: [null, [Validators.min(0)]],
+      presupuestoEstimado: ['', [Validators.pattern(/^\d*$/), Validators.min(0)]],
       asignadoId: [''],
       requiereHES: [false],
     });
@@ -66,7 +78,7 @@ export class OrdenFormComponent implements OnInit {
             prioridad: orden.prioridad,
             fechaFinEstimada: orden.fechaFinEstimada ?
               new Date(orden.fechaFinEstimada).toISOString().split('T')[0] : '',
-            presupuestoEstimado: orden.presupuestoEstimado,
+            presupuestoEstimado: orden.presupuestoEstimado ? String(orden.presupuestoEstimado) : '',
             asignadoId: orden.asignadoId || '',
             requiereHES: orden.requiereHES,
           });
@@ -82,13 +94,15 @@ export class OrdenFormComponent implements OnInit {
   onSubmit(): void {
     if (!beginFormSubmit(this.form, this.loading, this.error)) return;
 
-    const formValue = this.form.value;
-    const dto = {
-      ...formValue,
-      presupuestoEstimado: formValue.presupuestoEstimado ?
-        Number(formValue.presupuestoEstimado) : null,
-      fechaFinEstimada: formValue.fechaFinEstimada || null,
-      asignadoId: formValue.asignadoId || null,
+    const formValue = this.form.getRawValue();
+    const dto: CreateOrdenDto = {
+      descripcion: formValue.descripcion,
+      cliente: formValue.cliente,
+      prioridad: formValue.prioridad,
+      fechaFinEstimada: formValue.fechaFinEstimada || undefined,
+      presupuestoEstimado: formValue.presupuestoEstimado ? Number(formValue.presupuestoEstimado) : undefined,
+      asignadoId: formValue.asignadoId || undefined,
+      requiereHES: formValue.requiereHES,
     };
 
     const request$ = this.isEditMode() && this.ordenId
@@ -100,16 +114,16 @@ export class OrdenFormComponent implements OnInit {
       this.destroyRef,
       this.loading,
       this.error,
-      (orden) => this.router.navigate(['/ordenes', orden.id]),
+      (orden) => this.router.navigate(['/dashboard/ordenes', orden.id]),
       'Error al guardar la orden',
     );
   }
 
   onCancel(): void {
     if (this.isEditMode() && this.ordenId) {
-      this.router.navigate(['/ordenes', this.ordenId]);
+      this.router.navigate(['/dashboard/ordenes', this.ordenId]);
     } else {
-      this.router.navigate(['/ordenes']);
+      this.router.navigate(['/dashboard/ordenes']);
     }
   }
 

@@ -1,5 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { OrdenesService } from '../../ordenes/services/ordenes.service';
+import type { Orden, PaginatedOrdenes } from '../../../core/models/orden.model';
 
 @Component({
     selector: 'app-calendario-home',
@@ -16,16 +19,100 @@ import { CommonModule } from '@angular/common';
                 </p>
             </div>
             
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                <div class="text-center text-gray-500 dark:text-gray-400 py-12">
-                    <svg class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <p class="text-lg font-medium">Calendario en desarrollo</p>
-                    <p class="mt-2">Integración con FullCalendar o similar pendiente.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Próximas Órdenes</p>
+                    <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ totalProximas() }}</p>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Mostrando</p>
+                    <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ ordenes().length }}</p>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Estado</p>
+                    <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ loading() ? 'Cargando' : 'OK' }}</p>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Agenda (próximas órdenes)</h2>
+                </div>
+
+                <div class="p-6">
+                    <div *ngIf="loading()" class="text-center text-gray-500 dark:text-gray-400">
+                        Cargando...
+                    </div>
+
+                    <div *ngIf="!loading() && errorMessage()" class="text-center text-red-600 dark:text-red-400">
+                        {{ errorMessage() }}
+                    </div>
+
+                    <div *ngIf="!loading() && !errorMessage() && ordenes().length === 0" class="text-center text-gray-500 dark:text-gray-400">
+                        No hay órdenes próximas para mostrar.
+                    </div>
+
+                    <div *ngIf="!loading() && !errorMessage() && ordenes().length > 0" class="overflow-x-auto">
+                        <table class="min-w-full text-left text-sm">
+                            <thead class="text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                                <tr>
+                                    <th class="py-3 pr-4 font-medium">Orden</th>
+                                    <th class="py-3 pr-4 font-medium">Cliente</th>
+                                    <th class="py-3 pr-4 font-medium">Estado</th>
+                                    <th class="py-3 pr-4 font-medium">Inicio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let o of ordenes()" class="border-b border-gray-100 dark:border-gray-700">
+                                    <td class="py-3 pr-4 text-gray-800 dark:text-white">{{ o.numeroOrden }}</td>
+                                    <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ o.cliente }}</td>
+                                    <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ o.estado }}</td>
+                                    <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ o.fechaInicio | date:'short' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     `
 })
-export class CalendarioHomeComponent { }
+export class CalendarioHomeComponent implements OnInit {
+    private readonly ordenesService = inject(OrdenesService);
+    private readonly destroyRef = inject(DestroyRef);
+
+    readonly loading = signal(false);
+    readonly errorMessage = signal<string | null>(null);
+    readonly ordenes = signal<Orden[]>([]);
+    readonly totalProximas = signal(0);
+
+    ngOnInit(): void {
+        this.loading.set(true);
+        this.errorMessage.set(null);
+
+        const today = new Date();
+        const fechaDesde = today.toISOString();
+
+        this.ordenesService.list({
+            page: 1,
+            limit: 5,
+            fechaDesde,
+            sortBy: 'fechaInicio',
+            sortOrder: 'asc'
+        })
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: (resp: PaginatedOrdenes) => {
+                    const items = resp.items ?? [];
+                    this.ordenes.set(items);
+                    this.totalProximas.set(resp.total ?? items.length);
+                    this.loading.set(false);
+                },
+                error: (err) => {
+                    const msg = err?.error?.message || err?.message || 'No se pudieron cargar las órdenes próximas.';
+                    this.errorMessage.set(String(msg));
+                    this.loading.set(false);
+                }
+            });
+    }
+}
