@@ -11,7 +11,7 @@ import { RouterModule, RouterLink, RouterLinkActive } from '@angular/router';
     <nav class="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 lg:hidden safe-area-bottom">
       <div class="flex items-center justify-around h-16 px-2">
         <!-- Panel/Home -->
-        <a routerLink="/dashboard/ecommerce" 
+        <a routerLink="/dashboard" 
            routerLinkActive="text-brand-500 dark:text-brand-400" 
            [routerLinkActiveOptions]="{exact: true}"
            class="flex flex-col items-center justify-center flex-1 h-full text-gray-500 dark:text-gray-400 hover:text-brand-500 dark:hover:text-brand-400 transition-colors">
@@ -22,7 +22,7 @@ import { RouterModule, RouterLink, RouterLinkActive } from '@angular/router';
         </a>
 
         <!-- Órdenes -->
-        <a routerLink="/ordenes" 
+  <a routerLink="/dashboard/ordenes" 
            routerLinkActive="text-brand-500 dark:text-brand-400"
            class="flex flex-col items-center justify-center flex-1 h-full text-gray-500 dark:text-gray-400 hover:text-brand-500 dark:hover:text-brand-400 transition-colors">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -33,7 +33,7 @@ import { RouterModule, RouterLink, RouterLinkActive } from '@angular/router';
 
         <!-- FAB - Nueva Orden -->
         <div class="flex items-center justify-center flex-1">
-          <a routerLink="/ordenes/nueva"
+          <a routerLink="/dashboard/ordenes/nueva"
              class="flex items-center justify-center w-14 h-14 -mt-6 rounded-full bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/30 hover:shadow-xl hover:shadow-brand-500/40 hover:scale-105 transition-all duration-200 active:scale-95">
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
@@ -42,7 +42,7 @@ import { RouterModule, RouterLink, RouterLinkActive } from '@angular/router';
         </div>
 
         <!-- Reportes -->
-        <a routerLink="/reportes" 
+  <a routerLink="/dashboard/reportes" 
            routerLinkActive="text-brand-500 dark:text-brand-400"
            class="flex flex-col items-center justify-center flex-1 h-full text-gray-500 dark:text-gray-400 hover:text-brand-500 dark:hover:text-brand-400 transition-colors">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,7 +52,7 @@ import { RouterModule, RouterLink, RouterLinkActive } from '@angular/router';
         </a>
 
         <!-- Perfil -->
-        <a routerLink="/perfil" 
+  <a routerLink="/dashboard/perfil" 
            routerLinkActive="text-brand-500 dark:text-brand-400"
            class="flex flex-col items-center justify-center flex-1 h-full text-gray-500 dark:text-gray-400 hover:text-brand-500 dark:hover:text-brand-400 transition-colors">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -112,7 +112,7 @@ import { logError } from '../../../core/utils/logger';
         <div class="p-6 bg-white border border-gray-200 rounded-xl dark:bg-gray-800 dark:border-gray-700">
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Órdenes Recientes</h2>
-            <a routerLink="/ordenes" class="text-sm text-brand-500 hover:text-brand-600">Ver todas →</a>
+            <a routerLink="/dashboard/ordenes" class="text-sm text-brand-500 hover:text-brand-600">Ver todas →</a>
           </div>
           
           @if (ordenesRecientes().length === 0) {
@@ -120,7 +120,7 @@ import { logError } from '../../../core/utils/logger';
           } @else {
             <div class="space-y-3">
               @for (orden of ordenesRecientes().slice(0, 5); track orden.id) {
-                <a [routerLink]="['/ordenes', orden.id]" 
+                <a [routerLink]="['/dashboard/ordenes', orden.id]" 
                    class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <div>
                     <p class="font-medium text-gray-900 dark:text-white">{{ orden.numero }}</p>
