@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
-import { NotFoundComponent } from './pages/demo-legacy/other-page/not-found/not-found.component';
+import { NotFoundComponent } from './shared/pages/not-found/not-found.component';
 import { AppLayoutComponent } from './shared/layout/app-layout/app-layout.component';
 
 
