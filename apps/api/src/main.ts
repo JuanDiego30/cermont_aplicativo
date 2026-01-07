@@ -7,11 +7,14 @@ import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import compression from "compression";
 import { AppModule } from "./app.module";
+import { validateEnv } from "./config/env.validation";
 
 async function bootstrap() {
   const logger = new Logger("Bootstrap");
 
   try {
+    validateEnv();
+
     const app = await NestFactory.create(AppModule);
     const configService = app.get(ConfigService);
     const port = configService.get<number>("PORT") || 3000;

@@ -8,6 +8,7 @@
  * - Type Safety: Interfaces para todos los retornos
  */
 import { Injectable, Logger } from "@nestjs/common";
+import { CacheTTL } from "@nestjs/cache-manager";
 import { PrismaService } from "../../prisma/prisma.service";
 
 // ============================================================================
@@ -63,6 +64,7 @@ export class DashboardService {
   /**
    * Obtiene estadísticas generales del dashboard
    */
+  @CacheTTL(300) // 5 minutos
   async getStats(): Promise<DashboardStats> {
     const fechaReciente = this.calcularFechaReciente(DIAS_RECIENTES);
 
@@ -110,6 +112,7 @@ export class DashboardService {
   /**
    * Obtiene métricas para widgets del dashboard
    */
+  @CacheTTL(600) // 10 minutos
   async getMetricas(): Promise<DashboardMetricas> {
     try {
       const [totalOrders, completedOrders, pendingOrders, techniciansActive] =

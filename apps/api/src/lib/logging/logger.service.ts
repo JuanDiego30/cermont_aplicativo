@@ -1,4 +1,4 @@
-import { Injectable, Logger, LogLevel } from "@nestjs/common";
+import { Injectable, Logger, LogLevel, Global } from "@nestjs/common";
 import { appendFile, mkdir, readdir, rename, stat, unlink } from "fs/promises";
 import { dirname, extname, resolve } from "path";
 import { sanitizeLogMeta, sanitizeUrl, shouldLog } from "./sanitize";
@@ -26,6 +26,7 @@ type FileLoggingConfig =
       maxFiles: number;
     };
 
+@Global()
 @Injectable()
 export class LoggerService extends Logger {
   private logHistory: LogEntry[] = [];

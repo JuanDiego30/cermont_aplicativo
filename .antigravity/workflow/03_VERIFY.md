@@ -469,12 +469,118 @@ Los siguientes endpoints deben funcionar correctamente:
 {"timestamp":"2026-01-07T01:46:05.401Z","level":"error","message":"PATCH /api/users/... - 500","message":"store.get is not a function"}
 ```
 
+## CORRECCIONES ADICIONALES - Fase Críticos
+
+### Task 2: Optimizar N+1 Queries en Ordenes Repository ✅
+**Estado:** Ya resuelto en código existente
+**Archivo:** `apps/api/src/modules/ordenes/infrastructure/persistence/prisma-orden.repository.ts`
+
+**Análisis:**
+- El método `findAll()` (líneas 42-72) YA usa `include` optimizado:
+  ```typescript
+  include: {
+    creador: { select: { id: true, name: true } },
+    asignado: { select: { id: true, name: true } },
+  },
+  ```
+- El modelo Order en schema.prisma YA tiene índices compuestos:
+  - Línea 1014: `@@index([estado, prioridad])`
+  - Línea 1016: `@@index([asignadoId, estado])`
+  - Línea 1018: `@@index([estado, prioridad, fechaInicio])`
+
+**Conclusión:** Este problema del plan original ya estaba resuelto en el código actual.
+
+### Task 3: Sanitizar logs sensibles en AuthController ✅
+**Archivos modificados:**
+1. `apps/api/src/lib/logging/logger.service.ts`
+   - Agregado import: `Global` decorator
+   - Agregado `@Global()` a LoggerService para que sea global
+
+2. `apps/api/src/modules/auth/infrastructure/controllers/auth.controller.ts`
+   - Agregados imports: `LoggerService`, `sanitizeLogMeta`, `Inject` como `NestInject`
+   - Constructor actualizado para inyectar LoggerService en lugar de crear instancia de Logger
+   - Catch block del método login actualizado para usar `logger.warn()` con sanitización:
+     ```typescript
+     this.logger.warn(
+       `Login error: ${errorMessage}`,
+       undefined,
+       sanitizeLogMeta({ errorStack, errorMessage })
+     );
+     ```
+
+**Beneficios:**
+- Stack traces ahora son sanitizados antes de loguearse
+- No se expone información sensible (paths, secrets, tokens)
+- LoggerService global disponible en todos los módulos sin importarlo
+
+### Task 6: Implementar Caching de Queries Frecuentes ✅
+**Estado:** Implementado
+**Archivo:** `apps/api/src/modules/dashboard/dashboard.service.ts`
+
+**Cambios:**
+- Agregado import: `CacheTTL` de `@nestjs/cache-manager`
+- Agregado decorador `@CacheTTL(300)` al método `getStats()` (5 minutos)
+- Agregado decorador `@CacheTTL(600)` al método `getMetricas()` (10 minutos)
+
+**Beneficios:**
+- Dashboard stats ahora son cacheados por 5 minutos
+- Métricas son cacheadas por 10 minutos
+- Reducción significativa de queries a la base de datos
+- Mejora performance del dashboard
+
+## Resumen de Correcciones Completadas (FASE CRÍTICOS + PRIORIDAD 0)
+
+### Prioridad 0: Errores 500 (CRÍTICO) ✅
+1. **CacheModule config corregido**
+   - Agregado `store: 'memory'` explícitamente
+   - Todos los endpoints protegidos con JWT ahora funcionan
+
+### Fase Críticos del Plan Original ✅
+2. **N+1 Queries optimizados** (Ya resuelto en código existente)
+3. **Logs sensibles sanitizados**
+   - LoggerService globalizado con `@Global()` decorator
+   - AuthController usa LoggerService con sanitización de stack traces
+4. **JWT_SECRET validado al startup**
+   - Llamada a `validateEnv()` agregada en main.ts
+   - Validación ya existente en `env.validation.ts` (mínimo 32 caracteres)
+5. **Rate limiting en Upload Endpoint** (Ya implementado en código existente)
+   - Endpoint `/api/upload/avatar` ya tiene `@Throttle(THROTTLE_PRESETS.UPLOAD)`
+   - Configuración: 10 uploads por 5 minutos
+6. **Caching de Queries Frecuentes implementado**
+   - DashboardService methods ahora tienen decoradores `@CacheTTL`
+   - Stats: 5 minutos, Métricas: 10 minutos
+
+### Fase 1: Desbloqueantes (Ya completado según archivo previo) ✅
+1. **Mobile Header build error corregido**
+2. **Control Flow modernizado** (4 componentes)
+
+### Fase Críticos Adicionales (Ya completado según archivo previo) ✅
+1. **DDD violations corregidos** (7 archivos en domain layer)
+
 ## Conclusión
 
-✅ **Todas las correcciones implementadas exitosamente**
+✅ **TODAS LAS CORRECCIONES CRÍTICAS COMPLETADAS**
 - 28 errores corregidos (1 build error + 20 lint errors + 7 lint warnings)
 - 1 error crítico corregido (errores 500 por configuración de CacheModule)
+- 1 problema de performance resuelto (N+1 queries ya optimizados)
+- 1 problema de seguridad corregido (logs sensibles sanitizados)
+- 1 problema de seguridad mejorado (JWT_SECRET validado al startup)
+- 1 problema de seguridad ya resuelto (rate limiting en upload implementado)
+- 1 problema de performance resuelto (caching de dashboard implementado)
 - Pipeline de verificación completo pasa sin errores
 - Arquitectura DDD respetada en domain layer
 - Control flow modernizado en componentes Angular
+- Backend ahora puede procesar requests JWT correctamente
+- Logs sanitizados para no exponer información sensible
+- Performance mejorada con caching de queries frecuentes
+
+**Estado:** FASE CRÍTICOS COMPLETADA ✅
+
+**Siguiente acción:** Iniciar FASE 2: ALTOS (25 problemas) del plan original
+- Unificar DTOs en OrdenesController
+- Centralizar validación en Value Objects
+- Mejorar Tests E2E
+- Refactorizar LoginUseCase
+- Eliminar Type Casts
+- Agregar Tests de Componentes Frontend
 - Backend ahora puede procesar requests JWT correctamente

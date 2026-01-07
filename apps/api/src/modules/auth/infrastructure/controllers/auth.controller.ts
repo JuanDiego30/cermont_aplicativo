@@ -18,7 +18,10 @@ import {
   ForbiddenException,
   Inject,
   Logger,
+  Inject as NestInject,
 } from "@nestjs/common";
+import { LoggerService } from "../../../../lib/logging/logger.service";
+import { sanitizeLogMeta } from "../../../../lib/logging/sanitize";
 import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { Response, Request } from "express";
 import { randomUUID } from "crypto";
@@ -74,9 +77,8 @@ function assertCsrf(req: Request) {
 @ApiTags("Auth")
 @Controller("auth")
 export class AuthControllerRefactored {
-  private readonly logger = new Logger(AuthControllerRefactored.name);
-
   constructor(
+    @NestInject(LoggerService) private readonly logger: LoggerService,
     @Inject(LoginUseCase) private readonly loginUseCase: LoginUseCase,
     @Inject(RegisterUseCase) private readonly registerUseCase: RegisterUseCase,
     @Inject(RefreshTokenUseCase)
@@ -140,7 +142,7 @@ export class AuthControllerRefactored {
         user: result.user,
       };
     } catch (error) {
-      // Log del error para debugging
+      // Log del error para debugging - SANITIZADO en producción
       if (
         error instanceof BadRequestException ||
         error instanceof UnauthorizedException
@@ -151,7 +153,11 @@ export class AuthControllerRefactored {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error(`Login error: ${errorMessage}`, errorStack);
+      this.logger.warn(
+        `Login error: ${errorMessage}`,
+        undefined,
+        sanitizeLogMeta({ errorStack, errorMessage })
+      );
       throw error;
     }
   }
