@@ -91,10 +91,12 @@ export interface QueryMantenimientosDto {
   equipoId?: string;
   tipo?: MantenimientoTipo;
   estado?: MantenimientoEstado;
+  prioridad?: MantenimientoPrioridad;
   fechaDesde?: string; // ISO string
   fechaHasta?: string; // ISO string
   page?: number;
   limit?: number;
+  [key: string]: string | number | undefined; // Index signature for QueryParams compatibility
 }
 
 export interface PaginatedMantenimientos {

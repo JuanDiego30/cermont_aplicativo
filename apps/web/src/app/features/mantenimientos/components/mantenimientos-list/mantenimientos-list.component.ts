@@ -187,8 +187,8 @@ export class MantenimientosListComponent implements OnInit {
     this.service.list({ ...this.filters, page: this.page(), limit: this.limit }).subscribe({
       next: (res) => {
         this.mantenimientos.set(res.data);
-        this.total.set(res.meta.total);
-        this.totalPages.set(res.meta.totalPages);
+        this.total.set(res.total);
+        this.totalPages.set(res.totalPages);
         this.loading.set(false);
       },
       error: () => this.loading.set(false)
