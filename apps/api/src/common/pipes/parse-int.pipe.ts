@@ -28,7 +28,7 @@ export interface ParseIntPipeOptions {
  * ```
  */
 @Injectable()
-export class ParseIntSafePipe implements PipeTransform<string, number> {
+export class ParseIntSafePipe implements PipeTransform<string, number | undefined> {
   private readonly fieldName: string;
   private readonly options: ParseIntPipeOptions;
 
@@ -37,11 +37,11 @@ export class ParseIntSafePipe implements PipeTransform<string, number> {
     this.options = options;
   }
 
-  transform(value: string | undefined | null): number {
+  transform(value: string | undefined | null): number | undefined {
     // Manejar valores vacíos
     if (value === undefined || value === null || value === "") {
       if (this.options.optional) {
-        return undefined as unknown as number;
+        return undefined;
       }
       throw new BadRequestException(`${this.fieldName} es requerido`);
     }
