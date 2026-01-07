@@ -3,9 +3,10 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 import * as bcrypt from 'bcryptjs';
 
-// Crear pool de conexión con el adaptador
-const connectionString = process.env.DATABASE_URL ||
-    'postgresql://postgres:admin@localhost:5432/cermont_fsm';
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is required');
+}
+const connectionString = process.env.DATABASE_URL;
 
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
@@ -16,7 +17,8 @@ async function seedTestUser() {
 
     try {
         // Hashear contraseña de prueba
-        const hashedPassword = await bcrypt.hash('admin123', 12);
+        const testPassword = process.env.SEED_TEST_PASSWORD || 'admin123';
+        const hashedPassword = await bcrypt.hash(testPassword, 12);
 
         // Crear o actualizar usuario de prueba
         const testUser = await prisma.user.upsert({
@@ -41,7 +43,7 @@ async function seedTestUser() {
         console.log('');
         console.log('📋 Credenciales de acceso:');
         console.log('   📧 Email:    admin@cermont.com');
-        console.log('   🔑 Password: admin123');
+        console.log('   🔑 Password: [usar variable de entorno SEED_TEST_PASSWORD]');
         console.log('');
         console.log('🆔 User ID:', testUser.id);
         console.log('');

@@ -1,40 +1,99 @@
-# 🧪 Phase A: Research (PR00.4)
+# 🧪 01_RESEARCH - Baseline del Repositorio (2025-01-07)
 
 ## Objetivo
-Estabilizar pipeline local (lint + test) sin romper el dominio actual.
+Diagnosticar estructura profesional y áreas para refactorizar, priorizando seguridad y funcionalidad crítica.
 
-## Scope permitido
-- `apps/web/**`
-- `apps/api/**` (Tests y VOs específicos)
-- `angular.json`, `package.json`
+## Scope Analizado
+- Todo el monorepo: `apps/api`, `apps/web`, scripts, docs, CI/CD
 
-## Hallazgos
+## Baseline (Ejecutado)
 
-### 1. Web Linting (`apps/web`)
-- **Estado Current**: `ng lint` script existe, pero `angular.json` no tiene target `lint`.
-- **Faltantes**: Paquetes de `angular-eslint`, config `.eslintrc.json`, target en `architect`.
+### Linter
+- **Resultado:** 8 warnings (0 errors)
+- **Warnings:**
+  - 7 importaciones restringidas en domain/** (usando NestJS/Prisma/Express en lugar de puertos)
+  - 1 advertencia de ESLintRC deprecado (migrar a eslint.config.js)
 
-### 2. Web Testing (`apps/web`)
-- **Estado Current**: Fallo TS18003 (No inputs found) porque no hay archivos `.spec.ts` en `src/`.
-- **Config**: Karma configurado correctamente en `angular.json`.
-- **Script**: `ng test` corre en modo watch por defecto.
+### Typecheck
+- **Resultado:** OK (sin errores)
+- **Comando:** `pnpm -C apps/api run typecheck`
 
-### 3. API Value Objects (`apps/api/src/shared/value-objects`)
-- **Monto**:
-    - Impl: Lanza error si negativo.
-    - Test: Intenta crear negativo y usar `isNegativo()`. **Conflicto**.
-    - Fix: Test debe esperar throw.
-- **OrdenNumero**:
-    - Impl: Valida regex antes inicializar. Si entra minúscula, falla regex.
-    - Test: Espera `ord-123` funcione (normalize).
-    - Fix: `toUpperCase()` antes de regex.
-- **OrdenEstado** (Shared vs Domain):
-    - Domain VO (`orden-estado.vo.ts`) usa lowercase.
-    - Shared VO (`index.ts`) usa UPPERCASE.
-    - Tests (`value-objects.spec.ts`) validan Shared/UPPERCASE.
-    - User Instruction: Alinear transiciones.
+### Duplicación
+- **Resultado:** ~90 clones detectados (1.50% de líneas duplicadas)
+- **Archivos más afectados:**
+  - `apps/api/src/modules/*/infrastructure/persistence/*-repository.ts` (mappers y builders)
+  - `apps/api/src/modules/*/domain/entities/*.entity.ts` (métodos base)
+  - `apps/web/src/app/features/*/*/components/*.component.ts` (código de UI)
 
-## Decisiones
-- Crear `apps/web/src/dummy.spec.ts` para desbloquear tests web.
-- Configurar ESLint minimal en Web.
-- Corregir lógica de VOs y Tests en API.
+## Hallazgos Críticos
+
+### 1. Seguridad - Secretos (PR-SEC-001) - CRÍTICO
+
+#### Fallbacks hardcodeados con credenciales
+| Archivo | Línea | Problema |
+|---------|-------|----------|
+| `apps/api/prisma/verify-stats.ts` | 3 | `postgresql://postgres:admin@localhost:5432/cermont_fsm` |
+| `apps/api/seed-test-user.ts` | 7-8 | `postgresql://postgres:admin@localhost:5432/cermont_fsm` |
+| `apps/api/test-db.ts` | 6-7 | `postgresql://postgres:admin@localhost:5432/cermont_fsm` |
+
+#### Credenciales expuestas en consolas
+| Archivo | Línea | Problema |
+|---------|-------|----------|
+| `apps/api/prisma/seed_root.ts` | 23, 50 | Variable `passwordRaw` en código + console.log de password |
+| `apps/api/seed-test-user.ts` | 19, 44 | Password en código + console.log |
+
+### 2. Dashboard Frontend (PR-DASH-001) - ALTA
+
+#### Problemas
+- Dashboard muestra datos mock (0s en todas las métricas)
+- No consume endpoint real del backend
+- Menú lateral tiene rutas legacy no implementadas: "Forms", "Tables", "Pages"
+
+## Estructura del Repositorio
+
+### Monorepo (pnpm + Turborepo)
+```
+cermont_aplicativo/
+├── apps/
+│   ├── api/          # NestJS + Prisma + PostgreSQL
+│   └── web/          # Angular 21+
+├── .github/
+│   └── workflows/ci-cd.yml
+├── docs/prompts/
+├── report/           # Reportes jscpd
+└── docker-compose.yml
+```
+
+## Comandos Verificados
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run dev              # Arranca ambos
+pnpm -C apps/api run dev  # Backend solo
+pnpm run lint             # Lint en ambos
+pnpm -C apps/api run typecheck
+pnpm run test
+pnpm run duplication      # jscpd
+pnpm run check           # All checks
+pnpm run build
+```
+
+## Estructura Profesional - Evaluación
+
+### ✅ Bien
+- Monorepo con Turborepo para build dev
+- Separación clara apps/api y apps/web
+- Lint y typecheck configurados
+- CI/CD con GitHub Actions
+- Prisma para ORM, NestJS modular en backend
+- Angular signals, standalone components en frontend
+
+### ⚠️ Mejoras Requeridas
+- **Seguridad:** Eliminar secretos hardcodeados
+- **Dashboard:** Conectar con backend real
+- **Lint:** Arreglar 7 warnings de importaciones restringidas
+- **Duplicación:** Refactor repos y mappers comunes
+- **Formato:** Configurar Prettier global
+
+## Siguiente
+Ver `02_PLAN.md` para PRs priorizadas.

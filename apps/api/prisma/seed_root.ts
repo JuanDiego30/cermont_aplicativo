@@ -20,8 +20,8 @@ const prisma = new PrismaClient();
 
 async function main() {
     const email = 'root@cermont.com';
-    const passwordRaw = 'Cermont2025!';
-    const hashedPassword = await bcrypt.hash(passwordRaw, 10);
+    const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'Cermont2025!';
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
 
     const user = await prisma.user.upsert({
         where: { email },
@@ -47,7 +47,7 @@ async function main() {
         role: user.role
     });
     console.log('\n📧 Email: root@cermont.com');
-    console.log('🔑 Password: Cermont2025!');
+    console.log('🔑 Password: [usar variable de entorno SEED_ADMIN_PASSWORD]');
 }
 
 main()

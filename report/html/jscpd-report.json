@@ -1,6 +1,6 @@
 {
   "statistics": {
-    "detectionDate": "2026-01-07T16:52:33.994Z",
+    "detectionDate": "2026-01-07T18:12:26.320Z",
     "formats": {
       "typescript": {
         "sources": {
@@ -517,6 +517,78 @@
             "duplicatedTokens": 0,
             "percentage": 0,
             "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/web/src/app/features/mantenimientos/components/mantenimientos-proximos/mantenimientos-proximos.component.ts": {
+            "lines": 231,
+            "tokens": 1224,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/web/src/app/features/mantenimientos/components/mantenimientos-list/mantenimientos-list.component.ts": {
+            "lines": 258,
+            "tokens": 1069,
+            "sources": 1,
+            "clones": 3,
+            "duplicatedLines": 50,
+            "duplicatedTokens": 466,
+            "percentage": 19.38,
+            "percentageTokens": 43.59,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/web/src/app/features/mantenimientos/components/mantenimiento-form/mantenimiento-form.component.ts": {
+            "lines": 234,
+            "tokens": 1278,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/web/src/app/features/mantenimientos/components/mantenimiento-detail/mantenimiento-detail.component.ts": {
+            "lines": 212,
+            "tokens": 848,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 38,
+            "duplicatedTokens": 342,
+            "percentage": 17.92,
+            "percentageTokens": 40.33,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/web/src/app/features/kits/components/kits-list/kits-list.component.ts": {
+            "lines": 245,
+            "tokens": 911,
+            "sources": 1,
+            "clones": 2,
+            "duplicatedLines": 45,
+            "duplicatedTokens": 382,
+            "percentage": 18.37,
+            "percentageTokens": 41.93,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/web/src/app/features/kits/components/kit-detail/kit-detail.component.ts": {
+            "lines": 221,
+            "tokens": 839,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 33,
+            "duplicatedTokens": 258,
+            "percentage": 14.93,
+            "percentageTokens": 30.75,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -1084,6 +1156,30 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "apps/web/src/app/features/mantenimientos/mantenimientos.routes.ts": {
+            "lines": 34,
+            "tokens": 302,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/web/src/app/features/kits/kits.routes.ts": {
+            "lines": 28,
+            "tokens": 248,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "apps/web/src/app/features/dashboard/dashboard.routes.ts": {
             "lines": 10,
             "tokens": 87,
@@ -1254,7 +1350,7 @@
           },
           "apps/web/src/app/core/services/auth.service.ts": {
             "lines": 345,
-            "tokens": 3172,
+            "tokens": 3179,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1337,8 +1433,8 @@
             "newClones": 0
           },
           "apps/web/src/app/core/models/mantenimiento.model.ts": {
-            "lines": 107,
-            "tokens": 799,
+            "lines": 109,
+            "tokens": 831,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1553,8 +1649,8 @@
             "newClones": 0
           },
           "apps/web/src/app/core/api/shared-types.ts": {
-            "lines": 62,
-            "tokens": 316,
+            "lines": 63,
+            "tokens": 326,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1648,9 +1744,57 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "apps/web/src/app/core/api/ejecucion.api.ts": {
+            "lines": 93,
+            "tokens": 641,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "apps/web/src/app/core/api/dashboard.api.ts": {
             "lines": 81,
             "tokens": 683,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/web/src/app/core/api/costos.api.ts": {
+            "lines": 96,
+            "tokens": 650,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/web/src/app/core/api/clientes.api.ts": {
+            "lines": 136,
+            "tokens": 983,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/web/src/app/core/api/checklists.api.ts": {
+            "lines": 192,
+            "tokens": 1391,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1685,8 +1829,8 @@
             "newClones": 0
           },
           "apps/web/src/app/core/api/admin.api.ts": {
-            "lines": 102,
-            "tokens": 1167,
+            "lines": 164,
+            "tokens": 1181,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1745,8 +1889,8 @@
             "newClones": 0
           },
           "apps/web/src/app/app.routes.ts": {
-            "lines": 55,
-            "tokens": 468,
+            "lines": 61,
+            "tokens": 522,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3078,13 +3222,13 @@
           },
           "apps/api/src/modules/mantenimientos/infrastructure/persistence/prisma-mantenimiento.repository.ts": {
             "lines": 245,
-            "tokens": 2564,
+            "tokens": 2522,
             "sources": 1,
             "clones": 8,
             "duplicatedLines": 88,
-            "duplicatedTokens": 730,
+            "duplicatedTokens": 682,
             "percentage": 35.92,
-            "percentageTokens": 28.47,
+            "percentageTokens": 27.04,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -8334,7 +8478,7 @@
           },
           "apps/api/src/modules/mantenimientos/dto/programar-mantenimiento.dto.ts": {
             "lines": 33,
-            "tokens": 207,
+            "tokens": 208,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8346,7 +8490,7 @@
           },
           "apps/api/src/modules/mantenimientos/dto/ejecutar-mantenimiento.dto.ts": {
             "lines": 119,
-            "tokens": 807,
+            "tokens": 808,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8358,13 +8502,13 @@
           },
           "apps/api/src/modules/mantenimientos/dto/create-mantenimiento.dto.ts": {
             "lines": 115,
-            "tokens": 768,
+            "tokens": 772,
             "sources": 1,
             "clones": 1,
             "duplicatedLines": 11,
             "duplicatedTokens": 57,
             "percentage": 9.57,
-            "percentageTokens": 7.42,
+            "percentageTokens": 7.38,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -10060,6 +10204,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "apps/api/src/common/dto/api-error.dto.ts": {
+            "lines": 75,
+            "tokens": 541,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "apps/api/src/common/decorators/throttle.decorator.ts": {
             "lines": 345,
             "tokens": 1035,
@@ -10266,33 +10422,177 @@
           }
         },
         "total": {
-          "lines": 83936,
-          "tokens": 619550,
-          "sources": 855,
-          "clones": 107,
-          "duplicatedLines": 1258,
-          "duplicatedTokens": 8552,
-          "percentage": 1.5,
-          "percentageTokens": 1.38,
+          "lines": 86062,
+          "tokens": 630556,
+          "sources": 868,
+          "clones": 111,
+          "duplicatedLines": 1341,
+          "duplicatedTokens": 9252,
+          "percentage": 1.56,
+          "percentageTokens": 1.47,
           "newDuplicatedLines": 0,
           "newClones": 0
         }
       }
     },
     "total": {
-      "lines": 83936,
-      "tokens": 619550,
-      "sources": 855,
-      "clones": 107,
-      "duplicatedLines": 1258,
-      "duplicatedTokens": 8552,
-      "percentage": 1.5,
-      "percentageTokens": 1.38,
+      "lines": 86062,
+      "tokens": 630556,
+      "sources": 868,
+      "clones": 111,
+      "duplicatedLines": 1341,
+      "duplicatedTokens": 9252,
+      "percentage": 1.56,
+      "percentageTokens": 1.47,
       "newDuplicatedLines": 0,
       "newClones": 0
     }
   },
   "duplicates": [
+    {
+      "format": "typescript",
+      "lines": 13,
+      "fragment": ", day: 'numeric' \r\n    });\r\n  }\r\n\r\n  formatEstado(estado: string): string {\r\n    return estado.replace(/_/g, ' ').replace(/\\b\\w/g, l => l.toUpperCase());\r\n  }\r\n\r\n  getTipoClass(tipo: string): string {\r\n    const classes: Record<string, string> = {\r\n      'preventivo': 'px-2 py-1 rounded text-xs bg-blue-100 text-blue-800',\r\n      'correctivo': 'px-2 py-1 rounded text-xs bg-orange-100 text-orange-800',\r\n      'predictivo': 'px-2 py-1 rounded text-xs bg-purple-100 text-purple-800'\r",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\web\\src\\app\\features\\mantenimientos\\components\\mantenimiento-detail\\mantenimiento-detail.component.ts",
+        "start": 175,
+        "end": 187,
+        "startLoc": {
+          "line": 175,
+          "column": 7,
+          "position": 506
+        },
+        "endLoc": {
+          "line": 187,
+          "column": 2,
+          "position": 633
+        }
+      },
+      "secondFile": {
+        "name": "apps\\web\\src\\app\\features\\mantenimientos\\components\\mantenimientos-list\\mantenimientos-list.component.ts",
+        "start": 220,
+        "end": 232,
+        "startLoc": {
+          "line": 220,
+          "column": 8,
+          "position": 719
+        },
+        "endLoc": {
+          "line": 232,
+          "column": 2,
+          "position": 846
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 27,
+      "fragment": "\r\n    };\r\n    return classes[tipo] || 'px-2 py-1 rounded text-xs bg-gray-100 text-gray-800';\r\n  }\r\n\r\n  getEstadoClass(estado: string): string {\r\n    const classes: Record<string, string> = {\r\n      'programado': 'px-2 py-1 rounded text-xs bg-blue-100 text-blue-800',\r\n      'en_ejecucion': 'px-2 py-1 rounded text-xs bg-yellow-100 text-yellow-800',\r\n      'completado': 'px-2 py-1 rounded text-xs bg-green-100 text-green-800',\r\n      'cancelado': 'px-2 py-1 rounded text-xs bg-red-100 text-red-800',\r\n      'vencido': 'px-2 py-1 rounded text-xs bg-red-200 text-red-900'\r\n    };\r\n    return classes[estado] || 'px-2 py-1 rounded text-xs bg-gray-100 text-gray-800';\r\n  }\r\n\r\n  getPrioridadClass(prioridad: string): string {\r\n    const classes: Record<string, string> = {\r\n      'baja': 'px-2 py-1 rounded text-xs bg-green-100 text-green-800',\r\n      'media': 'px-2 py-1 rounded text-xs bg-yellow-100 text-yellow-800',\r\n      'alta': 'px-2 py-1 rounded text-xs bg-orange-100 text-orange-800',\r\n      'critica': 'px-2 py-1 rounded text-xs bg-red-100 text-red-800'\r\n    };\r\n    return classes[prioridad] || 'px-2 py-1 rounded text-xs bg-gray-100 text-gray-800';\r\n  }\r\n}\r\n",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\web\\src\\app\\features\\mantenimientos\\components\\mantenimiento-detail\\mantenimiento-detail.component.ts",
+        "start": 187,
+        "end": 213,
+        "startLoc": {
+          "line": 187,
+          "column": 58,
+          "position": 633
+        },
+        "endLoc": {
+          "line": 213,
+          "column": 1,
+          "position": 848
+        }
+      },
+      "secondFile": {
+        "name": "apps\\web\\src\\app\\features\\mantenimientos\\components\\mantenimientos-list\\mantenimientos-list.component.ts",
+        "start": 233,
+        "end": 259,
+        "startLoc": {
+          "line": 233,
+          "column": 54,
+          "position": 854
+        },
+        "endLoc": {
+          "line": 259,
+          "column": 1,
+          "position": 1069
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 13,
+      "fragment": ".set(res.data);\r\n        this.total.set(res.total);\r\n        this.totalPages.set(res.totalPages);\r\n        this.loading.set(false);\r\n      },\r\n      error: () => this.loading.set(false)\r\n    });\r\n  }\r\n\r\n  clearFilters(): void {\r\n    this.filters = {};\r\n    this.page.set(1);\r\n    this.loadKits",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\web\\src\\app\\features\\kits\\components\\kits-list\\kits-list.component.ts",
+        "start": 187,
+        "end": 199,
+        "startLoc": {
+          "line": 187,
+          "column": 5,
+          "position": 385
+        },
+        "endLoc": {
+          "line": 199,
+          "column": 9,
+          "position": 509
+        }
+      },
+      "secondFile": {
+        "name": "apps\\web\\src\\app\\features\\mantenimientos\\components\\mantenimientos-list\\mantenimientos-list.component.ts",
+        "start": 189,
+        "end": 201,
+        "startLoc": {
+          "line": 189,
+          "column": 15,
+          "position": 399
+        },
+        "endLoc": {
+          "line": 201,
+          "column": 19,
+          "position": 523
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 34,
+      "fragment": "\r\n  }\r\n\r\n  getEstadoBadgeClass(estado: string): string {\r\n    const base = 'px-2 py-0.5 text-xs font-medium rounded-full';\r\n    switch (estado) {\r\n      case 'activo':\r\n        return `${base} bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300`;\r\n      case 'inactivo':\r\n        return `${base} bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300`;\r\n      case 'archivado':\r\n        return `${base} bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300`;\r\n      default:\r\n        return `${base} bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300`;\r\n    }\r\n  }\r\n\r\n  getCategoriaBadgeClass(categoria: string): string {\r\n    const base = 'px-2 py-0.5 text-xs font-medium rounded-full';\r\n    switch (categoria) {\r\n      case 'herramientas':\r\n        return `${base} bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300`;\r\n      case 'materiales':\r\n        return `${base} bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300`;\r\n      case 'seguridad':\r\n        return `${base} bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300`;\r\n      case 'equipos':\r\n        return `${base} bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300`;\r\n      default:\r\n        return `${base} bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300`;\r\n    }\r\n  }\r\n}\r\n",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\web\\src\\app\\features\\kits\\components\\kit-detail\\kit-detail.component.ts",
+        "start": 189,
+        "end": 222,
+        "startLoc": {
+          "line": 189,
+          "column": 2,
+          "position": 581
+        },
+        "endLoc": {
+          "line": 222,
+          "column": 1,
+          "position": 839
+        }
+      },
+      "secondFile": {
+        "name": "apps\\web\\src\\app\\features\\kits\\components\\kits-list\\kits-list.component.ts",
+        "start": 213,
+        "end": 246,
+        "startLoc": {
+          "line": 213,
+          "column": 2,
+          "position": 653
+        },
+        "endLoc": {
+          "line": 246,
+          "column": 1,
+          "position": 911
+        }
+      }
+    },
     {
       "format": "typescript",
       "lines": 11,
@@ -10620,7 +10920,7 @@
     {
       "format": "typescript",
       "lines": 15,
-      "fragment": "},\r\n        estado: {\r\n          in: [EstadoMantenimiento.programado, EstadoMantenimiento.pendiente],\r\n        },\r\n      },\r\n      include: {\r\n        tecnico: {\r\n          select: { id: true, email: true, nombre: true, apellido: true },\r\n        },\r\n      },\r\n      orderBy: { fechaProgramada: \"asc\" },\r\n    });\r\n  }\r\n\r\n  async create",
+      "fragment": "},\r\n        estado: {\r\n          in: [EstadoMantenimiento.programado, EstadoMantenimiento.pendiente],\r\n        },\r\n      },\r\n      include: {\r\n        tecnico: {\r\n          select: { id: true, email: true, name: true },\r\n        },\r\n      },\r\n      orderBy: { fechaProgramada: \"asc\" },\r\n    });\r\n  }\r\n\r\n  async create",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\mantenimientos\\infrastructure\\persistence\\prisma-mantenimiento.repository.ts",
@@ -10629,12 +10929,12 @@
         "startLoc": {
           "line": 125,
           "column": 2,
-          "position": 1144
+          "position": 1132
         },
         "endLoc": {
           "line": 139,
           "column": 7,
-          "position": 1269
+          "position": 1251
         }
       },
       "secondFile": {
@@ -10644,19 +10944,19 @@
         "startLoc": {
           "line": 106,
           "column": 9,
-          "position": 955
+          "position": 949
         },
         "endLoc": {
           "line": 120,
           "column": 13,
-          "position": 1080
+          "position": 1068
         }
       }
     },
     {
       "format": "typescript",
       "lines": 11,
-      "fragment": ",\r\n      },\r\n      include: {\r\n        tecnico: {\r\n          select: { id: true, email: true, nombre: true, apellido: true },\r\n        },\r\n      },\r\n    });\r\n  }\r\n\r\n  async ejecutar",
+      "fragment": ",\r\n      },\r\n      include: {\r\n        tecnico: {\r\n          select: { id: true, email: true, name: true },\r\n        },\r\n      },\r\n    });\r\n  }\r\n\r\n  async ejecutar",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\mantenimientos\\infrastructure\\persistence\\prisma-mantenimiento.repository.ts",
@@ -10665,34 +10965,34 @@
         "startLoc": {
           "line": 178,
           "column": 2,
-          "position": 1840
+          "position": 1816
         },
         "endLoc": {
           "line": 188,
           "column": 9,
-          "position": 1920
+          "position": 1890
         }
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\mantenimientos\\infrastructure\\persistence\\prisma-mantenimiento.repository.ts",
         "start": 109,
-        "end": 164,
+        "end": 41,
         "startLoc": {
           "line": 109,
           "column": 2,
-          "position": 985
+          "position": 979
         },
         "endLoc": {
-          "line": 164,
-          "column": 7,
-          "position": 1526
+          "line": 41,
+          "column": 9,
+          "position": 288
         }
       }
     },
     {
       "format": "typescript",
       "lines": 11,
-      "fragment": ",\r\n      },\r\n      include: {\r\n        tecnico: {\r\n          select: { id: true, email: true, nombre: true, apellido: true },\r\n        },\r\n      },\r\n    });\r\n  }\r\n\r\n  async programar",
+      "fragment": ",\r\n      },\r\n      include: {\r\n        tecnico: {\r\n          select: { id: true, email: true, name: true },\r\n        },\r\n      },\r\n    });\r\n  }\r\n\r\n  async programar",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\mantenimientos\\infrastructure\\persistence\\prisma-mantenimiento.repository.ts",
@@ -10701,34 +11001,34 @@
         "startLoc": {
           "line": 205,
           "column": 2,
-          "position": 2157
+          "position": 2127
         },
         "endLoc": {
           "line": 215,
           "column": 10,
-          "position": 2237
+          "position": 2201
         }
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\mantenimientos\\infrastructure\\persistence\\prisma-mantenimiento.repository.ts",
         "start": 109,
-        "end": 164,
+        "end": 41,
         "startLoc": {
           "line": 109,
           "column": 2,
-          "position": 985
+          "position": 979
         },
         "endLoc": {
-          "line": 164,
-          "column": 7,
-          "position": 1526
+          "line": 41,
+          "column": 9,
+          "position": 288
         }
       }
     },
     {
       "format": "typescript",
       "lines": 11,
-      "fragment": ",\r\n      },\r\n      include: {\r\n        tecnico: {\r\n          select: { id: true, email: true, nombre: true, apellido: true },\r\n        },\r\n      },\r\n    });\r\n  }\r\n\r\n  async delete",
+      "fragment": ",\r\n      },\r\n      include: {\r\n        tecnico: {\r\n          select: { id: true, email: true, name: true },\r\n        },\r\n      },\r\n    });\r\n  }\r\n\r\n  async delete",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\mantenimientos\\infrastructure\\persistence\\prisma-mantenimiento.repository.ts",
@@ -10737,27 +11037,27 @@
         "startLoc": {
           "line": 227,
           "column": 11,
-          "position": 2364
+          "position": 2328
         },
         "endLoc": {
           "line": 237,
           "column": 7,
-          "position": 2444
+          "position": 2402
         }
       },
       "secondFile": {
         "name": "apps\\api\\src\\modules\\mantenimientos\\infrastructure\\persistence\\prisma-mantenimiento.repository.ts",
         "start": 109,
-        "end": 164,
+        "end": 41,
         "startLoc": {
           "line": 109,
           "column": 2,
-          "position": 985
+          "position": 979
         },
         "endLoc": {
-          "line": 164,
-          "column": 7,
-          "position": 1526
+          "line": 41,
+          "column": 9,
+          "position": 288
         }
       }
     },
