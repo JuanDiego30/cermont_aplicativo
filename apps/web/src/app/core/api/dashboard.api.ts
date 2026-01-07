@@ -43,14 +43,14 @@ export class DashboardApi {
    * Get consolidated KPIs
    */
   getKPIs(): Observable<KPIConsolidado> {
-    return this.http.get<KPIConsolidado>(`${this.apiUrl}/kpis`);
+    return this.http.get<KPIConsolidado>(`${this.apiUrl}/overview`);
   }
 
   /**
    * Get cost breakdown
    */
   getCostosBreakdown(): Observable<{ data: CostoBreakdown[] }> {
-    return this.http.get<{ data: CostoBreakdown[] }>(`${this.apiUrl}/costos-breakdown`);
+    return this.http.get<{ data: CostoBreakdown[] }>(`${this.apiUrl}/costs/breakdown`);
   }
 
   /**
@@ -69,7 +69,7 @@ export class DashboardApi {
       httpParams = httpParams.set('granularidad', params.granularidad);
     }
 
-    return this.http.get<PerformanceTrend[]>(`${this.apiUrl}/performance-trends`, { params: httpParams });
+    return this.http.get<PerformanceTrend[]>(`${this.apiUrl}/performance/trends`, { params: httpParams });
   }
 
   /**

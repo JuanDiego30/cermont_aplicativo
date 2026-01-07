@@ -10,6 +10,7 @@ import { Observable, throwError, timer } from 'rxjs';
 import { catchError, retry } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { logError } from '../utils/logger';
+import { QueryParams } from './shared-types';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,7 @@ export class ApiBaseService {
   /**
    * GET request with optional query parameters
    */
-  protected get<T>(path: string, params?: Record<string, any>): Observable<T> {
+  protected get<T>(path: string, params?: QueryParams): Observable<T> {
     const httpParams = this.buildParams(params);
     return this.http.get<T>(`${this.apiUrl}${path}`, {
       params: httpParams
@@ -126,7 +127,7 @@ export class ApiBaseService {
    */
   private handleError = (error: HttpErrorResponse): Observable<never> => {
     let errorMessage = 'Error desconocido';
-    
+
     if (error.error instanceof ErrorEvent) {
       // Client-side error
       errorMessage = `Error: ${error.error.message}`;
@@ -134,7 +135,7 @@ export class ApiBaseService {
       // Server-side error
       errorMessage = error.error?.message || error.message || `Error ${error.status}`;
     }
-    
+
     logError('API Error', error, { errorMessage });
     return throwError(() => error);
   };

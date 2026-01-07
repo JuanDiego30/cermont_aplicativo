@@ -4,6 +4,16 @@
  */
 import { z } from "zod";
 
+// ==================== ENUMS CANÓNICOS ====================
+export enum EstadoPlaneacion {
+  BORRADOR = 'borrador',
+  EN_REVISION = 'en_revision',
+  APROBADA = 'aprobada',
+  EN_EJECUCION = 'en_ejecucion',
+  COMPLETADA = 'completada',
+  CANCELADA = 'cancelada',
+}
+
 // ==================== DTOs ====================
 export const CreatePlaneacionSchema = z.object({
   cronograma: z.record(z.string(), z.unknown()).optional().default({}),
@@ -30,7 +40,7 @@ export type RechazarPlaneacionDto = z.infer<typeof RechazarPlaneacionSchema>;
 export interface PlaneacionResponse {
   id: string;
   ordenId: string;
-  estado: string;
+  estado: EstadoPlaneacion;
   cronograma: Record<string, unknown>;
   manoDeObra: Record<string, unknown>;
   observaciones?: string;

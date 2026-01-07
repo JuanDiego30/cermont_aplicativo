@@ -10,6 +10,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Param,
   Body,
   Query,
@@ -84,7 +85,7 @@ export class AdminController {
     private readonly listUsersUseCase: ListUsersUseCase,
     private readonly getUserByIdUseCase: GetUserByIdUseCase,
     private readonly getUserStatsUseCase: GetUserStatsUseCase,
-  ) {}
+  ) { }
 
   // ============================================
   // USUARIOS - CRUD
@@ -198,6 +199,52 @@ export class AdminController {
   }
 
   // ============================================
+  // USUARIOS - ESTADO (BACKWARD COMPAT)
+  // ============================================
+
+  @Patch("users/:id/status")
+  @Roles("admin")
+  @ApiOperation({ summary: "Cambiar estado de usuario (activo/inactivo)" })
+  @ApiParam({ name: "id", description: "UUID del usuario" })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 404, description: "Usuario no encontrado" })
+  async updateStatus(
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() body: { active: boolean },
+    @CurrentUser() currentUser: JwtPayload,
+  ): Promise<{ success: boolean; message: string }> {
+    return this.toggleUserActiveUseCase.execute({
+      userId: id,
+      active: body.active,
+      reason: `Estado cambiado por ${currentUser.userId}`,
+      changedBy: currentUser.userId,
+    });
+  }
+
+  @Delete("users/:id")
+  @Roles("admin")
+  @ApiOperation({ summary: "Eliminar usuario (soft delete)" })
+  @ApiParam({ name: "id", description: "UUID del usuario" })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 404, description: "Usuario no encontrado" })
+  async deleteUser(
+    @Param("id", ParseUUIDPipe) id: string,
+    @CurrentUser() currentUser: JwtPayload,
+  ): Promise<{ success: boolean; message: string }> {
+    await this.toggleUserActiveUseCase.execute({
+      userId: id,
+      active: false,
+      reason: `Usuario eliminado por ${currentUser.userId}`,
+      changedBy: currentUser.userId,
+    });
+
+    return {
+      success: true,
+      message: 'Usuario eliminado exitosamente (desactivado)',
+    };
+  }
+
+  // ============================================
   // USUARIOS - ACTIVACIÓN
   // ============================================
 
@@ -255,20 +302,5 @@ export class AdminController {
   @ApiResponse({ status: 200, type: UserStatsResponseDto })
   async getUserStats(): Promise<UserStatsResponseDto> {
     return this.getUserStatsUseCase.execute();
-  }
-
-  // ============================================
-  // PERMISOS (Legacy - mantener compatibilidad)
-  // ============================================
-
-  @Get("permissions/:role")
-  @Roles("admin", "supervisor")
-  @ApiOperation({ summary: "Obtener permisos de un rol" })
-  @ApiParam({ name: "role", description: "Rol a consultar" })
-  async getPermissions(@Param("role") role: string) {
-    // Importar de interfaces legacy para mantener compatibilidad
-    const { getPermissionsForRole } =
-      await import("../../interfaces/permissions.interface");
-    return getPermissionsForRole(role as any);
   }
 }

@@ -1,7 +1,14 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+/**
+ * OrdenesApi - Orders API Client (Refactored)
+ * 
+ * Extends ApiBaseService for consistent HTTP handling.
+ * Eliminates manual HttpParams building in favor of base service's buildParams.
+ * 
+ * @see apps/api/src/modules/ordenes/infrastructure/controllers/ordenes.controller.ts
+ */
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '@env/environment';
+import { ApiBaseService } from './api-base.service';
 import {
   Orden,
   CreateOrdenDto,
@@ -20,92 +27,70 @@ export type { PaginatedOrdenes, OrdenesStats };
 @Injectable({
   providedIn: 'root'
 })
-export class OrdenesApi {
-  private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/ordenes`;
+export class OrdenesApi extends ApiBaseService {
+  private readonly basePath = '/ordenes';
 
   /**
-   * List orders with optional filters
+   * GET /ordenes - List orders with optional filters
    */
   list(params?: ListOrdenesQuery): Observable<PaginatedOrdenes> {
-    let httpParams = new HttpParams();
-
-    if (params) {
-      if (params.page) httpParams = httpParams.set('page', params.page.toString());
-      if (params.limit) httpParams = httpParams.set('limit', params.limit.toString());
-      if (params.estado) httpParams = httpParams.set('estado', params.estado);
-      if (params.prioridad) httpParams = httpParams.set('prioridad', params.prioridad);
-      if (params.search) httpParams = httpParams.set('search', params.search);
-      if (params.buscar) httpParams = httpParams.set('buscar', params.buscar);
-      if (params.cliente) httpParams = httpParams.set('cliente', params.cliente);
-      if (params.clienteId) httpParams = httpParams.set('clienteId', params.clienteId);
-      if (params.tecnicoId) httpParams = httpParams.set('tecnicoId', params.tecnicoId);
-      if (params.fechaDesde) httpParams = httpParams.set('fechaDesde', params.fechaDesde);
-      if (params.fechaHasta) httpParams = httpParams.set('fechaHasta', params.fechaHasta);
-      if (params.soloVencidas) httpParams = httpParams.set('soloVencidas', 'true');
-      if (params.soloSinAsignar) httpParams = httpParams.set('soloSinAsignar', 'true');
-      if (params.sortBy) httpParams = httpParams.set('sortBy', params.sortBy);
-      if (params.sortOrder) httpParams = httpParams.set('sortOrder', params.sortOrder);
-    }
-
-    return this.http.get<PaginatedOrdenes>(this.apiUrl, { params: httpParams });
+    return this.get<PaginatedOrdenes>(this.basePath, params as Record<string, any>);
   }
 
   /**
-   * Get order by ID
+   * GET /ordenes/:id - Get order by ID
    */
   getById(id: string): Observable<Orden> {
-    return this.http.get<Orden>(`${this.apiUrl}/${id}`);
+    return this.get<Orden>(`${this.basePath}/${id}`);
   }
 
   /**
-   * Create new order
+   * POST /ordenes - Create new order
    */
   create(data: CreateOrdenDto): Observable<Orden> {
-    return this.http.post<Orden>(this.apiUrl, data);
+    return this.post<Orden>(this.basePath, data);
   }
 
   /**
-   * Update existing order
+   * PATCH /ordenes/:id - Update existing order
    */
   update(id: string, data: UpdateOrdenDto): Observable<Orden> {
-    // Backend expone PATCH /ordenes/:id
-    return this.http.patch<Orden>(`${this.apiUrl}/${id}`, data);
+    return this.patch<Orden>(`${this.basePath}/${id}`, data);
   }
 
   /**
-   * Delete order
+   * DELETE /ordenes/:id - Delete order
    */
-  delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  remove(id: string): Observable<void> {
+    return this.deleteRequest<void>(`${this.basePath}/${id}`);
   }
 
   /**
-   * Change order status
+   * POST /ordenes/:id/cambiar-estado - Change order status
    */
   changeEstado(id: string, dto: ChangeEstadoOrdenDto): Observable<Orden> {
-    // Backend expone POST /ordenes/:id/cambiar-estado
-    return this.http.post<Orden>(`${this.apiUrl}/${id}/cambiar-estado`, dto);
+    return this.post<Orden>(`${this.basePath}/${id}/cambiar-estado`, dto);
   }
 
   /**
-   * Assign technician to order
+   * POST /ordenes/:id/asignar-tecnico - Assign technician to order
    */
   asignarTecnico(ordenId: string, dto: AsignarTecnicoOrdenDto): Observable<Orden> {
-    return this.http.post<Orden>(`${this.apiUrl}/${ordenId}/asignar-tecnico`, dto);
+    return this.post<Orden>(`${this.basePath}/${ordenId}/asignar-tecnico`, dto);
   }
 
   /**
-   * Get order status history
+   * GET /ordenes/:id/historial - Get order status history
    */
   getHistorial(id: string): Observable<HistorialEstado[]> {
-    return this.http.get<HistorialEstado[]>(`${this.apiUrl}/${id}/historial`);
+    return this.get<HistorialEstado[]>(`${this.basePath}/${id}/historial`);
   }
 
   /**
-   * Get order statistics
+   * GET /ordenes/stats - Get order statistics
+   * Note: Placed after dynamic routes in backend controller
    */
   getStats(): Observable<OrdenesStats> {
-    return this.http.get<OrdenesStats>(`${this.apiUrl}/stats`);
+    return this.get<OrdenesStats>(`${this.basePath}/stats`);
   }
 }

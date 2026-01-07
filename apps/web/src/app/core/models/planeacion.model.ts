@@ -4,10 +4,12 @@
  */
 
 export enum PlaneacionEstado {
-    PENDIENTE = 'PENDIENTE',
-    APROBADA = 'APROBADA',
-    RECHAZADA = 'RECHAZADA',
-    EN_REVISION = 'EN_REVISION',
+    BORRADOR = 'borrador',
+    EN_REVISION = 'en_revision',
+    APROBADA = 'aprobada',
+    EN_EJECUCION = 'en_ejecucion',
+    COMPLETADA = 'completada',
+    CANCELADA = 'cancelada',
 }
 
 export interface ActividadPlaneacion {

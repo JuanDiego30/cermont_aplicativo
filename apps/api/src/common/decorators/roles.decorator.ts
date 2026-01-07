@@ -6,14 +6,7 @@
  * Uso: @Roles('admin') o @Roles(UserRole.ADMIN).
  */
 import { SetMetadata } from "@nestjs/common";
-
-// Enum de roles para type-safety (opcional)
-export enum UserRole {
-  ADMIN = "admin",
-  SUPERVISOR = "supervisor",
-  TECNICO = "tecnico",
-  ADMINISTRATIVO = "administrativo",
-}
+import { UserRole } from "../enums/user-role.enum";
 
 export const ROLES_KEY = "roles";
 

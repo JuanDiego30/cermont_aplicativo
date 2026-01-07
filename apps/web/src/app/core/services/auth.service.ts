@@ -190,7 +190,7 @@ export class AuthService {
   /**
    * Refresh token
    */
-  refreshToken(): Observable<{ token: string }> {
+  refreshToken(): Observable<{ token: string; csrfToken?: string }> {
     // Backend soporta refreshToken vía cookie (preferred). Requiere withCredentials.
     const options = this.buildCsrfRequestOptions();
 
@@ -278,7 +278,7 @@ export class AuthService {
     }
   }
 
-  private getCsrfToken(): string | null {
+  getCsrfToken(): string | null {
     return localStorage.getItem(this.csrfStorageKey);
   }
 

@@ -251,6 +251,7 @@ export class DashboardController {
 
   /**
    * Vista general consolidada con todos los KPIs
+   * Endpoint principal: /dashboard/overview
    */
   @Get("overview")
   @Roles("supervisor", "admin")
@@ -284,7 +285,24 @@ export class DashboardController {
   }
 
   /**
+   * Alias para /overview - compatibilidad con frontend
+   * Endpoint: /dashboard/kpis
+   */
+  @Get("kpis")
+  @Roles("supervisor", "admin")
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "KPIs consolidados (alias de /overview)",
+    description: "Alias para compatibilidad frontend. Use /overview preferiblemente.",
+  })
+  async getKpis(@Req() req: RequestWithUser) {
+    return this.getOverview(req);
+  }
+
+  /**
    * Forzar recálculo de KPIs (operación costosa)
+   * Soporta GET (legacy) y POST (nuevo frontend)
    */
   @Get("kpis/refresh")
   @Roles("supervisor", "admin")

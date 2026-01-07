@@ -7,7 +7,7 @@ import {
   PLANEACION_REPOSITORY,
   IPlaneacionRepository,
 } from "../../domain/repositories";
-import { PlaneacionResponse } from "../dto";
+import { PlaneacionResponse, EstadoPlaneacion } from "../dto";
 
 @Injectable()
 export class RechazarPlaneacionUseCase {
@@ -33,7 +33,7 @@ export class RechazarPlaneacionUseCase {
       data: {
         id: planeacion.id,
         ordenId: planeacion.ordenId,
-        estado: planeacion.estado,
+        estado: planeacion.estado as EstadoPlaneacion,
         cronograma: planeacion.cronograma,
         manoDeObra: planeacion.manoDeObra,
         observaciones: planeacion.observaciones,

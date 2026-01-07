@@ -7,7 +7,7 @@ import {
   PLANEACION_REPOSITORY,
   IPlaneacionRepository,
 } from "../../domain/repositories";
-import { CreatePlaneacionDto, PlaneacionResponse } from "../dto";
+import { CreatePlaneacionDto, PlaneacionResponse, EstadoPlaneacion } from "../dto";
 
 @Injectable()
 export class CreateOrUpdatePlaneacionUseCase {
@@ -38,7 +38,7 @@ export class CreateOrUpdatePlaneacionUseCase {
       data: {
         id: planeacion.id,
         ordenId: planeacion.ordenId,
-        estado: planeacion.estado,
+        estado: planeacion.estado as EstadoPlaneacion,
         cronograma: planeacion.cronograma,
         manoDeObra: planeacion.manoDeObra,
         observaciones: planeacion.observaciones,

@@ -1,6 +1,6 @@
 {
   "statistics": {
-    "detectionDate": "2026-01-05T23:01:21.588Z",
+    "detectionDate": "2026-01-07T16:52:33.994Z",
     "formats": {
       "typescript": {
         "sources": {
@@ -246,7 +246,7 @@
           },
           "apps/web/src/app/shared/components/form/input/text-area.component.ts": {
             "lines": 57,
-            "tokens": 340,
+            "tokens": 379,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -294,7 +294,7 @@
           },
           "apps/web/src/app/shared/components/form/input/input-field.component.ts": {
             "lines": 74,
-            "tokens": 495,
+            "tokens": 542,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -485,8 +485,8 @@
             "newClones": 0
           },
           "apps/web/src/app/features/ordenes/components/ordenes-list/ordenes-list.component.ts": {
-            "lines": 149,
-            "tokens": 1340,
+            "lines": 148,
+            "tokens": 1333,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -509,8 +509,8 @@
             "newClones": 0
           },
           "apps/web/src/app/features/ordenes/components/orden-detail/orden-detail.component.ts": {
-            "lines": 221,
-            "tokens": 2213,
+            "lines": 220,
+            "tokens": 2192,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -593,8 +593,8 @@
             "newClones": 0
           },
           "apps/web/src/app/features/admin/components/user-form/user-form.component.ts": {
-            "lines": 187,
-            "tokens": 1974,
+            "lines": 197,
+            "tokens": 2073,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -678,7 +678,7 @@
           },
           "apps/web/src/app/shared/layout/app-sidebar/app-sidebar.component.ts": {
             "lines": 245,
-            "tokens": 2090,
+            "tokens": 2335,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1000,6 +1000,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "apps/web/src/app/shared/services/toast.service.ts": {
+            "lines": 47,
+            "tokens": 285,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "apps/web/src/app/shared/services/sidebar.service.ts": {
             "lines": 35,
             "tokens": 279,
@@ -1109,8 +1121,8 @@
             "newClones": 0
           },
           "apps/web/src/app/core/utils/user-role-badge.util.ts": {
-            "lines": 11,
-            "tokens": 112,
+            "lines": 13,
+            "tokens": 136,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1229,8 +1241,8 @@
             "newClones": 0
           },
           "apps/web/src/app/core/services/pdf-api.service.ts": {
-            "lines": 92,
-            "tokens": 684,
+            "lines": 93,
+            "tokens": 658,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1241,20 +1253,8 @@
             "newClones": 0
           },
           "apps/web/src/app/core/services/auth.service.ts": {
-            "lines": 344,
-            "tokens": 3153,
-            "sources": 1,
-            "clones": 0,
-            "duplicatedLines": 0,
-            "duplicatedTokens": 0,
-            "percentage": 0,
-            "percentageTokens": 0,
-            "newDuplicatedLines": 0,
-            "newClones": 0
-          },
-          "apps/web/src/app/core/services/api.service.ts": {
-            "lines": 143,
-            "tokens": 1282,
+            "lines": 345,
+            "tokens": 3172,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1277,8 +1277,8 @@
             "newClones": 0
           },
           "apps/web/src/app/core/models/user.model.ts": {
-            "lines": 85,
-            "tokens": 614,
+            "lines": 88,
+            "tokens": 641,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1313,8 +1313,8 @@
             "newClones": 0
           },
           "apps/web/src/app/core/models/planeacion.model.ts": {
-            "lines": 62,
-            "tokens": 437,
+            "lines": 64,
+            "tokens": 394,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1325,8 +1325,8 @@
             "newClones": 0
           },
           "apps/web/src/app/core/models/orden.model.ts": {
-            "lines": 139,
-            "tokens": 1150,
+            "lines": 138,
+            "tokens": 1133,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1457,8 +1457,8 @@
             "newClones": 0
           },
           "apps/web/src/app/core/interceptors/auth.interceptor.ts": {
-            "lines": 83,
-            "tokens": 714,
+            "lines": 102,
+            "tokens": 869,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1516,6 +1516,18 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "apps/web/src/app/core/dto/pagination.dto.ts": {
+            "lines": 26,
+            "tokens": 145,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "apps/web/src/app/core/auth/auth.service.ts": {
             "lines": 180,
             "tokens": 1432,
@@ -1531,6 +1543,18 @@
           "apps/web/src/app/core/api/tecnicos.api.ts": {
             "lines": 46,
             "tokens": 334,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/web/src/app/core/api/shared-types.ts": {
+            "lines": 62,
+            "tokens": 316,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1565,8 +1589,8 @@
             "newClones": 0
           },
           "apps/web/src/app/core/api/ordenes.api.ts": {
-            "lines": 111,
-            "tokens": 1166,
+            "lines": 96,
+            "tokens": 670,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1637,8 +1661,8 @@
             "newClones": 0
           },
           "apps/web/src/app/core/api/auth.api.ts": {
-            "lines": 63,
-            "tokens": 574,
+            "lines": 257,
+            "tokens": 1829,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1649,8 +1673,8 @@
             "newClones": 0
           },
           "apps/web/src/app/core/api/api-base.service.ts": {
-            "lines": 142,
-            "tokens": 1364,
+            "lines": 143,
+            "tokens": 1372,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1661,8 +1685,8 @@
             "newClones": 0
           },
           "apps/web/src/app/core/api/admin.api.ts": {
-            "lines": 67,
-            "tokens": 683,
+            "lines": 102,
+            "tokens": 1167,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1674,7 +1698,7 @@
           },
           "apps/web/src/app/services/ordenes.service.ts": {
             "lines": 147,
-            "tokens": 1290,
+            "tokens": 1294,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1721,8 +1745,8 @@
             "newClones": 0
           },
           "apps/web/src/app/app.routes.ts": {
-            "lines": 146,
-            "tokens": 1173,
+            "lines": 55,
+            "tokens": 468,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1782,7 +1806,7 @@
           },
           "apps/api/src/modules/weather/infrastructure/controllers/weather.controller.ts": {
             "lines": 95,
-            "tokens": 643,
+            "tokens": 728,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -1806,7 +1830,7 @@
           },
           "apps/api/src/modules/weather/application/dto/weather.dto.ts": {
             "lines": 48,
-            "tokens": 342,
+            "tokens": 388,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2118,13 +2142,13 @@
           },
           "apps/api/src/modules/reportes/infrastructure/controllers/reportes.controller.ts": {
             "lines": 61,
-            "tokens": 543,
+            "tokens": 602,
             "sources": 1,
             "clones": 1,
             "duplicatedLines": 10,
-            "duplicatedTokens": 69,
+            "duplicatedTokens": 79,
             "percentage": 16.39,
-            "percentageTokens": 12.71,
+            "percentageTokens": 13.12,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -2202,7 +2226,7 @@
           },
           "apps/api/src/modules/reportes/application/dto/reporte.dto.ts": {
             "lines": 50,
-            "tokens": 360,
+            "tokens": 408,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2214,7 +2238,7 @@
           },
           "apps/api/src/modules/planeacion/infrastructure/persistence/planeacion.repository.ts": {
             "lines": 116,
-            "tokens": 986,
+            "tokens": 1099,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2226,19 +2250,19 @@
           },
           "apps/api/src/modules/planeacion/infrastructure/controllers/planeacion.controller.ts": {
             "lines": 409,
-            "tokens": 2666,
+            "tokens": 3059,
             "sources": 1,
-            "clones": 0,
-            "duplicatedLines": 0,
-            "duplicatedTokens": 0,
-            "percentage": 0,
-            "percentageTokens": 0,
+            "clones": 2,
+            "duplicatedLines": 24,
+            "duplicatedTokens": 110,
+            "percentage": 5.87,
+            "percentageTokens": 3.6,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/planeacion/domain/repositories/planeacion.repository.interface.ts": {
             "lines": 29,
-            "tokens": 225,
+            "tokens": 251,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2250,19 +2274,19 @@
           },
           "apps/api/src/modules/planeacion/application/use-cases/rechazar-planeacion.use-case.ts": {
             "lines": 45,
-            "tokens": 323,
+            "tokens": 330,
             "sources": 1,
             "clones": 2,
             "duplicatedLines": 24,
-            "duplicatedTokens": 172,
+            "duplicatedTokens": 179,
             "percentage": 53.33,
-            "percentageTokens": 53.25,
+            "percentageTokens": 54.24,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/planeacion/application/use-cases/get-planeacion.use-case.ts": {
             "lines": 35,
-            "tokens": 265,
+            "tokens": 272,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2274,31 +2298,31 @@
           },
           "apps/api/src/modules/planeacion/application/use-cases/create-or-update-planeacion.use-case.ts": {
             "lines": 50,
-            "tokens": 367,
+            "tokens": 374,
             "sources": 1,
             "clones": 1,
             "duplicatedLines": 14,
-            "duplicatedTokens": 100,
+            "duplicatedTokens": 104,
             "percentage": 28,
-            "percentageTokens": 27.25,
+            "percentageTokens": 27.81,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/planeacion/application/use-cases/aprobar-planeacion.use-case.ts": {
             "lines": 47,
-            "tokens": 346,
+            "tokens": 353,
             "sources": 1,
             "clones": 1,
             "duplicatedLines": 10,
-            "duplicatedTokens": 72,
+            "duplicatedTokens": 75,
             "percentage": 21.28,
-            "percentageTokens": 20.81,
+            "percentageTokens": 21.25,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/planeacion/application/dto/planeacion.dto.ts": {
-            "lines": 41,
-            "tokens": 362,
+            "lines": 51,
+            "tokens": 439,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2622,19 +2646,19 @@
           },
           "apps/api/src/modules/ordenes/infrastructure/persistence/prisma-orden.repository.ts": {
             "lines": 392,
-            "tokens": 3180,
+            "tokens": 3536,
             "sources": 1,
             "clones": 4,
             "duplicatedLines": 52,
-            "duplicatedTokens": 396,
+            "duplicatedTokens": 440,
             "percentage": 13.27,
-            "percentageTokens": 12.45,
+            "percentageTokens": 12.44,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/ordenes/infrastructure/mappers/orden.mapper.ts": {
             "lines": 96,
-            "tokens": 880,
+            "tokens": 976,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2669,8 +2693,8 @@
             "newClones": 0
           },
           "apps/api/src/modules/ordenes/infrastructure/controllers/ordenes.controller.ts": {
-            "lines": 266,
-            "tokens": 2012,
+            "lines": 281,
+            "tokens": 2384,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2706,7 +2730,7 @@
           },
           "apps/api/src/modules/ordenes/domain/value-objects/orden-estado.vo.ts": {
             "lines": 108,
-            "tokens": 723,
+            "tokens": 823,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2766,7 +2790,7 @@
           },
           "apps/api/src/modules/ordenes/domain/enums/order-sub-state.enum.ts": {
             "lines": 162,
-            "tokens": 1132,
+            "tokens": 1277,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2778,7 +2802,7 @@
           },
           "apps/api/src/modules/ordenes/domain/enums/order-state.enum.ts": {
             "lines": 13,
-            "tokens": 59,
+            "tokens": 68,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2825,8 +2849,20 @@
             "newClones": 0
           },
           "apps/api/src/modules/ordenes/application/use-cases/index.ts": {
-            "lines": 9,
-            "tokens": 80,
+            "lines": 10,
+            "tokens": 89,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/modules/ordenes/application/use-cases/get-ordenes-stats.use-case.ts": {
+            "lines": 54,
+            "tokens": 481,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2850,7 +2886,7 @@
           },
           "apps/api/src/modules/ordenes/application/use-cases/get-historial-estados.use-case.ts": {
             "lines": 157,
-            "tokens": 1299,
+            "tokens": 1452,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2922,7 +2958,7 @@
           },
           "apps/api/src/modules/ordenes/application/services/order-state.service.ts": {
             "lines": 358,
-            "tokens": 2534,
+            "tokens": 2875,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2946,7 +2982,7 @@
           },
           "apps/api/src/modules/ordenes/application/dto/update-orden.dto.ts": {
             "lines": 68,
-            "tokens": 430,
+            "tokens": 498,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2970,7 +3006,7 @@
           },
           "apps/api/src/modules/ordenes/application/dto/orden.dto.ts": {
             "lines": 196,
-            "tokens": 1445,
+            "tokens": 1637,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -2994,7 +3030,7 @@
           },
           "apps/api/src/modules/ordenes/application/dto/index.ts": {
             "lines": 25,
-            "tokens": 146,
+            "tokens": 171,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3031,6 +3067,42 @@
           "apps/api/src/modules/ordenes/application/dto/asignar-tecnico-orden.dto.ts": {
             "lines": 42,
             "tokens": 236,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/modules/mantenimientos/infrastructure/persistence/prisma-mantenimiento.repository.ts": {
+            "lines": 245,
+            "tokens": 2564,
+            "sources": 1,
+            "clones": 8,
+            "duplicatedLines": 88,
+            "duplicatedTokens": 730,
+            "percentage": 35.92,
+            "percentageTokens": 28.47,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/modules/mantenimientos/infrastructure/controllers/mantenimientos.controller.ts": {
+            "lines": 200,
+            "tokens": 1954,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/modules/mantenimientos/domain/repositories/mantenimiento.repository.interface.ts": {
+            "lines": 146,
+            "tokens": 911,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3162,13 +3234,13 @@
           },
           "apps/api/src/modules/kits/infrastructure/persistence/kit.repository.impl.ts": {
             "lines": 158,
-            "tokens": 1642,
+            "tokens": 1796,
             "sources": 1,
             "clones": 4,
             "duplicatedLines": 40,
-            "duplicatedTokens": 434,
+            "duplicatedTokens": 474,
             "percentage": 25.32,
-            "percentageTokens": 26.43,
+            "percentageTokens": 26.39,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -3474,7 +3546,7 @@
           },
           "apps/api/src/modules/kits/application/mappers/kit.mapper.ts": {
             "lines": 146,
-            "tokens": 1514,
+            "tokens": 1648,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -3536,11 +3608,11 @@
             "lines": 187,
             "tokens": 1517,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 21,
-            "duplicatedTokens": 139,
-            "percentage": 11.23,
-            "percentageTokens": 9.16,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -3702,7 +3774,7 @@
           },
           "apps/api/src/modules/hes/domain/services/hes-numero-generator.service.ts": {
             "lines": 35,
-            "tokens": 230,
+            "tokens": 261,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4830,7 +4902,7 @@
           },
           "apps/api/src/modules/evidencias/infrastructure/controllers/ordenes-evidencias.controller.ts": {
             "lines": 66,
-            "tokens": 510,
+            "tokens": 574,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -4938,7 +5010,7 @@
           },
           "apps/api/src/modules/evidencias/domain/services/file-validator.service.ts": {
             "lines": 209,
-            "tokens": 1636,
+            "tokens": 1839,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5010,13 +5082,13 @@
           },
           "apps/api/src/modules/evidencias/application/use-cases/upload-evidencia.use-case.ts": {
             "lines": 170,
-            "tokens": 1347,
+            "tokens": 1514,
             "sources": 1,
             "clones": 1,
-            "duplicatedLines": 14,
-            "duplicatedTokens": 59,
-            "percentage": 8.24,
-            "percentageTokens": 4.38,
+            "duplicatedLines": 13,
+            "duplicatedTokens": 72,
+            "percentage": 7.65,
+            "percentageTokens": 4.76,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -5070,25 +5142,25 @@
           },
           "apps/api/src/modules/evidencias/application/use-cases/generate-evidencia-download-token.use-case.ts": {
             "lines": 98,
-            "tokens": 693,
+            "tokens": 791,
             "sources": 1,
             "clones": 1,
             "duplicatedLines": 12,
-            "duplicatedTokens": 110,
+            "duplicatedTokens": 122,
             "percentage": 12.24,
-            "percentageTokens": 15.87,
+            "percentageTokens": 15.42,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/evidencias/application/use-cases/download-evidencia.use-case.ts": {
             "lines": 114,
-            "tokens": 770,
+            "tokens": 881,
             "sources": 1,
             "clones": 2,
-            "duplicatedLines": 26,
-            "duplicatedTokens": 169,
-            "percentage": 22.81,
-            "percentageTokens": 21.95,
+            "duplicatedLines": 25,
+            "duplicatedTokens": 194,
+            "percentage": 21.93,
+            "percentageTokens": 22.02,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -5142,7 +5214,7 @@
           },
           "apps/api/src/modules/evidencias/application/dto/evidencia.dto.ts": {
             "lines": 107,
-            "tokens": 837,
+            "tokens": 941,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5166,7 +5238,7 @@
           },
           "apps/api/src/modules/ejecucion/infrastructure/controllers/ejecucion.controller.ts": {
             "lines": 107,
-            "tokens": 866,
+            "tokens": 970,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5430,7 +5502,7 @@
           },
           "apps/api/src/modules/ejecucion/application/dto/ejecucion.dto.ts": {
             "lines": 57,
-            "tokens": 529,
+            "tokens": 583,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5453,8 +5525,8 @@
             "newClones": 0
           },
           "apps/api/src/modules/dashboard/infrastructure/controllers/dashboard.controller.ts": {
-            "lines": 529,
-            "tokens": 3596,
+            "lines": 547,
+            "tokens": 4189,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5622,19 +5694,19 @@
           },
           "apps/api/src/modules/costos/infrastructure/controllers/costos.controller.ts": {
             "lines": 84,
-            "tokens": 774,
+            "tokens": 856,
             "sources": 1,
             "clones": 2,
             "duplicatedLines": 25,
-            "duplicatedTokens": 161,
+            "duplicatedTokens": 186,
             "percentage": 29.76,
-            "percentageTokens": 20.8,
+            "percentageTokens": 21.73,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/costos/domain/value-objects/money.vo.ts": {
             "lines": 353,
-            "tokens": 2781,
+            "tokens": 3114,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5742,13 +5814,13 @@
           },
           "apps/api/src/modules/costos/domain/services/cost-calculator.service.ts": {
             "lines": 219,
-            "tokens": 1789,
+            "tokens": 1983,
             "sources": 1,
-            "clones": 0,
-            "duplicatedLines": 0,
-            "duplicatedTokens": 0,
-            "percentage": 0,
-            "percentageTokens": 0,
+            "clones": 4,
+            "duplicatedLines": 46,
+            "duplicatedTokens": 220,
+            "percentage": 21,
+            "percentageTokens": 11.09,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -5898,7 +5970,7 @@
           },
           "apps/api/src/modules/costos/domain/entities/costo.entity.ts": {
             "lines": 418,
-            "tokens": 2819,
+            "tokens": 3206,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5946,7 +6018,7 @@
           },
           "apps/api/src/modules/costos/application/dto/costo.dto.ts": {
             "lines": 69,
-            "tokens": 579,
+            "tokens": 646,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -5982,13 +6054,13 @@
           },
           "apps/api/src/modules/cierre-administrativo/infrastructure/controllers/cierre-administrativo.controller.ts": {
             "lines": 86,
-            "tokens": 799,
+            "tokens": 883,
             "sources": 1,
             "clones": 1,
             "duplicatedLines": 15,
-            "duplicatedTokens": 92,
+            "duplicatedTokens": 107,
             "percentage": 17.44,
-            "percentageTokens": 11.51,
+            "percentageTokens": 12.12,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -6198,7 +6270,7 @@
           },
           "apps/api/src/modules/cierre-administrativo/application/dto/cierre.dto.ts": {
             "lines": 57,
-            "tokens": 474,
+            "tokens": 529,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6236,11 +6308,11 @@
             "lines": 213,
             "tokens": 1892,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 22,
-            "duplicatedTokens": 122,
-            "percentage": 10.33,
-            "percentageTokens": 6.45,
+            "clones": 1,
+            "duplicatedLines": 12,
+            "duplicatedTokens": 50,
+            "percentage": 5.63,
+            "percentageTokens": 2.64,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -6608,11 +6680,11 @@
             "lines": 101,
             "tokens": 528,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 24,
-            "duplicatedTokens": 116,
-            "percentage": 23.76,
-            "percentageTokens": 21.97,
+            "clones": 1,
+            "duplicatedLines": 10,
+            "duplicatedTokens": 52,
+            "percentage": 9.9,
+            "percentageTokens": 9.85,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -6690,7 +6762,7 @@
           },
           "apps/api/src/modules/auth/infrastructure/persistence/prisma-auth.repository.ts": {
             "lines": 254,
-            "tokens": 2239,
+            "tokens": 2493,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6726,7 +6798,7 @@
           },
           "apps/api/src/modules/auth/infrastructure/controllers/password-reset.controller.ts": {
             "lines": 151,
-            "tokens": 1099,
+            "tokens": 1237,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6738,19 +6810,19 @@
           },
           "apps/api/src/modules/auth/infrastructure/controllers/auth.controller.ts": {
             "lines": 283,
-            "tokens": 2288,
+            "tokens": 2567,
             "sources": 1,
             "clones": 2,
             "duplicatedLines": 24,
-            "duplicatedTokens": 250,
+            "duplicatedTokens": 274,
             "percentage": 8.48,
-            "percentageTokens": 10.93,
+            "percentageTokens": 10.67,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/auth/infrastructure/controllers/auth-2fa.controller.ts": {
             "lines": 204,
-            "tokens": 1440,
+            "tokens": 1628,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6774,7 +6846,7 @@
           },
           "apps/api/src/modules/auth/domain/value-objects/jwt-token.vo.ts": {
             "lines": 93,
-            "tokens": 730,
+            "tokens": 819,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6858,7 +6930,7 @@
           },
           "apps/api/src/modules/auth/domain/entities/auth-user.entity.ts": {
             "lines": 95,
-            "tokens": 670,
+            "tokens": 754,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6906,7 +6978,7 @@
           },
           "apps/api/src/modules/auth/application/use-cases/toggle-2fa.use-case.ts": {
             "lines": 77,
-            "tokens": 561,
+            "tokens": 638,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6942,7 +7014,7 @@
           },
           "apps/api/src/modules/auth/application/use-cases/register.use-case.ts": {
             "lines": 123,
-            "tokens": 962,
+            "tokens": 1085,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -6978,7 +7050,7 @@
           },
           "apps/api/src/modules/auth/application/use-cases/login.use-case.ts": {
             "lines": 252,
-            "tokens": 1996,
+            "tokens": 2248,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7014,7 +7086,7 @@
           },
           "apps/api/src/modules/auth/application/use-cases/base-auth.use-case.ts": {
             "lines": 55,
-            "tokens": 456,
+            "tokens": 511,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -7661,14 +7733,14 @@
             "newClones": 0
           },
           "apps/api/src/modules/admin/infrastructure/controllers/admin.controller.ts": {
-            "lines": 274,
-            "tokens": 2182,
+            "lines": 306,
+            "tokens": 2815,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 11,
-            "duplicatedTokens": 67,
-            "percentage": 4.01,
-            "percentageTokens": 3.07,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -7820,11 +7892,11 @@
             "lines": 101,
             "tokens": 673,
             "sources": 1,
-            "clones": 3,
-            "duplicatedLines": 43,
-            "duplicatedTokens": 247,
-            "percentage": 42.57,
-            "percentageTokens": 36.7,
+            "clones": 2,
+            "duplicatedLines": 29,
+            "duplicatedTokens": 182,
+            "percentage": 28.71,
+            "percentageTokens": 27.04,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -7892,23 +7964,23 @@
             "lines": 72,
             "tokens": 487,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 15,
-            "duplicatedTokens": 95,
-            "percentage": 20.83,
-            "percentageTokens": 19.51,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/admin/application/use-cases/change-user-role.use-case.ts": {
             "lines": 97,
-            "tokens": 639,
+            "tokens": 728,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 29,
-            "duplicatedTokens": 160,
-            "percentage": 29.9,
-            "percentageTokens": 25.04,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -7976,11 +8048,11 @@
             "lines": 153,
             "tokens": 809,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 25,
-            "duplicatedTokens": 134,
-            "percentage": 16.34,
-            "percentageTokens": 16.56,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -7998,7 +8070,7 @@
           },
           "apps/api/src/modules/admin/application/dto/update-user.dto.ts": {
             "lines": 61,
-            "tokens": 354,
+            "tokens": 407,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8010,7 +8082,7 @@
           },
           "apps/api/src/modules/admin/application/dto/toggle-active.dto.ts": {
             "lines": 44,
-            "tokens": 272,
+            "tokens": 308,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8022,7 +8094,7 @@
           },
           "apps/api/src/modules/admin/application/dto/index.ts": {
             "lines": 13,
-            "tokens": 65,
+            "tokens": 74,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8034,19 +8106,19 @@
           },
           "apps/api/src/modules/admin/application/dto/create-user.dto.ts": {
             "lines": 96,
-            "tokens": 584,
+            "tokens": 672,
             "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 25,
-            "duplicatedTokens": 134,
-            "percentage": 26.04,
-            "percentageTokens": 22.95,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
           "apps/api/src/modules/admin/application/dto/change-role.dto.ts": {
             "lines": 35,
-            "tokens": 179,
+            "tokens": 206,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8058,7 +8130,7 @@
           },
           "apps/api/src/modules/admin/application/dto/change-password.dto.ts": {
             "lines": 36,
-            "tokens": 164,
+            "tokens": 192,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8070,7 +8142,7 @@
           },
           "apps/api/src/modules/weather/dto/weather.dto.ts": {
             "lines": 107,
-            "tokens": 670,
+            "tokens": 777,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8106,7 +8178,7 @@
           },
           "apps/api/src/modules/sync/dto/offline-checklist.dto.ts": {
             "lines": 232,
-            "tokens": 1530,
+            "tokens": 1757,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8130,7 +8202,7 @@
           },
           "apps/api/src/modules/ordenes/dto/update-orden.dto.ts": {
             "lines": 31,
-            "tokens": 253,
+            "tokens": 284,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8142,7 +8214,7 @@
           },
           "apps/api/src/modules/ordenes/dto/response-orden.dto.ts": {
             "lines": 79,
-            "tokens": 528,
+            "tokens": 607,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8154,7 +8226,7 @@
           },
           "apps/api/src/modules/ordenes/dto/query-orden.dto.ts": {
             "lines": 110,
-            "tokens": 679,
+            "tokens": 789,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8166,7 +8238,7 @@
           },
           "apps/api/src/modules/ordenes/dto/create-orden.dto.ts": {
             "lines": 131,
-            "tokens": 872,
+            "tokens": 1003,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8178,7 +8250,7 @@
           },
           "apps/api/src/modules/ordenes/domain/orden-state-machine.ts": {
             "lines": 75,
-            "tokens": 512,
+            "tokens": 579,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8236,15 +8308,75 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "apps/api/src/modules/mantenimientos/dto/update-mantenimiento.dto.ts": {
+            "lines": 108,
+            "tokens": 716,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 11,
+            "duplicatedTokens": 57,
+            "percentage": 10.19,
+            "percentageTokens": 7.96,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/modules/mantenimientos/dto/query-mantenimientos.dto.ts": {
+            "lines": 121,
+            "tokens": 868,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/modules/mantenimientos/dto/programar-mantenimiento.dto.ts": {
+            "lines": 33,
+            "tokens": 207,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/modules/mantenimientos/dto/ejecutar-mantenimiento.dto.ts": {
+            "lines": 119,
+            "tokens": 807,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/modules/mantenimientos/dto/create-mantenimiento.dto.ts": {
+            "lines": 115,
+            "tokens": 768,
+            "sources": 1,
+            "clones": 1,
+            "duplicatedLines": 11,
+            "duplicatedTokens": 57,
+            "percentage": 9.57,
+            "percentageTokens": 7.42,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "apps/api/src/modules/kits/dto/kit.dto.ts": {
             "lines": 126,
-            "tokens": 875,
+            "tokens": 997,
             "sources": 1,
             "clones": 2,
             "duplicatedLines": 30,
-            "duplicatedTokens": 204,
+            "duplicatedTokens": 234,
             "percentage": 23.81,
-            "percentageTokens": 23.31,
+            "percentageTokens": 23.47,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -8298,7 +8430,7 @@
           },
           "apps/api/src/modules/dashboard/dto/kpi-response.dto.ts": {
             "lines": 273,
-            "tokens": 1929,
+            "tokens": 2197,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8382,7 +8514,7 @@
           },
           "apps/api/src/modules/auth/dto/two-factor.dto.ts": {
             "lines": 47,
-            "tokens": 347,
+            "tokens": 394,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8394,7 +8526,7 @@
           },
           "apps/api/src/modules/auth/dto/register.dto.ts": {
             "lines": 52,
-            "tokens": 397,
+            "tokens": 449,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8406,7 +8538,7 @@
           },
           "apps/api/src/modules/auth/dto/password-reset.dto.ts": {
             "lines": 35,
-            "tokens": 237,
+            "tokens": 272,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8418,7 +8550,7 @@
           },
           "apps/api/src/modules/auth/dto/login.dto.ts": {
             "lines": 20,
-            "tokens": 130,
+            "tokens": 144,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8441,8 +8573,8 @@
             "newClones": 0
           },
           "apps/api/src/modules/admin/interfaces/permissions.interface.ts": {
-            "lines": 233,
-            "tokens": 1551,
+            "lines": 231,
+            "tokens": 1764,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8453,14 +8585,14 @@
             "newClones": 0
           },
           "apps/api/src/modules/admin/dto/admin.dto.ts": {
-            "lines": 228,
-            "tokens": 1421,
+            "lines": 226,
+            "tokens": 1642,
             "sources": 1,
-            "clones": 1,
-            "duplicatedLines": 14,
-            "duplicatedTokens": 64,
-            "percentage": 6.14,
-            "percentageTokens": 4.5,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -8538,7 +8670,7 @@
           },
           "apps/api/src/common/domain/exceptions/business-rule-violation.error.ts": {
             "lines": 26,
-            "tokens": 162,
+            "tokens": 183,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8574,7 +8706,7 @@
           },
           "apps/api/src/shared/value-objects/index.ts": {
             "lines": 137,
-            "tokens": 1136,
+            "tokens": 1273,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8593,18 +8725,6 @@
             "duplicatedTokens": 0,
             "percentage": 0,
             "percentageTokens": 0,
-            "newDuplicatedLines": 0,
-            "newClones": 0
-          },
-          "apps/api/src/shared/mappers/orden.mapper.ts": {
-            "lines": 132,
-            "tokens": 1004,
-            "sources": 1,
-            "clones": 2,
-            "duplicatedLines": 28,
-            "duplicatedTokens": 224,
-            "percentage": 21.21,
-            "percentageTokens": 22.31,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -8634,7 +8754,7 @@
           },
           "apps/api/src/shared/interceptors/http-error.interceptor.ts": {
             "lines": 74,
-            "tokens": 512,
+            "tokens": 586,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8670,7 +8790,7 @@
           },
           "apps/api/src/shared/base/base.service.ts": {
             "lines": 132,
-            "tokens": 1019,
+            "tokens": 1133,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8694,7 +8814,7 @@
           },
           "apps/api/src/modules/weather/weather.service.ts": {
             "lines": 567,
-            "tokens": 4326,
+            "tokens": 4879,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8718,7 +8838,7 @@
           },
           "apps/api/src/modules/weather/weather.controller.ts": {
             "lines": 222,
-            "tokens": 1794,
+            "tokens": 2016,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8778,7 +8898,7 @@
           },
           "apps/api/src/modules/sync/index.ts": {
             "lines": 37,
-            "tokens": 142,
+            "tokens": 175,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8849,8 +8969,8 @@
             "newClones": 0
           },
           "apps/api/src/modules/ordenes/ordenes.module.ts": {
-            "lines": 84,
-            "tokens": 385,
+            "lines": 86,
+            "tokens": 393,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -8884,6 +9004,30 @@
             "newDuplicatedLines": 0,
             "newClones": 0
           },
+          "apps/api/src/modules/mantenimientos/mantenimientos.module.ts": {
+            "lines": 39,
+            "tokens": 182,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/modules/mantenimientos/index.ts": {
+            "lines": 13,
+            "tokens": 34,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
           "apps/api/src/modules/kpis/kpis.module.ts": {
             "lines": 28,
             "tokens": 156,
@@ -8898,13 +9042,13 @@
           },
           "apps/api/src/modules/kits/kits.service.ts": {
             "lines": 571,
-            "tokens": 4780,
+            "tokens": 5320,
             "sources": 1,
             "clones": 2,
             "duplicatedLines": 20,
-            "duplicatedTokens": 142,
+            "duplicatedTokens": 162,
             "percentage": 3.5,
-            "percentageTokens": 2.97,
+            "percentageTokens": 3.05,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -8958,7 +9102,7 @@
           },
           "apps/api/src/modules/hes/hes.module.ts": {
             "lines": 99,
-            "tokens": 416,
+            "tokens": 511,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9078,7 +9222,7 @@
           },
           "apps/api/src/modules/dashboard/index.ts": {
             "lines": 41,
-            "tokens": 166,
+            "tokens": 203,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9090,7 +9234,7 @@
           },
           "apps/api/src/modules/dashboard/dashboard.service.ts": {
             "lines": 167,
-            "tokens": 1105,
+            "tokens": 1254,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9258,7 +9402,7 @@
           },
           "apps/api/src/modules/auth/auth.service.ts": {
             "lines": 332,
-            "tokens": 2361,
+            "tokens": 2660,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9366,7 +9510,7 @@
           },
           "apps/api/src/modules/admin/index.ts": {
             "lines": 36,
-            "tokens": 129,
+            "tokens": 161,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9378,13 +9522,13 @@
           },
           "apps/api/src/modules/admin/admin.service.ts": {
             "lines": 441,
-            "tokens": 3189,
+            "tokens": 3611,
             "sources": 1,
             "clones": 2,
             "duplicatedLines": 22,
-            "duplicatedTokens": 204,
+            "duplicatedTokens": 226,
             "percentage": 4.99,
-            "percentageTokens": 6.4,
+            "percentageTokens": 6.26,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -9426,13 +9570,13 @@
           },
           "apps/api/src/lib/logging/logger.service.ts": {
             "lines": 441,
-            "tokens": 3808,
+            "tokens": 4249,
             "sources": 1,
             "clones": 2,
             "duplicatedLines": 28,
-            "duplicatedTokens": 228,
+            "duplicatedTokens": 256,
             "percentage": 6.35,
-            "percentageTokens": 5.99,
+            "percentageTokens": 6.02,
             "newDuplicatedLines": 0,
             "newClones": 0
           },
@@ -9606,7 +9750,7 @@
           },
           "apps/api/src/common/pipes/parse-int.pipe.ts": {
             "lines": 147,
-            "tokens": 965,
+            "tokens": 1093,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9834,7 +9978,7 @@
           },
           "apps/api/src/common/errors/domain-error.base.ts": {
             "lines": 185,
-            "tokens": 1146,
+            "tokens": 1301,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9847,6 +9991,30 @@
           "apps/api/src/common/errors/application-error.base.ts": {
             "lines": 231,
             "tokens": 1590,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/enums/user-role.enum.ts": {
+            "lines": 25,
+            "tokens": 182,
+            "sources": 1,
+            "clones": 0,
+            "duplicatedLines": 0,
+            "duplicatedTokens": 0,
+            "percentage": 0,
+            "percentageTokens": 0,
+            "newDuplicatedLines": 0,
+            "newClones": 0
+          },
+          "apps/api/src/common/enums/orden-estado.enum.ts": {
+            "lines": 39,
+            "tokens": 254,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9905,8 +10073,8 @@
             "newClones": 0
           },
           "apps/api/src/common/decorators/roles.decorator.ts": {
-            "lines": 33,
-            "tokens": 161,
+            "lines": 26,
+            "tokens": 143,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -9954,7 +10122,7 @@
           },
           "apps/api/src/common/config/security.config.ts": {
             "lines": 133,
-            "tokens": 820,
+            "tokens": 930,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10050,7 +10218,7 @@
           },
           "apps/api/src/common/index.ts": {
             "lines": 162,
-            "tokens": 649,
+            "tokens": 658,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10062,7 +10230,7 @@
           },
           "apps/api/src/main.ts": {
             "lines": 83,
-            "tokens": 633,
+            "tokens": 716,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10086,7 +10254,7 @@
           },
           "apps/api/src/app.module.ts": {
             "lines": 200,
-            "tokens": 1185,
+            "tokens": 1388,
             "sources": 1,
             "clones": 0,
             "duplicatedLines": 0,
@@ -10098,28 +10266,28 @@
           }
         },
         "total": {
-          "lines": 82593,
-          "tokens": 596238,
-          "sources": 841,
+          "lines": 83936,
+          "tokens": 619550,
+          "sources": 855,
           "clones": 107,
-          "duplicatedLines": 1272,
-          "duplicatedTokens": 8413,
-          "percentage": 1.54,
-          "percentageTokens": 1.41,
+          "duplicatedLines": 1258,
+          "duplicatedTokens": 8552,
+          "percentage": 1.5,
+          "percentageTokens": 1.38,
           "newDuplicatedLines": 0,
           "newClones": 0
         }
       }
     },
     "total": {
-      "lines": 82593,
-      "tokens": 596238,
-      "sources": 841,
+      "lines": 83936,
+      "tokens": 619550,
+      "sources": 855,
       "clones": 107,
-      "duplicatedLines": 1272,
-      "duplicatedTokens": 8413,
-      "percentage": 1.54,
-      "percentageTokens": 1.41,
+      "duplicatedLines": 1258,
+      "duplicatedTokens": 8552,
+      "percentage": 1.5,
+      "percentageTokens": 1.38,
       "newDuplicatedLines": 0,
       "newClones": 0
     }
@@ -10199,8 +10367,44 @@
     },
     {
       "format": "typescript",
+      "lines": 13,
+      "fragment": ", {\r\n        ...context,\r\n        error: err.message,\r\n        stack: err.stack,\r\n      });\r\n      throw error;\r\n    }\r\n  }\r\n\r\n  /**\r\n   * ✅ APROBAR PLANEACIÓN\r\n   * PUT /planeacion/:id/aprobar\r\n   */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\modules\\planeacion\\infrastructure\\controllers\\planeacion.controller.ts",
+        "start": 230,
+        "end": 242,
+        "startLoc": {
+          "line": 230,
+          "column": 40,
+          "position": 1680
+        },
+        "endLoc": {
+          "line": 242,
+          "column": 6,
+          "position": 1735
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\modules\\planeacion\\infrastructure\\controllers\\planeacion.controller.ts",
+        "start": 117,
+        "end": 129,
+        "startLoc": {
+          "line": 117,
+          "column": 30,
+          "position": 766
+        },
+        "endLoc": {
+          "line": 129,
+          "column": 6,
+          "position": 821
+        }
+      }
+    },
+    {
+      "format": "typescript",
       "lines": 15,
-      "fragment": ",\n      data: {\n        id: planeacion.id,\n        ordenId: planeacion.ordenId,\n        estado: planeacion.estado,\n        cronograma: planeacion.cronograma,\n        manoDeObra: planeacion.manoDeObra,\n        observaciones: planeacion.observaciones,\n        createdAt: planeacion.createdAt.toISOString(),\n        updatedAt: planeacion.updatedAt.toISOString(),\n      },\n    };\n  }\n}\n",
+      "fragment": ",\n      data: {\n        id: planeacion.id,\n        ordenId: planeacion.ordenId,\n        estado: planeacion.estado as EstadoPlaneacion,\n        cronograma: planeacion.cronograma,\n        manoDeObra: planeacion.manoDeObra,\n        observaciones: planeacion.observaciones,\n        createdAt: planeacion.createdAt.toISOString(),\n        updatedAt: planeacion.updatedAt.toISOString(),\n      },\n    };\n  }\n}\n",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\planeacion\\application\\use-cases\\create-or-update-planeacion.use-case.ts",
@@ -10209,12 +10413,12 @@
         "startLoc": {
           "line": 37,
           "column": 22,
-          "position": 267
+          "position": 270
         },
         "endLoc": {
           "line": 51,
           "column": 1,
-          "position": 367
+          "position": 374
         }
       },
       "secondFile": {
@@ -10224,19 +10428,19 @@
         "startLoc": {
           "line": 32,
           "column": 23,
-          "position": 223
+          "position": 226
         },
         "endLoc": {
           "line": 46,
           "column": 1,
-          "position": 323
+          "position": 330
         }
       }
     },
     {
       "format": "typescript",
       "lines": 11,
-      "fragment": "\nimport { Injectable, Inject } from \"@nestjs/common\";\nimport { EventEmitter2 } from \"@nestjs/event-emitter\";\nimport {\n  PLANEACION_REPOSITORY,\n  IPlaneacionRepository,\n} from \"../../domain/repositories\";\nimport { PlaneacionResponse } from \"../dto\";\n\n@Injectable()\nexport class AprobarPlaneacionUseCase",
+      "fragment": "\nimport { Injectable, Inject } from \"@nestjs/common\";\nimport { EventEmitter2 } from \"@nestjs/event-emitter\";\nimport {\n  PLANEACION_REPOSITORY,\n  IPlaneacionRepository,\n} from \"../../domain/repositories\";\nimport { PlaneacionResponse, EstadoPlaneacion } from \"../dto\";\n\n@Injectable()\nexport class AprobarPlaneacionUseCase",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\planeacion\\application\\use-cases\\aprobar-planeacion.use-case.ts",
@@ -10250,7 +10454,7 @@
         "endLoc": {
           "line": 13,
           "column": 25,
-          "position": 73
+          "position": 76
         }
       },
       "secondFile": {
@@ -10265,7 +10469,7 @@
         "endLoc": {
           "line": 13,
           "column": 26,
-          "position": 73
+          "position": 76
         }
       }
     },
@@ -10344,7 +10548,7 @@
     {
       "format": "typescript",
       "lines": 15,
-      "fragment": ", deletedAt: null },\n      include: {\n        creador: { select: { id: true, name: true } },\n        asignado: { select: { id: true, name: true } },\n      },\n    });\n\n    if (!order) return null;\n\n    return this.toDomainEntity(order);\n  }\n\n  /**\n   * Crea una nueva orden\n   */",
+      "fragment": ", deletedAt: null },\r\n      include: {\r\n        creador: { select: { id: true, name: true } },\r\n        asignado: { select: { id: true, name: true } },\r\n      },\r\n    });\r\n\r\n    if (!order) return null;\r\n\r\n    return this.toDomainEntity(order);\r\n  }\r\n\r\n  /**\r\n   * Crea una nueva orden\r\n   */",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\ordenes\\infrastructure\\persistence\\prisma-orden.repository.ts",
@@ -10353,12 +10557,12 @@
         "startLoc": {
           "line": 168,
           "column": 7,
-          "position": 1349
+          "position": 1499
         },
         "endLoc": {
           "line": 182,
           "column": 6,
-          "position": 1459
+          "position": 1621
         }
       },
       "secondFile": {
@@ -10368,19 +10572,19 @@
         "startLoc": {
           "line": 151,
           "column": 3,
-          "position": 1188
+          "position": 1323
         },
         "endLoc": {
           "line": 165,
           "column": 6,
-          "position": 1298
+          "position": 1445
         }
       }
     },
     {
       "format": "typescript",
       "lines": 13,
-      "fragment": ",\n      include: {\n        creador: { select: { id: true, name: true } },\n        asignado: { select: { id: true, name: true } },\n      },\n    });\n\n    return this.toDomainEntity(updated);\n  }\n\n  /**\n   * Elimina una orden\n   */",
+      "fragment": ",\r\n      include: {\r\n        creador: { select: { id: true, name: true } },\r\n        asignado: { select: { id: true, name: true } },\r\n      },\r\n    });\r\n\r\n    return this.toDomainEntity(updated);\r\n  }\r\n\r\n  /**\r\n   * Elimina una orden\r\n   */",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\ordenes\\infrastructure\\persistence\\prisma-orden.repository.ts",
@@ -10389,12 +10593,12 @@
         "startLoc": {
           "line": 251,
           "column": 11,
-          "position": 2098
+          "position": 2325
         },
         "endLoc": {
           "line": 263,
           "column": 6,
-          "position": 2186
+          "position": 2423
         }
       },
       "secondFile": {
@@ -10404,12 +10608,156 @@
         "startLoc": {
           "line": 151,
           "column": 2,
-          "position": 1196
+          "position": 1331
         },
         "endLoc": {
           "line": 234,
           "column": 6,
-          "position": 1930
+          "position": 2140
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 15,
+      "fragment": "},\r\n        estado: {\r\n          in: [EstadoMantenimiento.programado, EstadoMantenimiento.pendiente],\r\n        },\r\n      },\r\n      include: {\r\n        tecnico: {\r\n          select: { id: true, email: true, nombre: true, apellido: true },\r\n        },\r\n      },\r\n      orderBy: { fechaProgramada: \"asc\" },\r\n    });\r\n  }\r\n\r\n  async create",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\modules\\mantenimientos\\infrastructure\\persistence\\prisma-mantenimiento.repository.ts",
+        "start": 125,
+        "end": 139,
+        "startLoc": {
+          "line": 125,
+          "column": 2,
+          "position": 1144
+        },
+        "endLoc": {
+          "line": 139,
+          "column": 7,
+          "position": 1269
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\modules\\mantenimientos\\infrastructure\\persistence\\prisma-mantenimiento.repository.ts",
+        "start": 106,
+        "end": 120,
+        "startLoc": {
+          "line": 106,
+          "column": 9,
+          "position": 955
+        },
+        "endLoc": {
+          "line": 120,
+          "column": 13,
+          "position": 1080
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 11,
+      "fragment": ",\r\n      },\r\n      include: {\r\n        tecnico: {\r\n          select: { id: true, email: true, nombre: true, apellido: true },\r\n        },\r\n      },\r\n    });\r\n  }\r\n\r\n  async ejecutar",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\modules\\mantenimientos\\infrastructure\\persistence\\prisma-mantenimiento.repository.ts",
+        "start": 178,
+        "end": 188,
+        "startLoc": {
+          "line": 178,
+          "column": 2,
+          "position": 1840
+        },
+        "endLoc": {
+          "line": 188,
+          "column": 9,
+          "position": 1920
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\modules\\mantenimientos\\infrastructure\\persistence\\prisma-mantenimiento.repository.ts",
+        "start": 109,
+        "end": 164,
+        "startLoc": {
+          "line": 109,
+          "column": 2,
+          "position": 985
+        },
+        "endLoc": {
+          "line": 164,
+          "column": 7,
+          "position": 1526
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 11,
+      "fragment": ",\r\n      },\r\n      include: {\r\n        tecnico: {\r\n          select: { id: true, email: true, nombre: true, apellido: true },\r\n        },\r\n      },\r\n    });\r\n  }\r\n\r\n  async programar",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\modules\\mantenimientos\\infrastructure\\persistence\\prisma-mantenimiento.repository.ts",
+        "start": 205,
+        "end": 215,
+        "startLoc": {
+          "line": 205,
+          "column": 2,
+          "position": 2157
+        },
+        "endLoc": {
+          "line": 215,
+          "column": 10,
+          "position": 2237
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\modules\\mantenimientos\\infrastructure\\persistence\\prisma-mantenimiento.repository.ts",
+        "start": 109,
+        "end": 164,
+        "startLoc": {
+          "line": 109,
+          "column": 2,
+          "position": 985
+        },
+        "endLoc": {
+          "line": 164,
+          "column": 7,
+          "position": 1526
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 11,
+      "fragment": ",\r\n      },\r\n      include: {\r\n        tecnico: {\r\n          select: { id: true, email: true, nombre: true, apellido: true },\r\n        },\r\n      },\r\n    });\r\n  }\r\n\r\n  async delete",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\modules\\mantenimientos\\infrastructure\\persistence\\prisma-mantenimiento.repository.ts",
+        "start": 227,
+        "end": 237,
+        "startLoc": {
+          "line": 227,
+          "column": 11,
+          "position": 2364
+        },
+        "endLoc": {
+          "line": 237,
+          "column": 7,
+          "position": 2444
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\modules\\mantenimientos\\infrastructure\\persistence\\prisma-mantenimiento.repository.ts",
+        "start": 109,
+        "end": 164,
+        "startLoc": {
+          "line": 109,
+          "column": 2,
+          "position": 985
+        },
+        "endLoc": {
+          "line": 164,
+          "column": 7,
+          "position": 1526
         }
       }
     },
@@ -10488,7 +10836,7 @@
     {
       "format": "typescript",
       "lines": 11,
-      "fragment": "\n        nombre: data[\"nombre\"] as string,\n        descripcion: (data[\"descripcion\"] as string | undefined) ?? \"\",\n        herramientas: data[\"herramientas\"] as object,\n        equipos: data[\"equipos\"] as object,\n        documentos: data[\"documentos\"] as string[],\n        checklistItems: data[\"checklistItems\"] as string[],\n        duracionEstimadaHoras: data[\"duracionEstimadaHoras\"] as number,\n        costoEstimado: data[\"costoEstimado\"] as number,\n        activo: data[\"activo\"] as boolean,\n        ",
+      "fragment": "\r\n        nombre: data[\"nombre\"] as string,\r\n        descripcion: (data[\"descripcion\"] as string | undefined) ?? \"\",\r\n        herramientas: data[\"herramientas\"] as object,\r\n        equipos: data[\"equipos\"] as object,\r\n        documentos: data[\"documentos\"] as string[],\r\n        checklistItems: data[\"checklistItems\"] as string[],\r\n        duracionEstimadaHoras: data[\"duracionEstimadaHoras\"] as number,\r\n        costoEstimado: data[\"costoEstimado\"] as number,\r\n        activo: data[\"activo\"] as boolean,\r\n        ",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\kits\\infrastructure\\persistence\\kit.repository.impl.ts",
@@ -10497,12 +10845,12 @@
         "startLoc": {
           "line": 38,
           "column": 2,
-          "position": 409
+          "position": 442
         },
         "endLoc": {
           "line": 48,
           "column": 9,
-          "position": 551
+          "position": 594
         }
       },
       "secondFile": {
@@ -10512,19 +10860,19 @@
         "startLoc": {
           "line": 27,
           "column": 2,
-          "position": 258
+          "position": 280
         },
         "endLoc": {
           "line": 37,
           "column": 7,
-          "position": 400
+          "position": 432
         }
       }
     },
     {
       "format": "typescript",
       "lines": 11,
-      "fragment": " },\n      },\n      orderBy: { createdAt: \"desc\" },\n    });\n\n    return kits.map((k) =>\n      KitMapper.fromPrisma(k as unknown as Record<string, unknown>),\n    );\n  }\n\n  async existsByCodigo",
+      "fragment": " },\r\n      },\r\n      orderBy: { createdAt: \"desc\" },\r\n    });\r\n\r\n    return kits.map((k) =>\r\n      KitMapper.fromPrisma(k as unknown as Record<string, unknown>),\r\n    );\r\n  }\r\n\r\n  async existsByCodigo",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\kits\\infrastructure\\persistence\\kit.repository.impl.ts",
@@ -10533,12 +10881,12 @@
         "startLoc": {
           "line": 120,
           "column": 2,
-          "position": 1289
+          "position": 1404
         },
         "endLoc": {
           "line": 130,
           "column": 15,
-          "position": 1364
+          "position": 1489
         }
       },
       "secondFile": {
@@ -10548,12 +10896,12 @@
         "startLoc": {
           "line": 81,
           "column": 2,
-          "position": 895
+          "position": 971
         },
         "endLoc": {
           "line": 91,
           "column": 14,
-          "position": 970
+          "position": 1056
         }
       }
     },
@@ -11027,22 +11375,22 @@
     },
     {
       "format": "typescript",
-      "lines": 15,
-      "fragment": ";\nimport {\n  IEvidenciaRepository,\n  EVIDENCIA_REPOSITORY,\n} from \"../../domain/repositories\";\nimport {\n  IStorageProvider,\n  STORAGE_PROVIDER,\n} from \"../../infrastructure/storage/storage-provider.interface\";\nimport {\n  ORDEN_REPOSITORY,\n  IOrdenRepository,\n} from \"../../../ordenes/domain/repositories\";\n\n",
+      "lines": 14,
+      "fragment": ";\r\nimport {\r\n  IEvidenciaRepository,\r\n  EVIDENCIA_REPOSITORY,\r\n} from \"../../domain/repositories\";\r\nimport {\r\n  IStorageProvider,\r\n  STORAGE_PROVIDER,\r\n} from \"../../infrastructure/storage/storage-provider.interface\";\r\nimport {\r\n  ORDEN_REPOSITORY,\r\n  IOrdenRepository,\r\n} from \"../../../ordenes/domain/repositories\";\r\n\r",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\evidencias\\application\\use-cases\\download-evidencia.use-case.ts",
         "start": 13,
-        "end": 27,
+        "end": 26,
         "startLoc": {
           "line": 13,
           "column": 17,
-          "position": 36
+          "position": 45
         },
         "endLoc": {
-          "line": 27,
-          "column": 1,
-          "position": 95
+          "line": 26,
+          "column": 2,
+          "position": 117
         }
       },
       "secondFile": {
@@ -11052,19 +11400,19 @@
         "startLoc": {
           "line": 16,
           "column": 24,
-          "position": 84
+          "position": 96
         },
         "endLoc": {
           "line": 29,
           "column": 7,
-          "position": 143
+          "position": 168
         }
       }
     },
     {
       "format": "typescript",
       "lines": 13,
-      "fragment": "\n    const role = requesterRole?.toLowerCase();\n    const isPrivileged = role === \"admin\" || role === \"supervisor\";\n    const canAccess =\n      isPrivileged ||\n      evidencia.uploadedBy === requestedBy ||\n      orden.creadorId === requestedBy ||\n      orden.asignadoId === requestedBy;\n    if (!canAccess) {\n      throw new ForbiddenException(\"No autorizado\");\n    }\n\n    const storagePath",
+      "fragment": "\r\n    const role = requesterRole?.toLowerCase();\r\n    const isPrivileged = role === \"admin\" || role === \"supervisor\";\r\n    const canAccess =\r\n      isPrivileged ||\r\n      evidencia.uploadedBy === requestedBy ||\r\n      orden.creadorId === requestedBy ||\r\n      orden.asignadoId === requestedBy;\r\n    if (!canAccess) {\r\n      throw new ForbiddenException(\"No autorizado\");\r\n    }\r\n\r\n    const storagePath",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\evidencias\\application\\use-cases\\download-evidencia.use-case.ts",
@@ -11073,12 +11421,12 @@
         "startLoc": {
           "line": 77,
           "column": 98,
-          "position": 447
+          "position": 520
         },
         "endLoc": {
           "line": 89,
           "column": 12,
-          "position": 557
+          "position": 642
         }
       },
       "secondFile": {
@@ -11088,12 +11436,12 @@
         "startLoc": {
           "line": 60,
           "column": 1,
-          "position": 406
+          "position": 465
         },
         "endLoc": {
           "line": 72,
           "column": 17,
-          "position": 516
+          "position": 587
         }
       }
     },
@@ -11388,7 +11736,7 @@
     {
       "format": "typescript",
       "lines": 11,
-      "fragment": ",\n  ApiOperation,\n  ApiParam,\n  ApiResponse,\n  ApiTags,\n} from \"@nestjs/swagger\";\nimport { JwtAuthGuard } from \"../../../auth/guards/jwt-auth.guard\";\nimport { RolesGuard } from \"../../../auth/guards/roles.guard\";\nimport { Roles } from \"../../../auth/decorators/roles.decorator\";\nimport {\n  ListCostosUseCase",
+      "fragment": ",\r\n  ApiOperation,\r\n  ApiParam,\r\n  ApiResponse,\r\n  ApiTags,\r\n} from \"@nestjs/swagger\";\r\nimport { JwtAuthGuard } from \"../../../auth/guards/jwt-auth.guard\";\r\nimport { RolesGuard } from \"../../../auth/guards/roles.guard\";\r\nimport { Roles } from \"../../../auth/decorators/roles.decorator\";\r\nimport {\r\n  ListCostosUseCase",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\costos\\infrastructure\\controllers\\costos.controller.ts",
@@ -11397,12 +11745,12 @@
         "startLoc": {
           "line": 17,
           "column": 8,
-          "position": 59
+          "position": 73
         },
         "endLoc": {
           "line": 27,
           "column": 18,
-          "position": 128
+          "position": 152
         }
       },
       "secondFile": {
@@ -11412,12 +11760,12 @@
         "startLoc": {
           "line": 13,
           "column": 14,
-          "position": 43
+          "position": 53
         },
         "endLoc": {
           "line": 23,
           "column": 30,
-          "position": 112
+          "position": 132
         }
       }
     },
@@ -11526,6 +11874,78 @@
           "line": 18,
           "column": 13,
           "position": 75
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 11,
+      "fragment": ") && !costo.isDeleted()) {\r\n        total = total.add(costo.getAmount());\r\n      }\r\n    }\r\n\r\n    return total;\r\n  }\r\n\r\n  /**\r\n   * Calcular total general de costos\r\n   */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\modules\\costos\\domain\\services\\cost-calculator.service.ts",
+        "start": 62,
+        "end": 72,
+        "startLoc": {
+          "line": 62,
+          "column": 9,
+          "position": 496
+        },
+        "endLoc": {
+          "line": 72,
+          "column": 6,
+          "position": 553
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\modules\\costos\\domain\\services\\cost-calculator.service.ts",
+        "start": 39,
+        "end": 49,
+        "startLoc": {
+          "line": 39,
+          "column": 5,
+          "position": 297
+        },
+        "endLoc": {
+          "line": 49,
+          "column": 6,
+          "position": 354
+        }
+      }
+    },
+    {
+      "format": "typescript",
+      "lines": 14,
+      "fragment": "!costo.isDeleted()) {\r\n        total = total.add(costo.getAmount());\r\n      }\r\n    }\r\n\r\n    return total;\r\n  }\r\n\r\n  /**\r\n   * Calcular margen de rentabilidad\r\n   * @param revenue - Ingresos\r\n   * @param costs - Costos totales\r\n   * @returns Margen como porcentaje (0-100)\r\n   */",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\modules\\costos\\domain\\services\\cost-calculator.service.ts",
+        "start": 82,
+        "end": 95,
+        "startLoc": {
+          "line": 82,
+          "column": 2,
+          "position": 671
+        },
+        "endLoc": {
+          "line": 95,
+          "column": 6,
+          "position": 724
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\modules\\costos\\domain\\services\\cost-calculator.service.ts",
+        "start": 39,
+        "end": 49,
+        "startLoc": {
+          "line": 39,
+          "column": 2,
+          "position": 301
+        },
+        "endLoc": {
+          "line": 49,
+          "column": 6,
+          "position": 354
         }
       }
     },
@@ -11676,7 +12096,7 @@
     {
       "format": "typescript",
       "lines": 16,
-      "fragment": ",\n  BadRequestException,\n} from \"@nestjs/common\";\nimport {\n  ApiBearerAuth,\n  ApiBody,\n  ApiOperation,\n  ApiParam,\n  ApiResponse,\n  ApiTags,\n} from \"@nestjs/swagger\";\nimport { JwtAuthGuard } from \"../../../auth/guards/jwt-auth.guard\";\nimport { RolesGuard } from \"../../../auth/guards/roles.guard\";\nimport { Roles } from \"../../../auth/decorators/roles.decorator\";\nimport {\n  GetCierreByOrdenUseCase",
+      "fragment": ",\r\n  BadRequestException,\r\n} from \"@nestjs/common\";\r\nimport {\r\n  ApiBearerAuth,\r\n  ApiBody,\r\n  ApiOperation,\r\n  ApiParam,\r\n  ApiResponse,\r\n  ApiTags,\r\n} from \"@nestjs/swagger\";\r\nimport { JwtAuthGuard } from \"../../../auth/guards/jwt-auth.guard\";\r\nimport { RolesGuard } from \"../../../auth/guards/roles.guard\";\r\nimport { Roles } from \"../../../auth/decorators/roles.decorator\";\r\nimport {\r\n  GetCierreByOrdenUseCase",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\cierre-administrativo\\infrastructure\\controllers\\cierre-administrativo.controller.ts",
@@ -11685,12 +12105,12 @@
         "startLoc": {
           "line": 12,
           "column": 4,
-          "position": 36
+          "position": 45
         },
         "endLoc": {
           "line": 27,
           "column": 24,
-          "position": 128
+          "position": 152
         }
       },
       "secondFile": {
@@ -11700,12 +12120,12 @@
         "startLoc": {
           "line": 12,
           "column": 10,
-          "position": 36
+          "position": 45
         },
         "endLoc": {
           "line": 23,
           "column": 30,
-          "position": 112
+          "position": 132
         }
       }
     },
@@ -11922,42 +12342,6 @@
           "line": 354,
           "column": 16,
           "position": 3128
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 11,
-      "fragment": ",\n} from \"@nestjs/swagger\";\nimport { JwtAuthGuard } from \"../../../../common/guards/jwt-auth.guard\";\nimport { RolesGuard } from \"../../../../common/guards/roles.guard\";\nimport { Roles } from \"../../../../common/decorators/roles.decorator\";\nimport {\n  CurrentUser,\n  JwtPayload,\n} from \"../../../../common/decorators/current-user.decorator\";\nimport {\n  CreateChecklistUseCase",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\checklists\\infrastructure\\controllers\\checklists.controller.ts",
-        "start": 15,
-        "end": 25,
-        "startLoc": {
-          "line": 15,
-          "column": 24,
-          "position": 73
-        },
-        "endLoc": {
-          "line": 25,
-          "column": 23,
-          "position": 145
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\hes\\infrastructure\\controllers\\hes.controller.ts",
-        "start": 26,
-        "end": 26,
-        "startLoc": {
-          "line": 26,
-          "column": 9,
-          "position": 93
-        },
-        "endLoc": {
-          "line": 26,
-          "column": 23,
-          "position": 135
         }
       }
     },
@@ -12360,7 +12744,7 @@
     {
       "format": "typescript",
       "lines": 13,
-      "fragment": "\n    @Req() req: Request,\n    @Body() body: { refreshToken?: string } = {},\n    @Res({ passthrough: true }) res: Response,\n  ) {\n    const refreshToken =\n      (req as RequestWithCookies).cookies?.refreshToken || body?.refreshToken;\n\n    if ((req as RequestWithCookies).cookies?.refreshToken) {\n      assertCsrf(req);\n    }\n\n    const",
+      "fragment": "\r\n    @Req() req: Request,\r\n    @Body() body: { refreshToken?: string } = {},\r\n    @Res({ passthrough: true }) res: Response,\r\n  ) {\r\n    const refreshToken =\r\n      (req as RequestWithCookies).cookies?.refreshToken || body?.refreshToken;\r\n\r\n    if ((req as RequestWithCookies).cookies?.refreshToken) {\r\n      assertCsrf(req);\r\n    }\r\n\r\n    const",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\auth\\infrastructure\\controllers\\auth.controller.ts",
@@ -12369,12 +12753,12 @@
         "startLoc": {
           "line": 244,
           "column": 2,
-          "position": 1936
+          "position": 2175
         },
         "endLoc": {
           "line": 256,
           "column": 6,
-          "position": 2061
+          "position": 2312
         }
       },
       "secondFile": {
@@ -12384,12 +12768,12 @@
         "startLoc": {
           "line": 198,
           "column": 2,
-          "position": 1568
+          "position": 1761
         },
         "endLoc": {
           "line": 210,
           "column": 3,
-          "position": 1693
+          "position": 1898
         }
       }
     },
@@ -12864,42 +13248,6 @@
     {
       "format": "typescript",
       "lines": 12,
-      "fragment": "\nimport { JwtAuthGuard } from \"../../../../common/guards/jwt-auth.guard\";\nimport { RolesGuard } from \"../../../../common/guards/roles.guard\";\nimport { Roles } from \"../../../../common/decorators/roles.decorator\";\nimport {\n  CurrentUser,\n  JwtPayload,\n} from \"../../../../common/decorators/current-user.decorator\";\n\n// Use Cases\nimport {\n  CreateUserUseCase",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\admin\\infrastructure\\controllers\\admin.controller.ts",
-        "start": 30,
-        "end": 41,
-        "startLoc": {
-          "line": 30,
-          "column": 23,
-          "position": 95
-        },
-        "endLoc": {
-          "line": 41,
-          "column": 18,
-          "position": 162
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\hes\\infrastructure\\controllers\\hes.controller.ts",
-        "start": 27,
-        "end": 38,
-        "startLoc": {
-          "line": 27,
-          "column": 2,
-          "position": 101
-        },
-        "endLoc": {
-          "line": 38,
-          "column": 17,
-          "position": 168
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 12,
       "fragment": "\nexport interface PaginatedResult<T> {\n  data: T[];\n  total: number;\n  page: number;\n  pageSize: number;\n  totalPages: number;\n}\n\n/**\n * Filtros para búsqueda de usuarios\n */",
       "tokens": 0,
       "firstFile": {
@@ -13151,150 +13499,6 @@
     },
     {
       "format": "typescript",
-      "lines": 15,
-      "fragment": "\n\nimport {\n  Inject,\n  Injectable,\n  NotFoundException,\n  BadRequestException,\n  Logger,\n} from \"@nestjs/common\";\nimport { EventEmitter2 } from \"@nestjs/event-emitter\";\nimport {\n  IUserRepository,\n  USER_REPOSITORY,\n} from \"../../domain/repositories/user.repository.interface\";\nimport",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\admin\\application\\use-cases\\change-user-role.use-case.ts",
-        "start": 5,
-        "end": 19,
-        "startLoc": {
-          "line": 5,
-          "column": 4,
-          "position": 1
-        },
-        "endLoc": {
-          "line": 19,
-          "column": 7,
-          "position": 66
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\admin\\application\\use-cases\\toggle-user-active.use-case.ts",
-        "start": 5,
-        "end": 20,
-        "startLoc": {
-          "line": 5,
-          "column": 4,
-          "position": 1
-        },
-        "endLoc": {
-          "line": 20,
-          "column": 1,
-          "position": 66
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 16,
-      "fragment": "\n    return UserMapper.toResponse(savedUser);\n  }\n\n  /**\n   * Publica eventos de dominio\n   */\n  private publishDomainEvents(user: UserEntity): void {\n    const events = user.getDomainEvents();\n    events.forEach((event) => {\n      this.eventEmitter.emit(event.eventName, event);\n    });\n    user.clearDomainEvents();\n  }\n}\n",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\admin\\application\\use-cases\\change-user-role.use-case.ts",
-        "start": 83,
-        "end": 98,
-        "startLoc": {
-          "line": 83,
-          "column": 1,
-          "position": 544
-        },
-        "endLoc": {
-          "line": 98,
-          "column": 1,
-          "position": 639
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\admin\\application\\use-cases\\create-user.use-case.ts",
-        "start": 58,
-        "end": 73,
-        "startLoc": {
-          "line": 58,
-          "column": 19,
-          "position": 392
-        },
-        "endLoc": {
-          "line": 73,
-          "column": 1,
-          "position": 487
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 11,
-      "fragment": "\n  @ApiProperty({\n    example: \"tecnico@cermont.com\",\n    description: \"Email del usuario\",\n  })\n  email!: string;\n\n  @ApiProperty({\n    example: \"Juan Pérez\",\n    description: \"Nombre completo\",\n    ",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\admin\\application\\dto\\create-user.dto.ts",
-        "start": 56,
-        "end": 66,
-        "startLoc": {
-          "line": 56,
-          "column": 2,
-          "position": 357
-        },
-        "endLoc": {
-          "line": 66,
-          "column": 5,
-          "position": 411
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\admin\\application\\dto\\user-response.dto.ts",
-        "start": 19,
-        "end": 29,
-        "startLoc": {
-          "line": 19,
-          "column": 1,
-          "position": 77
-        },
-        "endLoc": {
-          "line": 29,
-          "column": 3,
-          "position": 131
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 16,
-      "fragment": ",\n  })\n  role!: UserRoleType;\n\n  @ApiPropertyOptional({\n    example: \"+57 3001234567\",\n    description: \"Teléfono de contacto\",\n  })\n  phone?: string;\n\n  @ApiPropertyOptional({\n    example: \"https://example.com/avatar.jpg\",\n    description: \"URL del avatar\",\n  })\n  avatar?: string;\n}",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\admin\\application\\dto\\create-user.dto.ts",
-        "start": 81,
-        "end": 96,
-        "startLoc": {
-          "line": 81,
-          "column": 15,
-          "position": 503
-        },
-        "endLoc": {
-          "line": 96,
-          "column": 2,
-          "position": 583
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\admin\\application\\dto\\user-response.dto.ts",
-        "start": 34,
-        "end": 50,
-        "startLoc": {
-          "line": 34,
-          "column": 18,
-          "position": 162
-        },
-        "endLoc": {
-          "line": 50,
-          "column": 1,
-          "position": 242
-        }
-      }
-    },
-    {
-      "format": "typescript",
       "lines": 11,
       "fragment": ") {\n      this.useBullMQ = true;\n      this.initializeBullMQ();\n    } else {\n      this.useBullMQ = false;\n      this.initializeMockQueue();\n    }\n  }\n\n  private initializeBullMQ(): void {\n    const",
       "tokens": 0,
@@ -13331,8 +13535,44 @@
     },
     {
       "format": "typescript",
+      "lines": 12,
+      "fragment": ",\r\n  IsOptional,\r\n  IsEnum,\r\n  IsDateString,\r\n  IsNumber,\r\n  IsArray,\r\n  Min,\r\n  IsUUID,\r\n} from \"class-validator\";\r\nimport {\r\n  TipoMantenimiento,\r\n  PrioridadMantenimiento",
+      "tokens": 0,
+      "firstFile": {
+        "name": "apps\\api\\src\\modules\\mantenimientos\\dto\\create-mantenimiento.dto.ts",
+        "start": 10,
+        "end": 21,
+        "startLoc": {
+          "line": 10,
+          "column": 11,
+          "position": 34
+        },
+        "endLoc": {
+          "line": 21,
+          "column": 23,
+          "position": 91
+        }
+      },
+      "secondFile": {
+        "name": "apps\\api\\src\\modules\\mantenimientos\\dto\\update-mantenimiento.dto.ts",
+        "start": 9,
+        "end": 20,
+        "startLoc": {
+          "line": 9,
+          "column": 9,
+          "position": 26
+        },
+        "endLoc": {
+          "line": 20,
+          "column": 20,
+          "position": 83
+        }
+      }
+    },
+    {
+      "format": "typescript",
       "lines": 16,
-      "fragment": " })\n  @IsString()\n  @IsNotEmpty()\n  nombre!: string;\n\n  @ApiProperty({ example: 1, minimum: 1 })\n  @IsNumber()\n  @Min(1)\n  cantidad!: number;\n\n  @ApiProperty({ example: true })\n  @IsBoolean()\n  certificacion!: boolean;\n}\n\nexport class CreateKitDto",
+      "fragment": " })\r\n  @IsString()\r\n  @IsNotEmpty()\r\n  nombre!: string;\r\n\r\n  @ApiProperty({ example: 1, minimum: 1 })\r\n  @IsNumber()\r\n  @Min(1)\r\n  cantidad!: number;\r\n\r\n  @ApiProperty({ example: true })\r\n  @IsBoolean()\r\n  certificacion!: boolean;\r\n}\r\n\r\nexport class CreateKitDto",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\kits\\dto\\kit.dto.ts",
@@ -13341,12 +13581,12 @@
         "startLoc": {
           "line": 38,
           "column": 21,
-          "position": 217
+          "position": 250
         },
         "endLoc": {
           "line": 53,
           "column": 13,
-          "position": 319
+          "position": 367
         }
       },
       "secondFile": {
@@ -13356,84 +13596,12 @@
         "startLoc": {
           "line": 22,
           "column": 24,
-          "position": 101
+          "position": 118
         },
         "endLoc": {
           "line": 37,
           "column": 10,
-          "position": 203
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 15,
-      "fragment": "[];\n\n  @ApiProperty()\n  total!: number;\n\n  @ApiProperty()\n  page!: number;\n\n  @ApiProperty()\n  limit!: number;\n\n  @ApiProperty()\n  totalPages!: number;\n\n",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\modules\\admin\\dto\\admin.dto.ts",
-        "start": 185,
-        "end": 199,
-        "startLoc": {
-          "line": 185,
-          "column": 16,
-          "position": 1179
-        },
-        "endLoc": {
-          "line": 199,
-          "column": 1,
-          "position": 1243
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\modules\\checklists\\application\\dto\\checklist-response.dto.ts",
-        "start": 88,
-        "end": 101,
-        "startLoc": {
-          "line": 88,
-          "column": 21,
-          "position": 463
-        },
-        "endLoc": {
-          "line": 101,
-          "column": 2,
-          "position": 527
-        }
-      }
-    },
-    {
-      "format": "typescript",
-      "lines": 15,
-      "fragment": "\n      numero:\n        numeroValue instanceof OrdenNumero\n          ? numeroValue.getValue()\n          : String(numeroValue),\n      monto:\n        montoValue instanceof Monto\n          ? montoValue.getValue()\n          : Number(montoValue),\n      estado:\n        estadoValue instanceof OrdenEstado\n          ? estadoValue.getValue()\n          : String(estadoValue),\n      clienteId: entity.clienteId as string,\n      descripcion: entity.descripcion as string,",
-      "tokens": 0,
-      "firstFile": {
-        "name": "apps\\api\\src\\shared\\mappers\\orden.mapper.ts",
-        "start": 108,
-        "end": 122,
-        "startLoc": {
-          "line": 108,
-          "column": 2,
-          "position": 827
-        },
-        "endLoc": {
-          "line": 122,
-          "column": 2,
-          "position": 939
-        }
-      },
-      "secondFile": {
-        "name": "apps\\api\\src\\shared\\mappers\\orden.mapper.ts",
-        "start": 60,
-        "end": 74,
-        "startLoc": {
-          "line": 60,
-          "column": 2,
-          "position": 398
-        },
-        "endLoc": {
-          "line": 74,
-          "column": 2,
-          "position": 510
+          "position": 235
         }
       }
     },
@@ -13476,7 +13644,7 @@
     {
       "format": "typescript",
       "lines": 11,
-      "fragment": ");\n\n    const ejecucion = await this.prisma.ejecucion.findUnique({\n      where: { id: ejecucionId },\n    });\n\n    if (!ejecucion) {\n      throw new NotFoundException(\"Ejecución no encontrada\");\n    }\n\n    const checklistPrincipal",
+      "fragment": ");\r\n\r\n    const ejecucion = await this.prisma.ejecucion.findUnique({\r\n      where: { id: ejecucionId },\r\n    });\r\n\r\n    if (!ejecucion) {\r\n      throw new NotFoundException(\"Ejecución no encontrada\");\r\n    }\r\n\r\n    const checklistPrincipal",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\kits\\kits.service.ts",
@@ -13485,12 +13653,12 @@
         "startLoc": {
           "line": 457,
           "column": 16,
-          "position": 3778
+          "position": 4205
         },
         "endLoc": {
           "line": 467,
           "column": 19,
-          "position": 3849
+          "position": 4286
         }
       },
       "secondFile": {
@@ -13500,12 +13668,12 @@
         "startLoc": {
           "line": 372,
           "column": 6,
-          "position": 3023
+          "position": 3367
         },
         "endLoc": {
           "line": 382,
           "column": 15,
-          "position": 3094
+          "position": 3448
         }
       }
     },
@@ -13764,7 +13932,7 @@
     {
       "format": "typescript",
       "lines": 12,
-      "fragment": ",\n    adminUserId: string,\n  ): Promise<{ success: boolean; message: string }> {\n    const user = await this.prisma.user.findUnique({\n      where: { id: userId },\n    });\n\n    if (!user) {\n      throw new NotFoundException(`Usuario ${userId} no encontrado`);\n    }\n\n    // Hashear contraseña usando servicio centralizado",
+      "fragment": ",\r\n    adminUserId: string,\r\n  ): Promise<{ success: boolean; message: string }> {\r\n    const user = await this.prisma.user.findUnique({\r\n      where: { id: userId },\r\n    });\r\n\r\n    if (!user) {\r\n      throw new NotFoundException(`Usuario ${userId} no encontrado`);\r\n    }\r\n\r\n    // Hashear contraseña usando servicio centralizado",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\modules\\admin\\admin.service.ts",
@@ -13773,12 +13941,12 @@
         "startLoc": {
           "line": 286,
           "column": 7,
-          "position": 2042
+          "position": 2312
         },
         "endLoc": {
           "line": 297,
           "column": 51,
-          "position": 2144
+          "position": 2425
         }
       },
       "secondFile": {
@@ -13788,19 +13956,19 @@
         "startLoc": {
           "line": 248,
           "column": 8,
-          "position": 1724
+          "position": 1958
         },
         "endLoc": {
           "line": 157,
           "column": 7,
-          "position": 1051
+          "position": 1196
         }
       }
     },
     {
       "format": "typescript",
       "lines": 15,
-      "fragment": ",\n  ): void {\n    const level: LogLevel =\n      statusCode >= 500 ? \"error\" : statusCode >= 400 ? \"warn\" : \"log\";\n    this.write(\n      level,\n      `[HTTP] ${method} ${sanitizeUrl(url)} ${statusCode} - ${durationMs}ms`,\n      \"HTTP\",\n      {\n        method,\n        url: sanitizeUrl(url),\n        statusCode,\n        durationMs,\n        userId,\n        ",
+      "fragment": ",\r\n  ): void {\r\n    const level: LogLevel =\r\n      statusCode >= 500 ? \"error\" : statusCode >= 400 ? \"warn\" : \"log\";\r\n    this.write(\r\n      level,\r\n      `[HTTP] ${method} ${sanitizeUrl(url)} ${statusCode} - ${durationMs}ms`,\r\n      \"HTTP\",\r\n      {\r\n        method,\r\n        url: sanitizeUrl(url),\r\n        statusCode,\r\n        durationMs,\r\n        userId,\r\n        ",
       "tokens": 0,
       "firstFile": {
         "name": "apps\\api\\src\\lib\\logging\\logger.service.ts",
@@ -13809,12 +13977,12 @@
         "startLoc": {
           "line": 196,
           "column": 2,
-          "position": 1617
+          "position": 1812
         },
         "endLoc": {
           "line": 210,
           "column": 9,
-          "position": 1731
+          "position": 1940
         }
       },
       "secondFile": {
@@ -13824,12 +13992,12 @@
         "startLoc": {
           "line": 170,
           "column": 7,
-          "position": 1431
+          "position": 1600
         },
         "endLoc": {
           "line": 184,
           "column": 7,
-          "position": 1545
+          "position": 1728
         }
       }
     },

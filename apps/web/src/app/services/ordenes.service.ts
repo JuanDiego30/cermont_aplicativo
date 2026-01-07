@@ -12,7 +12,7 @@ export interface Orden {
     descripcion: string;
     clienteId: string;
     tecnicoId?: string;
-    estado: 'PENDIENTE' | 'EN_PROGRESO' | 'COMPLETADA' | 'CANCELADA' | 'ARCHIVADA';
+    estado: 'PENDIENTE' | 'PLANEACION' | 'EJECUCION' | 'PAUSADA' | 'COMPLETADA' | 'CANCELADA';
     prioridad: 'BAJA' | 'MEDIA' | 'ALTA' | 'URGENTE';
     fechaInicio: string;
     fechaFin?: string;

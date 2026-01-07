@@ -1,67 +1,164 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+/**
+ * AdminApi - Admin Management API Client (Refactored)
+ * 
+ * Extends ApiBaseService for consistent HTTP handling.
+ * Manages user CRUD, role changes, and admin statistics.
+ * 
+ * @see apps/api/src/modules/admin/infrastructure/controllers/admin.controller.ts
+ */
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '@env/environment';
+import { ApiBaseService } from './api-base.service';
+import { UserRole } from '../models/user.model';
 
-interface Usuario {
+// ============================================
+// DTOs aligned with backend
+// ============================================
+
+export interface AdminUser {
   id: string;
-  nombre: string;
+  name: string;
   email: string;
-  rol: 'admin' | 'user';
-  estado: 'activo' | 'inactivo';
-  fechaCreacion: string;
+  role: UserRole;
+  active: boolean;
+  phone?: string;
+  avatar?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-interface PaginatedResponse<T> {
-  data: T[];
+export interface UserListQuery {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  role?: UserRole;
+  active?: boolean;
+}
+
+export interface PaginatedUsers {
+  data: AdminUser[];
   total: number;
   page: number;
-  limit: number;
+  pageSize: number;
+  totalPages: number;
 }
+
+export interface ActionResult<T = void> {
+  success: boolean;
+  message: string;
+  data?: T;
+}
+
+export interface CreateUserDto {
+  name: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  phone?: string;
+}
+
+export interface UpdateUserDto {
+  name?: string;
+  email?: string;
+  phone?: string;
+}
+
+export interface UserStats {
+  total: number;
+  active: number;
+  inactive: number;
+  byRole: Record<string, number>;
+}
+
+// ============================================
+// AdminApi Service
+// ============================================
 
 @Injectable({
   providedIn: 'root'
 })
-export class AdminApi {
-  private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/admin`;
+export class AdminApi extends ApiBaseService {
+  private readonly basePath = '/admin';
 
-  listUsers(
-    page: number = 1,
-    limit: number = 10,
-    filters?: any
-  ): Observable<PaginatedResponse<Usuario>> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('limit', limit.toString());
+  // ============================================
+  // USER CRUD
+  // ============================================
 
-    if (filters?.search) {
-      params = params.set('search', filters.search);
-    }
-    if (filters?.rol) {
-      params = params.set('rol', filters.rol);
-    }
-
-    return this.http.get<PaginatedResponse<Usuario>>(`${this.apiUrl}/users`, { params });
+  /**
+   * GET /admin/users - List users with filters and pagination
+   */
+  listUsers(query?: UserListQuery): Observable<PaginatedUsers> {
+    return this.get<PaginatedUsers>(`${this.basePath}/users`, query as Record<string, any>);
   }
 
-  updateUserRole(usuarioId: string, nuevoRol: string): Observable<Usuario> {
-    return this.http.patch<Usuario>(`${this.apiUrl}/users/${usuarioId}/role`, {
-      rol: nuevoRol
-    });
+  /**
+   * GET /admin/users/:id - Get user by ID
+   */
+  getUser(id: string): Observable<AdminUser> {
+    return this.get<AdminUser>(`${this.basePath}/users/${id}`);
   }
 
-  updateUserStatus(usuarioId: string, nuevoEstado: string): Observable<Usuario> {
-    return this.http.patch<Usuario>(`${this.apiUrl}/users/${usuarioId}/status`, {
-      estado: nuevoEstado
-    });
+  /**
+   * POST /admin/users - Create new user
+   */
+  createUser(data: CreateUserDto): Observable<ActionResult<AdminUser>> {
+    return this.post<ActionResult<AdminUser>>(`${this.basePath}/users`, data);
   }
 
-  deleteUser(usuarioId: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/users/${usuarioId}`);
+  /**
+   * PATCH /admin/users/:id - Update user
+   */
+  updateUser(id: string, data: UpdateUserDto): Observable<ActionResult<AdminUser>> {
+    return this.patch<ActionResult<AdminUser>>(`${this.basePath}/users/${id}`, data);
   }
 
-  getStats(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/stats`);
+  /**
+   * DELETE /admin/users/:id - Delete user (soft delete)
+   */
+  removeUser(id: string): Observable<ActionResult> {
+    return this.deleteRequest<ActionResult>(`${this.basePath}/users/${id}`);
+  }
+
+  // ============================================
+  // ROLE & STATUS
+  // ============================================
+
+  /**
+   * PATCH /admin/users/:id/role - Change user role
+   */
+  changeRole(userId: string, role: UserRole): Observable<ActionResult<AdminUser>> {
+    return this.patch<ActionResult<AdminUser>>(`${this.basePath}/users/${userId}/role`, { role });
+  }
+
+  /**
+   * PATCH /admin/users/:id/toggle-active - Activate/deactivate user
+   */
+  toggleActive(userId: string, active: boolean, reason?: string): Observable<ActionResult> {
+    return this.patch<ActionResult>(`${this.basePath}/users/${userId}/toggle-active`, { active, reason });
+  }
+
+  /**
+   * PATCH /admin/users/:id/status - Update user status (backward compat)
+   */
+  updateStatus(userId: string, active: boolean): Observable<ActionResult> {
+    return this.patch<ActionResult>(`${this.basePath}/users/${userId}/status`, { active });
+  }
+
+  /**
+   * PATCH /admin/users/:id/password - Reset user password
+   */
+  resetPassword(userId: string, newPassword: string): Observable<ActionResult> {
+    return this.patch<ActionResult>(`${this.basePath}/users/${userId}/password`, { newPassword });
+  }
+
+  // ============================================
+  // STATISTICS
+  // ============================================
+
+  /**
+   * GET /admin/stats/users - Get user statistics
+   */
+  getStats(): Observable<UserStats> {
+    return this.get<UserStats>(`${this.basePath}/stats/users`);
   }
 }

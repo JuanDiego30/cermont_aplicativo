@@ -5,12 +5,10 @@
  * Define permisos granulares por rol para control de acceso.
  */
 
-export enum UserRoleEnum {
-  ADMIN = "admin",
-  SUPERVISOR = "supervisor",
-  TECNICO = "tecnico",
-  ADMINISTRATIVO = "administrativo",
-}
+import { UserRole } from "../../../common/enums/user-role.enum";
+
+export const UserRoleEnum = UserRole;
+export type UserRoleEnum = UserRole;
 
 export enum PermissionAction {
   CREATE = "create",

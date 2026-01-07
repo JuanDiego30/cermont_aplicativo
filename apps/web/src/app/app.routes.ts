@@ -28,6 +28,12 @@ export const routes: Routes = [
           .then(m => m.ORDENES_ROUTES),
       },
       {
+        path: 'mantenimientos',
+        loadChildren: () => import('./features/mantenimientos/mantenimientos.routes')
+          .then(m => m.MANTENIMIENTOS_ROUTES),
+        title: 'Mantenimientos | Cermont'
+      },
+      {
         path: 'perfil',
         loadComponent: () => import('./features/perfil/perfil.component').then(m => m.PerfilComponent),
         title: 'Mi Perfil | Cermont'

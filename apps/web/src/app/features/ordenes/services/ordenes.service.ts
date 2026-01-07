@@ -54,7 +54,7 @@ export class OrdenesService {
      * Elimina una orden
      */
     delete(id: string): Observable<void> {
-        return this.ordenesApi.delete(id);
+        return this.ordenesApi.remove(id);
     }
 
     /**

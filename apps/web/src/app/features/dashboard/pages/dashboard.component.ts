@@ -66,7 +66,9 @@ export class DashboardComponent implements OnInit {
   getEstadoClass(estado: string): string {
     const classes: { [key: string]: string } = {
       'pendiente': 'badge-warning',
-      'en_progreso': 'badge-info',
+      'planeacion': 'badge-info',
+      'ejecucion': 'badge-info',
+      'pausada': 'badge-warning',
       'completada': 'badge-success',
       'cancelada': 'badge-danger'
     };

@@ -1,3 +1,12 @@
+/**
+ * Auth Interceptor - Token & CSRF Header Management
+ * 
+ * Adds Authorization header with Bearer token.
+ * Adds x-csrf-token header for CSRF protection.
+ * Handles 401 responses with automatic token refresh.
+ * 
+ * @see apps/api/src/modules/auth/infrastructure/controllers/auth.controller.ts
+ */
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
@@ -9,12 +18,17 @@ const SKIP_INTERCEPTOR_URLS = [
   '/auth/login',
   '/auth/register',
   '/auth/refresh',
-  '/auth/logout',
   '/auth/forgot-password',
   '/auth/reset-password',
   '/auth/validate-reset-token',
   '/auth/2fa/'
 ];
+
+// Rutas que requieren CSRF token (modificaciones de estado)
+const CSRF_REQUIRED_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'];
+
+// CSRF Header name (must match backend x-csrf-token)
+const CSRF_HEADER_NAME = 'x-csrf-token';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
@@ -23,52 +37,58 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // Verificar si la URL debe saltar el interceptor
   const shouldSkip = SKIP_INTERCEPTOR_URLS.some(url => req.url.includes(url));
 
-  // Obtener token
-  const token = authService.getToken();
+  // Obtener tokens
+  const accessToken = authService.getToken();
+  const csrfToken = authService.getCsrfToken?.() || null;
 
-  // Clonar request y agregar token si existe
-  let authReq = req;
-  if (token && !shouldSkip) {
-    authReq = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-  } else if (token && !req.url.includes('/auth/logout')) {
-    // Para rutas auth excepto logout, no agregamos token
-    authReq = req;
-  } else if (token) {
-    // Para logout, agregamos el token
-    authReq = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+  // Build headers object
+  const headers: Record<string, string> = {};
+
+  // Add Authorization header
+  if (accessToken && (!shouldSkip || req.url.includes('/auth/logout'))) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
   }
 
-  // Manejar respuesta y errores
+  // Add CSRF header for state-changing requests
+  if (csrfToken && CSRF_REQUIRED_METHODS.includes(req.method)) {
+    headers[CSRF_HEADER_NAME] = csrfToken;
+  }
+
+  // Clone request with headers if any were added
+  let authReq = req;
+  if (Object.keys(headers).length > 0) {
+    authReq = req.clone({ setHeaders: headers });
+  }
+
+  // Handle response and errors
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      // Si es una ruta que debe saltarse, no intentar refresh
+      // Skip refresh logic for auth routes
       if (shouldSkip) {
         return throwError(() => error);
       }
 
       if (error.status === 401) {
-        // Token expirado o inválido - intentar refresh
+        // Token expired - attempt refresh
         return authService.refreshToken().pipe(
           switchMap((refreshResponse) => {
-            // Retry original request con nuevo token
+            // Retry original request with new tokens
             const newToken = refreshResponse?.token || authService.getToken();
-            const retryReq = req.clone({
-              setHeaders: {
-                Authorization: `Bearer ${newToken}`
-              }
-            });
+            const newCsrf = refreshResponse?.csrfToken || authService.getCsrfToken?.();
+
+            const retryHeaders: Record<string, string> = {
+              Authorization: `Bearer ${newToken}`
+            };
+
+            if (newCsrf && CSRF_REQUIRED_METHODS.includes(req.method)) {
+              retryHeaders[CSRF_HEADER_NAME] = newCsrf;
+            }
+
+            const retryReq = req.clone({ setHeaders: retryHeaders });
             return next(retryReq);
           }),
           catchError((refreshError) => {
-            // Refresh falló - limpiar estado local y redirigir (sin llamar logout API)
+            // Refresh failed - clear auth and redirect to login
             authService.clearLocalAuth();
             router.navigate(['/auth/login']);
             return throwError(() => refreshError);
@@ -80,4 +100,3 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     })
   );
 };
-

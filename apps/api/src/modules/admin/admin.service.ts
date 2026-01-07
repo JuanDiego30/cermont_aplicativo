@@ -40,7 +40,7 @@ export class AdminService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly passwordService: PasswordService,
-  ) {}
+  ) { }
 
   // ============================================
   // CRUD USUARIOS
@@ -55,7 +55,7 @@ export class AdminService {
   ): Promise<UserResponseDto> {
     try {
       // Validar rol
-      if (!Object.values(UserRoleEnum).includes(dto.role)) {
+      if (!Object.values(UserRoleEnum).includes(dto.role as any)) {
         throw new BadRequestException(`Rol inválido: ${dto.role}`);
       }
 
@@ -200,7 +200,7 @@ export class AdminService {
     adminUserId: string,
   ): Promise<UserResponseDto> {
     // Validar rol
-    if (!Object.values(UserRoleEnum).includes(dto.role)) {
+    if (!Object.values(UserRoleEnum).includes(dto.role as any)) {
       throw new BadRequestException(`Rol inválido: ${dto.role}`);
     }
 
@@ -405,7 +405,7 @@ export class AdminService {
       id: user.id,
       email: user.email,
       name: user.name,
-      role: user.role as UserRoleEnum,
+      role: user.role as unknown as UserRoleEnum,
       phone: user.phone ?? undefined,
       avatar: user.avatar ?? undefined,
       active: user.active,

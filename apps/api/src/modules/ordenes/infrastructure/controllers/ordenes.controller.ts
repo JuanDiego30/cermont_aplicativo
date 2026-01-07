@@ -38,6 +38,7 @@ import {
   AsignarTecnicoOrdenUseCase,
   GetHistorialEstadosUseCase,
   DeleteOrdenUseCase,
+  GetOrdenesStatsUseCase,
 } from "../../application/use-cases";
 import {
   CreateOrdenDto,
@@ -70,7 +71,21 @@ export class OrdenesController {
     private readonly getHistorialEstados: GetHistorialEstadosUseCase,
     private readonly deleteOrden: DeleteOrdenUseCase,
     private readonly orderStateService: OrderStateService,
+    private readonly getOrdenesStats: GetOrdenesStatsUseCase,
   ) {}
+
+  @Get("stats")
+  @ApiOperation({
+    summary: "Obtener estadísticas de órdenes",
+    description: "Retorna conteo total, por estado y por prioridad",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Estadísticas de órdenes",
+  })
+  async getStats() {
+    return this.getOrdenesStats.execute();
+  }
 
   @Post()
   @ApiOperation({

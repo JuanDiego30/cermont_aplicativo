@@ -65,10 +65,10 @@ export {
 export { Public, IS_PUBLIC_KEY } from "./decorators/public.decorator";
 export {
   Roles,
-  UserRole,
   ROLES_KEY,
   isValidRole,
 } from "./decorators/roles.decorator";
+export { UserRole } from "./enums/user-role.enum";
 export {
   ApiSuccessResponse as SwaggerSuccessResponse,
   ApiCreatedResponse,

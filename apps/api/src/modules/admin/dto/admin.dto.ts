@@ -13,12 +13,10 @@ import {
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 
-export enum UserRoleEnum {
-  ADMIN = "admin",
-  SUPERVISOR = "supervisor",
-  TECNICO = "tecnico",
-  ADMINISTRATIVO = "administrativo",
-}
+import { UserRole } from "../../../common/enums/user-role.enum";
+
+export const UserRoleEnum = UserRole;
+export type UserRoleEnum = UserRole;
 
 // ============================================
 // CREATE USER
@@ -225,4 +223,4 @@ export class AdminActionResponseDto {
   message!: string;
 }
 
-export class ListUsersResponseDto extends PaginatedUsersResponse {}
+export class ListUsersResponseDto extends PaginatedUsersResponse { }

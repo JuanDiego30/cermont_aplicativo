@@ -1,0 +1,3 @@
+src/modules/admin/admin.service.ts(58,49): error TS2345: Argument of type 'UserRoleEnum' is not assignable to parameter of type 'UserRole'.
+src/modules/admin/admin.service.ts(203,47): error TS2345: Argument of type 'UserRoleEnum' is not assignable to parameter of type 'UserRole'.
+src/modules/admin/admin.service.ts(408,7): error TS2322: Type 'UserRole' is not assignable to type 'UserRoleEnum'.

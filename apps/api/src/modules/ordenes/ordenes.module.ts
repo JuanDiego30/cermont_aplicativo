@@ -25,6 +25,7 @@ import {
   AsignarTecnicoOrdenUseCase,
   GetHistorialEstadosUseCase,
   DeleteOrdenUseCase,
+  GetOrdenesStatsUseCase,
 } from "./application/use-cases";
 import { OrderStateService } from "./application/services/order-state.service";
 
@@ -48,6 +49,7 @@ const useCaseProviders = [
   AsignarTecnicoOrdenUseCase,
   GetHistorialEstadosUseCase,
   DeleteOrdenUseCase,
+  GetOrdenesStatsUseCase,
 ];
 
 @Module({

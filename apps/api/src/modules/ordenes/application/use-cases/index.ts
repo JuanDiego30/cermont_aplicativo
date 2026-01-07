@@ -7,3 +7,4 @@ export * from "./change-orden-estado.use-case";
 export * from "./asignar-tecnico-orden.use-case";
 export * from "./get-historial-estados.use-case";
 export * from "./delete-orden.use-case";
+export * from "./get-ordenes-stats.use-case";

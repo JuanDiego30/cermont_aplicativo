@@ -38,7 +38,7 @@ import { HesModule } from "./modules/hes/hes.module";
 // import { LineasVidaModule } from './modules/lineas-vida/lineas-vida.module';
 import { CostosModule } from "./modules/costos/costos.module";
 import { ChecklistsModule } from "./modules/checklists/checklists.module";
-// DELETED: MantenimientosModule - CERMONT uses order-based maintenance, not scheduled preventive maintenance
+import { MantenimientosModule } from "./modules/mantenimientos/mantenimientos.module";
 import { FormulariosModule } from "./modules/formularios/formularios.module";
 import { CierreAdministrativoModule } from "./modules/cierre-administrativo/cierre-administrativo.module";
 
@@ -151,7 +151,7 @@ import { RequestIdMiddleware } from "./common/middleware/request-id.middleware";
     // LineasVidaModule, // TODO: Create LineasVidaModule
     CostosModule,
     ChecklistsModule,
-    // MantenimientosModule, // DELETED - CERMONT uses order-based maintenance
+    MantenimientosModule, // Mantenimientos module - Provides scheduled maintenance endpoints
     FormulariosModule,
     CierreAdministrativoModule,
     EvidenciasModule,

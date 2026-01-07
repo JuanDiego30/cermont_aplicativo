@@ -48,15 +48,14 @@ export class OrdenDetailComponent implements OnInit, OnDestroy {
     const currentEstado = this.orden()?.estado;
     if (!currentEstado) return [];
 
-    // LÃ³gica de transiciones permitidas
+    // Lógica de transiciones permitidas (alineado con backend)
     const transitions: Record<OrdenEstado, OrdenEstado[]> = {
       [OrdenEstado.PENDIENTE]: [OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
-      [OrdenEstado.PLANEACION]: [OrdenEstado.EN_PROGRESO, OrdenEstado.PENDIENTE, OrdenEstado.CANCELADA],
-      [OrdenEstado.EN_PROGRESO]: [OrdenEstado.EJECUCION, OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
-      [OrdenEstado.EJECUCION]: [OrdenEstado.COMPLETADA, OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
-      [OrdenEstado.COMPLETADA]: [OrdenEstado.ARCHIVADA],
+      [OrdenEstado.PLANEACION]: [OrdenEstado.EJECUCION, OrdenEstado.PENDIENTE, OrdenEstado.CANCELADA],
+      [OrdenEstado.EJECUCION]: [OrdenEstado.COMPLETADA, OrdenEstado.PAUSADA, OrdenEstado.CANCELADA],
+      [OrdenEstado.PAUSADA]: [OrdenEstado.EJECUCION, OrdenEstado.CANCELADA],
+      [OrdenEstado.COMPLETADA]: [],
       [OrdenEstado.CANCELADA]: [OrdenEstado.PENDIENTE],
-      [OrdenEstado.ARCHIVADA]: [],
     };
 
     return transitions[currentEstado as OrdenEstado] || [];
