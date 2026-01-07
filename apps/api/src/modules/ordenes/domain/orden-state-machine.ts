@@ -1,4 +1,4 @@
-import { BadRequestException } from "@nestjs/common";
+import { BusinessRuleViolationError } from "../../../common/domain/exceptions/business-rule-violation.error";
 
 export enum OrdenEstado {
   PENDIENTE = "pendiente",
@@ -45,16 +45,18 @@ export class OrdenStateMachine {
     const allowedTransitions = this.TRANSITIONS[fromEstado];
 
     if (!allowedTransitions.includes(toEstado)) {
-      throw new BadRequestException(
+      throw new BusinessRuleViolationError(
         `No se puede cambiar de ${fromEstado} a ${toEstado}. ` +
           `Transiciones permitidas: ${allowedTransitions.join(", ")}`,
+        "INVALID_STATE_TRANSITION",
       );
     }
 
     // Validar que tenga motivo si es requerido
     if (this.REQUIRES_REASON.includes(toEstado) && !motivo) {
-      throw new BadRequestException(
+      throw new BusinessRuleViolationError(
         `El campo "motivo" es obligatorio al cambiar a estado ${toEstado}`,
+        "MISSING_REQUIRED_REASON",
       );
     }
   }

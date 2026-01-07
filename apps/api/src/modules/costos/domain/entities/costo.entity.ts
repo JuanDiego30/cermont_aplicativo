@@ -13,7 +13,6 @@
  * - Si excede presupuesto, requiere justificación
  */
 
-import { Logger } from "@nestjs/common";
 import { CostoId } from "../value-objects/costo-id.vo";
 import { Money } from "../value-objects/money.vo";
 import { CostoType } from "../value-objects/costo-type.vo";
@@ -32,7 +31,6 @@ import {
 import { AggregateRoot } from "../../../../shared/base/aggregate-root";
 
 export class Costo extends AggregateRoot {
-  private static readonly logger = new Logger(Costo.name);
 
   // Configuración
   private static readonly MIN_DESCRIPTION_LENGTH = 3;
@@ -86,9 +84,7 @@ export class Costo extends AggregateRoot {
     const suggestedCategory = type.getSuggestedCategory();
     if (category.getValue() !== suggestedCategory) {
       // Warning pero no error - permitir override manual
-      Costo.logger.warn(
-        `Tipo ${type.getValue()} sugiere categoría ${suggestedCategory}, pero se asignó ${category.getValue()}`,
-      );
+      // Logging se maneja en infrastructure layer
     }
 
     const costo = new Costo(

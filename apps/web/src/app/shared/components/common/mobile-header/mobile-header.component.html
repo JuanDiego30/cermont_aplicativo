@@ -3,8 +3,17 @@
     <div class="px-4 py-4">
         <!-- Top Row: User + Actions -->
         <div class="flex items-center justify-between mb-4">
-            <!-- User Info -->
+            <!-- Left: Hamburger + User Info -->
             <div class="flex items-center gap-3">
+                <button
+                    type="button"
+                    (click)="toggleSidebar()"
+                    aria-label="Abrir menú"
+                    class="p-2 rounded-full bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors">
+                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
                 <div class="relative">
                     <div
                         class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center ring-2 ring-gray-200 dark:ring-gray-700 overflow-hidden">

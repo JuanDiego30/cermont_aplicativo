@@ -82,17 +82,44 @@ export class EntityNotFoundError extends DomainError {
  * Violación de regla de negocio
  */
 export class BusinessRuleViolationError extends DomainError {
-  public readonly ruleName?: string;
+  /**
+   * Nombre/código de la regla de negocio violada.
+   * Mantiene compatibilidad con usos previos (`rule` / `ruleName`).
+   */
+  public readonly rule?: string;
 
-  constructor(message: string, ruleName?: string) {
-    super(message, ruleName ?? ErrorCodes.BUSINESS_RULE_VIOLATION);
-    this.ruleName = ruleName;
+  /**
+   * Contexto opcional para logging/diagnóstico.
+   * No debe incluir PII/sensibles.
+   */
+  public readonly context?: Record<string, unknown>;
+
+  /**
+   * @param message Mensaje humano
+   * @param rule Código/nombre de regla (ej: INVALID_STATE_TRANSITION)
+   * @param context Datos extra no sensibles
+   */
+  constructor(
+    message: string,
+    rule?: string,
+    context?: Record<string, unknown>,
+  ) {
+    super(message, rule ?? ErrorCodes.BUSINESS_RULE_VIOLATION);
+    this.rule = rule;
+    this.context = context;
+  }
+
+  /** @deprecated usar `rule` */
+  get ruleName(): string | undefined {
+    return this.rule;
   }
 
   override toJSON(): Record<string, unknown> {
     return {
       ...super.toJSON(),
-      ruleName: this.ruleName,
+      rule: this.rule,
+      ruleName: this.rule,
+      context: this.context,
     };
   }
 }

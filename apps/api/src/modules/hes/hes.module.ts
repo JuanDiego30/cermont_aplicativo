@@ -27,7 +27,7 @@ import { HesSignService } from "./application/services/hes-sign.service";
 
 // Repositories
 import { HESRepository } from "./infrastructure/persistence/hes.repository";
-import { HES_REPOSITORY } from "./domain/repositories";
+import { HES_REPOSITORY, IHESRepository } from "./domain/repositories";
 
 // Domain Services
 import {
@@ -68,7 +68,13 @@ import { PrismaModule } from "../../prisma/prisma.module";
 
     // Domain Services
     HESValidatorService,
-    HESNumeroGeneratorService,
+    {
+      provide: HESNumeroGeneratorService,
+      useFactory: (repository: IHESRepository) => {
+        return new HESNumeroGeneratorService(repository);
+      },
+      inject: [HES_REPOSITORY],
+    },
     RiesgoEvaluatorService,
 
     // Infrastructure Services

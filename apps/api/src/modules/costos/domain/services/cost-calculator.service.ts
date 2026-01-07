@@ -5,22 +5,17 @@
  * ⚠️ CRÍTICO: Usa Decimal.js para precisión absoluta
  */
 
-import { Logger } from "@nestjs/common";
 import { Costo } from "../entities/costo.entity";
 import { Money } from "../value-objects/money.vo";
 import { CostoType } from "../value-objects/costo-type.vo";
 import { CostoCategory } from "../value-objects/costo-category.vo";
-
-const logger = new Logger("CostCalculatorService");
 
 // Decimal.js es open source
 let Decimal: any;
 try {
   Decimal = require("decimal.js");
 } catch {
-  logger.warn(
-    "decimal.js no está instalado. Instalar con: npm install decimal.js",
-  );
+  // Logging se maneja en infrastructure layer
 }
 
 export class CostCalculatorService {

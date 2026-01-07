@@ -77,44 +77,56 @@ export class AdminService {
   }
 
   /**
-   * Activate user
+   * Toggle user active status (activate/deactivate)
+   * Backend uses: PATCH /admin/users/:id/toggle-active
    */
-  activateUser(id: string): Observable<User> {
-    return this.http.post<User>(`${this.API_URL}/users/${id}/activate`, {}).pipe(
+  toggleUserActive(id: string, active: boolean, reason?: string): Observable<{ success: boolean; message: string }> {
+    return this.http.patch<{ success: boolean; message: string }>(`${this.API_URL}/users/${id}/toggle-active`, {
+      active,
+      reason
+    }).pipe(
       catchError(this.handleError)
     );
   }
 
   /**
-   * Deactivate user
+   * @deprecated Use toggleUserActive instead
    */
-  deactivateUser(id: string): Observable<User> {
-    return this.http.post<User>(`${this.API_URL}/users/${id}/deactivate`, {}).pipe(
-      catchError(this.handleError)
-    );
+  activateUser(id: string): Observable<{ success: boolean; message: string }> {
+    return this.toggleUserActive(id, true);
   }
 
   /**
-   * Reset user password
+   * @deprecated Use toggleUserActive instead
    */
-  resetUserPassword(id: string, newPassword: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.API_URL}/users/${id}/reset-password`, {
+  deactivateUser(id: string): Observable<{ success: boolean; message: string }> {
+    return this.toggleUserActive(id, false);
+  }
+
+  /**
+   * Reset user password (admin action)
+   * Backend uses: PATCH /admin/users/:id/password
+   */
+  resetUserPassword(id: string, newPassword: string): Observable<{ success: boolean; message: string }> {
+    return this.http.patch<{ success: boolean; message: string }>(`${this.API_URL}/users/${id}/password`, {
       newPassword
     }).pipe(
       catchError(this.handleError)
     );
   }
 
-  /**
-   * Revoke all user tokens
-   */
-  revokeUserTokens(id: string, reason: string): Observable<RevokeTokensResult> {
-    return this.http.post<RevokeTokensResult>(`${this.API_URL}/users/${id}/revoke-tokens`, {
-      reason
-    }).pipe(
-      catchError(this.handleError)
-    );
-  }
+  // NOTE: revokeUserTokens endpoint does not exist in backend
+  // If needed, implement it in AdminController first
+  // /**
+  //  * Revoke all user tokens
+  //  */
+  // revokeUserTokens(id: string, reason: string): Observable<RevokeTokensResult> {
+  //   return this.http.post<RevokeTokensResult>(`${this.API_URL}/users/${id}/revoke-tokens`, {
+  //     reason
+  //   }).pipe(
+  //     catchError(this.handleError)
+  //   );
+  // }
 
   // ============================================
   // STATISTICS
@@ -122,9 +134,10 @@ export class AdminService {
 
   /**
    * Get user statistics
+   * Backend uses: GET /admin/stats/users
    */
   getUserStats(): Observable<UserStats> {
-    return this.http.get<UserStats>(`${this.API_URL}/stats`).pipe(
+    return this.http.get<UserStats>(`${this.API_URL}/stats/users`).pipe(
       catchError(this.handleError)
     );
   }

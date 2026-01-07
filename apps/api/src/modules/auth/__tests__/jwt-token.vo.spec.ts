@@ -1,9 +1,9 @@
-import { JwtService } from "@nestjs/jwt";
 import { JwtToken } from "../domain/value-objects/jwt-token.vo";
+import { IJwtService } from "../domain/ports/jwt-service.port";
 
 describe("JwtToken VO", () => {
   it("create: firma token y expone payload", () => {
-    const jwtService = { sign: jest.fn(() => "tkn") } as unknown as JwtService;
+    const jwtService = { sign: jest.fn(() => "tkn") } as unknown as IJwtService;
 
     const token = JwtToken.create(jwtService, {
       userId: "u1",
@@ -21,7 +21,7 @@ describe("JwtToken VO", () => {
       verify: jest.fn(() => {
         throw new Error("bad");
       }),
-    } as unknown as JwtService;
+    } as unknown as IJwtService;
     expect(JwtToken.fromString(jwtService, "x")).toBeNull();
   });
 
@@ -34,7 +34,7 @@ describe("JwtToken VO", () => {
         role: "tecnico",
         exp,
       })),
-    } as unknown as JwtService;
+    } as unknown as IJwtService;
 
     const token = JwtToken.fromString(jwtService, "tok")!;
 
@@ -49,7 +49,7 @@ describe("JwtToken VO", () => {
         email: "u1@example.com",
         role: "tecnico",
       })),
-    } as unknown as JwtService;
+    } as unknown as IJwtService;
 
     const token = JwtToken.fromString(jwtService, "tok")!;
     expect(token.expiresAt).toBeNull();
@@ -71,7 +71,7 @@ describe("JwtToken VO", () => {
   });
 
   it("equals + toString: comparan por value", () => {
-    const jwtService = { sign: jest.fn(() => "tkn") } as unknown as JwtService;
+    const jwtService = { sign: jest.fn(() => "tkn") } as unknown as IJwtService;
     const a = JwtToken.create(jwtService, {
       userId: "u1",
       email: "u1@example.com",

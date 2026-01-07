@@ -12,14 +12,11 @@
  * - Operaciones aritméticas solo entre misma moneda
  */
 
-import { Logger } from "@nestjs/common";
 import {
   ValidationError,
   BusinessRuleViolationError,
   InvalidCurrencyException,
 } from "../exceptions";
-
-const logger = new Logger("Money");
 
 // Decimal.js es open source y gratuito
 let Decimal: any;
@@ -27,10 +24,7 @@ try {
   Decimal = require("decimal.js");
 } catch {
   // Si no está instalado, usar fallback (no recomendado para producción)
-  logger.warn(
-    "decimal.js no está instalado. Instalar con: npm install decimal.js",
-  );
-  logger.warn("Usando Number como fallback (NO RECOMENDADO para producción)");
+  // Logging se maneja en infrastructure layer
 }
 
 export class Money {

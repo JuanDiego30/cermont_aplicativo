@@ -105,10 +105,12 @@
                     <div class="space-y-6">
                         <!-- Name -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                            <label for="profileName"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                                 Nombre Completo <span class="text-error-500">*</span>
                             </label>
-                            <input type="text" formControlName="name" class="input"
+                            <input id="profileName" type="text" formControlName="name" class="input"
+                                name="name"
                                 [class.border-error-500]="hasError('profile', 'name', 'required') || hasError('profile', 'name', 'minlength')"
                                 placeholder="Juan Pérez" />
                             @if (hasError('profile', 'name', 'required') || hasError('profile', 'name', 'minlength')) {
@@ -118,10 +120,12 @@
 
                         <!-- Email -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                            <label for="profileEmail"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                                 Correo Electrónico <span class="text-error-500">*</span>
                             </label>
-                            <input type="email" formControlName="email" class="input"
+                            <input id="profileEmail" type="email" formControlName="email" class="input"
+                                name="email"
                                 [class.border-error-500]="hasError('profile', 'email', 'required') || hasError('profile', 'email', 'email')"
                                 placeholder="juan.perez@cermont.com" />
                             @if (hasError('profile', 'email', 'required') || hasError('profile', 'email', 'email')) {
@@ -131,10 +135,12 @@
 
                         <!-- Phone -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                            <label for="profilePhone"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                                 Teléfono
                             </label>
-                            <input type="tel" formControlName="phone" class="input"
+                            <input id="profilePhone" type="tel" formControlName="phone" class="input"
+                                name="phone"
                                 [class.border-error-500]="hasError('profile', 'phone', 'pattern')"
                                 placeholder="3001234567" />
                             @if (hasError('profile', 'phone', 'pattern')) {
@@ -174,19 +180,23 @@
                     <div class="space-y-6">
                         <!-- Current Password -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                            <label for="currentPassword"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                                 Contraseña Actual <span class="text-error-500">*</span>
                             </label>
-                            <input type="password" formControlName="currentPassword" class="input"
+                            <input id="currentPassword" type="password" formControlName="currentPassword" class="input"
+                                name="currentPassword"
                                 placeholder="••••••••" />
                         </div>
 
                         <!-- New Password -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                            <label for="newPassword"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                                 Nueva Contraseña <span class="text-error-500">*</span>
                             </label>
-                            <input type="password" formControlName="newPassword" class="input"
+                            <input id="newPassword" type="password" formControlName="newPassword" class="input"
+                                name="newPassword"
                                 [class.border-error-500]="hasError('password', 'newPassword', 'minlength')"
                                 placeholder="••••••••" />
                             @if (hasError('password', 'newPassword', 'minlength')) {
@@ -196,10 +206,12 @@
 
                         <!-- Confirm Password -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+                            <label for="confirmPassword"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                                 Confirmar Nueva Contraseña <span class="text-error-500">*</span>
                             </label>
-                            <input type="password" formControlName="confirmPassword" class="input"
+                            <input id="confirmPassword" type="password" formControlName="confirmPassword" class="input"
+                                name="confirmPassword"
                                 placeholder="••••••••" />
                             @if (passwordForm.errors?.['passwordMismatch'] &&
                             passwordForm.get('confirmPassword')?.touched) {

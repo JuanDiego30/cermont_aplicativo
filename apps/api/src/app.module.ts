@@ -26,6 +26,7 @@ import { join } from "path";
 import { PrismaModule } from "./prisma/prisma.module";
 import { AuthModule } from "./modules/auth/auth.module";
 
+
 import { OrdenesModule } from "./modules/ordenes/ordenes.module";
 import { PlaneacionModule } from "./modules/planeacion/planeacion.module";
 import { KitsModule } from "./modules/kits/kits.module";
@@ -47,6 +48,7 @@ import { CierreAdministrativoModule } from "./modules/cierre-administrativo/cier
 import { SyncModule } from "./modules/sync/sync.module";
 import { PdfGenerationModule } from "./modules/pdf-generation/pdf-generation.module";
 import { AdminModule } from "./modules/admin/admin.module";
+import { UsersModule } from "./modules/users/users.module";
 import { WeatherModule } from "./modules/weather/weather.module";
 // DELETED: EmailModule - Redundant with AlertasModule (email functionality moved there)
 import { TecnicosModule } from "./modules/tecnicos/tecnicos.module";
@@ -120,26 +122,26 @@ import { RequestIdMiddleware } from "./common/middleware/request-id.middleware";
     // In-memory cache for expensive operations (dashboard stats, KPIs)
     CacheModule.register({
       isGlobal: true,
-      ttl: 300000, // 5 minutos en ms
-      max: 100, // Máximo 100 items en caché
+      store: 'memory',
+      ttl: 300000,
+      max: 100,
     }),
 
     // Logger nativo de NestJS (configurado en main.ts)
     // No requiere módulo adicional - LoggerService usa Logger de @nestjs/common
 
     // Static files (uploads)
-    /*
-        ServeStaticModule.forRoot({
-            rootPath: join(process.cwd(), 'uploads'),
-            serveRoot: '/uploads',
-        }),
-        */
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), "uploads"),
+      serveRoot: "/uploads",
+    }),
 
     // Core
     PrismaModule,
 
     // Feature modules - ACTIVATED
     AuthModule,
+
     NotificationsModule,
     OrdenesModule,
     PlaneacionModule,
@@ -160,6 +162,7 @@ import { RequestIdMiddleware } from "./common/middleware/request-id.middleware";
     SyncModule,
     PdfGenerationModule,
     AdminModule,
+    UsersModule,
     WeatherModule,
     TecnicosModule,
 
@@ -178,6 +181,10 @@ import { RequestIdMiddleware } from "./common/middleware/request-id.middleware";
   controllers: [HealthController],
   providers: [
     // Logging global de requests (sin activar guards/filtros globales aún)
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
     {
       provide: APP_INTERCEPTOR,
       useClass: HttpLoggingInterceptor,

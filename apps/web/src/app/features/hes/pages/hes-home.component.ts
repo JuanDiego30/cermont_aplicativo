@@ -79,38 +79,48 @@ import { EstadoHES, HES } from '../../../core/models/hes.model';
                     <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Listado de HES</h2>
                 </div>
                 <div class="p-6">
-                    <div *ngIf="loading()" class="text-center text-gray-500 dark:text-gray-400">
-                        Cargando...
-                    </div>
+                    @if (loading()) {
+                        <div class="text-center text-gray-500 dark:text-gray-400">
+                            Cargando...
+                        </div>
+                    }
 
-                    <div *ngIf="!loading() && errorMessage()" class="text-center text-red-600 dark:text-red-400">
-                        {{ errorMessage() }}
-                    </div>
+                    @if (!loading() && errorMessage()) {
+                        <div class="text-center text-red-600 dark:text-red-400">
+                            {{ errorMessage() }}
+                        </div>
+                    }
 
-                    <div *ngIf="!loading() && !errorMessage() && hesList().length === 0" class="text-center text-gray-500 dark:text-gray-400">
-                        No hay HES para mostrar.
-                    </div>
+                    @if (!loading() && !errorMessage() && hesList().length === 0) {
+                        <div class="text-center text-gray-500 dark:text-gray-400">
+                            No hay HES para mostrar.
+                        </div>
+                    }
 
-                    <div *ngIf="!loading() && !errorMessage() && hesList().length > 0" class="overflow-x-auto">
-                        <table class="min-w-full text-left text-sm">
-                            <thead class="text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-                                <tr>
-                                    <th class="py-3 pr-4 font-medium">Número</th>
-                                    <th class="py-3 pr-4 font-medium">Estado</th>
-                                    <th class="py-3 pr-4 font-medium">Cliente</th>
-                                    <th class="py-3 pr-4 font-medium">Actualizado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let item of hesList()" class="border-b border-gray-100 dark:border-gray-700">
-                                    <td class="py-3 pr-4 text-gray-800 dark:text-white">{{ item.numero }}</td>
-                                    <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ item.estado }}</td>
-                                    <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ item.cliente?.nombre || '-' }}</td>
-                                    <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ item.updatedAt | date:'short' }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    @if (!loading() && !errorMessage() && hesList().length > 0) {
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-left text-sm">
+                                <thead class="text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                                    <tr>
+                                        <th class="py-3 pr-4 font-medium">Número</th>
+                                        <th class="py-3 pr-4 font-medium">Estado</th>
+                                        <th class="py-3 pr-4 font-medium">Cliente</th>
+                                        <th class="py-3 pr-4 font-medium">Actualizado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (item of hesList(); track item.numero) {
+                                        <tr class="border-b border-gray-100 dark:border-gray-700">
+                                            <td class="py-3 pr-4 text-gray-800 dark:text-white">{{ item.numero }}</td>
+                                            <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ item.estado }}</td>
+                                            <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ item.cliente?.nombre || '-' }}</td>
+                                            <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ item.updatedAt | date:'short' }}</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
                 </div>
             </div>
         </div>

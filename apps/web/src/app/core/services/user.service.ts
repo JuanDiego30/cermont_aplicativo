@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export interface User {
@@ -62,5 +62,22 @@ export class UserService {
      */
     getProfile(): Observable<User> {
         return this.http.get<User>(`${this.apiUrl}/profile`);
+    }
+
+    /**
+     * Upload user avatar
+     */
+    uploadAvatar(file: File): Observable<{ url: string }> {
+        const formData = new FormData();
+        formData.append('file', file);
+        return this.http.post<{ url?: string; avatarUrl?: string }>(`${environment.apiUrl}/upload/avatar`, formData).pipe(
+            map((resp) => {
+                const url = resp.url ?? resp.avatarUrl;
+                if (!url) {
+                    throw new Error('Respuesta inválida del servidor: falta url');
+                }
+                return { url };
+            })
+        );
     }
 }

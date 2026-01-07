@@ -3,7 +3,6 @@
  * @description Domain service for validating uploaded files
  */
 
-import { Injectable } from "@nestjs/common";
 import { FileType } from "../value-objects/file-type.vo";
 import { FileSize } from "../value-objects/file-size.vo";
 import { MimeType } from "../value-objects/mime-type.vo";
@@ -18,7 +17,6 @@ export interface FileValidationResult {
   errors: string[];
 }
 
-@Injectable()
 export class FileValidatorService {
   private static readonly DANGEROUS_EXTENSIONS = [
     "exe",

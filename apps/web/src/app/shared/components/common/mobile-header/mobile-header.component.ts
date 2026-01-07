@@ -3,6 +3,7 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ThemeService } from '../../../../core/services/theme.service';
 import { DashboardService } from '../../../../features/dashboard/services/dashboard.service';
+import { SidebarService } from '../../../services/sidebar.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -19,6 +20,7 @@ import { Subscription } from 'rxjs';
 export class MobileHeaderComponent implements OnInit, OnDestroy {
   private themeService = inject(ThemeService);
   private dashboardService = inject(DashboardService);
+  private sidebarService = inject(SidebarService);
   private dashboardSub?: Subscription;
 
   userName = 'Administrador';
@@ -57,5 +59,9 @@ export class MobileHeaderComponent implements OnInit, OnDestroy {
 
   toggleTheme() {
     this.themeService.toggleTheme();
+  }
+
+  toggleSidebar() {
+    this.sidebarService.toggleMobileOpen();
   }
 }

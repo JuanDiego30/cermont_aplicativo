@@ -13,4 +13,7 @@ export * from './evidencias.api';
 export * from './hes.api';
 export * from './planeacion.api';
 export * from './reportes.api';
+export * from './costos.api';
+export * from './checklists.api';
+export * from './formularios.api';
 

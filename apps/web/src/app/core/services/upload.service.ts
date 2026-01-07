@@ -1,12 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-interface UploadResponse {
-    url: string;
-    filename: string;
-    size: number;
+interface UploadAvatarResponse {
+    url?: string;
+    filename?: string;
+    size?: number;
+
+    // Legacy/compat (si algún backend responde así)
+    avatarUrl?: string;
 }
 
 @Injectable({
@@ -19,12 +22,20 @@ export class UploadService {
     /**
      * Upload user avatar
      */
-    uploadAvatar(file: File): Observable<UploadResponse> {
+    uploadAvatar(file: File): Observable<{ url: string }> {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('type', 'avatar');
 
-        return this.http.post<UploadResponse>(`${this.apiUrl}/avatar`, formData);
+        return this.http.post<UploadAvatarResponse>(`${this.apiUrl}/avatar`, formData).pipe(
+            map((response) => {
+                const url = response.url ?? response.avatarUrl;
+                if (!url) {
+                    throw new Error('Respuesta inválida del servidor: falta url');
+                }
+                return { url };
+            })
+        );
     }
 
     /**

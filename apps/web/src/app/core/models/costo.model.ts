@@ -1,75 +1,55 @@
 /**
- * Costing Model - Angular Frontend
- * Tipos para costeo y presupuestos de órdenes
- * Migrado de web-old/src/types/costing.ts
+ * Costo Models
+ * Models for costos module matching backend DTOs
  */
 
-export type CostingStatus = 'borrador' | 'pendiente_aprobacion' | 'aprobado' | 'rechazado';
+export type CostoTipo = 'mano_obra' | 'materiales' | 'transporte' | 'equipos' | 'otros';
 
-export type CostingCategory =
-    | 'material'
-    | 'mano_obra'
-    | 'transporte'
-    | 'equipo'
-    | 'herramientas'
-    | 'subcontrato'
-    | 'otros';
-
-export interface Costing {
-    id: string;
-    ordenId: string;
-    workPlanId?: string;
-    estado: CostingStatus;
-    items: CostingItem[];
-    subtotal: number;
-    impuestos: number;
-    total: number;
-    aprobadoPor?: string;
-    aprobadoAt?: string;
-    notas?: string;
-    createdAt: string;
-    updatedAt: string;
+/**
+ * DTO para registrar un costo
+ */
+export interface RegistrarCostoDto {
+  ordenId: string;
+  tipo: CostoTipo;
+  descripcion: string;
+  cantidad: number;
+  precioUnitario: number;
+  proveedor?: string;
 }
 
-export interface CostingItem {
-    id: string;
-    concepto: string;
-    descripcion?: string;
-    categoria: CostingCategory;
-    cantidad: number;
-    unidad: string;
-    valorUnitario: number;
-    valorTotal: number;
-    esEstimado: boolean;
+/**
+ * Query parameters para listar costos
+ */
+export interface CostoQueryDto {
+  ordenId?: string;
+  tipo?: string;
+  fechaDesde?: string;
+  fechaHasta?: string;
 }
 
-export interface CreateCostingDto {
-    ordenId: string;
-    workPlanId?: string;
-    items: CreateCostingItemDto[];
-    notas?: string;
+/**
+ * Response de un costo
+ */
+export interface CostoResponse {
+  id: string;
+  ordenId: string;
+  tipo: string;
+  descripcion: string;
+  cantidad: number;
+  precioUnitario: number;
+  total: number;
+  proveedor?: string;
+  createdAt: string;
 }
 
-export interface CreateCostingItemDto {
-    concepto: string;
-    descripcion?: string;
-    categoria: CostingCategory;
-    cantidad: number;
-    unidad: string;
-    valorUnitario: number;
-    esEstimado?: boolean;
-}
-
-export interface CostingAnalysis {
-    ordenId: string;
-    presupuestado: number;
-    ejecutado: number;
-    diferencia: number;
-    porcentajeEjecutado: number;
-    detallesPorCategoria: {
-        categoria: CostingCategory;
-        presupuestado: number;
-        ejecutado: number;
-        diferencia: number;
-    }[];
+/**
+ * Análisis de costos por orden
+ */
+export interface CostoAnalysis {
+  ordenId: string;
+  costoPresupuestado: number;
+  costoReal: number;
+  varianza: number;
+  varianzaPorcentual: number;
+  desglosePorTipo: Record<string, number>;
 }

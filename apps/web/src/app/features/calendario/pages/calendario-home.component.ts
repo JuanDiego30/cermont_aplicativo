@@ -40,38 +40,48 @@ import type { Orden, PaginatedOrdenes } from '../../../core/models/orden.model';
                 </div>
 
                 <div class="p-6">
-                    <div *ngIf="loading()" class="text-center text-gray-500 dark:text-gray-400">
-                        Cargando...
-                    </div>
+                    @if (loading()) {
+                        <div class="text-center text-gray-500 dark:text-gray-400">
+                            Cargando...
+                        </div>
+                    }
 
-                    <div *ngIf="!loading() && errorMessage()" class="text-center text-red-600 dark:text-red-400">
-                        {{ errorMessage() }}
-                    </div>
+                    @if (!loading() && errorMessage()) {
+                        <div class="text-center text-red-600 dark:text-red-400">
+                            {{ errorMessage() }}
+                        </div>
+                    }
 
-                    <div *ngIf="!loading() && !errorMessage() && ordenes().length === 0" class="text-center text-gray-500 dark:text-gray-400">
-                        No hay órdenes próximas para mostrar.
-                    </div>
+                    @if (!loading() && !errorMessage() && ordenes().length === 0) {
+                        <div class="text-center text-gray-500 dark:text-gray-400">
+                            No hay órdenes próximas para mostrar.
+                        </div>
+                    }
 
-                    <div *ngIf="!loading() && !errorMessage() && ordenes().length > 0" class="overflow-x-auto">
-                        <table class="min-w-full text-left text-sm">
-                            <thead class="text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-                                <tr>
-                                    <th class="py-3 pr-4 font-medium">Orden</th>
-                                    <th class="py-3 pr-4 font-medium">Cliente</th>
-                                    <th class="py-3 pr-4 font-medium">Estado</th>
-                                    <th class="py-3 pr-4 font-medium">Inicio</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let o of ordenes()" class="border-b border-gray-100 dark:border-gray-700">
-                                    <td class="py-3 pr-4 text-gray-800 dark:text-white">{{ o.numeroOrden }}</td>
-                                    <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ o.cliente }}</td>
-                                    <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ o.estado }}</td>
-                                    <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ o.fechaInicio | date:'short' }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    @if (!loading() && !errorMessage() && ordenes().length > 0) {
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-left text-sm">
+                                <thead class="text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                                    <tr>
+                                        <th class="py-3 pr-4 font-medium">Orden</th>
+                                        <th class="py-3 pr-4 font-medium">Cliente</th>
+                                        <th class="py-3 pr-4 font-medium">Estado</th>
+                                        <th class="py-3 pr-4 font-medium">Inicio</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (o of ordenes(); track o.numeroOrden) {
+                                        <tr class="border-b border-gray-100 dark:border-gray-700">
+                                            <td class="py-3 pr-4 text-gray-800 dark:text-white">{{ o.numeroOrden }}</td>
+                                            <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ o.cliente }}</td>
+                                            <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ o.estado }}</td>
+                                            <td class="py-3 pr-4 text-gray-600 dark:text-gray-300">{{ o.fechaInicio | date:'short' }}</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
                 </div>
             </div>
         </div>

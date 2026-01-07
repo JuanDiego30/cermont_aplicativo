@@ -100,17 +100,23 @@ export class UserDetailComponent implements OnInit {
             return;
         }
 
-        this.adminService.revokeUserTokens(user.id, reason)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-                next: (result) => {
-                    alert(`${result.tokensRevoked} tokens revocados exitosamente`);
-                    this.closeRevokeModal();
-                },
-                error: (err) => {
-                    alert(err.message || 'Error al revocar tokens');
-                }
-            });
+        // TODO: Implementar endpoint en backend: POST /admin/users/:id/revoke-tokens
+        // El endpoint no existe actualmente en el backend
+        alert('Funcionalidad de revocación de tokens no disponible. El endpoint debe ser implementado en el backend.');
+        this.closeRevokeModal();
+        
+        // Código comentado hasta que el endpoint esté disponible:
+        // this.adminService.revokeUserTokens(user.id, reason)
+        //     .pipe(takeUntilDestroyed(this.destroyRef))
+        //     .subscribe({
+        //         next: (result) => {
+        //             alert(`${result.tokensRevoked} tokens revocados exitosamente`);
+        //             this.closeRevokeModal();
+        //         },
+        //         error: (err) => {
+        //             alert(err.message || 'Error al revocar tokens');
+        //         }
+        //     });
     }
 
     navigateToEdit(): void {
