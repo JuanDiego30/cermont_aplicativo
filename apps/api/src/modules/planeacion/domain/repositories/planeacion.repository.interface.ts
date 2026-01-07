@@ -4,10 +4,12 @@
  */
 export const PLANEACION_REPOSITORY = Symbol("PLANEACION_REPOSITORY");
 
+import { PlaneacionEstado } from "../enums";
+
 export interface PlaneacionData {
   id: string;
   ordenId: string;
-  estado: string;
+  estado: PlaneacionEstado;
   cronograma: Record<string, unknown>;
   manoDeObra: Record<string, unknown>;
   observaciones?: string;

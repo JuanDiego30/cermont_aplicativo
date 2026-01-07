@@ -1,13 +1,16 @@
 /**
  * Planeacion Model - TypeScript interfaces for order planning
  * @see apps/api/src/modules/planeacion/
+ * @see apps/api/prisma/schema.prisma enum EstadoPlaneacion
  */
 
 export enum PlaneacionEstado {
-    PENDIENTE = 'PENDIENTE',
-    APROBADA = 'APROBADA',
-    RECHAZADA = 'RECHAZADA',
-    EN_REVISION = 'EN_REVISION',
+    BORRADOR = 'borrador',
+    EN_REVISION = 'en_revision',
+    APROBADA = 'aprobada',
+    EN_EJECUCION = 'en_ejecucion',
+    COMPLETADA = 'completada',
+    CANCELADA = 'cancelada',
 }
 
 export interface ActividadPlaneacion {

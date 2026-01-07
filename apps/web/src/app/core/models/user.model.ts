@@ -1,7 +1,14 @@
+/**
+ * User Role enum - matches backend SSOT
+ * @see apps/api/src/common/enums/user-role.enum.ts
+ * @see apps/api/prisma/schema.prisma enum UserRole
+ */
 export enum UserRole {
   ADMIN = 'admin',
   SUPERVISOR = 'supervisor',
   TECNICO = 'tecnico',
+  ADMINISTRATIVO = 'administrativo',
+  GERENTE = 'gerente',
 }
 
 export interface User {

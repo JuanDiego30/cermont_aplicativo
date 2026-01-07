@@ -1,6 +1,11 @@
 import { Email, Password } from "../value-objects";
+import { UserRole as UserRoleEnum } from "../../../../common/enums/user-role.enum";
 
-export type UserRole = "admin" | "supervisor" | "tecnico";
+// Type alias that accepts both enum values and string literals for backward compatibility
+export type UserRole = `${UserRoleEnum}`;
+
+// Re-export enum for consumers that need it
+export { UserRoleEnum };
 
 export interface AuthUserProps {
   id: string;
@@ -37,7 +42,7 @@ export class AuthUserEntity {
     public readonly loginAttempts: number,
     public readonly lockedUntil: Date | null,
     public readonly twoFactorEnabled: boolean,
-  ) {}
+  ) { }
 
   /**
    * Reconstitute from database record

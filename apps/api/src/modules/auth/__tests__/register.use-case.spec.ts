@@ -77,9 +77,9 @@ describe("RegisterUseCase", () => {
       { ip: "127.0.0.1", userAgent: "jest" },
     );
 
-    // role 'administrativo' se mapea a 'tecnico'
+    // role 'administrativo' es un rol válido y se mantiene
     expect(mockAuthRepository.create).toHaveBeenCalledWith(
-      expect.objectContaining({ role: "tecnico" }),
+      expect.objectContaining({ role: "administrativo" }),
     );
 
     expect(result.token).toBe("access-token");

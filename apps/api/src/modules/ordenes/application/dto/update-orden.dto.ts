@@ -7,15 +7,10 @@ import {
   IsNumber,
   Min,
 } from "class-validator";
+import { OrdenEstado } from "../../domain/orden-state-machine";
 
-export enum OrdenEstado {
-  PENDIENTE = "pendiente",
-  PLANEACION = "planeacion",
-  EJECUCION = "ejecucion",
-  PAUSADA = "pausada",
-  COMPLETADA = "completada",
-  CANCELADA = "cancelada",
-}
+// Re-export for backwards compatibility
+export { OrdenEstado };
 
 export class UpdateOrdenDto extends PartialType(CreateOrdenDto) {
   @ApiPropertyOptional({

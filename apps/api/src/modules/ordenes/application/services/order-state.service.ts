@@ -30,16 +30,37 @@ import {
 
 /**
  * Type-safe conversions between domain enums and Prisma enums.
- * These casts are safe because both enums use identical string literal values.
- * Domain: OrderSubState.SOLICITUD_RECIBIDA = "solicitud_recibida"
- * Prisma: PrismaOrderSubState.solicitud_recibida = "solicitud_recibida"
+ * Uses explicit mapping instead of type casts for maximum type safety.
  */
 function toPrismaSubState(state: OrderSubState): PrismaOrderSubState {
-  return state as unknown as PrismaOrderSubState;
+  const mapping: Record<OrderSubState, PrismaOrderSubState> = {
+    [OrderSubState.SOLICITUD_RECIBIDA]: PrismaOrderSubState.solicitud_recibida,
+    [OrderSubState.VISITA_PROGRAMADA]: PrismaOrderSubState.visita_programada,
+    [OrderSubState.PROPUESTA_ELABORADA]: PrismaOrderSubState.propuesta_elaborada,
+    [OrderSubState.PROPUESTA_APROBADA]: PrismaOrderSubState.propuesta_aprobada,
+    [OrderSubState.PLANEACION_INICIADA]: PrismaOrderSubState.planeacion_iniciada,
+    [OrderSubState.PLANEACION_APROBADA]: PrismaOrderSubState.planeacion_aprobada,
+    [OrderSubState.EJECUCION_INICIADA]: PrismaOrderSubState.ejecucion_iniciada,
+    [OrderSubState.EJECUCION_COMPLETADA]: PrismaOrderSubState.ejecucion_completada,
+    [OrderSubState.INFORME_GENERADO]: PrismaOrderSubState.informe_generado,
+    [OrderSubState.ACTA_ELABORADA]: PrismaOrderSubState.acta_elaborada,
+    [OrderSubState.ACTA_FIRMADA]: PrismaOrderSubState.acta_firmada,
+    [OrderSubState.SES_APROBADA]: PrismaOrderSubState.ses_aprobada,
+    [OrderSubState.FACTURA_APROBADA]: PrismaOrderSubState.factura_aprobada,
+    [OrderSubState.PAGO_RECIBIDO]: PrismaOrderSubState.pago_recibido,
+  };
+  return mapping[state];
 }
 
 function toPrismaStatus(status: string): PrismaOrderStatus {
-  return status as unknown as PrismaOrderStatus;
+  const mapping: Record<string, PrismaOrderStatus> = {
+    planeacion: PrismaOrderStatus.planeacion,
+    ejecucion: PrismaOrderStatus.ejecucion,
+    pausada: PrismaOrderStatus.pausada,
+    completada: PrismaOrderStatus.completada,
+    cancelada: PrismaOrderStatus.cancelada,
+  };
+  return mapping[status] || PrismaOrderStatus.planeacion;
 }
 
 function fromPrismaSubState(

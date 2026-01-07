@@ -69,11 +69,14 @@ export const RechazarPlaneacionSchema = z.object({
   motivo: z.string().min(10, "El motivo debe tener al menos 10 caracteres"),
 });
 
+// Import estado enum
+import { PlaneacionEstado } from "../../domain/enums";
+
 // Response Types
 export interface PlaneacionResponse {
   id: string;
   ordenId: string;
-  estado: string;
+  estado: PlaneacionEstado;
   cronograma: Record<string, unknown>;
   manoDeObra: Record<string, unknown>;
   observaciones?: string;
@@ -82,3 +85,6 @@ export interface PlaneacionResponse {
   createdAt: string;
   updatedAt: string;
 }
+
+// Re-export for convenience
+export { PlaneacionEstado };

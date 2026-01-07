@@ -95,15 +95,9 @@ export const CORS_CONFIG = {
   credentials: true,
 } as const;
 
-/**
- * Roles del sistema (para RBAC)
- */
-export enum UserRole {
-  ADMIN = "admin",
-  SUPERVISOR = "supervisor",
-  TECNICO = "tecnico",
-  ADMINISTRATIVO = "administrativo",
-}
+// Re-export UserRole desde ubicación canónica para compatibilidad
+import { UserRole } from "../enums/user-role.enum";
+export { UserRole };
 
 /**
  * Permisos por rol (Least Privilege Principle)
@@ -129,5 +123,13 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     "reportes:read",
     "costos:read",
     "costos:write",
+  ],
+  [UserRole.GERENTE]: [
+    "ordenes:read",
+    "usuarios:read",
+    "reportes:read",
+    "reportes:write",
+    "dashboard:read",
+    "kpis:read",
   ],
 } as const;

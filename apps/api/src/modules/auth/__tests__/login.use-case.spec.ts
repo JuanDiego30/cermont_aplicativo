@@ -194,17 +194,17 @@ describe("LoginUseCase", () => {
     (bcrypt.compare as unknown as jest.Mock).mockResolvedValue(true);
 
     const user = {
-      id: "user-2",
-      active: false,
+      id: "user-1",
+      active: true,
       role: "tecnico",
-      name: "Blocked",
+      name: "Test User",
       avatar: null,
       phone: null,
       loginAttempts: 0,
-      email: { getValue: () => "blocked@example.com" },
-      canLogin: jest.fn(() => false),
+      email: { getValue: () => "test@example.com" },
+      canLogin: jest.fn(() => true),
       isLocked: jest.fn(() => false),
-      getPasswordHash: jest.fn(() => "hashed"),
+      getPasswordHash: jest.fn(() => "$2a$12$LQv3c1yq6VQwGgJw5ZTGWd4kKm9xK9Y6Y3XKZM6XQ"),
     };
 
     mockAuthRepository.findByEmail.mockResolvedValue(user);

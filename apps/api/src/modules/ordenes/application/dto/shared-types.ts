@@ -9,6 +9,11 @@
  * REGLA: Usar estos tipos en lugar de definir enums duplicados.
  */
 
+import { OrdenEstado } from "../../domain/orden-state-machine";
+
+// Re-export for backwards compatibility
+export { OrdenEstado };
+
 // ==========================================
 // Estado de Orden - Tipo Base
 // ==========================================
@@ -32,17 +37,11 @@ export const ORDEN_ESTADOS = [
 export type OrdenEstadoType = (typeof ORDEN_ESTADOS)[number];
 
 /**
- * Enum para compatibilidad con ClassValidator/Swagger
- * Los valores son idénticos al tipo union.
+ * @deprecated Use OrdenEstado from domain/orden-state-machine.ts
+ * Kept for backwards compatibility with existing code.
  */
-export enum OrdenEstadoEnum {
-  PENDIENTE = "pendiente",
-  PLANEACION = "planeacion",
-  EJECUCION = "ejecucion",
-  PAUSADA = "pausada",
-  COMPLETADA = "completada",
-  CANCELADA = "cancelada",
-}
+export const OrdenEstadoEnum = OrdenEstado;
+export type OrdenEstadoEnum = OrdenEstado;
 
 // ==========================================
 // Prioridad de Orden - Tipo Base

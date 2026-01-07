@@ -2,6 +2,7 @@ import { ConflictException, Inject, Injectable, Logger } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { AUTH_REPOSITORY, IAuthRepository } from "../../domain/repositories";
 import { Email, Password } from "../../domain/value-objects";
+import { UserRole } from "../../../../common/enums/user-role.enum";
 
 import { RegisterDto } from "../dto/register.dto";
 import { AuthContext } from "../dto/auth-types.dto";
@@ -52,14 +53,13 @@ export class RegisterUseCase extends BaseAuthUseCase {
     // const rounds = this.configService.get<number>('BCRYPT_ROUNDS') ?? 12; // Encapsulated in Password VO
     const passwordVO = await Password.createFromPlainText(dto.password);
 
-    // 4. Create user - map 'administrativo' to 'tecnico' as fallback
-    const role =
-      dto.role === "administrativo" ? "tecnico" : (dto.role ?? "tecnico");
+    // 4. Create user - default to tecnico if no role provided
+    const role = dto.role ?? UserRole.TECNICO;
     const user = await this.authRepository.create({
       email: email.getValue(),
       password: passwordVO.getHash(),
       name: dto.name,
-      role: role as "admin" | "supervisor" | "tecnico",
+      role: role as UserRole,
       phone: dto.phone ?? null,
       avatar: null,
       active: true,

@@ -12,13 +12,13 @@ import {
 } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
+import { UserRole } from "../../../../common/enums/user-role.enum";
 
-export enum UserRoleEnum {
-  ADMIN = "admin",
-  SUPERVISOR = "supervisor",
-  TECNICO = "tecnico",
-  ADMINISTRATIVO = "administrativo",
-}
+/**
+ * @deprecated Use UserRole from common/enums/user-role.enum
+ */
+export const UserRoleEnum = UserRole;
+export type UserRoleEnum = UserRole;
 
 // ============================================
 // CREATE USER
@@ -39,9 +39,9 @@ export class CreateUserDto {
   @MaxLength(200)
   name!: string;
 
-  @ApiProperty({ example: "tecnico", enum: UserRoleEnum })
-  @IsEnum(UserRoleEnum)
-  role!: UserRoleEnum;
+  @ApiProperty({ example: "tecnico", enum: UserRole })
+  @IsEnum(UserRole)
+  role!: UserRole;
 
   @ApiPropertyOptional({ example: "+573001234567" })
   @IsOptional()

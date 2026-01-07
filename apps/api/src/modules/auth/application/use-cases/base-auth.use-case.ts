@@ -44,12 +44,11 @@ export abstract class BaseAuthUseCase {
   }
 
   protected isHttpExceptionLike(error: unknown): boolean {
+    if (typeof error !== "object" || error === null) return false;
+    const obj = error as any;
     return (
-      error instanceof HttpException ||
-      (typeof error === "object" &&
-        error !== null &&
-        typeof (error as any).getStatus === "function" &&
-        typeof (error as any).getResponse === "function")
+      typeof obj.getStatus === "function" &&
+      typeof obj.getResponse === "function"
     );
   }
 }

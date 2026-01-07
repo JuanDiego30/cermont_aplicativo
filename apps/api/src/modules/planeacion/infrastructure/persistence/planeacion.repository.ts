@@ -9,6 +9,7 @@ import {
   IPlaneacionRepository,
   PlaneacionData,
 } from "../../domain/repositories/planeacion.repository.interface";
+import { PlaneacionEstado } from "../../domain/enums";
 
 @Injectable()
 export class PlaneacionRepository implements IPlaneacionRepository {
@@ -53,7 +54,7 @@ export class PlaneacionRepository implements IPlaneacionRepository {
         documentosApoyo: [],
         observaciones: data.observaciones,
         kitId: data.kitId,
-        estado: "borrador",
+        estado: PlaneacionEstado.borrador,
       },
     });
     return this.mapToPlaneacionData(planeacion);
@@ -79,7 +80,7 @@ export class PlaneacionRepository implements IPlaneacionRepository {
     const planeacion = await this.prisma.planeacion.update({
       where: { id },
       data: {
-        estado: "aprobada",
+        estado: PlaneacionEstado.aprobada,
         aprobadoPorId: aprobadorId,
         fechaAprobacion: new Date(),
       },
@@ -91,7 +92,7 @@ export class PlaneacionRepository implements IPlaneacionRepository {
     const planeacion = await this.prisma.planeacion.update({
       where: { id },
       data: {
-        estado: "borrador",
+        estado: PlaneacionEstado.borrador,
         observaciones: motivo,
       },
     });
@@ -102,7 +103,7 @@ export class PlaneacionRepository implements IPlaneacionRepository {
     return {
       id: planeacion.id,
       ordenId: planeacion.ordenId,
-      estado: planeacion.estado,
+      estado: planeacion.estado as PlaneacionEstado,
       cronograma: planeacion.cronograma as Record<string, unknown>,
       manoDeObra: planeacion.manoDeObra as Record<string, unknown>,
       observaciones: planeacion.observaciones,

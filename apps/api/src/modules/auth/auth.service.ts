@@ -18,6 +18,7 @@ import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { randomUUID } from "crypto";
 import { PrismaService } from "../../prisma/prisma.service";
+import { UserRole } from "../../common/enums/user-role.enum";
 import { PasswordService } from "../../lib/services/password.service";
 import { LoginDto } from "./application/dto/login.dto";
 import { RegisterDto } from "./application/dto/register.dto";
@@ -164,14 +165,14 @@ export class AuthService {
     }
 
     const hashedPassword = await this.hashPassword(dto.password);
-    const role = dto.role ?? "tecnico";
+    const role = dto.role ?? UserRole.TECNICO;
 
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
         password: hashedPassword,
         name: dto.name,
-        role: role as "admin" | "supervisor" | "tecnico",
+        role: role as UserRole,
         phone: dto.phone,
       },
     });

@@ -3,7 +3,14 @@
  * Models for admin module matching backend DTOs
  */
 
-export type UserRoleType = 'admin' | 'supervisor' | 'tecnico' | 'administrativo' | 'cliente';
+import { UserRole } from "./user.model";
+
+/**
+ * User Role type - matches backend SSOT
+ * @see apps/api/src/common/enums/user-role.enum.ts
+ * @see apps/api/prisma/schema.prisma enum UserRole
+ */
+export type UserRoleType = UserRole;
 
 /**
  * DTO para crear usuario (Admin module)

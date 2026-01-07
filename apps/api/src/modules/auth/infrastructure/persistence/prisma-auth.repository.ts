@@ -7,6 +7,7 @@ import {
 } from "../../domain/entities/auth-user.entity";
 import { randomUUID } from "crypto";
 import { AUTH_CONSTANTS } from "../../auth.constants";
+import { UserRole } from "../../../../common/enums/user-role.enum";
 
 @Injectable()
 export class PrismaAuthRepository implements IAuthRepository {
@@ -241,7 +242,7 @@ export class PrismaAuthRepository implements IAuthRepository {
       email: user.email,
       password: user.password,
       name: user.name,
-      role: user.role as "admin" | "supervisor" | "tecnico",
+      role: user.role as UserRole,
       phone: user.phone,
       avatar: user.avatar,
       active: user.active,
