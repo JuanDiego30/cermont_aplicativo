@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { PinoLoggerService } from "../logger/pino-logger.service";
+import { LoggerService } from "../../lib/logging/logger.service";
 
 /**
  * REGLA 2: Base class para reducir duplicación
@@ -10,7 +10,7 @@ import { PinoLoggerService } from "../logger/pino-logger.service";
 export abstract class BaseService<T> {
   protected abstract readonly serviceName: string;
 
-  constructor(protected readonly logger: PinoLoggerService) {
+  constructor(protected readonly logger: LoggerService) {
     // serviceName is abstract, setContext is handled in each method
   }
 
@@ -108,10 +108,7 @@ export abstract class BaseService<T> {
    * Manejo centralizado de errores
    */
   protected handleError(message: string, error: Error): never {
-    this.logger.error(message, error.stack, this.serviceName, {
-      errorMessage: error.message,
-      errorName: error.name,
-    });
+    this.logger.error(message, error.stack, this.serviceName);
     throw error;
   }
 

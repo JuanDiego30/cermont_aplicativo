@@ -28,6 +28,26 @@ import {
   parseOrderSubState,
 } from "../../domain/enums/order-sub-state.enum";
 
+/**
+ * Type-safe conversions between domain enums and Prisma enums.
+ * These casts are safe because both enums use identical string literal values.
+ * Domain: OrderSubState.SOLICITUD_RECIBIDA = "solicitud_recibida"
+ * Prisma: PrismaOrderSubState.solicitud_recibida = "solicitud_recibida"
+ */
+function toPrismaSubState(state: OrderSubState): PrismaOrderSubState {
+  return state as unknown as PrismaOrderSubState;
+}
+
+function toPrismaStatus(status: string): PrismaOrderStatus {
+  return status as unknown as PrismaOrderStatus;
+}
+
+function fromPrismaSubState(
+  state: PrismaOrderSubState | null,
+): OrderSubState | null {
+  if (!state) return null;
+  return parseOrderSubState(String(state));
+}
 interface TransitionResult {
   success: boolean;
   orden: {
@@ -90,8 +110,7 @@ export class OrderStateService {
         }
 
         const currentState =
-          parseOrderSubState(String(orden.subEstado)) ??
-          (orden.subEstado as unknown as OrderSubState);
+          fromPrismaSubState(orden.subEstado) ?? orden.subEstado as OrderSubState;
 
         if (!isValidTransition(currentState, normalizedToState)) {
           const allowedStates = getNextPossibleStates(currentState);
@@ -104,8 +123,8 @@ export class OrderStateService {
         const updatedOrden = await tx.order.update({
           where: { id: ordenId },
           data: {
-            subEstado: normalizedToState as unknown as PrismaOrderSubState,
-            estado: newMainState as unknown as PrismaOrderStatus,
+            subEstado: toPrismaSubState(normalizedToState),
+            estado: toPrismaStatus(newMainState),
           },
           select: {
             id: true,
@@ -118,12 +137,12 @@ export class OrderStateService {
         await tx.orderStateHistory.create({
           data: {
             ordenId,
-            fromState: currentState as unknown as PrismaOrderSubState,
-            toState: normalizedToState as unknown as PrismaOrderSubState,
+            fromState: toPrismaSubState(currentState),
+            toState: toPrismaSubState(normalizedToState),
             userId,
             notas,
             metadata: metadata
-              ? (metadata as unknown as Prisma.InputJsonValue)
+              ? (metadata as Prisma.InputJsonValue)
               : undefined,
             createdAt: timestamp,
           },
@@ -212,8 +231,7 @@ export class OrderStateService {
     }
 
     const currentState =
-      parseOrderSubState(String(orden.subEstado)) ??
-      (orden.subEstado as unknown as OrderSubState);
+      fromPrismaSubState(orden.subEstado) ?? orden.subEstado as OrderSubState;
 
     return {
       ...orden,

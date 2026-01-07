@@ -2,6 +2,7 @@
  * @controller PasswordResetController
  * @description Controlador para recuperación de contraseña
  * @layer Infrastructure
+ * @validation ClassValidator via ValidationPipe global
  */
 import {
   Controller,
@@ -10,7 +11,6 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
-  BadRequestException,
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { Public } from "../../../../common/decorators/public.decorator";
@@ -19,10 +19,10 @@ import { ForgotPasswordUseCase } from "../../application/use-cases/forgot-passwo
 import { ResetPasswordUseCase } from "../../application/use-cases/reset-password.use-case";
 import { ValidateResetTokenUseCase } from "../../application/use-cases/validate-reset-token.use-case";
 import {
-  ForgotPasswordDtoSchema,
-  ResetPasswordDtoSchema,
-  ValidateResetTokenDtoSchema,
-} from "../../dto/password-reset.dto";
+  ForgotPasswordDto,
+  ResetPasswordDto,
+  ValidateResetTokenDto,
+} from "../../application/dto/password-reset.dto";
 
 @ApiTags("Auth - Password Reset")
 @Controller("auth")
@@ -59,21 +59,12 @@ export class PasswordResetController {
       },
     },
   })
-  async forgotPassword(@Body() body: unknown) {
-    const parseResult = ForgotPasswordDtoSchema.safeParse(body);
-    if (!parseResult.success) {
-      const errors = parseResult.error.issues
-        .map((i) => `${i.path.join(".")}: ${i.message}`)
-        .join(", ");
-      throw new BadRequestException(`Validación fallida: ${errors}`);
-    }
-
-    const { email } = parseResult.data;
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
     this.logger.log(
-      `Password reset requested for email: ${maskEmailForLogs(email)}`,
+      `Password reset requested for email: ${maskEmailForLogs(dto.email)}`,
     );
 
-    return await this.forgotPasswordUseCase.execute(email);
+    return await this.forgotPasswordUseCase.execute(dto.email);
   }
 
   /**
@@ -98,19 +89,10 @@ export class PasswordResetController {
     },
   })
   @ApiResponse({ status: 400, description: "Token inválido o expirado" })
-  async validateResetToken(@Body() body: unknown) {
-    const parseResult = ValidateResetTokenDtoSchema.safeParse(body);
-    if (!parseResult.success) {
-      const errors = parseResult.error.issues
-        .map((i) => `${i.path.join(".")}: ${i.message}`)
-        .join(", ");
-      throw new BadRequestException(`Validación fallida: ${errors}`);
-    }
-
-    const { token } = parseResult.data;
+  async validateResetToken(@Body() dto: ValidateResetTokenDto) {
     this.logger.log("Reset token validation requested");
 
-    return await this.validateResetTokenUseCase.execute(token);
+    return await this.validateResetTokenUseCase.execute(dto.token);
   }
 
   /**
@@ -134,18 +116,9 @@ export class PasswordResetController {
     },
   })
   @ApiResponse({ status: 400, description: "Token inválido o expirado" })
-  async resetPassword(@Body() body: unknown) {
-    const parseResult = ResetPasswordDtoSchema.safeParse(body);
-    if (!parseResult.success) {
-      const errors = parseResult.error.issues
-        .map((i) => `${i.path.join(".")}: ${i.message}`)
-        .join(", ");
-      throw new BadRequestException(`Validación fallida: ${errors}`);
-    }
-
-    const { token, newPassword } = parseResult.data;
+  async resetPassword(@Body() dto: ResetPasswordDto) {
     this.logger.log("Password reset requested");
 
-    return await this.resetPasswordUseCase.execute(token, newPassword);
+    return await this.resetPasswordUseCase.execute(dto.token, dto.newPassword);
   }
 }

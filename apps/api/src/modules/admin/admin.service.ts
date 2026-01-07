@@ -31,7 +31,7 @@ import {
   UpdateUserRoleDto,
   UserResponseDto,
   ListUsersQueryDto,
-} from "./dto/admin.dto";
+} from "./application/dto/admin-legacy.dto";
 
 @Injectable()
 export class AdminService {

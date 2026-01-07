@@ -52,6 +52,12 @@ import {
   type OrdenResponseZod,
   type OrdenDetailResponseZod,
 } from "../../application/dto";
+import {
+  toOrdenEstado,
+  toOrdenPrioridad,
+  type OrdenEstadoType,
+  type OrdenPrioridadType,
+} from "../../application/dto/shared-types";
 import { OrderStateService } from "../../application/services/order-state.service";
 
 @ApiTags("ordenes")
@@ -70,7 +76,7 @@ export class OrdenesController {
     private readonly getHistorialEstados: GetHistorialEstadosUseCase,
     private readonly deleteOrden: DeleteOrdenUseCase,
     private readonly orderStateService: OrderStateService,
-  ) {}
+  ) { }
 
   @Post()
   @ApiOperation({
@@ -103,15 +109,11 @@ export class OrdenesController {
   async findAll(
     @Query() query: QueryOrdenesDto,
   ): Promise<PaginatedOrdenResponseDto> {
-    // Mantener compatibilidad: ListOrdenesUseCase usa DTO Zod (OrdenQueryDto)
+    // Convertir ClassValidator enums a tipos compatibles con Zod usando helpers tipados
     const zodQuery: OrdenQueryDto = {
-      estado: query.estado
-        ? (query.estado as unknown as OrdenQueryDto["estado"])
-        : undefined,
+      estado: toOrdenEstado(query.estado),
       cliente: query.cliente,
-      prioridad: query.prioridad
-        ? (query.prioridad as unknown as OrdenQueryDto["prioridad"])
-        : undefined,
+      prioridad: toOrdenPrioridad(query.prioridad),
       asignadoId: query.asignadoId,
       page: query.page || 1,
       limit: query.limit || 10,
@@ -124,9 +126,8 @@ export class OrdenesController {
     return {
       data: result.data.map((item) => ({
         ...item,
-        estado: item.estado as unknown as OrdenResponseDto["estado"],
-        prioridad: item.prioridad as unknown as OrdenResponseDto["prioridad"],
-      })),
+        // Spread already includes estado and prioridad with correct types
+      })) as OrdenResponseDto[],
       total: result.total,
       page,
       limit: result.limit,

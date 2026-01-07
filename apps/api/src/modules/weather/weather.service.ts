@@ -14,7 +14,7 @@ import {
   WeatherLocation,
   HourlyForecast,
   WeatherHistorical,
-} from "./dto/weather.dto";
+} from "./application/dto/weather-legacy.dto";
 
 interface OpenMeteoCurrentResponse {
   current: {

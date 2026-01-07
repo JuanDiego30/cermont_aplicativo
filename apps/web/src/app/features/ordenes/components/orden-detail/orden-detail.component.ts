@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -48,15 +48,14 @@ export class OrdenDetailComponent implements OnInit, OnDestroy {
     const currentEstado = this.orden()?.estado;
     if (!currentEstado) return [];
 
-    // LÃ³gica de transiciones permitidas
+    // Lógica de transiciones permitidas
     const transitions: Record<OrdenEstado, OrdenEstado[]> = {
       [OrdenEstado.PENDIENTE]: [OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
-      [OrdenEstado.PLANEACION]: [OrdenEstado.EN_PROGRESO, OrdenEstado.PENDIENTE, OrdenEstado.CANCELADA],
-      [OrdenEstado.EN_PROGRESO]: [OrdenEstado.EJECUCION, OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
-      [OrdenEstado.EJECUCION]: [OrdenEstado.COMPLETADA, OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
-      [OrdenEstado.COMPLETADA]: [OrdenEstado.ARCHIVADA],
+      [OrdenEstado.PLANEACION]: [OrdenEstado.EJECUCION, OrdenEstado.PAUSADA, OrdenEstado.PENDIENTE, OrdenEstado.CANCELADA],
+      [OrdenEstado.EJECUCION]: [OrdenEstado.COMPLETADA, OrdenEstado.PAUSADA, OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
+      [OrdenEstado.PAUSADA]: [OrdenEstado.PLANEACION, OrdenEstado.EJECUCION, OrdenEstado.CANCELADA],
+      [OrdenEstado.COMPLETADA]: [],
       [OrdenEstado.CANCELADA]: [OrdenEstado.PENDIENTE],
-      [OrdenEstado.ARCHIVADA]: [],
     };
 
     return transitions[currentEstado as OrdenEstado] || [];

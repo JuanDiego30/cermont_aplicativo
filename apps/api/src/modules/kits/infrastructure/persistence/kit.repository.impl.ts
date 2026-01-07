@@ -49,7 +49,7 @@ export class KitRepositoryImpl implements IKitRepository {
       },
     });
 
-    return KitMapper.fromPrisma(saved as unknown as Record<string, unknown>);
+    return KitMapper.fromPrisma(saved);
   }
 
   async findById(id: KitId): Promise<Kit | null> {
@@ -59,7 +59,7 @@ export class KitRepositoryImpl implements IKitRepository {
 
     if (!kit) return null;
 
-    return KitMapper.fromPrisma(kit as unknown as Record<string, unknown>);
+    return KitMapper.fromPrisma(kit);
   }
 
   async findByCodigo(codigo: string): Promise<Kit | null> {
@@ -70,7 +70,7 @@ export class KitRepositoryImpl implements IKitRepository {
 
     if (!kit) return null;
 
-    return KitMapper.fromPrisma(kit as unknown as Record<string, unknown>);
+    return KitMapper.fromPrisma(kit);
   }
 
   async findByCategoria(categoria: CategoriaKit): Promise<Kit[]> {
@@ -83,9 +83,7 @@ export class KitRepositoryImpl implements IKitRepository {
       orderBy: { createdAt: "desc" },
     });
 
-    return kits.map((k) =>
-      KitMapper.fromPrisma(k as unknown as Record<string, unknown>),
-    );
+    return kits.map((k) => KitMapper.fromPrisma(k));
   }
 
   async findAllActive(): Promise<Kit[]> {
@@ -94,9 +92,7 @@ export class KitRepositoryImpl implements IKitRepository {
       orderBy: { createdAt: "desc" },
     });
 
-    return kits.map((k) =>
-      KitMapper.fromPrisma(k as unknown as Record<string, unknown>),
-    );
+    return kits.map((k) => KitMapper.fromPrisma(k));
   }
 
   async findByEstado(estado: EstadoKit): Promise<Kit[]> {
@@ -107,9 +103,7 @@ export class KitRepositoryImpl implements IKitRepository {
       orderBy: { createdAt: "desc" },
     });
 
-    return kits.map((k) =>
-      KitMapper.fromPrisma(k as unknown as Record<string, unknown>),
-    );
+    return kits.map((k) => KitMapper.fromPrisma(k));
   }
 
   async findTemplates(): Promise<Kit[]> {
@@ -122,9 +116,7 @@ export class KitRepositoryImpl implements IKitRepository {
       orderBy: { createdAt: "desc" },
     });
 
-    return kits.map((k) =>
-      KitMapper.fromPrisma(k as unknown as Record<string, unknown>),
-    );
+    return kits.map((k) => KitMapper.fromPrisma(k));
   }
 
   async existsByCodigo(codigo: string): Promise<boolean> {

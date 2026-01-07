@@ -4,8 +4,25 @@ import {
   OrderStatus,
   OrderPriority,
 } from "@prisma/client";
-import { OrdenResponseDto } from "../../application/dto/orden-response.dto";
+import { OrdenResponseDto, OrdenEstado, OrdenPrioridad } from "../../application/dto/orden-response.dto";
 import { OrdenEntity } from "../../domain/entities/orden.entity";
+
+// Mapeo type-safe entre Prisma enums y DTO enums
+const ESTADO_MAP: Record<OrderStatus, OrdenEstado> = {
+  [OrderStatus.pendiente]: OrdenEstado.PENDIENTE,
+  [OrderStatus.planeacion]: OrdenEstado.PLANEACION,
+  [OrderStatus.ejecucion]: OrdenEstado.EJECUCION,
+  [OrderStatus.pausada]: OrdenEstado.PAUSADA,
+  [OrderStatus.completada]: OrdenEstado.COMPLETADA,
+  [OrderStatus.cancelada]: OrdenEstado.CANCELADA,
+};
+
+const PRIORIDAD_MAP: Record<OrderPriority, OrdenPrioridad> = {
+  [OrderPriority.baja]: OrdenPrioridad.BAJA,
+  [OrderPriority.media]: OrdenPrioridad.MEDIA,
+  [OrderPriority.alta]: OrdenPrioridad.ALTA,
+  [OrderPriority.urgente]: OrdenPrioridad.URGENTE,
+};
 
 export class OrdenMapper {
   static toDomain(
@@ -69,8 +86,8 @@ export class OrdenMapper {
       numero: orden.numero,
       descripcion: orden.descripcion,
       cliente: orden.cliente,
-      estado: orden.estado as unknown as OrdenResponseDto["estado"],
-      prioridad: orden.prioridad as unknown as OrdenResponseDto["prioridad"],
+      estado: ESTADO_MAP[orden.estado],
+      prioridad: PRIORIDAD_MAP[orden.prioridad],
       fechaInicio: orden.fechaInicio?.toISOString(),
       fechaFin: orden.fechaFin?.toISOString(),
       fechaFinEstimada: orden.fechaFinEstimada?.toISOString(),

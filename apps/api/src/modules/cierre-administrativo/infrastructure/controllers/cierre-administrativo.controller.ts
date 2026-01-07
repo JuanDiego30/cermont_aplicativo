@@ -1,5 +1,6 @@
 /**
  * @controller CierreAdministrativoController
+ * @validation ClassValidator via ValidationPipe global
  */
 import {
   Controller,
@@ -10,7 +11,6 @@ import {
   Body,
   UseGuards,
   Req,
-  BadRequestException,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
@@ -28,7 +28,7 @@ import {
   CreateCierreUseCase,
   AprobarCierreUseCase,
 } from "../../application/use-cases";
-import { CreateCierreSchema } from "../../application/dto";
+import { CreateCierreDto } from "../../application/dto";
 
 @ApiTags("Cierre Administrativo")
 @ApiBearerAuth()
@@ -54,19 +54,13 @@ export class CierreAdministrativoController {
   @Post()
   @Roles("admin", "supervisor")
   @ApiOperation({ summary: "Crear cierre administrativo" })
-  @ApiBody({
-    description:
-      "Payload para crear el cierre (validado por schema en servidor)",
-    schema: { type: "object" },
-  })
+  @ApiBody({ type: CreateCierreDto })
   @ApiResponse({ status: 201, description: "Cierre creado" })
   @ApiResponse({ status: 400, description: "Datos inválidos" })
   @ApiResponse({ status: 401, description: "No autenticado" })
   @ApiResponse({ status: 403, description: "Sin permisos" })
-  async create(@Body() body: unknown, @Req() req: any) {
-    const result = CreateCierreSchema.safeParse(body);
-    if (!result.success) throw new BadRequestException(result.error.flatten());
-    return this.createCierre.execute(result.data, req.user.id);
+  async create(@Body() dto: CreateCierreDto, @Req() req: any) {
+    return this.createCierre.execute(dto, req.user.id);
   }
 
   @Put(":id/aprobar")

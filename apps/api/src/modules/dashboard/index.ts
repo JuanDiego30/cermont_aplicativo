@@ -35,7 +35,7 @@ export {
   AlertaTipo as AlertaTipoEnum,
   AlertaSeveridad as AlertaSeveridadEnum,
   Granularidad,
-} from "./dto/kpi-response.dto";
+} from "./application/dto/kpi-response.dto";
 
 // Module
 export { DashboardModule } from "./dashboard.module";

@@ -1239,13 +1239,175 @@ La base arquitectónica es sólida (Clean Architecture, DDD intentado), pero la 
 
 ---
 
+## 🚨 PROBLEMA CRÍTICO ADICIONAL: AMCHARTS DE PAGO
+
+### 9. DEPENDENCIA COMERCIAL - AMCHARTS 5 🚨
+**Problema:** El proyecto usa `@amcharts/amcharts5` que requiere licencia comercial
+
+**Archivos afectados:**
+- `apps/web/package.json` (líneas 15-16)
+  - `@amcharts/amcharts5` v5.14.4
+  - `@amcharts/amcharts5-geodata` v5.1.5
+- `apps/web/src/app/shared/components/ecommerce/country-map/country-map.component.ts`
+
+**Estado de licencia:**
+- NO es open source para producción
+- Requiere compra de licencia comercial
+- Precios:
+  - Basic license: $199+/año (sitios públicos)
+  - SaaS license: $499+/año (requiere login)
+  - OEM: desde $999 (redistribuible)
+
+**Componente afectado:**
+```typescript
+// country-map.component.ts:1-4
+import * as am5 from "@amcharts/amcharts5";
+import * as am5map from "@amcharts/amcharts5/map";
+import am5geodata_worldLow from "@amcharts/amcharts5-geodata/worldLow";
+```
+
+**Riesgo legal:** CRÍTICO
+- Violación de licencia en uso sin pago
+- Posibles acciones legales por copyright
+- Audit de licencias puede fallar en producción
+
+**Alternativas 100% open source:**
+- ✅ **Leaflet** (MIT) - Mapas 2D interactivos
+- ✅ **OpenStreetMap** - Tiles gratuitos (sin límites)
+- ✅ **Chart.js** (MIT) - Gráficos con mapas
+- ✅ **Apache ECharts** (Apache 2.0) - Visualización completa
+- ✅ **D3.js** (BSD 3-Clause) - Visualización de datos
+
+**Recomendación:** Reemplazar inmediatamente con Leaflet + OpenStreetMap
+
+**Tiempo estimado:** 2-3 horas
+
+---
+
+## 🔧 ERRORES TYPESCRIPT ACTUALES - 4 ERRORES
+
+### 10. TESTS DE ÓRDENES - TYPECHECK FAILING
+**Archivo:** `apps/api/src/modules/ordenes/infrastructure/controllers/ordenes.controller.spec.ts`
+
+**Estado:** Tests fallan en typecheck
+
+**Errores identificados (4):**
+
+#### Error 1: Línea 107
+```typescript
+const dto = {
+    descripcion: 'Nueva orden de mantenimiento',
+    cliente: 'Cliente ABC',
+    prioridad: Prioridad.ALTA,  // ❌ Tipo incorrecto
+};
+```
+**Problema:** `Prioridad.ALTA` no es asignable a `CreateOrdenDto`
+
+#### Error 2: Línea 146
+```typescript
+const query = { page: 1, limit: 10, estado: OrdenEstadoEnum.PENDIENTE };  // ❌ Tipo incorrecto
+```
+**Problema:** `OrdenEstadoEnum.PENDIENTE` no es asignable a `OrdenEstado`
+
+#### Error 3: Línea 185
+```typescript
+const mockOrdenResponse = {
+    estado: 'string',  // ❌ Debería ser OrdenEstado
+    prioridad: 'string',  // ❌ Debería ser Prioridad
+};
+```
+**Problema:** Tipos string en lugar de enums
+
+#### Error 4: Línea 187
+```typescript
+const dto = { nuevoEstado: OrdenEstadoEnum.EJECUCION };  // ❌ Falta 'motivo'
+```
+**Problema:** DTO incompleto, falta propiedad requerida `motivo` en `ChangeEstadoOrdenDto`
+
+**Impacto:**
+- ❌ Tests no pueden ejecutarse
+- ❌ CI/CD fallará si typecheck está habilitado
+- ⚠️ No afecta funcionalidad de producción
+
+**Solución:**
+1. Alinear tipos de enums con DTOs
+2. Completar DTOs con todos los campos requeridos
+3. Verificar imports de enums
+
+**Tiempo estimado:** 1-2 horas
+
+---
+
+## 📊 ACTUALIZACIÓN DE ESTADO ACTUAL (2026-01-06)
+
+### Build Status
+```bash
+✅ pnpm run build
+   > @cermont/api: SUCCESS
+   > @cermont/web: SUCCESS
+
+✅ pnpm run lint
+   > API: 0 errores, 0 warnings
+   > Web: 0 errores, 0 warnings
+
+❌ pnpm run typecheck (solo API)
+   > 4 errores en tests de órdenes
+```
+
+### Errores totales actualizados
+| Tipo | Cantidad | Severidad |
+|------|----------|-----------|
+| Lint warnings (API) | 7 | Media |
+| Lint errors (Web) | 20 | Media |
+| Typecheck errors | 4 | Alta |
+| Dependencias de pago | 1 | CRÍTICA |
+| **Total** | **32** | - |
+
+### Progreso desde análisis previo
+- ✅ Build errors: CORREGIDO (error de toggleMobile)
+- ✅ Typecheck errors: REDUCIDO (de 28 previos a 4 actuales)
+- ❌ Dependencias de pago: IDENTIFICADO (AmCharts)
+- ⚠️ Lint errors: PENDIENTE (20 en web)
+
+---
+
+## 🎯 PRIORIDADES PARA VPS CONTABO
+
+### Fase 0: Bloqueantes (Inmediato - HOY)
+1. **Eliminar AmCharts** - Reemplazar con Leaflet (2-3 horas)
+2. **Corregir tests de TypeScript** - 4 errores (1-2 horas)
+
+### Fase 1: Críticos (Esta semana)
+1. Violaciones de DDD en Domain Layer
+2. N+1 Queries en findAll de Ordenes
+3. Exposición de información sensible en logs
+4. JWT Secret: Validación insuficiente
+5. Rate Limiting en endpoints de upload
+6. Sin cache de queries frecuentes
+
+### Fase 2: Altos (Próxima semana)
+1. Acoplamiento: Controller → DTOs múltiples
+2. Duplicación: Validación de DTOs
+3. Dashboard Service: Queries sin caché
+4. Cobertura de tests insuficiente
+5. Tests E2E usan mock token
+
+---
+
 ## CONCLUSIÓN
 
-El repositorio Cermont tiene una base sólida con Clean Architecture, pero presenta **67 problemas de calidad de código** que requieren atención sistemática. Los problemas más críticos (prioridad 2) son principalmente de **seguridad, performance y arquitectura**, mientras que los problemas de duplicación de código representan la mayor oportunidad de mejora.
+El repositorio Cermont tiene una base sólida con Clean Architecture, pero presenta **67 problemas de calidad de código** + **2 problemas críticos adicionales**:
 
-**Recomendación:**
-1. Atacar primero los problemas críticos (20 items) - Estabilidad y seguridad
-2. Luego problemas altos (25 items) - Performance y mantenibilidad  
-3. Finalmente problemas medios-bajos (29 items) - Calidad y DevEx
+1. **AmCharts de PAGO** (CRÍTICO - legal/comercial)
+2. **4 errores TypeScript** en tests (ALTO - bloquea tests)
 
-**Tiempo estimado:** 8-11 semanas (2-3 meses) para completar todos los mejoramientos prioritarios con un ROI estimado de 50% menos tiempo de mantenimiento futuro.
+Estos 2 problemas deben resolverse ANTES de desplegar a VPS Contabo.
+
+**Recomendación para despliegue VPS:**
+1. ✅ Fase 0 (HOY): Eliminar AmCharts + Corregir tests TypeScript (4-5 horas)
+2. ✅ Fase 1 (ESTA SEMANA): 6 problemas críticos de seguridad/performance
+3. ✅ Fase 2 (PRÓXIMA SEMANA): 5 problemas altos de arquitectura/testing
+
+**Tiempo total para VPS-ready:** 4-6 horas (Fase 0) + 40-60 horas (Fase 1+2)
+
+**Dependencias open source:** 99% (solo AmCharts debe eliminarse)

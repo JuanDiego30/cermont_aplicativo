@@ -5,17 +5,15 @@ import {
   BadGatewayException,
   HttpException,
   InternalServerErrorException,
-  Logger,
 } from "@nestjs/common";
 import { Observable, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { PinoLoggerService } from "../logger/pino-logger.service";
+import { LoggerService } from "../../lib/logging/logger.service";
 
 @Injectable()
 export class HttpErrorInterceptor implements NestInterceptor {
-  private readonly logger = new Logger(HttpErrorInterceptor.name);
 
-  constructor(private readonly pinoLogger: PinoLoggerService) {}
+  constructor(private readonly logger: LoggerService) {}
 
   intercept(context: ExecutionContext, next: any): Observable<any> {
     return next.handle().pipe(
@@ -29,7 +27,7 @@ export class HttpErrorInterceptor implements NestInterceptor {
           const status = error.getStatus();
           const response = error.getResponse();
 
-          this.pinoLogger.log(
+          this.logger.log(
             `[${method}] ${url} - Status: ${status}`,
             "HttpErrorInterceptor",
             {
@@ -44,18 +42,10 @@ export class HttpErrorInterceptor implements NestInterceptor {
         }
 
         // Para errores no HTTP, loguear y envolver
-        this.pinoLogger.error(
+        this.logger.error(
           `Unhandled error in ${method} ${url}`,
           error.stack,
           "HttpErrorInterceptor",
-          {
-            method,
-            url,
-            body,
-            timestamp,
-            errorMessage: error.message,
-            errorName: error.name,
-          },
         );
 
         // Retornar error genérico para no exponer detalles

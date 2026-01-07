@@ -5,71 +5,7 @@ import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { buildHttpParams } from '../core/utils/http-params.util';
 import { createHttpErrorHandler } from '../core/utils/http-error.util';
-
-export interface Orden {
-    id: string;
-    numeroOrden: string;
-    descripcion: string;
-    clienteId: string;
-    tecnicoId?: string;
-    estado: 'PENDIENTE' | 'EN_PROGRESO' | 'COMPLETADA' | 'CANCELADA' | 'ARCHIVADA';
-    prioridad: 'BAJA' | 'MEDIA' | 'ALTA' | 'URGENTE';
-    fechaInicio: string;
-    fechaFin?: string;
-    fechaRealInicio?: string;
-    fechaRealFin?: string;
-    ubicacion?: string;
-    costoEstimado?: number;
-    costoReal?: number;
-    notas?: string;
-    createdAt: string;
-    updatedAt: string;
-    deletedAt?: string;
-}
-
-export interface CreateOrdenDto {
-    numeroOrden: string;
-    descripcion: string;
-    clienteId: string;
-    tecnicoId?: string;
-    estado?: string;
-    prioridad?: string;
-    fechaInicio: string;
-    fechaFin?: string;
-    ubicacion?: string;
-    costoEstimado?: number;
-    notas?: string;
-}
-
-export interface UpdateOrdenDto extends Partial<CreateOrdenDto> {
-    fechaRealInicio?: string;
-    fechaRealFin?: string;
-    costoReal?: number;
-}
-
-export interface QueryOrdenParams {
-    estado?: string;
-    prioridad?: string;
-    clienteId?: string;
-    tecnicoId?: string;
-    fechaDesde?: string;
-    fechaHasta?: string;
-    buscar?: string;
-    page?: number;
-    limit?: number;
-    sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
-}
-
-export interface PaginatedResponse<T> {
-    data: T[];
-    meta: {
-        total: number;
-        page: number;
-        limit: number;
-        totalPages: number;
-    };
-}
+import { Orden, CreateOrdenDto, UpdateOrdenDto, ListOrdenesQuery, PaginatedOrdenes } from '../core/models/orden.model';
 
 @Injectable({
     providedIn: 'root'
@@ -82,8 +18,8 @@ export class OrdenesService {
     /**
      * Obtiene todas las órdenes con paginación y filtros
      */
-    getAll(params?: QueryOrdenParams): Observable<PaginatedResponse<Orden>> {
-        return this.http.get<PaginatedResponse<Orden>>(this.API_URL, { params: buildHttpParams(params as unknown as Record<string, unknown> | undefined) }).pipe(
+    getAll(params?: ListOrdenesQuery): Observable<PaginatedOrdenes> {
+        return this.http.get<PaginatedOrdenes>(this.API_URL, { params: buildHttpParams(params as unknown as Record<string, unknown> | undefined) }).pipe(
             catchError(this.handleError)
         );
     }
@@ -136,7 +72,7 @@ export class OrdenesService {
     /**
      * Exporta órdenes a PDF
      */
-    exportarPDF(params?: QueryOrdenParams): Observable<Blob> {
+    exportarPDF(params?: ListOrdenesQuery): Observable<Blob> {
         return this.http.get(`${this.API_URL}/export/pdf`, {
             params: buildHttpParams(params as unknown as Record<string, unknown> | undefined),
             responseType: 'blob'

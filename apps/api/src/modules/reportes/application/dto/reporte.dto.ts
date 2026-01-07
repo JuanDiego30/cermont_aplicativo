@@ -2,8 +2,45 @@
  * @module Reportes - Clean Architecture
  */
 import { z } from "zod";
+import {
+  IsString,
+  IsOptional,
+  IsUUID,
+  IsIn,
+} from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
-// DTOs
+// DTOs - ClassValidator para ValidationPipe global
+export class ReporteQueryDto {
+  @ApiProperty({ description: "Fecha inicio (YYYY-MM-DD)", example: "2025-01-01" })
+  @IsString()
+  fechaInicio!: string;
+
+  @ApiProperty({ description: "Fecha fin (YYYY-MM-DD)", example: "2025-12-31" })
+  @IsString()
+  fechaFin!: string;
+
+  @ApiPropertyOptional({ description: "Filtrar por estado de orden" })
+  @IsOptional()
+  @IsString()
+  estado?: string;
+
+  @ApiPropertyOptional({ description: "Filtrar por técnico (UUID)" })
+  @IsOptional()
+  @IsUUID("4", { message: "tecnicoId debe ser un UUID válido" })
+  tecnicoId?: string;
+
+  @ApiPropertyOptional({
+    description: "Formato de salida",
+    enum: ["json", "pdf", "excel"],
+    default: "json",
+  })
+  @IsOptional()
+  @IsIn(["json", "pdf", "excel"], { message: "Formato debe ser json, pdf o excel" })
+  formato?: "json" | "pdf" | "excel" = "json";
+}
+
+/** @deprecated Use la clase ReporteQueryDto con ClassValidator */
 export const ReporteQuerySchema = z.object({
   fechaInicio: z.string(),
   fechaFin: z.string(),
@@ -11,8 +48,6 @@ export const ReporteQuerySchema = z.object({
   tecnicoId: z.string().uuid().optional(),
   formato: z.enum(["json", "pdf", "excel"]).default("json"),
 });
-
-export type ReporteQueryDto = z.infer<typeof ReporteQuerySchema>;
 
 export interface OrdenReporteData {
   id: string;

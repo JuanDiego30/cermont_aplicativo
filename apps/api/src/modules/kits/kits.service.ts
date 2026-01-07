@@ -27,6 +27,33 @@ interface EquipoKit {
   certificacion: boolean;
 }
 
+/**
+ * Type-safe JSON field parsers for KitTipico fields.
+ * Prisma returns JsonValue which needs runtime validation.
+ */
+function parseChecklistItems(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === "string");
+}
+
+function parseHerramientas(value: unknown): HerramientaKit[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is HerramientaKit => 
+    typeof item === "object" && 
+    item !== null &&
+    typeof (item as HerramientaKit).nombre === "string"
+  );
+}
+
+function parseEquipos(value: unknown): EquipoKit[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is EquipoKit => 
+    typeof item === "object" && 
+    item !== null &&
+    typeof (item as EquipoKit).nombre === "string"
+  );
+}
+
 interface CreateKitDtoLegacy {
   nombre: string;
   descripcion?: string;
@@ -379,10 +406,9 @@ export class KitsService {
       throw new NotFoundException("Ejecución no encontrada");
     }
 
-    const checklistItems = (kit.checklistItems as unknown as string[]) || [];
-    const herramientas =
-      (kit.herramientas as unknown as HerramientaKit[]) || [];
-    const equipos = (kit.equipos as unknown as EquipoKit[]) || [];
+    const checklistItems = parseChecklistItems(kit.checklistItems);
+    const herramientas = parseHerramientas(kit.herramientas);
+    const equipos = parseEquipos(kit.equipos);
 
     const checklistPrincipal = await this.prisma.checklistEjecucion.create({
       data: {

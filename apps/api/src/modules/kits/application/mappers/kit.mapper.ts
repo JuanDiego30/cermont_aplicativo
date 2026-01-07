@@ -6,6 +6,14 @@
 import { Kit } from "../../domain/entities/kit.entity";
 import { KitItem } from "../../domain/entities/kit-item.entity";
 import { KitResponseDto, KitItemResponseDto } from "../dto/kit.dtos";
+import type { KitTipico } from "@prisma/client";
+
+/** 
+ * Type for KitTipico from Prisma.
+ * Using a flexible input type to support both direct Prisma results
+ * and record-based data for testing/mocking.
+ */
+type KitPrismaInput = KitTipico | Record<string, unknown>;
 
 export class KitMapper {
   /**
@@ -85,12 +93,16 @@ export class KitMapper {
   /**
    * Prisma data → Entity
    */
-  public static fromPrisma(data: Record<string, unknown>): Kit {
+  public static fromPrisma(data: KitPrismaInput): Kit {
+    // Normalize access - works with both typed Prisma and Record
+    const get = <T>(key: string): T | undefined => 
+      (data as Record<string, unknown>)[key] as T | undefined;
+
     // Convert legacy format to items
     const items: unknown[] = [];
 
     // Add herramientas
-    const herramientas = (data["herramientas"] as unknown[]) || [];
+    const herramientas = (get<unknown[]>("herramientas")) || [];
     for (const h of herramientas) {
       const herr = h as Record<string, unknown>;
       items.push({
@@ -107,7 +119,7 @@ export class KitMapper {
     }
 
     // Add equipos
-    const equipos = (data["equipos"] as unknown[]) || [];
+    const equipos = (get<unknown[]>("equipos")) || [];
     for (const e of equipos) {
       const eq = e as Record<string, unknown>;
       items.push({
@@ -123,23 +135,24 @@ export class KitMapper {
       });
     }
 
-    const activo = data["activo"] as boolean;
+    const activo = get<boolean>("activo") ?? true;
+    const id = get<string>("id") ?? "";
 
     return Kit.fromPersistence({
-      id: data["id"] as string,
-      codigo: `KIT-${(data["id"] as string).substring(0, 7).toUpperCase()}`,
-      nombre: data["nombre"] as string,
-      descripcion: data["descripcion"] as string | undefined,
+      id,
+      codigo: `KIT-${id.substring(0, 7).toUpperCase()}`,
+      nombre: get<string>("nombre") ?? "",
+      descripcion: get<string>("descripcion"),
       categoria: "GENERAL",
       tipo: "BASICO",
       estado: activo ? "ACTIVO" : "INACTIVO",
       items,
-      costoTotal: (data["costoEstimado"] as number) || 0,
+      costoTotal: get<number>("costoEstimado") || 0,
       esPlantilla: false,
-      duracionEstimadaHoras: (data["duracionEstimadaHoras"] as number) || 0,
+      duracionEstimadaHoras: get<number>("duracionEstimadaHoras") || 0,
       creadoPor: "system",
-      creadoEn: (data["createdAt"] as Date) || new Date(),
-      actualizadoEn: data["updatedAt"] as Date | undefined,
+      creadoEn: get<Date>("createdAt") || new Date(),
+      actualizadoEn: get<Date>("updatedAt"),
       version: 1,
     });
   }

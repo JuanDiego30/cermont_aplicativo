@@ -63,6 +63,7 @@ export type UpdateOrdenDto = z.infer<typeof UpdateOrdenSchema>;
 // ==========================================
 export const ChangeEstadoSchema = z.object({
   estado: z.enum([
+    "pendiente",
     "planeacion",
     "ejecucion",
     "pausada",
@@ -104,7 +105,7 @@ export type TransitionStateDto = z.infer<typeof TransitionStateSchema>;
 // ==========================================
 export const OrdenQuerySchema = z.object({
   estado: z
-    .enum(["planeacion", "ejecucion", "pausada", "completada", "cancelada"])
+    .enum(["pendiente", "planeacion", "ejecucion", "pausada", "completada", "cancelada"])
     .optional(),
   cliente: z.string().optional(),
   prioridad: z.enum(["baja", "media", "alta", "urgente"]).optional(),

@@ -182,6 +182,10 @@ import { RequestIdMiddleware } from "./common/middleware/request-id.middleware";
   providers: [
     // Logging global de requests (sin activar guards/filtros globales aún)
     {
+      provide: APP_GUARD,
+      useClass: CustomThrottleGuard,
+    },
+    {
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter,
     },

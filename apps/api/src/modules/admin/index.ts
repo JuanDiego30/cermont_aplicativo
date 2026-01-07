@@ -30,7 +30,7 @@ export {
   UserResponseDto,
   AdminActionResponseDto,
   ListUsersResponseDto,
-} from "./dto/admin.dto";
+} from "./application/dto/admin-legacy.dto";
 
 // Module
 export { AdminModule } from "./admin.module";

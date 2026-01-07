@@ -18,6 +18,10 @@ import {
 } from "../../domain/repositories";
 import { OrdenEntity, OrdenProps } from "../../domain/entities";
 import { EstadoOrden, PrioridadLevel } from "../../domain/value-objects";
+import {
+  isOrdenEstado,
+  isOrdenPrioridad,
+} from "../../application/dto/shared-types";
 
 type OrderFullTextItem = Prisma.OrderGetPayload<{
   include: {
@@ -93,8 +97,10 @@ export class PrismaOrdenRepository implements IOrdenRepository {
 
     const where: Prisma.OrderWhereInput = {
       deletedAt: null, // Excluir eliminados
-      ...(estado && { estado: estado as unknown as OrderStatus }),
-      ...(prioridad && { prioridad: prioridad as unknown as OrderPriority }),
+      ...(estado &&
+        isOrdenEstado(estado) && { estado: estado as OrderStatus }),
+      ...(prioridad &&
+        isOrdenPrioridad(prioridad) && { prioridad: prioridad as OrderPriority }),
       ...(searchTerm && {
         OR: [
           { numero: { contains: searchTerm, mode: "insensitive" } },
@@ -298,8 +304,9 @@ export class PrismaOrdenRepository implements IOrdenRepository {
       deletedAt: null,
     };
 
-    if (filters.estado) {
-      where.estado = filters.estado as unknown as OrderStatus;
+    if (filters.estado && isOrdenEstado(filters.estado)) {
+      // Prisma enum values match our string literals exactly
+      where.estado = filters.estado as OrderStatus;
     }
 
     if (filters.cliente) {
@@ -309,8 +316,8 @@ export class PrismaOrdenRepository implements IOrdenRepository {
       };
     }
 
-    if (filters.prioridad) {
-      where.prioridad = filters.prioridad as unknown as OrderPriority;
+    if (filters.prioridad && isOrdenPrioridad(filters.prioridad)) {
+      where.prioridad = filters.prioridad as OrderPriority;
     }
 
     if (filters.asignadoId) {

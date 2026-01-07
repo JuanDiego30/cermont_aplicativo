@@ -160,3 +160,20 @@ export function getStepNumber(subState: OrderSubState): number {
   };
   return stepMap[subState] || 0;
 }
+
+/**
+ * Type guard para validar si un string es un OrderSubState válido
+ */
+export function isOrderSubState(value: string): value is OrderSubState {
+  return Object.values(OrderSubState).includes(value as OrderSubState);
+}
+
+/**
+ * Convierte un string validado a OrderSubState de forma type-safe
+ */
+export function toOrderSubState(value: string): OrderSubState {
+  if (!isOrderSubState(value)) {
+    throw new Error(`Invalid OrderSubState: ${value}`);
+  }
+  return value;
+}

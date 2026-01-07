@@ -23,6 +23,25 @@ function isOrdenEstadoValue(value: unknown): value is OrdenEstado {
   );
 }
 
+/**
+ * Convierte un string de estado del dominio a OrdenEstado del DTO.
+ * Retorna undefined si el valor no es válido.
+ */
+function toOrdenEstadoOrUndefined(value: string | null | undefined): OrdenEstado | undefined {
+  if (!value) return undefined;
+  if (isOrdenEstadoValue(value)) return value;
+  return undefined;
+}
+
+/**
+ * Convierte un string de estado del dominio a OrdenEstado del DTO.
+ * Retorna 'pendiente' como fallback si el valor no es válido.
+ */
+function toOrdenEstadoWithFallback(value: string | null | undefined): OrdenEstado {
+  if (value && isOrdenEstadoValue(value)) return value;
+  return OrdenEstado.PENDIENTE;
+}
+
 function asRecord(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   return value as Record<string, unknown>;
@@ -65,12 +84,12 @@ export class GetHistorialEstadosUseCase {
         const toSub = parseOrderSubState(String(h.toState));
 
         const estadoAnterior = fromSub
-          ? (getMainStateFromSubState(fromSub) as unknown as OrdenEstado)
+          ? toOrdenEstadoOrUndefined(getMainStateFromSubState(fromSub))
           : undefined;
 
         const estadoNuevo = toSub
-          ? (getMainStateFromSubState(toSub) as unknown as OrdenEstado)
-          : ((orden.estado.value || "pendiente") as unknown as OrdenEstado);
+          ? toOrdenEstadoWithFallback(getMainStateFromSubState(toSub))
+          : toOrdenEstadoWithFallback(orden.estado.value);
 
         return {
           id: h.id,
@@ -118,7 +137,7 @@ export class GetHistorialEstadosUseCase {
             : undefined;
           const estadoNuevo = isOrdenEstadoValue(toRaw)
             ? toRaw
-            : ((orden.estado.value || "pendiente") as unknown as OrdenEstado);
+            : toOrdenEstadoWithFallback(orden.estado.value);
 
           historial.push({
             id: a.id,
@@ -133,14 +152,13 @@ export class GetHistorialEstadosUseCase {
         }
       }
 
-      // Si a�n no hay historial, crear una entrada inicial con el estado actual
+      // Si aún no hay historial, crear una entrada inicial con el estado actual
       if (historial.length === 0) {
         historial.push({
           id: orden.id,
           ordenId: orden.id,
           estadoAnterior: undefined,
-          estadoNuevo: (orden.estado.value ||
-            "pendiente") as unknown as OrdenEstado,
+          estadoNuevo: toOrdenEstadoWithFallback(orden.estado.value),
           motivo: "Estado inicial",
           observaciones: undefined,
           usuarioId: orden.creadorId || undefined,

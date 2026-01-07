@@ -4,6 +4,7 @@ export * from "./change-estado-orden.dto";
 export * from "./asignar-tecnico-orden.dto";
 export * from "./query-ordenes.dto";
 export * from "./orden-response.dto";
+export * from "./shared-types";
 
 // Mantener compatibilidad con código existente que usa Zod (migrar gradualmente)
 // Exportar solo los tipos/interfaces que no entran en conflicto

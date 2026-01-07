@@ -1,6 +1,7 @@
 /**
  * @controller EjecucionController
  * @description Controlador unificado de ejecución
+ * @validation ClassValidator via ValidationPipe global
  */
 import {
   Controller,
@@ -10,7 +11,6 @@ import {
   Param,
   Body,
   UseGuards,
-  BadRequestException,
   NotFoundException,
   Req,
 } from "@nestjs/common";
@@ -23,9 +23,9 @@ import {
   JwtPayload,
 } from "../../../../common/decorators/current-user.decorator";
 import {
-  IniciarEjecucionSchema,
-  UpdateAvanceSchema,
-  CompletarEjecucionSchema,
+  IniciarEjecucionDto,
+  UpdateAvanceDto,
+  CompletarEjecucionDto,
 } from "../../application/dto";
 import {
   GetEjecucionUseCase,
@@ -73,35 +73,28 @@ export class EjecucionController {
   @Post("orden/:ordenId/iniciar")
   @Roles("admin", "supervisor", "tecnico")
   @ApiOperation({ summary: "Iniciar ejecución de orden" })
-  async iniciar(@Param("ordenId") ordenId: string, @Body() body: unknown) {
-    const result = IniciarEjecucionSchema.safeParse(body);
-    if (!result.success) throw new BadRequestException(result.error.flatten());
+  async iniciar(
+    @Param("ordenId") ordenId: string,
+    @Body() dto: IniciarEjecucionDto,
+  ) {
     return this.iniciarEjecucion.execute(
       ordenId,
-      result.data.tecnicoId,
-      result.data.observaciones,
+      dto.tecnicoId,
+      dto.observaciones,
     );
   }
 
   @Put(":id/avance")
   @Roles("admin", "supervisor", "tecnico")
   @ApiOperation({ summary: "Actualizar avance de ejecución" })
-  async avance(@Param("id") id: string, @Body() body: unknown) {
-    const result = UpdateAvanceSchema.safeParse(body);
-    if (!result.success) throw new BadRequestException(result.error.flatten());
-    return this.updateAvance.execute(
-      id,
-      result.data.avance,
-      result.data.observaciones ?? "",
-    );
+  async avance(@Param("id") id: string, @Body() dto: UpdateAvanceDto) {
+    return this.updateAvance.execute(id, dto.avance, dto.observaciones ?? "");
   }
 
   @Put(":id/completar")
   @Roles("admin", "supervisor", "tecnico")
   @ApiOperation({ summary: "Completar ejecución" })
-  async completar(@Param("id") id: string, @Body() body: unknown) {
-    const result = CompletarEjecucionSchema.safeParse(body);
-    if (!result.success) throw new BadRequestException(result.error.flatten());
-    return this.completarEjecucion.execute(id, result.data);
+  async completar(@Param("id") id: string, @Body() dto: CompletarEjecucionDto) {
+    return this.completarEjecucion.execute(id, dto);
   }
 }

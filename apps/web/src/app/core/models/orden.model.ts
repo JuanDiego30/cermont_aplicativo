@@ -1,11 +1,10 @@
 export enum OrdenEstado {
   PENDIENTE = 'pendiente',
   PLANEACION = 'planeacion',
-  EN_PROGRESO = 'en_progreso',
   EJECUCION = 'ejecucion',
+  PAUSADA = 'pausada',
   COMPLETADA = 'completada',
   CANCELADA = 'cancelada',
-  ARCHIVADA = 'archivada',
 }
 
 export enum Prioridad {

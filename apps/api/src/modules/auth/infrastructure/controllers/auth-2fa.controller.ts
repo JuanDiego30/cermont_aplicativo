@@ -2,6 +2,7 @@
  * @controller Auth2FAController
  * @description Controlador para autenticación de dos factores (2FA)
  * @layer Infrastructure
+ * @validation ClassValidator via ValidationPipe global
  */
 import {
   Controller,
@@ -12,7 +13,6 @@ import {
   HttpStatus,
   UseGuards,
   Logger,
-  BadRequestException,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -32,10 +32,10 @@ import { Send2FACodeUseCase } from "../../application/use-cases/send-2fa-code.us
 import { Verify2FACodeUseCase } from "../../application/use-cases/verify-2fa-code.use-case";
 import { Toggle2FAUseCase } from "../../application/use-cases/toggle-2fa.use-case";
 import {
-  Request2FACodeDtoSchema,
-  Verify2FACodeDtoSchema,
-  Enable2FADtoSchema,
-} from "../../dto/two-factor.dto";
+  Request2FACodeDto,
+  Verify2FACodeDto,
+  Enable2FADto,
+} from "../../application/dto/two-factor.dto";
 
 @ApiTags("Auth - Two-Factor Authentication")
 @Controller("auth/2fa")
@@ -74,19 +74,10 @@ export class Auth2FAController {
   })
   @ApiResponse({ status: 404, description: "Usuario no encontrado" })
   @ApiResponse({ status: 400, description: "Usuario no tiene 2FA habilitado" })
-  async sendCode(@Body() body: unknown) {
-    const parseResult = Request2FACodeDtoSchema.safeParse(body);
-    if (!parseResult.success) {
-      const errors = parseResult.error.issues
-        .map((i) => `${i.path.join(".")}: ${i.message}`)
-        .join(", ");
-      throw new BadRequestException(`Validación fallida: ${errors}`);
-    }
-
-    const { email } = parseResult.data;
+  async sendCode(@Body() dto: Request2FACodeDto) {
     this.logger.log("2FA code request received");
 
-    return await this.send2FACodeUseCase.execute(email);
+    return await this.send2FACodeUseCase.execute(dto.email);
   }
 
   /**
@@ -112,19 +103,10 @@ export class Auth2FAController {
     },
   })
   @ApiResponse({ status: 401, description: "Código inválido o expirado" })
-  async verifyCode(@Body() body: unknown) {
-    const parseResult = Verify2FACodeDtoSchema.safeParse(body);
-    if (!parseResult.success) {
-      const errors = parseResult.error.issues
-        .map((i) => `${i.path.join(".")}: ${i.message}`)
-        .join(", ");
-      throw new BadRequestException(`Validación fallida: ${errors}`);
-    }
-
-    const { email, code } = parseResult.data;
+  async verifyCode(@Body() dto: Verify2FACodeDto) {
     this.logger.log("2FA verification attempt received");
 
-    return await this.verify2FACodeUseCase.execute(email, code);
+    return await this.verify2FACodeUseCase.execute(dto.email, dto.code);
   }
 
   /**
@@ -152,22 +134,13 @@ export class Auth2FAController {
   })
   async toggleTwoFactor(
     @CurrentUser() user: JwtPayload,
-    @Body() body: unknown,
+    @Body() dto: Enable2FADto,
   ) {
-    const parseResult = Enable2FADtoSchema.safeParse(body);
-    if (!parseResult.success) {
-      const errors = parseResult.error.issues
-        .map((i) => `${i.path.join(".")}: ${i.message}`)
-        .join(", ");
-      throw new BadRequestException(`Validación fallida: ${errors}`);
-    }
-
-    const { enable } = parseResult.data;
     this.logger.log(
-      `Toggle 2FA request for user: ${user.userId}, enable: ${enable}`,
+      `Toggle 2FA request for user: ${user.userId}, enable: ${dto.enable}`,
     );
 
-    return await this.toggle2FAUseCase.execute(user.userId, enable);
+    return await this.toggle2FAUseCase.execute(user.userId, dto.enable);
   }
 
   /**

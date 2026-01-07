@@ -12,7 +12,7 @@ import {
   WeatherAlert,
   WeatherLocation,
   HourlyForecast,
-} from "./dto/weather.dto";
+} from "./application/dto/weather-legacy.dto";
 
 @ApiTags("Weather - Meteorología")
 @Controller("weather")

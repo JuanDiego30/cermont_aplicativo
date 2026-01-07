@@ -31,7 +31,7 @@ export {
   ValidateSyncIntegrityDto,
   ForceResyncDto,
   EstadoItemChecklist,
-} from "./dto/offline-checklist.dto";
+} from "./application/dto/offline-checklist.dto";
 
 // Module
 export { SyncModule } from "./sync.module";
