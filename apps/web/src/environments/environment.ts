@@ -1,7 +1,7 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/api',
-  wsUrl: 'ws://localhost:3000',
+  apiUrl: 'http://localhost:3001/api',
+  wsUrl: 'ws://localhost:3001',
   appName: 'Cermont',
   version: '1.0.0',
   enableDebug: true,
