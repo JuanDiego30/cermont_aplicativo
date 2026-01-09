@@ -1,54 +1,32 @@
-# Build stage
+# Frontend Web Dockerfile - Multi-stage build
 FROM node:20-alpine AS builder
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@9 --activate
-
-WORKDIR /build
-
-# Copy package files first for better caching
-COPY package.json pnpm-lock.yaml ./
+WORKDIR /app
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+COPY package*.json ./
+RUN npm ci --legacy-peer-deps
 
-# Copy source files
-COPY angular.json tsconfig*.json ./
-COPY src ./src
+# Copy source and build
+COPY . .
+RUN npm run build
 
-# Build for production
-RUN pnpm run build --configuration production
-
-# Production stage - use nginx for serving static files
-FROM nginx:alpine
+# Production stage - Nginx to serve static files
+FROM nginx:alpine AS production
 
 # Copy built Angular app
-COPY --from=builder /build/dist/apps/web/browser /usr/share/nginx/html
+COPY --from=builder /app/dist/cermont-web/browser /usr/share/nginx/html
 
-# Custom nginx config for Angular SPA routing
-RUN echo 'server { \
-    listen 4200; \
-    root /usr/share/nginx/html; \
-    index index.html; \
-    location / { \
-    try_files $uri $uri/ /index.html; \
-    } \
-    location /api { \
-    proxy_pass http://api:3000; \
-    proxy_http_version 1.1; \
-    proxy_set_header Upgrade $http_upgrade; \
-    proxy_set_header Connection "upgrade"; \
-    proxy_set_header Host $host; \
-    proxy_set_header X-Real-IP $remote_addr; \
-    } \
-    gzip on; \
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml; \
-    }' > /etc/nginx/conf.d/default.conf
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 4200
+# Create non-root user
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
+    chmod -R 755 /usr/share/nginx/html
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:4200 || exit 1
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
