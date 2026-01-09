@@ -47,3 +47,7 @@ coverage/
 *.bak.*
 *.zip
 .vs/
+-e 
+# Environment files
+*.env
+*.env.*
