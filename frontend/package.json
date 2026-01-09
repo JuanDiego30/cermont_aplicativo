@@ -1,0 +1,12 @@
+{
+  "name": "cermont-frontend-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "serve -s ../apps/web/dist/cermont-web/browser -l 3000",
+    "dev": "serve -s ../apps/web/dist/cermont-web/browser -l 3000"
+  },
+  "dependencies": {
+    "serve": "^14.2.4"
+  }
+}
