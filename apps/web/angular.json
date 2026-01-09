@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ng-tailadmin": {
+    "cermont-web": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist/ng-tailadmin",
+            "outputPath": "dist/cermont-web",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -77,10 +77,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "ng-tailadmin:build:production"
+              "buildTarget": "cermont-web:build:production"
             },
             "development": {
-              "buildTarget": "ng-tailadmin:build:development"
+              "buildTarget": "cermont-web:build:development"
             }
           },
           "defaultConfiguration": "development"
