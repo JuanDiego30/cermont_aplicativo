@@ -182,6 +182,33 @@ import { RequestIdMiddleware } from "./common/middleware/request-id.middleware";
       provide: APP_INTERCEPTOR,
       useClass: HttpLoggingInterceptor,
     },
+    // Global Exception Filter - Catches ALL unhandled exceptions
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
+    // Prisma specific exception filters (higher priority)
+    {
+      provide: APP_FILTER,
+      useClass: PrismaExceptionFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: PrismaValidationFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: PrismaConnectionFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: PrismaPanicFilter,
+    },
+    // Rate limiting guard
+    {
+      provide: APP_GUARD,
+      useClass: CustomThrottleGuard,
+    },
     LoggerService,
   ],
 })
