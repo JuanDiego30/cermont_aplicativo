@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: cermont_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-cermont}
+      POSTGRES_USER: ${DB_USER:-cermont_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-cermont_secure_password_change_me}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-cermont_user} -d ${DB_NAME:-cermont}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - cermont_network
+
+  # NestJS Backend API
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: cermont_api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${DB_USER:-cermont_user}:${DB_PASSWORD:-cermont_secure_password_change_me}@postgres:5432/${DB_NAME:-cermont}
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-minimum-32-characters}
+      JWT_EXPIRY: ${JWT_EXPIRY:-24h}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-your-super-secret-refresh-key-minimum-32-characters}
+      JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-7d}
+      FRONTEND_URL: ${FRONTEND_URL:-https://localhost}
+      PORT: 3000
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - cermont_network
+
+  # Angular Frontend (built as static files served by nginx)
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: cermont_web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:4200:80"
+    depends_on:
+      - api
+    networks:
+      - cermont_network
+
+  # Nginx Reverse Proxy with SSL
+  nginx:
+    image: nginx:alpine
+    container_name: cermont_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - certbot_data:/var/www/certbot:ro
+      - certbot_conf:/etc/letsencrypt:ro
+    depends_on:
+      - api
+      - web
+    networks:
+      - cermont_network
+
+  # Certbot for SSL (optional - run manually for initial setup)
+  certbot:
+    image: certbot/certbot
+    container_name: cermont_certbot
+    volumes:
+      - certbot_data:/var/www/certbot
+      - certbot_conf:/etc/letsencrypt
+    command: echo "Certbot ready. Run: docker-compose run certbot certonly --webroot -w /var/www/certbot -d your-domain.com"
+
+volumes:
+  postgres_data:
+  certbot_data:
+  certbot_conf:
+
+networks:
+  cermont_network:
+    driver: bridge
