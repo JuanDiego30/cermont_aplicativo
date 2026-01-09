@@ -7,6 +7,6 @@
     "dev": "serve -s ../apps/web/dist/cermont-web/browser -l 3000"
   },
   "dependencies": {
-    "serve": "^14.2.4"
+    "serve": "^14.2.5"
   }
 }
