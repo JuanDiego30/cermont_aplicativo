@@ -28,7 +28,7 @@ app.add_middleware(
 )
 
 # NestJS backend URL
-NESTJS_URL = os.getenv("NESTJS_URL", "http://localhost:3000")
+NESTJS_URL = os.getenv("NESTJS_URL", "http://localhost:3001")
 
 nestjs_process = None
 
