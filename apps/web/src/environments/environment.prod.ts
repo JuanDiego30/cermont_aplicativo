@@ -1,14 +1,15 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.cermont.com/api',
-  wsUrl: 'wss://api.cermont.com',
+  // La URL de la API se configura en el build o mediante proxy de nginx
+  apiUrl: '/api',
+  wsUrl: '',
   appName: 'Cermont',
   version: '1.0.0',
   enableDebug: false,
   features: {
     weatherModule: true,
     offlineMode: true,
-    analytics: true
+    analytics: false
   },
   cache: {
     ttl: 600000, // 10 minutos
