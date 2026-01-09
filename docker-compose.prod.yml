@@ -37,10 +37,10 @@ services:
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-your-super-secret-refresh-key-minimum-32-characters}
       JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-7d}
       FRONTEND_URL: ${FRONTEND_URL:-https://localhost}
-      PORT: 3000
+      PORT: 3001
       LOG_LEVEL: ${LOG_LEVEL:-info}
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:3001:3001"
     depends_on:
       postgres:
         condition: service_healthy
