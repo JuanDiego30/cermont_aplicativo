@@ -1,68 +1,40 @@
-# 🏢 CERMONT APLICATIVO
+# 🏢 CERMONT - Sistema de Gestión de Órdenes de Trabajo
 
-**Aplicativo empresarial integral** para gestión de órdenes, evidencias, formularios y reportes. Arquitectura full-stack con **patrones especializados** basados en 13 agentes de desarrollo.
-
----
+Sistema empresarial integral para gestión de órdenes de trabajo, evidencias, formularios dinámicos y reportes para servicios de refrigeración industrial.
 
 ## 🚀 Inicio Rápido
 
-### Para Nuevos Miembros del Equipo
+### Desarrollo Local
+
 ```bash
-# 1. Lee la guía de onboarding (10 min)
-# Abre: .github/ONBOARDING.md
-
-# 2. Setup local (15 min)
-git clone git@github.com:JuanDiego30/cermont_aplicativo.git
+# 1. Clonar repositorio
+git clone https://github.com/JuanDiego30/cermont_aplicativo.git
 cd cermont_aplicativo
-npm install
 
-# 3. Inicia servicios
-docker-compose -f docker-compose.dev.yml up -d
-npm run start:api    # Terminal 1
-npm run start:web    # Terminal 2
+# 2. Backend
+cd apps/api
+cp .env.example .env  # Configurar variables
+npm install --legacy-peer-deps
+npx prisma generate
+npx prisma migrate dev
+npm run dev
 
-# 4. Abre en navegador
-# http://localhost:4200 (Frontend)
-# http://localhost:3000/api (Backend)
+# 3. Frontend (nueva terminal)
+cd apps/web
+npm install --legacy-peer-deps
+npm run dev
 
-✅ ¡Listo!
+# 4. Abrir en navegador
+# http://localhost:4200
 ```
 
----
+### Despliegue en VPS
 
-## 📚 Documentación Estructurada
+Ver guía completa: [DEPLOY_VPS.md](./DEPLOY_VPS.md)
 
-### 🎯 Para Cualquier Tarea de Desarrollo
-
-1. **Necesito entender cómo funciona...**
-   → Abre [`.github/AGENTS.md`](.github/AGENTS.md) - Índice maestro de todos los agentes
-
-2. **Voy a trabajar en una tarea...**
-   → Usa [`.github/TASK_TEMPLATE.md`](.github/TASK_TEMPLATE.md) - Plantilla estructurada
-
-3. **Soy nuevo en el equipo...**
-   → Comienza con [`.github/ONBOARDING.md`](.github/ONBOARDING.md) - Guía día a día
-
-### 🤖 Los 13 Agentes Especializados
-
-**Backend (7):**
-- [`backend-auth.agent.md`](.github/agents/backend-auth.agent.md) - Autenticación y permisos
-- [`backend-ordenes.agent.md`](.github/agents/backend-ordenes.agent.md) - Gestión de órdenes
-- [`backend-evidencias.agent.md`](.github/agents/backend-evidencias.agent.md) - Almacenamiento de archivos
-- [`backend-formularios.agent.md`](.github/agents/backend-formularios.agent.md) - Formularios dinámicos
-- [`backend-sync.agent.md`](.github/agents/backend-sync.agent.md) - Sincronización offline
-- [`backend-reportes-pdf.agent.md`](.github/agents/backend-reportes-pdf.agent.md) - Reportes en PDF
-- [`quality-testing.agent.md`](.github/agents/quality-testing.agent.md) - Testing y cobertura
-
-**Frontend (5):**
-- [`frontend.agent.md`](.github/agents/frontend.agent.md) - Arquitectura general (umbrella)
-- [`frontend-api-integration.agent.md`](.github/agents/frontend-api-integration.agent.md) - HTTP y servicios
-- [`frontend-ui-ux.agent.md`](.github/agents/frontend-ui-ux.agent.md) - Componentes y accesibilidad
-- [`frontend-state-data.agent.md`](.github/agents/frontend-state-data.agent.md) - Estado (NgRx/Signals)
-- [`frontend-performance.agent.md`](.github/agents/frontend-performance.agent.md) - Optimización
-
-**DevOps (1):**
-- [`devops-ci-cd.agent.md`](.github/agents/devops-ci-cd.agent.md) - Docker, CI/CD, deployments
+```bash
+./deploy.sh setup
+```
 
 ---
 
@@ -72,291 +44,222 @@ npm run start:web    # Terminal 2
 
 | Capa | Tecnología | Versión |
 |------|-----------|----------|
-| **Frontend** | Angular | 18+ |
-| **Backend** | NestJS | 10+ |
+| **Frontend** | Angular | 21+ |
+| **Backend** | NestJS | 11+ |
 | **BD** | PostgreSQL | 16+ |
-| **Cache** | Redis | 7+ |
 | **ORM** | Prisma | 5+ |
-| **Testing** | Jest / Jasmine | Latest |
-| **CI/CD** | GitHub Actions | - |
-| **Containerización** | Docker | 25+ |
+| **Estilos** | Tailwind CSS | 4+ |
+| **Contenedores** | Docker | 25+ |
 
-### Estructura de Carpetas
+### Estructura del Proyecto
 
 ```
 cermont_aplicativo/
-├── .github/
-│   ├── agents/              ← 13 agentes especializados
-│   ├── workflows/           ← CI/CD (GitHub Actions)
-│   ├── AGENTS.md            ← 📖 Índice maestro
-│   ├── TASK_TEMPLATE.md     ← 📋 Plantilla para tareas
-│   └── ONBOARDING.md        ← 🎯 Guía para nuevos
 ├── apps/
-│   ├── api/                 ← Backend (NestJS)
-│   │   ├── src/modules/
-│   │   │   ├── auth/
-│   │   │   ├── ordenes/
-│   │   │   ├── evidencias/
-│   │   │   └── ...
-│   │   └── test/
-│   └── web/                 ← Frontend (Angular)
-│       ├── src/app/
-│       │   ├── core/        ← Guards, interceptors, services
-│       │   ├── shared/      ← Componentes reutilizables
-│       │   ├── features/    ← Módulos de features
-│       │   └── app.routes.ts
-│       └── test/
-├── docker/                  ← Dockerfiles
-├── docker-compose.dev.yml   ← Dev local
-├── package.json
-├── tsconfig.json
-└── README.md                ← Este archivo
+│   ├── api/                 # Backend NestJS
+│   │   ├── src/
+│   │   │   ├── modules/     # Módulos de negocio
+│   │   │   ├── common/      # Utilidades compartidas
+│   │   │   └── prisma/      # Cliente Prisma
+│   │   └── prisma/          # Schema y migraciones
+│   │
+│   └── web/                 # Frontend Angular
+│       └── src/
+│           └── app/
+│               ├── core/        # Guards, interceptors
+│               ├── shared/      # Componentes reutilizables
+│               └── features/    # Módulos de funcionalidades
+│
+├── nginx/                   # Configuración Nginx
+├── docker-compose.yml       # Desarrollo
+├── docker-compose.prod.yml  # Producción
+└── deploy.sh               # Script de despliegue
 ```
 
 ---
 
-## 📖 Patrones Clave (GEMINI)
+## 📋 Funcionalidades Principales
 
-Cermont sigue **13 reglas de oro** transversales ("GEMINI"):
+### 🔐 Autenticación
+- Login/Registro con JWT
+- Refresh Tokens automático
+- Recuperación de contraseña
+- Autenticación 2FA (opcional)
 
-1. **G**eneral - DI (Dependency Injection) obligatorio
-2. **E**specializado - Centralización (no duplicar código)
-3. **M**antible - Type Safety (no `any`)
-4. **I**ntegrado - Error Handling + Logging
-5. **N**avegable - Caching Inteligente
-6. **I**mplementado - Testing (Unit → Integration → E2E)
+### 📝 Gestión de Órdenes (14 Pasos)
+1. Solicitud recibida
+2. Visita técnica programada
+3. Propuesta económica elaborada
+4. Propuesta aprobada
+5. Planeación iniciada/aprobada
+6. Ejecución iniciada/completada
+7. Informe generado
+8. Acta elaborada/firmada
+9. SES aprobada
+10. Factura aprobada
+11. Pago recibido
 
-**Más detalles:** Ver `.github/AGENTS.md` - Sección "Reglas GEMINI Transversales"
+### 📄 Formularios Dinámicos
+- Creación de checklists personalizados
+- Templates reutilizables
+- Inspecciones HES (Seguridad en Alturas)
+- Formularios de mantenimiento
+
+### 📸 Evidencias
+- Subida de fotos/documentos
+- Organización por orden
+- Thumbnails automáticos
+
+### 📊 Dashboard
+- KPIs en tiempo real
+- Estadísticas de órdenes
+- Alertas automáticas
 
 ---
 
-## 🔧 Scripts Comunes
+## 🔧 Scripts Disponibles
+
+### Backend (apps/api)
+```bash
+npm run dev          # Desarrollo con hot-reload
+npm run build        # Build de producción
+npm run start:prod   # Iniciar producción
+npm run test         # Tests unitarios
+npm run lint         # Linter
+```
+
+### Frontend (apps/web)
+```bash
+npm run dev          # Desarrollo
+npm run build        # Build de producción
+npm run test         # Tests
+npm run lint         # Linter
+```
+
+### Despliegue
+```bash
+./deploy.sh setup    # Configuración inicial
+./deploy.sh start    # Iniciar servicios
+./deploy.sh stop     # Detener servicios
+./deploy.sh logs     # Ver logs
+./deploy.sh backup   # Backup de BD
+./deploy.sh update   # Actualizar
+```
+
+---
+
+## 🗄️ Base de Datos
+
+### Modelos Principales
+
+- **User**: Usuarios del sistema (admin, supervisor, técnico)
+- **Order**: Órdenes de trabajo
+- **Planeacion**: Planificación de trabajos
+- **Ejecucion**: Ejecución y seguimiento
+- **Evidence**: Evidencias (fotos, documentos)
+- **ChecklistTemplate**: Templates de checklists
+- **FormTemplate**: Formularios dinámicos
+
+### Migraciones
 
 ```bash
-# Desarrollo
-npm run start:api           # Backend en puerto 3000
-npm run start:web           # Frontend en puerto 4200
-npm run dev                 # Ambos en paralelo
+# Crear migración
+npx prisma migrate dev --name nombre_migracion
 
-# Testing
-npm run test                # Tests unitarios (todo)
-npm run test -- --coverage  # Con cobertura
-npm run test:e2e            # Tests E2E (Cypress)
+# Aplicar migraciones
+npx prisma migrate deploy
 
-# Calidad
-npm run lint                # ESLint
-npm run format              # Prettier (escribir)
-npm run format:check        # Prettier (verificar)
-npm run type-check          # TypeScript
-
-# Build
-npm run build               # Build de ambos
-
-# Docker
-docker-compose -f docker-compose.dev.yml up -d    # Iniciar
-npm run migrate             # Ejecutar migrations (Prisma)
+# Ver BD en navegador
+npx prisma studio
 ```
-
----
-
-## 📋 Flujo de Trabajo
-
-### 1. Recibe una tarea
-```
-Ejemplo: "Agregar endpoint GET /ordenes/{id}/historial"
-```
-
-### 2. Identifica agentes relevantes
-```
-✅ backend-ordenes.agent.md (endpoint)
-✅ backend-auth.agent.md (seguridad)
-✅ frontend-api-integration.agent.md (consumirlo en UI)
-✅ quality-testing.agent.md (tests)
-```
-
-### 3. Sigue patrones del agente
-```bash
-# Lee el archivo del agente
-# Sigue la sección "Patrones Obligatorios"
-# Implementa código
-```
-
-### 4. Valida contra checklist
-```bash
-npm run lint
-npm run format:check
-npm run type-check
-npm run test -- --coverage
-npm run build
-
-# ✅ Si todo pasa, continúa
-```
-
-### 5. Crea PR
-```
-Título: [feat] Add endpoint GET /ordenes/{id}/historial - backend-ordenes + frontend-api-integration
-
-Menciona:
-- Agentes consultados
-- Patrones seguidos
-- Tests agregados (coverage)
-```
-
----
-
-## ✅ Checklist Antes de Hacer PR
-
-### Código
-- [ ] Tests pasan: `npm run test`
-- [ ] ESLint OK: `npm run lint`
-- [ ] Prettier OK: `npm run format:check`
-- [ ] TypeScript OK: `npm run type-check`
-- [ ] Build sin errores: `npm run build`
-- [ ] Coverage >80% en código nuevo
-
-### Documentación
-- [ ] Agentes mencionados en descripción de PR
-- [ ] Patrones del agente aplicados correctamente
-- [ ] Código auto-documentado (comentarios para "por qué")
-
-### Performance
-- [ ] Frontend: Lighthouse >90 Performance
-- [ ] Backend: Queries optimizadas (no N+1)
-- [ ] Bundle: Dentro de límites (<500KB gzip)
-
-### Seguridad
-- [ ] No hay secrets en código
-- [ ] Input validado
-- [ ] CORS configurado
 
 ---
 
 ## 🚀 Despliegue
 
-### Ambientes
+### Variables de Entorno Requeridas
 
-**Development** (automático en cada push a `main`)
-```bash
-URL: https://dev.cermont.local
-Autoploy: ✅ Sí (GitHub Actions)
+```env
+# Base de datos
+DATABASE_URL=postgresql://user:pass@host:5432/db
+
+# JWT
+JWT_SECRET=clave-secreta-minimo-32-caracteres
+JWT_REFRESH_SECRET=otra-clave-diferente
+
+# App
+NODE_ENV=production
+FRONTEND_URL=https://tu-dominio.com
 ```
 
-**Staging** (manual)
+### Docker
+
 ```bash
-# En GitHub UI → Actions → Deploy Staging
-# O manual: npm run deploy:staging
+# Desarrollo
+docker compose up -d
+
+# Producción
+docker compose -f docker-compose.prod.yml up -d
 ```
 
-**Production** (manual, con aprobación)
+---
+
+## 📞 API Endpoints
+
+Una vez desplegado, la documentación Swagger está disponible en:
+
+- **Local**: http://localhost:3000/api/docs
+- **Producción**: https://tu-dominio.com/api/docs
+
+### Endpoints Principales
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | /api/auth/login | Iniciar sesión |
+| POST | /api/auth/register | Registrar usuario |
+| GET | /api/ordenes | Listar órdenes |
+| POST | /api/ordenes | Crear orden |
+| GET | /api/dashboard/stats | Estadísticas |
+
+---
+
+## 🧪 Testing
+
 ```bash
-# En GitHub UI → Actions → Deploy Production
-# Requiere: 2x aprobaciones, tests passing
+# Backend
+cd apps/api
+npm run test
+npm run test:cov    # Con cobertura
+
+# Frontend
+cd apps/web
+npm run test
 ```
 
-**Detalles:** Ver `.github/agents/devops-ci-cd.agent.md`
+---
+
+## 📝 Contribuir
+
+1. Fork el repositorio
+2. Crea una rama: `git checkout -b feature/nueva-funcionalidad`
+3. Commit: `git commit -m "feat: descripción"`
+4. Push: `git push origin feature/nueva-funcionalidad`
+5. Crea un Pull Request
 
 ---
 
-## 📊 Monitoreo y Observabilidad
+## 📄 Licencia
 
-- **Logs:** Centralizados en [tu plataforma de logs]
-- **Alerts:** Configuradas en [plataforma de alertas]
-- **Health Checks:** `/api/health` en backend
-- **Performance:** Tracked en Lighthouse (CI)
+Propietario © 2024-2026 CERMONT S.A.S
 
 ---
 
-## 🤝 Contribuir
+## 👥 Equipo
 
-### Primero...
-1. Lee [`.github/ONBOARDING.md`](.github/ONBOARDING.md) (si eres nuevo)
-2. Consulta [`.github/AGENTS.md`](.github/AGENTS.md) (para tu área)
-3. Usa [`.github/TASK_TEMPLATE.md`](.github/TASK_TEMPLATE.md) (para tu tarea)
-
-### Luego...
-1. Crea rama: `git checkout -b [tipo]/[descripcion]`
-   - `feat/`: Nuevas características
-   - `fix/`: Correcciones
-   - `refactor/`: Cambios sin comportamiento nuevo
-   - `docs/`: Solo documentación
-
-2. Haz commits claros:
-   ```bash
-   git commit -m "[tipo] Descripción - Agentes aplicados"
-   # Ejemplo: "[feat] Add order history - backend-ordenes + frontend-api-integration"
-   ```
-
-3. Sigue el PR template (auto-generado en GitHub)
+- **Tech Lead**: [@JuanDiego30](https://github.com/JuanDiego30)
 
 ---
 
-## ❓ Ayuda y Soporte
-
-**¿Dónde buscar?**
-
-| Pregunta | Recurso |
-|----------|----------|
-| "¿Cómo inicio el proyecto?" | [ONBOARDING.md](.github/ONBOARDING.md) |
-| "¿Cuál es el patrón para...?" | [AGENTS.md](.github/AGENTS.md) + agente específico |
-| "¿Cómo estructura una tarea?" | [TASK_TEMPLATE.md](.github/TASK_TEMPLATE.md) |
-| "¿Cuáles son las reglas transversales?" | [AGENTS.md](.github/AGENTS.md) - GEMINI |
-| "Tengo un bug en [módulo]" | Consulta `[módulo].agent.md` → "Límites" |
-
----
-
-## 📈 Estadísticas del Proyecto
-
-- **Agentes Especializados:** 13
-- **Cobertura de Código:** >80% (target)
-- **TypeScript:** 100% tipado
-- **Tests:** Unit + Integration + E2E
-- **CI/CD:** GitHub Actions
-- **Documentación:** Centralizada en `.github/`
-
----
-
-## 📝 Licencia
-
-Propietario. © 2024-2026 Cermont
-
----
-
-## 👥 Mantainers
-
-- **Tech Lead:** [@JuanDiego30](https://github.com/JuanDiego30)
-- **Slack:** #development
-- **Email:** [Ver CODEOWNERS]
-
----
-
-## 🎯 Visión del Proyecto
-
-Cermont busca ser la **solución integral de gestión de órdenes** más confiable, performante y mantenible para empresas medianas.
-
-**Pilares:**
-- 🎯 **Usabilidad:** UI/UX accesible e intuitiva
-- ⚡ **Performance:** <1s en operaciones críticas
-- 🔒 **Seguridad:** Autenticación y autorización robustas
-- 📊 **Escalabilidad:** Arquitectura preparada para crecer
-- 🧪 **Calidad:** Testing exhaustivo (>80% coverage)
-- 📚 **Mantenibilidad:** Código documentado y predecible
-
----
-
-## 🚀 Próximos Pasos
-
-**Si acabas de clonar el repo:**
-1. Lee [ONBOARDING.md](.github/ONBOARDING.md) (10 min)
-2. Setup local (15 min)
-3. Elige tu primer issue 🎯
-
-**Si eres maintainer:**
-- Revisa [AGENTS.md](.github/AGENTS.md) - Actualizar si hay cambios
-- Monitorea PRs contra patrones de agentes
-- Propone mejoras al framework
-
----
-
-**Status:** ✅ Producción-Ready
-**Última actualización:** 2026-01-02
-**Documentación:** Completa y centralizada en `.github/`
+**Estado:** ✅ Producción-Ready  
+**Versión:** 1.0.0  
+**Última actualización:** Enero 2026
