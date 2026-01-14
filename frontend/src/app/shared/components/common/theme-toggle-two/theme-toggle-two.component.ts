@@ -1,4 +1,5 @@
-import { Component, Renderer2, inject, DOCUMENT } from '@angular/core';
+import { Component, Renderer2, inject } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 
 import { ThemeService } from '../../../../core/services/theme.service';
 
