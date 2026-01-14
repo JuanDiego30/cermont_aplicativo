@@ -1,0 +1,120 @@
+<aside
+    class="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col justify-between border-r border-gray-200 bg-white transition-transform duration-300 dark:border-gray-800 dark:bg-gray-900 xl:translate-x-0"
+    [class.-translate-x-full]="!(isExpanded$ | async) && !(isMobileOpen$ | async)" (mouseenter)="onSidebarMouseEnter()">
+
+    <div class="h-full overflow-y-auto custom-scrollbar px-3 py-4">
+        <!-- Logo area could go here if managed by Sidebar -->
+
+        <nav class="space-y-1">
+            <!-- Main Items -->
+            <div class="mb-2 px-4 text-xs font-semibold uppercase text-gray-400 dark:text-gray-500">
+                Menu Principal
+            </div>
+
+            @for (item of navItems; track item.name; let i = $index) {
+            @if (item.subItems && item.subItems.length > 0) {
+            <div>
+                <button type="button" (click)="toggleSubmenu('main', i)"
+                    [class.menu-item-active]="openSubmenu === 'main-' + i"
+                    class="menu-item group w-full justify-between">
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="flex h-5 w-5 items-center justify-center text-gray-500 transition-colors group-hover:text-cermont-primary-600 dark:text-gray-400 dark:group-hover:text-cermont-primary-400"
+                            [innerHTML]="item.icon | safeHtml">
+                        </span>
+                        <span class="flex-1 text-left whitespace-nowrap">{{ item.name }}</span>
+                    </div>
+                    <svg class="h-4 w-4 transition-transform duration-200"
+                        [class.rotate-180]="openSubmenu === 'main-' + i" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <div [id]="'main-' + i" class="overflow-hidden transition-all duration-300 ease-in-out"
+                    [style.height.px]="subMenuHeights['main-' + i] || 0">
+                    <ul class="py-1 pl-9 space-y-1">
+                        @for (sub of item.subItems; track sub.name) {
+                        <li>
+                            <a [routerLink]="sub.path" (click)="onSubmenuClick()"
+                                [class.text-cermont-primary-600]="isActive(sub.path)"
+                                [class.dark:text-cermont-primary-400]="isActive(sub.path)"
+                                class="block rounded-lg px-2 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white">
+                                {{ sub.name }}
+                            </a>
+                        </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            } @else {
+            <a [routerLink]="item.path" [class.menu-item-active]="item.path ? isActive(item.path) : false"
+                class="menu-item group">
+                <span
+                    class="flex h-5 w-5 items-center justify-center text-gray-500 transition-colors group-hover:text-cermont-primary-600 dark:text-gray-400 dark:group-hover:text-cermont-primary-400"
+                    [innerHTML]="item.icon | safeHtml">
+                </span>
+                <span class="whitespace-nowrap">{{ item.name }}</span>
+            </a>
+            }
+            }
+
+            <!-- Others / Config Section -->
+            <div class="mt-6 mb-2 px-4 text-xs font-semibold uppercase text-gray-400 dark:text-gray-500">
+                Gestión
+            </div>
+
+            @for (item of othersItems; track item.name; let i = $index) {
+            @if (item.subItems && item.subItems.length > 0) {
+            <div>
+                <button type="button" (click)="toggleSubmenu('others', i)"
+                    [class.menu-item-active]="openSubmenu === 'others-' + i"
+                    class="menu-item group w-full justify-between">
+                    <div class="flex items-center gap-3">
+                        <span
+                            class="flex h-5 w-5 items-center justify-center text-gray-500 transition-colors group-hover:text-cermont-primary-600 dark:text-gray-400 dark:group-hover:text-cermont-primary-400"
+                            [innerHTML]="item.icon | safeHtml">
+                        </span>
+                        <span class="flex-1 text-left whitespace-nowrap">{{ item.name }}</span>
+                    </div>
+                    <svg class="h-4 w-4 transition-transform duration-200"
+                        [class.rotate-180]="openSubmenu === 'others-' + i" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <div [id]="'others-' + i" class="overflow-hidden transition-all duration-300 ease-in-out"
+                    [style.height.px]="subMenuHeights['others-' + i] || 0">
+                    <ul class="py-1 pl-9 space-y-1">
+                        @for (sub of item.subItems; track sub.name) {
+                        <li>
+                            <a [routerLink]="sub.path" (click)="onSubmenuClick()"
+                                [class.text-cermont-primary-600]="isActive(sub.path)"
+                                [class.dark:text-cermont-primary-400]="isActive(sub.path)"
+                                class="block rounded-lg px-2 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white">
+                                {{ sub.name }}
+                            </a>
+                        </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            } @else {
+            <a [routerLink]="item.path" [class.menu-item-active]="item.path ? isActive(item.path) : false"
+                class="menu-item group">
+                <span
+                    class="flex h-5 w-5 items-center justify-center text-gray-500 transition-colors group-hover:text-cermont-primary-600 dark:text-gray-400 dark:group-hover:text-cermont-primary-400"
+                    [innerHTML]="item.icon | safeHtml">
+                </span>
+                <span class="whitespace-nowrap">{{ item.name }}</span>
+            </a>
+            }
+            }
+        </nav>
+
+        <!-- Sidebar Widget (Upgrade/Pro/Info) -->
+        <div class="mt-6">
+            <app-sidebar-widget />
+        </div>
+    </div>
+</aside>
