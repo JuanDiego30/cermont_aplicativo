@@ -47,3 +47,17 @@ coverage/
 *.bak.*
 *.zip
 .vs/
+
+# Generated artifacts (never version)
+pdf/
+pdfs/
+*.pdf
+uploads/
+archivos/
+report/
+__legacy__/
+lcov-report/
+*.tar.zst
+.venv/
+*.pyc
+__pycache__/
