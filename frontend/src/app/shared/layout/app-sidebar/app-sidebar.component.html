@@ -1,6 +1,6 @@
 <aside
     class="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col justify-between border-r border-gray-200 bg-white transition-transform duration-300 dark:border-gray-800 dark:bg-gray-900 xl:translate-x-0"
-    [class.-translate-x-full]="!(isExpanded$ | async) && !(isMobileOpen$ | async)" (mouseenter)="onSidebarMouseEnter()">
+    [class.-translate-x-full]="(isExpanded$ | async) === false && (isMobileOpen$ | async) === false" (mouseenter)="onSidebarMouseEnter()">
 
     <div class="h-full overflow-y-auto custom-scrollbar px-3 py-4">
         <!-- Logo area could go here if managed by Sidebar -->

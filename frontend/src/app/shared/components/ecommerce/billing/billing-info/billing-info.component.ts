@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostBinding } from '@angular/core';
 import { ModalComponent } from '../../../ui/modal/modal.component';
 import { ButtonComponent } from '../../../ui/button/button.component';
 
@@ -9,11 +9,11 @@ import { ButtonComponent } from '../../../ui/button/button.component';
     ButtonComponent,
   ],
   templateUrl: './billing-info.component.html',
-  host: {
-    class: 'rounded-2xl border border-gray-200 bg-white xl:w-2/6 dark:border-gray-800 dark:bg-white/5',
-  },
 })
 export class BillingInfoComponent {
+
+  @HostBinding('class')
+  readonly hostClass = 'rounded-2xl border border-gray-200 bg-white xl:w-2/6 dark:border-gray-800 dark:bg-white/5';
 
   isOpen = false;
 
