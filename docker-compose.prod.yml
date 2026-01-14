@@ -87,7 +87,7 @@ services:
     volumes:
       - certbot_data:/var/www/certbot
       - certbot_conf:/etc/letsencrypt
-    command: echo "Certbot ready. Run: docker-compose run certbot certonly --webroot -w /var/www/certbot -d your-domain.com"
+    command: 'echo "Certbot ready. Run: docker-compose run certbot certonly --webroot -w /var/www/certbot -d your-domain.com"'
 
 volumes:
   postgres_data:
