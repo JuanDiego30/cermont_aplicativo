@@ -111,6 +111,30 @@
       "path": "../skills/nestjs-performance/SKILL.md",
       "triggers": ["performance", "caching", "redis", "throttling", "optimization"],
       "priority": 2
+    },
+    {
+      "id": "docker-expert",
+      "path": "../skills/docker-expert/SKILL.md",
+      "triggers": ["docker", "dockerfile", "container", "docker-compose", "image"],
+      "priority": 2
+    },
+    {
+      "id": "git-workflow",
+      "path": "../skills/git-workflow/SKILL.md",
+      "triggers": ["git", "commit", "branch", "merge", "rebase", "conventional"],
+      "priority": 2
+    },
+    {
+      "id": "error-handling",
+      "path": "../skills/error-handling/SKILL.md",
+      "triggers": ["error", "exception", "try catch", "logging", "exception filter"],
+      "priority": 2
+    },
+    {
+      "id": "typescript-advanced",
+      "path": "../skills/typescript-advanced/SKILL.md",
+      "triggers": ["typescript", "generics", "utility types", "type guard", "infer"],
+      "priority": 1
     }
   ],
   "projectContext": {

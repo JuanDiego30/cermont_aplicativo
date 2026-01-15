@@ -27,7 +27,11 @@ cermont_aplicativo/
 │   ├── pnpm-workspace/
 │   ├── eslint-prettier/
 │   ├── angular-testing/
-│   └── nestjs-performance/
+│   ├── nestjs-performance/
+│   ├── docker-expert/
+│   ├── git-workflow/
+│   ├── error-handling/
+│   └── typescript-advanced/
 ├── nestjs-expert/            # Skills legacy (migrados)
 ├── angular-architect/
 ├── monorepo-management/
@@ -47,6 +51,7 @@ cermont_aplicativo/
 | **jwt-auth-patterns** | `skills/jwt-auth-patterns/SKILL.md` | jwt, login, passport, token | 🔴 Alta |
 | **swagger-openapi** | `skills/swagger-openapi/SKILL.md` | swagger, openapi, api-docs | 🟡 Media |
 | **nestjs-performance** | `skills/nestjs-performance/SKILL.md` | cache, redis, throttle, rate-limit | 🟡 Media |
+| **error-handling** | `skills/error-handling/SKILL.md` | error, exception, logging | 🟡 Media |
 
 ### Frontend (Angular)
 
@@ -67,6 +72,7 @@ cermont_aplicativo/
 | **github-actions-cicd** | `skills/github-actions-cicd/SKILL.md` | ci, cd, deploy, pipeline | 🟡 Media |
 | **dependency-upgrade** | `dependency-upgrade/SKILL.md` | upgrade, vulnerability, audit | 🟡 Media |
 | **eslint-prettier** | `skills/eslint-prettier/SKILL.md` | eslint, prettier, linting, husky | 🟡 Media |
+| **docker-expert** | `skills/docker-expert/SKILL.md` | docker, dockerfile, container, compose | 🟡 Media |
 
 ### Quality & Architecture
 
@@ -74,6 +80,8 @@ cermont_aplicativo/
 |-------|------|----------|-----------|
 | **jest-testing** | `skills/jest-testing/SKILL.md` | test, spec, coverage, mock | 🟡 Media |
 | **clean-architecture** | `skills/clean-architecture/SKILL.md` | refactor, solid, hexagonal | 🟡 Media |
+| **git-workflow** | `skills/git-workflow/SKILL.md` | commit, branch, merge, release | 🟡 Media |
+| **typescript-advanced** | `skills/typescript-advanced/SKILL.md` | generics, type, interface, utility | 🔴 Alta |
 
 ## 🚀 Uso Rápido
 
@@ -183,6 +191,26 @@ Los skills se cargan automáticamente según el archivo activo y keywords del pr
 - "Refactoriza a hexagonal"
 - "Implementa use cases"
 - "Aplica principios SOLID"
+
+### docker-expert
+- "Crea Dockerfile multi-stage optimizado"
+- "Configura docker-compose para desarrollo"
+- "Implementa healthchecks para contenedores"
+
+### git-workflow
+- "Implementa conventional commits"
+- "Configura husky para pre-commit hooks"
+- "Crea estrategia de branching"
+
+### error-handling
+- "Implementa filtro global de excepciones"
+- "Configura logging estructurado con Pino"
+- "Crea excepciones de dominio personalizadas"
+
+### typescript-advanced
+- "Crea utility types para este caso"
+- "Implementa type guards robustos"
+- "Usa mapped types para transformaciones"
 
 ### dependency-upgrade
 - "Analiza vulnerabilidades"

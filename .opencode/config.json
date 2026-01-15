@@ -33,7 +33,11 @@
       "pnpm-workspace",
       "eslint-prettier",
       "angular-testing",
-      "nestjs-performance"
+      "nestjs-performance",
+      "docker-expert",
+      "git-workflow",
+      "error-handling",
+      "typescript-advanced"
     ],
     "mappings": {
       "nestjs-expert": "../nestjs-expert/SKILL.md",
@@ -53,7 +57,11 @@
       "pnpm-workspace": "../skills/pnpm-workspace/SKILL.md",
       "eslint-prettier": "../skills/eslint-prettier/SKILL.md",
       "angular-testing": "../skills/angular-testing/SKILL.md",
-      "nestjs-performance": "../skills/nestjs-performance/SKILL.md"
+      "nestjs-performance": "../skills/nestjs-performance/SKILL.md",
+      "docker-expert": "../skills/docker-expert/SKILL.md",
+      "git-workflow": "../skills/git-workflow/SKILL.md",
+      "error-handling": "../skills/error-handling/SKILL.md",
+      "typescript-advanced": "../skills/typescript-advanced/SKILL.md"
     }
   },
   "context": {
@@ -116,7 +124,11 @@
       "turbo|monorepo|build.orchestration": "monorepo-management",
       "pnpm|workspace|lockfile|node_modules": "pnpm-workspace",
       "eslint|prettier|linting|formatting|husky": "eslint-prettier",
-      "cache|redis|throttle|rate.limit|performance": "nestjs-performance"
+      "cache|redis|throttle|rate.limit|performance": "nestjs-performance",
+      "docker|dockerfile|container|compose": "docker-expert",
+      "git|commit|branch|merge|rebase|conventional": "git-workflow",
+      "error|exception|try.catch|logging": "error-handling",
+      "generics|utility.types|type.guard|infer|branded": "typescript-advanced"
     }
   },
   "preferences": {

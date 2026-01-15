@@ -187,15 +187,51 @@ skills:
       - throttling
       - performance
 
+  - id: docker-expert
+    path: skills/docker-expert/SKILL.md
+    auto_load: false
+    triggers:
+      - docker
+      - dockerfile
+      - container
+      - image
+
+  - id: git-workflow
+    path: skills/git-workflow/SKILL.md
+    auto_load: false
+    triggers:
+      - git
+      - commit
+      - branch
+      - merge
+
+  - id: error-handling
+    path: skills/error-handling/SKILL.md
+    auto_load: false
+    triggers:
+      - error
+      - exception
+      - logging
+
+  - id: typescript-advanced
+    path: skills/typescript-advanced/SKILL.md
+    auto_load: false
+    triggers:
+      - typescript
+      - generics
+      - types
+
 ## Skill Priorities
 priority_order:
   - nestjs-expert
   - angular-architect
   - prisma-architect
+  - typescript-advanced
   - jwt-auth-patterns
   - security-hardening
   - rxjs-patterns
   - tailwind-expert
+  - error-handling
   - angular-testing
   - jest-testing
   - nestjs-performance
