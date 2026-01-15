@@ -1,5 +1,9 @@
 {
     "$schema": "https://turbo.build/schema.json",
+    "globalDependencies": [
+        "pnpm-lock.yaml",
+        ".env.example"
+    ],
     "tasks": {
         "build": {
             "dependsOn": [
@@ -7,39 +11,63 @@
             ],
             "outputs": [
                 "dist/**",
-                ".next/**",
-                "!.next/cache/**"
+                "!dist/cache/**",
+                "!**/.angular/cache/**"
+            ],
+            "inputs": [
+                "src/**",
+                "tsconfig.json",
+                "tsconfig*.json",
+                "package.json",
+                "angular.json",
+                "nest-cli.json"
             ]
         },
         "test": {
-            "dependsOn": [
-                "build"
+            "dependsOn": [],
+            "outputs": [
+                "coverage/**"
             ],
             "inputs": [
-                "src/**/*.tsx",
-                "src/**/*.ts",
-                "test/**/*.ts",
-                "test/**/*.tsx"
-            ]
+                "src/**",
+                "test/**",
+                "**/*.spec.ts",
+                "jest.config.*",
+                "karma.conf.*",
+                "package.json"
+            ],
+            "cache": true
         },
         "lint": {
+            "outputs": [],
             "inputs": [
-                "src/**/*.tsx",
-                "src/**/*.ts"
-            ]
+                "src/**/*.ts",
+                "src/**/*.html",
+                ".eslintrc*",
+                "eslint.config.*",
+                "package.json"
+            ],
+            "cache": true
         },
         "lint:fix": {
+            "outputs": [],
             "inputs": [
-                "src/**/*.tsx",
-                "src/**/*.ts"
-            ]
+                "src/**/*.ts",
+                "src/**/*.html",
+                ".eslintrc*",
+                "eslint.config.*"
+            ],
+            "cache": false
         },
         "typecheck": {
+            "dependsOn": [],
+            "outputs": [],
             "inputs": [
-                "src/**/*.tsx",
                 "src/**/*.ts",
-                "tsconfig.json"
-            ]
+                "tsconfig.json",
+                "tsconfig*.json"
+            ],
+            "cache": true
         },
         "dev": {
             "cache": false,

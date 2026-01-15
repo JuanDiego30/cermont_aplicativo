@@ -13,6 +13,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
   ApiQuery,
+  ApiParam,
 } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { CertificacionesService } from "./certificaciones.service";
@@ -21,6 +22,7 @@ import {
   CertificacionResponseDto,
   ValidarCertificacionesDto,
   ValidacionResultDto,
+  CertificacionesQueryDto,
 } from "./application/dto/certificaciones.dto";
 
 @ApiTags("Certificaciones")
@@ -35,6 +37,7 @@ export class CertificacionesController {
   @Post("tecnico")
   @ApiOperation({ summary: "Registrar certificación de técnico" })
   @ApiResponse({ status: 201, type: CertificacionResponseDto })
+  @ApiResponse({ status: 404, description: "Técnico no encontrado" })
   async registrarCertificacionTecnico(
     @Body() dto: CreateCertificacionTecnicoDto,
   ): Promise<CertificacionResponseDto> {
@@ -43,6 +46,7 @@ export class CertificacionesController {
 
   @Get("tecnico/:tecnicoId")
   @ApiOperation({ summary: "Obtener certificaciones de un técnico" })
+  @ApiParam({ name: "tecnicoId", type: "string" })
   @ApiResponse({ status: 200, type: [CertificacionResponseDto] })
   async getCertificacionesTecnico(
     @Param("tecnicoId") tecnicoId: string,
@@ -69,8 +73,10 @@ export class CertificacionesController {
   })
   @ApiResponse({ status: 200, type: [CertificacionResponseDto] })
   async getCertificacionesPorVencer(
-    @Query("dias") dias?: number,
+    @Query() query: CertificacionesQueryDto,
   ): Promise<CertificacionResponseDto[]> {
-    return this.certificacionesService.getCertificacionesPorVencer(dias || 30);
+    return this.certificacionesService.getCertificacionesPorVencer(
+      query.dias ?? 30,
+    );
   }
 }

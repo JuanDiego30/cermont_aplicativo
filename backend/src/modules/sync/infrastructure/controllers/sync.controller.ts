@@ -8,8 +8,6 @@ import {
   Get,
   Body,
   UseGuards,
-  Req,
-  BadRequestException,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -20,17 +18,15 @@ import {
 } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../../../auth/guards/jwt-auth.guard";
 import {
+  CurrentUser,
+  JwtPayload,
+} from "../../../../common/decorators/current-user.decorator";
+import {
   ProcessSyncBatchUseCase,
   GetPendingSyncUseCase,
 } from "../../application/use-cases";
-import { SyncBatchSchema } from "../../application/dto";
-import { z } from "zod";
+import { SyncBatchDto } from "../../application/dto";
 import { SyncService } from "../../sync.service";
-import type { Request } from "express";
-
-interface AuthenticatedRequest extends Request {
-  user: { id: string; role?: string };
-}
 
 /**
  * Controller para sincronización de datos offline
@@ -49,8 +45,8 @@ export class SyncController {
 
   /**
    * Sincronizar batch de cambios offline
-   * @param body - Batch de items a sincronizar
-   * @param req - Request con usuario autenticado
+   * @param dto - Batch de items a sincronizar
+   * @param user - Usuario autenticado
    * @returns Resultado de sincronización
    */
   @Post()
@@ -59,33 +55,7 @@ export class SyncController {
     description:
       "Procesa un batch de cambios realizados offline y los sincroniza con el servidor.",
   })
-  @ApiBody({
-    schema: {
-      type: "object",
-      required: ["items", "deviceId"],
-      properties: {
-        items: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              entityType: {
-                type: "string",
-                enum: ["orden", "evidencia", "checklist", "ejecucion"],
-              },
-              entityId: { type: "string" },
-              action: { type: "string", enum: ["create", "update", "delete"] },
-              data: { type: "object" },
-              localId: { type: "string" },
-              timestamp: { type: "string" },
-            },
-          },
-        },
-        deviceId: { type: "string", example: "device-uuid-123" },
-        lastSyncTimestamp: { type: "string", example: "2024-12-18T10:00:00Z" },
-      },
-    },
-  })
+  @ApiBody({ type: SyncBatchDto })
   @ApiResponse({
     status: 201,
     description: "Sincronización completada",
@@ -112,62 +82,32 @@ export class SyncController {
     description: "Datos de sincronización inválidos",
   })
   @ApiResponse({ status: 401, description: "No autenticado" })
-  async sync(@Body() body: unknown, @Req() req: AuthenticatedRequest) {
-    // 1) Nuevo contrato (DDD)
-    const dddParsed = SyncBatchSchema.safeParse(body);
-    if (dddParsed.success) {
-      return this.processBatch.execute(req.user.id, dddParsed.data);
-    }
-
-    // 2) Contrato legacy (compatibilidad)
-    const LegacyItemSchema = z.object({
-      id: z.string(),
-      tipo: z.enum(["EJECUCION", "CHECKLIST", "EVIDENCIA", "TAREA", "COSTO"]),
-      operacion: z.enum(["CREATE", "UPDATE", "DELETE"]),
-      datos: z.record(z.string(), z.unknown()),
-      timestamp: z.string(),
-      ordenId: z.string().optional(),
-      ejecucionId: z.string().optional(),
-    });
-
-    const LegacyBatchSchema = z.object({
-      items: z.array(LegacyItemSchema).min(1),
-    });
-
-    const legacyParsed = LegacyBatchSchema.safeParse(body);
-    if (legacyParsed.success) {
-      return this.legacySyncService.syncPendingData(
-        req.user.id,
-        legacyParsed.data.items,
-      );
-    }
-
-    throw new BadRequestException({
-      message: "Datos de sincronización inválidos",
-      ddd: dddParsed.error.flatten(),
-      legacy: legacyParsed.error.flatten(),
-    });
+  async sync(
+    @Body() dto: SyncBatchDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.processBatch.execute(user.userId, dto);
   }
 
   @Get("status")
   @ApiOperation({
-    summary: "Obtener estado de la última sincronización (legacy)",
+    summary: "Obtener estado de la última sincronización",
   })
   @ApiResponse({ status: 200, description: "Estado de sincronización" })
-  async status(@Req() req: AuthenticatedRequest) {
-    return this.legacySyncService.getLastSyncStatus(req.user.id);
+  async status(@CurrentUser() user: JwtPayload) {
+    return this.legacySyncService.getLastSyncStatus(user.userId);
   }
 
   @Get("ordenes-offline")
-  @ApiOperation({ summary: "Descargar órdenes para trabajo offline (legacy)" })
+  @ApiOperation({ summary: "Descargar órdenes para trabajo offline" })
   @ApiResponse({ status: 200, description: "Órdenes offline" })
-  async ordenesOffline(@Req() req: AuthenticatedRequest) {
-    return this.legacySyncService.getOrdenesParaOffline(req.user.id);
+  async ordenesOffline(@CurrentUser() user: JwtPayload) {
+    return this.legacySyncService.getOrdenesParaOffline(user.userId);
   }
 
   /**
    * Obtener items pendientes de sincronización
-   * @param req - Request con usuario autenticado
+   * @param user - Usuario autenticado
    * @returns Lista de items pendientes
    */
   @Get("pending")
@@ -194,7 +134,7 @@ export class SyncController {
     },
   })
   @ApiResponse({ status: 401, description: "No autenticado" })
-  async pending(@Req() req: AuthenticatedRequest) {
-    return this.getPending.execute(req.user.id);
+  async pending(@CurrentUser() user: JwtPayload) {
+    return this.getPending.execute(user.userId);
   }
 }

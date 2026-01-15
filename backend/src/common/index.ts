@@ -92,10 +92,6 @@ export {
 // PIPES - Validación y transformación
 // ============================================================
 export {
-  ZodValidationPipe,
-  createZodValidationPipe,
-} from "./pipes/zod-validation.pipe";
-export {
   ParseIntSafePipe,
   ParseIdPipe,
   ParseUuidPipe,

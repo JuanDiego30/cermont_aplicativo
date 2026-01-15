@@ -5,19 +5,30 @@ export * from "./asignar-tecnico-orden.dto";
 export * from "./query-ordenes.dto";
 export * from "./orden-response.dto";
 
-// Mantener compatibilidad con código existente que usa Zod (migrar gradualmente)
-// Exportar solo los tipos/interfaces que no entran en conflicto
+// Exportar DTOs de class-validator desde orden.dto.ts
 export {
-  CreateOrdenSchema,
-  UpdateOrdenSchema,
-  ChangeEstadoSchema,
-  TransitionStateSchema,
-  OrdenQuerySchema,
-  type ChangeEstadoDto,
-  type TransitionStateDto,
-  type OrdenQueryDto,
+  // Enums
+  PrioridadOrden,
+  EstadoOrden,
+  EstadoTransicion,
+  // DTOs
+  CreateOrdenDto,
+  UpdateOrdenDto,
+  ChangeEstadoDto,
+  TransitionStateDto,
+  OrdenQueryDto,
+  // Response types
+  type OrdenResponse,
+  type OrdenListResponse,
+  type OrdenDetailResponse,
+  type OrdenItemDTO,
+  type EvidenciaDTO,
+  type CostoDTO,
+  type PlaneacionDTO,
+  type EjecucionDTO,
 } from "./orden.dto";
-// Re-exportar tipos con nombres únicos para evitar conflictos
+
+// Aliases para compatibilidad temporal (deprecar en futuro)
 export type {
   OrdenResponse as OrdenResponseZod,
   OrdenListResponse as OrdenListResponseZod,

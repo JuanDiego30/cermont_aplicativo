@@ -6,7 +6,12 @@ import {
   IsOptional,
   IsEnum,
   IsUrl,
+  IsArray,
+  ArrayMinSize,
+  IsInt,
+  Min,
 } from "class-validator";
+import { Transform } from "class-transformer";
 import {
   TipoCertificacionTecnico,
   TipoCertificacionEquipo,
@@ -131,6 +136,8 @@ export class CertificacionResponseDto {
  */
 export class ValidarCertificacionesDto {
   @ApiProperty({ description: "IDs de técnicos a validar", type: [String] })
+  @IsArray()
+  @ArrayMinSize(1)
   @IsString({ each: true })
   tecnicosIds!: string[];
 
@@ -139,6 +146,7 @@ export class ValidarCertificacionesDto {
     type: [String],
   })
   @IsOptional()
+  @IsArray()
   @IsString({ each: true })
   equiposIds?: string[];
 
@@ -147,8 +155,25 @@ export class ValidarCertificacionesDto {
     type: [String],
   })
   @IsOptional()
+  @IsArray()
   @IsString({ each: true })
   tiposRequeridos?: string[];
+}
+
+export class CertificacionesQueryDto {
+  @ApiPropertyOptional({
+    type: Number,
+    description: "Días para vencimiento (default: 30)",
+  })
+  @IsOptional()
+  @Transform(({ value }) =>
+    value === undefined || value === null || value === ""
+      ? undefined
+      : Number(value),
+  )
+  @IsInt()
+  @Min(1)
+  dias?: number;
 }
 
 /**

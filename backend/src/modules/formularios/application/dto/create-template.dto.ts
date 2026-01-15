@@ -44,7 +44,7 @@ export class CreateFormFieldDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  defaultValue?: any;
+  defaultValue?: unknown;
 
   @ApiPropertyOptional({ default: false })
   @IsOptional()

@@ -7,7 +7,6 @@ import {
   Get,
   Query,
   UseGuards,
-  BadRequestException,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -18,7 +17,7 @@ import {
 } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../../../auth/guards/jwt-auth.guard";
 import { GetWeatherUseCase } from "../../application/use-cases";
-import { WeatherQuerySchema } from "../../application/dto";
+import { WeatherQueryDto } from "../../application/dto";
 
 /**
  * Controller para obtener datos meteorológicos
@@ -87,9 +86,7 @@ export class WeatherController {
     status: 503,
     description: "Servicio meteorológico no disponible",
   })
-  async get(@Query() query: unknown) {
-    const result = WeatherQuerySchema.safeParse(query);
-    if (!result.success) throw new BadRequestException(result.error.flatten());
-    return this.getWeather.execute(result.data);
+  async get(@Query() query: WeatherQueryDto) {
+    return this.getWeather.execute(query);
   }
 }

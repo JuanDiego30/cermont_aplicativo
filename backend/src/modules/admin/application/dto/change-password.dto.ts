@@ -4,33 +4,23 @@
  * DTO para cambio de contraseña por admin.
  */
 
-import { z } from "zod";
 import { ApiProperty } from "@nestjs/swagger";
-
-/**
- * Schema Zod para validación
- */
-export const ChangePasswordSchema = z.object({
-  newPassword: z
-    .string()
-    .min(8, "Contraseña debe tener al menos 8 caracteres")
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      "Contraseña debe contener mayúsculas, minúsculas y números",
-    ),
-});
-
-export type ChangePasswordInput = z.infer<typeof ChangePasswordSchema>;
+import { IsString, MinLength, Matches } from "class-validator";
 
 /**
  * DTO class para Swagger documentation
  */
-export class ChangePasswordDto implements ChangePasswordInput {
+export class ChangePasswordDto {
   @ApiProperty({
     example: "NewSecurePass456!",
     description:
       "Nueva contraseña (min 8 chars, mayúsculas, minúsculas y números)",
     minLength: 8,
+  })
+  @IsString()
+  @MinLength(8)
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, {
+    message: "Contraseña debe contener mayúsculas, minúsculas y números",
   })
   newPassword!: string;
 }

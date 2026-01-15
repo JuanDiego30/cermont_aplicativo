@@ -1,52 +1,66 @@
-import { z } from "zod";
-import { ApiProperty } from "@nestjs/swagger";
+/**
+ * @dto RegisterDto (legacy - usar application/dto/register.dto.ts)
+ * Mantenido por compatibilidad
+ */
+import {
+  IsEmail,
+  IsString,
+  MinLength,
+  MaxLength,
+  IsOptional,
+  IsEnum,
+  Matches,
+} from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 
 // Regex para password: mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
 
-export const RegisterSchema = z.object({
-  email: z.string().email("Email inválido").min(1, "Email es requerido"),
+export enum UserRoleEnum {
+  ADMIN = "admin",
+  SUPERVISOR = "supervisor",
+  TECNICO = "tecnico",
+}
 
-  password: z
-    .string()
-    .min(8, "La contraseña debe tener mínimo 8 caracteres")
-    .regex(
-      PASSWORD_REGEX,
-      "La contraseña debe contener al menos 1 mayúscula, 1 minúscula y 1 número",
-    ),
-
-  name: z
-    .string()
-    .min(2, "El nombre debe tener mínimo 2 caracteres")
-    .max(100, "El nombre no puede exceder 100 caracteres"),
-
-  role: z.enum(["admin", "supervisor", "tecnico"]).optional(),
-
-  phone: z
-    .string()
-    .regex(/^\+?[1-9]\d{1,14}$/, "Número de teléfono inválido")
-    .optional(),
-});
-
-export type RegisterDto = z.infer<typeof RegisterSchema>;
-
-// Para Swagger
-export class RegisterDtoSwagger implements RegisterDto {
+export class RegisterDtoLegacy {
   @ApiProperty({ example: "usuario@cermont.com" })
+  @Transform(({ value }) =>
+    typeof value === "string" ? value.toLowerCase().trim() : value,
+  )
+  @IsEmail({}, { message: "Email inválido" })
   email!: string;
 
   @ApiProperty({
     example: "Password123",
     description: "Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número",
   })
+  @IsString()
+  @MinLength(8, { message: "La contraseña debe tener mínimo 8 caracteres" })
+  @Matches(PASSWORD_REGEX, {
+    message:
+      "La contraseña debe contener al menos 1 mayúscula, 1 minúscula y 1 número",
+  })
   password!: string;
 
-  @ApiProperty({ example: "Juan Pérez" })
+  @ApiProperty({ example: "Juan Pérez", minLength: 2, maxLength: 100 })
+  @IsString()
+  @MinLength(2, { message: "El nombre debe tener mínimo 2 caracteres" })
+  @MaxLength(100, { message: "El nombre no puede exceder 100 caracteres" })
   name!: string;
 
-  @ApiProperty({ enum: ["admin", "supervisor", "tecnico"], required: false })
-  role?: "admin" | "supervisor" | "tecnico";
+  @ApiPropertyOptional({ enum: UserRoleEnum })
+  @IsOptional()
+  @IsEnum(UserRoleEnum)
+  role?: UserRoleEnum;
 
-  @ApiProperty({ example: "+573001234567", required: false })
+  @ApiPropertyOptional({ example: "+573001234567" })
+  @IsOptional()
+  @IsString()
+  @Matches(/^\+?[1-9]\d{1,14}$/, { message: "Número de teléfono inválido" })
   phone?: string;
 }
+
+// Alias for backward compatibility
+export { RegisterDtoLegacy as RegisterDtoSwagger };
+export type RegisterDto = RegisterDtoLegacy;

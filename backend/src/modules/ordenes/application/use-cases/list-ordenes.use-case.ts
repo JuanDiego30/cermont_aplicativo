@@ -15,13 +15,16 @@ export class ListOrdenesUseCase {
   ) {}
 
   async execute(query: OrdenQueryDto): Promise<OrdenListResponseZod> {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+    
     const result = await this.ordenRepository.findAll({
       estado: query.estado,
       cliente: query.cliente,
       prioridad: query.prioridad,
       asignadoId: query.asignadoId,
-      page: query.page,
-      limit: query.limit,
+      page,
+      limit,
     });
 
     return {
@@ -42,8 +45,8 @@ export class ListOrdenesUseCase {
         updatedAt: orden.updatedAt.toISOString(),
       })),
       total: result.total,
-      page: result.page,
-      limit: result.limit,
+      page: result.page ?? page,
+      limit: result.limit ?? limit,
       totalPages: result.totalPages,
     };
   }

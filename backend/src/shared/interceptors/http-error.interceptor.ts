@@ -2,20 +2,20 @@ import {
   Injectable,
   NestInterceptor,
   ExecutionContext,
-  BadGatewayException,
   HttpException,
   InternalServerErrorException,
-  Logger,
 } from "@nestjs/common";
 import { Observable, throwError } from "rxjs";
 import { catchError } from "rxjs/operators";
-import { PinoLoggerService } from "../logger/pino-logger.service";
+import { LoggerService } from "@/lib/logging/logger.service";
 
 @Injectable()
 export class HttpErrorInterceptor implements NestInterceptor {
-  private readonly logger = new Logger(HttpErrorInterceptor.name);
+  private readonly logger: LoggerService;
 
-  constructor(private readonly pinoLogger: PinoLoggerService) {}
+  constructor() {
+    this.logger = new LoggerService(HttpErrorInterceptor.name);
+  }
 
   intercept(context: ExecutionContext, next: any): Observable<any> {
     return next.handle().pipe(
@@ -29,33 +29,19 @@ export class HttpErrorInterceptor implements NestInterceptor {
           const status = error.getStatus();
           const response = error.getResponse();
 
-          this.pinoLogger.log(
-            `[${method}] ${url} - Status: ${status}`,
+          this.logger.log(
+            `[${method}] ${url} - Status: ${status} | response: ${JSON.stringify(response)}`,
             "HttpErrorInterceptor",
-            {
-              status,
-              error: response,
-              timestamp,
-              path: url,
-            },
           );
 
           return throwError(() => error);
         }
 
         // Para errores no HTTP, loguear y envolver
-        this.pinoLogger.error(
-          `Unhandled error in ${method} ${url}`,
+        this.logger.error(
+          `Unhandled error in ${method} ${url}: ${error.message}`,
           error.stack,
           "HttpErrorInterceptor",
-          {
-            method,
-            url,
-            body,
-            timestamp,
-            errorMessage: error.message,
-            errorName: error.name,
-          },
         );
 
         // Retornar error genérico para no exponer detalles

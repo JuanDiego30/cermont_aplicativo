@@ -1,5 +1,6 @@
-import axios from "axios";
 import { Injectable } from "@nestjs/common";
+import { HttpService } from "@nestjs/axios";
+import { firstValueFrom } from "rxjs";
 
 type EstadoOrden = string;
 
@@ -16,6 +17,8 @@ export interface OrdenEstadoChangedWebhookPayload {
 
 @Injectable()
 export class OrdenesWebhookService {
+  constructor(private readonly httpService: HttpService) {}
+
   async sendEstadoChanged(
     payload: OrdenEstadoChangedWebhookPayload,
   ): Promise<{ url: string; status: number }> {
@@ -24,26 +27,28 @@ export class OrdenesWebhookService {
       return { url: "", status: 204 };
     }
 
-    const response = await axios.post(
-      url,
-      {
-        event: "orden.estado.changed",
-        orden: {
-          id: payload.ordenId,
-          numero: payload.numero,
+    const response = await firstValueFrom(
+      this.httpService.post(
+        url,
+        {
+          event: "orden.estado.changed",
+          orden: {
+            id: payload.ordenId,
+            numero: payload.numero,
+          },
+          from: payload.from,
+          to: payload.to,
+          motivo: payload.motivo,
+          usuarioId: payload.usuarioId,
+          timestamp: payload.timestamp.toISOString(),
         },
-        from: payload.from,
-        to: payload.to,
-        motivo: payload.motivo,
-        usuarioId: payload.usuarioId,
-        timestamp: payload.timestamp.toISOString(),
-      },
-      {
-        headers: {
-          "Idempotency-Key": payload.idempotencyKey,
+        {
+          headers: {
+            "Idempotency-Key": payload.idempotencyKey,
+          },
+          timeout: 10_000,
         },
-        timeout: 10_000,
-      },
+      ),
     );
 
     return { url, status: response.status };

@@ -14,6 +14,7 @@ import {
 import { ConfigModule } from "@nestjs/config";
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { JwtAuthGuard } from "./modules/auth/guards/jwt-auth.guard";
+import { RolesGuard } from "./modules/auth/guards/roles.guard";
 import { ServeStaticModule } from "@nestjs/serve-static";
 import { ScheduleModule } from "@nestjs/schedule";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
@@ -84,6 +85,12 @@ import { RequestIdMiddleware } from "./common/middleware/request-id.middleware";
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ".env",
+      validate: (config) => {
+        // Dynamic import to avoid circular dependency
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { validate } = require("./config/env.validation");
+        return validate(config);
+      },
     }),
 
     // Event Emitter for domain events (MUST be before feature modules)
@@ -208,6 +215,17 @@ import { RequestIdMiddleware } from "./common/middleware/request-id.middleware";
     {
       provide: APP_GUARD,
       useClass: CustomThrottleGuard,
+    },
+    // JWT Authentication guard - protects all routes by default
+    // Use @Public() decorator to make routes publicly accessible
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    // Roles authorization guard - checks @Roles() decorator
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
     LoggerService,
   ],

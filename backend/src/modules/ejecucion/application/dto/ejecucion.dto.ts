@@ -1,36 +1,93 @@
 /**
  * @module Ejecucion - Clean Architecture
- * @description DTOs con Zod
+ * @description DTOs con class-validator
  */
-import { z } from "zod";
+import {
+  IsString,
+  IsOptional,
+  IsUUID,
+  IsNumber,
+  Min,
+  Max,
+  IsObject,
+} from "class-validator";
+import { Type } from "class-transformer";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
-export const IniciarEjecucionSchema = z.object({
-  tecnicoId: z.string().uuid(),
-  observaciones: z.string().optional(),
-  horasEstimadas: z.number().optional(),
-  ubicacionGPS: z.any().optional(),
-});
+export class IniciarEjecucionDto {
+  @ApiProperty({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @IsUUID()
+  tecnicoId!: string;
 
-export type IniciarEjecucionDto = z.infer<typeof IniciarEjecucionSchema>;
+  @ApiPropertyOptional({ example: "Iniciando trabajo de mantenimiento" })
+  @IsOptional()
+  @IsString()
+  observaciones?: string;
 
-export const UpdateAvanceSchema = z.object({
-  avance: z.number().min(0).max(100),
-  observaciones: z.string().optional(),
-  horasActuales: z.number().optional(),
-});
+  @ApiPropertyOptional({ example: 8 })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  horasEstimadas?: number;
 
-export type UpdateAvanceDto = z.infer<typeof UpdateAvanceSchema>;
+  @ApiPropertyOptional({ example: { lat: 7.1234, lon: -73.1234 } })
+  @IsOptional()
+  @IsObject()
+  ubicacionGPS?: { lat: number; lon: number };
+}
 
-export const CompletarEjecucionSchema = z.object({
-  completadoPorId: z.string().uuid().optional(),
-  observacionesFinales: z.string().optional(),
-  firmaDigital: z.string().optional(),
-  horasReales: z.number().optional(),
-  horasActuales: z.number(),
-  observaciones: z.string().optional(),
-});
+export class UpdateAvanceDto {
+  @ApiProperty({ example: 50, minimum: 0, maximum: 100 })
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  @Type(() => Number)
+  avance!: number;
 
-export type CompletarEjecucionDto = z.infer<typeof CompletarEjecucionSchema>;
+  @ApiPropertyOptional({ example: "Avance del 50% completado" })
+  @IsOptional()
+  @IsString()
+  observaciones?: string;
+
+  @ApiPropertyOptional({ example: 4 })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  horasActuales?: number;
+}
+
+export class CompletarEjecucionDto {
+  @ApiPropertyOptional({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @IsOptional()
+  @IsUUID()
+  completadoPorId?: string;
+
+  @ApiPropertyOptional({ example: "Trabajo finalizado sin incidentes" })
+  @IsOptional()
+  @IsString()
+  observacionesFinales?: string;
+
+  @ApiPropertyOptional({ example: "base64signature..." })
+  @IsOptional()
+  @IsString()
+  firmaDigital?: string;
+
+  @ApiPropertyOptional({ example: 8 })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  horasReales?: number;
+
+  @ApiProperty({ example: 8 })
+  @IsNumber()
+  @Type(() => Number)
+  horasActuales!: number;
+
+  @ApiPropertyOptional({ example: "Observaciones finales" })
+  @IsOptional()
+  @IsString()
+  observaciones?: string;
+}
 
 export interface EjecucionResponse {
   id: string;

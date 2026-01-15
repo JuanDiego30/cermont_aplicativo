@@ -12,6 +12,7 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiParam,
 } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { FacturacionService } from "./facturacion.service";
@@ -42,6 +43,7 @@ export class FacturacionController {
   @Post("ses")
   @ApiOperation({ summary: "Registrar SES de Ariba" })
   @ApiResponse({ status: 201, type: SESResponseDto })
+  @ApiResponse({ status: 404, description: "Orden no encontrada" })
   async registrarSES(@Body() dto: RegistrarSESDto): Promise<SESResponseDto> {
     return this.facturacionService.registrarSES(dto);
   }
@@ -49,13 +51,17 @@ export class FacturacionController {
   @Patch("ses/aprobar")
   @ApiOperation({ summary: "Aprobar SES" })
   @ApiResponse({ status: 200, type: SESResponseDto })
+  @ApiResponse({ status: 404, description: "SES no encontrado" })
+  @ApiResponse({ status: 400, description: "SES ya aprobado" })
   async aprobarSES(@Body() dto: AprobarSESDto): Promise<SESResponseDto> {
     return this.facturacionService.aprobarSES(dto);
   }
 
   @Get("ses/orden/:ordenId")
   @ApiOperation({ summary: "Obtener SES de una orden" })
+  @ApiParam({ name: "ordenId", type: "string" })
   @ApiResponse({ status: 200, type: [SESResponseDto] })
+  @ApiResponse({ status: 404, description: "Orden no encontrada" })
   async getSESPorOrden(
     @Param("ordenId") ordenId: string,
   ): Promise<SESResponseDto[]> {
@@ -65,6 +71,7 @@ export class FacturacionController {
   @Post("factura")
   @ApiOperation({ summary: "Generar factura" })
   @ApiResponse({ status: 201, type: FacturaResponseDto })
+  @ApiResponse({ status: 404, description: "SES no encontrado" })
   async generarFactura(
     @Body() dto: GenerarFacturaDto,
   ): Promise<FacturaResponseDto> {
@@ -74,6 +81,8 @@ export class FacturacionController {
   @Patch("factura/pago")
   @ApiOperation({ summary: "Registrar pago de factura" })
   @ApiResponse({ status: 200, type: FacturaResponseDto })
+  @ApiResponse({ status: 404, description: "Factura no encontrada" })
+  @ApiResponse({ status: 400, description: "Factura ya pagada" })
   async registrarPago(
     @Body() dto: RegistrarPagoDto,
   ): Promise<FacturaResponseDto> {

@@ -8,6 +8,7 @@
  * - OCP: Extensible mediante use cases
  */
 import { Module } from "@nestjs/common";
+import { HttpModule } from "@nestjs/axios";
 import { PrismaModule } from "../../prisma/prisma.module";
 import { NotificationsModule } from "../notifications/notifications.module";
 
@@ -51,7 +52,7 @@ const useCaseProviders = [
 ];
 
 @Module({
-  imports: [PrismaModule, NotificationsModule],
+  imports: [PrismaModule, NotificationsModule, HttpModule],
   controllers: [
     OrdenesController, // Clean Architecture Controller
   ],

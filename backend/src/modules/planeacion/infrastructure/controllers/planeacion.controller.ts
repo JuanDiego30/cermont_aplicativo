@@ -48,8 +48,8 @@ import {
 
 // DTOs existentes (corregidos según lo que existe)
 import {
-  CreatePlaneacionSchema,
-  RechazarPlaneacionSchema,
+  CreatePlaneacionDto,
+  RechazarPlaneacionDto,
 } from "../../application/dto";
 
 @ApiTags("Planeación")
@@ -195,7 +195,7 @@ export class PlaneacionController {
   })
   async createOrUpdate(
     @Param("ordenId") ordenId: string,
-    @Body() body: unknown,
+    @Body() dto: CreatePlaneacionDto,
   ) {
     const context = {
       action: "CREATE_UPDATE_PLANEACION",
@@ -205,18 +205,9 @@ export class PlaneacionController {
     this.logger.log("Creando/actualizando planeación", context);
 
     try {
-      // Validar con Zod existente
-      const validationResult = CreatePlaneacionSchema.safeParse(body);
-      if (!validationResult.success) {
-        throw new BadRequestException({
-          message: "Datos inválidos",
-          errors: validationResult.error.flatten(),
-        });
-      }
-
       const result = await this.createOrUpdatePlaneacion.execute(
         ordenId,
-        validationResult.data,
+        dto,
       );
 
       this.logger.log("Planeación creada/actualizada exitosamente", {
@@ -366,7 +357,7 @@ export class PlaneacionController {
   })
   @ApiNotFoundResponse({ description: "Planeación no encontrada" })
   @ApiForbiddenResponse({ description: "Solo supervisores pueden rechazar" })
-  async rechazar(@Param("id") id: string, @Body() body: unknown) {
+  async rechazar(@Param("id") id: string, @Body() dto: RechazarPlaneacionDto) {
     const context = {
       action: "RECHAZAR_PLANEACION",
       planeacionId: id,
@@ -375,19 +366,10 @@ export class PlaneacionController {
     this.logger.log("Rechazando planeación", context);
 
     try {
-      // Validar con Zod existente
-      const validationResult = RechazarPlaneacionSchema.safeParse(body);
-      if (!validationResult.success) {
-        throw new BadRequestException({
-          message: "Datos inválidos",
-          errors: validationResult.error.flatten(),
-        });
-      }
-
       // Llamada corregida: solo 2 parámetros según firma original
       const result = await this.rechazarPlaneacion.execute(
         id,
-        validationResult.data.motivo,
+        dto.motivo,
       );
 
       this.logger.log("Planeación rechazada exitosamente", context);

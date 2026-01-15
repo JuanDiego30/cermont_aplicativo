@@ -12,13 +12,13 @@ import {
   HttpStatus,
   UseGuards,
   Logger,
-  BadRequestException,
 } from "@nestjs/common";
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiBody,
 } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../../../../common/guards/jwt-auth.guard";
 import {
@@ -32,9 +32,9 @@ import { Send2FACodeUseCase } from "../../application/use-cases/send-2fa-code.us
 import { Verify2FACodeUseCase } from "../../application/use-cases/verify-2fa-code.use-case";
 import { Toggle2FAUseCase } from "../../application/use-cases/toggle-2fa.use-case";
 import {
-  Request2FACodeDtoSchema,
-  Verify2FACodeDtoSchema,
-  Enable2FADtoSchema,
+  Request2FACodeDto,
+  Verify2FACodeDto,
+  Enable2FADto,
 } from "../../dto/two-factor.dto";
 
 @ApiTags("Auth - Two-Factor Authentication")
@@ -62,6 +62,7 @@ export class Auth2FAController {
     description:
       "Envía un código de 6 dígitos al email del usuario para autenticación de dos factores",
   })
+  @ApiBody({ type: Request2FACodeDto })
   @ApiResponse({
     status: 200,
     description: "Código enviado exitosamente",
@@ -74,19 +75,10 @@ export class Auth2FAController {
   })
   @ApiResponse({ status: 404, description: "Usuario no encontrado" })
   @ApiResponse({ status: 400, description: "Usuario no tiene 2FA habilitado" })
-  async sendCode(@Body() body: unknown) {
-    const parseResult = Request2FACodeDtoSchema.safeParse(body);
-    if (!parseResult.success) {
-      const errors = parseResult.error.issues
-        .map((i) => `${i.path.join(".")}: ${i.message}`)
-        .join(", ");
-      throw new BadRequestException(`Validación fallida: ${errors}`);
-    }
-
-    const { email } = parseResult.data;
+  async sendCode(@Body() dto: Request2FACodeDto) {
     this.logger.log("2FA code request received");
 
-    return await this.send2FACodeUseCase.execute(email);
+    return await this.send2FACodeUseCase.execute(dto.email);
   }
 
   /**
@@ -101,6 +93,7 @@ export class Auth2FAController {
     summary: "Verificar código 2FA",
     description: "Verifica el código de 6 dígitos proporcionado por el usuario",
   })
+  @ApiBody({ type: Verify2FACodeDto })
   @ApiResponse({
     status: 200,
     description: "Código válido",
@@ -112,19 +105,10 @@ export class Auth2FAController {
     },
   })
   @ApiResponse({ status: 401, description: "Código inválido o expirado" })
-  async verifyCode(@Body() body: unknown) {
-    const parseResult = Verify2FACodeDtoSchema.safeParse(body);
-    if (!parseResult.success) {
-      const errors = parseResult.error.issues
-        .map((i) => `${i.path.join(".")}: ${i.message}`)
-        .join(", ");
-      throw new BadRequestException(`Validación fallida: ${errors}`);
-    }
-
-    const { email, code } = parseResult.data;
+  async verifyCode(@Body() dto: Verify2FACodeDto) {
     this.logger.log("2FA verification attempt received");
 
-    return await this.verify2FACodeUseCase.execute(email, code);
+    return await this.verify2FACodeUseCase.execute(dto.email, dto.code);
   }
 
   /**
@@ -140,6 +124,7 @@ export class Auth2FAController {
     description:
       "Permite al usuario autenticado activar o desactivar la autenticación de dos factores",
   })
+  @ApiBody({ type: Enable2FADto })
   @ApiResponse({
     status: 200,
     description: "2FA actualizado",
@@ -152,22 +137,13 @@ export class Auth2FAController {
   })
   async toggleTwoFactor(
     @CurrentUser() user: JwtPayload,
-    @Body() body: unknown,
+    @Body() dto: Enable2FADto,
   ) {
-    const parseResult = Enable2FADtoSchema.safeParse(body);
-    if (!parseResult.success) {
-      const errors = parseResult.error.issues
-        .map((i) => `${i.path.join(".")}: ${i.message}`)
-        .join(", ");
-      throw new BadRequestException(`Validación fallida: ${errors}`);
-    }
-
-    const { enable } = parseResult.data;
     this.logger.log(
-      `Toggle 2FA request for user: ${user.userId}, enable: ${enable}`,
+      `Toggle 2FA request for user: ${user.userId}, enable: ${dto.enable}`,
     );
 
-    return await this.toggle2FAUseCase.execute(user.userId, enable);
+    return await this.toggle2FAUseCase.execute(user.userId, dto.enable);
   }
 
   /**

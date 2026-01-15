@@ -9,8 +9,9 @@ import {
   Param,
   Body,
   UseGuards,
-  Req,
-  BadRequestException,
+  ParseUUIDPipe,
+  HttpCode,
+  HttpStatus,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
@@ -24,11 +25,15 @@ import { JwtAuthGuard } from "../../../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../../../auth/guards/roles.guard";
 import { Roles } from "../../../auth/decorators/roles.decorator";
 import {
+  CurrentUser,
+  JwtPayload,
+} from "../../../../common/decorators/current-user.decorator";
+import {
   GetCierreByOrdenUseCase,
   CreateCierreUseCase,
   AprobarCierreUseCase,
 } from "../../application/use-cases";
-import { CreateCierreSchema } from "../../application/dto";
+import { CreateCierreDto } from "../../application/dto";
 
 @ApiTags("Cierre Administrativo")
 @ApiBearerAuth()
@@ -47,26 +52,24 @@ export class CierreAdministrativoController {
   @ApiResponse({ status: 200, description: "Cierre encontrado (si existe)" })
   @ApiResponse({ status: 401, description: "No autenticado" })
   @ApiResponse({ status: 403, description: "Sin permisos" })
-  async findByOrden(@Param("ordenId") ordenId: string) {
+  async findByOrden(@Param("ordenId", ParseUUIDPipe) ordenId: string) {
     return this.getCierre.execute(ordenId);
   }
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   @Roles("admin", "supervisor")
   @ApiOperation({ summary: "Crear cierre administrativo" })
-  @ApiBody({
-    description:
-      "Payload para crear el cierre (validado por schema en servidor)",
-    schema: { type: "object" },
-  })
+  @ApiBody({ type: CreateCierreDto })
   @ApiResponse({ status: 201, description: "Cierre creado" })
   @ApiResponse({ status: 400, description: "Datos inválidos" })
   @ApiResponse({ status: 401, description: "No autenticado" })
   @ApiResponse({ status: 403, description: "Sin permisos" })
-  async create(@Body() body: unknown, @Req() req: any) {
-    const result = CreateCierreSchema.safeParse(body);
-    if (!result.success) throw new BadRequestException(result.error.flatten());
-    return this.createCierre.execute(result.data, req.user.id);
+  async create(
+    @Body() dto: CreateCierreDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.createCierre.execute(dto, user.userId);
   }
 
   @Put(":id/aprobar")
@@ -80,7 +83,10 @@ export class CierreAdministrativoController {
   })
   @ApiResponse({ status: 401, description: "No autenticado" })
   @ApiResponse({ status: 403, description: "Sin permisos" })
-  async aprobar(@Param("id") id: string, @Req() req: any) {
-    return this.aprobarCierre.execute(id, req.user.id);
+  async aprobar(
+    @Param("id", ParseUUIDPipe) id: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.aprobarCierre.execute(id, user.userId);
   }
 }

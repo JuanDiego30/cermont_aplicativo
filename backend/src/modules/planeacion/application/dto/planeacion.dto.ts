@@ -1,30 +1,53 @@
 /**
  * @module Planeacion - Clean Architecture
- * @description DTOs, Repository Interface, Use Cases, Repository Implementation, Controller y Module
+ * @description DTOs con class-validator
  */
-import { z } from "zod";
+import {
+  IsString,
+  IsOptional,
+  IsUUID,
+  IsObject,
+  MinLength,
+} from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 // ==================== DTOs ====================
-export const CreatePlaneacionSchema = z.object({
-  cronograma: z.record(z.string(), z.unknown()).optional().default({}),
-  manoDeObra: z.record(z.string(), z.unknown()).optional().default({}),
-  observaciones: z.string().optional(),
-  kitId: z.string().uuid().optional(),
-});
 
-export type CreatePlaneacionDto = z.infer<typeof CreatePlaneacionSchema>;
+export class CreatePlaneacionDto {
+  @ApiPropertyOptional({ example: { inicio: "2025-01-15", fin: "2025-01-20" } })
+  @IsOptional()
+  @IsObject()
+  cronograma?: Record<string, unknown>;
 
-export const AprobarPlaneacionSchema = z.object({
-  observaciones: z.string().optional(),
-});
+  @ApiPropertyOptional({ example: { tecnicos: 2, horas: 16 } })
+  @IsOptional()
+  @IsObject()
+  manoDeObra?: Record<string, unknown>;
 
-export type AprobarPlaneacionDto = z.infer<typeof AprobarPlaneacionSchema>;
+  @ApiPropertyOptional({ example: "Planificación inicial del proyecto" })
+  @IsOptional()
+  @IsString()
+  observaciones?: string;
 
-export const RechazarPlaneacionSchema = z.object({
-  motivo: z.string().min(10, "El motivo debe tener al menos 10 caracteres"),
-});
+  @ApiPropertyOptional({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @IsOptional()
+  @IsUUID()
+  kitId?: string;
+}
 
-export type RechazarPlaneacionDto = z.infer<typeof RechazarPlaneacionSchema>;
+export class AprobarPlaneacionDto {
+  @ApiPropertyOptional({ example: "Aprobado sin observaciones" })
+  @IsOptional()
+  @IsString()
+  observaciones?: string;
+}
+
+export class RechazarPlaneacionDto {
+  @ApiProperty({ example: "Falta información del cronograma detallado", minLength: 10 })
+  @IsString()
+  @MinLength(10, { message: "El motivo debe tener al menos 10 caracteres" })
+  motivo!: string;
+}
 
 // Response Types
 export interface PlaneacionResponse {

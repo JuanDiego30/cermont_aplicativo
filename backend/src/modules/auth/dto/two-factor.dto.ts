@@ -1,47 +1,81 @@
-import { z } from "zod";
+/**
+ * DTOs para Two-Factor Authentication con class-validator
+ */
+import {
+  IsString,
+  IsEmail,
+  IsBoolean,
+  IsOptional,
+  Length,
+  Matches,
+  MinLength,
+} from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 
 // ===========================
 // DTO: Habilitar/Deshabilitar 2FA
 // ===========================
-export const Enable2FADtoSchema = z.object({
-  enable: z.boolean(),
-});
-
-export type Enable2FADto = z.infer<typeof Enable2FADtoSchema>;
+export class Enable2FADto {
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  enable!: boolean;
+}
 
 // ===========================
 // DTO: Solicitar Código 2FA
 // ===========================
-export const Request2FACodeDtoSchema = z.object({
-  email: z.string().email("Email inválido"),
-});
-
-export type Request2FACodeDto = z.infer<typeof Request2FACodeDtoSchema>;
+export class Request2FACodeDto {
+  @ApiProperty({ example: "usuario@cermont.com" })
+  @Transform(({ value }) =>
+    typeof value === "string" ? value.toLowerCase().trim() : value,
+  )
+  @IsEmail({}, { message: "Email inválido" })
+  email!: string;
+}
 
 // ===========================
 // DTO: Verificar Código 2FA
 // ===========================
-export const Verify2FACodeDtoSchema = z.object({
-  email: z.string().email("Email inválido"),
-  code: z
-    .string()
-    .length(6, "El código debe tener 6 dígitos")
-    .regex(/^\d+$/, "El código debe contener solo números"),
-});
+export class Verify2FACodeDto {
+  @ApiProperty({ example: "usuario@cermont.com" })
+  @Transform(({ value }) =>
+    typeof value === "string" ? value.toLowerCase().trim() : value,
+  )
+  @IsEmail({}, { message: "Email inválido" })
+  email!: string;
 
-export type Verify2FACodeDto = z.infer<typeof Verify2FACodeDtoSchema>;
+  @ApiProperty({ example: "123456", description: "Código de 6 dígitos" })
+  @IsString()
+  @Length(6, 6, { message: "El código debe tener 6 dígitos" })
+  @Matches(/^\d+$/, { message: "El código debe contener solo números" })
+  code!: string;
+}
 
 // ===========================
 // DTO: Login con 2FA
 // ===========================
-export const LoginWith2FADtoSchema = z.object({
-  email: z.string().email("Email inválido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
-  code: z
-    .string()
-    .length(6, "El código debe tener 6 dígitos")
-    .regex(/^\d+$/, "El código debe contener solo números"),
-  rememberMe: z.boolean().optional(),
-});
+export class LoginWith2FADto {
+  @ApiProperty({ example: "usuario@cermont.com" })
+  @Transform(({ value }) =>
+    typeof value === "string" ? value.toLowerCase().trim() : value,
+  )
+  @IsEmail({}, { message: "Email inválido" })
+  email!: string;
 
-export type LoginWith2FADto = z.infer<typeof LoginWith2FADtoSchema>;
+  @ApiProperty({ example: "Password123" })
+  @IsString()
+  @MinLength(6, { message: "La contraseña debe tener al menos 6 caracteres" })
+  password!: string;
+
+  @ApiProperty({ example: "123456", description: "Código de 6 dígitos" })
+  @IsString()
+  @Length(6, 6, { message: "El código debe tener 6 dígitos" })
+  @Matches(/^\d+$/, { message: "El código debe contener solo números" })
+  code!: string;
+
+  @ApiPropertyOptional({ example: false })
+  @IsOptional()
+  @IsBoolean()
+  rememberMe?: boolean;
+}

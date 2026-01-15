@@ -17,7 +17,6 @@ import {
   ParseUUIDPipe,
   HttpCode,
   HttpStatus,
-  UsePipes,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -62,13 +61,6 @@ import {
   UserStatsResponseDto,
 } from "../../application/dto";
 
-// Validation Pipe con Zod
-import { ZodValidationPipe } from "../../../../common/pipes/zod-validation.pipe";
-import { CreateUserSchema } from "../../application/dto/create-user.dto";
-import { UpdateUserSchema } from "../../application/dto/update-user.dto";
-import { ChangeRoleSchema } from "../../application/dto/change-role.dto";
-import { ChangePasswordSchema } from "../../application/dto/change-password.dto";
-import { ToggleActiveSchema } from "../../application/dto/toggle-active.dto";
 
 @ApiTags("Admin")
 @Controller("admin")
@@ -93,7 +85,6 @@ export class AdminController {
   @Post("users")
   @Roles("admin")
   @HttpCode(HttpStatus.CREATED)
-  @UsePipes(new ZodValidationPipe(CreateUserSchema))
   @ApiOperation({ summary: "Crear nuevo usuario" })
   @ApiResponse({ status: 201, type: ActionResponseDto })
   @ApiResponse({ status: 400, description: "Datos inválidos" })
@@ -144,7 +135,6 @@ export class AdminController {
 
   @Patch("users/:id")
   @Roles("admin")
-  @UsePipes(new ZodValidationPipe(UpdateUserSchema))
   @ApiOperation({ summary: "Actualizar información de usuario" })
   @ApiParam({ name: "id", description: "UUID del usuario" })
   @ApiResponse({ status: 200, type: ActionResponseDto })
@@ -173,7 +163,6 @@ export class AdminController {
 
   @Patch("users/:id/role")
   @Roles("admin")
-  @UsePipes(new ZodValidationPipe(ChangeRoleSchema))
   @ApiOperation({ summary: "Cambiar rol de usuario" })
   @ApiParam({ name: "id", description: "UUID del usuario" })
   @ApiResponse({ status: 200, type: ActionResponseDto })
@@ -203,7 +192,6 @@ export class AdminController {
 
   @Patch("users/:id/toggle-active")
   @Roles("admin")
-  @UsePipes(new ZodValidationPipe(ToggleActiveSchema))
   @ApiOperation({ summary: "Activar/Desactivar usuario" })
   @ApiParam({ name: "id", description: "UUID del usuario" })
   @ApiResponse({ status: 200 })
@@ -228,7 +216,6 @@ export class AdminController {
 
   @Patch("users/:id/password")
   @Roles("admin")
-  @UsePipes(new ZodValidationPipe(ChangePasswordSchema))
   @ApiOperation({ summary: "Cambiar contraseña de usuario (admin)" })
   @ApiParam({ name: "id", description: "UUID del usuario" })
   @ApiResponse({ status: 200 })

@@ -46,8 +46,8 @@ import {
   DownloadEvidenciaByTokenUseCase,
 } from "../../application/use-cases";
 import {
-  UploadEvidenciaSchema,
-  ListEvidenciasQuerySchema,
+  UploadEvidenciaDto,
+  ListEvidenciasQueryDto,
 } from "../../application/dto";
 
 @ApiTags("Evidencias")
@@ -71,25 +71,7 @@ export class EvidenciasController {
   @Get()
   @ApiOperation({ summary: "List all evidencias with optional filters" })
   @ApiResponse({ status: 200, description: "List of evidencias" })
-  async findAll(
-    @Query("ordenId") ordenId?: string,
-    @Query("ejecucionId") ejecucionId?: string,
-    @Query("tipo") tipo?: string,
-    @Query("status") status?: string,
-    @Query("includeDeleted") includeDeleted?: string,
-    @Query("page") page?: string,
-    @Query("limit") limit?: string,
-  ) {
-    const query = ListEvidenciasQuerySchema.parse({
-      ordenId,
-      ejecucionId,
-      tipo,
-      status,
-      includeDeleted: includeDeleted === "true",
-      page: page ? parseInt(page, 10) : undefined,
-      limit: limit ? parseInt(limit, 10) : undefined,
-    });
-
+  async findAll(@Query() query: ListEvidenciasQueryDto) {
     return this.listUseCase.execute(query);
   }
 
@@ -222,25 +204,25 @@ export class EvidenciasController {
       throw new PayloadTooLargeException("Archivo demasiado grande");
     }
 
-    // Parse and validate body with Zod
-    const parseResult = UploadEvidenciaSchema.safeParse({
+    // Parse body fields into DTO
+    const dto: UploadEvidenciaDto = {
       ordenId: body.ordenId,
       ejecucionId: body.ejecucionId || undefined,
-      tipo: body.tipo || undefined,
+      tipo: body.tipo as any || undefined,
       descripcion: body.descripcion || undefined,
       tags: body.tags || undefined,
-    });
+    };
 
-    if (!parseResult.success) {
+    if (!dto.ordenId) {
       throw new BadRequestException({
         message: "Validation failed",
-        errors: parseResult.error.issues,
+        errors: [{ path: ["ordenId"], message: "ordenId es requerido" }],
       });
     }
 
     const result = await this.uploadUseCase.execute({
       file,
-      dto: parseResult.data,
+      dto,
       uploadedBy: user.userId,
       uploaderRole: user.role,
     });

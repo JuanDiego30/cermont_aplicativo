@@ -1,6 +1,7 @@
 /// <reference types="jest" />
 import { SyncRepository } from "../infrastructure/persistence/sync.repository";
 import { PrismaService } from "../../../prisma/prisma.service";
+import { SyncEntityType, SyncAction } from "../application/dto/sync.dto";
 
 describe("SyncRepository", () => {
   let repo: SyncRepository;
@@ -25,9 +26,9 @@ describe("SyncRepository", () => {
       id: "p1",
       userId: "u1",
       deviceId: "d1",
-      entityType: "ejecucion",
+      entityType: SyncEntityType.EJECUCION,
       entityId: "e1",
-      action: "update",
+      action: SyncAction.UPDATE,
       data: { a: 1 },
       localId: "l1",
       timestamp: new Date("2025-01-01T00:00:00.000Z"),
@@ -36,9 +37,9 @@ describe("SyncRepository", () => {
     });
 
     const result = await repo.savePending("u1", {
-      entityType: "ejecucion",
+      entityType: SyncEntityType.EJECUCION,
       entityId: "e1",
-      action: "update",
+      action: SyncAction.UPDATE,
       data: { a: 2 },
       localId: "l1",
       timestamp: new Date().toISOString(),
@@ -55,9 +56,9 @@ describe("SyncRepository", () => {
       id: "p2",
       userId: "u1",
       deviceId: "d1",
-      entityType: "checklist",
+      entityType: SyncEntityType.CHECKLIST,
       entityId: "c1",
-      action: "update",
+      action: SyncAction.UPDATE,
       data: { completada: true },
       localId: "l2",
       timestamp: new Date("2025-01-01T00:00:00.000Z"),
@@ -66,9 +67,9 @@ describe("SyncRepository", () => {
     });
 
     const result = await repo.savePending("u1", {
-      entityType: "checklist",
+      entityType: SyncEntityType.CHECKLIST,
       entityId: "c1",
-      action: "update",
+      action: SyncAction.UPDATE,
       data: { completada: true },
       localId: "l2",
       timestamp: new Date("2025-01-01T00:00:00.000Z").toISOString(),

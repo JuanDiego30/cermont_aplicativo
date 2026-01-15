@@ -10,7 +10,41 @@ import {
   ClienteResponseDto,
   CreateContactoDto,
   CreateUbicacionDto,
+  ClienteOrdenesResponseDto,
+  TipoCliente,
 } from "./application/dto/clientes.dto";
+
+type ClienteRecord = {
+  id: string;
+  razonSocial: string;
+  nit: string;
+  tipoCliente: TipoCliente;
+  direccion?: string;
+  telefono?: string;
+  email?: string;
+  activo: boolean;
+  createdAt: Date;
+};
+
+type ContactoRecord = {
+  id: string;
+  nombre: string;
+  cargo: string;
+  email: string;
+  telefono?: string;
+  esPrincipal: boolean;
+};
+
+type UbicacionRecord = {
+  id: string;
+  nombre: string;
+  direccion?: string;
+  ciudad?: string;
+  departamento?: string;
+  latitud?: number;
+  longitud?: number;
+  esPrincipal: boolean;
+};
 
 /**
  * ClientesService
@@ -29,9 +63,9 @@ export class ClientesService {
   private readonly logger = new Logger(ClientesService.name);
 
   // In-memory store for clients until schema is updated
-  private clientes: Map<string, any> = new Map();
-  private contactos: Map<string, any[]> = new Map();
-  private ubicaciones: Map<string, any[]> = new Map();
+  private clientes: Map<string, ClienteRecord> = new Map();
+  private contactos: Map<string, ContactoRecord[]> = new Map();
+  private ubicaciones: Map<string, UbicacionRecord[]> = new Map();
 
   constructor(private readonly prisma: PrismaService) {
     // Initialize with SIERRACOL ENERGY
@@ -40,7 +74,7 @@ export class ClientesService {
       id: sierracolId,
       razonSocial: "SIERRACOL ENERGY ARAUCA LLC",
       nit: "900.123.456-7",
-      tipoCliente: "PETROLERO",
+      tipoCliente: TipoCliente.PETROLERO,
       direccion: "Caño Limón, Arauca",
       telefono: "+57 1 234 5678",
       email: "contacto@sierracol.com",
@@ -214,7 +248,9 @@ export class ClientesService {
   /**
    * Obtener historial de órdenes de cliente
    */
-  async getOrdenesCliente(clienteId: string) {
+  async getOrdenesCliente(
+    clienteId: string,
+  ): Promise<ClienteOrdenesResponseDto> {
     const cliente = this.clientes.get(clienteId);
     if (!cliente) {
       throw new NotFoundException(`Cliente con ID ${clienteId} no encontrado`);
@@ -237,12 +273,14 @@ export class ClientesService {
       orderBy: { createdAt: "desc" },
     });
 
-    return {
+    const response: ClienteOrdenesResponseDto = {
       clienteId,
       razonSocial: cliente.razonSocial,
       totalOrdenes: ordenes.length,
       ordenes,
     };
+
+    return response;
   }
 
   /**

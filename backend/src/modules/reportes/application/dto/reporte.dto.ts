@@ -1,18 +1,46 @@
 /**
  * @module Reportes - Clean Architecture
+ * DTOs con class-validator
  */
-import { z } from "zod";
+import {
+  IsString,
+  IsOptional,
+  IsUUID,
+  IsEnum,
+  IsDateString,
+} from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
-// DTOs
-export const ReporteQuerySchema = z.object({
-  fechaInicio: z.string(),
-  fechaFin: z.string(),
-  estado: z.string().optional(),
-  tecnicoId: z.string().uuid().optional(),
-  formato: z.enum(["json", "pdf", "excel"]).default("json"),
-});
+export enum FormatoReporte {
+  JSON = "json",
+  PDF = "pdf",
+  EXCEL = "excel",
+}
 
-export type ReporteQueryDto = z.infer<typeof ReporteQuerySchema>;
+export class ReporteQueryDto {
+  @ApiProperty({ example: "2024-01-01" })
+  @IsDateString()
+  fechaInicio!: string;
+
+  @ApiProperty({ example: "2024-12-31" })
+  @IsDateString()
+  fechaFin!: string;
+
+  @ApiPropertyOptional({ example: "completado" })
+  @IsOptional()
+  @IsString()
+  estado?: string;
+
+  @ApiPropertyOptional({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @IsOptional()
+  @IsUUID()
+  tecnicoId?: string;
+
+  @ApiPropertyOptional({ enum: FormatoReporte, default: FormatoReporte.JSON })
+  @IsOptional()
+  @IsEnum(FormatoReporte)
+  formato?: FormatoReporte = FormatoReporte.JSON;
+}
 
 export interface OrdenReporteData {
   id: string;

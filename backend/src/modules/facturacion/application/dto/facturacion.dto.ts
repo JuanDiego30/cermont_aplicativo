@@ -7,6 +7,7 @@ import {
   IsDateString,
   IsEnum,
 } from "class-validator";
+import { Type } from "class-transformer";
 
 /**
  * Estado de SES Ariba
@@ -49,6 +50,7 @@ export class RegistrarSESDto {
   numeroSES!: string;
 
   @ApiProperty({ description: "Monto del SES" })
+  @Type(() => Number)
   @IsNumber()
   monto!: number;
 
@@ -98,11 +100,13 @@ export class GenerarFacturaDto {
   numeroFactura!: string;
 
   @ApiProperty({ description: "Monto de la factura" })
+  @Type(() => Number)
   @IsNumber()
   monto!: number;
 
   @ApiPropertyOptional({ description: "Monto IVA" })
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   montoIVA?: number;
 
@@ -127,6 +131,7 @@ export class RegistrarPagoDto {
   facturaId!: string;
 
   @ApiProperty({ description: "Monto pagado" })
+  @Type(() => Number)
   @IsNumber()
   montoPagado!: number;
 

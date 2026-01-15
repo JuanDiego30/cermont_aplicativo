@@ -8,7 +8,9 @@ import {
   IsEnum,
   Min,
   Max,
+  IsBoolean,
 } from "class-validator";
+import { Type } from "class-transformer";
 
 /**
  * Tipo de exportación
@@ -46,12 +48,14 @@ export class ArchivarManualDto {
  */
 export class ExportarHistoricoDto {
   @ApiProperty({ description: "Mes (1-12)" })
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(12)
   mes!: number;
 
   @ApiProperty({ description: "Año" })
+  @Type(() => Number)
   @IsNumber()
   @Min(2020)
   @Max(2099)
@@ -63,6 +67,8 @@ export class ExportarHistoricoDto {
 
   @ApiPropertyOptional({ description: "Incluir evidencias en ZIP" })
   @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
   incluirEvidencias?: boolean;
 }
 
@@ -92,12 +98,14 @@ export class ConsultarHistoricoDto {
 
   @ApiPropertyOptional({ description: "Página" })
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   pagina?: number;
 
   @ApiPropertyOptional({ description: "Límite por página" })
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(100)
@@ -140,6 +148,20 @@ export class OrdenArchivadaResponseDto {
 
   @ApiProperty()
   tienePDF!: boolean;
+}
+
+export class ConsultarHistoricoResponseDto {
+  @ApiProperty({ type: [OrdenArchivadaResponseDto] })
+  ordenes!: OrdenArchivadaResponseDto[];
+
+  @ApiProperty()
+  total!: number;
+
+  @ApiProperty()
+  pagina!: number;
+
+  @ApiProperty()
+  totalPaginas!: number;
 }
 
 /**

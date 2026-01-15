@@ -1,25 +1,64 @@
 /**
  * @module Cierre-Administrativo - Clean Architecture
+ * DTOs con class-validator
  */
-import { z } from "zod";
+import {
+  IsString,
+  IsEnum,
+  IsOptional,
+  IsUUID,
+  IsArray,
+  ArrayMinSize,
+  ValidateNested,
+  IsDateString,
+} from "class-validator";
+import { Type } from "class-transformer";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
-// DTOs
-export const CierreDocumentoSchema = z.object({
-  tipo: z.enum(["acta", "ses", "factura", "otros"]),
-  numero: z.string().optional(),
-  fechaDocumento: z.string(),
-  observaciones: z.string().optional(),
-});
+export enum TipoDocumentoCierre {
+  ACTA = "acta",
+  SES = "ses",
+  FACTURA = "factura",
+  OTROS = "otros",
+}
 
-export type CierreDocumentoDto = z.infer<typeof CierreDocumentoSchema>;
+export class CierreDocumentoDto {
+  @ApiProperty({ enum: TipoDocumentoCierre, example: TipoDocumentoCierre.ACTA })
+  @IsEnum(TipoDocumentoCierre)
+  tipo!: TipoDocumentoCierre;
 
-export const CreateCierreSchema = z.object({
-  ordenId: z.string().uuid(),
-  documentos: z.array(CierreDocumentoSchema).min(1),
-  observacionesGenerales: z.string().optional(),
-});
+  @ApiPropertyOptional({ example: "DOC-001" })
+  @IsOptional()
+  @IsString()
+  numero?: string;
 
-export type CreateCierreDto = z.infer<typeof CreateCierreSchema>;
+  @ApiProperty({ example: "2025-01-14" })
+  @IsDateString()
+  fechaDocumento!: string;
+
+  @ApiPropertyOptional({ example: "Documento verificado" })
+  @IsOptional()
+  @IsString()
+  observaciones?: string;
+}
+
+export class CreateCierreDto {
+  @ApiProperty({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @IsUUID()
+  ordenId!: string;
+
+  @ApiProperty({ type: [CierreDocumentoDto], minItems: 1 })
+  @IsArray()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => CierreDocumentoDto)
+  documentos!: CierreDocumentoDto[];
+
+  @ApiPropertyOptional({ example: "Cierre sin observaciones" })
+  @IsOptional()
+  @IsString()
+  observacionesGenerales?: string;
+}
 
 export interface CierreDocumentoResponse {
   id: string;

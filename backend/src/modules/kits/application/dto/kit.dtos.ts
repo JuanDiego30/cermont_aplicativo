@@ -1,7 +1,7 @@
 /**
  * DTOs for Kits Module
+ * @description DTOs con class-validator para validación en runtime
  */
-import { z } from "zod";
 import {
   IsString,
   IsOptional,
@@ -14,43 +14,6 @@ import {
 } from "class-validator";
 import { Type } from "class-transformer";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-
-// ============================================================================
-// Zod Schemas (for validation)
-// ============================================================================
-
-export const CreateKitItemSchema = z.object({
-  nombre: z.string().min(1, "Nombre es requerido"),
-  cantidad: z.number().int().min(1, "Cantidad debe ser al menos 1"),
-  itemType: z.string().optional().default("HERRAMIENTA"),
-  costoUnitario: z.number().optional().default(0),
-  unidad: z.string().optional().default("unidad"),
-  esOpcional: z.boolean().optional().default(false),
-  requiereCertificacion: z.boolean().optional().default(false),
-  notas: z.string().optional(),
-});
-
-export const CreateKitSchema = z.object({
-  nombre: z.string().min(3, "Nombre debe tener al menos 3 caracteres"),
-  descripcion: z.string().optional(),
-  categoria: z.string().min(1, "Categoría es requerida"),
-  tipo: z.string().optional().default("BASICO"),
-  duracionEstimadaHoras: z.number().optional().default(0),
-  esPlantilla: z.boolean().optional().default(false),
-  items: z.array(CreateKitItemSchema).optional(),
-});
-
-export const UpdateKitSchema = z.object({
-  nombre: z.string().min(3).optional(),
-  descripcion: z.string().optional(),
-  duracionEstimadaHoras: z.number().optional(),
-});
-
-export const AddItemToKitSchema = CreateKitItemSchema;
-
-export const UpdateItemCantidadSchema = z.object({
-  cantidad: z.number().int().min(1, "Cantidad debe ser al menos 1"),
-});
 
 // ============================================================================
 // Class-Validator DTOs

@@ -7,7 +7,7 @@ import {
   Query,
   Param,
   UseGuards,
-  BadRequestException,
+  ParseUUIDPipe,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
@@ -23,7 +23,7 @@ import {
   GenerateReporteOrdenesUseCase,
   GetReporteOrdenDetalleUseCase,
 } from "../../application/use-cases";
-import { ReporteQuerySchema } from "../../application/dto";
+import { ReporteQueryDto } from "../../application/dto";
 
 @ApiTags("Reportes")
 @ApiBearerAuth()
@@ -42,10 +42,8 @@ export class ReportesController {
   @ApiResponse({ status: 400, description: "Parámetros inválidos" })
   @ApiResponse({ status: 401, description: "No autenticado" })
   @ApiResponse({ status: 403, description: "Sin permisos" })
-  async reporteOrdenes(@Query() query: unknown) {
-    const result = ReporteQuerySchema.safeParse(query);
-    if (!result.success) throw new BadRequestException(result.error.flatten());
-    return this.generateReporte.execute(result.data);
+  async reporteOrdenes(@Query() query: ReporteQueryDto) {
+    return this.generateReporte.execute(query);
   }
 
   @Get("orden/:id")
@@ -55,7 +53,7 @@ export class ReportesController {
   @ApiResponse({ status: 200, description: "Detalle del reporte de la orden" })
   @ApiResponse({ status: 401, description: "No autenticado" })
   @ApiResponse({ status: 403, description: "Sin permisos" })
-  async reporteOrden(@Param("id") id: string) {
+  async reporteOrden(@Param("id", ParseUUIDPipe) id: string) {
     return this.getReporteDetalle.execute(id);
   }
 }

@@ -16,10 +16,24 @@ import {
   HttpStatus,
   Logger,
 } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { Response, Request } from "express";
 import { PrismaErrorMapper } from "../errors/prisma-error.mapper";
 import type { PrismaErrorResponse } from "../types/exception.types";
+
+// Importar tipos de error de Prisma correctamente para v6
+const {
+  PrismaClientKnownRequestError,
+  PrismaClientValidationError,
+  PrismaClientInitializationError,
+  PrismaClientRustPanicError,
+} = Prisma;
+
+// Type aliases para uso en el código
+type KnownRequestError = typeof PrismaClientKnownRequestError extends new (...args: infer A) => infer R ? R : never;
+type ValidationError = typeof PrismaClientValidationError extends new (...args: infer A) => infer R ? R : never;
+type InitializationError = typeof PrismaClientInitializationError extends new (...args: infer A) => infer R ? R : never;
+type RustPanicError = typeof PrismaClientRustPanicError extends new (...args: infer A) => infer R ? R : never;
 
 /**
  * Filter para errores conocidos de Prisma (PrismaClientKnownRequestError)
@@ -27,12 +41,12 @@ import type { PrismaErrorResponse } from "../types/exception.types";
  * Maneja códigos P2xxx que representan errores de constraints,
  * registros no encontrados, etc.
  */
-@Catch(Prisma.PrismaClientKnownRequestError)
+@Catch(PrismaClientKnownRequestError)
 export class PrismaExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(PrismaExceptionFilter.name);
 
   catch(
-    exception: Prisma.PrismaClientKnownRequestError,
+    exception: KnownRequestError,
     host: ArgumentsHost,
   ): void {
     const ctx = host.switchToHttp();
@@ -56,7 +70,7 @@ export class PrismaExceptionFilter implements ExceptionFilter {
    * Registra el error con el nivel apropiado
    */
   private logPrismaError(
-    exception: Prisma.PrismaClientKnownRequestError,
+    exception: KnownRequestError,
     errorResponse: PrismaErrorResponse,
     request: Request,
   ): void {
@@ -97,12 +111,12 @@ export class PrismaExceptionFilter implements ExceptionFilter {
 /**
  * Filter para errores de validación de Prisma (queries malformadas)
  */
-@Catch(Prisma.PrismaClientValidationError)
+@Catch(PrismaClientValidationError)
 export class PrismaValidationFilter implements ExceptionFilter {
   private readonly logger = new Logger(PrismaValidationFilter.name);
 
   catch(
-    exception: Prisma.PrismaClientValidationError,
+    exception: ValidationError,
     host: ArgumentsHost,
   ): void {
     const ctx = host.switchToHttp();
@@ -132,12 +146,12 @@ export class PrismaValidationFilter implements ExceptionFilter {
 /**
  * Filter para errores de conexión/inicialización de Prisma
  */
-@Catch(Prisma.PrismaClientInitializationError)
+@Catch(PrismaClientInitializationError)
 export class PrismaConnectionFilter implements ExceptionFilter {
   private readonly logger = new Logger(PrismaConnectionFilter.name);
 
   catch(
-    exception: Prisma.PrismaClientInitializationError,
+    exception: InitializationError,
     host: ArgumentsHost,
   ): void {
     const ctx = host.switchToHttp();
@@ -149,7 +163,7 @@ export class PrismaConnectionFilter implements ExceptionFilter {
       `Prisma Connection Error: ${exception.message}`,
       exception.stack,
       {
-        errorCode: exception.errorCode,
+        errorCode: (exception as { errorCode?: string }).errorCode,
         path: request.url,
       },
     );
@@ -158,7 +172,7 @@ export class PrismaConnectionFilter implements ExceptionFilter {
       statusCode: HttpStatus.SERVICE_UNAVAILABLE,
       message: "Servicio de base de datos no disponible",
       error: "Service Unavailable",
-      code: exception.errorCode ?? "PRISMA_CONNECTION",
+      code: (exception as { errorCode?: string }).errorCode ?? "PRISMA_CONNECTION",
       timestamp: new Date().toISOString(),
       path: request.url,
     };
@@ -170,12 +184,12 @@ export class PrismaConnectionFilter implements ExceptionFilter {
 /**
  * Filter para errores de timeout/rust panic en Prisma
  */
-@Catch(Prisma.PrismaClientRustPanicError)
+@Catch(PrismaClientRustPanicError)
 export class PrismaPanicFilter implements ExceptionFilter {
   private readonly logger = new Logger(PrismaPanicFilter.name);
 
   catch(
-    exception: Prisma.PrismaClientRustPanicError,
+    exception: RustPanicError,
     host: ArgumentsHost,
   ): void {
     const ctx = host.switchToHttp();

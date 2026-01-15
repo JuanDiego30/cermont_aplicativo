@@ -4,52 +4,42 @@
  * DTO para actualización parcial de usuarios.
  */
 
-import { z } from "zod";
 import { ApiPropertyOptional } from "@nestjs/swagger";
-
-/**
- * Schema Zod para validación
- */
-export const UpdateUserSchema = z.object({
-  name: z
-    .string()
-    .min(2, "Nombre debe tener al menos 2 caracteres")
-    .max(100, "Nombre no puede exceder 100 caracteres")
-    .transform((val) => val.trim())
-    .optional(),
-
-  phone: z
-    .string()
-    .regex(/^\+?[\d\s-]{7,20}$/, "Formato de teléfono inválido")
-    .optional()
-    .nullable()
-    .or(z.literal("")),
-
-  avatar: z
-    .string()
-    .url("URL de avatar inválida")
-    .optional()
-    .nullable()
-    .or(z.literal("")),
-});
-
-export type UpdateUserInput = z.infer<typeof UpdateUserSchema>;
+import {
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength,
+  MinLength,
+  IsUrl,
+} from "class-validator";
+import { Transform } from "class-transformer";
 
 /**
  * DTO class para Swagger documentation
  */
-export class UpdateUserDto implements UpdateUserInput {
+export class UpdateUserDto {
   @ApiPropertyOptional({
     example: "Juan Pérez Actualizado",
     description: "Nombre completo",
     minLength: 2,
     maxLength: 100,
   })
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === "string" ? value.trim() : value))
+  @IsString()
+  @MinLength(2)
+  @MaxLength(100)
   name?: string;
 
   @ApiPropertyOptional({
     example: "+57 3009876543",
     description: "Teléfono de contacto",
+  })
+  @IsOptional()
+  @Transform(({ value }) => (value === "" ? undefined : value))
+  @Matches(/^\+?[\d\s-]{7,20}$/, {
+    message: "Formato de teléfono inválido",
   })
   phone?: string | null;
 
@@ -57,5 +47,11 @@ export class UpdateUserDto implements UpdateUserInput {
     example: "https://example.com/new-avatar.jpg",
     description: "URL del avatar",
   })
+  @IsOptional()
+  @Transform(({ value }) => (value === "" ? undefined : value))
+  @IsUrl()
   avatar?: string | null;
 }
+
+// Alias para compatibilidad con código existente
+export type UpdateUserInput = UpdateUserDto;

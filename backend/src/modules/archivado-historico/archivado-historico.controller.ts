@@ -1,11 +1,19 @@
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiParam,
+  ApiQuery,
+} from "@nestjs/swagger";
 import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
 import { ArchivadoHistoricoService } from "./archivado-historico.service";
 import {
   ArchivarManualDto,
   ExportarHistoricoDto,
   ConsultarHistoricoDto,
+  ConsultarHistoricoResponseDto,
   ResultadoArchivadoDto,
   ResultadoExportacionDto,
   EstadisticasArchivoDto,
@@ -29,6 +37,7 @@ export class ArchivadoHistoricoController {
   @Post("archivar-manual")
   @ApiOperation({ summary: "Archivar órdenes manualmente" })
   @ApiResponse({ status: 201, type: ResultadoArchivadoDto })
+  @ApiResponse({ status: 404, description: "Orden no encontrada" })
   async archivarManual(
     @Body() dto: ArchivarManualDto,
   ): Promise<ResultadoArchivadoDto> {
@@ -44,27 +53,23 @@ export class ArchivadoHistoricoController {
 
   @Get("consultar")
   @ApiOperation({ summary: "Consultar órdenes archivadas" })
+  @ApiQuery({ name: "numeroOrden", required: false, type: String })
+  @ApiQuery({ name: "clienteId", required: false, type: String })
+  @ApiQuery({ name: "fechaDesde", required: false, type: String })
+  @ApiQuery({ name: "fechaHasta", required: false, type: String })
+  @ApiQuery({ name: "pagina", required: false, type: Number })
+  @ApiQuery({ name: "limite", required: false, type: Number })
+  @ApiResponse({ status: 200, type: ConsultarHistoricoResponseDto })
   async consultarHistorico(
-    @Query("numeroOrden") numeroOrden?: string,
-    @Query("clienteId") clienteId?: string,
-    @Query("fechaDesde") fechaDesde?: string,
-    @Query("fechaHasta") fechaHasta?: string,
-    @Query("pagina") pagina?: number,
-    @Query("limite") limite?: number,
-  ) {
-    return this.archivadoService.consultarHistorico({
-      numeroOrden,
-      clienteId,
-      fechaDesde,
-      fechaHasta,
-      pagina,
-      limite,
-    });
+    @Query() query: ConsultarHistoricoDto,
+  ): Promise<ConsultarHistoricoResponseDto> {
+    return this.archivadoService.consultarHistorico(query);
   }
 
   @Post("exportar")
   @ApiOperation({ summary: "Exportar histórico a CSV o ZIP" })
   @ApiResponse({ status: 201, type: ResultadoExportacionDto })
+  @ApiResponse({ status: 404, description: "No hay órdenes archivadas" })
   async exportarHistorico(
     @Body() dto: ExportarHistoricoDto,
   ): Promise<ResultadoExportacionDto> {
@@ -74,6 +79,8 @@ export class ArchivadoHistoricoController {
   @Post("restaurar/:ordenId")
   @ApiOperation({ summary: "Restaurar orden archivada (emergencia)" })
   @ApiResponse({ status: 200, type: OrdenArchivadaResponseDto })
+  @ApiParam({ name: "ordenId", type: "string" })
+  @ApiResponse({ status: 404, description: "Orden no encontrada" })
   async restaurarOrden(
     @Param("ordenId") ordenId: string,
   ): Promise<OrdenArchivadaResponseDto> {

@@ -1,119 +1,225 @@
 /**
  * @dto Orden DTOs
- * @description DTOs con validación Zod para órdenes
+ * @description DTOs con validación class-validator para órdenes
  * @layer Application
  */
-import { z } from "zod";
+import {
+  IsString,
+  IsOptional,
+  IsUUID,
+  IsEnum,
+  IsNumber,
+  IsPositive,
+  IsObject,
+  IsInt,
+  Min,
+  Max,
+  MinLength,
+  MaxLength,
+  IsDateString,
+} from "class-validator";
+import { Type, Transform } from "class-transformer";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+
+// ==========================================
+// Enums
+// ==========================================
+
+export enum PrioridadOrden {
+  BAJA = "baja",
+  MEDIA = "media",
+  ALTA = "alta",
+  URGENTE = "urgente",
+}
+
+export enum EstadoOrden {
+  PLANEACION = "planeacion",
+  EJECUCION = "ejecucion",
+  PAUSADA = "pausada",
+  COMPLETADA = "completada",
+  CANCELADA = "cancelada",
+}
+
+export enum EstadoTransicion {
+  SOLICITUD_RECIBIDA = "SOLICITUD_RECIBIDA",
+  VISITA_PROGRAMADA = "VISITA_PROGRAMADA",
+  PROPUESTA_ELABORADA = "PROPUESTA_ELABORADA",
+  PROPUESTA_APROBADA = "PROPUESTA_APROBADA",
+  PLANEACION_INICIADA = "PLANEACION_INICIADA",
+  PLANEACION_APROBADA = "PLANEACION_APROBADA",
+  EJECUCION_INICIADA = "EJECUCION_INICIADA",
+  EJECUCION_COMPLETADA = "EJECUCION_COMPLETADA",
+  INFORME_GENERADO = "INFORME_GENERADO",
+  ACTA_ELABORADA = "ACTA_ELABORADA",
+  ACTA_FIRMADA = "ACTA_FIRMADA",
+  SES_APROBADA = "SES_APROBADA",
+  FACTURA_APROBADA = "FACTURA_APROBADA",
+  PAGO_RECIBIDO = "PAGO_RECIBIDO",
+}
 
 // ==========================================
 // Create Orden DTO
 // ==========================================
-export const CreateOrdenSchema = z.object({
-  descripcion: z
-    .string()
-    .min(10, "La descripción debe tener al menos 10 caracteres")
-    .max(1000, "La descripción no puede exceder 1000 caracteres"),
-  cliente: z
-    .string()
-    .min(2, "El cliente debe tener al menos 2 caracteres")
-    .max(200, "El cliente no puede exceder 200 caracteres"),
-  prioridad: z
-    .enum(["baja", "media", "alta", "urgente"])
-    .optional()
-    .default("media"),
-  fechaFinEstimada: z
-    .string()
-    .datetime()
-    .optional()
-    .transform((val) => (val ? new Date(val) : undefined)),
-  presupuestoEstimado: z.number().positive().optional(),
-  asignadoId: z.string().uuid().optional(),
-});
+export class CreateOrdenDto {
+  @ApiProperty({
+    description: "Descripción de la orden",
+    minLength: 10,
+    maxLength: 1000,
+  })
+  @IsString()
+  @MinLength(10, { message: "La descripción debe tener al menos 10 caracteres" })
+  @MaxLength(1000, { message: "La descripción no puede exceder 1000 caracteres" })
+  descripcion!: string;
 
-export type CreateOrdenDto = z.infer<typeof CreateOrdenSchema>;
+  @ApiProperty({
+    description: "Nombre del cliente",
+    minLength: 2,
+    maxLength: 200,
+  })
+  @IsString()
+  @MinLength(2, { message: "El cliente debe tener al menos 2 caracteres" })
+  @MaxLength(200, { message: "El cliente no puede exceder 200 caracteres" })
+  cliente!: string;
+
+  @ApiPropertyOptional({ enum: PrioridadOrden, default: "media" })
+  @IsOptional()
+  @IsEnum(PrioridadOrden)
+  prioridad?: PrioridadOrden = PrioridadOrden.MEDIA;
+
+  @ApiPropertyOptional({ description: "Fecha fin estimada (ISO)" })
+  @IsOptional()
+  @IsDateString()
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
+  fechaFinEstimada?: Date;
+
+  @ApiPropertyOptional({ description: "Presupuesto estimado" })
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  presupuestoEstimado?: number;
+
+  @ApiPropertyOptional({ description: "UUID del técnico asignado" })
+  @IsOptional()
+  @IsUUID("4")
+  asignadoId?: string;
+}
 
 // ==========================================
 // Update Orden DTO
 // ==========================================
-export const UpdateOrdenSchema = z.object({
-  descripcion: z
-    .string()
-    .min(10, "La descripción debe tener al menos 10 caracteres")
-    .max(1000, "La descripción no puede exceder 1000 caracteres")
-    .optional(),
-  cliente: z
-    .string()
-    .min(2, "El cliente debe tener al menos 2 caracteres")
-    .max(200, "El cliente no puede exceder 200 caracteres")
-    .optional(),
-  prioridad: z.enum(["baja", "media", "alta", "urgente"]).optional(),
-  fechaFinEstimada: z
-    .string()
-    .datetime()
-    .optional()
-    .transform((val) => (val ? new Date(val) : undefined)),
-  presupuestoEstimado: z.number().positive().optional(),
-  asignadoId: z.string().uuid().optional().nullable(),
-});
+export class UpdateOrdenDto {
+  @ApiPropertyOptional({
+    description: "Descripción de la orden",
+    minLength: 10,
+    maxLength: 1000,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(10, { message: "La descripción debe tener al menos 10 caracteres" })
+  @MaxLength(1000, { message: "La descripción no puede exceder 1000 caracteres" })
+  descripcion?: string;
 
-export type UpdateOrdenDto = z.infer<typeof UpdateOrdenSchema>;
+  @ApiPropertyOptional({
+    description: "Nombre del cliente",
+    minLength: 2,
+    maxLength: 200,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(2, { message: "El cliente debe tener al menos 2 caracteres" })
+  @MaxLength(200, { message: "El cliente no puede exceder 200 caracteres" })
+  cliente?: string;
+
+  @ApiPropertyOptional({ enum: PrioridadOrden })
+  @IsOptional()
+  @IsEnum(PrioridadOrden)
+  prioridad?: PrioridadOrden;
+
+  @ApiPropertyOptional({ description: "Fecha fin estimada (ISO)" })
+  @IsOptional()
+  @IsDateString()
+  @Transform(({ value }) => (value ? new Date(value) : undefined))
+  fechaFinEstimada?: Date;
+
+  @ApiPropertyOptional({ description: "Presupuesto estimado" })
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  presupuestoEstimado?: number;
+
+  @ApiPropertyOptional({ description: "UUID del técnico asignado (null para desasignar)" })
+  @IsOptional()
+  @IsUUID("4")
+  asignadoId?: string | null;
+}
 
 // ==========================================
 // Change Estado DTO
 // ==========================================
-export const ChangeEstadoSchema = z.object({
-  estado: z.enum([
-    "planeacion",
-    "ejecucion",
-    "pausada",
-    "completada",
-    "cancelada",
-  ]),
-});
-
-export type ChangeEstadoDto = z.infer<typeof ChangeEstadoSchema>;
+export class ChangeEstadoDto {
+  @ApiProperty({ enum: EstadoOrden })
+  @IsEnum(EstadoOrden)
+  estado!: EstadoOrden;
+}
 
 // ==========================================
 // Transition State DTO (para OrderStateService)
 // ==========================================
-export const TransitionStateSchema = z.object({
-  toState: z.enum([
-    "SOLICITUD_RECIBIDA",
-    "VISITA_PROGRAMADA",
-    "PROPUESTA_ELABORADA",
-    "PROPUESTA_APROBADA",
-    "PLANEACION_INICIADA",
-    "PLANEACION_APROBADA",
-    "EJECUCION_INICIADA",
-    "EJECUCION_COMPLETADA",
-    "INFORME_GENERADO",
-    "ACTA_ELABORADA",
-    "ACTA_FIRMADA",
-    "SES_APROBADA",
-    "FACTURA_APROBADA",
-    "PAGO_RECIBIDO",
-  ]),
-  notas: z.string().optional(),
-  metadata: z.record(z.string(), z.unknown()).optional(),
-});
+export class TransitionStateDto {
+  @ApiProperty({ enum: EstadoTransicion })
+  @IsEnum(EstadoTransicion)
+  toState!: EstadoTransicion;
 
-export type TransitionStateDto = z.infer<typeof TransitionStateSchema>;
+  @ApiPropertyOptional({ description: "Notas de la transición" })
+  @IsOptional()
+  @IsString()
+  notas?: string;
+
+  @ApiPropertyOptional({ description: "Metadatos adicionales" })
+  @IsOptional()
+  @IsObject()
+  metadata?: Record<string, unknown>;
+}
 
 // ==========================================
 // Query Orden DTO
 // ==========================================
-export const OrdenQuerySchema = z.object({
-  estado: z
-    .enum(["planeacion", "ejecucion", "pausada", "completada", "cancelada"])
-    .optional(),
-  cliente: z.string().optional(),
-  prioridad: z.enum(["baja", "media", "alta", "urgente"]).optional(),
-  asignadoId: z.string().uuid().optional(),
-  page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(20),
-});
+export class OrdenQueryDto {
+  @ApiPropertyOptional({ enum: EstadoOrden })
+  @IsOptional()
+  @IsEnum(EstadoOrden)
+  estado?: EstadoOrden;
 
-export type OrdenQueryDto = z.infer<typeof OrdenQuerySchema>;
+  @ApiPropertyOptional({ description: "Filtrar por cliente" })
+  @IsOptional()
+  @IsString()
+  cliente?: string;
+
+  @ApiPropertyOptional({ enum: PrioridadOrden })
+  @IsOptional()
+  @IsEnum(PrioridadOrden)
+  prioridad?: PrioridadOrden;
+
+  @ApiPropertyOptional({ description: "UUID del técnico asignado" })
+  @IsOptional()
+  @IsUUID("4")
+  asignadoId?: string;
+
+  @ApiPropertyOptional({ default: 1, minimum: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number = 1;
+
+  @ApiPropertyOptional({ default: 20, minimum: 1, maximum: 100 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit?: number = 20;
+}
 
 // ==========================================
 // Response DTOs

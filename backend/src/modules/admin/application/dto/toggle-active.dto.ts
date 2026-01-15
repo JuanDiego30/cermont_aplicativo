@@ -4,35 +4,20 @@
  * DTO para activar/desactivar usuario.
  */
 
-import { z } from "zod";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-
-/**
- * Schema Zod para validación
- */
-export const ToggleActiveSchema = z.object({
-  active: z
-    .any()
-    .refine((value) => value !== undefined, {
-      message: "El campo active es requerido",
-    })
-    .refine((value) => typeof value === "boolean", {
-      message: "El campo active debe ser booleano",
-    })
-    .transform((value) => value as boolean),
-  reason: z.string().max(500).optional(),
-});
-
-export type ToggleActiveInput = z.infer<typeof ToggleActiveSchema>;
+import { IsBoolean, IsOptional, IsString, MaxLength } from "class-validator";
+import { Type } from "class-transformer";
 
 /**
  * DTO class para Swagger documentation
  */
-export class ToggleActiveDto implements ToggleActiveInput {
+export class ToggleActiveDto {
   @ApiProperty({
     example: false,
     description: "Estado activo del usuario",
   })
+  @Type(() => Boolean)
+  @IsBoolean()
   active!: boolean;
 
   @ApiPropertyOptional({
@@ -40,5 +25,8 @@ export class ToggleActiveDto implements ToggleActiveInput {
     description: "Razón del cambio de estado (opcional)",
     maxLength: 500,
   })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
   reason?: string;
 }

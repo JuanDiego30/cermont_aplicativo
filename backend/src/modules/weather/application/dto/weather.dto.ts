@@ -1,15 +1,26 @@
 /**
  * @module Weather - Clean Architecture
+ * DTOs con class-validator
  */
-import { z } from "zod";
+import { IsNumber, Min, Max } from "class-validator";
+import { Type } from "class-transformer";
+import { ApiProperty } from "@nestjs/swagger";
 
-// DTOs
-export const WeatherQuerySchema = z.object({
-  lat: z.coerce.number().min(-90).max(90),
-  lon: z.coerce.number().min(-180).max(180),
-});
+export class WeatherQueryDto {
+  @ApiProperty({ example: 7.1234, minimum: -90, maximum: 90 })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  lat!: number;
 
-export type WeatherQueryDto = z.infer<typeof WeatherQuerySchema>;
+  @ApiProperty({ example: -73.1234, minimum: -180, maximum: 180 })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  lon!: number;
+}
 
 export interface CurrentWeather {
   temperature: number;

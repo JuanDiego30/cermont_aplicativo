@@ -1,40 +1,106 @@
 /**
  * @module PDF Generation - Clean Architecture
+ * @description DTOs con class-validator
  */
-import { z } from "zod";
+import {
+  IsString,
+  IsOptional,
+  IsUUID,
+  IsEnum,
+  IsBoolean,
+  IsObject,
+  ValidateNested,
+} from "class-validator";
+import { Type } from "class-transformer";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
-// DTOs
-export const GeneratePDFSchema = z.object({
-  templateType: z.enum([
-    "orden_trabajo",
-    "reporte_ejecucion",
-    "acta_entrega",
-    "inspeccion_hes",
-    "inspeccion_linea_vida",
-    "checklist",
-    "reporte_mensual",
-  ]),
-  entityId: z.string().uuid(),
-  options: z
-    .object({
-      includeSignatures: z.boolean().default(true),
-      includeEvidencias: z.boolean().default(false),
-      format: z.enum(["A4", "letter"]).default("A4"),
-      orientation: z.enum(["portrait", "landscape"]).default("portrait"),
-    })
-    .optional(),
-});
+// ============== Enums ==============
 
-export type GeneratePDFDto = z.infer<typeof GeneratePDFSchema>;
+export enum TemplateType {
+  ORDEN_TRABAJO = "orden_trabajo",
+  REPORTE_EJECUCION = "reporte_ejecucion",
+  ACTA_ENTREGA = "acta_entrega",
+  INSPECCION_HES = "inspeccion_hes",
+  INSPECCION_LINEA_VIDA = "inspeccion_linea_vida",
+  CHECKLIST = "checklist",
+  REPORTE_MENSUAL = "reporte_mensual",
+}
 
-export const GenerateReportePDFSchema = z.object({
-  tipoReporte: z.enum(["ordenes", "mantenimientos", "inspecciones", "costos"]),
-  fechaInicio: z.string(),
-  fechaFin: z.string(),
-  filtros: z.record(z.string(), z.unknown()).optional(),
-});
+export enum TipoReporte {
+  ORDENES = "ordenes",
+  MANTENIMIENTOS = "mantenimientos",
+  INSPECCIONES = "inspecciones",
+  COSTOS = "costos",
+}
 
-export type GenerateReportePDFDto = z.infer<typeof GenerateReportePDFSchema>;
+export enum PDFFormat {
+  A4 = "A4",
+  LETTER = "letter",
+}
+
+export enum PDFOrientation {
+  PORTRAIT = "portrait",
+  LANDSCAPE = "landscape",
+}
+
+// ============== DTOs ==============
+
+export class GeneratePDFOptionsDto {
+  @ApiPropertyOptional({ default: true })
+  @IsOptional()
+  @IsBoolean()
+  includeSignatures?: boolean = true;
+
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  includeEvidencias?: boolean = false;
+
+  @ApiPropertyOptional({ enum: PDFFormat, default: "A4" })
+  @IsOptional()
+  @IsEnum(PDFFormat)
+  format?: PDFFormat = PDFFormat.A4;
+
+  @ApiPropertyOptional({ enum: PDFOrientation, default: "portrait" })
+  @IsOptional()
+  @IsEnum(PDFOrientation)
+  orientation?: PDFOrientation = PDFOrientation.PORTRAIT;
+}
+
+export class GeneratePDFDto {
+  @ApiProperty({ enum: TemplateType })
+  @IsEnum(TemplateType)
+  templateType!: TemplateType;
+
+  @ApiProperty({ description: "UUID de la entidad" })
+  @IsUUID("4")
+  entityId!: string;
+
+  @ApiPropertyOptional({ type: GeneratePDFOptionsDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => GeneratePDFOptionsDto)
+  options?: GeneratePDFOptionsDto;
+}
+
+export class GenerateReportePDFDto {
+  @ApiProperty({ enum: TipoReporte })
+  @IsEnum(TipoReporte)
+  tipoReporte!: TipoReporte;
+
+  @ApiProperty({ description: "Fecha inicio (ISO)" })
+  @IsString()
+  fechaInicio!: string;
+
+  @ApiProperty({ description: "Fecha fin (ISO)" })
+  @IsString()
+  fechaFin!: string;
+
+  @ApiPropertyOptional({ description: "Filtros adicionales" })
+  @IsOptional()
+  @IsObject()
+  filtros?: Record<string, unknown>;
+}
 
 export interface PDFResult {
   filename: string;
@@ -75,5 +141,5 @@ export interface IPDFRepository {
     entityType: string,
     entityId: string,
     userId: string,
-  ): Promise<any>;
+  ): Promise<unknown>;
 }

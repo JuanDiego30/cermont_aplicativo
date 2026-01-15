@@ -7,8 +7,10 @@ import {
   IsEnum,
   IsArray,
   ValidateNested,
+  IsBoolean,
+  IsNumber,
 } from "class-validator";
-import { Type } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 
 /**
  * Tipo de cliente
@@ -45,6 +47,8 @@ export class CreateContactoDto {
 
   @ApiPropertyOptional({ description: "Es contacto principal" })
   @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
   esPrincipal?: boolean;
 }
 
@@ -74,14 +78,20 @@ export class CreateUbicacionDto {
 
   @ApiPropertyOptional({ description: "Latitud" })
   @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
   latitud?: number;
 
   @ApiPropertyOptional({ description: "Longitud" })
   @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
   longitud?: number;
 
   @ApiPropertyOptional({ description: "Es ubicación principal" })
   @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
   esPrincipal?: boolean;
 }
 
@@ -143,6 +153,23 @@ export class CreateClienteDto {
 }
 
 /**
+ * DTO para filtros de consulta de clientes
+ */
+export class ClientesQueryDto {
+  @ApiPropertyOptional({ type: Boolean, description: "Filtrar por activo" })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null || value === "") return undefined;
+    if (typeof value === "boolean") return value;
+    if (value === "true") return true;
+    if (value === "false") return false;
+    return value;
+  })
+  @IsBoolean()
+  activo?: boolean;
+}
+
+/**
  * DTO de respuesta de cliente
  */
 export class ClienteResponseDto {
@@ -156,7 +183,7 @@ export class ClienteResponseDto {
   nit!: string;
 
   @ApiProperty()
-  tipoCliente!: string;
+  tipoCliente!: TipoCliente;
 
   @ApiPropertyOptional()
   direccion?: string;
@@ -197,4 +224,41 @@ export class ClienteResponseDto {
 
   @ApiProperty()
   createdAt!: string;
+}
+
+export class ClienteOrdenResumenDto {
+  @ApiProperty()
+  id!: string;
+
+  @ApiProperty()
+  numero!: string;
+
+  @ApiProperty()
+  descripcion!: string;
+
+  @ApiProperty()
+  estado!: string;
+
+  @ApiProperty()
+  prioridad!: string;
+
+  @ApiProperty()
+  createdAt!: Date;
+
+  @ApiPropertyOptional()
+  fechaFin?: Date | null;
+}
+
+export class ClienteOrdenesResponseDto {
+  @ApiProperty()
+  clienteId!: string;
+
+  @ApiProperty()
+  razonSocial!: string;
+
+  @ApiProperty()
+  totalOrdenes!: number;
+
+  @ApiProperty({ type: [ClienteOrdenResumenDto] })
+  ordenes!: ClienteOrdenResumenDto[];
 }

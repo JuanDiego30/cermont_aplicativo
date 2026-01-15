@@ -1,27 +1,77 @@
 /**
  * @module Sync - Clean Architecture
+ * DTOs con class-validator
  */
-import { z } from "zod";
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsObject,
+  IsArray,
+  ArrayMinSize,
+  ValidateNested,
+  IsDateString,
+} from "class-validator";
+import { Type } from "class-transformer";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
-// DTOs
-export const SyncItemSchema = z.object({
-  entityType: z.enum(["orden", "evidencia", "checklist", "ejecucion"]),
-  entityId: z.string().optional(),
-  action: z.enum(["create", "update", "delete"]),
-  data: z.record(z.string(), z.unknown()),
-  localId: z.string(),
-  timestamp: z.string(),
-});
+export enum SyncEntityType {
+  ORDEN = "orden",
+  EVIDENCIA = "evidencia",
+  CHECKLIST = "checklist",
+  EJECUCION = "ejecucion",
+}
 
-export type SyncItemDto = z.infer<typeof SyncItemSchema>;
+export enum SyncAction {
+  CREATE = "create",
+  UPDATE = "update",
+  DELETE = "delete",
+}
 
-export const SyncBatchSchema = z.object({
-  items: z.array(SyncItemSchema).min(1),
-  deviceId: z.string(),
-  lastSyncTimestamp: z.string().optional(),
-});
+export class SyncItemDto {
+  @ApiProperty({ enum: SyncEntityType })
+  @IsEnum(SyncEntityType)
+  entityType!: SyncEntityType;
 
-export type SyncBatchDto = z.infer<typeof SyncBatchSchema>;
+  @ApiPropertyOptional({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @IsOptional()
+  @IsString()
+  entityId?: string;
+
+  @ApiProperty({ enum: SyncAction })
+  @IsEnum(SyncAction)
+  action!: SyncAction;
+
+  @ApiProperty({ example: { campo: "valor" } })
+  @IsObject()
+  data!: Record<string, unknown>;
+
+  @ApiProperty({ example: "local-123" })
+  @IsString()
+  localId!: string;
+
+  @ApiProperty({ example: "2025-01-14T10:00:00Z" })
+  @IsDateString()
+  timestamp!: string;
+}
+
+export class SyncBatchDto {
+  @ApiProperty({ type: [SyncItemDto], minItems: 1 })
+  @IsArray()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => SyncItemDto)
+  items!: SyncItemDto[];
+
+  @ApiProperty({ example: "device-abc123" })
+  @IsString()
+  deviceId!: string;
+
+  @ApiPropertyOptional({ example: "2025-01-14T09:00:00Z" })
+  @IsOptional()
+  @IsDateString()
+  lastSyncTimestamp?: string;
+}
 
 export interface SyncResult {
   localId: string;

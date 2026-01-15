@@ -1,28 +1,81 @@
 /**
  * @module Costos - Clean Architecture
+ * DTOs con class-validator
  */
-import { z } from "zod";
+import {
+  IsString,
+  IsEnum,
+  IsOptional,
+  IsUUID,
+  IsNumber,
+  IsPositive,
+  MinLength,
+  IsDateString,
+} from "class-validator";
+import { Type } from "class-transformer";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
-// DTOs
-export const RegistrarCostoSchema = z.object({
-  ordenId: z.string().uuid(),
-  tipo: z.enum(["mano_obra", "materiales", "transporte", "equipos", "otros"]),
-  descripcion: z.string().min(3),
-  cantidad: z.number().positive(),
-  precioUnitario: z.number().positive(),
-  proveedor: z.string().optional(),
-});
+export enum TipoCosto {
+  MANO_OBRA = "mano_obra",
+  MATERIALES = "materiales",
+  TRANSPORTE = "transporte",
+  EQUIPOS = "equipos",
+  OTROS = "otros",
+}
 
-export type RegistrarCostoDto = z.infer<typeof RegistrarCostoSchema>;
+export class RegistrarCostoDto {
+  @ApiProperty({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @IsUUID()
+  ordenId!: string;
 
-export const CostoQuerySchema = z.object({
-  ordenId: z.string().uuid().optional(),
-  tipo: z.string().optional(),
-  fechaDesde: z.string().optional(),
-  fechaHasta: z.string().optional(),
-});
+  @ApiProperty({ enum: TipoCosto, example: TipoCosto.MANO_OBRA })
+  @IsEnum(TipoCosto)
+  tipo!: TipoCosto;
 
-export type CostoQueryDto = z.infer<typeof CostoQuerySchema>;
+  @ApiProperty({ example: "Instalación de equipos", minLength: 3 })
+  @IsString()
+  @MinLength(3)
+  descripcion!: string;
+
+  @ApiProperty({ example: 5, minimum: 0.01 })
+  @IsNumber()
+  @IsPositive()
+  @Type(() => Number)
+  cantidad!: number;
+
+  @ApiProperty({ example: 150000, minimum: 0.01 })
+  @IsNumber()
+  @IsPositive()
+  @Type(() => Number)
+  precioUnitario!: number;
+
+  @ApiPropertyOptional({ example: "Proveedor XYZ" })
+  @IsOptional()
+  @IsString()
+  proveedor?: string;
+}
+
+export class CostoQueryDto {
+  @ApiPropertyOptional({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @IsOptional()
+  @IsUUID()
+  ordenId?: string;
+
+  @ApiPropertyOptional({ example: "mano_obra" })
+  @IsOptional()
+  @IsString()
+  tipo?: string;
+
+  @ApiPropertyOptional({ example: "2025-01-01" })
+  @IsOptional()
+  @IsDateString()
+  fechaDesde?: string;
+
+  @ApiPropertyOptional({ example: "2025-12-31" })
+  @IsOptional()
+  @IsDateString()
+  fechaHasta?: string;
+}
 
 export interface CostoResponse {
   id: string;

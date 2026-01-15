@@ -5,12 +5,13 @@ import {
   Controller,
   Get,
   Post,
-  Delete,
   Query,
   Body,
   Param,
   UseGuards,
-  BadRequestException,
+  ParseUUIDPipe,
+  HttpCode,
+  HttpStatus,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
@@ -28,7 +29,7 @@ import {
   RegistrarCostoUseCase,
   GetAnalisisCostosUseCase,
 } from "../../application/use-cases";
-import { CostoQuerySchema, RegistrarCostoSchema } from "../../application/dto";
+import { CostoQueryDto, RegistrarCostoDto } from "../../application/dto";
 
 @ApiTags("Costos")
 @ApiBearerAuth()
@@ -47,10 +48,8 @@ export class CostosController {
   @ApiResponse({ status: 200, description: "Lista de costos" })
   @ApiResponse({ status: 401, description: "No autenticado" })
   @ApiResponse({ status: 403, description: "Sin permisos" })
-  async findAll(@Query() query: unknown) {
-    const result = CostoQuerySchema.safeParse(query);
-    const filters = result.success ? result.data : {};
-    return this.listCostos.execute(filters);
+  async findAll(@Query() query: CostoQueryDto) {
+    return this.listCostos.execute(query);
   }
 
   @Get("analisis/:ordenId")
@@ -60,25 +59,20 @@ export class CostosController {
   @ApiResponse({ status: 200, description: "Análisis de costos" })
   @ApiResponse({ status: 401, description: "No autenticado" })
   @ApiResponse({ status: 403, description: "Sin permisos" })
-  async analisis(@Param("ordenId") ordenId: string) {
+  async analisis(@Param("ordenId", ParseUUIDPipe) ordenId: string) {
     return this.getAnalisis.execute(ordenId);
   }
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   @Roles("admin", "supervisor", "tecnico")
   @ApiOperation({ summary: "Registrar costo" })
-  @ApiBody({
-    description:
-      "Payload para registrar un costo (validado por schema en servidor)",
-    schema: { type: "object" },
-  })
+  @ApiBody({ type: RegistrarCostoDto })
   @ApiResponse({ status: 201, description: "Costo registrado" })
   @ApiResponse({ status: 400, description: "Datos inválidos" })
   @ApiResponse({ status: 401, description: "No autenticado" })
   @ApiResponse({ status: 403, description: "Sin permisos" })
-  async registrar(@Body() body: unknown) {
-    const result = RegistrarCostoSchema.safeParse(body);
-    if (!result.success) throw new BadRequestException(result.error.flatten());
-    return this.registrarCosto.execute(result.data);
+  async registrar(@Body() dto: RegistrarCostoDto) {
+    return this.registrarCosto.execute(dto);
   }
 }

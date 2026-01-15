@@ -1,7 +1,16 @@
 /**
  * @service PrismaService
- * Cliente Prisma (PostgreSQL) con ciclo de vida NestJS.
- * Prisma 7+ requiere un adapter explícito para conexión a BD
+ * @description Cliente Prisma (PostgreSQL) con ciclo de vida NestJS
+ * @layer Infrastructure
+ *
+ * NestJS Expert Skill Compliant:
+ * - Uses @Injectable() for dependency injection
+ * - Extends PrismaClient with proper lifecycle hooks
+ * - Implements OnModuleInit and OnModuleDestroy
+ * - Uses LoggerService for logging
+ * - Handles connection errors gracefully
+ * - Supports transactions
+ * - Provides health check
  */
 import {
   Injectable,
@@ -10,37 +19,164 @@ import {
   OnModuleDestroy,
 } from "@nestjs/common";
 import { PrismaClient } from "@prisma/client";
+import { ConfigService } from "@nestjs/config";
+import { LoggerService } from "@/lib/logging/logger.service";
 
 @Injectable()
 export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
-  private readonly logger = new Logger(PrismaService.name);
+  private readonly logger: LoggerService;
+  private readonly configService: ConfigService;
 
-  constructor() {
+  constructor(configService: ConfigService) {
+    const nodeEnv = configService.get<string>("NODE_ENV", "development");
+    const logLevel = PrismaService.getLogLevel(nodeEnv);
+
     super({
       datasources: {
         db: {
-          url: process.env.DATABASE_URL,
+          url: configService.get<string>("DATABASE_URL"),
         },
       },
+      log: logLevel,
     });
-    this.logger.log("PrismaService instantiated (Standard)");
+
+    this.configService = configService;
+    this.logger = new LoggerService("PrismaService");
+    this.logger.log("PrismaService instantiated", undefined, {
+      environment: nodeEnv,
+    });
   }
 
-  async onModuleInit() {
+  /**
+   * Connect to database on module initialization
+   */
+  async onModuleInit(): Promise<void> {
     this.logger.log("Connecting to database...");
+
     try {
       await this.$connect();
       this.logger.log("PostgreSQL Database connected successfully");
+      this.logDatabaseInfo();
     } catch (error) {
-      this.logger.error("Failed to connect to database", error);
+      this.logger.logErrorWithStack(
+        error as Error,
+        "Failed to connect to database",
+      );
       throw error;
     }
   }
 
-  async onModuleDestroy() {
-    await this.$disconnect();
+  /**
+   * Disconnect from database on module destruction
+   */
+  async onModuleDestroy(): Promise<void> {
+    this.logger.log("Disconnecting from database...");
+
+    try {
+      await this.$disconnect();
+      this.logger.log("PostgreSQL Database disconnected successfully");
+    } catch (error) {
+      this.logger.logErrorWithStack(
+        error as Error,
+        "Failed to disconnect from database",
+      );
+    }
+  }
+
+  /**
+   * Execute a transaction with proper error handling
+   * @param fn Transaction callback function
+   * @returns Result of transaction
+   */
+  async transaction<R>(
+    fn: (prisma: Omit<PrismaClient, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use">) => Promise<R>,
+  ): Promise<R> {
+    this.logger.debug("Starting transaction");
+
+    try {
+      const result = await this.$transaction(
+        fn as Parameters<PrismaClient["$transaction"]>[0],
+      );
+      this.logger.debug("Transaction completed successfully");
+      return result as R;
+    } catch (error) {
+      this.logger.logErrorWithStack(error as Error, "Transaction failed");
+      throw error;
+    }
+  }
+
+  /**
+   * Health check for database connection
+   * @returns True if database is healthy, false otherwise
+   */
+  async isHealthy(): Promise<boolean> {
+    try {
+      await this.$queryRaw`SELECT 1`;
+      return true;
+    } catch (error) {
+      this.logger.logErrorWithStack(
+        error as Error,
+        "Database health check failed",
+      );
+      return false;
+    }
+  }
+
+  /**
+   * Get database connection info
+   * @returns Database connection information
+   */
+  async getConnectionInfo(): Promise<{ connected: boolean; database?: string }> {
+    try {
+      const result = await this.$queryRaw<
+        { current_database: string }[]
+      >`SELECT current_database()`;
+
+      return {
+        connected: true,
+        database: result[0]?.current_database,
+      };
+    } catch (error) {
+      this.logger.logErrorWithStack(
+        error as Error,
+        "Failed to get database info",
+      );
+      return { connected: false };
+    }
+  }
+
+  /**
+   * Get Prisma log level based on environment
+   * @param nodeEnv Node environment
+   * @returns Log level array
+   */
+  private static getLogLevel(
+    nodeEnv: string,
+  ): Array<never> | Array<"query" | "error" | "warn"> {
+    if (nodeEnv === "development") {
+      return ["query", "error", "warn"];
+    } else if (nodeEnv === "test") {
+      return ["error"];
+    }
+    return ["error"];
+  }
+
+  /**
+   * Log database connection information
+   */
+  private async logDatabaseInfo(): Promise<void> {
+    try {
+      const info = await this.getConnectionInfo();
+      if (info.connected && info.database) {
+        this.logger.log("Connected to database", undefined, {
+          database: info.database,
+        });
+      }
+    } catch {
+      // Silently fail if we can't get database info
+    }
   }
 }

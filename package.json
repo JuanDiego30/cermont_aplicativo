@@ -4,9 +4,19 @@
     "private": true,
     "packageManager": "pnpm@9.15.4",
     "scripts": {
-        "build:all": "pnpm -r run build",
-        "test:all": "pnpm -r run test",
-        "lint:all": "pnpm -r run lint"
+        "dev": "turbo run dev --parallel",
+        "build": "turbo run build",
+        "test": "turbo run test",
+        "lint": "turbo run lint",
+        "lint:fix": "turbo run lint:fix",
+        "typecheck": "turbo run typecheck",
+        "clean": "turbo run clean && rimraf node_modules .turbo",
+        "format": "prettier --write \"**/*.{ts,tsx,js,json,md,yaml,yml,html,css,scss}\"",
+        "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md,yaml,yml,html,css,scss}\""
     },
-    "devDependencies": {}
+    "devDependencies": {
+        "prettier": "^3.8.0",
+        "rimraf": "^6.0.0",
+        "turbo": "^2.3.0"
+    }
 }

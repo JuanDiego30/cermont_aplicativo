@@ -3,7 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+  // fullTextSearchPostgres graduated to stable in Prisma 7
 }
 
 datasource db {

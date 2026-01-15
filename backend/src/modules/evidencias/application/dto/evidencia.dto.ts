@@ -1,51 +1,138 @@
 /**
  * @file Application Layer DTOs
- * @description Request/Response DTOs with Zod validation
+ * @description Request/Response DTOs with class-validator
  */
 
-import { z } from "zod";
+import {
+  IsString,
+  IsOptional,
+  IsUUID,
+  IsEnum,
+  MaxLength,
+  IsArray,
+  IsBoolean,
+  IsInt,
+  IsPositive,
+  Max,
+} from "class-validator";
+import { Type, Transform } from "class-transformer";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { TipoEvidencia } from "../../domain/value-objects/file-type.vo";
+
+// ============================================================
+// Enums
+// ============================================================
+
+export enum TipoEvidenciaEnum {
+  FOTO = "FOTO",
+  VIDEO = "VIDEO",
+  DOCUMENTO = "DOCUMENTO",
+  AUDIO = "AUDIO",
+}
+
+export enum StatusEvidenciaEnum {
+  PENDING = "PENDING",
+  PROCESSING = "PROCESSING",
+  READY = "READY",
+  FAILED = "FAILED",
+}
 
 // ============================================================
 // Upload DTOs
 // ============================================================
 
-export const UploadEvidenciaSchema = z.object({
-  ordenId: z.string().uuid("ordenId debe ser UUID válido"),
-  ejecucionId: z.string().uuid("ejecucionId debe ser UUID válido").optional(),
-  tipo: z.enum(["FOTO", "VIDEO", "DOCUMENTO", "AUDIO"]).optional(),
-  descripcion: z.string().max(500, "Máximo 500 caracteres").optional(),
-  tags: z.string().max(1000, "Máximo 1000 caracteres").optional(), // Comma-separated
-});
+export class UploadEvidenciaDto {
+  @ApiProperty({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @IsUUID("4", { message: "ordenId debe ser UUID válido" })
+  ordenId!: string;
 
-export type UploadEvidenciaDto = z.infer<typeof UploadEvidenciaSchema>;
+  @ApiPropertyOptional({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @IsOptional()
+  @IsUUID("4", { message: "ejecucionId debe ser UUID válido" })
+  ejecucionId?: string;
+
+  @ApiPropertyOptional({ enum: TipoEvidenciaEnum })
+  @IsOptional()
+  @IsEnum(TipoEvidenciaEnum)
+  tipo?: TipoEvidenciaEnum;
+
+  @ApiPropertyOptional({ maxLength: 500 })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500, { message: "Máximo 500 caracteres" })
+  descripcion?: string;
+
+  @ApiPropertyOptional({ description: "Tags separados por coma", maxLength: 1000 })
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000, { message: "Máximo 1000 caracteres" })
+  tags?: string;
+}
 
 // ============================================================
 // Update DTOs
 // ============================================================
 
-export const UpdateEvidenciaSchema = z.object({
-  descripcion: z.string().max(500).optional(),
-  tags: z.array(z.string()).optional(),
-});
+export class UpdateEvidenciaDto {
+  @ApiPropertyOptional({ maxLength: 500 })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  descripcion?: string;
 
-export type UpdateEvidenciaDto = z.infer<typeof UpdateEvidenciaSchema>;
+  @ApiPropertyOptional({ type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
+}
 
 // ============================================================
 // Query DTOs
 // ============================================================
 
-export const ListEvidenciasQuerySchema = z.object({
-  ordenId: z.string().uuid().optional(),
-  ejecucionId: z.string().uuid().optional(),
-  tipo: z.enum(["FOTO", "VIDEO", "DOCUMENTO", "AUDIO"]).optional(),
-  status: z.enum(["PENDING", "PROCESSING", "READY", "FAILED"]).optional(),
-  includeDeleted: z.coerce.boolean().optional(),
-  page: z.coerce.number().int().positive().optional().default(1),
-  limit: z.coerce.number().int().positive().max(100).optional().default(50),
-});
+export class ListEvidenciasQueryDto {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  ordenId?: string;
 
-export type ListEvidenciasQueryDto = z.infer<typeof ListEvidenciasQuerySchema>;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsUUID()
+  ejecucionId?: string;
+
+  @ApiPropertyOptional({ enum: TipoEvidenciaEnum })
+  @IsOptional()
+  @IsEnum(TipoEvidenciaEnum)
+  tipo?: TipoEvidenciaEnum;
+
+  @ApiPropertyOptional({ enum: StatusEvidenciaEnum })
+  @IsOptional()
+  @IsEnum(StatusEvidenciaEnum)
+  status?: StatusEvidenciaEnum;
+
+  @ApiPropertyOptional({ default: false })
+  @IsOptional()
+  @Transform(({ value }) => value === "true" || value === true)
+  @IsBoolean()
+  includeDeleted?: boolean;
+
+  @ApiPropertyOptional({ default: 1, minimum: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @IsPositive()
+  page?: number = 1;
+
+  @ApiPropertyOptional({ default: 50, minimum: 1, maximum: 100 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @IsPositive()
+  @Max(100)
+  limit?: number = 50;
+}
 
 // ============================================================
 // Response DTOs

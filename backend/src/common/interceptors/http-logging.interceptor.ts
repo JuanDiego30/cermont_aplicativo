@@ -8,7 +8,7 @@ import {
 import { Observable, throwError } from "rxjs";
 import { catchError, tap } from "rxjs/operators";
 
-import { LoggerService } from "../logging/logger.service";
+import { LoggerService } from "../../lib/logging/logger.service";
 
 @Injectable()
 export class HttpLoggingInterceptor implements NestInterceptor {

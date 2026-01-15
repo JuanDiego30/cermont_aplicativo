@@ -37,13 +37,14 @@ export class SubmitFormDto {
   })
   @IsObject()
   @IsNotEmpty()
-  answers!: Record<string, any>;
+  answers!: Record<string, unknown>;
+  
   @IsOptional()
   @IsString()
   ordenId?: string;
 
   @IsOptional()
-  data?: any;
+  data?: unknown;
 
   @IsOptional()
   @IsString()

@@ -13,6 +13,7 @@ import {
 } from "./application/dto/archivado-historico.dto";
 import * as fs from "fs";
 import * as path from "path";
+import { Prisma } from "@prisma/client";
 
 /**
  * ArchivadoHistoricoService
@@ -171,7 +172,9 @@ export class ArchivadoHistoricoService {
   /**
    * Consultar histórico de órdenes archivadas
    */
-  async consultarHistorico(dto: ConsultarHistoricoDto): Promise<{
+  async consultarHistorico(
+    dto: ConsultarHistoricoDto,
+  ): Promise<{
     ordenes: OrdenArchivadaResponseDto[];
     total: number;
     pagina: number;
@@ -181,7 +184,7 @@ export class ArchivadoHistoricoService {
     const limite = dto.limite || 20;
     const skip = (pagina - 1) * limite;
 
-    const where: any = {
+    const where: Prisma.OrderWhereInput = {
       observaciones: { contains: "[ARCHIVADA]" },
     };
 
@@ -191,11 +194,14 @@ export class ArchivadoHistoricoService {
     if (dto.clienteId) {
       where.cliente = dto.clienteId;
     }
-    if (dto.fechaDesde) {
-      where.fechaFin = { ...where.fechaFin, gte: new Date(dto.fechaDesde) };
-    }
-    if (dto.fechaHasta) {
-      where.fechaFin = { ...where.fechaFin, lte: new Date(dto.fechaHasta) };
+    if (dto.fechaDesde || dto.fechaHasta) {
+      where.fechaFin = {};
+      if (dto.fechaDesde) {
+        (where.fechaFin as Prisma.DateTimeFilter).gte = new Date(dto.fechaDesde);
+      }
+      if (dto.fechaHasta) {
+        (where.fechaFin as Prisma.DateTimeFilter).lte = new Date(dto.fechaHasta);
+      }
     }
 
     const [ordenes, total] = await Promise.all([
