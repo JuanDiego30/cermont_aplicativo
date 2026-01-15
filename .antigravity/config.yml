@@ -1,0 +1,186 @@
+# Antigravity AI Configuration
+
+version: "1.0"
+name: cermont-aplicativo
+description: Monorepo NestJS + Angular + Prisma + Turborepo para gestión de obras
+
+## Project Context
+project:
+  type: monorepo
+  manager: pnpm
+  build_tool: turborepo
+  
+  packages:
+    - name: backend
+      path: backend/
+      framework: nestjs
+      version: "11.x"
+      language: typescript
+      
+    - name: frontend
+      path: frontend/
+      framework: angular
+      version: "20.x"
+      language: typescript
+
+## Skills Configuration
+skills:
+  # Backend Skills
+  - id: nestjs-expert
+    path: nestjs-expert/SKILL.md
+    auto_load: true
+    triggers:
+      - "*.controller.ts"
+      - "*.service.ts"
+      - "*.module.ts"
+      - "*.guard.ts"
+      - backend/**
+      
+  - id: prisma-architect
+    path: skills/prisma-architect/SKILL.md
+    auto_load: true
+    triggers:
+      - "*.prisma"
+      - "**/prisma/**"
+      - "**/migration*"
+      
+  - id: clean-architecture
+    path: skills/clean-architecture/SKILL.md
+    auto_load: false
+    triggers:
+      - refactor
+      - architecture
+      - solid
+      
+  - id: security-hardening
+    path: skills/security-hardening/SKILL.md
+    auto_load: false
+    triggers:
+      - auth
+      - security
+      - jwt
+      - guard
+
+  # Frontend Skills
+  - id: angular-architect
+    path: angular-architect/angular-architect/SKILL.md
+    auto_load: true
+    triggers:
+      - "*.component.ts"
+      - "*.signal*"
+      - frontend/**
+      
+  - id: frontend-ui-integration
+    path: frontend-ui-integration/SKILL.md
+    auto_load: false
+    triggers:
+      - tailwind
+      - css
+      - styling
+
+  # DevOps Skills
+  - id: monorepo-management
+    path: monorepo-management/SKILL.md
+    auto_load: true
+    triggers:
+      - turbo
+      - pnpm
+      - workspace
+      - build
+      
+  - id: dependency-upgrade
+    path: dependency-upgrade/SKILL.md
+    auto_load: false
+    triggers:
+      - upgrade
+      - vulnerability
+      - audit
+      - outdated
+      
+  - id: github-actions-cicd
+    path: skills/github-actions-cicd/SKILL.md
+    auto_load: false
+    triggers:
+      - "*.yml"
+      - ".github/**"
+      - ci
+      - deploy
+
+  # Testing Skills
+  - id: jest-testing
+    path: skills/jest-testing/SKILL.md
+    auto_load: false
+    triggers:
+      - "*.spec.ts"
+      - "*.test.ts"
+      - test
+      - coverage
+
+## Skill Priorities
+priority_order:
+  - nestjs-expert
+  - angular-architect
+  - prisma-architect
+  - monorepo-management
+  - security-hardening
+  - jest-testing
+  - clean-architecture
+  - dependency-upgrade
+  - github-actions-cicd
+  - frontend-ui-integration
+
+## Auto-Load Rules
+auto_load:
+  # Cargar skill basado en archivo actual
+  file_patterns:
+    "backend/**/*.ts": [nestjs-expert, prisma-architect]
+    "frontend/**/*.ts": [angular-architect]
+    "*.prisma": [prisma-architect]
+    ".github/**/*.yml": [github-actions-cicd]
+    "**/*.spec.ts": [jest-testing]
+    
+  # Cargar skill basado en prompt
+  prompt_keywords:
+    - keyword: [nestjs, nest, backend, api, controller, service]
+      skill: nestjs-expert
+    - keyword: [angular, component, signal, frontend]
+      skill: angular-architect
+    - keyword: [prisma, schema, migration, database]
+      skill: prisma-architect
+    - keyword: [test, spec, jest, coverage]
+      skill: jest-testing
+    - keyword: [security, auth, jwt, password]
+      skill: security-hardening
+    - keyword: [deploy, ci, cd, github actions, pipeline]
+      skill: github-actions-cicd
+    - keyword: [upgrade, vulnerability, audit, dependency]
+      skill: dependency-upgrade
+    - keyword: [refactor, architecture, solid, clean]
+      skill: clean-architecture
+    - keyword: [turbo, pnpm, monorepo, workspace]
+      skill: monorepo-management
+
+## Context Injection
+context:
+  # Siempre incluir estos archivos en el contexto
+  always_include:
+    - package.json
+    - turbo.json
+    - pnpm-workspace.yaml
+    
+  # Incluir condicionalmente
+  conditional:
+    backend:
+      - backend/package.json
+      - backend/prisma/schema.prisma
+      - backend/nest-cli.json
+    frontend:
+      - frontend/package.json
+      - frontend/angular.json
+      - frontend/tailwind.config.js
+
+## Memory Settings
+memory:
+  persist_context: true
+  max_history: 50
+  compress_old: true

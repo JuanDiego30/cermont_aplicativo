@@ -1,0 +1,116 @@
+{
+  "$schema": "https://opencode.ai/schemas/config.json",
+  "version": "1.0.0",
+  "project": {
+    "name": "cermont-aplicativo",
+    "type": "monorepo",
+    "description": "Sistema de gestión de obras con NestJS + Angular + Prisma"
+  },
+  "skills": {
+    "directory": "../skills",
+    "legacy_directories": [
+      "../nestjs-expert",
+      "../angular-architect",
+      "../monorepo-management",
+      "../dependency-upgrade",
+      "../frontend-ui-integration"
+    ],
+    "enabled": [
+      "nestjs-expert",
+      "angular-architect",
+      "prisma-architect",
+      "monorepo-management",
+      "dependency-upgrade",
+      "jest-testing",
+      "github-actions-cicd",
+      "clean-architecture",
+      "security-hardening",
+      "frontend-ui-integration"
+    ],
+    "mappings": {
+      "nestjs-expert": "../nestjs-expert/SKILL.md",
+      "angular-architect": "../angular-architect/angular-architect/SKILL.md",
+      "prisma-architect": "../skills/prisma-architect/SKILL.md",
+      "monorepo-management": "../monorepo-management/SKILL.md",
+      "dependency-upgrade": "../dependency-upgrade/SKILL.md",
+      "jest-testing": "../skills/jest-testing/SKILL.md",
+      "github-actions-cicd": "../skills/github-actions-cicd/SKILL.md",
+      "clean-architecture": "../skills/clean-architecture/SKILL.md",
+      "security-hardening": "../skills/security-hardening/SKILL.md",
+      "frontend-ui-integration": "../frontend-ui-integration/SKILL.md"
+    }
+  },
+  "context": {
+    "workspace": {
+      "root": "..",
+      "packages": ["backend", "frontend"]
+    },
+    "include_always": [
+      "package.json",
+      "turbo.json",
+      "pnpm-workspace.yaml"
+    ],
+    "include_on_demand": {
+      "backend": [
+        "backend/package.json",
+        "backend/prisma/schema.prisma",
+        "backend/nest-cli.json",
+        "backend/tsconfig.json"
+      ],
+      "frontend": [
+        "frontend/package.json",
+        "frontend/angular.json",
+        "frontend/tsconfig.json"
+      ]
+    }
+  },
+  "triggers": {
+    "file_patterns": {
+      "backend/**/*.controller.ts": ["nestjs-expert"],
+      "backend/**/*.service.ts": ["nestjs-expert"],
+      "backend/**/*.module.ts": ["nestjs-expert"],
+      "backend/**/*.guard.ts": ["nestjs-expert", "security-hardening"],
+      "backend/**/*.spec.ts": ["jest-testing"],
+      "backend/**/prisma/**": ["prisma-architect"],
+      "frontend/**/*.component.ts": ["angular-architect"],
+      "frontend/**/*.service.ts": ["angular-architect"],
+      "frontend/**/*.spec.ts": ["jest-testing"],
+      ".github/**/*.yml": ["github-actions-cicd"],
+      "turbo.json": ["monorepo-management"],
+      "pnpm-workspace.yaml": ["monorepo-management"]
+    },
+    "keywords": {
+      "nestjs|nest|controller|service|guard|module": "nestjs-expert",
+      "angular|component|signal|standalone": "angular-architect",
+      "prisma|schema|migration|database": "prisma-architect",
+      "test|spec|jest|coverage|mock": "jest-testing",
+      "security|auth|jwt|owasp|password": "security-hardening",
+      "ci|cd|deploy|pipeline|github.actions": "github-actions-cicd",
+      "upgrade|vulnerability|audit|outdated": "dependency-upgrade",
+      "refactor|architecture|solid|clean|hexagonal": "clean-architecture",
+      "turbo|pnpm|workspace|monorepo": "monorepo-management",
+      "tailwind|css|style|ui|responsive": "frontend-ui-integration"
+    }
+  },
+  "preferences": {
+    "language": "es",
+    "code_style": {
+      "typescript": {
+        "quotes": "single",
+        "semicolons": true,
+        "trailing_comma": "all",
+        "indent": 2
+      }
+    },
+    "output": {
+      "prefer_code_blocks": true,
+      "explain_changes": true,
+      "show_file_paths": true
+    }
+  },
+  "memory": {
+    "enabled": true,
+    "max_context_size": 100000,
+    "persist_sessions": true
+  }
+}

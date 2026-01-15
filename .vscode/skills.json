@@ -1,0 +1,78 @@
+{
+  "$schema": "https://raw.githubusercontent.com/anthropics/claude-code/main/schemas/skills.json",
+  "version": "1.0.0",
+  "name": "cermont-aplicativo-skills",
+  "description": "Skills configurados para el proyecto Cermont - NestJS + Angular + Prisma + Turborepo",
+  "skills": [
+    {
+      "id": "nestjs-expert",
+      "path": "../nestjs-expert/SKILL.md",
+      "triggers": ["nestjs", "nest", "backend", "controller", "service", "guard", "module"],
+      "priority": 1
+    },
+    {
+      "id": "angular-architect",
+      "path": "../angular-architect/angular-architect/SKILL.md",
+      "triggers": ["angular", "component", "signal", "standalone", "frontend"],
+      "priority": 1
+    },
+    {
+      "id": "monorepo-management",
+      "path": "../monorepo-management/SKILL.md",
+      "triggers": ["turborepo", "pnpm", "workspace", "monorepo", "build"],
+      "priority": 2
+    },
+    {
+      "id": "dependency-upgrade",
+      "path": "../dependency-upgrade/SKILL.md",
+      "triggers": ["upgrade", "dependency", "vulnerability", "audit", "version"],
+      "priority": 2
+    },
+    {
+      "id": "prisma-architect",
+      "path": "../skills/prisma-architect/SKILL.md",
+      "triggers": ["prisma", "schema", "migration", "database", "orm"],
+      "priority": 1
+    },
+    {
+      "id": "jest-testing",
+      "path": "../skills/jest-testing/SKILL.md",
+      "triggers": ["test", "jest", "spec", "coverage", "e2e"],
+      "priority": 2
+    },
+    {
+      "id": "github-actions-cicd",
+      "path": "../skills/github-actions-cicd/SKILL.md",
+      "triggers": ["ci", "cd", "github actions", "pipeline", "deploy"],
+      "priority": 3
+    },
+    {
+      "id": "clean-architecture",
+      "path": "../skills/clean-architecture/SKILL.md",
+      "triggers": ["architecture", "solid", "refactor", "hexagonal", "ddd"],
+      "priority": 2
+    },
+    {
+      "id": "security-hardening",
+      "path": "../skills/security-hardening/SKILL.md",
+      "triggers": ["security", "owasp", "jwt", "auth", "xss", "csrf"],
+      "priority": 1
+    },
+    {
+      "id": "frontend-ui-integration",
+      "path": "../frontend-ui-integration/SKILL.md",
+      "triggers": ["tailwind", "ui", "css", "styling", "responsive"],
+      "priority": 2
+    }
+  ],
+  "projectContext": {
+    "type": "monorepo",
+    "framework": {
+      "backend": "NestJS 11",
+      "frontend": "Angular 20",
+      "orm": "Prisma 7"
+    },
+    "packageManager": "pnpm",
+    "buildTool": "Turborepo"
+  }
+}

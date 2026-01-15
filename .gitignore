@@ -27,9 +27,16 @@ pnpm-debug.log*
 
 # IDE
 .idea/
-.vscode/
 *.swp
 *.swo
+
+# VSCode - Allow shared configs, ignore personal
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/skills.json
+!.vscode/tasks.json
+!.vscode/launch.json
 
 # OS
 .DS_Store

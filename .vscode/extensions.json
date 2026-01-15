@@ -1,0 +1,19 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "prisma.prisma",
+    "angular.ng-template",
+    "bradlc.vscode-tailwindcss",
+    "github.copilot",
+    "github.copilot-chat",
+    "ms-azuretools.vscode-docker",
+    "eamodio.gitlens",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "usernamehw.errorlens",
+    "orta.vscode-jest",
+    "firsttris.vscode-jest-runner"
+  ],
+  "unwantedRecommendations": []
+}
