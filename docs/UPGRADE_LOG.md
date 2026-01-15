@@ -4,29 +4,30 @@
 
 ### Environment
 
-| Tool | Version |
-|------|---------|
-| Node | v24.12.0 |
-| pnpm | 9.15.4 |
-| turbo | 2.7.4 |
+| Tool  | Version  |
+| ----- | -------- |
+| Node  | v24.12.0 |
+| pnpm  | 9.15.4   |
+| turbo | 2.7.4    |
 
 ---
 
 ## Summary
 
-| Metric | Before | After | Change |
-|--------|--------|-------|--------|
-| Vulnerabilities | 18 | 10 | -44% |
-| High Severity | 7 | 6 | -14% |
-| Moderate Severity | 8 | 2 | -75% |
-| Low Severity | 3 | 2 | -33% |
-| Peer Dep Warnings | 3 | 1 | -67% |
+| Metric            | Before | After | Change |
+| ----------------- | ------ | ----- | ------ |
+| Vulnerabilities   | 18     | 8     | -56%   |
+| High Severity     | 7      | 4     | -43%   |
+| Moderate Severity | 8      | 2     | -75%   |
+| Low Severity      | 3      | 2     | -33%   |
+| Peer Dep Warnings | 3      | 1     | -67%   |
 
 ---
 
 ## Upgrades Completed
 
 ### Stage 1: Initial Sync
+
 - supertest: 6.3.3 → 7.2.2
 - prettier: 3.1.1 → 3.8.0
 - eslint-plugin-prettier: 5.1.2 → 5.5.5
@@ -35,53 +36,63 @@
 - @nestjs/config: 3.1.1 → 4.0.2
 
 ### Stage 2: Additional Upgrades
+
 - @types/node: 20.x → 22.x (both packages)
 - uuid: 11.0.3 → 12.x
 - cache-manager: 5.7.6 → 6.x (resolved peer dep)
 - keyv: 4.5.4 → 5.x
 - typescript (frontend): 5.4.5 → 5.5.x
 - prisma + @prisma/client: 6.2.1 → 6.19.2
-- exceljs: Added (4.4.0)
+- exceljs: Added (4.4.0) - replaces xlsx
+
+### xlsx → exceljs Migration
+
+- Removed xlsx@0.18.5 (vulnerable: prototype pollution + ReDoS)
+- Added exceljs@4.4.0 (no known vulnerabilities)
+- Updated form-parser.service.ts to use ExcelJS API
+- All tests passing (203/203)
 
 ### Angular Upgrade
-- @angular/*: 17.3.x → 18.2.14
+
+- @angular/\*: 17.3.x → 18.2.14
 - @angular-devkit/build-angular: 17.3.x → 18.2.21
-- @angular-eslint/*: 17.3.x → 18.4.3
+- @angular-eslint/\*: 17.3.x → 18.4.3
 - @angular/cdk: 17.3.x → 18.2.14
 
 ---
 
 ## Validation Results
 
-| Package | Build | Tests | Lint |
-|---------|-------|-------|------|
-| Backend | ✅ | 203/203 | ✅ 0 errors (7 warnings) |
-| Frontend | ✅ | 1/1 | ✅ |
+| Package  | Build | Tests   | Lint                     |
+| -------- | ----- | ------- | ------------------------ |
+| Backend  | ✅    | 203/203 | ✅ 0 errors (7 warnings) |
+| Frontend | ✅    | 1/1     | ✅                       |
 
 ---
 
 ## Blocked/Deferred
 
-| Package | Current | Latest | Reason |
-|---------|---------|--------|--------|
-| Prisma | 6.19.2 | 7.2.0 | Breaking changes in schema validation |
-| Angular | 18.2.14 | 21.1.0 | Requires manual standalone migration |
-| ESLint | 8.57.1 | 9.x | Requires flat config migration |
-| @typescript-eslint/* | 6-7.x | 8.x | Requires ESLint 9 |
-| tailwindcss | 3.4.19 | 4.x | Major breaking changes |
-| xlsx | N/A | N/A | Replace with exceljs (done) |
+| Package               | Current | Latest | Reason                                |
+| --------------------- | ------- | ------ | ------------------------------------- |
+| Prisma                | 6.19.2  | 7.2.0  | Breaking changes in schema validation |
+| Angular               | 18.2.14 | 21.1.0 | Requires manual standalone migration  |
+| ESLint                | 8.57.1  | 9.x    | Requires flat config migration        |
+| @typescript-eslint/\* | 6-7.x   | 8.x    | Requires ESLint 9                     |
+| tailwindcss           | 3.4.19  | 4.x    | Major breaking changes                |
+| xlsx                  | N/A     | N/A    | Replace with exceljs (done)           |
 
 ---
 
-## Remaining Vulnerabilities (10)
+## Remaining Vulnerabilities (8)
 
-| Package | Severity | Via | Resolution |
-|---------|----------|-----|------------|
-| xlsx (2x) | HIGH | backend | Replaced with exceljs |
-| @angular/* (3x) | HIGH | frontend | Requires Angular 19+ |
-| esbuild | MODERATE | @angular/cli | Dev dependency |
-| tmp | LOW | @angular/cli | Transitive |
-| diff (11 paths) | LOW | jest → ts-node | Transitive |
+| Package          | Severity | Via            | Resolution                     |
+| ---------------- | -------- | -------------- | ------------------------------ |
+| @angular/\* (3x) | HIGH     | frontend       | Requires Angular 19+ (blocked) |
+| esbuild          | MODERATE | @angular/cli   | Dev dependency                 |
+| tmp              | LOW      | @angular/cli   | Transitive                     |
+| diff (11 paths)  | LOW      | jest → ts-node | Transitive                     |
+
+**Note:** xlsx vulnerabilities (2x HIGH) eliminated by replacing with exceljs.
 
 ---
 
@@ -89,6 +100,7 @@
 
 1. `chore(deps): sync package.json with installed versions`
 2. `chore(deps): stage 2 upgrades - @types/node@22, uuid@12, cache-manager@6, typescript@5.5, exceljs, prisma@6.19`
+3. `fix(security): replace vulnerable xlsx@0.18.5 with exceljs@4.4.0`
 
 ---
 
