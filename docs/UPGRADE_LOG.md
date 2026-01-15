@@ -16,11 +16,46 @@
 
 | Metric            | Before | After | Change |
 | ----------------- | ------ | ----- | ------ |
-| Vulnerabilities   | 18     | 8     | -56%   |
+| Vulnerabilities   | 18     | 6     | -67%   |
 | High Severity     | 7      | 4     | -43%   |
 | Moderate Severity | 8      | 2     | -75%   |
-| Low Severity      | 3      | 2     | -33%   |
+| Low Severity      | 3      | 0     | -100%  |
 | Peer Dep Warnings | 3      | 1     | -67%   |
+
+---
+
+## Phase 6: xlsx → exceljs Migration (2026-01-15)
+
+### Status: ✅ COMPLETED
+
+**Problem:** xlsx@0.18.5 had 2 HIGH severity vulnerabilities:
+
+- Prototype Pollution (GHSA-4r6h-8v6p-xvw6)
+- ReDoS vulnerability (GHSA-5pgg-2g8v-p4x9)
+
+**Solution:** Replaced xlsx with exceljs@4.4.0
+
+### Changes Made
+
+1. **backend/package.json**
+   - Removed: `"xlsx": "^0.18.5"`
+   - Added: `"exceljs": "^4.4.0"`
+
+2. **backend/src/modules/formularios/infrastructure/services/form-parser.service.ts**
+   - Changed import: `import * as XLSX from "xlsx"` → `import ExcelJS from "exceljs"`
+   - Rewrote `parseFromExcel()` method to use ExcelJS API:
+     - `XLSX.read()` → `workbook.xlsx.read()`
+     - `XLSX.utils.sheet_to_json()` → `worksheet.eachRow()`
+     - Adjusted array indexing (ExcelJS starts at 1)
+
+### Validation
+
+| Check           | Status                                    |
+| --------------- | ----------------------------------------- |
+| Build           | ✅ PASS                                   |
+| Tests           | ✅ PASS (203/209, 6 skipped)              |
+| Lint            | ✅ PASS (7 warnings - pre-existing)       |
+| Vulnerabilities | ✅ Reduced from 10 to 8 (xlsx HIGH fixed) |
 
 ---
 
