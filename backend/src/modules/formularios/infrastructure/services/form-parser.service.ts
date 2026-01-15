@@ -4,10 +4,10 @@
  * Servicio para parsear PDFs y Excels y generar templates de formularios automÃ¡ticamente.
  * Usa pdf-parse para PDFs y exceljs para Excel.
  */
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import ExcelJS from 'exceljs';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const pdfParse = require('pdf-parse');
-import ExcelJS from 'exceljs';
 
 export interface ParsedField {
   id: string;
@@ -87,7 +87,7 @@ export class FormParserService {
 
     try {
       const workbook = new ExcelJS.Workbook();
-      // @ts-expect-error - exceljs types are not compatible with Node 22 Buffer types
+      // @ts-ignore
       await workbook.xlsx.load(buffer);
 
       const worksheet = workbook.worksheets[0];

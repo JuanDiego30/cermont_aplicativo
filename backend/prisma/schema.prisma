@@ -1443,10 +1443,14 @@ model Order {
   id              String  @id @default(uuid())
   numero          String  @unique
   descripcion     String
-  cliente         String
+  cliente         String // Legacy field - keep for backward compatibility
   contactoCliente String?
   telefonoCliente String?
   direccion       String?
+
+  // New: Optional relation to Cliente model (for gradual migration)
+  clienteId  String?
+  clienteRef Cliente? @relation("ClienteOrdenes", fields: [clienteId], references: [id], onDelete: SetNull)
 
   estado    OrderStatus   @default(pendiente)
   subEstado OrderSubState @default(solicitud_recibida)
@@ -1943,4 +1947,81 @@ model PendingSync {
   @@index([userId])
   @@index([status])
   @@map("pending_syncs")
+}
+
+// ============================================
+// CLIENTES
+// ============================================
+
+enum TipoCliente {
+  petrolero
+  industrial
+  comercial
+  residencial
+  gobierno
+  otro
+}
+
+model Cliente {
+  id          String      @id @default(uuid())
+  razonSocial String
+  nit         String      @unique
+  tipoCliente TipoCliente @default(petrolero)
+  direccion   String?
+  telefono    String?
+  email       String?
+  activo      Boolean     @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  contactos   ContactoCliente[]
+  ubicaciones UbicacionCliente[]
+  ordenes     Order[]            @relation("ClienteOrdenes")
+
+  @@index([nit])
+  @@index([activo])
+  @@index([tipoCliente])
+  @@index([razonSocial])
+  @@map("clientes")
+}
+
+model ContactoCliente {
+  id          String  @id @default(uuid())
+  clienteId   String
+  nombre      String
+  cargo       String
+  email       String
+  telefono    String?
+  esPrincipal Boolean @default(false)
+
+  cliente Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clienteId])
+  @@index([esPrincipal])
+  @@map("contactos_cliente")
+}
+
+model UbicacionCliente {
+  id           String  @id @default(uuid())
+  clienteId    String
+  nombre       String
+  direccion    String?
+  ciudad       String?
+  departamento String?
+  latitud      Float?
+  longitud     Float?
+  esPrincipal  Boolean @default(false)
+
+  cliente Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clienteId])
+  @@index([esPrincipal])
+  @@map("ubicaciones_cliente")
 }

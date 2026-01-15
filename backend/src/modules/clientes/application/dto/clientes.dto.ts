@@ -1,26 +1,29 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import {
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  IsEmail,
-  IsEnum,
-  IsArray,
-  ValidateNested,
-  IsBoolean,
-  IsNumber,
-} from "class-validator";
 import { Transform, Type } from "class-transformer";
+import {
+    IsArray,
+    IsBoolean,
+    IsEmail,
+    IsEnum,
+    IsNotEmpty,
+    IsNumber,
+    IsOptional,
+    IsString,
+    ValidateNested,
+} from "class-validator";
 
 /**
  * Tipo de cliente
  */
 export enum TipoCliente {
-  PETROLERO = "PETROLERO",
-  INDUSTRIAL = "INDUSTRIAL",
-  COMERCIAL = "COMERCIAL",
-  GOBIERNO = "GOBIERNO",
+  PETROLERO = "petrolero",
+  INDUSTRIAL = "industrial",
+  COMERCIAL = "comercial",
+  RESIDENCIAL = "residencial",
+  GOBIERNO = "gobierno",
+  OTRO = "otro",
 }
+
 
 /**
  * DTO para crear contacto de cliente

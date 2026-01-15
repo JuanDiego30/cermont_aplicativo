@@ -4,6 +4,16 @@
         "pnpm-lock.yaml",
         ".env.example"
     ],
+    "globalEnv": [
+        "NODE_ENV",
+        "DATABASE_URL"
+    ],
+    "globalPassThroughEnv": [
+        "CI",
+        "VERCEL",
+        "GITHUB_ACTIONS",
+        "TURBO_REMOTE_CACHE_SIGNATURE_KEY"
+    ],
     "tasks": {
         "build": {
             "dependsOn": [
@@ -21,7 +31,8 @@
                 "package.json",
                 "angular.json",
                 "nest-cli.json"
-            ]
+            ],
+            "cache": true
         },
         "test": {
             "dependsOn": [],
@@ -75,6 +86,15 @@
         },
         "clean": {
             "cache": false
+        },
+        "prisma:generate": {
+            "inputs": [
+                "prisma/schema.prisma"
+            ],
+            "outputs": [
+                "node_modules/.prisma/**"
+            ],
+            "cache": true
         }
     }
 }
