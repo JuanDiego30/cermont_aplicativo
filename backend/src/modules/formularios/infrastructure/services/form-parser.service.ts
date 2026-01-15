@@ -1,26 +1,18 @@
-/**
+﻿/**
  * @service FormParserService
  *
- * Servicio para parsear PDFs y Excels y generar templates de formularios automáticamente.
- * Usa pdf-parse para PDFs y xlsx para Excel.
+ * Servicio para parsear PDFs y Excels y generar templates de formularios automÃ¡ticamente.
+ * Usa pdf-parse para PDFs y exceljs para Excel.
  */
-import { Injectable, Logger, BadRequestException } from "@nestjs/common";
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfParse = require("pdf-parse");
-import * as XLSX from "xlsx";
+const pdfParse = require('pdf-parse');
+import ExcelJS from 'exceljs';
 
 export interface ParsedField {
   id: string;
   label: string;
-  type:
-    | "text"
-    | "number"
-    | "date"
-    | "select"
-    | "radio"
-    | "checkbox"
-    | "textarea"
-    | "photo";
+  type: 'text' | 'number' | 'date' | 'select' | 'radio' | 'checkbox' | 'textarea' | 'photo';
   required: boolean;
   options?: string[];
   validation?: Record<string, unknown>;
@@ -45,11 +37,8 @@ export class FormParserService {
   /**
    * Extrae estructura de formulario desde un PDF
    */
-  async parseFromPDF(
-    buffer: Buffer,
-    filename: string,
-  ): Promise<ParsedFormSchema> {
-    this.logger.log("Parseando PDF para extraer estructura de formulario", {
+  async parseFromPDF(buffer: Buffer, filename: string): Promise<ParsedFormSchema> {
+    this.logger.log('Parseando PDF para extraer estructura de formulario', {
       filename,
     });
 
@@ -57,17 +46,17 @@ export class FormParserService {
       const data = await pdfParse(buffer);
       const text = data.text;
 
-      // Extraer nombre del formulario (primeras líneas)
-      const lines = text.split("\n").filter((l: string) => l.trim().length > 0);
+      // Extraer nombre del formulario (primeras lÃ­neas)
+      const lines = text.split('\n').filter((l: string) => l.trim().length > 0);
       const nombre = this.extractFormName(lines, filename);
 
-      // Identificar secciones (líneas en mayúsculas o con números)
+      // Identificar secciones (lÃ­neas en mayÃºsculas o con nÃºmeros)
       const sections = this.identifySectionsFromText(lines);
 
-      // Identificar campos (líneas con ":" o patrones de formulario)
+      // Identificar campos (lÃ­neas con ":" o patrones de formulario)
       const fields = this.extractFieldsFromText(lines);
 
-      this.logger.log("PDF parseado exitosamente", {
+      this.logger.log('PDF parseado exitosamente', {
         nombre,
         sectionsCount: sections.length,
         fieldsCount: fields.length,
@@ -80,7 +69,7 @@ export class FormParserService {
       };
     } catch (error) {
       const err = error as Error;
-      this.logger.error("Error parseando PDF", {
+      this.logger.error('Error parseando PDF', {
         filename,
         error: err.message,
       });
@@ -91,57 +80,61 @@ export class FormParserService {
   /**
    * Extrae estructura de formulario desde un Excel
    */
-  async parseFromExcel(
-    buffer: Buffer,
-    filename: string,
-  ): Promise<ParsedFormSchema> {
-    this.logger.log("Parseando Excel para extraer estructura de formulario", {
+  async parseFromExcel(buffer: Buffer, filename: string): Promise<ParsedFormSchema> {
+    this.logger.log('Parseando Excel para extraer estructura de formulario', {
       filename,
     });
 
     try {
-      const workbook = XLSX.read(buffer, { type: "buffer" });
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];
+      const workbook = new ExcelJS.Workbook();
+      // @ts-expect-error - exceljs types are not compatible with Node 22 Buffer types
+      await workbook.xlsx.load(buffer);
 
-      // Convertir a JSON
-      const jsonData = XLSX.utils.sheet_to_json(sheet, {
-        header: 1,
-      }) as unknown[][];
+      const worksheet = workbook.worksheets[0];
+      if (!worksheet) {
+        throw new BadRequestException('El archivo Excel no tiene hojas');
+      }
+
+      // Obtener datos de la hoja
+      const jsonData: unknown[][] = [];
+      worksheet.eachRow(row => {
+        const values = row.values as unknown[];
+        // ExcelJS devuelve valores con index starting at 1, ajustar a index 0
+        const adjustedValues = values.slice(1);
+        jsonData.push(adjustedValues);
+      });
 
       if (jsonData.length === 0) {
-        throw new BadRequestException("El archivo Excel está vacío");
+        throw new BadRequestException('El archivo Excel estÃ¡ vacÃ­o');
       }
 
       // Primera fila son headers (campos)
-      const headers = (jsonData[0] as string[]).filter(
-        (h) => h && String(h).trim().length > 0,
-      );
+      const headers = (jsonData[0] as string[]).filter(h => h && String(h).trim().length > 0);
 
       // Analizar datos para inferir tipos
       const dataRows = jsonData.slice(1);
       const fields = this.inferFieldsFromExcel(headers, dataRows);
 
-      this.logger.log("Excel parseado exitosamente", {
-        sheetName,
+      this.logger.log('Excel parseado exitosamente', {
+        sheetName: worksheet.name,
         headersCount: headers.length,
         rowsCount: dataRows.length,
       });
 
       return {
         nombre: this.cleanFilename(filename),
-        tipo: "CHECKLIST",
+        tipo: 'CHECKLIST',
         sections: [
           {
-            id: "datos-principales",
-            title: "Datos Principales",
+            id: 'datos-principales',
+            title: 'Datos Principales',
             fields,
           },
         ],
       };
     } catch (error) {
       const err = error as Error;
-      this.logger.error("Error parseando Excel", {
+      this.logger.error('Error parseando Excel', {
         filename,
         error: err.message,
       });
@@ -150,14 +143,14 @@ export class FormParserService {
   }
 
   // ========================================
-  // MÉTODOS PRIVADOS
+  // MÃ‰TODOS PRIVADOS
   // ========================================
 
   private extractFormName(lines: string[], filename: string): string {
-    // Buscar primera línea significativa (título del formulario)
+    // Buscar primera lÃ­nea significativa (tÃ­tulo del formulario)
     for (const line of lines.slice(0, 10)) {
       const trimmed = line.trim();
-      // Si tiene más de 5 caracteres y no es solo números/símbolos
+      // Si tiene mÃ¡s de 5 caracteres y no es solo nÃºmeros/sÃ­mbolos
       if (trimmed.length > 5 && /[a-zA-Z]/.test(trimmed)) {
         // Limpiar y capitalizar
         return this.capitalize(trimmed.substring(0, 100));
@@ -166,27 +159,21 @@ export class FormParserService {
     return this.cleanFilename(filename);
   }
 
-  private identifySectionsFromText(
-    lines: string[],
-  ): { index: number; title: string }[] {
+  private identifySectionsFromText(lines: string[]): { index: number; title: string }[] {
     const sections: { index: number; title: string }[] = [];
 
     lines.forEach((line, index) => {
       const trimmed = line.trim();
 
-      // Patrones de sección: Números romanos, letras, o mayúsculas
+      // Patrones de secciÃ³n: NÃºmeros romanos, letras, o mayÃºsculas
       const sectionPatterns = [
         /^(\d+\.|\d+\)|\(\d+\)|[IVX]+\.)/, // 1. o 1) o (1) o I.
-        /^[A-Z][A-Z\s]{3,}$/, // TÍTULO EN MAYÚSCULAS
-        /^(DATOS|INFORMACIÓN|INSPECCIÓN|COMPONENTES|OBSERVACIONES|CONCEPTO)/i,
+        /^[A-Z][A-Z\s]{3,}$/, // TÃTULO EN MAYÃšSCULAS
+        /^(DATOS|INFORMACIÃ“N|INSPECCIÃ“N|COMPONENTES|OBSERVACIONES|CONCEPTO)/i,
       ];
 
       for (const pattern of sectionPatterns) {
-        if (
-          pattern.test(trimmed) &&
-          trimmed.length > 3 &&
-          trimmed.length < 100
-        ) {
+        if (pattern.test(trimmed) && trimmed.length > 3 && trimmed.length < 100) {
           sections.push({ index, title: trimmed });
           break;
         }
@@ -200,15 +187,15 @@ export class FormParserService {
     const fields: ParsedField[] = [];
     const seenIds = new Set<string>();
 
-    lines.forEach((line) => {
+    lines.forEach(line => {
       const trimmed = line.trim();
 
-      // Patrón: "Label:" o "Label ________" o "[ ] Label"
+      // PatrÃ³n: "Label:" o "Label ________" o "[ ] Label"
       const fieldPatterns = [
         /^(.+?):\s*$/, // Label:
         /^(.+?)_{2,}/, // Label ____
         /^\[.\]\s*(.+)/, // [ ] Label (checkbox)
-        /^○\s*(.+)/, // ○ Label (radio)
+        /^â—‹\s*(.+)/, // â—‹ Label (radio)
       ];
 
       for (const pattern of fieldPatterns) {
@@ -235,20 +222,15 @@ export class FormParserService {
     return fields;
   }
 
-  private inferFieldsFromExcel(
-    headers: string[],
-    dataRows: unknown[][],
-  ): ParsedField[] {
+  private inferFieldsFromExcel(headers: string[], dataRows: unknown[][]): ParsedField[] {
     return headers.map((header, colIndex) => {
       const id = this.slugify(String(header));
       const label = String(header);
 
       // Obtener valores de la columna para inferir tipo
       const columnValues = dataRows
-        .map((row) => row[colIndex])
-        .filter(
-          (v) => v !== undefined && v !== null && String(v).trim().length > 0,
-        );
+        .map(row => row[colIndex])
+        .filter(v => v !== undefined && v !== null && String(v).trim().length > 0);
 
       return {
         id,
@@ -259,63 +241,61 @@ export class FormParserService {
     });
   }
 
-  private inferTypeFromLabel(label: string): ParsedField["type"] {
+  private inferTypeFromLabel(label: string): ParsedField['type'] {
     const lower = label.toLowerCase();
 
-    if (/fecha|date/i.test(lower)) return "date";
-    if (/número|numero|cantidad|total|monto/i.test(lower)) return "number";
-    if (/foto|imagen|evidencia/i.test(lower)) return "photo";
-    if (/observaci|comentari|descripci|notas/i.test(lower)) return "textarea";
-    if (/estado|condición|tipo|clasificación/i.test(lower)) return "select";
+    if (/fecha|date/i.test(lower)) return 'date';
+    if (/nÃºmero|numero|cantidad|total|monto/i.test(lower)) return 'number';
+    if (/foto|imagen|evidencia/i.test(lower)) return 'photo';
+    if (/observaci|comentari|descripci|notas/i.test(lower)) return 'textarea';
+    if (/estado|condiciÃ³n|tipo|clasificaciÃ³n/i.test(lower)) return 'select';
 
-    return "text";
+    return 'text';
   }
 
-  private inferTypeFromValues(values: unknown[]): ParsedField["type"] {
-    if (values.length === 0) return "text";
+  private inferTypeFromValues(values: unknown[]): ParsedField['type'] {
+    if (values.length === 0) return 'text';
 
-    // Si todos son números
-    if (values.every((v) => !isNaN(Number(v)))) return "number";
+    // Si todos son nÃºmeros
+    if (values.every(v => !isNaN(Number(v)))) return 'number';
 
     // Si son fechas (Date objects o strings de fecha)
-    if (values.some((v) => v instanceof Date)) return "date";
+    if (values.some(v => v instanceof Date)) return 'date';
 
     // Si son valores binarios (SI/NO, C/NC)
-    const stringValues = values.map((v) => String(v).toUpperCase().trim());
-    const binaryValues = ["SI", "NO", "C", "NC", "OK", "X", "✓", "✗"];
-    if (stringValues.every((v) => binaryValues.includes(v))) return "radio";
+    const stringValues = values.map(v => String(v).toUpperCase().trim());
+    const binaryValues = ['SI', 'NO', 'C', 'NC', 'OK', 'X', 'âœ“', 'âœ—'];
+    if (stringValues.every(v => binaryValues.includes(v))) return 'radio';
 
     // Si hay textos largos
-    if (values.some((v) => String(v).length > 100)) return "textarea";
+    if (values.some(v => String(v).length > 100)) return 'textarea';
 
-    return "text";
+    return 'text';
   }
 
   private inferFormType(text: string): string {
     const lower = text.toLowerCase();
 
-    if (/inspección|inspeccion|verificación/i.test(lower)) return "INSPECCION";
-    if (/mantenimiento|preventivo|correctivo/i.test(lower))
-      return "MANTENIMIENTO";
-    if (/checklist|check list|lista de verificación/i.test(lower))
-      return "CHECKLIST";
-    if (/certificación|certificado/i.test(lower)) return "CERTIFICACION";
-    if (/hes|salud|seguridad/i.test(lower)) return "HES";
-    if (/reporte|informe/i.test(lower)) return "REPORTE";
+    if (/inspecciÃ³n|inspeccion|verificaciÃ³n/i.test(lower)) return 'INSPECCION';
+    if (/mantenimiento|preventivo|correctivo/i.test(lower)) return 'MANTENIMIENTO';
+    if (/checklist|check list|lista de verificaciÃ³n/i.test(lower)) return 'CHECKLIST';
+    if (/certificaciÃ³n|certificado/i.test(lower)) return 'CERTIFICACION';
+    if (/hes|salud|seguridad/i.test(lower)) return 'HES';
+    if (/reporte|informe/i.test(lower)) return 'REPORTE';
 
-    return "OTRO";
+    return 'OTRO';
   }
 
   private organizeSections(
     sections: { index: number; title: string }[],
-    fields: ParsedField[],
+    fields: ParsedField[]
   ): ParsedSection[] {
     if (sections.length === 0) {
-      // Sin secciones detectadas, crear una genérica
+      // Sin secciones detectadas, crear una genÃ©rica
       return [
         {
-          id: "datos-formulario",
-          title: "Datos del Formulario",
+          id: 'datos-formulario',
+          title: 'Datos del Formulario',
           fields,
         },
       ];
@@ -327,35 +307,32 @@ export class FormParserService {
     return sections.map((section, index) => ({
       id: this.slugify(section.title),
       title: this.capitalize(section.title),
-      fields: fields.slice(
-        index * fieldsPerSection,
-        (index + 1) * fieldsPerSection,
-      ),
+      fields: fields.slice(index * fieldsPerSection, (index + 1) * fieldsPerSection),
     }));
   }
 
   private slugify(text: string): string {
     return text
       .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // Quitar acentos
-      .replace(/[^a-z0-9]+/g, "_")
-      .replace(/^_|_$/g, "")
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Quitar acentos
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_|_$/g, '')
       .substring(0, 50);
   }
 
   private capitalize(text: string): string {
     return text
       .toLowerCase()
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   }
 
   private cleanFilename(filename: string): string {
     return filename
-      .replace(/\.[^/.]+$/, "") // Quitar extensión
-      .replace(/[-_]/g, " ")
+      .replace(/\.[^/.]+$/, '') // Quitar extensiÃ³n
+      .replace(/[-_]/g, ' ')
       .trim();
   }
 }
