@@ -25,7 +25,15 @@
       "github-actions-cicd",
       "clean-architecture",
       "security-hardening",
-      "frontend-ui-integration"
+      "frontend-ui-integration",
+      "jwt-auth-patterns",
+      "swagger-openapi",
+      "rxjs-patterns",
+      "tailwind-expert",
+      "pnpm-workspace",
+      "eslint-prettier",
+      "angular-testing",
+      "nestjs-performance"
     ],
     "mappings": {
       "nestjs-expert": "../nestjs-expert/SKILL.md",
@@ -37,7 +45,15 @@
       "github-actions-cicd": "../skills/github-actions-cicd/SKILL.md",
       "clean-architecture": "../skills/clean-architecture/SKILL.md",
       "security-hardening": "../skills/security-hardening/SKILL.md",
-      "frontend-ui-integration": "../frontend-ui-integration/SKILL.md"
+      "frontend-ui-integration": "../frontend-ui-integration/SKILL.md",
+      "jwt-auth-patterns": "../skills/jwt-auth-patterns/SKILL.md",
+      "swagger-openapi": "../skills/swagger-openapi/SKILL.md",
+      "rxjs-patterns": "../skills/rxjs-patterns/SKILL.md",
+      "tailwind-expert": "../skills/tailwind-expert/SKILL.md",
+      "pnpm-workspace": "../skills/pnpm-workspace/SKILL.md",
+      "eslint-prettier": "../skills/eslint-prettier/SKILL.md",
+      "angular-testing": "../skills/angular-testing/SKILL.md",
+      "nestjs-performance": "../skills/nestjs-performance/SKILL.md"
     }
   },
   "context": {
@@ -69,27 +85,38 @@
       "backend/**/*.controller.ts": ["nestjs-expert"],
       "backend/**/*.service.ts": ["nestjs-expert"],
       "backend/**/*.module.ts": ["nestjs-expert"],
-      "backend/**/*.guard.ts": ["nestjs-expert", "security-hardening"],
+      "backend/**/*.guard.ts": ["nestjs-expert", "security-hardening", "jwt-auth-patterns"],
       "backend/**/*.spec.ts": ["jest-testing"],
       "backend/**/prisma/**": ["prisma-architect"],
-      "frontend/**/*.component.ts": ["angular-architect"],
-      "frontend/**/*.service.ts": ["angular-architect"],
-      "frontend/**/*.spec.ts": ["jest-testing"],
+      "frontend/**/*.component.ts": ["angular-architect", "rxjs-patterns"],
+      "frontend/**/*.service.ts": ["angular-architect", "rxjs-patterns"],
+      "frontend/**/*.spec.ts": ["jest-testing", "angular-testing"],
       ".github/**/*.yml": ["github-actions-cicd"],
       "turbo.json": ["monorepo-management"],
-      "pnpm-workspace.yaml": ["monorepo-management"]
+      "pnpm-workspace.yaml": ["monorepo-management", "pnpm-workspace"],
+      "pnpm-lock.yaml": ["pnpm-workspace"],
+      "**/eslint.config.*": ["eslint-prettier"],
+      "**/tailwind.config.*": ["tailwind-expert"],
+      "**/*.dto.ts": ["swagger-openapi"]
     },
     "keywords": {
       "nestjs|nest|controller|service|guard|module": "nestjs-expert",
       "angular|component|signal|standalone": "angular-architect",
       "prisma|schema|migration|database": "prisma-architect",
       "test|spec|jest|coverage|mock": "jest-testing",
-      "security|auth|jwt|owasp|password": "security-hardening",
+      "testbed|component.test|angular.test": "angular-testing",
+      "security|owasp|xss|csrf": "security-hardening",
+      "jwt|auth|login|passport|token": "jwt-auth-patterns",
+      "swagger|openapi|api.docs": "swagger-openapi",
+      "rxjs|observable|subject|pipe|operators": "rxjs-patterns",
+      "tailwind|dark.mode|responsive|utility.css": "tailwind-expert",
       "ci|cd|deploy|pipeline|github.actions": "github-actions-cicd",
       "upgrade|vulnerability|audit|outdated": "dependency-upgrade",
       "refactor|architecture|solid|clean|hexagonal": "clean-architecture",
-      "turbo|pnpm|workspace|monorepo": "monorepo-management",
-      "tailwind|css|style|ui|responsive": "frontend-ui-integration"
+      "turbo|monorepo|build.orchestration": "monorepo-management",
+      "pnpm|workspace|lockfile|node_modules": "pnpm-workspace",
+      "eslint|prettier|linting|formatting|husky": "eslint-prettier",
+      "cache|redis|throttle|rate.limit|performance": "nestjs-performance"
     }
   },
   "preferences": {

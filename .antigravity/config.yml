@@ -116,14 +116,93 @@ skills:
       - test
       - coverage
 
+  - id: angular-testing
+    path: skills/angular-testing/SKILL.md
+    auto_load: false
+    triggers:
+      - "*.component.spec.ts"
+      - testbed
+      - playwright
+
+  # Auth & Security Skills
+  - id: jwt-auth-patterns
+    path: skills/jwt-auth-patterns/SKILL.md
+    auto_load: false
+    triggers:
+      - jwt
+      - login
+      - passport
+      - authentication
+
+  - id: swagger-openapi
+    path: skills/swagger-openapi/SKILL.md
+    auto_load: false
+    triggers:
+      - swagger
+      - openapi
+      - api-docs
+
+  # Frontend Skills (Additional)
+  - id: rxjs-patterns
+    path: skills/rxjs-patterns/SKILL.md
+    auto_load: false
+    triggers:
+      - rxjs
+      - observable
+      - subject
+      - pipe
+
+  - id: tailwind-expert
+    path: skills/tailwind-expert/SKILL.md
+    auto_load: false
+    triggers:
+      - tailwind
+      - dark mode
+      - responsive
+
+  # DevOps Skills (Additional)
+  - id: pnpm-workspace
+    path: skills/pnpm-workspace/SKILL.md
+    auto_load: false
+    triggers:
+      - pnpm
+      - lockfile
+      - node_modules
+
+  - id: eslint-prettier
+    path: skills/eslint-prettier/SKILL.md
+    auto_load: false
+    triggers:
+      - eslint
+      - prettier
+      - linting
+      - husky
+
+  - id: nestjs-performance
+    path: skills/nestjs-performance/SKILL.md
+    auto_load: false
+    triggers:
+      - caching
+      - redis
+      - throttling
+      - performance
+
 ## Skill Priorities
 priority_order:
   - nestjs-expert
   - angular-architect
   - prisma-architect
-  - monorepo-management
+  - jwt-auth-patterns
   - security-hardening
+  - rxjs-patterns
+  - tailwind-expert
+  - angular-testing
   - jest-testing
+  - nestjs-performance
+  - monorepo-management
+  - pnpm-workspace
+  - eslint-prettier
+  - swagger-openapi
   - clean-architecture
   - dependency-upgrade
   - github-actions-cicd
@@ -134,10 +213,13 @@ auto_load:
   # Cargar skill basado en archivo actual
   file_patterns:
     "backend/**/*.ts": [nestjs-expert, prisma-architect]
-    "frontend/**/*.ts": [angular-architect]
+    "frontend/**/*.ts": [angular-architect, rxjs-patterns]
     "*.prisma": [prisma-architect]
     ".github/**/*.yml": [github-actions-cicd]
-    "**/*.spec.ts": [jest-testing]
+    "**/*.spec.ts": [jest-testing, angular-testing]
+    "**/*.guard.ts": [jwt-auth-patterns, security-hardening]
+    "**/tailwind*.js": [tailwind-expert]
+    "eslint.config.*": [eslint-prettier]
     
   # Cargar skill basado en prompt
   prompt_keywords:
@@ -149,16 +231,32 @@ auto_load:
       skill: prisma-architect
     - keyword: [test, spec, jest, coverage]
       skill: jest-testing
-    - keyword: [security, auth, jwt, password]
+    - keyword: [testbed, component test, angular test]
+      skill: angular-testing
+    - keyword: [security, owasp, xss, csrf]
       skill: security-hardening
+    - keyword: [jwt, auth, login, passport, token]
+      skill: jwt-auth-patterns
+    - keyword: [swagger, openapi, api docs]
+      skill: swagger-openapi
+    - keyword: [rxjs, observable, subject, pipe, operators]
+      skill: rxjs-patterns
+    - keyword: [tailwind, dark mode, responsive, css utility]
+      skill: tailwind-expert
     - keyword: [deploy, ci, cd, github actions, pipeline]
       skill: github-actions-cicd
     - keyword: [upgrade, vulnerability, audit, dependency]
       skill: dependency-upgrade
     - keyword: [refactor, architecture, solid, clean]
       skill: clean-architecture
-    - keyword: [turbo, pnpm, monorepo, workspace]
+    - keyword: [turbo, monorepo, build orchestration]
       skill: monorepo-management
+    - keyword: [pnpm, workspace, lockfile, node_modules]
+      skill: pnpm-workspace
+    - keyword: [eslint, prettier, linting, formatting, husky]
+      skill: eslint-prettier
+    - keyword: [cache, redis, throttle, rate limit, performance]
+      skill: nestjs-performance
 
 ## Context Injection
 context:

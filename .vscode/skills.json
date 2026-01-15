@@ -63,6 +63,54 @@
       "path": "../frontend-ui-integration/SKILL.md",
       "triggers": ["tailwind", "ui", "css", "styling", "responsive"],
       "priority": 2
+    },
+    {
+      "id": "jwt-auth-patterns",
+      "path": "../skills/jwt-auth-patterns/SKILL.md",
+      "triggers": ["jwt", "authentication", "authorization", "passport", "login"],
+      "priority": 1
+    },
+    {
+      "id": "swagger-openapi",
+      "path": "../skills/swagger-openapi/SKILL.md",
+      "triggers": ["swagger", "openapi", "api documentation", "dto", "api-docs"],
+      "priority": 2
+    },
+    {
+      "id": "rxjs-patterns",
+      "path": "../skills/rxjs-patterns/SKILL.md",
+      "triggers": ["rxjs", "observable", "subject", "pipe", "operators", "stream"],
+      "priority": 1
+    },
+    {
+      "id": "tailwind-expert",
+      "path": "../skills/tailwind-expert/SKILL.md",
+      "triggers": ["tailwind", "css", "dark mode", "responsive", "design system"],
+      "priority": 1
+    },
+    {
+      "id": "pnpm-workspace",
+      "path": "../skills/pnpm-workspace/SKILL.md",
+      "triggers": ["pnpm", "workspace", "lockfile", "dependencies", "monorepo"],
+      "priority": 2
+    },
+    {
+      "id": "eslint-prettier",
+      "path": "../skills/eslint-prettier/SKILL.md",
+      "triggers": ["eslint", "prettier", "linting", "formatting", "husky"],
+      "priority": 2
+    },
+    {
+      "id": "angular-testing",
+      "path": "../skills/angular-testing/SKILL.md",
+      "triggers": ["angular test", "testbed", "component test", "jasmine", "playwright"],
+      "priority": 2
+    },
+    {
+      "id": "nestjs-performance",
+      "path": "../skills/nestjs-performance/SKILL.md",
+      "triggers": ["performance", "caching", "redis", "throttling", "optimization"],
+      "priority": 2
     }
   ],
   "projectContext": {
