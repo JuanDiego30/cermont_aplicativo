@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* ========================================
    THEME CONFIGURATION
@@ -754,73 +752,134 @@ input[type="time"]::-webkit-calendar-picker-indicator {
    AUTH FORMS UTILITIES
    ============================================ */
 
+/* AUTH FORMS UTILITIES - Using pure CSS for Tailwind v4 compatibility */
+/* Note: btn-primary, btn-secondary, card, badge-*, alert-* are defined above in pure CSS */
+
 .label {
-  @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5;
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+  margin-bottom: 0.375rem;
 }
 
-.input {
-  @apply w-full px-4 py-3 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-cermont-primary-500 focus:border-transparent placeholder:text-gray-400 dark:placeholder:text-gray-500;
+.dark .label {
+  color: var(--color-gray-300);
 }
 
 .input-error {
-  @apply border-error-500 focus:ring-error-500;
+  border-color: var(--color-error-500);
+}
+
+.input-error:focus {
+  box-shadow: 0 0 0 2px var(--color-error-500);
 }
 
 .error-message {
-  @apply text-xs text-error-500 mt-1;
+  font-size: 0.75rem;
+  color: var(--color-error-500);
+  margin-top: 0.25rem;
 }
 
 .checkbox {
-  @apply w-5 h-5 text-cermont-primary-600 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 rounded focus:ring-cermont-primary-500 cursor-pointer;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--color-cermont-primary-600);
+  background-color: #fff;
+  border-color: var(--color-gray-300);
+  border-radius: 0.25rem;
+  cursor: pointer;
 }
 
-.btn-primary {
-  @apply inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-cermont-primary-600 to-cermont-primary-700 rounded-lg hover:from-cermont-primary-700 hover:to-cermont-primary-800 shadow-lg shadow-cermont-primary-500/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
+.checkbox:focus {
+  box-shadow: 0 0 0 2px var(--color-cermont-primary-500);
 }
 
-.btn-secondary {
-  @apply inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
+.dark .checkbox {
+  background-color: var(--color-gray-800);
+  border-color: var(--color-gray-600);
 }
 
 .btn-outline {
-  @apply inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:border-cermont-primary-500 dark:hover:border-cermont-primary-500 hover:text-cermont-primary-600 dark:hover:text-cermont-primary-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+  border: 2px solid var(--color-gray-300);
+  border-radius: 0.5rem;
+  transition: all 0.3s;
+}
+
+.btn-outline:hover {
+  border-color: var(--color-cermont-primary-500);
+  color: var(--color-cermont-primary-600);
+}
+
+.dark .btn-outline {
+  color: var(--color-gray-300);
+  border-color: var(--color-gray-600);
+}
+
+.dark .btn-outline:hover {
+  border-color: var(--color-cermont-primary-500);
+  color: var(--color-cermont-primary-400);
+}
+
+.btn-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btn-danger {
-  @apply inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-white bg-error-600 rounded-lg hover:bg-error-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+  background-color: var(--color-error-600);
+  border-radius: 0.5rem;
+  transition: all 0.3s;
+}
+
+.btn-danger:hover {
+  background-color: var(--color-error-700);
+}
+
+.btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .link-cermont {
-  @apply text-cermont-primary-600 dark:text-cermont-primary-400 hover:underline;
+  color: var(--color-cermont-primary-600);
 }
 
-.card {
-  @apply bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm p-6 md:p-8;
+.link-cermont:hover {
+  text-decoration: underline;
 }
 
-/* Alert Styles */
-.alert-success {
-  @apply flex items-center gap-3 p-4 bg-success-50 dark:bg-success-900/20 border border-success-200 dark:border-success-800 text-success-800 dark:text-success-200 rounded-lg;
-}
-
-.alert-error {
-  @apply flex items-center gap-3 p-4 bg-error-50 dark:bg-error-900/20 border border-error-200 dark:border-error-800 text-error-800 dark:text-error-200 rounded-lg;
-}
-
-.alert-warning {
-  @apply flex items-center gap-3 p-4 bg-warning-50 dark:bg-warning-900/20 border border-warning-200 dark:border-warning-800 text-warning-800 dark:text-warning-200 rounded-lg;
-}
-
-.alert-info {
-  @apply flex items-center gap-3 p-4 bg-cermont-primary-50 dark:bg-cermont-primary-900/20 border border-cermont-primary-200 dark:border-cermont-primary-800 text-cermont-primary-800 dark:text-cermont-primary-200 rounded-lg;
-}
-
-/* Badge Styles */
-.badge-success {
-  @apply inline-flex items-center px-3 py-1 text-xs font-medium bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-400 rounded-full;
+.dark .link-cermont {
+  color: var(--color-cermont-primary-400);
 }
 
 .badge-gray {
-  @apply inline-flex items-center px-3 py-1 text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-600);
+  border-radius: 9999px;
+}
+
+.dark .badge-gray {
+  background-color: var(--color-gray-800);
+  color: var(--color-gray-400);
 }
 

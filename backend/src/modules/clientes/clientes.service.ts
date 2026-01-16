@@ -1,17 +1,21 @@
-import {
-    ConflictException,
-    Injectable,
-    Logger,
-    NotFoundException,
-} from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
+import type { Prisma } from '@/prisma/client';
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
 import {
     ClienteOrdenesResponseDto,
     ClienteResponseDto,
     CreateClienteDto,
     CreateContactoDto,
-    CreateUbicacionDto
-} from "./application/dto/clientes.dto";
+    CreateUbicacionDto,
+    TipoCliente,
+} from './application/dto/clientes.dto';
+
+type ClienteWithRelations = Prisma.ClienteGetPayload<{
+  include: {
+    contactos: true;
+    ubicaciones: true;
+  };
+}>;
 
 @Injectable()
 export class ClientesService {
@@ -35,13 +39,13 @@ export class ClientesService {
       data: {
         razonSocial: dto.razonSocial,
         nit: dto.nit,
-        tipoCliente: dto.tipoCliente as any, // Cast to Prisma enum if needed
+        tipoCliente: dto.tipoCliente,
         direccion: dto.direccion,
         telefono: dto.telefono,
         email: dto.email,
         activo: true,
         contactos: {
-          create: dto.contactos?.map((c) => ({
+          create: dto.contactos?.map(c => ({
             nombre: c.nombre,
             cargo: c.cargo,
             email: c.email,
@@ -50,7 +54,7 @@ export class ClientesService {
           })),
         },
         ubicaciones: {
-          create: dto.ubicaciones?.map((u) => ({
+          create: dto.ubicaciones?.map(u => ({
             nombre: u.nombre,
             direccion: u.direccion,
             ciudad: u.ciudad,
@@ -77,7 +81,7 @@ export class ClientesService {
    */
   async findAll(activo?: boolean): Promise<ClienteResponseDto[]> {
     const whereClause = activo !== undefined ? { activo } : {};
-    
+
     const clientes = await this.prisma.cliente.findMany({
       where: whereClause,
       include: {
@@ -89,7 +93,7 @@ export class ClientesService {
       },
     });
 
-    return clientes.map((c) => this.mapToResponse(c));
+    return clientes.map(c => this.mapToResponse(c));
   }
 
   /**
@@ -114,10 +118,7 @@ export class ClientesService {
   /**
    * Agregar contacto a cliente
    */
-  async addContacto(
-    clienteId: string,
-    dto: CreateContactoDto,
-  ): Promise<ClienteResponseDto> {
+  async addContacto(clienteId: string, dto: CreateContactoDto): Promise<ClienteResponseDto> {
     const cliente = await this.prisma.cliente.findUnique({
       where: { id: clienteId },
     });
@@ -151,10 +152,7 @@ export class ClientesService {
   /**
    * Agregar ubicación a cliente
    */
-  async addUbicacion(
-    clienteId: string,
-    dto: CreateUbicacionDto,
-  ): Promise<ClienteResponseDto> {
+  async addUbicacion(clienteId: string, dto: CreateUbicacionDto): Promise<ClienteResponseDto> {
     const cliente = await this.prisma.cliente.findUnique({
       where: { id: clienteId },
     });
@@ -190,9 +188,7 @@ export class ClientesService {
   /**
    * Obtener historial de órdenes de cliente
    */
-  async getOrdenesCliente(
-    clienteId: string,
-  ): Promise<ClienteOrdenesResponseDto> {
+  async getOrdenesCliente(clienteId: string): Promise<ClienteOrdenesResponseDto> {
     const cliente = await this.prisma.cliente.findUnique({
       where: { id: clienteId },
     });
@@ -208,7 +204,7 @@ export class ClientesService {
       where: {
         OR: [
           { clienteId: clienteId },
-          { cliente: { contains: cliente.razonSocial, mode: "insensitive" } },
+          { cliente: { contains: cliente.razonSocial, mode: 'insensitive' } },
         ],
       },
       select: {
@@ -220,7 +216,7 @@ export class ClientesService {
         createdAt: true,
         fechaFin: true,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
     return {
@@ -254,37 +250,38 @@ export class ClientesService {
     }
   }
 
-  private mapToResponse(cliente: any): ClienteResponseDto {
+  private mapToResponse(cliente: ClienteWithRelations): ClienteResponseDto {
     return {
       id: cliente.id,
       razonSocial: cliente.razonSocial,
       nit: cliente.nit,
-      tipoCliente: cliente.tipoCliente,
-      direccion: cliente.direccion,
-      telefono: cliente.telefono,
-      email: cliente.email,
+      tipoCliente: cliente.tipoCliente as unknown as TipoCliente,
+      direccion: cliente.direccion ?? undefined,
+      telefono: cliente.telefono ?? undefined,
+      email: cliente.email ?? undefined,
       activo: cliente.activo,
-      contactos: cliente.contactos?.map((c: any) => ({
-        id: c.id,
-        nombre: c.nombre,
-        cargo: c.cargo,
-        email: c.email,
-        telefono: c.telefono,
-        esPrincipal: c.esPrincipal,
-      })) || [],
-      ubicaciones: cliente.ubicaciones?.map((u: any) => ({
-        id: u.id,
-        nombre: u.nombre,
-        direccion: u.direccion,
-        ciudad: u.ciudad,
-        departamento: u.departamento,
-        latitud: u.latitud,
-        longitud: u.longitud,
-        esPrincipal: u.esPrincipal,
-      })) || [],
+      contactos:
+        cliente.contactos?.map(c => ({
+          id: c.id,
+          nombre: c.nombre,
+          cargo: c.cargo,
+          email: c.email,
+          telefono: c.telefono ?? undefined,
+          esPrincipal: c.esPrincipal,
+        })) || [],
+      ubicaciones:
+        cliente.ubicaciones?.map(u => ({
+          id: u.id,
+          nombre: u.nombre,
+          direccion: u.direccion ?? undefined,
+          ciudad: u.ciudad ?? undefined,
+          departamento: u.departamento ?? undefined,
+          latitud: u.latitud ?? undefined,
+          longitud: u.longitud ?? undefined,
+          esPrincipal: u.esPrincipal,
+        })) || [],
       totalOrdenes: 0, // Calculated on demand
       createdAt: cliente.createdAt.toISOString(),
     };
   }
 }
-

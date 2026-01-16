@@ -7,9 +7,9 @@
  * - Clean Code: Código legible y bien estructurado
  * - SRP: Solo maneja lógica de reportes
  */
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import { Prisma } from "@prisma/client";
+import { Prisma } from '@/prisma/client';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
 
 // ============================================================================
 // Interfaces
@@ -43,8 +43,8 @@ export interface OrdenConCostos {
 // Constantes
 // ============================================================================
 
-const ESTADO_COMPLETADA = "completada";
-const ESTADO_EN_EJECUCION = "ejecucion";
+const ESTADO_COMPLETADA = 'completada';
+const ESTADO_EN_EJECUCION = 'ejecucion';
 
 // ============================================================================
 // Service
@@ -57,10 +57,7 @@ export class ReportesService {
   /**
    * Genera reporte de órdenes con filtro por fechas
    */
-  async reporteOrdenes(
-    desde?: string,
-    hasta?: string,
-  ): Promise<ReporteOrdenesResult> {
+  async reporteOrdenes(desde?: string, hasta?: string): Promise<ReporteOrdenesResult> {
     const whereClause = this.buildDateFilter({ desde, hasta });
 
     const ordenes = await this.prisma.order.findMany({
@@ -142,7 +139,7 @@ export class ReportesService {
    * Cuenta órdenes por estado
    */
   private contarPorEstado(ordenes: OrdenConCostos[], estado: string): number {
-    return ordenes.filter((o) => o.estado === estado).length;
+    return ordenes.filter(o => o.estado === estado).length;
   }
 
   /**
@@ -150,10 +147,7 @@ export class ReportesService {
    */
   private calcularCostoTotal(ordenes: OrdenConCostos[]): number {
     return ordenes.reduce((totalOrdenes, orden) => {
-      const costoOrden = orden.costos.reduce(
-        (sumaCostos, costo) => sumaCostos + costo.monto,
-        0,
-      );
+      const costoOrden = orden.costos.reduce((sumaCostos, costo) => sumaCostos + costo.monto, 0);
       return totalOrdenes + costoOrden;
     }, 0);
   }

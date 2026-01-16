@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 
@@ -7,105 +7,125 @@ export interface FilterOption {
   label: string;
 }
 
+export type FilterValue =
+  | string
+  | number
+  | {
+      from?: string;
+      to?: string;
+    }
+  | undefined;
+
 export interface FilterField {
   key: string;
   label: string;
   type: 'text' | 'select' | 'date' | 'daterange';
   placeholder?: string;
   options?: FilterOption[];
-  value?: any;
+  value?: FilterValue;
 }
+
+type FilterValues = Record<string, FilterValue>;
 
 @Component({
   selector: 'app-search-filter',
   standalone: true,
   imports: [FormsModule],
   template: `
-    <div class="p-4 bg-white border border-gray-200 rounded-xl dark:bg-gray-800 dark:border-gray-700">
+    <div
+      class="p-4 bg-surface-100/60 border border-surface-200 rounded-xl dark:bg-gray-900/40 dark:border-gray-800/60"
+    >
       <div class="grid gap-4" [class]="gridClass">
         @for (field of fields; track field.key) {
           <div>
             <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
               {{ field.label }}
             </label>
-            
+
             @switch (field.type) {
               @case ('text') {
                 <input
                   type="text"
                   [placeholder]="field.placeholder || 'Buscar...'"
                   [value]="field.value || ''"
-                  (input)="onFieldChange(field.key, $any($event.target).value)"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                  (input)="onFieldInput(field.key, $event)"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                />
               }
-              
+
               @case ('select') {
                 <select
                   [value]="field.value || ''"
-                  (change)="onFieldChange(field.key, $any($event.target).value)"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                  (change)="onFieldInput(field.key, $event)"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                >
                   <option value="">{{ field.placeholder || 'Todos' }}</option>
                   @for (option of field.options; track option.value) {
                     <option [value]="option.value">{{ option.label }}</option>
                   }
                 </select>
               }
-              
+
               @case ('date') {
                 <input
                   type="date"
                   [value]="field.value || ''"
-                  (change)="onFieldChange(field.key, $any($event.target).value)"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                  (change)="onFieldInput(field.key, $event)"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                />
               }
-              
+
               @case ('daterange') {
                 <div class="flex gap-2">
                   <input
                     type="date"
                     [value]="field.value?.from || ''"
-                    (change)="onDateRangeChange(field.key, 'from', $any($event.target).value)"
+                    (change)="onDateRangeInput(field.key, 'from', $event)"
                     placeholder="Desde"
-                    class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
                   <input
                     type="date"
                     [value]="field.value?.to || ''"
-                    (change)="onDateRangeChange(field.key, 'to', $any($event.target).value)"
+                    (change)="onDateRangeInput(field.key, 'to', $event)"
                     placeholder="Hasta"
-                    class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  />
                 </div>
               }
             }
           </div>
         }
-        
+
         @if (showActions) {
           <div class="flex items-end gap-2">
             <button
               (click)="onClear()"
-              class="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600">
+              class="px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+            >
               Limpiar
             </button>
             <button
               (click)="onApply()"
-              class="px-4 py-2.5 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600">
+              class="px-4 py-2.5 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600"
+            >
               Aplicar
             </button>
           </div>
         }
       </div>
     </div>
-  `
+  `,
 })
 export class SearchFilterComponent {
   @Input() fields: FilterField[] = [];
   @Input() columns: number = 4;
   @Input() showActions = false;
-  @Output() filterChange = new EventEmitter<Record<string, any>>();
+  @Output() filterChange = new EventEmitter<FilterValues>();
   @Output() clear = new EventEmitter<void>();
-  @Output() apply = new EventEmitter<Record<string, any>>();
+  @Output() apply = new EventEmitter<FilterValues>();
 
-  filterValues = signal<Record<string, any>>({});
+  filterValues = signal<FilterValues>({});
 
   get gridClass(): string {
     const cols = {
@@ -114,15 +134,15 @@ export class SearchFilterComponent {
       3: 'md:grid-cols-3',
       4: 'md:grid-cols-4',
       5: 'md:grid-cols-5',
-      6: 'md:grid-cols-6'
+      6: 'md:grid-cols-6',
     };
     return `grid ${cols[this.columns as keyof typeof cols] || cols[4]}`;
   }
 
-  onFieldChange(key: string, value: any): void {
+  onFieldChange(key: string, value: FilterValue): void {
     const current = this.filterValues();
     this.filterValues.set({ ...current, [key]: value || undefined });
-    
+
     if (!this.showActions) {
       this.filterChange.emit(this.filterValues());
     }
@@ -133,9 +153,9 @@ export class SearchFilterComponent {
     const range = current[key] || {};
     this.filterValues.set({
       ...current,
-      [key]: { ...range, [type]: value || undefined }
+      [key]: { ...range, [type]: value || undefined },
     });
-    
+
     if (!this.showActions) {
       this.filterChange.emit(this.filterValues());
     }
@@ -152,5 +172,17 @@ export class SearchFilterComponent {
   onApply(): void {
     this.apply.emit(this.filterValues());
   }
-}
 
+  onFieldInput(key: string, event: Event): void {
+    this.onFieldChange(key, this.getInputValue(event));
+  }
+
+  onDateRangeInput(key: string, type: 'from' | 'to', event: Event): void {
+    this.onDateRangeChange(key, type, this.getInputValue(event));
+  }
+
+  private getInputValue(event: Event): string {
+    const target = event.target as HTMLInputElement | HTMLSelectElement | null;
+    return target?.value ?? '';
+  }
+}

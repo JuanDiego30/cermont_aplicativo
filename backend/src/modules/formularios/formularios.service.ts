@@ -1,18 +1,10 @@
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-  ConflictException,
-} from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import {
-  CreateFormTemplateDto,
-  UpdateFormTemplateDto,
-} from "./application/dto/form-template.dto";
-import { SubmitFormDto } from "./application/dto/submit-form.dto";
-import { FormParserService } from "./infrastructure/services/form-parser.service";
-import { Prisma } from "@prisma/client";
-import type { TipoFormulario } from "@prisma/client";
+import type { TipoFormulario } from '@/prisma/client';
+import { Prisma } from '@/prisma/client';
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { CreateFormTemplateDto, UpdateFormTemplateDto } from './application/dto/form-template.dto';
+import { SubmitFormDto } from './application/dto/submit-form.dto';
+import { FormParserService } from './infrastructure/services/form-parser.service';
 
 @Injectable()
 export class FormulariosService {
@@ -20,7 +12,7 @@ export class FormulariosService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly formParser: FormParserService,
+    private readonly formParser: FormParserService
   ) {}
 
   // ========================================
@@ -28,7 +20,7 @@ export class FormulariosService {
   // ========================================
 
   async createTemplate(dto: CreateFormTemplateDto) {
-    this.logger.log("Creando nuevo template de formulario", {
+    this.logger.log('Creando nuevo template de formulario', {
       nombre: dto.nombre,
     });
 
@@ -38,9 +30,7 @@ export class FormulariosService {
     });
 
     if (existing) {
-      throw new ConflictException(
-        `Ya existe un template con nombre: ${dto.nombre}`,
-      );
+      throw new ConflictException(`Ya existe un template con nombre: ${dto.nombre}`);
     }
 
     const template = await this.prisma.formTemplate.create({
@@ -48,17 +38,16 @@ export class FormulariosService {
         nombre: dto.nombre,
         tipo: dto.tipo as any,
         categoria: dto.categoria,
-        version: dto.version || "1.0",
+        version: dto.version || '1.0',
         schema: dto.schema as unknown as Prisma.InputJsonValue,
-        uiSchema: (dto.uiSchema ||
-          Prisma.JsonNull) as unknown as Prisma.InputJsonValue,
+        uiSchema: (dto.uiSchema || Prisma.JsonNull) as unknown as Prisma.InputJsonValue,
         descripcion: dto.descripcion,
         tags: dto.tags || [],
         activo: dto.activo ?? true,
       },
     });
 
-    this.logger.log("Template creado exitosamente", { id: template.id });
+    this.logger.log('Template creado exitosamente', { id: template.id });
     return template;
   }
 
@@ -75,7 +64,7 @@ export class FormulariosService {
 
     return this.prisma.formTemplate.findMany({
       where,
-      orderBy: { updatedAt: "desc" },
+      orderBy: { updatedAt: 'desc' },
       include: {
         _count: { select: { instancias: true } },
       },
@@ -106,9 +95,7 @@ export class FormulariosService {
         where: { nombre: dto.nombre, NOT: { id } },
       });
       if (existing) {
-        throw new ConflictException(
-          `Ya existe un template con nombre: ${dto.nombre}`,
-        );
+        throw new ConflictException(`Ya existe un template con nombre: ${dto.nombre}`);
       }
     }
 
@@ -120,12 +107,8 @@ export class FormulariosService {
       descripcion: dto.descripcion,
       tags: dto.tags,
       activo: dto.activo,
-      schema: dto.schema
-        ? (dto.schema as unknown as Prisma.InputJsonValue)
-        : undefined,
-      uiSchema: dto.uiSchema
-        ? (dto.uiSchema as unknown as Prisma.InputJsonValue)
-        : undefined,
+      schema: dto.schema ? (dto.schema as unknown as Prisma.InputJsonValue) : undefined,
+      uiSchema: dto.uiSchema ? (dto.uiSchema as unknown as Prisma.InputJsonValue) : undefined,
     };
 
     return this.prisma.formTemplate.update({
@@ -149,7 +132,7 @@ export class FormulariosService {
   // ========================================
 
   async submitForm(dto: SubmitFormDto, userId: string) {
-    this.logger.log("Guardando instancia de formulario", {
+    this.logger.log('Guardando instancia de formulario', {
       templateId: dto.templateId,
       userId,
     });
@@ -173,8 +156,8 @@ export class FormulariosService {
         ordenId: dto.ordenId || null,
         data: dto.data as unknown as Prisma.InputJsonValue,
         completadoPorId: userId,
-        completadoEn: dto.estado === "completado" ? new Date() : null,
-        estado: (dto.estado || "borrador") as any,
+        completadoEn: dto.estado === 'completado' ? new Date() : null,
+        estado: (dto.estado || 'borrador') as any,
       },
       include: {
         template: { select: { nombre: true, tipo: true } },
@@ -182,15 +165,11 @@ export class FormulariosService {
       },
     });
 
-    this.logger.log("Formulario guardado exitosamente", { id: instancia.id });
+    this.logger.log('Formulario guardado exitosamente', { id: instancia.id });
     return instancia;
   }
 
-  async findAllInstances(filters?: {
-    templateId?: string;
-    ordenId?: string;
-    estado?: string;
-  }) {
+  async findAllInstances(filters?: { templateId?: string; ordenId?: string; estado?: string }) {
     const where: Prisma.FormularioInstanciaWhereInput = {};
 
     if (filters?.templateId) where.templateId = filters.templateId;
@@ -199,7 +178,7 @@ export class FormulariosService {
 
     return this.prisma.formularioInstancia.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       include: {
         template: { select: { nombre: true, tipo: true, categoria: true } },
         orden: { select: { numero: true, cliente: true } },
@@ -225,19 +204,13 @@ export class FormulariosService {
     return instancia;
   }
 
-  async updateInstance(
-    id: string,
-    dto: Partial<SubmitFormDto>,
-    userId: string,
-  ) {
+  async updateInstance(id: string, dto: Partial<SubmitFormDto>, userId: string) {
     await this.findInstanceById(id);
 
     const data: Prisma.FormularioInstanciaUpdateInput = {
-      data: dto.data
-        ? (dto.data as unknown as Prisma.InputJsonValue)
-        : undefined,
+      data: dto.data ? (dto.data as unknown as Prisma.InputJsonValue) : undefined,
       completadoPor: { connect: { id: userId } },
-      completadoEn: dto.estado === "completado" ? new Date() : undefined,
+      completadoEn: dto.estado === 'completado' ? new Date() : undefined,
       estado: dto.estado as any,
     };
 
@@ -259,46 +232,33 @@ export class FormulariosService {
   // PARSING (PDF/EXCEL → TEMPLATE)
   // ========================================
 
-  async parseAndCreateTemplate(file: {
-    buffer: Buffer;
-    originalname: string;
-    mimetype: string;
-  }) {
-    this.logger.log("Parseando archivo para crear template", {
+  async parseAndCreateTemplate(file: { buffer: Buffer; originalname: string; mimetype: string }) {
+    this.logger.log('Parseando archivo para crear template', {
       filename: file.originalname,
       mimetype: file.mimetype,
     });
 
     let parsed;
 
-    if (file.mimetype === "application/pdf") {
-      parsed = await this.formParser.parseFromPDF(
-        file.buffer,
-        file.originalname,
-      );
+    if (file.mimetype === 'application/pdf') {
+      parsed = await this.formParser.parseFromPDF(file.buffer, file.originalname);
     } else if (
-      file.mimetype ===
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
-      file.mimetype === "application/vnd.ms-excel"
+      file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+      file.mimetype === 'application/vnd.ms-excel'
     ) {
-      parsed = await this.formParser.parseFromExcel(
-        file.buffer,
-        file.originalname,
-      );
+      parsed = await this.formParser.parseFromExcel(file.buffer, file.originalname);
     } else {
-      throw new ConflictException(
-        "Tipo de archivo no soportado. Use PDF o Excel.",
-      );
+      throw new ConflictException('Tipo de archivo no soportado. Use PDF o Excel.');
     }
 
     // Crear template con datos parseados
     return this.createTemplate({
       nombre: parsed.nombre,
-      tipo: parsed.tipo as CreateFormTemplateDto["tipo"],
-      categoria: "Auto-generado",
+      tipo: parsed.tipo as CreateFormTemplateDto['tipo'],
+      categoria: 'Auto-generado',
       schema: { sections: parsed.sections },
       descripcion: `Generado automáticamente desde: ${file.originalname}`,
-      tags: ["auto-generado"],
+      tags: ['auto-generado'],
     });
   }
 }

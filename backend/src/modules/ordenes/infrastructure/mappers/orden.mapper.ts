@@ -1,18 +1,18 @@
 import {
+  OrderPriority,
+  OrderStatus,
   Order as PrismaOrden,
   User as PrismaUser,
-  OrderStatus,
-  OrderPriority,
-} from "@prisma/client";
-import { OrdenResponseDto } from "../../application/dto/orden-response.dto";
-import { OrdenEntity } from "../../domain/entities/orden.entity";
+} from '@/prisma/client';
+import { OrdenResponseDto } from '../../application/dto/orden-response.dto';
+import { OrdenEntity } from '../../domain/entities/orden.entity';
 
 export class OrdenMapper {
   static toDomain(
     orden: PrismaOrden & {
-      creador?: Pick<PrismaUser, "id" | "name"> | null;
-      asignado?: Pick<PrismaUser, "id" | "name"> | null;
-    },
+      creador?: Pick<PrismaUser, 'id' | 'name'> | null;
+      asignado?: Pick<PrismaUser, 'id' | 'name'> | null;
+    }
   ): OrdenEntity {
     return OrdenEntity.fromPersistence(
       {
@@ -33,12 +33,8 @@ export class OrdenMapper {
         createdAt: orden.createdAt,
         updatedAt: orden.updatedAt,
       },
-      orden.creador
-        ? { id: orden.creador.id, name: orden.creador.name }
-        : undefined,
-      orden.asignado
-        ? { id: orden.asignado.id, name: orden.asignado.name }
-        : undefined,
+      orden.creador ? { id: orden.creador.id, name: orden.creador.name } : undefined,
+      orden.asignado ? { id: orden.asignado.id, name: orden.asignado.name } : undefined
     );
   }
 
@@ -62,15 +58,15 @@ export class OrdenMapper {
   }
 
   static toResponse(
-    orden: PrismaOrden & { creador?: PrismaUser; asignado?: PrismaUser },
+    orden: PrismaOrden & { creador?: PrismaUser; asignado?: PrismaUser }
   ): OrdenResponseDto {
     return {
       id: orden.id,
       numero: orden.numero,
       descripcion: orden.descripcion,
       cliente: orden.cliente,
-      estado: orden.estado as unknown as OrdenResponseDto["estado"],
-      prioridad: orden.prioridad as unknown as OrdenResponseDto["prioridad"],
+      estado: orden.estado as unknown as OrdenResponseDto['estado'],
+      prioridad: orden.prioridad as unknown as OrdenResponseDto['prioridad'],
       fechaInicio: orden.fechaInicio?.toISOString(),
       fechaFin: orden.fechaFin?.toISOString(),
       fechaFinEstimada: orden.fechaFinEstimada?.toISOString(),

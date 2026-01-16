@@ -1,19 +1,18 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import { EventEmitter2 } from "@nestjs/event-emitter";
+import { Prisma } from '@/prisma/client';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import * as fs from 'fs';
+import * as path from 'path';
+import { PrismaService } from '../../prisma/prisma.service';
 import {
   ArchivarManualDto,
-  ExportarHistoricoDto,
   ConsultarHistoricoDto,
+  EstadisticasArchivoDto,
+  ExportarHistoricoDto,
   OrdenArchivadaResponseDto,
   ResultadoArchivadoDto,
   ResultadoExportacionDto,
-  EstadisticasArchivoDto,
-  TipoExportacion,
-} from "./application/dto/archivado-historico.dto";
-import * as fs from "fs";
-import * as path from "path";
-import { Prisma } from "@prisma/client";
+} from './application/dto/archivado-historico.dto';
 
 /**
  * ArchivadoHistoricoService
@@ -29,11 +28,11 @@ import { Prisma } from "@prisma/client";
 export class ArchivadoHistoricoService {
   private readonly logger = new Logger(ArchivadoHistoricoService.name);
   private readonly DIAS_PARA_ARCHIVAR = 30;
-  private readonly EXPORT_DIR = path.join(process.cwd(), "archivos", "exports");
+  private readonly EXPORT_DIR = path.join(process.cwd(), 'archivos', 'exports');
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {
     // Ensure export directory exists
     if (!fs.existsSync(this.EXPORT_DIR)) {
@@ -50,16 +49,16 @@ export class ArchivadoHistoricoService {
     fechaLimite.setDate(fechaLimite.getDate() - this.DIAS_PARA_ARCHIVAR);
 
     this.logger.log(
-      `Iniciando archivado automático para órdenes anteriores a ${fechaLimite.toISOString()}`,
+      `Iniciando archivado automático para órdenes anteriores a ${fechaLimite.toISOString()}`
     );
 
     // Get orders to archive (completed more than 30 days ago)
     const ordenesParaArchivar = await this.prisma.order.findMany({
       where: {
-        estado: "completada",
+        estado: 'completada',
         fechaFin: { lte: fechaLimite },
         // Using observaciones to track archived status
-        NOT: { observaciones: { contains: "[ARCHIVADA]" } },
+        NOT: { observaciones: { contains: '[ARCHIVADA]' } },
       },
       select: { id: true, numero: true },
     });
@@ -74,8 +73,7 @@ export class ArchivadoHistoricoService {
         archivadas++;
       } catch (error) {
         omitidas++;
-        const mensaje =
-          error instanceof Error ? error.message : "Error desconocido";
+        const mensaje = error instanceof Error ? error.message : 'Error desconocido';
         errores.push(`Orden ${orden.numero}: ${mensaje}`);
         this.logger.error(`Error archivando orden ${orden.numero}:`, error);
       }
@@ -83,11 +81,9 @@ export class ArchivadoHistoricoService {
 
     const proximoArchivado = this.calcularProximoArchivado();
 
-    this.logger.log(
-      `Archivado completado: ${archivadas} archivadas, ${omitidas} omitidas`,
-    );
+    this.logger.log(`Archivado completado: ${archivadas} archivadas, ${omitidas} omitidas`);
 
-    this.eventEmitter.emit("archivado.automatico.completado", {
+    this.eventEmitter.emit('archivado.automatico.completado', {
       archivadas,
       omitidas,
       errores,
@@ -110,12 +106,11 @@ export class ArchivadoHistoricoService {
     const orden = await this.prisma.order.findUnique({
       where: { id: ordenId },
     });
-    if (!orden) throw new NotFoundException("Orden no encontrada");
+    if (!orden) throw new NotFoundException('Orden no encontrada');
 
     const fechaArchivado = new Date().toISOString();
-    const observacionesActuales = orden.observaciones || "";
-    const nuevasObservaciones =
-      `${observacionesActuales}\n[ARCHIVADA] ${fechaArchivado}`.trim();
+    const observacionesActuales = orden.observaciones || '';
+    const nuevasObservaciones = `${observacionesActuales}\n[ARCHIVADA] ${fechaArchivado}`.trim();
 
     await this.prisma.order.update({
       where: { id: ordenId },
@@ -143,7 +138,7 @@ export class ArchivadoHistoricoService {
           continue;
         }
 
-        if (orden.observaciones?.includes("[ARCHIVADA]")) {
+        if (orden.observaciones?.includes('[ARCHIVADA]')) {
           errores.push(`Orden ${orden.numero}: Ya está archivada`);
           omitidas++;
           continue;
@@ -152,8 +147,7 @@ export class ArchivadoHistoricoService {
         await this.marcarComoArchivada(ordenId);
         archivadas++;
       } catch (error) {
-        const mensaje =
-          error instanceof Error ? error.message : "Error desconocido";
+        const mensaje = error instanceof Error ? error.message : 'Error desconocido';
         errores.push(`Orden ${ordenId}: ${mensaje}`);
         omitidas++;
       }
@@ -172,9 +166,7 @@ export class ArchivadoHistoricoService {
   /**
    * Consultar histórico de órdenes archivadas
    */
-  async consultarHistorico(
-    dto: ConsultarHistoricoDto,
-  ): Promise<{
+  async consultarHistorico(dto: ConsultarHistoricoDto): Promise<{
     ordenes: OrdenArchivadaResponseDto[];
     total: number;
     pagina: number;
@@ -185,11 +177,11 @@ export class ArchivadoHistoricoService {
     const skip = (pagina - 1) * limite;
 
     const where: Prisma.OrderWhereInput = {
-      observaciones: { contains: "[ARCHIVADA]" },
+      observaciones: { contains: '[ARCHIVADA]' },
     };
 
     if (dto.numeroOrden) {
-      where.numero = { contains: dto.numeroOrden, mode: "insensitive" };
+      where.numero = { contains: dto.numeroOrden, mode: 'insensitive' };
     }
     if (dto.clienteId) {
       where.cliente = dto.clienteId;
@@ -209,7 +201,7 @@ export class ArchivadoHistoricoService {
         where,
         skip,
         take: limite,
-        orderBy: { updatedAt: "desc" },
+        orderBy: { updatedAt: 'desc' },
         include: {
           _count: { select: { evidencias: true } },
         },
@@ -218,7 +210,7 @@ export class ArchivadoHistoricoService {
     ]);
 
     return {
-      ordenes: ordenes.map((o) => this.mapOrdenToResponse(o)),
+      ordenes: ordenes.map(o => this.mapOrdenToResponse(o)),
       total,
       pagina,
       totalPaginas: Math.ceil(total / limite),
@@ -228,15 +220,13 @@ export class ArchivadoHistoricoService {
   /**
    * Exportar histórico a CSV
    */
-  async exportarHistorico(
-    dto: ExportarHistoricoDto,
-  ): Promise<ResultadoExportacionDto> {
+  async exportarHistorico(dto: ExportarHistoricoDto): Promise<ResultadoExportacionDto> {
     const fechaInicio = new Date(dto.anio, dto.mes - 1, 1);
     const fechaFin = new Date(dto.anio, dto.mes, 0, 23, 59, 59);
 
     const ordenes = await this.prisma.order.findMany({
       where: {
-        observaciones: { contains: "[ARCHIVADA]" },
+        observaciones: { contains: '[ARCHIVADA]' },
         fechaFin: {
           gte: fechaInicio,
           lte: fechaFin,
@@ -248,12 +238,10 @@ export class ArchivadoHistoricoService {
     });
 
     if (ordenes.length === 0) {
-      throw new NotFoundException(
-        `No hay órdenes archivadas en ${dto.mes}/${dto.anio}`,
-      );
+      throw new NotFoundException(`No hay órdenes archivadas en ${dto.mes}/${dto.anio}`);
     }
 
-    const nombreArchivo = `ordenes_archivadas_${dto.anio}_${String(dto.mes).padStart(2, "0")}.csv`;
+    const nombreArchivo = `ordenes_archivadas_${dto.anio}_${String(dto.mes).padStart(2, '0')}.csv`;
     const rutaArchivo = path.join(this.EXPORT_DIR, nombreArchivo);
 
     await this.generarCSV(ordenes, rutaArchivo);
@@ -278,11 +266,11 @@ export class ArchivadoHistoricoService {
     const [activas, archivadas] = await Promise.all([
       this.prisma.order.count({
         where: {
-          NOT: { observaciones: { contains: "[ARCHIVADA]" } },
+          NOT: { observaciones: { contains: '[ARCHIVADA]' } },
         },
       }),
       this.prisma.order.count({
-        where: { observaciones: { contains: "[ARCHIVADA]" } },
+        where: { observaciones: { contains: '[ARCHIVADA]' } },
       }),
     ]);
 
@@ -307,8 +295,7 @@ export class ArchivadoHistoricoService {
       totalExportaciones: fs.existsSync(this.EXPORT_DIR)
         ? fs.readdirSync(this.EXPORT_DIR).length
         : 0,
-      espacioUtilizadoMB:
-        Math.round((espacioTotal / (1024 * 1024)) * 100) / 100,
+      espacioUtilizadoMB: Math.round((espacioTotal / (1024 * 1024)) * 100) / 100,
       ultimoArchivado: undefined,
       proximoArchivado: this.calcularProximoArchivado().toISOString(),
       archivosPorMes: [],
@@ -328,15 +315,15 @@ export class ArchivadoHistoricoService {
       throw new NotFoundException(`Orden ${ordenId} no encontrada`);
     }
 
-    if (!orden.observaciones?.includes("[ARCHIVADA]")) {
+    if (!orden.observaciones?.includes('[ARCHIVADA]')) {
       throw new NotFoundException(`Orden ${ordenId} no está archivada`);
     }
 
     // Remove archive marker
     const nuevasObservaciones = orden.observaciones
-      .split("\n")
-      .filter((line) => !line.startsWith("[ARCHIVADA]"))
-      .join("\n")
+      .split('\n')
+      .filter(line => !line.startsWith('[ARCHIVADA]'))
+      .join('\n')
       .trim();
 
     await this.prisma.order.update({
@@ -354,9 +341,7 @@ export class ArchivadoHistoricoService {
 
   private mapOrdenToResponse(orden: any): OrdenArchivadaResponseDto {
     const archivoMatch = orden.observaciones?.match(/\[ARCHIVADA\] (.+)/);
-    const fechaArchivado = archivoMatch
-      ? archivoMatch[1]
-      : orden.updatedAt.toISOString();
+    const fechaArchivado = archivoMatch ? archivoMatch[1] : orden.updatedAt.toISOString();
 
     return {
       id: orden.id,
@@ -365,7 +350,7 @@ export class ArchivadoHistoricoService {
       cliente: orden.cliente,
       estado: orden.estado,
       fechaCreacion: orden.createdAt.toISOString(),
-      fechaCierre: orden.fechaFin?.toISOString() || "",
+      fechaCierre: orden.fechaFin?.toISOString() || '',
       fechaArchivado,
       montoTotal: orden.costoReal || 0,
       tieneEvidencias: (orden._count?.evidencias || 0) > 0,
@@ -375,42 +360,33 @@ export class ArchivadoHistoricoService {
 
   private async generarCSV(ordenes: any[], rutaArchivo: string): Promise<void> {
     const headers = [
-      "ID",
-      "Número",
-      "Descripción",
-      "Cliente",
-      "Estado",
-      "Fecha Creación",
-      "Fecha Cierre",
-      "Costo Real",
+      'ID',
+      'Número',
+      'Descripción',
+      'Cliente',
+      'Estado',
+      'Fecha Creación',
+      'Fecha Cierre',
+      'Costo Real',
     ];
-    const rows = ordenes.map((o) => [
+    const rows = ordenes.map(o => [
       o.id,
       o.numero,
-      o.descripcion.replace(/,/g, ";"),
-      o.cliente || "N/A",
+      o.descripcion.replace(/,/g, ';'),
+      o.cliente || 'N/A',
       o.estado,
       o.createdAt.toISOString(),
-      o.fechaFin?.toISOString() || "",
+      o.fechaFin?.toISOString() || '',
       o.costoReal || 0,
     ]);
 
-    const content = [headers.join(","), ...rows.map((r) => r.join(","))].join(
-      "\n",
-    );
-    fs.writeFileSync(rutaArchivo, content, "utf-8");
+    const content = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    fs.writeFileSync(rutaArchivo, content, 'utf-8');
   }
 
   private calcularProximoArchivado(): Date {
     const ahora = new Date();
-    const proximo = new Date(
-      ahora.getFullYear(),
-      ahora.getMonth() + 1,
-      1,
-      2,
-      0,
-      0,
-    );
+    const proximo = new Date(ahora.getFullYear(), ahora.getMonth() + 1, 1, 2, 0, 0);
     return proximo;
   }
 }

@@ -1,100 +1,62 @@
 {
-    "$schema": "https://turbo.build/schema.json",
-    "globalDependencies": [
-        "pnpm-lock.yaml",
-        ".env.example"
-    ],
-    "globalEnv": [
-        "NODE_ENV",
-        "DATABASE_URL"
-    ],
-    "globalPassThroughEnv": [
-        "CI",
-        "VERCEL",
-        "GITHUB_ACTIONS",
-        "TURBO_REMOTE_CACHE_SIGNATURE_KEY"
-    ],
-    "tasks": {
-        "build": {
-            "dependsOn": [
-                "^build"
-            ],
-            "outputs": [
-                "dist/**",
-                "!dist/cache/**",
-                "!**/.angular/cache/**"
-            ],
-            "inputs": [
-                "src/**",
-                "tsconfig.json",
-                "tsconfig*.json",
-                "package.json",
-                "angular.json",
-                "nest-cli.json"
-            ],
-            "cache": true
-        },
-        "test": {
-            "dependsOn": [],
-            "outputs": [
-                "coverage/**"
-            ],
-            "inputs": [
-                "src/**",
-                "test/**",
-                "**/*.spec.ts",
-                "jest.config.*",
-                "karma.conf.*",
-                "package.json"
-            ],
-            "cache": true
-        },
-        "lint": {
-            "outputs": [],
-            "inputs": [
-                "src/**/*.ts",
-                "src/**/*.html",
-                ".eslintrc*",
-                "eslint.config.*",
-                "package.json"
-            ],
-            "cache": true
-        },
-        "lint:fix": {
-            "outputs": [],
-            "inputs": [
-                "src/**/*.ts",
-                "src/**/*.html",
-                ".eslintrc*",
-                "eslint.config.*"
-            ],
-            "cache": false
-        },
-        "typecheck": {
-            "dependsOn": [],
-            "outputs": [],
-            "inputs": [
-                "src/**/*.ts",
-                "tsconfig.json",
-                "tsconfig*.json"
-            ],
-            "cache": true
-        },
-        "dev": {
-            "cache": false,
-            "persistent": true
-        },
-        "clean": {
-            "cache": false
-        },
-        "prisma:generate": {
-            "inputs": [
-                "prisma/schema.prisma"
-            ],
-            "outputs": [
-                "node_modules/.prisma/**"
-            ],
-            "cache": true
-        }
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["pnpm-lock.yaml", "pnpm-workspace.yaml", ".env.example"],
+  "globalEnv": ["NODE_ENV", "DATABASE_URL"],
+  "globalPassThroughEnv": ["CI", "VERCEL", "GITHUB_ACTIONS", "TURBO_REMOTE_CACHE_SIGNATURE_KEY"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "!dist/cache/**", "!**/.angular/cache/**"],
+      "inputs": [
+        "src/**",
+        "tsconfig.json",
+        "tsconfig*.json",
+        "package.json",
+        "angular.json",
+        "nest-cli.json"
+      ],
+      "cache": true
+    },
+    "test": {
+      "dependsOn": [],
+      "outputs": ["coverage/**"],
+      "inputs": [
+        "src/**",
+        "test/**",
+        "**/*.spec.ts",
+        "jest.config.*",
+        "karma.conf.*",
+        "package.json"
+      ],
+      "cache": true
+    },
+    "lint": {
+      "outputs": [],
+      "inputs": ["src/**/*.ts", "src/**/*.html", ".eslintrc*", "eslint.config.*", "package.json"],
+      "cache": true
+    },
+    "lint:fix": {
+      "outputs": [],
+      "inputs": ["src/**/*.ts", "src/**/*.html", ".eslintrc*", "eslint.config.*"],
+      "cache": false
+    },
+    "typecheck": {
+      "dependsOn": [],
+      "outputs": [],
+      "inputs": ["src/**/*.ts", "tsconfig.json", "tsconfig*.json"],
+      "cache": true
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "clean": {
+      "cache": false
+    },
+    "prisma:generate": {
+      "inputs": ["prisma/schema.prisma"],
+      "outputs": ["node_modules/.prisma/**"],
+      "cache": true
     }
+  }
 }

@@ -63,6 +63,11 @@ coverage/
 backend/error*.txt
 backend/output.txt
 backend/tsc-errors.txt
+frontend/tsc-errors.txt
+frontend/ng-version.txt
+backend/build-errors.txt
+backend/prisma/generated/
+backend/prisma/backup/
 outdated*.txt
 outdated.json
 

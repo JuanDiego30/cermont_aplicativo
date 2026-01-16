@@ -4,23 +4,15 @@
  * Representa la desviación entre presupuesto y costo real
  */
 
-// Decimal.js es open source
-let Decimal: any;
-try {
-  Decimal = require("decimal.js");
-} catch (error) {
-  // Fallback
-}
-
-import { Money } from "./money.vo";
-import { ValidationError } from "../exceptions";
+import { Decimal } from 'decimal.js';
+import { Money } from './money.vo';
 
 export class CostVariance {
   private constructor(
     private readonly _budgeted: Money,
     private readonly _actual: Money,
     private readonly _variance: Money,
-    private readonly _variancePercentage: number | any,
+    private readonly _variancePercentage: number | any
   ) {
     Object.freeze(this);
   }
@@ -47,16 +39,9 @@ export class CostVariance {
     // Calcular varianza porcentual
     let variancePercentage: number | any;
     if (budgeted.isZero()) {
-      variancePercentage = Decimal ? new Decimal(0) : 0;
+      variancePercentage = new Decimal(0);
     } else {
-      if (Decimal) {
-        variancePercentage = variance
-          .getAmount()
-          .dividedBy(budgeted.getAmount())
-          .times(100);
-      } else {
-        variancePercentage = (variance.toNumber() / budgeted.toNumber()) * 100;
-      }
+      variancePercentage = variance.getAmount().dividedBy(budgeted.getAmount()).times(100);
     }
 
     return new CostVariance(budgeted, actual, variance, variancePercentage);
@@ -91,9 +76,7 @@ export class CostVariance {
       return this._variance;
     }
 
-    const absValue = Decimal
-      ? this._variance.getAmount().absoluteValue()
-      : Math.abs(this._variance.toNumber());
+    const absValue = this._variance.getAmount().absoluteValue();
 
     return Money.create(absValue, this._variance.getCurrency());
   }
@@ -102,13 +85,7 @@ export class CostVariance {
    * Obtener varianza porcentual como número
    */
   public getVariancePercentageAsNumber(): number {
-    if (Decimal) {
-      return this._variancePercentage.toNumber();
-    } else {
-      return typeof this._variancePercentage === "number"
-        ? this._variancePercentage
-        : parseFloat(String(this._variancePercentage));
-    }
+    return this._variancePercentage.toNumber();
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -135,10 +112,7 @@ export class CostVariance {
     if (!other || !(other instanceof CostVariance)) {
       return false;
     }
-    return (
-      this._budgeted.equals(other._budgeted) &&
-      this._actual.equals(other._actual)
-    );
+    return this._budgeted.equals(other._budgeted) && this._actual.equals(other._actual);
   }
 
   public toJSON(): any {
@@ -146,16 +120,14 @@ export class CostVariance {
       budgeted: this._budgeted.toJSON(),
       actual: this._actual.toJSON(),
       variance: this._variance.toJSON(),
-      variancePercentage: Decimal
-        ? this._variancePercentage.toString()
-        : this._variancePercentage,
+      variancePercentage: this._variancePercentage.toString(),
       isOverBudget: this.isOverBudget(),
       isUnderBudget: this.isUnderBudget(),
     };
   }
 
   public toString(): string {
-    const sign = this.isOverBudget() ? "+" : "";
+    const sign = this.isOverBudget() ? '+' : '';
     return `Variance: ${sign}${this._variance.format()} (${sign}${this.getVariancePercentageAsNumber().toFixed(2)}%)`;
   }
 }

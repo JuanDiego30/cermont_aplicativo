@@ -1,13 +1,12 @@
-import { User as PrismaUser } from "@prisma/client";
-import { AuthUserEntity } from "../../domain/entities/auth-user.entity";
-import { Email, Password } from "../../domain/value-objects";
+import { User as PrismaUser } from '@/prisma/client';
+import { AuthUserEntity } from '../../domain/entities/auth-user.entity';
 
 export class UserMapper {
   static toDomain(prismaUser: PrismaUser): AuthUserEntity {
     return AuthUserEntity.fromDatabase({
       id: prismaUser.id,
       email: prismaUser.email,
-      password: prismaUser.password || "", // Hash should exist
+      password: prismaUser.password || '', // Hash should exist
       name: prismaUser.name,
       role: prismaUser.role as any,
       active: prismaUser.active,

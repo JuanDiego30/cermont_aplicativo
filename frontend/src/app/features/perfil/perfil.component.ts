@@ -3,13 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService, User, UpdateUserDto } from '../../core/services/user.service';
-import { AvatarEditorComponent } from '../../shared/components/avatar-editor/avatar-editor.component';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'app-perfil',
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, AvatarEditorComponent],
+    imports: [CommonModule, ReactiveFormsModule],
     templateUrl: './perfil.component.html',
     // template: `<div>Perfil Component Works (Inline)</div>`,
     styleUrls: ['./perfil.component.css']

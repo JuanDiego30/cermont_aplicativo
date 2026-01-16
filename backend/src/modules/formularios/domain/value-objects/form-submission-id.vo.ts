@@ -4,12 +4,13 @@
  * Identificador único de una submission de formulario
  */
 
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { randomUUID } from 'node:crypto';
+import { ValidationError } from '../../../../common/domain/exceptions';
 
 export class FormSubmissionId {
   private constructor(private readonly _value: string) {
-    if (!_value || _value.trim() === "") {
-      throw new ValidationError("FormSubmissionId cannot be empty");
+    if (!_value || _value.trim() === '') {
+      throw new ValidationError('FormSubmissionId cannot be empty');
     }
     Object.freeze(this);
   }
@@ -19,7 +20,6 @@ export class FormSubmissionId {
   }
 
   public static generate(): FormSubmissionId {
-    const { randomUUID } = require("crypto");
     return new FormSubmissionId(randomUUID());
   }
 

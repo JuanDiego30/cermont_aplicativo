@@ -3,24 +3,19 @@
  * @description Image processing using Sharp library
  */
 
-import { Injectable, Logger } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import * as fs from "fs/promises";
-import * as path from "path";
-import {
-  IImageProcessor,
-  ImageProcessingResult,
-} from "./image-processor.interface";
-import {
-  normalizeRelativePath,
-  resolveSafePath,
-} from "../storage/safe-path";
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs/promises';
+import { createRequire } from 'node:module';
+import * as path from 'path';
+import { normalizeRelativePath, resolveSafePath } from '../storage/safe-path';
+import { IImageProcessor, ImageProcessingResult } from './image-processor.interface';
 
 // Sharp can be optionally imported
-let sharp: typeof import("sharp") | null = null;
+let sharp: typeof import('sharp') | null = null;
 try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  sharp = require("sharp");
+  const require = createRequire(import.meta.url);
+  sharp = require('sharp');
 } catch {
   // Sharp not available
 }
@@ -31,12 +26,10 @@ export class SharpImageProcessor implements IImageProcessor {
   private readonly basePath: string;
 
   constructor(private readonly config: ConfigService) {
-    this.basePath = this.config.get<string>("UPLOAD_PATH", "./uploads");
+    this.basePath = this.config.get<string>('UPLOAD_PATH', './uploads');
 
     if (!sharp) {
-      this.logger.warn(
-        "Sharp not installed. Image processing will be limited.",
-      );
+      this.logger.warn('Sharp not installed. Image processing will be limited.');
     }
   }
 
@@ -45,7 +38,7 @@ export class SharpImageProcessor implements IImageProcessor {
     const fullPath = resolveSafePath(this.basePath, safeRelative);
 
     if (!sharp) {
-      this.logger.warn("Sharp not available, skipping image processing");
+      this.logger.warn('Sharp not available, skipping image processing');
       return {};
     }
 
@@ -62,12 +55,12 @@ export class SharpImageProcessor implements IImageProcessor {
       await fs.mkdir(path.dirname(thumb300FullPath), { recursive: true });
 
       await sharp(fullPath)
-        .resize(150, 150, { fit: "cover" })
+        .resize(150, 150, { fit: 'cover' })
         .jpeg({ quality: 80 })
         .toFile(thumb150FullPath);
 
       await sharp(fullPath)
-        .resize(300, 300, { fit: "cover" })
+        .resize(300, 300, { fit: 'cover' })
         .jpeg({ quality: 80 })
         .toFile(thumb300FullPath);
 
@@ -98,10 +91,10 @@ export class SharpImageProcessor implements IImageProcessor {
     inputPath: string,
     outputPath: string,
     width: number = 200,
-    height: number = 200,
+    height: number = 200
   ): Promise<string> {
     if (!sharp) {
-      throw new Error("Sharp not available");
+      throw new Error('Sharp not available');
     }
 
     const safeInput = normalizeRelativePath(inputPath);
@@ -112,7 +105,7 @@ export class SharpImageProcessor implements IImageProcessor {
     await fs.mkdir(path.dirname(outputFullPath), { recursive: true });
 
     await sharp(inputFullPath)
-      .resize(width, height, { fit: "cover" })
+      .resize(width, height, { fit: 'cover' })
       .jpeg({ quality: 80 })
       .toFile(outputFullPath);
 
@@ -133,15 +126,7 @@ export class SharpImageProcessor implements IImageProcessor {
 
   private getThumbnailPath(originalPath: string, size: 150 | 300): string {
     const dir = path.posix.dirname(originalPath);
-    const filename = path.posix.basename(
-      originalPath,
-      path.posix.extname(originalPath),
-    );
-    return path.posix.join(
-      dir,
-      "thumbnails",
-      String(size),
-      `${filename}-thumb.jpg`,
-    );
+    const filename = path.posix.basename(originalPath, path.posix.extname(originalPath));
+    return path.posix.join(dir, 'thumbnails', String(size), `${filename}-thumb.jpg`);
   }
 }

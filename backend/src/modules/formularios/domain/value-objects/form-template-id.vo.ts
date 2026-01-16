@@ -4,12 +4,13 @@
  * Identificador único de un template de formulario
  */
 
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { randomUUID } from 'node:crypto';
+import { ValidationError } from '../../../../common/domain/exceptions';
 
 export class FormTemplateId {
   private constructor(private readonly _value: string) {
-    if (!_value || _value.trim() === "") {
-      throw new ValidationError("FormTemplateId cannot be empty");
+    if (!_value || _value.trim() === '') {
+      throw new ValidationError('FormTemplateId cannot be empty');
     }
     Object.freeze(this);
   }
@@ -20,7 +21,6 @@ export class FormTemplateId {
 
   public static generate(): FormTemplateId {
     // Usar UUID v4
-    const { randomUUID } = require("crypto");
     return new FormTemplateId(randomUUID());
   }
 

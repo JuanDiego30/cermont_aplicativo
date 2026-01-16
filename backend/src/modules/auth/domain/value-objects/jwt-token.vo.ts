@@ -3,7 +3,15 @@
  * @description Value Object que representa un JWT Token con validación
  * @layer Domain
  */
-import { JwtService } from "@nestjs/jwt";
+
+/**
+ * Port interface for JWT signing/verification
+ * Implementation should be in infrastructure layer
+ */
+export interface JwtSignerPort {
+  sign(payload: Record<string, unknown>): string;
+  verify<T>(token: string): T;
+}
 
 export interface JwtPayload {
   /** Standard JWT subject */
@@ -54,17 +62,17 @@ export class JwtToken {
   }
 
   static create(
-    jwtService: JwtService,
+    jwtSigner: JwtSignerPort,
     payload: { userId: string; email: string; role: string },
   ): JwtToken {
     const enrichedPayload = { sub: payload.userId, ...payload };
-    const token = jwtService.sign(enrichedPayload);
+    const token = jwtSigner.sign(enrichedPayload);
     return new JwtToken(token, enrichedPayload);
   }
 
-  static fromString(jwtService: JwtService, token: string): JwtToken | null {
+  static fromString(jwtSigner: JwtSignerPort, token: string): JwtToken | null {
     try {
-      const payload = jwtService.verify<JwtPayload>(token);
+      const payload = jwtSigner.verify<JwtPayload>(token);
       return new JwtToken(token, payload);
     } catch {
       return null;

@@ -8,28 +8,25 @@
  */
 
 import {
-  Injectable,
-  NotFoundException,
   BadRequestException,
+  Inject,
+  Injectable,
   InternalServerErrorException,
   Logger,
-  Inject,
-} from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import {
-  EVIDENCIA_REPOSITORY,
-  IEvidenciaRepository,
-} from "./domain/repositories";
-import { Evidencia } from "./domain/entities";
-import * as fs from "fs/promises";
-import * as path from "path";
-import { existsSync } from "fs";
-import sanitize from "sanitize-filename";
+  NotFoundException,
+} from '@nestjs/common';
+import { existsSync } from 'fs';
+import * as fs from 'fs/promises';
+import * as path from 'path';
+import sanitize from 'sanitize-filename';
+import { PrismaService } from '../../prisma/prisma.service';
+import { Evidencia } from './domain/entities';
+import { EVIDENCIA_REPOSITORY, IEvidenciaRepository } from './domain/repositories';
 
 /**
  * Tipos de evidencia permitidos
  */
-type TipoEvidencia = "FOTO" | "VIDEO" | "DOCUMENTO" | "AUDIO";
+type TipoEvidencia = 'FOTO' | 'VIDEO' | 'DOCUMENTO' | 'AUDIO';
 
 /**
  * DTO para subir evidencia
@@ -64,29 +61,29 @@ export interface EvidenciasResult {
  */
 const UPLOAD_SECURITY_CONFIG = {
   allowedExtensions: {
-    FOTO: [".jpg", ".jpeg", ".png", ".webp", ".heic"],
-    VIDEO: [".mp4", ".mov", ".avi", ".webm"],
-    DOCUMENTO: [".pdf", ".doc", ".docx", ".xls", ".xlsx"],
-    AUDIO: [".mp3", ".wav", ".m4a", ".aac"],
+    FOTO: ['.jpg', '.jpeg', '.png', '.webp', '.heic'],
+    VIDEO: ['.mp4', '.mov', '.avi', '.webm'],
+    DOCUMENTO: ['.pdf', '.doc', '.docx', '.xls', '.xlsx'],
+    AUDIO: ['.mp3', '.wav', '.m4a', '.aac'],
   },
   allowedMimeTypes: [
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-    "image/heic",
-    "video/mp4",
-    "video/quicktime",
-    "video/x-msvideo",
-    "video/webm",
-    "application/pdf",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "application/vnd.ms-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "audio/mpeg",
-    "audio/wav",
-    "audio/mp4",
-    "audio/aac",
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/heic',
+    'video/mp4',
+    'video/quicktime',
+    'video/x-msvideo',
+    'video/webm',
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'audio/mpeg',
+    'audio/wav',
+    'audio/mp4',
+    'audio/aac',
   ] as string[],
   maxFileSizes: {
     FOTO: 10 * 1024 * 1024,
@@ -103,21 +100,21 @@ export class EvidenciasService {
   constructor(
     @Inject(EVIDENCIA_REPOSITORY)
     private readonly repository: IEvidenciaRepository,
-    private readonly prisma: PrismaService,
-  ) { }
+    private readonly prisma: PrismaService
+  ) {}
 
   /**
    * ✅ OBTENER EVIDENCIAS POR ORDEN
    */
   async findByOrden(ordenId: string): Promise<EvidenciasResult> {
-    const context = { action: "FIND_BY_ORDEN", ordenId };
-    this.logger.log("Obteniendo evidencias por orden", context);
+    const context = { action: 'FIND_BY_ORDEN', ordenId };
+    this.logger.log('Obteniendo evidencias por orden', context);
 
     try {
       const evidencias = await this.repository.findMany({ ordenId });
-      const data = evidencias.map((e) => this.mapEvidenciaToResponse(e));
+      const data = evidencias.map(e => this.mapEvidenciaToResponse(e));
 
-      this.logger.log("Evidencias obtenidas exitosamente", {
+      this.logger.log('Evidencias obtenidas exitosamente', {
         ...context,
         count: evidencias.length,
       });
@@ -125,12 +122,12 @@ export class EvidenciasService {
       return { data };
     } catch (error) {
       const err = error as Error;
-      this.logger.error("Error obteniendo evidencias por orden", {
+      this.logger.error('Error obteniendo evidencias por orden', {
         ...context,
         error: err.message,
         stack: err.stack,
       });
-      throw new InternalServerErrorException("Error obteniendo evidencias");
+      throw new InternalServerErrorException('Error obteniendo evidencias');
     }
   }
 
@@ -138,14 +135,14 @@ export class EvidenciasService {
    * ✅ OBTENER EVIDENCIAS POR EJECUCIÓN
    */
   async findByEjecucion(ejecucionId: string): Promise<EvidenciasResult> {
-    const context = { action: "FIND_BY_EJECUCION", ejecucionId };
-    this.logger.log("Obteniendo evidencias por ejecución", context);
+    const context = { action: 'FIND_BY_EJECUCION', ejecucionId };
+    this.logger.log('Obteniendo evidencias por ejecución', context);
 
     try {
       const evidencias = await this.repository.findMany({ ejecucionId });
-      const data = evidencias.map((e) => this.mapEvidenciaToResponse(e));
+      const data = evidencias.map(e => this.mapEvidenciaToResponse(e));
 
-      this.logger.log("Evidencias obtenidas exitosamente", {
+      this.logger.log('Evidencias obtenidas exitosamente', {
         ...context,
         count: evidencias.length,
       });
@@ -153,12 +150,12 @@ export class EvidenciasService {
       return { data };
     } catch (error) {
       const err = error as Error;
-      this.logger.error("Error obteniendo evidencias por ejecución", {
+      this.logger.error('Error obteniendo evidencias por ejecución', {
         ...context,
         error: err.message,
         stack: err.stack,
       });
-      throw new InternalServerErrorException("Error obteniendo evidencias");
+      throw new InternalServerErrorException('Error obteniendo evidencias');
     }
   }
 
@@ -167,7 +164,7 @@ export class EvidenciasService {
    */
   async upload(file: UploadedFile, dto: UploadEvidenciaDto, userId: string) {
     const context = {
-      action: "UPLOAD_EVIDENCIA",
+      action: 'UPLOAD_EVIDENCIA',
       ordenId: dto.ordenId,
       ejecucionId: dto.ejecucionId,
       userId,
@@ -175,11 +172,11 @@ export class EvidenciasService {
       mimeType: file.mimetype,
     };
 
-    this.logger.log("Iniciando upload de evidencia", context);
+    this.logger.log('Iniciando upload de evidencia', context);
 
     try {
       // 1. Validar tipo
-      const tipo = dto.tipo ?? "FOTO";
+      const tipo = dto.tipo ?? 'FOTO';
 
       // 2. Validaciones de seguridad básicas
       this.validateFileExtension(file.originalname, tipo);
@@ -200,7 +197,7 @@ export class EvidenciasService {
 
       // 7. Create domain entity using new Evidencia aggregate
       const evidencia = Evidencia.create({
-        ejecucionId: dto.ejecucionId || "",
+        ejecucionId: dto.ejecucionId || '',
         ordenId: dto.ordenId,
         mimeType: file.mimetype,
         originalFilename: safeFilename,
@@ -213,13 +210,13 @@ export class EvidenciasService {
       // 8. Save using repository
       const saved = await this.repository.save(evidencia);
 
-      this.logger.log("Evidencia subida exitosamente", {
+      this.logger.log('Evidencia subida exitosamente', {
         ...context,
         evidenciaId: saved.id.getValue(),
       });
 
       return {
-        message: "Evidencia subida",
+        message: 'Evidencia subida',
         data: this.mapEvidenciaToResponse(saved),
       };
     } catch (error) {
@@ -228,20 +225,17 @@ export class EvidenciasService {
       // Rollback: eliminar archivo físico
       await this.deleteFileIfExists(file.path);
 
-      this.logger.error("Error subiendo evidencia", {
+      this.logger.error('Error subiendo evidencia', {
         ...context,
         error: err.message,
         stack: err.stack,
       });
 
-      if (
-        err instanceof BadRequestException ||
-        err instanceof NotFoundException
-      ) {
+      if (err instanceof BadRequestException || err instanceof NotFoundException) {
         throw err;
       }
 
-      throw new InternalServerErrorException("Error subiendo evidencia");
+      throw new InternalServerErrorException('Error subiendo evidencia');
     }
   }
 
@@ -249,14 +243,14 @@ export class EvidenciasService {
    * ✅ ELIMINAR EVIDENCIA
    */
   async remove(id: string) {
-    const context = { action: "REMOVE_EVIDENCIA", evidenciaId: id };
-    this.logger.log("Eliminando evidencia", context);
+    const context = { action: 'REMOVE_EVIDENCIA', evidenciaId: id };
+    this.logger.log('Eliminando evidencia', context);
 
     try {
       const evidencia = await this.repository.findById(id);
 
       if (!evidencia) {
-        throw new NotFoundException("Evidencia no encontrada");
+        throw new NotFoundException('Evidencia no encontrada');
       }
 
       // Eliminar archivo físico primero
@@ -265,12 +259,12 @@ export class EvidenciasService {
       // Eliminar de BD (permanent delete for legacy compatibility)
       await this.repository.permanentDelete(id);
 
-      this.logger.log("Evidencia eliminada exitosamente", context);
+      this.logger.log('Evidencia eliminada exitosamente', context);
 
-      return { message: "Evidencia eliminada" };
+      return { message: 'Evidencia eliminada' };
     } catch (error) {
       const err = error as Error;
-      this.logger.error("Error eliminando evidencia", {
+      this.logger.error('Error eliminando evidencia', {
         ...context,
         error: err.message,
         stack: err.stack,
@@ -280,7 +274,7 @@ export class EvidenciasService {
         throw err;
       }
 
-      throw new InternalServerErrorException("Error eliminando evidencia");
+      throw new InternalServerErrorException('Error eliminando evidencia');
     }
   }
 
@@ -317,7 +311,7 @@ export class EvidenciasService {
 
     if (!allowedExts.includes(ext)) {
       throw new BadRequestException(
-        `Extensión no permitida para ${tipo}: ${[...allowedExts].join(", ")}`,
+        `Extensión no permitida para ${tipo}: ${[...allowedExts].join(', ')}`
       );
     }
   }
@@ -326,42 +320,33 @@ export class EvidenciasService {
     const allowedTypes: string[] = UPLOAD_SECURITY_CONFIG.allowedMimeTypes;
 
     if (!allowedTypes.includes(mimetype)) {
-      throw new BadRequestException(
-        `Tipo de archivo no permitido: ${mimetype}`,
-      );
+      throw new BadRequestException(`Tipo de archivo no permitido: ${mimetype}`);
     }
   }
 
   private validateFileSize(size: number, tipo: TipoEvidencia): void {
     const maxSize =
-      UPLOAD_SECURITY_CONFIG.maxFileSizes[
-      tipo as keyof typeof UPLOAD_SECURITY_CONFIG.maxFileSizes
-      ];
+      UPLOAD_SECURITY_CONFIG.maxFileSizes[tipo as keyof typeof UPLOAD_SECURITY_CONFIG.maxFileSizes];
 
     if (size > maxSize) {
       const maxSizeMB = (maxSize / (1024 * 1024)).toFixed(2);
-      throw new BadRequestException(
-        `Archivo muy grande. Máximo para ${tipo}: ${maxSizeMB} MB`,
-      );
+      throw new BadRequestException(`Archivo muy grande. Máximo para ${tipo}: ${maxSizeMB} MB`);
     }
   }
 
   private parseTags(tagsString?: string): string[] {
-    if (!tagsString || tagsString.trim() === "") {
+    if (!tagsString || tagsString.trim() === '') {
       return [];
     }
 
     return tagsString
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag) => tag.length > 0 && tag.length <= 50)
+      .split(',')
+      .map(tag => tag.trim())
+      .filter(tag => tag.length > 0 && tag.length <= 50)
       .slice(0, 10);
   }
 
-  private async validateRelaciones(
-    ordenId: string,
-    ejecucionId?: string,
-  ): Promise<void> {
+  private async validateRelaciones(ordenId: string, ejecucionId?: string): Promise<void> {
     const orden = await this.prisma.order.findUnique({
       where: { id: ordenId },
     });
@@ -385,28 +370,24 @@ export class EvidenciasService {
     try {
       if (existsSync(filePath)) {
         await fs.unlink(filePath);
-        this.logger.log("Archivo físico eliminado", { filePath });
+        this.logger.log('Archivo físico eliminado', { filePath });
       }
     } catch (error) {
       const err = error as Error;
-      this.logger.warn("Error eliminando archivo físico", {
+      this.logger.warn('Error eliminando archivo físico', {
         filePath,
         error: err.message,
       });
     }
   }
 
-  private async validateRealFileType(
-    filePath: string,
-    declaredMimeType: string,
-  ): Promise<void> {
+  private async validateRealFileType(filePath: string, declaredMimeType: string): Promise<void> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const FileType = require("file-type");
-      const detectedType = await FileType.fromFile(filePath);
+      const { fileTypeFromFile } = await import('file-type');
+      const detectedType = await fileTypeFromFile(filePath);
 
       if (!detectedType) {
-        this.logger.debug("No se pudo detectar tipo de archivo - permitiendo", {
+        this.logger.debug('No se pudo detectar tipo de archivo - permitiendo', {
           filePath,
         });
         return;
@@ -416,17 +397,17 @@ export class EvidenciasService {
       const detectedCategory = this.getMimeCategory(detectedType.mime);
 
       if (declaredCategory !== detectedCategory) {
-        this.logger.warn("Tipo de archivo no coincide con contenido real", {
+        this.logger.warn('Tipo de archivo no coincide con contenido real', {
           filePath,
           declaredMimeType,
           detectedMime: detectedType.mime,
         });
         throw new BadRequestException(
-          `El archivo no coincide con su extensión. Declarado: ${declaredMimeType}, Detectado: ${detectedType.mime}`,
+          `El archivo no coincide con su extensión. Declarado: ${declaredMimeType}, Detectado: ${detectedType.mime}`
         );
       }
 
-      this.logger.debug("Validación profunda de archivo exitosa", {
+      this.logger.debug('Validación profunda de archivo exitosa', {
         filePath,
         detectedMime: detectedType.mime,
       });
@@ -435,7 +416,7 @@ export class EvidenciasService {
         throw error;
       }
       const err = error as Error;
-      this.logger.warn("Error en validación profunda de archivo", {
+      this.logger.warn('Error en validación profunda de archivo', {
         filePath,
         error: err.message,
       });
@@ -443,10 +424,10 @@ export class EvidenciasService {
   }
 
   private getMimeCategory(mimeType: string): string {
-    if (mimeType.startsWith("image/")) return "image";
-    if (mimeType.startsWith("video/")) return "video";
-    if (mimeType.startsWith("audio/")) return "audio";
-    if (mimeType.startsWith("application/")) return "application";
-    return "unknown";
+    if (mimeType.startsWith('image/')) return 'image';
+    if (mimeType.startsWith('video/')) return 'video';
+    if (mimeType.startsWith('audio/')) return 'audio';
+    if (mimeType.startsWith('application/')) return 'application';
+    return 'unknown';
   }
 }

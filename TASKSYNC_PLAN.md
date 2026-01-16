@@ -6,15 +6,15 @@ He generado un plan completo y estructurado que usa los 32 skills en orden de cr
 
 **Bloques en orden de ejecución:**
 
-| Bloque | Tasks | Criticidad | Duración |
-|--------|-------|-----------|----------|
-| 🔴 **BASELINE** | 00 | CRÍTICA | 30 min |
-| 🔴 **SECURITY** | 01–02 | CRÍTICA | 45 min |
-| 🔴 **MONOREPO & CI/CD** | 03–04 | CRÍTICA | 1.5 h |
-| 🟠 **BACKEND CORE** | 05–09 | ALTA | 4 h |
-| 🟠 **FRONTEND CORE** | 10–12 | ALTA | 3 h |
-| 🟡 **POLISH & DOCS** | 13–15 | MEDIA | 1.5 h |
-| 🟢 **OPTIONAL & MANUAL** | 16–20 | BAJA | Variable |
+| Bloque                   | Tasks | Criticidad | Duración |
+| ------------------------ | ----- | ---------- | -------- |
+| 🔴 **BASELINE**          | 00    | CRÍTICA    | 30 min   |
+| 🔴 **SECURITY**          | 01–02 | CRÍTICA    | 45 min   |
+| 🔴 **MONOREPO & CI/CD**  | 03–04 | CRÍTICA    | 1.5 h    |
+| 🟠 **BACKEND CORE**      | 05–09 | ALTA       | 4 h      |
+| 🟠 **FRONTEND CORE**     | 10–12 | ALTA       | 3 h      |
+| 🟡 **POLISH & DOCS**     | 13–15 | MEDIA      | 1.5 h    |
+| 🟢 **OPTIONAL & MANUAL** | 16–20 | BAJA       | Variable |
 
 ## Skills aplicados por task
 

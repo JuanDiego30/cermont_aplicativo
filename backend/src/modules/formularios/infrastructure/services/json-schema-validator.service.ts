@@ -4,8 +4,9 @@
  * Valida datos contra JSON Schema usando AJV
  */
 
-import { Injectable } from "@nestjs/common";
-import Ajv from "ajv";
+import { Injectable } from '@nestjs/common';
+import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
 
 @Injectable()
 export class JSONSchemaValidatorService {
@@ -19,8 +20,6 @@ export class JSONSchemaValidatorService {
     });
 
     // Agregar formatos (email, uri, date, etc.)
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const addFormats = require("ajv-formats");
     addFormats(this.ajv);
   }
 
@@ -29,7 +28,7 @@ export class JSONSchemaValidatorService {
    */
   validate(
     data: Record<string, any>,
-    schema: Record<string, any>,
+    schema: Record<string, any>
   ): { isValid: boolean; errors?: any[] } {
     try {
       const validate = this.ajv.compile(schema);
@@ -48,8 +47,7 @@ export class JSONSchemaValidatorService {
         isValid: false,
         errors: [
           {
-            message:
-              error instanceof Error ? error.message : "Validation error",
+            message: error instanceof Error ? error.message : 'Validation error',
           },
         ],
       };

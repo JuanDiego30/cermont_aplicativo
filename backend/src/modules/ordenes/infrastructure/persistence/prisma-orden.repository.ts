@@ -8,16 +8,12 @@
  * - SRP: Solo responsable de persistencia
  * - OCP: Extensible sin modificar dominio
  */
-import { Injectable } from "@nestjs/common";
-import type { OrderPriority, OrderStatus, Prisma } from "@prisma/client";
-import { PrismaService } from "../../../../prisma/prisma.service";
-import {
-  IOrdenRepository,
-  OrdenFilters,
-  OrdenListResult,
-} from "../../domain/repositories";
-import { OrdenEntity, OrdenProps } from "../../domain/entities";
-import { EstadoOrden, PrioridadLevel } from "../../domain/value-objects";
+import type { OrderPriority, OrderStatus, Prisma } from '@/prisma/client';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { OrdenEntity, OrdenProps } from '../../domain/entities';
+import { IOrdenRepository, OrdenFilters, OrdenListResult } from '../../domain/repositories';
+import { EstadoOrden, PrioridadLevel } from '../../domain/value-objects';
 
 type OrderFullTextItem = Prisma.OrderGetPayload<{
   include: {
@@ -40,8 +36,7 @@ export class PrismaOrdenRepository implements IOrdenRepository {
    * Busca todas las órdenes con filtros y paginación
    */
   async findAll(filters: OrdenFilters): Promise<OrdenListResult> {
-    const { page, limit, estado, cliente, prioridad, asignadoId, creadorId } =
-      filters;
+    const { page, limit, estado, cliente, prioridad, asignadoId, creadorId } = filters;
     const skip = (page - 1) * limit;
 
     const where = this.buildWhereClause(filters);
@@ -55,12 +50,12 @@ export class PrismaOrdenRepository implements IOrdenRepository {
           creador: { select: { id: true, name: true } },
           asignado: { select: { id: true, name: true } },
         },
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
       }),
       this.prisma.order.count({ where }),
     ]);
 
-    const data = orders.map((order) => this.toDomainEntity(order));
+    const data = orders.map(order => this.toDomainEntity(order));
 
     return {
       data,
@@ -97,12 +92,12 @@ export class PrismaOrdenRepository implements IOrdenRepository {
       ...(prioridad && { prioridad: prioridad as unknown as OrderPriority }),
       ...(searchTerm && {
         OR: [
-          { numero: { contains: searchTerm, mode: "insensitive" } },
-          { descripcion: { contains: searchTerm, mode: "insensitive" } },
-          { cliente: { contains: searchTerm, mode: "insensitive" } },
+          { numero: { contains: searchTerm, mode: 'insensitive' } },
+          { descripcion: { contains: searchTerm, mode: 'insensitive' } },
+          { cliente: { contains: searchTerm, mode: 'insensitive' } },
           {
             asignado: {
-              is: { name: { contains: searchTerm, mode: "insensitive" } },
+              is: { name: { contains: searchTerm, mode: 'insensitive' } },
             },
           },
         ],
@@ -115,8 +110,8 @@ export class PrismaOrdenRepository implements IOrdenRepository {
         skip,
         take: limit,
         orderBy: [
-          { prioridad: "desc" }, // Urgente primero
-          { createdAt: "desc" },
+          { prioridad: 'desc' }, // Urgente primero
+          { createdAt: 'desc' },
         ],
         include: {
           asignado: {
@@ -240,9 +235,9 @@ export class PrismaOrdenRepository implements IOrdenRepository {
 
     // Actualizar fechas según el estado (lógica de negocio en infraestructura
     // solo para eficiencia - la validación está en el dominio)
-    if (estado === "ejecucion") {
+    if (estado === 'ejecucion') {
       updateData.fechaInicio = new Date();
-    } else if (estado === "completada") {
+    } else if (estado === 'completada') {
       updateData.fechaFin = new Date();
     }
 
@@ -266,7 +261,7 @@ export class PrismaOrdenRepository implements IOrdenRepository {
       where: { id },
       data: {
         deletedAt: new Date(),
-        deleteReason: "deleted",
+        deleteReason: 'deleted',
       },
     });
   }
@@ -305,7 +300,7 @@ export class PrismaOrdenRepository implements IOrdenRepository {
     if (filters.cliente) {
       where.cliente = {
         contains: filters.cliente,
-        mode: "insensitive",
+        mode: 'insensitive',
       };
     }
 
@@ -357,9 +352,7 @@ export class PrismaOrdenRepository implements IOrdenRepository {
       updatedAt: order.updatedAt,
     };
 
-    const creador = order.creador
-      ? { id: order.creador.id, name: order.creador.name }
-      : undefined;
+    const creador = order.creador ? { id: order.creador.id, name: order.creador.name } : undefined;
 
     const asignado = order.asignado
       ? { id: order.asignado.id, name: order.asignado.name }

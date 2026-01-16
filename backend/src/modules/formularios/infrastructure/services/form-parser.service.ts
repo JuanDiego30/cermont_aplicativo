@@ -6,8 +6,6 @@
  */
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import ExcelJS from 'exceljs';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfParse = require('pdf-parse');
 
 export interface ParsedField {
   id: string;
@@ -43,6 +41,8 @@ export class FormParserService {
     });
 
     try {
+      const pdfParseModule = await import('pdf-parse');
+      const pdfParse = (pdfParseModule as any).default || pdfParseModule;
       const data = await pdfParse(buffer);
       const text = data.text;
 

@@ -1,15 +1,24 @@
-import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
+import { PrismaPg } from '@prisma/adapter-pg';
 import bcrypt from 'bcryptjs';
+import { Pool } from 'pg';
+import { PrismaClient } from './generated/prisma/client';
 
-const prisma = new PrismaClient();
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  throw new Error('DATABASE_URL is not set');
+}
+
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log('🌱 Iniciando seed de la base de datos...');
 
   // --- 1. USUARIOS ---
   const adminEmail = 'root@cermont.com';
-  const adminPassword = 'Cermont2025!'; // Contraseña utilizada por el usuario
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD ?? 'Cermont2025!';
   const hashedPassword = await bcrypt.hash(adminPassword, 12); // Usar 12 rounds (OWASP)
 
   // Upsert Admin
@@ -34,13 +43,14 @@ async function main() {
   });
   console.log('✓ Usuario admin sincronizado');
   console.log(`  📧 Email: ${adminEmail}`);
-  console.log(`  🔑 Password: ${adminPassword}`);
+  console.log('  🔑 Password: (set via SEED_ADMIN_PASSWORD)');
 
   // Crear Técnicos
   const tecnicos = [];
   for (let i = 1; i <= 5; i++) {
     const email = `tecnico${i}@cermont.com`;
-    const techPassword = await bcrypt.hash('tecnico123456', 12);
+    const techPasswordRaw = process.env.SEED_TECH_PASSWORD ?? 'tecnico123456';
+    const techPassword = await bcrypt.hash(techPasswordRaw, 12);
     const user = await prisma.user.upsert({
       where: { email },
       update: { password: techPassword, twoFactorEnabled: false },
@@ -81,7 +91,13 @@ async function main() {
     const tecnico = faker.helpers.arrayElement(tecnicos);
 
     // Enum OrderStatus: planeacion, ejecucion, pausada, completada, cancelada
-    const estado = faker.helpers.arrayElement(['planeacion', 'ejecucion', 'pausada', 'completada', 'cancelada']);
+    const estado = faker.helpers.arrayElement([
+      'planeacion',
+      'ejecucion',
+      'pausada',
+      'completada',
+      'cancelada',
+    ]);
     // Enum OrderPriority: baja, media, alta, urgente
     const prioridad = faker.helpers.arrayElement(['baja', 'media', 'alta', 'urgente']);
 
@@ -113,10 +129,11 @@ async function main() {
 
         // Fechas
         fechaInicio: estado === 'ejecucion' || estado === 'completada' ? fechaProgramada : null,
-        fechaFin: estado === 'completada' ? faker.date.soon({ days: 2, refDate: fechaProgramada }) : null,
+        fechaFin:
+          estado === 'completada' ? faker.date.soon({ days: 2, refDate: fechaProgramada }) : null,
         createdAt: createdAt,
         updatedAt: faker.date.recent(),
-      }
+      },
     });
     ordenesCreadas.push(orden);
   }
@@ -132,8 +149,8 @@ async function main() {
       marca: faker.company.name(),
       modelo: faker.string.alphanumeric(4),
       categoria: 'General',
-      activo: true
-    }
+      activo: true,
+    },
   });
 
   for (let i = 0; i < 5; i++) {
@@ -141,7 +158,7 @@ async function main() {
       data: {
         titulo: `Mantenimiento ${faker.commerce.productName()}`,
         descripcion: faker.lorem.paragraph(),
-        prioridad: 'media',   // Enum PrioridadMantenimiento
+        prioridad: 'media', // Enum PrioridadMantenimiento
         periodicidad: 'MENSUAL',
 
         activoId: equipo.id,
@@ -149,8 +166,8 @@ async function main() {
         fechaProgramada: faker.date.future(),
 
         tecnicoId: tecnicos[0].id,
-        tipo: 'preventivo' // Enum TipoMantenimiento
-      }
+        tipo: 'preventivo', // Enum TipoMantenimiento
+      },
     });
   }
   console.log('✓ Mantenimientos creados');
@@ -169,8 +186,8 @@ async function main() {
           tipo: faker.helpers.arrayElement(['acta_sin_firmar', 'ses_pendiente', 'factura_vencida']),
           leida: faker.datatype.boolean(),
           usuarioId: admin.id,
-          prioridad: 'info' // Enum PrioridadAlerta
-        }
+          prioridad: 'info', // Enum PrioridadAlerta
+        },
       });
     }
     console.log('✓ Alertas creadas');
@@ -178,10 +195,11 @@ async function main() {
 }
 
 main()
-  .catch((e) => {
+  .catch(e => {
     console.error(e);
     process.exit(1);
   })
   .finally(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });

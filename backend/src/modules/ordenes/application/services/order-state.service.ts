@@ -5,28 +5,23 @@
  * Implementa validación, historial y triggers automáticos.
  */
 import {
-  Injectable,
-  Logger,
-  BadRequestException,
-  NotFoundException,
-} from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
-import {
+  PrioridadAlerta,
   Prisma,
   OrderStatus as PrismaOrderStatus,
   OrderSubState as PrismaOrderSubState,
   TipoAlerta,
-  PrioridadAlerta,
-} from "@prisma/client";
-import { PrismaService } from "../../../../prisma/prisma.service";
+} from '@/prisma/client';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { PrismaService } from '../../../../prisma/prisma.service';
 import {
   OrderSubState,
-  isValidTransition,
   getMainStateFromSubState,
   getNextPossibleStates,
   getStepNumber,
+  isValidTransition,
   parseOrderSubState,
-} from "../../domain/enums/order-sub-state.enum";
+} from '../../domain/enums/order-sub-state.enum';
 
 interface TransitionResult {
   success: boolean;
@@ -48,7 +43,7 @@ export class OrderStateService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   /**
@@ -59,10 +54,9 @@ export class OrderStateService {
     toState: OrderSubState | string,
     userId?: string,
     notas?: string,
-    metadata?: Record<string, unknown>,
+    metadata?: Record<string, unknown>
   ): Promise<TransitionResult> {
-    const normalizedToState =
-      typeof toState === "string" ? parseOrderSubState(toState) : toState;
+    const normalizedToState = typeof toState === 'string' ? parseOrderSubState(toState) : toState;
 
     if (!normalizedToState) {
       throw new BadRequestException(`Sub-estado inválido: ${String(toState)}`);
@@ -73,67 +67,63 @@ export class OrderStateService {
     const timestamp = new Date();
 
     // Update + auditoría en una transacción (no cambiar estado sin historial)
-    const { updatedOrden, fromState } = await this.prisma.$transaction(
-      async (tx) => {
-        const orden = await tx.order.findUnique({
-          where: { id: ordenId },
-          select: {
-            id: true,
-            numero: true,
-            estado: true,
-            subEstado: true,
-          },
-        });
+    const { updatedOrden, fromState } = await this.prisma.$transaction(async tx => {
+      const orden = await tx.order.findUnique({
+        where: { id: ordenId },
+        select: {
+          id: true,
+          numero: true,
+          estado: true,
+          subEstado: true,
+        },
+      });
 
-        if (!orden) {
-          throw new NotFoundException(`Orden ${ordenId} no encontrada`);
-        }
+      if (!orden) {
+        throw new NotFoundException(`Orden ${ordenId} no encontrada`);
+      }
 
-        const currentState =
-          parseOrderSubState(String(orden.subEstado)) ??
-          (orden.subEstado as unknown as OrderSubState);
+      const currentState =
+        parseOrderSubState(String(orden.subEstado)) ??
+        (orden.subEstado as unknown as OrderSubState);
 
-        if (!isValidTransition(currentState, normalizedToState)) {
-          const allowedStates = getNextPossibleStates(currentState);
-          throw new BadRequestException(
-            `Transición inválida de ${currentState} a ${normalizedToState}. Estados permitidos: ${allowedStates.join(", ")}`,
-          );
-        }
+      if (!isValidTransition(currentState, normalizedToState)) {
+        const allowedStates = getNextPossibleStates(currentState);
+        throw new BadRequestException(
+          `Transición inválida de ${currentState} a ${normalizedToState}. Estados permitidos: ${allowedStates.join(', ')}`
+        );
+      }
 
-        const newMainState = getMainStateFromSubState(normalizedToState);
-        const updatedOrden = await tx.order.update({
-          where: { id: ordenId },
-          data: {
-            subEstado: normalizedToState as unknown as PrismaOrderSubState,
-            estado: newMainState as unknown as PrismaOrderStatus,
-          },
-          select: {
-            id: true,
-            numero: true,
-            estado: true,
-            subEstado: true,
-          },
-        });
+      const newMainState = getMainStateFromSubState(normalizedToState);
+      const updatedOrden = await tx.order.update({
+        where: { id: ordenId },
+        data: {
+          subEstado: normalizedToState as unknown as PrismaOrderSubState,
+          estado: newMainState as unknown as PrismaOrderStatus,
+        },
+        select: {
+          id: true,
+          numero: true,
+          estado: true,
+          subEstado: true,
+        },
+      });
 
-        await tx.orderStateHistory.create({
-          data: {
-            ordenId,
-            fromState: currentState as unknown as PrismaOrderSubState,
-            toState: normalizedToState as unknown as PrismaOrderSubState,
-            userId,
-            notas,
-            metadata: metadata
-              ? (metadata as unknown as Prisma.InputJsonValue)
-              : undefined,
-            createdAt: timestamp,
-          },
-        });
+      await tx.orderStateHistory.create({
+        data: {
+          ordenId,
+          fromState: currentState as unknown as PrismaOrderSubState,
+          toState: normalizedToState as unknown as PrismaOrderSubState,
+          userId,
+          notas,
+          metadata: metadata ? (metadata as unknown as Prisma.InputJsonValue) : undefined,
+          createdAt: timestamp,
+        },
+      });
 
-        return { updatedOrden, fromState: currentState };
-      },
-    );
+      return { updatedOrden, fromState: currentState };
+    });
 
-    this.eventEmitter.emit("order.state.changed", {
+    this.eventEmitter.emit('order.state.changed', {
       ordenId,
       fromState,
       toState: normalizedToState,
@@ -144,7 +134,7 @@ export class OrderStateService {
     await this.executeStateTriggers(ordenId, normalizedToState);
 
     this.logger.log(
-      `Orden ${updatedOrden.numero} transicionada de ${fromState} a ${normalizedToState}`,
+      `Orden ${updatedOrden.numero} transicionada de ${fromState} a ${normalizedToState}`
     );
 
     return {
@@ -168,7 +158,7 @@ export class OrderStateService {
   async getStateHistory(ordenId: string) {
     const history = await this.prisma.orderStateHistory.findMany({
       where: { ordenId },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       include: {
         user: { select: { name: true } },
       },
@@ -187,9 +177,9 @@ export class OrderStateService {
         fromState: h.fromState,
         toState: h.toState,
         notas: h.notas,
-        usuario: h.user?.name || "Sistema",
+        usuario: h.user?.name || 'Sistema',
         fecha: h.createdAt.toISOString(),
-      }),
+      })
     );
   }
 
@@ -212,8 +202,7 @@ export class OrderStateService {
     }
 
     const currentState =
-      parseOrderSubState(String(orden.subEstado)) ??
-      (orden.subEstado as unknown as OrderSubState);
+      parseOrderSubState(String(orden.subEstado)) ?? (orden.subEstado as unknown as OrderSubState);
 
     return {
       ...orden,
@@ -238,7 +227,7 @@ export class OrderStateService {
             await this.prisma.planeacion.create({
               data: {
                 ordenId,
-                estado: "borrador",
+                estado: 'borrador',
                 cronograma: {},
                 manoDeObra: {},
               },
@@ -251,10 +240,10 @@ export class OrderStateService {
           // Crear alerta si acta no se firma en 7 días
           await this.createAlert(
             ordenId,
-            "acta_sin_firmar",
-            "warning",
-            "Acta pendiente de firma",
-            "El acta de entrega lleva más de 7 días sin firmar",
+            'acta_sin_firmar',
+            'warning',
+            'Acta pendiente de firma',
+            'El acta de entrega lleva más de 7 días sin firmar'
           );
           break;
 
@@ -279,7 +268,7 @@ export class OrderStateService {
       const err = error as Error;
       this.logger.error(
         `Error en trigger para estado ${state}: ${err?.message ?? String(error)}`,
-        err?.stack,
+        err?.stack
       );
     }
   }
@@ -292,7 +281,7 @@ export class OrderStateService {
     tipo: TipoAlerta,
     prioridad: PrioridadAlerta,
     titulo: string,
-    mensaje: string,
+    mensaje: string
   ) {
     await this.prisma.alertaAutomatica.create({
       data: {
@@ -320,15 +309,9 @@ export class OrderStateService {
 
     if (!orden?.propuesta) return;
 
-    const totalReal = orden.costos.reduce(
-      (sum: number, c: { monto: number }) => sum + c.monto,
-      0,
-    );
+    const totalReal = orden.costos.reduce((sum: number, c: { monto: number }) => sum + c.monto, 0);
     const totalEstimado = orden.propuesta.total;
-    const varianza =
-      totalEstimado > 0
-        ? ((totalReal - totalEstimado) / totalEstimado) * 100
-        : 0;
+    const varianza = totalEstimado > 0 ? ((totalReal - totalEstimado) / totalEstimado) * 100 : 0;
 
     await this.prisma.comparativaCostos.upsert({
       where: { ordenId },
@@ -352,7 +335,7 @@ export class OrderStateService {
     });
 
     this.logger.log(
-      `Comparativa de costos calculada para orden ${ordenId}: ${varianza.toFixed(2)}% varianza`,
+      `Comparativa de costos calculada para orden ${ordenId}: ${varianza.toFixed(2)}% varianza`
     );
   }
 }

@@ -12,36 +12,38 @@ import { HESController } from "./infrastructure/controllers/hes.controller";
 
 // Use Cases
 import {
-  CreateHESUseCase,
-  GetHESUseCase,
-  ListHESUseCase,
-  SignHESClienteUseCase,
-  SignHESTecnicoUseCase,
-  CompleteHESUseCase,
-  GetHESByOrdenUseCase,
-  ExportHESPDFUseCase,
+    CompleteHESUseCase,
+    CreateHESUseCase,
+    ExportHESPDFUseCase,
+    GetHESByOrdenUseCase,
+    GetHESUseCase,
+    ListHESUseCase,
+    SignHESClienteUseCase,
+    SignHESTecnicoUseCase,
 } from "./application/use-cases";
 
 // Application Services
 import { HesSignService } from "./application/services/hes-sign.service";
 
 // Repositories
-import { HESRepository } from "./infrastructure/persistence/hes.repository";
 import { HES_REPOSITORY } from "./domain/repositories";
+import { HESRepository } from "./infrastructure/persistence/hes.repository";
 
 // Domain Services
 import {
-  HESValidatorService,
-  HESNumeroGeneratorService,
-  RiesgoEvaluatorService,
+    HESValidatorService,
+    RiesgoEvaluatorService,
 } from "./domain/services";
+
+// Application Services - Relocated for DI support
+import { HESNumeroGeneratorService } from "./application/services/hes-numero-generator.service";
 
 // Infrastructure Services
 import { HESPDFGeneratorService } from "./infrastructure/pdf/hes-pdf-generator.service";
 
 // Legacy (deprecar)
-import { HesService } from "./hes.service";
 import { PrismaModule } from "../../prisma/prisma.module";
+import { HesService } from "./hes.service";
 
 @Module({
   imports: [PrismaModule, EventEmitterModule],

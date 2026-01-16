@@ -5,23 +5,11 @@
  * ⚠️ CRÍTICO: Usa Decimal.js para precisión absoluta
  */
 
-import { Logger } from "@nestjs/common";
-import { Costo } from "../entities/costo.entity";
-import { Money } from "../value-objects/money.vo";
-import { CostoType } from "../value-objects/costo-type.vo";
-import { CostoCategory } from "../value-objects/costo-category.vo";
-
-const logger = new Logger("CostCalculatorService");
-
-// Decimal.js es open source
-let Decimal: any;
-try {
-  Decimal = require("decimal.js");
-} catch {
-  logger.warn(
-    "decimal.js no está instalado. Instalar con: npm install decimal.js",
-  );
-}
+import { Decimal } from 'decimal.js';
+import { Costo } from '../entities/costo.entity';
+import { CostoCategory } from '../value-objects/costo-category.vo';
+import { CostoType } from '../value-objects/costo-type.vo';
+import { Money } from '../value-objects/money.vo';
 
 export class CostCalculatorService {
   /**
@@ -29,7 +17,7 @@ export class CostCalculatorService {
    */
   public static calculateTotalByType(costos: Costo[], type: CostoType): Money {
     if (costos.length === 0) {
-      return Money.zero("COP"); // Default currency
+      return Money.zero('COP'); // Default currency
     }
 
     const currency = costos[0].getAmount().getCurrency();
@@ -47,12 +35,9 @@ export class CostCalculatorService {
   /**
    * Calcular total por categoría
    */
-  public static calculateTotalByCategory(
-    costos: Costo[],
-    category: CostoCategory,
-  ): Money {
+  public static calculateTotalByCategory(costos: Costo[], category: CostoCategory): Money {
     if (costos.length === 0) {
-      return Money.zero("COP");
+      return Money.zero('COP');
     }
 
     const currency = costos[0].getAmount().getCurrency();
@@ -72,7 +57,7 @@ export class CostCalculatorService {
    */
   public static calculateTotal(costos: Costo[]): Money {
     if (costos.length === 0) {
-      return Money.zero("COP");
+      return Money.zero('COP');
     }
 
     const currency = costos[0].getAmount().getCurrency();
@@ -93,23 +78,14 @@ export class CostCalculatorService {
    * @param costs - Costos totales
    * @returns Margen como porcentaje (0-100)
    */
-  public static calculateProfitMargin(
-    revenue: Money,
-    costs: Money,
-  ): number | any {
+  public static calculateProfitMargin(revenue: Money, costs: Money): number | any {
     if (revenue.isZero()) {
-      return Decimal ? new Decimal(0) : 0;
+      return new Decimal(0);
     }
 
-    if (Decimal) {
-      const profit = revenue.getAmount().minus(costs.getAmount());
-      const margin = profit.dividedBy(revenue.getAmount()).times(100);
-      return margin;
-    } else {
-      const profit = revenue.toNumber() - costs.toNumber();
-      const margin = (profit / revenue.toNumber()) * 100;
-      return margin;
-    }
+    const profit = revenue.getAmount().minus(costs.getAmount());
+    const margin = profit.dividedBy(revenue.getAmount()).times(100);
+    return margin;
   }
 
   /**
@@ -120,18 +96,12 @@ export class CostCalculatorService {
    */
   public static calculateROI(revenue: Money, investment: Money): number | any {
     if (investment.isZero()) {
-      return Decimal ? new Decimal(0) : 0;
+      return new Decimal(0);
     }
 
-    if (Decimal) {
-      const profit = revenue.getAmount().minus(investment.getAmount());
-      const roi = profit.dividedBy(investment.getAmount()).times(100);
-      return roi;
-    } else {
-      const profit = revenue.toNumber() - investment.toNumber();
-      const roi = (profit / investment.toNumber()) * 100;
-      return roi;
-    }
+    const profit = revenue.getAmount().minus(investment.getAmount());
+    const roi = profit.dividedBy(investment.getAmount()).times(100);
+    return roi;
   }
 
   /**
@@ -143,8 +113,8 @@ export class CostCalculatorService {
     }
 
     const amounts = costos
-      .filter((c) => !c.isDeleted())
-      .map((c) => c.getAmount().toNumber())
+      .filter(c => !c.isDeleted())
+      .map(c => c.getAmount().toNumber())
       .sort((a, b) => a - b);
 
     // Calcular Q1, Q3, IQR
@@ -159,7 +129,7 @@ export class CostCalculatorService {
     const upperBound = q3 + 1.5 * iqr;
 
     // Identificar costos fuera de los límites
-    return costos.filter((costo) => {
+    return costos.filter(costo => {
       if (costo.isDeleted()) {
         return false;
       }
@@ -179,10 +149,10 @@ export class CostCalculatorService {
     min: Money;
     max: Money;
   } {
-    const activeCostos = costos.filter((c) => !c.isDeleted());
+    const activeCostos = costos.filter(c => !c.isDeleted());
 
     if (activeCostos.length === 0) {
-      const zero = Money.zero("COP");
+      const zero = Money.zero('COP');
       return {
         count: 0,
         total: zero,
@@ -194,16 +164,11 @@ export class CostCalculatorService {
     }
 
     const currency = activeCostos[0].getAmount().getCurrency();
-    const amounts = activeCostos
-      .map((c) => c.getAmount().toNumber())
-      .sort((a, b) => a - b);
+    const amounts = activeCostos.map(c => c.getAmount().toNumber()).sort((a, b) => a - b);
 
     const total = this.calculateTotal(activeCostos);
     const average = total.divide(activeCostos.length);
-    const median = Money.create(
-      amounts[Math.floor(amounts.length / 2)],
-      currency,
-    );
+    const median = Money.create(amounts[Math.floor(amounts.length / 2)], currency);
     const min = Money.create(amounts[0], currency);
     const max = Money.create(amounts[amounts.length - 1], currency);
 

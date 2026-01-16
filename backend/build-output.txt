@@ -1,0 +1,44 @@
+﻿
+> @cermont/backend@1.0.0 prebuild C:\Users\camil\Downloads\Compressed\aplicativo_cermont_prueba\cermont_aplicativo\backend
+> pnpm run prisma:generate
+
+
+> @cermont/backend@1.0.0 prisma:generate C:\Users\camil\Downloads\Compressed\aplicativo_cermont_prueba\cermont_aplicativo\backend
+> node ./scripts/prisma-generate.js
+
+node.exe : Loaded 
+Prisma config from 
+prisma.config.ts.
+En C:\Users\camil\App
+Data\Roaming\npm\pnpm
+.ps1: 24 Carácter: 5
++     & "node$exe"  "
+$basedir/node_modules
+/pnpm/bin/pnpm.cjs" 
+$args
++     ~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (Loaded    
+ Prisma c...isma.    
+config.ts.:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+
+Prisma schema loaded 
+from 
+prisma\schema.prisma.
+
+Ô£ö Generated Prisma Client (7.2.0) to .\prisma\generated\prisma in 450ms
+
+
+> @cermont/backend@1.0.0 build C:\Users\camil\Downloads\Compressed\aplicativo_cermont_prueba\cermont_aplicativo\backend
+> nest build
+

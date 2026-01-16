@@ -1,10 +1,10 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { OnEvent } from "@nestjs/event-emitter";
-import { Prisma } from "@prisma/client";
+import { Prisma } from '@/prisma/client';
+import { Injectable, Logger } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 
-import { PrismaService } from "../../../../prisma/prisma.service";
-import { OrdenEstadoChangedEvent } from "../../domain/events/orden-estado-changed.event";
-import { OrdenesWebhookService } from "../services/ordenes-webhook.service";
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { OrdenEstadoChangedEvent } from '../../domain/events/orden-estado-changed.event';
+import { OrdenesWebhookService } from '../services/ordenes-webhook.service';
 
 @Injectable()
 export class OrdenesWebhookHandler {
@@ -12,13 +12,11 @@ export class OrdenesWebhookHandler {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly webhook: OrdenesWebhookService,
+    private readonly webhook: OrdenesWebhookService
   ) {}
 
-  @OnEvent("orden.estado.changed")
-  async handleOrdenEstadoChanged(
-    event: OrdenEstadoChangedEvent,
-  ): Promise<void> {
+  @OnEvent('orden.estado.changed')
+  async handleOrdenEstadoChanged(event: OrdenEstadoChangedEvent): Promise<void> {
     try {
       const shouldSend = Boolean(process.env.ORDENES_WEBHOOK_URL?.trim());
       if (!shouldSend) return;
@@ -26,12 +24,12 @@ export class OrdenesWebhookHandler {
       const idempotencyKey = `order-status-changed:${event.ordenId}:${event.estadoAnterior}:${event.estadoNuevo}`;
 
       const where: Prisma.AuditLogWhereInput = {
-        entityType: "Order",
+        entityType: 'Order',
         entityId: event.ordenId,
-        action: "ORDER_WEBHOOK_SENT",
+        action: 'ORDER_WEBHOOK_SENT',
         // JSON filter (Postgres): si no está soportado en el provider, el fallback es abajo.
         changes: {
-          path: ["idempotencyKey"],
+          path: ['idempotencyKey'],
           equals: idempotencyKey,
         },
       };
@@ -56,13 +54,13 @@ export class OrdenesWebhookHandler {
 
       await this.prisma.auditLog.create({
         data: {
-          entityType: "Order",
+          entityType: 'Order',
           entityId: event.ordenId,
-          action: "ORDER_WEBHOOK_SENT",
+          action: 'ORDER_WEBHOOK_SENT',
           userId: event.usuarioId,
           changes: {
             idempotencyKey,
-            event: "orden.estado.changed",
+            event: 'orden.estado.changed',
             from: event.estadoAnterior,
             to: event.estadoNuevo,
             status: result.status,
@@ -71,7 +69,7 @@ export class OrdenesWebhookHandler {
         },
       });
     } catch (error) {
-      this.logger.error("Error enviando webhook de cambio de estado", error);
+      this.logger.error('Error enviando webhook de cambio de estado', error);
     }
   }
 }

@@ -1,35 +1,35 @@
 {
-    "name": "cermont-monorepo",
-    "version": "0.0.0",
-    "private": true,
-    "packageManager": "pnpm@9.15.4",
-    "scripts": {
-        "dev": "turbo run dev --parallel",
-        "build": "turbo run build",
-        "test": "turbo run test",
-        "lint": "turbo run lint",
-        "lint:fix": "turbo run lint:fix",
-        "typecheck": "turbo run typecheck",
-        "clean": "turbo run clean && rimraf node_modules .turbo",
-        "format": "prettier --write \"**/*.{ts,tsx,js,json,md,yaml,yml,html,css,scss}\"",
-        "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md,yaml,yml,html,css,scss}\""
-    },
-    "devDependencies": {
-        "@angular-builders/custom-webpack": "^21.0.3",
-        "postcss": "^8.5.6",
-        "postcss-loader": "^8.2.0",
-        "prettier": "^3.8.0",
-        "prisma": "^6.11.1",
-        "rimraf": "^6.0.0",
-        "tailwindcss": "^3.4.19",
-        "turbo": "^2.3.0"
-    },
-    "pnpm": {
-        "overrides": {
-            "diff": ">=8.0.3",
-            "tmp": ">=0.2.4",
-            "esbuild@<=0.24.2": ">=0.25.0",
-            "@angular/common@<19.2.16": ">=19.2.16"
-        }
+  "name": "cermont-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rimraf node_modules .turbo",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md,yaml,yml,html,css,scss}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md,yaml,yml,html,css,scss}\""
+  },
+  "devDependencies": {
+    "@angular-builders/custom-webpack": "^21.0.3",
+    "postcss": "^8.5.6",
+    "postcss-loader": "^8.2.0",
+    "prettier": "^3.8.0",
+    "prisma": "^7.2.0",
+    "rimraf": "^6.0.0",
+    "tailwindcss": "^4.1.18",
+    "turbo": "^2.3.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "diff": ">=8.0.3",
+      "tmp": ">=0.2.4",
+      "esbuild@<=0.24.2": ">=0.25.0",
+      "@angular/common@<19.2.16": ">=19.2.16"
     }
+  }
 }

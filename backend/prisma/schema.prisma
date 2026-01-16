@@ -2,13 +2,12 @@
 // Generated from prisma/schema_backup
 
 generator client {
-  provider = "prisma-client-js"
-  // fullTextSearchPostgres graduated to stable in Prisma 7
+  provider = "prisma-client"
+  output   = "./generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // ============================================

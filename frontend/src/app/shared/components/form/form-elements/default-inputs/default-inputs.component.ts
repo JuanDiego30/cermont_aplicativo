@@ -1,10 +1,12 @@
-
 import { Component } from '@angular/core';
-import { LabelComponent } from '../../label/label.component';
-import { InputFieldComponent } from '../../input/input-field.component';
-import { SelectComponent } from '../../select/select.component';
-import { DatePickerComponent } from '../../date-picker/date-picker.component';
 import { ComponentCardComponent } from '../../../common/component-card/component-card.component';
+import {
+  DatePickerComponent,
+  type DateChangePayload,
+} from '../../date-picker/date-picker.component';
+import { InputFieldComponent } from '../../input/input-field.component';
+import { LabelComponent } from '../../label/label.component';
+import { SelectComponent } from '../../select/select.component';
 import { TimePickerComponent } from '../../time-picker/time-picker.component';
 
 @Component({
@@ -15,13 +17,12 @@ import { TimePickerComponent } from '../../time-picker/time-picker.component';
     InputFieldComponent,
     SelectComponent,
     DatePickerComponent,
-    TimePickerComponent
-],
+    TimePickerComponent,
+  ],
   templateUrl: './default-inputs.component.html',
-  styles: ``
+  styles: ``,
 })
 export class DefaultInputsComponent {
-
   showPassword = false;
   options = [
     { value: 'marketing', label: 'Marketing' },
@@ -29,23 +30,22 @@ export class DefaultInputsComponent {
     { value: 'development', label: 'Development' },
   ];
   selectedOption = '';
-  dateValue: any;
+  dateValue: DateChangePayload | null = null;
   timeValue = '';
   cardNumber = '';
 
-  handleSelectChange(value: string) {
+  handleSelectChange(value: string): void {
     this.selectedOption = value;
   }
 
-  handleDateChange(event: any) {
+  handleDateChange(event: DateChangePayload): void {
     this.dateValue = event;
-    void event;
   }
 
-  handleTimeChange(event: any) {
-    this.timeValue = event.target.value;
+  handleTimeChange(event: Event): void {
+    const target = event.target as HTMLInputElement | null;
+    this.timeValue = target?.value ?? '';
   }
 
-  onTimeSelected(time: string) {
-  }
+  onTimeSelected(time: string): void {}
 }

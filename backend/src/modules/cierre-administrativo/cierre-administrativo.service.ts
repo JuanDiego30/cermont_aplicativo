@@ -9,9 +9,8 @@
  * - DRY: Método genérico para upsert
  * - Clean Code: Código legible y bien estructurado
  */
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import { Prisma } from "@prisma/client";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
 
 // ============================================================================
 // Interfaces y DTOs
@@ -79,10 +78,7 @@ export class CierreAdministrativoService {
   /**
    * Crea o actualiza un acta para la orden
    */
-  async createActa(
-    ordenId: string,
-    dto: CreateActaDto,
-  ): Promise<CierreResponse<unknown>> {
+  async createActa(ordenId: string, dto: CreateActaDto): Promise<CierreResponse<unknown>> {
     const acta = await this.prisma.acta.upsert({
       where: { ordenId },
       update: {
@@ -91,13 +87,13 @@ export class CierreAdministrativoService {
       create: {
         orden: { connect: { id: ordenId } },
         numero: dto.numero!,
-        trabajosRealizados: dto.descripcion || "Sin descripción",
+        trabajosRealizados: dto.descripcion || 'Sin descripción',
         ...dto,
       },
     });
 
     return {
-      message: "Acta guardada exitosamente",
+      message: 'Acta guardada exitosamente',
       data: acta,
     };
   }
@@ -105,10 +101,7 @@ export class CierreAdministrativoService {
   /**
    * Crea o actualiza SES (Solicitud de Entrada de Servicio) para la orden
    */
-  async createSes(
-    ordenId: string,
-    dto: CreateSesDto,
-  ): Promise<CierreResponse<unknown>> {
+  async createSes(ordenId: string, dto: CreateSesDto): Promise<CierreResponse<unknown>> {
     const ses = await this.prisma.sES.upsert({
       where: { ordenId },
       update: {
@@ -118,7 +111,7 @@ export class CierreAdministrativoService {
       create: {
         orden: { connect: { id: ordenId } },
         numeroSES: dto.numero,
-        descripcionServicio: "Servicio general", // Default
+        descripcionServicio: 'Servicio general', // Default
         valorTotal: dto.monto || 0,
         estado: dto.estado as any,
         observaciones: dto.observaciones,
@@ -126,7 +119,7 @@ export class CierreAdministrativoService {
     });
 
     return {
-      message: "SES guardada exitosamente",
+      message: 'SES guardada exitosamente',
       data: ses,
     };
   }
@@ -134,10 +127,7 @@ export class CierreAdministrativoService {
   /**
    * Crea o actualiza factura para la orden
    */
-  async createFactura(
-    ordenId: string,
-    dto: CreateFacturaDto,
-  ): Promise<CierreResponse<unknown>> {
+  async createFactura(ordenId: string, dto: CreateFacturaDto): Promise<CierreResponse<unknown>> {
     const factura = await this.prisma.factura.upsert({
       where: { ordenId },
       update: {
@@ -152,12 +142,12 @@ export class CierreAdministrativoService {
         impuestos: dto.iva || 0,
         valorTotal: dto.total || dto.monto,
         estado: dto.estado as any,
-        conceptos: "Concepto general", // Default
+        conceptos: 'Concepto general', // Default
       },
     });
 
     return {
-      message: "Factura guardada exitosamente",
+      message: 'Factura guardada exitosamente',
       data: factura,
     };
   }
@@ -165,10 +155,7 @@ export class CierreAdministrativoService {
   /**
    * Marca el cierre administrativo como completado
    */
-  async completar(
-    ordenId: string,
-    userId: string,
-  ): Promise<CierreResponse<unknown>> {
+  async completar(ordenId: string, userId: string): Promise<CierreResponse<unknown>> {
     // Necesitamos fechaInicioOrden from Order
     const orden = await this.prisma.order.findUnique({
       where: { id: ordenId },
@@ -186,7 +173,7 @@ export class CierreAdministrativoService {
       update: {
         estaCompleto: true,
         fechaCierreCompleto: new Date(),
-        observaciones: "Cierre completado",
+        observaciones: 'Cierre completado',
       },
       create: {
         orden: { connect: { id: ordenId } },
@@ -198,7 +185,7 @@ export class CierreAdministrativoService {
     });
 
     return {
-      message: "Cierre administrativo completado",
+      message: 'Cierre administrativo completado',
       data: cierre,
     };
   }

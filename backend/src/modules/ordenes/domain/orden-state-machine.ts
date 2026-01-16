@@ -1,4 +1,25 @@
-import { BadRequestException } from "@nestjs/common";
+/**
+ * Domain Exception: Thrown when required reason is missing for state transition
+ */
+export class MissingStateTransitionReasonError extends Error {
+  constructor(targetState: OrdenEstado) {
+    super(`El campo "motivo" es obligatorio al cambiar a estado ${targetState}`);
+    this.name = 'MissingStateTransitionReasonError';
+  }
+}
+
+/**
+ * Domain Exception: Thrown when state transition is not allowed
+ */
+export class InvalidStateTransitionError extends Error {
+  constructor(fromEstado: OrdenEstado, toEstado: OrdenEstado, allowedTransitions: OrdenEstado[]) {
+    super(
+      `No se puede cambiar de ${fromEstado} a ${toEstado}. ` +
+      `Transiciones permitidas: ${allowedTransitions.join(", ")}`
+    );
+    this.name = 'InvalidStateTransitionError';
+  }
+}
 
 export enum OrdenEstado {
   PENDIENTE = "pendiente",
@@ -45,17 +66,12 @@ export class OrdenStateMachine {
     const allowedTransitions = this.TRANSITIONS[fromEstado];
 
     if (!allowedTransitions.includes(toEstado)) {
-      throw new BadRequestException(
-        `No se puede cambiar de ${fromEstado} a ${toEstado}. ` +
-          `Transiciones permitidas: ${allowedTransitions.join(", ")}`,
-      );
+      throw new InvalidStateTransitionError(fromEstado, toEstado, allowedTransitions);
     }
 
     // Validar que tenga motivo si es requerido
     if (this.REQUIRES_REASON.includes(toEstado) && !motivo) {
-      throw new BadRequestException(
-        `El campo "motivo" es obligatorio al cambiar a estado ${toEstado}`,
-      );
+      throw new MissingStateTransitionReasonError(toEstado);
     }
   }
 

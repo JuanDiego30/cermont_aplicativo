@@ -3,30 +3,20 @@
  * @description Caso de uso para cambiar el estado de una orden
  * @layer Application
  */
+import { OrderSubState as PrismaOrderSubState } from '@/prisma/client';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { OrdenEstadoChangedEvent } from '../../domain/events/orden-estado-changed.event';
 import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-  Logger,
-} from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
-import { PrismaService } from "../../../../prisma/prisma.service";
-import { OrderSubState as PrismaOrderSubState } from "@prisma/client";
-import { ORDEN_REPOSITORY, IOrdenRepository } from "../../domain/repositories";
-import { ChangeEstadoOrdenDto } from "../dto/change-estado-orden.dto";
-import {
-  OrdenResponseDto,
-  OrdenEstado,
-  OrdenPrioridad,
-} from "../dto/orden-response.dto";
-import { OrdenEstadoChangedEvent } from "../../domain/events/orden-estado-changed.event";
-import {
-  OrdenStateMachine,
   OrdenEstado as DomainOrdenEstado,
-} from "../../domain/orden-state-machine";
-import { OrdenMapper } from "../../infrastructure/mappers/orden.mapper";
-import { toOrdenResponseDto } from "../mappers/orden-response.mapper";
+  OrdenStateMachine,
+} from '../../domain/orden-state-machine';
+import { IOrdenRepository, ORDEN_REPOSITORY } from '../../domain/repositories';
+import { OrdenMapper } from '../../infrastructure/mappers/orden.mapper';
+import { ChangeEstadoOrdenDto } from '../dto/change-estado-orden.dto';
+import { OrdenResponseDto } from '../dto/orden-response.dto';
+import { toOrdenResponseDto } from '../mappers/orden-response.mapper';
 
 @Injectable()
 export class ChangeOrdenEstadoUseCase {
@@ -36,13 +26,10 @@ export class ChangeOrdenEstadoUseCase {
     @Inject(ORDEN_REPOSITORY)
     private readonly ordenRepository: IOrdenRepository,
     private readonly prisma: PrismaService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
-  async execute(
-    id: string,
-    dto: ChangeEstadoOrdenDto,
-  ): Promise<OrdenResponseDto> {
+  async execute(id: string, dto: ChangeEstadoOrdenDto): Promise<OrdenResponseDto> {
     try {
       this.logger.log(`Cambiando estado de orden ${id} a ${dto.nuevoEstado}`);
 
@@ -59,20 +46,18 @@ export class ChangeOrdenEstadoUseCase {
       const estadoActual = String(orden.estado.value);
       const nuevoEstado = String(dto.nuevoEstado);
 
-      if (nuevoEstado === "cancelada") {
-        const cancellableStates = new Set(["pendiente", "planeacion"]);
+      if (nuevoEstado === 'cancelada') {
+        const cancellableStates = new Set(['pendiente', 'planeacion']);
         if (!cancellableStates.has(estadoActual)) {
           throw new BadRequestException(
-            `No se puede cancelar una orden en estado: ${estadoActual}`,
+            `No se puede cancelar una orden en estado: ${estadoActual}`
           );
         }
       }
 
-      if (nuevoEstado === "ejecucion") {
+      if (nuevoEstado === 'ejecucion') {
         if (!orden.asignadoId) {
-          throw new BadRequestException(
-            "No se puede iniciar ejecución sin técnico asignado",
-          );
+          throw new BadRequestException('No se puede iniciar ejecución sin técnico asignado');
         }
 
         const itemsCount = await this.prisma.orderItem.count({
@@ -80,7 +65,7 @@ export class ChangeOrdenEstadoUseCase {
         });
         if (itemsCount <= 0) {
           throw new BadRequestException(
-            "No se puede iniciar ejecución sin items registrados en la orden",
+            'No se puede iniciar ejecución sin items registrados en la orden'
           );
         }
       }
@@ -89,7 +74,7 @@ export class ChangeOrdenEstadoUseCase {
       OrdenStateMachine.validateTransition(
         orden.estado.value as DomainOrdenEstado,
         dto.nuevoEstado as DomainOrdenEstado,
-        dto.motivo,
+        dto.motivo
       );
 
       const estadoAnterior = orden.estado.value;
@@ -98,15 +83,15 @@ export class ChangeOrdenEstadoUseCase {
       orden.changeEstado(dto.nuevoEstado);
 
       // Persistir + auditoría + historial en una transacción
-      const updated = await this.prisma.$transaction(async (tx) => {
+      const updated = await this.prisma.$transaction(async tx => {
         const updateData: Record<string, unknown> = {
           estado: orden.estado.value,
           updatedAt: new Date(),
         };
 
-        if (String(orden.estado.value) === "ejecucion") {
+        if (String(orden.estado.value) === 'ejecucion') {
           updateData.fechaInicio = new Date();
-        } else if (String(orden.estado.value) === "completada") {
+        } else if (String(orden.estado.value) === 'completada') {
           updateData.fechaFin = new Date();
         }
 
@@ -124,9 +109,9 @@ export class ChangeOrdenEstadoUseCase {
         // Auditoría
         await tx.auditLog.create({
           data: {
-            entityType: "Order",
+            entityType: 'Order',
             entityId: persisted.id,
-            action: "ORDER_STATUS_CHANGED",
+            action: 'ORDER_STATUS_CHANGED',
             userId: dto.usuarioId,
             changes: {
               from: estadoAnterior,
@@ -156,7 +141,7 @@ export class ChangeOrdenEstadoUseCase {
 
         if (!toSubState) {
           throw new BadRequestException(
-            `No se pudo mapear el estado a sub-estado: ${String(dto.nuevoEstado)}`,
+            `No se pudo mapear el estado a sub-estado: ${String(dto.nuevoEstado)}`
           );
         }
 
@@ -167,9 +152,7 @@ export class ChangeOrdenEstadoUseCase {
             toState: toSubState,
             userId: dto.usuarioId,
             notas: dto.motivo,
-            metadata: dto.observaciones
-              ? { observaciones: dto.observaciones }
-              : undefined,
+            metadata: dto.observaciones ? { observaciones: dto.observaciones } : undefined,
           },
         });
 
@@ -184,9 +167,9 @@ export class ChangeOrdenEstadoUseCase {
         dto.nuevoEstado,
         dto.motivo,
         dto.usuarioId,
-        dto.observaciones,
+        dto.observaciones
       );
-      this.eventEmitter.emit("orden.estado.changed", evento);
+      this.eventEmitter.emit('orden.estado.changed', evento);
 
       // Convertir a DTO de respuesta
       return toOrdenResponseDto(updated);
@@ -194,7 +177,7 @@ export class ChangeOrdenEstadoUseCase {
       const err = error as Error;
       this.logger.error(
         `Error cambiando estado de orden: ${err?.message ?? String(error)}`,
-        err?.stack,
+        err?.stack
       );
       throw error;
     }

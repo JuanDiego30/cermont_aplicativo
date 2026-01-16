@@ -5,17 +5,17 @@
  * Implementa la interfaz IUserRepository definida en el dominio.
  */
 
-import { Injectable } from "@nestjs/common";
-import { Prisma, UserRole } from "@prisma/client";
-import { PrismaService } from "../../../../prisma/prisma.service";
+import { Prisma, UserRole } from '@/prisma/client';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { UserEntity } from '../../domain/entities/user.entity';
 import {
   IUserRepository,
   PaginatedResult,
   UserFilters,
   UserStats,
-} from "../../domain/repositories/user.repository.interface";
-import { UserEntity } from "../../domain/entities/user.entity";
-import { UserPrismaMapper } from "./user.prisma.mapper";
+} from '../../domain/repositories/user.repository.interface';
+import { UserPrismaMapper } from './user.prisma.mapper';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
@@ -58,8 +58,8 @@ export class UserRepository implements IUserRepository {
 
     if (search) {
       where.OR = [
-        { name: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } },
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
       ];
     }
 
@@ -68,7 +68,7 @@ export class UserRepository implements IUserRepository {
         where,
         skip,
         take: pageSize,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
       }),
       this.prisma.user.count({ where }),
     ]);
@@ -135,7 +135,7 @@ export class UserRepository implements IUserRepository {
       this.prisma.user.count(),
       this.prisma.user.count({ where: { active: true } }),
       this.prisma.user.groupBy({
-        by: ["role"],
+        by: ['role'],
         _count: { id: true },
       }),
     ]);
@@ -145,7 +145,7 @@ export class UserRepository implements IUserRepository {
         acc[item.role] = item._count.id;
         return acc;
       },
-      {} as Record<string, number>,
+      {} as Record<string, number>
     );
 
     return {
@@ -158,7 +158,7 @@ export class UserRepository implements IUserRepository {
   async findByRole(role: string): Promise<UserEntity[]> {
     const users = await this.prisma.user.findMany({
       where: { role: role as UserRole },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
     return users.map(UserPrismaMapper.toDomain);
@@ -166,7 +166,7 @@ export class UserRepository implements IUserRepository {
 
   async countAdmins(): Promise<number> {
     return this.prisma.user.count({
-      where: { role: "admin" as UserRole, active: true },
+      where: { role: 'admin' as UserRole, active: true },
     });
   }
 }

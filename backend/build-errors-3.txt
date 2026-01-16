@@ -1,0 +1,815 @@
+﻿
+> @cermont/backend@1.0.0 prebuild C:\Users\camil\Downloads\Compressed\aplicativo_cermont_prueba\cermont_aplicativo\backend
+> pnpm run prisma:generate
+
+
+> @cermont/backend@1.0.0 prisma:generate C:\Users\camil\Downloads\Compressed\aplicativo_cermont_prueba\cermont_aplicativo\backend
+> node ./scripts/prisma-generate.js
+
+node.exe : Loaded 
+Prisma config from 
+prisma.config.ts.
+En C:\Users\camil\App
+Data\Roaming\npm\pnpm
+.ps1: 24 Carácter: 5
++     & "node$exe"  "
+$basedir/node_modules
+/pnpm/bin/pnpm.cjs" 
+$args
++     ~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
+~~~~
+    + CategoryInfo   
+           : NotSpe  
+  cified: (Loaded    
+ Prisma c...isma.    
+config.ts.:Strin    
+g) [], RemoteExc    
+eption
+    + FullyQualified 
+   ErrorId : Native  
+  CommandError
+ 
+
+Prisma schema loaded 
+from 
+prisma\schema.prisma.
+
+Ô£ö Generated Prisma Client (7.2.0) to .\prisma\generated\prisma in 459ms
+
+
+> @cermont/backend@1.0.0 build C:\Users\camil\Downloads\Compressed\aplicativo_cermont_prueba\cermont_aplicativo\backend
+> nest build
+
+[96msrc/modules/aler
+tas/infrastructure/qu
+eue/notification-queu
+e.service.ts[0m:[93
+m27[0m:[93m33[0m 
+- 
+[91merror[0m[90m 
+TS2307: [0mCannot 
+find module 'bullmq' 
+or its corresponding 
+type declarations.
+
+[7m27[0m     const 
+bullmq = await 
+import('bullmq');
+[7m  [0m [91m     
+                     
+      ~~~~~~~~[0m
+[96msrc/modules/clie
+ntes/clientes.service
+.ts[0m:[93m257[0m:
+[93m7[0m - 
+[91merror[0m[90m 
+TS2322: [0mType 'imp
+ort("C:/Users/camil/D
+ownloads/Compressed/a
+plicativo_cermont_pru
+eba/cermont_aplicativ
+o/backend/prisma/gene
+rated/prisma/enums").
+TipoCliente' is not 
+assignable to type 'i
+mport("C:/Users/camil
+/Downloads/Compressed
+/aplicativo_cermont_p
+rueba/cermont_aplicat
+ivo/backend/src/modul
+es/clientes/applicati
+on/dto/clientes.dto")
+.TipoCliente'.
+  Type '"otro"' is 
+not assignable to 
+type 'TipoCliente'.
+
+[7m257[0m       
+tipoCliente: 
+cliente.tipoCliente,
+[7m   [0m [91m    
+  ~~~~~~~~~~~[0m
+
+  [96msrc/modules/cl
+ientes/application/dt
+o/clientes.dto.ts[0m
+:[93m189[0m:[93m3
+[0m
+    [7m189[0m   
+tipoCliente!: 
+TipoCliente;
+    [7m   [0m 
+[96m  
+~~~~~~~~~~~[0m
+    The expected 
+type comes from 
+property 
+'tipoCliente' which 
+is declared here on 
+type 
+'ClienteResponseDto'
+[96msrc/modules/clie
+ntes/clientes.service
+.ts[0m:[93m258[0m:
+[93m7[0m - 
+[91merror[0m[90m 
+TS2322: [0mType 
+'string | null' is 
+not assignable to 
+type 'string | 
+undefined'.
+  Type 'null' is not 
+assignable to type 
+'string | undefined'.
+
+[7m258[0m       
+direccion: 
+cliente.direccion,
+[7m   [0m [91m    
+  ~~~~~~~~~[0m
+
+  [96msrc/modules/cl
+ientes/application/dt
+o/clientes.dto.ts[0m
+:[93m192[0m:[93m3
+[0m
+    [7m192[0m   
+direccion?: string;
+    [7m   [0m 
+[96m  ~~~~~~~~~[0m
+    The expected 
+type comes from 
+property 'direccion' 
+which is declared 
+here on type 
+'ClienteResponseDto'
+[96msrc/modules/clie
+ntes/clientes.service
+.ts[0m:[93m259[0m:
+[93m7[0m - 
+[91merror[0m[90m 
+TS2322: [0mType 
+'string | null' is 
+not assignable to 
+type 'string | 
+undefined'.
+  Type 'null' is not 
+assignable to type 
+'string | undefined'.
+
+[7m259[0m       
+telefono: 
+cliente.telefono,
+[7m   [0m [91m    
+  ~~~~~~~~[0m
+
+  [96msrc/modules/cl
+ientes/application/dt
+o/clientes.dto.ts[0m
+:[93m195[0m:[93m3
+[0m
+    [7m195[0m   
+telefono?: string;
+    [7m   [0m 
+[96m  ~~~~~~~~[0m
+    The expected 
+type comes from 
+property 'telefono' 
+which is declared 
+here on type 
+'ClienteResponseDto'
+[96msrc/modules/clie
+ntes/clientes.service
+.ts[0m:[93m260[0m:
+[93m7[0m - 
+[91merror[0m[90m 
+TS2322: [0mType 
+'string | null' is 
+not assignable to 
+type 'string | 
+undefined'.
+  Type 'null' is not 
+assignable to type 
+'string | undefined'.
+
+[7m260[0m       
+email: cliente.email,
+[7m   [0m [91m    
+  ~~~~~[0m
+
+  [96msrc/modules/cl
+ientes/application/dt
+o/clientes.dto.ts[0m
+:[93m198[0m:[93m3
+[0m
+    [7m198[0m   
+email?: string;
+    [7m   [0m 
+[96m  ~~~~~[0m
+    The expected 
+type comes from 
+property 'email' 
+which is declared 
+here on type 
+'ClienteResponseDto'
+[96msrc/modules/clie
+ntes/clientes.service
+.ts[0m:[93m262[0m:
+[93m7[0m - 
+[91merror[0m[90m 
+TS2322: [0mType '{ 
+id: string; nombre: 
+string; cargo: 
+string; email: 
+string; telefono: 
+string | null; 
+esPrincipal: 
+boolean; }[]' is not 
+assignable to type 
+'{ id: string; 
+nombre: string; 
+cargo: string; 
+email: string; 
+telefono?: string | 
+undefined; 
+esPrincipal: 
+boolean; }[]'.
+  Type '{ id: 
+string; nombre: 
+string; cargo: 
+string; email: 
+string; telefono: 
+string | null; 
+esPrincipal: 
+boolean; }' is not 
+assignable to type 
+'{ id: string; 
+nombre: string; 
+cargo: string; 
+email: string; 
+telefono?: string | 
+undefined; 
+esPrincipal: 
+boolean; }'.
+    Types of 
+property 'telefono' 
+are incompatible.
+      Type 'string | 
+null' is not 
+assignable to type 
+'string | undefined'.
+        Type 'null' 
+is not assignable to 
+type 'string | 
+undefined'.
+
+[7m262[0m       
+contactos:
+[7m   [0m [91m    
+  ~~~~~~~~~[0m
+
+  [96msrc/modules/cl
+ientes/application/dt
+o/clientes.dto.ts[0m
+:[93m204[0m:[93m3
+[0m
+    [7m204[0m   
+contactos!: Array<{
+    [7m   [0m 
+[96m  ~~~~~~~~~[0m
+    The expected 
+type comes from 
+property 'contactos' 
+which is declared 
+here on type 
+'ClienteResponseDto'
+[96msrc/modules/clie
+ntes/clientes.service
+.ts[0m:[93m271[0m:
+[93m7[0m - 
+[91merror[0m[90m 
+TS2322: [0mType '{ 
+id: string; nombre: 
+string; direccion: 
+string | null; 
+ciudad: string | 
+null; departamento: 
+string | null; 
+latitud: number | 
+null; longitud: 
+number | null; 
+esPrincipal: 
+boolean; }[]' is not 
+assignable to type 
+'{ id: string; 
+nombre: string; 
+direccion?: string | 
+undefined; ciudad?: 
+string | undefined; 
+departamento?: 
+string | undefined; 
+latitud?: number | 
+undefined; 
+longitud?: number | 
+undefined; 
+esPrincipal: 
+boolean; }[]'.
+  Type '{ id: 
+string; nombre: 
+string; direccion: 
+string | null; 
+ciudad: string | 
+null; departamento: 
+string | null; 
+latitud: number | 
+null; longitud: 
+number | null; 
+esPrincipal: 
+boolean; }' is not 
+assignable to type 
+'{ id: string; 
+nombre: string; 
+direccion?: string | 
+undefined; ciudad?: 
+string | undefined; 
+departamento?: 
+string | undefined; 
+latitud?: number | 
+undefined; 
+longitud?: number | 
+undefined; 
+esPrincipal: 
+boolean; }'.
+    Types of 
+property 'direccion' 
+are incompatible.
+      Type 'string | 
+null' is not 
+assignable to type 
+'string | undefined'.
+        Type 'null' 
+is not assignable to 
+type 'string | 
+undefined'.
+
+[7m271[0m       
+ubicaciones:
+[7m   [0m [91m    
+  ~~~~~~~~~~~[0m
+
+  [96msrc/modules/cl
+ientes/application/dt
+o/clientes.dto.ts[0m
+:[93m214[0m:[93m3
+[0m
+    [7m214[0m   
+ubicaciones!: Array<{
+    [7m   [0m 
+[96m  
+~~~~~~~~~~~[0m
+    The expected 
+type comes from 
+property 
+'ubicaciones' which 
+is declared here on 
+type 
+'ClienteResponseDto'
+[96msrc/modules/cost
+os/domain/services/co
+st-calculator.service
+.ts[0m:[93m95[0m:
+[93m28[0m - 
+[91merror[0m[90m 
+TS2351: [0mThis 
+expression is not 
+constructable.
+  Type 'typeof import
+("C:/Users/camil/Down
+loads/Compressed/apli
+cativo_cermont_prueba
+/cermont_aplicativo/n
+ode_modules/.pnpm/dec
+imal.js@10.6.0/node_m
+odules/decimal.js/dec
+imal")' has no 
+construct signatures.
+
+[7m95[0m       
+return Decimal ? new 
+Decimal(0) : 0;
+[7m  [0m [91m     
+                     
+ ~~~~~~~[0m
+[96msrc/modules/cost
+os/domain/services/co
+st-calculator.service
+.ts[0m:[93m117[0m:
+[93m28[0m - 
+[91merror[0m[90m 
+TS2351: [0mThis 
+expression is not 
+constructable.
+  Type 'typeof import
+("C:/Users/camil/Down
+loads/Compressed/apli
+cativo_cermont_prueba
+/cermont_aplicativo/n
+ode_modules/.pnpm/dec
+imal.js@10.6.0/node_m
+odules/decimal.js/dec
+imal")' has no 
+construct signatures.
+
+[7m117[0m       
+return Decimal ? new 
+Decimal(0) : 0;
+[7m   [0m [91m    
+                     
+  ~~~~~~~[0m
+[96msrc/modules/cost
+os/domain/value-objec
+ts/budget-limit.vo.ts
+[0m:[93m33[0m:[93
+m17[0m - 
+[91merror[0m[90m 
+TS2351: [0mThis 
+expression is not 
+constructable.
+  Type 'typeof import
+("C:/Users/camil/Down
+loads/Compressed/apli
+cativo_cermont_prueba
+/cermont_aplicativo/n
+ode_modules/.pnpm/dec
+imal.js@10.6.0/node_m
+odules/decimal.js/dec
+imal")' has no 
+construct signatures.
+
+[7m33[0m           
+? new Decimal(alertTh
+reshold)
+[7m  [0m [91m     
+           
+~~~~~~~[0m
+[96msrc/modules/cost
+os/domain/value-objec
+ts/budget-limit.vo.ts
+[0m:[93m36[0m:[93
+m17[0m - 
+[91merror[0m[90m 
+TS2351: [0mThis 
+expression is not 
+constructable.
+  Type 'typeof import
+("C:/Users/camil/Down
+loads/Compressed/apli
+cativo_cermont_prueba
+/cermont_aplicativo/n
+ode_modules/.pnpm/dec
+imal.js@10.6.0/node_m
+odules/decimal.js/dec
+imal")' has no 
+construct signatures.
+
+[7m36[0m           
+? new Decimal(BudgetL
+imit.DEFAULT_ALERT_TH
+RESHOLD)
+[7m  [0m [91m     
+           
+~~~~~~~[0m
+[96msrc/modules/cost
+os/domain/value-objec
+ts/budget-limit.vo.ts
+[0m:[93m98[0m:[93
+m28[0m - 
+[91merror[0m[90m 
+TS2351: [0mThis 
+expression is not 
+constructable.
+  Type 'typeof import
+("C:/Users/camil/Down
+loads/Compressed/apli
+cativo_cermont_prueba
+/cermont_aplicativo/n
+ode_modules/.pnpm/dec
+imal.js@10.6.0/node_m
+odules/decimal.js/dec
+imal")' has no 
+construct signatures.
+
+[7m98[0m       
+return Decimal ? new 
+Decimal(0) : 0;
+[7m  [0m [91m     
+                     
+ ~~~~~~~[0m
+[96msrc/modules/cost
+os/domain/value-objec
+ts/cost-variance.vo.t
+s[0m:[93m50[0m:[9
+3m42[0m - 
+[91merror[0m[90m 
+TS2351: [0mThis 
+expression is not 
+constructable.
+  Type 'typeof import
+("C:/Users/camil/Down
+loads/Compressed/apli
+cativo_cermont_prueba
+/cermont_aplicativo/n
+ode_modules/.pnpm/dec
+imal.js@10.6.0/node_m
+odules/decimal.js/dec
+imal")' has no 
+construct signatures.
+
+[7m50[0m       
+variancePercentage = 
+Decimal ? new 
+Decimal(0) : 0;
+[7m  [0m [91m     
+                     
+               
+~~~~~~~[0m
+[96msrc/modules/cost
+os/domain/value-objec
+ts/money.vo.ts[0m:[
+93m54[0m:[93m33[0m
+ - 
+[91merror[0m[90m 
+TS2351: [0mThis 
+expression is not 
+constructable.
+  Type 'typeof import
+("C:/Users/camil/Down
+loads/Compressed/apli
+cativo_cermont_prueba
+/cermont_aplicativo/n
+ode_modules/.pnpm/dec
+imal.js@10.6.0/node_m
+odules/decimal.js/dec
+imal")' has no 
+construct signatures.
+
+[7m54[0m       
+const decimalAmount 
+= new Decimal(amount)
+.toDecimalPlaces(Mone
+y.DECIMAL_PLACES);
+[7m  [0m [91m     
+                     
+      ~~~~~~~[0m
+[96msrc/modules/cost
+os/domain/value-objec
+ts/money.vo.ts[0m:[
+93m76[0m:[93m27[0m
+ - 
+[91merror[0m[90m 
+TS2351: [0mThis 
+expression is not 
+constructable.
+  Type 'typeof import
+("C:/Users/camil/Down
+loads/Compressed/apli
+cativo_cermont_prueba
+/cermont_aplicativo/n
+ode_modules/.pnpm/dec
+imal.js@10.6.0/node_m
+odules/decimal.js/dec
+imal")' has no 
+construct signatures.
+
+[7m76[0m       
+const decimal = new 
+Decimal(amount);
+[7m  [0m [91m     
+                     
+~~~~~~~[0m
+[96msrc/modules/cost
+os/domain/value-objec
+ts/money.vo.ts[0m:[
+93m140[0m:[93m47[0
+m - 
+[91merror[0m[90m 
+TS2359: [0mThe 
+right-hand side of 
+an 'instanceof' 
+expression must be 
+either of type 
+'any', a class, 
+function, or other 
+type assignable to 
+the 'Function' 
+interface type, or 
+an object type with 
+a 
+'Symbol.hasInstance' 
+method.
+
+[7m140[0m       
+const factorDecimal 
+= factor instanceof 
+Decimal ? factor : 
+new Decimal(factor);
+[7m   [0m [91m    
+                     
+                     
+~~~~~~~[0m
+[96msrc/modules/cost
+os/domain/value-objec
+ts/money.vo.ts[0m:[
+93m140[0m:[93m70[0
+m - 
+[91merror[0m[90m 
+TS2351: [0mThis 
+expression is not 
+constructable.
+  Type 'typeof import
+("C:/Users/camil/Down
+loads/Compressed/apli
+cativo_cermont_prueba
+/cermont_aplicativo/n
+ode_modules/.pnpm/dec
+imal.js@10.6.0/node_m
+odules/decimal.js/dec
+imal")' has no 
+construct signatures.
+
+[7m140[0m       
+const factorDecimal 
+= factor instanceof 
+Decimal ? factor : 
+new Decimal(factor);
+[7m   [0m [91m    
+                     
+                     
+                     
+  ~~~~~~~[0m
+[96msrc/modules/cost
+os/domain/value-objec
+ts/money.vo.ts[0m:[
+93m152[0m:[93m49[0
+m - 
+[91merror[0m[90m 
+TS2359: [0mThe 
+right-hand side of 
+an 'instanceof' 
+expression must be 
+either of type 
+'any', a class, 
+function, or other 
+type assignable to 
+the 'Function' 
+interface type, or 
+an object type with 
+a 
+'Symbol.hasInstance' 
+method.
+
+[7m152[0m       
+const divisorDecimal 
+= divisor instanceof 
+Decimal ? divisor : 
+new Decimal(divisor);
+[7m   [0m [91m    
+                     
+                     
+  ~~~~~~~[0m
+[96msrc/modules/cost
+os/domain/value-objec
+ts/money.vo.ts[0m:[
+93m152[0m:[93m73[0
+m - 
+[91merror[0m[90m 
+TS2351: [0mThis 
+expression is not 
+constructable.
+  Type 'typeof import
+("C:/Users/camil/Down
+loads/Compressed/apli
+cativo_cermont_prueba
+/cermont_aplicativo/n
+ode_modules/.pnpm/dec
+imal.js@10.6.0/node_m
+odules/decimal.js/dec
+imal")' has no 
+construct signatures.
+
+[7m152[0m       
+const divisorDecimal 
+= divisor instanceof 
+Decimal ? divisor : 
+new Decimal(divisor);
+[7m   [0m [91m    
+                     
+                     
+                     
+     ~~~~~~~[0m
+[96msrc/modules/cost
+os/domain/value-objec
+ts/money.vo.ts[0m:[
+93m245[0m:[93m44[0
+m - 
+[91merror[0m[90m 
+TS2359: [0mThe 
+right-hand side of 
+an 'instanceof' 
+expression must be 
+either of type 
+'any', a class, 
+function, or other 
+type assignable to 
+the 'Function' 
+interface type, or 
+an object type with 
+a 
+'Symbol.hasInstance' 
+method.
+
+[7m245[0m       
+const rate = 
+exchangeRate 
+instanceof Decimal ? 
+exchangeRate : new De
+cimal(exchangeRate);
+Found 23 error(s).
+
+[7m   [0m [91m    
+                     
+                  
+~~~~~~~[0m
+[96msrc/modules/cost
+os/domain/value-objec
+ts/money.vo.ts[0m:[
+93m245[0m:[93m73[0
+m - 
+[91merror[0m[90m 
+TS2351: [0mThis 
+expression is not 
+constructable.
+  Type 'typeof import
+("C:/Users/camil/Down
+loads/Compressed/apli
+cativo_cermont_prueba
+/cermont_aplicativo/n
+ode_modules/.pnpm/dec
+imal.js@10.6.0/node_m
+odules/decimal.js/dec
+imal")' has no 
+construct signatures.
+
+[7m245[0m       
+const rate = 
+exchangeRate 
+instanceof Decimal ? 
+exchangeRate : new De
+cimal(exchangeRate);
+[7m   [0m [91m    
+                     
+                     
+                     
+     ~~~~~~~[0m
+[96msrc/modules/form
+ularios/infrastructur
+e/services/form-parse
+r.service.ts[0m:[93
+m44[0m:[93m50[0m 
+- 
+[91merror[0m[90m 
+TS2307: [0mCannot 
+find module 
+'pdf-parse' or its 
+corresponding type 
+declarations.
+
+[7m44[0m       
+const { default: 
+pdfParse } = await 
+import('pdf-parse');
+[7m  [0m [91m     
+                     
+                     
+  ~~~~~~~~~~~[0m
+[96msrc/modules/noti
+fications/email/email
+-queue.service.ts[0m
+:[93m49[0m:[93m33
+[0m - 
+[91merror[0m[90m 
+TS2307: [0mCannot 
+find module 'bullmq' 
+or its corresponding 
+type declarations.
+
+[7m49[0m     const 
+bullmq = await 
+import('bullmq');
+[7m  [0m [91m     
+                     
+      ~~~~~~~~[0m
+
+ÔÇëELIFECYCLEÔÇë Command failed with exit code 1.

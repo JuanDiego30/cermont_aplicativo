@@ -12,15 +12,22 @@
 /**
  * Configuración de cookies de sesión
  */
+const refreshTokenDays = Number.parseInt(
+  (process.env.JWT_REFRESH_EXPIRES_IN || '7d').replace('d', ''),
+  10
+);
+
+const refreshTokenMaxAgeMs = refreshTokenDays * 24 * 60 * 60 * 1000;
+
 export const COOKIE_CONFIG = {
   REFRESH_TOKEN: {
-    name: "refreshToken",
+    name: 'refreshToken',
     options: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict" as const,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 días en ms
-      path: "/",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict' as const,
+      maxAge: refreshTokenMaxAgeMs,
+      path: '/',
     },
   },
 } as const;
@@ -29,8 +36,8 @@ export const COOKIE_CONFIG = {
  * Configuración de tokens JWT
  */
 export const JWT_CONFIG = {
-  ACCESS_TOKEN_EXPIRES: process.env.JWT_EXPIRES_IN || "1d",
-  REFRESH_TOKEN_DAYS: 7,
+  ACCESS_TOKEN_EXPIRES: process.env.JWT_EXPIRES_IN || '15m',
+  REFRESH_TOKEN_DAYS: refreshTokenDays,
   BCRYPT_ROUNDS: Number(process.env.BCRYPT_ROUNDS) || 12,
 } as const;
 
@@ -64,9 +71,9 @@ export const SECURITY_HEADERS = {
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
+      imgSrc: ["'self'", 'data:', 'https:'],
       scriptSrc: ["'self'"],
-      fontSrc: ["'self'", "https:", "data:"],
+      fontSrc: ["'self'", 'https:', 'data:'],
       connectSrc: ["'self'"],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
@@ -84,14 +91,9 @@ export const SECURITY_HEADERS = {
  * Configuración de CORS
  */
 export const CORS_CONFIG = {
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "X-Requested-With",
-    "x-request-id",
-  ],
-  exposedHeaders: ["x-request-id"],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'x-request-id'],
+  exposedHeaders: ['x-request-id'],
   credentials: true,
 } as const;
 
@@ -99,35 +101,30 @@ export const CORS_CONFIG = {
  * Roles del sistema (para RBAC)
  */
 export enum UserRole {
-  ADMIN = "admin",
-  SUPERVISOR = "supervisor",
-  TECNICO = "tecnico",
-  ADMINISTRATIVO = "administrativo",
+  ADMIN = 'admin',
+  SUPERVISOR = 'supervisor',
+  TECNICO = 'tecnico',
+  ADMINISTRATIVO = 'administrativo',
 }
 
 /**
  * Permisos por rol (Least Privilege Principle)
  */
 export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
-  [UserRole.ADMIN]: ["*"], // Acceso total
+  [UserRole.ADMIN]: ['*'], // Acceso total
   [UserRole.SUPERVISOR]: [
-    "ordenes:read",
-    "ordenes:write",
-    "usuarios:read",
-    "reportes:read",
-    "reportes:write",
-    "dashboard:read",
+    'ordenes:read',
+    'ordenes:write',
+    'usuarios:read',
+    'reportes:read',
+    'reportes:write',
+    'dashboard:read',
   ],
   [UserRole.TECNICO]: [
-    "ordenes:read",
-    "ordenes:write:own",
-    "evidencias:write",
-    "ejecucion:write:own",
+    'ordenes:read',
+    'ordenes:write:own',
+    'evidencias:write',
+    'ejecucion:write:own',
   ],
-  [UserRole.ADMINISTRATIVO]: [
-    "ordenes:read",
-    "reportes:read",
-    "costos:read",
-    "costos:write",
-  ],
+  [UserRole.ADMINISTRATIVO]: ['ordenes:read', 'reportes:read', 'costos:read', 'costos:write'],
 } as const;

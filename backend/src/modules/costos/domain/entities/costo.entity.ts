@@ -13,27 +13,24 @@
  * - Si excede presupuesto, requiere justificación
  */
 
-import { Logger } from "@nestjs/common";
-import { CostoId } from "../value-objects/costo-id.vo";
-import { Money } from "../value-objects/money.vo";
-import { CostoType } from "../value-objects/costo-type.vo";
-import { CostoCategory } from "../value-objects/costo-category.vo";
-import {
-  ValidationError,
-  BusinessRuleViolationError,
-  InvalidCostAmountException,
-  CostNotEditableException,
-} from "../exceptions";
-import {
-  CostoRegisteredEvent,
-  CostUpdatedEvent,
-  CostDeletedEvent,
-} from "../events";
 import { AggregateRoot } from "../../../../shared/base/aggregate-root";
+import {
+    CostDeletedEvent,
+    CostoRegisteredEvent,
+    CostUpdatedEvent,
+} from "../events";
+import {
+    BusinessRuleViolationError,
+    CostNotEditableException,
+    InvalidCostAmountException,
+    ValidationError,
+} from "../exceptions";
+import { CostoCategory } from "../value-objects/costo-category.vo";
+import { CostoId } from "../value-objects/costo-id.vo";
+import { CostoType } from "../value-objects/costo-type.vo";
+import { Money } from "../value-objects/money.vo";
 
 export class Costo extends AggregateRoot {
-  private static readonly logger = new Logger(Costo.name);
-
   // Configuración
   private static readonly MIN_DESCRIPTION_LENGTH = 3;
   private static readonly MAX_DESCRIPTION_LENGTH = 500;
@@ -86,8 +83,8 @@ export class Costo extends AggregateRoot {
     const suggestedCategory = type.getSuggestedCategory();
     if (category.getValue() !== suggestedCategory) {
       // Warning pero no error - permitir override manual
-      Costo.logger.warn(
-        `Tipo ${type.getValue()} sugiere categoría ${suggestedCategory}, pero se asignó ${category.getValue()}`,
+      console.warn(
+        `[Costo] Tipo ${type.getValue()} sugiere categoría ${suggestedCategory}, pero se asignó ${category.getValue()}`,
       );
     }
 
