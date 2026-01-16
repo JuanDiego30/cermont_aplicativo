@@ -32,7 +32,7 @@ import { PlanningModule } from './modules/planning/planning.module';
 import { ReportsModule } from './modules/reports/reports.module';
 // TODO: Create LineasVidaModule - currently disabled
 // import { LineasVidaModule } from './modules/lineas-vida/lineas-vida.module';
-import { ArchivingModule } from './modules/archiving/archiving.module';
+// REMOVED: ArchivingModule - Not needed for MVP thesis
 import { ChecklistsModule } from './modules/checklists/checklists.module';
 import { CostsModule } from './modules/costs/costs.module';
 // ...
@@ -45,8 +45,7 @@ import { FormsModule } from './modules/forms/forms.module';
 // DELETED: ArchivadoModule - Replaced by archivado-historico module (coming in Phase 3)
 import { AdminModule } from './modules/admin/admin.module';
 import { PdfGenerationModule } from './modules/pdf-generation/pdf-generation.module';
-import { SyncModule } from './modules/sync/sync.module';
-import { WeatherModule } from './modules/weather/weather.module';
+// REMOVED: SyncModule, WeatherModule - Not needed for MVP thesis
 // DELETED: EmailModule - Redundant with AlertasModule (email functionality moved there)
 import { TechniciansModule } from './modules/technicians/technicians.module';
 
@@ -56,17 +55,17 @@ import { AlertsModule } from './modules/alerts/alerts.module';
 import { KpisModule } from './modules/kpis/kpis.module';
 
 // NEW MODULES - Phase 3 Backend Refactoring
-import { CertificationsModule } from './modules/certifications/certifications.module';
+// REMOVED: CertificationsModule - Not needed for MVP thesis
 import { CustomersModule } from './modules/customers/customers.module';
 import { InvoicingModule } from './modules/invoicing/invoicing.module';
 
 // Common providers
 import { HealthController } from './health.controller';
 import {
-  PrismaConnectionFilter,
-  PrismaExceptionFilter,
-  PrismaPanicFilter,
-  PrismaValidationFilter,
+    PrismaConnectionFilter,
+    PrismaExceptionFilter,
+    PrismaPanicFilter,
+    PrismaValidationFilter,
 } from './shared/filters/prisma-exception.filter';
 import { CustomThrottleGuard } from './shared/guards/throttle.guard';
 import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.interceptor';
@@ -156,21 +155,17 @@ import { RequestIdMiddleware } from './shared/middleware/request-id.middleware';
     AdministrativeClosureModule,
     EvidenceModule,
 
-    // New modules - ACTIVATED
-    SyncModule,
+    // Essential modules for MVP
     PdfGenerationModule,
     AdminModule,
-    WeatherModule,
     TechniciansModule,
 
     AlertsModule,
     KpisModule,
 
-    // NEW MODULES - Phase 3 Backend Refactoring
-    CertificationsModule,
+    // MVP modules
     CustomersModule,
     InvoicingModule,
-    ArchivingModule,
 
     // Schedule module for CRON jobs
     ScheduleModule.forRoot(),

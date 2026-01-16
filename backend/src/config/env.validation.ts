@@ -5,7 +5,7 @@
  * Uso: Usar como validationSchema en ConfigModule.forRoot().
  * Si las variables son inválidas, la aplicación termina con error.
  */
-import { plainToInstance } from 'class-transformer';
+import { plainToInstance, Transform } from 'class-transformer';
 import {
   IsEnum,
   IsNumber,
@@ -29,10 +29,11 @@ export class EnvironmentVariables {
   @IsEnum(Environment)
   NODE_ENV: Environment = Environment.Development;
 
+  @Transform(({ value }) => parseInt(value, 10))
   @IsNumber()
   @Min(1)
   @Max(65535)
-  PORT = 4000;
+  PORT = 3000;
 
   @IsString()
   @MinLength(1)
@@ -50,7 +51,7 @@ export class EnvironmentVariables {
   @IsOptional()
   JWT_REFRESH_EXPIRES_IN = '7d';
 
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   @IsOptional()
   FRONTEND_URL?: string;
 

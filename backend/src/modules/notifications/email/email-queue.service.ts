@@ -153,6 +153,15 @@ export class EmailQueueService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async initializeQueue(): Promise<void> {
+    // MVP: Skip BullMQ if Redis is disabled
+    const redisEnabled = this.config.get('REDIS_ENABLED');
+    if (redisEnabled === 'false' || redisEnabled === false) {
+      this.logger.log('Redis deshabilitado (REDIS_ENABLED=false). Usando mock queue.');
+      this.useBullMQ = false;
+      this.initializeMockQueue();
+      return;
+    }
+
     await loadBullmqConstructors();
     if (QueueCtor && WorkerCtor && QueueEventsCtor) {
       this.useBullMQ = true;

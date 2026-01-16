@@ -1,6 +1,7 @@
 /**
  * @module AlertsModule
  * @description Simplified Alerts module (Vibe-Coding: Service Pattern)
+ * MVP: Deshabilitado NotificationQueueService - requiere repositorio abstracto
  */
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -9,7 +10,8 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { AlertsController } from './alerts.controller';
 import { AlertsService } from './alerts.service';
 import { AlertasGateway } from './gateway/alertas.gateway';
-import { NotificationQueueService } from './queue/notification-queue.service';
+// MVP: Queue deshabilitado - requiere ALERTA_REPOSITORY
+// import { NotificationQueueService } from './queue/notification-queue.service';
 import {
   EmailSenderService,
   InAppNotificationService,
@@ -31,13 +33,13 @@ import {
     NotificationSenderFactory,
     // WebSocket Gateway
     AlertasGateway,
-    // Queue
-    NotificationQueueService,
-    {
-      provide: 'NotificationQueueService',
-      useClass: NotificationQueueService, // Simplified provider
-    },
+    // MVP: Queue deshabilitado - no esencial para formularios de inspección
+    // NotificationQueueService,
+    // {
+    //   provide: 'NotificationQueueService',
+    //   useClass: NotificationQueueService,
+    // },
   ],
-  exports: [AlertsService, 'NotificationQueueService'],
+  exports: [AlertsService],
 })
 export class AlertsModule {}
