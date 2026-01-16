@@ -4,7 +4,7 @@
  * Prioridad del servicio
  */
 
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export enum PrioridadEnum {
   BAJA = "BAJA",
@@ -84,3 +84,4 @@ export class Prioridad {
     return this._value;
   }
 }
+

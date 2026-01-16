@@ -4,7 +4,7 @@
  * Disparado cuando se crea un nuevo template de formulario
  */
 
-import { DomainEvent } from "../../../../common/domain/events/domain-events";
+import { DomainEvent } from "../../../../shared/domain/events/domain-events";
 
 export interface TemplateCreatedEventPayload {
   templateId: string;
@@ -22,3 +22,4 @@ export class TemplateCreatedEvent extends DomainEvent {
     return "TemplateCreated";
   }
 }
+

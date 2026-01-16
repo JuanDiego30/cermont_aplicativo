@@ -22,12 +22,12 @@ import { PrismaModule } from './prisma/prisma.module';
 
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { EjecucionModule } from './modules/ejecucion/ejecucion.module';
-import { EvidenciasModule } from './modules/evidencias/evidencias.module';
+import { EvidenceModule } from './modules/evidence/evidence.module';
 import { HesModule } from './modules/hes/hes.module';
 import { KitsModule } from './modules/kits/kits.module';
-import { OrdenesModule } from './modules/ordenes/ordenes.module';
+import { OrdersModule } from './modules/orders/orders.module';
 import { PlaneacionModule } from './modules/planeacion/planeacion.module';
-import { ReportesModule } from './modules/reportes/reportes.module';
+import { ReportsModule } from './modules/reports/reports.module';
 // TODO: Create LineasVidaModule - currently disabled
 // import { LineasVidaModule } from './modules/lineas-vida/lineas-vida.module';
 import { ChecklistsModule } from './modules/checklists/checklists.module';
@@ -43,34 +43,34 @@ import { PdfGenerationModule } from './modules/pdf-generation/pdf-generation.mod
 import { SyncModule } from './modules/sync/sync.module';
 import { WeatherModule } from './modules/weather/weather.module';
 // DELETED: EmailModule - Redundant with AlertasModule (email functionality moved there)
-import { TecnicosModule } from './modules/tecnicos/tecnicos.module';
+import { TechniciansModule } from './modules/technicians/technicians.module';
 
 import { NotificationsModule } from './modules/notifications/notifications.module';
 
-import { AlertasModule } from './modules/alertas/alertas.module';
+import { AlertsModule } from './modules/alerts/alerts.module';
 import { KpisModule } from './modules/kpis/kpis.module';
 
 // NEW MODULES - Phase 3 Backend Refactoring
 import { ArchivadoHistoricoModule } from './modules/archivado-historico/archivado-historico.module';
 import { CertificacionesModule } from './modules/certificaciones/certificaciones.module';
-import { ClientesModule } from './modules/clientes/clientes.module';
-import { FacturacionModule } from './modules/facturacion/facturacion.module';
+import { CustomersModule } from './modules/customers/customers.module';
+import { InvoicingModule } from './modules/invoicing/invoicing.module';
 
 // Common providers
+import { HealthController } from './health.controller';
 import {
   PrismaConnectionFilter,
   PrismaExceptionFilter,
   PrismaPanicFilter,
   PrismaValidationFilter,
-} from './common/filters/prisma-exception.filter';
-import { CustomThrottleGuard } from './common/guards/throttle.guard';
-import { HttpLoggingInterceptor } from './common/interceptors/http-logging.interceptor';
-import { HealthController } from './health.controller';
-// import { LoggerService } from './common/logging/logger.service'; // REMOVED LEGACY
-import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
+} from './shared/filters/prisma-exception.filter';
+import { CustomThrottleGuard } from './shared/guards/throttle.guard';
+import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.interceptor';
+// import { LoggerService } from './shared/logging/logger.service'; // REMOVED LEGACY
 import { validate as validateEnv } from './config/env.validation';
-import { LoggerService } from './lib/logging/logger.service'; // NEW
-import { GlobalExceptionFilter } from './lib/shared/filters/global-exception.filter'; // NEW
+import { GlobalExceptionFilter } from './shared/filters/global-exception.filter'; // NEW
+import { LoggerService } from './shared/logging/logger.service'; // NEW
+import { RequestIdMiddleware } from './shared/middleware/request-id.middleware';
 
 @Module({
   imports: [
@@ -137,12 +137,12 @@ import { GlobalExceptionFilter } from './lib/shared/filters/global-exception.fil
     // Feature modules - ACTIVATED
     AuthModule,
     NotificationsModule,
-    OrdenesModule,
+    OrdersModule,
     PlaneacionModule,
     KitsModule,
     EjecucionModule,
     DashboardModule,
-    ReportesModule,
+    ReportsModule,
     HesModule,
     // LineasVidaModule, // TODO: Create LineasVidaModule
     CostosModule,
@@ -150,22 +150,22 @@ import { GlobalExceptionFilter } from './lib/shared/filters/global-exception.fil
     // MantenimientosModule, // DELETED - CERMONT uses order-based maintenance
     FormulariosModule,
     CierreAdministrativoModule,
-    EvidenciasModule,
+    EvidenceModule,
 
     // New modules - ACTIVATED
     SyncModule,
     PdfGenerationModule,
     AdminModule,
     WeatherModule,
-    TecnicosModule,
+    TechniciansModule,
 
-    AlertasModule,
+    AlertsModule,
     KpisModule,
 
     // NEW MODULES - Phase 3 Backend Refactoring
     CertificacionesModule,
-    ClientesModule,
-    FacturacionModule,
+    CustomersModule,
+    InvoicingModule,
     ArchivadoHistoricoModule,
 
     // Schedule module for CRON jobs

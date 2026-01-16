@@ -32,11 +32,11 @@ import {
   ApiBody,
   ApiQuery,
 } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../../../../common/guards/jwt-auth.guard";
+import { JwtAuthGuard } from "../../../../shared/guards/jwt-auth.guard";
 import {
   CurrentUser,
   JwtPayload,
-} from "../../../../common/decorators/current-user.decorator";
+} from "../../../../shared/decorators/current-user.decorator";
 
 // Use Cases
 import {
@@ -275,3 +275,4 @@ export class FormulariosController {
     return this.formulariosService.findInstanceById(id);
   }
 }
+

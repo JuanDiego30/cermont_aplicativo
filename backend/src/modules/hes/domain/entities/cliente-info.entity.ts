@@ -4,11 +4,11 @@
  * Información del cliente para la HES
  */
 
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 import { Telefono } from "../value-objects/telefono.vo";
 import { Direccion } from "../value-objects/direccion.vo";
 import { CoordenadasGPS } from "../value-objects/coordenadas-gps.vo";
-import { Email } from "../../../../common/domain/value-objects/email.vo";
+import { Email } from "../../../../shared/domain/value-objects/email.vo";
 
 export interface CreateClienteInfoProps {
   nombre: string;
@@ -109,3 +109,4 @@ export class ClienteInfo {
     return this._coordenadasGPS?.toJSON();
   }
 }
+

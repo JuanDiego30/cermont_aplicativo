@@ -3,7 +3,7 @@
  *
  * Excepción cuando un costo excede el límite presupuestal.
  */
-import { BusinessRuleViolationError } from "../../../../common/domain/exceptions";
+import { BusinessRuleViolationError } from "../../../../shared/domain/exceptions";
 
 export class BudgetExceededException extends BusinessRuleViolationError {
   constructor(
@@ -21,3 +21,4 @@ export class BudgetExceededException extends BusinessRuleViolationError {
     Object.setPrototypeOf(this, BudgetExceededException.prototype);
   }
 }
+

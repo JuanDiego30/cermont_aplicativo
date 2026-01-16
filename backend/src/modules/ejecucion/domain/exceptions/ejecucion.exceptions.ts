@@ -4,7 +4,7 @@
 import {
   BusinessRuleViolationError,
   ValidationError,
-} from "../../../../common/domain/exceptions";
+} from "../../../../shared/domain/exceptions";
 
 export class ExecutionNotStartableException extends BusinessRuleViolationError {
   constructor(reason: string) {
@@ -68,3 +68,4 @@ export class InvalidEvidenceTypeException extends ValidationError {
     super(`Invalid file type: ${mimeType}`, "file");
   }
 }
+

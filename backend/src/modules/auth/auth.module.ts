@@ -43,7 +43,7 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
 import { Auth2FAEmailHandler } from "./infrastructure/event-handlers/auth-2fa-email.handler";
 
 // Lib Services
-import { PasswordService } from "../../lib/services/password.service";
+import { PasswordService } from "../../shared/services/password.service";
 
 // Prisma
 import { PrismaModule } from "../../prisma/prisma.module";

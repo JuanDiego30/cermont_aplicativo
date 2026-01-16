@@ -3,7 +3,7 @@
  *
  * Cantidad de items con validación
  */
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export class Cantidad {
   private constructor(private readonly _value: number) {
@@ -81,3 +81,4 @@ export class Cantidad {
     return this._value.toString();
   }
 }
+

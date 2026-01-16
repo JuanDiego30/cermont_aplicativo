@@ -4,7 +4,7 @@
  * Fórmula matemática para campos calculados
  */
 
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 import { ArithmeticExpressionEvaluator } from "../utils/arithmetic-expression-evaluator";
 
 export class CalculationFormula {
@@ -77,3 +77,4 @@ export class CalculationFormula {
     return this._formula;
   }
 }
+

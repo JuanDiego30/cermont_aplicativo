@@ -10,7 +10,7 @@ import { Controller, Get } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { SkipThrottle } from "@nestjs/throttler";
 import { PrismaService } from "./prisma/prisma.service";
-import { Public } from "./common/decorators/public.decorator";
+import { Public } from "./shared/decorators/public.decorator";
 
 interface DatabaseCheckResult {
   status: "ok" | "error";
@@ -170,3 +170,4 @@ export class HealthController {
     };
   }
 }
+

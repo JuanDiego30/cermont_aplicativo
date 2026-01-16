@@ -4,7 +4,7 @@
  * Disparado cuando un template se archiva
  */
 
-import { DomainEvent } from "../../../../common/domain/events/domain-events";
+import { DomainEvent } from "../../../../shared/domain/events/domain-events";
 
 export interface TemplateArchivedEventPayload {
   templateId: string;
@@ -20,3 +20,4 @@ export class TemplateArchivedEvent extends DomainEvent {
     return "TemplateArchived";
   }
 }
+

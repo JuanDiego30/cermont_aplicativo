@@ -5,7 +5,7 @@
  */
 
 import { randomUUID } from "crypto";
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 // Regex para validar UUID v4
 const UUID_REGEX =
@@ -73,3 +73,4 @@ export class UserId {
     return this.value;
   }
 }
+

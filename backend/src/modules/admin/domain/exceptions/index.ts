@@ -6,4 +6,5 @@
 export {
   ValidationError,
   BusinessRuleViolationError,
-} from "../../../../common/domain/exceptions";
+} from "../../../../shared/domain/exceptions";
+

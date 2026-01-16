@@ -3,7 +3,7 @@
  *
  * Código único legible de un Kit (ej: KIT-ELEC-001)
  */
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export class KitCodigo {
   private static readonly PATTERN = /^KIT-([A-Z]{3,4}-)?[0-9]{3,4}$/;
@@ -52,3 +52,4 @@ export class KitCodigo {
     return this._value;
   }
 }
+

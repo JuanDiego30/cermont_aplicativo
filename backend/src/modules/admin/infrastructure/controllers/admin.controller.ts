@@ -27,13 +27,13 @@ import {
 } from "@nestjs/swagger";
 
 // Guards y Decorators
-import { JwtAuthGuard } from "../../../../common/guards/jwt-auth.guard";
-import { RolesGuard } from "../../../../common/guards/roles.guard";
-import { Roles } from "../../../../common/decorators/roles.decorator";
+import { JwtAuthGuard } from "../../../../shared/guards/jwt-auth.guard";
+import { RolesGuard } from "../../../../shared/guards/roles.guard";
+import { Roles } from "../../../../shared/decorators/roles.decorator";
 import {
   CurrentUser,
   JwtPayload,
-} from "../../../../common/decorators/current-user.decorator";
+} from "../../../../shared/decorators/current-user.decorator";
 
 // Use Cases
 import {
@@ -259,3 +259,4 @@ export class AdminController {
     return getPermissionsForRole(role as any);
   }
 }
+

@@ -27,7 +27,7 @@ import { Roles } from "../../../auth/decorators/roles.decorator";
 import {
   CurrentUser,
   JwtPayload,
-} from "../../../../common/decorators/current-user.decorator";
+} from "../../../../shared/decorators/current-user.decorator";
 import {
   GetCierreByOrdenUseCase,
   CreateCierreUseCase,
@@ -90,3 +90,4 @@ export class CierreAdministrativoController {
     return this.aprobarCierre.execute(id, user.userId);
   }
 }
+

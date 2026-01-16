@@ -4,7 +4,7 @@
  * Lanzada cuando el tipo de valor no coincide con el tipo de campo
  */
 
-import { BusinessRuleViolationError } from "../../../../common/domain/exceptions";
+import { BusinessRuleViolationError } from "../../../../shared/domain/exceptions";
 
 export class FieldTypeMismatchException extends BusinessRuleViolationError {
   constructor(
@@ -17,3 +17,4 @@ export class FieldTypeMismatchException extends BusinessRuleViolationError {
     this.name = "FieldTypeMismatchException";
   }
 }
+

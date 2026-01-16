@@ -5,7 +5,7 @@
 import { Controller, Get, Query, Logger } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiQuery, ApiResponse } from "@nestjs/swagger";
 import { WeatherService } from "./weather.service";
-import { Public } from "../../common/decorators/public.decorator";
+import { Public } from "../../shared/decorators/public.decorator";
 import {
   WeatherData,
   RainfallForecast,

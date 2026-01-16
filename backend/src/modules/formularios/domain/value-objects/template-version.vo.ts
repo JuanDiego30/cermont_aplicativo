@@ -4,7 +4,7 @@
  * Versionado semántico para templates (major.minor.patch)
  */
 
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export class TemplateVersion {
   private constructor(
@@ -76,3 +76,4 @@ export class TemplateVersion {
     );
   }
 }
+

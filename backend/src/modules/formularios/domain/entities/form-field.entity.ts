@@ -17,7 +17,7 @@ import {
 } from "../value-objects/validation-rule.vo";
 import { CalculationFormula } from "../value-objects/calculation-formula.vo";
 import { BusinessRuleViolationError } from "../exceptions";
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 import { randomUUID } from "crypto";
 import { ConditionalLogicConfig } from "../services/conditional-logic-evaluator.service";
 
@@ -425,3 +425,4 @@ export class FormField {
     };
   }
 }
+

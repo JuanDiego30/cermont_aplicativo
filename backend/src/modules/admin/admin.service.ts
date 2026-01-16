@@ -17,7 +17,7 @@ import {
   ConflictException,
 } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
-import { PasswordService } from "../../lib/services/password.service";
+import { PasswordService } from "../../shared/services/password.service";
 import {
   UserRoleEnum,
   hasPermission,

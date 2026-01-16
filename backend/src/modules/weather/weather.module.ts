@@ -7,17 +7,12 @@
  * - Infrastructure: Controllers, Services (Open-Meteo API)
  */
 
-import { Module } from "@nestjs/common";
 import { HttpModule } from "@nestjs/axios";
+import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 
-// Application Layer
-import { GetWeatherUseCase } from "./application/use-cases/get-weather.use-case";
-import { WEATHER_SERVICE } from "./application/dto";
-
-// Infrastructure Layer
-import { WeatherController } from "./infrastructure/controllers/weather.controller";
-import { OpenMeteoWeatherService } from "./infrastructure/services/open-meteo-weather.service";
+import { WeatherController } from "./weather.controller";
+import { WeatherService } from "./weather.service";
 
 @Module({
   imports: [
@@ -28,16 +23,7 @@ import { OpenMeteoWeatherService } from "./infrastructure/services/open-meteo-we
     ConfigModule,
   ],
   controllers: [WeatherController],
-  providers: [
-    // ✅ Use Cases
-    GetWeatherUseCase,
-
-    // ✅ Services (con inyección de interfaz)
-    {
-      provide: WEATHER_SERVICE,
-      useClass: OpenMeteoWeatherService,
-    },
-  ],
-  exports: [GetWeatherUseCase, WEATHER_SERVICE],
+  providers: [WeatherService],
+  exports: [WeatherService],
 })
 export class WeatherModule {}

@@ -3,7 +3,7 @@
  *
  * Excepción cuando la moneda no es válida (ISO 4217).
  */
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export class InvalidCurrencyException extends ValidationError {
   constructor(message: string, currency?: string) {
@@ -12,3 +12,4 @@ export class InvalidCurrencyException extends ValidationError {
     Object.setPrototypeOf(this, InvalidCurrencyException.prototype);
   }
 }
+

@@ -4,7 +4,7 @@
  * Disparado cuando se envía un formulario
  */
 
-import { DomainEvent } from "../../../../common/domain/events/domain-events";
+import { DomainEvent } from "../../../../shared/domain/events/domain-events";
 
 export interface FormSubmittedEventPayload {
   submissionId: string;
@@ -23,3 +23,4 @@ export class FormSubmittedEvent extends DomainEvent {
     return "FormSubmitted";
   }
 }
+

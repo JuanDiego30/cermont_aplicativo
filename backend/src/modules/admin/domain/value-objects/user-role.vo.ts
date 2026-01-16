@@ -4,7 +4,7 @@
  * Role como Value Object con validación y jerarquía.
  */
 
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export const USER_ROLES = [
   "admin",
@@ -185,3 +185,4 @@ export class UserRole {
     return this.value;
   }
 }
+

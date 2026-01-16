@@ -12,8 +12,8 @@ import {
   Logger,
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from "@nestjs/swagger";
-import { Public } from "../../../../common/decorators/public.decorator";
-import { maskEmailForLogs } from "../../../../common/utils/pii.util";
+import { Public } from "../../../../shared/decorators/public.decorator";
+import { maskEmailForLogs } from "../../../../shared/utils/pii.util";
 import { ForgotPasswordUseCase } from "../../application/use-cases/forgot-password.use-case";
 import { ResetPasswordUseCase } from "../../application/use-cases/reset-password.use-case";
 import { ValidateResetTokenUseCase } from "../../application/use-cases/validate-reset-token.use-case";
@@ -124,3 +124,4 @@ export class PasswordResetController {
     return await this.resetPasswordUseCase.execute(dto.token, dto.newPassword);
   }
 }
+

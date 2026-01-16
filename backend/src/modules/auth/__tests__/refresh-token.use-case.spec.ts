@@ -1,7 +1,7 @@
 import { UnauthorizedException } from '@nestjs/common';
 import type { EventEmitter2 } from '@nestjs/event-emitter';
 import type { JwtService } from '@nestjs/jwt';
-import { Email } from '../../../common/domain/value-objects';
+import { Email } from '../../../shared/domain/value-objects';
 import type { AuthContext } from '../application/dto';
 import { RefreshTokenUseCase } from '../application/use-cases/refresh-token.use-case';
 import type { IAuthRepository } from '../domain/repositories';
@@ -128,4 +128,5 @@ describe('RefreshTokenUseCase', () => {
     expect(mockAuthRepository.revokeSession).not.toHaveBeenCalled();
   });
 });
+
 

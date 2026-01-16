@@ -4,7 +4,7 @@
  * Coordenadas geográficas (latitud, longitud)
  */
 
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export class CoordenadasGPS {
   private constructor(
@@ -63,3 +63,4 @@ export class CoordenadasGPS {
     );
   }
 }
+

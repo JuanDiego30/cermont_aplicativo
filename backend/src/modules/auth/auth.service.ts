@@ -18,7 +18,7 @@ import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import { randomUUID } from "crypto";
 import { PrismaService } from "../../prisma/prisma.service";
-import { PasswordService } from "../../lib/services/password.service";
+import { PasswordService } from "../../shared/services/password.service";
 import { LoginDto } from "./application/dto/login.dto";
 import { RegisterDto } from "./application/dto/register.dto";
 

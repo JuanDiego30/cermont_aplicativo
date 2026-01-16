@@ -15,7 +15,7 @@ import {
   ApiQuery,
   ApiParam,
 } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
+import { JwtAuthGuard } from "../../shared/guards/jwt-auth.guard";
 import { CertificacionesService } from "./certificaciones.service";
 import {
   CreateCertificacionTecnicoDto,

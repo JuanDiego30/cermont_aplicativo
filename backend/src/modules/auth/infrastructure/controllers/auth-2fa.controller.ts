@@ -20,13 +20,13 @@ import {
   ApiBearerAuth,
   ApiBody,
 } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../../../../common/guards/jwt-auth.guard";
+import { JwtAuthGuard } from "../../../../shared/guards/jwt-auth.guard";
 import {
   CurrentUser,
   JwtPayload,
-} from "../../../../common/decorators/current-user.decorator";
-import { Public } from "../../../../common/decorators/public.decorator";
-import { ThrottleAuth } from "../../../../common/decorators/throttle.decorator";
+} from "../../../../shared/decorators/current-user.decorator";
+import { Public } from "../../../../shared/decorators/public.decorator";
+import { ThrottleAuth } from "../../../../shared/decorators/throttle.decorator";
 import { PrismaService } from "../../../../prisma/prisma.service";
 import { Send2FACodeUseCase } from "../../application/use-cases/send-2fa-code.use-case";
 import { Verify2FACodeUseCase } from "../../application/use-cases/verify-2fa-code.use-case";
@@ -178,3 +178,4 @@ export class Auth2FAController {
     };
   }
 }
+

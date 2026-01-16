@@ -4,7 +4,7 @@
  * Nivel de riesgo del servicio
  */
 
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export enum NivelRiesgoEnum {
   BAJO = "BAJO",
@@ -110,3 +110,4 @@ export class NivelRiesgo {
     return this._value;
   }
 }
+

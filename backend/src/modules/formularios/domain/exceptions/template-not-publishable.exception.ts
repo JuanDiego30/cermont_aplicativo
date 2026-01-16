@@ -4,7 +4,7 @@
  * Lanzada cuando un template no puede ser publicado
  */
 
-import { BusinessRuleViolationError } from "../../../../common/domain/exceptions";
+import { BusinessRuleViolationError } from "../../../../shared/domain/exceptions";
 
 export class TemplateNotPublishableException extends BusinessRuleViolationError {
   constructor(
@@ -15,3 +15,4 @@ export class TemplateNotPublishableException extends BusinessRuleViolationError 
     this.name = "TemplateNotPublishableException";
   }
 }
+

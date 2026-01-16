@@ -3,7 +3,7 @@
  *
  * Excepción cuando el monto de un costo es inválido.
  */
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export class InvalidCostAmountException extends ValidationError {
   constructor(message: string, amount?: unknown) {
@@ -12,3 +12,4 @@ export class InvalidCostAmountException extends ValidationError {
     Object.setPrototypeOf(this, InvalidCostAmountException.prototype);
   }
 }
+

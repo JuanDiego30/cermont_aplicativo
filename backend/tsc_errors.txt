@@ -1,0 +1,24 @@
+﻿src/modules/auth/__tests__/jwt-token.vo.spec.ts(8,35): error TS2345: Argument of type 'JwtService' is not assignable to parameter of type 'JwtSignerPort'.
+  The types returned by 'verify(...)' are incompatible between these types.
+    Type 'object' is not assignable to type 'T'.
+      'T' could be instantiated with an arbitrary type which could be unrelated to 'object'.
+src/modules/auth/__tests__/jwt-token.vo.spec.ts(25,32): error TS2345: Argument of type 'JwtService' is not assignable to parameter of type 'JwtSignerPort'.
+  The types returned by 'verify(...)' are incompatible between these types.
+    Type 'object' is not assignable to type 'T'.
+      'T' could be instantiated with an arbitrary type which could be unrelated to 'object'.
+src/modules/auth/__tests__/jwt-token.vo.spec.ts(39,39): error TS2345: Argument of type 'JwtService' is not assignable to parameter of type 'JwtSignerPort'.
+  The types returned by 'verify(...)' are incompatible between these types.
+    Type 'object' is not assignable to type 'T'.
+      'T' could be instantiated with an arbitrary type which could be unrelated to 'object'.
+src/modules/auth/__tests__/jwt-token.vo.spec.ts(54,39): error TS2345: Argument of type 'JwtService' is not assignable to parameter of type 'JwtSignerPort'.
+  The types returned by 'verify(...)' are incompatible between these types.
+    Type 'object' is not assignable to type 'T'.
+      'T' could be instantiated with an arbitrary type which could be unrelated to 'object'.
+src/modules/auth/__tests__/jwt-token.vo.spec.ts(75,31): error TS2345: Argument of type 'JwtService' is not assignable to parameter of type 'JwtSignerPort'.
+  The types returned by 'verify(...)' are incompatible between these types.
+    Type 'object' is not assignable to type 'T'.
+      'T' could be instantiated with an arbitrary type which could be unrelated to 'object'.
+src/modules/auth/__tests__/jwt-token.vo.spec.ts(80,31): error TS2345: Argument of type 'JwtService' is not assignable to parameter of type 'JwtSignerPort'.
+  The types returned by 'verify(...)' are incompatible between these types.
+    Type 'object' is not assignable to type 'T'.
+      'T' could be instantiated with an arbitrary type which could be unrelated to 'object'.

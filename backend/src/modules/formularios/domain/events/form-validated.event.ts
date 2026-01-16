@@ -4,7 +4,7 @@
  * Disparado cuando un formulario es validado manualmente
  */
 
-import { DomainEvent } from "../../../../common/domain/events/domain-events";
+import { DomainEvent } from "../../../../shared/domain/events/domain-events";
 
 export interface FormValidatedEventPayload {
   submissionId: string;
@@ -21,3 +21,4 @@ export class FormValidatedEvent extends DomainEvent {
     return "FormValidated";
   }
 }
+

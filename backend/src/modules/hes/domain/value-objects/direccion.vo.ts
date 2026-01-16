@@ -4,7 +4,7 @@
  * Dirección completa con validación
  */
 
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export interface DireccionProps {
   calle: string;
@@ -110,3 +110,4 @@ export class Direccion {
     );
   }
 }
+

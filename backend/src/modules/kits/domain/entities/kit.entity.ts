@@ -20,7 +20,7 @@ import { KitItem, CreateKitItemProps } from "./kit-item.entity";
 import {
   BusinessRuleViolationError,
   ValidationError,
-} from "../../../../common/domain/exceptions";
+} from "../../../../shared/domain/exceptions";
 import {
   KitCreatedEvent,
   KitUpdatedEvent,
@@ -480,3 +480,4 @@ export class Kit {
     };
   }
 }
+

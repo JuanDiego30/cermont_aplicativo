@@ -3,7 +3,7 @@
  *
  * Categoría del kit (ELECTRICIDAD, PLOMERIA, HVAC, etc.)
  */
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export enum CategoriaKitEnum {
   ELECTRICIDAD = "ELECTRICIDAD",
@@ -81,3 +81,4 @@ export class CategoriaKit {
     return this._value;
   }
 }
+

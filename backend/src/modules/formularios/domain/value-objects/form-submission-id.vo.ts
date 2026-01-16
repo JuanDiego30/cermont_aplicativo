@@ -5,7 +5,7 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { ValidationError } from '../../../../common/domain/exceptions';
+import { ValidationError } from '../../../../shared/domain/exceptions';
 
 export class FormSubmissionId {
   private constructor(private readonly _value: string) {
@@ -35,3 +35,4 @@ export class FormSubmissionId {
     return this._value;
   }
 }
+

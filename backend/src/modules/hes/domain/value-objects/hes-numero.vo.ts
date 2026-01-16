@@ -9,7 +9,7 @@
  * - HES-2025-0001
  */
 
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export class HESNumero {
   private constructor(private readonly _value: string) {
@@ -71,3 +71,4 @@ export class HESNumero {
     return this._value;
   }
 }
+

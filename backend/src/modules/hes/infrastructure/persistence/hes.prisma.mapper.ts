@@ -19,7 +19,7 @@ import { FirmaDigital } from "../../domain/entities/firma-digital.entity";
 import { Telefono } from "../../domain/value-objects/telefono.vo";
 import { Direccion } from "../../domain/value-objects/direccion.vo";
 import { CoordenadasGPS } from "../../domain/value-objects/coordenadas-gps.vo";
-import { Email } from "../../../../common/domain/value-objects/email.vo";
+import { Email } from "../../../../shared/domain/value-objects/email.vo";
 import { EPPRequerido } from "../../domain/value-objects/epp-requerido.vo";
 import {
   getHesParts,
@@ -221,3 +221,4 @@ export class HESPrismaMapper {
     };
   }
 }
+

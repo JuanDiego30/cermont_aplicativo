@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthApi } from '@app/core/api/auth.api';
-import { ToastService } from '@app/shared/components/toast/toast.service';
+import { ToastService } from '@app/shared/ui/toast/toast.service';
 import { catchError, tap, throwError, Subject, takeUntil } from 'rxjs';
 
 @Component({

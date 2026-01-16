@@ -4,7 +4,7 @@
  * Tipo de servicio a realizar
  */
 
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export enum TipoServicioEnum {
   MANTENIMIENTO_PREVENTIVO = "MANTENIMIENTO_PREVENTIVO",
@@ -103,3 +103,4 @@ export class TipoServicio {
     return this._value.replace(/_/g, " ");
   }
 }
+

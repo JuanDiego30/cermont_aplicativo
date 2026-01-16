@@ -1,6 +1,6 @@
 import { Injectable, Logger, BadRequestException } from "@nestjs/common";
 import { PrismaService } from "../../../../prisma/prisma.service";
-import { maskEmailForLogs } from "../../../../common/utils/pii.util";
+import { maskEmailForLogs } from "../../../../shared/utils/pii.util";
 import * as bcrypt from "bcryptjs";
 
 export interface ValidateResetTokenResult {
@@ -59,3 +59,4 @@ export class ValidateResetTokenUseCase {
     }
   }
 }
+

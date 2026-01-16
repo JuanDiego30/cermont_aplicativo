@@ -7,7 +7,7 @@
 import {
   ValidationError,
   BusinessRuleViolationError,
-} from "../../../../common/domain/exceptions";
+} from "../../../../shared/domain/exceptions";
 
 export enum EstadoHESEnum {
   BORRADOR = "BORRADOR",
@@ -97,3 +97,4 @@ export class EstadoHES {
     return this._value;
   }
 }
+

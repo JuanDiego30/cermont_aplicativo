@@ -7,7 +7,7 @@ import {
   ApiParam,
   ApiQuery,
 } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
+import { JwtAuthGuard } from "../../shared/guards/jwt-auth.guard";
 import { ArchivadoHistoricoService } from "./archivado-historico.service";
 import {
   ArchivarManualDto,

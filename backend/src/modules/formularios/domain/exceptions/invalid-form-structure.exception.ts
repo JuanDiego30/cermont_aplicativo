@@ -4,7 +4,7 @@
  * Lanzada cuando la estructura de un formulario es inválida
  */
 
-import { BusinessRuleViolationError } from "../../../../common/domain/exceptions";
+import { BusinessRuleViolationError } from "../../../../shared/domain/exceptions";
 
 export class InvalidFormStructureException extends BusinessRuleViolationError {
   constructor(
@@ -15,3 +15,4 @@ export class InvalidFormStructureException extends BusinessRuleViolationError {
     this.name = "InvalidFormStructureException";
   }
 }
+

@@ -14,13 +14,13 @@ import {
   ParseUUIDPipe,
 } from "@nestjs/common";
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiParam, ApiBody, ApiResponse } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../../../../common/guards/jwt-auth.guard";
-import { RolesGuard } from "../../../../common/guards/roles.guard";
-import { Roles } from "../../../../common/decorators/roles.decorator";
+import { JwtAuthGuard } from "../../../../shared/guards/jwt-auth.guard";
+import { RolesGuard } from "../../../../shared/guards/roles.guard";
+import { Roles } from "../../../../shared/decorators/roles.decorator";
 import {
   CurrentUser,
   JwtPayload,
-} from "../../../../common/decorators/current-user.decorator";
+} from "../../../../shared/decorators/current-user.decorator";
 import {
   IniciarEjecucionDto,
   UpdateAvanceDto,
@@ -121,3 +121,4 @@ export class EjecucionController {
     return this.completarEjecucion.execute(id, dto);
   }
 }
+

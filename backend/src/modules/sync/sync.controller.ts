@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, UseGuards, Req } from "@nestjs/common";
 import { ApiTags, ApiBearerAuth, ApiOperation } from "@nestjs/swagger";
 import { SyncService, PendingSync } from "./sync.service";
 import type { SyncResult } from "./sync.service";
-import { JwtAuthGuard } from "../../common/guards/jwt-auth.guard";
+import { JwtAuthGuard } from "../../shared/guards/jwt-auth.guard";
 import { Request } from "express";
 
 interface AuthRequest extends Request {

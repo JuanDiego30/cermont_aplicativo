@@ -16,7 +16,7 @@ import {
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { ChecklistStatusEnum } from "../../domain/value-objects/checklist-status.vo";
-import { Pagination20QueryDto } from "../../../../common/dto/pagination-20-query.dto";
+import { Pagination20QueryDto } from "../../../../shared/dto/pagination-20-query.dto";
 
 export class ListChecklistsQueryDto extends Pagination20QueryDto {
   @ApiPropertyOptional({ example: "mantenimiento" })
@@ -55,3 +55,4 @@ export class ListChecklistsQueryDto extends Pagination20QueryDto {
   @IsOptional()
   ejecucionId?: string;
 }
+

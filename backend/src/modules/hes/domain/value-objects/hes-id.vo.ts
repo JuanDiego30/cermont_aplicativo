@@ -5,7 +5,7 @@
  */
 
 import { randomUUID } from "crypto";
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -47,3 +47,4 @@ export class HESId {
     return this._value;
   }
 }
+

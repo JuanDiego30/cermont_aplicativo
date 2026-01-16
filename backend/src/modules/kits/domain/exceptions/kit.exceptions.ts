@@ -1,7 +1,7 @@
 /**
  * Domain Exceptions for Kits Module
  */
-import { BusinessRuleViolationError } from "../../../../common/domain/exceptions";
+import { BusinessRuleViolationError } from "../../../../shared/domain/exceptions";
 
 export class KitNoDisponibleException extends BusinessRuleViolationError {
   constructor(message: string = "Kit no está disponible") {
@@ -50,3 +50,4 @@ export class KitEnUsoException extends BusinessRuleViolationError {
     this.name = "KitEnUsoException";
   }
 }
+

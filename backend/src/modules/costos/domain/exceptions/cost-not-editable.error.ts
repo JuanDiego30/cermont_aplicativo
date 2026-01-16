@@ -3,7 +3,7 @@
  *
  * Excepción cuando se intenta editar un costo que no es editable.
  */
-import { BusinessRuleViolationError } from "../../../../common/domain/exceptions";
+import { BusinessRuleViolationError } from "../../../../shared/domain/exceptions";
 
 export class CostNotEditableException extends BusinessRuleViolationError {
   constructor(
@@ -19,3 +19,4 @@ export class CostNotEditableException extends BusinessRuleViolationError {
     Object.setPrototypeOf(this, CostNotEditableException.prototype);
   }
 }
+

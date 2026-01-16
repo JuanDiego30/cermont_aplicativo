@@ -18,7 +18,7 @@ import {
   BusinessRuleViolationError,
   TemplateNotPublishableException,
 } from "../exceptions";
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 import {
   TemplateCreatedEvent,
   TemplatePublishedEvent,
@@ -507,3 +507,4 @@ export class FormTemplate extends AggregateRoot {
     return this.findField(fieldId);
   }
 }
+

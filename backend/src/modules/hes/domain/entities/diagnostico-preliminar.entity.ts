@@ -4,7 +4,7 @@
  * Diagnóstico preliminar realizado por el técnico
  */
 
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export interface CreateDiagnosticoProps {
   descripcion: string;
@@ -97,3 +97,4 @@ export class DiagnosticoPreliminar {
     );
   }
 }
+

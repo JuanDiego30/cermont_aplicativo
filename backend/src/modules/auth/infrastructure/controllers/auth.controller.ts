@@ -30,14 +30,14 @@ import { LogoutUseCase } from "../../application/use-cases/logout.use-case";
 import { GetCurrentUserUseCase } from "../../application/use-cases/get-current-user.use-case";
 import { LoginDto } from "../../application/dto/login.dto";
 import { RegisterDto } from "../../application/dto/register.dto";
-import { Public } from "../../../../common/decorators/public.decorator";
+import { Public } from "../../../../shared/decorators/public.decorator";
 import {
   CurrentUser,
   JwtPayload,
-} from "../../../../common/decorators/current-user.decorator";
-import { JwtAuthGuard } from "../../../../common/guards/jwt-auth.guard";
+} from "../../../../shared/decorators/current-user.decorator";
+import { JwtAuthGuard } from "../../../../shared/guards/jwt-auth.guard";
 import { AUTH_CONSTANTS } from "../../auth.constants";
-import { ThrottleAuth } from "../../../../common/decorators/throttle.decorator";
+import { ThrottleAuth } from "../../../../shared/decorators/throttle.decorator";
 
 type RequestWithCookies = Request & { cookies?: Record<string, string> };
 
@@ -281,3 +281,4 @@ export class AuthControllerRefactored {
     return this.getCurrentUserUseCase.execute(user.userId);
   }
 }
+

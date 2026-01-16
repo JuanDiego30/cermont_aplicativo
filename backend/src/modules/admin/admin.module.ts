@@ -41,7 +41,7 @@ import { USER_REPOSITORY } from "./domain/repositories/user.repository.interface
 import { AdminService } from "./admin.service";
 
 // Shared Services
-import { PasswordService } from "../../lib/services/password.service";
+import { PasswordService } from "../../shared/services/password.service";
 
 // Import AuthModule for PasswordService dependency
 import { AuthModule } from "../auth/auth.module";

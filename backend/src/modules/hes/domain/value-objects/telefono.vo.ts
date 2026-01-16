@@ -4,7 +4,7 @@
  * Número de teléfono con validación
  */
 
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export class Telefono {
   private constructor(private readonly _value: string) {
@@ -57,3 +57,4 @@ export class Telefono {
     return this._value;
   }
 }
+

@@ -25,7 +25,7 @@ import { FirmaDigital } from "./firma-digital.entity";
 import {
   ValidationError,
   BusinessRuleViolationError,
-} from "../../../../common/domain/exceptions";
+} from "../../../../shared/domain/exceptions";
 import {
   HESCreatedEvent,
   HESCompletedEvent,
@@ -411,3 +411,4 @@ export class HES extends AggregateRoot {
     super.addDomainEvent(event);
   }
 }
+

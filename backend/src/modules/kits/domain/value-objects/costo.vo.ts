@@ -3,7 +3,7 @@
  *
  * Manejo de costos con validación y operaciones
  */
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export class CostoUnitario {
   private constructor(private readonly _value: number) {
@@ -109,3 +109,4 @@ export class CostoTotal {
     }).format(this._value);
   }
 }
+

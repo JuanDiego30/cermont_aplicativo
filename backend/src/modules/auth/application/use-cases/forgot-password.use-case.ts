@@ -7,7 +7,7 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../../../../prisma/prisma.service";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { maskEmailForLogs } from "../../../../common/utils/pii.util";
+import { maskEmailForLogs } from "../../../../shared/utils/pii.util";
 import * as crypto from "crypto";
 import * as bcrypt from "bcryptjs";
 
@@ -121,3 +121,4 @@ export class ForgotPasswordUseCase {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
+

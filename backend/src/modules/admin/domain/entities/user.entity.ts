@@ -5,7 +5,7 @@
  * No tiene dependencias de framework.
  */
 
-import { Email, Password } from "../../../../common/domain/value-objects";
+import { Email, Password } from "../../../../shared/domain/value-objects";
 import { UserRole } from "../value-objects/user-role.vo";
 import { UserId } from "../value-objects/user-id.vo";
 import {
@@ -20,7 +20,7 @@ import {
 import {
   ValidationError,
   BusinessRuleViolationError,
-} from "../../../../common/domain/exceptions";
+} from "../../../../shared/domain/exceptions";
 
 export interface UserProps {
   id: UserId;
@@ -440,3 +440,4 @@ export class UserEntity {
     }
   }
 }
+

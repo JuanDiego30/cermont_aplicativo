@@ -20,7 +20,7 @@ import { JwtAuthGuard } from "../../../auth/guards/jwt-auth.guard";
 import {
   CurrentUser,
   JwtPayload,
-} from "../../../../common/decorators/current-user.decorator";
+} from "../../../../shared/decorators/current-user.decorator";
 import {
   ProcessSyncBatchUseCase,
   GetPendingSyncUseCase,
@@ -138,3 +138,4 @@ export class SyncController {
     return this.getPending.execute(user.userId);
   }
 }
+

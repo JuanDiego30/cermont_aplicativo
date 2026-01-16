@@ -56,9 +56,9 @@ import { CacheInterceptor, CacheKey, CacheTTL } from "@nestjs/cache-manager";
 import { Request } from "express";
 import { DashboardService } from "../../dashboard.service";
 import { KpiCalculatorService } from "../../services/kpi-calculator.service";
-import { JwtAuthGuard } from "../../../../common/guards/jwt-auth.guard";
-import { RolesGuard } from "../../../../common/guards/roles.guard";
-import { Roles } from "../../../../common/decorators/roles.decorator";
+import { JwtAuthGuard } from "../../../../shared/guards/jwt-auth.guard";
+import { RolesGuard } from "../../../../shared/guards/roles.guard";
+import { Roles } from "../../../../shared/decorators/roles.decorator";
 import { GetDashboardStatsUseCase } from "../../application/use-cases";
 import { DashboardQueryDto } from "../../application/dto";
 
@@ -527,3 +527,4 @@ export class DashboardController {
     }
   }
 }
+

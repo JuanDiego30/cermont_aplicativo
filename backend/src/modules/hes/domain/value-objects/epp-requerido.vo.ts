@@ -4,7 +4,7 @@
  * Equipo de Protección Personal requerido
  */
 
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export enum TipoEPPEnum {
   CASCO = "CASCO",
@@ -66,3 +66,4 @@ export class EPPRequerido {
     return this._tipo === other._tipo;
   }
 }
+

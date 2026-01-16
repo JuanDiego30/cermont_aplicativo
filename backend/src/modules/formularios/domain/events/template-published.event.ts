@@ -4,7 +4,7 @@
  * Disparado cuando un template se publica
  */
 
-import { DomainEvent } from "../../../../common/domain/events/domain-events";
+import { DomainEvent } from "../../../../shared/domain/events/domain-events";
 
 export interface TemplatePublishedEventPayload {
   templateId: string;
@@ -21,3 +21,4 @@ export class TemplatePublishedEvent extends DomainEvent {
     return "TemplatePublished";
   }
 }
+

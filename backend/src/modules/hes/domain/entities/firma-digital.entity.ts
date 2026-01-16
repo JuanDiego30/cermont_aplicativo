@@ -4,7 +4,7 @@
  * Firma digital capturada (base64 + metadata)
  */
 
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export interface CreateFirmaDigitalProps {
   imagenBase64: string;
@@ -124,3 +124,4 @@ export class FirmaDigital {
     };
   }
 }
+

@@ -4,7 +4,7 @@
  * Identificador único de un Kit (UUID)
  */
 import { randomUUID } from "crypto";
-import { ValidationError } from "../../../../common/domain/exceptions";
+import { ValidationError } from "../../../../shared/domain/exceptions";
 
 export class KitId {
   private constructor(private readonly _value: string) {
@@ -34,3 +34,4 @@ export class KitId {
     return this._value;
   }
 }
+

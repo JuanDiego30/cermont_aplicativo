@@ -13,7 +13,7 @@
  * - Supports transactions
  * - Provides health check
  */
-import { LoggerService } from '@/lib/logging/logger.service';
+import { LoggerService } from '@/shared/logging/logger.service';
 import type { Prisma } from '@/prisma/client';
 import { PrismaClient } from '@/prisma/client';
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
