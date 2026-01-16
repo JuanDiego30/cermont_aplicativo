@@ -49,7 +49,7 @@ export interface OrderDomainEvent {
     | "Order.created"
     | "Order.assigned"
     | "Order.completed";
-  OrderId: string;
+  orderId: string;
   occurredAt: Date;
   fromEstado?: string;
   toEstado?: string;
@@ -201,7 +201,7 @@ export class OrderEntity {
 
     this.addDomainEvent({
       eventName: "Order.estado.changed",
-      OrderId: this.id,
+      orderId: this.id,
       fromEstado: currentEstado.value,
       toEstado: newEstado,
       occurredAt: new Date(),

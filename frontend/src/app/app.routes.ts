@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
-import { NotFoundComponent } from './shared/pages/not-found/not-found.component';
 import { AppLayoutComponent } from './shared/layout/app-layout/app-layout.component';
+import { NotFoundComponent } from './shared/pages/not-found/not-found.component';
 
 
 export const routes: Routes = [
@@ -23,7 +23,7 @@ export const routes: Routes = [
           .then(m => m.dashboardRoutes),
       },
       {
-        path: 'ordenes',
+        path: 'orders',
         loadChildren: () => import('./features/ordenes/ordenes.routes')
           .then(m => m.ORDENES_ROUTES),
       },

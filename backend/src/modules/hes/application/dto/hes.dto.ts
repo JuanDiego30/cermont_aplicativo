@@ -2,78 +2,71 @@
  * @module HES (Inspección de Equipos) - Clean Architecture
  * @description DTOs con class-validator
  */
-import {
-  IsString,
-  IsOptional,
-  IsUUID,
-  IsEnum,
-  IsBoolean,
-  IsObject,
-} from "class-validator";
-import { Type, Transform } from "class-transformer";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform, type TransformFnParams } from 'class-transformer';
+import { IsBoolean, IsEnum, IsObject, IsOptional, IsString, IsUUID } from 'class-validator';
 
 // ============== Enums ==============
 
 export enum TipoInspeccionHES {
-  PRE_USO = "pre_uso",
-  PERIODICA = "periodica",
-  EXTRAORDINARIA = "extraordinaria",
+  PRE_USO = 'pre_uso',
+  PERIODICA = 'periodica',
+  EXTRAORDINARIA = 'extraordinaria',
 }
 
 // ============== DTOs ==============
 
 export class CreateHESDto {
-  @ApiProperty({ description: "UUID del equipo" })
-  @IsUUID("4")
+  @ApiProperty({ description: 'UUID del equipo' })
+  @IsUUID('4')
   equipoId!: string;
 
-  @ApiPropertyOptional({ description: "UUID de la orden relacionada" })
+  @ApiPropertyOptional({ description: 'UUID de la orden relacionada' })
   @IsOptional()
-  @IsUUID("4")
+  @IsUUID('4')
   ordenId?: string;
 
   @ApiProperty({ enum: TipoInspeccionHES })
   @IsEnum(TipoInspeccionHES)
   tipo!: TipoInspeccionHES;
 
-  @ApiProperty({ description: "Resultados de la inspección" })
+  @ApiProperty({ description: 'Resultados de la inspección' })
   @IsObject()
   resultados!: Record<string, unknown>;
 
-  @ApiPropertyOptional({ description: "Observaciones" })
+  @ApiPropertyOptional({ description: 'Observaciones' })
   @IsOptional()
   @IsString()
   observaciones?: string;
 
-  @ApiProperty({ description: "¿Aprobado?" })
+  @ApiProperty({ description: '¿Aprobado?' })
   @IsBoolean()
   aprobado!: boolean;
 }
 
 export class HESQueryDto {
-  @ApiPropertyOptional({ description: "UUID del equipo" })
+  @ApiPropertyOptional({ description: 'UUID del equipo' })
   @IsOptional()
-  @IsUUID("4")
+  @IsUUID('4')
   equipoId?: string;
 
-  @ApiPropertyOptional({ description: "UUID de la orden" })
+  @ApiPropertyOptional({ description: 'UUID de la orden' })
   @IsOptional()
-  @IsUUID("4")
+  @IsUUID('4')
   ordenId?: string;
 
-  @ApiPropertyOptional({ description: "Filtrar por aprobación" })
+  @ApiPropertyOptional({ description: 'Filtrar por aprobación' })
   @IsOptional()
-  @Transform(({ value }) => value === "true" || value === true)
+  @Transform(({ value }: TransformFnParams) => value === 'true' || value === true)
   @IsBoolean()
   aprobado?: boolean;
 
-  @ApiPropertyOptional({ description: "Fecha desde (ISO)" })
+  @ApiPropertyOptional({ description: 'Fecha desde (ISO)' })
   @IsOptional()
   @IsString()
   fechaDesde?: string;
 
-  @ApiPropertyOptional({ description: "Fecha hasta (ISO)" })
+  @ApiPropertyOptional({ description: 'Fecha hasta (ISO)' })
   @IsOptional()
   @IsString()
   fechaHasta?: string;
@@ -92,7 +85,7 @@ export interface HESResponse {
 }
 
 // Repository Interface
-export const HES_REPOSITORY = Symbol("HES_REPOSITORY");
+export const HES_REPOSITORY = Symbol('HES_REPOSITORY');
 
 export interface IHESRepository {
   findAll(filters: HESQueryDto): Promise<unknown[]>;

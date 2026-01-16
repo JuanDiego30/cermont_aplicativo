@@ -56,11 +56,11 @@ Obtener todos los KPIs del dashboard en una sola llamada.
 }
 ```
 
-### GET /api/kpis/ordenes
+### GET /api/kpis/orders
 
 Obtener KPIs específicos de órdenes.
 
-### GET /api/kpis/tecnicos
+### GET /api/kpis/technicians
 
 Obtener KPIs específicos de técnicos.
 

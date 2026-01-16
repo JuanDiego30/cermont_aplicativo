@@ -1,9 +1,9 @@
-import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { Observable, BehaviorSubject, tap, catchError, throwError } from 'rxjs';
+import { Observable, catchError, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface User {
   id: string;
@@ -54,11 +54,13 @@ export class AuthService {
   private readonly csrfStorageKey = 'cermont_csrf_token';
 
   // Estado de autenticación
-  private userSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
-  public user$ = this.userSubject.asObservable();
-
-  // Signals para componentes
+  // Signals como fuente de verdad
   currentUserSignal = signal<User | null>(this.getUserFromStorage());
+
+  // Compatibilidad con Observable (Legacy support)
+  public user$ = toObservable(this.currentUserSignal);
+
+  // Computeds
   isAuthenticatedSignal = computed(() => !!this.currentUserSignal());
   userRoleSignal = computed(() => this.currentUserSignal()?.role || null);
 
@@ -70,12 +72,7 @@ export class AuthService {
   public readonly isCliente = computed(() => this.currentUserSignal()?.role === 'cliente');
 
   constructor() {
-    // Sincronizar BehaviorSubject con Signal
-    this.user$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(user => {
-        this.currentUserSignal.set(user);
-      });
+    // Constructor limpio: Signal es la fuente de verdad
   }
 
   /**
@@ -153,11 +150,11 @@ export class AuthService {
       tap(() => {
         // Actualizar usuario con 2FA habilitado
         const user = this.currentUserSignal();
-        if (user) {
-          user.twoFactorEnabled = true;
-          this.userSubject.next(user);
-          this.saveUserToStorage(user);
-        }
+          if (user) {
+            user.twoFactorEnabled = true;
+            this.currentUserSignal.update(u => u ? { ...u, twoFactorEnabled: true } : null);
+            this.saveUserToStorage(this.currentUserSignal()!);
+          }
       }),
       catchError(this.handleError)
     );
@@ -172,8 +169,8 @@ export class AuthService {
         const user = this.currentUserSignal();
         if (user) {
           user.twoFactorEnabled = false;
-          this.userSubject.next(user);
-          this.saveUserToStorage(user);
+          this.currentUserSignal.update(u => u ? { ...u, twoFactorEnabled: false } : null);
+          this.saveUserToStorage(this.currentUserSignal()!);
         }
       }),
       catchError(this.handleError)
@@ -264,8 +261,10 @@ export class AuthService {
    * Manejar éxito de autenticación
    */
   private handleAuthSuccess(response: AuthResponse, rememberMe: boolean = false): void {
-    this.userSubject.next(response.user);
-    this.saveUserToStorage(response.user);
+    if (response.user) {
+      this.currentUserSignal.set(response.user);
+      this.saveUserToStorage(response.user);
+    }
     this.saveToken(response.token);
 
     if (response.csrfToken) {
@@ -324,7 +323,7 @@ export class AuthService {
     localStorage.removeItem('access_token');
     localStorage.removeItem('cermont_user');
     localStorage.removeItem('cermont_remember_me');
-    this.userSubject.next(null);
+    this.currentUserSignal.set(null);
   }
 
   /**

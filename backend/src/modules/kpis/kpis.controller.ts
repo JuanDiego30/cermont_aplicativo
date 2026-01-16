@@ -2,11 +2,11 @@ import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../shared/guards/jwt-auth.guard';
 import {
-  DashboardKpiDto,
-  FinancialKpiDto,
-  KpiFiltersDto,
-  OrdenesKpiDto,
-  TecnicosKpiDto,
+    DashboardKpiDto,
+    FinancialKpiDto,
+    KpiFiltersDto,
+    OrdenesKpiDto,
+    TecnicosKpiDto,
 } from './dto';
 import { KpisService } from './kpis.service';
 
@@ -19,54 +19,54 @@ export class KpisController {
 
   @Get('dashboard')
   @ApiOperation({
-    summary: 'Obtener todos los KPIs del dashboard',
-    description: 'Retorna KPIs de órdenes, técnicos y financiero en una sola llamada',
+    summary: 'Get all dashboard KPIs',
+    description: 'Returns orders, technicians and financial KPIs in one call',
   })
   @ApiResponse({
     status: 200,
-    description: 'KPIs del dashboard obtenidos exitosamente',
+    description: 'Dashboard KPIs retrieved successfully',
     type: DashboardKpiDto,
   })
   async getDashboard(@Query() filters: KpiFiltersDto): Promise<DashboardKpiDto> {
     return this.kpisService.getDashboardKpis(filters);
   }
 
-  @Get('ordenes')
+  @Get('orders')
   @ApiOperation({
-    summary: 'Obtener KPIs de órdenes de trabajo',
-    description: 'Estadísticas de órdenes: total, completadas, pendientes, tasa de completitud',
+    summary: 'Get work orders KPIs',
+    description: 'Order stats: total, completed, pending, completion rate',
   })
   @ApiResponse({
     status: 200,
-    description: 'KPIs de órdenes obtenidos exitosamente',
+    description: 'Order KPIs retrieved successfully',
     type: OrdenesKpiDto,
   })
   async getOrdenesKpis(@Query() filters: KpiFiltersDto): Promise<OrdenesKpiDto> {
     return this.kpisService.getOrdenesKpis(filters);
   }
 
-  @Get('tecnicos')
+  @Get('technicians')
   @ApiOperation({
-    summary: 'Obtener KPIs de técnicos',
-    description: 'Estadísticas de técnicos: activos, disponibles, eficiencia promedio',
+    summary: 'Get technicians KPIs',
+    description: 'Technicians stats: active, available, average efficiency',
   })
   @ApiResponse({
     status: 200,
-    description: 'KPIs de técnicos obtenidos exitosamente',
+    description: 'Technicians KPIs retrieved successfully',
     type: TecnicosKpiDto,
   })
   async getTecnicosKpis(@Query() filters: KpiFiltersDto): Promise<TecnicosKpiDto> {
     return this.kpisService.getTecnicosKpis(filters);
   }
 
-  @Get('financiero')
+  @Get('financial')
   @ApiOperation({
-    summary: 'Obtener KPIs financieros',
-    description: 'Estadísticas financieras: ingresos, costos, utilidad, margen de ganancia',
+    summary: 'Get financial KPIs',
+    description: 'Financial stats: revenue, costs, profit, margin',
   })
   @ApiResponse({
     status: 200,
-    description: 'KPIs financieros obtenidos exitosamente',
+    description: 'Financial KPIs retrieved successfully',
     type: FinancialKpiDto,
   })
   async getFinancialKpis(@Query() filters: KpiFiltersDto): Promise<FinancialKpiDto> {

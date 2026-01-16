@@ -21,11 +21,11 @@ export class OrdersWebhookHandler {
       const shouldSend = Boolean(process.env.Orders_WEBHOOK_URL?.trim());
       if (!shouldSend) return;
 
-      const idempotencyKey = `order-status-changed:${event.OrderId}:${event.estadoAnterior}:${event.estadoNuevo}`;
+      const idempotencyKey = `order-status-changed:${event.orderId}:${event.estadoAnterior}:${event.estadoNuevo}`;
 
       const where: Prisma.AuditLogWhereInput = {
         entityType: 'Order',
-        entityId: event.OrderId,
+        entityId: event.orderId,
         action: 'ORDER_WEBHOOK_SENT',
         // JSON filter (Postgres): si no está soportado en el provider, el fallback es abajo.
         changes: {
@@ -42,7 +42,7 @@ export class OrdersWebhookHandler {
       if (existing) return;
 
       const result = await this.webhook.sendEstadoChanged({
-        OrderId: event.OrderId,
+        orderId: event.orderId,
         numero: event.numero,
         from: event.estadoAnterior,
         to: event.estadoNuevo,
@@ -55,7 +55,7 @@ export class OrdersWebhookHandler {
       await this.prisma.auditLog.create({
         data: {
           entityType: 'Order',
-          entityId: event.OrderId,
+          entityId: event.orderId,
           action: 'ORDER_WEBHOOK_SENT',
           userId: event.usuarioId,
           changes: {

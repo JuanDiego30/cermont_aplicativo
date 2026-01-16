@@ -1,4 +1,4 @@
-# Evidencias Module
+# Evidence Module
 
 ## Description
 Evidence file management for order execution (photos, videos, documents).
@@ -12,6 +12,6 @@ Evidence file management for order execution (photos, videos, documents).
 ## Endpoints
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/evidencias/orden/:id` | Get evidence by order |
-| POST | `/evidencias/upload` | Upload evidence |
-| DELETE | `/evidencias/:id` | Delete evidence |
+| GET | `/evidence/order/:id` | Get evidence by order |
+| POST | `/evidence/upload` | Upload evidence |
+| DELETE | `/evidence/:id` | Delete evidence |

@@ -39,7 +39,7 @@ export interface GenerateCertificadoDto {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PdfApiService extends ApiBaseService {
   /**
@@ -53,21 +53,21 @@ export class PdfApiService extends ApiBaseService {
    * Genera reporte PDF de una orden
    */
   generateReporteOrden(dto: GenerateReporteOrdenDto): Observable<Blob> {
-    return this.download('/pdf/reporte-orden', dto);
+    return this.download('/pdf/order-report', dto);
   }
 
   /**
    * Genera reporte PDF de un mantenimiento
    */
   generateReporteMantenimiento(dto: GenerateReporteMantenimientoDto): Observable<Blob> {
-    return this.download('/pdf/reporte-mantenimiento', dto);
+    return this.download('/pdf/maintenance-report', dto);
   }
 
   /**
    * Genera certificado de inspección
    */
   generateCertificado(dto: GenerateCertificadoDto): Observable<Blob> {
-    return this.download('/pdf/certificado-inspeccion', dto);
+    return this.download('/pdf/inspection-certificate', dto);
   }
 
   /**

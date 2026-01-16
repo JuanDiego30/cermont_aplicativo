@@ -13,5 +13,5 @@ Dashboard metrics and statistics aggregation.
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/dashboard/stats` | General statistics |
-| GET | `/dashboard/metricas` | Dashboard metrics |
-| GET | `/dashboard/ordenes-recientes` | Recent orders |
+| GET | `/dashboard/metrics` | Dashboard metrics |
+| GET | `/dashboard/recent-orders` | Recent orders |

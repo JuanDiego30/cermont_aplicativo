@@ -7,7 +7,7 @@ import { EstadoOrder } from "../value-objects";
 
 export class OrderEstadoChangedEvent {
   constructor(
-    public readonly OrderId: string,
+    public readonly orderId: string,
     public readonly numero: string,
     public readonly estadoAnterior: EstadoOrder,
     public readonly estadoNuevo: EstadoOrder,

@@ -68,7 +68,7 @@ export class GenerateEvidenciaDownloadTokenUseCase {
     );
 
     const baseUrl = this.config.get<string>('BASE_URL', 'http://localhost:3001');
-    const url = `${baseUrl}/evidencias/download/${token}`;
+    const url = `${baseUrl}/evidence/download/${token}`;
 
     this.logger.debug('Generated temporary download token', {
       evidenciaId: id,

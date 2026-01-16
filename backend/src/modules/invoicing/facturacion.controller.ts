@@ -1,55 +1,55 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Body,
-  Param,
-  UseGuards,
+    Body,
+    Controller,
+    Get,
+    Param,
+    Patch,
+    Post,
+    UseGuards,
 } from "@nestjs/common";
 import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiParam,
+    ApiBearerAuth,
+    ApiOperation,
+    ApiParam,
+    ApiResponse,
+    ApiTags,
 } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../../shared/guards/jwt-auth.guard";
-import { FacturacionService } from "./facturacion.service";
 import {
-  RegistrarSESDto,
-  AprobarSESDto,
-  GenerarFacturaDto,
-  RegistrarPagoDto,
-  SESResponseDto,
-  FacturaResponseDto,
-  ResumenFacturacionDto,
+    AprobarSESDto,
+    FacturaResponseDto,
+    GenerarFacturaDto,
+    RegistrarPagoDto,
+    RegistrarSESDto,
+    ResumenFacturacionDto,
+    SESResponseDto,
 } from "./application/dto/facturacion.dto";
+import { FacturacionService } from "./facturacion.service";
 
-@ApiTags("Facturación")
-@Controller("facturacion")
+@ApiTags("Invoicing")
+@Controller("invoicing")
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-export class FacturacionController {
+export class InvoicingController {
   constructor(private readonly facturacionService: FacturacionService) {}
 
-  @Get("resumen")
-  @ApiOperation({ summary: "Obtener resumen de facturación" })
+  @Get("summary")
+  @ApiOperation({ summary: "Get invoicing summary" })
   @ApiResponse({ status: 200, type: ResumenFacturacionDto })
   async getResumen(): Promise<ResumenFacturacionDto> {
     return this.facturacionService.getResumenFacturacion();
   }
 
   @Post("ses")
-  @ApiOperation({ summary: "Registrar SES de Ariba" })
+  @ApiOperation({ summary: "Register Ariba SES" })
   @ApiResponse({ status: 201, type: SESResponseDto })
   @ApiResponse({ status: 404, description: "Orden no encontrada" })
   async registrarSES(@Body() dto: RegistrarSESDto): Promise<SESResponseDto> {
     return this.facturacionService.registrarSES(dto);
   }
 
-  @Patch("ses/aprobar")
-  @ApiOperation({ summary: "Aprobar SES" })
+  @Patch("ses/approve")
+  @ApiOperation({ summary: "Approve SES" })
   @ApiResponse({ status: 200, type: SESResponseDto })
   @ApiResponse({ status: 404, description: "SES no encontrado" })
   @ApiResponse({ status: 400, description: "SES ya aprobado" })
@@ -57,19 +57,19 @@ export class FacturacionController {
     return this.facturacionService.aprobarSES(dto);
   }
 
-  @Get("ses/orden/:ordenId")
-  @ApiOperation({ summary: "Obtener SES de una orden" })
-  @ApiParam({ name: "ordenId", type: "string" })
+  @Get("ses/order/:orderId")
+  @ApiOperation({ summary: "Get SES by order" })
+  @ApiParam({ name: "orderId", type: "string" })
   @ApiResponse({ status: 200, type: [SESResponseDto] })
   @ApiResponse({ status: 404, description: "Orden no encontrada" })
   async getSESPorOrden(
-    @Param("ordenId") ordenId: string,
+    @Param("orderId") orderId: string,
   ): Promise<SESResponseDto[]> {
-    return this.facturacionService.getSESPorOrden(ordenId);
+    return this.facturacionService.getSESPorOrden(orderId);
   }
 
-  @Post("factura")
-  @ApiOperation({ summary: "Generar factura" })
+  @Post("invoice")
+  @ApiOperation({ summary: "Generate invoice" })
   @ApiResponse({ status: 201, type: FacturaResponseDto })
   @ApiResponse({ status: 404, description: "SES no encontrado" })
   async generarFactura(

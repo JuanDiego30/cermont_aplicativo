@@ -35,19 +35,19 @@ export class GetHistorialEstadosUseCase {
     private readonly OrderRepository: IOrderRepository
   ) {}
 
-  async execute(OrderId: string): Promise<HistorialEstadoDto[]> {
+  async execute(orderId: string): Promise<HistorialEstadoDto[]> {
     try {
-      this.logger.log(`Obteniendo historial de estados para Order: ${OrderId}`);
+      this.logger.log(`Obteniendo historial de estados para Order: ${orderId}`);
 
       // Verificar que la Order existe
-      const Order = await this.OrderRepository.findById(OrderId);
+      const Order = await this.OrderRepository.findById(orderId);
       if (!Order) {
         return [];
       }
 
       // Obtener historial de sub-estados (OrderStateHistory)
       const historialSubEstados = await this.prisma.orderStateHistory.findMany({
-        where: { ordenId: OrderId },
+        where: { ordenId: orderId },
         orderBy: { createdAt: 'asc' },
         include: {
           user: { select: { id: true, name: true } },
@@ -69,7 +69,7 @@ export class GetHistorialEstadosUseCase {
 
         return {
           id: h.id,
-          OrderId: h.ordenId,
+          orderId: h.ordenId,
           estadoAnterior,
           estadoNuevo,
           motivo: h.notas || 'Cambio de sub-estado',
@@ -84,7 +84,7 @@ export class GetHistorialEstadosUseCase {
         const auditEntries = await this.prisma.auditLog.findMany({
           where: {
             entityType: 'Order',
-            entityId: OrderId,
+            entityId: orderId,
             action: 'ORDER_STATUS_CHANGED',
           },
           orderBy: { createdAt: 'asc' },
@@ -112,7 +112,7 @@ export class GetHistorialEstadosUseCase {
 
           historial.push({
             id: a.id,
-            OrderId,
+            orderId,
             estadoAnterior,
             estadoNuevo,
             motivo: motivo || 'Cambio de estado',
@@ -127,7 +127,7 @@ export class GetHistorialEstadosUseCase {
       if (historial.length === 0) {
         historial.push({
           id: Order.id,
-          OrderId: Order.id,
+          orderId: Order.id,
           estadoAnterior: undefined,
           estadoNuevo: (Order.estado.value || 'pendiente') as unknown as Orderstado,
           motivo: 'Estado inicial',

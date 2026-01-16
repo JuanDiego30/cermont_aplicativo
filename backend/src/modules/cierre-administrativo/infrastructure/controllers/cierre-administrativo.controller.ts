@@ -2,17 +2,17 @@
  * @controller CierreAdministrativoController
  */
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Put,
-  Param,
-  Body,
-  UseGuards,
-  ParseUUIDPipe,
   HttpCode,
   HttpStatus,
-} from "@nestjs/common";
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -20,74 +20,64 @@ import {
   ApiParam,
   ApiResponse,
   ApiTags,
-} from "@nestjs/swagger";
-import { JwtAuthGuard } from "../../../auth/guards/jwt-auth.guard";
-import { RolesGuard } from "../../../auth/guards/roles.guard";
-import { Roles } from "../../../auth/decorators/roles.decorator";
+} from '@nestjs/swagger';
+import { CurrentUser, JwtPayload } from '../../../../shared/decorators/current-user.decorator';
+import { Roles } from '../../../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../auth/guards/roles.guard';
+import { CreateCierreDto } from '../../application/dto';
 import {
-  CurrentUser,
-  JwtPayload,
-} from "../../../../shared/decorators/current-user.decorator";
-import {
-  GetCierreByOrdenUseCase,
-  CreateCierreUseCase,
   AprobarCierreUseCase,
-} from "../../application/use-cases";
-import { CreateCierreDto } from "../../application/dto";
+  CreateCierreUseCase,
+  GetCierreByOrdenUseCase,
+} from '../../application/use-cases';
 
-@ApiTags("Cierre Administrativo")
+@ApiTags('Administrative Closure')
 @ApiBearerAuth()
-@Controller("cierre-administrativo")
+@Controller('administrative-closure')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class CierreAdministrativoController {
   constructor(
     private readonly getCierre: GetCierreByOrdenUseCase,
     private readonly createCierre: CreateCierreUseCase,
-    private readonly aprobarCierre: AprobarCierreUseCase,
+    private readonly aprobarCierre: AprobarCierreUseCase
   ) {}
 
-  @Get("orden/:ordenId")
-  @ApiOperation({ summary: "Obtener cierre administrativo por orden" })
-  @ApiParam({ name: "ordenId", description: "ID (UUID) de la orden" })
-  @ApiResponse({ status: 200, description: "Cierre encontrado (si existe)" })
-  @ApiResponse({ status: 401, description: "No autenticado" })
-  @ApiResponse({ status: 403, description: "Sin permisos" })
-  async findByOrden(@Param("ordenId", ParseUUIDPipe) ordenId: string) {
-    return this.getCierre.execute(ordenId);
+  @Get('order/:orderId')
+  @ApiOperation({ summary: 'Get administrative closure by order' })
+  @ApiParam({ name: 'orderId', description: 'Order ID (UUID)' })
+  @ApiResponse({ status: 200, description: 'Cierre encontrado (si existe)' })
+  @ApiResponse({ status: 401, description: 'No autenticado' })
+  @ApiResponse({ status: 403, description: 'Sin permisos' })
+  async findByOrden(@Param('orderId', ParseUUIDPipe) orderId: string) {
+    return this.getCierre.execute(orderId);
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @Roles("admin", "supervisor")
-  @ApiOperation({ summary: "Crear cierre administrativo" })
+  @Roles('admin', 'supervisor')
+  @ApiOperation({ summary: 'Crear cierre administrativo' })
   @ApiBody({ type: CreateCierreDto })
-  @ApiResponse({ status: 201, description: "Cierre creado" })
-  @ApiResponse({ status: 400, description: "Datos inválidos" })
-  @ApiResponse({ status: 401, description: "No autenticado" })
-  @ApiResponse({ status: 403, description: "Sin permisos" })
-  async create(
-    @Body() dto: CreateCierreDto,
-    @CurrentUser() user: JwtPayload,
-  ) {
+  @ApiResponse({ status: 201, description: 'Cierre creado' })
+  @ApiResponse({ status: 400, description: 'Datos inválidos' })
+  @ApiResponse({ status: 401, description: 'No autenticado' })
+  @ApiResponse({ status: 403, description: 'Sin permisos' })
+  async create(@Body() dto: CreateCierreDto, @CurrentUser() user: JwtPayload) {
     return this.createCierre.execute(dto, user.userId);
   }
 
-  @Put(":id/aprobar")
-  @Roles("admin")
-  @ApiOperation({ summary: "Aprobar cierre administrativo" })
-  @ApiParam({ name: "id", description: "ID (UUID) del cierre administrativo" })
-  @ApiResponse({ status: 200, description: "Cierre aprobado" })
+  @Put(':id/approve')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Aprobar cierre administrativo' })
+  @ApiParam({ name: 'id', description: 'ID (UUID) del cierre administrativo' })
+  @ApiResponse({ status: 200, description: 'Cierre aprobado' })
   @ApiResponse({
     status: 400,
-    description: "No se puede aprobar en el estado actual",
+    description: 'No se puede aprobar en el estado actual',
   })
-  @ApiResponse({ status: 401, description: "No autenticado" })
-  @ApiResponse({ status: 403, description: "Sin permisos" })
-  async aprobar(
-    @Param("id", ParseUUIDPipe) id: string,
-    @CurrentUser() user: JwtPayload,
-  ) {
+  @ApiResponse({ status: 401, description: 'No autenticado' })
+  @ApiResponse({ status: 403, description: 'Sin permisos' })
+  async aprobar(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: JwtPayload) {
     return this.aprobarCierre.execute(id, user.userId);
   }
 }
-

@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, UseGuards, Req } from "@nestjs/common";
-import { ApiTags, ApiBearerAuth, ApiOperation } from "@nestjs/swagger";
-import { SyncService, PendingSync } from "./sync.service";
-import type { SyncResult } from "./sync.service";
-import { JwtAuthGuard } from "../../shared/guards/jwt-auth.guard";
+import { Body, Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Request } from "express";
+import { JwtAuthGuard } from "../../shared/guards/jwt-auth.guard";
+import type { SyncResult } from "./sync.service";
+import { PendingSync, SyncService } from "./sync.service";
 
 interface AuthRequest extends Request {
   user: { id: string; role: string };
@@ -18,7 +18,7 @@ export class SyncController {
 
   @Post()
   @ApiOperation({
-    summary: "Sincronizar datos pendientes desde dispositivo offline",
+    summary: "Sync pending data from offline device",
     description:
       "Recibe un array de operaciones pendientes y las procesa secuencialmente",
   })
@@ -30,18 +30,18 @@ export class SyncController {
   }
 
   @Get("status")
-  @ApiOperation({ summary: "Obtener estado de la última sincronización" })
+  @ApiOperation({ summary: "Get last sync status" })
   async getLastSyncStatus(@Req() req: AuthRequest): Promise<unknown> {
     return this.syncService.getLastSyncStatus(req.user.id);
   }
 
-  @Get("ordenes-offline")
+  @Get("orders-offline")
   @ApiOperation({
-    summary: "Descargar órdenes para trabajo offline",
+    summary: "Download orders for offline work",
     description:
-      "Obtiene las órdenes asignadas al usuario con toda la información necesaria para trabajar sin conexión",
+      "Gets orders assigned to the user with all information needed to work offline",
   })
-  async getOrdenesParaOffline(@Req() req: AuthRequest): Promise<unknown> {
+  async getOrdersForOffline(@Req() req: AuthRequest): Promise<unknown> {
     return this.syncService.getOrdenesParaOffline(req.user.id);
   }
 }

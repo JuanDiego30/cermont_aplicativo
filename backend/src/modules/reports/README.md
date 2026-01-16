@@ -1,4 +1,4 @@
-# Reportes Module
+# Reports Module
 
 ## Description
 Report generation and data export module.
@@ -12,7 +12,5 @@ Report generation and data export module.
 ## Endpoints
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/reportes/ordenes` | Orders report |
-| GET | `/reportes/financiero` | Financial report |
-| GET | `/reportes/operativo` | Operational report |
-| GET | `/reportes/excel/:tipo` | Export to Excel |
+| GET | `/reports/orders` | Orders report |
+| GET | `/reports/order/:id` | Order report detail |

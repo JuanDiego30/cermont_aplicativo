@@ -1,15 +1,24 @@
-
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, Output, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import flatpickr from 'flatpickr';
 
 @Component({
   selector: 'app-time-picker',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './time-picker.component.html',
-  styles: ``
+  styles: ``,
 })
 export class TimePickerComponent implements AfterViewInit, OnDestroy {
-
   @Input() id!: string;
   @Input() label: string = 'Time Select Input';
   @Input() placeholder: string = 'Select time';
@@ -25,13 +34,13 @@ export class TimePickerComponent implements AfterViewInit, OnDestroy {
     this.flatpickrInstance = flatpickr(this.timeInput.nativeElement, {
       enableTime: true,
       noCalendar: true,
-      dateFormat: 'H:i',   // time format HH:mm
-      time_24hr: false,    // set true for 24hr clock
+      dateFormat: 'H:i', // time format HH:mm
+      time_24hr: false, // set true for 24hr clock
       minuteIncrement: 1,
       defaultDate: this.defaultTime,
       onChange: (selectedDates, dateStr) => {
         this.timeChange.emit(dateStr); // emit "HH:mm"
-      }
+      },
     });
   }
 

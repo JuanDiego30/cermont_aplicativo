@@ -1,14 +1,17 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { AuthApi } from '@app/core/api/auth.api';
 import { ToastService } from '@app/shared/ui/toast/toast.service';
-import { catchError, tap, throwError, Subject, takeUntil } from 'rxjs';
+import { Subject, catchError, takeUntil, tap, throwError } from 'rxjs';
 
 @Component({
   selector: 'app-sign-up',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './sign-up.component.html',
-  styleUrls: ['./sign-up.component.scss']
+  styleUrls: ['./sign-up.component.scss'],
 })
 export class SignUpComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
@@ -33,12 +36,15 @@ export class SignUpComponent implements OnInit, OnDestroy {
   }
 
   private initForm(): void {
-    this.form = this.fb.group({
-      nombre: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', [Validators.required]]
-    }, { validators: this.passwordMatchValidator });
+    this.form = this.fb.group(
+      {
+        nombre: ['', [Validators.required, Validators.minLength(3)]],
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', [Validators.required, Validators.minLength(8)]],
+        confirmPassword: ['', [Validators.required]],
+      },
+      { validators: this.passwordMatchValidator }
+    );
   }
 
   private passwordMatchValidator(group: FormGroup): { [key: string]: any } | null {
@@ -58,11 +64,12 @@ export class SignUpComponent implements OnInit, OnDestroy {
 
     const { nombre, email, password } = this.form.value;
 
-    this.authApi.register({
-      nombre,
-      email,
-      password
-    })
+    this.authApi
+      .register({
+        nombre,
+        email,
+        password,
+      })
       .pipe(
         takeUntil(this.destroy$),
         tap(() => {
@@ -70,7 +77,7 @@ export class SignUpComponent implements OnInit, OnDestroy {
           this.toastService.success('Cuenta creada correctamente. Inicia sesión');
           this.router.navigate(['/auth/sign-in']);
         }),
-        catchError((err) => {
+        catchError(err => {
           this.loading = false;
           this.error = err.error?.message || 'Error al crear la cuenta';
           this.toastService.error(this.error!);

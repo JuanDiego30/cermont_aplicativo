@@ -1,10 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren, ChangeDetectorRef, inject } from '@angular/core';
-import { SidebarService } from '../../services/sidebar.service';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { SafeHtmlPipe } from '../../pipe/safe-html.pipe';
-import { SidebarWidgetComponent } from './app-sidebar-widget.component';
 import { combineLatest, firstValueFrom, Observable, Subscription } from 'rxjs';
+import { SafeHtmlPipe } from '../../pipe/safe-html.pipe';
+import { SidebarService } from '../../services/sidebar.service';
+import { SidebarWidgetComponent } from './app-sidebar-widget.component';
 
 type NavItem = {
   name: string;
@@ -37,12 +46,7 @@ const ICONS = {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    SafeHtmlPipe,
-    SidebarWidgetComponent
-  ],
+  imports: [CommonModule, RouterModule, SafeHtmlPipe, SidebarWidgetComponent],
   templateUrl: './app-sidebar.component.html',
 })
 export class AppSidebarComponent implements OnInit, OnDestroy {
@@ -56,63 +60,63 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
   navItems: NavItem[] = [
     {
       icon: ICONS.dashboard,
-      name: "Dashboard",
-      path: "/dashboard",
+      name: 'Dashboard',
+      path: '/dashboard',
     },
     {
       icon: ICONS.ordenes,
-      name: "Órdenes de Trabajo",
+      name: 'Órdenes de Trabajo',
       subItems: [
-        { name: "Listado", path: "/ordenes" },
-        { name: "Nueva Orden", path: "/ordenes/nueva" },
-        { name: "Mis Asignaciones", path: "/ordenes/mis-asignaciones" },
+        { name: 'Listado', path: '/orders' },
+        { name: 'Nueva Orden', path: '/orders/new' },
+        { name: 'Mis Asignaciones', path: '/orders/my-assignments' },
       ],
     },
     {
       icon: ICONS.planeacion,
-      name: "Planeación",
+      name: 'Planeación',
       subItems: [
-        { name: "Calendario", path: "/calendar" },
-        { name: "Programación", path: "/planeacion" },
+        { name: 'Calendario', path: '/calendar' },
+        { name: 'Programación', path: '/planning' },
       ],
     },
     {
       icon: ICONS.ejecucion,
-      name: "Ejecución",
+      name: 'Ejecución',
       subItems: [
-        { name: "En Progreso", path: "/ejecucion" },
-        { name: "Completadas", path: "/ejecucion/completadas" },
+        { name: 'En Progreso', path: '/execution' },
+        { name: 'Completadas', path: '/execution/completed' },
       ],
     },
     {
       icon: ICONS.hes,
-      name: "HES / Seguridad",
+      name: 'HES / Seguridad',
       subItems: [
-        { name: "Inspecciones", path: "/hes" },
-        { name: "Equipos", path: "/hes/equipos" },
-        { name: "Certificados", path: "/hes/certificados" },
+        { name: 'Inspecciones', path: '/hes' },
+        { name: 'Equipos', path: '/hes/equipos' },
+        { name: 'Certificados', path: '/hes/certificados' },
       ],
     },
     {
       icon: ICONS.evidencias,
-      name: "Evidencias",
-      path: "/evidencias",
+      name: 'Evidencias',
+      path: '/evidence',
     },
     {
       icon: ICONS.checklists,
-      name: "Checklists",
+      name: 'Checklists',
       subItems: [
-        { name: "Plantillas", path: "/checklists/plantillas" },
-        { name: "Formularios", path: "/checklists/formularios" },
+        { name: 'Plantillas', path: '/checklists/plantillas' },
+        { name: 'Formularios', path: '/checklists/forms' },
       ],
     },
     {
       icon: ICONS.reportes,
-      name: "Reportes",
+      name: 'Reportes',
       subItems: [
-        { name: "Operativos", path: "/reportes/operativos" },
-        { name: "KPIs", path: "/kpis" },
-        { name: "Financieros", path: "/reportes/financieros" },
+        { name: 'Operativos', path: '/reports/operational' },
+        { name: 'KPIs', path: '/kpis' },
+        { name: 'Financieros', path: '/reports/financial' },
       ],
     },
   ];
@@ -123,44 +127,44 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
   othersItems: NavItem[] = [
     {
       icon: ICONS.tecnicos,
-      name: "Técnicos",
-      path: "/tecnicos",
+      name: 'Técnicos',
+      path: '/technicians',
     },
     {
       icon: ICONS.clientes,
-      name: "Clientes",
-      path: "/clientes",
+      name: 'Clientes',
+      path: '/customers',
     },
     {
       icon: ICONS.facturacion,
-      name: "Facturación",
+      name: 'Facturación',
       subItems: [
-        { name: "Facturas", path: "/facturacion" },
-        { name: "Costos", path: "/costos" },
+        { name: 'Facturas', path: '/invoicing' },
+        { name: 'Costos', path: '/costs' },
       ],
     },
     {
       icon: ICONS.alertas,
-      name: "Alertas",
-      path: "/alertas",
+      name: 'Alertas',
+      path: '/alerts',
     },
     {
       icon: ICONS.admin,
-      name: "Administración",
+      name: 'Administración',
       subItems: [
-        { name: "Usuarios", path: "/admin/users" },
-        { name: "Roles y Permisos", path: "/admin/roles" },
+        { name: 'Usuarios', path: '/admin/users' },
+        { name: 'Roles y Permisos', path: '/admin/roles' },
       ],
     },
     {
       icon: ICONS.configuracion,
-      name: "Configuración",
-      path: "/config",
+      name: 'Configuración',
+      path: '/config',
     },
     {
       icon: ICONS.perfil,
-      name: "Mi Perfil",
-      path: "/profile",
+      name: 'Mi Perfil',
+      path: '/profile',
     },
   ];
 

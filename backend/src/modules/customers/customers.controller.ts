@@ -1,32 +1,32 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import {
-  ApiBearerAuth,
-  ApiOperation,
-  ApiParam,
-  ApiQuery,
-  ApiResponse,
-  ApiTags,
+    ApiBearerAuth,
+    ApiOperation,
+    ApiParam,
+    ApiQuery,
+    ApiResponse,
+    ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../shared/guards/jwt-auth.guard';
 import {
-  CreateContactDto,
-  CreateCustomerDto,
-  CreateLocationDto,
-  CustomerOrdersResponseDto,
-  CustomerResponseDto,
-  CustomersQueryDto,
+    CreateContactDto,
+    CreateCustomerDto,
+    CreateLocationDto,
+    CustomerOrdersResponseDto,
+    CustomerResponseDto,
+    CustomersQueryDto,
 } from './application/dto/customers.dto';
 import { CustomersService } from './customers.service';
 
-@ApiTags('Clientes')
-@Controller('clientes')
+@ApiTags('Customers')
+@Controller('customers')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Crear nuevo cliente' })
+  @ApiOperation({ summary: 'Create new customer' })
   @ApiResponse({ status: 201, type: CustomerResponseDto })
   @ApiResponse({ status: 409, description: 'NIT duplicado' })
   async create(@Body() dto: CreateCustomerDto): Promise<CustomerResponseDto> {
@@ -34,7 +34,7 @@ export class CustomersController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Obtener todos los clientes' })
+  @ApiOperation({ summary: 'Get all customers' })
   @ApiQuery({ name: 'activo', required: false, type: Boolean })
   @ApiResponse({ status: 200, type: [CustomerResponseDto] })
   async findAll(@Query() query: CustomersQueryDto): Promise<CustomerResponseDto[]> {
@@ -42,7 +42,7 @@ export class CustomersController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Obtener cliente por ID' })
+  @ApiOperation({ summary: 'Get customer by ID' })
   @ApiParam({ name: 'id', type: 'string' })
   @ApiResponse({ status: 200, type: CustomerResponseDto })
   @ApiResponse({ status: 404, description: 'Cliente no encontrado' })
@@ -50,8 +50,8 @@ export class CustomersController {
     return this.customersService.findById(id);
   }
 
-  @Post(':id/contactos')
-  @ApiOperation({ summary: 'Agregar contacto a cliente' })
+  @Post(':id/contacts')
+  @ApiOperation({ summary: 'Add customer contact' })
   @ApiParam({ name: 'id', type: 'string' })
   @ApiResponse({ status: 201, type: CustomerResponseDto })
   @ApiResponse({ status: 404, description: 'Cliente no encontrado' })
@@ -62,8 +62,8 @@ export class CustomersController {
     return this.customersService.addContact(id, dto);
   }
 
-  @Post(':id/ubicaciones')
-  @ApiOperation({ summary: 'Agregar ubicación a cliente' })
+  @Post(':id/locations')
+  @ApiOperation({ summary: 'Add customer location' })
   @ApiParam({ name: 'id', type: 'string' })
   @ApiResponse({ status: 201, type: CustomerResponseDto })
   @ApiResponse({ status: 404, description: 'Cliente no encontrado' })
@@ -74,8 +74,8 @@ export class CustomersController {
     return this.customersService.addLocation(id, dto);
   }
 
-  @Get(':id/ordenes')
-  @ApiOperation({ summary: 'Obtener historial de órdenes del cliente' })
+  @Get(':id/orders')
+  @ApiOperation({ summary: 'Get customer order history' })
   @ApiParam({ name: 'id', type: 'string' })
   @ApiResponse({ status: 200, type: CustomerOrdersResponseDto })
   @ApiResponse({ status: 404, description: 'Cliente no encontrado' })
@@ -84,7 +84,7 @@ export class CustomersController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Desactivar cliente' })
+  @ApiOperation({ summary: 'Deactivate customer' })
   @ApiParam({ name: 'id', type: 'string' })
   @ApiResponse({ status: 200, type: CustomerResponseDto })
   @ApiResponse({ status: 404, description: 'Cliente no encontrado' })

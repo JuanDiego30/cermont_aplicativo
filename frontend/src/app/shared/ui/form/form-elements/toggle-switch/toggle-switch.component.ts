@@ -1,18 +1,16 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { ComponentCardComponent } from '../../../../components/common/component-card/component-card.component';
 import { SwitchComponent } from '../../input/switch.component';
-import { ComponentCardComponent } from '../../../common/component-card/component-card.component';
 
 @Component({
   selector: 'app-toggle-switch',
-  imports: [
-    SwitchComponent,
-    ComponentCardComponent,
-  ],
+  standalone: true,
+  imports: [CommonModule, SwitchComponent, ComponentCardComponent],
   templateUrl: './toggle-switch.component.html',
-  styles: ``
+  styles: ``,
 })
 export class ToggleSwitchComponent {
-
   handleSwitchChange(checked: boolean) {
     void checked;
   }

@@ -5,7 +5,7 @@
  */
 export class OrderAsignadaEvent {
   constructor(
-    public readonly OrderId: string,
+    public readonly orderId: string,
     public readonly numero: string,
     public readonly tecnicoId: string,
     public readonly fechaInicio?: Date,

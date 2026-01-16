@@ -16,8 +16,8 @@
  *
  * ENDPOINTS:
  * - GET /dashboard/stats              → Estadísticas básicas
- * - GET /dashboard/metricas            → Métricas generales
- * - GET /dashboard/ordenes-recientes   → Últimas 10 órdenes
+ * - GET /dashboard/metrics             → General metrics
+ * - GET /dashboard/recent-orders       → Latest 10 orders
  * - GET /dashboard/stats/ddd           → Estadísticas DDD
  * - GET /dashboard/overview            → KPIs consolidados (supervisor+)
  * - GET /dashboard/kpis/refresh        → Recalcular KPIs (supervisor+)
@@ -32,35 +32,35 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
+import { CacheInterceptor, CacheKey, CacheTTL } from "@nestjs/cache-manager";
 import {
-  Controller,
-  Get,
-  Query,
-  UseGuards,
-  UseInterceptors,
-  Logger,
-  BadRequestException,
-  HttpCode,
-  HttpStatus,
-  Req,
+    BadRequestException,
+    Controller,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Logger,
+    Query,
+    Req,
+    UseGuards,
+    UseInterceptors,
 } from "@nestjs/common";
 import {
-  ApiTags,
-  ApiBearerAuth,
-  ApiOperation,
-  ApiQuery,
-  ApiResponse,
+    ApiBearerAuth,
+    ApiOperation,
+    ApiQuery,
+    ApiResponse,
+    ApiTags,
 } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
-import { CacheInterceptor, CacheKey, CacheTTL } from "@nestjs/cache-manager";
 import { Request } from "express";
-import { DashboardService } from "../../dashboard.service";
-import { KpiCalculatorService } from "../../services/kpi-calculator.service";
+import { Roles } from "../../../../shared/decorators/roles.decorator";
 import { JwtAuthGuard } from "../../../../shared/guards/jwt-auth.guard";
 import { RolesGuard } from "../../../../shared/guards/roles.guard";
-import { Roles } from "../../../../shared/decorators/roles.decorator";
-import { GetDashboardStatsUseCase } from "../../application/use-cases";
 import { DashboardQueryDto } from "../../application/dto";
+import { GetDashboardStatsUseCase } from "../../application/use-cases";
+import { DashboardService } from "../../dashboard.service";
+import { KpiCalculatorService } from "../../services/kpi-calculator.service";
 
 /**
  * Enum para granularidad de tendencias
@@ -150,12 +150,12 @@ export class DashboardController {
   /**
    * Obtener métricas generales de operación
    */
-  @Get("metricas")
+  @Get("metrics")
   @Throttle({ default: { limit: 50, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: "Métricas generales de operación",
-    description: "Tiempos promedio, costos, eficiencia",
+   @ApiOperation({
+     summary: "General operational metrics",
+     description: "Average times, costs, efficiency",
   })
   @ApiResponse({ status: 200, description: "Métricas obtenidas exitosamente" })
   @ApiResponse({ status: 401, description: "No autorizado" })
@@ -175,16 +175,16 @@ export class DashboardController {
   /**
    * Obtener últimas 10 órdenes de trabajo
    */
-  @Get("ordenes-recientes")
+  @Get("recent-orders")
   @Throttle({ default: { limit: 50, ttl: 60000 } })
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: "Últimas 10 órdenes de trabajo",
-    description: "Órdenes más recientes ordenadas por fecha de creación",
+   @ApiOperation({
+     summary: "Latest 10 work orders",
+     description: "Most recent orders sorted by creation date",
   })
   @ApiResponse({
     status: 200,
-    description: "Órdenes recientes obtenidas exitosamente",
+    description: "Recent orders retrieved successfully",
   })
   @ApiResponse({ status: 401, description: "No autorizado" })
   async getOrdenesRecientes(@Req() req: RequestWithUser) {

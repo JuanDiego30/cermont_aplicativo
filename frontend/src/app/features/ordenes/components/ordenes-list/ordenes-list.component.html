@@ -1,9 +1,9 @@
-﻿<div class="container mx-auto px-4 py-6">
+<div class="container mx-auto px-4 py-6">
   <!-- Header -->
   <div class="flex justify-between items-center mb-6">
     <div>
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Ã“rdenes de Trabajo</h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-1">GestiÃ³n y seguimiento de Ã³rdenes</p>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Órdenes de Trabajo</h1>
+      <p class="text-gray-600 dark:text-gray-400 mt-1">Gestión y seguimiento de órdenes</p>
     </div>
     <a routerLink="nueva"
       class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
@@ -11,11 +11,11 @@
     </a>
   </div>
 
-  <!-- Filtros y bÃºsqueda -->
+  <!-- Filtros y búsqueda -->
   <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6">
     <div class="flex flex-col md:flex-row gap-4">
       <div class="flex-1">
-        <input type="text" placeholder="Buscar Ã³rdenes..."
+        <input type="text" placeholder="Buscar órdenes..."
           class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
           [(ngModel)]="searchTerm" (input)="onSearchChange()">
       </div>
@@ -45,7 +45,7 @@
   @if (loading()) {
   <div class="flex justify-center items-center py-12">
     <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-    <span class="ml-3 text-gray-600 dark:text-gray-400">Cargando Ã³rdenes...</span>
+    <span class="ml-3 text-gray-600 dark:text-gray-400">Cargando órdenes...</span>
   </div>
   }
 
@@ -62,7 +62,7 @@
   }
 
   @if (ordenes().length > 0) {
-  <!-- Tabla de Ã³rdenes -->
+  <!-- Tabla de órdenes -->
   <div
     class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
     <div class="overflow-x-auto">
@@ -152,11 +152,11 @@
     </div>
   </div>
 
-  <!-- PaginaciÃ³n -->
+  <!-- Paginación -->
   @if (totalPages() > 1) {
   <div class="flex justify-between items-center mt-6">
     <div class="text-sm text-gray-700 dark:text-gray-300">
-      Mostrando pÃ¡gina {{ currentPage() }} de {{ totalPages() }} ({{ totalItems() }} total)
+      Mostrando página {{ currentPage() }} de {{ totalPages() }} ({{ totalItems() }} total)
     </div>
     <div class="flex space-x-2">
       <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1"
@@ -164,7 +164,7 @@
         Anterior
       </button>
       <span class="px-3 py-1 text-sm text-gray-700 dark:text-gray-300">
-        PÃ¡gina {{ currentPage() }} de {{ totalPages() }}
+        Página {{ currentPage() }} de {{ totalPages() }}
       </span>
       <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()"
         class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -181,7 +181,7 @@
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
     </svg>
-    <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No hay Ã³rdenes</h3>
+    <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No hay órdenes</h3>
     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
       Comienza creando tu primera orden de trabajo.
     </p>

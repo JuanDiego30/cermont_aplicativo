@@ -45,7 +45,7 @@ export class CreateOrderUseCase {
 
     // Emitir evento
     this.eventEmitter.emit("Order.created", {
-      OrderId: saved.id,
+      orderId: saved.id,
       numero: saved.numero.value,
       cliente: saved.cliente,
       creadorId,

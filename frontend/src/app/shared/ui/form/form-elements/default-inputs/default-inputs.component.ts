@@ -1,5 +1,6 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { ComponentCardComponent } from '../../../common/component-card/component-card.component';
+import { ComponentCardComponent } from '../../../../components/common/component-card/component-card.component';
 import {
   DatePickerComponent,
   type DateChangePayload,
@@ -11,7 +12,9 @@ import { TimePickerComponent } from '../../time-picker/time-picker.component';
 
 @Component({
   selector: 'app-default-inputs',
+  standalone: true,
   imports: [
+    CommonModule,
     ComponentCardComponent,
     LabelComponent,
     InputFieldComponent,

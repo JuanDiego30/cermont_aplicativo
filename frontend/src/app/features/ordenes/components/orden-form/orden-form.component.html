@@ -1,11 +1,11 @@
-﻿<div class="container mx-auto px-4 py-6 max-w-4xl">
+<div class="container mx-auto px-4 py-6 max-w-4xl">
   <!-- Header -->
   <div class="mb-6">
     <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
       {{ isEditMode() ? 'Editar Orden' : 'Nueva Orden de Trabajo' }}
     </h1>
     <p class="text-gray-600 dark:text-gray-400 mt-1">
-      {{ isEditMode() ? 'Actualiza la informaciÃ³n de la orden' : 'Completa el formulario para crear una nueva orden' }}
+      {{ isEditMode() ? 'Actualiza la información de la orden' : 'Completa el formulario para crear una nueva orden' }}
     </p>
   </div>
 
@@ -25,10 +25,10 @@
   <!-- Formulario -->
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="card">
     <div class="space-y-6">
-      <!-- DescripciÃ³n -->
+      <!-- Descripción -->
       <div>
         <label for="descripcion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          DescripciÃ³n del trabajo <span class="text-red-500">*</span>
+          Descripción del trabajo <span class="text-red-500">*</span>
         </label>
         <textarea
           id="descripcion"
@@ -88,10 +88,10 @@
           </select>
         </div>
 
-        <!-- Fecha estimada de finalizaciÃ³n -->
+        <!-- Fecha estimada de finalización -->
         <div>
           <label for="fechaFinEstimada" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Fecha estimada de finalizaciÃ³n
+            Fecha estimada de finalización
           </label>
           <input
             type="date"
@@ -129,20 +129,20 @@
           }
         </div>
 
-        <!-- TÃ©cnico asignado (opcional por ahora) -->
+        <!-- Técnico asignado (opcional por ahora) -->
         <div>
           <label for="asignadoId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            TÃ©cnico asignado
+            Técnico asignado
           </label>
           <input
             type="text"
             id="asignadoId"
             formControlName="asignadoId"
             class="input"
-            placeholder="UUID del tÃ©cnico (opcional)"
+            placeholder="UUID del técnico (opcional)"
           />
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Puedes asignar un tÃ©cnico mÃ¡s tarde desde la vista de detalle
+            Puedes asignar un técnico más tarde desde la vista de detalle
           </p>
         </div>
       </div>
@@ -162,13 +162,13 @@
             Requiere Hoja de Especificaciones de Seguridad (HES)
           </label>
           <p class="text-gray-500 dark:text-gray-400">
-            Marca esta casilla si el trabajo requiere documentaciÃ³n de seguridad adicional
+            Marca esta casilla si el trabajo requiere documentación de seguridad adicional
           </p>
         </div>
       </div>
     </div>
 
-    <!-- Botones de acciÃ³n -->
+    <!-- Botones de acción -->
     <div class="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
       <button
         type="button"

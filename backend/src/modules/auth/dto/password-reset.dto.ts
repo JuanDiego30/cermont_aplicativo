@@ -1,15 +1,9 @@
 /**
  * DTOs para Password Reset con class-validator
  */
-import {
-  IsString,
-  IsEmail,
-  IsNotEmpty,
-  MinLength,
-  Matches,
-} from "class-validator";
-import { ApiProperty } from "@nestjs/swagger";
-import { Transform } from "class-transformer";
+import { ApiProperty } from '@nestjs/swagger';
+import { Transform, type TransformFnParams } from 'class-transformer';
+import { IsEmail, IsNotEmpty, IsString, Matches, MinLength } from 'class-validator';
 
 // Regex para password: mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
@@ -18,11 +12,11 @@ const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
 // DTO: Solicitar Reset de Contraseña
 // ===========================
 export class ForgotPasswordDto {
-  @ApiProperty({ example: "usuario@cermont.com" })
-  @Transform(({ value }) =>
-    typeof value === "string" ? value.toLowerCase().trim() : value,
+  @ApiProperty({ example: 'usuario@cermont.com' })
+  @Transform(({ value }: TransformFnParams) =>
+    typeof value === 'string' ? value.toLowerCase().trim() : value
   )
-  @IsEmail({}, { message: "Email inválido" })
+  @IsEmail({}, { message: 'Email inválido' })
   email!: string;
 }
 
@@ -30,20 +24,19 @@ export class ForgotPasswordDto {
 // DTO: Resetear Contraseña
 // ===========================
 export class ResetPasswordDto {
-  @ApiProperty({ example: "abc123token" })
+  @ApiProperty({ example: 'abc123token' })
   @IsString()
-  @IsNotEmpty({ message: "Token requerido" })
+  @IsNotEmpty({ message: 'Token requerido' })
   token!: string;
 
   @ApiProperty({
-    example: "NewPassword123",
-    description: "Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número",
+    example: 'NewPassword123',
+    description: 'Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número',
   })
   @IsString()
-  @MinLength(8, { message: "La contraseña debe tener al menos 8 caracteres" })
+  @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
   @Matches(PASSWORD_REGEX, {
-    message:
-      "La contraseña debe contener al menos una mayúscula, una minúscula y un número",
+    message: 'La contraseña debe contener al menos una mayúscula, una minúscula y un número',
   })
   newPassword!: string;
 }
@@ -52,8 +45,8 @@ export class ResetPasswordDto {
 // DTO: Validar Token
 // ===========================
 export class ValidateResetTokenDto {
-  @ApiProperty({ example: "abc123token" })
+  @ApiProperty({ example: 'abc123token' })
   @IsString()
-  @IsNotEmpty({ message: "Token requerido" })
+  @IsNotEmpty({ message: 'Token requerido' })
   token!: string;
 }

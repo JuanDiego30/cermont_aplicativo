@@ -7,68 +7,64 @@
  * - Parsing de PDF/Excel
  */
 import {
+  Body,
   Controller,
+  Delete,
+  FileTypeValidator,
   Get,
+  MaxFileSizeValidator,
+  Param,
+  ParseFilePipe,
   Post,
   Put,
-  Delete,
-  Body,
-  Param,
   Query,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
-  UploadedFile,
-  ParseFilePipe,
-  FileTypeValidator,
-  MaxFileSizeValidator,
-} from "@nestjs/common";
-import { FileInterceptor } from "@nestjs/platform-express";
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
-  ApiTags,
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiResponse,
-  ApiConsumes,
-  ApiBody,
-  ApiQuery,
-} from "@nestjs/swagger";
-import { JwtAuthGuard } from "../../../../shared/guards/jwt-auth.guard";
-import {
-  CurrentUser,
-  JwtPayload,
-} from "../../../../shared/decorators/current-user.decorator";
+  ApiTags,
+} from '@nestjs/swagger';
+import { CurrentUser, JwtPayload } from '../../../../shared/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../../../../shared/guards/jwt-auth.guard';
 
 // Use Cases
 import {
-  CreateTemplateUseCase,
-  UpdateTemplateUseCase,
-  PublishTemplateUseCase,
   ArchiveTemplateUseCase,
-  GetTemplateUseCase,
-  ListTemplatesUseCase,
-  SubmitFormUseCase,
+  CreateTemplateUseCase,
   GetSubmissionUseCase,
+  GetTemplateUseCase,
   ListSubmissionsUseCase,
-} from "../../application/use-cases";
+  ListTemplatesUseCase,
+  PublishTemplateUseCase,
+  SubmitFormUseCase,
+  UpdateTemplateUseCase,
+} from '../../application/use-cases';
 
 // DTOs
 import {
   CreateFormTemplateDto,
-  UpdateFormTemplateDto,
-  SubmitFormDto,
-  ListTemplatesQueryDto,
-  ListSubmissionsQueryDto,
   FormTemplateResponseDto,
-} from "../../application/dto";
+  ListSubmissionsQueryDto,
+  ListTemplatesQueryDto,
+  SubmitFormDto,
+  UpdateFormTemplateDto,
+} from '../../application/dto';
 
 // Mappers
-import { FormTemplateMapper } from "../../application/mappers/form-template.mapper";
+import { FormTemplateMapper } from '../../application/mappers/form-template.mapper';
 
 // Legacy (deprecar)
-import { FormulariosService } from "../../formularios.service";
+import { FormulariosService } from '../../formularios.service';
 
-@ApiTags("Formularios - Motor de Formularios Dinámicos")
-@Controller("formularios")
+@ApiTags('Forms - Dynamic Form Engine')
+@Controller('forms')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class FormulariosController {
@@ -85,78 +81,68 @@ export class FormulariosController {
     private readonly listSubmissionsUseCase: ListSubmissionsUseCase,
 
     // Legacy (deprecar)
-    private readonly formulariosService: FormulariosService,
+    private readonly formulariosService: FormulariosService
   ) {}
 
   // ========================================
   // TEMPLATES
   // ========================================
 
-  @Post("templates")
-  @ApiOperation({ summary: "Crear nuevo template de formulario" })
-  @ApiResponse({ status: 201, description: "Template creado exitosamente" })
+  @Post('templates')
+  @ApiOperation({ summary: 'Crear nuevo template de formulario' })
+  @ApiResponse({ status: 201, description: 'Template creado exitosamente' })
   async createTemplate(
     @Body() dto: CreateFormTemplateDto,
-    @CurrentUser() user: JwtPayload,
+    @CurrentUser() user: JwtPayload
   ): Promise<FormTemplateResponseDto> {
     const template = await this.createTemplateUseCase.execute(dto, user.userId);
     return FormTemplateMapper.toResponseDto(template);
   }
 
-  @Get("templates")
-  @ApiOperation({ summary: "Listar todos los templates" })
+  @Get('templates')
+  @ApiOperation({ summary: 'Listar todos los templates' })
   async findAllTemplates(
-    @Query() query: ListTemplatesQueryDto,
+    @Query() query: ListTemplatesQueryDto
   ): Promise<FormTemplateResponseDto[]> {
     const templates = await this.listTemplatesUseCase.execute(query);
-    return templates.map((t) => FormTemplateMapper.toResponseDto(t));
+    return templates.map(t => FormTemplateMapper.toResponseDto(t));
   }
 
-  @Get("templates/:id")
-  @ApiOperation({ summary: "Obtener template por ID" })
-  async findTemplateById(
-    @Param("id") id: string,
-  ): Promise<FormTemplateResponseDto> {
+  @Get('templates/:id')
+  @ApiOperation({ summary: 'Obtener template por ID' })
+  async findTemplateById(@Param('id') id: string): Promise<FormTemplateResponseDto> {
     const template = await this.getTemplateUseCase.execute(id);
     return FormTemplateMapper.toResponseDto(template);
   }
 
-  @Put("templates/:id")
-  @ApiOperation({ summary: "Actualizar template" })
+  @Put('templates/:id')
+  @ApiOperation({ summary: 'Actualizar template' })
   async updateTemplate(
-    @Param("id") id: string,
+    @Param('id') id: string,
     @Body() dto: UpdateFormTemplateDto,
-    @CurrentUser() user: JwtPayload,
+    @CurrentUser() user: JwtPayload
   ): Promise<FormTemplateResponseDto> {
-    const template = await this.updateTemplateUseCase.execute(
-      id,
-      dto,
-      user.userId,
-    );
+    const template = await this.updateTemplateUseCase.execute(id, dto, user.userId);
     return FormTemplateMapper.toResponseDto(template);
   }
 
-  @Post("templates/:id/publish")
-  @ApiOperation({ summary: "Publicar template" })
-  async publishTemplate(
-    @Param("id") id: string,
-  ): Promise<FormTemplateResponseDto> {
+  @Post('templates/:id/publish')
+  @ApiOperation({ summary: 'Publicar template' })
+  async publishTemplate(@Param('id') id: string): Promise<FormTemplateResponseDto> {
     const template = await this.publishTemplateUseCase.execute(id);
     return FormTemplateMapper.toResponseDto(template);
   }
 
-  @Post("templates/:id/archive")
-  @ApiOperation({ summary: "Archivar template" })
-  async archiveTemplate(
-    @Param("id") id: string,
-  ): Promise<FormTemplateResponseDto> {
+  @Post('templates/:id/archive')
+  @ApiOperation({ summary: 'Archivar template' })
+  async archiveTemplate(@Param('id') id: string): Promise<FormTemplateResponseDto> {
     const template = await this.archiveTemplateUseCase.execute(id);
     return FormTemplateMapper.toResponseDto(template);
   }
 
-  @Delete("templates/:id")
-  @ApiOperation({ summary: "Desactivar template (soft delete)" })
-  async deleteTemplate(@Param("id") id: string) {
+  @Delete('templates/:id')
+  @ApiOperation({ summary: 'Desactivar template (soft delete)' })
+  async deleteTemplate(@Param('id') id: string) {
     // Usar legacy por ahora
     return this.formulariosService.deleteTemplate(id);
   }
@@ -165,22 +151,22 @@ export class FormulariosController {
   // PARSING - PDF/EXCEL → TEMPLATE
   // ========================================
 
-  @Post("templates/parse")
+  @Post('templates/parse')
   @ApiOperation({
-    summary: "Generar template desde PDF o Excel",
+    summary: 'Generar template desde PDF o Excel',
     description:
-      "Sube un PDF o Excel y el sistema generará automáticamente un template de formulario",
+      'Sube un PDF o Excel y el sistema generará automáticamente un template de formulario',
   })
-  @ApiConsumes("multipart/form-data")
+  @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
-      type: "object",
+      type: 'object',
       properties: {
-        file: { type: "string", format: "binary" },
+        file: { type: 'string', format: 'binary' },
       },
     },
   })
-  @UseInterceptors(FileInterceptor("file"))
+  @UseInterceptors(FileInterceptor('file'))
   parseAndCreateTemplate(
     @UploadedFile(
       new ParseFilePipe({
@@ -190,9 +176,9 @@ export class FormulariosController {
             fileType: /(pdf|xlsx|xls)$/,
           }),
         ],
-      }),
+      })
     )
-    file: Express.Multer.File,
+    file: Express.Multer.File
   ) {
     // Usar legacy por ahora
     return this.formulariosService.parseAndCreateTemplate({
@@ -206,13 +192,10 @@ export class FormulariosController {
   // SUBMISSIONS (Formularios completados)
   // ========================================
 
-  @Post("submit")
-  @ApiOperation({ summary: "Enviar formulario completado" })
-  @ApiResponse({ status: 201, description: "Formulario guardado exitosamente" })
-  async submitForm(
-    @Body() dto: SubmitFormDto,
-    @CurrentUser() user: JwtPayload,
-  ) {
+  @Post('submit')
+  @ApiOperation({ summary: 'Enviar formulario completado' })
+  @ApiResponse({ status: 201, description: 'Formulario guardado exitosamente' })
+  async submitForm(@Body() dto: SubmitFormDto, @CurrentUser() user: JwtPayload) {
     const submission = await this.submitFormUseCase.execute(dto, user.userId);
     return {
       id: submission.getId().getValue(),
@@ -223,11 +206,11 @@ export class FormulariosController {
     };
   }
 
-  @Get("submissions")
-  @ApiOperation({ summary: "Listar formularios completados" })
+  @Get('submissions')
+  @ApiOperation({ summary: 'Listar formularios completados' })
   async findAllSubmissions(@Query() query: ListSubmissionsQueryDto) {
     const submissions = await this.listSubmissionsUseCase.execute(query);
-    return submissions.map((s) => ({
+    return submissions.map(s => ({
       id: s.getId().getValue(),
       templateId: s.getTemplateId().getValue(),
       status: s.getStatus().getValue(),
@@ -237,9 +220,9 @@ export class FormulariosController {
     }));
   }
 
-  @Get("submissions/:id")
-  @ApiOperation({ summary: "Obtener formulario completado por ID" })
-  async findSubmissionById(@Param("id") id: string) {
+  @Get('submissions/:id')
+  @ApiOperation({ summary: 'Obtener formulario completado por ID' })
+  async findSubmissionById(@Param('id') id: string) {
     const submission = await this.getSubmissionUseCase.execute(id);
     return {
       id: submission.getId().getValue(),
@@ -255,12 +238,12 @@ export class FormulariosController {
   // LEGACY ENDPOINTS (deprecar)
   // ========================================
 
-  @Get("instances")
-  @ApiOperation({ summary: "[LEGACY] Listar formularios completados" })
+  @Get('instances')
+  @ApiOperation({ summary: '[LEGACY] Listar formularios completados' })
   findAllInstances(
-    @Query("templateId") templateId?: string,
-    @Query("ordenId") ordenId?: string,
-    @Query("estado") estado?: string,
+    @Query('templateId') templateId?: string,
+    @Query('ordenId') ordenId?: string,
+    @Query('estado') estado?: string
   ) {
     return this.formulariosService.findAllInstances({
       templateId,
@@ -269,10 +252,9 @@ export class FormulariosController {
     });
   }
 
-  @Get("instances/:id")
-  @ApiOperation({ summary: "[LEGACY] Obtener formulario completado por ID" })
-  findInstanceById(@Param("id") id: string) {
+  @Get('instances/:id')
+  @ApiOperation({ summary: '[LEGACY] Obtener formulario completado por ID' })
+  findInstanceById(@Param('id') id: string) {
     return this.formulariosService.findInstanceById(id);
   }
 }
-

@@ -15,17 +15,17 @@ export class OrdersNotificationsHandler {
     private readonly notifications: NotificationsService,
   ) {}
 
-  private buildOrderUrl(OrderId: string): string | undefined {
+  private buildOrderUrl(orderId: string): string | undefined {
     const baseUrl = process.env.WEB_BASE_URL?.trim();
     if (!baseUrl) return undefined;
-    return `${baseUrl.replace(/\/$/, "")}/Orders/${OrderId}`;
+    return `${baseUrl.replace(/\/$/, "")}/Orders/${orderId}`;
   }
 
   @OnEvent("Order.asignada")
   async handleOrderAsignada(event: OrderAsignadaEvent): Promise<void> {
     try {
       const Order = await this.prisma.order.findUnique({
-        where: { id: event.OrderId },
+        where: { id: event.orderId },
         include: {
           asignado: { select: { email: true } },
         },
@@ -41,7 +41,7 @@ export class OrdersNotificationsHandler {
         templateData: {
           OrderNumero: event.numero,
           descripcion: Order?.descripcion,
-          orderUrl: this.buildOrderUrl(event.OrderId),
+          orderUrl: this.buildOrderUrl(event.orderId),
         },
       });
     } catch (error) {
@@ -57,7 +57,7 @@ export class OrdersNotificationsHandler {
       if (String(event.estadoNuevo) !== "completada") return;
 
       const Order = await this.prisma.order.findUnique({
-        where: { id: event.OrderId },
+        where: { id: event.orderId },
         include: {
           creador: { select: { email: true } },
         },
@@ -73,7 +73,7 @@ export class OrdersNotificationsHandler {
         templateData: {
           OrderNumero: event.numero,
           resumen: event.motivo,
-          orderUrl: this.buildOrderUrl(event.OrderId),
+          orderUrl: this.buildOrderUrl(event.orderId),
         },
       });
     } catch (error) {

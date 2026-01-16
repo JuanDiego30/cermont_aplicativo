@@ -1,12 +1,13 @@
 import {
-  Controller,
-  ForbiddenException,
-  Get,
-  Inject,
-  NotFoundException,
-  Param,
-  Query,
-  UseGuards,
+    BadRequestException,
+    Controller,
+    ForbiddenException,
+    Get,
+    Inject,
+    NotFoundException,
+    Param,
+    Query,
+    UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser, JwtPayload } from '../../../../shared/decorators/current-user.decorator';
@@ -14,29 +15,33 @@ import { JwtAuthGuard } from '../../../../shared/guards/jwt-auth.guard';
 import { IOrderRepository, Order_REPOSITORY } from '../../../orders/domain/repositories';
 import { ListEvidenciasUseCase } from '../../application/use-cases';
 
-@ApiTags('Ordenes')
-@Controller('ordenes')
+@ApiTags('Orders')
+@Controller('orders')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-export class OrdenesEvidenciasController {
+export class OrdersEvidenceController {
   constructor(
     private readonly listEvidenciasUseCase: ListEvidenciasUseCase,
     @Inject(Order_REPOSITORY)
-    private readonly ordenRepository: IOrderRepository
+    private readonly ordenRepository: IOrderRepository,
   ) {}
 
   /**
-   * Regla 29: Galería en orden
+   * Rule 29: Order gallery
    */
-  @Get(':ordenId/evidencias')
-  @ApiOperation({ summary: 'List evidencias for an orden (gallery)' })
-  async listByOrden(
-    @Param('ordenId') ordenId: string,
+  @Get(':orderId/evidence')
+  @ApiOperation({ summary: 'List evidence for an order (gallery)' })
+  async listByOrder(
+    @Param('orderId') orderId: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
-    @CurrentUser() user?: JwtPayload
+    @CurrentUser() user?: JwtPayload,
   ) {
-    const orden = await this.ordenRepository.findById(ordenId);
+    if (!orderId) {
+      throw new BadRequestException('orderId is required');
+    }
+
+    const orden = await this.ordenRepository.findById(orderId);
     if (!orden) {
       throw new NotFoundException('Orden no encontrada');
     }
@@ -50,7 +55,7 @@ export class OrdenesEvidenciasController {
     }
 
     return this.listEvidenciasUseCase.execute({
-      ordenId,
+      ordenId: orderId,
       page: page ? parseInt(page, 10) : 1,
       limit: limit ? parseInt(limit, 10) : 50,
     });

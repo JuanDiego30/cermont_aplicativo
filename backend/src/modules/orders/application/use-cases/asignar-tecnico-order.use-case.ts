@@ -26,13 +26,13 @@ export class AsignarTecnicoOrderUseCase {
     private readonly eventEmitter: EventEmitter2
   ) {}
 
-  async execute(OrderId: string, dto: AsignarTecnicoOrderDto): Promise<OrderResponseDto> {
+  async execute(orderId: string, dto: AsignarTecnicoOrderDto): Promise<OrderResponseDto> {
     try {
-      this.logger.log(`Asignando técnico ${dto.tecnicoId} a Order ${OrderId}`);
+      this.logger.log(`Asignando técnico ${dto.tecnicoId} a Order ${orderId}`);
 
-      const Order = await this.repository.findById(OrderId);
+      const Order = await this.repository.findById(orderId);
       if (!Order) {
-        throw new NotFoundException(`Order no encontrada: ${OrderId}`);
+        throw new NotFoundException(`Order no encontrada: ${orderId}`);
       }
 
       // Validar que la Order puede ser asignada
@@ -57,11 +57,11 @@ export class AsignarTecnicoOrderUseCase {
       // Persistir cambios
       const updated = await this.repository.update(Order);
 
-      this.logger.log(`Técnico asignado exitosamente a Order ${OrderId}`);
+      this.logger.log(`Técnico asignado exitosamente a Order ${orderId}`);
 
       // Emitir eventos
       const eventoAsignacion = new OrderAsignadaEvent(
-        OrderId,
+        orderId,
         Order.numero.value,
         dto.tecnicoId,
         dto.fechaInicio ? new Date(dto.fechaInicio) : undefined,
@@ -72,7 +72,7 @@ export class AsignarTecnicoOrderUseCase {
 
       if (estadoAnterior !== nuevoEstado && estadoAnterior === 'planeacion') {
         const eventoCambioEstado = new OrderEstadoChangedEvent(
-          OrderId,
+          orderId,
           Order.numero.value,
           estadoAnterior,
           nuevoEstado,

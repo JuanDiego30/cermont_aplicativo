@@ -1,17 +1,23 @@
-﻿import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
-import { RouterLink, Router, ActivatedRoute } from '@angular/router';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { OrdenesService } from '../../services/ordenes.service';
-import { Orden, OrdenEstado, Prioridad, HistorialEstado, ChangeEstadoOrdenDto } from '../../../../core/models/orden.model';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
+import {
+  ChangeEstadoOrdenDto,
+  HistorialEstado,
+  Orden,
+  OrdenEstado,
+  Prioridad,
+} from '../../../../core/models/orden.model';
 import { logError } from '../../../../core/utils/logger';
+import { OrdenesService } from '../../services/ordenes.service';
 
 @Component({
   selector: 'app-orden-detail',
   standalone: true,
   imports: [RouterLink, FormsModule],
   templateUrl: './orden-detail.component.html',
-  styleUrls: ['./orden-detail.component.css']
+  styleUrls: ['./orden-detail.component.css'],
 })
 export class OrdenDetailComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
@@ -30,7 +36,7 @@ export class OrdenDetailComponent implements OnInit, OnDestroy {
   motivoCambio = signal('');
   changingEstado = signal(false);
 
-  // Modal de asignar tÃ©cnico
+  // Modal de asignar técnico
   showAsignarTecnicoModal = signal(false);
   tecnicoId = signal('');
   assigningTecnico = signal(false);
@@ -48,12 +54,24 @@ export class OrdenDetailComponent implements OnInit, OnDestroy {
     const currentEstado = this.orden()?.estado;
     if (!currentEstado) return [];
 
-    // LÃ³gica de transiciones permitidas
+    // Lógica de transiciones permitidas
     const transitions: Record<OrdenEstado, OrdenEstado[]> = {
       [OrdenEstado.PENDIENTE]: [OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
-      [OrdenEstado.PLANEACION]: [OrdenEstado.EN_PROGRESO, OrdenEstado.PENDIENTE, OrdenEstado.CANCELADA],
-      [OrdenEstado.EN_PROGRESO]: [OrdenEstado.EJECUCION, OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
-      [OrdenEstado.EJECUCION]: [OrdenEstado.COMPLETADA, OrdenEstado.PLANEACION, OrdenEstado.CANCELADA],
+      [OrdenEstado.PLANEACION]: [
+        OrdenEstado.EN_PROGRESO,
+        OrdenEstado.PENDIENTE,
+        OrdenEstado.CANCELADA,
+      ],
+      [OrdenEstado.EN_PROGRESO]: [
+        OrdenEstado.EJECUCION,
+        OrdenEstado.PLANEACION,
+        OrdenEstado.CANCELADA,
+      ],
+      [OrdenEstado.EJECUCION]: [
+        OrdenEstado.COMPLETADA,
+        OrdenEstado.PLANEACION,
+        OrdenEstado.CANCELADA,
+      ],
       [OrdenEstado.COMPLETADA]: [OrdenEstado.ARCHIVADA],
       [OrdenEstado.CANCELADA]: [OrdenEstado.PENDIENTE],
       [OrdenEstado.ARCHIVADA]: [],
@@ -74,30 +92,32 @@ export class OrdenDetailComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     this.error.set(null);
 
-    this.ordenesService.getById(id)
+    this.ordenesService
+      .getById(id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (orden) => {
+        next: orden => {
           this.orden.set(orden);
           this.loading.set(false);
         },
-        error: (err) => {
+        error: err => {
           this.error.set(err.message || 'Error al cargar la orden');
           this.loading.set(false);
-        }
+        },
       });
   }
 
   loadHistorial(id: string): void {
-    this.ordenesService.getHistorial(id)
+    this.ordenesService
+      .getHistorial(id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (historial) => {
+        next: historial => {
           this.historial.set(historial);
         },
-        error: (err) => {
+        error: err => {
           logError('Error al cargar historial', err);
-        }
+        },
       });
   }
 
@@ -120,7 +140,9 @@ export class OrdenDetailComponent implements OnInit, OnDestroy {
     if (!orden || !estado) return;
 
     // Validar que requiere motivo para ciertos estados
-    const requiresReason = [OrdenEstado.CANCELADA, OrdenEstado.COMPLETADA].includes(estado as OrdenEstado);
+    const requiresReason = [OrdenEstado.CANCELADA, OrdenEstado.COMPLETADA].includes(
+      estado as OrdenEstado
+    );
     if (requiresReason && !this.motivoCambio().trim()) {
       alert('Debes proporcionar un motivo para este cambio de estado');
       return;
@@ -133,19 +155,20 @@ export class OrdenDetailComponent implements OnInit, OnDestroy {
       motivo: this.motivoCambio().trim() || undefined,
     };
 
-    this.ordenesService.changeEstado(orden.id, dto)
+    this.ordenesService
+      .changeEstado(orden.id, dto)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (updatedOrden) => {
+        next: updatedOrden => {
           this.orden.set(updatedOrden);
           this.loadHistorial(orden.id);
           this.closeEstadoModal();
           this.changingEstado.set(false);
         },
-        error: (err) => {
+        error: err => {
           alert(err.message || 'Error al cambiar el estado');
           this.changingEstado.set(false);
-        }
+        },
       });
   }
 
@@ -168,15 +191,15 @@ export class OrdenDetailComponent implements OnInit, OnDestroy {
     this.assigningTecnico.set(true);
 
     this.ordenesService.asignarTecnico(orden.id, { tecnicoId }).subscribe({
-      next: (updatedOrden) => {
+      next: updatedOrden => {
         this.orden.set(updatedOrden);
         this.closeAsignarTecnicoModal();
         this.assigningTecnico.set(false);
       },
-      error: (err) => {
-        alert(err.message || 'Error al asignar tÃ©cnico');
+      error: err => {
+        alert(err.message || 'Error al asignar técnico');
         this.assigningTecnico.set(false);
-      }
+      },
     });
   }
 
@@ -194,23 +217,24 @@ export class OrdenDetailComponent implements OnInit, OnDestroy {
 
     this.deleting.set(true);
 
-    this.ordenesService.delete(orden.id)
+    this.ordenesService
+      .delete(orden.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.router.navigate(['/ordenes']);
+          this.router.navigate(['/orders']);
         },
-        error: (err) => {
+        error: err => {
           alert(err.message || 'Error al eliminar la orden');
           this.deleting.set(false);
-        }
+        },
       });
   }
 
   // ... UI helper methods stay the same ...
 
   goBack() {
-    this.router.navigate(['/ordenes']);
+    this.router.navigate(['/orders']);
   }
 
   ngOnDestroy(): void {
@@ -218,4 +242,3 @@ export class OrdenDetailComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 }
-

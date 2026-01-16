@@ -50,7 +50,7 @@ export class OrderStateService {
    * Transiciona una Order a un nuevo estado
    */
   async transitionTo(
-    OrderId: string,
+    orderId: string,
     toState: OrderSubState | string,
     userId?: string,
     notas?: string,
@@ -62,14 +62,14 @@ export class OrderStateService {
       throw new BadRequestException(`Sub-estado inválido: ${String(toState)}`);
     }
 
-    this.logger.log(`Transicionando Order ${OrderId} a ${normalizedToState}`);
+    this.logger.log(`Transicionando Order ${orderId} a ${normalizedToState}`);
 
     const timestamp = new Date();
 
     // Update + auditoría en una transacción (no cambiar estado sin historial)
     const { updatedOrder, fromState } = await this.prisma.$transaction(async tx => {
       const Order = await tx.order.findUnique({
-        where: { id: OrderId },
+        where: { id: orderId },
         select: {
           id: true,
           numero: true,
@@ -79,7 +79,7 @@ export class OrderStateService {
       });
 
       if (!Order) {
-        throw new NotFoundException(`Order ${OrderId} no encontrada`);
+        throw new NotFoundException(`Order ${orderId} no encontrada`);
       }
 
       const currentState =
@@ -95,7 +95,7 @@ export class OrderStateService {
 
       const newMainState = getMainStateFromSubState(normalizedToState);
       const updatedOrder = await tx.order.update({
-        where: { id: OrderId },
+        where: { id: orderId },
         data: {
           subEstado: normalizedToState as unknown as PrismaOrderSubState,
           estado: newMainState as unknown as PrismaOrderStatus,
@@ -110,7 +110,7 @@ export class OrderStateService {
 
       await tx.orderStateHistory.create({
         data: {
-          ordenId: OrderId,
+          ordenId: orderId,
           fromState: currentState as unknown as PrismaOrderSubState,
           toState: normalizedToState as unknown as PrismaOrderSubState,
           userId,
@@ -124,14 +124,14 @@ export class OrderStateService {
     });
 
     this.eventEmitter.emit('order.state.changed', {
-      OrderId,
+      orderId,
       fromState,
       toState: normalizedToState,
       userId,
       timestamp,
     });
 
-    await this.executeStateTriggers(OrderId, normalizedToState);
+    await this.executeStateTriggers(orderId, normalizedToState);
 
     this.logger.log(
       `Order ${updatedOrder.numero} transicionada de ${fromState} a ${normalizedToState}`
@@ -155,9 +155,9 @@ export class OrderStateService {
   /**
    * Obtiene el historial de estados de una Order
    */
-  async getStateHistory(OrderId: string) {
+  async getStateHistory(orderId: string) {
     const history = await this.prisma.orderStateHistory.findMany({
-      where: { ordenId: OrderId },
+      where: { ordenId: orderId },
       orderBy: { createdAt: 'desc' },
       include: {
         user: { select: { name: true } },
@@ -177,9 +177,9 @@ export class OrderStateService {
   /**
    * Obtiene información del estado actual de una Order
    */
-  async getStateInfo(OrderId: string) {
+  async getStateInfo(orderId: string) {
     const Order = await this.prisma.order.findUnique({
-      where: { id: OrderId },
+      where: { id: orderId },
       select: {
         id: true,
         numero: true,
@@ -189,7 +189,7 @@ export class OrderStateService {
     });
 
     if (!Order) {
-      throw new NotFoundException(`Order ${OrderId} no encontrada`);
+      throw new NotFoundException(`Order ${orderId} no encontrada`);
     }
 
     const currentState =
@@ -206,31 +206,31 @@ export class OrderStateService {
   /**
    * Ejecuta triggers automáticos según el estado
    */
-  private async executeStateTriggers(OrderId: string, state: OrderSubState) {
+  private async executeStateTriggers(orderId: string, state: OrderSubState) {
     try {
       switch (state) {
         case OrderSubState.PROPUESTA_APROBADA:
           // Auto-crear planeación vacía si no existe
           const existingPlaneacion = await this.prisma.planeacion.findUnique({
-            where: { ordenId: OrderId },
+            where: { ordenId: orderId },
           });
           if (!existingPlaneacion) {
             await this.prisma.planeacion.create({
               data: {
-                ordenId: OrderId,
+                ordenId: orderId,
                 estado: 'borrador',
                 cronograma: {},
                 manoDeObra: {},
               },
             });
-            this.logger.log(`Planeación auto-creada para Order ${OrderId}`);
+            this.logger.log(`Planeación auto-creada para Order ${orderId}`);
           }
           break;
 
         case OrderSubState.ACTA_ELABORADA:
           // Crear alerta si acta no se firma en 7 días
           await this.createAlert(
-            OrderId,
+            orderId,
             'acta_sin_firmar',
             'warning',
             'Acta pendiente de firma',
@@ -240,19 +240,19 @@ export class OrderStateService {
 
         case OrderSubState.SES_APROBADA:
           // Calcular comparativa de costos
-          await this.calculateCostComparison(OrderId);
+          await this.calculateCostComparison(orderId);
           break;
 
         case OrderSubState.PAGO_RECIBIDO:
           // Marcar Order completada
           await this.prisma.order.update({
-            where: { id: OrderId },
+            where: { id: orderId },
             data: {
               estado: PrismaOrderStatus.completada,
               fechaFin: new Date(),
             },
           });
-          this.logger.log(`Order ${OrderId} marcada como completada`);
+          this.logger.log(`Order ${orderId} marcada como completada`);
           break;
       }
     } catch (error) {
@@ -268,7 +268,7 @@ export class OrderStateService {
    * Crea una alerta automática
    */
   private async createAlert(
-    OrderId: string,
+    orderId: string,
     tipo: TipoAlerta,
     prioridad: PrioridadAlerta,
     titulo: string,
@@ -276,22 +276,22 @@ export class OrderStateService {
   ) {
     await this.prisma.alertaAutomatica.create({
       data: {
-        ordenId: OrderId,
+        ordenId: orderId,
         tipo,
         prioridad,
         titulo,
         mensaje,
       },
     });
-    this.logger.log(`Alerta ${tipo} creada para Order ${OrderId}`);
+    this.logger.log(`Alerta ${tipo} creada para Order ${orderId}`);
   }
 
   /**
    * Calcula comparativa de costos estimados vs reales
    */
-  private async calculateCostComparison(OrderId: string) {
+  private async calculateCostComparison(orderId: string) {
     const Order = await this.prisma.order.findUnique({
-      where: { id: OrderId },
+      where: { id: orderId },
       include: {
         propuesta: true,
         costos: true,
@@ -305,9 +305,9 @@ export class OrderStateService {
     const varianza = totalEstimado > 0 ? ((totalReal - totalEstimado) / totalEstimado) * 100 : 0;
 
     await this.prisma.comparativaCostos.upsert({
-      where: { ordenId: OrderId },
+      where: { ordenId: orderId },
       create: {
-        ordenId: OrderId,
+        ordenId: orderId,
         estimadoManoObra: Order.propuesta.costoManoObra,
         estimadoMateriales: Order.propuesta.costoMateriales,
         estimadoEquipos: Order.propuesta.costoEquipos,
@@ -326,7 +326,7 @@ export class OrderStateService {
     });
 
     this.logger.log(
-      `Comparativa de costos calculada para Order ${OrderId}: ${varianza.toFixed(2)}% varianza`
+      `Comparativa de costos calculada para Order ${orderId}: ${varianza.toFixed(2)}% varianza`
     );
   }
 }

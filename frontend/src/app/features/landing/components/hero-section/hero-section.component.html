@@ -1,5 +1,5 @@
 <section
-    class="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-white via-gray-50 to-white dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    class="relative min-h-screen flex items-center justify-center overflow-hidden bg-linear-to-b from-white via-gray-50 to-white dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
     <!-- Background Decorations -->
     <div class="absolute inset-0 overflow-hidden">
         <!-- Gradient Orbs -->
@@ -37,7 +37,7 @@
                 style="animation-delay: 0.1s;">
                 Soluciones de
                 <span
-                    class="bg-gradient-to-r from-cermont-primary-600 via-cermont-primary-500 to-cermont-secondary-500 bg-clip-text text-transparent">
+                    class="bg-linear-to-r from-cermont-primary-600 via-cermont-primary-500 to-cermont-secondary-500 bg-clip-text text-transparent">
                     Construcción
                 </span>
                 <br />
@@ -55,7 +55,7 @@
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-in"
                 style="animation-delay: 0.3s;">
                 <a routerLink="/auth/register"
-                    class="inline-flex items-center px-8 py-4 text-lg font-medium text-white bg-gradient-to-r from-cermont-primary-600 to-cermont-primary-700 rounded-xl hover:from-cermont-primary-700 hover:to-cermont-primary-800 shadow-xl shadow-cermont-primary-500/30 hover:shadow-2xl hover:shadow-cermont-primary-500/40 transition-all duration-300">
+                    class="inline-flex items-center px-8 py-4 text-lg font-medium text-white bg-linear-to-r from-cermont-primary-600 to-cermont-primary-700 rounded-xl hover:from-cermont-primary-700 hover:to-cermont-primary-800 shadow-xl shadow-cermont-primary-500/30 hover:shadow-2xl hover:shadow-cermont-primary-500/40 transition-all duration-300">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -78,7 +78,7 @@
                 @for (stat of stats; track stat.label) {
                 <div class="group">
                     <div
-                        class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-cermont-primary-600 to-cermont-primary-800 dark:from-cermont-primary-400 dark:to-cermont-primary-600 bg-clip-text text-transparent mb-2 transition-transform duration-300 group-hover:scale-110">
+                        class="text-4xl md:text-5xl font-bold bg-linear-to-r from-cermont-primary-600 to-cermont-primary-800 dark:from-cermont-primary-400 dark:to-cermont-primary-600 bg-clip-text text-transparent mb-2 transition-transform duration-300 group-hover:scale-110">
                         {{ stat.value }}
                     </div>
                     <div class="text-sm text-gray-600 dark:text-gray-400 font-medium">

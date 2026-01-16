@@ -1,19 +1,22 @@
-﻿import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
-import { OrdenesService } from '../../services/ordenes.service';
-import { Prioridad } from '../../../../core/models/orden.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { getDefaultControlErrorMessage, hasControlError } from '../../../../shared/utils/form-errors.util';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Prioridad } from '../../../../core/models/orden.model';
+import {
+  getDefaultControlErrorMessage,
+  hasControlError,
+} from '../../../../shared/utils/form-errors.util';
 import { beginFormSubmit, subscribeSubmit } from '../../../../shared/utils/form-submit.util';
+import { OrdenesService } from '../../services/ordenes.service';
 
 @Component({
   selector: 'app-orden-form',
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './orden-form.component.html',
-  styleUrls: ['./orden-form.component.css']
+  styleUrls: ['./orden-form.component.css'],
 })
 export class OrdenFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
@@ -56,26 +59,28 @@ export class OrdenFormComponent implements OnInit {
 
   loadOrden(id: string): void {
     this.loading.set(true);
-    this.ordenesService.getById(id)
+    this.ordenesService
+      .getById(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (orden) => {
+        next: orden => {
           this.form.patchValue({
             descripcion: orden.descripcion,
             cliente: orden.cliente,
             prioridad: orden.prioridad,
-            fechaFinEstimada: orden.fechaFinEstimada ?
-              new Date(orden.fechaFinEstimada).toISOString().split('T')[0] : '',
+            fechaFinEstimada: orden.fechaFinEstimada
+              ? new Date(orden.fechaFinEstimada).toISOString().split('T')[0]
+              : '',
             presupuestoEstimado: orden.presupuestoEstimado,
             asignadoId: orden.asignadoId || '',
             requiereHES: orden.requiereHES,
           });
           this.loading.set(false);
         },
-        error: (err) => {
+        error: err => {
           this.error.set('Error al cargar la orden');
           this.loading.set(false);
-        }
+        },
       });
   }
 
@@ -85,31 +90,33 @@ export class OrdenFormComponent implements OnInit {
     const formValue = this.form.value;
     const dto = {
       ...formValue,
-      presupuestoEstimado: formValue.presupuestoEstimado ?
-        Number(formValue.presupuestoEstimado) : null,
+      presupuestoEstimado: formValue.presupuestoEstimado
+        ? Number(formValue.presupuestoEstimado)
+        : null,
       fechaFinEstimada: formValue.fechaFinEstimada || null,
       asignadoId: formValue.asignadoId || null,
     };
 
-    const request$ = this.isEditMode() && this.ordenId
-      ? this.ordenesService.update(this.ordenId, dto)
-      : this.ordenesService.create(dto);
+    const request$ =
+      this.isEditMode() && this.ordenId
+        ? this.ordenesService.update(this.ordenId, dto)
+        : this.ordenesService.create(dto);
 
     subscribeSubmit(
       request$,
       this.destroyRef,
       this.loading,
       this.error,
-      (orden) => this.router.navigate(['/ordenes', orden.id]),
-      'Error al guardar la orden',
+      orden => this.router.navigate(['/orders', orden.id]),
+      'Error al guardar la orden'
     );
   }
 
   onCancel(): void {
     if (this.isEditMode() && this.ordenId) {
-      this.router.navigate(['/ordenes', this.ordenId]);
+      this.router.navigate(['/orders', this.ordenId]);
     } else {
-      this.router.navigate(['/ordenes']);
+      this.router.navigate(['/orders']);
     }
   }
 

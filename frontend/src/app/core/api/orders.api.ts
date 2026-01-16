@@ -1,28 +1,28 @@
-import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
 import { environment } from '@env/environment';
+import { Observable } from 'rxjs';
 import {
-  Orden,
-  CreateOrdenDto,
-  UpdateOrdenDto,
-  ChangeEstadoOrdenDto,
   AsignarTecnicoOrdenDto,
-  ListOrdenesQuery,
-  PaginatedOrdenes,
+  ChangeEstadoOrdenDto,
+  CreateOrdenDto,
   HistorialEstado,
-  OrdenesStats
+  ListOrdenesQuery,
+  Orden,
+  OrdenesStats,
+  PaginatedOrdenes,
+  UpdateOrdenDto,
 } from '../models/orden.model';
 
 // Re-export types for service layer
-export type { PaginatedOrdenes, OrdenesStats };
+export type { OrdenesStats, PaginatedOrdenes };
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-export class OrdenesApi {
+export class OrdersApi {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/ordenes`;
+  private apiUrl = `${environment.apiUrl}/orders`;
 
   /**
    * List orders with optional filters
@@ -69,7 +69,7 @@ export class OrdenesApi {
    * Update existing order
    */
   update(id: string, data: UpdateOrdenDto): Observable<Orden> {
-    // Backend expone PATCH /ordenes/:id
+    // Backend expone PATCH /orders/:id
     return this.http.patch<Orden>(`${this.apiUrl}/${id}`, data);
   }
 
@@ -84,22 +84,22 @@ export class OrdenesApi {
    * Change order status
    */
   changeEstado(id: string, dto: ChangeEstadoOrdenDto): Observable<Orden> {
-    // Backend expone POST /ordenes/:id/cambiar-estado
-    return this.http.post<Orden>(`${this.apiUrl}/${id}/cambiar-estado`, dto);
+    // Backend expone POST /orders/:id/change-status
+    return this.http.post<Orden>(`${this.apiUrl}/${id}/change-status`, dto);
   }
 
   /**
    * Assign technician to order
    */
   asignarTecnico(ordenId: string, dto: AsignarTecnicoOrdenDto): Observable<Orden> {
-    return this.http.post<Orden>(`${this.apiUrl}/${ordenId}/asignar-tecnico`, dto);
+    return this.http.post<Orden>(`${this.apiUrl}/${ordenId}/assign-technician`, dto);
   }
 
   /**
    * Get order status history
    */
   getHistorial(id: string): Observable<HistorialEstado[]> {
-    return this.http.get<HistorialEstado[]>(`${this.apiUrl}/${id}/historial`);
+    return this.http.get<HistorialEstado[]>(`${this.apiUrl}/${id}/history`);
   }
 
   /**

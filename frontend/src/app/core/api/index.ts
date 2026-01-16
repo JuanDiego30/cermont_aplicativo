@@ -4,12 +4,12 @@
  */
 export * from './api-base.service';
 export * from './auth.api';
-export * from './ordenes.api';
 export * from './dashboard.api';
-export * from './tecnicos.api';
-export * from './mantenimientos.api';
+export * from './evidence.api';
 export * from './kits.api';
-export * from './evidencias.api';
-export * from './planeacion.api';
-export * from './reportes.api';
+export * from './mantenimientos.api';
+export * from './orders.api';
+export * from './planning.api';
+export * from './reports.api';
+export * from './technicians.api';
 

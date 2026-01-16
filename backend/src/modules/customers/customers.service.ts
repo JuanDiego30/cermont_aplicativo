@@ -2,12 +2,12 @@ import type { Prisma } from '@/prisma/client';
 import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
-  CreateContactDto,
-  CreateCustomerDto,
-  CreateLocationDto,
-  CustomerOrdersResponseDto,
-  CustomerResponseDto,
-  CustomerType,
+    CreateContactDto,
+    CreateCustomerDto,
+    CreateLocationDto,
+    CustomerOrdersResponseDto,
+    CustomerResponseDto,
+    CustomerType,
 } from './application/dto/customers.dto';
 
 type CustomerWithRelations = Prisma.ClienteGetPayload<{
@@ -218,7 +218,7 @@ export class CustomersService {
       clienteId: customerId,
       razonSocial: customer.razonSocial,
       totalOrdenes: orders.length,
-      ordenes: orders,
+      orders,
     };
   }
 

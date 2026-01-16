@@ -28,7 +28,7 @@ export class DeleteOrderUseCase {
 
     // Emitir evento
     this.eventEmitter.emit("Order.deleted", {
-      OrderId: id,
+      orderId: id,
       numero: Order.numero.value,
     });
 

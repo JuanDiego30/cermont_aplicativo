@@ -95,7 +95,7 @@ describe('CustomersService', () => {
     await expect(service.findById('no-existe')).rejects.toThrow(NotFoundException);
   });
 
-  it('retorna historial de ordenes del cliente', async () => {
+  it('returns customer order history', async () => {
     prisma.order.findMany.mockResolvedValue([
       {
         id: 'ord-1',
@@ -112,6 +112,6 @@ describe('CustomersService', () => {
 
     expect(prisma.order.findMany).toHaveBeenCalledTimes(1);
     expect(result.totalOrdenes).toBe(1);
-    expect(result.ordenes[0].numero).toBe('OT-001');
+    expect(result.orders[0].numero).toBe('OT-001');
   });
 });

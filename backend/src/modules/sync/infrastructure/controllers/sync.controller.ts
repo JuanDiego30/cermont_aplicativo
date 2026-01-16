@@ -3,29 +3,29 @@
  * @description Controlador para sincronización offline
  */
 import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  UseGuards,
+    Body,
+    Controller,
+    Get,
+    Post,
+    UseGuards,
 } from "@nestjs/common";
 import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiBody,
+    ApiBearerAuth,
+    ApiBody,
+    ApiOperation,
+    ApiResponse,
+    ApiTags,
 } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../../../auth/guards/jwt-auth.guard";
 import {
-  CurrentUser,
-  JwtPayload,
+    CurrentUser,
+    JwtPayload,
 } from "../../../../shared/decorators/current-user.decorator";
-import {
-  ProcessSyncBatchUseCase,
-  GetPendingSyncUseCase,
-} from "../../application/use-cases";
+import { JwtAuthGuard } from "../../../auth/guards/jwt-auth.guard";
 import { SyncBatchDto } from "../../application/dto";
+import {
+    GetPendingSyncUseCase,
+    ProcessSyncBatchUseCase,
+} from "../../application/use-cases";
 import { SyncService } from "../../sync.service";
 
 /**
@@ -51,7 +51,7 @@ export class SyncController {
    */
   @Post()
   @ApiOperation({
-    summary: "Sincronizar cambios offline",
+    summary: "Sync offline changes",
     description:
       "Procesa un batch de cambios realizados offline y los sincroniza con el servidor.",
   })
@@ -91,17 +91,17 @@ export class SyncController {
 
   @Get("status")
   @ApiOperation({
-    summary: "Obtener estado de la última sincronización",
+    summary: "Get last sync status",
   })
   @ApiResponse({ status: 200, description: "Estado de sincronización" })
   async status(@CurrentUser() user: JwtPayload) {
     return this.legacySyncService.getLastSyncStatus(user.userId);
   }
 
-  @Get("ordenes-offline")
-  @ApiOperation({ summary: "Descargar órdenes para trabajo offline" })
-  @ApiResponse({ status: 200, description: "Órdenes offline" })
-  async ordenesOffline(@CurrentUser() user: JwtPayload) {
+  @Get("orders-offline")
+  @ApiOperation({ summary: "Download orders for offline work" })
+  @ApiResponse({ status: 200, description: "Offline orders" })
+  async ordersOffline(@CurrentUser() user: JwtPayload) {
     return this.legacySyncService.getOrdenesParaOffline(user.userId);
   }
 

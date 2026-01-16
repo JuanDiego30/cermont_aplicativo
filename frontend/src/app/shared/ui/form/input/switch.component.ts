@@ -3,11 +3,10 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-switch',
-  imports: [
-    CommonModule
-  ],
+  standalone: true,
+  imports: [CommonModule],
   template: `
-   <label
+    <label
       class="flex cursor-pointer select-none items-center gap-3 text-sm font-medium"
       [ngClass]="disabled ? 'text-gray-400' : 'text-gray-700 dark:text-gray-400'"
       (click)="handleToggle()"
@@ -16,9 +15,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
         <div
           class="block transition duration-150 ease-linear h-6 w-11 rounded-full"
           [ngClass]="
-            (disabled
-              ? 'bg-gray-100 pointer-events-none dark:bg-gray-800'
-              : switchColors.background)
+            disabled ? 'bg-gray-100 pointer-events-none dark:bg-gray-800' : switchColors.background
           "
         ></div>
         <div
@@ -28,10 +25,9 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
       </div>
       {{ label }}
     </label>
-  `
+  `,
 })
 export class SwitchComponent implements OnInit {
-
   @Input() label!: string;
   @Input() defaultChecked: boolean = false;
   @Input() disabled: boolean = false;
@@ -54,21 +50,15 @@ export class SwitchComponent implements OnInit {
   get switchColors() {
     if (this.color === 'blue') {
       return {
-        background: this.isChecked
-          ? 'bg-brand-500'
-          : 'bg-gray-200 dark:bg-white/10',
-        knob: this.isChecked
-          ? 'translate-x-full bg-white'
-          : 'translate-x-0 bg-white',
+        background: this.isChecked ? 'bg-brand-500' : 'bg-gray-200 dark:bg-white/10',
+        knob: this.isChecked ? 'translate-x-full bg-white' : 'translate-x-0 bg-white',
       };
     } else {
       return {
         background: this.isChecked
           ? 'bg-gray-800 dark:bg-white/10'
           : 'bg-gray-200 dark:bg-white/10',
-        knob: this.isChecked
-          ? 'translate-x-full bg-white'
-          : 'translate-x-0 bg-white',
+        knob: this.isChecked ? 'translate-x-full bg-white' : 'translate-x-0 bg-white',
       };
     }
   }

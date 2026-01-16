@@ -4,11 +4,8 @@
  */
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { Evidence } from '../models/evidencia.model';
 import { ApiBaseService } from './api-base.service';
-import {
-  Evidence,
-  CreateEvidenceDto
-} from '../models/evidencia.model';
 
 export interface UploadEvidenceResponse {
   id: string;
@@ -20,9 +17,9 @@ export interface UploadEvidenceResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-export class EvidenciasApi extends ApiBaseService {
+export class EvidenceApi extends ApiBaseService {
   /**
    * Upload evidence file (image, PDF, video)
    * @param ordenId Order ID
@@ -53,35 +50,34 @@ export class EvidenciasApi extends ApiBaseService {
       formData.append('coordenadas', JSON.stringify(metadata.coordenadas));
     }
 
-    return super.upload<UploadEvidenceResponse>('/evidencias/upload', formData);
+    return super.upload<UploadEvidenceResponse>('/evidence/upload', formData);
   }
 
   /**
    * Get evidence by ID
    */
   getById(id: string): Observable<Evidence> {
-    return this.get<Evidence>(`/evidencias/${id}`);
+    return this.get<Evidence>(`/evidence/${id}`);
   }
 
   /**
    * Get all evidence for an order
    */
   getByOrdenId(ordenId: string): Observable<Evidence[]> {
-    return this.get<Evidence[]>(`/evidencias/orden/${ordenId}`);
+    return this.get<Evidence[]>(`/evidence/order/${ordenId}`);
   }
 
   /**
    * Delete evidence
    */
   delete(id: string): Observable<void> {
-    return this.deleteRequest<void>(`/evidencias/${id}`);
+    return this.deleteRequest<void>(`/evidence/${id}`);
   }
 
   /**
    * Download evidence file
    */
   downloadFile(id: string): Observable<Blob> {
-    return super.download(`/evidencias/${id}/download`);
+    return super.download(`/evidence/${id}/download`);
   }
 }
-

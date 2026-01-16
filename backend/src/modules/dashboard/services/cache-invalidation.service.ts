@@ -1,5 +1,5 @@
-import { Injectable, Inject, Logger } from "@nestjs/common";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 // Cache type viene de cache-manager como peer dependency de @nestjs/cache-manager
 // TypeScript lo resuelve automáticamente desde node_modules
 import type { Cache } from "cache-manager";
@@ -20,7 +20,7 @@ export class CacheInvalidationService {
     await Promise.all([
       this.cache.del("dashboard:stats"),
       this.cache.del("dashboard:metricas"),
-      this.cache.del("dashboard:ordenes-recientes"),
+      this.cache.del("dashboard:recent-orders"),
       this.cache.del("dashboard:overview"),
       this.cache.del("dashboard:kpis"),
       this.cache.del("dashboard:costs"),

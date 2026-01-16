@@ -8,12 +8,12 @@
  */
 
 import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
+    BadRequestException,
+    Inject,
+    Injectable,
+    InternalServerErrorException,
+    Logger,
+    NotFoundException,
 } from '@nestjs/common';
 import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
@@ -94,8 +94,8 @@ const UPLOAD_SECURITY_CONFIG = {
 } as const;
 
 @Injectable()
-export class EvidenciasService {
-  private readonly logger = new Logger(EvidenciasService.name);
+export class EvidenceService {
+  private readonly logger = new Logger(EvidenceService.name);
 
   constructor(
     @Inject(EVIDENCIA_REPOSITORY)

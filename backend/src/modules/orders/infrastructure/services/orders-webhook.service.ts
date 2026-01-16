@@ -5,7 +5,7 @@ import { firstValueFrom } from "rxjs";
 type EstadoOrder = string;
 
 export interface OrderstadoChangedWebhookPayload {
-  OrderId: string;
+  orderId: string;
   numero: string;
   from: EstadoOrder;
   to: EstadoOrder;
@@ -33,7 +33,7 @@ export class OrdersWebhookService {
         {
           event: "Order.estado.changed",
           Order: {
-            id: payload.OrderId,
+            id: payload.orderId,
             numero: payload.numero,
           },
           from: payload.from,

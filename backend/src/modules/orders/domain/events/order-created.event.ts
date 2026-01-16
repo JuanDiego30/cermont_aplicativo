@@ -5,7 +5,7 @@
  */
 export class OrderCreatedEvent {
   constructor(
-    public readonly OrderId: string,
+    public readonly orderId: string,
     public readonly numero: string,
     public readonly descripcion: string,
     public readonly cliente: string,

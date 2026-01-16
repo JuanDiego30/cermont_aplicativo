@@ -22,7 +22,7 @@ import { UploadService } from '../../../core/services/upload.service';
             class="h-32 w-32 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-lg transition-all duration-200 group-hover:brightness-75"
           />
         } @else {
-          <div class="flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-br from-cermont-primary-400 to-cermont-primary-600 border-4 border-white dark:border-gray-800 shadow-lg transition-all duration-200 group-hover:brightness-90">
+          <div class="flex h-32 w-32 items-center justify-center rounded-full bg-linear-to-br from-cermont-primary-400 to-cermont-primary-600 border-4 border-white dark:border-gray-800 shadow-lg transition-all duration-200 group-hover:brightness-90">
             <span class="text-4xl font-bold text-white">
               {{ getInitials() }}
             </span>

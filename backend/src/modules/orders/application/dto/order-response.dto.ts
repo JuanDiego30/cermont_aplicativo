@@ -105,7 +105,7 @@ export class HistorialEstadoDto {
   id!: string;
 
   @ApiProperty({ example: 'ORD-2024-001' })
-  OrderId!: string;
+  orderId!: string;
 
   @ApiPropertyOptional({ enum: Orderstado, example: Orderstado.PLANEACION })
   estadoAnterior?: Orderstado;

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
+import { Transform, Type, type TransformFnParams } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
@@ -160,7 +160,7 @@ export class CreateCustomerDto {
 export class CustomersQueryDto {
   @ApiPropertyOptional({ type: Boolean, description: 'Filtrar por activo' })
   @IsOptional()
-  @Transform(({ value }) => {
+  @Transform(({ value }: TransformFnParams) => {
     if (value === undefined || value === null || value === '') return undefined;
     if (typeof value === 'boolean') return value;
     if (value === 'true') return true;
@@ -262,5 +262,5 @@ export class CustomerOrdersResponseDto {
   totalOrdenes!: number;
 
   @ApiProperty({ type: [CustomerOrderSummaryDto] })
-  ordenes!: CustomerOrderSummaryDto[];
+  orders!: CustomerOrderSummaryDto[];
 }

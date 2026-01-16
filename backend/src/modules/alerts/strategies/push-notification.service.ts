@@ -99,7 +99,7 @@ export class PushNotificationService implements INotificationSender {
           prioridad: alerta.getPrioridad().getValue(),
           tipo: alerta.getTipo().getValue(),
           timestamp: alerta.getCreatedAt().toISOString(),
-          url: `/alertas/${alerta.getId().getValue()}`,
+          url: `/alerts/${alerta.getId().getValue()}`,
         },
         requireInteraction: alerta.getPrioridad().esCritica(), // Mostrar hasta que el usuario interactúe si es crítica
       });

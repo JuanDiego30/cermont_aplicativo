@@ -1,18 +1,18 @@
-import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
 import { environment } from '@env/environment';
+import { Observable } from 'rxjs';
 import {
-  DashboardStats,
-  DashboardMetricas,
-  OrdenReciente,
-  KPIConsolidado,
   CostoBreakdown,
-  PerformanceTrend
+  DashboardMetricas,
+  DashboardStats,
+  KPIConsolidado,
+  OrdenReciente,
+  PerformanceTrend,
 } from '../models/dashboard.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DashboardApi {
   private http = inject(HttpClient);
@@ -29,14 +29,14 @@ export class DashboardApi {
    * Get dashboard metrics
    */
   getMetricas(): Observable<DashboardMetricas> {
-    return this.http.get<DashboardMetricas>(`${this.apiUrl}/metricas`);
+    return this.http.get<DashboardMetricas>(`${this.apiUrl}/metrics`);
   }
 
   /**
    * Get recent orders
    */
   getOrdenesRecientes(): Observable<{ data: OrdenReciente[] }> {
-    return this.http.get<{ data: OrdenReciente[] }>(`${this.apiUrl}/ordenes-recientes`);
+    return this.http.get<{ data: OrdenReciente[] }>(`${this.apiUrl}/recent-orders`);
   }
 
   /**
@@ -50,7 +50,7 @@ export class DashboardApi {
    * Get cost breakdown
    */
   getCostosBreakdown(): Observable<{ data: CostoBreakdown[] }> {
-    return this.http.get<{ data: CostoBreakdown[] }>(`${this.apiUrl}/costos-breakdown`);
+    return this.http.get<{ data: CostoBreakdown[] }>(`${this.apiUrl}/costs/breakdown`);
   }
 
   /**
@@ -61,15 +61,15 @@ export class DashboardApi {
     hasta: string;
     granularidad?: 'DIA' | 'SEMANA' | 'MES';
   }): Observable<PerformanceTrend[]> {
-    let httpParams = new HttpParams()
-      .set('desde', params.desde)
-      .set('hasta', params.hasta);
+    let httpParams = new HttpParams().set('desde', params.desde).set('hasta', params.hasta);
 
     if (params.granularidad) {
       httpParams = httpParams.set('granularidad', params.granularidad);
     }
 
-    return this.http.get<PerformanceTrend[]>(`${this.apiUrl}/performance-trends`, { params: httpParams });
+    return this.http.get<PerformanceTrend[]>(`${this.apiUrl}/performance/trends`, {
+      params: httpParams,
+    });
   }
 
   /**

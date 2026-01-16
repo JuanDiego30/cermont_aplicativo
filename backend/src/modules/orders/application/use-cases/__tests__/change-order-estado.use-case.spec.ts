@@ -8,12 +8,12 @@ import { EstadoOrder, PrioridadLevel } from '../../../domain/value-objects';
 import { ChangeOrderstadoUseCase } from '../change-order-estado.use-case';
 
 describe('ChangeOrderstadoUseCase', () => {
-  const OrderId = 'Order-1';
+  const orderId = 'Order-1';
 
   const makeOrder = (estado: EstadoOrder) => {
     const prioridad: PrioridadLevel = 'media';
     const persistence: Parameters<typeof OrderEntity.fromPersistence>[0] = {
-      id: OrderId,
+      id: orderId,
       numero: 'ORD-000001',
       descripcion: 'Order de prueba para cambio de estado',
       cliente: 'Cliente',
@@ -35,7 +35,7 @@ describe('ChangeOrderstadoUseCase', () => {
     const tx = {
       order: {
         update: jest.fn().mockResolvedValue({
-          id: OrderId,
+          id: orderId,
           numero: 'ORD-000001',
           descripcion: 'Order de prueba para cambio de estado',
           cliente: 'Cliente',
@@ -74,7 +74,7 @@ describe('ChangeOrderstadoUseCase', () => {
 
     const useCase = moduleRef.get(ChangeOrderstadoUseCase);
 
-    await useCase.execute(OrderId, {
+    await useCase.execute(orderId, {
       nuevoEstado: Orderstado.PLANEACION,
       motivo: 'Inicio de planeaci�n',
       usuarioId: 'user-1',
@@ -86,7 +86,7 @@ describe('ChangeOrderstadoUseCase', () => {
     expect(tx.orderStateHistory.create).toHaveBeenCalledTimes(1);
 
     const payload = (tx.orderStateHistory.create as jest.Mock).mock.calls[0][0].data;
-    expect(payload.OrderId).toBe(OrderId);
+    expect(payload.orderId).toBe(orderId);
     expect(payload.toState).toBe('planeacion_iniciada');
     expect(payload.notas).toBe('Inicio de planeaci�n');
   });

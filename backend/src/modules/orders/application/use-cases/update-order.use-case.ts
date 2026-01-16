@@ -59,7 +59,7 @@ export class UpdateOrderUseCase {
 
     // Emitir evento
     this.eventEmitter.emit("Order.updated", {
-      OrderId: updated.id,
+      orderId: updated.id,
       changes: Object.keys(dto),
     });
 
