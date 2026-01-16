@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 
 type EstadoOrder = string;
 
-export interface OrderstadoChangedWebhookPayload {
+export interface OrderEstadoChangedWebhookPayload {
   orderId: string;
   numero: string;
   from: EstadoOrder;
@@ -20,7 +20,7 @@ export class OrdersWebhookService {
   constructor(private readonly httpService: HttpService) {}
 
   async sendEstadoChanged(
-    payload: OrderstadoChangedWebhookPayload
+    payload: OrderEstadoChangedWebhookPayload
   ): Promise<{ url: string; status: number }> {
     const url = process.env.Orders_WEBHOOK_URL?.trim();
     if (!url) {

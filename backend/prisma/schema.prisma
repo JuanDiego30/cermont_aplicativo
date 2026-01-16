@@ -903,6 +903,37 @@ model FormularioInstancia {
 }
 
 // ============================================
+// INSPECTION FORMS (MVP JSON FORMS)
+// ============================================
+
+enum InspectionFormType {
+  ARNES
+  ESCALERA
+  CCTV
+}
+
+model InspectionForm {
+  id           String             @id @default(uuid())
+  technicianId String
+  technician   User               @relation(fields: [technicianId], references: [id])
+
+  orderId String
+  order   Order @relation(fields: [orderId], references: [id])
+
+  type   InspectionFormType
+  data   Json
+  photos String[]
+
+  createdAt DateTime @default(now())
+
+  @@index([technicianId])
+  @@index([orderId])
+  @@index([type])
+  @@map("inspection_forms")
+}
+
+
+// ============================================
 // FORMULARIOS DINÁMICOS - LEGACY COMPATIBILITY
 // ============================================
 

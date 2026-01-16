@@ -40,6 +40,9 @@ import {
   FormValidatorService,
 } from './domain/services';
 
+// PDF Generation
+import { PdfGenerationModule } from '../pdf-generation/pdf-generation.module';
+
 // Legacy (deprecar)
 import { PrismaModule } from '../../prisma/prisma.module';
 import { FormsService } from './forms.service';
@@ -48,6 +51,7 @@ import { FormsService } from './forms.service';
   imports: [
     PrismaModule,
     EventEmitterModule,
+    PdfGenerationModule,
     MulterModule.register({
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
     }),

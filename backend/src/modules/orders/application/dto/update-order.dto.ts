@@ -1,14 +1,14 @@
 import { ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { IsDateString, IsEnum, IsNumber, IsOptional, Min } from 'class-validator';
 import { CreateOrderDto } from './create-order.dto';
-import { EstadoOrder } from './order.dto';
+import { EstadoOrder, OrderStatus } from './order.dto';
 
 /**
  * @deprecated Use EstadoOrder from './order.dto' instead
  * Alias mantenido para compatibilidad temporal
  */
-export const Orderstado = EstadoOrder;
-export type Orderstado = EstadoOrder;
+export const OrderEstado = EstadoOrder;
+export type OrderEstado = OrderStatus;
 
 export class UpdateOrderDto extends PartialType(CreateOrderDto) {
   @ApiPropertyOptional({
@@ -18,7 +18,7 @@ export class UpdateOrderDto extends PartialType(CreateOrderDto) {
   })
   @IsOptional()
   @IsEnum(EstadoOrder)
-  estado?: EstadoOrder;
+  estado?: OrderStatus;
 
   @ApiPropertyOptional({
     description: 'Fecha real de inicio',

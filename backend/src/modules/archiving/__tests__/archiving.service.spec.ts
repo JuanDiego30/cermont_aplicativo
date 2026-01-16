@@ -6,12 +6,12 @@ jest.mock('fs', () => ({
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
-import { ArchivadoHistoricoService } from '../archivado-historico.service';
+import { ArchivingService } from '../archiving.service';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
-describe('ArchivadoHistoricoService', () => {
-  let service: ArchivadoHistoricoService;
+describe('ArchivingService', () => {
+  let service: ArchivingService;
   let prisma: {
     order: {
       findMany: jest.Mock;
@@ -33,13 +33,13 @@ describe('ArchivadoHistoricoService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        ArchivadoHistoricoService,
+        ArchivingService,
         { provide: PrismaService, useValue: prisma },
         { provide: EventEmitter2, useValue: { emit: jest.fn() } },
       ],
     }).compile();
 
-    service = module.get(ArchivadoHistoricoService);
+    service = module.get(ArchivingService);
   });
 
   it('archiva órdenes manualmente', async () => {

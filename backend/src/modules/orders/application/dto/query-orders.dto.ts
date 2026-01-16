@@ -12,7 +12,7 @@ import {
   Min,
 } from 'class-validator';
 import { Prioridad } from './create-order.dto';
-import { Orderstado } from './update-order.dto';
+import { OrderEstado } from './update-order.dto';
 
 export class QueryOrdersDto {
   @ApiPropertyOptional({
@@ -39,11 +39,11 @@ export class QueryOrdersDto {
 
   @ApiPropertyOptional({
     description: 'Filtrar por estado',
-    enum: Orderstado,
+    enum: OrderEstado,
   })
   @IsOptional()
-  @IsEnum(Orderstado)
-  estado?: Orderstado;
+  @IsEnum(OrderEstado)
+  estado?: OrderEstado;
 
   @ApiPropertyOptional({
     description: 'Filtrar por prioridad',

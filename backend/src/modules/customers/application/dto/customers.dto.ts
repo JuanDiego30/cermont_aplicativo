@@ -12,9 +12,11 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-/**
- * Customer type
- */
+// Re-export types from shared-types
+export type { CustomerContactInfo, CustomerLocationInfo } from '@cermont/shared-types';
+
+// Define CustomerType enum locally (mirrors @cermont/shared-types)
+// TODO: Once module resolution is fixed, re-export from shared-types
 export enum CustomerType {
   PETROLERO = 'petrolero',
   INDUSTRIAL = 'industrial',
@@ -24,10 +26,71 @@ export enum CustomerType {
   OTRO = 'otro',
 }
 
+// Re-export interfaces from shared-types
+export type {
+  CreateContactDto as ICreateContactDto,
+  CreateCustomerDto as ICreateCustomerDto,
+  CreateLocationDto as ICreateLocationDto,
+  CustomerOrdersResponseDto as ICustomerOrdersResponseDto,
+  CustomerOrderSummaryDto as ICustomerOrderSummaryDto,
+  CustomersQueryDto as ICustomersQueryDto,
+  UpdateCustomerDto as IUpdateCustomerDto,
+} from '@cermont/shared-types';
+
 /**
- * DTO to create customer contact
+ * Backend-specific interfaces (for backward compatibility with existing code)
  */
-export class CreateContactDto {
+export interface CreateContactDto {
+  nombre: string;
+  cargo: string;
+  email: string;
+  telefono?: string;
+  esPrincipal?: boolean;
+}
+
+export interface CreateLocationDto {
+  nombre: string;
+  direccion?: string;
+  ciudad?: string;
+  departamento?: string;
+  latitud?: number;
+  longitud?: number;
+  esPrincipal?: boolean;
+}
+
+export interface CreateCustomerDto {
+  razonSocial: string;
+  nit: string;
+  tipoCliente: CustomerType;
+  direccion?: string;
+  telefono?: string;
+  email?: string;
+  contactos?: CreateContactDto[];
+  ubicaciones?: CreateLocationDto[];
+}
+
+/**
+ * Backend-specific Query DTO with validators
+ */
+export class CustomersQueryDto {
+  @ApiPropertyOptional({ type: Boolean, description: 'Filtrar por activo' })
+  @IsOptional()
+  @Transform(({ value }: TransformFnParams) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    if (typeof value === 'boolean') return value;
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  })
+  @IsBoolean()
+  activo?: boolean;
+}
+
+/**
+ * Backend-specific DTOs with class-validator decorators
+ */
+
+export class BackendCreateContactDto implements CreateContactDto {
   @ApiProperty({ description: 'Nombre del contacto' })
   @IsString()
   @IsNotEmpty()
@@ -54,10 +117,7 @@ export class CreateContactDto {
   esPrincipal?: boolean;
 }
 
-/**
- * DTO to create customer location
- */
-export class CreateLocationDto {
+export class BackendCreateLocationDto implements CreateLocationDto {
   @ApiProperty({ description: 'Nombre de la ubicación', example: 'Caño Limón' })
   @IsString()
   @IsNotEmpty()
@@ -97,10 +157,7 @@ export class CreateLocationDto {
   esPrincipal?: boolean;
 }
 
-/**
- * DTO to create customer
- */
-export class CreateCustomerDto {
+export class BackendCreateCustomerDto {
   @ApiProperty({
     description: 'Razón social',
     example: 'SIERRACOL ENERGY ARAUCA LLC',
@@ -134,45 +191,28 @@ export class CreateCustomerDto {
   email?: string;
 
   @ApiPropertyOptional({
-    type: [CreateContactDto],
+    type: BackendCreateContactDto,
     description: 'Contactos del cliente',
   })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => CreateContactDto)
-  contactos?: CreateContactDto[];
+  @Type(() => BackendCreateContactDto)
+  contactos?: BackendCreateContactDto[];
 
   @ApiPropertyOptional({
-    type: [CreateLocationDto],
+    type: BackendCreateLocationDto,
     description: 'Ubicaciones del cliente',
   })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => CreateLocationDto)
-  ubicaciones?: CreateLocationDto[];
+  @Type(() => BackendCreateLocationDto)
+  ubicaciones?: BackendCreateLocationDto[];
 }
 
 /**
- * DTO for customer query filters
- */
-export class CustomersQueryDto {
-  @ApiPropertyOptional({ type: Boolean, description: 'Filtrar por activo' })
-  @IsOptional()
-  @Transform(({ value }: TransformFnParams) => {
-    if (value === undefined || value === null || value === '') return undefined;
-    if (typeof value === 'boolean') return value;
-    if (value === 'true') return true;
-    if (value === 'false') return false;
-    return value;
-  })
-  @IsBoolean()
-  activo?: boolean;
-}
-
-/**
- * DTO for customer response
+ * Backend-specific Response DTOs with ApiProperty decorators
  */
 export class CustomerResponseDto {
   @ApiProperty()

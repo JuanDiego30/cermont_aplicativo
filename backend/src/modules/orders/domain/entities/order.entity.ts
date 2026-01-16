@@ -3,7 +3,7 @@
  * @description Entidad de dominio que representa una Order de Trabajo
  * @layer Domain
  */
-import { OrderNumero, Orderstado, Prioridad, EstadoOrder, PrioridadLevel } from '../value-objects';
+import { OrderNumero, OrderEstado, Prioridad, EstadoOrder, PrioridadLevel } from '../value-objects';
 
 export interface OrderProps {
   id: string;
@@ -68,8 +68,8 @@ export class OrderEntity {
   get cliente(): string {
     return this.props.cliente;
   }
-  get estado(): Orderstado {
-    return Orderstado.create(this.props.estado);
+  get estado(): OrderEstado {
+    return OrderEstado.create(this.props.estado);
   }
   get prioridad(): Prioridad {
     return Prioridad.create(this.props.prioridad);
@@ -166,7 +166,7 @@ export class OrderEntity {
 
   changeEstado(newEstado: EstadoOrder): void {
     const currentEstado = this.estado;
-    const targetEstado = Orderstado.create(newEstado);
+    const targetEstado = OrderEstado.create(newEstado);
 
     if (!currentEstado.canTransitionTo(newEstado)) {
       throw new Error(`Transición inválida de ${currentEstado.value} a ${newEstado}`);

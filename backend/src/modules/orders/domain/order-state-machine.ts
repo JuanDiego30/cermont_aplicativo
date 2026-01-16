@@ -2,7 +2,7 @@
  * Domain Exception: Thrown when required reason is missing for state transition
  */
 export class MissingStateTransitionReasonError extends Error {
-  constructor(targetState: Orderstado) {
+  constructor(targetState: OrderEstado) {
     super(`El campo "motivo" es obligatorio al cambiar a estado ${targetState}`);
     this.name = 'MissingStateTransitionReasonError';
   }
@@ -12,7 +12,7 @@ export class MissingStateTransitionReasonError extends Error {
  * Domain Exception: Thrown when state transition is not allowed
  */
 export class InvalidStateTransitionError extends Error {
-  constructor(fromEstado: Orderstado, toEstado: Orderstado, allowedTransitions: Orderstado[]) {
+  constructor(fromEstado: OrderEstado, toEstado: OrderEstado, allowedTransitions: OrderEstado[]) {
     super(
       `No se puede cambiar de ${fromEstado} a ${toEstado}. ` +
         `Transiciones permitidas: ${allowedTransitions.join(', ')}`
@@ -21,7 +21,7 @@ export class InvalidStateTransitionError extends Error {
   }
 }
 
-export enum Orderstado {
+export enum OrderEstado {
   PENDIENTE = 'pendiente',
   PLANEACION = 'planeacion',
   EJECUCION = 'ejecucion',
@@ -35,25 +35,25 @@ export enum Orderstado {
  */
 export class OrderStateMachine {
   // Transiciones permitidas desde cada estado
-  private static readonly TRANSITIONS: Record<Orderstado, Orderstado[]> = {
-    [Orderstado.PENDIENTE]: [Orderstado.PLANEACION, Orderstado.CANCELADA],
-    [Orderstado.PLANEACION]: [Orderstado.EJECUCION, Orderstado.CANCELADA],
-    [Orderstado.EJECUCION]: [Orderstado.COMPLETADA, Orderstado.PAUSADA, Orderstado.CANCELADA],
-    [Orderstado.COMPLETADA]: [],
-    [Orderstado.CANCELADA]: [],
-    [Orderstado.PAUSADA]: [Orderstado.EJECUCION, Orderstado.CANCELADA],
+  private static readonly TRANSITIONS: Record<OrderEstado, OrderEstado[]> = {
+    [OrderEstado.PENDIENTE]: [OrderEstado.PLANEACION, OrderEstado.CANCELADA],
+    [OrderEstado.PLANEACION]: [OrderEstado.EJECUCION, OrderEstado.CANCELADA],
+    [OrderEstado.EJECUCION]: [OrderEstado.COMPLETADA, OrderEstado.PAUSADA, OrderEstado.CANCELADA],
+    [OrderEstado.COMPLETADA]: [],
+    [OrderEstado.CANCELADA]: [],
+    [OrderEstado.PAUSADA]: [OrderEstado.EJECUCION, OrderEstado.CANCELADA],
   };
 
   // Transiciones que requieren motivo obligatorio
-  private static readonly REQUIRES_REASON: Orderstado[] = [
-    Orderstado.CANCELADA,
-    Orderstado.COMPLETADA,
+  private static readonly REQUIRES_REASON: OrderEstado[] = [
+    OrderEstado.CANCELADA,
+    OrderEstado.COMPLETADA,
   ];
 
   /**
    * Valida si una transición de estado es permitida
    */
-  static validateTransition(fromEstado: Orderstado, toEstado: Orderstado, motivo?: string): void {
+  static validateTransition(fromEstado: OrderEstado, toEstado: OrderEstado, motivo?: string): void {
     // Validar que la transición esté permitida
     const allowedTransitions = this.TRANSITIONS[fromEstado];
 
@@ -70,14 +70,14 @@ export class OrderStateMachine {
   /**
    * Obtiene los estados permitidos desde un estado actual
    */
-  static getAllowedTransitions(fromEstado: Orderstado): Orderstado[] {
+  static getAllowedTransitions(fromEstado: OrderEstado): OrderEstado[] {
     return this.TRANSITIONS[fromEstado] || [];
   }
 
   /**
    * Verifica si un estado requiere motivo
    */
-  static requiresReason(estado: Orderstado): boolean {
+  static requiresReason(estado: OrderEstado): boolean {
     return this.REQUIRES_REASON.includes(estado);
   }
 }

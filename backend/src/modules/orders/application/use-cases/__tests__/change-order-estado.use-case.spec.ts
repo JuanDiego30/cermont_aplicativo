@@ -1,13 +1,13 @@
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test } from '@nestjs/testing';
 import { PrismaService } from '../../../../../prisma/prisma.service';
-import { Orderstado } from '../../../application/dto/update-order.dto';
 import { OrderEntity } from '../../../domain/entities';
+import { OrderEstado } from '../../../domain/order-state-machine';
 import { Order_REPOSITORY } from '../../../domain/repositories';
 import { EstadoOrder, PrioridadLevel } from '../../../domain/value-objects';
-import { ChangeOrderstadoUseCase } from '../change-order-estado.use-case';
+import { ChangeOrderEstadoUseCase } from '../change-order-estado.use-case';
 
-describe('ChangeOrderstadoUseCase', () => {
+describe('ChangeOrderEstadoUseCase', () => {
   const orderId = 'Order-1';
 
   const makeOrder = (estado: EstadoOrder) => {
@@ -65,18 +65,18 @@ describe('ChangeOrderstadoUseCase', () => {
 
     const moduleRef = await Test.createTestingModule({
       providers: [
-        ChangeOrderstadoUseCase,
+        ChangeOrderEstadoUseCase,
         { provide: Order_REPOSITORY, useValue: OrderRepo },
         { provide: PrismaService, useValue: prisma },
         { provide: EventEmitter2, useValue: { emit: jest.fn() } },
       ],
     }).compile();
 
-    const useCase = moduleRef.get(ChangeOrderstadoUseCase);
+    const useCase = moduleRef.get(ChangeOrderEstadoUseCase);
 
     await useCase.execute(orderId, {
-      nuevoEstado: Orderstado.PLANEACION,
-      motivo: 'Inicio de planeaci�n',
+      nuevoEstado: OrderEstado.PLANEACION,
+      motivo: 'Inicio de planeación',
       usuarioId: 'user-1',
       observaciones: 'OK',
     });

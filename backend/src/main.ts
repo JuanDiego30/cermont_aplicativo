@@ -21,10 +21,13 @@ async function bootstrap() {
     app.use(compression());
     app.use(cookieParser());
 
-    // CORS Configuration
+    // CORS Configuration - Permisivo para desarrollo
+    const isDevelopment = process.env.NODE_ENV !== 'production';
     app.enableCors({
-      origin: configService.get<string>('FRONTEND_URL') || 'http://localhost:4200',
-      credentials: true,
+      origin: isDevelopment 
+        ? '*'  // Permisivo en desarrollo
+        : (configService.get<string>('FRONTEND_URL') || 'http://localhost:4200'),
+      credentials: !isDevelopment, // Solo credentials en producción
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token', 'x-custom-header'],
     });

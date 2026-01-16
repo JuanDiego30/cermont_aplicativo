@@ -1,5 +1,5 @@
 /**
- * @event OrderstadoChangedEvent
+ * @event OrderEstadoChangedEvent
  * @description Evento de dominio emitido cuando cambia el estado de una Order
  * @layer Domain
  */

@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
-import { CertificacionesService } from '../certificaciones.service';
+import { CertificationsService } from '../certifications.service';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CreateCertificacionTecnicoDto } from '../application/dto/certificaciones.dto';
 import { TipoCertificacionTecnico } from '../domain/value-objects/tipo-certificacion.vo';
 
-describe('CertificacionesService', () => {
-  let service: CertificacionesService;
+describe('CertificationsService', () => {
+  let service: CertificationsService;
   let prisma: {
     user: { findUnique: jest.Mock };
     certificado: { create: jest.Mock; findMany: jest.Mock };
@@ -23,13 +23,13 @@ describe('CertificacionesService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        CertificacionesService,
+        CertificationsService,
         { provide: PrismaService, useValue: prisma },
         { provide: EventEmitter2, useValue: events },
       ],
     }).compile();
 
-    service = module.get(CertificacionesService);
+    service = module.get(CertificationsService);
   });
 
   it('registra certificación de técnico', async () => {

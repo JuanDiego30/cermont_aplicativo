@@ -14,10 +14,10 @@ import {
   Order_REPOSITORY,
 } from '../../domain/repositories/order.repository.interface';
 import { HistorialEstadoDto } from '../dto/order-response.dto';
-import { Orderstado } from '../dto/update-order.dto';
+import { OrderEstado } from '../dto/update-order.dto';
 
-function isOrderstadoValue(value: unknown): value is Orderstado {
-  return typeof value === 'string' && (Object.values(Orderstado) as string[]).includes(value);
+function isOrderEstadoValue(value: unknown): value is OrderEstado {
+  return typeof value === 'string' && (Object.values(OrderEstado) as string[]).includes(value);
 }
 
 function asRecord(value: unknown): Record<string, unknown> {
@@ -60,12 +60,12 @@ export class GetHistorialEstadosUseCase {
         const toSub = parseOrderSubState(String(h.toState));
 
         const estadoAnterior = fromSub
-          ? (getMainStateFromSubState(fromSub) as unknown as Orderstado)
+          ? (getMainStateFromSubState(fromSub) as unknown as OrderEstado)
           : undefined;
 
         const estadoNuevo = toSub
-          ? (getMainStateFromSubState(toSub) as unknown as Orderstado)
-          : ((Order.estado.value || 'pendiente') as unknown as Orderstado);
+          ? (getMainStateFromSubState(toSub) as unknown as OrderEstado)
+          : ((Order.estado.value || 'pendiente') as unknown as OrderEstado);
 
         return {
           id: h.id,
@@ -105,10 +105,10 @@ export class GetHistorialEstadosUseCase {
           const observaciones =
             typeof changes.observaciones === 'string' ? changes.observaciones : undefined;
 
-          const estadoAnterior = isOrderstadoValue(fromRaw) ? fromRaw : undefined;
-          const estadoNuevo = isOrderstadoValue(toRaw)
+          const estadoAnterior = isOrderEstadoValue(fromRaw) ? fromRaw : undefined;
+          const estadoNuevo = isOrderEstadoValue(toRaw)
             ? toRaw
-            : ((Order.estado.value || 'pendiente') as unknown as Orderstado);
+            : ((Order.estado.value || 'pendiente') as unknown as OrderEstado);
 
           historial.push({
             id: a.id,
@@ -129,7 +129,7 @@ export class GetHistorialEstadosUseCase {
           id: Order.id,
           orderId: Order.id,
           estadoAnterior: undefined,
-          estadoNuevo: (Order.estado.value || 'pendiente') as unknown as Orderstado,
+          estadoNuevo: (Order.estado.value || 'pendiente') as unknown as OrderEstado,
           motivo: 'Estado inicial',
           observaciones: undefined,
           usuarioId: Order.creadorId || undefined,

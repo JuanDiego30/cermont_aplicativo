@@ -35,7 +35,7 @@ import {
 import { OrderStateService } from '../../application/services/order-state.service';
 import {
   AsignarTecnicoOrderUseCase,
-  ChangeOrderstadoUseCase,
+  ChangeOrderEstadoUseCase,
   CreateOrderUseCase,
   DeleteOrderUseCase,
   FindOrderUseCase,
@@ -56,7 +56,7 @@ export class OrdersController {
     private readonly findOrder: FindOrderUseCase,
     private readonly getOrderById: GetOrderByIdUseCase,
     private readonly listOrders: ListOrdersUseCase,
-    private readonly changeOrderstado: ChangeOrderstadoUseCase,
+    private readonly changeOrderEstado: ChangeOrderEstadoUseCase,
     private readonly asignarTecnicoOrder: AsignarTecnicoOrderUseCase,
     private readonly getHistorialEstados: GetHistorialEstadosUseCase,
     private readonly deleteOrder: DeleteOrderUseCase,
@@ -187,7 +187,7 @@ export class OrdersController {
     @Param('id') id: string,
     @Body() dto: ChangeEstadoOrderDto
   ): Promise<OrderResponseDto> {
-    return this.changeOrderstado.execute(id, dto);
+    return this.changeOrderEstado.execute(id, dto);
   }
 
   @Post(':id/assign-technician')

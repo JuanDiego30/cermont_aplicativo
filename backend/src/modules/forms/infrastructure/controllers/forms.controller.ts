@@ -5,6 +5,7 @@
  * - CRUD de Templates
  * - CRUD de Submissions
  * - Parsing de PDF/Excel
+ * - PDF generation from filled forms
  */
 import {
   Body,
@@ -18,6 +19,8 @@ import {
   Post,
   Put,
   Query,
+  Res,
+  StreamableFile,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -28,9 +31,11 @@ import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
+  ApiProduces,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { Response } from 'express';
 import { CurrentUser, JwtPayload } from '../../../../shared/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../../../shared/guards/jwt-auth.guard';
 
@@ -61,6 +66,9 @@ import {
 import { FormTemplateMapper } from '../../application/mappers/form-template.mapper';
 import { FormsService } from '../../forms.service';
 
+// PDF Generation
+import { FormInspectionPdfService } from '../../../pdf-generation/application/services/form-inspection-pdf.service';
+
 // Legacy (deprecar)
 
 @ApiTags('Forms - Dynamic Form Engine')
@@ -79,6 +87,9 @@ export class FormsController {
     private readonly submitFormUseCase: SubmitFormUseCase,
     private readonly getSubmissionUseCase: GetSubmissionUseCase,
     private readonly listSubmissionsUseCase: ListSubmissionsUseCase,
+
+    // PDF Generation
+    private readonly formInspectionPdfService: FormInspectionPdfService,
 
     // Legacy (deprecar)
     private readonly formsService: FormsService
@@ -206,6 +217,42 @@ export class FormsController {
     };
   }
 
+  /**
+   * Endpoint simplificado para técnicos en campo
+   * POST /forms/fill/:templateId
+   * Body: { ordenId?: string, responses: Record<string, any> }
+   */
+  @Post('fill/:templateId')
+  @ApiOperation({
+    summary: 'Llenar formulario de inspección (técnico en campo)',
+    description:
+      'Endpoint simplificado para que los técnicos llenen formularios de inspección directamente desde el móvil',
+  })
+  @ApiResponse({ status: 201, description: 'Formulario de inspección guardado' })
+  async fillInspectionForm(
+    @Param('templateId') templateId: string,
+    @Body() body: { ordenId?: string; responses: Record<string, any>; estado?: string },
+    @CurrentUser() user: JwtPayload
+  ) {
+    // Construir DTO compatible con el use case existente
+    const dto: SubmitFormDto = {
+      templateId,
+      ordenId: body.ordenId,
+      answers: body.responses,
+      estado: (body.estado || 'completado') as any,
+    };
+
+    const submission = await this.submitFormUseCase.execute(dto, user.userId);
+    return {
+      success: true,
+      id: submission.getId().getValue(),
+      templateId: submission.getTemplateId().getValue(),
+      status: submission.getStatus().getValue(),
+      message: 'Formulario de inspección guardado exitosamente',
+      submittedAt: submission.getSubmittedAt(),
+    };
+  }
+
   @Get('submissions')
   @ApiOperation({ summary: 'Listar formularios completados' })
   async findAllSubmissions(@Query() query: ListSubmissionsQueryDto) {
@@ -232,6 +279,36 @@ export class FormsController {
       submittedAt: submission.getSubmittedAt(),
       validatedAt: submission.getValidatedAt(),
     };
+  }
+
+  // ========================================
+  // PDF GENERATION
+  // ========================================
+
+  @Get('submissions/:id/pdf')
+  @ApiOperation({
+    summary: 'Descargar PDF de formulario de inspección completado',
+    description: 'Genera y descarga un PDF profesional del formulario de inspección completado',
+  })
+  @ApiProduces('application/pdf')
+  @ApiResponse({ status: 200, description: 'PDF generado exitosamente' })
+  @ApiResponse({ status: 404, description: 'Formulario no encontrado' })
+  async downloadSubmissionPdf(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) res: Response
+  ): Promise<StreamableFile> {
+    const pdfResult = await this.formInspectionPdfService.generatePdfFromInstance(id);
+
+    // Convertir base64 a Buffer
+    const pdfBuffer = Buffer.from(pdfResult.buffer, 'base64');
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="${pdfResult.filename}"`,
+      'Content-Length': pdfBuffer.length.toString(),
+    });
+
+    return new StreamableFile(pdfBuffer);
   }
 
   // ========================================

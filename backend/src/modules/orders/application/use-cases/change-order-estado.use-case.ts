@@ -1,5 +1,5 @@
 /**
- * @useCase ChangeOrderstadoUseCase
+ * @useCase ChangeOrderEstadoUseCase
  * @description Caso de uso para cambiar el estado de una Order
  * @layer Application
  */
@@ -8,10 +8,7 @@ import { BadRequestException, Inject, Injectable, Logger, NotFoundException } fr
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { OrderEstadoChangedEvent } from '../../domain/events/order-estado-changed.event';
-import {
-  Orderstado as DomainOrderstado,
-  OrderStateMachine,
-} from '../../domain/order-state-machine';
+import { OrderEstado, OrderStateMachine } from '../../domain/order-state-machine';
 import { IOrderRepository, Order_REPOSITORY } from '../../domain/repositories';
 import { OrderMapper } from '../../infrastructure/mappers/order.mapper';
 import { ChangeEstadoOrderDto } from '../dto/change-estado-order.dto';
@@ -19,8 +16,8 @@ import { OrderResponseDto } from '../dto/order-response.dto';
 import { toOrderResponseDto } from '../mappers/order-response.mapper';
 
 @Injectable()
-export class ChangeOrderstadoUseCase {
-  private readonly logger = new Logger(ChangeOrderstadoUseCase.name);
+export class ChangeOrderEstadoUseCase {
+  private readonly logger = new Logger(ChangeOrderEstadoUseCase.name);
 
   constructor(
     @Inject(Order_REPOSITORY)
@@ -72,8 +69,8 @@ export class ChangeOrderstadoUseCase {
 
       // Validar transición de estado
       OrderStateMachine.validateTransition(
-        Order.estado.value as DomainOrderstado,
-        dto.nuevoEstado as DomainOrderstado,
+        Order.estado.value as OrderEstado,
+        dto.nuevoEstado as OrderEstado,
         dto.motivo
       );
 

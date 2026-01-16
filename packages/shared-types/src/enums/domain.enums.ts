@@ -4,18 +4,19 @@
  */
 
 export enum OrderStatus {
-  PENDIENTE = 'PENDIENTE',
-  EN_PROGRESO = 'EN_PROGRESO',
-  COMPLETADA = 'COMPLETADA',
-  CANCELADA = 'CANCELADA',
-  PAUSADA = 'PAUSADA',
+  PENDIENTE = 'pendiente',
+  PLANEACION = 'planeacion',
+  EJECUCION = 'ejecucion',
+  COMPLETADA = 'completada',
+  CANCELADA = 'cancelada',
+  PAUSADA = 'pausada',
 }
 
 export enum OrderPriority {
-  BAJA = 'BAJA',
-  MEDIA = 'MEDIA',
-  ALTA = 'ALTA',
-  URGENTE = 'URGENTE',
+  BAJA = 'baja',
+  MEDIA = 'media',
+  ALTA = 'alta',
+  URGENTE = 'urgente',
 }
 
 export enum OrderType {

@@ -20,26 +20,17 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
+import { OrderPriority, OrderStatus } from '@cermont/shared-types';
 
 // ==========================================
-// Enums
+// Enums (re-exported from shared-types)
 // ==========================================
 
-export enum PrioridadOrder {
-  BAJA = 'baja',
-  MEDIA = 'media',
-  ALTA = 'alta',
-  URGENTE = 'urgente',
-}
+export { OrderPriority, OrderStatus };
 
-export enum EstadoOrder {
-  PENDIENTE = 'pendiente',
-  PLANEACION = 'planeacion',
-  EJECUCION = 'ejecucion',
-  PAUSADA = 'pausada',
-  COMPLETADA = 'completada',
-  CANCELADA = 'cancelada',
-}
+// Legacy aliases for backward compatibility
+export const PrioridadOrder = OrderPriority;
+export const EstadoOrder = OrderStatus;
 
 export enum EstadoTransicion {
   SOLICITUD_RECIBIDA = 'SOLICITUD_RECIBIDA',
@@ -82,10 +73,10 @@ export class CreateOrderDto {
   @MaxLength(200, { message: 'El cliente no puede exceder 200 caracteres' })
   cliente!: string;
 
-  @ApiPropertyOptional({ enum: PrioridadOrder, default: 'media' })
+  @ApiPropertyOptional({ enum: OrderPriority, default: 'media' })
   @IsOptional()
-  @IsEnum(PrioridadOrder)
-  prioridad?: PrioridadOrder = PrioridadOrder.MEDIA;
+  @IsEnum(OrderPriority)
+  prioridad?: OrderPriority = OrderPriority.MEDIA;
 
   @ApiPropertyOptional({ description: 'Fecha fin estimada (ISO)' })
   @IsOptional()
@@ -131,10 +122,10 @@ export class UpdateOrderDto {
   @MaxLength(200, { message: 'El cliente no puede exceder 200 caracteres' })
   cliente?: string;
 
-  @ApiPropertyOptional({ enum: PrioridadOrder })
+  @ApiPropertyOptional({ enum: OrderPriority })
   @IsOptional()
-  @IsEnum(PrioridadOrder)
-  prioridad?: PrioridadOrder;
+  @IsEnum(OrderPriority)
+  prioridad?: OrderPriority;
 
   @ApiPropertyOptional({ description: 'Fecha fin estimada (ISO)' })
   @IsOptional()
@@ -158,9 +149,9 @@ export class UpdateOrderDto {
 // Change Estado DTO
 // ==========================================
 export class ChangeEstadoDto {
-  @ApiProperty({ enum: EstadoOrder })
-  @IsEnum(EstadoOrder)
-  estado!: EstadoOrder;
+  @ApiProperty({ enum: OrderStatus })
+  @IsEnum(OrderStatus)
+  estado!: OrderStatus;
 }
 
 // ==========================================
@@ -186,20 +177,20 @@ export class TransitionStateDto {
 // Query Order DTO
 // ==========================================
 export class OrderQueryDto {
-  @ApiPropertyOptional({ enum: EstadoOrder })
+  @ApiPropertyOptional({ enum: OrderStatus })
   @IsOptional()
-  @IsEnum(EstadoOrder)
-  estado?: EstadoOrder;
+  @IsEnum(OrderStatus)
+  estado?: OrderStatus;
 
   @ApiPropertyOptional({ description: 'Filtrar por cliente' })
   @IsOptional()
   @IsString()
   cliente?: string;
 
-  @ApiPropertyOptional({ enum: PrioridadOrder })
+  @ApiPropertyOptional({ enum: OrderPriority })
   @IsOptional()
-  @IsEnum(PrioridadOrder)
-  prioridad?: PrioridadOrder;
+  @IsEnum(OrderPriority)
+  prioridad?: OrderPriority;
 
   @ApiPropertyOptional({ description: 'UUID del técnico asignado' })
   @IsOptional()

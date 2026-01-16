@@ -1,25 +1,28 @@
 /**
  * @module OrdersModule
- * @description Módulo de órdenes con Clean Architecture
+ * @description Módulo de órdenes con Clean Architecture + CQRS
  *
  * Principios aplicados:
  * - DIP: Inyección de dependencias con interfaces
  * - SRP: Separación en capas (domain, application, infrastructure)
  * - OCP: Extensible mediante use cases
+ * - CQRS: Command/Query Separation
  */
+
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
+import { CqrsModule } from '@nestjs/cqrs';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 
 // Domain
 import { Order_REPOSITORY } from './domain/repositories';
 
-// Application - Use Cases & Services
+// Application - Use Cases & Services & Handlers
 import { OrderStateService } from './application/services/order-state.service';
 import {
   AsignarTecnicoOrderUseCase,
-  ChangeOrderstadoUseCase,
+  ChangeOrderEstadoUseCase,
   CreateOrderUseCase,
   DeleteOrderUseCase,
   FindOrderUseCase,
@@ -28,6 +31,8 @@ import {
   ListOrdersUseCase,
   UpdateOrderUseCase,
 } from './application/use-cases';
+
+import { CreateOrderHandler, GetOrdersHandler, UpdateOrderHandler } from './application/handlers';
 
 // Infrastructure
 import { OrdersController } from './infrastructure/controllers';
@@ -45,17 +50,25 @@ const useCaseProviders = [
   FindOrderUseCase,
   CreateOrderUseCase,
   UpdateOrderUseCase,
-  ChangeOrderstadoUseCase,
+  ChangeOrderEstadoUseCase,
   AsignarTecnicoOrderUseCase,
   GetHistorialEstadosUseCase,
   DeleteOrderUseCase,
 ];
 
+/**
+ * CQRS Command Handlers
+ */
+const commandHandlers = [CreateOrderHandler];
+
+/**
+ * CQRS Query Handlers
+ */
+const queryHandlers = [GetOrdersHandler];
+
 @Module({
-  imports: [PrismaModule, NotificationsModule, HttpModule],
-  controllers: [
-    OrdersController, // Clean Architecture Controller
-  ],
+  imports: [PrismaModule, NotificationsModule, HttpModule, CqrsModule],
+  controllers: [OrdersController],
   providers: [
     // Repository Implementation
     {
@@ -67,6 +80,10 @@ const useCaseProviders = [
     // Use Cases & Application Services
     ...useCaseProviders,
     OrderStateService,
+
+    // CQRS Handlers
+    ...commandHandlers,
+    ...queryHandlers,
 
     // Event handlers & outbound integrations
     OrdersNotificationsHandler,

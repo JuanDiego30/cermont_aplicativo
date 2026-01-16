@@ -1,5 +1,5 @@
 import { OrderEntity } from '../../domain/entities/order.entity';
-import { OrderPrioridad, OrderResponseDto, Orderstado } from '../dto/order-response.dto';
+import { OrderPrioridad, OrderResponseDto, OrderEstado } from '../dto/order-response.dto';
 
 export function toOrderResponseDto(Order: OrderEntity): OrderResponseDto {
   return {
@@ -7,7 +7,7 @@ export function toOrderResponseDto(Order: OrderEntity): OrderResponseDto {
     numero: Order.numero.value,
     descripcion: Order.descripcion,
     cliente: Order.cliente,
-    estado: Order.estado.value as Orderstado,
+    estado: Order.estado.value as OrderEstado,
     prioridad: Order.prioridad.value as OrderPrioridad,
     creadorId: Order.creadorId,
     asignadoId: Order.asignadoId,

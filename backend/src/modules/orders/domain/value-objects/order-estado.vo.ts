@@ -1,5 +1,5 @@
 /**
- * @valueObject Orderstado
+ * @valueObject OrderEstado
  * @description Value Object que representa el estado de una Order
  * @layer Domain
  */
@@ -11,7 +11,7 @@ export type EstadoOrder =
   | 'cancelada'
   | 'pausada';
 
-export class Orderstado {
+export class OrderEstado {
   /**
    * IMPORTANT:
    * Keep transitions aligned with unit tests under
@@ -50,50 +50,50 @@ export class Orderstado {
     return this._value === 'ejecucion';
   }
 
-  static create(value: EstadoOrder): Orderstado {
-    return new Orderstado(value);
+  static create(value: EstadoOrder): OrderEstado {
+    return new OrderEstado(value);
   }
 
-  static pendiente(): Orderstado {
-    return new Orderstado('pendiente');
+  static pendiente(): OrderEstado {
+    return new OrderEstado('pendiente');
   }
 
-  static planeacion(): Orderstado {
-    return new Orderstado('planeacion');
+  static planeacion(): OrderEstado {
+    return new OrderEstado('planeacion');
   }
 
-  static ejecucion(): Orderstado {
-    return new Orderstado('ejecucion');
+  static ejecucion(): OrderEstado {
+    return new OrderEstado('ejecucion');
   }
 
-  static completada(): Orderstado {
-    return new Orderstado('completada');
+  static completada(): OrderEstado {
+    return new OrderEstado('completada');
   }
 
-  static cancelada(): Orderstado {
-    return new Orderstado('cancelada');
+  static cancelada(): OrderEstado {
+    return new OrderEstado('cancelada');
   }
 
-  static pausada(): Orderstado {
-    return new Orderstado('pausada');
+  static pausada(): OrderEstado {
+    return new OrderEstado('pausada');
   }
 
   canTransitionTo(newState: EstadoOrder): boolean {
-    return Orderstado.VALID_TRANSITIONS[this._value].includes(newState);
+    return OrderEstado.VALID_TRANSITIONS[this._value].includes(newState);
   }
 
-  transitionTo(newState: EstadoOrder): Orderstado {
+  transitionTo(newState: EstadoOrder): OrderEstado {
     if (!this.canTransitionTo(newState)) {
       throw new Error(`Transición inválida de ${this._value} a ${newState}`);
     }
-    return Orderstado.create(newState);
+    return OrderEstado.create(newState);
   }
 
   getAllowedTransitions(): EstadoOrder[] {
-    return Orderstado.VALID_TRANSITIONS[this._value];
+    return OrderEstado.VALID_TRANSITIONS[this._value];
   }
 
-  equals(other: Orderstado): boolean {
+  equals(other: OrderEstado): boolean {
     return this._value === other._value;
   }
 

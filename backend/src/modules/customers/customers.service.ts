@@ -1,10 +1,11 @@
 import type { Prisma } from '@/prisma/client';
+import { nullToUndefined } from '@/shared/utils';
 import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
-  CreateContactDto,
-  CreateCustomerDto,
-  CreateLocationDto,
+  BackendCreateContactDto,
+  BackendCreateCustomerDto,
+  BackendCreateLocationDto,
   CustomerOrdersResponseDto,
   CustomerResponseDto,
   CustomerType,
@@ -26,7 +27,7 @@ export class CustomersService {
   /**
    * Create new customer
    */
-  async create(dto: CreateCustomerDto): Promise<CustomerResponseDto> {
+  async create(dto: BackendCreateCustomerDto): Promise<CustomerResponseDto> {
     const existing = await this.prisma.cliente.findUnique({
       where: { nit: dto.nit },
     });
@@ -45,7 +46,7 @@ export class CustomersService {
         email: dto.email,
         activo: true,
         contactos: {
-          create: dto.contactos?.map(c => ({
+          create: dto.contactos?.map((c: BackendCreateContactDto) => ({
             nombre: c.nombre,
             cargo: c.cargo,
             email: c.email,
@@ -54,7 +55,7 @@ export class CustomersService {
           })),
         },
         ubicaciones: {
-          create: dto.ubicaciones?.map(u => ({
+          create: dto.ubicaciones?.map((u: BackendCreateLocationDto) => ({
             nombre: u.nombre,
             direccion: u.direccion,
             ciudad: u.ciudad,
@@ -118,7 +119,7 @@ export class CustomersService {
   /**
    * Add contact to customer
    */
-  async addContact(customerId: string, dto: CreateContactDto): Promise<CustomerResponseDto> {
+  async addContact(customerId: string, dto: BackendCreateContactDto): Promise<CustomerResponseDto> {
     const customer = await this.prisma.cliente.findUnique({
       where: { id: customerId },
     });
@@ -151,7 +152,10 @@ export class CustomersService {
   /**
    * Add location to customer
    */
-  async addLocation(customerId: string, dto: CreateLocationDto): Promise<CustomerResponseDto> {
+  async addLocation(
+    customerId: string,
+    dto: BackendCreateLocationDto
+  ): Promise<CustomerResponseDto> {
     const customer = await this.prisma.cliente.findUnique({
       where: { id: customerId },
     });
@@ -250,9 +254,9 @@ export class CustomersService {
       razonSocial: customer.razonSocial,
       nit: customer.nit,
       tipoCliente: customer.tipoCliente as unknown as CustomerType,
-      direccion: customer.direccion ?? undefined,
-      telefono: customer.telefono ?? undefined,
-      email: customer.email ?? undefined,
+      direccion: nullToUndefined(customer.direccion),
+      telefono: nullToUndefined(customer.telefono),
+      email: nullToUndefined(customer.email),
       activo: customer.activo,
       contactos:
         customer.contactos?.map(contacto => ({
@@ -260,18 +264,18 @@ export class CustomersService {
           nombre: contacto.nombre,
           cargo: contacto.cargo,
           email: contacto.email,
-          telefono: contacto.telefono ?? undefined,
+          telefono: nullToUndefined(contacto.telefono),
           esPrincipal: contacto.esPrincipal,
         })) || [],
       ubicaciones:
         customer.ubicaciones?.map(ubicacion => ({
           id: ubicacion.id,
           nombre: ubicacion.nombre,
-          direccion: ubicacion.direccion ?? undefined,
-          ciudad: ubicacion.ciudad ?? undefined,
-          departamento: ubicacion.departamento ?? undefined,
-          latitud: ubicacion.latitud ?? undefined,
-          longitud: ubicacion.longitud ?? undefined,
+          direccion: nullToUndefined(ubicacion.direccion),
+          ciudad: nullToUndefined(ubicacion.ciudad),
+          departamento: nullToUndefined(ubicacion.departamento),
+          latitud: nullToUndefined(ubicacion.latitud),
+          longitud: nullToUndefined(ubicacion.longitud),
           esPrincipal: ubicacion.esPrincipal,
         })) || [],
       totalOrdenes: 0,

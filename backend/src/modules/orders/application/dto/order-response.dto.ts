@@ -1,10 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Prioridad as OrderPrioridad } from './create-order.dto';
-import { Orderstado } from './update-order.dto';
+import { OrderEstado } from './update-order.dto';
 
 // Re-export para facilitar imports
 export { Prioridad as OrderPrioridad } from './create-order.dto';
-export { Orderstado } from './update-order.dto';
+export { OrderEstado } from './update-order.dto';
 
 export class OrderResponseDto {
   @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
@@ -28,8 +28,8 @@ export class OrderResponseDto {
   @ApiPropertyOptional({ example: 'Carrera 15 #45-67, Bogotá' })
   direccion?: string;
 
-  @ApiProperty({ enum: Orderstado })
-  estado!: Orderstado;
+  @ApiProperty({ enum: OrderEstado })
+  estado!: OrderEstado;
 
   @ApiProperty({ enum: OrderPrioridad })
   prioridad!: OrderPrioridad;
@@ -107,11 +107,11 @@ export class HistorialEstadoDto {
   @ApiProperty({ example: 'ORD-2024-001' })
   orderId!: string;
 
-  @ApiPropertyOptional({ enum: Orderstado, example: Orderstado.PLANEACION })
-  estadoAnterior?: Orderstado;
+  @ApiPropertyOptional({ enum: OrderEstado, example: OrderEstado.PLANEACION })
+  estadoAnterior?: OrderEstado;
 
-  @ApiProperty({ enum: Orderstado, example: Orderstado.EJECUCION })
-  estadoNuevo!: Orderstado;
+  @ApiProperty({ enum: OrderEstado, example: OrderEstado.EJECUCION })
+  estadoNuevo!: OrderEstado;
 
   @ApiProperty({ example: 'Técnico asignado' })
   motivo!: string;

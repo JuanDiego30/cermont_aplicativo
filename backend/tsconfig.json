@@ -26,5 +26,5 @@
     "incremental": true
   },
   "include": ["src/**/*", "test/**/*", "prisma/**/*", "prisma.config.ts"],
-  "exclude": ["node_modules", "dist", "prisma/seed.ts", "prisma/seeds/**/*"]
+  "exclude": ["node_modules", "dist", "prisma/seed.ts", "prisma/seeds/**/*", "**/*.draft/**/*"]
 }
