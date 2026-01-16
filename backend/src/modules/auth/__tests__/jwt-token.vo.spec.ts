@@ -1,11 +1,10 @@
-import { JwtService } from "@nestjs/jwt";
-import { JwtToken } from "../domain/value-objects/jwt-token.vo";
+import { JwtSignerPort, JwtToken } from "../domain/value-objects/jwt-token.vo";
 
 describe("JwtToken VO", () => {
   it("create: firma token y expone payload", () => {
-    const jwtService = { sign: jest.fn(() => "tkn") } as unknown as JwtService;
+    const jwtSigner: JwtSignerPort = { sign: jest.fn(() => "tkn"), verify: jest.fn() };
 
-    const token = JwtToken.create(jwtService, {
+    const token = JwtToken.create(jwtSigner, {
       userId: "u1",
       email: "u1@example.com",
       role: "admin",
@@ -17,41 +16,44 @@ describe("JwtToken VO", () => {
   });
 
   it("fromString: retorna null si verify falla", () => {
-    const jwtService = {
+    const jwtSigner: JwtSignerPort = {
+      sign: jest.fn(),
       verify: jest.fn(() => {
         throw new Error("bad");
       }),
-    } as unknown as JwtService;
-    expect(JwtToken.fromString(jwtService, "x")).toBeNull();
+    };
+    expect(JwtToken.fromString(jwtSigner, "x")).toBeNull();
   });
 
   it("fromString: calcula expiración correctamente", () => {
     const exp = Math.floor(Date.now() / 1000) + 60;
-    const jwtService = {
+    const jwtSigner: JwtSignerPort = {
+      sign: jest.fn(),
       verify: jest.fn(() => ({
         userId: "u1",
         email: "u1@example.com",
         role: "tecnico",
         exp,
       })),
-    } as unknown as JwtService;
+    };
 
-    const token = JwtToken.fromString(jwtService, "tok")!;
+    const token = JwtToken.fromString(jwtSigner, "tok")!;
 
     expect(token.isExpired).toBe(false);
     expect(token.expiresAt).toBeInstanceOf(Date);
   });
 
   it("fromString: sin exp -> expiresAt null e isExpired false", () => {
-    const jwtService = {
+    const jwtSigner: JwtSignerPort = {
+      sign: jest.fn(),
       verify: jest.fn(() => ({
         userId: "u1",
         email: "u1@example.com",
         role: "tecnico",
       })),
-    } as unknown as JwtService;
+    };
 
-    const token = JwtToken.fromString(jwtService, "tok")!;
+    const token = JwtToken.fromString(jwtSigner, "tok")!;
     expect(token.expiresAt).toBeNull();
     expect(token.isExpired).toBe(false);
   });
@@ -71,13 +73,13 @@ describe("JwtToken VO", () => {
   });
 
   it("equals + toString: comparan por value", () => {
-    const jwtService = { sign: jest.fn(() => "tkn") } as unknown as JwtService;
-    const a = JwtToken.create(jwtService, {
+    const jwtSigner: JwtSignerPort = { sign: jest.fn(() => "tkn"), verify: jest.fn() };
+    const a = JwtToken.create(jwtSigner, {
       userId: "u1",
       email: "u1@example.com",
       role: "admin",
     });
-    const b = JwtToken.create(jwtService, {
+    const b = JwtToken.create(jwtSigner, {
       userId: "u1",
       email: "u1@example.com",
       role: "admin",
