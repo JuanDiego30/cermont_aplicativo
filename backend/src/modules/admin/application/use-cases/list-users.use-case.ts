@@ -4,24 +4,21 @@
  * Lista usuarios con filtros y paginación.
  */
 
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable } from '@nestjs/common';
 import {
   IUserRepository,
   USER_REPOSITORY,
   type UserFilters,
   type PaginatedResult,
-} from "../../domain/repositories/user.repository.interface";
-import { UserMapper } from "../mappers/user.mapper";
-import {
-  UserResponseDto,
-  PaginatedUsersResponseDto,
-} from "../dto/user-response.dto";
+} from '../../domain/repositories/user.repository.interface';
+import { UserMapper } from '../mappers/user.mapper';
+import { UserResponseDto, PaginatedUsersResponseDto } from '../dto/user-response.dto';
 
 @Injectable()
 export class ListUsersUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
-    private readonly userRepository: IUserRepository,
+    private readonly userRepository: IUserRepository
   ) {}
 
   /**

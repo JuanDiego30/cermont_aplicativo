@@ -1,2 +1,1 @@
-export * from "./administrative-closure.controller";
-
+export * from './administrative-closure.controller';

@@ -1,5 +1,5 @@
-import { Injectable, Logger, BadRequestException } from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
 
 /**
  * Representa datos de sincronización pendiente
@@ -7,8 +7,8 @@ import { PrismaService } from "../../prisma/prisma.service";
  */
 export interface PendingSync {
   id: string;
-  tipo: "EJECUCION" | "CHECKLIST" | "EVIDENCIA" | "TAREA" | "COSTO";
-  operacion: "CREATE" | "UPDATE" | "DELETE";
+  tipo: 'EJECUCION' | 'CHECKLIST' | 'EVIDENCIA' | 'TAREA' | 'COSTO';
+  operacion: 'CREATE' | 'UPDATE' | 'DELETE';
   datos: Record<string, unknown>;
   timestamp: string;
   ordenId?: string;
@@ -33,20 +33,16 @@ export class SyncService {
   // SINCRONIZACIÓN DE DATOS OFFLINE
   // =====================================================
 
-  async syncPendingData(
-    userId: string,
-    pendingItems: PendingSync[],
-  ): Promise<SyncResult[]> {
+  async syncPendingData(userId: string, pendingItems: PendingSync[]): Promise<SyncResult[]> {
     this.logger.log(
-      `Iniciando sincronización de ${pendingItems.length} items para usuario ${userId}`,
+      `Iniciando sincronización de ${pendingItems.length} items para usuario ${userId}`
     );
 
     const resultados: SyncResult[] = [];
 
     // Ordenar por timestamp para procesar en orden cronológico
     const sortedItems = [...pendingItems].sort(
-      (a, b) =>
-        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
     );
 
     for (const item of sortedItems) {
@@ -59,48 +55,40 @@ export class SyncService {
           success: false,
           id: item.id,
           tipo: item.tipo,
-          mensaje: error instanceof Error ? error.message : "Error desconocido",
+          mensaje: error instanceof Error ? error.message : 'Error desconocido',
         });
       }
     }
 
     this.logger.log(
-      `Sincronización completada: ${resultados.filter((r) => r.success).length}/${resultados.length} exitosos`,
+      `Sincronización completada: ${resultados.filter(r => r.success).length}/${resultados.length} exitosos`
     );
 
     return resultados;
   }
 
-  private async procesarItem(
-    item: PendingSync,
-    userId: string,
-  ): Promise<SyncResult> {
+  private async procesarItem(item: PendingSync, userId: string): Promise<SyncResult> {
     switch (item.tipo) {
-      case "EJECUCION":
+      case 'EJECUCION':
         return this.syncEjecucion(item, userId);
-      case "CHECKLIST":
+      case 'CHECKLIST':
         return this.syncChecklist(item, userId);
-      case "EVIDENCIA":
+      case 'EVIDENCIA':
         return this.syncEvidencia(item, userId);
-      case "TAREA":
+      case 'TAREA':
         return this.syncTarea(item, userId);
-      case "COSTO":
+      case 'COSTO':
         return this.syncCosto(item, userId);
       default:
-        throw new BadRequestException(
-          `Tipo de sincronización desconocido: ${item.tipo}`,
-        );
+        throw new BadRequestException(`Tipo de sincronización desconocido: ${item.tipo}`);
     }
   }
 
   // Sincronizar ejecución
-  private async syncEjecucion(
-    item: PendingSync,
-    userId: string,
-  ): Promise<SyncResult> {
+  private async syncEjecucion(item: PendingSync, userId: string): Promise<SyncResult> {
     const { operacion, datos, ordenId } = item;
 
-    if (operacion === "UPDATE" && datos.ejecucionId) {
+    if (operacion === 'UPDATE' && datos.ejecucionId) {
       await this.prisma.ejecucion.update({
         where: { id: datos.ejecucionId as string },
         data: {
@@ -116,25 +104,25 @@ export class SyncService {
         success: true,
         id: item.id,
         tipo: item.tipo,
-        mensaje: "Ejecución actualizada",
+        mensaje: 'Ejecución actualizada',
         nuevoId: datos.ejecucionId as string,
       };
     }
 
-    if (operacion === "CREATE" && ordenId) {
+    if (operacion === 'CREATE' && ordenId) {
       const planeacion = await this.prisma.planeacion.findUnique({
         where: { ordenId },
       });
 
       if (!planeacion) {
-        throw new BadRequestException("Orden no tiene planeación aprobada");
+        throw new BadRequestException('Orden no tiene planeación aprobada');
       }
 
       const ejecucion = await this.prisma.ejecucion.create({
         data: {
           ordenId,
           planeacionId: planeacion.id,
-          estado: "en_progreso" as any,
+          estado: 'en_progreso' as any,
           fechaInicio: new Date((datos.fechaInicio as string) || Date.now()),
           horasEstimadas: (datos.horasEstimadas as number) || 8,
           observacionesInicio: datos.observaciones as string,
@@ -144,29 +132,26 @@ export class SyncService {
 
       await this.prisma.order.update({
         where: { id: ordenId },
-        data: { estado: "ejecucion", fechaInicio: new Date() },
+        data: { estado: 'ejecucion', fechaInicio: new Date() },
       });
 
       return {
         success: true,
         id: item.id,
         tipo: item.tipo,
-        mensaje: "Ejecución creada",
+        mensaje: 'Ejecución creada',
         nuevoId: ejecucion.id,
       };
     }
 
-    throw new BadRequestException("Operación de ejecución no válida");
+    throw new BadRequestException('Operación de ejecución no válida');
   }
 
   // Sincronizar checklist
-  private async syncChecklist(
-    item: PendingSync,
-    userId: string,
-  ): Promise<SyncResult> {
+  private async syncChecklist(item: PendingSync, userId: string): Promise<SyncResult> {
     const { operacion, datos } = item;
 
-    if (operacion === "UPDATE" && datos.checklistId) {
+    if (operacion === 'UPDATE' && datos.checklistId) {
       await this.prisma.checklistEjecucion.update({
         where: { id: datos.checklistId as string },
         data: {
@@ -180,19 +165,16 @@ export class SyncService {
         success: true,
         id: item.id,
         tipo: item.tipo,
-        mensaje: "Checklist actualizado",
+        mensaje: 'Checklist actualizado',
         nuevoId: datos.checklistId as string,
       };
     }
 
-    if (operacion === "CREATE" && datos.ejecucionId) {
+    if (operacion === 'CREATE' && datos.ejecucionId) {
       const checklist = await this.prisma.checklistEjecucion.create({
         data: {
           ejecucionId: datos.ejecucionId as string,
-          nombre:
-            (datos.nombre as string) ||
-            (datos.item as string) ||
-            "Checklist sin nombre",
+          nombre: (datos.nombre as string) || (datos.item as string) || 'Checklist sin nombre',
           completada: (datos.completada as boolean) || false,
           completadoPorId: datos.completada ? userId : null,
           completadoEn: datos.completada ? new Date() : null,
@@ -203,34 +185,31 @@ export class SyncService {
         success: true,
         id: item.id,
         tipo: item.tipo,
-        mensaje: "Checklist creado",
+        mensaje: 'Checklist creado',
         nuevoId: checklist.id,
       };
     }
 
-    throw new BadRequestException("Operación de checklist no válida");
+    throw new BadRequestException('Operación de checklist no válida');
   }
 
   // Sincronizar evidencia
-  private async syncEvidencia(
-    item: PendingSync,
-    userId: string,
-  ): Promise<SyncResult> {
+  private async syncEvidencia(item: PendingSync, userId: string): Promise<SyncResult> {
     const { operacion, datos } = item;
 
-    if (operacion === "CREATE" && datos.ejecucionId && datos.ordenId) {
+    if (operacion === 'CREATE' && datos.ejecucionId && datos.ordenId) {
       // La evidencia ya debe haber sido subida como archivo
       // Aquí solo registramos los metadatos
       const evidencia = await this.prisma.evidenciaEjecucion.create({
         data: {
           ejecucionId: datos.ejecucionId as string,
           ordenId: datos.ordenId as string,
-          tipo: (datos.tipo as string) || "FOTO",
+          tipo: (datos.tipo as string) || 'FOTO',
           nombreArchivo: datos.nombreArchivo as string,
           rutaArchivo: datos.rutaArchivo as string,
           tamano: (datos.tamano as number) || 0,
-          mimeType: (datos.mimeType as string) || "image/jpeg",
-          descripcion: (datos.descripcion as string) || "",
+          mimeType: (datos.mimeType as string) || 'image/jpeg',
+          descripcion: (datos.descripcion as string) || '',
           ubicacionGPS: datos.ubicacionGPS as any,
           tags: (datos.tags as string[]) || [],
           subidoPor: userId,
@@ -241,22 +220,19 @@ export class SyncService {
         success: true,
         id: item.id,
         tipo: item.tipo,
-        mensaje: "Evidencia registrada",
+        mensaje: 'Evidencia registrada',
         nuevoId: evidencia.id,
       };
     }
 
-    throw new BadRequestException("Operación de evidencia no válida");
+    throw new BadRequestException('Operación de evidencia no válida');
   }
 
   // Sincronizar tarea
-  private async syncTarea(
-    item: PendingSync,
-    userId: string,
-  ): Promise<SyncResult> {
+  private async syncTarea(item: PendingSync, userId: string): Promise<SyncResult> {
     const { operacion, datos } = item;
 
-    if (operacion === "UPDATE" && datos.tareaId) {
+    if (operacion === 'UPDATE' && datos.tareaId) {
       await this.prisma.tareaEjecucion.update({
         where: { id: datos.tareaId as string },
         data: {
@@ -271,12 +247,12 @@ export class SyncService {
         success: true,
         id: item.id,
         tipo: item.tipo,
-        mensaje: "Tarea actualizada",
+        mensaje: 'Tarea actualizada',
         nuevoId: datos.tareaId as string,
       };
     }
 
-    if (operacion === "CREATE" && datos.ejecucionId) {
+    if (operacion === 'CREATE' && datos.ejecucionId) {
       const tarea = await this.prisma.tareaEjecucion.create({
         data: {
           ejecucionId: datos.ejecucionId as string,
@@ -292,22 +268,19 @@ export class SyncService {
         success: true,
         id: item.id,
         tipo: item.tipo,
-        mensaje: "Tarea creada",
+        mensaje: 'Tarea creada',
         nuevoId: tarea.id,
       };
     }
 
-    throw new BadRequestException("Operación de tarea no válida");
+    throw new BadRequestException('Operación de tarea no válida');
   }
 
   // Sincronizar costo
-  private async syncCosto(
-    item: PendingSync,
-    userId: string,
-  ): Promise<SyncResult> {
+  private async syncCosto(item: PendingSync, userId: string): Promise<SyncResult> {
     const { operacion, datos } = item;
 
-    if (operacion === "CREATE" && datos.ordenId) {
+    if (operacion === 'CREATE' && datos.ordenId) {
       const costo = await this.prisma.cost.create({
         data: {
           orderId: datos.ordenId as string,
@@ -322,12 +295,12 @@ export class SyncService {
         success: true,
         id: item.id,
         tipo: item.tipo,
-        mensaje: "Costo registrado",
+        mensaje: 'Costo registrado',
         nuevoId: costo.id,
       };
     }
 
-    throw new BadRequestException("Operación de costo no válida");
+    throw new BadRequestException('Operación de costo no válida');
   }
 
   // =====================================================
@@ -338,13 +311,13 @@ export class SyncService {
     // Obtener las últimas modificaciones del usuario
     const ultimaEjecucion = await this.prisma.ejecucion.findFirst({
       where: { orden: { asignadoId: userId } },
-      orderBy: { updatedAt: "desc" },
+      orderBy: { updatedAt: 'desc' },
       select: { id: true, updatedAt: true },
     });
 
     const ultimaEvidencia = await this.prisma.evidenciaEjecucion.findFirst({
       where: { subidoPor: userId },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       select: { id: true, createdAt: true },
     });
 
@@ -352,7 +325,7 @@ export class SyncService {
       ultimaSincronizacion: new Date(),
       ultimaEjecucion: ultimaEjecucion?.updatedAt,
       ultimaEvidencia: ultimaEvidencia?.createdAt,
-      mensaje: "Datos sincronizados correctamente",
+      mensaje: 'Datos sincronizados correctamente',
     };
   }
 
@@ -361,7 +334,7 @@ export class SyncService {
     const ordenes = await this.prisma.order.findMany({
       where: {
         asignadoId: userId,
-        estado: { in: ["planeacion", "ejecucion"] },
+        estado: { in: ['planeacion', 'ejecucion'] },
       },
       include: {
         planeacion: {
@@ -381,7 +354,7 @@ export class SyncService {
 
     return {
       fechaDescarga: new Date().toISOString(),
-      ordenes: ordenes.map((o) => ({
+      ordenes: ordenes.map(o => ({
         id: o.id,
         numero: o.numero,
         cliente: o.cliente,

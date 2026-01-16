@@ -3,15 +3,10 @@
  * @description Interface del repositorio de órdenes
  * @layer Domain
  */
-import {
-  OrderEntity,
-  OrderProps,
-  OrderCreador,
-  OrderAsignado,
-} from "../entities";
-import { EstadoOrder, PrioridadLevel } from "../value-objects";
+import { OrderEntity, OrderProps, OrderCreador, OrderAsignado } from '../entities';
+import { EstadoOrder, PrioridadLevel } from '../value-objects';
 
-export const Order_REPOSITORY = Symbol("Order_REPOSITORY");
+export const Order_REPOSITORY = Symbol('Order_REPOSITORY');
 
 export interface OrderFilters {
   estado?: EstadoOrder;

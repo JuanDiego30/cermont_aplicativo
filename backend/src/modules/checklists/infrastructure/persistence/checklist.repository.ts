@@ -5,17 +5,17 @@
  * Maneja tanto ChecklistTemplate como ChecklistEjecucion
  */
 
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../../../../prisma/prisma.service";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
 import {
   IChecklistRepository,
   ChecklistFilters,
   PaginationQuery,
   PaginatedResult,
-} from "../../domain/repositories";
-import { Checklist } from "../../domain/entities/checklist.entity";
-import { ChecklistPrismaMapper } from "./checklist.prisma.mapper";
-import { ChecklistStatusEnum } from "../../domain/value-objects/checklist-status.vo";
+} from '../../domain/repositories';
+import { Checklist } from '../../domain/entities/checklist.entity';
+import { ChecklistPrismaMapper } from './checklist.prisma.mapper';
+import { ChecklistStatusEnum } from '../../domain/value-objects/checklist-status.vo';
 
 @Injectable()
 export class ChecklistRepository implements IChecklistRepository {
@@ -41,14 +41,14 @@ export class ChecklistRepository implements IChecklistRepository {
         id: persistence.id,
         nombre: persistence.nombre,
         descripcion: persistence.descripcion,
-        tipo: persistence.tipo || "general",
+        tipo: persistence.tipo || 'general',
         categoria: persistence.categoria,
         activo: persistence.activo,
         items: {
           create: persistence.items.map((item: any) => ({
             nombre: item.nombre,
             descripcion: item.nombre,
-            tipo: "item",
+            tipo: 'item',
             orden: item.orden,
             requereCertificacion: item.requereCertificacion,
           })),
@@ -62,7 +62,7 @@ export class ChecklistRepository implements IChecklistRepository {
         activo: persistence.activo,
         updatedAt: persistence.updatedAt,
       },
-      include: { items: { orderBy: { orden: "asc" } } },
+      include: { items: { orderBy: { orden: 'asc' } } },
     });
 
     return ChecklistPrismaMapper.templateToDomain(result);
@@ -94,12 +94,12 @@ export class ChecklistRepository implements IChecklistRepository {
           create: persistence.items.map((item, index) => {
             // Buscar templateItem correspondiente
             const templateItem = template?.items.find(
-              (ti: any) => ti.nombre === item.label || ti.orden === item.orden,
+              (ti: any) => ti.nombre === item.label || ti.orden === item.orden
             );
 
             return {
               nombre: item.label,
-              estado: item.isChecked ? "completado" : "pendiente",
+              estado: item.isChecked ? 'completado' : 'pendiente',
               completado: item.isChecked,
               completadoEn: item.checkedAt,
               observaciones: item.observaciones,
@@ -117,11 +117,11 @@ export class ChecklistRepository implements IChecklistRepository {
         updatedAt: persistence.updatedAt,
         // Actualizar items existentes
         items: {
-          updateMany: persistence.items.map((item) => ({
+          updateMany: persistence.items.map(item => ({
             where: { id: item.id },
             data: {
               nombre: item.label,
-              estado: item.isChecked ? "completado" : "pendiente",
+              estado: item.isChecked ? 'completado' : 'pendiente',
               completado: item.isChecked,
               completadoEn: item.checkedAt,
               observaciones: item.observaciones,
@@ -132,7 +132,7 @@ export class ChecklistRepository implements IChecklistRepository {
       include: {
         items: {
           include: { templateItem: true },
-          orderBy: { createdAt: "asc" },
+          orderBy: { createdAt: 'asc' },
         },
         template: true,
       },
@@ -145,7 +145,7 @@ export class ChecklistRepository implements IChecklistRepository {
     // Intentar como template primero
     const template = await this.prisma.checklistTemplate.findUnique({
       where: { id },
-      include: { items: { orderBy: { orden: "asc" } } },
+      include: { items: { orderBy: { orden: 'asc' } } },
     });
 
     if (template) {
@@ -158,7 +158,7 @@ export class ChecklistRepository implements IChecklistRepository {
       include: {
         items: {
           include: { templateItem: true },
-          orderBy: { createdAt: "asc" },
+          orderBy: { createdAt: 'asc' },
         },
         template: true,
       },
@@ -174,7 +174,7 @@ export class ChecklistRepository implements IChecklistRepository {
   async findTemplateById(id: string): Promise<Checklist | null> {
     const template = await this.prisma.checklistTemplate.findUnique({
       where: { id },
-      include: { items: { orderBy: { orden: "asc" } } },
+      include: { items: { orderBy: { orden: 'asc' } } },
     });
 
     if (!template) {
@@ -190,7 +190,7 @@ export class ChecklistRepository implements IChecklistRepository {
       include: {
         items: {
           include: { templateItem: true },
-          orderBy: { createdAt: "asc" },
+          orderBy: { createdAt: 'asc' },
         },
         template: true,
       },
@@ -205,7 +205,7 @@ export class ChecklistRepository implements IChecklistRepository {
 
   async list(
     filters: ChecklistFilters,
-    pagination: PaginationQuery,
+    pagination: PaginationQuery
   ): Promise<PaginatedResult<Checklist>> {
     const skip = (pagination.page - 1) * pagination.limit;
 
@@ -222,8 +222,8 @@ export class ChecklistRepository implements IChecklistRepository {
     }
     if (filters.search) {
       templateWhere.OR = [
-        { nombre: { contains: filters.search, mode: "insensitive" } },
-        { descripcion: { contains: filters.search, mode: "insensitive" } },
+        { nombre: { contains: filters.search, mode: 'insensitive' } },
+        { descripcion: { contains: filters.search, mode: 'insensitive' } },
       ];
     }
 
@@ -244,7 +244,7 @@ export class ChecklistRepository implements IChecklistRepository {
           return { items: [], total: 0 };
         }
 
-        const ejecucionIds = ejecuciones.map((e) => e.id);
+        const ejecucionIds = ejecuciones.map(e => e.id);
         ejecucionWhere.ejecucionId = { in: ejecucionIds };
       }
 
@@ -254,21 +254,19 @@ export class ChecklistRepository implements IChecklistRepository {
           include: {
             items: {
               include: { templateItem: true },
-              orderBy: { createdAt: "asc" },
+              orderBy: { createdAt: 'asc' },
             },
             template: true,
           },
           skip,
           take: pagination.limit,
-          orderBy: { createdAt: "desc" },
+          orderBy: { createdAt: 'desc' },
         }),
         this.prisma.checklistEjecucion.count({ where: ejecucionWhere }),
       ]);
 
       return {
-        items: items.map((item) =>
-          ChecklistPrismaMapper.ejecucionToDomain(item),
-        ),
+        items: items.map(item => ChecklistPrismaMapper.ejecucionToDomain(item)),
         total,
       };
     }
@@ -277,16 +275,16 @@ export class ChecklistRepository implements IChecklistRepository {
     const [items, total] = await Promise.all([
       this.prisma.checklistTemplate.findMany({
         where: templateWhere,
-        include: { items: { orderBy: { orden: "asc" } } },
+        include: { items: { orderBy: { orden: 'asc' } } },
         skip,
         take: pagination.limit,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
       }),
       this.prisma.checklistTemplate.count({ where: templateWhere }),
     ]);
 
     return {
-      items: items.map((item) => ChecklistPrismaMapper.templateToDomain(item)),
+      items: items.map(item => ChecklistPrismaMapper.templateToDomain(item)),
       total,
     };
   }
@@ -305,20 +303,20 @@ export class ChecklistRepository implements IChecklistRepository {
 
     const templates = await this.prisma.checklistTemplate.findMany({
       where,
-      include: { items: { orderBy: { orden: "asc" } } },
-      orderBy: { createdAt: "desc" },
+      include: { items: { orderBy: { orden: 'asc' } } },
+      orderBy: { createdAt: 'desc' },
     });
 
-    return templates.map((t) => ChecklistPrismaMapper.templateToDomain(t));
+    return templates.map(t => ChecklistPrismaMapper.templateToDomain(t));
   }
 
   async findByTipo(tipo: string): Promise<Checklist[]> {
     const templates = await this.prisma.checklistTemplate.findMany({
       where: { tipo, activo: true },
-      include: { items: { orderBy: { orden: "asc" } } },
+      include: { items: { orderBy: { orden: 'asc' } } },
     });
 
-    return templates.map((t) => ChecklistPrismaMapper.templateToDomain(t));
+    return templates.map(t => ChecklistPrismaMapper.templateToDomain(t));
   }
 
   async findByOrden(ordenId: string): Promise<Checklist[]> {
@@ -332,7 +330,7 @@ export class ChecklistRepository implements IChecklistRepository {
       return [];
     }
 
-    const ejecucionIds = ejecuciones.map((e) => e.id);
+    const ejecucionIds = ejecuciones.map(e => e.id);
 
     const checklists = await this.prisma.checklistEjecucion.findMany({
       where: {
@@ -341,14 +339,14 @@ export class ChecklistRepository implements IChecklistRepository {
       include: {
         items: {
           include: { templateItem: true },
-          orderBy: { createdAt: "asc" },
+          orderBy: { createdAt: 'asc' },
         },
         template: true,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
-    return checklists.map((c) => ChecklistPrismaMapper.ejecucionToDomain(c));
+    return checklists.map(c => ChecklistPrismaMapper.ejecucionToDomain(c));
   }
 
   async findByEjecucion(ejecucionId: string): Promise<Checklist[]> {
@@ -357,20 +355,20 @@ export class ChecklistRepository implements IChecklistRepository {
       include: {
         items: {
           include: { templateItem: true },
-          orderBy: { createdAt: "asc" },
+          orderBy: { createdAt: 'asc' },
         },
         template: true,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
-    return checklists.map((c) => ChecklistPrismaMapper.ejecucionToDomain(c));
+    return checklists.map(c => ChecklistPrismaMapper.ejecucionToDomain(c));
   }
 
   async existsAssigned(
     templateId: string,
     ordenId?: string,
-    ejecucionId?: string,
+    ejecucionId?: string
   ): Promise<boolean> {
     if (ejecucionId) {
       const exists = await this.prisma.checklistEjecucion.findFirst({
@@ -389,7 +387,7 @@ export class ChecklistRepository implements IChecklistRepository {
         select: { id: true },
       });
 
-      const ejecucionIds = ejecuciones.map((e) => e.id);
+      const ejecucionIds = ejecuciones.map(e => e.id);
 
       const exists = await this.prisma.checklistEjecucion.findFirst({
         where: {

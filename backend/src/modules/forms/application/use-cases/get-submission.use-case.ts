@@ -4,19 +4,16 @@
  * Obtiene una submission por ID
  */
 
-import { Injectable, NotFoundException, Inject } from "@nestjs/common";
-import { FormSubmission } from "../../domain/entities/form-submission.entity";
-import { FormSubmissionId } from "../../domain/value-objects/form-submission-id.vo";
-import {
-  IFormSubmissionRepository,
-  FORM_SUBMISSION_REPOSITORY,
-} from "../../domain/repositories";
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { FormSubmission } from '../../domain/entities/form-submission.entity';
+import { FormSubmissionId } from '../../domain/value-objects/form-submission-id.vo';
+import { IFormSubmissionRepository, FORM_SUBMISSION_REPOSITORY } from '../../domain/repositories';
 
 @Injectable()
 export class GetSubmissionUseCase {
   constructor(
     @Inject(FORM_SUBMISSION_REPOSITORY)
-    private readonly submissionRepository: IFormSubmissionRepository,
+    private readonly submissionRepository: IFormSubmissionRepository
   ) {}
 
   async execute(submissionId: string): Promise<FormSubmission> {

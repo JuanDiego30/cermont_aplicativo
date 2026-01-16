@@ -39,7 +39,9 @@ describe('Credentials VO', () => {
   });
 
   it('fromHashed + verify: usa bcrypt.compare cuando está hasheada', async () => {
-    const compareSpy = jest.spyOn(bcrypt, 'compare').mockImplementation(() => Promise.resolve(true));
+    const compareSpy = jest
+      .spyOn(bcrypt, 'compare')
+      .mockImplementation(() => Promise.resolve(true));
 
     const creds = Credentials.fromHashed('a@b.com', 'hashed');
     await expect(creds.verify('plain')).resolves.toBe(true);

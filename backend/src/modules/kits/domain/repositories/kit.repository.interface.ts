@@ -3,12 +3,12 @@
  *
  * Contrato para persistencia de Kit Aggregate
  */
-import { Kit } from "../entities/kit.entity";
-import { KitId } from "../value-objects/kit-id.vo";
-import { CategoriaKit } from "../value-objects/categoria-kit.vo";
-import { EstadoKit } from "../value-objects/estado-kit.vo";
+import { Kit } from '../entities/kit.entity';
+import { KitId } from '../value-objects/kit-id.vo';
+import { CategoriaKit } from '../value-objects/categoria-kit.vo';
+import { EstadoKit } from '../value-objects/estado-kit.vo';
 
-export const KIT_REPOSITORY = Symbol("KIT_REPOSITORY");
+export const KIT_REPOSITORY = Symbol('KIT_REPOSITORY');
 
 export interface IKitRepository {
   /**

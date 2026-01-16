@@ -2,14 +2,14 @@
  * @event CierreApprovedEvent
  */
 export class CierreApprovedEvent {
-  readonly eventName = "cierre.approved";
+  readonly eventName = 'cierre.approved';
   readonly occurredAt: Date;
 
   constructor(
     readonly cierreId: string,
     readonly ordenId: string,
     readonly approvedBy: string,
-    readonly totals: Record<string, number>,
+    readonly totals: Record<string, number>
   ) {
     this.occurredAt = new Date();
     Object.freeze(this);

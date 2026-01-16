@@ -1,1 +1,1 @@
-export * from "./hes.repository.interface";
+export * from './hes.repository.interface';

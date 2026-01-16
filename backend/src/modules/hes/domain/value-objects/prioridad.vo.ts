@@ -4,13 +4,13 @@
  * Prioridad del servicio
  */
 
-import { ValidationError } from "../../../../shared/domain/exceptions";
+import { ValidationError } from '../../../../shared/domain/exceptions';
 
 export enum PrioridadEnum {
-  BAJA = "BAJA",
-  MEDIA = "MEDIA",
-  ALTA = "ALTA",
-  URGENTE = "URGENTE",
+  BAJA = 'BAJA',
+  MEDIA = 'MEDIA',
+  ALTA = 'ALTA',
+  URGENTE = 'URGENTE',
 }
 
 export class Prioridad {
@@ -35,8 +35,8 @@ export class Prioridad {
   }
 
   public static fromString(value: string): Prioridad {
-    if (!value || value.trim() === "") {
-      throw new ValidationError("Prioridad no puede estar vacía");
+    if (!value || value.trim() === '') {
+      throw new ValidationError('Prioridad no puede estar vacía');
     }
 
     const upperValue = value.toUpperCase();
@@ -44,7 +44,7 @@ export class Prioridad {
 
     if (!enumValue) {
       throw new ValidationError(
-        `Prioridad inválida: ${value}. Valores válidos: ${Object.values(PrioridadEnum).join(", ")}`,
+        `Prioridad inválida: ${value}. Valores válidos: ${Object.values(PrioridadEnum).join(', ')}`
       );
     }
 
@@ -84,4 +84,3 @@ export class Prioridad {
     return this._value;
   }
 }
-

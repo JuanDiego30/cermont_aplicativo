@@ -10,15 +10,15 @@
  * - DRY: Centraliza lógica de validación y reintentos
  * - Type-safe: Interfaces estrictas para todos los payloads
  */
-import { Injectable, Logger, BadRequestException } from "@nestjs/common";
-import { PrismaService } from "../../../prisma/prisma.service";
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { PrismaService } from '../../../prisma/prisma.service';
 import {
   IOfflinePayload,
   IOfflineChecklistItem,
   ISyncResult,
   ISyncError,
   ISyncMetrics,
-} from "../interfaces/sync-state.interface";
+} from '../interfaces/sync-state.interface';
 
 @Injectable()
 export class OfflineSyncService {
@@ -52,7 +52,7 @@ export class OfflineSyncService {
           checklists: {
             include: {
               items: {
-                orderBy: { createdAt: "asc" },
+                orderBy: { createdAt: 'asc' },
               },
             },
           },
@@ -93,7 +93,7 @@ export class OfflineSyncService {
       };
 
       this.logger.log(
-        `✅ Checklist offline construido para ejecución ${ejecucionId}: ${items.length} items`,
+        `✅ Checklist offline construido para ejecución ${ejecucionId}: ${items.length} items`
       );
 
       return payload;
@@ -112,10 +112,7 @@ export class OfflineSyncService {
    * @param payload Datos capturados offline
    * @param userId ID del usuario que sincroniza
    */
-  async syncWhenOnline(
-    payload: IOfflinePayload,
-    userId: string,
-  ): Promise<ISyncResult> {
+  async syncWhenOnline(payload: IOfflinePayload, userId: string): Promise<ISyncResult> {
     let retryCount = 0;
     const startTime = Date.now();
     const errors: ISyncError[] = [];
@@ -126,7 +123,7 @@ export class OfflineSyncService {
         await this.validateOfflineIntegrity(payload);
 
         // Paso 2: Procesar cada item en transacción
-        const result = await this.prisma.$transaction(async (tx) => {
+        const result = await this.prisma.$transaction(async tx => {
           let itemsActualizados = 0;
 
           for (const item of payload.items) {
@@ -135,25 +132,20 @@ export class OfflineSyncService {
                 where: { id: item.id },
                 data: {
                   estado: item.estado,
-                  completado: item.estado === "completado",
-                  completadoEn: item.completadoEn
-                    ? new Date(item.completadoEn)
-                    : null,
+                  completado: item.estado === 'completado',
+                  completadoEn: item.completadoEn ? new Date(item.completadoEn) : null,
                   observaciones: item.observaciones,
-                  completadoPorId: item.estado === "completado" ? userId : null,
+                  completadoPorId: item.estado === 'completado' ? userId : null,
                 },
               });
               itemsActualizados++;
             } catch (itemError) {
               errors.push({
                 itemId: item.id,
-                operation: "UPDATE",
-                entityType: "CHECKLIST",
-                message:
-                  itemError instanceof Error
-                    ? itemError.message
-                    : "Error desconocido",
-                code: "ITEM_UPDATE_FAILED",
+                operation: 'UPDATE',
+                entityType: 'CHECKLIST',
+                message: itemError instanceof Error ? itemError.message : 'Error desconocido',
+                code: 'ITEM_UPDATE_FAILED',
                 retryCount,
                 timestamp: new Date(),
                 retryable: true,
@@ -166,9 +158,7 @@ export class OfflineSyncService {
             where: { id: payload.ejecucionId },
             data: {
               sincronizado: true,
-              ubicacionGPS: payload.ubicacionGPS
-                ? JSON.stringify(payload.ubicacionGPS)
-                : undefined,
+              ubicacionGPS: payload.ubicacionGPS ? JSON.stringify(payload.ubicacionGPS) : undefined,
               updatedAt: new Date(),
             },
           });
@@ -179,9 +169,9 @@ export class OfflineSyncService {
         // Paso 4: Registrar auditoría
         await this.prisma.auditLog.create({
           data: {
-            entityType: "Ejecucion",
+            entityType: 'Ejecucion',
             entityId: payload.ejecucionId,
-            action: "SYNC_OFFLINE",
+            action: 'SYNC_OFFLINE',
             userId,
             changes: {
               itemsSincronizados: result,
@@ -195,13 +185,13 @@ export class OfflineSyncService {
         const processingTime = Date.now() - startTime;
 
         this.logger.log(
-          `✅ Sincronización exitosa para ejecución ${payload.ejecucionId}: ${result} items en ${processingTime}ms`,
+          `✅ Sincronización exitosa para ejecución ${payload.ejecucionId}: ${result} items en ${processingTime}ms`
         );
 
         return {
           success: true,
           id: payload.ejecucionId,
-          tipo: "EJECUCION",
+          tipo: 'EJECUCION',
           mensaje: `Sincronización completada. ${result} items actualizados.`,
           processingTimeMs: processingTime,
         };
@@ -209,8 +199,8 @@ export class OfflineSyncService {
         retryCount++;
         this.logger.warn(
           `⚠️ Intento ${retryCount}/${this.MAX_RETRIES} fallido: ${
-            error instanceof Error ? error.message : "Error desconocido"
-          }`,
+            error instanceof Error ? error.message : 'Error desconocido'
+          }`
         );
 
         if (retryCount < this.MAX_RETRIES) {
@@ -227,7 +217,7 @@ export class OfflineSyncService {
     return {
       success: false,
       id: payload.ejecucionId,
-      tipo: "EJECUCION",
+      tipo: 'EJECUCION',
       mensaje: errorMessage,
     };
   }
@@ -242,13 +232,13 @@ export class OfflineSyncService {
    */
   async validateOfflineIntegrity(payload: IOfflinePayload): Promise<boolean> {
     // Validar duplicados
-    const uniqueIds = new Set(payload.items.map((item) => item.id));
+    const uniqueIds = new Set(payload.items.map(item => item.id));
     if (uniqueIds.size !== payload.items.length) {
-      throw new BadRequestException("Payload contiene items duplicados");
+      throw new BadRequestException('Payload contiene items duplicados');
     }
 
     // Validar estados
-    const validStates = ["pendiente", "completado", "rechazado"];
+    const validStates = ['pendiente', 'completado', 'rechazado'];
     for (const item of payload.items) {
       if (!validStates.includes(item.estado)) {
         throw new BadRequestException(`Estado inválido: ${item.estado}`);
@@ -258,32 +248,26 @@ export class OfflineSyncService {
     // Validar que items existan en BD
     const itemsEnBD = await this.prisma.checklistItemEjecucion.findMany({
       where: {
-        id: { in: payload.items.map((i) => i.id) },
+        id: { in: payload.items.map(i => i.id) },
       },
       select: { id: true },
     });
 
     if (itemsEnBD.length !== payload.items.length) {
-      const idsEnBD = new Set(itemsEnBD.map((i) => i.id));
-      const idsFaltantes = payload.items
-        .filter((i) => !idsEnBD.has(i.id))
-        .map((i) => i.id);
+      const idsEnBD = new Set(itemsEnBD.map(i => i.id));
+      const idsFaltantes = payload.items.filter(i => !idsEnBD.has(i.id)).map(i => i.id);
 
-      throw new BadRequestException(
-        `Items no encontrados en BD: ${idsFaltantes.join(", ")}`,
-      );
+      throw new BadRequestException(`Items no encontrados en BD: ${idsFaltantes.join(', ')}`);
     }
 
     // Validar versión del schema
     if (payload.schemaVersion > this.SCHEMA_VERSION) {
       throw new BadRequestException(
-        `Versión de schema ${payload.schemaVersion} no soportada. Máxima: ${this.SCHEMA_VERSION}`,
+        `Versión de schema ${payload.schemaVersion} no soportada. Máxima: ${this.SCHEMA_VERSION}`
       );
     }
 
-    this.logger.debug(
-      `✅ Validación de integridad pasó para ${payload.ejecucionId}`,
-    );
+    this.logger.debug(`✅ Validación de integridad pasó para ${payload.ejecucionId}`);
 
     return true;
   }
@@ -296,9 +280,9 @@ export class OfflineSyncService {
     const recentSyncs = await this.prisma.auditLog.findMany({
       where: {
         userId,
-        action: "SYNC_OFFLINE",
+        action: 'SYNC_OFFLINE',
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       take: 100,
     });
 
@@ -328,11 +312,11 @@ export class OfflineSyncService {
 
   private mapEstadoItem(
     estado: string,
-    completado: boolean,
-  ): "pendiente" | "completado" | "rechazado" {
-    if (completado) return "completado";
-    if (estado === "rechazado") return "rechazado";
-    return "pendiente";
+    completado: boolean
+  ): 'pendiente' | 'completado' | 'rechazado' {
+    if (completado) return 'completado';
+    if (estado === 'rechazado') return 'rechazado';
+    return 'pendiente';
   }
 
   private generateDeviceId(): string {
@@ -340,6 +324,6 @@ export class OfflineSyncService {
   }
 
   private delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }

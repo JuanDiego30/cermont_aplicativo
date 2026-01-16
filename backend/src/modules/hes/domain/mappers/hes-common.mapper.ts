@@ -1,9 +1,9 @@
-import { HES } from "../entities/hes.entity";
-import { ClienteInfo } from "../entities/cliente-info.entity";
-import { CondicionesEntrada } from "../entities/condiciones-entrada.entity";
-import { DiagnosticoPreliminar } from "../entities/diagnostico-preliminar.entity";
-import { RequerimientosSeguridad } from "../entities/requerimientos-seguridad.entity";
-import { FirmaDigital } from "../entities/firma-digital.entity";
+import { HES } from '../entities/hes.entity';
+import { ClienteInfo } from '../entities/cliente-info.entity';
+import { CondicionesEntrada } from '../entities/condiciones-entrada.entity';
+import { DiagnosticoPreliminar } from '../entities/diagnostico-preliminar.entity';
+import { RequerimientosSeguridad } from '../entities/requerimientos-seguridad.entity';
+import { FirmaDigital } from '../entities/firma-digital.entity';
 
 export function getHesParts(hes: HES): {
   clienteInfo: ClienteInfo;
@@ -73,9 +73,7 @@ export function mapCondicionesEntradaCore(condicionesEntrada: CondicionesEntrada
   };
 }
 
-export function mapDiagnosticoPreliminarCore(
-  diagnostico: DiagnosticoPreliminar,
-): {
+export function mapDiagnosticoPreliminarCore(diagnostico: DiagnosticoPreliminar): {
   descripcion: string;
   causaProbable: string | undefined;
   accionesRecomendadas: string[];

@@ -2,12 +2,9 @@
  * @entity Evidence
  * Represents a piece of evidence (photo, video, document) attached to an execution.
  */
-import { randomUUID } from "crypto";
-import {
-  EvidenceType,
-  EvidenceTypeEnum,
-} from "../value-objects/evidence-type.vo";
-import { GeoLocation } from "../value-objects/geo-location.vo";
+import { randomUUID } from 'crypto';
+import { EvidenceType, EvidenceTypeEnum } from '../value-objects/evidence-type.vo';
+import { GeoLocation } from '../value-objects/geo-location.vo';
 
 export interface EvidenceProps {
   id?: string;
@@ -55,9 +52,9 @@ export class Evidence {
   }
 
   public static fromPersistence(
-    props: Omit<EvidenceProps, "capturedLocation"> & {
+    props: Omit<EvidenceProps, 'capturedLocation'> & {
       capturedLocation?: Record<string, unknown>;
-    },
+    }
   ): Evidence {
     return new Evidence({
       ...props,

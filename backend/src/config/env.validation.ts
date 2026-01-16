@@ -5,7 +5,7 @@
  * Uso: Usar como validationSchema en ConfigModule.forRoot().
  * Si las variables son inválidas, la aplicación termina con error.
  */
-import { plainToInstance } from "class-transformer";
+import { plainToInstance } from 'class-transformer';
 import {
   IsEnum,
   IsNumber,
@@ -17,12 +17,12 @@ import {
   MinLength,
   IsEmail,
   validateSync,
-} from "class-validator";
+} from 'class-validator';
 
 enum Environment {
-  Development = "development",
-  Production = "production",
-  Test = "test",
+  Development = 'development',
+  Production = 'production',
+  Test = 'test',
 }
 
 export class EnvironmentVariables {
@@ -44,11 +44,11 @@ export class EnvironmentVariables {
 
   @IsString()
   @IsOptional()
-  JWT_EXPIRES_IN = "15m";
+  JWT_EXPIRES_IN = '15m';
 
   @IsString()
   @IsOptional()
-  JWT_REFRESH_EXPIRES_IN = "7d";
+  JWT_REFRESH_EXPIRES_IN = '7d';
 
   @IsUrl()
   @IsOptional()
@@ -100,13 +100,13 @@ export function validate(config: Record<string, unknown>) {
 
   if (errors.length > 0) {
     const formattedErrors = errors
-      .map((err) => {
+      .map(err => {
         const constraints = err.constraints
-          ? Object.values(err.constraints).join(", ")
-          : "Validation failed";
+          ? Object.values(err.constraints).join(', ')
+          : 'Validation failed';
         return `  - ${err.property}: ${constraints}`;
       })
-      .join("\n");
+      .join('\n');
 
     throw new Error(`❌ Invalid environment variables:\n${formattedErrors}`);
   }

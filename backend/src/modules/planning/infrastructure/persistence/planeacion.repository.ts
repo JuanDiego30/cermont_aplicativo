@@ -2,13 +2,13 @@
  * @repository PlaneacionRepository
  * Usa el modelo Planeacion de Prisma
  */
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../../../../prisma/prisma.service";
-import { CreatePlaneacionDto } from "../../application/dto";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { CreatePlaneacionDto } from '../../application/dto';
 import {
   IPlaneacionRepository,
   PlaneacionData,
-} from "../../domain/repositories/planeacion.repository.interface";
+} from '../../domain/repositories/planeacion.repository.interface';
 
 @Injectable()
 export class PlaneacionRepository implements IPlaneacionRepository {
@@ -26,10 +26,7 @@ export class PlaneacionRepository implements IPlaneacionRepository {
     return this.mapToPlaneacionData(planeacion);
   }
 
-  async createOrUpdate(
-    ordenId: string,
-    data: Partial<PlaneacionData>,
-  ): Promise<PlaneacionData> {
+  async createOrUpdate(ordenId: string, data: Partial<PlaneacionData>): Promise<PlaneacionData> {
     const existing = await this.prisma.planeacion.findUnique({
       where: { ordenId },
     });
@@ -41,10 +38,7 @@ export class PlaneacionRepository implements IPlaneacionRepository {
     return this.create(ordenId, data as CreatePlaneacionDto);
   }
 
-  async create(
-    ordenId: string,
-    data: CreatePlaneacionDto,
-  ): Promise<PlaneacionData> {
+  async create(ordenId: string, data: CreatePlaneacionDto): Promise<PlaneacionData> {
     const planeacion = await this.prisma.planeacion.create({
       data: {
         ordenId,
@@ -53,16 +47,13 @@ export class PlaneacionRepository implements IPlaneacionRepository {
         documentosApoyo: [],
         observaciones: data.observaciones,
         kitId: data.kitId,
-        estado: "borrador",
+        estado: 'borrador',
       },
     });
     return this.mapToPlaneacionData(planeacion);
   }
 
-  async update(
-    id: string,
-    data: Partial<PlaneacionData>,
-  ): Promise<PlaneacionData> {
+  async update(id: string, data: Partial<PlaneacionData>): Promise<PlaneacionData> {
     const planeacion = await this.prisma.planeacion.update({
       where: { id },
       data: {
@@ -79,7 +70,7 @@ export class PlaneacionRepository implements IPlaneacionRepository {
     const planeacion = await this.prisma.planeacion.update({
       where: { id },
       data: {
-        estado: "aprobada",
+        estado: 'aprobada',
         aprobadoPorId: aprobadorId,
         fechaAprobacion: new Date(),
       },
@@ -91,7 +82,7 @@ export class PlaneacionRepository implements IPlaneacionRepository {
     const planeacion = await this.prisma.planeacion.update({
       where: { id },
       data: {
-        estado: "borrador",
+        estado: 'borrador',
         observaciones: motivo,
       },
     });

@@ -4,14 +4,14 @@
  */
 
 export enum FileTypeEnum {
-  IMAGE = "IMAGE",
-  VIDEO = "VIDEO",
-  DOCUMENT = "DOCUMENT",
-  AUDIO = "AUDIO",
+  IMAGE = 'IMAGE',
+  VIDEO = 'VIDEO',
+  DOCUMENT = 'DOCUMENT',
+  AUDIO = 'AUDIO',
 }
 
 // Spanish aliases for backward compatibility
-export type TipoEvidencia = "FOTO" | "VIDEO" | "DOCUMENTO" | "AUDIO";
+export type TipoEvidencia = 'FOTO' | 'VIDEO' | 'DOCUMENTO' | 'AUDIO';
 
 const SPANISH_TO_ENUM: Record<TipoEvidencia, FileTypeEnum> = {
   FOTO: FileTypeEnum.IMAGE,
@@ -21,10 +21,10 @@ const SPANISH_TO_ENUM: Record<TipoEvidencia, FileTypeEnum> = {
 };
 
 const ENUM_TO_SPANISH: Record<FileTypeEnum, TipoEvidencia> = {
-  [FileTypeEnum.IMAGE]: "FOTO",
-  [FileTypeEnum.VIDEO]: "VIDEO",
-  [FileTypeEnum.DOCUMENT]: "DOCUMENTO",
-  [FileTypeEnum.AUDIO]: "AUDIO",
+  [FileTypeEnum.IMAGE]: 'FOTO',
+  [FileTypeEnum.VIDEO]: 'VIDEO',
+  [FileTypeEnum.DOCUMENT]: 'DOCUMENTO',
+  [FileTypeEnum.AUDIO]: 'AUDIO',
 };
 
 export class FileType {
@@ -35,21 +35,21 @@ export class FileType {
   public static fromMimeType(mimeType: string): FileType {
     const normalized = mimeType.toLowerCase();
 
-    if (normalized.startsWith("image/")) {
+    if (normalized.startsWith('image/')) {
       return new FileType(FileTypeEnum.IMAGE);
     }
-    if (normalized.startsWith("video/")) {
+    if (normalized.startsWith('video/')) {
       return new FileType(FileTypeEnum.VIDEO);
     }
-    if (normalized.startsWith("audio/")) {
+    if (normalized.startsWith('audio/')) {
       return new FileType(FileTypeEnum.AUDIO);
     }
     if (
-      normalized.includes("pdf") ||
-      normalized.includes("document") ||
-      normalized.includes("msword") ||
-      normalized.includes("spreadsheet") ||
-      normalized.includes("excel")
+      normalized.includes('pdf') ||
+      normalized.includes('document') ||
+      normalized.includes('msword') ||
+      normalized.includes('spreadsheet') ||
+      normalized.includes('excel')
     ) {
       return new FileType(FileTypeEnum.DOCUMENT);
     }

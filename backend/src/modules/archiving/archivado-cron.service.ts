@@ -1,6 +1,6 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { Cron } from "@nestjs/schedule";
-import { ArchivingService } from "./archiving.service";
+import { Injectable, Logger } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
+import { ArchivingService } from './archiving.service';
 
 /**
  * Cron Service para archivado automático
@@ -16,9 +16,9 @@ export class ArchivadoCronService {
    * Archivado automático mensual
    * Cron: 0 2 1 * * (2:00 AM, día 1 de cada mes)
    */
-  @Cron("0 2 1 * *")
+  @Cron('0 2 1 * *')
   async handleArchivoMensual() {
-    this.logger.log("Iniciando archivado automático mensual...");
+    this.logger.log('Iniciando archivado automático mensual...');
 
     try {
       const resultado = await this.archivingService.archivarAutomatico();
@@ -29,7 +29,7 @@ export class ArchivadoCronService {
         errores: resultado.errores.length,
       });
     } catch (error) {
-      this.logger.error("Error en archivado automático:", error);
+      this.logger.error('Error en archivado automático:', error);
     }
   }
 
@@ -37,9 +37,9 @@ export class ArchivadoCronService {
    * Verificación semanal de órdenes pendientes de archivar
    * Cron: 0 8 * * MON (8:00 AM cada lunes)
    */
-  @Cron("0 8 * * MON")
+  @Cron('0 8 * * MON')
   async verificarPendientes() {
-    this.logger.log("Verificando órdenes pendientes de archivar...");
+    this.logger.log('Verificando órdenes pendientes de archivar...');
 
     try {
       const estadisticas = await this.archivingService.getEstadisticas();
@@ -50,7 +50,7 @@ export class ArchivadoCronService {
         espacioMB: estadisticas.espacioUtilizadoMB,
       });
     } catch (error) {
-      this.logger.error("Error verificando pendientes:", error);
+      this.logger.error('Error verificando pendientes:', error);
     }
   }
 }

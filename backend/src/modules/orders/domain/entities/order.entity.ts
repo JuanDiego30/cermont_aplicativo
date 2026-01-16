@@ -3,13 +3,7 @@
  * @description Entidad de dominio que representa una Order de Trabajo
  * @layer Domain
  */
-import {
-  OrderNumero,
-  Orderstado,
-  Prioridad,
-  EstadoOrder,
-  PrioridadLevel,
-} from "../value-objects";
+import { OrderNumero, Orderstado, Prioridad, EstadoOrder, PrioridadLevel } from '../value-objects';
 
 export interface OrderProps {
   id: string;
@@ -44,11 +38,7 @@ export interface OrderAsignado {
  * Replaces any[] with strongly typed events
  */
 export interface OrderDomainEvent {
-  eventName:
-    | "Order.estado.changed"
-    | "Order.created"
-    | "Order.assigned"
-    | "Order.completed";
+  eventName: 'Order.estado.changed' | 'Order.created' | 'Order.assigned' | 'Order.completed';
   orderId: string;
   occurredAt: Date;
   fromEstado?: string;
@@ -62,7 +52,7 @@ export class OrderEntity {
   private constructor(
     private props: OrderProps,
     private _creador?: OrderCreador,
-    private _asignado?: OrderAsignado,
+    private _asignado?: OrderAsignado
   ) {}
 
   // Getters
@@ -125,22 +115,19 @@ export class OrderEntity {
 
   // Factory Methods
   static create(
-    props: Omit<
-      OrderProps,
-      "id" | "numero" | "estado" | "createdAt" | "updatedAt"
-    >,
-    sequence: number,
+    props: Omit<OrderProps, 'id' | 'numero' | 'estado' | 'createdAt' | 'updatedAt'>,
+    sequence: number
   ): OrderEntity {
     const numero = OrderNumero.create(sequence);
     const now = new Date();
 
     return new OrderEntity({
-      id: "",
+      id: '',
       numero: numero.value,
       descripcion: props.descripcion,
       cliente: props.cliente,
-      estado: "planeacion",
-      prioridad: props.prioridad || "media",
+      estado: 'planeacion',
+      prioridad: props.prioridad || 'media',
       fechaFinEstimada: props.fechaFinEstimada,
       presupuestoEstimado: props.presupuestoEstimado,
       creadorId: props.creadorId,
@@ -153,7 +140,7 @@ export class OrderEntity {
   static fromPersistence(
     props: OrderProps,
     creador?: OrderCreador,
-    asignado?: OrderAsignado,
+    asignado?: OrderAsignado
   ): OrderEntity {
     return new OrderEntity(props, creador, asignado);
   }
@@ -170,8 +157,7 @@ export class OrderEntity {
     if (data.descripcion) this.props.descripcion = data.descripcion;
     if (data.cliente) this.props.cliente = data.cliente;
     if (data.prioridad) this.props.prioridad = data.prioridad;
-    if (data.fechaFinEstimada)
-      this.props.fechaFinEstimada = data.fechaFinEstimada;
+    if (data.fechaFinEstimada) this.props.fechaFinEstimada = data.fechaFinEstimada;
     if (data.presupuestoEstimado !== undefined)
       this.props.presupuestoEstimado = data.presupuestoEstimado;
     if (data.asignadoId !== undefined) this.props.asignadoId = data.asignadoId;
@@ -183,24 +169,22 @@ export class OrderEntity {
     const targetEstado = Orderstado.create(newEstado);
 
     if (!currentEstado.canTransitionTo(newEstado)) {
-      throw new Error(
-        `Transición inválida de ${currentEstado.value} a ${newEstado}`,
-      );
+      throw new Error(`Transición inválida de ${currentEstado.value} a ${newEstado}`);
     }
 
     this.props.estado = newEstado;
     this.props.updatedAt = new Date();
 
     // Actualizar fechas según el estado
-    if (newEstado === "ejecucion" && !this.props.fechaInicio) {
+    if (newEstado === 'ejecucion' && !this.props.fechaInicio) {
       this.props.fechaInicio = new Date();
     }
-    if (newEstado === "completada") {
+    if (newEstado === 'completada') {
       this.props.fechaFin = new Date();
     }
 
     this.addDomainEvent({
-      eventName: "Order.estado.changed",
+      eventName: 'Order.estado.changed',
       orderId: this.id,
       fromEstado: currentEstado.value,
       toEstado: newEstado,
@@ -209,23 +193,23 @@ export class OrderEntity {
   }
 
   iniciarEjecucion(): void {
-    this.changeEstado("ejecucion");
+    this.changeEstado('ejecucion');
   }
 
   pausar(): void {
-    this.changeEstado("pausada");
+    this.changeEstado('pausada');
   }
 
   reanudar(): void {
-    this.changeEstado("ejecucion");
+    this.changeEstado('ejecucion');
   }
 
   completar(): void {
-    this.changeEstado("completada");
+    this.changeEstado('completada');
   }
 
   cancelar(): void {
-    this.changeEstado("cancelada");
+    this.changeEstado('cancelada');
   }
 
   asignarTecnico(tecnicoId: string): void {

@@ -47,7 +47,7 @@ export class SignUpComponent implements OnInit, OnDestroy {
     );
   }
 
-  private passwordMatchValidator(group: FormGroup): { [key: string]: any } | null {
+  private passwordMatchValidator(group: FormGroup): { passwordMismatch: true } | null {
     const password = group.get('password')?.value;
     const confirmPassword = group.get('confirmPassword')?.value;
     return password === confirmPassword ? null : { passwordMismatch: true };

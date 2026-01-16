@@ -4,15 +4,15 @@
  * Tipo de costo en el sistema
  */
 
-import { ValidationError } from "../exceptions";
+import { ValidationError } from '../exceptions';
 
 export enum CostoTypeEnum {
-  MATERIAL = "material",
-  MANO_OBRA = "mano_obra",
-  TRANSPORTE = "transporte",
-  EQUIPO = "equipo",
-  SUBCONTRATO = "subcontrato",
-  OTROS = "otro",
+  MATERIAL = 'material',
+  MANO_OBRA = 'mano_obra',
+  TRANSPORTE = 'transporte',
+  EQUIPO = 'equipo',
+  SUBCONTRATO = 'subcontrato',
+  OTROS = 'otro',
 }
 
 export class CostoType {
@@ -25,9 +25,9 @@ export class CostoType {
 
     if (!Object.values(CostoTypeEnum).includes(normalized as CostoTypeEnum)) {
       throw new ValidationError(
-        `Tipo de costo inválido. Valores permitidos: ${Object.values(CostoTypeEnum).join(", ")}`,
-        "tipo",
-        value,
+        `Tipo de costo inválido. Valores permitidos: ${Object.values(CostoTypeEnum).join(', ')}`,
+        'tipo',
+        value
       );
     }
     return new CostoType(normalized as CostoTypeEnum);
@@ -48,20 +48,16 @@ export class CostoType {
    * Verificar si requiere factura
    */
   public requiresInvoice(): boolean {
-    return [
-      CostoTypeEnum.MATERIAL,
-      CostoTypeEnum.EQUIPO,
-      CostoTypeEnum.SUBCONTRATO,
-    ].includes(this._value);
+    return [CostoTypeEnum.MATERIAL, CostoTypeEnum.EQUIPO, CostoTypeEnum.SUBCONTRATO].includes(
+      this._value
+    );
   }
 
   /**
    * Verificar si es costo directo
    */
   public isDirectCost(): boolean {
-    return [CostoTypeEnum.MATERIAL, CostoTypeEnum.MANO_OBRA].includes(
-      this._value,
-    );
+    return [CostoTypeEnum.MATERIAL, CostoTypeEnum.MANO_OBRA].includes(this._value);
   }
 
   /**
@@ -74,8 +70,8 @@ export class CostoType {
   /**
    * Obtener categoría sugerida
    */
-  public getSuggestedCategory(): "DIRECTO" | "INDIRECTO" {
-    return this.isDirectCost() ? "DIRECTO" : "INDIRECTO";
+  public getSuggestedCategory(): 'DIRECTO' | 'INDIRECTO' {
+    return this.isDirectCost() ? 'DIRECTO' : 'INDIRECTO';
   }
 
   public equals(other: CostoType): boolean {

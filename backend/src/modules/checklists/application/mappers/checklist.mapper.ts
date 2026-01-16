@@ -4,12 +4,9 @@
  * Mapea entre Domain Entity y DTOs
  */
 
-import { Checklist } from "../../domain/entities/checklist.entity";
-import { ChecklistItem } from "../../domain/entities/checklist-item.entity";
-import {
-  ChecklistResponseDto,
-  ChecklistItemResponseDto,
-} from "../dto/checklist-response.dto";
+import { Checklist } from '../../domain/entities/checklist.entity';
+import { ChecklistItem } from '../../domain/entities/checklist-item.entity';
+import { ChecklistResponseDto, ChecklistItemResponseDto } from '../dto/checklist-response.dto';
 
 export class ChecklistMapper {
   /**
@@ -23,7 +20,7 @@ export class ChecklistMapper {
       status: checklist.getStatus().getValue(),
       tipo: checklist.getTipo() || undefined,
       categoria: checklist.getCategoria() || undefined,
-      items: checklist.getItems().map((item) => this.itemToDto(item)),
+      items: checklist.getItems().map(item => this.itemToDto(item)),
       ordenId: checklist.getOrdenId() || undefined,
       ejecucionId: checklist.getEjecucionId() || undefined,
       templateId: checklist.getTemplateId() || undefined,
@@ -62,9 +59,7 @@ export class ChecklistMapper {
   /**
    * Array de Domain Entities → Array de Response DTOs
    */
-  public static toResponseDtoArray(
-    checklists: Checklist[],
-  ): ChecklistResponseDto[] {
-    return checklists.map((checklist) => this.toResponseDto(checklist));
+  public static toResponseDtoArray(checklists: Checklist[]): ChecklistResponseDto[] {
+    return checklists.map(checklist => this.toResponseDto(checklist));
   }
 }

@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { REPORTE_REPOSITORY } from './application/dto';
 import {
-    GenerateReporteOrdenesUseCase,
-    GetReporteOrdenDetalleUseCase,
+  GenerateReporteOrdenesUseCase,
+  GetReporteOrdenDetalleUseCase,
 } from './application/use-cases';
 import { ReportsController } from './infrastructure/controllers';
 import { ReporteRepository } from './infrastructure/persistence';

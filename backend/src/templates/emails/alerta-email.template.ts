@@ -87,7 +87,7 @@ export function renderAlertaEmailHtml(input: AlertaEmailTemplateInput): string {
 }
 
 export function renderAlertaEmailText(
-  input: Omit<AlertaEmailTemplateInput, "prioridadCssClass" | "prioridadColor">,
+  input: Omit<AlertaEmailTemplateInput, 'prioridadCssClass' | 'prioridadColor'>
 ): string {
   return `
 ${input.titulo}

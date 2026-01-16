@@ -2,12 +2,12 @@
  * @vo EjecucionId
  * Value Object representing a unique identifier for an Ejecucion (Execution).
  */
-import { randomUUID } from "crypto";
+import { randomUUID } from 'crypto';
 
 export class EjecucionId {
   private constructor(private readonly value: string) {
     if (!value || value.trim().length === 0) {
-      throw new Error("EjecucionId cannot be empty");
+      throw new Error('EjecucionId cannot be empty');
     }
   }
 

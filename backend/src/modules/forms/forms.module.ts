@@ -4,51 +4,45 @@
  * Módulo de formularios dinámicos con DDD completo.
  * Permite crear, gestionar, renderizar y procesar formularios configurables.
  */
-import { Module } from "@nestjs/common";
-import { EventEmitterModule } from "@nestjs/event-emitter";
-import { MulterModule } from "@nestjs/platform-express";
+import { Module } from '@nestjs/common';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { MulterModule } from '@nestjs/platform-express';
 
 // Controllers
-import { FormsController } from "./infrastructure/controllers/forms.controller";
+import { FormsController } from './infrastructure/controllers/forms.controller';
 
 // Use Cases
 import {
-    ArchiveTemplateUseCase,
-    CreateTemplateUseCase,
-    GetSubmissionUseCase,
-    GetTemplateUseCase,
-    ListSubmissionsUseCase,
-    ListTemplatesUseCase,
-    PublishTemplateUseCase,
-    SubmitFormUseCase,
-    UpdateTemplateUseCase,
-} from "./application/use-cases";
+  ArchiveTemplateUseCase,
+  CreateTemplateUseCase,
+  GetSubmissionUseCase,
+  GetTemplateUseCase,
+  ListSubmissionsUseCase,
+  ListTemplatesUseCase,
+  PublishTemplateUseCase,
+  SubmitFormUseCase,
+  UpdateTemplateUseCase,
+} from './application/use-cases';
 
 // Repositories
-import {
-    FORM_SUBMISSION_REPOSITORY,
-    FORM_TEMPLATE_REPOSITORY,
-} from "./domain/repositories";
-import {
-    FormSubmissionRepository,
-    FormTemplateRepository,
-} from "./infrastructure/persistence";
+import { FORM_SUBMISSION_REPOSITORY, FORM_TEMPLATE_REPOSITORY } from './domain/repositories';
+import { FormSubmissionRepository, FormTemplateRepository } from './infrastructure/persistence';
 
 // Services
-import { FormParserService } from "./infrastructure/services/form-parser.service";
-import { JSONSchemaValidatorService } from "./infrastructure/services/json-schema-validator.service";
+import { FormParserService } from './infrastructure/services/form-parser.service';
+import { JSONSchemaValidatorService } from './infrastructure/services/json-schema-validator.service';
 
 // Domain Services
 import {
-    CalculationEngineService,
-    ConditionalLogicEvaluatorService,
-    FormSchemaGeneratorService,
-    FormValidatorService,
-} from "./domain/services";
+  CalculationEngineService,
+  ConditionalLogicEvaluatorService,
+  FormSchemaGeneratorService,
+  FormValidatorService,
+} from './domain/services';
 
 // Legacy (deprecar)
-import { PrismaModule } from "../../prisma/prisma.module";
-import { FormsService } from "./forms.service";
+import { PrismaModule } from '../../prisma/prisma.module';
+import { FormsService } from './forms.service';
 
 @Module({
   imports: [

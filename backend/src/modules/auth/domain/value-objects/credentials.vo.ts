@@ -3,7 +3,7 @@
  * @description Value Object que representa credenciales de autenticación
  * @layer Domain
  */
-import * as bcrypt from "bcryptjs";
+import * as bcrypt from 'bcryptjs';
 
 export class Credentials {
   private static readonly EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -13,7 +13,7 @@ export class Credentials {
   private constructor(
     private readonly _email: string,
     private readonly _password: string,
-    private readonly _isHashed: boolean = false,
+    private readonly _isHashed: boolean = false
   ) {
     Object.freeze(this);
   }
@@ -34,12 +34,12 @@ export class Credentials {
     const normalizedEmail = email.trim().toLowerCase();
 
     if (!Credentials.EMAIL_REGEX.test(normalizedEmail)) {
-      throw new Error("Email inválido");
+      throw new Error('Email inválido');
     }
 
     const passwordValidation = Credentials.validatePassword(password);
     if (!passwordValidation.valid) {
-      throw new Error(passwordValidation.errors.join(". "));
+      throw new Error(passwordValidation.errors.join('. '));
     }
 
     return new Credentials(normalizedEmail, password, false);
@@ -79,23 +79,23 @@ export class Credentials {
     }
 
     if (!/[A-Z]/.test(password)) {
-      errors.push("Debe contener al menos una mayúscula");
+      errors.push('Debe contener al menos una mayúscula');
     }
 
     if (!/[a-z]/.test(password)) {
-      errors.push("Debe contener al menos una minúscula");
+      errors.push('Debe contener al menos una minúscula');
     }
 
     if (!/\d/.test(password)) {
-      errors.push("Debe contener al menos un número");
+      errors.push('Debe contener al menos un número');
     }
 
     if (/\s/.test(password)) {
-      errors.push("No debe contener espacios");
+      errors.push('No debe contener espacios');
     }
 
     if (!/[^a-zA-Z\d]/.test(password)) {
-      errors.push("Debe contener al menos un carácter especial");
+      errors.push('Debe contener al menos un carácter especial');
     }
 
     return { valid: errors.length === 0, errors };

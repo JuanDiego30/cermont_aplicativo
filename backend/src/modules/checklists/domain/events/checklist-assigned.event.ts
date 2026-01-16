@@ -5,7 +5,7 @@
  */
 
 export class ChecklistAssignedEvent {
-  public readonly eventName = "CHECKLIST_ASSIGNED";
+  public readonly eventName = 'CHECKLIST_ASSIGNED';
   public readonly aggregateId: string;
   public readonly timestamp: Date;
   public readonly templateId?: string;

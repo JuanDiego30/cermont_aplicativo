@@ -10,6 +10,6 @@ export class HESCreatedEvent {
       hesId: string;
       numero: string;
       ordenId: string;
-    },
+    }
   ) {}
 }

@@ -11,6 +11,6 @@ export class OrderAsignadaEvent {
     public readonly fechaInicio?: Date,
     public readonly instrucciones?: string,
     public readonly motivoAsignacion?: string,
-    public readonly timestamp: Date = new Date(),
+    public readonly timestamp: Date = new Date()
   ) {}
 }

@@ -2,8 +2,8 @@
  * @entity TimeLog
  * Represents a period of work during an execution.
  */
-import { randomUUID } from "crypto";
-import { TimeDuration } from "../value-objects/time-duration.vo";
+import { randomUUID } from 'crypto';
+import { TimeDuration } from '../value-objects/time-duration.vo';
 
 export interface TimeLogProps {
   id?: string;

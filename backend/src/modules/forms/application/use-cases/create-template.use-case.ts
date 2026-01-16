@@ -4,28 +4,22 @@
  * Crea un nuevo template de formulario
  */
 
-import { Injectable, Inject } from "@nestjs/common";
-import { FormTemplate } from "../../domain/entities/form-template.entity";
-import { FormField } from "../../domain/entities/form-field.entity";
-import { FieldType } from "../../domain/value-objects/field-type.vo";
-import {
-  IFormTemplateRepository,
-  FORM_TEMPLATE_REPOSITORY,
-} from "../../domain/repositories";
-import { TemplateNotPublishableException } from "../../domain/exceptions";
-import { CreateFormTemplateDto } from "../dto/create-template.dto";
+import { Injectable, Inject } from '@nestjs/common';
+import { FormTemplate } from '../../domain/entities/form-template.entity';
+import { FormField } from '../../domain/entities/form-field.entity';
+import { FieldType } from '../../domain/value-objects/field-type.vo';
+import { IFormTemplateRepository, FORM_TEMPLATE_REPOSITORY } from '../../domain/repositories';
+import { TemplateNotPublishableException } from '../../domain/exceptions';
+import { CreateFormTemplateDto } from '../dto/create-template.dto';
 
 @Injectable()
 export class CreateTemplateUseCase {
   constructor(
     @Inject(FORM_TEMPLATE_REPOSITORY)
-    private readonly templateRepository: IFormTemplateRepository,
+    private readonly templateRepository: IFormTemplateRepository
   ) {}
 
-  async execute(
-    dto: CreateFormTemplateDto,
-    createdBy: string,
-  ): Promise<FormTemplate> {
+  async execute(dto: CreateFormTemplateDto, createdBy: string): Promise<FormTemplate> {
     // Verificar que no exista template con mismo nombre
     const exists = await this.templateRepository.exists(dto.name);
     if (exists) {
@@ -33,7 +27,7 @@ export class CreateTemplateUseCase {
     }
 
     // Convertir DTO a Entities
-    const fields = (dto.fields || []).map((fieldDto) =>
+    const fields = (dto.fields || []).map(fieldDto =>
       FormField.create({
         id: fieldDto.id,
         type: FieldType.fromString(fieldDto.type),
@@ -44,7 +38,7 @@ export class CreateTemplateUseCase {
         isRequired: fieldDto.isRequired || false,
         order: fieldDto.order || 0,
         options: fieldDto.options,
-      }),
+      })
     );
 
     // Crear template

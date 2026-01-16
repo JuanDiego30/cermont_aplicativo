@@ -4,142 +4,154 @@ import { isPlatformBrowser } from '@angular/common';
 type Theme = 'light' | 'dark';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root',
 })
 export class ThemeService {
-    private readonly platformId = inject(PLATFORM_ID);
+  private readonly platformId = inject(PLATFORM_ID);
 
-    currentTheme = signal<Theme>(this.getInitialTheme());
+  currentTheme = signal<Theme>(this.getInitialTheme());
 
-    // Alias for backward compatibility
-    readonly theme = this.currentTheme;
+  // Alias for backward compatibility
+  readonly theme = this.currentTheme;
 
-    get isDark(): boolean {
-        return this.currentTheme() === 'dark';
+  get isDark(): boolean {
+    return this.currentTheme() === 'dark';
+  }
+
+  constructor() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.applyTheme(this.currentTheme());
+      this.watchSystemTheme();
+    }
+  }
+
+  /**
+   * Toggle con transición hexagonal
+   */
+  async toggleTheme(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const newTheme: Theme = this.currentTheme() === 'light' ? 'dark' : 'light';
+
+    // Verificar soporte de View Transition API
+    if (!this.supportsViewTransitions()) {
+      this.setTheme(newTheme);
+      return;
     }
 
-    constructor() {
-        if (isPlatformBrowser(this.platformId)) {
-            this.applyTheme(this.currentTheme());
-            this.watchSystemTheme();
-        }
+    // Obtener posición del centro de la pantalla
+    const x = window.innerWidth / 2;
+    const y = window.innerHeight / 2;
+
+    // Establecer custom properties para el centro de la animación
+    document.documentElement.style.setProperty('--x', `${x}px`);
+    document.documentElement.style.setProperty('--y', `${y}px`);
+
+    // Ejecutar transición
+    const transition = (
+      document as Document & {
+        startViewTransition?: (callback: () => void) => { ready: Promise<void> };
+      }
+    ).startViewTransition?.(() => {
+      this.setTheme(newTheme);
+    });
+
+    if (transition) {
+      await transition.ready;
+    }
+  }
+
+  /**
+   * Toggle desde un elemento específico (posición del mouse)
+   */
+  async toggleThemeFromElement(event: MouseEvent): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const newTheme: Theme = this.currentTheme() === 'light' ? 'dark' : 'light';
+
+    if (!this.supportsViewTransitions()) {
+      this.setTheme(newTheme);
+      return;
     }
 
-    /**
-     * Toggle con transición hexagonal
-     */
-    async toggleTheme(): Promise<void> {
-        if (!isPlatformBrowser(this.platformId)) return;
+    // Usar la posición del click
+    const x = event.clientX;
+    const y = event.clientY;
 
-        const newTheme: Theme = this.currentTheme() === 'light' ? 'dark' : 'light';
+    document.documentElement.style.setProperty('--x', `${x}px`);
+    document.documentElement.style.setProperty('--y', `${y}px`);
 
-        // Verificar soporte de View Transition API
-        if (!this.supportsViewTransitions()) {
-            this.setTheme(newTheme);
-            return;
-        }
+    const transition = (
+      document as Document & {
+        startViewTransition?: (callback: () => void) => { ready: Promise<void> };
+      }
+    ).startViewTransition?.(() => {
+      this.setTheme(newTheme);
+    });
 
-        // Obtener posición del centro de la pantalla
-        const x = window.innerWidth / 2;
-        const y = window.innerHeight / 2;
+    if (transition) {
+      await transition.ready;
+    }
+  }
 
-        // Establecer custom properties para el centro de la animación
-        document.documentElement.style.setProperty('--x', `${x}px`);
-        document.documentElement.style.setProperty('--y', `${y}px`);
+  setTheme(theme: Theme): void {
+    this.currentTheme.set(theme);
+    if (isPlatformBrowser(this.platformId)) {
+      this.applyTheme(theme);
+      this.saveTheme(theme);
+    }
+  }
 
-        // Ejecutar transición
-        const transition = (document as any).startViewTransition(() => {
-            this.setTheme(newTheme);
-        });
+  private applyTheme(theme: Theme): void {
+    const html = document.documentElement;
 
-        await transition.ready;
+    if (theme === 'dark') {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+  }
+
+  private getInitialTheme(): Theme {
+    if (!isPlatformBrowser(this.platformId)) {
+      return 'light';
     }
 
-    /**
-     * Toggle desde un elemento específico (posición del mouse)
-     */
-    async toggleThemeFromElement(event: MouseEvent): Promise<void> {
-        if (!isPlatformBrowser(this.platformId)) return;
+    const savedTheme = localStorage.getItem('cermont-theme') as Theme;
+    if (savedTheme) return savedTheme;
 
-        const newTheme: Theme = this.currentTheme() === 'light' ? 'dark' : 'light';
-
-        if (!this.supportsViewTransitions()) {
-            this.setTheme(newTheme);
-            return;
-        }
-
-        // Usar la posición del click
-        const x = event.clientX;
-        const y = event.clientY;
-
-        document.documentElement.style.setProperty('--x', `${x}px`);
-        document.documentElement.style.setProperty('--y', `${y}px`);
-
-        const transition = (document as any).startViewTransition(() => {
-            this.setTheme(newTheme);
-        });
-
-        await transition.ready;
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
     }
 
-    setTheme(theme: Theme): void {
-        this.currentTheme.set(theme);
-        if (isPlatformBrowser(this.platformId)) {
-            this.applyTheme(theme);
-            this.saveTheme(theme);
-        }
-    }
+    return 'light';
+  }
 
-    private applyTheme(theme: Theme): void {
-        const html = document.documentElement;
+  private saveTheme(theme: Theme): void {
+    localStorage.setItem('cermont-theme', theme);
+  }
 
-        if (theme === 'dark') {
-            html.classList.add('dark');
-        } else {
-            html.classList.remove('dark');
-        }
-    }
+  private supportsViewTransitions(): boolean {
+    return 'startViewTransition' in document;
+  }
 
-    private getInitialTheme(): Theme {
-        if (!isPlatformBrowser(this.platformId)) {
-            return 'light';
-        }
+  private watchSystemTheme(): void {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-        const savedTheme = localStorage.getItem('cermont-theme') as Theme;
-        if (savedTheme) return savedTheme;
+    mediaQuery.addEventListener('change', e => {
+      if (!localStorage.getItem('cermont-theme')) {
+        this.setTheme(e.matches ? 'dark' : 'light');
+      }
+    });
+  }
 
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            return 'dark';
-        }
+  resetToSystemTheme(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
 
-        return 'light';
-    }
-
-    private saveTheme(theme: Theme): void {
-        localStorage.setItem('cermont-theme', theme);
-    }
-
-    private supportsViewTransitions(): boolean {
-        return 'startViewTransition' in document;
-    }
-
-    private watchSystemTheme(): void {
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-        mediaQuery.addEventListener('change', (e) => {
-            if (!localStorage.getItem('cermont-theme')) {
-                this.setTheme(e.matches ? 'dark' : 'light');
-            }
-        });
-    }
-
-    resetToSystemTheme(): void {
-        if (!isPlatformBrowser(this.platformId)) return;
-
-        localStorage.removeItem('cermont-theme');
-        const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
-            ? 'dark'
-            : 'light';
-        this.setTheme(systemTheme);
-    }
+    localStorage.removeItem('cermont-theme');
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light';
+    this.setTheme(systemTheme);
+  }
 }

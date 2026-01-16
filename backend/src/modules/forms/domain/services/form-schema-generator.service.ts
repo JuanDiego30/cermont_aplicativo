@@ -4,7 +4,7 @@
  * Servicio de dominio para generar JSON Schema desde campos
  */
 
-import { FormField } from "../entities/form-field.entity";
+import { FormField } from '../entities/form-field.entity';
 
 export class FormSchemaGeneratorService {
   /**
@@ -12,8 +12,8 @@ export class FormSchemaGeneratorService {
    */
   generate(fields: FormField[]): Record<string, any> {
     const schema: Record<string, any> = {
-      $schema: "http://json-schema.org/draft-07/schema#",
-      type: "object",
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      type: 'object',
       properties: {},
       required: [],
     };
@@ -60,9 +60,9 @@ export class FormSchemaGeneratorService {
     }
 
     // Array items para MULTISELECT
-    if (field.getType().getValue() === "MULTISELECT") {
+    if (field.getType().getValue() === 'MULTISELECT') {
       schema.items = {
-        type: "string",
+        type: 'string',
         enum: field.getOptions(),
       };
     }

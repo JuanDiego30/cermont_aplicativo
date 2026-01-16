@@ -2,11 +2,11 @@ import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../shared/guards/jwt-auth.guard';
 import {
-    DashboardKpiDto,
-    FinancialKpiDto,
-    KpiFiltersDto,
-    OrdenesKpiDto,
-    TecnicosKpiDto,
+  DashboardKpiDto,
+  FinancialKpiDto,
+  KpiFiltersDto,
+  OrdenesKpiDto,
+  TecnicosKpiDto,
 } from './dto';
 import { KpisService } from './kpis.service';
 

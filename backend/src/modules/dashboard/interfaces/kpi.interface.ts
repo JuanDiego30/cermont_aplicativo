@@ -69,13 +69,13 @@ export interface IKpiTecnicos {
   };
 }
 
-export type AlertaSeveridad = "BAJA" | "MEDIA" | "ALTA" | "CRITICA";
+export type AlertaSeveridad = 'BAJA' | 'MEDIA' | 'ALTA' | 'CRITICA';
 export type AlertaTipo =
-  | "SOBRECOSTO"
-  | "RETRASO"
-  | "INCUMPLIMIENTO"
-  | "CUELLO_BOTELLA"
-  | "VENCIMIENTO_PROXIMO";
+  | 'SOBRECOSTO'
+  | 'RETRASO'
+  | 'INCUMPLIMIENTO'
+  | 'CUELLO_BOTELLA'
+  | 'VENCIMIENTO_PROXIMO';
 
 export interface IAlerta {
   /** Tipo de alerta */
@@ -85,7 +85,7 @@ export interface IAlerta {
   entidad_id: string;
 
   /** Tipo de entidad */
-  entidad_tipo: "ORDEN" | "USUARIO" | "GLOBAL";
+  entidad_tipo: 'ORDEN' | 'USUARIO' | 'GLOBAL';
 
   /** Mensaje descriptivo */
   mensaje: string;
@@ -148,7 +148,7 @@ export interface IKpiTendencias {
   periodo: {
     desde: Date;
     hasta: Date;
-    granularidad: "DIA" | "SEMANA" | "MES";
+    granularidad: 'DIA' | 'SEMANA' | 'MES';
   };
 }
 

@@ -2,9 +2,9 @@
  * @repository CierreRepository
  * Usa el modelo CierreAdministrativo de Prisma
  */
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../../../../prisma/prisma.service";
-import { ICierreRepository, CreateCierreDto } from "../../application/dto";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { ICierreRepository, CreateCierreDto } from '../../application/dto';
 
 @Injectable()
 export class CierreRepository implements ICierreRepository {
@@ -27,11 +27,7 @@ export class CierreRepository implements ICierreRepository {
     });
   }
 
-  async uploadDocumento(
-    cierreId: string,
-    documentoId: string,
-    url: string,
-  ): Promise<void> {
+  async uploadDocumento(cierreId: string, documentoId: string, url: string): Promise<void> {
     // No hay modelo separado para documentos, solo actualizamos observaciones
     await this.prisma.cierreAdministrativo.update({
       where: { id: cierreId },

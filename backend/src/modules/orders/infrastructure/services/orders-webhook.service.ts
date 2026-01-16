@@ -1,6 +1,6 @@
-import { Injectable } from "@nestjs/common";
-import { HttpService } from "@nestjs/axios";
-import { firstValueFrom } from "rxjs";
+import { Injectable } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 type EstadoOrder = string;
 
@@ -20,18 +20,18 @@ export class OrdersWebhookService {
   constructor(private readonly httpService: HttpService) {}
 
   async sendEstadoChanged(
-    payload: OrderstadoChangedWebhookPayload,
+    payload: OrderstadoChangedWebhookPayload
   ): Promise<{ url: string; status: number }> {
     const url = process.env.Orders_WEBHOOK_URL?.trim();
     if (!url) {
-      return { url: "", status: 204 };
+      return { url: '', status: 204 };
     }
 
     const response = await firstValueFrom(
       this.httpService.post(
         url,
         {
-          event: "Order.estado.changed",
+          event: 'Order.estado.changed',
           Order: {
             id: payload.orderId,
             numero: payload.numero,
@@ -44,11 +44,11 @@ export class OrdersWebhookService {
         },
         {
           headers: {
-            "Idempotency-Key": payload.idempotencyKey,
+            'Idempotency-Key': payload.idempotencyKey,
           },
           timeout: 10_000,
-        },
-      ),
+        }
+      )
     );
 
     return { url, status: response.status };

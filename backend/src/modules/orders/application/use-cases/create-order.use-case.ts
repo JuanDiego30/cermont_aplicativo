@@ -3,23 +3,23 @@
  * @description Caso de uso para crear una Order
  * @layer Application
  */
-import { Injectable, Inject } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
-import { Order_REPOSITORY, IOrderRepository } from "../../domain/repositories";
-import { OrderEntity } from "../../domain/entities";
-import { CreateOrderDto, OrderResponseZod } from "../dto";
+import { Injectable, Inject } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Order_REPOSITORY, IOrderRepository } from '../../domain/repositories';
+import { OrderEntity } from '../../domain/entities';
+import { CreateOrderDto, OrderResponseZod } from '../dto';
 
 @Injectable()
 export class CreateOrderUseCase {
   constructor(
     @Inject(Order_REPOSITORY)
     private readonly OrderRepository: IOrderRepository,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   async execute(
     dto: CreateOrderDto,
-    creadorId: string,
+    creadorId: string
   ): Promise<{ message: string; data: OrderResponseZod }> {
     // Obtener siguiente secuencia
     const sequence = await this.OrderRepository.getNextSequence();
@@ -29,22 +29,20 @@ export class CreateOrderUseCase {
       {
         descripcion: dto.descripcion,
         cliente: dto.cliente,
-        prioridad: dto.prioridad || "media",
-        fechaFinEstimada: dto.fechaFinEstimada
-          ? new Date(dto.fechaFinEstimada)
-          : undefined,
+        prioridad: dto.prioridad || 'media',
+        fechaFinEstimada: dto.fechaFinEstimada ? new Date(dto.fechaFinEstimada) : undefined,
         presupuestoEstimado: dto.presupuestoEstimado,
         creadorId,
         asignadoId: dto.asignadoId,
       },
-      sequence,
+      sequence
     );
 
     // Persistir
     const saved = await this.OrderRepository.create(Order);
 
     // Emitir evento
-    this.eventEmitter.emit("Order.created", {
+    this.eventEmitter.emit('Order.created', {
       orderId: saved.id,
       numero: saved.numero.value,
       cliente: saved.cliente,
@@ -52,7 +50,7 @@ export class CreateOrderUseCase {
     });
 
     return {
-      message: "Order creada exitosamente",
+      message: 'Order creada exitosamente',
       data: {
         id: saved.id,
         numero: saved.numero.value,

@@ -3,7 +3,7 @@
  *
  * Cantidad de items con validación
  */
-import { ValidationError } from "../../../../shared/domain/exceptions";
+import { ValidationError } from '../../../../shared/domain/exceptions';
 
 export class Cantidad {
   private constructor(private readonly _value: number) {
@@ -12,13 +12,10 @@ export class Cantidad {
 
   public static create(value: number): Cantidad {
     if (value < 0) {
-      throw new ValidationError("Cantidad no puede ser negativa", "cantidad");
+      throw new ValidationError('Cantidad no puede ser negativa', 'cantidad');
     }
     if (!Number.isInteger(value)) {
-      throw new ValidationError(
-        "Cantidad debe ser un número entero",
-        "cantidad",
-      );
+      throw new ValidationError('Cantidad debe ser un número entero', 'cantidad');
     }
     return new Cantidad(value);
   }
@@ -42,17 +39,14 @@ export class Cantidad {
   public subtract(other: Cantidad): Cantidad {
     const result = this._value - other._value;
     if (result < 0) {
-      throw new ValidationError(
-        "Resultado de resta no puede ser negativo",
-        "cantidad",
-      );
+      throw new ValidationError('Resultado de resta no puede ser negativo', 'cantidad');
     }
     return Cantidad.create(result);
   }
 
   public multiply(factor: number): Cantidad {
     if (!Number.isInteger(factor) || factor < 0) {
-      throw new ValidationError("Factor debe ser entero positivo", "cantidad");
+      throw new ValidationError('Factor debe ser entero positivo', 'cantidad');
     }
     return Cantidad.create(this._value * factor);
   }
@@ -81,4 +75,3 @@ export class Cantidad {
     return this._value.toString();
   }
 }
-

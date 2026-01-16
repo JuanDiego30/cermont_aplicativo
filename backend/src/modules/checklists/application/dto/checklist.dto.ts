@@ -14,24 +14,24 @@ import {
   MinLength,
   ValidateNested,
   ArrayMinSize,
-} from "class-validator";
-import { Type } from "class-transformer";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // ============== Enums ==============
 
 export enum TipoChecklist {
-  SEGURIDAD = "seguridad",
-  CALIDAD = "calidad",
-  HERRAMIENTAS = "herramientas",
-  EPP = "epp",
-  GENERAL = "general",
+  SEGURIDAD = 'seguridad',
+  CALIDAD = 'calidad',
+  HERRAMIENTAS = 'herramientas',
+  EPP = 'epp',
+  GENERAL = 'general',
 }
 
 // ============== DTOs ==============
 
 export class ChecklistItemInputDto {
-  @ApiProperty({ description: "Descripción del item" })
+  @ApiProperty({ description: 'Descripción del item' })
   @IsString()
   descripcion!: string;
 
@@ -40,19 +40,19 @@ export class ChecklistItemInputDto {
   @IsBoolean()
   requerido?: boolean = true;
 
-  @ApiProperty({ description: "Orden del item", minimum: 0 })
+  @ApiProperty({ description: 'Orden del item', minimum: 0 })
   @IsInt()
   @Min(0)
   orden!: number;
 }
 
 export class CreateChecklistDto {
-  @ApiProperty({ description: "Nombre del checklist", minLength: 3 })
+  @ApiProperty({ description: 'Nombre del checklist', minLength: 3 })
   @IsString()
   @MinLength(3)
   nombre!: string;
 
-  @ApiPropertyOptional({ description: "Descripción" })
+  @ApiPropertyOptional({ description: 'Descripción' })
   @IsOptional()
   @IsString()
   descripcion?: string;
@@ -61,7 +61,7 @@ export class CreateChecklistDto {
   @IsEnum(TipoChecklist)
   tipo!: TipoChecklist;
 
-  @ApiProperty({ description: "Items del checklist", type: [ChecklistItemInputDto], minItems: 1 })
+  @ApiProperty({ description: 'Items del checklist', type: [ChecklistItemInputDto], minItems: 1 })
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
@@ -71,7 +71,7 @@ export class CreateChecklistDto {
 
 export class ChecklistItemResponseItemDto {
   @ApiProperty()
-  @IsUUID("4")
+  @IsUUID('4')
   itemId!: string;
 
   @ApiProperty()
@@ -86,7 +86,7 @@ export class ChecklistItemResponseItemDto {
 
 export class ChecklistItemResponseDto {
   @ApiProperty()
-  @IsUUID("4")
+  @IsUUID('4')
   checklistId!: string;
 
   @ApiProperty({ type: [ChecklistItemResponseItemDto] })
@@ -139,7 +139,7 @@ export interface ChecklistData {
 }
 
 // Repository interface
-export const CHECKLIST_REPOSITORY = Symbol("CHECKLIST_REPOSITORY");
+export const CHECKLIST_REPOSITORY = Symbol('CHECKLIST_REPOSITORY');
 
 export interface ItemResponseData {
   itemId: string;
@@ -157,11 +157,7 @@ export interface IChecklistRepository {
   findChecklistById(id: string): Promise<unknown>;
   createForEjecucion(ejecucionId: string, templateId: string): Promise<unknown>;
   createEmpty(ejecucionId: string, nombre: string): Promise<unknown>;
-  toggleItem(
-    checklistId: string,
-    itemId: string,
-    data: ToggleItemDto,
-  ): Promise<ItemResponseData>;
+  toggleItem(checklistId: string, itemId: string, data: ToggleItemDto): Promise<ItemResponseData>;
   addItems(checklistId: string, items: unknown[]): Promise<void>;
   updateItem(itemId: string, data: unknown): Promise<unknown>;
   completarChecklist(id: string, userId: string): Promise<unknown>;

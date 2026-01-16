@@ -10,21 +10,14 @@
  * - Solo PUBLISHED puede tener submissions
  */
 
-import { FormTemplateId } from "../value-objects/form-template-id.vo";
-import { TemplateVersion } from "../value-objects/template-version.vo";
-import { FormStatus, FormStatusEnum } from "../value-objects/form-status.vo";
-import { FormField } from "./form-field.entity";
-import {
-  BusinessRuleViolationError,
-  TemplateNotPublishableException,
-} from "../exceptions";
-import { ValidationError } from "../../../../shared/domain/exceptions";
-import {
-  TemplateCreatedEvent,
-  TemplatePublishedEvent,
-  TemplateArchivedEvent,
-} from "../events";
-import { AggregateRoot } from "../../../../shared/base/aggregate-root";
+import { FormTemplateId } from '../value-objects/form-template-id.vo';
+import { TemplateVersion } from '../value-objects/template-version.vo';
+import { FormStatus, FormStatusEnum } from '../value-objects/form-status.vo';
+import { FormField } from './form-field.entity';
+import { BusinessRuleViolationError, TemplateNotPublishableException } from '../exceptions';
+import { ValidationError } from '../../../../shared/domain/exceptions';
+import { TemplateCreatedEvent, TemplatePublishedEvent, TemplateArchivedEvent } from '../events';
+import { AggregateRoot } from '../../../../shared/base/aggregate-root';
 
 export interface CreateFormTemplateProps {
   name: string;
@@ -37,7 +30,6 @@ export interface CreateFormTemplateProps {
 }
 
 export class FormTemplate extends AggregateRoot {
-
   private constructor(
     private readonly _id: FormTemplateId,
     private _name: string,
@@ -54,7 +46,7 @@ export class FormTemplate extends AggregateRoot {
     private _publishedAt?: Date,
     private _archivedAt?: Date,
     private _previousVersionId?: FormTemplateId,
-    private _isLatestVersion: boolean = true,
+    private _isLatestVersion: boolean = true
   ) {
     super();
     this.validate();
@@ -86,7 +78,7 @@ export class FormTemplate extends AggregateRoot {
       undefined, // publishedAt
       undefined, // archivedAt
       props.previousVersionId,
-      true, // isLatestVersion
+      true // isLatestVersion
     );
 
     // Generar schema inicial
@@ -99,7 +91,7 @@ export class FormTemplate extends AggregateRoot {
         name: props.name,
         contextType: props.contextType,
         createdBy: props.createdBy,
-      }),
+      })
     );
 
     return template;
@@ -126,7 +118,7 @@ export class FormTemplate extends AggregateRoot {
     previousVersionId?: string;
     isLatestVersion?: boolean;
   }): FormTemplate {
-    const fields = props.fields.map((f) => FormField.fromPersistence(f));
+    const fields = props.fields.map(f => FormField.fromPersistence(f));
 
     return new FormTemplate(
       FormTemplateId.create(props.id),
@@ -143,10 +135,8 @@ export class FormTemplate extends AggregateRoot {
       props.updatedAt,
       props.publishedAt,
       props.archivedAt,
-      props.previousVersionId
-        ? FormTemplateId.create(props.previousVersionId)
-        : undefined,
-      props.isLatestVersion ?? true,
+      props.previousVersionId ? FormTemplateId.create(props.previousVersionId) : undefined,
+      props.isLatestVersion ?? true
     );
   }
 
@@ -155,14 +145,12 @@ export class FormTemplate extends AggregateRoot {
    */
   public addField(field: FormField): void {
     if (!this.canEdit()) {
-      throw new BusinessRuleViolationError("Cannot edit published template");
+      throw new BusinessRuleViolationError('Cannot edit published template');
     }
 
     // Validar que no exista campo con mismo ID
     if (this.hasField(field.getId())) {
-      throw new BusinessRuleViolationError(
-        `Field with id ${field.getId()} already exists`,
-      );
+      throw new BusinessRuleViolationError(`Field with id ${field.getId()} already exists`);
     }
 
     this._fields.push(field);
@@ -175,17 +163,15 @@ export class FormTemplate extends AggregateRoot {
    */
   public removeField(fieldId: string): void {
     if (!this.canEdit()) {
-      throw new BusinessRuleViolationError("Cannot edit published template");
+      throw new BusinessRuleViolationError('Cannot edit published template');
     }
 
     const field = this.findField(fieldId);
     if (!field) {
-      throw new BusinessRuleViolationError(
-        `Field with id ${fieldId} not found`,
-      );
+      throw new BusinessRuleViolationError(`Field with id ${fieldId} not found`);
     }
 
-    this._fields = this._fields.filter((f) => f.getId() !== fieldId);
+    this._fields = this._fields.filter(f => f.getId() !== fieldId);
     this.regenerateSchema();
     this.markAsUpdated();
   }
@@ -195,21 +181,17 @@ export class FormTemplate extends AggregateRoot {
    */
   public updateField(fieldId: string, updates: Partial<FormField>): void {
     if (!this.canEdit()) {
-      throw new BusinessRuleViolationError("Cannot edit published template");
+      throw new BusinessRuleViolationError('Cannot edit published template');
     }
 
     const field = this.findField(fieldId);
     if (!field) {
-      throw new BusinessRuleViolationError(
-        `Field with id ${fieldId} not found`,
-      );
+      throw new BusinessRuleViolationError(`Field with id ${fieldId} not found`);
     }
 
     // Actualizar campo (inmutabilidad)
     const updatedField = field.update(updates as any);
-    this._fields = this._fields.map((f) =>
-      f.getId() === fieldId ? updatedField : f,
-    );
+    this._fields = this._fields.map(f => (f.getId() === fieldId ? updatedField : f));
 
     this.regenerateSchema();
     this.markAsUpdated();
@@ -221,15 +203,12 @@ export class FormTemplate extends AggregateRoot {
   public publish(): void {
     if (!this.canPublish()) {
       const reasons = this.getPublishValidationErrors();
-      throw new TemplateNotPublishableException(
-        "Template cannot be published",
-        reasons,
-      );
+      throw new TemplateNotPublishableException('Template cannot be published', reasons);
     }
 
     if (!this._status.canTransitionTo(FormStatusEnum.PUBLISHED)) {
       throw new BusinessRuleViolationError(
-        `Cannot transition from ${this._status.getValue()} to PUBLISHED`,
+        `Cannot transition from ${this._status.getValue()} to PUBLISHED`
       );
     }
 
@@ -242,7 +221,7 @@ export class FormTemplate extends AggregateRoot {
         templateId: this._id.getValue(),
         name: this._name,
         version: this._version.toString(),
-      }),
+      })
     );
   }
 
@@ -251,12 +230,12 @@ export class FormTemplate extends AggregateRoot {
    */
   public archive(): void {
     if (this.isArchived()) {
-      throw new BusinessRuleViolationError("Template already archived");
+      throw new BusinessRuleViolationError('Template already archived');
     }
 
     if (!this._status.canTransitionTo(FormStatusEnum.ARCHIVED)) {
       throw new BusinessRuleViolationError(
-        `Cannot transition from ${this._status.getValue()} to ARCHIVED`,
+        `Cannot transition from ${this._status.getValue()} to ARCHIVED`
       );
     }
 
@@ -268,7 +247,7 @@ export class FormTemplate extends AggregateRoot {
       new TemplateArchivedEvent({
         templateId: this._id.getValue(),
         name: this._name,
-      }),
+      })
     );
   }
 
@@ -277,9 +256,7 @@ export class FormTemplate extends AggregateRoot {
    */
   public createNewVersion(createdBy: string): FormTemplate {
     if (!this.isPublished()) {
-      throw new BusinessRuleViolationError(
-        "Can only version published templates",
-      );
+      throw new BusinessRuleViolationError('Can only version published templates');
     }
 
     const newVersion = FormTemplate.create({
@@ -289,7 +266,7 @@ export class FormTemplate extends AggregateRoot {
       createdBy,
       version: this._version.incrementMinor(),
       previousVersionId: this._id,
-      fields: this._fields.map((f) => f.clone()),
+      fields: this._fields.map(f => f.clone()),
     });
 
     // Marcar versión anterior como no-latest
@@ -301,18 +278,14 @@ export class FormTemplate extends AggregateRoot {
   /**
    * Actualizar información básica
    */
-  public updateInfo(updates: {
-    name?: string;
-    description?: string;
-    updatedBy: string;
-  }): void {
+  public updateInfo(updates: { name?: string; description?: string; updatedBy: string }): void {
     if (!this.canEdit()) {
-      throw new BusinessRuleViolationError("Cannot edit published template");
+      throw new BusinessRuleViolationError('Cannot edit published template');
     }
 
     if (updates.name) {
       if (updates.name.trim().length === 0) {
-        throw new ValidationError("Name cannot be empty", "name");
+        throw new ValidationError('Name cannot be empty', 'name');
       }
       this._name = updates.name.trim();
     }
@@ -331,8 +304,8 @@ export class FormTemplate extends AggregateRoot {
     // Generación básica de schema
     // En producción, usar FormSchemaGeneratorService
     const schema: Record<string, any> = {
-      $schema: "http://json-schema.org/draft-07/schema#",
-      type: "object",
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      type: 'object',
       properties: {},
       required: [],
     };
@@ -375,14 +348,14 @@ export class FormTemplate extends AggregateRoot {
     // Validaciones:
     // - Al menos 1 campo
     // - Todos los campos tienen configuración válida
-    return this._fields.length > 0 && this._fields.every((f) => f.isValid());
+    return this._fields.length > 0 && this._fields.every(f => f.isValid());
   }
 
   private getPublishValidationErrors(): string[] {
     const errors: string[] = [];
 
     if (this._fields.length === 0) {
-      errors.push("Template must have at least one field");
+      errors.push('Template must have at least one field');
     }
 
     for (const field of this._fields) {
@@ -395,11 +368,11 @@ export class FormTemplate extends AggregateRoot {
   }
 
   private hasField(fieldId: string): boolean {
-    return this._fields.some((f) => f.getId() === fieldId);
+    return this._fields.some(f => f.getId() === fieldId);
   }
 
   private findField(fieldId: string): FormField | undefined {
-    return this._fields.find((f) => f.getId() === fieldId);
+    return this._fields.find(f => f.getId() === fieldId);
   }
 
   private markAsUpdated(updatedBy?: string): void {
@@ -409,7 +382,7 @@ export class FormTemplate extends AggregateRoot {
 
   private validate(): void {
     if (!this._name || this._name.trim().length === 0) {
-      throw new ValidationError("Template name is required", "name");
+      throw new ValidationError('Template name is required', 'name');
     }
   }
 
@@ -492,19 +465,18 @@ export class FormTemplate extends AggregateRoot {
   }
 
   public getRequiredFields(): FormField[] {
-    return this._fields.filter((f) => f.isRequired());
+    return this._fields.filter(f => f.isRequired());
   }
 
   public getFieldsWithConditionalLogic(): FormField[] {
-    return this._fields.filter((f) => f.hasConditionalLogic());
+    return this._fields.filter(f => f.hasConditionalLogic());
   }
 
   public getCalculatedFields(): FormField[] {
-    return this._fields.filter((f) => f.isCalculated());
+    return this._fields.filter(f => f.isCalculated());
   }
 
   public getField(fieldId: string): FormField | undefined {
     return this.findField(fieldId);
   }
 }
-

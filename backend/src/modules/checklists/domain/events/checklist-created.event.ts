@@ -5,7 +5,7 @@
  */
 
 export class ChecklistCreatedEvent {
-  public readonly eventName = "CHECKLIST_CREATED";
+  public readonly eventName = 'CHECKLIST_CREATED';
   public readonly aggregateId: string;
   public readonly timestamp: Date;
   public readonly name: string;

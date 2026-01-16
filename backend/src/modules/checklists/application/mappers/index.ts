@@ -1,1 +1,1 @@
-export { ChecklistMapper } from "./checklist.mapper";
+export { ChecklistMapper } from './checklist.mapper';

@@ -11,11 +11,11 @@
  * - Restauración de emergencia
  */
 
-import { Module } from "@nestjs/common";
-import { PrismaModule } from "../../prisma/prisma.module";
-import { ArchivadoCronService } from "./archivado-cron.service";
-import { ArchivingController } from "./archiving.controller";
-import { ArchivingService } from "./archiving.service";
+import { Module } from '@nestjs/common';
+import { PrismaModule } from '../../prisma/prisma.module';
+import { ArchivadoCronService } from './archivado-cron.service';
+import { ArchivingController } from './archiving.controller';
+import { ArchivingService } from './archiving.service';
 
 @Module({
   imports: [PrismaModule],

@@ -10,24 +10,20 @@
  * - Solo DRAFT puede editarse
  */
 
-import { ChecklistId } from "../value-objects/checklist-id.vo";
-import { ChecklistItemId } from "../value-objects/checklist-item-id.vo";
-import {
-  ChecklistStatus,
-  ChecklistStatusEnum,
-} from "../value-objects/checklist-status.vo";
-import { ChecklistItem } from "./checklist-item.entity";
-import { ValidationError, BusinessRuleViolationError } from "../exceptions";
+import { ChecklistId } from '../value-objects/checklist-id.vo';
+import { ChecklistItemId } from '../value-objects/checklist-item-id.vo';
+import { ChecklistStatus, ChecklistStatusEnum } from '../value-objects/checklist-status.vo';
+import { ChecklistItem } from './checklist-item.entity';
+import { ValidationError, BusinessRuleViolationError } from '../exceptions';
 import {
   ChecklistCreatedEvent,
   ChecklistAssignedEvent,
   ChecklistItemToggledEvent,
   ChecklistCompletedEvent,
-} from "../events";
-import { AggregateRoot } from "../../../../shared/base/aggregate-root";
+} from '../events';
+import { AggregateRoot } from '../../../../shared/base/aggregate-root';
 
 export class Checklist extends AggregateRoot {
-
   // Configuración
   private static readonly MIN_NAME_LENGTH = 3;
   private static readonly MAX_NAME_LENGTH = 100;
@@ -51,7 +47,7 @@ export class Checklist extends AggregateRoot {
     private _completadoPorId: string | null,
     private _completadoEn: Date | null,
     private readonly _createdAt: Date,
-    private _updatedAt: Date,
+    private _updatedAt: Date
   ) {
     super();
     this.validate();
@@ -78,39 +74,30 @@ export class Checklist extends AggregateRoot {
     if (!props.name || props.name.trim().length < this.MIN_NAME_LENGTH) {
       throw new ValidationError(
         `Nombre debe tener al menos ${this.MIN_NAME_LENGTH} caracteres`,
-        "name",
+        'name'
       );
     }
     if (props.name.length > this.MAX_NAME_LENGTH) {
       throw new ValidationError(
         `Nombre no puede exceder ${this.MAX_NAME_LENGTH} caracteres`,
-        "name",
+        'name'
       );
     }
 
     // Validar descripción
-    if (
-      props.description &&
-      props.description.length > this.MAX_DESCRIPTION_LENGTH
-    ) {
+    if (props.description && props.description.length > this.MAX_DESCRIPTION_LENGTH) {
       throw new ValidationError(
         `Descripción no puede exceder ${this.MAX_DESCRIPTION_LENGTH} caracteres`,
-        "description",
+        'description'
       );
     }
 
     // Validar items
     if (!props.items || props.items.length < this.MIN_ITEMS) {
-      throw new ValidationError(
-        `Debe tener al menos ${this.MIN_ITEMS} item`,
-        "items",
-      );
+      throw new ValidationError(`Debe tener al menos ${this.MIN_ITEMS} item`, 'items');
     }
     if (props.items.length > this.MAX_ITEMS) {
-      throw new ValidationError(
-        `No puede tener más de ${this.MAX_ITEMS} items`,
-        "items",
-      );
+      throw new ValidationError(`No puede tener más de ${this.MAX_ITEMS} items`, 'items');
     }
 
     // Crear items
@@ -119,7 +106,7 @@ export class Checklist extends AggregateRoot {
         label: item.label,
         isRequired: item.isRequired,
         orden: item.orden ?? index,
-      }),
+      })
     );
 
     const now = new Date();
@@ -139,7 +126,7 @@ export class Checklist extends AggregateRoot {
       null, // completadoPorId
       null, // completadoEn
       now,
-      now,
+      now
     );
 
     // Registrar evento
@@ -150,7 +137,7 @@ export class Checklist extends AggregateRoot {
         tipo: props.tipo,
         itemsCount: items.length,
         timestamp: now,
-      }),
+      })
     );
 
     return checklist;
@@ -187,7 +174,7 @@ export class Checklist extends AggregateRoot {
       null, // completadoPorId
       null, // completadoEn
       now,
-      now,
+      now
     );
 
     // Registrar evento de asignación
@@ -199,7 +186,7 @@ export class Checklist extends AggregateRoot {
           ordenId: props.ordenId,
           ejecucionId: props.ejecucionId,
           timestamp: now,
-        }),
+        })
       );
     }
 
@@ -234,7 +221,7 @@ export class Checklist extends AggregateRoot {
     createdAt: Date;
     updatedAt: Date;
   }): Checklist {
-    const items = props.items.map((item) =>
+    const items = props.items.map(item =>
       ChecklistItem.fromPersistence({
         id: item.id,
         label: item.label,
@@ -243,7 +230,7 @@ export class Checklist extends AggregateRoot {
         checkedAt: item.checkedAt,
         observaciones: item.observaciones,
         orden: item.orden,
-      }),
+      })
     );
 
     return new Checklist(
@@ -261,7 +248,7 @@ export class Checklist extends AggregateRoot {
       props.completadoPorId || null,
       props.completadoEn || null,
       props.createdAt,
-      props.updatedAt,
+      props.updatedAt
     );
   }
 
@@ -280,22 +267,18 @@ export class Checklist extends AggregateRoot {
   /**
    * Agregar item (solo en DRAFT)
    */
-  public addItem(props: {
-    label: string;
-    isRequired?: boolean;
-    orden?: number;
-  }): void {
+  public addItem(props: { label: string; isRequired?: boolean; orden?: number }): void {
     if (!this._status.isDraft()) {
       throw new BusinessRuleViolationError(
-        "Solo se pueden agregar items a checklists en estado DRAFT",
-        "ESTADO_INVALIDO",
+        'Solo se pueden agregar items a checklists en estado DRAFT',
+        'ESTADO_INVALIDO'
       );
     }
 
     if (this._items.length >= Checklist.MAX_ITEMS) {
       throw new BusinessRuleViolationError(
         `No se pueden agregar más de ${Checklist.MAX_ITEMS} items`,
-        "MAX_ITEMS_ALCANZADO",
+        'MAX_ITEMS_ALCANZADO'
       );
     }
 
@@ -316,15 +299,15 @@ export class Checklist extends AggregateRoot {
   public assignToOrden(ordenId: string): void {
     if (!this._status.puedeAsignarse()) {
       throw new BusinessRuleViolationError(
-        "Solo los checklists ACTIVE pueden asignarse",
-        "ESTADO_INVALIDO",
+        'Solo los checklists ACTIVE pueden asignarse',
+        'ESTADO_INVALIDO'
       );
     }
 
     if (this._ordenId) {
       throw new BusinessRuleViolationError(
-        "El checklist ya está asignado a una orden",
-        "YA_ASIGNADO",
+        'El checklist ya está asignado a una orden',
+        'YA_ASIGNADO'
       );
     }
 
@@ -339,7 +322,7 @@ export class Checklist extends AggregateRoot {
         ordenId,
         ejecucionId: undefined,
         timestamp: this._updatedAt,
-      }),
+      })
     );
   }
 
@@ -349,15 +332,15 @@ export class Checklist extends AggregateRoot {
   public assignToEjecucion(ejecucionId: string): void {
     if (!this._status.puedeAsignarse()) {
       throw new BusinessRuleViolationError(
-        "Solo los checklists ACTIVE pueden asignarse",
-        "ESTADO_INVALIDO",
+        'Solo los checklists ACTIVE pueden asignarse',
+        'ESTADO_INVALIDO'
       );
     }
 
     if (this._ejecucionId) {
       throw new BusinessRuleViolationError(
-        "El checklist ya está asignado a una ejecución",
-        "YA_ASIGNADO",
+        'El checklist ya está asignado a una ejecución',
+        'YA_ASIGNADO'
       );
     }
 
@@ -372,7 +355,7 @@ export class Checklist extends AggregateRoot {
         ordenId: undefined,
         ejecucionId,
         timestamp: this._updatedAt,
-      }),
+      })
     );
   }
 
@@ -395,7 +378,7 @@ export class Checklist extends AggregateRoot {
         checked: !wasChecked,
         userId,
         timestamp: this._updatedAt,
-      }),
+      })
     );
 
     // Verificar si todos los items están completos
@@ -405,10 +388,7 @@ export class Checklist extends AggregateRoot {
   /**
    * Actualizar observaciones de un item
    */
-  public updateItemObservaciones(
-    itemId: ChecklistItemId,
-    observaciones: string,
-  ): void {
+  public updateItemObservaciones(itemId: ChecklistItemId, observaciones: string): void {
     const item = this.getUpdatableItemOrThrow(itemId);
 
     item.updateObservaciones(observaciones);
@@ -420,10 +400,10 @@ export class Checklist extends AggregateRoot {
    */
   public completeIfAllItemsDone(userId?: string): void {
     const allRequiredCompleted = this._items
-      .filter((i) => i.isRequired())
-      .every((i) => i.isCompleted());
+      .filter(i => i.isRequired())
+      .every(i => i.isCompleted());
 
-    const allItemsCompleted = this._items.every((i) => i.isCompleted());
+    const allItemsCompleted = this._items.every(i => i.isCompleted());
 
     if (allRequiredCompleted && !this._completada) {
       this.markAsCompleted(userId);
@@ -444,10 +424,7 @@ export class Checklist extends AggregateRoot {
    */
   public completeManually(userId: string): void {
     if (this._completada) {
-      throw new BusinessRuleViolationError(
-        "El checklist ya está completado",
-        "YA_COMPLETADO",
-      );
+      throw new BusinessRuleViolationError('El checklist ya está completado', 'YA_COMPLETADO');
     }
 
     this.markAsCompleted(userId);
@@ -468,25 +445,21 @@ export class Checklist extends AggregateRoot {
         ejecucionId: this._ejecucionId || undefined,
         completedBy: userId,
         timestamp: this._updatedAt,
-      }),
+      })
     );
   }
 
   private getUpdatableItemOrThrow(itemId: ChecklistItemId): ChecklistItem {
     if (this._status.isArchived()) {
       throw new BusinessRuleViolationError(
-        "No se puede modificar un checklist archivado",
-        "ESTADO_INVALIDO",
+        'No se puede modificar un checklist archivado',
+        'ESTADO_INVALIDO'
       );
     }
 
-    const item = this._items.find((i) => i.getId().equals(itemId));
+    const item = this._items.find(i => i.getId().equals(itemId));
     if (!item) {
-      throw new ValidationError(
-        "Item no encontrado",
-        "itemId",
-        itemId.getValue(),
-      );
+      throw new ValidationError('Item no encontrado', 'itemId', itemId.getValue());
     }
 
     return item;
@@ -498,8 +471,8 @@ export class Checklist extends AggregateRoot {
   public archive(): void {
     if (!this._status.puedeArchivarse()) {
       throw new BusinessRuleViolationError(
-        "Solo los checklists ACTIVE o COMPLETED pueden archivarse",
-        "ESTADO_INVALIDO",
+        'Solo los checklists ACTIVE o COMPLETED pueden archivarse',
+        'ESTADO_INVALIDO'
       );
     }
 
@@ -515,7 +488,7 @@ export class Checklist extends AggregateRoot {
       return 0;
     }
 
-    const completed = this._items.filter((i) => i.isCompleted()).length;
+    const completed = this._items.filter(i => i.isCompleted()).length;
     return completed / this._items.length;
   }
 
@@ -647,7 +620,7 @@ export class Checklist extends AggregateRoot {
       status: this._status.getValue(),
       tipo: this._tipo,
       categoria: this._categoria,
-      items: this._items.map((i) => i.toPersistence()),
+      items: this._items.map(i => i.toPersistence()),
       ordenId: this._ordenId,
       ejecucionId: this._ejecucionId,
       templateId: this._templateId,
@@ -668,22 +641,22 @@ export class Checklist extends AggregateRoot {
     if (this._items.length < Checklist.MIN_ITEMS) {
       throw new BusinessRuleViolationError(
         `Un checklist debe tener al menos ${Checklist.MIN_ITEMS} item`,
-        "MIN_ITEMS",
+        'MIN_ITEMS'
       );
     }
 
     if (this._items.length > Checklist.MAX_ITEMS) {
       throw new BusinessRuleViolationError(
         `Un checklist no puede tener más de ${Checklist.MAX_ITEMS} items`,
-        "MAX_ITEMS",
+        'MAX_ITEMS'
       );
     }
 
     // No puede estar asignado a orden y ejecución simultáneamente
     if (this._ordenId && this._ejecucionId) {
       throw new BusinessRuleViolationError(
-        "Un checklist no puede estar asignado a orden y ejecución simultáneamente",
-        "ASIGNACION_INVALIDA",
+        'Un checklist no puede estar asignado a orden y ejecución simultáneamente',
+        'ASIGNACION_INVALIDA'
       );
     }
   }

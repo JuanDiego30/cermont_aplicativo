@@ -9,26 +9,16 @@
  * - No puede modificarse después de APPROVED/REJECTED
  */
 
-import { CierreId } from "../value-objects/cierre-id.vo";
-import {
-  CierreStatus,
-  CierreStatusEnum,
-} from "../value-objects/cierre-status.vo";
-import { CierreTotals } from "../value-objects/cierre-totals.vo";
-import { ApprovalMetadata } from "../value-objects/approval-metadata.vo";
-import { RejectionReason } from "../value-objects/rejection-reason.vo";
-import { CierreLineItem } from "./cierre-line-item.entity";
-import {
-  CierreCreatedEvent,
-  CierreApprovedEvent,
-  CierreRejectedEvent,
-} from "../events";
-import { CierreNotApprovableException } from "../exceptions";
+import { CierreId } from '../value-objects/cierre-id.vo';
+import { CierreStatus, CierreStatusEnum } from '../value-objects/cierre-status.vo';
+import { CierreTotals } from '../value-objects/cierre-totals.vo';
+import { ApprovalMetadata } from '../value-objects/approval-metadata.vo';
+import { RejectionReason } from '../value-objects/rejection-reason.vo';
+import { CierreLineItem } from './cierre-line-item.entity';
+import { CierreCreatedEvent, CierreApprovedEvent, CierreRejectedEvent } from '../events';
+import { CierreNotApprovableException } from '../exceptions';
 
-type DomainEvent =
-  | CierreCreatedEvent
-  | CierreApprovedEvent
-  | CierreRejectedEvent;
+type DomainEvent = CierreCreatedEvent | CierreApprovedEvent | CierreRejectedEvent;
 
 interface CierreAdministrativoProps {
   id: CierreId;
@@ -71,9 +61,9 @@ export class CierreAdministrativo {
     const now = new Date();
     const status = CierreStatus.draft();
 
-    const lineItems = data.items.map((item) => CierreLineItem.create(item));
+    const lineItems = data.items.map(item => CierreLineItem.create(item));
     const totals = CierreTotals.calculate(
-      lineItems.map((i) => ({ categoria: i.categoria, subtotal: i.subtotal })),
+      lineItems.map(i => ({ categoria: i.categoria, subtotal: i.subtotal }))
     );
 
     const cierre = new CierreAdministrativo({
@@ -88,9 +78,7 @@ export class CierreAdministrativo {
       updatedAt: now,
     });
 
-    cierre.addDomainEvent(
-      new CierreCreatedEvent(id.getValue(), data.ordenId, data.createdBy),
-    );
+    cierre.addDomainEvent(new CierreCreatedEvent(id.getValue(), data.ordenId, data.createdBy));
 
     return cierre;
   }
@@ -126,10 +114,7 @@ export class CierreAdministrativo {
           })
         : undefined,
       rejectionReason: data.rejectionReason
-        ? RejectionReason.create(
-            data.rejectionReason.reason,
-            data.rejectionReason.comment,
-          )
+        ? RejectionReason.create(data.rejectionReason.reason, data.rejectionReason.comment)
         : undefined,
     });
   }
@@ -142,7 +127,7 @@ export class CierreAdministrativo {
     const newStatus = CierreStatus.create(CierreStatusEnum.PENDING_APPROVAL);
     if (!this.props.status.canTransitionTo(newStatus)) {
       throw new CierreNotApprovableException(
-        `No puede enviarse a aprobación desde estado ${this.props.status.toString()}`,
+        `No puede enviarse a aprobación desde estado ${this.props.status.toString()}`
       );
     }
     this.props.status = newStatus;
@@ -152,7 +137,7 @@ export class CierreAdministrativo {
   approve(approvedBy: string, observations?: string): void {
     if (!this.props.status.isApprovable()) {
       throw new CierreNotApprovableException(
-        `Cierre debe estar en PENDING_APPROVAL. Estado actual: ${this.props.status.toString()}`,
+        `Cierre debe estar en PENDING_APPROVAL. Estado actual: ${this.props.status.toString()}`
       );
     }
 
@@ -169,16 +154,14 @@ export class CierreAdministrativo {
         this.props.id.getValue(),
         this.props.ordenId,
         approvedBy,
-        this.props.totals.toJSON(),
-      ),
+        this.props.totals.toJSON()
+      )
     );
   }
 
   reject(reason: string, comment: string, rejectedBy: string): void {
     if (!this.props.status.isApprovable()) {
-      throw new CierreNotApprovableException(
-        "Solo puede rechazarse cierre en PENDING_APPROVAL",
-      );
+      throw new CierreNotApprovableException('Solo puede rechazarse cierre en PENDING_APPROVAL');
     }
 
     this.props.status = CierreStatus.create(CierreStatusEnum.REJECTED);
@@ -190,8 +173,8 @@ export class CierreAdministrativo {
         this.props.id.getValue(),
         this.props.ordenId,
         rejectedBy,
-        this.props.rejectionReason.toJSON(),
-      ),
+        this.props.rejectionReason.toJSON()
+      )
     );
   }
 
@@ -268,7 +251,7 @@ export class CierreAdministrativo {
       id: this.props.id.getValue(),
       ordenId: this.props.ordenId,
       status: this.props.status.getValue(),
-      items: this.props.items.map((i) => i.toJSON()),
+      items: this.props.items.map(i => i.toJSON()),
       totals: this.props.totals.toJSON(),
       observations: this.props.observations,
       createdBy: this.props.createdBy,

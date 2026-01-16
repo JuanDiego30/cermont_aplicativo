@@ -5,9 +5,9 @@
  * No tiene dependencias de framework.
  */
 
-import { Email, Password } from "../../../../shared/domain/value-objects";
-import { UserRole } from "../value-objects/user-role.vo";
-import { UserId } from "../value-objects/user-id.vo";
+import { Email, Password } from '../../../../shared/domain/value-objects';
+import { UserRole } from '../value-objects/user-role.vo';
+import { UserId } from '../value-objects/user-id.vo';
 import {
   UserCreatedEvent,
   UserUpdatedEvent,
@@ -16,11 +16,8 @@ import {
   PasswordResetEvent,
   type UserDomainEvent,
   type UserUpdateChanges,
-} from "../events";
-import {
-  ValidationError,
-  BusinessRuleViolationError,
-} from "../../../../shared/domain/exceptions";
+} from '../events';
+import { ValidationError, BusinessRuleViolationError } from '../../../../shared/domain/exceptions';
 
 export interface UserProps {
   id: UserId;
@@ -79,25 +76,15 @@ export class UserEntity {
   static async create(data: CreateUserData): Promise<UserEntity> {
     // Validaciones de dominio
     if (!data.name || data.name.trim().length < 2) {
-      throw new ValidationError(
-        "Nombre debe tener al menos 2 caracteres",
-        "name",
-      );
+      throw new ValidationError('Nombre debe tener al menos 2 caracteres', 'name');
     }
 
     if (data.name.length > 100) {
-      throw new ValidationError(
-        "Nombre no puede exceder 100 caracteres",
-        "name",
-      );
+      throw new ValidationError('Nombre no puede exceder 100 caracteres', 'name');
     }
 
     if (data.phone && !/^\+?[\d\s-]{7,20}$/.test(data.phone)) {
-      throw new ValidationError(
-        "Formato de teléfono inválido",
-        "phone",
-        data.phone,
-      );
+      throw new ValidationError('Formato de teléfono inválido', 'phone', data.phone);
     }
 
     const user = new UserEntity({
@@ -119,8 +106,8 @@ export class UserEntity {
         user.email.getValue(),
         user.name,
         user.role.getValue(),
-        data.createdBy,
-      ),
+        data.createdBy
+      )
     );
 
     return user;
@@ -200,24 +187,15 @@ export class UserEntity {
   /**
    * Actualiza información básica del usuario
    */
-  update(
-    data: { name?: string; phone?: string; avatar?: string },
-    updatedBy?: string,
-  ): void {
+  update(data: { name?: string; phone?: string; avatar?: string }, updatedBy?: string): void {
     const changes: UserUpdateChanges = {};
 
     if (data.name !== undefined && data.name !== this.props.name) {
       if (data.name.trim().length < 2) {
-        throw new ValidationError(
-          "Nombre debe tener al menos 2 caracteres",
-          "name",
-        );
+        throw new ValidationError('Nombre debe tener al menos 2 caracteres', 'name');
       }
       if (data.name.length > 100) {
-        throw new ValidationError(
-          "Nombre no puede exceder 100 caracteres",
-          "name",
-        );
+        throw new ValidationError('Nombre no puede exceder 100 caracteres', 'name');
       }
       changes.name = { old: this.props.name, new: data.name.trim() };
       this.props.name = data.name.trim();
@@ -225,11 +203,7 @@ export class UserEntity {
 
     if (data.phone !== undefined && data.phone !== this.props.phone) {
       if (data.phone && !/^\+?[\d\s-]{7,20}$/.test(data.phone)) {
-        throw new ValidationError(
-          "Formato de teléfono inválido",
-          "phone",
-          data.phone,
-        );
+        throw new ValidationError('Formato de teléfono inválido', 'phone', data.phone);
       }
       changes.phone = { old: this.props.phone, new: data.phone || undefined };
       this.props.phone = data.phone?.trim() || undefined;
@@ -245,9 +219,7 @@ export class UserEntity {
 
     if (Object.keys(changes).length > 0) {
       this.props.updatedAt = new Date();
-      this.addDomainEvent(
-        new UserUpdatedEvent(this.props.id.getValue(), changes, updatedBy),
-      );
+      this.addDomainEvent(new UserUpdatedEvent(this.props.id.getValue(), changes, updatedBy));
     }
   }
 
@@ -258,10 +230,7 @@ export class UserEntity {
     const newRole = UserRole.create(newRoleString);
 
     if (this.props.role.equals(newRole)) {
-      throw new BusinessRuleViolationError(
-        "El usuario ya tiene ese rol",
-        "ROLE_UNCHANGED",
-      );
+      throw new BusinessRuleViolationError('El usuario ya tiene ese rol', 'ROLE_UNCHANGED');
     }
 
     const oldRole = this.props.role.getValue();
@@ -274,8 +243,8 @@ export class UserEntity {
         this.props.email.getValue(),
         oldRole,
         newRole.getValue(),
-        changedBy,
-      ),
+        changedBy
+      )
     );
   }
 
@@ -285,7 +254,7 @@ export class UserEntity {
   async changePassword(
     newPlainPassword: string,
     changedBy: string,
-    isAdminReset: boolean = false,
+    isAdminReset: boolean = false
   ): Promise<void> {
     this.props.password = await Password.createFromPlainText(newPlainPassword);
     this.props.updatedAt = new Date();
@@ -295,8 +264,8 @@ export class UserEntity {
         this.props.id.getValue(),
         this.props.email.getValue(),
         changedBy,
-        isAdminReset,
-      ),
+        isAdminReset
+      )
     );
   }
 
@@ -312,10 +281,7 @@ export class UserEntity {
    */
   activate(): void {
     if (this.props.active) {
-      throw new BusinessRuleViolationError(
-        "El usuario ya está activo",
-        "ALREADY_ACTIVE",
-      );
+      throw new BusinessRuleViolationError('El usuario ya está activo', 'ALREADY_ACTIVE');
     }
     this.props.active = true;
     this.props.updatedAt = new Date();
@@ -326,10 +292,7 @@ export class UserEntity {
    */
   deactivate(deactivatedBy: string, reason?: string): void {
     if (!this.props.active) {
-      throw new BusinessRuleViolationError(
-        "El usuario ya está desactivado",
-        "ALREADY_INACTIVE",
-      );
+      throw new BusinessRuleViolationError('El usuario ya está desactivado', 'ALREADY_INACTIVE');
     }
 
     this.props.active = false;
@@ -340,8 +303,8 @@ export class UserEntity {
         this.props.id.getValue(),
         this.props.email.getValue(),
         deactivatedBy,
-        reason,
-      ),
+        reason
+      )
     );
   }
 
@@ -433,11 +396,10 @@ export class UserEntity {
     // Invariante: Un usuario ADMIN no puede estar inactivo
     if (this.props.role.isAdmin() && !this.props.active) {
       throw new BusinessRuleViolationError(
-        "Un usuario ADMIN no puede estar inactivo",
-        "ADMIN_MUST_BE_ACTIVE",
-        { userId: this.props.id.getValue(), role: this.props.role.getValue() },
+        'Un usuario ADMIN no puede estar inactivo',
+        'ADMIN_MUST_BE_ACTIVE',
+        { userId: this.props.id.getValue(), role: this.props.role.getValue() }
       );
     }
   }
 }
-

@@ -4,7 +4,7 @@
  * Disparado cuando se crea un nuevo template de formulario
  */
 
-import { DomainEvent } from "../../../../shared/domain/events/domain-events";
+import { DomainEvent } from '../../../../shared/domain/events/domain-events';
 
 export interface TemplateCreatedEventPayload {
   templateId: string;
@@ -15,11 +15,10 @@ export interface TemplateCreatedEventPayload {
 
 export class TemplateCreatedEvent extends DomainEvent {
   constructor(public readonly payload: TemplateCreatedEventPayload) {
-    super("FormTemplate", payload.templateId);
+    super('FormTemplate', payload.templateId);
   }
 
   get eventName(): string {
-    return "TemplateCreated";
+    return 'TemplateCreated';
   }
 }
-

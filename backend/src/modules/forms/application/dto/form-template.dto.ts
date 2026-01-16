@@ -11,51 +11,51 @@ import {
   IsObject,
   IsArray,
   IsEnum,
-} from "class-validator";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum TipoFormularioDto {
-  CHECKLIST = "CHECKLIST",
-  INSPECCION = "INSPECCION",
-  MANTENIMIENTO = "MANTENIMIENTO",
-  REPORTE = "REPORTE",
-  CERTIFICACION = "CERTIFICACION",
-  HES = "HES",
-  OTRO = "OTRO",
+  CHECKLIST = 'CHECKLIST',
+  INSPECCION = 'INSPECCION',
+  MANTENIMIENTO = 'MANTENIMIENTO',
+  REPORTE = 'REPORTE',
+  CERTIFICACION = 'CERTIFICACION',
+  HES = 'HES',
+  OTRO = 'OTRO',
 }
 
 export class CreateFormTemplateDto {
-  @ApiProperty({ example: "Inspección Líneas de Vida Vertical" })
+  @ApiProperty({ example: 'Inspección Líneas de Vida Vertical' })
   @IsString()
   @IsNotEmpty()
   nombre!: string;
 
-  @ApiProperty({ enum: TipoFormularioDto, example: "INSPECCION" })
+  @ApiProperty({ enum: TipoFormularioDto, example: 'INSPECCION' })
   @IsEnum(TipoFormularioDto)
   tipo!: TipoFormularioDto;
 
-  @ApiProperty({ example: "Líneas de Vida" })
+  @ApiProperty({ example: 'Líneas de Vida' })
   @IsString()
   @IsNotEmpty()
   categoria!: string;
 
-  @ApiPropertyOptional({ example: "1.0" })
+  @ApiPropertyOptional({ example: '1.0' })
   @IsOptional()
   @IsString()
   version?: string;
 
   @ApiProperty({
-    description: "JSON Schema del formulario con secciones y campos",
+    description: 'JSON Schema del formulario con secciones y campos',
     example: {
       sections: [
         {
-          id: "datos-generales",
-          title: "Datos Generales",
+          id: 'datos-generales',
+          title: 'Datos Generales',
           fields: [
             {
-              id: "numero_linea",
-              label: "Número Línea",
-              type: "text",
+              id: 'numero_linea',
+              label: 'Número Línea',
+              type: 'text',
               required: true,
             },
           ],
@@ -67,20 +67,20 @@ export class CreateFormTemplateDto {
   schema!: Record<string, unknown>;
 
   @ApiPropertyOptional({
-    description: "UI Schema opcional para estilos/layout",
+    description: 'UI Schema opcional para estilos/layout',
   })
   @IsOptional()
   @IsObject()
   uiSchema?: Record<string, unknown>;
 
   @ApiPropertyOptional({
-    example: "Formulario para inspección de líneas de vida verticales",
+    example: 'Formulario para inspección de líneas de vida verticales',
   })
   @IsOptional()
   @IsString()
   descripcion?: string;
 
-  @ApiPropertyOptional({ example: ["HES", "inspección", "líneas-vida"] })
+  @ApiPropertyOptional({ example: ['HES', 'inspección', 'líneas-vida'] })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })

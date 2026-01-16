@@ -11,20 +11,20 @@ import {
   IsPositive,
   MinLength,
   IsDateString,
-} from "class-validator";
-import { Type } from "class-transformer";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum TipoCosto {
-  MANO_OBRA = "mano_obra",
-  MATERIALES = "materiales",
-  TRANSPORTE = "transporte",
-  EQUIPOS = "equipos",
-  OTROS = "otros",
+  MANO_OBRA = 'mano_obra',
+  MATERIALES = 'materiales',
+  TRANSPORTE = 'transporte',
+  EQUIPOS = 'equipos',
+  OTROS = 'otros',
 }
 
 export class RegistrarCostoDto {
-  @ApiProperty({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
   @IsUUID()
   ordenId!: string;
 
@@ -32,7 +32,7 @@ export class RegistrarCostoDto {
   @IsEnum(TipoCosto)
   tipo!: TipoCosto;
 
-  @ApiProperty({ example: "Instalación de equipos", minLength: 3 })
+  @ApiProperty({ example: 'Instalación de equipos', minLength: 3 })
   @IsString()
   @MinLength(3)
   descripcion!: string;
@@ -49,29 +49,29 @@ export class RegistrarCostoDto {
   @Type(() => Number)
   precioUnitario!: number;
 
-  @ApiPropertyOptional({ example: "Proveedor XYZ" })
+  @ApiPropertyOptional({ example: 'Proveedor XYZ' })
   @IsOptional()
   @IsString()
   proveedor?: string;
 }
 
 export class CostoQueryDto {
-  @ApiPropertyOptional({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiPropertyOptional({ example: '123e4567-e89b-12d3-a456-426614174000' })
   @IsOptional()
   @IsUUID()
   ordenId?: string;
 
-  @ApiPropertyOptional({ example: "mano_obra" })
+  @ApiPropertyOptional({ example: 'mano_obra' })
   @IsOptional()
   @IsString()
   tipo?: string;
 
-  @ApiPropertyOptional({ example: "2025-01-01" })
+  @ApiPropertyOptional({ example: '2025-01-01' })
   @IsOptional()
   @IsDateString()
   fechaDesde?: string;
 
-  @ApiPropertyOptional({ example: "2025-12-31" })
+  @ApiPropertyOptional({ example: '2025-12-31' })
   @IsOptional()
   @IsDateString()
   fechaHasta?: string;
@@ -99,7 +99,7 @@ export interface CostoAnalysis {
 }
 
 // Repository Interface
-export const COSTO_REPOSITORY = Symbol("COSTO_REPOSITORY");
+export const COSTO_REPOSITORY = Symbol('COSTO_REPOSITORY');
 
 export interface CostoData {
   id: string;

@@ -19,12 +19,12 @@ export class FieldValue {
       return null;
     }
 
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       const trimmed = value.trim();
-      return trimmed === "" ? null : trimmed;
+      return trimmed === '' ? null : trimmed;
     }
 
-    if (typeof value === "number") {
+    if (typeof value === 'number') {
       if (isNaN(value)) {
         return null;
       }
@@ -32,7 +32,7 @@ export class FieldValue {
     }
 
     if (Array.isArray(value)) {
-      return value.filter((v) => v !== null && v !== undefined && v !== "");
+      return value.filter(v => v !== null && v !== undefined && v !== '');
     }
 
     return value;
@@ -47,8 +47,8 @@ export class FieldValue {
       return true;
     }
 
-    if (typeof this._value === "string") {
-      return this._value === "";
+    if (typeof this._value === 'string') {
+      return this._value === '';
     }
 
     if (Array.isArray(this._value)) {
@@ -59,11 +59,11 @@ export class FieldValue {
   }
 
   public isNumber(): boolean {
-    return typeof this._value === "number" && !isNaN(this._value);
+    return typeof this._value === 'number' && !isNaN(this._value);
   }
 
   public isString(): boolean {
-    return typeof this._value === "string";
+    return typeof this._value === 'string';
   }
 
   public isArray(): boolean {
@@ -71,15 +71,15 @@ export class FieldValue {
   }
 
   public isBoolean(): boolean {
-    return typeof this._value === "boolean";
+    return typeof this._value === 'boolean';
   }
 
   public toString(): string {
     if (this._value === null || this._value === undefined) {
-      return "";
+      return '';
     }
     if (Array.isArray(this._value)) {
-      return this._value.join(", ");
+      return this._value.join(', ');
     }
     return String(this._value);
   }

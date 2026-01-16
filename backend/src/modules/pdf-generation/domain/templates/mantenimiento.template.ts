@@ -1,4 +1,4 @@
-import { BaseTemplate } from "./base.template";
+import { BaseTemplate } from './base.template';
 
 /**
  * Typed interface for MantenimientoTemplate data
@@ -60,27 +60,27 @@ export class MantenimientoTemplate extends BaseTemplate {
       <div class="info-grid">
         <div class="info-item">
           <div class="info-label">Fecha Programada</div>
-          <div class="info-value">${new Date(data.fechaProgramada).toLocaleDateString("es-CO")}</div>
+          <div class="info-value">${new Date(data.fechaProgramada).toLocaleDateString('es-CO')}</div>
         </div>
         ${
           data.fechaInicio
             ? `
           <div class="info-item">
             <div class="info-label">Fecha Inicio Real</div>
-            <div class="info-value">${new Date(data.fechaInicio).toLocaleString("es-CO")}</div>
+            <div class="info-value">${new Date(data.fechaInicio).toLocaleString('es-CO')}</div>
           </div>
         `
-            : ""
+            : ''
         }
         ${
           data.fechaFin
             ? `
           <div class="info-item">
             <div class="info-label">Fecha Finalización</div>
-            <div class="info-value">${new Date(data.fechaFin).toLocaleString("es-CO")}</div>
+            <div class="info-value">${new Date(data.fechaFin).toLocaleString('es-CO')}</div>
           </div>
         `
-            : ""
+            : ''
         }
         ${
           data.duracionEstimada
@@ -90,7 +90,7 @@ export class MantenimientoTemplate extends BaseTemplate {
             <div class="info-value">${data.duracionEstimada} horas</div>
           </div>
         `
-            : ""
+            : ''
         }
       </div>
 
@@ -100,7 +100,7 @@ export class MantenimientoTemplate extends BaseTemplate {
         <h2>Descripción</h2>
         <p>${data.descripcion}</p>
       `
-          : ""
+          : ''
       }
 
       ${
@@ -114,11 +114,11 @@ export class MantenimientoTemplate extends BaseTemplate {
           </div>
           <div class="info-item">
             <div class="info-label">Email</div>
-            <div class="info-value">${data.tecnico.email || "N/A"}</div>
+            <div class="info-value">${data.tecnico.email || 'N/A'}</div>
           </div>
         </div>
       `
-          : ""
+          : ''
       }
 
       ${
@@ -126,10 +126,10 @@ export class MantenimientoTemplate extends BaseTemplate {
           ? `
         <h2>Tareas Programadas</h2>
         <ul>
-          ${data.tareas.map((tarea: string) => `<li>${tarea}</li>`).join("")}
+          ${data.tareas.map((tarea: string) => `<li>${tarea}</li>`).join('')}
         </ul>
       `
-          : ""
+          : ''
       }
 
       ${
@@ -137,10 +137,10 @@ export class MantenimientoTemplate extends BaseTemplate {
           ? `
         <h2>Tareas Completadas</h2>
         <ul>
-          ${data.tareasCompletadas.map((tarea: string) => `<li>✓ ${tarea}</li>`).join("")}
+          ${data.tareasCompletadas.map((tarea: string) => `<li>✓ ${tarea}</li>`).join('')}
         </ul>
       `
-          : ""
+          : ''
       }
 
       ${
@@ -148,10 +148,10 @@ export class MantenimientoTemplate extends BaseTemplate {
           ? `
         <h2>Problemas Encontrados</h2>
         <ul>
-          ${data.problemasEncontrados.map((problema: string) => `<li>⚠ ${problema}</li>`).join("")}
+          ${data.problemasEncontrados.map((problema: string) => `<li>⚠ ${problema}</li>`).join('')}
         </ul>
       `
-          : ""
+          : ''
       }
 
       ${
@@ -159,10 +159,10 @@ export class MantenimientoTemplate extends BaseTemplate {
           ? `
         <h2>Repuestos Utilizados</h2>
         <ul>
-          ${data.repuestosUtilizados.map((repuesto: string) => `<li>${repuesto}</li>`).join("")}
+          ${data.repuestosUtilizados.map((repuesto: string) => `<li>${repuesto}</li>`).join('')}
         </ul>
       `
-          : ""
+          : ''
       }
 
       ${
@@ -171,7 +171,7 @@ export class MantenimientoTemplate extends BaseTemplate {
         <h2>Trabajo Realizado</h2>
         <p>${data.trabajoRealizado}</p>
       `
-          : ""
+          : ''
       }
 
       ${
@@ -180,7 +180,7 @@ export class MantenimientoTemplate extends BaseTemplate {
         <h2>Recomendaciones</h2>
         <p>${data.recomendaciones}</p>
       `
-          : ""
+          : ''
       }
 
       ${
@@ -193,7 +193,7 @@ export class MantenimientoTemplate extends BaseTemplate {
           </div>
         </div>
       `
-          : ""
+          : ''
       }
 
       ${
@@ -202,11 +202,11 @@ export class MantenimientoTemplate extends BaseTemplate {
         <h2>Costo Total</h2>
         <div class="info-item">
           <div class="info-value">
-            <strong>$${data.costoTotal.toLocaleString("es-CO")}</strong>
+            <strong>$${data.costoTotal.toLocaleString('es-CO')}</strong>
           </div>
         </div>
       `
-          : ""
+          : ''
       }
 
       <div class="signature-section">
@@ -223,17 +223,17 @@ export class MantenimientoTemplate extends BaseTemplate {
       </div>
     `;
 
-    return this.wrap("Reporte de Mantenimiento", content);
+    return this.wrap('Reporte de Mantenimiento', content);
   }
 
   private static getEstadoBadgeClass(estado: string): string {
     const map: Record<string, string> = {
-      COMPLETADO: "success",
-      EN_PROGRESO: "info",
-      PROGRAMADO: "warning",
-      CANCELADO: "danger",
-      VENCIDO: "danger",
+      COMPLETADO: 'success',
+      EN_PROGRESO: 'info',
+      PROGRAMADO: 'warning',
+      CANCELADO: 'danger',
+      VENCIDO: 'danger',
     };
-    return map[estado] || "info";
+    return map[estado] || 'info';
   }
 }

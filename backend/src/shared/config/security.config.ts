@@ -120,11 +120,6 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     'reports:write',
     'dashboard:read',
   ],
-  [UserRole.TECNICO]: [
-    'orders:read',
-    'orders:write:own',
-    'evidence:write',
-    'ejecucion:write:own',
-  ],
+  [UserRole.TECNICO]: ['orders:read', 'orders:write:own', 'evidence:write', 'ejecucion:write:own'],
   [UserRole.ADMINISTRATIVO]: ['orders:read', 'reports:read', 'costos:read', 'costos:write'],
 } as const;

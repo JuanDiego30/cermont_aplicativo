@@ -4,12 +4,12 @@
  * Coordenadas geográficas (latitud, longitud)
  */
 
-import { ValidationError } from "../../../../shared/domain/exceptions";
+import { ValidationError } from '../../../../shared/domain/exceptions';
 
 export class CoordenadasGPS {
   private constructor(
     private readonly _latitud: number,
-    private readonly _longitud: number,
+    private readonly _longitud: number
   ) {
     Object.freeze(this);
   }
@@ -21,19 +21,15 @@ export class CoordenadasGPS {
 
   private static validate(latitud: number, longitud: number): void {
     if (isNaN(latitud) || isNaN(longitud)) {
-      throw new ValidationError("Latitud y longitud deben ser números válidos");
+      throw new ValidationError('Latitud y longitud deben ser números válidos');
     }
 
     if (latitud < -90 || latitud > 90) {
-      throw new ValidationError(
-        `Latitud inválida: ${latitud}. Debe estar entre -90 y 90`,
-      );
+      throw new ValidationError(`Latitud inválida: ${latitud}. Debe estar entre -90 y 90`);
     }
 
     if (longitud < -180 || longitud > 180) {
-      throw new ValidationError(
-        `Longitud inválida: ${longitud}. Debe estar entre -180 y 180`,
-      );
+      throw new ValidationError(`Longitud inválida: ${longitud}. Debe estar entre -180 y 180`);
     }
   }
 
@@ -63,4 +59,3 @@ export class CoordenadasGPS {
     );
   }
 }
-

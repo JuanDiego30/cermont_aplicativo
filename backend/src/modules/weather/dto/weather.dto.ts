@@ -59,15 +59,15 @@ export interface HourlyForecast {
 }
 
 // Alertas meteorológicas
-export type AlertSeverity = "BAJA" | "MEDIA" | "ALTA" | "CRITICA";
+export type AlertSeverity = 'BAJA' | 'MEDIA' | 'ALTA' | 'CRITICA';
 export type AlertType =
-  | "VIENTO_FUERTE"
-  | "RAFAGAS_VIENTO"
-  | "CALOR_EXTREMO"
-  | "UV_ALTO"
-  | "LLUVIA_PROBABLE"
-  | "TORMENTA"
-  | "VISIBILIDAD_REDUCIDA";
+  | 'VIENTO_FUERTE'
+  | 'RAFAGAS_VIENTO'
+  | 'CALOR_EXTREMO'
+  | 'UV_ALTO'
+  | 'LLUVIA_PROBABLE'
+  | 'TORMENTA'
+  | 'VISIBILIDAD_REDUCIDA';
 
 export interface WeatherAlert {
   type: AlertType;

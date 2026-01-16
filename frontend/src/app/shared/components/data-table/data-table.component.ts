@@ -1,4 +1,12 @@
-import { Component, Input, Output, EventEmitter, TemplateRef, computed, signal } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  TemplateRef,
+  computed,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 
@@ -10,12 +18,12 @@ export interface TableColumn {
   align?: 'left' | 'center' | 'right';
 }
 
-export interface TableAction {
+export interface TableAction<T = unknown> {
   label: string;
   icon?: string;
-  action: (row: any) => void;
+  action: (row: T) => void;
   variant?: 'primary' | 'danger' | 'warning' | 'info';
-  condition?: (row: any) => boolean;
+  condition?: (row: T) => boolean;
 }
 
 @Component({
@@ -23,15 +31,27 @@ export interface TableAction {
   standalone: true,
   imports: [CommonModule, LoadingSpinnerComponent],
   template: `
-    <div class="overflow-hidden bg-white border border-gray-200 rounded-xl dark:bg-gray-800 dark:border-gray-700">
+    <div
+      class="overflow-hidden bg-white border border-gray-200 rounded-xl dark:bg-gray-800 dark:border-gray-700"
+    >
       @if (loading()) {
         <div class="flex items-center justify-center p-12">
           <app-loading-spinner [size]="'md'" [message]="loadingMessage"></app-loading-spinner>
         </div>
       } @else if (data().length === 0) {
         <div class="p-12 text-center">
-          <svg class="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          <svg
+            class="w-12 h-12 mx-auto text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+            />
           </svg>
           <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-white">{{ emptyMessage }}</h3>
           @if (emptySubmessage) {
@@ -44,23 +64,44 @@ export interface TableAction {
             <thead class="bg-gray-50 dark:bg-gray-700">
               <tr>
                 @for (column of columns; track column.key) {
-                  <th 
+                  <th
                     [class]="getHeaderClass(column)"
                     [style.width]="column.width"
                     (click)="onSort(column)"
-                    [class.cursor-pointer]="column.sortable">
+                    [class.cursor-pointer]="column.sortable"
+                  >
                     <div class="flex items-center gap-2">
                       <span>{{ column.label }}</span>
                       @if (column.sortable) {
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg
+                          class="w-4 h-4 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
                           @if (sortColumn() === column.key) {
                             @if (sortDirection() === 'asc') {
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M5 15l7-7 7 7"
+                              />
                             } @else {
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M19 9l-7 7-7-7"
+                              />
                             }
                           } @else {
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                            />
                           }
                         </svg>
                       }
@@ -68,7 +109,11 @@ export interface TableAction {
                   </th>
                 }
                 @if (actions && actions.length > 0) {
-                  <th class="px-6 py-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-300">Acciones</th>
+                  <th
+                    class="px-6 py-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-300"
+                  >
+                    Acciones
+                  </th>
                 }
               </tr>
             </thead>
@@ -78,7 +123,12 @@ export interface TableAction {
                   @for (column of columns; track column.key) {
                     <td [class]="getCellClass(column)" [style.width]="column.width">
                       @if (customCellTemplates && customCellTemplates[column.key]) {
-                        <ng-container *ngTemplateOutlet="customCellTemplates[column.key]; context: { $implicit: row, column: column }"></ng-container>
+                        <ng-container
+                          *ngTemplateOutlet="
+                            customCellTemplates[column.key];
+                            context: { $implicit: row, column: column }
+                          "
+                        ></ng-container>
                       } @else {
                         {{ getCellValue(row, column.key) }}
                       }
@@ -91,10 +141,21 @@ export interface TableAction {
                           <button
                             (click)="action.action(row)"
                             [class]="getActionButtonClass(action.variant || 'primary')"
-                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors">
+                            class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
+                          >
                             @if (action.icon) {
-                              <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="action.icon"/>
+                              <svg
+                                class="w-4 h-4 inline-block mr-1"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  [attr.d]="action.icon"
+                                />
                               </svg>
                             }
                             {{ action.label }}
@@ -111,24 +172,29 @@ export interface TableAction {
 
         <!-- Pagination -->
         @if (showPagination && totalPages() > 1) {
-          <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+          <div
+            class="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-700"
+          >
             <div class="text-sm text-gray-500 dark:text-gray-400">
-              Mostrando {{ (currentPage() - 1) * pageSize + 1 }} - {{ Math.min(currentPage() * pageSize, total()) }} de {{ total() }}
+              Mostrando {{ (currentPage() - 1) * pageSize + 1 }} -
+              {{ Math.min(currentPage() * pageSize, total()) }} de {{ total() }}
             </div>
             <div class="flex gap-2">
-              <button 
-                (click)="goToPage(currentPage() - 1)" 
+              <button
+                (click)="goToPage(currentPage() - 1)"
                 [disabled]="currentPage() === 1"
-                class="px-3 py-1.5 text-sm border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700">
+                class="px-3 py-1.5 text-sm border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
                 Anterior
               </button>
               <span class="px-3 py-1.5 text-sm">
                 Página {{ currentPage() }} de {{ totalPages() }}
               </span>
-              <button 
-                (click)="goToPage(currentPage() + 1)" 
+              <button
+                (click)="goToPage(currentPage() + 1)"
                 [disabled]="currentPage() === totalPages()"
-                class="px-3 py-1.5 text-sm border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700">
+                class="px-3 py-1.5 text-sm border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
                 Siguiente
               </button>
             </div>
@@ -136,19 +202,21 @@ export interface TableAction {
         }
       }
     </div>
-  `
+  `,
 })
-export class DataTableComponent<T = any> {
+export class DataTableComponent<T = Record<string, unknown>> {
   @Input() columns: TableColumn[] = [];
   @Input() data = signal<T[]>([]);
   @Input() loading = signal(false);
   @Input() loadingMessage = 'Cargando datos...';
   @Input() emptyMessage = 'No hay datos disponibles';
   @Input() emptySubmessage?: string;
-  @Input() actions?: TableAction[];
-  @Input() customCellTemplates?: Record<string, TemplateRef<any>>;
-  @Input() trackByFn: (item: T) => any = (item: any) => item.id || item;
+  @Input() actions?: TableAction<T>[];
+  @Input() customCellTemplates?: Record<string, TemplateRef<unknown>>;
+  @Input() trackByFn: (item: T) => string | number = (item: T) =>
+    (item as Record<string, unknown>)['id'] as string | number;
   @Input() showPagination = true;
+
   @Input() pageSize = 10;
   @Input() total = signal(0);
   @Input() currentPage = signal(1);
@@ -181,11 +249,11 @@ export class DataTableComponent<T = any> {
     });
   });
 
-  getCellValue(row: T, key: string): any {
+  getCellValue(row: T, key: string): unknown {
     const keys = key.split('.');
-    let value: any = row;
+    let value: unknown = row;
     for (const k of keys) {
-      value = value?.[k];
+      value = (value as Record<string, unknown> | undefined)?.[k];
       if (value === undefined) break;
     }
     return value;
@@ -193,13 +261,23 @@ export class DataTableComponent<T = any> {
 
   getHeaderClass(column: TableColumn): string {
     const base = 'px-6 py-4 text-xs font-medium text-gray-500 uppercase dark:text-gray-300';
-    const align = column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left';
+    const align =
+      column.align === 'right'
+        ? 'text-right'
+        : column.align === 'center'
+          ? 'text-center'
+          : 'text-left';
     return `${base} ${align}`;
   }
 
   getCellClass(column: TableColumn): string {
     const base = 'px-6 py-4 text-sm text-gray-900 dark:text-white';
-    const align = column.align === 'right' ? 'text-right' : column.align === 'center' ? 'text-center' : 'text-left';
+    const align =
+      column.align === 'right'
+        ? 'text-right'
+        : column.align === 'center'
+          ? 'text-center'
+          : 'text-left';
     return `${base} ${align}`;
   }
 
@@ -233,9 +311,8 @@ export class DataTableComponent<T = any> {
       primary: 'bg-brand-500 text-white hover:bg-brand-600',
       danger: 'bg-red-500 text-white hover:bg-red-600',
       warning: 'bg-yellow-500 text-white hover:bg-yellow-600',
-      info: 'bg-blue-500 text-white hover:bg-blue-600'
+      info: 'bg-blue-500 text-white hover:bg-blue-600',
     };
     return classes[variant];
   }
 }
-

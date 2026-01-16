@@ -4,9 +4,9 @@
  * Representa el resultado de comparar un KPI entre dos períodos.
  */
 
-import { KpiValue } from "./kpi-value.vo";
-import { TrendDirection, TrendDirectionEnum } from "./trend-direction.vo";
-import { Decimal } from "decimal.js";
+import { KpiValue } from './kpi-value.vo';
+import { TrendDirection, TrendDirectionEnum } from './trend-direction.vo';
+import { Decimal } from 'decimal.js';
 
 export class ComparisonResult {
   private constructor(
@@ -14,7 +14,7 @@ export class ComparisonResult {
     private readonly _previous: KpiValue,
     private readonly _difference: KpiValue,
     private readonly _percentageChange: Decimal,
-    private readonly _trendDirection: TrendDirection,
+    private readonly _trendDirection: TrendDirection
   ) {
     Object.freeze(this);
   }
@@ -22,12 +22,9 @@ export class ComparisonResult {
   /**
    * Calcula el resultado de comparación
    */
-  public static calculate(
-    current: KpiValue,
-    previous: KpiValue,
-  ): ComparisonResult {
+  public static calculate(current: KpiValue, previous: KpiValue): ComparisonResult {
     if (current.getType() !== previous.getType()) {
-      throw new Error("Cannot compare KPI values of different types");
+      throw new Error('Cannot compare KPI values of different types');
     }
 
     const currentValue = current.getValue();
@@ -39,13 +36,7 @@ export class ComparisonResult {
 
     const trendDirection = TrendDirection.calculate(current, previous);
 
-    return new ComparisonResult(
-      current,
-      previous,
-      difference,
-      percentageChange,
-      trendDirection,
-    );
+    return new ComparisonResult(current, previous, difference, percentageChange, trendDirection);
   }
 
   /**
@@ -96,7 +87,7 @@ export class ComparisonResult {
   public format(): string {
     const percentage = this._percentageChange.toFixed(2);
     const direction = this._trendDirection.getIcon();
-    const sign = this._percentageChange.greaterThan(0) ? "+" : "";
+    const sign = this._percentageChange.greaterThan(0) ? '+' : '';
 
     return `${sign}${percentage}% vs período anterior ${direction}`;
   }

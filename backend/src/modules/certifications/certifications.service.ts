@@ -1,21 +1,14 @@
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { PrismaService } from '../../prisma/prisma.service';
 import {
-    Injectable,
-    Logger,
-    NotFoundException
-} from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
-import { PrismaService } from "../../prisma/prisma.service";
-import {
-    CertificacionResponseDto,
-    CreateCertificacionTecnicoDto,
-    ValidacionResultDto,
-    ValidarCertificacionesDto,
-} from "./application/dto/certificaciones.dto";
-import { CertificacionTecnico } from "./domain/entities/certificacion-tecnico.entity";
-import {
-    EstadoVigencia,
-    EstadoVigenciaType,
-} from "./domain/value-objects/estado-vigencia.vo";
+  CertificacionResponseDto,
+  CreateCertificacionTecnicoDto,
+  ValidacionResultDto,
+  ValidarCertificacionesDto,
+} from './application/dto/certificaciones.dto';
+import { CertificacionTecnico } from './domain/entities/certificacion-tecnico.entity';
+import { EstadoVigencia, EstadoVigenciaType } from './domain/value-objects/estado-vigencia.vo';
 
 type CertificadoRecord = {
   id: string;
@@ -35,13 +28,11 @@ export class CertificationsService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   private mapCertificadoToResponse(cert: CertificadoRecord): CertificacionResponseDto {
-    const estadoVigencia = EstadoVigencia.fromFechaVencimiento(
-      cert.fechaVencimiento,
-    );
+    const estadoVigencia = EstadoVigencia.fromFechaVencimiento(cert.fechaVencimiento);
 
     return {
       id: cert.id,
@@ -64,7 +55,7 @@ export class CertificationsService {
    * Registrar nueva certificación de técnico
    */
   async registrarCertificacionTecnico(
-    dto: CreateCertificacionTecnicoDto,
+    dto: CreateCertificacionTecnicoDto
   ): Promise<CertificacionResponseDto> {
     // Validar que el técnico existe
     const tecnico = await this.prisma.user.findUnique({
@@ -72,9 +63,7 @@ export class CertificationsService {
     });
 
     if (!tecnico) {
-      throw new NotFoundException(
-        `Técnico con ID ${dto.tecnicoId} no encontrado`,
-      );
+      throw new NotFoundException(`Técnico con ID ${dto.tecnicoId} no encontrado`);
     }
 
     // Crear entidad de dominio (valida reglas de negocio)
@@ -107,12 +96,10 @@ export class CertificationsService {
       },
     });
 
-    this.logger.log(
-      `Certificación registrada: ${saved.id} para técnico ${dto.tecnicoId}`,
-    );
+    this.logger.log(`Certificación registrada: ${saved.id} para técnico ${dto.tecnicoId}`);
 
     // Emitir evento
-    this.eventEmitter.emit("certificacion.registrada", {
+    this.eventEmitter.emit('certificacion.registrada', {
       certificacionId: saved.id,
       tecnicoId: dto.tecnicoId,
       tipo: dto.tipo,
@@ -124,28 +111,22 @@ export class CertificationsService {
   /**
    * Obtener certificaciones de un técnico
    */
-  async getCertificacionesTecnico(
-    tecnicoId: string,
-  ): Promise<CertificacionResponseDto[]> {
+  async getCertificacionesTecnico(tecnicoId: string): Promise<CertificacionResponseDto[]> {
     const certificados = await this.prisma.certificado.findMany({
       where: {
         userId: tecnicoId,
         activo: true,
       },
-      orderBy: { fechaVencimiento: "asc" },
+      orderBy: { fechaVencimiento: 'asc' },
     });
 
-    return (certificados as CertificadoRecord[]).map((cert) =>
-      this.mapCertificadoToResponse(cert),
-    );
+    return (certificados as CertificadoRecord[]).map(cert => this.mapCertificadoToResponse(cert));
   }
 
   /**
    * Validar certificaciones para una orden
    */
-  async validarCertificaciones(
-    dto: ValidarCertificacionesDto,
-  ): Promise<ValidacionResultDto> {
+  async validarCertificaciones(dto: ValidarCertificacionesDto): Promise<ValidacionResultDto> {
     const valid: CertificacionResponseDto[] = [];
     const invalid: Array<{
       id: string;
@@ -168,14 +149,14 @@ export class CertificationsService {
         where: { id: tecnicoId },
         select: { name: true },
       });
-      const nombreTecnico = tecnico?.name || "Desconocido";
+      const nombreTecnico = tecnico?.name || 'Desconocido';
 
       if (certificaciones.length === 0) {
         invalid.push({
           id: tecnicoId,
           nombre: nombreTecnico,
-          tipo: "TECNICO",
-          razon: "Sin certificaciones registradas",
+          tipo: 'TECNICO',
+          razon: 'Sin certificaciones registradas',
         });
         continue;
       }
@@ -183,9 +164,7 @@ export class CertificationsService {
       // Verificar tipos requeridos si se especificaron
       if (dto.tiposRequeridos && dto.tiposRequeridos.length > 0) {
         for (const tipoRequerido of dto.tiposRequeridos) {
-          const certTipo = certificaciones.find(
-            (c) => c.tipo === tipoRequerido,
-          );
+          const certTipo = certificaciones.find(c => c.tipo === tipoRequerido);
 
           if (!certTipo) {
             invalid.push({
@@ -218,27 +197,25 @@ export class CertificationsService {
       } else {
         // Sin tipos específicos, verificar que tenga al menos una vigente
         const tieneVigente = certificaciones.some(
-          (c) => c.estadoVigencia !== EstadoVigenciaType.VENCIDA,
+          c => c.estadoVigencia !== EstadoVigenciaType.VENCIDA
         );
 
         if (!tieneVigente) {
           invalid.push({
             id: tecnicoId,
             nombre: nombreTecnico,
-            tipo: "TODAS",
-            razon: "Todas las certificaciones están vencidas",
+            tipo: 'TODAS',
+            razon: 'Todas las certificaciones están vencidas',
           });
         } else {
           valid.push(
-            ...certificaciones.filter(
-              (c) => c.estadoVigencia !== EstadoVigenciaType.VENCIDA,
-            ),
+            ...certificaciones.filter(c => c.estadoVigencia !== EstadoVigenciaType.VENCIDA)
           );
 
           // Alertas
           certificaciones
-            .filter((c) => c.alertLevel)
-            .forEach((c) => {
+            .filter(c => c.alertLevel)
+            .forEach(c => {
               alerts.push({
                 id: c.id,
                 tipo: c.tipo,
@@ -261,9 +238,7 @@ export class CertificationsService {
   /**
    * Obtener certificaciones próximas a vencer
    */
-  async getCertificacionesPorVencer(
-    dias: number = 30,
-  ): Promise<CertificacionResponseDto[]> {
+  async getCertificacionesPorVencer(dias: number = 30): Promise<CertificacionResponseDto[]> {
     const fechaLimite = new Date();
     fechaLimite.setDate(fechaLimite.getDate() + dias);
 
@@ -275,11 +250,9 @@ export class CertificationsService {
           gte: new Date(), // Solo las que aún no vencieron
         },
       },
-      orderBy: { fechaVencimiento: "asc" },
+      orderBy: { fechaVencimiento: 'asc' },
     });
 
-    return (certificados as CertificadoRecord[]).map((cert) =>
-      this.mapCertificadoToResponse(cert),
-    );
+    return (certificados as CertificadoRecord[]).map(cert => this.mapCertificadoToResponse(cert));
   }
 }

@@ -2,10 +2,10 @@
  * Estado de vigencia de una certificación
  */
 export enum EstadoVigenciaType {
-  VIGENTE = "VIGENTE",
-  POR_VENCER = "POR_VENCER", // 30 días o menos
-  VENCIMIENTO_PROXIMO = "VENCIMIENTO_PROXIMO", // 15 días o menos
-  VENCIDA = "VENCIDA",
+  VIGENTE = 'VIGENTE',
+  POR_VENCER = 'POR_VENCER', // 30 días o menos
+  VENCIMIENTO_PROXIMO = 'VENCIMIENTO_PROXIMO', // 15 días o menos
+  VENCIDA = 'VENCIDA',
 }
 
 export class EstadoVigencia {
@@ -15,7 +15,7 @@ export class EstadoVigencia {
 
   private constructor(
     private readonly value: EstadoVigenciaType,
-    private readonly diasRestantes: number,
+    private readonly diasRestantes: number
   ) {}
 
   static fromFechaVencimiento(fechaVencimiento: Date): EstadoVigencia {
@@ -32,10 +32,7 @@ export class EstadoVigencia {
       return new EstadoVigencia(EstadoVigenciaType.VENCIDA, diasRestantes);
     }
     if (diasRestantes <= this.DIAS_ALERTA_15) {
-      return new EstadoVigencia(
-        EstadoVigenciaType.VENCIMIENTO_PROXIMO,
-        diasRestantes,
-      );
+      return new EstadoVigencia(EstadoVigenciaType.VENCIMIENTO_PROXIMO, diasRestantes);
     }
     if (diasRestantes <= this.DIAS_ALERTA_30) {
       return new EstadoVigencia(EstadoVigenciaType.POR_VENCER, diasRestantes);
@@ -71,14 +68,14 @@ export class EstadoVigencia {
     return this.value !== EstadoVigenciaType.VIGENTE;
   }
 
-  getAlertLevel(): "INFO" | "WARNING" | "CRITICAL" | null {
+  getAlertLevel(): 'INFO' | 'WARNING' | 'CRITICAL' | null {
     switch (this.value) {
       case EstadoVigenciaType.POR_VENCER:
-        return "INFO";
+        return 'INFO';
       case EstadoVigenciaType.VENCIMIENTO_PROXIMO:
-        return "WARNING";
+        return 'WARNING';
       case EstadoVigenciaType.VENCIDA:
-        return "CRITICAL";
+        return 'CRITICAL';
       default:
         return null;
     }
@@ -89,10 +86,10 @@ export class EstadoVigencia {
       return `Vencida hace ${Math.abs(this.diasRestantes)} días`;
     }
     if (this.diasRestantes === 0) {
-      return "Vence hoy";
+      return 'Vence hoy';
     }
     if (this.diasRestantes === 1) {
-      return "Vence mañana";
+      return 'Vence mañana';
     }
     return `Vence en ${this.diasRestantes} días`;
   }

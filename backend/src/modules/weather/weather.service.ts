@@ -3,10 +3,10 @@
 // APIs utilizadas: OpenWeather (Free Tier), Open-Meteo (Gratuita)
 // ============================================
 
-import { Injectable, Logger } from "@nestjs/common";
-import { HttpService } from "@nestjs/axios";
-import { ConfigService } from "@nestjs/config";
-import { firstValueFrom, catchError } from "rxjs";
+import { Injectable, Logger } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
+import { firstValueFrom, catchError } from 'rxjs';
 import {
   WeatherData,
   RainfallForecast,
@@ -14,7 +14,7 @@ import {
   WeatherLocation,
   HourlyForecast,
   WeatherHistorical,
-} from "./dto/weather.dto";
+} from './dto/weather.dto';
 
 interface OpenMeteoCurrentResponse {
   current: {
@@ -81,9 +81,9 @@ export class WeatherService {
   private readonly CANO_LIMON: WeatherLocation = {
     lat: 5.3667,
     lon: -71.7994,
-    name: "Caño Limón",
-    region: "Arauca",
-    country: "Colombia",
+    name: 'Caño Limón',
+    region: 'Arauca',
+    country: 'Colombia',
   };
 
   // Caché simple en memoria (en producción usar Redis)
@@ -94,7 +94,7 @@ export class WeatherService {
 
   constructor(
     private readonly httpService: HttpService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {}
 
   // ... (omitting middle of file for brevity in logic, but tool replace needs exact match.
@@ -117,7 +117,7 @@ export class WeatherService {
     // Verificar caché
     const cached = this.getFromCache<WeatherData>(cacheKey);
     if (cached) {
-      this.logger.debug("Returning cached weather data");
+      this.logger.debug('Returning cached weather data');
       return cached;
     }
 
@@ -125,36 +125,33 @@ export class WeatherService {
       // Usar Open-Meteo API (gratuita, sin key requerida)
       const response = await firstValueFrom(
         this.httpService
-          .get("https://api.open-meteo.com/v1/forecast", {
+          .get('https://api.open-meteo.com/v1/forecast', {
             params: {
               latitude,
               longitude,
               current: [
-                "temperature_2m",
-                "relative_humidity_2m",
-                "apparent_temperature",
-                "precipitation",
-                "rain",
-                "weather_code",
-                "cloud_cover",
-                "pressure_msl",
-                "wind_speed_10m",
-                "wind_direction_10m",
-                "wind_gusts_10m",
-                "uv_index",
-              ].join(","),
-              timezone: "America/Bogota",
+                'temperature_2m',
+                'relative_humidity_2m',
+                'apparent_temperature',
+                'precipitation',
+                'rain',
+                'weather_code',
+                'cloud_cover',
+                'pressure_msl',
+                'wind_speed_10m',
+                'wind_direction_10m',
+                'wind_gusts_10m',
+                'uv_index',
+              ].join(','),
+              timezone: 'America/Bogota',
             },
           })
           .pipe(
-            catchError((error) => {
-              this.logger.error(
-                "Error fetching Open-Meteo data",
-                error.message,
-              );
+            catchError(error => {
+              this.logger.error('Error fetching Open-Meteo data', error.message);
               throw error;
-            }),
-          ),
+            })
+          )
       );
 
       const responseData = response.data as OpenMeteoCurrentResponse;
@@ -163,18 +160,9 @@ export class WeatherService {
         location: {
           lat: latitude,
           lon: longitude,
-          name:
-            latitude === this.CANO_LIMON.lat
-              ? this.CANO_LIMON.name
-              : "Ubicación personalizada",
-          region:
-            latitude === this.CANO_LIMON.lat
-              ? this.CANO_LIMON.region
-              : undefined,
-          country:
-            latitude === this.CANO_LIMON.lat
-              ? this.CANO_LIMON.country
-              : undefined,
+          name: latitude === this.CANO_LIMON.lat ? this.CANO_LIMON.name : 'Ubicación personalizada',
+          region: latitude === this.CANO_LIMON.lat ? this.CANO_LIMON.region : undefined,
+          country: latitude === this.CANO_LIMON.lat ? this.CANO_LIMON.country : undefined,
         },
         timestamp: new Date().toISOString(),
         temperature: current.temperature_2m,
@@ -198,7 +186,7 @@ export class WeatherService {
 
       return weatherData;
     } catch (error) {
-      this.logger.error("Failed to fetch current weather", error);
+      this.logger.error('Failed to fetch current weather', error);
       throw error;
     }
   }
@@ -210,10 +198,7 @@ export class WeatherService {
   /**
    * Obtiene pronóstico de lluvia para los próximos 7 días
    */
-  async getRainfallForecast(
-    lat?: number,
-    lon?: number,
-  ): Promise<RainfallForecast[]> {
+  async getRainfallForecast(lat?: number, lon?: number): Promise<RainfallForecast[]> {
     const latitude = lat ?? this.CANO_LIMON.lat;
     const longitude = lon ?? this.CANO_LIMON.lon;
     const cacheKey = `weather:rainfall:${latitude}:${longitude}`;
@@ -223,43 +208,41 @@ export class WeatherService {
 
     try {
       const response = await firstValueFrom(
-        this.httpService.get("https://api.open-meteo.com/v1/forecast", {
+        this.httpService.get('https://api.open-meteo.com/v1/forecast', {
           params: {
             latitude,
             longitude,
             daily: [
-              "precipitation_sum",
-              "rain_sum",
-              "precipitation_probability_max",
-              "weather_code",
-              "temperature_2m_max",
-              "temperature_2m_min",
-            ].join(","),
-            timezone: "America/Bogota",
+              'precipitation_sum',
+              'rain_sum',
+              'precipitation_probability_max',
+              'weather_code',
+              'temperature_2m_max',
+              'temperature_2m_min',
+            ].join(','),
+            timezone: 'America/Bogota',
             forecast_days: 7,
           },
-        }),
+        })
       );
 
       const responseData = response.data as OpenMeteoDailyResponse;
       const daily = responseData.daily;
-      const forecasts: RainfallForecast[] = daily.time.map(
-        (date: string, i: number) => ({
-          date,
-          precipitationSum: daily.precipitation_sum[i],
-          rainSum: daily.rain_sum[i],
-          precipitationProbability: daily.precipitation_probability_max[i],
-          weatherCode: daily.weather_code[i],
-          tempMax: daily.temperature_2m_max[i],
-          tempMin: daily.temperature_2m_min[i],
-          description: this.getWeatherDescription(daily.weather_code[i]),
-        }),
-      );
+      const forecasts: RainfallForecast[] = daily.time.map((date: string, i: number) => ({
+        date,
+        precipitationSum: daily.precipitation_sum[i],
+        rainSum: daily.rain_sum[i],
+        precipitationProbability: daily.precipitation_probability_max[i],
+        weatherCode: daily.weather_code[i],
+        tempMax: daily.temperature_2m_max[i],
+        tempMin: daily.temperature_2m_min[i],
+        description: this.getWeatherDescription(daily.weather_code[i]),
+      }));
 
       this.setCache(cacheKey, forecasts);
       return forecasts;
     } catch (error) {
-      this.logger.error("Failed to fetch rainfall forecast", error);
+      this.logger.error('Failed to fetch rainfall forecast', error);
       throw error;
     }
   }
@@ -271,10 +254,7 @@ export class WeatherService {
   /**
    * Obtiene pronóstico horario para las próximas 48 horas
    */
-  async getHourlyForecast(
-    lat?: number,
-    lon?: number,
-  ): Promise<HourlyForecast[]> {
+  async getHourlyForecast(lat?: number, lon?: number): Promise<HourlyForecast[]> {
     const latitude = lat ?? this.CANO_LIMON.lat;
     const longitude = lon ?? this.CANO_LIMON.lon;
     const cacheKey = `weather:hourly:${latitude}:${longitude}`;
@@ -284,48 +264,46 @@ export class WeatherService {
 
     try {
       const response = await firstValueFrom(
-        this.httpService.get("https://api.open-meteo.com/v1/forecast", {
+        this.httpService.get('https://api.open-meteo.com/v1/forecast', {
           params: {
             latitude,
             longitude,
             hourly: [
-              "temperature_2m",
-              "relative_humidity_2m",
-              "precipitation_probability",
-              "precipitation",
-              "rain",
-              "weather_code",
-              "cloud_cover",
-              "wind_speed_10m",
-            ].join(","),
-            timezone: "America/Bogota",
+              'temperature_2m',
+              'relative_humidity_2m',
+              'precipitation_probability',
+              'precipitation',
+              'rain',
+              'weather_code',
+              'cloud_cover',
+              'wind_speed_10m',
+            ].join(','),
+            timezone: 'America/Bogota',
             forecast_hours: 48,
           },
-        }),
+        })
       );
 
       const responseData = response.data as OpenMeteoHourlyResponse;
       const hourly = responseData.hourly;
-      const forecasts: HourlyForecast[] = hourly.time.map(
-        (time: string, i: number) => ({
-          time,
-          temperature: hourly.temperature_2m[i],
-          humidity: hourly.relative_humidity_2m[i],
-          precipitationProbability: hourly.precipitation_probability[i],
-          precipitation: hourly.precipitation[i],
-          rain: hourly.rain[i],
-          weatherCode: hourly.weather_code[i],
-          cloudCover: hourly.cloud_cover[i],
-          windSpeed: hourly.wind_speed_10m[i],
-          description: this.getWeatherDescription(hourly.weather_code[i]),
-          icon: this.getWeatherIcon(hourly.weather_code[i]),
-        }),
-      );
+      const forecasts: HourlyForecast[] = hourly.time.map((time: string, i: number) => ({
+        time,
+        temperature: hourly.temperature_2m[i],
+        humidity: hourly.relative_humidity_2m[i],
+        precipitationProbability: hourly.precipitation_probability[i],
+        precipitation: hourly.precipitation[i],
+        rain: hourly.rain[i],
+        weatherCode: hourly.weather_code[i],
+        cloudCover: hourly.cloud_cover[i],
+        windSpeed: hourly.wind_speed_10m[i],
+        description: this.getWeatherDescription(hourly.weather_code[i]),
+        icon: this.getWeatherIcon(hourly.weather_code[i]),
+      }));
 
       this.setCache(cacheKey, forecasts);
       return forecasts;
     } catch (error) {
-      this.logger.error("Failed to fetch hourly forecast", error);
+      this.logger.error('Failed to fetch hourly forecast', error);
       throw error;
     }
   }
@@ -344,12 +322,11 @@ export class WeatherService {
     // Alerta de viento fuerte (>10 m/s = 36 km/h)
     if (currentWeather.windSpeed > 10) {
       alerts.push({
-        type: "VIENTO_FUERTE",
-        severity: currentWeather.windSpeed > 15 ? "ALTA" : "MEDIA",
-        title: "Vientos Fuertes",
+        type: 'VIENTO_FUERTE',
+        severity: currentWeather.windSpeed > 15 ? 'ALTA' : 'MEDIA',
+        title: 'Vientos Fuertes',
         description: `Velocidad del viento: ${currentWeather.windSpeed.toFixed(1)} m/s (${(currentWeather.windSpeed * 3.6).toFixed(0)} km/h)`,
-        recommendation:
-          "Asegurar equipos y estructuras móviles. Precaución en trabajos en altura.",
+        recommendation: 'Asegurar equipos y estructuras móviles. Precaución en trabajos en altura.',
         timestamp: new Date().toISOString(),
       });
     }
@@ -357,11 +334,11 @@ export class WeatherService {
     // Alerta de ráfagas de viento (>15 m/s)
     if (currentWeather.windGusts && currentWeather.windGusts > 15) {
       alerts.push({
-        type: "RAFAGAS_VIENTO",
-        severity: "ALTA",
-        title: "Ráfagas de Viento Peligrosas",
+        type: 'RAFAGAS_VIENTO',
+        severity: 'ALTA',
+        title: 'Ráfagas de Viento Peligrosas',
         description: `Ráfagas de hasta ${currentWeather.windGusts.toFixed(1)} m/s (${(currentWeather.windGusts * 3.6).toFixed(0)} km/h)`,
-        recommendation: "Suspender trabajos en altura. Buscar refugio.",
+        recommendation: 'Suspender trabajos en altura. Buscar refugio.',
         timestamp: new Date().toISOString(),
       });
     }
@@ -369,12 +346,12 @@ export class WeatherService {
     // Alerta de calor extremo (>35°C)
     if (currentWeather.temperature > 35) {
       alerts.push({
-        type: "CALOR_EXTREMO",
-        severity: currentWeather.temperature > 40 ? "CRITICA" : "ALTA",
-        title: "Temperatura Extrema",
+        type: 'CALOR_EXTREMO',
+        severity: currentWeather.temperature > 40 ? 'CRITICA' : 'ALTA',
+        title: 'Temperatura Extrema',
         description: `Temperatura actual: ${currentWeather.temperature.toFixed(1)}°C`,
         recommendation:
-          "Hidratarse frecuentemente. Tomar descansos en sombra. Evitar exposición prolongada.",
+          'Hidratarse frecuentemente. Tomar descansos en sombra. Evitar exposición prolongada.',
         timestamp: new Date().toISOString(),
       });
     }
@@ -382,12 +359,12 @@ export class WeatherService {
     // Alerta de UV alto (>8)
     if (currentWeather.uvIndex && currentWeather.uvIndex > 8) {
       alerts.push({
-        type: "UV_ALTO",
-        severity: currentWeather.uvIndex > 11 ? "CRITICA" : "ALTA",
-        title: "Índice UV Muy Alto",
+        type: 'UV_ALTO',
+        severity: currentWeather.uvIndex > 11 ? 'CRITICA' : 'ALTA',
+        title: 'Índice UV Muy Alto',
         description: `Índice UV: ${currentWeather.uvIndex.toFixed(1)}`,
         recommendation:
-          "Usar protector solar SPF50+. Usar ropa protectora y sombrero. Evitar exposición entre 10am-4pm.",
+          'Usar protector solar SPF50+. Usar ropa protectora y sombrero. Evitar exposición entre 10am-4pm.',
         timestamp: new Date().toISOString(),
       });
     }
@@ -395,18 +372,14 @@ export class WeatherService {
     // Alerta de lluvia (cobertura de nubes >80% + precipitación)
     if (currentWeather.cloudCover > 80 || currentWeather.precipitation > 0) {
       alerts.push({
-        type: "LLUVIA_PROBABLE",
-        severity: currentWeather.precipitation > 5 ? "ALTA" : "MEDIA",
-        title:
-          currentWeather.precipitation > 0
-            ? "Lluvia Activa"
-            : "Lluvia Probable",
+        type: 'LLUVIA_PROBABLE',
+        severity: currentWeather.precipitation > 5 ? 'ALTA' : 'MEDIA',
+        title: currentWeather.precipitation > 0 ? 'Lluvia Activa' : 'Lluvia Probable',
         description:
           currentWeather.precipitation > 0
             ? `Precipitación actual: ${currentWeather.precipitation} mm`
             : `Cobertura de nubes: ${currentWeather.cloudCover}%`,
-        recommendation:
-          "Proteger equipos eléctricos. Precaución en superficies resbaladizas.",
+        recommendation: 'Proteger equipos eléctricos. Precaución en superficies resbaladizas.',
         timestamp: new Date().toISOString(),
       });
     }
@@ -414,12 +387,11 @@ export class WeatherService {
     // Alerta de visibilidad baja (nubes muy densas)
     if (currentWeather.cloudCover > 95) {
       alerts.push({
-        type: "VISIBILIDAD_REDUCIDA",
-        severity: "MEDIA",
-        title: "Visibilidad Reducida",
+        type: 'VISIBILIDAD_REDUCIDA',
+        severity: 'MEDIA',
+        title: 'Visibilidad Reducida',
         description: `Cobertura de nubes: ${currentWeather.cloudCover}%`,
-        recommendation:
-          "Precaución en desplazamientos. Usar luces de seguridad.",
+        recommendation: 'Precaución en desplazamientos. Usar luces de seguridad.',
         timestamp: new Date().toISOString(),
       });
     }
@@ -439,28 +411,24 @@ export class WeatherService {
     startDate: string,
     endDate: string,
     lat?: number,
-    lon?: number,
+    lon?: number
   ): Promise<WeatherHistorical> {
     const latitude = lat ?? this.CANO_LIMON.lat;
     const longitude = lon ?? this.CANO_LIMON.lon;
 
     try {
       const response = await firstValueFrom(
-        this.httpService.get(
-          "https://power.larc.nasa.gov/api/temporal/daily/point",
-          {
-            params: {
-              parameters:
-                "T2M,T2M_MAX,T2M_MIN,PRECTOTCORR,RH2M,WS2M,ALLSKY_SFC_SW_DWN",
-              community: "RE",
-              longitude,
-              latitude,
-              start: startDate.replace(/-/g, ""),
-              end: endDate.replace(/-/g, ""),
-              format: "JSON",
-            },
+        this.httpService.get('https://power.larc.nasa.gov/api/temporal/daily/point', {
+          params: {
+            parameters: 'T2M,T2M_MAX,T2M_MIN,PRECTOTCORR,RH2M,WS2M,ALLSKY_SFC_SW_DWN',
+            community: 'RE',
+            longitude,
+            latitude,
+            start: startDate.replace(/-/g, ''),
+            end: endDate.replace(/-/g, ''),
+            format: 'JSON',
           },
-        ),
+        })
       );
 
       const responseData = response.data as NasaPowerResponse;
@@ -471,7 +439,7 @@ export class WeatherService {
         location: { lat: latitude, lon: longitude, name: this.CANO_LIMON.name },
         startDate,
         endDate,
-        data: dates.map((date) => ({
+        data: dates.map(date => ({
           date: `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}`,
           temperature: params.T2M[date],
           tempMax: params.T2M_MAX[date],
@@ -483,7 +451,7 @@ export class WeatherService {
         })),
       };
     } catch (error) {
-      this.logger.error("Failed to fetch NASA POWER historical data", error);
+      this.logger.error('Failed to fetch NASA POWER historical data', error);
       throw error;
     }
   }
@@ -505,48 +473,48 @@ export class WeatherService {
 
   private getWeatherDescription(code: number): string {
     const descriptions: Record<number, string> = {
-      0: "Cielo despejado",
-      1: "Mayormente despejado",
-      2: "Parcialmente nublado",
-      3: "Nublado",
-      45: "Niebla",
-      48: "Niebla con escarcha",
-      51: "Llovizna ligera",
-      53: "Llovizna moderada",
-      55: "Llovizna intensa",
-      56: "Llovizna helada ligera",
-      57: "Llovizna helada intensa",
-      61: "Lluvia ligera",
-      63: "Lluvia moderada",
-      65: "Lluvia intensa",
-      66: "Lluvia helada ligera",
-      67: "Lluvia helada intensa",
-      71: "Nevada ligera",
-      73: "Nevada moderada",
-      75: "Nevada intensa",
-      77: "Granizo",
-      80: "Chubascos ligeros",
-      81: "Chubascos moderados",
-      82: "Chubascos violentos",
-      85: "Chubascos de nieve ligeros",
-      86: "Chubascos de nieve intensos",
-      95: "Tormenta eléctrica",
-      96: "Tormenta con granizo ligero",
-      99: "Tormenta con granizo intenso",
+      0: 'Cielo despejado',
+      1: 'Mayormente despejado',
+      2: 'Parcialmente nublado',
+      3: 'Nublado',
+      45: 'Niebla',
+      48: 'Niebla con escarcha',
+      51: 'Llovizna ligera',
+      53: 'Llovizna moderada',
+      55: 'Llovizna intensa',
+      56: 'Llovizna helada ligera',
+      57: 'Llovizna helada intensa',
+      61: 'Lluvia ligera',
+      63: 'Lluvia moderada',
+      65: 'Lluvia intensa',
+      66: 'Lluvia helada ligera',
+      67: 'Lluvia helada intensa',
+      71: 'Nevada ligera',
+      73: 'Nevada moderada',
+      75: 'Nevada intensa',
+      77: 'Granizo',
+      80: 'Chubascos ligeros',
+      81: 'Chubascos moderados',
+      82: 'Chubascos violentos',
+      85: 'Chubascos de nieve ligeros',
+      86: 'Chubascos de nieve intensos',
+      95: 'Tormenta eléctrica',
+      96: 'Tormenta con granizo ligero',
+      99: 'Tormenta con granizo intenso',
     };
-    return descriptions[code] || "Desconocido";
+    return descriptions[code] || 'Desconocido';
   }
 
   private getWeatherIcon(code: number): string {
-    if (code === 0) return "☀️";
-    if (code <= 3) return "⛅";
-    if (code <= 48) return "🌫️";
-    if (code <= 57) return "🌧️";
-    if (code <= 67) return "🌧️";
-    if (code <= 77) return "❄️";
-    if (code <= 82) return "🌦️";
-    if (code >= 95) return "⛈️";
-    return "🌤️";
+    if (code === 0) return '☀️';
+    if (code <= 3) return '⛅';
+    if (code <= 48) return '🌫️';
+    if (code <= 57) return '🌧️';
+    if (code <= 67) return '🌧️';
+    if (code <= 77) return '❄️';
+    if (code <= 82) return '🌦️';
+    if (code >= 95) return '⛈️';
+    return '🌤️';
   }
 
   private getFromCache<T>(key: string): T | null {

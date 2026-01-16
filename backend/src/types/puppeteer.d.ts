@@ -1,7 +1,7 @@
 // Type declaration for puppeteer module
 // This bypasses the missing type declarations during build
 
-declare module "puppeteer" {
+declare module 'puppeteer' {
   export interface Browser {
     close(): Promise<void>;
     newPage(): Promise<Page>;
@@ -15,7 +15,7 @@ declare module "puppeteer" {
   }
 
   export interface PDFOptions {
-    format?: "A4" | "Letter" | "Legal" | "A3";
+    format?: 'A4' | 'Letter' | 'Legal' | 'A3';
     landscape?: boolean;
     printBackground?: boolean;
     displayHeaderFooter?: boolean;

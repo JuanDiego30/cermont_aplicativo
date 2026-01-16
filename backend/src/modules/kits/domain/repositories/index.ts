@@ -1,4 +1,4 @@
 /**
  * Barrel file for Kit Repositories
  */
-export * from "./kit.repository.interface";
+export * from './kit.repository.interface';

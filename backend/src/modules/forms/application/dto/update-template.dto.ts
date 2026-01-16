@@ -4,10 +4,10 @@
  * DTO para actualizar un template de formulario
  */
 
-import { IsString, IsOptional, IsArray, ValidateNested } from "class-validator";
-import { Type } from "class-transformer";
-import { ApiPropertyOptional } from "@nestjs/swagger";
-import { CreateFormFieldDto } from "./create-template.dto";
+import { IsString, IsOptional, IsArray, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { CreateFormFieldDto } from './create-template.dto';
 
 export class UpdateFormTemplateDto {
   @ApiPropertyOptional()

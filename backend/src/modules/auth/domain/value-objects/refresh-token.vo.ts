@@ -3,10 +3,9 @@
  * @description Value Object que representa un Refresh Token
  * @layer Domain
  */
-import { randomUUID } from "crypto";
+import { randomUUID } from 'crypto';
 
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const isUuid = (value: string): boolean => UUID_REGEX.test(value);
 
@@ -16,7 +15,7 @@ export class RefreshToken {
   private constructor(
     private readonly _value: string,
     private readonly _expiresAt: Date,
-    private readonly _family: string,
+    private readonly _family: string
   ) {
     Object.freeze(this);
   }
@@ -50,11 +49,7 @@ export class RefreshToken {
     return new RefreshToken(token, expiresAt, family ?? randomUUID());
   }
 
-  static fromExisting(
-    value: string,
-    expiresAt: Date,
-    family: string,
-  ): RefreshToken | null {
+  static fromExisting(value: string, expiresAt: Date, family: string): RefreshToken | null {
     if (!isUuid(value)) return null;
     if (!isUuid(family)) return null;
 

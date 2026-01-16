@@ -5,7 +5,7 @@
  */
 
 export class BudgetExceededEvent {
-  public readonly eventName = "BUDGET_EXCEEDED";
+  public readonly eventName = 'BUDGET_EXCEEDED';
   public readonly aggregateId: string;
   public readonly timestamp: Date;
   public readonly ordenId: string;

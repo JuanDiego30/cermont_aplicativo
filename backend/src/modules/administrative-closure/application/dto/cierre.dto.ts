@@ -11,15 +11,15 @@ import {
   ArrayMinSize,
   ValidateNested,
   IsDateString,
-} from "class-validator";
-import { Type } from "class-transformer";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum TipoDocumentoCierre {
-  ACTA = "acta",
-  SES = "ses",
-  FACTURA = "factura",
-  OTROS = "otros",
+  ACTA = 'acta',
+  SES = 'ses',
+  FACTURA = 'factura',
+  OTROS = 'otros',
 }
 
 export class CierreDocumentoDto {
@@ -27,23 +27,23 @@ export class CierreDocumentoDto {
   @IsEnum(TipoDocumentoCierre)
   tipo!: TipoDocumentoCierre;
 
-  @ApiPropertyOptional({ example: "DOC-001" })
+  @ApiPropertyOptional({ example: 'DOC-001' })
   @IsOptional()
   @IsString()
   numero?: string;
 
-  @ApiProperty({ example: "2025-01-14" })
+  @ApiProperty({ example: '2025-01-14' })
   @IsDateString()
   fechaDocumento!: string;
 
-  @ApiPropertyOptional({ example: "Documento verificado" })
+  @ApiPropertyOptional({ example: 'Documento verificado' })
   @IsOptional()
   @IsString()
   observaciones?: string;
 }
 
 export class CreateCierreDto {
-  @ApiProperty({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
   @IsUUID()
   ordenId!: string;
 
@@ -54,7 +54,7 @@ export class CreateCierreDto {
   @Type(() => CierreDocumentoDto)
   documentos!: CierreDocumentoDto[];
 
-  @ApiPropertyOptional({ example: "Cierre sin observaciones" })
+  @ApiPropertyOptional({ example: 'Cierre sin observaciones' })
   @IsOptional()
   @IsString()
   observacionesGenerales?: string;
@@ -81,16 +81,12 @@ export interface CierreResponse {
 }
 
 // Repository Interface
-export const CIERRE_REPOSITORY = Symbol("CIERRE_REPOSITORY");
+export const CIERRE_REPOSITORY = Symbol('CIERRE_REPOSITORY');
 
 export interface ICierreRepository {
   findByOrden(ordenId: string): Promise<any>;
   create(data: CreateCierreDto, userId: string): Promise<any>;
-  uploadDocumento(
-    cierreId: string,
-    documentoId: string,
-    url: string,
-  ): Promise<void>;
+  uploadDocumento(cierreId: string, documentoId: string, url: string): Promise<void>;
   aprobar(cierreId: string, userId: string): Promise<any>;
   rechazar(cierreId: string, motivo: string): Promise<any>;
 }

@@ -1,5 +1,5 @@
-import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
-import { PrismaService } from "../../../../prisma/prisma.service";
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
 
 export interface Verify2FACodeResult {
   valid: boolean;
@@ -22,8 +22,8 @@ export class Verify2FACodeUseCase {
       });
 
       if (!user) {
-        this.logger.warn("2FA verification failed: User not found");
-        throw new UnauthorizedException("Credenciales inválidas");
+        this.logger.warn('2FA verification failed: User not found');
+        throw new UnauthorizedException('Credenciales inválidas');
       }
 
       // 2. Buscar código válido
@@ -58,26 +58,21 @@ export class Verify2FACodeUseCase {
           },
         });
 
-        if (
-          tokenWithAttempts &&
-          tokenWithAttempts.attempts >= this.MAX_ATTEMPTS
-        ) {
+        if (tokenWithAttempts && tokenWithAttempts.attempts >= this.MAX_ATTEMPTS) {
           // Invalidar el token por exceso de intentos
           await this.prisma.twoFactorToken.deleteMany({
             where: { userId: user.id },
           });
           this.logger.warn(
-            `2FA token invalidated for user ${user.id} due to max attempts exceeded`,
+            `2FA token invalidated for user ${user.id} due to max attempts exceeded`
           );
           throw new UnauthorizedException(
-            "Demasiados intentos fallidos. Solicita un nuevo código.",
+            'Demasiados intentos fallidos. Solicita un nuevo código.'
           );
         }
 
-        this.logger.warn(
-          `2FA verification failed: Invalid or expired code for user ${user.id}`,
-        );
-        throw new UnauthorizedException("Código inválido o expirado");
+        this.logger.warn(`2FA verification failed: Invalid or expired code for user ${user.id}`);
+        throw new UnauthorizedException('Código inválido o expirado');
       }
 
       // 3. Marcar código como verificado
@@ -99,9 +94,9 @@ export class Verify2FACodeUseCase {
 
       await this.prisma.auditLog.create({
         data: {
-          entityType: "User",
+          entityType: 'User',
           entityId: user.id,
-          action: "2FA_VERIFIED",
+          action: '2FA_VERIFIED',
           userId: user.id,
         },
       });
@@ -118,7 +113,7 @@ export class Verify2FACodeUseCase {
       }
       const err = error as Error;
       this.logger.error(`Error verifying 2FA code: ${err.message}`, err.stack);
-      throw new UnauthorizedException("Error al verificar código");
+      throw new UnauthorizedException('Error al verificar código');
     }
   }
 }

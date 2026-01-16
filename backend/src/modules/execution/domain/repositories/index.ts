@@ -1,1 +1,1 @@
-export * from "./ejecucion.repository.interface";
+export * from './ejecucion.repository.interface';

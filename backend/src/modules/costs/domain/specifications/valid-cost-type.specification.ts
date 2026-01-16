@@ -4,7 +4,7 @@
  * Verifica que el tipo de costo sea válido
  */
 
-import { Costo } from "../entities/costo.entity";
+import { Costo } from '../entities/costo.entity';
 
 export class ValidCostTypeSpecification {
   /**

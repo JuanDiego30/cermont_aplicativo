@@ -1,7 +1,7 @@
-import { Injectable, Logger, LogLevel } from "@nestjs/common";
-import { appendFile, mkdir, readdir, rename, stat, unlink } from "fs/promises";
-import { dirname, extname, resolve } from "path";
-import { sanitizeLogMeta, sanitizeUrl, shouldLog } from "./sanitize";
+import { Injectable, Logger, LogLevel } from '@nestjs/common';
+import { appendFile, mkdir, readdir, rename, stat, unlink } from 'fs/promises';
+import { dirname, extname, resolve } from 'path';
+import { sanitizeLogMeta, sanitizeUrl, shouldLog } from './sanitize';
 
 interface LogEntry {
   timestamp: string;
@@ -15,11 +15,11 @@ interface LogEntry {
 
 type FileLoggingConfig =
   | {
-      mode: "single";
+      mode: 'single';
       filePath: string;
     }
   | {
-      mode: "split";
+      mode: 'split';
       infoFilePath: string;
       errorFilePath: string;
       maxBytes: number;
@@ -37,103 +37,75 @@ export class LoggerService extends Logger {
   private fileInitPromise: Promise<void> | null = null;
   private lastRotationDate: string | null = null;
 
-  constructor(context = "CermontApp") {
+  constructor(context = 'CermontApp') {
     super(context);
 
-    const level = (process.env.LOG_LEVEL || "").toLowerCase();
-    this.configuredLevel = [
-      "error",
-      "warn",
-      "log",
-      "debug",
-      "verbose",
-    ].includes(level)
+    const level = (process.env.LOG_LEVEL || '').toLowerCase();
+    this.configuredLevel = ['error', 'warn', 'log', 'debug', 'verbose'].includes(level)
       ? (level as LogLevel)
-      : "log";
+      : 'log';
 
     this.jsonFormat =
-      (process.env.LOG_FORMAT || "").toLowerCase() === "json" ||
-      process.env.NODE_ENV === "production";
+      (process.env.LOG_FORMAT || '').toLowerCase() === 'json' ||
+      process.env.NODE_ENV === 'production';
 
-    const enableFile =
-      (process.env.LOG_TO_FILE || "true").toLowerCase() !== "false";
+    const enableFile = (process.env.LOG_TO_FILE || 'true').toLowerCase() !== 'false';
     if (enableFile) {
       const explicitPath = process.env.LOG_FILE_PATH;
       if (explicitPath && explicitPath.trim().length > 0) {
         // Compatibilidad: si existe LOG_FILE_PATH, mantener modo archivo único (sin rotación)
         this.fileConfig = {
-          mode: "single",
+          mode: 'single',
           filePath: resolve(explicitPath),
         };
       } else {
-        const logDir = resolve(process.env.LOG_DIR || "logs");
-        const infoFilePath = resolve(
-          logDir,
-          process.env.LOG_INFO_FILE || "info.log",
-        );
-        const errorFilePath = resolve(
-          logDir,
-          process.env.LOG_ERROR_FILE || "error.log",
-        );
+        const logDir = resolve(process.env.LOG_DIR || 'logs');
+        const infoFilePath = resolve(logDir, process.env.LOG_INFO_FILE || 'info.log');
+        const errorFilePath = resolve(logDir, process.env.LOG_ERROR_FILE || 'error.log');
 
-        const maxBytesRaw = Number.parseInt(
-          process.env.LOG_MAX_BYTES || "5242880",
-          10,
-        ); // 5MB
-        const maxFilesRaw = Number.parseInt(
-          process.env.LOG_MAX_FILES || "10",
-          10,
-        );
+        const maxBytesRaw = Number.parseInt(process.env.LOG_MAX_BYTES || '5242880', 10); // 5MB
+        const maxFilesRaw = Number.parseInt(process.env.LOG_MAX_FILES || '10', 10);
 
         this.fileConfig = {
-          mode: "split",
+          mode: 'split',
           infoFilePath,
           errorFilePath,
-          maxBytes:
-            Number.isFinite(maxBytesRaw) && maxBytesRaw > 0
-              ? maxBytesRaw
-              : 5242880,
-          maxFiles:
-            Number.isFinite(maxFilesRaw) && maxFilesRaw > 0 ? maxFilesRaw : 10,
+          maxBytes: Number.isFinite(maxBytesRaw) && maxBytesRaw > 0 ? maxBytesRaw : 5242880,
+          maxFiles: Number.isFinite(maxFilesRaw) && maxFilesRaw > 0 ? maxFilesRaw : 10,
         };
       }
     }
   }
 
   log(message: string, context?: string, metadata?: unknown): void {
-    this.write("log", message, context, metadata);
+    this.write('log', message, context, metadata);
   }
 
   info(message: string, context?: string, metadata?: unknown): void {
-    this.write("log", message, context, metadata);
+    this.write('log', message, context, metadata);
   }
 
   error(message: string, trace?: string, context?: string): void {
-    this.write("error", message, context, undefined, trace);
+    this.write('error', message, context, undefined, trace);
   }
 
   warn(message: string, context?: string, metadata?: unknown): void {
-    this.write("warn", message, context, metadata);
+    this.write('warn', message, context, metadata);
   }
 
   debug(message: string, context?: string, metadata?: unknown): void {
-    this.write("debug", message, context, metadata);
+    this.write('debug', message, context, metadata);
   }
 
   verbose(message: string, context?: string, metadata?: unknown): void {
-    this.write("verbose", message, context, metadata);
+    this.write('verbose', message, context, metadata);
   }
 
-  audit(
-    action: string,
-    userId: string,
-    resource: string,
-    details?: Record<string, unknown>,
-  ): void {
+  audit(action: string, userId: string, resource: string, details?: Record<string, unknown>): void {
     this.write(
-      "log",
+      'log',
       `[AUDIT] ${action} - User: ${userId}, Resource: ${resource}`,
-      "Audit",
+      'Audit',
       {
         action,
         userId,
@@ -141,7 +113,7 @@ export class LoggerService extends Logger {
         details,
       },
       undefined,
-      "audit",
+      'audit'
     );
   }
 
@@ -149,32 +121,25 @@ export class LoggerService extends Logger {
     label: string,
     durationMs: number,
     threshold: number = 1000,
-    meta?: Record<string, unknown>,
+    meta?: Record<string, unknown>
   ): void {
-    const level: LogLevel = durationMs > threshold ? "warn" : "log";
+    const level: LogLevel = durationMs > threshold ? 'warn' : 'log';
     this.write(
       level,
       `[PERF] ${label} - ${durationMs}ms`,
-      "Performance",
+      'Performance',
       { durationMs, threshold, ...meta },
       undefined,
-      "performance",
+      'performance'
     );
   }
 
-  http(
-    method: string,
-    url: string,
-    statusCode: number,
-    durationMs: number,
-    userId?: string,
-  ): void {
-    const level: LogLevel =
-      statusCode >= 500 ? "error" : statusCode >= 400 ? "warn" : "log";
+  http(method: string, url: string, statusCode: number, durationMs: number, userId?: string): void {
+    const level: LogLevel = statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'log';
     this.write(
       level,
       `[HTTP] ${method} ${sanitizeUrl(url)} ${statusCode} - ${durationMs}ms`,
-      "HTTP",
+      'HTTP',
       {
         method,
         url: sanitizeUrl(url),
@@ -183,7 +148,7 @@ export class LoggerService extends Logger {
         userId,
       },
       undefined,
-      "http",
+      'http'
     );
   }
 
@@ -193,14 +158,13 @@ export class LoggerService extends Logger {
     statusCode: number,
     durationMs: number,
     userId?: string,
-    meta?: Record<string, unknown>,
+    meta?: Record<string, unknown>
   ): void {
-    const level: LogLevel =
-      statusCode >= 500 ? "error" : statusCode >= 400 ? "warn" : "log";
+    const level: LogLevel = statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'log';
     this.write(
       level,
       `[HTTP] ${method} ${sanitizeUrl(url)} ${statusCode} - ${durationMs}ms`,
-      "HTTP",
+      'HTTP',
       {
         method,
         url: sanitizeUrl(url),
@@ -210,23 +174,12 @@ export class LoggerService extends Logger {
         ...meta,
       },
       undefined,
-      "http",
+      'http'
     );
   }
 
-  logErrorWithStack(
-    error: Error,
-    context: string,
-    meta?: Record<string, unknown>,
-  ): void {
-    this.write(
-      "error",
-      error.message,
-      context,
-      { ...meta, error },
-      error.stack,
-      "error",
-    );
+  logErrorWithStack(error: Error, context: string, meta?: Record<string, unknown>): void {
+    this.write('error', error.message, context, { ...meta, error }, error.stack, 'error');
   }
 
   private write(
@@ -235,7 +188,7 @@ export class LoggerService extends Logger {
     context?: string,
     metadata?: unknown,
     trace?: string,
-    event?: string,
+    event?: string
   ): void {
     if (!shouldLog(level, this.configuredLevel)) {
       return;
@@ -263,16 +216,16 @@ export class LoggerService extends Logger {
 
     // Emitir al logger base
     switch (level) {
-      case "error":
+      case 'error':
         super.error(output, trace, entry.context);
         break;
-      case "warn":
+      case 'warn':
         super.warn(output, entry.context);
         break;
-      case "debug":
+      case 'debug':
         super.debug(output, entry.context);
         break;
-      case "verbose":
+      case 'verbose':
         super.verbose(output, entry.context);
         break;
       default:
@@ -293,22 +246,20 @@ export class LoggerService extends Logger {
 
     const line = `${JSON.stringify(entry)}\n`;
 
-    if (this.fileConfig.mode === "single") {
+    if (this.fileConfig.mode === 'single') {
       if (!this.fileInitPromise) {
         this.fileInitPromise = mkdir(dirname(this.fileConfig.filePath), {
           recursive: true,
         }).then(() => undefined);
       }
       await this.fileInitPromise;
-      await appendFile(this.fileConfig.filePath, line, { encoding: "utf8" });
+      await appendFile(this.fileConfig.filePath, line, { encoding: 'utf8' });
       return;
     }
 
     // Modo split: error.log vs info.log con rotación/retención
     const targetPath =
-      entry.level === "error"
-        ? this.fileConfig.errorFilePath
-        : this.fileConfig.infoFilePath;
+      entry.level === 'error' ? this.fileConfig.errorFilePath : this.fileConfig.infoFilePath;
 
     if (!this.fileInitPromise) {
       // Crear ambas carpetas (por si son diferentes)
@@ -320,7 +271,7 @@ export class LoggerService extends Logger {
     await this.fileInitPromise;
 
     await this.rotateIfNeeded(targetPath, this.fileConfig.maxBytes);
-    await appendFile(targetPath, line, { encoding: "utf8" });
+    await appendFile(targetPath, line, { encoding: 'utf8' });
     await this.enforceRetention(targetPath, this.fileConfig.maxFiles);
   }
 
@@ -329,10 +280,7 @@ export class LoggerService extends Logger {
     return new Date().toISOString().slice(0, 10);
   }
 
-  private async rotateIfNeeded(
-    filePath: string,
-    maxBytes: number,
-  ): Promise<void> {
+  private async rotateIfNeeded(filePath: string, maxBytes: number): Promise<void> {
     const today = this.getTodayString();
 
     // Rotación diaria: cuando cambia el día
@@ -360,7 +308,7 @@ export class LoggerService extends Logger {
     const stats = await stat(filePath).catch(() => null);
     if (!stats || stats.size === 0) return;
 
-    const extension = extname(filePath) || ".log";
+    const extension = extname(filePath) || '.log';
     const base = filePath.slice(0, -extension.length);
 
     const dir = dirname(filePath);
@@ -385,42 +333,34 @@ export class LoggerService extends Logger {
     });
   }
 
-  private async enforceRetention(
-    filePath: string,
-    maxFiles: number,
-  ): Promise<void> {
-    const extension = extname(filePath) || ".log";
+  private async enforceRetention(filePath: string, maxFiles: number): Promise<void> {
+    const extension = extname(filePath) || '.log';
     const base = filePath.slice(0, -extension.length);
     const dir = dirname(filePath);
 
     const names = await readdir(dir).catch(() => [] as string[]);
     const rotated = names
-      .map((n) => resolve(dir, n))
-      .filter(
-        (full) => full.startsWith(`${base}.`) && full.endsWith(extension),
-      );
+      .map(n => resolve(dir, n))
+      .filter(full => full.startsWith(`${base}.`) && full.endsWith(extension));
 
     if (rotated.length <= maxFiles) return;
 
     const withMtime = await Promise.all(
-      rotated.map(async (p) => {
+      rotated.map(async p => {
         const s = await stat(p).catch(() => null);
         return { path: p, mtimeMs: s?.mtimeMs ?? 0 };
-      }),
+      })
     );
 
     withMtime.sort((a, b) => a.mtimeMs - b.mtimeMs);
 
-    const toDelete = withMtime.slice(
-      0,
-      Math.max(0, withMtime.length - maxFiles),
-    );
+    const toDelete = withMtime.slice(0, Math.max(0, withMtime.length - maxFiles));
     await Promise.all(
       toDelete.map(({ path }) =>
         unlink(path).catch(() => {
           // best-effort
-        }),
-      ),
+        })
+      )
     );
   }
 

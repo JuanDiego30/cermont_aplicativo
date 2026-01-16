@@ -5,9 +5,9 @@
  */
 
 export enum SubmissionStatusEnum {
-  INCOMPLETE = "INCOMPLETE",
-  SUBMITTED = "SUBMITTED",
-  VALIDATED = "VALIDATED",
+  INCOMPLETE = 'INCOMPLETE',
+  SUBMITTED = 'SUBMITTED',
+  VALIDATED = 'VALIDATED',
 }
 
 export class SubmissionStatus {
@@ -28,9 +28,7 @@ export class SubmissionStatus {
   }
 
   public static fromString(value: string): SubmissionStatus {
-    const enumValue = Object.values(SubmissionStatusEnum).find(
-      (v) => v === value.toUpperCase(),
-    );
+    const enumValue = Object.values(SubmissionStatusEnum).find(v => v === value.toUpperCase());
     if (!enumValue) {
       throw new Error(`Invalid SubmissionStatus: ${value}`);
     }

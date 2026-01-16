@@ -6,10 +6,10 @@
 export class PrerequisitesNotMetException extends Error {
   constructor(
     message: string,
-    public readonly missingPrerequisites: string[],
+    public readonly missingPrerequisites: string[]
   ) {
     super(message);
-    this.name = "PrerequisitesNotMetException";
+    this.name = 'PrerequisitesNotMetException';
     Object.setPrototypeOf(this, PrerequisitesNotMetException.prototype);
   }
 }

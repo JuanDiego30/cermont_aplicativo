@@ -4,18 +4,18 @@
  * Exporta una HES a PDF
  */
 
-import { Injectable, Inject, NotFoundException } from "@nestjs/common";
-import { HES } from "../../domain/entities/hes.entity";
-import { HESId } from "../../domain/value-objects/hes-id.vo";
-import { IHESRepository, HES_REPOSITORY } from "../../domain/repositories";
-import { HESPDFGeneratorService } from "../../infrastructure/pdf/hes-pdf-generator.service";
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { HES } from '../../domain/entities/hes.entity';
+import { HESId } from '../../domain/value-objects/hes-id.vo';
+import { IHESRepository, HES_REPOSITORY } from '../../domain/repositories';
+import { HESPDFGeneratorService } from '../../infrastructure/pdf/hes-pdf-generator.service';
 
 @Injectable()
 export class ExportHESPDFUseCase {
   constructor(
     @Inject(HES_REPOSITORY)
     private readonly repository: IHESRepository,
-    private readonly pdfGenerator: HESPDFGeneratorService,
+    private readonly pdfGenerator: HESPDFGeneratorService
   ) {}
 
   async execute(hesId: string): Promise<Buffer> {

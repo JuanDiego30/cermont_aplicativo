@@ -11,7 +11,7 @@ export class KitCreatedEvent {
       nombre: string;
       categoria: string;
       creadoPor: string;
-    },
+    }
   ) {
     this.occurredOn = new Date();
   }
@@ -24,7 +24,7 @@ export class KitUpdatedEvent {
     public readonly payload: {
       kitId: string;
       nombre: string;
-    },
+    }
   ) {
     this.occurredOn = new Date();
   }
@@ -38,7 +38,7 @@ export class KitItemAddedEvent {
       kitId: string;
       itemId: string;
       itemNombre: string;
-    },
+    }
   ) {
     this.occurredOn = new Date();
   }
@@ -52,7 +52,7 @@ export class KitItemRemovedEvent {
       kitId: string;
       itemId: string;
       itemNombre: string;
-    },
+    }
   ) {
     this.occurredOn = new Date();
   }
@@ -67,7 +67,7 @@ export class KitAssignedEvent {
       asignadoA: string;
       asignadoPor: string;
       ordenId?: string;
-    },
+    }
   ) {
     this.occurredOn = new Date();
   }
@@ -81,7 +81,7 @@ export class KitReturnedEvent {
       kitId: string;
       devueltoPor: string;
       itemsFaltantes: string[];
-    },
+    }
   ) {
     this.occurredOn = new Date();
   }
@@ -93,7 +93,7 @@ export class KitActivatedEvent {
   constructor(
     public readonly payload: {
       kitId: string;
-    },
+    }
   ) {
     this.occurredOn = new Date();
   }
@@ -105,7 +105,7 @@ export class KitDeactivatedEvent {
   constructor(
     public readonly payload: {
       kitId: string;
-    },
+    }
   ) {
     this.occurredOn = new Date();
   }

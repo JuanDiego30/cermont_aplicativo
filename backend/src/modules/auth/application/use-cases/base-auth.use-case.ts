@@ -1,8 +1,8 @@
-import { HttpException } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { randomUUID } from "crypto";
+import { HttpException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { randomUUID } from 'crypto';
 
-import { AUTH_CONSTANTS } from "../../auth.constants";
+import { AUTH_CONSTANTS } from '../../auth.constants';
 
 export interface AuthTokenUserPayload {
   id: string;
@@ -46,10 +46,10 @@ export abstract class BaseAuthUseCase {
   protected isHttpExceptionLike(error: unknown): boolean {
     return (
       error instanceof HttpException ||
-      (typeof error === "object" &&
+      (typeof error === 'object' &&
         error !== null &&
-        typeof (error as any).getStatus === "function" &&
-        typeof (error as any).getResponse === "function")
+        typeof (error as any).getStatus === 'function' &&
+        typeof (error as any).getResponse === 'function')
     );
   }
 }

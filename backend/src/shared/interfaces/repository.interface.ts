@@ -3,7 +3,7 @@
  * @description Interfaces base para repositorios (Clean Architecture)
  */
 
-import type { PaginatedResponse } from "../types/api-response.types";
+import type { PaginatedResponse } from '../types/api-response.types';
 
 /**
  * Interface base para repositorios CRUD
@@ -77,7 +77,7 @@ export interface IPaginatedRepository<TEntity, TFilterDto> {
   findAllPaginated(
     filter: TFilterDto,
     page: number,
-    limit: number,
+    limit: number
   ): Promise<PaginatedResponse<TEntity>>;
 
   /**
@@ -100,6 +100,4 @@ export interface ISearchableRepository<TEntity> {
  * Interface combinada para repositorios completos
  */
 export interface IFullRepository<TEntity, TCreateDto, TUpdateDto, TFilterDto>
-  extends
-    IRepository<TEntity, TCreateDto, TUpdateDto>,
-    IPaginatedRepository<TEntity, TFilterDto> {}
+  extends IRepository<TEntity, TCreateDto, TUpdateDto>, IPaginatedRepository<TEntity, TFilterDto> {}

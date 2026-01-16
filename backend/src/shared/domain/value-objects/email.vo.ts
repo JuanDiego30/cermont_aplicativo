@@ -10,7 +10,7 @@
  * - No permite emails desechables
  */
 
-import { ValidationError } from "../exceptions";
+import { ValidationError } from '../exceptions';
 
 export class Email {
   // RFC 5322 compliant regex for email validation
@@ -20,12 +20,12 @@ export class Email {
 
   // Dominios desechables bloqueados
   private static readonly DISPOSABLE_DOMAINS = [
-    "tempmail.com",
-    "10minutemail.com",
-    "guerrillamail.com",
-    "mailinator.com",
-    "throwaway.email",
-    "temp-mail.org",
+    'tempmail.com',
+    '10minutemail.com',
+    'guerrillamail.com',
+    'mailinator.com',
+    'throwaway.email',
+    'temp-mail.org',
   ];
 
   private readonly value: string;
@@ -50,32 +50,28 @@ export class Email {
    */
   private static validate(value: string): void {
     // 1. Validar no vacío
-    if (!value || typeof value !== "string" || value.trim().length === 0) {
-      throw new ValidationError("Email es requerido", "email");
+    if (!value || typeof value !== 'string' || value.trim().length === 0) {
+      throw new ValidationError('Email es requerido', 'email');
     }
 
     // 2. Validar longitud
     if (value.length > this.MAX_LENGTH) {
       throw new ValidationError(
         `Email no puede exceder ${this.MAX_LENGTH} caracteres`,
-        "email",
-        value,
+        'email',
+        value
       );
     }
 
     // 3. Validar formato RFC 5322
     if (!this.EMAIL_REGEX.test(value)) {
-      throw new ValidationError("Formato de email inválido", "email", value);
+      throw new ValidationError('Formato de email inválido', 'email', value);
     }
 
     // 4. Validar dominio no desechable
-    const domain = value.split("@")[1]?.toLowerCase();
+    const domain = value.split('@')[1]?.toLowerCase();
     if (domain && this.DISPOSABLE_DOMAINS.includes(domain)) {
-      throw new ValidationError(
-        "No se permiten emails desechables",
-        "email",
-        value,
-      );
+      throw new ValidationError('No se permiten emails desechables', 'email', value);
     }
   }
 
@@ -90,14 +86,14 @@ export class Email {
    * Obtiene el dominio del email
    */
   getDomain(): string {
-    return this.value.split("@")[1] || "";
+    return this.value.split('@')[1] || '';
   }
 
   /**
    * Obtiene la parte local del email (antes del @)
    */
   getLocalPart(): string {
-    return this.value.split("@")[0] || "";
+    return this.value.split('@')[0] || '';
   }
 
   /**

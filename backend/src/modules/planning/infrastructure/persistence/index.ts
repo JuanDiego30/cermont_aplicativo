@@ -1,1 +1,1 @@
-export * from "./planeacion.repository";
+export * from './planeacion.repository';

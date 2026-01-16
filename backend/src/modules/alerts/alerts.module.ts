@@ -11,11 +11,11 @@ import { AlertsService } from './alerts.service';
 import { AlertasGateway } from './gateway/alertas.gateway';
 import { NotificationQueueService } from './queue/notification-queue.service';
 import {
-    EmailSenderService,
-    InAppNotificationService,
-    NotificationSenderFactory,
-    PushNotificationService,
-    SmsSenderService,
+  EmailSenderService,
+  InAppNotificationService,
+  NotificationSenderFactory,
+  PushNotificationService,
+  SmsSenderService,
 } from './strategies';
 
 @Module({

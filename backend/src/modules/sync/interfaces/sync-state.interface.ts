@@ -29,22 +29,22 @@ export interface ISyncState {
 }
 
 export type SyncStatus =
-  | "IDLE" // Sin actividad
-  | "SYNCING" // Sincronizando
-  | "SUCCESS" // Último sync exitoso
-  | "PARTIAL" // Sync parcial (algunos errores)
-  | "FAILED" // Falló completamente
-  | "OFFLINE"; // Sin conexión
+  | 'IDLE' // Sin actividad
+  | 'SYNCING' // Sincronizando
+  | 'SUCCESS' // Último sync exitoso
+  | 'PARTIAL' // Sync parcial (algunos errores)
+  | 'FAILED' // Falló completamente
+  | 'OFFLINE'; // Sin conexión
 
 export interface ISyncError {
   /** ID del item que falló */
   itemId: string;
 
   /** Tipo de operación que falló */
-  operation: "CREATE" | "UPDATE" | "DELETE";
+  operation: 'CREATE' | 'UPDATE' | 'DELETE';
 
   /** Tipo de entidad */
-  entityType: "EJECUCION" | "CHECKLIST" | "EVIDENCIA" | "TAREA" | "COSTO";
+  entityType: 'EJECUCION' | 'CHECKLIST' | 'EVIDENCIA' | 'TAREA' | 'COSTO';
 
   /** Mensaje de error */
   message: string;
@@ -90,7 +90,7 @@ export interface IOfflineChecklistItem {
   nombre: string;
 
   /** Estado actual */
-  estado: "pendiente" | "completado" | "rechazado";
+  estado: 'pendiente' | 'completado' | 'rechazado';
 
   /** Timestamp de completado */
   completadoEn?: Date;
@@ -161,7 +161,7 @@ export interface ISyncConflict {
   serverTimestamp: Date;
 
   /** Estrategia de resolución sugerida */
-  suggestedResolution: "LOCAL" | "SERVER" | "MERGE" | "MANUAL";
+  suggestedResolution: 'LOCAL' | 'SERVER' | 'MERGE' | 'MANUAL';
 }
 
 export interface ISyncResult {

@@ -4,12 +4,12 @@
  * @layer Domain
  */
 export class UserLoggedOutEvent {
-  readonly eventName = "auth.user.logged-out" as const;
+  readonly eventName = 'auth.user.logged-out' as const;
   readonly occurredAt: Date;
 
   constructor(
     public readonly userId: string,
-    public readonly ip?: string,
+    public readonly ip?: string
   ) {
     this.occurredAt = new Date();
     Object.freeze(this);

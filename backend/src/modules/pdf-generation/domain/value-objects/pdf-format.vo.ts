@@ -1,4 +1,4 @@
-import { PdfPageSize } from "../../application/dto/generate-pdf.dto";
+import { PdfPageSize } from '../../application/dto/generate-pdf.dto';
 
 export class PdfFormatVO {
   constructor(private readonly valor: PdfPageSize) {

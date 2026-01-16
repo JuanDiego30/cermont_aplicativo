@@ -3,19 +3,16 @@
  * Represents the execution of an order in the field.
  * Manages state, progress, time tracking, and evidences.
  */
-import { EjecucionId } from "../value-objects/ejecucion-id.vo";
-import {
-  ExecutionStatus,
-  ExecutionStatusEnum,
-} from "../value-objects/execution-status.vo";
-import { ProgressPercentage } from "../value-objects/progress-percentage.vo";
-import { GeoLocation } from "../value-objects/geo-location.vo";
-import { TimeDuration } from "../value-objects/time-duration.vo";
-import { ActivityTypeEnum } from "../value-objects/activity-type.vo";
-import { EvidenceTypeEnum } from "../value-objects/evidence-type.vo";
-import { TimeLog } from "./time-log.entity";
-import { ActivityLog } from "./activity-log.entity";
-import { Evidence } from "./evidence.entity";
+import { EjecucionId } from '../value-objects/ejecucion-id.vo';
+import { ExecutionStatus, ExecutionStatusEnum } from '../value-objects/execution-status.vo';
+import { ProgressPercentage } from '../value-objects/progress-percentage.vo';
+import { GeoLocation } from '../value-objects/geo-location.vo';
+import { TimeDuration } from '../value-objects/time-duration.vo';
+import { ActivityTypeEnum } from '../value-objects/activity-type.vo';
+import { EvidenceTypeEnum } from '../value-objects/evidence-type.vo';
+import { TimeLog } from './time-log.entity';
+import { ActivityLog } from './activity-log.entity';
+import { Evidence } from './evidence.entity';
 
 // Domain Events
 export interface DomainEvent {
@@ -90,9 +87,7 @@ export class Ejecucion {
   /**
    * Factory: Create a new Ejecucion (starts in NOT_STARTED state)
    */
-  public static create(
-    props: Omit<EjecucionProps, "id" | "status" | "progress">,
-  ): Ejecucion {
+  public static create(props: Omit<EjecucionProps, 'id' | 'status' | 'progress'>): Ejecucion {
     return new Ejecucion({
       ...props,
       id: EjecucionId.generate(),
@@ -193,14 +188,11 @@ export class Ejecucion {
   // ========== CALCULATED ==========
 
   public getTotalWorkedTime(): TimeDuration {
-    return this.timeLogs.reduce(
-      (acc, log) => acc.add(log.getDuration()),
-      TimeDuration.zero(),
-    );
+    return this.timeLogs.reduce((acc, log) => acc.add(log.getDuration()), TimeDuration.zero());
   }
 
   public getActiveTimeLog(): TimeLog | undefined {
-    return this.timeLogs.find((log) => log.isActive());
+    return this.timeLogs.find(log => log.isActive());
   }
 
   // ========== COMMANDS (State Machine) ==========
@@ -208,16 +200,10 @@ export class Ejecucion {
   /**
    * Start the execution. Transitions: NOT_STARTED -> IN_PROGRESS
    */
-  public start(
-    startedBy: string,
-    location?: GeoLocation,
-    initialNote?: string,
-  ): void {
+  public start(startedBy: string, location?: GeoLocation, initialNote?: string): void {
     const newStatus = ExecutionStatus.inProgress();
     if (!this.status.canTransitionTo(newStatus)) {
-      throw new Error(
-        `Cannot start execution: current status is ${this.status.getValue()}`,
-      );
+      throw new Error(`Cannot start execution: current status is ${this.status.getValue()}`);
     }
 
     this.status = newStatus;
@@ -232,15 +218,10 @@ export class Ejecucion {
     this.timeLogs.push(timeLog);
 
     // Create activity log
-    this.addActivityLog(
-      ActivityTypeEnum.START,
-      "Ejecución iniciada",
-      startedBy,
-      location,
-    );
+    this.addActivityLog(ActivityTypeEnum.START, 'Ejecución iniciada', startedBy, location);
 
     // Publish event
-    this.addDomainEvent("execution.started", {
+    this.addDomainEvent('execution.started', {
       ejecucionId: this.id.getValue(),
       ordenId: this.ordenId,
       startedBy,
@@ -254,9 +235,7 @@ export class Ejecucion {
   public pause(pausedBy: string, reason: string): void {
     const newStatus = ExecutionStatus.paused();
     if (!this.status.canTransitionTo(newStatus)) {
-      throw new Error(
-        `Cannot pause execution: current status is ${this.status.getValue()}`,
-      );
+      throw new Error(`Cannot pause execution: current status is ${this.status.getValue()}`);
     }
 
     this.status = newStatus;
@@ -272,7 +251,7 @@ export class Ejecucion {
     this.addActivityLog(ActivityTypeEnum.PAUSE, `Pausada: ${reason}`, pausedBy);
 
     // Publish event
-    this.addDomainEvent("execution.paused", {
+    this.addDomainEvent('execution.paused', {
       ejecucionId: this.id.getValue(),
       ordenId: this.ordenId,
       pausedBy,
@@ -286,9 +265,7 @@ export class Ejecucion {
   public resume(resumedBy: string, location?: GeoLocation): void {
     const newStatus = ExecutionStatus.inProgress();
     if (!this.status.canTransitionTo(newStatus)) {
-      throw new Error(
-        `Cannot resume execution: current status is ${this.status.getValue()}`,
-      );
+      throw new Error(`Cannot resume execution: current status is ${this.status.getValue()}`);
     }
 
     this.status = newStatus;
@@ -300,15 +277,10 @@ export class Ejecucion {
     this.timeLogs.push(timeLog);
 
     // Create activity log
-    this.addActivityLog(
-      ActivityTypeEnum.RESUME,
-      "Ejecución reanudada",
-      resumedBy,
-      location,
-    );
+    this.addActivityLog(ActivityTypeEnum.RESUME, 'Ejecución reanudada', resumedBy, location);
 
     // Publish event
-    this.addDomainEvent("execution.resumed", {
+    this.addDomainEvent('execution.resumed', {
       ejecucionId: this.id.getValue(),
       ordenId: this.ordenId,
       resumedBy,
@@ -319,15 +291,9 @@ export class Ejecucion {
   /**
    * Update progress percentage
    */
-  public updateProgress(
-    newProgress: ProgressPercentage,
-    updatedBy: string,
-    notes?: string,
-  ): void {
+  public updateProgress(newProgress: ProgressPercentage, updatedBy: string, notes?: string): void {
     if (!this.status.canUpdate()) {
-      throw new Error(
-        `Cannot update progress: current status is ${this.status.getValue()}`,
-      );
+      throw new Error(`Cannot update progress: current status is ${this.status.getValue()}`);
     }
 
     const oldProgress = this.progress;
@@ -341,11 +307,11 @@ export class Ejecucion {
     this.addActivityLog(
       ActivityTypeEnum.UPDATE_PROGRESS,
       `Progreso: ${oldProgress.getValue()}% → ${newProgress.getValue()}%`,
-      updatedBy,
+      updatedBy
     );
 
     // Publish event
-    this.addDomainEvent("execution.progress-updated", {
+    this.addDomainEvent('execution.progress-updated', {
       ejecucionId: this.id.getValue(),
       ordenId: this.ordenId,
       oldProgress: oldProgress.getValue(),
@@ -365,13 +331,13 @@ export class Ejecucion {
     // Create activity log
     this.addActivityLog(
       ActivityTypeEnum.UPDATE_LOCATION,
-      "Ubicación actualizada",
+      'Ubicación actualizada',
       updatedBy,
-      location,
+      location
     );
 
     // Publish event
-    this.addDomainEvent("execution.location-updated", {
+    this.addDomainEvent('execution.location-updated', {
       ejecucionId: this.id.getValue(),
       ordenId: this.ordenId,
       oldLocation: oldLocation?.toJson(),
@@ -391,11 +357,11 @@ export class Ejecucion {
       ActivityTypeEnum.UPLOAD_EVIDENCE,
       `Evidencia subida: ${evidence.getType().getValue()}`,
       uploadedBy,
-      evidence.getCapturedLocation(),
+      evidence.getCapturedLocation()
     );
 
     // Publish event
-    this.addDomainEvent("execution.evidence-uploaded", {
+    this.addDomainEvent('execution.evidence-uploaded', {
       ejecucionId: this.id.getValue(),
       ordenId: this.ordenId,
       evidenceId: evidence.getId(),
@@ -410,14 +376,12 @@ export class Ejecucion {
   public complete(completedBy: string, finalNotes?: string): void {
     const newStatus = ExecutionStatus.completed();
     if (!this.status.canTransitionTo(newStatus)) {
-      throw new Error(
-        `Cannot complete execution: current status is ${this.status.getValue()}`,
-      );
+      throw new Error(`Cannot complete execution: current status is ${this.status.getValue()}`);
     }
 
     if (!this.progress.isComplete()) {
       throw new Error(
-        `Cannot complete execution: progress is ${this.progress.getValue()}%, must be 100%`,
+        `Cannot complete execution: progress is ${this.progress.getValue()}%, must be 100%`
       );
     }
 
@@ -436,14 +400,10 @@ export class Ejecucion {
     }
 
     // Create activity log
-    this.addActivityLog(
-      ActivityTypeEnum.COMPLETE,
-      "Ejecución completada",
-      completedBy,
-    );
+    this.addActivityLog(ActivityTypeEnum.COMPLETE, 'Ejecución completada', completedBy);
 
     // Publish event
-    this.addDomainEvent("execution.completed", {
+    this.addDomainEvent('execution.completed', {
       ejecucionId: this.id.getValue(),
       ordenId: this.ordenId,
       completedBy,
@@ -459,7 +419,7 @@ export class Ejecucion {
     description: string,
     performedBy: string,
     location?: GeoLocation,
-    metadata?: Record<string, unknown>,
+    metadata?: Record<string, unknown>
   ): void {
     const log = ActivityLog.create({
       ejecucionId: this.id.getValue(),
@@ -472,10 +432,7 @@ export class Ejecucion {
     this.activityLogs.push(log);
   }
 
-  private addDomainEvent(
-    eventName: string,
-    payload: Record<string, unknown>,
-  ): void {
+  private addDomainEvent(eventName: string, payload: Record<string, unknown>): void {
     this.domainEvents.push({
       eventName,
       occurredAt: new Date(),
@@ -506,10 +463,10 @@ export class Ejecucion {
 
   private mapStatusToPrisma(): string {
     const map: Record<ExecutionStatusEnum, string> = {
-      [ExecutionStatusEnum.NOT_STARTED]: "no_iniciada",
-      [ExecutionStatusEnum.IN_PROGRESS]: "en_progreso",
-      [ExecutionStatusEnum.PAUSED]: "pausada",
-      [ExecutionStatusEnum.COMPLETED]: "completada",
+      [ExecutionStatusEnum.NOT_STARTED]: 'no_iniciada',
+      [ExecutionStatusEnum.IN_PROGRESS]: 'en_progreso',
+      [ExecutionStatusEnum.PAUSED]: 'pausada',
+      [ExecutionStatusEnum.COMPLETED]: 'completada',
     };
     return map[this.status.getValue()];
   }

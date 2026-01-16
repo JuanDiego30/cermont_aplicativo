@@ -6,8 +6,8 @@
 
 export class HESIncompletoException extends Error {
   constructor(public readonly errores: string[]) {
-    super(`HES incompleta: ${errores.join(", ")}`);
-    this.name = "HESIncompletoException";
+    super(`HES incompleta: ${errores.join(', ')}`);
+    this.name = 'HESIncompletoException';
     Object.setPrototypeOf(this, HESIncompletoException.prototype);
   }
 }

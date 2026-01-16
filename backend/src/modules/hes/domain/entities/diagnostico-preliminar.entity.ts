@@ -4,7 +4,7 @@
  * Diagnóstico preliminar realizado por el técnico
  */
 
-import { ValidationError } from "../../../../shared/domain/exceptions";
+import { ValidationError } from '../../../../shared/domain/exceptions';
 
 export interface CreateDiagnosticoProps {
   descripcion: string;
@@ -22,7 +22,7 @@ export class DiagnosticoPreliminar {
     private readonly _requiereRepuestos: boolean,
     private readonly _causaProbable?: string,
     private readonly _repuestosNecesarios?: string[],
-    private readonly _tiempoEstimado?: number,
+    private readonly _tiempoEstimado?: number
   ) {}
 
   public static create(props: CreateDiagnosticoProps): DiagnosticoPreliminar {
@@ -32,7 +32,7 @@ export class DiagnosticoPreliminar {
       props.requiereRepuestos || false,
       props.causaProbable,
       props.repuestosNecesarios,
-      props.tiempoEstimado,
+      props.tiempoEstimado
     );
 
     diagnostico.validate();
@@ -40,27 +40,23 @@ export class DiagnosticoPreliminar {
   }
 
   private validate(): void {
-    if (!this._descripcion || this._descripcion.trim() === "") {
-      throw new ValidationError("Descripción del diagnóstico es requerida");
+    if (!this._descripcion || this._descripcion.trim() === '') {
+      throw new ValidationError('Descripción del diagnóstico es requerida');
     }
 
     if (this._descripcion.length < 10) {
-      throw new ValidationError(
-        "Descripción del diagnóstico debe tener al menos 10 caracteres",
-      );
+      throw new ValidationError('Descripción del diagnóstico debe tener al menos 10 caracteres');
     }
 
     if (
       this._requiereRepuestos &&
       (!this._repuestosNecesarios || this._repuestosNecesarios.length === 0)
     ) {
-      throw new ValidationError(
-        "Debe especificar los repuestos necesarios si requiere repuestos",
-      );
+      throw new ValidationError('Debe especificar los repuestos necesarios si requiere repuestos');
     }
 
     if (this._tiempoEstimado !== undefined && this._tiempoEstimado < 0) {
-      throw new ValidationError("Tiempo estimado no puede ser negativo");
+      throw new ValidationError('Tiempo estimado no puede ser negativo');
     }
   }
 
@@ -81,9 +77,7 @@ export class DiagnosticoPreliminar {
   }
 
   public getRepuestosNecesarios(): string[] | undefined {
-    return this._repuestosNecesarios
-      ? [...this._repuestosNecesarios]
-      : undefined;
+    return this._repuestosNecesarios ? [...this._repuestosNecesarios] : undefined;
   }
 
   public getTiempoEstimado(): number | undefined {
@@ -92,9 +86,7 @@ export class DiagnosticoPreliminar {
 
   public esComplejo(): boolean {
     return (
-      this._requiereRepuestos ||
-      (this._tiempoEstimado !== undefined && this._tiempoEstimado > 4)
+      this._requiereRepuestos || (this._tiempoEstimado !== undefined && this._tiempoEstimado > 4)
     );
   }
 }
-

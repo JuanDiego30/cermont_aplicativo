@@ -1,10 +1,5 @@
 // String literal alias alineado con enum OrderStatus de Prisma
-type OrderStatus =
-  | "planeacion"
-  | "ejecucion"
-  | "pausada"
-  | "completada"
-  | "cancelada";
+type OrderStatus = 'planeacion' | 'ejecucion' | 'pausada' | 'completada' | 'cancelada';
 
 /**
  * @enum OrderSubState
@@ -12,32 +7,32 @@ type OrderStatus =
  */
 export enum OrderSubState {
   // Solicitud (Pasos 1-4)
-  SOLICITUD_RECIBIDA = "solicitud_recibida",
-  VISITA_PROGRAMADA = "visita_programada",
-  PROPUESTA_ELABORADA = "propuesta_elaborada",
-  PROPUESTA_APROBADA = "propuesta_aprobada",
+  SOLICITUD_RECIBIDA = 'solicitud_recibida',
+  VISITA_PROGRAMADA = 'visita_programada',
+  PROPUESTA_ELABORADA = 'propuesta_elaborada',
+  PROPUESTA_APROBADA = 'propuesta_aprobada',
 
   // Planeación (Paso 5)
-  PLANEACION_INICIADA = "planeacion_iniciada",
-  PLANEACION_APROBADA = "planeacion_aprobada",
+  PLANEACION_INICIADA = 'planeacion_iniciada',
+  PLANEACION_APROBADA = 'planeacion_aprobada',
 
   // Ejecución (Paso 6)
-  EJECUCION_INICIADA = "ejecucion_iniciada",
-  EJECUCION_COMPLETADA = "ejecucion_completada",
+  EJECUCION_INICIADA = 'ejecucion_iniciada',
+  EJECUCION_COMPLETADA = 'ejecucion_completada',
 
   // Informe (Paso 7)
-  INFORME_GENERADO = "informe_generado",
+  INFORME_GENERADO = 'informe_generado',
 
   // Cierre Técnico (Pasos 8-9)
-  ACTA_ELABORADA = "acta_elaborada",
-  ACTA_FIRMADA = "acta_firmada",
+  ACTA_ELABORADA = 'acta_elaborada',
+  ACTA_FIRMADA = 'acta_firmada',
 
   // Cierre Administrativo (Pasos 10-13)
-  SES_APROBADA = "ses_aprobada",
-  FACTURA_APROBADA = "factura_aprobada",
+  SES_APROBADA = 'ses_aprobada',
+  FACTURA_APROBADA = 'factura_aprobada',
 
   // Final (Paso 14)
-  PAGO_RECIBIDO = "pago_recibido",
+  PAGO_RECIBIDO = 'pago_recibido',
 }
 
 /**
@@ -103,20 +98,20 @@ export const TRANSITION_MATRIX: Record<OrderSubState, OrderSubState[]> = {
  */
 export function getMainStateFromSubState(subState: OrderSubState): OrderStatus {
   const mapping: Record<OrderSubState, OrderStatus> = {
-    [OrderSubState.SOLICITUD_RECIBIDA]: "planeacion",
-    [OrderSubState.VISITA_PROGRAMADA]: "planeacion",
-    [OrderSubState.PROPUESTA_ELABORADA]: "planeacion",
-    [OrderSubState.PROPUESTA_APROBADA]: "planeacion",
-    [OrderSubState.PLANEACION_INICIADA]: "planeacion",
-    [OrderSubState.PLANEACION_APROBADA]: "planeacion",
-    [OrderSubState.EJECUCION_INICIADA]: "ejecucion",
-    [OrderSubState.EJECUCION_COMPLETADA]: "ejecucion",
-    [OrderSubState.INFORME_GENERADO]: "ejecucion",
-    [OrderSubState.ACTA_ELABORADA]: "ejecucion",
-    [OrderSubState.ACTA_FIRMADA]: "ejecucion",
-    [OrderSubState.SES_APROBADA]: "completada",
-    [OrderSubState.FACTURA_APROBADA]: "completada",
-    [OrderSubState.PAGO_RECIBIDO]: "completada",
+    [OrderSubState.SOLICITUD_RECIBIDA]: 'planeacion',
+    [OrderSubState.VISITA_PROGRAMADA]: 'planeacion',
+    [OrderSubState.PROPUESTA_ELABORADA]: 'planeacion',
+    [OrderSubState.PROPUESTA_APROBADA]: 'planeacion',
+    [OrderSubState.PLANEACION_INICIADA]: 'planeacion',
+    [OrderSubState.PLANEACION_APROBADA]: 'planeacion',
+    [OrderSubState.EJECUCION_INICIADA]: 'ejecucion',
+    [OrderSubState.EJECUCION_COMPLETADA]: 'ejecucion',
+    [OrderSubState.INFORME_GENERADO]: 'ejecucion',
+    [OrderSubState.ACTA_ELABORADA]: 'ejecucion',
+    [OrderSubState.ACTA_FIRMADA]: 'ejecucion',
+    [OrderSubState.SES_APROBADA]: 'completada',
+    [OrderSubState.FACTURA_APROBADA]: 'completada',
+    [OrderSubState.PAGO_RECIBIDO]: 'completada',
   };
   return mapping[subState];
 }
@@ -124,10 +119,7 @@ export function getMainStateFromSubState(subState: OrderSubState): OrderStatus {
 /**
  * Valida si una transición es permitida
  */
-export function isValidTransition(
-  from: OrderSubState,
-  to: OrderSubState,
-): boolean {
+export function isValidTransition(from: OrderSubState, to: OrderSubState): boolean {
   return TRANSITION_MATRIX[from]?.includes(to) ?? false;
 }
 

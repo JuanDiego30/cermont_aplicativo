@@ -4,18 +4,15 @@
  */
 
 export enum ExecutionStatusEnum {
-  NOT_STARTED = "NOT_STARTED",
-  IN_PROGRESS = "IN_PROGRESS",
-  PAUSED = "PAUSED",
-  COMPLETED = "COMPLETED",
+  NOT_STARTED = 'NOT_STARTED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  PAUSED = 'PAUSED',
+  COMPLETED = 'COMPLETED',
 }
 
 const VALID_TRANSITIONS: Record<ExecutionStatusEnum, ExecutionStatusEnum[]> = {
   [ExecutionStatusEnum.NOT_STARTED]: [ExecutionStatusEnum.IN_PROGRESS],
-  [ExecutionStatusEnum.IN_PROGRESS]: [
-    ExecutionStatusEnum.PAUSED,
-    ExecutionStatusEnum.COMPLETED,
-  ],
+  [ExecutionStatusEnum.IN_PROGRESS]: [ExecutionStatusEnum.PAUSED, ExecutionStatusEnum.COMPLETED],
   [ExecutionStatusEnum.PAUSED]: [ExecutionStatusEnum.IN_PROGRESS],
   [ExecutionStatusEnum.COMPLETED]: [],
 };
@@ -40,12 +37,8 @@ export class ExecutionStatus {
   }
 
   public static fromString(value: string): ExecutionStatus {
-    const upperValue = value.toUpperCase().replace(/-/g, "_");
-    if (
-      !Object.values(ExecutionStatusEnum).includes(
-        upperValue as ExecutionStatusEnum,
-      )
-    ) {
+    const upperValue = value.toUpperCase().replace(/-/g, '_');
+    if (!Object.values(ExecutionStatusEnum).includes(upperValue as ExecutionStatusEnum)) {
       throw new Error(`Invalid ExecutionStatus: ${value}`);
     }
     return new ExecutionStatus(upperValue as ExecutionStatusEnum);
@@ -77,10 +70,7 @@ export class ExecutionStatus {
   }
 
   public canUpdate(): boolean {
-    return [
-      ExecutionStatusEnum.IN_PROGRESS,
-      ExecutionStatusEnum.PAUSED,
-    ].includes(this.value);
+    return [ExecutionStatusEnum.IN_PROGRESS, ExecutionStatusEnum.PAUSED].includes(this.value);
   }
 
   public equals(other: ExecutionStatus): boolean {

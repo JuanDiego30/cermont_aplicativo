@@ -4,9 +4,9 @@
  * Servicio de dominio para validar submissions contra templates
  */
 
-import { FormTemplate } from "../entities/form-template.entity";
-import { FieldValue } from "../value-objects/field-value.vo";
-import { isFieldVisible } from "./field-visibility";
+import { FormTemplate } from '../entities/form-template.entity';
+import { FieldValue } from '../value-objects/field-value.vo';
+import { isFieldVisible } from './field-visibility';
 
 export interface ValidationErrorItem {
   fieldId: string;
@@ -17,10 +17,7 @@ export class FormValidatorService {
   /**
    * Validar respuestas contra template
    */
-  validate(
-    answers: Map<string, FieldValue>,
-    template: FormTemplate,
-  ): ValidationErrorItem[] {
+  validate(answers: Map<string, FieldValue>, template: FormTemplate): ValidationErrorItem[] {
     const errors: ValidationErrorItem[] = [];
 
     const formData: Record<string, any> = {};
@@ -74,7 +71,7 @@ export class FormValidatorService {
       if (!validationResult.isValid) {
         errors.push({
           fieldId,
-          message: validationResult.error || "Invalid value",
+          message: validationResult.error || 'Invalid value',
         });
       }
     }
@@ -89,7 +86,7 @@ export class FormValidatorService {
     const errors: string[] = [];
 
     if (template.getFields().length === 0) {
-      errors.push("Template must have at least one field");
+      errors.push('Template must have at least one field');
     }
 
     for (const field of template.getFields()) {

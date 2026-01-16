@@ -3,20 +3,20 @@
  *
  * Categoría del kit (ELECTRICIDAD, PLOMERIA, HVAC, etc.)
  */
-import { ValidationError } from "../../../../shared/domain/exceptions";
+import { ValidationError } from '../../../../shared/domain/exceptions';
 
 export enum CategoriaKitEnum {
-  ELECTRICIDAD = "ELECTRICIDAD",
-  PLOMERIA = "PLOMERIA",
-  HVAC = "HVAC",
-  CARPINTERIA = "CARPINTERIA",
-  PINTURA = "PINTURA",
-  ELECTRONICA = "ELECTRONICA",
-  MECANICA = "MECANICA",
-  INSTRUMENTACION = "INSTRUMENTACION",
-  LINEA_VIDA = "LINEA_VIDA",
-  CCTV = "CCTV",
-  GENERAL = "GENERAL",
+  ELECTRICIDAD = 'ELECTRICIDAD',
+  PLOMERIA = 'PLOMERIA',
+  HVAC = 'HVAC',
+  CARPINTERIA = 'CARPINTERIA',
+  PINTURA = 'PINTURA',
+  ELECTRONICA = 'ELECTRONICA',
+  MECANICA = 'MECANICA',
+  INSTRUMENTACION = 'INSTRUMENTACION',
+  LINEA_VIDA = 'LINEA_VIDA',
+  CCTV = 'CCTV',
+  GENERAL = 'GENERAL',
 }
 
 export class CategoriaKit {
@@ -25,12 +25,11 @@ export class CategoriaKit {
   }
 
   public static create(value: string): CategoriaKit {
-    const enumValue =
-      CategoriaKitEnum[value.toUpperCase() as keyof typeof CategoriaKitEnum];
+    const enumValue = CategoriaKitEnum[value.toUpperCase() as keyof typeof CategoriaKitEnum];
     if (!enumValue) {
       throw new ValidationError(
-        `Categoría inválida: ${value}. Valores válidos: ${Object.keys(CategoriaKitEnum).join(", ")}`,
-        "categoria",
+        `Categoría inválida: ${value}. Valores válidos: ${Object.keys(CategoriaKitEnum).join(', ')}`,
+        'categoria'
       );
     }
     return new CategoriaKit(enumValue);
@@ -81,4 +80,3 @@ export class CategoriaKit {
     return this._value;
   }
 }
-

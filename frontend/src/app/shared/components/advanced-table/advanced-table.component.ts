@@ -1,4 +1,12 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 
@@ -9,11 +17,11 @@ export interface TableColumn {
   width?: string;
 }
 
-export interface TableAction {
+export interface TableAction<T = unknown> {
   label: string;
   icon?: string;
   color?: 'primary' | 'success' | 'warning' | 'error';
-  onClick: (item: any) => void;
+  onClick: (item: T) => void;
 }
 
 @Component({
@@ -57,13 +65,17 @@ export interface TableAction {
                 </th>
               }
               @if (actions.length) {
-                <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">Acciones</th>
+                <th class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300">
+                  Acciones
+                </th>
               }
             </tr>
           </thead>
           <tbody>
             @for (item of filteredData; track $index) {
-              <tr class="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+              <tr
+                class="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition"
+              >
                 @if (selectable) {
                   <td class="px-4 py-3">
                     <input type="checkbox" class="checkbox" />
@@ -99,29 +111,34 @@ export interface TableAction {
       <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
         <span>Mostrando {{ filteredData.length }} de {{ data.length }} resultados</span>
         <div class="flex gap-2">
-          <button class="px-3 py-1 rounded border hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50" [disabled]="currentPage === 1">
+          <button
+            class="px-3 py-1 rounded border hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50"
+            [disabled]="currentPage === 1"
+          >
             ← Anterior
           </button>
           <span class="px-3 py-1">Página {{ currentPage }}</span>
-          <button class="px-3 py-1 rounded border hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50">
+          <button
+            class="px-3 py-1 rounded border hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50"
+          >
             Siguiente →
           </button>
         </div>
       </div>
     </div>
   `,
-  styles: []
+  styles: [],
 })
-export class AdvancedTableComponent implements OnInit, OnChanges {
+export class AdvancedTableComponent<T = unknown> implements OnInit, OnChanges {
   @Input() columns: TableColumn[] = [];
-  @Input() data: any[] = [];
-  @Input() actions: TableAction[] = [];
+  @Input() data: T[] = [];
+  @Input() actions: TableAction<T>[] = [];
   @Input() selectable = false;
   @Output() searchChange = new EventEmitter<string>();
-  @Output() filterChange = new EventEmitter<any>();
+  @Output() filterChange = new EventEmitter<Record<string, unknown>>();
 
   searchTerm = '';
-  filteredData: any[] = [];
+  filteredData: T[] = [];
   currentPage = 1;
 
   ngOnInit() {
@@ -147,7 +164,12 @@ export class AdvancedTableComponent implements OnInit, OnChanges {
     );
   }
 
-  getValueByKey(obj: any, key: string): any {
-    return key.split('.').reduce((current, prop) => current?.[prop], obj);
+  getValueByKey(obj: T, key: string): unknown {
+    return key
+      .split('.')
+      .reduce(
+        (current, prop) => (current as Record<string, unknown> | undefined)?.[prop],
+        obj as unknown
+      );
   }
 }

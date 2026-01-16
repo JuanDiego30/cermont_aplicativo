@@ -3,21 +3,21 @@
  * @description Caso de uso para listar órdenes
  * @layer Application
  */
-import { Injectable, Inject } from "@nestjs/common";
-import { Order_REPOSITORY, IOrderRepository } from "../../domain/repositories";
-import { OrderQueryDto, OrderListResponseZod } from "../dto";
+import { Injectable, Inject } from '@nestjs/common';
+import { Order_REPOSITORY, IOrderRepository } from '../../domain/repositories';
+import { OrderQueryDto, OrderListResponseZod } from '../dto';
 
 @Injectable()
 export class ListOrdersUseCase {
   constructor(
     @Inject(Order_REPOSITORY)
-    private readonly OrderRepository: IOrderRepository,
+    private readonly OrderRepository: IOrderRepository
   ) {}
 
   async execute(query: OrderQueryDto): Promise<OrderListResponseZod> {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
-    
+
     const result = await this.OrderRepository.findAll({
       estado: query.estado,
       cliente: query.cliente,
@@ -28,7 +28,7 @@ export class ListOrdersUseCase {
     });
 
     return {
-      data: result.data.map((Order) => ({
+      data: result.data.map(Order => ({
         id: Order.id,
         numero: Order.numero.value,
         descripcion: Order.descripcion,

@@ -1,23 +1,23 @@
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import {
-    ApiBearerAuth,
-    ApiOperation,
-    ApiParam,
-    ApiQuery,
-    ApiResponse,
-    ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import {
-    ArchivarManualDto,
-    ConsultarHistoricoDto,
-    ConsultarHistoricoResponseDto,
-    EstadisticasArchivoDto,
-    ExportarHistoricoDto,
-    OrdenArchivadaResponseDto,
-    ResultadoArchivadoDto,
-    ResultadoExportacionDto,
+  ArchivarManualDto,
+  ConsultarHistoricoDto,
+  ConsultarHistoricoResponseDto,
+  EstadisticasArchivoDto,
+  ExportarHistoricoDto,
+  OrdenArchivadaResponseDto,
+  ResultadoArchivadoDto,
+  ResultadoExportacionDto,
 } from './application/dto/archivado-historico.dto';
 import { ArchivingService } from './archiving.service';
 

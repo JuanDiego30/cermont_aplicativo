@@ -4,16 +4,16 @@
  * Tipo de servicio a realizar
  */
 
-import { ValidationError } from "../../../../shared/domain/exceptions";
+import { ValidationError } from '../../../../shared/domain/exceptions';
 
 export enum TipoServicioEnum {
-  MANTENIMIENTO_PREVENTIVO = "MANTENIMIENTO_PREVENTIVO",
-  MANTENIMIENTO_CORRECTIVO = "MANTENIMIENTO_CORRECTIVO",
-  REPARACION = "REPARACION",
-  INSTALACION = "INSTALACION",
-  INSPECCION = "INSPECCION",
-  DIAGNOSTICO = "DIAGNOSTICO",
-  GARANTIA = "GARANTIA",
+  MANTENIMIENTO_PREVENTIVO = 'MANTENIMIENTO_PREVENTIVO',
+  MANTENIMIENTO_CORRECTIVO = 'MANTENIMIENTO_CORRECTIVO',
+  REPARACION = 'REPARACION',
+  INSTALACION = 'INSTALACION',
+  INSPECCION = 'INSPECCION',
+  DIAGNOSTICO = 'DIAGNOSTICO',
+  GARANTIA = 'GARANTIA',
 }
 
 export class TipoServicio {
@@ -50,17 +50,16 @@ export class TipoServicio {
   }
 
   public static fromString(value: string): TipoServicio {
-    if (!value || value.trim() === "") {
-      throw new ValidationError("Tipo de servicio no puede estar vacío");
+    if (!value || value.trim() === '') {
+      throw new ValidationError('Tipo de servicio no puede estar vacío');
     }
 
-    const upperValue = value.toUpperCase().replace(/\s+/g, "_");
-    const enumValue =
-      TipoServicioEnum[upperValue as keyof typeof TipoServicioEnum];
+    const upperValue = value.toUpperCase().replace(/\s+/g, '_');
+    const enumValue = TipoServicioEnum[upperValue as keyof typeof TipoServicioEnum];
 
     if (!enumValue) {
       throw new ValidationError(
-        `Tipo de servicio inválido: ${value}. Valores válidos: ${Object.values(TipoServicioEnum).join(", ")}`,
+        `Tipo de servicio inválido: ${value}. Valores válidos: ${Object.values(TipoServicioEnum).join(', ')}`
       );
     }
 
@@ -100,7 +99,6 @@ export class TipoServicio {
   }
 
   public toString(): string {
-    return this._value.replace(/_/g, " ");
+    return this._value.replace(/_/g, ' ');
   }
 }
-

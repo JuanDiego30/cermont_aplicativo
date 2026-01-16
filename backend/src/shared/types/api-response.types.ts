@@ -91,23 +91,15 @@ export interface OperationResult {
 /**
  * Verifica si un valor es un objeto plano
  */
-export function isPlainObject(
-  value: unknown,
-): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
+export function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 /**
  * Verifica si es una respuesta exitosa
  */
-export function isSuccessResponse<T>(
-  response: unknown,
-): response is SuccessResponse<T> {
-  return (
-    isPlainObject(response) &&
-    response["success"] === true &&
-    "data" in response
-  );
+export function isSuccessResponse<T>(response: unknown): response is SuccessResponse<T> {
+  return isPlainObject(response) && response['success'] === true && 'data' in response;
 }
 
 /**
@@ -116,46 +108,40 @@ export function isSuccessResponse<T>(
 export function isErrorResponse(response: unknown): response is ErrorResponse {
   return (
     isPlainObject(response) &&
-    response["success"] === false &&
-    typeof response["statusCode"] === "number" &&
-    typeof response["message"] === "string"
+    response['success'] === false &&
+    typeof response['statusCode'] === 'number' &&
+    typeof response['message'] === 'string'
   );
 }
 
 /**
  * Verifica si es una respuesta paginada
  */
-export function isPaginatedResponse<T>(
-  response: unknown,
-): response is PaginatedResponse<T> {
+export function isPaginatedResponse<T>(response: unknown): response is PaginatedResponse<T> {
   return (
     isPlainObject(response) &&
-    response["success"] === true &&
-    Array.isArray(response["data"]) &&
-    isPlainObject(response["meta"]) &&
-    typeof (response["meta"] as Record<string, unknown>)["total"] === "number"
+    response['success'] === true &&
+    Array.isArray(response['data']) &&
+    isPlainObject(response['meta']) &&
+    typeof (response['meta'] as Record<string, unknown>)['total'] === 'number'
   );
 }
 
 /**
  * Verifica si es un error de validación
  */
-export function isValidationErrorItem(
-  value: unknown,
-): value is ValidationErrorItem {
+export function isValidationErrorItem(value: unknown): value is ValidationErrorItem {
   return (
     isPlainObject(value) &&
-    typeof value["field"] === "string" &&
-    typeof value["message"] === "string"
+    typeof value['field'] === 'string' &&
+    typeof value['message'] === 'string'
   );
 }
 
 /**
  * Verifica si es array de errores de validación
  */
-export function isValidationErrorArray(
-  value: unknown,
-): value is ValidationErrorItem[] {
+export function isValidationErrorArray(value: unknown): value is ValidationErrorItem[] {
   return Array.isArray(value) && value.every(isValidationErrorItem);
 }
 
@@ -166,11 +152,7 @@ export function isValidationErrorArray(
 /**
  * Crea metadata de paginación
  */
-export function createPaginationMeta(
-  total: number,
-  page: number,
-  limit: number,
-): PaginationMeta {
+export function createPaginationMeta(total: number, page: number, limit: number): PaginationMeta {
   const totalPages = Math.ceil(total / limit);
   return {
     total,
@@ -193,7 +175,7 @@ export function createErrorResponse(
     error?: string;
     code?: string;
     errors?: ValidationErrorItem[];
-  },
+  }
 ): ErrorResponse {
   return {
     success: false,
@@ -210,10 +192,7 @@ export function createErrorResponse(
 /**
  * Crea respuesta exitosa
  */
-export function createSuccessResponse<T>(
-  data: T,
-  message?: string,
-): SuccessResponse<T> {
+export function createSuccessResponse<T>(data: T, message?: string): SuccessResponse<T> {
   return {
     success: true,
     data,
@@ -229,7 +208,7 @@ export function createPaginatedResponse<T>(
   data: T[],
   total: number,
   page: number,
-  limit: number,
+  limit: number
 ): PaginatedResponse<T> {
   return {
     success: true,

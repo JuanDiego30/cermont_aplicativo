@@ -10,9 +10,9 @@
  * - Type Safety: Sin uso de 'any'
  * - Dependency Inversion: Depende de abstracción (ICostoRepository)
  */
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import { COSTO_REPOSITORY, ICostoRepository } from "./application/dto";
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { COSTO_REPOSITORY, ICostoRepository } from './application/dto';
 
 // =====================================================
 // INTERFACES Y TIPOS
@@ -46,10 +46,7 @@ export interface CostVariance {
 /**
  * Estado del presupuesto
  */
-export type BudgetStatus =
-  | "DENTRO_PRESUPUESTO"
-  | "ALERTA"
-  | "SOBRE_PRESUPUESTO";
+export type BudgetStatus = 'DENTRO_PRESUPUESTO' | 'ALERTA' | 'SOBRE_PRESUPUESTO';
 
 /**
  * Análisis completo de costos de una orden
@@ -132,7 +129,7 @@ export class CostsService {
   constructor(
     @Inject(COSTO_REPOSITORY)
     private readonly repository: ICostoRepository,
-    private readonly prisma: PrismaService, // Mantenido temporalmente para métodos complejos
+    private readonly prisma: PrismaService // Mantenido temporalmente para métodos complejos
   ) {}
 
   // =====================================================
@@ -162,7 +159,7 @@ export class CostsService {
       precioUnitario: dto.monto,
       proveedor: dto.descripcion,
     });
-    return { message: "Costo agregado", data: costoData };
+    return { message: 'Costo agregado', data: costoData };
   }
 
   /**
@@ -171,7 +168,7 @@ export class CostsService {
    */
   async update(id: string, dto: UpdateCostoDto) {
     // TODO: Agregar método update al repositorio
-    throw new Error("Método update requiere extensión del repositorio");
+    throw new Error('Método update requiere extensión del repositorio');
   }
 
   /**
@@ -180,7 +177,7 @@ export class CostsService {
    */
   async remove(id: string) {
     await this.repository.delete(id);
-    return { message: "Costo eliminado" };
+    return { message: 'Costo eliminado' };
   }
 
   // =====================================================
@@ -199,22 +196,22 @@ export class CostsService {
     });
 
     if (!orden) {
-      throw new NotFoundException("Orden no encontrada");
+      throw new NotFoundException('Orden no encontrada');
     }
 
     // Convertir análisis del repositorio a formato esperado
     const presupuesto = this.buildCostBreakdown(
-      analisis.desglosePorTipo["MANO_OBRA"] || 0,
-      analisis.desglosePorTipo["MATERIAL"] || 0,
-      analisis.desglosePorTipo["EQUIPO"] || 0,
-      analisis.desglosePorTipo["TRANSPORTE"] || 0,
+      analisis.desglosePorTipo['MANO_OBRA'] || 0,
+      analisis.desglosePorTipo['MATERIAL'] || 0,
+      analisis.desglosePorTipo['EQUIPO'] || 0,
+      analisis.desglosePorTipo['TRANSPORTE'] || 0
     );
 
     const real = this.buildCostBreakdown(
-      analisis.desglosePorTipo["MANO_OBRA"] || 0,
-      analisis.desglosePorTipo["MATERIAL"] || 0,
-      analisis.desglosePorTipo["EQUIPO"] || 0,
-      analisis.desglosePorTipo["TRANSPORTE"] || 0,
+      analisis.desglosePorTipo['MANO_OBRA'] || 0,
+      analisis.desglosePorTipo['MATERIAL'] || 0,
+      analisis.desglosePorTipo['EQUIPO'] || 0,
+      analisis.desglosePorTipo['TRANSPORTE'] || 0
     );
 
     const varianza = this.calculateVariance(presupuesto, real);
@@ -249,10 +246,10 @@ export class CostsService {
    * Calcula costos reales desde registros
    */
   private calculateRealCosts(costos: PrismaCost[]): CostBreakdown {
-    const manoDeObra = this.sumByTipo(costos, "MANO_OBRA");
-    const materiales = this.sumByTipo(costos, "MATERIAL");
-    const equipos = this.sumByTipo(costos, "EQUIPO");
-    const transporte = this.sumByTipo(costos, "TRANSPORTE");
+    const manoDeObra = this.sumByTipo(costos, 'MANO_OBRA');
+    const materiales = this.sumByTipo(costos, 'MATERIAL');
+    const equipos = this.sumByTipo(costos, 'EQUIPO');
+    const transporte = this.sumByTipo(costos, 'TRANSPORTE');
 
     return this.buildCostBreakdown(manoDeObra, materiales, equipos, transporte);
   }
@@ -260,15 +257,10 @@ export class CostsService {
   /**
    * Calcula varianza entre presupuesto y real
    */
-  private calculateVariance(
-    presupuesto: CostBreakdown,
-    real: CostBreakdown,
-  ): CostVariance {
+  private calculateVariance(presupuesto: CostBreakdown, real: CostBreakdown): CostVariance {
     const varianzaTotal = real.total - presupuesto.total;
     const porcentaje =
-      presupuesto.total > 0
-        ? Number(((varianzaTotal / presupuesto.total) * 100).toFixed(2))
-        : 0;
+      presupuesto.total > 0 ? Number(((varianzaTotal / presupuesto.total) * 100).toFixed(2)) : 0;
 
     return {
       manoDeObra: real.manoDeObra - presupuesto.manoDeObra,
@@ -285,12 +277,12 @@ export class CostsService {
    */
   private determineBudgetStatus(varianzaPorcentaje: number): BudgetStatus {
     if (varianzaPorcentaje > BUDGET_THRESHOLD_CRITICAL) {
-      return "SOBRE_PRESUPUESTO";
+      return 'SOBRE_PRESUPUESTO';
     }
     if (varianzaPorcentaje > BUDGET_THRESHOLD_WARNING) {
-      return "ALERTA";
+      return 'ALERTA';
     }
-    return "DENTRO_PRESUPUESTO";
+    return 'DENTRO_PRESUPUESTO';
   }
 
   // =====================================================
@@ -304,7 +296,7 @@ export class CostsService {
     manoDeObra: number,
     materiales: number,
     equipos: number,
-    transporte: number,
+    transporte: number
   ): CostBreakdown {
     const subtotal = manoDeObra + materiales + equipos + transporte;
     const impuestos = subtotal * this.IVA_RATE;
@@ -325,9 +317,7 @@ export class CostsService {
    * Suma costos por tipo
    */
   private sumByTipo(costos: PrismaCost[], tipo: string): number {
-    return costos
-      .filter((c) => c.tipo === tipo)
-      .reduce((sum, c) => sum + c.monto, 0);
+    return costos.filter(c => c.tipo === tipo).reduce((sum, c) => sum + c.monto, 0);
   }
 
   /**
@@ -369,7 +359,7 @@ export class CostsService {
       totalOrdenes: analyses.length,
       totales,
       ordenesPorEstado: this.countByStatus(analyses),
-      detalles: analyses.map((a) => this.toReportDetail(a)),
+      detalles: analyses.map(a => this.toReportDetail(a)),
     };
   }
 
@@ -381,34 +371,30 @@ export class CostsService {
       where: { id: ordenId },
     });
     if (!orden) {
-      throw new NotFoundException("Orden no encontrada");
+      throw new NotFoundException('Orden no encontrada');
     }
 
     const costosTipos = [
       {
-        tipo: "MANO_OBRA",
+        tipo: 'MANO_OBRA',
         monto: dto.manoDeObra ?? 0,
-        concepto: "Mano de obra",
+        concepto: 'Mano de obra',
       },
-      { tipo: "MATERIAL", monto: dto.materiales ?? 0, concepto: "Materiales" },
-      { tipo: "EQUIPO", monto: dto.equipos ?? 0, concepto: "Equipos" },
+      { tipo: 'MATERIAL', monto: dto.materiales ?? 0, concepto: 'Materiales' },
+      { tipo: 'EQUIPO', monto: dto.equipos ?? 0, concepto: 'Equipos' },
       {
-        tipo: "TRANSPORTE",
+        tipo: 'TRANSPORTE',
         monto: dto.transporte ?? 0,
-        concepto: "Transporte",
+        concepto: 'Transporte',
       },
     ];
 
-    const costosCreados = await this.createMultipleCosts(
-      ordenId,
-      costosTipos,
-      dto.descripcion,
-    );
+    const costosCreados = await this.createMultipleCosts(ordenId, costosTipos, dto.descripcion);
 
     const analysis = await this.getCostAnalysis(ordenId);
 
     return {
-      message: "Registro de costos creado",
+      message: 'Registro de costos creado',
       costosCreados: costosCreados.length,
       analysis,
     };
@@ -423,7 +409,7 @@ export class CostsService {
 
     const ordenesRecientes = await this.prisma.order.findMany({
       where: {
-        estado: { in: ["completada", "ejecucion"] },
+        estado: { in: ['completada', 'ejecucion'] },
         createdAt: { gte: thirtyDaysAgo },
       },
       include: {
@@ -450,9 +436,7 @@ export class CostsService {
   /**
    * Analiza múltiples órdenes
    */
-  private async analyzeMultipleOrders(
-    ordenes: Array<{ id: string }>,
-  ): Promise<CostAnalysis[]> {
+  private async analyzeMultipleOrders(ordenes: Array<{ id: string }>): Promise<CostAnalysis[]> {
     const analyses: CostAnalysis[] = [];
 
     for (const orden of ordenes) {
@@ -471,16 +455,11 @@ export class CostsService {
    * Calcula totales de análisis
    */
   private calculateTotals(analyses: CostAnalysis[]) {
-    const presupuestado = analyses.reduce(
-      (sum, a) => sum + a.presupuestado.total,
-      0,
-    );
+    const presupuestado = analyses.reduce((sum, a) => sum + a.presupuestado.total, 0);
     const real = analyses.reduce((sum, a) => sum + a.real.total, 0);
     const varianza = real - presupuestado;
     const varianzaPorcentaje =
-      presupuestado > 0
-        ? Number(((varianza / presupuestado) * 100).toFixed(2))
-        : 0;
+      presupuestado > 0 ? Number(((varianza / presupuestado) * 100).toFixed(2)) : 0;
 
     return {
       presupuestado,
@@ -495,12 +474,9 @@ export class CostsService {
    */
   private countByStatus(analyses: CostAnalysis[]) {
     return {
-      dentroPresupuesto: analyses.filter(
-        (a) => a.estado === "DENTRO_PRESUPUESTO",
-      ).length,
-      alerta: analyses.filter((a) => a.estado === "ALERTA").length,
-      sobrePresupuesto: analyses.filter((a) => a.estado === "SOBRE_PRESUPUESTO")
-        .length,
+      dentroPresupuesto: analyses.filter(a => a.estado === 'DENTRO_PRESUPUESTO').length,
+      alerta: analyses.filter(a => a.estado === 'ALERTA').length,
+      sobrePresupuesto: analyses.filter(a => a.estado === 'SOBRE_PRESUPUESTO').length,
     };
   }
 
@@ -524,7 +500,7 @@ export class CostsService {
   private async createMultipleCosts(
     ordenId: string,
     costos: Array<{ tipo: string; monto: number; concepto: string }>,
-    descripcion?: string,
+    descripcion?: string
   ) {
     const creados = [];
 
@@ -563,10 +539,10 @@ export class CostsService {
    */
   private getTopOverBudget(analyses: CostAnalysis[], limit: number) {
     return analyses
-      .filter((a) => a.varianza.total > 0)
+      .filter(a => a.varianza.total > 0)
       .sort((a, b) => b.varianza.total - a.varianza.total)
       .slice(0, limit)
-      .map((a) => ({
+      .map(a => ({
         ordenNumero: a.ordenNumero,
         varianza: a.varianza.total,
         porcentaje: a.varianza.porcentaje,
@@ -578,10 +554,10 @@ export class CostsService {
    */
   private getTopUnderBudget(analyses: CostAnalysis[], limit: number) {
     return analyses
-      .filter((a) => a.varianza.total < 0)
+      .filter(a => a.varianza.total < 0)
       .sort((a, b) => a.varianza.total - b.varianza.total)
       .slice(0, limit)
-      .map((a) => ({
+      .map(a => ({
         ordenNumero: a.ordenNumero,
         ahorro: Math.abs(a.varianza.total),
         porcentaje: a.varianza.porcentaje,

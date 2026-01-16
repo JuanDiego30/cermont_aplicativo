@@ -8,8 +8,8 @@ export class HESSignedEvent {
   constructor(
     public readonly payload: {
       hesId: string;
-      signedBy: "cliente" | "tecnico";
+      signedBy: 'cliente' | 'tecnico';
       firmadoPor: string;
-    },
+    }
   ) {}
 }

@@ -5,25 +5,16 @@
  * Elimina duplicación entre AssignChecklistToOrdenUseCase y AssignChecklistToEjecucionUseCase.
  */
 
-import {
-  Injectable,
-  Inject,
-  Logger,
-  NotFoundException,
-  ConflictException,
-} from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
-import {
-  IChecklistRepository,
-  CHECKLIST_REPOSITORY,
-} from "../../domain/repositories";
-import { Checklist } from "../../domain/entities/checklist.entity";
-import { ChecklistItem } from "../../domain/entities/checklist-item.entity";
-import { ChecklistResponseDto } from "../dto/checklist-response.dto";
-import { ChecklistMapper } from "../mappers/checklist.mapper";
-import { PrismaService } from "../../../../prisma/prisma.service";
+import { Injectable, Inject, Logger, NotFoundException, ConflictException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { IChecklistRepository, CHECKLIST_REPOSITORY } from '../../domain/repositories';
+import { Checklist } from '../../domain/entities/checklist.entity';
+import { ChecklistItem } from '../../domain/entities/checklist-item.entity';
+import { ChecklistResponseDto } from '../dto/checklist-response.dto';
+import { ChecklistMapper } from '../mappers/checklist.mapper';
+import { PrismaService } from '../../../../prisma/prisma.service';
 
-export type AssignTargetType = "orden" | "ejecucion";
+export type AssignTargetType = 'orden' | 'ejecucion';
 
 export interface AssignChecklistParams {
   checklistId: string;
@@ -44,7 +35,7 @@ export class ChecklistAssignService {
     @Inject(CHECKLIST_REPOSITORY)
     private readonly repository: IChecklistRepository,
     private readonly eventEmitter: EventEmitter2,
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaService
   ) {}
 
   /**
@@ -72,11 +63,7 @@ export class ChecklistAssignService {
       await this.checkNotAlreadyAssigned(checklistId, targetType, targetId);
 
       // 4. Crear instancia desde template
-      const instance = this.createInstanceFromTemplate(
-        template,
-        targetType,
-        targetId,
-      );
+      const instance = this.createInstanceFromTemplate(template, targetType, targetId);
 
       // 5. Guardar instancia
       const savedInstance = await this.repository.save(instance);
@@ -106,9 +93,9 @@ export class ChecklistAssignService {
 
   private async validateTargetExists(
     targetType: AssignTargetType,
-    targetId: string,
+    targetId: string
   ): Promise<void> {
-    if (targetType === "orden") {
+    if (targetType === 'orden') {
       const orden = await this.prisma.order.findUnique({
         where: { id: targetId },
       });
@@ -125,20 +112,14 @@ export class ChecklistAssignService {
     }
   }
 
-  private async getAndValidateTemplate(
-    checklistId: string,
-  ): Promise<Checklist> {
+  private async getAndValidateTemplate(checklistId: string): Promise<Checklist> {
     const template = await this.repository.findTemplateById(checklistId);
     if (!template) {
-      throw new NotFoundException(
-        `Checklist template ${checklistId} no encontrado`,
-      );
+      throw new NotFoundException(`Checklist template ${checklistId} no encontrado`);
     }
 
     if (!template.getStatus().puedeAsignarse()) {
-      throw new ConflictException(
-        `El checklist debe estar en estado ACTIVE para asignarse`,
-      );
+      throw new ConflictException(`El checklist debe estar en estado ACTIVE para asignarse`);
     }
 
     return template;
@@ -147,36 +128,30 @@ export class ChecklistAssignService {
   private async checkNotAlreadyAssigned(
     checklistId: string,
     targetType: AssignTargetType,
-    targetId: string,
+    targetId: string
   ): Promise<void> {
-    const ordenId = targetType === "orden" ? targetId : undefined;
-    const ejecucionId = targetType === "ejecucion" ? targetId : undefined;
+    const ordenId = targetType === 'orden' ? targetId : undefined;
+    const ejecucionId = targetType === 'ejecucion' ? targetId : undefined;
 
-    const exists = await this.repository.existsAssigned(
-      checklistId,
-      ordenId,
-      ejecucionId,
-    );
+    const exists = await this.repository.existsAssigned(checklistId, ordenId, ejecucionId);
     if (exists) {
-      throw new ConflictException(
-        `El checklist ya está asignado a esta ${targetType}`,
-      );
+      throw new ConflictException(`El checklist ya está asignado a esta ${targetType}`);
     }
   }
 
   private createInstanceFromTemplate(
     template: Checklist,
     targetType: AssignTargetType,
-    targetId: string,
+    targetId: string
   ): Checklist {
-    const items = template.getItems().map((item) =>
+    const items = template.getItems().map(item =>
       ChecklistItem.fromPersistence({
         id: ChecklistItem.create({ label: item.getLabel() }).getId().getValue(),
         label: item.getLabel(),
         isRequired: item.getIsRequired(),
         isChecked: false,
         orden: item.getOrden(),
-      }),
+      })
     );
 
     const instanceParams: {
@@ -193,7 +168,7 @@ export class ChecklistAssignService {
       items,
     };
 
-    if (targetType === "orden") {
+    if (targetType === 'orden') {
       instanceParams.ordenId = targetId;
     } else {
       instanceParams.ejecucionId = targetId;

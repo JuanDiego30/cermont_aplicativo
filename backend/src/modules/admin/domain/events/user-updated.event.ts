@@ -12,12 +12,12 @@ export interface UserUpdateChanges {
 
 export class UserUpdatedEvent {
   readonly occurredAt: Date;
-  readonly eventName = "UserUpdatedEvent";
+  readonly eventName = 'UserUpdatedEvent';
 
   constructor(
     readonly userId: string,
     readonly changes: UserUpdateChanges,
-    readonly updatedBy?: string,
+    readonly updatedBy?: string
   ) {
     this.occurredAt = new Date();
   }

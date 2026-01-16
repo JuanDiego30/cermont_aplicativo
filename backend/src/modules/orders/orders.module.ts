@@ -7,34 +7,34 @@
  * - SRP: Separación en capas (domain, application, infrastructure)
  * - OCP: Extensible mediante use cases
  */
-import { HttpModule } from "@nestjs/axios";
-import { Module } from "@nestjs/common";
-import { PrismaModule } from "../../prisma/prisma.module";
-import { NotificationsModule } from "../notifications/notifications.module";
+import { HttpModule } from '@nestjs/axios';
+import { Module } from '@nestjs/common';
+import { PrismaModule } from '../../prisma/prisma.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 // Domain
-import { Order_REPOSITORY } from "./domain/repositories";
+import { Order_REPOSITORY } from './domain/repositories';
 
 // Application - Use Cases & Services
-import { OrderStateService } from "./application/services/order-state.service";
+import { OrderStateService } from './application/services/order-state.service';
 import {
-    AsignarTecnicoOrderUseCase,
-    ChangeOrderstadoUseCase,
-    CreateOrderUseCase,
-    DeleteOrderUseCase,
-    FindOrderUseCase,
-    GetHistorialEstadosUseCase,
-    GetOrderByIdUseCase,
-    ListOrdersUseCase,
-    UpdateOrderUseCase,
-} from "./application/use-cases";
+  AsignarTecnicoOrderUseCase,
+  ChangeOrderstadoUseCase,
+  CreateOrderUseCase,
+  DeleteOrderUseCase,
+  FindOrderUseCase,
+  GetHistorialEstadosUseCase,
+  GetOrderByIdUseCase,
+  ListOrdersUseCase,
+  UpdateOrderUseCase,
+} from './application/use-cases';
 
 // Infrastructure
-import { OrdersController } from "./infrastructure/controllers";
-import { OrdersNotificationsHandler } from "./infrastructure/event-handlers/orders-notifications.handler";
-import { OrdersWebhookHandler } from "./infrastructure/event-handlers/orders-webhook.handler";
-import { PrismaOrderRepository } from "./infrastructure/persistence";
-import { OrdersWebhookService } from "./infrastructure/services/orders-webhook.service";
+import { OrdersController } from './infrastructure/controllers';
+import { OrdersNotificationsHandler } from './infrastructure/event-handlers/orders-notifications.handler';
+import { OrdersWebhookHandler } from './infrastructure/event-handlers/orders-webhook.handler';
+import { PrismaOrderRepository } from './infrastructure/persistence';
+import { OrdersWebhookService } from './infrastructure/services/orders-webhook.service';
 
 /**
  * Providers de Use Cases

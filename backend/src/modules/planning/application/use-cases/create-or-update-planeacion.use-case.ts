@@ -1,25 +1,22 @@
 /**
  * @useCase CreateOrUpdatePlaneacionUseCase
  */
-import { Injectable, Inject } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
-import {
-  PLANEACION_REPOSITORY,
-  IPlaneacionRepository,
-} from "../../domain/repositories";
-import { CreatePlaneacionDto, PlaneacionResponse } from "../dto";
+import { Injectable, Inject } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { PLANEACION_REPOSITORY, IPlaneacionRepository } from '../../domain/repositories';
+import { CreatePlaneacionDto, PlaneacionResponse } from '../dto';
 
 @Injectable()
 export class CreateOrUpdatePlaneacionUseCase {
   constructor(
     @Inject(PLANEACION_REPOSITORY)
     private readonly planeacionRepository: IPlaneacionRepository,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   async execute(
     ordenId: string,
-    dto: CreatePlaneacionDto,
+    dto: CreatePlaneacionDto
   ): Promise<{ message: string; data: PlaneacionResponse }> {
     const planeacion = await this.planeacionRepository.createOrUpdate(ordenId, {
       cronograma: dto.cronograma,
@@ -28,13 +25,13 @@ export class CreateOrUpdatePlaneacionUseCase {
       kitId: dto.kitId,
     });
 
-    this.eventEmitter.emit("planeacion.updated", {
+    this.eventEmitter.emit('planeacion.updated', {
       ordenId,
       planeacionId: planeacion.id,
     });
 
     return {
-      message: "Planeación guardada",
+      message: 'Planeación guardada',
       data: {
         id: planeacion.id,
         ordenId: planeacion.ordenId,

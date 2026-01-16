@@ -1,10 +1,5 @@
-import {
-  ForbiddenException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from "@nestjs/common";
-import { PrismaService } from "../../../../prisma/prisma.service";
+import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
 
 export interface Toggle2FAResult {
   twoFactorEnabled: boolean;
@@ -16,7 +11,7 @@ export class Toggle2FAUseCase {
   private readonly logger = new Logger(Toggle2FAUseCase.name);
 
   constructor(private readonly prisma: PrismaService) {
-    this.logger.log("Toggle2FAUseCase instantiated");
+    this.logger.log('Toggle2FAUseCase instantiated');
   }
 
   async execute(userId: string, enable: boolean): Promise<Toggle2FAResult> {
@@ -28,17 +23,13 @@ export class Toggle2FAUseCase {
 
       if (!user) {
         this.logger.warn(`Toggle 2FA failed: User not found with ID ${userId}`);
-        throw new NotFoundException("Usuario no encontrado");
+        throw new NotFoundException('Usuario no encontrado');
       }
 
       // 1.1 Regla de negocio: los técnicos no deben usar 2FA
-      if (user.role === "tecnico" && enable) {
-        this.logger.warn(
-          `Toggle 2FA blocked: tecnico user ${userId} attempted to enable 2FA`,
-        );
-        throw new ForbiddenException(
-          "2FA no está disponible para cuentas de técnico",
-        );
+      if (user.role === 'tecnico' && enable) {
+        this.logger.warn(`Toggle 2FA blocked: tecnico user ${userId} attempted to enable 2FA`);
+        throw new ForbiddenException('2FA no está disponible para cuentas de técnico');
       }
 
       // 2. Actualizar estado de 2FA
@@ -52,9 +43,7 @@ export class Toggle2FAUseCase {
         await this.prisma.twoFactorToken.deleteMany({
           where: { userId },
         });
-        this.logger.log(
-          `2FA disabled for user ${userId}, all pending tokens deleted`,
-        );
+        this.logger.log(`2FA disabled for user ${userId}, all pending tokens deleted`);
       } else {
         this.logger.log(`2FA enabled for user ${userId}`);
       }
@@ -62,8 +51,8 @@ export class Toggle2FAUseCase {
       return {
         twoFactorEnabled: enable,
         message: enable
-          ? "Autenticación de dos factores habilitada exitosamente"
-          : "Autenticación de dos factores deshabilitada exitosamente",
+          ? 'Autenticación de dos factores habilitada exitosamente'
+          : 'Autenticación de dos factores deshabilitada exitosamente',
       };
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -71,7 +60,7 @@ export class Toggle2FAUseCase {
       }
       const err = error as Error;
       this.logger.error(`Error toggling 2FA: ${err.message}`, err.stack);
-      throw new NotFoundException("Error al actualizar configuración de 2FA");
+      throw new NotFoundException('Error al actualizar configuración de 2FA');
     }
   }
 }

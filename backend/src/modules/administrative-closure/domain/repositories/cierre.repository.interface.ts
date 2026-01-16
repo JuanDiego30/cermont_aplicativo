@@ -4,12 +4,10 @@
  * Repository interface for cierre administrativo (DIP compliant)
  */
 
-import { CierreAdministrativo } from "../entities";
-import { CierreId } from "../value-objects";
+import { CierreAdministrativo } from '../entities';
+import { CierreId } from '../value-objects';
 
-export const CIERRE_ADMINISTRATIVO_REPOSITORY = Symbol(
-  "CIERRE_ADMINISTRATIVO_REPOSITORY",
-);
+export const CIERRE_ADMINISTRATIVO_REPOSITORY = Symbol('CIERRE_ADMINISTRATIVO_REPOSITORY');
 
 export interface CierreQueryFilters {
   status?: string;
@@ -33,7 +31,7 @@ export interface ICierreAdministrativoRepository {
   findMany(
     filters: CierreQueryFilters,
     page: number,
-    pageSize: number,
+    pageSize: number
   ): Promise<PaginatedResult<CierreAdministrativo>>;
   exists(ordenId: string): Promise<boolean>;
   delete(id: CierreId): Promise<void>;

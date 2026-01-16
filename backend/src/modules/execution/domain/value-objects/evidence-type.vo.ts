@@ -4,9 +4,9 @@
  */
 
 export enum EvidenceTypeEnum {
-  PHOTO = "PHOTO",
-  VIDEO = "VIDEO",
-  DOCUMENT = "DOCUMENT",
+  PHOTO = 'PHOTO',
+  VIDEO = 'VIDEO',
+  DOCUMENT = 'DOCUMENT',
 }
 
 const MAX_FILE_SIZES: Record<EvidenceTypeEnum, number> = {
@@ -16,17 +16,12 @@ const MAX_FILE_SIZES: Record<EvidenceTypeEnum, number> = {
 };
 
 const ALLOWED_MIME_TYPES: Record<EvidenceTypeEnum, string[]> = {
-  [EvidenceTypeEnum.PHOTO]: [
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-    "image/heic",
-  ],
-  [EvidenceTypeEnum.VIDEO]: ["video/mp4", "video/quicktime", "video/webm"],
+  [EvidenceTypeEnum.PHOTO]: ['image/jpeg', 'image/png', 'image/webp', 'image/heic'],
+  [EvidenceTypeEnum.VIDEO]: ['video/mp4', 'video/quicktime', 'video/webm'],
   [EvidenceTypeEnum.DOCUMENT]: [
-    "application/pdf",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   ],
 };
 
@@ -47,19 +42,17 @@ export class EvidenceType {
 
   public static fromString(value: string): EvidenceType {
     const upperValue = value.toUpperCase();
-    if (
-      !Object.values(EvidenceTypeEnum).includes(upperValue as EvidenceTypeEnum)
-    ) {
+    if (!Object.values(EvidenceTypeEnum).includes(upperValue as EvidenceTypeEnum)) {
       throw new Error(`Invalid EvidenceType: ${value}`);
     }
     return new EvidenceType(upperValue as EvidenceTypeEnum);
   }
 
   public static fromMimeType(mimeType: string): EvidenceType {
-    if (mimeType.startsWith("image/")) {
+    if (mimeType.startsWith('image/')) {
       return EvidenceType.photo();
     }
-    if (mimeType.startsWith("video/")) {
+    if (mimeType.startsWith('video/')) {
       return EvidenceType.video();
     }
     return EvidenceType.document();
@@ -70,10 +63,7 @@ export class EvidenceType {
   }
 
   public requiresThumbnail(): boolean {
-    return (
-      this.value === EvidenceTypeEnum.PHOTO ||
-      this.value === EvidenceTypeEnum.VIDEO
-    );
+    return this.value === EvidenceTypeEnum.PHOTO || this.value === EvidenceTypeEnum.VIDEO;
   }
 
   public getMaxFileSize(): number {

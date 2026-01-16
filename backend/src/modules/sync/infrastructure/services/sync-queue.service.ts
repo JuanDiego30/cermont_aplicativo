@@ -1,12 +1,12 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
+import { Injectable, Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   SyncQueueItem,
   SyncItemType,
   SyncOperationType,
-} from "../../domain/entities/sync-queue-item.entity";
-import { DeviceId } from "../../domain/value-objects/device-id.vo";
-import { SyncStatusType } from "../../domain/value-objects/sync-status.vo";
+} from '../../domain/entities/sync-queue-item.entity';
+import { DeviceId } from '../../domain/value-objects/device-id.vo';
+import { SyncStatusType } from '../../domain/value-objects/sync-status.vo';
 
 export interface QueueStats {
   total: number;
@@ -47,9 +47,7 @@ export class SyncQueueService {
       tipo: props.tipo,
       operacion: props.operacion,
       datos: props.datos,
-      deviceId: props.deviceId
-        ? DeviceId.create(props.deviceId)
-        : DeviceId.generate(),
+      deviceId: props.deviceId ? DeviceId.create(props.deviceId) : DeviceId.generate(),
       userId: props.userId,
       ordenId: props.ordenId,
       ejecucionId: props.ejecucionId,
@@ -58,16 +56,13 @@ export class SyncQueueService {
 
     this.queue.set(item.id, item);
 
-    this.logger.log(
-      `Added item to queue: ${item.id} (${item.tipo}:${item.operacion})`,
-      {
-        queueSize: this.queue.size,
-        priority: item.priority.getValue(),
-      },
-    );
+    this.logger.log(`Added item to queue: ${item.id} (${item.tipo}:${item.operacion})`, {
+      queueSize: this.queue.size,
+      priority: item.priority.getValue(),
+    });
 
     // Emit event for async processing
-    this.eventEmitter.emit("sync.item.added", { itemId: item.id });
+    this.eventEmitter.emit('sync.item.added', { itemId: item.id });
 
     return item;
   }
@@ -77,7 +72,7 @@ export class SyncQueueService {
    */
   getPendingItems(userId?: string): SyncQueueItem[] {
     const items = Array.from(this.queue.values())
-      .filter((item) => {
+      .filter(item => {
         const isPending = item.status.isPending() || item.status.hasConflict();
         const matchesUser = !userId || item.userId === userId;
         return isPending && matchesUser;
@@ -179,7 +174,7 @@ export class SyncQueueService {
    * Get all items for export/persistence
    */
   exportQueue(): Record<string, unknown>[] {
-    return Array.from(this.queue.values()).map((item) => item.toPersistence());
+    return Array.from(this.queue.values()).map(item => item.toPersistence());
   }
 
   /**
@@ -196,7 +191,7 @@ export class SyncQueueService {
           imported++;
         }
       } catch (error) {
-        this.logger.error("Failed to import queue item", error);
+        this.logger.error('Failed to import queue item', error);
       }
     }
     this.logger.log(`Imported ${imported} items to queue`);
@@ -209,24 +204,20 @@ export class SyncQueueService {
   clear(): void {
     this.queue.clear();
     this.isProcessing = false;
-    this.logger.log("Queue cleared");
+    this.logger.log('Queue cleared');
   }
 
   /**
    * Get items by order ID
    */
   getItemsByOrden(ordenId: string): SyncQueueItem[] {
-    return Array.from(this.queue.values()).filter(
-      (item) => item.ordenId === ordenId,
-    );
+    return Array.from(this.queue.values()).filter(item => item.ordenId === ordenId);
   }
 
   /**
    * Get items by user ID
    */
   getItemsByUser(userId: string): SyncQueueItem[] {
-    return Array.from(this.queue.values()).filter(
-      (item) => item.userId === userId,
-    );
+    return Array.from(this.queue.values()).filter(item => item.userId === userId);
   }
 }

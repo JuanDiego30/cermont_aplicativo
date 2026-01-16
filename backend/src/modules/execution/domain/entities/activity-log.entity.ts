@@ -2,12 +2,9 @@
  * @entity ActivityLog
  * Immutable record of an activity in the execution timeline.
  */
-import { randomUUID } from "crypto";
-import {
-  ActivityType,
-  ActivityTypeEnum,
-} from "../value-objects/activity-type.vo";
-import { GeoLocation } from "../value-objects/geo-location.vo";
+import { randomUUID } from 'crypto';
+import { ActivityType, ActivityTypeEnum } from '../value-objects/activity-type.vo';
+import { GeoLocation } from '../value-objects/geo-location.vo';
 
 export interface ActivityLogProps {
   id?: string;
@@ -46,13 +43,11 @@ export class ActivityLog {
   }
 
   public static fromPersistence(
-    props: ActivityLogProps & { location?: Record<string, unknown> },
+    props: ActivityLogProps & { location?: Record<string, unknown> }
   ): ActivityLog {
     return new ActivityLog({
       ...props,
-      location: props.location
-        ? GeoLocation.fromJson(props.location)
-        : undefined,
+      location: props.location ? GeoLocation.fromJson(props.location) : undefined,
     });
   }
 

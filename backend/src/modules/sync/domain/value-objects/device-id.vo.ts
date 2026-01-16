@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto";
+import { randomUUID } from 'crypto';
 
 /**
  * Device ID Value Object
@@ -7,10 +7,10 @@ import { randomUUID } from "crypto";
 export class DeviceId {
   private constructor(private readonly value: string) {
     if (!value || value.trim().length === 0) {
-      throw new Error("Device ID cannot be empty");
+      throw new Error('Device ID cannot be empty');
     }
     if (value.length > 100) {
-      throw new Error("Device ID is too long (max 100 characters)");
+      throw new Error('Device ID is too long (max 100 characters)');
     }
   }
 

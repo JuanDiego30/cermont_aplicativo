@@ -5,15 +5,15 @@
  * Elimina duplicación entre SignHESClienteUseCase y SignHESTecnicoUseCase.
  */
 
-import { Injectable, Inject, NotFoundException } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
-import { HES } from "../../domain/entities/hes.entity";
-import { HESId } from "../../domain/value-objects/hes-id.vo";
-import { FirmaDigital } from "../../domain/entities/firma-digital.entity";
-import { IHESRepository, HES_REPOSITORY } from "../../domain/repositories";
-import { SignHESDto } from "../dto/sign-hes.dto";
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { HES } from '../../domain/entities/hes.entity';
+import { HESId } from '../../domain/value-objects/hes-id.vo';
+import { FirmaDigital } from '../../domain/entities/firma-digital.entity';
+import { IHESRepository, HES_REPOSITORY } from '../../domain/repositories';
+import { SignHESDto } from '../dto/sign-hes.dto';
 
-export type SignerType = "cliente" | "tecnico";
+export type SignerType = 'cliente' | 'tecnico';
 
 export interface SignHESParams {
   hesId: string;
@@ -29,7 +29,7 @@ export class HesSignService {
   constructor(
     @Inject(HES_REPOSITORY)
     private readonly repository: IHESRepository,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   async sign(params: SignHESParams): Promise<HES> {
@@ -53,11 +53,11 @@ export class HesSignService {
     });
 
     // 3. Aplicar firma según tipo
-    if (signerType === "cliente") {
+    if (signerType === 'cliente') {
       hes.firmarPorCliente(firma);
     } else {
       if (!tecnicoId) {
-        throw new Error("tecnicoId es requerido para firma de técnico");
+        throw new Error('tecnicoId es requerido para firma de técnico');
       }
       hes.firmarPorTecnico(firma, tecnicoId);
     }

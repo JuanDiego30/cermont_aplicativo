@@ -1,19 +1,14 @@
 /**
  * @useCase ListCostosUseCase
  */
-import { Injectable, Inject } from "@nestjs/common";
-import {
-  COSTO_REPOSITORY,
-  ICostoRepository,
-  CostoQueryDto,
-  CostoResponse,
-} from "../dto";
+import { Injectable, Inject } from '@nestjs/common';
+import { COSTO_REPOSITORY, ICostoRepository, CostoQueryDto, CostoResponse } from '../dto';
 
 @Injectable()
 export class ListCostosUseCase {
   constructor(
     @Inject(COSTO_REPOSITORY)
-    private readonly repo: ICostoRepository,
+    private readonly repo: ICostoRepository
   ) {}
 
   async execute(filters: CostoQueryDto): Promise<CostoResponse[]> {
@@ -21,7 +16,7 @@ export class ListCostosUseCase {
       ? await this.repo.findByOrden(filters.ordenId)
       : await this.repo.findAll(filters);
 
-    return costos.map((c) => ({
+    return costos.map(c => ({
       id: c.id,
       ordenId: c.ordenId,
       tipo: c.tipo,

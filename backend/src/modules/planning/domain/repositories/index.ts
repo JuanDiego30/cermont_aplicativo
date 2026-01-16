@@ -1,1 +1,1 @@
-export * from "./planeacion.repository.interface";
+export * from './planeacion.repository.interface';

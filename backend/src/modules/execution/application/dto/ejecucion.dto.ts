@@ -2,24 +2,16 @@
  * @module Ejecucion - Clean Architecture
  * @description DTOs con class-validator
  */
-import {
-  IsString,
-  IsOptional,
-  IsUUID,
-  IsNumber,
-  Min,
-  Max,
-  IsObject,
-} from "class-validator";
-import { Type } from "class-transformer";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsString, IsOptional, IsUUID, IsNumber, Min, Max, IsObject } from 'class-validator';
+import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class IniciarEjecucionDto {
-  @ApiProperty({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
   @IsUUID()
   tecnicoId!: string;
 
-  @ApiPropertyOptional({ example: "Iniciando trabajo de mantenimiento" })
+  @ApiPropertyOptional({ example: 'Iniciando trabajo de mantenimiento' })
   @IsOptional()
   @IsString()
   observaciones?: string;
@@ -44,7 +36,7 @@ export class UpdateAvanceDto {
   @Type(() => Number)
   avance!: number;
 
-  @ApiPropertyOptional({ example: "Avance del 50% completado" })
+  @ApiPropertyOptional({ example: 'Avance del 50% completado' })
   @IsOptional()
   @IsString()
   observaciones?: string;
@@ -57,17 +49,17 @@ export class UpdateAvanceDto {
 }
 
 export class CompletarEjecucionDto {
-  @ApiPropertyOptional({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiPropertyOptional({ example: '123e4567-e89b-12d3-a456-426614174000' })
   @IsOptional()
   @IsUUID()
   completadoPorId?: string;
 
-  @ApiPropertyOptional({ example: "Trabajo finalizado sin incidentes" })
+  @ApiPropertyOptional({ example: 'Trabajo finalizado sin incidentes' })
   @IsOptional()
   @IsString()
   observacionesFinales?: string;
 
-  @ApiPropertyOptional({ example: "base64signature..." })
+  @ApiPropertyOptional({ example: 'base64signature...' })
   @IsOptional()
   @IsString()
   firmaDigital?: string;
@@ -83,7 +75,7 @@ export class CompletarEjecucionDto {
   @Type(() => Number)
   horasActuales!: number;
 
-  @ApiPropertyOptional({ example: "Observaciones finales" })
+  @ApiPropertyOptional({ example: 'Observaciones finales' })
   @IsOptional()
   @IsString()
   observaciones?: string;
@@ -104,7 +96,7 @@ export interface EjecucionResponse {
 }
 
 // Repository Interface
-export const EJECUCION_REPOSITORY = Symbol("EJECUCION_REPOSITORY");
+export const EJECUCION_REPOSITORY = Symbol('EJECUCION_REPOSITORY');
 
 export interface IEjecucionRepository {
   findByOrdenId(ordenId: string): Promise<any>;

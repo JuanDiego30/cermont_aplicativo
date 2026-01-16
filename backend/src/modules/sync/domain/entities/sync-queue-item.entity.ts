@@ -1,28 +1,25 @@
-import { randomUUID } from "crypto";
-import { SyncStatus, SyncStatusType } from "../value-objects/sync-status.vo";
-import {
-  SyncPriority,
-  SyncPriorityType,
-} from "../value-objects/sync-priority.vo";
-import { DeviceId } from "../value-objects/device-id.vo";
+import { randomUUID } from 'crypto';
+import { SyncStatus, SyncStatusType } from '../value-objects/sync-status.vo';
+import { SyncPriority, SyncPriorityType } from '../value-objects/sync-priority.vo';
+import { DeviceId } from '../value-objects/device-id.vo';
 
 /**
  * Sync operation type
  */
-export type SyncOperationType = "CREATE" | "UPDATE" | "DELETE";
+export type SyncOperationType = 'CREATE' | 'UPDATE' | 'DELETE';
 
 /**
  * Sync item type
  */
 export type SyncItemType =
-  | "EJECUCION"
-  | "CHECKLIST"
-  | "EVIDENCIA"
-  | "TAREA"
-  | "COSTO"
-  | "AST"
-  | "HES"
-  | "FIRMA";
+  | 'EJECUCION'
+  | 'CHECKLIST'
+  | 'EVIDENCIA'
+  | 'TAREA'
+  | 'COSTO'
+  | 'AST'
+  | 'HES'
+  | 'FIRMA';
 
 /**
  * SyncQueueItem Entity
@@ -243,9 +240,7 @@ export class SyncQueueItem {
    * Check if item can be retried
    */
   canRetry(): boolean {
-    return (
-      this._status.canRetry() && this._retryCount < SyncQueueItem.MAX_RETRIES
-    );
+    return this._status.canRetry() && this._retryCount < SyncQueueItem.MAX_RETRIES;
   }
 
   /**

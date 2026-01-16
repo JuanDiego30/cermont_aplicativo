@@ -11,93 +11,93 @@ import {
   ValidateNested,
   Min,
   MinLength,
-} from "class-validator";
-import { Type } from "class-transformer";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // ============================================================================
 // Class-Validator DTOs
 // ============================================================================
 
 export class KitItemDto {
-  @ApiProperty({ description: "Nombre del item" })
+  @ApiProperty({ description: 'Nombre del item' })
   @IsString()
   @MinLength(1)
   nombre!: string;
 
-  @ApiProperty({ description: "Cantidad requerida", minimum: 1 })
+  @ApiProperty({ description: 'Cantidad requerida', minimum: 1 })
   @IsNumber()
   @Min(1)
   cantidad!: number;
 
-  @ApiPropertyOptional({ description: "Tipo de item", default: "HERRAMIENTA" })
+  @ApiPropertyOptional({ description: 'Tipo de item', default: 'HERRAMIENTA' })
   @IsOptional()
   @IsString()
   itemType?: string;
 
-  @ApiPropertyOptional({ description: "Costo unitario", default: 0 })
+  @ApiPropertyOptional({ description: 'Costo unitario', default: 0 })
   @IsOptional()
   @IsNumber()
   costoUnitario?: number;
 
-  @ApiPropertyOptional({ description: "Unidad de medida", default: "unidad" })
+  @ApiPropertyOptional({ description: 'Unidad de medida', default: 'unidad' })
   @IsOptional()
   @IsString()
   unidad?: string;
 
-  @ApiPropertyOptional({ description: "Es item opcional", default: false })
+  @ApiPropertyOptional({ description: 'Es item opcional', default: false })
   @IsOptional()
   @IsBoolean()
   esOpcional?: boolean;
 
   @ApiPropertyOptional({
-    description: "Requiere certificación",
+    description: 'Requiere certificación',
     default: false,
   })
   @IsOptional()
   @IsBoolean()
   requiereCertificacion?: boolean;
 
-  @ApiPropertyOptional({ description: "Notas adicionales" })
+  @ApiPropertyOptional({ description: 'Notas adicionales' })
   @IsOptional()
   @IsString()
   notas?: string;
 }
 
 export class CreateKitDto {
-  @ApiProperty({ description: "Nombre del kit" })
+  @ApiProperty({ description: 'Nombre del kit' })
   @IsString()
   @MinLength(3)
   nombre!: string;
 
-  @ApiPropertyOptional({ description: "Descripción del kit" })
+  @ApiPropertyOptional({ description: 'Descripción del kit' })
   @IsOptional()
   @IsString()
   descripcion?: string;
 
-  @ApiProperty({ description: "Categoría del kit" })
+  @ApiProperty({ description: 'Categoría del kit' })
   @IsString()
   categoria!: string;
 
-  @ApiPropertyOptional({ description: "Tipo de kit", default: "BASICO" })
+  @ApiPropertyOptional({ description: 'Tipo de kit', default: 'BASICO' })
   @IsOptional()
   @IsString()
   tipo?: string;
 
   @ApiPropertyOptional({
-    description: "Duración estimada en horas",
+    description: 'Duración estimada en horas',
     default: 0,
   })
   @IsOptional()
   @IsNumber()
   duracionEstimadaHoras?: number;
 
-  @ApiPropertyOptional({ description: "Es plantilla base", default: false })
+  @ApiPropertyOptional({ description: 'Es plantilla base', default: false })
   @IsOptional()
   @IsBoolean()
   esPlantilla?: boolean;
 
-  @ApiPropertyOptional({ description: "Items del kit", type: [KitItemDto] })
+  @ApiPropertyOptional({ description: 'Items del kit', type: [KitItemDto] })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
@@ -122,18 +122,18 @@ export class CreateKitDto {
 }
 
 export class UpdateKitDto {
-  @ApiPropertyOptional({ description: "Nombre del kit" })
+  @ApiPropertyOptional({ description: 'Nombre del kit' })
   @IsOptional()
   @IsString()
   @MinLength(3)
   nombre?: string;
 
-  @ApiPropertyOptional({ description: "Descripción del kit" })
+  @ApiPropertyOptional({ description: 'Descripción del kit' })
   @IsOptional()
   @IsString()
   descripcion?: string;
 
-  @ApiPropertyOptional({ description: "Duración estimada en horas" })
+  @ApiPropertyOptional({ description: 'Duración estimada en horas' })
   @IsOptional()
   @IsNumber()
   duracionEstimadaHoras?: number;
@@ -142,7 +142,7 @@ export class UpdateKitDto {
 export class AddItemToKitDto extends KitItemDto {}
 
 export class UpdateItemCantidadDto {
-  @ApiProperty({ description: "Nueva cantidad", minimum: 1 })
+  @ApiProperty({ description: 'Nueva cantidad', minimum: 1 })
   @IsNumber()
   @Min(1)
   cantidad!: number;
@@ -244,22 +244,22 @@ export class KitListResponseDto {
 // ============================================================================
 
 export class ListKitsQueryDto {
-  @ApiPropertyOptional({ description: "Filtrar por categoría" })
+  @ApiPropertyOptional({ description: 'Filtrar por categoría' })
   @IsOptional()
   @IsString()
   categoria?: string;
 
-  @ApiPropertyOptional({ description: "Filtrar por estado" })
+  @ApiPropertyOptional({ description: 'Filtrar por estado' })
   @IsOptional()
   @IsString()
   estado?: string;
 
-  @ApiPropertyOptional({ description: "Filtrar por tipo" })
+  @ApiPropertyOptional({ description: 'Filtrar por tipo' })
   @IsOptional()
   @IsString()
   tipo?: string;
 
-  @ApiPropertyOptional({ description: "Solo plantillas", default: false })
+  @ApiPropertyOptional({ description: 'Solo plantillas', default: false })
   @IsOptional()
   @IsBoolean()
   soloPlantillas?: boolean;

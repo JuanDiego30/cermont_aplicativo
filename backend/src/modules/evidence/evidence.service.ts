@@ -8,12 +8,12 @@
  */
 
 import {
-    BadRequestException,
-    Inject,
-    Injectable,
-    InternalServerErrorException,
-    Logger,
-    NotFoundException,
+  BadRequestException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { existsSync } from 'fs';
 import * as fs from 'fs/promises';

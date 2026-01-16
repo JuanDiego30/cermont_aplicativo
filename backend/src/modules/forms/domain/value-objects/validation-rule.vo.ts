@@ -5,15 +5,15 @@
  */
 
 export enum ValidationRuleType {
-  REQUIRED = "REQUIRED",
-  MIN_LENGTH = "MIN_LENGTH",
-  MAX_LENGTH = "MAX_LENGTH",
-  MIN_VALUE = "MIN_VALUE",
-  MAX_VALUE = "MAX_VALUE",
-  PATTERN = "PATTERN",
-  EMAIL = "EMAIL",
-  URL = "URL",
-  CUSTOM = "CUSTOM",
+  REQUIRED = 'REQUIRED',
+  MIN_LENGTH = 'MIN_LENGTH',
+  MAX_LENGTH = 'MAX_LENGTH',
+  MIN_VALUE = 'MIN_VALUE',
+  MAX_VALUE = 'MAX_VALUE',
+  PATTERN = 'PATTERN',
+  EMAIL = 'EMAIL',
+  URL = 'URL',
+  CUSTOM = 'CUSTOM',
 }
 
 export interface ValidationResult {
@@ -24,7 +24,7 @@ export interface ValidationResult {
 export class ValidationRule {
   private constructor(
     private readonly _type: ValidationRuleType,
-    private readonly _value?: any,
+    private readonly _value?: any
   ) {
     Object.freeze(this);
   }
@@ -35,14 +35,14 @@ export class ValidationRule {
 
   public static minLength(length: number): ValidationRule {
     if (length < 0) {
-      throw new Error("MinLength must be non-negative");
+      throw new Error('MinLength must be non-negative');
     }
     return new ValidationRule(ValidationRuleType.MIN_LENGTH, length);
   }
 
   public static maxLength(length: number): ValidationRule {
     if (length < 0) {
-      throw new Error("MaxLength must be non-negative");
+      throw new Error('MaxLength must be non-negative');
     }
     return new ValidationRule(ValidationRuleType.MAX_LENGTH, length);
   }
@@ -91,17 +91,17 @@ export class ValidationRule {
   }
 
   private validateRequired(value: any, message?: string): ValidationResult {
-    if (value === null || value === undefined || value === "") {
+    if (value === null || value === undefined || value === '') {
       return {
         isValid: false,
-        error: message || "Field is required",
+        error: message || 'Field is required',
       };
     }
     return { isValid: true };
   }
 
   private validateMinLength(value: any, message?: string): ValidationResult {
-    if (typeof value === "string" && value.length < this._value!) {
+    if (typeof value === 'string' && value.length < this._value!) {
       return {
         isValid: false,
         error: message || `Minimum length is ${this._value}`,
@@ -111,7 +111,7 @@ export class ValidationRule {
   }
 
   private validateMaxLength(value: any, message?: string): ValidationResult {
-    if (typeof value === "string" && value.length > this._value!) {
+    if (typeof value === 'string' && value.length > this._value!) {
       return {
         isValid: false,
         error: message || `Maximum length is ${this._value}`,
@@ -121,7 +121,7 @@ export class ValidationRule {
   }
 
   private validateMinValue(value: any, message?: string): ValidationResult {
-    if (typeof value === "number" && value < this._value!) {
+    if (typeof value === 'number' && value < this._value!) {
       return {
         isValid: false,
         error: message || `Minimum value is ${this._value}`,
@@ -131,7 +131,7 @@ export class ValidationRule {
   }
 
   private validateMaxValue(value: any, message?: string): ValidationResult {
-    if (typeof value === "number" && value > this._value!) {
+    if (typeof value === 'number' && value > this._value!) {
       return {
         isValid: false,
         error: message || `Maximum value is ${this._value}`,
@@ -141,23 +141,20 @@ export class ValidationRule {
   }
 
   private validatePattern(value: any, message?: string): ValidationResult {
-    if (typeof value === "string" && !this._value!.test(value)) {
+    if (typeof value === 'string' && !this._value!.test(value)) {
       return {
         isValid: false,
-        error: message || "Invalid format",
+        error: message || 'Invalid format',
       };
     }
     return { isValid: true };
   }
 
   private validateEmail(value: any, message?: string): ValidationResult {
-    if (
-      typeof value === "string" &&
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
-    ) {
+    if (typeof value === 'string' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
       return {
         isValid: false,
-        error: message || "Invalid email format",
+        error: message || 'Invalid email format',
       };
     }
     return { isValid: true };
@@ -165,14 +162,14 @@ export class ValidationRule {
 
   private validateUrl(value: any, message?: string): ValidationResult {
     try {
-      if (typeof value === "string" && value) {
+      if (typeof value === 'string' && value) {
         new URL(value);
       }
       return { isValid: true };
     } catch {
       return {
         isValid: false,
-        error: message || "Invalid URL format",
+        error: message || 'Invalid URL format',
       };
     }
   }
@@ -190,9 +187,9 @@ export class ValidationRule {
       case ValidationRuleType.PATTERN:
         return { pattern: (this._value as RegExp).source };
       case ValidationRuleType.EMAIL:
-        return { format: "email" };
+        return { format: 'email' };
       case ValidationRuleType.URL:
-        return { format: "uri" };
+        return { format: 'uri' };
       default:
         return {};
     }

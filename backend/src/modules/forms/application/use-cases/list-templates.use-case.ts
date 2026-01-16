@@ -4,19 +4,16 @@
  * Lista templates con filtros opcionales
  */
 
-import { Injectable, Inject } from "@nestjs/common";
-import { FormTemplate } from "../../domain/entities/form-template.entity";
-import {
-  IFormTemplateRepository,
-  FORM_TEMPLATE_REPOSITORY,
-} from "../../domain/repositories";
-import { ListTemplatesQueryDto } from "../dto/list-templates-query.dto";
+import { Injectable, Inject } from '@nestjs/common';
+import { FormTemplate } from '../../domain/entities/form-template.entity';
+import { IFormTemplateRepository, FORM_TEMPLATE_REPOSITORY } from '../../domain/repositories';
+import { ListTemplatesQueryDto } from '../dto/list-templates-query.dto';
 
 @Injectable()
 export class ListTemplatesUseCase {
   constructor(
     @Inject(FORM_TEMPLATE_REPOSITORY)
-    private readonly templateRepository: IFormTemplateRepository,
+    private readonly templateRepository: IFormTemplateRepository
   ) {}
 
   async execute(query: ListTemplatesQueryDto): Promise<FormTemplate[]> {

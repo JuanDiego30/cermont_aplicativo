@@ -3,22 +3,22 @@
  * @description Caso de uso para obtener el usuario actual
  * @layer Application
  */
-import { Injectable, Inject, NotFoundException } from "@nestjs/common";
-import { AUTH_REPOSITORY, IAuthRepository } from "../../domain/repositories";
-import { MeResponse } from "../dto";
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { AUTH_REPOSITORY, IAuthRepository } from '../../domain/repositories';
+import { MeResponse } from '../dto';
 
 @Injectable()
 export class GetCurrentUserUseCase {
   constructor(
     @Inject(AUTH_REPOSITORY)
-    private readonly authRepository: IAuthRepository,
+    private readonly authRepository: IAuthRepository
   ) {}
 
   async execute(userId: string): Promise<MeResponse> {
     const user = await this.authRepository.findUserById(userId);
 
     if (!user) {
-      throw new NotFoundException("Usuario no encontrado");
+      throw new NotFoundException('Usuario no encontrado');
     }
 
     return {

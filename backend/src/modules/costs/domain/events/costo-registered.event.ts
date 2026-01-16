@@ -5,7 +5,7 @@
  */
 
 export class CostoRegisteredEvent {
-  public readonly eventName = "COSTO_REGISTERED";
+  public readonly eventName = 'COSTO_REGISTERED';
   public readonly aggregateId: string;
   public readonly timestamp: Date;
   public readonly ordenId: string;

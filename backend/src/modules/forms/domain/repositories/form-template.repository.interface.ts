@@ -4,8 +4,8 @@
  * Contrato para persistencia de FormTemplate
  */
 
-import { FormTemplate } from "../entities/form-template.entity";
-import { FormTemplateId } from "../value-objects/form-template-id.vo";
+import { FormTemplate } from '../entities/form-template.entity';
+import { FormTemplateId } from '../value-objects/form-template-id.vo';
 
 export interface IFormTemplateRepository {
   /**

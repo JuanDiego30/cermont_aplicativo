@@ -20,7 +20,7 @@ interface PaginatedResponse<T> {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AdminApi {
   private http = inject(HttpClient);
@@ -29,11 +29,9 @@ export class AdminApi {
   listUsers(
     page: number = 1,
     limit: number = 10,
-    filters?: any
+    filters?: { search?: string; rol?: string }
   ): Observable<PaginatedResponse<Usuario>> {
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('limit', limit.toString());
+    let params = new HttpParams().set('page', page.toString()).set('limit', limit.toString());
 
     if (filters?.search) {
       params = params.set('search', filters.search);
@@ -47,13 +45,13 @@ export class AdminApi {
 
   updateUserRole(usuarioId: string, nuevoRol: string): Observable<Usuario> {
     return this.http.patch<Usuario>(`${this.apiUrl}/users/${usuarioId}/role`, {
-      rol: nuevoRol
+      rol: nuevoRol,
     });
   }
 
   updateUserStatus(usuarioId: string, nuevoEstado: string): Observable<Usuario> {
     return this.http.patch<Usuario>(`${this.apiUrl}/users/${usuarioId}/status`, {
-      estado: nuevoEstado
+      estado: nuevoEstado,
     });
   }
 
@@ -61,7 +59,7 @@ export class AdminApi {
     return this.http.delete<void>(`${this.apiUrl}/users/${usuarioId}`);
   }
 
-  getStats(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/stats`);
+  getStats(): Observable<unknown> {
+    return this.http.get<unknown>(`${this.apiUrl}/stats`);
   }
 }

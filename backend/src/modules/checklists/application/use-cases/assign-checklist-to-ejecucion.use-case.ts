@@ -5,21 +5,19 @@
  * Delega la lógica a ChecklistAssignService.
  */
 
-import { Injectable } from "@nestjs/common";
-import { AssignChecklistToEjecucionDto } from "../dto/assign-checklist.dto";
-import { ChecklistResponseDto } from "../dto/checklist-response.dto";
-import { ChecklistAssignService } from "../services/checklist-assign.service";
+import { Injectable } from '@nestjs/common';
+import { AssignChecklistToEjecucionDto } from '../dto/assign-checklist.dto';
+import { ChecklistResponseDto } from '../dto/checklist-response.dto';
+import { ChecklistAssignService } from '../services/checklist-assign.service';
 
 @Injectable()
 export class AssignChecklistToEjecucionUseCase {
   constructor(private readonly assignService: ChecklistAssignService) {}
 
-  async execute(
-    dto: AssignChecklistToEjecucionDto,
-  ): Promise<ChecklistResponseDto> {
+  async execute(dto: AssignChecklistToEjecucionDto): Promise<ChecklistResponseDto> {
     const result = await this.assignService.assign({
       checklistId: dto.checklistId,
-      targetType: "ejecucion",
+      targetType: 'ejecucion',
       targetId: dto.ejecucionId,
     });
     return result.checklist;

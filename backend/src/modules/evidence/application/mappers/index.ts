@@ -2,4 +2,4 @@
  * @file Mappers Index
  */
 
-export * from "./evidencia.mapper";
+export * from './evidencia.mapper';

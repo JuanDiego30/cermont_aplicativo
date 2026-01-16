@@ -4,9 +4,9 @@
  * Contrato para persistencia de HES
  */
 
-import { HES } from "../entities/hes.entity";
-import { HESId } from "../value-objects/hes-id.vo";
-import { HESNumero } from "../value-objects/hes-numero.vo";
+import { HES } from '../entities/hes.entity';
+import { HESId } from '../value-objects/hes-id.vo';
+import { HESNumero } from '../value-objects/hes-numero.vo';
 
 export interface IHESRepository {
   /**
@@ -56,4 +56,4 @@ export interface IHESRepository {
   delete(id: HESId): Promise<void>;
 }
 
-export const HES_REPOSITORY = Symbol("HES_REPOSITORY");
+export const HES_REPOSITORY = Symbol('HES_REPOSITORY');

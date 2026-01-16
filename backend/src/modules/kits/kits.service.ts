@@ -8,8 +8,8 @@
  *
  * ═══════════════════════════════════════════════════════════════════════════
  */
-import { Injectable, NotFoundException, Logger } from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
 
 // ============================================================================
 // Interfaces
@@ -44,188 +44,186 @@ interface CreateKitDtoLegacy {
 
 const KITS_PREDEFINIDOS = {
   LINEA_VIDA: {
-    nombre: "Kit Inspección Líneas de Vida",
-    descripcion:
-      "Herramientas y equipos para inspección de líneas de vida verticales",
+    nombre: 'Kit Inspección Líneas de Vida',
+    descripcion: 'Herramientas y equipos para inspección de líneas de vida verticales',
     herramientas: [
-      { nombre: "Calibrador pie de rey", cantidad: 1, certificacion: true },
-      { nombre: "Flexómetro 5m", cantidad: 1, certificacion: false },
-      { nombre: "Llave de boca 13mm", cantidad: 1, certificacion: false },
-      { nombre: "Destornillador de pala", cantidad: 1, certificacion: false },
-      { nombre: "Linterna LED", cantidad: 1, certificacion: false },
-      { nombre: "Espejo de inspección", cantidad: 1, certificacion: false },
+      { nombre: 'Calibrador pie de rey', cantidad: 1, certificacion: true },
+      { nombre: 'Flexómetro 5m', cantidad: 1, certificacion: false },
+      { nombre: 'Llave de boca 13mm', cantidad: 1, certificacion: false },
+      { nombre: 'Destornillador de pala', cantidad: 1, certificacion: false },
+      { nombre: 'Linterna LED', cantidad: 1, certificacion: false },
+      { nombre: 'Espejo de inspección', cantidad: 1, certificacion: false },
     ],
     equipos: [
-      { nombre: "Arnés de seguridad", cantidad: 1, certificacion: true },
+      { nombre: 'Arnés de seguridad', cantidad: 1, certificacion: true },
       {
-        nombre: "Eslinga doble con absorbedor",
+        nombre: 'Eslinga doble con absorbedor',
         cantidad: 1,
         certificacion: true,
       },
-      { nombre: "Mosquetones tipo C", cantidad: 4, certificacion: true },
-      { nombre: "Casco con barbuquejo", cantidad: 1, certificacion: true },
-      { nombre: "Gafas de seguridad", cantidad: 1, certificacion: false },
-      { nombre: "Guantes de seguridad", cantidad: 1, certificacion: false },
+      { nombre: 'Mosquetones tipo C', cantidad: 4, certificacion: true },
+      { nombre: 'Casco con barbuquejo', cantidad: 1, certificacion: true },
+      { nombre: 'Gafas de seguridad', cantidad: 1, certificacion: false },
+      { nombre: 'Guantes de seguridad', cantidad: 1, certificacion: false },
     ],
     documentos: [
-      "Formato Inspección Líneas de Vida Vertical",
-      "Permiso de Trabajo en Alturas",
-      "AST - Análisis Seguro de Trabajo",
-      "ATS - Matriz de riesgos",
+      'Formato Inspección Líneas de Vida Vertical',
+      'Permiso de Trabajo en Alturas',
+      'AST - Análisis Seguro de Trabajo',
+      'ATS - Matriz de riesgos',
     ],
     checklistItems: [
-      "Verificar estado general del cable de acero",
-      "Inspeccionar placa de anclaje superior",
-      "Verificar tensor y su funcionamiento",
-      "Revisar placa de anclaje inferior",
-      "Comprobar ausencia de corrosión",
-      "Verificar soldaduras y puntos de sujeción",
-      "Medir diámetro del cable con calibrador",
-      "Verificar certificaciones vigentes",
-      "Documentar con fotografías cada componente",
-      "Firmar formato de inspección",
+      'Verificar estado general del cable de acero',
+      'Inspeccionar placa de anclaje superior',
+      'Verificar tensor y su funcionamiento',
+      'Revisar placa de anclaje inferior',
+      'Comprobar ausencia de corrosión',
+      'Verificar soldaduras y puntos de sujeción',
+      'Medir diámetro del cable con calibrador',
+      'Verificar certificaciones vigentes',
+      'Documentar con fotografías cada componente',
+      'Firmar formato de inspección',
     ],
     duracionEstimadaHoras: 4,
   },
   CCTV: {
-    nombre: "Kit Mantenimiento CCTV",
-    descripcion: "Herramientas y equipos para mantenimiento de sistemas CCTV",
+    nombre: 'Kit Mantenimiento CCTV',
+    descripcion: 'Herramientas y equipos para mantenimiento de sistemas CCTV',
     herramientas: [
       {
-        nombre: "Destornillador de estrella",
+        nombre: 'Destornillador de estrella',
         cantidad: 1,
         certificacion: false,
       },
-      { nombre: "Destornillador de pala", cantidad: 1, certificacion: false },
-      { nombre: "Pinzas electricas", cantidad: 1, certificacion: false },
-      { nombre: "Probador de cables RJ45", cantidad: 1, certificacion: true },
-      { nombre: "Multímetro digital", cantidad: 1, certificacion: true },
+      { nombre: 'Destornillador de pala', cantidad: 1, certificacion: false },
+      { nombre: 'Pinzas electricas', cantidad: 1, certificacion: false },
+      { nombre: 'Probador de cables RJ45', cantidad: 1, certificacion: true },
+      { nombre: 'Multímetro digital', cantidad: 1, certificacion: true },
       {
-        nombre: "Kit ponchadora con conectores",
+        nombre: 'Kit ponchadora con conectores',
         cantidad: 1,
         certificacion: false,
       },
       {
-        nombre: "Laptop con software de configuración",
+        nombre: 'Laptop con software de configuración',
         cantidad: 1,
         certificacion: false,
       },
     ],
     equipos: [
-      { nombre: "Escalera tipo A 6 pasos", cantidad: 1, certificacion: true },
-      { nombre: "Arnés de seguridad", cantidad: 1, certificacion: true },
-      { nombre: "Casco dieléctrico", cantidad: 1, certificacion: true },
-      { nombre: "Gafas de seguridad", cantidad: 1, certificacion: false },
-      { nombre: "Guantes dieléctricos", cantidad: 1, certificacion: true },
+      { nombre: 'Escalera tipo A 6 pasos', cantidad: 1, certificacion: true },
+      { nombre: 'Arnés de seguridad', cantidad: 1, certificacion: true },
+      { nombre: 'Casco dieléctrico', cantidad: 1, certificacion: true },
+      { nombre: 'Gafas de seguridad', cantidad: 1, certificacion: false },
+      { nombre: 'Guantes dieléctricos', cantidad: 1, certificacion: true },
     ],
     documentos: [
-      "Formato Mantenimiento CCTV",
-      "Permiso de Trabajo",
-      "Manual técnico del DVR/NVR",
-      "Diagrama de conexiones",
+      'Formato Mantenimiento CCTV',
+      'Permiso de Trabajo',
+      'Manual técnico del DVR/NVR',
+      'Diagrama de conexiones',
     ],
     checklistItems: [
-      "Verificar alimentación eléctrica del sistema",
-      "Comprobar conexiones de red/coaxial",
-      "Limpiar lentes de cámaras",
-      "Verificar enfoque y ángulo de visión",
-      "Probar grabación en DVR/NVR",
-      "Verificar espacio en disco duro",
-      "Actualizar firmware si es necesario",
-      "Comprobar visualización remota",
-      "Documentar con capturas de pantalla",
-      "Firmar formato de mantenimiento",
+      'Verificar alimentación eléctrica del sistema',
+      'Comprobar conexiones de red/coaxial',
+      'Limpiar lentes de cámaras',
+      'Verificar enfoque y ángulo de visión',
+      'Probar grabación en DVR/NVR',
+      'Verificar espacio en disco duro',
+      'Actualizar firmware si es necesario',
+      'Comprobar visualización remota',
+      'Documentar con capturas de pantalla',
+      'Firmar formato de mantenimiento',
     ],
     duracionEstimadaHoras: 6,
   },
   ELECTRICO: {
-    nombre: "Kit Mantenimiento Eléctrico",
-    descripcion: "Herramientas y equipos para trabajos eléctricos",
+    nombre: 'Kit Mantenimiento Eléctrico',
+    descripcion: 'Herramientas y equipos para trabajos eléctricos',
     herramientas: [
-      { nombre: "Multímetro digital", cantidad: 1, certificacion: true },
-      { nombre: "Pinza amperimétrica", cantidad: 1, certificacion: true },
-      { nombre: "Detector de voltaje", cantidad: 1, certificacion: true },
-      { nombre: "Destornilladores aislados", cantidad: 1, certificacion: true },
-      { nombre: "Alicates aislados", cantidad: 1, certificacion: true },
-      { nombre: "Pelacables", cantidad: 1, certificacion: false },
-      { nombre: "Cinta aislante", cantidad: 2, certificacion: false },
-      { nombre: "Terminales y conectores", cantidad: 1, certificacion: false },
+      { nombre: 'Multímetro digital', cantidad: 1, certificacion: true },
+      { nombre: 'Pinza amperimétrica', cantidad: 1, certificacion: true },
+      { nombre: 'Detector de voltaje', cantidad: 1, certificacion: true },
+      { nombre: 'Destornilladores aislados', cantidad: 1, certificacion: true },
+      { nombre: 'Alicates aislados', cantidad: 1, certificacion: true },
+      { nombre: 'Pelacables', cantidad: 1, certificacion: false },
+      { nombre: 'Cinta aislante', cantidad: 2, certificacion: false },
+      { nombre: 'Terminales y conectores', cantidad: 1, certificacion: false },
     ],
     equipos: [
       {
-        nombre: "Guantes dieléctricos clase 0",
+        nombre: 'Guantes dieléctricos clase 0',
         cantidad: 1,
         certificacion: true,
       },
-      { nombre: "Casco dieléctrico", cantidad: 1, certificacion: true },
-      { nombre: "Botas dieléctricas", cantidad: 1, certificacion: true },
-      { nombre: "Gafas de protección UV", cantidad: 1, certificacion: false },
-      { nombre: "Tapete aislante", cantidad: 1, certificacion: true },
+      { nombre: 'Casco dieléctrico', cantidad: 1, certificacion: true },
+      { nombre: 'Botas dieléctricas', cantidad: 1, certificacion: true },
+      { nombre: 'Gafas de protección UV', cantidad: 1, certificacion: false },
+      { nombre: 'Tapete aislante', cantidad: 1, certificacion: true },
     ],
     documentos: [
-      "Permiso de Trabajo Eléctrico",
-      "AST - Análisis Seguro de Trabajo",
-      "Diagrama unifilar",
-      "Procedimiento de bloqueo y etiquetado",
+      'Permiso de Trabajo Eléctrico',
+      'AST - Análisis Seguro de Trabajo',
+      'Diagrama unifilar',
+      'Procedimiento de bloqueo y etiquetado',
     ],
     checklistItems: [
-      "Verificar desenergización del circuito",
-      "Aplicar procedimiento LOTO",
-      "Medir ausencia de tensión",
-      "Verificar estado de conductores",
-      "Reapretar conexiones",
-      "Medir resistencia de aislamiento",
-      "Verificar protecciones térmicas",
-      "Comprobar funcionamiento de interruptores",
-      "Documentar mediciones realizadas",
-      "Retirar LOTO siguiendo procedimiento",
+      'Verificar desenergización del circuito',
+      'Aplicar procedimiento LOTO',
+      'Medir ausencia de tensión',
+      'Verificar estado de conductores',
+      'Reapretar conexiones',
+      'Medir resistencia de aislamiento',
+      'Verificar protecciones térmicas',
+      'Comprobar funcionamiento de interruptores',
+      'Documentar mediciones realizadas',
+      'Retirar LOTO siguiendo procedimiento',
     ],
     duracionEstimadaHoras: 8,
   },
   INSTRUMENTACION: {
-    nombre: "Kit Instrumentación Industrial",
-    descripcion:
-      "Herramientas para calibración y mantenimiento de instrumentos",
+    nombre: 'Kit Instrumentación Industrial',
+    descripcion: 'Herramientas para calibración y mantenimiento de instrumentos',
     herramientas: [
-      { nombre: "Calibrador de presión", cantidad: 1, certificacion: true },
+      { nombre: 'Calibrador de presión', cantidad: 1, certificacion: true },
       {
-        nombre: "Simulador de señales 4-20mA",
+        nombre: 'Simulador de señales 4-20mA',
         cantidad: 1,
         certificacion: true,
       },
-      { nombre: "Multímetro de precisión", cantidad: 1, certificacion: true },
-      { nombre: "Termómetro infrarrojo", cantidad: 1, certificacion: true },
+      { nombre: 'Multímetro de precisión', cantidad: 1, certificacion: true },
+      { nombre: 'Termómetro infrarrojo', cantidad: 1, certificacion: true },
       {
-        nombre: "Destornilladores de precisión",
+        nombre: 'Destornilladores de precisión',
         cantidad: 1,
         certificacion: false,
       },
-      { nombre: "Llaves Allen métricas", cantidad: 1, certificacion: false },
+      { nombre: 'Llaves Allen métricas', cantidad: 1, certificacion: false },
     ],
     equipos: [
       {
-        nombre: "Laptop con software de calibración",
+        nombre: 'Laptop con software de calibración',
         cantidad: 1,
         certificacion: false,
       },
-      { nombre: "Comunicador HART", cantidad: 1, certificacion: true },
-      { nombre: "EPP básico", cantidad: 1, certificacion: true },
+      { nombre: 'Comunicador HART', cantidad: 1, certificacion: true },
+      { nombre: 'EPP básico', cantidad: 1, certificacion: true },
     ],
     documentos: [
-      "Hoja de datos del instrumento",
-      "Procedimiento de calibración",
-      "Certificados de patrones",
-      "Formato de calibración",
+      'Hoja de datos del instrumento',
+      'Procedimiento de calibración',
+      'Certificados de patrones',
+      'Formato de calibración',
     ],
     checklistItems: [
-      "Identificar tag del instrumento",
-      "Verificar alimentación eléctrica/neumática",
-      "Realizar prueba de cero",
-      "Verificar span del instrumento",
-      "Calibrar según procedimiento",
-      "Documentar valores antes y después",
-      "Etiquetar instrumento calibrado",
-      "Registrar fecha próxima calibración",
+      'Identificar tag del instrumento',
+      'Verificar alimentación eléctrica/neumática',
+      'Realizar prueba de cero',
+      'Verificar span del instrumento',
+      'Calibrar según procedimiento',
+      'Documentar valores antes y después',
+      'Etiquetar instrumento calibrado',
+      'Registrar fecha próxima calibración',
     ],
     duracionEstimadaHoras: 4,
   },
@@ -236,9 +234,7 @@ export class KitsService {
   private readonly logger = new Logger(KitsService.name);
 
   constructor(private readonly prisma: PrismaService) {
-    this.logger.log(
-      "ℹ️  KitsService: Legacy service. Consider migrating to Use Cases.",
-    );
+    this.logger.log('ℹ️  KitsService: Legacy service. Consider migrating to Use Cases.');
   }
 
   /**
@@ -248,12 +244,12 @@ export class KitsService {
     try {
       const kits = await this.prisma.kitTipico.findMany({
         where: { activo: true },
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
       });
       return { data: kits };
     } catch (error) {
       const err = error as Error;
-      this.logger.error("[findAll] Error:", err.message);
+      this.logger.error('[findAll] Error:', err.message);
       throw error;
     }
   }
@@ -263,7 +259,7 @@ export class KitsService {
    */
   async findOne(id: string) {
     const kit = await this.prisma.kitTipico.findUnique({ where: { id } });
-    if (!kit) throw new NotFoundException("Kit no encontrado");
+    if (!kit) throw new NotFoundException('Kit no encontrado');
     return kit;
   }
 
@@ -274,7 +270,7 @@ export class KitsService {
     const kit = await this.prisma.kitTipico.create({
       data: {
         nombre: dto.nombre,
-        descripcion: dto.descripcion ?? "",
+        descripcion: dto.descripcion ?? '',
         herramientas: (dto.herramientas ?? []) as object,
         equipos: (dto.equipos ?? []) as object,
         documentos: dto.documentos ?? [],
@@ -284,7 +280,7 @@ export class KitsService {
         activo: true,
       },
     });
-    return { message: "Kit creado", data: kit };
+    return { message: 'Kit creado', data: kit };
   }
 
   /**
@@ -293,24 +289,21 @@ export class KitsService {
   async update(id: string, dto: Partial<CreateKitDtoLegacy>) {
     await this.findOne(id);
     const updateData: Record<string, unknown> = {};
-    if (dto.nombre) updateData["nombre"] = dto.nombre;
-    if (dto.descripcion !== undefined)
-      updateData["descripcion"] = dto.descripcion ?? null;
-    if (dto.herramientas)
-      updateData["herramientas"] = dto.herramientas as object;
-    if (dto.equipos) updateData["equipos"] = dto.equipos as object;
-    if (dto.documentos) updateData["documentos"] = dto.documentos;
-    if (dto.checklistItems) updateData["checklistItems"] = dto.checklistItems;
+    if (dto.nombre) updateData['nombre'] = dto.nombre;
+    if (dto.descripcion !== undefined) updateData['descripcion'] = dto.descripcion ?? null;
+    if (dto.herramientas) updateData['herramientas'] = dto.herramientas as object;
+    if (dto.equipos) updateData['equipos'] = dto.equipos as object;
+    if (dto.documentos) updateData['documentos'] = dto.documentos;
+    if (dto.checklistItems) updateData['checklistItems'] = dto.checklistItems;
     if (dto.duracionEstimadaHoras !== undefined)
-      updateData["duracionEstimadaHoras"] = dto.duracionEstimadaHoras;
-    if (dto.costoEstimado !== undefined)
-      updateData["costoEstimado"] = dto.costoEstimado;
+      updateData['duracionEstimadaHoras'] = dto.duracionEstimadaHoras;
+    if (dto.costoEstimado !== undefined) updateData['costoEstimado'] = dto.costoEstimado;
 
     const kit = await this.prisma.kitTipico.update({
       where: { id },
       data: updateData,
     });
-    return { message: "Kit actualizado", data: kit };
+    return { message: 'Kit actualizado', data: kit };
   }
 
   /**
@@ -322,7 +315,7 @@ export class KitsService {
       where: { id },
       data: { activo: false },
     });
-    return { message: "Kit desactivado" };
+    return { message: 'Kit desactivado' };
   }
 
   /**
@@ -330,13 +323,12 @@ export class KitsService {
    */
   async changeEstado(id: string, estado: string) {
     await this.findOne(id);
-    const nuevoEstado =
-      estado === "disponible" || estado === "active" || estado === "activo";
+    const nuevoEstado = estado === 'disponible' || estado === 'active' || estado === 'activo';
     const kit = await this.prisma.kitTipico.update({
       where: { id },
       data: { activo: nuevoEstado },
     });
-    return { message: "Estado actualizado", data: kit };
+    return { message: 'Estado actualizado', data: kit };
   }
 
   /**
@@ -356,19 +348,14 @@ export class KitsService {
    */
   async getPredefinedKit(tipo: string) {
     const kit = KITS_PREDEFINIDOS[tipo as keyof typeof KITS_PREDEFINIDOS];
-    if (!kit)
-      throw new NotFoundException(`Kit predefinido ${tipo} no encontrado`);
+    if (!kit) throw new NotFoundException(`Kit predefinido ${tipo} no encontrado`);
     return { tipo, ...kit };
   }
 
   /**
    * Aplicar kit de base de datos a una ejecución
    */
-  async applyKitToExecution(
-    kitId: string,
-    ejecucionId: string,
-    userId: string,
-  ) {
+  async applyKitToExecution(kitId: string, ejecucionId: string, userId: string) {
     const kit = await this.findOne(kitId);
 
     const ejecucion = await this.prisma.ejecucion.findUnique({
@@ -376,12 +363,11 @@ export class KitsService {
     });
 
     if (!ejecucion) {
-      throw new NotFoundException("Ejecución no encontrada");
+      throw new NotFoundException('Ejecución no encontrada');
     }
 
     const checklistItems = (kit.checklistItems as unknown as string[]) || [];
-    const herramientas =
-      (kit.herramientas as unknown as HerramientaKit[]) || [];
+    const herramientas = (kit.herramientas as unknown as HerramientaKit[]) || [];
     const equipos = (kit.equipos as unknown as EquipoKit[]) || [];
 
     const checklistPrincipal = await this.prisma.checklistEjecucion.create({
@@ -393,34 +379,30 @@ export class KitsService {
       },
     });
 
-    const herramientasItems = herramientas.map((h) => ({
+    const herramientasItems = herramientas.map(h => ({
       checklistId: checklistPrincipal.id,
       nombre: `${h.nombre} (Cant: ${h.cantidad})`,
-      estado: "pendiente",
+      estado: 'pendiente',
       completado: false,
-      observaciones: h.certificacion ? "REQUIERE CERTIFICACIÓN" : null,
+      observaciones: h.certificacion ? 'REQUIERE CERTIFICACIÓN' : null,
     }));
 
-    const equiposItems = equipos.map((e) => ({
+    const equiposItems = equipos.map(e => ({
       checklistId: checklistPrincipal.id,
       nombre: `${e.nombre} (Cant: ${e.cantidad})`,
-      estado: "pendiente",
+      estado: 'pendiente',
       completado: false,
-      observaciones: e.certificacion ? "REQUIERE CERTIFICACIÓN" : null,
+      observaciones: e.certificacion ? 'REQUIERE CERTIFICACIÓN' : null,
     }));
 
-    const actividadesItems = checklistItems.map((item) => ({
+    const actividadesItems = checklistItems.map(item => ({
       checklistId: checklistPrincipal.id,
       nombre: item,
-      estado: "pendiente",
+      estado: 'pendiente',
       completado: false,
     }));
 
-    if (
-      herramientasItems.length > 0 ||
-      equiposItems.length > 0 ||
-      actividadesItems.length > 0
-    ) {
+    if (herramientasItems.length > 0 || equiposItems.length > 0 || actividadesItems.length > 0) {
       await this.prisma.checklistItemEjecucion.createMany({
         data: [...herramientasItems, ...equiposItems, ...actividadesItems],
       });
@@ -432,7 +414,7 @@ export class KitsService {
     });
 
     return {
-      message: "Kit aplicado a la ejecución correctamente",
+      message: 'Kit aplicado a la ejecución correctamente',
       data: {
         kitAplicado: kit.nombre,
         totalHerramientas: herramientas.length,
@@ -447,21 +429,16 @@ export class KitsService {
   /**
    * Aplicar kit predefinido a una ejecución
    */
-  async applyPredefinedKitToExecution(
-    tipo: string,
-    ejecucionId: string,
-    userId: string,
-  ) {
+  async applyPredefinedKitToExecution(tipo: string, ejecucionId: string, userId: string) {
     const kit = KITS_PREDEFINIDOS[tipo as keyof typeof KITS_PREDEFINIDOS];
-    if (!kit)
-      throw new NotFoundException(`Kit predefinido ${tipo} no encontrado`);
+    if (!kit) throw new NotFoundException(`Kit predefinido ${tipo} no encontrado`);
 
     const ejecucion = await this.prisma.ejecucion.findUnique({
       where: { id: ejecucionId },
     });
 
     if (!ejecucion) {
-      throw new NotFoundException("Ejecución no encontrada");
+      throw new NotFoundException('Ejecución no encontrada');
     }
 
     const checklistPrincipal = await this.prisma.checklistEjecucion.create({
@@ -473,43 +450,38 @@ export class KitsService {
       },
     });
 
-    const herramientasItems = kit.herramientas.map((h) => ({
+    const herramientasItems = kit.herramientas.map(h => ({
       checklistId: checklistPrincipal.id,
       nombre: `🔧 ${h.nombre} (Cant: ${h.cantidad})`,
-      estado: "pendiente",
+      estado: 'pendiente',
       completado: false,
-      observaciones: h.certificacion ? "⚠️ CERTIFICACIÓN REQUERIDA" : null,
+      observaciones: h.certificacion ? '⚠️ CERTIFICACIÓN REQUERIDA' : null,
     }));
 
-    const equiposItems = kit.equipos.map((e) => ({
+    const equiposItems = kit.equipos.map(e => ({
       checklistId: checklistPrincipal.id,
       nombre: `🛡️ ${e.nombre} (Cant: ${e.cantidad})`,
-      estado: "pendiente",
+      estado: 'pendiente',
       completado: false,
-      observaciones: e.certificacion ? "⚠️ CERTIFICACIÓN REQUERIDA" : null,
+      observaciones: e.certificacion ? '⚠️ CERTIFICACIÓN REQUERIDA' : null,
     }));
 
-    const documentosItems = kit.documentos.map((doc) => ({
+    const documentosItems = kit.documentos.map(doc => ({
       checklistId: checklistPrincipal.id,
       nombre: `📄 ${doc}`,
-      estado: "pendiente",
+      estado: 'pendiente',
       completado: false,
     }));
 
-    const actividadesItems = kit.checklistItems.map((item) => ({
+    const actividadesItems = kit.checklistItems.map(item => ({
       checklistId: checklistPrincipal.id,
       nombre: `📋 ${item}`,
-      estado: "pendiente",
+      estado: 'pendiente',
       completado: false,
     }));
 
     await this.prisma.checklistItemEjecucion.createMany({
-      data: [
-        ...herramientasItems,
-        ...equiposItems,
-        ...documentosItems,
-        ...actividadesItems,
-      ],
+      data: [...herramientasItems, ...equiposItems, ...documentosItems, ...actividadesItems],
     });
 
     const checklistCompleto = await this.prisma.checklistEjecucion.findUnique({
@@ -557,14 +529,14 @@ export class KitsService {
             activo: true,
           },
         });
-        results.push({ tipo, status: "created", id: newKit.id });
+        results.push({ tipo, status: 'created', id: newKit.id });
       } else {
-        results.push({ tipo, status: "exists", id: existingKit.id });
+        results.push({ tipo, status: 'exists', id: existingKit.id });
       }
     }
 
     return {
-      message: "Sincronización de kits completada",
+      message: 'Sincronización de kits completada',
       data: results,
     };
   }

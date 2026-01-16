@@ -1,1 +1,1 @@
-export * from "./sync.dto";
+export * from './sync.dto';

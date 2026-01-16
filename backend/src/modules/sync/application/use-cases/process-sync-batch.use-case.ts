@@ -1,22 +1,16 @@
 /**
  * @useCase ProcessSyncBatchUseCase
  */
-import { Injectable, Inject } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
-import {
-  SYNC_REPOSITORY,
-  ISyncRepository,
-  SyncBatchDto,
-  SyncResponse,
-  SyncResult,
-} from "../dto";
+import { Injectable, Inject } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { SYNC_REPOSITORY, ISyncRepository, SyncBatchDto, SyncResponse, SyncResult } from '../dto';
 
 @Injectable()
 export class ProcessSyncBatchUseCase {
   constructor(
     @Inject(SYNC_REPOSITORY)
     private readonly repo: ISyncRepository,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   async execute(userId: string, batch: SyncBatchDto): Promise<SyncResponse> {
@@ -44,7 +38,7 @@ export class ProcessSyncBatchUseCase {
 
         // Idempotencia / replay protection:
         // si ya está sincronizado o actualmente procesándose, no re-ejecutar.
-        if (pending.status === "synced" || pending.status === "processing") {
+        if (pending.status === 'synced' || pending.status === 'processing') {
           results.push({
             localId: item.localId,
             serverId: pending.entityId ?? pending.id,
@@ -70,19 +64,17 @@ export class ProcessSyncBatchUseCase {
         results.push({
           localId: item.localId,
           success: false,
-          error: error instanceof Error ? error.message : "Unknown error",
+          error: error instanceof Error ? error.message : 'Unknown error',
         });
       }
     }
 
-    const lastSync = batch.lastSyncTimestamp
-      ? new Date(batch.lastSyncTimestamp)
-      : undefined;
+    const lastSync = batch.lastSyncTimestamp ? new Date(batch.lastSyncTimestamp) : undefined;
     const serverChanges = await this.repo.getServerChanges(userId, lastSync);
 
     return {
       synced: results,
-      serverChanges: serverChanges.map((c) => ({
+      serverChanges: serverChanges.map(c => ({
         entityType: c.entityType,
         entityId: c.entityId,
         action: c.action,

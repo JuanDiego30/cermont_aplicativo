@@ -15,19 +15,19 @@ export class InvalidStateTransitionError extends Error {
   constructor(fromEstado: Orderstado, toEstado: Orderstado, allowedTransitions: Orderstado[]) {
     super(
       `No se puede cambiar de ${fromEstado} a ${toEstado}. ` +
-      `Transiciones permitidas: ${allowedTransitions.join(", ")}`
+        `Transiciones permitidas: ${allowedTransitions.join(', ')}`
     );
     this.name = 'InvalidStateTransitionError';
   }
 }
 
 export enum Orderstado {
-  PENDIENTE = "pendiente",
-  PLANEACION = "planeacion",
-  EJECUCION = "ejecucion",
-  COMPLETADA = "completada",
-  CANCELADA = "cancelada",
-  PAUSADA = "pausada",
+  PENDIENTE = 'pendiente',
+  PLANEACION = 'planeacion',
+  EJECUCION = 'ejecucion',
+  COMPLETADA = 'completada',
+  CANCELADA = 'cancelada',
+  PAUSADA = 'pausada',
 }
 
 /**
@@ -38,11 +38,7 @@ export class OrderStateMachine {
   private static readonly TRANSITIONS: Record<Orderstado, Orderstado[]> = {
     [Orderstado.PENDIENTE]: [Orderstado.PLANEACION, Orderstado.CANCELADA],
     [Orderstado.PLANEACION]: [Orderstado.EJECUCION, Orderstado.CANCELADA],
-    [Orderstado.EJECUCION]: [
-      Orderstado.COMPLETADA,
-      Orderstado.PAUSADA,
-      Orderstado.CANCELADA,
-    ],
+    [Orderstado.EJECUCION]: [Orderstado.COMPLETADA, Orderstado.PAUSADA, Orderstado.CANCELADA],
     [Orderstado.COMPLETADA]: [],
     [Orderstado.CANCELADA]: [],
     [Orderstado.PAUSADA]: [Orderstado.EJECUCION, Orderstado.CANCELADA],
@@ -57,11 +53,7 @@ export class OrderStateMachine {
   /**
    * Valida si una transición de estado es permitida
    */
-  static validateTransition(
-    fromEstado: Orderstado,
-    toEstado: Orderstado,
-    motivo?: string,
-  ): void {
+  static validateTransition(fromEstado: Orderstado, toEstado: Orderstado, motivo?: string): void {
     // Validar que la transición esté permitida
     const allowedTransitions = this.TRANSITIONS[fromEstado];
 

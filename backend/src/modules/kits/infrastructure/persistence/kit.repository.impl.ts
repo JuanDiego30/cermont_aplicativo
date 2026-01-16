@@ -3,14 +3,14 @@
  *
  * Prisma implementation of IKitRepository
  */
-import { Injectable, Logger } from "@nestjs/common";
-import { PrismaService } from "../../../../prisma/prisma.service";
-import { IKitRepository } from "../../domain/repositories";
-import { Kit } from "../../domain/entities";
-import { KitId } from "../../domain/value-objects/kit-id.vo";
-import { CategoriaKit } from "../../domain/value-objects/categoria-kit.vo";
-import { EstadoKit } from "../../domain/value-objects/estado-kit.vo";
-import { KitMapper } from "../../application/mappers";
+import { Injectable, Logger } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { IKitRepository } from '../../domain/repositories';
+import { Kit } from '../../domain/entities';
+import { KitId } from '../../domain/value-objects/kit-id.vo';
+import { CategoriaKit } from '../../domain/value-objects/categoria-kit.vo';
+import { EstadoKit } from '../../domain/value-objects/estado-kit.vo';
+import { KitMapper } from '../../application/mappers';
 
 @Injectable()
 export class KitRepositoryImpl implements IKitRepository {
@@ -22,29 +22,29 @@ export class KitRepositoryImpl implements IKitRepository {
     const data = KitMapper.toPrisma(kit);
 
     const saved = await this.prisma.kitTipico.upsert({
-      where: { id: data["id"] as string },
+      where: { id: data['id'] as string },
       create: {
-        id: data["id"] as string,
-        nombre: data["nombre"] as string,
-        descripcion: (data["descripcion"] as string | undefined) ?? "",
-        herramientas: data["herramientas"] as object,
-        equipos: data["equipos"] as object,
-        documentos: data["documentos"] as string[],
-        checklistItems: data["checklistItems"] as string[],
-        duracionEstimadaHoras: data["duracionEstimadaHoras"] as number,
-        costoEstimado: data["costoEstimado"] as number,
-        activo: data["activo"] as boolean,
+        id: data['id'] as string,
+        nombre: data['nombre'] as string,
+        descripcion: (data['descripcion'] as string | undefined) ?? '',
+        herramientas: data['herramientas'] as object,
+        equipos: data['equipos'] as object,
+        documentos: data['documentos'] as string[],
+        checklistItems: data['checklistItems'] as string[],
+        duracionEstimadaHoras: data['duracionEstimadaHoras'] as number,
+        costoEstimado: data['costoEstimado'] as number,
+        activo: data['activo'] as boolean,
       },
       update: {
-        nombre: data["nombre"] as string,
-        descripcion: (data["descripcion"] as string | undefined) ?? "",
-        herramientas: data["herramientas"] as object,
-        equipos: data["equipos"] as object,
-        documentos: data["documentos"] as string[],
-        checklistItems: data["checklistItems"] as string[],
-        duracionEstimadaHoras: data["duracionEstimadaHoras"] as number,
-        costoEstimado: data["costoEstimado"] as number,
-        activo: data["activo"] as boolean,
+        nombre: data['nombre'] as string,
+        descripcion: (data['descripcion'] as string | undefined) ?? '',
+        herramientas: data['herramientas'] as object,
+        equipos: data['equipos'] as object,
+        documentos: data['documentos'] as string[],
+        checklistItems: data['checklistItems'] as string[],
+        duracionEstimadaHoras: data['duracionEstimadaHoras'] as number,
+        costoEstimado: data['costoEstimado'] as number,
+        activo: data['activo'] as boolean,
         updatedAt: new Date(),
       },
     });
@@ -80,23 +80,19 @@ export class KitRepositoryImpl implements IKitRepository {
         activo: true,
         nombre: { contains: categoria.getValue() },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
-    return kits.map((k) =>
-      KitMapper.fromPrisma(k as unknown as Record<string, unknown>),
-    );
+    return kits.map(k => KitMapper.fromPrisma(k as unknown as Record<string, unknown>));
   }
 
   async findAllActive(): Promise<Kit[]> {
     const kits = await this.prisma.kitTipico.findMany({
       where: { activo: true },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
-    return kits.map((k) =>
-      KitMapper.fromPrisma(k as unknown as Record<string, unknown>),
-    );
+    return kits.map(k => KitMapper.fromPrisma(k as unknown as Record<string, unknown>));
   }
 
   async findByEstado(estado: EstadoKit): Promise<Kit[]> {
@@ -104,12 +100,10 @@ export class KitRepositoryImpl implements IKitRepository {
 
     const kits = await this.prisma.kitTipico.findMany({
       where: { activo },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
-    return kits.map((k) =>
-      KitMapper.fromPrisma(k as unknown as Record<string, unknown>),
-    );
+    return kits.map(k => KitMapper.fromPrisma(k as unknown as Record<string, unknown>));
   }
 
   async findTemplates(): Promise<Kit[]> {
@@ -119,12 +113,10 @@ export class KitRepositoryImpl implements IKitRepository {
         activo: true,
         herramientas: { not: { equals: [] } },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
-    return kits.map((k) =>
-      KitMapper.fromPrisma(k as unknown as Record<string, unknown>),
-    );
+    return kits.map(k => KitMapper.fromPrisma(k as unknown as Record<string, unknown>));
   }
 
   async existsByCodigo(codigo: string): Promise<boolean> {

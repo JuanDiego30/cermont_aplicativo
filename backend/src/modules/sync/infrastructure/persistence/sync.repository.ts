@@ -2,13 +2,9 @@
  * @repository SyncRepository
  * Implementación simplificada para sincronización offline
  */
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../../../../prisma/prisma.service";
-import {
-  ISyncRepository,
-  PendingSync,
-  SyncItemDto,
-} from "../../application/dto";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { ISyncRepository, PendingSync, SyncItemDto } from '../../application/dto';
 
 @Injectable()
 export class SyncRepository implements ISyncRepository {
@@ -16,7 +12,7 @@ export class SyncRepository implements ISyncRepository {
 
   async savePending(
     userId: string,
-    item: SyncItemDto & { deviceId: string },
+    item: SyncItemDto & { deviceId: string }
   ): Promise<PendingSync> {
     // Idempotencia fuerte: un mismo item reenviado no debe duplicarse.
     // Clave: (userId, deviceId, localId) con constraint única en DB.
@@ -32,10 +28,7 @@ export class SyncRepository implements ISyncRepository {
 
     // Si ya fue sincronizado o está en proceso, devolvemos el registro sin mutar.
     // Esto evita replays que reseteen el status a 'pending'.
-    if (
-      existing &&
-      (existing.status === "synced" || existing.status === "processing")
-    ) {
+    if (existing && (existing.status === 'synced' || existing.status === 'processing')) {
       return {
         id: existing.id,
         userId: existing.userId,
@@ -68,7 +61,7 @@ export class SyncRepository implements ISyncRepository {
         data: item.data as any,
         localId: item.localId,
         timestamp: new Date(item.timestamp),
-        status: "pending",
+        status: 'pending',
       },
       update: {
         entityType: item.entityType,
@@ -76,7 +69,7 @@ export class SyncRepository implements ISyncRepository {
         action: item.action,
         data: item.data as any,
         timestamp: new Date(item.timestamp),
-        status: "pending",
+        status: 'pending',
         error: null,
       },
     });
@@ -91,7 +84,7 @@ export class SyncRepository implements ISyncRepository {
       data: (record.data ?? {}) as any,
       localId: record.localId,
       timestamp: record.timestamp,
-      status: (record.status as any) || "pending",
+      status: (record.status as any) || 'pending',
       error: record.error ?? undefined,
     };
   }
@@ -100,10 +93,10 @@ export class SyncRepository implements ISyncRepository {
     const result = await this.prisma.pendingSync.updateMany({
       where: {
         id,
-        status: { in: ["pending", "failed"] },
+        status: { in: ['pending', 'failed'] },
       },
       data: {
-        status: "processing",
+        status: 'processing',
         error: null,
       },
     });
@@ -115,7 +108,7 @@ export class SyncRepository implements ISyncRepository {
     await this.prisma.pendingSync.update({
       where: { id },
       data: {
-        status: "synced",
+        status: 'synced',
         entityId: serverId,
       },
     });
@@ -125,7 +118,7 @@ export class SyncRepository implements ISyncRepository {
     await this.prisma.pendingSync.update({
       where: { id },
       data: {
-        status: "failed",
+        status: 'failed',
         error,
       },
     });
@@ -135,7 +128,7 @@ export class SyncRepository implements ISyncRepository {
     await this.prisma.pendingSync.update({
       where: { id },
       data: {
-        status: "conflict",
+        status: 'conflict',
         error,
       },
     });
@@ -171,10 +164,10 @@ export class SyncRepository implements ISyncRepository {
 
     // Shape consistente con ProcessSyncBatchUseCase.
     return [
-      ...ordenes.map((o) => ({
-        entityType: "orden",
+      ...ordenes.map(o => ({
+        entityType: 'orden',
         entityId: o.id,
-        action: "update",
+        action: 'update',
         data: {
           id: o.id,
           numero: o.numero,
@@ -182,10 +175,10 @@ export class SyncRepository implements ISyncRepository {
         },
         timestamp: o.updatedAt,
       })),
-      ...ejecuciones.map((e) => ({
-        entityType: "ejecucion",
+      ...ejecuciones.map(e => ({
+        entityType: 'ejecucion',
         entityId: e.id,
-        action: "update",
+        action: 'update',
         data: {
           id: e.id,
           ordenId: e.ordenId,
@@ -200,12 +193,12 @@ export class SyncRepository implements ISyncRepository {
     const records = await this.prisma.pendingSync.findMany({
       where: {
         userId,
-        status: { in: ["pending", "processing", "failed", "conflict"] },
+        status: { in: ['pending', 'processing', 'failed', 'conflict'] },
       },
-      orderBy: { createdAt: "asc" },
+      orderBy: { createdAt: 'asc' },
     });
 
-    return records.map((r) => ({
+    return records.map(r => ({
       id: r.id,
       userId: r.userId,
       deviceId: r.deviceId,

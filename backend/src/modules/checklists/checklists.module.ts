@@ -4,12 +4,12 @@
  * Módulo NestJS para gestión de checklists
  */
 
-import { Module } from "@nestjs/common";
-import { EventEmitterModule } from "@nestjs/event-emitter";
-import { PrismaModule } from "../../prisma/prisma.module";
-import { ChecklistsController } from "./infrastructure/controllers";
-import { ChecklistRepository } from "./infrastructure/persistence";
-import { CHECKLIST_REPOSITORY } from "./domain/repositories";
+import { Module } from '@nestjs/common';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { PrismaModule } from '../../prisma/prisma.module';
+import { ChecklistsController } from './infrastructure/controllers';
+import { ChecklistRepository } from './infrastructure/persistence';
+import { CHECKLIST_REPOSITORY } from './domain/repositories';
 import {
   CreateChecklistUseCase,
   ListChecklistsUseCase,
@@ -21,8 +21,8 @@ import {
   UpdateChecklistItemUseCase,
   CompleteChecklistUseCase,
   ArchiveChecklistUseCase,
-} from "./application/use-cases";
-import { ChecklistAssignService } from "./application/services/checklist-assign.service";
+} from './application/use-cases';
+import { ChecklistAssignService } from './application/services/checklist-assign.service';
 
 @Module({
   imports: [PrismaModule, EventEmitterModule],

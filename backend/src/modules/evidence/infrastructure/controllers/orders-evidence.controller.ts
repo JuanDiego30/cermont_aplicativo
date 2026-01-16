@@ -1,13 +1,13 @@
 import {
-    BadRequestException,
-    Controller,
-    ForbiddenException,
-    Get,
-    Inject,
-    NotFoundException,
-    Param,
-    Query,
-    UseGuards,
+  BadRequestException,
+  Controller,
+  ForbiddenException,
+  Get,
+  Inject,
+  NotFoundException,
+  Param,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser, JwtPayload } from '../../../../shared/decorators/current-user.decorator';
@@ -23,7 +23,7 @@ export class OrdersEvidenceController {
   constructor(
     private readonly listEvidenciasUseCase: ListEvidenciasUseCase,
     @Inject(Order_REPOSITORY)
-    private readonly ordenRepository: IOrderRepository,
+    private readonly ordenRepository: IOrderRepository
   ) {}
 
   /**
@@ -35,7 +35,7 @@ export class OrdersEvidenceController {
     @Param('orderId') orderId: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
-    @CurrentUser() user?: JwtPayload,
+    @CurrentUser() user?: JwtPayload
   ) {
     if (!orderId) {
       throw new BadRequestException('orderId is required');

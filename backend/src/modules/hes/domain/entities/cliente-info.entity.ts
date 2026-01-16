@@ -4,11 +4,11 @@
  * Información del cliente para la HES
  */
 
-import { ValidationError } from "../../../../shared/domain/exceptions";
-import { Telefono } from "../value-objects/telefono.vo";
-import { Direccion } from "../value-objects/direccion.vo";
-import { CoordenadasGPS } from "../value-objects/coordenadas-gps.vo";
-import { Email } from "../../../../shared/domain/value-objects/email.vo";
+import { ValidationError } from '../../../../shared/domain/exceptions';
+import { Telefono } from '../value-objects/telefono.vo';
+import { Direccion } from '../value-objects/direccion.vo';
+import { CoordenadasGPS } from '../value-objects/coordenadas-gps.vo';
+import { Email } from '../../../../shared/domain/value-objects/email.vo';
 
 export interface CreateClienteInfoProps {
   nombre: string;
@@ -37,7 +37,7 @@ export class ClienteInfo {
     private readonly _telefono: Telefono,
     private readonly _direccion: Direccion,
     private readonly _email?: Email,
-    private readonly _coordenadasGPS?: CoordenadasGPS,
+    private readonly _coordenadasGPS?: CoordenadasGPS
   ) {}
 
   public static create(props: CreateClienteInfoProps): ClienteInfo {
@@ -48,11 +48,8 @@ export class ClienteInfo {
       Direccion.create(props.direccion),
       props.email ? Email.create(props.email) : undefined,
       props.coordenadasGPS
-        ? CoordenadasGPS.create(
-            props.coordenadasGPS.latitud,
-            props.coordenadasGPS.longitud,
-          )
-        : undefined,
+        ? CoordenadasGPS.create(props.coordenadasGPS.latitud, props.coordenadasGPS.longitud)
+        : undefined
     );
 
     info.validate();
@@ -60,24 +57,20 @@ export class ClienteInfo {
   }
 
   private validate(): void {
-    if (!this._nombre || this._nombre.trim() === "") {
-      throw new ValidationError("Nombre del cliente es requerido");
+    if (!this._nombre || this._nombre.trim() === '') {
+      throw new ValidationError('Nombre del cliente es requerido');
     }
 
     if (this._nombre.length < 2) {
-      throw new ValidationError(
-        "Nombre del cliente debe tener al menos 2 caracteres",
-      );
+      throw new ValidationError('Nombre del cliente debe tener al menos 2 caracteres');
     }
 
-    if (!this._identificacion || this._identificacion.trim() === "") {
-      throw new ValidationError("Identificación del cliente es requerida");
+    if (!this._identificacion || this._identificacion.trim() === '') {
+      throw new ValidationError('Identificación del cliente es requerida');
     }
 
     if (this._identificacion.length < 5) {
-      throw new ValidationError(
-        "Identificación del cliente debe tener al menos 5 caracteres",
-      );
+      throw new ValidationError('Identificación del cliente debe tener al menos 5 caracteres');
     }
   }
 
@@ -109,4 +102,3 @@ export class ClienteInfo {
     return this._coordenadasGPS?.toJSON();
   }
 }
-

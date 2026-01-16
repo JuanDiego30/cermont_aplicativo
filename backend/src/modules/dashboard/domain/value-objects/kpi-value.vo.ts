@@ -9,21 +9,21 @@
  * - Precisión usando Decimal.js para cálculos financieros
  */
 
-import { Decimal } from "decimal.js";
-import { ValidationError } from "../exceptions";
+import { Decimal } from 'decimal.js';
+import { ValidationError } from '../exceptions';
 
 export enum KpiValueType {
-  NUMBER = "NUMBER",
-  MONEY = "MONEY",
-  PERCENTAGE = "PERCENTAGE",
-  COUNT = "COUNT",
+  NUMBER = 'NUMBER',
+  MONEY = 'MONEY',
+  PERCENTAGE = 'PERCENTAGE',
+  COUNT = 'COUNT',
 }
 
 export class KpiValue {
   private constructor(
     private readonly _value: Decimal,
     private readonly _type: KpiValueType,
-    private readonly _currency?: string,
+    private readonly _currency?: string
   ) {
     Object.freeze(this);
   }
@@ -34,10 +34,10 @@ export class KpiValue {
   public static number(value: number | string | Decimal): KpiValue {
     const decimal = new Decimal(value);
     if (decimal.isNaN()) {
-      throw new ValidationError("KPI value must be a valid number", "kpiValue");
+      throw new ValidationError('KPI value must be a valid number', 'kpiValue');
     }
     if (decimal.isNegative()) {
-      throw new ValidationError("KPI value cannot be negative", "kpiValue");
+      throw new ValidationError('KPI value cannot be negative', 'kpiValue');
     }
     return new KpiValue(decimal, KpiValueType.NUMBER);
   }
@@ -45,22 +45,16 @@ export class KpiValue {
   /**
    * Crea un KPI de tipo dinero
    */
-  public static money(
-    value: number | string | Decimal,
-    currency: string = "COP",
-  ): KpiValue {
+  public static money(value: number | string | Decimal, currency: string = 'COP'): KpiValue {
     const decimal = new Decimal(value);
     if (decimal.isNaN()) {
-      throw new ValidationError(
-        "Money value must be a valid number",
-        "kpiValue",
-      );
+      throw new ValidationError('Money value must be a valid number', 'kpiValue');
     }
     if (decimal.isNegative()) {
-      throw new ValidationError("Money value cannot be negative", "kpiValue");
+      throw new ValidationError('Money value cannot be negative', 'kpiValue');
     }
-    if (!currency || typeof currency !== "string") {
-      throw new ValidationError("Currency is required", "currency");
+    if (!currency || typeof currency !== 'string') {
+      throw new ValidationError('Currency is required', 'currency');
     }
     return new KpiValue(decimal, KpiValueType.MONEY, currency.toUpperCase());
   }
@@ -71,16 +65,10 @@ export class KpiValue {
   public static percentage(value: number | string | Decimal): KpiValue {
     const decimal = new Decimal(value);
     if (decimal.isNaN()) {
-      throw new ValidationError(
-        "Percentage value must be a valid number",
-        "kpiValue",
-      );
+      throw new ValidationError('Percentage value must be a valid number', 'kpiValue');
     }
     if (decimal.lessThan(0) || decimal.greaterThan(100)) {
-      throw new ValidationError(
-        "Percentage must be between 0 and 100",
-        "kpiValue",
-      );
+      throw new ValidationError('Percentage must be between 0 and 100', 'kpiValue');
     }
     return new KpiValue(decimal, KpiValueType.PERCENTAGE);
   }
@@ -91,16 +79,10 @@ export class KpiValue {
   public static count(value: number | string | Decimal): KpiValue {
     const decimal = new Decimal(value);
     if (decimal.isNaN()) {
-      throw new ValidationError(
-        "Count value must be a valid number",
-        "kpiValue",
-      );
+      throw new ValidationError('Count value must be a valid number', 'kpiValue');
     }
     if (!decimal.isInteger() || decimal.isNegative()) {
-      throw new ValidationError(
-        "Count must be a non-negative integer",
-        "kpiValue",
-      );
+      throw new ValidationError('Count must be a non-negative integer', 'kpiValue');
     }
     return new KpiValue(decimal, KpiValueType.COUNT);
   }
@@ -112,8 +94,8 @@ export class KpiValue {
     switch (this._type) {
       case KpiValueType.MONEY:
         const formatted = this._value.toFixed(2);
-        const [integer, decimal] = formatted.split(".");
-        const integerWithCommas = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        const [integer, decimal] = formatted.split('.');
+        const integerWithCommas = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         return `$ ${integerWithCommas}.${decimal} ${this._currency}`;
       case KpiValueType.PERCENTAGE:
         return `${this._value.toFixed(2)}%`;
@@ -166,23 +148,16 @@ export class KpiValue {
     if (this._type !== other._type) {
       throw new ValidationError(
         `Cannot add KPI values of different types: ${this._type} and ${other._type}`,
-        "kpiValue",
+        'kpiValue'
       );
     }
-    if (
-      this._type === KpiValueType.MONEY &&
-      this._currency !== other._currency
-    ) {
+    if (this._type === KpiValueType.MONEY && this._currency !== other._currency) {
       throw new ValidationError(
         `Cannot add money values of different currencies: ${this._currency} and ${other._currency}`,
-        "kpiValue",
+        'kpiValue'
       );
     }
-    return new KpiValue(
-      this._value.plus(other._value),
-      this._type,
-      this._currency,
-    );
+    return new KpiValue(this._value.plus(other._value), this._type, this._currency);
   }
 
   /**
@@ -192,21 +167,18 @@ export class KpiValue {
     if (this._type !== other._type) {
       throw new ValidationError(
         `Cannot subtract KPI values of different types: ${this._type} and ${other._type}`,
-        "kpiValue",
+        'kpiValue'
       );
     }
-    if (
-      this._type === KpiValueType.MONEY &&
-      this._currency !== other._currency
-    ) {
+    if (this._type === KpiValueType.MONEY && this._currency !== other._currency) {
       throw new ValidationError(
         `Cannot subtract money values of different currencies: ${this._currency} and ${other._currency}`,
-        "kpiValue",
+        'kpiValue'
       );
     }
     const result = this._value.minus(other._value);
     if (result.isNegative() && this._type !== KpiValueType.NUMBER) {
-      throw new ValidationError("Result cannot be negative", "kpiValue");
+      throw new ValidationError('Result cannot be negative', 'kpiValue');
     }
     return new KpiValue(result, this._type, this._currency);
   }
@@ -224,7 +196,7 @@ export class KpiValue {
    */
   public divide(divisor: number | Decimal): KpiValue {
     if (new Decimal(divisor).equals(0)) {
-      throw new ValidationError("Cannot divide by zero", "kpiValue");
+      throw new ValidationError('Cannot divide by zero', 'kpiValue');
     }
     const result = this._value.dividedBy(divisor);
     return new KpiValue(result, this._type, this._currency);

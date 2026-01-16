@@ -4,12 +4,12 @@
  * Implementación Prisma de IFormTemplateRepository
  */
 
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../../../../prisma/prisma.service";
-import { IFormTemplateRepository } from "../../domain/repositories/form-template.repository.interface";
-import { FormTemplate } from "../../domain/entities/form-template.entity";
-import { FormTemplateId } from "../../domain/value-objects/form-template-id.vo";
-import { FormTemplateMapper } from "../../application/mappers/form-template.mapper";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { IFormTemplateRepository } from '../../domain/repositories/form-template.repository.interface';
+import { FormTemplate } from '../../domain/entities/form-template.entity';
+import { FormTemplateId } from '../../domain/value-objects/form-template-id.vo';
+import { FormTemplateMapper } from '../../application/mappers/form-template.mapper';
 
 @Injectable()
 export class FormTemplateRepository implements IFormTemplateRepository {
@@ -66,10 +66,10 @@ export class FormTemplateRepository implements IFormTemplateRepository {
         tipo: contextType as any,
         activo: true,
       },
-      orderBy: { updatedAt: "desc" },
+      orderBy: { updatedAt: 'desc' },
     });
 
-    return templates.map((t) => FormTemplateMapper.fromPrisma(t));
+    return templates.map(t => FormTemplateMapper.fromPrisma(t));
   }
 
   async findLatestVersion(name: string): Promise<FormTemplate | null> {
@@ -78,7 +78,7 @@ export class FormTemplateRepository implements IFormTemplateRepository {
         nombre: name,
         activo: true,
       },
-      orderBy: { version: "desc" },
+      orderBy: { version: 'desc' },
     });
 
     if (!template) {
@@ -93,10 +93,10 @@ export class FormTemplateRepository implements IFormTemplateRepository {
       where: {
         nombre: name,
       },
-      orderBy: { version: "desc" },
+      orderBy: { version: 'desc' },
     });
 
-    return templates.map((t) => FormTemplateMapper.fromPrisma(t));
+    return templates.map(t => FormTemplateMapper.fromPrisma(t));
   }
 
   async exists(name: string): Promise<boolean> {
@@ -115,10 +115,10 @@ export class FormTemplateRepository implements IFormTemplateRepository {
       where: {
         activo: true,
       },
-      orderBy: { updatedAt: "desc" },
+      orderBy: { updatedAt: 'desc' },
     });
 
-    return templates.map((t) => FormTemplateMapper.fromPrisma(t));
+    return templates.map(t => FormTemplateMapper.fromPrisma(t));
   }
 
   async findPublished(): Promise<FormTemplate[]> {
@@ -128,12 +128,10 @@ export class FormTemplateRepository implements IFormTemplateRepository {
       where: {
         activo: true,
       },
-      orderBy: { updatedAt: "desc" },
+      orderBy: { updatedAt: 'desc' },
     });
 
-    return templates
-      .map((t) => FormTemplateMapper.fromPrisma(t))
-      .filter((t) => t.isPublished());
+    return templates.map(t => FormTemplateMapper.fromPrisma(t)).filter(t => t.isPublished());
   }
 
   async delete(id: FormTemplateId): Promise<void> {

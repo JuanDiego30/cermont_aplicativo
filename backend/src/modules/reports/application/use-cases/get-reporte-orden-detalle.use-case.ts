@@ -1,20 +1,20 @@
 /**
  * @useCase GetReporteOrdenDetalleUseCase
  */
-import { Injectable, Inject, NotFoundException } from "@nestjs/common";
-import { REPORTE_REPOSITORY, IReporteRepository } from "../dto";
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { REPORTE_REPOSITORY, IReporteRepository } from '../dto';
 
 @Injectable()
 export class GetReporteOrdenDetalleUseCase {
   constructor(
     @Inject(REPORTE_REPOSITORY)
-    private readonly repo: IReporteRepository,
+    private readonly repo: IReporteRepository
   ) {}
 
   async execute(ordenId: string) {
     const orden = await this.repo.getOrdenDetalle(ordenId);
     if (!orden) {
-      throw new NotFoundException("Orden no encontrada");
+      throw new NotFoundException('Orden no encontrada');
     }
 
     return {

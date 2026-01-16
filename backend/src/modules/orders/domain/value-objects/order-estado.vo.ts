@@ -4,12 +4,12 @@
  * @layer Domain
  */
 export type EstadoOrder =
-  | "pendiente"
-  | "planeacion"
-  | "ejecucion"
-  | "completada"
-  | "cancelada"
-  | "pausada";
+  | 'pendiente'
+  | 'planeacion'
+  | 'ejecucion'
+  | 'completada'
+  | 'cancelada'
+  | 'pausada';
 
 export class Orderstado {
   /**
@@ -17,16 +17,13 @@ export class Orderstado {
    * Keep transitions aligned with unit tests under
    * `modules/Orders/domain/value-objects/__tests__/Order-estado.vo.spec.ts`.
    */
-  private static readonly VALID_TRANSITIONS: Record<
-    EstadoOrder,
-    EstadoOrder[]
-  > = {
-    pendiente: ["planeacion", "cancelada"],
-    planeacion: ["ejecucion", "cancelada"],
-    ejecucion: ["completada", "pausada", "cancelada"],
+  private static readonly VALID_TRANSITIONS: Record<EstadoOrder, EstadoOrder[]> = {
+    pendiente: ['planeacion', 'cancelada'],
+    planeacion: ['ejecucion', 'cancelada'],
+    ejecucion: ['completada', 'pausada', 'cancelada'],
     completada: [],
     cancelada: [],
-    pausada: ["ejecucion", "cancelada"],
+    pausada: ['ejecucion', 'cancelada'],
   };
 
   private constructor(private readonly _value: EstadoOrder) {
@@ -38,21 +35,19 @@ export class Orderstado {
   }
 
   get isActive(): boolean {
-    return ["pendiente", "planeacion", "ejecucion", "pausada"].includes(
-      this._value,
-    );
+    return ['pendiente', 'planeacion', 'ejecucion', 'pausada'].includes(this._value);
   }
 
   get isFinal(): boolean {
-    return ["completada", "cancelada"].includes(this._value);
+    return ['completada', 'cancelada'].includes(this._value);
   }
 
   get canStartExecution(): boolean {
-    return this._value === "planeacion";
+    return this._value === 'planeacion';
   }
 
   get canComplete(): boolean {
-    return this._value === "ejecucion";
+    return this._value === 'ejecucion';
   }
 
   static create(value: EstadoOrder): Orderstado {
@@ -60,27 +55,27 @@ export class Orderstado {
   }
 
   static pendiente(): Orderstado {
-    return new Orderstado("pendiente");
+    return new Orderstado('pendiente');
   }
 
   static planeacion(): Orderstado {
-    return new Orderstado("planeacion");
+    return new Orderstado('planeacion');
   }
 
   static ejecucion(): Orderstado {
-    return new Orderstado("ejecucion");
+    return new Orderstado('ejecucion');
   }
 
   static completada(): Orderstado {
-    return new Orderstado("completada");
+    return new Orderstado('completada');
   }
 
   static cancelada(): Orderstado {
-    return new Orderstado("cancelada");
+    return new Orderstado('cancelada');
   }
 
   static pausada(): Orderstado {
-    return new Orderstado("pausada");
+    return new Orderstado('pausada');
   }
 
   canTransitionTo(newState: EstadoOrder): boolean {

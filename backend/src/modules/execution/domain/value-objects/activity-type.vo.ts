@@ -4,14 +4,14 @@
  */
 
 export enum ActivityTypeEnum {
-  START = "START",
-  PAUSE = "PAUSE",
-  RESUME = "RESUME",
-  UPDATE_PROGRESS = "UPDATE_PROGRESS",
-  UPDATE_LOCATION = "UPDATE_LOCATION",
-  ADD_NOTE = "ADD_NOTE",
-  UPLOAD_EVIDENCE = "UPLOAD_EVIDENCE",
-  COMPLETE = "COMPLETE",
+  START = 'START',
+  PAUSE = 'PAUSE',
+  RESUME = 'RESUME',
+  UPDATE_PROGRESS = 'UPDATE_PROGRESS',
+  UPDATE_LOCATION = 'UPDATE_LOCATION',
+  ADD_NOTE = 'ADD_NOTE',
+  UPLOAD_EVIDENCE = 'UPLOAD_EVIDENCE',
+  COMPLETE = 'COMPLETE',
 }
 
 export class ActivityType {
@@ -51,9 +51,7 @@ export class ActivityType {
 
   public static fromString(value: string): ActivityType {
     const upperValue = value.toUpperCase();
-    if (
-      !Object.values(ActivityTypeEnum).includes(upperValue as ActivityTypeEnum)
-    ) {
+    if (!Object.values(ActivityTypeEnum).includes(upperValue as ActivityTypeEnum)) {
       throw new Error(`Invalid ActivityType: ${value}`);
     }
     return new ActivityType(upperValue as ActivityTypeEnum);

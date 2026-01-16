@@ -4,4 +4,4 @@ export {
   PaginatedResult,
   ChecklistFilters,
   PaginationQuery,
-} from "./checklist.repository.interface";
+} from './checklist.repository.interface';

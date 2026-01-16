@@ -13,13 +13,13 @@
  */
 
 import {
-    BusinessRuleViolationError,
-    InvalidCurrencyException,
-    ValidationError,
+  BusinessRuleViolationError,
+  InvalidCurrencyException,
+  ValidationError,
 } from '../exceptions';
 
 // Decimal.js es open source y gratuito
-import { Decimal } from 'decimal.js';
+import { Decimal } from '@/shared/utils';
 
 export class Money {
   private static readonly VALID_CURRENCIES = ['COP', 'USD', 'EUR'];

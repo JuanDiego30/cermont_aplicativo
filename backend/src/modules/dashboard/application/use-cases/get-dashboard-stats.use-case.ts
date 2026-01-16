@@ -3,7 +3,7 @@
  * @description Obtiene estadísticas consolidadas del dashboard
  * @version 2.0.0
  */
-import { Injectable, Inject, Logger } from "@nestjs/common";
+import { Injectable, Inject, Logger } from '@nestjs/common';
 import {
   DASHBOARD_REPOSITORY,
   IDashboardRepository,
@@ -12,7 +12,7 @@ import {
   DashboardStatsDto,
   TendenciaDto,
   OrdenResumenDto,
-} from "../dto";
+} from '../dto';
 
 @Injectable()
 export class GetDashboardStatsUseCase {
@@ -20,7 +20,7 @@ export class GetDashboardStatsUseCase {
 
   constructor(
     @Inject(DASHBOARD_REPOSITORY)
-    private readonly dashboardRepository: IDashboardRepository,
+    private readonly dashboardRepository: IDashboardRepository
   ) {}
 
   /**
@@ -31,7 +31,7 @@ export class GetDashboardStatsUseCase {
   async execute(filters?: DashboardQueryDto): Promise<DashboardResponse> {
     try {
       this.logger.log(
-        `Obteniendo estadísticas del dashboard con filtros: ${JSON.stringify(filters || {})}`,
+        `Obteniendo estadísticas del dashboard con filtros: ${JSON.stringify(filters || {})}`
       );
 
       // Valores por defecto para parámetros
@@ -47,18 +47,15 @@ export class GetDashboardStatsUseCase {
 
       // Validar que los datos existan
       if (!stats) {
-        this.logger.warn("No se pudieron obtener estadísticas del dashboard");
-        throw new Error("Error al obtener estadísticas del dashboard");
+        this.logger.warn('No se pudieron obtener estadísticas del dashboard');
+        throw new Error('Error al obtener estadísticas del dashboard');
       }
 
       // Transformar y retornar respuesta
       return this.buildResponse(stats, tendencia, ultimasOrdenes);
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
-      this.logger.error(
-        `Error al obtener estadísticas del dashboard: ${err.message}`,
-        err.stack,
-      );
+      this.logger.error(`Error al obtener estadísticas del dashboard: ${err.message}`, err.stack);
       throw err;
     }
   }
@@ -70,7 +67,7 @@ export class GetDashboardStatsUseCase {
   private buildResponse(
     stats: DashboardStatsDto,
     tendencia: TendenciaDto[],
-    ultimasOrdenes: OrdenResumenDto[],
+    ultimasOrdenes: OrdenResumenDto[]
   ): DashboardResponse {
     return {
       stats: {
@@ -79,26 +76,26 @@ export class GetDashboardStatsUseCase {
           ...stats.ordenes,
           porcentajePlaneacion: this.calculatePercentage(
             stats.ordenes.planeacion,
-            stats.ordenes.total,
+            stats.ordenes.total
           ),
           porcentajeEjecucion: this.calculatePercentage(
             stats.ordenes.ejecucion,
-            stats.ordenes.total,
+            stats.ordenes.total
           ),
           porcentajeCompletadas: this.calculatePercentage(
             stats.ordenes.completadas,
-            stats.ordenes.total,
+            stats.ordenes.total
           ),
         },
       },
-      tendencia: tendencia.map((t) => ({
+      tendencia: tendencia.map(t => ({
         fecha: this.formatDate(t.fecha),
         ordenes: t.ordenes,
         ingresos: t.ingresos,
         gastos: t.gastos,
         margen: this.calculateMargin(t.ingresos, t.gastos),
       })),
-      ultimasOrdenes: ultimasOrdenes.map((orden) => ({
+      ultimasOrdenes: ultimasOrdenes.map(orden => ({
         id: orden.id,
         numero: orden.numero,
         cliente: orden.cliente,
@@ -143,8 +140,8 @@ export class GetDashboardStatsUseCase {
    * @private
    */
   private formatDate(fecha: Date | string): string {
-    const date = typeof fecha === "string" ? new Date(fecha) : fecha;
-    return date.toISOString().split("T")[0];
+    const date = typeof fecha === 'string' ? new Date(fecha) : fecha;
+    return date.toISOString().split('T')[0];
   }
 
   /**

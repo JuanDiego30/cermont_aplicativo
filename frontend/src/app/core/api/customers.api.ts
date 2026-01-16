@@ -66,7 +66,7 @@ export interface ClienteOrdenesResponse {
   clienteId: string;
   razonSocial: string;
   totalOrdenes: number;
-  orders: any[]; // Use Order type if imported
+  orders: unknown[];
 }
 
 @Injectable({

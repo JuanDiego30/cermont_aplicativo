@@ -1,2 +1,1 @@
-export * from "./planning.controller";
-
+export * from './planning.controller';

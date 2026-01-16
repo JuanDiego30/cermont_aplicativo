@@ -4,16 +4,16 @@
  * Lista HES con filtros opcionales
  */
 
-import { Injectable, Inject } from "@nestjs/common";
-import { HES } from "../../domain/entities/hes.entity";
-import { IHESRepository, HES_REPOSITORY } from "../../domain/repositories";
-import { ListHESQueryDto } from "../dto/list-hes-query.dto";
+import { Injectable, Inject } from '@nestjs/common';
+import { HES } from '../../domain/entities/hes.entity';
+import { IHESRepository, HES_REPOSITORY } from '../../domain/repositories';
+import { ListHESQueryDto } from '../dto/list-hes-query.dto';
 
 @Injectable()
 export class ListHESUseCase {
   constructor(
     @Inject(HES_REPOSITORY)
-    private readonly repository: IHESRepository,
+    private readonly repository: IHESRepository
   ) {}
 
   async execute(query: ListHESQueryDto): Promise<HES[]> {

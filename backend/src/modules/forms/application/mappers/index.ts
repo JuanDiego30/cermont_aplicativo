@@ -1,1 +1,1 @@
-export * from "./form-template.mapper";
+export * from './form-template.mapper';

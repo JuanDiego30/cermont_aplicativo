@@ -2,24 +2,11 @@
  * Service: EjecucionService
  * NOTE: This service is deprecated. Use Use Cases instead.
  */
-import {
-    BadRequestException,
-    Inject,
-    Injectable,
-    Logger,
-    NotFoundException,
-} from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import { Ejecucion } from "./domain/entities";
-import {
-    EJECUCION_REPOSITORY,
-    IEjecucionRepository,
-} from "./domain/repositories";
-import {
-    EjecucionId,
-    GeoLocation,
-    ProgressPercentage,
-} from "./domain/value-objects";
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { Ejecucion } from './domain/entities';
+import { EJECUCION_REPOSITORY, IEjecucionRepository } from './domain/repositories';
+import { EjecucionId, GeoLocation, ProgressPercentage } from './domain/value-objects';
 
 // ============================================================================
 // Interfaces y DTOs (Legacy)
@@ -64,11 +51,9 @@ export class ExecutionService {
   constructor(
     @Inject(EJECUCION_REPOSITORY)
     private readonly repository: IEjecucionRepository,
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaService
   ) {
-    this.logger.log(
-      "ℹ️  EjecucionService: Consider migrating to Use Cases pattern.",
-    );
+    this.logger.log('ℹ️  EjecucionService: Consider migrating to Use Cases pattern.');
   }
 
   /**
@@ -93,18 +78,16 @@ export class ExecutionService {
   async iniciar(
     ordenId: string,
     dto: IniciarEjecucionDto,
-    tecnicoId?: string,
+    tecnicoId?: string
   ): Promise<EjecucionResponse<unknown>> {
     if (!tecnicoId) {
-      throw new BadRequestException(
-        "Se requiere ID del técnico para iniciar ejecución",
-      );
+      throw new BadRequestException('Se requiere ID del técnico para iniciar ejecución');
     }
 
     // Check if execution already exists
     const existing = await this.repository.exists(ordenId);
     if (existing) {
-      throw new BadRequestException("Ya existe una ejecución para esta orden");
+      throw new BadRequestException('Ya existe una ejecución para esta orden');
     }
 
     // Get planeacion
@@ -112,10 +95,8 @@ export class ExecutionService {
       where: { ordenId },
     });
 
-    if (!planeacion || planeacion.estado !== "aprobada") {
-      throw new BadRequestException(
-        "No existe planeación aprobada para esta orden",
-      );
+    if (!planeacion || planeacion.estado !== 'aprobada') {
+      throw new BadRequestException('No existe planeación aprobada para esta orden');
     }
 
     // Create domain entity
@@ -142,11 +123,11 @@ export class ExecutionService {
     // Update order
     await this.prisma.order.update({
       where: { id: ordenId },
-      data: { estado: "ejecucion", fechaInicio: new Date() },
+      data: { estado: 'ejecucion', fechaInicio: new Date() },
     });
 
     return {
-      message: "Ejecución iniciada exitosamente",
+      message: 'Ejecución iniciada exitosamente',
       data: this.toResponseData(saved),
     };
   }
@@ -155,26 +136,19 @@ export class ExecutionService {
    * Actualiza el avance de una ejecución
    * @deprecated Use UpdateAvanceUseCase instead
    */
-  async updateAvance(
-    id: string,
-    dto: UpdateAvanceDto,
-  ): Promise<EjecucionResponse<unknown>> {
+  async updateAvance(id: string, dto: UpdateAvanceDto): Promise<EjecucionResponse<unknown>> {
     const ejecucion = await this.repository.findById(EjecucionId.create(id));
     if (!ejecucion) {
       throw new NotFoundException(`Ejecución ${id} no encontrada`);
     }
 
     const newProgress = ProgressPercentage.fromValue(dto.avance);
-    ejecucion.updateProgress(
-      newProgress,
-      dto.tecnicoId || "",
-      dto.observaciones,
-    );
+    ejecucion.updateProgress(newProgress, dto.tecnicoId || '', dto.observaciones);
 
     const saved = await this.repository.save(ejecucion);
 
     return {
-      message: "Avance actualizado",
+      message: 'Avance actualizado',
       data: this.toResponseData(saved),
     };
   }
@@ -183,10 +157,7 @@ export class ExecutionService {
    * Completa una ejecución
    * @deprecated Use CompletarEjecucionUseCase instead
    */
-  async completar(
-    id: string,
-    dto: CompletarEjecucionDto,
-  ): Promise<EjecucionResponse<unknown>> {
+  async completar(id: string, dto: CompletarEjecucionDto): Promise<EjecucionResponse<unknown>> {
     const ejecucion = await this.repository.findById(EjecucionId.create(id));
     if (!ejecucion) {
       throw new NotFoundException(`Ejecución ${id} no encontrada`);
@@ -196,23 +167,23 @@ export class ExecutionService {
     if (!ejecucion.getProgress().isComplete()) {
       ejecucion.updateProgress(
         ProgressPercentage.complete(),
-        dto.completadoPorId || "",
-        "Completando ejecución",
+        dto.completadoPorId || '',
+        'Completando ejecución'
       );
     }
 
-    ejecucion.complete(dto.completadoPorId || "", dto.observaciones);
+    ejecucion.complete(dto.completadoPorId || '', dto.observaciones);
 
     const saved = await this.repository.save(ejecucion);
 
     // Update order
     await this.prisma.order.update({
       where: { id: saved.getOrdenId() },
-      data: { estado: "completada", fechaFin: new Date() },
+      data: { estado: 'completada', fechaFin: new Date() },
     });
 
     return {
-      message: "Ejecución completada exitosamente",
+      message: 'Ejecución completada exitosamente',
       data: this.toResponseData(saved),
     };
   }
@@ -221,7 +192,7 @@ export class ExecutionService {
     return {
       id: e.getId().getValue(),
       ordenId: e.getOrdenId(),
-      tecnicoId: e.getStartedBy() || "",
+      tecnicoId: e.getStartedBy() || '',
       estado: e.getStatus().getValue(),
       avance: e.getProgress().getValue(),
       horasReales: e.getTotalWorkedTime().getTotalHours(),

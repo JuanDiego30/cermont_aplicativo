@@ -5,16 +5,16 @@
  * Contiene la lógica de orquestación (no reglas de negocio).
  */
 
-import { Inject, Injectable, ConflictException, Logger } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
+import { Inject, Injectable, ConflictException, Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   IUserRepository,
   USER_REPOSITORY,
-} from "../../domain/repositories/user.repository.interface";
-import { UserEntity } from "../../domain/entities/user.entity";
-import { type CreateUserInput } from "../dto/create-user.dto";
-import { UserMapper } from "../mappers/user.mapper";
-import { UserResponseDto } from "../dto/user-response.dto";
+} from '../../domain/repositories/user.repository.interface';
+import { UserEntity } from '../../domain/entities/user.entity';
+import { type CreateUserInput } from '../dto/create-user.dto';
+import { UserMapper } from '../mappers/user.mapper';
+import { UserResponseDto } from '../dto/user-response.dto';
 
 export interface CreateUserCommand extends CreateUserInput {
   createdBy: string;
@@ -27,7 +27,7 @@ export class CreateUserUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepository: IUserRepository,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   /**
@@ -41,10 +41,7 @@ export class CreateUserUseCase {
     }
 
     // 2. Crear entity (validaciones de dominio ocurren aquí)
-    const userData = UserMapper.createDtoToEntityData(
-      command,
-      command.createdBy,
-    );
+    const userData = UserMapper.createDtoToEntityData(command, command.createdBy);
     const user = await UserEntity.create(userData);
 
     // 3. Persistir
@@ -64,7 +61,7 @@ export class CreateUserUseCase {
    */
   private publishDomainEvents(user: UserEntity): void {
     const events = user.getDomainEvents();
-    events.forEach((event) => {
+    events.forEach(event => {
       this.eventEmitter.emit(event.eventName, event);
     });
     user.clearDomainEvents();

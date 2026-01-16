@@ -12,33 +12,20 @@ import {
   HttpStatus,
   UseGuards,
   Logger,
-} from "@nestjs/common";
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiBody,
-} from "@nestjs/swagger";
-import { JwtAuthGuard } from "../../../../shared/guards/jwt-auth.guard";
-import {
-  CurrentUser,
-  JwtPayload,
-} from "../../../../shared/decorators/current-user.decorator";
-import { Public } from "../../../../shared/decorators/public.decorator";
-import { ThrottleAuth } from "../../../../shared/decorators/throttle.decorator";
-import { PrismaService } from "../../../../prisma/prisma.service";
-import { Send2FACodeUseCase } from "../../application/use-cases/send-2fa-code.use-case";
-import { Verify2FACodeUseCase } from "../../application/use-cases/verify-2fa-code.use-case";
-import { Toggle2FAUseCase } from "../../application/use-cases/toggle-2fa.use-case";
-import {
-  Request2FACodeDto,
-  Verify2FACodeDto,
-  Enable2FADto,
-} from "../../dto/two-factor.dto";
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../../../shared/guards/jwt-auth.guard';
+import { CurrentUser, JwtPayload } from '../../../../shared/decorators/current-user.decorator';
+import { Public } from '../../../../shared/decorators/public.decorator';
+import { ThrottleAuth } from '../../../../shared/decorators/throttle.decorator';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { Send2FACodeUseCase } from '../../application/use-cases/send-2fa-code.use-case';
+import { Verify2FACodeUseCase } from '../../application/use-cases/verify-2fa-code.use-case';
+import { Toggle2FAUseCase } from '../../application/use-cases/toggle-2fa.use-case';
+import { Request2FACodeDto, Verify2FACodeDto, Enable2FADto } from '../../dto/two-factor.dto';
 
-@ApiTags("Auth - Two-Factor Authentication")
-@Controller("auth/2fa")
+@ApiTags('Auth - Two-Factor Authentication')
+@Controller('auth/2fa')
 export class Auth2FAController {
   private readonly logger = new Logger(Auth2FAController.name);
 
@@ -46,37 +33,37 @@ export class Auth2FAController {
     private readonly prisma: PrismaService,
     private readonly send2FACodeUseCase: Send2FACodeUseCase,
     private readonly verify2FACodeUseCase: Verify2FACodeUseCase,
-    private readonly toggle2FAUseCase: Toggle2FAUseCase,
+    private readonly toggle2FAUseCase: Toggle2FAUseCase
   ) {}
 
   /**
    * POST /api/auth/2fa/send
    * Envía código de verificación por email
    */
-  @Post("send")
+  @Post('send')
   @Public()
   @ThrottleAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: "Enviar código 2FA",
+    summary: 'Enviar código 2FA',
     description:
-      "Envía un código de 6 dígitos al email del usuario para autenticación de dos factores",
+      'Envía un código de 6 dígitos al email del usuario para autenticación de dos factores',
   })
   @ApiBody({ type: Request2FACodeDto })
   @ApiResponse({
     status: 200,
-    description: "Código enviado exitosamente",
+    description: 'Código enviado exitosamente',
     schema: {
       example: {
-        message: "Código de verificación enviado exitosamente",
+        message: 'Código de verificación enviado exitosamente',
         expiresIn: 300,
       },
     },
   })
-  @ApiResponse({ status: 404, description: "Usuario no encontrado" })
-  @ApiResponse({ status: 400, description: "Usuario no tiene 2FA habilitado" })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @ApiResponse({ status: 400, description: 'Usuario no tiene 2FA habilitado' })
   async sendCode(@Body() dto: Request2FACodeDto) {
-    this.logger.log("2FA code request received");
+    this.logger.log('2FA code request received');
 
     return await this.send2FACodeUseCase.execute(dto.email);
   }
@@ -85,28 +72,28 @@ export class Auth2FAController {
    * POST /api/auth/2fa/verify
    * Verifica el código 2FA
    */
-  @Post("verify")
+  @Post('verify')
   @Public()
   @ThrottleAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: "Verificar código 2FA",
-    description: "Verifica el código de 6 dígitos proporcionado por el usuario",
+    summary: 'Verificar código 2FA',
+    description: 'Verifica el código de 6 dígitos proporcionado por el usuario',
   })
   @ApiBody({ type: Verify2FACodeDto })
   @ApiResponse({
     status: 200,
-    description: "Código válido",
+    description: 'Código válido',
     schema: {
       example: {
         valid: true,
-        userId: "uuid-del-usuario",
+        userId: 'uuid-del-usuario',
       },
     },
   })
-  @ApiResponse({ status: 401, description: "Código inválido o expirado" })
+  @ApiResponse({ status: 401, description: 'Código inválido o expirado' })
   async verifyCode(@Body() dto: Verify2FACodeDto) {
-    this.logger.log("2FA verification attempt received");
+    this.logger.log('2FA verification attempt received');
 
     return await this.verify2FACodeUseCase.execute(dto.email, dto.code);
   }
@@ -115,33 +102,28 @@ export class Auth2FAController {
    * POST /api/auth/2fa/toggle
    * Habilita o deshabilita 2FA para el usuario autenticado
    */
-  @Post("toggle")
+  @Post('toggle')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: "Habilitar/Deshabilitar 2FA",
+    summary: 'Habilitar/Deshabilitar 2FA',
     description:
-      "Permite al usuario autenticado activar o desactivar la autenticación de dos factores",
+      'Permite al usuario autenticado activar o desactivar la autenticación de dos factores',
   })
   @ApiBody({ type: Enable2FADto })
   @ApiResponse({
     status: 200,
-    description: "2FA actualizado",
+    description: '2FA actualizado',
     schema: {
       example: {
         twoFactorEnabled: true,
-        message: "Autenticación de dos factores habilitada exitosamente",
+        message: 'Autenticación de dos factores habilitada exitosamente',
       },
     },
   })
-  async toggleTwoFactor(
-    @CurrentUser() user: JwtPayload,
-    @Body() dto: Enable2FADto,
-  ) {
-    this.logger.log(
-      `Toggle 2FA request for user: ${user.userId}, enable: ${dto.enable}`,
-    );
+  async toggleTwoFactor(@CurrentUser() user: JwtPayload, @Body() dto: Enable2FADto) {
+    this.logger.log(`Toggle 2FA request for user: ${user.userId}, enable: ${dto.enable}`);
 
     return await this.toggle2FAUseCase.execute(user.userId, dto.enable);
   }
@@ -150,17 +132,16 @@ export class Auth2FAController {
    * GET /api/auth/2fa/status
    * Obtiene el estado de 2FA del usuario autenticado
    */
-  @Get("status")
+  @Get('status')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
-    summary: "Obtener estado 2FA",
-    description:
-      "Retorna si el usuario tiene habilitada la autenticación de dos factores",
+    summary: 'Obtener estado 2FA',
+    description: 'Retorna si el usuario tiene habilitada la autenticación de dos factores',
   })
   @ApiResponse({
     status: 200,
-    description: "Estado de 2FA",
+    description: 'Estado de 2FA',
     schema: {
       example: {
         twoFactorEnabled: true,
@@ -178,4 +159,3 @@ export class Auth2FAController {
     };
   }
 }
-

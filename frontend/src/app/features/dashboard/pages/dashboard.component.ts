@@ -58,7 +58,7 @@ export class DashboardComponent implements OnInit {
     this.dashboardApi
       .getStats()
       .pipe(
-        tap((response: any) => {
+        tap((response: { stats: DashboardStats; ordenesRecientes: OrdenReciente[] }) => {
           this.stats.set(response.stats);
           this.ordenesRecientes.set(response.ordenesRecientes);
           this.loading.set(false);

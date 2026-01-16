@@ -4,7 +4,7 @@
  * Representa la desviación entre presupuesto y costo real
  */
 
-import { Decimal } from 'decimal.js';
+import { Decimal } from '@/shared/utils';
 import { Money } from './money.vo';
 
 export class CostVariance {

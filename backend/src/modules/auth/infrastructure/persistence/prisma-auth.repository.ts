@@ -1,12 +1,9 @@
-import { Injectable, Inject, Logger } from "@nestjs/common";
-import { PrismaService } from "../../../../prisma/prisma.service";
-import { IAuthRepository } from "../../domain/repositories";
-import {
-  AuthUserEntity,
-  AuthUserProps,
-} from "../../domain/entities/auth-user.entity";
-import { randomUUID } from "crypto";
-import { AUTH_CONSTANTS } from "../../auth.constants";
+import { Injectable, Inject, Logger } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { IAuthRepository } from '../../domain/repositories';
+import { AuthUserEntity, AuthUserProps } from '../../domain/entities/auth-user.entity';
+import { randomUUID } from 'crypto';
+import { AUTH_CONSTANTS } from '../../auth.constants';
 
 @Injectable()
 export class PrismaAuthRepository implements IAuthRepository {
@@ -29,7 +26,7 @@ export class PrismaAuthRepository implements IAuthRepository {
 
   constructor(
     @Inject(PrismaService)
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaService
   ) {}
 
   async findByEmail(email: string): Promise<AuthUserEntity | null> {
@@ -54,7 +51,7 @@ export class PrismaAuthRepository implements IAuthRepository {
     return this.findById(id);
   }
 
-  async create(data: Omit<AuthUserProps, "id">): Promise<AuthUserEntity> {
+  async create(data: Omit<AuthUserProps, 'id'>): Promise<AuthUserEntity> {
     const user = await this.prisma.user.create({
       data: {
         email: data.email,
@@ -79,7 +76,7 @@ export class PrismaAuthRepository implements IAuthRepository {
 
   async incrementLoginAttempts(
     userId: string,
-    lockUntil?: Date,
+    lockUntil?: Date
   ): Promise<{ loginAttempts: number; lockedUntil: Date | null }> {
     const updated = await this.prisma.user.update({
       where: { id: userId },
@@ -172,7 +169,7 @@ export class PrismaAuthRepository implements IAuthRepository {
   }): Promise<void> {
     await this.prisma.auditLog.create({
       data: {
-        entityType: "User",
+        entityType: 'User',
         entityId: data.userId,
         action: data.action,
         userId: data.userId,
@@ -196,9 +193,7 @@ export class PrismaAuthRepository implements IAuthRepository {
       rotate: (ip?: string, userAgent?: string) => {
         const newToken = randomUUID();
         const expiresAt = new Date();
-        expiresAt.setDate(
-          expiresAt.getDate() + AUTH_CONSTANTS.REFRESH_TOKEN_DAYS_DEFAULT,
-        );
+        expiresAt.setDate(expiresAt.getDate() + AUTH_CONSTANTS.REFRESH_TOKEN_DAYS_DEFAULT);
 
         return {
           refreshToken: newToken,
@@ -241,7 +236,7 @@ export class PrismaAuthRepository implements IAuthRepository {
       email: user.email,
       password: user.password,
       name: user.name,
-      role: user.role as "admin" | "supervisor" | "tecnico",
+      role: user.role as 'admin' | 'supervisor' | 'tecnico',
       phone: user.phone,
       avatar: user.avatar,
       active: user.active,

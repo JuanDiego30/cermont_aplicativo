@@ -9,23 +9,17 @@
  * - Solo puede enviarse una vez
  */
 
-import { FormSubmissionId } from "../value-objects/form-submission-id.vo";
-import { FormTemplateId } from "../value-objects/form-template-id.vo";
-import { TemplateVersion } from "../value-objects/template-version.vo";
-import {
-  SubmissionStatus,
-  SubmissionStatusEnum,
-} from "../value-objects/submission-status.vo";
-import { FieldValue } from "../value-objects/field-value.vo";
-import { FormTemplate } from "./form-template.entity";
-import {
-  ValidationFailedException,
-  SubmissionValidationError,
-} from "../exceptions";
-import { FormSubmittedEvent, FormValidatedEvent } from "../events";
-import { CalculationEngineService } from "../services/calculation-engine.service";
-import { FormValidatorService } from "../services/form-validator.service";
-import { AggregateRoot } from "../../../../shared/base/aggregate-root";
+import { FormSubmissionId } from '../value-objects/form-submission-id.vo';
+import { FormTemplateId } from '../value-objects/form-template-id.vo';
+import { TemplateVersion } from '../value-objects/template-version.vo';
+import { SubmissionStatus, SubmissionStatusEnum } from '../value-objects/submission-status.vo';
+import { FieldValue } from '../value-objects/field-value.vo';
+import { FormTemplate } from './form-template.entity';
+import { ValidationFailedException, SubmissionValidationError } from '../exceptions';
+import { FormSubmittedEvent, FormValidatedEvent } from '../events';
+import { CalculationEngineService } from '../services/calculation-engine.service';
+import { FormValidatorService } from '../services/form-validator.service';
+import { AggregateRoot } from '../../../../shared/base/aggregate-root';
 
 export interface CreateSubmissionProps {
   templateId: FormTemplateId;
@@ -53,7 +47,7 @@ export class FormSubmission extends AggregateRoot {
     private _contextId?: string,
     private _submittedAt?: Date,
     private _validatedAt?: Date,
-    private _validatedBy?: string,
+    private _validatedBy?: string
   ) {
     super();
   }
@@ -79,7 +73,7 @@ export class FormSubmission extends AggregateRoot {
       props.contextId,
       undefined, // submittedAt
       undefined, // validatedAt
-      undefined, // validatedBy
+      undefined // validatedBy
     );
   }
 
@@ -121,7 +115,7 @@ export class FormSubmission extends AggregateRoot {
       props.contextId,
       props.submittedAt,
       props.validatedAt,
-      props.validatedBy,
+      props.validatedBy
     );
   }
 
@@ -130,7 +124,7 @@ export class FormSubmission extends AggregateRoot {
    */
   public setAnswer(fieldId: string, value: any): void {
     if (this.isComplete()) {
-      throw new Error("Cannot modify answers after submission");
+      throw new Error('Cannot modify answers after submission');
     }
 
     const fieldValue = FieldValue.create(value);
@@ -143,7 +137,7 @@ export class FormSubmission extends AggregateRoot {
    */
   public submit(template: FormTemplate): void {
     if (this.isComplete()) {
-      throw new Error("Form already submitted");
+      throw new Error('Form already submitted');
     }
 
     // Aplicar defaults antes de validar
@@ -154,7 +148,7 @@ export class FormSubmission extends AggregateRoot {
 
     if (errors.length > 0) {
       this._validationErrors = errors;
-      throw new ValidationFailedException("Form validation failed", errors);
+      throw new ValidationFailedException('Form validation failed', errors);
     }
 
     // Calcular campos calculados
@@ -171,7 +165,7 @@ export class FormSubmission extends AggregateRoot {
         submittedBy: this._submittedBy,
         contextType: this._contextType,
         contextId: this._contextId,
-      }),
+      })
     );
   }
 
@@ -180,7 +174,7 @@ export class FormSubmission extends AggregateRoot {
    */
   public validate(validatedBy: string): void {
     if (!this.isSubmitted()) {
-      throw new Error("Can only validate submitted forms");
+      throw new Error('Can only validate submitted forms');
     }
 
     this._status = SubmissionStatus.validated();
@@ -193,7 +187,7 @@ export class FormSubmission extends AggregateRoot {
         submissionId: this._id.getValue(),
         templateId: this._templateId.getValue(),
         validatedBy,
-      }),
+      })
     );
   }
 
@@ -218,7 +212,7 @@ export class FormSubmission extends AggregateRoot {
       if (formula) {
         // No calcular si dependencias están incompletas
         const referenced = formula.getReferencedFields();
-        const hasAllDependencies = referenced.every((ref) => {
+        const hasAllDependencies = referenced.every(ref => {
           const refValue = this._answers.get(ref);
           return refValue !== undefined && !refValue.isEmpty();
         });
@@ -226,10 +220,7 @@ export class FormSubmission extends AggregateRoot {
           continue;
         }
 
-        const result = FormSubmission.calculationEngine.calculate(
-          formula,
-          baseFormData,
-        );
+        const result = FormSubmission.calculationEngine.calculate(formula, baseFormData);
         if (result !== null) {
           this.setAnswer(field.getId(), result);
         }
@@ -245,10 +236,7 @@ export class FormSubmission extends AggregateRoot {
 
       const defaultValue = field.getDefaultValue();
       if (defaultValue && !defaultValue.isEmpty()) {
-        this._answers.set(
-          field.getId(),
-          FieldValue.create(defaultValue.getValue()),
-        );
+        this._answers.set(field.getId(), FieldValue.create(defaultValue.getValue()));
       }
     }
   }

@@ -3,7 +3,7 @@
  * @description Value Object for file size with validation against type-specific limits
  */
 
-import { FileType } from "./file-type.vo";
+import { FileType } from './file-type.vo';
 
 export class FileSize {
   // Regla 22: Máximo 50MB por archivo
@@ -11,7 +11,7 @@ export class FileSize {
 
   private constructor(
     private readonly _bytes: number,
-    private readonly _fileType: FileType,
+    private readonly _fileType: FileType
   ) {
     Object.freeze(this);
   }
@@ -23,13 +23,13 @@ export class FileSize {
 
   private static validate(bytes: number, fileType: FileType): void {
     if (bytes <= 0) {
-      throw new Error("File size must be positive");
+      throw new Error('File size must be positive');
     }
 
     const maxSize = FileSize.getMaxSizeForType(fileType);
     if (bytes > maxSize) {
       throw new Error(
-        `File size ${FileSize.formatBytes(bytes)} exceeds limit of ${FileSize.formatBytes(maxSize)} for ${fileType.getValue()} files`,
+        `File size ${FileSize.formatBytes(bytes)} exceeds limit of ${FileSize.formatBytes(maxSize)} for ${fileType.getValue()} files`
       );
     }
   }

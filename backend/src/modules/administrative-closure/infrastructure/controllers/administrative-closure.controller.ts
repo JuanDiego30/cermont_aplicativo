@@ -2,24 +2,24 @@
  * @controller CierreAdministrativoController
  */
 import {
-    Body,
-    Controller,
-    Get,
-    HttpCode,
-    HttpStatus,
-    Param,
-    ParseUUIDPipe,
-    Post,
-    Put,
-    UseGuards,
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+  UseGuards,
 } from '@nestjs/common';
 import {
-    ApiBearerAuth,
-    ApiBody,
-    ApiOperation,
-    ApiParam,
-    ApiResponse,
-    ApiTags,
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { CurrentUser, JwtPayload } from '../../../../shared/decorators/current-user.decorator';
 import { Roles } from '../../../auth/decorators/roles.decorator';
@@ -27,9 +27,9 @@ import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../auth/guards/roles.guard';
 import { CreateCierreDto } from '../../application/dto';
 import {
-    AprobarCierreUseCase,
-    CreateCierreUseCase,
-    GetCierreByOrdenUseCase,
+  AprobarCierreUseCase,
+  CreateCierreUseCase,
+  GetCierreByOrdenUseCase,
 } from '../../application/use-cases';
 
 @ApiTags('Administrative Closure')

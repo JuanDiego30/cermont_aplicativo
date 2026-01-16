@@ -5,8 +5,8 @@
  */
 
 // Services
-export { DashboardService } from "./dashboard.service";
-export { KpiCalculatorService } from "./services/kpi-calculator.service";
+export { DashboardService } from './dashboard.service';
+export { KpiCalculatorService } from './services/kpi-calculator.service';
 
 // Interfaces
 export {
@@ -20,7 +20,7 @@ export {
   ITendencia,
   AlertaSeveridad,
   AlertaTipo,
-} from "./interfaces/kpi.interface";
+} from './interfaces/kpi.interface';
 
 // DTOs
 export {
@@ -35,7 +35,7 @@ export {
   AlertaTipo as AlertaTipoEnum,
   AlertaSeveridad as AlertaSeveridadEnum,
   Granularidad,
-} from "./dto/kpi-response.dto";
+} from './dto/kpi-response.dto';
 
 // Module
-export { DashboardModule } from "./dashboard.module";
+export { DashboardModule } from './dashboard.module';

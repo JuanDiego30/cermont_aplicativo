@@ -12,12 +12,8 @@ import {
   EvidenciaStatus,
   EvidenciaStatusEnum,
   TipoEvidencia,
-} from "../value-objects";
-import {
-  EvidenciaUploadedEvent,
-  EvidenciaProcessedEvent,
-  EvidenciaDeletedEvent,
-} from "../events";
+} from '../value-objects';
+import { EvidenciaUploadedEvent, EvidenciaProcessedEvent, EvidenciaDeletedEvent } from '../events';
 
 export interface EvidenciaMetadata {
   sha256?: string;
@@ -74,10 +70,7 @@ export interface CreateEvidenciaProps {
 }
 
 // Domain Events collected for later dispatch
-type DomainEvent =
-  | EvidenciaUploadedEvent
-  | EvidenciaProcessedEvent
-  | EvidenciaDeletedEvent;
+type DomainEvent = EvidenciaUploadedEvent | EvidenciaProcessedEvent | EvidenciaDeletedEvent;
 
 export class Evidencia {
   private _domainEvents: DomainEvent[] = [];
@@ -97,7 +90,7 @@ export class Evidencia {
     const fileType = FileType.fromMimeType(input.mimeType);
     const fileSize = FileSize.create(input.fileBytes, fileType);
     const storagePath = StoragePath.generate({
-      contextType: "orden",
+      contextType: 'orden',
       contextId: input.ordenId,
       filename: input.originalFilename,
       uniqueId: id.getValue(),
@@ -115,7 +108,7 @@ export class Evidencia {
       storagePath,
       fileSize,
       status: EvidenciaStatus.pending(),
-      descripcion: input.descripcion || "",
+      descripcion: input.descripcion || '',
       tags: input.tags || [],
       metadata: input.sha256 ? { sha256: input.sha256 } : undefined,
       uploadedBy: input.uploadedBy,
@@ -139,7 +132,7 @@ export class Evidencia {
         fileSize: input.fileBytes,
         uploadedBy: input.uploadedBy,
         requiresProcessing: fileType.requiresCompression(),
-      }),
+      })
     );
 
     return evidencia;
@@ -182,12 +175,8 @@ export class Evidencia {
       originalFilename: data.nombreArchivo,
       storagePath: StoragePath.create(data.rutaArchivo),
       fileSize: FileSize.create(data.tamano, fileType),
-      thumbnailPath: data.thumbnailPath
-        ? StoragePath.create(data.thumbnailPath)
-        : undefined,
-      status: data.status
-        ? EvidenciaStatus.create(data.status)
-        : EvidenciaStatus.ready(),
+      thumbnailPath: data.thumbnailPath ? StoragePath.create(data.thumbnailPath) : undefined,
+      status: data.status ? EvidenciaStatus.create(data.status) : EvidenciaStatus.ready(),
       descripcion: data.descripcion,
       tags: data.tags,
       metadata: data.metadata,
@@ -283,9 +272,7 @@ export class Evidencia {
    */
   public markAsProcessing(): void {
     if (!this.props.status.canTransitionTo(EvidenciaStatusEnum.PROCESSING)) {
-      throw new Error(
-        `Cannot transition from ${this.props.status.getValue()} to PROCESSING`,
-      );
+      throw new Error(`Cannot transition from ${this.props.status.getValue()} to PROCESSING`);
     }
     this.props.status = EvidenciaStatus.processing();
     this.props.updatedAt = new Date();
@@ -300,9 +287,7 @@ export class Evidencia {
     processingDurationMs?: number;
   }): void {
     if (!this.props.status.canTransitionTo(EvidenciaStatusEnum.READY)) {
-      throw new Error(
-        `Cannot transition from ${this.props.status.getValue()} to READY`,
-      );
+      throw new Error(`Cannot transition from ${this.props.status.getValue()} to READY`);
     }
 
     this.props.status = EvidenciaStatus.ready();
@@ -313,9 +298,7 @@ export class Evidencia {
     }
     if (params?.metadata) {
       const sha256 = this.props.metadata?.sha256;
-      this.props.metadata = sha256
-        ? { ...params.metadata, sha256 }
-        : params.metadata;
+      this.props.metadata = sha256 ? { ...params.metadata, sha256 } : params.metadata;
     }
 
     this.addDomainEvent(
@@ -324,7 +307,7 @@ export class Evidencia {
         thumbnailPath: params?.thumbnailPath,
         metadata: params?.metadata as Record<string, unknown>,
         processingDurationMs: params?.processingDurationMs || 0,
-      }),
+      })
     );
   }
 
@@ -333,9 +316,7 @@ export class Evidencia {
    */
   public markAsFailed(): void {
     if (!this.props.status.canTransitionTo(EvidenciaStatusEnum.FAILED)) {
-      throw new Error(
-        `Cannot transition from ${this.props.status.getValue()} to FAILED`,
-      );
+      throw new Error(`Cannot transition from ${this.props.status.getValue()} to FAILED`);
     }
     this.props.status = EvidenciaStatus.failed();
     this.props.updatedAt = new Date();
@@ -346,7 +327,7 @@ export class Evidencia {
    */
   public softDelete(deletedBy: string): void {
     if (this.isDeleted()) {
-      throw new Error("Evidencia is already deleted");
+      throw new Error('Evidencia is already deleted');
     }
 
     this.props.deletedAt = new Date();
@@ -360,7 +341,7 @@ export class Evidencia {
         thumbnailPath: this.props.thumbnailPath?.getValue(),
         deletedBy,
         isSoftDelete: true,
-      }),
+      })
     );
   }
 
@@ -369,7 +350,7 @@ export class Evidencia {
    */
   public restore(): void {
     if (!this.isDeleted()) {
-      throw new Error("Evidencia is not deleted");
+      throw new Error('Evidencia is not deleted');
     }
     this.props.deletedAt = undefined;
     this.props.deletedBy = undefined;

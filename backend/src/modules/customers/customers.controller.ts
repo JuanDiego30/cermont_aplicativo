@@ -1,20 +1,20 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import {
-    ApiBearerAuth,
-    ApiOperation,
-    ApiParam,
-    ApiQuery,
-    ApiResponse,
-    ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../shared/guards/jwt-auth.guard';
 import {
-    CreateContactDto,
-    CreateCustomerDto,
-    CreateLocationDto,
-    CustomerOrdersResponseDto,
-    CustomerResponseDto,
-    CustomersQueryDto,
+  CreateContactDto,
+  CreateCustomerDto,
+  CreateLocationDto,
+  CustomerOrdersResponseDto,
+  CustomerResponseDto,
+  CustomersQueryDto,
 } from './application/dto/customers.dto';
 import { CustomersService } from './customers.service';
 

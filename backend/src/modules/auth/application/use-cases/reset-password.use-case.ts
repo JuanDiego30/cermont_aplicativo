@@ -1,7 +1,7 @@
-import { Injectable, Logger, BadRequestException } from "@nestjs/common";
-import { PrismaService } from "../../../../prisma/prisma.service";
-import { EventEmitter2 } from "@nestjs/event-emitter";
-import * as bcrypt from "bcryptjs";
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import * as bcrypt from 'bcryptjs';
 
 export interface ResetPasswordResult {
   message: string;
@@ -13,15 +13,12 @@ export class ResetPasswordUseCase {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {
-    this.logger.log("ResetPasswordUseCase instantiated");
+    this.logger.log('ResetPasswordUseCase instantiated');
   }
 
-  async execute(
-    rawToken: string,
-    newPassword: string,
-  ): Promise<ResetPasswordResult> {
+  async execute(rawToken: string, newPassword: string): Promise<ResetPasswordResult> {
     try {
       // 1. Buscar todos los tokens activos (no usados y no expirados)
       const tokens = await this.prisma.passwordResetToken.findMany({
@@ -42,8 +39,8 @@ export class ResetPasswordUseCase {
       }
 
       if (!matchedToken) {
-        this.logger.warn("Password reset failed: Invalid or expired token");
-        throw new BadRequestException("Token inválido o expirado");
+        this.logger.warn('Password reset failed: Invalid or expired token');
+        throw new BadRequestException('Token inválido o expirado');
       }
 
       // 3. Obtener información del usuario
@@ -53,7 +50,7 @@ export class ResetPasswordUseCase {
       });
 
       if (!user) {
-        throw new BadRequestException("Usuario no encontrado");
+        throw new BadRequestException('Usuario no encontrado');
       }
 
       // 4. Hashear nueva contraseña
@@ -77,18 +74,16 @@ export class ResetPasswordUseCase {
       });
 
       // 8. Emitir evento para enviar email de confirmación (desacoplado)
-      this.eventEmitter.emit("auth.password-reset.completed", {
+      this.eventEmitter.emit('auth.password-reset.completed', {
         userId: user.id,
         email: user.email,
         name: user.name,
       });
 
-      this.logger.log(
-        `Password reset completed for user ${matchedToken.userId}`,
-      );
+      this.logger.log(`Password reset completed for user ${matchedToken.userId}`);
 
       return {
-        message: "Contraseña actualizada exitosamente",
+        message: 'Contraseña actualizada exitosamente',
       };
     } catch (error) {
       if (error instanceof BadRequestException) {
@@ -96,7 +91,7 @@ export class ResetPasswordUseCase {
       }
       const err = error as Error;
       this.logger.error(`Error resetting password: ${err.message}`, err.stack);
-      throw new BadRequestException("Error al resetear contraseña");
+      throw new BadRequestException('Error al resetear contraseña');
     }
   }
 }

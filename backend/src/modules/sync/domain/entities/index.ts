@@ -1,1 +1,1 @@
-export * from "./sync-queue-item.entity";
+export * from './sync-queue-item.entity';

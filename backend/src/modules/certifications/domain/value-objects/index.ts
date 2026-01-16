@@ -1,2 +1,2 @@
-export * from "./tipo-certificacion.vo";
-export * from "./estado-vigencia.vo";
+export * from './tipo-certificacion.vo';
+export * from './estado-vigencia.vo';

@@ -1,8 +1,8 @@
 /**
  * Prisma Database Module
  */
-import { Global, Module } from "@nestjs/common";
-import { PrismaService } from "./prisma.service";
+import { Global, Module } from '@nestjs/common';
+import { PrismaService } from './prisma.service';
 
 @Global()
 @Module({

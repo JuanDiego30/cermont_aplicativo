@@ -39,4 +39,4 @@ export interface IStorageProvider {
 /**
  * Token for dependency injection
  */
-export const STORAGE_PROVIDER = Symbol("IStorageProvider");
+export const STORAGE_PROVIDER = Symbol('IStorageProvider');

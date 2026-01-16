@@ -5,16 +5,13 @@
  */
 
 export enum FormStatusEnum {
-  DRAFT = "DRAFT",
-  PUBLISHED = "PUBLISHED",
-  ARCHIVED = "ARCHIVED",
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
+  ARCHIVED = 'ARCHIVED',
 }
 
 export class FormStatus {
-  private static readonly VALID_TRANSITIONS: Map<
-    FormStatusEnum,
-    FormStatusEnum[]
-  > = new Map([
+  private static readonly VALID_TRANSITIONS: Map<FormStatusEnum, FormStatusEnum[]> = new Map([
     [FormStatusEnum.DRAFT, [FormStatusEnum.PUBLISHED]],
     [FormStatusEnum.PUBLISHED, [FormStatusEnum.ARCHIVED]],
     [FormStatusEnum.ARCHIVED, []],
@@ -37,9 +34,7 @@ export class FormStatus {
   }
 
   public static fromString(value: string): FormStatus {
-    const enumValue = Object.values(FormStatusEnum).find(
-      (v) => v === value.toUpperCase(),
-    );
+    const enumValue = Object.values(FormStatusEnum).find(v => v === value.toUpperCase());
     if (!enumValue) {
       throw new Error(`Invalid FormStatus: ${value}`);
     }

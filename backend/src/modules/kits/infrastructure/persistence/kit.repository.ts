@@ -2,9 +2,9 @@
  * @repository KitRepository
  * Usa el modelo KitTipico de Prisma
  */
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../../../../prisma/prisma.service";
-import { CreateKitDto } from "../../application/dto";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { CreateKitDto } from '../../application/dto';
 
 // Legacy types
 type KitData = any;
@@ -24,7 +24,7 @@ export class KitRepository implements IKitRepository {
   async findAll(): Promise<KitData[]> {
     const kits = await this.prisma.kitTipico.findMany({
       where: { activo: true },
-      orderBy: { nombre: "asc" },
+      orderBy: { nombre: 'asc' },
     });
 
     return kits.map(this.mapToKitData);
@@ -42,9 +42,9 @@ export class KitRepository implements IKitRepository {
     const kits = await this.prisma.kitTipico.findMany({
       where: {
         activo: true,
-        nombre: { contains: categoria, mode: "insensitive" },
+        nombre: { contains: categoria, mode: 'insensitive' },
       },
-      orderBy: { nombre: "asc" },
+      orderBy: { nombre: 'asc' },
     });
 
     return kits.map(this.mapToKitData);
@@ -54,7 +54,7 @@ export class KitRepository implements IKitRepository {
     const kit = await this.prisma.kitTipico.create({
       data: {
         nombre: data.nombre,
-        descripcion: data.descripcion || "",
+        descripcion: data.descripcion || '',
         herramientas: (data.herramientas || data.items || []) as any,
         equipos: (data.equipos || []) as any,
         documentos: data.documentos || [],
@@ -78,16 +78,14 @@ export class KitRepository implements IKitRepository {
   async update(id: string, data: Partial<CreateKitDto>): Promise<KitData> {
     const updateData: any = {};
     if (data.nombre) updateData.nombre = data.nombre;
-    if (data.descripcion !== undefined)
-      updateData.descripcion = data.descripcion;
+    if (data.descripcion !== undefined) updateData.descripcion = data.descripcion;
     if (data.herramientas) updateData.herramientas = data.herramientas;
     if (data.equipos) updateData.equipos = data.equipos;
     if (data.documentos) updateData.documentos = data.documentos;
     if (data.checklistItems) updateData.checklistItems = data.checklistItems;
     if (data.duracionEstimadaHoras !== undefined)
       updateData.duracionEstimadaHoras = data.duracionEstimadaHoras;
-    if (data.costoEstimado !== undefined)
-      updateData.costoEstimado = data.costoEstimado;
+    if (data.costoEstimado !== undefined) updateData.costoEstimado = data.costoEstimado;
 
     const kit = await this.prisma.kitTipico.update({
       where: { id },
@@ -108,16 +106,12 @@ export class KitRepository implements IKitRepository {
 
   async applyKitToExecution(kitId: string, ejecucionId: string): Promise<any> {
     // Este método requiere lógica compleja, se mantiene en el servicio por ahora
-    throw new Error(
-      "Método applyKitToExecution debe implementarse en el servicio",
-    );
+    throw new Error('Método applyKitToExecution debe implementarse en el servicio');
   }
 
   async syncPredefinedKits(): Promise<any[]> {
     // Este método requiere lógica compleja, se mantiene en el servicio por ahora
-    throw new Error(
-      "Método syncPredefinedKits debe implementarse en el servicio",
-    );
+    throw new Error('Método syncPredefinedKits debe implementarse en el servicio');
   }
 
   private mapToKitData(kit: any): KitData {

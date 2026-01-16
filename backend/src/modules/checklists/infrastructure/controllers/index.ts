@@ -3,4 +3,4 @@
  *
  * Controllers HTTP del módulo de checklists
  */
-export { ChecklistsController } from "./checklists.controller";
+export { ChecklistsController } from './checklists.controller';

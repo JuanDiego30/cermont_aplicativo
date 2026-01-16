@@ -4,26 +4,23 @@
  * Actualiza un template de formulario (solo si está en DRAFT)
  */
 
-import { Injectable, NotFoundException, Inject } from "@nestjs/common";
-import { FormTemplate } from "../../domain/entities/form-template.entity";
-import { FormTemplateId } from "../../domain/value-objects/form-template-id.vo";
-import {
-  IFormTemplateRepository,
-  FORM_TEMPLATE_REPOSITORY,
-} from "../../domain/repositories";
-import { UpdateFormTemplateDto } from "../dto/update-template.dto";
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { FormTemplate } from '../../domain/entities/form-template.entity';
+import { FormTemplateId } from '../../domain/value-objects/form-template-id.vo';
+import { IFormTemplateRepository, FORM_TEMPLATE_REPOSITORY } from '../../domain/repositories';
+import { UpdateFormTemplateDto } from '../dto/update-template.dto';
 
 @Injectable()
 export class UpdateTemplateUseCase {
   constructor(
     @Inject(FORM_TEMPLATE_REPOSITORY)
-    private readonly templateRepository: IFormTemplateRepository,
+    private readonly templateRepository: IFormTemplateRepository
   ) {}
 
   async execute(
     templateId: string,
     dto: UpdateFormTemplateDto,
-    updatedBy: string,
+    updatedBy: string
   ): Promise<FormTemplate> {
     const id = FormTemplateId.create(templateId);
 
@@ -46,7 +43,7 @@ export class UpdateTemplateUseCase {
     if (dto.fields) {
       // Remover campos existentes y agregar nuevos
       // (simplificado - en producción necesitarías lógica más sofisticada)
-      const existingFieldIds = template.getFields().map((f) => f.getId());
+      const existingFieldIds = template.getFields().map(f => f.getId());
       for (const fieldId of existingFieldIds) {
         template.removeField(fieldId);
       }

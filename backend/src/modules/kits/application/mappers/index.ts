@@ -1,4 +1,4 @@
 /**
  * Barrel file for Kit Mappers
  */
-export * from "./kit.mapper";
+export * from './kit.mapper';

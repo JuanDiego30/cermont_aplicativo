@@ -1,10 +1,10 @@
-import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsBoolean, IsEnum, IsOptional } from "class-validator";
-import { PdfOrientation, PdfPageSize } from "./pdf-options.enums";
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsBoolean, IsEnum, IsOptional } from 'class-validator';
+import { PdfOrientation, PdfPageSize } from './pdf-options.enums';
 
 export class PdfBaseOptionsDto {
   @ApiPropertyOptional({
-    description: "Guardar el PDF en storage para descarga posterior",
+    description: 'Guardar el PDF en storage para descarga posterior',
     example: false,
   })
   @IsOptional()
@@ -12,7 +12,7 @@ export class PdfBaseOptionsDto {
   saveToStorage?: boolean = false;
 
   @ApiPropertyOptional({
-    description: "Habilitar caché del PDF (TTL + key única)",
+    description: 'Habilitar caché del PDF (TTL + key única)',
     example: true,
   })
   @IsOptional()
@@ -20,7 +20,7 @@ export class PdfBaseOptionsDto {
   enableCache?: boolean = true;
 
   @ApiPropertyOptional({
-    description: "Tamaño de página",
+    description: 'Tamaño de página',
     enum: PdfPageSize,
     example: PdfPageSize.A4,
   })
@@ -31,7 +31,7 @@ export class PdfBaseOptionsDto {
 
 export class PdfBaseReportOptionsDto extends PdfBaseOptionsDto {
   @ApiPropertyOptional({
-    description: "Orientación",
+    description: 'Orientación',
     enum: PdfOrientation,
     example: PdfOrientation.PORTRAIT,
   })

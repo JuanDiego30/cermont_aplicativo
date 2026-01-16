@@ -3,13 +3,10 @@
  * @description Implementation of IEvidenciaRepository using Prisma
  */
 
-import { Injectable, Logger } from "@nestjs/common";
-import { PrismaService } from "../../../../prisma/prisma.service";
-import {
-  IEvidenciaRepository,
-  FindEvidenciasOptions,
-} from "../../domain/repositories";
-import { Evidencia } from "../../domain/entities";
+import { Injectable, Logger } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { IEvidenciaRepository, FindEvidenciasOptions } from '../../domain/repositories';
+import { Evidencia } from '../../domain/entities';
 
 @Injectable()
 export class PrismaEvidenciaRepository implements IEvidenciaRepository {
@@ -22,9 +19,7 @@ export class PrismaEvidenciaRepository implements IEvidenciaRepository {
     const id = data.id as string;
 
     // Convert metadata to Prisma-compatible JSON
-    const metadataJson = data.metadata
-      ? JSON.parse(JSON.stringify(data.metadata))
-      : undefined;
+    const metadataJson = data.metadata ? JSON.parse(JSON.stringify(data.metadata)) : undefined;
 
     // Upsert pattern
     const saved = await this.prisma.evidenciaEjecucion.upsert({
@@ -39,7 +34,7 @@ export class PrismaEvidenciaRepository implements IEvidenciaRepository {
         rutaArchivo: data.rutaArchivo as string,
         tamano: BigInt(data.tamano as number),
         thumbnailPath: (data.thumbnailPath as string) || null,
-        status: (data.status as string) || "READY",
+        status: (data.status as string) || 'READY',
         descripcion: data.descripcion as string,
         tags: data.tags as string[],
         metadata: metadataJson,
@@ -52,7 +47,7 @@ export class PrismaEvidenciaRepository implements IEvidenciaRepository {
       },
       update: {
         thumbnailPath: (data.thumbnailPath as string) || null,
-        status: (data.status as string) || "READY",
+        status: (data.status as string) || 'READY',
         descripcion: data.descripcion as string,
         tags: data.tags as string[],
         metadata: metadataJson,
@@ -82,7 +77,7 @@ export class PrismaEvidenciaRepository implements IEvidenciaRepository {
       where: { id: { in: ids } },
     });
 
-    return records.map((r) => this.toDomain(r));
+    return records.map(r => this.toDomain(r));
   }
 
   async findMany(options: FindEvidenciasOptions): Promise<Evidencia[]> {
@@ -90,12 +85,12 @@ export class PrismaEvidenciaRepository implements IEvidenciaRepository {
 
     const records = await this.prisma.evidenciaEjecucion.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       skip: options.skip,
       take: options.take,
     });
 
-    return records.map((r) => this.toDomain(r));
+    return records.map(r => this.toDomain(r));
   }
 
   async count(options: FindEvidenciasOptions): Promise<number> {
@@ -142,19 +137,17 @@ export class PrismaEvidenciaRepository implements IEvidenciaRepository {
         deletedAt: { not: null },
         ...(ordenId ? { ordenId } : {}),
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
-    return records.map((r) => this.toDomain(r));
+    return records.map(r => this.toDomain(r));
   }
 
   // =====================================================
   // Private Methods
   // =====================================================
 
-  private buildWhereClause(
-    options: FindEvidenciasOptions,
-  ): Record<string, unknown> {
+  private buildWhereClause(options: FindEvidenciasOptions): Record<string, unknown> {
     const where: Record<string, unknown> = {};
 
     if (options.ordenId) {

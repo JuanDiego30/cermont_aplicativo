@@ -3,23 +3,23 @@
  * @description Controlador unificado de ejecución
  */
 import {
-    Body,
-    Controller,
-    Get,
-    NotFoundException,
-    Param,
-    ParseUUIDPipe,
-    Post,
-    Put,
-    UseGuards
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+  UseGuards,
 } from '@nestjs/common';
 import {
-    ApiBearerAuth,
-    ApiBody,
-    ApiOperation,
-    ApiParam,
-    ApiResponse,
-    ApiTags,
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { CurrentUser, JwtPayload } from '../../../../shared/decorators/current-user.decorator';
 import { Roles } from '../../../../shared/decorators/roles.decorator';
@@ -27,11 +27,11 @@ import { JwtAuthGuard } from '../../../../shared/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../../shared/guards/roles.guard';
 import { CompletarEjecucionDto, IniciarEjecucionDto, UpdateAvanceDto } from '../../application/dto';
 import {
-    CompletarEjecucionUseCase,
-    GetEjecucionUseCase,
-    GetMisEjecucionesUseCase,
-    IniciarEjecucionUseCase,
-    UpdateAvanceUseCase,
+  CompletarEjecucionUseCase,
+  GetEjecucionUseCase,
+  GetMisEjecucionesUseCase,
+  IniciarEjecucionUseCase,
+  UpdateAvanceUseCase,
 } from '../../application/use-cases';
 
 @ApiTags('Execution')

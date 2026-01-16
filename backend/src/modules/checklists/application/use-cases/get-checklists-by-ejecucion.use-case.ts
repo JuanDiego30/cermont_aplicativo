@@ -4,13 +4,10 @@
  * Obtiene todas las checklists asignadas a una ejecución
  */
 
-import { Injectable, Inject, Logger } from "@nestjs/common";
-import {
-  IChecklistRepository,
-  CHECKLIST_REPOSITORY,
-} from "../../domain/repositories";
-import { ChecklistResponseDto } from "../dto/checklist-response.dto";
-import { ChecklistMapper } from "../mappers/checklist.mapper";
+import { Injectable, Inject, Logger } from '@nestjs/common';
+import { IChecklistRepository, CHECKLIST_REPOSITORY } from '../../domain/repositories';
+import { ChecklistResponseDto } from '../dto/checklist-response.dto';
+import { ChecklistMapper } from '../mappers/checklist.mapper';
 
 @Injectable()
 export class GetChecklistsByEjecucionUseCase {
@@ -18,7 +15,7 @@ export class GetChecklistsByEjecucionUseCase {
 
   constructor(
     @Inject(CHECKLIST_REPOSITORY)
-    private readonly repository: IChecklistRepository,
+    private readonly repository: IChecklistRepository
   ) {}
 
   async execute(ejecucionId: string): Promise<ChecklistResponseDto[]> {

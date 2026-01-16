@@ -92,7 +92,7 @@ export class ApiBaseService {
   /**
    * Build HttpParams from object
    */
-  private buildParams(params?: Record<string, any>): HttpParams {
+  private buildParams(params?: Record<string, unknown>): HttpParams {
     let httpParams = new HttpParams();
     if (params) {
       Object.keys(params).forEach(key => {

@@ -4,7 +4,7 @@
  * @layer Domain
  */
 export class UserRegisteredEvent {
-  readonly eventName = "auth.user.registered" as const;
+  readonly eventName = 'auth.user.registered' as const;
   readonly occurredAt: Date;
 
   constructor(
@@ -13,7 +13,7 @@ export class UserRegisteredEvent {
     public readonly name: string,
     public readonly role: string,
     public readonly ip?: string,
-    public readonly userAgent?: string,
+    public readonly userAgent?: string
   ) {
     this.occurredAt = new Date();
     Object.freeze(this);

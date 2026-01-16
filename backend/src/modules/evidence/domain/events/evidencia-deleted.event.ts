@@ -4,7 +4,7 @@
  */
 
 export class EvidenciaDeletedEvent {
-  public readonly eventName = "evidencia.deleted";
+  public readonly eventName = 'evidencia.deleted';
   public readonly occurredOn: Date;
 
   constructor(
@@ -14,7 +14,7 @@ export class EvidenciaDeletedEvent {
       thumbnailPath?: string;
       deletedBy: string;
       isSoftDelete: boolean;
-    },
+    }
   ) {
     this.occurredOn = new Date();
   }

@@ -1,1 +1,1 @@
-export * from "./hes.controller";
+export * from './hes.controller';

@@ -4,10 +4,10 @@
  * Evalúa el nivel de riesgo de una HES basado en múltiples factores
  */
 
-import { TipoServicio } from "../value-objects/tipo-servicio.vo";
-import { NivelRiesgo } from "../value-objects/nivel-riesgo.vo";
-import { RequerimientosSeguridad } from "../entities/requerimientos-seguridad.entity";
-import { CondicionesEntrada } from "../entities/condiciones-entrada.entity";
+import { TipoServicio } from '../value-objects/tipo-servicio.vo';
+import { NivelRiesgo } from '../value-objects/nivel-riesgo.vo';
+import { RequerimientosSeguridad } from '../entities/requerimientos-seguridad.entity';
+import { CondicionesEntrada } from '../entities/condiciones-entrada.entity';
 
 export interface EvaluarRiesgoParams {
   tipoServicio: TipoServicio;
@@ -21,9 +21,9 @@ export class RiesgoEvaluatorService {
 
     // Evaluar tipo de servicio
     const tipoServicio = params.tipoServicio.getValue();
-    if (tipoServicio === "REPARACION") {
+    if (tipoServicio === 'REPARACION') {
       puntos += 2;
-    } else if (tipoServicio === "INSTALACION") {
+    } else if (tipoServicio === 'INSTALACION') {
       puntos += 1;
     }
 

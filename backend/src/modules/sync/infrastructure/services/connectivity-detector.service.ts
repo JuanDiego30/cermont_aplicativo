@@ -1,8 +1,8 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { HttpService } from "@nestjs/axios";
-import { ConfigService } from "@nestjs/config";
-import { firstValueFrom, timeout, catchError } from "rxjs";
-import { of } from "rxjs";
+import { Injectable, Logger } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
+import { firstValueFrom, timeout, catchError } from 'rxjs';
+import { of } from 'rxjs';
 
 export interface ConnectivityStatus {
   isOnline: boolean;
@@ -25,7 +25,7 @@ export class ConnectivityDetectorService {
 
   constructor(
     private readonly httpService: HttpService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {}
 
   /**
@@ -48,10 +48,7 @@ export class ConnectivityDetectorService {
 
     try {
       // First, check if we can reach our own server's health endpoint
-      const serverUrl = this.configService.get<string>(
-        "API_URL",
-        "http://localhost:4000",
-      );
+      const serverUrl = this.configService.get<string>('API_URL', 'http://localhost:4000');
       const healthResponse = await firstValueFrom(
         this.httpService
           .get(`${serverUrl}/api/health`, {
@@ -59,8 +56,8 @@ export class ConnectivityDetectorService {
           })
           .pipe(
             timeout(this.CHECK_TIMEOUT_MS),
-            catchError(() => of({ data: null, status: 0 })),
-          ),
+            catchError(() => of({ data: null, status: 0 }))
+          )
       );
 
       serverReachable = healthResponse.status === 200;
@@ -73,18 +70,18 @@ export class ConnectivityDetectorService {
         // Try to reach an external endpoint to verify internet connectivity
         const externalResponse = await firstValueFrom(
           this.httpService
-            .get("https://dns.google/resolve?name=example.com", {
+            .get('https://dns.google/resolve?name=example.com', {
               timeout: this.CHECK_TIMEOUT_MS,
             })
             .pipe(
               timeout(this.CHECK_TIMEOUT_MS),
-              catchError(() => of({ data: null, status: 0 })),
-            ),
+              catchError(() => of({ data: null, status: 0 }))
+            )
         );
         internetReachable = externalResponse.status === 200;
       }
     } catch (error) {
-      this.logger.debug("Connectivity check failed", error);
+      this.logger.debug('Connectivity check failed', error);
       serverReachable = false;
       internetReachable = false;
     }
@@ -100,12 +97,12 @@ export class ConnectivityDetectorService {
     this._lastStatus = status;
 
     if (!status.isOnline) {
-      this.logger.warn("Connectivity check: OFFLINE", {
+      this.logger.warn('Connectivity check: OFFLINE', {
         serverReachable,
         internetReachable,
       });
     } else {
-      this.logger.log("Connectivity check: ONLINE ✅", {
+      this.logger.log('Connectivity check: ONLINE ✅', {
         latencyMs,
       });
     }
@@ -117,10 +114,7 @@ export class ConnectivityDetectorService {
    * Quick check - returns cached status or performs fast check
    */
   isOnline(): boolean {
-    if (
-      this._lastStatus &&
-      Date.now() - this._lastStatus.lastCheck.getTime() < this.CACHE_TTL_MS
-    ) {
+    if (this._lastStatus && Date.now() - this._lastStatus.lastCheck.getTime() < this.CACHE_TTL_MS) {
       return this._lastStatus.isOnline;
     }
     // Don't wait for check, just return last known status or assume offline

@@ -4,10 +4,7 @@
  * @pattern Strategy (Concrete implementation)
  */
 
-import {
-  ReportGeneratorStrategy,
-  ReportData,
-} from "./report-generator.strategy";
+import { ReportGeneratorStrategy, ReportData } from './report-generator.strategy';
 
 export class PdfReportStrategy implements ReportGeneratorStrategy {
   async generate(data: ReportData): Promise<Buffer> {
@@ -15,20 +12,20 @@ export class PdfReportStrategy implements ReportGeneratorStrategy {
     // This is a stub that generates a simple text representation
     const content = [
       `=== ${data.title} ===`,
-      "",
-      data.headers.join(" | "),
-      "-".repeat(50),
-      ...data.rows.map((row) => row.join(" | ")),
-    ].join("\n");
+      '',
+      data.headers.join(' | '),
+      '-'.repeat(50),
+      ...data.rows.map(row => row.join(' | ')),
+    ].join('\n');
 
-    return Buffer.from(content, "utf-8");
+    return Buffer.from(content, 'utf-8');
   }
 
   getMimeType(): string {
-    return "application/pdf";
+    return 'application/pdf';
   }
 
   getFileExtension(): string {
-    return ".pdf";
+    return '.pdf';
   }
 }

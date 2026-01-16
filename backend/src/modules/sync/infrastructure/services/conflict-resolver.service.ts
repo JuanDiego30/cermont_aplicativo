@@ -1,14 +1,14 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger } from '@nestjs/common';
 
 /**
  * Conflict Resolution Strategy
  */
 export enum ConflictStrategy {
-  LAST_WRITE_WINS = "LAST_WRITE_WINS",
-  SERVER_WINS = "SERVER_WINS",
-  CLIENT_WINS = "CLIENT_WINS",
-  MERGE = "MERGE",
-  MANUAL = "MANUAL",
+  LAST_WRITE_WINS = 'LAST_WRITE_WINS',
+  SERVER_WINS = 'SERVER_WINS',
+  CLIENT_WINS = 'CLIENT_WINS',
+  MERGE = 'MERGE',
+  MANUAL = 'MANUAL',
 }
 
 export interface ConflictData {
@@ -47,10 +47,7 @@ export class ConflictResolverService {
   /**
    * Resolve conflict between local and server data
    */
-  resolve(
-    conflict: ConflictData,
-    strategy?: ConflictStrategy,
-  ): ConflictResolution {
+  resolve(conflict: ConflictData, strategy?: ConflictStrategy): ConflictResolution {
     const resolveStrategy = strategy || this.defaultStrategy;
 
     this.logger.log(`Resolving conflict with strategy: ${resolveStrategy}`, {
@@ -80,19 +77,16 @@ export class ConflictResolverService {
     localData: Record<string, unknown>,
     serverData: Record<string, unknown>,
     localTimestamp: Date,
-    serverTimestamp: Date,
+    serverTimestamp: Date
   ): ConflictData | null {
     const fieldConflicts: string[] = [];
 
     // Compare each field
-    const allKeys = new Set([
-      ...Object.keys(localData),
-      ...Object.keys(serverData),
-    ]);
+    const allKeys = new Set([...Object.keys(localData), ...Object.keys(serverData)]);
 
     for (const key of allKeys) {
       // Skip metadata fields
-      if (["id", "createdAt", "updatedAt", "version"].includes(key)) {
+      if (['id', 'createdAt', 'updatedAt', 'version'].includes(key)) {
         continue;
       }
 
@@ -123,13 +117,10 @@ export class ConflictResolverService {
   private resolveLastWriteWins(conflict: ConflictData): ConflictResolution {
     const useLocal = conflict.localTimestamp > conflict.serverTimestamp;
 
-    this.logger.debug(
-      `Last Write Wins: ${useLocal ? "LOCAL" : "SERVER"} wins`,
-      {
-        localTime: conflict.localTimestamp.toISOString(),
-        serverTime: conflict.serverTimestamp.toISOString(),
-      },
-    );
+    this.logger.debug(`Last Write Wins: ${useLocal ? 'LOCAL' : 'SERVER'} wins`, {
+      localTime: conflict.localTimestamp.toISOString(),
+      serverTime: conflict.serverTimestamp.toISOString(),
+    });
 
     return {
       resolved: true,
@@ -224,7 +215,7 @@ export class ConflictResolverService {
     if (a === b) return true;
     if (typeof a !== typeof b) return false;
     if (a === null || b === null) return a === b;
-    if (typeof a !== "object") return false;
+    if (typeof a !== 'object') return false;
 
     // Handle arrays
     if (Array.isArray(a) && Array.isArray(b)) {
@@ -239,6 +230,6 @@ export class ConflictResolverService {
     const bKeys = Object.keys(bObj);
 
     if (aKeys.length !== bKeys.length) return false;
-    return aKeys.every((key) => this.areEqual(aObj[key], bObj[key]));
+    return aKeys.every(key => this.areEqual(aObj[key], bObj[key]));
   }
 }

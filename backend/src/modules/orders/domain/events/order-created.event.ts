@@ -11,6 +11,6 @@ export class OrderCreatedEvent {
     public readonly cliente: string,
     public readonly prioridad: string,
     public readonly creadorId?: string,
-    public readonly timestamp: Date = new Date(),
+    public readonly timestamp: Date = new Date()
   ) {}
 }

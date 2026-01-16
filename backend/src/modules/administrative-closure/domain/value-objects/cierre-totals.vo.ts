@@ -10,22 +10,20 @@ export class CierreTotals {
     private readonly totalMateriales: number,
     private readonly totalManoObra: number,
     private readonly totalOtros: number,
-    private readonly totalGeneral: number,
+    private readonly totalGeneral: number
   ) {
     Object.freeze(this);
   }
 
-  static calculate(
-    items: { categoria: string; subtotal: number }[],
-  ): CierreTotals {
+  static calculate(items: { categoria: string; subtotal: number }[]): CierreTotals {
     let materiales = 0;
     let manoObra = 0;
     let otros = 0;
 
     for (const item of items) {
-      if (item.categoria === "MATERIAL") {
+      if (item.categoria === 'MATERIAL') {
         materiales += item.subtotal;
-      } else if (item.categoria === "MANO_OBRA") {
+      } else if (item.categoria === 'MANO_OBRA') {
         manoObra += item.subtotal;
       } else {
         otros += item.subtotal;
@@ -36,7 +34,7 @@ export class CierreTotals {
       Math.round(materiales * 100) / 100,
       Math.round(manoObra * 100) / 100,
       Math.round(otros * 100) / 100,
-      Math.round((materiales + manoObra + otros) * 100) / 100,
+      Math.round((materiales + manoObra + otros) * 100) / 100
     );
   }
 
@@ -50,7 +48,7 @@ export class CierreTotals {
       props.totalMateriales,
       props.totalManoObra,
       props.totalOtros,
-      props.totalGeneral,
+      props.totalGeneral
     );
   }
 
@@ -80,9 +78,7 @@ export class CierreTotals {
   }
 
   equals(other: CierreTotals): boolean {
-    return (
-      other instanceof CierreTotals && this.totalGeneral === other.totalGeneral
-    );
+    return other instanceof CierreTotals && this.totalGeneral === other.totalGeneral;
   }
 
   toString(): string {

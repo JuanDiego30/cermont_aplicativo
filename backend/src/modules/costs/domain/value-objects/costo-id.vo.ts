@@ -4,11 +4,10 @@
  * Identificador único de costo (UUID v4)
  */
 
-import { randomUUID } from "crypto";
-import { ValidationError } from "../exceptions";
+import { randomUUID } from 'crypto';
+import { ValidationError } from '../exceptions';
 
-const UUID_REGEX =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export class CostoId {
   private constructor(private readonly _value: string) {
@@ -20,12 +19,8 @@ export class CostoId {
   }
 
   public static create(value: string): CostoId {
-    if (!value || typeof value !== "string" || !UUID_REGEX.test(value)) {
-      throw new ValidationError(
-        "CostoId debe ser un UUID válido",
-        "costoId",
-        value,
-      );
+    if (!value || typeof value !== 'string' || !UUID_REGEX.test(value)) {
+      throw new ValidationError('CostoId debe ser un UUID válido', 'costoId', value);
     }
     return new CostoId(value.toLowerCase());
   }

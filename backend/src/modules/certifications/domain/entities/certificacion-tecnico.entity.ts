@@ -1,9 +1,9 @@
-import { randomUUID } from "crypto";
+import { randomUUID } from 'crypto';
 import {
   TipoCertificacion,
   TipoCertificacionTecnico,
-} from "../value-objects/tipo-certificacion.vo";
-import { EstadoVigencia } from "../value-objects/estado-vigencia.vo";
+} from '../value-objects/tipo-certificacion.vo';
+import { EstadoVigencia } from '../value-objects/estado-vigencia.vo';
 
 export interface CertificacionTecnicoProps {
   id?: string;
@@ -65,24 +65,16 @@ export class CertificacionTecnico {
   static create(props: CertificacionTecnicoProps): CertificacionTecnico {
     // Validaciones
     if (!props.tecnicoId) {
-      throw new Error("El ID del técnico es requerido");
+      throw new Error('El ID del técnico es requerido');
     }
-    if (
-      !props.entidadCertificadora ||
-      props.entidadCertificadora.trim().length === 0
-    ) {
-      throw new Error("La entidad certificadora es requerida");
+    if (!props.entidadCertificadora || props.entidadCertificadora.trim().length === 0) {
+      throw new Error('La entidad certificadora es requerida');
     }
-    if (
-      !props.numeroCertificado ||
-      props.numeroCertificado.trim().length === 0
-    ) {
-      throw new Error("El número de certificado es requerido");
+    if (!props.numeroCertificado || props.numeroCertificado.trim().length === 0) {
+      throw new Error('El número de certificado es requerido');
     }
     if (props.fechaEmision >= props.fechaVencimiento) {
-      throw new Error(
-        "La fecha de emisión debe ser anterior a la fecha de vencimiento",
-      );
+      throw new Error('La fecha de emisión debe ser anterior a la fecha de vencimiento');
     }
 
     return new CertificacionTecnico({

@@ -4,14 +4,14 @@
  * @layer Domain
  */
 export class UserLoggedInEvent {
-  readonly eventName = "auth.user.logged-in" as const;
+  readonly eventName = 'auth.user.logged-in' as const;
   readonly occurredAt: Date;
 
   constructor(
     public readonly userId: string,
     public readonly email: string,
     public readonly ip?: string,
-    public readonly userAgent?: string,
+    public readonly userAgent?: string
   ) {
     this.occurredAt = new Date();
     Object.freeze(this);

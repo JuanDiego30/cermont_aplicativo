@@ -17,17 +17,17 @@ import {
   Body,
   HttpCode,
   HttpStatus,
-} from "@nestjs/common";
-import { ApiOperation, ApiQuery, ApiParam, ApiBody } from "@nestjs/swagger";
-import { BaseService, PaginatedResult } from "./base.service";
-import { WhereClause, OrderByClause } from "./base.repository";
+} from '@nestjs/common';
+import { ApiOperation, ApiQuery, ApiParam, ApiBody } from '@nestjs/swagger';
+import { BaseService, PaginatedResult } from './base.service';
+import { WhereClause, OrderByClause } from './base.repository';
 
 /** Query parameters for list endpoints */
 export interface ListQueryParams {
   page?: number;
   pageSize?: number;
   sortBy?: string;
-  sortOrder?: "asc" | "desc";
+  sortOrder?: 'asc' | 'desc';
   search?: string;
 }
 
@@ -41,28 +41,22 @@ export interface FindOptions {
  * Abstract controller with standard CRUD operations.
  * Extend this and add @Controller('route') decorator.
  */
-export abstract class BaseController<
-  T,
-  TCreate = Partial<T>,
-  TUpdate = Partial<T>,
-> {
+export abstract class BaseController<T, TCreate = Partial<T>, TUpdate = Partial<T>> {
   constructor(protected readonly service: BaseService<T, TCreate, TUpdate>) {}
 
   @Get()
-  @ApiOperation({ summary: "Listar todos los registros" })
-  @ApiQuery({ name: "page", required: false, type: Number })
-  @ApiQuery({ name: "pageSize", required: false, type: Number })
-  @ApiQuery({ name: "search", required: false, type: String })
-  async findAll(
-    @Query() query: ListQueryParams,
-  ): Promise<PaginatedResult<T> | T[]> {
+  @ApiOperation({ summary: 'Listar todos los registros' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'pageSize', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  async findAll(@Query() query: ListQueryParams): Promise<PaginatedResult<T> | T[]> {
     const { page, pageSize, sortBy, sortOrder, search } = query;
 
     // Build options from query
     const options: FindOptions = {};
 
     if (sortBy) {
-      options.orderBy = { [sortBy]: sortOrder || "desc" };
+      options.orderBy = { [sortBy]: sortOrder || 'desc' };
     }
 
     if (search) {
@@ -72,55 +66,45 @@ export abstract class BaseController<
 
     // If pagination params provided, use paginated result
     if (page || pageSize) {
-      return await this.service.findAllPaginated(
-        page || 1,
-        pageSize || 10,
-        options,
-      );
+      return await this.service.findAllPaginated(page || 1, pageSize || 10, options);
     }
 
     return await this.service.findAll(options);
   }
 
-  @Get(":id")
-  @ApiOperation({ summary: "Obtener registro por ID" })
-  @ApiParam({ name: "id", type: String })
-  async findOne(@Param("id") id: string): Promise<T> {
+  @Get(':id')
+  @ApiOperation({ summary: 'Obtener registro por ID' })
+  @ApiParam({ name: 'id', type: String })
+  async findOne(@Param('id') id: string): Promise<T> {
     return await this.service.findByIdOrFail(id);
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: "Crear nuevo registro" })
+  @ApiOperation({ summary: 'Crear nuevo registro' })
   async create(@Body() createDto: TCreate): Promise<T> {
     return await this.service.create(createDto);
   }
 
-  @Put(":id")
-  @ApiOperation({ summary: "Actualizar registro completo" })
-  @ApiParam({ name: "id", type: String })
-  async update(
-    @Param("id") id: string,
-    @Body() updateDto: TUpdate,
-  ): Promise<T> {
+  @Put(':id')
+  @ApiOperation({ summary: 'Actualizar registro completo' })
+  @ApiParam({ name: 'id', type: String })
+  async update(@Param('id') id: string, @Body() updateDto: TUpdate): Promise<T> {
     return await this.service.update(id, updateDto);
   }
 
-  @Patch(":id")
-  @ApiOperation({ summary: "Actualizar registro parcialmente" })
-  @ApiParam({ name: "id", type: String })
-  async partialUpdate(
-    @Param("id") id: string,
-    @Body() updateDto: Partial<TUpdate>,
-  ): Promise<T> {
+  @Patch(':id')
+  @ApiOperation({ summary: 'Actualizar registro parcialmente' })
+  @ApiParam({ name: 'id', type: String })
+  async partialUpdate(@Param('id') id: string, @Body() updateDto: Partial<TUpdate>): Promise<T> {
     return await this.service.update(id, updateDto as TUpdate);
   }
 
-  @Delete(":id")
+  @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: "Eliminar registro" })
-  @ApiParam({ name: "id", type: String })
-  async remove(@Param("id") id: string): Promise<void> {
+  @ApiOperation({ summary: 'Eliminar registro' })
+  @ApiParam({ name: 'id', type: String })
+  async remove(@Param('id') id: string): Promise<void> {
     await this.service.delete(id);
   }
 

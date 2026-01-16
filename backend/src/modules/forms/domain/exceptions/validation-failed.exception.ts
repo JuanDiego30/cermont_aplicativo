@@ -4,7 +4,7 @@
  * Lanzada cuando la validación de una submission falla
  */
 
-import { BusinessRuleViolationError } from "../../../../shared/domain/exceptions";
+import { BusinessRuleViolationError } from '../../../../shared/domain/exceptions';
 
 export interface SubmissionValidationError {
   fieldId: string;
@@ -14,10 +14,9 @@ export interface SubmissionValidationError {
 export class ValidationFailedException extends BusinessRuleViolationError {
   constructor(
     message: string,
-    public readonly errors: SubmissionValidationError[],
+    public readonly errors: SubmissionValidationError[]
   ) {
     super(message);
-    this.name = "ValidationFailedException";
+    this.name = 'ValidationFailedException';
   }
 }
-

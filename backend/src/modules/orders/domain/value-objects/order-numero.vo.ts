@@ -15,7 +15,7 @@ export class OrderNumero {
   }
 
   static create(sequence: number): OrderNumero {
-    const numero = `ORD-${String(sequence).padStart(6, "0")}`;
+    const numero = `ORD-${String(sequence).padStart(6, '0')}`;
     return new OrderNumero(numero);
   }
 

@@ -5,10 +5,10 @@
  * Principio SRP: Solo se encarga de transformaciones.
  */
 
-import { UserEntity } from "../../domain/entities/user.entity";
-import { UserResponseDto } from "../dto/user-response.dto";
-import { type CreateUserInput } from "../dto/create-user.dto";
-import { type CreateUserData } from "../../domain/entities/user.entity";
+import { UserEntity } from '../../domain/entities/user.entity';
+import { UserResponseDto } from '../dto/user-response.dto';
+import { type CreateUserInput } from '../dto/create-user.dto';
+import { type CreateUserData } from '../../domain/entities/user.entity';
 
 export class UserMapper {
   /**
@@ -33,16 +33,13 @@ export class UserMapper {
    * Convierte lista de entities a lista de Response DTOs
    */
   static toResponseList(entities: UserEntity[]): UserResponseDto[] {
-    return entities.map((entity) => this.toResponse(entity));
+    return entities.map(entity => this.toResponse(entity));
   }
 
   /**
    * Convierte CreateUserInput DTO a datos para Entity.create()
    */
-  static createDtoToEntityData(
-    dto: CreateUserInput,
-    createdBy?: string,
-  ): CreateUserData {
+  static createDtoToEntityData(dto: CreateUserInput, createdBy?: string): CreateUserData {
     return {
       email: dto.email,
       name: dto.name,
@@ -57,11 +54,11 @@ export class UserMapper {
   /**
    * Extrae datos de actualización válidos
    */
-  static extractUpdateData(dto: {
+  static extractUpdateData(dto: { name?: string; phone?: string | null; avatar?: string | null }): {
     name?: string;
-    phone?: string | null;
-    avatar?: string | null;
-  }): { name?: string; phone?: string; avatar?: string } {
+    phone?: string;
+    avatar?: string;
+  } {
     const data: { name?: string; phone?: string; avatar?: string } = {};
 
     if (dto.name !== undefined) {

@@ -2,33 +2,33 @@
  * @controller CostosController
  */
 import {
-    Body,
-    Controller,
-    Get,
-    HttpCode,
-    HttpStatus,
-    Param,
-    ParseUUIDPipe,
-    Post,
-    Query,
-    UseGuards,
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
-    ApiBearerAuth,
-    ApiBody,
-    ApiOperation,
-    ApiParam,
-    ApiResponse,
-    ApiTags,
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { Roles } from '../../../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../../../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../../auth/guards/roles.guard';
 import { CostoQueryDto, RegistrarCostoDto } from '../../application/dto';
 import {
-    GetAnalisisCostosUseCase,
-    ListCostosUseCase,
-    RegistrarCostoUseCase,
+  GetAnalisisCostosUseCase,
+  ListCostosUseCase,
+  RegistrarCostoUseCase,
 } from '../../application/use-cases';
 
 @ApiTags('Costs')

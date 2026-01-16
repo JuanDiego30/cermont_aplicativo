@@ -4,14 +4,14 @@
  * @layer Domain
  */
 export class TokenRefreshedEvent {
-  readonly eventName = "auth.token.refreshed" as const;
+  readonly eventName = 'auth.token.refreshed' as const;
   readonly occurredAt: Date;
 
   constructor(
     public readonly userId: string,
     public readonly oldTokenId: string,
     public readonly ip?: string,
-    public readonly userAgent?: string,
+    public readonly userAgent?: string
   ) {
     this.occurredAt = new Date();
     Object.freeze(this);

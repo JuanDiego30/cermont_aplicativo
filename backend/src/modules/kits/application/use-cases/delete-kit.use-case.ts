@@ -3,9 +3,9 @@
  *
  * Elimina (soft delete) un kit
  */
-import { Injectable, NotFoundException, Inject, Logger } from "@nestjs/common";
-import { KIT_REPOSITORY, IKitRepository } from "../../domain/repositories";
-import { KitId } from "../../domain/value-objects";
+import { Injectable, NotFoundException, Inject, Logger } from '@nestjs/common';
+import { KIT_REPOSITORY, IKitRepository } from '../../domain/repositories';
+import { KitId } from '../../domain/value-objects';
 
 @Injectable()
 export class DeleteKitUseCase {
@@ -13,7 +13,7 @@ export class DeleteKitUseCase {
 
   constructor(
     @Inject(KIT_REPOSITORY)
-    private readonly repository: IKitRepository,
+    private readonly repository: IKitRepository
   ) {}
 
   async execute(kitId: string): Promise<{ message: string }> {
@@ -27,13 +27,13 @@ export class DeleteKitUseCase {
     }
 
     if (kit.esEnUso()) {
-      throw new Error("No se puede eliminar un kit en uso");
+      throw new Error('No se puede eliminar un kit en uso');
     }
 
     await this.repository.delete(id);
 
     this.logger.log(`Kit deleted: ${kitId}`);
 
-    return { message: "Kit eliminado correctamente" };
+    return { message: 'Kit eliminado correctamente' };
   }
 }

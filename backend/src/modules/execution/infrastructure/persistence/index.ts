@@ -1,1 +1,1 @@
-export { EjecucionRepository } from "./ejecucion.repository";
+export { EjecucionRepository } from './ejecucion.repository';

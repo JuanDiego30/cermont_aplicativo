@@ -11,21 +11,21 @@ import {
   ArrayMinSize,
   ValidateNested,
   IsDateString,
-} from "class-validator";
-import { Type } from "class-transformer";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum SyncEntityType {
-  ORDEN = "orden",
-  EVIDENCIA = "evidencia",
-  CHECKLIST = "checklist",
-  EJECUCION = "ejecucion",
+  ORDEN = 'orden',
+  EVIDENCIA = 'evidencia',
+  CHECKLIST = 'checklist',
+  EJECUCION = 'ejecucion',
 }
 
 export enum SyncAction {
-  CREATE = "create",
-  UPDATE = "update",
-  DELETE = "delete",
+  CREATE = 'create',
+  UPDATE = 'update',
+  DELETE = 'delete',
 }
 
 export class SyncItemDto {
@@ -33,7 +33,7 @@ export class SyncItemDto {
   @IsEnum(SyncEntityType)
   entityType!: SyncEntityType;
 
-  @ApiPropertyOptional({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiPropertyOptional({ example: '123e4567-e89b-12d3-a456-426614174000' })
   @IsOptional()
   @IsString()
   entityId?: string;
@@ -42,15 +42,15 @@ export class SyncItemDto {
   @IsEnum(SyncAction)
   action!: SyncAction;
 
-  @ApiProperty({ example: { campo: "valor" } })
+  @ApiProperty({ example: { campo: 'valor' } })
   @IsObject()
   data!: Record<string, unknown>;
 
-  @ApiProperty({ example: "local-123" })
+  @ApiProperty({ example: 'local-123' })
   @IsString()
   localId!: string;
 
-  @ApiProperty({ example: "2025-01-14T10:00:00Z" })
+  @ApiProperty({ example: '2025-01-14T10:00:00Z' })
   @IsDateString()
   timestamp!: string;
 }
@@ -63,11 +63,11 @@ export class SyncBatchDto {
   @Type(() => SyncItemDto)
   items!: SyncItemDto[];
 
-  @ApiProperty({ example: "device-abc123" })
+  @ApiProperty({ example: 'device-abc123' })
   @IsString()
   deviceId!: string;
 
-  @ApiPropertyOptional({ example: "2025-01-14T09:00:00Z" })
+  @ApiPropertyOptional({ example: '2025-01-14T09:00:00Z' })
   @IsOptional()
   @IsDateString()
   lastSyncTimestamp?: string;
@@ -93,7 +93,7 @@ export interface SyncResponse {
 }
 
 // Repository Interface
-export const SYNC_REPOSITORY = Symbol("SYNC_REPOSITORY");
+export const SYNC_REPOSITORY = Symbol('SYNC_REPOSITORY');
 
 export interface PendingSync {
   id: string;
@@ -105,15 +105,12 @@ export interface PendingSync {
   data: Record<string, unknown>;
   localId: string;
   timestamp: Date;
-  status: "pending" | "processing" | "synced" | "failed" | "conflict";
+  status: 'pending' | 'processing' | 'synced' | 'failed' | 'conflict';
   error?: string;
 }
 
 export interface ISyncRepository {
-  savePending(
-    userId: string,
-    item: SyncItemDto & { deviceId: string },
-  ): Promise<PendingSync>;
+  savePending(userId: string, item: SyncItemDto & { deviceId: string }): Promise<PendingSync>;
   tryMarkAsProcessing(id: string): Promise<boolean>;
   markAsSynced(id: string, serverId: string): Promise<void>;
   markAsFailed(id: string, error: string): Promise<void>;

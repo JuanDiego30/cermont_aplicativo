@@ -9,7 +9,7 @@ interface BaseEvent {
 }
 
 export class ExecutionStartedEvent implements BaseEvent {
-  public readonly eventName = "execution.started";
+  public readonly eventName = 'execution.started';
   public readonly occurredAt: Date;
 
   constructor(
@@ -19,14 +19,14 @@ export class ExecutionStartedEvent implements BaseEvent {
       startedBy: string;
       location?: Record<string, unknown>;
       timestamp: Date;
-    },
+    }
   ) {
     this.occurredAt = payload.timestamp;
   }
 }
 
 export class ExecutionPausedEvent implements BaseEvent {
-  public readonly eventName = "execution.paused";
+  public readonly eventName = 'execution.paused';
   public readonly occurredAt: Date;
 
   constructor(
@@ -36,14 +36,14 @@ export class ExecutionPausedEvent implements BaseEvent {
       pausedBy: string;
       reason: string;
       timestamp: Date;
-    },
+    }
   ) {
     this.occurredAt = payload.timestamp;
   }
 }
 
 export class ExecutionResumedEvent implements BaseEvent {
-  public readonly eventName = "execution.resumed";
+  public readonly eventName = 'execution.resumed';
   public readonly occurredAt: Date;
 
   constructor(
@@ -53,14 +53,14 @@ export class ExecutionResumedEvent implements BaseEvent {
       resumedBy: string;
       location?: Record<string, unknown>;
       timestamp: Date;
-    },
+    }
   ) {
     this.occurredAt = payload.timestamp;
   }
 }
 
 export class ProgressUpdatedEvent implements BaseEvent {
-  public readonly eventName = "execution.progress-updated";
+  public readonly eventName = 'execution.progress-updated';
   public readonly occurredAt: Date;
 
   constructor(
@@ -71,14 +71,14 @@ export class ProgressUpdatedEvent implements BaseEvent {
       newProgress: number;
       updatedBy: string;
       timestamp: Date;
-    },
+    }
   ) {
     this.occurredAt = payload.timestamp;
   }
 }
 
 export class ExecutionCompletedEvent implements BaseEvent {
-  public readonly eventName = "execution.completed";
+  public readonly eventName = 'execution.completed';
   public readonly occurredAt: Date;
 
   constructor(
@@ -89,14 +89,14 @@ export class ExecutionCompletedEvent implements BaseEvent {
       totalDuration: string;
       finalProgress: number;
       timestamp: Date;
-    },
+    }
   ) {
     this.occurredAt = payload.timestamp;
   }
 }
 
 export class EvidenceUploadedEvent implements BaseEvent {
-  public readonly eventName = "execution.evidence-uploaded";
+  public readonly eventName = 'execution.evidence-uploaded';
   public readonly occurredAt: Date;
 
   constructor(
@@ -107,14 +107,14 @@ export class EvidenceUploadedEvent implements BaseEvent {
       evidenceType: string;
       uploadedBy: string;
       timestamp: Date;
-    },
+    }
   ) {
     this.occurredAt = payload.timestamp;
   }
 }
 
 export class LocationUpdatedEvent implements BaseEvent {
-  public readonly eventName = "execution.location-updated";
+  public readonly eventName = 'execution.location-updated';
   public readonly occurredAt: Date;
 
   constructor(
@@ -124,7 +124,7 @@ export class LocationUpdatedEvent implements BaseEvent {
       oldLocation?: Record<string, unknown>;
       newLocation: Record<string, unknown>;
       timestamp: Date;
-    },
+    }
   ) {
     this.occurredAt = payload.timestamp;
   }

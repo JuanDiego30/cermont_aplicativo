@@ -6,7 +6,7 @@
 export class CierreNotApprovableException extends Error {
   constructor(message: string) {
     super(message);
-    this.name = "CierreNotApprovableException";
+    this.name = 'CierreNotApprovableException';
     Object.setPrototypeOf(this, CierreNotApprovableException.prototype);
   }
 }

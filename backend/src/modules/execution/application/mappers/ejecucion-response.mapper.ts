@@ -1,11 +1,11 @@
-import { Ejecucion } from "../../domain/entities";
-import { EjecucionResponse } from "../dto";
+import { Ejecucion } from '../../domain/entities';
+import { EjecucionResponse } from '../dto';
 
 export function toEjecucionResponse(e: Ejecucion): EjecucionResponse {
   return {
     id: e.getId().getValue(),
     ordenId: e.getOrdenId(),
-    tecnicoId: e.getStartedBy() || "",
+    tecnicoId: e.getStartedBy() || '',
     estado: e.getStatus().getValue(),
     avance: e.getProgress().getValue(),
     horasReales: e.getTotalWorkedTime().getTotalHours(),

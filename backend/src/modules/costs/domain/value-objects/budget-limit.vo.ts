@@ -4,7 +4,7 @@
  * Representa un límite presupuestal con umbral de alerta
  */
 
-import { Decimal } from 'decimal.js';
+import { Decimal } from '@/shared/utils';
 import { ValidationError } from '../exceptions';
 import { Money } from './money.vo';
 
@@ -106,10 +106,7 @@ export class BudgetLimit {
     if (!other || !(other instanceof BudgetLimit)) {
       return false;
     }
-    return (
-      this._limit.equals(other._limit) &&
-      this._alertThreshold.equals(other._alertThreshold)
-    );
+    return this._limit.equals(other._limit) && this._alertThreshold.equals(other._alertThreshold);
   }
 
   public toJSON(): any {

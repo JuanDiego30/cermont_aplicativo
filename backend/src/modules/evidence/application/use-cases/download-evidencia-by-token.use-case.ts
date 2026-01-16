@@ -1,9 +1,6 @@
-import { Injectable, BadRequestException, Logger } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import {
-  DownloadEvidenciaUseCase,
-  DownloadEvidenciaResult,
-} from "./download-evidencia.use-case";
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { DownloadEvidenciaUseCase, DownloadEvidenciaResult } from './download-evidencia.use-case';
 
 export interface DownloadEvidenciaByTokenCommand {
   token: string;
@@ -22,29 +19,27 @@ export class DownloadEvidenciaByTokenUseCase {
 
   constructor(
     private readonly jwtService: JwtService,
-    private readonly downloadUseCase: DownloadEvidenciaUseCase,
+    private readonly downloadUseCase: DownloadEvidenciaUseCase
   ) {}
 
-  async execute(
-    command: DownloadEvidenciaByTokenCommand,
-  ): Promise<DownloadEvidenciaResult> {
+  async execute(command: DownloadEvidenciaByTokenCommand): Promise<DownloadEvidenciaResult> {
     const { token } = command;
 
     let payload: EvidenciaDownloadTokenPayload;
     try {
       payload = this.jwtService.verify(token) as EvidenciaDownloadTokenPayload;
     } catch (error) {
-      this.logger.warn("Invalid download token", {
+      this.logger.warn('Invalid download token', {
         error: (error as Error).message,
       });
-      throw new BadRequestException("Token inválido o expirado");
+      throw new BadRequestException('Token inválido o expirado');
     }
 
-    if (payload?.typ !== "evidencia_download") {
-      throw new BadRequestException("Token inválido");
+    if (payload?.typ !== 'evidencia_download') {
+      throw new BadRequestException('Token inválido');
     }
     if (!payload.evidenciaId || !payload.requestedBy) {
-      throw new BadRequestException("Token inválido");
+      throw new BadRequestException('Token inválido');
     }
 
     return this.downloadUseCase.execute({

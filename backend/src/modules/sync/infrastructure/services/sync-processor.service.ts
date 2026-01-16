@@ -1,11 +1,11 @@
-import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
-import { EventEmitter2, OnEvent } from "@nestjs/event-emitter";
-import { Interval } from "@nestjs/schedule";
-import { SyncQueueService } from "./sync-queue.service";
-import { ConnectivityDetectorService } from "./connectivity-detector.service";
-import { ConflictResolverService } from "./conflict-resolver.service";
-import { SyncService } from "../../sync.service";
-import { SyncQueueItem } from "../../domain/entities/sync-queue-item.entity";
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { Interval } from '@nestjs/schedule';
+import { SyncQueueService } from './sync-queue.service';
+import { ConnectivityDetectorService } from './connectivity-detector.service';
+import { ConflictResolverService } from './conflict-resolver.service';
+import { SyncService } from '../../sync.service';
+import { SyncQueueItem } from '../../domain/entities/sync-queue-item.entity';
 
 /**
  * Sync Processor Service
@@ -21,17 +21,17 @@ export class SyncProcessorService implements OnModuleInit {
     private readonly connectivityService: ConnectivityDetectorService,
     private readonly conflictResolver: ConflictResolverService,
     private readonly syncService: SyncService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   onModuleInit() {
-    this.logger.log("Sync Processor initialized");
+    this.logger.log('Sync Processor initialized');
   }
 
   /**
    * Listen for new items added to queue
    */
-  @OnEvent("sync.item.added")
+  @OnEvent('sync.item.added')
   async handleItemAdded(payload: { itemId: string }) {
     this.logger.debug(`Item added event received: ${payload.itemId}`);
     await this.tryProcessQueue();
@@ -54,14 +54,14 @@ export class SyncProcessorService implements OnModuleInit {
   async tryProcessQueue(): Promise<void> {
     // Check if already processing
     if (this.queueService.isQueueProcessing()) {
-      this.logger.debug("Queue already processing, skipping");
+      this.logger.debug('Queue already processing, skipping');
       return;
     }
 
     // Check connectivity
     const connectivity = await this.connectivityService.checkConnectivity();
     if (!connectivity.isOnline) {
-      this.logger.debug("Offline, queue processing deferred");
+      this.logger.debug('Offline, queue processing deferred');
       return;
     }
 
@@ -91,7 +91,7 @@ export class SyncProcessorService implements OnModuleInit {
 
       // Emit completion event
       const stats = this.queueService.getStats();
-      this.eventEmitter.emit("sync.queue.processed", { stats });
+      this.eventEmitter.emit('sync.queue.processed', { stats });
     } finally {
       this.queueService.setProcessing(false);
     }
@@ -108,13 +108,8 @@ export class SyncProcessorService implements OnModuleInit {
       // Convert to sync service format
       const syncData = {
         id: item.id,
-        tipo: item.tipo as
-          | "EJECUCION"
-          | "CHECKLIST"
-          | "EVIDENCIA"
-          | "TAREA"
-          | "COSTO",
-        operacion: item.operacion as "CREATE" | "UPDATE" | "DELETE",
+        tipo: item.tipo as 'EJECUCION' | 'CHECKLIST' | 'EVIDENCIA' | 'TAREA' | 'COSTO',
+        operacion: item.operacion as 'CREATE' | 'UPDATE' | 'DELETE',
         datos: item.datos,
         timestamp: item.timestamp.toISOString(),
         ordenId: item.ordenId,
@@ -122,15 +117,13 @@ export class SyncProcessorService implements OnModuleInit {
       };
 
       // Process using existing sync service
-      const results = await this.syncService.syncPendingData(item.userId, [
-        syncData,
-      ]);
+      const results = await this.syncService.syncPendingData(item.userId, [syncData]);
       const result = results[0];
 
       if (result.success) {
         item.markAsCompleted();
         this.logger.debug(`Item synced successfully: ${item.id}`);
-        this.eventEmitter.emit("sync.item.completed", {
+        this.eventEmitter.emit('sync.item.completed', {
           itemId: item.id,
           result,
         });
@@ -139,17 +132,16 @@ export class SyncProcessorService implements OnModuleInit {
         this.logger.warn(`Item sync failed: ${item.id}`, {
           message: result.mensaje,
         });
-        this.eventEmitter.emit("sync.item.failed", {
+        this.eventEmitter.emit('sync.item.failed', {
           itemId: item.id,
           error: result.mensaje,
         });
       }
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       item.markAsFailed(errorMessage);
       this.logger.error(`Error processing item ${item.id}:`, error);
-      this.eventEmitter.emit("sync.item.failed", {
+      this.eventEmitter.emit('sync.item.failed', {
         itemId: item.id,
         error: errorMessage,
       });
@@ -162,7 +154,7 @@ export class SyncProcessorService implements OnModuleInit {
       const delayMs = item.getRetryDelayMs();
       this.logger.debug(`Scheduling retry for ${item.id} in ${delayMs}ms`);
       setTimeout(() => {
-        this.eventEmitter.emit("sync.item.retry", { itemId: item.id });
+        this.eventEmitter.emit('sync.item.retry', { itemId: item.id });
       }, delayMs);
     }
   }
@@ -170,7 +162,7 @@ export class SyncProcessorService implements OnModuleInit {
   /**
    * Handle retry events
    */
-  @OnEvent("sync.item.retry")
+  @OnEvent('sync.item.retry')
   async handleRetry(payload: { itemId: string }) {
     const item = this.queueService.getItem(payload.itemId);
     if (item && item.canRetry()) {
@@ -202,7 +194,7 @@ export class SyncProcessorService implements OnModuleInit {
    */
   setProcessingEnabled(enabled: boolean): void {
     this.isProcessingEnabled = enabled;
-    this.logger.log(`Automatic processing ${enabled ? "enabled" : "disabled"}`);
+    this.logger.log(`Automatic processing ${enabled ? 'enabled' : 'disabled'}`);
   }
 
   /**

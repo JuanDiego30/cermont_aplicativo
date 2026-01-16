@@ -1,4 +1,4 @@
-import { EventEmitter2 } from "@nestjs/event-emitter";
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 export type DomainEventLike = {
   eventName: string;
@@ -11,7 +11,7 @@ export type DomainEventEntityLike = {
 
 export function publishDomainEvents(
   entity: DomainEventEntityLike,
-  eventEmitter: EventEmitter2,
+  eventEmitter: EventEmitter2
 ): void {
   const domainEvents = entity.getDomainEvents();
   for (const event of domainEvents) {

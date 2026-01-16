@@ -1,12 +1,9 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { GenerateReporteOrdenDto } from "../dto/generate-reporte-orden.dto";
-import { PdfResponseDto } from "../dto/pdf-response.dto";
-import {
-  OrdenTemplate,
-  type OrdenPDFData,
-} from "../../domain/templates/orden.template";
-import { PrismaService } from "@/prisma/prisma.service";
-import { PdfBuildService } from "../services/pdf-build.service";
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { GenerateReporteOrdenDto } from '../dto/generate-reporte-orden.dto';
+import { PdfResponseDto } from '../dto/pdf-response.dto';
+import { OrdenTemplate, type OrdenPDFData } from '../../domain/templates/orden.template';
+import { PrismaService } from '@/prisma/prisma.service';
+import { PdfBuildService } from '../services/pdf-build.service';
 
 @Injectable()
 export class GenerateReporteOrdenUseCase {
@@ -14,7 +11,7 @@ export class GenerateReporteOrdenUseCase {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly pdfBuild: PdfBuildService,
+    private readonly pdfBuild: PdfBuildService
   ) {}
 
   async execute(dto: GenerateReporteOrdenDto): Promise<PdfResponseDto> {
@@ -42,27 +39,17 @@ export class GenerateReporteOrdenUseCase {
         // Normalización para el template (mantiene compatibilidad con keys "cliente" y "tecnico")
         cliente: dto.incluirCliente
           ? {
-              nombre: String((orden as { cliente?: unknown }).cliente ?? ""),
-              contacto: String(
-                (orden as { contactoCliente?: unknown }).contactoCliente ?? "",
-              ),
-              telefono: String(
-                (orden as { telefonoCliente?: unknown }).telefonoCliente ?? "",
-              ),
-              direccion: String(
-                (orden as { direccion?: unknown }).direccion ?? "",
-              ),
+              nombre: String((orden as { cliente?: unknown }).cliente ?? ''),
+              contacto: String((orden as { contactoCliente?: unknown }).contactoCliente ?? ''),
+              telefono: String((orden as { telefonoCliente?: unknown }).telefonoCliente ?? ''),
+              direccion: String((orden as { direccion?: unknown }).direccion ?? ''),
             }
           : undefined,
         tecnico: dto.incluirTecnico
           ? (orden as { asignado?: { name?: string; email?: string } }).asignado
             ? {
-                nombre: (
-                  orden as { asignado?: { name?: string; email?: string } }
-                ).asignado?.name,
-                email: (
-                  orden as { asignado?: { name?: string; email?: string } }
-                ).asignado?.email,
+                nombre: (orden as { asignado?: { name?: string; email?: string } }).asignado?.name,
+                email: (orden as { asignado?: { name?: string; email?: string } }).asignado?.email,
               }
             : undefined
           : undefined,
@@ -74,9 +61,7 @@ export class GenerateReporteOrdenUseCase {
       const shouldPersist = dto.saveToStorage ?? dto.incluirHistorial ?? false;
       const enableCache = dto.enableCache !== false;
 
-      const numeroOrden = String(
-        (orden as { numero?: unknown }).numero ?? "orden",
-      );
+      const numeroOrden = String((orden as { numero?: unknown }).numero ?? 'orden');
       const filenameOnNoCache = `reporte-orden-${numeroOrden}-${Date.now()}.pdf`;
 
       const response = await this.pdfBuild.buildPdf({
@@ -96,11 +81,10 @@ export class GenerateReporteOrdenUseCase {
           pageSize: dto.pageSize,
           orientation: dto.orientation,
         },
-        filenameOnCache: (cacheKey) =>
-          `reporte-orden-${numeroOrden}-${cacheKey}.pdf`,
+        filenameOnCache: cacheKey => `reporte-orden-${numeroOrden}-${cacheKey}.pdf`,
         generatorOptions: {
           format: dto.pageSize,
-          landscape: dto.orientation === "landscape",
+          landscape: dto.orientation === 'landscape',
           printBackground: true,
         },
       });
@@ -108,7 +92,7 @@ export class GenerateReporteOrdenUseCase {
       this.logger.log(`Reporte generado: ${response.filename}`);
       return response;
     } catch (error) {
-      this.logger.error("Error generando reporte de orden", error);
+      this.logger.error('Error generando reporte de orden', error);
       throw error;
     }
   }

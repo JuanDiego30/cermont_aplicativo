@@ -16,15 +16,15 @@ import { FileValidatorService } from './domain/services';
 
 // Application - Use Cases
 import {
-    CleanupDeletedEvidenciaUseCase,
-    DeleteEvidenciaUseCase,
-    DownloadEvidenciaByTokenUseCase,
-    DownloadEvidenciaUseCase,
-    GenerateEvidenciaDownloadTokenUseCase,
-    GetEvidenciaUseCase,
-    ListEvidenciasUseCase,
-    ProcessEvidenciaUseCase,
-    UploadEvidenciaUseCase,
+  CleanupDeletedEvidenciaUseCase,
+  DeleteEvidenciaUseCase,
+  DownloadEvidenciaByTokenUseCase,
+  DownloadEvidenciaUseCase,
+  GenerateEvidenciaDownloadTokenUseCase,
+  GetEvidenciaUseCase,
+  ListEvidenciasUseCase,
+  ProcessEvidenciaUseCase,
+  UploadEvidenciaUseCase,
 } from './application/use-cases';
 
 // Infrastructure

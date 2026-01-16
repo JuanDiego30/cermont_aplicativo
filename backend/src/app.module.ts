@@ -63,10 +63,10 @@ import { InvoicingModule } from './modules/invoicing/invoicing.module';
 // Common providers
 import { HealthController } from './health.controller';
 import {
-    PrismaConnectionFilter,
-    PrismaExceptionFilter,
-    PrismaPanicFilter,
-    PrismaValidationFilter,
+  PrismaConnectionFilter,
+  PrismaExceptionFilter,
+  PrismaPanicFilter,
+  PrismaValidationFilter,
 } from './shared/filters/prisma-exception.filter';
 import { CustomThrottleGuard } from './shared/guards/throttle.guard';
 import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.interceptor';

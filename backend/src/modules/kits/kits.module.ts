@@ -13,15 +13,15 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
-import { Module } from "@nestjs/common";
-import { PrismaModule } from "../../prisma/prisma.module";
+import { Module } from '@nestjs/common';
+import { PrismaModule } from '../../prisma/prisma.module';
 
 // Controller
-import { KitsController } from "./infrastructure/controllers/kits.controller";
+import { KitsController } from './infrastructure/controllers/kits.controller';
 
 // Repository
-import { KIT_REPOSITORY } from "./domain/repositories";
-import { KitRepositoryImpl } from "./infrastructure/persistence/kit.repository.impl";
+import { KIT_REPOSITORY } from './domain/repositories';
+import { KitRepositoryImpl } from './infrastructure/persistence/kit.repository.impl';
 
 // Use Cases
 import {
@@ -34,10 +34,10 @@ import {
   ActivateKitUseCase,
   DeactivateKitUseCase,
   DeleteKitUseCase,
-} from "./application/use-cases";
+} from './application/use-cases';
 
 // Legacy Service (for backward compatibility)
-import { KitsService } from "./kits.service";
+import { KitsService } from './kits.service';
 
 @Module({
   imports: [PrismaModule],

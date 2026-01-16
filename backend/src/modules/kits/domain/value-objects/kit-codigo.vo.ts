@@ -3,7 +3,7 @@
  *
  * Código único legible de un Kit (ej: KIT-ELEC-001)
  */
-import { ValidationError } from "../../../../shared/domain/exceptions";
+import { ValidationError } from '../../../../shared/domain/exceptions';
 
 export class KitCodigo {
   private static readonly PATTERN = /^KIT-([A-Z]{3,4}-)?[0-9]{3,4}$/;
@@ -19,23 +19,23 @@ export class KitCodigo {
 
   public static generate(categoriaPrefix: string, sequence: number): KitCodigo {
     const prefix = categoriaPrefix.toUpperCase().substring(0, 4);
-    const sequenceStr = sequence.toString().padStart(3, "0");
+    const sequenceStr = sequence.toString().padStart(3, '0');
     return new KitCodigo(`KIT-${prefix}-${sequenceStr}`);
   }
 
   public static generateSimple(sequence: number): KitCodigo {
-    const sequenceStr = sequence.toString().padStart(3, "0");
+    const sequenceStr = sequence.toString().padStart(3, '0');
     return new KitCodigo(`KIT-${sequenceStr}`);
   }
 
   private static validate(value: string): void {
     if (!value || value.trim().length === 0) {
-      throw new ValidationError("Código de kit no puede estar vacío", "codigo");
+      throw new ValidationError('Código de kit no puede estar vacío', 'codigo');
     }
     if (!this.PATTERN.test(value)) {
       throw new ValidationError(
-        "Formato de código inválido. Esperado: KIT-XXX-000 o KIT-000",
-        "codigo",
+        'Formato de código inválido. Esperado: KIT-XXX-000 o KIT-000',
+        'codigo'
       );
     }
   }
@@ -52,4 +52,3 @@ export class KitCodigo {
     return this._value;
   }
 }
-

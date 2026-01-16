@@ -3,11 +3,11 @@
  * Represents the possible states of a sync operation
  */
 export enum SyncStatusType {
-  PENDING = "PENDING",
-  SYNCING = "SYNCING",
-  COMPLETED = "COMPLETED",
-  FAILED = "FAILED",
-  CONFLICT = "CONFLICT",
+  PENDING = 'PENDING',
+  SYNCING = 'SYNCING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+  CONFLICT = 'CONFLICT',
 }
 
 export class SyncStatus {
@@ -65,10 +65,7 @@ export class SyncStatus {
   }
 
   canRetry(): boolean {
-    return (
-      this.value === SyncStatusType.FAILED ||
-      this.value === SyncStatusType.PENDING
-    );
+    return this.value === SyncStatusType.FAILED || this.value === SyncStatusType.PENDING;
   }
 
   equals(other: SyncStatus): boolean {

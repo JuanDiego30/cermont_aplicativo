@@ -18,14 +18,10 @@ export class GeoLocation {
 
   private constructor(props: GeoLocationProps) {
     if (props.latitude < -90 || props.latitude > 90) {
-      throw new Error(
-        `Invalid latitude: ${props.latitude}. Must be between -90 and 90.`,
-      );
+      throw new Error(`Invalid latitude: ${props.latitude}. Must be between -90 and 90.`);
     }
     if (props.longitude < -180 || props.longitude > 180) {
-      throw new Error(
-        `Invalid longitude: ${props.longitude}. Must be between -180 and 180.`,
-      );
+      throw new Error(`Invalid longitude: ${props.longitude}. Must be between -180 and 180.`);
     }
     this.latitude = props.latitude;
     this.longitude = props.longitude;
@@ -39,12 +35,10 @@ export class GeoLocation {
 
   public static fromJson(json: Record<string, unknown>): GeoLocation {
     return new GeoLocation({
-      latitude: json["latitude"] as number,
-      longitude: json["longitude"] as number,
-      accuracy: json["accuracy"] as number | undefined,
-      timestamp: json["timestamp"]
-        ? new Date(json["timestamp"] as string)
-        : undefined,
+      latitude: json['latitude'] as number,
+      longitude: json['longitude'] as number,
+      accuracy: json['accuracy'] as number | undefined,
+      timestamp: json['timestamp'] ? new Date(json['timestamp'] as string) : undefined,
     });
   }
 
@@ -77,10 +71,7 @@ export class GeoLocation {
 
     const a =
       Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-      Math.cos(lat1) *
-        Math.cos(lat2) *
-        Math.sin(deltaLon / 2) *
-        Math.sin(deltaLon / 2);
+      Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     return R * c;
@@ -108,9 +99,7 @@ export class GeoLocation {
   }
 
   public equals(other: GeoLocation): boolean {
-    return (
-      this.latitude === other.latitude && this.longitude === other.longitude
-    );
+    return this.latitude === other.latitude && this.longitude === other.longitude;
   }
 
   public toString(): string {

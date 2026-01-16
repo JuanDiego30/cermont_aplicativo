@@ -3,17 +3,14 @@
  * @description Handles asynchronous processing (thumbnails, metadata extraction)
  */
 
-import { Injectable, Inject, Logger } from "@nestjs/common";
-import { OnEvent } from "@nestjs/event-emitter";
-import {
-  IEvidenciaRepository,
-  EVIDENCIA_REPOSITORY,
-} from "../../domain/repositories";
-import { EvidenciaUploadedEvent } from "../../domain/events";
+import { Injectable, Inject, Logger } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
+import { IEvidenciaRepository, EVIDENCIA_REPOSITORY } from '../../domain/repositories';
+import { EvidenciaUploadedEvent } from '../../domain/events';
 import {
   IImageProcessor,
   IMAGE_PROCESSOR,
-} from "../../infrastructure/processing/image-processor.interface";
+} from '../../infrastructure/processing/image-processor.interface';
 
 @Injectable()
 export class ProcessEvidenciaUseCase {
@@ -23,10 +20,10 @@ export class ProcessEvidenciaUseCase {
     @Inject(EVIDENCIA_REPOSITORY)
     private readonly repository: IEvidenciaRepository,
     @Inject(IMAGE_PROCESSOR)
-    private readonly imageProcessor: IImageProcessor,
+    private readonly imageProcessor: IImageProcessor
   ) {}
 
-  @OnEvent("evidencia.uploaded")
+  @OnEvent('evidencia.uploaded')
   async handleEvidenciaUploaded(event: EvidenciaUploadedEvent): Promise<void> {
     const { evidenciaId, fileType, requiresProcessing } = event.payload;
     const startTime = Date.now();
@@ -54,9 +51,7 @@ export class ProcessEvidenciaUseCase {
 
       // Process based on file type
       if (evidencia.isImage()) {
-        const result = await this.imageProcessor.processImage(
-          evidencia.storagePath.getValue(),
-        );
+        const result = await this.imageProcessor.processImage(evidencia.storagePath.getValue());
         thumbnailPath = result.thumbnailPath;
         metadata = result.metadata;
       }
@@ -76,7 +71,7 @@ export class ProcessEvidenciaUseCase {
     evidenciaId: string,
     startTime: number,
     thumbnailPath?: string,
-    metadata?: Record<string, unknown>,
+    metadata?: Record<string, unknown>
   ): Promise<void> {
     const evidencia = await this.repository.findById(evidenciaId);
     if (!evidencia) return;

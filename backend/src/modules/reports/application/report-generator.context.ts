@@ -4,16 +4,16 @@
  * @pattern Strategy (Context)
  */
 
-import { Injectable } from "@nestjs/common";
+import { Injectable } from '@nestjs/common';
 import {
   ReportGeneratorStrategy,
   ReportData,
   PdfReportStrategy,
   ExcelReportStrategy,
   JsonReportStrategy,
-} from "../domain/strategies";
+} from '../domain/strategies';
 
-export type ReportFormat = "pdf" | "excel" | "json";
+export type ReportFormat = 'pdf' | 'excel' | 'json';
 
 @Injectable()
 export class ReportGeneratorContext {
@@ -22,19 +22,16 @@ export class ReportGeneratorContext {
   constructor() {
     // Register available strategies
     this.strategies = new Map([
-      ["pdf", new PdfReportStrategy()],
-      ["excel", new ExcelReportStrategy()],
-      ["json", new JsonReportStrategy()],
+      ['pdf', new PdfReportStrategy()],
+      ['excel', new ExcelReportStrategy()],
+      ['json', new JsonReportStrategy()],
     ]);
   }
 
   /**
    * Register a new strategy at runtime (Open/Closed Principle)
    */
-  registerStrategy(
-    format: ReportFormat,
-    strategy: ReportGeneratorStrategy,
-  ): void {
+  registerStrategy(format: ReportFormat, strategy: ReportGeneratorStrategy): void {
     this.strategies.set(format, strategy);
   }
 
@@ -43,7 +40,7 @@ export class ReportGeneratorContext {
    */
   async generate(
     format: ReportFormat,
-    data: ReportData,
+    data: ReportData
   ): Promise<{
     buffer: Buffer;
     mimeType: string;

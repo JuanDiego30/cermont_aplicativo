@@ -8,21 +8,18 @@
  *                         → REJECTED
  */
 
-import { ValidationError } from "../exceptions";
+import { ValidationError } from '../exceptions';
 
 export enum CierreStatusEnum {
-  DRAFT = "DRAFT",
-  PENDING_APPROVAL = "PENDING_APPROVAL",
-  APPROVED = "APPROVED",
-  REJECTED = "REJECTED",
+  DRAFT = 'DRAFT',
+  PENDING_APPROVAL = 'PENDING_APPROVAL',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
 }
 
 const VALID_TRANSITIONS: Record<CierreStatusEnum, CierreStatusEnum[]> = {
   [CierreStatusEnum.DRAFT]: [CierreStatusEnum.PENDING_APPROVAL],
-  [CierreStatusEnum.PENDING_APPROVAL]: [
-    CierreStatusEnum.APPROVED,
-    CierreStatusEnum.REJECTED,
-  ],
+  [CierreStatusEnum.PENDING_APPROVAL]: [CierreStatusEnum.APPROVED, CierreStatusEnum.REJECTED],
   [CierreStatusEnum.APPROVED]: [],
   [CierreStatusEnum.REJECTED]: [],
 };
@@ -35,8 +32,8 @@ export class CierreStatus {
   static create(value: string): CierreStatus {
     if (!Object.values(CierreStatusEnum).includes(value as CierreStatusEnum)) {
       throw new ValidationError(
-        `Estado inválido: ${value}. Permitidos: ${Object.values(CierreStatusEnum).join(", ")}`,
-        "status",
+        `Estado inválido: ${value}. Permitidos: ${Object.values(CierreStatusEnum).join(', ')}`,
+        'status'
       );
     }
     return new CierreStatus(value as CierreStatusEnum);
@@ -63,9 +60,7 @@ export class CierreStatus {
   }
 
   isFinal(): boolean {
-    return [CierreStatusEnum.APPROVED, CierreStatusEnum.REJECTED].includes(
-      this.value,
-    );
+    return [CierreStatusEnum.APPROVED, CierreStatusEnum.REJECTED].includes(this.value);
   }
 
   equals(other: CierreStatus): boolean {

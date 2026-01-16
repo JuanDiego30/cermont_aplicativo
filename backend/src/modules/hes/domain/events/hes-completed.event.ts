@@ -10,6 +10,6 @@ export class HESCompletedEvent {
       hesId: string;
       numero: string;
       ordenId: string;
-    },
+    }
   ) {}
 }

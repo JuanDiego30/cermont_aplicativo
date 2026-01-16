@@ -4,14 +4,14 @@
  * Representa la dirección de una tendencia (UP, DOWN, STABLE).
  */
 
-import { ValidationError } from "../exceptions";
-import { KpiValue } from "./kpi-value.vo";
-import { EnumValueObject } from "../../../../shared/base/enum-value-object";
+import { ValidationError } from '../exceptions';
+import { KpiValue } from './kpi-value.vo';
+import { EnumValueObject } from '../../../../shared/base/enum-value-object';
 
 export enum TrendDirectionEnum {
-  UP = "UP",
-  DOWN = "DOWN",
-  STABLE = "STABLE",
+  UP = 'UP',
+  DOWN = 'DOWN',
+  STABLE = 'STABLE',
 }
 
 export class TrendDirection extends EnumValueObject<TrendDirectionEnum> {
@@ -25,13 +25,10 @@ export class TrendDirection extends EnumValueObject<TrendDirectionEnum> {
   public static calculate(
     current: KpiValue,
     previous: KpiValue,
-    threshold: number = 5, // Porcentaje mínimo para considerar cambio significativo
+    threshold: number = 5 // Porcentaje mínimo para considerar cambio significativo
   ): TrendDirection {
     if (current.getType() !== previous.getType()) {
-      throw new ValidationError(
-        "Cannot compare KPI values of different types",
-        "trendDirection",
-      );
+      throw new ValidationError('Cannot compare KPI values of different types', 'trendDirection');
     }
 
     const currentValue = current.getValue();
@@ -72,11 +69,11 @@ export class TrendDirection extends EnumValueObject<TrendDirectionEnum> {
   public getIcon(): string {
     switch (this._value) {
       case TrendDirectionEnum.UP:
-        return "↑";
+        return '↑';
       case TrendDirectionEnum.DOWN:
-        return "↓";
+        return '↓';
       case TrendDirectionEnum.STABLE:
-        return "→";
+        return '→';
     }
   }
 
@@ -86,11 +83,11 @@ export class TrendDirection extends EnumValueObject<TrendDirectionEnum> {
   public getColor(): string {
     switch (this._value) {
       case TrendDirectionEnum.UP:
-        return "green";
+        return 'green';
       case TrendDirectionEnum.DOWN:
-        return "red";
+        return 'red';
       case TrendDirectionEnum.STABLE:
-        return "gray";
+        return 'gray';
     }
   }
 }

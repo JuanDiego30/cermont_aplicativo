@@ -4,16 +4,13 @@
  * Crea una nueva plantilla de checklist en estado DRAFT
  */
 
-import { Injectable, Inject, Logger } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
-import {
-  IChecklistRepository,
-  CHECKLIST_REPOSITORY,
-} from "../../domain/repositories";
-import { Checklist } from "../../domain/entities/checklist.entity";
-import { CreateChecklistDto } from "../dto/create-checklist.dto";
-import { ChecklistResponseDto } from "../dto/checklist-response.dto";
-import { ChecklistMapper } from "../mappers/checklist.mapper";
+import { Injectable, Inject, Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { IChecklistRepository, CHECKLIST_REPOSITORY } from '../../domain/repositories';
+import { Checklist } from '../../domain/entities/checklist.entity';
+import { CreateChecklistDto } from '../dto/create-checklist.dto';
+import { ChecklistResponseDto } from '../dto/checklist-response.dto';
+import { ChecklistMapper } from '../mappers/checklist.mapper';
 
 @Injectable()
 export class CreateChecklistUseCase {
@@ -22,17 +19,17 @@ export class CreateChecklistUseCase {
   constructor(
     @Inject(CHECKLIST_REPOSITORY)
     private readonly repository: IChecklistRepository,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   async execute(dto: CreateChecklistDto): Promise<ChecklistResponseDto> {
     const context = {
-      action: "CREATE_CHECKLIST",
+      action: 'CREATE_CHECKLIST',
       name: dto.name,
       tipo: dto.tipo,
     };
 
-    this.logger.log("Creando checklist", context);
+    this.logger.log('Creando checklist', context);
 
     try {
       // Crear entidad de dominio
@@ -41,7 +38,7 @@ export class CreateChecklistUseCase {
         description: dto.description,
         tipo: dto.tipo,
         categoria: dto.categoria,
-        items: dto.items.map((item) => ({
+        items: dto.items.map(item => ({
           label: item.label,
           isRequired: item.isRequired,
           orden: item.orden,
@@ -58,7 +55,7 @@ export class CreateChecklistUseCase {
       }
       savedChecklist.clearDomainEvents();
 
-      this.logger.log("Checklist creado exitosamente", {
+      this.logger.log('Checklist creado exitosamente', {
         ...context,
         checklistId: savedChecklist.getId().getValue(),
       });
@@ -66,7 +63,7 @@ export class CreateChecklistUseCase {
       // Retornar DTO
       return ChecklistMapper.toResponseDto(savedChecklist);
     } catch (error) {
-      this.logger.error("Error creando checklist", {
+      this.logger.error('Error creando checklist', {
         ...context,
         error: error instanceof Error ? error.message : String(error),
       });

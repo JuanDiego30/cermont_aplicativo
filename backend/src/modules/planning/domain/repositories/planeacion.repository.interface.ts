@@ -2,7 +2,7 @@
  * @repository IPlaneacionRepository
  * @description Interface del repositorio de planeación
  */
-export const PLANEACION_REPOSITORY = Symbol("PLANEACION_REPOSITORY");
+export const PLANEACION_REPOSITORY = Symbol('PLANEACION_REPOSITORY');
 
 export interface PlaneacionData {
   id: string;
@@ -20,10 +20,7 @@ export interface PlaneacionData {
 
 export interface IPlaneacionRepository {
   findByOrdenId(ordenId: string): Promise<PlaneacionData | null>;
-  createOrUpdate(
-    ordenId: string,
-    data: Partial<PlaneacionData>,
-  ): Promise<PlaneacionData>;
+  createOrUpdate(ordenId: string, data: Partial<PlaneacionData>): Promise<PlaneacionData>;
   aprobar(id: string, aprobadorId: string): Promise<PlaneacionData>;
   rechazar(id: string, motivo: string): Promise<PlaneacionData>;
 }

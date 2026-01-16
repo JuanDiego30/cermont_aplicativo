@@ -183,13 +183,13 @@ export class BaseTemplate {
     `;
   }
 
-  static getHeader(companyName: string = "CERMONT"): string {
+  static getHeader(companyName: string = 'CERMONT'): string {
     return `
       <div class="header">
         <div class="header-logo">
           <div class="company-name">${companyName}</div>
           <div class="document-info">
-            Fecha: ${new Date().toLocaleDateString("es-CO")}
+            Fecha: ${new Date().toLocaleDateString('es-CO')}
           </div>
         </div>
       </div>

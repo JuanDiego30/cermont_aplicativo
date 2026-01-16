@@ -2,22 +2,14 @@
  * @useCase CompletarEjecucionUseCase
  * Completes an execution using domain entity.
  */
-import {
-  Injectable,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
-import {
-  EJECUCION_REPOSITORY,
-  IEjecucionRepository,
-} from "../../domain/repositories";
-import { EjecucionId, ProgressPercentage } from "../../domain/value-objects";
-import { EjecucionResponse, CompletarEjecucionDto } from "../dto";
-import { toEjecucionResponse } from "../mappers/ejecucion-response.mapper";
-import { PrismaService } from "../../../../prisma/prisma.service";
-import { publishDomainEvents } from "../../../../shared/base/publish-domain-events";
+import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EJECUCION_REPOSITORY, IEjecucionRepository } from '../../domain/repositories';
+import { EjecucionId, ProgressPercentage } from '../../domain/value-objects';
+import { EjecucionResponse, CompletarEjecucionDto } from '../dto';
+import { toEjecucionResponse } from '../mappers/ejecucion-response.mapper';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { publishDomainEvents } from '../../../../shared/base/publish-domain-events';
 
 @Injectable()
 export class CompletarEjecucionUseCase {
@@ -25,12 +17,12 @@ export class CompletarEjecucionUseCase {
     @Inject(EJECUCION_REPOSITORY)
     private readonly repo: IEjecucionRepository,
     private readonly eventEmitter: EventEmitter2,
-    private readonly prisma: PrismaService,
+    private readonly prisma: PrismaService
   ) {}
 
   async execute(
     id: string,
-    dto: CompletarEjecucionDto,
+    dto: CompletarEjecucionDto
   ): Promise<{ message: string; data: EjecucionResponse }> {
     // 1. Find execution
     const ejecucion = await this.repo.findById(EjecucionId.create(id));
@@ -43,13 +35,13 @@ export class CompletarEjecucionUseCase {
       // Force to 100% if not already
       ejecucion.updateProgress(
         ProgressPercentage.complete(),
-        dto.completadoPorId || "",
-        "Completando ejecución",
+        dto.completadoPorId || '',
+        'Completando ejecución'
       );
     }
 
     // 3. Complete using domain method
-    ejecucion.complete(dto.completadoPorId || "", dto.observacionesFinales);
+    ejecucion.complete(dto.completadoPorId || '', dto.observacionesFinales);
 
     // 4. Save
     const saved = await this.repo.save(ejecucion);
@@ -58,7 +50,7 @@ export class CompletarEjecucionUseCase {
     await this.prisma.order.update({
       where: { id: saved.getOrdenId() },
       data: {
-        estado: "completada",
+        estado: 'completada',
         fechaFin: new Date(),
       },
     });
@@ -67,7 +59,7 @@ export class CompletarEjecucionUseCase {
     publishDomainEvents(saved, this.eventEmitter);
 
     return {
-      message: "Ejecución completada",
+      message: 'Ejecución completada',
       data: toEjecucionResponse(saved),
     };
   }

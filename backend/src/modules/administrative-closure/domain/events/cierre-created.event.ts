@@ -2,13 +2,13 @@
  * @event CierreCreatedEvent
  */
 export class CierreCreatedEvent {
-  readonly eventName = "cierre.created";
+  readonly eventName = 'cierre.created';
   readonly occurredAt: Date;
 
   constructor(
     readonly cierreId: string,
     readonly ordenId: string,
-    readonly createdBy: string,
+    readonly createdBy: string
   ) {
     this.occurredAt = new Date();
     Object.freeze(this);

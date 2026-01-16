@@ -4,8 +4,8 @@
  * Fórmula matemática para campos calculados
  */
 
-import { ValidationError } from "../../../../shared/domain/exceptions";
-import { ArithmeticExpressionEvaluator } from "../utils/arithmetic-expression-evaluator";
+import { ValidationError } from '../../../../shared/domain/exceptions';
+import { ArithmeticExpressionEvaluator } from '../utils/arithmetic-expression-evaluator';
 
 export class CalculationFormula {
   private constructor(private readonly _formula: string) {
@@ -18,41 +18,38 @@ export class CalculationFormula {
   }
 
   private static validate(formula: string): void {
-    if (!formula || formula.trim() === "") {
-      throw new ValidationError("Formula cannot be empty");
+    if (!formula || formula.trim() === '') {
+      throw new ValidationError('Formula cannot be empty');
     }
 
     // Validar sintaxis básica: permitir números, operadores, paréntesis, nombres de campos
     const validPattern = /^[\d\s+\-*/().a-zA-Z_]+$/;
     if (!validPattern.test(formula)) {
       throw new ValidationError(
-        "Invalid formula syntax. Only numbers, operators, parentheses, and field names are allowed",
+        'Invalid formula syntax. Only numbers, operators, parentheses, and field names are allowed'
       );
     }
 
     // Validar paréntesis balanceados
     let count = 0;
     for (const char of formula) {
-      if (char === "(") count++;
-      if (char === ")") count--;
+      if (char === '(') count++;
+      if (char === ')') count--;
       if (count < 0) {
-        throw new ValidationError("Unbalanced parentheses in formula");
+        throw new ValidationError('Unbalanced parentheses in formula');
       }
     }
     if (count !== 0) {
-      throw new ValidationError("Unbalanced parentheses in formula");
+      throw new ValidationError('Unbalanced parentheses in formula');
     }
   }
 
   public isValid(): boolean {
     try {
       // Intentar parsear fórmula básica
-      const testExpression = this._formula.replace(
-        /[a-zA-Z_][a-zA-Z0-9_]*/g,
-        "1",
-      );
+      const testExpression = this._formula.replace(/[a-zA-Z_][a-zA-Z0-9_]*/g, '1');
       const result = ArithmeticExpressionEvaluator.evaluate(testExpression);
-      return typeof result === "number" && !isNaN(result);
+      return typeof result === 'number' && !isNaN(result);
     } catch {
       return false;
     }
@@ -77,4 +74,3 @@ export class CalculationFormula {
     return this._formula;
   }
 }
-

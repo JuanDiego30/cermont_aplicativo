@@ -6,7 +6,7 @@
 export class TimeDuration {
   private constructor(private readonly minutes: number) {
     if (minutes < 0) {
-      throw new Error("TimeDuration cannot be negative");
+      throw new Error('TimeDuration cannot be negative');
     }
   }
 

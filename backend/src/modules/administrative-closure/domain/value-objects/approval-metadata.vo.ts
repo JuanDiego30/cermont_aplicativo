@@ -4,13 +4,13 @@
  * Metadata about who approved and when.
  */
 
-import { ValidationError } from "../exceptions";
+import { ValidationError } from '../exceptions';
 
 export class ApprovalMetadata {
   private constructor(
     private readonly approvedBy: string,
     private readonly approvedAt: Date,
-    private readonly observations?: string,
+    private readonly observations?: string
   ) {
     Object.freeze(this);
   }
@@ -21,13 +21,9 @@ export class ApprovalMetadata {
     observations?: string;
   }): ApprovalMetadata {
     if (!props.approvedBy || props.approvedBy.trim().length === 0) {
-      throw new ValidationError("approvedBy es requerido", "approvedBy");
+      throw new ValidationError('approvedBy es requerido', 'approvedBy');
     }
-    return new ApprovalMetadata(
-      props.approvedBy,
-      props.approvedAt,
-      props.observations,
-    );
+    return new ApprovalMetadata(props.approvedBy, props.approvedAt, props.observations);
   }
 
   getApprovedBy(): string {

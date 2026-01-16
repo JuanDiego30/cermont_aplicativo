@@ -6,7 +6,7 @@
  * Mejora legibilidad y trazabilidad de errores
  */
 
-import { HttpException, HttpStatus } from "@nestjs/common";
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 /**
  * Excepción base de dominio
@@ -16,17 +16,17 @@ export class DomainException extends HttpException {
   constructor(
     message: string,
     statusCode: number = HttpStatus.BAD_REQUEST,
-    public readonly code?: string,
+    public readonly code?: string
   ) {
     super(
       {
         statusCode,
         message,
-        error: "Domain Error",
+        error: 'Domain Error',
         code,
         timestamp: new Date().toISOString(),
       },
-      statusCode,
+      statusCode
     );
   }
 }
@@ -40,7 +40,7 @@ export class InvalidOrdenStateTransition extends DomainException {
     super(
       `No se puede transicionar de '${currentState}' a '${targetState}'`,
       HttpStatus.CONFLICT,
-      "INVALID_STATE_TRANSITION",
+      'INVALID_STATE_TRANSITION'
     );
   }
 }
@@ -50,11 +50,7 @@ export class InvalidOrdenStateTransition extends DomainException {
  */
 export class OrdenNotFound extends DomainException {
   constructor(identifier: string) {
-    super(
-      `Orden ${identifier} no encontrada`,
-      HttpStatus.NOT_FOUND,
-      "ORDEN_NOT_FOUND",
-    );
+    super(`Orden ${identifier} no encontrada`, HttpStatus.NOT_FOUND, 'ORDEN_NOT_FOUND');
   }
 }
 
@@ -63,11 +59,7 @@ export class OrdenNotFound extends DomainException {
  */
 export class UserNotFound extends DomainException {
   constructor(identifier: string) {
-    super(
-      `Usuario ${identifier} no encontrado`,
-      HttpStatus.NOT_FOUND,
-      "USER_NOT_FOUND",
-    );
+    super(`Usuario ${identifier} no encontrado`, HttpStatus.NOT_FOUND, 'USER_NOT_FOUND');
   }
 }
 
@@ -76,11 +68,11 @@ export class UserNotFound extends DomainException {
  */
 export class InsufficientPermissions extends DomainException {
   constructor(action: string, resource?: string) {
-    const resourceStr = resource ? ` en ${resource}` : "";
+    const resourceStr = resource ? ` en ${resource}` : '';
     super(
       `Permisos insuficientes para ${action}${resourceStr}`,
       HttpStatus.FORBIDDEN,
-      "INSUFFICIENT_PERMISSIONS",
+      'INSUFFICIENT_PERMISSIONS'
     );
   }
 }
@@ -90,7 +82,7 @@ export class InsufficientPermissions extends DomainException {
  */
 export class InvalidEmail extends DomainException {
   constructor(email: string) {
-    super(`Email inválido: ${email}`, HttpStatus.BAD_REQUEST, "INVALID_EMAIL");
+    super(`Email inválido: ${email}`, HttpStatus.BAD_REQUEST, 'INVALID_EMAIL');
   }
 }
 
@@ -99,11 +91,7 @@ export class InvalidEmail extends DomainException {
  */
 export class DuplicateEntity extends DomainException {
   constructor(entity: string, field: string, value: string) {
-    super(
-      `${entity} con ${field} "${value}" ya existe`,
-      HttpStatus.CONFLICT,
-      "DUPLICATE_ENTITY",
-    );
+    super(`${entity} con ${field} "${value}" ya existe`, HttpStatus.CONFLICT, 'DUPLICATE_ENTITY');
   }
 }
 
@@ -115,7 +103,7 @@ export class OperationNotAllowed extends DomainException {
     super(
       `Operación '${operation}' no permitida: ${reason}`,
       HttpStatus.UNPROCESSABLE_ENTITY,
-      "OPERATION_NOT_ALLOWED",
+      'OPERATION_NOT_ALLOWED'
     );
   }
 }
@@ -125,7 +113,7 @@ export class OperationNotAllowed extends DomainException {
  */
 export class ResourceExpired extends DomainException {
   constructor(resource: string) {
-    super(`${resource} ha expirado`, HttpStatus.GONE, "RESOURCE_EXPIRED");
+    super(`${resource} ha expirado`, HttpStatus.GONE, 'RESOURCE_EXPIRED');
   }
 }
 
@@ -135,14 +123,8 @@ export class ResourceExpired extends DomainException {
 export class LimitExceeded extends DomainException {
   constructor(limit: string, currentValue?: number, maxValue?: number) {
     const details =
-      currentValue !== undefined && maxValue !== undefined
-        ? ` (${currentValue}/${maxValue})`
-        : "";
-    super(
-      `Límite de ${limit} excedido${details}`,
-      HttpStatus.TOO_MANY_REQUESTS,
-      "LIMIT_EXCEEDED",
-    );
+      currentValue !== undefined && maxValue !== undefined ? ` (${currentValue}/${maxValue})` : '';
+    super(`Límite de ${limit} excedido${details}`, HttpStatus.TOO_MANY_REQUESTS, 'LIMIT_EXCEEDED');
   }
 }
 
@@ -151,10 +133,6 @@ export class LimitExceeded extends DomainException {
  */
 export class InvalidFile extends DomainException {
   constructor(reason: string) {
-    super(
-      `Archivo inválido: ${reason}`,
-      HttpStatus.BAD_REQUEST,
-      "INVALID_FILE",
-    );
+    super(`Archivo inválido: ${reason}`, HttpStatus.BAD_REQUEST, 'INVALID_FILE');
   }
 }

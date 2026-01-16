@@ -4,7 +4,7 @@
  * DTO de respuesta para HES
  */
 
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class HESResponseDto {
   @ApiProperty()

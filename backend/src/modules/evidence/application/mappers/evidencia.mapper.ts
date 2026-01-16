@@ -3,20 +3,14 @@
  * @description Maps between Domain Entities and DTOs
  */
 
-import { Evidencia, EvidenciaMetadata } from "../../domain/entities";
-import {
-  EvidenciaResponse,
-  EvidenciaMetadataResponse,
-} from "../dto/evidencia.dto";
+import { Evidencia, EvidenciaMetadata } from '../../domain/entities';
+import { EvidenciaResponse, EvidenciaMetadataResponse } from '../dto/evidencia.dto';
 
 export class EvidenciaMapper {
   /**
    * Map Evidencia entity to response DTO
    */
-  public static toResponse(
-    evidencia: Evidencia,
-    baseUrl: string = "",
-  ): EvidenciaResponse {
+  public static toResponse(evidencia: Evidencia, baseUrl: string = ''): EvidenciaResponse {
     return {
       id: evidencia.id.getValue(),
       ejecucionId: evidencia.ejecucionId,
@@ -46,19 +40,14 @@ export class EvidenciaMapper {
   /**
    * Map multiple entities to response DTOs
    */
-  public static toResponseList(
-    evidencias: Evidencia[],
-    baseUrl: string = "",
-  ): EvidenciaResponse[] {
-    return evidencias.map((e) => EvidenciaMapper.toResponse(e, baseUrl));
+  public static toResponseList(evidencias: Evidencia[], baseUrl: string = ''): EvidenciaResponse[] {
+    return evidencias.map(e => EvidenciaMapper.toResponse(e, baseUrl));
   }
 
   /**
    * Map metadata to response
    */
-  private static toMetadataResponse(
-    metadata: EvidenciaMetadata,
-  ): EvidenciaMetadataResponse {
+  private static toMetadataResponse(metadata: EvidenciaMetadata): EvidenciaMetadataResponse {
     return {
       sha256: metadata.sha256,
       width: metadata.width,

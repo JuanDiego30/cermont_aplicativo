@@ -13,9 +13,9 @@ import {
   IsBoolean,
   IsNumber,
   ValidateNested,
-} from "class-validator";
-import { Type } from "class-transformer";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 class ClienteInfoDto {
   @ApiProperty()
@@ -158,21 +158,21 @@ class RequerimientosSeguridadDto {
 }
 
 export class CreateHESDto {
-  @ApiProperty({ description: "ID de la orden de trabajo" })
+  @ApiProperty({ description: 'ID de la orden de trabajo' })
   @IsString()
   @IsNotEmpty()
   ordenId!: string;
 
   @ApiProperty({
-    description: "Tipo de servicio",
+    description: 'Tipo de servicio',
     enum: [
-      "MANTENIMIENTO_PREVENTIVO",
-      "MANTENIMIENTO_CORRECTIVO",
-      "REPARACION",
-      "INSTALACION",
-      "INSPECCION",
-      "DIAGNOSTICO",
-      "GARANTIA",
+      'MANTENIMIENTO_PREVENTIVO',
+      'MANTENIMIENTO_CORRECTIVO',
+      'REPARACION',
+      'INSTALACION',
+      'INSPECCION',
+      'DIAGNOSTICO',
+      'GARANTIA',
     ],
   })
   @IsString()
@@ -180,8 +180,8 @@ export class CreateHESDto {
   tipoServicio!: string;
 
   @ApiProperty({
-    description: "Prioridad",
-    enum: ["BAJA", "MEDIA", "ALTA", "URGENTE"],
+    description: 'Prioridad',
+    enum: ['BAJA', 'MEDIA', 'ALTA', 'URGENTE'],
   })
   @IsString()
   @IsNotEmpty()

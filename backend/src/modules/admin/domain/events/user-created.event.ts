@@ -6,14 +6,14 @@
 
 export class UserCreatedEvent {
   readonly occurredAt: Date;
-  readonly eventName = "UserCreatedEvent";
+  readonly eventName = 'UserCreatedEvent';
 
   constructor(
     readonly userId: string,
     readonly email: string,
     readonly name: string,
     readonly role: string,
-    readonly createdBy?: string,
+    readonly createdBy?: string
   ) {
     this.occurredAt = new Date();
   }

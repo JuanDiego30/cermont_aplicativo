@@ -1,18 +1,18 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsUUID, IsNotEmpty, IsOptional, IsBoolean } from "class-validator";
-import { PdfBaseReportOptionsDto } from "./pdf-base-options.dto";
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsUUID, IsNotEmpty, IsOptional, IsBoolean } from 'class-validator';
+import { PdfBaseReportOptionsDto } from './pdf-base-options.dto';
 
 export class GenerateReporteMantenimientoDto extends PdfBaseReportOptionsDto {
   @ApiProperty({
-    description: "ID del mantenimiento",
-    example: "123e4567-e89b-12d3-a456-426614174000",
+    description: 'ID del mantenimiento',
+    example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @IsUUID()
   @IsNotEmpty()
   mantenimientoId!: string;
 
   @ApiPropertyOptional({
-    description: "Incluir detalles del activo",
+    description: 'Incluir detalles del activo',
     example: true,
   })
   @IsOptional()
@@ -20,7 +20,7 @@ export class GenerateReporteMantenimientoDto extends PdfBaseReportOptionsDto {
   incluirActivo?: boolean = true;
 
   @ApiPropertyOptional({
-    description: "Incluir detalles del técnico",
+    description: 'Incluir detalles del técnico',
     example: true,
   })
   @IsOptional()
@@ -28,7 +28,7 @@ export class GenerateReporteMantenimientoDto extends PdfBaseReportOptionsDto {
   incluirTecnico?: boolean = true;
 
   @ApiPropertyOptional({
-    description: "Incluir tareas realizadas",
+    description: 'Incluir tareas realizadas',
     example: true,
   })
   @IsOptional()
@@ -36,7 +36,7 @@ export class GenerateReporteMantenimientoDto extends PdfBaseReportOptionsDto {
   incluirTareas?: boolean = true;
 
   @ApiPropertyOptional({
-    description: "Incluir problemas encontrados",
+    description: 'Incluir problemas encontrados',
     example: true,
   })
   @IsOptional()
@@ -44,7 +44,7 @@ export class GenerateReporteMantenimientoDto extends PdfBaseReportOptionsDto {
   incluirProblemas?: boolean = true;
 
   @ApiPropertyOptional({
-    description: "Incluir repuestos utilizados",
+    description: 'Incluir repuestos utilizados',
     example: true,
   })
   @IsOptional()
@@ -52,7 +52,7 @@ export class GenerateReporteMantenimientoDto extends PdfBaseReportOptionsDto {
   incluirRepuestos?: boolean = true;
 
   @ApiPropertyOptional({
-    description: "Incluir recomendaciones",
+    description: 'Incluir recomendaciones',
     example: true,
   })
   @IsOptional()
@@ -60,7 +60,7 @@ export class GenerateReporteMantenimientoDto extends PdfBaseReportOptionsDto {
   incluirRecomendaciones?: boolean = true;
 
   @ApiPropertyOptional({
-    description: "Incluir evidencias fotográficas",
+    description: 'Incluir evidencias fotográficas',
     example: true,
   })
   @IsOptional()

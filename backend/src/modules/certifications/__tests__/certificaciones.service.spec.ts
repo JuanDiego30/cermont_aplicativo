@@ -1,14 +1,12 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { NotFoundException } from "@nestjs/common";
-import { CertificacionesService } from "../certificaciones.service";
-import { PrismaService } from "../../../prisma/prisma.service";
-import { EventEmitter2 } from "@nestjs/event-emitter";
-import {
-  CreateCertificacionTecnicoDto,
-} from "../application/dto/certificaciones.dto";
-import { TipoCertificacionTecnico } from "../domain/value-objects/tipo-certificacion.vo";
+import { Test, TestingModule } from '@nestjs/testing';
+import { NotFoundException } from '@nestjs/common';
+import { CertificacionesService } from '../certificaciones.service';
+import { PrismaService } from '../../../prisma/prisma.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { CreateCertificacionTecnicoDto } from '../application/dto/certificaciones.dto';
+import { TipoCertificacionTecnico } from '../domain/value-objects/tipo-certificacion.vo';
 
-describe("CertificacionesService", () => {
+describe('CertificacionesService', () => {
   let service: CertificacionesService;
   let prisma: {
     user: { findUnique: jest.Mock };
@@ -34,22 +32,22 @@ describe("CertificacionesService", () => {
     service = module.get(CertificacionesService);
   });
 
-  it("registra certificación de técnico", async () => {
+  it('registra certificación de técnico', async () => {
     const dto: CreateCertificacionTecnicoDto = {
-      tecnicoId: "tec-1",
+      tecnicoId: 'tec-1',
       tipo: TipoCertificacionTecnico.TRABAJO_ALTURAS,
-      entidadCertificadora: "SENA",
-      numeroCertificado: "CERT-001",
-      fechaEmision: "2024-01-01",
-      fechaVencimiento: "2025-01-01",
+      entidadCertificadora: 'SENA',
+      numeroCertificado: 'CERT-001',
+      fechaEmision: '2024-01-01',
+      fechaVencimiento: '2025-01-01',
     };
 
-    prisma.user.findUnique.mockResolvedValue({ id: "tec-1" });
+    prisma.user.findUnique.mockResolvedValue({ id: 'tec-1' });
     prisma.certificado.create.mockResolvedValue({
-      id: "cert-1",
-      userId: "tec-1",
+      id: 'cert-1',
+      userId: 'tec-1',
       tipo: dto.tipo,
-      nombre: "Trabajo en Alturas",
+      nombre: 'Trabajo en Alturas',
       entidad: dto.entidadCertificadora,
       numero: dto.numeroCertificado,
       fechaExpedicion: new Date(dto.fechaEmision),
@@ -62,37 +60,37 @@ describe("CertificacionesService", () => {
 
     expect(result.tipo).toBe(dto.tipo);
     expect(prisma.certificado.create).toHaveBeenCalledTimes(1);
-    expect(events.emit).toHaveBeenCalledWith("certificacion.registrada", {
+    expect(events.emit).toHaveBeenCalledWith('certificacion.registrada', {
       certificacionId: expect.any(String),
-      tecnicoId: "tec-1",
+      tecnicoId: 'tec-1',
       tipo: dto.tipo,
     });
   });
 
-  it("lanza NotFound si técnico no existe", async () => {
+  it('lanza NotFound si técnico no existe', async () => {
     prisma.user.findUnique.mockResolvedValue(null);
 
     await expect(
       service.registrarCertificacionTecnico({
-        tecnicoId: "tec-404",
+        tecnicoId: 'tec-404',
         tipo: TipoCertificacionTecnico.ATG,
-        entidadCertificadora: "SENA",
-        numeroCertificado: "CERT-404",
-        fechaEmision: "2024-01-01",
-        fechaVencimiento: "2025-01-01",
-      }),
+        entidadCertificadora: 'SENA',
+        numeroCertificado: 'CERT-404',
+        fechaEmision: '2024-01-01',
+        fechaVencimiento: '2025-01-01',
+      })
     ).rejects.toThrow(NotFoundException);
   });
 
-  it("obtiene certificaciones por vencer", async () => {
+  it('obtiene certificaciones por vencer', async () => {
     prisma.certificado.findMany.mockResolvedValue([
       {
-        id: "cert-2",
-        tipo: "TRABAJO_ALTURAS",
-        nombre: "Trabajo en Alturas",
-        entidad: "SENA",
-        numero: "CERT-002",
-        fechaExpedicion: new Date("2024-01-01"),
+        id: 'cert-2',
+        tipo: 'TRABAJO_ALTURAS',
+        nombre: 'Trabajo en Alturas',
+        entidad: 'SENA',
+        numero: 'CERT-002',
+        fechaExpedicion: new Date('2024-01-01'),
         fechaVencimiento: new Date(),
         archivo: null,
         observaciones: null,
@@ -102,6 +100,6 @@ describe("CertificacionesService", () => {
     const result = await service.getCertificacionesPorVencer(30);
 
     expect(result).toHaveLength(1);
-    expect(result[0].numeroCertificado).toBe("CERT-002");
+    expect(result[0].numeroCertificado).toBe('CERT-002');
   });
 });

@@ -4,30 +4,30 @@
  * Mapea entre Domain Entities y Prisma models
  */
 
-import { HES } from "../../domain/entities/hes.entity";
-import { HESId } from "../../domain/value-objects/hes-id.vo";
-import { HESNumero } from "../../domain/value-objects/hes-numero.vo";
-import { EstadoHES } from "../../domain/value-objects/estado-hes.vo";
-import { TipoServicio } from "../../domain/value-objects/tipo-servicio.vo";
-import { Prioridad } from "../../domain/value-objects/prioridad.vo";
-import { NivelRiesgo } from "../../domain/value-objects/nivel-riesgo.vo";
-import { ClienteInfo } from "../../domain/entities/cliente-info.entity";
-import { CondicionesEntrada } from "../../domain/entities/condiciones-entrada.entity";
-import { DiagnosticoPreliminar } from "../../domain/entities/diagnostico-preliminar.entity";
-import { RequerimientosSeguridad } from "../../domain/entities/requerimientos-seguridad.entity";
-import { FirmaDigital } from "../../domain/entities/firma-digital.entity";
-import { Telefono } from "../../domain/value-objects/telefono.vo";
-import { Direccion } from "../../domain/value-objects/direccion.vo";
-import { CoordenadasGPS } from "../../domain/value-objects/coordenadas-gps.vo";
-import { Email } from "../../../../shared/domain/value-objects/email.vo";
-import { EPPRequerido } from "../../domain/value-objects/epp-requerido.vo";
+import { HES } from '../../domain/entities/hes.entity';
+import { HESId } from '../../domain/value-objects/hes-id.vo';
+import { HESNumero } from '../../domain/value-objects/hes-numero.vo';
+import { EstadoHES } from '../../domain/value-objects/estado-hes.vo';
+import { TipoServicio } from '../../domain/value-objects/tipo-servicio.vo';
+import { Prioridad } from '../../domain/value-objects/prioridad.vo';
+import { NivelRiesgo } from '../../domain/value-objects/nivel-riesgo.vo';
+import { ClienteInfo } from '../../domain/entities/cliente-info.entity';
+import { CondicionesEntrada } from '../../domain/entities/condiciones-entrada.entity';
+import { DiagnosticoPreliminar } from '../../domain/entities/diagnostico-preliminar.entity';
+import { RequerimientosSeguridad } from '../../domain/entities/requerimientos-seguridad.entity';
+import { FirmaDigital } from '../../domain/entities/firma-digital.entity';
+import { Telefono } from '../../domain/value-objects/telefono.vo';
+import { Direccion } from '../../domain/value-objects/direccion.vo';
+import { CoordenadasGPS } from '../../domain/value-objects/coordenadas-gps.vo';
+import { Email } from '../../../../shared/domain/value-objects/email.vo';
+import { EPPRequerido } from '../../domain/value-objects/epp-requerido.vo';
 import {
   getHesParts,
   mapClienteInfoCore,
   mapCondicionesEntradaCore,
   mapDiagnosticoPreliminarCore,
   mapHesCore,
-} from "../../domain/mappers/hes-common.mapper";
+} from '../../domain/mappers/hes-common.mapper';
 
 export class HESPrismaMapper {
   static toPrisma(hes: HES): any {
@@ -62,7 +62,7 @@ export class HESPrismaMapper {
         : null,
       requerimientosSeguridad: seguridad
         ? {
-            eppRequerido: seguridad.getEPPRequerido().map((epp) => ({
+            eppRequerido: seguridad.getEPPRequerido().map(epp => ({
               tipo: epp.getTipo(),
               descripcion: epp.getDescripcion(),
             })),
@@ -136,8 +136,7 @@ export class HESPrismaMapper {
       ? RequerimientosSeguridad.create({
           eppRequerido: data.requerimientosSeguridad.eppRequerido,
           permisosNecesarios: data.requerimientosSeguridad.permisosNecesarios,
-          riesgosIdentificados:
-            data.requerimientosSeguridad.riesgosIdentificados,
+          riesgosIdentificados: data.requerimientosSeguridad.riesgosIdentificados,
           medidasControl: data.requerimientosSeguridad.medidasControl,
           checklistItems: data.requerimientosSeguridad.checklistItems,
           observaciones: data.requerimientosSeguridad.observaciones,
@@ -190,15 +189,9 @@ export class HESPrismaMapper {
     (hes as any)._firmadoTecnicoAt = data.firmadoTecnicoAt
       ? new Date(data.firmadoTecnicoAt)
       : undefined;
-    (hes as any)._creadoEn = data.createdAt
-      ? new Date(data.createdAt)
-      : new Date();
-    (hes as any)._completadoEn = data.completadoEn
-      ? new Date(data.completadoEn)
-      : undefined;
-    (hes as any)._anuladoEn = data.anuladoEn
-      ? new Date(data.anuladoEn)
-      : undefined;
+    (hes as any)._creadoEn = data.createdAt ? new Date(data.createdAt) : new Date();
+    (hes as any)._completadoEn = data.completadoEn ? new Date(data.completadoEn) : undefined;
+    (hes as any)._anuladoEn = data.anuladoEn ? new Date(data.anuladoEn) : undefined;
     (hes as any)._anuladoPor = data.anuladoPor;
     (hes as any)._motivoAnulacion = data.motivoAnulacion;
     (hes as any)._version = data.version || 1;
@@ -209,16 +202,15 @@ export class HESPrismaMapper {
   private static parseDireccion(direccionStr: string): any {
     // Parsear dirección desde string a objeto
     // Formato: "Calle, #Numero, Barrio, Ciudad, Departamento, País"
-    const parts = direccionStr.split(",").map((p) => p.trim());
+    const parts = direccionStr.split(',').map(p => p.trim());
 
     return {
-      calle: parts[0] || "",
-      numero: parts[1]?.replace("#", "") || undefined,
-      barrio: parts[2]?.replace("Barrio ", "") || undefined,
-      ciudad: parts[3] || "",
+      calle: parts[0] || '',
+      numero: parts[1]?.replace('#', '') || undefined,
+      barrio: parts[2]?.replace('Barrio ', '') || undefined,
+      ciudad: parts[3] || '',
       departamento: parts[4] || undefined,
-      pais: parts[5] || "Colombia",
+      pais: parts[5] || 'Colombia',
     };
   }
 }
-

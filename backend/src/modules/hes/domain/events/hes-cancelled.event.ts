@@ -10,6 +10,6 @@ export class HESCancelledEvent {
       hesId: string;
       numero: string;
       motivo: string;
-    },
+    }
   ) {}
 }

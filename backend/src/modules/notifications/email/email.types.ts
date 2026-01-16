@@ -1,6 +1,6 @@
 export type EmailAddress = string;
 
-import type { EmailTemplateName } from "./email-templates";
+import type { EmailTemplateName } from './email-templates';
 
 export interface SendEmailInput {
   to: EmailAddress | EmailAddress[];

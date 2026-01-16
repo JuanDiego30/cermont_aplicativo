@@ -17,23 +17,14 @@ import {
   ParseUUIDPipe,
   HttpCode,
   HttpStatus,
-} from "@nestjs/common";
-import {
-  ApiTags,
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
-} from "@nestjs/swagger";
+} from '@nestjs/common';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 
 // Guards y Decorators
-import { JwtAuthGuard } from "../../../../shared/guards/jwt-auth.guard";
-import { RolesGuard } from "../../../../shared/guards/roles.guard";
-import { Roles } from "../../../../shared/decorators/roles.decorator";
-import {
-  CurrentUser,
-  JwtPayload,
-} from "../../../../shared/decorators/current-user.decorator";
+import { JwtAuthGuard } from '../../../../shared/guards/jwt-auth.guard';
+import { RolesGuard } from '../../../../shared/guards/roles.guard';
+import { Roles } from '../../../../shared/decorators/roles.decorator';
+import { CurrentUser, JwtPayload } from '../../../../shared/decorators/current-user.decorator';
 
 // Use Cases
 import {
@@ -45,7 +36,7 @@ import {
   ListUsersUseCase,
   GetUserByIdUseCase,
   GetUserStatsUseCase,
-} from "../../application/use-cases";
+} from '../../application/use-cases';
 
 // DTOs
 import {
@@ -59,11 +50,10 @@ import {
   ActionResponseDto,
   PaginatedUsersResponseDto,
   UserStatsResponseDto,
-} from "../../application/dto";
+} from '../../application/dto';
 
-
-@ApiTags("Admin")
-@Controller("admin")
+@ApiTags('Admin')
+@Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class AdminController {
@@ -75,23 +65,23 @@ export class AdminController {
     private readonly resetPasswordUseCase: ResetPasswordUseCase,
     private readonly listUsersUseCase: ListUsersUseCase,
     private readonly getUserByIdUseCase: GetUserByIdUseCase,
-    private readonly getUserStatsUseCase: GetUserStatsUseCase,
+    private readonly getUserStatsUseCase: GetUserStatsUseCase
   ) {}
 
   // ============================================
   // USUARIOS - CRUD
   // ============================================
 
-  @Post("users")
-  @Roles("admin")
+  @Post('users')
+  @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: "Crear nuevo usuario" })
+  @ApiOperation({ summary: 'Crear nuevo usuario' })
   @ApiResponse({ status: 201, type: ActionResponseDto })
-  @ApiResponse({ status: 400, description: "Datos inválidos" })
-  @ApiResponse({ status: 409, description: "Email ya existe" })
+  @ApiResponse({ status: 400, description: 'Datos inválidos' })
+  @ApiResponse({ status: 409, description: 'Email ya existe' })
   async createUser(
     @Body() dto: CreateUserDto,
-    @CurrentUser() currentUser: JwtPayload,
+    @CurrentUser() currentUser: JwtPayload
   ): Promise<ActionResponseDto<UserResponseDto>> {
     const user = await this.createUserUseCase.execute({
       ...dto,
@@ -100,18 +90,16 @@ export class AdminController {
 
     return {
       success: true,
-      message: "Usuario creado exitosamente",
+      message: 'Usuario creado exitosamente',
       data: user,
     };
   }
 
-  @Get("users")
-  @Roles("admin")
-  @ApiOperation({ summary: "Listar todos los usuarios" })
+  @Get('users')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Listar todos los usuarios' })
   @ApiResponse({ status: 200, type: PaginatedUsersResponseDto })
-  async listUsers(
-    @Query() query: UserQueryDto,
-  ): Promise<PaginatedUsersResponseDto> {
+  async listUsers(@Query() query: UserQueryDto): Promise<PaginatedUsersResponseDto> {
     return this.listUsersUseCase.execute({
       role: query.role,
       active: query.active,
@@ -121,28 +109,26 @@ export class AdminController {
     });
   }
 
-  @Get("users/:id")
-  @Roles("admin")
-  @ApiOperation({ summary: "Obtener usuario por ID" })
-  @ApiParam({ name: "id", description: "UUID del usuario" })
+  @Get('users/:id')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Obtener usuario por ID' })
+  @ApiParam({ name: 'id', description: 'UUID del usuario' })
   @ApiResponse({ status: 200, type: UserResponseDto })
-  @ApiResponse({ status: 404, description: "Usuario no encontrado" })
-  async getUserById(
-    @Param("id", ParseUUIDPipe) id: string,
-  ): Promise<UserResponseDto> {
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  async getUserById(@Param('id', ParseUUIDPipe) id: string): Promise<UserResponseDto> {
     return this.getUserByIdUseCase.execute(id);
   }
 
-  @Patch("users/:id")
-  @Roles("admin")
-  @ApiOperation({ summary: "Actualizar información de usuario" })
-  @ApiParam({ name: "id", description: "UUID del usuario" })
+  @Patch('users/:id')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Actualizar información de usuario' })
+  @ApiParam({ name: 'id', description: 'UUID del usuario' })
   @ApiResponse({ status: 200, type: ActionResponseDto })
-  @ApiResponse({ status: 404, description: "Usuario no encontrado" })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
   async updateUser(
-    @Param("id", ParseUUIDPipe) id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateUserDto,
-    @CurrentUser() currentUser: JwtPayload,
+    @CurrentUser() currentUser: JwtPayload
   ): Promise<ActionResponseDto<UserResponseDto>> {
     const user = await this.updateUserUseCase.execute({
       userId: id,
@@ -152,7 +138,7 @@ export class AdminController {
 
     return {
       success: true,
-      message: "Usuario actualizado exitosamente",
+      message: 'Usuario actualizado exitosamente',
       data: user,
     };
   }
@@ -161,17 +147,17 @@ export class AdminController {
   // USUARIOS - ROL
   // ============================================
 
-  @Patch("users/:id/role")
-  @Roles("admin")
-  @ApiOperation({ summary: "Cambiar rol de usuario" })
-  @ApiParam({ name: "id", description: "UUID del usuario" })
+  @Patch('users/:id/role')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Cambiar rol de usuario' })
+  @ApiParam({ name: 'id', description: 'UUID del usuario' })
   @ApiResponse({ status: 200, type: ActionResponseDto })
-  @ApiResponse({ status: 400, description: "Operación no permitida" })
-  @ApiResponse({ status: 404, description: "Usuario no encontrado" })
+  @ApiResponse({ status: 400, description: 'Operación no permitida' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
   async changeRole(
-    @Param("id", ParseUUIDPipe) id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: ChangeRoleDto,
-    @CurrentUser() currentUser: JwtPayload,
+    @CurrentUser() currentUser: JwtPayload
   ): Promise<ActionResponseDto<UserResponseDto>> {
     const user = await this.changeUserRoleUseCase.execute({
       userId: id,
@@ -190,17 +176,17 @@ export class AdminController {
   // USUARIOS - ACTIVACIÓN
   // ============================================
 
-  @Patch("users/:id/toggle-active")
-  @Roles("admin")
-  @ApiOperation({ summary: "Activar/Desactivar usuario" })
-  @ApiParam({ name: "id", description: "UUID del usuario" })
+  @Patch('users/:id/toggle-active')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Activar/Desactivar usuario' })
+  @ApiParam({ name: 'id', description: 'UUID del usuario' })
   @ApiResponse({ status: 200 })
-  @ApiResponse({ status: 400, description: "Operación no permitida" })
-  @ApiResponse({ status: 404, description: "Usuario no encontrado" })
+  @ApiResponse({ status: 400, description: 'Operación no permitida' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
   async toggleActive(
-    @Param("id", ParseUUIDPipe) id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: ToggleActiveDto,
-    @CurrentUser() currentUser: JwtPayload,
+    @CurrentUser() currentUser: JwtPayload
   ): Promise<{ success: boolean; message: string }> {
     return this.toggleUserActiveUseCase.execute({
       userId: id,
@@ -214,16 +200,16 @@ export class AdminController {
   // USUARIOS - PASSWORD
   // ============================================
 
-  @Patch("users/:id/password")
-  @Roles("admin")
-  @ApiOperation({ summary: "Cambiar contraseña de usuario (admin)" })
-  @ApiParam({ name: "id", description: "UUID del usuario" })
+  @Patch('users/:id/password')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Cambiar contraseña de usuario (admin)' })
+  @ApiParam({ name: 'id', description: 'UUID del usuario' })
   @ApiResponse({ status: 200 })
-  @ApiResponse({ status: 404, description: "Usuario no encontrado" })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
   async resetPassword(
-    @Param("id", ParseUUIDPipe) id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: ChangePasswordDto,
-    @CurrentUser() currentUser: JwtPayload,
+    @CurrentUser() currentUser: JwtPayload
   ): Promise<{ success: boolean; message: string }> {
     return this.resetPasswordUseCase.execute({
       userId: id,
@@ -236,9 +222,9 @@ export class AdminController {
   // ESTADÍSTICAS
   // ============================================
 
-  @Get("stats/users")
-  @Roles("admin")
-  @ApiOperation({ summary: "Obtener estadísticas de usuarios" })
+  @Get('stats/users')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Obtener estadísticas de usuarios' })
   @ApiResponse({ status: 200, type: UserStatsResponseDto })
   async getUserStats(): Promise<UserStatsResponseDto> {
     return this.getUserStatsUseCase.execute();
@@ -248,15 +234,13 @@ export class AdminController {
   // PERMISOS (Legacy - mantener compatibilidad)
   // ============================================
 
-  @Get("permissions/:role")
-  @Roles("admin", "supervisor")
-  @ApiOperation({ summary: "Obtener permisos de un rol" })
-  @ApiParam({ name: "role", description: "Rol a consultar" })
-  async getPermissions(@Param("role") role: string) {
+  @Get('permissions/:role')
+  @Roles('admin', 'supervisor')
+  @ApiOperation({ summary: 'Obtener permisos de un rol' })
+  @ApiParam({ name: 'role', description: 'Rol a consultar' })
+  async getPermissions(@Param('role') role: string) {
     // Importar de interfaces legacy para mantener compatibilidad
-    const { getPermissionsForRole } =
-      await import("../../interfaces/permissions.interface");
+    const { getPermissionsForRole } = await import('../../interfaces/permissions.interface');
     return getPermissionsForRole(role as any);
   }
 }
-

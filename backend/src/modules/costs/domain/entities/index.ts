@@ -1,1 +1,1 @@
-export { Costo } from "./costo.entity";
+export { Costo } from './costo.entity';

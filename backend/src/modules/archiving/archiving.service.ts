@@ -5,13 +5,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
-    ArchivarManualDto,
-    ConsultarHistoricoDto,
-    EstadisticasArchivoDto,
-    ExportarHistoricoDto,
-    OrdenArchivadaResponseDto,
-    ResultadoArchivadoDto,
-    ResultadoExportacionDto,
+  ArchivarManualDto,
+  ConsultarHistoricoDto,
+  EstadisticasArchivoDto,
+  ExportarHistoricoDto,
+  OrdenArchivadaResponseDto,
+  ResultadoArchivadoDto,
+  ResultadoExportacionDto,
 } from './application/dto/archivado-historico.dto';
 
 /**

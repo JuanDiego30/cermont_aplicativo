@@ -7,26 +7,20 @@
  * - Solo kits activos pueden asignarse
  * - Kits en uso no pueden editarse
  */
-import { KitId } from "../value-objects/kit-id.vo";
-import { KitCodigo } from "../value-objects/kit-codigo.vo";
-import {
-  CategoriaKit,
-  CategoriaKitEnum,
-} from "../value-objects/categoria-kit.vo";
-import { TipoKit, TipoKitEnum } from "../value-objects/tipo-kit.vo";
-import { EstadoKit, EstadoKitEnum } from "../value-objects/estado-kit.vo";
-import { CostoTotal } from "../value-objects/costo.vo";
-import { KitItem, CreateKitItemProps } from "./kit-item.entity";
-import {
-  BusinessRuleViolationError,
-  ValidationError,
-} from "../../../../shared/domain/exceptions";
+import { KitId } from '../value-objects/kit-id.vo';
+import { KitCodigo } from '../value-objects/kit-codigo.vo';
+import { CategoriaKit, CategoriaKitEnum } from '../value-objects/categoria-kit.vo';
+import { TipoKit, TipoKitEnum } from '../value-objects/tipo-kit.vo';
+import { EstadoKit, EstadoKitEnum } from '../value-objects/estado-kit.vo';
+import { CostoTotal } from '../value-objects/costo.vo';
+import { KitItem, CreateKitItemProps } from './kit-item.entity';
+import { BusinessRuleViolationError, ValidationError } from '../../../../shared/domain/exceptions';
 import {
   KitCreatedEvent,
   KitUpdatedEvent,
   KitItemAddedEvent,
   KitItemRemovedEvent,
-} from "../events";
+} from '../events';
 
 export interface CreateKitProps {
   nombre: string;
@@ -57,7 +51,7 @@ export class Kit {
     private _creadoPor: string,
     private _creadoEn: Date,
     private _actualizadoEn: Date | undefined,
-    private _version: number,
+    private _version: number
   ) {
     this.validate();
   }
@@ -94,7 +88,7 @@ export class Kit {
       props.creadoPor,
       new Date(),
       undefined,
-      1,
+      1
     );
 
     kit.recalcularCosto();
@@ -105,7 +99,7 @@ export class Kit {
         nombre: props.nombre,
         categoria: categoria.getValue(),
         creadoPor: props.creadoPor,
-      }),
+      })
     );
 
     return kit;
@@ -134,20 +128,18 @@ export class Kit {
     const items = (props.items as unknown[]).map((item: unknown) => {
       const i = item as Record<string, unknown>;
       return KitItem.fromPersistence({
-        id: i["id"] as string,
-        itemId: i["itemId"] as string,
-        itemType: (i["itemType"] as string) || "HERRAMIENTA",
-        nombre: i["nombre"] as string,
-        descripcion: i["descripcion"] as string | undefined,
-        cantidad: (i["cantidad"] as number) || 1,
-        costoUnitario: (i["costoUnitario"] as number) || 0,
-        unidad: (i["unidad"] as string) || "unidad",
-        esOpcional: (i["esOpcional"] as boolean) || false,
+        id: i['id'] as string,
+        itemId: i['itemId'] as string,
+        itemType: (i['itemType'] as string) || 'HERRAMIENTA',
+        nombre: i['nombre'] as string,
+        descripcion: i['descripcion'] as string | undefined,
+        cantidad: (i['cantidad'] as number) || 1,
+        costoUnitario: (i['costoUnitario'] as number) || 0,
+        unidad: (i['unidad'] as string) || 'unidad',
+        esOpcional: (i['esOpcional'] as boolean) || false,
         requiereCertificacion:
-          (i["requiereCertificacion"] as boolean) ||
-          (i["certificacion"] as boolean) ||
-          false,
-        notas: i["notas"] as string | undefined,
+          (i['requiereCertificacion'] as boolean) || (i['certificacion'] as boolean) || false,
+        notas: i['notas'] as string | undefined,
       });
     });
 
@@ -166,7 +158,7 @@ export class Kit {
       props.creadoPor,
       props.creadoEn,
       props.actualizadoEn,
-      props.version,
+      props.version
     );
   }
 
@@ -176,15 +168,13 @@ export class Kit {
 
   public addItem(itemProps: CreateKitItemProps): void {
     if (!this.puedeEditar()) {
-      throw new BusinessRuleViolationError("Kit en uso, no se puede modificar");
+      throw new BusinessRuleViolationError('Kit en uso, no se puede modificar');
     }
 
     const item = KitItem.create(itemProps);
 
     if (this.hasItemWithName(item.getNombre())) {
-      throw new BusinessRuleViolationError(
-        `Item "${item.getNombre()}" ya existe en el kit`,
-      );
+      throw new BusinessRuleViolationError(`Item "${item.getNombre()}" ya existe en el kit`);
     }
 
     this._items.push(item);
@@ -196,20 +186,18 @@ export class Kit {
         kitId: this._id.getValue(),
         itemId: item.getId(),
         itemNombre: item.getNombre(),
-      }),
+      })
     );
   }
 
   public removeItem(itemId: string): void {
     if (!this.puedeEditar()) {
-      throw new BusinessRuleViolationError("Kit en uso, no se puede modificar");
+      throw new BusinessRuleViolationError('Kit en uso, no se puede modificar');
     }
 
-    const index = this._items.findIndex((i) => i.getId() === itemId);
+    const index = this._items.findIndex(i => i.getId() === itemId);
     if (index === -1) {
-      throw new BusinessRuleViolationError(
-        `Item ${itemId} no encontrado en el kit`,
-      );
+      throw new BusinessRuleViolationError(`Item ${itemId} no encontrado en el kit`);
     }
 
     const removedItem = this._items.splice(index, 1)[0];
@@ -221,13 +209,13 @@ export class Kit {
         kitId: this._id.getValue(),
         itemId: removedItem.getId(),
         itemNombre: removedItem.getNombre(),
-      }),
+      })
     );
   }
 
   public updateItemCantidad(itemId: string, nuevaCantidad: number): void {
     if (!this.puedeEditar()) {
-      throw new BusinessRuleViolationError("Kit en uso, no se puede modificar");
+      throw new BusinessRuleViolationError('Kit en uso, no se puede modificar');
     }
 
     const item = this.findItem(itemId);
@@ -246,7 +234,7 @@ export class Kit {
 
   public activate(): void {
     if (this._estado.esActivo()) {
-      throw new BusinessRuleViolationError("Kit ya está activo");
+      throw new BusinessRuleViolationError('Kit ya está activo');
     }
     this._estado = EstadoKit.activo();
     this.markAsUpdated();
@@ -254,10 +242,10 @@ export class Kit {
 
   public deactivate(): void {
     if (this._estado.esInactivo()) {
-      throw new BusinessRuleViolationError("Kit ya está inactivo");
+      throw new BusinessRuleViolationError('Kit ya está inactivo');
     }
     if (this._estado.esEnUso()) {
-      throw new BusinessRuleViolationError("Kit en uso no puede desactivarse");
+      throw new BusinessRuleViolationError('Kit en uso no puede desactivarse');
     }
     this._estado = EstadoKit.inactivo();
     this.markAsUpdated();
@@ -265,9 +253,7 @@ export class Kit {
 
   public markAsEnUso(): void {
     if (!this._estado.esActivo()) {
-      throw new BusinessRuleViolationError(
-        "Solo kits activos pueden asignarse",
-      );
+      throw new BusinessRuleViolationError('Solo kits activos pueden asignarse');
     }
     this._estado = EstadoKit.enUso();
     this.markAsUpdated();
@@ -275,7 +261,7 @@ export class Kit {
 
   public markAsDisponible(): void {
     if (!this._estado.esEnUso()) {
-      throw new BusinessRuleViolationError("Kit no está en uso");
+      throw new BusinessRuleViolationError('Kit no está en uso');
     }
     this._estado = EstadoKit.activo();
     this.markAsUpdated();
@@ -291,12 +277,12 @@ export class Kit {
     duracionEstimadaHoras?: number;
   }): void {
     if (!this.puedeEditar()) {
-      throw new BusinessRuleViolationError("Kit en uso, no se puede modificar");
+      throw new BusinessRuleViolationError('Kit en uso, no se puede modificar');
     }
 
     if (updates.nombre !== undefined) {
       if (updates.nombre.trim().length === 0) {
-        throw new ValidationError("Nombre no puede estar vacío", "nombre");
+        throw new ValidationError('Nombre no puede estar vacío', 'nombre');
       }
       this._nombre = updates.nombre.trim();
     }
@@ -315,7 +301,7 @@ export class Kit {
       new KitUpdatedEvent({
         kitId: this._id.getValue(),
         nombre: this._nombre,
-      }),
+      })
     );
   }
 
@@ -336,13 +322,11 @@ export class Kit {
   }
 
   private hasItemWithName(nombre: string): boolean {
-    return this._items.some(
-      (i) => i.getNombre().toLowerCase() === nombre.toLowerCase(),
-    );
+    return this._items.some(i => i.getNombre().toLowerCase() === nombre.toLowerCase());
   }
 
   private findItem(itemId: string): KitItem | undefined {
-    return this._items.find((i) => i.getId() === itemId);
+    return this._items.find(i => i.getId() === itemId);
   }
 
   private markAsUpdated(): void {
@@ -352,7 +336,7 @@ export class Kit {
 
   private validate(): void {
     if (!this._nombre || this._nombre.trim().length === 0) {
-      throw new ValidationError("Nombre del kit es requerido", "nombre");
+      throw new ValidationError('Nombre del kit es requerido', 'nombre');
     }
   }
 
@@ -449,15 +433,15 @@ export class Kit {
   }
 
   public getItemsByType(type: string): KitItem[] {
-    return this._items.filter((i) => i.getItemType().getValue() === type);
+    return this._items.filter(i => i.getItemType().getValue() === type);
   }
 
   public getHerramientas(): KitItem[] {
-    return this.getItemsByType("HERRAMIENTA");
+    return this.getItemsByType('HERRAMIENTA');
   }
 
   public getEquipos(): KitItem[] {
-    return this.getItemsByType("EQUIPO");
+    return this.getItemsByType('EQUIPO');
   }
 
   public toPersistence(): Record<string, unknown> {
@@ -469,7 +453,7 @@ export class Kit {
       categoria: this._categoria.getValue(),
       tipo: this._tipo.getValue(),
       estado: this._estado.getValue(),
-      items: this._items.map((i) => i.toPersistence()),
+      items: this._items.map(i => i.toPersistence()),
       costoTotal: this._costoTotal.getValue(),
       esPlantilla: this._esPlantilla,
       duracionEstimadaHoras: this._duracionEstimadaHoras,
@@ -480,4 +464,3 @@ export class Kit {
     };
   }
 }
-

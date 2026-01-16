@@ -5,10 +5,10 @@
  * Define el contrato que debe implementar cualquier persistencia.
  */
 
-import { Costo } from "../entities/costo.entity";
-import { Money } from "../value-objects/money.vo";
-import { CostoType } from "../value-objects/costo-type.vo";
-import { CostoCategory } from "../value-objects/costo-category.vo";
+import { Costo } from '../entities/costo.entity';
+import { Money } from '../value-objects/money.vo';
+import { CostoType } from '../value-objects/costo-type.vo';
+import { CostoCategory } from '../value-objects/costo-category.vo';
 
 /**
  * Resultado paginado
@@ -58,10 +58,7 @@ export interface ICostoRepository {
   /**
    * Lista costos con filtros y paginación
    */
-  list(
-    filters: CostoFilters,
-    pagination: PaginationQuery,
-  ): Promise<PaginatedResult<Costo>>;
+  list(filters: CostoFilters, pagination: PaginationQuery): Promise<PaginatedResult<Costo>>;
 
   /**
    * Encuentra costos por orden
@@ -97,4 +94,4 @@ export interface ICostoRepository {
 /**
  * Token para inyección de dependencias
  */
-export const COSTO_REPOSITORY = Symbol("ICostoRepository");
+export const COSTO_REPOSITORY = Symbol('ICostoRepository');

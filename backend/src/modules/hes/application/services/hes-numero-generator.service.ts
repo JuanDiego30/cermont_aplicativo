@@ -5,18 +5,15 @@
  * Moved to application layer because it uses NestJS DI decorators
  */
 
-import { Inject, Injectable } from "@nestjs/common";
-import {
-    HES_REPOSITORY,
-    IHESRepository,
-} from "../../domain/repositories/hes.repository.interface";
-import { HESNumero } from "../../domain/value-objects/hes-numero.vo";
+import { Inject, Injectable } from '@nestjs/common';
+import { HES_REPOSITORY, IHESRepository } from '../../domain/repositories/hes.repository.interface';
+import { HESNumero } from '../../domain/value-objects/hes-numero.vo';
 
 @Injectable()
 export class HESNumeroGeneratorService {
   constructor(
     @Inject(HES_REPOSITORY)
-    private readonly repository: IHESRepository,
+    private readonly repository: IHESRepository
   ) {}
 
   async generateNext(year: number): Promise<HESNumero> {

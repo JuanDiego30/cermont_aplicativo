@@ -3,7 +3,7 @@
  * @description Value Object que representa la prioridad de una Order
  * @layer Domain
  */
-export type PrioridadLevel = "baja" | "media" | "alta" | "urgente";
+export type PrioridadLevel = 'baja' | 'media' | 'alta' | 'urgente';
 
 export class Prioridad {
   private static readonly WEIGHTS: Record<PrioridadLevel, number> = {
@@ -14,10 +14,10 @@ export class Prioridad {
   };
 
   private static readonly COLORS: Record<PrioridadLevel, string> = {
-    baja: "#22c55e", // green
-    media: "#eab308", // yellow
-    alta: "#f97316", // orange
-    urgente: "#ef4444", // red
+    baja: '#22c55e', // green
+    media: '#eab308', // yellow
+    alta: '#f97316', // orange
+    urgente: '#ef4444', // red
   };
 
   private constructor(private readonly _value: PrioridadLevel) {
@@ -37,11 +37,11 @@ export class Prioridad {
   }
 
   get isUrgent(): boolean {
-    return this._value === "urgente";
+    return this._value === 'urgente';
   }
 
   get isHigh(): boolean {
-    return this._value === "alta" || this._value === "urgente";
+    return this._value === 'alta' || this._value === 'urgente';
   }
 
   static create(value: PrioridadLevel): Prioridad {
@@ -49,19 +49,19 @@ export class Prioridad {
   }
 
   static baja(): Prioridad {
-    return new Prioridad("baja");
+    return new Prioridad('baja');
   }
 
   static media(): Prioridad {
-    return new Prioridad("media");
+    return new Prioridad('media');
   }
 
   static alta(): Prioridad {
-    return new Prioridad("alta");
+    return new Prioridad('alta');
   }
 
   static urgente(): Prioridad {
-    return new Prioridad("urgente");
+    return new Prioridad('urgente');
   }
 
   isHigherThan(other: Prioridad): boolean {

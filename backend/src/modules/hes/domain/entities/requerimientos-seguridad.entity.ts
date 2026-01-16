@@ -4,7 +4,7 @@
  * Requerimientos de seguridad y checklist
  */
 
-import { EPPRequerido } from "../value-objects/epp-requerido.vo";
+import { EPPRequerido } from '../value-objects/epp-requerido.vo';
 
 export interface CreateRequerimientosSeguridadProps {
   eppRequerido?: Array<{ tipo: string; descripcion?: string }>;
@@ -23,23 +23,19 @@ export class RequerimientosSeguridad {
     private readonly _permisosNecesarios: string[],
     private readonly _riesgosIdentificados: string[],
     private readonly _medidasControl: string[],
-    private readonly _observaciones?: string,
+    private readonly _observaciones?: string
   ) {
     this._checklistItems = new Map();
     this.initializeChecklist();
   }
 
-  public static create(
-    props: CreateRequerimientosSeguridadProps,
-  ): RequerimientosSeguridad {
+  public static create(props: CreateRequerimientosSeguridadProps): RequerimientosSeguridad {
     const requerimientos = new RequerimientosSeguridad(
-      (props.eppRequerido || []).map((epp) =>
-        EPPRequerido.fromString(epp.tipo, epp.descripcion),
-      ),
+      (props.eppRequerido || []).map(epp => EPPRequerido.fromString(epp.tipo, epp.descripcion)),
       props.permisosNecesarios || [],
       props.riesgosIdentificados || [],
       props.medidasControl || [],
-      props.observaciones,
+      props.observaciones
     );
 
     // Si se proporcionan items de checklist, aplicarlos
@@ -55,15 +51,15 @@ export class RequerimientosSeguridad {
   private initializeChecklist(): void {
     // Checklist obligatorio según normativa
     const itemsObligatorios = [
-      "Área de trabajo despejada",
-      "Herramientas en buen estado",
-      "EPP completo",
-      "Señalización colocada",
-      "Permisos obtenidos",
-      "Cliente informado de riesgos",
+      'Área de trabajo despejada',
+      'Herramientas en buen estado',
+      'EPP completo',
+      'Señalización colocada',
+      'Permisos obtenidos',
+      'Cliente informado de riesgos',
     ];
 
-    itemsObligatorios.forEach((item) => {
+    itemsObligatorios.forEach(item => {
       this._checklistItems.set(item, false);
     });
   }
@@ -78,15 +74,13 @@ export class RequerimientosSeguridad {
   }
 
   public checklistCompletado(): boolean {
-    return Array.from(this._checklistItems.values()).every((v) => v === true);
+    return Array.from(this._checklistItems.values()).every(v => v === true);
   }
 
   public getPorcentajeCompletitud(): number {
     const total = this._checklistItems.size;
     if (total === 0) return 100;
-    const completados = Array.from(this._checklistItems.values()).filter(
-      (v) => v,
-    ).length;
+    const completados = Array.from(this._checklistItems.values()).filter(v => v).length;
     return Math.round((completados / total) * 100);
   }
 
@@ -113,17 +107,15 @@ export class RequerimientosSeguridad {
   public tieneRiesgosAltos(): boolean {
     // Palabras clave que indican riesgo alto
     const palabrasRiesgoAlto = [
-      "electrico",
-      "altura",
-      "espacios confinados",
-      "quimicos",
-      "explosivo",
+      'electrico',
+      'altura',
+      'espacios confinados',
+      'quimicos',
+      'explosivo',
     ];
 
-    return this._riesgosIdentificados.some((riesgo) =>
-      palabrasRiesgoAlto.some((palabra) =>
-        riesgo.toLowerCase().includes(palabra),
-      ),
+    return this._riesgosIdentificados.some(riesgo =>
+      palabrasRiesgoAlto.some(palabra => riesgo.toLowerCase().includes(palabra))
     );
   }
 

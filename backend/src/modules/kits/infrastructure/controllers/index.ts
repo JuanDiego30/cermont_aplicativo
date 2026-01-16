@@ -1,4 +1,4 @@
 /**
  * Barrel file for Kit Controllers
  */
-export * from "./kits.controller";
+export * from './kits.controller';

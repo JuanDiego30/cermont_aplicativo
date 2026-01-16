@@ -18,18 +18,16 @@ export class CondicionesEntrada {
     private readonly _equipoFuncional: boolean,
     private readonly _fotosEntrada: string[],
     private readonly _daniosVisibles: string[],
-    private readonly _observaciones?: string,
+    private readonly _observaciones?: string
   ) {}
 
-  public static create(
-    props: CreateCondicionesEntradaProps,
-  ): CondicionesEntrada {
+  public static create(props: CreateCondicionesEntradaProps): CondicionesEntrada {
     return new CondicionesEntrada(
       props.estadoGeneral,
       props.equipoFuncional,
       props.fotosEntrada || [],
       props.daniosVisibles || [],
-      props.observaciones,
+      props.observaciones
     );
   }
 
@@ -65,10 +63,10 @@ export class CondicionesEntrada {
     const daniosText =
       this._daniosVisibles.length > 0
         ? `${this._daniosVisibles.length} daño(s) identificado(s)`
-        : "Sin daños visibles";
+        : 'Sin daños visibles';
 
     return `Estado: ${this._estadoGeneral}. ${
-      this._equipoFuncional ? "Funcional" : "No funcional"
+      this._equipoFuncional ? 'Funcional' : 'No funcional'
     }. ${daniosText}.`;
   }
 }

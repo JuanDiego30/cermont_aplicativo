@@ -9,17 +9,14 @@
  * - Validaciones deben ser válidas
  */
 
-import { FieldType, FieldTypeEnum } from "../value-objects/field-type.vo";
-import { FieldValue } from "../value-objects/field-value.vo";
-import {
-  ValidationRule,
-  ValidationResult,
-} from "../value-objects/validation-rule.vo";
-import { CalculationFormula } from "../value-objects/calculation-formula.vo";
-import { BusinessRuleViolationError } from "../exceptions";
-import { ValidationError } from "../../../../shared/domain/exceptions";
-import { randomUUID } from "crypto";
-import { ConditionalLogicConfig } from "../services/conditional-logic-evaluator.service";
+import { FieldType, FieldTypeEnum } from '../value-objects/field-type.vo';
+import { FieldValue } from '../value-objects/field-value.vo';
+import { ValidationRule, ValidationResult } from '../value-objects/validation-rule.vo';
+import { CalculationFormula } from '../value-objects/calculation-formula.vo';
+import { BusinessRuleViolationError } from '../exceptions';
+import { ValidationError } from '../../../../shared/domain/exceptions';
+import { randomUUID } from 'crypto';
+import { ConditionalLogicConfig } from '../services/conditional-logic-evaluator.service';
 
 // Re-export para compatibilidad
 export type { ConditionalLogicConfig };
@@ -40,7 +37,7 @@ export class FormField {
     private _calculationFormula?: CalculationFormula,
     private _options?: string[],
     private _order: number = 0,
-    private _isRequired: boolean = false,
+    private _isRequired: boolean = false
   ) {
     this.validate();
   }
@@ -65,37 +62,29 @@ export class FormField {
     const id = props.id || randomUUID();
 
     // Validar label
-    if (
-      !props.label ||
-      props.label.trim().length < FormField.MIN_LABEL_LENGTH
-    ) {
+    if (!props.label || props.label.trim().length < FormField.MIN_LABEL_LENGTH) {
       throw new ValidationError(
         `Label debe tener al menos ${FormField.MIN_LABEL_LENGTH} caracteres`,
-        "label",
+        'label'
       );
     }
     if (props.label.length > FormField.MAX_LABEL_LENGTH) {
       throw new ValidationError(
         `Label no puede exceder ${FormField.MAX_LABEL_LENGTH} caracteres`,
-        "label",
+        'label'
       );
     }
 
     // Validar que campos que requieren opciones tengan opciones
-    if (
-      props.type.requiresOptions() &&
-      (!props.options || props.options.length === 0)
-    ) {
+    if (props.type.requiresOptions() && (!props.options || props.options.length === 0)) {
       throw new ValidationError(
         `Field type ${props.type.getValue()} requires at least one option`,
-        "options",
+        'options'
       );
     }
 
     const defaultValue =
-      props.defaultValue !== undefined
-        ? FieldValue.create(props.defaultValue)
-        : undefined;
+      props.defaultValue !== undefined ? FieldValue.create(props.defaultValue) : undefined;
 
     return new FormField(
       id,
@@ -109,7 +98,7 @@ export class FormField {
       props.calculationFormula,
       props.options,
       props.order || 0,
-      props.isRequired || false,
+      props.isRequired || false
     );
   }
 
@@ -132,35 +121,31 @@ export class FormField {
   }): FormField {
     const type = FieldType.fromString(props.type);
     const defaultValue =
-      props.defaultValue !== undefined
-        ? FieldValue.create(props.defaultValue)
-        : undefined;
+      props.defaultValue !== undefined ? FieldValue.create(props.defaultValue) : undefined;
 
     const validations = (props.validations || [])
       .map((v: any) => {
         // Reconstruir ValidationRule desde persistencia
         // Mantenerlo tolerante a datos legacy
-        switch (String(v?.type || "").toUpperCase()) {
-          case "REQUIRED":
+        switch (String(v?.type || '').toUpperCase()) {
+          case 'REQUIRED':
             return ValidationRule.required();
-          case "MIN_LENGTH":
+          case 'MIN_LENGTH':
             return ValidationRule.minLength(Number(v.value));
-          case "MAX_LENGTH":
+          case 'MAX_LENGTH':
             return ValidationRule.maxLength(Number(v.value));
-          case "MIN_VALUE":
+          case 'MIN_VALUE':
             return ValidationRule.minValue(Number(v.value));
-          case "MAX_VALUE":
+          case 'MAX_VALUE':
             return ValidationRule.maxValue(Number(v.value));
-          case "EMAIL":
+          case 'EMAIL':
             return ValidationRule.email();
-          case "URL":
+          case 'URL':
             return ValidationRule.url();
-          case "PATTERN": {
+          case 'PATTERN': {
             // v.value puede venir como string (source) o como regex serializado legacy
             const patternSource =
-              typeof v.value === "string"
-                ? v.value
-                : (v.value?.source ?? String(v.value ?? ""));
+              typeof v.value === 'string' ? v.value : (v.value?.source ?? String(v.value ?? ''));
             return ValidationRule.pattern(new RegExp(patternSource));
           }
           default:
@@ -185,7 +170,7 @@ export class FormField {
       calculationFormula,
       props.options,
       props.order || 0,
-      props.isRequired || false,
+      props.isRequired || false
     );
   }
 
@@ -204,7 +189,7 @@ export class FormField {
       options?: string[];
       order?: number;
       isRequired?: boolean;
-    }>,
+    }>
   ): FormField {
     return FormField.create({
       id: this._id,
@@ -215,8 +200,7 @@ export class FormField {
       defaultValue: updates.defaultValue ?? this._defaultValue?.getValue(),
       validations: updates.validations ?? this._validations,
       conditionalLogic: updates.conditionalLogic ?? this._conditionalLogic,
-      calculationFormula:
-        updates.calculationFormula ?? this._calculationFormula,
+      calculationFormula: updates.calculationFormula ?? this._calculationFormula,
       options: updates.options ?? this._options,
       order: updates.order ?? this._order,
       isRequired: updates.isRequired ?? this._isRequired,
@@ -234,9 +218,7 @@ export class FormField {
       helpText: this._helpText,
       defaultValue: this._defaultValue?.getValue(),
       validations: [...this._validations],
-      conditionalLogic: this._conditionalLogic
-        ? { ...this._conditionalLogic }
-        : undefined,
+      conditionalLogic: this._conditionalLogic ? { ...this._conditionalLogic } : undefined,
       calculationFormula: this._calculationFormula,
       options: this._options ? [...this._options] : undefined,
       order: this._order,
@@ -249,10 +231,7 @@ export class FormField {
    */
   public isValid(): boolean {
     // Validar que campos que requieren opciones tengan opciones
-    if (
-      this._type.requiresOptions() &&
-      (!this._options || this._options.length === 0)
-    ) {
+    if (this._type.requiresOptions() && (!this._options || this._options.length === 0)) {
       return false;
     }
 
@@ -282,7 +261,7 @@ export class FormField {
     if (this._isRequired && fieldValue.isEmpty()) {
       return {
         isValid: false,
-        error: "Field is required",
+        error: 'Field is required',
       };
     }
 
@@ -335,18 +314,12 @@ export class FormField {
   }
 
   private validate(): void {
-    if (!this._label || this._label.trim() === "") {
-      throw new ValidationError("Field label is required", "label");
+    if (!this._label || this._label.trim() === '') {
+      throw new ValidationError('Field label is required', 'label');
     }
 
-    if (
-      this._type.requiresOptions() &&
-      (!this._options || this._options.length === 0)
-    ) {
-      throw new ValidationError(
-        `Field type ${this._type.getValue()} requires options`,
-        "options",
-      );
+    if (this._type.requiresOptions() && (!this._options || this._options.length === 0)) {
+      throw new ValidationError(`Field type ${this._type.getValue()} requires options`, 'options');
     }
   }
 
@@ -410,10 +383,10 @@ export class FormField {
       placeholder: this._placeholder,
       helpText: this._helpText,
       defaultValue: this._defaultValue?.getValue(),
-      validations: this._validations.map((v) => ({
+      validations: this._validations.map(v => ({
         type: v.getType(),
         value:
-          v.getType() === "PATTERN" && v.getValue() instanceof RegExp
+          v.getType() === 'PATTERN' && v.getValue() instanceof RegExp
             ? v.getValue().source
             : v.getValue(),
       })),
@@ -425,4 +398,3 @@ export class FormField {
     };
   }
 }
-

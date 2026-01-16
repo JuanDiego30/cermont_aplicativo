@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsString,
   IsNotEmpty,
@@ -9,35 +9,35 @@ import {
   Min,
   Max,
   IsBoolean,
-} from "class-validator";
-import { Type } from "class-transformer";
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
 /**
  * Tipo de exportación
  */
 export enum TipoExportacion {
-  CSV = "CSV",
-  ZIP = "ZIP",
+  CSV = 'CSV',
+  ZIP = 'ZIP',
 }
 
 /**
  * Estado de archivo
  */
 export enum EstadoArchivo {
-  ACTIVO = "ACTIVO",
-  ARCHIVADO = "ARCHIVADO",
-  EXPORTADO = "EXPORTADO",
+  ACTIVO = 'ACTIVO',
+  ARCHIVADO = 'ARCHIVADO',
+  EXPORTADO = 'EXPORTADO',
 }
 
 /**
  * DTO para archivar manualmente
  */
 export class ArchivarManualDto {
-  @ApiProperty({ description: "IDs de órdenes a archivar", type: [String] })
+  @ApiProperty({ description: 'IDs de órdenes a archivar', type: [String] })
   @IsString({ each: true })
   ordenesIds!: string[];
 
-  @ApiPropertyOptional({ description: "Motivo del archivado manual" })
+  @ApiPropertyOptional({ description: 'Motivo del archivado manual' })
   @IsOptional()
   @IsString()
   motivo?: string;
@@ -47,25 +47,25 @@ export class ArchivarManualDto {
  * DTO para exportar histórico
  */
 export class ExportarHistoricoDto {
-  @ApiProperty({ description: "Mes (1-12)" })
+  @ApiProperty({ description: 'Mes (1-12)' })
   @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(12)
   mes!: number;
 
-  @ApiProperty({ description: "Año" })
+  @ApiProperty({ description: 'Año' })
   @Type(() => Number)
   @IsNumber()
   @Min(2020)
   @Max(2099)
   anio!: number;
 
-  @ApiProperty({ enum: TipoExportacion, description: "Formato de exportación" })
+  @ApiProperty({ enum: TipoExportacion, description: 'Formato de exportación' })
   @IsEnum(TipoExportacion)
   formato!: TipoExportacion;
 
-  @ApiPropertyOptional({ description: "Incluir evidencias en ZIP" })
+  @ApiPropertyOptional({ description: 'Incluir evidencias en ZIP' })
   @IsOptional()
   @Type(() => Boolean)
   @IsBoolean()
@@ -76,34 +76,34 @@ export class ExportarHistoricoDto {
  * DTO para consultar histórico
  */
 export class ConsultarHistoricoDto {
-  @ApiPropertyOptional({ description: "Número de orden" })
+  @ApiPropertyOptional({ description: 'Número de orden' })
   @IsOptional()
   @IsString()
   numeroOrden?: string;
 
-  @ApiPropertyOptional({ description: "ID del cliente" })
+  @ApiPropertyOptional({ description: 'ID del cliente' })
   @IsOptional()
   @IsString()
   clienteId?: string;
 
-  @ApiPropertyOptional({ description: "Fecha desde" })
+  @ApiPropertyOptional({ description: 'Fecha desde' })
   @IsOptional()
   @IsDateString()
   fechaDesde?: string;
 
-  @ApiPropertyOptional({ description: "Fecha hasta" })
+  @ApiPropertyOptional({ description: 'Fecha hasta' })
   @IsOptional()
   @IsDateString()
   fechaHasta?: string;
 
-  @ApiPropertyOptional({ description: "Página" })
+  @ApiPropertyOptional({ description: 'Página' })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(1)
   pagina?: number;
 
-  @ApiPropertyOptional({ description: "Límite por página" })
+  @ApiPropertyOptional({ description: 'Límite por página' })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()

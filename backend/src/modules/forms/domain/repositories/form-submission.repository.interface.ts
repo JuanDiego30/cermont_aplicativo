@@ -4,9 +4,9 @@
  * Contrato para persistencia de FormSubmission
  */
 
-import { FormSubmission } from "../entities/form-submission.entity";
-import { FormSubmissionId } from "../value-objects/form-submission-id.vo";
-import { FormTemplateId } from "../value-objects/form-template-id.vo";
+import { FormSubmission } from '../entities/form-submission.entity';
+import { FormSubmissionId } from '../value-objects/form-submission-id.vo';
+import { FormTemplateId } from '../value-objects/form-template-id.vo';
 
 export interface IFormSubmissionRepository {
   /**
@@ -27,10 +27,7 @@ export interface IFormSubmissionRepository {
   /**
    * Buscar por contexto
    */
-  findByContext(
-    contextType: string,
-    contextId: string,
-  ): Promise<FormSubmission[]>;
+  findByContext(contextType: string, contextId: string): Promise<FormSubmission[]>;
 
   /**
    * Contar submissions de un template

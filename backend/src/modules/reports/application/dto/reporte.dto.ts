@@ -2,36 +2,30 @@
  * @module Reportes - Clean Architecture
  * DTOs con class-validator
  */
-import {
-  IsString,
-  IsOptional,
-  IsUUID,
-  IsEnum,
-  IsDateString,
-} from "class-validator";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { IsString, IsOptional, IsUUID, IsEnum, IsDateString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum FormatoReporte {
-  JSON = "json",
-  PDF = "pdf",
-  EXCEL = "excel",
+  JSON = 'json',
+  PDF = 'pdf',
+  EXCEL = 'excel',
 }
 
 export class ReporteQueryDto {
-  @ApiProperty({ example: "2024-01-01" })
+  @ApiProperty({ example: '2024-01-01' })
   @IsDateString()
   fechaInicio!: string;
 
-  @ApiProperty({ example: "2024-12-31" })
+  @ApiProperty({ example: '2024-12-31' })
   @IsDateString()
   fechaFin!: string;
 
-  @ApiPropertyOptional({ example: "completado" })
+  @ApiPropertyOptional({ example: 'completado' })
   @IsOptional()
   @IsString()
   estado?: string;
 
-  @ApiPropertyOptional({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiPropertyOptional({ example: '123e4567-e89b-12d3-a456-426614174000' })
   @IsOptional()
   @IsUUID()
   tecnicoId?: string;
@@ -70,7 +64,7 @@ export interface ReporteResponse {
 }
 
 // Repository Interface
-export const REPORTE_REPOSITORY = Symbol("REPORTE_REPOSITORY");
+export const REPORTE_REPOSITORY = Symbol('REPORTE_REPOSITORY');
 
 export interface IReporteRepository {
   getOrdenesReporte(filters: ReporteQueryDto): Promise<any[]>;

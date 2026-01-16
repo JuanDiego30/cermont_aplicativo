@@ -36,9 +36,9 @@ export function extraerBaseDeTotal(totalConIVA: number): number {
  * Formatea un monto como moneda colombiana
  */
 export function formatearMonedaCOP(monto: number): string {
-  return new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: "COP",
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(monto);
@@ -47,10 +47,7 @@ export function formatearMonedaCOP(monto: number): string {
 /**
  * Calcula el porcentaje de variación entre dos valores
  */
-export function calcularVarianzaPorcentaje(
-  valorBase: number,
-  valorActual: number,
-): number {
+export function calcularVarianzaPorcentaje(valorBase: number, valorActual: number): number {
   if (valorBase === 0) return 0;
   return Number((((valorActual - valorBase) / valorBase) * 100).toFixed(2));
 }

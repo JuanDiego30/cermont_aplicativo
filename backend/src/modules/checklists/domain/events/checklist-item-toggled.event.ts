@@ -5,7 +5,7 @@
  */
 
 export class ChecklistItemToggledEvent {
-  public readonly eventName = "CHECKLIST_ITEM_TOGGLED";
+  public readonly eventName = 'CHECKLIST_ITEM_TOGGLED';
   public readonly aggregateId: string;
   public readonly timestamp: Date;
   public readonly itemId: string;

@@ -2,15 +2,15 @@
  * @repository CostoRepository
  * Usa el modelo Cost de Prisma
  */
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../../../../prisma/prisma.service";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
 import {
   RegistrarCostoDto,
   CostoQueryDto,
   CostoData,
   CostoAnalysis,
   ICostoRepository,
-} from "../../application/dto";
+} from '../../application/dto';
 
 @Injectable()
 export class CostoRepository implements ICostoRepository {
@@ -19,7 +19,7 @@ export class CostoRepository implements ICostoRepository {
   async findByOrden(ordenId: string): Promise<CostoData[]> {
     const costos = await this.prisma.cost.findMany({
       where: { orderId: ordenId },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
     return costos.map(this.mapToCostoData);
@@ -29,8 +29,7 @@ export class CostoRepository implements ICostoRepository {
     const where: any = {};
     if (filters.ordenId) where.orderId = filters.ordenId;
     if (filters.tipo) where.tipo = filters.tipo;
-    if (filters.fechaDesde)
-      where.createdAt = { gte: new Date(filters.fechaDesde) };
+    if (filters.fechaDesde) where.createdAt = { gte: new Date(filters.fechaDesde) };
     if (filters.fechaHasta) {
       where.createdAt = {
         ...where.createdAt,
@@ -40,7 +39,7 @@ export class CostoRepository implements ICostoRepository {
 
     const costos = await this.prisma.cost.findMany({
       where,
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
     return costos.map(this.mapToCostoData);
@@ -55,9 +54,7 @@ export class CostoRepository implements ICostoRepository {
         tipo: data.tipo as any,
         concepto: data.descripcion,
         monto: total,
-        descripcion: data.proveedor
-          ? `Proveedor: ${data.proveedor}`
-          : undefined,
+        descripcion: data.proveedor ? `Proveedor: ${data.proveedor}` : undefined,
       },
     });
 
@@ -90,15 +87,14 @@ export class CostoRepository implements ICostoRepository {
     const costoReal = costos.reduce((sum, c) => sum + c.monto, 0);
     const costoPresupuestado = orden?.presupuestoEstimado || 0;
     const varianza = costoPresupuestado - costoReal;
-    const varianzaPorcentual =
-      costoPresupuestado > 0 ? (varianza / costoPresupuestado) * 100 : 0;
+    const varianzaPorcentual = costoPresupuestado > 0 ? (varianza / costoPresupuestado) * 100 : 0;
 
     const desglosePorTipo = costos.reduce(
       (acc, c) => {
         acc[c.tipo] = (acc[c.tipo] || 0) + c.monto;
         return acc;
       },
-      {} as Record<string, number>,
+      {} as Record<string, number>
     );
 
     return {
@@ -120,7 +116,7 @@ export class CostoRepository implements ICostoRepository {
       cantidad: 1,
       precioUnitario: costo.monto,
       total: costo.monto,
-      proveedor: costo.descripcion?.replace("Proveedor: ", ""),
+      proveedor: costo.descripcion?.replace('Proveedor: ', ''),
       createdAt: costo.createdAt,
     };
   }

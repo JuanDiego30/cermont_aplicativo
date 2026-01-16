@@ -2,4 +2,4 @@
  * @deprecated Usa `modules/auth/guards/jwt-auth.guard` como fuente de verdad.
  * Re-export para evitar duplicación mientras se migran imports.
  */
-export * from "../../modules/auth/guards/jwt-auth.guard";
+export * from '../../modules/auth/guards/jwt-auth.guard';

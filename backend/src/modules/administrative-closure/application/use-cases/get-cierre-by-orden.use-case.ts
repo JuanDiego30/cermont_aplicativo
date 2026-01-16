@@ -1,20 +1,20 @@
 /**
  * @useCase GetCierreByOrdenUseCase
  */
-import { Injectable, Inject, NotFoundException } from "@nestjs/common";
-import { CIERRE_REPOSITORY, ICierreRepository, CierreResponse } from "../dto";
+import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { CIERRE_REPOSITORY, ICierreRepository, CierreResponse } from '../dto';
 
 @Injectable()
 export class GetCierreByOrdenUseCase {
   constructor(
     @Inject(CIERRE_REPOSITORY)
-    private readonly repo: ICierreRepository,
+    private readonly repo: ICierreRepository
   ) {}
 
   async execute(ordenId: string): Promise<CierreResponse> {
     const cierre = await this.repo.findByOrden(ordenId);
     if (!cierre) {
-      throw new NotFoundException("Cierre administrativo no encontrado");
+      throw new NotFoundException('Cierre administrativo no encontrado');
     }
     return this.toResponse(cierre);
   }

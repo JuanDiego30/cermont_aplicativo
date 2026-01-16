@@ -3,10 +3,10 @@
  * Determines the order of sync operations
  */
 export enum SyncPriorityType {
-  CRITICAL = "CRITICAL", // Safety-related, must sync first
-  HIGH = "HIGH", // Execution updates, evidence
-  MEDIUM = "MEDIUM", // Checklists, tasks
-  LOW = "LOW", // Non-urgent metadata
+  CRITICAL = 'CRITICAL', // Safety-related, must sync first
+  HIGH = 'HIGH', // Execution updates, evidence
+  MEDIUM = 'MEDIUM', // Checklists, tasks
+  LOW = 'LOW', // Non-urgent metadata
 }
 
 export class SyncPriority {
@@ -47,16 +47,16 @@ export class SyncPriority {
    */
   static forItemType(tipo: string): SyncPriority {
     switch (tipo) {
-      case "AST":
-      case "HES":
+      case 'AST':
+      case 'HES':
         return SyncPriority.critical();
-      case "EJECUCION":
-      case "EVIDENCIA":
+      case 'EJECUCION':
+      case 'EVIDENCIA':
         return SyncPriority.high();
-      case "CHECKLIST":
-      case "TAREA":
+      case 'CHECKLIST':
+      case 'TAREA':
         return SyncPriority.medium();
-      case "COSTO":
+      case 'COSTO':
       default:
         return SyncPriority.low();
     }

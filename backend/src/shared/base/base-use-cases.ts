@@ -5,9 +5,9 @@
  * Reduces ~300+ lines of duplicate code across modules by providing
  * reusable implementations for GetById, Delete, and List operations.
  */
-import { NotFoundException, Logger } from "@nestjs/common";
-import { IUseCase } from "../interfaces/use-case.interface";
-import { buildPaginatedResult, PaginatedResult } from "./base.service";
+import { NotFoundException, Logger } from '@nestjs/common';
+import { IUseCase } from '../interfaces/use-case.interface';
+import { buildPaginatedResult, PaginatedResult } from './base.service';
 
 /**
  * Base interface for entities with an ID
@@ -72,7 +72,7 @@ export abstract class GetByIdUseCase<
     protected readonly repository: IFindableRepository<TEntity, TId>,
     protected readonly createId: IdFactory<TId>,
     protected readonly entityName: string,
-    protected readonly mapToResponse?: (entity: TEntity) => TResponse,
+    protected readonly mapToResponse?: (entity: TEntity) => TResponse
   ) {
     this.logger = new Logger(`${entityName}GetByIdUseCase`);
   }
@@ -115,17 +115,16 @@ export abstract class GetByIdUseCase<
  * }
  * ```
  */
-export abstract class DeleteByIdUseCase<
-  TEntity extends IEntity,
-  TId,
-> implements IUseCase<string, void> {
+export abstract class DeleteByIdUseCase<TEntity extends IEntity, TId> implements IUseCase<
+  string,
+  void
+> {
   protected readonly logger: Logger;
 
   constructor(
-    protected readonly repository: IFindableRepository<TEntity, TId> &
-      IDeletableRepository<TId>,
+    protected readonly repository: IFindableRepository<TEntity, TId> & IDeletableRepository<TId>,
     protected readonly createId: IdFactory<TId>,
-    protected readonly entityName: string,
+    protected readonly entityName: string
   ) {
     this.logger = new Logger(`${entityName}DeleteUseCase`);
   }
@@ -173,7 +172,7 @@ export interface ListOptions {
   skip?: number;
   take?: number;
   where?: Record<string, unknown>;
-  orderBy?: Record<string, "asc" | "desc">;
+  orderBy?: Record<string, 'asc' | 'desc'>;
 }
 
 /**
@@ -185,7 +184,7 @@ export interface IListableRepository<T> {
 }
 
 // Re-export shared pagination types/helpers for convenience
-export { PaginatedResult, buildPaginatedResult } from "./base.service";
+export { PaginatedResult, buildPaginatedResult } from './base.service';
 
 /**
  * Abstract base class for "List Entities" use cases with pagination
@@ -200,31 +199,25 @@ export { PaginatedResult, buildPaginatedResult } from "./base.service";
  * }
  * ```
  */
-export abstract class ListEntitiesUseCase<
-  TEntity,
-  TResponse = TEntity,
-> implements IUseCase<ListOptions, PaginatedResult<TResponse>> {
+export abstract class ListEntitiesUseCase<TEntity, TResponse = TEntity> implements IUseCase<
+  ListOptions,
+  PaginatedResult<TResponse>
+> {
   protected readonly logger: Logger;
 
   constructor(
     protected readonly repository: IListableRepository<TEntity>,
     protected readonly entityName: string,
-    protected readonly mapToResponse?: (entity: TEntity) => TResponse,
+    protected readonly mapToResponse?: (entity: TEntity) => TResponse
   ) {
     this.logger = new Logger(`${entityName}ListUseCase`);
   }
 
-  async execute(
-    options: ListOptions = {},
-  ): Promise<PaginatedResult<TResponse>> {
-    const page = options.skip
-      ? Math.floor(options.skip / (options.take || 10)) + 1
-      : 1;
+  async execute(options: ListOptions = {}): Promise<PaginatedResult<TResponse>> {
+    const page = options.skip ? Math.floor(options.skip / (options.take || 10)) + 1 : 1;
     const pageSize = options.take || 10;
 
-    this.logger.debug(
-      `Listing ${this.entityName}s - page: ${page}, size: ${pageSize}`,
-    );
+    this.logger.debug(`Listing ${this.entityName}s - page: ${page}, size: ${pageSize}`);
 
     const [entities, total] = await Promise.all([
       this.repository.findMany(options),

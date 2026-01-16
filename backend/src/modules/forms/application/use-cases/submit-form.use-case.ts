@@ -4,18 +4,18 @@
  * Envía (submite) un formulario completado
  */
 
-import { Injectable, NotFoundException, Inject } from "@nestjs/common";
-import { FormSubmission } from "../../domain/entities/form-submission.entity";
-import { FormTemplate } from "../../domain/entities/form-template.entity";
-import { FormTemplateId } from "../../domain/value-objects/form-template-id.vo";
+import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { FormSubmission } from '../../domain/entities/form-submission.entity';
+import { FormTemplate } from '../../domain/entities/form-template.entity';
+import { FormTemplateId } from '../../domain/value-objects/form-template-id.vo';
 import {
   IFormTemplateRepository,
   IFormSubmissionRepository,
   FORM_TEMPLATE_REPOSITORY,
   FORM_SUBMISSION_REPOSITORY,
-} from "../../domain/repositories";
-import { ValidationFailedException } from "../../domain/exceptions";
-import { SubmitFormDto } from "../dto/submit-form.dto";
+} from '../../domain/repositories';
+import { ValidationFailedException } from '../../domain/exceptions';
+import { SubmitFormDto } from '../dto/submit-form.dto';
 
 @Injectable()
 export class SubmitFormUseCase {
@@ -23,13 +23,10 @@ export class SubmitFormUseCase {
     @Inject(FORM_TEMPLATE_REPOSITORY)
     private readonly templateRepository: IFormTemplateRepository,
     @Inject(FORM_SUBMISSION_REPOSITORY)
-    private readonly submissionRepository: IFormSubmissionRepository,
+    private readonly submissionRepository: IFormSubmissionRepository
   ) {}
 
-  async execute(
-    dto: SubmitFormDto,
-    submittedBy: string,
-  ): Promise<FormSubmission> {
+  async execute(dto: SubmitFormDto, submittedBy: string): Promise<FormSubmission> {
     const templateId = FormTemplateId.create(dto.templateId);
 
     // Buscar template
@@ -40,14 +37,14 @@ export class SubmitFormUseCase {
 
     // Verificar que template esté publicado
     if (!template.isPublished()) {
-      throw new Error("Cannot submit form for unpublished template");
+      throw new Error('Cannot submit form for unpublished template');
     }
 
     // Crear submission
     const submission = FormSubmission.create({
       templateId,
       templateVersion: template.getVersion(),
-      contextType: dto.contextType || "orden",
+      contextType: dto.contextType || 'orden',
       contextId: dto.ordenId || dto.contextId,
       submittedBy,
     });

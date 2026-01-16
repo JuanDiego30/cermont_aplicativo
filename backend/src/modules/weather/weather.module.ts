@@ -7,12 +7,12 @@
  * - Infrastructure: Controllers, Services (Open-Meteo API)
  */
 
-import { HttpModule } from "@nestjs/axios";
-import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
+import { HttpModule } from '@nestjs/axios';
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 
-import { WeatherController } from "./weather.controller";
-import { WeatherService } from "./weather.service";
+import { WeatherController } from './weather.controller';
+import { WeatherService } from './weather.service';
 
 @Module({
   imports: [

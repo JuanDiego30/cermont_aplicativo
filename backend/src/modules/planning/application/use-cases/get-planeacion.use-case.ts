@@ -1,18 +1,15 @@
 /**
  * @useCase GetPlaneacionUseCase
  */
-import { Injectable, Inject } from "@nestjs/common";
-import {
-  PLANEACION_REPOSITORY,
-  IPlaneacionRepository,
-} from "../../domain/repositories";
-import { PlaneacionResponse } from "../dto";
+import { Injectable, Inject } from '@nestjs/common';
+import { PLANEACION_REPOSITORY, IPlaneacionRepository } from '../../domain/repositories';
+import { PlaneacionResponse } from '../dto';
 
 @Injectable()
 export class GetPlaneacionUseCase {
   constructor(
     @Inject(PLANEACION_REPOSITORY)
-    private readonly planeacionRepository: IPlaneacionRepository,
+    private readonly planeacionRepository: IPlaneacionRepository
   ) {}
 
   async execute(ordenId: string): Promise<PlaneacionResponse | null> {

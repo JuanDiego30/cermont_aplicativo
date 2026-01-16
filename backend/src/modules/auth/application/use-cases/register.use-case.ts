@@ -1,11 +1,11 @@
-import { ConflictException, Inject, Injectable, Logger } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { AUTH_REPOSITORY, IAuthRepository } from "../../domain/repositories";
-import { Email, Password } from "../../domain/value-objects";
+import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { AUTH_REPOSITORY, IAuthRepository } from '../../domain/repositories';
+import { Email, Password } from '../../domain/value-objects';
 
-import { RegisterDto } from "../dto/register.dto";
-import { AuthContext } from "../dto/auth-types.dto";
-import { BaseAuthUseCase } from "./base-auth.use-case";
+import { RegisterDto } from '../dto/register.dto';
+import { AuthContext } from '../dto/auth-types.dto';
+import { BaseAuthUseCase } from './base-auth.use-case';
 
 export interface RegisterResult {
   message: string;
@@ -29,15 +29,12 @@ export class RegisterUseCase extends BaseAuthUseCase {
     @Inject(AUTH_REPOSITORY)
     private readonly authRepository: IAuthRepository,
     @Inject(JwtService)
-    jwtService: JwtService,
+    jwtService: JwtService
   ) {
     super(jwtService);
   }
 
-  async execute(
-    dto: RegisterDto,
-    context: AuthContext,
-  ): Promise<RegisterResult> {
+  async execute(dto: RegisterDto, context: AuthContext): Promise<RegisterResult> {
     // 1. Validate inputs via VOs
     const email = Email.create(dto.email);
     // Password validation happens in createFromPlainText
@@ -45,7 +42,7 @@ export class RegisterUseCase extends BaseAuthUseCase {
     // 2. Check if user exists
     const existing = await this.authRepository.findByEmail(email.getValue());
     if (existing) {
-      throw new ConflictException("El email ya está registrado");
+      throw new ConflictException('El email ya está registrado');
     }
 
     // 3. Create Password VO (hashes internally)
@@ -53,13 +50,12 @@ export class RegisterUseCase extends BaseAuthUseCase {
     const passwordVO = await Password.createFromPlainText(dto.password);
 
     // 4. Create user - map 'administrativo' to 'tecnico' as fallback
-    const role =
-      dto.role === "administrativo" ? "tecnico" : (dto.role ?? "tecnico");
+    const role = dto.role === 'administrativo' ? 'tecnico' : (dto.role ?? 'tecnico');
     const user = await this.authRepository.create({
       email: email.getValue(),
       password: passwordVO.getHash(),
       name: dto.name,
-      role: role as "admin" | "supervisor" | "tecnico",
+      role: role as 'admin' | 'supervisor' | 'tecnico',
       phone: dto.phone ?? null,
       avatar: null,
       active: true,
@@ -92,22 +88,20 @@ export class RegisterUseCase extends BaseAuthUseCase {
     Promise.allSettled([
       this.authRepository.createAuditLog({
         userId: user.id,
-        action: "REGISTER",
+        action: 'REGISTER',
         ip: context.ip,
         userAgent: context.userAgent,
       }),
-    ]).then((results) => {
+    ]).then(results => {
       results.forEach((result, index) => {
-        if (result.status === "rejected") {
-          this.logger.error(
-            `Failed to execute post-register action ${index}: ${result.reason}`,
-          );
+        if (result.status === 'rejected') {
+          this.logger.error(`Failed to execute post-register action ${index}: ${result.reason}`);
         }
       });
     });
 
     return {
-      message: "Usuario registrado exitosamente",
+      message: 'Usuario registrado exitosamente',
       token: accessToken,
       refreshToken,
       user: {

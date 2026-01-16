@@ -1,1 +1,1 @@
-export * from "./certificacion-tecnico.entity";
+export * from './certificacion-tecnico.entity';

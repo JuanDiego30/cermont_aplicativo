@@ -36,4 +36,3 @@ export class FormTemplateId {
     return this._value;
   }
 }
-
