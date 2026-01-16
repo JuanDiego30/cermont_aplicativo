@@ -33,6 +33,7 @@ export enum PrioridadOrder {
 }
 
 export enum EstadoOrder {
+  PENDIENTE = 'pendiente',
   PLANEACION = 'planeacion',
   EJECUCION = 'ejecucion',
   PAUSADA = 'pausada',

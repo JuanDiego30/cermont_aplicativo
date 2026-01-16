@@ -48,7 +48,7 @@ import {
 @ApiTags('Orders')
 @ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard)
-@Controller('Orders')
+@Controller('orders')
 export class OrdersController {
   constructor(
     private readonly createOrder: CreateOrderUseCase,

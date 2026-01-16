@@ -1,16 +1,16 @@
 import { CommonModule } from '@angular/common';
 import {
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  inject,
-  OnDestroy,
-  OnInit,
-  QueryList,
-  ViewChildren,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    inject,
+    OnDestroy,
+    OnInit,
+    QueryList,
+    ViewChildren,
 } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { combineLatest, firstValueFrom, Observable, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { SafeHtmlPipe } from '../../pipe/safe-html.pipe';
 import { SidebarService } from '../../services/sidebar.service';
 import { SidebarWidgetComponent } from './app-sidebar-widget.component';
@@ -172,16 +172,25 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
   subMenuHeights: { [key: string]: number } = {};
   @ViewChildren('subMenu') subMenuRefs!: QueryList<ElementRef>;
 
-  readonly isExpanded$: Observable<boolean>;
-  readonly isMobileOpen$: Observable<boolean>;
-  readonly isHovered$: Observable<boolean>;
+  // readonly isExpanded$: Observable<boolean>; // Removed
+  // readonly isMobileOpen$: Observable<boolean>; // Removed
+  // readonly isHovered$: Observable<boolean>; // Removed
 
   private subscription: Subscription = new Subscription();
 
   constructor() {
-    this.isExpanded$ = this.sidebarService.isExpanded$;
-    this.isMobileOpen$ = this.sidebarService.isMobileOpen$;
-    this.isHovered$ = this.sidebarService.isHovered$;
+    // Register effect for UI updates if needed (Angular Signals auto-update template, but keeping logic for CDR if OnPush)
+    // Actually, Default change detection works, but if we need manual trigger:
+    /*
+    effect(() => {
+      const expanded = this.sidebarService.isExpanded();
+      const mobile = this.sidebarService.isMobileOpen();
+      const hovered = this.sidebarService.isHovered();
+      if (!expanded && !mobile && !hovered) {
+        // logic
+      }
+    });
+    */
   }
 
   ngOnInit() {
@@ -191,16 +200,6 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
           this.setActiveMenuFromRoute(this.router.url);
         }
       })
-    );
-
-    this.subscription.add(
-      combineLatest([this.isExpanded$, this.isMobileOpen$, this.isHovered$] as const).subscribe(
-        ([isExpanded, isMobileOpen, isHovered]) => {
-          if (!isExpanded && !isMobileOpen && !isHovered) {
-            this.cdr.detectChanges();
-          }
-        }
-      )
     );
 
     this.setActiveMenuFromRoute(this.router.url);
@@ -234,7 +233,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
   }
 
   async onSidebarMouseEnter(): Promise<void> {
-    const expanded = await firstValueFrom(this.isExpanded$);
+    const expanded = this.sidebarService.isExpanded();
     if (!expanded) {
       this.sidebarService.setHovered(true);
     }
@@ -269,7 +268,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
   }
 
   async onSubmenuClick(): Promise<void> {
-    const isMobile = await firstValueFrom(this.isMobileOpen$);
+    const isMobile = this.sidebarService.isMobileOpen();
     if (isMobile) {
       this.sidebarService.setMobileOpen(false);
     }

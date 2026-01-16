@@ -1,13 +1,14 @@
-import { DestroyRef, Injectable, inject } from '@angular/core';
+```typescript
+import { DestroyRef, Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, Observable, interval } from 'rxjs';
+import { Observable, interval } from 'rxjs';
 import { logError } from '../utils/logger';
 
 interface SyncQueueItem {
     id: string;
     method: 'POST' | 'PUT' | 'DELETE';
     endpoint: string;
-    data: any;
+    data: unknown;
     timestamp: number;
 }
 
@@ -17,7 +18,8 @@ interface SyncQueueItem {
 export class SyncService {
     private syncQueue: SyncQueueItem[] = [];
     private isSyncing = false;
-    private syncStatus$ = new BehaviorSubject<'idle' | 'syncing' | 'synced'>('idle');
+    private _syncStatus = signal<'idle' | 'syncing' | 'synced'>('idle');
+    public syncStatus = this._syncStatus.asReadonly();
     private readonly destroyRef = inject(DestroyRef);
 
     constructor() {
@@ -34,7 +36,7 @@ export class SyncService {
     addToQueue(
         method: 'POST' | 'PUT' | 'DELETE',
         endpoint: string,
-        data: any
+        data: unknown
     ): void {
         const item: SyncQueueItem = {
             id: `${Date.now()}-${Math.random()}`,
@@ -49,10 +51,10 @@ export class SyncService {
     }
 
     /**
-     * Obtener estado de sincronización
+     * Obtener estado de sincronización (Signal)
      */
-    getSyncStatus$(): Observable<string> {
-        return this.syncStatus$.asObservable();
+    getSyncStatus() {
+        return this.syncStatus;
     }
 
     /**
@@ -119,7 +121,7 @@ export class SyncService {
         }
 
         this.isSyncing = true;
-        this.syncStatus$.next('syncing');
+        this._syncStatus.set('syncing');
 
         // Implementar lógica de sincronización real aquí
         // Por ahora, solo simulamos
@@ -129,10 +131,10 @@ export class SyncService {
 
             this.syncQueue = [];
             this.saveQueueToStorage();
-            this.syncStatus$.next('synced');
+            this._syncStatus.set('synced');
         } catch (error) {
             logError('Error durante sincronización', error);
-            this.syncStatus$.next('idle');
+            this._syncStatus.set('idle');
         } finally {
             this.isSyncing = false;
         }

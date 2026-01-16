@@ -1,7 +1,7 @@
 /**
  * Asistente IA Component - Migrado de Next.js
  * @see apps/web-old/src/components/chat/AsistenteIA.tsx
- * 
+ *
  * Componente de chat con asistente inteligente para CERMONT
  * Incluye sugerencias rápidas, respuestas predefinidas y diseño moderno
  */
@@ -17,7 +17,7 @@ export interface ChatMessage {
   timestamp: Date;
   metadata?: {
     type?: 'text' | 'suggestion' | 'action' | 'error';
-    data?: any;
+    data?: unknown;
   };
 }
 
@@ -31,7 +31,7 @@ interface QuickSuggestion {
   standalone: true,
   imports: [FormsModule],
   templateUrl: './asistente-ia.component.html',
-  styleUrl: './asistente-ia.component.css'
+  styleUrl: './asistente-ia.component.css',
 })
 export class AsistenteIAComponent implements OnInit {
   private readonly platformId = inject(PLATFORM_ID);
@@ -79,7 +79,7 @@ export class AsistenteIAComponent implements OnInit {
 
 Para ver detalles, haz clic en cualquier orden o ve a **Dashboard > Órdenes**.`,
 
-    'mantenimiento': `📖 **Procedimiento estándar de mantenimiento:**
+    mantenimiento: `📖 **Procedimiento estándar de mantenimiento:**
 
 **Antes de iniciar:**
 1. Revisar orden de trabajo y alcance
@@ -98,7 +98,7 @@ Para ver detalles, haz clic en cualquier orden o ve a **Dashboard > Órdenes**.`
 
 ¿Quieres ver un formulario específico?`,
 
-    'formularios': `📝 **Formularios disponibles en el sistema:**
+    formularios: `📝 **Formularios disponibles en el sistema:**
 
 • **OPE-001** - Planeación de Obra
 • **OPE-002** - Ejecución de Trabajo
@@ -110,7 +110,7 @@ Para ver detalles, haz clic en cualquier orden o ve a **Dashboard > Órdenes**.`
 
 Para acceder, ve a **Dashboard > Formularios** o usa el botón "Nuevo" en cada módulo.`,
 
-    'ayuda': `🤖 **¡Hola! Soy tu asistente CERMONT.**
+    ayuda: `🤖 **¡Hola! Soy tu asistente CERMONT.**
 
 Puedo ayudarte con:
 
@@ -154,7 +154,10 @@ Para asistencia más específica, puedes:
     if (lowerMessage.includes('crear') && lowerMessage.includes('orden')) {
       return this.predefinedResponses['crear orden'];
     }
-    if (lowerMessage.includes('orden') && (lowerMessage.includes('hoy') || lowerMessage.includes('día'))) {
+    if (
+      lowerMessage.includes('orden') &&
+      (lowerMessage.includes('hoy') || lowerMessage.includes('día'))
+    ) {
       return this.predefinedResponses['ordenes hoy'];
     }
     if (lowerMessage.includes('mantenimiento') || lowerMessage.includes('procedimiento')) {
@@ -163,7 +166,11 @@ Para asistencia más específica, puedes:
     if (lowerMessage.includes('formulario') || lowerMessage.includes('formato')) {
       return this.predefinedResponses['formularios'];
     }
-    if (lowerMessage.includes('ayuda') || lowerMessage.includes('hola') || lowerMessage.includes('qué puedes')) {
+    if (
+      lowerMessage.includes('ayuda') ||
+      lowerMessage.includes('hola') ||
+      lowerMessage.includes('qué puedes')
+    ) {
       return this.predefinedResponses['ayuda'];
     }
 
@@ -257,7 +264,7 @@ Para asistencia más específica, puedes:
    */
   private scrollToBottom(): void {
     if (!isPlatformBrowser(this.platformId)) return;
-    
+
     setTimeout(() => {
       const messagesContainer = document.getElementById('messages-container');
       if (messagesContainer) {
@@ -270,9 +277,7 @@ Para asistencia más específica, puedes:
    * Formatear contenido del mensaje (markdown básico)
    */
   formatMessage(content: string): string {
-    return content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\n/g, '<br>');
+    return content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
   }
 
   /**
@@ -281,8 +286,7 @@ Para asistencia más específica, puedes:
   formatTime(date: Date): string {
     return date.toLocaleTimeString('es-CO', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   }
 }
-

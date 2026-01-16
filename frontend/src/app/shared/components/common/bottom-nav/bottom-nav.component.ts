@@ -51,7 +51,7 @@ import { RouterLink, RouterLinkActive, RouterModule } from '@angular/router';
         <div class="flex items-center justify-center flex-1">
           <a
             routerLink="/orders/new"
-            class="flex items-center justify-center w-14 h-14 -mt-6 rounded-full bg-linear-to-br from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/30 hover:shadow-xl hover:shadow-brand-500/40 hover:scale-105 transition-all duration-200 active:scale-95"
+            class="flex items-center justify-center w-14 h-14 -mt-6 rounded-full bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/30 hover:shadow-xl hover:shadow-brand-500/40 hover:scale-105 transition-all duration-200 active:scale-95"
           >
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path

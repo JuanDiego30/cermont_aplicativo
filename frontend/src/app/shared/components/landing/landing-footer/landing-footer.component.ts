@@ -17,7 +17,7 @@ interface FooterLink {
   standalone: true,
   imports: [RouterModule],
   templateUrl: './landing-footer.component.html',
-  styleUrl: './landing-footer.component.css'
+  styleUrls: ['./landing-footer.component.css'],
 })
 export class LandingFooterComponent {
   currentYear = new Date().getFullYear();
@@ -52,4 +52,3 @@ export class LandingFooterComponent {
     }
   }
 }
-

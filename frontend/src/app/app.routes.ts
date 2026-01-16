@@ -24,8 +24,8 @@ export const routes: Routes = [
       },
       {
         path: 'orders',
-        loadChildren: () => import('./features/ordenes/ordenes.routes')
-          .then(m => m.ORDENES_ROUTES),
+        loadChildren: () => import('./features/orders/orders.routes')
+          .then(m => m.ORDERS_ROUTES),
       },
       {
         path: 'perfil',

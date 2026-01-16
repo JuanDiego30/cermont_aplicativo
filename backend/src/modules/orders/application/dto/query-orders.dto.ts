@@ -4,6 +4,7 @@ import {
   IsBoolean,
   IsDateString,
   IsEnum,
+  IsIn,
   IsNumber,
   IsOptional,
   IsString,
@@ -132,6 +133,6 @@ export class QueryOrdersDto {
     example: 'desc',
   })
   @IsOptional()
-  @IsEnum(['asc', 'desc'])
+  @IsIn(['asc', 'desc'], { message: 'sortOrder debe ser "asc" o "desc"' })
   sortOrder?: 'asc' | 'desc' = 'desc';
 }

@@ -10,8 +10,8 @@ import { createPopper, Instance } from '@popperjs/core';
   styles: ``,
 })
 export class TableDropdownComponent implements AfterViewInit, OnDestroy {
-  @Input() dropdownButton: any;
-  @Input() dropdownContent: any;
+  @Input() dropdownButton?: unknown;
+  @Input() dropdownContent?: unknown;
   @ViewChild('buttonRef') buttonRef!: ElementRef<HTMLDivElement>;
   @ViewChild('contentRef') contentRef!: ElementRef<HTMLDivElement>;
 

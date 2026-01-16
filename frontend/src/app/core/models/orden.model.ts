@@ -1,12 +1,22 @@
+/**
+ * @enum OrdenEstado
+ * @description Estados de la orden (alineados con backend Prisma schema)
+ * @important Los valores string deben MATCHEAR exactamente con Prisma OrderStatus enum
+ */
 export enum OrdenEstado {
   PENDIENTE = 'pendiente',
   PLANEACION = 'planeacion',
-  EN_PROGRESO = 'en_progreso',
   EJECUCION = 'ejecucion',
   COMPLETADA = 'completada',
   CANCELADA = 'cancelada',
-  ARCHIVADA = 'archivada',
+  PAUSADA = 'pausada',
 }
+
+/**
+ * @deprecated EN_PROGRESO was removed - use EJECUCION instead
+ * This mirrors backend Prisma schema which uses 'ejecucion', not 'en_progreso'
+ * ARCHIVADA was removed - not present in Prisma OrderStatus enum
+ */
 
 export enum Prioridad {
   BAJA = 'baja',

@@ -12,8 +12,6 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [RouterModule],
   templateUrl: './cta-section.component.html',
-  styleUrl: './cta-section.component.css'
+  styleUrls: ['./cta-section.component.css'],
 })
-export class CTASectionComponent {
-}
-
+export class CTASectionComponent {}

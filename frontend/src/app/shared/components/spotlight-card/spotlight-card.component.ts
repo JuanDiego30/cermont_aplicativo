@@ -1,5 +1,14 @@
-import { Component, ElementRef, HostListener, ViewChild, AfterViewInit, ChangeDetectorRef, ChangeDetectionStrategy, NgZone, inject } from '@angular/core';
-
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  ViewChild,
+  AfterViewInit,
+  ChangeDetectorRef,
+  ChangeDetectionStrategy,
+  NgZone,
+  inject,
+} from '@angular/core';
 
 @Component({
   selector: 'app-spotlight-card',
@@ -7,12 +16,12 @@ import { Component, ElementRef, HostListener, ViewChild, AfterViewInit, ChangeDe
   imports: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div 
+    <div
       #card
-      class="relative overflow-hidden rounded-2xl bg-linear-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 p-8 transition-all duration-300 hover:border-cermont-primary-500 dark:hover:border-cermont-primary-500 group"
+      class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 p-8 transition-all duration-300 hover:border-cermont-primary-500 dark:hover:border-cermont-primary-500 group"
     >
       <!-- Spotlight Effect -->
-      <div 
+      <div
         #spotlight
         class="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-500"
         [style.background]="spotlightGradient"
@@ -24,11 +33,13 @@ import { Component, ElementRef, HostListener, ViewChild, AfterViewInit, ChangeDe
       </div>
     </div>
   `,
-  styles: [`
-    :host {
-      display: block;
-    }
-  `]
+  styles: [
+    `
+      :host {
+        display: block;
+      }
+    `,
+  ],
 })
 export class SpotlightCardComponent implements AfterViewInit {
   @ViewChild('card', { static: false }) card!: ElementRef<HTMLDivElement>;
@@ -70,4 +81,3 @@ export class SpotlightCardComponent implements AfterViewInit {
     this.cdr.markForCheck();
   }
 }
-

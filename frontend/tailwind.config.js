@@ -1,9 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: 'class',
-  content: [
-    './src/**/*.{html,ts}',
-  ],
+  content: ['./src/**/*.{html,ts}'],
   theme: {
     extend: {
       colors: {
@@ -30,6 +28,9 @@ module.exports = {
           700: '#00357A',
           800: '#002652',
           900: '#001829',
+        },
+        dark: {
+          900: 'var(--color-gray-900)',
         },
         error: {
           50: '#FEF2F2',
@@ -79,6 +80,22 @@ module.exports = {
           800: '#065986',
           900: '#1E3A8A',
         },
+      },
+      fontSize: {
+        'theme-xs': ['0.75rem', { lineHeight: '1rem' }],
+        'theme-sm': ['0.875rem', { lineHeight: '1.25rem' }],
+        'theme-xl': ['1.25rem', { lineHeight: '1.75rem' }],
+      },
+      spacing: {
+        10.5: '2.625rem',
+        75: '18.75rem',
+      },
+      boxShadow: {
+        'theme-xs': 'var(--shadow-theme-xs)',
+        'theme-sm': 'var(--shadow-theme-sm)',
+        'theme-md': 'var(--shadow-theme-md)',
+        'theme-lg': 'var(--shadow-theme-lg)',
+        'theme-xl': 'var(--shadow-theme-xl)',
       },
     },
   },

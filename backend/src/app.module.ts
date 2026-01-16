@@ -21,20 +21,25 @@ import { AuthModule } from './modules/auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 import { DashboardModule } from './modules/dashboard/dashboard.module';
-import { EjecucionModule } from './modules/ejecucion/ejecucion.module';
 import { EvidenceModule } from './modules/evidence/evidence.module';
+import { ExecutionModule } from './modules/execution/execution.module';
 import { HesModule } from './modules/hes/hes.module';
 import { KitsModule } from './modules/kits/kits.module';
 import { OrdersModule } from './modules/orders/orders.module';
-import { PlaneacionModule } from './modules/planeacion/planeacion.module';
+import { PlanningModule } from './modules/planning/planning.module';
+// ...
+
 import { ReportsModule } from './modules/reports/reports.module';
 // TODO: Create LineasVidaModule - currently disabled
 // import { LineasVidaModule } from './modules/lineas-vida/lineas-vida.module';
+import { ArchivingModule } from './modules/archiving/archiving.module';
 import { ChecklistsModule } from './modules/checklists/checklists.module';
-import { CostosModule } from './modules/costos/costos.module';
+import { CostsModule } from './modules/costs/costs.module';
+// ...
+
 // DELETED: MantenimientosModule - CERMONT uses order-based maintenance, not scheduled preventive maintenance
-import { CierreAdministrativoModule } from './modules/cierre-administrativo/cierre-administrativo.module';
-import { FormulariosModule } from './modules/formularios/formularios.module';
+import { AdministrativeClosureModule } from './modules/administrative-closure/administrative-closure.module';
+import { FormsModule } from './modules/forms/forms.module';
 
 // New modules
 // DELETED: ArchivadoModule - Replaced by archivado-historico module (coming in Phase 3)
@@ -51,18 +56,17 @@ import { AlertsModule } from './modules/alerts/alerts.module';
 import { KpisModule } from './modules/kpis/kpis.module';
 
 // NEW MODULES - Phase 3 Backend Refactoring
-import { ArchivadoHistoricoModule } from './modules/archivado-historico/archivado-historico.module';
-import { CertificacionesModule } from './modules/certificaciones/certificaciones.module';
+import { CertificationsModule } from './modules/certifications/certifications.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { InvoicingModule } from './modules/invoicing/invoicing.module';
 
 // Common providers
 import { HealthController } from './health.controller';
 import {
-  PrismaConnectionFilter,
-  PrismaExceptionFilter,
-  PrismaPanicFilter,
-  PrismaValidationFilter,
+    PrismaConnectionFilter,
+    PrismaExceptionFilter,
+    PrismaPanicFilter,
+    PrismaValidationFilter,
 } from './shared/filters/prisma-exception.filter';
 import { CustomThrottleGuard } from './shared/guards/throttle.guard';
 import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.interceptor';
@@ -138,18 +142,18 @@ import { RequestIdMiddleware } from './shared/middleware/request-id.middleware';
     AuthModule,
     NotificationsModule,
     OrdersModule,
-    PlaneacionModule,
+    PlanningModule,
     KitsModule,
-    EjecucionModule,
+    ExecutionModule,
     DashboardModule,
     ReportsModule,
     HesModule,
     // LineasVidaModule, // TODO: Create LineasVidaModule
-    CostosModule,
+    CostsModule,
     ChecklistsModule,
     // MantenimientosModule, // DELETED - CERMONT uses order-based maintenance
-    FormulariosModule,
-    CierreAdministrativoModule,
+    FormsModule,
+    AdministrativeClosureModule,
     EvidenceModule,
 
     // New modules - ACTIVATED
@@ -163,10 +167,10 @@ import { RequestIdMiddleware } from './shared/middleware/request-id.middleware';
     KpisModule,
 
     // NEW MODULES - Phase 3 Backend Refactoring
-    CertificacionesModule,
+    CertificationsModule,
     CustomersModule,
     InvoicingModule,
-    ArchivadoHistoricoModule,
+    ArchivingModule,
 
     // Schedule module for CRON jobs
     ScheduleModule.forRoot(),

@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
-import { Orderstado } from './update-order.dto';
+import { Orderstado } from '../../domain/order-state-machine';
 
 export class ChangeEstadoOrderDto {
   @ApiProperty({

@@ -1,7 +1,6 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Toast, ToastService } from './toast.service';
-import { Subject, takeUntil } from 'rxjs';
+import { Component, inject } from '@angular/core';
+import { ToastService } from './toast.service';
 
 @Component({
   selector: 'app-toast-container',
@@ -9,11 +8,10 @@ import { Subject, takeUntil } from 'rxjs';
   imports: [CommonModule],
   template: `
     <div class="fixed bottom-4 right-4 z-9999 space-y-3">
-      @for (toast of toasts; track toast.id) {
+      @for (toast of toasts(); track toast.id) {
         <div
-          [@fadeInOut]
-          [ngClass]="getToastClasses(toast.type)"
           class="max-w-sm p-4 rounded-lg shadow-lg flex items-center gap-3 animate-slideUp"
+          [ngClass]="getToastClasses(toast.type)"
         >
           <!-- Icon -->
           <span class="text-xl">{{ getIcon(toast.type) }}</span>
@@ -49,24 +47,14 @@ import { Subject, takeUntil } from 'rxjs';
     }
   `]
 })
-export class ToastComponent implements OnInit, OnDestroy {
-  toasts: Toast[] = [];
-  private readonly destroy$ = new Subject<void>();
-
+export class ToastComponent {
   private readonly toastService = inject(ToastService);
+  // Expose signal directly for template
+  toasts = this.toastService.toasts;
 
-  ngOnInit() {
-    this.toastService.toasts
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(toasts => {
-        this.toasts = toasts;
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  /*
+  // No need for ngOnInit / OnDestroy with Signals
+  */
 
   removeToast(id: string) {
     this.toastService.remove(id);
