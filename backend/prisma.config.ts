@@ -14,4 +14,9 @@ if (!databaseUrl) {
 export default {
   // Path to the Prisma schema file
   schema: './prisma/schema.prisma',
+
+  // Seed configuration
+  migrations: {
+    seed: 'npx tsx ./prisma/seed.ts',
+  },
 };

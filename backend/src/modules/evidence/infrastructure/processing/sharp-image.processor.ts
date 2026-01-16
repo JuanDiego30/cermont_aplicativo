@@ -6,7 +6,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs/promises';
-import { createRequire } from 'node:module';
 import * as path from 'path';
 import { normalizeRelativePath, resolveSafePath } from '../storage/safe-path';
 import { IImageProcessor, ImageProcessingResult } from './image-processor.interface';
@@ -14,7 +13,7 @@ import { IImageProcessor, ImageProcessingResult } from './image-processor.interf
 // Sharp can be optionally imported
 let sharp: typeof import('sharp') | null = null;
 try {
-  const require = createRequire(import.meta.url);
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   sharp = require('sharp');
 } catch {
   // Sharp not available

@@ -61,6 +61,7 @@ import {
   SubmitFormDto,
   UpdateFormTemplateDto,
 } from '../../application/dto';
+import { SubmitInspectionFormDto } from '../../application/dto/submit-inspection-form.dto';
 
 // Mappers
 import { FormTemplateMapper } from '../../application/mappers/form-template.mapper';
@@ -215,6 +216,27 @@ export class FormsController {
       answers: submission.getAnswersObject(),
       submittedAt: submission.getSubmittedAt(),
     };
+  }
+
+  /**
+   * Endpoint MVP para formularios de inspección
+   * POST /api/forms/:type
+   */
+  @Post(':type')
+  @ApiOperation({ summary: 'Enviar formulario de inspección (MVP JSON)' })
+  async submitInspectionForm(
+    @Param('type') type: string,
+    @Body() body: SubmitInspectionFormDto,
+    @CurrentUser() user: JwtPayload
+  ) {
+    const dto: SubmitInspectionFormDto = {
+      orderId: body.orderId,
+      type: type.toUpperCase() as SubmitInspectionFormDto['type'],
+      data: body.data,
+      photos: body.photos || [],
+    };
+
+    return this.formsService.submitInspectionForm(dto, user.userId);
   }
 
   /**

@@ -84,6 +84,8 @@ model User {
   formTemplatesCreados   FormTemplate[]        @relation("FormTemplateCreador")
   formulariosCompletados FormularioInstancia[] @relation("FormulariosCompletados")
   formulariosRevisados   FormularioInstancia[] @relation("FormulariosRevisados")
+  inspectionForms        InspectionForm[]
+
 
   // Relaciones de cierre administrativo
   actasCreadas      Acta[]    @relation("ActaCreador")
@@ -1528,6 +1530,8 @@ model Order {
   equiposHES          OrdenEquipoHES[]
   inspeccionesHES     InspeccionHES[]
   hojaEntradaServicio HojaEntradaServicio?
+  inspectionForms     InspectionForm[]
+
 
   // Relaciones de cierre
   acta                 Acta?

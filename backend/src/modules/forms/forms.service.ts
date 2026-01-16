@@ -1,9 +1,10 @@
-import type { TipoFormulario } from '@/prisma/client';
+import type { InspectionFormType, TipoFormulario } from '@/prisma/client';
 import { Prisma } from '@/prisma/client';
 import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateFormTemplateDto, UpdateFormTemplateDto } from './application/dto/form-template.dto';
 import { SubmitFormDto } from './application/dto/submit-form.dto';
+import { SubmitInspectionFormDto } from './application/dto/submit-inspection-form.dto';
 import { FormParserService } from './infrastructure/services/form-parser.service';
 
 @Injectable()
@@ -167,6 +168,49 @@ export class FormsService {
 
     this.logger.log('Formulario guardado exitosamente', { id: instancia.id });
     return instancia;
+  }
+
+  // ========================================
+  // INSPECTION FORMS (MVP JSON FORMS)
+  // ========================================
+
+  async submitInspectionForm(dto: SubmitInspectionFormDto, technicianId: string) {
+    this.logger.log('Guardando formulario de inspección MVP', {
+      orderId: dto.orderId,
+      type: dto.type,
+      technicianId,
+    });
+
+    // Verificar orden existe
+    const orden = await this.prisma.order.findUnique({
+      where: { id: dto.orderId },
+    });
+
+    if (!orden) {
+      throw new NotFoundException(`Orden no encontrada: ${dto.orderId}`);
+    }
+
+    // Verificar técnico existe
+    const tecnico = await this.prisma.user.findUnique({
+      where: { id: technicianId },
+    });
+
+    if (!tecnico) {
+      throw new NotFoundException(`Técnico no encontrado: ${technicianId}`);
+    }
+
+    const form = await this.prisma.inspectionForm.create({
+      data: {
+        technicianId,
+        orderId: dto.orderId,
+        type: dto.type as InspectionFormType,
+        data: dto.data as Prisma.InputJsonValue,
+        photos: dto.photos || [],
+      },
+    });
+
+    this.logger.log('Formulario de inspección guardado', { id: form.id });
+    return form;
   }
 
   async findAllInstances(filters?: { templateId?: string; ordenId?: string; estado?: string }) {

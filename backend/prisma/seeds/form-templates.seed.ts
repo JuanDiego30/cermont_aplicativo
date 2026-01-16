@@ -587,20 +587,3 @@ export async function seedFormTemplates(prisma: PrismaClient) {
   console.log(`📋 Templates de formularios: ${creados} creados, ${actualizados} actualizados`);
   return { creados, actualizados };
 }
-
-// Ejecutar si es el módulo principal
-if (require.main === module) {
-  const { PrismaClient } = require('../generated/prisma/client');
-  const prisma = new PrismaClient();
-
-  seedFormTemplates(prisma)
-    .then(() => {
-      console.log('✅ Seed de templates completado');
-      process.exit(0);
-    })
-    .catch(e => {
-      console.error('❌ Error en seed:', e);
-      process.exit(1);
-    })
-    .finally(() => prisma.$disconnect());
-}

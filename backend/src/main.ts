@@ -14,7 +14,7 @@ async function bootstrap() {
   try {
     const app = await NestFactory.create(AppModule);
     const configService = app.get(ConfigService);
-    const port = configService.get<number>('PORT') || 3000;
+    const port = process.env.PORT || 3000;
 
     // Security Middleware
     app.use(helmet());
@@ -22,12 +22,9 @@ async function bootstrap() {
     app.use(cookieParser());
 
     // CORS Configuration - Permisivo para desarrollo
-    const isDevelopment = process.env.NODE_ENV !== 'production';
     app.enableCors({
-      origin: isDevelopment 
-        ? '*'  // Permisivo en desarrollo
-        : (configService.get<string>('FRONTEND_URL') || 'http://localhost:4200'),
-      credentials: !isDevelopment, // Solo credentials en producción
+      origin: '*',
+      credentials: false,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token', 'x-custom-header'],
     });

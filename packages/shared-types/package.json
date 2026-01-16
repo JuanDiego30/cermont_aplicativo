@@ -1,14 +1,13 @@
 {
   "name": "@cermont/shared-types",
   "version": "1.0.0",
-  "type": "module",
   "description": "Shared types, DTOs, and enums for Cermont monorepo",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
