@@ -4,7 +4,7 @@
 // ============================================
 
 import { Monto, OrdenNumero, OrdenEstado } from "../value-objects";
-import { nullToUndefined } from "../utils/mapper.util";
+import { mapNullableObject, nullToUndefined } from "../utils/mapper.util";
 
 // DTOs con definite assignment
 export class CreateOrdenDTO {
@@ -85,16 +85,16 @@ export class OrdenMapper {
    * Convierte row de BD a entidad de dominio
    */
   static fromDatabase(raw: Record<string, unknown>) {
-    return {
+    return mapNullableObject({
       id: raw.id as string,
       numero: OrdenNumero.create(raw.numero as string),
       monto: Monto.create(raw.monto as number),
       estado: OrdenEstado.create(raw.estado as string),
       clienteId: raw.clienteId as string,
-      descripcion: nullToUndefined(raw.descripcion as string | null),
+      descripcion: raw.descripcion as string | null,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
-    };
+    });
   }
 
   /**
