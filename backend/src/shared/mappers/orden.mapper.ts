@@ -85,16 +85,20 @@ export class OrdenMapper {
    * Convierte row de BD a entidad de dominio
    */
   static fromDatabase(raw: Record<string, unknown>) {
-    return mapNullableObject({
+    const { descripcion } = mapNullableObject({
+      descripcion: raw.descripcion as string | null,
+    });
+
+    return {
       id: raw.id as string,
       numero: OrdenNumero.create(raw.numero as string),
       monto: Monto.create(raw.monto as number),
       estado: OrdenEstado.create(raw.estado as string),
       clienteId: raw.clienteId as string,
-      descripcion: raw.descripcion as string | null,
+      descripcion,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
-    });
+    };
   }
 
   /**
