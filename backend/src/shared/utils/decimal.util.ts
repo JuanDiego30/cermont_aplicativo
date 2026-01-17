@@ -1,6 +1,5 @@
 import DecimalJs from 'decimal.js';
 
-export type Decimal = DecimalJs;
 export type DecimalValue = DecimalJs;
 
 export const Decimal = DecimalJs;

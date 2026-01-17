@@ -9,7 +9,7 @@
  * - Precisión usando Decimal.js para cálculos financieros
  */
 
-import { Decimal } from "@/shared/utils/decimal.util";
+import { Decimal, DecimalValue } from "@/shared/utils/decimal.util";
 import { ValidationError } from "../exceptions";
 
 export enum KpiValueType {
@@ -21,7 +21,7 @@ export enum KpiValueType {
 
 export class KpiValue {
   private constructor(
-    private readonly _value: Decimal,
+    private readonly _value: DecimalValue,
     private readonly _type: KpiValueType,
     private readonly _currency?: string,
   ) {
@@ -31,7 +31,7 @@ export class KpiValue {
   /**
    * Crea un KPI de tipo número
    */
-  public static number(value: number | string | Decimal): KpiValue {
+  public static number(value: number | string | DecimalValue): KpiValue {
     const decimal = new Decimal(value);
     if (decimal.isNaN()) {
       throw new ValidationError("KPI value must be a valid number", "kpiValue");
@@ -46,7 +46,7 @@ export class KpiValue {
    * Crea un KPI de tipo dinero
    */
   public static money(
-    value: number | string | Decimal,
+    value: number | string | DecimalValue,
     currency: string = "COP",
   ): KpiValue {
     const decimal = new Decimal(value);
@@ -68,7 +68,7 @@ export class KpiValue {
   /**
    * Crea un KPI de tipo porcentaje
    */
-  public static percentage(value: number | string | Decimal): KpiValue {
+  public static percentage(value: number | string | DecimalValue): KpiValue {
     const decimal = new Decimal(value);
     if (decimal.isNaN()) {
       throw new ValidationError(
@@ -88,7 +88,7 @@ export class KpiValue {
   /**
    * Crea un KPI de tipo conteo
    */
-  public static count(value: number | string | Decimal): KpiValue {
+  public static count(value: number | string | DecimalValue): KpiValue {
     const decimal = new Decimal(value);
     if (decimal.isNaN()) {
       throw new ValidationError(
@@ -127,7 +127,7 @@ export class KpiValue {
   /**
    * Obtiene el valor como Decimal
    */
-  public getValue(): Decimal {
+  public getValue(): DecimalValue {
     return this._value;
   }
 
@@ -214,7 +214,7 @@ export class KpiValue {
   /**
    * Multiplica por un factor
    */
-  public multiply(factor: number | Decimal): KpiValue {
+  public multiply(factor: number | DecimalValue): KpiValue {
     const result = this._value.times(factor);
     return new KpiValue(result, this._type, this._currency);
   }
@@ -222,7 +222,7 @@ export class KpiValue {
   /**
    * Divide por un divisor
    */
-  public divide(divisor: number | Decimal): KpiValue {
+  public divide(divisor: number | DecimalValue): KpiValue {
     if (new Decimal(divisor).equals(0)) {
       throw new ValidationError("Cannot divide by zero", "kpiValue");
     }
