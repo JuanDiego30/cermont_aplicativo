@@ -3,7 +3,11 @@ export function nullToUndefined<T>(value: T | null): T | undefined {
 }
 
 export type NullableToUndefined<T> = {
-  [K in keyof T]: T[K] extends null ? undefined : T[K];
+  [K in keyof T]: T[K] extends null
+    ? undefined
+    : null extends T[K]
+      ? Exclude<T[K], null> | undefined
+      : T[K];
 };
 
 export function mapNullableObject<T extends Record<string, unknown>>(

@@ -12,6 +12,10 @@ export function isDecimal(value: unknown): value is DecimalJs {
   return DecimalJs.isDecimal(value);
 }
 
+/**
+ * Convierte Decimal a number.
+ * ⚠️ Puede perder precisión en valores grandes o con muchos decimales.
+ */
 export function fromDecimal(value: DecimalJs): number {
   return value.toNumber();
 }
