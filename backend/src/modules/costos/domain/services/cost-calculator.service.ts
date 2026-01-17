@@ -5,7 +5,7 @@
  * ⚠️ CRÍTICO: Usa Decimal.js para precisión absoluta
  */
 
-import { Decimal } from 'decimal.js';
+import { Decimal } from '@/shared/utils/decimal.util';
 import { Costo } from '../entities/costo.entity';
 import { CostoCategory } from '../value-objects/costo-category.vo';
 import { CostoType } from '../value-objects/costo-type.vo';

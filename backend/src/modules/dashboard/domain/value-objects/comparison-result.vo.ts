@@ -6,14 +6,14 @@
 
 import { KpiValue } from "./kpi-value.vo";
 import { TrendDirection, TrendDirectionEnum } from "./trend-direction.vo";
-import { Decimal } from "decimal.js";
+import { Decimal, DecimalValue } from "@/shared/utils/decimal.util";
 
 export class ComparisonResult {
   private constructor(
     private readonly _current: KpiValue,
     private readonly _previous: KpiValue,
     private readonly _difference: KpiValue,
-    private readonly _percentageChange: Decimal,
+    private readonly _percentageChange: DecimalValue,
     private readonly _trendDirection: TrendDirection,
   ) {
     Object.freeze(this);
@@ -72,7 +72,7 @@ export class ComparisonResult {
   /**
    * Obtiene el cambio porcentual
    */
-  public getPercentageChange(): Decimal {
+  public getPercentageChange(): DecimalValue {
     return this._percentageChange;
   }
 

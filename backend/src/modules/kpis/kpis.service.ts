@@ -4,7 +4,7 @@
 // ============================================
 import { PrismaService } from "@/prisma/prisma.service";
 import { Injectable, Logger } from "@nestjs/common";
-import { Decimal } from "decimal.js";
+import { Decimal, DecimalValue } from "@/shared/utils/decimal.util";
 import {
     DashboardKpiDto,
     FinancialKpiDto,
@@ -242,7 +242,7 @@ export class KpisService {
     });
   }
 
-  private decimalToNumber(decimal: number | Decimal): number {
+  private decimalToNumber(decimal: number | DecimalValue): number {
     if (typeof decimal === "number") return decimal;
     return decimal ? parseFloat(decimal.toString()) : 0;
   }

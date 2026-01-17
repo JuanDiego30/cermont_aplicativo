@@ -20,3 +20,9 @@ export * from "./string.util";
 
 // Utilidades de sanitización
 export * from "./sanitize.util";
+
+// Utilidades de Decimal.js
+export * from "./decimal.util";
+
+// Utilidades de mapeo
+export * from "./mapper.util";

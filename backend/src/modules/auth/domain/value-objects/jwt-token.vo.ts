@@ -10,10 +10,10 @@
  */
 export interface JwtSignerPort {
   sign(payload: Record<string, unknown>): string;
-  verify<T>(token: string): T;
+  verify<T extends Record<string, unknown> = Record<string, unknown>>(token: string): T;
 }
 
-export interface JwtPayload {
+export interface JwtPayload extends Record<string, unknown> {
   /** Standard JWT subject */
   readonly sub?: string;
   readonly userId: string;
