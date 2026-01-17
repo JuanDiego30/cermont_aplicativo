@@ -4,7 +4,7 @@
 // ============================================
 import { PrismaService } from "@/prisma/prisma.service";
 import { Injectable, Logger } from "@nestjs/common";
-import { Decimal } from "decimal.js";
+import { Decimal } from "@/shared/utils/decimal.util";
 import {
     DashboardKpiDto,
     FinancialKpiDto,

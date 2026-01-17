@@ -4,7 +4,7 @@
  * Representa un límite presupuestal con umbral de alerta
  */
 
-import { Decimal } from 'decimal.js';
+import { Decimal } from '@/shared/utils/decimal.util';
 import { ValidationError } from '../exceptions';
 import { Money } from './money.vo';
 

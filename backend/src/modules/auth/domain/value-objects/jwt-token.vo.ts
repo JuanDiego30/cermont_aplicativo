@@ -10,7 +10,7 @@
  */
 export interface JwtSignerPort {
   sign(payload: Record<string, unknown>): string;
-  verify<T>(token: string): T;
+  verify<T extends object = object>(token: string): T;
 }
 
 export interface JwtPayload {

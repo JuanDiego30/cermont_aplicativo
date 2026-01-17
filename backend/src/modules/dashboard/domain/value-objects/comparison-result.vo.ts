@@ -6,7 +6,7 @@
 
 import { KpiValue } from "./kpi-value.vo";
 import { TrendDirection, TrendDirectionEnum } from "./trend-direction.vo";
-import { Decimal } from "decimal.js";
+import { Decimal } from "@/shared/utils/decimal.util";
 
 export class ComparisonResult {
   private constructor(

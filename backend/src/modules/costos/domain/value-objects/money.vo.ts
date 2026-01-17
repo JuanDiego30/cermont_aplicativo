@@ -19,7 +19,7 @@ import {
 } from '../exceptions';
 
 // Decimal.js es open source y gratuito
-import { Decimal } from 'decimal.js';
+import { Decimal } from '@/shared/utils/decimal.util';
 
 export class Money {
   private static readonly VALID_CURRENCIES = ['COP', 'USD', 'EUR'];

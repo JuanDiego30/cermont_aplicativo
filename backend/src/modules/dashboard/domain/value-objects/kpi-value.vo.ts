@@ -9,7 +9,7 @@
  * - Precisión usando Decimal.js para cálculos financieros
  */
 
-import { Decimal } from "decimal.js";
+import { Decimal } from "@/shared/utils/decimal.util";
 import { ValidationError } from "../exceptions";
 
 export enum KpiValueType {
