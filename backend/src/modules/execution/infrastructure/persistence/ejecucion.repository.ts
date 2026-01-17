@@ -70,7 +70,6 @@ export class EjecucionRepository implements IEjecucionRepository {
       where: { id: id.getValue() },
       include: {
         tareas: true,
-        checklists: true,
         evidenciasEjecucion: true,
         fotosEvidencia: true,
       },
@@ -85,7 +84,6 @@ export class EjecucionRepository implements IEjecucionRepository {
       where: { ordenId },
       include: {
         tareas: true,
-        checklists: true,
         evidenciasEjecucion: true,
         fotosEvidencia: true,
       },
@@ -109,7 +107,6 @@ export class EjecucionRepository implements IEjecucionRepository {
       },
       include: {
         tareas: true,
-        checklists: true,
         evidenciasEjecucion: true,
       },
     });
@@ -130,7 +127,6 @@ export class EjecucionRepository implements IEjecucionRepository {
       where,
       include: {
         tareas: true,
-        checklists: true,
         evidenciasEjecucion: true,
       },
     });

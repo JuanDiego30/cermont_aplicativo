@@ -1,6 +1,6 @@
 /**
  * Typed Configuration with Zod Validation
- * 
+ *
  * This module provides type-safe configuration management using Zod schemas.
  * All environment variables are validated at application startup.
  */
@@ -24,7 +24,10 @@ const JwtConfigSchema = z.object({
 const ServerConfigSchema = z.object({
   port: z.coerce.number().min(1).max(65535).default(3000),
   host: z.string().default('0.0.0.0'),
-  corsOrigins: z.string().default('http://localhost:4200').transform(val => val.split(',')),
+  corsOrigins: z
+    .string()
+    .default('http://localhost:4200')
+    .transform(val => val.split(',')),
   apiPrefix: z.string().default('api'),
   enableSwagger: z.coerce.boolean().default(true),
 });
@@ -34,33 +37,36 @@ const StorageConfigSchema = z.object({
   type: z.enum(['local', 's3', 'gcs']).default('local'),
   basePath: z.string().default('./storage'),
   maxFileSize: z.coerce.number().default(10 * 1024 * 1024), // 10MB
-  allowedMimeTypes: z.string()
+  allowedMimeTypes: z
+    .string()
     .default('image/jpeg,image/png,application/pdf')
     .transform(val => val.split(',')),
 });
 
 // ============ Redis Configuration (Optional) ============
-const RedisConfigSchema = z.object({
-  enabled: z.coerce.boolean().default(false),
-  url: z.string().url().optional(),
-  ttl: z.coerce.number().default(3600),
-}).refine(
-  data => !data.enabled || data.url,
-  { message: 'Redis URL is required when Redis is enabled' }
-);
+const RedisConfigSchema = z
+  .object({
+    enabled: z.coerce.boolean().default(false),
+    url: z.string().url().optional(),
+    ttl: z.coerce.number().default(3600),
+  })
+  .refine(data => !data.enabled || data.url, {
+    message: 'Redis URL is required when Redis is enabled',
+  });
 
 // ============ Email Configuration (Optional) ============
-const EmailConfigSchema = z.object({
-  enabled: z.coerce.boolean().default(false),
-  host: z.string().optional(),
-  port: z.coerce.number().optional(),
-  user: z.string().optional(),
-  password: z.string().optional(),
-  from: z.string().email().optional(),
-}).refine(
-  data => !data.enabled || (data.host && data.user),
-  { message: 'Email host and user are required when email is enabled' }
-);
+const EmailConfigSchema = z
+  .object({
+    enabled: z.coerce.boolean().default(false),
+    host: z.string().optional(),
+    port: z.coerce.number().optional(),
+    user: z.string().optional(),
+    password: z.string().optional(),
+    from: z.string().email().optional(),
+  })
+  .refine(data => !data.enabled || (data.host && data.user), {
+    message: 'Email host and user are required when email is enabled',
+  });
 
 // ============ Environment Type ============
 const EnvironmentSchema = z.enum(['development', 'staging', 'production', 'test']);

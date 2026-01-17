@@ -1,5 +1,5 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import compression from 'compression';
@@ -13,21 +13,37 @@ async function bootstrap() {
 
   try {
     const app = await NestFactory.create(AppModule);
-    const configService = app.get(ConfigService);
-    const port = process.env.PORT || 3000;
+    const port = 3000;
 
-    // Security Middleware
-    app.use(helmet());
+    // ============================================
+    // CORS - MUST BE BEFORE OTHER MIDDLEWARE
+    // ============================================
+    app.enableCors({
+      origin: true, // Allow all origins in development
+      credentials: true,
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'Accept',
+        'Origin',
+        'X-Requested-With',
+        'x-csrf-token',
+        'x-custom-header',
+      ],
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
+    });
+
+    // Security Middleware (after CORS)
+    app.use(
+      helmet({
+        crossOriginResourcePolicy: { policy: 'cross-origin' },
+        crossOriginOpenerPolicy: { policy: 'unsafe-none' },
+      })
+    );
     app.use(compression());
     app.use(cookieParser());
-
-    // CORS Configuration - Permisivo para desarrollo
-    app.enableCors({
-      origin: '*',
-      credentials: false,
-      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token', 'x-custom-header'],
-    });
 
     // Global Prefix
     app.setGlobalPrefix('api');

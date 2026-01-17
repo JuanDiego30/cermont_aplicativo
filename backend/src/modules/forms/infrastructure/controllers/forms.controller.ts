@@ -61,7 +61,6 @@ import {
   SubmitFormDto,
   UpdateFormTemplateDto,
 } from '../../application/dto';
-import { SubmitInspectionFormDto } from '../../application/dto/submit-inspection-form.dto';
 
 // Mappers
 import { FormTemplateMapper } from '../../application/mappers/form-template.mapper';
@@ -219,47 +218,32 @@ export class FormsController {
   }
 
   /**
-   * Endpoint MVP para formularios de inspección
-   * POST /api/forms/:type
-   */
-  @Post(':type')
-  @ApiOperation({ summary: 'Enviar formulario de inspección (MVP JSON)' })
-  async submitInspectionForm(
-    @Param('type') type: string,
-    @Body() body: SubmitInspectionFormDto,
-    @CurrentUser() user: JwtPayload
-  ) {
-    const dto: SubmitInspectionFormDto = {
-      orderId: body.orderId,
-      type: type.toUpperCase() as SubmitInspectionFormDto['type'],
-      data: body.data,
-      photos: body.photos || [],
-    };
-
-    return this.formsService.submitInspectionForm(dto, user.userId);
-  }
-
-  /**
    * Endpoint simplificado para técnicos en campo
    * POST /forms/fill/:templateId
    * Body: { ordenId?: string, responses: Record<string, any> }
    */
   @Post('fill/:templateId')
   @ApiOperation({
-    summary: 'Llenar formulario de inspección (técnico en campo)',
-    description:
-      'Endpoint simplificado para que los técnicos llenen formularios de inspección directamente desde el móvil',
+    summary: 'Llenar formulario en campo',
+    description: 'Endpoint simplificado para que los técnicos llenen formularios desde el móvil',
   })
-  @ApiResponse({ status: 201, description: 'Formulario de inspección guardado' })
+  @ApiResponse({ status: 201, description: 'Formulario guardado' })
   async fillInspectionForm(
     @Param('templateId') templateId: string,
-    @Body() body: { ordenId?: string; responses: Record<string, any>; estado?: string },
+    @Body()
+    body: {
+      ordenId?: string;
+      responses: Record<string, any>;
+      estado?: string;
+      ejecucionId?: string;
+    },
     @CurrentUser() user: JwtPayload
   ) {
-    // Construir DTO compatible con el use case existente
     const dto: SubmitFormDto = {
       templateId,
       ordenId: body.ordenId,
+      contextType: body.ejecucionId ? 'ejecucion' : undefined,
+      contextId: body.ejecucionId,
       answers: body.responses,
       estado: (body.estado || 'completado') as any,
     };
@@ -270,7 +254,7 @@ export class FormsController {
       id: submission.getId().getValue(),
       templateId: submission.getTemplateId().getValue(),
       status: submission.getStatus().getValue(),
-      message: 'Formulario de inspección guardado exitosamente',
+      message: 'Formulario guardado exitosamente',
       submittedAt: submission.getSubmittedAt(),
     };
   }

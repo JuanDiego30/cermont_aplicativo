@@ -14,14 +14,14 @@ export class SubmitFormDto {
   templateId!: string;
 
   @ApiPropertyOptional({
-    description: 'Tipo de contexto (orden, checklist, etc.)',
+    description: 'Tipo de contexto (orden, ejecucion, etc.)',
   })
   @IsOptional()
   @IsString()
   contextType?: string;
 
   @ApiPropertyOptional({
-    description: 'ID del contexto (ordenId, checklistId, etc.)',
+    description: 'ID del contexto (ordenId, ejecucionId, etc.)',
   })
   @IsOptional()
   @IsString()

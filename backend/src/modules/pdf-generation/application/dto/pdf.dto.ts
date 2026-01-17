@@ -22,7 +22,6 @@ export enum TemplateType {
   ACTA_ENTREGA = 'acta_entrega',
   INSPECCION_HES = 'inspeccion_hes',
   INSPECCION_LINEA_VIDA = 'inspeccion_linea_vida',
-  CHECKLIST = 'checklist',
   REPORTE_MENSUAL = 'reporte_mensual',
 }
 
@@ -125,7 +124,6 @@ export interface IPDFRepository {
   getOrdenData(ordenId: string): Promise<Record<string, unknown>>;
   getHESData(hesId: string): Promise<Record<string, unknown>>;
   getLineaVidaData(lineaVidaId: string): Promise<Record<string, unknown>>;
-  getChecklistData(checklistId: string): Promise<Record<string, unknown>>;
   getReporteData(
     tipo: string,
     fechaInicio: string,

@@ -7,9 +7,9 @@ import type { OrderDetailResponseDto } from '@cermont/shared-types';
 
 export class GetOrderByIdQuery implements IQuery<OrderDetailResponseDto | null> {
   public readonly filters = {};
-  
+
   constructor(
     public readonly orderId: string,
-    public readonly includeHistory: boolean = false,
+    public readonly includeHistory: boolean = false
   ) {}
 }

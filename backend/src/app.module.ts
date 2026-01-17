@@ -33,8 +33,8 @@ import { ReportsModule } from './modules/reports/reports.module';
 // TODO: Create LineasVidaModule - currently disabled
 // import { LineasVidaModule } from './modules/lineas-vida/lineas-vida.module';
 // REMOVED: ArchivingModule - Not needed for MVP thesis
-import { ChecklistsModule } from './modules/checklists/checklists.module';
 import { CostsModule } from './modules/costs/costs.module';
+
 // ...
 
 // DELETED: MantenimientosModule - CERMONT uses order-based maintenance, not scheduled preventive maintenance
@@ -56,16 +56,15 @@ import { KpisModule } from './modules/kpis/kpis.module';
 
 // NEW MODULES - Phase 3 Backend Refactoring
 // REMOVED: CertificationsModule - Not needed for MVP thesis
-import { CustomersModule } from './modules/customers/customers.module';
 import { InvoicingModule } from './modules/invoicing/invoicing.module';
 
 // Common providers
 import { HealthController } from './health.controller';
 import {
-    PrismaConnectionFilter,
-    PrismaExceptionFilter,
-    PrismaPanicFilter,
-    PrismaValidationFilter,
+  PrismaConnectionFilter,
+  PrismaExceptionFilter,
+  PrismaPanicFilter,
+  PrismaValidationFilter,
 } from './shared/filters/prisma-exception.filter';
 import { CustomThrottleGuard } from './shared/guards/throttle.guard';
 import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.interceptor';
@@ -149,9 +148,9 @@ import { RequestIdMiddleware } from './shared/middleware/request-id.middleware';
     HesModule,
     // LineasVidaModule, // TODO: Create LineasVidaModule
     CostsModule,
-    ChecklistsModule,
     // MantenimientosModule, // DELETED - CERMONT uses order-based maintenance
     FormsModule,
+
     AdministrativeClosureModule,
     EvidenceModule,
 
@@ -164,7 +163,6 @@ import { RequestIdMiddleware } from './shared/middleware/request-id.middleware';
     KpisModule,
 
     // MVP modules
-    CustomersModule,
     InvoicingModule,
 
     // Schedule module for CRON jobs

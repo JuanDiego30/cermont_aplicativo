@@ -44,7 +44,7 @@ export class GetReporteOrdenDetalleUseCase {
           }
         : null,
       evidencias: orden.evidencias?.length || 0,
-      checklists: orden.checklists?.length || 0,
+      formularios: orden.formularioInstancias?.length || 0,
       generadoEn: new Date().toISOString(),
     };
   }

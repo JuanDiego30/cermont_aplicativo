@@ -25,6 +25,6 @@ export interface ListOrdersQueryPagination {
 export class ListOrdersQuery implements IQuery<PaginatedOrders> {
   constructor(
     public readonly filters: ListOrdersQueryFilters = {},
-    public readonly pagination: ListOrdersQueryPagination = { page: 1, limit: 20 },
+    public readonly pagination: ListOrdersQueryPagination = { page: 1, limit: 20 }
   ) {}
 }

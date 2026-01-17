@@ -7,15 +7,15 @@
  */
 import { plainToInstance, Transform } from 'class-transformer';
 import {
+  IsEmail,
   IsEnum,
   IsNumber,
   IsOptional,
   IsString,
   IsUrl,
-  Min,
   Max,
+  Min,
   MinLength,
-  IsEmail,
   validateSync,
 } from 'class-validator';
 

@@ -9,6 +9,7 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Prisma } from '@/prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 
 // ============================================================================
@@ -370,59 +371,33 @@ export class KitsService {
     const herramientas = (kit.herramientas as unknown as HerramientaKit[]) || [];
     const equipos = (kit.equipos as unknown as EquipoKit[]) || [];
 
-    const checklistPrincipal = await this.prisma.checklistEjecucion.create({
+    const payload = {
+      ejecucionId,
+      kitAplicado: kit.nombre,
+      totalHerramientas: herramientas.length,
+      totalEquipos: equipos.length,
+      totalActividades: checklistItems.length,
+      herramientas: herramientas as unknown as Record<string, unknown>,
+      equipos: equipos as unknown as Record<string, unknown>,
+      actividades: checklistItems,
+    };
+
+    await this.prisma.formularioInstancia.create({
       data: {
+        templateId: 'KIT_EXECUTION_TEMPLATE',
+
+        ordenId: ejecucion.ordenId,
         ejecucionId,
-        nombre: `Kit: ${kit.nombre}`,
-        descripcion: kit.descripcion,
-        completada: false,
+        data: payload as unknown as Prisma.InputJsonValue,
+        completadoPorId: userId,
+        completadoEn: new Date(),
+        estado: 'completado',
       },
-    });
-
-    const herramientasItems = herramientas.map(h => ({
-      checklistId: checklistPrincipal.id,
-      nombre: `${h.nombre} (Cant: ${h.cantidad})`,
-      estado: 'pendiente',
-      completado: false,
-      observaciones: h.certificacion ? 'REQUIERE CERTIFICACIÓN' : null,
-    }));
-
-    const equiposItems = equipos.map(e => ({
-      checklistId: checklistPrincipal.id,
-      nombre: `${e.nombre} (Cant: ${e.cantidad})`,
-      estado: 'pendiente',
-      completado: false,
-      observaciones: e.certificacion ? 'REQUIERE CERTIFICACIÓN' : null,
-    }));
-
-    const actividadesItems = checklistItems.map(item => ({
-      checklistId: checklistPrincipal.id,
-      nombre: item,
-      estado: 'pendiente',
-      completado: false,
-    }));
-
-    if (herramientasItems.length > 0 || equiposItems.length > 0 || actividadesItems.length > 0) {
-      await this.prisma.checklistItemEjecucion.createMany({
-        data: [...herramientasItems, ...equiposItems, ...actividadesItems],
-      });
-    }
-
-    const checklistCompleto = await this.prisma.checklistEjecucion.findUnique({
-      where: { id: checklistPrincipal.id },
-      include: { items: true },
     });
 
     return {
       message: 'Kit aplicado a la ejecución correctamente',
-      data: {
-        kitAplicado: kit.nombre,
-        totalHerramientas: herramientas.length,
-        totalEquipos: equipos.length,
-        totalActividades: checklistItems.length,
-        itemsCreados: checklistCompleto?.items.length || 0,
-        checklist: checklistCompleto,
-      },
+      data: payload,
     };
   }
 
@@ -441,66 +416,36 @@ export class KitsService {
       throw new NotFoundException('Ejecución no encontrada');
     }
 
-    const checklistPrincipal = await this.prisma.checklistEjecucion.create({
+    const payload = {
+      ejecucionId,
+      kitAplicado: kit.nombre,
+      duracionEstimadaHoras: kit.duracionEstimadaHoras,
+      totalHerramientas: kit.herramientas.length,
+      totalEquipos: kit.equipos.length,
+      totalDocumentos: kit.documentos.length,
+      totalActividades: kit.checklistItems.length,
+      herramientas: kit.herramientas as unknown as Record<string, unknown>,
+      equipos: kit.equipos as unknown as Record<string, unknown>,
+      documentos: kit.documentos,
+      actividades: kit.checklistItems,
+    };
+
+    await this.prisma.formularioInstancia.create({
       data: {
+        templateId: 'KIT_EXECUTION_TEMPLATE',
+
+        ordenId: ejecucion.ordenId,
         ejecucionId,
-        nombre: kit.nombre,
-        descripcion: kit.descripcion,
-        completada: false,
+        data: payload as unknown as Prisma.InputJsonValue,
+        completadoPorId: userId,
+        completadoEn: new Date(),
+        estado: 'completado',
       },
-    });
-
-    const herramientasItems = kit.herramientas.map(h => ({
-      checklistId: checklistPrincipal.id,
-      nombre: `🔧 ${h.nombre} (Cant: ${h.cantidad})`,
-      estado: 'pendiente',
-      completado: false,
-      observaciones: h.certificacion ? '⚠️ CERTIFICACIÓN REQUERIDA' : null,
-    }));
-
-    const equiposItems = kit.equipos.map(e => ({
-      checklistId: checklistPrincipal.id,
-      nombre: `🛡️ ${e.nombre} (Cant: ${e.cantidad})`,
-      estado: 'pendiente',
-      completado: false,
-      observaciones: e.certificacion ? '⚠️ CERTIFICACIÓN REQUERIDA' : null,
-    }));
-
-    const documentosItems = kit.documentos.map(doc => ({
-      checklistId: checklistPrincipal.id,
-      nombre: `📄 ${doc}`,
-      estado: 'pendiente',
-      completado: false,
-    }));
-
-    const actividadesItems = kit.checklistItems.map(item => ({
-      checklistId: checklistPrincipal.id,
-      nombre: `📋 ${item}`,
-      estado: 'pendiente',
-      completado: false,
-    }));
-
-    await this.prisma.checklistItemEjecucion.createMany({
-      data: [...herramientasItems, ...equiposItems, ...documentosItems, ...actividadesItems],
-    });
-
-    const checklistCompleto = await this.prisma.checklistEjecucion.findUnique({
-      where: { id: checklistPrincipal.id },
-      include: { items: true },
     });
 
     return {
       message: `Kit "${kit.nombre}" aplicado correctamente`,
-      data: {
-        kitAplicado: kit.nombre,
-        duracionEstimada: `${kit.duracionEstimadaHoras} horas`,
-        totalHerramientas: kit.herramientas.length,
-        totalEquipos: kit.equipos.length,
-        totalDocumentos: kit.documentos.length,
-        totalActividades: kit.checklistItems.length,
-        itemsCreados: checklistCompleto?.items.length || 0,
-        checklist: checklistCompleto,
-      },
+      data: payload,
     };
   }
 

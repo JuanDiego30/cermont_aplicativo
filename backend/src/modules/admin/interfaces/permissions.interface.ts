@@ -28,7 +28,7 @@ export enum PermissionResource {
   KITS = 'kits',
   DASHBOARD = 'dashboard',
   ARCHIVE = 'archive',
-  CHECKLISTS = 'checklists',
+
   PLANEACION = 'planeacion',
   EJECUCION = 'ejecucion',
   EVIDENCE = 'evidence',
@@ -83,10 +83,7 @@ export const ROLE_PERMISSIONS: IRolePermissions[] = [
         resource: PermissionResource.ARCHIVE,
         actions: [PermissionAction.MANAGE],
       },
-      {
-        resource: PermissionResource.CHECKLISTS,
-        actions: [PermissionAction.MANAGE],
-      },
+
       {
         resource: PermissionResource.PLANEACION,
         actions: [PermissionAction.MANAGE],
@@ -129,10 +126,7 @@ export const ROLE_PERMISSIONS: IRolePermissions[] = [
         resource: PermissionResource.DASHBOARD,
         actions: [PermissionAction.READ],
       },
-      {
-        resource: PermissionResource.CHECKLISTS,
-        actions: [PermissionAction.APPROVE, PermissionAction.READ],
-      },
+
       {
         resource: PermissionResource.PLANEACION,
         actions: [PermissionAction.APPROVE, PermissionAction.READ],
@@ -157,10 +151,7 @@ export const ROLE_PERMISSIONS: IRolePermissions[] = [
     description: 'Técnico de campo con capacidades de ejecución',
     permissions: [
       { resource: PermissionResource.ORDERS, actions: [PermissionAction.READ] },
-      {
-        resource: PermissionResource.CHECKLISTS,
-        actions: [PermissionAction.READ, PermissionAction.EXECUTE],
-      },
+
       {
         resource: PermissionResource.EJECUCION,
         actions: [PermissionAction.EXECUTE, PermissionAction.READ],

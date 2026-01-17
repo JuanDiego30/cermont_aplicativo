@@ -60,11 +60,8 @@ model User {
   ejecucionesFinalizadas Ejecucion[]      @relation("EjecucionFinalizador")
   tareasCompletadas      TareaEjecucion[] @relation("TareaCompletador")
 
-  // Relaciones de checklist
-  checklistsCompletados     ChecklistEjecucion[]     @relation("ChecklistCompletadoPor")
-  checklistItemsCompletados ChecklistItemEjecucion[] @relation("ItemCompletadoPor")
-
   // Relaciones de evidencias
+
   orderItemsCompletados OrderItem[]     @relation("ItemCompletador")
   evidenciasSubidas     Evidence[]      @relation("EvidenciaSubidor")
   fotosCargadas         FotoEvidencia[] @relation("FotoCargadaPor")
@@ -84,8 +81,6 @@ model User {
   formTemplatesCreados   FormTemplate[]        @relation("FormTemplateCreador")
   formulariosCompletados FormularioInstancia[] @relation("FormulariosCompletados")
   formulariosRevisados   FormularioInstancia[] @relation("FormulariosRevisados")
-  inspectionForms        InspectionForm[]
-
 
   // Relaciones de cierre administrativo
   actasCreadas      Acta[]    @relation("ActaCreador")
@@ -111,17 +106,12 @@ model User {
   kitsCreados KitTipico[] @relation("KitCreador")
 
   // Relaciones de archivos
-  archivosCreados ArchivoHistorico[] @relation("ArchivoCreador")
 
   // Relaciones de notificaciones
   pushSubscriptions PushSubscription[]
 
   // Relaciones de templates
-  checklistTemplatesCreados  ChecklistTemplate[]  @relation("TemplateCreador")
-  formularioTemplatesCreados FormularioTemplate[] @relation("FormularioTemplateCreador")
-
-  // Relaciones de certificaciones
-  certificaciones Certificado[]
+  // REMOVED: certificaciones (module deleted for MVP)
 
   @@index([email])
   @@index([role])
@@ -219,131 +209,6 @@ model TwoFactorToken {
 // ============================================
 // CERTIFICACIONES Y HABILITACIONES
 // ============================================
-
-model Certificado {
-  id String @id @default(uuid())
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  tipo    String // TIPO_A, TIPO_B, ALTURAS, etc.
-  nombre  String // Nombre display
-  entidad String // Entidad certificadora
-  numero  String // Nro certificado
-
-  fechaExpedicion  DateTime
-  fechaVencimiento DateTime
-
-  archivo       String? // URL al documento
-  observaciones String?
-
-  activo Boolean @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId, activo])
-  @@index([fechaVencimiento])
-  @@map("certificados")
-}
-
-// ============================================
-// CHECKLISTS - TEMPLATES Y EJECUCIÓN
-// ============================================
-
-model ChecklistTemplate {
-  id          String  @id @default(uuid())
-  nombre      String  @unique
-  tipo        String
-  categoria   String?
-  descripcion String?
-  activo      Boolean @default(true)
-
-  creadoPorId String?
-
-  items      ChecklistTemplateItem[]
-  checklists ChecklistEjecucion[]    @relation("TemplateChecklistEjecucion")
-
-  creadoPor User? @relation("TemplateCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([tipo, activo])
-  @@index([categoria])
-  @@index([creadoPorId])
-  @@map("checklist_templates")
-}
-
-model ChecklistTemplateItem {
-  id                   String  @id @default(uuid())
-  templateId           String
-  nombre               String
-  descripcion          String?
-  tipo                 String
-  requereCertificacion Boolean @default(false)
-  criticidad           String? @default("normal")
-  orden                Int     @default(0)
-
-  template       ChecklistTemplate        @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  itemsEjecucion ChecklistItemEjecucion[] @relation("TemplateItemRef")
-
-  createdAt DateTime @default(now())
-
-  @@index([templateId, orden])
-  @@map("checklist_template_items")
-}
-
-model ChecklistEjecucion {
-  id              String    @id @default(uuid())
-  ejecucionId     String
-  templateId      String?
-  nombre          String
-  descripcion     String?
-  completada      Boolean   @default(false)
-  completadoPorId String?
-  completadoEn    DateTime?
-
-  ejecucion     Ejecucion          @relation(fields: [ejecucionId], references: [id], onDelete: Cascade)
-  template      ChecklistTemplate? @relation("TemplateChecklistEjecucion", fields: [templateId], references: [id], onDelete: SetNull)
-  completadoPor User?              @relation("ChecklistCompletadoPor", fields: [completadoPorId], references: [id], onDelete: SetNull)
-
-  items          ChecklistItemEjecucion[]
-  fotosEvidencia FotoEvidencia[]          @relation("ChecklistFotos")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([ejecucionId, completada])
-  @@index([templateId])
-  @@index([completadoPorId])
-  @@map("checklist_ejecucion")
-}
-
-model ChecklistItemEjecucion {
-  id              String    @id @default(uuid())
-  checklistId     String
-  templateItemId  String?
-  nombre          String
-  estado          String    @default("pendiente")
-  completado      Boolean   @default(false)
-  completadoPorId String?
-  completadoEn    DateTime?
-  observaciones   String?
-
-  checklist     ChecklistEjecucion     @relation(fields: [checklistId], references: [id], onDelete: Cascade)
-  templateItem  ChecklistTemplateItem? @relation("TemplateItemRef", fields: [templateItemId], references: [id], onDelete: SetNull)
-  completadoPor User?                  @relation("ItemCompletadoPor", fields: [completadoPorId], references: [id], onDelete: SetNull)
-  fotosAdjuntas FotoEvidencia[]        @relation("ItemFotos")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([checklistId, estado])
-  @@index([templateItemId])
-  @@index([completadoPorId])
-  @@map("checklist_item_ejecucion")
-}
 
 // ============================================
 // CIERRE ADMINISTRATIVO
@@ -613,13 +478,6 @@ enum EstadoFactura {
   rechazada
 }
 
-enum TipoArchivo {
-  ordenes_csv
-  evidencias_zip
-  informes_pdf
-  backup_completo
-}
-
 enum OrderSubState {
   // Solicitud (Pasos 1-4)
   solicitud_recibida
@@ -739,9 +597,9 @@ model Ejecucion {
   finalizadoPor User?      @relation("EjecucionFinalizador", fields: [finalizadoPorId], references: [id], onDelete: SetNull)
 
   tareas              TareaEjecucion[]
-  checklists          ChecklistEjecucion[]
   evidenciasEjecucion EvidenciaEjecucion[]
-  fotosEvidencia      FotoEvidencia[]      @relation("EjecucionFotos")
+  fotosEvidencia      FotoEvidencia[]       @relation("EjecucionFotos")
+  formularios         FormularioInstancia[] @relation("EjecucionFormularios")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -776,28 +634,24 @@ model TareaEjecucion {
 }
 
 model FotoEvidencia {
-  id              String   @id @default(uuid())
-  ejecucionId     String?
-  checklistId     String?
-  checklistItemId String?
-  url             String
-  urlThumbnail    String?
-  descripcion     String?
-  fase            String?
-  tamanoBytes     BigInt?
-  mimeType        String?
-  cargadoPorId    String?
-  cargadoEn       DateTime @default(now())
-  sincronizado    Boolean  @default(false)
+  id          String  @id @default(uuid())
+  ejecucionId String?
 
-  ejecucion     Ejecucion?              @relation("EjecucionFotos", fields: [ejecucionId], references: [id], onDelete: SetNull)
-  checklist     ChecklistEjecucion?     @relation("ChecklistFotos", fields: [checklistId], references: [id], onDelete: SetNull)
-  checklistItem ChecklistItemEjecucion? @relation("ItemFotos", fields: [checklistItemId], references: [id], onDelete: SetNull)
-  cargadoPor    User?                   @relation("FotoCargadaPor", fields: [cargadoPorId], references: [id], onDelete: SetNull)
+  url          String
+  urlThumbnail String?
+  descripcion  String?
+  fase         String?
+  tamanoBytes  BigInt?
+  mimeType     String?
+  cargadoPorId String?
+  cargadoEn    DateTime @default(now())
+  sincronizado Boolean  @default(false)
+
+  ejecucion Ejecucion? @relation("EjecucionFotos", fields: [ejecucionId], references: [id], onDelete: SetNull)
+
+  cargadoPor User? @relation("FotoCargadaPor", fields: [cargadoPorId], references: [id], onDelete: SetNull)
 
   @@index([ejecucionId])
-  @@index([checklistId])
-  @@index([checklistItemId])
   @@index([cargadoPorId])
   @@index([sincronizado])
   @@map("fotos_evidencia")
@@ -863,6 +717,7 @@ model FormTemplate {
   creadoPor   User?   @relation("FormTemplateCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
 
   instancias FormularioInstancia[]
+  kits       KitTipico[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -878,8 +733,10 @@ model FormularioInstancia {
   templateId String
   template   FormTemplate @relation(fields: [templateId], references: [id])
 
-  ordenId String?
-  orden   Order?  @relation(fields: [ordenId], references: [id])
+  ordenId     String?
+  orden       Order?     @relation(fields: [ordenId], references: [id])
+  ejecucion   Ejecucion? @relation("EjecucionFormularios", fields: [ejecucionId], references: [id], onDelete: SetNull)
+  ejecucionId String?
 
   data Json
 
@@ -899,84 +756,10 @@ model FormularioInstancia {
 
   @@index([templateId])
   @@index([ordenId])
+  @@index([ejecucionId])
   @@index([completadoPorId])
   @@index([estado])
   @@map("formularios_instancias")
-}
-
-// ============================================
-// INSPECTION FORMS (MVP JSON FORMS)
-// ============================================
-
-enum InspectionFormType {
-  ARNES
-  ESCALERA
-  CCTV
-}
-
-model InspectionForm {
-  id           String             @id @default(uuid())
-  technicianId String
-  technician   User               @relation(fields: [technicianId], references: [id])
-
-  orderId String
-  order   Order @relation(fields: [orderId], references: [id])
-
-  type   InspectionFormType
-  data   Json
-  photos String[]
-
-  createdAt DateTime @default(now())
-
-  @@index([technicianId])
-  @@index([orderId])
-  @@index([type])
-  @@map("inspection_forms")
-}
-
-
-// ============================================
-// FORMULARIOS DINÁMICOS - LEGACY COMPATIBILITY
-// ============================================
-
-model FormularioTemplate {
-  id          String  @id @default(uuid())
-  nombre      String
-  descripcion String?
-  schema      String
-  version     Int     @default(1)
-  activo      Boolean @default(true)
-
-  creadoPorId String?
-
-  creadoPor  User?                 @relation("FormularioTemplateCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
-  respuestas FormularioRespuesta[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([activo])
-  @@index([creadoPorId])
-  @@map("formulario_templates")
-}
-
-model FormularioRespuesta {
-  id String @id @default(uuid())
-
-  templateId String
-  ordenId    String?
-  respuestas String
-
-  completadoPorId String?
-
-  template FormularioTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([templateId])
-  @@index([ordenId])
-  @@map("formulario_respuestas")
 }
 
 // ============================================
@@ -1280,37 +1063,6 @@ model KitItem {
   @@map("kit_items")
 }
 
-model Formulario {
-  id          String   @id @default(uuid())
-  nombre      String
-  descripcion String?
-  categoria   String?
-  campos      Json
-  activo      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  respuestas FormularioRespuestaLegacy[]
-
-  @@map("formularios")
-}
-
-model FormularioRespuestaLegacy {
-  id           String   @id @default(uuid())
-  formularioId String
-  ordenId      String?
-  respuestas   Json
-  creadoPorId  String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  formulario Formulario @relation(fields: [formularioId], references: [id], onDelete: Cascade)
-
-  @@index([formularioId])
-  @@index([ordenId])
-  @@map("formulario_respuestas_legacy")
-}
-
 model HES {
   id            String   @id @default(uuid())
   equipoId      String?
@@ -1530,8 +1282,6 @@ model Order {
   equiposHES          OrdenEquipoHES[]
   inspeccionesHES     InspeccionHES[]
   hojaEntradaServicio HojaEntradaServicio?
-  inspectionForms     InspectionForm[]
-
 
   // Relaciones de cierre
   acta                 Acta?
@@ -1820,6 +1570,9 @@ model KitTipico {
   costoEstimado         Float
   activo                Boolean  @default(true)
 
+  formTemplateId String?
+  formTemplate   FormTemplate? @relation(fields: [formTemplateId], references: [id], onDelete: SetNull)
+
   creadoPorId String?
 
   planeaciones Planeacion[]
@@ -1831,6 +1584,7 @@ model KitTipico {
 
   @@index([activo, categoria])
   @@index([codigo])
+  @@index([formTemplateId])
   @@map("kits_tipicos")
 }
 
@@ -1919,68 +1673,6 @@ model PushSubscription {
 
   @@index([userId, activa])
   @@map("push_subscriptions")
-}
-
-// ============================================
-// ARCHIVO HISTÓRICO
-// ============================================
-
-model ArchivoHistorico {
-  id   String      @id @default(uuid())
-  tipo TipoArchivo
-
-  mes  Int
-  anio Int
-
-  nombreArchivo String
-  rutaArchivo   String
-  tamanioBytes  BigInt
-
-  cantidadOrdenes    Int     @default(0)
-  cantidadEvidencias Int     @default(0)
-  descripcion        String?
-
-  disponible    Boolean   @default(true)
-  descargado    Boolean   @default(false)
-  fechaDescarga DateTime?
-
-  creadoPorId    String?
-  creadoPor      User?    @relation("ArchivoCreador", fields: [creadoPorId], references: [id], onDelete: SetNull)
-  fechaArchivado DateTime @default(now())
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([mes, anio, tipo])
-  @@index([mes, anio])
-  @@index([disponible])
-  @@index([creadoPorId])
-  @@map("archivos_historicos")
-}
-
-// ============================================
-// SINCRONIZACIÓN OFFLINE
-// ============================================
-
-model PendingSync {
-  id         String   @id @default(uuid())
-  userId     String
-  deviceId   String
-  entityType String
-  entityId   String?
-  action     String
-  data       Json?
-  localId    String
-  timestamp  DateTime
-  status     String   @default("pending")
-  error      String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@unique([userId, deviceId, localId], name: "pendingSync_user_device_local")
-  @@index([userId])
-  @@index([status])
-  @@map("pending_syncs")
 }
 
 // ============================================

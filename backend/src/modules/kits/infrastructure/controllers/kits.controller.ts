@@ -228,7 +228,10 @@ export class KitsController {
   @ApiOperation({ summary: 'Apply kit to execution' })
   @ApiParam({ name: 'kitId', description: 'ID del kit' })
   @ApiParam({ name: 'executionId', description: 'Execution ID' })
-  async applyToExecution(@Param('kitId') kitId: string, @Param('executionId') executionId: string) {
+  async applyToExecution(
+    @Param('kitId') kitId: string,
+    @Param('executionId') executionId: string
+  ): Promise<Record<string, unknown>> {
     this.logger.log(`POST /kits/${kitId}/apply/${executionId}`);
     return this.kitsService.applyKitToExecution(kitId, executionId, 'system');
   }
@@ -240,7 +243,7 @@ export class KitsController {
   async applyPredefinedToExecution(
     @Param('tipo') tipo: string,
     @Param('executionId') executionId: string
-  ) {
+  ): Promise<Record<string, unknown>> {
     this.logger.log(`POST /kits/predefined/${tipo}/apply/${executionId}`);
     return this.kitsService.applyPredefinedKitToExecution(tipo, executionId, 'system');
   }

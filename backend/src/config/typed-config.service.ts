@@ -1,20 +1,19 @@
 /**
  * NestJS Typed Configuration Service
- * 
+ *
  * Provides type-safe access to application configuration
  * with Zod validation at startup.
  */
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { 
-  AppConfig, 
-  DatabaseConfig, 
-  JwtConfig, 
-  ServerConfig, 
+import {
+  AppConfig,
+  DatabaseConfig,
+  JwtConfig,
+  ServerConfig,
   StorageConfig,
   RedisConfig,
   EmailConfig,
   Environment,
-  parseConfig,
   safeParseConfig,
 } from './config.schema';
 
@@ -25,16 +24,16 @@ export class TypedConfigService implements OnModuleInit {
 
   onModuleInit(): void {
     const result = safeParseConfig();
-    
+
     if (!result.success) {
       this.logger.error('Configuration validation failed:');
       const issues = result.error.issues ?? [];
-      issues.forEach((issue) => {
+      issues.forEach(issue => {
         this.logger.error(`  - ${String(issue.path?.join('.') ?? 'unknown')}: ${issue.message}`);
       });
       throw new Error('Invalid application configuration. See logs for details.');
     }
-    
+
     this.config = result.data;
     this.logger.log(`Configuration loaded successfully for ${this.config.nodeEnv} environment`);
   }

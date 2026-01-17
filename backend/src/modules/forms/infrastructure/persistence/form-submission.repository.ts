@@ -16,6 +16,9 @@ export class FormSubmissionRepository implements IFormSubmissionRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async save(submission: FormSubmission): Promise<FormSubmission> {
+    const contextType = submission.getContextType();
+    const contextId = submission.getContextId();
+
     const prismaData = {
       id: submission.getId().getValue(),
       templateId: submission.getTemplateId().getValue(),
@@ -25,7 +28,8 @@ export class FormSubmissionRepository implements IFormSubmissionRepository {
       completadoEn: submission.getSubmittedAt(),
       revisadoPorId: submission.getValidatedBy(),
       revisadoEn: submission.getValidatedAt(),
-      ordenId: submission.getContextId(),
+      ordenId: contextType === 'orden' ? contextId : undefined,
+      ejecucionId: contextType === 'ejecucion' ? contextId : undefined,
       createdAt: submission.getCreatedAt(),
       updatedAt: submission.getUpdatedAt(),
     };
@@ -78,11 +82,8 @@ export class FormSubmissionRepository implements IFormSubmissionRepository {
 
   async findByContext(contextType: string, contextId: string): Promise<FormSubmission[]> {
     // Mapear contextType a campo de Prisma
-    // Por ahora, asumimos que contextId es ordenId
     const submissions = await this.prisma.formularioInstancia.findMany({
-      where: {
-        ordenId: contextId,
-      },
+      where: contextType === 'ejecucion' ? { ejecucionId: contextId } : { ordenId: contextId },
       orderBy: { createdAt: 'desc' },
       include: {
         template: true,
@@ -124,8 +125,8 @@ export class FormSubmissionRepository implements IFormSubmissionRepository {
       templateVersion: prismaData.template?.version || '1.0',
       answers: prismaData.data || {},
       status: prismaData.estado?.toUpperCase() || 'INCOMPLETE',
-      contextType: 'orden', // Simplificado
-      contextId: prismaData.ordenId,
+      contextType: prismaData.ejecucionId ? 'ejecucion' : 'orden',
+      contextId: prismaData.ejecucionId || prismaData.ordenId,
       submittedBy: prismaData.completadoPorId || '',
       submittedAt: prismaData.completadoEn,
       validatedAt: prismaData.revisadoEn,

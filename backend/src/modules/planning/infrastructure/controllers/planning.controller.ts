@@ -92,28 +92,18 @@ export class PlanningController {
 
     this.logger.log('Obteniendo planeación', context);
 
-    try {
-      const planeacion = await this.getPlaneacion.execute(orderId);
+    const planeacion = await this.getPlaneacion.execute(orderId);
 
-      if (!planeacion) {
-        throw new NotFoundException(`Planeación no encontrada para la orden ${orderId}`);
-      }
-
-      this.logger.log('Planeación obtenida exitosamente', {
-        ...context,
-        planeacionId: planeacion.id,
-      });
-
-      return planeacion;
-    } catch (error) {
-      const err = error as Error;
-      this.logger.error('Error obteniendo planeación', {
-        ...context,
-        error: err.message,
-        stack: err.stack,
-      });
-      throw error;
+    if (!planeacion) {
+      throw new NotFoundException(`Planeación no encontrada para la orden ${orderId}`);
     }
+
+    this.logger.log('Planeación obtenida exitosamente', {
+      ...context,
+      planeacionId: planeacion.id,
+    });
+
+    return planeacion;
   }
 
   /**
@@ -194,24 +184,14 @@ export class PlanningController {
 
     this.logger.log('Creando/actualizando planeación', context);
 
-    try {
-      const result = await this.createOrUpdatePlaneacion.execute(orderId, dto);
+    const result = await this.createOrUpdatePlaneacion.execute(orderId, dto);
 
-      this.logger.log('Planeación creada/actualizada exitosamente', {
-        ...context,
-        planeacionId: result.data?.id,
-      });
+    this.logger.log('Planeación creada/actualizada exitosamente', {
+      ...context,
+      planeacionId: result.data?.id,
+    });
 
-      return result;
-    } catch (error) {
-      const err = error as Error;
-      this.logger.error('Error creando/actualizando planeación', {
-        ...context,
-        error: err.message,
-        stack: err.stack,
-      });
-      throw error;
-    }
+    return result;
   }
 
   /**
@@ -260,31 +240,15 @@ export class PlanningController {
 
     this.logger.log('Aprobando planeación', context);
 
-    try {
-      // Llamada corregida: solo 2 parámetros según firma original
-      const result = await this.aprobarPlaneacion.execute(id, userId || 'system');
+    // Llamada corregida: solo 2 parámetros según firma original
+    const result = await this.aprobarPlaneacion.execute(id, userId || 'system');
 
-      this.logger.log('Planeación aprobada exitosamente', context);
+    this.logger.log('Planeación aprobada exitosamente', context);
 
-      return {
-        message: 'Planeación aprobada exitosamente',
-        data: result.data,
-      };
-    } catch (error) {
-      const err = error as Error;
-
-      // Manejo de excepciones sin importar clases custom
-      if (err.message.includes('ya aprobada') || err.message.includes('already approved')) {
-        this.logger.warn('Intento de aprobar planeación ya aprobada', context);
-      } else {
-        this.logger.error('Error aprobando planeación', {
-          ...context,
-          error: err.message,
-          stack: err.stack,
-        });
-      }
-      throw error;
-    }
+    return {
+      message: 'Planeación aprobada exitosamente',
+      data: result.data,
+    };
   }
 
   /**
@@ -343,24 +307,14 @@ export class PlanningController {
 
     this.logger.log('Rechazando planeación', context);
 
-    try {
-      // Llamada corregida: solo 2 parámetros según firma original
-      const result = await this.rechazarPlaneacion.execute(id, dto.motivo);
+    // Llamada corregida: solo 2 parámetros según firma original
+    const result = await this.rechazarPlaneacion.execute(id, dto.motivo);
 
-      this.logger.log('Planeación rechazada exitosamente', context);
+    this.logger.log('Planeación rechazada exitosamente', context);
 
-      return {
-        message: 'Planeación rechazada',
-        data: result.data,
-      };
-    } catch (error) {
-      const err = error as Error;
-      this.logger.error('Error rechazando planeación', {
-        ...context,
-        error: err.message,
-        stack: err.stack,
-      });
-      throw error;
-    }
+    return {
+      message: 'Planeación rechazada',
+      data: result.data,
+    };
   }
 }
