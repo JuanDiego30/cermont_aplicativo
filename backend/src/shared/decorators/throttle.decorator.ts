@@ -7,11 +7,8 @@
  * @module shared/decorators
  */
 
-import { SetMetadata, applyDecorators } from "@nestjs/common";
-import {
-  SkipThrottle as NestSkipThrottle,
-  Throttle as NestThrottle,
-} from "@nestjs/throttler";
+import { SetMetadata, applyDecorators } from '@nestjs/common';
+import { SkipThrottle as NestSkipThrottle, Throttle as NestThrottle } from '@nestjs/throttler';
 
 /**
  * Opciones de configuración para rate limiting
@@ -38,7 +35,7 @@ export const THROTTLE_PRESETS = {
   AUTH: {
     limit: 5,
     ttl: 15 * 60_000, // 15 minutos
-    name: "auth",
+    name: 'auth',
   } as ThrottleOptions,
 
   /**
@@ -50,7 +47,7 @@ export const THROTTLE_PRESETS = {
   PUBLIC: {
     limit: 100,
     ttl: 15 * 60_000, // 15 minutos
-    name: "public",
+    name: 'public',
   } as ThrottleOptions,
 
   /**
@@ -62,7 +59,7 @@ export const THROTTLE_PRESETS = {
   WRITE: {
     limit: 30,
     ttl: 60_000, // 1 minuto
-    name: "write",
+    name: 'write',
   } as ThrottleOptions,
 
   /**
@@ -74,7 +71,7 @@ export const THROTTLE_PRESETS = {
   READ: {
     limit: 200,
     ttl: 60_000, // 1 minuto
-    name: "read",
+    name: 'read',
   } as ThrottleOptions,
 
   /**
@@ -86,7 +83,7 @@ export const THROTTLE_PRESETS = {
   UPLOAD: {
     limit: 10,
     ttl: 5 * 60_000, // 5 minutos
-    name: "upload",
+    name: 'upload',
   } as ThrottleOptions,
 
   /**
@@ -98,14 +95,14 @@ export const THROTTLE_PRESETS = {
   WEBHOOK: {
     limit: 50,
     ttl: 60_000, // 1 minuto
-    name: "webhook",
+    name: 'webhook',
   } as ThrottleOptions,
 } as const;
 
 /**
  * Metadata key para identificar throttle personalizado
  */
-export const THROTTLE_METADATA_KEY = "throttle_custom_config";
+export const THROTTLE_METADATA_KEY = 'throttle_custom_config';
 
 /**
  * Re-exportación del decorador nativo para skip throttle
@@ -171,7 +168,7 @@ export function Throttle(options: ThrottleOptions) {
 
   return applyDecorators(
     NestThrottle({ default: { limit: options.limit, ttl: options.ttl } }),
-    SetMetadata(THROTTLE_METADATA_KEY, options),
+    SetMetadata(THROTTLE_METADATA_KEY, options)
   );
 }
 
@@ -287,27 +284,23 @@ export function ThrottleWebhook() {
  */
 function validateThrottleOptions(options: ThrottleOptions): void {
   if (!options) {
-    throw new Error("Las opciones de throttle son requeridas");
+    throw new Error('Las opciones de throttle son requeridas');
   }
 
   if (!Number.isInteger(options.limit) || options.limit <= 0) {
-    throw new Error(
-      `El límite debe ser un número entero positivo. Recibido: ${options.limit}`,
-    );
+    throw new Error(`El límite debe ser un número entero positivo. Recibido: ${options.limit}`);
   }
 
   if (!Number.isInteger(options.ttl) || options.ttl <= 0) {
     throw new Error(
-      `El TTL debe ser un número entero positivo en milisegundos. Recibido: ${options.ttl}`,
+      `El TTL debe ser un número entero positivo en milisegundos. Recibido: ${options.ttl}`
     );
   }
 
   // Validar que el TTL no sea excesivamente largo (más de 1 hora)
   const MAX_TTL = 60 * 60 * 1000; // 1 hora
   if (options.ttl > MAX_TTL) {
-    throw new Error(
-      `El TTL no debe exceder 1 hora (${MAX_TTL}ms). Recibido: ${options.ttl}ms`,
-    );
+    throw new Error(`El TTL no debe exceder 1 hora (${MAX_TTL}ms). Recibido: ${options.ttl}ms`);
   }
 }
 
@@ -324,16 +317,10 @@ function validateThrottleOptions(options: ThrottleOptions): void {
  */
 export function createThrottleConfigFromEnv(
   prefix: string,
-  defaults: ThrottleOptions,
+  defaults: ThrottleOptions
 ): ThrottleOptions {
-  const limit = parseInt(
-    process.env[`${prefix}_LIMIT`] || String(defaults.limit),
-    10,
-  );
-  const ttl = parseInt(
-    process.env[`${prefix}_TTL`] || String(defaults.ttl),
-    10,
-  );
+  const limit = parseInt(process.env[`${prefix}_LIMIT`] || String(defaults.limit), 10);
+  const ttl = parseInt(process.env[`${prefix}_TTL`] || String(defaults.ttl), 10);
   const name = process.env[`${prefix}_NAME`] || defaults.name;
 
   const config: ThrottleOptions = { limit, ttl, name };
@@ -343,4 +330,3 @@ export function createThrottleConfigFromEnv(
 
   return config;
 }
-

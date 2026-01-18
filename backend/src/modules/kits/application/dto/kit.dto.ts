@@ -11,28 +11,28 @@ import {
   MinLength,
   Min,
   IsInt,
-} from "class-validator";
-import { Type } from "class-transformer";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 /**
  * DTO para items dentro de un Kit
  */
 export class KitItemCreateDto {
-  @ApiProperty({ description: "Nombre del item", example: "Taladro" })
+  @ApiProperty({ description: 'Nombre del item', example: 'Taladro' })
   @IsString()
   @MinLength(1)
   nombre!: string;
 
-  @ApiProperty({ description: "Cantidad requerida", minimum: 1, example: 2 })
+  @ApiProperty({ description: 'Cantidad requerida', minimum: 1, example: 2 })
   @IsNumber()
   @IsInt()
   @Min(1)
   cantidad!: number;
 
   @ApiPropertyOptional({
-    description: "Unidad de medida",
-    example: "unidad",
+    description: 'Unidad de medida',
+    example: 'unidad',
   })
   @IsOptional()
   @IsString()
@@ -44,51 +44,51 @@ export class KitItemCreateDto {
  */
 export class CreateKitDto {
   @ApiProperty({
-    description: "Nombre del kit",
+    description: 'Nombre del kit',
     minLength: 3,
-    example: "Kit de Instalación Básico",
+    example: 'Kit de Instalación Básico',
   })
   @IsString()
   @MinLength(3)
   nombre!: string;
 
-  @ApiPropertyOptional({ description: "Descripción del kit" })
+  @ApiPropertyOptional({ description: 'Descripción del kit' })
   @IsOptional()
   @IsString()
   descripcion?: string;
 
-  @ApiPropertyOptional({ description: "Herramientas incluidas" })
+  @ApiPropertyOptional({ description: 'Herramientas incluidas' })
   @IsOptional()
   herramientas?: unknown;
 
-  @ApiPropertyOptional({ description: "Equipos incluidos" })
+  @ApiPropertyOptional({ description: 'Equipos incluidos' })
   @IsOptional()
   equipos?: unknown;
 
-  @ApiPropertyOptional({ description: "IDs de documentos asociados" })
+  @ApiPropertyOptional({ description: 'IDs de documentos asociados' })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   documentos?: string[];
 
-  @ApiPropertyOptional({ description: "Items del checklist" })
+  @ApiPropertyOptional({ description: 'Items del checklist' })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   checklistItems?: string[];
 
-  @ApiPropertyOptional({ description: "Duración estimada en horas" })
+  @ApiPropertyOptional({ description: 'Duración estimada en horas' })
   @IsOptional()
   @IsNumber()
   duracionEstimadaHoras?: number;
 
-  @ApiPropertyOptional({ description: "Costo estimado del kit" })
+  @ApiPropertyOptional({ description: 'Costo estimado del kit' })
   @IsOptional()
   @IsNumber()
   costoEstimado?: number;
 
   @ApiPropertyOptional({
-    description: "Items del kit",
+    description: 'Items del kit',
     type: [KitItemCreateDto],
   })
   @IsOptional()
@@ -97,7 +97,7 @@ export class CreateKitDto {
   @Type(() => KitItemCreateDto)
   items?: KitItemCreateDto[];
 
-  @ApiPropertyOptional({ description: "Categoría del kit" })
+  @ApiPropertyOptional({ description: 'Categoría del kit' })
   @IsOptional()
   @IsString()
   categoria?: string;
@@ -122,7 +122,7 @@ export interface KitResponse {
 }
 
 // Repository Interface
-export const KIT_REPOSITORY = Symbol("KIT_REPOSITORY");
+export const KIT_REPOSITORY = Symbol('KIT_REPOSITORY');
 
 export interface KitData {
   id: string;

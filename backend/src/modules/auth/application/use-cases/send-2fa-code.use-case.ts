@@ -1,11 +1,6 @@
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-  BadRequestException,
-} from "@nestjs/common";
-import { PrismaService } from "../../../../prisma/prisma.service";
-import { EventEmitter2 } from "@nestjs/event-emitter";
+import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 export interface Send2FACodeResult {
   message: string;
@@ -19,7 +14,7 @@ export class Send2FACodeUseCase {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   async execute(email: string): Promise<Send2FACodeResult> {
@@ -37,15 +32,15 @@ export class Send2FACodeUseCase {
       });
 
       if (!user) {
-        this.logger.warn("2FA code request failed: User not found");
-        throw new NotFoundException("Usuario no encontrado");
+        this.logger.warn('2FA code request failed: User not found');
+        throw new NotFoundException('Usuario no encontrado');
       }
 
       // Regla 2: admin SIEMPRE requiere 2FA.
-      const isAdmin = String(user.role) === "admin";
+      const isAdmin = String(user.role) === 'admin';
       if (!user.twoFactorEnabled && !isAdmin) {
-        this.logger.warn("2FA code request failed: 2FA not enabled");
-        throw new BadRequestException("El usuario no tiene 2FA habilitado");
+        this.logger.warn('2FA code request failed: 2FA not enabled');
+        throw new BadRequestException('El usuario no tiene 2FA habilitado');
       }
 
       // 2. Invalidar códigos anteriores del usuario
@@ -60,9 +55,7 @@ export class Send2FACodeUseCase {
       const code = this.generateSixDigitCode();
 
       // 4. Calcular expiración (5 minutos)
-      const expiresAt = new Date(
-        Date.now() + this.CODE_EXPIRATION_MINUTES * 60 * 1000,
-      );
+      const expiresAt = new Date(Date.now() + this.CODE_EXPIRATION_MINUTES * 60 * 1000);
 
       // 5. Guardar código en base de datos
       await this.prisma.twoFactorToken.create({
@@ -76,7 +69,7 @@ export class Send2FACodeUseCase {
       });
 
       // 6. Emitir evento para enviar email (desacoplado)
-      this.eventEmitter.emit("auth.2fa.code-generated", {
+      this.eventEmitter.emit('auth.2fa.code-generated', {
         userId: user.id,
         email: user.email,
         name: user.name,
@@ -87,9 +80,9 @@ export class Send2FACodeUseCase {
       // Audit log (sin secretos)
       await this.prisma.auditLog.create({
         data: {
-          entityType: "User",
+          entityType: 'User',
           entityId: user.id,
-          action: "2FA_CODE_SENT",
+          action: '2FA_CODE_SENT',
           userId: user.id,
           changes: {
             expiresAt: expiresAt.toISOString(),
@@ -100,19 +93,16 @@ export class Send2FACodeUseCase {
       this.logger.log(`2FA code generated for user ${user.id}`);
 
       return {
-        message: "Código de verificación enviado exitosamente",
+        message: 'Código de verificación enviado exitosamente',
         expiresIn: this.CODE_EXPIRATION_MINUTES * 60, // segundos
       };
     } catch (error) {
-      if (
-        error instanceof NotFoundException ||
-        error instanceof BadRequestException
-      ) {
+      if (error instanceof NotFoundException || error instanceof BadRequestException) {
         throw error;
       }
       const err = error as Error;
       this.logger.error(`Error sending 2FA code: ${err.message}`, err.stack);
-      throw new BadRequestException("Error al enviar código de verificación");
+      throw new BadRequestException('Error al enviar código de verificación');
     }
   }
 

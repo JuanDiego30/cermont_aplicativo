@@ -9,15 +9,15 @@
  * - Fechas no en futuro (excepto para períodos custom)
  */
 
-import { ValidationError } from "../exceptions";
+import { ValidationError } from '../exceptions';
 
 export enum TimePeriodType {
-  TODAY = "TODAY",
-  WEEK = "WEEK",
-  MONTH = "MONTH",
-  QUARTER = "QUARTER",
-  YEAR = "YEAR",
-  CUSTOM = "CUSTOM",
+  TODAY = 'TODAY',
+  WEEK = 'WEEK',
+  MONTH = 'MONTH',
+  QUARTER = 'QUARTER',
+  YEAR = 'YEAR',
+  CUSTOM = 'CUSTOM',
 }
 
 export class TimePeriod {
@@ -26,7 +26,7 @@ export class TimePeriod {
   private constructor(
     private readonly _startDate: Date,
     private readonly _endDate: Date,
-    private readonly _type: TimePeriodType,
+    private readonly _type: TimePeriodType
   ) {
     this.validate();
     Object.freeze(this);
@@ -136,9 +136,7 @@ export class TimePeriod {
    * Calcula la duración en días
    */
   public getDurationInDays(): number {
-    const diffTime = Math.abs(
-      this._endDate.getTime() - this._startDate.getTime(),
-    );
+    const diffTime = Math.abs(this._endDate.getTime() - this._startDate.getTime());
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 para incluir ambos días
   }
 
@@ -203,7 +201,7 @@ export class TimePeriod {
    * Representación string
    */
   public toString(): string {
-    return `${this._startDate.toISOString().split("T")[0]} to ${this._endDate.toISOString().split("T")[0]}`;
+    return `${this._startDate.toISOString().split('T')[0]} to ${this._endDate.toISOString().split('T')[0]}`;
   }
 
   /**
@@ -211,27 +209,21 @@ export class TimePeriod {
    */
   private validate(): void {
     if (this._startDate > this._endDate) {
-      throw new ValidationError(
-        "Start date must be before or equal to end date",
-        "timePeriod",
-      );
+      throw new ValidationError('Start date must be before or equal to end date', 'timePeriod');
     }
 
     const duration = this.getDurationInDays();
     if (duration > TimePeriod.MAX_DURATION_DAYS) {
       throw new ValidationError(
         `Period duration cannot exceed ${TimePeriod.MAX_DURATION_DAYS} days`,
-        "timePeriod",
+        'timePeriod'
       );
     }
 
     // Validar que no esté en el futuro (excepto custom)
     const now = new Date();
     if (this._type !== TimePeriodType.CUSTOM && this._startDate > now) {
-      throw new ValidationError(
-        "Period cannot start in the future",
-        "timePeriod",
-      );
+      throw new ValidationError('Period cannot start in the future', 'timePeriod');
     }
   }
 }

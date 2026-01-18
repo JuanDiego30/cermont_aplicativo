@@ -4,18 +4,12 @@
  * Activa o desactiva un usuario.
  */
 
-import {
-  Inject,
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  Logger,
-} from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
+import { Inject, Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   IUserRepository,
   USER_REPOSITORY,
-} from "../../domain/repositories/user.repository.interface";
+} from '../../domain/repositories/user.repository.interface';
 
 export interface ToggleUserActiveCommand {
   userId: string;
@@ -36,7 +30,7 @@ export class ToggleUserActiveUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepository: IUserRepository,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   /**
@@ -51,17 +45,17 @@ export class ToggleUserActiveUseCase {
 
     // 2. No permitir desactivarse a sí mismo
     if (command.userId === command.changedBy && !command.active) {
-      throw new BadRequestException("No puedes desactivar tu propia cuenta");
+      throw new BadRequestException('No puedes desactivar tu propia cuenta');
     }
 
     // 3. No desactivar último admin
     if (!command.active && user.role.isAdmin()) {
       const adminCount = await this.userRepository.countAdmins();
-      const activeAdmins = await this.userRepository.countByRole("admin");
+      const activeAdmins = await this.userRepository.countByRole('admin');
       // Verificar si es el único admin activo
       if (activeAdmins <= 1) {
         throw new BadRequestException(
-          "No se puede desactivar el único administrador activo del sistema",
+          'No se puede desactivar el único administrador activo del sistema'
         );
       }
     }
@@ -79,7 +73,7 @@ export class ToggleUserActiveUseCase {
     // 6. Emitir eventos
     this.publishDomainEvents(user);
 
-    const estado = command.active ? "activado" : "desactivado";
+    const estado = command.active ? 'activado' : 'desactivado';
     this.logger.log(`Usuario ${estado}: ${user.email.getValue()}`);
 
     return {

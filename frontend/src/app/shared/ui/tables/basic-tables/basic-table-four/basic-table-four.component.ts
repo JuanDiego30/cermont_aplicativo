@@ -1,19 +1,16 @@
-
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { TableDropdownComponent } from '../../../../components/common/table-dropdown/table-dropdown.component';
 import { BadgeComponent } from '../../../ui/badge/badge.component';
-import { TableDropdownComponent } from '../../../common/table-dropdown/table-dropdown.component';
 
 @Component({
   selector: 'app-basic-table-four',
-  imports: [
-    BadgeComponent,
-    TableDropdownComponent
-],
+  standalone: true,
+  imports: [CommonModule, BadgeComponent, TableDropdownComponent],
   templateUrl: './basic-table-four.component.html',
-  styles: ``
+  styles: ``,
 })
 export class BasicTableFourComponent {
-
   campaigns = [
     {
       id: 1,

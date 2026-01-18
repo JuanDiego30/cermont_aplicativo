@@ -113,18 +113,13 @@ export enum UserRole {
 export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
   [UserRole.ADMIN]: ['*'], // Acceso total
   [UserRole.SUPERVISOR]: [
-    'ordenes:read',
-    'ordenes:write',
+    'orders:read',
+    'orders:write',
     'usuarios:read',
-    'reportes:read',
-    'reportes:write',
+    'reports:read',
+    'reports:write',
     'dashboard:read',
   ],
-  [UserRole.TECNICO]: [
-    'ordenes:read',
-    'ordenes:write:own',
-    'evidencias:write',
-    'ejecucion:write:own',
-  ],
-  [UserRole.ADMINISTRATIVO]: ['ordenes:read', 'reportes:read', 'costos:read', 'costos:write'],
+  [UserRole.TECNICO]: ['orders:read', 'orders:write:own', 'evidence:write', 'ejecucion:write:own'],
+  [UserRole.ADMINISTRATIVO]: ['orders:read', 'reports:read', 'costos:read', 'costos:write'],
 } as const;

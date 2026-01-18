@@ -10,8 +10,8 @@
  *
  * Uso: Importar en AppModule.
  */
-import { ThrottlerModule, ThrottlerModuleOptions } from "@nestjs/throttler";
-import { ConfigService } from "@nestjs/config";
+import { ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * Factory para crear configuración de throttler desde variables de entorno
@@ -22,26 +22,26 @@ export const ThrottlerConfigFactory = {
   useFactory: (config: ConfigService): ThrottlerModuleOptions => ({
     throttlers: [
       {
-        name: "short",
+        name: 'short',
         ttl: 10000, // 10 segundos
-        limit: config.get<number>("THROTTLE_SHORT_LIMIT") ?? 20,
+        limit: config.get<number>('THROTTLE_SHORT_LIMIT') ?? 20,
       },
       {
-        name: "medium",
+        name: 'medium',
         ttl: 60000, // 1 minuto
-        limit: config.get<number>("THROTTLE_MEDIUM_LIMIT") ?? 100,
+        limit: config.get<number>('THROTTLE_MEDIUM_LIMIT') ?? 100,
       },
       {
-        name: "long",
+        name: 'long',
         ttl: 3600000, // 1 hora
-        limit: config.get<number>("THROTTLE_LONG_LIMIT") ?? 1000,
+        limit: config.get<number>('THROTTLE_LONG_LIMIT') ?? 1000,
       },
     ],
     // Skip throttling para health checks
-    skipIf: (context) => {
+    skipIf: context => {
       const request = context.switchToHttp().getRequest();
       const path = request.url;
-      return path.startsWith("/api/health");
+      return path.startsWith('/api/health');
     },
   }),
 };
@@ -49,6 +49,4 @@ export const ThrottlerConfigFactory = {
 /**
  * Módulo de throttling pre-configurado
  */
-export const ThrottlerConfigModule = ThrottlerModule.forRootAsync(
-  ThrottlerConfigFactory,
-);
+export const ThrottlerConfigModule = ThrottlerModule.forRootAsync(ThrottlerConfigFactory);

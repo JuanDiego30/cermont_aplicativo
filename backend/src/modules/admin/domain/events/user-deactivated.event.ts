@@ -6,13 +6,13 @@
 
 export class UserDeactivatedEvent {
   readonly occurredAt: Date;
-  readonly eventName = "UserDeactivatedEvent";
+  readonly eventName = 'UserDeactivatedEvent';
 
   constructor(
     readonly userId: string,
     readonly userEmail: string,
     readonly deactivatedBy: string,
-    readonly reason?: string,
+    readonly reason?: string
   ) {
     this.occurredAt = new Date();
   }

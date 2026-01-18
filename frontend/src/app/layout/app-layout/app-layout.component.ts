@@ -10,20 +10,19 @@ import { BottomNavComponent } from '../../shared/components/common/bottom-nav/bo
 import { MobileHeaderComponent } from '../../shared/components/common/mobile-header/mobile-header.component';
 
 @Component({
-    selector: 'app-layout',
-    imports: [
-        CommonModule,
-        RouterModule,
-        AppHeaderComponent,
-        AppSidebarComponent,
-        BackdropComponent,
-        AsistenteIAComponent,
-        BottomNavComponent,
-        MobileHeaderComponent
-    ],
-    templateUrl: './app-layout.component.html'
+  selector: 'app-layout',
+  imports: [
+    CommonModule,
+    RouterModule,
+    AppHeaderComponent,
+    AppSidebarComponent,
+    BackdropComponent,
+    AsistenteIAComponent,
+    BottomNavComponent,
+    MobileHeaderComponent,
+  ],
+  templateUrl: './app-layout.component.html',
 })
-
 export class AppLayoutComponent {
   public readonly sidebarService = inject(SidebarService);
 
@@ -43,9 +42,8 @@ export class AppLayoutComponent {
       'transition-all',
       'duration-300',
       'ease-in-out',
-      (this.isExpanded$ || this.isHovered$) ? 'xl:ml-[290px]' : 'xl:ml-[90px]',
-      this.isMobileOpen$ ? 'ml-0' : ''
+      this.isExpanded$ || this.isHovered$ ? 'xl:ml-[290px]' : 'xl:ml-[90px]',
+      this.isMobileOpen$ ? 'ml-0' : '',
     ];
   }
-
 }

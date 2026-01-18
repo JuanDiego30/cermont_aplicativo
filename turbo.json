@@ -58,5 +58,8 @@
       "outputs": ["node_modules/.prisma/**"],
       "cache": true
     }
+  },
+  "remoteCache": {
+    "signature": true
   }
 }

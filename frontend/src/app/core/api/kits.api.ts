@@ -10,11 +10,11 @@ import {
   UpdateKitDto,
   AddItemToKitDto,
   ListKitsQueryDto,
-  PaginatedKits
+  PaginatedKits,
 } from '../models/kit.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class KitsApi extends ApiBaseService {
   /**
@@ -80,4 +80,3 @@ export class KitsApi extends ApiBaseService {
     return this.patch<{ message: string; data: Kit }>(`/kits/${id}/deactivate`, {});
   }
 }
-

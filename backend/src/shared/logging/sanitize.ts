@@ -1,23 +1,23 @@
-import { LogLevel } from "@nestjs/common";
+import { LogLevel } from '@nestjs/common';
 
 const DEFAULT_SENSITIVE_KEYS = new Set([
-  "password",
-  "pass",
-  "pwd",
-  "token",
-  "access_token",
-  "accessToken",
-  "refresh_token",
-  "refreshToken",
-  "id_token",
-  "idToken",
-  "authorization",
-  "cookie",
-  "set-cookie",
-  "secret",
-  "clientSecret",
-  "apiKey",
-  "apikey",
+  'password',
+  'pass',
+  'pwd',
+  'token',
+  'access_token',
+  'accessToken',
+  'refresh_token',
+  'refreshToken',
+  'id_token',
+  'idToken',
+  'authorization',
+  'cookie',
+  'set-cookie',
+  'secret',
+  'clientSecret',
+  'apiKey',
+  'apikey',
 ]);
 
 function isJwtLike(value: string): boolean {
@@ -26,10 +26,10 @@ function isJwtLike(value: string): boolean {
 
 function maskString(value: string): string {
   if (!value) return value;
-  if (isJwtLike(value)) return "[REDACTED_JWT]";
+  if (isJwtLike(value)) return '[REDACTED_JWT]';
 
   const trimmed = value.trim();
-  if (trimmed.length <= 8) return "[REDACTED]";
+  if (trimmed.length <= 8) return '[REDACTED]';
 
   return `${trimmed.slice(0, 2)}***${trimmed.slice(-4)}`;
 }
@@ -37,15 +37,12 @@ function maskString(value: string): string {
 export function sanitizeUrl(url: string): string {
   try {
     // URL puede venir sin host; usar base dummy
-    const parsed = new URL(url, "http://localhost");
+    const parsed = new URL(url, 'http://localhost');
 
     for (const [key] of parsed.searchParams) {
       const lower = key.toLowerCase();
-      if (
-        DEFAULT_SENSITIVE_KEYS.has(key) ||
-        DEFAULT_SENSITIVE_KEYS.has(lower)
-      ) {
-        parsed.searchParams.set(key, "[REDACTED]");
+      if (DEFAULT_SENSITIVE_KEYS.has(key) || DEFAULT_SENSITIVE_KEYS.has(lower)) {
+        parsed.searchParams.set(key, '[REDACTED]');
       }
     }
 
@@ -65,20 +62,17 @@ export function sanitizeLogMeta<T>(input: T, maxDepth = 6): T {
   const sanitizeAny = (value: any, depth: number, keyHint?: string): any => {
     if (value === null || value === undefined) return value;
 
-    if (typeof value === "string") {
+    if (typeof value === 'string') {
       if (keyHint) {
         const lower = keyHint.toLowerCase();
-        if (
-          DEFAULT_SENSITIVE_KEYS.has(keyHint) ||
-          DEFAULT_SENSITIVE_KEYS.has(lower)
-        ) {
+        if (DEFAULT_SENSITIVE_KEYS.has(keyHint) || DEFAULT_SENSITIVE_KEYS.has(lower)) {
           return maskString(value);
         }
       }
       return value;
     }
 
-    if (typeof value === "number" || typeof value === "boolean") return value;
+    if (typeof value === 'number' || typeof value === 'boolean') return value;
 
     if (value instanceof Error) {
       return {
@@ -89,30 +83,27 @@ export function sanitizeLogMeta<T>(input: T, maxDepth = 6): T {
     }
 
     if (Array.isArray(value)) {
-      if (depth >= maxDepth) return "[TRUNCATED]";
-      return value.map((item) => sanitizeAny(item, depth + 1));
+      if (depth >= maxDepth) return '[TRUNCATED]';
+      return value.map(item => sanitizeAny(item, depth + 1));
     }
 
-    if (typeof value === "object") {
-      if (depth >= maxDepth) return "[TRUNCATED]";
-      if (seen.has(value)) return "[CIRCULAR]";
+    if (typeof value === 'object') {
+      if (depth >= maxDepth) return '[TRUNCATED]';
+      if (seen.has(value)) return '[CIRCULAR]';
       seen.add(value);
 
       const out: Record<string, unknown> = {};
       for (const [k, v] of Object.entries(value)) {
-        if (
-          DEFAULT_SENSITIVE_KEYS.has(k) ||
-          DEFAULT_SENSITIVE_KEYS.has(k.toLowerCase())
-        ) {
-          if (typeof v === "string") out[k] = maskString(v);
-          else out[k] = "[REDACTED]";
+        if (DEFAULT_SENSITIVE_KEYS.has(k) || DEFAULT_SENSITIVE_KEYS.has(k.toLowerCase())) {
+          if (typeof v === 'string') out[k] = maskString(v);
+          else out[k] = '[REDACTED]';
           continue;
         }
 
         // Sanitizar URL si el key lo sugiere
         if (
-          typeof v === "string" &&
-          (k.toLowerCase() === "url" || k.toLowerCase().endsWith("url"))
+          typeof v === 'string' &&
+          (k.toLowerCase() === 'url' || k.toLowerCase().endsWith('url'))
         ) {
           out[k] = sanitizeUrl(v);
           continue;

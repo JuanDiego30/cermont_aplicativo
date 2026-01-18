@@ -11,7 +11,7 @@ import { Subject, takeUntil } from 'rxjs';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink, AntigravityBackgroundComponent],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
 })
 export class LoginComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
@@ -57,11 +57,11 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      rememberMe: [false]
+      rememberMe: [false],
     });
 
     this.twoFactorForm = this.fb.group({
-      code: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]]
+      code: ['', [Validators.required, Validators.pattern(/^\d{6}$/)]],
     });
   }
 
@@ -76,10 +76,11 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     const { email, password, rememberMe } = this.loginForm.value;
 
-    this.authService.login({ email, password, rememberMe })
+    this.authService
+      .login({ email, password, rememberMe })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
+        next: response => {
           if (response.requires2FA) {
             this.tempEmail.set(email);
             this.tempPassword.set(password);
@@ -90,10 +91,10 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.handleLoginSuccess();
           }
         },
-        error: (err) => {
+        error: err => {
           this.error.set(err.message || 'Error al iniciar sesión');
           this.loading.set(false);
-        }
+        },
       });
   }
 
@@ -108,21 +109,17 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     const code = this.twoFactorForm.get('code')?.value;
 
-    this.authService.verify2FALogin(
-      this.tempEmail(),
-      this.tempPassword(),
-      code,
-      this.tempRememberMe()
-    )
+    this.authService
+      .verify2FALogin(this.tempEmail(), this.tempPassword(), code, this.tempRememberMe())
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.handleLoginSuccess();
         },
-        error: (err) => {
+        error: err => {
           this.error.set(err.message || 'Código 2FA inválido');
           this.loading.set(false);
-        }
+        },
       });
   }
 

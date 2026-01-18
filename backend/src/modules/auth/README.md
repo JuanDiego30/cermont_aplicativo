@@ -7,6 +7,7 @@ Módulo completo de autenticación JWT con refresh tokens, gestión de usuarios,
 ## Características
 
 ### Autenticación
+
 - ✅ Login con email/contraseña
 - ✅ Registro de usuarios
 - ✅ JWT access tokens (configurable, 15min por defecto)
@@ -19,6 +20,7 @@ Módulo completo de autenticación JWT con refresh tokens, gestión de usuarios,
 - ✅ Auditoría completa de accesos
 
 ### Administración de Usuarios
+
 - ✅ CRUD completo de usuarios
 - ✅ Paginación y filtros avanzados
 - ✅ Búsqueda por nombre/email
@@ -30,6 +32,7 @@ Módulo completo de autenticación JWT con refresh tokens, gestión de usuarios,
 - ✅ Logs de auditoría
 
 ### Seguridad
+
 - ✅ Protección contra brute force
 - ✅ Detección de robo de tokens
 - ✅ Rate limiting
@@ -43,9 +46,11 @@ Módulo completo de autenticación JWT con refresh tokens, gestión de usuarios,
 ### Autenticación (`/auth`)
 
 #### POST /auth/login
+
 Login con credenciales.
 
 **Request:**
+
 ```json
 {
   "email": "admin@cermont.com",
@@ -54,6 +59,7 @@ Login con credenciales.
 ```
 
 **Response:**
+
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIs...",
@@ -69,20 +75,25 @@ Login con credenciales.
 ```
 
 #### POST /auth/register
+
 Registro de nuevo usuario.
 
 #### POST /auth/refresh
+
 Renovar access token usando refresh token.
 
 #### POST /auth/logout
+
 Cerrar sesión y revocar tokens.
 
 ### Administración (`/admin/users`)
 
 #### GET /admin/users
+
 Listar usuarios con filtros y paginación.
 
 **Query Params:**
+
 - `role`: admin | supervisor | tecnico
 - `active`: true | false
 - `search`: string
@@ -93,53 +104,67 @@ Listar usuarios con filtros y paginación.
 - `locked`: true | false
 
 #### POST /admin/users
+
 Crear nuevo usuario (solo admin).
 
 #### GET /admin/users/:id
+
 Obtener usuario por ID.
 
 #### PATCH /admin/users/:id
+
 Actualizar información de usuario.
 
 #### PATCH /admin/users/:id/role
+
 Cambiar rol de usuario.
 
 #### PATCH /admin/users/:id/activate
+
 Activar usuario.
 
 #### PATCH /admin/users/:id/deactivate
+
 Desactivar usuario.
 
 #### POST /admin/users/:id/reset-password
+
 Resetear contraseña de usuario.
 
 #### POST /admin/users/:id/revoke-tokens
+
 Revocar todos los tokens activos.
 
 #### GET /admin/users/stats/overview
+
 Estadísticas de usuarios.
 
 #### GET /admin/users/stats/activity
+
 Actividad reciente.
 
 #### GET /admin/users/audit-logs
+
 Logs de auditoría.
 
 ## Roles y Permisos
 
 ### Admin
+
 - ✅ Acceso completo al sistema
 - ✅ Gestión de usuarios
 - ✅ Configuración del sistema
 - ✅ Acceso a logs de auditoría
 
 ### Supervisor
+
 - ✅ Supervisión de órdenes
 - ✅ Revisión de trabajo
 - ✅ Gestión de equipos
 - ⛔ No puede gestionar usuarios
 
 ### Técnico
+
 - ✅ Ejecución de órdenes
 - ✅ Reportes de campo
 - ⛔ No puede supervisar
@@ -148,6 +173,7 @@ Logs de auditoría.
 ## Seguridad
 
 ### Validación de Contraseña
+
 - Mínimo 8 caracteres
 - Al menos 1 mayúscula
 - Al menos 1 minúscula
@@ -155,11 +181,13 @@ Logs de auditoría.
 - Al menos 1 carácter especial
 
 ### Rate Limiting
+
 - Login: 5 intentos por minuto por IP
 - Bloqueo: 30 minutos después de 5 intentos fallidos
 - Reset automático en login exitoso
 
 ### Tokens
+
 - Access token: 15 minutos (configurable)
 - Refresh token: 7 días
 - Rotación automática de refresh tokens
@@ -197,34 +225,36 @@ npm run test:cov
 ## Ejemplos de Uso
 
 ### Login
+
 ```typescript
 const response = await fetch('http://localhost:3000/auth/login', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
     email: 'admin@cermont.com',
-    password: 'Admin@2025!'
-  })
+    password: 'Admin@2025!',
+  }),
 });
 
 const { token, refreshToken, user } = await response.json();
 ```
 
 ### Crear Usuario
+
 ```typescript
 const response = await fetch('http://localhost:3000/admin/users', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${accessToken}`
+    Authorization: `Bearer ${accessToken}`,
   },
   body: JSON.stringify({
     email: 'tecnico@cermont.com',
     password: 'Tecnico@2025!',
     name: 'Juan Técnico',
     role: 'tecnico',
-    phone: '+573001234567'
-  })
+    phone: '+573001234567',
+  }),
 });
 ```
 

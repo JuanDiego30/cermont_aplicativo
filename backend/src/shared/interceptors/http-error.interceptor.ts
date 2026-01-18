@@ -4,10 +4,10 @@ import {
   ExecutionContext,
   HttpException,
   InternalServerErrorException,
-} from "@nestjs/common";
-import { Observable, throwError } from "rxjs";
-import { catchError } from "rxjs/operators";
-import { LoggerService } from "@/shared/logging/logger.service";
+} from '@nestjs/common';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { LoggerService } from '@/shared/logging/logger.service';
 
 @Injectable()
 export class HttpErrorInterceptor implements NestInterceptor {
@@ -19,7 +19,7 @@ export class HttpErrorInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: any): Observable<any> {
     return next.handle().pipe(
-      catchError((error) => {
+      catchError(error => {
         const request = context.switchToHttp().getRequest();
         const { method, url, body } = request;
         const timestamp = new Date().toISOString();
@@ -31,7 +31,7 @@ export class HttpErrorInterceptor implements NestInterceptor {
 
           this.logger.log(
             `[${method}] ${url} - Status: ${status} | response: ${JSON.stringify(response)}`,
-            "HttpErrorInterceptor",
+            'HttpErrorInterceptor'
           );
 
           return throwError(() => error);
@@ -41,7 +41,7 @@ export class HttpErrorInterceptor implements NestInterceptor {
         this.logger.error(
           `Unhandled error in ${method} ${url}: ${error.message}`,
           error.stack,
-          "HttpErrorInterceptor",
+          'HttpErrorInterceptor'
         );
 
         // Retornar error genérico para no exponer detalles
@@ -49,12 +49,12 @@ export class HttpErrorInterceptor implements NestInterceptor {
           () =>
             new InternalServerErrorException({
               statusCode: 500,
-              message: "Internal server error",
+              message: 'Internal server error',
               timestamp,
               path: url,
-            }),
+            })
         );
-      }),
+      })
     );
   }
 }

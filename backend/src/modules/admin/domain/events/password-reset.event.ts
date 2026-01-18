@@ -6,13 +6,13 @@
 
 export class PasswordResetEvent {
   readonly occurredAt: Date;
-  readonly eventName = "PasswordResetEvent";
+  readonly eventName = 'PasswordResetEvent';
 
   constructor(
     readonly userId: string,
     readonly userEmail: string,
     readonly resetBy: string,
-    readonly isAdminReset: boolean = false,
+    readonly isAdminReset: boolean = false
   ) {
     this.occurredAt = new Date();
   }

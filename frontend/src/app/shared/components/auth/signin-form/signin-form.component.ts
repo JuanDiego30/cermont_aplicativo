@@ -1,4 +1,3 @@
-
 import { Component, inject, signal, OnDestroy } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -12,14 +11,9 @@ import { logError } from '../../../../core/utils/logger';
 @Component({
   selector: 'app-signin-form',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    LabelComponent,
-    ButtonComponent,
-    RouterModule
-  ],
+  imports: [ReactiveFormsModule, LabelComponent, ButtonComponent, RouterModule],
   templateUrl: './signin-form.component.html',
-  styles: ``
+  styles: ``,
 })
 export class SigninFormComponent implements OnDestroy {
   private readonly fb = inject(FormBuilder);
@@ -34,7 +28,7 @@ export class SigninFormComponent implements OnDestroy {
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
-    rememberMe: [false]
+    rememberMe: [false],
   });
 
   togglePasswordVisibility() {
@@ -52,7 +46,8 @@ export class SigninFormComponent implements OnDestroy {
 
     const { email, password } = this.loginForm.getRawValue();
 
-    this.authService.login({ email: email!, password: password! })
+    this.authService
+      .login({ email: email!, password: password! })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
@@ -64,7 +59,7 @@ export class SigninFormComponent implements OnDestroy {
           const msg = err.error?.message || err.statusText || 'Error al iniciar sesión';
           this.error.set(msg);
           this.isLoading.set(false);
-        }
+        },
       });
   }
 

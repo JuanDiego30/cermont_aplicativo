@@ -11,7 +11,7 @@
  *
  * Representa violaciones de reglas de negocio independientes de la infraestructura
  */
-import { ErrorCodes } from "./error-codes";
+import { ErrorCodes } from './error-codes';
 
 /**
  * Error base de dominio
@@ -61,10 +61,7 @@ export class EntityNotFoundError extends DomainError {
   public readonly entityId: string | number;
 
   constructor(entityName: string, id: string | number) {
-    super(
-      `${entityName} con id ${id} no encontrado`,
-      ErrorCodes.ENTITY_NOT_FOUND,
-    );
+    super(`${entityName} con id ${id} no encontrado`, ErrorCodes.ENTITY_NOT_FOUND);
     this.entityName = entityName;
     this.entityId = id;
   }
@@ -104,10 +101,7 @@ export class InvalidOperationError extends DomainError {
   public readonly currentState?: string;
   public readonly attemptedOperation?: string;
 
-  constructor(
-    message: string,
-    options?: { currentState?: string; attemptedOperation?: string },
-  ) {
+  constructor(message: string, options?: { currentState?: string; attemptedOperation?: string }) {
     super(message, ErrorCodes.INVALID_OPERATION);
     this.currentState = options?.currentState;
     this.attemptedOperation = options?.attemptedOperation;
@@ -127,10 +121,7 @@ export class InvalidOperationError extends DomainError {
  */
 export class InvalidEntityStateError extends DomainError {
   constructor(entityName: string, message: string) {
-    super(
-      `Estado inválido de ${entityName}: ${message}`,
-      ErrorCodes.INVALID_ENTITY_STATE,
-    );
+    super(`Estado inválido de ${entityName}: ${message}`, ErrorCodes.INVALID_ENTITY_STATE);
   }
 }
 
@@ -143,10 +134,7 @@ export class DuplicateEntityError extends DomainError {
   public readonly value: string;
 
   constructor(entityName: string, field: string, value: string) {
-    super(
-      `${entityName} con ${field} "${value}" ya existe`,
-      ErrorCodes.DUPLICATE_ENTITY,
-    );
+    super(`${entityName} con ${field} "${value}" ya existe`, ErrorCodes.DUPLICATE_ENTITY);
     this.entityName = entityName;
     this.field = field;
     this.value = value;
@@ -171,7 +159,7 @@ export class InsufficientPermissionError extends DomainError {
   constructor(requiredPermission: string) {
     super(
       `Permiso insuficiente: se requiere "${requiredPermission}"`,
-      ErrorCodes.INSUFFICIENT_PERMISSION,
+      ErrorCodes.INSUFFICIENT_PERMISSION
     );
     this.requiredPermission = requiredPermission;
   }

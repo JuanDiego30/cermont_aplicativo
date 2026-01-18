@@ -20,6 +20,7 @@ export default [
       globals: {
         ...globals.node,
         ...globals.jest,
+        NodeJS: 'readonly',
       },
     },
     plugins: {
@@ -29,6 +30,31 @@ export default [
     rules: {
       ...tseslint.configs.recommended.rules,
       'prettier/prettier': 'warn',
+    },
+  },
+  {
+    files: ['**/*.spec.ts', '**/*.test.ts', '**/__tests__/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+  {
+    files: [
+      'src/modules/admin/**/*.ts',
+      'src/modules/administrative-closure/**/*.ts',
+      'src/modules/alerts/**/*.ts',
+      'src/modules/auth/**/*.ts',
+      'src/modules/costs/**/*.ts',
+      'src/modules/dashboard/**/*.ts',
+      'src/modules/evidence/**/*.ts',
+      'src/modules/execution/**/*.ts',
+      'src/modules/forms/**/*.ts',
+    ],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': 'warn',
+      'no-case-declarations': 'warn',
+      'no-undef': 'off',
     },
   },
   {

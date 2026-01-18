@@ -15,11 +15,8 @@ export interface IPdfGeneratorOptions {
 }
 
 export interface IPdfGenerator {
-  generateFromHtml(
-    html: string,
-    options?: IPdfGeneratorOptions,
-  ): Promise<Buffer>;
+  generateFromHtml(html: string, options?: IPdfGeneratorOptions): Promise<Buffer>;
   generateFromUrl(url: string, options?: IPdfGeneratorOptions): Promise<Buffer>;
 }
 
-export const PDF_GENERATOR = "PDF_GENERATOR";
+export const PDF_GENERATOR = 'PDF_GENERATOR';

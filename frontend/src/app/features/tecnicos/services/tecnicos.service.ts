@@ -1,45 +1,44 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { TecnicosApi } from '../../../core/api/tecnicos.api';
+import { TechniciansApi } from '../../../core/api/technicians.api';
 import {
-  Tecnico,
-  QueryTecnicosDto,
+  DisponibilidadLevel,
   PaginatedTecnicos,
-  DisponibilidadLevel
+  QueryTecnicosDto,
+  Tecnico,
 } from '../../../core/models/tecnico.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TecnicosService {
-  private readonly tecnicosApi = inject(TecnicosApi);
+  private readonly techniciansApi = inject(TechniciansApi);
 
   /**
    * Lista todos los técnicos con filtros opcionales
    */
   list(params?: QueryTecnicosDto): Observable<PaginatedTecnicos> {
-    return this.tecnicosApi.list(params);
+    return this.techniciansApi.list(params);
   }
 
   /**
    * Obtiene un técnico por ID
    */
   getById(id: string): Observable<Tecnico> {
-    return this.tecnicosApi.getById(id);
+    return this.techniciansApi.getById(id);
   }
 
   /**
    * Obtiene técnicos disponibles para asignación
    */
   getDisponibles(): Observable<{ data: Tecnico[]; total: number }> {
-    return this.tecnicosApi.getDisponibles();
+    return this.techniciansApi.getDisponibles();
   }
 
   /**
    * Cambia la disponibilidad de un técnico
    */
   changeDisponibilidad(id: string, disponibilidad: DisponibilidadLevel): Observable<Tecnico> {
-    return this.tecnicosApi.changeDisponibilidad(id, disponibilidad);
+    return this.techniciansApi.changeDisponibilidad(id, disponibilidad);
   }
 }
-

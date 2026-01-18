@@ -6,36 +6,36 @@
  */
 
 export enum UserRoleEnum {
-  ADMIN = "admin",
-  SUPERVISOR = "supervisor",
-  TECNICO = "tecnico",
-  ADMINISTRATIVO = "administrativo",
+  ADMIN = 'admin',
+  SUPERVISOR = 'supervisor',
+  TECNICO = 'tecnico',
+  ADMINISTRATIVO = 'administrativo',
 }
 
 export enum PermissionAction {
-  CREATE = "create",
-  READ = "read",
-  UPDATE = "update",
-  DELETE = "delete",
-  MANAGE = "manage",
-  APPROVE = "approve",
-  EXECUTE = "execute",
+  CREATE = 'create',
+  READ = 'read',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  MANAGE = 'manage',
+  APPROVE = 'approve',
+  EXECUTE = 'execute',
 }
 
 export enum PermissionResource {
-  USERS = "users",
-  ORDERS = "orders",
-  KITS = "kits",
-  DASHBOARD = "dashboard",
-  ARCHIVE = "archive",
-  CHECKLISTS = "checklists",
-  PLANEACION = "planeacion",
-  EJECUCION = "ejecucion",
-  EVIDENCE = "evidence",
-  CLIENTS = "clients",
-  REPORTS = "reports",
-  DOCUMENTS = "documents",
-  COSTS = "costs",
+  USERS = 'users',
+  ORDERS = 'orders',
+  KITS = 'kits',
+  DASHBOARD = 'dashboard',
+  ARCHIVE = 'archive',
+
+  PLANEACION = 'planeacion',
+  EJECUCION = 'ejecucion',
+  EVIDENCE = 'evidence',
+  CLIENTS = 'clients',
+  REPORTS = 'reports',
+  DOCUMENTS = 'documents',
+  COSTS = 'costs',
 }
 
 export interface IPermission {
@@ -64,7 +64,7 @@ export interface IRolePermissions {
 export const ROLE_PERMISSIONS: IRolePermissions[] = [
   {
     role: UserRoleEnum.ADMIN,
-    description: "Administrador con acceso total al sistema",
+    description: 'Administrador con acceso total al sistema',
     permissions: [
       {
         resource: PermissionResource.USERS,
@@ -83,10 +83,7 @@ export const ROLE_PERMISSIONS: IRolePermissions[] = [
         resource: PermissionResource.ARCHIVE,
         actions: [PermissionAction.MANAGE],
       },
-      {
-        resource: PermissionResource.CHECKLISTS,
-        actions: [PermissionAction.MANAGE],
-      },
+
       {
         resource: PermissionResource.PLANEACION,
         actions: [PermissionAction.MANAGE],
@@ -119,8 +116,7 @@ export const ROLE_PERMISSIONS: IRolePermissions[] = [
   },
   {
     role: UserRoleEnum.SUPERVISOR,
-    description:
-      "Supervisor de operaciones con acceso a métricas y aprobaciones",
+    description: 'Supervisor de operaciones con acceso a métricas y aprobaciones',
     permissions: [
       {
         resource: PermissionResource.ORDERS,
@@ -130,10 +126,7 @@ export const ROLE_PERMISSIONS: IRolePermissions[] = [
         resource: PermissionResource.DASHBOARD,
         actions: [PermissionAction.READ],
       },
-      {
-        resource: PermissionResource.CHECKLISTS,
-        actions: [PermissionAction.APPROVE, PermissionAction.READ],
-      },
+
       {
         resource: PermissionResource.PLANEACION,
         actions: [PermissionAction.APPROVE, PermissionAction.READ],
@@ -155,13 +148,10 @@ export const ROLE_PERMISSIONS: IRolePermissions[] = [
   },
   {
     role: UserRoleEnum.TECNICO,
-    description: "Técnico de campo con capacidades de ejecución",
+    description: 'Técnico de campo con capacidades de ejecución',
     permissions: [
       { resource: PermissionResource.ORDERS, actions: [PermissionAction.READ] },
-      {
-        resource: PermissionResource.CHECKLISTS,
-        actions: [PermissionAction.READ, PermissionAction.EXECUTE],
-      },
+
       {
         resource: PermissionResource.EJECUCION,
         actions: [PermissionAction.EXECUTE, PermissionAction.READ],
@@ -174,7 +164,7 @@ export const ROLE_PERMISSIONS: IRolePermissions[] = [
   },
   {
     role: UserRoleEnum.ADMINISTRATIVO,
-    description: "Personal administrativo para gestión documental",
+    description: 'Personal administrativo para gestión documental',
     permissions: [
       {
         resource: PermissionResource.ORDERS,
@@ -206,14 +196,12 @@ export const ROLE_PERMISSIONS: IRolePermissions[] = [
 export function hasPermission(
   role: UserRoleEnum,
   resource: PermissionResource,
-  action: PermissionAction,
+  action: PermissionAction
 ): boolean {
-  const roleConfig = ROLE_PERMISSIONS.find((r) => r.role === role);
+  const roleConfig = ROLE_PERMISSIONS.find(r => r.role === role);
   if (!roleConfig) return false;
 
-  const permission = roleConfig.permissions.find(
-    (p) => p.resource === resource,
-  );
+  const permission = roleConfig.permissions.find(p => p.resource === resource);
   if (!permission) return false;
 
   // MANAGE incluye todas las acciones
@@ -228,6 +216,6 @@ export function hasPermission(
  * Helper para obtener todos los permisos de un rol.
  */
 export function getPermissionsForRole(role: UserRoleEnum): IPermission[] {
-  const roleConfig = ROLE_PERMISSIONS.find((r) => r.role === role);
+  const roleConfig = ROLE_PERMISSIONS.find(r => r.role === role);
   return roleConfig?.permissions ?? [];
 }

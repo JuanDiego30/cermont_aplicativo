@@ -8,19 +8,16 @@ import {
   OnDestroy,
   OnChanges,
   HostListener,
-  SimpleChanges
+  SimpleChanges,
 } from '@angular/core';
 
 @Component({
   selector: 'app-modal',
-  imports: [
-    CommonModule,
-  ],
+  imports: [CommonModule],
   templateUrl: './modal.component.html',
-  styles: ``
+  styles: ``,
 })
 export class ModalComponent implements OnInit, OnDestroy, OnChanges {
-
   @Input() isOpen = false;
   @Output() closed = new EventEmitter<void>();
   @Input() className = '';

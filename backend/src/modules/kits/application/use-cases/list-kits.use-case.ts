@@ -3,15 +3,11 @@
  *
  * Lista kits con filtros opcionales
  */
-import { Injectable, Inject, Logger } from "@nestjs/common";
-import { KIT_REPOSITORY, IKitRepository } from "../../domain/repositories";
-import { CategoriaKit } from "../../domain/value-objects";
-import {
-  ListKitsQueryDto,
-  KitResponseDto,
-  KitListResponseDto,
-} from "../dto/kit.dtos";
-import { KitMapper } from "../mappers";
+import { Injectable, Inject, Logger } from '@nestjs/common';
+import { KIT_REPOSITORY, IKitRepository } from '../../domain/repositories';
+import { CategoriaKit } from '../../domain/value-objects';
+import { ListKitsQueryDto, KitResponseDto, KitListResponseDto } from '../dto/kit.dtos';
+import { KitMapper } from '../mappers';
 
 @Injectable()
 export class ListKitsUseCase {
@@ -19,7 +15,7 @@ export class ListKitsUseCase {
 
   constructor(
     @Inject(KIT_REPOSITORY)
-    private readonly repository: IKitRepository,
+    private readonly repository: IKitRepository
   ) {}
 
   async execute(query: ListKitsQueryDto): Promise<KitListResponseDto> {
@@ -38,15 +34,15 @@ export class ListKitsUseCase {
 
     // Apply estado filter if provided
     if (query.estado) {
-      kits = kits.filter((k) => k.getEstado().getValue() === query.estado);
+      kits = kits.filter(k => k.getEstado().getValue() === query.estado);
     }
 
     // Apply tipo filter if provided
     if (query.tipo) {
-      kits = kits.filter((k) => k.getTipo().getValue() === query.tipo);
+      kits = kits.filter(k => k.getTipo().getValue() === query.tipo);
     }
 
-    const data = kits.map((kit) => KitMapper.toResponseDto(kit));
+    const data = kits.map(kit => KitMapper.toResponseDto(kit));
 
     return {
       data,

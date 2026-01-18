@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable, Logger } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import * as fs from "fs/promises";
-import * as path from "path";
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
 @Injectable()
 export class PdfStorageService {
@@ -10,14 +10,10 @@ export class PdfStorageService {
   private readonly cacheTtlSeconds: number;
 
   constructor(private readonly configService: ConfigService) {
-    this.storageDir =
-      this.configService.get("PDF_STORAGE_DIR") || "./storage/pdfs";
-    const ttlRaw = this.configService.get<string | number>(
-      "PDF_CACHE_TTL_SECONDS",
-    );
-    const parsedTtl = typeof ttlRaw === "number" ? ttlRaw : Number(ttlRaw);
-    this.cacheTtlSeconds =
-      Number.isFinite(parsedTtl) && parsedTtl > 0 ? parsedTtl : 24 * 60 * 60;
+    this.storageDir = this.configService.get('PDF_STORAGE_DIR') || './storage/pdfs';
+    const ttlRaw = this.configService.get<string | number>('PDF_CACHE_TTL_SECONDS');
+    const parsedTtl = typeof ttlRaw === 'number' ? ttlRaw : Number(ttlRaw);
+    this.cacheTtlSeconds = Number.isFinite(parsedTtl) && parsedTtl > 0 ? parsedTtl : 24 * 60 * 60;
   }
 
   async onModuleInit() {
@@ -26,7 +22,7 @@ export class PdfStorageService {
       await fs.mkdir(this.storageDir, { recursive: true });
       this.logger.log(`Directorio de almacenamiento: ${this.storageDir}`);
     } catch (error) {
-      this.logger.error("Error creando directorio de storage", error);
+      this.logger.error('Error creando directorio de storage', error);
     }
   }
 
@@ -40,7 +36,7 @@ export class PdfStorageService {
       this.logger.log(`PDF guardado: ${filepath}`);
       return filepath;
     } catch (error) {
-      this.logger.error("Error guardando PDF", error);
+      this.logger.error('Error guardando PDF', error);
       throw error;
     }
   }
@@ -60,17 +56,12 @@ export class PdfStorageService {
    * Recupera un PDF del storage respetando TTL de caché.
    * Si está expirado, se elimina y se retorna null.
    */
-  async getCached(
-    filename: string,
-    ttlSeconds?: number,
-  ): Promise<Buffer | null> {
+  async getCached(filename: string, ttlSeconds?: number): Promise<Buffer | null> {
     const safeFilename = this.normalizeFilename(filename);
     const filepath = path.join(this.storageDir, safeFilename);
 
     const effectiveTtlSeconds =
-      typeof ttlSeconds === "number" &&
-      Number.isFinite(ttlSeconds) &&
-      ttlSeconds > 0
+      typeof ttlSeconds === 'number' && Number.isFinite(ttlSeconds) && ttlSeconds > 0
         ? ttlSeconds
         : this.cacheTtlSeconds;
 
@@ -117,46 +108,39 @@ export class PdfStorageService {
 
   getPublicUrl(filename: string): string {
     const safeFilename = this.normalizeFilename(filename);
-    const baseUrl = (
-      this.configService.get<string>("API_URL") || "http://localhost:3000"
-    ).replace(/\/$/, "");
+    const baseUrl = (this.configService.get<string>('API_URL') || 'http://localhost:3000').replace(
+      /\/$/,
+      ''
+    );
     // Nota: el API tiene globalPrefix = 'api' y el controller está en 'pdf'
     return `${baseUrl}/api/pdf/${encodeURIComponent(safeFilename)}`;
   }
 
-  private normalizeFilename(
-    filename: string,
-    options?: { ensurePdfExtension?: boolean },
-  ): string {
-    if (!filename || typeof filename !== "string") {
-      throw new BadRequestException("Nombre de archivo inválido");
+  private normalizeFilename(filename: string, options?: { ensurePdfExtension?: boolean }): string {
+    if (!filename || typeof filename !== 'string') {
+      throw new BadRequestException('Nombre de archivo inválido');
     }
 
     const trimmed = filename.trim();
     if (!trimmed) {
-      throw new BadRequestException("Nombre de archivo inválido");
+      throw new BadRequestException('Nombre de archivo inválido');
     }
 
     // Evita path traversal: no se permiten separadores de ruta ni cambios por basename
     const base = path.basename(trimmed);
-    if (
-      base !== trimmed ||
-      base.includes("..") ||
-      base.includes("/") ||
-      base.includes("\\")
-    ) {
-      throw new BadRequestException("Nombre de archivo no permitido");
+    if (base !== trimmed || base.includes('..') || base.includes('/') || base.includes('\\')) {
+      throw new BadRequestException('Nombre de archivo no permitido');
     }
 
     // Restringe caracteres (conservador) para URLs/FS
     // Permitimos letras/números, guiones, guion bajo, punto.
-    const safe = base.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const safe = base.replace(/[^a-zA-Z0-9._-]/g, '_');
 
     if (!safe) {
-      throw new BadRequestException("Nombre de archivo inválido");
+      throw new BadRequestException('Nombre de archivo inválido');
     }
 
-    if (options?.ensurePdfExtension && !safe.toLowerCase().endsWith(".pdf")) {
+    if (options?.ensurePdfExtension && !safe.toLowerCase().endsWith('.pdf')) {
       return `${safe}.pdf`;
     }
 

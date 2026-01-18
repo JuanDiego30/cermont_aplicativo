@@ -3,15 +3,15 @@
  * @description Caso de uso para cerrar sesión
  * @layer Application
  */
-import { Injectable, Inject } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
-import { AUTH_REPOSITORY, IAuthRepository } from "../../domain/repositories";
-import { UserLoggedOutEvent } from "../../domain/events";
-import { LogoutResponse } from "../dto";
-import { CACHE_MANAGER } from "@nestjs/cache-manager";
-import type { Cache } from "cache-manager";
-import { Logger } from "@nestjs/common";
-import { AUTH_CONSTANTS } from "../../auth.constants";
+import { Injectable, Inject } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { AUTH_REPOSITORY, IAuthRepository } from '../../domain/repositories';
+import { UserLoggedOutEvent } from '../../domain/events';
+import { LogoutResponse } from '../dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
+import { Logger } from '@nestjs/common';
+import { AUTH_CONSTANTS } from '../../auth.constants';
 
 @Injectable()
 export class LogoutUseCase {
@@ -21,7 +21,7 @@ export class LogoutUseCase {
     @Inject(AUTH_REPOSITORY)
     private readonly authRepository: IAuthRepository,
     private readonly eventEmitter: EventEmitter2,
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
+    @Inject(CACHE_MANAGER) private readonly cache: Cache
   ) {}
 
   async execute(
@@ -29,7 +29,7 @@ export class LogoutUseCase {
     refreshToken?: string,
     ip?: string,
     accessTokenJti?: string,
-    accessTokenExp?: number,
+    accessTokenExp?: number
   ): Promise<LogoutResponse> {
     // 1. Revocar refresh token si existe
     if (refreshToken) {
@@ -39,7 +39,7 @@ export class LogoutUseCase {
     // Regla 4: invalidar access token (jti) hasta su expiración
     if (accessTokenJti) {
       const ttlMs =
-        typeof accessTokenExp === "number"
+        typeof accessTokenExp === 'number'
           ? Math.max(0, accessTokenExp * 1000 - Date.now())
           : 15 * 60 * 1000;
 
@@ -51,25 +51,19 @@ export class LogoutUseCase {
     try {
       await this.authRepository.createAuditLog({
         userId,
-        action: "LOGOUT",
+        action: 'LOGOUT',
         ip,
       });
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      this.logger.warn(
-        `No se pudo registrar audit log de logout: ${errorMessage}`,
-      );
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`No se pudo registrar audit log de logout: ${errorMessage}`);
     }
 
     // 2. Emitir evento
-    this.eventEmitter.emit(
-      "auth.user.logged-out",
-      new UserLoggedOutEvent(userId, ip),
-    );
+    this.eventEmitter.emit('auth.user.logged-out', new UserLoggedOutEvent(userId, ip));
 
     return {
-      message: "Sesión cerrada exitosamente",
+      message: 'Sesión cerrada exitosamente',
     };
   }
 }

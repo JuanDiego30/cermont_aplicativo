@@ -1,7 +1,7 @@
 const { merge } = require('webpack-merge');
 const path = require('path');
 
-module.exports = (config) => {
+module.exports = config => {
   return merge(config, {
     module: {
       rules: [

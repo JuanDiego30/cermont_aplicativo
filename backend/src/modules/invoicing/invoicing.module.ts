@@ -18,12 +18,12 @@
 
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../prisma/prisma.module';
-import { FacturacionController } from './facturacion.controller';
+import { InvoicingController } from './facturacion.controller';
 import { FacturacionService } from './facturacion.service';
 
 @Module({
   imports: [PrismaModule],
-  controllers: [FacturacionController],
+  controllers: [InvoicingController],
   providers: [FacturacionService],
   exports: [FacturacionService],
 })

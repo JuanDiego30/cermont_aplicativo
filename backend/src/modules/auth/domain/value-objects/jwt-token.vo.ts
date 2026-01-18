@@ -10,7 +10,7 @@
  */
 export interface JwtSignerPort {
   sign(payload: Record<string, unknown>): string;
-  verify<T>(token: string): T;
+  verify(token: string): JwtPayload;
 }
 
 export interface JwtPayload {
@@ -26,7 +26,7 @@ export interface JwtPayload {
 export class JwtToken {
   private constructor(
     private readonly _value: string,
-    private readonly _payload: JwtPayload,
+    private readonly _payload: JwtPayload
   ) {
     Object.freeze(this);
   }
@@ -63,7 +63,7 @@ export class JwtToken {
 
   static create(
     jwtSigner: JwtSignerPort,
-    payload: { userId: string; email: string; role: string },
+    payload: { userId: string; email: string; role: string }
   ): JwtToken {
     const enrichedPayload = { sub: payload.userId, ...payload };
     const token = jwtSigner.sign(enrichedPayload);
@@ -72,7 +72,8 @@ export class JwtToken {
 
   static fromString(jwtSigner: JwtSignerPort, token: string): JwtToken | null {
     try {
-      const payload = jwtSigner.verify<JwtPayload>(token);
+      const payload = jwtSigner.verify(token);
+
       return new JwtToken(token, payload);
     } catch {
       return null;
@@ -81,10 +82,8 @@ export class JwtToken {
 
   static decode(token: string): JwtPayload | null {
     try {
-      const [, payloadBase64] = token.split(".");
-      const payload = JSON.parse(
-        Buffer.from(payloadBase64, "base64").toString("utf8"),
-      );
+      const [, payloadBase64] = token.split('.');
+      const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString('utf8'));
       return payload as JwtPayload;
     } catch {
       return null;

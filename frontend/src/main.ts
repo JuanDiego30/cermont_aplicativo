@@ -6,5 +6,4 @@ import { logError } from './app/core/utils/logger';
 
 registerSwiperElements();
 
-bootstrapApplication(AppComponent, appConfig)
-  .catch((err) => logError('Bootstrap error', err));
+bootstrapApplication(AppComponent, appConfig).catch(err => logError('Bootstrap error', err));

@@ -1,4 +1,4 @@
-import { PrioridadAlerta } from '@/prisma/client';
+import { PrioridadAlerta, Prisma, TipoAlerta } from '@/prisma/client';
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -52,10 +52,12 @@ export class AlertsService {
     userId: string,
     filters?: { leida?: boolean; tipo?: string; limit?: number; offset?: number }
   ) {
-    const where: any = { usuarioId: userId };
+    const where: Prisma.AlertaAutomaticaWhereInput = { usuarioId: userId };
 
     if (filters?.leida !== undefined) where.leida = filters.leida;
-    if (filters?.tipo) where.tipo = filters.tipo;
+    if (filters?.tipo) {
+      where.tipo = filters.tipo as TipoAlerta;
+    }
 
     return this.prisma.alertaAutomatica.findMany({
       where,

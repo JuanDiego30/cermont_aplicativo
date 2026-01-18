@@ -2,14 +2,14 @@ name: CI
 
 on:
   push:
-    branches: ["main", "chore/*"]
+    branches: ['main', 'chore/*']
   pull_request:
 
 jobs:
   build-test:
     runs-on: ubuntu-latest
     env:
-      CI: "true"
+      CI: 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -17,13 +17,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "24.x"
-          cache: "pnpm"
+          node-version: '24.x'
+          cache: 'pnpm'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: "9.15.4"
+          version: '9.15.4'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

@@ -8,7 +8,6 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createRequire } from 'node:module';
 import { Alerta } from '../domain/entities/alerta.entity';
 import { CanalNotificacionEnum } from '../domain/value-objects/canal-notificacion.vo';
 import { INotificationSender } from './notification-sender.interface';
@@ -16,7 +15,7 @@ import { INotificationSender } from './notification-sender.interface';
 // web-push es open source y gratuito
 let webpush: any;
 try {
-  const require = createRequire(import.meta.url);
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   webpush = require('web-push');
 } catch (error) {
   Logger.warn('web-push no está instalado. Instalar con: npm install web-push @types/web-push');
@@ -99,7 +98,7 @@ export class PushNotificationService implements INotificationSender {
           prioridad: alerta.getPrioridad().getValue(),
           tipo: alerta.getTipo().getValue(),
           timestamp: alerta.getCreatedAt().toISOString(),
-          url: `/alertas/${alerta.getId().getValue()}`,
+          url: `/alerts/${alerta.getId().getValue()}`,
         },
         requireInteraction: alerta.getPrioridad().esCritica(), // Mostrar hasta que el usuario interactúe si es crítica
       });

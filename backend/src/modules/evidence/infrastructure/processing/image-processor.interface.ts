@@ -29,7 +29,7 @@ export interface IImageProcessor {
     inputPath: string,
     outputPath: string,
     width?: number,
-    height?: number,
+    height?: number
   ): Promise<string>;
 
   /**
@@ -41,4 +41,4 @@ export interface IImageProcessor {
 /**
  * Token for dependency injection
  */
-export const IMAGE_PROCESSOR = Symbol("IImageProcessor");
+export const IMAGE_PROCESSOR = Symbol('IImageProcessor');

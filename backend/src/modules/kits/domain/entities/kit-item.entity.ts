@@ -3,10 +3,10 @@
  *
  * Item individual dentro de un kit (herramienta, equipo, material, etc.)
  */
-import { randomUUID } from "crypto";
-import { ItemType, ItemTypeEnum } from "../value-objects/item-type.vo";
-import { Cantidad } from "../value-objects/cantidad.vo";
-import { CostoUnitario, CostoTotal } from "../value-objects/costo.vo";
+import { randomUUID } from 'crypto';
+import { ItemType, ItemTypeEnum } from '../value-objects/item-type.vo';
+import { Cantidad } from '../value-objects/cantidad.vo';
+import { CostoUnitario, CostoTotal } from '../value-objects/costo.vo';
 
 export interface CreateKitItemProps {
   itemId?: string;
@@ -66,9 +66,7 @@ export class KitItem {
 
   public static create(props: CreateKitItemProps): KitItem {
     const itemType =
-      typeof props.itemType === "string"
-        ? ItemType.create(props.itemType)
-        : props.itemType;
+      typeof props.itemType === 'string' ? ItemType.create(props.itemType) : props.itemType;
 
     return new KitItem({
       id: randomUUID(),
@@ -78,7 +76,7 @@ export class KitItem {
       descripcion: props.descripcion,
       cantidad: Cantidad.create(props.cantidad),
       costoUnitario: CostoUnitario.create(props.costoUnitario || 0),
-      unidad: props.unidad || "unidad",
+      unidad: props.unidad || 'unidad',
       esOpcional: props.esOpcional || false,
       requiereCertificacion: props.requiereCertificacion || false,
       notas: props.notas,

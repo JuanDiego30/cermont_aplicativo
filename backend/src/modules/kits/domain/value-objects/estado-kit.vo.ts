@@ -5,10 +5,10 @@
  */
 
 export enum EstadoKitEnum {
-  ACTIVO = "ACTIVO",
-  INACTIVO = "INACTIVO",
-  EN_USO = "EN_USO",
-  EN_MANTENIMIENTO = "EN_MANTENIMIENTO",
+  ACTIVO = 'ACTIVO',
+  INACTIVO = 'INACTIVO',
+  EN_USO = 'EN_USO',
+  EN_MANTENIMIENTO = 'EN_MANTENIMIENTO',
 }
 
 export class EstadoKit {
@@ -17,8 +17,7 @@ export class EstadoKit {
   }
 
   public static create(value: string): EstadoKit {
-    const enumValue =
-      EstadoKitEnum[value.toUpperCase() as keyof typeof EstadoKitEnum];
+    const enumValue = EstadoKitEnum[value.toUpperCase() as keyof typeof EstadoKitEnum];
     if (!enumValue) {
       return EstadoKit.activo(); // Default to active
     }
@@ -77,14 +76,8 @@ export class EstadoKit {
         EstadoKitEnum.EN_MANTENIMIENTO,
       ],
       [EstadoKitEnum.INACTIVO]: [EstadoKitEnum.ACTIVO],
-      [EstadoKitEnum.EN_USO]: [
-        EstadoKitEnum.ACTIVO,
-        EstadoKitEnum.EN_MANTENIMIENTO,
-      ],
-      [EstadoKitEnum.EN_MANTENIMIENTO]: [
-        EstadoKitEnum.ACTIVO,
-        EstadoKitEnum.INACTIVO,
-      ],
+      [EstadoKitEnum.EN_USO]: [EstadoKitEnum.ACTIVO, EstadoKitEnum.EN_MANTENIMIENTO],
+      [EstadoKitEnum.EN_MANTENIMIENTO]: [EstadoKitEnum.ACTIVO, EstadoKitEnum.INACTIVO],
     };
     return transitions[this._value]?.includes(newState) ?? false;
   }

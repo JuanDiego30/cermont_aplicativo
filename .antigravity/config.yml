@@ -1,6 +1,6 @@
 # Antigravity AI Configuration
 
-version: "1.0"
+version: '1.0'
 name: cermont-aplicativo
 description: Monorepo NestJS + Angular + Prisma + Turborepo para gestión de obras
 
@@ -9,18 +9,18 @@ project:
   type: monorepo
   manager: pnpm
   build_tool: turborepo
-  
+
   packages:
     - name: backend
       path: backend/
       framework: nestjs
-      version: "11.x"
+      version: '11.x'
       language: typescript
-      
+
     - name: frontend
       path: frontend/
       framework: angular
-      version: "20.x"
+      version: '20.x'
       language: typescript
 
 ## Skills Configuration
@@ -30,20 +30,20 @@ skills:
     path: nestjs-expert/SKILL.md
     auto_load: true
     triggers:
-      - "*.controller.ts"
-      - "*.service.ts"
-      - "*.module.ts"
-      - "*.guard.ts"
+      - '*.controller.ts'
+      - '*.service.ts'
+      - '*.module.ts'
+      - '*.guard.ts'
       - backend/**
-      
+
   - id: prisma-architect
     path: skills/prisma-architect/SKILL.md
     auto_load: true
     triggers:
-      - "*.prisma"
-      - "**/prisma/**"
-      - "**/migration*"
-      
+      - '*.prisma'
+      - '**/prisma/**'
+      - '**/migration*'
+
   - id: clean-architecture
     path: skills/clean-architecture/SKILL.md
     auto_load: false
@@ -51,7 +51,7 @@ skills:
       - refactor
       - architecture
       - solid
-      
+
   - id: security-hardening
     path: skills/security-hardening/SKILL.md
     auto_load: false
@@ -66,10 +66,10 @@ skills:
     path: angular-architect/angular-architect/SKILL.md
     auto_load: true
     triggers:
-      - "*.component.ts"
-      - "*.signal*"
+      - '*.component.ts'
+      - '*.signal*'
       - frontend/**
-      
+
   - id: frontend-ui-integration
     path: frontend-ui-integration/SKILL.md
     auto_load: false
@@ -87,7 +87,7 @@ skills:
       - pnpm
       - workspace
       - build
-      
+
   - id: dependency-upgrade
     path: dependency-upgrade/SKILL.md
     auto_load: false
@@ -96,13 +96,13 @@ skills:
       - vulnerability
       - audit
       - outdated
-      
+
   - id: github-actions-cicd
     path: skills/github-actions-cicd/SKILL.md
     auto_load: false
     triggers:
-      - "*.yml"
-      - ".github/**"
+      - '*.yml'
+      - '.github/**'
       - ci
       - deploy
 
@@ -111,8 +111,8 @@ skills:
     path: skills/jest-testing/SKILL.md
     auto_load: false
     triggers:
-      - "*.spec.ts"
-      - "*.test.ts"
+      - '*.spec.ts'
+      - '*.test.ts'
       - test
       - coverage
 
@@ -120,7 +120,7 @@ skills:
     path: skills/angular-testing/SKILL.md
     auto_load: false
     triggers:
-      - "*.component.spec.ts"
+      - '*.component.spec.ts'
       - testbed
       - playwright
 
@@ -248,15 +248,15 @@ priority_order:
 auto_load:
   # Cargar skill basado en archivo actual
   file_patterns:
-    "backend/**/*.ts": [nestjs-expert, prisma-architect]
-    "frontend/**/*.ts": [angular-architect, rxjs-patterns]
-    "*.prisma": [prisma-architect]
-    ".github/**/*.yml": [github-actions-cicd]
-    "**/*.spec.ts": [jest-testing, angular-testing]
-    "**/*.guard.ts": [jwt-auth-patterns, security-hardening]
-    "**/tailwind*.js": [tailwind-expert]
-    "eslint.config.*": [eslint-prettier]
-    
+    'backend/**/*.ts': [nestjs-expert, prisma-architect]
+    'frontend/**/*.ts': [angular-architect, rxjs-patterns]
+    '*.prisma': [prisma-architect]
+    '.github/**/*.yml': [github-actions-cicd]
+    '**/*.spec.ts': [jest-testing, angular-testing]
+    '**/*.guard.ts': [jwt-auth-patterns, security-hardening]
+    '**/tailwind*.js': [tailwind-expert]
+    'eslint.config.*': [eslint-prettier]
+
   # Cargar skill basado en prompt
   prompt_keywords:
     - keyword: [nestjs, nest, backend, api, controller, service]
@@ -301,7 +301,7 @@ context:
     - package.json
     - turbo.json
     - pnpm-workspace.yaml
-    
+
   # Incluir condicionalmente
   conditional:
     backend:

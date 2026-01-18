@@ -1,5 +1,11 @@
+import { Prisma } from '@/prisma/client';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+
+// Define the type for user with included assignments
+type TechnicianWithAssignments = Prisma.UserGetPayload<{
+  include: { asignaciones: { select: { estado: true } } };
+}>;
 
 export interface TechnicianFilters {
   search?: string;
@@ -98,12 +104,12 @@ export class TechniciansService {
     return this.mapToDomain(user);
   }
 
-  private mapToDomain(user: any) {
+  private mapToDomain(user: TechnicianWithAssignments) {
     const assignments = user.asignaciones || [];
     const activeOrders = assignments.filter(
-      (a: any) => a.estado !== 'completada' && a.estado !== 'cancelada'
+      a => a.estado !== 'completada' && a.estado !== 'cancelada'
     ).length;
-    const completedOrders = assignments.filter((a: any) => a.estado === 'completada').length;
+    const completedOrders = assignments.filter(a => a.estado === 'completada').length;
 
     // Derived availability logic from original Entity
     // If user is inactive -> 'baja'

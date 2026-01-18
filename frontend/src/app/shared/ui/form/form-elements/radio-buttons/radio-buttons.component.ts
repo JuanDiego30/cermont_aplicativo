@@ -5,16 +5,11 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-radio-buttons',
-  imports: [
-    ComponentCardComponent,
-    RadioComponent,
-    FormsModule
-  ],
+  imports: [ComponentCardComponent, RadioComponent, FormsModule],
   templateUrl: './radio-buttons.component.html',
-  styles: ``
+  styles: ``,
 })
 export class RadioButtonsComponent {
-
   selectedValue: string = 'option2';
 
   handleRadioChange(value: string) {

@@ -2,16 +2,18 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-    selector: 'app-user-stats',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
+  selector: 'app-user-stats',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
     <div class="container mx-auto px-4 py-6">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">Estadísticas de Usuarios</h1>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+        Estadísticas de Usuarios
+      </h1>
       <div class="card">
         <p class="text-gray-600 dark:text-gray-400">Componente en desarrollo</p>
       </div>
     </div>
-  `
+  `,
 })
-export class UserStatsComponent { }
+export class UserStatsComponent {}

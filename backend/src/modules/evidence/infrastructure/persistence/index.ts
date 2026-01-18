@@ -2,4 +2,4 @@
  * @file Persistence Index
  */
 
-export * from "./evidencia.repository";
+export * from './evidencia.repository';

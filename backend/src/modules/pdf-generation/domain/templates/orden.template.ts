@@ -1,4 +1,4 @@
-import { BaseTemplate } from "./base.template";
+import { BaseTemplate } from './base.template';
 
 /**
  * Typed interface for OrdenTemplate data
@@ -39,8 +39,8 @@ interface LineaVidaItem {
 
 export class OrdenTemplate extends BaseTemplate {
   static generate(data: OrdenPDFData): string {
-    const estado = String(data.estado ?? "").toLowerCase();
-    const prioridad = String(data.prioridad ?? "").toLowerCase();
+    const estado = String(data.estado ?? '').toLowerCase();
+    const prioridad = String(data.prioridad ?? '').toLowerCase();
 
     const cliente = this.normalizeCliente(data.cliente);
     const tecnico = this.normalizeTecnico(data.tecnico ?? data.asignado);
@@ -52,26 +52,26 @@ export class OrdenTemplate extends BaseTemplate {
         <div class="info-item">
           <div class="info-label">Estado</div>
           <div class="info-value">
-            <span class="badge badge-${this.getEstadoBadgeClass(data.estado ?? "")}">
-              ${estado || "N/A"}
+            <span class="badge badge-${this.getEstadoBadgeClass(data.estado ?? '')}">
+              ${estado || 'N/A'}
             </span>
           </div>
         </div>
         <div class="info-item">
           <div class="info-label">Prioridad</div>
           <div class="info-value">
-            <span class="badge badge-${this.getPrioridadBadgeClass(data.prioridad ?? "")}">
-              ${prioridad || "N/A"}
+            <span class="badge badge-${this.getPrioridadBadgeClass(data.prioridad ?? '')}">
+              ${prioridad || 'N/A'}
             </span>
           </div>
         </div>
         <div class="info-item">
           <div class="info-label">Tipo</div>
-          <div class="info-value">${data.subEstado || "N/A"}</div>
+          <div class="info-value">${data.subEstado || 'N/A'}</div>
         </div>
         <div class="info-item">
           <div class="info-label">Fecha Creación</div>
-          <div class="info-value">${new Date(data.createdAt).toLocaleDateString("es-CO")}</div>
+          <div class="info-value">${new Date(data.createdAt).toLocaleDateString('es-CO')}</div>
         </div>
       </div>
 
@@ -79,22 +79,22 @@ export class OrdenTemplate extends BaseTemplate {
       <div class="info-grid">
         <div class="info-item">
           <div class="info-label">Descripción</div>
-          <div class="info-value">${data.descripcion || "N/A"}</div>
+          <div class="info-value">${data.descripcion || 'N/A'}</div>
         </div>
         <div class="info-item">
           <div class="info-label">Ubicación</div>
-          <div class="info-value">${data.direccion || "N/A"}</div>
+          <div class="info-value">${data.direccion || 'N/A'}</div>
         </div>
         <div class="info-item">
           <div class="info-label">Fecha Programada</div>
           <div class="info-value">
-            ${data.fechaInicio ? new Date(data.fechaInicio).toLocaleDateString("es-CO") : "N/A"}
+            ${data.fechaInicio ? new Date(data.fechaInicio).toLocaleDateString('es-CO') : 'N/A'}
           </div>
         </div>
         <div class="info-item">
           <div class="info-label">Costo Estimado</div>
           <div class="info-value">
-            ${data.presupuestoEstimado ? `$${Number(data.presupuestoEstimado).toLocaleString("es-CO")}` : "N/A"}
+            ${data.presupuestoEstimado ? `$${Number(data.presupuestoEstimado).toLocaleString('es-CO')}` : 'N/A'}
           </div>
         </div>
       </div>
@@ -105,7 +105,7 @@ export class OrdenTemplate extends BaseTemplate {
         <h2>Detalle</h2>
         <p>${data.descripcion}</p>
       `
-          : ""
+          : ''
       }
 
       ${
@@ -114,7 +114,7 @@ export class OrdenTemplate extends BaseTemplate {
         <h2>Observaciones</h2>
         <p>${data.observaciones}</p>
       `
-          : ""
+          : ''
       }
 
       ${
@@ -128,23 +128,23 @@ export class OrdenTemplate extends BaseTemplate {
           </div>
           <div class="info-item">
             <div class="info-label">Email</div>
-            <div class="info-value">${cliente.email || "N/A"}</div>
+            <div class="info-value">${cliente.email || 'N/A'}</div>
           </div>
           <div class="info-item">
             <div class="info-label">Teléfono</div>
-            <div class="info-value">${cliente.telefono || "N/A"}</div>
+            <div class="info-value">${cliente.telefono || 'N/A'}</div>
           </div>
           <div class="info-item">
             <div class="info-label">Contacto</div>
-            <div class="info-value">${cliente.contacto || "N/A"}</div>
+            <div class="info-value">${cliente.contacto || 'N/A'}</div>
           </div>
           <div class="info-item">
             <div class="info-label">Dirección</div>
-            <div class="info-value">${cliente.direccion || "N/A"}</div>
+            <div class="info-value">${cliente.direccion || 'N/A'}</div>
           </div>
         </div>
       `
-          : ""
+          : ''
       }
 
       ${
@@ -158,11 +158,11 @@ export class OrdenTemplate extends BaseTemplate {
           </div>
           <div class="info-item">
             <div class="info-label">Email</div>
-            <div class="info-value">${tecnico.email || "N/A"}</div>
+            <div class="info-value">${tecnico.email || 'N/A'}</div>
           </div>
         </div>
       `
-          : ""
+          : ''
       }
 
       ${
@@ -190,13 +190,13 @@ export class OrdenTemplate extends BaseTemplate {
                 <td>${lv.ubicacion}</td>
                 <td><span class="badge badge-info">${lv.estado}</span></td>
               </tr>
-            `,
+            `
               )
-              .join("")}
+              .join('')}
           </tbody>
         </table>
       `
-          : ""
+          : ''
       }
 
       <div class="signature-section">
@@ -217,32 +217,30 @@ export class OrdenTemplate extends BaseTemplate {
   }
 
   private static getEstadoBadgeClass(estado: string): string {
-    const normalized = String(estado || "").toLowerCase();
+    const normalized = String(estado || '').toLowerCase();
     const map: Record<string, string> = {
-      completada: "success",
-      ejecucion: "info",
-      planeacion: "info",
-      pendiente: "warning",
-      cancelada: "danger",
-      pausada: "warning",
+      completada: 'success',
+      ejecucion: 'info',
+      planeacion: 'info',
+      pendiente: 'warning',
+      cancelada: 'danger',
+      pausada: 'warning',
     };
-    return map[normalized] || "info";
+    return map[normalized] || 'info';
   }
 
   private static getPrioridadBadgeClass(prioridad: string): string {
-    const normalized = String(prioridad || "").toLowerCase();
+    const normalized = String(prioridad || '').toLowerCase();
     const map: Record<string, string> = {
-      urgente: "danger",
-      alta: "warning",
-      media: "info",
-      baja: "success",
+      urgente: 'danger',
+      alta: 'warning',
+      media: 'info',
+      baja: 'success',
     };
-    return map[normalized] || "info";
+    return map[normalized] || 'info';
   }
 
-  private static normalizeCliente(
-    cliente: any,
-  ): {
+  private static normalizeCliente(cliente: any): {
     nombre: string;
     email?: string;
     telefono?: string;
@@ -252,8 +250,8 @@ export class OrdenTemplate extends BaseTemplate {
     if (!cliente) return null;
 
     // Caso antiguo: { nombre, email, telefono }
-    if (typeof cliente === "object") {
-      const nombre = String(cliente.nombre ?? "").trim();
+    if (typeof cliente === 'object') {
+      const nombre = String(cliente.nombre ?? '').trim();
       if (!nombre) return null;
       return {
         nombre,
@@ -270,13 +268,11 @@ export class OrdenTemplate extends BaseTemplate {
     return { nombre };
   }
 
-  private static normalizeTecnico(
-    tecnico: any,
-  ): { nombre: string; email?: string } | null {
-    if (!tecnico || typeof tecnico !== "object") return null;
+  private static normalizeTecnico(tecnico: any): { nombre: string; email?: string } | null {
+    if (!tecnico || typeof tecnico !== 'object') return null;
 
     // soporta { nombre } (antiguo) y { name } (User prisma)
-    const nombre = String(tecnico.nombre ?? tecnico.name ?? "").trim();
+    const nombre = String(tecnico.nombre ?? tecnico.name ?? '').trim();
     if (!nombre) return null;
 
     return {

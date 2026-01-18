@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 @Component({
-    selector: 'app-register',
-    standalone: true,
-    imports: [CommonModule, RouterLink],
-    template: `
+  selector: 'app-register',
+  standalone: true,
+  imports: [CommonModule, RouterLink],
+  template: `
     <div class="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
       <div class="card max-w-md w-full">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Registro</h1>
@@ -16,6 +16,6 @@ import { RouterLink } from '@angular/router';
         </a>
       </div>
     </div>
-  `
+  `,
 })
-export class RegisterComponent { }
+export class RegisterComponent {}

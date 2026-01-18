@@ -9,46 +9,46 @@ import {
   Max,
   MinLength,
   MaxLength,
-} from "class-validator";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Type } from "class-transformer";
+} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export enum UserRoleEnum {
-  ADMIN = "admin",
-  SUPERVISOR = "supervisor",
-  TECNICO = "tecnico",
-  ADMINISTRATIVO = "administrativo",
+  ADMIN = 'admin',
+  SUPERVISOR = 'supervisor',
+  TECNICO = 'tecnico',
+  ADMINISTRATIVO = 'administrativo',
 }
 
 // ============================================
 // CREATE USER
 // ============================================
 export class CreateUserDto {
-  @ApiProperty({ example: "tecnico@cermont.com" })
+  @ApiProperty({ example: 'tecnico@cermont.com' })
   @IsEmail()
   email!: string;
 
-  @ApiProperty({ example: "Tecnico@2025!", minLength: 8 })
+  @ApiProperty({ example: 'Tecnico@2025!', minLength: 8 })
   @IsString()
   @MinLength(8)
   password!: string;
 
-  @ApiProperty({ example: "Juan Técnico" })
+  @ApiProperty({ example: 'Juan Técnico' })
   @IsString()
   @MinLength(2)
   @MaxLength(200)
   name!: string;
 
-  @ApiProperty({ example: "tecnico", enum: UserRoleEnum })
+  @ApiProperty({ example: 'tecnico', enum: UserRoleEnum })
   @IsEnum(UserRoleEnum)
   role!: UserRoleEnum;
 
-  @ApiPropertyOptional({ example: "+573001234567" })
+  @ApiPropertyOptional({ example: '+573001234567' })
   @IsOptional()
   @IsString()
   phone?: string;
 
-  @ApiPropertyOptional({ example: "https://example.com/avatar.jpg" })
+  @ApiPropertyOptional({ example: 'https://example.com/avatar.jpg' })
   @IsOptional()
   @IsString()
   avatar?: string;
@@ -58,19 +58,19 @@ export class CreateUserDto {
 // UPDATE USER
 // ============================================
 export class UpdateUserDto {
-  @ApiPropertyOptional({ example: "Juan Técnico Actualizado" })
+  @ApiPropertyOptional({ example: 'Juan Técnico Actualizado' })
   @IsOptional()
   @IsString()
   @MinLength(2)
   @MaxLength(200)
   name?: string;
 
-  @ApiPropertyOptional({ example: "+573001234567" })
+  @ApiPropertyOptional({ example: '+573001234567' })
   @IsOptional()
   @IsString()
   phone?: string;
 
-  @ApiPropertyOptional({ example: "https://example.com/new-avatar.jpg" })
+  @ApiPropertyOptional({ example: 'https://example.com/new-avatar.jpg' })
   @IsOptional()
   @IsString()
   avatar?: string;
@@ -80,7 +80,7 @@ export class UpdateUserDto {
 // UPDATE ROLE
 // ============================================
 export class UpdateUserRoleDto {
-  @ApiProperty({ example: "supervisor", enum: UserRoleEnum })
+  @ApiProperty({ example: 'supervisor', enum: UserRoleEnum })
   @IsEnum(UserRoleEnum)
   role!: UserRoleEnum;
 }
@@ -121,16 +121,16 @@ export class ListUsersQueryDto {
   limit?: number = 10;
 
   @ApiPropertyOptional({
-    enum: ["name", "email", "role", "createdAt", "lastLogin"],
+    enum: ['name', 'email', 'role', 'createdAt', 'lastLogin'],
   })
   @IsOptional()
   @IsString()
   sortBy?: string;
 
-  @ApiPropertyOptional({ enum: ["asc", "desc"] })
+  @ApiPropertyOptional({ enum: ['asc', 'desc'] })
   @IsOptional()
   @IsString()
-  sortOrder?: "asc" | "desc";
+  sortOrder?: 'asc' | 'desc';
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -205,7 +205,7 @@ export class PaginatedUsersResponse {
 // ============================================
 
 export class AdminChangePasswordDto {
-  @ApiProperty({ example: "NewSecure@2025!" })
+  @ApiProperty({ example: 'NewSecure@2025!' })
   @IsString()
   @MinLength(8)
   newPassword!: string;
@@ -221,7 +221,7 @@ export class AdminActionResponseDto {
   @ApiProperty({ example: true })
   success!: boolean;
 
-  @ApiProperty({ example: "Operación completada" })
+  @ApiProperty({ example: 'Operación completada' })
   message!: string;
 }
 

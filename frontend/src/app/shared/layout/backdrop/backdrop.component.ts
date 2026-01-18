@@ -1,13 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { SidebarService } from '../../services/sidebar.service';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-backdrop',
   standalone: true,
   imports: [CommonModule],
-  template: '<div class="backdrop"></div>',
-  styles: ['.backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 998; }']
+  templateUrl: './backdrop.component.html',
 })
 export class BackdropComponent {
   private readonly sidebarService = inject(SidebarService);

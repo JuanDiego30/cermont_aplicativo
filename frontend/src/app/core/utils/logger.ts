@@ -19,7 +19,7 @@ function normalizeError(error: unknown): Record<string, unknown> | undefined {
   }
 
   if (typeof error === 'object') {
-    const maybe = error as any;
+    const maybe = error as { message?: unknown; status?: unknown } | null;
     return {
       message: typeof maybe?.message === 'string' ? maybe.message : undefined,
       status: typeof maybe?.status === 'number' ? maybe.status : undefined,
@@ -44,7 +44,11 @@ export function logWarn(message: string, context?: Record<string, unknown>): voi
   console.warn(message, context);
 }
 
-export function logError(message: string, error?: unknown, context?: Record<string, unknown>): void {
+export function logError(
+  message: string,
+  error?: unknown,
+  context?: Record<string, unknown>
+): void {
   if (!shouldLog('error')) return;
   console.error(message, { ...context, error: normalizeError(error) });
 }

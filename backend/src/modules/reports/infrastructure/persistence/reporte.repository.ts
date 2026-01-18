@@ -2,9 +2,9 @@
  * @repository ReporteRepository
  * Prisma implementation for Reportes
  */
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../../../../prisma/prisma.service";
-import { IReporteRepository, ReporteQueryDto } from "../../application/dto";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../../prisma/prisma.service';
+import { IReporteRepository, ReporteQueryDto } from '../../application/dto';
 
 @Injectable()
 export class ReporteRepository implements IReporteRepository {
@@ -32,7 +32,7 @@ export class ReporteRepository implements IReporteRepository {
         asignado: { select: { name: true } },
         ejecucion: { select: { horasActuales: true } },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
   }
 

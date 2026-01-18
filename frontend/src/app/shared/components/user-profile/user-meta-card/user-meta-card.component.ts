@@ -7,21 +7,20 @@ import { ButtonComponent } from '../../ui/button/button.component';
 
 @Component({
   selector: 'app-user-meta-card',
-  imports: [
-    ModalComponent,
-    InputFieldComponent,
-    ButtonComponent
-],
+  imports: [ModalComponent, InputFieldComponent, ButtonComponent],
   templateUrl: './user-meta-card.component.html',
-  styles: ``
+  styles: ``,
 })
 export class UserMetaCardComponent {
-
   readonly modal = inject(ModalService);
 
   isOpen = false;
-  openModal() { this.isOpen = true; }
-  closeModal() { this.isOpen = false; }
+  openModal() {
+    this.isOpen = true;
+  }
+  closeModal() {
+    this.isOpen = false;
+  }
 
   // Example user data (could be made dynamic)
   user = {

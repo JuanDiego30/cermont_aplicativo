@@ -28,13 +28,13 @@ import {
 } from './application/use-cases';
 
 // Infrastructure
-import { EvidenciasController, OrdenesEvidenciasController } from './infrastructure/controllers';
+import { EvidenceController, OrdersEvidenceController } from './infrastructure/controllers';
 import { PrismaEvidenciaRepository } from './infrastructure/persistence';
 import { IMAGE_PROCESSOR, SharpImageProcessor } from './infrastructure/processing';
 import { LocalStorageProvider, STORAGE_PROVIDER } from './infrastructure/storage';
 
 // Legacy service (for backward compatibility)
-import { EvidenciasService } from './evidencias.service';
+import { EvidenceService } from './evidence.service';
 
 const useCaseProviders = [
   UploadEvidenciaUseCase,
@@ -67,7 +67,7 @@ const useCaseProviders = [
       inject: [ConfigService],
     }),
   ],
-  controllers: [EvidenciasController, OrdenesEvidenciasController],
+  controllers: [EvidenceController, OrdersEvidenceController],
   providers: [
     // Domain Services
     FileValidatorService,
@@ -97,8 +97,8 @@ const useCaseProviders = [
     ...useCaseProviders,
 
     // Legacy Service (keep for backward compat)
-    EvidenciasService,
+    EvidenceService,
   ],
-  exports: [EVIDENCIA_REPOSITORY, STORAGE_PROVIDER, EvidenciasService],
+  exports: [EVIDENCIA_REPOSITORY, STORAGE_PROVIDER, EvidenceService],
 })
 export class EvidenceModule {}

@@ -1,4 +1,7 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+/* Tailwind 4: Enable class-based dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* ========================================
    THEME CONFIGURATION
@@ -20,152 +23,159 @@
   --breakpoint-3xl: 2000px;
 
   /* Brand Colors (TailAdmin) - Mapped to Cermont Primary for backwards compatibility */
-  --color-brand-25: #E6F0FF;
-  --color-brand-50: #CCE0FF;
-  --color-brand-100: #99C2FF;
-  --color-brand-200: #66A3FF;
-  --color-brand-300: #3385FF;
-  --color-brand-400: #0052CC;
-  --color-brand-500: #0052CC;
-  --color-brand-600: #0043A3;
-  --color-brand-700: #00357A;
+  --color-brand-25: #e6f0ff;
+  --color-brand-50: #cce0ff;
+  --color-brand-100: #99c2ff;
+  --color-brand-200: #66a3ff;
+  --color-brand-300: #3385ff;
+  --color-brand-400: #0052cc;
+  --color-brand-500: #0052cc;
+  --color-brand-600: #0043a3;
+  --color-brand-700: #00357a;
   --color-brand-800: #002652;
   --color-brand-900: #001829;
-  --color-brand-950: #0F172A;
+  --color-brand-950: #0f172a;
 
   /* Cermont Primary - Azul Cobalto */
-  --color-cermont-primary-50: #E6F0FF;
-  --color-cermont-primary-100: #CCE0FF;
-  --color-cermont-primary-200: #99C2FF;
-  --color-cermont-primary-300: #66A3FF;
-  --color-cermont-primary-400: #3385FF;
-  --color-cermont-primary-500: #0052CC;
-  --color-cermont-primary-600: #0043A3;
-  --color-cermont-primary-700: #00357A;
+  --color-cermont-primary-50: #e6f0ff;
+  --color-cermont-primary-100: #cce0ff;
+  --color-cermont-primary-200: #99c2ff;
+  --color-cermont-primary-300: #66a3ff;
+  --color-cermont-primary-400: #3385ff;
+  --color-cermont-primary-500: #0052cc;
+  --color-cermont-primary-600: #0043a3;
+  --color-cermont-primary-700: #00357a;
   --color-cermont-primary-800: #002652;
   --color-cermont-primary-900: #001829;
 
   /* Cermont Secondary - Verde Esmeralda */
-  --color-cermont-secondary-50: #E8F7ED;
-  --color-cermont-secondary-100: #D1F0DB;
-  --color-cermont-secondary-200: #A3E0B7;
-  --color-cermont-secondary-300: #75D193;
-  --color-cermont-secondary-400: #47C16F;
-  --color-cermont-secondary-500: #2E9B4A;
-  --color-cermont-secondary-600: #257C3B;
-  --color-cermont-secondary-700: #1C5D2C;
-  --color-cermont-secondary-800: #133E1D;
-  --color-cermont-secondary-900: #0A1F0F;
+  --color-cermont-secondary-50: #e8f7ed;
+  --color-cermont-secondary-100: #d1f0db;
+  --color-cermont-secondary-200: #a3e0b7;
+  --color-cermont-secondary-300: #75d193;
+  --color-cermont-secondary-400: #47c16f;
+  --color-cermont-secondary-500: #2e9b4a;
+  --color-cermont-secondary-600: #257c3b;
+  --color-cermont-secondary-700: #1c5d2c;
+  --color-cermont-secondary-800: #133e1d;
+  --color-cermont-secondary-900: #0a1f0f;
 
   /* Extended - Grays (Sophisticated Neutrals) */
-  --color-gray-25: #F8FAFC;
-  --color-gray-50: #F8FAFC;
-  --color-gray-100: #F1F5F9;
-  --color-gray-200: #E2E8F0;
-  --color-gray-300: #CBD5E1;
-  --color-gray-400: #94A3B8;
-  --color-gray-500: #64748B;
+  --color-gray-25: #f8fafc;
+  --color-gray-50: #f8fafc;
+  --color-gray-100: #f1f5f9;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #cbd5e1;
+  --color-gray-400: #94a3b8;
+  --color-gray-500: #64748b;
   --color-gray-600: #475569;
   --color-gray-700: #334155;
-  --color-gray-800: #1E293B;
-  --color-gray-900: #0F172A;
+  --color-gray-800: #1e293b;
+  --color-gray-900: #0f172a;
   --color-gray-950: #0c111d;
 
   /* Extended - Accent Cyan */
-  --color-cermont-accent-cyan-50: #ECFEFF;
-  --color-cermont-accent-cyan-100: #CFFAFE;
-  --color-cermont-accent-cyan-200: #A5F3FC;
-  --color-cermont-accent-cyan-300: #67E8F9;
-  --color-cermont-accent-cyan-400: #22D3EE;
-  --color-cermont-accent-cyan-500: #06B6D4;
-  --color-cermont-accent-cyan-600: #0891B2;
-  --color-cermont-accent-cyan-700: #0E7490;
-  --color-cermont-accent-cyan-800: #155E75;
-  --color-cermont-accent-cyan-900: #164E63;
+  --color-cermont-accent-cyan-50: #ecfeff;
+  --color-cermont-accent-cyan-100: #cffafe;
+  --color-cermont-accent-cyan-200: #a5f3fc;
+  --color-cermont-accent-cyan-300: #67e8f9;
+  --color-cermont-accent-cyan-400: #22d3ee;
+  --color-cermont-accent-cyan-500: #06b6d4;
+  --color-cermont-accent-cyan-600: #0891b2;
+  --color-cermont-accent-cyan-700: #0e7490;
+  --color-cermont-accent-cyan-800: #155e75;
+  --color-cermont-accent-cyan-900: #164e63;
 
   /* Extended - Accent Teal */
-  --color-cermont-accent-teal-50: #F0FDFA;
-  --color-cermont-accent-teal-100: #CCFBF1;
-  --color-cermont-accent-teal-200: #99F6E4;
-  --color-cermont-accent-teal-300: #5EEAD4;
-  --color-cermont-accent-teal-400: #2DD4BF;
-  --color-cermont-accent-teal-500: #14B8A6;
-  --color-cermont-accent-teal-600: #0D9488;
-  --color-cermont-accent-teal-700: #0F766E;
-  --color-cermont-accent-teal-800: #115E59;
-  --color-cermont-accent-teal-900: #134E4A;
+  --color-cermont-accent-teal-50: #f0fdfa;
+  --color-cermont-accent-teal-100: #ccfbf1;
+  --color-cermont-accent-teal-200: #99f6e4;
+  --color-cermont-accent-teal-300: #5eead4;
+  --color-cermont-accent-teal-400: #2dd4bf;
+  --color-cermont-accent-teal-500: #14b8a6;
+  --color-cermont-accent-teal-600: #0d9488;
+  --color-cermont-accent-teal-700: #0f766e;
+  --color-cermont-accent-teal-800: #115e59;
+  --color-cermont-accent-teal-900: #134e4a;
 
   /* Success - Verde Éxito */
-  --color-success-25: #F0FDF4;
-  --color-success-50: #F0FDF4;
-  --color-success-100: #DCFCE7;
+  --color-success-25: #f0fdf4;
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
   --color-success-200: #a6f4c5;
   --color-success-300: #6ce9a6;
   --color-success-400: #32d583;
-  --color-success-500: #22C55E;
+  --color-success-500: #22c55e;
   --color-success-600: #039855;
-  --color-success-700: #15803D;
+  --color-success-700: #15803d;
   --color-success-800: #05603a;
-  --color-success-900: #14532D;
+  --color-success-900: #14532d;
   --color-success-950: #053321;
 
   /* Warning - Naranja Advertencia */
-  --color-warning-25: #FFFBEB;
-  --color-warning-50: #FFFBEB;
-  --color-warning-100: #FEF3C7;
+  --color-warning-25: #fffbeb;
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
   --color-warning-200: #fedf89;
   --color-warning-300: #fec84b;
   --color-warning-400: #fdb022;
-  --color-warning-500: #F59E0B;
+  --color-warning-500: #f59e0b;
   --color-warning-600: #dc6803;
-  --color-warning-700: #B45309;
+  --color-warning-700: #b45309;
   --color-warning-800: #93370d;
-  --color-warning-900: #78350F;
+  --color-warning-900: #78350f;
   --color-warning-950: #4e1d09;
 
   /* Error - Rojo Elegante */
-  --color-error-25: #FEF2F2;
-  --color-error-50: #FEF2F2;
-  --color-error-100: #FEE2E2;
+  --color-error-25: #fef2f2;
+  --color-error-50: #fef2f2;
+  --color-error-100: #fee2e2;
   --color-error-200: #fecdca;
   --color-error-300: #fda29b;
   --color-error-400: #f97066;
-  --color-error-500: #EF4444;
+  --color-error-500: #ef4444;
   --color-error-600: #d92d20;
-  --color-error-700: #B91C1C;
+  --color-error-700: #b91c1c;
   --color-error-800: #912018;
-  --color-error-900: #7F1D1D;
+  --color-error-900: #7f1d1d;
   --color-error-950: #55160c;
 
   /* Info - Azul Informativo */
-  --color-info-25: #EFF6FF;
-  --color-info-50: #EFF6FF;
-  --color-info-100: #DBEAFE;
+  --color-info-25: #eff6ff;
+  --color-info-50: #eff6ff;
+  --color-info-100: #dbeafe;
   --color-info-200: #b9e6fe;
   --color-info-300: #7cd4fd;
   --color-info-400: #36bffa;
-  --color-info-500: #3B82F6;
+  --color-info-500: #3b82f6;
   --color-info-600: #0086c9;
-  --color-info-700: #1D4ED8;
+  --color-info-700: #1d4ed8;
   --color-info-800: #065986;
-  --color-info-900: #1E3A8A;
+  --color-info-900: #1e3a8a;
   --color-info-950: #062c41;
 
   /* Shadows */
   --shadow-theme-xs: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
   --shadow-theme-sm: 0px 1px 3px 0px rgba(16, 24, 40, 0.1), 0px 1px 2px 0px rgba(16, 24, 40, 0.06);
-  --shadow-theme-md: 0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06);
-  --shadow-theme-lg: 0px 12px 16px -4px rgba(16, 24, 40, 0.08), 0px 4px 6px -2px rgba(16, 24, 40, 0.03);
-  --shadow-theme-xl: 0px 20px 24px -4px rgba(16, 24, 40, 0.08), 0px 8px 8px -4px rgba(16, 24, 40, 0.03);
+  --shadow-theme-md:
+    0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06);
+  --shadow-theme-lg:
+    0px 12px 16px -4px rgba(16, 24, 40, 0.08), 0px 4px 6px -2px rgba(16, 24, 40, 0.03);
+  --shadow-theme-xl:
+    0px 20px 24px -4px rgba(16, 24, 40, 0.08), 0px 8px 8px -4px rgba(16, 24, 40, 0.03);
 
   /* Gradients */
-  --image-gradient-hero: linear-gradient(135deg, #0052CC 0%, #2E9B4A 100%);
-  --image-gradient-blue: linear-gradient(135deg, #0052CC 0%, #06B6D4 100%);
-  --image-gradient-green: linear-gradient(135deg, #2E9B4A 0%, #14B8A6 100%);
-  --image-gradient-professional: linear-gradient(135deg, #0043A3 0%, #257C3B 100%);
-  --image-gradient-light: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
-  --image-gradient-dark: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
-  --image-gradient-overlay: linear-gradient(180deg, rgba(0, 82, 204, 0) 0%, rgba(0, 82, 204, 0.8) 100%);
+  --image-gradient-hero: linear-gradient(135deg, #0052cc 0%, #2e9b4a 100%);
+  --image-gradient-blue: linear-gradient(135deg, #0052cc 0%, #06b6d4 100%);
+  --image-gradient-green: linear-gradient(135deg, #2e9b4a 0%, #14b8a6 100%);
+  --image-gradient-professional: linear-gradient(135deg, #0043a3 0%, #257c3b 100%);
+  --image-gradient-light: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  --image-gradient-dark: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  --image-gradient-overlay: linear-gradient(
+    180deg,
+    rgba(0, 82, 204, 0) 0%,
+    rgba(0, 82, 204, 0.8) 100%
+  );
 }
 
 /* ========================================
@@ -181,7 +191,7 @@
 }
 
 button:not(:disabled),
-[role="button"]:not(:disabled) {
+[role='button']:not(:disabled) {
   cursor: pointer;
 }
 
@@ -192,6 +202,18 @@ body {
   z-index: 10;
   background-color: var(--color-gray-50);
   color: var(--color-gray-900);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 html.dark body {
@@ -344,7 +366,9 @@ html.dark {
 
 .btn-primary:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--color-brand-500);
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 0 4px var(--color-brand-500);
 }
 
 .btn-primary:disabled {
@@ -568,8 +592,12 @@ html.dark {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideInRight {
@@ -581,6 +609,21 @@ html.dark {
     transform: translateX(0);
     opacity: 1;
   }
+}
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-fade-in {
+  animation: heroFadeIn 0.9s ease-out both;
 }
 
 /* Loading States */
@@ -597,7 +640,9 @@ html.dark {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .skeleton {
@@ -611,8 +656,13 @@ html.dark {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* Table Checkbox Styling */
@@ -643,10 +693,10 @@ html.dark {
 }
 
 /* Date/Time Input Icon Removal */
-input[type="date"]::-webkit-inner-spin-button,
-input[type="time"]::-webkit-inner-spin-button,
-input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="time"]::-webkit-calendar-picker-indicator {
+input[type='date']::-webkit-inner-spin-button,
+input[type='time']::-webkit-inner-spin-button,
+input[type='date']::-webkit-calendar-picker-indicator,
+input[type='time']::-webkit-calendar-picker-indicator {
   display: none;
   -webkit-appearance: none;
 }
@@ -669,7 +719,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 /* Estado nuevo con máscara hexagonal difuminada */
 ::view-transition-new(root) {
-  mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><filter id="hexBlur"><feGaussianBlur stdDeviation="2.5"/></filter></defs><polygon points="50,3 93.3,25 93.3,75 50,97 6.7,75 6.7,25" fill="white" filter="url(%23hexBlur)"/></svg>') 
+  mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><filter id="hexBlur"><feGaussianBlur stdDeviation="2.5"/></filter></defs><polygon points="50,3 93.3,25 93.3,75 50,97 6.7,75 6.7,25" fill="white" filter="url(%23hexBlur)"/></svg>')
     center / 0 no-repeat;
   animation: hexagon-expand 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   animation-fill-mode: both;
@@ -685,7 +735,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 
 /* Modo oscuro: mismo efecto */
 .dark::view-transition-new(root) {
-  mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><filter id="hexBlur"><feGaussianBlur stdDeviation="2.5"/></filter></defs><polygon points="50,3 93.3,25 93.3,75 50,97 6.7,75 6.7,25" fill="white" filter="url(%23hexBlur)"/></svg>') 
+  mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><filter id="hexBlur"><feGaussianBlur stdDeviation="2.5"/></filter></defs><polygon points="50,3 93.3,25 93.3,75 50,97 6.7,75 6.7,25" fill="white" filter="url(%23hexBlur)"/></svg>')
     center / 0 no-repeat;
   animation: hexagon-expand 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   animation-fill-mode: both;
@@ -711,7 +761,9 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 /* Soporte para navegadores sin View Transition API */
 @supports not (view-transition-name: root) {
   * {
-    transition: background-color 0.3s ease, color 0.3s ease !important;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease !important;
   }
 }
 
@@ -883,3 +935,60 @@ input[type="time"]::-webkit-calendar-picker-indicator {
   color: var(--color-gray-400);
 }
 
+/* ============================================
+   LANDING PAGE UTILITY CLASSES
+   Gradient and Glass Effects for Landing Components
+   ============================================ */
+
+/* Gradient Text - Cermont Brand Colors */
+.gradient-text {
+  background: linear-gradient(
+    135deg,
+    var(--color-cermont-primary-500) 0%,
+    var(--color-cermont-secondary-500) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .gradient-text {
+  background: linear-gradient(
+    135deg,
+    var(--color-cermont-primary-400) 0%,
+    var(--color-cermont-secondary-400) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gradient Background - Primary Brand Gradient */
+.gradient-bg {
+  background: linear-gradient(
+    135deg,
+    var(--color-cermont-primary-500) 0%,
+    var(--color-cermont-secondary-500) 100%
+  );
+}
+
+.dark .gradient-bg {
+  background: linear-gradient(
+    135deg,
+    var(--color-cermont-primary-600) 0%,
+    var(--color-cermont-secondary-600) 100%
+  );
+}
+
+/* Glass Effect - Frosted Glass Morphism */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.dark .glass {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}

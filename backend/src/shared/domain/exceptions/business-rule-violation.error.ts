@@ -8,10 +8,10 @@ export class BusinessRuleViolationError extends Error {
   constructor(
     message: string,
     public readonly rule?: string,
-    public readonly context?: Record<string, unknown>,
+    public readonly context?: Record<string, unknown>
   ) {
     super(message);
-    this.name = "BusinessRuleViolationError";
+    this.name = 'BusinessRuleViolationError';
     Object.setPrototypeOf(this, new.target.prototype);
   }
 

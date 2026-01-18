@@ -1,8 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    './src/**/*.{html,ts}',
-  ],
+  darkMode: 'class',
+  content: ['./src/**/*.{html,ts}'],
   theme: {
     extend: {
       colors: {
@@ -18,6 +17,30 @@ module.exports = {
           800: '#002652',
           900: '#001829',
         },
+        primary: {
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
+        },
+        secondary: {
+          50: '#fff7ed',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#f97316',
+          600: '#ea580c',
+          700: '#c2410c',
+          800: '#9a3412',
+          900: '#7c2d12',
+        },
         'cermont-primary': {
           50: '#E6F0FF',
           100: '#CCE0FF',
@@ -29,6 +52,9 @@ module.exports = {
           700: '#00357A',
           800: '#002652',
           900: '#001829',
+        },
+        dark: {
+          900: 'var(--color-gray-900)',
         },
         error: {
           50: '#FEF2F2',
@@ -78,6 +104,36 @@ module.exports = {
           800: '#065986',
           900: '#1E3A8A',
         },
+      },
+      fontSize: {
+        'theme-xs': ['0.75rem', { lineHeight: '1rem' }],
+        'theme-sm': ['0.875rem', { lineHeight: '1.25rem' }],
+        'theme-xl': ['1.25rem', { lineHeight: '1.75rem' }],
+      },
+      spacing: {
+        10.5: '2.625rem',
+        75: '18.75rem',
+      },
+      boxShadow: {
+        'theme-xs': 'var(--shadow-theme-xs)',
+        'theme-sm': 'var(--shadow-theme-sm)',
+        'theme-md': 'var(--shadow-theme-md)',
+        'theme-lg': 'var(--shadow-theme-lg)',
+        'theme-xl': 'var(--shadow-theme-xl)',
+      },
+      keyframes: {
+        'fade-in': {
+          '0%': { opacity: '0', transform: 'translateY(24px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'slide-up': {
+          '0%': { opacity: '0', transform: 'translateY(24px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      animation: {
+        'fade-in': 'fade-in 0.9s ease-out both',
+        'slide-up': 'slide-up 0.8s ease-out both',
       },
     },
   },

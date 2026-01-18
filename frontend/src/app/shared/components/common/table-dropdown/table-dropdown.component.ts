@@ -1,28 +1,20 @@
 import { CommonModule } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  Input,
-  ElementRef,
-  ViewChild,
-  OnDestroy,
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, ViewChild } from '@angular/core';
 import { createPopper, Instance } from '@popperjs/core';
-
 
 @Component({
   selector: 'app-table-dropdown',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './table-dropdown.component.html',
-  styles: ``
+  styles: ``,
 })
 export class TableDropdownComponent implements AfterViewInit, OnDestroy {
-
-  @Input() dropdownButton: any;
-  @Input() dropdownContent: any;
+  @Input() dropdownButton?: unknown;
+  @Input() dropdownContent?: unknown;
   @ViewChild('buttonRef') buttonRef!: ElementRef<HTMLDivElement>;
   @ViewChild('contentRef') contentRef!: ElementRef<HTMLDivElement>;
-  
+
   isOpen = false;
   private popperInstance: Instance | null = null;
   private readonly onDocumentClick = (event: MouseEvent) => this.close(event);

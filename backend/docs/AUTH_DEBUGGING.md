@@ -7,6 +7,7 @@
 **URL:** `POST http://localhost:4000/api/auth/login`
 
 **Payload:**
+
 ```json
 {
   "email": "admin@cermont.com",
@@ -30,9 +31,9 @@ LoginSchema = z.object({
 ### 3. Token Durations
 
 | rememberMe | Refresh Token |
-|-----------|---------------|
-| `false` | 7 días |
-| `true` | 30 días |
+| ---------- | ------------- |
+| `false`    | 7 días        |
+| `true`     | 30 días       |
 
 ---
 
@@ -41,6 +42,7 @@ LoginSchema = z.object({
 ### Error: 401 Unauthorized
 
 **Causa 1: Validación Zod fallida**
+
 ```
 [AuthController] ❌ Login validation failed: rememberMe: Expected boolean
 ```
@@ -48,6 +50,7 @@ LoginSchema = z.object({
 **Solución:** Verificar que rememberMe sea boolean (no string "true").
 
 **Causa 2: Credenciales incorrectas**
+
 ```
 [LoginUseCase] Login attempt failed: Invalid password
 ```

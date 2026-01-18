@@ -3,6 +3,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import bcrypt from 'bcryptjs';
 import { Pool } from 'pg';
 import { PrismaClient } from './generated/prisma/client';
+import { seedFormTemplates } from './seeds/form-templates.seed';
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
@@ -192,6 +193,9 @@ async function main() {
     }
     console.log('✓ Alertas creadas');
   }
+
+  // --- TEMPLATES DE FORMULARIOS DE INSPECCIÓN ---
+  await seedFormTemplates(prisma);
 }
 
 main()

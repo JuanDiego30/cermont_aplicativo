@@ -1,10 +1,19 @@
 <div class="hexagon-wrapper">
-  <button (click)="toggleTheme($event)"
+  <button
+    (click)="toggleTheme($event)"
     class="hexagon-btn relative flex items-center justify-center w-14 h-16 bg-gradient-to-br from-blue-700 to-green-600 hover:from-blue-600 hover:to-green-500 text-white shadow-lg focus:outline-none"
-    aria-label="Toggle Dark Mode">
+    aria-label="Toggle Dark Mode"
+  >
     <!-- Sun Icon (for Dark Mode) -->
-    <svg class="hidden dark:block w-6 h-6 drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg
+      class="hidden dark:block w-6 h-6 drop-shadow-md"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
       <circle cx="12" cy="12" r="4"></circle>
       <path d="M12 2v2"></path>
       <path d="M12 20v2"></path>
@@ -17,8 +26,15 @@
     </svg>
 
     <!-- Moon Icon (for Light Mode) -->
-    <svg class="block dark:hidden w-6 h-6 drop-shadow-md" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg
+      class="block dark:hidden w-6 h-6 drop-shadow-md"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
     </svg>
   </button>

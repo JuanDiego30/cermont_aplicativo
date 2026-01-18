@@ -13,17 +13,11 @@
  * - IP del cliente
  * - User-Agent
  */
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-  Inject,
-} from "@nestjs/common";
-import { Observable } from "rxjs";
-import { tap, catchError } from "rxjs/operators";
-import { throwError } from "rxjs";
-import { LoggerService } from "../../shared/logging/logger.service";
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Inject } from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
+import { LoggerService } from '../../shared/logging/logger.service';
 
 interface LogContext {
   requestId: string;
@@ -46,42 +40,28 @@ export class LoggingInterceptor implements NestInterceptor {
     const method = request.method;
     const url = request.url;
     const now = Date.now();
-    const requestId = request.requestId || "no-request-id";
+    const requestId = request.requestId || 'no-request-id';
 
     // Log inicial de request entrante (solo en desarrollo)
-    if (process.env.NODE_ENV !== "production") {
-      this.logger.debug(
-        `[${requestId}] → ${method} ${url}`,
-        "LoggingInterceptor",
-        {
-          requestId,
-          type: "http_request_start",
-        },
-      );
+    if (process.env.NODE_ENV !== 'production') {
+      this.logger.debug(`[${requestId}] → ${method} ${url}`, 'LoggingInterceptor', {
+        requestId,
+        type: 'http_request_start',
+      });
     }
 
     return next.handle().pipe(
       tap(() => {
         const response = context.switchToHttp().getResponse();
-        const logContext = this.buildLogContext(
-          request,
-          response,
-          now,
-          requestId,
-        );
+        const logContext = this.buildLogContext(request, response, now, requestId);
         this.logSuccess(logContext);
       }),
-      catchError((error) => {
+      catchError(error => {
         const response = context.switchToHttp().getResponse();
-        const logContext = this.buildLogContext(
-          request,
-          response,
-          now,
-          requestId,
-        );
+        const logContext = this.buildLogContext(request, response, now, requestId);
         this.logError(logContext, error);
         return throwError(() => error);
-      }),
+      })
     );
   }
 
@@ -89,11 +69,9 @@ export class LoggingInterceptor implements NestInterceptor {
     request: Record<string, unknown>,
     response: Record<string, unknown>,
     startTime: number,
-    requestId: string,
+    requestId: string
   ): LogContext {
-    const user = request.user as
-      | { userId?: string; email?: string }
-      | undefined;
+    const user = request.user as { userId?: string; email?: string } | undefined;
 
     return {
       requestId,
@@ -104,30 +82,23 @@ export class LoggingInterceptor implements NestInterceptor {
       userId: user?.userId,
       userEmail: user?.email,
       ip: this.getClientIp(request),
-      userAgent: this.getHeader(request, "user-agent"),
+      userAgent: this.getHeader(request, 'user-agent'),
     };
   }
 
   private logSuccess(ctx: LogContext): void {
     // Usar método especializado de LoggerService para logging de API
-    this.logger.logApiRequest(
-      ctx.method,
-      ctx.url,
-      ctx.statusCode,
-      ctx.duration,
-      ctx.userId,
-      {
-        requestId: ctx.requestId,
-        userEmail: ctx.userEmail,
-        ip: ctx.ip,
-        userAgent: ctx.userAgent,
-      },
-    );
+    this.logger.logApiRequest(ctx.method, ctx.url, ctx.statusCode, ctx.duration, ctx.userId, {
+      requestId: ctx.requestId,
+      userEmail: ctx.userEmail,
+      ip: ctx.ip,
+      userAgent: ctx.userAgent,
+    });
   }
 
   private logError(ctx: LogContext, error: Error): void {
     // Usar método especializado de LoggerService para logging de errores
-    this.logger.logErrorWithStack(error, "LoggingInterceptor", {
+    this.logger.logErrorWithStack(error, 'LoggingInterceptor', {
       requestId: ctx.requestId,
       method: ctx.method,
       url: ctx.url,
@@ -141,28 +112,21 @@ export class LoggingInterceptor implements NestInterceptor {
   }
 
   private getClientIp(request: Record<string, unknown>): string {
-    const headers = request.headers as
-      | Record<string, string | string[]>
-      | undefined;
-    if (!headers) return "unknown";
+    const headers = request.headers as Record<string, string | string[]> | undefined;
+    if (!headers) return 'unknown';
 
     // Verificar headers de proxy
-    const forwarded = headers["x-forwarded-for"];
+    const forwarded = headers['x-forwarded-for'];
     if (forwarded) {
       const ips = Array.isArray(forwarded) ? forwarded[0] : forwarded;
-      return ips.split(",")[0].trim();
+      return ips.split(',')[0].trim();
     }
 
-    return (request.ip as string) || "unknown";
+    return (request.ip as string) || 'unknown';
   }
 
-  private getHeader(
-    request: Record<string, unknown>,
-    header: string,
-  ): string | undefined {
-    const headers = request.headers as
-      | Record<string, string | string[]>
-      | undefined;
+  private getHeader(request: Record<string, unknown>, header: string): string | undefined {
+    const headers = request.headers as Record<string, string | string[]> | undefined;
     if (!headers) return undefined;
 
     const value = headers[header];

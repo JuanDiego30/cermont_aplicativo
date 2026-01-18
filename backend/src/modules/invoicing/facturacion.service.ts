@@ -1,11 +1,6 @@
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-  BadRequestException,
-} from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import { EventEmitter2 } from "@nestjs/event-emitter";
+import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   RegistrarSESDto,
   AprobarSESDto,
@@ -14,7 +9,7 @@ import {
   SESResponseDto,
   FacturaResponseDto,
   ResumenFacturacionDto,
-} from "./application/dto/facturacion.dto";
+} from './application/dto/facturacion.dto';
 
 /**
  * FacturacionService
@@ -32,7 +27,7 @@ export class FacturacionService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   /**
@@ -59,7 +54,7 @@ export class FacturacionService {
         where: { ordenId: dto.ordenId },
         data: {
           numeroSES: dto.numeroSES,
-          estado: "creada",
+          estado: 'creada',
           observaciones: dto.observaciones,
         },
       });
@@ -72,18 +67,16 @@ export class FacturacionService {
       data: {
         ordenId: dto.ordenId,
         numeroSES: dto.numeroSES,
-        estado: "creada",
+        estado: 'creada',
         descripcionServicio: orden.descripcion,
         valorTotal: dto.monto,
         observaciones: dto.observaciones,
       },
     });
 
-    this.logger.log(
-      `SES registrado: ${ses.id} - ${dto.numeroSES} para orden ${dto.ordenId}`,
-    );
+    this.logger.log(`SES registrado: ${ses.id} - ${dto.numeroSES} para orden ${dto.ordenId}`);
 
-    this.eventEmitter.emit("facturacion.ses.registrado", {
+    this.eventEmitter.emit('facturacion.ses.registrado', {
       sesId: ses.id,
       ordenId: dto.ordenId,
       numeroSES: dto.numeroSES,
@@ -105,23 +98,21 @@ export class FacturacionService {
       throw new NotFoundException(`SES ${dto.sesId} no encontrado`);
     }
 
-    if (ses.estado === "aprobada") {
-      throw new BadRequestException("El SES ya está aprobado");
+    if (ses.estado === 'aprobada') {
+      throw new BadRequestException('El SES ya está aprobado');
     }
 
     const updated = await this.prisma.sES.update({
       where: { id: dto.sesId },
       data: {
-        estado: "aprobada",
-        fechaAprobacion: dto.fechaAprobacion
-          ? new Date(dto.fechaAprobacion)
-          : new Date(),
+        estado: 'aprobada',
+        fechaAprobacion: dto.fechaAprobacion ? new Date(dto.fechaAprobacion) : new Date(),
       },
     });
 
     this.logger.log(`SES aprobado: ${updated.id}`);
 
-    this.eventEmitter.emit("facturacion.ses.aprobado", {
+    this.eventEmitter.emit('facturacion.ses.aprobado', {
       sesId: updated.id,
       ordenId: ses.ordenId,
     });
@@ -161,7 +152,7 @@ export class FacturacionService {
           subtotal: dto.monto,
           impuestos,
           valorTotal,
-          estado: "generada",
+          estado: 'generada',
           fechaVencimiento,
         },
       });
@@ -177,14 +168,14 @@ export class FacturacionService {
         impuestos,
         valorTotal,
         conceptos: ses.descripcionServicio,
-        estado: "generada",
+        estado: 'generada',
         fechaVencimiento,
       },
     });
 
     this.logger.log(`Factura generada: ${factura.id} - ${dto.numeroFactura}`);
 
-    this.eventEmitter.emit("facturacion.factura.generada", {
+    this.eventEmitter.emit('facturacion.factura.generada', {
       facturaId: factura.id,
       sesId: dto.sesId,
       numeroFactura: dto.numeroFactura,
@@ -205,21 +196,21 @@ export class FacturacionService {
       throw new NotFoundException(`Factura ${dto.facturaId} no encontrada`);
     }
 
-    if (factura.estado === "pagada") {
-      throw new BadRequestException("La factura ya está pagada");
+    if (factura.estado === 'pagada') {
+      throw new BadRequestException('La factura ya está pagada');
     }
 
     const updated = await this.prisma.factura.update({
       where: { id: dto.facturaId },
       data: {
-        estado: "pagada",
+        estado: 'pagada',
         fechaPago: dto.fechaPago ? new Date(dto.fechaPago) : new Date(),
       },
     });
 
     this.logger.log(`Pago registrado: ${updated.id}`);
 
-    this.eventEmitter.emit("facturacion.pago.registrado", {
+    this.eventEmitter.emit('facturacion.pago.registrado', {
       facturaId: updated.id,
       montoPagado: dto.montoPagado,
     });
@@ -234,7 +225,7 @@ export class FacturacionService {
     // Pending SES
     const sesPendientes = await this.prisma.sES.findMany({
       where: {
-        estado: { in: ["no_creada", "creada", "enviada"] },
+        estado: { in: ['no_creada', 'creada', 'enviada'] },
       },
       include: { orden: true },
     });
@@ -242,7 +233,7 @@ export class FacturacionService {
     // Pending invoices
     const facturasPendientes = await this.prisma.factura.findMany({
       where: {
-        estado: { in: ["generada", "enviada", "aprobada"] },
+        estado: { in: ['generada', 'enviada', 'aprobada'] },
       },
     });
 
@@ -252,7 +243,7 @@ export class FacturacionService {
     });
 
     const pagadas = await this.prisma.factura.aggregate({
-      where: { estado: "pagada" },
+      where: { estado: 'pagada' },
       _sum: { valorTotal: true },
     });
 
@@ -261,18 +252,12 @@ export class FacturacionService {
 
     return {
       totalPendienteSES: sesPendientes.length,
-      totalPendienteFacturacion: sesPendientes.filter(
-        (s) => s.estado === "aprobada",
-      ).length,
+      totalPendienteFacturacion: sesPendientes.filter(s => s.estado === 'aprobada').length,
       totalPendientePago: facturasPendientes.length,
       totalFacturado: totales._sum?.valorTotal || 0,
       totalPagado: pagadas._sum?.valorTotal || 0,
-      sesPendientes: sesPendientes.map((s) =>
-        this.mapSESToResponse(s, s.orden.numero),
-      ),
-      facturasPendientes: facturasPendientes.map((f) =>
-        this.mapFacturaToResponse(f),
-      ),
+      sesPendientes: sesPendientes.map(s => this.mapSESToResponse(s, s.orden.numero)),
+      facturasPendientes: facturasPendientes.map(f => this.mapFacturaToResponse(f)),
       alertas,
     };
   }
@@ -312,19 +297,16 @@ export class FacturacionService {
     return Math.floor(diffTime / (1000 * 60 * 60 * 24));
   }
 
-  private getAlertLevel(
-    dias: number,
-    umbral: number,
-  ): "INFO" | "WARNING" | "CRITICAL" | undefined {
-    if (dias >= umbral * 2) return "CRITICAL";
-    if (dias >= umbral) return "WARNING";
-    if (dias >= umbral * 0.7) return "INFO";
+  private getAlertLevel(dias: number, umbral: number): 'INFO' | 'WARNING' | 'CRITICAL' | undefined {
+    if (dias >= umbral * 2) return 'CRITICAL';
+    if (dias >= umbral) return 'WARNING';
+    if (dias >= umbral * 0.7) return 'INFO';
     return undefined;
   }
 
   private mapSESToResponse(ses: any, numeroOrden: string): SESResponseDto {
     const diasPendiente =
-      ses.estado !== "aprobada"
+      ses.estado !== 'aprobada'
         ? this.calcularDiasPendiente(ses.fechaCreacion || ses.createdAt)
         : 0;
 
@@ -332,9 +314,9 @@ export class FacturacionService {
       id: ses.id,
       ordenId: ses.ordenId,
       numeroOrden,
-      numeroSES: ses.numeroSES || "",
+      numeroSES: ses.numeroSES || '',
       monto: ses.valorTotal || 0,
-      estado: (ses.estado || "PENDIENTE").toString().toUpperCase(),
+      estado: (ses.estado || 'PENDIENTE').toString().toUpperCase(),
       fechaGeneracion: ses.fechaCreacion?.toISOString(),
       fechaEnvio: ses.fechaEnvio?.toISOString(),
       fechaAprobacion: ses.fechaAprobacion?.toISOString(),
@@ -347,18 +329,18 @@ export class FacturacionService {
 
   private mapFacturaToResponse(factura: any): FacturaResponseDto {
     const diasPendiente =
-      factura.estado !== "pagada"
+      factura.estado !== 'pagada'
         ? this.calcularDiasPendiente(factura.fechaEmision || factura.createdAt)
         : 0;
 
     return {
       id: factura.id,
-      sesId: "",
-      numeroFactura: factura.numeroFactura || "",
+      sesId: '',
+      numeroFactura: factura.numeroFactura || '',
       monto: factura.subtotal || 0,
       montoIVA: factura.impuestos,
       montoTotal: factura.valorTotal || 0,
-      estado: (factura.estado || "PENDIENTE").toString().toUpperCase(),
+      estado: (factura.estado || 'PENDIENTE').toString().toUpperCase(),
       fechaEmision: factura.fechaEmision?.toISOString(),
       fechaVencimiento: factura.fechaVencimiento?.toISOString(),
       fechaPago: factura.fechaPago?.toISOString(),
@@ -371,7 +353,7 @@ export class FacturacionService {
 
   private generarAlertas(
     sesPendientes: any[],
-    facturasPendientes: any[],
+    facturasPendientes: any[]
   ): Array<{
     tipo: string;
     mensaje: string;
@@ -386,31 +368,26 @@ export class FacturacionService {
     }> = [];
 
     for (const ses of sesPendientes) {
-      const dias = this.calcularDiasPendiente(
-        ses.fechaCreacion || ses.createdAt,
-      );
+      const dias = this.calcularDiasPendiente(ses.fechaCreacion || ses.createdAt);
 
-      if (ses.estado === "enviada" && dias >= this.ALERTA_SES_APROBACION) {
+      if (ses.estado === 'enviada' && dias >= this.ALERTA_SES_APROBACION) {
         alertas.push({
-          tipo: "SES_SIN_APROBAR",
+          tipo: 'SES_SIN_APROBAR',
           mensaje: `SES ${ses.numeroSES || ses.id} lleva ${dias} días sin aprobar`,
-          nivel:
-            dias >= this.ALERTA_SES_APROBACION * 2 ? "CRITICAL" : "WARNING",
+          nivel: dias >= this.ALERTA_SES_APROBACION * 2 ? 'CRITICAL' : 'WARNING',
           relacionadoId: ses.id,
         });
       }
     }
 
     for (const factura of facturasPendientes) {
-      const dias = this.calcularDiasPendiente(
-        factura.fechaEmision || factura.createdAt,
-      );
+      const dias = this.calcularDiasPendiente(factura.fechaEmision || factura.createdAt);
 
       if (dias >= this.ALERTA_PAGO_VENCIDO) {
         alertas.push({
-          tipo: "PAGO_VENCIDO",
+          tipo: 'PAGO_VENCIDO',
           mensaje: `Factura ${factura.numeroFactura || factura.id} tiene ${dias} días sin pago`,
-          nivel: "CRITICAL",
+          nivel: 'CRITICAL',
           relacionadoId: factura.id,
         });
       }

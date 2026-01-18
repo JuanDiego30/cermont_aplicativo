@@ -3,13 +3,10 @@
  * @description Retrieves a single evidencia by ID
  */
 
-import { Injectable, Inject, Logger, NotFoundException } from "@nestjs/common";
-import {
-  IEvidenciaRepository,
-  EVIDENCIA_REPOSITORY,
-} from "../../domain/repositories";
-import { EvidenciaMapper } from "../mappers";
-import { EvidenciaResponse } from "../dto";
+import { Injectable, Inject, Logger, NotFoundException } from '@nestjs/common';
+import { IEvidenciaRepository, EVIDENCIA_REPOSITORY } from '../../domain/repositories';
+import { EvidenciaMapper } from '../mappers';
+import { EvidenciaResponse } from '../dto';
 
 @Injectable()
 export class GetEvidenciaUseCase {
@@ -17,7 +14,7 @@ export class GetEvidenciaUseCase {
 
   constructor(
     @Inject(EVIDENCIA_REPOSITORY)
-    private readonly repository: IEvidenciaRepository,
+    private readonly repository: IEvidenciaRepository
   ) {}
 
   async execute(id: string): Promise<EvidenciaResponse> {

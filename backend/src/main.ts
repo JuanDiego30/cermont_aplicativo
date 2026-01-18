@@ -1,5 +1,5 @@
-import { Logger, ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
+
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import compression from 'compression';
@@ -13,24 +13,44 @@ async function bootstrap() {
 
   try {
     const app = await NestFactory.create(AppModule);
-    const configService = app.get(ConfigService);
-    const port = configService.get<number>('PORT') || 3000;
+    const port = 3000;
 
-    // Security Middleware
-    app.use(helmet());
+    // ============================================
+    // CORS - MUST BE BEFORE OTHER MIDDLEWARE
+    // ============================================
+    app.enableCors({
+      origin: true, // Allow all origins in development
+      credentials: true,
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'Accept',
+        'Origin',
+        'X-Requested-With',
+        'x-csrf-token',
+        'x-custom-header',
+      ],
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
+    });
+
+    // Security Middleware (after CORS)
+    app.use(
+      helmet({
+        crossOriginResourcePolicy: { policy: 'cross-origin' },
+        crossOriginOpenerPolicy: { policy: 'unsafe-none' },
+      })
+    );
     app.use(compression());
     app.use(cookieParser());
 
-    // CORS Configuration
-    app.enableCors({
-      origin: configService.get<string>('FRONTEND_URL') || 'http://localhost:4200',
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'x-csrf-token', 'x-custom-header'],
-    });
-
-    // Global Prefix
+    // Global Prefix y Versionado
     app.setGlobalPrefix('api');
+    app.enableVersioning({
+      type: VersioningType.URI,
+      defaultVersion: '1',
+    });
 
     // Global Validation Pipe
     app.useGlobalPipes(

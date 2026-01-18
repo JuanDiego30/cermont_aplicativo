@@ -7,8 +7,8 @@
  * - Clean Code: Código legible con nombres descriptivos
  * - Type Safety: Interfaces para todos los retornos
  */
-import { Injectable, Logger } from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
+import { Injectable, Logger } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
 
 // ============================================================================
 // Interfaces
@@ -47,8 +47,8 @@ export interface PaginatedOrdenes {
 
 const DIAS_RECIENTES = 7;
 const ORDENES_RECIENTES_LIMIT = 10;
-const ESTADOS_PENDIENTES = ["planeacion", "ejecucion", "pausada"] as const;
-const ESTADO_COMPLETADA = "completada";
+const ESTADOS_PENDIENTES = ['planeacion', 'ejecucion', 'pausada'] as const;
+const ESTADO_COMPLETADA = 'completada';
 
 // ============================================================================
 // Service
@@ -66,18 +66,17 @@ export class DashboardService {
   async getStats(): Promise<DashboardStats> {
     const fechaReciente = this.calcularFechaReciente(DIAS_RECIENTES);
 
-    const [totalOrdenes, ordenesPorEstado, totalUsuarios, ordenesRecientes] =
-      await Promise.all([
-        this.prisma.order.count(),
-        this.prisma.order.groupBy({
-          by: ["estado"],
-          _count: { id: true },
-        }),
-        this.prisma.user.count({ where: { active: true } }),
-        this.prisma.order.count({
-          where: { createdAt: { gte: fechaReciente } },
-        }),
-      ]);
+    const [totalOrdenes, ordenesPorEstado, totalUsuarios, ordenesRecientes] = await Promise.all([
+      this.prisma.order.count(),
+      this.prisma.order.groupBy({
+        by: ['estado'],
+        _count: { id: true },
+      }),
+      this.prisma.user.count({ where: { active: true } }),
+      this.prisma.order.count({
+        where: { createdAt: { gte: fechaReciente } },
+      }),
+    ]);
 
     return {
       totalOrdenes,
@@ -93,7 +92,7 @@ export class DashboardService {
   async getOrdenesRecientes(): Promise<PaginatedOrdenes> {
     const ordenes = await this.prisma.order.findMany({
       take: ORDENES_RECIENTES_LIMIT,
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
       select: {
         id: true,
         numero: true,
@@ -112,19 +111,18 @@ export class DashboardService {
    */
   async getMetricas(): Promise<DashboardMetricas> {
     try {
-      const [totalOrders, completedOrders, pendingOrders, techniciansActive] =
-        await Promise.all([
-          this.prisma.order.count(),
-          this.prisma.order.count({
-            where: { estado: ESTADO_COMPLETADA },
-          }),
-          this.prisma.order.count({
-            where: { estado: { in: [...ESTADOS_PENDIENTES] } },
-          }),
-          this.prisma.user.count({
-            where: { role: "tecnico", active: true },
-          }),
-        ]);
+      const [totalOrders, completedOrders, pendingOrders, techniciansActive] = await Promise.all([
+        this.prisma.order.count(),
+        this.prisma.order.count({
+          where: { estado: ESTADO_COMPLETADA },
+        }),
+        this.prisma.order.count({
+          where: { estado: { in: [...ESTADOS_PENDIENTES] } },
+        }),
+        this.prisma.user.count({
+          where: { role: 'tecnico', active: true },
+        }),
+      ]);
 
       return {
         totalOrders,
@@ -134,7 +132,7 @@ export class DashboardService {
       };
     } catch (error) {
       const err = error as Error;
-      this.logger.error("Error en getMetricas", err.stack);
+      this.logger.error('Error en getMetricas', err.stack);
       throw error;
     }
   }
@@ -154,14 +152,14 @@ export class DashboardService {
    * Transforma agrupación de Prisma a objeto Record
    */
   private transformarEstadosAObjeto(
-    agrupacion: Array<{ estado: string; _count: { id: number } }>,
+    agrupacion: Array<{ estado: string; _count: { id: number } }>
   ): Record<string, number> {
     return agrupacion.reduce(
       (acc, item) => {
         acc[item.estado] = item._count.id;
         return acc;
       },
-      {} as Record<string, number>,
+      {} as Record<string, number>
     );
   }
 }

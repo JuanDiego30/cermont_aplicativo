@@ -1,32 +1,26 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ModalService {
-  private isOpenSubject = new BehaviorSubject<boolean>(false);
+  private _isOpen = signal(false);
 
-  /** Observable for modal open state */
-  isOpen$: Observable<boolean> = this.isOpenSubject.asObservable();
-
-  /** Get current value synchronously */
-  get isOpen(): boolean {
-    return this.isOpenSubject.value;
-  }
+  /** Signal for modal open state */
+  isOpen = this._isOpen.asReadonly();
 
   /** Open the modal */
   openModal(): void {
-    this.isOpenSubject.next(true);
+    this._isOpen.set(true);
   }
 
   /** Close the modal */
   closeModal(): void {
-    this.isOpenSubject.next(false);
+    this._isOpen.set(false);
   }
 
   /** Toggle the modal */
   toggleModal(): void {
-    this.isOpenSubject.next(!this.isOpenSubject.value);
+    this._isOpen.update(v => !v);
   }
 }

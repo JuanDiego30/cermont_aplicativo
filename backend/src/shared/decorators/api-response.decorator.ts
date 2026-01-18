@@ -3,15 +3,15 @@
  * @description Decorators para documentar respuestas API en Swagger
  */
 
-import { applyDecorators, SetMetadata, Type } from "@nestjs/common";
-import { ApiExtraModels, ApiResponse, getSchemaPath } from "@nestjs/swagger";
+import { applyDecorators, SetMetadata, Type } from '@nestjs/common';
+import { ApiExtraModels, ApiResponse, getSchemaPath } from '@nestjs/swagger';
 import {
   ApiSuccessResponseDto,
   ApiErrorResponseDto,
   PaginatedResponseDto,
   PaginationMetaDto,
-} from "../dto/api-response.dto";
-import { SKIP_TRANSFORM_KEY } from "../interceptors/transform.interceptor";
+} from '../dto/api-response.dto';
+import { SKIP_TRANSFORM_KEY } from '../interceptors/transform.interceptor';
 
 /**
  * Documenta respuesta exitosa estándar con tipo genérico
@@ -21,13 +21,13 @@ import { SKIP_TRANSFORM_KEY } from "../interceptors/transform.interceptor";
  */
 export const ApiSuccessResponse = <TModel extends Type<unknown>>(
   model: TModel,
-  options?: { description?: string; isArray?: boolean },
+  options?: { description?: string; isArray?: boolean }
 ) => {
   return applyDecorators(
     ApiExtraModels(ApiSuccessResponseDto, model),
     ApiResponse({
       status: 200,
-      description: options?.description ?? "Operación exitosa",
+      description: options?.description ?? 'Operación exitosa',
       schema: {
         allOf: [
           { $ref: getSchemaPath(ApiSuccessResponseDto) },
@@ -35,7 +35,7 @@ export const ApiSuccessResponse = <TModel extends Type<unknown>>(
             properties: {
               data: options?.isArray
                 ? {
-                    type: "array",
+                    type: 'array',
                     items: { $ref: getSchemaPath(model) },
                   }
                 : { $ref: getSchemaPath(model) },
@@ -43,7 +43,7 @@ export const ApiSuccessResponse = <TModel extends Type<unknown>>(
           },
         ],
       },
-    }),
+    })
   );
 };
 
@@ -52,13 +52,13 @@ export const ApiSuccessResponse = <TModel extends Type<unknown>>(
  */
 export const ApiCreatedResponse = <TModel extends Type<unknown>>(
   model: TModel,
-  options?: { description?: string },
+  options?: { description?: string }
 ) => {
   return applyDecorators(
     ApiExtraModels(ApiSuccessResponseDto, model),
     ApiResponse({
       status: 201,
-      description: options?.description ?? "Recurso creado exitosamente",
+      description: options?.description ?? 'Recurso creado exitosamente',
       schema: {
         allOf: [
           { $ref: getSchemaPath(ApiSuccessResponseDto) },
@@ -69,7 +69,7 @@ export const ApiCreatedResponse = <TModel extends Type<unknown>>(
           },
         ],
       },
-    }),
+    })
   );
 };
 
@@ -81,27 +81,27 @@ export const ApiCreatedResponse = <TModel extends Type<unknown>>(
  */
 export const ApiPaginatedResponse = <TModel extends Type<unknown>>(
   model: TModel,
-  options?: { description?: string },
+  options?: { description?: string }
 ) => {
   return applyDecorators(
     ApiExtraModels(PaginatedResponseDto, PaginationMetaDto, model),
     ApiResponse({
       status: 200,
-      description: options?.description ?? "Resultados paginados",
+      description: options?.description ?? 'Resultados paginados',
       schema: {
         allOf: [
           { $ref: getSchemaPath(PaginatedResponseDto) },
           {
             properties: {
               data: {
-                type: "array",
+                type: 'array',
                 items: { $ref: getSchemaPath(model) },
               },
             },
           },
         ],
       },
-    }),
+    })
   );
 };
 
@@ -113,34 +113,34 @@ export const ApiErrorResponses = () => {
     ApiExtraModels(ApiErrorResponseDto),
     ApiResponse({
       status: 400,
-      description: "Bad Request - Error de validación",
+      description: 'Bad Request - Error de validación',
       type: ApiErrorResponseDto,
     }),
     ApiResponse({
       status: 401,
-      description: "Unauthorized - Token inválido o expirado",
+      description: 'Unauthorized - Token inválido o expirado',
       type: ApiErrorResponseDto,
     }),
     ApiResponse({
       status: 403,
-      description: "Forbidden - Sin permisos suficientes",
+      description: 'Forbidden - Sin permisos suficientes',
       type: ApiErrorResponseDto,
     }),
     ApiResponse({
       status: 404,
-      description: "Not Found - Recurso no encontrado",
+      description: 'Not Found - Recurso no encontrado',
       type: ApiErrorResponseDto,
     }),
     ApiResponse({
       status: 409,
-      description: "Conflict - Conflicto de datos",
+      description: 'Conflict - Conflicto de datos',
       type: ApiErrorResponseDto,
     }),
     ApiResponse({
       status: 500,
-      description: "Internal Server Error",
+      description: 'Internal Server Error',
       type: ApiErrorResponseDto,
-    }),
+    })
   );
 };
 
@@ -149,12 +149,12 @@ export const ApiErrorResponses = () => {
  */
 export const ApiStandardResponses = <TModel extends Type<unknown>>(
   model: TModel,
-  options?: { description?: string; isArray?: boolean; isPaginated?: boolean },
+  options?: { description?: string; isArray?: boolean; isPaginated?: boolean }
 ) => {
   if (options?.isPaginated) {
     return applyDecorators(
       ApiPaginatedResponse(model, { description: options?.description }),
-      ApiErrorResponses(),
+      ApiErrorResponses()
     );
   }
 
@@ -163,7 +163,7 @@ export const ApiStandardResponses = <TModel extends Type<unknown>>(
       description: options?.description,
       isArray: options?.isArray,
     }),
-    ApiErrorResponses(),
+    ApiErrorResponses()
   );
 };
 

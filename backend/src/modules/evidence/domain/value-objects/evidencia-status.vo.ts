@@ -4,36 +4,27 @@
  */
 
 export enum EvidenciaStatusEnum {
-  PENDING = "PENDING", // Uploaded, awaiting processing
-  PROCESSING = "PROCESSING", // Currently being processed
-  READY = "READY", // Ready for use
-  FAILED = "FAILED", // Processing failed
+  PENDING = 'PENDING', // Uploaded, awaiting processing
+  PROCESSING = 'PROCESSING', // Currently being processed
+  READY = 'READY', // Ready for use
+  FAILED = 'FAILED', // Processing failed
 }
 
 export class EvidenciaStatus {
-  private static readonly VALID_TRANSITIONS: Map<
-    EvidenciaStatusEnum,
-    EvidenciaStatusEnum[]
-  > = new Map([
-    [
-      EvidenciaStatusEnum.PENDING,
-      [EvidenciaStatusEnum.PROCESSING, EvidenciaStatusEnum.READY],
-    ],
-    [
-      EvidenciaStatusEnum.PROCESSING,
-      [EvidenciaStatusEnum.READY, EvidenciaStatusEnum.FAILED],
-    ],
-    [EvidenciaStatusEnum.FAILED, [EvidenciaStatusEnum.PROCESSING]], // Retry
-    [EvidenciaStatusEnum.READY, []], // Terminal state
-  ]);
+  private static readonly VALID_TRANSITIONS: Map<EvidenciaStatusEnum, EvidenciaStatusEnum[]> =
+    new Map([
+      [EvidenciaStatusEnum.PENDING, [EvidenciaStatusEnum.PROCESSING, EvidenciaStatusEnum.READY]],
+      [EvidenciaStatusEnum.PROCESSING, [EvidenciaStatusEnum.READY, EvidenciaStatusEnum.FAILED]],
+      [EvidenciaStatusEnum.FAILED, [EvidenciaStatusEnum.PROCESSING]], // Retry
+      [EvidenciaStatusEnum.READY, []], // Terminal state
+    ]);
 
   private constructor(private readonly _value: EvidenciaStatusEnum) {
     Object.freeze(this);
   }
 
   public static create(value: string): EvidenciaStatus {
-    const enumValue =
-      EvidenciaStatusEnum[value as keyof typeof EvidenciaStatusEnum];
+    const enumValue = EvidenciaStatusEnum[value as keyof typeof EvidenciaStatusEnum];
     if (!enumValue) {
       throw new Error(`Invalid EvidenciaStatus: ${value}`);
     }

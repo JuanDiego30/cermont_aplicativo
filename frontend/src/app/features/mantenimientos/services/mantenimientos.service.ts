@@ -8,11 +8,11 @@ import {
   EjecutarMantenimientoDto,
   ProgramarMantenimientoDto,
   QueryMantenimientosDto,
-  PaginatedMantenimientos
+  PaginatedMantenimientos,
 } from '../../../core/models/mantenimiento.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MantenimientosService {
   private readonly mantenimientosApi = inject(MantenimientosApi);
@@ -80,4 +80,3 @@ export class MantenimientosService {
     return this.mantenimientosApi.delete(id);
   }
 }
-

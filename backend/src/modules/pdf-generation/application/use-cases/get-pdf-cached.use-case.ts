@@ -1,6 +1,6 @@
-import { Injectable, Logger, NotFoundException } from "@nestjs/common";
-import { PdfStorageService } from "../../infrastructure/services/pdf-storage.service";
-import { PdfResponseDto } from "../dto/pdf-response.dto";
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { PdfStorageService } from '../../infrastructure/services/pdf-storage.service';
+import { PdfResponseDto } from '../dto/pdf-response.dto';
 
 @Injectable()
 export class GetPdfCachedUseCase {
@@ -17,15 +17,15 @@ export class GetPdfCachedUseCase {
       }
 
       return {
-        buffer: buffer.toString("base64"),
+        buffer: buffer.toString('base64'),
         filename,
-        mimeType: "application/pdf",
+        mimeType: 'application/pdf',
         size: buffer.length,
         url: this.storage.getPublicUrl(filename),
         generatedAt: new Date(),
       };
     } catch (error) {
-      this.logger.error("Error recuperando PDF de caché", error);
+      this.logger.error('Error recuperando PDF de caché', error);
       throw error;
     }
   }

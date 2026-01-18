@@ -1,7 +1,7 @@
 /**
  * @useCase GenerateReporteOrdenesUseCase
  */
-import { Injectable, Inject } from "@nestjs/common";
+import { Injectable, Inject } from '@nestjs/common';
 import {
   REPORTE_REPOSITORY,
   IReporteRepository,
@@ -9,19 +9,19 @@ import {
   ReporteResponse,
   OrdenReporteData,
   ReporteSummary,
-} from "../dto";
+} from '../dto';
 
 @Injectable()
 export class GenerateReporteOrdenesUseCase {
   constructor(
     @Inject(REPORTE_REPOSITORY)
-    private readonly repo: IReporteRepository,
+    private readonly repo: IReporteRepository
   ) {}
 
   async execute(filters: ReporteQueryDto): Promise<ReporteResponse> {
     const ordenes = await this.repo.getOrdenesReporte(filters);
 
-    const ordenesData: OrdenReporteData[] = ordenes.map((o) => ({
+    const ordenesData: OrdenReporteData[] = ordenes.map(o => ({
       id: o.id,
       numero: o.numero,
       titulo: o.titulo,
@@ -43,9 +43,9 @@ export class GenerateReporteOrdenesUseCase {
   }
 
   private calculateSummary(ordenes: OrdenReporteData[]): ReporteSummary {
-    const completadas = ordenes.filter((o) => o.estado === "completada").length;
-    const enProgreso = ordenes.filter((o) => o.estado === "ejecucion").length;
-    const canceladas = ordenes.filter((o) => o.estado === "cancelada").length;
+    const completadas = ordenes.filter(o => o.estado === 'completada').length;
+    const enProgreso = ordenes.filter(o => o.estado === 'ejecucion').length;
+    const canceladas = ordenes.filter(o => o.estado === 'cancelada').length;
     const horasTotales = ordenes.reduce((acc, o) => acc + o.horasTrabajadas, 0);
 
     return {
@@ -54,8 +54,7 @@ export class GenerateReporteOrdenesUseCase {
       enProgreso,
       canceladas,
       horasTotales,
-      promedioHorasPorOrden:
-        ordenes.length > 0 ? Math.round(horasTotales / ordenes.length) : 0,
+      promedioHorasPorOrden: ordenes.length > 0 ? Math.round(horasTotales / ordenes.length) : 0,
     };
   }
 }

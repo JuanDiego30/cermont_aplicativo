@@ -1,12 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable } from '@nestjs/common';
 
-import { EmailService } from "./email/email.service";
-import { EmailQueueService } from "./email/email-queue.service";
-import {
-  renderEmailTemplate,
-  type EmailTemplateName,
-} from "./email/email-templates";
-import type { SendEmailInput, SendEmailResult } from "./email/email.types";
+import { EmailService } from './email/email.service';
+import { EmailQueueService } from './email/email-queue.service';
+import { renderEmailTemplate, type EmailTemplateName } from './email/email-templates';
+import type { SendEmailInput, SendEmailResult } from './email/email.types';
 
 /**
  * Façade del módulo de notificaciones.
@@ -16,7 +13,7 @@ import type { SendEmailInput, SendEmailResult } from "./email/email.types";
 export class NotificationsService {
   constructor(
     private readonly emailService: EmailService,
-    private readonly emailQueue: EmailQueueService,
+    private readonly emailQueue: EmailQueueService
   ) {}
 
   sendEmail(input: SendEmailInput): Promise<SendEmailResult> {
@@ -33,7 +30,7 @@ export class NotificationsService {
 
   renderTemplate(
     name: EmailTemplateName,
-    data: Record<string, unknown>,
+    data: Record<string, unknown>
   ): { html: string; text: string } {
     return renderEmailTemplate(name, data);
   }

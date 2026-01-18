@@ -1,20 +1,18 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { createHash } from "crypto";
-import { GenerateCertificadoDto } from "../dto/generate-certificado.dto";
-import { PdfResponseDto } from "../dto/pdf-response.dto";
-import { CertificadoTemplate } from "../../domain/templates/certificado.template";
-import { PrismaService } from "@/prisma/prisma.service";
-import { PdfBuildService } from "../services/pdf-build.service";
+import { Injectable, Logger } from '@nestjs/common';
+import { createHash } from 'crypto';
+import { GenerateCertificadoDto } from '../dto/generate-certificado.dto';
+import { PdfResponseDto } from '../dto/pdf-response.dto';
+import { CertificadoTemplate } from '../../domain/templates/certificado.template';
+import { PrismaService } from '@/prisma/prisma.service';
+import { PdfBuildService } from '../services/pdf-build.service';
 
 @Injectable()
 export class GenerateCertificadoInspeccionUseCase {
-  private readonly logger = new Logger(
-    GenerateCertificadoInspeccionUseCase.name,
-  );
+  private readonly logger = new Logger(GenerateCertificadoInspeccionUseCase.name);
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly pdfBuild: PdfBuildService,
+    private readonly pdfBuild: PdfBuildService
   ) {}
 
   async execute(dto: GenerateCertificadoDto): Promise<PdfResponseDto> {
@@ -33,19 +31,19 @@ export class GenerateCertificadoInspeccionUseCase {
 
       const numeroCertificadoEffective =
         dto.numeroCertificado ||
-        `CERT-${createHash("sha256")
+        `CERT-${createHash('sha256')
           .update(
             JSON.stringify({
               tipo: dto.tipo,
               elementoId: dto.elementoId,
               inspectorId: dto.inspectorId,
-            }),
+            })
           )
-          .digest("hex")
+          .digest('hex')
           .slice(0, 10)
           .toUpperCase()}`;
 
-      let elemento: any = { codigo: "N/A", tipo: dto.tipo, ubicacion: "N/A" };
+      let elemento: any = { codigo: 'N/A', tipo: dto.tipo, ubicacion: 'N/A' };
       let inspector: any = undefined;
 
       if (dto.inspectorId) {
@@ -57,7 +55,7 @@ export class GenerateCertificadoInspeccionUseCase {
         if (user) {
           inspector = { nombre: user.name, email: user.email };
         } else {
-          inspector = { nombre: "N/A" };
+          inspector = { nombre: 'N/A' };
         }
       }
 
@@ -76,9 +74,7 @@ export class GenerateCertificadoInspeccionUseCase {
         fechaInspeccion: new Date(),
         aprobado: true,
         observaciones: dto.observaciones,
-        fechaVencimiento: new Date(
-          new Date().setFullYear(new Date().getFullYear() + 1),
-        ),
+        fechaVencimiento: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
       };
 
       const html = CertificadoTemplate.generate(data);
@@ -101,15 +97,14 @@ export class GenerateCertificadoInspeccionUseCase {
           observaciones: dto.observaciones,
           pageSize: dto.pageSize,
         },
-        filenameOnCache: (cacheKey) =>
-          `certificado-${dto.tipo}-${cacheKey}.pdf`,
+        filenameOnCache: cacheKey => `certificado-${dto.tipo}-${cacheKey}.pdf`,
         generatorOptions: {
           format: dto.pageSize,
           printBackground: true,
         },
       });
     } catch (error) {
-      this.logger.error("Error generando certificado", error);
+      this.logger.error('Error generando certificado', error);
       throw error;
     }
   }

@@ -4,21 +4,21 @@
  * Representa el tipo de KPI con metadata y configuración.
  */
 
-import { ValidationError } from "../exceptions";
-import { DashboardRoleEnum } from "./dashboard-role.vo";
-import { EnumValueObject } from "../../../../shared/base/enum-value-object";
+import { ValidationError } from '../exceptions';
+import { DashboardRoleEnum } from './dashboard-role.vo';
+import { EnumValueObject } from '../../../../shared/base/enum-value-object';
 
 export enum KpiTypeEnum {
-  ORDENES_TOTALES = "ORDENES_TOTALES",
-  ORDENES_COMPLETADAS = "ORDENES_COMPLETADAS",
-  ORDENES_PENDIENTES = "ORDENES_PENDIENTES",
-  ORDENES_VENCIDAS = "ORDENES_VENCIDAS",
-  COSTOS_TOTALES = "COSTOS_TOTALES",
-  COSTOS_POR_TIPO = "COSTOS_POR_TIPO",
-  RENTABILIDAD_PROMEDIO = "RENTABILIDAD_PROMEDIO",
-  USUARIOS_ACTIVOS = "USUARIOS_ACTIVOS",
-  CHECKLISTS_COMPLETADOS = "CHECKLISTS_COMPLETADOS",
-  TIEMPO_PROMEDIO_ORDEN = "TIEMPO_PROMEDIO_ORDEN",
+  ORDENES_TOTALES = 'ORDENES_TOTALES',
+  ORDENES_COMPLETADAS = 'ORDENES_COMPLETADAS',
+  ORDENES_PENDIENTES = 'ORDENES_PENDIENTES',
+  ORDENES_VENCIDAS = 'ORDENES_VENCIDAS',
+  COSTOS_TOTALES = 'COSTOS_TOTALES',
+  COSTOS_POR_TIPO = 'COSTOS_POR_TIPO',
+  RENTABILIDAD_PROMEDIO = 'RENTABILIDAD_PROMEDIO',
+  USUARIOS_ACTIVOS = 'USUARIOS_ACTIVOS',
+  CHECKLISTS_COMPLETADOS = 'CHECKLISTS_COMPLETADOS',
+  TIEMPO_PROMEDIO_ORDEN = 'TIEMPO_PROMEDIO_ORDEN',
 }
 
 export class KpiType extends EnumValueObject<KpiTypeEnum> {
@@ -32,76 +32,76 @@ export class KpiType extends EnumValueObject<KpiTypeEnum> {
     }
   > = {
     [KpiTypeEnum.ORDENES_TOTALES]: {
-      label: "Órdenes Totales",
+      label: 'Órdenes Totales',
       requiresRole: [DashboardRoleEnum.ADMIN, DashboardRoleEnum.COORDINADOR],
       cacheTTL: 300, // 5 minutos
-      unit: "count",
+      unit: 'count',
     },
     [KpiTypeEnum.ORDENES_COMPLETADAS]: {
-      label: "Órdenes Completadas",
+      label: 'Órdenes Completadas',
       requiresRole: [
         DashboardRoleEnum.ADMIN,
         DashboardRoleEnum.COORDINADOR,
         DashboardRoleEnum.CLIENTE,
       ],
       cacheTTL: 300,
-      unit: "count",
+      unit: 'count',
     },
     [KpiTypeEnum.ORDENES_PENDIENTES]: {
-      label: "Órdenes Pendientes",
+      label: 'Órdenes Pendientes',
       requiresRole: [
         DashboardRoleEnum.ADMIN,
         DashboardRoleEnum.COORDINADOR,
         DashboardRoleEnum.TECNICO,
       ],
       cacheTTL: 180, // 3 minutos (más dinámico)
-      unit: "count",
+      unit: 'count',
     },
     [KpiTypeEnum.ORDENES_VENCIDAS]: {
-      label: "Órdenes Vencidas",
+      label: 'Órdenes Vencidas',
       requiresRole: [DashboardRoleEnum.ADMIN, DashboardRoleEnum.COORDINADOR],
       cacheTTL: 180,
-      unit: "count",
+      unit: 'count',
     },
     [KpiTypeEnum.COSTOS_TOTALES]: {
-      label: "Costos Totales",
+      label: 'Costos Totales',
       requiresRole: [DashboardRoleEnum.ADMIN, DashboardRoleEnum.COORDINADOR],
       cacheTTL: 600, // 10 minutos
-      unit: "money",
+      unit: 'money',
     },
     [KpiTypeEnum.COSTOS_POR_TIPO]: {
-      label: "Costos por Tipo",
+      label: 'Costos por Tipo',
       requiresRole: [DashboardRoleEnum.ADMIN, DashboardRoleEnum.COORDINADOR],
       cacheTTL: 600,
-      unit: "money",
+      unit: 'money',
     },
     [KpiTypeEnum.RENTABILIDAD_PROMEDIO]: {
-      label: "Rentabilidad Promedio",
+      label: 'Rentabilidad Promedio',
       requiresRole: [DashboardRoleEnum.ADMIN],
       cacheTTL: 600,
-      unit: "percentage",
+      unit: 'percentage',
     },
     [KpiTypeEnum.USUARIOS_ACTIVOS]: {
-      label: "Usuarios Activos",
+      label: 'Usuarios Activos',
       requiresRole: [DashboardRoleEnum.ADMIN, DashboardRoleEnum.COORDINADOR],
       cacheTTL: 900, // 15 minutos
-      unit: "count",
+      unit: 'count',
     },
     [KpiTypeEnum.CHECKLISTS_COMPLETADOS]: {
-      label: "Checklists Completados",
+      label: 'Checklists Completados',
       requiresRole: [
         DashboardRoleEnum.ADMIN,
         DashboardRoleEnum.COORDINADOR,
         DashboardRoleEnum.TECNICO,
       ],
       cacheTTL: 300,
-      unit: "count",
+      unit: 'count',
     },
     [KpiTypeEnum.TIEMPO_PROMEDIO_ORDEN]: {
-      label: "Tiempo Promedio por Orden",
+      label: 'Tiempo Promedio por Orden',
       requiresRole: [DashboardRoleEnum.ADMIN, DashboardRoleEnum.COORDINADOR],
       cacheTTL: 600,
-      unit: "hours",
+      unit: 'hours',
     },
   };
 
@@ -116,8 +116,8 @@ export class KpiType extends EnumValueObject<KpiTypeEnum> {
     const normalized = value.toUpperCase();
     if (!Object.values(KpiTypeEnum).includes(normalized as KpiTypeEnum)) {
       throw new ValidationError(
-        `Invalid KPI type: ${value}. Valid values: ${Object.values(KpiTypeEnum).join(", ")}`,
-        "kpiType",
+        `Invalid KPI type: ${value}. Valid values: ${Object.values(KpiTypeEnum).join(', ')}`,
+        'kpiType'
       );
     }
     return new KpiType(normalized as KpiTypeEnum);
@@ -158,5 +158,4 @@ export class KpiType extends EnumValueObject<KpiTypeEnum> {
   public getUnit(): string {
     return KpiType.KPI_METADATA[this._value].unit;
   }
-
 }

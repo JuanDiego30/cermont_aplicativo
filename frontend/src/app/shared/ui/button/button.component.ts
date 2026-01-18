@@ -6,15 +6,11 @@ import { SafeHtmlPipe } from '../../../pipe/safe-html.pipe';
   selector: 'app-button',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CommonModule,
-    SafeHtmlPipe,
-  ],
+  imports: [CommonModule, SafeHtmlPipe],
   templateUrl: './button.component.html',
   styles: ``,
 })
 export class ButtonComponent {
-
   @Input() size: 'sm' | 'md' = 'md';
   @Input() variant: 'primary' | 'outline' = 'primary';
   @Input() disabled = false;
@@ -28,9 +24,7 @@ export class ButtonComponent {
   @Output() btnClick = new EventEmitter<Event>();
 
   get sizeClasses(): string {
-    return this.size === 'sm'
-      ? 'px-4 py-3 text-sm'
-      : 'px-5 py-3.5 text-sm';
+    return this.size === 'sm' ? 'px-4 py-3 text-sm' : 'px-5 py-3.5 text-sm';
   }
 
   get variantClasses(): string {
@@ -40,7 +34,7 @@ export class ButtonComponent {
   }
 
   get disabledClasses(): string {
-    return (this.disabled || this.loading) ? 'cursor-not-allowed opacity-50' : '';
+    return this.disabled || this.loading ? 'cursor-not-allowed opacity-50' : '';
   }
 
   onClick(event: Event) {

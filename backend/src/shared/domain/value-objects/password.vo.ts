@@ -5,8 +5,8 @@
  * Encapsula hashing y validación de fortaleza.
  */
 
-import { hash, compare } from "bcryptjs";
-import { ValidationError } from "../exceptions";
+import { hash, compare } from 'bcryptjs';
+import { ValidationError } from '../exceptions';
 
 export interface PasswordStrengthResult {
   isValid: boolean;
@@ -33,11 +33,7 @@ export class Password {
     const validation = this.validatePasswordStrength(plainPassword);
 
     if (!validation.isValid) {
-      throw new ValidationError(
-        validation.feedback.join(". "),
-        "password",
-        "[PROTECTED]",
-      );
+      throw new ValidationError(validation.feedback.join('. '), 'password', '[PROTECTED]');
     }
 
     const hashed = await hash(plainPassword, this.SALT_ROUNDS);
@@ -49,7 +45,7 @@ export class Password {
    */
   static fromHash(hashedPassword: string): Password {
     if (!hashedPassword || hashedPassword.length < 20) {
-      throw new ValidationError("Hash de password inválido", "passwordHash");
+      throw new ValidationError('Hash de password inválido', 'passwordHash');
     }
     return new Password(hashedPassword);
   }
@@ -65,7 +61,7 @@ export class Password {
       return {
         isValid: false,
         score: 0,
-        feedback: ["La contraseña es requerida"],
+        feedback: ['La contraseña es requerida'],
       };
     }
 
@@ -79,7 +75,7 @@ export class Password {
     // Mayúsculas
     const hasUpperCase = /[A-Z]/.test(password);
     if (!hasUpperCase) {
-      feedback.push("Debe contener al menos una mayúscula");
+      feedback.push('Debe contener al menos una mayúscula');
     } else {
       score++;
     }
@@ -87,7 +83,7 @@ export class Password {
     // Minúsculas
     const hasLowerCase = /[a-z]/.test(password);
     if (!hasLowerCase) {
-      feedback.push("Debe contener al menos una minúscula");
+      feedback.push('Debe contener al menos una minúscula');
     } else {
       score++;
     }
@@ -95,7 +91,7 @@ export class Password {
     // Números
     const hasNumber = /\d/.test(password);
     if (!hasNumber) {
-      feedback.push("Debe contener al menos un número");
+      feedback.push('Debe contener al menos un número');
     } else {
       score++;
     }
@@ -112,7 +108,7 @@ export class Password {
     return {
       isValid,
       score: Math.min(score, 5),
-      feedback: feedback.length > 0 ? feedback : ["Contraseña segura"],
+      feedback: feedback.length > 0 ? feedback : ['Contraseña segura'],
     };
   }
 
@@ -134,15 +130,14 @@ export class Password {
    * Genera una contraseña temporal segura
    */
   static generateTemporary(length: number = 12): string {
-    const chars =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-    let password = "";
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+    let password = '';
 
     // Asegurar al menos uno de cada tipo
-    password += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random() * 26)];
-    password += "abcdefghijklmnopqrstuvwxyz"[Math.floor(Math.random() * 26)];
-    password += "0123456789"[Math.floor(Math.random() * 10)];
-    password += "!@#$%^&*"[Math.floor(Math.random() * 8)];
+    password += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 26)];
+    password += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)];
+    password += '0123456789'[Math.floor(Math.random() * 10)];
+    password += '!@#$%^&*'[Math.floor(Math.random() * 8)];
 
     // Completar longitud
     for (let i = password.length; i < length; i++) {
@@ -151,20 +146,20 @@ export class Password {
 
     // Mezclar caracteres
     return password
-      .split("")
+      .split('')
       .sort(() => Math.random() - 0.5)
-      .join("");
+      .join('');
   }
 
   /**
    * NO exponer valor hasheado en logs/JSON
    */
   toString(): string {
-    return "[PROTECTED]";
+    return '[PROTECTED]';
   }
 
   toJSON(): string {
-    return "[PROTECTED]";
+    return '[PROTECTED]';
   }
 
   /**

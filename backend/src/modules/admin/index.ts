@@ -5,7 +5,7 @@
  */
 
 // Services
-export { AdminService } from "./admin.service";
+export { AdminService } from './admin.service';
 
 // Interfaces
 export {
@@ -17,7 +17,7 @@ export {
   ROLE_PERMISSIONS,
   hasPermission,
   getPermissionsForRole,
-} from "./interfaces/permissions.interface";
+} from './interfaces/permissions.interface';
 
 // DTOs
 export {
@@ -30,7 +30,7 @@ export {
   UserResponseDto,
   AdminActionResponseDto,
   ListUsersResponseDto,
-} from "./dto/admin.dto";
+} from './dto/admin.dto';
 
 // Module
-export { AdminModule } from "./admin.module";
+export { AdminModule } from './admin.module';

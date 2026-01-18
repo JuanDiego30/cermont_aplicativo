@@ -4,7 +4,7 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
-import { ApiProperty, ApiPropertyOptional, PartialType } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import {
   IsString,
   IsNotEmpty,
@@ -15,11 +15,11 @@ import {
   Min,
   ArrayMinSize,
   ValidateNested,
-} from "class-validator";
-import { Type } from "class-transformer";
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class HerramientaDto {
-  @ApiProperty({ example: "Calibrador pie de rey" })
+  @ApiProperty({ example: 'Calibrador pie de rey' })
   @IsString()
   @IsNotEmpty()
   nombre!: string;
@@ -35,7 +35,7 @@ export class HerramientaDto {
 }
 
 export class EquipoDto {
-  @ApiProperty({ example: "Arnés de seguridad" })
+  @ApiProperty({ example: 'Arnés de seguridad' })
   @IsString()
   @IsNotEmpty()
   nombre!: string;
@@ -51,14 +51,13 @@ export class EquipoDto {
 }
 
 export class CreateKitDto {
-  @ApiProperty({ example: "Kit Inspección Líneas de Vida" })
+  @ApiProperty({ example: 'Kit Inspección Líneas de Vida' })
   @IsString()
   @IsNotEmpty()
   nombre!: string;
 
   @ApiProperty({
-    example:
-      "Herramientas y equipos para inspección de líneas de vida verticales",
+    example: 'Herramientas y equipos para inspección de líneas de vida verticales',
   })
   @IsString()
   @IsNotEmpty()
@@ -78,7 +77,7 @@ export class CreateKitDto {
 
   @ApiProperty({
     type: [String],
-    example: ["Formato Inspección Líneas de Vida Vertical"],
+    example: ['Formato Inspección Líneas de Vida Vertical'],
   })
   @IsArray()
   @ArrayMinSize(1)
@@ -87,7 +86,7 @@ export class CreateKitDto {
 
   @ApiProperty({
     type: [String],
-    example: ["Verificar estado general del cable"],
+    example: ['Verificar estado general del cable'],
   })
   @IsArray()
   @ArrayMinSize(1)
@@ -114,12 +113,12 @@ export class CreateKitDto {
 export class UpdateKitDto extends PartialType(CreateKitDto) {}
 
 export class ApplyKitDto {
-  @ApiProperty({ example: "uuid" })
+  @ApiProperty({ example: 'uuid' })
   @IsString()
   @IsNotEmpty()
   ejecucionId!: string;
 
-  @ApiPropertyOptional({ example: "Observaciones adicionales" })
+  @ApiPropertyOptional({ example: 'Observaciones adicionales' })
   @IsOptional()
   @IsString()
   observaciones?: string;

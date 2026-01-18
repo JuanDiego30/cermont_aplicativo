@@ -1,21 +1,22 @@
-import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
-import { PrismaModule } from "@/prisma/prisma.module";
-import { PdfController } from "./infrastructure/controllers/pdf.controller";
+import { PrismaModule } from '@/prisma/prisma.module';
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { FormInspectionPdfService } from './application/services/form-inspection-pdf.service';
+import { PdfBuildService } from './application/services/pdf-build.service';
 import {
-  GeneratePdfUseCase,
-  GenerateReporteOrdenUseCase,
-  GenerateReporteMantenimientoUseCase,
   GenerateCertificadoInspeccionUseCase,
+  GeneratePdfUseCase,
+  GenerateReporteMantenimientoUseCase,
+  GenerateReporteOrdenUseCase,
   GetPdfCachedUseCase,
-} from "./application/use-cases";
-import { PdfBuildService } from "./application/services/pdf-build.service";
+} from './application/use-cases';
+import { PDF_GENERATOR } from './domain/interfaces/pdf-generator.interface';
+import { PdfController } from './infrastructure/controllers/pdf.controller';
 import {
-  PuppeteerPdfService,
-  PdfStorageService,
   PdfGenerationQueueService,
-} from "./infrastructure/services";
-import { PDF_GENERATOR } from "./domain/interfaces/pdf-generator.interface";
+  PdfStorageService,
+  PuppeteerPdfService,
+} from './infrastructure/services';
 
 @Module({
   imports: [PrismaModule, ConfigModule],
@@ -24,6 +25,7 @@ import { PDF_GENERATOR } from "./domain/interfaces/pdf-generator.interface";
     PdfStorageService,
     PdfGenerationQueueService,
     PdfBuildService,
+    FormInspectionPdfService,
     {
       provide: PDF_GENERATOR,
       useClass: PuppeteerPdfService,
@@ -40,6 +42,7 @@ import { PDF_GENERATOR } from "./domain/interfaces/pdf-generator.interface";
     GenerateReporteOrdenUseCase,
     GenerateReporteMantenimientoUseCase,
     GenerateCertificadoInspeccionUseCase,
+    FormInspectionPdfService,
   ],
 })
 export class PdfGenerationModule {}

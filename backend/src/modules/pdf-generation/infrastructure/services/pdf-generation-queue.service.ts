@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable } from '@nestjs/common';
 
 /**
  * Cola en memoria para serializar generación de PDFs.
@@ -15,7 +15,7 @@ export class PdfGenerationQueueService {
     // Mantener la cola viva incluso si una tarea falla
     this.tail = run.then(
       () => undefined,
-      () => undefined,
+      () => undefined
     );
 
     return run;

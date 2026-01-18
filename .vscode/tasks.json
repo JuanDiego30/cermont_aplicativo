@@ -1,0 +1,12 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Iniciar Backend",
+      "type": "shell",
+      "command": "cd 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\cermont_aplicativo\\backend'; node dist/src/main.js",
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}

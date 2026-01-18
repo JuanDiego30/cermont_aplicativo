@@ -91,7 +91,6 @@ export class ReportesService {
         ejecucion: {
           include: {
             tareas: true,
-            checklists: true,
           },
         },
       },

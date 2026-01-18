@@ -3,4 +3,4 @@
  * @description Barrel export para pipes
  */
 
-export * from "./parse-int.pipe";
+export * from './parse-int.pipe';

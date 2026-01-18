@@ -1,9 +1,11 @@
 # Admin Module
 
 ## Description
+
 Module for administrative operations including user management, system configuration, and RBAC (Role-Based Access Control).
 
 ## Structure
+
 ```
 admin/
 ├── application/      # Use cases and DTOs
@@ -14,13 +16,15 @@ admin/
 ```
 
 ## Endpoints
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/admin/users` | List all users |
-| POST | `/admin/users` | Create user |
-| PATCH | `/admin/users/:id` | Update user |
-| DELETE | `/admin/users/:id` | Delete user |
+
+| Method | Path               | Description    |
+| ------ | ------------------ | -------------- |
+| GET    | `/admin/users`     | List all users |
+| POST   | `/admin/users`     | Create user    |
+| PATCH  | `/admin/users/:id` | Update user    |
+| DELETE | `/admin/users/:id` | Delete user    |
 
 ## Dependencies
+
 - `PrismaService`
 - `AuthModule`

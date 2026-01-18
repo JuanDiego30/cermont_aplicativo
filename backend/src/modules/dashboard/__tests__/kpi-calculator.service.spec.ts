@@ -3,11 +3,11 @@
  *
  * Unit tests para el servicio de cálculo de KPIs.
  */
-import { Test, TestingModule } from "@nestjs/testing";
-import { KpiCalculatorService } from "../services/kpi-calculator.service";
-import { PrismaService } from "../../../prisma/prisma.service";
+import { Test, TestingModule } from '@nestjs/testing';
+import { KpiCalculatorService } from '../services/kpi-calculator.service';
+import { PrismaService } from '../../../prisma/prisma.service';
 
-describe.skip("KpiCalculatorService", () => {
+describe.skip('KpiCalculatorService', () => {
   let service: KpiCalculatorService;
 
   const mockPrismaService = {
@@ -25,10 +25,7 @@ describe.skip("KpiCalculatorService", () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        KpiCalculatorService,
-        { provide: PrismaService, useValue: mockPrismaService },
-      ],
+      providers: [KpiCalculatorService, { provide: PrismaService, useValue: mockPrismaService }],
     }).compile();
 
     service = module.get<KpiCalculatorService>(KpiCalculatorService);
@@ -38,7 +35,7 @@ describe.skip("KpiCalculatorService", () => {
     jest.clearAllMocks();
   });
 
-  describe("getKpis", () => {
+  describe('getKpis', () => {
     beforeEach(() => {
       // Configurar mocks para todas las consultas
       mockPrismaService.order.count
@@ -49,38 +46,38 @@ describe.skip("KpiCalculatorService", () => {
 
       mockPrismaService.order.findMany.mockResolvedValue([
         {
-          id: "orden-1",
-          numero: "OT-001",
-          fechaInicio: new Date("2024-12-01T08:00:00Z"),
-          fechaFin: new Date("2024-12-01T16:00:00Z"),
-          estado: "completada",
+          id: 'orden-1',
+          numero: 'OT-001',
+          fechaInicio: new Date('2024-12-01T08:00:00Z'),
+          fechaFin: new Date('2024-12-01T16:00:00Z'),
+          estado: 'completada',
           presupuestoEstimado: 1000000,
           impuestosAplicables: 0.19,
           costos: [
-            { monto: 500000, tipo: "mano_obra" },
-            { monto: 400000, tipo: "materiales" },
+            { monto: 500000, tipo: 'mano_obra' },
+            { monto: 400000, tipo: 'materiales' },
           ],
-          factura: { id: "factura-1" },
+          factura: { id: 'factura-1' },
         },
       ]);
 
       mockPrismaService.user.count.mockResolvedValue(10);
       mockPrismaService.user.findMany.mockResolvedValue([
-        { id: "tecnico-1", asignaciones: [{ id: "orden-1" }] },
-        { id: "tecnico-2", asignaciones: [] },
+        { id: 'tecnico-1', asignaciones: [{ id: 'orden-1' }] },
+        { id: 'tecnico-2', asignaciones: [] },
       ]);
 
       mockPrismaService.order.groupBy.mockResolvedValue([
-        { asignadoId: "tecnico-1", _count: { id: 15 } },
+        { asignadoId: 'tecnico-1', _count: { id: 15 } },
       ]);
 
       mockPrismaService.user.findUnique.mockResolvedValue({
-        id: "tecnico-1",
-        name: "Juan Técnico",
+        id: 'tecnico-1',
+        name: 'Juan Técnico',
       });
     });
 
-    it("debería calcular KPIs completos", async () => {
+    it('debería calcular KPIs completos', async () => {
       const result = await service.getKpis();
 
       expect(result).toBeDefined();
@@ -91,14 +88,14 @@ describe.skip("KpiCalculatorService", () => {
       expect(result.timestamp).toBeDefined();
     });
 
-    it("debería calcular tasa de cumplimiento correctamente", async () => {
+    it('debería calcular tasa de cumplimiento correctamente', async () => {
       const result = await service.getKpis();
 
       // 80 completadas de 100 = 80%
       expect(result.overview.tasa_cumplimiento).toBe(80);
     });
 
-    it("debería usar caché en llamadas consecutivas", async () => {
+    it('debería usar caché en llamadas consecutivas', async () => {
       // Primera llamada - calcula métricas
       await service.getKpis();
       const firstCallCount = mockPrismaService.order.count.mock.calls.length;
@@ -112,8 +109,8 @@ describe.skip("KpiCalculatorService", () => {
     });
   });
 
-  describe("refreshKpis", () => {
-    it("debería invalidar caché y recalcular", async () => {
+  describe('refreshKpis', () => {
+    it('debería invalidar caché y recalcular', async () => {
       mockPrismaService.order.count.mockResolvedValue(50);
       mockPrismaService.order.findMany.mockResolvedValue([]);
       mockPrismaService.user.count.mockResolvedValue(5);
@@ -132,8 +129,8 @@ describe.skip("KpiCalculatorService", () => {
     });
   });
 
-  describe("alertas", () => {
-    it("debería detectar incumplimiento bajo", async () => {
+  describe('alertas', () => {
+    it('debería detectar incumplimiento bajo', async () => {
       // Configurar baja tasa de cumplimiento
       mockPrismaService.order.count
         .mockResolvedValueOnce(100) // total
@@ -149,30 +146,28 @@ describe.skip("KpiCalculatorService", () => {
       // Forzar refresh para evitar caché
       const result = await service.refreshKpis();
 
-      const alertaIncumplimiento = result.alertas.find(
-        (a) => a.tipo === "INCUMPLIMIENTO",
-      );
+      const alertaIncumplimiento = result.alertas.find(a => a.tipo === 'INCUMPLIMIENTO');
 
       expect(alertaIncumplimiento).toBeDefined();
-      expect(alertaIncumplimiento?.severidad).toBe("ALTA");
+      expect(alertaIncumplimiento?.severidad).toBe('ALTA');
     });
   });
 
-  describe("getCostosDesglosados", () => {
-    it("debería desglosar costos por tipo", async () => {
+  describe('getCostosDesglosados', () => {
+    it('debería desglosar costos por tipo', async () => {
       mockPrismaService.order.findMany.mockResolvedValue([
         {
-          id: "orden-1",
-          numero: "OT-001",
-          cliente: "ECOPETROL",
-          estado: "completada",
+          id: 'orden-1',
+          numero: 'OT-001',
+          cliente: 'ECOPETROL',
+          estado: 'completada',
           presupuestoEstimado: 1000000,
           costos: [
-            { monto: 400000, tipo: "mano_obra" },
-            { monto: 300000, tipo: "materiales" },
-            { monto: 150000, tipo: "equipos" },
-            { monto: 100000, tipo: "transporte" },
-            { monto: 50000, tipo: "otros" },
+            { monto: 400000, tipo: 'mano_obra' },
+            { monto: 300000, tipo: 'materiales' },
+            { monto: 150000, tipo: 'equipos' },
+            { monto: 100000, tipo: 'transporte' },
+            { monto: 50000, tipo: 'otros' },
           ],
         },
       ]);

@@ -3,10 +3,10 @@
  * @description Domain service for validating uploaded files
  */
 
-import sanitize from "sanitize-filename";
-import { FileSize } from "../value-objects/file-size.vo";
-import { FileType } from "../value-objects/file-type.vo";
-import { MimeType } from "../value-objects/mime-type.vo";
+import sanitize from 'sanitize-filename';
+import { FileSize } from '../value-objects/file-size.vo';
+import { FileType } from '../value-objects/file-type.vo';
+import { MimeType } from '../value-objects/mime-type.vo';
 
 export interface FileValidationResult {
   isValid: boolean;
@@ -19,23 +19,23 @@ export interface FileValidationResult {
 
 export class FileValidatorService {
   private static readonly DANGEROUS_EXTENSIONS = [
-    "exe",
-    "bat",
-    "cmd",
-    "sh",
-    "php",
-    "js",
-    "vbs",
-    "ps1",
-    "jar",
-    "msi",
+    'exe',
+    'bat',
+    'cmd',
+    'sh',
+    'php',
+    'js',
+    'vbs',
+    'ps1',
+    'jar',
+    'msi',
   ];
 
   // Some formats can be container-based and may be detected generically by magic bytes
   // (e.g., docx/xlsx are ZIP containers). We allow these as "inconclusive".
   private static readonly CONTENT_SNIFF_INCONCLUSIVE_MIMES = new Set([
-    "application/zip",
-    "application/octet-stream",
+    'application/zip',
+    'application/octet-stream',
   ]);
 
   /**
@@ -86,15 +86,13 @@ export class FileValidatorService {
 
     // 5. Validate extension matches MIME type
     if (mimeType && !this.extensionMatchesMime(extension, mimeType)) {
-      errors.push(
-        `Extension .${extension} does not match MIME type ${file.mimetype}`,
-      );
+      errors.push(`Extension .${extension} does not match MIME type ${file.mimetype}`);
     }
 
     // 6. Sanitize filename
     const sanitizedFilename = sanitize(file.originalname);
     if (sanitizedFilename.length === 0) {
-      errors.push("Invalid filename after sanitization");
+      errors.push('Invalid filename after sanitization');
     }
 
     // 7. Deep validation (magic bytes) - optional but recommended
@@ -115,16 +113,16 @@ export class FileValidatorService {
 
         const expectedMime = mimeType.getValue().toLowerCase();
         const equivalents: Record<string, string[]> = {
-          "image/jpeg": ["image/jpeg", "image/jpg"],
-          "image/jpg": ["image/jpeg", "image/jpg"],
-          "audio/mpeg": ["audio/mpeg", "audio/mp3"],
-          "audio/mp3": ["audio/mpeg", "audio/mp3"],
+          'image/jpeg': ['image/jpeg', 'image/jpg'],
+          'image/jpg': ['image/jpeg', 'image/jpg'],
+          'audio/mpeg': ['audio/mpeg', 'audio/mp3'],
+          'audio/mp3': ['audio/mpeg', 'audio/mp3'],
         };
 
         const allowedDetected = equivalents[expectedMime] || [expectedMime];
         if (!allowedDetected.includes(detectedMime)) {
           errors.push(
-            `File content (${detectedMime}) does not match declared MIME (${expectedMime})`,
+            `File content (${detectedMime}) does not match declared MIME (${expectedMime})`
           );
         }
       }
@@ -133,7 +131,7 @@ export class FileValidatorService {
     return {
       isValid: errors.length === 0,
       fileType: fileType ?? FileType.document(),
-      mimeType: mimeType ?? MimeType.create("application/pdf"),
+      mimeType: mimeType ?? MimeType.create('application/pdf'),
       fileSize:
         fileSize ??
         // Safe fallback that will not throw and will never be used when invalid
@@ -144,8 +142,8 @@ export class FileValidatorService {
   }
 
   private getExtension(filename: string): string {
-    const dotIndex = filename.lastIndexOf(".");
-    return dotIndex > 0 ? filename.substring(dotIndex + 1) : "";
+    const dotIndex = filename.lastIndexOf('.');
+    return dotIndex > 0 ? filename.substring(dotIndex + 1) : '';
   }
 
   private extensionMatchesMime(extension: string, mimeType: MimeType): boolean {
@@ -153,9 +151,9 @@ export class FileValidatorService {
 
     // Allow some flexibility (e.g., jpeg/jpg)
     const equivalents: Record<string, string[]> = {
-      jpg: ["jpeg", "jpg"],
-      jpeg: ["jpeg", "jpg"],
-      mp3: ["mp3", "mpeg"],
+      jpg: ['jpeg', 'jpg'],
+      jpeg: ['jpeg', 'jpg'],
+      mp3: ['mp3', 'mpeg'],
     };
 
     const allowed = equivalents[expectedExtension] || [expectedExtension];
@@ -164,8 +162,8 @@ export class FileValidatorService {
 
   private detectMimeFromMagicBytes(head: Buffer): string | undefined {
     // PDF
-    if (head.length >= 5 && head.subarray(0, 5).toString("utf8") === "%PDF-") {
-      return "application/pdf";
+    if (head.length >= 5 && head.subarray(0, 5).toString('utf8') === '%PDF-') {
+      return 'application/pdf';
     }
 
     // PNG
@@ -180,26 +178,21 @@ export class FileValidatorService {
       head[6] === 0x1a &&
       head[7] === 0x0a
     ) {
-      return "image/png";
+      return 'image/png';
     }
 
     // JPEG
-    if (
-      head.length >= 3 &&
-      head[0] === 0xff &&
-      head[1] === 0xd8 &&
-      head[2] === 0xff
-    ) {
-      return "image/jpeg";
+    if (head.length >= 3 && head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff) {
+      return 'image/jpeg';
     }
 
     // GIF (GIF87a / GIF89a)
     if (
       head.length >= 6 &&
-      (head.subarray(0, 6).toString("ascii") === "GIF87a" ||
-        head.subarray(0, 6).toString("ascii") === "GIF89a")
+      (head.subarray(0, 6).toString('ascii') === 'GIF87a' ||
+        head.subarray(0, 6).toString('ascii') === 'GIF89a')
     ) {
-      return "image/gif";
+      return 'image/gif';
     }
 
     return undefined;

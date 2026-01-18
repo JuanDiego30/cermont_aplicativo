@@ -6,7 +6,7 @@ export enum MantenimientoTipo {
   PREVENTIVO = 'preventivo',
   CORRECTIVO = 'correctivo',
   PREDICTIVO = 'predictivo',
-  PROGRAMADO = 'programado'
+  PROGRAMADO = 'programado',
 }
 
 export enum MantenimientoEstado {
@@ -14,14 +14,14 @@ export enum MantenimientoEstado {
   EN_EJECUCION = 'en_ejecucion',
   COMPLETADO = 'completado',
   CANCELADO = 'cancelado',
-  VENCIDO = 'vencido'
+  VENCIDO = 'vencido',
 }
 
 export enum MantenimientoPrioridad {
   BAJA = 'baja',
   MEDIA = 'media',
   ALTA = 'alta',
-  CRITICA = 'critica'
+  CRITICA = 'critica',
 }
 
 export interface Mantenimiento {
@@ -104,4 +104,3 @@ export interface PaginatedMantenimientos {
   limit: number;
   totalPages: number;
 }
-

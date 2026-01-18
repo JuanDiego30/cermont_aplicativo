@@ -1,35 +1,35 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SidebarService {
-  private isExpandedSubject = new BehaviorSubject<boolean>(true);
-  private isMobileOpenSubject = new BehaviorSubject<boolean>(false);
-  private isHoveredSubject = new BehaviorSubject<boolean>(false);
+  readonly isExpanded = signal(true);
+  readonly isMobileOpen = signal(false);
+  readonly isHovered = signal(false);
 
-  isExpanded$ = this.isExpandedSubject.asObservable();
-  isMobileOpen$ = this.isMobileOpenSubject.asObservable();
-  isHovered$ = this.isHoveredSubject.asObservable();
+  readonly isExpanded$ = toObservable(this.isExpanded);
+  readonly isMobileOpen$ = toObservable(this.isMobileOpen);
+  readonly isHovered$ = toObservable(this.isHovered);
 
   setExpanded(val: boolean) {
-    this.isExpandedSubject.next(val);
+    this.isExpanded.set(val);
   }
 
   toggleExpanded() {
-    this.isExpandedSubject.next(!this.isExpandedSubject.value);
+    this.isExpanded.update(v => !v);
   }
 
   setMobileOpen(val: boolean) {
-    this.isMobileOpenSubject.next(val);
+    this.isMobileOpen.set(val);
   }
 
   toggleMobileOpen() {
-    this.isMobileOpenSubject.next(!this.isMobileOpenSubject.value);
+    this.isMobileOpen.update(v => !v);
   }
 
   setHovered(val: boolean) {
-    this.isHoveredSubject.next(val);
+    this.isHovered.set(val);
   }
 }

@@ -2,16 +2,16 @@
 // KPIS SERVICE - Servicio unificado de KPIs
 // Reemplaza múltiples Use Cases para arquitectura pragmática
 // ============================================
-import { PrismaService } from "@/prisma/prisma.service";
-import { Injectable, Logger } from "@nestjs/common";
-import { Decimal } from "decimal.js";
+import { PrismaService } from '@/prisma/prisma.service';
+import { Injectable, Logger } from '@nestjs/common';
+import { Decimal } from 'decimal.js';
 import {
-    DashboardKpiDto,
-    FinancialKpiDto,
-    KpiFiltersDto,
-    OrdenesKpiDto,
-    TecnicosKpiDto,
-} from "./dto";
+  DashboardKpiDto,
+  FinancialKpiDto,
+  KpiFiltersDto,
+  OrdenesKpiDto,
+  TecnicosKpiDto,
+} from './dto';
 
 @Injectable()
 export class KpisService {
@@ -25,7 +25,7 @@ export class KpisService {
 
   async getDashboardKpis(filters: KpiFiltersDto): Promise<DashboardKpiDto> {
     try {
-      this.logger.log("Calculando KPIs del dashboard", { filters });
+      this.logger.log('Calculando KPIs del dashboard', { filters });
 
       const [ordenes, tecnicos, financiero] = await Promise.all([
         this.getOrdenesKpis(filters),
@@ -40,7 +40,7 @@ export class KpisService {
         timestamp: new Date().toISOString(),
       };
     } catch (error) {
-      this.logger.error("Error calculando KPIs del dashboard", error);
+      this.logger.error('Error calculando KPIs del dashboard', error);
       throw error;
     }
   }
@@ -51,25 +51,31 @@ export class KpisService {
 
   async getOrdenesKpis(filters: KpiFiltersDto): Promise<OrdenesKpiDto> {
     try {
-      const { fechaInicio, fechaFin } = this.parseKpiDateRange(filters, (now) => {
+      const { fechaInicio, fechaFin } = this.parseKpiDateRange(filters, now => {
         switch (filters.periodo) {
-          case "HOY": return new Date(now.setHours(0, 0, 0, 0));
-          case "SEMANA": return new Date(now.setDate(now.getDate() - 7));
-          case "TRIMESTRE": return new Date(now.setMonth(now.getMonth() - 3));
-          case "ANO": return new Date(now.setFullYear(now.getFullYear() - 1));
-          case "MES":
-          default: return new Date(now.setMonth(now.getMonth() - 1));
+          case 'HOY':
+            return new Date(now.setHours(0, 0, 0, 0));
+          case 'SEMANA':
+            return new Date(now.setDate(now.getDate() - 7));
+          case 'TRIMESTRE':
+            return new Date(now.setMonth(now.getMonth() - 3));
+          case 'ANO':
+            return new Date(now.setFullYear(now.getFullYear() - 1));
+          case 'MES':
+          default:
+            return new Date(now.setMonth(now.getMonth() - 1));
         }
       });
 
-      const [total, completadas, pendientes, enProgreso, canceladas, tiempoPromedio] = await Promise.all([
-        this.contarOrdenes(fechaInicio, fechaFin, filters.clienteId),
-        this.contarPorEstado("COMPLETADA", fechaInicio, fechaFin, filters.clienteId),
-        this.contarPorEstado("PENDIENTE", fechaInicio, fechaFin, filters.clienteId),
-        this.contarPorEstado("EN_PROGRESO", fechaInicio, fechaFin, filters.clienteId),
-        this.contarPorEstado("CANCELADA", fechaInicio, fechaFin, filters.clienteId),
-        this.calcularTiempoPromedio(fechaInicio, fechaFin, filters.clienteId),
-      ]);
+      const [total, completadas, pendientes, enProgreso, canceladas, tiempoPromedio] =
+        await Promise.all([
+          this.contarOrdenes(fechaInicio, fechaFin, filters.clienteId),
+          this.contarPorEstado('COMPLETADA', fechaInicio, fechaFin, filters.clienteId),
+          this.contarPorEstado('PENDIENTE', fechaInicio, fechaFin, filters.clienteId),
+          this.contarPorEstado('EN_PROGRESO', fechaInicio, fechaFin, filters.clienteId),
+          this.contarPorEstado('CANCELADA', fechaInicio, fechaFin, filters.clienteId),
+          this.calcularTiempoPromedio(fechaInicio, fechaFin, filters.clienteId),
+        ]);
 
       const tasaCompletitud = total > 0 ? (completadas / total) * 100 : 0;
 
@@ -83,12 +89,16 @@ export class KpisService {
         tiempoPromedioResolucion: Math.round(tiempoPromedio * 100) / 100,
       };
     } catch (error) {
-      this.logger.error("Error calculando KPIs de órdenes", error);
+      this.logger.error('Error calculando KPIs de órdenes', error);
       throw error;
     }
   }
 
-  private async contarOrdenes(fechaInicio: Date, fechaFin: Date, clienteId?: string): Promise<number> {
+  private async contarOrdenes(
+    fechaInicio: Date,
+    fechaFin: Date,
+    clienteId?: string
+  ): Promise<number> {
     return this.prisma.order.count({
       where: {
         createdAt: { gte: fechaInicio, lte: fechaFin },
@@ -97,7 +107,12 @@ export class KpisService {
     });
   }
 
-  private async contarPorEstado(estado: string, fechaInicio: Date, fechaFin: Date, clienteId?: string): Promise<number> {
+  private async contarPorEstado(
+    estado: string,
+    fechaInicio: Date,
+    fechaFin: Date,
+    clienteId?: string
+  ): Promise<number> {
     return this.prisma.order.count({
       where: {
         estado: estado as any,
@@ -107,10 +122,14 @@ export class KpisService {
     });
   }
 
-  private async calcularTiempoPromedio(fechaInicio: Date, fechaFin: Date, clienteId?: string): Promise<number> {
+  private async calcularTiempoPromedio(
+    fechaInicio: Date,
+    fechaFin: Date,
+    clienteId?: string
+  ): Promise<number> {
     const ordenes = await this.prisma.order.findMany({
       where: {
-        estado: "completada" as any,
+        estado: 'completada' as any,
         createdAt: { gte: fechaInicio, lte: fechaFin },
         fechaFin: { not: null },
         ...(clienteId && { clienteId }),
@@ -141,7 +160,8 @@ export class KpisService {
       const disponibles = Math.floor(totalActivos * 0.6); // Placeholder logic preserved
       const ocupados = totalActivos - disponibles;
       const promedioOrdenesPorTecnico = totalActivos > 0 ? ordenesStats.total / totalActivos : 0;
-      const eficienciaPromedio = ordenesStats.total > 0 ? (ordenesStats.completadas / ordenesStats.total) * 100 : 0;
+      const eficienciaPromedio =
+        ordenesStats.total > 0 ? (ordenesStats.completadas / ordenesStats.total) * 100 : 0;
 
       return {
         totalActivos,
@@ -151,23 +171,27 @@ export class KpisService {
         eficienciaPromedio: Math.round(eficienciaPromedio * 100) / 100,
       };
     } catch (error) {
-      this.logger.error("Error calculando KPIs de técnicos", error);
+      this.logger.error('Error calculando KPIs de técnicos', error);
       throw error;
     }
   }
 
   private async contarTecnicosActivos(): Promise<number> {
-    return this.prisma.user.count({ where: { role: "tecnico" as any, active: true } });
+    return this.prisma.user.count({ where: { role: 'tecnico' as any, active: true } });
   }
 
   private async obtenerEstadisticasOrdenesTecnicos(filters: KpiFiltersDto) {
-    const { fechaInicio } = this.parseKpiDateRange(filters, (now) => {
-        // Same default logic as Use Case (fallback logic slightly different but consistent intent)
-        switch (filters.periodo) {
-          case "HOY": return new Date(now.setHours(0, 0, 0, 0));
-          case "SEMANA": return new Date(now.setDate(now.getDate() - 7));
-          case "MES": default: return new Date(now.setMonth(now.getMonth() - 1));
-        }
+    const { fechaInicio } = this.parseKpiDateRange(filters, now => {
+      // Same default logic as Use Case (fallback logic slightly different but consistent intent)
+      switch (filters.periodo) {
+        case 'HOY':
+          return new Date(now.setHours(0, 0, 0, 0));
+        case 'SEMANA':
+          return new Date(now.setDate(now.getDate() - 7));
+        case 'MES':
+        default:
+          return new Date(now.setMonth(now.getMonth() - 1));
+      }
     });
 
     const whereBase: any = {
@@ -177,7 +201,7 @@ export class KpisService {
 
     const [total, completadas] = await Promise.all([
       this.prisma.order.count({ where: whereBase }),
-      this.prisma.order.count({ where: { ...whereBase, estado: "completada" as any } }),
+      this.prisma.order.count({ where: { ...whereBase, estado: 'completada' as any } }),
     ]);
 
     return { total, completadas };
@@ -189,7 +213,10 @@ export class KpisService {
 
   async getFinancialKpis(filters: KpiFiltersDto): Promise<FinancialKpiDto> {
     try {
-      const { fechaInicio, fechaFin } = this.parseKpiDateRange(filters, (now) => new Date(now.setMonth(now.getMonth() - 1)));
+      const { fechaInicio, fechaFin } = this.parseKpiDateRange(
+        filters,
+        now => new Date(now.setMonth(now.getMonth() - 1))
+      );
 
       const [costosData, ordenesCount] = await Promise.all([
         this.obtenerCostos(fechaInicio, fechaFin, filters.clienteId),
@@ -210,7 +237,7 @@ export class KpisService {
         ticketPromedio: Math.round(ticketPromedio * 100) / 100,
       };
     } catch (error) {
-      this.logger.error("Error calculando KPIs financieros", error);
+      this.logger.error('Error calculando KPIs financieros', error);
       throw error;
     }
   }
@@ -220,22 +247,28 @@ export class KpisService {
       where: {
         createdAt: { gte: fechaInicio, lte: fechaFin },
         cliente: clienteId ? clienteId : undefined,
-        estado: { not: "cancelada" as any },
+        estado: { not: 'cancelada' as any },
       },
       _sum: { presupuestoEstimado: true, costoReal: true },
     });
 
     return {
-      ingresos: result._sum.presupuestoEstimado ? new Decimal(result._sum.presupuestoEstimado) : new Decimal(0),
+      ingresos: result._sum.presupuestoEstimado
+        ? new Decimal(result._sum.presupuestoEstimado)
+        : new Decimal(0),
       costos: result._sum.costoReal ? new Decimal(result._sum.costoReal) : new Decimal(0),
     };
   }
 
-  private async contarOrdenesCompletadas(fechaInicio: Date, fechaFin: Date, clienteId?: string): Promise<number> {
+  private async contarOrdenesCompletadas(
+    fechaInicio: Date,
+    fechaFin: Date,
+    clienteId?: string
+  ): Promise<number> {
     // Note: Use Case used "contarOrdenes" but filtered by 'completada' inside.
     return this.prisma.order.count({
       where: {
-        estado: "completada" as any,
+        estado: 'completada' as any,
         createdAt: { gte: fechaInicio, lte: fechaFin },
         cliente: clienteId ? clienteId : undefined,
       },
@@ -243,7 +276,7 @@ export class KpisService {
   }
 
   private decimalToNumber(decimal: number | Decimal): number {
-    if (typeof decimal === "number") return decimal;
+    if (typeof decimal === 'number') return decimal;
     return decimal ? parseFloat(decimal.toString()) : 0;
   }
 
@@ -253,7 +286,7 @@ export class KpisService {
 
   private parseKpiDateRange(
     filters: KpiFiltersDto,
-    computeDefaultStart: (now: Date, filters: KpiFiltersDto) => Date,
+    computeDefaultStart: (now: Date, filters: KpiFiltersDto) => Date
   ): { fechaInicio: Date; fechaFin: Date } {
     const ahora = new Date();
     let fechaInicio: Date;

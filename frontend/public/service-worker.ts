@@ -19,20 +19,10 @@ const CACHE_NAME = 'cermont-v1';
 const OFFLINE_URL = '/offline';
 
 // Recursos a cachear en instalación
-const STATIC_ASSETS = [
-  '/',
-  '/offline',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png',
-];
+const STATIC_ASSETS = ['/', '/offline', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 
 // Patrones de URLs a cachear dinámicamente
-const CACHEABLE_PATTERNS = [
-  /\/_next\/static\/.*/,
-  /\/api\/ordenes\/.*/,
-  /\/api\/clientes\/.*/,
-];
+const CACHEABLE_PATTERNS = [/\/_next\/static\/.*/, /\/api\/ordenes\/.*/, /\/api\/clientes\/.*/];
 
 // Evento de instalación
 self.addEventListener('install', (event: ExtendableEvent) => {
@@ -56,9 +46,7 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
       // Limpiar caches antiguos
       const cacheNames = await caches.keys();
       await Promise.all(
-        cacheNames
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
+        cacheNames.filter(name => name !== CACHE_NAME).map(name => caches.delete(name))
       );
 
       // Tomar control de todos los clientes
@@ -178,7 +166,7 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
   event.notification.close();
 
   event.waitUntil(
-    self.clients.matchAll({ type: 'window' }).then((clients) => {
+    self.clients.matchAll({ type: 'window' }).then(clients => {
       // Si hay una ventana abierta, enfocarla
       for (const client of clients) {
         if ('focus' in client) {
@@ -191,4 +179,4 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
   );
 });
 
-export { };
+export {};

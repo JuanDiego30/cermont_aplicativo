@@ -1,0 +1,26 @@
+{
+  "name": "@cermont/shared-types",
+  "version": "1.0.0",
+  "description": "Shared types, DTOs, and enums for Cermont monorepo",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "npx tsc",
+    "dev": "npx tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

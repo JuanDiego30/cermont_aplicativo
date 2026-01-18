@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import { LabelComponent } from '../../label/label.component';
 import { InputFieldComponent } from '../../input/input-field.component';
@@ -7,17 +6,11 @@ import { ComponentCardComponent } from '../../../common/component-card/component
 
 @Component({
   selector: 'app-input-group',
-  imports: [
-    LabelComponent,
-    InputFieldComponent,
-    PhoneInputComponent,
-    ComponentCardComponent
-],
+  imports: [LabelComponent, InputFieldComponent, PhoneInputComponent, ComponentCardComponent],
   templateUrl: './input-group.component.html',
-  styles: ``
+  styles: ``,
 })
 export class InputGroupComponent {
-
   countries = [
     { code: 'US', label: '+1' },
     { code: 'GB', label: '+44' },

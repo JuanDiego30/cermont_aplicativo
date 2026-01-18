@@ -2,5 +2,5 @@
  * @file Controllers Index
  */
 
-export * from "./evidencias.controller";
-export * from "./ordenes-evidencias.controller";
+export * from './evidence.controller';
+export * from './orders-evidence.controller';

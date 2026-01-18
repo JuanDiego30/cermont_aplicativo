@@ -3,38 +3,38 @@
  * @description Request/Response DTOs with class-validator
  */
 
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform, Type, type TransformFnParams } from 'class-transformer';
 import {
-  IsString,
-  IsOptional,
-  IsUUID,
-  IsEnum,
-  MaxLength,
   IsArray,
   IsBoolean,
+  IsEnum,
   IsInt,
+  IsOptional,
   IsPositive,
+  IsString,
+  IsUUID,
   Max,
-} from "class-validator";
-import { Type, Transform } from "class-transformer";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { TipoEvidencia } from "../../domain/value-objects/file-type.vo";
+  MaxLength,
+} from 'class-validator';
+import { TipoEvidencia } from '../../domain/value-objects/file-type.vo';
 
 // ============================================================
 // Enums
 // ============================================================
 
 export enum TipoEvidenciaEnum {
-  FOTO = "FOTO",
-  VIDEO = "VIDEO",
-  DOCUMENTO = "DOCUMENTO",
-  AUDIO = "AUDIO",
+  FOTO = 'FOTO',
+  VIDEO = 'VIDEO',
+  DOCUMENTO = 'DOCUMENTO',
+  AUDIO = 'AUDIO',
 }
 
 export enum StatusEvidenciaEnum {
-  PENDING = "PENDING",
-  PROCESSING = "PROCESSING",
-  READY = "READY",
-  FAILED = "FAILED",
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+  READY = 'READY',
+  FAILED = 'FAILED',
 }
 
 // ============================================================
@@ -42,13 +42,13 @@ export enum StatusEvidenciaEnum {
 // ============================================================
 
 export class UploadEvidenciaDto {
-  @ApiProperty({ example: "123e4567-e89b-12d3-a456-426614174000" })
-  @IsUUID("4", { message: "ordenId debe ser UUID válido" })
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
+  @IsUUID('4', { message: 'ordenId debe ser UUID válido' })
   ordenId!: string;
 
-  @ApiPropertyOptional({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiPropertyOptional({ example: '123e4567-e89b-12d3-a456-426614174000' })
   @IsOptional()
-  @IsUUID("4", { message: "ejecucionId debe ser UUID válido" })
+  @IsUUID('4', { message: 'ejecucionId debe ser UUID válido' })
   ejecucionId?: string;
 
   @ApiPropertyOptional({ enum: TipoEvidenciaEnum })
@@ -59,13 +59,13 @@ export class UploadEvidenciaDto {
   @ApiPropertyOptional({ maxLength: 500 })
   @IsOptional()
   @IsString()
-  @MaxLength(500, { message: "Máximo 500 caracteres" })
+  @MaxLength(500, { message: 'Máximo 500 caracteres' })
   descripcion?: string;
 
-  @ApiPropertyOptional({ description: "Tags separados por coma", maxLength: 1000 })
+  @ApiPropertyOptional({ description: 'Tags separados por coma', maxLength: 1000 })
   @IsOptional()
   @IsString()
-  @MaxLength(1000, { message: "Máximo 1000 caracteres" })
+  @MaxLength(1000, { message: 'Máximo 1000 caracteres' })
   tags?: string;
 }
 
@@ -114,7 +114,7 @@ export class ListEvidenciasQueryDto {
 
   @ApiPropertyOptional({ default: false })
   @IsOptional()
-  @Transform(({ value }) => value === "true" || value === true)
+  @Transform(({ value }: TransformFnParams) => value === 'true' || value === true)
   @IsBoolean()
   includeDeleted?: boolean;
 

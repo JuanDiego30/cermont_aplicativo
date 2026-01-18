@@ -4,21 +4,15 @@
  * Cambia el rol de un usuario.
  */
 
-import {
-  Inject,
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  Logger,
-} from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
+import { Inject, Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   IUserRepository,
   USER_REPOSITORY,
-} from "../../domain/repositories/user.repository.interface";
-import { UserEntity } from "../../domain/entities/user.entity";
-import { UserMapper } from "../mappers/user.mapper";
-import { UserResponseDto } from "../dto/user-response.dto";
+} from '../../domain/repositories/user.repository.interface';
+import { UserEntity } from '../../domain/entities/user.entity';
+import { UserMapper } from '../mappers/user.mapper';
+import { UserResponseDto } from '../dto/user-response.dto';
 
 export interface ChangeUserRoleCommand {
   userId: string;
@@ -33,7 +27,7 @@ export class ChangeUserRoleUseCase {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepository: IUserRepository,
-    private readonly eventEmitter: EventEmitter2,
+    private readonly eventEmitter: EventEmitter2
   ) {}
 
   /**
@@ -50,19 +44,17 @@ export class ChangeUserRoleUseCase {
     if (
       command.userId === command.changedBy &&
       user.role.isAdmin() &&
-      command.newRole !== "admin"
+      command.newRole !== 'admin'
     ) {
-      throw new BadRequestException(
-        "No puedes quitarte el rol de administrador",
-      );
+      throw new BadRequestException('No puedes quitarte el rol de administrador');
     }
 
     // 3. Si es el último admin, no permitir cambio
-    if (user.role.isAdmin() && command.newRole !== "admin") {
+    if (user.role.isAdmin() && command.newRole !== 'admin') {
       const adminCount = await this.userRepository.countAdmins();
       if (adminCount <= 1) {
         throw new BadRequestException(
-          "No se puede cambiar el rol del único administrador del sistema",
+          'No se puede cambiar el rol del único administrador del sistema'
         );
       }
     }
@@ -78,7 +70,7 @@ export class ChangeUserRoleUseCase {
     this.publishDomainEvents(savedUser);
 
     this.logger.log(
-      `Rol actualizado para ${user.email.getValue()}: ${oldRole} -> ${command.newRole}`,
+      `Rol actualizado para ${user.email.getValue()}: ${oldRole} -> ${command.newRole}`
     );
 
     return UserMapper.toResponse(savedUser);
@@ -89,7 +81,7 @@ export class ChangeUserRoleUseCase {
    */
   private publishDomainEvents(user: UserEntity): void {
     const events = user.getDomainEvents();
-    events.forEach((event) => {
+    events.forEach(event => {
       this.eventEmitter.emit(event.eventName, event);
     });
     user.clearDomainEvents();

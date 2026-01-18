@@ -17,21 +17,18 @@
  * const safe = sanitizeSearchTerm("'; DROP TABLE users;--");
  * // Retorna: " DROP TABLE users"
  */
-export function sanitizeSearchTerm(
-  input: string,
-  maxLength: number = 100,
-): string {
-  if (!input || typeof input !== "string") return "";
+export function sanitizeSearchTerm(input: string, maxLength: number = 100): string {
+  if (!input || typeof input !== 'string') return '';
 
   // Limitar longitud
   let sanitized = input.substring(0, maxLength);
 
   // Remover caracteres especiales SQL
   sanitized = sanitized
-    .replace(/[%;_]/g, "") // Wildcards SQL
-    .replace(/['"`]/g, "") // Quotes
-    .replace(/[;-]{2,}/g, "") // SQL injection patterns (consecutive dashes)
-    .replace(/[\x00-\x1F]/g, "") // Control characters
+    .replace(/[%;_]/g, '') // Wildcards SQL
+    .replace(/['"`]/g, '') // Quotes
+    .replace(/[;-]{2,}/g, '') // SQL injection patterns (consecutive dashes)
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '') // Control characters excluyendo tab/newline
     .trim();
 
   return sanitized;
@@ -52,8 +49,8 @@ export function sanitizeJsonInput(obj: unknown, maxDepth: number = 5): unknown {
     return obj;
   }
 
-  if (typeof obj !== "object") {
-    if (typeof obj === "string") {
+  if (typeof obj !== 'object') {
+    if (typeof obj === 'string') {
       return obj.substring(0, 1000); // Limitar strings a 1000 chars
     }
     return obj;
@@ -62,7 +59,7 @@ export function sanitizeJsonInput(obj: unknown, maxDepth: number = 5): unknown {
   if (Array.isArray(obj)) {
     return obj
       .slice(0, 100) // Máximo 100 items
-      .map((item) => sanitizeJsonInput(item, maxDepth - 1));
+      .map(item => sanitizeJsonInput(item, maxDepth - 1));
   }
 
   const sanitized: Record<string, unknown> = {};
@@ -85,8 +82,8 @@ export function sanitizeJsonInput(obj: unknown, maxDepth: number = 5): unknown {
  * @returns true si es seguro, false si contiene caracteres peligrosos
  */
 export function isAlphanumericSearch(input: string): boolean {
-  if (!input || typeof input !== "string") return false;
-  return /^[a-zA-Z0-9\s\-_\.áéíóúÁÉÍÓÚñÑ]*$/.test(input);
+  if (!input || typeof input !== 'string') return false;
+  return /^[a-zA-Z0-9\s._\-áéíóúÁÉÍÓÚñÑ]*$/.test(input);
 }
 
 /**
@@ -96,18 +93,18 @@ export function isAlphanumericSearch(input: string): boolean {
  * @returns String con caracteres HTML escapados
  */
 export function escapeHtml(input: string): string {
-  if (!input || typeof input !== "string") return "";
+  if (!input || typeof input !== 'string') return '';
 
   const htmlEscapes: Record<string, string> = {
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#x27;",
-    "/": "&#x2F;",
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#x27;',
+    '/': '&#x2F;',
   };
 
-  return input.replace(/[&<>"'/]/g, (char) => htmlEscapes[char] || char);
+  return input.replace(/[&<>"'/]/g, char => htmlEscapes[char] || char);
 }
 
 /**
@@ -117,14 +114,14 @@ export function escapeHtml(input: string): string {
  * @returns Nombre de archivo seguro
  */
 export function sanitizeFilename(filename: string): string {
-  if (!filename || typeof filename !== "string") return "unnamed";
+  if (!filename || typeof filename !== 'string') return 'unnamed';
 
   return (
     filename
-      .replace(/\.\.[\/\\]/g, "") // Path traversal
-      .replace(/[<>:"|?*]/g, "") // Caracteres ilegales en Windows
-      .replace(/[\x00-\x1F]/g, "") // Control characters
+      .replace(/\.\.([/\\])/g, '') // Path traversal
+      .replace(/[<>:"|?*]/g, '') // Caracteres ilegales en Windows
+      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '') // Control characters excluyendo tab/newline
       .substring(0, 255) // Límite de longitud
-      .trim() || "unnamed"
+      .trim() || 'unnamed'
   );
 }

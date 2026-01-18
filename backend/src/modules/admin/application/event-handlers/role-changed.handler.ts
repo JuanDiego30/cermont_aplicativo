@@ -4,10 +4,10 @@
  * Maneja el evento RoleChangedEvent.
  */
 
-import { Injectable, Logger } from "@nestjs/common";
-import { OnEvent } from "@nestjs/event-emitter";
-import { RoleChangedEvent } from "../../domain/events/role-changed.event";
-import { PrismaService } from "../../../../prisma/prisma.service";
+import { Injectable, Logger } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
+import { RoleChangedEvent } from '../../domain/events/role-changed.event';
+import { PrismaService } from '../../../../prisma/prisma.service';
 
 @Injectable()
 export class RoleChangedHandler {
@@ -15,15 +15,15 @@ export class RoleChangedHandler {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  @OnEvent("RoleChangedEvent")
+  @OnEvent('RoleChangedEvent')
   async handle(event: RoleChangedEvent): Promise<void> {
     try {
       // Registrar en auditoría
       await this.prisma.auditLog.create({
         data: {
-          action: "ROLE_UPDATED",
+          action: 'ROLE_UPDATED',
           userId: event.changedBy,
-          entityType: "User",
+          entityType: 'User',
           entityId: event.userId,
           changes: {
             rolAnterior: event.oldRole,
@@ -33,7 +33,7 @@ export class RoleChangedHandler {
       });
 
       this.logger.log(
-        `Auditoría registrada para cambio de rol: ${event.userEmail} (${event.oldRole} -> ${event.newRole})`,
+        `Auditoría registrada para cambio de rol: ${event.userEmail} (${event.oldRole} -> ${event.newRole})`
       );
 
       // Posibles acciones adicionales:
@@ -41,10 +41,7 @@ export class RoleChangedHandler {
       // - Invalidar sesiones activas
       // - Actualizar permisos en cache
     } catch (error) {
-      this.logger.error(
-        `Error procesando RoleChangedEvent para ${event.userEmail}`,
-        error,
-      );
+      this.logger.error(`Error procesando RoleChangedEvent para ${event.userEmail}`, error);
     }
   }
 }

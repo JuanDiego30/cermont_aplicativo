@@ -1,111 +1,138 @@
 <div class="container mx-auto px-4 py-6">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Usuarios</h1>
-        <a routerLink="nuevo" class="btn-primary">
-            Nuevo Usuario
-        </a>
-    </div>
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Gestión de Usuarios</h1>
+    <a routerLink="nuevo" class="btn-primary"> Nuevo Usuario </a>
+  </div>
 
-    <div class="card mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input type="text" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()"
-                placeholder="Buscar por nombre o email..." class="input">
-            <select [(ngModel)]="roleFilter" (change)="onSearch()" class="input">
-                <option value="">Todos los roles</option>
-                <option [value]="UserRole.ADMIN">Administrador</option>
-                <option [value]="UserRole.SUPERVISOR">Supervisor</option>
-                <option [value]="UserRole.TECNICO">Técnico</option>
-            </select>
-            <button (click)="onSearch()" class="btn-outline">
-                Buscar
-            </button>
-        </div>
+  <div class="card mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+        placeholder="Buscar por nombre o email..."
+        class="input"
+      />
+      <select [(ngModel)]="roleFilter" (change)="onSearch()" class="input">
+        <option value="">Todos los roles</option>
+        <option [value]="UserRole.ADMIN">Administrador</option>
+        <option [value]="UserRole.SUPERVISOR">Supervisor</option>
+        <option [value]="UserRole.TECNICO">Técnico</option>
+      </select>
+      <button (click)="onSearch()" class="btn-outline">Buscar</button>
     </div>
+  </div>
 
-    @if (loading()) {
+  @if (loading()) {
     <div class="flex justify-center p-8">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cermont-primary-600"></div>
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cermont-primary-600"></div>
     </div>
-    } @else if (error()) {
+  } @else if (error()) {
     <div class="bg-red-50 text-red-800 p-4 rounded-lg mb-6">
-        {{ error() }}
+      {{ error() }}
     </div>
-    } @else {
+  } @else {
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                    <th
-                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Usuario</th>
-                    <th
-                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Rol</th>
-                    <th
-                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Estado</th>
-                    <th
-                        class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Acciones</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                @for (user of users(); track user.id) {
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="h-10 w-10 flex-shrink-0">
-                                <div
-                                    class="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-                                    <span class="text-xl font-medium text-gray-600 dark:text-gray-300">
-                                        {{ user.name.charAt(0).toUpperCase() }}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ user.name }}</div>
-                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ user.email }}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="badge" [ngClass]="getRoleBadgeColor(user.role)">
-                            {{ user.role }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="badge" [class.bg-green-100]="user.active" [class.text-green-800]="user.active"
-                            [class.bg-red-100]="!user.active" [class.text-red-800]="!user.active">
-                            {{ user.active ? 'Activo' : 'Inactivo' }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a [routerLink]="['/admin/users', user.id]"
-                            class="text-cermont-primary-600 hover:text-cermont-primary-900 mr-4">Ver</a>
-                        <a [routerLink]="['/admin/users', user.id, 'editar']"
-                            class="text-indigo-600 hover:text-indigo-900">Editar</a>
-                    </td>
-                </tr>
-                }
-            </tbody>
-        </table>
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+            >
+              Usuario
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+            >
+              Rol
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+            >
+              Estado
+            </th>
+            <th
+              class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+            >
+              Acciones
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+          @for (user of users(); track user.id) {
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="h-10 w-10 flex-shrink-0">
+                    <div
+                      class="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center"
+                    >
+                      <span class="text-xl font-medium text-gray-600 dark:text-gray-300">
+                        {{ user.name.charAt(0).toUpperCase() }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900 dark:text-white">
+                      {{ user.name }}
+                    </div>
+                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ user.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="badge" [ngClass]="getRoleBadgeColor(user.role)">
+                  {{ user.role }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span
+                  class="badge"
+                  [class.bg-green-100]="user.active"
+                  [class.text-green-800]="user.active"
+                  [class.bg-red-100]="!user.active"
+                  [class.text-red-800]="!user.active"
+                >
+                  {{ user.active ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <a
+                  [routerLink]="['/admin/users', user.id]"
+                  class="text-cermont-primary-600 hover:text-cermont-primary-900 mr-4"
+                  >Ver</a
+                >
+                <a
+                  [routerLink]="['/admin/users', user.id, 'editar']"
+                  class="text-indigo-600 hover:text-indigo-900"
+                  >Editar</a
+                >
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
 
     <!-- Pagination -->
     <div class="flex items-center justify-between mt-4">
-        <div class="text-sm text-gray-700 dark:text-gray-300">
-            Total: {{ total() }} usuarios
-        </div>
-        <div class="flex gap-2">
-            <button [disabled]="currentPage() === 1" (click)="onPageChange(currentPage() - 1)"
-                class="btn-outline px-3 py-1 text-sm disabled:opacity-50">
-                Anterior
-            </button>
-            <button [disabled]="users().length < pageSize()" (click)="onPageChange(currentPage() + 1)"
-                class="btn-outline px-3 py-1 text-sm disabled:opacity-50">
-                Siguiente
-            </button>
-        </div>
+      <div class="text-sm text-gray-700 dark:text-gray-300">Total: {{ total() }} usuarios</div>
+      <div class="flex gap-2">
+        <button
+          [disabled]="currentPage() === 1"
+          (click)="onPageChange(currentPage() - 1)"
+          class="btn-outline px-3 py-1 text-sm disabled:opacity-50"
+        >
+          Anterior
+        </button>
+        <button
+          [disabled]="users().length < pageSize()"
+          (click)="onPageChange(currentPage() + 1)"
+          class="btn-outline px-3 py-1 text-sm disabled:opacity-50"
+        >
+          Siguiente
+        </button>
+      </div>
     </div>
-    }
+  }
 </div>

@@ -3,7 +3,7 @@
  * @description Repository interface for Evidencia persistence
  */
 
-import { Evidencia } from "../entities";
+import { Evidencia } from '../entities';
 
 export interface FindEvidenciasOptions {
   ordenId?: string;
@@ -70,4 +70,4 @@ export interface IEvidenciaRepository {
 /**
  * Token for dependency injection
  */
-export const EVIDENCIA_REPOSITORY = Symbol("IEvidenciaRepository");
+export const EVIDENCIA_REPOSITORY = Symbol('IEvidenciaRepository');

@@ -19,21 +19,11 @@
     "module": "ES2022",
     "baseUrl": "./",
     "paths": {
-      "@app/*": [
-        "src/app/*"
-      ],
-      "@env/*": [
-        "src/environments/*"
-      ],
-      "@core/*": [
-        "src/app/core/*"
-      ],
-      "@shared/*": [
-        "src/app/shared/*"
-      ],
-      "@features/*": [
-        "src/app/features/*"
-      ]
+      "@app/*": ["src/app/*"],
+      "@env/*": ["src/environments/*"],
+      "@core/*": ["src/app/core/*"],
+      "@shared/*": ["src/app/shared/*"],
+      "@features/*": ["src/app/features/*"]
     }
   },
   "exclude": [

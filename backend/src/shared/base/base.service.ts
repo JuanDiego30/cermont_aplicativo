@@ -12,9 +12,9 @@
  *
  * Eliminates ~400 lines of duplicate service code across modules.
  */
-import { LoggerService } from "@/shared/logging/logger.service";
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { BaseRepository, FindAllOptions } from "./base.repository";
+import { LoggerService } from '@/shared/logging/logger.service';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BaseRepository, FindAllOptions } from './base.repository';
 
 export interface PaginatedResult<T> {
   data: T[];
@@ -42,17 +42,13 @@ export interface ServiceOptions {
 }
 
 @Injectable()
-export abstract class BaseService<
-  T,
-  TCreate = Partial<T>,
-  TUpdate = Partial<T>,
-> {
+export abstract class BaseService<T, TCreate = Partial<T>, TUpdate = Partial<T>> {
   protected readonly logger: LoggerService;
   protected readonly entityName: string;
 
   constructor(
     protected readonly repository: BaseRepository<T>,
-    entityName: string,
+    entityName: string
   ) {
     this.entityName = entityName;
     this.logger = new LoggerService(`${entityName}Service`);
@@ -78,7 +74,7 @@ export abstract class BaseService<
   async findAllPaginated(
     page: number = 1,
     pageSize: number = 10,
-    options?: Omit<FindAllOptions, "skip" | "take">,
+    options?: Omit<FindAllOptions, 'skip' | 'take'>
   ): Promise<PaginatedResult<T>> {
     const skip = (page - 1) * pageSize;
 
@@ -221,7 +217,7 @@ export abstract class BaseService<
 
     try {
       await this.findByIdOrFail(id);
-      
+
       const repo = this.repository as any;
       if (typeof repo.softDelete !== 'function') {
         throw new BadRequestException(`Soft delete not supported for ${this.entityName}`);
@@ -232,10 +228,14 @@ export abstract class BaseService<
       this.logger.log(`Soft deleted ${this.entityName} successfully`);
       return entity;
     } catch (error) {
-      this.logger.logErrorWithStack(error as Error, `Failed to soft delete ${this.entityName}: ${id}`, {
-        errorMessage: (error as Error).message,
-        errorName: (error as Error).name,
-      });
+      this.logger.logErrorWithStack(
+        error as Error,
+        `Failed to soft delete ${this.entityName}: ${id}`,
+        {
+          errorMessage: (error as Error).message,
+          errorName: (error as Error).name,
+        }
+      );
       throw error;
     }
   }

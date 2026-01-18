@@ -11,11 +11,11 @@ import {
   EjecutarMantenimientoDto,
   ProgramarMantenimientoDto,
   QueryMantenimientosDto,
-  PaginatedMantenimientos
+  PaginatedMantenimientos,
 } from '../models/mantenimiento.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MantenimientosApi extends ApiBaseService {
   /**
@@ -81,4 +81,3 @@ export class MantenimientosApi extends ApiBaseService {
     return this.deleteRequest<void>(`/mantenimientos/${id}`);
   }
 }
-

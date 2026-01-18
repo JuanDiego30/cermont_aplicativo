@@ -1,10 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren, ChangeDetectorRef, inject } from '@angular/core';
-import { SidebarService } from '../../shared/services/sidebar.service';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
-import { SafeHtmlPipe } from '../../shared/pipe/safe-html.pipe';
-import { SidebarWidgetComponent } from './app-sidebar-widget.component';
 import { combineLatest, firstValueFrom, Observable, Subscription } from 'rxjs';
+import { SafeHtmlPipe } from '../../shared/pipe/safe-html.pipe';
+import { SidebarService } from '../../shared/services/sidebar.service';
+import { SidebarWidgetComponent } from './app-sidebar-widget.component';
 
 type NavItem = {
   name: string;
@@ -17,7 +26,7 @@ type NavItem = {
 // Iconos SVG reutilizables
 const ICONS = {
   dashboard: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.5 3.25C4.25736 3.25 3.25 4.25736 3.25 5.5V8.99998C3.25 10.2426 4.25736 11.25 5.5 11.25H9C10.2426 11.25 11.25 10.2426 11.25 8.99998V5.5C11.25 4.25736 10.2426 3.25 9 3.25H5.5ZM4.75 5.5C4.75 5.08579 5.08579 4.75 5.5 4.75H9C9.41421 4.75 9.75 5.08579 9.75 5.5V8.99998C9.75 9.41419 9.41421 9.74998 9 9.74998H5.5C5.08579 9.74998 4.75 9.41419 4.75 8.99998V5.5ZM5.5 12.75C4.25736 12.75 3.25 13.7574 3.25 15V18.5C3.25 19.7426 4.25736 20.75 5.5 20.75H9C10.2426 20.75 11.25 19.7427 11.25 18.5V15C11.25 13.7574 10.2426 12.75 9 12.75H5.5ZM4.75 15C4.75 14.5858 5.08579 14.25 5.5 14.25H9C9.41421 14.25 9.75 14.5858 9.75 15V18.5C9.75 18.9142 9.41421 19.25 9 19.25H5.5C5.08579 19.25 4.75 18.9142 4.75 18.5V15ZM12.75 5.5C12.75 4.25736 13.7574 3.25 15 3.25H18.5C19.7426 3.25 20.75 4.25736 20.75 5.5V8.99998C20.75 10.2426 19.7426 11.25 18.5 11.25H15C13.7574 11.25 12.75 10.2426 12.75 8.99998V5.5ZM15 4.75C14.5858 4.75 14.25 5.08579 14.25 5.5V8.99998C14.25 9.41419 14.5858 9.74998 15 9.74998H18.5C18.9142 9.74998 19.25 9.41419 19.25 8.99998V5.5C19.25 5.08579 18.9142 4.75 18.5 4.75H15ZM15 12.75C13.7574 12.75 12.75 13.7574 12.75 15V18.5C12.75 19.7426 13.7574 20.75 15 20.75H18.5C19.7426 20.75 20.75 19.7427 20.75 18.5V15C20.75 13.7574 19.7426 12.75 18.5 12.75H15ZM14.25 15C14.25 14.5858 14.5858 14.25 15 14.25H18.5C18.9142 14.25 19.25 14.5858 19.25 15V18.5C19.25 18.9142 18.9142 19.25 18.5 19.25H15C14.5858 19.25 14.25 18.9142 14.25 18.5V15Z" fill="currentColor"></path></svg>`,
-  ordenes: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.5 2C4.11929 2 3 3.11929 3 4.5V19.5C3 20.8807 4.11929 22 5.5 22H18.5C19.8807 22 21 20.8807 21 19.5V4.5C21 3.11929 19.8807 2 18.5 2H5.5ZM4.5 4.5C4.5 3.94772 4.94772 3.5 5.5 3.5H18.5C19.0523 3.5 19.5 3.94772 19.5 4.5V19.5C19.5 20.0523 19.0523 20.5 18.5 20.5H5.5C4.94772 20.5 4.5 20.0523 4.5 19.5V4.5ZM7 7.25C7 6.83579 7.33579 6.5 7.75 6.5H16.25C16.6642 6.5 17 6.83579 17 7.25C17 7.66421 16.6642 8 16.25 8H7.75C7.33579 8 7 7.66421 7 7.25ZM7.75 10.5C7.33579 10.5 7 10.8358 7 11.25C7 11.6642 7.33579 12 7.75 12H16.25C16.6642 12 17 11.6642 17 11.25C17 10.8358 16.6642 10.5 16.25 10.5H7.75ZM7 15.25C7 14.8358 7.33579 14.5 7.75 14.5H12.25C12.6642 14.5 13 14.8358 13 15.25C13 15.6642 12.6642 16 12.25 16H7.75C7.33579 16 7 15.6642 7 15.25Z" fill="currentColor"></path></svg>`,
+  ordenes: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7 5C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15.5C15.2239 5 15 4.77614 15 4.5C15 3.11929 13.8807 2 12.5 2H11.5C10.1193 2 9 3.11929 9 4.5C9 4.77614 8.77614 5 8.5 5H7ZM11 4.5C11 4.22386 11.2239 4 11.5 4H12.5C12.7761 4 13 4.22386 13 4.5V5H11V4.5ZM8 9C8 8.44772 8.44772 8 9 8H15C15.5523 8 16 8.44772 16 9C16 9.55228 15.5523 10 15 10H9C8.44772 10 8 9.55228 8 9ZM8 13C8 12.4477 8.44772 12 9 12H15C15.5523 12 16 12.4477 16 13C16 13.5523 15.5523 14 15 14H9C8.44772 14 8 13.5523 8 13ZM8 17C8 16.4477 8.44772 16 9 16H13C13.5523 16 14 16.4477 14 17C14 17.5523 13.5523 18 13 18H9C8.44772 18 8 17.5523 8 17Z" fill="currentColor"></path></svg>`,
   hes: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2L3 7V17L12 22L21 17V7L12 2ZM5 8.5L12 4.5L19 8.5V15.5L12 19.5L5 15.5V8.5ZM12 7C11.4477 7 11 7.44772 11 8V12C11 12.5523 11.4477 13 12 13C12.5523 13 13 12.5523 13 12V8C13 7.44772 12.5523 7 12 7ZM12 15C11.4477 15 11 15.4477 11 16C11 16.5523 11.4477 17 12 17C12.5523 17 13 16.5523 13 16C13 15.4477 12.5523 15 12 15Z" fill="currentColor"></path></svg>`,
   planeacion: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M8 2C8.41421 2 8.75 2.33579 8.75 2.75V3.75H15.25V2.75C15.25 2.33579 15.5858 2 16 2C16.4142 2 16.75 2.33579 16.75 2.75V3.75H18.5C19.7426 3.75 20.75 4.75736 20.75 6V9V19C20.75 20.2426 19.7426 21.25 18.5 21.25H5.5C4.25736 21.25 3.25 20.2426 3.25 19V9V6C3.25 4.75736 4.25736 3.75 5.5 3.75H7.25V2.75C7.25 2.33579 7.58579 2 8 2ZM8 5.25H5.5C5.08579 5.25 4.75 5.58579 4.75 6V8.25H19.25V6C19.25 5.58579 18.9142 5.25 18.5 5.25H16H8ZM19.25 9.75H4.75V19C4.75 19.4142 5.08579 19.75 5.5 19.75H18.5C18.9142 19.75 19.25 19.4142 19.25 19V9.75Z" fill="currentColor"></path></svg>`,
   ejecucion: `<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M8 6C8 4.89543 8.89543 4 10 4H14C15.1046 4 16 4.89543 16 6V8H18C19.1046 8 20 8.89543 20 10V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V10C4 8.89543 4.89543 8 6 8H8V6ZM14 6H10V8H14V6ZM6 10H18V18H6V10ZM9 13C9 12.4477 9.44772 12 10 12H14C14.5523 12 15 12.4477 15 13C15 13.5523 14.5523 14 14 14H10C9.44772 14 9 13.5523 9 13Z" fill="currentColor"></path></svg>`,
@@ -35,14 +44,10 @@ const ICONS = {
 };
 
 @Component({
-    selector: 'app-sidebar',
-    imports: [
-        CommonModule,
-        RouterModule,
-        SafeHtmlPipe,
-        SidebarWidgetComponent
-    ],
-    templateUrl: './app-sidebar.component.html'
+  selector: 'app-sidebar',
+  standalone: true,
+  imports: [CommonModule, RouterModule, SafeHtmlPipe, SidebarWidgetComponent],
+  templateUrl: './app-sidebar.component.html',
 })
 export class AppSidebarComponent implements OnInit, OnDestroy {
   public readonly sidebarService = inject(SidebarService);
@@ -55,63 +60,63 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
   navItems: NavItem[] = [
     {
       icon: ICONS.dashboard,
-      name: "Dashboard",
-      path: "/dashboard",
+      name: 'Dashboard',
+      path: '/dashboard',
     },
     {
       icon: ICONS.ordenes,
-      name: "Órdenes de Trabajo",
+      name: 'Órdenes de Trabajo',
       subItems: [
-        { name: "Listado", path: "/ordenes" },
-        { name: "Nueva Orden", path: "/ordenes/nueva" },
-        { name: "Mis Asignaciones", path: "/ordenes/mis-asignaciones" },
+        { name: 'Listado', path: '/orders' },
+        { name: 'Nueva Orden', path: '/orders/new' },
+        { name: 'Mis Asignaciones', path: '/orders/my-assignments' },
       ],
     },
     {
       icon: ICONS.planeacion,
-      name: "Planeación",
+      name: 'Planeación',
       subItems: [
-        { name: "Calendario", path: "/calendar" },
-        { name: "Programación", path: "/planeacion" },
+        { name: 'Calendario', path: '/calendar' },
+        { name: 'Programación', path: '/planning' },
       ],
     },
     {
       icon: ICONS.ejecucion,
-      name: "Ejecución",
+      name: 'Ejecución',
       subItems: [
-        { name: "En Progreso", path: "/ejecucion" },
-        { name: "Completadas", path: "/ejecucion/completadas" },
+        { name: 'En Progreso', path: '/execution' },
+        { name: 'Completadas', path: '/execution/completed' },
       ],
     },
     {
       icon: ICONS.hes,
-      name: "HES / Seguridad",
+      name: 'HES / Seguridad',
       subItems: [
-        { name: "Inspecciones", path: "/hes" },
-        { name: "Equipos", path: "/hes/equipos" },
-        { name: "Certificados", path: "/hes/certificados" },
+        { name: 'Inspecciones', path: '/hes' },
+        { name: 'Equipos', path: '/hes/equipos' },
+        { name: 'Certificados', path: '/hes/certificados' },
       ],
     },
     {
       icon: ICONS.evidencias,
-      name: "Evidencias",
-      path: "/evidencias",
+      name: 'Evidencias',
+      path: '/evidence',
     },
     {
       icon: ICONS.checklists,
-      name: "Checklists",
+      name: 'Checklists',
       subItems: [
-        { name: "Plantillas", path: "/checklists/plantillas" },
-        { name: "Formularios", path: "/checklists/formularios" },
+        { name: 'Plantillas', path: '/checklists/plantillas' },
+        { name: 'Formularios', path: '/checklists/forms' },
       ],
     },
     {
       icon: ICONS.reportes,
-      name: "Reportes",
+      name: 'Reportes',
       subItems: [
-        { name: "Operativos", path: "/reportes/operativos" },
-        { name: "KPIs", path: "/kpis" },
-        { name: "Financieros", path: "/reportes/financieros" },
+        { name: 'Operativos', path: '/reports/operational' },
+        { name: 'KPIs', path: '/kpis' },
+        { name: 'Financieros', path: '/reports/financial' },
       ],
     },
   ];
@@ -122,44 +127,44 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
   othersItems: NavItem[] = [
     {
       icon: ICONS.tecnicos,
-      name: "Técnicos",
-      path: "/tecnicos",
+      name: 'Técnicos',
+      path: '/technicians',
     },
     {
       icon: ICONS.clientes,
-      name: "Clientes",
-      path: "/clientes",
+      name: 'Clientes',
+      path: '/customers',
     },
     {
       icon: ICONS.facturacion,
-      name: "Facturación",
+      name: 'Facturación',
       subItems: [
-        { name: "Facturas", path: "/facturacion" },
-        { name: "Costos", path: "/costos" },
+        { name: 'Facturas', path: '/invoicing' },
+        { name: 'Costos', path: '/costs' },
       ],
     },
     {
       icon: ICONS.alertas,
-      name: "Alertas",
-      path: "/alertas",
+      name: 'Alertas',
+      path: '/alerts',
     },
     {
       icon: ICONS.admin,
-      name: "Administración",
+      name: 'Administración',
       subItems: [
-        { name: "Usuarios", path: "/admin/users" },
-        { name: "Roles y Permisos", path: "/admin/roles" },
+        { name: 'Usuarios', path: '/admin/users' },
+        { name: 'Roles y Permisos', path: '/admin/roles' },
       ],
     },
     {
       icon: ICONS.configuracion,
-      name: "Configuración",
-      path: "/config",
+      name: 'Configuración',
+      path: '/config',
     },
     {
       icon: ICONS.perfil,
-      name: "Mi Perfil",
-      path: "/profile",
+      name: 'Mi Perfil',
+      path: '/profile',
     },
   ];
 

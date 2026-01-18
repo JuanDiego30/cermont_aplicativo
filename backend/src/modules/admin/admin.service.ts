@@ -15,23 +15,23 @@ import {
   BadRequestException,
   NotFoundException,
   ConflictException,
-} from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import { PasswordService } from "../../shared/services/password.service";
+} from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { PasswordService } from '../../shared/services/password.service';
 import {
   UserRoleEnum,
   hasPermission,
   getPermissionsForRole,
   PermissionResource,
   PermissionAction,
-} from "./interfaces/permissions.interface";
+} from './interfaces/permissions.interface';
 import {
   CreateUserDto,
   UpdateUserDto,
   UpdateUserRoleDto,
   UserResponseDto,
   ListUsersQueryDto,
-} from "./dto/admin.dto";
+} from './dto/admin.dto';
 
 @Injectable()
 export class AdminService {
@@ -39,7 +39,7 @@ export class AdminService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly passwordService: PasswordService,
+    private readonly passwordService: PasswordService
   ) {}
 
   // ============================================
@@ -49,10 +49,7 @@ export class AdminService {
   /**
    * Crea nuevo usuario con rol asignado.
    */
-  async createUser(
-    dto: CreateUserDto,
-    adminUserId: string,
-  ): Promise<UserResponseDto> {
+  async createUser(dto: CreateUserDto, adminUserId: string): Promise<UserResponseDto> {
     try {
       // Validar rol
       if (!Object.values(UserRoleEnum).includes(dto.role)) {
@@ -85,7 +82,7 @@ export class AdminService {
       });
 
       // Auditoría
-      await this.logAudit("USER_CREATED", adminUserId, "User", newUser.id, {
+      await this.logAudit('USER_CREATED', adminUserId, 'User', newUser.id, {
         email: dto.email,
         role: dto.role,
       });
@@ -94,23 +91,18 @@ export class AdminService {
 
       return this.mapToUserResponse(newUser);
     } catch (error) {
-      if (
-        error instanceof BadRequestException ||
-        error instanceof ConflictException
-      ) {
+      if (error instanceof BadRequestException || error instanceof ConflictException) {
         throw error;
       }
       this.logger.error(`❌ Error creando usuario`, error);
-      throw new BadRequestException("Error creando usuario");
+      throw new BadRequestException('Error creando usuario');
     }
   }
 
   /**
    * Obtiene todos los usuarios con filtros opcionales.
    */
-  async getAllUsers(
-    query: ListUsersQueryDto,
-  ): Promise<{ data: UserResponseDto[]; total: number }> {
+  async getAllUsers(query: ListUsersQueryDto): Promise<{ data: UserResponseDto[]; total: number }> {
     const where: Record<string, unknown> = {};
 
     if (query.role) {
@@ -123,21 +115,21 @@ export class AdminService {
 
     if (query.search) {
       where.OR = [
-        { name: { contains: query.search, mode: "insensitive" } },
-        { email: { contains: query.search, mode: "insensitive" } },
+        { name: { contains: query.search, mode: 'insensitive' } },
+        { email: { contains: query.search, mode: 'insensitive' } },
       ];
     }
 
     const [users, total] = await Promise.all([
       this.prisma.user.findMany({
         where,
-        orderBy: { createdAt: "desc" },
+        orderBy: { createdAt: 'desc' },
       }),
       this.prisma.user.count({ where }),
     ]);
 
     return {
-      data: users.map((u) => this.mapToUserResponse(u)),
+      data: users.map(u => this.mapToUserResponse(u)),
       total,
     };
   }
@@ -163,7 +155,7 @@ export class AdminService {
   async updateUser(
     userId: string,
     dto: UpdateUserDto,
-    adminUserId: string,
+    adminUserId: string
   ): Promise<UserResponseDto> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -182,7 +174,7 @@ export class AdminService {
       },
     });
 
-    await this.logAudit("USER_UPDATED", adminUserId, "User", userId, {
+    await this.logAudit('USER_UPDATED', adminUserId, 'User', userId, {
       ...dto,
     });
 
@@ -197,7 +189,7 @@ export class AdminService {
   async updateUserRole(
     userId: string,
     dto: UpdateUserRoleDto,
-    adminUserId: string,
+    adminUserId: string
   ): Promise<UserResponseDto> {
     // Validar rol
     if (!Object.values(UserRoleEnum).includes(dto.role)) {
@@ -213,14 +205,8 @@ export class AdminService {
     }
 
     // No permitir que un admin se quite a sí mismo el rol admin
-    if (
-      userId === adminUserId &&
-      user.role === "admin" &&
-      dto.role !== "admin"
-    ) {
-      throw new BadRequestException(
-        "No puedes quitarte el rol de administrador",
-      );
+    if (userId === adminUserId && user.role === 'admin' && dto.role !== 'admin') {
+      throw new BadRequestException('No puedes quitarte el rol de administrador');
     }
 
     const updatedUser = await this.prisma.user.update({
@@ -228,14 +214,12 @@ export class AdminService {
       data: { role: dto.role },
     });
 
-    await this.logAudit("ROLE_UPDATED", adminUserId, "User", userId, {
+    await this.logAudit('ROLE_UPDATED', adminUserId, 'User', userId, {
       rolAnterior: user.role,
       nuevoRol: dto.role,
     });
 
-    this.logger.log(
-      `✅ Rol actualizado para ${user.email}: ${user.role} -> ${dto.role}`,
-    );
+    this.logger.log(`✅ Rol actualizado para ${user.email}: ${user.role} -> ${dto.role}`);
 
     return this.mapToUserResponse(updatedUser);
   }
@@ -246,7 +230,7 @@ export class AdminService {
   async toggleUserActive(
     userId: string,
     active: boolean,
-    adminUserId: string,
+    adminUserId: string
   ): Promise<{ success: boolean; message: string }> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -258,7 +242,7 @@ export class AdminService {
 
     // No permitir desactivarse a sí mismo
     if (userId === adminUserId && !active) {
-      throw new BadRequestException("No puedes desactivar tu propia cuenta");
+      throw new BadRequestException('No puedes desactivar tu propia cuenta');
     }
 
     await this.prisma.user.update({
@@ -266,10 +250,10 @@ export class AdminService {
       data: { active },
     });
 
-    const action = active ? "USER_ACTIVATED" : "USER_DEACTIVATED";
-    await this.logAudit(action, adminUserId, "User", userId);
+    const action = active ? 'USER_ACTIVATED' : 'USER_DEACTIVATED';
+    await this.logAudit(action, adminUserId, 'User', userId);
 
-    const estado = active ? "activado" : "desactivado";
+    const estado = active ? 'activado' : 'desactivado';
     this.logger.log(`✅ Usuario ${estado}: ${user.email}`);
 
     return {
@@ -284,7 +268,7 @@ export class AdminService {
   async adminChangePassword(
     userId: string,
     newPassword: string,
-    adminUserId: string,
+    adminUserId: string
   ): Promise<{ success: boolean; message: string }> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -302,7 +286,7 @@ export class AdminService {
       data: { password: hashedPassword },
     });
 
-    await this.logAudit("PASSWORD_RESET_BY_ADMIN", adminUserId, "User", userId);
+    await this.logAudit('PASSWORD_RESET_BY_ADMIN', adminUserId, 'User', userId);
 
     this.logger.log(`✅ Contraseña actualizada para: ${user.email}`);
 
@@ -329,7 +313,7 @@ export class AdminService {
   checkPermission(
     userRole: UserRoleEnum,
     resource: PermissionResource,
-    action: PermissionAction,
+    action: PermissionAction
   ): boolean {
     return hasPermission(userRole, resource, action);
   }
@@ -340,11 +324,11 @@ export class AdminService {
   validatePermission(
     userRole: UserRoleEnum,
     resource: PermissionResource,
-    action: PermissionAction,
+    action: PermissionAction
   ): void {
     if (!this.checkPermission(userRole, resource, action)) {
       throw new BadRequestException(
-        `Usuario con rol ${userRole} no tiene permiso para ${action} en ${resource}`,
+        `Usuario con rol ${userRole} no tiene permiso para ${action} en ${resource}`
       );
     }
   }
@@ -365,7 +349,7 @@ export class AdminService {
       this.prisma.user.count(),
       this.prisma.user.count({ where: { active: true } }),
       this.prisma.user.groupBy({
-        by: ["role"],
+        by: ['role'],
         _count: { id: true },
       }),
     ]);
@@ -378,7 +362,7 @@ export class AdminService {
           acc[item.role] = item._count.id;
           return acc;
         },
-        {} as Record<string, number>,
+        {} as Record<string, number>
       ),
     };
   }
@@ -422,7 +406,7 @@ export class AdminService {
     userId: string,
     entityType: string,
     entityId: string,
-    changes?: Record<string, unknown>,
+    changes?: Record<string, unknown>
   ): Promise<void> {
     try {
       await this.prisma.auditLog.create({

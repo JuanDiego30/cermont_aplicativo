@@ -2,24 +2,20 @@
  * @module Dashboard - Clean Architecture
  */
 // Re-export DTOs from separate files
-export { DashboardQueryDto } from "./dashboard-query.dto";
+export { DashboardQueryDto } from './dashboard-query.dto';
 export {
   DashboardStatsDto,
   TendenciaDto,
   OrdenResumenDto,
   DashboardResponse,
-} from "./dashboard-response.dto";
+} from './dashboard-response.dto';
 
 // Import types for interface
-import type { DashboardQueryDto } from "./dashboard-query.dto";
-import type {
-  DashboardStatsDto,
-  TendenciaDto,
-  OrdenResumenDto,
-} from "./dashboard-response.dto";
+import type { DashboardQueryDto } from './dashboard-query.dto';
+import type { DashboardStatsDto, TendenciaDto, OrdenResumenDto } from './dashboard-response.dto';
 
 // Repository Interface
-export const DASHBOARD_REPOSITORY = Symbol("DASHBOARD_REPOSITORY");
+export const DASHBOARD_REPOSITORY = Symbol('DASHBOARD_REPOSITORY');
 
 export interface IDashboardRepository {
   /**

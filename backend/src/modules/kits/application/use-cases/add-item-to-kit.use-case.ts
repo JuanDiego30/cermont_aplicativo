@@ -3,11 +3,11 @@
  *
  * Agrega un item a un kit existente
  */
-import { Injectable, NotFoundException, Inject, Logger } from "@nestjs/common";
-import { KIT_REPOSITORY, IKitRepository } from "../../domain/repositories";
-import { KitId } from "../../domain/value-objects";
-import { AddItemToKitDto, KitResponseDto } from "../dto/kit.dtos";
-import { KitMapper } from "../mappers";
+import { Injectable, NotFoundException, Inject, Logger } from '@nestjs/common';
+import { KIT_REPOSITORY, IKitRepository } from '../../domain/repositories';
+import { KitId } from '../../domain/value-objects';
+import { AddItemToKitDto, KitResponseDto } from '../dto/kit.dtos';
+import { KitMapper } from '../mappers';
 
 @Injectable()
 export class AddItemToKitUseCase {
@@ -15,7 +15,7 @@ export class AddItemToKitUseCase {
 
   constructor(
     @Inject(KIT_REPOSITORY)
-    private readonly repository: IKitRepository,
+    private readonly repository: IKitRepository
   ) {}
 
   async execute(kitId: string, dto: AddItemToKitDto): Promise<KitResponseDto> {
@@ -31,7 +31,7 @@ export class AddItemToKitUseCase {
     kit.addItem({
       nombre: dto.nombre,
       cantidad: dto.cantidad,
-      itemType: dto.itemType || "HERRAMIENTA",
+      itemType: dto.itemType || 'HERRAMIENTA',
       costoUnitario: dto.costoUnitario,
       unidad: dto.unidad,
       esOpcional: dto.esOpcional,

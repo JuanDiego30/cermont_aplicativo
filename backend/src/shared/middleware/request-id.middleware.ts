@@ -11,9 +11,9 @@
  * - Request object: req.requestId
  * - Logs: contexto de LoggingInterceptor
  */
-import { Injectable, NestMiddleware } from "@nestjs/common";
-import { Request, Response, NextFunction } from "express";
-import { randomUUID } from "crypto";
+import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Request, Response, NextFunction } from 'express';
+import { randomUUID } from 'crypto';
 
 // Extender Request para incluir requestId
 declare global {
@@ -24,14 +24,13 @@ declare global {
   }
 }
 
-export const REQUEST_ID_HEADER = "x-request-id";
+export const REQUEST_ID_HEADER = 'x-request-id';
 
 @Injectable()
 export class RequestIdMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction): void {
     // Usar el ID enviado por el cliente o generar uno nuevo
-    const requestId =
-      (req.headers[REQUEST_ID_HEADER] as string) || randomUUID();
+    const requestId = (req.headers[REQUEST_ID_HEADER] as string) || randomUUID();
 
     // Agregar al request para uso en la aplicación
     req.requestId = requestId;

@@ -14,14 +14,14 @@
  *   });
  */
 
-import type { PaginationMeta } from "../types/api-response.types";
-import { createPaginationMeta } from "../types/api-response.types";
+import type { PaginationMeta } from '../types/api-response.types';
+import { createPaginationMeta } from '../types/api-response.types';
 
 export interface PaginationQuery {
   page?: number;
   limit?: number;
   sortBy?: string;
-  sortOrder?: "asc" | "desc";
+  sortOrder?: 'asc' | 'desc';
 }
 
 export interface PaginatedResult<T> {
@@ -36,7 +36,7 @@ export interface PaginatedResult<T> {
 export interface PrismaModelDelegate<
   TModel,
   TWhere = Record<string, unknown>,
-  TOrderBy = Record<string, "asc" | "desc">,
+  TOrderBy = Record<string, 'asc' | 'desc'>,
   TInclude = Record<string, boolean | object>,
   TSelect = Record<string, boolean>,
 > {
@@ -54,7 +54,7 @@ export interface PrismaModelDelegate<
 export interface PaginateOptions<
   TModel,
   TWhere = Record<string, unknown>,
-  TOrderBy = Record<string, "asc" | "desc">,
+  TOrderBy = Record<string, 'asc' | 'desc'>,
   TInclude = Record<string, boolean | object>,
   TSelect = Record<string, boolean>,
 > {
@@ -75,19 +75,16 @@ export class PaginationUtil {
    * Normaliza los parámetros de paginación
    */
   static normalizeQuery(
-    query: PaginationQuery,
-  ): Required<Omit<PaginationQuery, "sortBy" | "sortOrder">> &
-    Pick<PaginationQuery, "sortBy" | "sortOrder"> {
+    query: PaginationQuery
+  ): Required<Omit<PaginationQuery, 'sortBy' | 'sortOrder'>> &
+    Pick<PaginationQuery, 'sortBy' | 'sortOrder'> {
     const page = Math.max(1, query.page || this.DEFAULT_PAGE);
-    const limit = Math.min(
-      this.MAX_LIMIT,
-      Math.max(1, query.limit || this.DEFAULT_LIMIT),
-    );
+    const limit = Math.min(this.MAX_LIMIT, Math.max(1, query.limit || this.DEFAULT_LIMIT));
     return {
       page,
       limit,
       sortBy: query.sortBy,
-      sortOrder: query.sortOrder || "desc",
+      sortOrder: query.sortOrder || 'desc',
     };
   }
 
@@ -103,7 +100,7 @@ export class PaginationUtil {
    */
   static getTotalPages(total: number, limit: number): number {
     if (limit < 1) {
-      throw new Error("Limit debe ser mayor a 0");
+      throw new Error('Limit debe ser mayor a 0');
     }
     return Math.ceil(total / limit);
   }
@@ -113,7 +110,7 @@ export class PaginationUtil {
    */
   static validateParams(page: number, limit: number): void {
     if (!Number.isInteger(page) || page < 1) {
-      throw new Error("Page debe ser un entero positivo");
+      throw new Error('Page debe ser un entero positivo');
     }
     if (!Number.isInteger(limit) || limit < 1 || limit > this.MAX_LIMIT) {
       throw new Error(`Limit debe ser un entero entre 1 y ${this.MAX_LIMIT}`);
@@ -126,11 +123,11 @@ export class PaginationUtil {
   static async paginate<
     TModel,
     TWhere = Record<string, unknown>,
-    TOrderBy = Record<string, "asc" | "desc">,
+    TOrderBy = Record<string, 'asc' | 'desc'>,
     TInclude = Record<string, boolean | object>,
     TSelect = Record<string, boolean>,
   >(
-    options: PaginateOptions<TModel, TWhere, TOrderBy, TInclude, TSelect>,
+    options: PaginateOptions<TModel, TWhere, TOrderBy, TInclude, TSelect>
   ): Promise<PaginatedResult<TModel>> {
     const { model, query, where, orderBy, include, select } = options;
     const normalized = this.normalizeQuery(query);
@@ -158,11 +155,7 @@ export class PaginationUtil {
   /**
    * Crea respuesta de paginación desde datos ya obtenidos
    */
-  static createResponse<T>(
-    data: T[],
-    total: number,
-    query: PaginationQuery,
-  ): PaginatedResult<T> {
+  static createResponse<T>(data: T[], total: number, query: PaginationQuery): PaginatedResult<T> {
     const normalized = this.normalizeQuery(query);
 
     return {
@@ -174,11 +167,7 @@ export class PaginationUtil {
   /**
    * Crea metadata de paginación
    */
-  static createMeta(
-    total: number,
-    page: number,
-    limit: number,
-  ): PaginationMeta {
+  static createMeta(total: number, page: number, limit: number): PaginationMeta {
     return createPaginationMeta(total, page, limit);
   }
 }
@@ -188,4 +177,4 @@ export {
   PaginationQueryDto,
   PaginationWithSortDto,
   SearchPaginationDto,
-} from "../dto/pagination.dto";
+} from '../dto/pagination.dto';

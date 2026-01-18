@@ -1,9 +1,9 @@
-import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { Observable, BehaviorSubject, tap, catchError, throwError } from 'rxjs';
+import { Observable, catchError, tap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface User {
   id: string;
@@ -42,7 +42,7 @@ export interface RegisterDto {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -54,11 +54,13 @@ export class AuthService {
   private readonly csrfStorageKey = 'cermont_csrf_token';
 
   // Estado de autenticación
-  private userSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
-  public user$ = this.userSubject.asObservable();
-
-  // Signals para componentes
+  // Signals como fuente de verdad
   currentUserSignal = signal<User | null>(this.getUserFromStorage());
+
+  // Compatibilidad con Observable (Legacy support)
+  public user$ = toObservable(this.currentUserSignal);
+
+  // Computeds
   isAuthenticatedSignal = computed(() => !!this.currentUserSignal());
   userRoleSignal = computed(() => this.currentUserSignal()?.role || null);
 
@@ -70,51 +72,55 @@ export class AuthService {
   public readonly isCliente = computed(() => this.currentUserSignal()?.role === 'cliente');
 
   constructor() {
-    // Sincronizar BehaviorSubject con Signal
-    this.user$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(user => {
-        this.currentUserSignal.set(user);
-      });
+    // Constructor limpio: Signal es la fuente de verdad
   }
 
   /**
    * Registro de nuevo usuario
    */
   register(registerDto: RegisterDto): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, registerDto, { withCredentials: true }).pipe(
-      tap(response => {
-        if (response.user && response.token) {
-          this.handleAuthSuccess(response);
-        }
-      }),
-      catchError(this.handleError)
-    );
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/register`, registerDto, { withCredentials: true })
+      .pipe(
+        tap(response => {
+          if (response.user && response.token) {
+            this.handleAuthSuccess(response);
+          }
+        }),
+        catchError(this.handleError)
+      );
   }
 
   /**
    * Login con soporte para 2FA y "Recordarme"
    */
   login(loginDto: LoginDto): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, loginDto, { withCredentials: true }).pipe(
-      tap(response => {
-        // Si requiere 2FA, no guardar tokens todavía
-        if (response.requires2FA) {
-          return;
-        }
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/login`, loginDto, { withCredentials: true })
+      .pipe(
+        tap(response => {
+          // Si requiere 2FA, no guardar tokens todavía
+          if (response.requires2FA) {
+            return;
+          }
 
-        if (response.user && response.token) {
-          this.handleAuthSuccess(response, loginDto.rememberMe);
-        }
-      }),
-      catchError(this.handleError)
-    );
+          if (response.user && response.token) {
+            this.handleAuthSuccess(response, loginDto.rememberMe);
+          }
+        }),
+        catchError(this.handleError)
+      );
   }
 
   /**
    * Verificar código 2FA durante login
    */
-  verify2FALogin(email: string, password: string, code: string, rememberMe: boolean = false): Observable<AuthResponse> {
+  verify2FALogin(
+    email: string,
+    password: string,
+    code: string,
+    rememberMe: boolean = false
+  ): Observable<AuthResponse> {
     return this.login({ email, password, twoFactorCode: code, rememberMe });
   }
 
@@ -122,27 +128,27 @@ export class AuthService {
    * Recuperar contraseña
    */
   forgotPassword(email: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/forgot-password`, { email }).pipe(
-      catchError(this.handleError)
-    );
+    return this.http
+      .post<{ message: string }>(`${this.apiUrl}/forgot-password`, { email })
+      .pipe(catchError(this.handleError));
   }
 
   /**
    * Resetear contraseña con token
    */
   resetPassword(token: string, newPassword: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/reset-password`, { token, newPassword }).pipe(
-      catchError(this.handleError)
-    );
+    return this.http
+      .post<{ message: string }>(`${this.apiUrl}/reset-password`, { token, newPassword })
+      .pipe(catchError(this.handleError));
   }
 
   /**
    * Habilitar 2FA (obtener QR)
    */
   enable2FA(): Observable<{ secret: string; qrCode: string }> {
-    return this.http.post<{ secret: string; qrCode: string }>(`${this.apiUrl}/2fa/enable`, {}).pipe(
-      catchError(this.handleError)
-    );
+    return this.http
+      .post<{ secret: string; qrCode: string }>(`${this.apiUrl}/2fa/enable`, {})
+      .pipe(catchError(this.handleError));
   }
 
   /**
@@ -155,8 +161,8 @@ export class AuthService {
         const user = this.currentUserSignal();
         if (user) {
           user.twoFactorEnabled = true;
-          this.userSubject.next(user);
-          this.saveUserToStorage(user);
+          this.currentUserSignal.update(u => (u ? { ...u, twoFactorEnabled: true } : null));
+          this.saveUserToStorage(this.currentUserSignal()!);
         }
       }),
       catchError(this.handleError)
@@ -172,8 +178,8 @@ export class AuthService {
         const user = this.currentUserSignal();
         if (user) {
           user.twoFactorEnabled = false;
-          this.userSubject.next(user);
-          this.saveUserToStorage(user);
+          this.currentUserSignal.update(u => (u ? { ...u, twoFactorEnabled: false } : null));
+          this.saveUserToStorage(this.currentUserSignal()!);
         }
       }),
       catchError(this.handleError)
@@ -194,20 +200,22 @@ export class AuthService {
     // Backend soporta refreshToken vía cookie (preferred). Requiere withCredentials.
     const options = this.buildCsrfRequestOptions();
 
-    return this.http.post<{ token: string; csrfToken?: string }>(`${this.apiUrl}/refresh`, {}, options).pipe(
-      tap(response => {
-        if (response?.token) {
-          this.saveToken(response.token);
-        }
-        if (response?.csrfToken) {
-          this.saveCsrfToken(response.csrfToken);
-        }
-      }),
-      catchError(error => {
-        this.clearLocalAuth();
-        return throwError(() => error);
-      })
-    );
+    return this.http
+      .post<{ token: string; csrfToken?: string }>(`${this.apiUrl}/refresh`, {}, options)
+      .pipe(
+        tap(response => {
+          if (response?.token) {
+            this.saveToken(response.token);
+          }
+          if (response?.csrfToken) {
+            this.saveCsrfToken(response.csrfToken);
+          }
+        }),
+        catchError(error => {
+          this.clearLocalAuth();
+          return throwError(() => error);
+        })
+      );
   }
 
   /**
@@ -224,7 +232,7 @@ export class AuthService {
       error: () => {
         this.clearAuthData();
         this.router.navigate(['/auth/login']);
-      }
+      },
     });
   }
 
@@ -264,8 +272,10 @@ export class AuthService {
    * Manejar éxito de autenticación
    */
   private handleAuthSuccess(response: AuthResponse, rememberMe: boolean = false): void {
-    this.userSubject.next(response.user);
-    this.saveUserToStorage(response.user);
+    if (response.user) {
+      this.currentUserSignal.set(response.user);
+      this.saveUserToStorage(response.user);
+    }
     this.saveToken(response.token);
 
     if (response.csrfToken) {
@@ -324,7 +334,7 @@ export class AuthService {
     localStorage.removeItem('access_token');
     localStorage.removeItem('cermont_user');
     localStorage.removeItem('cermont_remember_me');
-    this.userSubject.next(null);
+    this.currentUserSignal.set(null);
   }
 
   /**

@@ -5,21 +5,21 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AlertsService } from './alerts.service';
 import { EnviarAlertaDto } from './dto';
 
-@ApiTags('Alertas')
-@Controller('alertas')
+@ApiTags('Alerts')
+@Controller('alerts')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
-export class AlertasController {
+export class AlertsController {
   constructor(private readonly alertsService: AlertsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Enviar una nueva alerta' })
+  @ApiOperation({ summary: 'Send a new alert' })
   async enviarAlerta(@Body() dto: EnviarAlertaDto) {
     return this.alertsService.enviarAlerta(dto);
   }
 
-  @Get('historial')
-  @ApiOperation({ summary: 'Obtener historial de alertas del usuario actual' })
+  @Get('history')
+  @ApiOperation({ summary: 'Get alert history for current user' })
   async obtenerHistorial(
     @CurrentUser() user: any,
     @Query('leida') leida?: boolean,
@@ -30,8 +30,8 @@ export class AlertasController {
     return this.alertsService.obtenerHistorial(user.id, { leida, tipo, limit, offset });
   }
 
-  @Patch(':id/leer')
-  @ApiOperation({ summary: 'Marcar alerta como leída' })
+  @Patch(':id/read')
+  @ApiOperation({ summary: 'Mark alert as read' })
   async marcarComoLeida(@Param('id') id: string, @CurrentUser() user: any) {
     return this.alertsService.marcarComoLeida(id, user.id);
   }

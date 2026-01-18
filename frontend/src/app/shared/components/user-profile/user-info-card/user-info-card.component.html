@@ -6,41 +6,31 @@
       </h4>
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
         <div>
-          <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-            First Name
-          </p>
+          <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">First Name</p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
             {{ user.firstName }}
           </p>
         </div>
         <div>
-          <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-            Last Name
-          </p>
+          <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Last Name</p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
             {{ user.lastName }}
           </p>
         </div>
         <div>
-          <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-            Email address
-          </p>
+          <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Email address</p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
             {{ user.email }}
           </p>
         </div>
         <div>
-          <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-            Phone
-          </p>
+          <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Phone</p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
             {{ user.phone }}
           </p>
         </div>
         <div>
-          <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-            Bio
-          </p>
+          <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">Bio</p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
             {{ user.bio }}
           </p>
@@ -71,12 +61,10 @@
   </div>
 
   <!-- Modal -->
-  <app-modal
-    [isOpen]="isOpen"
-    (closed)="closeModal()"
-    className="max-w-[700px] m-4"
-  >
-    <div class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
+  <app-modal [isOpen]="isOpen" (closed)="closeModal()" className="max-w-[700px] m-4">
+    <div
+      class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
+    >
       <div class="px-2 pr-14">
         <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
           Edit Personal Information

@@ -4,7 +4,7 @@
  */
 
 export class EvidenciaProcessedEvent {
-  public readonly eventName = "evidencia.processed";
+  public readonly eventName = 'evidencia.processed';
   public readonly occurredOn: Date;
 
   constructor(
@@ -13,7 +13,7 @@ export class EvidenciaProcessedEvent {
       thumbnailPath?: string;
       metadata?: Record<string, unknown>;
       processingDurationMs: number;
-    },
+    }
   ) {
     this.occurredOn = new Date();
   }

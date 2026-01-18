@@ -1,6 +1,7 @@
 # Módulo Orders
 
 ## Descripción
+
 Módulo de gestión de órdenes de trabajo con arquitectura DDD (Domain-Driven Design).
 
 ## Arquitectura
@@ -52,14 +53,14 @@ stateDiagram-v2
 
 ## Endpoints
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | /Orders | Listar órdenes (paginado) |
-| GET | /Orders/:id | Obtener Order por ID |
-| POST | /Orders | Crear nueva Order |
-| PUT | /Orders/:id | Actualizar Order |
-| PATCH | /Orders/:id/estado | Cambiar estado |
-| DELETE | /Orders/:id | Eliminar Order |
+| Método | Ruta               | Descripción               |
+| ------ | ------------------ | ------------------------- |
+| GET    | /Orders            | Listar órdenes (paginado) |
+| GET    | /Orders/:id        | Obtener Order por ID      |
+| POST   | /Orders            | Crear nueva Order         |
+| PUT    | /Orders/:id        | Actualizar Order          |
+| PATCH  | /Orders/:id/estado | Cambiar estado            |
+| DELETE | /Orders/:id        | Eliminar Order            |
 
 ## Uso
 

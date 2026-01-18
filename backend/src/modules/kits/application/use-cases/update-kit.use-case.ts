@@ -3,11 +3,11 @@
  *
  * Actualiza información de un kit existente
  */
-import { Injectable, NotFoundException, Inject, Logger } from "@nestjs/common";
-import { KIT_REPOSITORY, IKitRepository } from "../../domain/repositories";
-import { KitId } from "../../domain/value-objects";
-import { UpdateKitDto, KitResponseDto } from "../dto/kit.dtos";
-import { KitMapper } from "../mappers";
+import { Injectable, NotFoundException, Inject, Logger } from '@nestjs/common';
+import { KIT_REPOSITORY, IKitRepository } from '../../domain/repositories';
+import { KitId } from '../../domain/value-objects';
+import { UpdateKitDto, KitResponseDto } from '../dto/kit.dtos';
+import { KitMapper } from '../mappers';
 
 @Injectable()
 export class UpdateKitUseCase {
@@ -15,7 +15,7 @@ export class UpdateKitUseCase {
 
   constructor(
     @Inject(KIT_REPOSITORY)
-    private readonly repository: IKitRepository,
+    private readonly repository: IKitRepository
   ) {}
 
   async execute(kitId: string, dto: UpdateKitDto): Promise<KitResponseDto> {

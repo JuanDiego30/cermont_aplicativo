@@ -1,10 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren, ChangeDetectorRef, inject } from '@angular/core';
-import { SidebarService } from '../../services/sidebar.service';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  QueryList,
+  ViewChildren,
+} from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { SafeHtmlPipe } from '../../pipe/safe-html.pipe';
+import { SidebarService } from '../../services/sidebar.service';
 import { SidebarWidgetComponent } from './app-sidebar-widget.component';
-import { combineLatest, firstValueFrom, Observable, Subscription } from 'rxjs';
 
 type NavItem = {
   name: string;
@@ -37,12 +46,7 @@ const ICONS = {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    SafeHtmlPipe,
-    SidebarWidgetComponent
-  ],
+  imports: [CommonModule, RouterModule, SafeHtmlPipe, SidebarWidgetComponent],
   templateUrl: './app-sidebar.component.html',
 })
 export class AppSidebarComponent implements OnInit, OnDestroy {
@@ -56,111 +60,29 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
   navItems: NavItem[] = [
     {
       icon: ICONS.dashboard,
-      name: "Dashboard",
-      path: "/dashboard",
+      name: 'Dashboard',
+      path: '/dashboard',
     },
     {
       icon: ICONS.ordenes,
-      name: "Órdenes de Trabajo",
-      subItems: [
-        { name: "Listado", path: "/ordenes" },
-        { name: "Nueva Orden", path: "/ordenes/nueva" },
-        { name: "Mis Asignaciones", path: "/ordenes/mis-asignaciones" },
-      ],
+      name: 'Órdenes de Trabajo',
+      path: '/dashboard/orders',
     },
     {
-      icon: ICONS.planeacion,
-      name: "Planeación",
-      subItems: [
-        { name: "Calendario", path: "/calendar" },
-        { name: "Programación", path: "/planeacion" },
-      ],
-    },
-    {
-      icon: ICONS.ejecucion,
-      name: "Ejecución",
-      subItems: [
-        { name: "En Progreso", path: "/ejecucion" },
-        { name: "Completadas", path: "/ejecucion/completadas" },
-      ],
-    },
-    {
-      icon: ICONS.hes,
-      name: "HES / Seguridad",
-      subItems: [
-        { name: "Inspecciones", path: "/hes" },
-        { name: "Equipos", path: "/hes/equipos" },
-        { name: "Certificados", path: "/hes/certificados" },
-      ],
-    },
-    {
-      icon: ICONS.evidencias,
-      name: "Evidencias",
-      path: "/evidencias",
-    },
-    {
-      icon: ICONS.checklists,
-      name: "Checklists",
-      subItems: [
-        { name: "Plantillas", path: "/checklists/plantillas" },
-        { name: "Formularios", path: "/checklists/formularios" },
-      ],
-    },
-    {
-      icon: ICONS.reportes,
-      name: "Reportes",
-      subItems: [
-        { name: "Operativos", path: "/reportes/operativos" },
-        { name: "KPIs", path: "/kpis" },
-        { name: "Financieros", path: "/reportes/financieros" },
-      ],
+      icon: ICONS.perfil,
+      name: 'Mi Perfil',
+      path: '/dashboard/perfil',
     },
   ];
 
   // =====================================================
-  // SECCIÓN OTHERS - Configuración y Administración
+  // SECCIÓN OTHERS - Administración
   // =====================================================
   othersItems: NavItem[] = [
     {
-      icon: ICONS.tecnicos,
-      name: "Técnicos",
-      path: "/tecnicos",
-    },
-    {
-      icon: ICONS.clientes,
-      name: "Clientes",
-      path: "/clientes",
-    },
-    {
-      icon: ICONS.facturacion,
-      name: "Facturación",
-      subItems: [
-        { name: "Facturas", path: "/facturacion" },
-        { name: "Costos", path: "/costos" },
-      ],
-    },
-    {
-      icon: ICONS.alertas,
-      name: "Alertas",
-      path: "/alertas",
-    },
-    {
       icon: ICONS.admin,
-      name: "Administración",
-      subItems: [
-        { name: "Usuarios", path: "/admin/users" },
-        { name: "Roles y Permisos", path: "/admin/roles" },
-      ],
-    },
-    {
-      icon: ICONS.configuracion,
-      name: "Configuración",
-      path: "/config",
-    },
-    {
-      icon: ICONS.perfil,
-      name: "Mi Perfil",
-      path: "/profile",
+      name: 'Administración',
+      path: '/admin',
     },
   ];
 
@@ -168,16 +90,25 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
   subMenuHeights: { [key: string]: number } = {};
   @ViewChildren('subMenu') subMenuRefs!: QueryList<ElementRef>;
 
-  readonly isExpanded$: Observable<boolean>;
-  readonly isMobileOpen$: Observable<boolean>;
-  readonly isHovered$: Observable<boolean>;
+  // readonly isExpanded$: Observable<boolean>; // Removed
+  // readonly isMobileOpen$: Observable<boolean>; // Removed
+  // readonly isHovered$: Observable<boolean>; // Removed
 
   private subscription: Subscription = new Subscription();
 
   constructor() {
-    this.isExpanded$ = this.sidebarService.isExpanded$;
-    this.isMobileOpen$ = this.sidebarService.isMobileOpen$;
-    this.isHovered$ = this.sidebarService.isHovered$;
+    // Register effect for UI updates if needed (Angular Signals auto-update template, but keeping logic for CDR if OnPush)
+    // Actually, Default change detection works, but if we need manual trigger:
+    /*
+    effect(() => {
+      const expanded = this.sidebarService.isExpanded();
+      const mobile = this.sidebarService.isMobileOpen();
+      const hovered = this.sidebarService.isHovered();
+      if (!expanded && !mobile && !hovered) {
+        // logic
+      }
+    });
+    */
   }
 
   ngOnInit() {
@@ -187,16 +118,6 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
           this.setActiveMenuFromRoute(this.router.url);
         }
       })
-    );
-
-    this.subscription.add(
-      combineLatest([this.isExpanded$, this.isMobileOpen$, this.isHovered$] as const).subscribe(
-        ([isExpanded, isMobileOpen, isHovered]) => {
-          if (!isExpanded && !isMobileOpen && !isHovered) {
-            this.cdr.detectChanges();
-          }
-        }
-      )
     );
 
     this.setActiveMenuFromRoute(this.router.url);
@@ -230,7 +151,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
   }
 
   async onSidebarMouseEnter(): Promise<void> {
-    const expanded = await firstValueFrom(this.isExpanded$);
+    const expanded = this.sidebarService.isExpanded();
     if (!expanded) {
       this.sidebarService.setHovered(true);
     }
@@ -265,7 +186,7 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
   }
 
   async onSubmenuClick(): Promise<void> {
-    const isMobile = await firstValueFrom(this.isMobileOpen$);
+    const isMobile = this.sidebarService.isMobileOpen();
     if (isMobile) {
       this.sidebarService.setMobileOpen(false);
     }

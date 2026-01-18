@@ -3,12 +3,12 @@
  * @description Local filesystem storage implementation
  */
 
-import { Injectable, Logger } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import * as fs from "fs/promises";
-import * as path from "path";
-import { IStorageProvider, UploadResult } from "./storage-provider.interface";
-import { normalizeRelativePath, resolveSafePath } from "./safe-path";
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs/promises';
+import * as path from 'path';
+import { IStorageProvider, UploadResult } from './storage-provider.interface';
+import { normalizeRelativePath, resolveSafePath } from './safe-path';
 
 @Injectable()
 export class LocalStorageProvider implements IStorageProvider {
@@ -17,8 +17,8 @@ export class LocalStorageProvider implements IStorageProvider {
   private readonly baseUrl: string;
 
   constructor(private readonly config: ConfigService) {
-    this.basePath = this.config.get<string>("UPLOAD_PATH", "./uploads");
-    this.baseUrl = this.config.get<string>("BASE_URL", "http://localhost:3001");
+    this.basePath = this.config.get<string>('UPLOAD_PATH', './uploads');
+    this.baseUrl = this.config.get<string>('BASE_URL', 'http://localhost:4000');
   }
 
   async upload(buffer: Buffer, filePath: string): Promise<UploadResult> {

@@ -6,15 +6,15 @@
  *
  * Refactorizado: Elimina 'any', usa tipos estrictos de ../types
  */
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import type {
   SuccessResponse,
   ErrorResponse,
   PaginatedResponse,
   PaginationMeta,
   ValidationErrorItem,
-} from "../types/api-response.types";
-import { createPaginationMeta } from "../types/api-response.types";
+} from '../types/api-response.types';
+import { createPaginationMeta } from '../types/api-response.types';
 
 /**
  * Respuesta exitosa genérica
@@ -56,29 +56,29 @@ export class ApiSuccessResponseDto<T> implements SuccessResponse<T> {
 /**
  * Respuesta de error estándar - type-safe
  */
-export class ApiErrorResponseDto implements Omit<ErrorResponse, "success"> {
+export class ApiErrorResponseDto implements Omit<ErrorResponse, 'success'> {
   @ApiProperty({ example: false })
   readonly success: false = false;
 
   @ApiProperty({ example: 400 })
   readonly statusCode: number;
 
-  @ApiProperty({ example: "Error message" })
+  @ApiProperty({ example: 'Error message' })
   readonly message: string;
 
-  @ApiPropertyOptional({ example: "Bad Request" })
+  @ApiPropertyOptional({ example: 'Bad Request' })
   readonly error?: string;
 
-  @ApiPropertyOptional({ example: "VALIDATION_ERROR" })
+  @ApiPropertyOptional({ example: 'VALIDATION_ERROR' })
   readonly code?: string;
 
-  @ApiPropertyOptional({ type: "array" })
+  @ApiPropertyOptional({ type: 'array' })
   readonly errors?: readonly ValidationErrorItem[];
 
   @ApiProperty()
   readonly timestamp: string;
 
-  @ApiProperty({ example: "/api/resource" })
+  @ApiProperty({ example: '/api/resource' })
   readonly path: string;
 
   private constructor(
@@ -89,7 +89,7 @@ export class ApiErrorResponseDto implements Omit<ErrorResponse, "success"> {
       error?: string;
       code?: string;
       errors?: ValidationErrorItem[];
-    },
+    }
   ) {
     this.statusCode = statusCode;
     this.message = message;
@@ -111,7 +111,7 @@ export class ApiErrorResponseDto implements Omit<ErrorResponse, "success"> {
       error?: string;
       code?: string;
       errors?: ValidationErrorItem[];
-    },
+    }
   ): ApiErrorResponseDto {
     return new ApiErrorResponseDto(statusCode, message, path, options);
   }
@@ -177,16 +177,8 @@ export class PaginatedResponseDto<T> implements PaginatedResponse<T> {
   /**
    * Factory method para crear respuesta paginada
    */
-  static create<T>(
-    data: T[],
-    total: number,
-    page: number,
-    limit: number,
-  ): PaginatedResponseDto<T> {
-    return new PaginatedResponseDto(
-      data,
-      PaginationMetaDto.create(total, page, limit),
-    );
+  static create<T>(data: T[], total: number, page: number, limit: number): PaginatedResponseDto<T> {
+    return new PaginatedResponseDto(data, PaginationMetaDto.create(total, page, limit));
   }
 }
 
@@ -197,10 +189,10 @@ export class OperationResponseDto {
   @ApiProperty({ example: true })
   readonly success: boolean;
 
-  @ApiProperty({ example: "Operación completada exitosamente" })
+  @ApiProperty({ example: 'Operación completada exitosamente' })
   readonly message: string;
 
-  @ApiPropertyOptional({ example: "abc-123-def" })
+  @ApiPropertyOptional({ example: 'abc-123-def' })
   readonly id?: string;
 
   @ApiPropertyOptional()
@@ -236,29 +228,23 @@ export const ApiResponses = {
    * Respuesta de creación exitosa
    */
   created: <T>(data: T): ApiSuccessResponseDto<T> =>
-    ApiSuccessResponseDto.of(data, "Creado exitosamente"),
+    ApiSuccessResponseDto.of(data, 'Creado exitosamente'),
 
   /**
    * Respuesta de actualización exitosa
    */
   updated: <T>(data: T): ApiSuccessResponseDto<T> =>
-    ApiSuccessResponseDto.of(data, "Actualizado exitosamente"),
+    ApiSuccessResponseDto.of(data, 'Actualizado exitosamente'),
 
   /**
    * Respuesta de eliminación exitosa
    */
-  deleted: (): OperationResponseDto =>
-    OperationResponseDto.success("Eliminado exitosamente"),
+  deleted: (): OperationResponseDto => OperationResponseDto.success('Eliminado exitosamente'),
 
   /**
    * Respuesta paginada
    */
-  paginated: <T>(
-    data: T[],
-    total: number,
-    page: number,
-    limit: number,
-  ): PaginatedResponseDto<T> =>
+  paginated: <T>(data: T[], total: number, page: number, limit: number): PaginatedResponseDto<T> =>
     PaginatedResponseDto.create(data, total, page, limit),
 
   /**
@@ -268,9 +254,8 @@ export const ApiResponses = {
     statusCode: number,
     message: string,
     path: string,
-    options?: { error?: string; code?: string; errors?: ValidationErrorItem[] },
-  ): ApiErrorResponseDto =>
-    ApiErrorResponseDto.create(statusCode, message, path, options),
+    options?: { error?: string; code?: string; errors?: ValidationErrorItem[] }
+  ): ApiErrorResponseDto => ApiErrorResponseDto.create(statusCode, message, path, options),
 };
 
 // Re-exports para compatibilidad hacia atrás

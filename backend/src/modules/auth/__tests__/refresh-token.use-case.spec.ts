@@ -128,5 +128,3 @@ describe('RefreshTokenUseCase', () => {
     expect(mockAuthRepository.revokeSession).not.toHaveBeenCalled();
   });
 });
-
-

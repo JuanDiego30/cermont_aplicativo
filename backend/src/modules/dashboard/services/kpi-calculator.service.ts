@@ -10,9 +10,9 @@
  * - Costos: presupuesto vs real, desviación, margen
  * - Alertas: detección automática de problemas
  */
-import { Injectable, Logger } from "@nestjs/common";
-import { Cron, CronExpression } from "@nestjs/schedule";
-import { PrismaService } from "../../../prisma/prisma.service";
+import { Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { PrismaService } from '../../../prisma/prisma.service';
 import {
   IKpiMetrics,
   IKpiOverview,
@@ -22,7 +22,7 @@ import {
   ICostoDesglosado,
   IKpiTendencias,
   ITendencia,
-} from "../interfaces/kpi.interface";
+} from '../interfaces/kpi.interface';
 
 @Injectable()
 export class KpiCalculatorService {
@@ -44,7 +44,7 @@ export class KpiCalculatorService {
    */
   async getKpis(): Promise<IKpiMetrics> {
     if (this.cachedMetrics && this.isCacheValid()) {
-      this.logger.debug("Retornando métricas desde caché");
+      this.logger.debug('Retornando métricas desde caché');
       return this.cachedMetrics;
     }
 
@@ -91,7 +91,7 @@ export class KpiCalculatorService {
 
       return metrics;
     } catch (error) {
-      this.logger.error("❌ Error calculando KPIs", error);
+      this.logger.error('❌ Error calculando KPIs', error);
       throw error;
     }
   }
@@ -100,17 +100,13 @@ export class KpiCalculatorService {
    * Calcula métricas operativas (órdenes, tiempo ciclo, cumplimiento).
    */
   private async calculateOverview(): Promise<IKpiOverview> {
-    const [
-      ordenes_totales,
-      ordenes_completadas,
-      ordenes_en_progreso,
-      ordenes_en_planeacion,
-    ] = await Promise.all([
-      this.prisma.order.count(),
-      this.prisma.order.count({ where: { estado: "completada" } }),
-      this.prisma.order.count({ where: { estado: "ejecucion" } }),
-      this.prisma.order.count({ where: { estado: "planeacion" } }),
-    ]);
+    const [ordenes_totales, ordenes_completadas, ordenes_en_progreso, ordenes_en_planeacion] =
+      await Promise.all([
+        this.prisma.order.count(),
+        this.prisma.order.count({ where: { estado: 'completada' } }),
+        this.prisma.order.count({ where: { estado: 'ejecucion' } }),
+        this.prisma.order.count({ where: { estado: 'planeacion' } }),
+      ]);
 
     // Tasa de cumplimiento
     const tasa_cumplimiento =
@@ -121,7 +117,7 @@ export class KpiCalculatorService {
     // Tiempo promedio de ciclo (solo órdenes completadas con fechas)
     const ordenesConFechas = await this.prisma.order.findMany({
       where: {
-        estado: "completada",
+        estado: 'completada',
         fechaInicio: { not: null },
         fechaFin: { not: null },
       },
@@ -132,21 +128,17 @@ export class KpiCalculatorService {
     let promedio_dias_completar = 0;
 
     if (ordenesConFechas.length > 0) {
-      const tiemposHoras = ordenesConFechas.map((o) => {
+      const tiemposHoras = ordenesConFechas.map(o => {
         const inicio = o.fechaInicio!.getTime();
         const fin = o.fechaFin!.getTime();
         return (fin - inicio) / (1000 * 60 * 60); // horas
       });
 
       tiempo_promedio_ciclo = parseFloat(
-        (tiemposHoras.reduce((a, b) => a + b, 0) / tiemposHoras.length).toFixed(
-          1,
-        ),
+        (tiemposHoras.reduce((a, b) => a + b, 0) / tiemposHoras.length).toFixed(1)
       );
 
-      promedio_dias_completar = parseFloat(
-        (tiempo_promedio_ciclo / 24).toFixed(1),
-      );
+      promedio_dias_completar = parseFloat((tiempo_promedio_ciclo / 24).toFixed(1));
     }
 
     return {
@@ -194,7 +186,7 @@ export class KpiCalculatorService {
       if (orden.factura) {
         // Asumiendo que la factura tiene un monto
         facturado_total += costoReal + costoReal * impuestoPorcentaje;
-      } else if (orden.estado === "completada") {
+      } else if (orden.estado === 'completada') {
         pendiente_facturar += costoReal;
       }
     }
@@ -203,10 +195,7 @@ export class KpiCalculatorService {
     const desviacion_porcentaje =
       presupuestado_total > 0
         ? parseFloat(
-            (
-              ((costo_real_total - presupuestado_total) / presupuestado_total) *
-              100
-            ).toFixed(1),
+            (((costo_real_total - presupuestado_total) / presupuestado_total) * 100).toFixed(1)
           )
         : 0;
 
@@ -234,35 +223,33 @@ export class KpiCalculatorService {
   private async calculateTecnicos(): Promise<IKpiTecnicos> {
     const [tecnicos_activos, tecnicosConOrdenes] = await Promise.all([
       this.prisma.user.count({
-        where: { role: "tecnico", active: true },
+        where: { role: 'tecnico', active: true },
       }),
       this.prisma.user.findMany({
-        where: { role: "tecnico", active: true },
+        where: { role: 'tecnico', active: true },
         include: {
           asignaciones: {
-            where: { estado: "ejecucion" },
+            where: { estado: 'ejecucion' },
           },
         },
       }),
     ]);
 
-    const tecnicos_ocupados = tecnicosConOrdenes.filter(
-      (t) => t.asignaciones.length > 0,
-    ).length;
+    const tecnicos_ocupados = tecnicosConOrdenes.filter(t => t.asignaciones.length > 0).length;
 
     // Top técnico por órdenes completadas
     const topTecnicos = await this.prisma.order.groupBy({
-      by: ["asignadoId"],
+      by: ['asignadoId'],
       where: {
-        estado: "completada",
+        estado: 'completada',
         asignadoId: { not: null },
       },
       _count: { id: true },
-      orderBy: { _count: { id: "desc" } },
+      orderBy: { _count: { id: 'desc' } },
       take: 1,
     });
 
-    let top_tecnico: IKpiTecnicos["top_tecnico"] = undefined;
+    let top_tecnico: IKpiTecnicos['top_tecnico'] = undefined;
 
     if (topTecnicos.length > 0 && topTecnicos[0].asignadoId) {
       const tecnico = await this.prisma.user.findUnique({
@@ -285,9 +272,7 @@ export class KpiCalculatorService {
     });
 
     const promedio_ordenes_por_tecnico =
-      tecnicos_activos > 0
-        ? parseFloat((totalOrdenesAsignadas / tecnicos_activos).toFixed(1))
-        : 0;
+      tecnicos_activos > 0 ? parseFloat((totalOrdenesAsignadas / tecnicos_activos).toFixed(1)) : 0;
 
     return {
       tecnicos_activos,
@@ -300,21 +285,18 @@ export class KpiCalculatorService {
   /**
    * Detecta alertas automáticas basadas en umbrales.
    */
-  private async detectAlerts(
-    overview: IKpiOverview,
-    costos: IKpiCostos,
-  ): Promise<IAlerta[]> {
+  private async detectAlerts(overview: IKpiOverview, costos: IKpiCostos): Promise<IAlerta[]> {
     const alertas: IAlerta[] = [];
     const now = new Date();
 
     // Alerta 1: Tasa de cumplimiento baja
     if (overview.tasa_cumplimiento < this.UMBRAL_CUMPLIMIENTO) {
       alertas.push({
-        tipo: "INCUMPLIMIENTO",
-        entidad_id: "GLOBAL",
-        entidad_tipo: "GLOBAL",
+        tipo: 'INCUMPLIMIENTO',
+        entidad_id: 'GLOBAL',
+        entidad_tipo: 'GLOBAL',
         mensaje: `Tasa de cumplimiento en ${overview.tasa_cumplimiento}%. Objetivo: ${this.UMBRAL_CUMPLIMIENTO}%`,
-        severidad: overview.tasa_cumplimiento < 80 ? "ALTA" : "MEDIA",
+        severidad: overview.tasa_cumplimiento < 80 ? 'ALTA' : 'MEDIA',
         timestamp: now,
       });
     }
@@ -322,11 +304,11 @@ export class KpiCalculatorService {
     // Alerta 2: Sobrecosto global
     if (costos.desviacion_porcentaje > this.UMBRAL_SOBRECOSTO) {
       alertas.push({
-        tipo: "SOBRECOSTO",
-        entidad_id: "GLOBAL",
-        entidad_tipo: "GLOBAL",
+        tipo: 'SOBRECOSTO',
+        entidad_id: 'GLOBAL',
+        entidad_tipo: 'GLOBAL',
         mensaje: `Costos reales ${costos.desviacion_porcentaje}% sobre presupuesto`,
-        severidad: costos.desviacion_porcentaje > 10 ? "ALTA" : "MEDIA",
+        severidad: costos.desviacion_porcentaje > 10 ? 'ALTA' : 'MEDIA',
         timestamp: now,
       });
     }
@@ -334,11 +316,11 @@ export class KpiCalculatorService {
     // Alerta 3: Tiempo de ciclo alto
     if (overview.tiempo_promedio_ciclo > this.UMBRAL_TIEMPO_CICLO) {
       alertas.push({
-        tipo: "RETRASO",
-        entidad_id: "GLOBAL",
-        entidad_tipo: "GLOBAL",
+        tipo: 'RETRASO',
+        entidad_id: 'GLOBAL',
+        entidad_tipo: 'GLOBAL',
         mensaje: `Tiempo promedio de ciclo: ${overview.tiempo_promedio_ciclo}h (límite: ${this.UMBRAL_TIEMPO_CICLO}h)`,
-        severidad: "MEDIA",
+        severidad: 'MEDIA',
         timestamp: now,
       });
     }
@@ -349,7 +331,7 @@ export class KpiCalculatorService {
 
     const ordenesProximasVencer = await this.prisma.order.findMany({
       where: {
-        estado: { in: ["planeacion", "ejecucion"] },
+        estado: { in: ['planeacion', 'ejecucion'] },
         fechaFinEstimada: {
           lte: fechaLimite,
           gte: now,
@@ -360,11 +342,11 @@ export class KpiCalculatorService {
 
     for (const orden of ordenesProximasVencer) {
       alertas.push({
-        tipo: "VENCIMIENTO_PROXIMO",
+        tipo: 'VENCIMIENTO_PROXIMO',
         entidad_id: orden.id,
-        entidad_tipo: "ORDEN",
+        entidad_tipo: 'ORDEN',
         mensaje: `Orden ${orden.numero} vence en menos de ${this.UMBRAL_DIAS_VENCIMIENTO} días`,
-        severidad: "MEDIA",
+        severidad: 'MEDIA',
         metadata: { fechaVencimiento: orden.fechaFinEstimada },
         timestamp: now,
       });
@@ -387,11 +369,11 @@ export class KpiCalculatorService {
 
         if (desviacion > this.UMBRAL_SOBRECOSTO) {
           alertas.push({
-            tipo: "SOBRECOSTO",
+            tipo: 'SOBRECOSTO',
             entidad_id: orden.id,
-            entidad_tipo: "ORDEN",
+            entidad_tipo: 'ORDEN',
             mensaje: `Orden ${orden.numero}: ${desviacion.toFixed(1)}% sobre presupuesto`,
-            severidad: desviacion > 15 ? "ALTA" : "MEDIA",
+            severidad: desviacion > 15 ? 'ALTA' : 'MEDIA',
             metadata: { presupuesto, costoReal, desviacion },
             timestamp: now,
           });
@@ -408,12 +390,12 @@ export class KpiCalculatorService {
   async getCostosDesglosados(): Promise<ICostoDesglosado[]> {
     const ordenes = await this.prisma.order.findMany({
       include: { costos: true },
-      where: { estado: "completada" },
-      orderBy: { createdAt: "desc" },
+      where: { estado: 'completada' },
+      orderBy: { createdAt: 'desc' },
       take: 50,
     });
 
-    return ordenes.map((orden) => {
+    return ordenes.map(orden => {
       const desglose = {
         mano_obra: 0,
         materiales: 0,
@@ -424,17 +406,13 @@ export class KpiCalculatorService {
 
       for (const costo of orden.costos) {
         const tipo = costo.tipo.toLowerCase();
-        if (
-          tipo.includes("mano") ||
-          tipo.includes("obra") ||
-          tipo.includes("personal")
-        ) {
+        if (tipo.includes('mano') || tipo.includes('obra') || tipo.includes('personal')) {
           desglose.mano_obra += costo.monto;
-        } else if (tipo.includes("material")) {
+        } else if (tipo.includes('material')) {
           desglose.materiales += costo.monto;
-        } else if (tipo.includes("equipo") || tipo.includes("herramienta")) {
+        } else if (tipo.includes('equipo') || tipo.includes('herramienta')) {
           desglose.equipos += costo.monto;
-        } else if (tipo.includes("transport") || tipo.includes("viaje")) {
+        } else if (tipo.includes('transport') || tipo.includes('viaje')) {
           desglose.transporte += costo.monto;
         } else {
           desglose.otros += costo.monto;
@@ -445,9 +423,7 @@ export class KpiCalculatorService {
       const presupuesto = orden.presupuestoEstimado ?? 0;
       const desviacion =
         presupuesto > 0
-          ? parseFloat(
-              (((costo_real - presupuesto) / presupuesto) * 100).toFixed(1),
-            )
+          ? parseFloat((((costo_real - presupuesto) / presupuesto) * 100).toFixed(1))
           : 0;
 
       return {
@@ -469,7 +445,7 @@ export class KpiCalculatorService {
   async getTendencias(
     desde: Date,
     hasta: Date,
-    granularidad: "DIA" | "SEMANA" | "MES",
+    granularidad: 'DIA' | 'SEMANA' | 'MES'
   ): Promise<IKpiTendencias> {
     // Implementación simplificada - agrupa por fecha
     const ordenes = await this.prisma.order.findMany({
@@ -477,20 +453,14 @@ export class KpiCalculatorService {
         createdAt: { gte: desde, lte: hasta },
       },
       include: { costos: true },
-      orderBy: { createdAt: "asc" },
+      orderBy: { createdAt: 'asc' },
     });
 
     // Agrupar por período
-    const grupos = new Map<
-      string,
-      { ordenes: number; costos: number; completadas: number }
-    >();
+    const grupos = new Map<string, { ordenes: number; costos: number; completadas: number }>();
 
     for (const orden of ordenes) {
-      const fecha = this.formatFechaByGranularidad(
-        orden.createdAt,
-        granularidad,
-      );
+      const fecha = this.formatFechaByGranularidad(orden.createdAt, granularidad);
 
       if (!grupos.has(fecha)) {
         grupos.set(fecha, { ordenes: 0, costos: 0, completadas: 0 });
@@ -499,7 +469,7 @@ export class KpiCalculatorService {
       const grupo = grupos.get(fecha)!;
       grupo.ordenes++;
       grupo.costos += orden.costos.reduce((sum, c) => sum + c.monto, 0);
-      if (orden.estado === "completada") {
+      if (orden.estado === 'completada') {
         grupo.completadas++;
       }
     }
@@ -535,29 +505,24 @@ export class KpiCalculatorService {
     this.cacheTimestamp = null;
   }
 
-  private formatFechaByGranularidad(
-    fecha: Date,
-    granularidad: "DIA" | "SEMANA" | "MES",
-  ): string {
+  private formatFechaByGranularidad(fecha: Date, granularidad: 'DIA' | 'SEMANA' | 'MES'): string {
     const year = fecha.getFullYear();
-    const month = (fecha.getMonth() + 1).toString().padStart(2, "0");
-    const day = fecha.getDate().toString().padStart(2, "0");
+    const month = (fecha.getMonth() + 1).toString().padStart(2, '0');
+    const day = fecha.getDate().toString().padStart(2, '0');
 
     switch (granularidad) {
-      case "DIA":
+      case 'DIA':
         return `${year}-${month}-${day}`;
-      case "SEMANA":
+      case 'SEMANA':
         const week = this.getWeekNumber(fecha);
-        return `${year}-W${week.toString().padStart(2, "0")}`;
-      case "MES":
+        return `${year}-W${week.toString().padStart(2, '0')}`;
+      case 'MES':
         return `${year}-${month}`;
     }
   }
 
   private getWeekNumber(date: Date): number {
-    const d = new Date(
-      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
-    );
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     const dayNum = d.getUTCDay() || 7;
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
@@ -570,6 +535,6 @@ export class KpiCalculatorService {
   @Cron(CronExpression.EVERY_5_MINUTES)
   private resetCache(): void {
     this.invalidateCache();
-    this.logger.debug("🔄 Caché de KPIs invalidado");
+    this.logger.debug('🔄 Caché de KPIs invalidado');
   }
 }

@@ -5,13 +5,13 @@
 
 export class MimeType {
   private static readonly ALLOWED_IMAGE_TYPES = [
-    "image/jpeg",
-    "image/jpg",
-    "image/png",
-    "image/gif",
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
   ];
 
-  private static readonly ALLOWED_DOCUMENT_TYPES = ["application/pdf"];
+  private static readonly ALLOWED_DOCUMENT_TYPES = ['application/pdf'];
 
   private constructor(private readonly _value: string) {
     Object.freeze(this);
@@ -23,10 +23,7 @@ export class MimeType {
   }
 
   private static validate(value: string): void {
-    const allAllowed = [
-      ...MimeType.ALLOWED_IMAGE_TYPES,
-      ...MimeType.ALLOWED_DOCUMENT_TYPES,
-    ];
+    const allAllowed = [...MimeType.ALLOWED_IMAGE_TYPES, ...MimeType.ALLOWED_DOCUMENT_TYPES];
 
     if (!allAllowed.includes(value.toLowerCase())) {
       throw new Error(`MIME type ${value} is not supported`);
@@ -55,13 +52,13 @@ export class MimeType {
 
   public getExtension(): string {
     const map: Record<string, string> = {
-      "image/jpeg": "jpg",
-      "image/jpg": "jpg",
-      "image/png": "png",
-      "image/gif": "gif",
-      "application/pdf": "pdf",
+      'image/jpeg': 'jpg',
+      'image/jpg': 'jpg',
+      'image/png': 'png',
+      'image/gif': 'gif',
+      'application/pdf': 'pdf',
     };
-    return map[this._value] || "bin";
+    return map[this._value] || 'bin';
   }
 
   public equals(other: MimeType): boolean {

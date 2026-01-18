@@ -20,6 +20,7 @@ Módulo para calcular y gestionar KPIs (Key Performance Indicators) del sistema 
 Obtener todos los KPIs del dashboard en una sola llamada.
 
 **Query Parameters:**
+
 - `periodo` (opcional): HOY | SEMANA | MES | TRIMESTRE | ANO | CUSTOM
 - `fechaInicio` (opcional): ISO 8601 date
 - `fechaFin` (opcional): ISO 8601 date
@@ -27,6 +28,7 @@ Obtener todos los KPIs del dashboard en una sola llamada.
 - `tecnicoId` (opcional): UUID del técnico
 
 **Response:**
+
 ```
 {
   "ordenes": {
@@ -56,11 +58,11 @@ Obtener todos los KPIs del dashboard en una sola llamada.
 }
 ```
 
-### GET /api/kpis/ordenes
+### GET /api/kpis/orders
 
 Obtener KPIs específicos de órdenes.
 
-### GET /api/kpis/tecnicos
+### GET /api/kpis/technicians
 
 Obtener KPIs específicos de técnicos.
 

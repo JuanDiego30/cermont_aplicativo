@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import { ComponentCardComponent } from '../../../common/component-card/component-card.component';
 import { LabelComponent } from '../../label/label.component';
@@ -6,18 +5,17 @@ import { FileInputComponent } from '../../input/file-input.component';
 
 @Component({
   selector: 'app-file-input-example',
-  imports: [
-    ComponentCardComponent,
-    LabelComponent,
-    FileInputComponent
-],
+  imports: [ComponentCardComponent, LabelComponent, FileInputComponent],
   template: `
-   <app-component-card title="File Input">
-    <div>
-      <app-label>Upload file</app-label>
-          <app-file-input (fileChange)="handleFileChange($event)" className="custom-class"></app-file-input>
-    </div>
-  </app-component-card>
+    <app-component-card title="File Input">
+      <div>
+        <app-label>Upload file</app-label>
+        <app-file-input
+          (fileChange)="handleFileChange($event)"
+          className="custom-class"
+        ></app-file-input>
+      </div>
+    </app-component-card>
   `,
 })
 export class FileInputExampleComponent {

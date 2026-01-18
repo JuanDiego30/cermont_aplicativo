@@ -3,13 +3,13 @@
  *
  * Tipo de kit (BASICO, COMPLETO, ESPECIALIZADO, EMERGENCIA)
  */
-import { ValidationError } from "../../../../shared/domain/exceptions";
+import { ValidationError } from '../../../../shared/domain/exceptions';
 
 export enum TipoKitEnum {
-  BASICO = "BASICO",
-  COMPLETO = "COMPLETO",
-  ESPECIALIZADO = "ESPECIALIZADO",
-  EMERGENCIA = "EMERGENCIA",
+  BASICO = 'BASICO',
+  COMPLETO = 'COMPLETO',
+  ESPECIALIZADO = 'ESPECIALIZADO',
+  EMERGENCIA = 'EMERGENCIA',
 }
 
 export class TipoKit {
@@ -18,12 +18,11 @@ export class TipoKit {
   }
 
   public static create(value: string): TipoKit {
-    const enumValue =
-      TipoKitEnum[value.toUpperCase() as keyof typeof TipoKitEnum];
+    const enumValue = TipoKitEnum[value.toUpperCase() as keyof typeof TipoKitEnum];
     if (!enumValue) {
       throw new ValidationError(
-        `Tipo de kit inválido: ${value}. Valores válidos: ${Object.keys(TipoKitEnum).join(", ")}`,
-        "tipo",
+        `Tipo de kit inválido: ${value}. Valores válidos: ${Object.keys(TipoKitEnum).join(', ')}`,
+        'tipo'
       );
     }
     return new TipoKit(enumValue);
@@ -52,13 +51,13 @@ export class TipoKit {
   public getDescripcion(): string {
     switch (this._value) {
       case TipoKitEnum.BASICO:
-        return "Kit con herramientas básicas para trabajos simples";
+        return 'Kit con herramientas básicas para trabajos simples';
       case TipoKitEnum.COMPLETO:
-        return "Kit completo para trabajos complejos";
+        return 'Kit completo para trabajos complejos';
       case TipoKitEnum.ESPECIALIZADO:
-        return "Kit especializado para trabajos específicos";
+        return 'Kit especializado para trabajos específicos';
       case TipoKitEnum.EMERGENCIA:
-        return "Kit de emergencia para atención inmediata";
+        return 'Kit de emergencia para atención inmediata';
     }
   }
 
@@ -70,4 +69,3 @@ export class TipoKit {
     return this._value;
   }
 }
-

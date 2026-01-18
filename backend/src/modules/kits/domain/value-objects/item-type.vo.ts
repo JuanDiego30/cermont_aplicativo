@@ -5,12 +5,12 @@
  */
 
 export enum ItemTypeEnum {
-  HERRAMIENTA = "HERRAMIENTA",
-  REPUESTO = "REPUESTO",
-  EQUIPO = "EQUIPO",
-  MATERIAL = "MATERIAL",
-  CONSUMIBLE = "CONSUMIBLE",
-  DOCUMENTO = "DOCUMENTO",
+  HERRAMIENTA = 'HERRAMIENTA',
+  REPUESTO = 'REPUESTO',
+  EQUIPO = 'EQUIPO',
+  MATERIAL = 'MATERIAL',
+  CONSUMIBLE = 'CONSUMIBLE',
+  DOCUMENTO = 'DOCUMENTO',
 }
 
 export class ItemType {
@@ -19,8 +19,7 @@ export class ItemType {
   }
 
   public static create(value: string): ItemType {
-    const enumValue =
-      ItemTypeEnum[value.toUpperCase() as keyof typeof ItemTypeEnum];
+    const enumValue = ItemTypeEnum[value.toUpperCase() as keyof typeof ItemTypeEnum];
     if (!enumValue) {
       return ItemType.herramienta(); // Default
     }
@@ -57,22 +56,15 @@ export class ItemType {
 
   public esDevolvible(): boolean {
     // Consumibles no se devuelven
-    return (
-      this._value !== ItemTypeEnum.CONSUMIBLE &&
-      this._value !== ItemTypeEnum.DOCUMENTO
-    );
+    return this._value !== ItemTypeEnum.CONSUMIBLE && this._value !== ItemTypeEnum.DOCUMENTO;
   }
 
   public requiereMantenimiento(): boolean {
-    return [ItemTypeEnum.HERRAMIENTA, ItemTypeEnum.EQUIPO].includes(
-      this._value,
-    );
+    return [ItemTypeEnum.HERRAMIENTA, ItemTypeEnum.EQUIPO].includes(this._value);
   }
 
   public requiereCertificacion(): boolean {
-    return [ItemTypeEnum.HERRAMIENTA, ItemTypeEnum.EQUIPO].includes(
-      this._value,
-    );
+    return [ItemTypeEnum.HERRAMIENTA, ItemTypeEnum.EQUIPO].includes(this._value);
   }
 
   public equals(other: ItemType): boolean {

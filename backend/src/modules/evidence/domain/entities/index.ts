@@ -3,4 +3,4 @@
  * @description Barrel export for all Evidencias Entities
  */
 
-export * from "./evidencia.entity";
+export * from './evidencia.entity';

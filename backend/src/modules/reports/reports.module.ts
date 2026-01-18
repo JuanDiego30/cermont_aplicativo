@@ -5,13 +5,13 @@ import {
   GenerateReporteOrdenesUseCase,
   GetReporteOrdenDetalleUseCase,
 } from './application/use-cases';
-import { ReportesController } from './infrastructure/controllers/reportes.controller';
+import { ReportsController } from './infrastructure/controllers';
 import { ReporteRepository } from './infrastructure/persistence';
 import { ReportesService } from './reportes.service';
 
 @Module({
   imports: [PrismaModule],
-  controllers: [ReportesController],
+  controllers: [ReportsController],
   providers: [
     ReportesService,
     {

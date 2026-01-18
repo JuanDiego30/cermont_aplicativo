@@ -8,22 +8,20 @@ import { ModalComponent } from '../../ui/modal/modal.component';
 
 @Component({
   selector: 'app-user-info-card',
-  imports: [
-    InputFieldComponent,
-    ButtonComponent,
-    LabelComponent,
-    ModalComponent
-],
+  imports: [InputFieldComponent, ButtonComponent, LabelComponent, ModalComponent],
   templateUrl: './user-info-card.component.html',
-  styles: ``
+  styles: ``,
 })
 export class UserInfoCardComponent {
-
   readonly modal = inject(ModalService);
 
   isOpen = false;
-  openModal() { this.isOpen = true; }
-  closeModal() { this.isOpen = false; }
+  openModal() {
+    this.isOpen = true;
+  }
+  closeModal() {
+    this.isOpen = false;
+  }
 
   user = {
     firstName: 'Musharof',

@@ -4,7 +4,7 @@
  */
 
 export class EvidenciaUploadedEvent {
-  public readonly eventName = "evidencia.uploaded";
+  public readonly eventName = 'evidencia.uploaded';
   public readonly occurredOn: Date;
 
   constructor(
@@ -18,7 +18,7 @@ export class EvidenciaUploadedEvent {
       fileSize: number;
       uploadedBy: string;
       requiresProcessing: boolean;
-    },
+    }
   ) {
     this.occurredOn = new Date();
   }

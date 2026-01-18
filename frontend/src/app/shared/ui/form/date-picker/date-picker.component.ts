@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -20,7 +21,8 @@ export interface DateChangePayload {
 
 @Component({
   selector: 'app-date-picker',
-  imports: [LabelComponent],
+  standalone: true,
+  imports: [CommonModule, LabelComponent],
   templateUrl: './date-picker.component.html',
   styles: ``,
 })

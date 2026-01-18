@@ -1,65 +1,58 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import {
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  IsNumber,
-  IsDateString,
-  IsEnum,
-} from "class-validator";
-import { Type } from "class-transformer";
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsDateString, IsEnum } from 'class-validator';
+import { Type } from 'class-transformer';
 
 /**
  * Estado de SES Ariba
  */
 export enum EstadoSES {
-  PENDIENTE = "PENDIENTE",
-  GENERADO = "GENERADO",
-  ENVIADO = "ENVIADO",
-  APROBADO = "APROBADO",
-  RECHAZADO = "RECHAZADO",
+  PENDIENTE = 'PENDIENTE',
+  GENERADO = 'GENERADO',
+  ENVIADO = 'ENVIADO',
+  APROBADO = 'APROBADO',
+  RECHAZADO = 'RECHAZADO',
 }
 
 /**
  * Estado de Factura
  */
 export enum EstadoFactura {
-  PENDIENTE = "PENDIENTE",
-  GENERADA = "GENERADA",
-  ENVIADA = "ENVIADA",
-  APROBADA = "APROBADA",
-  PAGADA = "PAGADA",
-  RECHAZADA = "RECHAZADA",
+  PENDIENTE = 'PENDIENTE',
+  GENERADA = 'GENERADA',
+  ENVIADA = 'ENVIADA',
+  APROBADA = 'APROBADA',
+  PAGADA = 'PAGADA',
+  RECHAZADA = 'RECHAZADA',
 }
 
 /**
  * DTO para registrar SES
  */
 export class RegistrarSESDto {
-  @ApiProperty({ description: "ID de la orden" })
+  @ApiProperty({ description: 'ID de la orden' })
   @IsString()
   @IsNotEmpty()
   ordenId!: string;
 
   @ApiProperty({
-    description: "Número de SES en Ariba",
-    example: "SES-2024-001234",
+    description: 'Número de SES en Ariba',
+    example: 'SES-2024-001234',
   })
   @IsString()
   @IsNotEmpty()
   numeroSES!: string;
 
-  @ApiProperty({ description: "Monto del SES" })
+  @ApiProperty({ description: 'Monto del SES' })
   @Type(() => Number)
   @IsNumber()
   monto!: number;
 
-  @ApiPropertyOptional({ description: "Fecha de generación" })
+  @ApiPropertyOptional({ description: 'Fecha de generación' })
   @IsOptional()
   @IsDateString()
   fechaGeneracion?: string;
 
-  @ApiPropertyOptional({ description: "Observaciones" })
+  @ApiPropertyOptional({ description: 'Observaciones' })
   @IsOptional()
   @IsString()
   observaciones?: string;
@@ -69,17 +62,17 @@ export class RegistrarSESDto {
  * DTO para aprobar SES
  */
 export class AprobarSESDto {
-  @ApiProperty({ description: "ID del SES" })
+  @ApiProperty({ description: 'ID del SES' })
   @IsString()
   @IsNotEmpty()
   sesId!: string;
 
-  @ApiPropertyOptional({ description: "Fecha de aprobación" })
+  @ApiPropertyOptional({ description: 'Fecha de aprobación' })
   @IsOptional()
   @IsDateString()
   fechaAprobacion?: string;
 
-  @ApiPropertyOptional({ description: "Número de aprobación en Ariba" })
+  @ApiPropertyOptional({ description: 'Número de aprobación en Ariba' })
   @IsOptional()
   @IsString()
   numeroAprobacion?: string;
@@ -89,33 +82,33 @@ export class AprobarSESDto {
  * DTO para generar factura
  */
 export class GenerarFacturaDto {
-  @ApiProperty({ description: "ID del SES aprobado" })
+  @ApiProperty({ description: 'ID del SES aprobado' })
   @IsString()
   @IsNotEmpty()
   sesId!: string;
 
-  @ApiProperty({ description: "Número de factura", example: "FAC-2024-001234" })
+  @ApiProperty({ description: 'Número de factura', example: 'FAC-2024-001234' })
   @IsString()
   @IsNotEmpty()
   numeroFactura!: string;
 
-  @ApiProperty({ description: "Monto de la factura" })
+  @ApiProperty({ description: 'Monto de la factura' })
   @Type(() => Number)
   @IsNumber()
   monto!: number;
 
-  @ApiPropertyOptional({ description: "Monto IVA" })
+  @ApiPropertyOptional({ description: 'Monto IVA' })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   montoIVA?: number;
 
-  @ApiPropertyOptional({ description: "Fecha de emisión" })
+  @ApiPropertyOptional({ description: 'Fecha de emisión' })
   @IsOptional()
   @IsDateString()
   fechaEmision?: string;
 
-  @ApiPropertyOptional({ description: "Fecha de vencimiento" })
+  @ApiPropertyOptional({ description: 'Fecha de vencimiento' })
   @IsOptional()
   @IsDateString()
   fechaVencimiento?: string;
@@ -125,22 +118,22 @@ export class GenerarFacturaDto {
  * DTO para registrar pago
  */
 export class RegistrarPagoDto {
-  @ApiProperty({ description: "ID de la factura" })
+  @ApiProperty({ description: 'ID de la factura' })
   @IsString()
   @IsNotEmpty()
   facturaId!: string;
 
-  @ApiProperty({ description: "Monto pagado" })
+  @ApiProperty({ description: 'Monto pagado' })
   @Type(() => Number)
   @IsNumber()
   montoPagado!: number;
 
-  @ApiPropertyOptional({ description: "Fecha de pago" })
+  @ApiPropertyOptional({ description: 'Fecha de pago' })
   @IsOptional()
   @IsDateString()
   fechaPago?: string;
 
-  @ApiPropertyOptional({ description: "Referencia de pago" })
+  @ApiPropertyOptional({ description: 'Referencia de pago' })
   @IsOptional()
   @IsString()
   referenciaPago?: string;
@@ -187,7 +180,7 @@ export class SESResponseDto {
   diasPendiente!: number;
 
   @ApiPropertyOptional()
-  alertLevel?: "INFO" | "WARNING" | "CRITICAL";
+  alertLevel?: 'INFO' | 'WARNING' | 'CRITICAL';
 }
 
 /**
@@ -234,7 +227,7 @@ export class FacturaResponseDto {
   diasPendiente!: number;
 
   @ApiPropertyOptional()
-  alertLevel?: "INFO" | "WARNING" | "CRITICAL";
+  alertLevel?: 'INFO' | 'WARNING' | 'CRITICAL';
 }
 
 /**

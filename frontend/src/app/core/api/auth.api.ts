@@ -21,7 +21,7 @@ interface RegisterRequest {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthApi {
   private http = inject(HttpClient);
@@ -29,24 +29,32 @@ export class AuthApi {
   private tokenKey = 'cermont_access_token';
 
   login(email: string, password: string): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/login`, {
-      email,
-      password
-    }, { withCredentials: true }).pipe(
-      map((response) => {
-        localStorage.setItem(this.tokenKey, response.token);
-        return response;
-      })
-    );
+    return this.http
+      .post<LoginResponse>(
+        `${this.apiUrl}/login`,
+        {
+          email,
+          password,
+        },
+        { withCredentials: true }
+      )
+      .pipe(
+        map(response => {
+          localStorage.setItem(this.tokenKey, response.token);
+          return response;
+        })
+      );
   }
 
   register(data: RegisterRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/register`, data, { withCredentials: true }).pipe(
-      map((response) => {
-        localStorage.setItem(this.tokenKey, response.token);
-        return response;
-      })
-    );
+    return this.http
+      .post<LoginResponse>(`${this.apiUrl}/register`, data, { withCredentials: true })
+      .pipe(
+        map(response => {
+          localStorage.setItem(this.tokenKey, response.token);
+          return response;
+        })
+      );
   }
 
   logout(): void {

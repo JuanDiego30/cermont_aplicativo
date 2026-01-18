@@ -1,5 +1,4 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 
 export interface Toast {
   id: string;
@@ -12,15 +11,13 @@ export interface Toast {
   providedIn: 'root',
 })
 export class ToastService {
-  private toasts$ = new BehaviorSubject<Toast[]>([]);
-  public toasts: Observable<Toast[]> = this.toasts$.asObservable();
+  toasts = signal<Toast[]>([]);
 
   show(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info', duration = 3000) {
     const id = Date.now().toString();
     const toast: Toast = { id, message, type, duration };
 
-    const current = this.toasts$.value;
-    this.toasts$.next([...current, toast]);
+    this.toasts.update(current => [...current, toast]);
 
     if (duration > 0) {
       setTimeout(() => this.remove(id), duration);
@@ -44,11 +41,10 @@ export class ToastService {
   }
 
   remove(id: string) {
-    const current = this.toasts$.value;
-    this.toasts$.next(current.filter(t => t.id !== id));
+    this.toasts.update(current => current.filter(t => t.id !== id));
   }
 
   clear() {
-    this.toasts$.next([]);
+    this.toasts.set([]);
   }
 }

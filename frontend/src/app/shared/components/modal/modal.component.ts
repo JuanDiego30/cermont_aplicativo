@@ -24,13 +24,11 @@ export interface ModalAction {
   template: `
     @if (isOpen) {
       <div class="modal-overlay" (click)="onBackdropClick()">
-        <div 
-          class="modal-content"
-          [ngClass]="getSizeClass()"
-          (click)="$event.stopPropagation()"
-        >
+        <div class="modal-content" [ngClass]="getSizeClass()" (click)="$event.stopPropagation()">
           <!-- Header -->
-          <div class="modal-header border-b border-gray-200 dark:border-gray-800 flex items-center justify-between p-6">
+          <div
+            class="modal-header border-b border-gray-200 dark:border-gray-800 flex items-center justify-between p-6"
+          >
             <div>
               <h2 class="text-xl font-bold text-gray-900 dark:text-white">{{ config.title }}</h2>
               @if (config.subtitle) {
@@ -38,7 +36,7 @@ export interface ModalAction {
               }
             </div>
             @if (config.closeButton !== false) {
-              <button 
+              <button
                 (click)="close()"
                 class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl w-8 h-8 flex items-center justify-center rounded hover:bg-gray-100 dark:hover:bg-gray-800"
               >
@@ -54,7 +52,9 @@ export interface ModalAction {
 
           <!-- Footer -->
           @if (actions.length) {
-            <div class="modal-footer border-t border-gray-200 dark:border-gray-800 p-6 flex gap-3 justify-end">
+            <div
+              class="modal-footer border-t border-gray-200 dark:border-gray-800 p-6 flex gap-3 justify-end"
+            >
               @for (action of actions; track action.label) {
                 <button
                   (click)="action.onClick()"
@@ -78,64 +78,74 @@ export interface ModalAction {
       </div>
     }
   `,
-  styles: [`
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background-color: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      animation: fadeIn 0.3s ease-out;
-    }
-
-    .modal-content {
-      position: relative;
-      background-color: white;
-      border-radius: 0.75rem;
-      box-shadow: 0px 20px 24px -4px rgba(16, 24, 40, 0.08), 0px 8px 8px -4px rgba(16, 24, 40, 0.03);
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      animation: slideUp 0.3s ease-out;
-    }
-
-    :host ::ng-deep .dark .modal-content {
-      background-color: #111827;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
+  styles: [
+    `
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        animation: fadeIn 0.3s ease-out;
       }
-      to {
-        opacity: 1;
-        transform: translateY(0);
+
+      .modal-content {
+        position: relative;
+        background-color: white;
+        border-radius: 0.75rem;
+        box-shadow:
+          0px 20px 24px -4px rgba(16, 24, 40, 0.08),
+          0px 8px 8px -4px rgba(16, 24, 40, 0.03);
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: slideUp 0.3s ease-out;
       }
-    }
 
-    .spinner {
-      display: inline-block;
-      width: 1rem;
-      height: 1rem;
-      border: 2px solid transparent;
-      border-top-color: currentColor;
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-    }
+      :host ::ng-deep .dark .modal-content {
+        background-color: #111827;
+      }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-  `]
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .spinner {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid transparent;
+        border-top-color: currentColor;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    `,
+  ],
 })
 export class ModalComponent {
   @Input() config: ModalConfig = { title: 'Modal' };
@@ -155,7 +165,7 @@ export class ModalComponent {
 
   getActionClasses(action: ModalAction): string {
     const baseClasses = `px-6 py-2.5 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed`;
-    
+
     const typeClasses: Record<string, string> = {
       primary: `bg-cermont-primary-600 text-white hover:bg-cermont-primary-700`,
       secondary: `bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700`,

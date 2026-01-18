@@ -1,386 +1,546 @@
 <!-- Background Antigravity -->
 <div
-  class="fixed inset-0 bg-gradient-to-br from-cermont-primary-50 via-white to-cermont-primary-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+  class="fixed inset-0 bg-gradient-to-br from-cermont-primary-50 via-white to-cermont-primary-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950"
+>
   <app-antigravity-background></app-antigravity-background>
 </div>
 
 <!-- Layout Responsive -->
-<div class="relative min-h-screen flex" [class.items-center]="isMobile()" [class.justify-center]="isMobile()">
-
+<div
+  class="relative min-h-screen flex"
+  [class.items-center]="isMobile()"
+  [class.justify-center]="isMobile()"
+>
   <!-- ========================================
        DESKTOP LAYOUT
        ======================================== -->
   @if (!isMobile()) {
-  <div class="flex w-full">
-    <!-- Left Panel - Form -->
-    <div class="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 relative z-10">
-      <div class="w-full max-w-md">
-        <!-- Back to Home -->
-        <a routerLink="/"
-          class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-cermont-primary-600 dark:hover:text-cermont-primary-400 mb-8 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Volver al inicio
-        </a>
+    <div class="flex w-full">
+      <!-- Left Panel - Form -->
+      <div class="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="w-full max-w-md">
+          <!-- Back to Home -->
+          <a
+            routerLink="/"
+            class="inline-flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-cermont-primary-600 dark:hover:text-cermont-primary-400 mb-8 transition-colors"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            Volver al inicio
+          </a>
 
-        <!-- Logo -->
-        <div class="mb-8">
-          <div class="flex items-center gap-3 mb-6">
-            <img src="logo.svg" alt="Cermont Logo" class="h-12 w-12 object-contain">
-            <span
-              class="text-2xl font-bold bg-gradient-to-r from-cermont-primary-600 to-cermont-primary-800 dark:from-cermont-primary-400 dark:to-cermont-primary-600 bg-clip-text text-transparent">
-              Cermont
-            </span>
-          </div>
+          <!-- Logo -->
+          <div class="mb-8">
+            <div class="flex items-center gap-3 mb-6">
+              <img src="logo.svg" alt="Cermont Logo" class="h-12 w-12 object-contain" />
+              <span
+                class="text-2xl font-bold bg-gradient-to-r from-cermont-primary-600 to-cermont-primary-800 dark:from-cermont-primary-400 dark:to-cermont-primary-600 bg-clip-text text-transparent"
+              >
+                Cermont
+              </span>
+            </div>
 
-          @if (!requires2FA()) {
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Iniciar Sesión
-          </h1>
-          <p class="text-gray-600 dark:text-gray-400">
-            ¡Ingresa tu correo y contraseña para acceder!
-          </p>
-          } @else {
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Autenticación en Dos Pasos
-          </h1>
-          <p class="text-gray-600 dark:text-gray-400">
-            Ingresa el código de 6 dígitos de tu aplicación autenticadora
-          </p>
-          }
-        </div>
-
-        <!-- Error Alert -->
-        @if (error()) {
-        <div class="alert-error mb-6 animate-fade-in">
-          <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-              clip-rule="evenodd" />
-          </svg>
-          <span>{{ error() }}</span>
-        </div>
-        }
-
-        <!-- Login Form Desktop -->
-        @if (!requires2FA()) {
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
-          <!-- Email -->
-          <div>
-            <label for="email" class="label">
-              Correo Electrónico <span class="text-error-500">*</span>
-            </label>
-            <input id="email" name="email" type="email" formControlName="email" class="input"
-              [class.input-error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
-              placeholder="usuario@ejemplo.com" autocomplete="email" />
-            @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-            <p class="error-message">Ingresa un correo válido</p>
+            @if (!requires2FA()) {
+              <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Iniciar Sesión</h1>
+              <p class="text-gray-600 dark:text-gray-400">
+                ¡Ingresa tu correo y contraseña para acceder!
+              </p>
+            } @else {
+              <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                Autenticación en Dos Pasos
+              </h1>
+              <p class="text-gray-600 dark:text-gray-400">
+                Ingresa el código de 6 dígitos de tu aplicación autenticadora
+              </p>
             }
           </div>
 
-          <!-- Password -->
-          <div>
-            <label for="password" class="label">
-              Contraseña <span class="text-error-500">*</span>
-            </label>
-            <div class="relative">
-              <input id="password" name="password" [type]="showPassword() ? 'text' : 'password'"
-                formControlName="password" class="input pr-10"
-                [class.input-error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
-                placeholder="••••••••" autocomplete="current-password" />
-              <button type="button" (click)="togglePasswordVisibility()"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-                @if (showPassword()) {
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                </svg>
+          <!-- Error Alert -->
+          @if (error()) {
+            <div class="alert-error mb-6 animate-fade-in">
+              <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              <span>{{ error() }}</span>
+            </div>
+          }
+
+          <!-- Login Form Desktop -->
+          @if (!requires2FA()) {
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+              <!-- Email -->
+              <div>
+                <label for="email" class="label">
+                  Correo Electrónico <span class="text-error-500">*</span>
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  formControlName="email"
+                  class="input"
+                  [class.input-error]="
+                    loginForm.get('email')?.invalid && loginForm.get('email')?.touched
+                  "
+                  placeholder="usuario@ejemplo.com"
+                  autocomplete="email"
+                />
+                @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+                  <p class="error-message">Ingresa un correo válido</p>
+                }
+              </div>
+
+              <!-- Password -->
+              <div>
+                <label for="password" class="label">
+                  Contraseña <span class="text-error-500">*</span>
+                </label>
+                <div class="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    [type]="showPassword() ? 'text' : 'password'"
+                    formControlName="password"
+                    class="input pr-10"
+                    [class.input-error]="
+                      loginForm.get('password')?.invalid && loginForm.get('password')?.touched
+                    "
+                    placeholder="••••••••"
+                    autocomplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    (click)="togglePasswordVisibility()"
+                    [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                  >
+                    @if (showPassword()) {
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                        />
+                      </svg>
+                    } @else {
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        />
+                      </svg>
+                    }
+                  </button>
+                </div>
+                @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+                  <p class="error-message">La contraseña es requerida (mínimo 6 caracteres)</p>
+                }
+              </div>
+
+              <!-- Remember Me & Forgot Password -->
+              <div class="flex items-center justify-between">
+                <label for="rememberMe" class="flex items-center gap-2 cursor-pointer">
+                  <input
+                    id="rememberMe"
+                    name="rememberMe"
+                    type="checkbox"
+                    formControlName="rememberMe"
+                    class="checkbox"
+                  />
+                  <span class="text-sm text-gray-700 dark:text-gray-300">Recordarme</span>
+                </label>
+                <a
+                  routerLink="/auth/forgot-password"
+                  class="text-sm font-medium text-cermont-primary-600 dark:text-cermont-primary-400 hover:underline"
+                >
+                  ¿Olvidaste tu contraseña?
+                </a>
+              </div>
+
+              <!-- Submit Button -->
+              <button
+                type="submit"
+                class="btn-primary w-full"
+                [disabled]="loginForm.invalid || loading()"
+              >
+                @if (loading()) {
+                  <span class="spinner mr-2"></span>
+                  Iniciando sesión...
                 } @else {
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
+                  Iniciar Sesión
                 }
               </button>
+            </form>
+          }
+
+          <!-- 2FA Form Desktop -->
+          @if (requires2FA()) {
+            <form [formGroup]="twoFactorForm" (ngSubmit)="onSubmit2FA()" class="space-y-6">
+              <div>
+                <label for="code" class="label">
+                  Código de Autenticación <span class="text-error-500">*</span>
+                </label>
+                <input
+                  id="code"
+                  name="code"
+                  type="text"
+                  formControlName="code"
+                  class="input text-center text-2xl tracking-widest font-mono"
+                  [class.input-error]="
+                    twoFactorForm.get('code')?.invalid && twoFactorForm.get('code')?.touched
+                  "
+                  placeholder="000000"
+                  maxlength="6"
+                  autocomplete="off"
+                />
+                @if (twoFactorForm.get('code')?.invalid && twoFactorForm.get('code')?.touched) {
+                  <p class="error-message">Ingresa un código de 6 dígitos</p>
+                }
+              </div>
+
+              <button
+                type="submit"
+                class="btn-primary w-full"
+                [disabled]="twoFactorForm.invalid || loading()"
+              >
+                @if (loading()) {
+                  <span class="spinner mr-2"></span>
+                  Verificando...
+                } @else {
+                  Verificar Código
+                }
+              </button>
+
+              <button
+                type="button"
+                (click)="backToLogin()"
+                class="btn-outline w-full"
+                [disabled]="loading()"
+              >
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                  />
+                </svg>
+                Volver
+              </button>
+            </form>
+          }
+
+          <!-- Divider -->
+          <div class="relative my-8">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-300 dark:border-gray-700"></div>
             </div>
-            @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
-            <p class="error-message">La contraseña es requerida (mínimo 6 caracteres)</p>
-            }
+            <div class="relative flex justify-center text-sm">
+              <span class="px-2 bg-transparent text-gray-500 dark:text-gray-400">
+                ¿No tienes cuenta?
+              </span>
+            </div>
           </div>
 
-          <!-- Remember Me & Forgot Password -->
-          <div class="flex items-center justify-between">
-            <label for="rememberMe" class="flex items-center gap-2 cursor-pointer">
-              <input id="rememberMe" name="rememberMe" type="checkbox" formControlName="rememberMe" class="checkbox" />
-              <span class="text-sm text-gray-700 dark:text-gray-300">Recordarme</span>
-            </label>
-            <a routerLink="/auth/forgot-password"
-              class="text-sm font-medium text-cermont-primary-600 dark:text-cermont-primary-400 hover:underline">
-              ¿Olvidaste tu contraseña?
-            </a>
-          </div>
-
-          <!-- Submit Button -->
-          <button type="submit" class="btn-primary w-full" [disabled]="loginForm.invalid || loading()">
-            @if (loading()) {
-            <span class="spinner mr-2"></span>
-            Iniciando sesión...
-            } @else {
-            Iniciar Sesión
-            }
-          </button>
-        </form>
-        }
-
-        <!-- 2FA Form Desktop -->
-        @if (requires2FA()) {
-        <form [formGroup]="twoFactorForm" (ngSubmit)="onSubmit2FA()" class="space-y-6">
-          <div>
-            <label for="code" class="label">
-              Código de Autenticación <span class="text-error-500">*</span>
-            </label>
-            <input id="code" name="code" type="text" formControlName="code"
-              class="input text-center text-2xl tracking-widest font-mono"
-              [class.input-error]="twoFactorForm.get('code')?.invalid && twoFactorForm.get('code')?.touched"
-              placeholder="000000" maxlength="6" autocomplete="off" />
-            @if (twoFactorForm.get('code')?.invalid && twoFactorForm.get('code')?.touched) {
-            <p class="error-message">Ingresa un código de 6 dígitos</p>
-            }
-          </div>
-
-          <button type="submit" class="btn-primary w-full" [disabled]="twoFactorForm.invalid || loading()">
-            @if (loading()) {
-            <span class="spinner mr-2"></span>
-            Verificando...
-            } @else {
-            Verificar Código
-            }
-          </button>
-
-          <button type="button" (click)="backToLogin()" class="btn-outline w-full" [disabled]="loading()">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Volver
-          </button>
-        </form>
-        }
-
-        <!-- Divider -->
-        <div class="relative my-8">
-          <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t border-gray-300 dark:border-gray-700"></div>
-          </div>
-          <div class="relative flex justify-center text-sm">
-            <span class="px-2 bg-transparent text-gray-500 dark:text-gray-400">
-              ¿No tienes cuenta?
-            </span>
-          </div>
+          <!-- Register Link -->
+          <a routerLink="/auth/register" class="btn-outline w-full"> Crear cuenta nueva </a>
         </div>
-
-        <!-- Register Link -->
-        <a routerLink="/auth/register" class="btn-outline w-full">
-          Crear cuenta nueva
-        </a>
       </div>
-    </div>
 
-    <!-- Right Panel - Branding (Desktop Only) -->
-    <div
-      class="hidden lg:flex lg:flex-1 bg-gradient-to-br from-cermont-primary-600 to-cermont-primary-800 relative overflow-hidden">
+      <!-- Right Panel - Branding (Desktop Only) -->
       <div
-        class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:4rem_4rem]">
-      </div>
+        class="hidden lg:flex lg:flex-1 bg-gradient-to-br from-cermont-primary-600 to-cermont-primary-800 relative overflow-hidden"
+      >
+        <div
+          class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:4rem_4rem]"
+        ></div>
 
-      <div class="relative z-10 flex flex-col items-center justify-center p-12 text-white">
-        <div class="max-w-md text-center">
-          <!-- Logo Grande -->
-          <div class="mb-8">
-            <img src="logo.svg" alt="Cermont Logo" class="h-24 w-24 object-contain mb-6 drop-shadow-2xl">
-            <h2 class="text-5xl font-bold mb-4">
-              Sistema de Gestión Cermont
-            </h2>
-            <p class="text-xl text-white/90 mb-8">
-              Gestión integral de mantenimiento industrial y refrigeración
-            </p>
-          </div>
-
-          <!-- Features -->
-          <div class="space-y-4 text-left">
-            <div
-              class="flex items-start gap-3 backdrop-blur-sm bg-white/5 rounded-lg p-4 transition-all hover:bg-white/10 feature-card">
-              <svg class="w-6 h-6 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clip-rule="evenodd" />
-              </svg>
-              <div>
-                <h3 class="font-semibold mb-1">Seguridad Avanzada</h3>
-                <p class="text-sm text-white/70">Autenticación en dos pasos opcional para mayor protección</p>
-              </div>
+        <div class="relative z-10 flex flex-col items-center justify-center p-12 text-white">
+          <div class="max-w-md text-center">
+            <!-- Logo Grande -->
+            <div class="mb-8">
+              <img
+                src="logo.svg"
+                alt="Cermont Logo"
+                class="h-24 w-24 object-contain mb-6 drop-shadow-2xl"
+              />
+              <h2 class="text-5xl font-bold mb-4">Sistema de Gestión Cermont</h2>
+              <p class="text-xl text-white/90 mb-8">
+                Gestión integral de mantenimiento industrial y refrigeración
+              </p>
             </div>
 
-            <div
-              class="flex items-start gap-3 backdrop-blur-sm bg-white/5 rounded-lg p-4 transition-all hover:bg-white/10 feature-card">
-              <svg class="w-6 h-6 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clip-rule="evenodd" />
-              </svg>
-              <div>
-                <h3 class="font-semibold mb-1">Gestión de Órdenes</h3>
-                <p class="text-sm text-white/70">Crea y gestiona órdenes de trabajo en tiempo real</p>
+            <!-- Features -->
+            <div class="space-y-4 text-left">
+              <div
+                class="flex items-start gap-3 backdrop-blur-sm bg-white/5 rounded-lg p-4 transition-all hover:bg-white/10 feature-card"
+              >
+                <svg class="w-6 h-6 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <div>
+                  <h3 class="font-semibold mb-1">Seguridad Avanzada</h3>
+                  <p class="text-sm text-white/70">
+                    Autenticación en dos pasos opcional para mayor protección
+                  </p>
+                </div>
               </div>
-            </div>
 
-            <div
-              class="flex items-start gap-3 backdrop-blur-sm bg-white/5 rounded-lg p-4 transition-all hover:bg-white/10 feature-card">
-              <svg class="w-6 h-6 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clip-rule="evenodd" />
-              </svg>
-              <div>
-                <h3 class="font-semibold mb-1">Reportes Detallados</h3>
-                <p class="text-sm text-white/70">Análisis y reportes completos de tus operaciones</p>
+              <div
+                class="flex items-start gap-3 backdrop-blur-sm bg-white/5 rounded-lg p-4 transition-all hover:bg-white/10 feature-card"
+              >
+                <svg class="w-6 h-6 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <div>
+                  <h3 class="font-semibold mb-1">Gestión de Órdenes</h3>
+                  <p class="text-sm text-white/70">
+                    Crea y gestiona órdenes de trabajo en tiempo real
+                  </p>
+                </div>
+              </div>
+
+              <div
+                class="flex items-start gap-3 backdrop-blur-sm bg-white/5 rounded-lg p-4 transition-all hover:bg-white/10 feature-card"
+              >
+                <svg class="w-6 h-6 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fill-rule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <div>
+                  <h3 class="font-semibold mb-1">Reportes Detallados</h3>
+                  <p class="text-sm text-white/70">
+                    Análisis y reportes completos de tus operaciones
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
   }
 
   <!-- ========================================
        MOBILE LAYOUT - Card Style
        ======================================== -->
   @if (isMobile()) {
-  <div class="w-full max-w-md px-4 relative z-10">
-    <div
-      class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden mobile-login-card">
-      <!-- Logo Card Header -->
-      <div class="bg-gradient-to-br from-cermont-primary-600 to-cermont-primary-800 p-8 text-center text-white">
-        <img src="logo.svg" alt="Cermont Logo" class="h-20 w-20 mx-auto mb-4 object-contain drop-shadow-lg">
-        <h1 class="text-3xl font-bold mb-2">Cermont</h1>
-        <p class="text-sm text-white/90">Sistema de Gestión de Mantenimiento Industrial</p>
-      </div>
-
-      <!-- Card Content -->
-      <div class="p-6">
-        @if (!requires2FA()) {
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2 text-center">
-          Iniciar Sesión
-        </h2>
-        <p class="text-gray-600 dark:text-gray-400 mb-6 text-center">
-          Ingresa tus credenciales
-        </p>
-        } @else {
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2 text-center">
-          Verificación 2FA
-        </h2>
-        <p class="text-gray-600 dark:text-gray-400 mb-6 text-center">
-          Código de 6 dígitos
-        </p>
-        }
-
-        <!-- Error Alert Mobile -->
-        @if (error()) {
-        <div class="alert-error mb-6 animate-fade-in">
-          <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-              clip-rule="evenodd" />
-          </svg>
-          <span>{{ error() }}</span>
+    <div class="w-full max-w-md px-4 relative z-10">
+      <div
+        class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden mobile-login-card"
+      >
+        <!-- Logo Card Header -->
+        <div
+          class="bg-gradient-to-br from-cermont-primary-600 to-cermont-primary-800 p-8 text-center text-white"
+        >
+          <img
+            src="logo.svg"
+            alt="Cermont Logo"
+            class="h-20 w-20 mx-auto mb-4 object-contain drop-shadow-lg"
+          />
+          <h1 class="text-3xl font-bold mb-2">Cermont</h1>
+          <p class="text-sm text-white/90">Sistema de Gestión de Mantenimiento Industrial</p>
         </div>
-        }
 
-        <!-- Login Form Mobile -->
-        @if (!requires2FA()) {
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
-          <div>
-            <label for="email-mobile" class="label">Correo <span class="text-error-500">*</span></label>
-            <input id="email-mobile" name="email" type="email" formControlName="email" class="input"
-              [class.input-error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
-              placeholder="usuario@ejemplo.com" autocomplete="email" />
-          </div>
+        <!-- Card Content -->
+        <div class="p-6">
+          @if (!requires2FA()) {
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2 text-center">
+              Iniciar Sesión
+            </h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6 text-center">
+              Ingresa tus credenciales
+            </p>
+          } @else {
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2 text-center">
+              Verificación 2FA
+            </h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6 text-center">Código de 6 dígitos</p>
+          }
 
-          <div>
-            <label for="password-mobile" class="label">Contraseña <span class="text-error-500">*</span></label>
-            <div class="relative">
-              <input id="password-mobile" name="password" [type]="showPassword() ? 'text' : 'password'"
-                formControlName="password" class="input pr-10" placeholder="••••••••" autocomplete="current-password" />
-              <button type="button" (click)="togglePasswordVisibility()"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </button>
+          <!-- Error Alert Mobile -->
+          @if (error()) {
+            <div class="alert-error mb-6 animate-fade-in">
+              <svg class="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fill-rule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              <span>{{ error() }}</span>
             </div>
-          </div>
+          }
 
-          <div class="flex items-center justify-between">
-            <label for="rememberMe-mobile" class="flex items-center gap-2">
-              <input id="rememberMe-mobile" name="rememberMe" type="checkbox" formControlName="rememberMe"
-                class="checkbox" />
-              <span class="text-sm text-gray-700 dark:text-gray-300">Recordarme</span>
-            </label>
-            <a routerLink="/auth/forgot-password"
-              class="text-sm text-cermont-primary-600 dark:text-cermont-primary-400">¿Olvidaste?</a>
-          </div>
+          <!-- Login Form Mobile -->
+          @if (!requires2FA()) {
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-4">
+              <div>
+                <label for="email-mobile" class="label"
+                  >Correo <span class="text-error-500">*</span></label
+                >
+                <input
+                  id="email-mobile"
+                  name="email"
+                  type="email"
+                  formControlName="email"
+                  class="input"
+                  [class.input-error]="
+                    loginForm.get('email')?.invalid && loginForm.get('email')?.touched
+                  "
+                  placeholder="usuario@ejemplo.com"
+                  autocomplete="email"
+                />
+              </div>
 
-          <button type="submit" class="btn-primary w-full" [disabled]="loginForm.invalid || loading()">
-            @if (loading()) {
-            <span class="spinner mr-2"></span>
-            Ingresando...
-            } @else {
-            Iniciar Sesión
-            }
-          </button>
+              <div>
+                <label for="password-mobile" class="label"
+                  >Contraseña <span class="text-error-500">*</span></label
+                >
+                <div class="relative">
+                  <input
+                    id="password-mobile"
+                    name="password"
+                    [type]="showPassword() ? 'text' : 'password'"
+                    formControlName="password"
+                    class="input pr-10"
+                    placeholder="••••••••"
+                    autocomplete="current-password"
+                  />
+                  <button
+                    type="button"
+                    (click)="togglePasswordVisibility()"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
 
-          <div class="text-center text-sm text-gray-600 dark:text-gray-400">
-            ¿No tienes cuenta?
-            <a routerLink="/auth/register"
-              class="text-cermont-primary-600 dark:text-cermont-primary-400 font-medium">Regístrate</a>
-          </div>
-        </form>
-        }
+              <div class="flex items-center justify-between">
+                <label for="rememberMe-mobile" class="flex items-center gap-2">
+                  <input
+                    id="rememberMe-mobile"
+                    name="rememberMe"
+                    type="checkbox"
+                    formControlName="rememberMe"
+                    class="checkbox"
+                  />
+                  <span class="text-sm text-gray-700 dark:text-gray-300">Recordarme</span>
+                </label>
+                <a
+                  routerLink="/auth/forgot-password"
+                  class="text-sm text-cermont-primary-600 dark:text-cermont-primary-400"
+                  >¿Olvidaste?</a
+                >
+              </div>
 
-        <!-- 2FA Form Mobile -->
-        @if (requires2FA()) {
-        <form [formGroup]="twoFactorForm" (ngSubmit)="onSubmit2FA()" class="space-y-4">
-          <label for="code-mobile" class="sr-only">Código de Autenticación</label>
-          <input id="code-mobile" name="code" type="text" formControlName="code"
-            class="input text-center text-2xl tracking-widest font-mono" placeholder="000000" maxlength="6"
-            autocomplete="off" />
+              <button
+                type="submit"
+                class="btn-primary w-full"
+                [disabled]="loginForm.invalid || loading()"
+              >
+                @if (loading()) {
+                  <span class="spinner mr-2"></span>
+                  Ingresando...
+                } @else {
+                  Iniciar Sesión
+                }
+              </button>
 
-          <button type="submit" class="btn-primary w-full" [disabled]="twoFactorForm.invalid || loading()">
-            @if (loading()) {
-            <span class="spinner mr-2"></span>
-            Verificando...
-            } @else {
-            Verificar
-            }
-          </button>
+              <div class="text-center text-sm text-gray-600 dark:text-gray-400">
+                ¿No tienes cuenta?
+                <a
+                  routerLink="/auth/register"
+                  class="text-cermont-primary-600 dark:text-cermont-primary-400 font-medium"
+                  >Regístrate</a
+                >
+              </div>
+            </form>
+          }
 
-          <button type="button" (click)="backToLogin()" class="btn-outline w-full">Volver</button>
-        </form>
-        }
+          <!-- 2FA Form Mobile -->
+          @if (requires2FA()) {
+            <form [formGroup]="twoFactorForm" (ngSubmit)="onSubmit2FA()" class="space-y-4">
+              <label for="code-mobile" class="sr-only">Código de Autenticación</label>
+              <input
+                id="code-mobile"
+                name="code"
+                type="text"
+                formControlName="code"
+                class="input text-center text-2xl tracking-widest font-mono"
+                placeholder="000000"
+                maxlength="6"
+                autocomplete="off"
+              />
+
+              <button
+                type="submit"
+                class="btn-primary w-full"
+                [disabled]="twoFactorForm.invalid || loading()"
+              >
+                @if (loading()) {
+                  <span class="spinner mr-2"></span>
+                  Verificando...
+                } @else {
+                  Verificar
+                }
+              </button>
+
+              <button type="button" (click)="backToLogin()" class="btn-outline w-full">
+                Volver
+              </button>
+            </form>
+          }
+        </div>
+      </div>
+
+      <!-- Mobile Footer Links -->
+      <div class="mt-6 text-center">
+        <a
+          routerLink="/"
+          class="text-sm text-gray-600 dark:text-gray-400 hover:text-cermont-primary-600 dark:hover:text-cermont-primary-400 transition-colors"
+        >
+          ← Volver al inicio
+        </a>
       </div>
     </div>
-
-    <!-- Mobile Footer Links -->
-    <div class="mt-6 text-center">
-      <a routerLink="/"
-        class="text-sm text-gray-600 dark:text-gray-400 hover:text-cermont-primary-600 dark:hover:text-cermont-primary-400 transition-colors">
-        ← Volver al inicio
-      </a>
-    </div>
-  </div>
   }
 </div>

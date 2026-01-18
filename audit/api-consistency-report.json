@@ -1,0 +1,986 @@
+{
+  "timestamp": "2026-01-16T06:43:55.016Z",
+  "duration": "0.21",
+  "backendRoutesCount": 154,
+  "frontendCallsCount": 41,
+  "inconsistenciesCount": 41,
+  "backendRoutes": [
+    {
+      "route": "/api/health)\n  @Public(",
+      "methods": ["Get"],
+      "file": "backend/src/health.controller.ts"
+    },
+    {
+      "route": "/api/healthready",
+      "methods": ["Get"],
+      "file": "backend/src/health.controller.ts"
+    },
+    {
+      "route": "/api/healthlive",
+      "methods": ["Get"],
+      "file": "backend/src/health.controller.ts"
+    },
+    {
+      "route": "/api/healthfull",
+      "methods": ["Get"],
+      "file": "backend/src/health.controller.ts"
+    },
+    {
+      "route": "/api/healthmetrics",
+      "methods": ["Get"],
+      "file": "backend/src/health.controller.ts"
+    },
+    {
+      "route": "/api/route",
+      "methods": ["Get"],
+      "file": "backend/src/shared/base/base.controller.ts"
+    },
+    {
+      "route": "/api/route:id",
+      "methods": ["Get", "Put", "Patch", "Delete"],
+      "file": "backend/src/shared/base/base.controller.ts"
+    },
+    {
+      "route": "/api/route)\n  @HttpCode(HttpStatus.CREATED",
+      "methods": ["Post"],
+      "file": "backend/src/shared/base/base.controller.ts"
+    },
+    {
+      "route": "/api/weathercurrent",
+      "methods": ["Get"],
+      "file": "backend/src/modules/weather/weather.controller.ts"
+    },
+    {
+      "route": "/api/weatherrainfall",
+      "methods": ["Get"],
+      "file": "backend/src/modules/weather/weather.controller.ts"
+    },
+    {
+      "route": "/api/weatherhourly",
+      "methods": ["Get"],
+      "file": "backend/src/modules/weather/weather.controller.ts"
+    },
+    {
+      "route": "/api/weatheralerts",
+      "methods": ["Get"],
+      "file": "backend/src/modules/weather/weather.controller.ts"
+    },
+    {
+      "route": "/api/weatherhistorical",
+      "methods": ["Get"],
+      "file": "backend/src/modules/weather/weather.controller.ts"
+    },
+    {
+      "route": "/api/weatherlocation",
+      "methods": ["Get"],
+      "file": "backend/src/modules/weather/weather.controller.ts"
+    },
+    {
+      "route": "/api/weathersummary",
+      "methods": ["Get"],
+      "file": "backend/src/modules/weather/weather.controller.ts"
+    },
+    {
+      "route": "/api/technicians",
+      "methods": ["Get"],
+      "file": "backend/src/modules/technicians/technicians.controller.ts"
+    },
+    {
+      "route": "/api/techniciansavailable",
+      "methods": ["Get"],
+      "file": "backend/src/modules/technicians/technicians.controller.ts"
+    },
+    {
+      "route": "/api/technicians:id",
+      "methods": ["Get"],
+      "file": "backend/src/modules/technicians/technicians.controller.ts"
+    },
+    {
+      "route": "/api/technicians:id/availability",
+      "methods": ["Patch"],
+      "file": "backend/src/modules/technicians/technicians.controller.ts"
+    },
+    {
+      "route": "/api/sync",
+      "methods": ["Post", "Post"],
+      "file": "backend/src/modules/sync/sync.controller.ts"
+    },
+    {
+      "route": "/api/syncstatus",
+      "methods": ["Get", "Get"],
+      "file": "backend/src/modules/sync/sync.controller.ts"
+    },
+    {
+      "route": "/api/syncorders-offline",
+      "methods": ["Get", "Get"],
+      "file": "backend/src/modules/sync/sync.controller.ts"
+    },
+    {
+      "route": "/api/syncpending",
+      "methods": ["Get"],
+      "file": "backend/src/modules/sync/infrastructure/controllers/sync.controller.ts"
+    },
+    {
+      "route": "/api/reportsorders",
+      "methods": ["Get"],
+      "file": "backend/src/modules/reports/infrastructure/controllers/reports.controller.ts"
+    },
+    {
+      "route": "/api/reportsorder/:id",
+      "methods": ["Get"],
+      "file": "backend/src/modules/reports/infrastructure/controllers/reports.controller.ts"
+    },
+    {
+      "route": "/api/planning:orderId",
+      "methods": ["Get", "Post"],
+      "file": "backend/src/modules/planeacion/infrastructure/controllers/planeacion.controller.ts"
+    },
+    {
+      "route": "/api/planning:id/approve",
+      "methods": ["Put"],
+      "file": "backend/src/modules/planeacion/infrastructure/controllers/planeacion.controller.ts"
+    },
+    {
+      "route": "/api/planning:id/reject",
+      "methods": ["Put"],
+      "file": "backend/src/modules/planeacion/infrastructure/controllers/planeacion.controller.ts"
+    },
+    {
+      "route": "/api/pdfgenerate",
+      "methods": ["Post"],
+      "file": "backend/src/modules/pdf-generation/infrastructure/controllers/pdf.controller.ts"
+    },
+    {
+      "route": "/api/pdforder-report",
+      "methods": ["Post"],
+      "file": "backend/src/modules/pdf-generation/infrastructure/controllers/pdf.controller.ts"
+    },
+    {
+      "route": "/api/pdfmaintenance-report",
+      "methods": ["Post"],
+      "file": "backend/src/modules/pdf-generation/infrastructure/controllers/pdf.controller.ts"
+    },
+    {
+      "route": "/api/pdfinspection-certificate",
+      "methods": ["Post"],
+      "file": "backend/src/modules/pdf-generation/infrastructure/controllers/pdf.controller.ts"
+    },
+    {
+      "route": "/api/pdf:filename",
+      "methods": ["Get"],
+      "file": "backend/src/modules/pdf-generation/infrastructure/controllers/pdf.controller.ts"
+    },
+    {
+      "route": "/api/Orders",
+      "methods": ["Post", "Get"],
+      "file": "backend/src/modules/orders/infrastructure/controllers/orders.controller.ts"
+    },
+    {
+      "route": "/api/Orders:id",
+      "methods": ["Get", "Patch", "Delete"],
+      "file": "backend/src/modules/orders/infrastructure/controllers/orders.controller.ts"
+    },
+    {
+      "route": "/api/Orders:id/history",
+      "methods": ["Get"],
+      "file": "backend/src/modules/orders/infrastructure/controllers/orders.controller.ts"
+    },
+    {
+      "route": "/api/Orders:id/change-status",
+      "methods": ["Post"],
+      "file": "backend/src/modules/orders/infrastructure/controllers/orders.controller.ts"
+    },
+    {
+      "route": "/api/Orders:id/assign-technician",
+      "methods": ["Post"],
+      "file": "backend/src/modules/orders/infrastructure/controllers/orders.controller.ts"
+    },
+    {
+      "route": "/api/Orders:id/state",
+      "methods": ["Get"],
+      "file": "backend/src/modules/orders/infrastructure/controllers/orders.controller.ts"
+    },
+    {
+      "route": "/api/Orders:id/state/history",
+      "methods": ["Get"],
+      "file": "backend/src/modules/orders/infrastructure/controllers/orders.controller.ts"
+    },
+    {
+      "route": "/api/kpisdashboard",
+      "methods": ["Get"],
+      "file": "backend/src/modules/kpis/kpis.controller.ts"
+    },
+    {
+      "route": "/api/kpisorders",
+      "methods": ["Get"],
+      "file": "backend/src/modules/kpis/kpis.controller.ts"
+    },
+    {
+      "route": "/api/kpistechnicians",
+      "methods": ["Get"],
+      "file": "backend/src/modules/kpis/kpis.controller.ts"
+    },
+    {
+      "route": "/api/kpisfinancial",
+      "methods": ["Get"],
+      "file": "backend/src/modules/kpis/kpis.controller.ts"
+    },
+    {
+      "route": "/api/kits",
+      "methods": ["Get", "Post"],
+      "file": "backend/src/modules/kits/infrastructure/controllers/kits.controller.ts"
+    },
+    {
+      "route": "/api/kits:id",
+      "methods": ["Get", "Put", "Delete"],
+      "file": "backend/src/modules/kits/infrastructure/controllers/kits.controller.ts"
+    },
+    {
+      "route": "/api/kits:id/items",
+      "methods": ["Post"],
+      "file": "backend/src/modules/kits/infrastructure/controllers/kits.controller.ts"
+    },
+    {
+      "route": "/api/kits:id/items/:itemId",
+      "methods": ["Delete"],
+      "file": "backend/src/modules/kits/infrastructure/controllers/kits.controller.ts"
+    },
+    {
+      "route": "/api/kits:id/activate",
+      "methods": ["Patch"],
+      "file": "backend/src/modules/kits/infrastructure/controllers/kits.controller.ts"
+    },
+    {
+      "route": "/api/kits:id/deactivate",
+      "methods": ["Patch"],
+      "file": "backend/src/modules/kits/infrastructure/controllers/kits.controller.ts"
+    },
+    {
+      "route": "/api/kitspredefined/all",
+      "methods": ["Get"],
+      "file": "backend/src/modules/kits/infrastructure/controllers/kits.controller.ts"
+    },
+    {
+      "route": "/api/kitspredefined/:tipo",
+      "methods": ["Get"],
+      "file": "backend/src/modules/kits/infrastructure/controllers/kits.controller.ts"
+    },
+    {
+      "route": "/api/kits:kitId/apply/:executionId",
+      "methods": ["Post"],
+      "file": "backend/src/modules/kits/infrastructure/controllers/kits.controller.ts"
+    },
+    {
+      "route": "/api/kitspredefined/:tipo/apply/:executionId",
+      "methods": ["Post"],
+      "file": "backend/src/modules/kits/infrastructure/controllers/kits.controller.ts"
+    },
+    {
+      "route": "/api/kitssync",
+      "methods": ["Post"],
+      "file": "backend/src/modules/kits/infrastructure/controllers/kits.controller.ts"
+    },
+    {
+      "route": "/api/invoicingsummary",
+      "methods": ["Get"],
+      "file": "backend/src/modules/invoicing/facturacion.controller.ts"
+    },
+    {
+      "route": "/api/invoicingses",
+      "methods": ["Post"],
+      "file": "backend/src/modules/invoicing/facturacion.controller.ts"
+    },
+    {
+      "route": "/api/invoicingses/approve",
+      "methods": ["Patch"],
+      "file": "backend/src/modules/invoicing/facturacion.controller.ts"
+    },
+    {
+      "route": "/api/invoicingses/order/:orderId",
+      "methods": ["Get"],
+      "file": "backend/src/modules/invoicing/facturacion.controller.ts"
+    },
+    {
+      "route": "/api/invoicinginvoice",
+      "methods": ["Post"],
+      "file": "backend/src/modules/invoicing/facturacion.controller.ts"
+    },
+    {
+      "route": "/api/invoicingfactura/pago",
+      "methods": ["Patch"],
+      "file": "backend/src/modules/invoicing/facturacion.controller.ts"
+    },
+    {
+      "route": "/api/hes",
+      "methods": ["Post", "Get"],
+      "file": "backend/src/modules/hes/infrastructure/controllers/hes.controller.ts"
+    },
+    {
+      "route": "/api/hes:id",
+      "methods": ["Get"],
+      "file": "backend/src/modules/hes/infrastructure/controllers/hes.controller.ts"
+    },
+    {
+      "route": "/api/hesorder/:orderId",
+      "methods": ["Get"],
+      "file": "backend/src/modules/hes/infrastructure/controllers/hes.controller.ts"
+    },
+    {
+      "route": "/api/hes:id/sign-customer",
+      "methods": ["Post"],
+      "file": "backend/src/modules/hes/infrastructure/controllers/hes.controller.ts"
+    },
+    {
+      "route": "/api/hes:id/sign-technician",
+      "methods": ["Post"],
+      "file": "backend/src/modules/hes/infrastructure/controllers/hes.controller.ts"
+    },
+    {
+      "route": "/api/hes:id/completar",
+      "methods": ["Put"],
+      "file": "backend/src/modules/hes/infrastructure/controllers/hes.controller.ts"
+    },
+    {
+      "route": "/api/hes:id/pdf",
+      "methods": ["Get"],
+      "file": "backend/src/modules/hes/infrastructure/controllers/hes.controller.ts"
+    },
+    {
+      "route": "/api/formstemplates",
+      "methods": ["Post", "Get"],
+      "file": "backend/src/modules/formularios/infrastructure/controllers/formularios.controller.ts"
+    },
+    {
+      "route": "/api/formstemplates/:id",
+      "methods": ["Get", "Put", "Delete"],
+      "file": "backend/src/modules/formularios/infrastructure/controllers/formularios.controller.ts"
+    },
+    {
+      "route": "/api/formstemplates/:id/publish",
+      "methods": ["Post"],
+      "file": "backend/src/modules/formularios/infrastructure/controllers/formularios.controller.ts"
+    },
+    {
+      "route": "/api/formstemplates/:id/archive",
+      "methods": ["Post"],
+      "file": "backend/src/modules/formularios/infrastructure/controllers/formularios.controller.ts"
+    },
+    {
+      "route": "/api/formstemplates/parse",
+      "methods": ["Post"],
+      "file": "backend/src/modules/formularios/infrastructure/controllers/formularios.controller.ts"
+    },
+    {
+      "route": "/api/formssubmit",
+      "methods": ["Post"],
+      "file": "backend/src/modules/formularios/infrastructure/controllers/formularios.controller.ts"
+    },
+    {
+      "route": "/api/formssubmissions",
+      "methods": ["Get"],
+      "file": "backend/src/modules/formularios/infrastructure/controllers/formularios.controller.ts"
+    },
+    {
+      "route": "/api/formssubmissions/:id",
+      "methods": ["Get"],
+      "file": "backend/src/modules/formularios/infrastructure/controllers/formularios.controller.ts"
+    },
+    {
+      "route": "/api/formsinstances",
+      "methods": ["Get"],
+      "file": "backend/src/modules/formularios/infrastructure/controllers/formularios.controller.ts"
+    },
+    {
+      "route": "/api/formsinstances/:id",
+      "methods": ["Get"],
+      "file": "backend/src/modules/formularios/infrastructure/controllers/formularios.controller.ts"
+    },
+    {
+      "route": "/api/orders:orderId/evidence",
+      "methods": ["Get"],
+      "file": "backend/src/modules/evidence/infrastructure/controllers/orders-evidence.controller.ts"
+    },
+    {
+      "route": "/api/evidence",
+      "methods": ["Get"],
+      "file": "backend/src/modules/evidence/infrastructure/controllers/evidence.controller.ts"
+    },
+    {
+      "route": "/api/evidenceorder/:orderId",
+      "methods": ["Get"],
+      "file": "backend/src/modules/evidence/infrastructure/controllers/evidence.controller.ts"
+    },
+    {
+      "route": "/api/evidence:id/download",
+      "methods": ["Get"],
+      "file": "backend/src/modules/evidence/infrastructure/controllers/evidence.controller.ts"
+    },
+    {
+      "route": "/api/evidence:id/temp-url",
+      "methods": ["Get"],
+      "file": "backend/src/modules/evidence/infrastructure/controllers/evidence.controller.ts"
+    },
+    {
+      "route": "/api/evidencedownload/:token",
+      "methods": ["Get"],
+      "file": "backend/src/modules/evidence/infrastructure/controllers/evidence.controller.ts"
+    },
+    {
+      "route": "/api/evidence:id",
+      "methods": ["Get", "Delete"],
+      "file": "backend/src/modules/evidence/infrastructure/controllers/evidence.controller.ts"
+    },
+    {
+      "route": "/api/evidenceupload",
+      "methods": ["Post"],
+      "file": "backend/src/modules/evidence/infrastructure/controllers/evidence.controller.ts"
+    },
+    {
+      "route": "/api/executionorder/:orderId",
+      "methods": ["Get"],
+      "file": "backend/src/modules/ejecucion/infrastructure/controllers/ejecucion.controller.ts"
+    },
+    {
+      "route": "/api/executionmy-executions",
+      "methods": ["Get"],
+      "file": "backend/src/modules/ejecucion/infrastructure/controllers/ejecucion.controller.ts"
+    },
+    {
+      "route": "/api/executionorder/:orderId/start",
+      "methods": ["Post"],
+      "file": "backend/src/modules/ejecucion/infrastructure/controllers/ejecucion.controller.ts"
+    },
+    {
+      "route": "/api/execution:id/progress",
+      "methods": ["Put"],
+      "file": "backend/src/modules/ejecucion/infrastructure/controllers/ejecucion.controller.ts"
+    },
+    {
+      "route": "/api/execution:id/complete",
+      "methods": ["Put"],
+      "file": "backend/src/modules/ejecucion/infrastructure/controllers/ejecucion.controller.ts"
+    },
+    {
+      "route": "/api/dashboardstats",
+      "methods": ["Get"],
+      "file": "backend/src/modules/dashboard/infrastructure/controllers/dashboard.controller.ts"
+    },
+    {
+      "route": "/api/dashboardmetrics",
+      "methods": ["Get"],
+      "file": "backend/src/modules/dashboard/infrastructure/controllers/dashboard.controller.ts"
+    },
+    {
+      "route": "/api/dashboardrecent-orders",
+      "methods": ["Get"],
+      "file": "backend/src/modules/dashboard/infrastructure/controllers/dashboard.controller.ts"
+    },
+    {
+      "route": "/api/dashboardstats/ddd",
+      "methods": ["Get"],
+      "file": "backend/src/modules/dashboard/infrastructure/controllers/dashboard.controller.ts"
+    },
+    {
+      "route": "/api/dashboardoverview",
+      "methods": ["Get"],
+      "file": "backend/src/modules/dashboard/infrastructure/controllers/dashboard.controller.ts"
+    },
+    {
+      "route": "/api/dashboardkpis/refresh",
+      "methods": ["Get"],
+      "file": "backend/src/modules/dashboard/infrastructure/controllers/dashboard.controller.ts"
+    },
+    {
+      "route": "/api/dashboardcosts/breakdown",
+      "methods": ["Get"],
+      "file": "backend/src/modules/dashboard/infrastructure/controllers/dashboard.controller.ts"
+    },
+    {
+      "route": "/api/dashboardperformance/trends",
+      "methods": ["Get"],
+      "file": "backend/src/modules/dashboard/infrastructure/controllers/dashboard.controller.ts"
+    },
+    {
+      "route": "/api/customers",
+      "methods": ["Post", "Get"],
+      "file": "backend/src/modules/customers/customers.controller.ts"
+    },
+    {
+      "route": "/api/customers:id",
+      "methods": ["Get", "Delete"],
+      "file": "backend/src/modules/customers/customers.controller.ts"
+    },
+    {
+      "route": "/api/customers:id/contacts",
+      "methods": ["Post"],
+      "file": "backend/src/modules/customers/customers.controller.ts"
+    },
+    {
+      "route": "/api/customers:id/locations",
+      "methods": ["Post"],
+      "file": "backend/src/modules/customers/customers.controller.ts"
+    },
+    {
+      "route": "/api/customers:id/orders",
+      "methods": ["Get"],
+      "file": "backend/src/modules/customers/customers.controller.ts"
+    },
+    {
+      "route": "/api/costs",
+      "methods": ["Get"],
+      "file": "backend/src/modules/costos/infrastructure/controllers/costos.controller.ts"
+    },
+    {
+      "route": "/api/costsanalysis/:orderId",
+      "methods": ["Get"],
+      "file": "backend/src/modules/costos/infrastructure/controllers/costos.controller.ts"
+    },
+    {
+      "route": "/api/costs)\r\n  @HttpCode(HttpStatus.CREATED",
+      "methods": ["Post"],
+      "file": "backend/src/modules/costos/infrastructure/controllers/costos.controller.ts"
+    },
+    {
+      "route": "/api/administrative-closureorder/:orderId",
+      "methods": ["Get"],
+      "file": "backend/src/modules/cierre-administrativo/infrastructure/controllers/cierre-administrativo.controller.ts"
+    },
+    {
+      "route": "/api/administrative-closure)\r\n  @HttpCode(HttpStatus.CREATED",
+      "methods": ["Post"],
+      "file": "backend/src/modules/cierre-administrativo/infrastructure/controllers/cierre-administrativo.controller.ts"
+    },
+    {
+      "route": "/api/administrative-closure:id/approve",
+      "methods": ["Put"],
+      "file": "backend/src/modules/cierre-administrativo/infrastructure/controllers/cierre-administrativo.controller.ts"
+    },
+    {
+      "route": "/api/checklists)\n  @HttpCode(201",
+      "methods": ["Post"],
+      "file": "backend/src/modules/checklists/infrastructure/controllers/checklists.controller.ts"
+    },
+    {
+      "route": "/api/checklists",
+      "methods": ["Get"],
+      "file": "backend/src/modules/checklists/infrastructure/controllers/checklists.controller.ts"
+    },
+    {
+      "route": "/api/checkliststemplates",
+      "methods": ["Get"],
+      "file": "backend/src/modules/checklists/infrastructure/controllers/checklists.controller.ts"
+    },
+    {
+      "route": "/api/checklists:id",
+      "methods": ["Get"],
+      "file": "backend/src/modules/checklists/infrastructure/controllers/checklists.controller.ts"
+    },
+    {
+      "route": "/api/checklistsassign/order",
+      "methods": ["Post"],
+      "file": "backend/src/modules/checklists/infrastructure/controllers/checklists.controller.ts"
+    },
+    {
+      "route": "/api/checklistsassign/execution",
+      "methods": ["Post"],
+      "file": "backend/src/modules/checklists/infrastructure/controllers/checklists.controller.ts"
+    },
+    {
+      "route": "/api/checklistsorder/:orderId",
+      "methods": ["Get"],
+      "file": "backend/src/modules/checklists/infrastructure/controllers/checklists.controller.ts"
+    },
+    {
+      "route": "/api/checklistsexecution/:executionId",
+      "methods": ["Get"],
+      "file": "backend/src/modules/checklists/infrastructure/controllers/checklists.controller.ts"
+    },
+    {
+      "route": "/api/checklists:checklistId/items/:itemId/toggle",
+      "methods": ["Patch"],
+      "file": "backend/src/modules/checklists/infrastructure/controllers/checklists.controller.ts"
+    },
+    {
+      "route": "/api/checklists:checklistId/items/:itemId",
+      "methods": ["Put"],
+      "file": "backend/src/modules/checklists/infrastructure/controllers/checklists.controller.ts"
+    },
+    {
+      "route": "/api/checklists:checklistId/complete",
+      "methods": ["Post"],
+      "file": "backend/src/modules/checklists/infrastructure/controllers/checklists.controller.ts"
+    },
+    {
+      "route": "/api/checklists:checklistId/archive",
+      "methods": ["Post"],
+      "file": "backend/src/modules/checklists/infrastructure/controllers/checklists.controller.ts"
+    },
+    {
+      "route": "/api/certificacionestecnico",
+      "methods": ["Post"],
+      "file": "backend/src/modules/certificaciones/certificaciones.controller.ts"
+    },
+    {
+      "route": "/api/certificacionestecnico/:tecnicoId",
+      "methods": ["Get"],
+      "file": "backend/src/modules/certificaciones/certificaciones.controller.ts"
+    },
+    {
+      "route": "/api/certificacionesvalidar",
+      "methods": ["Post"],
+      "file": "backend/src/modules/certificaciones/certificaciones.controller.ts"
+    },
+    {
+      "route": "/api/certificacionespor-vencer",
+      "methods": ["Get"],
+      "file": "backend/src/modules/certificaciones/certificaciones.controller.ts"
+    },
+    {
+      "route": "/api/authforgot-password",
+      "methods": ["Post"],
+      "file": "backend/src/modules/auth/infrastructure/controllers/password-reset.controller.ts"
+    },
+    {
+      "route": "/api/authvalidate-reset-token",
+      "methods": ["Post"],
+      "file": "backend/src/modules/auth/infrastructure/controllers/password-reset.controller.ts"
+    },
+    {
+      "route": "/api/authreset-password",
+      "methods": ["Post"],
+      "file": "backend/src/modules/auth/infrastructure/controllers/password-reset.controller.ts"
+    },
+    {
+      "route": "/api/authlogin",
+      "methods": ["Post"],
+      "file": "backend/src/modules/auth/infrastructure/controllers/auth.controller.ts"
+    },
+    {
+      "route": "/api/authregister",
+      "methods": ["Post"],
+      "file": "backend/src/modules/auth/infrastructure/controllers/auth.controller.ts"
+    },
+    {
+      "route": "/api/authrefresh",
+      "methods": ["Post"],
+      "file": "backend/src/modules/auth/infrastructure/controllers/auth.controller.ts"
+    },
+    {
+      "route": "/api/authlogout",
+      "methods": ["Post"],
+      "file": "backend/src/modules/auth/infrastructure/controllers/auth.controller.ts"
+    },
+    {
+      "route": "/api/authme",
+      "methods": ["Get"],
+      "file": "backend/src/modules/auth/infrastructure/controllers/auth.controller.ts"
+    },
+    {
+      "route": "/api/auth/2fasend",
+      "methods": ["Post"],
+      "file": "backend/src/modules/auth/infrastructure/controllers/auth-2fa.controller.ts"
+    },
+    {
+      "route": "/api/auth/2faverify",
+      "methods": ["Post"],
+      "file": "backend/src/modules/auth/infrastructure/controllers/auth-2fa.controller.ts"
+    },
+    {
+      "route": "/api/auth/2fatoggle",
+      "methods": ["Post"],
+      "file": "backend/src/modules/auth/infrastructure/controllers/auth-2fa.controller.ts"
+    },
+    {
+      "route": "/api/auth/2fastatus",
+      "methods": ["Get"],
+      "file": "backend/src/modules/auth/infrastructure/controllers/auth-2fa.controller.ts"
+    },
+    {
+      "route": "/api/archive-historystats",
+      "methods": ["Get"],
+      "file": "backend/src/modules/archivado-historico/archivado-historico.controller.ts"
+    },
+    {
+      "route": "/api/archive-historyarchive-manual",
+      "methods": ["Post"],
+      "file": "backend/src/modules/archivado-historico/archivado-historico.controller.ts"
+    },
+    {
+      "route": "/api/archive-historyarchive-auto",
+      "methods": ["Post"],
+      "file": "backend/src/modules/archivado-historico/archivado-historico.controller.ts"
+    },
+    {
+      "route": "/api/archive-historysearch",
+      "methods": ["Get"],
+      "file": "backend/src/modules/archivado-historico/archivado-historico.controller.ts"
+    },
+    {
+      "route": "/api/archive-historyexport",
+      "methods": ["Post"],
+      "file": "backend/src/modules/archivado-historico/archivado-historico.controller.ts"
+    },
+    {
+      "route": "/api/archive-historyrestore/:orderId",
+      "methods": ["Post"],
+      "file": "backend/src/modules/archivado-historico/archivado-historico.controller.ts"
+    },
+    {
+      "route": "/api/alerts",
+      "methods": ["Post"],
+      "file": "backend/src/modules/alerts/alerts.controller.ts"
+    },
+    {
+      "route": "/api/alertshistory",
+      "methods": ["Get"],
+      "file": "backend/src/modules/alerts/alerts.controller.ts"
+    },
+    {
+      "route": "/api/alerts:id/read",
+      "methods": ["Patch"],
+      "file": "backend/src/modules/alerts/alerts.controller.ts"
+    },
+    {
+      "route": "/api/adminusers",
+      "methods": ["Post", "Get"],
+      "file": "backend/src/modules/admin/infrastructure/controllers/admin.controller.ts"
+    },
+    {
+      "route": "/api/adminusers/:id",
+      "methods": ["Get", "Patch"],
+      "file": "backend/src/modules/admin/infrastructure/controllers/admin.controller.ts"
+    },
+    {
+      "route": "/api/adminusers/:id/role",
+      "methods": ["Patch"],
+      "file": "backend/src/modules/admin/infrastructure/controllers/admin.controller.ts"
+    },
+    {
+      "route": "/api/adminusers/:id/toggle-active",
+      "methods": ["Patch"],
+      "file": "backend/src/modules/admin/infrastructure/controllers/admin.controller.ts"
+    },
+    {
+      "route": "/api/adminusers/:id/password",
+      "methods": ["Patch"],
+      "file": "backend/src/modules/admin/infrastructure/controllers/admin.controller.ts"
+    },
+    {
+      "route": "/api/adminstats/users",
+      "methods": ["Get"],
+      "file": "backend/src/modules/admin/infrastructure/controllers/admin.controller.ts"
+    },
+    {
+      "route": "/api/adminpermissions/:role",
+      "methods": ["Get"],
+      "file": "backend/src/modules/admin/infrastructure/controllers/admin.controller.ts"
+    }
+  ],
+  "issues": [
+    {
+      "frontendUrl": "/api/:param/:param",
+      "file": "frontend/src/app/services/ordenes.service.ts",
+      "line": 97
+    },
+    {
+      "frontendUrl": "/api/:param/change-password",
+      "file": "frontend/src/app/core/services/user.service.ts",
+      "line": 54
+    },
+    {
+      "frontendUrl": "/api/:param/profile",
+      "file": "frontend/src/app/core/services/user.service.ts",
+      "line": 64
+    },
+    {
+      "frontendUrl": "/api/:param/avatar",
+      "file": "frontend/src/app/core/services/upload.service.ts",
+      "line": 27
+    },
+    {
+      "frontendUrl": "/api/:param/register",
+      "file": "frontend/src/app/core/services/auth.service.ts",
+      "line": 82
+    },
+    {
+      "frontendUrl": "/api/:param/login",
+      "file": "frontend/src/app/core/services/auth.service.ts",
+      "line": 96
+    },
+    {
+      "frontendUrl": "/api/:param/forgot-password",
+      "file": "frontend/src/app/core/services/auth.service.ts",
+      "line": 122
+    },
+    {
+      "frontendUrl": "/api/:param/reset-password",
+      "file": "frontend/src/app/core/services/auth.service.ts",
+      "line": 131
+    },
+    {
+      "frontendUrl": "/api/:param/2fa/enable",
+      "file": "frontend/src/app/core/services/auth.service.ts",
+      "line": 140
+    },
+    {
+      "frontendUrl": "/api/:param/2fa/verify",
+      "file": "frontend/src/app/core/services/auth.service.ts",
+      "line": 149
+    },
+    {
+      "frontendUrl": "/api/:param/2fa/disable",
+      "file": "frontend/src/app/core/services/auth.service.ts",
+      "line": 167
+    },
+    {
+      "frontendUrl": "/api/:param/refresh",
+      "file": "frontend/src/app/core/services/auth.service.ts",
+      "line": 194
+    },
+    {
+      "frontendUrl": "/api/:param/users",
+      "file": "frontend/src/app/core/services/admin.service.ts",
+      "line": 38
+    },
+    {
+      "frontendUrl": "/api/:param/users/:param",
+      "file": "frontend/src/app/core/services/admin.service.ts",
+      "line": 47
+    },
+    {
+      "frontendUrl": "/api/:param/users/:param/role",
+      "file": "frontend/src/app/core/services/admin.service.ts",
+      "line": 74
+    },
+    {
+      "frontendUrl": "/api/:param/users/:param/activate",
+      "file": "frontend/src/app/core/services/admin.service.ts",
+      "line": 83
+    },
+    {
+      "frontendUrl": "/api/:param/users/:param/deactivate",
+      "file": "frontend/src/app/core/services/admin.service.ts",
+      "line": 92
+    },
+    {
+      "frontendUrl": "/api/:param/users/:param/reset-password",
+      "file": "frontend/src/app/core/services/admin.service.ts",
+      "line": 101
+    },
+    {
+      "frontendUrl": "/api/:param/users/:param/revoke-tokens",
+      "file": "frontend/src/app/core/services/admin.service.ts",
+      "line": 112
+    },
+    {
+      "frontendUrl": "/api/:param/stats",
+      "file": "frontend/src/app/core/services/admin.service.ts",
+      "line": 127
+    },
+    {
+      "frontendUrl": "/api/:param/roles",
+      "file": "frontend/src/app/core/services/admin.service.ts",
+      "line": 140
+    },
+    {
+      "frontendUrl": "/api/assets/i18n/es.json",
+      "file": "frontend/src/app/core/i18n/i18n.service.ts",
+      "line": 68
+    },
+    {
+      "frontendUrl": "/api/assets/i18n/en.json",
+      "file": "frontend/src/app/core/i18n/i18n.service.ts",
+      "line": 69
+    },
+    {
+      "frontendUrl": "/api/:param/:param/change-status",
+      "file": "frontend/src/app/core/api/orders.api.ts",
+      "line": 88
+    },
+    {
+      "frontendUrl": "/api/:param/:param/assign-technician",
+      "file": "frontend/src/app/core/api/orders.api.ts",
+      "line": 95
+    },
+    {
+      "frontendUrl": "/api/:param/:param/history",
+      "file": "frontend/src/app/core/api/orders.api.ts",
+      "line": 102
+    },
+    {
+      "frontendUrl": "/api/:param/metrics",
+      "file": "frontend/src/app/core/api/dashboard.api.ts",
+      "line": 32
+    },
+    {
+      "frontendUrl": "/api/:param/recent-orders",
+      "file": "frontend/src/app/core/api/dashboard.api.ts",
+      "line": 39
+    },
+    {
+      "frontendUrl": "/api/:param/kpis",
+      "file": "frontend/src/app/core/api/dashboard.api.ts",
+      "line": 46
+    },
+    {
+      "frontendUrl": "/api/:param/costs/breakdown",
+      "file": "frontend/src/app/core/api/dashboard.api.ts",
+      "line": 53
+    },
+    {
+      "frontendUrl": "/api/:param/performance/trends",
+      "file": "frontend/src/app/core/api/dashboard.api.ts",
+      "line": 70
+    },
+    {
+      "frontendUrl": "/api/:param/kpis/refresh",
+      "file": "frontend/src/app/core/api/dashboard.api.ts",
+      "line": 79
+    },
+    {
+      "frontendUrl": "/api/:param/:param/contacts",
+      "file": "frontend/src/app/core/api/customers.api.ts",
+      "line": 108
+    },
+    {
+      "frontendUrl": "/api/:param/:param/locations",
+      "file": "frontend/src/app/core/api/customers.api.ts",
+      "line": 115
+    },
+    {
+      "frontendUrl": "/api/:param/:param/orders",
+      "file": "frontend/src/app/core/api/customers.api.ts",
+      "line": 122
+    },
+    {
+      "frontendUrl": "/api/:param${path}",
+      "file": "frontend/src/app/core/api/api-base.service.ts",
+      "line": 26
+    },
+    {
+      "frontendUrl": "/api/:param/history",
+      "file": "frontend/src/app/core/api/alerts.api.ts",
+      "line": 64
+    },
+    {
+      "frontendUrl": "/api/:param/pendientes",
+      "file": "frontend/src/app/core/api/alerts.api.ts",
+      "line": 71
+    },
+    {
+      "frontendUrl": "/api/:param/pendientes/badge",
+      "file": "frontend/src/app/core/api/alerts.api.ts",
+      "line": 78
+    },
+    {
+      "frontendUrl": "/api/:param/:param/read",
+      "file": "frontend/src/app/core/api/alerts.api.ts",
+      "line": 99
+    },
+    {
+      "frontendUrl": "/api/:param/users/:param/status",
+      "file": "frontend/src/app/core/api/admin.api.ts",
+      "line": 55
+    }
+  ]
+}

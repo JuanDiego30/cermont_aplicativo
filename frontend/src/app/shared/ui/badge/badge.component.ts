@@ -8,7 +8,8 @@ type BadgeColor = 'primary' | 'success' | 'error' | 'warning' | 'info' | 'light'
 
 @Component({
   selector: 'app-badge',
-  imports: [CommonModule,SafeHtmlPipe],
+  standalone: true,
+  imports: [CommonModule, SafeHtmlPipe],
   templateUrl: './badge.component.html',
 })
 export class BadgeComponent {
@@ -16,7 +17,7 @@ export class BadgeComponent {
   @Input() size: BadgeSize = 'md';
   @Input() color: BadgeColor = 'primary';
   @Input() startIcon?: string; // SVG or HTML string
-  @Input() endIcon?: string;   // SVG or HTML string
+  @Input() endIcon?: string; // SVG or HTML string
 
   @HostBinding('class') get hostClasses(): string {
     // return `${this.baseStyles} ${this.sizeClass} ${this.colorStyles}`;

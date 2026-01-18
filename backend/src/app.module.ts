@@ -21,27 +21,31 @@ import { AuthModule } from './modules/auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 import { DashboardModule } from './modules/dashboard/dashboard.module';
-import { EjecucionModule } from './modules/ejecucion/ejecucion.module';
 import { EvidenceModule } from './modules/evidence/evidence.module';
+import { ExecutionModule } from './modules/execution/execution.module';
 import { HesModule } from './modules/hes/hes.module';
 import { KitsModule } from './modules/kits/kits.module';
 import { OrdersModule } from './modules/orders/orders.module';
-import { PlaneacionModule } from './modules/planeacion/planeacion.module';
+import { PlanningModule } from './modules/planning/planning.module';
+// ...
+
 import { ReportsModule } from './modules/reports/reports.module';
 // TODO: Create LineasVidaModule - currently disabled
 // import { LineasVidaModule } from './modules/lineas-vida/lineas-vida.module';
-import { ChecklistsModule } from './modules/checklists/checklists.module';
-import { CostosModule } from './modules/costos/costos.module';
+// REMOVED: ArchivingModule - Not needed for MVP thesis
+import { CostsModule } from './modules/costs/costs.module';
+
+// ...
+
 // DELETED: MantenimientosModule - CERMONT uses order-based maintenance, not scheduled preventive maintenance
-import { CierreAdministrativoModule } from './modules/cierre-administrativo/cierre-administrativo.module';
-import { FormulariosModule } from './modules/formularios/formularios.module';
+import { AdministrativeClosureModule } from './modules/administrative-closure/administrative-closure.module';
+import { FormsModule } from './modules/forms/forms.module';
 
 // New modules
 // DELETED: ArchivadoModule - Replaced by archivado-historico module (coming in Phase 3)
 import { AdminModule } from './modules/admin/admin.module';
 import { PdfGenerationModule } from './modules/pdf-generation/pdf-generation.module';
-import { SyncModule } from './modules/sync/sync.module';
-import { WeatherModule } from './modules/weather/weather.module';
+// REMOVED: SyncModule, WeatherModule - Not needed for MVP thesis
 // DELETED: EmailModule - Redundant with AlertasModule (email functionality moved there)
 import { TechniciansModule } from './modules/technicians/technicians.module';
 
@@ -51,9 +55,7 @@ import { AlertsModule } from './modules/alerts/alerts.module';
 import { KpisModule } from './modules/kpis/kpis.module';
 
 // NEW MODULES - Phase 3 Backend Refactoring
-import { ArchivadoHistoricoModule } from './modules/archivado-historico/archivado-historico.module';
-import { CertificacionesModule } from './modules/certificaciones/certificaciones.module';
-import { CustomersModule } from './modules/customers/customers.module';
+// REMOVED: CertificationsModule - Not needed for MVP thesis
 import { InvoicingModule } from './modules/invoicing/invoicing.module';
 
 // Common providers
@@ -67,7 +69,7 @@ import {
 import { CustomThrottleGuard } from './shared/guards/throttle.guard';
 import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.interceptor';
 // import { LoggerService } from './shared/logging/logger.service'; // REMOVED LEGACY
-import { validate as validateEnv } from './config/env.validation';
+import { validateEnv } from './config/env.validation';
 import { GlobalExceptionFilter } from './shared/filters/global-exception.filter'; // NEW
 import { LoggerService } from './shared/logging/logger.service'; // NEW
 import { RequestIdMiddleware } from './shared/middleware/request-id.middleware';
@@ -79,7 +81,7 @@ import { RequestIdMiddleware } from './shared/middleware/request-id.middleware';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
-      validate: config => validateEnv(config),
+      validate: validateEnv,
     }),
 
     // Event Emitter for domain events (MUST be before feature modules)
@@ -138,35 +140,30 @@ import { RequestIdMiddleware } from './shared/middleware/request-id.middleware';
     AuthModule,
     NotificationsModule,
     OrdersModule,
-    PlaneacionModule,
+    PlanningModule,
     KitsModule,
-    EjecucionModule,
+    ExecutionModule,
     DashboardModule,
     ReportsModule,
     HesModule,
     // LineasVidaModule, // TODO: Create LineasVidaModule
-    CostosModule,
-    ChecklistsModule,
+    CostsModule,
     // MantenimientosModule, // DELETED - CERMONT uses order-based maintenance
-    FormulariosModule,
-    CierreAdministrativoModule,
+    FormsModule,
+
+    AdministrativeClosureModule,
     EvidenceModule,
 
-    // New modules - ACTIVATED
-    SyncModule,
+    // Essential modules for MVP
     PdfGenerationModule,
     AdminModule,
-    WeatherModule,
     TechniciansModule,
 
     AlertsModule,
     KpisModule,
 
-    // NEW MODULES - Phase 3 Backend Refactoring
-    CertificacionesModule,
-    CustomersModule,
+    // MVP modules
     InvoicingModule,
-    ArchivadoHistoricoModule,
 
     // Schedule module for CRON jobs
     ScheduleModule.forRoot(),
