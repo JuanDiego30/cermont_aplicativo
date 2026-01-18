@@ -5,7 +5,7 @@ module.exports = {
     ecmaVersion: 2022,
   },
   plugins: ['@typescript-eslint/eslint-plugin'],
-  extends: [],
+  extends: ['plugin:@typescript-eslint/recommended'],
   root: true,
   env: {
     node: true,
@@ -33,5 +33,15 @@ module.exports = {
       },
     },
   ],
-  rules: {},
+  rules: {
+    '@typescript-eslint/no-unused-vars': [
+      'warn',
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_',
+      },
+    ],
+    '@typescript-eslint/no-explicit-any': 'warn',
+  },
 };
