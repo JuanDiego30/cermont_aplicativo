@@ -69,7 +69,7 @@ import {
 import { CustomThrottleGuard } from './shared/guards/throttle.guard';
 import { HttpLoggingInterceptor } from './shared/interceptors/http-logging.interceptor';
 // import { LoggerService } from './shared/logging/logger.service'; // REMOVED LEGACY
-import { validate as validateEnv } from './config/env.validation';
+import { validateEnv } from './config/env.validation';
 import { GlobalExceptionFilter } from './shared/filters/global-exception.filter'; // NEW
 import { LoggerService } from './shared/logging/logger.service'; // NEW
 import { RequestIdMiddleware } from './shared/middleware/request-id.middleware';
@@ -81,7 +81,7 @@ import { RequestIdMiddleware } from './shared/middleware/request-id.middleware';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
-      validate: config => validateEnv(config),
+      validate: validateEnv,
     }),
 
     // Event Emitter for domain events (MUST be before feature modules)

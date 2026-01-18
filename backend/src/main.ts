@@ -1,4 +1,4 @@
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -46,10 +46,10 @@ async function bootstrap() {
     app.use(cookieParser());
 
     // Global Prefix y Versionado
+    app.setGlobalPrefix('api');
     app.enableVersioning({
-      type: 1, // VersioningType.URI
+      type: VersioningType.URI,
       defaultVersion: '1',
-      prefix: 'api/v',
     });
 
     // Global Validation Pipe

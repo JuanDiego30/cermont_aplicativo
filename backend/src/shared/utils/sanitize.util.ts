@@ -28,7 +28,7 @@ export function sanitizeSearchTerm(input: string, maxLength: number = 100): stri
     .replace(/[%;_]/g, '') // Wildcards SQL
     .replace(/['"`]/g, '') // Quotes
     .replace(/[;-]{2,}/g, '') // SQL injection patterns (consecutive dashes)
-    .replace(/[\x00-\x1F]/g, '') // Control characters
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '') // Control characters excluyendo tab/newline
     .trim();
 
   return sanitized;
@@ -83,7 +83,7 @@ export function sanitizeJsonInput(obj: unknown, maxDepth: number = 5): unknown {
  */
 export function isAlphanumericSearch(input: string): boolean {
   if (!input || typeof input !== 'string') return false;
-  return /^[a-zA-Z0-9\s\-_\.áéíóúÁÉÍÓÚñÑ]*$/.test(input);
+  return /^[a-zA-Z0-9\s._\-áéíóúÁÉÍÓÚñÑ]*$/.test(input);
 }
 
 /**
@@ -118,9 +118,9 @@ export function sanitizeFilename(filename: string): string {
 
   return (
     filename
-      .replace(/\.\.[\/\\]/g, '') // Path traversal
+      .replace(/\.\.([/\\])/g, '') // Path traversal
       .replace(/[<>:"|?*]/g, '') // Caracteres ilegales en Windows
-      .replace(/[\x00-\x1F]/g, '') // Control characters
+      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '') // Control characters excluyendo tab/newline
       .substring(0, 255) // Límite de longitud
       .trim() || 'unnamed'
   );

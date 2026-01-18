@@ -1,149 +1,100 @@
-/**
- * @service HesService
- * @description Servicio LEGACY para gestión de Higiene, Seguridad y Medio Ambiente
- *
- * LEGACY SERVICE: Uses Prisma directly for backward compatibility.
- * For new features, use the Use Cases in application/use-cases/
- *
- * NOTE: This service handles "equipos" (equipment) related functionality
- * which is separate from the DDD HES (Hoja de Entrada de Servicio) domain.
- */
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { CreateHESDto, UpdateHESDto } from './hes.dto';
 
-// ============================================================================
-// Interfaces y DTOs
-// ============================================================================
-
-type EstadoInspeccion = 'OK' | 'REQUIERE_ATENCION' | 'FUERA_SERVICIO';
-
-interface CreateInspeccionDto {
-  equipoId: string;
-  ordenId?: string;
-  estado?: EstadoInspeccion;
-  observaciones?: string;
-  fotos?: string[];
-}
-
-export interface HesResponse<T> {
-  message?: string;
-  data: T;
-}
-
-// ============================================================================
-// Service
-// ============================================================================
-
+/**
+ * Simple HESService - Direct Prisma access
+ * HES = Hoja de Entrada de Servicio
+ */
 @Injectable()
-export class HesService {
-  private readonly logger = new Logger(HesService.name);
+export class HESService {
+  private readonly logger = new Logger(HESService.name);
 
-  constructor(private readonly prisma: PrismaService) {
-    this.logger.log('ℹ️  HesService: Legacy service. Consider migrating to Use Cases.');
+  constructor(private readonly prisma: PrismaService) {}
+
+  async findAll(filters?: { estado?: string; ordenId?: string }) {
+    const where: Record<string, unknown> = {};
+    if (filters?.estado) where.estado = filters.estado;
+    if (filters?.ordenId) where.ordenId = filters.ordenId;
+
+    return this.prisma.hojaEntradaServicio.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
-  /**
-   * Obtiene todos los equipos HES ordenados por número
-   * @deprecated Use DDD use cases for new features
-   */
-  async findAllEquipos(): Promise<HesResponse<unknown[]>> {
-    try {
-      const equipos = await this.prisma.equipoHES.findMany({
-        orderBy: { numero: 'asc' },
-        include: {
-          inspecciones: {
-            take: 1,
-            orderBy: { fechaInspeccion: 'desc' },
-          },
-        },
-      });
-      return { data: equipos };
-    } catch (error) {
-      this.logger.error('Error fetching equipos HES', error);
-      // If table doesn't exist, return empty array
-      return { data: [] };
+  async findOne(id: string) {
+    const hes = await this.prisma.hojaEntradaServicio.findUnique({
+      where: { id },
+      include: { orden: true },
+    });
+
+    if (!hes) {
+      throw new NotFoundException(`HES ${id} no encontrada`);
     }
+
+    return hes;
   }
 
-  /**
-   * Obtiene un equipo HES por ID con sus inspecciones
-   * @deprecated Use DDD use cases for new features
-   */
-  async findEquipo(id: string) {
-    try {
-      const equipo = await this.prisma.equipoHES.findUnique({
-        where: { id },
-        include: {
-          inspecciones: {
-            orderBy: { fechaInspeccion: 'desc' },
-          },
-        },
-      });
+  async create(dto: CreateHESDto, userId: string) {
+    const numero = await this.generateHESNumber();
 
-      if (!equipo) {
-        throw new NotFoundException(`Equipo HES con ID ${id} no encontrado`);
-      }
-
-      return equipo;
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      this.logger.error('Error fetching equipo HES', error);
-      throw new NotFoundException(`Equipo HES con ID ${id} no encontrado`);
-    }
+    return this.prisma.hojaEntradaServicio.create({
+      data: {
+        numero,
+        ordenId: dto.ordenId,
+        tipoServicio: dto.tipoServicio,
+        prioridad: dto.prioridad,
+        nivelRiesgo: dto.nivelRiesgo ?? 'BAJO',
+        clienteInfo: dto.clienteInfo,
+        condicionesEntrada: dto.condicionesEntrada,
+        diagnosticoPreliminar: dto.diagnosticoPreliminar,
+        requerimientosSeguridad: dto.requerimientosSeguridad,
+        estado: 'BORRADOR',
+        creadoPor: userId,
+      },
+    });
   }
 
-  /**
-   * Obtiene inspecciones de un equipo ordenadas por fecha
-   * @deprecated Use DDD use cases for new features
-   */
-  async findInspeccionesByEquipo(equipoId: string): Promise<HesResponse<unknown[]>> {
-    try {
-      const inspecciones = await this.prisma.inspeccionHES.findMany({
-        where: { equipoId },
-        orderBy: { fechaInspeccion: 'desc' },
-      });
-      return { data: inspecciones };
-    } catch (error) {
-      this.logger.error('Error fetching inspecciones', error);
-      return { data: [] };
-    }
+  async update(id: string, dto: UpdateHESDto) {
+    await this.findOne(id);
+
+    return this.prisma.hojaEntradaServicio.update({
+      where: { id },
+      data: {
+        tipoServicio: dto.tipoServicio,
+        prioridad: dto.prioridad,
+        nivelRiesgo: dto.nivelRiesgo,
+        clienteInfo: dto.clienteInfo,
+        condicionesEntrada: dto.condicionesEntrada,
+        diagnosticoPreliminar: dto.diagnosticoPreliminar,
+        requerimientosSeguridad: dto.requerimientosSeguridad,
+      },
+    });
   }
 
-  /**
-   * Crea una nueva inspección HES
-   * @deprecated Use DDD use cases for new features
-   */
-  async createInspeccion(
-    dto: CreateInspeccionDto,
-    inspectorId: string
-  ): Promise<HesResponse<unknown>> {
-    try {
-      const inspeccion = await this.prisma.inspeccionHES.create({
-        data: {
-          equipoId: dto.equipoId,
-          ordenId: dto.ordenId,
-          estado: dto.estado || 'OK',
-          observaciones: dto.observaciones,
-          aprobada: dto.estado === 'OK',
-          inspectorId,
-          fechaInspeccion: new Date(),
-          fotosEvidencia: dto.fotos ?? [],
-        },
-      });
+  async complete(id: string) {
+    await this.findOne(id);
 
-      // Actualizar fecha de última inspección en el equipo
-      await this.prisma.equipoHES.update({
-        where: { id: dto.equipoId },
-        data: { ultimaInspeccion: new Date() },
-      });
+    return this.prisma.hojaEntradaServicio.update({
+      where: { id },
+      data: {
+        estado: 'COMPLETADO',
+        completadoEn: new Date(),
+      },
+    });
+  }
 
-      return {
-        message: 'Inspección creada exitosamente',
-        data: inspeccion,
-      };
-    } catch (error) {
-      this.logger.error('Error creating inspeccion', error);
-      throw error;
-    }
+  async delete(id: string) {
+    await this.findOne(id);
+    return this.prisma.hojaEntradaServicio.delete({ where: { id } });
+  }
+
+  private async generateHESNumber(): Promise<string> {
+    const year = new Date().getFullYear();
+    const count = await this.prisma.hojaEntradaServicio.count({
+      where: { createdAt: { gte: new Date(`${year}-01-01`) } },
+    });
+    return `HES-${year}-${String(count + 1).padStart(4, '0')}`;
   }
 }

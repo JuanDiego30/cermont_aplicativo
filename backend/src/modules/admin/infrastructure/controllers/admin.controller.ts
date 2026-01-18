@@ -240,7 +240,8 @@ export class AdminController {
   @ApiParam({ name: 'role', description: 'Rol a consultar' })
   async getPermissions(@Param('role') role: string) {
     // Importar de interfaces legacy para mantener compatibilidad
-    const { getPermissionsForRole } = await import('../../interfaces/permissions.interface');
-    return getPermissionsForRole(role as any);
+    const { getPermissionsForRole, UserRoleEnum } =
+      await import('../../interfaces/permissions.interface');
+    return getPermissionsForRole(role as (typeof UserRoleEnum)[keyof typeof UserRoleEnum]);
   }
 }
