@@ -13,19 +13,19 @@ Tailwind CSS v4.1 development with accessibility and theming baked in.
 
 Never use deprecated utilities — always use replacements:
 
-| Deprecated | Replacement |
-|------------|-------------|
-| `bg-opacity-*` | `bg-black/50` (opacity modifier) |
-| `bg-gradient-*` | `bg-linear-*` |
-| `shadow-sm` | `shadow-xs` |
-| `shadow` | `shadow-sm` |
-| `rounded-sm` | `rounded-xs` |
-| `rounded` | `rounded-sm` |
-| `ring` | `ring-3` |
-| `outline-none` | `outline-hidden` |
-| `leading-*` | Use `text-base/7` line-height modifiers |
-| `flex-shrink-*` / `flex-grow-*` | `shrink-*` / `grow-*` |
-| `space-x-*` in flex/grid | Use `gap-*` instead |
+| Deprecated                      | Replacement                             |
+| ------------------------------- | --------------------------------------- |
+| `bg-opacity-*`                  | `bg-black/50` (opacity modifier)        |
+| `bg-gradient-*`                 | `bg-linear-*`                           |
+| `shadow-sm`                     | `shadow-xs`                             |
+| `shadow`                        | `shadow-sm`                             |
+| `rounded-sm`                    | `rounded-xs`                            |
+| `rounded`                       | `rounded-sm`                            |
+| `ring`                          | `ring-3`                                |
+| `outline-none`                  | `outline-hidden`                        |
+| `leading-*`                     | Use `text-base/7` line-height modifiers |
+| `flex-shrink-*` / `flex-grow-*` | `shrink-*` / `grow-*`                   |
+| `space-x-*` in flex/grid        | Use `gap-*` instead                     |
 
 ### Essential Patterns
 

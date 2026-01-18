@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectorRef,
-    Component,
-    ElementRef,
-    inject,
-    OnDestroy,
-    OnInit,
-    QueryList,
-    ViewChildren,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  QueryList,
+  ViewChildren,
 } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';

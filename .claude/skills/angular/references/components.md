@@ -10,14 +10,10 @@ All new components in this codebase MUST be standalone. The customer frontend us
 @Component({
   selector: 'app-game-card',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    TranslateModule
-  ],
+  imports: [CommonModule, RouterModule, TranslateModule],
   templateUrl: './game-card.component.html',
   styleUrl: './game-card.component.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GameCardComponent {
   @Input({ required: true }) game!: GameDto;
@@ -37,7 +33,7 @@ export class GameCardComponent {
   selector: 'app-games-list-widget',
   standalone: true,
   imports: [CommonModule, GameCardComponent, InfiniteScrollModule],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GamesListComponent implements OnInit, OnDestroy {
   @Input() widget!: ResolvedWidget;
@@ -67,17 +63,20 @@ export class GamesListComponent implements OnInit, OnDestroy {
     if (this.isLoadingMore || !this.hasMoreGames) return;
 
     this.isLoadingMore = true;
-    this.gameService.getGames({}, {}, this.pageSize, this.currentOffset).pipe(
-      takeUntil(this.destroy$),
-      finalize(() => this.isLoadingMore = false)
-    ).subscribe({
-      next: (response) => {
-        this.displayedGames = [...this.displayedGames, ...response.games];
-        this.currentOffset += response.games.length;
-        this.hasMoreGames = this.currentOffset < response.total;
-      },
-      error: (error) => console.error('Failed to load games:', error)
-    });
+    this.gameService
+      .getGames({}, {}, this.pageSize, this.currentOffset)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => (this.isLoadingMore = false))
+      )
+      .subscribe({
+        next: response => {
+          this.displayedGames = [...this.displayedGames, ...response.games];
+          this.currentOffset += response.games.length;
+          this.hasMoreGames = this.currentOffset < response.total;
+        },
+        error: error => console.error('Failed to load games:', error),
+      });
   }
 
   trackByGameId(index: number, game: GameDto): string {
@@ -99,12 +98,15 @@ export class GamesListComponent implements OnInit, OnDestroy {
 
 ```html
 <!-- BAD - Complex logic in template -->
-<div *ngIf="user && user.kycStatus === 'VERIFIED' && user.balance > minWithdrawal && !user.withdrawalsRestricted">
+<div
+  *ngIf="user && user.kycStatus === 'VERIFIED' && user.balance > minWithdrawal && !user.withdrawalsRestricted"
+>
   <button (click)="withdraw()">Withdraw</button>
 </div>
 ```
 
 **Why This Breaks:**
+
 1. Impossible to unit test template conditions
 2. Re-evaluated on every change detection cycle
 3. Duplicated if same logic needed elsewhere
@@ -115,7 +117,7 @@ export class GamesListComponent implements OnInit, OnDestroy {
 ```typescript
 // GOOD - Logic in component class
 get canWithdraw(): boolean {
-  return this.user?.kycStatus === 'VERIFIED' 
+  return this.user?.kycStatus === 'VERIFIED'
     && (this.user?.balance ?? 0) > this.minWithdrawal
     && !this.user?.withdrawalsRestricted;
 }
@@ -141,6 +143,7 @@ games: any[] = [];
 ```
 
 **Why This Breaks:**
+
 1. No autocomplete or type checking
 2. Runtime errors instead of compile-time errors
 3. Impossible to refactor safely
@@ -243,10 +246,10 @@ openCashier(): void {
 
 ## File Naming Convention
 
-| Type | Convention | Example |
-|------|------------|---------|
-| Component | kebab-case | `game-card.component.ts` |
-| Service | kebab-case | `games.service.ts` |
-| Model | kebab-case | `game.model.ts` |
-| Guard | kebab-case | `auth.guard.ts` |
-| Interceptor | kebab-case | `error.interceptor.ts` |
+| Type        | Convention | Example                  |
+| ----------- | ---------- | ------------------------ |
+| Component   | kebab-case | `game-card.component.ts` |
+| Service     | kebab-case | `games.service.ts`       |
+| Model       | kebab-case | `game.model.ts`          |
+| Guard       | kebab-case | `auth.guard.ts`          |
+| Interceptor | kebab-case | `error.interceptor.ts`   |

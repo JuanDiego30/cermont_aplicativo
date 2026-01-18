@@ -14,9 +14,7 @@ export class PlayerService {
   constructor(private http: HttpClient) {}
 
   list(page = 0, size = 20): Observable<Page<Player>> {
-    const params = new HttpParams()
-      .set('page', page)
-      .set('size', size);
+    const params = new HttpParams().set('page', page).set('size', size);
     return this.http.get<Page<Player>>(this.apiUrl, { params });
   }
 
@@ -45,7 +43,7 @@ export class PlayerService {
 @Injectable({ providedIn: 'root' })
 export class WalletV2Service implements OnDestroy {
   private playerBalance$ = new BehaviorSubject<PlayerBalanceDto | null>(null);
-  private balanceRefreshTimer$ = timer(0, 30000);  // Auto-refresh every 30s
+  private balanceRefreshTimer$ = timer(0, 30000); // Auto-refresh every 30s
   private destroy$ = new Subject<void>();
 
   getPlayerBalance(): Observable<PlayerBalanceDto | null> {
@@ -53,16 +51,18 @@ export class WalletV2Service implements OnDestroy {
   }
 
   startBalanceRefresh(playerId: number): void {
-    this.balanceRefreshTimer$.pipe(
-      takeUntil(this.destroy$),
-      switchMap(() => this.fetchPlayerBalance(playerId)),
-      catchError(error => {
-        console.error('Balance fetch error:', error);
-        return of(null);
-      })
-    ).subscribe(balance => {
-      if (balance) this.playerBalance$.next(balance);
-    });
+    this.balanceRefreshTimer$
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap(() => this.fetchPlayerBalance(playerId)),
+        catchError(error => {
+          console.error('Balance fetch error:', error);
+          return of(null);
+        })
+      )
+      .subscribe(balance => {
+        if (balance) this.playerBalance$.next(balance);
+      });
   }
 
   private fetchPlayerBalance(playerId: number): Observable<PlayerBalanceDto> {
@@ -96,6 +96,7 @@ ngOnInit(): void {
 ```
 
 **Why This Breaks:**
+
 1. HTTP observables complete, but the subscription object persists
 2. If this pattern is used with ongoing streams (WebSocket, timers), memory leaks occur
 3. Callbacks may execute after component destruction
@@ -142,6 +143,7 @@ async loadPlayersWithWallets(): Promise<void> {
 ```
 
 **Why This Breaks:**
+
 1. 100 players = 101 API calls
 2. Slow loading, poor UX
 3. Server overload, rate limiting
@@ -151,7 +153,7 @@ async loadPlayersWithWallets(): Promise<void> {
 ```typescript
 // GOOD - Backend returns combined data or use batch endpoint
 this.playerService.listWithWallets().subscribe(players => {
-  this.players = players;  // Wallet data included
+  this.players = players; // Wallet data included
 });
 
 // Or use forkJoin for parallel calls
@@ -171,10 +173,12 @@ See the **spring-boot** skill for backend pagination patterns.
 
 ```typescript
 // When playerId changes, cancel previous request and start new one
-this.playerId$.pipe(
-  switchMap(playerId => this.playerService.getById(playerId)),
-  takeUntil(this.destroy$)
-).subscribe(player => this.player = player);
+this.playerId$
+  .pipe(
+    switchMap(playerId => this.playerService.getById(playerId)),
+    takeUntil(this.destroy$)
+  )
+  .subscribe(player => (this.player = player));
 ```
 
 ### mergeMap for Parallel Operations

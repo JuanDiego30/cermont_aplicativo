@@ -23,6 +23,7 @@ Turborepo is designed to be a drop-in replacement for existing monorepo tools wi
 ### Why Migrate?
 
 **Turborepo advantages over Lerna**:
+
 - **Faster**: Rust-based with intelligent caching
 - **Simpler**: Less configuration needed
 - **Remote caching**: Built-in team cache sharing
@@ -44,6 +45,7 @@ npm install turbo --save-dev
 #### 2. Convert Configuration
 
 **Lerna (lerna.json)**:
+
 ```json
 {
   "version": "independent",
@@ -61,6 +63,7 @@ npm install turbo --save-dev
 ```
 
 **Turborepo (turbo.json)**:
+
 ```json
 {
   "$schema": "https://turbo.build/schema.json",
@@ -80,6 +83,7 @@ npm install turbo --save-dev
 #### 3. Update Scripts
 
 **Before (with Lerna)**:
+
 ```json
 {
   "scripts": {
@@ -91,12 +95,13 @@ npm install turbo --save-dev
 ```
 
 **After (with Turborepo)**:
+
 ```json
 {
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test",
-    "publish": "lerna publish"  // Keep Lerna for publishing
+    "publish": "lerna publish" // Keep Lerna for publishing
   }
 }
 ```
@@ -121,6 +126,7 @@ npm install lerna --save-dev
 #### 5. Update CI/CD
 
 **Before (Lerna)**:
+
 ```yaml
 - run: npx lerna bootstrap
 - run: npx lerna run build
@@ -128,6 +134,7 @@ npm install lerna --save-dev
 ```
 
 **After (Turborepo)**:
+
 ```yaml
 - run: npm ci
 - run: npx turbo run build test
@@ -149,14 +156,14 @@ npm install lerna --save-dev
 
 ### Lerna → Turborepo Mapping
 
-| Lerna Command | Turborepo Equivalent |
-|--------------|---------------------|
-| `lerna run build` | `turbo run build` |
-| `lerna run test --scope=package` | `turbo run test --filter=package` |
-| `lerna run build --since main` | `turbo run build --filter='...[main]'` |
-| `lerna bootstrap` | `npm install` (use workspace manager) |
-| `lerna changed` | `turbo run build --filter='...[HEAD]' --dry-run` |
-| `lerna publish` | Keep using `lerna publish` or use changesets |
+| Lerna Command                    | Turborepo Equivalent                             |
+| -------------------------------- | ------------------------------------------------ |
+| `lerna run build`                | `turbo run build`                                |
+| `lerna run test --scope=package` | `turbo run test --filter=package`                |
+| `lerna run build --since main`   | `turbo run build --filter='...[main]'`           |
+| `lerna bootstrap`                | `npm install` (use workspace manager)            |
+| `lerna changed`                  | `turbo run build --filter='...[HEAD]' --dry-run` |
+| `lerna publish`                  | Keep using `lerna publish` or use changesets     |
 
 ### Coexistence Strategy
 
@@ -165,9 +172,9 @@ You can use both Lerna and Turborepo:
 ```json
 {
   "scripts": {
-    "build": "turbo run build",      // Use Turbo for tasks
+    "build": "turbo run build", // Use Turbo for tasks
     "test": "turbo run test",
-    "publish": "lerna publish"        // Use Lerna for publishing
+    "publish": "lerna publish" // Use Lerna for publishing
   },
   "devDependencies": {
     "lerna": "^8.0.0",
@@ -183,12 +190,14 @@ You can use both Lerna and Turborepo:
 ### Why Migrate?
 
 **Consider Turborepo if**:
+
 - You want simpler configuration
 - You prefer convention over configuration
 - You need faster builds (Rust-based)
 - You want built-in remote caching
 
 **Keep Nx if**:
+
 - You need advanced features (affected tests, generators, etc.)
 - You have complex workspace dependencies
 - You rely on Nx plugins heavily
@@ -204,6 +213,7 @@ npm install turbo --save-dev
 #### 2. Convert Configuration
 
 **Nx (nx.json)**:
+
 ```json
 {
   "tasksRunnerOptions": {
@@ -223,6 +233,7 @@ npm install turbo --save-dev
 ```
 
 **Turborepo (turbo.json)**:
+
 ```json
 {
   "$schema": "https://turbo.build/schema.json",
@@ -242,6 +253,7 @@ npm install turbo --save-dev
 #### 3. Update Scripts
 
 **Before (Nx)**:
+
 ```json
 {
   "scripts": {
@@ -253,6 +265,7 @@ npm install turbo --save-dev
 ```
 
 **After (Turborepo)**:
+
 ```json
 {
   "scripts": {
@@ -266,6 +279,7 @@ npm install turbo --save-dev
 #### 4. Convert Dependencies
 
 **Nx (project.json)**:
+
 ```json
 {
   "targets": {
@@ -277,6 +291,7 @@ npm install turbo --save-dev
 ```
 
 **Turborepo (turbo.json)**:
+
 ```json
 {
   "pipeline": {
@@ -301,14 +316,14 @@ npm install turbo --save-dev
 
 ### Nx → Turborepo Mapping
 
-| Nx Command | Turborepo Equivalent |
-|-----------|---------------------|
-| `nx run-many --target=build --all` | `turbo run build` |
-| `nx run app:build` | `turbo run build --filter=app` |
-| `nx affected --target=build` | `turbo run build --filter='...[origin/main]'` |
-| `nx affected --target=test --base=main` | `turbo run test --filter='...[main]'` |
-| `nx dep-graph` | `turbo run build --graph` |
-| `nx reset` | `rm -rf .turbo` |
+| Nx Command                              | Turborepo Equivalent                          |
+| --------------------------------------- | --------------------------------------------- |
+| `nx run-many --target=build --all`      | `turbo run build`                             |
+| `nx run app:build`                      | `turbo run build --filter=app`                |
+| `nx affected --target=build`            | `turbo run build --filter='...[origin/main]'` |
+| `nx affected --target=test --base=main` | `turbo run test --filter='...[main]'`         |
+| `nx dep-graph`                          | `turbo run build --graph`                     |
+| `nx reset`                              | `rm -rf .turbo`                               |
 
 ### Coexistence Strategy
 
@@ -317,9 +332,9 @@ You can use both Nx and Turborepo:
 ```json
 {
   "scripts": {
-    "build": "turbo run build",           // Use Turbo for builds
+    "build": "turbo run build", // Use Turbo for builds
     "test": "turbo run test",
-    "generate": "nx generate @nx/react"   // Keep Nx for generators
+    "generate": "nx generate @nx/react" // Keep Nx for generators
   }
 }
 ```
@@ -333,6 +348,7 @@ You can use both Nx and Turborepo:
 #### Pattern 1: Sequential Builds
 
 **Before (custom script)**:
+
 ```bash
 #!/bin/bash
 cd packages/ui && npm run build
@@ -341,6 +357,7 @@ cd ../../apps/web && npm run build
 ```
 
 **After (Turborepo)**:
+
 ```json
 // turbo.json
 {
@@ -359,6 +376,7 @@ turbo run build  # Automatically handles order
 #### Pattern 2: Parallel Builds
 
 **Before (custom script)**:
+
 ```bash
 #!/bin/bash
 npm run build:ui &
@@ -368,6 +386,7 @@ wait
 ```
 
 **After (Turborepo)**:
+
 ```bash
 turbo run build  # Automatically parallelizes
 ```
@@ -375,6 +394,7 @@ turbo run build  # Automatically parallelizes
 #### Pattern 3: Conditional Builds
 
 **Before (custom script)**:
+
 ```bash
 #!/bin/bash
 if git diff --name-only HEAD~1 | grep -q "packages/ui"; then
@@ -383,6 +403,7 @@ fi
 ```
 
 **After (Turborepo)**:
+
 ```bash
 turbo run build --filter='...[HEAD~1]'
 ```
@@ -425,12 +446,7 @@ turbo run build --filter='...[HEAD~1]'
 {
   "pipeline": {
     "build": {
-      "outputs": [
-        "dist/**",
-        ".next/**",
-        "!.next/cache/**",
-        "*.tsbuildinfo"
-      ]
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**", "*.tsbuildinfo"]
     }
   }
 }
@@ -446,10 +462,10 @@ turbo run build --filter='...[HEAD~1]'
 {
   "pipeline": {
     "build": {
-      "dependsOn": ["^build"]  // ^ means dependencies first
+      "dependsOn": ["^build"] // ^ means dependencies first
     },
     "test": {
-      "dependsOn": ["build"]   // No ^ means own task first
+      "dependsOn": ["build"] // No ^ means own task first
     }
   }
 }
@@ -508,9 +524,9 @@ turbo link
     "build": {
       "dependsOn": ["^build"]
     },
-    "lint": {},  // Can run in parallel with build
+    "lint": {}, // Can run in parallel with build
     "test": {
-      "dependsOn": ["build"]  // Needs build first
+      "dependsOn": ["build"] // Needs build first
     }
   }
 }
@@ -547,7 +563,7 @@ If migration issues arise:
 {
   "scripts": {
     "build": "turbo run build",
-    "build:old": "lerna run build"  // Fallback
+    "build:old": "lerna run build" // Fallback
   }
 }
 ```
@@ -557,8 +573,8 @@ If migration issues arise:
 ```json
 {
   "scripts": {
-    "build:new": "turbo run build --filter=ui",  // Migrate one package
-    "build:old": "lerna run build --scope=!ui"   // Keep others
+    "build:new": "turbo run build --filter=ui", // Migrate one package
+    "build:old": "lerna run build --scope=!ui" // Keep others
   }
 }
 ```

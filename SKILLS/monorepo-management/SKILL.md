@@ -11,14 +11,15 @@ scope: monorepo
 ---
 
 <!-- Cermont Project Fit -->
+
 ## Project Fit
 
-| Attribute | Value |
-|-----------|-------|
-| **Applies to** | monorepo |
-| **Requires** | pnpm, Turborepo |
-| **Not for this repo** | Nx, Lerna, Rush |
-| **Status** | Secondary (use `turborepo` as primary) |
+| Attribute             | Value                                  |
+| --------------------- | -------------------------------------- |
+| **Applies to**        | monorepo                               |
+| **Requires**          | pnpm, Turborepo                        |
+| **Not for this repo** | Nx, Lerna, Rush                        |
+| **Status**            | Secondary (use `turborepo` as primary) |
 
 > [!NOTE]
 > This skill includes Nx documentation for reference only. Cermont uses **Turborepo**.
@@ -26,12 +27,14 @@ scope: monorepo
 ### Guardrails
 
 **Safety Checklist:**
+
 ```bash
 pnpm -r lint
 pnpm -r test
 pnpm -r build
 # Rollback: git restore -SW .
 ```
+
 <!-- End Project Fit -->
 
 ## When to Use This Skill
@@ -50,6 +53,7 @@ pnpm -r build
 ### 1. Why Monorepos?
 
 **Advantages:**
+
 - Shared code and dependencies
 - Atomic commits across projects
 - Consistent tooling and standards
@@ -58,6 +62,7 @@ pnpm -r build
 - Better code visibility
 
 **Challenges:**
+
 - Build performance at scale
 - CI/CD complexity
 - Access control
@@ -66,11 +71,13 @@ pnpm -r build
 ### 2. Monorepo Tools
 
 **Package Managers:**
+
 - pnpm workspaces (recommended)
 - npm workspaces
 - Yarn workspaces
 
 **Build Systems:**
+
 - Turborepo (recommended for most)
 - Nx (feature-rich, complex)
 - Lerna (older, maintenance mode)
@@ -132,10 +139,7 @@ cd my-monorepo
 {
   "name": "my-monorepo",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
@@ -552,7 +556,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # For Nx affected commands
+          fetch-depth: 0 # For Nx affected commands
 
       - uses: pnpm/action-setup@v2
         with:

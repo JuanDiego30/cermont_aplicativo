@@ -77,27 +77,21 @@ function parseResponse(data: unknown): UserData {
 
 ```typescript
 function isUserData(data: unknown): data is UserData {
-    return (
-        typeof data === 'object' &&
-        data !== null &&
-        'id' in data &&
-        'name' in data &&
-        'email' in data
-    );
+  return (
+    typeof data === 'object' && data !== null && 'id' in data && 'name' in data && 'email' in data
+  );
 }
 
 // Discriminated unions
-type ApiResponse =
-    | { status: 'success'; data: UserData }
-    | { status: 'error'; error: string };
+type ApiResponse = { status: 'success'; data: UserData } | { status: 'error'; error: string };
 
 function handleResponse(response: ApiResponse) {
-    if (response.status === 'success') {
-        // TypeScript knows response.data exists
-        return response.data;
-    }
-    // TypeScript knows response.error exists
-    throw new Error(response.error);
+  if (response.status === 'success') {
+    // TypeScript knows response.data exists
+    return response.data;
+  }
+  // TypeScript knows response.error exists
+  throw new Error(response.error);
 }
 ```
 
@@ -119,15 +113,15 @@ fetchUser(id); // Exception is lost!
 ```typescript
 // ✅ Good: try/catch with proper typing
 async function loadUser(id: string): Promise<User | null> {
-    try {
-        const response = await api.get<User>(`/users/${id}`);
-        return response.data;
-    } catch (error) {
-        if (error instanceof ApiError) {
-            console.error('API Error:', error.message);
-        }
-        return null;
+  try {
+    const response = await api.get<User>(`/users/${id}`);
+    return response.data;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      console.error('API Error:', error.message);
     }
+    return null;
+  }
 }
 ```
 
@@ -138,11 +132,11 @@ All single-line control statements need braces:
 ```typescript
 // ✅ Good: Always use braces
 if (condition) {
-    doSomething();
+  doSomething();
 }
 
 for (const item of items) {
-    process(item);
+  process(item);
 }
 
 // ❌ Bad: No braces
@@ -156,17 +150,17 @@ Follow HTTP verb prefixes for API-related types:
 ```typescript
 // Request/Response interfaces
 interface PostOrganizationRequest {
-    name: string;
-    billing_email: string;
+  name: string;
+  billing_email: string;
 }
 
 interface GetOrganizationParams {
-    id: string;
+  id: string;
 }
 
 interface PatchUserRequest {
-    name?: string;
-    email?: string;
+  name?: string;
+  email?: string;
 }
 ```
 

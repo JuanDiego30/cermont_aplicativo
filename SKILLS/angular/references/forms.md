@@ -10,7 +10,7 @@ All forms in this codebase use Reactive Forms, never Template-driven forms.
 @Component({
   selector: 'app-currency-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, UiFormFieldComponent]
+  imports: [CommonModule, ReactiveFormsModule, UiFormFieldComponent],
 })
 export class CurrencyFormComponent implements OnInit {
   currencyForm!: FormGroup;
@@ -33,12 +33,12 @@ export class CurrencyFormComponent implements OnInit {
     this.currencyForm = this.fb.group({
       code: [
         { value: this.data?.code || '', disabled: this.isEditMode },
-        [Validators.required, Validators.minLength(2), Validators.maxLength(10)]
+        [Validators.required, Validators.minLength(2), Validators.maxLength(10)],
       ],
       name: [this.data?.name || '', [Validators.required, Validators.maxLength(100)]],
       minDeposit: [this.data?.minDeposit || null, [Validators.min(0)]],
       maxDeposit: [this.data?.maxDeposit || null, [Validators.min(0)]],
-      isActive: [this.data?.isActive ?? true]
+      isActive: [this.data?.isActive ?? true],
     });
 
     this.currencyForm.setValidators(this.limitsValidator);
@@ -60,20 +60,20 @@ export class CurrencyFormComponent implements OnInit {
     }
 
     this.loading = true;
-    const formValue = this.currencyForm.getRawValue();  // Includes disabled fields
+    const formValue = this.currencyForm.getRawValue(); // Includes disabled fields
 
     const save$ = this.isEditMode
       ? this.currencyService.update(this.data!.id!, formValue)
       : this.currencyService.create(formValue);
 
     save$.subscribe({
-      next: (result) => {
+      next: result => {
         this.dialogRef.close(result);
       },
-      error: (error) => {
+      error: error => {
         console.error('Save failed:', error);
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -97,11 +97,12 @@ export class CurrencyFormComponent implements OnInit {
 ```html
 <!-- BAD - Template-driven form -->
 <form #myForm="ngForm" (ngSubmit)="onSubmit(myForm.value)">
-  <input [(ngModel)]="user.name" name="name" required>
+  <input [(ngModel)]="user.name" name="name" required />
 </form>
 ```
 
 **Why This Breaks:**
+
 1. Logic scattered between template and component
 2. Harder to unit test (requires DOM)
 3. Complex validation is awkward
@@ -113,13 +114,13 @@ export class CurrencyFormComponent implements OnInit {
 ```typescript
 // GOOD - Reactive form
 this.form = this.fb.group({
-  name: ['', Validators.required]
+  name: ['', Validators.required],
 });
 ```
 
 ```html
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
-  <input formControlName="name">
+  <input formControlName="name" />
 </form>
 ```
 
@@ -131,11 +132,12 @@ this.form = this.fb.group({
 
 ```html
 <!-- BAD - No feedback to user -->
-<input formControlName="email">
+<input formControlName="email" />
 <button type="submit">Save</button>
 ```
 
 **Why This Breaks:**
+
 1. Users don't know what's wrong
 2. Form appears broken
 3. Bad UX, support tickets
@@ -144,7 +146,10 @@ this.form = this.fb.group({
 
 ```html
 <!-- GOOD - Clear error messages -->
-<input formControlName="email" [class.error]="form.get('email')?.invalid && form.get('email')?.touched">
+<input
+  formControlName="email"
+  [class.error]="form.get('email')?.invalid && form.get('email')?.touched"
+/>
 <div *ngIf="form.get('email')?.invalid && form.get('email')?.touched" class="error-message">
   <span *ngIf="form.get('email')?.errors?.['required']">Email is required</span>
   <span *ngIf="form.get('email')?.errors?.['email']">Invalid email format</span>
@@ -169,7 +174,7 @@ private initializeForm(): void {
 passwordMatchValidator(form: FormGroup): ValidationErrors | null {
   const password = form.get('password')?.value;
   const confirm = form.get('confirmPassword')?.value;
-  
+
   if (password && confirm && password !== confirm) {
     return { passwordMismatch: true };
   }
@@ -178,9 +183,7 @@ passwordMatchValidator(form: FormGroup): ValidationErrors | null {
 ```
 
 ```html
-<div *ngIf="form.errors?.['passwordMismatch']" class="error-message">
-  Passwords do not match
-</div>
+<div *ngIf="form.errors?.['passwordMismatch']" class="error-message">Passwords do not match</div>
 ```
 
 ---
@@ -216,8 +219,10 @@ removeReward(index: number): void {
 
 ```html
 <div *ngFor="let reward of rewardsArray.controls; let i = index" [formGroupName]="i">
-  <input formControlName="amount" type="number">
-  <select formControlName="currency">...</select>
+  <input formControlName="amount" type="number" />
+  <select formControlName="currency">
+    ...
+  </select>
   <button (click)="removeReward(i)">Remove</button>
 </div>
 ```
@@ -253,7 +258,7 @@ export class BonusFormStateService {
       category: null,
       name: '',
       rewards: [],
-      lastUpdatedStep: null
+      lastUpdatedStep: null,
     };
   }
 }
@@ -285,12 +290,12 @@ this.form = this.fb.group({
 
 ## Quick Reference
 
-| Task | Method |
-|------|--------|
-| Get form value | `form.value` or `form.getRawValue()` |
-| Check validity | `form.valid` / `form.invalid` |
-| Mark as touched | `control.markAsTouched()` |
-| Reset form | `form.reset()` or `form.reset(initialValues)` |
-| Disable field | `control.disable()` |
-| Get nested control | `form.get('address.city')` |
-| Patch partial values | `form.patchValue({ name: 'New' })` |
+| Task                 | Method                                        |
+| -------------------- | --------------------------------------------- |
+| Get form value       | `form.value` or `form.getRawValue()`          |
+| Check validity       | `form.valid` / `form.invalid`                 |
+| Mark as touched      | `control.markAsTouched()`                     |
+| Reset form           | `form.reset()` or `form.reset(initialValues)` |
+| Disable field        | `control.disable()`                           |
+| Get nested control   | `form.get('address.city')`                    |
+| Patch partial values | `form.patchValue({ name: 'New' })`            |

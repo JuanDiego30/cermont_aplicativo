@@ -113,12 +113,12 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('@/views/Home.vue'),
-    meta: { title: 'Home' }
+    meta: { title: 'Home' },
   },
   {
     path: '/login',
     component: () => import('@/views/Login.vue'),
-    meta: { title: 'Login', requiresGuest: true }
+    meta: { title: 'Login', requiresGuest: true },
   },
   {
     path: '/dashboard',
@@ -128,30 +128,30 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'users',
         component: () => import('@/views/Users.vue'),
-        meta: { title: 'Users' }
+        meta: { title: 'Users' },
       },
       {
         path: 'analytics',
         component: () => import('@/views/Analytics.vue'),
-        meta: { title: 'Analytics' }
-      }
-    ]
+        meta: { title: 'Analytics' },
+      },
+    ],
   },
   {
     path: '/users/:id',
     component: () => import('@/views/UserDetail.vue'),
-    meta: { title: 'User Details', requiresAuth: true }
+    meta: { title: 'User Details', requiresAuth: true },
   },
   {
     path: '/:pathMatch(.*)*',
     component: () => import('@/views/NotFound.vue'),
-    meta: { title: 'Not Found' }
-  }
+    meta: { title: 'Not Found' },
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes
+  routes,
 });
 
 // Navigation guards
@@ -195,14 +195,12 @@ const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   {
     path: 'home',
-    loadComponent: () =>
-      import('./pages/home/home.component').then(m => m.HomeComponent)
+    loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent),
   },
   {
     path: 'login',
-    loadComponent: () =>
-      import('./pages/login/login.component').then(m => m.LoginComponent),
-    canActivate: [GuestGuard]
+    loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent),
+    canActivate: [GuestGuard],
   },
   {
     path: 'dashboard',
@@ -211,35 +209,28 @@ const routes: Routes = [
     children: [
       {
         path: 'users',
-        loadChildren: () =>
-          import('./features/users/users.module').then(m => m.UsersModule)
-      }
-    ]
+        loadChildren: () => import('./features/users/users.module').then(m => m.UsersModule),
+      },
+    ],
   },
   {
     path: 'users/:id',
     loadComponent: () =>
-      import('./pages/user-detail/user-detail.component')
-        .then(m => m.UserDetailComponent),
-    canActivate: [AuthGuard]
+      import('./pages/user-detail/user-detail.component').then(m => m.UserDetailComponent),
+    canActivate: [AuthGuard],
   },
-  { path: '**', redirectTo: '/home' }
+  { path: '**', redirectTo: '/home' },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
 export class AppRoutingModule {}
 
 // auth.guard.ts
 import { Injectable } from '@angular/core';
-import {
-  CanActivate,
-  ActivatedRouteSnapshot,
-  RouterStateSnapshot,
-  Router
-} from '@angular/router';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Injectable({ providedIn: 'root' })
@@ -249,10 +240,7 @@ export class AuthGuard implements CanActivate {
     private router: Router
   ) {}
 
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): boolean {
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     if (this.authService.isAuthenticated()) {
       return true;
     }
@@ -268,7 +256,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-detail',
-  templateUrl: './user-detail.component.html'
+  templateUrl: './user-detail.component.html',
 })
 export class UserDetailComponent implements OnInit {
   userId: string | null = null;
@@ -297,7 +285,7 @@ export class UserDetailComponent implements OnInit {
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { tab },
-      queryParamsHandling: 'merge'
+      queryParamsHandling: 'merge',
     });
   }
 }

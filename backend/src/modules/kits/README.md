@@ -27,17 +27,17 @@ El módulo de Kits gestiona plantillas predefinidas de herramientas, equipos, do
 
 ## Use Cases
 
-| Use Case | Description |
-|----------|-------------|
-| `CreateKitUseCase` | Crear un nuevo kit |
-| `UpdateKitUseCase` | Actualizar información de kit |
-| `DeleteKitUseCase` | Eliminar kit (soft delete) |
-| `GetKitUseCase` | Obtener kit por ID |
-| `ListKitsUseCase` | Listar kits con filtros |
-| `AddItemToKitUseCase` | Agregar item a kit |
-| `RemoveItemFromKitUseCase` | Eliminar item de kit |
-| `ActivateKitUseCase` | Activar kit |
-| `DeactivateKitUseCase` | Desactivar kit |
+| Use Case                   | Description                   |
+| -------------------------- | ----------------------------- |
+| `CreateKitUseCase`         | Crear un nuevo kit            |
+| `UpdateKitUseCase`         | Actualizar información de kit |
+| `DeleteKitUseCase`         | Eliminar kit (soft delete)    |
+| `GetKitUseCase`            | Obtener kit por ID            |
+| `ListKitsUseCase`          | Listar kits con filtros       |
+| `AddItemToKitUseCase`      | Agregar item a kit            |
+| `RemoveItemFromKitUseCase` | Eliminar item de kit          |
+| `ActivateKitUseCase`       | Activar kit                   |
+| `DeactivateKitUseCase`     | Desactivar kit                |
 
 ## Value Objects
 

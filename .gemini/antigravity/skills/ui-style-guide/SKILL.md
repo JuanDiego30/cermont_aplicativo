@@ -51,18 +51,17 @@ src/app/
 - Avoid external CSS files; use **Tailwind CSS** utility classes directly in the template.
 
 ```typescript
-
 @Component({
-    selector: 'app-example',
-    imports: [CommonModule, RouterLink], // Explicit imports
-    template: `
+  selector: 'app-example',
+  imports: [CommonModule, RouterLink], // Explicit imports
+  template: `
     <div class="p-4 bg-surface-100 rounded-lg">
       <h1 class="text-2xl font-bold text-gray-900">{{ title() }}</h1>
     </div>
-  `
+  `,
 })
 export class ExampleComponent {
-    title = signal('Hello World');
+  title = signal('Hello World');
 }
 ```
 
@@ -73,12 +72,10 @@ Use the new built-in Angular Control Flow syntax.
 ```html
 <!-- Good -->
 @if (isLoading()) {
-<app-spinner/>
-} @else {
-@for (item of items(); track item.id) {
-<app-item [data]="item"/>
-}
-}
+<app-spinner />
+} @else { @for (item of items(); track item.id) {
+<app-item [data]="item" />
+} }
 ```
 
 ### Dependency Injection
@@ -107,20 +104,19 @@ route: ActivatedRoute
 - **Reactive Data:** Use `computed()` for derived state and `effect()` sparingly for side effects.
 
 ```typescript
-
 @Injectable()
 export class SessionStore {
-    // State
-    private readonly _state = signal<SessionState>(initialState);
+  // State
+  private readonly _state = signal<SessionState>(initialState);
 
-    // Selectors
-    readonly lobby = computed(() => this._state().lobby);
-    readonly connection = computed(() => this._state().connection);
+  // Selectors
+  readonly lobby = computed(() => this._state().lobby);
+  readonly connection = computed(() => this._state().connection);
 
-    // Actions
-    setLobby(lobby: Lobby) {
-        this._state.update(s => ({...s, lobby}));
-    }
+  // Actions
+  setLobby(lobby: Lobby) {
+    this._state.update(s => ({ ...s, lobby }));
+  }
 }
 ```
 
@@ -141,7 +137,7 @@ The application uses a semantic naming convention mapped to Tailwind colors.
 #### Core Colors
 
 | Category          | Semantic Name   | Light Mode    | Dark Mode        | Usage                                |
-|:------------------|:----------------|:--------------|:-----------------|:-------------------------------------|
+| :---------------- | :-------------- | :------------ | :--------------- | :----------------------------------- |
 | **Background**    | `background`    | `gray-50`     | `gray-950`       | Main application background          |
 | **Surface**       | `surface`       | `white`       | `gray-900`       | Cards, modals, sections              |
 | **Surface Alt**   | `surface-alt`   | `gray-100`    | `gray-800`       | Secondary backgrounds, input fields  |
@@ -157,7 +153,7 @@ The application uses a semantic naming convention mapped to Tailwind colors.
 #### Typography & Borders
 
 | Category      | Light Mode | Dark Mode  | Usage                              |
-|:--------------|:-----------|:-----------|:-----------------------------------|
+| :------------ | :--------- | :--------- | :--------------------------------- |
 | **Primary**   | `gray-900` | `white`    | Main headings and body text        |
 | **Secondary** | `gray-500` | `gray-400` | Subtitles, labels, secondary info  |
 | **Muted**     | `gray-400` | `gray-500` | Disabled text, placeholders        |
@@ -169,9 +165,9 @@ Colors are defined using CSS variables in the `@theme` block:
 
 ```css
 @theme {
-    --color-brand-600: var(--color-blue-600);
-    --color-surface-100: var(--color-stone-100);
-    /* ... */
+  --color-brand-600: var(--color-blue-600);
+  --color-surface-100: var(--color-stone-100);
+  /* ... */
 }
 ```
 
@@ -182,9 +178,10 @@ Colors are defined using CSS variables in the `@theme` block:
 Standard styling for content containers (like estimation cards, lists):
 
 ```html
-
-<div class="flex flex-col bg-surface-100/60 border border-surface-200 dark:bg-gray-900/40 dark:border-gray-800/60 rounded-md shadow-sm">
-    <!-- Content -->
+<div
+  class="flex flex-col bg-surface-100/60 border border-surface-200 dark:bg-gray-900/40 dark:border-gray-800/60 rounded-md shadow-sm"
+>
+  <!-- Content -->
 </div>
 ```
 
@@ -196,9 +193,8 @@ Standard styling for content containers (like estimation cards, lists):
 ### Typography Headers
 
 ```html
-
 <div class="flex flex-col gap-1">
-    <h2 class="text-2xl font-semibold leading-none text-gray-900 dark:text-white">Title</h2>
-    <span class="text-sm font-normal text-gray-600 dark:text-gray-400">Subtitle description</span>
+  <h2 class="text-2xl font-semibold leading-none text-gray-900 dark:text-white">Title</h2>
+  <span class="text-sm font-normal text-gray-600 dark:text-gray-400">Subtitle description</span>
 </div>
 ```

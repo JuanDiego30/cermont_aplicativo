@@ -9,25 +9,25 @@
 
 ## ⚙️ Environment
 
-| Variable | Value |
-|----------|-------|
-| **Node.js** | v24.12.0 |
-| **pnpm** | 9.15.4 |
-| **OS** | win32 |
-| **Runner** | Local/Unknown |
+| Variable    | Value         |
+| ----------- | ------------- |
+| **Node.js** | v24.12.0      |
+| **pnpm**    | 9.15.4        |
+| **OS**      | win32         |
+| **Runner**  | Local/Unknown |
 
 ---
 
 ## 📈 Summary
 
-| Module | Status | Errors | Warnings | Details |
-|--------|--------|--------|----------|---------|
-| **Backend Lint** | ⏳ | - | - | See details below |
-| **Frontend Lint** | ⏳ | - | - | See details below |
-| **Type Check** | ⏳ | - | - | See details below |
-| **Tests** | ⏳ | - | - | See details below |
-| **Build** | ⏳ | - | - | See details below |
-| **API Coherence** | ❌ | 41 | - | API calls vs Backend routes |
+| Module            | Status | Errors | Warnings | Details                     |
+| ----------------- | ------ | ------ | -------- | --------------------------- |
+| **Backend Lint**  | ⏳     | -      | -        | See details below           |
+| **Frontend Lint** | ⏳     | -      | -        | See details below           |
+| **Type Check**    | ⏳     | -      | -        | See details below           |
+| **Tests**         | ⏳     | -      | -        | See details below           |
+| **Build**         | ⏳     | -      | -        | See details below           |
+| **API Coherence** | ❌     | 41     | -        | API calls vs Backend routes |
 
 ---
 
@@ -71,7 +71,8 @@
    - File: `frontend/src/app/core/services/auth.service.ts:140`
 
 10. `/api/:param/2fa/verify`
-   - File: `frontend/src/app/core/services/auth.service.ts:149`
+
+- File: `frontend/src/app/core/services/auth.service.ts:149`
 
 ### 2. Linting Results
 
@@ -106,6 +107,7 @@
 ### API Coherence Script
 
 **Note:** Initial run detected 41 inconsistencies. These may include false positives due to:
+
 - Dynamic route parameters (:/userId, /:id, etc.)
 - Template strings (${variable})
 - Normalization of all :param to :param
@@ -115,6 +117,7 @@
 ### ESLint Configuration
 
 **Note:** May require `globals` package:
+
 ```bash
 cd backend && pnpm add -D globals
 ```

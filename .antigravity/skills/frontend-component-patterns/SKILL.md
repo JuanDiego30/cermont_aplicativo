@@ -45,16 +45,16 @@ description: Build reusable, composable, and maintainable React/Vue/Angular comp
 function UserProfile() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     fetch(`/api/users/${userId}`)
       .then(r => r.json())
       .then(setUser)
       .finally(() => setLoading(false));
   }, [userId]);
-  
+
   if (loading) return <div>Loading...</div>;
-  
+
   return (
     <div className="profile">
       <img src={user.avatar} alt={user.name} />
@@ -67,10 +67,10 @@ function UserProfile() {
 // ✅ Separated - Container handles logic
 function UserProfileContainer({ userId }: { userId: string }) {
   const { data: user, isLoading } = useUser(userId);
-  
+
   if (isLoading) return <LoadingSpinner />;
   if (!user) return <NotFound />;
-  
+
   return <UserProfileView user={user} />;
 }
 
@@ -112,7 +112,7 @@ const TabsContext = React.createContext<TabsContextValue | null>(null);
 
 function Tabs({ children, defaultValue }: TabsProps) {
   const [activeTab, setActiveTab] = useState(defaultValue || '');
-  
+
   return (
     <TabsContext.Provider value={{ activeTab, setActiveTab }}>
       <div className="tabs">{children}</div>
@@ -127,9 +127,9 @@ function TabsList({ children }: { children: React.ReactNode }) {
 function TabsTrigger({ value, children }: { value: string; children: React.ReactNode }) {
   const context = useContext(TabsContext);
   if (!context) throw new Error('TabsTrigger must be inside Tabs');
-  
+
   const isActive = context.activeTab === value;
-  
+
   return (
     <button
       role="tab"
@@ -145,9 +145,9 @@ function TabsTrigger({ value, children }: { value: string; children: React.React
 function TabsContent({ value, children }: { value: string; children: React.ReactNode }) {
   const context = useContext(TabsContext);
   if (!context) throw new Error('TabsContent must be inside Tabs');
-  
+
   if (context.activeTab !== value) return null;
-  
+
   return <div role="tabpanel">{children}</div>;
 }
 
@@ -163,15 +163,15 @@ function App() {
         <TabsTrigger value="password">Password</TabsTrigger>
         <TabsTrigger value="notifications">Notifications</TabsTrigger>
       </TabsList>
-      
+
       <TabsContent value="account">
         <AccountSettings />
       </TabsContent>
-      
+
       <TabsContent value="password">
         <PasswordSettings />
       </TabsContent>
-      
+
       <TabsContent value="notifications">
         <NotificationSettings />
       </TabsContent>
@@ -190,16 +190,16 @@ interface MousePositionProps {
 
 function MousePosition({ children }: MousePositionProps) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  
+
   useEffect(() => {
     const handleMove = (e: MouseEvent) => {
       setPosition({ x: e.clientX, y: e.clientY });
     };
-    
+
     window.addEventListener('mousemove', handleMove);
     return () => window.removeEventListener('mousemove', handleMove);
   }, []);
-  
+
   return <>{children(position)}</>;
 }
 
@@ -223,23 +223,23 @@ function App() {
 // ✅ Extract reusable logic as hook
 function useMousePosition() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  
+
   useEffect(() => {
     const handleMove = (e: MouseEvent) => {
       setPosition({ x: e.clientX, y: e.clientY });
     };
-    
+
     window.addEventListener('mousemove', handleMove);
     return () => window.removeEventListener('mousemove', handleMove);
   }, []);
-  
+
   return position;
 }
 
 // Usage - cleaner than render props
 function App() {
   const { x, y } = useMousePosition();
-  
+
   return (
     <div>
       Mouse is at ({x}, {y})
@@ -250,12 +250,12 @@ function App() {
 // ✅ More custom hooks examples
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState(value);
-  
+
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedValue(value), delay);
     return () => clearTimeout(timer);
   }, [value, delay]);
-  
+
   return debouncedValue;
 }
 
@@ -264,11 +264,11 @@ function useLocalStorage<T>(key: string, initialValue: T) {
     const stored = localStorage.getItem(key);
     return stored ? JSON.parse(stored) : initialValue;
   });
-  
+
   useEffect(() => {
     localStorage.setItem(key, JSON.stringify(value));
   }, [key, value]);
-  
+
   return [value, setValue] as const;
 }
 ```
@@ -286,7 +286,7 @@ function withLoading<P extends object>(
     if (props.isLoading) {
       return <LoadingSpinner />;
     }
-    
+
     return <Component {...props} />;
   };
 }
@@ -322,7 +322,7 @@ function Button({ label, onClick, disabled }: ButtonProps) {
 // ✅ State - internal to component
 function Counter() {
   const [count, setCount] = useState(0); // Local state
-  
+
   return (
     <div>
       <p>Count: {count}</p>
@@ -333,14 +333,14 @@ function Counter() {
 
 // ✅ Controlled vs Uncontrolled
 // Controlled - value from props (parent controls)
-function ControlledInput({ value, onChange }: { 
-  value: string; 
-  onChange: (value: string) => void; 
+function ControlledInput({ value, onChange }: {
+  value: string;
+  onChange: (value: string) => void;
 }) {
   return (
-    <input 
-      value={value} 
-      onChange={(e) => onChange(e.target.value)} 
+    <input
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
     />
   );
 }
@@ -348,11 +348,11 @@ function ControlledInput({ value, onChange }: {
 // Uncontrolled - internal state (component controls)
 function UncontrolledInput() {
   const inputRef = useRef<HTMLInputElement>(null);
-  
+
   const handleSubmit = () => {
     console.log(inputRef.current?.value);
   };
-  
+
   return (
     <>
       <input ref={inputRef} defaultValue="initial" />
@@ -378,7 +378,7 @@ function ParentBad() {
 // ✅ Shared state in parent
 function ParentGood() {
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   return (
     <>
       <SearchBox query={searchQuery} onQueryChange={setSearchQuery} />
@@ -415,7 +415,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState('light');
-  
+
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
       {children}
@@ -432,7 +432,7 @@ function useTheme() {
 // Usage - no prop drilling
 function ThemeToggle() {
   const { theme, setTheme } = useTheme();
-  
+
   return (
     <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
       Toggle {theme} theme
@@ -453,10 +453,10 @@ function ExpensiveComponent({ data }: { data: string }) {
 }
 
 // ✅ Only re-renders when props change
-const ExpensiveComponent = memo(function ExpensiveComponent({ 
-  data 
-}: { 
-  data: string 
+const ExpensiveComponent = memo(function ExpensiveComponent({
+  data
+}: {
+  data: string
 }) {
   console.log('Rendering...');
   return <div>{data}</div>;
@@ -480,12 +480,12 @@ const ExpensiveList = memo(
 function ProductList({ products, filters }: { products: Product[]; filters: Filters }) {
   // ❌ Recalculates on every render
   const filteredProducts = products.filter(p => matchesFilters(p, filters));
-  
+
   // ✅ Only recalculates when dependencies change
   const filteredProducts = useMemo(() => {
     return products.filter(p => matchesFilters(p, filters));
   }, [products, filters]);
-  
+
   return (
     <div>
       {filteredProducts.map(p => (
@@ -501,17 +501,17 @@ function ProductList({ products, filters }: { products: Product[]; filters: Filt
 ```typescript
 function Parent() {
   const [count, setCount] = useState(0);
-  
+
   // ❌ New function on every render (causes child re-render)
   const handleClick = () => {
     console.log('clicked');
   };
-  
+
   // ✅ Stable function reference
   const handleClick = useCallback(() => {
     console.log('clicked');
   }, []); // No dependencies - never changes
-  
+
   return (
     <>
       <p>{count}</p>
@@ -565,10 +565,10 @@ function AccessibleButton({ label, onClick }: { label: string; onClick: () => vo
 }
 
 // ✅ Accessible modal
-function Modal({ isOpen, onClose, children }: { 
-  isOpen: boolean; 
-  onClose: () => void; 
-  children: React.ReactNode; 
+function Modal({ isOpen, onClose, children }: {
+  isOpen: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
 }) {
   useEffect(() => {
     if (isOpen) {
@@ -579,9 +579,9 @@ function Modal({ isOpen, onClose, children }: {
       document.body.style.overflow = '';
     };
   }, [isOpen]);
-  
+
   if (!isOpen) return null;
-  
+
   return (
     <div
       role="dialog"
@@ -612,7 +612,7 @@ function SignupForm() {
       <span id="email-error" role="alert" className="error">
         Please enter a valid email
       </span>
-      
+
       <button type="submit">Sign Up</button>
     </form>
   );
@@ -626,7 +626,7 @@ function SignupForm() {
 function Dropdown({ options }: { options: string[] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       setIsOpen(!isOpen);
@@ -638,7 +638,7 @@ function Dropdown({ options }: { options: string[] }) {
       setIsOpen(false);
     }
   };
-  
+
   return (
     <div
       role="combobox"
@@ -650,7 +650,7 @@ function Dropdown({ options }: { options: string[] }) {
       <button onClick={() => setIsOpen(!isOpen)}>
         Select option
       </button>
-      
+
       {isOpen && (
         <ul id="dropdown-options" role="listbox">
           {options.map((opt, i) => (

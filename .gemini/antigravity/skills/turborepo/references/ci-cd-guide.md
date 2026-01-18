@@ -9,12 +9,14 @@ Complete guide to integrating Turborepo with CI/CD platforms, including remote c
 ## Overview
 
 Turborepo dramatically speeds up CI/CD pipelines through:
+
 - **Remote caching**: Share build artifacts across machines
 - **Incremental builds**: Only rebuild what changed
 - **Parallel execution**: Run independent tasks simultaneously
 - **Smart filtering**: Build only affected packages
 
 **Typical improvements**:
+
 - 50-90% faster builds
 - Reduced compute costs
 - Consistent builds across environments
@@ -76,12 +78,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history for git filters
+          fetch-depth: 0 # Fetch all history for git filters
 
       - uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: 'npm'  # Cache npm dependencies
+          cache: 'npm' # Cache npm dependencies
 
       - name: Cache Turbo
         uses: actions/cache@v3
@@ -286,7 +288,7 @@ workflows:
 
 ```yaml
 steps:
-  - label: ":turborepo: Build"
+  - label: ':turborepo: Build'
     command: |
       npm ci
       npx turbo run build test
@@ -295,7 +297,7 @@ steps:
       TURBO_TEAM: ${TURBO_TEAM}
     plugins:
       - docker#v3.8.0:
-          image: "node:18"
+          image: 'node:18'
 ```
 
 ---
@@ -402,7 +404,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - .:/app
       - /app/node_modules
@@ -416,16 +418,19 @@ services:
 ### Vercel Remote Cache (Recommended)
 
 **1. Login to Vercel:**
+
 ```bash
 turbo login
 ```
 
 **2. Link repository:**
+
 ```bash
 turbo link
 ```
 
 **3. Configure CI:**
+
 ```yaml
 # GitHub Actions
 env:
@@ -434,6 +439,7 @@ env:
 ```
 
 **4. Get tokens:**
+
 - Go to Vercel dashboard
 - Settings → Tokens
 - Create new token
@@ -444,6 +450,7 @@ env:
 **1. Set up cache server** (e.g., S3, GCS, custom)
 
 **2. Configure `.turbo/config.json`:**
+
 ```json
 {
   "teamid": "team_123",
@@ -453,6 +460,7 @@ env:
 ```
 
 **3. Set environment variables:**
+
 ```bash
 export TURBO_API="https://cache.example.com"
 export TURBO_TOKEN="your-token"
@@ -478,6 +486,7 @@ turbo run build --filter='...[HEAD^1]'
 ### 2. Cache Dependencies
 
 **GitHub Actions:**
+
 ```yaml
 - uses: actions/cache@v3
   with:
@@ -486,6 +495,7 @@ turbo run build --filter='...[HEAD^1]'
 ```
 
 **GitLab CI:**
+
 ```yaml
 cache:
   key:
@@ -545,6 +555,7 @@ turbo run build --output-logs=hash-only
 ### Secrets Management
 
 **GitHub Actions:**
+
 ```yaml
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -553,6 +564,7 @@ env:
 ```
 
 **GitLab CI:**
+
 ```yaml
 variables:
   TURBO_TOKEN: $TURBO_TOKEN
@@ -615,17 +627,20 @@ jobs:
 ### Cache Not Working
 
 1. Verify environment variables:
+
 ```bash
 echo $TURBO_TOKEN
 echo $TURBO_TEAM
 ```
 
 2. Check connection:
+
 ```bash
 turbo run build --output-logs=hash-only
 ```
 
 3. Test locally:
+
 ```bash
 turbo login
 turbo link
@@ -635,11 +650,13 @@ turbo run build
 ### Builds Too Slow
 
 1. Use filters:
+
 ```bash
 turbo run build --filter='...[origin/main]'
 ```
 
 2. Enable remote cache:
+
 ```yaml
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -647,6 +664,7 @@ env:
 ```
 
 3. Cache dependencies:
+
 ```yaml
 - uses: actions/cache@v3
   with:
@@ -656,11 +674,13 @@ env:
 ### Out of Memory
 
 1. Limit concurrency:
+
 ```bash
 turbo run build --concurrency=1
 ```
 
 2. Increase Node memory:
+
 ```bash
 NODE_OPTIONS="--max-old-space-size=4096" turbo run build
 ```
@@ -693,13 +713,14 @@ NODE_OPTIONS="--max-old-space-size=4096" turbo run build
 
 Typical improvements with Turborepo + remote cache:
 
-| Project Size | Without Turbo | With Turbo | Improvement |
-|-------------|---------------|------------|-------------|
-| Small (5 packages) | 3 min | 45 sec | 75% faster |
-| Medium (15 packages) | 8 min | 1.5 min | 81% faster |
-| Large (50+ packages) | 25 min | 3 min | 88% faster |
+| Project Size         | Without Turbo | With Turbo | Improvement |
+| -------------------- | ------------- | ---------- | ----------- |
+| Small (5 packages)   | 3 min         | 45 sec     | 75% faster  |
+| Medium (15 packages) | 8 min         | 1.5 min    | 81% faster  |
+| Large (50+ packages) | 25 min        | 3 min      | 88% faster  |
 
 **Note**: Results vary based on:
+
 - Number of packages
 - Task dependencies
 - Cache hit rate

@@ -17,6 +17,7 @@ This skill empowers Claude to build production-ready CI/CD pipelines, automating
 ## When to Use This Skill
 
 This skill activates when you need to:
+
 - Create a CI/CD pipeline for a software project.
 - Generate a CI/CD configuration file for GitHub Actions, GitLab CI, or Jenkins.
 - Automate testing, building, security scanning, and deployment processes.
@@ -28,6 +29,7 @@ This skill activates when you need to:
 User request: "Create a GitHub Actions pipeline with test, build, and deploy stages."
 
 The skill will:
+
 1. Generate a `github-actions.yml` file with defined test, build, and deploy stages.
 2. Present the generated YAML configuration to the user.
 
@@ -36,6 +38,7 @@ The skill will:
 User request: "Generate a GitLab CI configuration that includes security scanning."
 
 The skill will:
+
 1. Generate a `.gitlab-ci.yml` file with test, build, security, and deploy stages, including vulnerability scanning.
 2. Present the generated YAML configuration to the user.
 

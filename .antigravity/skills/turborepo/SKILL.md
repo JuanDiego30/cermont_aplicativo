@@ -20,29 +20,33 @@ metadata:
 ---
 
 <!-- Cermont Project Fit -->
+
 ## Project Fit
 
-| Attribute | Value |
-|-----------|-------|
-| **Applies to** | monorepo (all packages) |
-| **Requires** | pnpm, Turborepo |
+| Attribute             | Value                           |
+| --------------------- | ------------------------------- |
+| **Applies to**        | monorepo (all packages)         |
+| **Requires**          | pnpm, Turborepo                 |
 | **Not for this repo** | Nx, Lerna, Rush, npm, yarn, bun |
-| **Status** | ✅ PRIMARY for Monorepo family |
+| **Status**            | ✅ PRIMARY for Monorepo family  |
 
 ### Guardrails
 
 **Does NOT do:**
+
 - Install dependencies without user approval
 - Modify pnpm-lock.yaml directly
 - Change turbo.json cache configuration automatically
 
 **Safety Checklist:**
+
 ```bash
 pnpm -r lint
 pnpm -r test
 pnpm -r build
 # Rollback: git restore -SW .
 ```
+
 <!-- End Project Fit -->
 
 # Turborepo Skill
@@ -142,6 +146,7 @@ Turborepo caches task outputs based on inputs:
 - **Cache Restoration**: Instant task completion from cache
 
 **Cache Benefits**:
+
 - 50-90% faster builds
 - Reduced CI compute costs
 - Consistent builds across environments
@@ -207,6 +212,7 @@ bun add turbo --dev
 **For complete configuration guide**: Load `references/configuration-guide.md` when configuring turbo.json, task pipelines, or framework-specific setups.
 
 **Available Templates**:
+
 - `templates/turbo-basic.json` - Minimal configuration
 - `templates/turbo-fullstack.json` - Production-ready setup
 - `templates/turbo-nextjs.json` - Next.js specific
@@ -325,6 +331,7 @@ jobs:
 **For complete CI/CD guide**: Load `references/ci-cd-guide.md` when setting up CI/CD pipelines, optimizing builds, or configuring platform-specific workflows (GitHub Actions, GitLab, Docker, etc.).
 
 **Complete Templates**:
+
 - `templates/github-actions.yml` - GitHub Actions
 - `templates/gitlab-ci.yml` - GitLab CI
 - `templates/Dockerfile` - Docker builds
@@ -336,6 +343,7 @@ jobs:
 ### Quick Fixes
 
 **Cache not working:**
+
 ```bash
 turbo run build --dry-run=json  # Check cache hash
 turbo run build --force          # Force rebuild
@@ -343,17 +351,19 @@ rm -rf ./node_modules/.cache/turbo
 ```
 
 **Tasks running in wrong order:**
+
 - Check `dependsOn` configuration
 - Use `^task` for dependency tasks
 - Verify task names match package.json scripts
 
 **Dev server not starting:**
+
 ```json
 {
   "pipeline": {
     "dev": {
       "cache": false,
-      "persistent": true  // Add this
+      "persistent": true // Add this
     }
   }
 }
@@ -378,6 +388,7 @@ npm install turbo --save-dev
 ```
 
 **Command Mapping**:
+
 - `lerna run build` → `turbo run build`
 - `lerna run test --scope=pkg` → `turbo run test --filter=pkg`
 - `lerna run build --since main` → `turbo run build --filter='...[main]'`
@@ -394,6 +405,7 @@ npm install turbo --save-dev
 ```
 
 **Command Mapping**:
+
 - `nx run-many --target=build` → `turbo run build`
 - `nx run app:build` → `turbo run build --filter=app`
 - `nx affected --target=build` → `turbo run build --filter='...[origin/main]'`
@@ -407,28 +419,36 @@ npm install turbo --save-dev
 Load reference files when working on specific aspects of Turborepo:
 
 ### configuration-guide.md
+
 Load when:
+
 - **Task-based**: Configuring turbo.json for the first time, setting up task pipelines with complex dependencies
 - **Framework-based**: Configuring framework-specific builds (Next.js, Vite, Nuxt, Remix, Astro, SvelteKit)
 - **Command-based**: Using advanced command options (prune, gen, link with custom configs)
 - **Problem-based**: Need detailed examples of pipeline configuration, environment variable setup
 
 ### best-practices-patterns.md
+
 Load when:
+
 - **Project setup**: Structuring a new monorepo, organizing packages and apps
 - **Optimization**: Optimizing task dependencies, cache configuration, environment variable usage
 - **Architecture**: Implementing full-stack applications, shared component libraries, microfrontends, multi-platform setups
 - **Team setup**: Implementing remote caching strategies, organizing scripts consistently
 
 ### advanced-filtering.md
+
 Load when:
+
 - **CI/CD optimization**: Implementing git-based filters to build only changed packages
 - **Selective builds**: Building specific apps with dependencies, testing only affected packages
 - **Complex filters**: Using dependency operators, exclude patterns, combined filters
 - **Performance**: Need CI/CD optimization patterns, filter benchmarks, best practices
 
 ### ci-cd-guide.md
+
 Load when:
+
 - **Platform setup**: Configuring GitHub Actions, GitLab CI, CircleCI, Buildkite, Travis CI, Vercel
 - **Docker**: Creating Docker builds with turbo prune, multi-stage builds
 - **Remote cache**: Setting up Vercel remote cache or custom cache servers
@@ -436,14 +456,18 @@ Load when:
 - **Troubleshooting**: Debugging CI/CD cache issues, out-of-memory problems
 
 ### migration-guide.md
+
 Load when:
+
 - **Migration**: Migrating from Lerna or Nx to Turborepo
 - **Conversion**: Converting lerna.json or nx.json to turbo.json
 - **Coexistence**: Running Turborepo alongside Lerna or Nx temporarily
 - **Pitfalls**: Understanding common migration pitfalls, rollback strategies, success metrics
 
 ### troubleshooting.md
+
 Load when:
+
 - **Cache issues**: Tasks not using cache, cache too large, remote cache not working
 - **Dependency issues**: Internal packages not found, version mismatches
 - **Task execution**: Tasks running in wrong order, dev servers not starting, tasks skipping unexpectedly

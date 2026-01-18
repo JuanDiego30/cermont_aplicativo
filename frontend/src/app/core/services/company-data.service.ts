@@ -37,19 +37,19 @@ export class CompanyDataService {
   // Mission statement
   readonly mission = signal<string>(
     'Prestar en todo el territorio nacional un servicio eficiente en construcción, ' +
-    'mantenimiento, montajes de obras civiles, eléctricas, refrigeración, telecomunicaciones, ' +
-    'suministros de materiales, equipos y personal técnico. Contando con un recurso humano ' +
-    'altamente calificado, tecnología de última generación y los mejores equipos disponibles ' +
-    'en el mercado bajo los estándares de calidad exigidos, manejo ambiental y el mejoramiento ' +
-    'continuo que garantizan la satisfacción de las expectativas de nuestros clientes.'
+      'mantenimiento, montajes de obras civiles, eléctricas, refrigeración, telecomunicaciones, ' +
+      'suministros de materiales, equipos y personal técnico. Contando con un recurso humano ' +
+      'altamente calificado, tecnología de última generación y los mejores equipos disponibles ' +
+      'en el mercado bajo los estándares de calidad exigidos, manejo ambiental y el mejoramiento ' +
+      'continuo que garantizan la satisfacción de las expectativas de nuestros clientes.'
   );
 
   // Vision statement
   readonly vision = signal<string>(
     'Para el año 2026 CERMONT SAS, será una empresa rentable, sólida y en continuo crecimiento, ' +
-    'con la mayor participación en el mercado nacional, por la idoneidad de su personal competente, ' +
-    'tecnología de última generación, responsabilidad social, alto desempeño y compromiso con el ' +
-    'desarrollo sostenible a nivel Nacional.'
+      'con la mayor participación en el mercado nacional, por la idoneidad de su personal competente, ' +
+      'tecnología de última generación, responsabilidad social, alto desempeño y compromiso con el ' +
+      'desarrollo sostenible a nivel Nacional.'
   );
 
   // Corporate values
@@ -95,23 +95,37 @@ export class CompanyDataService {
       {
         id: 1,
         title: 'Construcción',
-        description: 'Obras civiles de alta calidad con estándares internacionales para el sector industrial.',
+        description:
+          'Obras civiles de alta calidad con estándares internacionales para el sector industrial.',
         icon: this.getIcon('construction'),
-        features: ['Edificaciones industriales', 'Infraestructura petrolera', 'Mantenimiento preventivo'],
+        features: [
+          'Edificaciones industriales',
+          'Infraestructura petrolera',
+          'Mantenimiento preventivo',
+        ],
       },
       {
         id: 2,
         title: 'Electricidad',
-        description: 'Instalaciones eléctricas industriales y mantenimiento especializado certificado.',
+        description:
+          'Instalaciones eléctricas industriales y mantenimiento especializado certificado.',
         icon: this.getIcon('electricity'),
-        features: ['Subestaciones eléctricas', 'Sistemas de iluminación', 'Automatización industrial'],
+        features: [
+          'Subestaciones eléctricas',
+          'Sistemas de iluminación',
+          'Automatización industrial',
+        ],
       },
       {
         id: 3,
         title: 'Refrigeración',
         description: 'Sistemas HVAC y climatización industrial de última generación.',
         icon: this.getIcon('refrigeration'),
-        features: ['Aires acondicionados industriales', 'Cámaras frigoríficas', 'Mantenimiento preventivo'],
+        features: [
+          'Aires acondicionados industriales',
+          'Cámaras frigoríficas',
+          'Mantenimiento preventivo',
+        ],
       },
       {
         id: 4,
@@ -123,7 +137,8 @@ export class CompanyDataService {
       {
         id: 5,
         title: 'Telecomunicaciones',
-        description: 'Infraestructura de telecomunicaciones y redes industriales de alta capacidad.',
+        description:
+          'Infraestructura de telecomunicaciones y redes industriales de alta capacidad.',
         icon: this.getIcon('telecom'),
         features: ['Fibra óptica', 'Cableado estructurado', 'Sistemas CCTV'],
       },

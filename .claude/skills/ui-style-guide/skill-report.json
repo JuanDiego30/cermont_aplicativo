@@ -20,18 +20,8 @@
     "author": "DavidOpDeBeeck",
     "license": "MIT",
     "category": "documentation",
-    "tags": [
-      "angular",
-      "frontend",
-      "tailwindcss",
-      "coding-standards",
-      "design-system"
-    ],
-    "supported_tools": [
-      "claude",
-      "codex",
-      "claude-code"
-    ],
+    "tags": ["angular", "frontend", "tailwindcss", "coding-standards", "design-system"],
+    "supported_tools": ["claude", "codex", "claude-code"],
     "risk_factors": []
   },
   "security_audit": {

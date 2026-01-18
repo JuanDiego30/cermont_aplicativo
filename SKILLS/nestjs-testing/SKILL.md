@@ -166,13 +166,9 @@ describe('UserController', () => {
     });
 
     it('should throw NotFoundException when user not found', async () => {
-      mockUserService.findOne.mockRejectedValue(
-        new NotFoundException('User not found'),
-      );
+      mockUserService.findOne.mockRejectedValue(new NotFoundException('User not found'));
 
-      await expect(controller.findOne('999')).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(controller.findOne('999')).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -321,9 +317,7 @@ describe('UserService', () => {
 
       mockRepository.findOneBy.mockResolvedValue({ id: 1 }); // Email exists
 
-      await expect(service.create(createDto)).rejects.toThrow(
-        ConflictException,
-      );
+      await expect(service.create(createDto)).rejects.toThrow(ConflictException);
     });
   });
 
@@ -427,7 +421,7 @@ describe('Async Providers', () => {
         {
           provide: 'ASYNC_CONNECTION',
           useFactory: async () => {
-            await new Promise((resolve) => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, 100));
             return { connected: true };
           },
         },
@@ -499,9 +493,7 @@ describe('JwtAuthGuard', () => {
       headers: {},
     });
 
-    await expect(guard.canActivate(mockContext)).rejects.toThrow(
-      UnauthorizedException,
-    );
+    await expect(guard.canActivate(mockContext)).rejects.toThrow(UnauthorizedException);
   });
 
   it('should deny request with invalid token', async () => {
@@ -511,9 +503,7 @@ describe('JwtAuthGuard', () => {
 
     mockJwtService.verifyAsync.mockRejectedValue(new Error('Invalid token'));
 
-    await expect(guard.canActivate(mockContext)).rejects.toThrow(
-      UnauthorizedException,
-    );
+    await expect(guard.canActivate(mockContext)).rejects.toThrow(UnauthorizedException);
   });
 });
 
@@ -600,7 +590,7 @@ describe('TransformInterceptor', () => {
     interceptor = module.get<TransformInterceptor>(TransformInterceptor);
   });
 
-  it('should transform response data', (done) => {
+  it('should transform response data', done => {
     const mockContext = {
       switchToHttp: () => ({
         getRequest: () => ({ url: '/test' }),
@@ -612,7 +602,7 @@ describe('TransformInterceptor', () => {
     };
 
     interceptor.intercept(mockContext, mockCallHandler).subscribe({
-      next: (result) => {
+      next: result => {
         expect(result).toHaveProperty('data');
         expect(result.data).toEqual({ name: 'Test', value: 123 });
         expect(result).toHaveProperty('timestamp');
@@ -652,7 +642,7 @@ describe('CacheInterceptor', () => {
     cacheManager = module.get(CACHE_MANAGER);
   });
 
-  it('should return cached data if available', async (done) => {
+  it('should return cached data if available', async done => {
     const cachedData = { cached: true };
     mockCacheManager.get.mockResolvedValue(cachedData);
 
@@ -669,7 +659,7 @@ describe('CacheInterceptor', () => {
     const result$ = await interceptor.intercept(mockContext, mockCallHandler);
 
     result$.subscribe({
-      next: (result) => {
+      next: result => {
         expect(result).toEqual(cachedData);
         expect(cacheManager.get).toHaveBeenCalledWith('GET:/test');
         done();
@@ -677,7 +667,7 @@ describe('CacheInterceptor', () => {
     });
   });
 
-  it('should cache fresh data', (done) => {
+  it('should cache fresh data', done => {
     const freshData = { fresh: true };
     mockCacheManager.get.mockResolvedValue(null);
 
@@ -691,12 +681,12 @@ describe('CacheInterceptor', () => {
       handle: () => of(freshData),
     };
 
-    interceptor.intercept(mockContext, mockCallHandler).then((result$) => {
+    interceptor.intercept(mockContext, mockCallHandler).then(result$ => {
       result$.subscribe({
-        next: async (result) => {
+        next: async result => {
           expect(result).toEqual(freshData);
           // Give time for cache to be set
-          await new Promise((resolve) => setTimeout(resolve, 100));
+          await new Promise(resolve => setTimeout(resolve, 100));
           expect(cacheManager.set).toHaveBeenCalled();
           done();
         },
@@ -742,9 +732,7 @@ describe('ParseIntPipe', () => {
       data: 'id',
     };
 
-    await expect(pipe.transform('abc', metadata)).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(pipe.transform('abc', metadata)).rejects.toThrow(BadRequestException);
   });
 });
 
@@ -795,9 +783,7 @@ describe('CustomValidationPipe', () => {
       metatype: CreateUserDto,
     };
 
-    await expect(pipe.transform(dto, metadata)).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(pipe.transform(dto, metadata)).rejects.toThrow(BadRequestException);
   });
 });
 ```
@@ -850,7 +836,7 @@ describe('UserController (e2e)', () => {
           password: 'password123',
         })
         .expect(201)
-        .expect((res) => {
+        .expect(res => {
           expect(res.body).toHaveProperty('id');
           expect(res.body.name).toBe('John Doe');
           expect(res.body.email).toBe('john@example.com');
@@ -880,7 +866,7 @@ describe('UserController (e2e)', () => {
       return request(app.getHttpServer())
         .get('/users')
         .expect(200)
-        .expect((res) => {
+        .expect(res => {
           expect(res.body).toHaveLength(2);
           expect(res.body[0]).toHaveProperty('id');
           expect(res.body[0]).toHaveProperty('name');
@@ -888,10 +874,7 @@ describe('UserController (e2e)', () => {
     });
 
     it('should return empty array when no users', () => {
-      return request(app.getHttpServer())
-        .get('/users')
-        .expect(200)
-        .expect([]);
+      return request(app.getHttpServer()).get('/users').expect(200).expect([]);
     });
   });
 
@@ -905,7 +888,7 @@ describe('UserController (e2e)', () => {
       return request(app.getHttpServer())
         .get(`/users/${user.id}`)
         .expect(200)
-        .expect((res) => {
+        .expect(res => {
           expect(res.body.id).toBe(user.id);
           expect(res.body.name).toBe('John Doe');
         });
@@ -927,7 +910,7 @@ describe('UserController (e2e)', () => {
         .patch(`/users/${user.id}`)
         .send({ name: 'Jane Doe' })
         .expect(200)
-        .expect((res) => {
+        .expect(res => {
           expect(res.body.name).toBe('Jane Doe');
         });
     });
@@ -940,9 +923,7 @@ describe('UserController (e2e)', () => {
         email: 'john@example.com',
       });
 
-      await request(app.getHttpServer())
-        .delete(`/users/${user.id}`)
-        .expect(200);
+      await request(app.getHttpServer()).delete(`/users/${user.id}`).expect(200);
 
       // Verify deletion
       const deletedUser = await userRepository.findOne({ where: { id: user.id } });
@@ -1085,7 +1066,7 @@ describe('ChatGateway (e2e)', () => {
     await app.close();
   });
 
-  beforeEach((done) => {
+  beforeEach(done => {
     clientSocket = io('http://localhost:3001');
     clientSocket.on('connect', done);
   });
@@ -1094,22 +1075,22 @@ describe('ChatGateway (e2e)', () => {
     clientSocket.close();
   });
 
-  it('should receive messages', (done) => {
+  it('should receive messages', done => {
     clientSocket.emit('message', { text: 'Hello World' });
 
-    clientSocket.on('message', (data) => {
+    clientSocket.on('message', data => {
       expect(data.text).toBe('Hello World');
       done();
     });
   });
 
-  it('should handle multiple clients', (done) => {
+  it('should handle multiple clients', done => {
     const client2 = io('http://localhost:3001');
 
     client2.on('connect', () => {
       clientSocket.emit('message', { text: 'Broadcast' });
 
-      client2.on('message', (data) => {
+      client2.on('message', data => {
         expect(data.text).toBe('Broadcast');
         client2.close();
         done();
@@ -1167,7 +1148,7 @@ describe('UserResolver (e2e)', () => {
         `,
       })
       .expect(200)
-      .expect((res) => {
+      .expect(res => {
         expect(res.body.data.users).toBeDefined();
         expect(Array.isArray(res.body.data.users)).toBe(true);
       });
@@ -1191,7 +1172,7 @@ describe('UserResolver (e2e)', () => {
         `,
       })
       .expect(200)
-      .expect((res) => {
+      .expect(res => {
         expect(res.body.data.createUser).toHaveProperty('id');
         expect(res.body.data.createUser.name).toBe('John Doe');
       });
@@ -1251,7 +1232,7 @@ function createMockRepository() {
     find: jest.fn(),
     findOne: jest.fn(),
     save: jest.fn(),
-    create: jest.fn((dto) => dto),
+    create: jest.fn(dto => dto),
     delete: jest.fn(),
   };
 }
@@ -1277,9 +1258,7 @@ export class UserFactory {
   }
 
   static createMany(count: number, overrides?: Partial<User>): User[] {
-    return Array.from({ length: count }, (_, i) =>
-      this.create({ id: i + 1, ...overrides }),
-    );
+    return Array.from({ length: count }, (_, i) => this.create({ id: i + 1, ...overrides }));
   }
 }
 

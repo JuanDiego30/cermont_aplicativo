@@ -111,7 +111,7 @@ import {
   NotFoundError,
   ConflictError,
   EntityNotFoundError,
-  BusinessRuleViolationError
+  BusinessRuleViolationError,
 } from '@/common';
 
 // Errores de aplicación (incluyen HTTP status)
@@ -170,7 +170,6 @@ import { JwtAuthGuard, RolesGuard, Roles, CurrentUser, Public } from '@/common';
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
-
   @Get('me')
   getProfile(@CurrentUser() user: JwtPayload) {
     return user;
@@ -193,6 +192,7 @@ export class UsersController {
 ## ✅ Type Safety
 
 Todo el código es 100% type-safe:
+
 - ❌ Sin uso de `any`
 - ✅ Type guards implementados
 - ✅ Interfaces estrictas

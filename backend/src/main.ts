@@ -45,8 +45,12 @@ async function bootstrap() {
     app.use(compression());
     app.use(cookieParser());
 
-    // Global Prefix
-    app.setGlobalPrefix('api');
+    // Global Prefix y Versionado
+    app.enableVersioning({
+      type: 1, // VersioningType.URI
+      defaultVersion: '1',
+      prefix: 'api/v',
+    });
 
     // Global Validation Pipe
     app.useGlobalPipes(

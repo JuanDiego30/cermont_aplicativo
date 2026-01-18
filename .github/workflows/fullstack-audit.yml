@@ -2,15 +2,15 @@ name: 🕵️ Fullstack Auditoría Maestra
 
 on:
   push:
-    branches: [ main, master, feat/*, fix/* ]
+    branches: [main, master, feat/*, fix/*]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   full-audit:
     name: Análisis Integral de Código
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📥 Checkout del Código
         uses: actions/checkout@v4

@@ -4,8 +4,8 @@ This folder contains skills that are not applicable to the Cermont monorepo stac
 
 ## Contents
 
-| Skill | Reason for Archive |
-|-------|-------------------|
+| Skill           | Reason for Archive                                                                            |
+| --------------- | --------------------------------------------------------------------------------------------- |
 | `llvm-security` | C/C++ compiler security (LLVM IR, sanitizers). Not applicable to TypeScript/JavaScript stack. |
 
 ## Restoration

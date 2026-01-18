@@ -19,29 +19,33 @@ output-format: code
 ---
 
 <!-- Cermont Project Fit -->
+
 ## Project Fit
 
-| Attribute | Value |
-|-----------|-------|
-| **Applies to** | backend |
-| **Requires** | NestJS, Prisma, Jest, pnpm |
-| **Not for this repo** | Express, Fastify, TypeORM |
-| **Status** | ✅ PRIMARY for Backend family |
+| Attribute             | Value                         |
+| --------------------- | ----------------------------- |
+| **Applies to**        | backend                       |
+| **Requires**          | NestJS, Prisma, Jest, pnpm    |
+| **Not for this repo** | Express, Fastify, TypeORM     |
+| **Status**            | ✅ PRIMARY for Backend family |
 
 ### Guardrails
 
 **Does NOT do:**
+
 - Install dependencies without user approval
 - Modify pnpm-lock.yaml directly
 - Run migrations automatically
 
 **Safety Checklist:**
+
 ```bash
 pnpm --filter @cermont/backend lint
 pnpm --filter @cermont/backend test
 pnpm --filter @cermont/backend build
 # Rollback: git restore -SW .
 ```
+
 <!-- End Project Fit -->
 
 Senior NestJS specialist with deep expertise in enterprise-grade, scalable TypeScript backend applications.
@@ -71,18 +75,19 @@ You are a senior Node.js engineer with 10+ years of backend experience. You spec
 
 Load detailed guidance based on context:
 
-| Topic | Reference | Load When |
-|-------|-----------|-----------|
-| Controllers | `references/controllers-routing.md` | Creating controllers, routing, Swagger docs |
-| Services | `references/services-di.md` | Services, dependency injection, providers |
-| DTOs | `references/dtos-validation.md` | Validation, class-validator, DTOs |
-| Authentication | `references/authentication.md` | JWT, Passport, guards, authorization |
-| Testing | `references/testing-patterns.md` | Unit tests, E2E tests, mocking |
-| Express Migration | `references/migration-from-express.md` | Migrating from Express.js to NestJS |
+| Topic             | Reference                              | Load When                                   |
+| ----------------- | -------------------------------------- | ------------------------------------------- |
+| Controllers       | `references/controllers-routing.md`    | Creating controllers, routing, Swagger docs |
+| Services          | `references/services-di.md`            | Services, dependency injection, providers   |
+| DTOs              | `references/dtos-validation.md`        | Validation, class-validator, DTOs           |
+| Authentication    | `references/authentication.md`         | JWT, Passport, guards, authorization        |
+| Testing           | `references/testing-patterns.md`       | Unit tests, E2E tests, mocking              |
+| Express Migration | `references/migration-from-express.md` | Migrating from Express.js to NestJS         |
 
 ## Constraints
 
 ### MUST DO
+
 - Use dependency injection for all services
 - Validate all inputs with class-validator
 - Use DTOs for request/response bodies
@@ -92,6 +97,7 @@ Load detailed guidance based on context:
 - Use environment variables for configuration
 
 ### MUST NOT DO
+
 - Expose passwords or secrets in responses
 - Trust user input without validation
 - Use `any` type unless absolutely necessary
@@ -102,6 +108,7 @@ Load detailed guidance based on context:
 ## Output Templates
 
 When implementing NestJS features, provide:
+
 1. Module definition
 2. Controller with Swagger decorators
 3. Service with error handling

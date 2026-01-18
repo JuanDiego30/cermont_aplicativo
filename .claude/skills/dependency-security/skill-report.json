@@ -27,11 +27,7 @@
       "npm-audit",
       "vulnerability-management"
     ],
-    "supported_tools": [
-      "claude",
-      "codex",
-      "claude-code"
-    ],
+    "supported_tools": ["claude", "codex", "claude-code"],
     "risk_factors": []
   },
   "security_audit": {

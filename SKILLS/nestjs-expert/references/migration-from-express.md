@@ -8,6 +8,7 @@
 ## When to Use This Guide
 
 **Use when:**
+
 - Migrating existing Express.js applications to NestJS
 - Modernizing legacy Node.js APIs with structured architecture
 - Adding TypeScript and dependency injection to Express codebases
@@ -28,18 +29,18 @@
 
 ## Concept Mapping: Express → NestJS
 
-| Express Concept | NestJS Equivalent | Key Difference |
-|----------------|-------------------|----------------|
-| `app.get('/path', handler)` | `@Get('/path')` decorator | Declarative vs imperative |
-| Middleware functions | Guards, Interceptors, Pipes | Specialized by purpose |
-| `req.params`, `req.body` | `@Param()`, `@Body()` decorators | Automatic injection |
-| Manual `require()` | Dependency Injection | IoC container managed |
-| `express.Router()` | Controller classes | Object-oriented grouping |
-| `app.use(express.json())` | Built-in body parsing | Automatic configuration |
-| Error handling middleware | Exception Filters | Class-based with inheritance |
-| `app.listen(3000)` | `NestFactory.create()` | Bootstrap pattern |
-| Custom validation | `class-validator` pipes | Decorator-based validation |
-| Manual service instances | Provider registration | Singleton by default |
+| Express Concept             | NestJS Equivalent                | Key Difference               |
+| --------------------------- | -------------------------------- | ---------------------------- |
+| `app.get('/path', handler)` | `@Get('/path')` decorator        | Declarative vs imperative    |
+| Middleware functions        | Guards, Interceptors, Pipes      | Specialized by purpose       |
+| `req.params`, `req.body`    | `@Param()`, `@Body()` decorators | Automatic injection          |
+| Manual `require()`          | Dependency Injection             | IoC container managed        |
+| `express.Router()`          | Controller classes               | Object-oriented grouping     |
+| `app.use(express.json())`   | Built-in body parsing            | Automatic configuration      |
+| Error handling middleware   | Exception Filters                | Class-based with inheritance |
+| `app.listen(3000)`          | `NestFactory.create()`           | Bootstrap pattern            |
+| Custom validation           | `class-validator` pipes          | Decorator-based validation   |
+| Manual service instances    | Provider registration            | Singleton by default         |
 
 ---
 
@@ -113,7 +114,7 @@ router.get('/', async (req, res, next) => {
       success: true,
       data: users,
       page,
-      limit
+      limit,
     });
   } catch (error) {
     next(error);
@@ -126,7 +127,7 @@ router.get('/:id', async (req, res, next) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: 'User not found',
       });
     }
     res.json({ success: true, data: user });
@@ -143,7 +144,7 @@ router.post('/', async (req, res, next) => {
     if (!email || !name) {
       return res.status(400).json({
         success: false,
-        message: 'Email and name are required'
+        message: 'Email and name are required',
       });
     }
 
@@ -254,7 +255,7 @@ function authMiddleware(req, res, next) {
   if (!token) {
     return res.status(401).json({
       success: false,
-      message: 'No token provided'
+      message: 'No token provided',
     });
   }
 
@@ -265,7 +266,7 @@ function authMiddleware(req, res, next) {
   } catch (error) {
     return res.status(401).json({
       success: false,
-      message: 'Invalid token'
+      message: 'Invalid token',
     });
   }
 }
@@ -281,12 +282,7 @@ router.get('/profile', authMiddleware, async (req, res) => {
 
 ```typescript
 // common/guards/jwt-auth.guard.ts
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 
@@ -355,13 +351,7 @@ app.use(loggerMiddleware);
 
 ```typescript
 // common/interceptors/logging.interceptor.ts
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
@@ -378,10 +368,8 @@ export class LoggingInterceptor implements NestInterceptor {
       tap(() => {
         const response = context.switchToHttp().getResponse();
         const duration = Date.now() - start;
-        this.logger.log(
-          `${method} ${url} - ${response.statusCode} - ${duration}ms`,
-        );
-      }),
+        this.logger.log(`${method} ${url} - ${response.statusCode} - ${duration}ms`);
+      })
     );
   }
 }
@@ -448,7 +436,7 @@ import { User } from './entities/user.entity';
 export class UsersRepository {
   constructor(
     @InjectRepository(User)
-    private readonly repository: Repository<User>,
+    private readonly repository: Repository<User>
   ) {}
 
   async create(userData: Partial<User>): Promise<User> {
@@ -485,7 +473,7 @@ import { User } from './entities/user.entity';
 export class UsersService {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly emailService: EmailService,
+    private readonly emailService: EmailService
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -536,20 +524,20 @@ function errorHandler(err, req, res, next) {
     return res.status(400).json({
       success: false,
       message: 'Validation failed',
-      errors: err.errors
+      errors: err.errors,
     });
   }
 
   if (err.name === 'UnauthorizedError') {
     return res.status(401).json({
       success: false,
-      message: 'Unauthorized'
+      message: 'Unauthorized',
     });
   }
 
   res.status(500).json({
     success: false,
-    message: 'Internal server error'
+    message: 'Internal server error',
   });
 }
 
@@ -645,7 +633,7 @@ router.post(
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        errors: errors.array()
+        errors: errors.array(),
       });
     }
 
@@ -724,7 +712,7 @@ async function bootstrap() {
       transformOptions: {
         enableImplicitConversion: true,
       },
-    }),
+    })
   );
   await app.listen(3000);
 }
@@ -747,13 +735,10 @@ describe('Users API', () => {
     it('should create a new user', async () => {
       const userData = {
         email: 'test@example.com',
-        name: 'Test User'
+        name: 'Test User',
       };
 
-      const response = await request(app)
-        .post('/users')
-        .send(userData)
-        .expect(201);
+      const response = await request(app).post('/users').send(userData).expect(201);
 
       expect(response.body.success).to.be.true;
       expect(response.body.data).to.have.property('id');
@@ -910,9 +895,7 @@ describe('UsersService', () => {
 
       expect(result).toEqual(createdUser);
       expect(repository.create).toHaveBeenCalledWith(createUserDto);
-      expect(emailService.sendWelcomeEmail).toHaveBeenCalledWith(
-        createUserDto.email,
-      );
+      expect(emailService.sendWelcomeEmail).toHaveBeenCalledWith(createUserDto.email);
     });
   });
 
@@ -921,9 +904,7 @@ describe('UsersService', () => {
       mockUsersRepository.findById.mockResolvedValue(null);
 
       await expect(service.findById(999)).rejects.toThrow(NotFoundException);
-      await expect(service.findById(999)).rejects.toThrow(
-        'User with ID 999 not found',
-      );
+      await expect(service.findById(999)).rejects.toThrow('User with ID 999 not found');
     });
   });
 });
@@ -961,7 +942,7 @@ describe('UsersController (e2e)', () => {
           name: 'Test User',
         })
         .expect(201)
-        .expect((res) => {
+        .expect(res => {
           expect(res.body.success).toBe(true);
           expect(res.body.data).toHaveProperty('id');
           expect(res.body.data.email).toBe('test@example.com');
@@ -1016,6 +997,7 @@ bootstrap();
 ```
 
 **Migration steps:**
+
 1. Set up NestJS alongside Express
 2. Migrate one module at a time to NestJS
 3. Route new endpoints to NestJS, old to Express
@@ -1091,6 +1073,7 @@ export class UsersController {
 ### 2. Not Understanding Dependency Injection Lifecycle
 
 **Problem:**
+
 ```typescript
 // WRONG - Creates new instance, bypassing DI
 @Injectable()
@@ -1102,6 +1085,7 @@ export class UsersService {
 ```
 
 **Solution:**
+
 ```typescript
 // CORRECT - Let NestJS inject dependencies
 @Injectable()
@@ -1132,6 +1116,7 @@ async create(@Body() body: any) {
 ```
 
 **Solution:**
+
 ```typescript
 // CORRECT - Use DTOs with class-validator
 @Post()
@@ -1161,6 +1146,7 @@ export class UsersModule {}
 **Problem:** CORS working in Express but failing in NestJS.
 
 **Solution:**
+
 ```typescript
 // main.ts
 const app = await NestFactory.create(AppModule);
@@ -1188,6 +1174,7 @@ throw new UnauthorizedException('Invalid credentials');
 **Problem:** Validation inconsistent across endpoints.
 
 **Solution:**
+
 ```typescript
 // main.ts
 app.useGlobalPipes(
@@ -1195,7 +1182,7 @@ app.useGlobalPipes(
     whitelist: true,
     forbidNonWhitelisted: true,
     transform: true,
-  }),
+  })
 );
 ```
 
@@ -1204,6 +1191,7 @@ app.useGlobalPipes(
 ## Migration Checklist
 
 **Pre-Migration:**
+
 - [ ] Audit existing Express codebase structure
 - [ ] Document all routes and dependencies
 - [ ] Identify shared services and utilities
@@ -1211,6 +1199,7 @@ app.useGlobalPipes(
 - [ ] Set up NestJS project structure
 
 **During Migration:**
+
 - [ ] Migrate DTOs and validation rules
 - [ ] Convert route handlers to controllers
 - [ ] Refactor services for dependency injection
@@ -1221,6 +1210,7 @@ app.useGlobalPipes(
 - [ ] Write e2e tests for critical flows
 
 **Post-Migration:**
+
 - [ ] Performance testing and optimization
 - [ ] Update API documentation
 - [ ] Configure logging and monitoring

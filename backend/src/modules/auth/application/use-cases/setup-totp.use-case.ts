@@ -11,7 +11,7 @@ export interface SetupTotpResult {
 export class SetupTotpUseCase {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly totpService: TotpService,
+    private readonly totpService: TotpService
   ) {}
 
   async execute(userId: string, email: string): Promise<SetupTotpResult> {

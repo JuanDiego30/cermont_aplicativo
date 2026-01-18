@@ -20,18 +20,8 @@
     "author": "DjordjeVuckovic",
     "license": "MIT",
     "category": "coding",
-    "tags": [
-      "prisma",
-      "orm",
-      "database",
-      "typescript",
-      "migration"
-    ],
-    "supported_tools": [
-      "claude",
-      "codex",
-      "claude-code"
-    ],
+    "tags": ["prisma", "orm", "database", "typescript", "migration"],
+    "supported_tools": ["claude", "codex", "claude-code"],
     "risk_factors": []
   },
   "security_audit": {

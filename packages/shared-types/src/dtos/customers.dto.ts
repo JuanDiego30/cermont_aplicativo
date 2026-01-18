@@ -87,8 +87,6 @@ export interface CustomerResponseDto {
   updatedAt?: string;
 }
 
-
-
 export interface CustomerOrderSummaryDto {
   id: string;
   numero: string;

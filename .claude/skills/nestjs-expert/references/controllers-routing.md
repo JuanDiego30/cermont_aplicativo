@@ -7,8 +7,17 @@
 
 ```typescript
 import {
-  Controller, Get, Post, Patch, Delete,
-  Body, Param, Query, HttpCode, HttpStatus, UseGuards
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { ParseUUIDPipe, ParseIntPipe } from '@nestjs/common';
@@ -33,7 +42,7 @@ export class UsersController {
   @ApiQuery({ name: 'limit', required: false, type: Number })
   findAll(
     @Query('page', new ParseIntPipe({ optional: true })) page = 1,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit = 20,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit = 20
   ): Promise<UserDto[]> {
     return this.usersService.findAll({ page, limit });
   }
@@ -47,10 +56,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateUserDto,
-  ): Promise<UserDto> {
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateUserDto): Promise<UserDto> {
     return this.usersService.update(id, dto);
   }
 
@@ -74,10 +80,7 @@ export class CommentsController {
   }
 
   @Post()
-  create(
-    @Param('postId', ParseUUIDPipe) postId: string,
-    @Body() dto: CreateCommentDto,
-  ) {
+  create(@Param('postId', ParseUUIDPipe) postId: string, @Body() dto: CreateCommentDto) {
     return this.commentsService.create(postId, dto);
   }
 }
@@ -92,23 +95,23 @@ app.setGlobalPrefix('api');
 app.enableVersioning({ type: VersioningType.URI });
 
 // controller.ts
-@Controller({ path: 'users', version: '1' })  // /api/v1/users
+@Controller({ path: 'users', version: '1' }) // /api/v1/users
 export class UsersV1Controller {}
 
-@Controller({ path: 'users', version: '2' })  // /api/v2/users
+@Controller({ path: 'users', version: '2' }) // /api/v2/users
 export class UsersV2Controller {}
 ```
 
 ## Quick Reference
 
-| Decorator | Purpose |
-|-----------|---------|
-| `@Controller('path')` | Define route prefix |
-| `@Get()`, `@Post()` | HTTP method |
-| `@Param('name')` | Path parameter |
-| `@Query('name')` | Query parameter |
-| `@Body()` | Request body |
-| `@HttpCode(201)` | Override status code |
-| `@ApiTags()` | Swagger grouping |
-| `@ApiOperation()` | Endpoint description |
-| `@ApiResponse()` | Document response |
+| Decorator             | Purpose              |
+| --------------------- | -------------------- |
+| `@Controller('path')` | Define route prefix  |
+| `@Get()`, `@Post()`   | HTTP method          |
+| `@Param('name')`      | Path parameter       |
+| `@Query('name')`      | Query parameter      |
+| `@Body()`             | Request body         |
+| `@HttpCode(201)`      | Override status code |
+| `@ApiTags()`          | Swagger grouping     |
+| `@ApiOperation()`     | Endpoint description |
+| `@ApiResponse()`      | Document response    |

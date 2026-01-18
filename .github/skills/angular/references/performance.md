@@ -10,10 +10,10 @@
 @Component({
   selector: 'app-game-card',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GameCardComponent {
-  @Input() game!: GameDto;  // Only re-checks when input reference changes
+  @Input() game!: GameDto; // Only re-checks when input reference changes
 }
 ```
 
@@ -38,6 +38,7 @@ export class GameCardComponent {
 ```
 
 **Why This Breaks:**
+
 1. Entire list re-rendered on any change
 2. DOM elements destroyed and recreated
 3. Lost scroll position, animations break
@@ -71,6 +72,7 @@ trackByGameId(index: number, game: GameDto): string {
 ```
 
 **Why This Breaks:**
+
 1. Function runs on EVERY change detection
 2. No caching of results
 3. Exponential performance degradation
@@ -124,6 +126,7 @@ updateData(): void {
 ```
 
 **Why This Breaks:**
+
 1. Usually indicates architectural problem
 2. Can cause performance issues
 3. Makes debugging difficult
@@ -156,14 +159,12 @@ updateData(): void {
 export const routes: Routes = [
   {
     path: 'games',
-    loadComponent: () => import('./features/games/games.component')
-      .then(m => m.GamesComponent)
+    loadComponent: () => import('./features/games/games.component').then(m => m.GamesComponent),
   },
   {
     path: 'wallet',
-    loadChildren: () => import('./features/wallet/wallet.routes')
-      .then(m => m.WALLET_ROUTES)
-  }
+    loadChildren: () => import('./features/wallet/wallet.routes').then(m => m.WALLET_ROUTES),
+  },
 ];
 ```
 
@@ -176,7 +177,7 @@ export const routes: Routes = [
     <ng-container *ngIf="showChart">
       <ng-container *ngComponentOutlet="chartComponent"></ng-container>
     </ng-container>
-  `
+  `,
 })
 export class DashboardComponent {
   chartComponent: Type<any> | null = null;
@@ -206,11 +207,11 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
         {{ item.name }}
       </div>
     </cdk-virtual-scroll-viewport>
-  `
+  `,
 })
 export class LargeListComponent {
-  items: Item[] = [];  // Can have thousands
-  
+  items: Item[] = []; // Can have thousands
+
   trackById(index: number, item: Item): number {
     return item.id;
   }
@@ -225,13 +226,13 @@ export class LargeListComponent {
 @Pipe({
   name: 'formatCurrency',
   standalone: true,
-  pure: true  // Default, only recalculates when input changes
+  pure: true, // Default, only recalculates when input changes
 })
 export class FormatCurrencyPipe implements PipeTransform {
   transform(value: number, currency = 'EUR'): string {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency
+      currency,
     }).format(value);
   }
 }
@@ -294,12 +295,12 @@ export class PlayerService {}
 
 ## Quick Reference
 
-| Optimization | When to Use |
-|--------------|-------------|
-| OnPush | All components (default choice) |
-| trackBy | All *ngFor with dynamic data |
-| Lazy loading | Feature modules, heavy components |
-| Virtual scroll | Lists with 100+ items |
-| Pure pipes | Formatting, transformations |
-| debounceTime | User input (search, filters) |
-| distinctUntilChanged | Any value stream that may repeat |
+| Optimization         | When to Use                       |
+| -------------------- | --------------------------------- |
+| OnPush               | All components (default choice)   |
+| trackBy              | All \*ngFor with dynamic data     |
+| Lazy loading         | Feature modules, heavy components |
+| Virtual scroll       | Lists with 100+ items             |
+| Pure pipes           | Formatting, transformations       |
+| debounceTime         | User input (search, filters)      |
+| distinctUntilChanged | Any value stream that may repeat  |

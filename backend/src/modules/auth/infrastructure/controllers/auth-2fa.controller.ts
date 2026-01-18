@@ -4,14 +4,14 @@
  * @layer Infrastructure
  */
 import {
-    Body,
-    Controller,
-    Get,
-    HttpCode,
-    HttpStatus,
-    Logger,
-    Post,
-    UseGuards,
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Logger,
+  Post,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PrismaService } from '../../../../prisma/prisma.service';
@@ -199,7 +199,8 @@ export class Auth2FAController {
   @ApiBearerAuth()
   @ApiOperation({
     summary: 'Activar 2FA con código TOTP',
-    description: 'Verifica el código generado por Google Authenticator y activa el 2FA en la cuenta',
+    description:
+      'Verifica el código generado por Google Authenticator y activa el 2FA en la cuenta',
   })
   @ApiBody({
     schema: {
@@ -219,4 +220,3 @@ export class Auth2FAController {
     };
   }
 }
-

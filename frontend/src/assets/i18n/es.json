@@ -1,136 +1,136 @@
 {
-    "APP": {
-        "TITLE": "Cermont - Gestión de Mantenimiento",
-        "LOADING": "Cargando...",
-        "SAVE_SUCCESS": "Guardado exitosamente",
-        "SAVE_ERROR": "Error al guardar"
+  "APP": {
+    "TITLE": "Cermont - Gestión de Mantenimiento",
+    "LOADING": "Cargando...",
+    "SAVE_SUCCESS": "Guardado exitosamente",
+    "SAVE_ERROR": "Error al guardar"
+  },
+  "NAV": {
+    "HOME": "Inicio",
+    "DASHBOARD": "Panel de Control",
+    "ORDERS": "Órdenes",
+    "CALENDAR": "Calendario",
+    "PROFILE": "Perfil",
+    "ADMIN": "Administración",
+    "LOGOUT": "Cerrar Sesión"
+  },
+  "AUTH": {
+    "LOGIN": "Iniciar Sesión",
+    "LOGOUT": "Cerrar Sesión",
+    "REGISTER": "Registrarse",
+    "EMAIL": "Correo electrónico",
+    "PASSWORD": "Contraseña",
+    "CONFIRM_PASSWORD": "Confirmar contraseña",
+    "FORGOT_PASSWORD": "¿Olvidaste tu contraseña?",
+    "RESET_PASSWORD": "Restablecer contraseña",
+    "REMEMBER_ME": "Recordarme",
+    "NO_ACCOUNT": "¿No tienes cuenta?",
+    "HAS_ACCOUNT": "¿Ya tienes cuenta?",
+    "LOGIN_SUCCESS": "Sesión iniciada correctamente",
+    "LOGIN_ERROR": "Error al iniciar sesión",
+    "LOGOUT_SUCCESS": "Sesión cerrada"
+  },
+  "ORDERS": {
+    "TITLE": "Órdenes de Trabajo",
+    "NEW": "Nueva Orden",
+    "EDIT": "Editar Orden",
+    "DETAILS": "Detalles de Orden",
+    "LIST": "Listado de Órdenes",
+    "SEARCH": "Buscar órdenes...",
+    "FILTER": "Filtrar",
+    "NO_ORDERS": "No hay órdenes",
+    "STATUS": {
+      "LABEL": "Estado",
+      "PENDIENTE": "Pendiente",
+      "PLANEACION": "En Planeación",
+      "EJECUCION": "En Ejecución",
+      "COMPLETADA": "Completada",
+      "CANCELADA": "Cancelada",
+      "PAUSADA": "Pausada"
     },
-    "NAV": {
-        "HOME": "Inicio",
-        "DASHBOARD": "Panel de Control",
-        "ORDERS": "Órdenes",
-        "CALENDAR": "Calendario",
-        "PROFILE": "Perfil",
-        "ADMIN": "Administración",
-        "LOGOUT": "Cerrar Sesión"
+    "PRIORITY": {
+      "LABEL": "Prioridad",
+      "ALTA": "Alta",
+      "MEDIA": "Media",
+      "BAJA": "Baja"
     },
-    "AUTH": {
-        "LOGIN": "Iniciar Sesión",
-        "LOGOUT": "Cerrar Sesión",
-        "REGISTER": "Registrarse",
-        "EMAIL": "Correo electrónico",
-        "PASSWORD": "Contraseña",
-        "CONFIRM_PASSWORD": "Confirmar contraseña",
-        "FORGOT_PASSWORD": "¿Olvidaste tu contraseña?",
-        "RESET_PASSWORD": "Restablecer contraseña",
-        "REMEMBER_ME": "Recordarme",
-        "NO_ACCOUNT": "¿No tienes cuenta?",
-        "HAS_ACCOUNT": "¿Ya tienes cuenta?",
-        "LOGIN_SUCCESS": "Sesión iniciada correctamente",
-        "LOGIN_ERROR": "Error al iniciar sesión",
-        "LOGOUT_SUCCESS": "Sesión cerrada"
-    },
-    "ORDERS": {
-        "TITLE": "Órdenes de Trabajo",
-        "NEW": "Nueva Orden",
-        "EDIT": "Editar Orden",
-        "DETAILS": "Detalles de Orden",
-        "LIST": "Listado de Órdenes",
-        "SEARCH": "Buscar órdenes...",
-        "FILTER": "Filtrar",
-        "NO_ORDERS": "No hay órdenes",
-        "STATUS": {
-            "LABEL": "Estado",
-            "PENDIENTE": "Pendiente",
-            "PLANEACION": "En Planeación",
-            "EJECUCION": "En Ejecución",
-            "COMPLETADA": "Completada",
-            "CANCELADA": "Cancelada",
-            "PAUSADA": "Pausada"
-        },
-        "PRIORITY": {
-            "LABEL": "Prioridad",
-            "ALTA": "Alta",
-            "MEDIA": "Media",
-            "BAJA": "Baja"
-        },
-        "FIELDS": {
-            "NUMBER": "Número de Orden",
-            "CLIENT": "Cliente",
-            "TECHNICIAN": "Técnico",
-            "DATE": "Fecha",
-            "DESCRIPTION": "Descripción",
-            "ADDRESS": "Dirección",
-            "NOTES": "Notas"
-        }
-    },
-    "EVIDENCES": {
-        "TITLE": "Evidencias",
-        "UPLOAD": "Subir Evidencia",
-        "DOWNLOAD": "Descargar",
-        "DELETE": "Eliminar",
-        "NO_EVIDENCES": "Sin evidencias",
-        "TYPES": {
-            "FOTO": "Fotografía",
-            "VIDEO": "Video",
-            "DOCUMENTO": "Documento",
-            "AUDIO": "Audio"
-        }
-    },
-    "FORMS": {
-        "TITLE": "Formularios",
-        "REQUIRED": "Campo obligatorio",
-        "SAVE_DRAFT": "Guardar borrador",
-        "SUBMIT": "Enviar"
-    },
-    "BUTTONS": {
-        "SAVE": "Guardar",
-        "CANCEL": "Cancelar",
-        "CONFIRM": "Confirmar",
-        "DELETE": "Eliminar",
-        "EDIT": "Editar",
-        "CREATE": "Crear",
-        "BACK": "Volver",
-        "NEXT": "Siguiente",
-        "PREVIOUS": "Anterior",
-        "SEARCH": "Buscar",
-        "FILTER": "Filtrar",
-        "CLEAR": "Limpiar",
-        "EXPORT": "Exportar",
-        "IMPORT": "Importar",
-        "DOWNLOAD": "Descargar",
-        "UPLOAD": "Subir"
-    },
-    "MESSAGES": {
-        "SUCCESS": "Operación exitosa",
-        "ERROR": "Ha ocurrido un error",
-        "CONFIRM_DELETE": "¿Estás seguro de eliminar?",
-        "CONFIRM_CANCEL": "¿Estás seguro de cancelar?",
-        "NO_DATA": "No hay datos disponibles",
-        "LOADING": "Cargando..."
-    },
-    "VALIDATION": {
-        "REQUIRED": "Este campo es obligatorio",
-        "INVALID_EMAIL": "Correo electrónico inválido",
-        "MIN_LENGTH": "Mínimo {{min}} caracteres",
-        "MAX_LENGTH": "Máximo {{max}} caracteres",
-        "MIN_VALUE": "Valor mínimo: {{min}}",
-        "MAX_VALUE": "Valor máximo: {{max}}",
-        "PATTERN": "Formato inválido"
-    },
-    "PAGINATION": {
-        "SHOWING": "Mostrando {{from}} a {{to}} de {{total}}",
-        "FIRST": "Primera",
-        "LAST": "Última",
-        "NEXT": "Siguiente",
-        "PREVIOUS": "Anterior",
-        "ITEMS_PER_PAGE": "Items por página"
-    },
-    "DATES": {
-        "TODAY": "Hoy",
-        "YESTERDAY": "Ayer",
-        "TOMORROW": "Mañana",
-        "THIS_WEEK": "Esta semana",
-        "THIS_MONTH": "Este mes"
+    "FIELDS": {
+      "NUMBER": "Número de Orden",
+      "CLIENT": "Cliente",
+      "TECHNICIAN": "Técnico",
+      "DATE": "Fecha",
+      "DESCRIPTION": "Descripción",
+      "ADDRESS": "Dirección",
+      "NOTES": "Notas"
     }
+  },
+  "EVIDENCES": {
+    "TITLE": "Evidencias",
+    "UPLOAD": "Subir Evidencia",
+    "DOWNLOAD": "Descargar",
+    "DELETE": "Eliminar",
+    "NO_EVIDENCES": "Sin evidencias",
+    "TYPES": {
+      "FOTO": "Fotografía",
+      "VIDEO": "Video",
+      "DOCUMENTO": "Documento",
+      "AUDIO": "Audio"
+    }
+  },
+  "FORMS": {
+    "TITLE": "Formularios",
+    "REQUIRED": "Campo obligatorio",
+    "SAVE_DRAFT": "Guardar borrador",
+    "SUBMIT": "Enviar"
+  },
+  "BUTTONS": {
+    "SAVE": "Guardar",
+    "CANCEL": "Cancelar",
+    "CONFIRM": "Confirmar",
+    "DELETE": "Eliminar",
+    "EDIT": "Editar",
+    "CREATE": "Crear",
+    "BACK": "Volver",
+    "NEXT": "Siguiente",
+    "PREVIOUS": "Anterior",
+    "SEARCH": "Buscar",
+    "FILTER": "Filtrar",
+    "CLEAR": "Limpiar",
+    "EXPORT": "Exportar",
+    "IMPORT": "Importar",
+    "DOWNLOAD": "Descargar",
+    "UPLOAD": "Subir"
+  },
+  "MESSAGES": {
+    "SUCCESS": "Operación exitosa",
+    "ERROR": "Ha ocurrido un error",
+    "CONFIRM_DELETE": "¿Estás seguro de eliminar?",
+    "CONFIRM_CANCEL": "¿Estás seguro de cancelar?",
+    "NO_DATA": "No hay datos disponibles",
+    "LOADING": "Cargando..."
+  },
+  "VALIDATION": {
+    "REQUIRED": "Este campo es obligatorio",
+    "INVALID_EMAIL": "Correo electrónico inválido",
+    "MIN_LENGTH": "Mínimo {{min}} caracteres",
+    "MAX_LENGTH": "Máximo {{max}} caracteres",
+    "MIN_VALUE": "Valor mínimo: {{min}}",
+    "MAX_VALUE": "Valor máximo: {{max}}",
+    "PATTERN": "Formato inválido"
+  },
+  "PAGINATION": {
+    "SHOWING": "Mostrando {{from}} a {{to}} de {{total}}",
+    "FIRST": "Primera",
+    "LAST": "Última",
+    "NEXT": "Siguiente",
+    "PREVIOUS": "Anterior",
+    "ITEMS_PER_PAGE": "Items por página"
+  },
+  "DATES": {
+    "TODAY": "Hoy",
+    "YESTERDAY": "Ayer",
+    "TOMORROW": "Mañana",
+    "THIS_WEEK": "Esta semana",
+    "THIS_MONTH": "Este mes"
+  }
 }

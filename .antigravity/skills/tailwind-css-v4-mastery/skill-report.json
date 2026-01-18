@@ -20,21 +20,9 @@
     "author": "Calel33",
     "license": "MIT",
     "category": "design",
-    "tags": [
-      "tailwind",
-      "css",
-      "styling",
-      "design-systems",
-      "frontend"
-    ],
-    "supported_tools": [
-      "claude",
-      "codex",
-      "claude-code"
-    ],
-    "risk_factors": [
-      "scripts"
-    ]
+    "tags": ["tailwind", "css", "styling", "design-systems", "frontend"],
+    "supported_tools": ["claude", "codex", "claude-code"],
+    "risk_factors": ["scripts"]
   },
   "security_audit": {
     "risk_level": "safe",

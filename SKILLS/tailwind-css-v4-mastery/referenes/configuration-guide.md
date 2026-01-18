@@ -5,13 +5,13 @@
 In Tailwind V4, **the CSS file is the configuration**. There is no separate JavaScript file. Everything lives in `@theme {}` blocks within your CSS.
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* All configuration happens here */
   --color-primary: oklch(0.6 0.2 243);
   --breakpoint-xl: 80rem;
-  --font-display: "Satoshi", sans-serif;
+  --font-display: 'Satoshi', sans-serif;
 }
 ```
 
@@ -22,12 +22,12 @@ In Tailwind V4, **the CSS file is the configuration**. There is no separate Java
 ### Required: CSS Variables with -- Prefix
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* ✅ Correct: Always use -- prefix */
   --color-primary: oklch(0.6 0.2 243);
-  
+
   /* ❌ Wrong: Will be ignored */
   color-primary: oklch(0.6 0.2 243);
 }
@@ -43,7 +43,7 @@ All Tailwind defaults are available as CSS custom properties:
   --color-primary-50: ...;
   --color-primary-500: ...;
   --color-primary-900: ...;
-  
+
   /* Spacing */
   --spacing-0: 0;
   --spacing-xs: 0.25rem;
@@ -51,26 +51,26 @@ All Tailwind defaults are available as CSS custom properties:
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
-  
+
   /* Typography */
   --font-serif: ui-serif, Georgia, serif;
   --font-mono: ui-monospace, SFMono-Regular, monospace;
-  --font-display: "Custom Font", sans-serif;
-  
+  --font-display: 'Custom Font', sans-serif;
+
   /* Sizes */
   --width-xs: 20rem;
   --width-sm: 24rem;
   --width-md: 28rem;
   --width-lg: 32rem;
   --width-xl: 36rem;
-  
+
   /* Breakpoints */
   --breakpoint-sm: 40rem;
   --breakpoint-md: 48rem;
   --breakpoint-lg: 64rem;
   --breakpoint-xl: 80rem;
   --breakpoint-2xl: 96rem;
-  
+
   /* Durations */
   --duration-75: 75ms;
   --duration-100: 100ms;
@@ -80,7 +80,7 @@ All Tailwind defaults are available as CSS custom properties:
   --duration-500: 500ms;
   --duration-700: 700ms;
   --duration-1000: 1000ms;
-  
+
   /* Easing */
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
@@ -93,28 +93,27 @@ All Tailwind defaults are available as CSS custom properties:
 ## Pattern 1: Simple Color Override
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* Override just primary colors */
   --color-primary-50: oklch(0.99 0 0);
   --color-primary-100: oklch(0.97 0.01 243);
   --color-primary-200: oklch(0.94 0.04 243);
-  --color-primary-300: oklch(0.89 0.10 243);
+  --color-primary-300: oklch(0.89 0.1 243);
   --color-primary-400: oklch(0.82 0.15 243);
-  --color-primary-500: oklch(0.70 0.20 243);
-  --color-primary-600: oklch(0.60 0.22 243);
-  --color-primary-700: oklch(0.50 0.20 243);
+  --color-primary-500: oklch(0.7 0.2 243);
+  --color-primary-600: oklch(0.6 0.22 243);
+  --color-primary-700: oklch(0.5 0.2 243);
   --color-primary-800: oklch(0.42 0.18 243);
   --color-primary-900: oklch(0.35 0.15 243);
 }
 ```
 
 **Usage in HTML:**
+
 ```html
-<button class="bg-primary-600 hover:bg-primary-700 text-white">
-  Button
-</button>
+<button class="bg-primary-600 hover:bg-primary-700 text-white">Button</button>
 ```
 
 ---
@@ -122,30 +121,30 @@ All Tailwind defaults are available as CSS custom properties:
 ## Pattern 2: Multi-Theme with Data Attributes
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* Light theme defaults */
-  --color-bg: oklch(1 0 0);          /* white */
-  --color-text: oklch(0.3 0 0);      /* dark gray */
+  --color-bg: oklch(1 0 0); /* white */
+  --color-text: oklch(0.3 0 0); /* dark gray */
   --color-accent: oklch(0.6 0.2 243); /* blue */
 }
 
 @layer base {
   /* Dark theme variant */
-  [data-theme="dark"] {
-    --color-bg: oklch(0.2 0 0);       /* dark */
-    --color-text: oklch(0.9 0 0);     /* light */
+  [data-theme='dark'] {
+    --color-bg: oklch(0.2 0 0); /* dark */
+    --color-text: oklch(0.9 0 0); /* light */
     --color-accent: oklch(0.7 0.2 260); /* lighter blue */
   }
-  
+
   /* Ocean theme variant */
-  [data-theme="ocean"] {
+  [data-theme='ocean'] {
     --color-bg: oklch(0.95 0.05 260);
     --color-text: oklch(0.2 0 0);
     --color-accent: oklch(0.55 0.18 260);
   }
-  
+
   /* Apply theme colors */
   body {
     @apply bg-bg text-text;
@@ -154,9 +153,12 @@ All Tailwind defaults are available as CSS custom properties:
 ```
 
 **Usage in HTML:**
+
 ```html
 <html data-theme="ocean">
-  <body><!-- themed --></body>
+  <body>
+    <!-- themed -->
+  </body>
 </html>
 ```
 
@@ -165,22 +167,22 @@ All Tailwind defaults are available as CSS custom properties:
 ## Pattern 3: Complex Spacing Scale
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* Expanded spacing scale */
   --spacing-0: 0;
   --spacing-px: 1px;
-  --spacing-0-5: 0.125rem;    /* 2px */
-  --spacing-1: 0.25rem;        /* 4px */
-  --spacing-1-5: 0.375rem;     /* 6px */
-  --spacing-2: 0.5rem;         /* 8px */
-  --spacing-2-5: 0.625rem;     /* 10px */
-  --spacing-3: 0.75rem;        /* 12px */
-  --spacing-3-5: 0.875rem;     /* 14px */
-  --spacing-4: 1rem;           /* 16px */
+  --spacing-0-5: 0.125rem; /* 2px */
+  --spacing-1: 0.25rem; /* 4px */
+  --spacing-1-5: 0.375rem; /* 6px */
+  --spacing-2: 0.5rem; /* 8px */
+  --spacing-2-5: 0.625rem; /* 10px */
+  --spacing-3: 0.75rem; /* 12px */
+  --spacing-3-5: 0.875rem; /* 14px */
+  --spacing-4: 1rem; /* 16px */
   /* ... continue as needed */
-  
+
   /* Container sizes */
   --width-prose: 65ch;
   --width-full: 100%;
@@ -192,6 +194,7 @@ All Tailwind defaults are available as CSS custom properties:
 ```
 
 **Usage:**
+
 ```html
 <div class="p-2-5 max-w-prose">
   <!-- Uses custom 10px padding -->
@@ -203,39 +206,39 @@ All Tailwind defaults are available as CSS custom properties:
 ## Pattern 4: Custom Typography System
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* Display fonts */
-  --font-display: "Satoshi", "Sohne", sans-serif;
-  
+  --font-display: 'Satoshi', 'Sohne', sans-serif;
+
   /* Body fonts */
-  --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-  
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
   /* Monospace fonts */
-  --font-mono: "JetBrains Mono", monospace;
-  
+  --font-mono: 'JetBrains Mono', monospace;
+
   /* Font sizes (12px scale) */
-  --text-xs: 0.75rem;     /* 12px */
-  --text-sm: 0.875rem;    /* 14px */
-  --text-base: 1rem;      /* 16px */
-  --text-lg: 1.125rem;    /* 18px */
-  --text-xl: 1.25rem;     /* 20px */
-  --text-2xl: 1.5rem;     /* 24px */
-  --text-3xl: 1.875rem;   /* 30px */
-  --text-4xl: 2.25rem;    /* 36px */
-  --text-5xl: 3rem;       /* 48px */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.25rem; /* 20px */
+  --text-2xl: 1.5rem; /* 24px */
+  --text-3xl: 1.875rem; /* 30px */
+  --text-4xl: 2.25rem; /* 36px */
+  --text-5xl: 3rem; /* 48px */
 }
 
 @layer base {
   body {
     @apply font-body text-base;
   }
-  
+
   h1 {
     @apply font-display text-5xl font-bold;
   }
-  
+
   h2 {
     @apply font-display text-4xl font-bold;
   }
@@ -247,20 +250,21 @@ All Tailwind defaults are available as CSS custom properties:
 ## Pattern 5: Responsive Breakpoints
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* Mobile-first breakpoints */
-  --breakpoint-sm: 36rem;    /* 576px */
-  --breakpoint-md: 48rem;    /* 768px */
-  --breakpoint-lg: 62rem;    /* 992px */
-  --breakpoint-xl: 80rem;    /* 1280px */
-  --breakpoint-2xl: 96rem;   /* 1536px */
-  --breakpoint-3xl: 120rem;  /* 1920px */
+  --breakpoint-sm: 36rem; /* 576px */
+  --breakpoint-md: 48rem; /* 768px */
+  --breakpoint-lg: 62rem; /* 992px */
+  --breakpoint-xl: 80rem; /* 1280px */
+  --breakpoint-2xl: 96rem; /* 1536px */
+  --breakpoint-3xl: 120rem; /* 1920px */
 }
 ```
 
 **Usage in HTML:**
+
 ```html
 <div class="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4">
   <!-- Responsive grid -->
@@ -272,7 +276,7 @@ All Tailwind defaults are available as CSS custom properties:
 ## Pattern 6: Animation & Transition Easing
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* Standard durations */
@@ -280,7 +284,7 @@ All Tailwind defaults are available as CSS custom properties:
   --duration-default: 150ms;
   --duration-slow: 200ms;
   --duration-slower: 300ms;
-  
+
   /* Custom easing functions */
   --ease-smooth: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -300,7 +304,7 @@ All Tailwind defaults are available as CSS custom properties:
 ## Pattern 7: Component-Scoped Theming
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --color-primary: oklch(0.6 0.2 243);
@@ -314,19 +318,19 @@ All Tailwind defaults are available as CSS custom properties:
            font-semibold transition-all
            hover:opacity-90 active:scale-95;
   }
-  
+
   .btn-secondary {
     @apply px-4 py-2 rounded-sm bg-secondary text-white
            font-semibold transition-all
            hover:opacity-90 active:scale-95;
   }
-  
+
   /* Card with inherited theme */
   .card {
     @apply p-6 rounded-lg bg-white shadow-md
            border border-gray-200;
   }
-  
+
   .card.dark {
     @apply bg-gray-900 text-white border-gray-700;
   }
@@ -338,7 +342,7 @@ All Tailwind defaults are available as CSS custom properties:
 ## Pattern 8: Using CSS Variables in @theme
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Define base variables */
 :root {
@@ -357,7 +361,7 @@ All Tailwind defaults are available as CSS custom properties:
 
 /* Override via data attribute */
 @layer base {
-  [data-theme="dark"] {
+  [data-theme='dark'] {
     --lightness-light: 0.5;
     --lightness-dark: 0.3;
   }
@@ -369,30 +373,30 @@ All Tailwind defaults are available as CSS custom properties:
 ## Pattern 9: Enterprise Multi-Brand Setup
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Default brand (Brand A) */
 @theme {
-  --color-brand-primary: oklch(0.6 0.2 243);   /* Blue */
+  --color-brand-primary: oklch(0.6 0.2 243); /* Blue */
   --color-brand-secondary: oklch(0.7 0.15 28); /* Orange */
-  --font-brand: "Inter", sans-serif;
+  --font-brand: 'Inter', sans-serif;
 }
 
 /* Brand B variant */
 @layer base {
-  [data-brand="brand-b"] {
-    --color-brand-primary: oklch(0.55 0.18 260);   /* Purple */
-    --color-brand-secondary: oklch(0.65 0.2 130);  /* Green */
-    --font-brand: "Poppins", sans-serif;
+  [data-brand='brand-b'] {
+    --color-brand-primary: oklch(0.55 0.18 260); /* Purple */
+    --color-brand-secondary: oklch(0.65 0.2 130); /* Green */
+    --font-brand: 'Poppins', sans-serif;
   }
 }
 
 /* Brand C variant */
 @layer base {
-  [data-brand="brand-c"] {
-    --color-brand-primary: oklch(0.5 0.22 25);     /* Red */
-    --color-brand-secondary: oklch(0.7 0.15 55);   /* Yellow */
-    --font-brand: "Sohne", sans-serif;
+  [data-brand='brand-c'] {
+    --color-brand-primary: oklch(0.5 0.22 25); /* Red */
+    --color-brand-secondary: oklch(0.7 0.15 55); /* Yellow */
+    --font-brand: 'Sohne', sans-serif;
   }
 }
 
@@ -405,6 +409,7 @@ All Tailwind defaults are available as CSS custom properties:
 ```
 
 **Usage:**
+
 ```html
 <!-- Switch brands with data attribute -->
 <html data-brand="brand-b">
@@ -419,6 +424,7 @@ All Tailwind defaults are available as CSS custom properties:
 ## Anti-Patterns to Avoid
 
 ### ❌ Don't: Mix JavaScript Config with CSS Config
+
 ```javascript
 /* ❌ This doesn't work in v4 */
 module.exports = {
@@ -429,6 +435,7 @@ module.exports = {
 ```
 
 ### ❌ Don't: Omit -- Prefix in @theme
+
 ```css
 /* ❌ This is ignored */
 @theme {
@@ -442,6 +449,7 @@ module.exports = {
 ```
 
 ### ❌ Don't: Put Theme Variables Outside @theme
+
 ```css
 /* ❌ Won't work as expected */
 :root {
@@ -455,6 +463,7 @@ module.exports = {
 ```
 
 ### ❌ Don't: Assume Backward Compatibility
+
 ```html
 <!-- ❌ v3 syntax: shadow → shadow-sm in v4 -->
 <div class="shadow"></div>
@@ -495,4 +504,3 @@ cat dist/styles.css | grep --color-primary
 npm run dev  # Start development server
 # Open DevTools → Console → getComputedStyle(document.documentElement)
 ```
-

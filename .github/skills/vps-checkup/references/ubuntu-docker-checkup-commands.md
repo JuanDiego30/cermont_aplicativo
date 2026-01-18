@@ -3,10 +3,12 @@
 These commands are intended for interactive SSH sessions. Prefer read-only commands first.
 
 ## 0) Safety / identity
+
 - `whoami && hostname -f && date -Is && uptime`
 - `id && groups`
 
 ## 1) System (read-only)
+
 - OS/kernel:
   - `cat /etc/os-release || true`
   - `uname -a`
@@ -22,6 +24,7 @@ These commands are intended for interactive SSH sessions. Prefer read-only comma
   - `sudo journalctl -p 3 -xb --no-pager | tail -n 200`
 
 ## 2) Security posture (read-only; often requires sudo)
+
 - SSH effective config (preferred):
   - `sudo sshd -T 2>/dev/null | egrep -i '^(port|permitrootlogin|passwordauthentication|kbdinteractiveauthentication|challengeresponseauthentication|pubkeyauthentication|authenticationmethods|allowusers|allowgroups|denyusers|denygroups|x11forwarding|allowtcpforwarding|permittty|loglevel) ' || true`
   - Fallback: `sudo ls -la /etc/ssh/sshd_config /etc/ssh/sshd_config.d || true`
@@ -35,6 +38,7 @@ These commands are intended for interactive SSH sessions. Prefer read-only comma
   - `sudo ss -tulpn || ss -tulpn`
 
 ## 3) Updates (requires confirmation for `apt update`)
+
 - Confirm first: running `apt update` modifies package lists (safe, but not read-only).
 - If approved:
   - `sudo apt update`
@@ -45,6 +49,7 @@ These commands are intended for interactive SSH sessions. Prefer read-only comma
   - `sudo tail -n 200 /var/log/unattended-upgrades/unattended-upgrades.log 2>/dev/null || true`
 
 ## 4) Docker (read-only; may require sudo or docker group)
+
 - Daemon:
   - `systemctl status docker --no-pager || true`
   - `docker info 2>/dev/null | sed -n '1,120p'`
@@ -59,9 +64,9 @@ These commands are intended for interactive SSH sessions. Prefer read-only comma
   - `docker compose ls || true`
 
 ## 5) High-risk commands (DO NOT run unless user explicitly asks)
+
 - `sudo apt upgrade` / `sudo apt full-upgrade`
 - `sudo ufw enable` / rule changes
 - SSH config edits + `sudo systemctl restart ssh`
 - `docker system prune` / log deletion
 - `sudo systemctl restart docker` / container restarts / reboot
-

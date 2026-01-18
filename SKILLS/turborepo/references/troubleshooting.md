@@ -11,11 +11,13 @@ Complete guide to diagnosing and fixing common Turborepo issues.
 ### Problem: Task not using cache when it should
 
 **Symptoms**:
+
 - Tasks rebuild even when nothing changed
 - Cache hits showing as misses
 - Unexpected rebuilds in CI
 
 **Diagnosis**:
+
 ```bash
 # Check what's causing cache miss
 turbo run build --dry-run=json
@@ -26,24 +28,29 @@ turbo run build --dry-run=json
 **Solutions**:
 
 1. **Force rebuild to test**:
+
 ```bash
 turbo run build --force
 ```
 
 2. **Clear local cache**:
+
 ```bash
 rm -rf ./node_modules/.cache/turbo
 ```
 
 3. **Check global dependencies**:
+
 ```json
 {
   "globalDependencies": ["**/.env.*local", "tsconfig.json"]
 }
 ```
+
 Ensure all files that affect builds are listed.
 
 4. **Verify environment variables**:
+
 ```json
 {
   "pipeline": {
@@ -53,9 +60,11 @@ Ensure all files that affect builds are listed.
   }
 }
 ```
+
 Missing env vars cause cache misses.
 
 5. **Check outputs configuration**:
+
 ```json
 {
   "pipeline": {
@@ -65,6 +74,7 @@ Missing env vars cause cache misses.
   }
 }
 ```
+
 Ensure all generated files are in outputs.
 
 ---
@@ -72,6 +82,7 @@ Ensure all generated files are in outputs.
 ### Problem: Cache too large
 
 **Symptoms**:
+
 - Disk space filling up
 - Slow cache operations
 - Large `.turbo` directory
@@ -79,6 +90,7 @@ Ensure all generated files are in outputs.
 **Solutions**:
 
 1. **Limit cache size in turbo.json**:
+
 ```json
 {
   "cacheDir": ".turbo",
@@ -87,6 +99,7 @@ Ensure all generated files are in outputs.
 ```
 
 2. **Clean old cache entries**:
+
 ```bash
 # Manual cleanup
 rm -rf ./node_modules/.cache/turbo
@@ -96,14 +109,15 @@ turbo run build --force # Skip cache for this run
 ```
 
 3. **Exclude unnecessary files from outputs**:
+
 ```json
 {
   "pipeline": {
     "build": {
       "outputs": [
         ".next/**",
-        "!.next/cache/**",  // Exclude large cache dirs
-        "!.next/trace"      // Exclude trace files
+        "!.next/cache/**", // Exclude large cache dirs
+        "!.next/trace" // Exclude trace files
       ]
     }
   }
@@ -117,11 +131,13 @@ turbo run build --force # Skip cache for this run
 ### Problem: Internal package not found
 
 **Symptoms**:
+
 - `Cannot find module '@myorg/ui'`
 - Build fails with missing dependencies
 - TypeScript errors about missing packages
 
 **Diagnosis**:
+
 ```bash
 # Check package is linked
 npm ls @myorg/ui
@@ -133,6 +149,7 @@ npm ls
 **Solutions**:
 
 1. **Reinstall dependencies**:
+
 ```bash
 # Delete node_modules and reinstall
 rm -rf node_modules
@@ -140,6 +157,7 @@ npm install
 ```
 
 2. **Check package names match**:
+
 ```json
 // packages/ui/package.json
 {
@@ -155,12 +173,14 @@ npm install
 ```
 
 3. **Rebuild dependencies**:
+
 ```bash
 # Build all dependencies of web
 turbo run build --filter='...web'
 ```
 
 4. **Verify workspace configuration**:
+
 ```json
 // Root package.json
 {
@@ -173,6 +193,7 @@ turbo run build --filter='...web'
 ### Problem: Version mismatches
 
 **Symptoms**:
+
 - Different package versions across workspace
 - Dependency conflicts
 - Build errors from incompatible versions
@@ -180,15 +201,17 @@ turbo run build --filter='...web'
 **Solutions**:
 
 1. **Use workspace protocol (pnpm/yarn)**:
+
 ```json
 {
   "dependencies": {
-    "@myorg/ui": "workspace:*"  // Always uses workspace version
+    "@myorg/ui": "workspace:*" // Always uses workspace version
   }
 }
 ```
 
 2. **Deduplicate dependencies**:
+
 ```bash
 # npm
 npm dedupe
@@ -201,6 +224,7 @@ yarn dedupe
 ```
 
 3. **Check for hoisting issues**:
+
 ```json
 // .npmrc
 hoist=true
@@ -214,6 +238,7 @@ hoist-pattern[]=*
 ### Problem: Tasks running in wrong order
 
 **Symptoms**:
+
 - Tests run before build completes
 - Dependencies not built first
 - Race conditions in task execution
@@ -221,40 +246,44 @@ hoist-pattern[]=*
 **Solutions**:
 
 1. **Check `dependsOn` configuration**:
+
 ```json
 {
   "pipeline": {
     "build": {
-      "dependsOn": ["^build"]  // Run dependencies' build first
+      "dependsOn": ["^build"] // Run dependencies' build first
     },
     "test": {
-      "dependsOn": ["build"]   // Run own build first
+      "dependsOn": ["build"] // Run own build first
     }
   }
 }
 ```
 
 2. **Use `^task` for dependency tasks**:
+
 ```json
 {
   "build": {
-    "dependsOn": ["^build"]  // ^ means run in dependencies first
+    "dependsOn": ["^build"] // ^ means run in dependencies first
   }
 }
 ```
 
 3. **Verify task names match package.json scripts**:
+
 ```json
 // package.json
 {
   "scripts": {
-    "build": "tsc",    // Must match turbo.json task name
+    "build": "tsc", // Must match turbo.json task name
     "test": "jest"
   }
 }
 ```
 
 4. **Check for circular dependencies**:
+
 ```bash
 turbo run build --dry-run
 # Shows task execution order
@@ -265,6 +294,7 @@ turbo run build --dry-run
 ### Problem: Dev server not starting
 
 **Symptoms**:
+
 - `turbo run dev` exits immediately
 - Dev servers don't stay running
 - Concurrent dev servers interfere
@@ -272,34 +302,37 @@ turbo run build --dry-run
 **Solutions**:
 
 1. **Add `persistent` flag**:
+
 ```json
 {
   "pipeline": {
     "dev": {
       "cache": false,
-      "persistent": true  // Keeps task running
+      "persistent": true // Keeps task running
     }
   }
 }
 ```
 
 2. **Disable cache for dev**:
+
 ```json
 {
   "pipeline": {
     "dev": {
-      "cache": false  // Dev servers shouldn't cache
+      "cache": false // Dev servers shouldn't cache
     }
   }
 }
 ```
 
 3. **Use correct output mode**:
+
 ```json
 {
   "pipeline": {
     "dev": {
-      "outputMode": "full"  // See all dev server output
+      "outputMode": "full" // See all dev server output
     }
   }
 }
@@ -310,6 +343,7 @@ turbo run build --dry-run
 ### Problem: Tasks skip unexpectedly
 
 **Symptoms**:
+
 - Tasks show as "cached" but shouldn't
 - Builds not running when expected
 - Changes not triggering rebuilds
@@ -317,6 +351,7 @@ turbo run build --dry-run
 **Solutions**:
 
 1. **Check inputs configuration**:
+
 ```json
 {
   "pipeline": {
@@ -328,11 +363,13 @@ turbo run build --dry-run
 ```
 
 2. **Force execution**:
+
 ```bash
 turbo run build --force
 ```
 
 3. **Clear cache**:
+
 ```bash
 rm -rf ./node_modules/.cache/turbo
 ```
@@ -344,6 +381,7 @@ rm -rf ./node_modules/.cache/turbo
 ### Problem: Builds taking too long
 
 **Symptoms**:
+
 - Slow builds in CI
 - Sequential execution instead of parallel
 - All packages building unnecessarily
@@ -351,6 +389,7 @@ rm -rf ./node_modules/.cache/turbo
 **Solutions**:
 
 1. **Run with concurrency limit**:
+
 ```bash
 # Limit to 2 concurrent tasks
 turbo run build --concurrency=2
@@ -360,6 +399,7 @@ turbo run build --concurrency=50%
 ```
 
 2. **Use filters to build less**:
+
 ```bash
 # Only build changed packages
 turbo run build --filter='...[origin/main]'
@@ -369,6 +409,7 @@ turbo run build --filter=web
 ```
 
 3. **Check for unnecessary dependencies**:
+
 ```bash
 # Dry run shows what will execute
 turbo run build --dry-run
@@ -378,6 +419,7 @@ turbo run build --dry-run=json
 ```
 
 4. **Optimize task pipeline**:
+
 ```json
 {
   "pipeline": {
@@ -390,10 +432,12 @@ turbo run build --dry-run=json
 ```
 
 5. **Enable remote caching**:
+
 ```bash
 turbo login
 turbo link
 ```
+
 Remote cache dramatically speeds up CI.
 
 ---
@@ -401,6 +445,7 @@ Remote cache dramatically speeds up CI.
 ### Problem: Remote cache not working
 
 **Symptoms**:
+
 - No cache hits in CI
 - "Cache miss" on every run
 - Slow CI despite remote cache
@@ -408,12 +453,14 @@ Remote cache dramatically speeds up CI.
 **Solutions**:
 
 1. **Verify authentication**:
+
 ```bash
 turbo link
 # Should show linked team/project
 ```
 
 2. **Check environment variables**:
+
 ```bash
 echo $TURBO_TOKEN
 echo $TURBO_TEAM
@@ -422,12 +469,14 @@ echo $TURBO_TEAM
 ```
 
 3. **Test connection**:
+
 ```bash
 turbo run build --output-logs=hash-only
 # Should show cache hash
 ```
 
 4. **Verify cache configuration**:
+
 ```json
 // .turbo/config.json
 {
@@ -438,6 +487,7 @@ turbo run build --output-logs=hash-only
 ```
 
 5. **Check CI setup**:
+
 ```yaml
 # GitHub Actions
 env:
@@ -454,6 +504,7 @@ env:
 **Solutions**:
 
 1. **Cache node_modules**:
+
 ```yaml
 # GitHub Actions
 - uses: actions/cache@v3
@@ -463,6 +514,7 @@ env:
 ```
 
 2. **Use remote cache**:
+
 ```yaml
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -470,6 +522,7 @@ env:
 ```
 
 3. **Cache .turbo directory**:
+
 ```yaml
 - uses: actions/cache@v3
   with:
@@ -486,16 +539,19 @@ env:
 **Solutions**:
 
 1. **Limit concurrency**:
+
 ```bash
 turbo run build --concurrency=1
 ```
 
 2. **Increase Node.js memory**:
+
 ```bash
 NODE_OPTIONS="--max-old-space-size=4096" turbo run build
 ```
 
 3. **Use filters to reduce scope**:
+
 ```bash
 turbo run build --filter='...[origin/main]'
 ```
@@ -509,6 +565,7 @@ turbo run build --filter='...[origin/main]'
 **Solutions**:
 
 1. **Use turbo prune**:
+
 ```dockerfile
 FROM node:18-alpine AS builder
 RUN npm install -g turbo
@@ -517,6 +574,7 @@ RUN turbo prune --scope=web --docker
 ```
 
 2. **Copy pruned output**:
+
 ```dockerfile
 FROM node:18-alpine AS installer
 COPY --from=builder /app/out/json/ .
@@ -525,7 +583,7 @@ RUN npm install
 ```
 
 3. **Use multi-stage builds**:
-See `templates/Dockerfile` for complete example.
+   See `templates/Dockerfile` for complete example.
 
 ---
 
@@ -536,6 +594,7 @@ See `templates/Dockerfile` for complete example.
 **Solutions**:
 
 1. **Declare environment variables**:
+
 ```json
 {
   "pipeline": {
@@ -547,6 +606,7 @@ See `templates/Dockerfile` for complete example.
 ```
 
 2. **Use globalEnv for all tasks**:
+
 ```json
 {
   "globalEnv": ["NODE_ENV", "CI"]
@@ -554,11 +614,12 @@ See `templates/Dockerfile` for complete example.
 ```
 
 3. **Use passThroughEnv for debugging**:
+
 ```json
 {
   "pipeline": {
     "build": {
-      "passThroughEnv": ["DEBUG"]  // Don't affect cache
+      "passThroughEnv": ["DEBUG"] // Don't affect cache
     }
   }
 }

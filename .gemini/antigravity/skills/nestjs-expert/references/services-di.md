@@ -17,7 +17,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly repo: Repository<User>,
-    private readonly emailService: EmailService,
+    private readonly emailService: EmailService
   ) {}
 
   async create(dto: CreateUserDto): Promise<User> {
@@ -65,7 +65,7 @@ export class UsersService {
   imports: [TypeOrmModule.forFeature([User])],
   controllers: [UsersController],
   providers: [UsersService],
-  exports: [UsersService],  // Make available to other modules
+  exports: [UsersService], // Make available to other modules
 })
 export class UsersModule {}
 ```
@@ -134,10 +134,10 @@ export class HelperService {}
 
 ## Quick Reference
 
-| Pattern | Use When |
-|---------|----------|
-| Constructor DI | Most cases (recommended) |
-| `@Inject(token)` | Non-class tokens |
-| `@Optional()` | Optional dependency |
-| Factory provider | Dynamic configuration |
-| Scope.REQUEST | Per-request state |
+| Pattern          | Use When                 |
+| ---------------- | ------------------------ |
+| Constructor DI   | Most cases (recommended) |
+| `@Inject(token)` | Non-class tokens         |
+| `@Optional()`    | Optional dependency      |
+| Factory provider | Dynamic configuration    |
+| Scope.REQUEST    | Per-request state        |

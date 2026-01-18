@@ -6,7 +6,7 @@ import { TotpService } from '../../infrastructure/services/totp.service';
 export class ActivateTotpUseCase {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly totpService: TotpService,
+    private readonly totpService: TotpService
   ) {}
 
   async execute(userId: string, code: string): Promise<boolean> {

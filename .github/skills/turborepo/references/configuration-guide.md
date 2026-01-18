@@ -35,17 +35,8 @@ Complete guide to configuring Turborepo with detailed examples, command options,
 ```json
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [
-    ".env",
-    ".env.local",
-    "tsconfig.json",
-    "package.json"
-  ],
-  "globalEnv": [
-    "NODE_ENV",
-    "CI",
-    "VERCEL"
-  ],
+  "globalDependencies": [".env", ".env.local", "tsconfig.json", "package.json"],
+  "globalEnv": ["NODE_ENV", "CI", "VERCEL"],
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
@@ -81,42 +72,45 @@ Complete guide to configuring Turborepo with detailed examples, command options,
 
 ### Task Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `dependsOn` | string[] | Tasks to run first |
-| `outputs` | string[] | Files/directories to cache |
-| `inputs` | string[] | Override input detection |
-| `cache` | boolean | Enable/disable caching (default: true) |
-| `env` | string[] | Environment variables affecting output |
-| `passThroughEnv` | string[] | Env vars that don't affect cache |
-| `persistent` | boolean | Keep task running (for dev servers) |
-| `outputMode` | string | Control output display |
+| Property         | Type     | Description                            |
+| ---------------- | -------- | -------------------------------------- |
+| `dependsOn`      | string[] | Tasks to run first                     |
+| `outputs`        | string[] | Files/directories to cache             |
+| `inputs`         | string[] | Override input detection               |
+| `cache`          | boolean  | Enable/disable caching (default: true) |
+| `env`            | string[] | Environment variables affecting output |
+| `passThroughEnv` | string[] | Env vars that don't affect cache       |
+| `persistent`     | boolean  | Keep task running (for dev servers)    |
+| `outputMode`     | string   | Control output display                 |
 
 ### Dependency Patterns
 
 **Topological Dependencies (`^`)**:
+
 ```json
 {
   "build": {
-    "dependsOn": ["^build"]  // Run dependencies' build first
+    "dependsOn": ["^build"] // Run dependencies' build first
   }
 }
 ```
 
 **Regular Dependencies**:
+
 ```json
 {
   "deploy": {
-    "dependsOn": ["build", "test"]  // Run own build and test first
+    "dependsOn": ["build", "test"] // Run own build and test first
   }
 }
 ```
 
 **Combined Dependencies**:
+
 ```json
 {
   "test": {
-    "dependsOn": ["^build", "lint"]  // Deps' build, then own lint
+    "dependsOn": ["^build", "lint"] // Deps' build, then own lint
   }
 }
 ```
@@ -124,15 +118,16 @@ Complete guide to configuring Turborepo with detailed examples, command options,
 ### Output Patterns
 
 **Including outputs**:
+
 ```json
 {
   "build": {
     "outputs": [
-      "dist/**",           // All files in dist/
-      ".next/**",          // All files in .next/
-      "!.next/cache/**",   // Exclude .next/cache/
+      "dist/**", // All files in dist/
+      ".next/**", // All files in .next/
+      "!.next/cache/**", // Exclude .next/cache/
       "storybook-static/**",
-      "*.tsbuildinfo"      // TypeScript build info
+      "*.tsbuildinfo" // TypeScript build info
     ]
   }
 }
@@ -141,26 +136,29 @@ Complete guide to configuring Turborepo with detailed examples, command options,
 ### Environment Variables
 
 **Task-specific environment variables**:
+
 ```json
 {
   "build": {
-    "env": ["NEXT_PUBLIC_API_URL", "DATABASE_URL"]  // Affects cache
+    "env": ["NEXT_PUBLIC_API_URL", "DATABASE_URL"] // Affects cache
   }
 }
 ```
 
 **Global environment variables**:
+
 ```json
 {
-  "globalEnv": ["NODE_ENV", "CI"]  // Affects all tasks
+  "globalEnv": ["NODE_ENV", "CI"] // Affects all tasks
 }
 ```
 
 **Pass-through environment variables**:
+
 ```json
 {
   "build": {
-    "passThroughEnv": ["DEBUG"]  // Don't affect cache
+    "passThroughEnv": ["DEBUG"] // Don't affect cache
   }
 }
 ```
@@ -168,15 +166,17 @@ Complete guide to configuring Turborepo with detailed examples, command options,
 ### Cache Configuration
 
 **Disable cache for specific tasks**:
+
 ```json
 {
   "dev": {
-    "cache": false  // Dev servers shouldn't cache
+    "cache": false // Dev servers shouldn't cache
   }
 }
 ```
 
 **Configure cache directory**:
+
 ```json
 {
   "cacheDir": ".turbo",
@@ -187,6 +187,7 @@ Complete guide to configuring Turborepo with detailed examples, command options,
 ### Input Configuration
 
 **Override input detection**:
+
 ```json
 {
   "build": {
@@ -201,13 +202,14 @@ Complete guide to configuring Turborepo with detailed examples, command options,
 {
   "pipeline": {
     "build": {
-      "outputMode": "errors-only"  // Only show errors
+      "outputMode": "errors-only" // Only show errors
     }
   }
 }
 ```
 
 Options:
+
 - `full` - Show all output (default)
 - `errors-only` - Only show errors
 - `new-only` - Only show new output
@@ -223,6 +225,7 @@ Options:
 Run tasks across packages with various options.
 
 **Basic usage**:
+
 ```bash
 # Run single task
 turbo run build
@@ -239,6 +242,7 @@ turbo run build --filter='./apps/*'
 ```
 
 **Filter options**:
+
 ```bash
 # Git-based filters
 --filter='[origin/main]'           # Changed since main
@@ -258,6 +262,7 @@ turbo run build --filter='./apps/*'
 ```
 
 **Execution options**:
+
 ```bash
 # Force execution (skip cache)
 --force
@@ -275,6 +280,7 @@ turbo run build --filter='./apps/*'
 ```
 
 **Output control**:
+
 ```bash
 # Output modes
 --output-logs=full                 # Show all output (default)
@@ -288,6 +294,7 @@ turbo run build --filter='./apps/*'
 ```
 
 **Graph visualization**:
+
 ```bash
 # View task graph
 --graph
@@ -299,6 +306,7 @@ turbo run build --filter='./apps/*'
 Create a subset of the monorepo for deployment.
 
 **Basic usage**:
+
 ```bash
 # Prune for specific app
 turbo prune --scope=web
@@ -311,6 +319,7 @@ turbo prune --scope=web --out-dir=./deploy
 ```
 
 **Docker output structure**:
+
 ```
 out/
 ├── json/              # package.json files only
@@ -319,6 +328,7 @@ out/
 ```
 
 **Use in Dockerfile**:
+
 ```dockerfile
 FROM node:18-alpine AS builder
 RUN npm install -g turbo
@@ -339,6 +349,7 @@ RUN npx turbo run build --filter=web
 Generate code in your monorepo.
 
 **Basic usage**:
+
 ```bash
 # Generate new workspace
 turbo gen workspace
@@ -351,6 +362,7 @@ turbo gen --list
 ```
 
 **Create custom generator**:
+
 ```json
 // turbo/generators/config.ts
 import type { PlopTypes } from "@turbo/gen";
@@ -381,6 +393,7 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
 Link local repository to remote cache.
 
 **Basic usage**:
+
 ```bash
 # Link to Vercel (interactive)
 turbo link
@@ -393,6 +406,7 @@ turbo link --check
 ```
 
 **What it does**:
+
 - Authenticates with Vercel
 - Links repository to team
 - Enables remote caching
@@ -403,6 +417,7 @@ turbo link --check
 Authenticate with Vercel for remote caching.
 
 **Basic usage**:
+
 ```bash
 # Login (opens browser)
 turbo login
@@ -416,6 +431,7 @@ turbo whoami
 List packages in monorepo.
 
 **Basic usage**:
+
 ```bash
 # List all packages
 turbo ls
@@ -439,13 +455,8 @@ turbo ls --filter='./apps/*'
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**"
-      ],
-      "env": [
-        "NEXT_PUBLIC_*"
-      ]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": ["NEXT_PUBLIC_*"]
     },
     "dev": {
       "cache": false,
@@ -460,27 +471,17 @@ turbo ls --filter='./apps/*'
 ```
 
 **Full Next.js Monorepo Setup**:
+
 ```json
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [
-    ".env",
-    "tsconfig.json"
-  ],
-  "globalEnv": [
-    "NODE_ENV"
-  ],
+  "globalDependencies": [".env", "tsconfig.json"],
+  "globalEnv": ["NODE_ENV"],
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**"
-      ],
-      "env": [
-        "NEXT_PUBLIC_API_URL",
-        "NEXT_PUBLIC_GA_ID"
-      ]
+      "outputs": [".next/**", "!.next/cache/**"],
+      "env": ["NEXT_PUBLIC_API_URL", "NEXT_PUBLIC_GA_ID"]
     },
     "lint": {
       "dependsOn": ["^build"],
@@ -502,12 +503,8 @@ turbo ls --filter='./apps/*'
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [
-        "dist/**"
-      ],
-      "env": [
-        "VITE_*"
-      ]
+      "outputs": ["dist/**"],
+      "env": ["VITE_*"]
     },
     "dev": {
       "cache": false,
@@ -529,13 +526,8 @@ turbo ls --filter='./apps/*'
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [
-        ".output/**",
-        ".nuxt/**"
-      ],
-      "env": [
-        "NUXT_*"
-      ]
+      "outputs": [".output/**", ".nuxt/**"],
+      "env": ["NUXT_*"]
     },
     "dev": {
       "cache": false,
@@ -543,9 +535,7 @@ turbo ls --filter='./apps/*'
     },
     "generate": {
       "dependsOn": ["^build"],
-      "outputs": [
-        ".output/**"
-      ]
+      "outputs": [".output/**"]
     }
   }
 }
@@ -559,10 +549,7 @@ turbo ls --filter='./apps/*'
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [
-        "build/**",
-        "public/build/**"
-      ]
+      "outputs": ["build/**", "public/build/**"]
     },
     "dev": {
       "cache": false,
@@ -580,9 +567,7 @@ turbo ls --filter='./apps/*'
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [
-        "dist/**"
-      ]
+      "outputs": ["dist/**"]
     },
     "dev": {
       "cache": false,
@@ -604,10 +589,7 @@ turbo ls --filter='./apps/*'
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [
-        ".svelte-kit/**",
-        "build/**"
-      ]
+      "outputs": [".svelte-kit/**", "build/**"]
     },
     "dev": {
       "cache": false,

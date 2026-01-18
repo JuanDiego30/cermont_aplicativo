@@ -15,33 +15,37 @@ scope: security
 license: MIT
 metadata:
   author: antigravity-team
-  version: "1.0"
+  version: '1.0'
 ---
 
 <!-- Cermont Project Fit -->
+
 ## Project Fit
 
-| Attribute | Value |
-|-----------|-------|
-| **Applies to** | monorepo (all packages) |
-| **Requires** | pnpm, turbo |
-| **Not for this repo** | npm, yarn |
-| **Status** | ✅ PRIMARY for Security family |
+| Attribute             | Value                          |
+| --------------------- | ------------------------------ |
+| **Applies to**        | monorepo (all packages)        |
+| **Requires**          | pnpm, turbo                    |
+| **Not for this repo** | npm, yarn                      |
+| **Status**            | ✅ PRIMARY for Security family |
 
 ### Guardrails
 
 **Does NOT do:**
+
 - Install dependencies without user approval
-- Modify pnpm-lock.yaml directly  
+- Modify pnpm-lock.yaml directly
 - Run `pnpm audit fix --force` automatically
 
 **Safety Checklist:**
+
 ```bash
 pnpm audit
 pnpm -r lint
 pnpm -r test
 # Rollback: git restore -SW .
 ```
+
 <!-- End Project Fit -->
 
 의존성 보안 스캔 및 SBOM(Software Bill of Materials) 생성을 강제하는 스킬입니다.
@@ -54,12 +58,12 @@ pnpm -r test
 
 ## Core Rules
 
-| 규칙 | 상태 | 설명 |
-|------|------|------|
+| 규칙           | 상태    | 설명                     |
+| -------------- | ------- | ------------------------ |
 | npm audit 통과 | 🔴 필수 | high/critical 취약점 0개 |
-| 의존성 최신화 | 🟡 권장 | 주요 보안 패치 적용 |
-| SBOM 생성 | 🟡 권장 | 의존성 목록 문서화 |
-| lockfile 커밋 | 🔴 필수 | 재현 가능한 빌드 |
+| 의존성 최신화  | 🟡 권장 | 주요 보안 패치 적용      |
+| SBOM 생성      | 🟡 권장 | 의존성 목록 문서화       |
+| lockfile 커밋  | 🔴 필수 | 재현 가능한 빌드         |
 
 ## Security Audit
 
@@ -308,13 +312,13 @@ jobs:
 
 ## 도구 추천
 
-| 도구 | 용도 | 명령어 |
-|------|------|--------|
-| npm audit | 취약점 스캔 | `npm audit` |
-| Snyk | 고급 취약점 분석 | `npx snyk test` |
-| OWASP Dependency-Check | OWASP 표준 스캔 | CLI 도구 |
-| CycloneDX | SBOM 생성 | `npx @cyclonedx/cyclonedx-npm` |
-| npm-check-updates | 의존성 업데이트 | `npx ncu` |
+| 도구                   | 용도             | 명령어                         |
+| ---------------------- | ---------------- | ------------------------------ |
+| npm audit              | 취약점 스캔      | `npm audit`                    |
+| Snyk                   | 고급 취약점 분석 | `npx snyk test`                |
+| OWASP Dependency-Check | OWASP 표준 스캔  | CLI 도구                       |
+| CycloneDX              | SBOM 생성        | `npx @cyclonedx/cyclonedx-npm` |
+| npm-check-updates      | 의존성 업데이트  | `npx ncu`                      |
 
 ## Checklist
 

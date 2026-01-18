@@ -3,6 +3,7 @@
 ## Naming Conventions
 
 ### Variables and Functions
+
 - Use `snake_case` for variables and functions
 - Use descriptive names that explain the purpose
 - Avoid single-letter names except for loop counters
@@ -20,6 +21,7 @@ def calc(i):
 ```
 
 ### Classes
+
 - Use `PascalCase` for class names
 - Use nouns that describe what the class represents
 
@@ -40,6 +42,7 @@ class Process:
 ```
 
 ### Constants
+
 - Use `UPPER_SNAKE_CASE` for constants
 - Define at module level
 
@@ -56,6 +59,7 @@ default_timeout = 30
 ## Code Organization
 
 ### Imports
+
 - Group imports in this order: standard library, third-party, local
 - Sort alphabetically within each group
 - Use absolute imports
@@ -76,11 +80,13 @@ from myapp.utils import helper
 ```
 
 ### Function Length
+
 - Keep functions under 50 lines
 - If longer, consider breaking into smaller functions
 - Each function should do one thing well
 
 ### Documentation
+
 - Use docstrings for public functions and classes
 - Follow Google or NumPy docstring style
 - Include parameter types and return types
@@ -105,6 +111,7 @@ def process_user_data(user_id: str, include_history: bool = False) -> dict:
 ## Error Handling
 
 ### Be Specific
+
 - Catch specific exceptions, not bare `except:`
 - Include helpful error messages
 
@@ -129,6 +136,7 @@ except:
 ## Security
 
 ### Never Hardcode Secrets
+
 - Use environment variables or secret managers
 - Never commit credentials to version control
 

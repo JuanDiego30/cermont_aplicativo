@@ -23,7 +23,9 @@ This pattern demonstrates building a dependency graph of computed signals where 
 export class CostDashboardComponent {
   // Layer 1: Source signals
   readonly selectedPeriodType = signal<'current' | 'custom'>('current');
-  readonly costSummary = resource({ /* ... */ });
+  readonly costSummary = resource({
+    /* ... */
+  });
   readonly customReportData = signal<CostData | null>(null);
 
   // Layer 2: Data source switching
@@ -91,16 +93,14 @@ export class UserFormComponent {
   readonly isSubmitting = signal(false);
   readonly submitError = signal<string | null>(null);
 
-  readonly canSubmit = computed(() => 
-    this.form.valid && !this.isSubmitting()
-  );
+  readonly canSubmit = computed(() => this.form.valid && !this.isSubmitting());
 
   async onSubmit() {
     if (!this.canSubmit()) return;
-    
+
     this.isSubmitting.set(true);
     this.submitError.set(null);
-    
+
     try {
       await this.userService.save(this.form.getRawValue());
     } catch (e) {
@@ -165,17 +165,15 @@ export class ItemListComponent {
   readonly items = input.required<Item[]>();
   readonly selectedIds = signal<Set<string>>(new Set());
 
-  readonly selectedItems = computed(() => 
+  readonly selectedItems = computed(() =>
     this.items().filter(item => this.selectedIds().has(item.id))
   );
 
-  readonly allSelected = computed(() => 
-    this.items().length > 0 && this.selectedIds().size === this.items().length
+  readonly allSelected = computed(
+    () => this.items().length > 0 && this.selectedIds().size === this.items().length
   );
 
-  readonly someSelected = computed(() => 
-    this.selectedIds().size > 0 && !this.allSelected()
-  );
+  readonly someSelected = computed(() => this.selectedIds().size > 0 && !this.allSelected());
 
   toggleItem(id: string) {
     this.selectedIds.update(ids => {

@@ -20,18 +20,8 @@
     "author": "CrazyDubya",
     "license": "MIT",
     "category": "documentation",
-    "tags": [
-      "api",
-      "openapi",
-      "swagger",
-      "documentation",
-      "rest"
-    ],
-    "supported_tools": [
-      "claude",
-      "codex",
-      "claude-code"
-    ],
+    "tags": ["api", "openapi", "swagger", "documentation", "rest"],
+    "supported_tools": ["claude", "codex", "claude-code"],
     "risk_factors": []
   },
   "security_audit": {

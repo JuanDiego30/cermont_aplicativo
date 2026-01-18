@@ -15,14 +15,15 @@ version: 1.0.0
 ---
 
 <!-- Cermont Project Fit -->
+
 ## Project Fit
 
-| Attribute | Value |
-|-----------|-------|
-| **Applies to** | backend |
-| **Requires** | NestJS, Prisma, pnpm |
+| Attribute             | Value                                      |
+| --------------------- | ------------------------------------------ |
+| **Applies to**        | backend                                    |
+| **Requires**          | NestJS, Prisma, pnpm                       |
 | **Not for this repo** | Go, Rust, Python, FastAPI, Django, Express |
-| **Status** | Secondary (use `nestjs-expert` as primary) |
+| **Status**            | Secondary (use `nestjs-expert` as primary) |
 
 > [!NOTE]
 > This skill includes multi-language references for context. Cermont uses **NestJS only**.
@@ -30,11 +31,13 @@ version: 1.0.0
 ### Guardrails
 
 **Safety Checklist:**
+
 ```bash
 pnpm --filter @cermont/backend lint
 pnpm --filter @cermont/backend test
 # Rollback: git restore -SW .
 ```
+
 <!-- End Project Fit -->
 
 ## When to Use
@@ -61,18 +64,22 @@ See: `references/backend-technologies.md` for detailed comparisons
 ## Reference Navigation
 
 **Core Technologies:**
+
 - `backend-technologies.md` - Languages, frameworks, databases, message queues, ORMs
 - `backend-api-design.md` - REST, GraphQL, gRPC patterns and best practices
 
 **Security & Authentication:**
+
 - `backend-security.md` - OWASP Top 10 2025, security best practices, input validation
 - `backend-authentication.md` - OAuth 2.1, JWT, RBAC, MFA, session management
 
 **Performance & Architecture:**
+
 - `backend-performance.md` - Caching, query optimization, load balancing, scaling
 - `backend-architecture.md` - Microservices, event-driven, CQRS, saga patterns
 
 **Quality & Operations:**
+
 - `backend-testing.md` - Testing strategies, frameworks, tools, CI/CD testing
 - `backend-code-quality.md` - SOLID principles, design patterns, clean code
 - `backend-devops.md` - Docker, Kubernetes, deployment strategies, monitoring
@@ -91,18 +98,18 @@ See: `references/backend-technologies.md` for detailed comparisons
 
 ## Quick Decision Matrix
 
-| Need | Choose |
-|------|--------|
-| Fast development | Node.js + NestJS |
+| Need                | Choose           |
+| ------------------- | ---------------- |
+| Fast development    | Node.js + NestJS |
 | Data/ML integration | Python + FastAPI |
-| High concurrency | Go + Gin |
-| Max performance | Rust + Axum |
-| ACID transactions | PostgreSQL |
-| Flexible schema | MongoDB |
-| Caching | Redis |
-| Internal services | gRPC |
-| Public APIs | GraphQL/REST |
-| Real-time events | Kafka |
+| High concurrency    | Go + Gin         |
+| Max performance     | Rust + Axum      |
+| ACID transactions   | PostgreSQL       |
+| Flexible schema     | MongoDB          |
+| Caching             | Redis            |
+| Internal services   | gRPC             |
+| Public APIs         | GraphQL/REST     |
+| Real-time events    | Kafka            |
 
 ## Implementation Checklist
 

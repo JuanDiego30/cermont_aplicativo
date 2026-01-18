@@ -4,12 +4,12 @@
 
 ### v3 vs v4 Metrics
 
-| Metric | v3 | v4 | Improvement |
-|--------|-----|-----|------------|
-| Initial Build | 5-10s | 100-500ms | **10-100x** |
-| HMR (Hot Reload) | ~3s | 50-200ms | **15-30x** |
-| Memory Usage | ~200MB | ~30MB | **6-7x** |
-| CSS Output Size | Baseline | -15-20% | **Leaner** |
+| Metric           | v3       | v4        | Improvement |
+| ---------------- | -------- | --------- | ----------- |
+| Initial Build    | 5-10s    | 100-500ms | **10-100x** |
+| HMR (Hot Reload) | ~3s      | 50-200ms  | **15-30x**  |
+| Memory Usage     | ~200MB   | ~30MB     | **6-7x**    |
+| CSS Output Size  | Baseline | -15-20%   | **Leaner**  |
 
 The Oxide engine is a game-changer for build performance.
 
@@ -18,12 +18,13 @@ The Oxide engine is a game-changer for build performance.
 ## Plugin Selection for Maximum Speed
 
 ### Best: Vite Plugin (@tailwindcss/vite)
+
 ```typescript
 // vite.config.ts
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()]
+  plugins: [react(), tailwindcss()],
 });
 ```
 
@@ -31,31 +32,35 @@ export default defineConfig({
 **Best For:** React, Vue, Svelte, any Vite-based project
 
 **Metrics:**
+
 - Build: ~200-300ms
 - HMR: ~50-100ms
 
 ---
 
 ### Good: PostCSS Plugin (@tailwindcss/postcss)
+
 ```javascript
 // postcss.config.js
 export default {
   plugins: {
-    "@tailwindcss/postcss": {},
-  }
-}
+    '@tailwindcss/postcss': {},
+  },
+};
 ```
 
 **Performance:** Fast, but slower than Vite plugin.  
 **Best For:** Webpack, NextJS, CRA, traditional setups
 
 **Metrics:**
+
 - Build: ~300-500ms
 - HMR: ~100-200ms
 
 ---
 
 ### Adequate: CLI (@tailwindcss/cli)
+
 ```bash
 npx @tailwindcss/cli -i styles.css -o dist/styles.css --watch
 ```
@@ -64,6 +69,7 @@ npx @tailwindcss/cli -i styles.css -o dist/styles.css --watch
 **Best For:** Static sites, server-rendered apps, non-bundled setups
 
 **Metrics:**
+
 - Build: ~100-200ms per run
 - Watch mode: ~50-100ms per rebuild
 
@@ -99,7 +105,7 @@ npx @tailwindcss/cli -i styles.css -o dist/styles.css --watch
 @theme {
   --color-primary-100: oklch(0.97 0.01 243);
   --color-primary-200: oklch(0.94 0.04 243);
-  --color-primary-300: oklch(0.89 0.10 243);
+  --color-primary-300: oklch(0.89 0.1 243);
   /* ... repetitive */
 }
 
@@ -154,11 +160,11 @@ npx @tailwindcss/cli -i styles.css -o dist/styles.css --watch
 // postcss.config.js
 export default {
   plugins: {
-    "@tailwindcss/postcss": {
-      lightningcss: true,  // Enable Lightning CSS
+    '@tailwindcss/postcss': {
+      lightningcss: true, // Enable Lightning CSS
     },
-  }
-}
+  },
+};
 ```
 
 **Performance Gain:** 15-20% faster CSS output processing
@@ -169,7 +175,7 @@ export default {
 
 ```typescript
 // vite.config.ts
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   plugins: [
@@ -178,8 +184,8 @@ export default defineConfig({
       // - Oxide engine
       // - Incremental builds
       // - Efficient HMR
-    })
-  ]
+    }),
+  ],
 });
 ```
 
@@ -224,7 +230,7 @@ Tailwind V4 automatically removes unused utilities via content analysis.
 
 ```css
 /* @import "tailwindcss" scans your files for class usage */
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Classes like .shadow-2xl are only included if used */
 ```
@@ -241,7 +247,7 @@ Tailwind V4 automatically removes unused utilities via content analysis.
 // next.config.js
 export default {
   experimental: {
-    optimizePackageImports: ["@tailwindcss/vite"],
+    optimizePackageImports: ['@tailwindcss/vite'],
   },
 };
 ```
@@ -255,7 +261,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          'tailwindcss': ['@tailwindcss/vite'],
+          tailwindcss: ['@tailwindcss/vite'],
         },
       },
     },
@@ -348,7 +354,7 @@ du -h dist/styles.css
 /* ✅ Fast: Override only what differs from defaults */
 @theme {
   --color-primary: oklch(0.6 0.2 243);
-  --font-display: "Custom", sans-serif;
+  --font-display: 'Custom', sans-serif;
 }
 ```
 
@@ -393,17 +399,17 @@ du -h dist/styles.css
 
 ## Expected Performance After V4 Migration
 
-| Metric | After Migration | Target |
-|--------|-----|--------|
-| Build Time | 100-500ms | 200-400ms |
-| HMR | 50-200ms | 100-150ms |
-| CSS Size | -15-20% reduction | -20% or better |
-| Memory Usage | 30-50MB | <100MB |
+| Metric       | After Migration   | Target         |
+| ------------ | ----------------- | -------------- |
+| Build Time   | 100-500ms         | 200-400ms      |
+| HMR          | 50-200ms          | 100-150ms      |
+| CSS Size     | -15-20% reduction | -20% or better |
+| Memory Usage | 30-50MB           | <100MB         |
 
 If you're not seeing these improvements, check:
+
 1. Using correct plugin for your build tool?
 2. Production build vs dev build?
 3. Baseline measurement accurate?
 4. Oxide engine enabled?
 5. Unnecessary content scans?
-

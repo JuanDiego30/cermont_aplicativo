@@ -11,14 +11,15 @@ scope: general
 ---
 
 <!-- Cermont Project Fit -->
+
 ## Project Fit
 
-| Attribute | Value |
-|-----------|-------|
-| **Applies to** | monorepo (all packages) |
-| **Requires** | pnpm, turbo |
-| **Not for this repo** | npm, yarn |
-| **Status** | ⚠️ MANUAL-ONLY (high risk) |
+| Attribute             | Value                      |
+| --------------------- | -------------------------- |
+| **Applies to**        | monorepo (all packages)    |
+| **Requires**          | pnpm, turbo                |
+| **Not for this repo** | npm, yarn                  |
+| **Status**            | ⚠️ MANUAL-ONLY (high risk) |
 
 > [!CAUTION]
 > **Do NOT auto-run upgrade commands.** All dependency upgrades require explicit user approval and a dedicated PR.
@@ -26,11 +27,13 @@ scope: general
 ### Guardrails
 
 **Does NOT do:**
+
 - Install dependencies automatically
 - Run `pnpm update` without approval
 - Change package.json versions automatically
 
 **Safety Checklist (before any upgrade):**
+
 ```bash
 git checkout -b chore/upgrade-<package>
 pnpm outdated  # Review changes
@@ -39,6 +42,7 @@ pnpm -r test
 pnpm -r build
 # If all pass, proceed with upgrade
 ```
+
 <!-- End Project Fit -->
 
 ## When to Use This Skill
@@ -68,6 +72,7 @@ PATCH: Bug fixes, backward compatible
 ## Dependency Analysis
 
 ### Audit Dependencies
+
 ```bash
 # npm
 npm outdated
@@ -84,6 +89,7 @@ npx npm-check-updates -u  # Update package.json
 ```
 
 ### Analyze Dependency Tree
+
 ```bash
 # See why a package is installed
 npm ls package-name
@@ -102,23 +108,23 @@ npx madge --image graph.png src/
 ```javascript
 // compatibility-matrix.js
 const compatibilityMatrix = {
-  'react': {
+  react: {
     '16.x': {
       'react-dom': '^16.0.0',
       'react-router-dom': '^5.0.0',
-      '@testing-library/react': '^11.0.0'
+      '@testing-library/react': '^11.0.0',
     },
     '17.x': {
       'react-dom': '^17.0.0',
       'react-router-dom': '^5.0.0 || ^6.0.0',
-      '@testing-library/react': '^12.0.0'
+      '@testing-library/react': '^12.0.0',
     },
     '18.x': {
       'react-dom': '^18.0.0',
       'react-router-dom': '^6.0.0',
-      '@testing-library/react': '^13.0.0'
-    }
-  }
+      '@testing-library/react': '^13.0.0',
+    },
+  },
 };
 
 function checkCompatibility(packages) {
@@ -129,6 +135,7 @@ function checkCompatibility(packages) {
 ## Staged Upgrade Strategy
 
 ### Phase 1: Planning
+
 ```bash
 # 1. Identify current versions
 npm list --depth=0
@@ -146,6 +153,7 @@ echo "Upgrade order:
 ```
 
 ### Phase 2: Incremental Updates
+
 ```bash
 # Don't upgrade everything at once!
 
@@ -169,6 +177,7 @@ npm install react-router-dom@6
 ```
 
 ### Phase 3: Validation
+
 ```javascript
 // tests/compatibility.test.js
 describe('Dependency Compatibility', () => {
@@ -188,6 +197,7 @@ describe('Dependency Compatibility', () => {
 ## Breaking Change Handling
 
 ### Identifying Breaking Changes
+
 ```bash
 # Use changelog parsers
 npx changelog-parser react 16.0.0 17.0.0
@@ -197,6 +207,7 @@ curl https://raw.githubusercontent.com/facebook/react/main/CHANGELOG.md
 ```
 
 ### Codemod for Automated Fixes
+
 ```bash
 # React upgrade codemods
 npx react-codeshift <transform> <path>
@@ -209,6 +220,7 @@ npx react-codeshift \
 ```
 
 ### Custom Migration Script
+
 ```javascript
 // migration-script.js
 const fs = require('fs');
@@ -219,10 +231,7 @@ glob('src/**/*.tsx', (err, files) => {
     let content = fs.readFileSync(file, 'utf8');
 
     // Replace old API with new API
-    content = content.replace(
-      /componentWillMount/g,
-      'UNSAFE_componentWillMount'
-    );
+    content = content.replace(/componentWillMount/g, 'UNSAFE_componentWillMount');
 
     // Update imports
     content = content.replace(
@@ -238,6 +247,7 @@ glob('src/**/*.tsx', (err, files) => {
 ## Testing Strategy
 
 ### Unit Tests
+
 ```javascript
 // Ensure tests pass before and after upgrade
 npm run test
@@ -247,6 +257,7 @@ npm install @testing-library/react@latest
 ```
 
 ### Integration Tests
+
 ```javascript
 // tests/integration/app.test.js
 describe('App Integration', () => {
@@ -263,6 +274,7 @@ describe('App Integration', () => {
 ```
 
 ### Visual Regression Tests
+
 ```javascript
 // visual-regression.test.js
 describe('Visual Regression', () => {
@@ -274,6 +286,7 @@ describe('Visual Regression', () => {
 ```
 
 ### E2E Tests
+
 ```javascript
 // cypress/e2e/app.cy.js
 describe('E2E Tests', () => {
@@ -290,6 +303,7 @@ describe('E2E Tests', () => {
 ## Automated Dependency Updates
 
 ### Renovate Configuration
+
 ```json
 // renovate.json
 {
@@ -311,20 +325,21 @@ describe('E2E Tests', () => {
 ```
 
 ### Dependabot Configuration
+
 ```yaml
 # .github/dependabot.yml
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     open-pull-requests-limit: 5
     reviewers:
-      - "team-leads"
+      - 'team-leads'
     commit-message:
-      prefix: "chore"
-      include: "scope"
+      prefix: 'chore'
+      include: 'scope'
 ```
 
 ## Rollback Plan
@@ -356,6 +371,7 @@ fi
 ## Common Upgrade Patterns
 
 ### Lock File Management
+
 ```bash
 # npm
 npm install --package-lock-only  # Update lock file only
@@ -367,6 +383,7 @@ yarn upgrade-interactive  # Interactive upgrades
 ```
 
 ### Peer Dependency Resolution
+
 ```bash
 # npm 7+: strict peer dependencies
 npm install --legacy-peer-deps  # Ignore peer deps
@@ -376,6 +393,7 @@ npm install --force
 ```
 
 ### Workspace Upgrades
+
 ```bash
 # Update all workspace packages
 npm install --workspaces
@@ -409,6 +427,7 @@ npm install package@latest --workspace=packages/app
 
 ```markdown
 Pre-Upgrade:
+
 - [ ] Review current dependency versions
 - [ ] Read changelogs for breaking changes
 - [ ] Create feature branch
@@ -416,6 +435,7 @@ Pre-Upgrade:
 - [ ] Run full test suite (baseline)
 
 During Upgrade:
+
 - [ ] Upgrade one dependency at a time
 - [ ] Update peer dependencies
 - [ ] Fix TypeScript errors
@@ -424,6 +444,7 @@ During Upgrade:
 - [ ] Check bundle size impact
 
 Post-Upgrade:
+
 - [ ] Full regression testing
 - [ ] Performance testing
 - [ ] Update documentation

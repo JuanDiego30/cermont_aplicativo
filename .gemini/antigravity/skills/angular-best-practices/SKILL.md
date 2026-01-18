@@ -15,29 +15,33 @@ scope: frontend
 ---
 
 <!-- Cermont Project Fit -->
+
 ## Project Fit
 
-| Attribute | Value |
-|-----------|-------|
-| **Applies to** | frontend |
-| **Requires** | Angular, TailwindCSS, pnpm |
-| **Not for this repo** | React, Next.js, Vue, Svelte |
-| **Status** | ✅ PRIMARY for Angular family |
+| Attribute             | Value                         |
+| --------------------- | ----------------------------- |
+| **Applies to**        | frontend                      |
+| **Requires**          | Angular, TailwindCSS, pnpm    |
+| **Not for this repo** | React, Next.js, Vue, Svelte   |
+| **Status**            | ✅ PRIMARY for Angular family |
 
 ### Guardrails
 
 **Does NOT do:**
+
 - Install dependencies without user approval
 - Modify pnpm-lock.yaml directly
 - Run migrations automatically
 
 **Safety Checklist:**
+
 ```bash
 pnpm --filter @cermont/frontend lint
 pnpm --filter @cermont/frontend test
 pnpm --filter @cermont/frontend build
 # Rollback: git restore -SW .
 ```
+
 <!-- End Project Fit -->
 
 ## TypeScript
@@ -79,10 +83,11 @@ const userResource = resource({
   loader: ({ params, abortSignal }) => fetch(`/api/users/${params.id}`, { signal: abortSignal }),
 });
 
-const userName = computed(() => userResource.hasValue() ? userResource.value().name : undefined);
+const userName = computed(() => (userResource.hasValue() ? userResource.value().name : undefined));
 ```
 
 Key `resource` patterns:
+
 - `params` returns `undefined` → loader doesn't run, status becomes `'idle'`
 - Use `abortSignal` to cancel in-flight requests
 - Check `hasValue()` before accessing `value()` to handle loading/error states

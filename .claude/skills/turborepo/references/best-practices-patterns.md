@@ -53,16 +53,19 @@ my-monorepo/
 ### Why This Structure?
 
 **apps/**: Applications are consumers of packages
+
 - Each app is independently deployable
 - Apps depend on packages but not on other apps
 - Clear separation of concerns
 
 **packages/**: Reusable shared code
+
 - Can be used by multiple apps
 - Independently versioned (optional)
 - Clear dependency boundaries
 
 **tooling/**: Development tooling
+
 - Shared configurations
 - Build tools
 - Code generation
@@ -92,26 +95,28 @@ my-monorepo/
 ### Define Clear Task Dependencies
 
 **Good**: Explicit dependencies
+
 ```json
 {
   "pipeline": {
     "build": {
-      "dependsOn": ["^build"]          // Dependencies build first
+      "dependsOn": ["^build"] // Dependencies build first
     },
     "test": {
-      "dependsOn": ["build"]           // Own build, then test
+      "dependsOn": ["build"] // Own build, then test
     },
     "lint": {
-      "dependsOn": ["^build"]          // Dependencies build first
+      "dependsOn": ["^build"] // Dependencies build first
     },
     "deploy": {
-      "dependsOn": ["build", "test", "lint"]  // All checks pass
+      "dependsOn": ["build", "test", "lint"] // All checks pass
     }
   }
 }
 ```
 
 **Why**:
+
 - Ensures correct execution order
 - Prevents race conditions
 - Clear task relationships
@@ -119,26 +124,31 @@ my-monorepo/
 ### Task Dependency Patterns
 
 **Pattern 1: Topological Build**
+
 ```json
 {
   "build": {
-    "dependsOn": ["^build"]  // Build dependencies first
+    "dependsOn": ["^build"] // Build dependencies first
   }
 }
 ```
+
 Use when: Packages depend on each other's build outputs
 
 **Pattern 2: Local First**
+
 ```json
 {
   "test": {
-    "dependsOn": ["build"]  // Build own package first
+    "dependsOn": ["build"] // Build own package first
   }
 }
 ```
+
 Use when: Task needs own package's build output
 
 **Pattern 3: Combined**
+
 ```json
 {
   "e2e": {
@@ -146,6 +156,7 @@ Use when: Task needs own package's build output
   }
 }
 ```
+
 Use when: Complex task needs multiple prerequisites
 
 ---
@@ -155,23 +166,25 @@ Use when: Complex task needs multiple prerequisites
 ### 1. Cache Build Outputs, Not Source Files
 
 **Good**:
+
 ```json
 {
   "build": {
     "outputs": [
-      "dist/**",              // Build output
-      ".next/**",             // Next.js output
-      "!.next/cache/**"       // Exclude Next.js cache
+      "dist/**", // Build output
+      ".next/**", // Next.js output
+      "!.next/cache/**" // Exclude Next.js cache
     ]
   }
 }
 ```
 
 **Bad**:
+
 ```json
 {
   "build": {
-    "outputs": ["src/**"]   // Don't cache source files
+    "outputs": ["src/**"] // Don't cache source files
   }
 }
 ```
@@ -182,11 +195,11 @@ Use when: Complex task needs multiple prerequisites
 {
   "build": {
     "outputs": [
-      "dist/**",              // Main output
+      "dist/**", // Main output
       ".next/**",
       "!.next/cache/**",
-      "storybook-static/**",  // Storybook build
-      "*.tsbuildinfo"         // TypeScript incremental info
+      "storybook-static/**", // Storybook build
+      "*.tsbuildinfo" // TypeScript incremental info
     ]
   }
 }
@@ -199,8 +212,8 @@ Use when: Complex task needs multiple prerequisites
   "build": {
     "outputs": [
       ".next/**",
-      "!.next/cache/**",      // Exclude cache
-      "!.next/trace"          // Exclude trace files
+      "!.next/cache/**", // Exclude cache
+      "!.next/trace" // Exclude trace files
     ]
   }
 }
@@ -213,8 +226,8 @@ Use when: Complex task needs multiple prerequisites
 ```json
 {
   "dev": {
-    "cache": false,           // Don't cache dev servers
-    "persistent": true        // Keep running
+    "cache": false, // Don't cache dev servers
+    "persistent": true // Keep running
   }
 }
 ```
@@ -225,12 +238,7 @@ Use when: Complex task needs multiple prerequisites
 
 ```json
 {
-  "globalDependencies": [
-    ".env",
-    ".env.local",
-    "tsconfig.json",
-    "package.json"
-  ]
+  "globalDependencies": [".env", ".env.local", "tsconfig.json", "package.json"]
 }
 ```
 
@@ -245,17 +253,17 @@ Use when: Complex task needs multiple prerequisites
 ```json
 {
   "globalEnv": [
-    "NODE_ENV",              // Global env for all tasks
+    "NODE_ENV", // Global env for all tasks
     "CI"
   ],
   "pipeline": {
     "build": {
       "env": [
-        "NEXT_PUBLIC_API_URL",   // Task-specific env
+        "NEXT_PUBLIC_API_URL", // Task-specific env
         "DATABASE_URL"
       ],
       "passThroughEnv": [
-        "DEBUG"              // Don't affect cache
+        "DEBUG" // Don't affect cache
       ]
     }
   }
@@ -265,6 +273,7 @@ Use when: Complex task needs multiple prerequisites
 ### Three Types of Environment Variables
 
 **1. globalEnv**: Affects all tasks
+
 ```json
 {
   "globalEnv": ["NODE_ENV", "CI"]
@@ -272,19 +281,21 @@ Use when: Complex task needs multiple prerequisites
 ```
 
 **2. env**: Affects specific task cache
+
 ```json
 {
   "build": {
-    "env": ["API_URL"]  // Changes invalidate cache
+    "env": ["API_URL"] // Changes invalidate cache
   }
 }
 ```
 
 **3. passThroughEnv**: Don't affect cache
+
 ```json
 {
   "build": {
-    "passThroughEnv": ["DEBUG"]  // For debugging only
+    "passThroughEnv": ["DEBUG"] // For debugging only
   }
 }
 ```
@@ -292,19 +303,21 @@ Use when: Complex task needs multiple prerequisites
 ### Framework-Specific Patterns
 
 **Next.js**:
+
 ```json
 {
   "build": {
-    "env": ["NEXT_PUBLIC_*"]  // All public env vars
+    "env": ["NEXT_PUBLIC_*"] // All public env vars
   }
 }
 ```
 
 **Vite**:
+
 ```json
 {
   "build": {
-    "env": ["VITE_*"]  // All Vite env vars
+    "env": ["VITE_*"] // All Vite env vars
   }
 }
 ```
@@ -322,6 +335,7 @@ turbo link
 ```
 
 **Benefits**:
+
 - Share builds across team
 - Faster local development
 - Consistent builds
@@ -330,6 +344,7 @@ turbo link
 ### Configure in CI/CD
 
 **GitHub Actions**:
+
 ```yaml
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -337,6 +352,7 @@ env:
 ```
 
 **GitLab CI**:
+
 ```yaml
 variables:
   TURBO_TOKEN: $TURBO_TOKEN
@@ -345,13 +361,13 @@ variables:
 
 ### Expected Performance Gains
 
-| Scenario | Without Remote Cache | With Remote Cache | Improvement |
-|----------|---------------------|-------------------|-------------|
-| Local dev (cache miss) | 5 min | 5 min | 0% |
-| Local dev (cache hit) | 5 min | 10 sec | 95% |
-| CI fresh build | 10 min | 10 min | 0% |
-| CI cached build | 10 min | 1 min | 90% |
-| Team member pull | 5 min | 30 sec | 90% |
+| Scenario               | Without Remote Cache | With Remote Cache | Improvement |
+| ---------------------- | -------------------- | ----------------- | ----------- |
+| Local dev (cache miss) | 5 min                | 5 min             | 0%          |
+| Local dev (cache hit)  | 5 min                | 10 sec            | 95%         |
+| CI fresh build         | 10 min               | 10 min            | 0%          |
+| CI cached build        | 10 min               | 1 min             | 90%         |
+| Team member pull       | 5 min                | 30 sec            | 90%         |
 
 ---
 
@@ -368,6 +384,7 @@ turbo run test --filter='...[origin/main]...'
 ```
 
 **Benefits**:
+
 - Faster CI builds (50-90% reduction)
 - Only test what changed
 - Reduced compute costs
@@ -398,6 +415,7 @@ turbo run test --filter='...[HEAD^1]...'
 ### Root package.json Scripts
 
 **Good**: Consistent, predictable scripts
+
 ```json
 {
   "scripts": {
@@ -412,6 +430,7 @@ turbo run test --filter='...[HEAD^1]...'
 ```
 
 **Why**:
+
 - Consistent commands across projects
 - Easy onboarding
 - CI/CD friendly
@@ -419,6 +438,7 @@ turbo run test --filter='...[HEAD^1]...'
 ### Package-Level Scripts
 
 **Good**: Standard names
+
 ```json
 {
   "scripts": {
@@ -443,14 +463,15 @@ turbo run test --filter='...[HEAD^1]...'
 {
   "pipeline": {
     "dev": {
-      "cache": false,        // Dev servers shouldn't cache
-      "persistent": true     // Keep running
+      "cache": false, // Dev servers shouldn't cache
+      "persistent": true // Keep running
     }
   }
 }
 ```
 
 **Why**:
+
 - `cache: false`: Dev servers should always run fresh
 - `persistent: true`: Prevents Turborepo from exiting
 
@@ -473,6 +494,7 @@ turbo run dev --filter=web --filter=api
 ### Pattern 1: Full-Stack Application
 
 **Structure**:
+
 ```
 my-monorepo/
 ├── apps/
@@ -489,6 +511,7 @@ my-monorepo/
 ```
 
 **Dependencies**:
+
 ```json
 // apps/web/package.json
 {
@@ -518,6 +541,7 @@ my-monorepo/
 ```
 
 **Task Pipeline**:
+
 ```json
 {
   "pipeline": {
@@ -545,6 +569,7 @@ my-monorepo/
 ### Pattern 2: Shared Component Library
 
 **Structure**:
+
 ```
 my-monorepo/
 ├── packages/
@@ -567,6 +592,7 @@ my-monorepo/
 ```
 
 **Component Library package.json**:
+
 ```json
 {
   "name": "@myorg/ui",
@@ -581,6 +607,7 @@ my-monorepo/
 ```
 
 **Task Pipeline**:
+
 ```json
 {
   "pipeline": {
@@ -609,6 +636,7 @@ my-monorepo/
 ### Pattern 3: Microfrontends
 
 **Structure**:
+
 ```
 my-monorepo/
 ├── apps/
@@ -625,6 +653,7 @@ my-monorepo/
 ```
 
 **Module Federation Setup**:
+
 ```json
 // apps/shell/package.json
 {
@@ -646,6 +675,7 @@ my-monorepo/
 ```
 
 **Task Pipeline**:
+
 ```json
 {
   "pipeline": {
@@ -666,6 +696,7 @@ my-monorepo/
 ```
 
 **Build Strategy**:
+
 ```bash
 # Build all MFEs
 turbo run build --filter='./apps/*'
@@ -682,6 +713,7 @@ turbo run dev --filter='./apps/*'
 ### Pattern 4: Multi-Platform (Web + Mobile)
 
 **Structure**:
+
 ```
 my-monorepo/
 ├── apps/
@@ -698,6 +730,7 @@ my-monorepo/
 ```
 
 **Platform-Specific Dependencies**:
+
 ```json
 // packages/mobile-ui/package.json
 {
@@ -720,6 +753,7 @@ my-monorepo/
 ```
 
 **Task Pipeline**:
+
 ```json
 {
   "pipeline": {
@@ -748,6 +782,7 @@ my-monorepo/
 ## Summary of Best Practices
 
 ### Do:
+
 - ✅ Structure monorepo logically (apps/, packages/, tooling/)
 - ✅ Use scoped package names (@myorg/package-name)
 - ✅ Define clear task dependencies
@@ -760,6 +795,7 @@ my-monorepo/
 - ✅ Organize scripts consistently
 
 ### Don't:
+
 - ❌ Cache source files
 - ❌ Cache dev server outputs
 - ❌ Forget to declare env vars

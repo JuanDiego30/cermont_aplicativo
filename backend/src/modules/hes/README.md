@@ -30,6 +30,7 @@ El módulo HES (Hoja de Entrada de Servicio) gestiona la documentación de entra
 ## Domain Layer
 
 ### Entities
+
 - `HES` - Aggregate Root (Hoja de Entrada de Servicio)
 - `ClienteInfo` - Información del cliente
 - `CondicionesEntrada` - Estado inicial del equipo
@@ -38,6 +39,7 @@ El módulo HES (Hoja de Entrada de Servicio) gestiona la documentación de entra
 - `FirmaDigital` - Firma digital con validación
 
 ### Value Objects
+
 - `HESId` - UUID único
 - `HESNumero` - Número HES-2024-0001
 - `TipoServicio` - MANTENIMIENTO, REPARACION, etc.
@@ -50,22 +52,23 @@ El módulo HES (Hoja de Entrada de Servicio) gestiona la documentación de entra
 - `EPPRequerido` - Equipos de protección
 
 ### Domain Services
+
 - `HESValidatorService` - Validación de completitud
 - `HESNumeroGeneratorService` - Generación de número único
 - `RiesgoEvaluatorService` - Evaluación automática de riesgo
 
 ## Use Cases
 
-| Use Case | Description |
-|----------|-------------|
-| `CreateHESUseCase` | Crear nueva HES |
-| `GetHESUseCase` | Obtener HES por ID |
-| `ListHESUseCase` | Listar HES con filtros |
-| `CompleteHESUseCase` | Completar HES |
-| `SignHESClienteUseCase` | Firma del cliente |
-| `SignHESTecnicoUseCase` | Firma del técnico |
-| `GetHESByOrdenUseCase` | Obtener HES por orden |
-| `ExportHESPDFUseCase` | Generar PDF |
+| Use Case                | Description            |
+| ----------------------- | ---------------------- |
+| `CreateHESUseCase`      | Crear nueva HES        |
+| `GetHESUseCase`         | Obtener HES por ID     |
+| `ListHESUseCase`        | Listar HES con filtros |
+| `CompleteHESUseCase`    | Completar HES          |
+| `SignHESClienteUseCase` | Firma del cliente      |
+| `SignHESTecnicoUseCase` | Firma del técnico      |
+| `GetHESByOrdenUseCase`  | Obtener HES por orden  |
+| `ExportHESPDFUseCase`   | Generar PDF            |
 
 ## API Endpoints
 

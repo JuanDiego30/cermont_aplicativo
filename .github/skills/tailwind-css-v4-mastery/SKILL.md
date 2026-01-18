@@ -5,13 +5,13 @@ description: >
   configuration, and modern styling paradigms. Transforms agent into Tailwind V4 
   architecture specialist, capable of designing component systems, optimizing 
   performance, and executing complex styling challenges with precision.
-  
+
 triggers:
   - tailwind v4
   - tailwind 4
   - css-first configuration
   - oxide engine
-  - "@theme directive"
+  - '@theme directive'
   - tailwind migration
   - tailwind component
   - style system
@@ -22,23 +22,26 @@ license: MIT
 ---
 
 <!-- Cermont Project Fit -->
+
 ## Project Fit
 
-| Attribute | Value |
-|-----------|-------|
-| **Applies to** | frontend |
-| **Requires** | Angular, TailwindCSS, PostCSS |
-| **Not for this repo** | Vite (React), Next.js, Vue |
-| **Status** | ✅ PRIMARY for UI/Styling family |
+| Attribute             | Value                            |
+| --------------------- | -------------------------------- |
+| **Applies to**        | frontend                         |
+| **Requires**          | Angular, TailwindCSS, PostCSS    |
+| **Not for this repo** | Vite (React), Next.js, Vue       |
+| **Status**            | ✅ PRIMARY for UI/Styling family |
 
 ### Guardrails
 
 **Does NOT do:**
+
 - Install dependencies without user approval
 - Modify pnpm-lock.yaml directly
 - Change postcss.config.js automatically
 
 **Safety Checklist:**
+
 ```bash
 pnpm --filter @cermont/frontend lint
 pnpm --filter @cermont/frontend build
@@ -46,7 +49,9 @@ pnpm --filter @cermont/frontend build
 ```
 
 ### Angular Integration Note
+
 Cermont uses Angular CLI with PostCSS. Replace Vite examples with:
+
 - `@tailwindcss/vite` → `@tailwindcss/postcss`
 - Configure in `angular.json` with custom webpack builder
 <!-- End Project Fit -->
@@ -58,12 +63,14 @@ Cermont uses Angular CLI with PostCSS. Replace Vite examples with:
 ### 1. The Oxide Engine Revolution
 
 **What Changed:**
+
 ```
 v3: JavaScript → JavaScript Parser → CSS Output
 v4: CSS @theme → Rust/Oxide Engine → Optimized CSS Output
 ```
 
 **Why It Matters:**
+
 - **Performance:** 10-100x faster build times, 15-30x faster HMR
 - **Simplicity:** One language (CSS) instead of two (JS + CSS)
 - **Future-Proofing:** Aligned with native browser capabilities
@@ -74,19 +81,20 @@ v4: CSS @theme → Rust/Oxide Engine → Optimized CSS Output
 
 **The Core Shift:**
 
-| Aspect | v3 | v4 |
-|--------|-----|-----|
-| Config Format | JavaScript Object | CSS `@theme {}` Block |
-| Location | `tailwind.config.js` | `styles.css` |
-| Execution | Node.js at build time | Oxide engine |
-| Debugging | Console logs, file inspection | CSS DevTools |
-| Scope | Global import | CSS cascade-aware |
+| Aspect        | v3                            | v4                    |
+| ------------- | ----------------------------- | --------------------- |
+| Config Format | JavaScript Object             | CSS `@theme {}` Block |
+| Location      | `tailwind.config.js`          | `styles.css`          |
+| Execution     | Node.js at build time         | Oxide engine          |
+| Debugging     | Console logs, file inspection | CSS DevTools          |
+| Scope         | Global import                 | CSS cascade-aware     |
 
 **Why This Matters:** CSS-first configuration is more maintainable, debuggable, and aligned with how browsers actually work. You're no longer fighting a layer of abstraction.
 
 ### 3. Browser Requirements & Modern CSS Features
 
 Tailwind V4 **requires** modern browser capabilities:
+
 - **Safari 16.4+** (OKLch color space, `@property`)
 - **Chrome 111+** (`color-mix()`)
 - **Firefox 128+** (CSS nesting)
@@ -110,6 +118,7 @@ This is intentional. V4 **assumes** modern CSS and optimizes around it. Legacy s
    - Check browser support requirements
 
 2. **Installation Phase**
+
    ```bash
    npm install -D tailwindcss@latest
    npm install -D @tailwindcss/vite  # (or @tailwindcss/postcss or @tailwindcss/cli)
@@ -133,6 +142,7 @@ This is intentional. V4 **assumes** modern CSS and optimizes around it. Legacy s
    - Performance baseline
 
 **Decision Tree:**
+
 ```
 Is this a new project?
   ├─ YES → Use V4 directly with @theme config
@@ -157,33 +167,35 @@ Is this a new project?
    - Plan for theme customization
 
 2. **Create Base Theme**
+
    ```css
-   @import "tailwindcss";
-   
+   @import 'tailwindcss';
+
    @theme {
      /* Color system */
      --color-primary-*: oklch(...);
      --color-neutral-*: oklch(...);
-     
+
      /* Spacing scale */
      --spacing-xs: 0.25rem;
      --spacing-sm: 0.5rem;
      --spacing-md: 1rem;
-     
+
      /* Typography */
-     --font-display: "Custom", sans-serif;
-     --font-body: "System", sans-serif;
+     --font-display: 'Custom', sans-serif;
+     --font-body: 'System', sans-serif;
    }
    ```
 
 3. **Build Component Classes**
+
    ```css
    @layer components {
      .btn-primary {
        @apply px-4 py-2 rounded-sm bg-primary text-white
               font-semibold transition-all hover:opacity-90;
      }
-     
+
      .card {
        @apply p-6 rounded-lg bg-white shadow-md border border-gray-200;
      }
@@ -219,12 +231,13 @@ Is this a new project?
    - Disable unnecessary optimizations
 
 3. **Configuration Tuning**
+
    ```javascript
    // vite.config.ts
-   import tailwindcss from "@tailwindcss/vite";
-   
+   import tailwindcss from '@tailwindcss/vite';
+
    export default defineConfig({
-     plugins: [react(), tailwindcss()]
+     plugins: [react(), tailwindcss()],
    });
    ```
 
@@ -239,6 +252,7 @@ Is this a new project?
    - Confirm visual consistency
 
 **Expected Outcomes:**
+
 - Build time: 100-500ms (vs 5-10s in v3)
 - Hot reload: 50-200ms (vs 3s in v3)
 - CSS size: -15-20% reduction
@@ -294,26 +308,31 @@ When should I use @layer components?
 ## Common Gotchas & Solutions
 
 ### Gotcha 1: Expecting `tailwind.config.js` to Still Work
+
 **Problem:** File is ignored in v4.  
 **Solution:** Use `@theme {}` in CSS instead.  
 **Prevention:** Delete `tailwind.config.js` early in migration.
 
 ### Gotcha 2: Default Border Color Breaking Layouts
+
 **Problem:** v3 used `currentColor` (inherits text), v4 uses `#e5e7eb`.  
 **Solution:** Use `.border-current` if you need inherited color.  
 **Prevention:** Test all border utilities during migration.
 
 ### Gotcha 3: Ring Width Changed (3px → 1px)
+
 **Problem:** Existing `.ring` classes now have thinner outlines.  
 **Solution:** Use `.ring-3` for old 3px behavior, `.ring-1` for new default.  
 **Prevention:** Find/replace `.ring` → `.ring-1` during migration.
 
 ### Gotcha 4: CSS Variables Must Have `--` Prefix
+
 **Problem:** `@theme { color-primary: value; }` is ignored.  
 **Solution:** Use `@theme { --color-primary: value; }`.  
 **Prevention:** Always use `--` in `@theme` blocks.
 
 ### Gotcha 5: Opacity Utilities Removed
+
 **Problem:** `.bg-opacity-50` no longer exists.  
 **Solution:** Use CSS color modifiers: `.bg-black/50`.  
 **Prevention:** Search codebase for opacity utilities and replace during migration.
@@ -335,6 +354,7 @@ All detailed references are stored in `references/`:
 ## When to Use This Skill
 
 ✅ **Use this skill when:**
+
 - User asks about Tailwind V4 specifically (not v3)
 - Designing component systems or styling architectures
 - Migrating from Tailwind v3 to v4
@@ -344,6 +364,7 @@ All detailed references are stored in `references/`:
 - Creating custom theme configurations
 
 ❌ **Don't use this skill when:**
+
 - User asks about Tailwind v3 or older (use general CSS knowledge)
 - Question is about HTML/JavaScript/Framework-specific issues (not Tailwind's domain)
 - User needs general CSS tutoring (use CSS fundamentals instead)

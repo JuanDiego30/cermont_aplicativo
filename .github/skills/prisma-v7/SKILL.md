@@ -4,7 +4,7 @@ description: Expert guidance for Prisma ORM v7 (7.0+). Use when working with Pri
 triggers:
   - Prisma
   - schema.prisma
-  - "@prisma/client"
+  - '@prisma/client'
   - database models
   - ORM
   - migrations
@@ -13,14 +13,15 @@ scope: backend
 ---
 
 <!-- Cermont Project Fit -->
+
 ## Project Fit
 
-| Attribute | Value |
-|-----------|-------|
-| **Applies to** | backend |
-| **Requires** | NestJS, Prisma, pnpm |
-| **Not for this repo** | TypeORM, Sequelize |
-| **Status** | Active (v7 patterns for future upgrade) |
+| Attribute             | Value                                   |
+| --------------------- | --------------------------------------- |
+| **Applies to**        | backend                                 |
+| **Requires**          | NestJS, Prisma, pnpm                    |
+| **Not for this repo** | TypeORM, Sequelize                      |
+| **Status**            | Active (v7 patterns for future upgrade) |
 
 > [!NOTE]
 > Cermont currently uses Prisma v6. This skill documents v7 patterns for future migration.
@@ -28,20 +29,24 @@ scope: backend
 ### Guardrails
 
 **Safety Checklist:**
+
 ```bash
 pnpm --filter @cermont/backend prisma validate
 pnpm --filter @cermont/backend prisma generate
 pnpm --filter @cermont/backend test
 # Rollback: git restore -SW .
 ```
+
 <!-- End Project Fit -->
 
 ## Core v7 Changes
 
 ### 1. ES Modules (ESM) Required
+
 Prisma v7 ships as an ES module. Your project must use ESM:
 
 **package.json:**
+
 ```json
 {
   "type": "module"
@@ -49,6 +54,7 @@ Prisma v7 ships as an ES module. Your project must use ESM:
 ```
 
 **tsconfig.json:**
+
 ```json
 {
   "compilerOptions": {
@@ -62,9 +68,11 @@ Prisma v7 ships as an ES module. Your project must use ESM:
 ```
 
 ### 2. Driver Adapters Required
+
 All databases now require driver adapters. The Rust-free client provides better performance and smaller bundle sizes.
 
 **Available Adapters:**
+
 - PostgreSQL: `@prisma/adapter-pg` (with `pg` driver)
 - MySQL/MariaDB: `@prisma/adapter-mariadb` (with `mariadb` driver)
 - SQLite: `@prisma/adapter-better-sqlite3` (with `better-sqlite3`)
@@ -75,6 +83,7 @@ All databases now require driver adapters. The Rust-free client provides better 
 - MSSQL: `@prisma/adapter-mssql`
 
 ### 3. Generator Configuration
+
 The `output` field is now **required** and the new `prisma-client` provider is standard:
 
 ```prisma
@@ -87,12 +96,14 @@ generator client {
 Note: Client is no longer generated in `node_modules` by default.
 
 ### 4. Prisma Config File (prisma.config.ts)
+
 Database URLs and CLI configuration now live in `prisma.config.ts` instead of the schema file.
 
 **Basic setup:**
+
 ```typescript
-import 'dotenv/config'
-import { defineConfig, env } from 'prisma/config'
+import 'dotenv/config';
+import { defineConfig, env } from 'prisma/config';
 
 export default defineConfig({
   schema: 'prisma/schema.prisma',
@@ -102,15 +113,17 @@ export default defineConfig({
   datasource: {
     url: env('DATABASE_URL'),
   },
-})
+});
 ```
 
 **Note:** For Bun, skip `import 'dotenv/config'` as it auto-loads .env files.
 
 ### 5. Schema Datasource Block
+
 Remove `url`, `directUrl`, and `shadowDatabaseUrl` from schema.prisma:
 
 **v7 schema.prisma:**
+
 ```prisma
 datasource db {
   provider = "postgresql"
@@ -164,51 +177,51 @@ npx prisma generate
 ### PostgreSQL Example
 
 ```typescript
-import { PrismaClient } from './generated/prisma/client'
-import { PrismaPg } from '@prisma/adapter-pg'
-import 'dotenv/config'
+import { PrismaClient } from './generated/prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import 'dotenv/config';
 
 const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL
-})
+  connectionString: process.env.DATABASE_URL,
+});
 
-const prisma = new PrismaClient({ adapter })
+const prisma = new PrismaClient({ adapter });
 
-export default prisma
+export default prisma;
 ```
 
 ### MySQL/MariaDB Example
 
 ```typescript
-import { PrismaClient } from './generated/prisma/client'
-import { PrismaMariaDb } from '@prisma/adapter-mariadb'
-import 'dotenv/config'
+import { PrismaClient } from './generated/prisma/client';
+import { PrismaMariaDb } from '@prisma/adapter-mariadb';
+import 'dotenv/config';
 
 const adapter = new PrismaMariaDb({
   host: 'localhost',
   port: 3306,
-  connectionLimit: 5
-})
+  connectionLimit: 5,
+});
 
-const prisma = new PrismaClient({ adapter })
+const prisma = new PrismaClient({ adapter });
 
-export default prisma
+export default prisma;
 ```
 
 ### SQLite Example
 
 ```typescript
-import { PrismaClient } from './generated/prisma/client'
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
-import 'dotenv/config'
+import { PrismaClient } from './generated/prisma/client';
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import 'dotenv/config';
 
 const adapter = new PrismaBetterSqlite3({
-  url: process.env.DATABASE_URL || 'file:./dev.db'
-})
+  url: process.env.DATABASE_URL || 'file:./dev.db',
+});
 
-const prisma = new PrismaClient({ adapter })
+const prisma = new PrismaClient({ adapter });
 
-export default prisma
+export default prisma;
 ```
 
 ### Prisma Accelerate (Caching/Pooling)
@@ -216,14 +229,14 @@ export default prisma
 If using Prisma Accelerate for caching, do NOT use a driver adapter:
 
 ```typescript
-import { PrismaClient } from './generated/prisma/client'
-import { withAccelerate } from '@prisma/extension-accelerate'
+import { PrismaClient } from './generated/prisma/client';
+import { withAccelerate } from '@prisma/extension-accelerate';
 
 const prisma = new PrismaClient({
-  accelerateUrl: process.env.DATABASE_URL // prisma:// or prisma+postgres:// URL
-}).$extends(withAccelerate())
+  accelerateUrl: process.env.DATABASE_URL, // prisma:// or prisma+postgres:// URL
+}).$extends(withAccelerate());
 
-export default prisma
+export default prisma;
 ```
 
 **Important:** Never pass `prisma://` or `prisma+postgres://` URLs to driver adapters.
@@ -269,6 +282,7 @@ model Post {
 ### Relations
 
 **One-to-Many:**
+
 ```prisma
 model User {
   id    Int    @id @default(autoincrement())
@@ -279,12 +293,13 @@ model Post {
   id       Int  @id @default(autoincrement())
   author   User @relation(fields: [authorId], references: [id])
   authorId Int
-  
+
   @@index([authorId])
 }
 ```
 
 **Many-to-Many:**
+
 ```prisma
 model Post {
   id         Int        @id @default(autoincrement())
@@ -298,6 +313,7 @@ model Category {
 ```
 
 **One-to-One:**
+
 ```prisma
 model User {
   id      Int      @id @default(autoincrement())
@@ -356,29 +372,29 @@ const user = await prisma.user.create({
     email: 'user@example.com',
     name: 'John Doe',
   },
-})
+});
 
 // Read
 const user = await prisma.user.findUnique({
   where: { id: 1 },
-})
+});
 
 const users = await prisma.user.findMany({
   where: { email: { contains: '@example.com' } },
   orderBy: { createdAt: 'desc' },
   take: 10,
-})
+});
 
 // Update
 const user = await prisma.user.update({
   where: { id: 1 },
   data: { name: 'Jane Doe' },
-})
+});
 
 // Delete
 const user = await prisma.user.delete({
   where: { id: 1 },
-})
+});
 ```
 
 ### Relations
@@ -395,7 +411,7 @@ const user = await prisma.user.create({
       ],
     },
   },
-})
+});
 
 // Query with relations
 const userWithPosts = await prisma.user.findUnique({
@@ -403,7 +419,7 @@ const userWithPosts = await prisma.user.findUnique({
   include: {
     posts: true,
   },
-})
+});
 
 // Select specific fields
 const user = await prisma.user.findUnique({
@@ -418,7 +434,7 @@ const user = await prisma.user.findUnique({
       },
     },
   },
-})
+});
 ```
 
 ### Advanced Queries
@@ -427,23 +443,20 @@ const user = await prisma.user.findUnique({
 // Filtering
 const posts = await prisma.post.findMany({
   where: {
-    OR: [
-      { title: { contains: 'Prisma' } },
-      { content: { contains: 'database' } },
-    ],
+    OR: [{ title: { contains: 'Prisma' } }, { content: { contains: 'database' } }],
     published: true,
     author: {
       email: { endsWith: '@prisma.io' },
     },
   },
-})
+});
 
 // Aggregations
 const result = await prisma.post.aggregate({
   _count: true,
   _avg: { authorId: true },
   _sum: { authorId: true },
-})
+});
 
 // Group by
 const groups = await prisma.post.groupBy({
@@ -452,29 +465,30 @@ const groups = await prisma.post.groupBy({
   having: {
     authorId: { gt: 10 },
   },
-})
+});
 
 // Transactions
 const [user, post] = await prisma.$transaction([
   prisma.user.create({ data: { email: 'user@example.com' } }),
   prisma.post.create({ data: { title: 'Post', authorId: 1 } }),
-])
+]);
 
 // Interactive transactions
-await prisma.$transaction(async (tx) => {
+await prisma.$transaction(async tx => {
   const user = await tx.user.create({
     data: { email: 'user@example.com' },
-  })
-  
+  });
+
   await tx.post.create({
     data: { title: 'Post', authorId: user.id },
-  })
-})
+  });
+});
 ```
 
 ## Migration Workflow
 
 ### Development
+
 ```bash
 # Create migration and apply
 npx prisma migrate dev --name add_user_table
@@ -487,6 +501,7 @@ npx prisma migrate reset
 ```
 
 ### Production
+
 ```bash
 # Apply migrations
 npx prisma migrate deploy
@@ -496,6 +511,7 @@ npx prisma migrate status
 ```
 
 ### Prototyping
+
 ```bash
 # Push schema changes without creating migrations
 npx prisma db push
@@ -504,6 +520,7 @@ npx prisma db push
 ## Environment Variables
 
 **.env:**
+
 ```bash
 # PostgreSQL
 DATABASE_URL="postgresql://user:password@localhost:5432/mydb?schema=public"
@@ -526,23 +543,25 @@ DIRECT_DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
 In v7, connection pooling is handled by the driver adapter, not by Prisma's URL parameters.
 
 **PostgreSQL with pg driver:**
+
 ```typescript
-import { Pool } from 'pg'
-import { PrismaPg } from '@prisma/adapter-pg'
-import { PrismaClient } from './generated/prisma/client'
+import { Pool } from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaClient } from './generated/prisma/client';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   max: 10, // connection pool size
-})
+});
 
-const adapter = new PrismaPg(pool)
-const prisma = new PrismaClient({ adapter })
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 ```
 
 ## Seeding
 
 **package.json:**
+
 ```json
 {
   "prisma": {
@@ -552,16 +571,17 @@ const prisma = new PrismaClient({ adapter })
 ```
 
 **prisma/seed.ts:**
+
 ```typescript
-import { PrismaClient } from '../generated/prisma/client'
-import { PrismaPg } from '@prisma/adapter-pg'
-import 'dotenv/config'
+import { PrismaClient } from '../generated/prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import 'dotenv/config';
 
 const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL
-})
+  connectionString: process.env.DATABASE_URL,
+});
 
-const prisma = new PrismaClient({ adapter })
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const user = await prisma.user.create({
@@ -569,19 +589,19 @@ async function main() {
       email: 'admin@example.com',
       name: 'Admin User',
     },
-  })
-  
-  console.log('Seeded:', user)
+  });
+
+  console.log('Seeded:', user);
 }
 
 main()
-  .catch((e) => {
-    console.error(e)
-    process.exit(1)
+  .catch(e => {
+    console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });
 ```
 
 Run with: `npx prisma db seed`
@@ -589,27 +609,33 @@ Run with: `npx prisma db seed`
 ## Troubleshooting
 
 ### Module Resolution Errors
+
 **Problem:** `Cannot find module './generated/prisma/client'`
 
 **Solution:**
+
 1. Ensure `"type": "module"` in package.json
 2. Run `npx prisma generate`
 3. Check output path in generator block
 4. Restart TypeScript server
 
 ### Connection Errors (P1017)
+
 **Problem:** Cannot connect to database
 
 **Solution:**
+
 1. Verify DATABASE_URL is correct
 2. Ensure `import 'dotenv/config'` is at the top of files
 3. Check network connectivity
 4. Verify database is running
 
 ### Migration Fails
+
 **Problem:** Migration cannot be applied
 
 **Solution:**
+
 1. Check schema syntax with `npx prisma validate`
 2. Review migration file in `prisma/migrations/`
 3. Use `npx prisma migrate reset` in development
@@ -627,12 +653,12 @@ Run with: `npx prisma db seed`
 4. **Batch operations** when possible:
    ```typescript
    await prisma.user.createMany({
-     data: [{ email: 'a@b.com' }, { email: 'c@d.com' }]
-   })
+     data: [{ email: 'a@b.com' }, { email: 'c@d.com' }],
+   });
    ```
 5. **Use raw queries** for complex operations:
    ```typescript
-   await prisma.$queryRaw`SELECT * FROM users WHERE email LIKE ${'%@example.com'}`
+   await prisma.$queryRaw`SELECT * FROM users WHERE email LIKE ${'%@example.com'}`;
    ```
 
 ## Security Best Practices
@@ -647,15 +673,15 @@ Run with: `npx prisma db seed`
 
 ## Key Differences from v6
 
-| Aspect | v6 | v7 |
-|--------|----|----|
-| Module System | CommonJS or ESM | ESM only |
-| Client Generator | `prisma-client-js` | `prisma-client` |
-| Output Location | `node_modules` default | Custom path required |
-| Database Connection | Built-in drivers | Driver adapters required |
-| Config Location | schema.prisma | prisma.config.ts |
-| Environment Variables | Auto-loaded | Must use dotenv or Bun |
-| Rust Dependencies | Yes | No (Rust-free) |
+| Aspect                | v6                     | v7                       |
+| --------------------- | ---------------------- | ------------------------ |
+| Module System         | CommonJS or ESM        | ESM only                 |
+| Client Generator      | `prisma-client-js`     | `prisma-client`          |
+| Output Location       | `node_modules` default | Custom path required     |
+| Database Connection   | Built-in drivers       | Driver adapters required |
+| Config Location       | schema.prisma          | prisma.config.ts         |
+| Environment Variables | Auto-loaded            | Must use dotenv or Bun   |
+| Rust Dependencies     | Yes                    | No (Rust-free)           |
 
 ## Additional Resources
 
@@ -667,28 +693,30 @@ Run with: `npx prisma db seed`
 ## Common Patterns
 
 ### Singleton Pattern for Prisma Client
+
 ```typescript
 // lib/prisma.ts
-import { PrismaClient } from './generated/prisma/client'
-import { PrismaPg } from '@prisma/adapter-pg'
-import 'dotenv/config'
+import { PrismaClient } from './generated/prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import 'dotenv/config';
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
-}
+  prisma: PrismaClient | undefined;
+};
 
 const adapter = new PrismaPg({
-  connectionString: process.env.DATABASE_URL
-})
+  connectionString: process.env.DATABASE_URL,
+});
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter })
+export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
 
 if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma
+  globalForPrisma.prisma = prisma;
 }
 ```
 
 ### Type-safe Enums
+
 ```prisma
 enum Role {
   USER
@@ -703,20 +731,22 @@ model User {
 ```
 
 Usage:
+
 ```typescript
-import { Role } from './generated/prisma/client'
+import { Role } from './generated/prisma/client';
 
 const admin = await prisma.user.create({
   data: {
     email: 'admin@example.com',
     role: Role.ADMIN,
   },
-})
+});
 ```
 
 ## When to Use Prisma
 
 **Good fit:**
+
 - Type-safe database access
 - Complex relations and queries
 - Auto-generated migrations
@@ -724,6 +754,7 @@ const admin = await prisma.user.create({
 - Need for type safety and IntelliSense
 
 **Consider alternatives if:**
+
 - Need MongoDB (wait for v7 support)
 - Existing complex SQL procedures
 - Extreme performance requirements

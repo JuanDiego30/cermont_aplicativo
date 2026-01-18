@@ -1,119 +1,94 @@
+import { z } from 'zod';
+
 /**
- * @file env.validation.ts
- * @description Validación estricta de variables de entorno usando class-validator.
+ * Schema de validación para variables de entorno del backend
  *
- * Uso: Usar como validationSchema en ConfigModule.forRoot().
- * Si las variables son inválidas, la aplicación termina con error.
+ * Valida todas las variables requeridas al inicio de la aplicación.
+ * Si alguna variable falta o es inválida, la aplicación fallará con un mensaje claro.
+ *
+ * @example
+ * ```typescript
+ * const env = validateEnv();
+ * console.log(env.PORT); // number
+ * ```
  */
-import { plainToInstance, Transform } from 'class-transformer';
-import {
-  IsEmail,
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsString,
-  IsUrl,
-  Max,
-  Min,
-  MinLength,
-  validateSync,
-} from 'class-validator';
+const envSchema = z.object({
+  // Aplicación
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  PORT: z.string().transform(Number).pipe(z.number().int().positive()).default('3000'),
 
-enum Environment {
-  Development = 'development',
-  Production = 'production',
-  Test = 'test',
-}
+  // Base de datos
+  DATABASE_URL: z.string().url(),
 
-export class EnvironmentVariables {
-  @IsEnum(Environment)
-  NODE_ENV: Environment = Environment.Development;
+  // JWT
+  JWT_SECRET: z.string().min(32, 'JWT_SECRET debe tener al menos 32 caracteres'),
+  JWT_EXPIRATION: z.string().default('15m'),
+  JWT_REFRESH_SECRET: z.string().min(32, 'JWT_REFRESH_SECRET debe tener al menos 32 caracteres'),
+  JWT_REFRESH_EXPIRATION: z.string().default('7d'),
 
-  @Transform(({ value }) => parseInt(value, 10))
-  @IsNumber()
-  @Min(1)
-  @Max(65535)
-  PORT = 3000;
+  // 2FA (opcional)
+  TOTP_ISSUER: z.string().default('CERMONT'),
 
-  @IsString()
-  @MinLength(1)
-  DATABASE_URL!: string;
+  // CORS (opcional)
+  ALLOWED_ORIGINS: z
+    .string()
+    .transform(str => str.split(','))
+    .optional(),
 
-  @IsString()
-  @MinLength(32)
-  JWT_SECRET!: string;
+  // Email (opcional en desarrollo)
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.string().transform(Number).pipe(z.number().int().positive()).optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+});
 
-  @IsString()
-  @IsOptional()
-  JWT_EXPIRES_IN = '15m';
+export type Environment = z.infer<typeof envSchema>;
 
-  @IsString()
-  @IsOptional()
-  JWT_REFRESH_EXPIRES_IN = '7d';
+/**
+ * Valida y parsea las variables de entorno
+ *
+ * @returns Variables de entorno validadas y tipadas
+ * @throws Error con mensaje detallado si la validación falla
+ */
+export function validateEnv(): Environment {
+  const result = envSchema.safeParse(process.env);
 
-  @IsUrl({ require_tld: false })
-  @IsOptional()
-  FRONTEND_URL?: string;
-
-  @IsString()
-  @IsOptional()
-  GOOGLE_CLIENT_ID?: string;
-
-  @IsString()
-  @IsOptional()
-  GOOGLE_CLIENT_SECRET?: string;
-
-  @IsUrl()
-  @IsOptional()
-  GOOGLE_CALLBACK_URL?: string;
-
-  @IsString()
-  @IsOptional()
-  SMTP_HOST?: string;
-
-  @IsNumber()
-  @Min(1)
-  @Max(65535)
-  @IsOptional()
-  SMTP_PORT?: number;
-
-  @IsString()
-  @IsOptional()
-  SMTP_USER?: string;
-
-  @IsString()
-  @IsOptional()
-  SMTP_PASS?: string;
-
-  @IsEmail()
-  @IsOptional()
-  SMTP_FROM?: string;
-}
-
-export function validate(config: Record<string, unknown>) {
-  const validatedConfig = plainToInstance(EnvironmentVariables, config, {
-    enableImplicitConversion: true,
-  });
-
-  const errors = validateSync(validatedConfig, {
-    skipMissingProperties: false,
-  });
-
-  if (errors.length > 0) {
-    const formattedErrors = errors
-      .map(err => {
-        const constraints = err.constraints
-          ? Object.values(err.constraints).join(', ')
-          : 'Validation failed';
-        return `  - ${err.property}: ${constraints}`;
-      })
+  if (!result.success) {
+    const errorMessages = result.error.errors
+      .map(err => `  - ${err.path.join('.')}: ${err.message}`)
       .join('\n');
 
-    throw new Error(`❌ Invalid environment variables:\n${formattedErrors}`);
+    console.error(`
+╔════════════════════════════════════════════════════════════════╗
+║                 ❌ ENVIRONMENT VALIDATION FAILED                ║
+╚════════════════════════════════════════════════════════════════╝
+
+The following environment variables are missing or invalid:
+
+${errorMessages}
+
+Please check your .env file and ensure all required variables are set.
+See .env.example for reference.
+`);
+
+    throw new Error('Environment validation failed');
   }
 
-  return validatedConfig;
+  return result.data;
 }
 
-// Export type for compatibility
-export type Env = EnvironmentVariables;
+/**
+ * Instancia singleton del environment validado
+ * Lazy-loaded para evitar errores en tiempo de importación
+ */
+let cachedEnv: Environment | null = null;
+
+/**
+ * Obtiene el environment validado (cached)
+ */
+export function getEnv(): Environment {
+  if (!cachedEnv) {
+    cachedEnv = validateEnv();
+  }
+  return cachedEnv;
+}

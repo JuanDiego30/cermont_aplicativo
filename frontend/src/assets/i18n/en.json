@@ -1,136 +1,136 @@
 {
-    "APP": {
-        "TITLE": "Cermont - Maintenance Management",
-        "LOADING": "Loading...",
-        "SAVE_SUCCESS": "Saved successfully",
-        "SAVE_ERROR": "Error saving"
+  "APP": {
+    "TITLE": "Cermont - Maintenance Management",
+    "LOADING": "Loading...",
+    "SAVE_SUCCESS": "Saved successfully",
+    "SAVE_ERROR": "Error saving"
+  },
+  "NAV": {
+    "HOME": "Home",
+    "DASHBOARD": "Dashboard",
+    "ORDERS": "Orders",
+    "CALENDAR": "Calendar",
+    "PROFILE": "Profile",
+    "ADMIN": "Administration",
+    "LOGOUT": "Logout"
+  },
+  "AUTH": {
+    "LOGIN": "Login",
+    "LOGOUT": "Logout",
+    "REGISTER": "Register",
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "CONFIRM_PASSWORD": "Confirm password",
+    "FORGOT_PASSWORD": "Forgot password?",
+    "RESET_PASSWORD": "Reset password",
+    "REMEMBER_ME": "Remember me",
+    "NO_ACCOUNT": "Don't have an account?",
+    "HAS_ACCOUNT": "Already have an account?",
+    "LOGIN_SUCCESS": "Logged in successfully",
+    "LOGIN_ERROR": "Login error",
+    "LOGOUT_SUCCESS": "Logged out"
+  },
+  "ORDERS": {
+    "TITLE": "Work Orders",
+    "NEW": "New Order",
+    "EDIT": "Edit Order",
+    "DETAILS": "Order Details",
+    "LIST": "Order List",
+    "SEARCH": "Search orders...",
+    "FILTER": "Filter",
+    "NO_ORDERS": "No orders",
+    "STATUS": {
+      "LABEL": "Status",
+      "PENDIENTE": "Pending",
+      "PLANEACION": "Planning",
+      "EJECUCION": "In Progress",
+      "COMPLETADA": "Completed",
+      "CANCELADA": "Cancelled",
+      "PAUSADA": "Paused"
     },
-    "NAV": {
-        "HOME": "Home",
-        "DASHBOARD": "Dashboard",
-        "ORDERS": "Orders",
-        "CALENDAR": "Calendar",
-        "PROFILE": "Profile",
-        "ADMIN": "Administration",
-        "LOGOUT": "Logout"
+    "PRIORITY": {
+      "LABEL": "Priority",
+      "ALTA": "High",
+      "MEDIA": "Medium",
+      "BAJA": "Low"
     },
-    "AUTH": {
-        "LOGIN": "Login",
-        "LOGOUT": "Logout",
-        "REGISTER": "Register",
-        "EMAIL": "Email",
-        "PASSWORD": "Password",
-        "CONFIRM_PASSWORD": "Confirm password",
-        "FORGOT_PASSWORD": "Forgot password?",
-        "RESET_PASSWORD": "Reset password",
-        "REMEMBER_ME": "Remember me",
-        "NO_ACCOUNT": "Don't have an account?",
-        "HAS_ACCOUNT": "Already have an account?",
-        "LOGIN_SUCCESS": "Logged in successfully",
-        "LOGIN_ERROR": "Login error",
-        "LOGOUT_SUCCESS": "Logged out"
-    },
-    "ORDERS": {
-        "TITLE": "Work Orders",
-        "NEW": "New Order",
-        "EDIT": "Edit Order",
-        "DETAILS": "Order Details",
-        "LIST": "Order List",
-        "SEARCH": "Search orders...",
-        "FILTER": "Filter",
-        "NO_ORDERS": "No orders",
-        "STATUS": {
-            "LABEL": "Status",
-            "PENDIENTE": "Pending",
-            "PLANEACION": "Planning",
-            "EJECUCION": "In Progress",
-            "COMPLETADA": "Completed",
-            "CANCELADA": "Cancelled",
-            "PAUSADA": "Paused"
-        },
-        "PRIORITY": {
-            "LABEL": "Priority",
-            "ALTA": "High",
-            "MEDIA": "Medium",
-            "BAJA": "Low"
-        },
-        "FIELDS": {
-            "NUMBER": "Order Number",
-            "CLIENT": "Client",
-            "TECHNICIAN": "Technician",
-            "DATE": "Date",
-            "DESCRIPTION": "Description",
-            "ADDRESS": "Address",
-            "NOTES": "Notes"
-        }
-    },
-    "EVIDENCES": {
-        "TITLE": "Evidences",
-        "UPLOAD": "Upload Evidence",
-        "DOWNLOAD": "Download",
-        "DELETE": "Delete",
-        "NO_EVIDENCES": "No evidences",
-        "TYPES": {
-            "FOTO": "Photo",
-            "VIDEO": "Video",
-            "DOCUMENTO": "Document",
-            "AUDIO": "Audio"
-        }
-    },
-    "FORMS": {
-        "TITLE": "Forms",
-        "REQUIRED": "Required field",
-        "SAVE_DRAFT": "Save draft",
-        "SUBMIT": "Submit"
-    },
-    "BUTTONS": {
-        "SAVE": "Save",
-        "CANCEL": "Cancel",
-        "CONFIRM": "Confirm",
-        "DELETE": "Delete",
-        "EDIT": "Edit",
-        "CREATE": "Create",
-        "BACK": "Back",
-        "NEXT": "Next",
-        "PREVIOUS": "Previous",
-        "SEARCH": "Search",
-        "FILTER": "Filter",
-        "CLEAR": "Clear",
-        "EXPORT": "Export",
-        "IMPORT": "Import",
-        "DOWNLOAD": "Download",
-        "UPLOAD": "Upload"
-    },
-    "MESSAGES": {
-        "SUCCESS": "Operation successful",
-        "ERROR": "An error occurred",
-        "CONFIRM_DELETE": "Are you sure you want to delete?",
-        "CONFIRM_CANCEL": "Are you sure you want to cancel?",
-        "NO_DATA": "No data available",
-        "LOADING": "Loading..."
-    },
-    "VALIDATION": {
-        "REQUIRED": "This field is required",
-        "INVALID_EMAIL": "Invalid email",
-        "MIN_LENGTH": "Minimum {{min}} characters",
-        "MAX_LENGTH": "Maximum {{max}} characters",
-        "MIN_VALUE": "Minimum value: {{min}}",
-        "MAX_VALUE": "Maximum value: {{max}}",
-        "PATTERN": "Invalid format"
-    },
-    "PAGINATION": {
-        "SHOWING": "Showing {{from}} to {{to}} of {{total}}",
-        "FIRST": "First",
-        "LAST": "Last",
-        "NEXT": "Next",
-        "PREVIOUS": "Previous",
-        "ITEMS_PER_PAGE": "Items per page"
-    },
-    "DATES": {
-        "TODAY": "Today",
-        "YESTERDAY": "Yesterday",
-        "TOMORROW": "Tomorrow",
-        "THIS_WEEK": "This week",
-        "THIS_MONTH": "This month"
+    "FIELDS": {
+      "NUMBER": "Order Number",
+      "CLIENT": "Client",
+      "TECHNICIAN": "Technician",
+      "DATE": "Date",
+      "DESCRIPTION": "Description",
+      "ADDRESS": "Address",
+      "NOTES": "Notes"
     }
+  },
+  "EVIDENCES": {
+    "TITLE": "Evidences",
+    "UPLOAD": "Upload Evidence",
+    "DOWNLOAD": "Download",
+    "DELETE": "Delete",
+    "NO_EVIDENCES": "No evidences",
+    "TYPES": {
+      "FOTO": "Photo",
+      "VIDEO": "Video",
+      "DOCUMENTO": "Document",
+      "AUDIO": "Audio"
+    }
+  },
+  "FORMS": {
+    "TITLE": "Forms",
+    "REQUIRED": "Required field",
+    "SAVE_DRAFT": "Save draft",
+    "SUBMIT": "Submit"
+  },
+  "BUTTONS": {
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "CONFIRM": "Confirm",
+    "DELETE": "Delete",
+    "EDIT": "Edit",
+    "CREATE": "Create",
+    "BACK": "Back",
+    "NEXT": "Next",
+    "PREVIOUS": "Previous",
+    "SEARCH": "Search",
+    "FILTER": "Filter",
+    "CLEAR": "Clear",
+    "EXPORT": "Export",
+    "IMPORT": "Import",
+    "DOWNLOAD": "Download",
+    "UPLOAD": "Upload"
+  },
+  "MESSAGES": {
+    "SUCCESS": "Operation successful",
+    "ERROR": "An error occurred",
+    "CONFIRM_DELETE": "Are you sure you want to delete?",
+    "CONFIRM_CANCEL": "Are you sure you want to cancel?",
+    "NO_DATA": "No data available",
+    "LOADING": "Loading..."
+  },
+  "VALIDATION": {
+    "REQUIRED": "This field is required",
+    "INVALID_EMAIL": "Invalid email",
+    "MIN_LENGTH": "Minimum {{min}} characters",
+    "MAX_LENGTH": "Maximum {{max}} characters",
+    "MIN_VALUE": "Minimum value: {{min}}",
+    "MAX_VALUE": "Maximum value: {{max}}",
+    "PATTERN": "Invalid format"
+  },
+  "PAGINATION": {
+    "SHOWING": "Showing {{from}} to {{to}} of {{total}}",
+    "FIRST": "First",
+    "LAST": "Last",
+    "NEXT": "Next",
+    "PREVIOUS": "Previous",
+    "ITEMS_PER_PAGE": "Items per page"
+  },
+  "DATES": {
+    "TODAY": "Today",
+    "YESTERDAY": "Yesterday",
+    "TOMORROW": "Tomorrow",
+    "THIS_WEEK": "This week",
+    "THIS_MONTH": "This month"
+  }
 }

@@ -97,12 +97,12 @@ adminEndpoint() {}
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService,
+    private jwtService: JwtService
   ) {}
 
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.usersService.findByEmail(email);
-    if (user && await bcrypt.compare(password, user.password)) {
+    if (user && (await bcrypt.compare(password, user.password))) {
       return user;
     }
     return null;
@@ -159,11 +159,11 @@ export class AppModule {}
 
 ## Quick Reference
 
-| Component | Purpose |
-|-----------|---------|
-| `JwtStrategy` | Validate JWT tokens |
-| `JwtAuthGuard` | Protect routes |
-| `RolesGuard` | Role-based access |
-| `@Public()` | Skip auth |
-| `@Roles('admin')` | Require role |
-| `@UseGuards()` | Apply guard |
+| Component         | Purpose             |
+| ----------------- | ------------------- |
+| `JwtStrategy`     | Validate JWT tokens |
+| `JwtAuthGuard`    | Protect routes      |
+| `RolesGuard`      | Role-based access   |
+| `@Public()`       | Skip auth           |
+| `@Roles('admin')` | Require role        |
+| `@UseGuards()`    | Apply guard         |

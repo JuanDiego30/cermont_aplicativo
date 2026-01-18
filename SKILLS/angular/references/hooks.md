@@ -12,7 +12,7 @@ Every component and service with subscriptions MUST implement proper cleanup. Th
 @Component({
   selector: 'app-header-new',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HeaderNewComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -22,7 +22,8 @@ export class HeaderNewComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => this.handleUserChange(user));
 
-    this.walletService.getWalletSummary()
+    this.walletService
+      .getWalletSummary()
       .pipe(takeUntil(this.destroy$))
       .subscribe(summary => this.updateBalance(summary));
 
@@ -50,16 +51,18 @@ export class WalletV2Service implements OnDestroy {
   private balanceRefreshTimer$ = timer(0, 30000);
 
   startBalanceRefresh(playerId: number): void {
-    this.balanceRefreshTimer$.pipe(
-      takeUntil(this.destroy$),
-      switchMap(() => this.fetchPlayerBalance(playerId)),
-      catchError(error => {
-        console.error('Balance refresh error:', error);
-        return of(null);
-      })
-    ).subscribe(balance => {
-      if (balance) this.playerBalance$.next(balance);
-    });
+    this.balanceRefreshTimer$
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap(() => this.fetchPlayerBalance(playerId)),
+        catchError(error => {
+          console.error('Balance refresh error:', error);
+          return of(null);
+        })
+      )
+      .subscribe(balance => {
+        if (balance) this.playerBalance$.next(balance);
+      });
   }
 
   ngOnDestroy(): void {
@@ -85,6 +88,7 @@ ngOnInit(): void {
 ```
 
 **Why This Breaks:**
+
 1. Subscription persists after component destruction
 2. Memory leak accumulates with each navigation
 3. Callbacks execute on destroyed components, causing errors
@@ -128,6 +132,7 @@ ngOnDestroy(): void {
 ```
 
 **Why This Breaks:**
+
 1. Subject remains in memory
 2. Any operators depending on completion won't finalize
 3. Potential for subtle memory leaks in long-running apps
@@ -211,10 +216,10 @@ export class ModernComponent {
 
 ## Quick Reference
 
-| Hook | Use For | Example |
-|------|---------|---------|
-| `constructor` | Dependency injection only | `private service: Service` |
-| `ngOnInit` | Subscriptions, initial data load | `this.loadData()` |
+| Hook              | Use For                            | Example                      |
+| ----------------- | ---------------------------------- | ---------------------------- |
+| `constructor`     | Dependency injection only          | `private service: Service`   |
+| `ngOnInit`        | Subscriptions, initial data load   | `this.loadData()`            |
 | `ngAfterViewInit` | DOM manipulation, ViewChild access | `this.element.nativeElement` |
-| `ngOnDestroy` | Cleanup subscriptions | `this.destroy$.next()` |
-| `ngOnChanges` | React to @Input changes | `if (changes['playerId'])` |
+| `ngOnDestroy`     | Cleanup subscriptions              | `this.destroy$.next()`       |
+| `ngOnChanges`     | React to @Input changes            | `if (changes['playerId'])`   |

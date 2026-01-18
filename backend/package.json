@@ -18,6 +18,8 @@
     "prisma:generate": "dotenv -e .env -- prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
+    "seed:run": "dotenv -e .env -- tsx src/database/seeds/seed.cli.ts",
+    "seed:refresh": "pnpm prisma:migrate && pnpm seed:run",
     "check": "pnpm run lint"
   },
   "dependencies": {

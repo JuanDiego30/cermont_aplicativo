@@ -1,18 +1,11 @@
 {
   "root": true,
-  "ignorePatterns": [
-    "projects/**/*",
-    "dist/**/*"
-  ],
+  "ignorePatterns": ["projects/**/*", "dist/**/*"],
   "overrides": [
     {
-      "files": [
-        "*.ts"
-      ],
+      "files": ["*.ts"],
       "parserOptions": {
-        "project": [
-          "tsconfig.eslint.json"
-        ],
+        "project": ["tsconfig.eslint.json"],
         "createDefaultProgram": true
       },
       "extends": [
@@ -25,12 +18,7 @@
           {
             "patterns": [
               {
-                "group": [
-                  "@app/pages/*",
-                  "@app/pages/**",
-                  "./pages/*",
-                  "./pages/**"
-                ],
+                "group": ["@app/pages/*", "@app/pages/**", "./pages/*", "./pages/**"],
                 "message": "Evita acoplar features/core a pages/**. Preferir routing shell o mover páginas dentro de features/<dominio>/pages."
               },
               {
@@ -64,12 +52,8 @@
       }
     },
     {
-      "files": [
-        "*.html"
-      ],
-      "extends": [
-        "plugin:@angular-eslint/template/recommended"
-      ],
+      "files": ["*.html"],
+      "extends": ["plugin:@angular-eslint/template/recommended"],
       "rules": {}
     }
   ]

@@ -70,16 +70,19 @@ Check that the generated documentation includes:
 ## Framework-Specific Notes
 
 ### Express/Node.js
+
 - Check for route middleware that might affect auth/validation
 - Look for request validators (Joi, express-validator, etc.)
 - Extract JSDoc comments for endpoint descriptions
 
 ### FastAPI
+
 - FastAPI auto-generates OpenAPI docs, but this skill can enhance them
 - Extract Pydantic models for request/response schemas
 - Check for `response_model` and `status_code` parameters
 
 ### NestJS
+
 - Look for DTOs (Data Transfer Objects) for schemas
 - Check for Swagger decorators (`@ApiOperation`, `@ApiResponse`)
 - Extract metadata from controller and method decorators

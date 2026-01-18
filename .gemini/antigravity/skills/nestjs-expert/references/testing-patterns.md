@@ -144,7 +144,7 @@ describe('UsersController (e2e)', () => {
       .set('Authorization', `Bearer ${authToken}`)
       .send({ email: 'new@test.com', password: 'Test1234', name: 'New' })
       .expect(201)
-      .expect((res) => {
+      .expect(res => {
         expect(res.body.email).toBe('new@test.com');
       });
   });
@@ -179,11 +179,11 @@ export const createMockRepository = <T>() => ({
 
 ## Quick Reference
 
-| Pattern | Use Case |
-|---------|----------|
+| Pattern                      | Use Case           |
+| ---------------------------- | ------------------ |
 | `Test.createTestingModule()` | Create test module |
-| `jest.fn()` | Mock function |
-| `mockResolvedValue()` | Mock async return |
-| `mockReturnValue()` | Mock sync return |
-| `supertest` | E2E HTTP testing |
-| `beforeAll` / `afterAll` | Setup/teardown |
+| `jest.fn()`                  | Mock function      |
+| `mockResolvedValue()`        | Mock async return  |
+| `mockReturnValue()`          | Mock sync return   |
+| `supertest`                  | E2E HTTP testing   |
+| `beforeAll` / `afterAll`     | Setup/teardown     |

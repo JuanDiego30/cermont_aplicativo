@@ -24,13 +24,13 @@ export class TotpService {
 
   async verify(token: string, secret: string): Promise<boolean> {
     const result = await verify({ token, secret });
-    // In otplib v13 verify returns { valid: boolean, delta: number }? 
+    // In otplib v13 verify returns { valid: boolean, delta: number }?
     // Wait, the d.ts said VerifyResult = VerifyResult$1 | VerifyResult$2
     // I should check if result is just boolean? No, verify returns VerifyResult object.
     // I will assume it has 'valid' property.
     // Actually, checking d.ts again: "Returns: { valid: true, delta: 0 }"
     if (result && typeof result === 'object' && 'valid' in result) {
-        return result.valid;
+      return result.valid;
     }
     return false;
   }

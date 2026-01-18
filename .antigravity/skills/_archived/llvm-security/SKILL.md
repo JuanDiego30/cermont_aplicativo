@@ -10,6 +10,7 @@ This skill covers LLVM-based security features, sanitizers, hardening mechanisms
 ## Sanitizers
 
 ### AddressSanitizer (ASan)
+
 Detects memory errors: buffer overflow, use-after-free, use-after-scope.
 
 ```bash
@@ -18,12 +19,13 @@ clang -fsanitize=address -g program.c -o program
 
 # Key features
 # - Stack buffer overflow detection
-# - Heap buffer overflow detection  
+# - Heap buffer overflow detection
 # - Use-after-free detection
 # - Memory leak detection
 ```
 
 ### MemorySanitizer (MSan)
+
 Detects uninitialized memory reads.
 
 ```bash
@@ -31,6 +33,7 @@ clang -fsanitize=memory -g program.c -o program
 ```
 
 ### ThreadSanitizer (TSan)
+
 Detects data races in multithreaded programs.
 
 ```bash
@@ -38,6 +41,7 @@ clang -fsanitize=thread -g program.c -o program
 ```
 
 ### UndefinedBehaviorSanitizer (UBSan)
+
 Detects undefined behavior at runtime.
 
 ```bash
@@ -48,6 +52,7 @@ clang -fsanitize=signed-integer-overflow,null program.c
 ```
 
 ### Custom Sanitizer Development
+
 ```cpp
 // Implementing custom memory tracking
 extern "C" void __asan_poison_memory_region(void const volatile *addr, size_t size);
@@ -68,6 +73,7 @@ public:
 ## Hardening Techniques
 
 ### Stack Protection
+
 ```bash
 # Stack canaries
 clang -fstack-protector-strong program.c
@@ -80,6 +86,7 @@ clang -fsanitize=safe-stack program.c
 ```
 
 ### Control Flow Integrity (CFI)
+
 ```bash
 # Forward-edge CFI
 clang -fsanitize=cfi -flto program.c
@@ -91,12 +98,14 @@ clang -fsanitize=cfi-icall      # Indirect call checks
 ```
 
 ### Shadow Call Stack
+
 ```bash
 # Backward-edge protection (return address protection)
 clang -fsanitize=shadow-call-stack program.c
 ```
 
 ### Position Independent Executables
+
 ```bash
 # Full ASLR support
 clang -fPIE -pie program.c
@@ -108,6 +117,7 @@ clang -fPIC -shared library.c -o library.so
 ## Symbolic Execution
 
 ### Integration with KLEE
+
 ```cpp
 // Mark symbolic inputs
 #include <klee/klee.h>
@@ -115,7 +125,7 @@ clang -fPIC -shared library.c -o library.so
 int main() {
     int input;
     klee_make_symbolic(&input, sizeof(input), "input");
-    
+
     if (input > 0) {
         // Path 1
     } else {
@@ -126,12 +136,15 @@ int main() {
 ```
 
 ### SymCC (Symbolic Execution via Compilation)
+
 Compile-time instrumentation for symbolic execution:
+
 - Faster than IR interpretation
 - Supports complex real-world programs
 - Integrates with fuzzing workflows
 
 ### Symbolic Analysis Tools
+
 - **Caffeine**: LLVM-based symbolic executor
 - **SymSan**: Symbolic execution + sanitizers
 - **Haybale**: Rust-based LLVM symbolic executor
@@ -139,6 +152,7 @@ Compile-time instrumentation for symbolic execution:
 ## Security-Focused Analysis
 
 ### Type Checking at Runtime
+
 ```cpp
 // LLVM TypeSanitizer concepts
 // Track type information through allocations
@@ -157,6 +171,7 @@ void checkType(void* ptr, TypeInfo expected) {
 ```
 
 ### Memory Leak Detection
+
 ```cpp
 // LeakSanitizer integration
 extern "C" void __lsan_do_leak_check();
@@ -166,19 +181,19 @@ extern "C" void __lsan_enable();
 // Custom leak tracking
 class PreciseLeakSanitizer {
     std::unordered_map<void*, AllocationInfo> allocations;
-    
+
 public:
     void recordAlloc(void* ptr, size_t size, const char* file, int line) {
         allocations[ptr] = {size, file, line, getStackTrace()};
     }
-    
+
     void recordFree(void* ptr) {
         allocations.erase(ptr);
     }
-    
+
     void reportLeaks() {
         for (auto& [ptr, info] : allocations) {
-            fprintf(stderr, "Leak: %zu bytes at %s:%d\n", 
+            fprintf(stderr, "Leak: %zu bytes at %s:%d\n",
                     info.size, info.file, info.line);
         }
     }
@@ -188,23 +203,24 @@ public:
 ## Exploit Mitigation Implementation
 
 ### Return Address Protection
+
 ```llvm
 ; Shadow stack concept in LLVM IR
 define void @protected_function() {
 entry:
     %return_addr = call ptr @llvm.returnaddress(i32 0)
     call void @shadow_stack_push(ptr %return_addr)
-    
+
     ; Function body...
-    
+
     %saved_addr = call ptr @shadow_stack_pop()
     %current_addr = call ptr @llvm.returnaddress(i32 0)
     %match = icmp eq ptr %saved_addr, %current_addr
     br i1 %match, label %safe_return, label %attack_detected
-    
+
 safe_return:
     ret void
-    
+
 attack_detected:
     call void @abort()
     unreachable
@@ -212,6 +228,7 @@ attack_detected:
 ```
 
 ### Pointer Authentication (ARM)
+
 ```cpp
 // Using pointer authentication on ARM64
 __attribute__((target("sign-return-address")))
@@ -223,6 +240,7 @@ void signed_function() {
 ## Secure Compilation Pipeline
 
 ### Build Flags Checklist
+
 ```bash
 # Comprehensive hardening
 CFLAGS="-O2 \
@@ -241,6 +259,7 @@ LDFLAGS="-pie \
 ```
 
 ### Compiler Security Checks
+
 - `-Wformat-security`: Format string vulnerabilities
 - `-Warray-bounds`: Array bounds violations
 - `-Wshift-overflow`: Shift operation overflows
@@ -249,6 +268,7 @@ LDFLAGS="-pie \
 ## Fuzzing Integration
 
 ### libFuzzer
+
 ```cpp
 // Fuzz target template
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
@@ -259,6 +279,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
 ```
 
 ### Sanitizer + Fuzzer Combination
+
 ```bash
 # Comprehensive fuzzing setup
 clang -fsanitize=fuzzer,address,undefined \
@@ -269,11 +290,13 @@ clang -fsanitize=fuzzer,address,undefined \
 ## Windows-Specific Security
 
 ### Control Flow Guard (CFG)
+
 ```bash
 clang-cl /guard:cf program.c
 ```
 
 ### SEH (Structured Exception Handling)
+
 - LLVM supports Windows SEH
 - Use for secure exception handling
 - Integrate with security monitoring

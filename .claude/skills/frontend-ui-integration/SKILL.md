@@ -2,6 +2,7 @@
 name: frontend-ui-integration
 description: Implement or extend a user-facing workflow in a web application, integrating with existing backend APIs. Use when the feature is primarily a UI/UX change backed by existing APIs, affects only the web frontend, and requires following design system, routing, and testing conventions.
 ---
+
 # Skill: Frontend UI integration
 
 ## Purpose

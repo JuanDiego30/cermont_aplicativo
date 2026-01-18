@@ -16,27 +16,31 @@ scope: frontend
 ---
 
 <!-- Cermont Project Fit -->
+
 ## Project Fit
 
-| Attribute | Value |
-|-----------|-------|
-| **Applies to** | frontend |
-| **Requires** | Angular, pnpm |
-| **Not for this repo** | React, Vue |
-| **Status** | Secondary (use `angular-best-practices` as primary) |
+| Attribute             | Value                                               |
+| --------------------- | --------------------------------------------------- |
+| **Applies to**        | frontend                                            |
+| **Requires**          | Angular, pnpm                                       |
+| **Not for this repo** | React, Vue                                          |
+| **Status**            | Secondary (use `angular-best-practices` as primary) |
 
 ### Guardrails
 
 **Does NOT do:**
+
 - Install dependencies without user approval
 - Modify pnpm-lock.yaml directly
 
 **Safety Checklist:**
+
 ```bash
 pnpm --filter @cermont/frontend lint
 pnpm --filter @cermont/frontend test
 # Rollback: git restore -SW .
 ```
+
 <!-- End Project Fit -->
 
 ## Quick Start
@@ -49,7 +53,7 @@ pnpm --filter @cermont/frontend test
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './player-list.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlayerListComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -58,10 +62,13 @@ export class PlayerListComponent implements OnInit, OnDestroy {
   constructor(private playerService: PlayerService) {}
 
   ngOnInit(): void {
-    this.playerService.list().pipe(
-      takeUntil(this.destroy$),
-      map(page => page.content)
-    ).subscribe(players => this.players$.next(players));
+    this.playerService
+      .list()
+      .pipe(
+        takeUntil(this.destroy$),
+        map(page => page.content)
+      )
+      .subscribe(players => this.players$.next(players));
   }
 
   ngOnDestroy(): void {
@@ -84,13 +91,16 @@ export class WalletService implements OnDestroy {
   }
 
   refreshBalance(playerId: number): void {
-    this.http.get<PlayerBalance>(`${this.apiUrl}/${playerId}/balance`).pipe(
-      takeUntil(this.destroy$),
-      catchError(error => {
-        console.error('Balance fetch failed:', error);
-        return of(null);
-      })
-    ).subscribe(balance => this.balance$.next(balance));
+    this.http
+      .get<PlayerBalance>(`${this.apiUrl}/${playerId}/balance`)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(error => {
+          console.error('Balance fetch failed:', error);
+          return of(null);
+        })
+      )
+      .subscribe(balance => this.balance$.next(balance));
   }
 
   ngOnDestroy(): void {
@@ -102,13 +112,13 @@ export class WalletService implements OnDestroy {
 
 ## Key Concepts
 
-| Concept | Usage | Example |
-|---------|-------|---------|
-| Standalone | All new components | `standalone: true` in decorator |
-| Cleanup | Every subscription | `takeUntil(this.destroy$)` |
-| State | Service-level state | `BehaviorSubject<T>` |
-| Performance | List rendering | `trackBy` + `OnPush` |
-| Forms | All user input | Reactive forms with `FormGroup` |
+| Concept     | Usage               | Example                         |
+| ----------- | ------------------- | ------------------------------- |
+| Standalone  | All new components  | `standalone: true` in decorator |
+| Cleanup     | Every subscription  | `takeUntil(this.destroy$)`      |
+| State       | Service-level state | `BehaviorSubject<T>`            |
+| Performance | List rendering      | `trackBy` + `OnPush`            |
+| Forms       | All user input      | Reactive forms with `FormGroup` |
 
 ## Common Patterns
 
@@ -132,7 +142,7 @@ this.http.post<Resource>(this.apiUrl, request).pipe(
 ```typescript
 this.form = this.fb.group({
   email: ['', [Validators.required, Validators.email]],
-  amount: [null, [Validators.required, Validators.min(0)]]
+  amount: [null, [Validators.required, Validators.min(0)]],
 });
 ```
 

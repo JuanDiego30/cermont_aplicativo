@@ -96,14 +96,15 @@ export class WalletV2Service implements OnDestroy {
 // BAD - Exposes mutable subject
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  public user$ = new BehaviorSubject<User | null>(null);  // Anyone can call .next()!
+  public user$ = new BehaviorSubject<User | null>(null); // Anyone can call .next()!
 }
 
 // In some component:
-this.userService.user$.next(fakeUser);  // Bypasses service logic
+this.userService.user$.next(fakeUser); // Bypasses service logic
 ```
 
 **Why This Breaks:**
+
 1. Any component can mutate state directly
 2. Validation logic in service is bypassed
 3. State changes become unpredictable
@@ -116,7 +117,7 @@ this.userService.user$.next(fakeUser);  // Bypasses service logic
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private userSubject = new BehaviorSubject<User | null>(null);
-  public user$ = this.userSubject.asObservable();  // Read-only
+  public user$ = this.userSubject.asObservable(); // Read-only
 
   updateUser(user: User): void {
     // Validation, logging, side effects happen here
@@ -134,11 +135,12 @@ export class UserService {
 ```typescript
 // BAD - Triggers on every emission, even if value unchanged
 this.playerId$.subscribe(id => {
-  this.loadPlayerData(id);  // Called even when id didn't change
+  this.loadPlayerData(id); // Called even when id didn't change
 });
 ```
 
 **Why This Breaks:**
+
 1. Unnecessary API calls
 2. UI flickers from redundant updates
 3. Performance degradation
@@ -147,11 +149,13 @@ this.playerId$.subscribe(id => {
 
 ```typescript
 // GOOD - Only triggers on actual changes
-this.playerId$.pipe(
-  distinctUntilChanged(),
-  switchMap(id => this.playerService.getById(id)),
-  takeUntil(this.destroy$)
-).subscribe(player => this.player = player);
+this.playerId$
+  .pipe(
+    distinctUntilChanged(),
+    switchMap(id => this.playerService.getById(id)),
+    takeUntil(this.destroy$)
+  )
+  .subscribe(player => (this.player = player));
 ```
 
 ---
@@ -227,15 +231,15 @@ logout(): void {
   this.walletService.clearState();
   this.profileService.clearState();
   this.filterStateService.clearFilterState();
-  
+
   // Clear tokens
   sessionStorage.removeItem('access_token');
   sessionStorage.removeItem('refresh_token');
-  
+
   // Update auth state
   this.currentUserSubject.next(null);
   this.isAuthenticatedSubject.next(false);
-  
+
   // Navigate to login
   this.router.navigate(['/login']);
 }
@@ -245,9 +249,9 @@ logout(): void {
 
 ## Quick Reference
 
-| Pattern | Use Case | Example |
-|---------|----------|---------|
-| `BehaviorSubject` | State that needs initial value | User, settings, balance |
-| `Subject` | Events without initial value | destroy$, click events |
-| `ReplaySubject(1)` | Late subscribers need last value | One-time data fetch |
-| `AsyncSubject` | Only final value matters | Completion events |
+| Pattern            | Use Case                         | Example                 |
+| ------------------ | -------------------------------- | ----------------------- |
+| `BehaviorSubject`  | State that needs initial value   | User, settings, balance |
+| `Subject`          | Events without initial value     | destroy$, click events  |
+| `ReplaySubject(1)` | Late subscribers need last value | One-time data fetch     |
+| `AsyncSubject`     | Only final value matters         | Completion events       |

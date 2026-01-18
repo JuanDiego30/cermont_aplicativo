@@ -20,6 +20,7 @@ Expert system for Turborepo (Turbo) and pnpm workspace management, optimized for
 ### 1. Turborepo Architecture & Setup
 
 **Optimal turbo.json Configuration:**
+
 ```json
 {
   "$schema": "https://turbo.build/schema.json",
@@ -54,15 +55,12 @@ Expert system for Turborepo (Turbo) and pnpm workspace management, optimized for
 ```
 
 **Root package.json Structure:**
+
 ```json
 {
   "name": "monorepo-root",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*",
-    "services/*"
-  ],
+  "workspaces": ["apps/*", "packages/*", "services/*"],
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
@@ -86,6 +84,7 @@ Expert system for Turborepo (Turbo) and pnpm workspace management, optimized for
 ### 2. pnpm Workspace Configuration
 
 **Root pnpm-workspace.yaml:**
+
 ```yaml
 packages:
   - 'apps/*'
@@ -95,6 +94,7 @@ packages:
 ```
 
 **.npmrc Best Practices:**
+
 ```ini
 # Hoist dependencies for faster installs
 shamefully-hoist=true
@@ -113,6 +113,7 @@ store-dir=~/.pnpm-store
 ### 3. Package Organization Patterns
 
 **Recommended Structure:**
+
 ```
 monorepo-root/
 ├── apps/                    # Deployable applications
@@ -135,6 +136,7 @@ monorepo-root/
 ```
 
 **Package Naming Convention:**
+
 ```
 @scope/package-name
 
@@ -148,6 +150,7 @@ Examples:
 ### 4. Internal Package Template
 
 **packages/ui/package.json:**
+
 ```json
 {
   "name": "@company/ui",
@@ -185,6 +188,7 @@ Examples:
 ### 5. Build Optimization Strategies
 
 **Parallel Execution:**
+
 ```bash
 # Run tasks in parallel across all packages
 turbo run build --parallel
@@ -197,6 +201,7 @@ turbo run build --filter=web...
 ```
 
 **Cache Management:**
+
 ```bash
 # Clear all caches
 turbo run clean
@@ -209,6 +214,7 @@ turbo run build --summarize
 ```
 
 **Remote Caching (Vercel):**
+
 ```bash
 # Link to Vercel for remote caching
 turbo login
@@ -221,6 +227,7 @@ turbo run build --remote-only
 ### 6. Dependency Management
 
 **Adding Dependencies:**
+
 ```bash
 # Add to root
 pnpm add -w <package>
@@ -233,12 +240,13 @@ pnpm add @company/utils --filter @company/ui --workspace
 ```
 
 **Dependency Protocol:**
+
 ```json
 {
   "dependencies": {
-    "@company/utils": "workspace:*",  // Latest in workspace
-    "@company/ui": "workspace:^",     // Compatible version
-    "react": "^18.2.0"                // External dependency
+    "@company/utils": "workspace:*", // Latest in workspace
+    "@company/ui": "workspace:^", // Compatible version
+    "react": "^18.2.0" // External dependency
   }
 }
 ```
@@ -246,6 +254,7 @@ pnpm add @company/utils --filter @company/ui --workspace
 ### 7. TypeScript Configuration
 
 **Root tsconfig.json:**
+
 ```json
 {
   "compilerOptions": {
@@ -267,6 +276,7 @@ pnpm add @company/utils --filter @company/ui --workspace
 ```
 
 **Package-specific tsconfig.json:**
+
 ```json
 {
   "extends": "@company/config-typescript/base.json",
@@ -282,6 +292,7 @@ pnpm add @company/utils --filter @company/ui --workspace
 ### 8. Code Generation with @turbo/gen
 
 **Generate New Package:**
+
 ```bash
 turbo gen workspace
 
@@ -292,36 +303,37 @@ turbo gen workspace
 ```
 
 **Custom Generator:**
+
 ```typescript
 // turbo/generators/config.ts
-import type { PlopTypes } from "@turbo/gen";
+import type { PlopTypes } from '@turbo/gen';
 
 export default function generator(plop: PlopTypes.NodePlopAPI): void {
-  plop.setGenerator("package", {
-    description: "Create new package",
+  plop.setGenerator('package', {
+    description: 'Create new package',
     prompts: [
       {
-        type: "input",
-        name: "name",
-        message: "Package name (without @company/):",
+        type: 'input',
+        name: 'name',
+        message: 'Package name (without @company/):',
       },
       {
-        type: "list",
-        name: "type",
-        message: "Package type:",
-        choices: ["library", "config", "service"],
+        type: 'list',
+        name: 'type',
+        message: 'Package type:',
+        choices: ['library', 'config', 'service'],
       },
     ],
     actions: [
       {
-        type: "add",
-        path: "packages/{{name}}/package.json",
-        templateFile: "templates/package.json.hbs",
+        type: 'add',
+        path: 'packages/{{name}}/package.json',
+        templateFile: 'templates/package.json.hbs',
       },
       {
-        type: "add",
-        path: "packages/{{name}}/src/index.ts",
-        templateFile: "templates/index.ts.hbs",
+        type: 'add',
+        path: 'packages/{{name}}/src/index.ts',
+        templateFile: 'templates/index.ts.hbs',
       },
     ],
   });
@@ -331,6 +343,7 @@ export default function generator(plop: PlopTypes.NodePlopAPI): void {
 ### 9. Common Patterns & Solutions
 
 **Circular Dependency Detection:**
+
 ```bash
 # Install dependency checker
 pnpm add -Dw madge
@@ -340,12 +353,13 @@ madge --circular --extensions ts,tsx apps/web/src
 ```
 
 **Shared Environment Variables:**
+
 ```typescript
 // packages/env/src/index.ts
-import { z } from "zod";
+import { z } from 'zod';
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(["development", "production", "test"]),
+  NODE_ENV: z.enum(['development', 'production', 'test']),
   DATABASE_URL: z.string().url(),
   API_KEY: z.string().min(1),
 });
@@ -354,19 +368,16 @@ export const env = envSchema.parse(process.env);
 ```
 
 **Shared ESLint Configuration:**
+
 ```javascript
 // packages/config-eslint/index.js
 module.exports = {
-  extends: [
-    "next/core-web-vitals",
-    "plugin:@typescript-eslint/recommended",
-    "prettier",
-  ],
-  parser: "@typescript-eslint/parser",
-  plugins: ["@typescript-eslint"],
+  extends: ['next/core-web-vitals', 'plugin:@typescript-eslint/recommended', 'prettier'],
+  parser: '@typescript-eslint/parser',
+  plugins: ['@typescript-eslint'],
   rules: {
-    "@typescript-eslint/no-unused-vars": "error",
-    "@typescript-eslint/no-explicit-any": "warn",
+    '@typescript-eslint/no-unused-vars': 'error',
+    '@typescript-eslint/no-explicit-any': 'warn',
   },
 };
 ```
@@ -374,19 +385,21 @@ module.exports = {
 ### 10. Performance Optimization
 
 **Task Dependency Optimization:**
+
 ```json
 {
   "pipeline": {
     "build": {
-      "dependsOn": ["^build"],           // Wait for dependencies
+      "dependsOn": ["^build"], // Wait for dependencies
       "outputs": ["dist/**"],
-      "inputs": ["src/**", "package.json"]  // Track specific inputs
+      "inputs": ["src/**", "package.json"] // Track specific inputs
     }
   }
 }
 ```
 
 **Selective Task Running:**
+
 ```bash
 # Only changed packages
 turbo run build --filter=[HEAD^1]
@@ -399,6 +412,7 @@ turbo run build --filter=!@company/deprecated
 ```
 
 **Parallel Limits:**
+
 ```bash
 # Limit concurrent tasks (for CI with limited resources)
 turbo run build --concurrency=2
@@ -410,6 +424,7 @@ export NODE_OPTIONS="--max-old-space-size=4096"
 ### 11. CI/CD Integration
 
 **GitHub Actions Example:**
+
 ```yaml
 name: CI
 
@@ -449,6 +464,7 @@ jobs:
 ### 12. Migration Strategies
 
 **From npm/yarn to pnpm + Turbo:**
+
 ```bash
 # 1. Remove existing
 rm -rf node_modules package-lock.json yarn.lock
@@ -470,6 +486,7 @@ turbo gen config
 ```
 
 **Convert existing scripts:**
+
 ```json
 {
   "scripts": {
@@ -486,6 +503,7 @@ turbo gen config
 **Common Issues:**
 
 1. **"Package not found" errors:**
+
    ```bash
    # Clear all node_modules and reinstall
    pnpm clean:all
@@ -493,6 +511,7 @@ turbo gen config
    ```
 
 2. **Cache issues:**
+
    ```bash
    # Clear Turbo cache
    rm -rf .turbo
@@ -502,6 +521,7 @@ turbo gen config
    ```
 
 3. **Build failures in CI:**
+
    ```bash
    # Use frozen lockfile
    pnpm install --frozen-lockfile
@@ -536,6 +556,7 @@ turbo gen config
 ### 15. Advanced Patterns
 
 **Conditional Task Execution:**
+
 ```json
 {
   "pipeline": {
@@ -549,6 +570,7 @@ turbo gen config
 ```
 
 **Task-Specific Environment Variables:**
+
 ```json
 {
   "pipeline": {
@@ -561,6 +583,7 @@ turbo gen config
 ```
 
 **Scoped Tasks:**
+
 ```bash
 # Run only in apps
 turbo run build --filter='./apps/*'
@@ -611,6 +634,7 @@ pnpm store prune                               # Clear pnpm cache
 ## Integration with Existing Tools
 
 **Vercel:**
+
 ```json
 {
   "buildCommand": "turbo run build --filter={apps/web}...",
@@ -619,6 +643,7 @@ pnpm store prune                               # Clear pnpm cache
 ```
 
 **Docker:**
+
 ```dockerfile
 FROM node:18-alpine AS base
 RUN npm install -g pnpm turbo
@@ -644,6 +669,7 @@ CMD ["node", "dist/index.js"]
 ## When to Use This Skill
 
 Invoke this skill when:
+
 - Setting up new Turborepo monorepo
 - Migrating to Turbo from Lerna/Nx/Rush
 - Optimizing build times and caching

@@ -3,6 +3,7 @@
 ## Express.js Example
 
 ### Input Route Code
+
 ```javascript
 // routes/users.js
 const express = require('express');
@@ -38,6 +39,7 @@ module.exports = router;
 ```
 
 ### Generated OpenAPI
+
 ```yaml
 paths:
   /api/users/{id}:
@@ -89,6 +91,7 @@ paths:
 ## FastAPI Example
 
 ### Input Route Code
+
 ```python
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
@@ -125,7 +128,9 @@ async def create_user(data: CreateUserRequest):
 ```
 
 ### Generated OpenAPI
+
 FastAPI auto-generates OpenAPI, but this skill can enhance it with:
+
 - Additional examples from tests
 - More detailed descriptions
 - Security scheme configurations
@@ -134,6 +139,7 @@ FastAPI auto-generates OpenAPI, but this skill can enhance it with:
 ## NestJS Example
 
 ### Input Controller Code
+
 ```typescript
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -141,7 +147,6 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 @ApiTags('users')
 @Controller('api/users')
 export class UsersController {
-
   @Get(':id')
   @ApiOperation({ summary: 'Get user by ID' })
   @ApiResponse({ status: 200, description: 'User found', type: UserDto })
@@ -160,7 +165,9 @@ export class UsersController {
 ```
 
 ### Generated OpenAPI
+
 NestJS with Swagger decorators already provides good documentation. This skill:
+
 - Ensures consistency across all controllers
 - Adds missing error responses
 - Extracts DTOs for complete schemas
@@ -169,6 +176,7 @@ NestJS with Swagger decorators already provides good documentation. This skill:
 ## Flask Example
 
 ### Input Route Code
+
 ```python
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
@@ -229,6 +237,7 @@ api.add_resource(UserResource, '/api/users/<user_id>', '/api/users')
 ## Rails Example
 
 ### Input Routes
+
 ```ruby
 # config/routes.rb
 Rails.application.routes.draw do
@@ -273,6 +282,7 @@ end
 ```
 
 ### Generated OpenAPI
+
 ```yaml
 paths:
   /api/v1/users:

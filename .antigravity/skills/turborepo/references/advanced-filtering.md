@@ -9,6 +9,7 @@ Complete guide to Turborepo's powerful filtering syntax for targeted task execut
 ## Overview
 
 Turborepo's filtering allows you to:
+
 - Run tasks on specific packages
 - Build only changed code
 - Execute tasks on dependency graphs
@@ -63,12 +64,14 @@ turbo run build --filter='[./packages/*]'
 ### Use Cases
 
 **Build from changed directory**:
+
 ```bash
 # Build everything in apps/
 turbo run build --filter='[./apps]'
 ```
 
 **Test specific workspace**:
+
 ```bash
 # Test packages in packages/ only
 turbo run test --filter='[./packages]'
@@ -104,18 +107,21 @@ turbo run lint --filter='[HEAD]'
 ### CI/CD Patterns
 
 **Pull Request builds**:
+
 ```bash
 # Only build changed packages
 turbo run build --filter='...[origin/main]'
 ```
 
 **Push to main**:
+
 ```bash
 # Build everything changed since last successful build
 turbo run build --filter='...[origin/main]'
 ```
 
 **Feature branch**:
+
 ```bash
 # Build changes in current branch
 turbo run build --filter='...[origin/develop]'
@@ -136,6 +142,7 @@ turbo run build --filter='...web' --filter='...api'
 ```
 
 **Example**:
+
 ```
 packages/
   ui/
@@ -157,6 +164,7 @@ turbo run build --filter='...^web'
 ```
 
 **Example**:
+
 ```bash
 turbo run build --filter='...^web'
 # Builds: ui, utils (NOT web)
@@ -177,6 +185,7 @@ turbo run test --filter='^ui...'
 ```
 
 **Example**:
+
 ```
 packages/
   ui/
@@ -205,6 +214,7 @@ turbo run build --filter='...ui...'
 ```
 
 **Example**:
+
 ```
 packages/
   utils/
@@ -403,37 +413,37 @@ turbo run build --filter='./packages/*'
 
 ### Basic Syntax
 
-| Syntax | Meaning |
-|--------|---------|
-| `package` | Specific package |
-| `./path/*` | Pattern match |
-| `[git-ref]` | Changed since git reference |
-| `...package` | Package + dependencies |
-| `package...` | Package + dependents |
+| Syntax          | Meaning                     |
+| --------------- | --------------------------- |
+| `package`       | Specific package            |
+| `./path/*`      | Pattern match               |
+| `[git-ref]`     | Changed since git reference |
+| `...package`    | Package + dependencies      |
+| `package...`    | Package + dependents        |
 | `...package...` | Package + deps + dependents |
-| `^package` | Exclude root package |
-| `!package` | Exclude package |
-| `{pattern}` | Group/scope |
+| `^package`      | Exclude root package        |
+| `!package`      | Exclude package             |
+| `{pattern}`     | Group/scope                 |
 
 ### Git References
 
-| Reference | Meaning |
-|-----------|---------|
-| `[main]` | Changed since main branch |
-| `[origin/main]` | Changed since remote main |
-| `[HEAD]` | Uncommitted changes |
-| `[HEAD~1]` | Changed in last commit |
-| `[abc123]` | Changed since specific commit |
+| Reference       | Meaning                       |
+| --------------- | ----------------------------- |
+| `[main]`        | Changed since main branch     |
+| `[origin/main]` | Changed since remote main     |
+| `[HEAD]`        | Uncommitted changes           |
+| `[HEAD~1]`      | Changed in last commit        |
+| `[abc123]`      | Changed since specific commit |
 
 ### Dependency Operators
 
-| Operator | Meaning |
-|----------|---------|
-| `...pkg` | Package + all dependencies |
-| `...^pkg` | Dependencies only (exclude package) |
-| `pkg...` | Package + all dependents |
-| `^pkg...` | Dependents only (exclude package) |
-| `...pkg...` | Package + deps + dependents |
+| Operator    | Meaning                             |
+| ----------- | ----------------------------------- |
+| `...pkg`    | Package + all dependencies          |
+| `...^pkg`   | Dependencies only (exclude package) |
+| `pkg...`    | Package + all dependents            |
+| `^pkg...`   | Dependents only (exclude package)   |
+| `...pkg...` | Package + deps + dependents         |
 
 ---
 
@@ -452,6 +462,7 @@ turbo run build --filter='...[main]' --dry-run=json | jq
 ### Common Mistakes
 
 **Mistake 1: Missing quotes**
+
 ```bash
 # Wrong
 turbo run build --filter=./apps/*
@@ -461,6 +472,7 @@ turbo run build --filter='./apps/*'
 ```
 
 **Mistake 2: Wrong git reference**
+
 ```bash
 # Wrong (local branch)
 turbo run build --filter='[main]'
@@ -470,6 +482,7 @@ turbo run build --filter='[origin/main]'
 ```
 
 **Mistake 3: Incorrect dependency operator**
+
 ```bash
 # Wrong (dependents instead of dependencies)
 turbo run build --filter='web...'
@@ -531,13 +544,14 @@ turbo run deploy --filter='./apps/*...[origin/main]'
 
 ### Benchmarks
 
-| Scenario | All Packages | With Filter | Improvement |
-|----------|-------------|-------------|-------------|
-| PR (2 packages changed) | 10 min | 2 min | 80% |
-| Feature branch (5 packages) | 10 min | 3.5 min | 65% |
-| Hotfix (1 package) | 10 min | 1 min | 90% |
+| Scenario                    | All Packages | With Filter | Improvement |
+| --------------------------- | ------------ | ----------- | ----------- |
+| PR (2 packages changed)     | 10 min       | 2 min       | 80%         |
+| Feature branch (5 packages) | 10 min       | 3.5 min     | 65%         |
+| Hotfix (1 package)          | 10 min       | 1 min       | 90%         |
 
 **Real-world results** (50-package monorepo):
+
 - Without filters: 15 minutes
 - With git filters: 3 minutes
 - With git + dependency filters: 2 minutes
