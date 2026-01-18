@@ -1,52 +1,96 @@
-<button (click)="toggleTheme()"
+<button
+  (click)="toggleTheme()"
   class="relative group flex items-center justify-center p-0 transition-transform active:scale-95 focus:outline-none"
-  [attr.aria-label]="theme() === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'">
-  
-  <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" 
-       class="w-10 h-10 sm:w-11 sm:h-11 drop-shadow-md group-hover:drop-shadow-lg transition-all duration-300">
+  [attr.aria-label]="theme() === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+>
+  <svg
+    width="44"
+    height="44"
+    viewBox="0 0 44 44"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    class="w-10 h-10 sm:w-11 sm:h-11 drop-shadow-md group-hover:drop-shadow-lg transition-all duration-300"
+  >
     <defs>
-      <linearGradient id="hexGradient" x1="22" y1="0" x2="22" y2="44" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#465FFF"/>
-        <stop offset="1" stop-color="#2A31D8"/>
+      <linearGradient
+        id="hexGradient"
+        x1="22"
+        y1="0"
+        x2="22"
+        y2="44"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stop-color="#465FFF" />
+        <stop offset="1" stop-color="#2A31D8" />
       </linearGradient>
-      <linearGradient id="hexGradientDark" x1="22" y1="0" x2="22" y2="44" gradientUnits="userSpaceOnUse">
-        <stop stop-color="#1E293B"/>
-        <stop offset="1" stop-color="#0F172A"/>
+      <linearGradient
+        id="hexGradientDark"
+        x1="22"
+        y1="0"
+        x2="22"
+        y2="44"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop stop-color="#1E293B" />
+        <stop offset="1" stop-color="#0F172A" />
       </linearGradient>
     </defs>
-    
+
     <!-- Hexagon Shape -->
-    <path d="M22 1.8L39.5 11.9V32.1L22 42.2L4.5 32.1V11.9L22 1.8Z" 
-          [attr.fill]="theme() === 'dark' ? 'url(#hexGradientDark)' : 'url(#hexGradient)'" 
-          stroke="white" stroke-opacity="0.1" stroke-width="1"
-          class="transition-all duration-500 ease-in-out"/>
-    
+    <path
+      d="M22 1.8L39.5 11.9V32.1L22 42.2L4.5 32.1V11.9L22 1.8Z"
+      [attr.fill]="theme() === 'dark' ? 'url(#hexGradientDark)' : 'url(#hexGradient)'"
+      stroke="white"
+      stroke-opacity="0.1"
+      stroke-width="1"
+      class="transition-all duration-500 ease-in-out"
+    />
+
     <!-- Icons Container -->
-    <g class="transition-all duration-500 ease-in-out" 
-       [class.rotate-180]="theme() === 'dark'"
-       style="transform-origin: center;">
-       
+    <g
+      class="transition-all duration-500 ease-in-out"
+      [class.rotate-180]="theme() === 'dark'"
+      style="transform-origin: center"
+    >
       @if (theme() === 'dark') {
         <!-- Sun Icon -->
         <g transform="translate(12, 12)">
-           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-             <circle cx="12" cy="12" r="5"></circle>
-             <line x1="12" y1="1" x2="12" y2="3"></line>
-             <line x1="12" y1="21" x2="12" y2="23"></line>
-             <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-             <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-             <line x1="1" y1="12" x2="3" y2="12"></line>
-             <line x1="21" y1="12" x2="23" y2="12"></line>
-             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-           </svg>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
         </g>
       } @else {
         <!-- Moon Icon -->
         <g transform="translate(12, 12)">
-           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-           </svg>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
         </g>
       }
     </g>

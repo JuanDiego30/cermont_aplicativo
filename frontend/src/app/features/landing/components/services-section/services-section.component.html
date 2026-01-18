@@ -1,93 +1,75 @@
-<section id="servicios" class="py-24 bg-white dark:bg-gray-950">
+<section
+  id="servicios"
+  class="bg-slate-50 py-20 text-slate-900 dark:bg-slate-950 dark:text-white"
+  aria-labelledby="services-title"
+>
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <!-- Section Header -->
-    <div class="text-center mb-16">
-      <h2 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-        Nuestros
-        <span
-          class="bg-gradient-to-r from-cermont-primary-600 to-cermont-primary-800 dark:from-cermont-primary-400 dark:to-cermont-primary-600 bg-clip-text text-transparent"
-        >
-          Servicios
-        </span>
+    <header class="mx-auto mb-12 max-w-3xl text-center hero-fade-in">
+      <h2 id="services-title" class="text-3xl font-semibold sm:text-4xl">
+        Servicios estrategicos para operaciones industriales
       </h2>
-      <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-        Soluciones integrales para proyectos de construcción, mantenimiento y montajes industriales
+      <p class="mt-4 text-base/7 text-slate-600 dark:text-slate-300">
+        Cubrimos el ciclo completo de construccion, energia, refrigeracion, montajes y
+        telecomunicaciones con personal certificado en todo el pais.
       </p>
-    </div>
+    </header>
 
-    <!-- Services Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       @for (service of services; track service.id) {
-        <app-spotlight-card class="h-full">
-          <div class="flex flex-col h-full">
-            <!-- Icon -->
-            <div
-              class="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br"
-              [ngClass]="getColorClasses(service.color)"
-              class="mb-6 group-hover:scale-110 transition-transform duration-300"
-            >
-              <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  [attr.d]="service.icon"
-                />
-              </svg>
-            </div>
+        <li>
+          <app-spotlight-card class="h-full hero-fade-in">
+            <article class="flex h-full flex-col">
+              <figure class="mb-6 flex items-center gap-4">
+                <span
+                  class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary-500/15 text-primary-500"
+                >
+                  <span class="h-6 w-6" [innerHTML]="service.icon" aria-hidden="true"></span>
+                </span>
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">
+                  {{ service.title }}
+                </h3>
+              </figure>
 
-            <!-- Title -->
-            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">
-              {{ service.title }}
-            </h3>
+              <p class="text-sm/7 text-slate-600 dark:text-slate-300">
+                {{ service.description }}
+              </p>
 
-            <!-- Description -->
-            <p class="text-gray-600 dark:text-gray-400 mb-6 flex-grow">
-              {{ service.description }}
-            </p>
+              <ul class="mt-5 space-y-2">
+                @for (feature of service.features; track feature) {
+                  <li class="flex items-center gap-2 text-xs/6 text-slate-500 dark:text-slate-400">
+                    <span
+                      class="h-1.5 w-1.5 rounded-full bg-secondary-500"
+                      aria-hidden="true"
+                    ></span>
+                    {{ feature }}
+                  </li>
+                }
+              </ul>
 
-            <!-- Features -->
-            <ul class="space-y-2">
-              @for (feature of service.features; track feature) {
-                <li class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                  <svg
-                    class="w-4 h-4 text-cermont-primary-600 dark:text-cermont-primary-400 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                  {{ feature }}
-                </li>
-              }
-            </ul>
-
-            <!-- CTA Button -->
-            <button
-              class="mt-6 w-full px-4 py-2.5 text-sm font-medium text-cermont-primary-600 dark:text-cermont-primary-400 border border-cermont-primary-300 dark:border-cermont-primary-700 rounded-lg hover:bg-cermont-primary-50 dark:hover:bg-cermont-primary-900/20 transition-all duration-300 flex items-center justify-center"
-            >
-              Más Información
-              <svg
-                class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              <a
+                href="#contacto"
+                class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary-600 transition hover:text-primary-500 dark:text-primary-400"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
-            </button>
-          </div>
-        </app-spotlight-card>
+                Solicitar propuesta
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  />
+                </svg>
+              </a>
+            </article>
+          </app-spotlight-card>
+        </li>
       }
-    </div>
+    </ul>
   </div>
 </section>

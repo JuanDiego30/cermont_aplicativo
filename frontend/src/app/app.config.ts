@@ -13,10 +13,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideAnimations(),
     provideRouter(routes, withViewTransitions()),
-    provideHttpClient(
-      withFetch(),
-      withInterceptors([authInterceptor, errorInterceptor])
-    ),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor, errorInterceptor])),
     importProvidersFrom(
       ToastrModule.forRoot({
         timeOut: 4000,
@@ -24,8 +21,8 @@ export const appConfig: ApplicationConfig = {
         preventDuplicates: true,
         progressBar: true,
         closeButton: true,
-        enableHtml: true
+        enableHtml: true,
       })
-    )
-  ]
+    ),
+  ],
 };

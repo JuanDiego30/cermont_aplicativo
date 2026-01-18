@@ -3,11 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import {
-    ChangeEstadoOrdenDto,
-    HistorialEstado,
-    Orden,
-    OrdenEstado,
-    Prioridad,
+  ChangeEstadoOrdenDto,
+  HistorialEstado,
+  Orden,
+  OrdenEstado,
+  Prioridad,
 } from '../../../../core/models/orden.model';
 import { logError } from '../../../../core/utils/logger';
 import { OrdersService } from '../../services/orders.service';

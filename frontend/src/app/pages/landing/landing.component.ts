@@ -1,12 +1,11 @@
 /**
  * Landing Page Component - Refactored with TailAdmin Design
  * @see Modern landing with dynamic navbar, spotlight effects, and 3D cards
- * 
+ *
  * Landing page principal de CERMONT S.A.S con secciones Hero, Services, About, Testimonials y CTA
  */
 
-import { Component } from '@angular/core';
-
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { LandingNavbarComponent } from '../../shared/components/landing-navbar/landing-navbar.component';
 import { HeroSectionComponent } from '../../features/landing/components/hero-section/hero-section.component';
@@ -18,7 +17,6 @@ import { LandingFooterComponent } from '../../shared/components/landing/landing-
 
 @Component({
   selector: 'app-landing',
-  standalone: true,
   imports: [
     RouterModule,
     LandingNavbarComponent,
@@ -27,11 +25,10 @@ import { LandingFooterComponent } from '../../shared/components/landing/landing-
     AboutSectionComponent,
     TestimonialSectionComponent,
     CTASectionComponent,
-    LandingFooterComponent
-],
+    LandingFooterComponent,
+  ],
   templateUrl: './landing.component.html',
-  styleUrl: './landing.component.css'
+  styleUrl: './landing.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LandingComponent {
-}
-
+export class LandingComponent {}

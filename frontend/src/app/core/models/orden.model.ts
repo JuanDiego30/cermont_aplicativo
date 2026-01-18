@@ -1,29 +1,19 @@
 /**
- * @enum OrdenEstado
- * @description Estados de la orden (alineados con backend Prisma schema)
- * @important Los valores string deben MATCHEAR exactamente con Prisma OrderStatus enum
- */
-export enum OrdenEstado {
-  PENDIENTE = 'pendiente',
-  PLANEACION = 'planeacion',
-  EJECUCION = 'ejecucion',
-  COMPLETADA = 'completada',
-  CANCELADA = 'cancelada',
-  PAUSADA = 'pausada',
-}
-
-/**
- * @deprecated EN_PROGRESO was removed - use EJECUCION instead
- * This mirrors backend Prisma schema which uses 'ejecucion', not 'en_progreso'
- * ARCHIVADA was removed - not present in Prisma OrderStatus enum
+ * Enums - Imported from @cermont/shared-types
+ *
+ * These are canonical enum definitions aligned with Prisma schema.
  */
 
-export enum Prioridad {
-  BAJA = 'baja',
-  MEDIA = 'media',
-  ALTA = 'alta',
-  URGENTE = 'urgente',
-}
+// Import enums directly
+import { OrderStatus, OrderPriority } from '@cermont/shared-types';
+
+// Re-export with local names for backward compatibility
+export const OrdenEstado = OrderStatus;
+export const Prioridad = OrderPriority;
+
+// Type exports for convenience
+export type OrdenEstado = OrderStatus;
+export type Prioridad = OrderPriority;
 
 export interface Orden {
   id: string;

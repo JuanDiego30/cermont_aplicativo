@@ -8,27 +8,27 @@ export enum TipoServicio {
   REPARACION = 'REPARACION',
   INSTALACION = 'INSTALACION',
   INSPECCION = 'INSPECCION',
-  OTRO = 'OTRO'
+  OTRO = 'OTRO',
 }
 
 export enum PrioridadHES {
   BAJA = 'BAJA',
   MEDIA = 'MEDIA',
   ALTA = 'ALTA',
-  URGENTE = 'URGENTE'
+  URGENTE = 'URGENTE',
 }
 
 export enum EstadoHES {
   BORRADOR = 'BORRADOR',
   COMPLETADO = 'COMPLETADO',
-  ANULADO = 'ANULADO'
+  ANULADO = 'ANULADO',
 }
 
 export enum NivelRiesgo {
   BAJO = 'BAJO',
   MEDIO = 'MEDIO',
   ALTO = 'ALTO',
-  CRITICO = 'CRITICO'
+  CRITICO = 'CRITICO',
 }
 
 export interface ClienteInfo {
@@ -114,5 +114,3 @@ export interface SignHESDto {
   nombre: string;
   documento: string;
 }
-
-

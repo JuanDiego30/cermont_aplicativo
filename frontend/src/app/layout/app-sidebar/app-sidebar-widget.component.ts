@@ -2,15 +2,13 @@ import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 @Component({
-    selector: 'app-sidebar-widget',
-    imports: [RouterModule],
-    template: `
+  selector: 'app-sidebar-widget',
+  imports: [RouterModule],
+  template: `
     <div
       class="mx-auto mb-10 w-full max-w-60 rounded-2xl bg-gray-50 px-4 py-5 text-center dark:bg-white/5"
     >
-      <h3 class="mb-2 font-semibold text-gray-900 dark:text-white">
-        Cermont Services
-      </h3>
+      <h3 class="mb-2 font-semibold text-gray-900 dark:text-white">Cermont Services</h3>
       <p class="mb-4 text-gray-500 text-theme-sm dark:text-gray-400">
         Sistema de Gestión de Órdenes de Servicio y Mantenimiento
       </p>
@@ -21,6 +19,6 @@ import { RouterModule } from '@angular/router';
         Ir al Dashboard
       </a>
     </div>
-  `
+  `,
 })
-export class SidebarWidgetComponent { } 
+export class SidebarWidgetComponent {}

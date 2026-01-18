@@ -4,25 +4,27 @@
  * @layer Infrastructure
  */
 import {
-  Controller,
-  Post,
-  Get,
-  Body,
-  HttpCode,
-  HttpStatus,
-  UseGuards,
-  Logger,
+    Body,
+    Controller,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Logger,
+    Post,
+    UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../../../shared/guards/jwt-auth.guard';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { PrismaService } from '../../../../prisma/prisma.service';
 import { CurrentUser, JwtPayload } from '../../../../shared/decorators/current-user.decorator';
 import { Public } from '../../../../shared/decorators/public.decorator';
 import { ThrottleAuth } from '../../../../shared/decorators/throttle.decorator';
-import { PrismaService } from '../../../../prisma/prisma.service';
+import { JwtAuthGuard } from '../../../../shared/guards/jwt-auth.guard';
+import { ActivateTotpUseCase } from '../../application/use-cases/activate-totp.use-case';
 import { Send2FACodeUseCase } from '../../application/use-cases/send-2fa-code.use-case';
-import { Verify2FACodeUseCase } from '../../application/use-cases/verify-2fa-code.use-case';
+import { SetupTotpUseCase } from '../../application/use-cases/setup-totp.use-case';
 import { Toggle2FAUseCase } from '../../application/use-cases/toggle-2fa.use-case';
-import { Request2FACodeDto, Verify2FACodeDto, Enable2FADto } from '../../dto/two-factor.dto';
+import { Verify2FACodeUseCase } from '../../application/use-cases/verify-2fa-code.use-case';
+import { Enable2FADto, Request2FACodeDto, Verify2FACodeDto } from '../../dto/two-factor.dto';
 
 @ApiTags('Auth - Two-Factor Authentication')
 @Controller('auth/2fa')
@@ -33,7 +35,9 @@ export class Auth2FAController {
     private readonly prisma: PrismaService,
     private readonly send2FACodeUseCase: Send2FACodeUseCase,
     private readonly verify2FACodeUseCase: Verify2FACodeUseCase,
-    private readonly toggle2FAUseCase: Toggle2FAUseCase
+    private readonly toggle2FAUseCase: Toggle2FAUseCase,
+    private readonly setupTotpUseCase: SetupTotpUseCase,
+    private readonly activateTotpUseCase: ActivateTotpUseCase
   ) {}
 
   /**
@@ -158,4 +162,61 @@ export class Auth2FAController {
       twoFactorEnabled: Boolean(record?.twoFactorEnabled),
     };
   }
+
+  /**
+   * GET /api/auth/2fa/setup
+   * Genera secreto y retorna QR
+   */
+  @Get('setup')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Iniciar configuración 2FA (Enrollment)',
+    description: 'Genera un nuevo secreto TOTP y retorna el DataURL del código QR para escanear',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'QR Generado',
+    schema: {
+      example: {
+        secret: 'KVKFK43...',
+        qrCode: 'data:image/png;base64,...',
+      },
+    },
+  })
+  async setup(@CurrentUser() user: JwtPayload) {
+    // We assume the user has an email in the payload, if not fetch it.
+    // Our token has email.
+    return await this.setupTotpUseCase.execute(user.userId, user.email);
+  }
+
+  /**
+   * POST /api/auth/2fa/activate
+   * Verifica el TOTP y activa 2FA
+   */
+  @Post('activate')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Activar 2FA con código TOTP',
+    description: 'Verifica el código generado por Google Authenticator y activa el 2FA en la cuenta',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        code: { type: 'string', example: '123456' },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: '2FA Activado exitosamente' })
+  @ApiResponse({ status: 401, description: 'Código inválido' })
+  async activate(@CurrentUser() user: JwtPayload, @Body('code') code: string) {
+    const result = await this.activateTotpUseCase.execute(user.userId, code);
+    return {
+      message: '2FA activado correctamente',
+      enabled: result,
+    };
+  }
 }
+

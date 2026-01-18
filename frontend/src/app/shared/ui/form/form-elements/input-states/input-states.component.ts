@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import { ComponentCardComponent } from '../../../common/component-card/component-card.component';
 import { InputFieldComponent } from '../../input/input-field.component';
@@ -6,16 +5,11 @@ import { LabelComponent } from '../../label/label.component';
 
 @Component({
   selector: 'app-input-states',
-  imports: [
-    ComponentCardComponent,
-    InputFieldComponent,
-    LabelComponent
-],
+  imports: [ComponentCardComponent, InputFieldComponent, LabelComponent],
   templateUrl: './input-states.component.html',
-  styles: ``
+  styles: ``,
 })
 export class InputStatesComponent {
-
   email = '';
   emailTwo = 'hello.pimjo@gmail.com';
   error = false;
@@ -30,7 +24,7 @@ export class InputStatesComponent {
     this.email = value.toString();
     this.validateEmail(this.email);
   }
-  
+
   handleEmailTwoChange(value: string | number) {
     this.emailTwo = value.toString();
     this.validateEmail(this.emailTwo);

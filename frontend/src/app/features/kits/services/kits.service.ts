@@ -7,11 +7,11 @@ import {
   UpdateKitDto,
   AddItemToKitDto,
   ListKitsQueryDto,
-  PaginatedKits
+  PaginatedKits,
 } from '../../../core/models/kit.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class KitsService {
   private readonly kitsApi = inject(KitsApi);
@@ -79,4 +79,3 @@ export class KitsService {
     return this.kitsApi.deactivate(id);
   }
 }
-

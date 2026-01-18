@@ -1,21 +1,21 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:4000/api',
-  wsUrl: 'ws://localhost:4000',
+  apiUrl: 'http://localhost:3000/api',
+  wsUrl: 'ws://localhost:3000',
   appName: 'Cermont',
   version: '1.0.0',
   enableDebug: true,
   features: {
     weatherModule: true,
     offlineMode: false,
-    analytics: false
+    analytics: false,
   },
   cache: {
     ttl: 300000, // 5 minutos
-    maxSize: 100
+    maxSize: 100,
   },
   pagination: {
     defaultPageSize: 10,
-    maxPageSize: 100
-  }
+    maxPageSize: 100,
+  },
 };

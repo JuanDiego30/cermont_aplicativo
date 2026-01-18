@@ -9,23 +9,20 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-user-address-card',
-  imports: [
-    InputFieldComponent,
-    ButtonComponent,
-    LabelComponent,
-    ModalComponent,
-    FormsModule
-],
+  imports: [InputFieldComponent, ButtonComponent, LabelComponent, ModalComponent, FormsModule],
   templateUrl: './user-address-card.component.html',
-  styles: ``
+  styles: ``,
 })
 export class UserAddressCardComponent {
-
   readonly modal = inject(ModalService);
 
   isOpen = false;
-  openModal() { this.isOpen = true; }
-  closeModal() { this.isOpen = false; }
+  openModal() {
+    this.isOpen = true;
+  }
+  closeModal() {
+    this.isOpen = false;
+  }
 
   address = {
     country: 'United States.',

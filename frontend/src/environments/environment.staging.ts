@@ -8,14 +8,14 @@ export const environment = {
   features: {
     weatherModule: true,
     offlineMode: true,
-    analytics: false
+    analytics: false,
   },
   cache: {
     ttl: 300000,
-    maxSize: 100
+    maxSize: 100,
   },
   pagination: {
     defaultPageSize: 10,
-    maxPageSize: 100
-  }
+    maxPageSize: 100,
+  },
 };

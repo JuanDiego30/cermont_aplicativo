@@ -5,14 +5,8 @@ import { ThemeToggleComponent } from '../../shared/ui/theme-toggle/theme-toggle.
 
 @Component({
   selector: 'app-auth-page-layout',
-  imports: [
-    GridShapeComponent,
-    RouterModule,
-    ThemeToggleComponent,
-  ],
+  imports: [GridShapeComponent, RouterModule, ThemeToggleComponent],
   templateUrl: './auth-page-layout.component.html',
-  styles: ``
+  styles: ``,
 })
-export class AuthPageLayoutComponent {
-
-}
+export class AuthPageLayoutComponent {}

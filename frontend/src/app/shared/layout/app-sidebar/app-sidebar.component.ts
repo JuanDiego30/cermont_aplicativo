@@ -66,105 +66,23 @@ export class AppSidebarComponent implements OnInit, OnDestroy {
     {
       icon: ICONS.ordenes,
       name: 'Órdenes de Trabajo',
-      subItems: [
-        { name: 'Listado', path: '/orders' },
-        { name: 'Nueva Orden', path: '/orders/new' },
-        { name: 'Mis Asignaciones', path: '/orders/my-assignments' },
-      ],
-    },
-    {
-      icon: ICONS.planeacion,
-      name: 'Planeación',
-      subItems: [
-        { name: 'Calendario', path: '/calendar' },
-        { name: 'Programación', path: '/planning' },
-      ],
-    },
-    {
-      icon: ICONS.ejecucion,
-      name: 'Ejecución',
-      subItems: [
-        { name: 'En Progreso', path: '/execution' },
-        { name: 'Completadas', path: '/execution/completed' },
-      ],
-    },
-    {
-      icon: ICONS.hes,
-      name: 'HES / Seguridad',
-      subItems: [
-        { name: 'Inspecciones', path: '/hes' },
-        { name: 'Equipos', path: '/hes/equipos' },
-        { name: 'Certificados', path: '/hes/certificados' },
-      ],
-    },
-    {
-      icon: ICONS.evidencias,
-      name: 'Evidencias',
-      path: '/evidence',
-    },
-    {
-      icon: ICONS.checklists,
-      name: 'Checklists',
-      subItems: [
-        { name: 'Plantillas', path: '/checklists/plantillas' },
-        { name: 'Formularios', path: '/checklists/forms' },
-      ],
-    },
-    {
-      icon: ICONS.reportes,
-      name: 'Reportes',
-      subItems: [
-        { name: 'Operativos', path: '/reports/operational' },
-        { name: 'KPIs', path: '/kpis' },
-        { name: 'Financieros', path: '/reports/financial' },
-      ],
-    },
-  ];
-
-  // =====================================================
-  // SECCIÓN OTHERS - Configuración y Administración
-  // =====================================================
-  othersItems: NavItem[] = [
-    {
-      icon: ICONS.tecnicos,
-      name: 'Técnicos',
-      path: '/technicians',
-    },
-    {
-      icon: ICONS.clientes,
-      name: 'Clientes',
-      path: '/customers',
-    },
-    {
-      icon: ICONS.facturacion,
-      name: 'Facturación',
-      subItems: [
-        { name: 'Facturas', path: '/invoicing' },
-        { name: 'Costos', path: '/costs' },
-      ],
-    },
-    {
-      icon: ICONS.alertas,
-      name: 'Alertas',
-      path: '/alerts',
-    },
-    {
-      icon: ICONS.admin,
-      name: 'Administración',
-      subItems: [
-        { name: 'Usuarios', path: '/admin/users' },
-        { name: 'Roles y Permisos', path: '/admin/roles' },
-      ],
-    },
-    {
-      icon: ICONS.configuracion,
-      name: 'Configuración',
-      path: '/config',
+      path: '/dashboard/orders',
     },
     {
       icon: ICONS.perfil,
       name: 'Mi Perfil',
-      path: '/profile',
+      path: '/dashboard/perfil',
+    },
+  ];
+
+  // =====================================================
+  // SECCIÓN OTHERS - Administración
+  // =====================================================
+  othersItems: NavItem[] = [
+    {
+      icon: ICONS.admin,
+      name: 'Administración',
+      path: '/admin',
     },
   ];
 

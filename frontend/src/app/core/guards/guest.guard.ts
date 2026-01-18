@@ -7,14 +7,14 @@ import { AuthService } from '../services/auth.service';
  * Use case: Login/Register pages should redirect to dashboard if already logged in
  */
 export const guestGuard: CanActivateFn = () => {
-    const authService = inject(AuthService);
-    const router = inject(Router);
+  const authService = inject(AuthService);
+  const router = inject(Router);
 
-    if (!authService.isAuthenticated()) {
-        return true;
-    }
+  if (!authService.isAuthenticated()) {
+    return true;
+  }
 
-    // User is already authenticated, redirect to dashboard
-    router.navigate(['/dashboard']);
-    return false;
+  // User is already authenticated, redirect to dashboard
+  router.navigate(['/dashboard']);
+  return false;
 };

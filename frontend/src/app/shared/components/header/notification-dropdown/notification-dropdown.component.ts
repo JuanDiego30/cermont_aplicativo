@@ -8,7 +8,7 @@ import { DropdownComponent } from '../../../ui/dropdown/dropdown.component';
   selector: 'app-notification-dropdown',
   standalone: true,
   templateUrl: './notification-dropdown.component.html',
-  imports: [CommonModule, RouterModule, DropdownComponent, DropdownItemComponent]
+  imports: [CommonModule, RouterModule, DropdownComponent, DropdownItemComponent],
 })
 export class NotificationDropdownComponent {
   isOpen = false;

@@ -1,11 +1,20 @@
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AdminService } from '../../../../core/services/admin.service';
 import { UserRole } from '../../../../core/models/user.model';
-import { getDefaultControlErrorMessage, hasControlError } from '../../../../shared/utils/form-errors.util';
+import {
+  getDefaultControlErrorMessage,
+  hasControlError,
+} from '../../../../shared/utils/form-errors.util';
 import { beginFormSubmit, subscribeSubmit } from '../../../../shared/utils/form-submit.util';
 
 type UserFormGroup = FormGroup<{
@@ -22,7 +31,7 @@ type UserFormGroup = FormGroup<{
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './user-form.component.html',
-  styleUrls: ['./user-form.component.css']
+  styleUrls: ['./user-form.component.css'],
 })
 export class UserFormComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
@@ -80,10 +89,11 @@ export class UserFormComponent implements OnInit {
 
   loadUser(id: string): void {
     this.loading.set(true);
-    this.adminService.getUserById(id)
+    this.adminService
+      .getUserById(id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (user) => {
+        next: user => {
           this.form.patchValue({
             email: user.email,
             name: user.name,
@@ -95,10 +105,10 @@ export class UserFormComponent implements OnInit {
           this.form.controls.email.disable();
           this.loading.set(false);
         },
-        error: (err) => {
+        error: err => {
           this.error.set('Error al cargar el usuario');
           this.loading.set(false);
-        }
+        },
       });
   }
 
@@ -150,8 +160,8 @@ export class UserFormComponent implements OnInit {
         this.destroyRef,
         this.loading,
         this.error,
-        (user) => this.router.navigate(['/admin/users', user.id]),
-        'Error al actualizar usuario',
+        user => this.router.navigate(['/admin/users', user.id]),
+        'Error al actualizar usuario'
       );
     } else {
       // Crear nuevo usuario
@@ -160,17 +170,15 @@ export class UserFormComponent implements OnInit {
         this.destroyRef,
         this.loading,
         this.error,
-        (user) => this.router.navigate(['/admin/users', user.id]),
-        'Error al crear usuario',
+        user => this.router.navigate(['/admin/users', user.id]),
+        'Error al crear usuario'
       );
     }
   }
 
   onCancel(): void {
     const userId = this.userId;
-    const commands = this.isEditMode() && userId
-      ? ['/admin/users', userId]
-      : ['/admin/users'];
+    const commands = this.isEditMode() && userId ? ['/admin/users', userId] : ['/admin/users'];
 
     this.router.navigate(commands);
   }
@@ -194,4 +202,3 @@ export class UserFormComponent implements OnInit {
     return 'Muy débil';
   }
 }
-

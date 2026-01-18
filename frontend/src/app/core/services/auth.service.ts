@@ -42,7 +42,7 @@ export interface RegisterDto {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -79,39 +79,48 @@ export class AuthService {
    * Registro de nuevo usuario
    */
   register(registerDto: RegisterDto): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, registerDto, { withCredentials: true }).pipe(
-      tap(response => {
-        if (response.user && response.token) {
-          this.handleAuthSuccess(response);
-        }
-      }),
-      catchError(this.handleError)
-    );
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/register`, registerDto, { withCredentials: true })
+      .pipe(
+        tap(response => {
+          if (response.user && response.token) {
+            this.handleAuthSuccess(response);
+          }
+        }),
+        catchError(this.handleError)
+      );
   }
 
   /**
    * Login con soporte para 2FA y "Recordarme"
    */
   login(loginDto: LoginDto): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, loginDto, { withCredentials: true }).pipe(
-      tap(response => {
-        // Si requiere 2FA, no guardar tokens todavía
-        if (response.requires2FA) {
-          return;
-        }
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/login`, loginDto, { withCredentials: true })
+      .pipe(
+        tap(response => {
+          // Si requiere 2FA, no guardar tokens todavía
+          if (response.requires2FA) {
+            return;
+          }
 
-        if (response.user && response.token) {
-          this.handleAuthSuccess(response, loginDto.rememberMe);
-        }
-      }),
-      catchError(this.handleError)
-    );
+          if (response.user && response.token) {
+            this.handleAuthSuccess(response, loginDto.rememberMe);
+          }
+        }),
+        catchError(this.handleError)
+      );
   }
 
   /**
    * Verificar código 2FA durante login
    */
-  verify2FALogin(email: string, password: string, code: string, rememberMe: boolean = false): Observable<AuthResponse> {
+  verify2FALogin(
+    email: string,
+    password: string,
+    code: string,
+    rememberMe: boolean = false
+  ): Observable<AuthResponse> {
     return this.login({ email, password, twoFactorCode: code, rememberMe });
   }
 
@@ -119,27 +128,27 @@ export class AuthService {
    * Recuperar contraseña
    */
   forgotPassword(email: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/forgot-password`, { email }).pipe(
-      catchError(this.handleError)
-    );
+    return this.http
+      .post<{ message: string }>(`${this.apiUrl}/forgot-password`, { email })
+      .pipe(catchError(this.handleError));
   }
 
   /**
    * Resetear contraseña con token
    */
   resetPassword(token: string, newPassword: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/reset-password`, { token, newPassword }).pipe(
-      catchError(this.handleError)
-    );
+    return this.http
+      .post<{ message: string }>(`${this.apiUrl}/reset-password`, { token, newPassword })
+      .pipe(catchError(this.handleError));
   }
 
   /**
    * Habilitar 2FA (obtener QR)
    */
   enable2FA(): Observable<{ secret: string; qrCode: string }> {
-    return this.http.post<{ secret: string; qrCode: string }>(`${this.apiUrl}/2fa/enable`, {}).pipe(
-      catchError(this.handleError)
-    );
+    return this.http
+      .post<{ secret: string; qrCode: string }>(`${this.apiUrl}/2fa/enable`, {})
+      .pipe(catchError(this.handleError));
   }
 
   /**
@@ -150,11 +159,11 @@ export class AuthService {
       tap(() => {
         // Actualizar usuario con 2FA habilitado
         const user = this.currentUserSignal();
-          if (user) {
-            user.twoFactorEnabled = true;
-            this.currentUserSignal.update(u => u ? { ...u, twoFactorEnabled: true } : null);
-            this.saveUserToStorage(this.currentUserSignal()!);
-          }
+        if (user) {
+          user.twoFactorEnabled = true;
+          this.currentUserSignal.update(u => (u ? { ...u, twoFactorEnabled: true } : null));
+          this.saveUserToStorage(this.currentUserSignal()!);
+        }
       }),
       catchError(this.handleError)
     );
@@ -169,7 +178,7 @@ export class AuthService {
         const user = this.currentUserSignal();
         if (user) {
           user.twoFactorEnabled = false;
-          this.currentUserSignal.update(u => u ? { ...u, twoFactorEnabled: false } : null);
+          this.currentUserSignal.update(u => (u ? { ...u, twoFactorEnabled: false } : null));
           this.saveUserToStorage(this.currentUserSignal()!);
         }
       }),
@@ -191,20 +200,22 @@ export class AuthService {
     // Backend soporta refreshToken vía cookie (preferred). Requiere withCredentials.
     const options = this.buildCsrfRequestOptions();
 
-    return this.http.post<{ token: string; csrfToken?: string }>(`${this.apiUrl}/refresh`, {}, options).pipe(
-      tap(response => {
-        if (response?.token) {
-          this.saveToken(response.token);
-        }
-        if (response?.csrfToken) {
-          this.saveCsrfToken(response.csrfToken);
-        }
-      }),
-      catchError(error => {
-        this.clearLocalAuth();
-        return throwError(() => error);
-      })
-    );
+    return this.http
+      .post<{ token: string; csrfToken?: string }>(`${this.apiUrl}/refresh`, {}, options)
+      .pipe(
+        tap(response => {
+          if (response?.token) {
+            this.saveToken(response.token);
+          }
+          if (response?.csrfToken) {
+            this.saveCsrfToken(response.csrfToken);
+          }
+        }),
+        catchError(error => {
+          this.clearLocalAuth();
+          return throwError(() => error);
+        })
+      );
   }
 
   /**
@@ -221,7 +232,7 @@ export class AuthService {
       error: () => {
         this.clearAuthData();
         this.router.navigate(['/auth/login']);
-      }
+      },
     });
   }
 

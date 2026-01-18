@@ -25,7 +25,7 @@ function extractErrorMessage(error: unknown, fallbackMessage: string): string {
 export function beginFormSubmit(
   form: AbstractControl,
   loading: WritableSignal<boolean>,
-  error: WritableSignal<string | null>,
+  error: WritableSignal<string | null>
 ): boolean {
   if (form.invalid) {
     form.markAllAsTouched();
@@ -43,15 +43,13 @@ export function subscribeSubmit<T>(
   loading: WritableSignal<boolean>,
   error: WritableSignal<string | null>,
   onSuccess: (result: T) => void,
-  fallbackErrorMessage: string,
+  fallbackErrorMessage: string
 ): void {
-  request$
-    .pipe(takeUntilDestroyed(destroyRef))
-    .subscribe({
-      next: (result) => onSuccess(result),
-      error: (err) => {
-        error.set(extractErrorMessage(err, fallbackErrorMessage));
-        loading.set(false);
-      },
-    });
+  request$.pipe(takeUntilDestroyed(destroyRef)).subscribe({
+    next: result => onSuccess(result),
+    error: err => {
+      error.set(extractErrorMessage(err, fallbackErrorMessage));
+      loading.set(false);
+    },
+  });
 }

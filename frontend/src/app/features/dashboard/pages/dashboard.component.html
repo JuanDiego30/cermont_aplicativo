@@ -10,7 +10,10 @@
       [disabled]="loading()"
       class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
     >
-      <span *ngIf="loading()" class="mr-2">↻</span>
+      @if (loading()) {
+        <span class="mr-2">↻</span>
+      }
+
       Actualizar
     </button>
   </div>
@@ -18,7 +21,7 @@
   <!-- Loading Skeleton -->
   @if (loading()) {
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-      @for (i of [1,2,3,4]; track i) {
+      @for (i of [1, 2, 3, 4]; track i) {
         <div class="h-32 bg-gray-200 rounded-lg animate-pulse dark:bg-gray-700"></div>
       }
     </div>
@@ -28,11 +31,11 @@
       <!-- Total Ordenes -->
       <div class="p-6 bg-white rounded-lg shadow-sm dark:bg-gray-800">
         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Órdenes</p>
-        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{{ stats().totalOrdenes }}</p>
+        <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
+          {{ stats().totalOrdenes }}
+        </p>
         <div class="flex items-center mt-2 text-sm">
-          <span [class]="growthTrendClass()">
-            {{ stats().tasaCrecimiento }}%
-          </span>
+          <span [class]="growthTrendClass()"> {{ stats().tasaCrecimiento }}% </span>
           <span class="ml-2 text-gray-500">vs mes anterior</span>
         </div>
       </div>
@@ -53,7 +56,7 @@
       <div class="p-6 bg-white rounded-lg shadow-sm dark:bg-gray-800">
         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Ingresos Totales</p>
         <p class="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
-          {{ stats().ingresoTotal | currency:'USD' }}
+          {{ stats().ingresoTotal | currency: 'USD' }}
         </p>
       </div>
     </div>
@@ -67,17 +70,39 @@
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">ID</th>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Cliente</th>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Fecha</th>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Total</th>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400">Estado</th>
+              <th
+                class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400"
+              >
+                ID
+              </th>
+              <th
+                class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400"
+              >
+                Cliente
+              </th>
+              <th
+                class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400"
+              >
+                Fecha
+              </th>
+              <th
+                class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400"
+              >
+                Total
+              </th>
+              <th
+                class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase dark:text-gray-400"
+              >
+                Estado
+              </th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
             @for (orden of ordenesRecientes(); track orden.id) {
               <tr>
-                <td class="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                <td
+                  class="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                >
                   {{ orden.numero }}
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
@@ -87,10 +112,15 @@
                   {{ orden.fecha | date }}
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap dark:text-gray-400">
-                  {{ orden.total | currency:'USD' }}
+                  {{ orden.total | currency: 'USD' }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span [class]="'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ' + getEstadoClass(orden.estado)">
+                  <span
+                    [class]="
+                      'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ' +
+                      getEstadoClass(orden.estado)
+                    "
+                  >
                     {{ orden.estado }}
                   </span>
                 </td>

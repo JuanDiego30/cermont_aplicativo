@@ -2,9 +2,12 @@
   [type]="type"
   [ngClass]="
     'inline-flex items-center justify-center gap-2 rounded-lg transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900 ' +
-    className + ' ' +
-    sizeClasses + ' ' +
-    variantClasses + ' ' +
+    className +
+    ' ' +
+    sizeClasses +
+    ' ' +
+    variantClasses +
+    ' ' +
     disabledClasses
   "
   [disabled]="disabled || loading"
@@ -13,10 +16,10 @@
   (click)="onClick($event)"
 >
   @if (startIcon) {
-  <span class="flex items-center" aria-hidden="true" [innerHTML]="startIcon | safeHtml"></span>
+    <span class="flex items-center" aria-hidden="true" [innerHTML]="startIcon | safeHtml"></span>
   }
   <ng-content></ng-content>
   @if (endIcon) {
-  <span class="flex items-center" aria-hidden="true" [innerHTML]="endIcon | safeHtml"></span>
+    <span class="flex items-center" aria-hidden="true" [innerHTML]="endIcon | safeHtml"></span>
   }
 </button>

@@ -2,14 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { TechniciansApi } from '../../../core/api/technicians.api';
 import {
-    DisponibilidadLevel,
-    PaginatedTecnicos,
-    QueryTecnicosDto,
-    Tecnico
+  DisponibilidadLevel,
+  PaginatedTecnicos,
+  QueryTecnicosDto,
+  Tecnico,
 } from '../../../core/models/tecnico.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TecnicosService {
   private readonly techniciansApi = inject(TechniciansApi);
@@ -42,4 +42,3 @@ export class TecnicosService {
     return this.techniciansApi.changeDisponibilidad(id, disponibilidad);
   }
 }
-

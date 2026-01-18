@@ -1,6 +1,6 @@
 /**
  * ErrorInterceptor - Centralized HTTP error handling with Toast notifications
- * 
+ *
  * Handles:
  * - 401 Unauthorized → Logout + redirect to login
  * - 403 Forbidden → Show permission error toast
@@ -24,7 +24,7 @@ const SKIP_ERROR_HANDLING_URLS = [
   '/auth/register',
   '/auth/refresh',
   '/auth/2fa',
-  '/health'
+  '/health',
 ];
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
@@ -36,95 +36,95 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: HttpErrorResponse) => {
       // Skip error handling for certain endpoints to avoid loops
       const shouldSkip = SKIP_ERROR_HANDLING_URLS.some(url => req.url.includes(url));
-      
+
       // Extract error message from response
       const errorMessage = extractErrorMessage(error);
-      
+
       switch (error.status) {
         case 0:
           // Network error (CORS, connection refused, etc.)
           if (!shouldSkip) {
             toast.error('Error de conexión. Verifica tu conexión a internet.', {
               title: 'Sin conexión',
-              duration: 6000
+              duration: 6000,
             });
           }
           logError('Network error - Check if backend is running', error);
           break;
-          
+
         case 400:
           // Bad Request - validation errors
           if (!shouldSkip) {
             toast.warning(errorMessage || 'Datos inválidos. Revisa el formulario.', {
-              title: 'Error de validación'
+              title: 'Error de validación',
             });
           }
           logWarn('400 Bad Request', { message: errorMessage });
           break;
-          
+
         case 401:
           // Unauthorized - Clear session and redirect to login
           if (!shouldSkip) {
             authService.clearLocalAuth();
             toast.warning('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', {
-              title: 'Sesión expirada'
+              title: 'Sesión expirada',
             });
-            router.navigate(['/auth/login'], { 
-              queryParams: { returnUrl: router.url } 
+            router.navigate(['/auth/login'], {
+              queryParams: { returnUrl: router.url },
             });
           }
           logWarn('401 Unauthorized - Session expired');
           break;
-          
+
         case 403:
           // Forbidden - User doesn't have permission
           toast.error('No tienes permisos para realizar esta acción.', {
-            title: 'Acceso denegado'
+            title: 'Acceso denegado',
           });
           logWarn('403 Forbidden - Insufficient permissions');
           break;
-          
+
         case 404:
           // Not Found
           if (!shouldSkip) {
             toast.warning(errorMessage || 'El recurso solicitado no existe.', {
-              title: 'No encontrado'
+              title: 'No encontrado',
             });
           }
           logWarn('404 Not Found', { url: req.url });
           break;
-          
+
         case 409:
           // Conflict - duplicate entry
           toast.warning(errorMessage || 'Ya existe un registro con estos datos.', {
-            title: 'Conflicto'
+            title: 'Conflicto',
           });
           logWarn('409 Conflict', { message: errorMessage });
           break;
-          
+
         case 422:
           // Unprocessable Entity - validation errors
           toast.warning(errorMessage || 'Error de validación en los datos.', {
-            title: 'Datos inválidos'
+            title: 'Datos inválidos',
           });
           logWarn('422 Unprocessable Entity', { message: errorMessage });
           break;
-          
+
         case 429:
           // Too Many Requests - rate limiting
           toast.warning('Demasiadas solicitudes. Espera un momento e intenta de nuevo.', {
             title: 'Límite excedido',
-            duration: 8000
+            duration: 8000,
           });
           logWarn('429 Too Many Requests - Rate limited');
           break;
-          
+
         default:
           if (error.status >= 500) {
             // Server error
             toast.error('Error en el servidor. Por favor, intenta más tarde.', {
               title: 'Error del servidor',
-              duration: 6000
+              duration: 6000,
             });
             logError('Server error', error, { status: error.status });
           }

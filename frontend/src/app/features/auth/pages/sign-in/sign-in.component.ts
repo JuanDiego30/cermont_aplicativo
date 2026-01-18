@@ -8,7 +8,7 @@ import { catchError, tap, throwError } from 'rxjs';
 @Component({
   selector: 'app-sign-in',
   templateUrl: './sign-in.component.html',
-  styleUrls: ['./sign-in.component.scss']
+  styleUrls: ['./sign-in.component.scss'],
 })
 export class SignInComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -28,7 +28,7 @@ export class SignInComponent implements OnInit {
   private initForm(): void {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]]
+      password: ['', [Validators.required, Validators.minLength(8)]],
     });
   }
 
@@ -43,14 +43,15 @@ export class SignInComponent implements OnInit {
 
     const { email, password } = this.form.value;
 
-    this.authApi.login(email, password)
+    this.authApi
+      .login(email, password)
       .pipe(
         tap(() => {
           this.loading = false;
           this.toastService.success('Sesión iniciada correctamente');
           this.router.navigate(['/dashboard']);
         }),
-        catchError((err) => {
+        catchError(err => {
           this.loading = false;
           this.error = err.error?.message || 'Error en la autenticación';
           this.toastService.error(this.error);

@@ -6,7 +6,7 @@ export enum DisponibilidadLevel {
   DISPONIBLE = 'disponible',
   OCUPADO = 'ocupado',
   NO_DISPONIBLE = 'no_disponible',
-  EN_VACACIONES = 'en_vacaciones'
+  EN_VACACIONES = 'en_vacaciones',
 }
 
 export interface Tecnico {
@@ -34,4 +34,3 @@ export interface PaginatedTecnicos {
   data: Tecnico[];
   total: number;
 }
-

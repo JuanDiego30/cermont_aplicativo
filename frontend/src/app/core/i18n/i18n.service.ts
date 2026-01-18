@@ -1,7 +1,7 @@
 /**
  * @service I18nService
  * @description Servicio centralizado para internacionalización
- * 
+ *
  * Funcionalidades:
  * - Cambio de idioma en runtime
  * - Persistencia en localStorage
@@ -18,16 +18,16 @@ const DEFAULT_LANGUAGE: SupportedLanguage = 'es';
 const SUPPORTED_LANGUAGES: SupportedLanguage[] = ['es', 'en'];
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class I18nService {
   // Estado reactivo con signals
   private currentLangSignal = signal<SupportedLanguage>(this.getInitialLanguage());
-  
+
   // Computed signals para acceso reactivo
   readonly currentLang = this.currentLangSignal.asReadonly();
   readonly availableLanguages = SUPPORTED_LANGUAGES;
-  
+
   // Cache de traducciones
   private translations: Record<SupportedLanguage, Record<string, unknown>> = {
     es: {},
@@ -68,10 +68,10 @@ export class I18nService {
         fetch('/assets/i18n/es.json').then(r => r.json()),
         fetch('/assets/i18n/en.json').then(r => r.json()),
       ]);
-      
+
       this.translations = { es, en };
       this.loaded = true;
-      
+
       // Actualizar el lang del documento HTML
       this.updateDocumentLang(this.currentLangSignal());
     } catch (error) {
@@ -107,9 +107,9 @@ export class I18nService {
   translate(key: string, params?: Record<string, string | number>): string {
     const lang = this.currentLangSignal();
     const keys = key.split('.');
-    
+
     let result: unknown = this.translations[lang];
-    
+
     for (const k of keys) {
       if (result && typeof result === 'object') {
         result = (result as Record<string, unknown>)[k];

@@ -9,14 +9,14 @@ export const environment = {
   features: {
     weatherModule: true,
     offlineMode: true,
-    analytics: false
+    analytics: false,
   },
   cache: {
     ttl: 600000, // 10 minutos
-    maxSize: 200
+    maxSize: 200,
   },
   pagination: {
     defaultPageSize: 20,
-    maxPageSize: 100
-  }
+    maxPageSize: 100,
+  },
 };

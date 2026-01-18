@@ -5,50 +5,53 @@
  * Implementa DDD con use cases, repositorio, y controlador de infrastructure.
  * Incluye 2FA y recuperación de contraseña.
  */
-import { Module } from '@nestjs/common';
 import { CacheModule } from '@nestjs/cache-manager';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
 // Infrastructure - Controllers
-import { AuthControllerRefactored } from './infrastructure/controllers/auth.controller';
 import { Auth2FAController } from './infrastructure/controllers/auth-2fa.controller';
+import { AuthControllerRefactored } from './infrastructure/controllers/auth.controller';
 import { PasswordResetController } from './infrastructure/controllers/password-reset.controller';
 import { PrismaAuthRepository } from './infrastructure/persistence/prisma-auth.repository';
 
 // Application - Use Cases (Auth)
-import { LoginUseCase } from './application/use-cases/login.use-case';
-import { RegisterUseCase } from './application/use-cases/register.use-case';
-import { RefreshTokenUseCase } from './application/use-cases/refresh-token.use-case';
-import { LogoutUseCase } from './application/use-cases/logout.use-case';
 import { GetCurrentUserUseCase } from './application/use-cases/get-current-user.use-case';
-
-// Application - Use Cases (2FA)
-import { Send2FACodeUseCase } from './application/use-cases/send-2fa-code.use-case';
-import { Verify2FACodeUseCase } from './application/use-cases/verify-2fa-code.use-case';
-import { Toggle2FAUseCase } from './application/use-cases/toggle-2fa.use-case';
+import { LoginUseCase } from './application/use-cases/login.use-case';
+import { LogoutUseCase } from './application/use-cases/logout.use-case';
+import { RefreshTokenUseCase } from './application/use-cases/refresh-token.use-case';
+import { RegisterUseCase } from './application/use-cases/register.use-case';
 
 // Application - Use Cases (Password Reset)
 import { ForgotPasswordUseCase } from './application/use-cases/forgot-password.use-case';
-import { ValidateResetTokenUseCase } from './application/use-cases/validate-reset-token.use-case';
 import { ResetPasswordUseCase } from './application/use-cases/reset-password.use-case';
+import { ValidateResetTokenUseCase } from './application/use-cases/validate-reset-token.use-case';
+
+// Application - Use Cases (2FA)
+import { ActivateTotpUseCase } from './application/use-cases/activate-totp.use-case';
+import { Send2FACodeUseCase } from './application/use-cases/send-2fa-code.use-case';
+import { SetupTotpUseCase } from './application/use-cases/setup-totp.use-case';
+import { Toggle2FAUseCase } from './application/use-cases/toggle-2fa.use-case';
+import { Verify2FACodeUseCase } from './application/use-cases/verify-2fa-code.use-case';
 
 // Domain
 import { AUTH_REPOSITORY } from './domain/repositories';
 
 // Legacy (for gradual migration)
 import { AuthService } from './auth.service';
-import { JwtStrategy } from './strategies/jwt.strategy';
 import { Auth2FAEmailHandler } from './infrastructure/event-handlers/auth-2fa-email.handler';
+import { TotpService } from './infrastructure/services/totp.service';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 // Lib Services
 import { PasswordService } from '../../shared/services/password.service';
 
 // Prisma
 import { PrismaModule } from '../../prisma/prisma.module';
-import { AUTH_CONSTANTS } from './auth.constants';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { AUTH_CONSTANTS } from './auth.constants';
 
 @Module({
   imports: [
@@ -127,6 +130,8 @@ import { NotificationsModule } from '../notifications/notifications.module';
     Send2FACodeUseCase,
     Verify2FACodeUseCase,
     Toggle2FAUseCase,
+    SetupTotpUseCase,
+    ActivateTotpUseCase,
     // Use Cases - Password Reset
     ForgotPasswordUseCase,
     ValidateResetTokenUseCase,
@@ -135,6 +140,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
     AuthService,
     JwtStrategy,
     Auth2FAEmailHandler,
+    TotpService,
   ],
   exports: [
     PasswordService,
@@ -152,6 +158,8 @@ import { NotificationsModule } from '../notifications/notifications.module';
     ForgotPasswordUseCase,
     ValidateResetTokenUseCase,
     ResetPasswordUseCase,
+    SetupTotpUseCase,
+    ActivateTotpUseCase,
   ],
 })
 export class AuthModule {}

@@ -5,8 +5,6 @@ import { Component } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './grid-shape.component.html',
-  styles: ``
+  styles: ``,
 })
-export class GridShapeComponent {
-
-}
+export class GridShapeComponent {}

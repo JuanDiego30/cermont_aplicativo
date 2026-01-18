@@ -64,5 +64,3 @@ export interface PerformanceTrend {
   tiempoPromedio: number;
   eficiencia: number;
 }
-
-

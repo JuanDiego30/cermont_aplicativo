@@ -3,7 +3,7 @@ import { Observable, throwError } from 'rxjs';
 import { logError } from './logger';
 
 export function createHttpErrorHandler(
-  context: string,
+  context: string
 ): (error: HttpErrorResponse) => Observable<never> {
   return (error: HttpErrorResponse) => {
     let errorMessage = 'Ha ocurrido un error';

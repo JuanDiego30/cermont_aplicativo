@@ -13,7 +13,10 @@
     "clean": "turbo run clean && rimraf node_modules .turbo",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md,yaml,yml,html,css,scss}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md,yaml,yml,html,css,scss}\"",
-    "audit": "turbo run lint && jscpd"
+    "audit": "turbo run lint && jscpd",
+    "audit:local": "pnpm run audit && node scripts/audit/check-api-consistency.js && pnpm audit --prod",
+    "audit:report": "node scripts/generate-audit-report.mjs",
+    "audit:full": "pnpm run audit:local && pnpm run audit:report"
   },
   "devDependencies": {
     "@angular-builders/custom-webpack": "^21.0.3",

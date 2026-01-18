@@ -13,7 +13,7 @@ const SKIP_INTERCEPTOR_URLS = [
   '/auth/forgot-password',
   '/auth/reset-password',
   '/auth/validate-reset-token',
-  '/auth/2fa/'
+  '/auth/2fa/',
 ];
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
@@ -31,8 +31,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   if (token && !shouldSkip) {
     authReq = req.clone({
       setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
   } else if (token && !req.url.includes('/auth/logout')) {
     // Para rutas auth excepto logout, no agregamos token
@@ -41,8 +41,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     // Para logout, agregamos el token
     authReq = req.clone({
       setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
   }
 
@@ -57,17 +57,17 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401) {
         // Token expirado o inválido - intentar refresh
         return authService.refreshToken().pipe(
-          switchMap((refreshResponse) => {
+          switchMap(refreshResponse => {
             // Retry original request con nuevo token
             const newToken = refreshResponse?.token || authService.getToken();
             const retryReq = req.clone({
               setHeaders: {
-                Authorization: `Bearer ${newToken}`
-              }
+                Authorization: `Bearer ${newToken}`,
+              },
             });
             return next(retryReq);
           }),
-          catchError((refreshError) => {
+          catchError(refreshError => {
             // Refresh falló - limpiar estado local y redirigir (sin llamar logout API)
             authService.clearLocalAuth();
             router.navigate(['/auth/login']);
@@ -80,4 +80,3 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     })
   );
 };
-

@@ -10,7 +10,7 @@ import { Subject, takeUntil } from 'rxjs';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './forgot-password.component.html',
-  styleUrls: ['./forgot-password.component.css']
+  styleUrls: ['./forgot-password.component.css'],
 })
 export class ForgotPasswordComponent implements OnDestroy {
   private readonly fb = inject(FormBuilder);
@@ -26,7 +26,7 @@ export class ForgotPasswordComponent implements OnDestroy {
 
   constructor() {
     this.forgotPasswordForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]]
+      email: ['', [Validators.required, Validators.email]],
     });
   }
 
@@ -46,7 +46,8 @@ export class ForgotPasswordComponent implements OnDestroy {
 
     const email = this.forgotPasswordForm.get('email')?.value;
 
-    this.authService.forgotPassword(email)
+    this.authService
+      .forgotPassword(email)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
@@ -54,10 +55,10 @@ export class ForgotPasswordComponent implements OnDestroy {
           this.emailSent.set(true);
           this.loading.set(false);
         },
-        error: (err) => {
+        error: err => {
           this.error.set(err.message || 'Error al enviar el correo');
           this.loading.set(false);
-        }
+        },
       });
   }
 

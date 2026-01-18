@@ -30,22 +30,24 @@ import { ToastService } from './toast.service';
       }
     </div>
   `,
-  styles: [`
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
+  styles: [
+    `
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
 
-    .animate-slideUp {
-      animation: slideUp 0.3s ease-out;
-    }
-  `]
+      .animate-slideUp {
+        animation: slideUp 0.3s ease-out;
+      }
+    `,
+  ],
 })
 export class ToastComponent {
   private readonly toastService = inject(ToastService);
@@ -62,9 +64,12 @@ export class ToastComponent {
 
   getToastClasses(type: string): string {
     const classes: Record<string, string> = {
-      success: 'bg-success-50 dark:bg-success-900/30 text-success-800 dark:text-success-100 border border-success-200 dark:border-success-800',
-      error: 'bg-error-50 dark:bg-error-900/30 text-error-800 dark:text-error-100 border border-error-200 dark:border-error-800',
-      warning: 'bg-warning-50 dark:bg-warning-900/30 text-warning-800 dark:text-warning-100 border border-warning-200 dark:border-warning-800',
+      success:
+        'bg-success-50 dark:bg-success-900/30 text-success-800 dark:text-success-100 border border-success-200 dark:border-success-800',
+      error:
+        'bg-error-50 dark:bg-error-900/30 text-error-800 dark:text-error-100 border border-error-200 dark:border-error-800',
+      warning:
+        'bg-warning-50 dark:bg-warning-900/30 text-warning-800 dark:text-warning-100 border border-warning-200 dark:border-warning-800',
       info: 'bg-info-50 dark:bg-info-900/30 text-info-800 dark:text-info-100 border border-info-200 dark:border-info-800',
     };
     return classes[type] || classes['info'];

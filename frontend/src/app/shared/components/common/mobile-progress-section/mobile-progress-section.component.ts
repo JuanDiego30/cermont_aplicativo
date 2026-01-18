@@ -20,16 +20,18 @@ interface SummaryStat {
   imports: [CommonModule],
   template: `
     <!-- Budget/Progress Overview Section -->
-    <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+    <div
+      class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-gray-700"
+    >
       <div class="flex items-center justify-between mb-4">
         <h3 class="font-semibold text-gray-900 dark:text-white">{{ title }}</h3>
-        <button class="text-sm text-brand-500 hover:text-brand-600 font-medium">
-          Ver todo
-        </button>
+        <button class="text-sm text-brand-500 hover:text-brand-600 font-medium">Ver todo</button>
       </div>
 
       <!-- Summary Stats -->
-      <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 dark:border-gray-700">
+      <div
+        class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 dark:border-gray-700"
+      >
         @for (summary of summaryStats; track summary.label) {
           <div class="text-center">
             <p class="text-lg font-bold text-gray-900 dark:text-white">{{ summary.value }}</p>
@@ -43,13 +45,15 @@ interface SummaryStat {
         @for (item of progressItems; track item.label) {
           <div>
             <div class="flex items-center justify-between mb-2">
-              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ item.label }}</span>
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{
+                item.label
+              }}</span>
               <span class="text-sm text-gray-500 dark:text-gray-400">
                 {{ item.current }} / {{ item.total }}
               </span>
             </div>
             <div class="w-full h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
-              <div 
+              <div
                 class="h-full rounded-full transition-all duration-500"
                 [ngClass]="item.color || 'bg-brand-500'"
                 [style.width.%]="getPercentage(item.current, item.total)"
@@ -69,7 +73,7 @@ interface SummaryStat {
         </div>
       }
     </div>
-  `
+  `,
 })
 export class MobileProgressSectionComponent implements OnInit {
   private dashboardService = inject(DashboardService);
@@ -96,8 +100,18 @@ export class MobileProgressSectionComponent implements OnInit {
       ];
 
       this.progressItems = [
-        { label: 'Órdenes Completadas', current: data.ordenesCompletadas, total: total, color: 'bg-green-500' },
-        { label: 'Pendientes de Revisión', current: data.ordenesPendientes, total: data.totalOrdenes, color: 'bg-yellow-500' },
+        {
+          label: 'Órdenes Completadas',
+          current: data.ordenesCompletadas,
+          total: total,
+          color: 'bg-green-500',
+        },
+        {
+          label: 'Pendientes de Revisión',
+          current: data.ordenesPendientes,
+          total: data.totalOrdenes,
+          color: 'bg-yellow-500',
+        },
         { label: 'Técnicos Activos', current: data.totalTecnicos, total: 20, color: 'bg-blue-500' },
       ];
     });

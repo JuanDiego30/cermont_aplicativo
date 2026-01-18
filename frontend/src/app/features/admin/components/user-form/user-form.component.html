@@ -5,17 +5,32 @@
       {{ isEditMode() ? 'Editar Usuario' : 'Nuevo Usuario' }}
     </h1>
     <p class="text-gray-600 dark:text-gray-400 mt-1">
-      {{ isEditMode() ? 'Actualiza la información del usuario' : 'Completa el formulario para crear un nuevo usuario' }}
+      {{
+        isEditMode()
+          ? 'Actualiza la información del usuario'
+          : 'Completa el formulario para crear un nuevo usuario'
+      }}
     </p>
   </div>
 
   <!-- Mensaje de error -->
   @if (error()) {
-    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+    <div
+      class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6"
+    >
       <div class="flex items-center">
-        <svg class="w-6 h-6 text-red-600 dark:text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        <svg
+          class="w-6 h-6 text-red-600 dark:text-red-400 mr-3"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
         </svg>
         <p class="text-red-800 dark:text-red-200">{{ error() }}</p>
       </div>
@@ -53,7 +68,10 @@
       <!-- Contraseña (solo en creación) -->
       @if (!isEditMode()) {
         <div>
-          <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label
+            for="password"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
             Contraseña <span class="text-red-500">*</span>
           </label>
           <input
@@ -61,7 +79,9 @@
             id="password"
             formControlName="password"
             class="input"
-            [class.border-red-500]="hasError('password', 'required') || hasError('password', 'minlength')"
+            [class.border-red-500]="
+              hasError('password', 'required') || hasError('password', 'minlength')
+            "
             placeholder="Mínimo 8 caracteres"
           />
           @if (hasError('password', 'required') || hasError('password', 'minlength')) {
@@ -77,13 +97,13 @@
                 <span class="text-xs font-medium text-gray-700 dark:text-gray-300">
                   Fortaleza:
                 </span>
-                <span 
+                <span
                   class="text-xs font-bold"
                   [ngClass]="{
                     'text-red-600': passwordStrength().color === 'red',
                     'text-orange-600': passwordStrength().color === 'orange',
                     'text-yellow-600': passwordStrength().color === 'yellow',
-                    'text-green-600': passwordStrength().color === 'green'
+                    'text-green-600': passwordStrength().color === 'green',
                   }"
                 >
                   {{ getPasswordStrengthLabel() }}
@@ -96,7 +116,7 @@
                     'bg-red-600': passwordStrength().color === 'red',
                     'bg-orange-600': passwordStrength().color === 'orange',
                     'bg-yellow-600': passwordStrength().color === 'yellow',
-                    'bg-green-600': passwordStrength().color === 'green'
+                    'bg-green-600': passwordStrength().color === 'green',
                   }"
                   [style.width.%]="(passwordStrength().score / 5) * 100"
                 ></div>
@@ -105,8 +125,16 @@
                 <ul class="mt-2 space-y-1">
                   @for (feedback of passwordStrength().feedback; track $index) {
                     <li class="text-xs text-gray-600 dark:text-gray-400 flex items-center">
-                      <svg class="w-3 h-3 mr-1 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                      <svg
+                        class="w-3 h-3 mr-1 text-red-500"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                          clip-rule="evenodd"
+                        />
                       </svg>
                       {{ feedback }}
                     </li>
@@ -128,10 +156,18 @@
           id="name"
           formControlName="name"
           class="input"
-          [class.border-red-500]="hasError('name', 'required') || hasError('name', 'minlength') || hasError('name', 'maxlength')"
+          [class.border-red-500]="
+            hasError('name', 'required') ||
+            hasError('name', 'minlength') ||
+            hasError('name', 'maxlength')
+          "
           placeholder="Juan Pérez"
         />
-        @if (hasError('name', 'required') || hasError('name', 'minlength') || hasError('name', 'maxlength')) {
+        @if (
+          hasError('name', 'required') ||
+          hasError('name', 'minlength') ||
+          hasError('name', 'maxlength')
+        ) {
           <p class="mt-1 text-sm text-red-600 dark:text-red-400">
             {{ getErrorMessage('name') }}
           </p>
@@ -145,11 +181,7 @@
           <label for="role" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Rol <span class="text-red-500">*</span>
           </label>
-          <select
-            id="role"
-            formControlName="role"
-            class="input"
-          >
+          <select id="role" formControlName="role" class="input">
             @for (role of rolesOptions; track role) {
               <option [value]="role">{{ role }}</option>
             }
@@ -161,7 +193,10 @@
 
         <!-- Teléfono -->
         <div>
-          <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label
+            for="phone"
+            class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+          >
             Teléfono
           </label>
           <input
@@ -198,26 +233,50 @@
       </div>
 
       <!-- Descripción de roles -->
-      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-        <h4 class="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-2">Descripción de Roles</h4>
+      <div
+        class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4"
+      >
+        <h4 class="text-sm font-semibold text-blue-900 dark:text-blue-200 mb-2">
+          Descripción de Roles
+        </h4>
         <ul class="space-y-2 text-sm text-blue-800 dark:text-blue-300">
           <li class="flex items-start">
             <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              <path
+                fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd"
+              />
             </svg>
-            <span><strong>Admin:</strong> Acceso completo, gestión de usuarios y configuración del sistema</span>
+            <span
+              ><strong>Admin:</strong> Acceso completo, gestión de usuarios y configuración del
+              sistema</span
+            >
           </li>
           <li class="flex items-start">
             <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              <path
+                fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd"
+              />
             </svg>
-            <span><strong>Supervisor:</strong> Supervisión de órdenes, revisión de trabajo y gestión de equipos</span>
+            <span
+              ><strong>Supervisor:</strong> Supervisión de órdenes, revisión de trabajo y gestión de
+              equipos</span
+            >
           </li>
           <li class="flex items-start">
             <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              <path
+                fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clip-rule="evenodd"
+              />
             </svg>
-            <span><strong>Técnico:</strong> Ejecución de órdenes de trabajo y reportes de campo</span>
+            <span
+              ><strong>Técnico:</strong> Ejecución de órdenes de trabajo y reportes de campo</span
+            >
           </li>
         </ul>
       </div>
@@ -225,23 +284,29 @@
 
     <!-- Botones de acción -->
     <div class="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-      <button
-        type="button"
-        (click)="onCancel()"
-        [disabled]="loading()"
-        class="btn-outline"
-      >
+      <button type="button" (click)="onCancel()" [disabled]="loading()" class="btn-outline">
         Cancelar
       </button>
-      <button
-        type="submit"
-        [disabled]="loading() || form.invalid"
-        class="btn-primary"
-      >
+      <button type="submit" [disabled]="loading() || form.invalid" class="btn-primary">
         @if (loading()) {
-          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          <svg
+            class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
           </svg>
           Guardando...
         } @else {
@@ -251,4 +316,3 @@
     </div>
   </form>
 </div>
-

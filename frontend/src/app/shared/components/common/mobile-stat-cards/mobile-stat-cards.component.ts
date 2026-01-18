@@ -17,15 +17,17 @@ interface QuickStat {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './mobile-stat-cards.component.html',
-  styles: [`
-    .scrollbar-hide {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    .scrollbar-hide::-webkit-scrollbar {
-      display: none;
-    }
-  `]
+  styles: [
+    `
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+    `,
+  ],
 })
 export class MobileStatCardsComponent implements OnInit {
   private dashboardService = inject(DashboardService);
@@ -45,7 +47,7 @@ export class MobileStatCardsComponent implements OnInit {
           change: '+12%',
           changeType: 'positive',
           icon: '📋',
-          iconBg: 'bg-blue-100 dark:bg-blue-900/30'
+          iconBg: 'bg-blue-100 dark:bg-blue-900/30',
         },
         {
           label: 'Completadas',
@@ -53,7 +55,7 @@ export class MobileStatCardsComponent implements OnInit {
           change: '+5',
           changeType: 'positive',
           icon: '✅',
-          iconBg: 'bg-green-100 dark:bg-green-900/30'
+          iconBg: 'bg-green-100 dark:bg-green-900/30',
         },
         {
           label: 'Pendientes',
@@ -61,7 +63,7 @@ export class MobileStatCardsComponent implements OnInit {
           change: '-3',
           changeType: 'negative',
           icon: '⏳',
-          iconBg: 'bg-yellow-100 dark:bg-yellow-900/30'
+          iconBg: 'bg-yellow-100 dark:bg-yellow-900/30',
         },
         {
           label: 'Técnicos',
@@ -69,7 +71,7 @@ export class MobileStatCardsComponent implements OnInit {
           change: '',
           changeType: 'neutral',
           icon: '👷',
-          iconBg: 'bg-purple-100 dark:bg-purple-900/30'
+          iconBg: 'bg-purple-100 dark:bg-purple-900/30',
         },
       ];
     });

@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* Tailwind 4: Enable class-based dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ========================================
    THEME CONFIGURATION
    Tailwind CSS v4 - CSS-based configuration
@@ -199,6 +202,18 @@ body {
   z-index: 10;
   background-color: var(--color-gray-50);
   color: var(--color-gray-900);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 html.dark body {
@@ -594,6 +609,21 @@ html.dark {
     transform: translateX(0);
     opacity: 1;
   }
+}
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-fade-in {
+  animation: heroFadeIn 0.9s ease-out both;
 }
 
 /* Loading States */

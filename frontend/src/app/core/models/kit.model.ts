@@ -5,7 +5,7 @@
 export enum KitEstado {
   ACTIVO = 'activo',
   INACTIVO = 'inactivo',
-  ARCHIVADO = 'archivado'
+  ARCHIVADO = 'archivado',
 }
 
 export enum KitCategoria {
@@ -13,7 +13,7 @@ export enum KitCategoria {
   MATERIALES = 'materiales',
   SEGURIDAD = 'seguridad',
   EQUIPOS = 'equipos',
-  OTROS = 'otros'
+  OTROS = 'otros',
 }
 
 export interface KitItem {
@@ -76,4 +76,3 @@ export interface PaginatedKits {
   limit: number;
   totalPages: number;
 }
-

@@ -3,7 +3,9 @@
   <!-- Seção de Título -->
   <div class="mb-6">
     <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Dashboard</h1>
-    <p class="text-gray-600 dark:text-gray-400">Bienvenido de vuelta, Admin. Aquí está un resumen de tu negocio.</p>
+    <p class="text-gray-600 dark:text-gray-400">
+      Bienvenido de vuelta, Admin. Aquí está un resumen de tu negocio.
+    </p>
   </div>
 
   <!-- Métricas Principales (4 Tarjetas) -->
@@ -14,7 +16,7 @@
         value: metrics.totalOrders,
         icon: '📦',
         trend: { value: 12, direction: 'up' },
-        color: 'primary'
+        color: 'primary',
       }"
     ></app-metric-card>
 
@@ -24,7 +26,7 @@
         value: '$' + (metrics.revenue | number: '1.0-0'),
         icon: '💰',
         trend: { value: 8, direction: 'up' },
-        color: 'success'
+        color: 'success',
       }"
     ></app-metric-card>
 
@@ -34,7 +36,7 @@
         value: metrics.activeCustomers,
         icon: '👥',
         trend: { value: 5, direction: 'up' },
-        color: 'info'
+        color: 'info',
       }"
     ></app-metric-card>
 
@@ -44,23 +46,27 @@
         value: metrics.completionRate + '%',
         icon: '✅',
         trend: { value: 2, direction: 'up' },
-        color: 'warning'
+        color: 'warning',
       }"
     ></app-metric-card>
   </div>
 
   <!-- Estado de Órdenes -->
-  <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm">
+  <div
+    class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-6 shadow-sm"
+  >
     <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Estado de Órdenes</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       @for (status of orderStatuses; track status.status) {
         <div class="p-4 rounded-lg" [ngClass]="getStatusBgClass(status.color)">
-          <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{{ status.status }}</p>
+          <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+            {{ status.status }}
+          </p>
           <p class="text-2xl font-bold" [ngClass]="getStatusTextClass(status.color)">
             {{ status.count }}
           </p>
           <p class="text-xs mt-2" [ngClass]="getStatusTextClass(status.color)">
-            {{ ((status.count / metrics.totalOrders) * 100) | number: '1.0-0' }}% del total
+            {{ (status.count / metrics.totalOrders) * 100 | number: '1.0-0' }}% del total
           </p>
         </div>
       }
@@ -104,7 +110,9 @@
     </div>
 
     <!-- Actividad Reciente -->
-    <div class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm">
+    <div
+      class="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 p-5 shadow-sm"
+    >
       <div class="flex items-center justify-between mb-4">
         <h3 class="font-semibold text-gray-900 dark:text-white">Actividad Reciente</h3>
         <button class="text-sm text-cermont-primary-500 hover:text-cermont-primary-600 font-medium">
@@ -115,11 +123,15 @@
       <div class="space-y-4">
         <!-- Activity Item 1 -->
         <div class="flex items-center gap-4 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
-          <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+          <div
+            class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center"
+          >
             <span class="text-green-600 dark:text-green-400">✓</span>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">Orden #1234 completada</p>
+            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+              Orden #1234 completada
+            </p>
             <p class="text-xs text-gray-500 dark:text-gray-400">Hace 5 minutos</p>
           </div>
           <span class="text-sm font-medium text-green-600 dark:text-green-400">+$500</span>
@@ -127,11 +139,15 @@
 
         <!-- Activity Item 2 -->
         <div class="flex items-center gap-4 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
-          <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+          <div
+            class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center"
+          >
             <span class="text-blue-600 dark:text-blue-400">📋</span>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">Nueva orden asignada</p>
+            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+              Nueva orden asignada
+            </p>
             <p class="text-xs text-gray-500 dark:text-gray-400">Hace 15 minutos</p>
           </div>
           <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Pendiente</span>
@@ -139,11 +155,15 @@
 
         <!-- Activity Item 3 -->
         <div class="flex items-center gap-4 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
-          <div class="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+          <div
+            class="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center"
+          >
             <span class="text-yellow-600 dark:text-yellow-400">⚠️</span>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">HES pendiente de revisión</p>
+            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+              HES pendiente de revisión
+            </p>
             <p class="text-xs text-gray-500 dark:text-gray-400">Hace 1 hora</p>
           </div>
           <span class="text-sm font-medium text-yellow-600 dark:text-yellow-400">Revisar</span>

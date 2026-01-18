@@ -18,12 +18,12 @@ import {
   template: `
     <div
       #card
-      class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 border border-gray-200 dark:border-gray-700 p-8 transition-all duration-300 hover:border-cermont-primary-500 dark:hover:border-cermont-primary-500 group"
+      class="group relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary-400/60 hover:shadow-lg dark:border-white/10 dark:bg-slate-950"
     >
       <!-- Spotlight Effect -->
       <div
         #spotlight
-        class="pointer-events-none absolute -inset-px opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        class="pointer-events-none absolute -inset-px opacity-0 transition-opacity duration-500 group-hover:opacity-100"
         [style.background]="spotlightGradient"
       ></div>
 
@@ -73,11 +73,12 @@ export class SpotlightCardComponent implements AfterViewInit {
 
     this.spotlightGradient = `
       radial-gradient(
-        600px circle at ${x}px ${y}px,
-        rgba(0, 191, 255, 0.15),
-        transparent 40%
+        540px circle at ${x}px ${y}px,
+        rgba(59, 130, 246, 0.18),
+        transparent 45%
       )
     `;
+
     this.cdr.markForCheck();
   }
 }

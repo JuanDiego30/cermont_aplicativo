@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import { MultiSelectComponent } from '../../multi-select/multi-select.component';
 import { ComponentCardComponent } from '../../../common/component-card/component-card.component';
@@ -18,17 +17,11 @@ interface MultiOption {
 
 @Component({
   selector: 'app-select-inputs',
-  imports: [
-    MultiSelectComponent,
-    ComponentCardComponent,
-    SelectComponent,
-    LabelComponent
-],
+  imports: [MultiSelectComponent, ComponentCardComponent, SelectComponent, LabelComponent],
   templateUrl: './select-inputs.component.html',
-  styles: ``
+  styles: ``,
 })
 export class SelectInputsComponent {
-
   options = [
     { value: 'marketing', label: 'Marketing' },
     { value: 'template', label: 'Template' },

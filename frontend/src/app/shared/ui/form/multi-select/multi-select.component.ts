@@ -8,14 +8,11 @@ export interface Option {
 
 @Component({
   selector: 'app-multi-select',
-  imports: [
-    CommonModule,
-  ],
+  imports: [CommonModule],
   templateUrl: './multi-select.component.html',
-  styles: ``
+  styles: ``,
 })
 export class MultiSelectComponent implements OnInit {
-
   @Input() label: string = '';
   @Input() options: Option[] = [];
   @Input() defaultSelected: string[] = [];

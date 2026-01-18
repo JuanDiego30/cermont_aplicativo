@@ -8,7 +8,7 @@ import { DropdownComponent } from '../../../ui/dropdown/dropdown.component';
   selector: 'app-user-dropdown',
   standalone: true,
   templateUrl: './user-dropdown.component.html',
-  imports: [CommonModule, RouterModule, DropdownComponent, DropdownItemTwoComponent]
+  imports: [CommonModule, RouterModule, DropdownComponent, DropdownItemTwoComponent],
 })
 export class UserDropdownComponent {
   isOpen = false;

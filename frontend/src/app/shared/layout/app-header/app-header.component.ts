@@ -3,7 +3,16 @@
  * @see apps/web-old/src/layout/AppHeader.tsx
  */
 
-import { Component, ElementRef, ViewChild, OnInit, OnDestroy, signal, inject, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  ViewChild,
+  OnInit,
+  OnDestroy,
+  signal,
+  inject,
+  PLATFORM_ID,
+} from '@angular/core';
 import { SidebarService } from '../../services/sidebar.service';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -20,7 +29,7 @@ import { ConnectionIndicatorComponent } from '../../components/header/connection
     ThemeToggleButtonComponent,
     NotificationDropdownComponent,
     UserDropdownComponent,
-    ConnectionIndicatorComponent
+    ConnectionIndicatorComponent,
   ],
   templateUrl: './app-header.component.html',
 })

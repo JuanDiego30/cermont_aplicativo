@@ -1,4 +1,3 @@
-
 import { Component, OnDestroy, inject } from '@angular/core';
 import { LabelComponent } from '../../form/label/label.component';
 import { CheckboxComponent } from '../../form/input/checkbox.component';
@@ -10,19 +9,12 @@ import { logError } from '../../../../core/utils/logger';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subject, takeUntil } from 'rxjs';
 
-
 @Component({
   selector: 'app-signup-form',
   standalone: true,
-  imports: [
-    LabelComponent,
-    CheckboxComponent,
-    InputFieldComponent,
-    RouterModule,
-    FormsModule
-],
+  imports: [LabelComponent, CheckboxComponent, InputFieldComponent, RouterModule, FormsModule],
   templateUrl: './signup-form.component.html',
-  styles: ``
+  styles: ``,
 })
 export class SignupFormComponent implements OnDestroy {
   private authService = inject(AuthService);
@@ -42,23 +34,24 @@ export class SignupFormComponent implements OnDestroy {
   }
 
   onSignIn() {
-    this.authService.register({
-      name: `${this.fname} ${this.lname}`,
-      email: this.email,
-      password: this.password,
-      role: 'tecnico', // Default role for self-registration, adjust as needed
-      phone: '0000000000' // Placeholder or add phone field to form
-    })
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: () => {
-        this.router.navigate(['/dashboard']);
-      },
-      error: (err: HttpErrorResponse) => {
-        logError('Registration failed', err);
-        // Handle error (show message to user)
-      }
-    });
+    this.authService
+      .register({
+        name: `${this.fname} ${this.lname}`,
+        email: this.email,
+        password: this.password,
+        role: 'tecnico', // Default role for self-registration, adjust as needed
+        phone: '0000000000', // Placeholder or add phone field to form
+      })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err: HttpErrorResponse) => {
+          logError('Registration failed', err);
+          // Handle error (show message to user)
+        },
+      });
   }
 
   ngOnDestroy(): void {

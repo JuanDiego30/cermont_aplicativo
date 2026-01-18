@@ -3,7 +3,16 @@
  * @see apps/web-old/src/layout/AppHeader.tsx
  */
 
-import { Component, ElementRef, ViewChild, OnInit, OnDestroy, signal, inject, PLATFORM_ID } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  ViewChild,
+  OnInit,
+  OnDestroy,
+  signal,
+  inject,
+  PLATFORM_ID,
+} from '@angular/core';
 import { SidebarService } from '../../shared/services/sidebar.service';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -13,15 +22,15 @@ import { UserDropdownComponent } from '../../shared/components/header/user-dropd
 import { ConnectionIndicatorComponent } from '../../shared/components/header/connection-indicator/connection-indicator.component';
 
 @Component({
-    selector: 'app-header',
-    imports: [
-        RouterModule,
-        ThemeToggleButtonComponent,
-        NotificationDropdownComponent,
-        UserDropdownComponent,
-        ConnectionIndicatorComponent
-    ],
-    templateUrl: './app-header.component.html'
+  selector: 'app-header',
+  imports: [
+    RouterModule,
+    ThemeToggleButtonComponent,
+    NotificationDropdownComponent,
+    UserDropdownComponent,
+    ConnectionIndicatorComponent,
+  ],
+  templateUrl: './app-header.component.html',
 })
 export class AppHeaderComponent implements OnInit, OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);

@@ -1,0 +1,244 @@
+name: 🕵️ Quality & Security Audit Report
+
+on:
+  push:
+    branches: [main, master, chore/*]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * 0' # Weekly on Sundays at 2 AM UTC
+
+jobs:
+  audit:
+    name: Full Stack Audit
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      # ========================================================================
+      # 1. SETUP
+      # ========================================================================
+
+      - name: 📥 Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.x
+          run_install: false
+
+      - name: 💾 Setup pnpm Cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'pnpm'
+
+      - name: 📦 Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ========================================================================
+      # 2. PRE-BUILD: PRISMA GENERATION
+      # ========================================================================
+
+      - name: 🏗️ Generate Prisma Client
+        run: cd backend && pnpm run prisma:generate
+        continue-on-error: true
+
+      # ========================================================================
+      # 3. LINTING (Capture Errors)
+      # ========================================================================
+
+      - name: 🎨 Lint Backend
+        run: |
+          mkdir -p audit
+          pnpm -C backend run lint 2>&1 | tee audit/lint-backend.log || true
+        continue-on-error: true
+
+      - name: 🎨 Lint Frontend
+        run: |
+          pnpm -C frontend run lint 2>&1 | tee audit/lint-frontend.log || true
+        continue-on-error: true
+
+      # ========================================================================
+      # 4. TYPE CHECKING
+      # ========================================================================
+
+      - name: 📐 Backend Type Check
+        run: |
+          cd backend && pnpm exec tsc --noEmit 2>&1 | tee ../audit/typecheck-backend.log || true
+        continue-on-error: true
+
+      - name: 📐 Frontend Type Check
+        run: |
+          cd frontend && pnpm exec tsc --noEmit 2>&1 | tee ../audit/typecheck-frontend.log || true
+        continue-on-error: true
+
+      # ========================================================================
+      # 5. BUILD TEST
+      # ========================================================================
+
+      - name: 🏗️ Build Backend
+        run: |
+          pnpm -C backend run build 2>&1 | tee audit/build-backend.log || true
+        continue-on-error: true
+
+      - name: 🏗️ Build Frontend
+        run: |
+          pnpm -C frontend run build 2>&1 | tee audit/build-frontend.log || true
+        continue-on-error: true
+
+      # ========================================================================
+      # 6. CODE DUPLICATION (JSCPD)
+      # ========================================================================
+
+      - name: 👯 Code Duplication Analysis
+        run: |
+          pnpm exec jscpd . --threshold 2.5 --reporters console,html,json 2>&1 | tee audit/duplication.log || true
+        continue-on-error: true
+
+      - name: 📊 Copy Duplication Report
+        if: always()
+        run: |
+          if [ -f "jscpd-report.html" ]; then
+            cp jscpd-report.html audit/jscpd-report.html
+          fi
+        shell: bash
+
+      # ========================================================================
+      # 7. API COHERENCE CHECK
+      # ========================================================================
+
+      - name: 🔌 API Coherence Check
+        run: |
+          node scripts/audit/check-api-consistency.js 2>&1 | tee audit/api-consistency.log || true
+        continue-on-error: true
+
+      # ========================================================================
+      # 8. SECURITY AUDIT
+      # ========================================================================
+
+      - name: 🛡️ Security Audit (pnpm audit)
+        run: |
+          pnpm audit --prod --json 2>&1 | tee audit/security-audit.log || true
+        continue-on-error: true
+
+      - name: 📋 Dependency Check (Outdated)
+        run: |
+          pnpm outdated --json 2>&1 | tee audit/outdated.log || true
+        continue-on-error: true
+
+      # ========================================================================
+      # 9. TEST EXECUTION (if tests exist)
+      # ========================================================================
+
+      - name: ✅ Backend Tests
+        run: |
+          pnpm -C backend run test 2>&1 | tee audit/test-backend.log || true
+        continue-on-error: true
+
+      - name: ✅ Frontend Tests
+        run: |
+          pnpm -C frontend run test 2>&1 | tee audit/test-frontend.log || true
+        continue-on-error: true
+
+      # ========================================================================
+      # 10. GENERATE CONSOLIDATED REPORT
+      # ========================================================================
+
+      - name: 📊 Generate Audit Report
+        if: always()
+        run: |
+          node scripts/generate-audit-report.mjs
+        continue-on-error: true
+
+      - name: 📝 Display Report
+        if: always()
+        run: |
+          echo "=== AUDIT REPORT GENERATED ==="
+          echo ""
+          if [ -f "docs/AUDIT_REPORT.md" ]; then
+            cat docs/AUDIT_REPORT.md
+          else
+            echo "Report generation had issues"
+          fi
+        shell: bash
+
+      # ========================================================================
+      # 11. UPLOAD ARTIFACTS
+      # ========================================================================
+
+      - name: 📦 Upload Audit Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-logs
+          path: audit/
+          retention-days: 30
+
+      - name: 📦 Upload Audit Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-report
+          path: docs/AUDIT_REPORT.md
+          retention-days: 30
+
+      # ========================================================================
+      # 12. POST COMMENT ON PR (if PR)
+      # ========================================================================
+
+      - name: 💬 Post Report on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const reportPath = 'docs/AUDIT_REPORT.md';
+
+            if (!fs.existsSync(reportPath)) {
+              console.log('Report not found');
+              return;
+            }
+
+            let report = fs.readFileSync(reportPath, 'utf8');
+
+            // Truncate if too long for GitHub comment
+            if (report.length > 30000) {
+              report = report.substring(0, 30000) + '\n\n... (truncated - see artifacts for full report)';
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 📊 Audit Report\n\n${report}`
+            });
+
+      # ========================================================================
+      # 13. SUMMARY
+      # ========================================================================
+
+      - name: 📋 Summary
+        if: always()
+        run: |
+          echo "=== AUDIT WORKFLOW COMPLETED ==="
+          echo ""
+          echo "Artifacts saved to: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo ""
+          echo "Check the following:"
+          echo "  ✅ Audit logs in 'audit-logs' artifact"
+          echo "  ✅ Full report in 'audit-report' artifact"
+          echo "  ✅ PR comment with report summary (if on PR)"
+        shell: bash

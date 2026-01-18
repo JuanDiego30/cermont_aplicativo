@@ -43,7 +43,7 @@ interface MetricData {
       }
     </div>
   `,
-  styles: []
+  styles: [],
 })
 export class MetricCardComponent {
   @Input() metric!: MetricData;
@@ -62,7 +62,8 @@ export class MetricCardComponent {
 
   getIconClasses(): string {
     const colorMap: Record<string, string> = {
-      primary: 'bg-cermont-primary-100 dark:bg-cermont-primary-900/30 text-cermont-primary-600 dark:text-cermont-primary-400',
+      primary:
+        'bg-cermont-primary-100 dark:bg-cermont-primary-900/30 text-cermont-primary-600 dark:text-cermont-primary-400',
       success: 'bg-success-100 dark:bg-success-900/30 text-success-600 dark:text-success-400',
       warning: 'bg-warning-100 dark:bg-warning-900/30 text-warning-600 dark:text-warning-400',
       error: 'bg-error-100 dark:bg-error-900/30 text-error-600 dark:text-error-400',
@@ -84,9 +85,8 @@ export class MetricCardComponent {
     return `
       inline-flex items-center
       text-sm font-medium
-      ${isPositive
-        ? 'text-success-600 dark:text-success-400'
-        : 'text-error-600 dark:text-error-400'
+      ${
+        isPositive ? 'text-success-600 dark:text-success-400' : 'text-error-600 dark:text-error-400'
       }
     `;
   }
