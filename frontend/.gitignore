@@ -1,0 +1,22 @@
+# Frontend .gitignore
+.next/
+out/
+build/
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+!.env.example
+!.env.local.example
+
+# Testing
+tests-results/
+playwright-report/
+blob-report/
+test-results/
+coverage/
+
+# OS
+.DS_Store
+Thumbs.db

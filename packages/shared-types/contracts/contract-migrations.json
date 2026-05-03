@@ -1,0 +1,89 @@
+{
+	"currentSnapshotHash": "sha256:d7f9565800adaf028d52210aa47b827d763af892aa250c530a6d6df88361d941",
+	"migrations": [
+		{
+			"id": "000-initial-baseline",
+			"date": "2026-04-06",
+			"type": "baseline",
+			"description": "Baseline inicial de contratos API y schemas Zod.",
+			"toHash": "sha256:06f9dcef8e3bb557e84a64b989d9f9ad60ac8b8ee943395f3ca25303411188b0"
+		},
+		{
+			"id": "001-user-update-avatar-url",
+			"date": "2026-04-14",
+			"type": "non-breaking",
+			"description": "Alinea el contrato de actualización de usuario con avatarUrl compartido.",
+			"toHash": "sha256:70be53118e15f3f5840ab6c2cba7b1373a5d047f72269719779677038d7030d7"
+		},
+		{
+			"id": "002-json-payload-contract-alignment",
+			"date": "2026-04-24",
+			"type": "non-breaking",
+			"description": "Align offline payload contracts with JSON-safe shared types and exported AI response schemas.",
+			"toHash": "sha256:2183a325a40c142ced75a9b6479d29260b825caeec0d4ed557831d8fb07a8690"
+		},
+		{
+			"id": "003-contract-snapshot-refresh",
+			"date": "2026-04-27",
+			"type": "non-breaking",
+			"description": "Refresh generated API contract snapshot after exposing current shared schemas.",
+			"toHash": "sha256:39930368ff2ac0c2139226335ee0fa77d8da3651aa6441d44a73b987eaf87b25"
+		},
+		{
+			"id": "004-contract-snapshot-format-alignment",
+			"date": "2026-04-27",
+			"type": "non-breaking",
+			"description": "Align generated API contract snapshot formatting with the repository Biome configuration.",
+			"toHash": "sha256:9f44104d6cf320e64a9fdc7e4c09349e59e339fec674c4a2df559a93552dd623"
+		},
+		{
+			"id": "005-canonical-role-contracts",
+			"date": "2026-04-28",
+			"type": "breaking",
+			"description": "Emit canonical English role values while keeping legacy role inputs normalized at boundaries.",
+			"toHash": "sha256:2c9b5e8068bfc2e971fb40b9e1ac4ea42d9cf9126a56d64dc2016638de88fb8e"
+		},
+		{
+			"id": "006-cost-dashboard-types",
+			"date": "2026-04-29",
+			"type": "non-breaking",
+			"description": "Fix TypeScript errors in costs module - getCostDashboard method, resolveLineDeltaStatus types, hasCosts field.",
+			"toHash": "sha256:9a2ae1d040bc9de2aaee4c8691a1be55603153ae383180407717b764d9650f02"
+		},
+		{
+			"id": "007-clean-order-and-persistence-field-names",
+			"date": "2026-04-29",
+			"type": "breaking",
+			"description": "Replace legacy Spanish order contract fields and selected snake_case persistence fields with canonical English camelCase names.",
+			"toHash": "sha256:b6ff437fac6e2f761a5e99d56d40b6b408caa8b1a38331bc2ea8d1d002a96558"
+		},
+		{
+			"id": "008-enum-values-spanish-to-english",
+			"date": "2026-04-29",
+			"type": "breaking",
+			"description": "Rename all Spanglish enum values to canonical English across execution phases, activity types, inspection types, and kit categories.",
+			"toHash": "sha256:d814ba922b8ef9721b50d9446eed26285197bd98d748fc3647a06a14fb823944"
+		},
+		{
+			"id": "009-clean-execution-phase-contract",
+			"date": "2026-04-30",
+			"type": "breaking",
+			"description": "Remove legacy execution phase and status aliases and omit absent execution phase timestamps from the public order contract.",
+			"toHash": "sha256:6b9c3d2c4731d208a9874c24019afb9c79247984610c2f7195b1fa49935bc748"
+		},
+		{
+			"id": "010-fsm-order-status-enum-expansion",
+			"date": "2026-04-30",
+			"type": "breaking",
+			"description": "Expand OrderStatus enum to 16 values covering the full FSM pipeline (proposal, planning, billing stages). Add FSM transitions, terminal/active/editable state sets, and kanban column mappings.",
+			"toHash": "sha256:f3a1ec7e38a8fb2dfd8d3d86fc69d73c4c60d17fac0c73c0d238c538e417c4b3"
+		},
+		{
+			"id": "011-cerMont-fsm-complete-implementation",
+			"date": "2026-05-01",
+			"type": "breaking",
+			"description": "Complete implementation of the CERMONT FSM pipeline. Includes dynamic personnel assignments, kit availability checks, backend safety verification synchronization, enhanced dashboard metrics, and catalog management for checklists and report templates.",
+			"toHash": "sha256:d7f9565800adaf028d52210aa47b827d763af892aa250c530a6d6df88361d941"
+		}
+	]
+}

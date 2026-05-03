@@ -1,0 +1,52 @@
+{
+	"name": "@cermont/shared-types",
+	"version": "1.0.0",
+	"private": true,
+	"description": "Tipos, schemas e interfaces compartidos (Single Source of Truth)",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./rbac": {
+			"types": "./dist/rbac/index.d.ts",
+			"default": "./dist/rbac/index.js"
+		},
+		"./config": {
+			"types": "./dist/config/index.d.ts",
+			"default": "./dist/config/index.js"
+		},
+		"./schemas": {
+			"types": "./dist/schemas/index.d.ts",
+			"default": "./dist/schemas/index.js"
+		},
+		"./api": {
+			"types": "./dist/api/index.d.ts",
+			"default": "./dist/api/index.js"
+		},
+		"./utils": {
+			"types": "./dist/utils/index.d.ts",
+			"default": "./dist/utils/index.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc --project tsconfig.json",
+		"clean": "node -e \"const fs=require('fs');for (const target of ['dist','tsconfig.tsbuildinfo']) fs.rmSync(target,{recursive:true,force:true});\"",
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"format": "biome format .",
+		"format:check": "biome format .",
+		"format.check": "biome format .",
+		"format:fix": "biome format --write .",
+		"dev": "tsc --watch --project tsconfig.json",
+		"test": "vitest run",
+		"test:ci": "vitest run"
+	},
+	"dependencies": {
+		"zod": "^4.3.6"
+	},
+	"devDependencies": {}
+}

@@ -1,0 +1,1903 @@
+{
+	"numTotalTestSuites": 80,
+	"numPassedTestSuites": 23,
+	"numFailedTestSuites": 57,
+	"numPendingTestSuites": 0,
+	"numTotalTests": 147,
+	"numPassedTests": 36,
+	"numFailedTests": 99,
+	"numPendingTests": 12,
+	"numTodoTests": 0,
+	"snapshot": {
+		"added": 0,
+		"failure": false,
+		"filesAdded": 0,
+		"filesRemoved": 0,
+		"filesRemovedList": [],
+		"filesUnmatched": 0,
+		"filesUpdated": 0,
+		"matched": 0,
+		"total": 0,
+		"unchecked": 0,
+		"uncheckedKeysByFile": [],
+		"unmatched": 0,
+		"updated": 0,
+		"didUpdate": false
+	},
+	"startTime": 1777083808271,
+	"success": false,
+	"testResults": [
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["authorize middleware"],
+					"fullName": "authorize middleware throws UnauthorizedError when the user context is missing",
+					"status": "passed",
+					"title": "throws UnauthorizedError when the user context is missing",
+					"duration": 3.335900000000038,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["authorize middleware"],
+					"fullName": "authorize middleware throws ForbiddenError when the role is not allowed",
+					"status": "passed",
+					"title": "throws ForbiddenError when the role is not allowed",
+					"duration": 0.7107999999998356,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["authorize middleware"],
+					"fullName": "authorize middleware allows matching roles to continue the request",
+					"status": "passed",
+					"title": "allows matching roles to continue the request",
+					"duration": 1.2821999999998752,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["authorize middleware"],
+					"fullName": "authorize middleware enforces the minimum role hierarchy",
+					"status": "passed",
+					"title": "enforces the minimum role hierarchy",
+					"duration": 0.6612999999999829,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["authorize middleware"],
+					"fullName": "authorize middleware allows the owner or admin to proceed",
+					"status": "passed",
+					"title": "allows the owner or admin to proceed",
+					"duration": 0.5416999999999916,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083816496,
+			"endTime": 1777083816502.5417,
+			"status": "passed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/common/authorize.middleware.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["error metrics observability"],
+					"fullName": "error metrics observability tracks error count by module and endpoint",
+					"status": "passed",
+					"title": "tracks error count by module and endpoint",
+					"duration": 7.52780000000007,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083816660,
+			"endTime": 1777083816667.5278,
+			"status": "passed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/common/error-metrics.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["common errors"],
+					"fullName": "common errors uses centralized error codes in subclasses",
+					"status": "passed",
+					"title": "uses centralized error codes in subclasses",
+					"duration": 4.0190000000000055,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["common errors"],
+					"fullName": "common errors serializes operational error payloads consistently",
+					"status": "passed",
+					"title": "serializes operational error payloads consistently",
+					"duration": 1.1726999999998498,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083816889,
+			"endTime": 1777083816894.1726,
+			"status": "passed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/common/errors.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["mapping utilities"],
+					"fullName": "mapping utilities caps numeric query values when a maximum is provided",
+					"status": "passed",
+					"title": "caps numeric query values when a maximum is provided",
+					"duration": 4.052299999999832,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["mapping utilities"],
+					"fullName": "mapping utilities falls back when the numeric query value is invalid",
+					"status": "passed",
+					"title": "falls back when the numeric query value is invalid",
+					"duration": 0.4459999999999127,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["mapping utilities"],
+					"fullName": "mapping utilities derives the correct page from an offset and limit",
+					"status": "passed",
+					"title": "derives the correct page from an offset and limit",
+					"duration": 0.25490000000013424,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083816869,
+			"endTime": 1777083816874.255,
+			"status": "passed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/common/mapping.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["authorize guard"],
+					"fullName": "authorize guard returns UnauthorizedError when user context is missing",
+					"status": "passed",
+					"title": "returns UnauthorizedError when user context is missing",
+					"duration": 4.893199999999979,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["authorize guard"],
+					"fullName": "authorize guard returns ForbiddenError when the role is not allowed",
+					"status": "passed",
+					"title": "returns ForbiddenError when the role is not allowed",
+					"duration": 0.9092999999998028,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["authorize guard"],
+					"fullName": "authorize guard calls next without error for allowed roles",
+					"status": "passed",
+					"title": "calls next without error for allowed roles",
+					"duration": 0.35940000000005057,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083815470,
+			"endTime": 1777083815476.3594,
+			"status": "passed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/common/roles.guard.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["Auth Integration Tests"],
+					"fullName": "Auth Integration Tests should register a new user via /api/users (requires manager)",
+					"status": "skipped",
+					"title": "should register a new user via /api/users (requires manager)",
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Auth Integration Tests"],
+					"fullName": "Auth Integration Tests should login and return tokens",
+					"status": "skipped",
+					"title": "should login and return tokens",
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Auth Integration Tests"],
+					"fullName": "Auth Integration Tests should get current user profile /api/auth/me",
+					"status": "skipped",
+					"title": "should get current user profile /api/auth/me",
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Auth Integration Tests"],
+					"fullName": "Auth Integration Tests should logout successfully",
+					"status": "skipped",
+					"title": "should logout successfully",
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083808271,
+			"endTime": 1777083808271,
+			"status": "failed",
+			"message": "MD5 check failed! Binary MD5 is \"996a9b39a69ea2453ddd0d096cdfb44a\", Checkfile MD5 is \"896333eea778fa3f7726df71d1b1e9b7\"",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/integration/auth.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["Checklist Gate Integration Tests"],
+					"fullName": "Checklist Gate Integration Tests should block transition to completed if checklist is pending",
+					"status": "skipped",
+					"title": "should block transition to completed if checklist is pending",
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Checklist Gate Integration Tests"],
+					"fullName": "Checklist Gate Integration Tests should block transition to completed if materials are not verified",
+					"status": "skipped",
+					"title": "should block transition to completed if materials are not verified",
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Checklist Gate Integration Tests"],
+					"fullName": "Checklist Gate Integration Tests should allow transition to completed when all gates are passed",
+					"status": "skipped",
+					"title": "should allow transition to completed when all gates are passed",
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083808271,
+			"endTime": 1777083808271,
+			"status": "failed",
+			"message": "Cannot unlock file \"C:\\Users\\camil\\.cache\\mongodb-binaries\\8.2.1.lock\", because it is not locked by this process",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/integration/checklist-gate.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["Cost Tracking Integration Tests"],
+					"fullName": "Cost Tracking Integration Tests should record costs and calculate variance",
+					"status": "skipped",
+					"title": "should record costs and calculate variance",
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Cost Tracking Integration Tests"],
+					"fullName": "Cost Tracking Integration Tests should return cross-order dashboard metrics",
+					"status": "skipped",
+					"title": "should return cross-order dashboard metrics",
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083808271,
+			"endTime": 1777083808271,
+			"status": "failed",
+			"message": "MD5 check failed! Binary MD5 is \"996a9b39a69ea2453ddd0d096cdfb44a\", Checkfile MD5 is \"896333eea778fa3f7726df71d1b1e9b7\"",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/integration/cost-tracking.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["Order Lifecycle Integration Tests"],
+					"fullName": "Order Lifecycle Integration Tests should create an order with a kit",
+					"status": "skipped",
+					"title": "should create an order with a kit",
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order Lifecycle Integration Tests"],
+					"fullName": "Order Lifecycle Integration Tests should follow full lifecycle: assign -> start -> complete -> close",
+					"status": "skipped",
+					"title": "should follow full lifecycle: assign -> start -> complete -> close",
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083808271,
+			"endTime": 1777083808271,
+			"status": "failed",
+			"message": "MD5 check failed! Binary MD5 is \"996a9b39a69ea2453ddd0d096cdfb44a\", Checkfile MD5 is \"896333eea778fa3f7726df71d1b1e9b7\"",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/integration/order-lifecycle.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["Proposal Conversion Integration Tests"],
+					"fullName": "Proposal Conversion Integration Tests should convert an approved proposal to an order",
+					"status": "skipped",
+					"title": "should convert an approved proposal to an order",
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083808271,
+			"endTime": 1777083808271,
+			"status": "failed",
+			"message": "MD5 check failed! Binary MD5 is \"996a9b39a69ea2453ddd0d096cdfb44a\", Checkfile MD5 is \"896333eea778fa3f7726df71d1b1e9b7\"",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/integration/proposal-conversion.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["audit.service"],
+					"fullName": "audit.service maps audit input to the persisted schema and resolves user email",
+					"status": "failed",
+					"title": "maps audit input to the persisted schema and resolves user email",
+					"duration": 1011.2774999999997,
+					"failureMessages": [
+						"AssertionError: expected \"vi.fn()\" to be called at least once\n    at Proxy.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/expect/dist/index.js:1467:10)\n    at Proxy.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/expect/dist/index.js:1156:15)\n    at Proxy.methodWrapper (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/chai/index.js:1700:25)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/audit.service.test.ts:43:50\n    at Timeout.checkCallback (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/vitest/dist/chunks/test.DNmyFkvJ.js:3383:20)\n    at listOnTimeout (node:internal/timers:605:17)\n    at processTimers (node:internal/timers:541:7)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["audit.service"],
+					"fullName": "audit.service maps model_name filters to entityType queries",
+					"status": "failed",
+					"title": "maps model_name filters to entityType queries",
+					"duration": 5001.9626,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/audit.service.test.ts:65:2\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083811969,
+			"endTime": 1777083817982.9626,
+			"status": "failed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/audit.service.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["AuthService", "login"],
+					"fullName": "AuthService login should login with valid credentials",
+					"status": "failed",
+					"title": "should login with valid credentials",
+					"duration": 5008.6206,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/auth.service.test.ts:59:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["AuthService", "login"],
+					"fullName": "AuthService login should throw error for user not found",
+					"status": "failed",
+					"title": "should throw error for user not found",
+					"duration": 5002.004000000001,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/auth.service.test.ts:96:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["AuthService", "login"],
+					"fullName": "AuthService login should throw error for invalid password",
+					"status": "failed",
+					"title": "should throw error for invalid password",
+					"duration": 5004.9,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/auth.service.test.ts:104:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["AuthService", "login"],
+					"fullName": "AuthService login should throw error if user is inactive",
+					"status": "failed",
+					"title": "should throw error if user is inactive",
+					"duration": 5000.626200000002,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/auth.service.test.ts:122:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["AuthService", "refreshAccessToken"],
+					"fullName": "AuthService refreshAccessToken should refresh access token with valid refresh token",
+					"status": "failed",
+					"title": "should refresh access token with valid refresh token",
+					"duration": 5001.057799999999,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/auth.service.test.ts:139:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["AuthService", "refreshAccessToken"],
+					"fullName": "AuthService refreshAccessToken should refresh access token with legacy _id claim",
+					"status": "failed",
+					"title": "should refresh access token with legacy _id claim",
+					"duration": 5000.8014,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/auth.service.test.ts:179:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["AuthService", "refreshAccessToken"],
+					"fullName": "AuthService refreshAccessToken should throw error if refresh token is blacklisted",
+					"status": "failed",
+					"title": "should throw error if refresh token is blacklisted",
+					"duration": 5001.3557999999975,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/auth.service.test.ts:212:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["AuthService", "refreshAccessToken"],
+					"fullName": "AuthService refreshAccessToken should throw error if user not found during refresh",
+					"status": "failed",
+					"title": "should throw error if user not found during refresh",
+					"duration": 5000.2572,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/auth.service.test.ts:231:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["AuthService", "refreshAccessToken"],
+					"fullName": "AuthService refreshAccessToken should throw error if refresh token is expired",
+					"status": "passed",
+					"title": "should throw error if refresh token is expired",
+					"duration": 1.4686999999976251,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["AuthService", "refreshAccessToken"],
+					"fullName": "AuthService refreshAccessToken should throw error if refresh token is invalid",
+					"status": "passed",
+					"title": "should throw error if refresh token is invalid",
+					"duration": 0.6242999999958556,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["AuthService", "logout"],
+					"fullName": "AuthService logout should blacklist both tokens on logout",
+					"status": "failed",
+					"title": "should blacklist both tokens on logout",
+					"duration": 5002.537799999998,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/auth.service.test.ts:279:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["AuthService", "logout"],
+					"fullName": "AuthService logout should handle missing jti in token gracefully",
+					"status": "passed",
+					"title": "should handle missing jti in token gracefully",
+					"duration": 0.8349000000016531,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["AuthService", "getRefreshTokenMaxAge"],
+					"fullName": "AuthService getRefreshTokenMaxAge should return 7 days in seconds",
+					"status": "passed",
+					"title": "should return 7 days in seconds",
+					"duration": 0.3392999999996391,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["AuthService", "generateTokenPair"],
+					"fullName": "AuthService generateTokenPair should generate both access and refresh tokens",
+					"status": "passed",
+					"title": "should generate both access and refresh tokens",
+					"duration": 0.7514999999984866,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083811912,
+			"endTime": 1777083856939.7515,
+			"status": "failed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/auth.service.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["checklist.service", "listChecklists()"],
+					"fullName": "checklist.service listChecklists() filtra por orderId y status",
+					"status": "failed",
+					"title": "filtra por orderId y status",
+					"duration": 5009.0481,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/checklist.service.test.ts:118:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["checklist.service", "listChecklists()"],
+					"fullName": "checklist.service listChecklists() lanza NotFoundError si la orden no existe",
+					"status": "failed",
+					"title": "lanza NotFoundError si la orden no existe",
+					"duration": 5001.793900000001,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/checklist.service.test.ts:143:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["checklist.service", "getChecklistsByOrderId()"],
+					"fullName": "checklist.service getChecklistsByOrderId() reutiliza el filtro por orden",
+					"status": "failed",
+					"title": "reutiliza el filtro por orden",
+					"duration": 0.5970999999990454,
+					"failureMessages": [
+						"TypeError: __vi_import_3__.getChecklistsByOrderId is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/checklist.service.test.ts:161:42\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["checklist.service", "createChecklist()"],
+					"fullName": "checklist.service createChecklist() crea una checklist con items del kit por defecto",
+					"status": "failed",
+					"title": "crea una checklist con items del kit por defecto",
+					"duration": 0.40909999999894353,
+					"failureMessages": [
+						"TypeError: __vi_import_1__.getDefaultKitForOrderType.mockReturnValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/checklist.service.test.ts:176:6\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["checklist.service", "createChecklist()"],
+					"fullName": "checklist.service createChecklist() usa el catálogo de mantenimiento cuando se especifica kitTemplate",
+					"status": "failed",
+					"title": "usa el catálogo de mantenimiento cuando se especifica kitTemplate",
+					"duration": 5003.587800000001,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/checklist.service.test.ts:184:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["checklist.service", "createChecklist()"],
+					"fullName": "checklist.service createChecklist() retorna la checklist existente si ya fue creada",
+					"status": "failed",
+					"title": "retorna la checklist existente si ya fue creada",
+					"duration": 5000.900600000001,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/checklist.service.test.ts:219:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["checklist.service", "createChecklist()"],
+					"fullName": "checklist.service createChecklist() retorna la checklist existente cuando el idempotency key ya existe",
+					"status": "failed",
+					"title": "retorna la checklist existente cuando el idempotency key ya existe",
+					"duration": 5002.196100000001,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/checklist.service.test.ts:231:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["checklist.service", "createChecklist()"],
+					"fullName": "checklist.service createChecklist() lanza UnprocessableError si la orden está cerrada",
+					"status": "failed",
+					"title": "lanza UnprocessableError si la orden está cerrada",
+					"duration": 5001.7507000000005,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/checklist.service.test.ts:249:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["checklist.service", "updateChecklistItem()"],
+					"fullName": "checklist.service updateChecklistItem() actualiza el item y completa la checklist cuando ya tiene firma",
+					"status": "failed",
+					"title": "actualiza el item y completa la checklist cuando ya tiene firma",
+					"duration": 0.6682999999975436,
+					"failureMessages": [
+						"TypeError: __vi_import_3__.updateChecklistItem is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/checklist.service.test.ts:269:42\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["checklist.service", "updateChecklistItem()"],
+					"fullName": "checklist.service updateChecklistItem() lanza NotFoundError si la checklist no existe",
+					"status": "failed",
+					"title": "lanza NotFoundError si la checklist no existe",
+					"duration": 0.4507999999987078,
+					"failureMessages": [
+						"TypeError: __vi_import_3__.updateChecklistItem is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/checklist.service.test.ts:289:22\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["checklist.service", "updateChecklistItem()"],
+					"fullName": "checklist.service updateChecklistItem() lanza UnprocessableError si la checklist está cerrada",
+					"status": "failed",
+					"title": "lanza UnprocessableError si la checklist está cerrada",
+					"duration": 0.3250000000043656,
+					"failureMessages": [
+						"TypeError: __vi_import_3__.updateChecklistItem is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/checklist.service.test.ts:304:22\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["checklist.service", "updateChecklistItem()"],
+					"fullName": "checklist.service updateChecklistItem() lanza NotFoundError si el item no existe",
+					"status": "failed",
+					"title": "lanza NotFoundError si el item no existe",
+					"duration": 0.3666000000011991,
+					"failureMessages": [
+						"TypeError: __vi_import_3__.updateChecklistItem is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/checklist.service.test.ts:317:22\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["checklist.service", "completeChecklist()"],
+					"fullName": "checklist.service completeChecklist() completa la checklist cuando todos los requeridos están listos",
+					"status": "failed",
+					"title": "completa la checklist cuando todos los requeridos están listos",
+					"duration": 5001.103600000002,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/checklist.service.test.ts:328:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["checklist.service", "completeChecklist()"],
+					"fullName": "checklist.service completeChecklist() lanza UnprocessableError si faltan items requeridos",
+					"status": "failed",
+					"title": "lanza UnprocessableError si faltan items requeridos",
+					"duration": 5000.477299999999,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/checklist.service.test.ts:352:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["checklist.service", "completeChecklist()"],
+					"fullName": "checklist.service completeChecklist() lanza BadRequestError si no hay firma",
+					"status": "failed",
+					"title": "lanza BadRequestError si no hay firma",
+					"duration": 5001.371600000006,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/checklist.service.test.ts:360:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083811914,
+			"endTime": 1777083856940.3716,
+			"status": "failed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/checklist.service.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["CostService", "createCost"],
+					"fullName": "CostService createCost creates a cost with the canonical fields and computes variance",
+					"status": "failed",
+					"title": "creates a cost with the canonical fields and computes variance",
+					"duration": 7.739599999999882,
+					"failureMessages": [
+						"TypeError: __vi_import_3__.createCost is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/cost.service.test.ts:117:37\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["CostService", "createCost"],
+					"fullName": "CostService createCost throws NotFoundError when the order does not exist",
+					"status": "failed",
+					"title": "throws NotFoundError when the order does not exist",
+					"duration": 1.1440999999999804,
+					"failureMessages": [
+						"TypeError: __vi_import_3__.createCost is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/cost.service.test.ts:165:17\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["CostService", "listCosts"],
+					"fullName": "CostService listCosts filters by orderId and category with pagination",
+					"status": "failed",
+					"title": "filters by orderId and category with pagination",
+					"duration": 1.3263999999999214,
+					"failureMessages": [
+						"TypeError: __vi_import_3__.listCosts is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/cost.service.test.ts:202:37\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["CostService", "getOrderSummary"],
+					"fullName": "CostService getOrderSummary returns totals and category breakdown",
+					"status": "failed",
+					"title": "returns totals and category breakdown",
+					"duration": 5002.213900000001,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/cost.service.test.ts:242:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["CostService", "getOrderSummary"],
+					"fullName": "CostService getOrderSummary returns hasCosts false when there are no recorded costs",
+					"status": "failed",
+					"title": "returns hasCosts false when there are no recorded costs",
+					"duration": 5002.0032,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/cost.service.test.ts:284:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["CostService", "updateCost"],
+					"fullName": "CostService updateCost throws ForbiddenError when the editor is neither the owner nor a supervisor",
+					"status": "failed",
+					"title": "throws ForbiddenError when the editor is neither the owner nor a supervisor",
+					"duration": 0.7564999999995052,
+					"failureMessages": [
+						"TypeError: __vi_import_3__.updateCost is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/cost.service.test.ts:311:17\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083811023,
+			"endTime": 1777083821038.7566,
+			"status": "failed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/cost.service.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["EvidenceService", "createEvidence"],
+					"fullName": "EvidenceService createEvidence creates, compresses, persists, and audits evidence",
+					"status": "failed",
+					"title": "creates, compresses, persists, and audits evidence",
+					"duration": 8.668800000000374,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockResolvedValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/evidence.service.test.ts:109:30\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["EvidenceService", "createEvidence"],
+					"fullName": "EvidenceService createEvidence rejects uploads when the order is missing",
+					"status": "failed",
+					"title": "rejects uploads when the order is missing",
+					"duration": 5002.190099999999,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/evidence.service.test.ts:164:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["EvidenceService", "createEvidence"],
+					"fullName": "EvidenceService createEvidence rejects uploads when the order state is invalid",
+					"status": "failed",
+					"title": "rejects uploads when the order state is invalid",
+					"duration": 5001.814199999999,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/evidence.service.test.ts:176:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["EvidenceService", "createEvidence"],
+					"fullName": "EvidenceService createEvidence rejects infected files before image processing",
+					"status": "failed",
+					"title": "rejects infected files before image processing",
+					"duration": 0.6893999999992957,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockResolvedValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/evidence.service.test.ts:192:30\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["EvidenceService", "createEvidence"],
+					"fullName": "EvidenceService createEvidence returns the existing evidence when the idempotency key already exists",
+					"status": "failed",
+					"title": "returns the existing evidence when the idempotency key already exists",
+					"duration": 5004.9910999999975,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/evidence.service.test.ts:205:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["EvidenceService", "getEvidencesByOrderId"],
+					"fullName": "EvidenceService getEvidencesByOrderId returns paginated evidences for an order when user has access",
+					"status": "failed",
+					"title": "returns paginated evidences for an order when user has access",
+					"duration": 1.359600000003411,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockResolvedValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/evidence.service.test.ts:240:36\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["EvidenceService", "getEvidencesByOrderId"],
+					"fullName": "EvidenceService getEvidencesByOrderId rejects when user does not have access to the order",
+					"status": "failed",
+					"title": "rejects when user does not have access to the order",
+					"duration": 6.629300000000512,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockRejectedValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/evidence.service.test.ts:299:36\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["EvidenceService", "getEvidencesByOrderId"],
+					"fullName": "EvidenceService getEvidencesByOrderId rejects when the order does not exist",
+					"status": "failed",
+					"title": "rejects when the order does not exist",
+					"duration": 3.1792999999997846,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockRejectedValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/evidence.service.test.ts:312:36\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["EvidenceService", "getEvidenceById"],
+					"fullName": "EvidenceService getEvidenceById returns a formatted evidence document",
+					"status": "failed",
+					"title": "returns a formatted evidence document",
+					"duration": 7.238100000002305,
+					"failureMessages": [
+						"Error: promise rejected \"CastError: Cast to ObjectId failed for va… { …(7) }\" instead of resolving\n    at _Assertion.__VITEST_RESOLVES__ (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/expect/dist/index.js:1710:17)\n    at _Assertion.propertyGetter (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/chai/index.js:1570:27)\n    at Reflect.get (<anonymous>)\n    at Object.proxyGetter [as get] (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/chai/index.js:1659:22)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/evidence.service.test.ts:341:63\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["EvidenceService", "getEvidenceById"],
+					"fullName": "EvidenceService getEvidenceById throws when evidence is missing",
+					"status": "passed",
+					"title": "throws when evidence is missing",
+					"duration": 1.317800000000716,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["EvidenceService", "deleteEvidence"],
+					"fullName": "EvidenceService deleteEvidence soft deletes evidence and writes an audit log",
+					"status": "failed",
+					"title": "soft deletes evidence and writes an audit log",
+					"duration": 1.4821000000010827,
+					"failureMessages": [
+						"CastError: Cast to ObjectId failed for value \"evidence-id-1\" (type string) at path \"_id\" for model \"Evidence\"\n    at SchemaObjectId.cast (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\schema\\objectId.js:252:11)\n    at SchemaObjectId.SchemaType.applySetters (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\schemaType.js:1320:12)\n    at SchemaObjectId.SchemaType.castForQuery (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\schemaType.js:1746:17)\n    at cast (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\cast.js:386:32)\n    at model.Query.Query.cast (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:5212:12)\n    at model.Query.Query._castConditions (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:2409:10)\n    at model.Query._findOne (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:2756:8)\n    at model.Query.exec (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:4797:80)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at EvidenceRepository.findById (C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/src/evidences/infrastructure/evidence.repository.impl.ts:16:15)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["EvidenceService", "deleteEvidence"],
+					"fullName": "EvidenceService deleteEvidence throws when the evidence does not exist",
+					"status": "passed",
+					"title": "throws when the evidence does not exist",
+					"duration": 0.8685000000004948,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083812710,
+			"endTime": 1777083827751.8684,
+			"status": "failed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/evidence.service.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["maintenance.service", "create()"],
+					"fullName": "maintenance.service create() crea un kit nuevo",
+					"status": "failed",
+					"title": "crea un kit nuevo",
+					"duration": 6.915300000000116,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockReturnValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/maintenance.service.test.ts:47:38\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["maintenance.service", "create()"],
+					"fullName": "maintenance.service create() lanza error si el nombre ya existe",
+					"status": "failed",
+					"title": "lanza error si el nombre ya existe",
+					"duration": 0.9137999999998101,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockReturnValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/maintenance.service.test.ts:62:38\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["maintenance.service", "findAll()"],
+					"fullName": "maintenance.service findAll() filtra y pagina resultados",
+					"status": "failed",
+					"title": "filtra y pagina resultados",
+					"duration": 0.8689000000003944,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockImplementation is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/maintenance.service.test.ts:89:35\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["maintenance.service", "findById()"],
+					"fullName": "maintenance.service findById() retorna el kit por id",
+					"status": "failed",
+					"title": "retorna el kit por id",
+					"duration": 0.6026000000001659,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockReturnValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/maintenance.service.test.ts:106:39\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["maintenance.service", "findById()"],
+					"fullName": "maintenance.service findById() lanza error si no existe",
+					"status": "failed",
+					"title": "lanza error si no existe",
+					"duration": 0.5252000000000407,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockReturnValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/maintenance.service.test.ts:118:39\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["maintenance.service", "update()"],
+					"fullName": "maintenance.service update() actualiza el kit",
+					"status": "failed",
+					"title": "actualiza el kit",
+					"duration": 0.5090000000000146,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockResolvedValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/maintenance.service.test.ts:134:39\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["maintenance.service", "update()"],
+					"fullName": "maintenance.service update() lanza error si cambia a un nombre duplicado",
+					"status": "failed",
+					"title": "lanza error si cambia a un nombre duplicado",
+					"duration": 0.563499999999749,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockResolvedValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/maintenance.service.test.ts:150:39\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["maintenance.service", "update()"],
+					"fullName": "maintenance.service update() lanza error si no existe",
+					"status": "failed",
+					"title": "lanza error si no existe",
+					"duration": 0.39350000000013097,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockResolvedValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/maintenance.service.test.ts:164:39\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["maintenance.service", "delete()"],
+					"fullName": "maintenance.service delete() desactiva el kit",
+					"status": "failed",
+					"title": "desactiva el kit",
+					"duration": 0.5695000000000618,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockResolvedValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/maintenance.service.test.ts:176:39\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["maintenance.service", "delete()"],
+					"fullName": "maintenance.service delete() lanza error si no existe",
+					"status": "failed",
+					"title": "lanza error si no existe",
+					"duration": 0.5457000000001244,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockResolvedValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/maintenance.service.test.ts:185:39\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083811532,
+			"endTime": 1777083811545.5457,
+			"status": "failed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/maintenance.service.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["order-rules transition and RBAC"],
+					"fullName": "order-rules transition and RBAC permite transición válida por rol autorizado",
+					"status": "passed",
+					"title": "permite transición válida por rol autorizado",
+					"duration": 3.1544000000001233,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["order-rules transition and RBAC"],
+					"fullName": "order-rules transition and RBAC rechaza transición inválida aunque el rol sea autorizado",
+					"status": "passed",
+					"title": "rechaza transición inválida aunque el rol sea autorizado",
+					"duration": 0.5993000000000848,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["order-rules transition and RBAC"],
+					"fullName": "order-rules transition and RBAC rechaza transición válida cuando el rol no tiene permiso",
+					"status": "passed",
+					"title": "rechaza transición válida cuando el rol no tiene permiso",
+					"duration": 0.42630000000008295,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["order-rules transition and RBAC"],
+					"fullName": "order-rules transition and RBAC normaliza estados legacy en validación de transición",
+					"status": "passed",
+					"title": "normaliza estados legacy en validación de transición",
+					"duration": 0.4075000000000273,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["order-rules transition and RBAC"],
+					"fullName": "order-rules transition and RBAC normaliza estados legacy para consultar transiciones válidas",
+					"status": "passed",
+					"title": "normaliza estados legacy para consultar transiciones válidas",
+					"duration": 0.9837999999999738,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["order-rules transition and RBAC"],
+					"fullName": "order-rules transition and RBAC identifica estados terminales correctamente",
+					"status": "passed",
+					"title": "identifica estados terminales correctamente",
+					"duration": 0.44479999999998654,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083815346,
+			"endTime": 1777083815351.4448,
+			"status": "passed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order-rules.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["formatOrderResponse"],
+					"fullName": "formatOrderResponse returns an order payload that satisfies the shared order schema",
+					"status": "passed",
+					"title": "returns an order payload that satisfies the shared order schema",
+					"duration": 11.323699999999917,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083814221,
+			"endTime": 1777083814232.3237,
+			"status": "passed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.helpers.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["Order services", "order-crud.service"],
+					"fullName": "Order services order-crud.service createOrder crea una orden con estado open",
+					"status": "failed",
+					"title": "createOrder crea una orden con estado open",
+					"duration": 5006.8323,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:136:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-crud.service"],
+					"fullName": "Order services order-crud.service createOrder usa kitTemplate cuando no hay materiales explícitos",
+					"status": "failed",
+					"title": "createOrder usa kitTemplate cuando no hay materiales explícitos",
+					"duration": 5000.757100000001,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:178:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-crud.service"],
+					"fullName": "Order services order-crud.service getOrderByIdWithAuth permite acceso al propietario",
+					"status": "failed",
+					"title": "getOrderByIdWithAuth permite acceso al propietario",
+					"duration": 5007.212600000003,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:214:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-crud.service"],
+					"fullName": "Order services order-crud.service getOrderByIdWithAuth permite acceso a gerente",
+					"status": "failed",
+					"title": "getOrderByIdWithAuth permite acceso a gerente",
+					"duration": 5002.737100000002,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:224:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-crud.service"],
+					"fullName": "Order services order-crud.service getOrderByIdWithAuth lanza ForbiddenError cuando no hay acceso",
+					"status": "failed",
+					"title": "getOrderByIdWithAuth lanza ForbiddenError cuando no hay acceso",
+					"duration": 5001.481499999998,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:236:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-crud.service"],
+					"fullName": "Order services order-crud.service listOrders aplica filtros y pagina resultados",
+					"status": "failed",
+					"title": "listOrders aplica filtros y pagina resultados",
+					"duration": 5003.4051,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:245:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-crud.service"],
+					"fullName": "Order services order-crud.service updateOrder modifica campos editables",
+					"status": "failed",
+					"title": "updateOrder modifica campos editables",
+					"duration": 5003.209699999999,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:284:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-crud.service"],
+					"fullName": "Order services order-crud.service updateOrder lanza NotFoundError cuando no existe",
+					"status": "failed",
+					"title": "updateOrder lanza NotFoundError cuando no existe",
+					"duration": 5001.428200000002,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:303:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-crud.service"],
+					"fullName": "Order services order-crud.service getOrderByIdWithAuth retorna orden cuando actor es dueño",
+					"status": "failed",
+					"title": "getOrderByIdWithAuth retorna orden cuando actor es dueño",
+					"duration": 5001.0743,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:309:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-crud.service"],
+					"fullName": "Order services order-crud.service getOrderByIdWithAuth retorna orden cuando actor es asignado",
+					"status": "failed",
+					"title": "getOrderByIdWithAuth retorna orden cuando actor es asignado",
+					"duration": 5002.347499999996,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:322:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-crud.service"],
+					"fullName": "Order services order-crud.service getOrderByIdWithAuth retorna orden cuando actor es admin",
+					"status": "failed",
+					"title": "getOrderByIdWithAuth retorna orden cuando actor es admin",
+					"duration": 5000.7211000000025,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:334:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-crud.service"],
+					"fullName": "Order services order-crud.service getOrderByIdWithAuth lanza ForbiddenError cuando actor no tiene acceso",
+					"status": "failed",
+					"title": "getOrderByIdWithAuth lanza ForbiddenError cuando actor no tiene acceso",
+					"duration": 5000.945000000007,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:346:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-crud.service"],
+					"fullName": "Order services order-crud.service getOrderByIdWithAuth lanza NotFoundError cuando no existe",
+					"status": "failed",
+					"title": "getOrderByIdWithAuth lanza NotFoundError cuando no existe",
+					"duration": 5001.428799999994,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:358:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-state.service"],
+					"fullName": "Order services order-state.service transiciona open → assigned → in_progress → completed → closed",
+					"status": "failed",
+					"title": "transiciona open → assigned → in_progress → completed → closed",
+					"duration": 5001.012399999992,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:371:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-state.service"],
+					"fullName": "Order services order-state.service lanza UnprocessableError al cerrar una orden sin costos registrados",
+					"status": "failed",
+					"title": "lanza UnprocessableError al cerrar una orden sin costos registrados",
+					"duration": 5001.358400000012,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:416:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-state.service"],
+					"fullName": "Order services order-state.service lanza UnprocessableError al cerrar una orden con variance negativa",
+					"status": "failed",
+					"title": "lanza UnprocessableError al cerrar una orden con variance negativa",
+					"duration": 5001.881499999989,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:438:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-state.service"],
+					"fullName": "Order services order-state.service lanza UnprocessableError al marcar listo para facturación sin informe aprobado",
+					"status": "failed",
+					"title": "lanza UnprocessableError al marcar listo para facturación sin informe aprobado",
+					"duration": 5001.204299999998,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:462:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-state.service"],
+					"fullName": "Order services order-state.service assignOrder asigna usuario tecnico y mueve open a assigned",
+					"status": "failed",
+					"title": "assignOrder asigna usuario tecnico y mueve open a assigned",
+					"duration": 5001.345200000011,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:494:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-state.service"],
+					"fullName": "Order services order-state.service deleteOrder marca la orden como cancelled",
+					"status": "failed",
+					"title": "deleteOrder marca la orden como cancelled",
+					"duration": 5000.5055999999895,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:511:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-state.service"],
+					"fullName": "Order services order-state.service lanza BadRequestError para transicion inválida",
+					"status": "failed",
+					"title": "lanza BadRequestError para transicion inválida",
+					"duration": 5001.891499999998,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:522:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-state.service"],
+					"fullName": "Order services order-state.service lanza UnauthorizedError para rol no permitido",
+					"status": "failed",
+					"title": "lanza UnauthorizedError para rol no permitido",
+					"duration": 5000.448499999999,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:531:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["Order services", "order-state.service"],
+					"fullName": "Order services order-state.service lanza NotFoundError cuando la orden no existe",
+					"status": "failed",
+					"title": "lanza NotFoundError cuando la orden no existe",
+					"duration": 5002.020199999999,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts:540:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083812410,
+			"endTime": 1777083922455.0203,
+			"status": "failed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/order.service.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["PdfGeneratorService", "generateOrderPdf"],
+					"fullName": "PdfGeneratorService generateOrderPdf should generate a technical report PDF and update the report flag",
+					"status": "failed",
+					"title": "should generate a technical report PDF and update the report flag",
+					"duration": 6.996200000000044,
+					"failureMessages": [
+						"TypeError: CostMock.find.mockReturnValue is not a function\n    at mockDefaultRelatedData (C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/pdf-generator.service.test.ts:69:16)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/pdf-generator.service.test.ts:80:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at wrapper (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:722:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2621:52\n    at run (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1150:20)\n    at limiterFn (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1162:59)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["PdfGeneratorService", "generateOrderPdf"],
+					"fullName": "PdfGeneratorService generateOrderPdf should generate a delivery report PDF",
+					"status": "failed",
+					"title": "should generate a delivery report PDF",
+					"duration": 0.9535000000000764,
+					"failureMessages": [
+						"TypeError: CostMock.find.mockReturnValue is not a function\n    at mockDefaultRelatedData (C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/pdf-generator.service.test.ts:69:16)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/pdf-generator.service.test.ts:80:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at wrapper (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:722:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2621:52\n    at run (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1150:20)\n    at limiterFn (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1162:59)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["PdfGeneratorService", "generateOrderPdf"],
+					"fullName": "PdfGeneratorService generateOrderPdf should throw AppError when order not found",
+					"status": "failed",
+					"title": "should throw AppError when order not found",
+					"duration": 0.7707000000000335,
+					"failureMessages": [
+						"TypeError: CostMock.find.mockReturnValue is not a function\n    at mockDefaultRelatedData (C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/pdf-generator.service.test.ts:69:16)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/pdf-generator.service.test.ts:80:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at wrapper (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:722:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2621:52\n    at run (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1150:20)\n    at limiterFn (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1162:59)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["PdfGeneratorService", "generateOrderPdf"],
+					"fullName": "PdfGeneratorService generateOrderPdf should handle orders with minimal data",
+					"status": "failed",
+					"title": "should handle orders with minimal data",
+					"duration": 0.6534999999998945,
+					"failureMessages": [
+						"TypeError: CostMock.find.mockReturnValue is not a function\n    at mockDefaultRelatedData (C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/pdf-generator.service.test.ts:69:16)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/pdf-generator.service.test.ts:80:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at wrapper (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:722:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2621:52\n    at run (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1150:20)\n    at limiterFn (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1162:59)"
+					],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083813988,
+			"endTime": 1777083813996.7708,
+			"status": "failed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/pdf-generator.service.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["ProposalService", "create()"],
+					"fullName": "ProposalService create() crea una propuesta con totales y código secuencial",
+					"status": "failed",
+					"title": "crea una propuesta con totales y código secuencial",
+					"duration": 5007.8194,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/proposal.service.test.ts:79:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["ProposalService", "findById()"],
+					"fullName": "ProposalService findById() retorna la propuesta cuando existe",
+					"status": "failed",
+					"title": "retorna la propuesta cuando existe",
+					"duration": 5.414700000001176,
+					"failureMessages": [
+						"CastError: Cast to ObjectId failed for value \"proposal-id\" (type string) at path \"_id\" for model \"Proposal\"\n    at SchemaObjectId.cast (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\schema\\objectId.js:252:11)\n    at SchemaObjectId.SchemaType.applySetters (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\schemaType.js:1320:12)\n    at SchemaObjectId.SchemaType.castForQuery (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\schemaType.js:1746:17)\n    at cast (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\cast.js:386:32)\n    at model.Query.Query.cast (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:5212:12)\n    at model.Query.Query._castConditions (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:2409:10)\n    at model.Query._findOne (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:2756:8)\n    at model.Query.exec (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:4797:80)\n    at ProposalRepository.findByIdPopulated (C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/src/proposals/infrastructure/proposal.repository.impl.ts:70:15)\n    at Object.findById (C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/src/proposals/application/service.ts:162:20)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["ProposalService", "findById()"],
+					"fullName": "ProposalService findById() permite a un cliente ver solo sus propuestas",
+					"status": "failed",
+					"title": "permite a un cliente ver solo sus propuestas",
+					"duration": 1.3207000000002154,
+					"failureMessages": [
+						"CastError: Cast to ObjectId failed for value \"proposal-id\" (type string) at path \"_id\" for model \"Proposal\"\n    at SchemaObjectId.cast (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\schema\\objectId.js:252:11)\n    at SchemaObjectId.SchemaType.applySetters (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\schemaType.js:1320:12)\n    at SchemaObjectId.SchemaType.castForQuery (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\schemaType.js:1746:17)\n    at cast (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\cast.js:386:32)\n    at model.Query.Query.cast (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:5212:12)\n    at model.Query.Query._castConditions (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:2409:10)\n    at model.Query._findOne (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:2756:8)\n    at model.Query.exec (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:4797:80)\n    at ProposalRepository.findByIdPopulated (C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/src/proposals/infrastructure/proposal.repository.impl.ts:70:15)\n    at Object.findById (C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/src/proposals/application/service.ts:162:20)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["ProposalService", "findById()"],
+					"fullName": "ProposalService findById() bloquea a un cliente cuando la propuesta pertenece a otro correo",
+					"status": "failed",
+					"title": "bloquea a un cliente cuando la propuesta pertenece a otro correo",
+					"duration": 5.542100000000573,
+					"failureMessages": [
+						"Error: expected CastError: Cast to ObjectId failed for va… { …(7) } to be an instance of ForbiddenError\n    at _Assertion.__VITEST_REJECTS__ (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/expect/dist/index.js:1747:17)\n    at _Assertion.propertyGetter (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/chai/index.js:1570:27)\n    at Reflect.get (<anonymous>)\n    at Object.proxyGetter [as get] (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/chai/index.js:1659:22)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/proposal.service.test.ts:148:65\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["ProposalService", "findById()"],
+					"fullName": "ProposalService findById() lanza AppError si no existe",
+					"status": "failed",
+					"title": "lanza AppError si no existe",
+					"duration": 1.662000000000262,
+					"failureMessages": [
+						"Error: expected CastError: Cast to ObjectId failed for va… { …(7) } to be an instance of AppError\n    at _Assertion.__VITEST_REJECTS__ (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/expect/dist/index.js:1747:17)\n    at _Assertion.propertyGetter (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/chai/index.js:1570:27)\n    at Reflect.get (<anonymous>)\n    at Object.proxyGetter [as get] (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/chai/index.js:1659:22)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/proposal.service.test.ts:157:61\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["ProposalService", "findAll()"],
+					"fullName": "ProposalService findAll() lista propuestas y total con filtros",
+					"status": "failed",
+					"title": "lista propuestas y total con filtros",
+					"duration": 5000.994699999999,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/proposal.service.test.ts:162:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["ProposalService", "findAll()"],
+					"fullName": "ProposalService findAll() limita a un cliente a sus propias propuestas",
+					"status": "failed",
+					"title": "limita a un cliente a sus propias propuestas",
+					"duration": 5004.51,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/proposal.service.test.ts:178:3\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["ProposalService", "updateStatus()"],
+					"fullName": "ProposalService updateStatus() aprueba una propuesta y asigna aprobado por",
+					"status": "failed",
+					"title": "aprueba una propuesta y asigna aprobado por",
+					"duration": 2.2822999999989406,
+					"failureMessages": [
+						"CastError: Cast to ObjectId failed for value \"proposal-id\" (type string) at path \"_id\" for model \"Proposal\"\n    at SchemaObjectId.cast (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\schema\\objectId.js:252:11)\n    at SchemaObjectId.SchemaType.applySetters (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\schemaType.js:1320:12)\n    at SchemaObjectId.SchemaType.castForQuery (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\schemaType.js:1746:17)\n    at cast (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\cast.js:386:32)\n    at model.Query.Query.cast (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:5212:12)\n    at model.Query.Query._castConditions (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:2409:10)\n    at model.Query._findOne (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:2756:8)\n    at model.Query.exec (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:4797:80)\n    at runNextTicks (node:internal/process/task_queues:64:5)\n    at processTimers (node:internal/timers:538:9)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["ProposalService", "updateStatus()"],
+					"fullName": "ProposalService updateStatus() lanza AppError si no existe",
+					"status": "failed",
+					"title": "lanza AppError si no existe",
+					"duration": 2.1424000000006345,
+					"failureMessages": [
+						"Error: expected CastError: Cast to ObjectId failed for va… { …(7) } to be an instance of AppError\n    at _Assertion.__VITEST_REJECTS__ (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/expect/dist/index.js:1747:17)\n    at _Assertion.propertyGetter (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/chai/index.js:1570:27)\n    at Reflect.get (<anonymous>)\n    at Object.proxyGetter [as get] (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/chai/index.js:1659:22)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/proposal.service.test.ts:227:5\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["ProposalService", "convertToOrder()"],
+					"fullName": "ProposalService convertToOrder() crea una orden con materiales derivados de la propuesta aprobada",
+					"status": "failed",
+					"title": "crea una orden con materiales derivados de la propuesta aprobada",
+					"duration": 23.48149999999805,
+					"failureMessages": [
+						"CastError: Cast to ObjectId failed for value \"proposal-id\" (type string) at path \"_id\" for model \"Proposal\"\n    at SchemaObjectId.cast (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\schema\\objectId.js:252:11)\n    at SchemaObjectId.SchemaType.applySetters (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\schemaType.js:1320:12)\n    at SchemaObjectId.SchemaType.castForQuery (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\schemaType.js:1746:17)\n    at cast (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\cast.js:386:32)\n    at model.Query.Query.cast (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:5212:12)\n    at model.Query.Query._castConditions (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:2409:10)\n    at model.Query._findOne (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:2756:8)\n    at model.Query.exec (C:\\Users\\camil\\Downloads\\cermont_aplicativo\\cermont_aplicativo\\node_modules\\mongoose\\lib\\query.js:4797:80)\n    at runNextTicks (node:internal/process/task_queues:64:5)\n    at processTimers (node:internal/timers:538:9)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["ProposalService", "convertToOrder()"],
+					"fullName": "ProposalService convertToOrder() lanza AppError si la propuesta no está aprobada",
+					"status": "failed",
+					"title": "lanza AppError si la propuesta no está aprobada",
+					"duration": 1.478399999999965,
+					"failureMessages": [
+						"Error: expected CastError: Cast to ObjectId failed for va… { …(7) } to be an instance of AppError\n    at _Assertion.__VITEST_REJECTS__ (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/expect/dist/index.js:1747:17)\n    at _Assertion.propertyGetter (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/chai/index.js:1570:27)\n    at Reflect.get (<anonymous>)\n    at Object.proxyGetter [as get] (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/chai/index.js:1659:22)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/proposal.service.test.ts:305:5\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)"
+					],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083811969,
+			"endTime": 1777083827027.4785,
+			"status": "failed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/proposal.service.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["ReportService"],
+					"fullName": "ReportService createReport crea un borrador cuando la orden y el checklist están completos",
+					"status": "failed",
+					"title": "createReport crea un borrador cuando la orden y el checklist están completos",
+					"duration": 5008.294900000001,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/report.service.test.ts:140:2\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["ReportService"],
+					"fullName": "ReportService createReport lanza REPORT_CHECKLIST_INCOMPLETE si el checklist no está completado",
+					"status": "failed",
+					"title": "createReport lanza REPORT_CHECKLIST_INCOMPLETE si el checklist no está completado",
+					"duration": 5002.056799999999,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/report.service.test.ts:156:2\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["ReportService"],
+					"fullName": "ReportService createReport lanza REPORT_NO_COSTS si no hay costos registrados",
+					"status": "failed",
+					"title": "createReport lanza REPORT_NO_COSTS si no hay costos registrados",
+					"duration": 5002.021500000001,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/report.service.test.ts:166:2\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["ReportService"],
+					"fullName": "ReportService approveReport cambia el estado a approved y registra el aprobador",
+					"status": "failed",
+					"title": "approveReport cambia el estado a approved y registra el aprobador",
+					"duration": 5002.079299999998,
+					"failureMessages": [
+						"Error: STACK_TRACE_ERROR\n    at task (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/report.service.test.ts:186:2\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:40\n    at runWithSuite (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2258:8)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1889:10)\n    at Object.collect (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1893:54)\n    at processTicksAndRejections (node:internal/process/task_queues:103:5)"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["ReportService"],
+					"fullName": "ReportService approveReport lanza ForbiddenError si el rol no puede aprobar",
+					"status": "passed",
+					"title": "approveReport lanza ForbiddenError si el rol no puede aprobar",
+					"duration": 0.6831999999994878,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083811487,
+			"endTime": 1777083831502.683,
+			"status": "failed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/report.service.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["SyncService", "processSyncBatch"],
+					"fullName": "SyncService processSyncBatch should process a batch of order creation operations",
+					"status": "failed",
+					"title": "should process a batch of order creation operations",
+					"duration": 6.735200000000077,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockResolvedValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/sync.service.test.ts:54:36\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["SyncService", "processSyncBatch"],
+					"fullName": "SyncService processSyncBatch should process a batch of order status updates",
+					"status": "failed",
+					"title": "should process a batch of order status updates",
+					"duration": 1.0259000000000924,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockResolvedValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/sync.service.test.ts:83:42\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["SyncService", "processSyncBatch"],
+					"fullName": "SyncService processSyncBatch should process checklist creation operations",
+					"status": "failed",
+					"title": "should process checklist creation operations",
+					"duration": 0.7853000000000065,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockResolvedValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/sync.service.test.ts:112:44\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["SyncService", "processSyncBatch"],
+					"fullName": "SyncService processSyncBatch should process checklist item updates",
+					"status": "failed",
+					"title": "should process checklist item updates",
+					"duration": 0.6738000000000284,
+					"failureMessages": [
+						"TypeError: Cannot read properties of undefined (reading 'mockResolvedValue')\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/sync.service.test.ts:136:47\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["SyncService", "processSyncBatch"],
+					"fullName": "SyncService processSyncBatch should handle mixed entity types in a single batch",
+					"status": "failed",
+					"title": "should handle mixed entity types in a single batch",
+					"duration": 0.6212999999997919,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockResolvedValue is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/sync.service.test.ts:160:36\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["SyncService", "processSyncBatch"],
+					"fullName": "SyncService processSyncBatch should continue processing when individual operations fail",
+					"status": "failed",
+					"title": "should continue processing when individual operations fail",
+					"duration": 1.6431000000002314,
+					"failureMessages": [
+						"TypeError: __vite_ssr_import_0__.vi.mocked(...).mockRejectedValueOnce is not a function\n    at C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/sync.service.test.ts:198:6\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20\n    at new Promise (<anonymous>)\n    at runWithCancel (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20\n    at new Promise (<anonymous>)\n    at runWithTimeout (file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)\n    at file:///C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64"
+					],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["SyncService", "processSyncBatch"],
+					"fullName": "SyncService processSyncBatch should report errors for missing required fields in order update",
+					"status": "passed",
+					"title": "should report errors for missing required fields in order update",
+					"duration": 2.938999999999851,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["SyncService", "processSyncBatch"],
+					"fullName": "SyncService processSyncBatch should return zero processed for empty batch",
+					"status": "passed",
+					"title": "should return zero processed for empty batch",
+					"duration": 1.4121000000000095,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["SyncService", "processSyncBatch"],
+					"fullName": "SyncService processSyncBatch should report errors for unsupported entity types",
+					"status": "passed",
+					"title": "should report errors for unsupported entity types",
+					"duration": 0.7428999999997359,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["SyncService", "processSyncBatch"],
+					"fullName": "SyncService processSyncBatch should reject unsupported actions for known entities",
+					"status": "passed",
+					"title": "should reject unsupported actions for known entities",
+					"duration": 0.46610000000009677,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083812630,
+			"endTime": 1777083812647.466,
+			"status": "failed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/sync.service.test.ts"
+		},
+		{
+			"assertionResults": [
+				{
+					"ancestorTitles": ["UserService"],
+					"fullName": "UserService should mock User model correctly",
+					"status": "passed",
+					"title": "should mock User model correctly",
+					"duration": 3.04910000000001,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["UserService"],
+					"fullName": "UserService should find all users",
+					"status": "passed",
+					"title": "should find all users",
+					"duration": 1.4647999999999683,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				},
+				{
+					"ancestorTitles": ["UserService"],
+					"fullName": "UserService should find user by id",
+					"status": "passed",
+					"title": "should find user by id",
+					"duration": 0.904200000000003,
+					"failureMessages": [],
+					"meta": {},
+					"tags": []
+				}
+			],
+			"startTime": 1777083816142,
+			"endTime": 1777083816147.9043,
+			"status": "passed",
+			"message": "",
+			"name": "C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend/tests/services/user.service.test.ts"
+		}
+	]
+}

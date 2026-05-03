@@ -1,0 +1,52 @@
+# Backend .gitignore
+# ==========================================
+# Build Output
+# ==========================================
+dist/
+*.tsbuildinfo
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Uploads (user files)
+uploads/
+*.pdf
+*.jpg
+*.png
+*.jpeg
+*.gif
+*.svg
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing
+coverage/
+.nyc_output/
+
+# ==========================================
+# GENERATED ARTIFACTS — BUG-6 Fix
+# ==========================================
+# Ignore compiled JS files in src (except env.js which is manually maintained)
+src/**/*.js
+!src/config/env.js
+
+# TypeScript build info (already covered above, kept for clarity)
+*.tsbuildinfo

@@ -1,0 +1,30 @@
+{
+	"name": "Cermont Campo",
+	"short_name": "Cermont",
+	"description": "PWA operativa para órdenes, evidencias, inspecciones y cierres administrativos.",
+	"start_url": "/",
+	"scope": "/",
+	"display": "standalone",
+	"background_color": "#f8fbff",
+	"theme_color": "#213e99",
+	"icons": [
+		{
+			"src": "/icons/icon-192x192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "/icons/icon-512x512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "/favicon.ico",
+			"sizes": "48x48",
+			"type": "image/x-icon",
+			"purpose": "any"
+		}
+	]
+}

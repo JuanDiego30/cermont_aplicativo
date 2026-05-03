@@ -1,0 +1,84 @@
+{
+	"name": "cermont-monorepo",
+	"version": "1.0.0",
+	"private": true,
+	"description": "Cermont S.A.S. - Sistema de Gestión Operativa - Monorepo npm workspaces",
+	"packageManager": "npm@10.9.4",
+	"workspaces": [
+		"backend",
+		"frontend",
+		"packages/shared-types"
+	],
+	"engines": {
+		"node": ">=22.20.0",
+		"npm": ">=10.9.4"
+	},
+	"scripts": {
+		"dev": "turbo run dev",
+		"build": "turbo run build",
+		"test": "turbo run test",
+		"test:coverage": "turbo run test:ci",
+		"coverage:check": "npm run test:coverage",
+		"lint": "turbo run lint",
+		"typecheck": "turbo run typecheck",
+		"quality:weak-tokens": "tsx tooling/quality/check-weak-tokens.ts",
+		"quality:language": "tsx tooling/quality/check-language.ts",
+		"quality:semantics": "tsx tooling/quality/check-semantics.ts",
+		"quality:routes": "tsx tooling/quality/check-routes.ts",
+		"quality:dtos": "tsx tooling/quality/check-dtos.ts",
+		"quality:zero": "tsx tooling/quality/check-zero-rules.ts",
+		"quality:lint-residue": "tsx tooling/quality/check-lint-residue.ts",
+		"quality:service-size": "tsx tooling/quality/check-service-size.ts",
+		"quality:strict": "npm run quality:weak-tokens && npm run quality:language && npm run quality:semantics && npm run quality:routes && npm run quality:dtos && npm run quality:zero && npm run quality:lint-residue && npm run quality:service-size",
+		"format:check": "turbo run format:check",
+		"format.check": "turbo run format:check",
+		"verify": "npm run contracts:check && npm run typecheck && npm run lint && npm run test && npm run build && npm run quality:strict",
+		"clean": "turbo run clean && node -e \"const fs=require('fs');fs.rmSync('node_modules',{recursive:true,force:true});\"",
+		"db:seed": "node backend/dist/_shared/scripts/seed.js",
+		"contracts:check": "tsx tooling/contracts/check-contract-guard.ts",
+		"ghost:check": "tsx tooling/prevent-ghost-dirs.ts",
+		"docker:up": "docker compose up --build -d",
+		"docker:down": "docker compose down",
+		"docker:reset": "docker compose down -v --remove-orphans && docker compose up --build -d",
+		"docker:logs": "docker compose logs -f",
+		"db:dev": "docker compose -f docker-compose.dev.yml up mongodb -d",
+		"db:dev:stop": "docker compose -f docker-compose.dev.yml stop mongodb",
+		"db:dev:down": "docker compose -f docker-compose.dev.yml down -v",
+		"deploy:pm2:start": "pm2 start ecosystem.config.js --env production",
+		"deploy:pm2:status": "pm2 status",
+		"deploy:pm2:save": "pm2 save",
+		"deploy:pm2:startup": "pm2 startup",
+		"monitor": "bash scripts/monitor.sh",
+		"clean:hard": "powershell ./scripts/clean-zombies.ps1 && turbo run clean && node -e \"const fs=require('fs');fs.rmSync('node_modules/.cache',{recursive:true,force:true});\""
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.12",
+		"@types/node": "^25.6.0",
+		"husky": "^9.1.7",
+		"lint-staged": "16.4.0",
+		"tsx": "^4.21.0",
+		"turbo": "^2.9.6",
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.5"
+	},
+	"lint-staged": {
+		"backend/**/*.{js,jsx,ts,tsx,mjs,cjs,css,json,jsonc}": [
+			"biome check --write"
+		],
+		"frontend/**/*.{js,jsx,ts,tsx,mjs,cjs,css,json,jsonc}": [
+			"biome check --write"
+		],
+		"packages/**/*.{js,jsx,ts,tsx,mjs,cjs,css,json,jsonc}": [
+			"biome check --write"
+		],
+		"scripts/**/*.{js,ts,mjs,cjs}": [
+			"biome check --write"
+		],
+		"tooling/**/*.{js,ts,mjs,cjs}": [
+			"biome check --write"
+		],
+		"*.{json,jsonc}": [
+			"biome check --write"
+		]
+	}
+}

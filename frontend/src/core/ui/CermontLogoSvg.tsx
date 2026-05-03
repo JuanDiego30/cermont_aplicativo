@@ -1,0 +1,203 @@
+"use client";
+
+const LOGO_CSS = `
+  :root {
+    --hex-stroke: #0f172a;
+    --hex-fill: rgba(15, 23, 42, 0.02);
+    --text-color: #0f172a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --hex-stroke: #ffffff;
+      --hex-fill: rgba(255, 255, 255, 0.03);
+      --text-color: #ffffff;
+    }
+  }
+
+  .cermont-logo {
+    overflow: visible;
+    cursor: pointer;
+  }
+
+  .hex-bg {
+    stroke: var(--hex-stroke);
+    fill: var(--hex-fill);
+    stroke-width: 10;
+    stroke-linejoin: round;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+    stroke-dasharray: 1100;
+    stroke-dashoffset: 1100;
+    animation: drawHex 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  }
+
+  .cermont-logo:hover .hex-bg {
+    stroke-width: 12;
+    transform: scale(1.02);
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.1));
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .cermont-logo:hover .hex-bg {
+      filter: drop-shadow(0 0 12px rgba(255,255,255,0.2));
+    }
+  }
+
+  .arc-wrapper {
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: center;
+    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.15));
+  }
+
+  .arc-green {
+    animation: popInLeft 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards;
+    opacity: 0;
+  }
+
+  .arc-blue {
+    animation: popInRight 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.45s forwards;
+    opacity: 0;
+  }
+
+  .cermont-logo:hover .arc-blue {
+    transform: translate(6px, -6px) scale(1.03);
+    filter: drop-shadow(0 12px 16px rgba(0,0,0,0.25)) brightness(1.05);
+  }
+
+  .cermont-logo:hover .arc-green {
+    transform: translate(-6px, 6px) scale(1.03);
+    filter: drop-shadow(0 12px 16px rgba(0,0,0,0.25)) brightness(1.05);
+  }
+
+  .logo-text {
+    fill: var(--text-color);
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.35em;
+    font-size: 26px;
+    opacity: 0;
+    animation: fadeInText 1s ease-out 0.7s forwards;
+    transition: fill 0.5s ease, transform 0.5s ease;
+    transform-origin: center;
+  }
+
+  .cermont-logo:hover .logo-text {
+    transform: scale(1.02) translateY(2px);
+  }
+
+  @keyframes drawHex {
+    0% { stroke-dashoffset: 1100; fill: transparent; }
+    100% { stroke-dashoffset: 0; fill: var(--hex-fill); }
+  }
+
+  @keyframes popInLeft {
+    0% { transform: translate(-30px, 30px) scale(0.8); opacity: 0; }
+    100% { transform: translate(0, 0) scale(1); opacity: 1; }
+  }
+
+  @keyframes popInRight {
+    0% { transform: translate(30px, -30px) scale(0.8); opacity: 0; }
+    100% { transform: translate(0, 0) scale(1); opacity: 1; }
+  }
+
+  @keyframes fadeInText {
+    0% { opacity: 0; transform: translateY(15px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+`;
+
+interface CermontLogoSvgProps {
+	className?: string;
+	size?: number;
+}
+
+export function CermontLogoSvg({ className, size = 32 }: CermontLogoSvgProps) {
+	return (
+		<svg
+			viewBox="0 0 400 400"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			className={`cermont-logo ${className ?? ""}`}
+			width={size}
+			height={size}
+			aria-hidden="true"
+		>
+			{/* biome-ignore lint/security/noDangerouslySetInnerHtml: static CSS string for SVG animations, not user input */}
+			<style dangerouslySetInnerHTML={{ __html: LOGO_CSS }} />
+
+			<defs>
+				<linearGradient
+					id="blue3D"
+					x1="147.5"
+					y1="185"
+					x2="310"
+					y2="100"
+					gradientUnits="userSpaceOnUse"
+				>
+					<stop offset="0%" stopColor="#0F2C59" />
+					<stop offset="50%" stopColor="#3A78D8" />
+					<stop offset="100%" stopColor="#2154A6" />
+				</linearGradient>
+
+				<linearGradient
+					id="green3D"
+					x1="100"
+					y1="260"
+					x2="250"
+					y2="185"
+					gradientUnits="userSpaceOnUse"
+				>
+					<stop offset="0%" stopColor="#7CD966" />
+					<stop offset="40%" stopColor="#4CAF50" />
+					<stop offset="100%" stopColor="#1B4212" />
+				</linearGradient>
+
+				<filter id="innerBevel" x="-20%" y="-20%" width="140%" height="140%">
+					<feComponentTransfer in="SourceAlpha" result="alpha" />
+					<feOffset dx="-1.5" dy="-2.5" in="alpha" result="offsetAlpha" />
+					<feGaussianBlur stdDeviation="2.5" in="offsetAlpha" result="blurAlpha" />
+					<feComposite operator="out" in="alpha" in2="blurAlpha" result="highlightMask" />
+					<feFlood floodColor="#ffffff" floodOpacity="0.4" result="highlightColor" />
+					<feComposite operator="in" in="highlightColor" in2="highlightMask" result="highlight" />
+
+					<feOffset dx="2" dy="3" in="alpha" result="offsetAlphaDark" />
+					<feGaussianBlur stdDeviation="3" in="offsetAlphaDark" result="blurAlphaDark" />
+					<feComposite operator="out" in="alpha" in2="blurAlphaDark" result="shadowMask" />
+					<feFlood floodColor="#000000" floodOpacity="0.3" result="shadowColor" />
+					<feComposite operator="in" in="shadowColor" in2="shadowMask" result="innerShadow" />
+
+					<feMerge>
+						<feMergeNode in="SourceGraphic" />
+						<feMergeNode in="highlight" />
+						<feMergeNode in="innerShadow" />
+					</feMerge>
+				</filter>
+			</defs>
+
+			<path
+				className="hex-bg"
+				d="M200 20 L355.88 110 L355.88 290 L200 380 L44.12 290 L44.12 110 Z"
+			/>
+
+			<g className="arc-wrapper arc-green">
+				<path
+					filter="url(#innerBevel)"
+					d="M 87.5 185 A 82.5 82.5 0 0 0 252.5 185 L 207.5 185 A 37.5 37.5 0 0 1 132.5 185 Z"
+					fill="url(#green3D)"
+				/>
+			</g>
+
+			<g className="arc-wrapper arc-blue">
+				<path
+					filter="url(#innerBevel)"
+					d="M 147.5 185 A 82.5 82.5 0 0 1 312.5 185 L 267.5 185 A 37.5 37.5 0 0 0 192.5 185 Z"
+					fill="url(#blue3D)"
+				/>
+			</g>
+
+			<text x="204.5" y="325" className="logo-text" textAnchor="middle">
+				CERMONT
+			</text>
+		</svg>
+	);
+}

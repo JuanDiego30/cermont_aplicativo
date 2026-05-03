@@ -1,0 +1,98 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"ui": "stream",
+	"globalDependencies": ["package.json", "package-lock.json"],
+	"globalEnv": ["NODE_ENV", "CI"],
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"tsconfig.json",
+				"next.config.*",
+				"vite.config.*",
+				"nodemon.json"
+			],
+			"outputs": ["dist/**", ".next/**", "!.next/cache/**", "build/**"],
+			"cache": true,
+			"persistent": false
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true,
+			"dependsOn": ["^build"]
+		},
+		"typecheck": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", "tsconfig.json"],
+			"outputs": [],
+			"cache": true
+		},
+		"lint": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", "biome.json"],
+			"outputs": [],
+			"cache": true
+		},
+		"lint:fix": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", "biome.json"],
+			"outputs": [],
+			"cache": false
+		},
+		"test": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", "vitest.config.*", "tests/**"],
+			"outputs": ["coverage/**", "test-results/**", "junit.xml"],
+			"cache": true
+		},
+		"test:ci": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", "vitest.config.*", "tests/**"],
+			"outputs": ["coverage/**"],
+			"cache": true
+		},
+		"test:e2e": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", "playwright.config.*", "tests/e2e/**"],
+			"outputs": [],
+			"cache": false
+		},
+		"seed": {
+			"cache": false,
+			"persistent": false
+		},
+		"ci:quality": {
+			"dependsOn": ["typecheck", "lint"],
+			"cache": false
+		},
+		"quality:strict": {
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"tooling/quality/**",
+				"backend/src/**/*.ts",
+				"frontend/src/**/*.ts",
+				"frontend/src/**/*.tsx",
+				"packages/shared-types/src/**/*.ts"
+			],
+			"outputs": [],
+			"cache": false
+		},
+		"ci:secrets": {
+			"cache": false
+		},
+		"ci:deps": {
+			"cache": false
+		},
+		"clean": {
+			"cache": false
+		},
+		"format": {
+			"cache": false
+		},
+		"format:check": {
+			"inputs": ["$TURBO_DEFAULT$", "biome.json"],
+			"cache": true
+		}
+	}
+}

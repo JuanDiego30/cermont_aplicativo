@@ -1,0 +1,276 @@
+# ==========================================
+# 1. Dependency Directories
+# ==========================================
+node_modules/
+.pnp
+.pnp.js
+
+# ==========================================
+# 2. Environment Variables & Secrets
+# ==========================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+
+# ==========================================
+# 3. Next.js Frontend Build Artifacts
+# ==========================================
+.next/
+out/
+build/
+.swc/
+next-env.d.ts
+.vercel/
+
+# ==========================================
+# 4. Express.js Backend Build Artifacts
+# ==========================================
+dist/
+dist-tsc/
+tsc-out/
+
+# ==========================================
+# 5. Testing and Coverage Reports
+# ==========================================
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+
+# ==========================================
+# 6. Monorepo and Tooling Caches
+# ==========================================
+.turbo/
+.eslintcache
+.stylelintcache
+tsbuildinfo
+*.tsbuildinfo
+
+# ==========================================
+# 7. Logs and Diagnostics
+# ==========================================
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==========================================
+# 8. OS and IDE Metadata
+# ==========================================
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# ==========================================
+# 9. AI Agent Tool Metadata
+# ==========================================
+# Cursor AI
+.cursor-ai/
+
+# Antigravity (VSCode fork)
+.antigravity/
+.gemini/
+
+# KiloCode
+.kilo/
+
+# Claude Code
+.claude/settings.local.json
+# OpenCode
+.opencode/
+
+# Codeium
+.codeium/
+
+# GitHub Copilot
+.github-copilot/
+
+# Visual Studio
+.vs/
+
+# ==========================================
+# 10. Backend Uploads and Storage
+# ==========================================
+apps/backend/uploads/
+apps/backend/temp/
+*.tmp
+*.temp
+
+# ==========================================
+# 11. pnpm Specific (migrated to npm)
+# ==========================================
+.pnpm-store/
+pnpm-debug.log*
+pnpm-workspace.yaml.bak
+
+# ==========================================
+# 12. Environment and Secrets (Expanded)
+# ==========================================
+*.env
+.env.local
+.env.*.local
+!.env.example
+
+# Certificates and Keys
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Credentials
+credentials.json
+secrets.json
+*.secret
+
+# ==========================================
+# 13. Monorepo Build Artifacts
+# ==========================================
+# 10. Backend Uploads & Temporary Files
+backend/uploads/
+backend/temp/
+backend/logs/
+backend/reports/
+backend/exports/
+backend/dist/
+backend/*.tsbuildinfo
+
+# Frontend build
+apps/frontend/.next/
+apps/frontend/out/
+
+# ==========================================
+# 14. Temporary and Cache Files
+# ==========================================
+*.swc
+*.tsbuildinfo
+.eslintcache
+.stylelintcache
+.npm/
+.yarn/
+.tmp/
+.cache/
+.parcel-cache/
+
+# ==========================================
+# 15. Database and State Files
+# ==========================================
+*.db
+*.sqlite
+*.sqlite3
+.mongo/
+.dev-mongo/
+data/
+
+# ==========================================
+# 16. Deployment and Server
+# ==========================================
+.workers/
+functions/
+.serverless/
+.vercel/
+.now/
+dist.zip
+
+# ==========================================
+# 17. CRITICAL: Google Drive Sync Artifacts
+# ==========================================
+# These are recreated by Google Drive continuously
+# See docs/GHOST_DIRECTORIES_PREVENTION.md
+.tmp.drivedownload/
+.tmp.driveupload/
+.tmp.drive*/
+.sisyphus/
+
+# ==========================================
+# 18. SCREAMING ARCHITECTURE — Prevent apps/ wrapper (v5.0)
+# ==========================================
+/apps/backend/
+/apps/frontend/
+/apps/packages/
+
+# ==========================================
+# 19. Legacy lock file prevention (migrated to npm)
+# ==========================================
+# npm package-lock.json IS tracked — do NOT ignore it
+# Prevent leftover pnpm/yarn lockfiles
+pnpm-lock.yaml
+yarn.lock
+
+# ==========================================
+# 20. Root diagnostic artifacts
+# ==========================================
+build-error.txt
+error-log.txt
+ts-errors.txt
+typecheck.log
+CODEBASE_ANALYSIS_QUICK_REFERENCE.csv
+CODEBASE_ANALYSIS_REPORT.md
+CODEBASE_ANALYSIS_STRUCTURED.md
+FIXES_APPLIED.md
+SPRINT0_COMPLETED.md
+.biome-*.txt
+biome_*.txt
+biome_*.json
+build_*.txt
+test_*.txt
+test_results*.txt
+lint-output.*
+skills-lock.json
+*.ps1
+!scripts/*.ps1
+
+# Tracked binaries
+claude.exe
+
+# Diagnostic artifacts
+diagnostics.*
+lint_output.txt
+lint.json
+summary_lint.txt
+
+# ==========================================
+# 21. Workspace scratch / prompt artifacts
+# ==========================================
+.watchmanconfig
+NEXT_AGENT_PROMPT.md
+PLAN-BACKEND-AUDIT-FIX.md
+login-*.txt
+verify_*.txt
+audit_*.txt
+build-error-*.log
+typecheck*.txt
+ts-errors*.txt
+apps/frontend/vitest_*.txt
+docs/pdf/
+nul
+backend_lint*.txt
+backend_typecheck*.txt
+frontend_lint*.txt
+frontend_typecheck*.txt
+frontend_build*.txt
+build_output*.txt
+errors.txt
+verify_output.txt
+typecheck-errors*.txt
+report_*.sarif.json
+
+# Ghost path artifact created by sync tools / Windows path leakage
+C*Users*camilDownloadscermont_aplicativocermont_aplicativoappsfrontend.env.test.local
+
+# ==========================================
+# 22. Playwright MCP logs
+# ==========================================
+.playwright-mcp/
