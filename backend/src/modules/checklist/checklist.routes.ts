@@ -1,0 +1,74 @@
+import {
+	ChecklistIdParamsSchema,
+	ChecklistItemParamsSchema,
+	ChecklistOrderIdParamsSchema,
+	CompleteChecklistSchema,
+	CreateChecklistSchema,
+	ListChecklistsQuerySchema,
+	UpdateChecklistItemSchema,
+} from "@cermont/shared-types";
+import { Router } from "express";
+import * as ChecklistController from "./checklist.controller";
+import { authenticate } from "../../middlewares/auth.middleware";
+import { authorize } from "../../middlewares/authorize.middleware";
+import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
+
+const router = Router();
+
+router.get(
+	"/",
+	authenticate,
+	validateQuery(ListChecklistsQuerySchema),
+	ChecklistController.listChecklists,
+);
+
+router.get(
+	"/order/:orderId",
+	authenticate,
+	validateParams(ChecklistOrderIdParamsSchema),
+	ChecklistController.listChecklistsByOrder,
+);
+
+router.get(
+	"/:orderId",
+	authenticate,
+	validateParams(ChecklistOrderIdParamsSchema),
+	ChecklistController.listChecklistsByOrder,
+);
+
+router.post(
+	"/",
+	authenticate,
+	authorize("gerente", "residente", "supervisor"),
+	validateBody(CreateChecklistSchema),
+	ChecklistController.createChecklist,
+);
+
+router.patch(
+	"/:id/items/:itemId",
+	authenticate,
+	authorize("operador", "tecnico", "supervisor"),
+	validateParams(ChecklistItemParamsSchema),
+	validateBody(UpdateChecklistItemSchema),
+	ChecklistController.updateChecklistItem,
+);
+
+router.patch(
+	"/:id/complete",
+	authenticate,
+	authorize("operador", "tecnico", "supervisor"),
+	validateParams(ChecklistIdParamsSchema),
+	validateBody(CompleteChecklistSchema),
+	ChecklistController.completeChecklist,
+);
+
+router.post(
+	"/:id/validate",
+	authenticate,
+	authorize("operador", "tecnico", "supervisor"),
+	validateParams(ChecklistIdParamsSchema),
+	validateBody(CompleteChecklistSchema),
+	ChecklistController.completeChecklist,
+);
+
+export default router;

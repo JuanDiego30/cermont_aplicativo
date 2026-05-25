@@ -1,0 +1,356 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+
+@custom-variant dark (&:is(.dark *));
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	::before,
+	::after {
+		animation-duration: 0.01ms;
+		animation-iteration-count: 1;
+		scroll-behavior: auto;
+		transition-duration: 0.01ms;
+	}
+}
+
+/* ── Cermont Brand Tokens ── */
+:root {
+	/* Semantic Colors */
+	--color-background: #ffffff;
+	--color-foreground: #0d0d0d;
+	--color-muted: #f8fafc;
+	--color-muted-foreground: #475569;
+	--color-border: #e2e8f0;
+
+	/* ── Cermont Azul (Trust & Reliability) ── */
+	--color-cermont-blue-deep: #0f2c59;
+	--color-cermont-blue: #2154a6;
+	--color-cermont-blue-light: #3a78d8;
+	--color-cermont-blue-bg: #e6f0ff;
+
+	/* ── Cermont Verde (Operations & Success) ── */
+	--color-cermont-green-deep: #1b4212;
+	--color-cermont-green: #4caf50;
+	--color-cermont-green-light: #7cd966;
+	--color-cermont-green-bg: #e8f5e9;
+
+	/* ── Brand Aliases ── */
+	--color-brand: var(--color-cermont-blue);
+	--color-brand-hover: var(--color-cermont-blue-light);
+	--color-brand-strong: var(--color-cermont-blue-deep);
+	--color-brand-accent: var(--color-cermont-green);
+	--color-brand-accent-light: var(--color-cermont-green-light);
+	--color-focus-ring: var(--color-cermont-green);
+
+	/* ── Neutral Scale (Mintlify Inspired) ── */
+	--color-neutral-50: #fafafa;
+	--color-neutral-100: #f5f5f5;
+	--color-neutral-200: #e5e7eb;
+	--color-neutral-300: #d1d5db;
+	--color-neutral-400: #888888;
+	--color-neutral-500: #666666;
+	--color-neutral-600: #4b5563;
+	--color-neutral-700: #333333;
+	--color-neutral-800: #1f2937;
+	--color-neutral-900: #0d0d0d;
+
+	/* ── Functional Colors ── */
+	--color-success: var(--color-cermont-green);
+	--color-success-bg: var(--color-cermont-green-bg);
+	--color-warning: #c37d0d;
+	--color-warning-bg: #fef3c7;
+	--color-danger: #d45656;
+	--color-danger-bg: #fee2e2;
+	--color-info: #3772cf;
+	--color-info-bg: #eef2ff;
+
+	/* ── Surface Tokens ── */
+	--surface-page: var(--color-background);
+	--surface-primary: #ffffff;
+	--surface-card: #ffffff;
+	--surface-secondary: var(--color-neutral-50);
+	--surface-elevated: #ffffff;
+	--surface-sidebar: #ffffff;
+	--surface-sidebar-hover: var(--color-neutral-100);
+	--surface-sidebar-active: var(--color-cermont-blue-bg);
+	--surface-overlay: rgba(13, 13, 13, 0.6);
+
+	/* ── Text Tokens ── */
+	--text-primary: var(--color-foreground);
+	--text-secondary: var(--color-neutral-700);
+	--text-tertiary: var(--color-neutral-500);
+	--text-muted: var(--color-neutral-400);
+	--text-inverse: #ffffff;
+
+	/* ── Border Tokens ── */
+	--border-subtle: rgba(0, 0, 0, 0.05);
+	--border-medium: rgba(0, 0, 0, 0.08);
+	--border-focus: var(--color-focus-ring);
+
+	/* ── Spacing (8px system) ── */
+	--space-1: 4px;
+	--space-2: 8px;
+	--space-3: 12px;
+	--space-4: 16px;
+	--space-6: 24px;
+	--space-8: 32px;
+	--space-12: 48px;
+	--space-16: 64px;
+
+	/* ── Radius Scale ── */
+	--radius-sm: 4px;
+	--radius-md: 8px;
+	--radius-lg: 16px;
+	--radius-xl: 24px;
+	--radius-full: 9999px;
+
+	/* ── Shadows (Whisper Shadows) ── */
+	--shadow-card: 0px 2px 4px rgba(0, 0, 0, 0.03);
+	--shadow-button: 0px 1px 2px rgba(0, 0, 0, 0.06);
+	--shadow-1: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+	--shadow-2: 0 8px 20px -6px rgba(0, 0, 0, 0.08);
+
+	/* ── Typography ── */
+	--font-family: Inter, system-ui, -apple-system, sans-serif;
+	--font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+
+	/* ── Shadcn/UI Compatibility (Mapped to Cermont) ── */
+	--background: var(--color-background);
+	--foreground: var(--color-foreground);
+	--card: var(--surface-card);
+	--card-foreground: var(--text-primary);
+	--popover: #ffffff;
+	--popover-foreground: var(--text-primary);
+	--primary: var(--color-brand);
+	--primary-foreground: #ffffff;
+	--secondary: var(--surface-secondary);
+	--secondary-foreground: var(--text-secondary);
+	--muted: var(--color-muted);
+	--muted-foreground: var(--color-muted-foreground);
+	--accent: var(--color-neutral-100);
+	--accent-foreground: var(--text-primary);
+	--destructive: var(--color-danger);
+	--destructive-foreground: #ffffff;
+	--border: var(--color-border);
+	--input: var(--border-medium);
+	--ring: var(--color-focus-ring);
+	--radius: 0.75rem;
+
+	/* ── Navigation ── */
+	--sidebar-width: 240px;
+	--sidebar-width-collapsed: 64px;
+	--header-height: 56px;
+}
+
+.dark,
+[data-theme="dark"] {
+	--color-background: #07111f;
+	--color-foreground: #f8fafc;
+	--color-muted: #0f1f33;
+	--color-muted-foreground: #cbd5e1;
+	--color-border: #1e3a5f;
+
+	--surface-page: var(--color-background);
+	--surface-primary: #141414;
+	--surface-card: #141414;
+	--surface-secondary: #1a1a1a;
+	--surface-elevated: #1e1e1e;
+	--surface-sidebar: #0d0d0d;
+
+	--text-primary: var(--color-foreground);
+	--text-secondary: #a0a0a0;
+	--text-tertiary: #888888;
+	--text-muted: #666666;
+
+	--border-subtle: rgba(255, 255, 255, 0.08);
+	--border-medium: rgba(255, 255, 255, 0.12);
+
+	--color-brand: var(--color-cermont-blue-light);
+	--color-brand-accent: var(--color-cermont-green-light);
+
+	--shadow-card: 0px 2px 4px rgba(0, 0, 0, 0.4);
+	--shadow-button: 0px 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+@theme inline {
+	/* ── Semantic color mappings ── */
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-border: var(--border);
+	--color-border-default: var(--border-subtle);
+	--color-border-strong: var(--border-medium);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--color-sidebar: var(--sidebar);
+
+	--color-brand: var(--color-brand);
+	--color-brand-accent: var(--color-brand-accent);
+	--color-brand-blue: var(--color-cermont-blue);
+	--color-brand-blue-deep: var(--color-cermont-blue-deep);
+	--color-brand-blue-light: var(--color-cermont-blue-light);
+	--color-brand-green: var(--color-cermont-green);
+	--color-brand-green-deep: var(--color-cermont-green-deep);
+	--color-brand-green-light: var(--color-cermont-green-light);
+
+	--color-surface-page: var(--surface-page);
+	--color-surface-primary: var(--surface-primary);
+	--color-surface-card: var(--surface-card);
+	--color-surface-secondary: var(--surface-secondary);
+	--color-surface-elevated: var(--surface-elevated);
+
+	/* ── Radius Scale ── */
+	--radius-sm: var(--radius-sm);
+	--radius-md: var(--radius-md);
+	--radius-lg: var(--radius-lg);
+	--radius-xl: var(--radius-xl);
+	--radius-2xl: 24px;
+	--radius-full: 9999px;
+
+	/* ── Typography ── */
+	--font-sans: var(--font-family);
+	--font-mono: var(--font-mono);
+
+	--breakpoint-*: initial;
+	--breakpoint-2xsm: 375px;
+	--breakpoint-xsm: 425px;
+	--breakpoint-sm: 640px;
+	--breakpoint-md: 768px;
+	--breakpoint-lg: 1024px;
+	--breakpoint-xl: 1280px;
+	--breakpoint-2xl: 1536px;
+	--breakpoint-3xl: 2000px;
+}
+
+@layer base {
+	body {
+		font-family: var(--font-family);
+		font-size: var(--font-size-md);
+		color: var(--text-primary);
+		background-color: var(--surface-page);
+		-webkit-font-smoothing: antialiased;
+		@apply bg-background font-normal text-foreground antialiased transition-colors duration-200;
+	}
+
+	*:focus-visible {
+		outline: 2px solid var(--color-focus-ring);
+		outline-offset: 2px;
+		border-radius: var(--radius-sm);
+	}
+
+	/* iOS auto-zoom prevention */
+	input,
+	textarea,
+	select {
+		font-size: max(16px, 1rem);
+	}
+
+	/* Scrollbar styling */
+	::-webkit-scrollbar {
+		width: 6px;
+		height: 6px;
+	}
+	::-webkit-scrollbar-track {
+		background: transparent;
+	}
+	::-webkit-scrollbar-thumb {
+		background: var(--color-neutral-200);
+		border-radius: 3px;
+	}
+	.dark ::-webkit-scrollbar-thumb {
+		background: var(--color-neutral-700);
+	}
+}
+
+@layer components {
+	.input-field {
+		@apply w-full rounded-lg border border-[var(--border-medium)] bg-white px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--color-focus-ring)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 transition-[background-color,border-color,box-shadow,color] duration-200;
+	}
+
+	.btn-primary {
+		@apply flex items-center justify-center gap-2 rounded-full bg-[var(--color-brand)] px-6 py-2.5 text-sm font-semibold text-white transition-[background-color,box-shadow,opacity,transform] duration-200;
+		box-shadow: var(--shadow-button);
+	}
+
+	.btn-primary:active {
+		@apply scale-[0.98];
+	}
+
+	.btn-primary:hover {
+		@apply opacity-90;
+	}
+
+	.card-shadow {
+		@apply rounded-2xl bg-background border border-[var(--border-subtle)] transition-shadow duration-200;
+		box-shadow: var(--shadow-card);
+	}
+}
+
+/* ── Blob Animation (Login background) ── */
+@keyframes blob {
+	0%,
+	100% {
+		transform: translate(0, 0) scale(1);
+	}
+	33% {
+		transform: translate(30px, -50px) scale(1.1);
+	}
+	66% {
+		transform: translate(-20px, 20px) scale(0.9);
+	}
+}
+
+@layer utilities {
+	.animate-blob {
+		animation: blob 7s infinite;
+	}
+
+	.animation-delay-2000 {
+		animation-delay: 2s;
+	}
+
+	.animation-delay-4000 {
+		animation-delay: 4s;
+	}
+
+	.no-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+	.no-scrollbar {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+
+	.scrollbar-thin::-webkit-scrollbar {
+		width: 4px;
+	}
+	.scrollbar-thin::-webkit-scrollbar-track {
+		background: transparent;
+	}
+	.scrollbar-thin::-webkit-scrollbar-thumb {
+		background: var(--color-neutral-700);
+		border-radius: 2px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	@layer utilities {
+		.animate-blob {
+			animation: none;
+		}
+	}
+}

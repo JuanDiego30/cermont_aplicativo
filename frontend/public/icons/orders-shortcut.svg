@@ -1,0 +1,61 @@
+<svg viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg" class="shortcut-icon">
+  <style>
+    .shortcut-icon { overflow: visible; cursor: pointer; }
+    .item-layer { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease; transform-origin: center; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+    .shortcut-icon:hover .item-layer { transform: scale(1.05) translateY(-2px); filter: drop-shadow(0 8px 12px rgba(0,0,0,0.15)); }
+  </style>
+  <defs>
+    <linearGradient id="orderBg" x1="0" y1="0" x2="192" y2="192" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1A4287"/>
+      <stop offset="100%" stop-color="#0F2C59"/>
+    </linearGradient>
+    <linearGradient id="blueShape" x1="52" y1="56" x2="114" y2="66" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#5599FF"/>
+      <stop offset="100%" stop-color="#3A78D8"/>
+    </linearGradient>
+    <linearGradient id="greenShape" x1="52" y1="134" x2="106" y2="144" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7CD966"/>
+      <stop offset="100%" stop-color="#4CAF50"/>
+    </linearGradient>
+    <linearGradient id="greenCircle" x1="114" y1="122" x2="148" y2="156" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7CD966"/>
+      <stop offset="100%" stop-color="#4CAF50"/>
+    </linearGradient>
+
+    <!-- Small Bevel -->
+    <filter id="smallBevel" x="-20%" y="-20%" width="140%" height="140%">
+      <feComponentTransfer in="SourceAlpha" result="alpha"/>
+      <feOffset dx="-0.5" dy="-1" in="alpha" result="offsetAlpha"/>
+      <feGaussianBlur stdDeviation="1" in="offsetAlpha" result="blurAlpha"/>
+      <feComposite operator="out" in="alpha" in2="blurAlpha" result="highlightMask"/>
+      <feFlood flood-color="#ffffff" flood-opacity="0.5" result="highlightColor"/>
+      <feComposite operator="in" in="highlightColor" in2="highlightMask" result="highlight"/>
+      
+      <feOffset dx="1" dy="1.5" in="alpha" result="offsetAlphaDark"/>
+      <feGaussianBlur stdDeviation="1.5" in="offsetAlphaDark" result="blurAlphaDark"/>
+      <feComposite operator="out" in="alpha" in2="blurAlphaDark" result="shadowMask"/>
+      <feFlood flood-color="#000000" flood-opacity="0.25" result="shadowColor"/>
+      <feComposite operator="in" in="shadowColor" in2="shadowMask" result="innerShadow"/>
+
+      <feMerge>
+        <feMergeNode in="SourceGraphic" />
+        <feMergeNode in="highlight" />
+        <feMergeNode in="innerShadow" />
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <rect width="192" height="192" rx="44" fill="url(#orderBg)"/>
+  <rect x="34" y="30" width="124" height="132" rx="20" fill="#F8FAFC"/>
+  
+  <g class="item-layer">
+    <rect filter="url(#smallBevel)" x="52" y="56" width="62" height="10" rx="5" fill="url(#blueShape)"/>
+    <rect x="52" y="82" width="88" height="10" rx="5" fill="#CBD5E1"/>
+    <rect x="52" y="108" width="88" height="10" rx="5" fill="#CBD5E1"/>
+    <rect filter="url(#smallBevel)" x="52" y="134" width="54" height="10" rx="5" fill="url(#greenShape)"/>
+    
+    <!-- Circle with Checkmark -->
+    <circle filter="url(#smallBevel)" cx="131" cy="139" r="17" fill="url(#greenCircle)"/>
+    <path d="M123 139L129 145L141 132" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
