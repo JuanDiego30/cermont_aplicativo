@@ -1,0 +1,25 @@
+{
+	"name": "@cermont/config",
+	"version": "1.0.0",
+	"private": true,
+	"description": "Environment configuration and validation with Zod",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"build": "tsc --project tsconfig.json",
+		"dev": "tsc --project tsconfig.json --watch",
+		"typecheck": "tsc --noEmit",
+		"clean": "node -e \"const fs=require('fs');for (const target of ['dist','tsconfig.tsbuildinfo']) fs.rmSync(target,{recursive:true,force:true});\"",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"format": "biome format .",
+		"format:fix": "biome format --write ."
+	},
+	"dependencies": {
+		"zod": "^4.4.3"
+	},
+	"devDependencies": {
+		"@types/node": "^25.9.1",
+		"typescript": "^6.0.3"
+	}
+}
