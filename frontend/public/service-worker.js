@@ -65,7 +65,9 @@ async function trimAPICache(cache) {
  */
 function isCacheableAPI(url) {
 	// Solo cachear GET a /api/backend/* (datos de negocio)
-	if (!url.pathname.startsWith("/api/backend/")) return false;
+	if (!url.pathname.startsWith("/api/backend/")) {
+		return false;
+	}
 
 	// NO cachear endpoints que devuelven datos sensibles o sesión
 	const skipPatterns = [
@@ -75,7 +77,9 @@ function isCacheableAPI(url) {
 		"/api/backend/uploads/",
 	];
 	for (const pattern of skipPatterns) {
-		if (url.pathname.startsWith(pattern)) return false;
+		if (url.pathname.startsWith(pattern)) {
+			return false;
+		}
 	}
 
 	return true;

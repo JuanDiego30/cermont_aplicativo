@@ -1,4 +1,5 @@
 import {
+	AddReferenceDocumentSchema,
 	CreatePlanningPacketSchema,
 	PlanningPacketIdParamsSchema,
 	PlanningPacketListQuerySchema,
@@ -7,7 +8,6 @@ import {
 import type { Request, Response } from "express";
 import { requireUser } from "../../common/utils/request";
 import * as PlanningPacketService from "./planning-packet.service";
-import { AddReferenceDocumentSchema } from "@cermont/shared-types";
 
 export async function listPlanningPackets(req: Request, res: Response) {
 	requireUser(req);

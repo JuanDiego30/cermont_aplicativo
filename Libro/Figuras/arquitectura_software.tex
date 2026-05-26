@@ -1,0 +1,66 @@
+% Figura corregida: arquitectura general del aplicativo con paleta institucional
+\begin{figure}[H]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[
+    font=\sffamily,
+    layer/.style={rectangle, rounded corners=6pt, draw=institucionalBlue, fill=institucionalGrey!35,
+                  line width=0.85pt, minimum width=13.6cm, minimum height=1.55cm, align=center},
+    module/.style={rectangle, rounded corners=4pt, draw=institucionalBlue, fill=white,
+                   line width=0.75pt, minimum width=3.35cm, minimum height=0.9cm,
+                   align=center, font=\scriptsize},
+    critical/.style={rectangle, rounded corners=4pt, draw=institucionalRed, fill=institucionalRed!10,
+                   line width=0.75pt, minimum width=3.35cm, minimum height=0.9cm,
+                   align=center, font=\scriptsize},
+    arrow/.style={-{Stealth[length=2.8mm]}, line width=0.85pt, draw=institucionalBlue},
+    arrowRed/.style={-{Stealth[length=2.8mm]}, line width=0.85pt, draw=institucionalRed},
+    note/.style={font=\tiny, text=black!70, align=center}
+]
+
+\node[layer] (presentation) at (0,5.8) {\textbf{Capa de presentación y experiencia de usuario}};
+\node[layer] (application)  at (0,3.1) {\textbf{Capa de aplicación, seguridad y servicios de dominio}};
+\node[layer] (data)         at (0,0.4) {\textbf{Capa de persistencia documental, evidencias y auditoría}};
+
+\node[module] (next) at (-4.35,5.15) {Next.js 16\\App Router};
+\node[module] (ui) at (0,5.15) {React 19\\componentes UI};
+\node[module] (pwa) at (4.35,5.15) {PWA de campo\\Serwist + estado local};
+
+\node[module] (api) at (-4.35,2.45) {API REST\\Express 5.2.1};
+\node[module] (domain) at (0,2.45) {Servicios de dominio\\órdenes, recursos, reportes};
+\node[critical] (security) at (4.35,2.45) {Seguridad\\JWT HttpOnly + RBAC};
+
+\node[module] (mongoose) at (-4.35,-0.25) {Mongoose ODM\\modelos documentales};
+\node[module] (mongo) at (0,-0.25) {MongoDB\\órdenes, evidencias, cierres};
+\node[module] (docs) at (4.35,-0.25) {Repositorio documental\\PDF, fotos y soportes};
+
+\node[module] (shared) at (0,7.35) {Contratos compartidos\\Zod 4.x + tipos + reglas FSM};
+\node[critical] (middleware) at (8.5,3.1) {Perímetro de seguridad\\CORS, Helmet, rate limit};
+\node[module] (audit) at (8.5,0.4) {Auditoría\\eventos y trazabilidad};
+\node[module] (tests) at (8.5,5.05) {Calidad\\Vitest + Supertest + typecheck};
+
+\draw[arrow] (shared.south) -- (presentation.north);
+\draw[arrow] (presentation.south) -- (application.north);
+\draw[arrow] (application.south) -- (data.north);
+\draw[arrowRed] (security.east) -- (middleware.west);
+\draw[arrow] (api.south) -- (mongoose.north);
+\draw[arrow] (mongoose.east) -- (mongo.west);
+\draw[arrow] (domain.east) to[out=-10,in=170] (audit.west);
+\draw[arrow] (tests.west) -- (pwa.east);
+\draw[arrow] (api.east) -- (middleware.west);
+\draw[arrow] (domain.south east) -- (docs.north west);
+
+\node[note] at (-4.35,4.45) {rutas, layouts y navegación};
+\node[note] at (0,4.45) {formularios, tablas y dashboards};
+\node[note] at (4.35,4.45) {captura offline y sincronización};
+\node[note] at (-4.35,1.75) {endpoints por dominio};
+\node[note] at (0,1.75) {reglas de negocio del flujo CERMONT};
+\node[note] at (4.35,1.75) {sesión, permisos y protección de rutas};
+\node[note] at (-4.35,-0.95) {acceso controlado a documentos};
+\node[note] at (0,-0.95) {persistencia no relacional/documental};
+\node[note] at (4.35,-0.95) {evidencias, actas e informes};
+
+\end{tikzpicture}%
+}
+\caption[Arquitectura general del aplicativo]{Arquitectura general del aplicativo web para CERMONT S.A.S., organizada en capas de presentación, aplicación y persistencia documental, con controles transversales de seguridad, auditoría, pruebas y operación offline. Fuente: elaboración propia.}
+\label{fig:arquitectura-tres-capas}
+\end{figure}

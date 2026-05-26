@@ -1,0 +1,37 @@
+%================================================================
+% MAIN_TEST.TEX - Test de compilación de capítulos y figuras
+%================================================================
+\documentclass[12pt,letterpaper,oneside]{book}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx}
+\usepackage[letterpaper,left=4cm,right=2cm,top=3cm,bottom=3cm]{geometry}
+\usepackage{graphicx,float,caption,subcaption}
+\usepackage{booktabs,array,longtable,multirow,adjustbox,tabularx}
+\usepackage[table]{xcolor}
+\definecolor{institucionalRed}{HTML}{AD3333}
+\definecolor{institucionalBlue}{HTML}{003366}
+\definecolor{institucionalGrey}{HTML}{DADADA}
+\usepackage{amsmath,amssymb}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\small,breaklines=true,columns=fullflexible,frame=single,rulecolor=\color{institucionalBlue}}
+\usepackage{tikz,pgfplots,pgfgantt}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes,shapes.geometric,arrows,arrows.meta,positioning,fit,shapes.multipart,calc,patterns,decorations.pathreplacing,babel}
+\usepackage[hidelinks]{hyperref}
+\title{Test de compilación}
+\author{Juan Diego Arévalo Pidiache}
+\begin{document}
+\mainmatter
+\include{Capitulos/Capitulo_1}
+\include{Capitulos/Capitulo_2}
+\include{Capitulos/Capitulo_3}
+\include{Capitulos/Capitulo_4}
+\include{Capitulos/Capitulo_5}
+\include{Capitulos/Capitulo_6}
+\include{Capitulos/Capitulo_7}
+\include{Capitulos/Capitulo_8}
+\include{Capitulos/Capitulo_9}
+\include{Capitulos/Capitulo_10}
+\end{document}

@@ -9,10 +9,10 @@ import {
 	UpdateKitSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
-import * as KitController from "./kit.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
+import * as KitController from "./kit.controller";
 
 const router = Router();
 

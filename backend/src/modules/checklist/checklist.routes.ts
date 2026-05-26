@@ -8,10 +8,10 @@ import {
 	UpdateChecklistItemSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
-import * as ChecklistController from "./checklist.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
+import * as ChecklistController from "./checklist.controller";
 
 const router = Router();
 

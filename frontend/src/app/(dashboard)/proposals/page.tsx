@@ -27,6 +27,17 @@ function formatProposalDate(value: string): string {
 	return format(parseISO(value), "dd MMM yyyy", { locale: es });
 }
 
+function countProposalsByStatus(proposals: Proposal[], statuses: readonly string[]): number {
+	return proposals.filter((proposal) => statuses.includes(proposal.status ?? "")).length;
+}
+
+function buildProposalPageHref(searchParams: URLSearchParams, limit: number, page: number): string {
+	const q = cloneSearchParams(searchParams);
+	q.set("page", String(page));
+	q.set("limit", String(limit));
+	return `/proposals?${q.toString()}`;
+}
+
 export default function ProposalsPage() {
 	return (
 		<Suspense fallback={<ProposalsLoading />}>
@@ -55,23 +66,12 @@ function ProposalsPageInner() {
 	});
 	const status = getSearchParam("status") || undefined;
 
-	const { data, isLoading, isError } = useProposals({ limit, offset, status });
+	const { data, isLoading, isError } = useProposals({ limit, offset, status: status ?? "" });
 	const proposals = data?.items || [];
 	const total = data?.total ?? proposals.length;
 	const totalPages = Math.ceil(total / limit);
-	const approvedCount = proposals.filter(
-		(proposal) => proposal.status === "approved" || proposal.status === "aprobada",
-	).length;
-	const sentCount = proposals.filter(
-		(proposal) => proposal.status === "sent" || proposal.status === "enviada",
-	).length;
-
-	const buildHref = (p: number) => {
-		const q = cloneSearchParams(searchParams);
-		q.set("page", String(p));
-		q.set("limit", String(limit));
-		return `/proposals?${q.toString()}`;
-	};
+	const approvedCount = countProposalsByStatus(proposals, ["approved", "aprobada"]);
+	const sentCount = countProposalsByStatus(proposals, ["sent", "enviada"]);
 
 	return (
 		<section className="space-y-6" aria-labelledby="proposals-page-title">
@@ -125,89 +125,7 @@ function ProposalsPageInner() {
 			<ProposalFilters />
 
 			{/* Table */}
-			{isLoading ? (
-				<div className="flex h-32 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] text-sm text-[var(--text-tertiary)] shadow-[var(--shadow-1)]">
-					Cargando propuestas…
-				</div>
-			) : isError ? (
-				<div className="flex h-32 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--color-danger-bg)] bg-[var(--color-danger-bg)]/60 text-sm text-[var(--color-danger)] shadow-[var(--shadow-1)]">
-					Error al cargar propuestas
-				</div>
-			) : proposals.length === 0 ? (
-				<div className="flex h-32 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] text-sm text-[var(--text-tertiary)] shadow-[var(--shadow-1)]">
-					No hay propuestas
-				</div>
-			) : (
-				<div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]">
-					<div className="overflow-x-auto">
-						<table className="w-full min-w-[700px] text-sm">
-							<caption className="sr-only">
-								Propuestas con cliente, valor estimado, estado, fecha de envío y enlace al detalle.
-							</caption>
-							<thead>
-								<tr className="border-b border-[var(--border-default)] bg-[var(--surface-secondary)] text-left text-xs uppercase tracking-wide text-[var(--text-secondary)]">
-									<th scope="col" className="px-5 py-3 font-medium">
-										N° Propuesta
-									</th>
-									<th scope="col" className="px-5 py-3 font-medium">
-										Cliente
-									</th>
-									<th scope="col" className="px-5 py-3 font-medium">
-										Total
-									</th>
-									<th scope="col" className="px-5 py-3 font-medium">
-										Estado
-									</th>
-									<th scope="col" className="px-5 py-3 font-medium">
-										Creada
-									</th>
-									<th scope="col" className="px-5 py-3 font-medium sr-only">
-										Ver
-									</th>
-								</tr>
-							</thead>
-							<tbody className="divide-y divide-[var(--border-default)]">
-								{proposals.map((p: Proposal) => (
-									<tr
-										key={p._id}
-										className="group transition-colors hover:bg-[var(--surface-secondary)]"
-									>
-										<td className="px-5 py-3.5">
-											<Link
-												href={`/proposals/${p._id}`}
-												className="font-mono font-medium text-[var(--color-brand-blue)] hover:underline"
-											>
-												{p.proposalNumber ?? p._id}
-											</Link>
-										</td>
-										<td className="max-w-[200px] truncate px-5 py-3.5 text-[var(--text-secondary)]">
-											{p.clientName ?? ","}
-										</td>
-										<td className="whitespace-nowrap px-5 py-3.5 font-medium text-[var(--text-primary)]">
-											{formatCOP(p.estimatedValue ?? 0)}
-										</td>
-										<td className="px-5 py-3.5">
-											<ProposalStatusBadge status={p.status ?? ""} />
-										</td>
-										<td className="whitespace-nowrap px-5 py-3.5 text-[var(--text-secondary)]">
-											{p.createdAt ? formatProposalDate(p.createdAt) : ","}
-										</td>
-										<td className="px-5 py-3.5">
-											<Link
-												href={`/proposals/${p._id}`}
-												aria-label={`Ver propuesta ${p.proposalNumber ?? p._id}`}
-												className="text-xs font-medium text-[var(--color-brand-blue)] opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 focus:opacity-100 hover:underline"
-											>
-												Ver →
-											</Link>
-										</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
-				</div>
-			)}
+			<ProposalListContent proposals={proposals} isLoading={isLoading} isError={isError} />
 
 			{/* Pagination */}
 			{totalPages > 1 && (
@@ -218,7 +136,7 @@ function ProposalsPageInner() {
 					<div className="flex gap-2">
 						{page > 1 && (
 							<Link
-								href={buildHref(page - 1)}
+								href={buildProposalPageHref(searchParams, limit, page - 1)}
 								className="rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-1.5 text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] transition-colors"
 							>
 								Anterior
@@ -226,7 +144,7 @@ function ProposalsPageInner() {
 						)}
 						{page < totalPages && (
 							<Link
-								href={buildHref(page + 1)}
+								href={buildProposalPageHref(searchParams, limit, page + 1)}
 								className="rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-1.5 text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] transition-colors"
 							>
 								Siguiente
@@ -236,5 +154,115 @@ function ProposalsPageInner() {
 				</div>
 			)}
 		</section>
+	);
+}
+
+function ProposalListContent({
+	proposals,
+	isLoading,
+	isError,
+}: {
+	proposals: Proposal[];
+	isLoading: boolean;
+	isError: boolean;
+}) {
+	if (isLoading) {
+		return (
+			<div className="flex h-32 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] text-sm text-[var(--text-tertiary)] shadow-[var(--shadow-1)]">
+				Cargando propuestas…
+			</div>
+		);
+	}
+
+	if (isError) {
+		return (
+			<div className="flex h-32 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--color-danger-bg)] bg-[var(--color-danger-bg)]/60 text-sm text-[var(--color-danger)] shadow-[var(--shadow-1)]">
+				Error al cargar propuestas
+			</div>
+		);
+	}
+
+	if (proposals.length === 0) {
+		return (
+			<div className="flex h-32 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] text-sm text-[var(--text-tertiary)] shadow-[var(--shadow-1)]">
+				No hay propuestas
+			</div>
+		);
+	}
+
+	return <ProposalTable proposals={proposals} />;
+}
+
+function ProposalTable({ proposals }: { proposals: Proposal[] }) {
+	return (
+		<div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]">
+			<div className="overflow-x-auto">
+				<table className="w-full min-w-[700px] text-sm">
+					<caption className="sr-only">
+						Propuestas con cliente, valor estimado, estado, fecha de envío y enlace al detalle.
+					</caption>
+					<thead>
+						<tr className="border-b border-[var(--border-default)] bg-[var(--surface-secondary)] text-left text-xs uppercase tracking-wide text-[var(--text-secondary)]">
+							<th scope="col" className="px-5 py-3 font-medium">
+								N° Propuesta
+							</th>
+							<th scope="col" className="px-5 py-3 font-medium">
+								Cliente
+							</th>
+							<th scope="col" className="px-5 py-3 font-medium">
+								Total
+							</th>
+							<th scope="col" className="px-5 py-3 font-medium">
+								Estado
+							</th>
+							<th scope="col" className="px-5 py-3 font-medium">
+								Creada
+							</th>
+							<th scope="col" className="px-5 py-3 font-medium sr-only">
+								Ver
+							</th>
+						</tr>
+					</thead>
+					<tbody className="divide-y divide-[var(--border-default)]">
+						{proposals.map((p) => (
+							<tr
+								key={p._id}
+								className="group transition-colors hover:bg-[var(--surface-secondary)]"
+							>
+								<td className="px-5 py-3.5">
+									<Link
+										href={`/proposals/${p._id}`}
+										className="font-mono font-medium text-[var(--color-brand-blue)] hover:underline"
+									>
+										{p.proposalNumber ?? p._id}
+									</Link>
+								</td>
+								<td className="max-w-[200px] truncate px-5 py-3.5 text-[var(--text-secondary)]">
+									{p.clientName ?? ","}
+								</td>
+								<td className="whitespace-nowrap px-5 py-3.5 font-medium text-[var(--text-primary)]">
+									{formatCOP(p.estimatedValue ?? 0)}
+								</td>
+								<td className="px-5 py-3.5">
+									<ProposalStatusBadge status={p.status ?? ""} />
+								</td>
+								<td className="whitespace-nowrap px-5 py-3.5 text-[var(--text-secondary)]">
+									{p.createdAt ? formatProposalDate(p.createdAt) : ","}
+								</td>
+								<td className="px-5 py-3.5">
+									<Link
+										href={`/proposals/${p._id}`}
+										aria-label={`Ver propuesta ${p.proposalNumber ?? p._id}`}
+										className="text-xs font-medium text-[var(--color-brand-blue)] opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 focus:opacity-100 hover:underline"
+									>
+										Ver →
+									</Link>
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+		</div>
 	);
 }

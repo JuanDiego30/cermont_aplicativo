@@ -8,7 +8,12 @@
  *   import { OPERATIONAL_STEPS, type OperationalStepKey } from '@cermont/domain';
  */
 
-export type OperationalStepStatus = "pending" | "available" | "in_progress" | "completed" | "blocked";
+export type OperationalStepStatus =
+	| "pending"
+	| "available"
+	| "in_progress"
+	| "completed"
+	| "blocked";
 
 export interface OperationalStep {
 	stepNumber: number;

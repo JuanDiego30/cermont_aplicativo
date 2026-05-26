@@ -1,0 +1,33 @@
+% Figura corregida: indicadores de validación sin cifras no verificadas.
+\begin{figure}[H]
+\centering
+\resizebox{0.96\textwidth}{!}{%
+\begin{tikzpicture}[font=\sffamily]
+\tikzset{
+  col/.style={figHeader, minimum width=3.2cm},
+  cell/.style={figBoxWhite, minimum width=3.2cm, minimum height=0.72cm, text width=3.0cm, font=\tiny},
+  pending/.style={figCritical, minimum width=3.2cm, minimum height=0.72cm, text width=3.0cm, font=\tiny}
+}
+\node[figHeader, minimum width=12.7cm] at (5.1,3.2) {Indicadores propuestos para evaluación pre--post con evidencia verificable};
+\node[col] at (0,2.25) {Indicador};
+\node[col] at (3.4,2.25) {Línea base};
+\node[col] at (6.8,2.25) {Post-sistema};
+\node[col] at (10.2,2.25) {Evidencia requerida};
+\foreach \y/\ind/\base/\post/\evi in {
+1.35/Planeación de recursos/Registro manual/Medición con sistema/Bitácora y orden,
+0.45/Completitud documental/Formato físico/Checklist digital/Acta o reporte,
+-0.45/Evidencias fotográficas/Carpeta dispersa/Registro por orden/Capturas y archivos,
+-1.35/Informe y acta/Documento manual/Generación asistida/PDF generado,
+-2.25/Cierre administrativo/Seguimiento externo/Estados y auditoría/Historial de cambios}
+{
+  \node[cell] at (0,\y) {\ind};
+  \node[cell] at (3.4,\y) {\base};
+  \node[cell] at (6.8,\y) {\post};
+  \node[pending] at (10.2,\y) {\evi};
+}
+\node[figNote, text width=11.5cm] at (5.1,-3.35) {No se deben reportar porcentajes de mejora sin soporte documental. Los valores cuantitativos deben agregarse únicamente cuando existan anexos de prueba, bitácoras o actas de validación.};
+\end{tikzpicture}%
+}
+\caption[Indicadores pre--post propuestos]{Indicadores propuestos para una evaluación pre--post del aplicativo. La figura reemplaza métricas no verificadas por evidencia requerida para una medición académicamente defendible. Fuente: Elaboración propia.}
+\label{fig:comparacion-pre-post}
+\end{figure}

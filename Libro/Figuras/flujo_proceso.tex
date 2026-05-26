@@ -1,0 +1,21 @@
+% Figura corregida: flujo operativo propuesto.
+\begin{figure}[H]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[font=\sffamily]
+\tikzset{st/.style={figBoxWhite, minimum width=2.45cm, minimum height=0.62cm, text width=2.30cm, font=\tiny}, crit/.style={figCritical, minimum width=2.45cm, minimum height=0.62cm, text width=2.30cm, font=\tiny}}
+\node[figHeader, minimum width=12.0cm] at (5.7,2.3) {Flujo de 14 pasos con soporte del aplicativo};
+\foreach \i/\txt/\x/\y in {
+1/Solicitud/0/1.2,2/Visita técnica/2.8/1.2,3/Propuesta/5.6/1.2,4/Aprobación PO/8.4/1.2,
+5/Planeación/11.2/1.2,6/Ejecución/11.2/0,7/Informe/8.4/0,8/Acta/5.6/0,
+9/Acta firmada/2.8/0,10/SES enviada/0/0,11/SES aprobada/0/-1.2,12/Factura enviada/2.8/-1.2,
+13/Factura aprobada/5.6/-1.2,14/Pago y cierre/8.4/-1.2}
+{\node[st] (n\i) at (\x,\y) {\i. \txt};}
+\foreach \i in {5,6,7,8,9,10,11,12,13,14}{\node[crit] at (n\i) {\i. \ifnum\i=5 Planeación\fi\ifnum\i=6 Ejecución\fi\ifnum\i=7 Informe\fi\ifnum\i=8 Acta\fi\ifnum\i=9 Acta firmada\fi\ifnum\i=10 SES enviada\fi\ifnum\i=11 SES aprobada\fi\ifnum\i=12 Factura enviada\fi\ifnum\i=13 Factura aprobada\fi\ifnum\i=14 Pago y cierre\fi};}
+\foreach \a/\b in {1/2,2/3,3/4,4/5,5/6,6/7,7/8,8/9,9/10,10/11,11/12,12/13,13/14}{\draw[figArrow] (n\a) -- (n\b);} 
+\node[figNote, text width=10.5cm] at (5.7,-2.35) {Los pasos críticos se resaltan porque concentran los problemas de planeación, ejecución, consolidación documental y cierre administrativo.};
+\end{tikzpicture}%
+}
+\caption[Flujo operativo propuesto]{Flujo operativo propuesto para la gestión de órdenes de trabajo, integrando planeación, ejecución en campo, generación documental y cierre administrativo. Fuente: Elaboración propia.}
+\label{fig:flujo-proceso-operativo}
+\end{figure}

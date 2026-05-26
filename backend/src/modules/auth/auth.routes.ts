@@ -13,9 +13,9 @@
 
 import { ChangePasswordSchema, LoginSchema } from "@cermont/shared-types";
 import { Router } from "express";
-import * as AuthController from "./auth.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { validateBody } from "../../middlewares/validate";
+import * as AuthController from "./auth.controller";
 
 const router = Router();
 

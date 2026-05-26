@@ -1,0 +1,137 @@
+﻿%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% CONTRAPORTADA
+
+\newpage % Nueva P�gina 
+    	hispagestyle{empty} % Evita la Numeracion de la P�gina
+
+\begin{center}  
+  \begin{large}        
+    \hrulefill\\
+    \vskip 1cm
+    			\textbf{itleES}
+    \vskip 0.7cm    
+    \hrulefill\\
+  \end{large}  
+  
+  \vfill
+  
+  \includegraphics[scale=0.75]{UDENARStyleData/Logos/UDENAR_Logo.png}  
+  
+  \vfill
+  
+  \begin{large}
+    			\textbf{\student}\\[0.3cm]
+  \end{large}
+  
+  \vfill
+  
+  			\textbf{\university\\
+    \vspace{0.1cm}
+    \faculty\\
+    \vspace{0.1cm}
+    \department}\\
+  \vspace{0.5cm}
+  			\textbf{\year}
+  
+\end{center}  
+
+
+\emptypage % Inserta una P�gina en Blanco (solo en twoside)
+
+% PORTADA
+
+\newpage % Nueva P�gina 
+    	hispagestyle{empty} % Evita la Numeracion de la P�gina
+
+\begin{center}    
+  \begin{large}      
+    			\textbf{itleES}      
+  \end{large}  
+  
+  \vfill
+  
+  \begin{large}
+    			\textbf{\student}\\[0.3cm]
+  \end{large}
+  
+  \vfill
+  
+TESIS PRESENTADA PARA OBTENER EL GRADO DE\\ 
+			\textbf{\degree}
+  
+  \vfill
+  
+\supervisorstitle\\
+\vspace{0.5cm}
+
+\supervisor{\supervisorone}{\universityone}
+
+\vspace{0.5cm}
+        
+        \ifdefined\supervisortwo{}
+   \supervisor{\supervisortwo}{\universitytwo}
+        \else
+        \fi
+  
+  \vfill
+  
+  			\textbf{\university\\
+    \vspace{0.1cm}
+    \faculty\\
+    \vspace{0.1cm}
+    \department}\\
+  \vspace{0.5cm}
+  			\textbf{2024}    
+  
+\end{center}
+  
+% PAGINA EN BLANCO
+
+\emptypage % Inserta una P�gina en Blanco
+
+% DEDICATORIA
+
+\newpage % Nueva P�gina 
+    	hispagestyle{empty} % Evita la Numeracion de la P�gina
+$\ $\\ % Espacio en Blanco
+
+\vspace{3cm}
+
+\begin{flushright} % Inicia un Texto a la Derecha
+  			\textit{\dedication}
+\end{flushright}
+
+% PAGINA EN BLANCO
+
+\emptypage % Inserta una P�gina en Blanco
+
+% AGRADECIMIENTOS
+
+\acknowledge{Agradecimientos}{
+\acknowledges
+}
+
+% ABSTRACT
+
+\abstract{itleES}{RESUMEN}{
+\abstractcontentES
+}
+
+\abstract{itleEN}{ABSTRACT}{
+\abstractcontentEN
+}
+
+% CONTENIDO Y LISTAS
+
+		ableofcontents % Contenido
+\listoftables % Lista de Tablas
+\listoffigures % Lista de Figuras
+\listofappendices % Lista de Ap�ndices
+
+
+
+
+
+
+

@@ -11,10 +11,10 @@ import {
 	UpdateCostSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
-import * as CostController from "./cost.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
+import * as CostController from "./cost.controller";
 
 const router = Router();
 

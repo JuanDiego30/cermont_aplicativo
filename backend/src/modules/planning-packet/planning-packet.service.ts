@@ -156,16 +156,24 @@ export async function validatePlanningReadiness(id: string, userRole: string) {
 	const hasSchedule = planningPacket.schedule !== null;
 
 	// Check required reference documents (ATS, AST, PTW)
-	const hasRequiredATS = !planningPacket.astRequired || planningPacket.supportDocuments.some(
-		(doc) => (doc.documentType === "ats" || doc.documentType === "ast") && doc.required,
-	);
-	const hasRequiredPTW = !planningPacket.ptwRequired || planningPacket.supportDocuments.some(
-		(doc) => doc.documentType === "ptw" && doc.required,
-	);
+	const hasRequiredATS =
+		!planningPacket.astRequired ||
+		planningPacket.supportDocuments.some(
+			(doc) => (doc.documentType === "ats" || doc.documentType === "ast") && doc.required,
+		);
+	const hasRequiredPTW =
+		!planningPacket.ptwRequired ||
+		planningPacket.supportDocuments.some((doc) => doc.documentType === "ptw" && doc.required);
 	const hasRequiredReferenceDocs = hasRequiredATS && hasRequiredPTW;
 
 	let newStatus = planningPacket.status;
-	if (allChecklistItemsChecked && noUnresolvedBlockers && hasCrew && hasSchedule && hasRequiredReferenceDocs) {
+	if (
+		allChecklistItemsChecked &&
+		noUnresolvedBlockers &&
+		hasCrew &&
+		hasSchedule &&
+		hasRequiredReferenceDocs
+	) {
 		newStatus = "ready";
 	} else {
 		newStatus = "incomplete";
@@ -293,7 +301,7 @@ export async function reopenPlanningPacket(
 export async function addReferenceDocument(
 	id: string,
 	data: { documentId: string; documentType: string; name: string; required: boolean },
-	userId: string,
+	_userId: string,
 ) {
 	const packet = await PlanningPacket.findById(id);
 	if (!packet) {

@@ -14,10 +14,10 @@ import {
 	UpdateSiteVisitRecordSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
-import * as SiteVisitController from "./site-visit.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
+import * as SiteVisitController from "./site-visit.controller";
 
 const router = Router();
 

@@ -1,0 +1,31 @@
+% =====================================================================
+% PREÁMBULO REQUERIDO PARA FIGURAS TIKZ — PALETA INSTITUCIONAL
+% =====================================================================
+% Copiar en el preámbulo principal si aún no existe.
+% 
+% Paquetes mínimos:
+% \usepackage{tikz}
+% \usepackage{float}
+% \usepackage{graphicx}
+% \usepackage{xcolor}
+% \usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds,shapes.geometric,shapes.symbols,trees,babel}
+%
+% Paleta institucional obligatoria:
+\definecolor{institucionalRed}{HTML}{AD3333}   % R:173 G:51 B:51
+\definecolor{institucionalBlue}{HTML}{003366}  % R:0 G:51 B:102
+\definecolor{institucionalGrey}{HTML}{DADADA}  % R:218 G:218 B:218
+
+% Estilos base reutilizables. No usar verdes, amarillos, morados, cyan ni pasteles.
+\tikzset{
+  figBox/.style={rectangle, rounded corners=3pt, draw=institucionalBlue, fill=institucionalGrey, align=center, font=\scriptsize, line width=0.7pt, inner sep=4pt},
+  figBoxWhite/.style={rectangle, rounded corners=3pt, draw=institucionalBlue, fill=white, align=center, font=\scriptsize, line width=0.7pt, inner sep=4pt},
+  figCritical/.style={rectangle, rounded corners=3pt, draw=institucionalRed, fill=white, align=center, font=\scriptsize\bfseries, line width=0.9pt, inner sep=4pt},
+  figHeader/.style={rectangle, rounded corners=2pt, draw=institucionalBlue, fill=institucionalBlue, text=white, align=center, font=\scriptsize\bfseries, inner sep=4pt},
+  figHeaderRed/.style={rectangle, rounded corners=2pt, draw=institucionalRed, fill=institucionalRed, text=white, align=center, font=\scriptsize\bfseries, inner sep=4pt},
+  figArrow/.style={-{Latex[length=2.4mm]}, line width=0.8pt, draw=institucionalBlue},
+  figArrowCritical/.style={-{Latex[length=2.4mm]}, line width=0.9pt, draw=institucionalRed},
+  figLine/.style={line width=0.65pt, draw=institucionalBlue},
+  figLineCritical/.style={line width=0.8pt, draw=institucionalRed},
+  figNote/.style={rectangle, rounded corners=3pt, draw=institucionalRed, fill=white, align=center, font=\tiny, line width=0.7pt, text width=3.8cm, inner sep=4pt}
+}
+% =====================================================================

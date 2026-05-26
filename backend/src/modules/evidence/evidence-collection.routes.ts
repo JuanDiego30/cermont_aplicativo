@@ -8,10 +8,10 @@ import {
 	EvidenceCollectionListQuerySchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
-import * as EvidenceCollectionController from "./evidence-collection.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
+import * as EvidenceCollectionController from "./evidence-collection.controller";
 
 const router = Router();
 

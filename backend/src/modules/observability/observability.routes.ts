@@ -1,10 +1,10 @@
 import { INTERNAL_ROLES } from "@cermont/domain";
 import { ErrorDashboardQuerySchema } from "@cermont/shared-types";
 import { Router } from "express";
-import { getEndpointHealth, getErrorDashboard } from "./observability.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateQuery } from "../../middlewares/validate";
+import { getEndpointHealth, getErrorDashboard } from "./observability.controller";
 
 const router = Router();
 

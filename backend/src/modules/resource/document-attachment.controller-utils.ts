@@ -7,7 +7,10 @@ import type { Request } from "express";
 import { BadRequestError, NotFoundError } from "../../common/errors";
 import { parseObjectId } from "../../common/utils/parseObjectId";
 import { Document } from "../../models/Document";
-import { DocumentAttachment, type IDocumentAttachmentDocument } from "../../models/DocumentAttachment";
+import {
+	DocumentAttachment,
+	type IDocumentAttachmentDocument,
+} from "../../models/DocumentAttachment";
 import { associateDocument } from "../../modules/documents/document.service";
 
 type LinkedDocumentEntityType = "asset" | "maintenance";

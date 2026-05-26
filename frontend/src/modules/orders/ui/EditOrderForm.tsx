@@ -7,11 +7,11 @@ import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { FormField, Select, TextArea, TextField } from "@/modules/core";
+import { ORDER_PRIORITY_OPTIONS } from "../model/order-options";
 import { useOrder, useUpdateOrder } from "../queries";
-import { PRIORITY_OPTIONS } from "./CreateOrderForm";
 
 const editOrderFormSchema = UpdateOrderSchema;
-export type EditOrderFormData = UpdateOrderInput;
+type EditOrderFormData = UpdateOrderInput;
 
 interface EditOrderFormProps {
 	orderId: string;
@@ -108,7 +108,7 @@ export function EditOrderForm({ orderId }: EditOrderFormProps) {
 				required
 			>
 				<Select id="edit-priority" {...register("priority")}>
-					{PRIORITY_OPTIONS.map((opt) => (
+					{ORDER_PRIORITY_OPTIONS.map((opt) => (
 						<option key={opt.value} value={opt.value}>
 							{opt.label}
 						</option>

@@ -5,6 +5,7 @@ import { Logo } from "@/core/ui/Logo";
 import { CORPORATE_LOCATION } from "../landing-constants";
 import { LANDING_METRICS, LANDING_SERVICES, LANDING_TRUST_POINTS } from "../landing-data";
 import { MetricCard } from "./cards/MetricCard";
+import { LandingHeroCarousel } from "./LandingHeroCarousel";
 
 export function HeroSection() {
 	return (
@@ -103,6 +104,10 @@ export function HeroSection() {
 									portal.cermont.co
 								</div>
 							</div>
+						</div>
+
+						<div className="relative z-10 mt-6">
+							<LandingHeroCarousel />
 						</div>
 
 						<div className="relative z-10 mt-6 flex items-start justify-between gap-4">

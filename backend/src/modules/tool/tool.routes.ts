@@ -10,10 +10,10 @@ import {
 	UpdateToolSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
-import * as ToolController from "./tool.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
+import * as ToolController from "./tool.controller";
 
 const router = Router();
 

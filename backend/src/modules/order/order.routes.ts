@@ -21,10 +21,10 @@ import {
 	UpdateOrderStatusSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
-import * as OrderController from "./order.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
+import * as OrderController from "./order.controller";
 
 const router = Router();
 

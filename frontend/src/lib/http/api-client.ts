@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/auth.store";
 import {
 	API_ROOT,
 	ApiError,
+	type ApiErrorDetail,
 	BASE_RETRY_DELAY_MS,
 	DEFAULT_RETRY_METHODS,
 	DEFAULT_RETRY_STATUSES,
@@ -97,6 +98,18 @@ function getErrorCode(body: unknown): string | undefined {
 	return undefined;
 }
 
+function getErrorDetails(body: unknown): ApiErrorDetail[] {
+	const errorBody = body as ErrorBody;
+	const nestedError = errorBody?.error;
+	if (nestedError && typeof nestedError === "object" && Array.isArray(nestedError.details)) {
+		return nestedError.details;
+	}
+	if (Array.isArray(errorBody?.details)) {
+		return errorBody.details;
+	}
+	return [];
+}
+
 function rejectPendingRequests(error: unknown): void {
 	for (const pending of pendingRequests) {
 		pending.reject(error);
@@ -145,6 +158,7 @@ async function refreshAccessToken(): Promise<string> {
 			response.status,
 			getErrorMessage(body, response.statusText || "Session refresh failed"),
 			getErrorCode(body),
+			getErrorDetails(body),
 		);
 	}
 	const responseData = body as { data?: { accessToken?: string }; accessToken?: string };
@@ -240,6 +254,7 @@ async function retryAfterTokenRefresh<T>(
 		retryResponse.status,
 		getErrorMessage(retryBody, retryResponse.statusText),
 		getErrorCode(retryBody),
+		getErrorDetails(retryBody),
 	);
 }
 
@@ -276,7 +291,12 @@ async function handleResponse<T>(
 		durationMs: Date.now() - context.startedAt,
 		attempt: attempt + 1,
 	});
-	throw new ApiError(response.status, getErrorMessage(body, response.statusText), code);
+	throw new ApiError(
+		response.status,
+		getErrorMessage(body, response.statusText),
+		code,
+		getErrorDetails(body),
+	);
 }
 
 async function handleNetworkError(

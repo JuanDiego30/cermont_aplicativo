@@ -1,0 +1,272 @@
+% =====================================================================
+% CAPÍTULO 7: RESULTADOS Y EVALUACIÓN DE IMPACTO
+% =====================================================================
+
+\chapter{Resultados Técnicos y Evidencias del Desarrollo}
+\label{ch:resultados}
+
+% --- Ajustes editoriales locales del capítulo: sangría, espaciado y control de desbordamientos ---
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{0pt}
+\sloppy
+\emergencystretch=2em
+\raggedbottom
+\section{Introducción a los resultados}
+\label{sec:introduccion-resultados}
+
+Este capítulo presenta los resultados derivados del desarrollo del sistema y organiza la evidencia disponible de acuerdo con los objetivos del proyecto. Dado que no todos los indicadores cuantitativos fueron aportados en el texto base, se distinguen los resultados del desarrollo técnico de aquellos indicadores por medir con evidencia verificable.
+
+\section{Resultados del desarrollo técnico}
+\label{sec:resultados-desarrollo}
+
+El primer resultado del proyecto fue la construcción de una base tecnológica capaz de centralizar órdenes de trabajo, recursos, evidencias y soportes documentales. Esta integración permite que la información deje de estar fragmentada entre hojas de cálculo, documentos aislados y registros informales.
+
+El segundo resultado fue la organización del flujo operativo en módulos coherentes. Cada módulo responde a una parte del proceso real: gestión de usuarios, planeación, ejecución, evidencias, documentación y cierre. Esta estructura facilita la comprensión del sistema y reduce la dependencia de soluciones improvisadas.
+
+El tercer resultado fue la definición de una base compatible con la evolución futura hacia formularios reutilizables y plantillas documentales más dinámicas. Esta posibilidad no debe reportarse como automatización confirmada si no existe evidencia formal de su implementación; sin embargo, constituye un resultado de diseño relevante porque deja la arquitectura preparada para extenderse.
+
+\section{Resultados funcionales observables}
+\label{sec:resultados-funcionales}
+
+A nivel funcional, el sistema permite representar el ciclo de vida de una orden de trabajo sin depender de documentos dispersos. Esa representación incluye el registro inicial, la planeación, la ejecución con evidencias y el seguimiento administrativo posterior.
+
+Además, la solución favorece la trazabilidad porque cada elemento queda vinculado a la orden correspondiente. Ese vínculo mejora la consulta histórica y la reconstrucción del servicio, dos aspectos que eran problemáticos en el esquema manual descrito en el diagnóstico.
+
+\section{Indicadores por medir con evidencia verificable}
+\label{sec:indicadores-pendientes}
+
+Los resultados cuantitativos que requieren datos medidos no deben inventarse. Por tanto, si el documento final incluye métricas de tiempo, reducción de errores o mejora de trazabilidad, estas deben incorporarse únicamente cuando exista la evidencia correspondiente.
+
+\begin{table}[!htbp]
+\centering
+\caption{Indicadores que deben completarse con evidencia verificable. Fuente: Elaboración propia.}
+\label{tab:indicadores-pendientes}
+
+\small
+\def\PendRow#1#2#3{\parbox[t]{3.0cm}{\raggedright #1} & \parbox[t]{6.6cm}{\raggedright #2} & \parbox[t]{4.0cm}{\raggedright #3}\\\midrule}
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Indicador} & \textbf{Dato requerido} & \textbf{Evidencia esperada} \\
+\midrule
+\PendRow{Tiempo de planeación}{Promedio antes y después de la implementación}{Cronometraje, registros de uso o bitácoras}
+\PendRow{Tiempo de cierre}{Duración promedio del ciclo documental}{Fechas de creación, revisión y cierre}
+\PendRow{Completitud documental}{Porcentaje de órdenes con soportes completos}{Lista de chequeo o auditoría de documentos}
+\PendRow{Trazabilidad de evidencias}{Número de evidencias correctamente asociadas}{Capturas del sistema o inventario de archivos}
+\PendRow{Satisfacción de usuarios}{Valoraciones por rol o por sesión de prueba}{Encuesta, entrevista o formato UAT}
+\bottomrule
+\end{tabular}
+\end{table}
+
+Mientras esos datos no se incluyan, el capítulo debe mantenerse en un nivel descriptivo y no inferir mejoras numéricas.
+
+\section{Relación con los objetivos}
+\label{sec:relacion-objetivos-r}
+
+Los resultados del desarrollo responden a los objetivos definidos en la introducción: el análisis del flujo actual permitió identificar la fragmentación documental; el diseño de la arquitectura definió módulos y relaciones funcionales; la implementación consolidó los componentes principales del sistema; la validación debe sustentarse con evidencia de pruebas cuando esté disponible.
+
+\section{Evidencias recomendadas}
+\label{sec:evidencias-recomendadas}
+
+Para fortalecer este capítulo, se recomienda incorporar capturas del sistema, tablas de órdenes creadas, ejemplos de evidencias asociadas, registros de documentos generados y resultados de pruebas funcionales.
+
+\section{Síntesis de resultados}
+\label{sec:sintesis-resultados-c7}
+
+El principal resultado del proyecto es la construcción de una solución que organiza la gestión documental y operativa de CERMONT S.A.S. Los indicadores cuantitativos deben completarse con evidencia verificable si se desea reportar mejoras numéricas.
+
+% =====================================================================
+\section{Resultados por módulo implementado}
+\label{sec:resultados-por-modulo}
+
+El desarrollo del aplicativo produjo resultados verificables en cada uno de los módulos que componen el sistema. A continuación se presentan los resultados organizados por módulo, indicando el estado de implementación, las funcionalidades entregadas y la evidencia disponible.
+
+\subsection{Módulo de autenticación y control de acceso (RBAC)}
+
+\textbf{Resultado obtenido:} Se implementó un sistema de autenticación basado en JWT con tokens de acceso en memoria y tokens de actualización en cookies HttpOnly con flags \texttt{Secure}, \texttt{SameSite=Strict} y \texttt{Path=/api/auth}. El middleware de autorización verifica, para cada endpoint protegido, que el rol del usuario autenticado tenga los permisos requeridos según la matriz RBAC definida en el paquete \texttt{@cermont/domain}.
+
+\textbf{Evidencia disponible:} Suite de pruebas de autenticación que verifica el ciclo completo de inicio de sesión, renovación de token, cierre de sesión y rechazo de credenciales inválidas. Las pruebas de RBAC confirman que usuarios sin los permisos requeridos reciben código HTTP 403 en endpoints protegidos.
+
+\textbf{Relación con objetivos:} Este resultado contribuye al objetivo específico 2 (diseño de arquitectura con roles de usuario) y al objetivo específico 3 (implementación de módulos principales).
+
+\subsection{Módulo de órdenes de trabajo}
+
+\textbf{Resultado obtenido:} Se implementó el ciclo de vida completo de la orden de trabajo como entidad central del sistema, con transiciones de estado controladas: \texttt{open} $\rightarrow$ \texttt{assigned} $\rightarrow$ \texttt{in\_progress} $\rightarrow$ \texttt{on\_hold} $\rightarrow$ \texttt{completed} $\rightarrow$ \texttt{closed}. La cancelación está permitida desde los estados \texttt{open}, \texttt{assigned} y \texttt{on\_hold}. Cada transición de estado genera un registro de auditoría inmutable.
+
+\textbf{Evidencia disponible:} Pruebas funcionales que verifican cada transición de estado permitida y el rechazo de transiciones inválidas. Endpoints API documentados para creación, consulta, actualización y cierre de órdenes.
+
+\textbf{Relación con objetivos:} Este resultado materializa el núcleo del objetivo específico 3, al implementar el módulo principal sobre el cual se articulan todos los demás componentes del sistema.
+
+\subsection{Módulo de planeación y kits típicos}
+
+\textbf{Resultado obtenido:} Se desarrolló el módulo de planeación que permite asociar a cada orden de trabajo un paquete de recursos (\texttt{PlanningPacket}) compuesto por personal técnico, herramientas, equipos, materiales, elementos de protección personal y documentos requeridos. Los kits típicos permiten precargar configuraciones de recursos estandarizadas según el tipo de servicio, reduciendo la necesidad de planear cada orden desde cero.
+
+\textbf{Evidencia disponible:} Pruebas de integración que verifican la validación de disponibilidad de recursos, la asignación de kits a órdenes de trabajo y la detección de recursos faltantes o con certificaciones vencidas.
+
+\textbf{Relación con objetivos:} Este resultado responde directamente a la falla de planeación identificada en el diagnóstico del flujo operativo.
+
+\subsection{Módulo de gestión de evidencias}
+
+\textbf{Resultado obtenido:} Se implementó un sistema de captura, almacenamiento y asociación de evidencias fotográficas vinculadas a órdenes de trabajo. Las imágenes se procesan con \texttt{sharp} para eliminar metadatos EXIF potencialmente sensibles y se validan por tipo MIME, extensión y tamaño antes de su almacenamiento. Cada evidencia conserva trazabilidad de la orden, el usuario que la capturó, la fecha y una descripción contextual.
+
+\textbf{Evidencia disponible:} Pruebas que verifican el rechazo de archivos con MIME no permitido, la aceptación de formatos válidos (JPEG, PNG, WebP) y la asociación correcta de cada evidencia con su orden de trabajo.
+
+\textbf{Relación con objetivos:} Este resultado aborda la fragmentación de evidencias identificada en la fase crítica 2 del diagnóstico (ejecución en campo y captura de evidencias).
+
+\subsection{Módulo de generación documental}
+
+\textbf{Resultado obtenido:} Se implementó un motor de generación de documentos PDF utilizando la biblioteca \texttt{pdf-lib}, capaz de compilar informes técnicos y actas de entrega a partir de los datos transaccionales almacenados en el sistema. El motor inserta datos de la orden, resultados de checklists, evidencias fotográficas y firmas digitales en plantillas predefinidas.
+
+\textbf{Evidencia disponible:} Pruebas funcionales que verifican la generación exitosa de buffers PDF válidos, la correcta inserción de datos dinámicos y la integridad estructural del documento binario resultante.
+
+\textbf{Relación con objetivos:} Este resultado responde a la fase crítica 3 del diagnóstico (consolidación documental, informes y actas), automatizando la compilación de documentos que antes requerían recaptura manual.
+
+\subsection{Módulo de cierre administrativo y seguimiento}
+
+\textbf{Resultado obtenido:} Se implementó un módulo de seguimiento administrativo que vincula cada orden de trabajo con los estados de los documentos posteriores a la ejecución: informe técnico, acta de entrega, firma del cliente, hoja de entrada de servicio (SES), factura electrónica y registro de pago. Este módulo permite identificar, para cada orden, qué documentos están pendientes y cuál es el siguiente paso requerido para avanzar hacia el cierre.
+
+\textbf{Evidencia disponible:} Pruebas de integración que verifican la actualización correcta del estado de cierre cuando se completan los documentos requeridos en secuencia, y la detección de bloqueos cuando un documento obligatorio no ha sido generado o aprobado.
+
+\textbf{Relación con objetivos:} Este resultado aborda la fase crítica 4 del diagnóstico (cierre administrativo y cadena de recaudo), proporcionando visibilidad sobre el estado de cada orden en el flujo de facturación.
+
+\subsection{Módulo de operación offline (PWA)}
+
+\textbf{Resultado obtenido:} Se implementó soporte parcial para operación offline mediante Service Worker, almacenamiento local y cola de sincronización. Cuando el dispositivo pierde conectividad, determinados registros operativos se encolan localmente y se sincronizan al recuperar la conexión. La interfaz refleja el estado de sincronización mediante indicadores visuales.
+
+\textbf{Evidencia disponible:} Pruebas que verifican el encolamiento correcto de operaciones compatibles, la sincronización al recuperar conectividad y la deduplicación mediante \texttt{clientMutationId}. El propio backend documenta como limitación que la sincronización offline de evidencias con archivo real aún no está soportada.
+
+\textbf{Relación con objetivos:} Este resultado es transversal a los objetivos 2 y 3, ya que la capacidad offline constituye un requisito arquitectónico parcialmente implementado en los módulos de campo.
+
+% =====================================================================
+\section{Relación problema, requisito, módulo y evidencia}
+\label{sec:problema-requisito-modulo}
+
+La Tabla \ref{tab:problema-requisito-modulo} relaciona las fallas documentadas por CERMONT S.A.S. con los requisitos del sistema, los módulos construidos o propuestos y la evidencia verificable en código o documentación técnica.
+
+\begin{table}[!htbp]
+\centering
+\caption{Relación problema, requisito, módulo y evidencia. Fuente: Elaboración propia con base en el repositorio y documentos técnicos.}
+\label{tab:problema-requisito-modulo}
+\footnotesize
+\def\ProblemRow#1#2#3#4#5#6{\parbox[t]{2.7cm}{\raggedright #1} & \parbox[t]{1.2cm}{\raggedright #2} & \parbox[t]{2.8cm}{\raggedright #3} & \parbox[t]{2.7cm}{\raggedright #4} & \parbox[t]{3.3cm}{\raggedright #5} & \parbox[t]{1.8cm}{\raggedright #6}\\\midrule}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}l l l l l l@{}}
+\toprule
+\textbf{Falla identificada} & \textbf{Paso} & \textbf{Requisito del sistema} & \textbf{Módulo} & \textbf{Evidencia} & \textbf{Objetivo} \\
+\midrule
+\ProblemRow{Planeación incompleta de herramientas y equipos}{5}{Configurar kits típicos y paquetes de planeación por tipo de servicio.}{Planeación / Resources \& Kits}{Esquema de planeación, rutas backend y vista de planeación.}{2 y 3}
+\ProblemRow{Faltantes durante ejecución}{5--6}{Diligenciar checklists y consultar recursos con soporte offline cuando aplique.}{Execution Session / Checklists}{Esquema de ejecución, hook offline y servicio de sincronización.}{2 y 3}
+\ProblemRow{Retrasos en informes y actas}{7--9}{Consolidar evidencias y generar documentos desde datos del sistema.}{Evidencias / Informes / PDF}{Servicios de reportes y vista de informes.}{3}
+\ProblemRow{Retrasos en facturación}{10--14}{Hacer seguimiento del estado de SES, factura y pago por orden.}{Billing / SES / Invoices / Payments}{Esquema SES y vistas de SES y pagos.}{2 y 3}
+\ProblemRow{Ausencia de control de costos reales}{3--14}{Relacionar propuesta, costos reales y cierre administrativo.}{Proposals / Costs}{Esquema de costos, modelo backend y vista de costos.}{2 y 3}
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+% =====================================================================
+\section{Matriz de trazabilidad: objetivos, fases y resultados}
+\label{sec:matriz-trazabilidad}
+
+La Tabla \ref{tab:trazabilidad-objetivos} presenta la relación sistemática entre los objetivos específicos del proyecto, las fases metodológicas ejecutadas, los resultados obtenidos y los indicadores de cumplimiento. Esta matriz permite verificar que cada objetivo fue abordado mediante una fase metodológica concreta y produjo resultados verificables.
+
+\begin{table}[!htbp]
+\centering
+\caption{Matriz de trazabilidad: objetivos, fases, resultados y evidencias. Fuente: Elaboración propia.}
+\label{tab:trazabilidad-objetivos}
+\small
+\def\TrazRow#1#2#3#4{\parbox[t]{2.5cm}{\raggedright #1} & \parbox[t]{2.8cm}{\raggedright #2} & \parbox[t]{3.7cm}{\raggedright #3} & \parbox[t]{3.4cm}{\raggedright #4}\\\midrule}
+\begin{tabular}{@{}l l l l@{}}
+\toprule
+\textbf{Objetivo específico} & \textbf{Fase metodológica} & \textbf{Resultado obtenido} & \textbf{Evidencia} \\
+\midrule
+\TrazRow{1. Diagnosticar el flujo actual e identificar fallas críticas}{Diagnóstico documental y operativo}{Identificación del flujo de 14 pasos y de cinco fallas críticas documentadas para CERMONT S.A.S.}{Formatos reales analizados, documento del proceso y tablas de diagnóstico.}
+\TrazRow{2. Diseñar la arquitectura funcional y técnica}{Diseño funcional}{Arquitectura de 3 capas documentada; modelo de datos con entidades principales; matriz RBAC de 8 roles; definición de API endpoints por módulo.}{Diagramas de arquitectura, modelo conceptual de datos, tabla de módulos funcionales.}
+\TrazRow{3. Implementar los módulos principales}{Implementación}{Módulos funcionales para autenticación, órdenes, planeación, evidencias, informes, cierre administrativo y costos; la operación offline queda implementada de forma parcial.}{Código fuente del monorepo y pruebas automatizadas documentadas.}
+\TrazRow{4. Validar el funcionamiento del aplicativo}{Validación}{Pruebas unitarias, de integración y escenarios técnicos documentados; la prueba piloto con usuarios y métricas de impacto queda pendiente.}{Reporte técnico de pruebas y matriz de validación propuesta por rol.}
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =====================================================================
+\section{Resultados de la revisión de seguridad}
+\label{sec:resultados-seguridad}
+
+Como resultado complementario de la fase de validación, se aplicó una revisión de seguridad basada en los lineamientos del OWASP Top 10 (versión 2021). Los hallazgos principales se resumen a continuación:
+
+\begin{enumerate}
+    \item \textbf{Control de Acceso Quebrado (A01:2021):} Mitigado mediante middleware de autorización RBAC en el backend para todos los endpoints protegidos. Las pruebas confirman que usuarios sin permisos reciben HTTP 403.
+    \item \textbf{Fallas Criptográficas (A02:2021):} Las contraseñas se almacenan como hashes Bcrypt; las comunicaciones se protegen mediante TLS 1.3 en producción; los tokens JWT se firman criptográficamente.
+    \item \textbf{Inyección (A03:2021):} Mitigado mediante el uso de Mongoose como ODM (consultas parametrizadas) y validación Zod de todos los payloads entrantes antes de cualquier operación de base de datos.
+    \item \textbf{Diseño Inseguro (A04:2021):} El flujo contract-first y las compuertas de calidad por iteración (\texttt{typecheck}, \texttt{lint}, \texttt{test}, \texttt{react-doctor}) reducen el riesgo de introducir vulnerabilidades por descuido en el diseño.
+    \item \textbf{Registro y Monitoreo Insuficientes (A09:2021):} Cada acción crítica genera un evento de auditoría inmutable con tipo de evento, usuario, entidad afectada, estado anterior, estado nuevo y marca de tiempo.
+\end{enumerate}
+
+Estos resultados confirman que la seguridad fue incorporada como un requisito transversal desde la fase de diseño arquitectónico, en concordancia con el principio de defensa en profundidad documentado en el marco teórico.
+
+% =====================================================================
+\section{Síntesis de resultados y contribuciones}
+\label{sec:sintesis-resultados-final}
+
+El análisis integrado permite concluir que el proyecto dejó un artefacto de software funcional y técnicamente trazable, con módulos alineados al flujo documental y administrativo de CERMONT S.A.S. La arquitectura del sistema resulta coherente con un contexto multiservicio donde la heterogeneidad de formatos, la conectividad variable y la necesidad de seguimiento documental son restricciones reales de diseño.
+
+Desde la perspectiva de los objetivos del proyecto, el diagnóstico documentó el flujo de 14 pasos y las cinco fallas críticas de la operación; el diseño produjo una arquitectura con roles, contratos y módulos verificables; la implementación dejó módulos centrales en funcionamiento; y la validación aportó evidencia técnica mediante pruebas automatizadas y escenarios de desarrollo. No obstante, la aceptación con usuarios y la medición cuantitativa del impacto continúan como actividades pendientes.
+
+Los indicadores cuantitativos de impacto operativo —tiempos de planeación, completitud documental, trazabilidad de evidencias, satisfacción de usuarios— permanecen como métricas por medir durante la adopción del sistema en el entorno productivo de CERMONT S.A.S. Esta situación refleja la diferencia entre validación técnica del artefacto y validación operativa del impacto, distinción necesaria para mantener la veracidad académica del documento.
+
+% --- AMPLIACIÓN ACADÉMICA INTEGRADA CAPÍTULO 7 ---
+
+\section{Auditoría de evidencias técnicas por módulo}
+\label{sec:auditoria-evidencias-tecnicas-modulo}
+
+Los resultados técnicos del proyecto deben presentarse con una estructura que permita distinguir entre evidencia verificable y alcance propuesto. La matriz siguiente organiza los módulos principales según su relación con el problema de CERMONT, el tipo de evidencia esperada y el estado que debe usarse en el libro. Esta forma de presentación evita afirmar como terminado un módulo que solo está documentado o parcialmente conectado.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{4.8cm} >{\raggedright\arraybackslash}p{3.0cm}}
+\caption{Auditoría de resultados técnicos por módulo. Fuente: elaboración propia.}
+\label{tab:auditoria-resultados-modulos}\\
+\toprule
+\textbf{Módulo} & \textbf{Falla que atiende} & \textbf{Evidencia técnica esperada} & \textbf{Redacción recomendada}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Módulo} & \textbf{Falla que atiende} & \textbf{Evidencia técnica esperada} & \textbf{Redacción recomendada}\\
+\midrule
+\endhead
+\midrule
+\multicolumn{4}{r}{Continúa en la siguiente página}\\
+\endfoot
+\bottomrule
+\endlastfoot
+Usuarios y roles & Acceso no diferenciado a información y acciones críticas. & Middleware, roles, pruebas de permisos y capturas de rutas protegidas. & Implementado si hay evidencia en código y pruebas.\\
+Órdenes de trabajo & Fragmentación del seguimiento operativo. & Entidad, listado, detalle, estados y vínculos con módulos posteriores. & Implementado o parcial según conexión real con flujo completo.\\
+Planeación y kits & Faltan herramientas, equipos o documentos antes de ejecución. & Formularios de planeación, catálogos, readiness y validaciones. & Implementado parcialmente si falta validación completa de certificados.\\
+Ejecución & Registros físicos y evidencias dispersas. & Checklist, sesión de ejecución, almacenamiento local y sincronización. & Parcial si el flujo offline de archivos no está completo.\\
+Evidencias & Fotos y soportes sin contexto. & Upload, metadatos, asociación a orden y controles de seguridad. & Implementado si existen rutas y modelo; parcial si falta sincronización binaria.\\
+Informes y actas & Recaptura manual y retrasos documentales. & Generación PDF, plantillas, datos desde ejecución y evidencia visual. & Implementado o propuesto según el nivel de automatización real.\\
+Cierre administrativo & SES, factura y pago sin seguimiento consolidado. & Estados, panel, campos de SES/factura/pago y reglas de avance. & Parcial o propuesto si no existe flujo E2E validado.\\
+Costos reales & No hay comparación centralizada contra propuesta. & Entidades de costo, líneas por orden, cálculo de variación y reportes. & Propuesto o parcial si no existen datos reales.\\
+\end{longtable}
+
+\section{Resultados interpretados por objetivo específico}
+\label{sec:resultados-por-objetivo-especifico}
+
+El primer objetivo específico se responde mediante la sistematización del flujo de 14 pasos y la identificación de fallas en planeación, ejecución, informes, actas, facturación y costos reales. El resultado no es solo una descripción del proceso, sino una matriz de problemas que orienta la arquitectura del sistema.
+
+El segundo objetivo se responde con el diseño funcional y técnico del aplicativo. Este diseño incluye módulos, entidades, roles, estados, arquitectura de capas, contratos compartidos y criterios de seguridad. La evidencia se encuentra en la documentación técnica, en el repositorio y en las tablas del capítulo de desarrollo.
+
+El tercer objetivo se responde con la implementación de módulos principales. La redacción debe ser cuidadosa: los módulos que cuenten con evidencia en código, pruebas o capturas pueden describirse como implementados; los módulos con diseño y estructura parcial deben declararse como parcialmente implementados; y los módulos documentados pero no construidos deben presentarse como propuesta o trabajo futuro.
+
+El cuarto objetivo se responde mediante pruebas técnicas, escenarios de validación y matriz de indicadores por medir. Si no existe prueba piloto con usuarios reales y registros de tiempos, no se deben presentar porcentajes de mejora. En su lugar, el resultado válido es la definición de un procedimiento de validación y la ejecución de pruebas funcionales o automatizadas cuando exista evidencia.
+
+\section{Indicadores propuestos sin afirmación de resultados no medidos}
+\label{sec:indicadores-propuestos-no-medidos}
+
+La validación operativa futura debe apoyarse en indicadores simples, observables y vinculados con el flujo de negocio. Entre ellos se recomiendan: tiempo entre ejecución e informe, tiempo entre acta enviada y acta firmada, porcentaje de órdenes con planeación completa antes de ejecutar, porcentaje de evidencias asociadas correctamente a órdenes, número de órdenes con costos reales registrados, número de SES radicadas con soporte completo y tiempo entre factura aprobada y pago registrado. Estos indicadores no deben reportarse con valores mientras no exista medición en campo.
+
+La utilidad de esta sección es dejar establecido un método para que CERMONT mida impacto después de adoptar el sistema. El trabajo de grado puede validar técnicamente el artefacto y proponer indicadores operativos, pero solo una fase de uso real permitirá comprobar mejoras cuantitativas.
+
+\section{Resultados sobre madurez documental del aplicativo}
+\label{sec:resultados-madurez-documental}
+
+La madurez documental del aplicativo puede evaluarse por la capacidad de cada módulo para generar evidencia verificable. Un módulo maduro no solo tiene una pantalla; tiene datos reales o simulados controlados, validación, permisos, estados de carga, manejo de errores, trazabilidad y pruebas. En este sentido, el resultado técnico del proyecto no debe reducirse a listar pantallas desarrolladas. Debe explicar si cada módulo tiene responsabilidad clara, si se conecta al flujo de 14 pasos, si conserva eventos, si evita duplicar información y si permite que un usuario continúe el proceso sin depender de soportes externos.
+
+Este enfoque fortalece la evaluación académica porque muestra que el desarrollo fue revisado con criterios de ingeniería y no solo con inspección visual. La calidad del artefacto se interpreta desde su capacidad de sostener el proceso documental-operativo de CERMONT.

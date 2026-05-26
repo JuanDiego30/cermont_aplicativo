@@ -1,5 +1,6 @@
 import type { CreateProposalInput, UpdateProposalStatusInput } from "@cermont/shared-types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { listQueryOptions } from "@/_shared/lib/query/query-options";
 import { apiClient } from "@/lib/http/api-client";
 
 // ── Types ──────────────────────────────────────────────────────
@@ -29,25 +30,40 @@ interface ProposalList {
 	};
 }
 
+interface ProposalListFilters {
+	limit: number;
+	offset: number;
+	status: string;
+}
+
 // ── Query Keys ────────────────────────────────────────────────
 const PROPOSALS_KEYS = {
 	all: ["proposals"] as const,
-	list: (filters?: Record<string, unknown>) => [...PROPOSALS_KEYS.all, "list", filters] as const,
+	list: (filters: ProposalListFilters) =>
+		[...PROPOSALS_KEYS.all, "list", filters.status, filters.limit, filters.offset] as const,
 	detail: (id: string) => [...PROPOSALS_KEYS.all, "detail", id] as const,
 } as const;
 
+function normalizeProposalFilters(filters?: Record<string, string | number>): ProposalListFilters {
+	return {
+		limit: typeof filters?.limit === "number" ? filters.limit : 20,
+		offset: typeof filters?.offset === "number" ? filters.offset : 0,
+		status:
+			typeof filters?.status === "string" && filters.status.length > 0 ? filters.status : "all",
+	};
+}
+
 // ── Queries ───────────────────────────────────────────────────
-export function useProposals(filters?: Record<string, unknown>) {
+export function useProposals(filters?: Record<string, string | number>) {
+	const normalizedFilters = normalizeProposalFilters(filters);
 	return useQuery({
-		queryKey: PROPOSALS_KEYS.list(filters),
+		queryKey: PROPOSALS_KEYS.list(normalizedFilters),
 		queryFn: async () => {
 			const queryParams = new URLSearchParams();
-			if (filters) {
-				Object.entries(filters).forEach(([key, value]) => {
-					if (value !== undefined && value !== null) {
-						queryParams.set(key, String(value));
-					}
-				});
+			queryParams.set("limit", String(normalizedFilters.limit));
+			queryParams.set("offset", String(normalizedFilters.offset));
+			if (normalizedFilters.status !== "all") {
+				queryParams.set("status", normalizedFilters.status);
 			}
 			const queryString = queryParams.toString();
 			const url = queryString ? `/proposals?${queryString}` : "/proposals";
@@ -57,7 +73,7 @@ export function useProposals(filters?: Record<string, unknown>) {
 				total: body?.pagination?.total ?? body?.data?.length ?? 0,
 			};
 		},
-		staleTime: 30_000,
+		...listQueryOptions,
 	});
 }
 

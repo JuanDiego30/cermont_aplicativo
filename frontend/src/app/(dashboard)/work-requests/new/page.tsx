@@ -9,7 +9,9 @@ import { ArrowLeft, FileText, Loader2, Save, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { CustomizableSelect } from "@/_shared/ui/forms/CustomizableSelect";
 import { Button } from "@/core/ui/Button";
+import { ApiError } from "@/lib/http/api-client";
 import { ContextualDocumentUploadModal } from "@/modules/documents/ui/ContextualDocumentUploadModal";
 import { useCreateWorkRequest } from "@/modules/work-requests/queries";
 
@@ -30,6 +32,16 @@ const CHANNEL_OPTIONS: Array<{ value: WorkRequestSourceChannel; label: string }>
 	{ value: "scheduled_maintenance", label: "Mantenimiento programado" },
 	{ value: "other", label: "Otro" },
 ];
+
+const SERVICE_TYPE_OPTIONS = [
+	{ value: "obra_civil", label: "Obra civil" },
+	{ value: "electricidad", label: "Electricidad" },
+	{ value: "refrigeracion", label: "Refrigeración" },
+	{ value: "mantenimiento", label: "Mantenimiento" },
+	{ value: "telecomunicaciones", label: "Telecomunicaciones" },
+	{ value: "cctv", label: "CCTV" },
+	{ value: "lineas_de_vida", label: "Líneas de vida" },
+] as const;
 
 type FormState = {
 	requesterName: string;
@@ -63,10 +75,8 @@ const INITIAL_FORM: FormState = {
 
 function buildPayload(form: FormState): CreateWorkRequestInput {
 	const sourceChannel = form.sourceChannel === "other" ? "other" : form.sourceChannel;
-	return {
+	const payload: CreateWorkRequestInput = {
 		requesterName: form.requesterName.trim(),
-		requesterEmail: form.requesterEmail.trim() || undefined,
-		requesterPhone: form.requesterPhone.trim() || undefined,
 		clientName: form.clientName.trim(),
 		serviceSite: form.serviceSite.trim(),
 		serviceType: form.serviceType.trim(),
@@ -81,12 +91,36 @@ function buildPayload(form: FormState): CreateWorkRequestInput {
 		customFields:
 			form.sourceChannel === "other" ? { sourceChannelOther: form.sourceChannelOther.trim() } : {},
 	};
+
+	if (form.requesterEmail.trim()) {
+		payload.requesterEmail = form.requesterEmail.trim();
+	}
+	if (form.requesterPhone.trim()) {
+		payload.requesterPhone = form.requesterPhone.trim();
+	}
+
+	return payload;
+}
+
+function getFieldErrors(error: Error | null): Array<{ field: string; message: string }> {
+	if (error instanceof ApiError) {
+		return error.details ?? [];
+	}
+	return [];
+}
+
+function getFieldError(
+	fieldErrors: Array<{ field: string; message: string }>,
+	field: keyof FormState,
+): string {
+	return fieldErrors.find((entry) => entry.field === field)?.message ?? "";
 }
 
 export default function NewWorkRequestPage() {
 	const { push } = useRouter();
 	const createMutation = useCreateWorkRequest();
 	const [form, setForm] = useState<FormState>(INITIAL_FORM);
+	const fieldErrors = getFieldErrors(createMutation.error);
 
 	function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
 		setForm((current) => ({ ...current, [key]: value }));
@@ -156,13 +190,19 @@ export default function NewWorkRequestPage() {
 						label="Sitio de servicio"
 						value={form.serviceSite}
 						onChange={(value) => updateField("serviceSite", value)}
+						error={getFieldError(fieldErrors, "serviceSite")}
 						required
 					/>
-					<TextInput
-						id="serviceType"
+					<CustomizableSelect
+						name="serviceType"
 						label="Tipo de servicio"
+						options={[...SERVICE_TYPE_OPTIONS]}
 						value={form.serviceType}
 						onChange={(value) => updateField("serviceType", value)}
+						customOptionLabel="Otro / Personalizado"
+						error={Boolean(getFieldError(fieldErrors, "serviceType"))}
+						errorMessage={getFieldError(fieldErrors, "serviceType")}
+						placeholder="Seleccione o escriba un servicio"
 						required
 					/>
 					<label className="space-y-1.5">
@@ -212,6 +252,7 @@ export default function NewWorkRequestPage() {
 						label="Resumen"
 						value={form.shortDescription}
 						onChange={(value) => updateField("shortDescription", value)}
+						error={getFieldError(fieldErrors, "shortDescription")}
 						required
 					/>
 					<label htmlFor="description" className="block space-y-1.5">
@@ -223,7 +264,16 @@ export default function NewWorkRequestPage() {
 							required
 							rows={5}
 							className="w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)]"
+							aria-invalid={Boolean(getFieldError(fieldErrors, "description"))}
+							{...(getFieldError(fieldErrors, "description")
+								? { "aria-describedby": "description-error" }
+								: {})}
 						/>
+						{getFieldError(fieldErrors, "description") ? (
+							<span id="description-error" className="text-xs text-[var(--color-danger)]">
+								{getFieldError(fieldErrors, "description")}
+							</span>
+						) : null}
 					</label>
 					<label
 						htmlFor="requiresSiteVisit"
@@ -280,7 +330,15 @@ export default function NewWorkRequestPage() {
 						Crear solicitud
 					</Button>
 				</div>
-				{createMutation.error ? (
+				{fieldErrors.length > 0 ? (
+					<ul className="mt-3 space-y-1 text-sm text-[var(--color-danger)]">
+						{fieldErrors.map((fieldError) => (
+							<li key={`${fieldError.field}-${fieldError.message}`}>
+								{fieldError.field}: {fieldError.message}
+							</li>
+						))}
+					</ul>
+				) : createMutation.error ? (
 					<p className="mt-3 text-sm text-[var(--color-danger)]">{createMutation.error.message}</p>
 				) : null}
 			</form>
@@ -295,6 +353,7 @@ function TextInput({
 	onChange,
 	type = "text",
 	required = false,
+	error = "",
 }: {
 	id: string;
 	label: string;
@@ -302,6 +361,7 @@ function TextInput({
 	onChange: (value: string) => void;
 	type?: string;
 	required?: boolean;
+	error?: string;
 }) {
 	return (
 		<label htmlFor={id} className="space-y-1.5">
@@ -313,7 +373,14 @@ function TextInput({
 				onChange={(event) => onChange(event.target.value)}
 				required={required}
 				className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm text-[var(--text-primary)]"
+				aria-invalid={Boolean(error)}
+				{...(error ? { "aria-describedby": `${id}-error` } : {})}
 			/>
+			{error ? (
+				<span id={`${id}-error`} className="text-xs text-[var(--color-danger)]">
+					{error}
+				</span>
+			) : null}
 		</label>
 	);
 }

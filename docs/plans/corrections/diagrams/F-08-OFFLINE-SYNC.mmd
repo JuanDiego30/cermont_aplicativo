@@ -1,0 +1,25 @@
+sequenceDiagram
+    actor Tecnico as Tecnico (Campo)
+    participant SW as Service Worker (Serwist)
+    participant IDB as IndexedDB
+    participant Backend as Express Backend
+
+    Note over Tecnico,Backend: 1. Captura de evidencia sin conexion
+    Tecnico->>SW: Captura foto + checklist (sin red)
+    SW->>IDB: Guarda en cola offline
+    SW-->>Tecnico: UI: "Guardado localmente"
+
+    Note over Tecnico,Backend: 2. Recuperacion de conectividad
+    SW->>SW: Detecta evento 'online'
+    SW->>SW: Dispara Background Sync (cermont-offline-sync)
+
+    Note over Tecnico,Backend: 3. Sincronizacion automatica
+    SW->>IDB: Lee cola de operaciones pendientes
+    IDB-->>SW: operaciones[] (FIFO)
+    loop Por cada operacion
+        SW->>Backend: POST /api/sync
+        Backend->>Backend: Deduplicacion por clientMutationId
+        Backend-->>SW: 200 OK
+        SW->>IDB: Marca como sincronizada
+    end
+    SW-->>Tecnico: UI: "Sincronizacion completada"

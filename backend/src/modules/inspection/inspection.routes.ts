@@ -5,6 +5,9 @@ import {
 	UpdateInspectionStatusSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
+import { authenticate } from "../../middlewares/auth.middleware";
+import { authorize } from "../../middlewares/authorize.middleware";
+import { validateBody, validateParams } from "../../middlewares/validate";
 import {
 	createInspection,
 	deleteInspection,
@@ -13,9 +16,6 @@ import {
 	getInspectionsByOrder,
 	updateInspectionStatus,
 } from "./inspection.controller";
-import { authenticate } from "../../middlewares/auth.middleware";
-import { authorize } from "../../middlewares/authorize.middleware";
-import { validateBody, validateParams } from "../../middlewares/validate";
 
 const router = Router();
 

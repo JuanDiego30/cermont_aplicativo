@@ -62,7 +62,7 @@ export function errorHandler(
 		res.status(400).json({
 			success: false,
 			error: {
-				code: ERROR_CODES.VALIDATION_ERROR,
+				code: ERROR_CODES.VALIDATION_FAILED,
 				message: "Validation failed",
 				details,
 			},
@@ -79,7 +79,7 @@ export function errorHandler(
 	) {
 		const isConflict = dbError.code === 11000;
 		const statusCode = isConflict ? 409 : 400;
-		const errorCode = isConflict ? ERROR_CODES.CONFLICT : ERROR_CODES.VALIDATION_ERROR;
+		const errorCode = isConflict ? ERROR_CODES.CONFLICT : ERROR_CODES.VALIDATION_FAILED;
 		const message = isConflict ? "Resource already exists" : "Database validation failed";
 
 		log.warn("DatabaseError", {

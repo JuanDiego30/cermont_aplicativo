@@ -6,9 +6,9 @@
  */
 
 import { Router } from "express";
-import { create, getById, list, submit, update } from "./template-response.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
+import { create, getById, list, submit, update } from "./template-response.controller";
 
 const router = Router();
 

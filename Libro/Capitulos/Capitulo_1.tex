@@ -1,0 +1,405 @@
+% =====================================================================
+% CAPÍTULO 1: INTRODUCCIÓN, PROBLEMÁTICA Y OBJETIVOS
+% Versión refactorizada y expandida bajo el paradigma "Opus 4 Thinking"
+% Proyecto: Aplicativo web para la gestión de órdenes de trabajo,
+%           trazabilidad y cierre administrativo en CERMONT S.A.S.
+% Autor: Juan Diego Arévalo Pidiache
+% Programa: Ingeniería Electrónica — Universidad de Pamplona
+% =====================================================================
+
+\chapter{Introducción General y Planteamiento del Problema}
+\label{ch:introduccion}
+
+% --- Ajustes editoriales locales del capítulo: sangría, espaciado y control de desbordamientos ---
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{0pt}
+\sloppy
+\emergencystretch=2em
+\raggedbottom
+% Colores institucionales exigidos para diagramas y resaltados
+\providecolor{institucionalRed}{HTML}{AD3333}
+\providecolor{institucionalBlue}{HTML}{003366}
+\providecolor{institucionalGrey}{HTML}{DADADA}
+
+La gestión eficiente de las operaciones en campo representa uno de los desafíos más complejos para las organizaciones contratistas del sector industrial, hidrocarburos, construcción y telecomunicaciones. En estas empresas, el flujo de valor operativo y financiero no se limita a las actividades desarrolladas en oficinas administrativas, sino que se origina de forma distribuida en zonas de ejecución técnica remotas, donde la captura ágil, la integridad documental y la sincronización oportuna de datos son fundamentales para la viabilidad de la organización. Cuando la planeación, el reporte técnico, la gestión de seguridad y salud en el trabajo (SST) y el cierre administrativo dependen de procesos fragmentados, manuales y acoplados a formatos físicos o herramientas informáticas aisladas, se genera una brecha transaccional que incrementa el riesgo operativo y dilata de forma significativa el ciclo de facturación y recaudo.
+
+\begin{figure}[!htbp]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\input{Figuras/bpmn_actual.tex}%
+}
+\caption{Modelado del flujo operativo actual (BPMN) caracterizado por la fragmentación documental y dependencia de procesos manuales. Fuente: elaboración propia.}
+\label{fig:bpmn-actual}
+\end{figure}
+
+El presente proyecto de grado describe el análisis, diseño, desarrollo y validación de una plataforma web modular para la gestión integral de órdenes de trabajo, trazabilidad de evidencias y soporte del cierre administrativo en la empresa CERMONT S.A.S. El aplicativo se concibe no como un mero repositorio estático de registros, sino como un motor de flujo de trabajo que unifica los procesos desde la solicitud del cliente hasta la confirmación documental del pago, integrando tecnologías web modernas para mitigar la ineficiencia documental, garantizar el control de acceso basado en roles (RBAC) y habilitar la operación offline con sincronización resiliente del personal de campo.
+
+\section{Presentación general del tema y contexto organizacional}
+\label{sec:presentacion-general}
+
+CERMONT S.A.S. es una organización del sector privado constituida en el municipio de Arauca, cuya actividad comercial abarca una amplia gama de servicios especializados de ingeniería aplicada. De acuerdo con su portal institucional oficial \cite{cermont_web}, la empresa asesora y ejecuta obras relacionadas con la ingeniería eléctrica, mantenimiento preventivo y correctivo de infraestructuras, montajes industriales y comerciales, refrigeración mecánica, construcciones civiles, suministro de materiales e insumos eléctricos, alumbrado público e industrial, y telecomunicaciones \cite{cermont_mision_web}. Esta caracterización se ve respaldada y detallada en los documentos de inducción interna HES (sigla empleada en documentos internos de CERMONT S.A.S. para referirse a seguridad, salud y ambiente ocupacional) de la organización, los cuales establecen los protocolos y el catálogo de riesgos específicos para operaciones técnicas desarrolladas tanto en la industria pesada y de hidrocarburos como en el sector de la edificación urbana \cite{cermont_hes}.
+
+Debido a su naturaleza como contratista multiservicio, la empresa debe gestionar de forma simultánea múltiples flujos documentales que difieren estructuralmente según la especialidad de la intervención técnica. Un servicio de mantenimiento de sistemas de Circuito Cerrado de Televisión (CCTV) exige la verificación de componentes de radioenlace, sistemas fotovoltaicos de alimentación y parámetros de red inalámbrica \cite{formato_cctv}; mientras que un trabajo de inspección mecánica de líneas de vida verticales requiere el control de conformidad de anclajes, absorbedores de impacto, cables de acero y tensionadores de seguridad \cite{formato_lineas_vida}. A su vez, toda actividad civil o eléctrica en campo debe ir precedida obligatoriamente por una planeación de obra que defina la asignación de mano de obra calificada, herramientas especializadas, consumibles, equipos de protección individual (EPP) y la evaluación previa de riesgos mediante el Análisis de Trabajo Seguro (ATS) y los permisos de trabajo en caliente, alturas o espacios confinados \cite{formato_planeacion}.
+
+En este contexto, la información de una orden de trabajo no representa un registro estático; constituye una entidad dinámica cuyo ciclo de vida abarca desde la solicitud de cotización por parte del cliente hasta la conciliación financiera y contable del pago de la factura. La optimización de este ciclo de vida mediante un artefacto de software modular y configurable representa el núcleo metodológico del presente trabajo aplicado. Al digitalizar estas estructuras complejas y centralizar el flujo de aprobaciones bajo un modelo de base de datos robusto, se hace factible mitigar la pérdida de trazabilidad, reducir los tiempos de procesamiento administrativo y proveer una plataforma auditable que actúe como único punto de verdad para los distintos actores del proceso.
+
+\section{Descripción detallada del flujo operativo de 14 pasos}
+\label{sec:flujo-14-pasos}
+
+Para modelar de forma precisa el ciclo de vida del servicio en CERMONT S.A.S., se sistematizó el flujo operativo y administrativo en catorce (14) pasos secuenciales y correlacionados \cite{proceso_cermont}. Este flujo unificado, que se detalla en la Tabla \ref{tab:flujo-14-pasos}, permite rastrear la evolución del estado de una orden de trabajo e identificar las interfaces de comunicación entre el personal de ingeniería residente, técnicos de campo, coordinadores HES, administradores, gerencia y clientes corporativos.
+
+\begin{center}
+\scriptsize
+\renewcommand{\arraystretch}{1.10}
+\setlength{\LTpre}{0pt}
+\setlength{\LTpost}{6pt}
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.9cm}
+                  >{\raggedright\arraybackslash}p{3.0cm}
+                  >{\raggedright\arraybackslash}p{7.1cm}
+                  >{\raggedright\arraybackslash}p{2.4cm}}
+\caption{Ciclo de vida operativo y administrativo unificado de 14 pasos en CERMONT S.A.S. Fuente: elaboración propia con base en el proceso suministrado por la empresa.}
+\label{tab:flujo-14-pasos}\\
+\toprule
+\textbf{Paso} & \textbf{Etapa funcional} & \textbf{Descripción del proceso} & \textbf{Entidad digital}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Paso} & \textbf{Etapa funcional} & \textbf{Descripción del proceso} & \textbf{Entidad digital}\\
+\midrule
+\endhead
+\midrule
+\multicolumn{4}{r}{Continúa en la siguiente página}\\
+\endfoot
+\bottomrule
+\endlastfoot
+1  & Solicitud formal & Recepción del requerimiento técnico del cliente por correo, llamada o canal autorizado. & WorkRequest\\
+2  & Visita técnica & Levantamiento de información, aclaración de dudas, mediciones y registro fotográfico cuando aplica. & SiteVisit\\
+3  & Propuesta económica & Preparación de la oferta técnica y económica, con alcance, recursos y condiciones para aprobación del cliente. & Proposal\\
+4  & Aprobación con PO & Recepción de la orden de compra o autorización formal que habilita la ejecución. & PurchaseOrder\\
+5  & Planeación & Definición del cronograma, mano de obra, herramientas, equipos, certificaciones, AST y documentos de apoyo. & PlanningPacket\\
+6  & Ejecución & Desarrollo de la actividad con permisos, socialización de AST, checklist, procedimientos y registro fotográfico. & ExecutionSession\\
+7  & Informe técnico & Consolidación de actividades realizadas, observaciones, evidencias y registro fotográfico. & TechnicalReport\\
+8  & Acta de entrega & Elaboración y envío del acta final al cliente para revisión y firma. & DeliveryRecord\\
+9  & Acta firmada & Recepción del acta firmada o del soporte de aceptación del cliente. & ClientAcceptance\\
+10 & SES / Ariba & Elaboración de la hoja de entrada de servicio y envío para aprobación en la plataforma correspondiente. & ServiceEntrySheet\\
+11 & SES aprobada & Recepción de la aprobación de la SES por parte del cliente. & SESApproval\\
+12 & Factura & Elaboración y envío de factura para aprobación del cliente por la plataforma habilitada. & InvoiceTracking\\
+13 & Aprobación de factura & Recepción de aprobación de la factura por parte del cliente. & InvoiceApproval\\
+14 & Pago & Registro, conciliación y cierre administrativo del pago del servicio. & PaymentRecord\\
+\end{longtable}
+\end{center}
+
+La representación gráfica de este ciclo transaccional se expone en la Figura \ref{fig:flujo-14-pasos-tikz}. Esta topología visual ilustra cómo el aplicativo debe dar soporte a dos subprocesos íntimamente acoplados: la cadena técnica y operativa, caracterizada por el levantamiento de información y la ejecución en campo, y la cadena de cierre administrativo y financiero, que determina el flujo de caja e ingresos de la compañía mediante el cumplimiento estricto de requisitos documentales del cliente corporativo. El detalle secuencial del flujo se complementa con la Tabla \ref{tab:flujo-14-pasos}.
+
+\begin{figure}[!htbp]
+\centering
+\begin{adjustbox}{max width=\linewidth,max totalheight=0.38\textheight,keepaspectratio}
+\begin{tikzpicture}[
+    node distance=0.8cm and 0.2cm,
+    bloque/.style={draw, rounded corners, align=center, fill=gray!8, minimum height=0.8cm},
+    flecha/.style={-{Latex[length=2mm]}, line width=0.8pt},
+    flechaCritica/.style={-{Latex[length=2mm]}, line width=1pt, draw=institucionalRed},
+    stepNode/.style={bloque, text width=2.0cm, font=\scriptsize\bfseries, minimum height=1.0cm},
+    headerNode/.style={bloque, fill=institucionalBlue, text=white, font=\bfseries, text width=4cm}
+]
+    % Carril 1 - Técnico
+    \node (h1) [headerNode] {FLUJO OPERATIVO};
+    \node (n1) [stepNode, below=of h1] {1. Solicitud Servicio};
+    \node (n2) [stepNode, right=of n1] {2. Visita Técnica};
+    \node (n3) [stepNode, right=of n2] {3. Propuesta Econ.};
+    \node (n4) [stepNode, right=of n3] {4. Aprobación PO};
+    \node (n5) [stepNode, right=of n4] {5. Planeación Rec.};
+    \node (n6) [stepNode, right=of n5] {6. Ejecución Campo};
+    \node (n7) [stepNode, right=of n6] {7. Informe Técnico};
+
+    % Carril 2 - Administrativo
+    \node (h2) [headerNode, below=of n1, yshift=-1.2cm] {FLUJO ADMINISTRATIVO};
+    \node (n8) [stepNode, below=of h2] {8. Acta Entrega};
+    \node (n9) [stepNode, right=of n8] {9. Acta Firmada};
+    \node (n10) [stepNode, right=of n9] {10. SES Ariba};
+    \node (n11) [stepNode, right=of n10] {11. SES Aprob.};
+    \node (n12) [stepNode, right=of n11] {12. Seg. Factura};
+    \node (n13) [stepNode, right=of n12] {13. Fact. Aprob.};
+    \node (n14) [stepNode, right=of n13, draw=institucionalRed, fill=institucionalRed!10] {14. Pago Recibido};
+
+    % Conexiones
+    \draw [flecha] (h1) -- (n1);
+    \foreach \i/\j in {n1/n2,n2/n3,n3/n4,n4/n5,n5/n6,n6/n7}{\draw [flecha] (\i) -- (\j);}
+
+\draw [flecha] (n7.south) -- ++(0,-0.4) -| (h2.north);
+\draw [flechaCritica] (h2) -- (n8);
+\foreach \i/\j in {n8/n9,n9/n10,n10/n11,n11/n12,n12/n13,n13/n14}{\draw [flechaCritica] (\i) -- (\j);}
+
+\end{tikzpicture}%
+\end{adjustbox}
+\caption{Ciclo de vida operativo y administrativo unificado de 14 pasos en CERMONT S.A.S. Fuente: Elaboración propia.}
+\label{fig:flujo-14-pasos-tikz}
+\end{figure}
+
+El aplicativo web debe mapear de manera estricta esta secuencia transaccional mediante transiciones de estado lógicas. Cada cambio de estado dentro del software (ej. de \textit{Planeado} a \textit{En Ejecución}) debe estar respaldado por la carga de las correspondientes evidencias físicas y documentales, bloqueando la transición si el usuario actual carece de los permisos correspondientes (RBAC) o si el paquete documental obligatorio del paso anterior está incompleto.
+
+\section{Las cinco fallas críticas documentadas en el flujo operativo}
+\label{sec:cinco-fallas-criticas}
+
+Aunque el proceso de CERMONT S.A.S. recorre catorce pasos, el diagnóstico documental permitió identificar cinco fallas recurrentes que explican la pérdida de trazabilidad y los retrasos del flujo \cite{proceso_cermont}. Estas fallas no describen problemas hipotéticos, sino situaciones concretas reportadas por la empresa y observables en sus formatos, soportes y secuencia operativa. La definición de módulos del aplicativo se deriva directamente de estas cinco fallas.
+
+\subsection{Falla Crítica 1: Planeación de la actividad (Paso 5)}
+La planeación operativa previa a la salida de las cuadrillas técnicas representa el primer punto vulnerable. En la actualidad, esta etapa carece de automatización y normalización, dependiendo casi exclusivamente de la memoria y el criterio empírico de los ingenieros residentes y líderes técnicos. 
+\begin{itemize}
+    \item \textbf{Causas de fallo identificadas:} Inexistencia de una biblioteca centralizada de kits típicos (herramientas específicas, equipos de medición certificados, elementos de protección y consumibles) clasificados por tipo de servicio. Adicionalmente, no se realiza un control automatizado sobre la vigencia de certificaciones del personal técnico (por ejemplo, certificados de trabajo seguro en alturas de nivel avanzado) ni sobre la calibración de instrumentos críticos de prueba.
+    \item \textbf{Evidencia documental real:} El formato analógico de planeación de obra de CERMONT S.A.S. exige el registro de responsable, lugar, fecha, unidad de negocio, alcance detallado, materiales de consumo, herramientas requeridas, equipos principales, elementos de seguridad colectivos e individuales, y el número de operarios asignados \cite{formato_planeacion}. La dispersión de estos datos en documentos aislados de Word o formatos impresos en papel provoca omisiones de recursos que se detectan únicamente cuando el personal se encuentra ya en el sitio de ejecución remota.
+    \item \textbf{Respuesta del aplicativo:} Implementación de un módulo de estructuración de \texttt{PlanningPacket} que precargue automáticamente plantillas y kits estandarizados según el tipo de servicio, forzando la validación del estado de vigencia de las acreditaciones y los instrumentos del personal seleccionado.
+\end{itemize}
+
+\subsection{Falla Crítica 2: Ejecución en campo y captura de evidencias (Paso 6)}
+Durante el desarrollo del servicio técnico en el sitio del cliente (sea una subestación eléctrica, una red de CCTV a la intemperie o una línea de vida vertical en altura), el registro de la información es susceptible a la degradación de datos por transcripción manual y el desorden documental.
+\begin{itemize}
+    \item \textbf{Causas de fallo identificadas:} Diligenciamiento manual de listas de verificación en formato físico que se exponen a daño, extravío o ilegibilidad. Captura de evidencias fotográficas utilizando dispositivos móviles personales de los técnicos operarios, las cuales son posteriormente compartidas mediante canales informales de mensajería (WhatsApp) sin marcas temporales, geolocalización o vinculación explícita al componente técnico intervenido. A esto se suma el problema de la conectividad celular inestable o nula en locaciones industriales remotas de Arauca o en el sector petrolero, lo que interrumpe el acceso a sistemas tradicionales basados en la nube.
+    \item \textbf{Evidencia documental real:} Formatos reales de la organización tales como la lista de inspección de líneas de vida verticales (que exige evaluar anclajes, líneas de acero y absorbedores bajo criterios de conformidad Conforme / No Conforme, con hallazgos y acciones correctivas) \cite{formato_lineas_vida}; y el formato de mantenimiento preventivo de CCTV (que detalla lecturas técnicas de voltajes, radioenlaces, cámaras e inspecciones fotográficas) \cite{formato_cctv}.
+    \item \textbf{Respuesta del aplicativo:} Arquitectura PWA (Progressive Web App) dotada de Service Worker, almacenamiento local y cola de sincronización para posibilitar el diligenciamiento offline de checklists y registros de campo. La sincronización de evidencias con archivo binario queda planteada como una capacidad parcialmente implementada y pendiente de cierre completo en backend \cite{mdn_service_worker}.
+\end{itemize}
+
+\subsection{Falla Crítica 3: Consolidación documental, informes y actas (Pasos 7 a 9)}
+La recopilación técnica y la formalización documental tras el regreso de las cuadrillas técnicas a la oficina es una tarea administrativa de alto consumo de tiempo y propensa al retrabajo.
+\begin{itemize}
+    \item \textbf{Causas de fallo identificadas:} Recaptura de información desde borradores impresos de campo a plantillas de Microsoft Word y Excel. Los ingenieros residentes dedican horas semanales a buscar fotos dispersas en chats de mensajería instantánea, ajustar dimensiones de imágenes y transcribir observaciones técnicas de campo. Este retraso dilata el tiempo de entrega de los informes técnicos preliminares y las actas formales al cliente para su revisión y aprobación física.
+    \item \textbf{Impacto:} El retraso en la obtención del acta de entrega firmada por parte del supervisor del cliente corporativo detiene de inmediato el inicio de los trámites de facturación, prolongando los tiempos de radicación administrativa.
+    \item \textbf{Respuesta del aplicativo:} Motor de renderizado y exportación automática a formato PDF (\texttt{pdf-lib}) que toma los datos transaccionales, las respuestas de checklist validadas y las evidencias fotográficas almacenadas en base de datos para compilar de manera instantánea el informe técnico preliminar conforme a las plantillas corporativas de CERMONT S.A.S.
+\end{itemize}
+
+\subsection{Falla Crítica 4: Retrasos en facturación y cierre administrativo (Pasos 10 a 14)}
+La última milla del proceso es predominantemente administrativa y depende de la disponibilidad oportuna de soportes técnicos, actas, SES y documentos de facturación.
+\begin{itemize}
+    \item \textbf{Causas de fallo identificadas:} Desconexión funcional entre los departamentos técnico y administrativo. Cuando existen múltiples trabajos en curso, se dificulta saber qué orden ya cuenta con informe, acta, firma del cliente, SES aprobada o factura pendiente. Esta ausencia de seguimiento consolidado genera retrasos en la preparación documental, aunque los documentos suministrados no evidencian llamados de atención formales del cliente por este motivo.
+    \item \textbf{Impacto:} El cierre administrativo puede extenderse innecesariamente porque la empresa debe reconstruir el estado documental de cada servicio antes de radicar SES, factura o soportes de pago.
+    \item \textbf{Respuesta del aplicativo:} Módulo centralizado de Cierre Administrativo que funciona como un panel de trazabilidad integral, vinculando la orden de trabajo con el estado del acta, el número de SES radicada, la factura electrónica emitida y el registro de conciliación del pago recibido.
+\end{itemize}
+
+\subsection{Falla Crítica 5: Ausencia de control centralizado de costos reales (Transversal a los pasos 3 a 14)}
+La empresa no dispone de una hoja o sistema centralizado que permita relacionar el costo real de la operación, incluidos impuestos y consumos efectivamente ejecutados, contra lo estimado en la propuesta económica inicial.
+\begin{itemize}
+    \item \textbf{Causas de fallo identificadas:} La información de propuesta, ejecución, consumos y facturación permanece distribuida en distintos soportes, lo que dificulta comparar el valor proyectado con el valor realmente ejecutado.
+    \item \textbf{Impacto:} Se limita la capacidad de analizar variaciones de costo por servicio, de explicar desviaciones operativas y de usar esa información como insumo para propuestas futuras.
+    \item \textbf{Respuesta del aplicativo:} El diseño funcional incorpora módulos de propuesta, costos y seguimiento de cierre que permiten vincular el presupuesto base con registros posteriores de ejecución y facturación. La validación operativa de esta trazabilidad queda sujeta a la carga de datos reales en el entorno de uso.
+\end{itemize}
+
+La relación entre estas cinco fallas y los módulos del aplicativo se esquematiza en la Figura \ref{fig:ishikawa-fallas-cermont}. Este análisis sustenta por qué la solución propuesta debe concebirse como un sistema integral de trazabilidad y no como un conjunto aislado de formularios.
+
+\begin{figure}[!htbp]
+\centering
+\begin{adjustbox}{max width=\linewidth,max totalheight=0.34\textheight,keepaspectratio}
+\begin{tikzpicture}[
+    every node/.style={transform shape},
+    bloque/.style={draw, rounded corners, align=center, fill=gray!8},
+    bloqueCritico/.style={draw=institucionalRed, fill=institucionalRed!10, rounded corners, align=center, font=\scriptsize\bfseries},
+    flecha/.style={-{Latex[length=2mm]}, line width=0.8pt},
+    faseBox/.style={bloque, text width=3.0cm, minimum height=1.0cm},
+    flechaSecundaria/.style={flecha},
+    flechaCritica/.style={-{Latex[length=3mm]}, line width=1.6pt, draw=institucionalRed}
+]
+    \node (f1) [faseBox] at (0,1.0) {Fase 1: Planeación\\ \tiny Recursos no normalizados.};
+    \node (f2) [faseBox] at (4.4,1.0) {Fase 2: Ejecución\\ \tiny Papel, fotos sin contexto y sin red.};
+    \node (f3) [faseBox] at (0,-0.2) {Fase 3: Informes y Actas\\ \tiny Recaptura y retraso documental.};
+    \node (f4) [faseBox] at (4.4,-0.2) {Fase 4: Cierre Admin.\\ \tiny Soportes incompletos y retrasos de facturación.};
+
+    \node (prob) [bloqueCritico, text width=4.2cm, minimum height=1.0cm] at (2.2,-1.5) {Fragmentación documental y atraso en cierres};
+
+    \draw [flechaSecundaria] (f1.south) -- ++(0,-0.15) -| (prob.north west);
+    \draw [flechaSecundaria] (f2.south) -- ++(0,-0.15) -| (prob.north east);
+    \draw [flechaSecundaria] (f3.south) -- ++(0,-0.15) -| (prob.west);
+    \draw [flechaSecundaria] (f4.south) -- ++(0,-0.15) -| (prob.east);
+\end{tikzpicture}%
+\end{adjustbox}
+\caption{Diagrama de fallas por fases y su incidencia en el cierre operativo y documental. Fuente: Elaboración propia.}
+\label{fig:ishikawa-fallas-cermont}
+\end{figure}
+
+\section{Formulación del problema y pregunta de investigación}
+\label{sec:formulacion-problema}
+
+El análisis descriptivo de las operaciones de CERMONT S.A.S. evidencia una problemática generalizada: la \textbf{fragmentación operativa y la dispersión documental}. Aunque la empresa cuenta con rigurosos formatos analógicos para gobernar las fases técnicas de campo \cite{formato_planeacion, formato_lineas_vida, formato_cctv}, la desconexión digital de estos registros frente a los sistemas contables e informáticos principales inhabilita la trazabilidad continua del proceso. En la práctica, estos documentos se comportan como ``datos muertos'': registros aislados que no pueden ser consultados de forma agregada, analizados para evaluar la eficiencia presupuestal, o auditados en tiempo real para determinar el avance físico-financiero de una obra.
+
+Esta dispersión documental incide directamente en los costos de coordinación interna de la organización y dilata de manera exponencial el flujo de caja corporativo. La demora en consolidar evidencias de campo aplaza la radicación de la SES en portales del cliente, lo que a su vez posterga la emisión de la factura y arrastra el pago final. Esta dinámica es especialmente perniciosa en empresas contratistas de servicios múltiples, donde la diversidad de plantillas operativas y de requisitos documentales impuestos por diferentes clientes corporativos dificulta la adopción de una solución FSM de tipo generalista o prefabricada comercialmente, las cuales suelen imponer flujos de datos fijos que chocan con la cultura operativa real de la organización.
+
+Ante este panorama, la pregunta de investigación debe centrarse en la resolución del problema organizacional y documental, no en adelantar una solución tecnológica específica:
+
+\begin{tcolorbox}[colback=institucionalGrey!35,colframe=institucionalBlue,title=Pregunta de Investigación]
+    ¿Cómo desarrollar un aplicativo web que permita gestionar de forma centralizada las órdenes de trabajo y mejorar la trazabilidad de los procesos operativos y administrativos de CERMONT S.A.S., especialmente en la planeación, la ejecución, la elaboración de informes, el cierre administrativo y el control de costos reales?
+\end{tcolorbox}
+
+\section{Justificación}
+\label{sec:justificacion}
+
+El desarrollo y despliegue del aplicativo web modular para CERMONT S.A.S. se fundamenta y justifica en cuatro pilares complementarios: justificación técnica, organizacional, académica y metodológica.
+
+\subsection{Justificación Técnica}
+Desde la perspectiva de la ingeniería de software aplicada, el proyecto se justifica por la necesidad de disponer de un sistema unificado que conecte formularios operativos, seguimiento documental, estados de la orden y actividades de cierre administrativo dentro de un mismo flujo. El repositorio real evidencia una arquitectura separada en frontend, backend y paquetes compartidos, lo que permite centralizar contratos de datos, roles y reglas de negocio sin duplicar definiciones entre capas.
+
+El reto técnico más relevante es la conectividad variable del trabajo en campo. Por ello, el aplicativo incorpora capacidades PWA, persistencia local y sincronización diferida para determinados registros operativos; sin embargo, la sincronización completa de evidencias con archivo binario todavía no debe describirse como resuelta en su totalidad. Junto con ello, el sistema utiliza contratos compartidos, validación estructurada, control de acceso por roles y generación documental automática, porque estos mecanismos responden directamente a las fallas detectadas en planeación, ejecución, informes y cierre administrativo \cite{mdn_service_worker,owasp_top10}.
+
+\subsection{Justificación Organizacional}
+Para CERMONT S.A.S., la herramienta representa un salto cualitativo hacia la madurez de procesos operativos y la digitalización integral. El aplicativo unifica en una única interfaz de trabajo a actores típicamente desconectados: gerentes que evalúan avances, ingenieros residentes que estructuran kits de planeación, técnicos de campo que recolectan evidencias y personal de seguimiento administrativo que rastrea actas, SES y facturas aprobadas. Al centralizar y auditar cada cambio de estado (audit logging), la empresa reduce costos transaccionales derivados de la búsqueda de soportes físicos y correos electrónicos, contribuye a reducir devoluciones de SES asociadas con documentación incompleta, y proporciona un soporte transparente a sus clientes corporativos, mejorando su posicionamiento competitivo como contratista confiable y digitalizado en Arauca y la región.
+
+\subsection{Justificación Académica}
+Este trabajo de grado realiza un aporte académico al programa de Ingeniería Electrónica de la Universidad de Pamplona al articular análisis de procesos, arquitectura de software y comparación de soluciones FSM para atender un problema operativo real de CERMONT S.A.S. La revisión de plataformas comerciales y proyectos open source permitió identificar vacíos de adaptación al contexto de contratistas locales y justificar una solución a medida.
+
+\subsection{Justificación Metodológica}
+El proyecto se rige por la metodología Design Science Research (DSR), un enfoque riguroso de investigación aplicada que se centra en el diseño, desarrollo, prueba y validación de un artefacto de ingeniería real para resolver un problema práctico observado \cite{hevner2004}. El uso de esta metodología garantiza que el producto final (el aplicativo de software) sea evaluado no solo por su correcta funcionalidad interna mediante pruebas de caja negra y typechecks unitarios, sino también por su utilidad y aplicabilidad en el escenario operativo y comercial real de CERMONT S.A.S., separando con total nitidez científica las evidencias técnicas construidas de aquellas métricas operativas sujetas a medición progresiva durante la práctica profesional.
+
+\section{Objetivos}
+\label{sec:objetivos}
+
+Para orientar el desarrollo y garantizar la solución de la problemática descrita, se formularon los siguientes objetivos:
+
+\subsection{Objetivo General}
+Desarrollar un aplicativo web que permita gestionar de forma centralizada las órdenes de trabajo y optimizar la trazabilidad de los procesos operativos y administrativos en CERMONT S.A.S., mejorando la planeación, ejecución y cierre administrativo de los servicios técnicos.
+
+\subsection{Objetivos Específicos}
+\begin{enumerate}
+    \item \textbf{Analizar} el flujo actual de los procesos operativos y administrativos de CERMONT S.A.S. para identificar fallas críticas en la planeación, ejecución e informes técnicos.
+    \item \textbf{Diseñar} la arquitectura funcional del sistema web, definiendo módulos de planeación, ejecución, evidencias y cierre administrativo, junto con la estructura de base de datos y roles de usuario.
+    \item \textbf{Implementar} los módulos principales del aplicativo web, incluyendo planeación con kits típicos, listas de verificación digitales, registro de evidencias fotográficas y generación automática de informes técnicos.
+    \item \textbf{Validar} la efectividad del aplicativo mediante pruebas piloto, pruebas funcionales o escenarios de validación, midiendo reducción de tiempos, aumento de trazabilidad y eficiencia del cierre administrativo solo cuando exista evidencia verificable.
+\end{enumerate}
+
+\section{Alcance y delimitación del proyecto}
+\label{sec:alcance}
+
+El presente trabajo de grado se delimita rigurosamente para garantizar la viabilidad y originalidad científica de sus aportes académicos y técnicos.
+
+\subsection{Alcance Funcional y Técnico Realizado}
+El aplicativo de software implementado integra de forma nativa los siguientes alcances específicos:
+\begin{itemize}
+    \item \textbf{Gestión de Usuarios y Control de Accesos (RBAC):} Autenticación segura soportada por tokens JWT almacenados en cookies HttpOnly y autorización estricta estructurada bajo niveles de permiso diferenciados (Gerencia, Ingeniería Residente, Coordinador HES, Técnico de Campo, Personal Contable) mitigando vulnerabilidades críticas \cite{owasp_top10}.
+    \item \textbf{Orden de Trabajo (Work Order):} Ciclo de vida dinámico modelado a través de transiciones de estado lógicas (\textit{Creada}, \textit{En Planeación}, \textit{Aprobada}, \textit{En Ejecución}, \textit{Finalizada Técnico}, \textit{Cierre Administrativo}) con registro de bitácora de auditoría histórica (\texttt{AuditLog}).
+    \item \textbf{Módulo de Planeación Guiada:} Estructuración de paquetes de recursos asociados a la orden de trabajo utilizando plantillas parametrizadas de kits típicos (mano de obra, equipos con validación de vigencia de calibración, herramientas y documentos obligatorios).
+    \item \textbf{Módulo de Ejecución PWA Offline:} Diligenciamiento móvil de listas de verificación y checklists técnicos en campo utilizando IndexedDB local en ausencia de cobertura celular, dotado de captura directa de evidencias fotográficas y encolamiento en segundo plano operado por Service Workers \cite{mdn_service_worker}.
+    \item \textbf{Generación Documental:} Motor integrado para compilar, estructurar y renderizar de forma semiautomática las memorias de cálculo, respuestas de inspección y evidencias fotográficas en informes técnicos en formato PDF de alta definición (\texttt{pdf-lib}).
+    \item \textbf{Módulo de Cierre Administrativo:} Panel web interactivo que permite rastrear la vinculación transaccional entre el acta de entrega firmada, el código SES cargado en SAP Ariba, la factura electrónica emitida y el registro de confirmación del pago conciliado.
+\end{itemize}
+
+\subsection{Alcance Propuesto y Evoluciones Futuras}
+Se definen como alcances técnicos complementarios de desarrollo futuro o evolutivos los siguientes elementos del roadmap del software:
+\begin{itemize}
+    \item \textbf{Ingesta y Extracción Documental por Visión Artificial:} Incorporación de un módulo inteligente basado en modelos ligeros open-source como Docling \cite{docling}, Unstructured \cite{unstructured} o PaddleOCR \cite{paddleocr} para automatizar la extracción de texto, tablas y secciones de formatos PDF o imágenes analógicas y procesarlos directamente al aplicativo como esquemas configurables.
+    \item \textbf{Integración directa por API con ERPs Corporativos:} Conectividad directa en tiempo real con sistemas transaccionales del cliente o de la empresa (tales como SAP o software contable local SIIGO) para la automatización de la radicación e ingreso de SES y facturas sin intervención manual.
+\end{itemize}
+
+\subsection{Delimitación Académica y Límites de Medición}
+En estricto cumplimiento de los principios éticos y metodológicos del trabajo de grado, se establecen las siguientes delimitaciones:
+\begin{itemize}
+    \item No se reportan ni asumen porcentajes de reducción de tiempos operativos de forma arbitraria. Las métricas de desempeño solo se reportarán como resultados cuando exista evidencia de medición formal anexada; hasta entonces se tratarán como indicadores propuestos para una validación operativa posterior.
+    \item No se presentan análisis especulativos de Retorno de Inversión (ROI) o proyecciones financieras en dólares americanos (USD) para CERMONT S.A.S. que no estén respaldadas por estados contables o auditorías financieras reales. Los costos e inversiones analizados en el documento se limitan a tarifas públicas, suscripciones de software y licenciamientos de infraestructura web en la nube.
+    \item Se diferencian claramente las fases funcionales implementadas y testeadas en el monorepo real del aplicativo web de aquellas propuestas técnicas formuladas como líneas futuras de investigación académica e ingeniería de desarrollo.
+\end{itemize}
+
+\section{Análisis de actores interesados (\textit{stakeholders})}
+\label{sec:stakeholders}
+
+La solución propuesta afecta e involucra a múltiples actores dentro y fuera de CERMONT S.A.S., cada uno con necesidades, expectativas y criterios de éxito diferenciados. Las Tablas \ref{tab:matriz-stakeholders-a} y \ref{tab:matriz-stakeholders-b} presentan un análisis de los siete perfiles principales de usuarios del sistema y de los actores externos impactados por la digitalización del flujo operativo.
+
+\begin{table}[!htbp]
+\centering
+\caption{Matriz de análisis de actores interesados del proyecto (parte 1 de 2). Fuente: Elaboración propia.}
+\label{tab:matriz-stakeholders-a}
+\small
+\renewcommand{\arraystretch}{0.95}
+\setlength{\tabcolsep}{2pt}
+\def\StakeholderRow#1#2#3#4{\parbox[t]{2.2cm}{\raggedright #1} & \parbox[t]{4.4cm}{\raggedright #2} & \parbox[t]{4.7cm}{\raggedright #3} & \parbox[t]{2.3cm}{\raggedright #4}\\\midrule}
+\begin{tabular}{@{}l l l l@{}}
+\toprule
+\textbf{Actor} & \textbf{Necesidad principal} & \textbf{Problema actual} & \textbf{Beneficio esperado} \\
+\midrule
+\StakeholderRow{Gerente}{Visibilidad sobre el estado de todas las órdenes y la rentabilidad por servicio.}{Sin acceso a datos agregados en tiempo real; decisiones basadas en informes verbales.}{Dashboard con KPIs operativos y financieros; trazabilidad total de cada orden.}
+\StakeholderRow{Residente}{Asignación eficiente de recursos y personal a las órdenes de trabajo.}{Planeación manual desde cero para cada orden; sin biblioteca de kits reutilizables.}{Kits típicos por tipo de servicio; validación automática de disponibilidad de recursos.}
+\StakeholderRow{Supervisor}{Seguimiento de la ejecución en campo y revisión de evidencias.}{Dependencia de WhatsApp para comunicación con técnicos; sin visibilidad en tiempo real.}{Panel de ejecución con evidencias sincronizadas; notificaciones de novedades.}
+\StakeholderRow{Técnico / Operador}{Captura ágil de datos en campo, incluso sin conectividad.}{Formatos físicos que se dañan o extravían; fotos en dispositivo personal sin trazabilidad.}{Aplicación PWA con operación offline; captura de evidencias vinculadas automáticamente a la orden.}
+\bottomrule
+\end{tabular}
+\end{table}
+\begin{table}[!htbp]
+\centering
+\caption{Matriz de análisis de actores interesados del proyecto (parte 2 de 2). Fuente: Elaboración propia.}
+\label{tab:matriz-stakeholders-b}
+\small
+\renewcommand{\arraystretch}{0.95}
+\setlength{\tabcolsep}{2pt}
+\def\StakeholderRowB#1#2#3#4{\parbox[t]{2.2cm}{\raggedright #1} & \parbox[t]{4.4cm}{\raggedright #2} & \parbox[t]{4.7cm}{\raggedright #3} & \parbox[t]{2.3cm}{\raggedright #4}\\\midrule}
+\begin{tabular}{@{}l l l l@{}}
+\toprule
+\textbf{Actor} & \textbf{Necesidad principal} & \textbf{Problema actual} & \textbf{Beneficio esperado} \\
+\midrule
+\StakeholderRowB{HES (Seguridad)}{Verificación del cumplimiento de checklists de seguridad y uso de EPP.}{Checklists en papel sin trazabilidad; difícil auditar cumplimiento histórico.}{Checklists digitales con registro de auditoría; evidencias fotográficas de condiciones de seguridad.}
+\StakeholderRowB{Admin.}{Preparación documental para facturación sin recaptura manual.}{Recopilación manual de soportes y demoras en el cierre.}{Generación automática de informes y seguimiento documental.}
+\StakeholderRowB{Cliente corporativo}{Conocer el estado de sus servicios y recibir documentación completa y oportuna.}{Sin visibilidad del avance; documentos entregados con retraso.}{Acceso a información de sus órdenes; documentación estructurada y trazable.}
+\bottomrule
+\end{tabular}
+\end{table}
+
+Este análisis de actores fue utilizado como insumo para la definición de los módulos del sistema y la matriz de permisos RBAC. Cada módulo del aplicativo responde a las necesidades de al menos un perfil de usuario identificado en esta matriz, garantizando que el desarrollo se orientó a resolver problemas reales de los usuarios finales y no a implementar funcionalidades sin un propósito definido.
+
+\section{Estructura general del documento de trabajo de grado}
+\label{sec:estructura-documento}
+
+Para facilitar la lectura y el rigor expositivo del trabajo, el presente informe académico se estructura en diez (10) capítulos principales, organizados de forma secuencial y coherente:
+
+\begin{itemize}
+    \item \textbf{Capítulo 1 - Introducción General y Planteamiento del Problema:} Presenta el contexto de la empresa, el flujo real de 14 pasos, las cinco fallas críticas documentadas, la pregunta de investigación, la justificación, los objetivos y el alcance del trabajo.
+    \item \textbf{Capítulo 2 - Marco Teórico:} Reúne los fundamentos de ingeniería de software, gestión documental, trazabilidad operativa, FSM/CMMS/ERP, persistencia, seguridad y operación offline que sustentan el proyecto.
+    \item \textbf{Capítulo 3 - Estado del Arte:} Compara herramientas comerciales y repositorios abiertos relacionados con gestión de campo, mantenimiento y documentación operativa, destacando el diferencial del aplicativo propuesto para CERMONT S.A.S.
+    \item \textbf{Capítulo 4 - Marco Legal, Normativo y Ético:} Expone las consideraciones regulatorias, de protección de datos, propiedad intelectual, licenciamiento y confidencialidad aplicables al sistema.
+    \item \textbf{Capítulo 5 - Metodología:} Describe el enfoque de práctica empresarial con investigación aplicada, las fases de trabajo, las fuentes documentales y la forma de validar el artefacto.
+    \item \textbf{Capítulo 6 - Desarrollo del Aplicativo Web:} Documenta la arquitectura, el stack tecnológico verificado, la organización del monorepo, los módulos desarrollados y las decisiones técnicas relevantes.
+    \item \textbf{Capítulo 7 - Resultados Técnicos y Evidencias del Desarrollo:} Resume qué funcionalidades quedaron implementadas, cuáles son parciales o propuestas y qué evidencias de código, documentación y pruebas respaldan el desarrollo.
+    \item \textbf{Capítulo 8 - Validación y Pruebas del Sistema:} Presenta la estrategia de pruebas, la evidencia técnica ejecutada y las actividades de validación pendientes en entorno operativo real.
+    \item \textbf{Capítulo 9 - Discusión y Análisis Crítico:} Analiza alcances, limitaciones, decisiones arquitectónicas, comparación con soluciones existentes y lecciones aprendidas del proyecto.
+    \item \textbf{Capítulo 10 - Conclusiones y Recomendaciones:} Sintetiza el cumplimiento de objetivos, las recomendaciones para CERMONT S.A.S. y las líneas de continuidad del sistema.
+    \item \textbf{Anexos:} Reúnen matrices, evidencias visuales, tablas de pruebas, soporte institucional y material complementario del desarrollo.
+\end{itemize}
+
+La lectura secuencial de estos capítulos permite al lector seguir el hilo conductor que une el problema diagnosticado con la solución construida. Cada capítulo se apoya en el anterior y prepara el terreno para el siguiente, evitando tanto la repetición innecesaria de información como los saltos lógicos que dificultarían la comprensión del trabajo.
+
+El documento mantiene trazabilidad bibliográfica y distingue con claridad las afirmaciones del autor de las fuentes externas. Esa disciplina de trazabilidad, sostenida a lo largo de todo el libro, constituye un compromiso con la integridad académica y con la defendibilidad del trabajo frente a cualquier revisión por pares. El lector encontrará al final del volumen las referencias bibliográficas completas y los anexos que complementan la exposición con evidencia técnica y documental.
+
+% --- AMPLIACIÓN ACADÉMICA INTEGRADA CAPÍTULO 1 ---
+
+\section{Matriz de trazabilidad entre fallas, requisitos y módulos}
+\label{sec:matriz-fallas-requisitos-modulos}
+
+Para evitar que el desarrollo del aplicativo se interprete como una simple digitalización de formatos, se construyó una matriz de trazabilidad que relaciona la falla operativa con el requisito funcional y con el módulo que debe asumir la responsabilidad dentro del sistema. Esta matriz permite verificar que cada componente del aplicativo responde a una necesidad real de CERMONT S.A.S. y no a una decisión tecnológica aislada. Además, sirve como puente entre el diagnóstico, la ingeniería de requisitos y los capítulos de desarrollo y validación.
+
+\begin{table}[!htbp]
+\centering
+\footnotesize
+\caption{Relación entre fallas operativas, requisitos funcionales y módulos del aplicativo. Fuente: elaboración propia.}
+\label{tab:fallas-requisitos-modulos-cap1}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{p{3.0cm}p{2.0cm}p{4.2cm}p{3.0cm}p{3.4cm}}
+\toprule
+\textbf{Falla identificada} & \textbf{Paso asociado} & \textbf{Requisito derivado} & \textbf{Módulo responsable} & \textbf{Evidencia esperada}\\
+\midrule
+Planeación incompleta de herramientas y equipos & 5 & El sistema debe permitir configurar kits típicos por tipo de actividad, incluyendo herramientas, equipos, materiales, EPP y documentos de apoyo. & Planeación y kits típicos & Plantilla de planeación, checklist previo y registro de readiness.\\
+Ejecución con soportes dispersos & 6 & El sistema debe asociar evidencias, observaciones y formularios de campo a la orden de trabajo correspondiente. & Ejecución y evidencias & Evidencias anexadas a una orden con metadatos y trazabilidad.\\
+Retrasos en informes y actas & 7--9 & El sistema debe generar documentos técnicos a partir de la información capturada durante la ejecución. & Informes y actas & Informe técnico o acta generada desde datos estructurados.\\
+Seguimiento administrativo fragmentado & 10--14 & El sistema debe mostrar el estado de SES, factura, aprobación y pago en una línea de tiempo consultable. & Cierre administrativo & Panel de seguimiento por orden y estado documental.\\
+Ausencia de costos reales centralizados & 3--14 & El sistema debe vincular propuesta, ejecución, costos reales y facturación para comparar lo presupuestado con lo ejecutado. & Costos y propuesta & Registro de costos por orden, pendiente de validación con datos reales.\\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+Esta relación muestra que la problemática no se concentra en una única pantalla ni en una única tarea administrativa. La falla surge por la falta de continuidad entre etapas que dependen unas de otras. Por ejemplo, una planeación incompleta puede afectar la ejecución; una ejecución sin evidencias puede retrasar el informe; un informe tardío puede detener el acta; y un acta pendiente puede impedir la radicación de SES o la facturación. Por esta razón, el sistema debe trabajar como una cadena de estados y documentos, donde cada transición se encuentre respaldada por datos mínimos, permisos, evidencias y validaciones.
+
+\section{Criterio de delimitación del problema para evitar generalizaciones}
+\label{sec:delimitacion-problema-real}
+
+El planteamiento del problema se limita a las fallas documentadas por la empresa y a la evidencia disponible en los formatos suministrados. No se afirma que CERMONT S.A.S. carezca de gestión administrativa ni que sus procesos sean ineficientes en sentido general; el problema se define con mayor precisión como una fragmentación de información entre soportes físicos, documentos de oficina, archivos fotográficos, hojas de cálculo y seguimiento administrativo no integrado. Esta delimitación es importante porque evita atribuir a la empresa problemas no evidenciados y, al mismo tiempo, permite justificar de manera concreta el desarrollo de una herramienta a la medida.
+
+Desde el punto de vista académico, esta delimitación también permite sostener la originalidad del trabajo. El objetivo no es demostrar que toda empresa contratista necesite un software propio, sino analizar por qué en este caso específico la combinación de servicios técnicos, documentos heterogéneos, operación en campo y cierre administrativo exige una plataforma que conecte información operativa y documental. La solución se deriva del proceso observado y no de una moda tecnológica.
+
+\section{Criterios para interpretar el alcance de la solución}
+\label{sec:criterios-alcance-solucion}
+
+El alcance del aplicativo debe leerse en tres niveles. El primer nivel corresponde a la funcionalidad implementada o evidenciada técnicamente: módulos, contratos, rutas, interfaces, validaciones y pruebas que pueden verificarse en el repositorio o en la documentación técnica. El segundo nivel corresponde a la funcionalidad parcialmente implementada: capacidades cuyo diseño existe y cuya estructura base fue desarrollada, pero que requieren estabilización, pruebas adicionales o conexión completa entre frontend, backend y persistencia. El tercer nivel corresponde al trabajo futuro: funcionalidades como extracción documental automática, integración contable avanzada o analítica financiera, que pueden estar justificadas por el proyecto, pero no deben presentarse como resultados concluidos si no existe evidencia verificable.
+
+Esta clasificación protege la defendibilidad del libro porque evita prometer un nivel de madurez superior al alcanzado. También facilita la evaluación por jurados, ya que permite distinguir con claridad entre el artefacto desarrollado, la arquitectura propuesta y las líneas de evolución que quedan disponibles para CERMONT S.A.S. después de la práctica empresarial.

@@ -1,0 +1,28 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CONFIGURACIÓN DE CITAS - ESTILO IEEE NUMÉRICO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Archivo: Citas.tex
+% Uso: incluir en el preámbulo DESPUÉS de cargar xcolor y ANTES de la bibliografía.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[square,numbers,sort&compress]{natbib}
+\bibliographystyle{IEEEtran}
+
+\providecolor{UnipamplonaAzul}{HTML}{003366}
+\providecolor{UnipamplonaRojo}{HTML}{AD3333}
+\providecolor{UnipamplonaGris}{HTML}{DADADA}
+
+\AtBeginDocument{%
+  \hypersetup{%
+    colorlinks=true,
+    citecolor=UnipamplonaAzul,
+    linkcolor=black,
+    urlcolor=UnipamplonaAzul,
+    pdfborder={0 0 0}%
+  }%
+}
+
+\let\cite\citep
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FIN CONFIGURACIÓN DE CITAS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

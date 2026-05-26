@@ -2,10 +2,10 @@ import { INTERNAL_ROLES } from "@cermont/domain";
 import { ObjectIdSchema } from "@cermont/shared-types";
 import { Router } from "express";
 import { z } from "zod";
-import * as WorkflowController from "./administrative-workflow.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateParams } from "../../middlewares/validate";
+import * as WorkflowController from "./administrative-workflow.controller";
 
 const router = Router();
 const OrderIdParamsSchema = z.object({ id: ObjectIdSchema }).strict();

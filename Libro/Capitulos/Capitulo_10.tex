@@ -1,0 +1,139 @@
+% =====================================================================
+% CAPÍTULO 10: CONCLUSIONES Y RECOMENDACIONES
+% =====================================================================
+
+\chapter{Conclusiones y Recomendaciones}
+\label{ch:conclusiones}
+
+% --- Ajustes editoriales locales del capítulo: sangría, espaciado y control de desbordamientos ---
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{0pt}
+\sloppy
+\emergencystretch=2em
+\raggedbottom
+\section{Conclusiones}
+
+A partir del desarrollo del proyecto se concluyó lo siguiente:
+
+\begin{table}[!htbp]
+\centering
+\caption{Respuesta a los objetivos del proyecto. Fuente: Elaboración propia con base en el libro, la documentación técnica y el repositorio.}
+\label{tab:objetivos-evidencia}
+\footnotesize
+\def\ObjRow#1#2#3#4#5{\parbox[t]{3.4cm}{\raggedright #1} & \parbox[t]{2.3cm}{\raggedright #2} & \parbox[t]{2.3cm}{\raggedright #3} & \parbox[t]{4.0cm}{\raggedright #4} & \parbox[t]{2.2cm}{\raggedright #5}\\\midrule}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}l l l l l@{}}
+\toprule
+\textbf{Objetivo} & \textbf{Cómo se abordó} & \textbf{Capítulo} & \textbf{Evidencia} & \textbf{Estado} \\
+\midrule
+\ObjRow{Analizar el flujo actual y las fallas críticas}{Diagnóstico del flujo de 14 pasos y revisión de formatos operativos e institucionales.}{1, 5 y 7}{Documento de proceso de CERMONT, formatos internos y matrices de diagnóstico.}{Cumplido}
+\ObjRow{Diseñar la arquitectura funcional}{Definición de módulos, roles, estados, contratos compartidos y organización del monorepo.}{5 y 6}{Diagramas, esquemas compartidos, \path{packages/domain/src/roles.ts}, \path{packages/shared-types/src/schemas/}.}{Cumplido}
+\ObjRow{Implementar los módulos principales}{Construcción de backend, frontend y contratos para planeación, ejecución, evidencias, informes, cierre y costos.}{6 y 7}{Código del monorepo, rutas, servicios, pantallas y pruebas automatizadas.}{Cumplido con alcances parciales}
+\ObjRow{Validar la efectividad del aplicativo}{Ejecución de pruebas técnicas y diseño de escenarios de validación por rol.}{8}{Reportes de pruebas, matrices de validación y lineamientos de piloto.}{Parcial: medición operativa pendiente}
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\begin{enumerate}
+  \item \textbf{Se concluyó} que la principal dificultad de CERMONT S.A.S. no radica en la ausencia total de documentos, sino en la fragmentación de la información operativa y administrativa entre soportes físicos y digitales dispersos. El diagnóstico permitió reconocer cinco fallas críticas: planeación, ejecución, informes y actas, facturación y control de costos reales. En consecuencia, el problema no se resuelve solo con digitalizar formatos, sino con articularlos dentro de un flujo trazable por orden de trabajo.
+
+  \item \textbf{Se evidenció} que una arquitectura web modular, organizada en frontend, backend y paquetes compartidos, permite estructurar de manera coherente órdenes de trabajo, planeación, evidencias, generación documental y seguimiento administrativo. Esta organización favorece la separación de responsabilidades y la trazabilidad entre contratos, roles, endpoints y pantallas.
+
+  \item \textbf{Se verificó} que el enfoque contract-first y el uso de contratos compartidos permiten mantener consistencia entre validación, persistencia y experiencia de usuario. Este hallazgo es relevante porque el proyecto no solo produjo pantallas, sino un flujo de desarrollo que relaciona esquema, servicio, endpoint, consulta y componente.
+
+  \item \textbf{Se confirmó} que el sistema implementado cubre los módulos centrales necesarios para atender el flujo de 14 pasos, aunque no todas las capacidades deben presentarse como cerradas o completamente validadas. La operación offline, por ejemplo, existe como soporte parcial para ciertos registros de campo, mientras que la sincronización completa de evidencias binarias y las integraciones con plataformas externas permanecen pendientes o fuera de alcance.
+
+  \item \textbf{Se constató} que el rigor académico del trabajo se sustenta en la trazabilidad entre cada afirmación y su fuente verificable. Los datos sobre CERMONT S.A.S. provienen de documentos reales suministrados por la empresa (formatos operativos, inducción HES, sitio web oficial); los datos sobre costos de software provienen de páginas oficiales de proveedores (Jobber, Odoo, ServiceM8); y los datos sobre herramientas de código abierto provienen de repositorios públicos en GitHub. No se incluyeron en el documento cifras internas no autorizadas, proyecciones financieras sin soporte contable, ni resultados de pruebas piloto no ejecutadas. Esta disciplina de trazabilidad fortalece la defendibilidad del trabajo frente a cualquier revisión académica.
+
+  \item \textbf{Se concluyó} que el proyecto, desarrollado bajo modalidad de práctica empresarial, sí constituye una contribución técnica y académica verificable: técnica, porque existe un artefacto real en desarrollo; metodológica, porque puede rastrearse su evolución mediante documentación, código y pruebas; y académica, porque la solución se argumenta desde un problema organizacional real y no desde una tesis genérica de transformación digital.
+\end{enumerate}
+
+\section{Recomendaciones}
+
+Con base en las limitaciones identificadas y en los resultados obtenidos, se proponen las siguientes recomendaciones orientadas a fortalecer el sistema y su adopción en CERMONT S.A.S.:
+
+\begin{itemize}
+  \item \textbf{Validación cuantitativa en entorno productivo:} Completar la medición de los indicadores definidos en la metodología (tiempo de planeación, completitud documental, trazabilidad de evidencias, satisfacción de usuarios) mediante la ejecución de una prueba piloto controlada durante al menos un ciclo operativo completo. Estos datos son necesarios para transformar la validación técnica (el sistema funciona) en validación operativa (el sistema mejora los procesos). Se recomienda documentar los resultados en un anexo del libro final, con los instrumentos de medición utilizados y las evidencias correspondientes.
+  
+  \item \textbf{Documentación de evidencias funcionales:} Incorporar al documento anexos con capturas de pantalla del sistema en funcionamiento, ejemplos de órdenes de trabajo creadas, evidencias fotográficas asociadas, informes PDF generados y resultados de las pruebas automatizadas. Esta documentación visual fortalece la defendibilidad del trabajo frente a la revisión académica al proporcionar evidencia concreta del artefacto construido.
+  
+  \item \textbf{Formalización del módulo de formularios dinámicos:} Si la empresa aprueba su incorporación, definir un plan de trabajo para implementar el pipeline de extracción documental descrito en el capítulo de desarrollo: carga del documento PDF/WORD $\rightarrow$ extracción de estructura $\rightarrow$ generación de plantilla $\rightarrow$ revisión humana $\rightarrow$ publicación como formulario digital. Las herramientas identificadas en el estado del arte (Docling, Unstructured, PaddleOCR, MinerU) proporcionan una base técnica para esta implementación.
+  
+  \item \textbf{Integración con sistemas externos:} Evaluar la viabilidad de integrar el aplicativo con el software contable de CERMONT S.A.S. (SIIGO) y, cuando la escala lo justifique, con portales transaccionales de clientes (SAP Ariba) para automatizar la radicación de SES y facturas. Se recomienda que esta integración se realice después de consolidar el sistema base y de documentar los flujos de datos entre sistemas.
+  
+  \item \textbf{Mejora continua del código base:} Mantener la disciplina de compuertas de calidad (\texttt{typecheck}, \texttt{lint}, \texttt{test}, \texttt{build}, \texttt{react-doctor}) en todas las iteraciones futuras. Ampliar la cobertura de pruebas unitarias y de integración para los módulos que actualmente dependen más de la validación cualitativa que de la verificación automatizada. Considerar la incorporación de pruebas end-to-end con Playwright para los flujos críticos del negocio.
+  
+  \item \textbf{Capacitación y gestión del cambio:} Diseñar un plan de capacitación para los usuarios del sistema en CERMONT S.A.S., diferenciado por perfil de usuario (técnicos de campo, supervisores, administrativos, gerencia). La resistencia al cambio organizacional es un factor crítico de éxito en proyectos de transformación digital, y la experiencia del personal con herramientas digitales previas puede influir significativamente en la adopción del sistema.
+  
+  \item \textbf{Estrategia de respaldo y continuidad:} Implementar un plan de respaldos automáticos de la base de datos y de los archivos de evidencias, con retención mínima de 30 días y almacenamiento en ubicación separada del servidor principal. Documentar un procedimiento de recuperación ante desastres que permita restaurar el sistema en caso de falla de infraestructura.
+  
+  \item \textbf{Verificación de requisitos institucionales:} Confirmar con la plantilla institucional vigente del programa de Ingeniería Electrónica de la Universidad de Pamplona cualquier requisito de presentación, estructura o contenido que deba ajustarse en la versión final del libro de trabajo de grado. Esta verificación debe realizarse antes de la entrega formal para evitar correcciones de última hora.
+\end{itemize}
+
+\section{Líneas de continuidad}
+
+Como continuidad del trabajo, se recomienda profundizar en tres frentes complementarios que permiten conservar la coherencia del sistema sin introducir complejidad prematura.
+
+El primer frente es la \textbf{automatización documental}. El pipeline de formularios dinámicos propuesto en el capítulo de desarrollo —carga de documento $\rightarrow$ extracción de estructura $\rightarrow$ generación de plantilla $\rightarrow$ revisión humana $\rightarrow$ publicación como formulario digital— representa una evolución natural del sistema que aprovecharía los formatos existentes de CERMONT S.A.S. sin requerir que cada nuevo tipo de servicio motive un desarrollo de software específico. Las herramientas identificadas en el estado del arte (Docling, Unstructured, PaddleOCR, MinerU) proporcionan la base técnica para esta automatización, pero su integración en el flujo de trabajo del aplicativo requiere un proyecto de desarrollo dedicado, con atención particular a la validación humana de los campos extraídos automáticamente.
+
+El segundo frente es la \textbf{medición de impacto}. La validación técnica del sistema mediante pruebas automatizadas y revisión de seguridad está documentada; la validación operativa (medición de tiempos, completitud documental, satisfacción de usuarios, reducción de errores) requiere la ejecución de una prueba piloto controlada en el entorno productivo de CERMONT S.A.S. Esta medición transformaría los indicadores actualmente marcados como ``por medir con evidencia operativa'' en resultados cuantitativos que fortalecerían significativamente la evaluación del proyecto. Se recomienda que esta actividad sea priorizada durante la práctica empresarial, ya que los datos recolectados pueden incorporarse como anexo al libro final antes de la sustentación.
+
+El tercer frente es la \textbf{expansión funcional controlada}. El sistema actual cubre módulos centrales del flujo operativo y administrativo, pero existen oportunidades de expansión identificadas durante el desarrollo: integración con el software contable SIIGO para automatizar la transferencia de datos de facturación, implementación de un portal del cliente para consulta de estados de órdenes, incorporación de notificaciones automáticas por correo electrónico ante cambios de estado relevantes, y desarrollo de un módulo de analítica operativa con dashboards avanzados de rentabilidad por tipo de servicio, por cliente y por período. Cada una de estas expansiones debe evaluarse según su valor para el negocio y su complejidad técnica, priorizando aquellas que resuelvan los cuellos de botella más significativos para la operación de CERMONT S.A.S.
+
+\section{Cierre del trabajo}
+
+El proyecto cumplió su propósito académico al abordar un problema real con una solución tecnológica coherente, documentada y defendible. Desde la perspectiva de la Ingeniería Electrónica, el trabajo demuestra la aplicación de principios de análisis de sistemas, diseño de arquitectura, desarrollo de software, validación técnica y documentación rigurosa en un contexto organizacional auténtico. El artefacto construido —un aplicativo web funcional con módulos de negocio y soporte organizados por dominio, cobertura del flujo de 14 pasos, pruebas automatizadas documentadas y arquitectura sustentada mediante decisiones justificadas— constituye evidencia verificable de las competencias adquiridas durante la formación profesional.
+
+El mayor aporte del proyecto no reside en una funcionalidad específica del software, sino en la demostración de que la fragmentación documental de una empresa contratista multiservicio puede ser abordada sistemáticamente mediante una arquitectura web diseñada a partir del proceso real y no al margen de él. Este enfoque —diagnosticar el flujo existente, diseñar una arquitectura que respete la lógica operativa de la organización, implementar con estándares de calidad industrial y validar con evidencia verificable— constituye un modelo replicable para proyectos similares en el sector de servicios técnicos e industriales.
+
+Queda en manos de CERMONT S.A.S. la decisión de adoptar el sistema como su plataforma operativa principal, así como la responsabilidad de continuar su evolución mediante las líneas de trabajo propuestas en este documento. El autor confía en que la base técnica construida, la documentación generada y las recomendaciones formuladas proporcionan un punto de partida sólido para esa continuidad.
+
+\section{Síntesis de contribuciones}
+\label{sec:sintesis-contribuciones}
+
+El trabajo de grado realizado produjo contribuciones en tres dimensiones complementarias. En la dimensión técnica, se construyó un artefacto de software funcional con módulos integrados para el flujo operativo y administrativo de CERMONT S.A.S., respaldado por pruebas automatizadas documentadas y por un flujo contract-first verificable. En la dimensión metodológica, se aplicó y documentó un proceso sistemático de desarrollo que articula diagnóstico, diseño, implementación y validación técnica. En la dimensión académica, se realizó una revisión comparativa de plataformas comerciales de FSM, repositorios abiertos de CMMS/ERP y herramientas de formularios dinámicos y extracción documental, estableciendo criterios que justifican el desarrollo a medida frente a la adopción directa de soluciones existentes.
+
+\section{Reflexión sobre la formación en Ingeniería Electrónica}
+\label{sec:reflexion-ie}
+
+La ejecución de este proyecto permitió constatar que la Ingeniería Electrónica, entendida en su alcance contemporáneo, trasciende el diseño de circuitos y sistemas de potencia para abarcar el diseño de sistemas de información que resuelven problemas reales de organizaciones. La capacidad de analizar un proceso operativo, modelar sus entidades y estados, diseñar una arquitectura de software que soporte restricciones de conectividad, seguridad y escalabilidad, e implementarla con estándares de calidad industrial, constituye una competencia fundamental del ingeniero electrónico en la era de la transformación digital. Este proyecto, desarrollado en el contexto de práctica empresarial, ejemplifica cómo los conocimientos adquiridos durante la carrera pueden aplicarse para generar valor en una organización real, cumpliendo con el perfil de egreso definido por el programa de Ingeniería Electrónica de la Universidad de Pamplona.
+
+% --- AMPLIACIÓN ACADÉMICA INTEGRADA CAPÍTULO 10 ---
+
+\section{Conclusiones ampliadas por objetivo específico}
+\label{sec:conclusiones-ampliadas-objetivos}
+
+Respecto al primer objetivo específico, se concluyó que el flujo operativo de CERMONT S.A.S. puede representarse mediante una secuencia de catorce pasos que inicia en la solicitud del cliente y finaliza con el pago del servicio. Este modelado permitió identificar fallas concretas en planeación, ejecución, consolidación documental, facturación y control de costos reales. La sistematización del proceso constituyó la base para convertir una problemática organizacional en requisitos de software verificables.
+
+Respecto al segundo objetivo específico, se concluyó que la arquitectura funcional del sistema debía organizarse por módulos alineados con el flujo de negocio y no por pantallas aisladas. La separación entre frontend, backend y contratos compartidos permitió definir responsabilidades, reducir duplicidad y mantener una trazabilidad técnica entre entidades, estados y acciones del usuario. La estructura modular también facilita que CERMONT incorpore nuevos tipos de documentos y servicios sin rediseñar por completo la aplicación.
+
+Respecto al tercer objetivo específico, se concluyó que los módulos principales del aplicativo responden a las fallas documentadas: planeación y kits para evitar omisiones de herramientas y equipos; ejecución y evidencias para reducir dispersión documental; informes y actas para disminuir recaptura manual; cierre administrativo para dar seguimiento a SES, factura y pago; y costos reales para preparar la comparación contra propuesta económica. El grado de implementación de cada módulo debe mantenerse documentado con evidencia técnica y no con afirmaciones generales.
+
+Respecto al cuarto objetivo específico, se concluyó que la validación técnica del sistema puede organizarse mediante pruebas por capas, escenarios funcionales y aceptación por rol. Los indicadores cuantitativos de impacto operativo deben medirse únicamente en una fase piloto con usuarios reales y órdenes de trabajo reales. Mientras esa fase no produzca evidencia, el libro debe presentar dichos indicadores como propuestos o pendientes de validación.
+
+\section{Recomendaciones operativas para CERMONT S.A.S.}
+\label{sec:recomendaciones-operativas-cermont}
+
+Se recomienda que CERMONT S.A.S. adopte el aplicativo de forma gradual, iniciando con un subconjunto de servicios y usuarios. La adopción debe comenzar por el módulo de planeación y evidencias, porque allí se ubican fallas que afectan de manera temprana el resto del proceso. Una vez estabilizada la captura de información, se debe avanzar hacia informes, actas, SES, facturación y costos reales. Esta ruta evita exigir a la organización una migración completa sin madurez operativa suficiente.
+
+También se recomienda establecer responsables internos para el mantenimiento de plantillas, kits típicos, roles y catálogos. Un sistema configurable pierde valor si nadie administra sus datos maestros. La empresa debe definir quién puede crear kits, quién aprueba plantillas, quién revisa evidencias, quién autoriza cierres y quién consulta información financiera.
+
+\section{Recomendaciones técnicas para continuidad del software}
+\label{sec:recomendaciones-tecnicas-continuidad}
+
+Desde el punto de vista técnico, se recomienda mantener la arquitectura por contratos compartidos, evitar duplicidad de reglas entre frontend y backend, conservar pruebas automatizadas y registrar decisiones relevantes. También se recomienda documentar cualquier cambio de flujo, especialmente si se modifican etapas de SES, facturación, pago, costos o evidencias. La documentación técnica 00--22 debe mantenerse como línea base viva, actualizada con cada cambio relevante del aplicativo.
+
+La continuidad del sistema debe incluir respaldo de datos, control de versiones, política de recuperación, monitoreo de errores, revisión de dependencias y gestión de licencias. Estas prácticas son necesarias para que el aplicativo no quede como prototipo académico, sino como base operativa sostenible.
+
+\section{Proyección hacia una plataforma configurable}
+\label{sec:proyeccion-plataforma-configurable}
+
+La evolución natural del aplicativo es convertirse en una plataforma configurable por documentos, plantillas y reglas. CERMONT no ejecuta un único tipo de servicio; por tanto, el sistema debe permitir que nuevos formatos se transformen en formularios digitales sin programar cada caso desde cero. Esta evolución requiere un módulo de importación documental, revisión humana de campos, versionamiento de plantillas y generación de formularios dinámicos. La automatización mediante OCR o extracción inteligente debe tratarse como trabajo futuro hasta que exista implementación y validación suficientes.
+
+\section{Cierre final}
+\label{sec:cierre-final-ampliado}
+
+El trabajo desarrollado demuestra que la fragmentación documental y operativa puede abordarse mediante un aplicativo web diseñado desde el proceso real de la empresa. La contribución principal no se limita a construir una aplicación, sino a establecer una relación trazable entre diagnóstico, requisitos, arquitectura, módulos, pruebas y recomendaciones. Esta relación permite que el libro sea defendible ante revisión académica y útil para la continuidad del proyecto dentro de CERMONT S.A.S.
+
+En términos de formación profesional, el proyecto integra competencias de Ingeniería Electrónica, ingeniería de software, análisis de procesos, control de sistemas de información y documentación técnica. La experiencia confirma que un trabajo de grado aplicado puede generar valor empresarial cuando se construye con rigor metodológico, evidencia verificable y respeto por los límites de lo realmente implementado.

@@ -1,12 +1,8 @@
 import { INTERNAL_ROLES } from "@cermont/domain";
 import { Router } from "express";
-import {
-	createTemplate,
-	getTemplate,
-	listTemplates,
-} from "./document-template.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
+import { createTemplate, getTemplate, listTemplates } from "./document-template.controller";
 
 const router = Router();
 

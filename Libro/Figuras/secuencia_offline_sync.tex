@@ -1,0 +1,9 @@
+\begin{tikzpicture}[node distance=1.0cm, every node/.style={font=\scriptsize}, box/.style={draw, rounded corners, align=center, minimum width=2.4cm, minimum height=0.75cm, fill=orange!8}]
+\node[box] (cap) {Captura en campo};
+\node[box, right=of cap] (local) {IndexedDB\\cola local};
+\node[box, right=of local] (net) {Detección\\de red};
+\node[box, right=of net] (api) {API backend};
+\node[box, right=of api] (ok) {Confirmación\\y auditoría};
+\draw[-{Latex[length=2mm]}] (cap)--(local); \draw[-{Latex[length=2mm]}] (local)--(net); \draw[-{Latex[length=2mm]}] (net)--(api); \draw[-{Latex[length=2mm]}] (api)--(ok);
+\node[below=0.65cm of local, align=center, font=\tiny] {No se pierde información si la red falla};
+\end{tikzpicture}

@@ -13,12 +13,12 @@ import { BadRequestError } from "../../common/errors";
 import { sendCreated, sendSuccess } from "../../common/interceptors/response.interceptor";
 import { requireUser } from "../../common/utils/request";
 import { Document, DocumentExtractionJob, TemplateDraft } from "../../models";
+import { convertTemplateDraftToTemplate } from "../../modules/template-draft/template-draft.service";
 import {
 	applyClosingEvidenceMetadata,
 	type ClosingEvidenceRoutingResult,
 } from "../../services/closing-evidence-routing.service";
 import { ingestDocument } from "./document-ingestion.service";
-import { convertTemplateDraftToTemplate } from "../../modules/template-draft/template-draft.service";
 
 type ClosingEvidenceResult = { documentId: string } & ClosingEvidenceRoutingResult;
 

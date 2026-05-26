@@ -15,10 +15,10 @@ import {
 	WorkRequestIdParamsSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
-import * as WorkRequestController from "./work-requests.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
+import * as WorkRequestController from "./work-requests.controller";
 
 const router = Router();
 

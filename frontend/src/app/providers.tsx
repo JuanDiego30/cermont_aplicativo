@@ -4,10 +4,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { MotionConfig } from "framer-motion";
 import { type ReactNode, useEffect, useState } from "react";
+import { detailQueryOptions } from "@/_shared/lib/query/query-options";
 import { STALE_TIMES } from "@/lib/constants/query-config";
+import { persistQueryToIndexedDB, restoreQueryFromIndexedDB } from "@/lib/pwa/query-persist";
 import { ThemeProvider } from "@/lib/theme/ThemeProvider";
 import { AuthInitializer } from "@/modules/auth/components/AuthInitializer";
-import { persistQueryToIndexedDB, restoreQueryFromIndexedDB } from "@/lib/pwa/query-persist";
 
 export function Providers({ children }: { children: ReactNode }) {
 	const [queryClient] = useState(
@@ -15,10 +16,8 @@ export function Providers({ children }: { children: ReactNode }) {
 			new QueryClient({
 				defaultOptions: {
 					queries: {
+						...detailQueryOptions,
 						staleTime: STALE_TIMES.DETAIL,
-						gcTime: 10 * 60 * 1000, // 10 min
-						retry: 2,
-						refetchOnWindowFocus: true,
 						refetchOnReconnect: true,
 					},
 					mutations: {

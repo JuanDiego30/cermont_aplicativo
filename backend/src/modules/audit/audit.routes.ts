@@ -8,10 +8,10 @@
 import { MANAGEMENT_ROLES } from "@cermont/domain";
 import { AuditLogIdSchema, AuditLogsQuerySchema } from "@cermont/shared-types";
 import { Router } from "express";
-import { getAuditLogById, getAuditLogs } from "./audit.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateParams, validateQuery } from "../../middlewares/validate";
+import { getAuditLogById, getAuditLogs } from "./audit.controller";
 
 const router = Router();
 
