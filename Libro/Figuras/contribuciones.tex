@@ -1,0 +1,21 @@
+% Figura corregida: contribuciones del trabajo de grado.
+\begin{figure}[H]
+\centering
+\resizebox{0.88\textwidth}{!}{%
+\begin{tikzpicture}[font=\sffamily]
+\tikzset{center/.style={circle, draw=institucionalBlue, fill=institucionalBlue, text=white, line width=0.9pt, minimum size=2.45cm, align=center, font=\scriptsize\bfseries}, contrib/.style={figBoxWhite, minimum width=3.35cm, minimum height=1.05cm, text width=3.15cm, font=\scriptsize\bfseries}, detail/.style={font=\tiny, align=center}}
+\node[center] (c) at (0,0) {Aportes del\\trabajo};
+\node[contrib] (emp) at (0,3.35) {Aporte empírico\\caso CERMONT S.A.S.};
+\node[contrib] (met) at (5.1,0) {Aporte metodológico\\diagnóstico + DSR};
+\node[contrib] (tec) at (0,-3.35) {Aporte técnico\\arquitectura modular};
+\node[contrib] (org) at (-5.1,0) {Aporte organizacional\\trazabilidad documental};
+\foreach \n in {emp,met,tec,org}{\draw[figArrow] (c) -- (\n);} 
+\node[detail] at (0,4.55) {evidencia contextual para\\empresa contratista multiservicio};
+\node[detail] at (6.35,1.05) {ruta replicable de análisis,\\diseño y validación};
+\node[detail] at (0,-4.55) {órdenes, evidencias,\\reportes y seguridad};
+\node[detail] at (-6.45,1.05) {reducción de dispersión\\documental y operativa};
+\end{tikzpicture}%
+}
+\caption[Contribuciones del trabajo]{Síntesis de las contribuciones empíricas, metodológicas, técnicas y organizacionales derivadas del desarrollo del aplicativo para CERMONT S.A.S. Fuente: Elaboración propia.}
+\label{fig:contribuciones-originales}
+\end{figure}

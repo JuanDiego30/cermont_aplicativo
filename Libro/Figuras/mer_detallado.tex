@@ -1,0 +1,40 @@
+% Figura corregida: modelo documental detallado.
+\begin{figure}[H]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[font=\sffamily, node distance=0.80cm]
+\tikzset{entity/.style={figBoxWhite, minimum width=2.55cm, minimum height=0.55cm, font=\tiny, text width=2.38cm}, group/.style={rectangle, rounded corners=5pt, draw=institucionalBlue, fill=white, line width=0.8pt, inner sep=6pt}}
+\node[entity] (users) at (0,2.0) {Users};
+\node[entity, below=of users] (roles) {Roles / RBAC};
+\node[entity] (orders) at (4.0,2.0) {WorkOrders};
+\node[entity, below=of orders] (proposals) {Proposals};
+\node[entity, below=of proposals] (planning) {PlanningPackets};
+\node[entity] (check) at (8.0,2.0) {Checklists};
+\node[entity, below=of check] (evid) {Evidences};
+\node[entity, below=of evid] (reports) {Reports};
+\node[entity] (closure) at (12.0,2.0) {ClosureReports};
+\node[entity, below=of closure] (ses) {SES Tracking};
+\node[entity, below=of ses] (invoice) {InvoiceTracking};
+\node[entity, below=of invoice] (payment) {PaymentRecord};
+\node[entity] (audit) at (4.0,-2.1) {AuditLog};
+\node[entity] (docs) at (8.0,-2.1) {Documents / Files};
+\draw[figArrow] (users) -- (orders);
+\draw[figArrow] (roles) -- (orders);
+\draw[figArrow] (orders) -- (proposals);
+\draw[figArrow] (orders) -- (planning);
+\draw[figArrow] (orders) -- (check);
+\draw[figArrow] (orders) -- (evid);
+\draw[figArrow] (orders) -- (reports);
+\draw[figArrow] (orders) -- (closure);
+\draw[figArrow] (closure) -- (ses);
+\draw[figArrow] (ses) -- (invoice);
+\draw[figArrow] (invoice) -- (payment);
+\draw[figArrow] (orders) -- (audit);
+\draw[figArrow] (evid) -- (docs);
+\draw[figArrow] (reports) -- (docs);
+\node[figNote, text width=11cm] at (6.2,-3.25) {Modelo lógico documental. En MongoDB/Mongoose algunas relaciones pueden almacenarse por referencia o mediante subdocumentos según el caso de uso.};
+\end{tikzpicture}%
+}
+\caption[Modelo documental detallado]{Modelo documental contextual de las entidades principales del aplicativo, agrupadas por administración, operación, ejecución documental y cierre administrativo. Fuente: Elaboración propia.}
+\label{fig:mer-detallado}
+\end{figure}

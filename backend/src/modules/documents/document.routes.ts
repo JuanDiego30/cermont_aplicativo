@@ -7,6 +7,10 @@ import {
 	UploadDocumentSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
+import { authenticate } from "../../middlewares/auth.middleware";
+import { authorize } from "../../middlewares/authorize.middleware";
+import { processUploadedFile, upload } from "../../middlewares/uploadMiddleware";
+import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
 import {
 	archiveDocument,
 	associateDocument,
@@ -16,10 +20,6 @@ import {
 	signDocument,
 	uploadDocument,
 } from "./document.controller";
-import { authenticate } from "../../middlewares/auth.middleware";
-import { authorize } from "../../middlewares/authorize.middleware";
-import { processUploadedFile, upload } from "../../middlewares/uploadMiddleware";
-import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
 
 const router = Router();
 

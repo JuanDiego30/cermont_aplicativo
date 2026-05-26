@@ -1,0 +1,20 @@
+% Figura corregida: capas internas del backend / API.
+\begin{figure}[H]
+\centering
+\resizebox{0.88\textwidth}{!}{%
+\begin{tikzpicture}[font=\sffamily]
+\tikzset{layer/.style={figBoxWhite, minimum width=11.0cm, minimum height=1.05cm, text width=10.7cm, font=\scriptsize\bfseries}, item/.style={rectangle, rounded corners=2pt, draw=institucionalBlue, fill=white, minimum width=2.25cm, minimum height=0.52cm, align=center, font=\tiny}}
+\node[figHeader, minimum width=11.2cm] (routes) at (0,5.2) {Capa de rutas HTTP — Express 5.2.1};
+\node[layer] (guards) at (0,3.85) {Capa transversal de seguridad y validación};
+\node[layer] (domain) at (0,2.50) {Servicios de dominio y reglas de negocio};
+\node[layer] (data) at (0,1.15) {Repositorios y modelos Mongoose};
+\node[layer] (db) at (0,-0.20) {MongoDB y almacenamiento documental};
+\foreach \y/\items in {4.85/{/api/orders,/api/reports,/api/auth,/api/evidences},3.50/{JWT HttpOnly,RBAC,Zod,rate limit},2.15/{OrderService,ReportService,CostService,SyncService},0.80/{Mongoose,schemas,índices,auditoría},-0.55/{MongoDB,documentos,fotografías,backups}}{
+  \foreach \txt [count=\i] in \items {\node[item] at ({-4.2+2.8*(\i-1)},\y) {\texttt{\txt}};}
+}
+\foreach \a/\b in {routes/guards,guards/domain,domain/data,data/db}{\draw[figArrow] (\a) -- (\b);} 
+\end{tikzpicture}%
+}
+\caption[Capas internas del backend]{Capas internas de la API del aplicativo, organizadas desde la entrada HTTP hasta la persistencia documental con controles transversales de seguridad y trazabilidad. Fuente: Elaboración propia.}
+\label{fig:capas-backend}
+\end{figure}

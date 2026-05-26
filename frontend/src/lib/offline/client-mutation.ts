@@ -51,10 +51,7 @@ function saveRecords(records: MutationRecord[]): void {
 /**
  * Generate a new clientMutationId and record it
  */
-export function createClientMutationId(
-	endpoint: string,
-	method: string,
-): string {
+export function createClientMutationId(endpoint: string, method: string): string {
 	const records = loadRecords();
 	const clientMutationId = uuidv4();
 	records.unshift({
@@ -71,10 +68,7 @@ export function createClientMutationId(
 /**
  * Mark a clientMutationId as synced (successfully processed by backend)
  */
-export function markMutationSynced(
-	clientMutationId: string,
-	responseStatus: number,
-): void {
+export function markMutationSynced(clientMutationId: string, responseStatus: number): void {
 	const records = loadRecords();
 	const record = records.find((r) => r.clientMutationId === clientMutationId);
 	if (record) {
@@ -87,9 +81,7 @@ export function markMutationSynced(
 /**
  * Mark a clientMutationId as failed
  */
-export function markMutationFailed(
-	clientMutationId: string,
-): void {
+export function markMutationFailed(clientMutationId: string): void {
 	const records = loadRecords();
 	const record = records.find((r) => r.clientMutationId === clientMutationId);
 	if (record) {

@@ -18,10 +18,18 @@ export interface BillingState {
 
 /** Get the next pending billing action */
 export function getNextBillingAction(state: BillingState): BillingStep | null {
-	if (!state.sesApproved) return "ses";
-	if (!state.invoiceSent) return "invoice";
-	if (!state.invoiceApproved) return "invoice_approval";
-	if (!state.paymentCompleted) return "payment";
+	if (!state.sesApproved) {
+		return "ses";
+	}
+	if (!state.invoiceSent) {
+		return "invoice";
+	}
+	if (!state.invoiceApproved) {
+		return "invoice_approval";
+	}
+	if (!state.paymentCompleted) {
+		return "payment";
+	}
 	return null;
 }
 

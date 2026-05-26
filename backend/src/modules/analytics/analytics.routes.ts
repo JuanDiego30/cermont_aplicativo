@@ -1,6 +1,9 @@
 import { INTERNAL_ROLES } from "@cermont/domain";
 import { ErrorDashboardQuerySchema, NotificationIdSchema } from "@cermont/shared-types";
 import { Router } from "express";
+import { authenticate } from "../../middlewares/auth.middleware";
+import { authorize } from "../../middlewares/authorize.middleware";
+import { validateParams, validateQuery } from "../../middlewares/validate";
 import {
 	getErrorDashboard,
 	getKpis,
@@ -8,9 +11,6 @@ import {
 	markAllNotificationsAsRead,
 	markNotificationAsRead,
 } from "./analytics.controller";
-import { authenticate } from "../../middlewares/auth.middleware";
-import { authorize } from "../../middlewares/authorize.middleware";
-import { validateParams, validateQuery } from "../../middlewares/validate";
 
 const router = Router();
 

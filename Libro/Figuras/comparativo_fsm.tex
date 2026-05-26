@@ -1,0 +1,22 @@
+% Figura corregida: comparación conceptual de soluciones FSM.
+\begin{figure}[H]
+\centering
+\resizebox{0.90\textwidth}{!}{%
+\begin{tikzpicture}[font=\sffamily]
+\tikzset{sol/.style={figBoxWhite, minimum width=2.8cm, minimum height=0.82cm, text width=2.65cm, font=\tiny\bfseries}, own/.style={figHeader, minimum width=3.0cm, minimum height=0.82cm, text width=2.85cm, font=\tiny\bfseries}, axis/.style={-{Stealth[length=2.7mm]}, line width=0.8pt, draw=institucionalBlue}, grid/.style={draw=institucionalGrey, dashed}}
+\draw[axis] (0,0) -- (11.4,0) node[right, font=\scriptsize\bfseries] {Ajuste al proceso específico};
+\draw[axis] (0,0) -- (0,7.0) node[above, font=\scriptsize\bfseries] {Costo y complejidad de adopción};
+\foreach \x in {3.5,7.0,10.5}{\draw[grid] (\x,0) -- (\x,6.7);} 
+\foreach \y in {2.2,4.4,6.6}{\draw[grid] (0,\y) -- (11.1,\y);} 
+\node[sol] (sap) at (9.4,6.25) {SAP FSM\\enterprise};
+\node[sol] (serv) at (7.8,5.05) {ServiceMax\\corporativo};
+\node[sol] (frac) at (6.2,3.45) {Fracttal One\\mantenimiento};
+\node[sol] (job) at (3.3,1.75) {Jobber\\servicios SMB};
+\node[own] (cer) at (8.4,1.45) {Aplicativo CERMONT\\solución a medida};
+\draw[figLineCritical, dashed] (6.6,0.65) rectangle (10.2,2.55);
+\node[font=\tiny, text=institucionalRed, align=center] at (8.4,2.9) {zona de oportunidad:\\alto ajuste con adopción controlada};
+\end{tikzpicture}%
+}
+\caption[Comparación conceptual FSM]{Comparación cualitativa entre soluciones comerciales de Field Service Management y el aplicativo propuesto, considerando costo de adopción y ajuste al proceso operativo de CERMONT S.A.S. Fuente: Elaboración propia.}
+\label{fig:comparativo-fsm}
+\end{figure}

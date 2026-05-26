@@ -133,8 +133,14 @@ export function getPlanningBlockers(readiness: PlanningReadiness): PlanningBlock
 export function getMaxBlockerSeverity(
 	blockers: PlanningBlocker[],
 ): "critical" | "error" | "warning" | "none" {
-	if (blockers.some((b) => b.severity === "critical")) return "critical";
-	if (blockers.some((b) => b.severity === "error")) return "error";
-	if (blockers.some((b) => b.severity === "warning")) return "warning";
+	if (blockers.some((b) => b.severity === "critical")) {
+		return "critical";
+	}
+	if (blockers.some((b) => b.severity === "error")) {
+		return "error";
+	}
+	if (blockers.some((b) => b.severity === "warning")) {
+		return "warning";
+	}
 	return "none";
 }

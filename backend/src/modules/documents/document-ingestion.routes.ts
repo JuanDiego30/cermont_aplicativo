@@ -1,12 +1,12 @@
 import { Router } from "express";
+import { authenticate } from "../../middlewares/auth.middleware";
+import { authorize } from "../../middlewares/authorize.middleware";
 import {
 	bulkClosingEvidenceController,
 	convertDocumentToTemplateController,
 	getIngestionStatus,
 	ingestDocumentController,
 } from "./document-ingestion.controller";
-import { authenticate } from "../../middlewares/auth.middleware";
-import { authorize } from "../../middlewares/authorize.middleware";
 
 const router = Router({ mergeParams: true });
 

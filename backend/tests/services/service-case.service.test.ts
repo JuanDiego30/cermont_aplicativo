@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { computeNextActions, computeStage } from "../../src/modules/service-cases/service-case.service";
+import {
+	computeNextActions,
+	computeStage,
+} from "../../src/modules/service-cases/service-case.service";
 
 describe("ServiceCase — Stage Computation", () => {
 	it("returns 'intake' when no artifacts exist", () => {

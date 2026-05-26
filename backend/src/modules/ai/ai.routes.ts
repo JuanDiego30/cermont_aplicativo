@@ -1,9 +1,9 @@
 import { ChatRequestSchema } from "@cermont/shared-types";
 import { Router } from "express";
-import { chatHandler } from "./ai.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody } from "../../middlewares/validate";
+import { chatHandler } from "./ai.controller";
 
 const router = Router();
 

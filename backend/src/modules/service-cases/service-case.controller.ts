@@ -11,12 +11,12 @@ import { AppError, BadRequestError } from "../../common/errors";
 import { sendSuccess } from "../../common/interceptors/response.interceptor";
 import { requireUser } from "../../common/utils/request";
 import { Document, ServiceCase } from "../../models";
+import { getConsolidatedReport } from "../../modules/order/order-closure.service";
 import * as CermontWorkflowGateService from "../../services/cermont-workflow-gate.service";
 import {
 	applyClosingEvidenceMetadata,
 	type ClosingEvidenceRoutingResult,
 } from "../../services/closing-evidence-routing.service";
-import { getConsolidatedReport } from "../../modules/order/order-closure.service";
 import * as ServiceCaseService from "./service-case.service";
 
 export async function listServiceCases(req: Request, res: Response): Promise<void> {

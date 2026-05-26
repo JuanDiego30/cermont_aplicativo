@@ -7,11 +7,17 @@ export class ApiError extends Error {
 		public status: number,
 		public message: string,
 		public code?: string,
+		public details?: ApiErrorDetail[],
 	) {
 		super(message);
 		this.name = "ApiError";
 	}
 }
+
+export type ApiErrorDetail = {
+	field: string;
+	message: string;
+};
 
 export const DEFAULT_RETRY_STATUSES = new Set([408, 425, 429, 500, 502, 503, 504]);
 export const DEFAULT_RETRY_METHODS = new Set(["GET", "HEAD"]);
@@ -28,9 +34,11 @@ export type ErrorBody = {
 		| {
 				code?: string;
 				message?: string;
+				details?: ApiErrorDetail[];
 		  }
 		| string;
 	code?: string;
+	details?: ApiErrorDetail[];
 	message?: string;
 };
 

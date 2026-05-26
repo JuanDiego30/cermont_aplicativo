@@ -9,10 +9,10 @@ import {
 	UpdateWorkReportSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
-import * as ReportController from "./report.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
+import * as ReportController from "./report.controller";
 
 const router = Router();
 const reportArchiveEnabled = env.REPORT_ARCHIVE_ENABLED === true;

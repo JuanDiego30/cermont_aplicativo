@@ -12,8 +12,8 @@
 
 import type { OfflineOperation, SyncResult } from "@cermont/shared-types";
 import { AppError } from "../../common/errors/AppError";
-import * as ChecklistSvc from "../checklist/checklist.service";
 import * as OrderSvc from "../../modules/order/order.service";
+import * as ChecklistSvc from "../checklist/checklist.service";
 
 /**
  * Procesa un batch de operaciones offline.

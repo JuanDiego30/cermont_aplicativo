@@ -15,10 +15,10 @@ import { ForbiddenError, NotFoundError } from "../../common/errors/AppError";
 import type { MaterialItem } from "../../config/kit-templates";
 import { getDefaultKitForOrderType } from "../../config/kit-templates";
 import { Order } from "../../models";
-import * as ChecklistSvc from "../checklist/checklist.service";
 import type { OrderResponse } from "../../services/order/helpers";
 import { formatOrderResponse, generateOrderCode, logAudit } from "../../services/order/helpers";
 import { OrderPriority, OrderStatus, OrderType } from "../../services/order/order-rules";
+import * as ChecklistSvc from "../checklist/checklist.service";
 import { assertProposalReadyForWorkOrder } from "../purchase-order/purchase-order.service";
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

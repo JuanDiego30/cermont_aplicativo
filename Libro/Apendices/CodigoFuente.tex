@@ -1,0 +1,337 @@
+﻿%--------------------------------------------------------------------------
+% CÓDIGO FUENTE RELEVANTE DEL APLICATIVO
+%--------------------------------------------------------------------------
+% Archivo: Apendices/CodigoFuente.tex
+% Autor: Juan Diego Arévalo Pidiache
+% Fecha: Marzo 2026
+% Versión: CONTEXTUALIZADA AL REPOSITORIO REAL
+%--------------------------------------------------------------------------
+
+En este apéndice se incluyen fragmentos seleccionados del código real del aplicativo CERMONT. Se priorizan archivos que evidencian la lógica de negocio, la seguridad, la persistencia y la operación offline del sistema actualmente desarrollado en \texttt{cermont\_aplicativo/}.
+
+%--------------------------------------------------------------------------
+\section*{Máquina de estados de órdenes - \texttt{lib/utils/work-order-fsm.ts}}
+%--------------------------------------------------------------------------
+
+\begin{lstlisting}[language=JavaScript,caption={Estados y transiciones válidas de órdenes de trabajo},label={lst:work-order-fsm}]
+export type WorkOrderStatus = 
+  | 'borrador'
+  | 'propuesta_enviada'
+  | 'aprobada_con_po'
+  | 'en_planeacion'
+  | 'planificada'
+  | 'lista_para_ejecucion'
+  | 'en_curso'
+  | 'pausada'
+  | 'ejecucion_completada'
+  | 'informe_elaborado'
+  | 'revision'
+  | 'ses_aprobada'
+  | 'completada'
+  | 'cerrada'
+  | 'facturada'
+  | 'cancelada'
+  | 'pagada'
+  | 'rechazada';
+
+export const WORK_ORDER_TRANSITIONS: Record<WorkOrderStatus, WorkOrderStatus[]> = {
+  borrador: ['propuesta_enviada', 'cancelada'],
+  propuesta_enviada: ['aprobada_con_po', 'rechazada', 'borrador'],
+  aprobada_con_po: ['en_planeacion', 'cancelada'],
+  en_planeacion: ['planificada', 'cancelada'],
+  planificada: ['lista_para_ejecucion', 'en_planeacion'],
+  lista_para_ejecucion: ['en_curso', 'planificada'],
+  en_curso: ['pausada', 'ejecucion_completada'],
+  pausada: ['en_curso', 'ejecucion_completada'],
+  ejecucion_completada: ['informe_elaborado', 'en_curso'],
+  informe_elaborado: ['revision', 'ejecucion_completada'],
+  revision: ['ses_aprobada', 'informe_elaborado'],
+  ses_aprobada: ['completada', 'revision'],
+  completada: ['cerrada', 'facturada'],
+  cerrada: ['facturada', 'pagada'],
+  facturada: ['pagada', 'cerrada'],
+  pagada: [],
+  cancelada: [],
+  rechazada: ['borrador'],
+};
+\end{lstlisting}
+
+%--------------------------------------------------------------------------
+\section*{Autorización por rol - \texttt{lib/auth/rbac.ts} y \texttt{lib/auth/roles.ts}}
+%--------------------------------------------------------------------------
+
+\begin{lstlisting}[language=JavaScript,caption={Control de acceso por rol para rutas y endpoints sensibles},label={lst:rbac}]
+export const ADMIN_ROLES: readonly UserRole[] = ["gerente", "administrativo"];
+
+export type UserRole =
+  | "gerente"
+  | "residente"
+  | "hes"
+  | "supervisor"
+  | "operador"
+  | "tecnico"
+  | "administrativo"
+  | "cliente";
+
+export async function withRole(
+  allowedRoles: readonly UserRole[],
+): Promise<AuthenticatedSession | NextResponse> {
+  const session = await getSession();
+
+  if (!session?.user) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  if (!hasRole(session.user.role, allowedRoles)) {
+    return NextResponse.json(
+      { error: "No tiene permisos para esta accion." },
+      { status: 403 },
+    );
+  }
+
+  return session as AuthenticatedSession;
+}
+\end{lstlisting}
+
+%--------------------------------------------------------------------------
+\section*{Modelo de datos principal - \texttt{prisma/schema.prisma}}
+%--------------------------------------------------------------------------
+
+\begin{lstlisting}[language=JavaScript,caption={Modelo principal de órdenes y enumeración de estados en Prisma},label={lst:prisma-work-orders}]
+model work_orders {
+  id                 String         @id
+  numero_ot          String         @unique @db.VarChar(50)
+  cliente            String         @db.VarChar(255)
+  descripcion        String
+  ubicacion          String?        @db.VarChar(500)
+  estado             order_status   @default(borrador)
+  prioridad          order_priority @default(media)
+  fecha_inicio       DateTime?      @db.Timestamptz(3)
+  fecha_fin          DateTime?      @db.Timestamptz(3)
+  metadata           Json?
+  created_at         DateTime       @default(now()) @db.Timestamptz(3)
+  updated_at         DateTime       @db.Timestamptz(3)
+  administrative_cierre administrative_cierre?
+  cost_tracking      cost_tracking?
+  evidences          evidences[]
+  inspections        inspections[]
+  invoices           invoices[]
+  technical_reports  technical_reports[]
+}
+
+enum order_status {
+  borrador
+  propuesta_enviada
+  aprobada_con_po
+  en_planeacion
+  planificada
+  lista_para_ejecucion
+  en_curso
+  pausada
+  ejecucion_completada
+  informe_elaborado
+  revision
+  ses_aprobada
+  completada
+  cerrada
+  facturada
+  cancelada
+  pagada
+  rechazada
+}
+\end{lstlisting}
+
+%--------------------------------------------------------------------------
+\section*{Seguridad y limitación de tasa - \texttt{lib/middleware/rate-limiting.ts}}
+%--------------------------------------------------------------------------
+
+\begin{lstlisting}[language=JavaScript,caption={Políticas de rate limiting para autenticación y APIs},label={lst:rate-limiting}]
+export const rateLimits = {
+  auth: { name: 'auth', limit: 10, windowMs: 15 * 60_000 },
+  login: { name: 'login', limit: 5, windowMs: 15 * 60_000 },
+  api: { name: 'api', limit: 100, windowMs: 60_000 },
+  upload: { name: 'upload', limit: 10, windowMs: 60 * 60_000 },
+  orders: { name: 'orders', limit: 20, windowMs: 60 * 60_000 },
+  reports: { name: 'reports', limit: 5, windowMs: 60 * 60_000 },
+  public: { name: 'public', limit: 100, windowMs: 60_000 },
+};
+
+export async function applyRateLimit(
+  identifier: string,
+  policy: RateLimitPolicy
+): Promise<Response | null> {
+  const result = await checkRateLimit(identifier, policy);
+
+  if (!result.success) {
+    return new Response(
+      JSON.stringify({ error: 'Too many requests', retryAfter: result.retryAfter }),
+      { status: 429, headers: { 'Content-Type': 'application/json', ...result.headers } }
+    );
+  }
+
+  return null;
+}
+\end{lstlisting}
+
+%--------------------------------------------------------------------------
+\section*{Cola offline y sincronización diferida - \texttt{lib/pwa/offline-queue.ts}}
+%--------------------------------------------------------------------------
+
+\begin{lstlisting}[language=JavaScript,caption={Persistencia local de acciones críticas para operación offline},label={lst:offline-queue}]
+export interface OfflineAction {
+  id: string;
+  type:
+    | 'CREATE_EVIDENCE'
+    | 'UPDATE_ORDER_STATUS'
+    | 'ADD_COST'
+    | 'UPDATE_ORDER'
+    | 'CREATE_INSPECTION'
+    | 'UPDATE_INSPECTION'
+    | 'UPSERT_CLOSURE';
+  payload: Record<string, unknown>;
+  createdAt: number;
+  retries: number;
+  status?: 'pending' | 'failed';
+}
+
+const DB_NAME = 'CermontOfflineDB';
+const STORE_NAME = 'pending_actions';
+
+export async function queueOfflineAction(
+  action: Omit<OfflineAction, 'id' | 'createdAt' | 'retries'>
+): Promise<void> {
+  // Guarda la accion en IndexedDB para reintento posterior
+}
+\end{lstlisting}
+
+Los fragmentos anteriores muestran cuatro aspectos centrales del sistema real: el FSM que regula el flujo de órdenes, el RBAC que condiciona acceso por rol, el modelo documental que soporta el ciclo operativo-administrativo y la cola offline que permite continuidad operativa en campo.
+  retryCount: number;
+  maxRetries: number;
+  createdAt: Date;
+  updatedAt: Date;
+  lastError?: string;
+}
+// ... implementacion de la clase SyncQueueService
+\end{lstlisting}
+
+%--------------------------------------------------------------------------
+\section*{Frontend: Servicio de Sincronización Offline}
+%--------------------------------------------------------------------------
+
+\begin{lstlisting}[language=JavaScript,caption={Servicio de Sincronización (Frontend) - \texttt{sync-service.ts}},label={lst:sync-service-frontend}]
+import { openDB, DBSchema, IDBPDatabase } from 'idb';
+
+interface OfflineDB extends DBSchema {
+  pendingActions: {
+    key: string;
+    value: {
+      id: string;
+      type: 'CREATE' | 'UPDATE' | 'DELETE';
+      endpoint: string;
+      data: any;
+      timestamp: number;
+      retries: number;
+    };
+  };
+  cachedData: {
+    key: string;
+    value: {
+      id: string;
+      type: string;
+      data: any;
+      timestamp: number;
+    };
+    indexes: {
+      'by-type': string;
+    };
+  };
+  // ... otros stores
+}
+
+class SyncService {
+  private db: IDBPDatabase<OfflineDB> | null = null;
+
+  async init() {
+    if (this.db) return this.db;
+
+    this.db = await openDB<OfflineDB>('cermont-offline', 1, {
+      upgrade(db) {
+        if (!db.objectStoreNames.contains('pendingActions')) {
+          db.createObjectStore('pendingActions', { keyPath: 'id' });
+        }
+        // ...
+      },
+    });
+    return this.db;
+  }
+  // ... metodos de sincronizacion
+}
+\end{lstlisting}
+
+%--------------------------------------------------------------------------
+\section*{Middleware de Autenticación JWT}
+%--------------------------------------------------------------------------
+
+\begin{lstlisting}[language=JavaScript,caption={Middleware de Autenticación - \texttt{authenticate.ts}},label={lst:auth-middleware}]
+import { Request, Response, NextFunction } from 'express';
+import { tokenBlacklistRepository } from '../../infra/db/repositories/TokenBlacklistRepository.js';
+import { logger } from '../utils/logger.js';
+import { loginFailedTotal } from '../metrics/prometheus.js';
+import { jwtService } from '../security/jwtService.js';
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        userId: string;
+        email: string;
+        role: string;
+        jti: string;
+      };
+    }
+  }
+}
+
+export async function authenticate(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      loginFailedTotal.inc({ reason: 'missing_token' });
+      res.status(401).json({
+        type: 'https://httpstatuses.com/401',
+        title: 'Unauthorized',
+        status: 401,
+        detail: 'Token de autenticación requerido',
+      });
+      return;
+    }
+
+    const token = authHeader.substring(7);
+    // ... verificacion de token
+  } catch (error) {
+    // ... manejo de errores
+  }
+}
+\end{lstlisting}
+
+\vspace{1cm}
+
+\textbf{Nota:} Los fragmentos anteriores corresponden a la versión del código utilizada en las pruebas de validación del sistema. El código fuente completo se encuentra disponible en el repositorio del proyecto.
+
+%--------------------------------------------------------------------------
+% FIN DE CÓDIGO FUENTE
+%--------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+

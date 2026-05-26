@@ -9,19 +9,19 @@
  */
 
 import {
+	AddReferenceDocumentSchema,
 	ApprovePlanningPacketSchema,
 	CreatePlanningPacketSchema,
 	PlanningPacketIdParamsSchema,
 	PlanningPacketListQuerySchema,
 	ReopenPlanningPacketSchema,
 	UpdatePlanningPacketSchema,
-	AddReferenceDocumentSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
-import * as PlanningPacketController from "./planning-packet.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
+import * as PlanningPacketController from "./planning-packet.controller";
 
 const router = Router();
 

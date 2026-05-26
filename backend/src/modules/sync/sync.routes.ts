@@ -10,10 +10,10 @@
 import { ALL_AUTHENTICATED_ROLES } from "@cermont/domain";
 import { SyncBatchSchema } from "@cermont/shared-types";
 import { Router } from "express";
-import { syncOffline } from "./sync.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody } from "../../middlewares/validate";
+import { syncOffline } from "./sync.controller";
 
 const router = Router();
 

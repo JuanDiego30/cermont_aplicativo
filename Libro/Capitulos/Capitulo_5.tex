@@ -1,0 +1,366 @@
+% =====================================================================
+% CAPÍTULO 5: METODOLOGÍA
+% Versión refactorizada — sin datos cuantitativos no verificados
+% =====================================================================
+
+\chapter{Metodología}
+\label{ch:metodologia}
+
+% --- Ajustes editoriales locales del capítulo: sangría, espaciado y control de desbordamientos ---
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{0pt}
+\sloppy
+\emergencystretch=2em
+\raggedbottom
+\section{Tipo de proyecto}
+
+El trabajo corresponde a una práctica empresarial con enfoque de investigación aplicada tecnológica. Su propósito es analizar una necesidad real de CERMONT S.A.S., diseñar una solución de software, implementarla de manera progresiva y validar su funcionamiento mediante pruebas verificables. El producto principal es un aplicativo web que apoya la gestión de órdenes de trabajo, trazabilidad documental y cierre administrativo.
+
+La metodología se articula con Design Science Research \cite{hevner2004,peffers2007}, en la medida en que el conocimiento se construye a través del diseño y evaluación de un artefacto. El artefacto no es únicamente código fuente; también incluye modelo de datos, arquitectura, flujos de usuario, plantillas, formularios, evidencias, reglas de negocio y documentación técnica.
+
+\section{Fases metodológicas}
+
+\begin{table}[!htbp]
+\centering
+\caption{Fases metodológicas del proyecto. Fuente: Elaboración propia.}
+\label{tab:fases-metodologicas}
+\small
+\def\FaseRow#1#2#3#4{\parbox[t]{3.0cm}{\raggedright #1} & \parbox[t]{4.8cm}{\raggedright #2} & \parbox[t]{4.0cm}{\raggedright #3} & \parbox[t]{2.5cm}{\raggedright #4}\\\midrule}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}l l l l@{}}
+\toprule
+\textbf{Fase} & \textbf{Propósito} & \textbf{Actividades principales} & \textbf{Evidencia esperada} \\
+\midrule
+\FaseRow{Diagnóstico documental y operativo}{Comprender el flujo actual y los formatos existentes.}{Revisión de formatos, proceso paso a paso, inducción HES, anteproyecto y observaciones.}{Inventario de documentos, flujo actual y matriz de problemas.}
+\FaseRow{Diseño funcional}{Definir módulos, roles, estados y reglas del sistema.}{Casos de uso, arquitectura, modelo de datos, estados de orden y formularios.}{Diagramas y especificación funcional.}
+\FaseRow{Desarrollo}{Construir los módulos principales del aplicativo.}{Desarrollo de frontend, backend, base de datos, autenticación, órdenes, evidencias e informes.}{Código fuente, capturas y pruebas funcionales.}
+\FaseRow{Validación}{Comprobar que el sistema responda al flujo de negocio.}{Pruebas de escenarios, revisión por usuarios, checklist de funcionalidades y medición de indicadores reales.}{Actas de prueba, matriz de resultados y observaciones.}
+\FaseRow{Documentación final}{Consolidar el libro de trabajo de grado.}{Redacción académica, revisión de citas, anexos y conclusiones.}{Libro final y PDF compilado.}
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\section{Fuentes de información}
+
+Las fuentes primarias del proyecto son los documentos suministrados por CERMONT S.A.S. y el material del anteproyecto aprobado. Entre ellos se encuentran la inducción HES, formatos de planeación de obra, inspección de líneas de vida verticales, mantenimiento preventivo CCTV, registros fotográficos y el documento de proceso de ejecución y cierre administrativo \cite{cermont_hes,formato_planeacion,formato_lineas_vida,formato_cctv,proceso_cermont}. También se consideran las observaciones del anteproyecto y los requisitos funcionales derivados del flujo operativo.
+
+Las fuentes secundarias son sitios oficiales, documentación técnica y repositorios de software. En esta categoría se incluyen herramientas de FSM, CMMS, ERP, formularios dinámicos, extracción documental, PWA y seguridad web. Estas fuentes sirven para sustentar decisiones técnicas y comparar alternativas.
+
+\section{Integración de la documentación técnica 00--22}
+\label{sec:docs-00-21}
+
+Además de las fuentes institucionales y del repositorio, el proyecto dispone de una serie de veintidós documentos técnicos secuenciales, identificados en el directorio \texttt{docs/PROMPTS} como \texttt{00.md} a \texttt{22.md}. Esta serie funciona como bitácora de implementación del aplicativo y documenta, de manera incremental, la construcción de la base transversal, los módulos del flujo de 14 pasos y la estabilización final del sistema.
+
+Metodológicamente, esta documentación no se incorpora como anexo literal ni como manual operativo dentro del cuerpo del libro. Su uso consiste en reconstruir cómo evolucionó el sistema: qué módulo se abordó en cada etapa, qué dependencias existían entre componentes, qué reglas de negocio se fijaron y qué compuertas de calidad se exigieron antes de considerar una iteración como aceptable. En consecuencia, los documentos 00--22 se emplean como evidencia técnica complementaria para explicar arquitectura, trazabilidad de requisitos, secuencia de implementación y estado de madurez de los módulos descritos en los Capítulos 6, 7 y 8.
+
+A continuación, se detalla la correspondencia metodológica, el aporte específico y las evidencias asociadas a cada uno de estos documentos dentro de la arquitectura técnica del aplicativo en la Tabla~\ref{tab:matriz-integracion-docs}.
+
+\begin{longtable}{>{\centering\arraybackslash}p{0.8cm} >{\raggedright\arraybackslash}p{3.2cm} >{\centering\arraybackslash}p{1.0cm} >{\raggedright\arraybackslash}p{3.5cm} >{\raggedright\arraybackslash}p{4.5cm} >{\raggedright\arraybackslash}p{3.0cm}}
+\caption{Matriz de integración de la serie técnica de documentos 00--22. Fuente: Elaboración propia.} \label{tab:matriz-integracion-docs} \\
+\toprule
+\textbf{Doc.} & \textbf{Tema principal} & \textbf{Cap.} & \textbf{Aporte al proyecto} & \textbf{Evidencia técnica} & \textbf{Observación} \\
+\midrule
+\endfirsthead
+\multicolumn{6}{c}{{\bfseries \tablename\ \thetable{} -- Continúa de la página anterior}} \\
+\toprule
+\textbf{Doc.} & \textbf{Tema principal} & \textbf{Cap.} & \textbf{Aporte al proyecto} & \textbf{Evidencia técnica} & \textbf{Observación} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{6}{r}{{Continúa en la siguiente página...}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+
+00 & Foundation: auth, RBAC, API, design, observability & 5, 6, 8 & Define la base transversal del sistema & \texttt{packages/domain/src/roles.ts}, \texttt{backend/src/middlewares/auth.middleware.ts}, \texttt{frontend/src/proxy.ts} & Documento fundacional de arquitectura \\ \midrule
+01 & Dashboard / KPIs & 6, 7 & Soporta visibilidad gerencial y analítica & \texttt{frontend/src/app/(dashboard)/dashboard/}, \texttt{packages/shared-types/src/schemas/analytics.schema.ts} & Integrado como panel de seguimiento \\ \midrule
+02 & Solicitudes / Work Requests & 1, 6, 7 & Materializa el paso 1 del flujo & \texttt{packages/shared-types/src/schemas/work-request.schema.ts}, \texttt{backend/src/routes/work-request.routes.ts} & Implementado \\ \midrule
+03 & Visitas técnicas / Site Visits & 1, 6, 7 & Materializa el paso 2 del flujo & \texttt{packages/shared-types/src/schemas/site-visit.schema.ts}, \texttt{backend/src/routes/site-visit.routes.ts} & Implementado \\ \midrule
+04 & Propuestas / Proposals & 1, 6, 7 & Conecta propuesta y autorización inicial & \texttt{packages/shared-types/src/schemas/proposal.schema.ts}, \texttt{backend/src/routes/proposal.routes.ts} & Implementado \\ \midrule
+05 & Órdenes / ServiceCase Detail & 1, 6, 7 & Establece la entidad central del sistema & \texttt{packages/shared-types/src/schemas/order.schema.ts}, \texttt{backend/src/services/order/order-rules.ts} & Implementado \\ \midrule
+06 & Planeación / Planning Packet & 1, 6, 7 & Responde a la falla de planeación y kits típicos & \texttt{packages/shared-types/src/schemas/planning-packet.schema.ts}, \texttt{backend/src/routes/planning-packet.routes.ts}, \texttt{frontend/src/app/(dashboard)/planning/page.tsx} & Implementado \\ \midrule
+07 & Ejecución / Execution Session & 1, 6, 7 & Soporta ejecución guiada y estados de campo & \texttt{packages/shared-types/src/schemas/execution-session.schema.ts}, \texttt{backend/src/services/execution-session.service.ts} & Implementado \\ \midrule
+08 & Evidencias / Evidence Management & 1, 6, 7, 8 & Atiende captura y trazabilidad de evidencias & \texttt{packages/shared-types/src/schemas/evidence.schema.ts}, \texttt{backend/src/services/evidence.service.ts}, \texttt{frontend/src/app/(dashboard)/evidences/page.tsx} & Implementado \\ \midrule
+09 & Informes técnicos / Technical Reports & 1, 6, 7, 8 & Responde al retraso en informes & \texttt{packages/shared-types/src/schemas/technical-report.schema.ts}, \texttt{backend/src/routes/technical-report.routes.ts} & Implementado \\ \midrule
+10 & Actas / Delivery Records & 1, 6, 7 & Atiende formalización de cierre técnico & \texttt{packages/shared-types/src/schemas/delivery-record.schema.ts}, \texttt{frontend/src/app/(dashboard)/delivery-records/} & Implementado \\ \midrule
+11 & Cierre administrativo / Admin Closure & 1, 6, 7 & Orquesta el cierre documental posterior a ejecución & \texttt{backend/src/routes/order-closure.routes.ts}, \texttt{backend/src/services/order-closure.service.ts} & Implementado como seguimiento interno \\ \midrule
+12 & SES / Ariba / Service Entry Sheets & 1, 6, 7 & Soporta seguimiento del paso 11 & \texttt{packages/shared-types/src/schemas/service-entry-sheet.schema.ts}, \texttt{frontend/src/app/(dashboard)/billing/ses/page.tsx} & Implementado sin integración externa directa \\ \midrule
+13 & Facturas / Invoices & 1, 6, 7 & Soporta seguimiento del paso 12 & \texttt{packages/shared-types/src/schemas/invoice.schema.ts}, \texttt{frontend/src/app/(dashboard)/billing/invoices/} & Implementado \\ \midrule
+14 & Pagos / Payments & 1, 6, 7 & Soporta seguimiento del paso 14 & \texttt{packages/shared-types/src/schemas/payment.schema.ts}, \texttt{frontend/src/app/(dashboard)/payments/page.tsx} & Implementado \\ \midrule
+15 & Costos / Cost Engine & 1, 6, 7 & Atiende la falla de costos reales vs propuesta & \texttt{packages/shared-types/src/schemas/costControl.schema.ts}, \texttt{backend/src/models/CostControl.ts}, \texttt{frontend/src/app/(dashboard)/costs/page.tsx} & Implementado \\ \midrule
+16 & Activos / Assets & 6, 7 & Vincula equipos/activos intervenidos & \texttt{packages/shared-types/src/schemas/asset.schema.ts}, \texttt{frontend/src/app/(dashboard)/assets/} & Implementado \\ \midrule
+17 & Mantenimiento / Maintenance & 6, 7 & Soporta catálogos y kits de mantenimiento & \texttt{frontend/src/app/(dashboard)/maintenance/}, \texttt{backend/src/models/MaintenanceKit.ts} & Implementado \\ \midrule
+18 & Documentos / Document-Driven Core & 5, 6, 7 & Refuerza enfoque documental del sistema & \texttt{backend/src/routes/document.routes.ts}, \texttt{frontend/src/app/(dashboard)/documents/page.tsx} & Implementado \\ \midrule
+19 & Recursos \& Kits & 1, 6, 7 & Refuerza planeación y disponibilidad de recursos & \texttt{frontend/src/app/(dashboard)/resources/kits/page.tsx}, \texttt{backend/src/services/kit.service.ts} & Implementado \\ \midrule
+20 & Users / RBAC / Administration & 6, 7, 8 & Soporta administración y permisos & \texttt{frontend/src/app/(dashboard)/admin/}, \texttt{backend/src/routes/user.routes.ts} & Implementado \\ \midrule
+21 & Cross-Module Stabilization / Release Readiness & 5, 8 & Consolida pruebas, gates y estabilización final & \texttt{backend/tests/}, \texttt{frontend/tests/}, \texttt{tooling/quality/} & Debe usarse como soporte de validación técnica \\
+\end{longtable}
+
+\section{Variables e indicadores de validación}
+
+Para evitar afirmaciones no verificadas, la validación se plantea como una matriz de indicadores a medir durante la práctica o durante una prueba piloto autorizada. Los valores de línea base y los valores posteriores solo deben incorporarse cuando exista registro real.
+
+\begin{table}[!htbp]
+\centering
+\caption{Indicadores propuestos para validación con datos reales. Fuente: Elaboración propia.}
+\label{tab:indicadores-validacion}
+\def\IndicatorRow#1#2#3{\parbox[t]{3.5cm}{\raggedright #1} & \parbox[t]{7.3cm}{\raggedright #2} & \parbox[t]{3.2cm}{\raggedright #3}\\\midrule}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Indicador} & \textbf{Forma de medición} & \textbf{Estado actual en el libro} \\
+\midrule
+\IndicatorRow{Tiempo de planeación}{Comparar tiempo requerido para preparar una orden antes y después del sistema.}{Pendiente por medir.}
+\IndicatorRow{Completitud documental}{Verificar si todos los formatos y evidencias exigidos quedaron asociados a la orden.}{Pendiente por medir.}
+\IndicatorRow{Trazabilidad de evidencias}{Revisar si cada evidencia conserva orden, usuario, fecha, descripción y archivo.}{Evaluación funcional.}
+\IndicatorRow{Errores de diligenciamiento}{Contar campos obligatorios vacíos o inconsistencias detectadas en revisión.}{Pendiente por medir.}
+\IndicatorRow{Satisfacción de usuarios}{Aplicar instrumento breve o SUS únicamente si los usuarios prueban el sistema.}{Pendiente por aplicar.}
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\section{Arquitectura del desarrollo}
+
+El desarrollo del software se organizó siguiendo una estructura por capas: interfaz de usuario (frontend), servicios de aplicación (backend API), lógica de negocio (servicios del dominio) y persistencia (base de datos). Esta separación permite mantener independencia entre la presentación, las reglas del negocio y el almacenamiento \cite{bass2021,richards2020}.
+
+Para la gestión del desarrollo se adoptaron prácticas iterativas con entregas incrementales, priorizando módulos según su criticidad para el flujo operativo. Cada iteración produjo funcionalidad verificable que podía ser revisada y ajustada antes de continuar con la siguiente.
+
+\section{Criterios de rigor}
+
+El documento debe mantener separación entre diagnóstico, diseño, implementación y resultados. Una funcionalidad puede estar propuesta, diseñada, implementada o validada; cada estado debe expresarse con precisión. Asimismo, las cifras económicas internas no deben usarse como justificación si no existen soportes autorizados. La investigación de precios se limita a valores publicados por proveedores o páginas oficiales, como planes de Jobber o estimaciones visibles en páginas de precios de Odoo y ServiceM8 \cite{jobber_pricing,odoo_pricing,servicem8_pricing}.
+
+% =====================================================================
+\section{Flujo de trabajo Contract-First: del esquema a la interfaz}
+\label{sec:contract-first}
+
+El desarrollo de cada módulo del aplicativo siguió un flujo de trabajo estandarizado de once pasos, diseñado para garantizar que ninguna funcionalidad llegara al frontend sin haber sido validada previamente en las capas de contrato, modelo de datos, lógica de negocio y API. Este enfoque, conocido como \textit{Contract-First Development}, establece que el contrato de datos —expresado como un esquema Zod en el paquete \texttt{@cermont/shared-types}— constituye el primer artefacto construido y la fuente de verdad de la cual se derivan todas las implementaciones subsecuentes.
+
+\begin{enumerate}
+    \item \textbf{Esquema Zod en shared-types.} Se define la estructura de datos, los tipos de cada campo, las validaciones (longitud, formato, obligatoriedad, valores permitidos) y los comandos de mutación (crear, actualizar, aprobar, rechazar, archivar). Este esquema es la única fuente de verdad del contrato.
+    \item \textbf{Tipo TypeScript inferido desde Zod.} Mediante \texttt{z.infer<typeof Schema>} se obtiene el tipo estático sin duplicar definiciones.
+    \item \textbf{Modelo Mongoose alineado.} Se crea el esquema de base de datos en Mongoose respetando los mismos nombres de campo, tipos y restricciones definidos en el esquema Zod.
+    \item \textbf{Servicio de dominio (backend).} Se implementa la lógica de negocio pura como funciones o clases que reciben datos tipados, aplican reglas de dominio, calculan estados, bloqueos (\textit{blockers}) y siguientes acciones (\textit{nextActions}), y retornan resultados o errores tipados.
+    \item \textbf{Controlador HTTP delgado.} Se escribe un controlador que extrae parámetros de la petición, invoca el servicio y retorna una respuesta con el envoltorio estándar \texttt{\{ success, data, error \}}. El controlador no contiene lógica de negocio.
+    \item \textbf{Ruta Express con middlewares.} Se define la ruta en el router de Express, encadenando los middlewares en orden: \texttt{authenticate} $\rightarrow$ \texttt{authorize(permiso)} $\rightarrow$ \texttt{validateBody(schema)} $\rightarrow$ \texttt{controller}.
+    \item \textbf{Pruebas unitarias del servicio.} Se escriben pruebas que verifican el comportamiento de la lógica de negocio de forma aislada, sin dependencia de HTTP ni base de datos.
+    \item \textbf{Pruebas de integración del endpoint.} Se verifica que la ruta responda correctamente a peticiones HTTP válidas e inválidas, respetando RBAC y validaciones.
+    \item \textbf{Función API client (frontend).} Se crea una función en el módulo \texttt{api/} del frontend que encapsula la llamada HTTP al endpoint del backend, utilizando el cliente HTTP centralizado \texttt{apiClient}.
+    \item \textbf{Hook TanStack Query.} Se implementa un hook personalizado (\texttt{useQuery} para lecturas, \texttt{useMutation} para escrituras) con claves de consulta estables y centralizadas.
+    \item \textbf{Componente UI.} Se construye la interfaz de usuario consumiendo exclusivamente los hooks de TanStack Query, con estados de carga, error, vacío, prohibido y offline.
+\end{enumerate}
+
+Este flujo garantiza trazabilidad completa: cada pantalla del frontend tiene un endpoint correspondiente en el backend, cada endpoint está respaldado por un servicio con pruebas, y cada servicio opera sobre datos validados por un esquema Zod compartido.
+
+\section{Compuertas de calidad por iteración}
+\label{sec:quality-gates}
+
+Cada iteración de desarrollo —entendida como la implementación de un módulo completo siguiendo el flujo contract-first— concluyó con la ejecución obligatoria de un conjunto de compuertas de calidad (\textit{quality gates}) diseñadas para detectar regresiones, inconsistencias de tipos, código no utilizado y problemas de accesibilidad antes de considerar el módulo como terminado. La Tabla \ref{tab:quality-gates} describe cada compuerta, su herramienta asociada y el criterio de aprobación.
+
+\begin{table}[!htbp]
+\centering
+\caption{Compuertas de calidad aplicadas por iteración de desarrollo. Fuente: Elaboración propia.}
+\label{tab:quality-gates}
+\def\GateRow#1#2#3{\parbox[t]{3.0cm}{\raggedright #1} & \parbox[t]{7.5cm}{\raggedright #2} & \parbox[t]{3.5cm}{\raggedright #3}\\\midrule}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Compuerta} & \textbf{Descripción} & \textbf{Criterio de aprobación} \\
+\midrule
+\GateRow{\texttt{typecheck}}{Verificación estática de tipos TypeScript en todos los workspaces del monorepo.}{Cero errores. No se permite \texttt{@ts-ignore}, \texttt{as any} ni supresiones.}
+\GateRow{\texttt{lint}}{Análisis estático de estilo y calidad de código mediante Biome.}{Cero errores y cero advertencias.}
+\GateRow{\texttt{test}}{Ejecución de pruebas unitarias y de integración con Vitest.}{Todas las pruebas pasan. No se eliminan pruebas para aprobar.}
+\GateRow{\texttt{build}}{Compilación de producción del backend (TypeScript $\rightarrow$ JavaScript) y del frontend (Next.js build).}{Build exitoso sin errores de compilación.}
+\GateRow{\texttt{verify}}{Pipeline completo: \texttt{typecheck} + \texttt{build}.}{Ambas compuertas superadas.}
+\GateRow{\path{contracts:check}}{Verificación de que los contratos compartidos no tienen cambios no intencionados.}{Sin divergencias entre instantáneas (\textit{snapshots}).}
+\GateRow{\texttt{react-doctor}}{Auditoría de componentes React: componentes gigantes, exports no usados, problemas de hidratación, Suspense, accesibilidad.}{Cero problemas reportados.}
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+La aplicación sistemática de estas compuertas aseguró que el código entregado al repositorio cumpliera con los estándares de calidad definidos en las reglas de desarrollo de CERMONT S.A.S., que prohíben explícitamente el uso de \texttt{any}, \texttt{null}, \texttt{undefined}, \texttt{console.log} en producción, datos simulados en producción y captura silenciosa de errores.
+
+\section{Instrumentos de recolección y análisis de información}
+\label{sec:instrumentos}
+
+Para la fase de diagnóstico se emplearon tres instrumentos principales de recolección de información, todos aplicados sobre documentos reales suministrados por CERMONT S.A.S. o disponibles en fuentes públicas verificables:
+
+\begin{enumerate}
+    \item \textbf{Análisis documental de formatos operativos.} Se examinaron sistemáticamente cinco documentos internos de la empresa: el formato de planeación de obra, el formato de inspección de líneas de vida verticales, el formato de mantenimiento preventivo CCTV, el registro fotográfico de anclaje de escalera y el documento de inducción HES. Para cada formato se identificaron: propósito, campos requeridos, tipo de dato esperado, reglas de validación implícitas, evidencias asociadas y frecuencia de uso. Este análisis sirvió como base para el diseño de los formularios digitales y los kits típicos del sistema.
+    \item \textbf{Análisis de flujo de proceso.} Se reconstruyó el flujo operativo de catorce pasos documentado por la empresa, desde la solicitud del cliente hasta el pago, identificando para cada paso: entidad principal, documento generado, responsable, dependencia con el paso anterior y criterio de completitud. Este análisis permitió identificar cinco fallas críticas: planeación, ejecución, informes y actas, facturación y control de costos reales.
+    \item \textbf{Revisión de fuentes institucionales y de industria.} Se consultaron el sitio web oficial de CERMONT S.A.S. \cite{cermont_web}, la página de misión institucional \cite{cermont_mision_web}, el informe de gestión de la Agencia Nacional de Hidrocarburos, los reportes de la Asociación Colombiana del Petróleo y Gas, y los documentos técnicos de proveedores de software FSM (Jobber, Odoo, ServiceM8, Fracttal). Esta revisión proporcionó el contexto sectorial y el soporte económico y funcional utilizado en la justificación del proyecto.
+\end{enumerate}
+
+La triangulación de estas tres fuentes —documentos internos, flujo de proceso y fuentes institucionales— permitió construir un diagnóstico fundamentado sin depender de entrevistas no documentadas, encuestas no aplicadas o cifras internas no autorizadas para divulgación.
+
+% =====================================================================
+\section{Matriz de trazabilidad metodológica}
+\label{sec:matriz-metodologica}
+
+Para garantizar que cada objetivo específico del proyecto fuera abordado mediante actividades concretas, verificables y con entregables definidos, se construyó la matriz de trazabilidad que se presenta en la Tabla \ref{tab:matriz-objetivos-fases}. Esta matriz relaciona los objetivos específicos con las fases metodológicas, las actividades ejecutadas, las herramientas empleadas, los entregables producidos y los criterios de validación aplicados. Su propósito es demostrar la coherencia interna del diseño metodológico y facilitar la verificación del cumplimiento de cada objetivo por parte de la revisión académica.
+
+\begin{table}[!htbp]
+\centering
+\caption{Matriz de trazabilidad: objetivos, fases, actividades y entregables. Fuente: Elaboración propia.}
+\label{tab:matriz-objetivos-fases}
+\footnotesize
+\renewcommand{\arraystretch}{0.95}
+\def\MatrizRow#1#2#3#4#5{\parbox[t]{2.0cm}{\raggedright #1} & \parbox[t]{1.9cm}{\raggedright #2} & \parbox[t]{3.3cm}{\raggedright #3} & \parbox[t]{2.7cm}{\raggedright #4} & \parbox[t]{2.8cm}{\raggedright #5}\\\midrule}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}l l l l l@{}}
+\toprule
+\textbf{Objetivo} & \textbf{Fase} & \textbf{Actividades principales} & \textbf{Herramientas} & \textbf{Entregable / Evidencia} \\
+\midrule
+\MatrizRow{1. Diagnóstico}{Diagnóstico documental}{Revisión de formatos, flujo de 14 pasos y fases críticas de fragmentación.}{Documentos Cermont y diagramas TikZ.}{Inventario documental, flujo y fallas críticas.}
+\MatrizRow{2. Diseño}{Diseño funcional}{Módulos, estados, datos, RBAC y decisiones arquitectónicas.}{Arquitectura, MER y referencias técnicas.}{Arquitectura, modelo de datos y RBAC.}
+\MatrizRow{3. Implementación}{Desarrollo}{Frontend, backend, base de datos y autenticación.}{Next.js, Express, MongoDB, Zod, TypeScript y Vitest.}{Código, pruebas y capturas.}
+\MatrizRow{4. Validación}{Validación}{Pruebas unitarias, de integración y de seguridad.}{Vitest, Supertest, OWASP y checklist.}{Informe de pruebas y aceptación.}
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\section{Estructura del repositorio y organización del código}
+\label{sec:estructura-repositorio}
+
+El código fuente del aplicativo se organiza bajo una arquitectura de monorepo gestionada mediante npm workspaces, compuesta por tres áreas principales de desarrollo. Esta estructura, verificable en el repositorio del proyecto \cite{repo_cermont}, refleja la separación de responsabilidades definida en la arquitectura del sistema.
+
+El workspace \texttt{backend} contiene la API REST implementada en Express 5.2.1 con TypeScript estricto. Su estructura interna sigue el patrón de carpetas por responsabilidad: \texttt{config/} (conexión a base de datos, variables de entorno), \texttt{routes/} (definición de endpoints), \texttt{controllers/} (manejo de peticiones HTTP), \texttt{services/} (lógica de negocio), \texttt{models/} (esquemas Mongoose), \texttt{middlewares/} (autenticación, autorización, validación) y \texttt{utils/} (funciones auxiliares).
+
+El workspace \texttt{frontend} contiene la interfaz de usuario implementada en Next.js 16 con App Router y React 19. Su estructura sigue el patrón de diseño por módulos (\textit{Feature-Sliced Design}): cada módulo de negocio (órdenes, planeación, evidencias, documentos, costos, mantenimiento) agrupa su API client, hooks de TanStack Query, componentes UI, tipos y utilidades en una carpeta dedicada. Los componentes compartidos (Button, Card, Dialog, FormField, Badge, Table) residen en \texttt{components/common/}.
+
+El workspace \texttt{packages} contiene los paquetes compartidos que actúan como fuente única de verdad para los contratos de datos. \texttt{@cermont/shared-types} define los esquemas Zod y los tipos TypeScript inferidos, consumidos tanto por el backend como por el frontend. \texttt{@cermont/domain} centraliza las definiciones de roles RBAC, los helpers de verificación de permisos y las constantes de negocio. \texttt{@cermont/config} unifica la validación de variables de entorno.
+
+Esta organización del código, alineada con los principios de Clean Code, DRY y SSOT documentados en las reglas de desarrollo de CERMONT S.A.S., garantiza que cada responsabilidad tenga una ubicación predecible en el repositorio y que las dependencias entre capas estén explícitamente controladas.
+
+\section{Procedimiento de validación metodológica}
+\label{sec:procedimiento-validacion}
+
+El procedimiento de validación del proyecto se diseñó para verificar el cumplimiento de cada objetivo específico mediante criterios objetivos y reproducibles. Para el objetivo 1 (diagnóstico), el criterio de validación fue la completitud del inventario documental: todos los formatos operativos suministrados por CERMONT S.A.S. debían estar analizados y sus campos caracterizados en la matriz de diagnóstico. Para el objetivo 2 (diseño), el criterio fue la coherencia arquitectónica: cada módulo definido en el diseño debía tener una justificación técnica documentada en los ADR y una relación explícita con al menos una fase crítica identificada en el diagnóstico.
+
+Para el objetivo 3 (implementación), el criterio de validación fue doble: funcional (cada módulo implementado debía superar las compuertas de calidad: \texttt{typecheck}, \texttt{lint}, \texttt{test}, \texttt{build}) y de cobertura (cada endpoint de la API debía tener al menos una prueba de integración que verificara su comportamiento ante entradas válidas e inválidas). Para el objetivo 4 (validación), el criterio fue la completitud de la matriz de pruebas: todos los escenarios de uso identificados en la fase de diagnóstico debían estar cubiertos por al menos una prueba automatizada o un caso de aceptación cualitativa documentado.
+
+Este procedimiento de validación en cascada, donde cada fase depende de la completitud de la anterior, aseguró que el proyecto avanzara de manera ordenada y que ningún objetivo se considerara cumplido sin evidencia verificable.
+
+% =====================================================================
+\section{Implicaciones del contexto de práctica empresarial}
+\label{sec:modalidad-practica}
+
+La ejecución del proyecto en el contexto de práctica empresarial, definido por el programa de Ingeniería Electrónica de la Universidad de Pamplona, determinó varias características del diseño metodológico y del alcance del trabajo. A continuación se discuten las implicaciones de este contexto en la estructura del proyecto.
+
+En primer lugar, la práctica empresarial sitúa al estudiante en un contexto organizacional real, con procesos, documentos, restricciones y expectativas que no pueden ser simulados en un entorno puramente académico. Esta inmersión permitió acceder a los formatos operativos de CERMONT S.A.S., comprender el flujo de trabajo de catorce pasos y dialogar con los actores del proceso, generando un diagnóstico fundamentado en evidencia documental y observación directa. Sin embargo, también impuso limitaciones: el acceso a datos cuantitativos de desempeño (tiempos, costos, volúmenes) está condicionado por las políticas de confidencialidad de la empresa, y la validación del sistema con usuarios reales requiere coordinación con los ciclos operativos de la organización, que no siempre coinciden con el calendario académico.
+
+En segundo lugar, este contexto exigió que el proyecto equilibrara dos objetivos potencialmente en tensión: por un lado, la construcción de un artefacto de software funcional que respondiera a las necesidades operativas de la empresa; por otro lado, la producción de un documento académico que cumpliera con los estándares de rigor, originalidad y trazabilidad exigidos por la universidad. Este equilibrio se logró mediante la adopción del marco metodológico de Design Science Research, que valora tanto el artefacto construido como el conocimiento generado durante su diseño y evaluación.
+
+En tercer lugar, la práctica empresarial confiere al trabajo un carácter aplicado que lo diferencia de proyectos puramente teóricos o de simulación. El software desarrollado no es un prototipo académico, sino un sistema que responde a necesidades reales de una organización, utiliza tecnologías de producción y está sujeto a restricciones auténticas de seguridad, escalabilidad y mantenibilidad. Esta orientación práctica es consistente con el perfil de egreso del programa de Ingeniería Electrónica, que busca formar profesionales capaces de aplicar conocimientos de ingeniería para resolver problemas concretos en contextos organizacionales e industriales.
+
+\section{Plan de trabajo y cronograma de ejecución}
+\label{sec:cronograma}
+
+El proyecto se ejecutó a lo largo de las fases descritas en este capítulo, con una distribución temporal que priorizó las actividades de diagnóstico y diseño en las primeras semanas, reservando la mayor parte del tiempo disponible para la implementación iterativa de los módulos. La Tabla \ref{tab:cronograma} presenta una síntesis de la distribución temporal de las actividades principales del proyecto.
+
+\begin{table}[!htbp]
+\centering
+\caption{Distribución temporal de las actividades del proyecto. Fuente: Elaboración propia.}
+\label{tab:cronograma}
+\small
+\def\CronoRow#1#2#3{\parbox[t]{5.3cm}{\raggedright #1} & \parbox[t]{4.7cm}{\raggedright #2} & \parbox[t]{3.2cm}{\raggedright #3}\\\midrule}
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Actividad principal} & \textbf{Fase metodológica} & \textbf{Dedicación estimada} \\
+\midrule
+\CronoRow{Revisión documental de formatos CERMONT y flujo de 14 pasos}{Diagnóstico}{Primeras 3 semanas}
+\CronoRow{Revisión de literatura: FSM, CMMS, formularios dinámicos, seguridad web}{Estado del arte y marco teórico}{Semanas 2 a 6}
+\CronoRow{Definición de arquitectura, modelo de datos y decisiones de diseño (ADR)}{Diseño funcional}{Semanas 4 a 8}
+\CronoRow{Desarrollo iterativo de módulos (7 iteraciones)}{Desarrollo}{Semanas 6 a 20}
+\CronoRow{Pruebas unitarias, de integración y validación de seguridad}{Validación}{Semanas 16 a 22}
+\CronoRow{Redacción del libro de trabajo de grado y compilación de anexos}{Documentación}{Semanas 18 a 24}
+\bottomrule
+\end{tabular}
+\end{table}
+
+Las fechas exactas de inicio y finalización de cada actividad deben verificarse con el cronograma aprobado en el anteproyecto y con el registro de avance de la práctica empresarial. La distribución presentada en esta tabla refleja la secuencia lógica de dependencias entre fases, no necesariamente la calendarización precisa que depende de factores externos como la disponibilidad de documentos, la coordinación con la empresa y el calendario académico.
+
+% --- AMPLIACIÓN ACADÉMICA INTEGRADA CAPÍTULO 5 ---
+
+\section{Modelo de integración académica de la documentación técnica 00--22}
+\label{sec:modelo-integracion-00-22-ampliado}
+
+La documentación técnica 00--22 se utilizó como bitácora estructurada del desarrollo del aplicativo. Su valor metodológico no consiste en aumentar el volumen del libro mediante anexos literales, sino en reconstruir la secuencia de decisiones, módulos, reglas y criterios de calidad que guiaron la implementación. Cada documento aporta una pieza del proceso: algunos definen arquitectura, otros describen backend, frontend, seguridad, pruebas, evidencias, despliegue o cierre administrativo. La integración académica consiste en traducir esa documentación de ingeniería en una narrativa verificable.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{1.6cm} >{\raggedright\arraybackslash}p{4.2cm} >{\raggedright\arraybackslash}p{5.1cm} >{\raggedright\arraybackslash}p{3.2cm}}
+\caption{Matriz ampliada de integración de la documentación técnica 00--22 en el libro. Fuente: elaboración propia.}
+\label{tab:integracion-docs-00-22-ampliada}\\
+\toprule
+\textbf{Doc.} & \textbf{Tema principal} & \textbf{Uso académico en el libro} & \textbf{Capítulo principal}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Doc.} & \textbf{Tema principal} & \textbf{Uso académico en el libro} & \textbf{Capítulo principal}\\
+\midrule
+\endhead
+\midrule
+\multicolumn{4}{r}{Continúa en la siguiente página}\\
+\endfoot
+\bottomrule
+\endlastfoot
+DOC-00 & Contexto técnico inicial & Delimita visión, alcance y restricciones iniciales del aplicativo. & Cap. 5--6\\
+DOC-01 & Stack tecnológico & Sustenta la selección de tecnologías y alternativas consideradas. & Cap. 6\\
+DOC-02 & Estructura de carpetas & Evidencia la organización del monorepo y la separación de responsabilidades. & Cap. 6\\
+DOC-03 & Backend & Describe rutas, controladores, servicios, modelos y validaciones del servidor. & Cap. 6--7\\
+DOC-04 & Seguridad y RBAC & Fundamenta autenticación, autorización, roles y permisos. & Cap. 4, 6, 8\\
+DOC-05 & Frontend & Explica módulos de interfaz, consultas, estado local y experiencia de usuario. & Cap. 6--7\\
+DOC-06 & Offline-first & Justifica PWA, IndexedDB, cola local y sincronización diferida. & Cap. 2, 6, 8\\
+DOC-07 & Módulos de negocio & Conecta el flujo de 14 pasos con entidades, módulos y vertical slices. & Cap. 1, 6, 7\\
+DOC-07B & Dashboard FSM & Define KPIs, blockers, nextActions y visión ejecutiva del proceso. & Cap. 6--7\\
+DOC-08 & Despliegue & Describe Docker, VPS, variables de entorno y estrategia de publicación. & Cap. 6, anexos\\
+DOC-09 & Diccionario de datos & Relaciona esquemas, entidades, campos y contratos. & Cap. 6\\
+DOC-10 & Contratos REST & Evidencia endpoints, payloads, roles y comunicación cliente-servidor. & Cap. 6--8\\
+DOC-11 & Reglas del agente & Documenta disciplina de implementación y restricciones de calidad. & Cap. 5, 8\\
+DOC-12 & Auditoría y remediación & Permite explicar iteraciones de corrección, deuda técnica y reconstrucción. & Cap. 5, 9\\
+DOC-13 & Setup local & Respalda reproducibilidad, comandos y ambiente de desarrollo. & Cap. 5, anexos\\
+DOC-14 & Errores y logging & Sustenta manejo de errores, trazabilidad técnica y observabilidad. & Cap. 6--8\\
+DOC-15 & Testing & Define pruebas, convenciones, cobertura y gates de calidad. & Cap. 8\\
+DOC-16 & Git y control documental & Explica control de cambios, ramas y trazabilidad de versiones. & Cap. 5\\
+DOC-17 & Seed y datos demo & Apoya escenarios de prueba sin afirmar datos reales de operación. & Cap. 8\\
+DOC-18 & Observabilidad & Fundamenta health checks, monitoreo y diagnóstico técnico. & Cap. 8--9\\
+DOC-19 & Archivos y evidencias & Sustenta subida, almacenamiento, metadatos, firmas y seguridad de archivos. & Cap. 6--7\\
+DOC-20 & Soporte operativo & Define mantenimiento, soporte y operación posterior al despliegue. & Cap. 9--10\\
+DOC-21 & Madurez documental & Establece criterios de calidad, documentación y completitud por módulo. & Cap. 5, 8, 9\\
+DOC-22 & Cierre de brechas & Ordena el pipeline desde propuesta hasta factura, pago y costos reales. & Cap. 1, 6, 7\\
+\end{longtable}
+
+La matriz anterior permite convertir una colección de documentos técnicos en evidencia metodológica. Cada documento no se usa como cita aislada, sino como soporte de una fase del desarrollo. Así, la metodología se fortalece porque no depende únicamente de una descripción general del ciclo de vida del software, sino de un rastro documental concreto que muestra cómo se fueron definiendo los módulos, la arquitectura y las compuertas de calidad.
+
+\section{Procedimiento de uso de los documentos técnicos durante el desarrollo}
+\label{sec:procedimiento-uso-docs-desarrollo}
+
+El proceso de desarrollo siguió una secuencia de lectura, implementación y verificación. Antes de construir un módulo, se revisaba el documento técnico correspondiente para identificar el propósito de negocio, las entidades involucradas, los endpoints esperados, los permisos requeridos y las pruebas mínimas. Luego se implementaba la porción vertical del sistema: contrato compartido, backend, servicio de dominio, endpoint, cliente HTTP, hook de interfaz, página, estados visuales y prueba. Finalmente, se verificaba que el módulo no generara rutas rotas, datos simulados en producción, duplicidad de lógica o inconsistencias con el flujo de 14 pasos.
+
+Este procedimiento se alinea con una metodología de investigación aplicada porque transforma un problema organizacional en un artefacto de software evaluable. La documentación técnica actúa como bitácora de diseño y como mecanismo de control de calidad. Su integración en el libro permite demostrar que el aplicativo no fue construido de forma improvisada, sino mediante decisiones sucesivas, documentadas y trazables.
+
+\section{Matriz de fases metodológicas y documentos de soporte}
+\label{sec:matriz-fases-docs-soporte}
+
+\begin{table}[!htbp]
+\centering
+\footnotesize
+\caption{Fases metodológicas y documentos técnicos asociados. Fuente: elaboración propia.}
+\label{tab:fases-docs-soporte}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{p{3.0cm}p{4.5cm}p{5.0cm}p{2.8cm}}
+\toprule
+\textbf{Fase} & \textbf{Propósito} & \textbf{Documentos de soporte} & \textbf{Resultado esperado}\\
+\midrule
+Diagnóstico & Comprender el flujo de 14 pasos, fallas y actores. & DOC-00, DOC-07, DOC-22, documentos internos de CERMONT. & Matriz problema--requisito.\\
+Diseño arquitectónico & Definir estructura, stack, módulos, entidades y contratos. & DOC-01, DOC-02, DOC-09, DOC-10. & Arquitectura y modelo de datos.\\
+Implementación funcional & Construir módulos de negocio por vertical slices. & DOC-03, DOC-05, DOC-07, DOC-07B, DOC-19. & Funciones implementadas o parciales.\\
+Seguridad y control & Aplicar RBAC, validación, errores y auditoría. & DOC-04, DOC-14, DOC-21. & Módulos protegidos y trazables.\\
+Validación técnica & Ejecutar pruebas, gates y revisión de comportamiento. & DOC-11, DOC-13, DOC-15, DOC-17, DOC-18. & Evidencias de pruebas y limitaciones.\\
+Cierre y continuidad & Documentar soporte, mantenimiento y evolución. & DOC-20, DOC-21, DOC-22. & Recomendaciones y trabajo futuro.\\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}

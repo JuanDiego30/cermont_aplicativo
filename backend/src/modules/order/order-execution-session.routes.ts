@@ -4,10 +4,10 @@ import {
 	OrderExecutionSessionParamsSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
-import * as ExecutionSessionController from "../../modules/execution-session/execution-session.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams } from "../../middlewares/validate";
+import * as ExecutionSessionController from "../../modules/execution-session/execution-session.controller";
 
 const router = Router();
 

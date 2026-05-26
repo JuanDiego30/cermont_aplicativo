@@ -54,6 +54,228 @@ const SIZE_CLASSES = {
 	lg: "h-12 px-6 text-base",
 } as const;
 
+// ─── Subcomponents ──────────────────────────────────────────────────────────
+
+interface DropdownSearchProps {
+	value: string;
+	onChange: (q: string) => void;
+	onKeyDown: (e: React.KeyboardEvent) => void;
+	dataTestId: string;
+}
+
+function DropdownSearch({ value, onChange, onKeyDown, dataTestId }: DropdownSearchProps) {
+	return (
+		<div className="p-2 border-b border-[var(--border-subtle)]">
+			<input
+				type="text"
+				value={value}
+				onChange={(e) => onChange(e.target.value)}
+				placeholder="Buscar..."
+				className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-3 py-1.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--color-focus-ring)]"
+				// biome-ignore lint/a11y/noAutofocus: search field inside dropdown must auto-focus for usability
+				autoFocus
+				onKeyDown={onKeyDown}
+				data-testid={`${dataTestId}-search`}
+			/>
+		</div>
+	);
+}
+
+interface OptionButtonProps {
+	option: SelectOption;
+	isSelected: boolean;
+	onSelect: (value: string) => void;
+	dataTestId: string;
+}
+
+function OptionButton({ option, isSelected, onSelect, dataTestId }: OptionButtonProps) {
+	return (
+		<button
+			key={option.value}
+			type="button"
+			onClick={() => onSelect(option.value)}
+			data-testid={`${dataTestId}-option-${option.value}`}
+			className={cn(
+				"w-full px-3 py-2 text-left text-sm transition-colors hover:bg-[var(--surface-secondary)]",
+				isSelected
+					? "bg-[var(--color-brand)]/10 text-[var(--color-brand)] font-medium"
+					: "text-[var(--text-primary)]",
+			)}
+		>
+			{option.label}
+		</button>
+	);
+}
+
+interface DropdownMenuProps {
+	options: SelectOption[];
+	filteredOptions: SelectOption[];
+	value: string;
+	allowCustom: boolean;
+	customOptionLabel: string;
+	searchQuery: string;
+	showSearch: boolean;
+	onSearch: (q: string) => void;
+	onSelect: (value: string) => void;
+	onKeyDown: (e: React.KeyboardEvent) => void;
+	dataTestId: string;
+}
+
+function DropdownMenu({
+	filteredOptions,
+	value,
+	allowCustom,
+	customOptionLabel,
+	searchQuery,
+	showSearch,
+	onSearch,
+	onSelect,
+	onKeyDown,
+	dataTestId,
+}: DropdownMenuProps) {
+	return (
+		<div
+			className="absolute z-50 mt-1 w-full rounded-xl border border-[var(--border-medium)] bg-[var(--surface-primary)] shadow-lg"
+			data-testid={`${dataTestId}-dropdown`}
+		>
+			{showSearch && (
+				<DropdownSearch
+					value={searchQuery}
+					onChange={onSearch}
+					onKeyDown={onKeyDown}
+					dataTestId={dataTestId}
+				/>
+			)}
+
+			<div className="max-h-60 overflow-y-auto py-1">
+				{filteredOptions.length === 0 ? (
+					<div className="px-3 py-2 text-sm text-[var(--text-muted)]">
+						{searchQuery ? "Sin resultados" : "Sin opciones disponibles"}
+					</div>
+				) : (
+					filteredOptions.map((option) => (
+						<OptionButton
+							key={option.value}
+							option={option}
+							isSelected={value === option.value}
+							onSelect={onSelect}
+							dataTestId={dataTestId}
+						/>
+					))
+				)}
+
+				{allowCustom && (
+					<>
+						<div className="border-t border-[var(--border-subtle)] my-1" />
+						<button
+							type="button"
+							onClick={() => onSelect("__custom__")}
+							data-testid={`${dataTestId}-custom-option`}
+							className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-[var(--color-brand)] transition-colors hover:bg-[var(--surface-secondary)]"
+						>
+							<Plus className="size-4" />
+							{customOptionLabel}
+						</button>
+					</>
+				)}
+			</div>
+		</div>
+	);
+}
+
+interface CustomTextInputProps {
+	id: string;
+	value: string;
+	isCustomMode: boolean;
+	disabled?: boolean;
+	required?: boolean;
+	name?: string;
+	size: "sm" | "md" | "lg";
+	error?: boolean;
+	allowCatalogSuggestion: boolean;
+	catalogSuggestionLabel: string;
+	proposeForCatalog: boolean;
+	customText: string;
+	onChange: (text: string) => void;
+	onBlur: () => void;
+	onReset: () => void;
+	onProposalChange: (checked: boolean) => void;
+	dataTestId: string;
+}
+
+function CustomTextInput({
+	id,
+	value,
+	isCustomMode,
+	disabled,
+	required,
+	name,
+	size,
+	error,
+	allowCatalogSuggestion,
+	catalogSuggestionLabel,
+	proposeForCatalog,
+	customText,
+	onChange,
+	onBlur,
+	onReset,
+	onProposalChange,
+	dataTestId,
+}: CustomTextInputProps) {
+	return (
+		<div className="space-y-2">
+			<div className="relative">
+				<input
+					id={id}
+					type="text"
+					value={isCustomMode ? customText : value}
+					onChange={(e) => {
+						if (isCustomMode) {
+							onChange(e.target.value);
+						}
+					}}
+					onBlur={onBlur}
+					placeholder="Escriba su opción personalizada..."
+					disabled={disabled}
+					required={required}
+					name={name}
+					data-testid={`${dataTestId}-custom-input`}
+					className={cn(
+						"w-full rounded-full border bg-[var(--surface-primary)] px-4 text-[var(--text-primary)] transition-[border-color,box-shadow] duration-150 placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)]",
+						SIZE_CLASSES[size],
+						error
+							? "border-[var(--color-danger)] focus:border-[var(--color-danger)]"
+							: "border-[var(--border-medium)] focus:border-[var(--color-focus-ring)]",
+					)}
+				/>
+				<button
+					type="button"
+					onClick={onReset}
+					className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-brand)] hover:underline"
+					disabled={disabled}
+					data-testid={`${dataTestId}-back-to-list`}
+				>
+					Volver a lista
+				</button>
+			</div>
+
+			{allowCatalogSuggestion && isCustomMode && customText.trim() && (
+				<label className="inline-flex items-center gap-2 cursor-pointer text-sm text-[var(--text-secondary)]">
+					<input
+						type="checkbox"
+						checked={proposeForCatalog}
+						onChange={(e) => onProposalChange(e.target.checked)}
+						className="rounded border-[var(--border-medium)] text-[var(--color-brand)]"
+					/>
+					{catalogSuggestionLabel}
+				</label>
+			)}
+		</div>
+	);
+}
+
+// ─── Main Component ──────────────────────────────────────────────────────────
+
 export function CustomizableSelect({
 	options,
 	value = "",
@@ -82,18 +304,20 @@ export function CustomizableSelect({
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [searchQuery, setSearchQuery] = useState("");
 
-	const isPredefined = useMemo(() => {
-		return options.some((opt) => opt.value === value);
-	}, [options, value]);
+	const isPredefined = useMemo(() => options.some((opt) => opt.value === value), [options, value]);
 
 	const selectedLabel = useMemo(() => {
-		if (!value) return "";
+		if (!value) {
+			return "";
+		}
 		const option = options.find((opt) => opt.value === value);
 		return option ? option.label : value;
 	}, [options, value]);
 
 	const filteredOptions = useMemo(() => {
-		if (!searchQuery) return options;
+		if (!searchQuery) {
+			return options;
+		}
 		const q = searchQuery.toLowerCase();
 		return options.filter(
 			(opt) => opt.label.toLowerCase().includes(q) || opt.value.toLowerCase().includes(q),
@@ -105,15 +329,9 @@ export function CustomizableSelect({
 			if (selectedValue === "__custom__") {
 				setIsCustomMode(true);
 				setIsOpen(false);
-				// If there was a previous custom value, restore it
-				if (!isPredefined && value) {
-					setCustomText(value);
-				} else {
-					setCustomText("");
-				}
+				setCustomText(!isPredefined && value ? value : "");
 				return;
 			}
-
 			setIsCustomMode(false);
 			setIsOpen(false);
 			setCustomText("");
@@ -133,7 +351,6 @@ export function CustomizableSelect({
 
 	const handleCustomBlur = useCallback(() => {
 		if (!customText.trim() && required) {
-			// Don't clear if required - validation will handle
 			return;
 		}
 		if (customText.trim()) {
@@ -156,11 +373,18 @@ export function CustomizableSelect({
 		[isOpen, filteredOptions, handleSelect],
 	);
 
+	const handleReset = useCallback(() => {
+		setIsCustomMode(false);
+		setCustomText("");
+		onChange?.("", false);
+	}, [onChange]);
+
 	const isCustomValue = !isPredefined && value !== "";
+	const showDropdownSearch = options.length > 8;
 
 	return (
 		<div className={cn("space-y-2", className)} ref={containerRef}>
-			{label ? (
+			{label && (
 				<label
 					htmlFor={selectId}
 					className="block text-sm font-medium text-[var(--text-secondary)]"
@@ -168,72 +392,35 @@ export function CustomizableSelect({
 					{label}
 					{required ? <span className="ml-1 text-[var(--color-danger)]">*</span> : null}
 				</label>
-			) : null}
+			)}
 
-			{/* Custom text input mode */}
 			{isCustomMode || isCustomValue ? (
-				<div className="space-y-2">
-					<div className="relative">
-						<input
-							id={selectId}
-							type="text"
-							value={isCustomMode ? customText : value}
-							onChange={(e) => {
-								if (isCustomMode) {
-									handleCustomTextChange(e.target.value);
-								}
-							}}
-							onBlur={handleCustomBlur}
-							placeholder="Escriba su opción personalizada..."
-							disabled={disabled}
-							required={required}
-							name={name}
-							data-testid={`${dataTestId}-custom-input`}
-							className={cn(
-								"w-full rounded-full border bg-[var(--surface-primary)] px-4 text-[var(--text-primary)] transition-[border-color,box-shadow] duration-150 placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)]",
-								SIZE_CLASSES[size],
-								error
-									? "border-[var(--color-danger)] focus:border-[var(--color-danger)]"
-									: "border-[var(--border-medium)] focus:border-[var(--color-focus-ring)]",
-							)}
-						/>
-						<button
-							type="button"
-							onClick={() => {
-								setIsCustomMode(false);
-								setCustomText("");
-								onChange?.("", false);
-							}}
-							className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[var(--color-brand)] hover:underline"
-							disabled={disabled}
-							data-testid={`${dataTestId}-back-to-list`}
-						>
-							Volver a lista
-						</button>
-					</div>
-
-					{/* Catalog suggestion checkbox */}
-					{allowCatalogSuggestion && isCustomMode && customText.trim() ? (
-						<label className="inline-flex items-center gap-2 cursor-pointer text-sm text-[var(--text-secondary)]">
-							<input
-								type="checkbox"
-								checked={proposeForCatalog}
-								onChange={(e) => setProposeForCatalog(e.target.checked)}
-								className="rounded border-[var(--border-medium)] text-[var(--color-brand)]"
-							/>
-							{catalogSuggestionLabel}
-						</label>
-					) : null}
-				</div>
+				<CustomTextInput
+					id={selectId}
+					value={value}
+					isCustomMode={isCustomMode}
+					disabled={disabled}
+					required={required}
+					name={name}
+					size={size}
+					error={error}
+					allowCatalogSuggestion={allowCatalogSuggestion}
+					catalogSuggestionLabel={catalogSuggestionLabel}
+					proposeForCatalog={proposeForCatalog}
+					customText={customText}
+					onChange={handleCustomTextChange}
+					onBlur={handleCustomBlur}
+					onReset={handleReset}
+					onProposalChange={setProposeForCatalog}
+					dataTestId={dataTestId}
+				/>
 			) : (
-				/* Dropdown mode */
 				<div className="relative">
 					<button
 						id={selectId}
 						type="button"
 						onClick={() => !disabled && setIsOpen(!isOpen)}
 						disabled={disabled}
-						aria-required={required}
 						name={name}
 						data-testid={dataTestId}
 						className={cn(
@@ -254,83 +441,30 @@ export function CustomizableSelect({
 						/>
 					</button>
 
-					{/* Dropdown */}
-					{isOpen ? (
-						<div
-							className="absolute z-50 mt-1 w-full rounded-xl border border-[var(--border-medium)] bg-[var(--surface-primary)] shadow-lg"
-							data-testid={`${dataTestId}-dropdown`}
-						>
-							{/* Search */}
-							{options.length > 8 ? (
-								<div className="p-2 border-b border-[var(--border-subtle)]">
-									<input
-										type="text"
-										value={searchQuery}
-										onChange={(e) => setSearchQuery(e.target.value)}
-										placeholder="Buscar..."
-										className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-3 py-1.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--color-focus-ring)]"
-										autoFocus
-										onKeyDown={handleKeyDown}
-										data-testid={`${dataTestId}-search`}
-									/>
-								</div>
-							) : null}
-
-							{/* Options */}
-							<div className="max-h-60 overflow-y-auto py-1">
-								{filteredOptions.length === 0 ? (
-									<div className="px-3 py-2 text-sm text-[var(--text-muted)]">
-										{searchQuery ? "Sin resultados" : "Sin opciones disponibles"}
-									</div>
-								) : (
-									filteredOptions.map((option) => (
-										<button
-											key={option.value}
-											type="button"
-											onClick={() => handleSelect(option.value)}
-											data-testid={`${dataTestId}-option-${option.value}`}
-											className={cn(
-												"w-full px-3 py-2 text-left text-sm transition-colors hover:bg-[var(--surface-secondary)]",
-												value === option.value
-													? "bg-[var(--color-brand)]/10 text-[var(--color-brand)] font-medium"
-													: "text-[var(--text-primary)]",
-											)}
-										>
-											{option.label}
-										</button>
-									))
-								)}
-
-								{/* Personalizado option */}
-								{allowCustom ? (
-									<>
-										<div className="border-t border-[var(--border-subtle)] my-1" />
-										<button
-											type="button"
-											onClick={() => handleSelect("__custom__")}
-											data-testid={`${dataTestId}-custom-option`}
-											className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-[var(--color-brand)] transition-colors hover:bg-[var(--surface-secondary)]"
-										>
-											<Plus className="size-4" />
-											{customOptionLabel}
-										</button>
-									</>
-								) : null}
-							</div>
-						</div>
-					) : null}
+					{isOpen && (
+						<DropdownMenu
+							options={options}
+							filteredOptions={filteredOptions}
+							value={value}
+							allowCustom={allowCustom}
+							customOptionLabel={customOptionLabel}
+							searchQuery={searchQuery}
+							showSearch={showDropdownSearch}
+							onSearch={setSearchQuery}
+							onSelect={handleSelect}
+							onKeyDown={handleKeyDown}
+							dataTestId={dataTestId}
+						/>
+					)}
 				</div>
 			)}
 
-			{/* Error / Helper text */}
-			{error && errorMessage ? (
+			{error && errorMessage && (
 				<p className="text-xs font-medium text-[var(--color-danger)]" role="alert">
 					{errorMessage}
 				</p>
-			) : null}
-			{helperText && !error ? (
-				<p className="text-xs text-[var(--text-tertiary)]">{helperText}</p>
-			) : null}
+			)}
+			{helperText && !error && <p className="text-xs text-[var(--text-tertiary)]">{helperText}</p>}
 		</div>
 	);
 }

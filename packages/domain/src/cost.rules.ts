@@ -6,11 +6,7 @@
  */
 
 /** Fields that must have data for a cost entry to be valid */
-export const COST_REQUIRED_FIELDS = [
-	"proposalValue",
-	"invoicedAmount",
-	"paidAmount",
-] as const;
+export const COST_REQUIRED_FIELDS = ["proposalValue", "invoicedAmount", "paidAmount"] as const;
 
 export interface CostEntry {
 	proposalValue: number | null;
@@ -43,12 +39,16 @@ export function formatCostValue(value: number | null): string | null {
 
 /** Calculate margin percentage */
 export function calculateMargin(income: number | null, cost: number | null): number | null {
-	if (income === null || cost === null || income === 0) return null;
+	if (income === null || cost === null || income === 0) {
+		return null;
+	}
 	return Math.round(((income - cost) / income) * 100);
 }
 
 /** Calculate variance between estimated and real */
 export function calculateVariance(estimated: number | null, real: number | null): number | null {
-	if (estimated === null || real === null) return null;
+	if (estimated === null || real === null) {
+		return null;
+	}
 	return real - estimated;
 }

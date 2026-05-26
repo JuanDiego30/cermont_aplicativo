@@ -11,10 +11,10 @@ import {
 } from "@cermont/shared-types";
 import { Router } from "express";
 import multer from "multer";
-import * as EvidenceController from "./evidence.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
+import * as EvidenceController from "./evidence.controller";
 
 const router = Router();
 

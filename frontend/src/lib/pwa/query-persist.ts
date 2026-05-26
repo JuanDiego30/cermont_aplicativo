@@ -69,7 +69,9 @@ export async function restoreQueryFromIndexedDB(): Promise<unknown | null> {
 		});
 		db.close();
 
-		if (!data) return null;
+		if (!data) {
+			return null;
+		}
 
 		// Check expiry
 		if (Date.now() - data.timestamp > CACHE_EXPIRY_MS) {

@@ -6,21 +6,15 @@ import {
 	UpdateMaintenanceKitSchema,
 } from "@cermont/shared-types";
 import express from "express";
+import { authenticate } from "../../middlewares/auth.middleware";
+import { authorize } from "../../middlewares/authorize.middleware";
+import { validate, validateParams, validateQuery } from "../../middlewares/validate";
 import {
 	attachDocumentToKit,
 	detachDocumentFromKit,
 	listKitDocuments,
 } from "../resource/kit-document.controller";
-import {
-	createKit,
-	deleteKit,
-	getAllKits,
-	getKitById,
-	updateKit,
-} from "./maintenance.controller";
-import { authenticate } from "../../middlewares/auth.middleware";
-import { authorize } from "../../middlewares/authorize.middleware";
-import { validate, validateParams, validateQuery } from "../../middlewares/validate";
+import { createKit, deleteKit, getAllKits, getKitById, updateKit } from "./maintenance.controller";
 
 const router = express.Router();
 

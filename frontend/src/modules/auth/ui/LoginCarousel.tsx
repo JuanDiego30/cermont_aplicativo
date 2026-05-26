@@ -3,6 +3,7 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { Activity, ChevronLeft, ChevronRight, ShieldCheck, Zap } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/core/ui/Logo";
 import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
@@ -16,18 +17,21 @@ const CAROUSEL_SLIDES = [
 		description:
 			"Digitalice el ciclo completo: desde la solicitud inicial hasta la facturación final.",
 		icon: Activity,
+		image: "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-1-1280.webp",
 	},
 	{
 		id: 2,
 		title: "Seguimiento en Tiempo Real",
 		description: "Monitoree el estado de cada orden y recurso con trazabilidad absoluta en campo.",
 		icon: ShieldCheck,
+		image: "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-2-1280.webp",
 	},
 	{
 		id: 3,
 		title: "Documentación Centralizada",
 		description: "Evidencias fotográficas, firmas digitales y reportes técnicos en un solo lugar.",
 		icon: Zap,
+		image: "/images/optimized/login/chatgpt-image-25-may-2026-23-14-19-3-1280.webp",
 	},
 ];
 
@@ -35,6 +39,7 @@ const COPYRIGHT_YEAR = 2026;
 
 export function LoginCarousel() {
 	const [currentSlide, setCurrentSlide] = useState(0);
+	const [isPaused, setIsPaused] = useState(false);
 	const panelRef = useRef<HTMLDivElement>(null);
 
 	// GSAP sequential reveal of brand elements
@@ -55,11 +60,14 @@ export function LoginCarousel() {
 	);
 
 	useEffect(() => {
+		if (isPaused || prefersReducedMotion()) {
+			return;
+		}
 		const interval = setInterval(() => {
 			setCurrentSlide((prev) => (prev + 1) % CAROUSEL_SLIDES.length);
 		}, 6000);
 		return () => clearInterval(interval);
-	}, []);
+	}, [isPaused]);
 
 	const goToSlide = (index: number) => setCurrentSlide(index);
 	const goToPrev = () =>
@@ -69,15 +77,27 @@ export function LoginCarousel() {
 	return (
 		<section
 			ref={panelRef}
-			className="relative flex h-full flex-col justify-between overflow-hidden bg-[var(--color-cermont-blue-deep)] px-10 py-16 lg:px-16 lg:py-20"
+			className="relative flex h-full min-h-[480px] flex-col justify-between overflow-hidden bg-[var(--surface-sidebar)] px-10 py-16 lg:px-16 lg:py-20"
 			aria-label="Carrusel informativo corporativo"
+			onMouseEnter={() => setIsPaused(true)}
+			onMouseLeave={() => setIsPaused(false)}
+			onFocus={() => setIsPaused(true)}
+			onBlur={() => setIsPaused(false)}
 		>
-			{/* Atmospheric Background Gradients */}
-			<div className="pointer-events-none absolute inset-0 overflow-hidden">
-				<div className="absolute -right-20 -top-20 size-[500px] rounded-full bg-[var(--color-cermont-blue-light)]/20 blur-[100px]" />
-				<div className="absolute -left-20 bottom-0 size-[400px] rounded-full bg-[var(--color-cermont-green-deep)]/20 blur-[80px]" />
-				<div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:48px_48px]" />
-			</div>
+			{CAROUSEL_SLIDES.map((slide, index) => (
+				<Image
+					key={slide.id}
+					src={slide.image}
+					alt={slide.title}
+					fill
+					priority={index === 0}
+					sizes="(max-width: 768px) 100vw, 50vw"
+					className={`object-cover transition-opacity duration-700 ${
+						index === currentSlide ? "opacity-55" : "opacity-0"
+					}`}
+				/>
+			))}
+			<div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(7,20,43,0.88),rgba(7,20,43,0.55))]" />
 
 			{/* Logo */}
 			<div className="relative z-10" data-login-logo>

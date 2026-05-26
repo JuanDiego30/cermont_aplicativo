@@ -1,14 +1,14 @@
 import { INTERNAL_ROLES } from "@cermont/domain";
 import { NotificationIdSchema } from "@cermont/shared-types";
 import { Router } from "express";
+import { authenticate } from "../../middlewares/auth.middleware";
+import { authorize } from "../../middlewares/authorize.middleware";
+import { validateParams } from "../../middlewares/validate";
 import {
 	getNotifications,
 	markAllNotificationsAsRead,
 	markNotificationAsRead,
 } from "../analytics/analytics.controller";
-import { authenticate } from "../../middlewares/auth.middleware";
-import { authorize } from "../../middlewares/authorize.middleware";
-import { validateParams } from "../../middlewares/validate";
 
 const router = Router();
 

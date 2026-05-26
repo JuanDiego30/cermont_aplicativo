@@ -18,7 +18,7 @@ import {
 	type ServiceCase as ServiceCaseView,
 	type ServiceCaseWorkflowViewModel,
 } from "@cermont/shared-types";
-import { NotFoundError, UnprocessableError } from "../../common/errors/AppError";
+import { NotFoundError } from "../../common/errors/AppError";
 
 import { createLogger } from "../../common/utils/logger";
 import { Proposal } from "../../models";
@@ -943,36 +943,28 @@ log.info("ServiceCase service initialized");
  * Close a service case
  * Validates payment exists and no active blockers before closing
  */
-export async function closeServiceCase(id: string, userId: string) {
+export async function closeServiceCase(id: string, _userId: string) {
 	const serviceCase = await ServiceCase.findById(id);
 	if (!serviceCase) {
 		throw new NotFoundError("Service case not found");
 	}
 
 	// Close using findByIdAndUpdate (avoids TypeScript model property issues)
-	const updated = await ServiceCase.findByIdAndUpdate(
-		id,
-		{ status: "closed" },
-		{ new: true },
-	);
+	const updated = await ServiceCase.findByIdAndUpdate(id, { status: "closed" }, { new: true });
 	if (!updated) {
 		throw new NotFoundError("Service case not found after update");
 	}
 
 	return getServiceCaseById(id);
 }
-export async function archiveServiceCase(id: string, userId: string) {
+export async function archiveServiceCase(id: string, _userId: string) {
 	const serviceCase = await ServiceCase.findById(id);
 	if (!serviceCase) {
 		throw new NotFoundError("Service case not found");
 	}
 
 	// Archive using findByIdAndUpdate
-	const updated = await ServiceCase.findByIdAndUpdate(
-		id,
-		{ status: "archived" },
-		{ new: true },
-	);
+	const updated = await ServiceCase.findByIdAndUpdate(id, { status: "archived" }, { new: true });
 	if (!updated) {
 		throw new NotFoundError("Service case not found after update");
 	}

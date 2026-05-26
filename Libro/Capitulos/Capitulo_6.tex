@@ -1,0 +1,501 @@
+% =====================================================================
+% CAPÍTULO 6: DESARROLLO DEL APLICATIVO WEB
+% Versión refactorizada
+% =====================================================================
+
+\chapter{Desarrollo del Aplicativo Web}
+\label{ch:desarrollo}
+
+% --- Ajustes editoriales locales del capítulo: sangría, espaciado y control de desbordamientos ---
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{0pt}
+\sloppy
+\emergencystretch=2em
+\raggedbottom
+\section{Enfoque funcional del sistema}
+
+El aplicativo web se concibe y construye como una plataforma de grado de producción diseñada para centralizar, controlar y auditar el ciclo de vida documental y operativo de las órdenes de trabajo de CERMONT S.A.S. 
+
+\subsection{Matriz de estado de implementación y alcance}
+
+Para garantizar la integridad académica y la transparencia técnica ante el jurado, la Tabla \ref{tab:matriz-estado} detalla el estado actual de las funcionalidades descritas en el sistema v1.0. Se distinguen las capacidades implementadas con pruebas de aquellas propuestas como evoluciones futuras.
+
+\begin{table}[!htbp]
+\centering
+\caption{Matriz de estado de implementación. Fuente: Elaboración propia.}
+\label{tab:matriz-estado}
+\scriptsize
+\renewcommand{\arraystretch}{0.92}
+\def\EstadoRow#1#2#3{\parbox[t]{4.4cm}{\raggedright #1} & \parbox[t]{3.3cm}{\raggedright #2} & \parbox[t]{5.3cm}{\raggedright #3}\\\midrule}
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Funcionalidad} & \textbf{Estado} & \textbf{Evidencia / Justificación} \\
+\midrule
+\EstadoRow{Autenticación JWT + RBAC}{\textbf{Implementado}}{Controladores y middlewares en \path{backend/src/controllers/auth.controller.ts}, \path{backend/src/middlewares/auth.middleware.ts} y roles en \path{packages/domain/src/roles.ts}.}
+\EstadoRow{FSM multietapa de órdenes}{\textbf{Implementado}}{Estados y transiciones en \path{packages/shared-types/src/schemas/work-order-fsm.ts} y \path{backend/src/services/order/order-rules.ts}.}
+\EstadoRow{Operación offline con Service Worker e IndexedDB}{\textbf{Parcialmente implementado}}{Persistencia local y cola en \path{frontend/public/service-worker.js} y \path{frontend/src/lib/offline/}; el backend aún no soporta sincronización offline completa de evidencias binarias.}
+\EstadoRow{Generación PDF}{\textbf{Implementado}}{Servicios \path{backend/src/services/report.service.ts} y \path{backend/src/services/pdf-generator.service.ts}.}
+\EstadoRow{Evidencias con georreferenciación opcional}{\textbf{Implementado}}{Contrato en \path{packages/shared-types/src/schemas/evidence.schema.ts} y servicio en \path{backend/src/services/evidence.service.ts}.}
+\EstadoRow{Seguimiento de cierre administrativo}{\textbf{Implementado como seguimiento documental interno}}{Registro de actas, SES, facturas y pagos; no integra SAP Ariba ni emite facturación electrónica DIAN.}
+\EstadoRow{Dashboard y analítica operativa}{\textbf{Implementado}}{Contrato en \path{packages/shared-types/src/schemas/analytics.schema.ts} y vistas de panel en \path{frontend/src/app/(dashboard)/dashboard/}.}
+\EstadoRow{Asistente AI (Chat)}{\textbf{Complementario / no crítico}}{Módulo \path{ai/}; no se utiliza como evidencia principal de cumplimiento de objetivos.}
+\EstadoRow{OCR / Extracción de Datos}{\textbf{Propuesto v2.0}}{Requiere integración con API de visión.}
+\EstadoRow{Firma Digital Criptográfica}{\textbf{Propuesto v2.0}}{Requiere certificado digital (PKI).}
+\EstadoRow{Integración SAP Ariba}{\textbf{Fuera de alcance}}{Requiere contrato SAP Enterprise API.}
+\EstadoRow{Emisión de facturación electrónica DIAN}{\textbf{Fuera de alcance}}{El sistema registra seguimiento documental; la emisión requiere software contable certificado.}
+\bottomrule
+\end{tabular}
+\end{table}
+
+Esta delimitación asegura que el sistema entregado se enfoque en resolver la fragmentación documental interna, dejando las integraciones con sistemas externos de terceros como trabajos futuros de integración empresarial.
+
+\begin{figure}[!htbp]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\input{Figuras/bpmn_propuesto.tex}%
+}
+\caption{Orquestación del flujo de trabajo digitalizado (BPMN) que integra los 14 pasos operativos en el aplicativo. Fuente: elaboración propia.}
+\label{fig:bpmn-digitalizado}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\input{Figuras/flujo_proceso_refactorizado.tex}%
+}
+\caption{Flujo operativo-documental implementado para CERMONT S.A.S. Fuente: Elaboración propia.}
+\label{fig:flujo-proceso}
+\end{figure}
+
+\section{Módulos del sistema: Cobertura del flujo operativo y de soporte}
+
+El aplicativo organiza sus funcionalidades en módulos API agrupados por dominio de negocio. Para evitar ambigüedades entre módulos de negocio y grupos de rutas, el documento distingue entre módulos operativos vinculados a los 14 pasos de CERMONT S.A.S. y módulos transversales que garantizan seguridad, sincronización, auditoría y observabilidad de la plataforma.
+
+\begin{table}[!htbp]
+\centering
+\caption{Módulos operativos principales (Pasos 1-14). Fuente: Elaboración propia.}
+\label{tab:modulos-operativos}
+\small
+\def\ModuloRow#1#2#3{\parbox[t]{3.4cm}{\raggedright #1} & \parbox[t]{5.0cm}{\raggedright #2} & \parbox[t]{5.0cm}{\raggedright #3}\\\midrule}
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Módulo} & \textbf{Función Técnica} & \textbf{Paso CERMONT} \\
+\midrule
+\ModuloRow{Autenticación}{Control de acceso RBAC y gestión de sesión JWT HttpOnly.}{Transversal}
+\ModuloRow{Órdenes de trabajo}{Motor FSM central de 15 estados y entidad raíz de trazabilidad.}{1 - 14}
+\ModuloRow{Propuestas y PO}{Generación de propuestas económicas y validación de órdenes de compra.}{3 - 4}
+\ModuloRow{Planeación y Kits}{Reserva de recursos, herramientas y personal técnico.}{5}
+\ModuloRow{Checklists y Campo}{Ejecución de inspecciones y formularios con capacidad offline.}{6}
+\ModuloRow{Evidencias}{Captura de soportes fotográficos geo-localizados.}{6}
+\ModuloRow{Informes Técnicos}{Generación automatizada de reportes PDF (pdf-lib).}{7}
+\ModuloRow{Cierre Consolidado}{Agregación de datos de acta, SES, factura y pago (Read Model).}{8 - 14}
+\bottomrule
+\end{tabular}
+\end{table}
+
+Adicionalmente, el sistema se apoya en módulos de soporte como \texttt{analytics} (dashboard), \texttt{sync} (sincronización offline), \texttt{audit} (logs inmutables), \texttt{users}, \texttt{documents}, \texttt{maintenance}, \texttt{inspections}, \texttt{history}, \texttt{alerts}, \texttt{admin}, \texttt{assets} y \texttt{ai} (asistente complementario).
+
+\section{Arquitectura del software y estructura del monorepo}
+
+Para soportar de forma robusta las exigencias del sistema, el proyecto se estructura bajo un esquema de monorepo gestionado mediante \textbf{npm workspaces} y optimizado con \textbf{Turborepo} para la orquestación de tareas de compilación, formateo y testing. La organización de directorios en el repositorio de producción es la siguiente:
+\begin{itemize}
+    \item \texttt{packages/shared-types}: Contiene la definición única de los contratos de datos de la aplicación. Utiliza la librería \textbf{Zod} para declarar esquemas de validación y exporta tipos TypeScript estrictos, actuando como la única fuente de verdad transaccional del proyecto.
+    \item \texttt{backend}: API REST de alto rendimiento implementada en \textbf{Express 5.2.1} utilizando TypeScript estricto. Implementa la lógica de negocio pura, persistencia documental mediante Mongoose y la generación de documentos PDF con pdf-lib.
+    \item \texttt{frontend}: Interfaz web moderna basada en el framework de producción \textbf{Next.js 16.2.4} con App Router, React 19 y Tailwind CSS para diseño visual cohesivo y mobile-first.
+\end{itemize}
+
+Esta separación física y conceptual de componentes y la centralización de tipos en el workspace compartido previene desviaciones y fallos de integración comunes en el desarrollo paralelo.
+
+\begin{figure}[!htbp]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\input{Figuras/arquitectura_software_refactorizada.tex}%
+}
+\caption{Arquitectura por capas y flujo de integración del monorepo. Fuente: Elaboración propia.}
+\label{fig:arquitectura-software}
+\end{figure}
+
+\section{Justificación del stack tecnológico seleccionado}
+\label{sec:stack-justificado}
+
+La selección del stack tecnológico se justifica a partir de necesidades verificables del proyecto y de la evidencia disponible en el repositorio. No se trata únicamente de un conjunto de herramientas contemporáneas, sino de una combinación orientada a resolver trazabilidad documental, heterogeneidad de formularios, control de acceso y operación con conectividad variable.
+
+\begin{table}[!htbp]
+\centering
+\caption{Justificación del stack tecnológico seleccionado. Fuente: Elaboración propia con base en el repositorio del proyecto.}
+\label{tab:justificacion-stack}
+\footnotesize
+\def\StackRow#1#2#3#4#5#6#7{\parbox[t]{1.9cm}{\raggedright #1} & \parbox[t]{2.2cm}{\raggedright #2} & \parbox[t]{2.3cm}{\raggedright #3} & \parbox[t]{2.0cm}{\raggedright #4} & \parbox[t]{2.5cm}{\raggedright #5} & \parbox[t]{2.4cm}{\raggedright #6} & \parbox[t]{2.2cm}{\raggedright #7}\\\midrule}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}l l l l l l l@{}}
+\toprule
+\textbf{Tecnología} & \textbf{Rol en el sistema} & \textbf{Necesidad de CERMONT} & \textbf{Alternativas evaluadas} & \textbf{Justificación} & \textbf{Evidencia} & \textbf{Limitación} \\
+\midrule
+\StackRow{npm workspaces}{Monorepo}{Compartir contratos, roles y utilidades entre capas.}{Polyrepo, orquestación más pesada.}{Reduce duplicidad y mantiene una sola fuente de verdad.}{Archivo raíz y carpetas base del monorepo.}{Exige disciplina para gobernar cambios transversales.}
+\StackRow{Express}{API backend}{Exponer endpoints modulares y middlewares de autenticación, autorización y validación.}{NestJS, Fastify.}{Se adapta bien al estilo modular del repositorio y a un equipo pequeño.}{Rutas, controladores y middlewares del backend.}{La estructura depende de mantener rigor manual en capas y pruebas.}
+\StackRow{MongoDB + Mongoose}{Persistencia documental}{Almacenar formularios y soportes heterogéneos sin rigidizar el modelo.}{Persistencia relacional tradicional.}{La variabilidad documental del negocio se ajusta mejor al modelo orientado a documentos.}{Modelos y esquemas compartidos del repositorio.}{Requiere control explícito de consistencia y estados.}
+\StackRow{Next.js}{Frontend web}{Construir paneles, formularios y vistas de seguimiento con rutas protegidas.}{SPA React pura, Angular.}{Permite combinar páginas del panel, protección por proxy y componentes interactivos.}{Directorio de aplicación web y perímetro de rutas.}{La complejidad del framework exige separar claramente código de servidor y cliente.}
+\StackRow{Zod + shared-types}{Contratos compartidos}{Evitar divergencia entre frontend y backend.}{Interfaces duplicadas, validación no centralizada.}{Unifica validación, tipos y trazabilidad de payloads.}{Directorio de esquemas compartidos.}{No sustituye por sí solo la validación de reglas de negocio.}
+\StackRow{TanStack Query + Zustand}{Estado de aplicación}{Separar red, caché y estado de interfaz.}{Fetch directo en componentes, stores ad hoc.}{Favorece estados de carga, error, vacío y sesión sin mezclar responsabilidades.}{Hooks de consulta y almacén de autenticación.}{Aumenta el número de artefactos por módulo si no se documenta bien.}
+\StackRow{Service Worker + IndexedDB}{Persistencia local}{Soportar registros de campo con conectividad intermitente.}{Aplicación solo online.}{Permite cola local y reintentos diferidos para ciertos eventos operativos.}{Service worker y utilidades offline del frontend.}{La sincronización de evidencias con archivo real sigue pendiente en backend.}
+\StackRow{pdf-lib}{Generación documental}{Compilar informes y actas a partir de datos del sistema.}{Generación manual en Word u hojas de cálculo.}{Responde directamente a la falla de retrabajo en informes y actas.}{Servicios de reportes y PDF del backend.}{Depende de plantillas y datos completos para producir salidas útiles.}
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\section{El contrato compartido: validación bajo enfoque de confianza cero (Zero Trust) con Zod}
+
+Un pilar de seguridad y robustez en la plataforma es la eliminación de validaciones redundantes o divergentes entre capas. Mediante el uso de \texttt{@cermont/shared-types}, un único esquema Zod (ej. \texttt{WorkOrderSchema}, \texttt{ProposalSchema}, \texttt{EvidenceSchema}) es importado tanto por el frontend como por el backend:
+\begin{enumerate}
+    \item \textbf{Frontend (Validación de UX)}: Los esquemas de Zod se acoplan directamente a las vistas del lado del cliente mediante la integración de \textbf{React Hook Form}. Esto proporciona retroalimentación instantánea sobre el formato, campos obligatorios y tipos de datos sin realizar peticiones de red, mejorando sustancialmente la experiencia del técnico en campo.
+    \item \textbf{Backend (Validación de Seguridad)}: Antes de realizar cualquier operación de persistencia o procesamiento en la base de datos documental, un middleware centralizado en Express ejecuta un análisis sintáctico (\texttt{safeParse}) del payload utilizando el mismo esquema de Zod. Si el cliente ha enviado datos alterados o incompletos, la petición se rechaza de inmediato con un código HTTP 400 Bad Request, implementando un perímetro estricto de confianza cero (Zero Trust).
+\end{enumerate}
+
+\section{Estructura técnica del Backend en Express 5.2.1}
+
+La arquitectura del backend se organiza bajo un patrón clásico MVC (Model-View-Controller) modificado para servicios asíncronos y desacoplados. La estructura interna de cada caso de uso sigue un flujo lineal de responsabilidades aisladas:
+\begin{equation}
+\text{Router} \longrightarrow \text{Controller} \longrightarrow \text{Service} \longrightarrow \text{Model (Mongoose)}
+\end{equation}
+
+\begin{itemize}
+    \item \textbf{Router}: Define la ruta del endpoint HTTP, los middlewares de seguridad (RBAC) y la validación de payload Zod.
+    \item \textbf{Controller}: Extrae los parámetros de la petición HTTP, delega la ejecución de la regla de negocio al Service correspondiente y formatea la respuesta en un envoltorio estandarizado:
+    \begin{lstlisting}[caption={Estructura estándar de respuesta API}, label={lst:api-response}]
+{ success: boolean, data: T | null, error: string | null, message: string }
+\end{lstlisting}
+    Cabe destacar que gracias a la migración a \textbf{Express 5.2.1}, no se requiere envolver los métodos de los controladores en bloques \texttt{try/catch} repetitivos o funciones \texttt{asyncHandler}. Express 5 propaga de forma nativa los errores asíncronos lanzados en las promesas directamente al middleware global de gestión de errores del servidor.
+    \item \textbf{Service}: Clase o módulo puro de TypeScript que encapsula la lógica operativa pura de negocio. Tiene prohibido importar o interactuar con los objetos de red de Express (\texttt{Request} o \texttt{Response}), garantizando su testabilidad unitaria aislada.
+    \item \textbf{Model (Mongoose 9.x)}: Capa de persistencia que interactúa de manera directa con MongoDB, aplicando modelos Mongoose, validaciones de esquema y referencias mediante \texttt{ObjectId} cuando una entidad requiere identidad independiente.
+\end{itemize}
+
+\section{Diseño del Frontend y el Perímetro de Seguridad en Next.js 16}
+
+La aplicación frontend implementa una estructura de interfaz de usuario mobile-first que escala progresivamente para dispositivos de escritorio utilizando la directiva de Tailwind CSS de forma nativa. Para garantizar la consistencia, la arquitectura web adopta los siguientes patrones de desarrollo:
+\begin{itemize}
+    \item \textbf{TanStack Query v5 (Manejo del Estado del Servidor)}: Todas las operaciones de obtención y mutación de datos de la API se realizan a través de hooks personalizados que delegan el almacenamiento en caché, la invalidación de datos, los reintentos automáticos y el estado de carga (skeletons) a TanStack Query, aislando la red de los componentes React.
+    \item \textbf{Zustand v5 (Manejo del Estado Local)}: Se utiliza para almacenar el estado volátil de la interfaz (ej. barra lateral colapsada) y la persistencia segura del token de sesión a través del almacén global \texttt{auth.store.ts}.
+    \item \textbf{proxy.ts como Perímetro de Seguridad}: En cumplimiento riguroso con Next.js 16, el uso de archivos \texttt{middleware.ts} genéricos está prohibido y deprecado. En su lugar, el aplicativo implementa un archivo centralizado \texttt{proxy.ts} que intercepta todas las peticiones entrantes del lado del cliente, verifica criptográficamente la validez del token JWT almacenado en cookies HttpOnly y evalúa la matrix de permisos RBAC antes de renderizar la página o delegar la llamada a la API del backend, garantizando el aislamiento absoluto de los módulos del panel de administración.
+\end{itemize}
+
+\begin{figure}[!htbp]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\input{Figuras/modelo_datos_refactorizado.tex}%
+}
+\caption{Diagrama de base documental y relaciones lógicas. Fuente: Elaboración propia.}
+\label{fig:modelo-datos}
+\end{figure}
+
+\section{Operación offline, persistencia local y sincronización diferida}
+
+Para atender escenarios de conectividad móvil limitada, el aplicativo implementa una estrategia de persistencia local basada en Service Worker, almacenamiento del navegador y una cola de sincronización administrada desde el frontend. La evidencia del repositorio muestra que esta capacidad existe, pero también que su alcance actual es parcial: cubre registros operativos y reintentos diferidos, mientras que la sincronización completa de evidencias binarias sigue pendiente en backend.
+
+\begin{enumerate}
+    \item \textbf{Detección de desconexión}: Cuando la interfaz detecta pérdida de conectividad, ciertos comandos de campo evitan el fallo inmediato y se registran como pendientes de sincronización.
+    \item \textbf{Persistencia local}: Los hooks de operación offline almacenan en la cola local la mutación pendiente junto con su \texttt{clientMutationId}, lo que permite reintentarla sin perder trazabilidad.
+    \item \textbf{Actualización visible del estado}: La interfaz informa al usuario que la acción quedó almacenada localmente y que su envío definitivo depende de la recuperación de la conexión.
+    \item \textbf{Sincronización diferida}: Al restablecerse la red, el administrador de sincronización reenvía las operaciones compatibles al backend y marca su resultado.
+    \item \textbf{Límite actual}: En el caso de evidencias que requieren archivo binario real, el backend todavía rechaza la sincronización offline completa, por lo que esta funcionalidad debe declararse como parcialmente implementada.
+\end{enumerate}
+
+\begin{figure}[!htbp]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\input{Figuras/secuencia_offline_sync.tex}%
+}
+\caption[Secuencia de sincronización offline]{Secuencia de sincronización offline: captura local, almacenamiento en IndexedDB, envío diferido y confirmación. Fuente: Elaboración propia.}
+\label{fig:secuencia-offline-sync}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\input{Figuras/pipeline_formularios_refactorizado.tex}%
+}
+\caption{Flujo propuesto para extracción estructurada de documentos. Fuente: Elaboración propia.}
+\label{fig:pipeline-formularios}
+\end{figure}
+
+% =====================================================================
+\section{Arquitectura de seguridad en profundidad}
+\label{sec:arquitectura-seguridad}
+
+La protección de los datos operativos y financieros que transitan por el aplicativo se diseñó bajo el principio de defensa en profundidad (\textit{Defense in Depth}), que establece que ninguna capa individual de seguridad debe considerarse suficiente por sí sola. El sistema implementa seis capas de protección dispuestas desde el perímetro externo hasta el núcleo de persistencia.
+
+\subsection{Primera capa: Perímetro de red (Proxy y CORS)}
+
+El archivo \texttt{proxy.ts} en el frontend actúa como la primera barrera de seguridad. Intercepta todas las peticiones entrantes antes de que alcancen el enrutador de Next.js y aplica tres verificaciones: (a) redirección de rutas públicas a la página de inicio de sesión cuando el usuario no está autenticado; (b) validación de la existencia y vigencia del token JWT en la cookie HttpOnly; y (c) verificación de que la ruta solicitada pertenece al conjunto de rutas permitidas para el rol del usuario, utilizando las definiciones centralizadas del paquete \texttt{@cermont/domain}. En el backend, el middleware CORS restringe las peticiones exclusivamente al origen del frontend, configurado mediante variables de entorno.
+
+\subsection{Segunda capa: Autenticación sin estado (JWT)}
+
+Tras la validación inicial de credenciales contra el hash Bcrypt almacenado, el backend emite dos artefactos: un token de acceso JWT con tiempo de vida corto (24 horas) y un token de actualización (\textit{refresh token}) almacenado en una cookie HttpOnly con los flags \texttt{Secure}, \texttt{SameSite=Strict} y \texttt{Path=/api/auth}. El token de acceso viaja exclusivamente en memoria del lado del cliente (almacén Zustand), lo que lo hace inmune a ataques XSS que intenten leer \texttt{localStorage}. El middleware \texttt{authenticate} en el backend verifica la firma criptográfica, la expiración y la integridad del token en cada petición a endpoints protegidos.
+
+\subsection{Tercera capa: Autorización basada en roles (RBAC)}
+
+Una vez autenticado el usuario, el middleware \texttt{authorize} consulta el rol asignado y lo contrasta contra la matriz de permisos del módulo solicitado. Por ejemplo, un usuario con rol \texttt{tecnico} puede consultar y actualizar órdenes de trabajo que le han sido asignadas, pero no puede aprobar propuestas ni crear usuarios. Esta verificación se realiza en el backend para cada endpoint protegido; el frontend únicamente oculta o deshabilita elementos de interfaz como mejora de experiencia de usuario, nunca como mecanismo de seguridad.
+
+\subsection{Cuarta capa: Validación de entradas (Zero Trust)}
+
+Todo payload recibido por el backend —sin excepción— es validado mediante un esquema Zod antes de alcanzar la lógica de negocio. Esta validación verifica tipos de datos, formatos, longitudes, rangos numéricos, valores permitidos y campos obligatorios. Un payload que no supera la validación recibe un error HTTP 400 con un código de error tipado que describe exactamente qué campo falló y por qué. Esta capa protege contra inyección NoSQL, desbordamiento de buffer, y datos malformados intencional o accidentalmente.
+
+\subsection{Quinta capa: Registro de auditoría inmutable}
+
+Cada acción crítica —creación de orden de trabajo, cambio de estado, aprobación de propuesta, generación de SES, emisión de factura, cambio de rol de usuario— genera un evento de auditoría inmutable que registra: tipo de evento, identificador del usuario que ejecutó la acción, entidad afectada, estado anterior, estado nuevo, marca de tiempo y metadatos relevantes. Estos registros no pueden ser modificados ni eliminados por ningún rol del sistema, y proporcionan la trazabilidad requerida para auditorías internas y externas.
+
+\subsection{Sexta capa: Protección de datos en reposo y en tránsito}
+
+Las contraseñas se almacenan exclusivamente como hashes Bcrypt con factor de costo configurable. En un despliegue productivo, las comunicaciones entre el frontend y el backend deben protegerse mediante HTTPS/TLS configurado en el servidor o proxy correspondiente. Los archivos cargados (evidencias fotográficas, documentos PDF) se procesan con \texttt{sharp} para eliminar metadatos EXIF potencialmente sensibles (como coordenadas GPS de las fotografías) antes de su almacenamiento, conservando únicamente la información de geolocalización cuando es requerida por el flujo operativo y se registra de forma explícita.
+
+\section{Arquitectura de módulos del sistema: los catorce pasos del flujo CERMONT}
+\label{sec:modulos-flujo}
+
+El aplicativo implementa el flujo operativo completo de CERMONT S.A.S., compuesto por catorce pasos que abarcan desde la solicitud inicial del cliente hasta el pago final. A continuación se describen los primeros siete pasos, correspondientes al ciclo operativo; los siete pasos restantes abarcan el cierre administrativo y se detallan en la subsección siguiente.
+
+\subsection{Paso 1: Solicitud de trabajo (Work Request)}
+
+\textbf{Entidad:} WorkRequest. \textbf{Estados:} open $\rightarrow$ assigned $\rightarrow$ in\_progress $\rightarrow$ completed $\rightarrow$ cancelled. \textbf{API:} \path{GET/POST/PATCH /api/work-requests}. \textbf{RBAC:} gerente, residente, HES (CRUD completo); cliente (crear y leer propias).
+
+La solicitud de trabajo constituye el punto de entrada al sistema. Un cliente registra una necesidad de servicio especificando tipo de trabajo, ubicación, urgencia y documentos adjuntos. El sistema notifica al residente asignado, quien evalúa si la solicitud requiere visita técnica o puede proceder directamente a propuesta.
+
+\subsection{Paso 2: Visita técnica (Site Visit)}
+
+\textbf{Entidad:} SiteVisit. \textbf{Estados:} pending $\rightarrow$ scheduled $\rightarrow$ in\_progress $\rightarrow$ completed $\rightarrow$ cancelled. \textbf{API:} \path{GET/POST /api/work-requests/:id/visits}. \textbf{Offline:} Sí (captura de datos en campo sin conexión).
+
+Cuando la complejidad del servicio lo requiere, se agenda una visita al sitio. El técnico asignado registra mediciones, condiciones del lugar, requisitos de seguridad y evidencia fotográfica preliminar. Estos datos alimentan directamente la propuesta económica, eliminando la necesidad de recaptura manual.
+
+\subsection{Paso 3: Propuesta económica (Proposal)}
+
+\textbf{Entidad:} Proposal. \textbf{Estados:} draft $\rightarrow$ sent $\rightarrow$ approved $\rightarrow$ rejected $\rightarrow$ expired. \textbf{API:} \path{GET/POST /api/proposals}.
+
+A partir de los datos de la solicitud y, cuando existe, de la visita técnica, el sistema permite generar una propuesta económica estructurada que incluye: alcance del servicio, recursos estimados (personal, materiales, equipos), cronograma, condiciones comerciales y valor total. La propuesta se exporta como PDF para envío al cliente.
+
+\subsection{Paso 4: Aprobación con orden de compra (Purchase Order)}
+
+\textbf{Entidad:} PurchaseOrder. \textbf{Estados:} pending $\rightarrow$ received $\rightarrow$ approved $\rightarrow$ rejected. \textbf{API:} \path{POST /api/proposals/:id/po}.
+
+El cliente aprueba la propuesta mediante una orden de compra (PO) que se adjunta al sistema. La recepción de la PO habilita la creación de la orden de trabajo interna y autoriza el inicio de la planeación de recursos. Este paso actúa como compuerta contractual: sin PO aprobada, no se puede crear una orden de trabajo.
+
+\subsection{Entidad transversal: Orden de trabajo (WorkOrder / ServiceCase)}
+
+\textbf{Entidad:} WorkOrder. \textbf{Rol en el sistema:} entidad raíz de trazabilidad. \textbf{API:} \path{GET/POST/PATCH /api/orders}.
+
+La orden de trabajo no se presenta como un paso independiente del flujo original, sino como la entidad digital que articula todos los pasos del proceso. Agrupa la solicitud, la visita técnica, la propuesta, la orden de compra, la planeación, la ejecución, las evidencias, el informe técnico, el acta, la SES, el seguimiento de factura y el registro de pago. Su máquina de estados refleja el avance global del servicio y determina qué módulos se habilitan en cada momento.
+
+\begin{figure}[!htbp]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\input{Figuras/fsm_15_estados.tex}%
+}
+\caption{Máquina de estados finita (FSM) que controla la trazabilidad operativa y los bloqueos de seguridad de la orden. Fuente: elaboración propia.}
+\label{fig:fsm-15-estados}
+\end{figure}
+
+\subsection{Paso 5: Planeación de recursos (Planning Packet)}
+
+\textbf{Entidad:} PlanningPacket. \textbf{Estados:} draft $\rightarrow$ ready $\rightarrow$ approved. \textbf{Relación con el problema:} corrige la planeación incompleta de herramientas, equipos, personal, EPP, permisos y documentos de apoyo.
+
+En esta fase se asignan los recursos necesarios para la ejecución: personal técnico con certificaciones vigentes, herramientas y equipos del catálogo, materiales y consumibles, elementos de protección personal (EPP), vehículos y documentos requeridos (permisos de trabajo, AST, procedimientos, instructivos y formatos de tareas críticas). El sistema permite reutilizar kits típicos por tipo de actividad, reduciendo la dependencia de memoria individual y evitando que cada orden se planifique desde cero.
+
+\subsection{Paso 6: Ejecución en campo (Execution Session)}
+
+\textbf{Entidad:} ExecutionSession. \textbf{Estados:} scheduled $\rightarrow$ in\_progress $\rightarrow$ paused $\rightarrow$ completed $\rightarrow$ cancelled. \textbf{Offline:} Sí, prioritario.
+
+Durante esta fase, los técnicos en campo confirman el consumo de materiales y horas de trabajo, diligencian checklists digitales de seguridad e inspección, capturan evidencias fotográficas vinculadas a la orden y registran novedades, hallazgos o acciones correctivas. La captura offline evita que la ausencia de conectividad impida el registro de información crítica; la sincronización posterior se realiza cuando el dispositivo recupera conexión.
+
+\subsection{Paso 7: Consolidación del informe técnico (Technical Report)}
+
+\textbf{Entidad:} TechnicalReport. \textbf{Estado FSM:} \texttt{report\_pending} $\rightarrow$ \texttt{completed}. \textbf{API:} \path{POST /api/reports}.
+
+Una vez finalizada la ejecución, el sistema consolida los datos capturados en campo, las listas de verificación, las observaciones y las evidencias fotográficas para generar un informe técnico preliminar. Este documento no sustituye la revisión profesional del responsable, sino que reduce la recaptura manual y proporciona una base estructurada para la validación del residente o supervisor.
+
+\subsection{Pasos 8 al 14: Cierre administrativo y seguimiento de recaudo}
+
+Los pasos finales del flujo CERMONT garantizan que la ejecución técnica se traduzca de forma efectiva en facturación y recaudo. El sistema implementa un módulo de cierre consolidado (\texttt{ClosureReport}) que actúa como un modelo de lectura (\textit{Read Model}) agregando información de cinco entidades independientes para proporcionar trazabilidad total.
+
+\subsubsection{Paso 8: Acta de Entrega Técnica (Delivery Record)}
+\textbf{Entidad:} DeliveryRecord. \textbf{Estado FSM:} \texttt{completed} $\rightarrow$ \texttt{ready\_for\_invoicing}. \textbf{API:} \path{POST /api/delivery-records}.
+Al finalizar el informe técnico, se genera el acta de entrega que detalla observaciones finales y recursos consumidos. El sistema valida que el informe técnico esté aprobado antes de permitir la creación del acta.
+
+\subsubsection{Paso 9: Firma del Acta (Client Acceptance)}
+\textbf{Estado FSM:} \texttt{ready\_for\_invoicing} $\rightarrow$ \texttt{acta\_signed}. \textbf{API:} \path{PATCH /api/delivery-records/:id/sign}.
+El sistema registra la aceptación del cliente capturando el nombre del responsable, la fecha y el método de firma (manual con soporte cargado o digital de texto). Este paso habilita formalmente el proceso de cobro.
+
+\subsubsection{Paso 10: Elaboración y envío de SES}
+\textbf{Entidad:} ServiceEntrySheet (SES). \textbf{Estado FSM:} \texttt{acta\_signed} $\rightarrow$ \texttt{ses\_sent}. \textbf{API:} \path{POST /api/service-entry-sheets}.
+
+El sistema registra el número de documento de Ariba, la fecha de radicación, el responsable interno y el soporte documental asociado. La integración directa con SAP Ariba se declara fuera del alcance de esta versión; por tanto, el aplicativo funciona como espejo interno de seguimiento para evitar pérdida de trazabilidad.
+
+\subsubsection{Paso 11: Aprobación de SES}
+\textbf{Entidad:} SESApproval. \textbf{Estado operativo:} seguimiento interno de aprobación. \textbf{API:} \path{PATCH /api/service-entry-sheets/:id}.
+
+Cuando el cliente aprueba la SES, el responsable administrativo registra la fecha de aprobación y el soporte correspondiente. Si la SES es rechazada o requiere corrección, el sistema conserva el historial de observaciones para evitar que el proceso quede únicamente en correos o mensajes informales.
+
+\subsubsection{Paso 12: Elaboración y envío de factura}
+\textbf{Entidad:} InvoiceTracking. \textbf{Estado FSM:} \texttt{ses\_sent} $\rightarrow$ \texttt{invoice\_approved} cuando el cliente aprueba la factura. \textbf{API:} \path{POST /api/invoices}.
+
+El aplicativo no emite factura electrónica DIAN ni reemplaza el software contable certificado de la empresa. Su función es registrar el seguimiento documental de la factura emitida externamente: número, fecha, valor, soporte PDF, responsable y estado de radicación.
+
+\subsubsection{Paso 13: Aprobación de factura}
+\textbf{Entidad:} InvoiceApproval. \textbf{Estado operativo:} aprobado, rechazado o en corrección. \textbf{API:} \path{PATCH /api/invoices/:id/status}.
+
+El sistema permite registrar la aprobación o devolución de la factura por parte del cliente. Esta información alimenta el tablero administrativo y permite identificar órdenes que ya fueron ejecutadas técnicamente, pero permanecen bloqueadas por requisitos documentales o financieros.
+
+\subsubsection{Paso 14: Registro de Pago y Cierre Definitivo}
+\textbf{Entidad:} Payment. \textbf{Estado FSM:} \texttt{invoice\_approved} $\rightarrow$ \texttt{paid} $\rightarrow$ \texttt{closed}. \textbf{API:} \path{POST /api/payments}.
+El flujo concluye con el registro interno del pago mediante referencia bancaria, fecha de abono y soporte documental. Una vez verificado el pago por el área administrativa, la orden de trabajo transiciona al estado terminal \texttt{closed}, marcando la finalización del ciclo de trazabilidad de 14 pasos.
+
+\section{Arquitectura de la capa de persistencia}
+\label{sec:persistencia}
+
+La capa de persistencia del sistema se apoya en MongoDB 7.0, una base de datos orientada a documentos que almacena los datos en formato BSON (Binary JSON). Esta elección técnica responde a la naturaleza heterogénea de los formularios operativos de CERMONT S.A.S., donde cada tipo de servicio (inspección de líneas de vida, mantenimiento CCTV, planeación de obra) requiere capturar conjuntos de campos diferentes.
+
+\subsection{Patrones de modelado}
+
+El diseño del esquema de base de datos aplica dos patrones complementarios:
+
+\textbf{Documentos embebidos (\textit{Embedding}).} Cuando los datos tienen un ciclo de vida acoplado y se acceden siempre en conjunto, se almacenan como subdocumentos dentro del documento principal. Por ejemplo, las líneas de recursos de un kit (\texttt{KitResourceLine}) se embeben dentro del documento del kit, ya que carecen de identidad independiente fuera de él. De igual forma, las respuestas a un checklist se embeben dentro de la sesión de ejecución.
+
+\textbf{Referencias (\textit{Referencing}).} Cuando una entidad tiene identidad independiente y es referenciada desde múltiples documentos, se almacena en su propia colección y se referencia mediante \texttt{ObjectId}. Por ejemplo, un \texttt{Asset} (activo físico) es referenciado desde órdenes de trabajo, planes de mantenimiento y sesiones de ejecución.
+
+\subsection{Estrategia de índices}
+
+Cada colección define índices alineados con los patrones de consulta más frecuentes: búsqueda por código único, filtrado por estado, consulta por entidad relacionada (\texttt{serviceCaseId}, \texttt{workOrderId}), ordenamiento por fecha de creación y búsqueda por texto en campos descriptivos. Los índices compuestos cubren las consultas más comunes, como listar todas las órdenes de trabajo de un cliente filtrando por estado y ordenadas por fecha.
+
+\subsection{Campos de auditoría}
+
+Todos los documentos en la base de datos incluyen un conjunto estándar de campos de auditoría: \texttt{createdBy} (identificador del usuario que creó el registro), \texttt{createdAt} (marca de tiempo de creación), \texttt{updatedBy} y \texttt{updatedAt} (última modificación). Para las entidades que soportan archivado lógico, se añaden \texttt{archivedAt} y \texttt{archivedBy}. Estos campos, combinados con la colección de eventos de auditoría, proporcionan trazabilidad completa de cada cambio en el sistema.
+
+% =====================================================================
+\section{Integración del ecosistema de desarrollo}
+\label{sec:ecosistema-desarrollo}
+
+El desarrollo del aplicativo se apoyó en un ecosistema de herramientas que automatizaron la verificación de calidad del código en cada iteración. A continuación se describe el rol de cada herramienta en el flujo de trabajo.
+
+\textbf{TypeScript en modo estricto.} Todo el código del monorepo —backend, frontend y paquetes compartidos— se escribe en TypeScript con la configuración \texttt{strict: true}. Esto habilita verificaciones como \texttt{strictNullChecks}, \texttt{noImplicitAny} y \texttt{strictFunctionTypes}, que previenen categorías enteras de errores en tiempo de compilación. El comando \texttt{tsc --noEmit} ejecutado desde la raíz del monorepo verifica la corrección de tipos en los tres workspaces simultáneamente, sin necesidad de compilar a JavaScript.
+
+\textbf{Biome para linting y formateo.} En lugar de la combinación tradicional ESLint + Prettier, el proyecto utiliza Biome, una herramienta unificada escrita en Rust que proporciona análisis estático y formateo de código con un rendimiento significativamente superior. Biome verifica el cumplimiento de las reglas de estilo definidas para el proyecto, incluyendo la prohibición de \texttt{console.log}, \texttt{debugger}, variables no utilizadas e importaciones no usadas.
+
+\textbf{Vitest para pruebas unitarias e integración.} Vitest, compatible con el ecosistema Vite, ejecuta las pruebas del proyecto con soporte nativo para TypeScript, sin requerir configuración adicional de transpilación. Su integración con Supertest permite probar los endpoints HTTP del backend realizando peticiones reales a una instancia de Express, mientras que la base de datos se aísla mediante una instancia de MongoDB en memoria (conexión a \texttt{mongodb://127.0.0.1:27017/cermont\_test}) que se crea antes de cada suite de pruebas y se destruye al finalizar.
+
+\textbf{React Doctor para auditoría de componentes.} La herramienta React Doctor analiza el código del frontend en busca de problemas comunes: componentes excesivamente grandes, exports no utilizados, uso de \texttt{useSearchParams} o \texttt{useRouter} sin envoltura Suspense, creación de objetos \texttt{new Date()} o llamadas a \texttt{Math.random()} durante el renderizado (causa potencial de errores de hidratación), y problemas de accesibilidad. La ejecución de React Doctor después de cada iteración garantiza que estos problemas se detecten y corrijan tempranamente.
+
+\textbf{Husky y lint-staged para ganchos de pre-commit.} Para prevenir que código con errores llegue al repositorio, se configuraron ganchos de Git mediante Husky que ejecutan automáticamente \texttt{lint-staged} sobre los archivos modificados antes de cada commit. Esto asegura que solo el código que pasa las verificaciones de Biome y TypeScript sea incorporado al historial del proyecto.
+
+\section{Experiencia de desarrollo y curva de aprendizaje}
+\label{sec:experiencia-desarrollo}
+
+El desarrollo del aplicativo, realizado por un único ingeniero como parte de la práctica empresarial, permite extraer observaciones sobre la viabilidad de construir sistemas empresariales modernos con recursos limitados. El stack tecnológico seleccionado —Next.js 16, Express 5, MongoDB, TypeScript, Tailwind CSS— demostró ser accesible para un desarrollador con formación en Ingeniería Electrónica, sin requerir experiencia previa extensa en cada tecnología individual. La consistencia del lenguaje (TypeScript en frontend y backend) redujo la carga cognitiva de cambiar entre contextos, mientras que la organización del monorepo con tipos compartidos eliminó la fricción de mantener definiciones duplicadas.
+
+La principal dificultad técnica encontrada durante el desarrollo fue la implementación de la sincronización offline con resolución de conflictos. El diseño de una cola de operaciones en IndexedDB que garantizara la idempotencia de las mutaciones y manejara correctamente los casos de borde (aplicación cerrada durante la sincronización, múltiples dispositivos operando sobre la misma orden, pérdida de conectividad a mitad de una sincronización) requirió iteraciones adicionales de diseño y prueba. Esta experiencia confirma la observación de la literatura sobre sistemas distribuidos: la gestión de estados offline es uno de los problemas más complejos en el desarrollo de aplicaciones web modernas \cite{richards2020}.
+
+La adopción temprana de las compuertas de calidad (typecheck, lint, test, build) desde la primera iteración resultó ser una decisión acertada. Aunque inicialmente añadió fricción al flujo de desarrollo, la inversión se recuperó en iteraciones posteriores, cuando las compuertas detectaron regresiones que habrían sido difíciles de identificar manualmente en un código base creciente.
+
+\section{Comparativa tecnológica: stack implementado vs. alternativas evaluadas}
+\label{sec:comparativa-stack}
+
+La Tabla \ref{tab:comparativa-stack} presenta una comparación resumida entre el stack tecnológico implementado y las principales alternativas evaluadas durante la fase de diseño, indicando para cada caso el criterio que motivó la decisión final.
+
+\begin{table}[!htbp]
+\centering
+\caption{Comparativa del stack implementado frente a alternativas evaluadas. Fuente: Elaboración propia.}
+\label{tab:comparativa-stack}
+\small
+\def\StackRow#1#2#3#4{\parbox[t]{2.5cm}{\raggedright #1} & \parbox[t]{3.0cm}{\raggedright #2} & \parbox[t]{3.0cm}{\raggedright #3} & \parbox[t]{3.3cm}{\raggedright #4}\\\midrule}
+\begin{tabular}{@{}l l l l@{}}
+\toprule
+\textbf{Capa} & \textbf{Stack implementado} & \textbf{Alternativa evaluada} & \textbf{Criterio de decisión} \\
+\midrule
+\StackRow{Frontend}{Next.js 16 + React 19 + Tailwind CSS 4}{Vite + React SPA}{Server Components para vistas de datos; ecosistema unificado de enrutamiento, API routes y PWA.}
+\StackRow{Backend}{Express 5.2.1 + TypeScript}{NestJS}{Simplicidad, menor curva de aprendizaje, propagación nativa de errores asíncronos en Express 5.}
+\StackRow{Base de datos}{MongoDB 7.0 + Mongoose 9.x}{PostgreSQL + Prisma}{Flexibilidad de esquema para formularios heterogéneos; sin migraciones para cada nuevo tipo de servicio.}
+\StackRow{Validación}{Zod 4.x (compartido)}{Joi}{Inferencia de tipos TypeScript desde esquemas; ecosistema unificado frontend/backend.}
+\StackRow{Autenticación}{JWT + cookies HttpOnly}{Auth.js / NextAuth}{Operación sin estado compatible con modo offline; sin dependencia de base de datos de sesiones.}
+\StackRow{Pruebas}{Vitest + Supertest}{Jest}{Velocidad de ejecución; integración nativa con Vite y TypeScript; configuración mínima.}
+\bottomrule
+\end{tabular}
+\end{table}
+
+Esta comparativa no pretende establecer una superioridad absoluta del stack implementado, sino documentar que cada decisión tecnológica fue el resultado de un análisis contextual que consideró las restricciones específicas del proyecto CERMONT: operación offline en zonas remotas, diversidad de formatos operativos, equipo de desarrollo unipersonal, y necesidad de mantenibilidad a largo plazo por parte de la empresa.
+
+% --- AMPLIACIÓN ACADÉMICA INTEGRADA CAPÍTULO 6 ---
+
+\section{Desarrollo por cortes verticales del sistema}
+\label{sec:desarrollo-vertical-slices}
+
+El desarrollo del aplicativo se organizó bajo el principio de cortes verticales o \textit{vertical slices}. Este enfoque evita construir primero una base de datos completa, luego una API completa y finalmente una interfaz completa sin conexión entre ellas. En su lugar, cada módulo se construye como una unidad funcional que atraviesa todas las capas: contrato de datos, validación, servicio de dominio, endpoint, cliente HTTP, hook de consulta, pantalla, permisos, pruebas y auditoría. Para el caso de CERMONT, este enfoque resulta adecuado porque cada paso del flujo de 14 etapas tiene reglas particulares, responsables y evidencias propias.
+
+\begin{table}[!htbp]
+\centering
+\scriptsize
+\caption{Estructura de un corte vertical aplicado a los módulos del aplicativo. Fuente: elaboración propia.}
+\label{tab:vertical-slice-cermont}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{p{2.5cm}p{4.2cm}p{4.5cm}p{4.0cm}}
+\toprule
+\textbf{Capa} & \textbf{Artefacto esperado} & \textbf{Propósito} & \textbf{Ejemplo en CERMONT}\\
+\midrule
+Contrato compartido & Esquema y tipos de datos & Definir estructura de entrada y salida sin duplicidad. & Datos de orden, planeación o evidencia.\\
+Backend & Ruta, controlador, servicio y modelo & Aplicar reglas de negocio y persistir cambios. & Crear paquete de planeación o registrar evidencia.\\
+Frontend & Página, formulario, hook y estados UI & Permitir interacción del usuario con datos reales. & Vista de planeación o cierre administrativo.\\
+Seguridad & RBAC, validación y auditoría & Restringir acciones y dejar rastro. & Solo ciertos roles aprueban planeación o cierre.\\
+Pruebas & Unitarias, integración o funcionales & Verificar comportamiento esperado. & Rechazar ejecución si la planeación no está lista.\\
+Documentación & Registro de decisión y evidencia & Explicar cómo se desarrolló el módulo. & Bitácora DOC asociada al módulo.\\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\section{Modelo de estados para controlar el avance operativo}
+\label{sec:modelo-estados-control-avance}
+
+El sistema no debe permitir que una orden avance por decisiones arbitrarias del usuario. En un proceso de cierre documentado, cada transición debe depender de precondiciones verificables. Por ejemplo, la ejecución no debería iniciar si la planeación no está aprobada; el informe no debería generarse si la ejecución no está terminada; la SES no debería radicarse si falta informe o acta; y la factura no debería emitirse si la SES no ha sido aprobada cuando el cliente la exige. Estas reglas transforman el aplicativo en un mecanismo de control operativo y no solo en una base de datos.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{3.5cm} >{\raggedright\arraybackslash}p{4.2cm} >{\raggedright\arraybackslash}p{5.8cm}}
+\caption{Transiciones críticas propuestas para el flujo operativo-documental. Fuente: elaboración propia.}
+\label{tab:transiciones-criticas-flujo}\\
+\toprule
+\textbf{Transición} & \textbf{Precondición mínima} & \textbf{Razón de control}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Transición} & \textbf{Precondición mínima} & \textbf{Razón de control}\\
+\midrule
+\endhead
+\midrule
+\multicolumn{3}{r}{Continúa en la siguiente página}\\
+\endfoot
+\bottomrule
+\endlastfoot
+Solicitud a propuesta & Solicitud calificada y alcance preliminar definido. & Evita cotizar trabajos sin información mínima.\\
+Propuesta a orden & Propuesta aprobada y PO registrada. & Garantiza que la ejecución tenga autorización comercial.\\
+Orden a planeación & Orden activa y responsable asignado. & Permite preparar recursos, permisos y documentos.\\
+Planeación a ejecución & Planeación aprobada y sin bloqueadores críticos. & Evita salida a campo sin herramientas, equipos o HES.\\
+Ejecución a informe & Actividad finalizada y evidencias mínimas asociadas. & Evita informes incompletos o basados en memoria.\\
+Informe a acta & Informe revisado y aprobado internamente. & Protege la entrega formal al cliente.\\
+Acta a SES & Acta firmada o recibida por el cliente. & Soporta radicación administrativa.\\
+SES a factura & SES aprobada por el cliente o plataforma correspondiente. & Evita facturación sin soporte aprobado.\\
+Factura a pago & Factura aprobada y referencia de pago registrada. & Permite cierre administrativo trazable.\\
+\end{longtable}
+
+\section{Diseño del módulo de archivos, evidencias y firmas}
+\label{sec:diseno-modulo-archivos-evidencias}
+
+El módulo de evidencias tiene una responsabilidad crítica: transformar fotos y documentos dispersos en soportes consultables, asociados y auditables. En la práctica operativa, una evidencia sin contexto pierde valor: una fotografía enviada por mensajería instantánea puede mostrar una actividad, pero si no se sabe a qué orden pertenece, quién la tomó, cuándo se capturó y qué componente documenta, su utilidad para el cierre técnico y administrativo disminuye. Por ello, el sistema debe almacenar metadatos junto con cada archivo.
+
+Los metadatos mínimos incluyen identificador de orden, tipo de evidencia, usuario responsable, fecha, estado de sincronización, nombre seguro de archivo, tipo MIME, tamaño, observaciones y relación con el paso del proceso. En caso de firmas, se debe conservar vínculo con el firmante, rol, fecha y documento asociado. Esta estructura responde a la falla documentada de evidencias dispersas y fortalece la generación posterior de informes y actas.
+
+\section{Diseño del módulo de costos reales}
+\label{sec:diseno-modulo-costos-reales}
+
+El control de costos reales se concibe como una capacidad transversal y no como una pantalla aislada de contabilidad. La propuesta económica define una estimación; la planeación anticipa recursos; la ejecución registra consumos; el cierre administrativo consolida factura y pago. Si estos datos permanecen desconectados, la empresa no puede analizar desviaciones. El diseño del módulo de costos debe permitir que cada orden acumule líneas de costo por materiales, mano de obra, herramientas, equipos, transporte, subcontratos, impuestos configurables e imprevistos.
+
+Esta funcionalidad debe implementarse con prudencia académica. Si no existen datos reales cargados, el libro debe describir el diseño y los criterios de medición, pero no reportar márgenes, variaciones o ahorros. La contribución del proyecto en esta fase consiste en dejar preparada la estructura para comparar costos estimados y reales cuando CERMONT alimente el sistema con información operativa verificable.
+
+\section{Integración entre backend, frontend y documentación técnica}
+\label{sec:integracion-backend-frontend-docs}
+
+La integración entre capas se construye alrededor de la coherencia de nombres, contratos y responsabilidades. El backend valida, aplica reglas de negocio y persiste. El frontend presenta, captura datos y comunica estados. Los paquetes compartidos definen contratos y tipos comunes. La documentación técnica actúa como referencia para evitar duplicidad de lógica, rutas huérfanas, pantallas sin endpoints o módulos que solo muestran títulos. Esta disciplina responde a una observación recurrente en auditorías de software: una aplicación puede compilar y aun así no resolver el proceso de negocio si sus módulos no están conectados con datos reales y reglas verificables.
+
+Por esta razón, el libro debe explicar no solo qué tecnologías fueron usadas, sino cómo interactúan en cada módulo. En una orden de trabajo, por ejemplo, el frontend no debe inventar estados de avance; debe consultar una proyección o entidad calculada desde backend. El backend no debe aceptar cualquier transición; debe verificar precondiciones. Los contratos no deben duplicarse manualmente; deben mantenerse como fuente común. Esta articulación convierte la arquitectura en respuesta directa a la problemática y no en un listado de herramientas.

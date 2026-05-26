@@ -20,9 +20,9 @@ import type { Request, Response } from "express";
 import { UnauthorizedError } from "../../common/errors/AppError";
 import { sendSuccess } from "../../common/interceptors/response.interceptor";
 import { requireUser } from "../../common/utils/request";
+import * as UserService from "../user/user.service";
 import * as AuthService from "./auth.service";
 import { getRefreshTokenMaxAge } from "./auth.service";
-import * as UserService from "../user/user.service";
 
 const COOKIE_SAME_SITE = "lax" as const;
 

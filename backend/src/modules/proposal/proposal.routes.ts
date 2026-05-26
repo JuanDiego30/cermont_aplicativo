@@ -10,6 +10,13 @@ import {
 	UpdateProposalStatusSchema,
 } from "@cermont/shared-types";
 import express from "express";
+import { authenticate } from "../../middlewares/auth.middleware";
+import { authorize } from "../../middlewares/authorize.middleware";
+import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
+import {
+	getByProposalId as getProposalPurchaseOrder,
+	registerForProposal,
+} from "../purchase-order/purchase-order.controller";
 import {
 	approveProposal,
 	convertProposalToOrder,
@@ -20,13 +27,6 @@ import {
 	rejectProposal,
 	updateProposalStatus,
 } from "./proposal.controller";
-import {
-	getByProposalId as getProposalPurchaseOrder,
-	registerForProposal,
-} from "../purchase-order/purchase-order.controller";
-import { authenticate } from "../../middlewares/auth.middleware";
-import { authorize } from "../../middlewares/authorize.middleware";
-import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
 
 const router = express.Router();
 

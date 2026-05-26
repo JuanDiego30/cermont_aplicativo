@@ -22,10 +22,10 @@ import {
 	SubmitExecutionDynamicFormCommandSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
-import * as ExecutionSessionController from "./execution-session.controller";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
+import * as ExecutionSessionController from "./execution-session.controller";
 
 const router = Router();
 

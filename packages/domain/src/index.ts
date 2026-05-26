@@ -11,8 +11,96 @@
  * - closure.rules.ts: Administrative closure chain gates
  * - billing.rules.ts: SES/Invoice/Payment chain definitions
  * - cost.rules.ts: Cost display and validation rules
+ * - workflow/: 14-step service-case state machine and blocker helpers
  */
 
+export type { BillingState, BillingStep } from "./billing.rules";
+// ─── Billing Rules ──────────────────────────────────────────────────────────
+export {
+	BILLING_CHAIN_STEPS,
+	BILLING_STEP_DESCRIPTIONS,
+	BILLING_STEP_LABELS,
+	getNextBillingAction,
+} from "./billing.rules";
+export type { ClosureBlocker, ServiceCaseClosureContext } from "./closure.rules";
+// ─── Closure Rules ──────────────────────────────────────────────────────────
+export {
+	canCloseServiceCase,
+	canCreateInvoice,
+	canCreateSES,
+	canDeleteServiceCase,
+	canRegisterPayment,
+} from "./closure.rules";
+export type { CostEntry } from "./cost.rules";
+// ─── Cost Rules ─────────────────────────────────────────────────────────────
+export {
+	COST_REQUIRED_FIELDS,
+	calculateMargin,
+	calculateVariance,
+	formatCostValue,
+	isCostMissing,
+} from "./cost.rules";
+export type {
+	ExecutionBlockerCode,
+	ExecutionGateContext,
+	ExecutionNextActionCode,
+	ExecutionReadModel,
+	ExecutionSessionStatus,
+} from "./execution";
+// ─── Execution Rules ────────────────────────────────────────────────────────
+export {
+	calculateExecutionBlockers,
+	calculateExecutionNextActions,
+	canCancelExecution,
+	canCompleteExecution,
+	canCreateExecutionSession,
+	canPauseExecution,
+	canResumeExecution,
+	canStartExecution,
+	mergeLaborEntries,
+	mergeMaterialUsage,
+	validateExecutionCommandIdempotency,
+	validateRequiredChecklistResponses,
+	validateRequiredEvidence,
+	validateRequiredSignatures,
+} from "./execution";
+export type {
+	OperationalStep,
+	OperationalStepKey,
+	OperationalStepStatus,
+} from "./operational-steps";
+// ─── Operational Steps ──────────────────────────────────────────────────────
+export {
+	getNextStep,
+	getStep,
+	isValidStepKey,
+	OPERATIONAL_STEPS,
+	STEP_BY_KEY,
+	STEP_KEYS,
+} from "./operational-steps";
+// ─── Permissions ────────────────────────────────────────────────────────────
+export {
+	checkAllPermissions,
+	hasPermission,
+	ROLE_PERMISSIONS,
+} from "./permissions";
+export type { PlanningBlocker, PlanningDocumentType, PlanningReadiness } from "./planning.rules";
+// ─── Planning Rules ─────────────────────────────────────────────────────────
+export {
+	getMaxBlockerSeverity,
+	getPlanningBlockers,
+	isPlanningReady,
+	REQUIRED_PLANNING_DOCUMENTS,
+} from "./planning.rules";
+// ─── RBAC ───────────────────────────────────────────────────────────────────
+export {
+	canAccessPath,
+	canPerformAction,
+	getAllowedRolesForPath,
+	hasAllPermissions,
+	isPublicPath,
+	PUBLIC_PATHS,
+} from "./rbac";
 // ─── Roles ─────────────────────────────────────────────────────────────────
 export type { UserRole } from "./roles";
 export {
@@ -41,94 +129,33 @@ export {
 	SITE_VISIT_EXECUTION_ROLES,
 	SITE_VISIT_MANAGEMENT_ROLES,
 } from "./roles";
-
-// ─── Permissions ────────────────────────────────────────────────────────────
-export {
-	checkAllPermissions,
-	hasPermission,
-	ROLE_PERMISSIONS,
-} from "./permissions";
-
-// ─── RBAC ───────────────────────────────────────────────────────────────────
-export {
-	canAccessPath,
-	canPerformAction,
-	getAllowedRolesForPath,
-	hasAllPermissions,
-	isPublicPath,
-	PUBLIC_PATHS,
-} from "./rbac";
-
-// ─── Operational Steps ──────────────────────────────────────────────────────
-export {
-	OPERATIONAL_STEPS,
-	STEP_BY_KEY,
-	STEP_KEYS,
-	getNextStep,
-	getStep,
-	isValidStepKey,
-} from "./operational-steps";
-export type { OperationalStep, OperationalStepKey, OperationalStepStatus } from "./operational-steps";
-
-// ─── Execution Rules ────────────────────────────────────────────────────────
-export {
-	calculateExecutionBlockers,
-	calculateExecutionNextActions,
-	canCancelExecution,
-	canCompleteExecution,
-	canCreateExecutionSession,
-	canPauseExecution,
-	canResumeExecution,
-	canStartExecution,
-	mergeLaborEntries,
-	mergeMaterialUsage,
-	validateExecutionCommandIdempotency,
-	validateRequiredChecklistResponses,
-	validateRequiredEvidence,
-	validateRequiredSignatures,
-} from "./execution";
 export type {
-	ExecutionBlockerCode,
-	ExecutionGateContext,
-	ExecutionNextActionCode,
-	ExecutionReadModel,
-	ExecutionSessionStatus,
-} from "./execution";
-
-// ─── Planning Rules ─────────────────────────────────────────────────────────
+	CermontOperationalStep,
+	CermontOperationalStepKey,
+	CermontOperationalStepStatus,
+	ServiceCaseEvent,
+	ServiceCaseState,
+	ServiceCaseWorkflowSnapshot,
+	StepLookupResult,
+	StepRequirement,
+	TransitionResult,
+	WorkflowAction,
+	WorkflowBlocker,
+	WorkflowContext,
+} from "./workflow";
+// ─── Service Case Workflow State Machine ───────────────────────────────────
 export {
-	getMaxBlockerSeverity,
-	getPlanningBlockers,
-	isPlanningReady,
-	REQUIRED_PLANNING_DOCUMENTS,
-} from "./planning.rules";
-export type { PlanningBlocker, PlanningDocumentType, PlanningReadiness } from "./planning.rules";
-
-// ─── Closure Rules ──────────────────────────────────────────────────────────
-export {
-	canCloseServiceCase,
-	canCreateInvoice,
-	canCreateSES,
-	canDeleteServiceCase,
-	canRegisterPayment,
-} from "./closure.rules";
-export type { ClosureBlocker, ServiceCaseClosureContext } from "./closure.rules";
-
-// ─── Billing Rules ──────────────────────────────────────────────────────────
-export {
-	BILLING_CHAIN_STEPS,
-	BILLING_STEP_DESCRIPTIONS,
-	BILLING_STEP_LABELS,
-	getNextBillingAction,
-} from "./billing.rules";
-export type { BillingState, BillingStep } from "./billing.rules";
-
-// ─── Cost Rules ─────────────────────────────────────────────────────────────
-export {
-	calculateMargin,
-	calculateVariance,
-	COST_REQUIRED_FIELDS,
-	formatCostValue,
-	isCostMissing,
-} from "./cost.rules";
-export type { CostEntry } from "./cost.rules";
+	buildBlockers,
+	CERMONT_OPERATIONAL_STEP_BY_KEY,
+	CERMONT_OPERATIONAL_STEP_KEYS,
+	CERMONT_OPERATIONAL_STEPS,
+	canAdvanceStep,
+	getAllowedActions,
+	getCurrentStep,
+	getNextOperationalStepByKey,
+	getNextStep as getNextServiceCaseStep,
+	getOperationalStepByKey,
+	getStepRequirements,
+	isValidOperationalStepKey,
+	ServiceCaseStateMachine,
+} from "./workflow";

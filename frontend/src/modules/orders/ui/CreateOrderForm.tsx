@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { FormField, Select, TextArea, TextField } from "@/modules/core";
 import { useKitTemplates } from "@/modules/kits/queries";
+import { ORDER_PRIORITY_OPTIONS } from "../model/order-options";
 import { useCreateOrder } from "../queries";
 
 const newOrderFormSchema = CreateOrderSchema.pick({
@@ -21,7 +22,7 @@ const newOrderFormSchema = CreateOrderSchema.pick({
 	kitTemplate: z.string().optional(),
 	typeOther: z.string().optional(),
 });
-export type NewOrderFormData = z.infer<typeof newOrderFormSchema>;
+type NewOrderFormData = z.infer<typeof newOrderFormSchema>;
 
 const TYPE_OPTIONS = [
 	{ value: "maintenance", label: "Mantenimiento" },
@@ -32,14 +33,17 @@ const TYPE_OPTIONS = [
 	{ value: "other", label: "Otro" },
 ] as const;
 
-export const PRIORITY_OPTIONS = [
-	{ value: "low", label: "Baja" },
-	{ value: "medium", label: "Media" },
-	{ value: "high", label: "Alta" },
-	{ value: "critical", label: "Crítica" },
-] as const;
+interface CreateOrderFormProps {
+	proposalId?: string;
+	serviceCaseId?: string;
+	workRequestId?: string;
+}
 
-export function CreateOrderForm() {
+export function CreateOrderForm({
+	proposalId = "",
+	serviceCaseId = "",
+	workRequestId = "",
+}: CreateOrderFormProps) {
 	const { push } = useRouter();
 	const mutation = useCreateOrder();
 	const { data: kitTemplates } = useKitTemplates();
@@ -65,10 +69,21 @@ export function CreateOrderForm() {
 	const selectedType = watch("type");
 
 	async function onSubmit(data: NewOrderFormData) {
-		const customFields: Record<string, string | number | boolean> =
+		const customFields: Record<string, string | number | boolean> = {
+			...(serviceCaseId ? { serviceCaseId } : {}),
+			...(workRequestId ? { workRequestId } : {}),
+		};
+		const orderTypeCustomField: Record<string, string | number | boolean> =
 			data.type === "other" && data.typeOther?.trim() ? { typeOther: data.typeOther.trim() } : {};
+		const proposalLink = proposalId ? { proposalId } : {};
 		mutation.mutate(
-			{ ...data, materials: [], executionPhase: { preStartVerification: [] }, customFields },
+			{
+				...data,
+				...proposalLink,
+				materials: [],
+				executionPhase: { preStartVerification: [] },
+				customFields: { ...customFields, ...orderTypeCustomField },
+			},
 			{
 				onSuccess: () => {
 					push("/orders");
@@ -128,7 +143,7 @@ export function CreateOrderForm() {
 				required
 			>
 				<Select id="order-priority" {...register("priority")}>
-					{PRIORITY_OPTIONS.map((opt) => (
+					{ORDER_PRIORITY_OPTIONS.map((opt) => (
 						<option key={opt.value} value={opt.value}>
 							{opt.label}
 						</option>

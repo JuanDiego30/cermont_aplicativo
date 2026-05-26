@@ -4,6 +4,7 @@ import type {
 	WorkRequestListResponse,
 } from "@cermont/shared-types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { detailQueryOptions, listQueryOptions } from "@/_shared/lib/query/query-options";
 import { apiClient } from "@/lib/http/api-client";
 
 const workRequestsQueryKeys = {
@@ -35,6 +36,7 @@ export function useWorkRequests() {
 	return useQuery({
 		queryKey: workRequestsQueryKeys.list(),
 		queryFn: listWorkRequests,
+		...listQueryOptions,
 	});
 }
 
@@ -60,6 +62,7 @@ export function useWorkRequest(id: string) {
 		queryKey: workRequestsQueryKeys.detail(id),
 		queryFn: () => getWorkRequest(id),
 		enabled: Boolean(id),
+		...detailQueryOptions,
 	});
 }
 
@@ -76,6 +79,6 @@ export function usePendingWorkRequestCount(enabled: boolean) {
 			return 0;
 		},
 		enabled,
-		staleTime: 30_000,
+		...listQueryOptions,
 	});
 }

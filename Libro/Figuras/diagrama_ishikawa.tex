@@ -1,0 +1,23 @@
+% Figura corregida: diagrama de Ishikawa.
+\begin{figure}[H]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[font=\sffamily]
+\tikzset{cause/.style={figHeader, minimum width=2.25cm, font=\scriptsize}, sub/.style={figBoxWhite, minimum width=2.0cm, minimum height=0.38cm, font=\tiny}, effect/.style={figCritical, minimum width=3.8cm, minimum height=1.0cm, text width=3.6cm}, bone/.style={line width=0.75pt, draw=institucionalBlue}}
+\node[effect] (e) at (12,0) {Fragmentación documental e ineficiencia operativa};
+\draw[figArrow] (0,0) -- (e.west);
+\foreach \name/\x/\y/\txt in {tec/2.0/2.7/Tecnología,proc/5.0/2.7/Procesos,pers/8.0/2.7/Personas,info/2.0/-2.7/Información,rec/5.0/-2.7/Recursos,com/8.0/-2.7/Comunicación}{
+  \node[cause] (\name) at (\x,\y) {\txt};
+  \draw[bone] (\name) -- (\x,0);
+}
+\node[sub] at (0.8,3.65) {formatos aislados};\node[sub] at (0.8,3.15) {sin offline};\draw[bone] (0.8,3.15) -- (tec.west);\draw[bone] (0.8,3.65) -- (tec.west);
+\node[sub] at (3.8,3.65) {flujo manual};\node[sub] at (3.8,3.15) {sin validaciones};\draw[bone] (3.8,3.15) -- (proc.west);\draw[bone] (3.8,3.65) -- (proc.west);
+\node[sub] at (6.9,3.65) {dependencia tácita};\node[sub] at (6.9,3.15) {omisiones};\draw[bone] (6.9,3.15) -- (pers.west);\draw[bone] (6.9,3.65) -- (pers.west);
+\node[sub] at (0.8,-3.65) {datos dispersos};\node[sub] at (0.8,-3.15) {historial incompleto};\draw[bone] (0.8,-3.15) -- (info.west);\draw[bone] (0.8,-3.65) -- (info.west);
+\node[sub] at (3.8,-3.65) {kits no tipificados};\node[sub] at (3.8,-3.15) {equipos faltantes};\draw[bone] (3.8,-3.15) -- (rec.west);\draw[bone] (3.8,-3.65) -- (rec.west);
+\node[sub] at (6.9,-3.65) {mensajería informal};\node[sub] at (6.9,-3.15) {sin trazabilidad};\draw[bone] (6.9,-3.15) -- (com.west);\draw[bone] (6.9,-3.65) -- (com.west);
+\end{tikzpicture}%
+}
+\caption[Diagrama de Ishikawa]{Diagrama de Ishikawa que sintetiza las causas asociadas a la fragmentación documental y a la ineficiencia operativa identificada en CERMONT S.A.S. Fuente: Elaboración propia.}
+\label{fig:ishikawa-causas}
+\end{figure}
