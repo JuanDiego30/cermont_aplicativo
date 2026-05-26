@@ -2,15 +2,14 @@ import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { HTMLAttributes, HTMLInputTypeAttribute } from "react";
-import { AuthBackgroundBlobs } from "@/auth/ui/AuthBackgroundBlobs";
-import { Button } from "@/core/ui/Button";
+import { AuthBackgroundBlobs } from "@/modules/auth/ui/AuthBackgroundBlobs";
 
 export const metadata: Metadata = { title: "Solicitar acceso" };
 
 const INPUT_CLASS =
-	"rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition-[background-color,border-color,box-shadow,color] focus:border-primary-400 focus:bg-white/10 focus-visible:ring-4 focus-visible:ring-primary-500/20";
+	"rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition-[background-color,border-color,box-shadow,color] focus:border-primary-400 focus:bg-white/10 focus-visible:ring-4 focus-visible:ring-primary-500/20";
 
-const LABEL_CLASS = "text-sm font-semibold text-slate-300";
+const LABEL_CLASS = "text-sm font-semibold text-zinc-300";
 
 const REGISTER_STATUS_MESSAGES = {
 	submitted: {
@@ -94,10 +93,10 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
 	const feedback = status && isRegisterStatusKey(status) ? REGISTER_STATUS_MESSAGES[status] : null;
 
 	return (
-		<main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-linear-to-br from-slate-900 via-[#0c1425] to-slate-900 px-6 py-10 font-outfit selection:bg-primary-200/30">
+		<main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-linear-to-br from-zinc-900 via-[#0c1425] to-zinc-900 px-6 py-10 font-outfit selection:bg-primary-200/30">
 			<AuthBackgroundBlobs />
 			<section
-				className="relative z-10 w-full max-w-lg rounded-3xl border border-white/10 bg-[var(--surface-sidebar)]/80 p-8 shadow-2xl shadow-slate-950/40 backdrop-blur-xl sm:p-10"
+				className="relative z-10 w-full max-w-lg rounded-3xl border border-white/10 bg-[#0B1121]/80 p-8 shadow-2xl shadow-zinc-950/40 backdrop-blur-xl sm:p-10"
 				aria-labelledby="register-page-title"
 			>
 				<header className="text-center sm:text-left">
@@ -107,7 +106,7 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
 					<h1 id="register-page-title" className="mt-3 text-2xl font-semibold text-white">
 						Solicitar acceso
 					</h1>
-					<p className="mt-2 text-sm leading-6 text-slate-300">
+					<p className="mt-2 text-sm leading-6 text-zinc-300">
 						Este formulario es solo para clientes. Tu solicitud quedará pendiente de validación
 						antes de habilitar tu acceso.
 					</p>
@@ -115,7 +114,7 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
 
 				<div
 					role="note"
-					className="mt-6 rounded-2xl border border-primary-400/20 bg-primary-500/10 px-4 py-4 text-sm text-primary-100"
+					className="mt-6 rounded-2xl border border-primary-400/20 bg-primary-500/10 p-4 text-sm text-primary-100"
 				>
 					<p className="font-semibold">Registro exclusivo para clientes</p>
 					<p className="mt-1 text-primary-100/90">
@@ -181,19 +180,20 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
 						placeholder="OT-000123 / Contrato ABC"
 					/>
 
-					<Button type="submit" className="mt-2 w-full">
-						Enviar solicitud
-					</Button>
-
-					<Button
-						asChild
-						variant="outline"
-						className="mt-2 w-full border-white/10 bg-white/5 text-slate-200 hover:bg-white/10"
+					<button
+						type="submit"
+						className="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-500/30"
 					>
-						<Link href="/login">
-							<ArrowLeft className="h-4 w-4" aria-hidden="true" /> Volver al inicio de sesión
-						</Link>
-					</Button>
+						Enviar solicitud
+					</button>
+
+					<Link
+						href="/login"
+						className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-zinc-200 transition hover:bg-white/10 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-500/30"
+					>
+						<ArrowLeft className="size-4" aria-hidden="true" />
+						Volver al inicio de sesión
+					</Link>
 				</form>
 			</section>
 		</main>

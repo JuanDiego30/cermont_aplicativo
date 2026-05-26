@@ -9,58 +9,62 @@ export function TrustSection({ shouldReduceMotion }: { shouldReduceMotion: boole
 		<section
 			data-landing-section
 			aria-labelledby="trust-heading"
-			className="bg-surface-page py-16 sm:py-20 lg:py-24 scroll-mt-28"
+			className="bg-[var(--surface-page)] py-20 sm:py-24 lg:py-32 scroll-mt-28"
 		>
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-				<div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10">
-					<article className="rounded-[2.25rem] border border-border-default bg-surface-primary p-8 shadow-2">
+				<div className="grid gap-12 lg:grid-cols-[1fr_1.1fr]">
+					<article className="rounded-[2.5rem] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-8 lg:p-10 shadow-card">
 						<SectionHeading
 							eyebrow="Confianza"
-							title="Principios que guian nuestra operacion."
-							description="Nuestro codigo de etica se fundamenta en el respeto, la lealtad, la responsabilidad y la transparencia."
+							title="Principios que guían nuestra operación."
+							description="Nuestro código de ética se fundamenta en el respeto, la lealtad, la responsabilidad y la transparencia en cada intervención."
 						/>
 
-						<div className="mt-8 grid gap-4 sm:grid-cols-3">
+						<div className="mt-10 grid gap-5 sm:grid-cols-3">
 							{LANDING_TRUST_POINTS.map((point) => (
 								<PrincipleCard key={point.title} {...point} />
 							))}
 						</div>
 					</article>
 
-					<article className="rounded-[2.25rem] border border-border-default bg-surface-primary p-6 shadow-2">
-						<div className="flex items-center justify-between gap-4">
+					<article className="rounded-[2.5rem] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-8 lg:p-10 shadow-card flex flex-col">
+						<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
 							<div>
-								<p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-text-tertiary">
+								<p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
 									Cobertura operativa
 								</p>
-								<p className="mt-2 text-lg font-semibold text-text-primary">
-									Cinco lineas de servicio, misma disciplina de entrega.
+								<p className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
+									Cinco líneas de servicio, una sola disciplina.
 								</p>
 							</div>
 							<BadgePill
-								className="border-border-default bg-surface-secondary px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-text-secondary"
-								dotClassName="bg-cermont-green"
+								className="bg-[var(--surface-secondary)] px-4 py-2 font-mono"
+								dotClassName="bg-[var(--color-cermont-green)]"
 								ariaLabel="Rotación continua"
 							>
 								Rotación continua
 							</BadgePill>
 						</div>
 
-						<div className="mt-5">
+						<div className="mt-8 flex-1">
 							<TrustMarquee shouldReduceMotion={shouldReduceMotion} />
 						</div>
 
-						<div className="mt-5 grid gap-3 sm:grid-cols-3">
+						<div className="mt-8 grid gap-4 sm:grid-cols-3">
 							{LANDING_METRICS.map((metric) => (
 								<article
 									key={metric.label}
-									className="rounded-2xl border border-border-default bg-surface-secondary p-4"
+									className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-5 transition-all hover:bg-white hover:shadow-sm"
 								>
-									<p className="text-[10px] uppercase tracking-[0.24em] text-text-tertiary">
+									<p className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-tertiary)]">
 										{metric.label}
 									</p>
-									<p className="mt-3 text-3xl font-semibold text-text-primary">{metric.value}</p>
-									<p className="mt-2 text-xs leading-5 text-text-secondary">{metric.detail}</p>
+									<p className="mt-4 text-3xl font-semibold text-[var(--text-primary)] tracking-tight">
+										{metric.value}
+									</p>
+									<p className="mt-2 text-[11px] leading-relaxed text-[var(--text-secondary)]">
+										{metric.detail}
+									</p>
 								</article>
 							))}
 						</div>

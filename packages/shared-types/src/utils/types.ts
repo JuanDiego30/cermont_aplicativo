@@ -212,27 +212,15 @@ export type RequireKeys<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>
 export type OptionalKeys<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 /**
- * Nullable type - represents a value that may be null.
- * Use this for Mongoose/MongoDB fields and API responses where null signals "absent".
+ * Nullable type - allows null or undefined
+ * Useful for representing optional database fields
  *
  * @example
  * ```typescript
- * type NullableString = Nullable<string>; // string | null
+ * type NullableString = Nullable<string>; // string | null | undefined
  * ```
  */
-export type Nullable<T> = T | null;
-
-/**
- * Nullish type - allows null or undefined.
- * Prefer Nullable<T> for database/API boundaries; reserve Nullish<T>
- * for cases where undefined and null have distinct semantics (rare).
- *
- * @example
- * ```typescript
- * type NullishString = Nullish<string>; // string | null | undefined
- * ```
- */
-export type Nullish<T> = T | null | undefined;
+export type Nullable<T> = T | null | undefined;
 
 /**
  * NonNullableFields - makes all fields of a type non-nullable

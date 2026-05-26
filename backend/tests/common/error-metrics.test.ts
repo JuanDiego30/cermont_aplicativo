@@ -3,7 +3,7 @@ import {
 	getErrorMetrics,
 	resetErrorMetrics,
 	trackErrorMetric,
-} from "@/common/observability/error-metrics";
+} from "../../src/common/observability/error-metrics";
 
 describe("error metrics observability", () => {
 	beforeEach(() => {

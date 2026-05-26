@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
-import { createLogger } from "@/_shared/lib/monitoring/logger";
+import { createLogger } from "@/lib/monitoring/logger";
 
 interface ErrorProps {
 	error: Error & { digest?: string };
@@ -26,13 +26,13 @@ export default function CostsError({ error, reset }: ErrorProps) {
 			<header className="flex flex-col items-center gap-2">
 				<span
 					aria-hidden="true"
-					className="flex h-14 w-14 items-center justify-center rounded-full bg-red-50"
+					className="flex size-14 items-center justify-center rounded-full bg-red-50"
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 24 24"
 						fill="currentColor"
-						className="h-7 w-7 text-red-500"
+						className="size-7 text-red-500"
 						aria-hidden="true"
 					>
 						<path
@@ -43,15 +43,15 @@ export default function CostsError({ error, reset }: ErrorProps) {
 					</svg>
 				</span>
 
-				<h2 id="costs-error-title" className="text-lg font-semibold text-slate-900">
+				<h2 id="costs-error-title" className="text-lg font-semibold text-zinc-900">
 					Error en costos
 				</h2>
 
-				<p className="max-w-sm text-sm text-slate-600">
+				<p className="max-w-sm text-sm text-zinc-600">
 					Ocurrió un error al cargar el módulo de control de costos.
 				</p>
 
-				{error.digest ? <p className="text-xs text-slate-400">Código: {error.digest}</p> : null}
+				{error.digest ? <p className="text-xs text-zinc-400">Código: {error.digest}</p> : null}
 			</header>
 
 			<footer className="flex gap-3">
@@ -65,7 +65,7 @@ export default function CostsError({ error, reset }: ErrorProps) {
 
 				<Link
 					href="/dashboard"
-					className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+					className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
 				>
 					Ir al inicio
 				</Link>

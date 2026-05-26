@@ -1,8 +1,8 @@
-import { ADMIN_ROLES } from "@cermont/shared-types/rbac";
+import { ADMIN_ROLES } from "@cermont/domain";
 import type { ReactNode } from "react";
-import { requireRole } from "@/auth/session";
+import { requireRole } from "@/modules/auth/session";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
 	await requireRole(ADMIN_ROLES);
-	return <section aria-label="Administration">{children}</section>;
+	return <>{children}</>;
 }

@@ -9,7 +9,6 @@ type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string
 type SerializableRecord = Record<string, JsonValue>;
 
 const SNAPSHOT_SCHEMA_VERSION = 1;
-const SNAPSHOT_LINE_WIDTH = 100;
 
 function isZodSchema(value: unknown): value is z.ZodType {
 	return value instanceof z.ZodType;
@@ -26,18 +25,6 @@ function isTransformSchemaError(error: unknown): boolean {
 		error instanceof Error &&
 		error.message.includes("Transforms cannot be represented in JSON Schema")
 	);
-}
-
-function isDateSchemaError(error: unknown): boolean {
-	return error instanceof Error && error.message.includes("Date cannot be represented");
-}
-
-function isDateSchema(schema: z.ZodType): boolean {
-	const candidate = schema as z.ZodType & {
-		def?: { type?: unknown };
-	};
-
-	return candidate.def?.type === "date";
 }
 
 function collectSchemaChildren(schema: z.ZodType): z.ZodType[] {
@@ -62,12 +49,6 @@ function collectSchemaChildren(schema: z.ZodType): z.ZodType[] {
 		pushChild(def.in);
 		pushChild(def.out);
 		pushChild(def.innerType);
-
-		if (Array.isArray(def.options)) {
-			for (const option of def.options) {
-				pushChild(option);
-			}
-		}
 	}
 
 	return children;
@@ -80,14 +61,10 @@ function serializeSchema(value: z.ZodType, seen = new Set<z.ZodType>()): JsonVal
 
 	seen.add(value);
 
-	if (isDateSchema(value)) {
-		return { format: "date-time", type: "string" };
-	}
-
 	try {
-		return stableJson(z.toJSONSchema(value) as JsonValue);
+		return stableJson(z.toJSONSchema(value, { unrepresentable: "any" }) as JsonValue);
 	} catch (error) {
-		if (!isTransformSchemaError(error) && !isDateSchemaError(error)) {
+		if (!isTransformSchemaError(error)) {
 			throw error;
 		}
 
@@ -120,68 +97,6 @@ function stableJson(value: JsonValue): JsonValue {
 	}
 
 	return value;
-}
-
-function isPrimitiveJsonValue(value: JsonValue): value is null | boolean | number | string {
-	return value === null || typeof value !== "object";
-}
-
-function getInlineArrayLength(value: JsonValue[]): number {
-	return value.reduce((total, entry, index) => {
-		const renderedEntry = JSON.stringify(entry);
-		return total + renderedEntry.length + (index === 0 ? 0 : 2);
-	}, 2);
-}
-
-function getInlineArray(value: JsonValue[]): string {
-	return `[${value.map((entry) => JSON.stringify(entry)).join(", ")}]`;
-}
-
-function shouldInlineArray(value: JsonValue[], prefixLength: number): boolean {
-	return (
-		value.every(isPrimitiveJsonValue) &&
-		prefixLength + getInlineArrayLength(value) <= SNAPSHOT_LINE_WIDTH
-	);
-}
-
-function stringifyJsonValue(value: JsonValue, indentLevel: number, prefixLength = 0): string {
-	if (Array.isArray(value)) {
-		if (value.length === 0) {
-			return "[]";
-		}
-
-		if (shouldInlineArray(value, prefixLength)) {
-			return getInlineArray(value);
-		}
-
-		const indent = "\t".repeat(indentLevel);
-		const childIndent = "\t".repeat(indentLevel + 1);
-		const items = value.map(
-			(entry) => `${childIndent}${stringifyJsonValue(entry, indentLevel + 1, childIndent.length)}`,
-		);
-
-		return `[\n${items.join(",\n")}\n${indent}]`;
-	}
-
-	if (isPlainObject(value)) {
-		const entries = Object.entries(value);
-
-		if (entries.length === 0) {
-			return "{}";
-		}
-
-		const indent = "\t".repeat(indentLevel);
-		const childIndent = "\t".repeat(indentLevel + 1);
-		const lines = entries.map(([key, entry]) => {
-			const prefix = `${childIndent}${JSON.stringify(key)}: `;
-
-			return `${prefix}${stringifyJsonValue(entry, indentLevel + 1, prefix.length)}`;
-		});
-
-		return `{\n${lines.join(",\n")}\n${indent}}`;
-	}
-
-	return JSON.stringify(value);
 }
 
 function serializeValue(value: unknown): JsonValue | undefined {
@@ -269,7 +184,7 @@ export function buildApiContractSnapshot(): SerializableRecord {
 }
 
 export function stringifyApiContractSnapshot(snapshot: SerializableRecord): string {
-	return `${stringifyJsonValue(stableJson(snapshot), 0)}\n`;
+	return `${JSON.stringify(stableJson(snapshot), null, 2)}\n`;
 }
 
 export function createSnapshotHash(snapshotContent: string): string {

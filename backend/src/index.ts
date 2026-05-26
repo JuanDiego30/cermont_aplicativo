@@ -5,44 +5,71 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import mongoSanitize from "express-mongo-sanitize";
-import { ipKeyGenerator, rateLimit } from "express-rate-limit";
+import { rateLimit } from "express-rate-limit";
 import helmet from "helmet";
-import { errorHandler } from "./_shared/common/errors";
-import { requestId } from "./_shared/common/middlewares/request-id.middleware";
-import { createLogger } from "./_shared/common/utils";
-import { getDatabaseHealth } from "./_shared/config/db";
-import { env } from "./_shared/config/env";
-import {
-	buildAllowedCorsOrigins,
-	resolveRateLimitSourceIp,
-	resolveTrustProxySetting,
-} from "./_shared/config/http-security";
-import syncRoutes from "./_shared/sync/routes";
-import adminRoutes from "./admin/api/routes";
-import aiRoutes from "./ai/api/routes";
-import alertsRoutes from "./alerts/routes";
-import auditRoutes from "./audit/api/routes";
-import authRoutes from "./auth/api/routes";
-import userRoutes from "./auth/api/user.routes";
-import checklistRoutes from "./checklists/api/routes";
-import costRoutes from "./costs/api/routes";
-import analyticsRoutes from "./dashboard/api/routes";
-import documentRoutes from "./documents/api/routes";
-import evidenceRoutes from "./evidences/api/routes";
-import historyRoutes from "./history/routes";
-import inspectionRoutes from "./inspections/api/routes";
-import maintenanceRoutes from "./maintenance/api/routes";
-import orderRoutes from "./orders/api/routes";
-import proposalRoutes from "./proposals/api/routes";
-import reportRoutes from "./reports/api/routes";
-import resourceRoutes from "./resources/api/routes";
+import { errorHandler } from "./common/errors";
+import { requestId } from "./common/middlewares/request-id.middleware";
+import { createLogger } from "./common/utils/logger";
+import { getDatabaseHealth } from "./config/db";
+import { env } from "./config/env";
+import aiRoutes from "./modules/ai/ai.routes";
+import analyticsRoutes from "./modules/analytics/analytics.routes";
+import assetRoutes from "./modules/asset/asset.routes";
+import auditRoutes from "./modules/audit/audit.routes";
+import authRoutes from "./modules/auth/auth.routes";
+import checklistRoutes from "./modules/checklist/checklist.routes";
+import costRoutes from "./modules/cost/cost.routes";
+import dashboardRoutes from "./modules/dashboard/dashboard.routes";
+import deliveryRecordRoutes from "./modules/delivery-record/delivery-record.routes";
+import deliveryRecordServiceEntrySheetRoutes from "./modules/delivery-record/delivery-record-service-entry-sheet.routes";
+import documentRoutes from "./modules/documents/document.routes";
+import documentImportRoutes from "./modules/documents/document-import.routes";
+import documentIngestionRoutes from "./modules/documents/document-ingestion.routes";
+import documentTemplateRoutes from "./modules/documents/document-template.routes";
+import evidenceRoutes from "./modules/evidence/evidence.routes";
+import evidenceCollectionRoutes from "./modules/evidence/evidence-collection.routes";
+import executionSessionRoutes from "./modules/execution-session/execution-session.routes";
+import executionTechnicalReportRoutes from "./modules/execution-session/execution-technical-report.routes";
+import inspectionRoutes from "./modules/inspection/inspection.routes";
+import invoiceRoutes from "./modules/invoice/invoice.routes";
+import invoicePaymentRoutes from "./modules/invoice/invoice-payment.routes";
+import kitRoutes from "./modules/kit/kit.routes";
+import maintenanceRoutes from "./modules/maintenance/maintenance.routes";
+import notificationsRoutes from "./modules/notifications/notifications.routes";
+import observabilityRoutes from "./modules/observability/observability.routes";
+import orderRoutes from "./modules/order/order.routes";
+import orderAdministrativeWorkflowRoutes from "./modules/order/order-administrative-workflow.routes";
+import orderClosureRoutes from "./modules/order/order-closure.routes";
+import orderExecutionSessionRoutes from "./modules/order/order-execution-session.routes";
+import paymentRoutes from "./modules/payment/payment.routes";
+import planningPacketRoutes from "./modules/planning-packet/planning-packet.routes";
+import proposalRoutes from "./modules/proposal/proposal.routes";
+import purchaseOrderRoutes from "./modules/purchase-order/purchase-order.routes";
+import reportRoutes from "./modules/report/report.routes";
+import resourceRoutes from "./modules/resource/resource.routes";
+import serviceCaseRoutes from "./modules/service-cases/service-case.routes";
+import serviceEntrySheetRoutes from "./modules/service-entry-sheet/service-entry-sheet.routes";
+import serviceEntrySheetInvoiceRoutes from "./modules/service-entry-sheet/service-entry-sheet-invoice.routes";
+import siteVisitRoutes from "./modules/site-visit/site-visit.routes";
+import syncRoutes from "./modules/sync/sync.routes";
+import technicalReportRoutes from "./modules/technical-report/technical-report.routes";
+import templateDraftRoutes from "./modules/template-draft/template-draft.routes";
+import templateResponseRoutes from "./modules/template-response/template-response.routes";
+import toolRoutes from "./modules/tool/tool.routes";
+import userRoutes from "./modules/user/user.routes";
+import workRequestRoutes from "./modules/work-requests/work-requests.routes";
 
 const app = express();
 const log = createLogger("app");
 const isDev = env.NODE_ENV !== "production";
 const isTest = env.NODE_ENV === "test";
+const localFrontendOrigins = [
+	"http://localhost:3000",
+	"http://127.0.0.1:3000",
+	"http://192.168.56.1:3000",
+] as const;
 
-app.set("trust proxy", resolveTrustProxySetting(env.NODE_ENV));
+app.set("trust proxy", 1);
 
 // Request correlation ID — must be first
 app.use(requestId);
@@ -62,7 +89,6 @@ app.use((req, res, next) => {
 			path: req.originalUrl,
 			statusCode: res.statusCode,
 			durationMs: Date.now() - startedAt,
-			origin: req.get("origin"),
 		});
 	});
 
@@ -71,10 +97,13 @@ app.use((req, res, next) => {
 
 // CORS must run before Helmet.
 // If Helmet runs first, OPTIONS preflights can be blocked before CORS responds.
-const allowedOrigins = buildAllowedCorsOrigins({
-	frontendUrl: env.FRONTEND_URL,
-	nodeEnv: env.NODE_ENV,
-});
+const allowedOrigins = Array.from(
+	new Set(
+		[env.FRONTEND_URL, ...localFrontendOrigins].filter((origin): origin is string =>
+			Boolean(origin),
+		),
+	),
+);
 
 app.use(
 	cors({
@@ -137,7 +166,7 @@ const globalLimiter = rateLimit({
 	standardHeaders: true,
 	legacyHeaders: false,
 	message: { error: "Too many requests. Please try again later." },
-	keyGenerator: (req) => ipKeyGenerator(resolveRateLimitSourceIp(req.ip, req.socket.remoteAddress)),
+	keyGenerator: (req) => getClientIp(req),
 });
 
 const authLimiter = rateLimit({
@@ -146,8 +175,21 @@ const authLimiter = rateLimit({
 	standardHeaders: true,
 	legacyHeaders: false,
 	message: { error: "Too many login attempts. Please try again in 15 minutes." },
-	keyGenerator: (req) => ipKeyGenerator(resolveRateLimitSourceIp(req.ip, req.socket.remoteAddress)),
+	keyGenerator: (req) => getClientIp(req),
 });
+
+function getClientIp(req: express.Request): string {
+	const forwarded = req.headers["x-forwarded-for"];
+	if (forwarded && typeof forwarded === "string") {
+		const ips = forwarded.split(",").map((ip) => ip.trim());
+		const firstIp = ips[0];
+		if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(firstIp)) {
+			return firstIp;
+		}
+	}
+
+	return req.ip || req.socket.remoteAddress || "unknown";
+}
 
 if (!isTest) {
 	app.use(globalLimiter);
@@ -158,7 +200,6 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use((req, _res, next) => {
 	mongoSanitize.sanitize(req.body);
 	mongoSanitize.sanitize(req.params);
-	mongoSanitize.sanitize(req.query);
 	next();
 });
 
@@ -166,30 +207,59 @@ if (!isDev) {
 	app.use(compression());
 }
 
-// Routes — 13 documented API modules (DOC-10)
+// Routes — 16 documented API modules (DOC-10)
 if (isTest) {
 	app.use("/api/auth", authRoutes);
 } else {
 	app.use("/api/auth", authLimiter, authRoutes);
 }
 app.use("/api/orders", orderRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/api/orders", orderExecutionSessionRoutes);
+app.use("/api/orders", orderClosureRoutes);
+app.use("/api/orders", orderAdministrativeWorkflowRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/evidences", evidenceRoutes);
-app.use("/api/history", historyRoutes);
+app.use("/api/evidence-collections", evidenceCollectionRoutes);
+app.use("/api/execution-sessions", executionSessionRoutes);
+app.use("/api/execution-sessions", executionTechnicalReportRoutes);
+app.use("/api/execution", executionSessionRoutes);
 app.use("/api/checklists", checklistRoutes);
 app.use("/api/costs", costRoutes);
+app.use("/api/kits", kitRoutes);
 app.use("/api/maintenance", maintenanceRoutes);
 app.use("/api/documents", documentRoutes);
+app.use("/api/documents", documentImportRoutes);
+app.use("/api/documents", documentIngestionRoutes);
+app.use("/api/document-templates", documentTemplateRoutes);
+app.use("/api/template-drafts", templateDraftRoutes);
+app.use("/api/template-responses", templateResponseRoutes);
 app.use("/api/proposals", proposalRoutes);
+app.use("/api/purchase-orders", purchaseOrderRoutes);
 app.use("/api/resources", resourceRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/technical-reports", technicalReportRoutes);
+app.use("/api/tools", toolRoutes);
+app.use("/api/delivery-records", deliveryRecordRoutes);
+app.use("/api/delivery-records", deliveryRecordServiceEntrySheetRoutes);
+app.use("/api/service-entry-sheets", serviceEntrySheetRoutes);
+app.use("/api/ses", serviceEntrySheetRoutes);
+app.use("/api/service-entry-sheets", serviceEntrySheetInvoiceRoutes);
+app.use("/api/invoices", invoiceRoutes);
+app.use("/api/invoices", invoicePaymentRoutes);
+app.use("/api/payments", paymentRoutes);
 app.use("/api/audit", auditRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/inspections", inspectionRoutes);
 app.use("/api/sync", syncRoutes);
 app.use("/api/ai", aiRoutes);
-app.use("/api/alerts", alertsRoutes);
+app.use("/api/work-requests", workRequestRoutes);
+app.use("/api/assets", assetRoutes);
+app.use("/api/planning-packets", planningPacketRoutes);
+app.use("/api/site-visits", siteVisitRoutes);
+app.use("/api/observability", observabilityRoutes);
+app.use("/api/notifications", notificationsRoutes);
+app.use("/api/service-cases", serviceCaseRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 function getBackendVersion(): string {
 	try {

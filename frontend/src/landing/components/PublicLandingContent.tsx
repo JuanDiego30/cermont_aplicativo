@@ -22,6 +22,9 @@ const BLOB_CONFIG = [
 	{ attr: "two", x: -36, y: 54, scale: 1.05, duration: 30 },
 	{ attr: "three", x: 76, y: -28, scale: 1.07, duration: 20 },
 ] as const;
+const BLOB_CONFIG_BY_ATTR: ReadonlyMap<string, (typeof BLOB_CONFIG)[number]> = new Map(
+	BLOB_CONFIG.map((config) => [config.attr, config]),
+);
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -46,7 +49,7 @@ export function PublicLandingContent() {
 
 			const blobs = containerRef.current.querySelectorAll("[data-hero-blob]");
 			for (const blob of blobs) {
-				const config = BLOB_CONFIG.find((c) => c.attr === blob.getAttribute("data-hero-blob"));
+				const config = BLOB_CONFIG_BY_ATTR.get(blob.getAttribute("data-hero-blob") ?? "");
 				if (!config) {
 					continue;
 				}
@@ -106,7 +109,7 @@ export function PublicLandingContent() {
 	return (
 		<div
 			ref={containerRef}
-			className="relative isolate w-full max-w-full overflow-x-hidden bg-surface-page text-foreground"
+			className="relative isolate w-full max-w-full overflow-x-hidden bg-[var(--surface-page)] text-[var(--text-primary)]"
 		>
 			<LandingHeader />
 

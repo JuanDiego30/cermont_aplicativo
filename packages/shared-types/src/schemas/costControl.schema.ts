@@ -6,7 +6,6 @@
  */
 
 import { z } from "zod";
-import type { MongooseDocument } from "./common.schema";
 
 export const CostControlCategoryEnum = z.enum([
 	"labor",
@@ -83,20 +82,3 @@ export const CostControlSchema = z.object({
 });
 
 export type CostControl = z.infer<typeof CostControlSchema>;
-
-export interface CostControlDocument<TID = string> extends MongooseDocument<TID> {
-	orderId: TID;
-	currency: string;
-	budgetEstimated: number;
-	budgetApproved?: number;
-	actualItems: CostLineItem[];
-	actualTotal: number;
-	variance: number;
-	variancePct: number;
-	closed: boolean;
-	closedAt?: Date;
-	closedBy?: TID;
-	approvedBy?: TID;
-	notes?: string;
-	createdBy: TID;
-}

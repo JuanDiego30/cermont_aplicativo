@@ -1,0 +1,32 @@
+<svg width="540" height="1170" viewBox="0 0 540 1170" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="540" height="1170" rx="48" fill="#E2E8F0"/>
+  <rect x="24" y="24" width="492" height="1122" rx="36" fill="#F8FAFC"/>
+  <rect x="54" y="70" width="110" height="110" rx="28" fill="#0F2C59"/>
+  <path d="M92 124C92 145.539 109.461 163 131 163H157V137C157 115.461 139.539 98 118 98H92V124Z" fill="#4CAF50"/>
+  <path d="M203 122C203 100.461 185.539 83 164 83H138V109C138 130.539 155.461 148 177 148H203V122Z" fill="#3A78D8"/>
+  <text x="192" y="118" fill="#0F172A" font-size="38" font-family="Arial, sans-serif" font-weight="700">CERMONT CAMPO</text>
+  <text x="192" y="158" fill="#475569" font-size="22" font-family="Arial, sans-serif">Trabajo sin señal, sincronización segura</text>
+  <rect x="54" y="230" width="432" height="160" rx="28" fill="#0F2C59"/>
+  <text x="84" y="284" fill="#F8FAFC" font-size="20" font-family="Arial, sans-serif">ORDEN OT-24018</text>
+  <text x="84" y="322" fill="#BFDBFE" font-size="34" font-family="Arial, sans-serif" font-weight="700">Inspección en terreno</text>
+  <text x="84" y="360" fill="#E2E8F0" font-size="22" font-family="Arial, sans-serif">3 evidencias pendientes de sincronizar</text>
+  <rect x="54" y="430" width="205" height="168" rx="24" fill="#FFFFFF"/>
+  <rect x="281" y="430" width="205" height="168" rx="24" fill="#FFFFFF"/>
+  <rect x="54" y="620" width="432" height="180" rx="24" fill="#FFFFFF"/>
+  <rect x="54" y="826" width="432" height="170" rx="24" fill="#FFFFFF"/>
+  <rect x="54" y="1024" width="432" height="74" rx="22" fill="#0F2C59"/>
+  <text x="86" y="482" fill="#475569" font-size="18" font-family="Arial, sans-serif">Sincronización</text>
+  <text x="86" y="532" fill="#0F172A" font-size="42" font-family="Arial, sans-serif" font-weight="700">12</text>
+  <text x="86" y="566" fill="#4CAF50" font-size="20" font-family="Arial, sans-serif">acciones guardadas</text>
+  <text x="313" y="482" fill="#475569" font-size="18" font-family="Arial, sans-serif">Cobertura</text>
+  <text x="313" y="532" fill="#0F172A" font-size="42" font-family="Arial, sans-serif" font-weight="700">Baja</text>
+  <text x="313" y="566" fill="#3A78D8" font-size="20" font-family="Arial, sans-serif">modo offline activo</text>
+  <text x="82" y="676" fill="#0F172A" font-size="24" font-family="Arial, sans-serif" font-weight="700">Checklist operativo</text>
+  <text x="82" y="718" fill="#64748B" font-size="20" font-family="Arial, sans-serif">Equipos revisados, evidencia adjunta y cierre parcial.</text>
+  <rect x="82" y="744" width="180" height="12" rx="6" fill="#CBD5E1"/>
+  <rect x="82" y="770" width="290" height="12" rx="6" fill="#CBD5E1"/>
+  <rect x="82" y="850" width="160" height="16" rx="8" fill="#DBEAFE"/>
+  <text x="82" y="912" fill="#0F172A" font-size="24" font-family="Arial, sans-serif" font-weight="700">Borrador local</text>
+  <text x="82" y="952" fill="#64748B" font-size="20" font-family="Arial, sans-serif">Cierre administrativo protegido aunque cambie la conectividad.</text>
+  <text x="120" y="1070" fill="#F8FAFC" font-size="24" font-family="Arial, sans-serif" font-weight="700">Instalar acceso rápido de campo</text>
+</svg>

@@ -1,11 +1,13 @@
 import { writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-	buildApiContractSnapshot,
-	createSnapshotHash,
-	stringifyApiContractSnapshot,
-} from "./contractSnapshot.ts";
+
+type ContractSnapshotModule = typeof import("./contractSnapshot.ts");
+type ContractSnapshotImport = ContractSnapshotModule & { default?: ContractSnapshotModule };
+
+const importedContractSnapshot = (await import("./contractSnapshot.ts")) as ContractSnapshotImport;
+const { buildApiContractSnapshot, createSnapshotHash, stringifyApiContractSnapshot } =
+	importedContractSnapshot.default ?? importedContractSnapshot;
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

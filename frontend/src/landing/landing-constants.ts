@@ -1,8 +1,5 @@
 export const CORPORATE_NAME = "Cermont S.A.S";
 export const CORPORATE_NIT = "900.223.449-5";
-export const CORPORATE_TYPE = "Sociedad por Acciones Simplificada (S.A.S)";
-export const CORPORATE_REP_LEGAL = "Jaime Caballero Delgado";
-export const CORPORATE_WEBSITE = "www.cermont.co";
 
 export const CORPORATE_EMAIL = "Gerencia@cermont.co";
 export const CORPORATE_MAILTO = `mailto:${CORPORATE_EMAIL}`;

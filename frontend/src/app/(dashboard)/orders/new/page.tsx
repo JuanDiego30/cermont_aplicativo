@@ -1,26 +1,68 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { CreateOrderForm } from "@/orders/ui/CreateOrderForm";
+import { CreateOrderForm } from "@/modules/orders/ui/CreateOrderForm";
 
-export const dynamic = "force-dynamic";
+type NewOrderPageProps = {
+	searchParams: Promise<Record<string, string | string[]>>;
+};
 
-export default async function NewOrderPage() {
+function readParam(params: Record<string, string | string[]>, key: string): string {
+	const value = params[key];
+	return Array.isArray(value) ? (value[0] ?? "") : (value ?? "");
+}
+
+export default async function NewOrderPage({ searchParams }: NewOrderPageProps) {
+	const params = await searchParams;
+	const serviceCaseId = readParam(params, "serviceCaseId");
+	const workRequestId = readParam(params, "workRequestId");
+	const proposalId = readParam(params, "proposalId");
+	const hasContext = Boolean(serviceCaseId || workRequestId || proposalId);
+
 	return (
 		<section className="mx-auto max-w-2xl space-y-6" aria-labelledby="new-order-title">
 			<div className="flex items-center gap-3">
 				<Link
 					href="/orders"
-					className="flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700"
+					className="flex items-center gap-1 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-700"
 				>
-					<ArrowLeft aria-hidden="true" className="h-4 w-4" />
+					<ArrowLeft aria-hidden="true" className="size-4" />
 					Volver
 				</Link>
-				<h1 id="new-order-title" className="text-2xl font-bold text-slate-900 dark:text-white">
+				<h1 id="new-order-title" className="text-2xl font-semibold text-zinc-900 dark:text-white">
 					Nueva Orden de Trabajo
 				</h1>
 			</div>
 
-			<CreateOrderForm />
+			{hasContext ? (
+				<CreateOrderForm
+					proposalId={proposalId}
+					serviceCaseId={serviceCaseId}
+					workRequestId={workRequestId}
+				/>
+			) : (
+				<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-card)] p-6 shadow-[var(--shadow-card)]">
+					<h2 className="text-lg font-semibold text-[var(--text-primary)]">
+						Primero cree o seleccione un caso de servicio.
+					</h2>
+					<p className="mt-2 text-sm text-[var(--text-secondary)]">
+						La orden de trabajo debe partir de una solicitud, propuesta aprobada o cockpit del caso.
+					</p>
+					<div className="mt-5 flex flex-wrap gap-3">
+						<Link
+							href="/service-cases"
+							className="rounded-[var(--radius-md)] bg-[var(--color-brand)] px-4 py-2 text-sm font-semibold text-white"
+						>
+							Abrir cockpit
+						</Link>
+						<Link
+							href="/work-requests/new"
+							className="rounded-[var(--radius-md)] border border-[var(--border-default)] px-4 py-2 text-sm font-semibold text-[var(--text-primary)]"
+						>
+							Nueva solicitud
+						</Link>
+					</div>
+				</div>
+			)}
 		</section>
 	);
 }

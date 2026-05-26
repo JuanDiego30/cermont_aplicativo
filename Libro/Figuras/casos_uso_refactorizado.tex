@@ -1,0 +1,44 @@
+% Figura: Diagrama de Casos de Uso Refactorizado
+% Relaciona los roles RBAC con las funcionalidades centrales
+\begin{tikzpicture}[font=\tiny]
+
+% SISTEMA (Boundaries)
+\draw[thick, draw=institucionalBlue] (0,-4.5) rectangle (6,4.5);
+\node[anchor=north] at (3,4.5) {\bfseries APLICATIVO CERMONT};
+
+% CASOS DE USO
+\node[bloque, minimum height=0.6cm, minimum width=2.8cm] (uc1) at (3,3.5) {Gestionar OTs (FSM)};
+\node[bloque, minimum height=0.6cm, minimum width=2.8cm] (uc2) at (3,2.5) {Planificar Recursos};
+\node[bloque, minimum height=0.6cm, minimum width=2.8cm] (uc3) at (3,1.5) {Ejecución Offline};
+\node[bloque, minimum height=0.6cm, minimum width=2.8cm] (uc4) at (3,0.5) {Cargar Evidencias};
+\node[bloque, minimum height=0.6cm, minimum width=2.8cm] (uc5) at (3,-0.5) {Generar Reportes PDF};
+\node[bloque, minimum height=0.6cm, minimum width=2.8cm] (uc6) at (3,-1.5) {Seguimiento SES/Factura};
+\node[bloque, minimum height=0.6cm, minimum width=2.8cm] (uc7) at (3,-2.5) {Audit Log / Analytics};
+\node[bloqueCritico, minimum height=0.6cm, minimum width=2.8cm] (uc8) at (3,-3.5) {Gestión de Usuarios};
+
+% ACTORES
+\node (ger) at (-2,2.5) {GERENTE};
+\node (res) at (-2,1.0) {RESIDENTE};
+\node (tec) at (-2,-0.5) {TÉCNICO};
+\node (adm) at (-2,-2.0) {ADMINISTRADOR};
+\node (cli) at (-2,-3.5) {CLIENTE};
+
+% CONEXIONES
+\draw[draw=institucionalBlue] (ger.east) -- (uc1.west);
+\draw[draw=institucionalBlue] (ger.east) -- (uc7.west);
+\draw[draw=institucionalBlue] (ger.east) -- (uc8.west);
+
+\draw[draw=institucionalBlue] (res.east) -- (uc1.west);
+\draw[draw=institucionalBlue] (res.east) -- (uc2.west);
+\draw[draw=institucionalBlue] (res.east) -- (uc5.west);
+
+\draw[draw=institucionalBlue] (tec.east) -- (uc3.west);
+\draw[draw=institucionalBlue] (tec.east) -- (uc4.west);
+
+\draw[draw=institucionalBlue] (adm.east) -- (uc6.west);
+\draw[draw=institucionalBlue] (adm.east) -- (uc7.west);
+
+\draw[draw=institucionalBlue] (cli.east) -- (uc1.west);
+\draw[draw=institucionalBlue] (cli.east) -- (uc4.west);
+
+\end{tikzpicture}

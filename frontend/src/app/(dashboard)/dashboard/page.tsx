@@ -1,344 +1,238 @@
 "use client";
 
-import type { AnalyticsPeriod, CostSummary, MaintenanceKit } from "@cermont/shared-types";
+import type { DashboardCharts } from "@cermont/shared-types";
 import { useGSAP } from "@gsap/react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import gsap from "gsap";
-import { AlertTriangle, ChevronRight, ClipboardList, Package2 } from "lucide-react";
+import {
+	AlertTriangle,
+	Calendar,
+	CheckCircle,
+	ChevronRight,
+	ClipboardList,
+	DollarSign,
+	type LucideIcon,
+	Package2,
+	Wrench,
+} from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
-import {
-	LazyCostsByCategoryChart,
-	LazyOrdersByStatusChart,
-	LazyOrdersTimeSeriesChart,
-	LazyTechnicianWorkloadHeatmap,
-	LazyTopAssetsChart,
-} from "@/_shared/lib/utils/lazy";
-import { type AuthUser, useAuth } from "@/auth/hooks/useAuth";
+import { useRef, useSyncExternalStore } from "react";
 import { Skeleton } from "@/core/ui/Skeleton";
-import { useCostDashboard } from "@/costs/queries";
-import {
-	useDashboardFsmMetrics,
-	useDashboardKpis,
-	useDashboardTechnicianWorkload,
-	useDashboardTimeSeries,
-	useDashboardTopAssets,
-} from "@/dashboard/hooks/useDashboardKpis";
-import { AlertsPanel } from "@/dashboard/ui/AlertsPanel";
-import { ChartCard } from "@/dashboard/ui/ChartCard";
-import { DashboardFilters } from "@/dashboard/ui/DashboardFilters";
-import { DashboardKpiGrid } from "@/dashboard/ui/DashboardKpiGrid";
-import { RecentOrdersTable } from "@/dashboard/ui/RecentOrdersTable";
-import { UpcomingMaintenanceList } from "@/dashboard/ui/UpcomingMaintenanceList";
-import { useMaintenanceKits } from "@/maintenance/hooks/useMaintenanceKits";
-import { useOrders } from "@/orders/hooks/useOrders";
+import { LazyMonthlyTrendChart, LazyOrdersByStatusChart } from "@/lib/utils/lazy";
+import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
+import { useAuth } from "@/modules/auth/hooks/useAuth";
+import { useDashboardSummary } from "@/modules/dashboard/hooks/useDashboardSummary";
+import { ChartCard } from "@/modules/dashboard/ui/ChartCard";
+import { DashboardFilters } from "@/modules/dashboard/ui/DashboardFilters";
+import { KPICard } from "@/modules/dashboard/ui/KPICard";
+import { RecentOrdersTable } from "@/modules/dashboard/ui/RecentOrdersTable";
+import { ServiceCaseDashboardPanel } from "@/modules/dashboard/ui/ServiceCaseDashboardPanel";
+import { UpcomingMaintenanceList } from "@/modules/dashboard/ui/UpcomingMaintenanceList";
+import { useMaintenanceKits } from "@/modules/maintenance/hooks/useMaintenanceKits";
+import { useOrders } from "@/modules/orders/queries";
+import { useServiceCaseSummary } from "@/modules/service-cases";
 
 gsap.registerPlugin(useGSAP);
 
-const PERIOD_OPTIONS: Array<{ label: string; value: AnalyticsPeriod }> = [
-	{ label: "7d", value: "7d" },
-	{ label: "30d", value: "30d" },
-	{ label: "90d", value: "90d" },
-];
-
-interface DashboardContentProps {
-	kpis: ReturnType<typeof useDashboardKpis>["data"];
-	extendedKpis: ReturnType<typeof useDashboardFsmMetrics>["data"];
-	ordersPage: ReturnType<typeof useOrders>["data"];
-	maintenanceKits: MaintenanceKit[];
-	costSummary: CostSummary | undefined;
-	timeSeries: ReturnType<typeof useDashboardTimeSeries>["data"];
-	topAssets: ReturnType<typeof useDashboardTopAssets>["data"];
-	technicianWorkload: ReturnType<typeof useDashboardTechnicianWorkload>["data"];
-	user: AuthUser | null;
-	period: AnalyticsPeriod;
-	onPeriodChange: (period: AnalyticsPeriod) => void;
-	isChartLoading: boolean;
-}
-
-function getErrorMessage(error: Error | null): string {
-	return error?.message ?? "No se pudo cargar la información del dashboard.";
-}
-
-function DashboardContent({
-	kpis,
-	extendedKpis,
-	ordersPage,
-	maintenanceKits,
-	costSummary,
-	timeSeries,
-	topAssets,
-	technicianWorkload,
-	user,
-	period,
-	onPeriodChange,
-	isChartLoading,
-}: DashboardContentProps) {
-	const pageRef = useRef<HTMLElement>(null);
-	const [selectedStatus, setSelectedStatus] = useState("");
-
-	useGSAP(
-		() => {
-			const pageElement = pageRef.current;
-			if (!pageElement) {
-				return;
-			}
-
-			const revealTargets = pageElement.querySelectorAll("[data-dash-reveal]");
-			if (revealTargets.length === 0) {
-				return;
-			}
-
-			gsap.from(revealTargets, {
-				opacity: 0,
-				y: 18,
-				stagger: 0.07,
-				duration: 0.45,
-				ease: "power2.out",
-				clearProps: "all",
-			});
-		},
-		{ scope: pageRef, dependencies: [] },
-	);
-
-	const ordersByStatus = useMemo(
-		() =>
-			kpis?.by_stage ? Object.entries(kpis.by_stage).map(([name, value]) => ({ name, value })) : [],
-		[kpis?.by_stage],
-	);
-
-	const recentOrders = useMemo(() => {
-		const orders = ordersPage?.items ?? [];
-		return orders
-			.filter((order) => !selectedStatus || order.status === selectedStatus)
-			.slice(0, 10);
-	}, [ordersPage?.items, selectedStatus]);
-
-	const activeKitCount = maintenanceKits.filter((kit) => kit.isActive).length;
-	const kitPreview = maintenanceKits.slice(0, 5);
-	const userName = user?.name?.split(" ").slice(0, 2).join(" ") || "equipo Cermont";
-	const fallbackKpis = {
-		activeOrders: kpis?.overview.active_orders ?? 0,
-		completedOrders: kpis?.overview.completed_month_count ?? kpis?.overview.closed_orders ?? 0,
-		overdueOrders: kpis?.overview.overdue_orders ?? 0,
-		slaCompliancePct: kpis?.checklists.completion_rate_pct ?? 0,
-		avgCycleTimeDays: kpis?.lead_time.avg_lead_time_days ?? 0,
-		firstTimeFixRate: kpis?.checklists.completion_rate_pct ?? 0,
-		activeTechnicians: kpis?.overview.resource_in_use_count ?? 0,
-		unassignedOrders: Math.max(
-			(kpis?.overview.total_orders ?? 0) -
-				(kpis?.overview.active_orders ?? 0) -
-				(kpis?.overview.closed_orders ?? 0),
-			0,
-		),
-		fsmTasaCumplimiento: kpis?.checklists.completion_rate_pct ?? 0,
-		fsmTiempoPromedioCiclo: kpis?.lead_time.avg_lead_time_days ?? 0,
-		fsmFacturacionPendiente: 0,
-		fsmOrdenesRetraso: kpis?.overview.overdue_orders ?? 0,
-		fsmOrdenesActivas: kpis?.overview.active_orders ?? 0,
+interface DashboardKpiSnapshot {
+	overview: {
+		total_orders: number;
+		active_orders: number;
+		closed_orders: number;
+		overdue_orders: number;
+		maintenance_open_count: number;
+		resource_in_use_count: number;
+		completed_month_count: number;
 	};
+	financial: {
+		total_budget_approved: number;
+	};
+}
 
-	return (
-		<div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_320px] p-4 md:p-6 lg:p-8">
-			<main ref={pageRef} className="space-y-6 min-w-0">
-				<header
-					data-dash-reveal
-					className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between"
-				>
-					<div>
-						<p className="text-sm font-semibold text-(--text-secondary)">Bienvenido, {userName}</p>
-						<h1 className="mt-1 text-2xl font-bold tracking-tight text-(--text-primary)">
-							Panel de Control
-						</h1>
-						<p className="mt-1 max-w-3xl text-sm text-(--text-secondary)">
-							Pulso operativo de órdenes, SLA, técnicos, costos y activos intervenidos.
-						</p>
-					</div>
-					<div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-						<fieldset className="inline-flex rounded-lg border border-(--border-default) bg-(--surface-primary) p-1">
-							<legend className="sr-only">Rango de analítica</legend>
-							{PERIOD_OPTIONS.map((option) => (
-								<button
-									key={option.value}
-									type="button"
-									onClick={() => onPeriodChange(option.value)}
-									className={`rounded-md px-3 py-1.5 text-sm font-semibold transition-colors ${
-										period === option.value
-											? "bg-(--color-info-bg) text-(--color-brand-blue)"
-											: "text-(--text-secondary) hover:bg-(--surface-muted)"
-									}`}
-									aria-pressed={period === option.value}
-								>
-									{option.label}
-								</button>
-							))}
-						</fieldset>
-						<DashboardFilters />
-					</div>
-				</header>
+interface DashboardOrderSnapshot {
+	_id: string;
+	code: string;
+	assetName?: string;
+	status: string;
+	createdAt?: string;
+}
 
-				<div data-dash-reveal>
-					<DashboardKpiGrid data={extendedKpis} fallback={fallbackKpis} />
-				</div>
+interface StatusSummaryItem {
+	label: string;
+	value: number;
+	icon: LucideIcon;
+	color: string;
+	bg: string;
+}
 
-				<section
-					data-dash-reveal
-					aria-label="Gráficas analíticas"
-					className="grid gap-4 xl:grid-cols-2"
-				>
-					<LazyOrdersByStatusChart
-						data={ordersByStatus}
-						selectedStatus={selectedStatus}
-						onStatusSelect={setSelectedStatus}
-					/>
-					<LazyOrdersTimeSeriesChart data={timeSeries ?? []} loading={isChartLoading} />
-					<LazyCostsByCategoryChart
-						data={costSummary?.byCategory ?? []}
-						budgetTarget={costSummary?.baselineApproved}
-						loading={isChartLoading}
-					/>
-					<LazyTopAssetsChart data={topAssets ?? []} loading={isChartLoading} />
-				</section>
+type DashboardSummaryData = ReturnType<typeof useDashboardSummary>["data"];
+type ServiceCaseSummaryData = ReturnType<typeof useServiceCaseSummary>["data"];
 
-				<section data-dash-reveal aria-label="Carga de trabajo por técnico">
-					<LazyTechnicianWorkloadHeatmap data={technicianWorkload ?? []} loading={isChartLoading} />
-				</section>
+function buildOrdersByStatus(charts?: DashboardCharts | null) {
+	return charts?.ordersByStatus.map(({ label, value }) => ({ name: label, value })) ?? [];
+}
 
-				<section
-					data-dash-reveal
-					aria-label="Estación operativa"
-					className="grid gap-4 xl:grid-cols-2"
-				>
-					<article aria-labelledby="recent-orders-title">
-						<div className="flex items-center justify-between px-2 py-4">
-							<div>
-								<h2 id="recent-orders-title" className="text-xl font-bold text-(--text-primary)">
-									Órdenes recientes
-								</h2>
-								{selectedStatus ? (
-									<p className="mt-1 text-xs text-(--text-secondary)">
-										Filtradas por estado: {selectedStatus}
-									</p>
-								) : null}
-							</div>
-							<Link
-								href="/orders"
-								className="flex items-center gap-1 text-sm font-semibold text-(--color-brand-blue) hover:text-(--color-brand-blue-hover)"
-							>
-								Ver todas
-								<ChevronRight className="h-4 w-4" aria-hidden="true" />
-							</Link>
-						</div>
-						<div className="overflow-x-auto rounded-lg border border-(--border-default) bg-(--surface-primary) p-2 shadow-(--shadow-1)">
-							<RecentOrdersTable orders={recentOrders} />
-						</div>
-					</article>
+function buildRecentOrders(orders: DashboardOrderSnapshot[]) {
+	return orders.slice(0, 10).map((order) => ({
+		_id: order._id,
+		code: order.code,
+		assetName: order.assetName ?? "",
+		status: order.status,
+		createdAt: order.createdAt ?? "",
+	}));
+}
 
-					<ChartCard title="Kits típicos recientes" subtitle={`${activeKitCount} kits activos`}>
-						<UpcomingMaintenanceList kits={kitPreview} />
-					</ChartCard>
-				</section>
+function buildMonthlyTrendData(
+	charts: DashboardCharts | null | undefined,
+	orders: DashboardOrderSnapshot[],
+) {
+	if (charts?.ordersByMonth.length) {
+		return charts.ordersByMonth.map(({ month, created, completed }) => ({
+			month,
+			creadas: created,
+			completadas: completed,
+		}));
+	}
 
-				<section
-					data-dash-reveal
-					aria-label="Resumen compacto"
-					className="grid grid-cols-2 gap-4 sm:grid-cols-4"
-				>
-					{[
-						{
-							label: "Órdenes abiertas",
-							value: kpis?.overview.active_orders ?? 0,
-							icon: ClipboardList,
-							color: "text-(--color-brand-blue)",
-							bg: "bg-(--color-info-bg)",
-						},
-						{
-							label: "Con alerta",
-							value: kpis?.overview.overdue_orders ?? 0,
-							icon: AlertTriangle,
-							color: "text-(--color-danger)",
-							bg: "bg-(--color-danger-bg)",
-						},
-						{
-							label: "Kits activos",
-							value: activeKitCount,
-							icon: Package2,
-							color: "text-(--color-info)",
-							bg: "bg-(--color-info-bg)",
-						},
-						{
-							label: "Costo real",
-							value: `$${Math.round(costSummary?.totalActual ?? kpis?.financial.total_actual ?? 0).toLocaleString("es-CO")}`,
-							icon: ClipboardList,
-							color: "text-(--color-success)",
-							bg: "bg-(--color-success-bg)",
-						},
-					].map(({ label, value, icon: Icon, color, bg }) => (
-						<article
-							key={label}
-							className="flex items-center gap-3.5 rounded-lg border border-(--border-default) bg-(--surface-primary) p-4 shadow-(--shadow-1)"
-						>
-							<span
-								className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${bg}`}
-							>
-								<Icon className={`h-5 w-5 ${color}`} aria-hidden="true" />
-							</span>
-							<span>
-								<span className="block text-xl font-bold text-(--text-primary)">{value}</span>
-								<span className="block text-xs leading-tight text-(--text-secondary)">{label}</span>
-							</span>
-						</article>
-					))}
-				</section>
-			</main>
-			<aside className="hidden xl:block space-y-6" data-dash-reveal>
-				<AlertsPanel />
-			</aside>
-		</div>
+	const chartData = orders.reduce<
+		Record<string, { month: string; creadas: number; completadas: number }>
+	>((acc, order) => {
+		const key = order.createdAt
+			? new Date(order.createdAt).toLocaleDateString("es-CO", { month: "short" })
+			: "Sin fecha";
+		if (!acc[key]) {
+			acc[key] = { month: key, creadas: 0, completadas: 0 };
+		}
+		acc[key].creadas += 1;
+		if (order.status === "completed" || order.status === "closed") {
+			acc[key].completadas += 1;
+		}
+		return acc;
+	}, {});
+
+	return Object.values(chartData).slice(-6);
+}
+
+function buildStatusSummaryItems(
+	kpis: DashboardKpiSnapshot,
+	activeKitCount: number,
+): StatusSummaryItem[] {
+	return [
+		{
+			label: "Órdenes abiertas",
+			value: kpis?.overview.active_orders ?? 0,
+			icon: ClipboardList,
+			color: "text-[var(--color-brand-blue)]",
+			bg: "bg-[var(--color-info-bg)]",
+		},
+		{
+			label: "Completadas",
+			value: kpis?.overview.closed_orders ?? 0,
+			icon: CheckCircle,
+			color: "text-[var(--color-success)]",
+			bg: "bg-[var(--color-success-bg)]",
+		},
+		{
+			label: "Con alerta",
+			value: kpis?.overview.overdue_orders ?? 0,
+			icon: AlertTriangle,
+			color: "text-[var(--color-danger)]",
+			bg: "bg-[var(--color-danger-bg)]",
+		},
+		{
+			label: "Kits activos",
+			value: activeKitCount,
+			icon: Package2,
+			color: "text-[var(--color-info)]",
+			bg: "bg-[var(--color-info-bg)]",
+		},
+	];
+}
+
+function emptyDashboardKpis(): DashboardKpiSnapshot {
+	return {
+		overview: {
+			total_orders: 0,
+			active_orders: 0,
+			closed_orders: 0,
+			overdue_orders: 0,
+			maintenance_open_count: 0,
+			resource_in_use_count: 0,
+			completed_month_count: 0,
+		},
+		financial: {
+			total_budget_approved: 0,
+		},
+	};
+}
+
+function buildDashboardKpiSnapshot(
+	dashboardSummary: DashboardSummaryData,
+	serviceCaseSummary: ServiceCaseSummaryData,
+	activeKitCount: number,
+): DashboardKpiSnapshot {
+	if (!dashboardSummary) {
+		return emptyDashboardKpis();
+	}
+
+	return {
+		overview: {
+			total_orders: serviceCaseSummary?.totalCases ?? dashboardSummary.pipeline?.totalActive ?? 0,
+			active_orders: serviceCaseSummary?.activeCases ?? dashboardSummary.pipeline?.totalActive ?? 0,
+			closed_orders: dashboardSummary.pipeline?.totalClosed ?? 0,
+			overdue_orders:
+				dashboardSummary.financialAging?.totalOverdue ??
+				dashboardSummary.blockers?.criticalBlockers ??
+				0,
+			maintenance_open_count:
+				dashboardSummary.assetMaintenance?.activeMaintenance ?? activeKitCount,
+			resource_in_use_count: dashboardSummary.assetMaintenance?.totalAssets ?? 0,
+			completed_month_count:
+				serviceCaseSummary?.completedThisMonth ?? dashboardSummary.pipeline?.totalClosed ?? 0,
+		},
+		financial: {
+			total_budget_approved:
+				serviceCaseSummary?.revenue ?? dashboardSummary.costVariance?.estimatedCost ?? 0,
+		},
+	};
+}
+
+function subscribeToTodayLabel(onStoreChange: () => void): () => void {
+	const intervalId = window.setInterval(onStoreChange, 60_000);
+
+	return () => window.clearInterval(intervalId);
+}
+
+function getTodayLabelSnapshot(): string {
+	return format(new Date(), "d 'de' MMMM, yyyy", { locale: es });
+}
+
+function getServerTodayLabelSnapshot(): string {
+	return "—";
+}
+
+function useTodayLabel(): string {
+	return useSyncExternalStore(
+		subscribeToTodayLabel,
+		getTodayLabelSnapshot,
+		getServerTodayLabelSnapshot,
 	);
 }
 
 export default function DashboardPage() {
-	const searchParams = useSearchParams();
-	const [period, setPeriod] = useState<AnalyticsPeriod>("30d");
-	const dashboardFilters = {
-		startDate: searchParams.get("startDate") || "",
-		endDate: searchParams.get("endDate") || "",
-		client: searchParams.get("client") || "",
-	};
-	const normalizedFilters = {
-		startDate: dashboardFilters.startDate || undefined,
-		endDate: dashboardFilters.endDate || undefined,
-		client: dashboardFilters.client || undefined,
-	};
 	const { user } = useAuth();
 	const {
-		data: kpis,
-		isLoading: kpisLoading,
-		error: kpisError,
-	} = useDashboardKpis(normalizedFilters);
+		data: dashboardSummary,
+		isLoading: dashboardSummaryLoading,
+		error: dashboardSummaryError,
+	} = useDashboardSummary();
 	const {
-		data: extendedKpis,
-		isLoading: extendedKpisLoading,
-		error: extendedKpisError,
-	} = useDashboardFsmMetrics(period);
-	const {
-		data: timeSeries,
-		isLoading: timeSeriesLoading,
-		error: timeSeriesError,
-	} = useDashboardTimeSeries(period, normalizedFilters.client);
-	const {
-		data: topAssets,
-		isLoading: topAssetsLoading,
-		error: topAssetsError,
-	} = useDashboardTopAssets(10);
-	const {
-		data: technicianWorkload,
-		isLoading: workloadLoading,
-		error: workloadError,
-	} = useDashboardTechnicianWorkload(period === "90d" ? 21 : 14);
-	const { data: costSummary, isLoading: costLoading, error: costError } = useCostDashboard();
-	const { data: ordersPage, isLoading: ordersLoading } = useOrders({ limit: 20 });
+		data: serviceCaseSummary,
+		isLoading: serviceCaseSummaryLoading,
+		error: serviceCaseSummaryError,
+	} = useServiceCaseSummary();
+	const { data: ordersPage, isLoading: ordersLoading } = useOrders();
 	const {
 		data: maintenanceKitPage,
 		isLoading: maintenanceKitsLoading,
@@ -346,69 +240,330 @@ export default function DashboardPage() {
 	} = useMaintenanceKits({ limit: 100 });
 	const maintenanceKits = maintenanceKitPage?.items ?? [];
 
-	const isLoading = kpisLoading || ordersLoading || maintenanceKitsLoading;
-	const isChartLoading =
-		extendedKpisLoading || timeSeriesLoading || topAssetsLoading || workloadLoading || costLoading;
-	const blockingError = kpisError ?? maintenanceKitsError;
-	const chartError =
-		extendedKpisError ?? timeSeriesError ?? topAssetsError ?? workloadError ?? costError;
+	const orders = (ordersPage?.items ?? []) as DashboardOrderSnapshot[];
+	const isLoading =
+		dashboardSummaryLoading || serviceCaseSummaryLoading || ordersLoading || maintenanceKitsLoading;
+	const error = dashboardSummaryError ?? serviceCaseSummaryError ?? maintenanceKitsError;
 
-	if (isLoading) {
-		return (
-			<section className="space-y-4 p-6" aria-busy="true" aria-labelledby="dashboard-loading-title">
-				<h2 id="dashboard-loading-title" className="sr-only">
-					Cargando panel de control
-				</h2>
-				<Skeleton variant="text" className="h-18 w-full" />
-				<Skeleton variant="kpi-card" />
-				<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-					<Skeleton variant="chart" height={240} />
-					<Skeleton variant="chart" height={240} />
-				</div>
-			</section>
-		);
+	const pageRef = useRef<HTMLDivElement>(null);
+
+	function animateDashboard(scope: HTMLElement): void {
+		const header = scope.querySelector("[data-dash='header']");
+		const banner = scope.querySelector("[data-dash='banner']");
+		const kpis = scope.querySelectorAll("[data-dash='kpis']");
+		const charts = scope.querySelector("[data-dash='charts']");
+		const panels = scope.querySelectorAll("[data-dash='panel']");
+
+		if (!header && !banner && !kpis.length && !charts && !panels.length) {
+			return;
+		}
+
+		const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+		if (header) {
+			tl.from(header, { opacity: 0, y: -18, duration: 0.5 });
+		}
+		if (banner) {
+			tl.from(banner, { opacity: 0, x: 30, duration: 0.5 }, "-=0.25");
+		}
+		if (kpis.length) {
+			tl.from(kpis, { opacity: 0, y: 20, stagger: 0.07, duration: 0.45 }, "-=0.1");
+		}
+		if (charts) {
+			tl.from(charts, { opacity: 0, y: 20, duration: 0.5 }, "-=0.1");
+		}
+		if (panels.length) {
+			tl.from(panels, { opacity: 0, y: 20, stagger: 0.1, duration: 0.45 }, "-=0.1");
+		}
 	}
 
-	if (blockingError) {
-		return (
-			<section className="space-y-6 p-6" aria-labelledby="dashboard-error-title">
-				<h1 id="dashboard-error-title" className="text-3xl font-extrabold text-(--text-primary)">
-					Error en el Panel
-				</h1>
-				<aside
-					role="alert"
-					className="rounded-lg border border-(--color-danger-bg) bg-(--color-danger-bg)/60 p-6 text-sm text-(--color-danger) shadow-(--shadow-1)"
-				>
-					{getErrorMessage(blockingError)}
-				</aside>
-			</section>
-		);
+	useGSAP(
+		() => {
+			if (prefersReducedMotion() || !pageRef.current) {
+				return;
+			}
+
+			animateDashboard(pageRef.current);
+		},
+		{ scope: pageRef, dependencies: [] },
+	);
+
+	const ordersByStatus = buildOrdersByStatus(dashboardSummary?.charts);
+	const recentOrders = buildRecentOrders(orders);
+	const monthlyTrendData = buildMonthlyTrendData(dashboardSummary?.charts, orders);
+
+	const activeKitCount = maintenanceKits.filter((kit) => kit.isActive).length;
+	const kitPreview = maintenanceKits.slice(0, 5);
+
+	const today = useTodayLabel();
+	const userName = user?.name?.split(" ").slice(0, 2).join(" ") || "Usuario";
+	const resolvedKpis = buildDashboardKpiSnapshot(
+		dashboardSummary,
+		serviceCaseSummary,
+		activeKitCount,
+	);
+	const statusSummaryItems = buildStatusSummaryItems(resolvedKpis, activeKitCount);
+	const activeOrders = resolvedKpis.overview.active_orders ?? 0;
+	const closedOrders = resolvedKpis.overview.closed_orders ?? 0;
+	const overdueOrders = resolvedKpis.overview.overdue_orders ?? 0;
+	const maintenanceOpenCount = resolvedKpis.overview.maintenance_open_count ?? 0;
+	const totalBudgetApproved = resolvedKpis.financial.total_budget_approved ?? 0;
+
+	if (isLoading) {
+		return <DashboardLoadingState />;
+	}
+
+	if (error) {
+		return <DashboardErrorState message={(error as Error).message} />;
 	}
 
 	return (
-		<>
-			{chartError ? (
-				<aside
-					role="status"
-					className="mx-4 mt-4 rounded-lg border border-(--color-warning-bg) bg-(--color-warning-bg)/50 p-3 text-sm text-(--color-warning) md:mx-6 lg:mx-8"
+		<div ref={pageRef} className="space-y-6">
+			{/* Page header */}
+			<div
+				data-dash="header"
+				className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+			>
+				<div>
+					<h1 className="text-xl font-semibold text-[var(--text-primary)]">Panel de Control</h1>
+					<p className="mt-0.5 flex items-center gap-1.5 text-sm text-[var(--text-secondary)]">
+						<Calendar className="size-3.5" aria-hidden="true" />
+						{today}
+					</p>
+				</div>
+				<DashboardFilters />
+			</div>
+
+			<DashboardWelcomeBanner
+				activeKitCount={activeKitCount}
+				kpis={resolvedKpis}
+				role={user?.role || "Gerente de Mantenimiento"}
+				userName={userName}
+			/>
+
+			<ServiceCaseDashboardPanel
+				activeOrders={activeOrders}
+				closedOrders={closedOrders}
+				overdueOrders={overdueOrders}
+				maintenanceOpenCount={maintenanceOpenCount}
+				activeKitCount={activeKitCount}
+				totalBudgetApproved={totalBudgetApproved}
+				recentOrdersCount={recentOrders.length}
+			/>
+
+			{/* KPI cards , Figma style */}
+			<section data-dash="kpis" aria-label="Indicadores clave de rendimiento">
+				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+					<DashboardKpiGrid activeKitCount={activeKitCount} kpis={resolvedKpis} />
+				</div>
+			</section>
+
+			{/* Charts row */}
+			<section
+				data-dash="charts"
+				aria-label="Gráficas de tendencias"
+				className="grid gap-4 xl:grid-cols-3"
+			>
+				<div className="xl:col-span-2">
+					<ChartCard title="Tendencia Mensual" subtitle="Órdenes creadas vs completadas">
+						<LazyMonthlyTrendChart data={monthlyTrendData} />
+					</ChartCard>
+				</div>
+				<div>
+					<ChartCard title="Órdenes por Estado" subtitle="Distribución actual">
+						<LazyOrdersByStatusChart data={ordersByStatus} />
+					</ChartCard>
+				</div>
+			</section>
+
+			{/* Bottom row: Recent orders + Maintenance kits */}
+			<div className="grid gap-4 xl:grid-cols-2">
+				<section
+					data-dash="panel"
+					aria-labelledby="recent-orders-title"
+					className="col-span-12 xl:col-span-1"
 				>
-					Algunas analíticas avanzadas no están disponibles todavía. {getErrorMessage(chartError)}
-				</aside>
-			) : null}
-			<DashboardContent
-				kpis={kpis}
-				extendedKpis={extendedKpis}
-				ordersPage={ordersPage}
-				maintenanceKits={maintenanceKits}
-				costSummary={costSummary}
-				timeSeries={timeSeries}
-				topAssets={topAssets}
-				technicianWorkload={technicianWorkload}
-				user={user}
-				period={period}
-				onPeriodChange={setPeriod}
-				isChartLoading={isChartLoading}
+					<div className="flex items-center justify-between px-2 py-4">
+						<h3
+							id="recent-orders-title"
+							className="text-xl font-semibold text-[var(--text-primary)]"
+						>
+							Órdenes Recientes
+						</h3>
+						<Link
+							href="/orders"
+							className="flex items-center gap-1 text-sm font-semibold text-[var(--color-brand-blue)] hover:text-[var(--color-brand-blue-hover)]"
+						>
+							Ver todas
+							<ChevronRight className="size-4" aria-hidden="true" />
+						</Link>
+					</div>
+					<div className="overflow-x-auto rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-2 shadow-[var(--shadow-1)]">
+						<RecentOrdersTable orders={recentOrders} />
+					</div>
+				</section>
+
+				<section
+					data-dash="panel"
+					aria-labelledby="kits-title"
+					className="col-span-12 xl:col-span-1"
+				>
+					<ChartCard title="Kits Típicos Recientes">
+						<UpcomingMaintenanceList kits={kitPreview} />
+					</ChartCard>
+				</section>
+			</div>
+
+			{/* Status summary row */}
+			<DashboardStatusSummary items={statusSummaryItems} />
+		</div>
+	);
+}
+
+function DashboardLoadingState() {
+	return (
+		<div className="space-y-4 p-6">
+			<Skeleton variant="text" className="h-[72px] w-full" />
+			<Skeleton variant="kpi-card" />
+			<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+				<Skeleton variant="chart" height={240} />
+				<Skeleton variant="chart" height={240} />
+			</div>
+		</div>
+	);
+}
+
+function DashboardErrorState({ message }: { message: string }) {
+	return (
+		<section className="space-y-6" aria-labelledby="dashboard-page-title">
+			<h1 id="dashboard-page-title" className="text-3xl font-semibold text-[var(--text-primary)]">
+				Panel de Control Operativo
+			</h1>
+			<div className="rounded-[var(--radius-lg)] border border-[var(--color-danger-bg)] bg-[var(--color-danger-bg)]/60 p-6 text-sm text-[var(--color-danger)] shadow-[var(--shadow-1)]">
+				No se pudo cargar la información del dashboard. {message}
+			</div>
+		</section>
+	);
+}
+
+function DashboardWelcomeBanner({
+	activeKitCount,
+	kpis,
+	role,
+	userName,
+}: {
+	activeKitCount: number;
+	kpis: DashboardKpiSnapshot;
+	role: string;
+	userName: string;
+}) {
+	return (
+		<div
+			data-dash="banner"
+			className="rounded-[1.5rem] border border-[var(--border-default)] bg-[linear-gradient(135deg,rgba(24,226,153,0.16),rgba(43,92,168,0.08))] px-5 py-4 text-[var(--text-primary)] shadow-[var(--shadow-1)]"
+		>
+			<div className="flex items-center justify-between gap-4">
+				<div>
+					<p className="text-sm font-medium text-[var(--text-secondary)]">Bienvenido de vuelta,</p>
+					<h2 className="text-lg font-semibold text-[var(--text-primary)]">{userName}</h2>
+					<p className="mt-1 text-sm text-[var(--text-tertiary)] capitalize">{role}</p>
+				</div>
+				<div className="hidden items-center gap-4 sm:flex">
+					<DashboardWelcomeMetric
+						label="Órdenes activas"
+						value={kpis.overview.active_orders ?? 0}
+					/>
+					<div className="h-10 w-px bg-[var(--border-default)]" />
+					<DashboardWelcomeMetric
+						label="Mant. abiertos"
+						value={kpis.overview.maintenance_open_count ?? activeKitCount}
+					/>
+					<div className="h-10 w-px bg-[var(--border-default)]" />
+					<DashboardWelcomeMetric
+						label="Completados (mes)"
+						value={kpis.overview.completed_month_count ?? 0}
+					/>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function DashboardWelcomeMetric({ label, value }: { label: string; value: number }) {
+	return (
+		<div className="text-right">
+			<p className="text-2xl font-semibold text-[var(--text-primary)]">{value}</p>
+			<p className="text-xs text-[var(--text-tertiary)]">{label}</p>
+		</div>
+	);
+}
+
+function DashboardKpiGrid({
+	activeKitCount,
+	kpis,
+}: {
+	activeKitCount: number;
+	kpis: DashboardKpiSnapshot;
+}) {
+	return (
+		<>
+			<KPICard
+				title="Órdenes Activas"
+				value={kpis.overview.active_orders ?? 0}
+				icon={ClipboardList}
+				trend={{ value: 12, isPositive: true }}
+				description={`${kpis.overview.total_orders ?? 0} órdenes en total`}
+				color="blue"
+			/>
+			<KPICard
+				title="Mantenimientos Abiertos"
+				value={kpis.overview.maintenance_open_count ?? activeKitCount}
+				icon={Wrench}
+				trend={{ value: 4, isPositive: false }}
+				description="Mantenimientos preventivos/correctivos"
+				color="amber"
+			/>
+			<KPICard
+				title="Recursos en Uso"
+				value={kpis.overview.resource_in_use_count ?? 0}
+				icon={Package2}
+				trend={{ value: 8, isPositive: true }}
+				description="Recursos asignados a órdenes"
+				color="indigo"
+			/>
+			<KPICard
+				title="Ingresos del Mes"
+				value={kpis.financial.total_budget_approved ?? 0}
+				format="currency"
+				icon={DollarSign}
+				trend={{ value: 5, isPositive: true }}
+				description="Presupuesto aprobado"
+				color="green"
 			/>
 		</>
+	);
+}
+
+function DashboardStatusSummary({ items }: { items: StatusSummaryItem[] }) {
+	return (
+		<section aria-label="Resumen de estados" className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+			{items.map(({ label, value, icon: Icon, color, bg }) => (
+				<div
+					key={label}
+					data-dash="panel"
+					className="flex items-center gap-3.5 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]"
+				>
+					<div
+						className={`flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-lg)] ${bg}`}
+					>
+						<Icon className={`size-5 ${color}`} aria-hidden="true" />
+					</div>
+					<div>
+						<p className="text-xl font-semibold text-[var(--text-primary)]">{value}</p>
+						<p className="text-xs leading-tight text-[var(--text-secondary)]">{label}</p>
+					</div>
+				</div>
+			))}
+		</section>
 	);
 }

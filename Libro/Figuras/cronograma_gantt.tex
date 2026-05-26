@@ -1,0 +1,28 @@
+% Figura corregida: cronograma tipo Gantt.
+\begin{figure}[H]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[font=\sffamily]
+\tikzset{bar/.style={rectangle, rounded corners=2pt, draw=institucionalBlue, fill=institucionalGrey, line width=0.6pt}, mile/.style={diamond, draw=institucionalRed, fill=institucionalRed, inner sep=1.8pt}, axis/.style={line width=0.7pt, draw=institucionalBlue}, lab/.style={font=\tiny, align=left}}
+\def\w{0.72}
+\foreach \m/\name in {0/Sep,1/Oct,2/Nov,3/Dic,4/Ene,5/Feb,6/Mar,7/Abr}{
+    \node[font=\scriptsize\bfseries, text=institucionalBlue] at ({(\m*4+2)*\w},0.45) {\name};
+    \draw[institucionalGrey] ({\m*4*\w},0.15) -- ({\m*4*\w},-6.2);
+}
+\draw[institucionalGrey] ({32*\w},0.15) -- ({32*\w},-6.2);
+\draw[axis, -{Stealth[length=2.2mm]}] (0,0) -- ({32.6*\w},0);
+\foreach \y/\txt in {-0.70/Fase 1\\Diagnóstico,-1.45/Fase 2\\Diseño,-2.20/Fase 3\\Desarrollo I,-2.95/Fase 4\\Desarrollo II,-3.70/Fase 5\\Pruebas,-4.45/Fase 6\\Validación,-5.20/Fase 7\\Documento final}{\node[lab, anchor=east] at (-0.2,\y) {\txt};}
+\draw[bar] (0*\w,-0.92) rectangle (4*\w,-0.52);
+\draw[bar] (4*\w,-1.67) rectangle (8*\w,-1.27);
+\draw[bar] (8*\w,-2.42) rectangle (16*\w,-2.02);
+\draw[bar] (12*\w,-3.17) rectangle (20*\w,-2.77);
+\draw[bar] (20*\w,-3.92) rectangle (24*\w,-3.52);
+\draw[bar] (22*\w,-4.67) rectangle (26*\w,-4.27);
+\draw[bar] (24*\w,-5.42) rectangle (32*\w,-5.02);
+\foreach \x/\y in {8/-1.45,20/-2.95,24/-3.70,26/-4.45,32/-5.20}{\node[mile] at ({\x*\w},\y) {};}
+\node[figNote, text width=10.0cm] at ({16*\w},-6.45) {Cronograma académico referencial. Ajustar fechas exactas con el acta, cronograma aprobado o plan de práctica empresarial.};
+\end{tikzpicture}%
+}
+\caption[Cronograma tipo Gantt]{Cronograma tipo Gantt de las fases del proyecto: diagnóstico, diseño, desarrollo, pruebas, validación y documentación final. Fuente: Elaboración propia.}
+\label{fig:gantt-proyecto}
+\end{figure}

@@ -3,14 +3,14 @@
 //
 // Flow:
 // 1. Client sends credentials to this handler (POST /api/auth/login)
-// 2. Handler forwards to backend (http://127.0.0.1:5000/api/auth/login)
+// 2. Handler forwards to backend (http://localhost:4000/api/auth/login)
 // 3. Handler receives accessToken + refreshToken from backend
 // 4. Handler sets refreshToken in httpOnly cookie (cannot be accessed by JavaScript)
 // 5. Handler returns accessToken to client (for memory storage)
 //
 // Reference: DOC-04 Section Middleware Strategy
 
-import { env, isProduction } from "@cermont/shared-types/config";
+import { env, isProduction } from "@cermont/config";
 import { type NextRequest, NextResponse } from "next/server";
 
 /**
@@ -50,9 +50,9 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Call backend login endpoint
-		// Backend runs on port 5000 (see apps/backend/.env PORT=5000)
+		// Backend runs on port 4000 (see apps/backend/package.json scripts)
 		const backendUrl =
-			env.BACKEND_URL?.trim() || (isProduction() ? "http://backend:4000" : "http://127.0.0.1:5000");
+			env.BACKEND_URL?.trim() || (isProduction() ? "http://backend:4000" : "http://localhost:4000");
 		const response = await fetch(`${backendUrl}/api/auth/login`, {
 			method: "POST",
 			headers: {

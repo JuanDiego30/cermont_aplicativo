@@ -1,79 +1,79 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { dequeue, enqueue, getAll, markDeadLetter } from "@/lib/offline/sync-queue";
 
-type SyncQueueModule = typeof import("@/_shared/lib/offline/sync-queue");
+const baseEntry = {
+	id: "11111111-1111-4111-8111-111111111111",
+	endpoint: "/checklists",
+	method: "POST" as const,
+	payload: { orderId: "order-1" },
+	createdAt: 1_700_000_000_000,
+	retryCount: 0,
+	idempotencyKey: "22222222-2222-4222-8222-222222222222",
+};
 
-const originalIndexedDb = globalThis.indexedDB;
-
-function buildEntry(
-	overrides: Partial<Awaited<ReturnType<SyncQueueModule["getAll"]>>[number]> = {},
-) {
-	return {
-		id: "entry-1",
-		endpoint: "/checklists",
-		method: "POST" as const,
-		payload: { checklistId: "cl-1" },
-		createdAt: Date.now(),
-		retryCount: 0,
-		idempotencyKey: "idem-1",
-		...overrides,
-	};
-}
-
-async function loadQueueModule(): Promise<SyncQueueModule> {
-	vi.resetModules();
-	return await import("@/_shared/lib/offline/sync-queue");
-}
-
-describe("sync queue fallback storage", () => {
+describe("sync-queue", () => {
 	beforeEach(() => {
-		Object.defineProperty(globalThis, "indexedDB", {
-			configurable: true,
-			value: undefined,
-		});
 		window.localStorage.clear();
 	});
 
 	afterEach(() => {
-		Object.defineProperty(globalThis, "indexedDB", {
-			configurable: true,
-			value: originalIndexedDb,
+		window.localStorage.clear();
+	});
+
+	it("persists entries and returns them sorted", async () => {
+		await enqueue(baseEntry);
+		await enqueue({
+			...baseEntry,
+			id: "33333333-3333-4333-8333-333333333333",
+			createdAt: 1_700_000_000_100,
+			idempotencyKey: "44444444-4444-4444-8444-444444444444",
+			endpoint: "/evidences",
+			payload: { orderId: "order-2", type: "before" },
 		});
-		vi.restoreAllMocks();
+
+		const entries = await getAll();
+
+		expect(entries).toHaveLength(2);
+		expect(entries[0].id).toBe(baseEntry.id);
+		expect(entries[1].endpoint).toBe("/evidences");
 	});
 
-	it("uses in-memory storage when IndexedDB is unavailable", async () => {
-		const localStorageGetSpy = vi.spyOn(Storage.prototype, "getItem");
-		const localStorageSetSpy = vi.spyOn(Storage.prototype, "setItem");
-		const syncQueue = await loadQueueModule();
+	it("dequeues entries by id", async () => {
+		await enqueue(baseEntry);
 
-		await syncQueue.enqueue(buildEntry());
-		const entries = await syncQueue.getAll();
+		await dequeue(baseEntry.id);
 
-		expect(entries).toHaveLength(1);
-		expect(entries[0]?.id).toBe("entry-1");
-		expect(localStorageGetSpy).not.toHaveBeenCalled();
-		expect(localStorageSetSpy).not.toHaveBeenCalled();
+		await expect(getAll()).resolves.toEqual([]);
 	});
 
-	it("deduplicates entries in volatile fallback storage", async () => {
-		const syncQueue = await loadQueueModule();
+	it("marks entries as dead letters without removing them", async () => {
+		await enqueue(baseEntry);
 
-		await syncQueue.enqueue(
-			buildEntry({
-				id: "entry-1",
-				dedupeKey: "checklist:cl-1",
-			}),
-		);
-		await syncQueue.enqueue(
-			buildEntry({
-				id: "entry-2",
-				dedupeKey: "checklist:cl-1",
-			}),
-		);
+		await markDeadLetter(baseEntry.id);
 
-		const entries = await syncQueue.getAll();
+		const entries = await getAll();
 
 		expect(entries).toHaveLength(1);
-		expect(entries[0]?.id).toBe("entry-1");
+		expect(entries[0].status).toBe("dead_letter");
+		expect(entries[0].id).toBe(baseEntry.id);
+	});
+
+	it("avoids duplicate entries when the dedupe key matches", async () => {
+		await enqueue({
+			...baseEntry,
+			dedupeKey: "checklists:order-1",
+		});
+
+		await enqueue({
+			...baseEntry,
+			id: "55555555-5555-4555-8555-555555555555",
+			idempotencyKey: "66666666-6666-4666-8666-666666666666",
+			dedupeKey: "checklists:order-1",
+		});
+
+		const entries = await getAll();
+
+		expect(entries).toHaveLength(1);
+		expect(entries[0].id).toBe(baseEntry.id);
 	});
 });

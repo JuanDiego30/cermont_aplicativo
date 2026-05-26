@@ -1,7 +1,19 @@
 import { z } from "zod";
-import { normalizeOptionalStringQueryValue, normalizeQueryValue } from "../utils";
-import { type MongooseDocument, ObjectIdSchema } from "./common.schema";
+import { ObjectIdSchema } from "./common.schema";
 import { OrderPrioritySchema, OrderTypeSchema } from "./order.schema";
+
+const normalizeQueryValue = (value: unknown): unknown => (Array.isArray(value) ? value[0] : value);
+
+const normalizeOptionalStringQueryValue = (value: unknown): unknown => {
+	const normalized = normalizeQueryValue(value);
+
+	if (typeof normalized !== "string") {
+		return normalized;
+	}
+
+	const trimmed = normalized.trim();
+	return trimmed.length > 0 ? trimmed : undefined;
+};
 
 export const ProposalStatusSchema = z.enum(["draft", "sent", "approved", "rejected", "expired"]);
 export type ProposalStatus = z.infer<typeof ProposalStatusSchema>;
@@ -37,7 +49,6 @@ export const ProposalOutputDtoSchema = z
 		taxRate: z.number().min(0).max(1).default(0.19),
 		total: z.number().nonnegative(),
 		notes: z.string().max(2000).optional(),
-		poNumber: z.string().trim().optional(),
 		createdBy: ObjectIdSchema,
 		approvedBy: ObjectIdSchema.optional(),
 		approvedAt: z.string().datetime().optional(),
@@ -80,9 +91,6 @@ export const ApproveProposalSchema = z
 
 export type ApproveProposalInput = z.infer<typeof ApproveProposalSchema>;
 
-export const RejectProposalSchema = z.object({}).strict();
-export type RejectProposalInput = z.infer<typeof RejectProposalSchema>;
-
 export const ProposalIdSchema = z
 	.object({
 		id: ObjectIdSchema,
@@ -123,25 +131,13 @@ export const ConvertProposalToOrderSchema = z
 
 export type ConvertProposalToOrderInput = z.infer<typeof ConvertProposalToOrderSchema>;
 
-/**
- * Mongoose Document representation for Proposal.
- * Used for type safety in backend services and repositories.
- */
-export interface ProposalDocument<TID = string> extends MongooseDocument<TID> {
-	code: string;
-	title: string;
-	clientName: string;
-	clientEmail?: string;
-	status: ProposalStatus;
-	validUntil: Date;
-	items: ProposalItem[];
-	subtotal: number;
-	taxRate: number;
-	total: number;
-	notes?: string;
-	poNumber?: string;
-	createdBy: TID;
-	approvedBy?: TID;
-	approvedAt?: Date;
-	generatedOrders: TID[];
-}
+export const CreateProposalInputSchema = z
+	.object({
+		cliente: z.string().min(1, "El cliente es requerido"),
+		descripcion: z.string().min(10, "La descripción debe tener al menos 10 caracteres"),
+		valorEstimado: z.number().min(1, "El valor estimado debe ser mayor a 0"),
+		orderId: z.string().optional(),
+	})
+	.strict();
+
+export type CreateProposalFormInput = z.infer<typeof CreateProposalInputSchema>;

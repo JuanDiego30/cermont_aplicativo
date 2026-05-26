@@ -1,0 +1,51 @@
+% Figura corregida: swimlane del proceso operativo.
+\begin{figure}[H]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[font=\sffamily]
+\tikzset{
+  lane/.style={rectangle, draw=institucionalBlue, fill=white, minimum width=3.55cm, minimum height=10.2cm},
+  header/.style={figHeader, minimum width=3.55cm, minimum height=0.42cm},
+  act/.style={figBoxWhite, minimum width=2.45cm, minimum height=0.56cm, font=\tiny, text width=2.30cm},
+  fail/.style={figCritical, minimum width=2.45cm, minimum height=0.56cm, font=\tiny, text width=2.30cm},
+  dec/.style={diamond, draw=institucionalRed, fill=white, aspect=1.65, minimum width=1.15cm, align=center, font=\tiny}
+}
+\foreach \x in {0,4,8,12}{\node[lane] at (\x,0) {};}
+\node[header] at (0,5.15) {CLIENTE};
+\node[header] at (4,5.15) {SUPERVISOR / ADMIN.};
+\node[header] at (8,5.15) {TÉCNICO DE CAMPO};
+\node[header] at (12,5.15) {APLICATIVO WEB};
+\node[act] (sol) at (0,4.15) {Solicita servicio};
+\node[act] (reg) at (4,4.15) {Registra solicitud};
+\node[act] (vis) at (4,3.15) {Visita técnica};
+\node[act] (prop) at (4,2.15) {Propuesta y PO};
+\node[fail] (plan) at (4,1.05) {Planeación\\de recursos};
+\node[act] (asig) at (4,-0.05) {Asigna responsables};
+\node[fail] (ejec) at (8,-0.05) {Ejecución y evidencias};
+\node[act] (off) at (12,-0.05) {Captura online/offline};
+\node[act] (sync) at (12,-1.15) {Sincronización};
+\node[fail] (inf) at (4,-2.25) {Informe y acta};
+\node[dec] (ok) at (0,-2.25) {¿OK?};
+\node[fail] (cierre) at (4,-3.65) {SES, factura y pago};
+\node[act] (dash) at (12,-3.65) {Dashboard y auditoría};
+\node[act] (pago) at (0,-3.65) {Confirma pago};
+\draw[figArrow] (sol) -- (reg);
+\draw[figArrow] (reg) -- (vis);
+\draw[figArrow] (vis) -- (prop);
+\draw[figArrow] (prop) -- (plan);
+\draw[figArrow] (plan) -- (asig);
+\draw[figArrow] (asig) -- (ejec);
+\draw[figArrow] (ejec) -- (off);
+\draw[figArrow] (off) -- (sync);
+\draw[figArrow] (sync) |- (inf);
+\draw[figArrow] (inf) -- (ok);
+\draw[figArrow] (ok) -- node[above, font=\tiny] {firma} (cierre);
+\draw[figArrow] (cierre) -- (pago);
+\draw[figArrow] (cierre) -- (dash);
+\draw[figArrowCritical, dashed] (ok.north) |- node[above, font=\tiny] {ajustes} (inf.west);
+\node[figNote, text width=10.4cm] at (6,-5.05) {Los bloques en rojo corresponden a las cuatro fases críticas identificadas: planeación, ejecución, consolidación documental y cierre administrativo.};
+\end{tikzpicture}%
+}
+\caption[Swimlane del proceso operativo]{Diagrama swimlane del proceso de gestión de órdenes de trabajo, diferenciando responsabilidades del cliente, supervisor, técnico y aplicativo web. Fuente: Elaboración propia.}
+\label{fig:swimlane-proceso}
+\end{figure}

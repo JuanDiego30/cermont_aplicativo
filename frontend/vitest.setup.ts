@@ -1,7 +1,6 @@
 import { vi } from "vitest";
-import "@testing-library/jest-dom";
 
-vi.stubEnv("BACKEND_URL", "http://127.0.0.1:5000");
+vi.stubEnv("NEXT_PUBLIC_API_URL", "http://localhost:3000/api/proxy");
 
 // Default: return null (no session) - tests requiring session must override
 vi.mock("@/lib/auth/session", () => ({

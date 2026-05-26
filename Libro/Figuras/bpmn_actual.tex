@@ -1,0 +1,12 @@
+\begin{tikzpicture}[node distance=1.1cm, every node/.style={font=\scriptsize}, box/.style={draw, rounded corners, align=center, minimum width=2.1cm, minimum height=0.75cm, fill=gray!10}, warn/.style={draw=red!60, fill=red!8, rounded corners, align=center, font=\tiny}]
+\node[box] (s) {Solicitud};
+\node[box, right=of s] (p) {Planeación\\en papel};
+\node[box, right=of p] (e) {Ejecución\\en campo};
+\node[box, right=of e] (f) {Evidencias\\dispersas};
+\node[box, right=of f] (i) {Informe\\manual};
+\node[box, right=of i] (c) {Cierre\\administrativo};
+\draw[-{Latex[length=2mm]}] (s)--(p); \draw[-{Latex[length=2mm]}] (p)--(e); \draw[-{Latex[length=2mm]}] (e)--(f); \draw[-{Latex[length=2mm]}] (f)--(i); \draw[-{Latex[length=2mm]}] (i)--(c);
+\node[warn, below=0.6cm of p] {Riesgo de omitir herramientas, EPP o certificados};
+\node[warn, below=0.6cm of f] {Fotos y soportes sin vínculo único a la orden};
+\node[warn, below=0.6cm of c] {Retrasos en SES, facturación y pago};
+\end{tikzpicture}

@@ -18,7 +18,7 @@ export function EvidenceTableRow({ evidence }: EvidenceTableRowProps) {
 	const stage = normalizeEvidenceStage(evidence.type);
 
 	return (
-		<tr className="hover:bg-slate-50">
+		<tr className="hover:bg-zinc-50">
 			<th scope="row" className="px-4 py-3 text-left">
 				<span
 					className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${getEvidenceStyle(stage)}`}
@@ -28,21 +28,21 @@ export function EvidenceTableRow({ evidence }: EvidenceTableRowProps) {
 			</th>
 
 			<td className="px-4 py-3">
-				<p className="max-w-xs truncate font-medium text-slate-900">{fileName}</p>
+				<p className="max-w-xs truncate font-medium text-zinc-900">{fileName}</p>
 				{evidence.description ? (
-					<p className="max-w-xs truncate text-xs text-slate-500">{evidence.description}</p>
+					<p className="max-w-xs truncate text-xs text-zinc-500">{evidence.description}</p>
 				) : null}
-				<p className="max-w-xs truncate text-xs text-slate-500">{evidence.url}</p>
+				<p className="max-w-xs truncate text-xs text-zinc-500">{evidence.url}</p>
 			</td>
 
-			<td className="px-4 py-3 text-slate-700">
+			<td className="px-4 py-3 text-zinc-700">
 				<div>
-					<p className="font-mono text-xs font-medium text-slate-900">{evidence.orderId}</p>
-					<p className="text-xs text-slate-500">Associated order</p>
+					<p className="font-mono text-xs font-medium text-zinc-900">{evidence.orderId}</p>
+					<p className="text-xs text-zinc-500">Orden asociada</p>
 				</div>
 			</td>
 
-			<td className="px-4 py-3 text-slate-700">
+			<td className="px-4 py-3 text-zinc-700">
 				<time dateTime={evidence.capturedAt}>{formatEvidenceDate(evidence.capturedAt)}</time>
 			</td>
 
@@ -53,14 +53,14 @@ export function EvidenceTableRow({ evidence }: EvidenceTableRowProps) {
 							href={evidence.url}
 							target="_blank"
 							rel="noreferrer"
-							aria-label={`View file ${fileName}`}
+							aria-label={`Ver archivo ${fileName}`}
 						>
-							View file
+							Ver archivo
 						</a>
 					</Button>
 
 					<Button asChild variant="ghost" size="sm">
-						<Link href={`/orders/${evidence.orderId}`}>View order</Link>
+						<Link href={`/orders/${evidence.orderId}`}>Ver orden</Link>
 					</Button>
 				</div>
 			</td>

@@ -14,15 +14,15 @@ const LEGACY_STAGE_TO_TYPE: Record<string, EvidenceType> = {
 };
 
 export const EVIDENCE_LABELS: Record<EvidenceType, string> = {
-	before: "Before",
-	during: "During",
-	after: "After",
-	defect: "Defect",
-	safety: "HSE safety",
-	signature: "Signature",
+	before: "Antes",
+	during: "Durante",
+	after: "Después",
+	defect: "Defecto",
+	safety: "Seguridad",
+	signature: "Firma",
 };
 
-export const EVIDENCE_STYLES: Record<EvidenceType, string> = {
+const EVIDENCE_STYLES: Record<EvidenceType, string> = {
 	before: "bg-slate-100 text-slate-700 ring-slate-200",
 	during: "bg-blue-50 text-blue-700 ring-blue-200",
 	after: "bg-emerald-50 text-emerald-700 ring-emerald-200",
@@ -67,7 +67,7 @@ export function normalizeEvidenceStage(raw: string): string {
 
 export function formatEvidenceDate(date: string | Date) {
 	const d = typeof date === "string" ? new Date(date) : date;
-	return new Intl.DateTimeFormat("en-US", {
+	return new Intl.DateTimeFormat("es-CO", {
 		dateStyle: "medium",
 		timeStyle: "short",
 	}).format(d);

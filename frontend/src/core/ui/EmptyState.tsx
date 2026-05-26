@@ -8,7 +8,7 @@ import {
 	Wrench,
 } from "lucide-react";
 import type { ComponentType } from "react";
-import { Button } from "@/core/ui/Button";
+import { Button } from "./Button";
 
 interface EmptyStateProps {
 	title: string;
@@ -44,9 +44,9 @@ export function EmptyState({ title, description, icon = "generic", action }: Emp
 	const Icon = typeof icon === "string" ? ICON_MAP[icon] : icon;
 
 	return (
-		<div className="flex flex-col items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-6 py-12 text-center shadow-[var(--shadow-1)]">
-			<div className="flex h-16 w-16 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--surface-secondary)] text-[var(--text-tertiary)]">
-				<Icon className="h-8 w-8" aria-hidden="true" />
+		<div className="flex flex-col items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-6 py-12 text-center shadow-card">
+			<div className="flex size-16 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--surface-secondary)] text-[var(--text-tertiary)]">
+				<Icon className="size-8" aria-hidden="true" />
 			</div>
 			<h3 className="mt-4 text-base font-semibold text-[var(--text-primary)]">{title}</h3>
 			{description && (

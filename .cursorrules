@@ -1,0 +1,145 @@
+# CERMONT S.A.S. — Sistema de Gestión Operativa Offline-First
+# Arquitecto de Software Senior + Desarrollador Full-Stack
+
+## IDENTIDAD DEL PROYECTO
+Estás construyendo una aplicación web offline-first para CERMONT S.A.S., empresa contratista del sector petrolero en Arauca (Campo Caño Limón, Colombia). El sistema digitaliza el ciclo completo de órdenes de trabajo: planeación → ejecución en campo → cierre administrativo.
+
+## STACK TECNOLÓGICO ESTRICTO (sin excepciones)
+- Monorepo:  npm 10.9.4 workspaces + Turborepo
+- Backend:   Express.js 5.2.1, Node 22, MongoDB 7.0 + Mongoose 9.x, Zod 4.x, TypeScript 5.9
+- Frontend:  Next.js 16.2.1 (App Router), React 19, TanStack Query v5, Zustand 5, Tailwind CSS 4, Radix UI, Serwist (PWA)
+- Contratos: @cermont/shared-types (Zod 4.x schemas), @cermont/domain (RBAC roles)
+- Testing:   Vitest 4.x (unit + integration), Playwright 1.58+ (E2E)
+- CI/CD:     GitHub Actions, Docker multi-stage (Alpine), npm 10.9.4
+
+## ⛔ PROHIBIDO usar (cada violación invalida el trabajo)
+- ❌ Prisma / PostgreSQL / Sequelize (usar Mongoose 9.x + MongoDB)
+- ❌ Joi (usar Zod 4.x para TODA validación, backend y frontend)
+- ❌ NestJS (usar Express 5.2.1)
+- ❌ NextAuth / Auth.js (usar JWT directo con Zustand auth store)
+- ❌ pnpm / yarn (usar npm exclusivamente)
+- ❌ express-async-handler (Express 5 propaga async automáticamente)
+- ❌ try/catch en controladores (Express 5 lo maneja)
+- ❌ useEffect para data fetching (usar TanStack Query)
+- ❌ Context API para estado global (usar Zustand)
+- ❌ Axios (usar fetch con apiRequest wrapper)
+
+## ⚠️ REGLAS DE ORO — Backend
+1. CERO try/catch en controladores. Express 5 propaga promesas rechazadas al error handler global automáticamente.
+2. Los controladores solo orquestan: reciben request → llaman al service → devuelven response. Nunca tocan Mongoose directamente.
+3. Los services contienen toda la lógica de negocio. Nunca importan req, res, next de Express.
+4. Todos los inputs de API se validan con Zod (middleware validateBody/validateQuery) ANTES del controlador.
+5. Errores de negocio: `throw new AppError(code, status, message)`.
+6. Respuesta API estándar: `{ success: boolean, data?: T, error?: { code, message } }`.
+7. MongoDB conexión siempre con `family: 4` (IPv4 forzado).
+
+## ⚠️ REGLAS DE ORO — Frontend
+8. El frontend NUNCA importa Mongoose, MongoDB ni accede a la BD directamente.
+9. TODO el data fetching usa TanStack Query (useQuery / useMutation). CERO useEffect para fetching.
+10. Mutaciones siempre muestran toast de Sonner al fallar.
+11. Formularios: react-hook-form + @hookform/resolvers/zod. CERO useState por campo.
+12. Componentes interactivos complejos (Modal, Select, Dropdown, Tabs) usan Radix UI.
+13. Estado global: solo Zustand. CERO Context API para estado compartido.
+14. CERO fetch desnudo. Todo HTTP usa `apiRequest()` de `@/services/api-client`.
+
+## ⚠️ REGLAS DE ORO — HTML Semántico
+15. CERO <div> como contenedores semánticos. Usar: <main>, <section>, <article>, <aside>, <nav>, <header>, <footer>, <ul>/<li>, <button>.
+16. Cada página tiene exactamente un <h1>.
+17. Formularios tienen <label htmlFor="id"> asociado a cada input.
+18. Botones son siempre <button>, nunca <div onClick>.
+19. Modales: role="dialog" + aria-labelledby (automático con Radix UI).
+
+## ⚠️ REGLAS DE ORO — Composición y SOLID
+20. CERO herencia de clases en React. Solo composición con children.
+21. Componente > 200 líneas = God Component → dividir.
+22. Servicio > 300 líneas → dividir (SRP).
+23. YAGNI offline: solo sincronizar órdenes asignadas al técnico actual.
+
+## ⚠️ REGLAS DE ORO — Mobile First
+24. Breakpoints ascendentes: base (mobile) → sm: → md: → lg: → xl:
+25. Touch targets mínimo 44px (técnicos con guantes en campo).
+
+## DOCUMENTACIÓN BASE
+Lectura obligatoria en `docs/Intrucciones_para_crear_app_web/`:
+- DOC-01: Visión General y Stack
+- DOC-02: Estructura de Carpetas y Patrones
+- DOC-03: Backend — Express 5, Mongoose, Zod
+- DOC-04: Seguridad, Autenticación JWT y RBAC
+- DOC-05: Frontend — Next.js 16, TanStack Query, Zustand
+- DOC-06: Arquitectura Offline-First (PWA + IndexedDB)
+- DOC-07: Módulos de Negocio
+- DOC-08: Despliegue y DevOps
+- DOC-09: Diccionario de Datos (Zod Schemas + Mongoose Models)
+- DOC-10: Contratos de API REST
+- DOC-11: Plan de Ejecución y Reglas del Agente
+
+## ESTRUCTURA DE CARPETAS
+```
+apps/
+├── backend/src/
+│   ├── controllers/    ← Solo HTTP: req → service → res
+│   ├── services/       ← Lógica de negocio pura (sin req/res/next)
+│   ├── models/         ← Mongoose 9.x schemas
+│   ├── middlewares/    ← authenticate, authorize, validateBody, upload
+│   ├── routes/         ← Mapeo URL + middlewares → controller
+│   ├── common/
+│   │   ├── errors/     ← AppError.ts, error-handler.ts
+│   │   └── middlewares/← request-id, response interceptor
+│   └── config/         ← db.ts, validate-env.ts, rate-limit.config.ts
+├── frontend/
+│   ├── app/            ← Next.js 16 App Router
+│   │   ├── (auth)/     ← login, register, forgot-password
+│   │   └── (dashboard)/← dashboard, orders, proposals, costs...
+│   └── src/
+│       ├── lib/http/   ← api-client, proxy, cookie-provider, server-auth
+│       └── modules/    ← Feature-Sliced Design: orders/, dashboard/...
+packages/
+├── shared-types/src/schemas/ ← Zod 4.x (Single Source of Truth)
+├── domain/src/               ← Roles RBAC, permisos
+└── config/src/               ← Env vars validadas
+```
+
+## ROLES RBAC (8 exactos)
+gerente | residente | HES | supervisor | operador | tecnico | administrativo | cliente
+
+## ORDER STATE MACHINE
+```
+open → assigned → in_progress → on_hold → completed → closed
+Excepciones: cancelled (desde open, assigned, on_hold)
+Transiciones válidas:
+  open:        [assigned, cancelled]
+  assigned:    [in_progress, on_hold, cancelled]
+  in_progress: [on_hold, completed]
+  on_hold:     [in_progress, cancelled]
+  completed:   [closed]
+  closed:      []
+  cancelled:   []
+```
+
+## FLUJO DE TRABAJO
+1. Leer docs relevantes de la tarea.
+2. Proponer archivos a crear/modificar.
+3. Esperar confirmación del usuario.
+4. Implementar, ejecutar `npm run typecheck`.
+5. Confirmar paso del DOC-11 completado.
+
+## COMANDOS DEL MONOREPO
+```bash
+npm run dev                           # Backend + Frontend en paralelo
+npm run typecheck                     # Tipos en todos los workspaces
+npm run lint                          # Lint con 0 warnings
+npm run test                          # Tests unitarios
+npm run build                         # Build de producción
+npm run dev -w backend                # Solo backend
+npm run dev -w frontend               # Solo frontend
+npm run build -w @cermont/shared-types  # Compilar tipos
+```
+
+## ERRORES FRECUENTES → RESPUESTA CORRECTA
+- Agente usa Prisma → Rechazar. Mongoose 9.x.
+- Agente usa Joi → Rechazar. Zod 4.x.
+- Agente usa NextAuth → Rechazar. JWT + auth.store.ts (Zustand).
+- Agente pone try/catch en controller → Rechazar. Express 5 propaga.
+- Agente crea useEffect para fetch → Rechazar. useQuery (TanStack).
+- Agente apila <div> → Rechazar. Etiquetas semánticas.
+- Agente instala dependencia nueva → Verificar package.json primero.

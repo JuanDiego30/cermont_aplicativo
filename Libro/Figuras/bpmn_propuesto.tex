@@ -1,0 +1,10 @@
+\begin{tikzpicture}[node distance=0.9cm, every node/.style={font=\scriptsize}, box/.style={draw, rounded corners, align=center, minimum width=2.1cm, minimum height=0.75cm, fill=blue!6}]
+\node[box] (sol) {Solicitud};
+\node[box, right=of sol] (prop) {Propuesta\\/ PO};
+\node[box, right=of prop] (plan) {Planeación\\validada};
+\node[box, right=of plan] (exe) {Ejecución\\+ evidencias};
+\node[box, right=of exe] (rep) {Informe\\y acta};
+\node[box, right=of rep] (adm) {SES\\Factura\\Pago};
+\draw[-{Latex[length=2mm]}] (sol)--(prop); \draw[-{Latex[length=2mm]}] (prop)--(plan); \draw[-{Latex[length=2mm]}] (plan)--(exe); \draw[-{Latex[length=2mm]}] (exe)--(rep); \draw[-{Latex[length=2mm]}] (rep)--(adm);
+\node[draw, rounded corners, fill=green!8, align=center, below=0.7cm of exe, minimum width=8.5cm] {Cada transición exige datos, documentos, permisos y auditoría};
+\end{tikzpicture}

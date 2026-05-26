@@ -1,54 +1,70 @@
 "use client";
 
-import type { ApiBody } from "@cermont/shared-types";
+import type { ApiEnvelope } from "@cermont/shared-types";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, UserCircle2 } from "lucide-react";
 import Link from "next/link";
-import { apiClient } from "@/_shared/lib/http/api-client";
-import { useAuth } from "@/auth/hooks/useAuth";
-import { ProfileForm, type ProfileUser } from "@/users/ui/ProfileForm";
+import { apiClient } from "@/lib/http/api-client";
+import { useAuth } from "@/modules/auth/hooks/useAuth";
+import type { ProfileUser } from "@/modules/users/ui/ProfileForm";
+import { ProfileForm } from "@/modules/users/ui/ProfileForm";
 
-interface UserProfileResponse {
-	_id?: string;
-	id?: string;
-	name?: string;
-	email?: string;
-	phone?: string | null;
-	avatarUrl?: string | null;
-	avatar?: string | null;
-	role?: string;
-	isActive?: boolean;
-	active?: boolean;
-	createdAt?: string;
-	created_at?: string;
-	lastLogin?: string | null;
-	last_login?: string | null;
+interface ProfileUserData {
+	id: string;
+	name: string;
+	first_name: string;
+	last_name: string;
+	email: string;
+	phone: string;
+	avatarUrl: string;
+	avatar: string;
+	role: string;
+	active: boolean;
+	created_at: string;
+	last_login: string;
+}
+
+function extractProfileField(d: Record<string, unknown>, keys: string[], fallback = ""): string {
+	for (const key of keys) {
+		const val = d[key];
+		if (val != null) {
+			return String(val);
+		}
+	}
+	return fallback;
+}
+
+async function fetchProfileData(userId: string | undefined): Promise<ProfileUserData> {
+	const body = await apiClient.get<ApiEnvelope<Record<string, unknown>>>(`/users/${userId}`);
+	if (!body?.data) {
+		throw new Error("No pudimos cargar tu perfil");
+	}
+	const d = body.data;
+	const name = extractProfileField(d, ["name"]);
+	return {
+		id: extractProfileField(d, ["_id", "id"]),
+		name,
+		first_name: extractProfileField(d, ["first_name", "firstName"]) || (name.split(" ")[0] ?? ""),
+		last_name:
+			extractProfileField(d, ["last_name", "lastName"]) || name.split(" ").slice(1).join(" ") || "",
+		email: extractProfileField(d, ["email"]),
+		phone: extractProfileField(d, ["phone"]),
+		avatarUrl: extractProfileField(d, ["avatarUrl"]),
+		avatar: extractProfileField(d, ["avatarUrl", "avatar"]),
+		role: extractProfileField(d, ["role"]),
+		active: Boolean(d.active),
+		created_at: extractProfileField(d, ["created_at", "createdAt"]),
+		last_login: extractProfileField(d, ["last_login", "lastLogin"]),
+	};
 }
 
 export default function ProfilePage() {
 	const { user: session, isLoading: isAuthLoading } = useAuth();
 	const userId = session?.id;
 
-	const { data: user, isLoading: isUserLoading } = useQuery<ProfileUser>({
+	const { data: user, isLoading: isUserLoading } = useQuery<ProfileUserData>({
 		queryKey: ["userProfile", userId],
-		queryFn: async () => {
-			const body = await apiClient.get<ApiBody<UserProfileResponse>>(`/users/${userId}`);
-			if (!body?.data) {
-				throw new Error("No pudimos cargar tu perfil");
-			}
-			const d = body.data;
-			return {
-				id: d._id || d.id || userId || "",
-				name: d.name || "",
-				email: d.email || "",
-				phone: d.phone ?? null,
-				avatarUrl: d.avatarUrl ?? d.avatar ?? null,
-				role: d.role || "cliente",
-				isActive: d.isActive ?? d.active ?? true,
-				createdAt: d.createdAt || d.created_at || new Date().toISOString(),
-				lastLogin: d.lastLogin ?? d.last_login ?? null,
-			};
-		},
+		queryFn: () => fetchProfileData(userId),
 		enabled: !!userId,
 	});
 
@@ -57,10 +73,10 @@ export default function ProfilePage() {
 			<section className="mx-auto flex min-h-[18rem] max-w-2xl items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
 				<div className="flex items-center gap-3 text-[var(--text-secondary)]">
 					<Loader2
-						className="h-5 w-5 animate-spin text-[var(--color-brand-blue)]"
+						className="size-5 animate-spin text-[var(--color-brand-blue)]"
 						aria-hidden="true"
 					/>
-					Cargando perfil...
+					Cargando perfil…
 				</div>
 			</section>
 		);
@@ -73,8 +89,8 @@ export default function ProfilePage() {
 				aria-labelledby="profile-missing-title"
 			>
 				<div className="flex items-start gap-3">
-					<div className="flex h-11 w-11 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--surface-primary)] text-[var(--color-warning)] shadow-[var(--shadow-1)]">
-						<UserCircle2 aria-hidden="true" className="h-5 w-5" />
+					<div className="flex size-11 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--surface-primary)] text-[var(--color-warning)] shadow-[var(--shadow-1)]">
+						<UserCircle2 aria-hidden="true" className="size-5" />
 					</div>
 					<div className="space-y-4">
 						<div>
@@ -109,5 +125,17 @@ export default function ProfilePage() {
 		);
 	}
 
-	return <ProfileForm user={user} />;
+	const profileUser: ProfileUser = {
+		id: user.id,
+		name: user.name,
+		email: user.email,
+		phone: user.phone || null,
+		avatarUrl: user.avatarUrl || null,
+		role: user.role,
+		isActive: user.active,
+		createdAt: user.created_at,
+		lastLogin: user.last_login || null,
+	};
+
+	return <ProfileForm user={profileUser} />;
 }

@@ -1,0 +1,56 @@
+<svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" class="cermont-icon">
+  <style>
+    .cermont-icon { overflow: visible; }
+    .shape-layer { transition: transform 0.3s ease, filter 0.3s ease; transform-origin: center; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
+    .cermont-icon:hover .shape-layer { filter: drop-shadow(0 12px 24px rgba(0,0,0,0.25)); transform: scale(1.02); }
+  </style>
+  <defs>
+    <linearGradient id="bg" x1="86" y1="64" x2="428" y2="460" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0F2C59"/>
+      <stop offset="52%" stop-color="#2456A7"/>
+      <stop offset="100%" stop-color="#0A1A34"/>
+    </linearGradient>
+    <linearGradient id="green3D" x1="100" y1="260" x2="250" y2="185" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#7CD966"/>
+      <stop offset="40%" stop-color="#4CAF50"/>
+      <stop offset="100%" stop-color="#1B4212"/>
+    </linearGradient>
+    <linearGradient id="blue3D" x1="147.5" y1="185" x2="310" y2="100" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0F2C59"/>
+      <stop offset="50%" stop-color="#3A78D8"/>
+      <stop offset="100%" stop-color="#2154A6"/>
+    </linearGradient>
+    <filter id="innerBevel" x="-20%" y="-20%" width="140%" height="140%">
+      <feComponentTransfer in="SourceAlpha" result="alpha"/>
+      <feOffset dx="-1.5" dy="-2.5" in="alpha" result="offsetAlpha"/>
+      <feGaussianBlur stdDeviation="2.5" in="offsetAlpha" result="blurAlpha"/>
+      <feComposite operator="out" in="alpha" in2="blurAlpha" result="highlightMask"/>
+      <feFlood flood-color="#ffffff" flood-opacity="0.4" result="highlightColor"/>
+      <feComposite operator="in" in="highlightColor" in2="highlightMask" result="highlight"/>
+      
+      <feOffset dx="2" dy="3" in="alpha" result="offsetAlphaDark"/>
+      <feGaussianBlur stdDeviation="3" in="offsetAlphaDark" result="blurAlphaDark"/>
+      <feComposite operator="out" in="alpha" in2="blurAlphaDark" result="shadowMask"/>
+      <feFlood flood-color="#000000" flood-opacity="0.3" result="shadowColor"/>
+      <feComposite operator="in" in="shadowColor" in2="shadowMask" result="innerShadow"/>
+
+      <feMerge>
+        <feMergeNode in="SourceGraphic" />
+        <feMergeNode in="highlight" />
+        <feMergeNode in="innerShadow" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="124" fill="#F8FAFC"/>
+  <rect x="32" y="32" width="448" height="448" rx="108" fill="url(#bg)"/>
+  
+  <g transform="translate(56, 56)">
+    <path d="M200 20 L355.88 110 L355.88 290 L200 380 L44.12 290 L44.12 110 Z" fill="#F8FAFC" fill-opacity="0.08" stroke="#E2E8F0" stroke-width="12" stroke-linejoin="round"/>
+    
+    <g class="shape-layer">
+      <path filter="url(#innerBevel)" d="M 87.5 185 A 82.5 82.5 0 0 0 252.5 185 L 207.5 185 A 37.5 37.5 0 0 1 132.5 185 Z" fill="url(#green3D)"/>
+      <path filter="url(#innerBevel)" d="M 147.5 185 A 82.5 82.5 0 0 1 312.5 185 L 267.5 185 A 37.5 37.5 0 0 0 192.5 185 Z" fill="url(#blue3D)"/>
+    </g>
+  </g>
+</svg>

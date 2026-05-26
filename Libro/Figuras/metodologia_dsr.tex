@@ -1,0 +1,18 @@
+% Figura corregida: metodología DSR aplicada.
+\begin{figure}[H]
+\centering
+\resizebox{0.94\textwidth}{!}{%
+\begin{tikzpicture}[font=\sffamily, node distance=1.0cm]
+\tikzset{phase/.style={figBoxWhite, minimum width=3.0cm, minimum height=0.85cm, text width=2.8cm}, crit/.style={figCritical, minimum width=3.0cm, minimum height=0.85cm, text width=2.8cm}}
+\node[phase] (p1) at (0,0) {1. Diagnóstico\\documental y operativo};
+\node[crit] (p2) at (3.4,0) {2. Identificación\\de fallas críticas};
+\node[phase] (p3) at (6.8,0) {3. Diseño\\del artefacto};
+\node[phase] (p4) at (10.2,0) {4. Construcción\\del aplicativo};
+\node[phase] (p5) at (13.6,0) {5. Validación\\y comunicación};
+\foreach \a/\b in {p1/p2,p2/p3,p3/p4,p4/p5}{\draw[figArrow] (\a) -- (\b);} 
+\node[figNote, text width=12.5cm] at (6.8,-1.65) {La metodología Design Science Research se usa para construir y evaluar un artefacto tecnológico que responde a una necesidad organizacional documentada.};
+\end{tikzpicture}%
+}
+\caption[Metodología DSR aplicada]{Aplicación de la metodología Design Science Research al desarrollo del aplicativo: diagnóstico, identificación del problema, diseño del artefacto, construcción, validación y comunicación de resultados. Fuente: Elaboración propia.}
+\label{fig:metodologia-dsr}
+\end{figure}

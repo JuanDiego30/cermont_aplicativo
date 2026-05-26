@@ -39,7 +39,7 @@ export function MissionVisionSection() {
 								"Respeto por trabajadores y comunidad",
 							].map((item) => (
 								<li key={item} className="flex items-center gap-2 text-sm text-text-secondary">
-									<CheckCircle2 className="h-4 w-4 text-cermont-green" aria-hidden="true" />
+									<CheckCircle2 className="size-4 text-cermont-green" aria-hidden="true" />
 									{item}
 								</li>
 							))}
@@ -61,7 +61,7 @@ export function MissionVisionSection() {
 						</p>
 						<div className="mt-8 rounded-3xl border border-[var(--border-default)] bg-[var(--surface-secondary)] p-5">
 							<div className="flex items-center gap-3">
-								<ShieldCheck className="h-5 w-5 text-[var(--color-success)]" aria-hidden="true" />
+								<ShieldCheck className="size-5 text-[var(--color-success)]" aria-hidden="true" />
 								<p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--text-secondary)]">
 									Compromiso operativo
 								</p>

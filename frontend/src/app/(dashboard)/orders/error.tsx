@@ -2,7 +2,7 @@
 
 import { AlertCircle } from "lucide-react";
 import { useEffect } from "react";
-import { createLogger } from "@/_shared/lib/monitoring/logger";
+import { createLogger } from "@/lib/monitoring/logger";
 
 const logger = createLogger("orders:error-boundary");
 
@@ -19,14 +19,14 @@ export default function OrdersError({
 
 	return (
 		<section
-			className="flex h-[50vh] flex-col items-center justify-center space-y-4 rounded-xl border border-red-100 bg-red-50 p-6 text-center"
+			className="flex h-[50vh] flex-col items-center justify-center gap-y-4 rounded-xl border border-red-100 bg-red-50 p-6 text-center"
 			role="alert"
 			aria-live="assertive"
 			aria-labelledby="orders-error-title"
 		>
-			<AlertCircle className="h-10 w-10 text-red-500" aria-hidden="true" />
+			<AlertCircle className="size-10 text-red-500" aria-hidden="true" />
 			<div>
-				<h2 id="orders-error-title" className="text-lg font-bold text-red-800">
+				<h2 id="orders-error-title" className="text-lg font-semibold text-red-800">
 					Error al cargar las órdenes
 				</h2>
 				<p className="mt-1 text-sm text-red-600">

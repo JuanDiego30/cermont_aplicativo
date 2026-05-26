@@ -1,0 +1,19 @@
+% Figura corregida: mapa conceptual del marco teórico.
+\begin{figure}[H]
+\centering
+\resizebox{0.92\textwidth}{!}{%
+\begin{tikzpicture}[font=\sffamily]
+\tikzset{core/.style={circle, draw=institucionalBlue, fill=institucionalBlue, text=white, minimum size=2.4cm, align=center, font=\scriptsize\bfseries}, topic/.style={figBoxWhite, minimum width=3.1cm, minimum height=0.82cm, text width=2.9cm}}
+\node[core] (c) at (0,0) {Marco\\teórico};
+\node[topic] (sw) at (0,3.0) {Ingeniería de software\\y arquitectura web};
+\node[topic] (fsm) at (4.6,1.5) {FSM, órdenes de trabajo\\y servicios de campo};
+\node[topic] (pwa) at (4.6,-1.5) {PWA, operación offline\\y sincronización};
+\node[topic] (sec) at (0,-3.0) {Seguridad web, RBAC\\y auditoría};
+\node[topic] (forms) at (-4.6,-1.5) {Formularios dinámicos\\y validación declarativa};
+\node[topic] (bpm) at (-4.6,1.5) {BPM y trazabilidad\\documental};
+\foreach \n in {sw,fsm,pwa,sec,forms,bpm}{\draw[figArrow] (c) -- (\n);} 
+\end{tikzpicture}%
+}
+\caption[Mapa conceptual del marco teórico]{Mapa conceptual de los ejes teóricos que sustentan el trabajo: ingeniería de software, servicios de campo, tecnologías web, BPM, formularios dinámicos, seguridad y evaluación de sistemas. Fuente: Elaboración propia.}
+\label{fig:mapa-mental-marco-teorico}
+\end{figure}

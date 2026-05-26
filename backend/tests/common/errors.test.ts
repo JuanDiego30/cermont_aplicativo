@@ -9,8 +9,8 @@ import {
 	UnauthorizedError,
 	UnprocessableError,
 	ValidationError,
-} from "@/common/errors";
-import { ERROR_CODES } from "@/common/errors/error-codes";
+} from "../../src/common/errors";
+import { ERROR_CODES } from "../../src/common/errors/error-codes";
 
 describe("common errors", () => {
 	it("uses centralized error codes in subclasses", () => {

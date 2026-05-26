@@ -8,8 +8,8 @@ export default function Loading() {
 			aria-live="polite"
 			aria-label="Cargando reportes"
 		>
-			<Loader2 className="h-8 w-8 motion-safe:animate-spin text-blue-600" aria-hidden="true" />
-			<span className="text-sm text-slate-500">Cargando reportes...</span>
+			<Loader2 className="size-8 motion-safe:animate-spin text-blue-600" aria-hidden="true" />
+			<span className="text-sm text-zinc-500">Cargando reportes…</span>
 		</section>
 	);
 }

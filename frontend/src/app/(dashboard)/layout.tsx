@@ -1,10 +1,8 @@
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import { getSession } from "@/auth/session";
-import DefaultLayout from "@/core/ui/layout/DefaultLayout";
+import { getSession } from "@/modules/auth/session";
+import DefaultLayout from "@/modules/core/ui/layout/DefaultLayout";
 import { DashboardProviders } from "./dashboard-providers";
-
-export const dynamic = "force-dynamic";
 
 export default async function DashboardRootLayout({ children }: { children: ReactNode }) {
 	const session = await getSession();
@@ -13,10 +11,8 @@ export default async function DashboardRootLayout({ children }: { children: Reac
 	}
 
 	return (
-		<section aria-label="Authenticated workspace">
-			<DashboardProviders>
-				<DefaultLayout>{children}</DefaultLayout>
-			</DashboardProviders>
-		</section>
+		<DashboardProviders>
+			<DefaultLayout>{children}</DefaultLayout>
+		</DashboardProviders>
 	);
 }

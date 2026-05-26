@@ -25,7 +25,7 @@ describe("auth email normalization", () => {
 		});
 
 		expect(created.email).toBe("gerencia@cermont.co");
-		expect(created.role).toBe("manager");
+		expect(created.role).toBe("gerente");
 		expect(updated.email).toBe("soporte@cermont.co");
 	});
 

@@ -1,249 +1,213 @@
 "use client";
 
-import type { CostByCategory } from "@cermont/shared-types";
-import {
-	AlertCircle,
-	ArrowDownRight,
-	ArrowUpRight,
-	BarChart3,
-	CircleDollarSign,
-	Download,
-	History,
-	Loader2,
-	Scale,
-	TrendingUp,
-} from "lucide-react";
-import { Button } from "@/core/ui/Button";
-import { useCostDashboard } from "@/costs/queries";
-import { formatCurrency } from "@/costs/utils";
+import { ArrowRight, ClipboardList, Loader2, Search } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import type { FormEvent } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
+import { EmptyState } from "@/core/ui/EmptyState";
+import { useAuth } from "@/modules/auth/hooks/useAuth";
+import { COST_CATEGORY_LABELS, formatCurrency, useCostList } from "@/modules/costs";
 
-export default function CostsDashboardPage() {
-	const { data, isLoading, isError, error, refetch } = useCostDashboard();
-	const totalEstimated = data?.totalEstimated ?? 0;
-	const totalActual = data?.totalActual ?? 0;
-	const totalTax = data?.totalTax ?? 0;
-	const variance = data?.variance ?? 0;
-	const variancePercent = data?.variancePercent ?? null;
-	const byCategory = data?.byCategory ?? [];
+const subscribeToHydration = () => () => {};
+const getClientHydrationSnapshot = () => true;
+const getServerHydrationSnapshot = () => false;
 
-	if (isLoading) {
-		return (
-			<div className="flex h-full items-center justify-center">
-				<Loader2 className="h-8 w-8 animate-spin text-primary-500" />
-			</div>
-		);
-	}
-
-	if (isError) {
-		return (
-			<div className="flex h-full flex-col items-center justify-center gap-4 p-8 text-center">
-				<AlertCircle className="h-12 w-12 text-red-500" />
-				<h2 className="text-xl font-bold">Error al cargar el dashboard de costos</h2>
-				<p className="text-slate-400">{(error as Error).message}</p>
-				<Button onClick={() => refetch()}>Reintentar</Button>
-			</div>
-		);
-	}
-
-	const isVariancePositive = variance > 0;
-
-	return (
-		<main className="flex h-full flex-col p-6 lg:p-8">
-			<header className="mb-8 flex items-center justify-between">
-				<div>
-					<h1 className="text-2xl font-bold tracking-tight text-white">Análisis de Costos</h1>
-					<p className="mt-1 text-sm text-slate-400">
-						Comparativa de presupuestos vs. ejecución real en todas las operaciones
-					</p>
-				</div>
-				<Button variant="outline" size="sm">
-					<Download className="mr-2 h-4 w-4" />
-					Exportar Reporte
-				</Button>
-			</header>
-
-			{/* Summary Metrics */}
-			<section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-				<SummaryCard
-					label="Total Estimado"
-					value={formatCurrency(totalEstimated)}
-					icon={<History className="h-5 w-5 text-blue-400" />}
-					description="Presupuesto base inicial"
-				/>
-				<SummaryCard
-					label="Total Real"
-					value={formatCurrency(totalActual)}
-					icon={<CircleDollarSign className="h-5 w-5 text-green-400" />}
-					description="Gasto total ejecutado"
-					tone="green"
-				/>
-				<SummaryCard
-					label="Varianza Total"
-					value={formatCurrency(Math.abs(variance))}
-					icon={
-						isVariancePositive ? (
-							<ArrowUpRight className="h-5 w-5 text-red-400" />
-						) : (
-							<ArrowDownRight className="h-5 w-5 text-green-400" />
-						)
-					}
-					description={`${isVariancePositive ? "Exceso" : "Ahorro"} sobre lo estimado`}
-					trend={variancePercent !== null ? `${(variancePercent * 100).toFixed(1)}%` : undefined}
-					tone={isVariancePositive ? "red" : "green"}
-				/>
-				<SummaryCard
-					label="Impuestos (IVA)"
-					value={formatCurrency(totalTax)}
-					icon={<Scale className="h-5 w-5 text-slate-400" />}
-					description="Total carga tributaria"
-				/>
-			</section>
-
-			{/* Breakdown by Category */}
-			<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-				<section className="lg:col-span-2 space-y-6">
-					<div className="rounded-xl border border-slate-800 bg-slate-900/50 p-6">
-						<div className="flex items-center justify-between mb-6">
-							<h2 className="text-lg font-semibold text-white flex items-center gap-2">
-								<BarChart3 className="h-5 w-5 text-primary-400" />
-								Distribución por Categoría
-							</h2>
-						</div>
-
-						<div className="space-y-4">
-							{byCategory.length === 0 ? (
-								<p className="text-center py-8 text-slate-500 italic">
-									No hay datos suficientes para mostrar el desglose.
-								</p>
-							) : (
-								byCategory.map((category) => (
-									<CategoryRow key={category.category} {...category} total={totalActual} />
-								))
-							)}
-						</div>
-					</div>
-				</section>
-
-				<aside className="space-y-6">
-					<div className="rounded-xl border border-slate-800 bg-slate-900/50 p-6">
-						<h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-							<TrendingUp className="h-5 w-5 text-amber-400" />
-							Insights
-						</h2>
-						<ul className="space-y-4 text-sm text-slate-400">
-							<li className="flex gap-3">
-								<div className="mt-1 h-1.5 w-1.5 rounded-full bg-blue-400 shrink-0" />
-								<p>
-									La categoría de <span className="text-white font-medium">Materiales</span>{" "}
-									representa el 45% del gasto total histórico.
-								</p>
-							</li>
-							<li className="flex gap-3">
-								<div className="mt-1 h-1.5 w-1.5 rounded-full bg-amber-400 shrink-0" />
-								<p>
-									Se observa una varianza promedio del{" "}
-									<span className="text-white font-medium">12.4%</span> en órdenes de emergencia.
-								</p>
-							</li>
-							<li className="flex gap-3">
-								<div className="mt-1 h-1.5 w-1.5 rounded-full bg-green-400 shrink-0" />
-								<p>
-									La optimización de rutas ha reducido los gastos de{" "}
-									<span className="text-white font-medium">Transporte</span> en un 8% este mes.
-								</p>
-							</li>
-						</ul>
-					</div>
-				</aside>
-			</div>
-		</main>
+export default function CostsPage() {
+	const { push } = useRouter();
+	const { accessToken, isAuthenticated } = useAuth();
+	const [orderId, setOrderId] = useState("");
+	const isHydrated = useSyncExternalStore(
+		subscribeToHydration,
+		getClientHydrationSnapshot,
+		getServerHydrationSnapshot,
 	);
-}
+	const costQuery = useCostList({ limit: 25 }, { enabled: isHydrated && Boolean(accessToken) });
+	const costs = costQuery.data?.costs ?? [];
+	const isWaitingForSession = !isHydrated || (isAuthenticated && !accessToken);
 
-function SummaryCard({
-	label,
-	value,
-	icon,
-	description,
-	trend,
-	tone = "blue",
-}: {
-	label: string;
-	value: string | number;
-	icon: React.ReactNode;
-	description: string;
-	trend?: string;
-	tone?: "blue" | "green" | "amber" | "red";
-}) {
-	const toneClass = {
-		blue: "border-blue-500/20 bg-blue-500/5",
-		green: "border-green-500/20 bg-green-500/5",
-		amber: "border-amber-500/20 bg-amber-500/5",
-		red: "border-red-500/20 bg-red-500/5",
-	}[tone];
+	const totals = useMemo(() => {
+		return costs.reduce(
+			(acc, cost) => {
+				acc.estimated += cost.estimatedAmount;
+				acc.actual += cost.actualAmount;
+				acc.tax += cost.taxAmount;
+				return acc;
+			},
+			{ estimated: 0, actual: 0, tax: 0 },
+		);
+	}, [costs]);
 
-	return (
-		<article className={`rounded-xl border p-4 transition-all hover:scale-[1.02] ${toneClass}`}>
-			<div className="flex items-center justify-between mb-2">
-				<div className="rounded-lg bg-slate-800 p-2">{icon}</div>
-				{trend && (
-					<span
-						className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
-							tone === "red" ? "bg-red-500/20 text-red-400" : "bg-green-500/20 text-green-400"
-						}`}
-					>
-						{trend}
-					</span>
-				)}
-			</div>
-			<div className="text-2xl font-bold text-white">{value}</div>
-			<div className="text-xs font-semibold text-slate-300 mt-1">{label}</div>
-			<div className="text-[10px] text-slate-500 mt-1">{description}</div>
-		</article>
-	);
-}
-
-function CategoryRow({
-	category,
-	estimated,
-	actual,
-	variance,
-	total,
-}: CostByCategory & { total: number }) {
-	const percentOfTotal = total > 0 ? (actual / total) * 100 : 0;
-	const isOver = variance > 0;
-
-	const labels: Record<string, string> = {
-		labor: "Mano de Obra",
-		materials: "Materiales",
-		equipment: "Equipos",
-		overhead: "Gastos Generales",
-		tax: "Impuestos",
-		other: "Otros",
+	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		const trimmedOrderId = orderId.trim();
+		if (!trimmedOrderId) {
+			return;
+		}
+		push(`/costs/${trimmedOrderId}/ejecucion`);
 	};
 
 	return (
-		<div className="space-y-2">
-			<div className="flex items-center justify-between text-sm">
-				<span className="font-medium text-slate-200">{labels[category] || category}</span>
-				<span className="text-slate-400">
-					{formatCurrency(actual)}{" "}
-					<span className="text-[10px] opacity-50">({percentOfTotal.toFixed(0)}%)</span>
-				</span>
+		<section className="space-y-6" aria-labelledby="costs-page-title">
+			<header className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]">
+				<p className="text-sm text-[var(--text-tertiary)]">Dashboard / Costos</p>
+				<div className="mt-3 flex flex-wrap items-start justify-between gap-4">
+					<div className="flex items-start gap-3">
+						<ClipboardList
+							aria-hidden="true"
+							className="mt-1 size-6 text-[var(--color-brand-blue)]"
+						/>
+						<div>
+							<h1
+								id="costs-page-title"
+								className="text-2xl font-semibold text-[var(--text-primary)]"
+							>
+								Motor de costos
+							</h1>
+							<p className="mt-1 max-w-2xl text-sm text-[var(--text-secondary)]">
+								Control de costos estimados, reales, impuestos y variación por orden de trabajo.
+							</p>
+						</div>
+					</div>
+					<Link
+						href="/orders"
+						className="inline-flex h-10 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-default)] px-4 text-sm font-medium text-[var(--text-primary)] transition hover:bg-[var(--surface-secondary)]"
+					>
+						Órdenes
+						<ArrowRight className="size-4" aria-hidden="true" />
+					</Link>
+				</div>
+			</header>
+
+			<div className="grid gap-3 sm:grid-cols-3">
+				<Metric label="Estimado" value={formatCurrency(totals.estimated)} />
+				<Metric label="Real" value={formatCurrency(totals.actual)} />
+				<Metric label="Impuestos" value={formatCurrency(totals.tax)} />
 			</div>
-			<div className="relative h-2 w-full overflow-hidden rounded-full bg-slate-800">
-				<div
-					className={`absolute left-0 top-0 h-full transition-all ${isOver ? "bg-red-500/60" : "bg-primary-500/60"}`}
-					style={{ width: `${Math.min(percentOfTotal, 100)}%` }}
-				/>
-			</div>
-			<div className="flex justify-between text-[10px] text-slate-500">
-				<span>Est: {formatCurrency(estimated)}</span>
-				<span className={isOver ? "text-red-400" : "text-green-400"}>
-					Var: {isOver ? "+" : ""}
-					{formatCurrency(variance)}
-				</span>
-			</div>
+
+			<section
+				className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
+				aria-labelledby="costs-lookup-title"
+			>
+				<h2 id="costs-lookup-title" className="text-sm font-semibold text-[var(--text-primary)]">
+					Consulta por orden
+				</h2>
+				<form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3 sm:flex-row">
+					<label htmlFor="order-id" className="sr-only">
+						ID de la orden
+					</label>
+					<div className="relative flex-1">
+						<Search
+							className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--text-tertiary)]"
+							aria-hidden="true"
+						/>
+						<input
+							id="order-id"
+							type="text"
+							value={orderId}
+							onChange={(event) => setOrderId(event.target.value)}
+							placeholder="Pega aquí el ID de la orden"
+							className="h-11 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] pl-10 pr-4 text-sm text-[var(--text-primary)] outline-none transition focus:border-[var(--color-brand-blue)] focus:ring-2 focus:ring-[color:var(--color-brand-blue)]/15"
+						/>
+					</div>
+					<button
+						type="submit"
+						className="inline-flex h-11 items-center justify-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-brand-blue)] px-4 text-sm font-medium text-white transition hover:bg-[var(--color-brand-blue-hover)]"
+					>
+						Ver ejecución
+						<ArrowRight className="size-4" aria-hidden="true" />
+					</button>
+				</form>
+			</section>
+
+			<section
+				className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]"
+				aria-labelledby="costs-list-title"
+			>
+				<div className="border-b border-[var(--border-default)] px-6 py-4">
+					<h2 id="costs-list-title" className="text-sm font-semibold text-[var(--text-primary)]">
+						Últimos costos registrados
+					</h2>
+				</div>
+				{isWaitingForSession || costQuery.isLoading ? (
+					<div className="flex items-center justify-center py-16" role="status">
+						<Loader2 className="size-6 animate-spin text-[var(--color-brand-blue)]" />
+						<span className="sr-only">Cargando costos</span>
+					</div>
+				) : costQuery.isError ? (
+					<div className="p-6">
+						<EmptyState
+							icon="reports"
+							title="No se pudieron cargar los costos"
+							description="Revisa la conexión con el backend e inténtalo de nuevo."
+						/>
+					</div>
+				) : costs.length === 0 ? (
+					<div className="p-6">
+						<EmptyState
+							icon="reports"
+							title="Sin costos registrados"
+							description="Los costos aparecerán cuando una orden tenga mano de obra, materiales, equipos o impuestos asociados."
+						/>
+					</div>
+				) : (
+					<div className="overflow-x-auto">
+						<table className="min-w-full text-left text-sm">
+							<thead className="bg-[var(--surface-secondary)] text-xs uppercase text-[var(--text-tertiary)]">
+								<tr>
+									<th className="px-6 py-3 font-semibold">Concepto</th>
+									<th className="px-6 py-3 font-semibold">Categoría</th>
+									<th className="px-6 py-3 font-semibold">Estimado</th>
+									<th className="px-6 py-3 font-semibold">Real</th>
+									<th className="px-6 py-3 font-semibold">Variación</th>
+									<th className="px-6 py-3 font-semibold">Orden</th>
+								</tr>
+							</thead>
+							<tbody className="divide-y divide-[var(--border-default)]">
+								{costs.map((cost) => {
+									const variance = cost.actualAmount - cost.estimatedAmount;
+									return (
+										<tr key={cost._id}>
+											<td className="px-6 py-4 font-medium text-[var(--text-primary)]">
+												{cost.description}
+											</td>
+											<td className="px-6 py-4 text-[var(--text-secondary)]">
+												{COST_CATEGORY_LABELS[cost.category]}
+											</td>
+											<td className="px-6 py-4 text-[var(--text-secondary)]">
+												{formatCurrency(cost.estimatedAmount, cost.currency)}
+											</td>
+											<td className="px-6 py-4 text-[var(--text-secondary)]">
+												{formatCurrency(cost.actualAmount, cost.currency)}
+											</td>
+											<td className="px-6 py-4 text-[var(--text-secondary)]">
+												{formatCurrency(variance, cost.currency)}
+											</td>
+											<td className="px-6 py-4">
+												<Link
+													href={`/costs/${cost.orderId}/ejecucion`}
+													className="font-medium text-[var(--color-brand-blue)] hover:underline"
+												>
+													Ver orden
+												</Link>
+											</td>
+										</tr>
+									);
+								})}
+							</tbody>
+						</table>
+					</div>
+				)}
+			</section>
+		</section>
+	);
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+	return (
+		<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
+			<p className="text-xs font-medium uppercase text-[var(--text-tertiary)]">{label}</p>
+			<p className="mt-2 text-xl font-semibold text-[var(--text-primary)]">{value}</p>
 		</div>
 	);
 }

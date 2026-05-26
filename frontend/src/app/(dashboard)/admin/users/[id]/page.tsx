@@ -1,15 +1,14 @@
 "use client";
 
-import { ROLE_LABELS } from "@cermont/shared-types/rbac";
+import { ROLE_LABELS } from "@cermont/domain";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { ArrowLeft, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { STALE_TIMES } from "@/_shared/lib/constants/query-config";
-import { apiClient } from "@/_shared/lib/http/api-client";
+import { STALE_TIMES } from "@/lib/constants/query-config";
+import { apiClient } from "@/lib/http/api-client";
+import { formatDate, formatDateTime } from "@/lib/utils/format-date";
 import { ROLE_COLORS } from "./user-detail-constants";
 
 interface UserData {
@@ -32,6 +31,38 @@ interface UserData {
 
 type UserResponse = { success?: boolean; data?: UserData; error?: string; message?: string };
 
+function safeGet<T>(val: T | undefined | null, fallback: T): T {
+	return val != null ? val : fallback;
+}
+
+async function fetchUserDetail(userId: string) {
+	const body = await apiClient.get<UserResponse>(`/users/${userId}`);
+	if (!body?.success || !body.data) {
+		throw new Error(body?.message || body?.error || "Error al cargar el usuario");
+	}
+	const u = body.data;
+	const fullName = safeGet(u.name, "").trim();
+	const parts = fullName.split(/\s+/).filter(Boolean);
+	const firstNameFromName = parts[0] ?? "";
+	const lastNameFromName = parts.slice(1).join(" ");
+	return {
+		_id: String(safeGet(u._id, "")),
+		name: safeGet(u.name, ""),
+		first_name: safeGet(u.first_name, firstNameFromName),
+		last_name: safeGet(u.last_name, lastNameFromName),
+		email: safeGet(u.email, ""),
+		phone: safeGet(u.phone, ""),
+		avatar: safeGet(u.avatarUrl, safeGet(u.avatar, null)),
+		role: safeGet(u.role, ""),
+		active: Boolean(u.active),
+		email_verified_at: u.email_verified_at ? new Date(u.email_verified_at) : null,
+		last_login: u.last_login ? new Date(u.last_login) : null,
+		login_attempts: safeGet(u.login_attempts, 0),
+		locked_until: u.locked_until ? new Date(u.locked_until) : null,
+		created_at: u.createdAt ? new Date(u.createdAt) : new Date(),
+	};
+}
+
 export default function UserDetailPage() {
 	const params = useParams();
 	const id = params.id as string;
@@ -42,39 +73,15 @@ export default function UserDetailPage() {
 		error,
 	} = useQuery({
 		queryKey: ["user", id],
-		queryFn: async () => {
-			const body = await apiClient.get<UserResponse>(`/users/${id}`);
-			if (!body?.success || !body.data) {
-				throw new Error(body?.message || body?.error || "Error al cargar el usuario");
-			}
-			const u = body.data;
-			const fullName = (u.name ?? "").trim();
-			const [firstNameFromName, ...lastNameFromName] = fullName.split(/\s+/).filter(Boolean);
-			return {
-				_id: String(u._id ?? ""),
-				name: u.name ?? "",
-				first_name: u.first_name ?? firstNameFromName ?? "",
-				last_name: u.last_name ?? (lastNameFromName.length > 0 ? lastNameFromName.join(" ") : ""),
-				email: u.email ?? "",
-				phone: u.phone ?? "",
-				avatar: u.avatarUrl ?? u.avatar ?? null,
-				role: u.role ?? "",
-				active: u.active ?? false,
-				email_verified_at: u.email_verified_at ? new Date(u.email_verified_at) : null,
-				last_login: u.last_login ? new Date(u.last_login) : null,
-				login_attempts: u.login_attempts ?? 0,
-				locked_until: u.locked_until ? new Date(u.locked_until) : null,
-				created_at: u.createdAt ? new Date(u.createdAt) : new Date(),
-			};
-		},
+		queryFn: () => fetchUserDetail(id),
 		enabled: !!id,
 		staleTime: STALE_TIMES.DETAIL,
 	});
 
 	if (isLoading) {
 		return (
-			<div className="flex h-64 items-center justify-center rounded-3xl border border-slate-200 dark:border-slate-800">
-				<span className="text-slate-500">Cargando detalles del usuario...</span>
+			<div className="flex h-64 items-center justify-center rounded-3xl border border-zinc-200 dark:border-zinc-800">
+				<span className="text-zinc-500">Cargando detalles del usuario…</span>
 			</div>
 		);
 	}
@@ -94,14 +101,14 @@ export default function UserDetailPage() {
 				<div className="flex items-start gap-4">
 					<Link
 						href="/admin/users"
-						className="mt-1 flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400"
+						className="mt-1 flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400"
 					>
-						<ArrowLeft aria-hidden="true" className="h-4 w-4" />
+						<ArrowLeft aria-hidden="true" className="size-4" />
 						Volver
 					</Link>
 					<fieldset className="flex min-w-0 items-center gap-3 border-0 p-0">
 						<legend className="sr-only">Identificación del usuario</legend>
-						<figure className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
+						<figure className="flex size-10 items-center justify-center rounded-full bg-blue-100">
 							{user.avatar ? (
 								<Image
 									src={user.avatar}
@@ -109,121 +116,113 @@ export default function UserDetailPage() {
 									width={40}
 									height={40}
 									unoptimized
-									className="h-10 w-10 rounded-full object-cover"
+									className="size-10 rounded-full object-cover"
 								/>
 							) : (
-								<User className="h-5 w-5 text-blue-600" aria-hidden="true" />
+								<User className="size-5 text-blue-600" aria-hidden="true" />
 							)}
 						</figure>
 						<div className="leading-tight">
 							<h1
 								id="user-detail-title"
-								className="text-2xl font-bold text-slate-900 dark:text-white"
+								className="text-2xl font-semibold text-zinc-900 dark:text-white"
 							>
 								{fullName}
 							</h1>
-							<p className="text-sm text-slate-500 dark:text-slate-400">{user.email}</p>
+							<p className="text-sm text-zinc-500 dark:text-zinc-400">{user.email}</p>
 						</div>
 					</fieldset>
 				</div>
 				<Link
 					href={`/admin/users/${user._id}/edit`}
-					className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 dark:bg-slate-900"
+					className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-sm hover:bg-zinc-50 dark:bg-zinc-900"
 				>
 					Editar
 				</Link>
 			</header>
 
 			<section
-				className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+				className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
 				aria-labelledby="perfil-titulo"
 			>
 				<h2
 					id="perfil-titulo"
-					className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400"
+					className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400"
 				>
 					Información del perfil
 				</h2>
 				<dl className="grid grid-cols-2 gap-4 text-sm">
 					<div>
-						<dt className="font-medium text-slate-500 dark:text-slate-400">Nombre</dt>
-						<dd className="mt-1 text-slate-900 dark:text-white">{fullName}</dd>
+						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Nombre</dt>
+						<dd className="mt-1 text-zinc-900 dark:text-white">{fullName}</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-slate-500 dark:text-slate-400">Email</dt>
-						<dd className="mt-1 text-slate-900 dark:text-white">{user.email}</dd>
+						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Email</dt>
+						<dd className="mt-1 text-zinc-900 dark:text-white">{user.email}</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-slate-500 dark:text-slate-400">Rol</dt>
+						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Rol</dt>
 						<dd className="mt-1">
 							<span
-								className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${ROLE_COLORS[user.role] ?? "bg-slate-100 text-slate-600 ring-gray-200 dark:text-slate-300"}`}
+								className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${ROLE_COLORS[user.role] ?? "bg-zinc-100 text-zinc-600 ring-zinc-200 dark:text-zinc-300"}`}
 							>
 								{ROLE_LABELS[user.role as keyof typeof ROLE_LABELS] ?? user.role}
 							</span>
 						</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-slate-500 dark:text-slate-400">Estado</dt>
+						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Estado</dt>
 						<dd className="mt-1">
 							<span
-								className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${user.active ? "bg-green-50 text-green-700 ring-green-200" : "bg-slate-100 text-slate-500 ring-gray-200 dark:text-slate-400"}`}
+								className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${user.active ? "bg-green-50 text-green-700 ring-green-200" : "bg-zinc-100 text-zinc-500 ring-zinc-200 dark:text-zinc-400"}`}
 							>
 								{user.active ? "Activo" : "Inactivo"}
 							</span>
 						</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-slate-500 dark:text-slate-400">Teléfono</dt>
-						<dd className="mt-1 text-slate-900 dark:text-white">{user.phone ?? "—"}</dd>
+						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Teléfono</dt>
+						<dd className="mt-1 text-zinc-900 dark:text-white">{user.phone ?? ","}</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-slate-500 dark:text-slate-400">Email verificado</dt>
-						<dd className="mt-1 text-slate-900 dark:text-white">
-							{user.email_verified_at
-								? format(new Date(user.email_verified_at), "dd MMM yyyy", { locale: es })
-								: "No verificado"}
+						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Email verificado</dt>
+						<dd className="mt-1 text-zinc-900 dark:text-white">
+							{user.email_verified_at ? formatDate(user.email_verified_at) : "No verificado"}
 						</dd>
 					</div>
 				</dl>
 			</section>
 
 			<section
-				className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+				className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
 				aria-labelledby="acceso-titulo"
 			>
 				<h2
 					id="acceso-titulo"
-					className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400"
+					className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400"
 				>
 					Estadísticas de acceso
 				</h2>
 				<dl className="grid grid-cols-2 gap-4 text-sm">
 					<div>
-						<dt className="font-medium text-slate-500 dark:text-slate-400">Último acceso</dt>
-						<dd className="mt-1 text-slate-900 dark:text-white">
-							{user.last_login
-								? format(new Date(user.last_login), "dd MMM yyyy HH:mm", { locale: es })
-								: "Nunca"}
+						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Último acceso</dt>
+						<dd className="mt-1 text-zinc-900 dark:text-white">
+							{user.last_login ? formatDateTime(user.last_login) : "Nunca"}
 						</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-slate-500 dark:text-slate-400">Intentos fallidos</dt>
-						<dd className="mt-1 text-slate-900 dark:text-white">{user.login_attempts}</dd>
+						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Intentos fallidos</dt>
+						<dd className="mt-1 text-zinc-900 dark:text-white">{user.login_attempts}</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-slate-500 dark:text-slate-400">Bloqueado hasta</dt>
-						<dd className="mt-1 text-slate-900 dark:text-white">
-							{user.locked_until
-								? format(new Date(user.locked_until), "dd MMM yyyy HH:mm", { locale: es })
-								: "—"}
+						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Bloqueado hasta</dt>
+						<dd className="mt-1 text-zinc-900 dark:text-white">
+							{user.locked_until ? formatDateTime(user.locked_until) : ","}
 						</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-slate-500 dark:text-slate-400">Registrado</dt>
-						<dd className="mt-1 text-slate-900 dark:text-white">
-							{format(new Date(user.created_at), "dd MMM yyyy", { locale: es })}
-						</dd>
+						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Registrado</dt>
+						<dd className="mt-1 text-zinc-900 dark:text-white">{formatDate(user.created_at)}</dd>
 					</div>
 				</dl>
 			</section>

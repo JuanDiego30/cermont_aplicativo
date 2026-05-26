@@ -1,49 +1,35 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" fill="none" role="img" aria-labelledby="title desc">
-  <title id="title">Cermont Campo dashboard</title>
-  <desc id="desc">Ilustración de dashboard para metadatos sociales y PWA.</desc>
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1440" y2="900" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#F6FAFF" />
-      <stop offset="0.55" stop-color="#E8F0FF" />
-      <stop offset="1" stop-color="#F7FBF5" />
-    </linearGradient>
-    <linearGradient id="panel" x1="160" y1="120" x2="1280" y2="780" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FFFFFF" />
-      <stop offset="1" stop-color="#F4F8FF" />
-    </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#213E99" />
-      <stop offset="1" stop-color="#1B7A5A" />
-    </linearGradient>
-  </defs>
-  <rect width="1440" height="900" fill="url(#bg)" />
-  <circle cx="220" cy="164" r="170" fill="#7CD966" fill-opacity="0.16" />
-  <circle cx="1240" cy="168" r="190" fill="#213E99" fill-opacity="0.1" />
-  <circle cx="1110" cy="752" r="220" fill="#1B7A5A" fill-opacity="0.12" />
-  <rect x="124" y="92" width="1192" height="716" rx="40" fill="url(#panel)" stroke="#D9E6FF" stroke-width="2" />
-  <rect x="124" y="92" width="1192" height="88" rx="40" fill="#213E99" />
-  <circle cx="182" cy="136" r="12" fill="#7CD966" />
-  <rect x="222" y="125" width="184" height="18" rx="9" fill="#FFFFFF" fill-opacity="0.78" />
-  <rect x="181" y="222" width="214" height="532" rx="28" fill="#EEF4FF" />
-  <rect x="417" y="222" width="660" height="120" rx="28" fill="#FFFFFF" stroke="#DDE7FB" />
-  <rect x="1105" y="222" width="167" height="120" rx="28" fill="#FFFFFF" stroke="#DDE7FB" />
-  <rect x="417" y="364" width="296" height="214" rx="28" fill="#FFFFFF" stroke="#DDE7FB" />
-  <rect x="733" y="364" width="539" height="214" rx="28" fill="#FFFFFF" stroke="#DDE7FB" />
-  <rect x="417" y="600" width="855" height="154" rx="28" fill="#FFFFFF" stroke="#DDE7FB" />
-  <rect x="214" y="268" width="118" height="18" rx="9" fill="#213E99" fill-opacity="0.18" />
-  <rect x="214" y="308" width="96" height="14" rx="7" fill="#213E99" fill-opacity="0.12" />
-  <rect x="214" y="344" width="132" height="14" rx="7" fill="#213E99" fill-opacity="0.12" />
-  <rect x="214" y="380" width="110" height="14" rx="7" fill="#213E99" fill-opacity="0.12" />
-  <rect x="214" y="452" width="132" height="132" rx="24" fill="url(#accent)" />
-  <rect x="374" y="270" width="146" height="18" rx="9" fill="#213E99" fill-opacity="0.18" />
-  <rect x="374" y="302" width="184" height="18" rx="9" fill="#213E99" fill-opacity="0.08" />
-  <rect x="374" y="320" width="160" height="18" rx="9" fill="#213E99" fill-opacity="0.08" />
-  <path d="M758 520C792 490 814 466 847 466C882 466 895 520 932 520C967 520 978 472 1012 472C1042 472 1066 500 1098 500C1130 500 1155 462 1191 462" stroke="#213E99" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
-  <path d="M758 520C792 490 814 466 847 466C882 466 895 520 932 520C967 520 978 472 1012 472C1042 472 1066 500 1098 500C1130 500 1155 462 1191 462" stroke="#7CD966" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-  <rect x="446" y="634" width="176" height="16" rx="8" fill="#213E99" fill-opacity="0.16" />
-  <rect x="446" y="672" width="248" height="14" rx="7" fill="#213E99" fill-opacity="0.09" />
-  <rect x="740" y="634" width="176" height="16" rx="8" fill="#213E99" fill-opacity="0.16" />
-  <rect x="740" y="672" width="248" height="14" rx="7" fill="#213E99" fill-opacity="0.09" />
-  <rect x="1034" y="634" width="176" height="16" rx="8" fill="#213E99" fill-opacity="0.16" />
-  <rect x="1034" y="672" width="158" height="14" rx="7" fill="#213E99" fill-opacity="0.09" />
+<svg width="1440" height="900" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1440" height="900" fill="#D9E2EC"/>
+  <rect x="40" y="40" width="1360" height="820" rx="32" fill="#F8FAFC"/>
+  <rect x="72" y="72" width="296" height="756" rx="28" fill="#0F2C59"/>
+  <rect x="400" y="72" width="968" height="110" rx="28" fill="#FFFFFF"/>
+  <rect x="400" y="214" width="460" height="252" rx="28" fill="#14366C"/>
+  <rect x="884" y="214" width="484" height="252" rx="28" fill="#FFFFFF"/>
+  <rect x="400" y="498" width="968" height="330" rx="28" fill="#FFFFFF"/>
+  <text x="120" y="150" fill="#F8FAFC" font-size="38" font-family="Arial, sans-serif" font-weight="700">CERMONT</text>
+  <text x="120" y="192" fill="#BFDBFE" font-size="22" font-family="Arial, sans-serif">Operación offline-first</text>
+  <rect x="120" y="250" width="200" height="16" rx="8" fill="#2659AF"/>
+  <rect x="120" y="308" width="160" height="16" rx="8" fill="#4CAF50"/>
+  <rect x="120" y="366" width="210" height="16" rx="8" fill="#2659AF"/>
+  <rect x="120" y="424" width="178" height="16" rx="8" fill="#2659AF"/>
+  <text x="440" y="136" fill="#0F172A" font-size="42" font-family="Arial, sans-serif" font-weight="700">Centro de operaciones de campo</text>
+  <text x="440" y="170" fill="#475569" font-size="22" font-family="Arial, sans-serif">Cola offline, borradores locales, instalación y reconexión asistida.</text>
+  <text x="438" y="284" fill="#DBEAFE" font-size="22" font-family="Arial, sans-serif">Órdenes activas</text>
+  <text x="438" y="354" fill="#F8FAFC" font-size="78" font-family="Arial, sans-serif" font-weight="700">28</text>
+  <text x="438" y="398" fill="#E2E8F0" font-size="24" font-family="Arial, sans-serif">Sincronizadas incluso con conectividad intermitente</text>
+  <rect x="438" y="418" width="220" height="14" rx="7" fill="#4CAF50"/>
+  <text x="922" y="286" fill="#0F172A" font-size="28" font-family="Arial, sans-serif" font-weight="700">Resumen de cuadrilla</text>
+  <rect x="922" y="324" width="380" height="16" rx="8" fill="#CBD5E1"/>
+  <rect x="922" y="364" width="320" height="16" rx="8" fill="#CBD5E1"/>
+  <rect x="922" y="404" width="260" height="16" rx="8" fill="#CBD5E1"/>
+  <text x="440" y="560" fill="#0F172A" font-size="28" font-family="Arial, sans-serif" font-weight="700">Flujos protegidos en terreno</text>
+  <rect x="440" y="598" width="260" height="168" rx="22" fill="#EFF6FF"/>
+  <rect x="724" y="598" width="260" height="168" rx="22" fill="#F0FDF4"/>
+  <rect x="1008" y="598" width="260" height="168" rx="22" fill="#FFF7ED"/>
+  <text x="470" y="650" fill="#0F172A" font-size="22" font-family="Arial, sans-serif" font-weight="700">Inspecciones</text>
+  <text x="470" y="690" fill="#475569" font-size="18" font-family="Arial, sans-serif">Alta, edita y conserva borradores</text>
+  <text x="754" y="650" fill="#0F172A" font-size="22" font-family="Arial, sans-serif" font-weight="700">Evidencias</text>
+  <text x="754" y="690" fill="#475569" font-size="18" font-family="Arial, sans-serif">Archivos en cola con reintentos</text>
+  <text x="1038" y="650" fill="#0F172A" font-size="22" font-family="Arial, sans-serif" font-weight="700">Cierres</text>
+  <text x="1038" y="690" fill="#475569" font-size="18" font-family="Arial, sans-serif">Datos administrativos protegidos</text>
 </svg>

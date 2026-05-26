@@ -1,0 +1,169 @@
+% =====================================================================
+% CAPÍTULO 4: MARCO LEGAL, NORMATIVO Y ÉTICO
+% Versión refactorizada
+% =====================================================================
+
+\chapter{Marco Legal, Normativo y Ético}
+\label{ch:marco-legal}
+
+% --- Ajustes editoriales locales del capítulo: sangría, espaciado y control de desbordamientos ---
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{0pt}
+\sloppy
+\emergencystretch=2em
+\raggedbottom
+\section{Protección de datos personales}
+
+El aplicativo web gestionará usuarios, roles, evidencias, documentos, órdenes de trabajo y posiblemente datos de clientes o trabajadores. Por tanto, debe ajustarse al régimen colombiano de protección de datos personales, en especial a la Ley 1581 de 2012 y sus normas reglamentarias. La citación exacta debe conservarse con la fuente oficial correspondiente y con el formato exigido por el programa \cite{congreso2012,decreto2013}.
+
+Desde el diseño del sistema se deben aplicar principios de finalidad, seguridad, circulación restringida, confidencialidad y acceso controlado. Esto implica que cada usuario solo debe consultar o modificar información conforme a su rol; las evidencias no deben exponerse públicamente; los respaldos deben conservarse de manera segura; y las cargas de documentos deben validarse para evitar archivos maliciosos o información no autorizada.
+
+\section{Seguridad y salud en el trabajo}
+
+La inducción HES de CERMONT S.A.S. muestra que la empresa opera bajo un enfoque de seguridad, salud en el trabajo y ambiente, con objetivos relacionados con capacitación, vigilancia epidemiológica, inspecciones, mejora del SG-SSTA, seguridad vial y manejo ambiental \cite{cermont_hes}. El aplicativo no reemplaza el Sistema de Gestión de Seguridad y Salud en el Trabajo, pero puede apoyarlo al conservar checklists, evidencias, registros de inspección y documentación asociada a actividades de campo \cite{ministerio2015,ministerio2019}.
+
+Los formularios digitales deben respetar la estructura de los formatos existentes y facilitar su diligenciamiento, evitando que la digitalización elimine campos relevantes para la seguridad o el control operativo. Cuando se diseñen formularios nuevos, estos deben ser revisados por el responsable HES o por quien defina la empresa.
+
+\section{Normativa de facturación electrónica}
+
+La Resolución 000042 de 2020 de la DIAN establece el sistema de facturación electrónica obligatorio en Colombia \cite{dian2020}. Aunque el aplicativo web desarrollado no constituye en sí mismo un software de facturación electrónica certificado, sí genera la información base estructurada necesaria para la emisión posterior de factura electrónica: datos del cliente, descripción detallada de servicios, base imponible, tributos y soportes documentales como órdenes de compra, actas de entrega e informes técnicos.
+
+\section{Propiedad intelectual y licencias de software}
+
+El proyecto utiliza o evalúa herramientas de software libre y de código abierto. Por ello, es necesario diferenciar entre usar una librería, modificar su código, distribuir una versión derivada o incorporarla como dependencia del sistema. Cada componente debe revisarse según su licencia. Algunas herramientas investigadas declaran licencias permisivas como MIT o Apache 2.0, mientras otras plataformas pueden operar bajo licencias copyleft o condiciones comerciales.
+
+La decisión de usar una librería debe documentar: nombre, repositorio, licencia, función dentro del sistema y nivel de dependencia. Esta trazabilidad evita problemas de propiedad intelectual y facilita que la empresa continúe el mantenimiento del aplicativo.
+
+\section{Normativa técnica y profesional}
+
+El ejercicio de la ingeniería en Colombia está regulado por la Ley 842 de 2003 y el Código de Ética Profesional del COPNIA \cite{ley842,copnia2021}. En el ámbito técnico, el Reglamento Técnico de Instalaciones Eléctricas (RETIE) establece requisitos aplicables a las actividades de electricidad que ejecuta CERMONT S.A.S. \cite{retie2013}. El sistema puede contribuir al cumplimiento normativo conservando trazabilidad de las intervenciones y documentación técnica asociada.
+
+\section{Documentos contractuales y confidencialidad}
+
+El libro no debe publicar contratos, valores, penalizaciones, costos internos, nombres de clientes, volúmenes de órdenes o datos sensibles de CERMONT S.A.S. si la empresa no autoriza su divulgación. Cuando se requiera justificar la necesidad del sistema, se deben preferir fuentes institucionales, documentos operativos no confidenciales, formatos de trabajo y descripción general del proceso.
+
+Los datos internos cuantitativos podrán incorporarse únicamente si existen anexos, actas, autorizaciones o registros verificables. En ausencia de estos soportes, se deben presentar como indicadores propuestos y no como resultados comprobados.
+
+\section{Ética de investigación y práctica empresarial}
+
+En el contexto de la práctica empresarial, el estudiante debe actuar con responsabilidad frente a la empresa, la universidad y los usuarios del sistema. Las entrevistas, pruebas de usuario o mediciones de desempeño deben realizarse con autorización, explicando el propósito académico y evitando afectar la operación normal de la organización \cite{ministerio1993}. Las evidencias fotográficas y documentos reales se deben anonimizar cuando contengan información sensible.
+
+La ética del documento también exige no afirmar resultados que aún no se han medido. Por esta razón, esta versión del libro reemplaza beneficios económicos supuestos por una metodología de validación. El valor académico se sostiene en el diseño, implementación, trazabilidad y evaluación verificable del artefacto de software.
+
+% =====================================================================
+\section{Análisis detallado de la Ley 1581 de 2012 y su aplicación al sistema}
+\label{sec:ley1581-detalle}
+
+La Ley 1581 de 2012, conocida como Ley de Habeas Data, desarrolla el derecho constitucional fundamental consagrado en el artículo 15 de la Constitución Política de Colombia. Esta norma establece el régimen general de protección de datos personales y resulta particularmente relevante para el aplicativo desarrollado, ya que el sistema almacena y procesa datos personales de al menos tres categorías de titulares: empleados de CERMONT S.A.S. (nombres, documentos de identidad, certificaciones, datos de contacto), personal de empresas clientes (nombres, cargos, teléfonos, correos electrónicos utilizados para coordinación operativa) y potencialmente datos biométricos en el contexto de firmas digitales y registros fotográficos de ejecución de actividades.
+
+Los diez principios rectores establecidos en el artículo 4 de la Ley 1581 tienen implicaciones directas en el diseño del sistema:
+
+\begin{enumerate}
+    \item \textbf{Principio de legalidad (art. 4, lit. a):} El tratamiento de datos debe realizarse conforme a disposiciones vigentes. El sistema implementa esta obligación mediante controles de autorización RBAC que restringen el acceso a datos personales exclusivamente a usuarios con justificación funcional documentada.
+    \item \textbf{Principio de finalidad (art. 4, lit. b):} La recolección de datos debe obedecer a una finalidad legítima, informada al titular. El sistema captura datos de empleados con la finalidad exclusiva de gestión de recursos humanos y asignación de órdenes de trabajo, y datos de clientes con la finalidad de coordinación operativa y comunicación de novedades.
+    \item \textbf{Principio de libertad (art. 4, lit. c):} El tratamiento requiere consentimiento previo, expreso e informado. Se recomienda que CERMONT S.A.S. implemente un formulario de autorización de tratamiento de datos conforme al Decreto 1377 de 2013, con registro digital de la aceptación.
+    \item \textbf{Principio de veracidad o calidad (art. 4, lit. d):} Los datos deben ser veraces, completos, exactos y actualizados. El sistema aplica validaciones de integridad referencial en la base de datos y reglas de negocio que previenen inconsistencias.
+    \item \textbf{Principio de transparencia (art. 4, lit. e):} El titular debe poder conocer la existencia de datos que le conciernen. El sistema debe proveer una funcionalidad que permita a los usuarios consultar los datos personales almacenados sobre ellos.
+    \item \textbf{Principio de acceso y circulación restringida (art. 4, lit. f):} Los datos solo pueden ser accedidos por personas autorizadas. El middleware de autorización RBAC del backend garantiza este principio para cada endpoint de la API.
+    \item \textbf{Principio de seguridad (art. 4, lit. g):} Deben adoptarse medidas técnicas para proteger los datos. El sistema implementa autenticación JWT, comunicaciones TLS, hash Bcrypt para contraseñas y registros de auditoría para accesos a datos sensibles.
+    \item \textbf{Principio de confidencialidad (art. 4, lit. h):} Todas las personas que intervengan en el tratamiento deben garantizar la reserva de la información. El control de acceso por roles y los registros de auditoría respaldan este principio.
+\end{enumerate}
+
+El Decreto 1377 de 2013, que reglamenta la Ley 1581, establece requisitos operativos adicionales: la política de tratamiento de datos debe ser documentada y publicada; las autorizaciones deben conservarse con prueba de su obtención; y los procedimientos para consultas y reclamos deben resolverse en plazos máximos de 10 y 15 días hábiles respectivamente. El sistema puede apoyar estos requisitos mediante el almacenamiento versionado de la política de tratamiento y el registro de las aceptaciones con marca de tiempo.
+
+\section{Estándares internacionales de calidad de software aplicables}
+\label{sec:estandares-software}
+
+Aunque no constituyen normas de obligatorio cumplimiento legal en Colombia, los siguientes estándares internacionales proporcionan marcos de referencia que orientaron el diseño y la validación del aplicativo:
+
+\textbf{IEEE Std 1471-2000 (Recommended Practice for Architectural Description).} Este estándar, posteriormente adoptado como ISO/IEC 42010:2011, establece recomendaciones para la descripción de arquitecturas de sistemas intensivos en software. El proyecto aplica sus lineamientos al documentar la arquitectura mediante vistas complementarias: vista de módulos (descomposición funcional del sistema), vista de componentes y conectores (interacción entre frontend, backend y base de datos), y vista de asignación (despliegue en infraestructura de servidores).
+
+\textbf{ISO/IEC/IEEE 12207:2017 (Systems and Software Engineering — Software Life Cycle Processes).} Este estándar define un marco de procesos para el ciclo de vida del software que fue utilizado como referencia para estructurar las fases metodológicas del proyecto. Los procesos de gestión de proyecto, gestión de calidad y verificación descritos en la metodología se alinean con los procesos correspondientes definidos en este estándar.
+
+\textbf{OWASP Top 10 (2021).} Aunque no es un estándar formal sino un documento de concienciación comunitaria, el OWASP Top 10 constituye la referencia más ampliamente aceptada para la identificación y mitigación de riesgos de seguridad en aplicaciones web \cite{owasp_top10}. Como se documentó en los capítulos de desarrollo y validación, el sistema implementa controles específicos para cada uno de los riesgos identificados en esta referencia.
+
+\section{Cumplimiento normativo sectorial}
+\label{sec:cumplimiento-sectorial}
+
+Las actividades técnicas ejecutadas por CERMONT S.A.S. están sujetas a regulaciones sectoriales que el aplicativo web no reemplaza, pero cuyo cumplimiento puede facilitar. A continuación se analizan las principales:
+
+\textbf{Reglamento Técnico de Instalaciones Eléctricas (RETIE).} El RETIE, adoptado mediante la Resolución 90708 de 2013 del Ministerio de Minas y Energía, establece requisitos técnicos para instalaciones eléctricas en Colombia \cite{retie2013}. El sistema apoya el cumplimiento de este reglamento al conservar trazabilidad de las intervenciones eléctricas, almacenar certificados de conformidad de productos y registrar los resultados de inspecciones y pruebas. La posibilidad de asociar evidencias fotográficas a cada intervención proporciona soporte documental verificable en caso de auditorías de cumplimiento.
+
+\textbf{Sistema de Gestión de Seguridad y Salud en el Trabajo (SG-SST).} El Decreto 1072 de 2015 y la Resolución 0312 de 2019 establecen los estándares mínimos del SG-SST en Colombia \cite{ministerio2015,ministerio2019}. Los módulos de checklists digitales y registro de evidencias del aplicativo pueden integrarse en los procesos de inspección de seguridad, verificación de uso de elementos de protección personal (EPP) y documentación de condiciones de trabajo, contribuyendo a la trazabilidad exigida por la normativa. El formato de inspección de líneas de vida verticales de CERMONT S.A.S. \cite{formato_lineas_vida} es un ejemplo concreto de documento operativo que, al digitalizarse, fortalece el componente de verificación del SG-SST.
+
+\textbf{Normativa de facturación electrónica (DIAN).} La Resolución 000042 de 2020 de la Dirección de Impuestos y Aduanas Nacionales (DIAN) establece el sistema de facturación electrónica obligatorio en Colombia \cite{dian2020}. El módulo de cierre administrativo del aplicativo organiza la información base requerida para la facturación (datos del cliente, descripción de servicios, valores, soportes documentales), pero no sustituye al software de facturación electrónica certificado que CERMONT S.A.S. debe utilizar para la transmisión oficial ante la DIAN. Esta separación de responsabilidades es consistente con el principio de modularidad que rige la arquitectura del sistema.
+
+\section{Matriz de requisitos legales y su implementación en el sistema}
+\label{sec:matriz-legal}
+
+La Tabla \ref{tab:matriz-requisitos-legales} sintetiza la relación entre los requisitos normativos identificados y las funcionalidades del sistema que contribuyen a su cumplimiento.
+
+\begin{table}[!htbp]
+\centering
+\caption{Matriz de trazabilidad: requisitos legales y funcionalidades del sistema. Fuente: Elaboración propia.}
+\label{tab:matriz-requisitos-legales}
+\small
+\def\LegalRow#1#2#3{\parbox[t]{3.5cm}{\raggedright #1} & \parbox[t]{7.3cm}{\raggedright #2} & \parbox[t]{3.0cm}{\raggedright #3}\\\midrule}
+\begin{tabular}{@{}l l l@{}}
+\toprule
+\textbf{Requisito normativo} & \textbf{Funcionalidad del sistema que lo soporta} & \textbf{Estado} \\
+\midrule
+\LegalRow{Consentimiento del titular (Ley 1581/2012, art. 4 lit. c)}{Registro digital de autorizaciones con marca de tiempo.}{Pendiente de implementar en frontend.}
+\LegalRow{Acceso restringido (Ley 1581/2012, art. 4 lit. f)}{Middleware RBAC en backend para todos los endpoints protegidos.}{Implementado.}
+\LegalRow{Seguridad de datos (Ley 1581/2012, art. 4 lit. g)}{JWT HttpOnly, TLS, Bcrypt, auditoría de accesos.}{Implementado.}
+\LegalRow{Derecho de consulta (Ley 1581/2012, art. 8 lit. a)}{Interfaz de perfil de usuario con datos personales visibles.}{Pendiente de implementar.}
+\LegalRow{Trazabilidad de intervenciones (RETIE)}{Asociación de evidencias y documentos a cada orden de trabajo.}{Implementado.}
+\LegalRow{Verificación de condiciones de trabajo (SG-SST)}{Checklists digitales con registro de EPP y condiciones de seguridad.}{Implementado.}
+\LegalRow{Información base para facturación (DIAN Res. 000042/2020)}{Módulo de cierre administrativo con datos estructurados del servicio.}{Implementado.}
+\LegalRow{Ética profesional (Ley 842/2003, COPNIA)}{Documentación verificable; no se afirman resultados no medidos.}{Cumplido en el documento.}
+\bottomrule
+\end{tabular}
+\end{table}
+
+% --- AMPLIACIÓN ACADÉMICA INTEGRADA CAPÍTULO 4 ---
+
+\section{Aplicación del marco legal al diseño funcional del sistema}
+\label{sec:aplicacion-marco-legal-diseno}
+
+El marco legal y ético no debe presentarse como un listado aislado de normas. Su función dentro del trabajo es explicar qué decisiones de diseño son necesarias para que el aplicativo administre información operacional, documental y personal sin comprometer confidencialidad, integridad ni disponibilidad. En consecuencia, cada exigencia normativa o ética debe traducirse en un requisito funcional o no funcional del sistema.
+
+\begin{table}[!htbp]
+\centering
+\footnotesize
+\caption{Relación entre consideraciones normativas y requisitos del aplicativo. Fuente: elaboración propia.}
+\label{tab:marco-legal-requisitos-funcionales}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{p{3.2cm}p{5.6cm}p{5.6cm}}
+\toprule
+\textbf{Consideración} & \textbf{Riesgo si no se controla} & \textbf{Respuesta del sistema}\\
+\midrule
+Protección de datos personales & Exposición de información de empleados, técnicos, clientes o firmantes. & Autenticación, roles, permisos y limitación de acceso según perfil.\\
+Confidencialidad contractual & Divulgación no autorizada de órdenes, evidencias, informes o soportes de cliente. & Acceso por orden, auditoría y control documental.\\
+Propiedad intelectual & Uso no autorizado de código, plantillas o librerías sin respetar licencias. & Inventario de dependencias y revisión de licencias en el repositorio.\\
+Integridad documental & Modificación no trazada de evidencias, informes, actas o estados de cierre. & Eventos de auditoría, estados controlados y registro de metadatos.\\
+Seguridad de la información & Manipulación de datos por usuarios no autorizados o entradas maliciosas. & Validación de payloads, sanitización, RBAC y registro de errores.\\
+\bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\section{Confidencialidad de documentos operativos y evidencias}
+\label{sec:confidencialidad-documentos-evidencias}
+
+Los documentos operativos de CERMONT S.A.S. pueden contener información sensible sobre clientes, ubicaciones, evidencias fotográficas, hallazgos técnicos, firmas, permisos de trabajo, condiciones de seguridad y soportes administrativos. Esta información no debe tratarse como archivos genéricos. Desde el punto de vista ético, el aplicativo debe garantizar que cada documento quede asociado a una orden, a un responsable y a un estado; además, debe permitir restringir su consulta según el rol del usuario.
+
+La confidencialidad también se relaciona con la forma en que el libro presenta los anexos. Los documentos internos pueden usarse como evidencia académica, pero no deben divulgar información sensible innecesaria. Si un formato contiene nombres, firmas, datos de clientes o detalles confidenciales, se recomienda anonimizar o recortar la evidencia antes de incorporarla en la versión final del trabajo. Esta práctica no debilita el soporte documental; por el contrario, demuestra responsabilidad ética en el manejo de información empresarial.
+
+\section{Licenciamiento de software y uso de componentes abiertos}
+\label{sec:licenciamiento-componentes-abiertos}
+
+El desarrollo del aplicativo se apoya en tecnologías y librerías de código abierto. Esto implica revisar licencias, versiones, obligaciones de atribución y restricciones de uso. Desde la perspectiva del trabajo de grado, no basta con mencionar que una librería fue usada; es necesario explicar su función dentro del sistema y verificar que su licencia sea compatible con el uso académico y empresarial previsto. Este análisis es especialmente importante en componentes de generación documental, validación, interfaz, autenticación, pruebas y construcción del proyecto.
+
+Una práctica recomendada es incluir en anexos un inventario de dependencias principales, indicando nombre, rol, licencia y ubicación en el repositorio. Este inventario no requiere listar cada subdependencia transitoria, pero sí debe cubrir las herramientas centrales que sustentan la arquitectura.
+
+\section{Ética de la validación y uso de métricas}
+\label{sec:etica-validacion-metricas}
+
+El principio ético más importante en la validación del proyecto es no presentar como resultado aquello que todavía no ha sido medido. Si el sistema fue probado mediante escenarios técnicos, pruebas unitarias o validaciones internas, debe expresarse de esa forma. Si la reducción de tiempos, la disminución de errores o la mejora en facturación dependen de una prueba piloto con usuarios reales, esos indicadores deben quedar marcados como pendientes de medición. Esta distinción protege la validez del trabajo y evita que el documento sea cuestionado por datos no verificables.
+
+El libro puede proponer indicadores, matrices y procedimientos de medición; sin embargo, solo debe reportar valores numéricos cuando exista evidencia anexada, como actas de prueba, registros de uso, bitácoras, bases de datos exportadas o formularios de evaluación. La transparencia sobre el estado de la validación es una fortaleza académica y no una debilidad del proyecto.

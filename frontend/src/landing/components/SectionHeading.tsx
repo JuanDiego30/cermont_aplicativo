@@ -1,5 +1,5 @@
-import { cn } from "@/_shared/lib/utils";
 import { BadgePill } from "@/core/ui/BadgePill";
+import { cn } from "@/lib/utils";
 
 interface SectionHeadingProps {
 	eyebrow: string;
@@ -18,10 +18,10 @@ export function SectionHeading({
 }: SectionHeadingProps) {
 	const alignment = align === "center" ? "text-center items-center" : "text-left items-start";
 	const eyebrowClassName = inverse
-		? "border-white/10 bg-white/5 text-slate-200 shadow-none"
+		? "border-white/10 bg-white/5 text-zinc-200 shadow-none"
 		: "border-border-default bg-surface-primary text-text-secondary shadow-1";
 	const titleClassName = inverse ? "text-white" : "text-text-primary";
-	const descriptionClassName = inverse ? "text-slate-300" : "text-text-secondary";
+	const descriptionClassName = inverse ? "text-zinc-300" : "text-text-secondary";
 
 	return (
 		<div className={cn("flex flex-col gap-4", alignment)}>

@@ -1,0 +1,47 @@
+% Plantilla base corregida para el libro de grado - Universidad de Pamplona
+\documentclass[12pt,letterpaper,oneside]{book}
+\usepackage[spanish,es-tabla,es-nodecimaldot]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx}
+\usepackage[letterpaper,left=4cm,right=2cm,top=3cm,bottom=3cm,headheight=16pt]{geometry}
+\usepackage{graphicx,float,caption,subcaption}
+\usepackage{amsmath,amssymb}
+\usepackage[table]{xcolor}
+\definecolor{institucionalRed}{HTML}{AD3333}
+\definecolor{institucionalBlue}{HTML}{003366}
+\definecolor{institucionalGrey}{HTML}{DADADA}
+\usepackage{tabularx,longtable,booktabs,array,multirow,adjustbox}
+\usepackage{setspace}
+\onehalfspacing
+\setlength{\parindent}{1.25cm}
+\setlength{\parskip}{0pt}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\small,breaklines=true,columns=fullflexible,frame=single,rulecolor=\color{institucionalBlue},backgroundcolor=\color{institucionalGrey!25}}
+\usepackage{tikz,pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes,shapes.geometric,arrows.meta,positioning,calc,fit,babel}
+\usepackage{titlesec,fancyhdr,tocloft,appendix,pdfpages,url,csquotes}
+\usepackage[numbers,sort&compress]{natbib}
+\bibliographystyle{IEEEtran}
+\usepackage[hidelinks]{hyperref}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\nouppercase{\leftmark}}
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\begin{document}
+\frontmatter
+% \include{Portadas/Portadas}
+% \include{resumen}
+% \include{abstract}
+\tableofcontents
+\listoffigures
+\listoftables
+\mainmatter
+% \include{Capitulos/Capitulo_1}
+\backmatter
+% \bibliography{Bibliografia/referencias}
+\appendix
+% \include{Apendices/Apendices}
+\end{document}

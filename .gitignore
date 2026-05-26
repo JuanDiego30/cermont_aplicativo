@@ -232,15 +232,6 @@ skills-lock.json
 *.ps1
 !scripts/*.ps1
 
-# Tracked binaries
-claude.exe
-
-# Diagnostic artifacts
-diagnostics.*
-lint_output.txt
-lint.json
-summary_lint.txt
-
 # ==========================================
 # 21. Workspace scratch / prompt artifacts
 # ==========================================
@@ -256,21 +247,46 @@ ts-errors*.txt
 apps/frontend/vitest_*.txt
 docs/pdf/
 nul
-backend_lint*.txt
-backend_typecheck*.txt
-frontend_lint*.txt
-frontend_typecheck*.txt
-frontend_build*.txt
-build_output*.txt
-errors.txt
-verify_output.txt
-typecheck-errors*.txt
-report_*.sarif.json
 
 # Ghost path artifact created by sync tools / Windows path leakage
 C*Users*camilDownloadscermont_aplicativocermont_aplicativoappsfrontend.env.test.local
 
-# ==========================================
-# 22. Playwright MCP logs
-# ==========================================
+# Audit branch exclusions
+.obsidian/
 .playwright-mcp/
+scratch/
+tmp/
+pantallazos/
+investigacion_para_libro/
+backend-dev-err.txt
+backend-dev-out.txt
+*.yml
+# Large binaries
+claude.exe
+*.exe
+
+# Artifacts and temporary files
+*.png
+*.yml
+*.txt
+*.json
+react-doctor-*
+task-*
+*.csv
+frontend-lint.txt
+*.md
+hoist-jsx.txt
+last-error.txt
+memo-issues.txt
+module-errors.txt
+palette-issues.txt
+remaining-errors.txt
+slate_matches.txt
+frontend-test-evidence.txt
+test-evidence.txt
+verify-output.txt
+backend/biome-err.txt
+backend/biome-out.txt
+backend/biome-output.txt
+backend/lint-errors.txt
+packages/shared-types/shared-types-lint.txt

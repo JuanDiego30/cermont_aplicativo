@@ -1,165 +1,139 @@
 /**
  * Role definitions - Single Source of Truth.
  *
- * Canonical role values are English. Legacy Spanish values are accepted at
- * input boundaries through normalizeUserRole and emitted as canonical values.
+ * Canonical role values are Spanish (per DOC-04 §4.2).
+ * This file must stay in sync with UserRoleSchema in user.schema.ts.
  *
  * @packageDocumentation
  */
 
+// Spanish roles - canonical (must match UserRoleSchema in user.schema.ts)
 export type UserRole =
-	| "manager"
-	| "resident_engineer"
-	| "hse_coordinator"
-	| "supervisor"
-	| "operator"
-	| "technician"
-	| "administrator"
-	| "client";
-
-export type LegacyUserRole =
 	| "gerente"
 	| "residente"
 	| "hes"
+	| "supervisor"
 	| "operador"
 	| "tecnico"
 	| "administrativo"
 	| "cliente";
 
-export type UserRoleInput = UserRole | LegacyUserRole;
-
 export const ALL_AUTHENTICATED_ROLES = [
-	"manager",
-	"resident_engineer",
-	"hse_coordinator",
-	"supervisor",
-	"operator",
-	"technician",
-	"administrator",
-	"client",
-] as const satisfies readonly UserRole[];
-
-export const LEGACY_AUTHENTICATED_ROLES = [
 	"gerente",
 	"residente",
 	"hes",
+	"supervisor",
 	"operador",
 	"tecnico",
 	"administrativo",
 	"cliente",
-] as const satisfies readonly LegacyUserRole[];
+] as const satisfies readonly UserRole[];
 
-export const ALL_USER_ROLE_INPUTS = [
-	...ALL_AUTHENTICATED_ROLES,
-	...LEGACY_AUTHENTICATED_ROLES,
-] as const satisfies readonly UserRoleInput[];
+export const ALL_USER_ROLE_INPUTS = ALL_AUTHENTICATED_ROLES;
 
-export const LEGACY_ROLE_ALIASES = {
-	gerente: "manager",
-	residente: "resident_engineer",
-	hes: "hse_coordinator",
-	operador: "operator",
-	tecnico: "technician",
-	administrativo: "administrator",
-	cliente: "client",
-} as const satisfies Record<LegacyUserRole, UserRole>;
-
-const ROLE_ALIASES = {
-	manager: "manager",
-	resident_engineer: "resident_engineer",
-	hse_coordinator: "hse_coordinator",
-	supervisor: "supervisor",
-	operator: "operator",
-	technician: "technician",
-	administrator: "administrator",
-	client: "client",
-	...LEGACY_ROLE_ALIASES,
-} as const satisfies Record<UserRoleInput, UserRole>;
-
-export const ADMIN_ROLES = ["manager", "administrator"] as const satisfies readonly UserRole[];
+export const ADMIN_ROLES = ["gerente", "administrativo"] as const satisfies readonly UserRole[];
 
 export const RESOURCE_ROLES = [
-	"manager",
-	"resident_engineer",
+	"gerente",
+	"residente",
 	"supervisor",
-	"operator",
+	"operador",
 ] as const satisfies readonly UserRole[];
 
 export const REPORT_ROLES = [
-	"manager",
-	"resident_engineer",
+	"gerente",
+	"residente",
 	"supervisor",
-	"operator",
-	"technician",
-	"administrator",
+	"operador",
+	"tecnico",
+	"administrativo",
 ] as const satisfies readonly UserRole[];
 
-export const MANAGEMENT_ROLES = [
-	"manager",
-	"resident_engineer",
-] as const satisfies readonly UserRole[];
+export const MANAGEMENT_ROLES = ["gerente", "residente"] as const satisfies readonly UserRole[];
 
-export const APPROVER_ROLES = ["manager", "supervisor"] as const satisfies readonly UserRole[];
+export const APPROVER_ROLES = ["gerente", "supervisor"] as const satisfies readonly UserRole[];
+
+export const AI_ASSISTANT_ROLES = [
+	"gerente",
+	"residente",
+	"supervisor",
+] as const satisfies readonly UserRole[];
 
 export const MAINTENANCE_MANAGEMENT_ROLES = [
-	"manager",
-	"resident_engineer",
-	"hse_coordinator",
+	"gerente",
+	"residente",
+	"hes",
 ] as const satisfies readonly UserRole[];
 
 export const ADMIN_PLUS_RESIDENT_ENGINEER = [
-	"manager",
-	"resident_engineer",
-	"administrator",
+	"gerente",
+	"residente",
+	"administrativo",
 ] as const satisfies readonly UserRole[];
 
 export const ADMIN_PLUS_RESIDENTE = ADMIN_PLUS_RESIDENT_ENGINEER;
 
 export const INTERNAL_ROLES = ALL_AUTHENTICATED_ROLES.filter(
-	(role): role is Exclude<UserRole, "client"> => role !== "client",
+	(role): role is Exclude<UserRole, "cliente"> => role !== "cliente",
 ) as readonly UserRole[];
 
 export const ROLE_LABELS: Record<UserRole, string> = {
-	manager: "Manager",
-	resident_engineer: "Resident Engineer",
-	hse_coordinator: "HSE Coordinator",
+	gerente: "Gerente",
+	residente: "Residente",
+	hes: "HES",
 	supervisor: "Supervisor",
-	operator: "Operator",
-	technician: "Technician",
-	administrator: "Administrator",
-	client: "Client",
+	operador: "Operador",
+	tecnico: "Técnico",
+	administrativo: "Administrativo",
+	cliente: "Cliente",
 } as const satisfies Record<UserRole, string>;
 
 export const ROLE_HIERARCHY: Record<UserRole, number> = {
-	manager: 0,
-	resident_engineer: 1,
+	gerente: 0,
+	residente: 1,
 	supervisor: 2,
-	hse_coordinator: 3,
-	operator: 4,
-	technician: 5,
-	administrator: 6,
-	client: 7,
+	hes: 3,
+	operador: 4,
+	tecnico: 5,
+	administrativo: 6,
+	cliente: 7,
 } as const satisfies Record<UserRole, number>;
 
 export function isAuthenticatedRole(role: string): role is UserRole {
 	return (ALL_AUTHENTICATED_ROLES as readonly string[]).includes(role);
 }
 
-export function isUserRoleInput(role: string): role is UserRoleInput {
+export function isUserRoleInput(role: string): role is UserRole {
 	return (ALL_USER_ROLE_INPUTS as readonly string[]).includes(role);
 }
 
+const ENGLISH_TO_SPANISH_ROLE: Record<string, UserRole> = {
+	manager: "gerente",
+	resident_engineer: "residente",
+	hse_coordinator: "hes",
+	supervisor: "supervisor",
+	operator: "operador",
+	technician: "tecnico",
+	administrator: "administrativo",
+	client: "cliente",
+};
+
+export const LEGACY_ROLE_ALIASES = ENGLISH_TO_SPANISH_ROLE;
+
 export function normalizeUserRole(role: string): UserRole | false {
 	const normalized = role.toLowerCase().trim();
-	if (!isUserRoleInput(normalized)) {
-		return false;
+	if (isUserRoleInput(normalized)) {
+		return normalized as UserRole;
 	}
-	return ROLE_ALIASES[normalized];
+	if (normalized in ENGLISH_TO_SPANISH_ROLE) {
+		return ENGLISH_TO_SPANISH_ROLE[normalized];
+	}
+	return false;
 }
 
 export function hasRole(
-	userRole: UserRoleInput | string,
-	allowedRoles: readonly (UserRoleInput | string)[],
+	userRole: UserRole | string,
+	allowedRoles: readonly (UserRole | string)[],
 ): boolean {
 	const normalizedUserRole = normalizeUserRole(userRole);
 	if (!normalizedUserRole) {

@@ -143,7 +143,7 @@ export type Permission =
  * ```
  */
 export const ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
-	manager: [
+	gerente: [
 		"users:create",
 		"users:read",
 		"users:update",
@@ -186,7 +186,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
 		"system:configure",
 		"system:read_logs",
 	],
-	resident_engineer: [
+	residente: [
 		"orders:create",
 		"orders:read",
 		"orders:update",
@@ -205,7 +205,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
 		"resources:delete",
 		"resources:allocate",
 	],
-	hse_coordinator: [
+	hes: [
 		"orders:create",
 		"orders:read",
 		"orders:update",
@@ -255,7 +255,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
 		"resources:delete",
 		"resources:allocate",
 	],
-	operator: [
+	operador: [
 		"orders:read",
 		"orders:update",
 		"maintenance:read",
@@ -270,14 +270,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
 		"resources:read",
 		"resources:allocate",
 	],
-	technician: [
-		"orders:read",
-		"evidence:create",
-		"evidence:read",
-		"evidence:update",
-		"resources:read",
-	],
-	administrator: [
+	tecnico: ["orders:read", "evidence:create", "evidence:read", "evidence:update", "resources:read"],
+	administrativo: [
 		"costs:create",
 		"costs:read",
 		"costs:update",
@@ -292,7 +286,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, readonly Permission[]> = {
 		"system:configure",
 		"system:read_logs",
 	],
-	client: [
+	cliente: [
 		"orders:read",
 		"maintenance:read",
 		"evidence:read",

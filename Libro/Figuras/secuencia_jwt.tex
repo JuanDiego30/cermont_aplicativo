@@ -1,0 +1,36 @@
+% Figura corregida: secuencia de autenticación y autorización RBAC.
+\begin{figure}[H]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[font=\sffamily]
+\tikzset{
+  actor/.style={figHeader, minimum width=2.55cm, minimum height=0.68cm, font=\scriptsize\bfseries},
+  line/.style={dashed, draw=institucionalGrey, line width=0.7pt},
+  note/.style={figBoxWhite, font=\tiny, text width=2.65cm, minimum width=2.75cm}
+}
+\node[actor] (user) at (0,0) {Usuario};
+\node[actor] (front) at (3.2,0) {Frontend\\Next.js};
+\node[actor] (api) at (6.4,0) {API Express};
+\node[actor] (auth) at (9.6,0) {AuthService\\JWT};
+\node[actor] (db) at (12.8,0) {MongoDB\\Mongoose};
+\node[actor] (rbac) at (16.0,0) {Middleware\\RBAC};
+\foreach \x in {0,3.2,6.4,9.6,12.8,16.0}{\draw[line] (\x,-0.45) -- (\x,-9.9);} 
+\draw[figArrow] (0,-1.0) -- node[above, font=\tiny] {1. Credenciales} (3.2,-1.0);
+\draw[figArrow] (3.2,-1.6) -- node[above, font=\tiny] {2. POST /api/auth/login} (6.4,-1.6);
+\draw[figArrow] (6.4,-2.2) -- node[above, font=\tiny] {3. Validar esquema Zod} (9.6,-2.2);
+\draw[figArrow] (9.6,-2.8) -- node[above, font=\tiny] {4. Consultar usuario} (12.8,-2.8);
+\draw[figArrow] (12.8,-3.4) -- node[above, font=\tiny] {5. Hash y roles} (9.6,-3.4);
+\node[note] at (9.6,-4.30) {6. Verifica contraseña, estado de cuenta y permisos base};
+\draw[figArrow] (9.6,-5.15) -- node[above, font=\tiny] {7. Emite JWT HttpOnly} (6.4,-5.15);
+\draw[figArrow] (6.4,-5.75) -- node[above, font=\tiny] {8. Cookie segura} (3.2,-5.75);
+\draw[figArrow] (3.2,-6.55) -- node[above, font=\tiny] {9. Solicita ruta protegida} (6.4,-6.55);
+\draw[figArrow] (6.4,-7.15) -- node[above, font=\tiny] {10. Verifica token} (9.6,-7.15);
+\draw[figArrow] (9.6,-7.75) -- node[above, font=\tiny] {11. Evalúa rol y permiso} (16.0,-7.75);
+\draw[figArrow] (16.0,-8.35) -- node[above, font=\tiny] {12. Autoriza o rechaza} (6.4,-8.35);
+\draw[figArrow] (6.4,-8.95) -- node[above, font=\tiny] {13. Respuesta segura} (3.2,-8.95);
+\node[figNote, text width=4.4cm] at (13.2,-9.45) {No se representa emisión de factura DIAN ni integración externa; el alcance es control de acceso y trazabilidad interna.};
+\end{tikzpicture}%
+}
+\caption[Secuencia JWT y RBAC]{Secuencia de autenticación JWT HttpOnly y autorización por roles para operaciones protegidas del aplicativo. Fuente: Elaboración propia.}
+\label{fig:secuencia-jwt}
+\end{figure}

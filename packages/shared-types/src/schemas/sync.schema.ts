@@ -11,7 +11,7 @@ export const OfflineOperationSchema = z
 		id: z.string().min(1),
 		type: OfflineEntityTypeSchema,
 		action: OfflineActionSchema,
-		payload: z.record(z.string(), z.json()),
+		payload: z.record(z.string(), z.unknown()),
 		timestamp: z.string().min(1),
 	})
 	.strip();

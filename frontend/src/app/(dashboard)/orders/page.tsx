@@ -1,125 +1,116 @@
 "use client";
 
-import type { OrderListQuery, OrderPriority, OrderStatus, OrderType } from "@cermont/shared-types";
+import type { OrderListQuery } from "@cermont/shared-types";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { flattenInfinitePages, useOrdersInfinite } from "@/orders/queries";
-import { OrdersErrorState } from "@/orders/ui/OrdersErrorState";
-import { OrdersLoadingSkeleton } from "@/orders/ui/OrdersLoadingSkeleton";
-import { OrdersTable } from "@/orders/ui/OrdersTable";
-import { OrdersTableEmpty } from "@/orders/ui/OrdersTableEmpty";
-import { type OrdersGroupByValue, OrdersToolbar } from "@/orders/ui/toolbar";
+import { Suspense, useRef, useState } from "react";
+import { EmptyState } from "@/core/ui/EmptyState";
+import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
+import { readSearchParam, searchParamsToString } from "@/lib/utils/search-params";
+import { useOrders } from "@/modules/orders/queries";
+import { OrdersTable } from "@/modules/orders/ui/OrdersTable";
+import { OrdersPageFilters } from "./OrdersPageFilters";
+import { OrdersPageHeader } from "./OrdersPageHeader";
+import { OrdersPagePagination } from "./OrdersPagePagination";
+import { OrdersPageSelectionBar } from "./OrdersPageSelectionBar";
 
 gsap.registerPlugin(useGSAP);
 
-function readArrayParam(searchParams: URLSearchParams, key: string): string[] | undefined {
-	const values = searchParams
-		.getAll(key)
-		.flatMap((value) => value.split(","))
-		.map((value) => value.trim())
-		.filter(Boolean);
-	return values.length > 0 ? values : undefined;
+function parseOrdersFilters(searchParams: URLSearchParams) {
+	const page = Number(readSearchParam(searchParams, "page")) || 1;
+	const limit = Number(readSearchParam(searchParams, "limit")) || 20;
+	const search = readSearchParam(searchParams, "search") || undefined;
+	const statusFilter = readSearchParam(searchParams, "status") as NonNullable<
+		OrderListQuery["status"]
+	>;
+	const priorityFilter = readSearchParam(searchParams, "priority") as NonNullable<
+		OrderListQuery["priority"]
+	>;
+
+	const filters: Partial<OrderListQuery> = { page, limit };
+	if (search) {
+		filters.search = search;
+	}
+	if (statusFilter) {
+		filters.status = statusFilter;
+	}
+	if (priorityFilter) {
+		filters.priority = priorityFilter;
+	}
+
+	return { page, limit, search, statusFilter, priorityFilter, filters };
 }
 
-function makeHref(pathname: string, searchParams: URLSearchParams): string {
-	const query = searchParams.toString();
-	return query ? `${pathname}?${query}` : pathname;
+function buildOrdersPageHref(searchParamsStr: string, p: number, l: number): string {
+	const q = new URLSearchParams(searchParamsStr);
+	q.set("page", String(p));
+	q.set("limit", String(l));
+	return `/orders?${q.toString()}`;
+}
+
+function buildOrdersClearHref(searchParamsStr: string, l: number): string {
+	const q = new URLSearchParams(searchParamsStr);
+	q.set("page", "1");
+	q.set("limit", String(l));
+	return `/orders?${q.toString()}`;
 }
 
 export default function OrdersPage() {
+	return (
+		<Suspense fallback={<OrdersLoading />}>
+			<OrdersPageInner />
+		</Suspense>
+	);
+}
+
+function OrdersLoading() {
+	return (
+		<section aria-labelledby="orders-page-title" className="space-y-5">
+			<div
+				className="flex h-64 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]"
+				role="status"
+			>
+				<span className="text-[var(--text-secondary)]">Cargando datos…</span>
+			</div>
+		</section>
+	);
+}
+
+function OrdersPageInner() {
 	const searchParams = useSearchParams();
-	const router = useRouter();
+	const { push } = useRouter();
 	const pageRef = useRef<HTMLElement>(null);
-	const loadMoreRef = useRef<HTMLDivElement>(null);
 	const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
 
-	const filters = useMemo<Partial<OrderListQuery>>(() => {
-		const limit = Math.min(Number(searchParams.get("limit")) || 50, 100);
-		return {
-			limit,
-			search: searchParams.get("search") || undefined,
-			status: readArrayParam(searchParams, "status") as OrderStatus[] | undefined,
-			priority: readArrayParam(searchParams, "priority") as OrderPriority[] | undefined,
-			type: readArrayParam(searchParams, "type") as OrderType[] | undefined,
-			technicianId: searchParams.get("technicianId") || undefined,
-			dateFrom: searchParams.get("dateFrom") || undefined,
-			dateTo: searchParams.get("dateTo") || undefined,
-		};
-	}, [searchParams]);
+	const { page, limit, search, statusFilter, priorityFilter, filters } =
+		parseOrdersFilters(searchParams);
 
-	const groupBy = (searchParams.get("groupBy") || "status") as OrdersGroupByValue;
-	const query = useOrdersInfinite(filters);
-	const orders = flattenInfinitePages(query.data);
-	const totalLoaded = orders.length;
-	const hasActiveFilters = Boolean(
-		filters.search ||
-			filters.status?.length ||
-			filters.priority?.length ||
-			filters.type?.length ||
-			filters.technicianId ||
-			filters.dateFrom ||
-			filters.dateTo,
-	);
-	const allSelected = orders.length > 0 && selectedOrderIds.length === orders.length;
+	const { data: orderPage, isLoading, error } = useOrders(filters);
+	const orders = orderPage?.items ?? [];
+	const total = orderPage?.total ?? 0;
+	const totalPages = orderPage?.pages ?? Math.ceil(total / Math.max(limit, 1));
+	const selectedCount = selectedOrderIds.length;
+	const allSelected = orders.length > 0 && selectedCount === orders.length;
+	const hasActiveFilters = Boolean(statusFilter || priorityFilter || search);
+	const searchParamsStr = searchParamsToString(searchParams);
 
-	const replaceQuery = useCallback(
-		(mutator: (params: URLSearchParams) => void) => {
-			const next = new URLSearchParams(searchParams.toString());
-			mutator(next);
-			next.delete("cursor");
-			router.replace(makeHref("/orders", next));
-		},
-		[router, searchParams],
-	);
+	useGSAP(
+		() => {
+			if (prefersReducedMotion()) {
+				return;
+			}
 
-	const setFilterPatch = useCallback(
-		(patch: Partial<OrderListQuery>) => {
-			replaceQuery((next) => {
-				for (const [key, value] of Object.entries(patch)) {
-					next.delete(key);
-					if (value === undefined || value === null || value === "") {
-						continue;
-					}
-					if (Array.isArray(value)) {
-						for (const entry of value) {
-							next.append(key, String(entry));
-						}
-						continue;
-					}
-					next.set(key, String(value));
-				}
+			gsap.from("[data-orders-reveal]", {
+				opacity: 0,
+				y: 20,
+				stagger: 0.1,
+				duration: 0.5,
+				ease: "power2.out",
+				clearProps: "all",
 			});
 		},
-		[replaceQuery],
-	);
-
-	const clearFilters = useCallback(() => {
-		router.replace("/orders?limit=50");
-	}, [router]);
-
-	const removeFilter = useCallback(
-		(key: string) => {
-			replaceQuery((next) => {
-				if (key.includes(":")) {
-					const [filterKey, value] = key.split(":");
-					const remaining = next.getAll(filterKey).filter((entry) => entry !== value);
-					next.delete(filterKey);
-					for (const entry of remaining) {
-						next.append(filterKey, entry);
-					}
-					return;
-				}
-				if (key === "dateRange") {
-					next.delete("dateFrom");
-					next.delete("dateTo");
-					return;
-				}
-				next.delete(key);
-			});
-		},
-		[replaceQuery],
+		{ scope: pageRef, dependencies: [] },
 	);
 
 	const toggleOrderSelection = (orderId: string) => {
@@ -129,72 +120,75 @@ export default function OrdersPage() {
 	};
 
 	const toggleAllSelection = () => {
-		setSelectedOrderIds(allSelected ? [] : orders.map((order) => order._id));
+		setSelectedOrderIds((current) =>
+			current.length === orders.length ? [] : orders.map((order) => order._id),
+		);
 	};
 
-	const { hasNextPage, isFetchingNextPage, fetchNextPage } = query;
-
-	useEffect(() => {
-		const node = loadMoreRef.current;
-		if (!node || !hasNextPage) {
-			return;
-		}
-		const observer = new IntersectionObserver((entries) => {
-			if (entries[0]?.isIntersecting && !isFetchingNextPage) {
-				void fetchNextPage();
-			}
-		});
-		observer.observe(node);
-		return () => observer.disconnect();
-	}, [hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-	// Removed useGSAP - was causing re-renders and infinite loop
+	const buildHref = (p: number) => buildOrdersPageHref(searchParamsStr, p, limit);
+	const buildClearHref = () => buildOrdersClearHref(searchParamsStr, limit);
 
 	return (
 		<section ref={pageRef} aria-labelledby="orders-page-title" className="space-y-5">
-			<header
-				data-orders-reveal
-				className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between"
-			>
-				<div>
-					<h1 id="orders-page-title" className="text-xl font-bold text-[var(--text-primary)]">
-						Órdenes de Trabajo
-					</h1>
-					<p className="text-sm text-[var(--text-secondary)]">
-						{query.isLoading ? "Cargando..." : `${totalLoaded} órdenes cargadas`}
-					</p>
+			<OrdersPageHeader total={total} isLoading={isLoading} />
+
+			<OrdersPageFilters
+				search={search}
+				statusFilter={statusFilter}
+				priorityFilter={priorityFilter}
+				hasActiveFilters={hasActiveFilters}
+				buildClearHref={buildClearHref}
+			/>
+
+			<OrdersPageSelectionBar
+				selectedCount={selectedCount}
+				allSelected={allSelected}
+				onToggleAll={toggleAllSelection}
+				onClearSelection={() => setSelectedOrderIds([])}
+			/>
+
+			{error && (
+				<aside
+					data-orders-reveal
+					role="alert"
+					className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400"
+				>
+					Ocurrió un error al cargar las órdenes.
+				</aside>
+			)}
+
+			{isLoading ? (
+				<div
+					data-orders-reveal
+					className="flex h-64 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]"
+					role="status"
+				>
+					<span className="text-[var(--text-secondary)]">Cargando datos…</span>
 				</div>
-			</header>
-
-			<div data-orders-reveal>
-				<OrdersToolbar
-					filters={filters}
-					view="list"
-					groupBy={groupBy}
-					selectedOrderIds={selectedOrderIds}
-					onFilterChange={setFilterPatch}
-					onRemoveFilter={removeFilter}
-					onClearFilters={clearFilters}
-					onGroupByChange={(value) => setFilterPatch({ groupBy: value } as Partial<OrderListQuery>)}
-					onClearSelection={() => setSelectedOrderIds([])}
-					listHref={makeHref("/orders", new URLSearchParams(searchParams.toString()))}
-					kanbanHref={makeHref("/orders/kanban", new URLSearchParams(searchParams.toString()))}
-				/>
-			</div>
-
-			{query.isError ? (
-				<OrdersErrorState
-					message={query.error instanceof Error ? query.error.message : undefined}
-					onRetry={() => void query.refetch()}
-				/>
-			) : query.isLoading ? (
-				<OrdersLoadingSkeleton />
 			) : orders.length === 0 ? (
-				<OrdersTableEmpty hasActiveFilters={hasActiveFilters} onClearFilters={clearFilters} />
+				<div
+					data-orders-reveal
+					className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]"
+				>
+					<EmptyState
+						title="No se encontraron órdenes"
+						description="Prueba ajustando los filtros o la búsqueda."
+						action={
+							hasActiveFilters
+								? {
+										label: "Limpiar filtros",
+										onClick: () => {
+											push(buildClearHref());
+										},
+									}
+								: undefined
+						}
+					/>
+				</div>
 			) : (
 				<div
 					data-orders-reveal
-					className="overflow-x-auto rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]"
+					className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden"
 				>
 					<OrdersTable
 						orders={orders}
@@ -205,21 +199,14 @@ export default function OrdersPage() {
 				</div>
 			)}
 
-			<div ref={loadMoreRef} className="flex min-h-14 items-center justify-center">
-				{query.isFetchingNextPage ? (
-					<span className="text-sm text-[var(--text-secondary)]">Cargando más órdenes...</span>
-				) : query.hasNextPage ? (
-					<button
-						type="button"
-						onClick={() => void query.fetchNextPage()}
-						className="min-h-11 rounded-lg border border-[var(--border-default)] px-4 text-sm font-semibold text-[var(--text-secondary)]"
-					>
-						Cargar más
-					</button>
-				) : totalLoaded > 0 ? (
-					<span className="text-xs text-[var(--text-tertiary)]">Fin de la lista</span>
-				) : null}
-			</div>
+			<OrdersPagePagination
+				page={page}
+				totalPages={totalPages}
+				total={total}
+				ordersCount={orders.length}
+				buildHref={buildHref}
+				isLoading={isLoading}
+			/>
 		</section>
 	);
 }

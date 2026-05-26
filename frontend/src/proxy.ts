@@ -1,59 +1,92 @@
-/**
- * Next.js 16 Proxy — Network boundary route protection.
- *
- * Intercepts every matched request to enforce authentication and RBAC
- * before the route renders. Unauthenticated users are redirected to
- * `/login`; authenticated users without the required role see `/unauthorized`.
- *
- * This is the first line of defense. The dashboard layout provides a
- * second server-side check, and the backend validates every API call.
- *
- * @see https://nextjs.org/docs/app/api-reference/file-conventions/proxy
- */
+import { canAccessPath, isPublicPath, normalizeUserRole, type UserRole } from "@cermont/domain";
+import { type NextRequest, NextResponse } from "next/server";
+import { APP_ROUTES } from "@/lib/routes";
 
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-import { getVerifiedRefreshTokenClaims } from "./middleware/auth-proxy";
-import { checkRouteAccess } from "./middleware/rbac-proxy";
+const REFRESH_TOKEN_COOKIE = "refreshToken";
+const USER_ROLE_COOKIE = "userRole";
 
-export async function proxy(request: NextRequest) {
-	const { pathname } = request.nextUrl;
-	const verifiedClaims = await getVerifiedRefreshTokenClaims(request);
-	const role = verifiedClaims?.role ?? null;
+type RoleLookup =
+	| {
+			status: "found";
+			role: UserRole;
+	  }
+	| {
+			status: "missing";
+	  };
 
-	const result = checkRouteAccess(pathname, role);
+function missingRole(): RoleLookup {
+	return { status: "missing" };
+}
 
-	if (!result.allowed) {
-		const destination = result.redirect ?? "/login";
+function foundRole(value: string): RoleLookup {
+	const role = normalizeUserRole(value);
+	return role ? { status: "found", role } : missingRole();
+}
 
-		if (request.nextUrl.pathname === destination) {
-			return NextResponse.next();
-		}
+function decodeBase64Url(segment: string): string {
+	const base64 = segment.replace(/-/g, "+").replace(/_/g, "/");
+	const padding = "=".repeat((4 - (base64.length % 4)) % 4);
+	return atob(`${base64}${padding}`);
+}
 
-		if (destination === "/unauthorized") {
-			return NextResponse.rewrite(new URL("/unauthorized", request.url));
-		}
+function getRoleFromRefreshToken(token: string): RoleLookup {
+	const payloadSegment = token.split(".")[1];
+	if (!payloadSegment) {
+		return missingRole();
+	}
 
-		return NextResponse.redirect(new URL(destination, request.url));
+	try {
+		const payload = JSON.parse(decodeBase64Url(payloadSegment)) as { role?: string };
+		return typeof payload.role === "string" ? foundRole(payload.role) : missingRole();
+	} catch {
+		return missingRole();
+	}
+}
+
+function getRequestRole(request: NextRequest): RoleLookup {
+	const refreshToken = request.cookies.get(REFRESH_TOKEN_COOKIE)?.value;
+	if (!refreshToken) {
+		return missingRole();
+	}
+
+	const readableRole = request.cookies.get(USER_ROLE_COOKIE)?.value;
+	if (readableRole) {
+		return foundRole(readableRole);
+	}
+
+	return getRoleFromRefreshToken(refreshToken);
+}
+
+function redirectTo(pathname: string, request: NextRequest): NextResponse {
+	return NextResponse.redirect(new URL(pathname, request.url));
+}
+
+function redirectToLogin(request: NextRequest): NextResponse {
+	const url = new URL(APP_ROUTES.login, request.url);
+	url.searchParams.set("next", request.nextUrl.pathname);
+	return NextResponse.redirect(url);
+}
+
+export function proxy(request: NextRequest) {
+	const pathname = request.nextUrl.pathname;
+
+	if (isPublicPath(pathname)) {
+		return NextResponse.next();
+	}
+
+	const roleLookup = getRequestRole(request);
+
+	if (roleLookup.status === "missing") {
+		return redirectToLogin(request);
+	}
+
+	if (!canAccessPath(pathname, roleLookup.role)) {
+		return redirectTo(APP_ROUTES.unauthorized, request);
 	}
 
 	return NextResponse.next();
 }
 
 export const config = {
-	matcher: [
-		/*
-		 * Match all paths except:
-		 * - /_next (static assets + HMR WebSocket)
-		 * - /api (API routes — backend validates these)
-		 * - /favicon.ico, /sitemap.xml, /.well-known
-		 * - /public/*
-		 * - Static file extensions
-		 */
-		{
-			source:
-				"/((?!_next|api|favicon\\.ico|sitemap\\.xml|\\.well-known|public|.*\\.(?:ico|png|jpg|jpeg|svg|gif|webp|mp4|webm|woff2?|ttf|eot|css|js|json|xml)).*)",
-			missing: [{ type: "header", key: "next-router-prefetch" }],
-		},
-	],
+	matcher: ["/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\..*).*)"],
 };

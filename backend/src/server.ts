@@ -8,9 +8,9 @@
  * Note: validateEnv() runs automatically when importing ./config/env
  */
 import "dotenv/config";
-import { createLogger } from "./_shared/common/utils";
-import { connectDB, disconnectDB } from "./_shared/config/db";
-import { env } from "./_shared/config/env";
+import { createLogger } from "./common/utils/logger";
+import { connectDB, disconnectDB } from "./config/db";
+import { env } from "./config/env";
 import app from "./index";
 
 const log = createLogger("server");

@@ -5,9 +5,9 @@ export default function DocumentsLoading() {
 				Cargando documentos
 			</h1>
 
-			<div className="h-24 rounded-2xl bg-slate-100 motion-safe:animate-pulse" aria-hidden="true" />
-			<div className="h-16 rounded-2xl bg-slate-100 motion-safe:animate-pulse" aria-hidden="true" />
-			<div className="h-64 rounded-2xl bg-slate-100 motion-safe:animate-pulse" aria-hidden="true" />
+			<div className="h-24 rounded-2xl bg-zinc-100 motion-safe:animate-pulse" aria-hidden="true" />
+			<div className="h-16 rounded-2xl bg-zinc-100 motion-safe:animate-pulse" aria-hidden="true" />
+			<div className="h-64 rounded-2xl bg-zinc-100 motion-safe:animate-pulse" aria-hidden="true" />
 		</section>
 	);
 }

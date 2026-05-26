@@ -1,5 +1,4 @@
 import { z } from "zod";
-import type { MongooseDocument } from "./common.schema";
 
 export const CostCategorySchema = z.enum([
 	"labor",
@@ -8,9 +7,20 @@ export const CostCategorySchema = z.enum([
 	"transport",
 	"subcontract",
 	"overhead",
+	"tax",
 	"other",
 ]);
 export type CostCategory = z.infer<typeof CostCategorySchema>;
+
+export const CostDataStateSchema = z.enum([
+	"NO_DATA",
+	"ESTIMATED_ONLY",
+	"ACTUAL_ONLY",
+	"ESTIMATED_AND_ACTUAL",
+	"INVOICED",
+	"PAID",
+]);
+export type CostDataState = z.infer<typeof CostDataStateSchema>;
 
 export const CostByCategorySchema = z.object({
 	category: CostCategorySchema,
@@ -18,27 +28,9 @@ export const CostByCategorySchema = z.object({
 	actual: z.number(),
 	tax: z.number(),
 	variance: z.number(),
+	dataState: CostDataStateSchema,
 });
 export type CostByCategory = z.infer<typeof CostByCategorySchema>;
-
-export const CostLineDeltaStatusSchema = z.enum([
-	"under_budget",
-	"on_budget",
-	"over_budget",
-	"critical",
-]);
-export type CostLineDeltaStatus = z.infer<typeof CostLineDeltaStatusSchema>;
-
-export const CostLineDeltaSchema = z.object({
-	category: CostCategorySchema,
-	description: z.string(),
-	budgeted: z.number(),
-	actual: z.number(),
-	delta: z.number(),
-	deltaPct: z.number().optional(),
-	status: CostLineDeltaStatusSchema,
-});
-export type CostLineDelta = z.infer<typeof CostLineDeltaSchema>;
 
 export const CreateCostSchema = z.object({
 	orderId: z.string().min(1),
@@ -81,14 +73,11 @@ export const CostSummarySchema = z.object({
 	totalEstimated: z.number(),
 	totalActual: z.number(),
 	totalTax: z.number(),
-	baselineEstimated: z.number(),
-	baselineApproved: z.number(),
 	variance: z.number(),
-	variancePercent: z.number().optional(),
-	deviationStatus: z.enum(["on_track", "over_budget"]),
+	variancePercent: z.number().nullable(),
 	hasCosts: z.boolean(),
+	dataState: CostDataStateSchema,
 	byCategory: z.array(CostByCategorySchema),
-	lineDeltas: z.array(CostLineDeltaSchema).default([]),
 });
 export type CostSummary = z.infer<typeof CostSummarySchema>;
 
@@ -110,26 +99,17 @@ export const CostSchema = z.object({
 });
 export type Cost = z.infer<typeof CostSchema>;
 
+export const CostLineDeltaStatusSchema = z.enum([
+	"under_budget",
+	"on_budget",
+	"over_budget",
+	"critical",
+]);
+export type CostLineDeltaStatus = z.infer<typeof CostLineDeltaStatusSchema>;
+
 export const CostResponseSchema = CostSchema.extend({
 	variance: z.number(),
-	variancePercent: z.number().optional(),
+	variancePercent: z.number().nullable(),
+	dataState: CostDataStateSchema,
 });
 export type CostResponse = z.infer<typeof CostResponseSchema>;
-
-/**
- * Mongoose Document representation for Cost.
- * Used for type safety in backend services and repositories.
- */
-export interface CostDocument<TID = string> extends MongooseDocument<TID> {
-	orderId: TID;
-	category: CostCategory;
-	description: string;
-	estimatedAmount: number;
-	actualAmount: number;
-	taxAmount: number;
-	taxRate: number;
-	currency: string;
-	notes?: string;
-	recordedBy: TID;
-	recordedAt: Date;
-}

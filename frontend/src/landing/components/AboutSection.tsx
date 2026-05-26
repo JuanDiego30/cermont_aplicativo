@@ -33,7 +33,7 @@ export function AboutSection() {
 							<div className="grid gap-4 sm:grid-cols-2">
 								<div className="rounded-2xl border border-border-default bg-surface-secondary p-5">
 									<div className="flex items-center gap-3">
-										<Building2 className="h-5 w-5 text-cermont-blue" aria-hidden="true" />
+										<Building2 className="size-5 text-cermont-blue" aria-hidden="true" />
 										<h3 className="text-sm font-semibold text-text-primary">Base operativa</h3>
 									</div>
 									<p className="mt-3 text-sm leading-6 text-text-secondary">
@@ -43,7 +43,7 @@ export function AboutSection() {
 								</div>
 								<div className="rounded-2xl border border-border-default bg-surface-secondary p-5">
 									<div className="flex items-center gap-3">
-										<Sparkles className="h-5 w-5 text-cermont-green" aria-hidden="true" />
+										<Sparkles className="size-5 text-cermont-green" aria-hidden="true" />
 										<h3 className="text-sm font-semibold text-text-primary">Enfoque</h3>
 									</div>
 									<p className="mt-3 text-sm leading-6 text-text-secondary">

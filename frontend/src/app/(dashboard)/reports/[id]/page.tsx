@@ -1,13 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
 import { ArrowLeft, Download, FileText } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type React from "react";
-import { apiClient, toApiUrl } from "@/_shared/lib/http/api-client";
+import { apiClient, toApiUrl } from "@/lib/http/api-client";
+import { formatDateTime } from "@/lib/utils/format-date";
 
 const REPORT_TYPE_LABELS: Record<string, string> = {
 	ejecucion: "Ejecución",
@@ -17,30 +16,30 @@ const REPORT_TYPE_LABELS: Record<string, string> = {
 	financiero: "Financiero",
 };
 
-function renderContent(content: unknown): React.ReactNode {
+function ReportContent({ content }: { content: unknown }): React.ReactNode {
 	if (content === null || content === undefined) {
 		return null;
 	}
 
 	if (typeof content === "string") {
 		return (
-			<p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{content}</p>
+			<p className="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">{content}</p>
 		);
 	}
 
 	if (typeof content === "number" || typeof content === "boolean") {
-		return <p className="text-sm text-slate-700 dark:text-slate-300">{String(content)}</p>;
+		return <p className="text-sm text-zinc-700 dark:text-zinc-300">{String(content)}</p>;
 	}
 
 	if (Array.isArray(content)) {
 		return (
-			<ul className="space-y-1 text-sm text-slate-700 dark:text-slate-300">
-				{content.map((item, _index) => (
+			<ul className="space-y-1 text-sm text-zinc-700 dark:text-zinc-300">
+				{content.map((item) => (
 					<li
 						key={typeof item === "object" ? JSON.stringify(item) : `${typeof item}:${String(item)}`}
 						className="flex gap-2"
 					>
-						<span className="text-slate-400">•</span>
+						<span className="text-zinc-400">•</span>
 						<span>{typeof item === "object" ? JSON.stringify(item) : String(item)}</span>
 					</li>
 				))}
@@ -53,10 +52,12 @@ function renderContent(content: unknown): React.ReactNode {
 			<dl className="space-y-3">
 				{Object.entries(content as Record<string, unknown>).map(([key, value]) => (
 					<div key={key}>
-						<dt className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+						<dt className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
 							{key.replace(/_/g, " ")}
 						</dt>
-						<dd className="text-sm text-slate-700 dark:text-slate-300">{renderContent(value)}</dd>
+						<dd className="text-sm text-zinc-700 dark:text-zinc-300">
+							<ReportContent content={value} />
+						</dd>
 					</div>
 				))}
 			</dl>
@@ -66,31 +67,19 @@ function renderContent(content: unknown): React.ReactNode {
 	return null;
 }
 
-interface ReportData {
-	_id?: string;
-	title?: string;
-	type?: string;
-	orderId?: string;
-	workOrderId?: string;
-	generatedBy?: string;
-	createdAt?: string;
-	summary?: unknown;
-	content?: unknown;
-	pdfUrl?: string;
-	clientName?: string;
-}
-
-interface TransformedReport {
+interface ReportDetail {
 	_id: string;
-	title: string;
-	type: string;
-	workOrderId: string;
-	generatedBy: string;
-	createdAt: string;
-	content: unknown;
-	pdfUrl: string;
-	workOrderNumber: string;
-	clientName: string;
+	titulo: string;
+	tipo: string;
+	work_order_id: string;
+	generado_por: string;
+	created_at: string;
+	contenido: unknown;
+	pdf_url: string;
+	work_orders: {
+		numero_ot: string;
+		cliente: string;
+	};
 }
 
 export default function ReportDetailPage() {
@@ -101,34 +90,32 @@ export default function ReportDetailPage() {
 		data: report,
 		isLoading,
 		error,
-	} = useQuery<TransformedReport>({
+	} = useQuery<ReportDetail>({
 		queryKey: ["report", id],
 		queryFn: async () => {
 			const body = await apiClient.get<{
 				success?: boolean;
-				data?: ReportData;
+				data?: Record<string, unknown>;
 				error?: string;
 				message?: string;
 			}>(`/reports/${id}`);
 			if (!body?.success) {
 				throw new Error(body?.message || body?.error || "Error al cargar reporte");
 			}
-			const r = body.data;
-			if (!r) {
-				throw new Error("Reporte no encontrado");
-			}
-
+			const r = body.data ?? {};
 			return {
 				_id: String(r._id ?? ""),
-				title: r.title ?? "Sin título",
-				type: r.type ?? "technical",
-				workOrderId: r.orderId ?? r.workOrderId ?? "",
-				generatedBy: r.generatedBy ?? "—",
-				createdAt: r.createdAt ?? "",
-				content: r.summary ?? r.content ?? {},
-				pdfUrl: r.pdfUrl ?? "",
-				workOrderNumber: "",
-				clientName: r.clientName ?? "",
+				titulo: String(r.title ?? r.titulo ?? ""),
+				tipo: String(r.type ?? r.tipo ?? "technical"),
+				work_order_id: String(r.orderId ?? r.workOrderId ?? r.work_order_id ?? ""),
+				generado_por: String(r.generatedBy ?? r.generado_por ?? ""),
+				created_at: String(r.createdAt ?? r.created_at ?? ""),
+				contenido: r.summary ?? r.content ?? r.contenido ?? {},
+				pdf_url: String(r.pdfUrl ?? r.pdf_url ?? ""),
+				work_orders: {
+					numero_ot: String(r.orderId ?? r.workOrderId ?? ""),
+					cliente: String(r.clientName ?? ""),
+				},
 			};
 		},
 		enabled: !!id,
@@ -136,8 +123,8 @@ export default function ReportDetailPage() {
 
 	if (isLoading) {
 		return (
-			<div className="flex h-64 items-center justify-center rounded-3xl border border-slate-200 dark:border-slate-800">
-				<span className="text-slate-500">Cargando detalles de informe...</span>
+			<div className="flex h-64 items-center justify-center rounded-3xl border border-zinc-200 dark:border-zinc-800">
+				<span className="text-zinc-500">Cargando detalles de informe…</span>
 			</div>
 		);
 	}
@@ -150,8 +137,6 @@ export default function ReportDetailPage() {
 		);
 	}
 
-	const reportTypeLabel = REPORT_TYPE_LABELS[report.type] ?? report.type;
-
 	return (
 		<section className="mx-auto max-w-3xl space-y-6" aria-labelledby="report-detail-title">
 			{/* Header */}
@@ -159,88 +144,86 @@ export default function ReportDetailPage() {
 				<div className="flex items-start gap-4">
 					<Link
 						href="/reports"
-						className="mt-1 flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
+						className="mt-1 flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
 					>
-						<ArrowLeft aria-hidden="true" className="h-4 w-4" />
+						<ArrowLeft aria-hidden="true" className="size-4" />
 						Volver
 					</Link>
 					<div>
 						<div className="flex items-center gap-3">
-							<FileText aria-hidden="true" className="h-6 w-6 text-blue-600 dark:text-blue-500" />
+							<FileText aria-hidden="true" className="size-6 text-blue-600 dark:text-blue-500" />
 							<h1
 								id="report-detail-title"
-								className="text-2xl font-bold text-slate-900 dark:text-white"
+								className="text-2xl font-semibold text-zinc-900 dark:text-white"
 							>
-								{report.title}
+								{report.titulo}
 							</h1>
 						</div>
-						<p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-							{reportTypeLabel} ·{" "}
+						<p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+							{REPORT_TYPE_LABELS[report.tipo] ?? report.tipo} ·{" "}
 							<Link
-								href={`/orders/${report.workOrderId}`}
+								href={`/orders/${report.work_order_id}`}
 								className="font-mono text-blue-600 hover:underline dark:text-blue-400"
 							>
-								{report.workOrderNumber || report.workOrderId}
+								{report.work_orders?.numero_ot || report.work_order_id}
 							</Link>{" "}
-							— {report.clientName}
+							, {report.work_orders?.cliente}
 						</p>
 					</div>
 				</div>
 				<a
-					href={report.pdfUrl || toApiUrl(`/reports/${report._id}/pdf`)}
+					href={report.pdf_url || toApiUrl(`/reports/${report._id}/pdf`)}
 					target="_blank"
 					rel="noopener noreferrer"
-					className="flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+					className="flex items-center gap-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
 				>
-					<Download aria-hidden="true" className="h-4 w-4" />
+					<Download aria-hidden="true" className="size-4" />
 					Descargar PDF
 				</a>
 			</div>
 
 			{/* Metadata Card */}
-			<div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-				<h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">
+			<div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
+				<h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400">
 					Información del Informe
 				</h2>
 				<dl className="grid grid-cols-2 gap-4 text-sm">
 					<div>
-						<dt className="font-medium text-slate-500 dark:text-slate-400">Tipo</dt>
-						<dd className="mt-1 text-slate-900 dark:text-white">{reportTypeLabel}</dd>
+						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Tipo</dt>
+						<dd className="mt-1 text-zinc-900 dark:text-white">
+							{REPORT_TYPE_LABELS[report.tipo] ?? report.tipo}
+						</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-slate-500 dark:text-slate-400">Orden de Trabajo</dt>
+						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Orden de Trabajo</dt>
 						<dd className="mt-1">
 							<Link
-								href={`/orders/${report.workOrderId}`}
+								href={`/orders/${report.work_order_id}`}
 								className="font-mono text-blue-600 hover:underline dark:text-blue-400"
 							>
-								{report.workOrderNumber || report.workOrderId}
+								{report.work_orders?.numero_ot || report.work_order_id}
 							</Link>
 						</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-slate-500 dark:text-slate-400">Generado por</dt>
-						<dd className="mt-1 text-slate-900 dark:text-white">{report.generatedBy}</dd>
+						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Generado por</dt>
+						<dd className="mt-1 text-zinc-900 dark:text-white">{report.generado_por ?? ","}</dd>
 					</div>
 					<div>
-						<dt className="font-medium text-slate-500 dark:text-slate-400">Fecha de creación</dt>
-						<dd className="mt-1 text-slate-900 dark:text-white">
-							{report.createdAt
-								? format(new Date(report.createdAt), "dd MMM yyyy HH:mm", {
-										locale: es,
-									})
-								: "—"}
+						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Fecha de creación</dt>
+						<dd className="mt-1 text-zinc-900 dark:text-white">
+							{report.created_at ? formatDateTime(report.created_at) : ","}
 						</dd>
 					</div>
 				</dl>
 			</div>
 
 			{/* Content Card */}
-			<div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:bg-slate-900 dark:border-slate-800">
-				<h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">
+			<div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
+				<h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400">
 					Contenido
 				</h2>
-				{renderContent(report.content)}
+				<ReportContent content={report.contenido} />
 			</div>
 		</section>
 	);

@@ -5,83 +5,81 @@ import { Logo } from "@/core/ui/Logo";
 import { CORPORATE_LOCATION } from "../landing-constants";
 import { LANDING_METRICS, LANDING_SERVICES, LANDING_TRUST_POINTS } from "../landing-data";
 import { MetricCard } from "./cards/MetricCard";
+import { LandingHeroCarousel } from "./LandingHeroCarousel";
 
 export function HeroSection() {
 	return (
-		<section className="relative overflow-hidden bg-cermont-navy">
-			<div className="pointer-events-none absolute inset-0">
+		<section className="relative overflow-hidden bg-[var(--surface-page)] pt-12 pb-20 lg:pt-20 lg:pb-32">
+			{/* Atmospheric Background Gradients */}
+			<div className="pointer-events-none absolute inset-0 overflow-hidden">
 				<div
 					data-hero-blob="one"
-					className="absolute -left-28 top-12 h-80 w-80 rounded-full bg-cermont-blue-light/15 blur-3xl"
+					className="absolute -left-20 top-0 size-[500px] rounded-full bg-[var(--color-cermont-blue-light)]/10 blur-[100px]"
 				/>
 				<div
 					data-hero-blob="two"
-					className="absolute right-0 top-0 h-96 w-96 rounded-full bg-cermont-green-light/10 blur-3xl"
+					className="absolute -right-20 top-20 size-[600px] rounded-full bg-[var(--color-cermont-green-light)]/15 blur-[120px]"
 				/>
 				<div
 					data-hero-blob="three"
-					className="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-cermont-green/10 blur-3xl"
+					className="absolute bottom-0 left-1/4 size-[400px] rounded-full bg-[var(--color-cermont-blue-bg)]/30 blur-[80px]"
 				/>
-				<div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-size-[64px_64px] opacity-[0.12]" />
+				<div className="absolute inset-0 bg-[linear-gradient(var(--border-subtle)_1px,transparent_1px),linear-gradient(90deg,var(--border-subtle)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)] opacity-20" />
 			</div>
 
-			<div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8 lg:py-24">
+			<div className="relative mx-auto grid max-w-7xl gap-16 px-4 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:px-8">
 				<div data-hero-copy className="max-w-3xl">
 					<BadgePill
-						className="border-white/10 bg-white/5 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-200"
-						dotClassName="bg-cermont-green"
-						ariaLabel="CONSTRUCCION - ELECTRICIDAD - REFRIGERACION - MONTAJES"
+						className="px-3.5 py-1.5 font-mono text-[11px]"
+						dotClassName="bg-[var(--color-cermont-green)]"
+						ariaLabel="SERVICIOS TÉCNICOS E INDUSTRIALES"
 					>
 						Servicios técnicos e industriales
 					</BadgePill>
 
-					<h1 className="mt-6 text-4xl font-semibold tracking-tight text-white sm:text-5xl xl:text-6xl">
-						Excelencia en servicios industriales con
-						<span className="text-cermont-green-light"> seguridad</span>, calidad y disciplina
+					<h1 className="mt-8 text-4xl font-semibold tracking-[-0.03em] text-[var(--text-primary)] sm:text-5xl lg:text-6xl xl:text-7xl leading-[1.1]">
+						Excelencia industrial con
+						<span className="text-[var(--color-cermont-green)]"> seguridad</span> y disciplina
 						operativa.
 					</h1>
 
-					<p className="mt-6 max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
-						CERMONT S.A.S es una empresa joven, ubicada en el corazon de Arauca-Arauca, identificada
-						con NIT 900.223.449-5 adscrita a la camara de comercio de la ciudad de Arauca y con una
-						meta clara: la satisfaccion total de nuestros clientes.
+					<p className="mt-8 max-w-2xl text-lg leading-relaxed text-[var(--text-secondary)] sm:text-xl">
+						CERMONT S.A.S es su aliado estratégico en Arauca, brindando soluciones integrales en
+						construcción, electricidad y mantenimiento con los más altos estándares de calidad.
 					</p>
 
-					<ul className="mt-6 grid gap-3 sm:grid-cols-3">
+					<ul className="mt-10 grid gap-4 sm:grid-cols-3">
 						{LANDING_TRUST_POINTS.map((point) => (
-							<li key={point.title} className="flex items-start gap-3 text-sm text-slate-300">
-								<CheckCircle2
-									className="mt-0.5 h-4.5 w-4.5 shrink-0 text-cermont-green"
-									aria-hidden="true"
-								/>
+							<li
+								key={point.title}
+								className="flex items-center gap-2.5 text-sm font-medium text-[var(--text-secondary)]"
+							>
+								<div className="flex size-5 items-center justify-center rounded-full bg-[var(--color-cermont-green-bg)] text-[var(--color-cermont-green)]">
+									<CheckCircle2 className="size-3.5" aria-hidden="true" />
+								</div>
 								<span>{point.title}</span>
 							</li>
 						))}
 					</ul>
 
-					<div className="mt-10 flex flex-wrap items-center gap-3">
-						<Button asChild size="lg" className="rounded-full px-6">
+					<div className="mt-12 flex flex-wrap items-center gap-4">
+						<Button asChild size="lg" variant="primary" className="px-8 py-6 text-base">
 							<a href="#contacto">
 								Solicitar información
-								<ArrowRight className="h-4.5 w-4.5" aria-hidden="true" />
+								<ArrowRight className="size-5 ml-1" aria-hidden="true" />
 							</a>
 						</Button>
-						<Button
-							asChild
-							size="lg"
-							variant="outline"
-							className="rounded-full border-white/15 bg-white/5 px-6 text-white hover:bg-white/10"
-						>
+						<Button asChild size="lg" variant="secondary" className="px-8 py-6 text-base">
 							<a href="#servicios">Ver servicios</a>
 						</Button>
 					</div>
 
-					<div className="mt-8 flex flex-wrap gap-2">
+					<div className="mt-12 flex flex-wrap gap-2.5">
 						{["Seguridad", "Trazabilidad", "Continuidad"].map((item) => (
 							<BadgePill
 								key={item}
-								className="border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-slate-200"
-								dotClassName="bg-cermont-blue-light"
+								className="px-3 py-1.5 font-mono bg-[var(--surface-card)] shadow-sm"
+								dotClassName="bg-[var(--color-cermont-blue-light)]"
 								ariaLabel={item}
 							>
 								{item}
@@ -90,89 +88,98 @@ export function HeroSection() {
 					</div>
 				</div>
 
-				<aside data-hero-panel className="relative">
-					<div className="relative overflow-hidden rounded-[2.25rem] border border-white/10 bg-[linear-gradient(180deg,rgba(15,31,53,0.94),rgba(2,6,23,0.98))] p-5 shadow-[0_24px_70px_rgba(2,6,23,0.38)]">
-						<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(90,155,230,0.18),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(61,158,66,0.16),transparent_28%)]" />
+				<aside data-hero-panel className="relative lg:block">
+					<div className="relative overflow-hidden rounded-[2.5rem] border border-[var(--border-medium)] bg-[var(--surface-primary)] p-6 shadow-2xl shadow-black/[0.05] dark:shadow-black/20">
+						<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--color-cermont-blue-bg),transparent_50%),radial-gradient(circle_at_bottom_left,var(--color-cermont-green-bg),transparent_40%)] opacity-30 dark:opacity-10" />
 
-						<div className="relative z-10 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-							<div className="flex items-center gap-2">
+						{/* Mock Browser Header */}
+						<div className="relative z-10 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-primary)]/80 backdrop-blur-md px-4 py-2.5 shadow-sm">
+							<div className="flex items-center gap-3">
 								<div className="flex gap-1.5" aria-hidden="true">
-									<div className="h-3 w-3 rounded-full bg-(--color-danger)" />
-									<div className="h-3 w-3 rounded-full bg-(--color-warning)" />
-									<div className="h-3 w-3 rounded-full bg-cermont-green" />
+									<div className="size-2.5 rounded-full bg-[var(--color-danger)]/80" />
+									<div className="size-2.5 rounded-full bg-[var(--color-warning)]/80" />
+									<div className="size-2.5 rounded-full bg-[var(--color-success)]/80" />
 								</div>
-								<div className="flex-1 rounded-md bg-cermont-bg-card px-3 py-1 text-center text-xs text-slate-400">
-									cermont.co
+								<div className="flex-1 rounded-full bg-[var(--surface-secondary)] border border-[var(--border-subtle)] px-4 py-1 text-center text-[10px] font-mono tracking-wider text-[var(--text-tertiary)]">
+									portal.cermont.co
 								</div>
 							</div>
 						</div>
 
-						<div className="relative z-10 mt-5 flex items-start justify-between gap-4">
+						<div className="relative z-10 mt-6">
+							<LandingHeroCarousel />
+						</div>
+
+						<div className="relative z-10 mt-6 flex items-start justify-between gap-4">
 							<div>
-								<p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">
-									Perfil corporativo
+								<p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+									Sede Central
 								</p>
-								<p className="mt-2 text-lg font-semibold text-white">{CORPORATE_LOCATION}</p>
+								<p className="mt-2 text-xl font-semibold text-[var(--text-primary)]">
+									{CORPORATE_LOCATION}
+								</p>
 							</div>
 							<BadgePill
-								className="border-cermont-green/20 bg-cermont-green/10 px-3 py-1.5 text-xs font-semibold text-cermont-green-light"
-								dotClassName="bg-cermont-green-light"
-								leadingIcon={<ShieldCheck className="h-3.5 w-3.5" />}
+								className="bg-[var(--color-cermont-green-bg)] text-[var(--color-cermont-green-deep)] px-4 py-2 text-xs font-semibold dark:bg-[var(--color-cermont-green-bg)]/20 dark:text-[var(--color-cermont-green-light)]"
+								dotClassName="bg-[var(--color-cermont-green)] animate-pulse"
+								leadingIcon={<ShieldCheck className="size-4" />}
 								ariaLabel="Operación activa"
 							>
-								Operativo
+								Activo
 							</BadgePill>
 						</div>
 
-						<div className="relative z-10 mt-5 grid gap-3 sm:grid-cols-3">
+						<div className="relative z-10 mt-6 grid gap-4 sm:grid-cols-3">
 							{LANDING_METRICS.map((metric) => (
 								<MetricCard key={metric.label} {...metric} />
 							))}
 						</div>
 
-						<div className="relative z-10 mt-5 rounded-[1.75rem] border border-white/10 bg-white/5 p-5">
+						<div className="relative z-10 mt-6 rounded-[1.75rem] border border-[var(--border-subtle)] bg-[var(--surface-secondary)]/50 p-6">
 							<div className="flex items-center gap-4">
-								<Logo showText={false} size="lg" className="shrink-0" />
+								<div className="flex size-12 items-center justify-center rounded-2xl bg-[var(--surface-card)] shadow-sm ring-1 ring-[var(--border-subtle)]">
+									<Logo showText={false} size="sm" />
+								</div>
 								<div>
-									<p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">
-										Aliado técnico
+									<p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-tertiary)]">
+										Panel de Control
 									</p>
-									<p className="mt-2 text-lg font-semibold text-white">
-										Seguridad, trazabilidad y continuidad en campo.
+									<p className="mt-1 text-base font-semibold text-[var(--text-primary)]">
+										Gestión Operativa Inteligente
 									</p>
 								</div>
 							</div>
 
-							<div className="mt-5 grid gap-3 sm:grid-cols-2">
-								{LANDING_TRUST_POINTS.map((point) => (
+							<div className="mt-6 grid gap-4 sm:grid-cols-2">
+								{LANDING_TRUST_POINTS.slice(0, 2).map((point) => (
 									<div
 										key={point.title}
-										className="rounded-2xl border border-white/10 bg-white/5 p-4"
+										className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-card)] p-4 shadow-sm"
 									>
-										<p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
+										<p className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-tertiary)]">
 											{point.title}
 										</p>
-										<p className="mt-2 text-sm leading-6 text-slate-200">{point.description}</p>
+										<p className="mt-1.5 text-xs leading-relaxed text-[var(--text-secondary)]">
+											{point.description}
+										</p>
 									</div>
 								))}
 							</div>
 
-							<div className="mt-5 grid gap-3 sm:grid-cols-3">
+							<div className="mt-6 grid gap-4 sm:grid-cols-3">
 								{LANDING_SERVICES.slice(0, 3).map((service) => (
 									<div
 										key={service.title}
-										className="rounded-2xl border border-white/10 bg-white/5 p-4"
+										className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-card)]/80 p-3.5 shadow-sm transition-transform hover:scale-[1.02]"
 									>
-										<div className="flex items-center gap-2">
-											<service.icon
-												className="h-4 w-4 text-cermont-blue-light"
-												aria-hidden="true"
-											/>
-											<p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">
+										<div className="flex flex-col gap-2.5">
+											<div className="flex size-8 items-center justify-center rounded-lg bg-[var(--color-cermont-blue-bg)] text-[var(--color-cermont-blue)]">
+												<service.icon className="size-4.5" aria-hidden="true" />
+											</div>
+											<p className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-primary)]">
 												{service.title}
 											</p>
 										</div>
-										<p className="mt-2 text-xs leading-5 text-slate-400">{service.description}</p>
 									</div>
 								))}
 							</div>

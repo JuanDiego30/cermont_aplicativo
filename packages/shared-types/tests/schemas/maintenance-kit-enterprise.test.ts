@@ -6,61 +6,33 @@ import {
 
 const validKit = {
 	name: "Kit mantenimiento tablero electrico",
-	activityType: "electrical",
-	description: "Procedimiento estandar para mantenimiento de tablero electrico en campo.",
-	estimatedHours: 4,
-	maintenanceClassification: "preventive",
+	activityType: "electrico",
 	tools: [{ name: "Multimetro", quantity: 1 }],
 	equipment: [],
-	procedureSteps: [
-		{
-			order: 1,
-			description: "Registrar voltaje de entrada",
-			type: "measurement",
-			expectedValue: "220V +/- 5%",
-			estimatedMinutes: 15,
-			required: true,
-		},
-	],
-	materials: [
-		{
-			name: "Alcohol isopropilico",
-			estimatedQuantity: 1,
-			unit: "liter",
-			estimatedUnitCost: 25000,
-			critical: false,
-		},
-	],
-	safety: {
-		minimumPpe: ["helmet", "safety_glasses"],
-		requiredPermits: ["electrical_loto"],
-		riskClassification: "high",
-		specificRisks: ["electrical"],
-		requiresLoto: true,
-	},
 };
 
 describe("MaintenanceKit enterprise schema", () => {
-	it("accepts a full enterprise kit", () => {
+	it("accepts a full typical maintenance kit", () => {
 		const parsed = CreateMaintenanceKitSchema.parse(validKit);
-		expect(parsed.procedureSteps).toHaveLength(1);
-		expect(parsed.materials[0].estimatedUnitCost).toBe(25000);
+		expect(parsed.activityType).toBe("electrico");
+		expect(parsed.tools).toHaveLength(1);
+		expect(parsed.equipment).toStrictEqual([]);
 	});
 
-	it("requires expectedValue for measurement steps", () => {
+	it("requires at least one tool", () => {
 		const result = CreateMaintenanceKitSchema.safeParse({
 			...validKit,
-			procedureSteps: [{ order: 1, description: "Medir tension", type: "measurement" }],
+			tools: [],
 		});
 
 		expect(result.success).toBe(false);
 	});
 
-	it("requires changeReason when operational fields are updated", () => {
+	it("accepts partial operational updates", () => {
 		const result = UpdateMaintenanceKitSchema.safeParse({
-			description: "Nuevo alcance operacional para el kit de mantenimiento.",
+			activityType: "mecanico",
 		});
 
-		expect(result.success).toBe(false);
+		expect(result.success).toBe(true);
 	});
 });

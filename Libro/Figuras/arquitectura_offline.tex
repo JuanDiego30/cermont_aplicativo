@@ -1,0 +1,58 @@
+% Figura corregida: arquitectura offline-first con paleta institucional
+\begin{figure}[H]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[
+    font=\sffamily,
+    box/.style={rectangle, rounded corners=5pt, draw=institucionalBlue, fill=institucionalGrey!45,
+                line width=0.8pt, minimum width=3.3cm, minimum height=1.05cm,
+                align=center, font=\scriptsize},
+    critical/.style={rectangle, rounded corners=5pt, draw=institucionalRed, fill=institucionalRed!10,
+                line width=0.8pt, minimum width=3.3cm, minimum height=1.05cm,
+                align=center, font=\scriptsize},
+    store/.style={cylinder, shape border rotate=90, draw=institucionalBlue, fill=institucionalGrey!35,
+                  line width=0.8pt, minimum width=2.65cm, minimum height=1.15cm,
+                  align=center, font=\scriptsize},
+    cloud/.style={ellipse, draw=institucionalBlue, fill=institucionalGrey!35, line width=0.8pt,
+                  minimum width=3.4cm, minimum height=1.05cm, align=center, font=\scriptsize},
+    arrow/.style={-{Stealth[length=2.7mm]}, line width=0.9pt, draw=institucionalBlue},
+    arrowRed/.style={-{Stealth[length=2.7mm]}, line width=0.9pt, draw=institucionalRed, dashed},
+    sync/.style={{Stealth[length=2.7mm]}-{Stealth[length=2.7mm]}, line width=0.9pt, draw=institucionalBlue},
+    note/.style={rectangle, rounded corners=3pt, draw=institucionalBlue, fill=white,
+                 font=\tiny, align=center, text width=3.25cm}
+]
+
+\node[box] (pwa) at (0,0) {Cliente web/PWA\\Next.js + Serwist};
+\node[store] (indexed) at (0,-2.15) {IndexedDB\\cola de cambios};
+\node[box] (cache) at (-3.9,-2.15) {Cache local\\recursos estáticos};
+\node[critical] (offline) at (-3.9,0) {Modo offline\\sin pérdida de datos};
+\node[box] (sw) at (0,-4.05) {Service Worker\\Background Sync};
+
+\node[cloud] (api) at (7.8,0) {API backend\\Express 5.2.1};
+\node[store] (mongo) at (7.8,-2.15) {MongoDB/Mongoose\\persistencia documental};
+\node[store] (files) at (11.25,-2.15) {Almacenamiento\\evidencias y PDF};
+\node[box] (audit) at (7.8,-4.05) {Registro de auditoría\\trazabilidad de eventos};
+
+\draw[sync] (pwa) -- node[right, font=\tiny] {captura local} (indexed);
+\draw[sync] (pwa) -- (cache);
+\draw[sync] (pwa) -- (offline);
+\draw[arrow] (indexed) -- node[right, font=\tiny] {reintentos controlados} (sw);
+
+\draw[arrow] (pwa.east) -- node[above, font=\tiny] {con conexión} (api.west);
+\draw[arrow] (sw.east) -- node[below, font=\tiny, sloped] {sincronización diferida} (api.west);
+\draw[sync] (api) -- node[right, font=\tiny] {lectura/escritura validada} (mongo);
+\draw[arrow] (api) -- node[above, font=\tiny] {archivos} (files);
+\draw[arrow] (api) -- node[right, font=\tiny] {eventos} (audit);
+
+\draw[arrowRed] (pwa.south east) -- ++(1.0,-0.5) |- node[pos=0.28, above, font=\tiny] {si falla la red: encolar} (indexed.east);
+
+\node[note] (r1) at (3.9,1.75) {Cada cambio local conserva identificador, marca temporal y estado de sincronización.};
+\node[note] (r2) at (3.9,-3.65) {Los datos sensibles no se exponen en cachés públicas; la API valida sesión, rol y estructura.};
+\draw[arrow, dashed] (r1.south) -- (pwa.east);
+\draw[arrow, dashed] (r2.north) -- (sw.east);
+
+\end{tikzpicture}%
+}
+\caption[Arquitectura offline-first]{Arquitectura offline-first del aplicativo, con persistencia local, cola de sincronización, Service Worker, API Express y persistencia documental en MongoDB/Mongoose. Fuente: elaboración propia.}
+\label{fig:arquitectura-offline}
+\end{figure}

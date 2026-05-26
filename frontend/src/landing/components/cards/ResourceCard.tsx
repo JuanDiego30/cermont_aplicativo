@@ -24,7 +24,7 @@ export function ResourceCard({ title, description, href, meta }: LandingResource
 					className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-brand-blue)] transition-colors group-hover:text-[var(--color-brand-blue-hover)]"
 				>
 					Abrir recurso
-					<ArrowRight className="h-4 w-4" aria-hidden="true" />
+					<ArrowRight className="size-4" aria-hidden="true" />
 				</a>
 			</div>
 		</article>

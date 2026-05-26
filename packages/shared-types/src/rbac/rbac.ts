@@ -25,7 +25,13 @@
 
 import type { Permission } from "./permissions";
 import { checkAllPermissions, hasPermission } from "./permissions";
-import { hasRole, normalizeUserRole, REPORT_ROLES, type UserRole } from "./roles";
+import {
+	AI_ASSISTANT_ROLES,
+	hasRole,
+	normalizeUserRole,
+	REPORT_ROLES,
+	type UserRole,
+} from "./roles";
 
 /**
  * Public route paths that do not require authentication.
@@ -112,7 +118,7 @@ export function isPublicPath(pathname: string): boolean {
  *
  * @remarks
  * Path matching is case-insensitive and uses prefix matching for nested routes.
- * Unknown roles are treated as unauthenticated and denied access to protected paths.
+ * Unrecognized roles are treated as unauthenticated and denied access to protected paths.
  */
 export function canAccessPath(pathname: string, role: UserRole | string): boolean {
 	const normalizedRole = normalizeUserRole(role);
@@ -135,38 +141,37 @@ export function canAccessPath(pathname: string, role: UserRole | string): boolea
 
 /** Route permission rules: prefix → evaluator */
 const ROUTE_PERMISSIONS: ReadonlyArray<[string, (role: UserRole) => boolean]> = [
-	["/admin", (role) => hasRole(role, ["manager", "administrator"])],
-	["/orders", (role) => role !== "client"],
+	["/admin", (role) => hasRole(role, ["gerente", "administrativo"])],
+	[
+		"/work-requests/visits",
+		(role) => hasRole(role, ["gerente", "residente", "administrativo", "supervisor", "tecnico"]),
+	],
+	[
+		"/work-requests",
+		(role) => hasRole(role, ["gerente", "residente", "administrativo", "supervisor"]),
+	],
+	["/orders", (role) => normalizeUserRole(role) !== "cliente"],
 	[
 		"/maintenance",
-		(role) =>
-			hasRole(role, [
-				"resident_engineer",
-				"supervisor",
-				"operator",
-				"technician",
-				"hse_coordinator",
-				"manager",
-			]),
+		(role) => hasRole(role, ["residente", "supervisor", "operador", "tecnico", "hes", "gerente"]),
 	],
 	[
 		"/evidences",
-		(role) =>
-			hasRole(role, [
-				"resident_engineer",
-				"supervisor",
-				"operator",
-				"technician",
-				"hse_coordinator",
-				"manager",
-			]),
+		(role) => hasRole(role, ["residente", "supervisor", "operador", "tecnico", "hes", "gerente"]),
 	],
-	["/proposals", (role) => hasRole(role, ["manager", "resident_engineer", "administrator"])],
-	["/costs", (role) => hasRole(role, ["manager", "administrator"])],
+	["/proposals", (role) => hasRole(role, ["gerente", "residente", "administrativo"])],
+	["/costs", (role) => hasRole(role, ["gerente", "administrativo"])],
+	["/billing", (role) => hasRole(role, ["gerente", "administrativo"])],
 	["/reports", (role) => hasRole(role, [...REPORT_ROLES])],
-	["/documents", (role) => role !== "client"],
-	["/resources", (role) => hasRole(role, ["manager", "resident_engineer", "supervisor"])],
-	["/users", (role) => hasRole(role, ["manager", "administrator"])],
+	["/documents", (role) => normalizeUserRole(role) !== "cliente"],
+	["/resources", (role) => hasRole(role, ["gerente", "residente", "supervisor"])],
+	["/users", (role) => hasRole(role, ["gerente", "administrativo"])],
+	["/history", (role) => hasRole(role, ["gerente", "administrativo", "supervisor"])],
+	[
+		"/catalog",
+		(role) => hasRole(role, ["gerente", "residente", "supervisor", "operador", "tecnico"]),
+	],
+	["/ai", (role) => hasRole(role, AI_ASSISTANT_ROLES)],
 ];
 
 function checkProtectedPath(normalizedPath: string, role: UserRole): boolean {

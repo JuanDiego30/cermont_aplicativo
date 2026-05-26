@@ -2,27 +2,19 @@
 
 const LOGO_CSS = `
   :root {
-    --hex-stroke: #0f172a;
-    --hex-fill: rgba(15, 23, 42, 0.02);
-    --text-color: #0f172a;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --hex-stroke: #ffffff;
-      --hex-fill: rgba(255, 255, 255, 0.03);
-      --text-color: #ffffff;
-    }
+    --hex-stroke: var(--color-foreground, #0d0d0d);
+    --hex-fill: var(--color-brand-light, #d4fae8);
+    --text-color: var(--color-foreground, #0d0d0d);
   }
 
   .cermont-logo {
     overflow: visible;
-    cursor: pointer;
   }
 
   .hex-bg {
-    stroke: var(--hex-stroke);
-    fill: var(--hex-fill);
-    stroke-width: 10;
+    stroke: var(--color-border-subtle);
+    fill: var(--color-background);
+    stroke-width: 8;
     stroke-linejoin: round;
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     transform-origin: center;
@@ -32,21 +24,14 @@ const LOGO_CSS = `
   }
 
   .cermont-logo:hover .hex-bg {
-    stroke-width: 12;
+    stroke: var(--color-brand);
+    stroke-width: 10;
     transform: scale(1.02);
-    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.1));
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .cermont-logo:hover .hex-bg {
-      filter: drop-shadow(0 0 12px rgba(255,255,255,0.2));
-    }
   }
 
   .arc-wrapper {
     transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     transform-origin: center;
-    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.15));
   }
 
   .arc-green {
@@ -60,21 +45,21 @@ const LOGO_CSS = `
   }
 
   .cermont-logo:hover .arc-blue {
-    transform: translate(6px, -6px) scale(1.03);
-    filter: drop-shadow(0 12px 16px rgba(0,0,0,0.25)) brightness(1.05);
+    transform: translate(4px, -4px) scale(1.02);
+    filter: brightness(1.1);
   }
 
   .cermont-logo:hover .arc-green {
-    transform: translate(-6px, 6px) scale(1.03);
-    filter: drop-shadow(0 12px 16px rgba(0,0,0,0.25)) brightness(1.05);
+    transform: translate(-4px, 4px) scale(1.02);
+    filter: brightness(1.1);
   }
 
   .logo-text {
     fill: var(--text-color);
-    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-    font-weight: 600;
-    letter-spacing: 0.35em;
-    font-size: 26px;
+    font-family: var(--font-mono), monospace;
+    font-weight: 700;
+    letter-spacing: 0.4em;
+    font-size: 28px;
     opacity: 0;
     animation: fadeInText 1s ease-out 0.7s forwards;
     transition: fill 0.5s ease, transform 0.5s ease;
@@ -82,26 +67,27 @@ const LOGO_CSS = `
   }
 
   .cermont-logo:hover .logo-text {
-    transform: scale(1.02) translateY(2px);
+    transform: translateY(2px);
+    fill: var(--color-brand-deep);
   }
 
   @keyframes drawHex {
     0% { stroke-dashoffset: 1100; fill: transparent; }
-    100% { stroke-dashoffset: 0; fill: var(--hex-fill); }
+    100% { stroke-dashoffset: 0; fill: var(--color-background); }
   }
 
   @keyframes popInLeft {
-    0% { transform: translate(-30px, 30px) scale(0.8); opacity: 0; }
+    0% { transform: translate(-20px, 20px) scale(0.9); opacity: 0; }
     100% { transform: translate(0, 0) scale(1); opacity: 1; }
   }
 
   @keyframes popInRight {
-    0% { transform: translate(30px, -30px) scale(0.8); opacity: 0; }
+    0% { transform: translate(20px, -20px) scale(0.9); opacity: 0; }
     100% { transform: translate(0, 0) scale(1); opacity: 1; }
   }
 
   @keyframes fadeInText {
-    0% { opacity: 0; transform: translateY(15px); }
+    0% { opacity: 0; transform: translateY(10px); }
     100% { opacity: 1; transform: translateY(0); }
   }
 `;
@@ -122,8 +108,7 @@ export function CermontLogoSvg({ className, size = 32 }: CermontLogoSvgProps) {
 			height={size}
 			aria-hidden="true"
 		>
-			{/* biome-ignore lint/security/noDangerouslySetInnerHtml: static CSS string for SVG animations, not user input */}
-			<style dangerouslySetInnerHTML={{ __html: LOGO_CSS }} />
+			<style>{LOGO_CSS}</style>
 
 			<defs>
 				<linearGradient

@@ -1,12 +1,12 @@
 "use client";
 
-import type { ApiBody, MaintenanceKit } from "@cermont/shared-types";
-import { hasRole, RESOURCE_ROLES } from "@cermont/shared-types/rbac";
+import { hasRole, RESOURCE_ROLES } from "@cermont/domain";
+import type { ApiEnvelope, MaintenanceKit } from "@cermont/shared-types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Package2, Plus } from "lucide-react";
 import Link from "next/link";
-import { apiClient } from "@/_shared/lib/http/api-client";
-import { useAuth } from "@/auth/hooks/useAuth";
+import { apiClient } from "@/lib/http/api-client";
+import { useAuth } from "@/modules/auth/hooks/useAuth";
 
 export default function KitsPage() {
 	const { user: session } = useAuth();
@@ -31,7 +31,7 @@ export default function KitsPage() {
 	} = useQuery<MaintenanceKit[]>({
 		queryKey: ["typical_kits"],
 		queryFn: async () => {
-			const body = await apiClient.get<ApiBody<MaintenanceKit[]>>("/resources/kits");
+			const body = await apiClient.get<ApiEnvelope<MaintenanceKit[]>>("/resources/kits");
 			return body?.data || [];
 		},
 	});
@@ -44,22 +44,22 @@ export default function KitsPage() {
 					<nav aria-label="Breadcrumb" className="flex items-center gap-2">
 						<Link
 							href="/resources"
-							className="text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
+							className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
 						>
 							Recursos
 						</Link>
-						<span aria-hidden="true" className="text-slate-300 dark:text-slate-600">
+						<span aria-hidden="true" className="text-zinc-300 dark:text-zinc-600">
 							/
 						</span>
-						<span className="text-sm text-slate-700 dark:text-slate-300">Kits Típicos</span>
+						<span className="text-sm text-zinc-700 dark:text-zinc-300">Kits Típicos</span>
 					</nav>
 					<h1
 						id="kits-page-title"
-						className="mt-1 text-2xl font-bold text-slate-900 dark:text-white"
+						className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-white"
 					>
 						Kits Típicos
 					</h1>
-					<p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+					<p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
 						{kits?.length || 0} kits configurados
 					</p>
 				</div>
@@ -68,7 +68,7 @@ export default function KitsPage() {
 						href="/maintenance/new"
 						className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
 					>
-						<Plus aria-hidden="true" className="h-4 w-4" />
+						<Plus aria-hidden="true" className="size-4" />
 						Nuevo Kit
 					</Link>
 				)}
@@ -76,37 +76,37 @@ export default function KitsPage() {
 
 			{/* Grid */}
 			{isLoading ? (
-				<div className="flex h-32 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm text-slate-400 shadow-sm">
-					<Loader2 className="animate-spin h-6 w-6 mr-2" /> Cargando kits...
+				<div className="flex h-32 items-center justify-center rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-sm text-zinc-400 shadow-sm">
+					<Loader2 className="animate-spin size-6 mr-2" /> Cargando kits…
 				</div>
 			) : isError ? (
 				<div className="flex h-32 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-sm text-red-500 shadow-sm dark:bg-red-900/20 dark:border-red-900/30">
 					Error al cargar kits: {(error as Error).message}
 				</div>
 			) : kits?.length === 0 ? (
-				<div className="flex h-32 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm text-slate-400 shadow-sm">
+				<div className="flex h-32 items-center justify-center rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-sm text-zinc-400 shadow-sm">
 					No hay kits registrados
 				</div>
 			) : (
 				<ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 					{(kits || []).map((kit) => (
 						<li key={kit._id}>
-							<article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
+							<article className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
 								<div className="flex items-start gap-3">
 									<div className="rounded-lg bg-blue-50 p-2 dark:bg-blue-900/30">
 										<Package2
 											aria-hidden="true"
-											className="h-5 w-5 text-blue-600 dark:text-blue-400"
+											className="size-5 text-blue-600 dark:text-blue-400"
 										/>
 									</div>
 									<div className="min-w-0 flex-1">
-										<h2 className="truncate font-semibold text-slate-900 dark:text-white">
+										<h2 className="truncate font-semibold text-zinc-900 dark:text-white">
 											{kit.name}
 										</h2>
-										<p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+										<p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
 											{kit.activityType}
 										</p>
-										<p className="mt-2 text-xs font-medium text-slate-400 dark:text-slate-500">
+										<p className="mt-2 text-xs font-medium text-zinc-400 dark:text-zinc-500">
 											{kit.tools.length + kit.equipment.length} ítem(s)
 										</p>
 										{canManage && kit._id && (
@@ -116,7 +116,7 @@ export default function KitsPage() {
 												className="mt-3 text-xs font-semibold text-red-600 hover:text-red-700"
 												disabled={deleteMutation.isPending}
 											>
-												{deleteMutation.isPending ? "Eliminando..." : "Eliminar"}
+												{deleteMutation.isPending ? "Eliminando…" : "Eliminar"}
 											</button>
 										)}
 									</div>

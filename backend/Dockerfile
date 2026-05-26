@@ -11,10 +11,14 @@ WORKDIR /app
 
 # Copiar solo manifests de workspace (minimiza invalidación de caché)
 COPY package.json package-lock.json ./
+COPY packages/config/package.json packages/config/
+COPY packages/domain/package.json packages/domain/
 COPY packages/shared-types/package.json packages/shared-types/
 COPY backend/package.json backend/
 
 # Instalar dependencias de producción + dev
+# --include-workspace-root: incluye deps de raíz
+# --workspaces: respeta estructura de workspaces
 RUN npm ci --include-workspace-root --workspaces
 
 # ============================================================================
@@ -25,16 +29,21 @@ FROM dependencies AS builder
 WORKDIR /app
 
 # Copiar código fuente de packages
+COPY packages/config ./packages/config
+COPY packages/domain ./packages/domain
 COPY packages/shared-types ./packages/shared-types
 
 # Copiar código fuente del backend
 COPY backend ./backend
 
-# Compilar shared-types
+# Compilar packages en orden de dependencias
+RUN npm run build -w @cermont/config
 RUN npm run build -w @cermont/shared-types
+RUN npm run build -w @cermont/domain
+RUN npm run build -w @cermont/config
 
 # Compilar backend
-RUN npm run build -w @cermont/backend
+RUN npm run build -w backend
 
 # ============================================================================
 # Stage 3: Runtime (Producción optimizada)
@@ -47,6 +56,7 @@ WORKDIR /app
 RUN apk add --no-cache dumb-init curl
 
 # Crear usuario no-root para seguridad
+# Ref: https://docs.docker.com/build/building/multi-stage/#use-multi-stage-builds
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S expressjs -u 1001
 
@@ -76,10 +86,12 @@ EXPOSE 4000
 
 USER expressjs
 
-# Healthcheck
+# Healthcheck basado en endpoint
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD curl -f http://localhost:4000/health || exit 1
 
+# Usar dumb-init para manejo correcto de señales
+# Ref: https://docs.docker.com/build/building/multi-stage/#use-multi-stage-builds
 ENTRYPOINT ["dumb-init", "--"]
 
 CMD ["node", "backend/dist/server.js"]

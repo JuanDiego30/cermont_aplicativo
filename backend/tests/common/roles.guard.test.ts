@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { ForbiddenError, UnauthorizedError } from "@/common/errors";
-import { authorize } from "@/common/guards/roles.guard";
+import { ForbiddenError, UnauthorizedError } from "../../src/common/errors";
+import { authorize } from "../../src/common/guards/roles.guard";
 
 describe("authorize guard", () => {
 	it("returns UnauthorizedError when user context is missing", () => {

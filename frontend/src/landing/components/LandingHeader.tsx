@@ -7,6 +7,7 @@ import { useRef } from "react";
 import { BadgePill } from "@/core/ui/BadgePill";
 import { Button } from "@/core/ui/Button";
 import { Logo } from "@/core/ui/Logo";
+import { ThemeToggle } from "@/core/ui/ThemeToggle";
 import { CORPORATE_LOCATION, NAV_ITEMS } from "../landing-constants";
 
 export function LandingHeader() {
@@ -33,29 +34,31 @@ export function LandingHeader() {
 	return (
 		<header
 			ref={headerRef}
-			data-landing-section
-			className="sticky top-0 z-40 border-b border-white/10 bg-cermont-navy/95 backdrop-blur-xl transition-colors duration-200 dark:border-[var(--border-default)] dark:bg-[var(--surface-primary)]/95"
+			className="sticky top-0 z-40 border-b border-[var(--border-subtle)] bg-[var(--surface-page)]/80 backdrop-blur-xl transition-all duration-200"
 		>
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-				<div className="flex flex-col gap-4 py-4 lg:flex-row lg:items-center lg:justify-between">
+				<div className="flex flex-col gap-4 py-3 lg:flex-row lg:items-center lg:justify-between">
 					<div className="flex items-center justify-between gap-4">
-						<Logo href="/" className="gap-3" size="md" wordmarkClassName="text-white" />
-						<Button
-							asChild
-							size="sm"
-							variant="outline"
-							className="rounded-full border-white/15 bg-white/5 px-4 text-white hover:bg-white/10 lg:hidden"
-						>
-							<Link href="/login">Acceso privado</Link>
-						</Button>
+						<Logo
+							href="/"
+							className="gap-3"
+							size="md"
+							wordmarkClassName="text-[var(--text-primary)]"
+						/>
+						<div className="flex items-center gap-2 lg:hidden">
+							<ThemeToggle />
+							<Button asChild size="sm" variant="outline">
+								<Link href="/login">Acceso privado</Link>
+							</Button>
+						</div>
 					</div>
 
-					<nav aria-label="Navegación principal" className="flex flex-wrap items-center gap-2">
+					<nav aria-label="Navegación principal" className="flex flex-wrap items-center gap-1.5">
 						{NAV_ITEMS.map(({ label, href }) => (
 							<a
 								key={href}
 								href={href}
-								className="rounded-full border border-white/10 bg-white/5 px-3.5 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-300 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+								className="rounded-full px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)] transition-all hover:bg-[var(--surface-secondary)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-focus-ring)]/40"
 							>
 								{label}
 							</a>
@@ -64,13 +67,14 @@ export function LandingHeader() {
 
 					<div className="hidden items-center gap-3 lg:flex">
 						<BadgePill
-							className="border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-slate-200"
-							dotClassName="bg-(--color-success)"
+							className="px-3 py-1.5 font-mono"
+							dotClassName="bg-[var(--color-success)]"
 							ariaLabel={CORPORATE_LOCATION}
 						>
 							{CORPORATE_LOCATION}
 						</BadgePill>
-						<Button asChild size="sm" className="rounded-full px-4">
+						<ThemeToggle />
+						<Button asChild size="sm" variant="primary" className="px-5">
 							<Link href="/login">Acceso privado</Link>
 						</Button>
 					</div>

@@ -13,12 +13,11 @@ vi.stubEnv("JWT_SECRET", "test-jwt-secret-for-testing-only");
 vi.stubEnv("REFRESH_TOKEN_SECRET", "test-refresh-secret-for-testing-only");
 vi.stubEnv("BCRYPT_ROUNDS", "4");
 vi.stubEnv("FRONTEND_URL", "http://localhost:3000");
-vi.stubEnv("BACKEND_URL", "http://127.0.0.1:5000");
 vi.stubEnv("NODE_ENV", "test");
 vi.stubEnv("PORT", "4000");
 
 // Mock logger to avoid console noise during tests
-vi.mock("../src/_shared/common/utils/logger", () => ({
+vi.mock("../src/common/utils/logger", () => ({
 	createLogger: () => ({
 		info: vi.fn(),
 		warn: vi.fn(),

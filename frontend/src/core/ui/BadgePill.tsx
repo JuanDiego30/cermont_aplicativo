@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { cn } from "@/_shared/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface BadgePillProps {
 	children: ReactNode;
@@ -22,13 +22,15 @@ export function BadgePill({
 		<span
 			data-testid={testId}
 			className={cn(
-				"inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 ring-1 ring-inset",
+				"inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset transition-colors duration-150",
+				"bg-[var(--surface-secondary)] text-[var(--text-secondary)] ring-[var(--border-subtle)]",
 				className,
 			)}
 		>
 			{ariaLabel ? <span className="sr-only">{ariaLabel}</span> : null}
+
 			{dotClassName ? (
-				<span className={cn("h-1.5 w-1.5 rounded-full", dotClassName)} aria-hidden="true" />
+				<span className={cn("size-1.5 rounded-full", dotClassName)} aria-hidden="true" />
 			) : null}
 
 			{leadingIcon ? (

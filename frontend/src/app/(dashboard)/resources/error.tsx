@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
-import { createLogger } from "@/_shared/lib/monitoring/logger";
+import { createLogger } from "@/lib/monitoring/logger";
 
 interface ErrorProps {
 	error: Error & { digest?: string };
@@ -24,12 +24,12 @@ export default function ResourcesError({ error, reset }: ErrorProps) {
 			aria-labelledby="resources-error-title"
 		>
 			<div className="flex flex-col items-center gap-2">
-				<div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-50">
+				<div className="flex size-14 items-center justify-center rounded-full bg-red-50">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 24 24"
 						fill="currentColor"
-						className="h-7 w-7 text-red-500"
+						className="size-7 text-red-500"
 						aria-hidden="true"
 					>
 						<path
@@ -39,13 +39,13 @@ export default function ResourcesError({ error, reset }: ErrorProps) {
 						/>
 					</svg>
 				</div>
-				<h2 id="resources-error-title" className="text-lg font-semibold text-slate-900">
+				<h2 id="resources-error-title" className="text-lg font-semibold text-zinc-900">
 					Error en Recursos
 				</h2>
-				<p className="max-w-sm text-sm text-slate-600">
+				<p className="max-w-sm text-sm text-zinc-600">
 					Ocurrió un error al cargar el módulo de recursos y equipos.
 				</p>
-				{error.digest && <p className="text-xs text-slate-400">Código: {error.digest}</p>}
+				{error.digest && <p className="text-xs text-zinc-400">Código: {error.digest}</p>}
 			</div>
 			<div className="flex gap-3">
 				<button
@@ -57,7 +57,7 @@ export default function ResourcesError({ error, reset }: ErrorProps) {
 				</button>
 				<Link
 					href="/dashboard"
-					className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+					className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
 				>
 					Ir al inicio
 				</Link>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { offsetToPage, parseNumberQuery } from "@/common/utils/mapping";
+import { offsetToPage, parseNumberQuery } from "../../src/common/utils/mapping";
 
 describe("mapping utilities", () => {
 	it("caps numeric query values when a maximum is provided", () => {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { cn } from "@/_shared/lib/utils";
+import { cn } from "@/lib/utils";
 import { CermontLogoSvg } from "./CermontLogoSvg";
 
 interface LogoProps {
@@ -9,6 +9,8 @@ interface LogoProps {
 	href?: string;
 	ariaLabel?: string;
 	wordmarkClassName?: string;
+	logoClassName?: string;
+	hideWordmarkOnMobile?: boolean;
 }
 
 const sizes = { sm: 24, md: 32, lg: 48 } as const;
@@ -21,16 +23,22 @@ export function Logo({
 	href,
 	ariaLabel = "Cermont S.A.S.",
 	wordmarkClassName,
+	logoClassName,
+	hideWordmarkOnMobile = true,
 }: LogoProps) {
 	const s = sizes[size];
 	const content = (
 		<>
-			<CermontLogoSvg size={s} className="shrink-0 rounded-[var(--radius-md)]" />
+			<CermontLogoSvg
+				size={s}
+				className={cn("shrink-0 rounded-[var(--radius-md)]", logoClassName)}
+			/>
 			{showText && (
 				<span
 					className={cn(
 						"font-bold text-[var(--text-primary)]",
 						logoTextSizes[size],
+						hideWordmarkOnMobile && "hidden sm:inline",
 						wordmarkClassName,
 					)}
 				>
@@ -40,7 +48,7 @@ export function Logo({
 		</>
 	);
 
-	const wrapperClassName = `flex items-center gap-2 ${className ?? ""}`.trim();
+	const wrapperClassName = cn("flex items-center gap-2", className);
 
 	if (href) {
 		return (

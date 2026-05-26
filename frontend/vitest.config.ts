@@ -7,27 +7,26 @@ export default defineConfig({
 	test: {
 		globals: true,
 		environment: "jsdom",
-		include: ["tests/**/*.test.{ts,tsx}", "src/**/*.test.{ts,tsx}"],
+		include: ["tests/**/*.test.{ts,tsx}", "lib/**/*.test.{ts,tsx}"],
 		setupFiles: ["./vitest.setup.ts"],
 		env: {
+			AUTH_SECRET: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
 			NODE_ENV: "test",
-			BACKEND_URL: "http://127.0.0.1:5000",
+			NEXT_PUBLIC_API_URL: "http://localhost:3000/api/proxy",
 			NEXT_PUBLIC_APP_NAME: "Cermont S.A.S.",
 			NEXT_PUBLIC_APP_URL: "http://localhost:3000",
-			REFRESH_TOKEN_SECRET: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
 		},
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "html"],
-			include: ["src/**"],
-			exclude: ["**/*.patch", "**/*.bak"],
+			include: ["lib/**", "app/api/**"],
+			exclude: ["**/*.patch"],
 			thresholds: {
-				lines: 3,
-				branches: 1,
-				functions: 2,
-				statements: 3,
+				lines: 40,
+				branches: 30,
+				functions: 35,
+				statements: 40,
 			},
-
 		},
 		server: {
 			deps: {
@@ -38,6 +37,8 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "src"),
+			"@/modules": path.resolve(__dirname, "src/modules"),
+			"@/lib": path.resolve(__dirname, "src/lib"),
 			"@/app": path.resolve(__dirname, "app"),
 			"@/src": path.resolve(__dirname, "src"),
 		},

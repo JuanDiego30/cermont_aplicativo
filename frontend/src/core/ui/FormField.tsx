@@ -1,70 +1,21 @@
 "use client";
 
 import { X } from "lucide-react";
-import {
-	Children,
-	cloneElement,
-	type InputHTMLAttributes,
-	isValidElement,
-	type ReactNode,
-	type TextareaHTMLAttributes,
-} from "react";
-import { cn } from "@/_shared/lib/utils";
-
-/**
- * FormField - Wrapper component for form inputs with label and error display
- *
- * Features:
- * - Consistent styling across all forms
- * - Error state with red border and message
- * - Required indicator (asterisk)
- * - Helper text support
- * - Accessible labels with htmlFor
- */
+import type { InputHTMLAttributes, ReactNode, Ref, TextareaHTMLAttributes } from "react";
+import { cn } from "@/lib/utils";
 
 export interface FormFieldProps {
-	/** Field name for form registration */
 	name?: string;
-	/** Field label */
 	label?: ReactNode;
-	/** Error message to display */
 	error?: string;
-	/** Helper text below the input */
 	helperText?: string;
-	/** Whether the field is required */
 	required?: boolean;
-	/** ID for label association (defaults to name) */
 	htmlFor?: string;
-	/** Additional label classes */
 	labelClassName?: string;
-	/** Additional error classes */
 	errorClassName?: string;
-	/** Additional helper text classes */
 	helperTextClassName?: string;
-	/** Children (input, select, etc.) */
 	children: ReactNode;
-	/** Additional class names */
 	className?: string;
-}
-
-interface RequiredAwareChildProps {
-	"aria-required"?: boolean | "true" | "false";
-}
-
-function withRequiredAria(children: ReactNode, required: boolean): ReactNode {
-	if (!required) {
-		return children;
-	}
-
-	return Children.map(children, (child) => {
-		if (!isValidElement<RequiredAwareChildProps>(child)) {
-			return child;
-		}
-
-		return cloneElement(child, {
-			"aria-required": child.props["aria-required"] ?? true,
-		});
-	});
 }
 
 export function FormField({
@@ -81,30 +32,32 @@ export function FormField({
 	className,
 }: FormFieldProps) {
 	const labelId = htmlFor || name;
-	const describedChildren = withRequiredAria(children, required);
 
 	return (
-		<div className={cn("space-y-1.5", className)}>
+		<div className={cn("space-y-2", className)}>
 			{label ? (
 				<label
 					htmlFor={labelId}
 					className={cn("block text-sm font-medium text-[var(--text-secondary)]", labelClassName)}
 				>
 					{label}
-					{required ? <span className="ml-0.5 text-[var(--color-danger)]">*</span> : null}
+					{required ? <span className="ml-1 text-[var(--color-danger)]">*</span> : null}
 				</label>
 			) : null}
 
-			{describedChildren}
+			{children}
 
 			{error ? (
-				<p className={cn("text-sm text-[var(--color-danger)]", errorClassName)} role="alert">
+				<p
+					className={cn("text-xs font-medium text-[var(--color-danger)]", errorClassName)}
+					role="alert"
+				>
 					{error}
 				</p>
 			) : null}
 
 			{helperText && !error ? (
-				<p className={cn("text-sm text-[var(--text-tertiary)]", helperTextClassName)}>
+				<p className={cn("text-xs text-[var(--text-tertiary)]", helperTextClassName)}>
 					{helperText}
 				</p>
 			) : null}
@@ -112,29 +65,22 @@ export function FormField({
 	);
 }
 
-/**
- * TextField - Styled input component for text input
- *
- * Features:
- * - Consistent styling with design system
- * - Error state styling
- * - Focus ring
- * - Dark mode support
- * - Accessible
- */
-
 export interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
-	/** Error state */
 	error?: boolean;
-	/** Size variant */
 	size?: "sm" | "md" | "lg";
 	leftIcon?: ReactNode;
 	rightIcon?: ReactNode;
 	onClear?: () => void;
-	ref?: React.Ref<HTMLInputElement>;
+	ref?: Ref<HTMLInputElement>;
 }
 
-export const TextField = ({
+const TEXT_FIELD_SIZE_CLASSES = {
+	sm: "h-9 px-3 text-sm",
+	md: "h-10 px-4 text-sm",
+	lg: "h-12 px-6 text-base",
+} as const;
+
+export function TextField({
 	className,
 	error,
 	size = "md",
@@ -144,163 +90,146 @@ export const TextField = ({
 	onClear,
 	ref,
 	...props
-}: TextFieldProps) => {
-	const sizeClasses = {
-		sm: "h-8 px-2 text-sm",
-		md: "h-9 px-3 text-sm",
-		lg: "h-11 px-4 text-base",
-	};
-
+}: TextFieldProps) {
 	return (
 		<div className="relative w-full">
 			{leftIcon ? (
-				<span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]">
+				<span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]">
 					{leftIcon}
 				</span>
 			) : null}
 			<input
 				type={type}
 				ref={ref}
-				{...props}
 				className={cn(
-					"w-full rounded-[var(--radius-md)] border bg-[var(--surface-primary)] text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand-blue)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-tertiary)]",
-					sizeClasses[size],
-					leftIcon ? "pl-10" : "",
-					rightIcon || onClear ? "pr-10" : "",
+					"w-full rounded-full border bg-[var(--surface-primary)] text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-muted)]",
+					TEXT_FIELD_SIZE_CLASSES[size],
+					leftIcon ? "pl-11" : "",
+					rightIcon || onClear ? "pr-11" : "",
 					error
 						? "border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[color:var(--color-danger)]/20"
-						: "border-[var(--border-default)] focus:border-[var(--border-focus)]",
+						: "border-[var(--border-medium)] focus:border-[var(--color-focus-ring)]",
 					className,
 				)}
-				aria-invalid={error ? true : props["aria-invalid"]}
-				aria-required={props["aria-required"]}
+				{...props}
 			/>
 			{onClear ? (
 				<button
 					type="button"
 					onClick={onClear}
-					className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]"
+					className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
 					aria-label="Limpiar campo"
 				>
-					<X className="h-4 w-4" aria-hidden="true" />
+					<X className="size-4" aria-hidden="true" />
 				</button>
 			) : rightIcon ? (
-				<span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]">
+				<span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]">
 					{rightIcon}
 				</span>
 			) : null}
 		</div>
 	);
-};
-
-TextField.displayName = "TextField";
-
-/**
- * TextArea - Styled textarea component
- */
-
-export interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
-	/** Error state */
-	error?: boolean;
-	ref?: React.Ref<HTMLTextAreaElement>;
 }
 
-export const TextArea = ({ className, error, ref, ...props }: TextAreaProps) => {
+export interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+	error?: boolean;
+	ref?: Ref<HTMLTextAreaElement>;
+}
+
+export function TextArea({ className, error, ref, ...props }: TextAreaProps) {
 	return (
 		<textarea
 			ref={ref}
-			{...props}
 			className={cn(
-				"w-full rounded-[var(--radius-md)] border bg-[var(--surface-primary)] px-3 py-2 text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 placeholder:text-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand-blue)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-tertiary)] resize-y min-h-[80px]",
+				"w-full rounded-[var(--radius-lg)] border bg-[var(--surface-primary)] px-4 py-3 text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-muted)] resize-y min-h-[100px]",
 				error
 					? "border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[color:var(--color-danger)]/20"
-					: "border-[var(--border-default)] focus:border-[var(--border-focus)]",
-				"resize-y min-h-[80px]",
+					: "border-[var(--border-medium)] focus:border-[var(--color-focus-ring)]",
 				className,
 			)}
-			aria-invalid={error ? true : props["aria-invalid"]}
-			aria-required={props["aria-required"]}
+			{...props}
 		/>
 	);
-};
-
-TextArea.displayName = "TextArea";
-
-/**
- * Select - Styled select component
- */
-
-export interface SelectProps extends Omit<InputHTMLAttributes<HTMLSelectElement>, "size"> {
-	/** Error state */
-	error?: boolean;
-	/** Size variant */
-	size?: "sm" | "md" | "lg";
-	/** Options */
-	children: ReactNode;
-	ref?: React.Ref<HTMLSelectElement>;
 }
 
-export const Select = ({ className, error, size = "md", children, ref, ...props }: SelectProps) => {
-	const sizeClasses = {
-		sm: "h-8 px-2 text-sm",
-		md: "h-10 px-3 text-base",
-		lg: "h-12 px-4 text-lg",
-	};
+export interface SelectProps extends Omit<InputHTMLAttributes<HTMLSelectElement>, "size"> {
+	error?: boolean;
+	size?: "sm" | "md" | "lg";
+	children: ReactNode;
+	ref?: Ref<HTMLSelectElement>;
+}
 
+const SELECT_SIZE_CLASSES = {
+	sm: "h-9 px-3 text-sm",
+	md: "h-10 px-4 text-sm",
+	lg: "h-12 px-6 text-base",
+} as const;
+
+export function Select({ className, error, size = "md", children, ref, ...props }: SelectProps) {
 	return (
-		<select
-			ref={ref}
-			{...props}
-			className={cn(
-				"w-full cursor-pointer appearance-none rounded-[var(--radius-md)] border bg-[var(--surface-primary)] text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-brand-blue)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-tertiary)]",
-				sizeClasses[size],
-				'bg-[url("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22M6%208l4%204%204-4%22%2F%3E%3C%2Fsvg%3E")]',
-				"bg-[length:1.5em_1.5em] bg-[right_0.5rem_center] bg-no-repeat pr-10",
-				error
-					? "border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[color:var(--color-danger)]/20"
-					: "border-[var(--border-default)] focus:border-[var(--border-focus)]",
-				className,
-			)}
-			aria-invalid={error ? true : props["aria-invalid"]}
-			aria-required={props["aria-required"]}
-		>
-			{children}
-		</select>
+		<div className="relative w-full">
+			<select
+				ref={ref}
+				className={cn(
+					"w-full cursor-pointer appearance-none rounded-full border bg-[var(--surface-primary)] text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-muted)]",
+					SELECT_SIZE_CLASSES[size],
+					"bg-[right_1rem_center] bg-no-repeat pr-10",
+					error
+						? "border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[color:var(--color-danger)]/20"
+						: "border-[var(--border-medium)] focus:border-[var(--color-focus-ring)]",
+					className,
+				)}
+				{...props}
+			>
+				{children}
+			</select>
+			<div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[var(--text-tertiary)]">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 20 20"
+					className="size-5"
+					aria-hidden="true"
+				>
+					<path
+						stroke="currentColor"
+						strokeLinecap="round"
+						strokeLinejoin="round"
+						strokeWidth="1.5"
+						d="M6 8l4 4 4-4"
+					/>
+				</svg>
+			</div>
+		</div>
 	);
-};
-
-Select.displayName = "Select";
-
-/**
- * Checkbox - Styled checkbox component
- */
+}
 
 export interface CheckboxProps
 	extends Omit<InputHTMLAttributes<HTMLInputElement>, "type" | "size"> {
-	/** Label text */
 	label?: ReactNode;
-	/** Error state */
 	error?: boolean;
-	ref?: React.Ref<HTMLInputElement>;
+	ref?: Ref<HTMLInputElement>;
 }
 
-export const Checkbox = ({ className, label, error, ref, ...props }: CheckboxProps) => {
+export function Checkbox({ className, label, error, ref, ...props }: CheckboxProps) {
 	return (
-		<label className={cn("inline-flex items-center gap-2 cursor-pointer", className)}>
+		<label className={cn("inline-flex items-center gap-2.5 cursor-pointer group", className)}>
 			<input
 				type="checkbox"
 				ref={ref}
 				className={cn(
-					"h-4 w-4 rounded border transition-colors cursor-pointer text-[var(--color-brand-blue)] focus:ring-2 focus:ring-[color:var(--color-brand-blue)]/20 focus:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-60",
-					error ? "border-[var(--color-danger)]" : "border-[var(--border-default)]",
+					"size-4.5 rounded border transition-all cursor-pointer text-[var(--color-brand)] focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 focus:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50",
+					error
+						? "border-[var(--color-danger)]"
+						: "border-[var(--border-medium)] group-hover:border-[var(--color-brand)]",
 				)}
 				{...props}
 			/>
-			{label && <span className="select-none text-sm text-[var(--text-secondary)]">{label}</span>}
+			{label ? (
+				<span className="select-none text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">
+					{label}
+				</span>
+			) : null}
 		</label>
 	);
-};
-
-Checkbox.displayName = "Checkbox";
-
-export default FormField;
+}

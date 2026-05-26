@@ -11,12 +11,12 @@ export default function DashboardError({ error, reset }: DashboardErrorProps) {
 	return (
 		<div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 px-4 text-center">
 			<div className="flex flex-col items-center gap-2">
-				<div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-50">
+				<div className="flex size-14 items-center justify-center rounded-full bg-red-50">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 24 24"
 						fill="currentColor"
-						className="h-7 w-7 text-red-500"
+						className="size-7 text-red-500"
 						aria-hidden="true"
 					>
 						<path
@@ -26,9 +26,9 @@ export default function DashboardError({ error, reset }: DashboardErrorProps) {
 						/>
 					</svg>
 				</div>
-				<h2 className="text-lg font-semibold text-slate-900">Algo salió mal</h2>
-				<p className="max-w-sm text-sm text-slate-600">Ocurrió un error al cargar esta sección.</p>
-				{error.digest && <p className="text-xs text-slate-400">Código: {error.digest}</p>}
+				<h2 className="text-lg font-semibold text-zinc-900">Algo salió mal</h2>
+				<p className="max-w-sm text-sm text-zinc-600">Ocurrió un error al cargar esta sección.</p>
+				{error.digest && <p className="text-xs text-zinc-400">Código: {error.digest}</p>}
 			</div>
 			<div className="flex gap-3">
 				<button
@@ -40,7 +40,7 @@ export default function DashboardError({ error, reset }: DashboardErrorProps) {
 				</button>
 				<Link
 					href="/dashboard"
-					className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+					className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
 				>
 					Ir al inicio
 				</Link>

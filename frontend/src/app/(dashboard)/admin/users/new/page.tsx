@@ -1,6 +1,6 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { UserForm } from "@/users/ui/UserForm";
+import { UserForm } from "@/modules/users/ui/UserForm";
 
 export default function NewUserPage() {
 	return (
@@ -8,17 +8,17 @@ export default function NewUserPage() {
 			<header className="flex items-center gap-3">
 				<Link
 					href="/admin/users"
-					className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400"
+					className="flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400"
 				>
-					<ArrowLeft className="h-4 w-4" aria-hidden="true" />
+					<ArrowLeft className="size-4" aria-hidden="true" />
 					Volver
 				</Link>
-				<h1 id="new-user-title" className="text-2xl font-bold text-slate-900 dark:text-white">
+				<h1 id="new-user-title" className="text-2xl font-semibold text-zinc-900 dark:text-white">
 					Nuevo usuario
 				</h1>
 			</header>
 
-			<UserForm defaultRole="technician" />
+			<UserForm defaultRole="tecnico" />
 		</section>
 	);
 }

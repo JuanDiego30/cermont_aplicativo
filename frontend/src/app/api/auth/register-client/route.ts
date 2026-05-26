@@ -1,4 +1,4 @@
-import { env, isProduction } from "@cermont/shared-types/config";
+import { env, isProduction } from "@cermont/config";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 	};
 
 	const backendBaseUrl =
-		env.BACKEND_URL?.trim() || (isProduction() ? "http://backend:4000" : "http://127.0.0.1:5000");
+		env.BACKEND_URL?.trim() || (isProduction() ? "http://backend:4000" : "http://localhost:4000");
 	const normalizedBaseUrl = backendBaseUrl.replace(/\/+$/, "");
 	const apiRoot = `${normalizedBaseUrl}/api`;
 

@@ -2,75 +2,64 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import type { ReactNode } from "react";
-import { useEffect } from "react";
-import { STALE_TIMES } from "@/_shared/lib/constants/query-config";
-import { ApiError } from "@/_shared/lib/http/api-client";
-import { AuthInitializer } from "@/auth/components/AuthInitializer";
+import { MotionConfig } from "framer-motion";
+import { type ReactNode, useEffect, useState } from "react";
+import { detailQueryOptions } from "@/_shared/lib/query/query-options";
+import { STALE_TIMES } from "@/lib/constants/query-config";
+import { persistQueryToIndexedDB, restoreQueryFromIndexedDB } from "@/lib/pwa/query-persist";
+import { ThemeProvider } from "@/lib/theme/ThemeProvider";
+import { AuthInitializer } from "@/modules/auth/components/AuthInitializer";
 
-let browserQueryClient: QueryClient | undefined;
-
-function getQueryClient() {
-	if (typeof window === "undefined") {
-		// Server: always create a new query client
-		return new QueryClient({
-			defaultOptions: {
-				queries: {
-					staleTime: STALE_TIMES.DETAIL,
-				},
-			},
-		});
-	} else {
-		// Browser: make singleton so we don't re-make it
-		if (!browserQueryClient) {
-			browserQueryClient = new QueryClient({
+export function Providers({ children }: { children: ReactNode }) {
+	const [queryClient] = useState(
+		() =>
+			new QueryClient({
 				defaultOptions: {
 					queries: {
+						...detailQueryOptions,
 						staleTime: STALE_TIMES.DETAIL,
-						gcTime: 10 * 60 * 1000,
-						retry: (failureCount, error) => {
-							if (error instanceof ApiError && error.status >= 400 && error.status < 500) {
-								return false;
-							}
-							return failureCount < 2;
-						},
-						refetchOnWindowFocus: true,
 						refetchOnReconnect: true,
 					},
 					mutations: {
 						retry: 0,
 					},
 				},
-			});
-		}
-		return browserQueryClient;
-	}
-}
+			}),
+	);
 
-export function Providers({ children }: { children: ReactNode }) {
-	const queryClient = getQueryClient();
-
-	// Suppress Chrome extension false-positive "message channel closed" errors in dev
+	// Restore query cache from IndexedDB on mount (for offline)
 	useEffect(() => {
-		if (process.env.NODE_ENV === "production") {
-			return;
-		}
-		const handler = (event: PromiseRejectionEvent) => {
-			if (
-				event.reason?.message?.includes(
-					"A listener indicated an asynchronous response by returning true",
-				)
-			) {
-				event.preventDefault();
+		restoreQueryFromIndexedDB().then((state) => {
+			if (state) {
+				queryClient.setQueryData(["__cached__"], state);
 			}
-		};
-		window.addEventListener("unhandledrejection", handler);
-		return () => window.removeEventListener("unhandledrejection", handler);
-	}, []);
+		});
+	}, [queryClient]);
+
+	// Persist query cache to IndexedDB when queries change
+	useEffect(() => {
+		const cache = queryClient.getQueryCache();
+		const unsubscribe = cache.subscribe(() => {
+			const queries = queryClient.getQueryCache().getAll();
+			const cacheable = queries
+				.filter((q) => q.queryKey[0] !== "__cached__")
+				.map((q) => ({
+					key: q.queryKey,
+					data: q.state.data,
+					dataUpdatedAt: q.state.dataUpdatedAt,
+				}));
+			persistQueryToIndexedDB(cacheable);
+		});
+		return unsubscribe;
+	}, [queryClient]);
 
 	return (
 		<QueryClientProvider client={queryClient}>
-			{typeof window !== "undefined" ? <AuthInitializer>{children}</AuthInitializer> : children}
+			<ThemeProvider>
+				<MotionConfig reducedMotion="user">
+					<AuthInitializer>{children}</AuthInitializer>
+				</MotionConfig>
+			</ThemeProvider>
 			{process.env.NODE_ENV !== "production" && (
 				<ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
 			)}

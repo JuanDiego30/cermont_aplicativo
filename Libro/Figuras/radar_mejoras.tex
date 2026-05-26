@@ -1,0 +1,21 @@
+% Figura corregida: radar conceptual de dimensiones de evaluación.
+\begin{figure}[H]
+\centering
+\resizebox{0.78\textwidth}{!}{%
+\begin{tikzpicture}[font=\sffamily]
+\tikzset{axis/.style={draw=institucionalBlue, line width=0.55pt}, poly/.style={draw=institucionalRed, fill=white, line width=1.0pt}, lab/.style={font=\scriptsize, align=center}}
+\foreach \r in {1,2,3,4}{\draw[axis] (0,0) circle (\r);} 
+\foreach \ang/\txt in {90/Planeación,30/Ejecución,-30/Cierre\\administrativo,-90/Trazabilidad,-150/Usabilidad,150/Seguridad}{
+    \draw[axis] (0,0) -- (\ang:4.15);
+    \node[lab] at (\ang:4.85) {\txt};
+}
+\foreach \r/\txt in {1/básico,2/parcial,3/alto,4/completo}{\node[font=\tiny] at (8:\r) {\txt};}
+\draw[poly]
+    (90:3.0) -- (30:3.2) -- (-30:2.5) -- (-90:3.1) -- (-150:2.7) -- (150:3.3) -- cycle;
+\node[font=\small\bfseries, text=institucionalBlue] at (0,5.55) {Dimensiones de evaluación funcional del aplicativo};
+\node[figNote, text width=4.6cm] at (5.9,-0.1) {Representación cualitativa. Sustituir por datos cuantitativos solo si se anexan mediciones verificables.};
+\end{tikzpicture}%
+}
+\caption[Radar cualitativo de dimensiones de evaluación]{Radar cualitativo de dimensiones de evaluación del aplicativo: planeación, ejecución, cierre, trazabilidad, usabilidad y seguridad. Fuente: Elaboración propia.}
+\label{fig:radar-mejoras}
+\end{figure}

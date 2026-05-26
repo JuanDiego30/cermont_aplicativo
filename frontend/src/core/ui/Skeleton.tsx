@@ -1,4 +1,4 @@
-interface SkeletonLoaderProps {
+interface SkeletonProps {
 	variant?:
 		| "kpi-card"
 		| "table-row"
@@ -10,7 +10,7 @@ interface SkeletonLoaderProps {
 		| "circle";
 	className?: string;
 	rows?: number;
-	height?: number;
+	height?: number | string;
 }
 
 const base =
@@ -28,12 +28,12 @@ function RowSkeleton({ rows = 1, className = "" }: { rows?: number; className?: 
 	);
 }
 
-export function SkeletonLoader({
+export function Skeleton({
 	variant = "text",
 	className = "",
 	rows = 1,
 	height = 24,
-}: SkeletonLoaderProps) {
+}: SkeletonProps) {
 	if (variant === "kpi-card") {
 		const cardKeys = ["card-1", "card-2", "card-3", "card-4"];
 
@@ -42,11 +42,11 @@ export function SkeletonLoader({
 				{cardKeys.map((cardKey) => (
 					<div
 						key={cardKey}
-						className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]"
+						className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-card"
 					>
 						<div className="flex items-center justify-between">
 							<div className={`h-4 w-24 ${base}`} />
-							<div className={`h-10 w-10 rounded-xl ${base}`} />
+							<div className={`size-10 rounded-xl ${base}`} />
 						</div>
 						<div className={`mt-4 h-8 w-20 ${base}`} />
 						<div className={`mt-2 h-3 w-36 ${base}`} />
@@ -64,7 +64,7 @@ export function SkeletonLoader({
 				{rowKeys.map((rowKey) => (
 					<div
 						key={rowKey}
-						className="grid grid-cols-[1fr_2fr_1fr_1fr_80px] gap-4 border-b border-[var(--border-default)] py-4 last:border-b-0"
+						className="grid grid-cols-[1fr_2fr_1fr_1fr_80px] gap-4 border-b border-[var(--border-subtle)] py-4 last:border-b-0"
 					>
 						<div className={`h-4 w-24 ${base}`} />
 						<div className={`h-4 w-full ${base}`} />
@@ -85,9 +85,9 @@ export function SkeletonLoader({
 				{itemKeys.map((itemKey) => (
 					<div
 						key={itemKey}
-						className="mb-3 flex items-center gap-3 rounded-2xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 last:mb-0"
+						className="mb-3 flex items-center gap-3 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 last:mb-0"
 					>
-						<div className={`h-10 w-10 rounded-full ${base}`} />
+						<div className={`size-10 rounded-full ${base}`} />
 						<div className="flex-1 space-y-2">
 							<div className={`h-4 w-1/2 ${base}`} />
 							<div className={`h-3 w-2/5 ${base}`} />
@@ -116,8 +116,9 @@ export function SkeletonLoader({
 	return rows > 1 ? (
 		<RowSkeleton rows={rows} className={className} />
 	) : (
-		<div className={`${base} ${className}`} />
+		<div
+			className={`${base} ${className}`}
+			style={typeof height === "number" ? { height } : undefined}
+		/>
 	);
 }
-
-export { SkeletonLoader as Skeleton };

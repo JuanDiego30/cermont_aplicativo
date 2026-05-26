@@ -1,0 +1,78 @@
+service:
+  grpc_port: 6334
+  http_port: 6333
+  # Enable telemetry (can be disabled for privacy)
+  telemetry_enabled: false
+  # Maximum number of workers for parallel indexing
+  max_indexing_threads: 4
+
+storage:
+  # Path where the data will be stored
+  storage_path: /qdrant/storage
+  # Enable wal (write-ahead log) for durability
+  wal_enabled: true
+  # Wal capacity ahead of when we persist to disk
+  wal_capacity_mb: 1024
+  # Number of wal segments to keep
+  wal_segments_ahead: 0
+
+# Optimizer configuration for indexing
+optimizer_config:
+  # Threshold in number of vectors per segment to trigger indexing
+  indexing_threshold: 20000
+  # Interval in seconds to check if we need to index
+  flushed_index_threshold: 50000
+  # How often we run the optimizer (in seconds)
+  memmap_threshold: 50000
+  # Enable mmap for older segments (if set to true, segments older than memmap_threshold will be mmap'ed)
+  # This helps to reduce RAM usage by keeping only recent segments in memory
+  # We set it to 20000 to start memmapping after 20k vectors per segment
+  memmap_threshold: 20000
+  # Maximum number of segments to optimize per iteration
+  max_optimization_segments: 5
+  # Default vector data type (can be float or uint8)
+  default_vector_data_type: float
+
+# HNSW parameters (can be overridden per collection)
+hnsw_config:
+  # m: the number of bi-directional links created for every new element during construction
+  m: 16
+  # ef_construct: size of the dynamic list for the HNSW construction (higher = better accuracy, slower build)
+  ef_construct: 200
+  # full_scan_threshold: threshold when we switch to full scan instead of HNSW (10000 is a good default)
+  full_scan_threshold: 10000
+  # max_indexing_threads: already set above under service
+
+# Collections default settings
+collections_config:
+  # Default vector size and distance (will be overridden when creating collection)
+  default_vector_size: 768
+  default_distance: Cosine
+  # Enable payload indexing by default (for keyword, integer, etc.)
+  payload_storage_type: in_memory
+  # Alias for empty wait
+  replication_factor: 1
+  write_consistency_factor: 1
+
+# Limits
+limits:
+  # Maximum number of collections allowed
+  max_collections: 1024
+  # Maximum number of vectors per collection (0 means unlimited)
+  max_vectors_per_collection: 0
+  # Maximum number of points per shard (0 means unlimited)
+  max_points_per_shard: 0
+  # Maximum size of a snapshot in MB (0 means unlimited)
+  max_snapshot_size_mb: 0
+  # Maximum allowed payload size per point in KB
+  max_payload_size_kb: 16
+
+# Wal configuration
+wal:
+  # Wal capacity ahead of when we persist to disk (in MB)
+  wal_capacity_mb: 1024
+  # Number of WAL segments to write to disk before wiping
+  wal_segments_ahead: 0
+
+# Recovery mode (set to true if you need to recover from corruption)
+recovery_mode: false

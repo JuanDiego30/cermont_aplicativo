@@ -1,50 +1,65 @@
 "use client";
 
 import { useParams, useSearchParams } from "next/navigation";
-import { OrderBillingTab } from "@/orders/ui/detail/OrderBillingTab";
-import { OrderCostsTab } from "@/orders/ui/detail/OrderCostsTab";
-import { OrderDetailHeader } from "@/orders/ui/detail/OrderDetailHeader";
-import { OrderDetailTabsNav } from "@/orders/ui/detail/OrderDetailTabsNav";
-import { OrderExecutionTab } from "@/orders/ui/detail/OrderExecutionTab";
-import { OrderPlanningTab } from "@/orders/ui/detail/OrderPlanningTab";
-import { OrderProposalTab } from "@/orders/ui/detail/OrderProposalTab";
-import { OrderReportTab } from "@/orders/ui/detail/OrderReportTab";
-
-const TAB_REDIRECTS: Record<string, string> = {
-	detalles: "propuesta",
-	planificacion: "planeacion",
-	cierre: "informe",
-	documentos: "informe",
-	evidencias: "informe",
-	inspecciones: "ejecucion",
-};
+import { Suspense } from "react";
+import { readSearchParam } from "@/lib/utils/search-params";
+import { OrderClosureTab } from "@/modules/orders/ui/detail/OrderClosureTab";
+import { OrderCostsTab } from "@/modules/orders/ui/detail/OrderCostsTab";
+import { OrderDetailHeader } from "@/modules/orders/ui/detail/OrderDetailHeader";
+import { OrderDetailsTab } from "@/modules/orders/ui/detail/OrderDetailsTab";
+import { OrderDetailTabsNav } from "@/modules/orders/ui/detail/OrderDetailTabsNav";
+import { OrderDocumentsTab } from "@/modules/orders/ui/detail/OrderDocumentsTab";
+import { OrderEvidencesTab } from "@/modules/orders/ui/detail/OrderEvidencesTab";
+import { OrderExecutionTab } from "@/modules/orders/ui/detail/OrderExecutionTab";
+import { OrderInspectionsTab } from "@/modules/orders/ui/detail/OrderInspectionsTab";
+import { OrderPlanningTab } from "@/modules/orders/ui/detail/OrderPlanningTab";
 
 export default function OrderDetailPage() {
+	return (
+		<Suspense fallback={<OrderDetailLoading />}>
+			<OrderDetailPageInner />
+		</Suspense>
+	);
+}
+
+function OrderDetailLoading() {
+	return (
+		<section className="space-y-6" aria-labelledby="order-detail-title">
+			<div className="h-32 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />
+		</section>
+	);
+}
+
+function OrderDetailPageInner() {
 	const params = useParams();
 	const searchParams = useSearchParams();
 
+	const getSearchParam = (key: string) => readSearchParam(searchParams, key);
+
 	const id = params.id as string;
-	const tabParam = searchParams.get("tab") || "propuesta";
-	const tab = TAB_REDIRECTS[tabParam] ?? tabParam;
+	const tab = getSearchParam("tab") || "detalles";
 
 	return (
 		<section className="space-y-6" aria-labelledby="order-detail-title">
 			<OrderDetailHeader orderId={id} />
 
-			<OrderDetailTabsNav />
+			<OrderDetailTabsNav orderId={id} />
 
-			{/* New 6-tab FSM layout */}
-			{tab === "propuesta" && <OrderProposalTab orderId={id} />}
+			{tab === "detalles" && <OrderDetailsTab orderId={id} />}
 
-			{tab === "planeacion" && <OrderPlanningTab orderId={id} />}
+			{tab === "planificacion" && <OrderPlanningTab orderId={id} />}
 
 			{tab === "ejecucion" && <OrderExecutionTab orderId={id} />}
 
-			{tab === "informe" && <OrderReportTab orderId={id} />}
-
-			{tab === "facturacion" && <OrderBillingTab orderId={id} />}
-
 			{tab === "costos" && <OrderCostsTab orderId={id} />}
+
+			{tab === "inspecciones" && <OrderInspectionsTab orderId={id} />}
+
+			{tab === "evidencias" && <OrderEvidencesTab orderId={id} />}
+
+			{tab === "documentos" && <OrderDocumentsTab orderId={id} />}
+
+			{tab === "cierre" && <OrderClosureTab orderId={id} />}
 		</section>
 	);
 }

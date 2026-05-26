@@ -1,15 +1,15 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useUser } from "@/users/hooks/useUser";
-import { UserForm } from "@/users/ui/UserForm";
+import { useUser } from "@/modules/users/hooks/useUser";
+import { UserForm } from "@/modules/users/ui/UserForm";
 
 export default function EditUserPage() {
 	const params = useParams<{ id: string }>();
 	const { data: user, isLoading } = useUser(params.id);
 
 	if (isLoading) {
-		return <div>Cargando usuario...</div>;
+		return <div>Cargando usuario…</div>;
 	}
 
 	if (!user) {

@@ -1,32 +1,14 @@
 import path from "node:path";
-import { isProduction, validateEnv } from "@cermont/shared-types/config";
-import withSerwistInit from "@serwist/next";
+import { isProduction, validateEnv } from "@cermont/config";
 import type { NextConfig } from "next";
 
-const monorepoRoot = path.resolve(__dirname, "..");
+const monorepoRoot = path.resolve(__dirname, "../..");
 const env = validateEnv();
-const defaultBackendUrl = isProduction() ? "http://backend:4000" : "http://127.0.0.1:5000";
+// Backend runs on port 4000 (see backend/package.json scripts)
+const defaultBackendUrl = isProduction() ? "http://backend:4000" : "http://localhost:4000";
 const backendUrl = (env.BACKEND_URL || defaultBackendUrl).replace(/\/+$/, "");
-
-// NOTE: standalone output disabled on Windows due to Next.js file tracing
-// issues on NTFS. Docker builds run on Alpine Linux where this works correctly.
 const isWindowsBuild = process.platform === "win32";
-
-const withSerwist = withSerwistInit({
-	swSrc: "src/sw.ts",
-	swDest: "public/sw.js",
-	disable: process.env.NODE_ENV === "development",
-	register: true,
-	reloadOnOnline: true,
-	scope: "/",
-	swUrl: "/sw.js",
-	additionalPrecacheEntries: [
-		{ url: "/offline", revision: Date.now().toString() },
-		{ url: "/login", revision: Date.now().toString() },
-	],
-	globPublicPatterns: ["**/*.{js,css,html,ico,png,svg,webp}"],
-	exclude: [/\.map$/, /^manifest.*\.js$/],
-});
+const localDevOrigins = ["127.0.0.1", "localhost", "192.168.56.1"] as const;
 
 const nextConfig: NextConfig = {
 	...(isWindowsBuild
@@ -47,9 +29,7 @@ const nextConfig: NextConfig = {
 		minimumCacheTTL: 60,
 		formats: ["image/webp"],
 	},
-	// Allow dev origins for HMR WebSocket connections
-	// This fixes WebSocket connection errors for _next/webpack-hmr
-	allowedDevOrigins: ["127.0.0.1", "localhost", "10.0.2.2", "192.168.56.1"],
+	allowedDevOrigins: [...localDevOrigins],
 	async rewrites() {
 		return [
 			{
@@ -60,4 +40,4 @@ const nextConfig: NextConfig = {
 	},
 };
 
-export default withSerwist(nextConfig);
+export default nextConfig;

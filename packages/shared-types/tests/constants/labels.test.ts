@@ -20,6 +20,6 @@ describe("shared label dictionaries", () => {
 		expect(COST_CATEGORY_LABELS_ES.subcontract).toBe("Subcontratos");
 		expect(EVIDENCE_TYPE_LABELS_ES.signature).toBe("Firma");
 		expect(CHECKLIST_STATUS_LABELS_ES.in_progress).toBe("En progreso");
-		expect(USER_ROLE_LABELS_ES.resident_engineer).toBe("Ing. Residente");
+		expect(USER_ROLE_LABELS_ES.residente).toBe("Ing. Residente");
 	});
 });

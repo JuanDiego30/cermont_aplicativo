@@ -73,7 +73,14 @@ export const TERMINAL_STATES: OrderStatus[] = ["closed", "cancelled"];
 /**
  * Active states — order is currently being worked on
  */
-export const ACTIVE_STATES: OrderStatus[] = ["in_progress", "on_hold", "planning", "assigned"];
+export const ACTIVE_STATES: OrderStatus[] = [
+	"in_progress",
+	"execution_in_progress",
+	"on_hold",
+	"planning",
+	"assigned",
+	"ready_for_execution",
+];
 
 /**
  * Editable states — order details can be modified
@@ -84,6 +91,7 @@ export const EDITABLE_STATES: OrderStatus[] = [
 	"proposal_approved",
 	"planning",
 	"assigned",
+	"ready_for_execution",
 ];
 
 /**
@@ -98,8 +106,11 @@ export const TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 	open: ["proposal_sent", "planning", "assigned", "cancelled"],
 	proposal_sent: ["proposal_approved", "cancelled"],
 	proposal_approved: ["planning", "assigned", "cancelled"],
-	planning: ["assigned", "cancelled"],
-	assigned: ["in_progress", "on_hold", "cancelled"],
+	planning: ["assigned", "ready_for_execution", "cancelled"],
+	assigned: ["ready_for_execution", "in_progress", "on_hold", "cancelled"],
+	ready_for_execution: ["execution_in_progress", "in_progress", "on_hold", "cancelled"],
+	execution_in_progress: ["execution_completed", "report_pending", "on_hold", "cancelled"],
+	execution_completed: ["report_pending", "completed", "cancelled"],
 	in_progress: ["report_pending", "completed", "on_hold", "cancelled"],
 	report_pending: ["completed", "cancelled"],
 	on_hold: ["in_progress", "cancelled"],

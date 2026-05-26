@@ -18,5 +18,5 @@ interface AuthLayoutProps {
 }
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
-	return <section aria-label="Authentication">{children}</section>;
+	return <>{children}</>;
 }

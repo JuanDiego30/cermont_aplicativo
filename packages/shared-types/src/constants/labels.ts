@@ -11,6 +11,9 @@ export const ORDER_STATUS_LABELS_ES: Record<OrderStatus, string> = {
 	proposal_approved: "Propuesta aprobada",
 	planning: "Planeación",
 	assigned: "Asignada",
+	ready_for_execution: "Lista para ejecución",
+	execution_in_progress: "Ejecución en curso",
+	execution_completed: "Ejecución completada",
 	in_progress: "En progreso",
 	on_hold: "En pausa",
 	report_pending: "Informe pendiente",
@@ -30,6 +33,9 @@ export const ORDER_STATUS_PLURAL_LABELS_ES: Record<OrderStatus, string> = {
 	proposal_approved: "Propuestas aprobadas",
 	planning: "Planeaciones",
 	assigned: "Asignadas",
+	ready_for_execution: "Listas para ejecutar",
+	execution_in_progress: "Ejecuciones en curso",
+	execution_completed: "Ejecuciones completadas",
 	in_progress: "En curso",
 	on_hold: "En pausa",
 	report_pending: "Informes pendientes",
@@ -74,6 +80,7 @@ export const ORDER_TYPE_LABELS_ES: Record<OrderType, string> = {
 	installation: "Instalación",
 	repair: "Reparación",
 	decommission: "Descomisionamiento",
+	other: "Otro",
 };
 
 export const COST_CATEGORY_LABELS_ES: Record<CostCategory, string> = {
@@ -83,6 +90,7 @@ export const COST_CATEGORY_LABELS_ES: Record<CostCategory, string> = {
 	transport: "Transporte",
 	subcontract: "Subcontratos",
 	overhead: "Gastos generales",
+	tax: "Impuestos",
 	other: "Otros",
 };
 
@@ -117,12 +125,12 @@ export const CHECKLIST_STATUS_LABELS_ES: Record<ChecklistStatus, string> = {
 };
 
 export const USER_ROLE_LABELS_ES: Record<UserRole, string> = {
-	manager: "Gerente",
-	resident_engineer: "Ing. Residente",
-	hse_coordinator: "Coordinador HES",
+	gerente: "Gerente",
+	residente: "Ing. Residente",
+	hes: "HES",
 	supervisor: "Supervisor",
-	operator: "Operador",
-	technician: "Técnico",
-	administrator: "Administrativo",
-	client: "Cliente",
+	operador: "Operador",
+	tecnico: "Técnico",
+	administrativo: "Administrativo",
+	cliente: "Cliente",
 };

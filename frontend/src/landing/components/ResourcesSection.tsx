@@ -12,8 +12,8 @@ export function ResourcesSection() {
 			className="relative overflow-hidden bg-cermont-navy py-16 sm:py-20 lg:py-24 scroll-mt-28"
 		>
 			<div className="pointer-events-none absolute inset-0">
-				<div className="absolute -left-24 top-10 h-72 w-72 rounded-full bg-cermont-blue-light/12 blur-3xl" />
-				<div className="absolute right-0 bottom-0 h-80 w-80 rounded-full bg-cermont-green-light/10 blur-3xl" />
+				<div className="absolute -left-24 top-10 size-72 rounded-full bg-cermont-blue-light/12 blur-3xl" />
+				<div className="absolute right-0 bottom-0 size-80 rounded-full bg-cermont-green-light/10 blur-3xl" />
 			</div>
 
 			<div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

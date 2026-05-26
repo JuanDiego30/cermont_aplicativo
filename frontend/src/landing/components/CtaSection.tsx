@@ -5,26 +5,41 @@ import { Button } from "@/core/ui/Button";
 
 export function CtaSection() {
 	return (
-		<section data-landing-section aria-labelledby="cta-title" className="relative overflow-hidden">
-			<div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(37,99,235,0.08),rgba(124,58,237,0.06))]" />
-			<div className="relative mx-auto flex max-w-7xl flex-col items-center gap-6 px-6 py-20 text-center lg:px-8">
-				<h2 id="cta-title" className="text-3xl font-bold tracking-tight text-text-primary">
-					Accede a tu plataforma
+		<section
+			data-landing-section
+			aria-labelledby="cta-title"
+			className="relative overflow-hidden bg-[var(--surface-primary)] py-20 lg:py-32"
+		>
+			<div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--color-cermont-blue-bg),transparent_70%)] opacity-40" />
+
+			<div className="relative mx-auto flex max-w-4xl flex-col items-center gap-8 px-6 text-center lg:px-8">
+				<h2
+					id="cta-title"
+					className="text-4xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-5xl leading-tight"
+				>
+					Transforme su operación técnica hoy mismo.
 				</h2>
-				<p className="max-w-lg text-lg text-text-secondary">
-					Gestiona órdenes, evidencias, costos y cumplimiento HSE desde cualquier lugar con o sin
-					conexión.
+				<p className="max-w-2xl text-lg text-[var(--text-secondary)] leading-relaxed">
+					Gestione órdenes de trabajo, evidencias en campo y control de costos con la plataforma
+					diseñada para la excelencia industrial.
 				</p>
-				<div className="flex flex-wrap items-center justify-center gap-4">
-					<Button asChild size="lg" className="rounded-lg">
-						<Link href="/login">Iniciar sesión</Link>
-					</Button>
-					<Link
-						href="/#contacto"
-						className="inline-flex items-center rounded-lg border border-border-default bg-surface-primary px-6 py-3 text-sm font-semibold text-text-primary shadow-1 transition-colors hover:bg-surface-secondary"
+				<div className="mt-4 flex flex-wrap items-center justify-center gap-5">
+					<Button
+						asChild
+						size="lg"
+						variant="primary"
+						className="px-10 py-7 text-base rounded-full shadow-lg"
 					>
-						Solicitar acceso
-					</Link>
+						<Link href="/login">Acceso Corporativo</Link>
+					</Button>
+					<Button
+						asChild
+						size="lg"
+						variant="secondary"
+						className="px-10 py-7 text-base rounded-full"
+					>
+						<Link href="/#contacto">Solicitar Información</Link>
+					</Button>
 				</div>
 			</div>
 		</section>

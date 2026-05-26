@@ -7,10 +7,3 @@ export const ChatRequestSchema = z
 	.strict();
 
 export type ChatRequest = z.infer<typeof ChatRequestSchema>;
-
-export const AIResponseSchema = z.object({
-	message: z.string(),
-	suggestedActions: z.array(z.string()).optional(),
-});
-
-export type AIResponse = z.infer<typeof AIResponseSchema>;

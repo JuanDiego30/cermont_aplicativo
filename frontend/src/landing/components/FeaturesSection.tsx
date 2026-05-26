@@ -68,7 +68,7 @@ export function FeaturesSection({ shouldReduceMotion = false }: { shouldReduceMo
 			className="mx-auto max-w-7xl px-6 py-20 lg:px-8"
 		>
 			<div className="mx-auto max-w-2xl text-center">
-				<h2 id="features-title" className="text-3xl font-bold tracking-tight text-text-primary">
+				<h2 id="features-title" className="text-3xl font-semibold tracking-tight text-text-primary">
 					Lo que nos define como empresa
 				</h2>
 				<p className="mt-4 text-lg text-text-secondary">
@@ -83,9 +83,9 @@ export function FeaturesSection({ shouldReduceMotion = false }: { shouldReduceMo
 						<li key={feature.title} data-feature-card>
 							<article className="flex flex-col rounded-2xl border border-border-default bg-surface-primary p-6 shadow-1 transition-shadow hover:shadow-2">
 								<div
-									className={`flex h-12 w-12 items-center justify-center rounded-xl ${TONE_CLASSES[feature.tone]}`}
+									className={`flex size-12 items-center justify-center rounded-xl ${TONE_CLASSES[feature.tone]}`}
 								>
-									<Icon className="h-6 w-6" aria-hidden="true" />
+									<Icon className="size-6" aria-hidden="true" />
 								</div>
 								<h3 className="mt-4 text-lg font-semibold text-text-primary">{feature.title}</h3>
 								<p className="mt-2 text-sm leading-relaxed text-text-secondary">

@@ -1,0 +1,34 @@
+% Figura corregida: máquina de estados de la orden.
+\begin{figure}[H]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[font=\sffamily, node distance=0.75cm]
+\tikzset{state/.style={figBoxWhite, minimum width=2.25cm, minimum height=0.55cm, text width=2.1cm, font=\tiny}, final/.style={figHeader, minimum width=2.25cm, minimum height=0.55cm, font=\tiny}, exception/.style={figCritical, minimum width=2.25cm, minimum height=0.55cm, font=\tiny}}
+\node[state] (open) at (0,1.1) {open\\solicitud};
+\node[state] (ps) at (2.4,1.1) {proposal\_sent};
+\node[state] (pa) at (4.8,1.1) {proposal\_approved};
+\node[state] (pl) at (7.2,1.1) {planning};
+\node[state] (as) at (9.6,1.1) {assigned};
+\node[state] (ip) at (12.0,1.1) {in\_progress};
+\node[state] (rp) at (12.0,-0.1) {report\_pending};
+\node[state] (co) at (9.6,-0.1) {completed};
+\node[state] (rfi) at (7.2,-0.1) {ready\_for\_invoicing};
+\node[state] (acta) at (4.8,-0.1) {acta\_signed};
+\node[state] (ses) at (2.4,-0.1) {ses\_sent};
+\node[state] (inv) at (0,-0.1) {invoice\_approved};
+\node[state] (paid) at (0,-1.3) {paid};
+\node[final] (closed) at (2.4,-1.3) {closed};
+\node[exception] (hold) at (12.0,2.35) {on\_hold};
+\node[exception] (cancel) at (9.6,2.35) {cancelled};
+\foreach \a/\b in {open/ps,ps/pa,pa/pl,pl/as,as/ip,ip/rp,rp/co,co/rfi,rfi/acta,acta/ses,ses/inv,inv/paid,paid/closed}{\draw[figArrow] (\a) -- (\b);} 
+\draw[figArrowCritical] (as) -- (hold);
+\draw[figArrowCritical] (ip) -- (hold);
+\draw[figArrowCritical] (hold) -- (ip);
+\draw[figArrowCritical, dashed] (ps) .. controls +(0,1.7) and +(-1.7,0) .. (cancel.west);
+\draw[figArrowCritical, dashed] (as) -- (cancel);
+\draw[figArrowCritical, dashed] (ip) .. controls +(0,1.0) and +(1.4,0) .. (cancel.east);
+\end{tikzpicture}%
+}
+\caption[Máquina de estados de órdenes]{Máquina de estados de la orden de trabajo, desde el registro inicial hasta el cierre financiero, incluyendo estados de pausa y cancelación. Fuente: Elaboración propia.}
+\label{fig:estados-orden}
+\end{figure}

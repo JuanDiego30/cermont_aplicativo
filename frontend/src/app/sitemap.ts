@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { validateEnv } from "@/_shared/lib/env-validator";
+import { validateEnv } from "@/lib/env-validator";
 
 const BUILD_TIME = new Date();
 

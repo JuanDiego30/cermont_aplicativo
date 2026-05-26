@@ -11,77 +11,12 @@
  * type CreateOrderBody = typeof orderAPI.createOrder.body;
  */
 
-import {
-	AlertsResponseSchema,
-	ApproveProposalSchema,
-	AssignOrderSchema,
-	AuditLogIdSchema,
-	AuditLogsQuerySchema,
-	ChatRequestSchema,
-	ChecklistResponseSchema,
-	CompleteChecklistSchema,
-	ConvertProposalToOrderSchema,
-	CreateChecklistSchema,
-	CreateEvidenceSchema,
-	CreateInspectionSchema,
-	CreateMaintenanceKitSchema,
-	CreateOrderSchema,
-	CreateProposalSchema,
-	CreateResourceSchema,
-	CreateUserSchema,
-	CreateWorkReportSchema,
-	DashboardKpisQuerySchema,
-	DashboardTechnicianWorkloadQuerySchema,
-	DashboardTechnicianWorkloadRowSchema,
-	DashboardTimeSeriesPointSchema,
-	DashboardTimeSeriesQuerySchema,
-	DashboardTopAssetSchema,
-	DashboardTopAssetsQuerySchema,
-	DocumentIdSchema,
-	DocumentListQuerySchema,
-	DocumentSchema,
-	ErrorDashboardQuerySchema,
-	EvidenceIdSchema,
-	EvidenceOrderIdParamsSchema,
-	EvidenceSchema,
-	ExtendedKpisQuerySchema,
-	ExtendedKpisSchema,
-	InspectionIdSchema,
-	InspectionOrderIdParamsSchema,
-	InspectionSchema,
-	ListChecklistsQuerySchema,
-	ListProposalsQuerySchema,
-	ListReportsQuerySchema,
-	ListUsersQuerySchema,
-	LoginSchema,
-	MaintenanceKitSchema,
-	NotificationIdSchema,
-	SyncBatchSchema as OfflineSyncBatchSchema,
-	SyncResultSchema as OfflineSyncResultSchema,
-	OrderIdSchema,
-	OrderListQuerySchema,
-	OrderSchema,
-	ProposalIdSchema,
-	ProposalOrderIdParamsSchema,
-	ProposalSchema,
-	ReportStatusSchema,
-	TransitionOrderStatusSchema,
-	UpdateChecklistItemSchema,
-	UpdateInspectionStatusSchema,
-	UpdateMaintenanceKitSchema,
-	UpdateOrderSchema,
-	UpdateOrderStatusSchema,
-	UpdateProposalStatusSchema,
-	UpdateResourceSchema,
-	UpdateResourceStatusSchema,
-	UpdateUserSchema,
-	UpdateWorkReportSchema,
-	UploadDocumentSchema,
-	UserIdParamsSchema,
-	UserRoleParamsSchema,
-	UserSchema,
-	WorkReportSchema,
-} from "../schemas";
+// Auth API Contracts
+import { ChatRequestSchema } from "../schemas/ai.schema";
+import { ErrorDashboardQuerySchema, NotificationIdSchema } from "../schemas/analytics.schema";
+import { AuditLogIdSchema, AuditLogsQuerySchema } from "../schemas/audit.schema";
+import { LoginSchema } from "../schemas/auth.schema";
+import { CreateUserSchema } from "../schemas/user.schema";
 
 export const aiAPI = {
 	chat: {
@@ -90,33 +25,11 @@ export const aiAPI = {
 } as const;
 
 export const analyticsAPI = {
-	kpis: {
-		query: DashboardKpisQuerySchema,
-	} as const,
-	extendedKpis: {
-		query: ExtendedKpisQuerySchema,
-		response: ExtendedKpisSchema,
-	} as const,
-	timeSeries: {
-		query: DashboardTimeSeriesQuerySchema,
-		response: DashboardTimeSeriesPointSchema.array(),
-	} as const,
-	topAssets: {
-		query: DashboardTopAssetsQuerySchema,
-		response: DashboardTopAssetSchema.array(),
-	} as const,
-	technicianWorkload: {
-		query: DashboardTechnicianWorkloadQuerySchema,
-		response: DashboardTechnicianWorkloadRowSchema.array(),
-	} as const,
 	errorDashboard: {
 		query: ErrorDashboardQuerySchema,
 	} as const,
 	notification: {
 		params: NotificationIdSchema,
-	} as const,
-	alerts: {
-		response: AlertsResponseSchema,
 	} as const,
 } as const;
 
@@ -138,6 +51,15 @@ export const authAPI = {
 	} as const,
 } as const;
 
+// User API Contracts
+import {
+	ListUsersQuerySchema,
+	UpdateUserSchema,
+	UserIdParamsSchema,
+	UserRoleParamsSchema,
+	UserSchema,
+} from "../schemas/user.schema";
+
 export const userAPI = {
 	listUsers: {
 		query: ListUsersQuerySchema,
@@ -155,6 +77,18 @@ export const userAPI = {
 		schema: UserSchema,
 	} as const,
 } as const;
+
+// Order API Contracts
+import {
+	AssignOrderSchema,
+	CreateOrderSchema,
+	OrderIdSchema,
+	OrderListQuerySchema,
+	OrderSchema,
+	TransitionOrderStatusSchema,
+	UpdateOrderSchema,
+	UpdateOrderStatusSchema,
+} from "../schemas/order.schema";
 
 export const orderAPI = {
 	listOrders: {
@@ -183,6 +117,13 @@ export const orderAPI = {
 	} as const,
 } as const;
 
+// Resource API Contracts
+import {
+	CreateResourceSchema,
+	UpdateResourceSchema,
+	UpdateResourceStatusSchema,
+} from "../schemas/resource.schema";
+
 export const resourceAPI = {
 	createResource: {
 		body: CreateResourceSchema,
@@ -195,6 +136,13 @@ export const resourceAPI = {
 	} as const,
 } as const;
 
+// MaintenanceKit API Contracts
+import {
+	CreateMaintenanceKitSchema,
+	MaintenanceKitSchema,
+	UpdateMaintenanceKitSchema,
+} from "../schemas/maintenanceKit.schema";
+
 export const maintenanceKitAPI = {
 	createKit: {
 		body: CreateMaintenanceKitSchema,
@@ -206,6 +154,15 @@ export const maintenanceKitAPI = {
 		schema: MaintenanceKitSchema,
 	} as const,
 } as const;
+
+// Inspection API Contracts
+import {
+	CreateInspectionSchema,
+	InspectionIdSchema,
+	InspectionOrderIdParamsSchema,
+	InspectionSchema,
+	UpdateInspectionStatusSchema,
+} from "../schemas/inspection.schema";
 
 export const inspectionAPI = {
 	getInspection: {
@@ -225,6 +182,14 @@ export const inspectionAPI = {
 	} as const,
 } as const;
 
+// Evidence API Contracts
+import {
+	CreateEvidenceSchema,
+	EvidenceIdSchema,
+	EvidenceOrderIdParamsSchema,
+	EvidenceSchema,
+} from "../schemas/evidence.schema";
+
 export const evidenceAPI = {
 	listByOrder: {
 		params: EvidenceOrderIdParamsSchema,
@@ -239,6 +204,15 @@ export const evidenceAPI = {
 		schema: EvidenceSchema,
 	} as const,
 } as const;
+
+// Checklist API Contracts
+import {
+	ChecklistResponseSchema,
+	CompleteChecklistSchema,
+	CreateChecklistSchema,
+	ListChecklistsQuerySchema,
+	UpdateChecklistItemSchema,
+} from "../schemas/checklist.schema";
 
 export const checklistAPI = {
 	list: "GET /api/checklists",
@@ -261,12 +235,27 @@ export const checklistAPI = {
 	} as const,
 } as const;
 
+// Sync API Contracts
+import {
+	SyncBatchSchema as OfflineSyncBatchSchema,
+	SyncResultSchema as OfflineSyncResultSchema,
+} from "../schemas/sync.schema";
+
 export const syncAPI = {
 	offlineSync: {
 		body: OfflineSyncBatchSchema,
 		response: OfflineSyncResultSchema,
 	} as const,
 } as const;
+
+// Report API Contracts
+import {
+	CreateWorkReportSchema,
+	ListReportsQuerySchema,
+	ReportStatusSchema,
+	UpdateWorkReportSchema,
+	WorkReportSchema,
+} from "../schemas/report.schema";
 
 export const reportAPI = {
 	list: "GET /api/reports",
@@ -293,6 +282,18 @@ export const reportAPI = {
 		schema: ReportStatusSchema,
 	} as const,
 } as const;
+
+// Proposal API Contracts
+import {
+	ApproveProposalSchema,
+	ConvertProposalToOrderSchema,
+	CreateProposalSchema,
+	ListProposalsQuerySchema,
+	ProposalIdSchema,
+	ProposalOrderIdParamsSchema,
+	ProposalSchema,
+	UpdateProposalStatusSchema,
+} from "../schemas/proposal.schema";
 
 export const proposalAPI = {
 	listProposals: {
@@ -332,6 +333,14 @@ export const costAPI = {
 	delete: "DELETE /api/costs/:id",
 } as const;
 
+// Document API Contracts
+import {
+	DocumentIdSchema,
+	DocumentListQuerySchema,
+	DocumentSchema,
+	UploadDocumentSchema,
+} from "../schemas/document.schema";
+
 export const documentAPI = {
 	listDocuments: {
 		query: DocumentListQuerySchema,
@@ -357,39 +366,29 @@ export const documentAPI = {
 // Generic API Response Types
 // ============================================================================
 
-export type JsonPrimitive = boolean | number | string;
-export interface JsonArray extends Array<JsonValue> {}
-export interface JsonObject {
-	[key: string]: JsonValue;
-}
-export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
-
 /**
- * Standard API response body envelope.
- * Used by all backend endpoints that return `{ success, data, meta? }`.
+ * Legacy API envelope format - preserved for backward compatibility
+ * @deprecated Use ApiResponse<T> with discriminated unions instead
  *
  * @example
  * ```typescript
- * const response: ApiBody<User> = {
+ * const response: ApiEnvelope<User> = {
  *   success: true,
  *   data: user,
  * };
  * ```
  */
-export type ApiBody<T> = {
+export type ApiEnvelope<T> = {
 	success: boolean;
 	data: T;
+	/** @deprecated Use `error` for structured failures */
 	message?: string;
-	error?: string;
-	meta?: JsonObject;
+	/** Machine-readable error code from the backend */
+	code?: string;
+	/** Human-readable or structured error detail */
+	error?: string | Record<string, unknown> | null;
+	meta?: Record<string, unknown>;
 };
-
-/**
- * Legacy API envelope format - preserved for backward compatibility
- * @deprecated Use {@link ApiBody} for the same shape without the deprecation warning,
- * or {@link ApiResponse} for discriminated-union responses.
- */
-export type ApiEnvelope<T> = ApiBody<T>;
 
 /**
  * Successful API response with discriminated union (status: 'success')
@@ -407,7 +406,7 @@ export type ApiEnvelope<T> = ApiBody<T>;
 export type ApiSuccess<T> = {
 	status: "success";
 	data: T;
-	meta?: JsonObject;
+	meta?: Record<string, unknown>;
 };
 
 /**
@@ -431,7 +430,7 @@ export type ApiError = {
 	error: {
 		code: string;
 		message: string;
-		details?: JsonValue;
+		details?: unknown;
 	};
 };
 
@@ -485,3 +484,23 @@ export function isApiSuccess<T>(response: ApiResponse<T>): response is ApiSucces
 export function isApiError<T>(response: ApiResponse<T>): response is ApiError {
 	return response.status === "error";
 }
+
+// ============================================================================
+// Additional API Types (missing and causing frontend errors)
+// ============================================================================
+
+/**
+ * Generic API body type for request payloads
+ */
+export type ApiBody<T> = T;
+
+/**
+ * Paginated response wrapper
+ */
+export type PaginatedResponse<T> = {
+	items: T[];
+	page: number;
+	pages: number;
+	total: number;
+	limit: number;
+};

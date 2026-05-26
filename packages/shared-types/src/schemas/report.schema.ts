@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type MongooseDocument, ObjectIdSchema } from "./common.schema";
+import { ObjectIdSchema } from "./common.schema";
 
 export const ReportStatusSchema = z.enum(["draft", "pending_review", "approved", "rejected"]);
 export type ReportStatus = z.infer<typeof ReportStatusSchema>;
@@ -31,14 +31,6 @@ export const ReportOrderIdSchema = z
 
 export type ReportOrderIdParams = z.infer<typeof ReportOrderIdSchema>;
 
-export const ReportBulkEvidenceZipSchema = z
-	.object({
-		orderIds: z.array(ObjectIdSchema).min(1).max(100),
-	})
-	.strip();
-
-export type ReportBulkEvidenceZipInput = z.infer<typeof ReportBulkEvidenceZipSchema>;
-
 export const ReportRejectSchema = z
 	.object({
 		rejectionReason: z.string().min(1).max(2000),
@@ -46,22 +38,6 @@ export const ReportRejectSchema = z
 	.strip();
 
 export type ReportRejectInput = z.infer<typeof ReportRejectSchema>;
-
-export const ReportTemplateSettingsSchema = z
-	.object({
-		logoUrl: z.string().url().optional(),
-		headerText: z.string().max(200).optional(),
-		footerText: z.string().max(200).optional(),
-		companyName: z.string().max(100).optional(),
-		companyNit: z.string().max(20).optional(),
-		primaryColor: z
-			.string()
-			.regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)
-			.optional(),
-	})
-	.strip();
-
-export type ReportTemplateSettings = z.infer<typeof ReportTemplateSettingsSchema>;
 
 export const WorkReportSchema = z
 	.object({
@@ -111,25 +87,6 @@ export const WorkReportResponseSchema = WorkReportSchema;
 
 export type WorkReportResponse = z.infer<typeof WorkReportResponseSchema>;
 
-/**
- * Mongoose Document representation for WorkReport.
- * Used for type safety in backend services and repositories.
- */
-export interface WorkReportDocument<TID = string> extends MongooseDocument<TID> {
-	orderId: TID;
-	title: string;
-	summary: string;
-	status: ReportStatus;
-	generatedBy: TID;
-	approvedBy?: TID;
-	approvedAt?: Date;
-	rejectionReason?: string;
-	pdfPath?: string;
-	includesChecklist: boolean;
-	includesCosts: boolean;
-	includesEvidences: boolean;
-}
-
 // Legacy aliases kept for compatibility with older consumers.
 export const ReportStatusEnum = ReportStatusSchema;
 export const CreateReportSchema = CreateWorkReportSchema;
@@ -142,3 +99,92 @@ export type CreateReport = CreateWorkReportInput;
 export type UpdateReport = UpdateWorkReportInput;
 export type UpdateReportStatus = z.infer<typeof UpdateReportStatusSchema>;
 export type Report = WorkReport;
+
+// ============================================================================
+// Additional Report Types (missing and causing frontend errors)
+// ============================================================================
+
+/**
+ * Billing vs Cost report data
+ */
+export const ReportBillingVsCostSchema = z.object({
+	orderId: z.string(),
+	orderCode: z.string(),
+	billingAmount: z.number(),
+	costAmount: z.number(),
+	variance: z.number(),
+	variancePercent: z.number(),
+});
+export type ReportBillingVsCost = z.infer<typeof ReportBillingVsCostSchema>;
+
+/**
+ * Cycle time bucket for analytics
+ */
+export const ReportCycleTimeBucketSchema = z.object({
+	bucket: z.string(), // e.g., "0-1d", "1-3d", "3-7d", "7-14d", "14d+"
+	count: z.number(),
+	percentage: z.number(),
+});
+export type ReportCycleTimeBucket = z.infer<typeof ReportCycleTimeBucketSchema>;
+
+/**
+ * Technician ranking for performance reports
+ */
+export const ReportTechnicianRankingSchema = z.object({
+	technicianId: z.string(),
+	technicianName: z.string(),
+	totalOrders: z.number(),
+	completedOrders: z.number(),
+	averageCompletionTime: z.number(), // in hours
+	performanceScore: z.number(),
+	reportsApproved: z.number().optional(), // Additional field for UI
+	avgClosureDays: z.number().optional(), // Additional field for UI
+});
+export type ReportTechnicianRanking = z.infer<typeof ReportTechnicianRankingSchema>;
+
+/**
+ * Report pipeline response - orders awaiting report approval
+ */
+export const ReportPipelineResponseSchema = z.object({
+	pipeline: z.array(
+		z.object({
+			_id: z.string(),
+			code: z.string(),
+			type: z.string(),
+			status: z.string(),
+			assetName: z.string(),
+			location: z.string(),
+			description: z.string(),
+			createdAt: z.string().nullable(),
+			updatedAt: z.string(),
+			pdfUrl: z.string().nullable(),
+		}),
+	),
+	summary: z.object({
+		total: z.number(),
+		byStatus: z.record(z.string(), z.number()),
+	}),
+});
+export type ReportPipelineResponse = z.infer<typeof ReportPipelineResponseSchema>;
+
+/**
+ * Monthly statistics for reports
+ */
+export const ReportMonthlyStatsSchema = z.object({
+	approvedThisMonth: z.number(),
+	rejectedThisMonth: z.number(),
+	avgClosureDays: z.number().nullable(),
+});
+export type ReportMonthlyStats = z.infer<typeof ReportMonthlyStatsSchema>;
+
+/**
+ * Report template settings
+ */
+export const ReportTemplateSettingsSchema = z.object({
+	defaultTemplate: z.string().optional(),
+	includeSignature: z.boolean().default(true),
+	includeChecklist: z.boolean().default(true),
+	includeCosts: z.boolean().default(true),
+	includeEvidences: z.boolean().default(false),
+});
+export type ReportTemplateSettings = z.infer<typeof ReportTemplateSettingsSchema>;

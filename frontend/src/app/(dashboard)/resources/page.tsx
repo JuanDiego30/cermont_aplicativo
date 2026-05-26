@@ -1,45 +1,50 @@
 "use client";
 
-import type { ApiBody } from "@cermont/shared-types";
+import type { ApiEnvelope } from "@cermont/shared-types";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Search, Wrench } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { apiClient } from "@/_shared/lib/http/api-client";
 import { Button } from "@/core/ui/Button";
 import { EmptyState } from "@/core/ui/EmptyState";
+import { apiClient } from "@/lib/http/api-client";
 import { ResourceCard } from "./ResourceCard";
 import { RESOURCE_TYPE_LABELS } from "./resource-constants";
 
 type ResourceInstance = {
+	estado_actual?: string;
 	currentStatus?: string;
 };
 
 type ResourceApiItem = {
 	_id?: string;
 	id?: string;
+	nombre?: string;
 	name?: string;
+	tipo?: string;
 	type?: string;
+	unidad?: string;
 	unit?: string;
 	instances?: ResourceInstance[];
+	resource_instances?: ResourceInstance[];
 };
 
 type NormalizedResource = {
 	_id: string;
-	name: string;
-	type: string;
-	unit: string;
-	totalInstances: number;
-	availableInstances: number;
-	primaryStatus: string;
+	nombre: string;
+	tipo: string;
+	unidad: string;
+	totalInstancias: number;
+	instanciasDisponibles: number;
+	estadoPrincipal: string;
 	availabilityPercentage: number;
 };
 
 function normalizeResource(resource: ResourceApiItem): NormalizedResource {
-	const instances = resource.instances || [];
+	const instances = resource.instances || resource.resource_instances || [];
 	const counts = instances.reduce(
 		(acc, instance) => {
-			const state = instance.currentStatus;
+			const state = instance.estado_actual || instance.currentStatus;
 
 			if (state === "disponible") {
 				acc.disponible += 1;
@@ -59,27 +64,27 @@ function normalizeResource(resource: ResourceApiItem): NormalizedResource {
 		{ disponible: 0, enUso: 0, mantenimiento: 0, fueraDeServicio: 0 },
 	);
 
-	const primaryStatus =
+	const estadoPrincipal =
 		counts.fueraDeServicio > 0
-			? "out_of_service"
+			? "fuera_de_servicio"
 			: counts.mantenimiento > 0
-				? "maintenance"
+				? "mantenimiento"
 				: counts.enUso > 0
-					? "in_use"
-					: "available";
+					? "en_uso"
+					: "disponible";
 
-	const totalInstances = instances.length;
+	const totalInstancias = instances.length;
 
 	return {
-		_id: resource._id || resource.id || resource.name || crypto.randomUUID(),
-		name: resource.name || "Sin nombre",
-		type: resource.type || "otro",
-		unit: resource.unit || "otro",
-		totalInstances,
-		availableInstances: counts.disponible,
-		primaryStatus,
+		_id: resource._id || resource.id || resource.nombre || resource.name || crypto.randomUUID(),
+		nombre: resource.nombre || resource.name || "Sin nombre",
+		tipo: resource.tipo || resource.type || "otro",
+		unidad: resource.unidad || resource.unit || "otro",
+		totalInstancias,
+		instanciasDisponibles: counts.disponible,
+		estadoPrincipal,
 		availabilityPercentage:
-			totalInstances > 0 ? Math.round((counts.disponible / totalInstances) * 100) : 0,
+			totalInstancias > 0 ? Math.round((counts.disponible / totalInstancias) * 100) : 0,
 	};
 }
 
@@ -90,7 +95,7 @@ export default function ResourcesPage() {
 	const { data, isLoading, isError, error } = useQuery<ResourceApiItem[]>({
 		queryKey: ["resources"],
 		queryFn: async () => {
-			const body = await apiClient.get<ApiBody<ResourceApiItem[]>>("/resources");
+			const body = await apiClient.get<ApiEnvelope<ResourceApiItem[]>>("/resources");
 			return body?.data || [];
 		},
 	});
@@ -98,7 +103,7 @@ export default function ResourcesPage() {
 	const normalizedResources = useMemo(() => (data || []).map(normalizeResource), [data]);
 
 	const categoryOptions = useMemo(() => {
-		const options = Array.from(new Set(normalizedResources.map((resource) => resource.type)));
+		const options = Array.from(new Set(normalizedResources.map((resource) => resource.tipo)));
 		return ["all", ...options];
 	}, [normalizedResources]);
 
@@ -108,11 +113,11 @@ export default function ResourcesPage() {
 		return normalizedResources.filter((resource) => {
 			const matchesSearch =
 				!searchTerm ||
-				resource.name.toLowerCase().includes(searchTerm) ||
-				resource.type.toLowerCase().includes(searchTerm) ||
-				resource.unit.toLowerCase().includes(searchTerm);
+				resource.nombre.toLowerCase().includes(searchTerm) ||
+				resource.tipo.toLowerCase().includes(searchTerm) ||
+				resource.unidad.toLowerCase().includes(searchTerm);
 
-			const matchesCategory = categoryFilter === "all" || resource.type === categoryFilter;
+			const matchesCategory = categoryFilter === "all" || resource.tipo === categoryFilter;
 
 			return matchesSearch && matchesCategory;
 		});
@@ -121,15 +126,15 @@ export default function ResourcesPage() {
 	const totals = useMemo(() => {
 		const totalResources = normalizedResources.length;
 		const totalInstances = normalizedResources.reduce(
-			(acc, resource) => acc + resource.totalInstances,
+			(acc, resource) => acc + resource.totalInstancias,
 			0,
 		);
 		const availableInstances = normalizedResources.reduce(
-			(acc, resource) => acc + resource.availableInstances,
+			(acc, resource) => acc + resource.instanciasDisponibles,
 			0,
 		);
 		const lowStockResources = normalizedResources.filter(
-			(resource) => resource.totalInstances > 0 && resource.availabilityPercentage <= 25,
+			(resource) => resource.totalInstancias > 0 && resource.availabilityPercentage <= 25,
 		).length;
 
 		return {
@@ -141,7 +146,7 @@ export default function ResourcesPage() {
 	}, [normalizedResources]);
 
 	const lowStockResources = normalizedResources.filter(
-		(resource) => resource.totalInstances > 0 && resource.availabilityPercentage <= 25,
+		(resource) => resource.totalInstancias > 0 && resource.availabilityPercentage <= 25,
 	);
 
 	return (
@@ -152,7 +157,10 @@ export default function ResourcesPage() {
 						<p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">
 							Inventario
 						</p>
-						<h1 id="resources-page-title" className="text-2xl font-bold text-[var(--text-primary)]">
+						<h1
+							id="resources-page-title"
+							className="text-2xl font-semibold text-[var(--text-primary)]"
+						>
 							Inventario y Recursos
 						</h1>
 						<p className="max-w-2xl text-sm text-[var(--text-secondary)]">
@@ -164,7 +172,7 @@ export default function ResourcesPage() {
 					<div className="flex items-center gap-2">
 						<Button asChild variant="outline">
 							<Link href="/resources/kits">
-								<Wrench aria-hidden="true" className="h-4 w-4" />
+								<Wrench aria-hidden="true" className="size-4" />
 								Ver kits típicos
 							</Link>
 						</Button>
@@ -190,7 +198,7 @@ export default function ResourcesPage() {
 							{stat.label}
 						</p>
 						<p
-							className={`mt-2 text-3xl font-bold ${stat.tone === "success" ? "text-[var(--color-success)]" : stat.tone === "warning" ? "text-[var(--color-warning)]" : "text-[var(--text-primary)]"}`}
+							className={`mt-2 text-3xl font-semibold ${stat.tone === "success" ? "text-[var(--color-success)]" : stat.tone === "warning" ? "text-[var(--color-warning)]" : "text-[var(--text-primary)]"}`}
 						>
 							{stat.value}
 						</p>
@@ -223,7 +231,7 @@ export default function ResourcesPage() {
 						</label>
 						<Search
 							aria-hidden="true"
-							className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-tertiary)]"
+							className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--text-tertiary)]"
 						/>
 						<input
 							id="resource-search"
@@ -267,7 +275,7 @@ export default function ResourcesPage() {
 
 				{isLoading ? (
 					<div className="flex h-32 items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)]">
-						<Loader2 className="mr-2 h-6 w-6 animate-spin" /> Cargando...
+						<Loader2 className="mr-2 size-6 animate-spin" /> Cargando…
 					</div>
 				) : isError ? (
 					<div className="flex h-32 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--color-danger-bg)] bg-[var(--color-danger-bg)]/60 text-[var(--color-danger)] shadow-[var(--shadow-1)]">

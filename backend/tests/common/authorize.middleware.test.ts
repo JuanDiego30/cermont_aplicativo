@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { ForbiddenError, UnauthorizedError } from "@/common/errors";
+import { ForbiddenError, UnauthorizedError } from "../../src/common/errors";
 import {
 	authorize,
 	authorizeMinimum,
 	authorizeOwnerOrAdmin,
-} from "@/middlewares/authorize.middleware";
+} from "../../src/middlewares/authorize.middleware";
 
 describe("authorize middleware", () => {
 	it("throws UnauthorizedError when the user context is missing", () => {

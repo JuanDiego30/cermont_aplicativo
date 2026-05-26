@@ -1,0 +1,362 @@
+%--------------------------------------------------------------------------
+% APÉNDICES — TRABAJO DE GRADO
+% Organización Estricta exigida para Trabajo de Grado CERMONT S.A.S.
+%--------------------------------------------------------------------------
+
+\renewcommand{\thechapter}{\Alph{chapter}}
+
+%==========================================================================
+% APÉNDICE A: ANTEPROYECTO DE TRABAJO DE GRADO (ATG) APROBADO
+%==========================================================================
+\chapter{Anteproyecto de Trabajo de Grado (ATG) Aprobado}
+\label{apendice:atg-aprobado}
+
+En este apéndice se documenta formalmente la estructura y especificaciones del Anteproyecto de Trabajo de Grado (ATG) que fue aprobado por el Comité de Trabajos de Grado del programa de Ingeniería Electrónica de la Universidad de Pamplona. Este documento constituye el marco rector y el contrato de compromisos académicos del estudiante Juan Diego Arévalo Pidiache.
+
+\section{Datos Generales del Proyecto Aprobado}
+\begin{itemize}
+    \item \textbf{Título Aprobado:} Desarrollo de un Aplicativo Web para la Gestión de Órdenes de Trabajo, Trazabilidad y Cierre Administrativo de Procesos Operativos en CERMONT S.A.S.
+    \item \textbf{Autor:} Juan Diego Arévalo Pidiache (Código: 1094283047)
+    \item \textbf{Programa Académico:} Ingeniería Electrónica
+    \item \textbf{Modalidad de Grado:} Práctica Empresarial
+    \item \textbf{Director Académico:} MSc. Luis Alberto Muñoz Bedoya
+    \item \textbf{Empresa Colaboradora:} CERMONT S.A.S. (Arauca, Colombia)
+\end{itemize}
+
+\section{Objetivos del Trabajo de Grado}
+Los objetivos específicos aprobados en el ATG se transcriben textualmente a continuación, sirviendo como la métrica de éxito empleada para auditar y valorar los entregables técnicos detallados en este libro:
+
+\begin{enumerate}
+    \item \textbf{Analizar} el flujo actual de los procesos operativos y administrativos de CERMONT S.A.S. para identificar fallas críticas en la planeación, ejecución e informes técnicos.
+    \item \textbf{Diseñar} la arquitectura funcional del sistema web, definiendo módulos de planeación, ejecución, evidencias y cierre administrativo, junto con la estructura de base de datos y roles de usuario.
+    \item \textbf{Implementar} los módulos principales del aplicativo web, incluyendo planeación con kits típicos, listas de verificación digitales, registro de evidencias fotográficas y generación automática de informes técnicos.
+    \item \textbf{Validar} la efectividad del aplicativo mediante pruebas piloto, pruebas funcionales o escenarios de validación, midiendo reducción de tiempos, aumento de trazabilidad y eficiencia del cierre administrativo solo cuando exista evidencia verificable.
+\end{enumerate}
+
+\section{Criterios de Aceptación del Jurado}
+Durante la sustentación y aprobación del anteproyecto, el jurado evaluador asignó especial importancia al análisis comparativo con soluciones comerciales y de código abierto (CMMS, ERP y FSM), exigiendo que el aplicativo desarrollado justificara plenamente su pertinencia técnica y económica frente a las necesidades particulares de la empresa contratista, excluyendo la introducción de dependencias propietarias o integraciones comerciales no viables.
+
+%==========================================================================
+% APÉNDICE B: FORMATOS OPERATIVOS REALES DE CERMONT S.A.S.
+%==========================================================================
+\chapter{Formatos Operativos Reales de CERMONT S.A.S.}
+\label{apendice:formatos-cermont}
+
+La base de datos, los contratos de validación de esquemas en Zod y los flujos del sistema se modelaron con base en la documentación real y los formatos que utiliza CERMONT S.A.S. para la ejecución de sus servicios en campo. A continuación se desglosa el inventario y la estructura de estos formatos corporativos reales.
+
+\section{Estructura del Formato de Planeación de Obra}
+Este formato de entrada es utilizado por el Residente de Obra antes del desplazamiento técnico a campo. Sus campos clave se incorporaron en el esquema transaccional del módulo de planeación (\texttt{planning-packet.schema.ts}):
+\begin{itemize}
+    \item \textbf{Encabezado operativo:} Número de Orden (PO), Unidad de Negocio, Responsable de Actividad, Fecha de Inicio y Fecha de Finalización Estimadas.
+    \item \textbf{Inventario de Recursos:} Herramientas críticas requeridas, equipos especializados de medición, vehículos de transporte asignados y consumibles indispensables.
+    \item \textbf{Personal Asignado:} Relación de técnicos, operadores y auxiliares, validando perfiles HES y certificaciones vigentes (trabajo en alturas, espacios confinados).
+\end{itemize}
+
+\section{Estructura del Formato de Inspección de Líneas de Vida Verticales}
+Este formato sirvió como base para la digitalización de los checklists de inspección obligatorios en actividades de alto riesgo. El sistema modela este documento como una lista de verificación secuencial con campos de cumplimiento obligatorio y validación visual:
+\begin{itemize}
+    \item \textbf{Criterios a evaluar:} Estado del absorbedor de choque, estado del cable o cuerda de nylon, terminales prensados, mosquetones de seguridad, y limpieza general (Cumple / No Cumple / No Aplica).
+    \item \textbf{Seguimiento HES:} Campo de observaciones, registro de hallazgos críticos de seguridad y firma digital del inspector asignado.
+\end{itemize}
+
+\section{Estructura del Formato de Mantenimiento Preventivo de CCTV}
+Este documento de mantenimiento físico de infraestructura de telecomunicaciones y seguridad fue digitalizado en el catálogo del sistema, estructurando sus fases en sub-paneles dinámicos dentro de la aplicación móvil adaptativa:
+\begin{itemize}
+    \item \textbf{Generalidades:} Nombre de la cámara, radioenlace asociado, y estado de la alimentación eléctrica.
+    \item \textbf{Componentes técnicos de evaluación:} Limpieza de lente, revisión del soporte mecánico, estado del sistema fotovoltaico (si aplica), estado del gabinete y nivel de señal inalámbrica.
+    \item \textbf{Trazabilidad multimedia:} Sección para la inserción obligatoria del registro fotográfico (antes, durante y después del mantenimiento).
+\end{itemize}
+
+%==========================================================================
+% APÉNDICE C: BITÁCORA TÉCNICA DE IMPLEMENTACIÓN (SERIE DE PROMPTS 00-21)
+%==========================================================================
+\chapter{Bitácora Técnica de Implementación (Serie de Prompts 00--21)}
+\label{apendice:bitacora-prompts}
+
+El aplicativo web de CERMONT S.A.S. se construyó de manera incremental mediante un flujo de trabajo estructurado de veintidós iteraciones de ingeniería, documentadas en el directorio del repositorio como bitácora técnica de prompts. A continuación se desglosa el registro de estas iteraciones, asociando cada prompt a su objetivo tecnológico y su aporte concreto.
+
+\begin{longtable}{C{1.2cm} L{3.2cm} L{4.2cm} L{4.2cm} C{1.4cm}}
+\caption{Bitácora cronológica y técnica de la serie de prompts 00--21. Fuente: Elaboración propia.} \label{tab:bitacora-prompts-table} \\
+\toprule
+\textbf{Prompt} & \textbf{Tema de Iteración} & \textbf{Objetivo Tecnológico} & \textbf{Aporte Técnico en Código} & \textbf{Capítulo} \\
+\midrule
+\endfirsthead
+\multicolumn{5}{c}{{\bfseries \tablename\ \thetable{} -- Continúa de la página anterior}} \\
+\toprule
+\textbf{Prompt} & \textbf{Tema de Iteración} & \textbf{Objetivo Tecnológico} & \textbf{Aporte Técnico en Código} & \textbf{Capítulo} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{5}{r}{{Continúa en la siguiente página...}} \\
+\endfoot
+\bottomrule
+\endlastfoot
+
+00 & Foundation & Definir base transversal de seguridad y diseño & Roles en \texttt{packages/domain}, auth middleware, proxy.ts & 5, 6 \\ \midrule
+01 & Dashboard & Panel analítico e indicadores de gestión & Componente Dashboard, consulta de KPIs y estado de OTs & 6 \\ \midrule
+02 & Work Requests & Captura del paso 1 del flujo de negocio & \texttt{work-request.schema.ts}, router y API del paso 1 & 6 \\ \midrule
+03 & Site Visits & Registro y evidencias del paso 2 del flujo & \texttt{site-visit.schema.ts}, backend y frontend de visitas & 6 \\ \midrule
+04 & Proposals & Gestión de la cotización y aprobación del paso 3 y 4 & \texttt{proposal.schema.ts}, cálculo de impuestos y costos & 6 \\ \midrule
+05 & ServiceCase & Consolidación de la entidad Orden de Trabajo & \texttt{order.schema.ts}, lógica de asignación y transiciones & 6 \\ \midrule
+06 & Planning Packet & Digitalización del paso 5 (Planeación) & \texttt{planning-packet.schema.ts}, definición de kits & 6 \\ \midrule
+07 & Execution Session & Soporte transaccional del paso 6 (Ejecución) & \texttt{execution-session.service.ts}, control de estados & 6 \\ \midrule
+08 & Evidences & Captura de fotos y metadatos EXIF (paso 7) & \texttt{evidence.service.ts}, validación y compresión de fotos & 6, 8 \\ \midrule
+09 & Tech Reports & Generación de informes del paso 7 y 8 & \texttt{technical-report.schema.ts}, PDF dinámicos con pdf-lib & 6 \\ \midrule
+10 & Delivery Records & Formalización del paso 9 (Cierre técnico) & \texttt{delivery-record.schema.ts}, firmas en pantalla & 6 \\ \midrule
+11 & Admin Closure & Cierre administrativo tras la ejecución & \texttt{order-closure.service.ts}, checklist interno gerencial & 6 \\ \midrule
+12 & Service Entry & Registro de SES y entrada de SAP Ariba (paso 11) & \texttt{service-entry-sheet.schema.ts}, API de facturación & 6 \\ \midrule
+13 & Invoices & Gestión de facturación DIAN (paso 12) & \texttt{invoice.schema.ts}, control de estados financieros & 6 \\ \midrule
+14 & Payments & Registro de pagos finales (paso 14) & \texttt{payment.schema.ts}, conciliación bancaria interna & 6 \\ \midrule
+15 & Cost Engine & Control financiero costos reales vs presupuesto & \texttt{costControl.schema.ts}, cálculo de rentabilidad & 6, 7 \\ \midrule
+16 & Assets & Registro de equipos intervenidos en campo & \texttt{asset.schema.ts}, historial de mantenimiento & 6 \\ \midrule
+17 & Maintenance & Catálogo de plantillas de mantenimiento & \texttt{MaintenanceKit.ts}, listas de repuestos asignados & 6 \\ \midrule
+18 & Document Core & Almacenamiento centralizado de documentos & \texttt{document.routes.ts}, control de versiones & 6 \\ \midrule
+19 & Resources & Planeación de personal y herramientas & \texttt{kit.service.ts}, alertas de stock & 6 \\ \midrule
+20 & Users \& Admin & Configuración del RBAC e interfaz admin & \texttt{user.routes.ts}, auditoría de accesos & 6 \\ \midrule
+21 & Cross-Module Stabilization & Corrida final de pruebas unitarias y calidad & Carpeta \texttt{backend/tests/}, \texttt{frontend/tests/}, \texttt{tooling/} & 8 \\
+\end{longtable}
+
+Esta secuencia incremental garantiza que la complejidad técnica del sistema fuera dominada de forma progresiva, aplicando compuertas de verificación y análisis estático en cada paso del flujo Contract-First.
+
+%==========================================================================
+% APÉNDICE D: EVIDENCIAS DE CÓDIGO Y SERVICE WORKER DE LA PWA
+%==========================================================================
+\chapter{Evidencias de Código y Service Worker de la PWA}
+\label{apendice:evidencia-codigo}
+
+En este apéndice se expone el código real de componentes e infraestructura crítica del sistema, sirviendo como evidencia explícita de la implementación.
+
+\section{Service Worker Manual de la PWA (\texttt{frontend/public/service-worker.js})}
+A continuación se transcribe en su totalidad el archivo del \textit{Service Worker} implementado de forma nativa en la ruta del frontend. Este script configura la estrategia de caché local, el enrutamiento adaptativo de peticiones y el manejo de mensajería para sincronización offline:
+
+\begin{lstlisting}[language=JavaScript, caption={Service Worker PWA de CERMONT S.A.S. en \texttt{frontend/public/service-worker.js}}, label={lst:service-worker-real-code}]
+/**
+ * SERVICE WORKER — CERMONT PWA
+ * Estrategia de cache:
+ * - STATIC_CACHE: Assets estaticos (CSS, JS, imagenes) — Cache-first
+ * - DYNAMIC_CACHE: Paginas y datos dinamicos — Network-first con fallback
+ * - API: network-only para evitar exponer datos stale/sensibles en Cache Storage
+ *
+ * NOTA: Este es un service-worker manual. En el futuro, considerar migrar a workbox
+ *       para mejor gestion de precaching y actualizacion automatica.
+ */
+
+const STATIC_CACHE = "cermont-static-v1";
+const DYNAMIC_CACHE = "cermont-dynamic-v1";
+
+const STATIC_ASSETS = ["/", "/dashboard", "/manifest.json", "/offline.html"];
+
+/**
+ * Install: Cachear assets estaticos
+ */
+self.addEventListener("install", (event) => {
+	event.waitUntil(
+		caches.open(STATIC_CACHE).then((cache) => {
+			return cache.addAll(STATIC_ASSETS).catch((err) => {
+				console.warn("[SW] Error cacheando assets estaticos:", err);
+			});
+		}),
+	);
+	self.skipWaiting();
+});
+
+/**
+ * Activate: Limpiar caches viejos
+ */
+self.addEventListener("activate", (event) => {
+	event.waitUntil(
+		caches.keys().then((cacheNames) => {
+			return Promise.all(
+				cacheNames
+					.filter((name) => !name.startsWith("cermont-"))
+					.map((name) => caches.delete(name)),
+			);
+		}),
+	);
+	self.clients.claim();
+});
+
+/**
+ * Fetch: Estrategia de cache segun el tipo de request
+ */
+self.addEventListener("fetch", (event) => {
+	const { request } = event;
+	const url = new URL(request.url);
+
+	// Solo cachear GET requests
+	if (request.method !== "GET") {
+		return;
+	}
+
+	// 1. STATIC ASSETS (JS, CSS, imagenes) — Cache-first
+	if (
+		url.pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot)$/) ||
+		url.pathname.startsWith("/api/uploads")
+	) {
+		event.respondWith(
+			caches.match(request).then((cached) => {
+				if (cached) {
+					return cached;
+				}
+				return fetch(request).then((response) => {
+					// Cachear la respuesta si es exitosa
+					if (response && response.status === 200) {
+						const responseToCache = response.clone();
+						event.waitUntil(
+							caches.open(STATIC_CACHE).then((cache) => cache.put(request, responseToCache)),
+						);
+					}
+					return response;
+				});
+			}),
+		);
+		return;
+	}
+
+	// 2. API CALLS (/api/*) — Network-only
+	if (url.pathname.startsWith("/api/")) {
+		event.respondWith(
+			fetch(request)
+				.then((response) => response)
+				.catch(() => {
+					return new Response(JSON.stringify({ error: "Sin conexion a internet" }), {
+						status: 503,
+						headers: { "Content-Type": "application/json" },
+					});
+				}),
+		);
+		return;
+	}
+
+	// 3. PAGINAS HTML — Network-first con fallback a offline
+	if (request.mode === "navigate" || url.pathname === "/" || url.pathname.endsWith(".html")) {
+		event.respondWith(
+			fetch(request)
+				.then((response) => {
+					// Cachear paginas HTML exitosas
+					if (response && response.status === 200) {
+						const responseToCache = response.clone();
+						event.waitUntil(
+							caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, responseToCache)),
+						);
+					}
+					return response;
+				})
+				.catch(() => {
+					// Intenta cache de la pagina
+					return caches
+						.match(request)
+						.then((cached) => cached || caches.match("/offline.html"))
+						.catch(() => new Response("Offline", { status: 503 }));
+				}),
+		);
+		return;
+	}
+
+	// 4. DEFAULT — Network-first
+	event.respondWith(
+		fetch(request)
+			.then((response) => {
+				if (response && response.status === 200) {
+					const responseToCache = response.clone();
+					event.waitUntil(
+						caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, responseToCache)),
+					);
+				}
+				return response;
+			})
+			.catch(() => caches.match(request)),
+	);
+});
+
+/**
+ * Message handling para sincronizacion manual
+ */
+self.addEventListener("message", (event) => {
+	if (event.data?.type === "SKIP_WAITING") {
+		self.skipWaiting();
+		event.ports?.[0]?.postMessage({ success: true });
+	}
+
+	if (event.data?.type === "CLEAR_CACHE") {
+		event.waitUntil(
+			Promise.all([caches.delete(DYNAMIC_CACHE), caches.delete(STATIC_CACHE)]).then(() => {
+				event.ports?.[0]?.postMessage({ success: true });
+			}),
+		);
+	}
+});
+\end{lstlisting}
+
+El service worker utiliza una división de cachés estáticos (\texttt{STATIC\_CACHE}) y dinámicos (\texttt{DYNAMIC\_CACHE}), previniendo el almacenamiento en caché de llamadas de la API para garantizar la seguridad transaccional de los datos de la empresa, aislando la lógica de red de forma óptima.
+
+\section{Control de Acceso por Rol (RBAC Middleware del Backend)}
+A continuación se detalla cómo el backend en Express valida los roles de usuario a nivel de rutas, asegurando que solo usuarios autorizados según el perfil en la matriz RBAC (Gerente, Residente, Técnico, HES, Supervisor, Administrativo, Cliente) puedan acceder o modificar los recursos correspondientes:
+
+\begin{lstlisting}[language=TypeScript, caption={Middleware de verificación de roles y autorización en el backend}, label={lst:rbac-middleware-backend}]
+import { Request, Response, NextFunction } from 'express';
+import { UserRole } from '@cermont/domain';
+
+export function authorize(allowedRoles: readonly UserRole[]) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    try {
+      const user = req.user;
+
+      if (!user) {
+        res.status(401).json({
+          success: false,
+          data: null,
+          error: 'UNAUTHORIZED',
+          message: 'Debe estar autenticado para realizar esta accion'
+        });
+        return;
+      }
+
+      const hasPermission = allowedRoles.includes(user.role as UserRole);
+
+      if (!hasPermission) {
+        res.status(403).json({
+          success: false,
+          data: null,
+          error: 'FORBIDDEN',
+          message: 'No tiene los permisos requeridos para realizar esta accion'
+        });
+        return;
+      }
+
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+\end{lstlisting}
+
+\section{Validación Contract-First de Payload en el Controlador}
+En el backend, se realiza una validación doble utilizando Zod para asegurar que los contratos del monorepo se cumplan antes de inyectar datos en la base de datos Mongoose:
+
+\begin{lstlisting}[language=TypeScript, caption={Middleware de validación de payloads HTTP utilizando esquemas de Zod}, label={lst:zod-validation-middleware}]
+import { Request, Response, NextFunction } from 'express';
+import { ZodSchema } from 'zod';
+
+export function validateBody(schema: ZodSchema) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const result = schema.safeParse(req.body);
+
+    if (!result.success) {
+      res.status(400).json({
+        success: false,
+        data: null,
+        error: 'VALIDATION_ERROR',
+        message: 'El payload enviado no cumple con el contrato de validacion',
+        details: result.error.errors
+      });
+      return;
+    }
+
+    // Inyectar datos parseados y tipados de forma segura
+    req.body = result.data;
+    next();
+  };
+}
+\end{lstlisting}
