@@ -50,7 +50,7 @@ async function connectWithRetry(): Promise<void> {
 				log.warn("MongoDB connection attempt failed", {
 					attempt,
 					maxAttempts,
-					error,
+					error: String(error),
 				});
 
 				if (attempt < maxAttempts) {
@@ -112,7 +112,7 @@ async function reconnectDatabase(): Promise<void> {
 	try {
 		await connectDB();
 	} catch (error) {
-		log.error("MongoDB reconnect failed", { error });
+		log.error("MongoDB reconnect failed", { error: String(error) });
 		process.exit(1);
 	}
 }

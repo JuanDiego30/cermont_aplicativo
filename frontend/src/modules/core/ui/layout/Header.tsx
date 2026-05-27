@@ -90,6 +90,7 @@ export default function Header({
 				return { notifications: [] as NotificationItem[], unreadCount: 0 };
 			}
 		},
+		// Notifications are intentionally polled at a low frequency for operational alerts.
 		refetchInterval: 30_000,
 		enabled: Boolean(user && accessToken),
 		retry: 1,

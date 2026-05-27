@@ -17,7 +17,6 @@ import {
 	offsetToPage,
 	parseNumberQuery,
 	toIsoString,
-	toStringId,
 } from "../../common/utils/mapping";
 import { getString, requireUser } from "../../common/utils/request";
 import { MaintenanceKitService } from "./maintenance.service";
@@ -44,23 +43,23 @@ interface MaintenanceKitRecord {
 
 function serializeMaintenanceKit(kit: MaintenanceKitRecord): MaintenanceKitResponse {
 	return {
-		_id: toStringId(kit._id),
+		_id: String(kit._id),
 		name: kit.name,
 		activityType: kit.activity_type as MaintenanceKitResponse["activityType"],
-		tools: kit.tools.map((tool) => ({
+		...(kit.tools ? { tools: kit.tools.map((tool) => ({
 			name: tool.name,
 			quantity: tool.quantity,
 			...(tool.specifications ? { specifications: tool.specifications } : {}),
-		})),
-		equipment: kit.equipment.map((item) => ({
+		})) } : { tools: [] }),
+		equipment: (kit.equipment || []).map((item) => ({
 			name: item.name,
 			quantity: item.quantity,
 			certificateRequired: Boolean(item.certificate_required),
 		})),
 		isActive: kit.is_active,
-		createdBy: toStringId(kit.created_by),
-		createdAt: toIsoString(kit.createdAt) ?? new Date().toISOString(),
-		updatedAt: toIsoString(kit.updatedAt) ?? new Date().toISOString(),
+		createdBy: String(kit.created_by),
+		createdAt: toIsoString(kit.createdAt) || new Date().toISOString(),
+		updatedAt: toIsoString(kit.updatedAt) || new Date().toISOString(),
 	};
 }
 
@@ -73,10 +72,10 @@ export const createKit = async (req: Request, res: Response) => {
 
 export const getAllKits = async (req: Request, res: Response) => {
 	const { activityType, isActive, search, limit = "50", offset = "0", page: pageQuery } = req.query;
-	const limitValue = parseNumberQuery(limit, 50, 100);
+	const limitValue = parseNumberQuery(String(limit), 50, 100);
 	const pageValue =
 		pageQuery !== undefined
-			? parseNumberQuery(pageQuery, 1)
+			? parseNumberQuery(String(pageQuery), 1)
 			: offsetToPage(getString(offset), limitValue);
 
 	const result = await MaintenanceKitService.findAll(

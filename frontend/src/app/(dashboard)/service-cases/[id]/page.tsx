@@ -1,11 +1,13 @@
 "use client";
 
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Suspense } from "react";
+import { ApiError } from "@/lib/http/api-client";
 import { ServiceCaseWorkflowCockpit } from "@/modules/service-cases/components/ServiceCaseWorkflowCockpit";
 import { useAdvanceServiceCaseStep, useServiceCase } from "@/modules/service-cases/queries";
+import type { DomainBlocker } from "@cermont/shared-types";
 
 export default function ServiceCaseDetailPage() {
 	return (
@@ -30,6 +32,9 @@ function ServiceCaseDetailInner() {
 	const { data: envelope, isLoading, isError, refetch } = useServiceCase(id);
 	const sc = envelope?.data;
 	const advance = useAdvanceServiceCaseStep(id);
+
+	const apiError = advance.error instanceof ApiError ? advance.error : false;
+	const isBlockedTransition = apiError !== false && apiError.code === "STEP_TRANSITION_BLOCKED";
 
 	return (
 		<section className="space-y-6" aria-labelledby="sc-detail-title">
@@ -70,6 +75,63 @@ function ServiceCaseDetailInner() {
 					</p>
 				</div>
 			)}
+
+			{/* Transition Error Alert */}
+			{advance.isError && apiError && (
+				<div className="relative rounded-[var(--radius-lg)] border border-rose-200 bg-rose-50 p-5 dark:border-rose-900/40 dark:bg-rose-900/10" role="alert">
+					<button
+						type="button"
+						onClick={() => advance.reset()}
+						className="absolute top-4 right-4 text-xs font-semibold text-rose-700 hover:text-rose-900 dark:text-rose-300 dark:hover:text-rose-100 hover:underline"
+					>
+						Cerrar aviso
+					</button>
+					<div className="flex items-start gap-3">
+						<AlertCircle className="size-5 shrink-0 mt-0.5 text-rose-700 dark:text-rose-300" aria-hidden="true" />
+						<div className="space-y-1">
+							<h3 className="text-sm font-bold text-rose-900 dark:text-rose-200">
+								{isBlockedTransition ? "Avance de paso bloqueado" : "Error al avanzar paso"}
+							</h3>
+							<p className="text-xs text-rose-800 dark:text-rose-300 opacity-90">
+								{isBlockedTransition
+									? "El sistema no permite realizar esta transición porque existen bloqueadores críticos en el paso actual:"
+									: apiError.message || "Ocurrió un error inesperado al intentar avanzar."}
+							</p>
+
+							{isBlockedTransition && Array.isArray(apiError.details) && apiError.details.length > 0 && (
+								<ul className="mt-3.5 space-y-2">
+									{(apiError.details as unknown as DomainBlocker[]).map((blocker, idx) => (
+										<li
+											key={`${blocker.code}-${blocker.field || blocker.artifactType || idx}`}
+											className="rounded-[var(--radius-md)] border border-rose-200 bg-white/90 p-3 shadow-sm text-xs dark:border-rose-900/40 dark:bg-zinc-950/80"
+										>
+											<div className="flex items-start gap-2">
+												<span className="shrink-0 rounded-full bg-rose-100 text-rose-800 px-2 py-0.5 text-[9px] font-bold uppercase dark:bg-rose-900/40 dark:text-rose-200">
+													{blocker.code || "B-XXX"}
+												</span>
+												<div className="space-y-1">
+													<p className="font-semibold text-rose-950 dark:text-rose-100">
+														{blocker.message}
+													</p>
+													<p className="text-[10px] text-zinc-500 dark:text-zinc-400">
+														Responsable: <span className="font-semibold">{blocker.ownerRole || "N/A"}</span>
+													</p>
+													{blocker.recommendedAction && (
+														<p className="mt-0.5 text-[10px] font-bold text-[var(--color-brand)] dark:text-blue-400">
+															Acción sugerida: {blocker.recommendedAction}
+														</p>
+													)}
+												</div>
+											</div>
+										</li>
+									))}
+								</ul>
+							)}
+						</div>
+					</div>
+				</div>
+			)}
+
 			{sc ? (
 				<ServiceCaseWorkflowCockpit
 					serviceCase={sc}
@@ -80,3 +142,4 @@ function ServiceCaseDetailInner() {
 		</section>
 	);
 }
+

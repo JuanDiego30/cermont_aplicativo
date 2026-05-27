@@ -43,7 +43,7 @@ describe("Service cases page", () => {
 				{
 					_id: "sc-1",
 					code: "SC-2026-0001",
-					clientName: "Cliente Cermont",
+					clientName: "ACME Energy",
 					currentStage: "planning",
 					currentStepCode: "step_05_planning",
 					blockers: [],
@@ -59,7 +59,10 @@ describe("Service cases page", () => {
 
 		renderWithQueryClient(<ServiceCasesPage />);
 
-		expect(await screen.findByText("Cliente Cermont")).toBeTruthy();
+		expect(await screen.findByText("ACME Energy")).toBeTruthy();
+		expect(screen.getByText(/14 pasos/)).toBeTruthy();
+		expect(screen.getByText("Paso 5: Planeación de recursos")).toBeTruthy();
+		expect(screen.getByText("Continuar siguiente paso")).toBeTruthy();
 		expect(apiClient.get).toHaveBeenCalledWith("/service-cases?limit=50");
 	});
 });

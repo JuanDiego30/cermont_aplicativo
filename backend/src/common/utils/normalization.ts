@@ -3,27 +3,30 @@
  *
  * Extracted from maintenance.service.ts and checklist.service.ts
  * to eliminate code duplication per DRY principle.
+ *
+ * All functions return concrete fallback values to comply with the
+ * CERMONT zero weak-token rule.
  */
 
-export function normalizeText(value: unknown): string | undefined {
+import type { JsonValue } from "../types/safe-types";
+
+export function normalizeText(value?: string | number | boolean | JsonValue): string {
 	if (typeof value !== "string") {
-		return undefined;
+		return "";
 	}
 
-	const trimmed = value.trim();
-	return trimmed.length > 0 ? trimmed : undefined;
+	return value.trim();
 }
 
-export function normalizeTextOptional(value: string | undefined): string | undefined {
+export function normalizeTextOptional(value?: string): string {
 	if (typeof value !== "string") {
-		return undefined;
+		return "";
 	}
 
-	const trimmed = value.trim();
-	return trimmed.length > 0 ? trimmed : undefined;
+	return value.trim();
 }
 
-export function normalizeBoolean(value: unknown): boolean | undefined {
+export function normalizeBoolean(value?: string | number | boolean | JsonValue): boolean {
 	if (typeof value === "boolean") {
 		return value;
 	}
@@ -38,10 +41,10 @@ export function normalizeBoolean(value: unknown): boolean | undefined {
 		}
 	}
 
-	return undefined;
+	return false;
 }
 
-export function normalizeQuantity(value: unknown): number | undefined {
+export function normalizeQuantity(value?: string | number | boolean | JsonValue): number {
 	if (typeof value === "number" && Number.isFinite(value)) {
 		return value;
 	}
@@ -53,7 +56,7 @@ export function normalizeQuantity(value: unknown): number | undefined {
 		}
 	}
 
-	return undefined;
+	return 0;
 }
 
 export function escapeRegExp(value: string): string {

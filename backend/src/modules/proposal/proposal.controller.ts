@@ -23,7 +23,7 @@ import {
 	sendPaginated,
 	sendSuccess,
 } from "../../common/interceptors/response.interceptor";
-import { offsetToPage, toIsoString, toStringId } from "../../common/utils/mapping";
+import { offsetToPage, toIsoString } from "../../common/utils/mapping";
 import { requireUser } from "../../common/utils/request";
 import {
 	approveProposal as approveProposalService,
@@ -59,26 +59,26 @@ interface ProposalRecord {
 
 function serializeProposal(proposal: ProposalRecord): ProposalResponse {
 	return {
-		_id: toStringId(proposal._id),
+		_id: String(proposal._id),
 		code: proposal.code,
 		title: proposal.title,
 		clientName: proposal.clientName,
 		...(proposal.clientEmail ? { clientEmail: proposal.clientEmail } : {}),
 		status: proposal.status,
-		validUntil: toIsoString(proposal.validUntil) ?? new Date().toISOString(),
+		validUntil: toIsoString(proposal.validUntil) || new Date().toISOString(),
 		items: proposal.items,
 		subtotal: proposal.subtotal,
 		taxRate: proposal.taxRate,
 		total: proposal.total,
 		...(proposal.notes ? { notes: proposal.notes } : {}),
-		createdBy: toStringId(proposal.createdBy),
-		...(proposal.approvedBy ? { approvedBy: toStringId(proposal.approvedBy) } : {}),
-		...(toIsoString(proposal.approvedAt) ? { approvedAt: toIsoString(proposal.approvedAt) } : {}),
+		createdBy: String(proposal.createdBy),
+		...(proposal.approvedBy ? { approvedBy: String(proposal.approvedBy) } : {}),
+		...(proposal.approvedAt ? { approvedAt: toIsoString(proposal.approvedAt) } : {}),
 		generatedOrders: (proposal.generatedOrders ?? [])
-			.map((orderId) => toStringId(orderId))
+			.map((orderId) => String(orderId))
 			.filter(Boolean),
-		createdAt: toIsoString(proposal.createdAt) ?? new Date().toISOString(),
-		updatedAt: toIsoString(proposal.updatedAt) ?? new Date().toISOString(),
+		createdAt: toIsoString(proposal.createdAt) || new Date().toISOString(),
+		updatedAt: toIsoString(proposal.updatedAt) || new Date().toISOString(),
 	};
 }
 

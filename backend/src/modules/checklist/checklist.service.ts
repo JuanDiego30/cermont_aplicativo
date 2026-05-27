@@ -202,13 +202,13 @@ async function buildChecklistBlueprint(
 
 		log.warn("Maintenance kit not found for checklist; falling back to legacy template", {
 			kitTemplate: normalizedKitTemplate,
-			orderType: order.type,
-			orderCode: order.code,
+			orderType: order.type || "",
+			orderCode: order.code || "",
 		});
 	} else {
 		log.warn("No maintenance kit defined for checklist; falling back to legacy template", {
-			orderType: order.type,
-			orderCode: order.code,
+			orderType: order.type || "",
+			orderCode: order.code || "",
 		});
 	}
 

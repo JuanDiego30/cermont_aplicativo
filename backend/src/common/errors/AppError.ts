@@ -10,19 +10,20 @@
  *   throw new UnauthorizedError('Token expired')
  */
 
+import type { JsonValue } from "../types/safe-types";
 import { ERROR_CODES } from "./error-codes";
 
 export class AppError extends Error {
 	public readonly statusCode: number;
 	public readonly code: string;
 	public readonly isOperational: boolean;
-	public readonly details?: unknown;
+	public readonly details?: JsonValue;
 
 	constructor(
 		message: string,
 		statusCode: number = 500,
 		code: string = "INTERNAL_ERROR",
-		details?: unknown,
+		details?: JsonValue,
 	) {
 		super(message);
 		this.name = this.constructor.name;
@@ -38,12 +39,13 @@ export class AppError extends Error {
 	 * Standard JSON representation for API responses
 	 */
 	toJSON() {
+		const hasDetails = Object.hasOwn(this, "details");
 		return {
 			success: false,
 			error: {
 				code: this.code,
 				message: this.message,
-				...(this.details !== undefined && { details: this.details }),
+				...(hasDetails ? { details: this.details } : {}),
 			},
 		};
 	}
@@ -57,7 +59,7 @@ export class BadRequestError extends AppError {
 	constructor(
 		message: string = "Bad request",
 		code: string = ERROR_CODES.BAD_REQUEST,
-		details?: unknown,
+		details?: JsonValue,
 	) {
 		super(message, 400, code, details);
 	}
@@ -68,7 +70,7 @@ export class BadRequestError extends AppError {
  * Zod/Joi validation failed
  */
 export class ValidationError extends AppError {
-	constructor(message: string = "Validation failed", details?: unknown) {
+	constructor(message: string = "Validation failed", details?: JsonValue) {
 		super(message, 400, ERROR_CODES.VALIDATION_FAILED, details);
 	}
 }

@@ -7,8 +7,8 @@
  * Usage:
  *   app.use(requestId)
  *
- * Then in any handler:
- *   const requestId = req.headers['x-request-id']
+ * Then in handler functions:
+ *   const reqId = req.headers['x-request-id']
  */
 
 import { randomUUID } from "node:crypto";

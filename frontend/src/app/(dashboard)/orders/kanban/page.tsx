@@ -15,6 +15,7 @@ import { ORDERS_KEYS, useOrders } from "@/modules/orders/queries";
 import {
 	COLUMN_COLORS,
 	COLUMN_LABELS,
+	KANBAN_ORDER_QUERY_LIMIT,
 	type KanbanData,
 	type KanbanOrder,
 	VISIBLE_COLUMNS,
@@ -183,7 +184,7 @@ function KanbanColumn({
 export default function OrdersKanbanPage() {
 	const queryClient = useQueryClient();
 	const [error, setError] = useState<string | null>(null);
-	const kanbanFilters = useMemo(() => ({ limit: 250 }), []);
+	const kanbanFilters = useMemo(() => ({ limit: KANBAN_ORDER_QUERY_LIMIT }), []);
 	const { data: orderPage, isLoading, error: loadError } = useOrders(kanbanFilters);
 
 	const data = useMemo(() => groupOrdersByStatus(orderPage?.items ?? []), [orderPage?.items]);

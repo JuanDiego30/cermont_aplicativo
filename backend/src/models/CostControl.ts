@@ -1,4 +1,5 @@
 import { type Document, model, Schema, type Types } from "mongoose";
+import { removeVersionKey } from "../common/types/safe-types";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CostControl Model — Per DOC-09 §7 (Diccionario de Datos)
@@ -130,9 +131,7 @@ const costControlSchema = new Schema<ICostControl>(
 		timestamps: true,
 		toJSON: {
 			transform(_doc, ret) {
-				const json = ret as Record<string, unknown>;
-				delete json.__v;
-				return ret;
+				return removeVersionKey(ret);
 			},
 		},
 	},

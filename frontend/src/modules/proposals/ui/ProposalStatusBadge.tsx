@@ -2,6 +2,7 @@
 
 import { BadgePill } from "@/core/ui/BadgePill";
 import { cn } from "@/lib/utils";
+import { normalizeProposalStatus } from "@/modules/proposals/proposal-status";
 
 /**
  * ProposalStatusBadge , uses English ProposalStatus from shared-types as SSOT.
@@ -35,27 +36,6 @@ const FALLBACK_META = {
 	label: "",
 	className: "bg-[var(--surface-secondary)] text-[var(--text-secondary)]",
 };
-
-/**
- * Normalizes legacy Spanish status values to English ProposalStatus.
- * Returns the input unchanged if it is already English.
- */
-export function normalizeProposalStatus(status: string): string {
-	switch (status) {
-		case "borrador":
-			return "draft";
-		case "enviada":
-			return "sent";
-		case "aprobada":
-			return "approved";
-		case "rechazada":
-			return "rejected";
-		case "expirada":
-			return "expired";
-		default:
-			return status;
-	}
-}
 
 export function ProposalStatusBadge({ status }: { status: string }) {
 	const normalizedStatus = normalizeProposalStatus(status);

@@ -88,6 +88,26 @@
 					}
 				}
 			}
+		},
+		{
+			"includes": ["**/packages/config/**/*"],
+			"linter": {
+				"rules": {
+					"style": {
+						"useNamingConvention": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["**/packages/domain/**/*"],
+			"linter": {
+				"rules": {
+					"style": {
+						"useNamingConvention": "off"
+					}
+				}
+			}
 		}
 	]
 }

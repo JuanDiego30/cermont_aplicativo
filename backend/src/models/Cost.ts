@@ -1,5 +1,6 @@
 import { type CostCategory, CostCategorySchema } from "@cermont/shared-types";
 import { type Document, model, Schema, Types } from "mongoose";
+import { removeVersionKey } from "../common/types/safe-types";
 
 // Cost model aligned with the canonical shared-types contract.
 export interface ICostDocument extends Document {
@@ -15,7 +16,7 @@ export interface ICostDocument extends Document {
 	recordedBy: Types.ObjectId;
 	recordedAt: Date;
 	variance?: number;
-	variancePercent?: number | null;
+	variancePercent?: number;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -54,7 +55,7 @@ CostSchema.virtual("variance").get(function (this: ICostDocument) {
 CostSchema.virtual("variancePercent").get(function (this: ICostDocument) {
 	const estimatedAmount = Number(this.estimatedAmount ?? 0);
 	if (estimatedAmount <= 0) {
-		return null;
+		return 0;
 	}
 
 	return (Number(this.actualAmount ?? 0) - estimatedAmount) / estimatedAmount;
@@ -67,9 +68,7 @@ CostSchema.index({ recordedBy: 1, recordedAt: -1 });
 CostSchema.set("toJSON", {
 	virtuals: true,
 	transform: (_doc, ret) => {
-		const obj = ret as unknown as Record<string, unknown>;
-		delete obj.__v;
-		return obj;
+		return removeVersionKey(ret);
 	},
 });
 

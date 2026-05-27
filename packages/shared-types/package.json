@@ -46,7 +46,6 @@
 		"test:ci": "vitest run"
 	},
 	"dependencies": {
-		"zod": "^4.3.6"
-	},
-	"devDependencies": {}
+		"zod": "^4.4.3"
+	}
 }

@@ -115,7 +115,7 @@ export function createAuditLog(input: AuditLogInput): void {
 		await AuditLog.create(auditLog);
 	})().catch((err: unknown) => {
 		log.error("Failed to create audit log", {
-			err,
+			err: String(err),
 			action: input.action,
 			entityType: input.entity,
 		});
@@ -152,3 +152,5 @@ export async function findById(id: string): Promise<unknown> {
 	}
 	return entry;
 }
+
+

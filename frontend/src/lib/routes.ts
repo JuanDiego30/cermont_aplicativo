@@ -13,6 +13,7 @@ export const APP_ROUTES = {
 	siteVisitNew: "/site-visits/new",
 	proposals: "/proposals",
 	proposalNew: "/proposals/new",
+	purchaseOrders: "/purchase-orders",
 	orders: "/orders",
 	orderNew: "/orders/new",
 	orderKanban: "/orders/kanban",

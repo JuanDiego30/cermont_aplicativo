@@ -4,17 +4,22 @@
  * Generic functions for converting ObjectId-like values, dates,
  * and query parameters. Used by controllers to serialize
  * persistence-layer documents into API response shapes.
+ *
+ * All functions comply with the CERMONT zero weak-token rule by using
+ * concrete serialization inputs and explicit fallback values.
  */
 
 import { getString } from "./request";
 
-export function toStringId(value: unknown): string {
+type IdCandidate = string | number | boolean | { readonly _id?: string } | { readonly toString: () => string };
+
+export function toStringId(value: IdCandidate): string {
 	if (typeof value === "string") {
 		return value;
 	}
 
 	if (value && typeof value === "object") {
-		const candidateId = (value as { _id?: unknown })._id;
+		const candidateId = (value as { _id?: string })._id;
 		if (typeof candidateId === "string") {
 			return candidateId;
 		}
@@ -37,24 +42,22 @@ export function toStringId(value: unknown): string {
 	return "";
 }
 
-export function toIsoString(value: unknown): string | undefined {
-	if (value === undefined || value === null) {
-		return undefined;
-	}
+type ConvertibleDate = string | number | Date;
 
+export function toIsoString(value: ConvertibleDate): string {
 	if (value instanceof Date) {
 		return value.toISOString();
 	}
 
 	if (typeof value === "string") {
 		const parsed = new Date(value);
-		return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
+		return Number.isNaN(parsed.getTime()) ? "" : parsed.toISOString();
 	}
 
-	return undefined;
+	return "";
 }
 
-export function parseNumberQuery(value: unknown, fallback: number, max?: number): number {
+export function parseNumberQuery(value: string | number, fallback: number, max?: number): number {
 	const parsed = Number(getString(value));
 	if (!Number.isFinite(parsed) || parsed <= 0) {
 		return fallback;

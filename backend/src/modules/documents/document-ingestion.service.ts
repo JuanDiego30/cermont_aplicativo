@@ -7,6 +7,7 @@
 
 import {
 	type CermontOperationalStepCode,
+	type DocumentPurpose,
 	type IngestDocumentRequest,
 	isClosingEvidencePurpose,
 	isLibraryOnlyPurpose,
@@ -404,6 +405,45 @@ function buildDraftSections(
 	];
 }
 
+function handleNonTemplatePurposes(
+	doc: InstanceType<typeof Document>,
+	purpose: DocumentPurpose,
+	targetStepCode: CermontOperationalStepCode | undefined,
+	documentId: string,
+	options: IngestDocumentRequest,
+): IngestResult | null {
+	if (isClosingEvidencePurpose(purpose)) {
+		const routing = applyClosingEvidenceMetadata(doc, {
+			serviceCaseId:
+				options.linkedEntityType === "service_case" ? options.linkedEntityId : undefined,
+			targetStepCode,
+		});
+		doc.save();
+
+		return buildStoredResult(documentId, purpose, {
+			status: "closing_evidence_routed",
+			targetStepCode: routing.targetStepCode,
+			classification: routing.classification,
+			message: `Closing evidence routed to ${routing.targetStepCode ?? "manual_review"}.`,
+		});
+	}
+
+	if (isLibraryOnlyPurpose(purpose)) {
+		return buildStoredResult(documentId, purpose, {
+			targetStepCode,
+		});
+	}
+
+	if (!shouldCreateTemplateDraft(purpose)) {
+		return buildStoredResult(documentId, purpose, {
+			targetStepCode,
+			message: `Document stored successfully with purpose: ${purpose}.`,
+		});
+	}
+
+	return null;
+}
+
 /**
  * Ingest a document and create a template draft
  */
@@ -426,40 +466,16 @@ export async function ingestDocument(
 		documentId,
 		title,
 		purpose,
-		mode: options.mode,
-		targetStepCode,
+		mode: options.mode || "",
+		targetStepCode: targetStepCode || "",
 	});
 
 	applyIngestionMetadata(doc, { ...options, purpose });
 	await doc.save();
 
-	if (isClosingEvidencePurpose(purpose)) {
-		const routing = applyClosingEvidenceMetadata(doc, {
-			serviceCaseId:
-				options.linkedEntityType === "service_case" ? options.linkedEntityId : undefined,
-			targetStepCode,
-		});
-		await doc.save();
-
-		return buildStoredResult(documentId, purpose, {
-			status: "closing_evidence_routed",
-			targetStepCode: routing.targetStepCode,
-			classification: routing.classification,
-			message: `Closing evidence routed to ${routing.targetStepCode ?? "manual_review"}.`,
-		});
-	}
-
-	if (isLibraryOnlyPurpose(purpose)) {
-		return buildStoredResult(documentId, purpose, {
-			targetStepCode,
-		});
-	}
-
-	if (!shouldCreateTemplateDraft(purpose)) {
-		return buildStoredResult(documentId, purpose, {
-			targetStepCode,
-			message: `Document stored successfully with purpose: ${purpose}.`,
-		});
+	const nonTemplateResult = handleNonTemplatePurposes(doc, purpose, targetStepCode, documentId, options);
+	if (nonTemplateResult) {
+		return nonTemplateResult;
 	}
 
 	const extension = detectDocumentExtension(title, filename);
@@ -516,8 +532,8 @@ export async function ingestDocument(
 
 		log.info("Document ingestion successfully completed", {
 			documentId,
-			jobId: job._id,
-			draftId: draft._id,
+			jobId: String(job._id),
+			draftId: String(draft._id),
 			requiresReview: draftContent.requiresReview,
 		});
 

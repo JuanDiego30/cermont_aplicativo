@@ -26,7 +26,6 @@ import {
 	offsetToPage,
 	parseNumberQuery,
 	toIsoString,
-	toStringId,
 } from "../../common/utils/mapping";
 import { getString, requireUser } from "../../common/utils/request";
 import { ResourceService } from "./resource.service";
@@ -55,7 +54,7 @@ interface ResourceRecord {
 
 function serializeResource(resource: ResourceRecord): ResourceResponse {
 	return {
-		_id: toStringId(resource._id),
+		_id: String(resource._id),
 		name: resource.name,
 		type: resource.type,
 		status: resource.status,
@@ -63,21 +62,17 @@ function serializeResource(resource: ResourceRecord): ResourceResponse {
 		...(resource.serial_number ? { serialNumber: resource.serial_number } : {}),
 		...(resource.brand ? { brand: resource.brand } : {}),
 		...(resource.modelName ? { model: resource.modelName } : {}),
-		...(toIsoString(resource.purchase_date)
-			? { purchaseDate: toIsoString(resource.purchase_date) }
-			: {}),
-		...(toIsoString(resource.maintenance_date)
-			? { maintenanceDate: toIsoString(resource.maintenance_date) }
-			: {}),
+		...(resource.purchase_date ? { purchaseDate: toIsoString(resource.purchase_date) } : {}),
+		...(resource.maintenance_date ? { maintenanceDate: toIsoString(resource.maintenance_date) } : {}),
 		...(resource.category ? { category: resource.category } : {}),
 		certifications: resource.certifications ?? [],
 		documents: resource.documents ?? [],
 		evidenceRequirements: resource.evidenceRequirements ?? [],
 		dynamicForms: (resource.dynamicForms ?? []) as string[],
-		...(resource.created_by ? { createdBy: toStringId(resource.created_by) } : {}),
-		...(resource.updated_by ? { updatedBy: toStringId(resource.updated_by) } : {}),
-		createdAt: toIsoString(resource.created_at) ?? new Date().toISOString(),
-		updatedAt: toIsoString(resource.updated_at) ?? new Date().toISOString(),
+		...(resource.created_by ? { createdBy: String(resource.created_by) } : {}),
+		...(resource.updated_by ? { updatedBy: String(resource.updated_by) } : {}),
+		createdAt: toIsoString(resource.created_at) || new Date().toISOString(),
+		updatedAt: toIsoString(resource.updated_at) || new Date().toISOString(),
 	};
 }
 
@@ -90,10 +85,10 @@ export const createResource = async (req: Request, res: Response) => {
 
 export const getAllResources = async (req: Request, res: Response) => {
 	const { type, status, search, limit = "50", offset = "0", page: pageQuery } = req.query;
-	const limitValue = parseNumberQuery(limit, 50, 100);
+	const limitValue = parseNumberQuery(String(limit), 50, 100);
 	const pageValue = getString(pageQuery).trim()
-		? parseNumberQuery(pageQuery, 1)
-		: offsetToPage(offset as string, limitValue);
+		? parseNumberQuery(String(pageQuery), 1)
+		: offsetToPage(String(offset), limitValue);
 
 	const result = await ResourceService.findAll(
 		{

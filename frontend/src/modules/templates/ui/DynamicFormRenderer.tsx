@@ -46,6 +46,8 @@ export interface DynamicField {
 	placeholder?: string;
 	allowOtherOption?: boolean;
 	otherOptionLabel?: string;
+	allowCustomOption?: boolean;
+	customOptionLabel?: string;
 }
 
 export interface DynamicSection {
@@ -102,6 +104,18 @@ function toMultiOptionValue(value: unknown): MultiOptionValue {
 		};
 	}
 	return { selected: [] };
+}
+
+function allowsCustomOption(field: DynamicField): boolean {
+	return field.allowOtherOption === true || field.allowCustomOption === true;
+}
+
+function resolveCustomOptionLabel(field: DynamicField): string {
+	return field.otherOptionLabel || field.customOptionLabel || "Otro / Personalizado";
+}
+
+function buildMultiOptionChange(selected: string[], current: MultiOptionValue): MultiOptionValue {
+	return typeof current.otherValue === "string" ? { selected, otherValue: current.otherValue } : { selected };
 }
 
 function toRecordValue(value: unknown): Record<string, unknown> {
@@ -202,9 +216,9 @@ function renderSelectWithOther(
 	const recordValue = toRecordValue(value);
 	const optionValue = recordValue.option === OTHER_SENTINEL ? OTHER_SENTINEL : toStringValue(value);
 	const otherValue = typeof recordValue.customValue === "string" ? recordValue.customValue : "";
-	const showOther = field.allowOtherOption === true && (field.options?.length ?? 0) > 0;
+	const showOther = allowsCustomOption(field) && (field.options?.length ?? 0) > 0;
 	const isOtherSelected = showOther && optionValue === OTHER_SENTINEL;
-	const otherLabel = field.otherOptionLabel || "Personalizado";
+	const otherLabel = resolveCustomOptionLabel(field);
 	const errorProps = buildErrorProps(fieldId, hasError);
 
 	return (
@@ -263,17 +277,17 @@ function renderOptionCheckboxes(
 	hasError: boolean,
 	onFieldChange: (key: string, value: unknown) => void,
 ): React.ReactNode {
-	const otherLabel = field.otherOptionLabel || "Personalizado";
+	const otherLabel = resolveCustomOptionLabel(field);
 	const current = toMultiOptionValue(value);
 	const selected = current.selected;
-	const showOther = field.allowOtherOption === true;
+	const showOther = allowsCustomOption(field);
 	const errorProps = buildErrorProps(fieldId, hasError);
 
 	function toggleOption(option: string, checked: boolean) {
 		const next = checked
 			? Array.from(new Set([...selected, option]))
 			: selected.filter((item) => item !== option);
-		onFieldChange(field.key, showOther ? { selected: next, otherValue: current.otherValue } : next);
+		onFieldChange(field.key, showOther ? buildMultiOptionChange(next, current) : next);
 	}
 
 	function updateOtherValue(otherValue: string) {

@@ -1,0 +1,1571 @@
+
+> cermont-monorepo@1.0.0 test:e2e
+> npm --workspace frontend run test:e2e -- --config=playwright.post-hallazgos.config.ts
+
+
+> @cermont/frontend@1.2.0 test:e2e
+> playwright test --config=playwright.post-hallazgos.config.ts
+
+[2m[WebServer] [22m
+[2m[WebServer] [22m> @cermont/frontend@1.2.0 dev
+[2m[WebServer] [22m> next dev -H 0.0.0.0 --turbopack --no-server-fast-refresh
+[2m[WebServer] [22m
+[WebServer] (node:46200) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:46164) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m▲ Next.js 16.2.6 (Turbopack)
+[2m[WebServer] [22m- Local:         http://localhost:3000
+[2m[WebServer] [22m- Network:       http://0.0.0.0:3000
+[2m[WebServer] [22m- Environments: .env.test
+[2m[WebServer] [22m✓ Ready in 421ms
+[2m[WebServer] [22m- Experiments (use with caution):
+[2m[WebServer] [22m  · optimizePackageImports
+[2m[WebServer] [22m  · serverActions
+[2m[WebServer] [22m
+[WebServer] (node:30768) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m GET /login 200 in 1322ms (next.js: 694ms, proxy.ts: 128ms, application-code: 499ms)
+
+Running 3 tests using 1 worker
+
+(node:50536) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:50536) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m GET /proposals?page=1 200 in 389ms (next.js: 90ms, proxy.ts: 7ms, application-code: 291ms)
+[WebServer] Failed to proxy http://localhost:4000/api/work-requests?status=submitted&status=qualified&limit=1 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/analytics/notifications?limit=20 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[2m[WebServer] [22m GET /dashboard 200 in 560ms (next.js: 268ms, proxy.ts: 14ms, application-code: 278ms)
+[2m[WebServer] [22m GET /manifest.json 404 in 545ms (next.js: 397ms, application-code: 147ms)
+[2m[WebServer] [22m GET / 200 in 565ms (next.js: 64ms, proxy.ts: 14ms, application-code: 487ms)
+[WebServer] Failed to proxy http://localhost:4000/api/work-requests?status=submitted&status=qualified&limit=1 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/analytics/notifications?limit=20 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[2m[WebServer] [22m GET /orders/kanban 200 in 414ms (next.js: 194ms, proxy.ts: 19ms, application-code: 201ms)
+[WebServer] Failed to proxy http://localhost:4000/api/work-requests?status=submitted&status=qualified&limit=1 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/analytics/notifications?limit=20 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/work-requests?status=submitted&status=qualified&limit=1 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/analytics/notifications?limit=20 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+  x  1 [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:334:5 › keeps proposals URL stable and avoids invalid order limits (3.8s)
+(node:43664) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43664) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m GET /service-cases 200 in 148ms (next.js: 71ms, proxy.ts: 5ms, application-code: 72ms)
+[2m[WebServer] [22m GET /dashboard 200 in 357ms (next.js: 132ms, proxy.ts: 10ms, application-code: 215ms)
+[2m[WebServer] [22m GET / 200 in 359ms (next.js: 10ms, proxy.ts: 10ms, application-code: 339ms)
+[2m[WebServer] [22m GET /manifest.json 404 in 346ms (next.js: 171ms, application-code: 175ms)
+[WebServer] Failed to proxy http://localhost:4000/api/work-requests?status=submitted&status=qualified&limit=1 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/analytics/notifications?limit=20 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] (node:44256) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Failed to proxy http://localhost:4000/api/work-requests?status=submitted&status=qualified&limit=1 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/analytics/notifications?limit=20 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[2m[WebServer] [22m GET /service-cases/665000000000000000000101 200 in 560ms (next.js: 518ms, proxy.ts: 13ms, application-code: 28ms)
+[WebServer] Failed to proxy http://localhost:4000/api/service-cases/665000000000000000000101/workflow AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/service-cases/665000000000000000000101/workflow AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/work-requests?status=submitted&status=qualified&limit=1 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/analytics/notifications?limit=20 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/service-cases/665000000000000000000101/workflow AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/work-requests?status=submitted&status=qualified&limit=1 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/work-requests?status=submitted&status=qualified&limit=1 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/service-cases/665000000000000000000101/workflow AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/service-cases/665000000000000000000101/workflow AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/work-requests?status=submitted&status=qualified&limit=1 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/service-cases/665000000000000000000101/workflow AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+  x  2 [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:359:5 › shows the service case cockpit path and blocked current step (16.4s)
+(node:6572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m GET /work-requests/new 200 in 210ms (next.js: 97ms, proxy.ts: 6ms, application-code: 106ms)
+[WebServer] Failed to proxy http://localhost:4000/api/work-requests?status=submitted&status=qualified&limit=1 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/analytics/notifications?limit=20 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[2m[WebServer] [22m GET /dashboard 200 in 259ms (next.js: 102ms, proxy.ts: 9ms, application-code: 149ms)
+[2m[WebServer] [22m GET / 200 in 263ms (next.js: 9ms, proxy.ts: 9ms, application-code: 244ms)
+[2m[WebServer] [22m GET /manifest.json 404 in 252ms (next.js: 151ms, application-code: 101ms)
+[WebServer] Failed to proxy http://localhost:4000/api/work-requests?status=submitted&status=qualified&limit=1 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/analytics/notifications?limit=20 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/work-requests?status=submitted&status=qualified&limit=1 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/analytics/notifications?limit=20 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/work-requests?status=submitted&status=qualified&limit=1 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/work-requests?status=submitted&status=qualified&limit=1 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/work-requests?status=submitted&status=qualified&limit=1 AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+  x  3 [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:376:5 › keeps custom form options usable and dark inputs legible (16.0s)
+
+
+  1) [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:334:5 › keeps proposals URL stable and avoids invalid order limits 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('OT-2026-014')
+    Expected: visible
+    Error: strict mode violation: getByText('OT-2026-014') resolved to 2 elements:
+        1) <a href="/orders/665000000000000000000201" class="block font-mono text-xs font-semibold text-[var(--color-brand-blue)] hover:underline">OT-2026-014</a> aka getByRole('link', { name: 'OT-2026-' })
+        2) <label class="sr-only" for="kanban-order-status-665000000000000000000201">Mover la orden OT-2026-014 a otra columna</label> aka getByText('Mover la orden OT-2026-014 a')
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 15000ms[22m
+    [2m  - waiting for getByText('OT-2026-014')[22m
+
+
+      353 | 	await page.goto("/orders/kanban");
+      354 | 	await expect(page.getByRole("heading", { name: /Kanban/ })).toBeVisible();
+    > 355 | 	await expect(page.getByText("OT-2026-014")).toBeVisible();
+          | 	                                            ^
+      356 | 	expect(apiState.invalidOrderLimitWasRequested()).toBe(false);
+      357 | });
+      358 |
+        at C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\tests\e2e\post-hallazgos-continuidad.spec.ts:355:46
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\post-hallazgos-continuidad-3dd63-avoids-invalid-order-limits-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\post-hallazgos-continuidad-3dd63-avoids-invalid-order-limits-chromium\error-context.md
+
+  2) [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:359:5 › shows the service case cockpit path and blocked current step 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Workflow 14 pasos')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 15000ms[22m
+    [2m  - waiting for getByText('Workflow 14 pasos')[22m
+
+
+      368 |
+      369 | 	await page.getByRole("link", { name: /Abrir cockpit/ }).click();
+    > 370 | 	await expect(page.getByText("Workflow 14 pasos")).toBeVisible();
+          | 	                                                  ^
+      371 | 	await expect(page.getByText("Requisitos del Paso 5")).toBeVisible();
+      372 | 	await expect(page.getByText("AST required before field start")).toBeVisible();
+      373 | 	await expect(page.getByRole("button", { name: /Avanzar al Paso 6/ })).toBeDisabled();
+        at C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\tests\e2e\post-hallazgos-continuidad.spec.ts:370:52
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\post-hallazgos-continuidad-0fed5-th-and-blocked-current-step-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\post-hallazgos-continuidad-0fed5-th-and-blocked-current-step-chromium\error-context.md
+
+  3) [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:376:5 › keeps custom form options usable and dark inputs legible 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByTestId('customizable-select-dropdown')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 15000ms[22m
+    [2m  - waiting for getByTestId('customizable-select-dropdown')[22m
+
+
+      379 | 	await page.goto("/work-requests/new");
+      380 | 	await page.getByRole("button", { name: /Tipo de servicio/ }).click();
+    > 381 | 	await expect(page.getByTestId("customizable-select-dropdown")).toBeVisible();
+          | 	                                                               ^
+      382 | 	await page.getByTestId("customizable-select-custom-option").click();
+      383 |
+      384 | 	const customInput = page.getByTestId("customizable-select-custom-input");
+        at C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\tests\e2e\post-hallazgos-continuidad.spec.ts:381:65
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\post-hallazgos-continuidad-4eb1d-ble-and-dark-inputs-legible-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\post-hallazgos-continuidad-4eb1d-ble-and-dark-inputs-legible-chromium\error-context.md
+
+  3 failed
+    [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:334:5 › keeps proposals URL stable and avoids invalid order limits 
+    [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:359:5 › shows the service case cockpit path and blocked current step 
+    [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:376:5 › keeps custom form options usable and dark inputs legible 
+npm error Lifecycle script `test:e2e` failed with error:
+npm error code 1
+npm error path C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error workspace @cermont/frontend@1.2.0
+npm error location C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c playwright test --config=playwright.post-hallazgos.config.ts

@@ -7,11 +7,9 @@ import { ArrowLeft, FileText } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { apiClient } from "@/lib/http/api-client";
+import { normalizeProposalStatus } from "@/modules/proposals/proposal-status";
 import { ProposalActions } from "@/modules/proposals/ui/ProposalActions";
-import {
-	normalizeProposalStatus,
-	ProposalStatusBadge,
-} from "@/modules/proposals/ui/ProposalStatusBadge";
+import { ProposalStatusBadge } from "@/modules/proposals/ui/ProposalStatusBadge";
 
 interface ProposalDetail {
 	_id: string;

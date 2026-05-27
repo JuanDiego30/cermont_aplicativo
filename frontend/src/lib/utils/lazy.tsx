@@ -21,8 +21,11 @@
 import { Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 
+type MonthlyTrendPoint = { month: string; creadas: number; completadas: number };
+type OrdersByStatusPoint = { name: string; value: number };
+
 /** Reusable loading spinner for lazy-loaded components */
-function ChartLoadingFallback() {
+export function ChartLoadingFallback() {
 	return (
 		<div className="flex h-64 items-center justify-center">
 			<Loader2 className="size-6 animate-spin text-zinc-400" />
@@ -32,15 +35,32 @@ function ChartLoadingFallback() {
 
 /* ───────────── Dashboard Charts ───────────── */
 
-export const LazyMonthlyTrendChart = dynamic(
+const MonthlyTrendChartComponent = dynamic<{
+	data: MonthlyTrendPoint[];
+	loading?: boolean;
+}>(
 	() => import("@/modules/dashboard/ui/MonthlyTrendChart").then((m) => m.MonthlyTrendChart),
 	{ loading: ChartLoadingFallback, ssr: false },
 );
 
-export const LazyOrdersByStatusChart = dynamic(
+const OrdersByStatusChartComponent = dynamic<{ data: OrdersByStatusPoint[] }>(
 	() => import("@/modules/dashboard/ui/OrdersByStatusChart").then((m) => m.OrdersByStatusChart),
 	{ loading: ChartLoadingFallback, ssr: false },
 );
+
+export function LazyMonthlyTrendChart({
+	data,
+	loading,
+}: {
+	data: MonthlyTrendPoint[];
+	loading?: boolean;
+}) {
+	return <MonthlyTrendChartComponent data={data} loading={loading} />;
+}
+
+export function LazyOrdersByStatusChart({ data }: { data: OrdersByStatusPoint[] }) {
+	return <OrdersByStatusChartComponent data={data} />;
+}
 
 /* ───────────── Cost Components ───────────── */
 

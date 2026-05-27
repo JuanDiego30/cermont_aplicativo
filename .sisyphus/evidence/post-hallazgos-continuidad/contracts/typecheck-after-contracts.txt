@@ -1,0 +1,47 @@
+## npm run typecheck
+
+> cermont-monorepo@1.0.0 typecheck
+> turbo run typecheck
+
+• turbo 2.9.14
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running typecheck in 5 packages
+   • Remote caching disabled
+
+@cermont/shared-types:typecheck: cache miss, executing 7fab0997bd51197d
+@cermont/config:typecheck: cache hit, replaying logs 0016eb1b413d9b73
+@cermont/config:typecheck: 
+@cermont/config:typecheck: > @cermont/config@1.0.0 typecheck
+@cermont/config:typecheck: > tsc --noEmit
+@cermont/config:typecheck: 
+@cermont/shared-types:build: cache miss, executing 3e1440982a73dffb
+@cermont/domain:typecheck: cache hit, replaying logs b08aca61377c85f7
+@cermont/domain:typecheck: 
+@cermont/domain:typecheck: > @cermont/domain@1.0.0 typecheck
+@cermont/domain:typecheck: > tsc --noEmit
+@cermont/domain:typecheck: 
+@cermont/shared-types:typecheck: 
+@cermont/shared-types:typecheck: > @cermont/shared-types@1.0.0 typecheck
+@cermont/shared-types:typecheck: > tsc --noEmit
+@cermont/shared-types:typecheck: 
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/backend:typecheck: cache miss, executing c4fe0e50689b9018
+@cermont/frontend:typecheck: cache miss, executing e0800a975a193fe3
+@cermont/frontend:typecheck: 
+@cermont/frontend:typecheck: > @cermont/frontend@1.2.0 typecheck
+@cermont/frontend:typecheck: > tsc --noEmit
+@cermont/frontend:typecheck: 
+@cermont/backend:typecheck: 
+@cermont/backend:typecheck: > @cermont/backend@5.2.1 typecheck
+@cermont/backend:typecheck: > tsc --noEmit
+@cermont/backend:typecheck: 
+
+ Tasks:    6 successful, 6 total
+Cached:    2 cached, 6 total
+  Time:    14.586s 
+
+EXIT_CODE=0

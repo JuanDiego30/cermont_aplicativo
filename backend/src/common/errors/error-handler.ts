@@ -9,11 +9,40 @@ import { ERROR_CODES } from "./error-codes";
 const log = createLogger("error-handler");
 
 /**
- * Minimal MongoDB/Mongoose error shape — avoids `as any`
+ * Minimal MongoDB/Mongoose error shape — avoids type assertions
  * Only the fields we actually inspect in the error handler.
  */
 interface MongoError extends Error {
 	code?: number;
+}
+
+function handleDatabaseError(
+	dbError: MongoError,
+	req: Request,
+	res: Response,
+	method: string,
+	requestId: string,
+): void {
+	const isDbConflict = dbError.code === 11000;
+	const statusCode = isDbConflict ? 409 : 400;
+	const errorCode = isDbConflict ? ERROR_CODES.CONFLICT : ERROR_CODES.VALIDATION_FAILED;
+	const message = isDbConflict ? "Resource already exists" : "Database validation failed";
+
+	log.warn("DatabaseError", {
+		path: req.path,
+		method,
+		requestId,
+		name: dbError.name,
+		...(typeof dbError.code === "number" ? { code: dbError.code } : {}),
+	});
+
+	res.status(statusCode).json({
+		success: false,
+		error: {
+			code: errorCode,
+			message,
+		},
+	});
 }
 
 /**
@@ -29,7 +58,7 @@ export function errorHandler(
 	// Express 5 requires exactly 4 parameters for error middleware
 	_next: NextFunction,
 ): void {
-	const requestId = req.requestId || (req.headers["x-request-id"] as string | undefined);
+	const requestId = (req.requestId as string) || (req.headers["x-request-id"] as string);
 	const method = req.method;
 	const path = req.originalUrl || req.path;
 
@@ -72,41 +101,21 @@ export function errorHandler(
 
 	// 3. Database Errors (Mongoose/MongoDB)
 	const dbError = err as MongoError;
-	if (
-		dbError.name === "ValidationError" ||
-		dbError.name === "CastError" ||
-		dbError.code === 11000
-	) {
-		const isConflict = dbError.code === 11000;
-		const statusCode = isConflict ? 409 : 400;
-		const errorCode = isConflict ? ERROR_CODES.CONFLICT : ERROR_CODES.VALIDATION_FAILED;
-		const message = isConflict ? "Resource already exists" : "Database validation failed";
-
-		log.warn("DatabaseError", {
-			name: dbError.name,
-			code: dbError.code,
-			path: req.path,
-			method,
-			requestId,
-		});
-
-		res.status(statusCode).json({
-			success: false,
-			error: {
-				code: errorCode,
-				message,
-			},
-		});
+	const isDbConflict = dbError.code === 11000;
+	const isDbValidation = dbError.name === "ValidationError" || dbError.name === "CastError";
+	if (isDbValidation || isDbConflict) {
+		handleDatabaseError(dbError, req, res, method, requestId);
 		return;
 	}
 
-	// 4. Critical / Unknown Errors
+	// 4. Critical / Unhandled Errors
+	const errorStack = err.stack || "";
 	log.error("Unhandled critical error:", {
 		message: err.message,
-		stack: err.stack,
 		path: req.path,
 		method,
 		requestId,
+		stack: errorStack,
 	});
 
 	// Hide internal details in production

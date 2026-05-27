@@ -75,6 +75,10 @@ export const ROUTE_ACCESS_RULES = [
 		roles: INTERNAL_ROLES,
 	},
 	{
+		prefix: "/purchase-orders",
+		roles: INTERNAL_ROLES,
+	},
+	{
 		prefix: "/planning",
 		roles: PLANNING_ACCESS_ROLES,
 	},

@@ -2,7 +2,7 @@
  * Kanban Page — Constants
  * Uses English OrderStatus keys from shared-types SSOT
  */
-import type { OrderStatus } from "@cermont/shared-types";
+import { MAX_PAGE_LIMIT, type OrderStatus } from "@cermont/shared-types";
 
 export interface KanbanOrder {
 	id: string;
@@ -16,6 +16,8 @@ export interface KanbanOrder {
 }
 
 export type KanbanData = Record<string, KanbanOrder[]>;
+
+export const KANBAN_ORDER_QUERY_LIMIT = MAX_PAGE_LIMIT;
 
 export const VISIBLE_COLUMNS: OrderStatus[] = [
 	"open",

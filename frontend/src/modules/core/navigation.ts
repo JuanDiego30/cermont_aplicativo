@@ -43,16 +43,16 @@ export const NAV_GROUPS = [
 				label: "Dashboard",
 				icon: LayoutDashboard,
 			},
-		],
-	},
-	{
-		label: "Operación",
-		items: [
 			{
 				to: APP_ROUTES.serviceCases,
 				label: "Casos de Servicio",
 				icon: LayoutDashboard,
 			},
+		],
+	},
+	{
+		label: "Comercial",
+		items: [
 			{
 				to: APP_ROUTES.workRequests,
 				label: "Solicitudes",
@@ -68,6 +68,16 @@ export const NAV_GROUPS = [
 				label: "Propuestas",
 				icon: FileBadge,
 			},
+			{
+				to: APP_ROUTES.purchaseOrders,
+				label: "PO aprobada",
+				icon: Receipt,
+			},
+		],
+	},
+	{
+		label: "Operación de campo",
+		items: [
 			{
 				to: APP_ROUTES.orders,
 				label: "Órdenes",
@@ -88,6 +98,11 @@ export const NAV_GROUPS = [
 				label: "Evidencias",
 				icon: Camera,
 			},
+		],
+	},
+	{
+		label: "Cierre técnico",
+		items: [
 			{
 				to: APP_ROUTES.reports,
 				label: "Informes",
@@ -101,7 +116,7 @@ export const NAV_GROUPS = [
 		],
 	},
 	{
-		label: "Cierre Administrativo",
+		label: "Cierre administrativo",
 		items: [
 			{
 				to: APP_ROUTES.billing,
@@ -131,8 +146,23 @@ export const NAV_GROUPS = [
 		],
 	},
 	{
-		label: "Gestión",
+		label: "Transversales",
 		items: [
+			{
+				to: APP_ROUTES.documents,
+				label: "Documentos",
+				icon: FileText,
+			},
+			{
+				to: APP_ROUTES.templates,
+				label: "Formularios",
+				icon: FileBadge,
+			},
+			{
+				to: APP_ROUTES.resources,
+				label: "Recursos & Kits",
+				icon: Package,
+			},
 			{
 				to: APP_ROUTES.assets,
 				label: "Activos",
@@ -143,16 +173,11 @@ export const NAV_GROUPS = [
 				label: "Mantenimiento",
 				icon: Wrench,
 			},
-			{
-				to: APP_ROUTES.documents,
-				label: "Documentos",
-				icon: FileText,
-			},
-			{
-				to: APP_ROUTES.resources,
-				label: "Recursos & Kits",
-				icon: Package,
-			},
+		],
+	},
+	{
+		label: "Administración",
+		items: [
 			{
 				to: APP_ROUTES.adminUsers,
 				label: "Usuarios",

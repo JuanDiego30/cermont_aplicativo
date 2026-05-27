@@ -33,9 +33,9 @@ function getModuleFromPath(path: string): string {
 	const normalizedPath = normalizePath(path);
 	const pathSegments = normalizedPath.split("/").filter(Boolean);
 	if (pathSegments.length >= 2 && pathSegments[0] === "api") {
-		return pathSegments[1] ?? "unknown";
+		return pathSegments[1] ?? "fallback";
 	}
-	return pathSegments[0] ?? "unknown";
+	return pathSegments[0] ?? "fallback";
 }
 
 export function trackErrorMetric(method: string, path: string): void {

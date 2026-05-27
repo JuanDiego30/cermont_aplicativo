@@ -2,9 +2,9 @@
 
 import { CreateEvidenceSchema, type EvidenceType } from "@cermont/shared-types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Image as ImageIcon, Upload, X } from "lucide-react";
+import { Image as ImageIcon, Loader2, Upload, X } from "lucide-react";
 import Image from "next/image";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -38,13 +38,25 @@ interface EvidenceUploaderProps {
 	orderId?: string;
 }
 
+type PreviewState =
+	| { state: "empty" }
+	| { state: "ready"; url: string };
+
+type GpsCaptureState =
+	| { state: "idle" }
+	| { state: "fetching" }
+	| { state: "success"; location: { lat: number; lng: number } }
+	| { state: "error" };
+
 export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
-	const [preview, setPreview] = useState<string | null>(null);
+	const [preview, setPreview] = useState<PreviewState>({ state: "empty" });
+	const [gpsCapture, setGpsCapture] = useState<GpsCaptureState>({ state: "idle" });
 	const uploadMutation = useOfflineEvidence();
 
 	const {
 		register,
 		handleSubmit,
+		resetField,
 		setValue,
 		reset,
 		formState: { errors, isSubmitting },
@@ -58,24 +70,53 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 		},
 	});
 
+	const captureGps = useCallback(() => {
+		if (typeof navigator === "undefined" || !navigator.geolocation) {
+			setGpsCapture({ state: "error" });
+			return;
+		}
+
+		setGpsCapture({ state: "fetching" });
+		navigator.geolocation.getCurrentPosition(
+			(position) => {
+				const loc = {
+					lat: position.coords.latitude,
+					lng: position.coords.longitude,
+					capturedAt: new Date().toISOString(),
+				};
+				setGpsCapture({ state: "success", location: { lat: loc.lat, lng: loc.lng } });
+				setValue("gpsLocation", loc, { shouldValidate: true });
+			},
+			(error) => {
+				console.error("GPS capture failed", error);
+				setGpsCapture({ state: "error" });
+			},
+			{ enableHighAccuracy: true, timeout: 8000 }
+		);
+	}, [setValue]);
+
+	useEffect(() => {
+		captureGps();
+	}, [captureGps]);
+
 	const handleFileChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
 			const file = e.target.files?.[0];
 			if (file) {
 				setValue("file", file, { shouldValidate: true });
-				setPreview(URL.createObjectURL(file));
+				setPreview({ state: "ready", url: URL.createObjectURL(file) });
 			}
 		},
 		[setValue],
 	);
 
 	const handleRemoveFile = useCallback(() => {
-		if (preview) {
-			URL.revokeObjectURL(preview);
+		if (preview.state === "ready") {
+			URL.revokeObjectURL(preview.url);
 		}
-		setPreview(null);
-		setValue("file", undefined as unknown as File, { shouldValidate: true });
-	}, [preview, setValue]);
+		setPreview({ state: "empty" });
+		resetField("file");
+	}, [preview, resetField]);
 
 	const onSubmit = async (data: EvidenceFormInput) => {
 		try {
@@ -93,7 +134,9 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 				description: "",
 				capturedAt: new Date().toISOString(),
 			});
-			setPreview(null);
+			setPreview({ state: "empty" });
+			setGpsCapture({ state: "idle" });
+			captureGps();
 		} catch (error) {
 			toast.error(error instanceof Error ? error.message : "Error al subir la evidencia");
 		}
@@ -153,6 +196,50 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 						)}
 					</div>
 
+					<div className="space-y-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3.5 dark:border-zinc-700 dark:bg-zinc-900/40">
+						<span className="block text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+							Geolocalización
+						</span>
+						<div className="flex items-center justify-between gap-4">
+							<div className="flex items-center gap-2.5 text-xs text-zinc-600 dark:text-zinc-300">
+								{gpsCapture.state === "fetching" && (
+									<>
+										<Loader2 className="size-3.5 animate-spin text-zinc-500" />
+										<span>Capturando coordenadas...</span>
+									</>
+								)}
+								{gpsCapture.state === "success" && (
+									<>
+										<span className="inline-flex size-2 rounded-full bg-emerald-500 animate-pulse" />
+										<span className="font-medium">
+											Ubicación capturada: {gpsCapture.location.lat.toFixed(5)}, {gpsCapture.location.lng.toFixed(5)}
+										</span>
+									</>
+								)}
+								{gpsCapture.state === "error" && (
+									<>
+										<span className="inline-flex size-2 rounded-full bg-rose-500" />
+										<span className="text-rose-700 dark:text-rose-400">
+											Falla de GPS (requerido para fotos)
+										</span>
+									</>
+								)}
+								{gpsCapture.state === "idle" && (
+									<span>Sin capturar</span>
+								)}
+							</div>
+							{(gpsCapture.state === "error" || gpsCapture.state === "idle" || gpsCapture.state === "success") && (
+								<button
+									type="button"
+									onClick={captureGps}
+									className="text-[11px] font-bold text-blue-600 hover:underline dark:text-blue-400"
+								>
+									{gpsCapture.state === "success" ? "Actualizar GPS" : "Capturar GPS"}
+								</button>
+							)}
+						</div>
+					</div>
+
 					<div className="space-y-2">
 						<span className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
 							Imagen
@@ -160,7 +247,7 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 						{/* biome-ignore lint/a11y/useSemanticElements: contains nested button for remove action */}
 						<div
 							className={`relative cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-colors sm:p-8 ${
-								preview
+								preview.state === "ready"
 									? "border-zinc-300 dark:border-zinc-600"
 									: errors.file
 										? "border-red-400 dark:border-red-500"
@@ -184,11 +271,11 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 								className="hidden"
 								onChange={handleFileChange}
 							/>
-							{preview ? (
+							{preview.state === "ready" ? (
 								<div className="space-y-3">
 									<div className="relative mx-auto h-48 w-full max-w-sm overflow-hidden rounded-lg">
 										<Image
-											src={preview}
+											src={preview.url}
 											alt="Vista previa de evidencia"
 											fill
 											unoptimized

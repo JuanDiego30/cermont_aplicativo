@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
 	evidenceCountDocuments: vi.fn(),
 	executionSessionFindOne: vi.fn(),
 	serviceCaseFindById: vi.fn(),
+	planningPacketFindOne: vi.fn(),
 }));
 
 vi.mock("../../src/models/Document", () => ({
@@ -26,6 +27,10 @@ vi.mock("../../src/models/ExecutionSession", () => ({
 
 vi.mock("../../src/models/ServiceCase", () => ({
 	ServiceCase: { findById: mocks.serviceCaseFindById },
+}));
+
+vi.mock("../../src/models/PlanningPacket", () => ({
+	PlanningPacket: { findOne: mocks.planningPacketFindOne },
 }));
 
 vi.mock("../../src/services/audit.service", () => ({
@@ -77,6 +82,26 @@ function buildCompleteExecutionSession() {
 	};
 }
 
+function buildPlanningServiceCase() {
+	return {
+		_id: new Types.ObjectId(SERVICE_CASE_ID),
+		currentStage: "planning",
+		currentStepCode: "step_05_planning",
+		artifacts: {
+			workOrder: {
+				id: new Types.ObjectId(WORK_ORDER_ID),
+				status: "open",
+				updatedAt: new Date("2026-05-25T10:00:00.000Z"),
+			},
+			planningPacket: {
+				id: new Types.ObjectId("507f1f77bcf86cd799439034"),
+				status: "approved",
+				updatedAt: new Date("2026-05-25T11:00:00.000Z"),
+			},
+		},
+	};
+}
+
 describe("Cermont workflow gate — execution step blockers", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -95,5 +120,78 @@ describe("Cermont workflow gate — execution step blockers", () => {
 		expect(blockerCodes).not.toContain("MISSING_LABOR_TIME");
 		expect(blockerCodes).not.toContain("MISSING_TECHNICAL_SIGNATURE");
 		expect(blockerCodes).not.toContain("MISSING_SUPERVISOR_SIGNATURE");
+	});
+});
+
+describe("Cermont workflow gate — planning step blockers", () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+		mocks.serviceCaseFindById.mockResolvedValue(buildPlanningServiceCase());
+		mocks.documentFind.mockReturnValue(leanResult([]));
+	});
+
+	it("blocks if planning packet is completely missing in artifacts and database", async () => {
+		mocks.serviceCaseFindById.mockResolvedValue({
+			...buildPlanningServiceCase(),
+			artifacts: {
+				workOrder: { id: new Types.ObjectId(WORK_ORDER_ID) },
+			},
+		});
+		mocks.planningPacketFindOne.mockReturnValue(leanResult(void 0));
+
+		const blockers = await workflowGateService.calculateStepBlockers(SERVICE_CASE_ID);
+		const blockerCodes = blockers.map((blocker) => blocker.code);
+
+		expect(blockerCodes).toContain("MISSING_STEP_REQUIRED_DOCUMENT");
+		expect(blockers[0].field).toBe("planning_packet");
+	});
+
+	it("blocks if planning packet exists but is not approved", async () => {
+		mocks.planningPacketFindOne.mockReturnValue(
+			leanResult({
+				_id: new Types.ObjectId("507f1f77bcf86cd799439034"),
+				status: "draft",
+			}),
+		);
+
+		const blockers = await workflowGateService.calculateStepBlockers(SERVICE_CASE_ID);
+		const blockerCodes = blockers.map((blocker) => blocker.code);
+
+		expect(blockerCodes).toContain("MISSING_STEP_REQUIRED_DOCUMENT");
+		expect(blockers[0].message).toContain("La planeación existe pero aún no está aprobada");
+	});
+
+	it("blocks if approved planning packet has empty crew, empty tools, or incomplete checklists", async () => {
+		mocks.planningPacketFindOne.mockReturnValue(
+			leanResult({
+				_id: new Types.ObjectId("507f1f77bcf86cd799439034"),
+				status: "approved",
+				crew: [],
+				tools: [],
+				readinessChecklist: [{ itemId: "item-1", label: "AST validado", checked: false }],
+			}),
+		);
+
+		const blockers = await workflowGateService.calculateStepBlockers(SERVICE_CASE_ID);
+		const blockerCodes = blockers.map((blocker) => blocker.code);
+
+		expect(blockerCodes).toContain("MISSING_CREW_ASSIGNMENT");
+		expect(blockerCodes).toContain("MISSING_TOOLS");
+		expect(blockerCodes).toContain("TEMPLATE_RESPONSE_NOT_VALIDATED");
+	});
+
+	it("clears all blockers if planning packet is approved and has crew, tools, and fully checked checklists", async () => {
+		mocks.planningPacketFindOne.mockReturnValue(
+			leanResult({
+				_id: new Types.ObjectId("507f1f77bcf86cd799439034"),
+				status: "approved",
+				crew: [{ userId: new Types.ObjectId(), name: "John Doe", role: "Tecnico" }],
+				tools: [{ name: "Screwdriver", quantity: 2, available: true }],
+				readinessChecklist: [{ itemId: "item-1", label: "AST validado", checked: true }],
+			}),
+		);
+
+		const blockers = await workflowGateService.calculateStepBlockers(SERVICE_CASE_ID);
+		expect(blockers).toHaveLength(0);
 	});
 });

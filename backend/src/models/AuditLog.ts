@@ -8,6 +8,7 @@
  */
 
 import { type Document, model, Schema, type Types } from "mongoose";
+import { removeVersionKey } from "../common/types/safe-types";
 
 export interface IAuditLog extends Document {
 	entityType: string; // 'Order', 'User', 'Proposal', etc.
@@ -58,9 +59,7 @@ AuditLogSchema.index({ createdAt: 1 }, { expireAfterSeconds: 365 * 24 * 60 * 60 
 // toJSON: limpiar __v de respuestas
 AuditLogSchema.set("toJSON", {
 	transform: (_doc, ret) => {
-		const obj = ret as unknown as Record<string, unknown>;
-		delete obj.__v;
-		return obj;
+		return removeVersionKey(ret);
 	},
 });
 

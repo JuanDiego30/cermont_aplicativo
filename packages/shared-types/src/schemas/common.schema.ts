@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DEFAULT_PAGE, DEFAULT_PAGE_LIMIT, MAX_PAGE_LIMIT } from "../constants";
 
 export const ObjectIdSchema = z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid MongoDB ObjectId");
 
@@ -6,8 +7,8 @@ export type ObjectId = z.infer<typeof ObjectIdSchema>;
 
 export const PaginationQuerySchema = z
 	.object({
-		page: z.coerce.number().int().min(1).default(1),
-		limit: z.coerce.number().int().min(1).max(100).default(20),
+		page: z.coerce.number().int().min(1).default(DEFAULT_PAGE),
+		limit: z.coerce.number().int().min(1).max(MAX_PAGE_LIMIT).default(DEFAULT_PAGE_LIMIT),
 	})
 	.strip();
 

@@ -83,13 +83,13 @@ export async function listFiles(): Promise<string[]> {
  */
 export async function getFileStats(
 	filename: string,
-): Promise<{ size: number; mtimeMs: number } | undefined> {
+): Promise<{ size: number; mtimeMs: number } | false> {
 	const filepath = path.join(UPLOAD_DIR, filename);
 
 	try {
 		const stats = await fs.stat(filepath);
 		return { size: stats.size, mtimeMs: stats.mtimeMs };
 	} catch {
-		return;
+		return false;
 	}
 }

@@ -1,12 +1,12 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import type { ComponentProps, ReactNode } from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import ProposalsPage from "@/app/(dashboard)/proposals/page";
 
-const pushMock = vi.fn();
+const replaceMock = vi.fn();
 
 vi.mock("next/navigation", () => ({
-	useRouter: () => ({ push: pushMock }),
+	useRouter: () => ({ replace: replaceMock }),
 	useSearchParams: () => new URLSearchParams("status=sent&page=1&limit=20&search=cctv"),
 }));
 
@@ -31,7 +31,7 @@ vi.mock("@/modules/proposals/queries", () => ({
 
 describe("Proposals page search params", () => {
 	beforeEach(() => {
-		pushMock.mockClear();
+		replaceMock.mockClear();
 	});
 
 	test("reads query parameters without unbound URLSearchParams methods", async () => {
@@ -42,5 +42,12 @@ describe("Proposals page search params", () => {
 			"value",
 			"cctv",
 		);
+	});
+
+	test("does not rewrite the proposals URL on initial mount", async () => {
+		render(<ProposalsPage />);
+
+		expect(await screen.findByRole("heading", { name: "Propuestas" })).toBeTruthy();
+		await waitFor(() => expect(replaceMock).not.toHaveBeenCalled());
 	});
 });

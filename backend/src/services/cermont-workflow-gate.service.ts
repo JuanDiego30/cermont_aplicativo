@@ -13,6 +13,7 @@ import { Evidence } from "../models/Evidence";
 import { ExecutionSession, type ExecutionSessionDocument } from "../models/ExecutionSession";
 import { Invoice } from "../models/Invoice";
 import { Payment } from "../models/Payment";
+import { PlanningPacket } from "../models/PlanningPacket";
 import { ServiceCase, type ServiceCaseDocument } from "../models/ServiceCase";
 import { ServiceEntrySheet } from "../models/ServiceEntrySheet";
 import { User } from "../models/User";
@@ -251,27 +252,93 @@ async function resolvePurchaseOrderBlockers({
 }
 
 async function resolvePlanningBlockers({
+	orderId,
 	serviceCase,
 }: BlockerResolverContext): Promise<DomainBlocker[]> {
 	const pp = serviceCase.artifacts.planningPacket;
-	if (pp?.id && pp.status === "approved") {
-		return [];
+	const queryOrderId = typeof orderId === "string" ? new Types.ObjectId(orderId) : orderId;
+	const planningPacket = await PlanningPacket.findOne({ workOrderId: queryOrderId }).lean();
+
+	const blockers: DomainBlocker[] = [];
+	const hasPlanningPacket = pp?.id || planningPacket;
+
+	if (!hasPlanningPacket) {
+		blockers.push(
+			createDocumentBlocker({
+				artifactType: "PlanningPacket",
+				field: "planning_packet",
+				message: "Falta el paquete de planeación de recursos asignados.",
+				ownerRole: "residente",
+				recommendedAction: "Cargar la planeación de recursos.",
+				stepCode: "step_05_planning",
+			}),
+		);
+		return blockers;
 	}
 
-	return [
-		createDocumentBlocker({
-			artifactType: "PlanningPacket",
-			field: "planning_packet",
-			message: pp?.id
-				? "La planeación existe pero aún no está aprobada."
-				: "Falta el paquete de planeación de recursos asignados.",
-			ownerRole: "residente",
-			recommendedAction: pp?.id
-				? "Aprobar el paquete de planeación."
-				: "Cargar la planeación de recursos.",
-			stepCode: "step_05_planning",
-		}),
-	];
+	const status = planningPacket ? planningPacket.status : pp?.status;
+	if (status !== "approved") {
+		blockers.push(
+			createDocumentBlocker({
+				artifactType: "PlanningPacket",
+				field: "planning_packet",
+				message: "La planeación existe pero aún no está aprobada.",
+				ownerRole: "residente",
+				recommendedAction: "Aprobar el paquete de planeación.",
+				stepCode: "step_05_planning",
+			}),
+		);
+	}
+
+	if (planningPacket) {
+		if (!planningPacket.crew || planningPacket.crew.length === 0) {
+			blockers.push(
+				createBlocker({
+					artifactType: "PlanningPacket",
+					code: "MISSING_CREW_ASSIGNMENT",
+					field: "crew",
+					message: "Falta asignar el personal (crew) para la ejecución del servicio.",
+					ownerRole: "residente",
+					recommendedAction: "Asignar personal al crew de planeación.",
+					stepCode: "step_05_planning",
+				}),
+			);
+		}
+
+		if (!planningPacket.tools || planningPacket.tools.length === 0) {
+			blockers.push(
+				createBlocker({
+					artifactType: "PlanningPacket",
+					code: "MISSING_TOOLS",
+					field: "tools",
+					message: "Falta registrar o asignar herramientas para la planeación.",
+					ownerRole: "residente",
+					recommendedAction: "Asignar herramientas al paquete de planeación.",
+					stepCode: "step_05_planning",
+				}),
+			);
+		}
+
+		if (
+			planningPacket.readinessChecklist &&
+			planningPacket.readinessChecklist.length > 0 &&
+			planningPacket.readinessChecklist.some((item: { checked?: boolean }) => !item.checked)
+		) {
+			blockers.push(
+				createBlocker({
+					artifactType: "PlanningPacket",
+					code: "TEMPLATE_RESPONSE_NOT_VALIDATED",
+					field: "readinessChecklist",
+					message: "Existen elementos de la lista de chequeo de planeación pendientes por validar.",
+					ownerRole: "residente",
+					recommendedAction: "Completar todos los elementos de la lista de chequeo.",
+					stepCode: "step_05_planning",
+				}),
+			);
+		}
+	}
+
+	return blockers;
 }
 
 function pushSessionDetailBlockers(
@@ -920,8 +987,9 @@ export async function advanceServiceCaseStep(
 
 	if (blockers.some((blocker) => blocker.severity === "blocking")) {
 		throw new BadRequestError(
-			"STEP_TRANSITION_BLOCKED",
 			`Cannot advance step due to active blockers: ${blockers.map((blocker) => blocker.message).join(", ")}`,
+			"STEP_TRANSITION_BLOCKED",
+			blockers,
 		);
 	}
 

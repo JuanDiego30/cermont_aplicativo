@@ -33,12 +33,14 @@ export interface ITool {
 	name: string;
 	quantity: number;
 	specifications?: string;
+	customFields?: Record<string, string | number | boolean>;
 }
 
 export interface IEquipment {
 	name: string;
 	quantity: number;
 	certificate_required: boolean;
+	customFields?: Record<string, string | number | boolean>;
 }
 
 export interface IMaintenanceKit extends Document {
@@ -59,6 +61,7 @@ const toolSchema = new Schema<ITool>(
 		name: { type: String, required: true, trim: true },
 		quantity: { type: Number, required: true, min: 1 },
 		specifications: { type: String, trim: true },
+		customFields: { type: Schema.Types.Mixed, default: {} },
 	},
 	{ _id: false },
 );
@@ -68,6 +71,7 @@ const equipmentSchema = new Schema<IEquipment>(
 		name: { type: String, required: true, trim: true },
 		quantity: { type: Number, required: true, min: 1 },
 		certificate_required: { type: Boolean, default: false },
+		customFields: { type: Schema.Types.Mixed, default: {} },
 	},
 	{ _id: false },
 );

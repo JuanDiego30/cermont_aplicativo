@@ -1,0 +1,2 @@
+✅ Snapshot actualizado: C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types\contracts\api-contract.snapshot.json
+✅ Hash actual: sha256:c1ffb311b207191ac8008ba317a1487daefa0f91e59fe32899905860fd6278bc

@@ -20,7 +20,7 @@ interface LogEntry {
 	level: LogLevel;
 	context: string;
 	message: string;
-	[key: string]: unknown;
+	[key: string]: string | number | boolean | readonly (string | number | boolean)[];
 }
 
 const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
@@ -46,7 +46,7 @@ function formatEntry(entry: LogEntry): string {
 	return `[${timestamp}] ${level.toUpperCase().padEnd(5)} [${context}] ${message}${metaStr}`;
 }
 
-function log(level: LogLevel, context: string, message: string, meta?: Record<string, unknown>) {
+function log(level: LogLevel, context: string, message: string, meta?: Record<string, string | number | boolean | readonly (string | number | boolean)[]>) {
 	if (!shouldLog(level)) {
 		return;
 	}
@@ -75,11 +75,11 @@ function log(level: LogLevel, context: string, message: string, meta?: Record<st
 
 export function createLogger(context: string) {
 	return {
-		debug: (message: string, meta?: Record<string, unknown>) =>
+		debug: (message: string, meta?: Record<string, string | number | boolean | readonly (string | number | boolean)[]>) =>
 			log("debug", context, message, meta),
-		info: (message: string, meta?: Record<string, unknown>) => log("info", context, message, meta),
-		warn: (message: string, meta?: Record<string, unknown>) => log("warn", context, message, meta),
-		error: (message: string, meta?: Record<string, unknown>) =>
+		info: (message: string, meta?: Record<string, string | number | boolean | readonly (string | number | boolean)[]>) => log("info", context, message, meta),
+		warn: (message: string, meta?: Record<string, string | number | boolean | readonly (string | number | boolean)[]>) => log("warn", context, message, meta),
+		error: (message: string, meta?: Record<string, string | number | boolean | readonly (string | number | boolean)[]>) =>
 			log("error", context, message, meta),
 	};
 }

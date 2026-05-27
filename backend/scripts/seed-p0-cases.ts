@@ -3,7 +3,7 @@
  *
  * Usage: npx tsx backend/scripts/seed-p0-cases.ts
  *
- * Creates 10 ServiceCase documents covering:
+ * Creates representative ServiceCase documents covering:
  *   A. intake            — New work request, no proposal yet
  *   B. assessment        — Site visit completed
  *   C. proposal          — Proposal sent, awaiting approval
@@ -42,9 +42,225 @@ function tle(stage: string, command: string, actorId: string, role: string) {
 	};
 }
 
+type SeedArtifact = ReturnType<typeof art>;
+type SeedBlocker = {
+	code: string;
+	severity: "blocking" | "warning";
+	message: string;
+	ownerRole: string;
+	recommendedAction: string;
+	artifactType: string;
+	stepCode: string;
+	field: string;
+};
+type SeedFinancialSummary = Record<string, number | string>;
+type SeedCaseRecord = {
+	code: string;
+	clientName: string;
+	currentStage: string;
+	currentStepCode: string;
+	artifacts: Record<string, SeedArtifact>;
+	financialSummary: SeedFinancialSummary;
+	blockers?: SeedBlocker[];
+};
+
+const STEP_LABELS: Record<string, string> = {
+	step_01_work_request: "Solicitud formal",
+	step_02_site_visit: "Visita técnica",
+	step_03_proposal: "Propuesta económica",
+	step_04_purchase_order: "Aprobación con PO",
+	step_05_planning: "Planeación",
+	step_06_execution: "Ejecución",
+	step_07_technical_report: "Informe técnico",
+	step_08_delivery_record: "Acta de entrega",
+	step_09_client_signature: "Firma / recibo del cliente",
+	step_10_ses_submission: "SES / Ariba",
+	step_11_ses_approval: "Aprobación SES",
+	step_12_invoice_submission: "Factura",
+	step_13_invoice_approval: "Aprobación factura",
+	step_14_payment_closure: "Pago y cierre definitivo",
+};
+
+const NEXT_ACTIONS: Record<string, { command: string; label: string; requiredRole: string; route: string }> = {
+	step_01_work_request: {
+		command: "validate_work_request",
+		label: "Validar solicitud formal",
+		requiredRole: "residente",
+		route: "/work-requests",
+	},
+	step_02_site_visit: {
+		command: "complete_site_visit",
+		label: "Completar visita técnica",
+		requiredRole: "supervisor",
+		route: "/site-visits",
+	},
+	step_03_proposal: {
+		command: "send_proposal",
+		label: "Enviar propuesta económica",
+		requiredRole: "residente",
+		route: "/proposals",
+	},
+	step_04_purchase_order: {
+		command: "register_purchase_order",
+		label: "Registrar PO aprobada",
+		requiredRole: "administrativo",
+		route: "/purchase-orders",
+	},
+	step_05_planning: {
+		command: "approve_planning",
+		label: "Cerrar readiness de planeación",
+		requiredRole: "gerente",
+		route: "/planning",
+	},
+	step_06_execution: {
+		command: "organize_evidence",
+		label: "Registrar evidencias before/during/after",
+		requiredRole: "tecnico",
+		route: "/evidences",
+	},
+	step_07_technical_report: {
+		command: "generate_report",
+		label: "Generar informe técnico",
+		requiredRole: "residente",
+		route: "/reports",
+	},
+	step_08_delivery_record: {
+		command: "generate_delivery_record",
+		label: "Generar acta de entrega",
+		requiredRole: "residente",
+		route: "/delivery-records",
+	},
+	step_09_client_signature: {
+		command: "capture_client_signature",
+		label: "Capturar firma del cliente",
+		requiredRole: "residente",
+		route: "/delivery-records",
+	},
+	step_10_ses_submission: {
+		command: "submit_ses",
+		label: "Radicar SES / Ariba",
+		requiredRole: "administrativo",
+		route: "/billing/ses",
+	},
+	step_11_ses_approval: {
+		command: "validate_ses_approval",
+		label: "Validar aprobación SES",
+		requiredRole: "administrativo",
+		route: "/billing/ses",
+	},
+	step_12_invoice_submission: {
+		command: "issue_invoice",
+		label: "Emitir factura",
+		requiredRole: "administrativo",
+		route: "/billing/invoices",
+	},
+	step_13_invoice_approval: {
+		command: "validate_invoice_approval",
+		label: "Validar aprobación de factura",
+		requiredRole: "administrativo",
+		route: "/billing/invoices",
+	},
+	step_14_payment_closure: {
+		command: "register_payment",
+		label: "Registrar pago y cierre",
+		requiredRole: "administrativo",
+		route: "/payments",
+	},
+};
+
+function stepNumberFromCode(stepCode: string): number {
+	const match = /^step_(\d{2})_/.exec(stepCode);
+	return match ? Number(match[1]) : 1;
+}
+
+function buildNextActions(stepCode: string, blockers: SeedBlocker[]) {
+	if (blockers.length > 0) {
+		return blockers.slice(0, 3).map((blocker) => ({
+			command: blocker.code.toLowerCase(),
+			label: blocker.recommendedAction,
+			requiredRole: blocker.ownerRole,
+			route: NEXT_ACTIONS[stepCode]?.route ?? "/service-cases",
+		}));
+	}
+
+	const action = NEXT_ACTIONS[stepCode] ?? NEXT_ACTIONS.step_01_work_request;
+	return [action];
+}
+
+function buildCurrentStepRequirements(stepCode: string, blockers: SeedBlocker[]) {
+	return blockers.map((blocker) => ({
+		id: `${stepCode}:${blocker.field}`,
+		stepCode,
+		type: blocker.artifactType === "Evidence" ? "evidence" : "document",
+		label: blocker.field,
+		required: true,
+		blocksTransition: blocker.severity === "blocking",
+		blockerCode: blocker.code,
+		status: blocker.severity === "blocking" ? "missing" : "warning",
+		field: blocker.field,
+		blockerMessage: blocker.message,
+		recommendedAction: blocker.recommendedAction,
+		ownerRole: blocker.ownerRole,
+	}));
+}
+
+function buildStepsChecklist(stepCode: string, blockers: SeedBlocker[]) {
+	const currentStepNumber = stepNumberFromCode(stepCode);
+	const hasBlocking = blockers.some((blocker) => blocker.severity === "blocking");
+
+	return Object.entries(STEP_LABELS).map(([code, label]) => {
+		const stepNumber = stepNumberFromCode(code);
+		const status =
+			stepNumber < currentStepNumber
+				? "completed"
+				: stepNumber === currentStepNumber
+					? hasBlocking
+						? "blocked"
+						: "active"
+					: "pending";
+
+		return {
+			stepNumber,
+			code,
+			label,
+			status,
+			blockers: code === stepCode ? blockers : [],
+			requirements: code === stepCode ? buildCurrentStepRequirements(stepCode, blockers) : [],
+			canAdvanceFromHere: code === stepCode && !hasBlocking,
+		};
+	});
+}
+
+function buildFinancialSummary(summary: SeedFinancialSummary): SeedFinancialSummary {
+	const hasBusinessAmounts = Object.keys(summary).length > 0;
+	return {
+		status: hasBusinessAmounts ? "complete" : "pending_data",
+		...summary,
+	};
+}
+
+function buildOperationalSummary(seedCase: SeedCaseRecord, blockers: SeedBlocker[]) {
+	const criticalBlockersCount = blockers.filter((blocker) => blocker.severity === "blocking").length;
+	const currentStepNumber = stepNumberFromCode(seedCase.currentStepCode);
+
+	return {
+		blockersCount: blockers.length,
+		criticalBlockersCount,
+		evidenceCount: seedCase.artifacts.executionSession ? Math.max(currentStepNumber - 4, 0) * 3 : 0,
+		currentOwnerRole: NEXT_ACTIONS[seedCase.currentStepCode]?.requiredRole ?? "residente",
+		planningStatus: seedCase.artifacts.planningPacket?.status ?? "pending",
+		executionStatus: seedCase.artifacts.executionSession?.status ?? "pending",
+		reportStatus: seedCase.artifacts.technicalReport?.status ?? "pending",
+		deliveryRecordStatus: seedCase.artifacts.deliveryRecord?.status ?? "pending",
+		offlineSyncStatus: "synced",
+		totalLaborHours: seedCase.artifacts.executionSession ? Math.max(currentStepNumber - 5, 1) * 8 : 0,
+		totalMaterialLines: seedCase.artifacts.executionSession ? Math.max(currentStepNumber - 5, 1) : 0,
+	};
+}
+
 // ── Case definitions ────────────────────────────────────────────────
 
-const CASES = [
+const CASES: SeedCaseRecord[] = [
 	{
 		code: "SC-A-INTAKE",
 		clientName: "Ecopetrol S.A. — Planta Barranca",
@@ -282,16 +498,21 @@ async function main() {
 			continue;
 		}
 
+		const blockers = c.blockers ?? [];
+
 		await model.insertOne({
 			code: c.code,
 			clientName: c.clientName,
 			currentStage: c.currentStage,
 			currentStepCode: c.currentStepCode,
 			artifacts: c.artifacts,
-			blockers: (c as unknown as Record<string, unknown>).blockers ?? [],
-			nextActions: [],
+			blockers,
+			nextActions: buildNextActions(c.currentStepCode, blockers),
+			currentStepRequirements: buildCurrentStepRequirements(c.currentStepCode, blockers),
+			stepsChecklist: buildStepsChecklist(c.currentStepCode, blockers),
 			timeline: [tle(c.currentStage, "create_seed_case", "a00000000000000000000000", "gerente")],
-			financialSummary: c.financialSummary,
+			financialSummary: buildFinancialSummary(c.financialSummary),
+			operationalSummary: buildOperationalSummary(c, blockers),
 			createdAt: NOW,
 			updatedAt: NOW,
 		});

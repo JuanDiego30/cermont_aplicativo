@@ -161,9 +161,8 @@ KitSchema.index({ createdBy: 1, createdAt: -1 });
 // ─── toJSON Transform ───────────────────────────────────────────────────────────
 
 KitSchema.set("toJSON", {
-	// biome-ignore lint/suspicious/noExplicitAny: Mongoose toJSON transform requires dynamic document shape
-	transform: (_doc: any, ret: any) => {
-		delete ret.__v;
+	transform: (_doc, ret) => {
+		delete (ret as unknown as Record<string, unknown>).__v;
 		return ret;
 	},
 });

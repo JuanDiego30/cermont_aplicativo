@@ -1,0 +1,15 @@
+## npm run test -w @cermont/shared-types
+
+> @cermont/shared-types@1.0.0 test
+> vitest run
+
+
+ RUN  v4.1.7 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/packages/shared-types
+
+
+ Test Files  14 passed (14)
+      Tests  83 passed (83)
+   Start at  23:43:06
+   Duration  1.53s (transform 4.04s, setup 0ms, import 8.42s, tests 326ms, environment 2ms)
+
+EXIT_CODE=0

@@ -1,0 +1,50 @@
+
+> cermont-monorepo@1.0.0 lint
+> turbo run lint
+
+• turbo 2.9.14
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running lint in 5 packages
+   • Remote caching disabled
+
+@cermont/domain:lint: cache hit, replaying logs 284acb074297da17
+@cermont/shared-types:build: cache miss, executing 26591cda83329ff0
+@cermont/domain:lint: 
+@cermont/domain:lint: > @cermont/domain@1.0.0 lint
+@cermont/domain:lint: > biome check .
+@cermont/domain:lint: 
+@cermont/domain:lint: Checked 16 files in 86ms. No fixes applied.
+@cermont/shared-types:lint: cache miss, executing 4f746996cb582fb0
+@cermont/config:lint: cache hit, replaying logs 4317a8fed26e7385
+@cermont/config:lint: 
+@cermont/config:lint: > @cermont/config@1.0.0 lint
+@cermont/config:lint: > biome check .
+@cermont/config:lint: 
+@cermont/config:lint: Checked 4 files in 43ms. No fixes applied.
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint: > @cermont/shared-types@1.0.0 lint
+@cermont/shared-types:lint: > biome check .
+@cermont/shared-types:lint: 
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/shared-types:lint: Checked 113 files in 136ms. No fixes applied.
+@cermont/frontend:lint: cache miss, executing ad78d3fcf9467f7e
+@cermont/backend:lint: cache miss, executing c4a0c4565f2b48c5
+@cermont/frontend:lint: 
+@cermont/frontend:lint: > @cermont/frontend@1.2.0 lint
+@cermont/frontend:lint: > biome lint .
+@cermont/frontend:lint: 
+@cermont/backend:lint: 
+@cermont/backend:lint: > @cermont/backend@5.2.1 lint
+@cermont/backend:lint: > biome lint .
+@cermont/backend:lint: 
+@cermont/backend:lint: Checked 240 files in 276ms. No fixes applied.
+@cermont/frontend:lint: Checked 355 files in 348ms. No fixes applied.
+
+ Tasks:    6 successful, 6 total
+Cached:    2 cached, 6 total
+  Time:    2.415s 
+

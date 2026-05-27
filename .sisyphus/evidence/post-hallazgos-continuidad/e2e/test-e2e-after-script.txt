@@ -1,0 +1,504 @@
+
+> cermont-monorepo@1.0.0 test:e2e
+> npm --workspace frontend run test:e2e -- --config=playwright.post-hallazgos.config.ts
+
+
+> @cermont/frontend@1.2.0 test:e2e
+> playwright test --config=playwright.post-hallazgos.config.ts
+
+[2m[WebServer] [22m
+[2m[WebServer] [22m> @cermont/frontend@1.2.0 dev
+[2m[WebServer] [22m> next dev -H 0.0.0.0 --turbopack --no-server-fast-refresh
+[2m[WebServer] [22m
+[WebServer] (node:46508) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:50996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m▲ Next.js 16.2.6 (Turbopack)
+[2m[WebServer] [22m- Local:         http://localhost:3000
+[2m[WebServer] [22m- Network:       http://0.0.0.0:3000
+[2m[WebServer] [22m- Environments: .env.test
+[2m[WebServer] [22m✓ Ready in 607ms
+[2m[WebServer] [22m- Experiments (use with caution):
+[2m[WebServer] [22m  · optimizePackageImports
+[2m[WebServer] [22m  · serverActions
+[2m[WebServer] [22m
+[WebServer] (node:5420) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m GET /login 200 in 1531ms (next.js: 764ms, proxy.ts: 143ms, application-code: 624ms)
+
+Running 3 tests using 1 worker
+
+(node:39480) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39480) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m GET /proposals?page=1 200 in 358ms (next.js: 134ms, proxy.ts: 10ms, application-code: 214ms)
+  x  1 [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:314:5 › keeps proposals URL stable and avoids invalid order limits (1.3s)
+(node:50360) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:50360) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m GET /service-cases 200 in 189ms (next.js: 100ms, proxy.ts: 6ms, application-code: 83ms)
+[WebServer] Failed to proxy http://localhost:4000/api/auth/refresh AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[2m[WebServer] [22m GET / 200 in 710ms (next.js: 66ms, proxy.ts: 18ms, application-code: 625ms)
+[2m[WebServer] [22m GET /dashboard 200 in 710ms (next.js: 262ms, proxy.ts: 19ms, application-code: 429ms)
+[2m[WebServer] [22m GET /manifest.json 404 in 688ms (next.js: 582ms, application-code: 106ms)
+[WebServer] (node:21020) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m GET /service-cases/665000000000000000000101 200 in 1666ms (next.js: 1522ms, proxy.ts: 109ms, application-code: 35ms)
+[WebServer] Failed to proxy http://localhost:4000/api/service-cases/665000000000000000000101/workflow AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/service-cases/665000000000000000000101/workflow AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/service-cases/665000000000000000000101/workflow AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/service-cases/665000000000000000000101/workflow AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/service-cases/665000000000000000000101/workflow AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] Failed to proxy http://localhost:4000/api/service-cases/665000000000000000000101/workflow AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+  x  2 [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:339:5 › shows the service case cockpit path and blocked current step (16.9s)
+(node:34304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34304) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m GET /work-requests/new 200 in 246ms (next.js: 143ms, proxy.ts: 6ms, application-code: 98ms)
+[WebServer] Failed to proxy http://localhost:4000/api/auth/refresh AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[WebServer] AggregateError: 
+[WebServer]     at ignore-listed frames {
+[WebServer]   code: 'ECONNREFUSED',
+[WebServer]   [errors]: [
+[WebServer]     Error: connect ECONNREFUSED ::1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED ::1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '::1',
+[WebServer]       port: 4000
+[WebServer]     },
+[WebServer]     Error: connect ECONNREFUSED 127.0.0.1:4000
+[WebServer]         at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4000) {
+[WebServer]       errno: -4078,
+[WebServer]       code: 'ECONNREFUSED',
+[WebServer]       syscall: 'connect',
+[WebServer]       address: '127.0.0.1',
+[WebServer]       port: 4000
+[WebServer]     }
+[WebServer]   ]
+[WebServer] }
+[2m[WebServer] [22m GET /dashboard 200 in 309ms (next.js: 35ms, proxy.ts: 12ms, application-code: 261ms)
+[2m[WebServer] [22m GET / 200 in 312ms (next.js: 16ms, proxy.ts: 13ms, application-code: 282ms)
+[2m[WebServer] [22m GET /manifest.json 404 in 296ms (next.js: 172ms, application-code: 125ms)
+  x  3 [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:356:5 › keeps custom form options usable and dark inputs legible (21.1s)
+
+
+  1) [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:314:5 › keeps proposals URL stable and avoids invalid order limits 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('heading', { name: 'Propuestas' })
+    Expected: visible
+    Error: strict mode violation: getByRole('heading', { name: 'Propuestas' }) resolved to 2 elements:
+        1) <h1 class="text-sm font-semibold text-[var(--text-primary)] leading-none mt-1">Propuestas</h1> aka getByRole('banner').getByRole('heading', { name: 'Propuestas' })
+        2) <h1 id="proposals-page-title" class="text-2xl font-semibold text-[var(--text-primary)]">Propuestas</h1> aka getByLabel('Propuestas', { exact: true }).getByRole('heading', { name: 'Propuestas' })
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 15000ms[22m
+    [2m  - waiting for getByRole('heading', { name: 'Propuestas' })[22m
+
+
+      322 |
+      323 | 	await page.goto("/proposals?page=1");
+    > 324 | 	await expect(page.getByRole("heading", { name: "Propuestas" })).toBeVisible();
+          | 	                                                                ^
+      325 | 	await page.waitForTimeout(900);
+      326 |
+      327 | 	const proposalUrl = new URL(page.url());
+        at C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\tests\e2e\post-hallazgos-continuidad.spec.ts:324:66
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\post-hallazgos-continuidad-3dd63-avoids-invalid-order-limits-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\post-hallazgos-continuidad-3dd63-avoids-invalid-order-limits-chromium\error-context.md
+
+  2) [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:339:5 › shows the service case cockpit path and blocked current step 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText('Workflow 14 pasos')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 15000ms[22m
+    [2m  - waiting for getByText('Workflow 14 pasos')[22m
+
+
+      348 |
+      349 | 	await page.getByRole("link", { name: /Abrir cockpit/ }).click();
+    > 350 | 	await expect(page.getByText("Workflow 14 pasos")).toBeVisible();
+          | 	                                                  ^
+      351 | 	await expect(page.getByText("Requisitos del Paso 5")).toBeVisible();
+      352 | 	await expect(page.getByText("AST required before field start")).toBeVisible();
+      353 | 	await expect(page.getByRole("button", { name: /Avanzar al Paso 6/ })).toBeDisabled();
+        at C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\tests\e2e\post-hallazgos-continuidad.spec.ts:350:52
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\post-hallazgos-continuidad-0fed5-th-and-blocked-current-step-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\post-hallazgos-continuidad-0fed5-th-and-blocked-current-step-chromium\error-context.md
+
+  3) [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:356:5 › keeps custom form options usable and dark inputs legible 
+
+    TimeoutError: locator.click: Timeout 20000ms exceeded.
+    Call log:
+    [2m  - waiting for getByTestId('customizable-select-custom-option')[22m
+
+
+      359 | 	await page.goto("/work-requests/new");
+      360 | 	await page.getByTestId("customizable-select").click();
+    > 361 | 	await page.getByTestId("customizable-select-custom-option").click();
+          | 	                                                            ^
+      362 |
+      363 | 	const customInput = page.getByTestId("customizable-select-custom-input");
+      364 | 	await customInput.fill("Industrial automation");
+        at C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\tests\e2e\post-hallazgos-continuidad.spec.ts:361:62
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\post-hallazgos-continuidad-4eb1d-ble-and-dark-inputs-legible-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\post-hallazgos-continuidad-4eb1d-ble-and-dark-inputs-legible-chromium\error-context.md
+
+  3 failed
+    [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:314:5 › keeps proposals URL stable and avoids invalid order limits 
+    [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:339:5 › shows the service case cockpit path and blocked current step 
+    [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:356:5 › keeps custom form options usable and dark inputs legible 
+npm error Lifecycle script `test:e2e` failed with error:
+npm error code 1
+npm error path C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error workspace @cermont/frontend@1.2.0
+npm error location C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c playwright test --config=playwright.post-hallazgos.config.ts

@@ -265,16 +265,41 @@ backend-dev-out.txt
 claude.exe
 *.exe
 
-# Artifacts and temporary files
+# ── Artifacts and temporary files ──
+# JSON artifacts (generated/cache only — NOT project config)
+*.generated.json
+*.tmp.json
+*.cache.json
+*.tsbuildinfo
+# Image artifacts
 *.png
+*.jpg
+*.jpeg
+# Config serialization
 *.yml
 *.txt
-*.json
+*.csv
+# Generated reports
 react-doctor-*
 task-*
-*.csv
 frontend-lint.txt
 *.md
+
+# ── NEGATIONS: Project JSON configs MUST be versioned ──
+!package.json
+!package-lock.json
+!turbo.json
+!tsconfig.json
+!tsconfig.base.json
+!biome.json
+!backend/package.json
+!backend/tsconfig.json
+!frontend/package.json
+!frontend/tsconfig.json
+!packages/*/package.json
+!packages/*/tsconfig.json
+!packages/shared-types/contracts/*.json
+!*.snapshot.json
 hoist-jsx.txt
 last-error.txt
 memo-issues.txt

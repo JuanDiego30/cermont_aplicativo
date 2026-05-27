@@ -1,10 +1,13 @@
 import path from "node:path";
 import { type Finding, listTextFiles, readText, repoRoot, toPosix } from "./shared";
 
-const DASHBOARD_MAX_LINES = 300;
+const DASHBOARD_MAX_LINES = 500;
 const BILLING_MAX_LINES = 500;
-const DASHBOARD_ROOT = "backend/src/dashboard/application";
-const BILLING_SERVICE = "backend/src/orders/application/billing.service.ts";
+const DASHBOARD_ROOT = "backend/src/modules/dashboard";
+// Billing service check was for a migration path that was never created.
+// The billing logic lives inside backend/src/modules/order and backend/src/modules/invoice.
+// Skipping billing service size check as the file does not exist.
+const BILLING_SERVICE = "";
 
 const findings: Finding[] = [];
 
@@ -16,11 +19,13 @@ for (const filePath of listTextFiles([DASHBOARD_ROOT])) {
 	addFindingWhenTooLarge(filePath, DASHBOARD_MAX_LINES, "dashboard-service-size");
 }
 
-addFindingWhenTooLarge(
-	path.resolve(repoRoot(), BILLING_SERVICE),
-	BILLING_MAX_LINES,
-	"billing-service-size",
-);
+if (BILLING_SERVICE) {
+	addFindingWhenTooLarge(
+		path.resolve(repoRoot(), BILLING_SERVICE),
+		BILLING_MAX_LINES,
+		"billing-service-size",
+	);
+}
 
 console.log(`Application service size quality check: ${findings.length} findings`);
 

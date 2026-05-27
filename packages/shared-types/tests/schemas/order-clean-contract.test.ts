@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-
+import { MAX_PAGE_LIMIT } from "../../src/constants";
 import {
 	CreateOrderSchema,
 	ExecutionPhaseSchema,
 	ExecutionPhaseTypeSchema,
+	OrderListQuerySchema,
 	OrderSchema,
 	OrderStatusSchema,
 } from "../../src/schemas";
@@ -110,5 +111,10 @@ describe("order clean contract", () => {
 		});
 
 		expect(parsedOrder.executionPhase).toStrictEqual({ preStartVerification: [] });
+	});
+
+	it("aligns order list limits with the shared pagination ceiling", () => {
+		expect(OrderListQuerySchema.parse({ limit: MAX_PAGE_LIMIT }).limit).toBe(MAX_PAGE_LIMIT);
+		expect(() => OrderListQuerySchema.parse({ limit: MAX_PAGE_LIMIT + 1 })).toThrow();
 	});
 });

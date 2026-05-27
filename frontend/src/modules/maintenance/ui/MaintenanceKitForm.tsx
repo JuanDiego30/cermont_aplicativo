@@ -1,6 +1,11 @@
 "use client";
 
-import { CreateMaintenanceKitSchema, type MaintenanceKit } from "@cermont/shared-types";
+import {
+	CreateMaintenanceKitSchema,
+	EquipmentSchema,
+	type MaintenanceKit,
+	ToolSchema,
+} from "@cermont/shared-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -16,9 +21,44 @@ import {
 } from "../constants";
 import type { MaintenanceKitMutationInput } from "../queries";
 
-type MaintenanceKitFormValues = z.input<typeof CreateMaintenanceKitSchema> & {
+type MaintenanceKitCreateInput = z.input<typeof CreateMaintenanceKitSchema>;
+type MaintenanceKitToolFormValue = MaintenanceKitCreateInput["tools"][number] & {
+	customFieldsText?: string;
+};
+type MaintenanceKitEquipmentFormValue = NonNullable<MaintenanceKitCreateInput["equipment"]>[number] & {
+	customFieldsText?: string;
+};
+
+type MaintenanceKitFormValues = Omit<MaintenanceKitCreateInput, "tools" | "equipment"> & {
+	tools: MaintenanceKitToolFormValue[];
+	equipment?: MaintenanceKitEquipmentFormValue[];
 	isActive?: boolean;
 };
+
+function customFieldsToText(customFields: Record<string, string | number | boolean> = {}): string {
+	return Object.entries(customFields)
+		.map(([key, value]) => `${key}=${String(value)}`)
+		.join("; ");
+}
+
+function parseCustomFieldsText(value = ""): Record<string, string> {
+	const trimmed = value.trim();
+	if (!trimmed) {
+		return {};
+	}
+
+	return Object.fromEntries(
+		trimmed
+			.split(";")
+			.map((entry) => entry.trim())
+			.filter(Boolean)
+			.map((entry) => {
+				const [key, ...rest] = entry.split("=");
+				return [key.trim(), rest.join("=").trim()];
+			})
+			.filter(([key, fieldValue]) => Boolean(key) && Boolean(fieldValue)),
+	);
+}
 
 interface MaintenanceKitFormProps {
 	mode: "create" | "edit";
@@ -38,6 +78,7 @@ function buildDefaultValues(initialKit?: MaintenanceKit): MaintenanceKitFormValu
 					name: tool.name,
 					quantity: tool.quantity,
 					specifications: tool.specifications ?? "",
+					customFieldsText: customFieldsToText(tool.customFields),
 				}))
 			: [{ ...DEFAULT_TOOL_ROW }],
 		equipment: initialKit?.equipment.length
@@ -45,6 +86,7 @@ function buildDefaultValues(initialKit?: MaintenanceKit): MaintenanceKitFormValu
 					name: item.name,
 					quantity: item.quantity,
 					certificateRequired: item.certificateRequired,
+					customFieldsText: customFieldsToText(item.customFields),
 				}))
 			: [],
 		isActive: initialKit?.isActive ?? true,
@@ -62,11 +104,17 @@ function normalizePayload(
 			name: tool.name.trim(),
 			quantity: tool.quantity,
 			...(tool.specifications?.trim() ? { specifications: tool.specifications.trim() } : {}),
+			...(Object.keys(parseCustomFieldsText(tool.customFieldsText)).length > 0
+				? { customFields: parseCustomFieldsText(tool.customFieldsText) }
+				: {}),
 		})),
 		equipment: (values.equipment ?? []).map((item) => ({
 			name: item.name.trim(),
 			quantity: item.quantity,
 			certificateRequired: item.certificateRequired ?? false,
+			...(Object.keys(parseCustomFieldsText(item.customFieldsText)).length > 0
+				? { customFields: parseCustomFieldsText(item.customFieldsText) }
+				: {}),
 		})),
 		...(mode === "edit" ? { isActive: values.isActive ?? true } : {}),
 	};
@@ -81,6 +129,10 @@ export function MaintenanceKitForm({
 	errorMessage,
 }: MaintenanceKitFormProps) {
 	const maintenanceKitFormSchema = CreateMaintenanceKitSchema.extend({
+		tools: z
+			.array(ToolSchema.extend({ customFieldsText: z.string().optional() }))
+			.min(1, "At least one tool required"),
+		equipment: z.array(EquipmentSchema.extend({ customFieldsText: z.string().optional() })).default([]),
 		isActive: z.boolean().optional(),
 	});
 	const {
@@ -223,6 +275,16 @@ export function MaintenanceKitForm({
 										/>
 									</FormField>
 
+									<div className="lg:col-span-3">
+										<FormField label="Campos personalizados">
+											<TextField
+												id={`tool-custom-fields-${field.id}`}
+												placeholder="serial=TQ-8842; marca=Fluke; aislamiento=1000V"
+												{...register(`tools.${index}.customFieldsText` as const)}
+											/>
+										</FormField>
+									</div>
+
 									<div className="flex lg:justify-end">
 										<button
 											type="button"
@@ -310,6 +372,16 @@ export function MaintenanceKitForm({
 											error={Boolean(equipmentError?.certificateRequired)}
 											{...register(`equipment.${index}.certificateRequired` as const)}
 										/>
+									</div>
+
+									<div className="lg:col-span-3">
+										<FormField label="Campos personalizados">
+											<TextField
+												id={`equipment-custom-fields-${field.id}`}
+												placeholder="serial=EQ-120; certificado=vigente; rango=5000psi"
+												{...register(`equipment.${index}.customFieldsText` as const)}
+											/>
+										</FormField>
 									</div>
 
 									<div className="flex lg:justify-end">

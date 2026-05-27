@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DEFAULT_PAGE, DEFAULT_PAGE_LIMIT, MAX_PAGE_LIMIT } from "../constants";
 import { ObjectIdSchema } from "./common.schema";
 import { CustomFieldValuesSchema } from "./custom-field.schema";
 
@@ -272,8 +273,10 @@ export const OrderListQuerySchema = z
 		priority: z.preprocess(normalizeOptionalStringQueryValue, OrderPrioritySchema.optional()),
 		assignedTo: z.preprocess(normalizeOptionalStringQueryValue, ObjectIdSchema.optional()),
 		search: z.preprocess(normalizeOptionalStringQueryValue, z.string().max(100).optional()),
-		page: z.preprocess(normalizeQueryValue, z.coerce.number().int().min(1)).default(1),
-		limit: z.preprocess(normalizeQueryValue, z.coerce.number().int().min(1).max(100)).default(20),
+		page: z.preprocess(normalizeQueryValue, z.coerce.number().int().min(1)).default(DEFAULT_PAGE),
+		limit: z
+			.preprocess(normalizeQueryValue, z.coerce.number().int().min(1).max(MAX_PAGE_LIMIT))
+			.default(DEFAULT_PAGE_LIMIT),
 	})
 	.strip();
 

@@ -7,7 +7,11 @@
  * - Soft deactivation
  */
 
-import type { CreateMaintenanceKit, UpdateMaintenanceKit } from "@cermont/shared-types";
+import type {
+	CreateMaintenanceKit,
+	CustomFieldValues,
+	UpdateMaintenanceKit,
+} from "@cermont/shared-types";
 import { AppError } from "../../common/errors";
 import { createLogger } from "../../common/utils/logger";
 import {
@@ -33,7 +37,12 @@ export interface UpdateKitData extends Partial<UpdateMaintenanceKit> {
 
 function mapTool(
 	tool: Partial<CreateMaintenanceKit["tools"][number]> & { specifications?: unknown },
-): { name: string; quantity: number; specifications?: string } | null {
+): {
+	name: string;
+	quantity: number;
+	specifications?: string;
+	customFields?: NonNullable<CustomFieldValues>;
+} | null {
 	const name = normalizeText(tool.name);
 	const quantity = normalizeQuantity(tool.quantity);
 
@@ -42,20 +51,27 @@ function mapTool(
 	}
 
 	const specifications = normalizeText(tool.specifications);
+	const customFields = normalizeCustomFields(tool.customFields);
 
 	return {
 		name,
 		quantity,
 		...(specifications ? { specifications } : {}),
+		...(Object.keys(customFields).length > 0 ? { customFields } : {}),
 	};
 }
 
 function mapEquipment(
 	item: Partial<CreateMaintenanceKit["equipment"][number]> & {
-		certificateRequired?: unknown;
-		certificate_required?: unknown;
+		certificateRequired?: string | number | boolean;
+		certificate_required?: string | number | boolean;
 	},
-): { name: string; quantity: number; certificate_required: boolean } | null {
+): {
+	name: string;
+	quantity: number;
+	certificate_required: boolean;
+	customFields?: NonNullable<CustomFieldValues>;
+} | null {
 	const name = normalizeText(item.name);
 	const quantity = normalizeQuantity(item.quantity);
 
@@ -65,12 +81,28 @@ function mapEquipment(
 
 	const certificateRequired =
 		normalizeBoolean(item.certificateRequired ?? item.certificate_required) ?? false;
+	const customFields = normalizeCustomFields(item.customFields);
 
 	return {
 		name,
 		quantity,
 		certificate_required: certificateRequired,
+		...(Object.keys(customFields).length > 0 ? { customFields } : {}),
 	};
+}
+
+function normalizeCustomFields(
+	customFields: CustomFieldValues,
+): NonNullable<CustomFieldValues> {
+	if (!customFields) {
+		return {};
+	}
+
+	const entries = Object.entries(customFields)
+		.map(([key, value]) => [normalizeText(key), value] as const)
+		.filter(([key]) => Boolean(key));
+
+	return entries.length > 0 ? Object.fromEntries(entries) : {};
 }
 
 function buildCreateDocument(data: CreateKitData, userId: string): Record<string, unknown> {
@@ -175,9 +207,9 @@ async function findAllKits(
 	limit: number = 50,
 ): Promise<{ data: unknown[]; total: number }> {
 	const where: Record<string, unknown> = {};
-	const activityType = normalizeText(filters.activityType ?? filters.activity_type);
-	const isActive = normalizeBoolean(filters.isActive ?? filters.is_active);
-	const search = normalizeText(filters.search);
+	const activityType = normalizeText(String(filters.activityType ?? filters.activity_type ?? ""));
+	const isActive = normalizeBoolean(String(filters.isActive ?? filters.is_active));
+	const search = normalizeText(String(filters.search ?? ""));
 
 	if (activityType) {
 		where.activity_type = activityType;

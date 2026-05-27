@@ -312,9 +312,9 @@ export async function associateDocument(
 	await document.save();
 	log.info("Document associated", {
 		documentId: id,
-		serviceCaseId: input.serviceCaseId,
-		orderId: input.orderId,
-		targetStepCode: input.targetStepCode,
+		serviceCaseId: input.serviceCaseId || "",
+		orderId: input.orderId || "",
+		targetStepCode: input.targetStepCode || "",
 	});
 	return document;
 }

@@ -1,0 +1,52 @@
+## npm run lint
+
+> cermont-monorepo@1.0.0 lint
+> turbo run lint
+
+• turbo 2.9.14
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running lint in 5 packages
+   • Remote caching disabled
+
+@cermont/shared-types:lint: cache hit, replaying logs 48c3f9ee2c014f9b
+@cermont/domain:lint: cache hit, replaying logs b1dd03f2b0077883
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint: > @cermont/shared-types@1.0.0 lint
+@cermont/shared-types:lint: > biome check .
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint: Checked 113 files in 444ms. No fixes applied.
+@cermont/config:lint: cache hit, replaying logs c04a48a43bccabec
+@cermont/domain:lint: 
+@cermont/domain:lint: > @cermont/domain@1.0.0 lint
+@cermont/domain:lint: > biome check .
+@cermont/domain:lint: 
+@cermont/domain:lint: Checked 16 files in 69ms. No fixes applied.
+@cermont/config:lint: 
+@cermont/config:lint: > @cermont/config@1.0.0 lint
+@cermont/config:lint: > biome check .
+@cermont/config:lint: 
+@cermont/config:lint: Checked 4 files in 21ms. No fixes applied.
+@cermont/shared-types:build: cache hit, replaying logs 99f4504da54e0516
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/backend:lint: cache hit, replaying logs 60733fca83376068
+@cermont/frontend:lint: cache hit, replaying logs 6924e50513139aab
+@cermont/backend:lint: 
+@cermont/backend:lint: > @cermont/backend@5.2.1 lint
+@cermont/backend:lint: > biome lint .
+@cermont/backend:lint: 
+@cermont/backend:lint: Checked 240 files in 451ms. No fixes applied.
+@cermont/frontend:lint: 
+@cermont/frontend:lint: > @cermont/frontend@1.2.0 lint
+@cermont/frontend:lint: > biome lint .
+@cermont/frontend:lint: 
+@cermont/frontend:lint: Checked 352 files in 533ms. No fixes applied.
+
+ Tasks:    6 successful, 6 total
+Cached:    6 cached, 6 total
+  Time:    78ms >>> FULL TURBO
+
+EXIT_CODE=0

@@ -9,12 +9,13 @@
  * The actual envelope is enforced by sendSuccess/sendError in common/http/response.ts
  */
 
+import type { JsonValue } from "../types/safe-types";
 import type { Response } from "express";
 
-export interface ApiResponse<T = unknown> {
+export interface ApiResponse<T> {
 	success: true;
 	data: T;
-	meta?: Record<string, unknown>;
+	meta?: Record<string, JsonValue>;
 }
 
 export interface ApiErrorResponse {
@@ -22,7 +23,7 @@ export interface ApiErrorResponse {
 	error: {
 		code: string;
 		message: string;
-		details?: unknown;
+		details?: JsonValue;
 	};
 }
 
@@ -46,7 +47,7 @@ export function sendSuccess<T>(
 	res: Response,
 	data: T,
 	statusCode: number = 200,
-	meta?: Record<string, unknown>,
+	meta?: Record<string, JsonValue>,
 ): void {
 	const payload: ApiResponse<T> = {
 		success: true,
@@ -61,7 +62,7 @@ export function sendSuccess<T>(
  */
 export function sendError(
 	res: Response,
-	error: { code: string; message: string; details?: unknown },
+	error: { code: string; message: string; details?: JsonValue },
 	statusCode: number = 500,
 ): void {
 	const payload: ApiErrorResponse = {

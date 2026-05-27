@@ -37,7 +37,7 @@ async function shutdown(signal: NodeJS.Signals): Promise<void> {
 		process.exit(0);
 	} catch (error) {
 		clearTimeout(forceExit);
-		log.error("Failed during shutdown", { reason: error });
+		log.error("Failed during shutdown", { reason: String(error) });
 		process.exit(1);
 	}
 }
@@ -65,7 +65,7 @@ process.on("unhandledRejection", (reason) => {
 });
 
 process.on("uncaughtException", (error) => {
-	log.error("Uncaught exception", { message: error.message, stack: error.stack });
+	log.error("Uncaught exception", { message: error.message || "", stack: error.stack || "" });
 	process.exit(1);
 });
 

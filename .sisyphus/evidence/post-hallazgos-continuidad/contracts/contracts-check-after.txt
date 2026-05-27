@@ -1,0 +1,9 @@
+## npm run contracts:check
+
+> cermont-monorepo@1.0.0 contracts:check
+> tsx tooling/contracts/check-contract-guard.ts
+
+✅ API contracts guard passed.
+   Snapshot hash: sha256:c1ffb311b207191ac8008ba317a1487daefa0f91e59fe32899905860fd6278bc
+   Latest migration: 013-maintenance-kit-custom-fields
+EXIT_CODE=0

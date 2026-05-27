@@ -10,15 +10,15 @@ describe("DynamicFormRenderer", () => {
 	it("renders CERMONT field types and persists custom options in the field value", () => {
 		const onFieldChange = vi.fn();
 		const schema: DynamicFormSchema = {
-			title: "ATS de ejecucion",
+			title: "Field work AST",
 			sections: [
 				{
 					id: "execution",
-					title: "Ejecucion",
+					title: "Field work",
 					fields: [
 						{
 							key: "activity_cost",
-							label: "Costo de actividad",
+							label: "Activity cost",
 							type: "currency",
 						},
 						{
@@ -26,8 +26,16 @@ describe("DynamicFormRenderer", () => {
 							label: "EPP requerido",
 							type: "multi_select",
 							options: ["Casco", "Guantes"],
-							allowOtherOption: true,
-							otherOptionLabel: "Personalizado",
+							allowCustomOption: true,
+							customOptionLabel: "Otro / Personalizado",
+						},
+						{
+							key: "evidence_category",
+							label: "Photo group",
+							type: "select",
+							options: ["Antes", "Durante", "Despues"],
+							allowCustomOption: true,
+							customOptionLabel: "Otro / Personalizado",
 						},
 						{
 							key: "risk_checklist",
@@ -48,7 +56,7 @@ describe("DynamicFormRenderer", () => {
 						},
 						{
 							key: "evidence",
-							label: "Evidencia fotografica",
+							label: "Photo proof",
 							type: "evidence_block",
 						},
 					],
@@ -66,17 +74,16 @@ describe("DynamicFormRenderer", () => {
 			/>,
 		);
 
-		expect(screen.getByLabelText(/costo de actividad/i)).toHaveAttribute("inputmode", "decimal");
+		expect(screen.getByLabelText(/activity cost/i)).toHaveAttribute("inputmode", "decimal");
 		expect(screen.getByLabelText(/casco/i)).toBeInTheDocument();
 		expect(screen.getByLabelText(/bloqueo/i)).toBeInTheDocument();
 		expect(screen.getByLabelText(/ubicacion gps latitud/i)).toBeInTheDocument();
 		expect(screen.getByRole("table", { name: /mediciones/i })).toBeInTheDocument();
-		expect(screen.getByLabelText(/evidencia fotografica notas/i)).toBeInTheDocument();
+		expect(screen.getByLabelText(/photo proof notas/i)).toBeInTheDocument();
 
-		fireEvent.click(screen.getByLabelText(/personalizado/i));
+		fireEvent.click(screen.getByLabelText(/otro \/ personalizado/i));
 		expect(onFieldChange).toHaveBeenLastCalledWith("ppe", {
 			selected: ["__cermont_other__"],
-			otherValue: undefined,
 		});
 
 		rerender(
@@ -88,13 +95,21 @@ describe("DynamicFormRenderer", () => {
 				formId="ats"
 			/>,
 		);
-		fireEvent.change(screen.getByLabelText(/epp requerido personalizado/i), {
+		fireEvent.change(screen.getByLabelText(/epp requerido otro \/ personalizado/i), {
 			target: { value: "Careta dieléctrica" },
 		});
 
 		expect(onFieldChange).toHaveBeenLastCalledWith("ppe", {
 			selected: ["__cermont_other__"],
 			otherValue: "Careta dieléctrica",
+		});
+
+		fireEvent.change(screen.getByLabelText(/photo group/i), {
+			target: { value: "__cermont_other__" },
+		});
+		expect(onFieldChange).toHaveBeenLastCalledWith("evidence_category", {
+			option: "__cermont_other__",
+			customValue: "",
 		});
 	});
 });

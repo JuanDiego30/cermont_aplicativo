@@ -1,0 +1,15 @@
+{
+	"lint": true,
+	"deadCode": true,
+	"verbose": false,
+	"failOn": "none",
+	"ignore": {
+		"rules": ["react-doctor/*", "knip/*", "react/no-danger"],
+		"files": [
+			"**/react-doctor-output*.txt",
+			"scratch/**",
+			"public/theme-init.js",
+			"public/service-worker.js"
+		]
+	}
+}

@@ -1,0 +1,90 @@
+
+> cermont-monorepo@1.0.0 test:e2e
+> npm --workspace frontend run test:e2e -- --config=playwright.post-hallazgos.config.ts
+
+
+> @cermont/frontend@1.2.0 test:e2e
+> playwright test --config=playwright.post-hallazgos.config.ts
+
+[WebServer] (node:40812) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m
+[2m[WebServer] [22m> @cermont/frontend@1.2.0 dev
+[2m[WebServer] [22m> next dev -H 0.0.0.0 --turbopack --no-server-fast-refresh
+[2m[WebServer] [22m
+[WebServer] (node:51088) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:16376) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m▲ Next.js 16.2.6 (Turbopack)
+[2m[WebServer] [22m- Local:         http://localhost:3000
+[2m[WebServer] [22m- Network:       http://0.0.0.0:3000
+[2m[WebServer] [22m- Environments: .env.test
+[2m[WebServer] [22m✓ Ready in 444ms
+[2m[WebServer] [22m- Experiments (use with caution):
+[2m[WebServer] [22m  · optimizePackageImports
+[2m[WebServer] [22m  · serverActions
+[2m[WebServer] [22m
+[WebServer] (node:48764) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m GET /login 200 in 1393ms (next.js: 776ms, proxy.ts: 130ms, application-code: 487ms)
+
+Running 3 tests using 1 worker
+
+(node:50640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:50640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m GET /proposals?page=1 200 in 415ms (next.js: 95ms, proxy.ts: 7ms, application-code: 312ms)
+[2m[WebServer] [22m GET / 200 in 579ms (next.js: 56ms, proxy.ts: 19ms, application-code: 504ms)
+[2m[WebServer] [22m GET /dashboard 200 in 579ms (next.js: 265ms, proxy.ts: 19ms, application-code: 295ms)
+[2m[WebServer] [22m GET /manifest.json 404 in 559ms (next.js: 436ms, application-code: 123ms)
+[2m[WebServer] [22m GET /orders/kanban 200 in 263ms (next.js: 85ms, proxy.ts: 20ms, application-code: 158ms)
+  ok 1 [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:334:5 › keeps proposals URL stable and avoids invalid order limits (3.6s)
+[2m[WebServer] [22m GET /service-cases 200 in 150ms (next.js: 75ms, proxy.ts: 4ms, application-code: 71ms)
+[2m[WebServer] [22m GET /dashboard 200 in 373ms (next.js: 171ms, proxy.ts: 15ms, application-code: 187ms)
+[2m[WebServer] [22m GET / 200 in 376ms (next.js: 16ms, proxy.ts: 14ms, application-code: 345ms)
+[2m[WebServer] [22m GET /manifest.json 404 in 358ms (next.js: 237ms, application-code: 121ms)
+[WebServer] (node:35036) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m GET /service-cases/665000000000000000000101 200 in 932ms (next.js: 896ms, proxy.ts: 8ms, application-code: 28ms)
+  ok 2 [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:359:5 › shows the service case cockpit path and blocked current step (3.0s)
+[2m[WebServer] [22m GET /work-requests/new 200 in 191ms (next.js: 94ms, proxy.ts: 6ms, application-code: 91ms)
+[2m[WebServer] [22m GET /dashboard 200 in 331ms (next.js: 130ms, proxy.ts: 12ms, application-code: 189ms)
+[2m[WebServer] [22m GET / 200 in 336ms (next.js: 12ms, proxy.ts: 11ms, application-code: 312ms)
+[2m[WebServer] [22m GET /manifest.json 404 in 324ms (next.js: 211ms, application-code: 113ms)
+  x  3 [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:376:5 › keeps custom form options usable and dark inputs legible (21.1s)
+
+
+  1) [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:376:5 › keeps custom form options usable and dark inputs legible 
+
+    TimeoutError: locator.fill: Timeout 20000ms exceeded.
+    Call log:
+    [2m  - waiting for getByLabel('Especificar canal')[22m
+
+
+      381 |
+      382 | 	const customInput = page.getByLabel("Especificar canal");
+    > 383 | 	await customInput.fill("Radio dispatch");
+          | 	                  ^
+      384 | 	await expect(customInput).toHaveValue("Radio dispatch");
+      385 |
+      386 | 	await page.evaluate(() => {
+        at C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend\tests\e2e\post-hallazgos-continuidad.spec.ts:383:20
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\post-hallazgos-continuidad-4eb1d-ble-and-dark-inputs-legible-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\post-hallazgos-continuidad-4eb1d-ble-and-dark-inputs-legible-chromium\error-context.md
+
+  1 failed
+    [chromium] › tests\e2e\post-hallazgos-continuidad.spec.ts:376:5 › keeps custom form options usable and dark inputs legible 
+  2 passed (34.5s)
+npm error Lifecycle script `test:e2e` failed with error:
+npm error code 1
+npm error path C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error workspace @cermont/frontend@1.2.0
+npm error location C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\frontend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c playwright test --config=playwright.post-hallazgos.config.ts

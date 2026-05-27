@@ -36,6 +36,21 @@ export async function uploadEvidence(req: Request, res: Response): Promise<void>
 	}
 	const user = requireUser(req);
 
+	if (typeof req.body.gpsLocation === "string" && req.body.gpsLocation.trim().length > 0) {
+		try {
+			const parsed = JSON.parse(req.body.gpsLocation);
+			if (parsed && typeof parsed === "object") {
+				req.body.gpsLocation = {
+					lat: Number(parsed.lat),
+					lng: Number(parsed.lng),
+					capturedAt: parsed.capturedAt,
+				};
+			}
+		} catch {
+			// Let Zod fail if parsing failed
+		}
+	}
+
 	const { orderId, type, description, capturedAt, gpsLocation } = CreateEvidenceSchema.parse(
 		req.body,
 	);

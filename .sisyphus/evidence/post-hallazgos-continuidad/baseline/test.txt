@@ -1,0 +1,632 @@
+## npm run test
+
+> cermont-monorepo@1.0.0 test
+> turbo run test
+
+• turbo 2.9.14
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running test in 5 packages
+   • Remote caching disabled
+
+@cermont/shared-types:test: cache miss, executing b8e8b75fefc823be
+@cermont/shared-types:build: cache hit, replaying logs 99f4504da54e0516
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/backend:test: cache miss, executing aad4110b79e83799
+@cermont/frontend:test: cache miss, executing 76249b85b3c3265e
+@cermont/shared-types:test: 
+@cermont/frontend:test: 
+@cermont/shared-types:test: > @cermont/shared-types@1.0.0 test
+@cermont/frontend:test: > @cermont/frontend@1.2.0 test
+@cermont/shared-types:test: > vitest run
+@cermont/frontend:test: > vitest run
+@cermont/shared-types:test: 
+@cermont/frontend:test: 
+@cermont/backend:test: 
+@cermont/backend:test: > @cermont/backend@5.2.1 test
+@cermont/backend:test: > vitest run
+@cermont/backend:test: 
+@cermont/shared-types:test: 
+@cermont/shared-types:test:  RUN  v4.1.7 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/packages/shared-types
+@cermont/shared-types:test: 
+@cermont/backend:test: 
+@cermont/backend:test:  RUN  v4.1.7 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend
+@cermont/backend:test: 
+@cermont/frontend:test: 
+@cermont/frontend:test:  RUN  v4.1.7 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/frontend
+@cermont/frontend:test: 
+@cermont/backend:test:  ✓ tests/services/audit.service.test.ts (2 tests) 64ms
+@cermont/backend:test:  ✓ tests/services/evidence.service.test.ts (12 tests) 27ms
+@cermont/backend:test:  ✓ tests/services/auth.service.test.ts (14 tests) 20ms
+@cermont/shared-types:test:  ✓ tests/constants/labels.test.ts (1 test) 5ms
+@cermont/shared-types:test:  ✓ tests/workflow/closure-readiness.test.ts (3 tests) 7ms
+@cermont/shared-types:test:  ✓ tests/workflow/document-ingestion-mode.test.ts (4 tests) 7ms
+@cermont/backend:test:  ✓ tests/services/maintenance.service.test.ts (11 tests) 72ms
+@cermont/shared-types:test:  ✓ tests/schemas/maintenance-kit-enterprise.test.ts (4 tests) 22ms
+@cermont/shared-types:test:  ✓ tests/schemas/analytics-schema.test.ts (2 tests) 52ms
+@cermont/backend:test:  ✓ tests/services/pdf-generator.service.test.ts (4 tests) 468ms
+@cermont/backend:test:        ✓ should generate a technical report PDF and update the report flag  357ms
+@cermont/backend:test:  ✓ tests/services/sync.service.test.ts (10 tests) 15ms
+@cermont/backend:test:  ✓ tests/services/order.service.test.ts (27 tests) 51ms
+@cermont/shared-types:test:  ✓ tests/schemas/auth-normalization.test.ts (3 tests) 36ms
+@cermont/backend:test:  ✓ tests/services/work-request.service.test.ts (2 tests) 13ms
+@cermont/backend:test:  ✓ tests/services/cost.service.test.ts (7 tests) 59ms
+@cermont/backend:test:  ✓ tests/services/work-request.test.ts (5 tests) 9ms
+@cermont/shared-types:test:  ✓ tests/schemas/cermont-operational-step.schema.test.ts (12 tests) 34ms
+@cermont/backend:test:  ✓ tests/services/checklist.service.test.ts (15 tests) 50ms
+@cermont/backend:test:  ✓ tests/services/proposal.service.test.ts (11 tests) 54ms
+@cermont/backend:test:  ✓ tests/services/payment-business-rules.test.ts (10 tests) 26ms
+@cermont/backend:test:  ✓ tests/services/order-rules.test.ts (6 tests) 9ms
+@cermont/backend:test:  ✓ tests/services/purchase-order.service.test.ts (4 tests) 86ms
+@cermont/backend:test:  ✓ tests/services/document.service.test.ts (7 tests) 68ms
+@cermont/backend:test:  ✓ tests/common/roles.guard.test.ts (3 tests) 8ms
+@cermont/backend:test:  ✓ tests/services/report.service.test.ts (5 tests) 16ms
+@cermont/backend:test:  ✓ tests/common/error-metrics.test.ts (1 test) 9ms
+@cermont/backend:test:  ✓ tests/common/authorize.middleware.test.ts (5 tests) 8ms
+@cermont/backend:test:  ✓ tests/common/errors.test.ts (2 tests) 8ms
+@cermont/backend:test:  ✓ tests/controllers/no-in-memory-business-controllers.test.ts (4 tests) 8ms
+@cermont/backend:test:  ✓ tests/services/user.service.test.ts (3 tests) 7ms
+@cermont/backend:test:  ✓ tests/middlewares/upload-magic-bytes.test.ts (3 tests) 8ms
+@cermont/backend:test:  ✓ tests/services/administrative-workflow.service.test.ts (1 test) 9ms
+@cermont/backend:test:  ✓ tests/common/mapping.test.ts (3 tests) 7ms
+@cermont/backend:test:  ✓ tests/services/closing-evidence-routing.test.ts (4 tests) 7ms
+@cermont/backend:test:  ✓ tests/controllers/service-case.controller.test.ts (1 test) 27ms
+@cermont/backend:test:  ✓ tests/services/cermont-workflow-gate.service.test.ts (5 tests) 17ms
+@cermont/backend:test:  ✓ tests/services/order-closure-assert.test.ts (2 tests) 19ms
+@cermont/backend:test:  ✓ tests/services/order.helpers.test.ts (1 test) 56ms
+@cermont/backend:test:  ✓ tests/services/service-case.service.test.ts (9 tests) 10ms
+@cermont/backend:test:  ✓ tests/routes/plan-endpoint-aliases.test.ts (3 tests) 29ms
+@cermont/shared-types:test:  ✓ tests/schemas/custom-field-values.test.ts (2 tests) 20ms
+@cermont/shared-types:test:  ✓ tests/schemas/order-clean-contract.test.ts (5 tests) 36ms
+@cermont/shared-types:test:  ✓ tests/schemas/work-request.schema.test.ts (2 tests) 13ms
+@cermont/shared-types:test:  ✓ tests/schemas/domain-pipeline-phase1.test.ts (37 tests) 65ms
+@cermont/shared-types:test:  ✓ tests/schemas/execution-session.schema.test.ts (3 tests) 44ms
+@cermont/shared-types:test:  ✓ tests/schemas/document-ingestion.schema.test.ts (3 tests) 31ms
+@cermont/frontend:test: stderr | tests/lib/env-validator.test.ts > validateEnv (frontend) > throws when NEXT_PUBLIC_APP_URL is missing
+@cermont/frontend:test: 
+@cermont/frontend:test: ❌ Frontend environment validation failed:
+@cermont/frontend:test: 
+@cermont/frontend:test:   - NEXT_PUBLIC_APP_URL is required
+@cermont/frontend:test: 
+@cermont/frontend:test: Please ensure NEXT_PUBLIC_APP_URL is set in your environment.
+@cermont/frontend:test: 
+@cermont/frontend:test: 
+@cermont/frontend:test:  ✓ tests/lib/env-validator.test.ts (3 tests) 24ms
+@cermont/frontend:test:  ✓ tests/lib/sync-queue.test.ts (4 tests) 22ms
+@cermont/backend:test:  ✓ tests/routes/dynamic-platform-routes.test.ts (5 tests) 30ms
+@cermont/backend:test: 
+@cermont/backend:test:  Test Files  34 passed (34)
+@cermont/backend:test:       Tests  207 passed (207)
+@cermont/backend:test:    Start at  23:40:21
+@cermont/backend:test:    Duration  10.84s (transform 15.44s, setup 3.11s, import 83.81s, tests 1.37s, environment 7ms)
+@cermont/backend:test: 
+@cermont/frontend:test:  ✓ tests/lib/rbac-extended.test.ts (25 tests) 19ms
+@cermont/frontend:test:  ✓ tests/lib/work-order-fsm.test.ts (24 tests) 18ms
+@cermont/shared-types:test:  ❯ tests/contracts/api-contracts.snapshot.test.ts (2 tests | 1 failed) 577ms
+@cermont/shared-types:test:      × matches the committed snapshot artifact 552ms
+@cermont/shared-types:test:      ✓ keeps migration manifest aligned with current snapshot hash 22ms
+@cermont/shared-types:test: 
+@cermont/shared-types:test: ⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+@cermont/shared-types:test: 
+@cermont/shared-types:test:  FAIL  tests/contracts/api-contracts.snapshot.test.ts > API contract snapshot > matches the committed snapshot artifact
+@cermont/shared-types:test: AssertionError: expected '{\n  "apis": {\n    "aiAPI": {\n     …' to be '{\n  "apis": {\n    "aiAPI": {\n     …' // Object.is equality
+@cermont/shared-types:test: 
+@cermont/shared-types:test: - Expected
+@cermont/shared-types:test: + Received
+@cermont/shared-types:test: 
+@cermont/shared-types:test: @@ -1471,10 +1471,29 @@
+@cermont/shared-types:test:                   "properties": {
+@cermont/shared-types:test:                     "certificateRequired": {
+@cermont/shared-types:test:                       "default": false,
+@cermont/shared-types:test:                       "type": "boolean"
+@cermont/shared-types:test:                     },
+@cermont/shared-types:test: +                   "customFields": {
+@cermont/shared-types:test: +                     "additionalProperties": {
+@cermont/shared-types:test: +                       "anyOf": [
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "string"
+@cermont/shared-types:test: +                         },
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "number"
+@cermont/shared-types:test: +                         },
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "boolean"
+@cermont/shared-types:test: +                         }
+@cermont/shared-types:test: +                       ]
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     "propertyNames": {
+@cermont/shared-types:test: +                       "type": "string"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     "type": "object"
+@cermont/shared-types:test: +                   },
+@cermont/shared-types:test:                     "name": {
+@cermont/shared-types:test:                       "maxLength": 200,
+@cermont/shared-types:test:                       "minLength": 1,
+@cermont/shared-types:test:                       "type": "string"
+@cermont/shared-types:test:                     },
+@cermont/shared-types:test: @@ -1500,10 +1519,29 @@
+@cermont/shared-types:test:               },
+@cermont/shared-types:test:               "tools": {
+@cermont/shared-types:test:                 "items": {
+@cermont/shared-types:test:                   "additionalProperties": false,
+@cermont/shared-types:test:                   "properties": {
+@cermont/shared-types:test: +                   "customFields": {
+@cermont/shared-types:test: +                     "additionalProperties": {
+@cermont/shared-types:test: +                       "anyOf": [
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "string"
+@cermont/shared-types:test: +                         },
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "number"
+@cermont/shared-types:test: +                         },
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "boolean"
+@cermont/shared-types:test: +                         }
+@cermont/shared-types:test: +                       ]
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     "propertyNames": {
+@cermont/shared-types:test: +                       "type": "string"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     "type": "object"
+@cermont/shared-types:test: +                   },
+@cermont/shared-types:test:                     "name": {
+@cermont/shared-types:test:                       "maxLength": 200,
+@cermont/shared-types:test:                       "minLength": 1,
+@cermont/shared-types:test:                       "type": "string"
+@cermont/shared-types:test:                     },
+@cermont/shared-types:test: @@ -1566,10 +1604,29 @@
+@cermont/shared-types:test:                   "additionalProperties": false,
+@cermont/shared-types:test:                   "properties": {
+@cermont/shared-types:test:                     "certificateRequired": {
+@cermont/shared-types:test:                       "default": false,
+@cermont/shared-types:test:                       "type": "boolean"
+@cermont/shared-types:test: +                   },
+@cermont/shared-types:test: +                   "customFields": {
+@cermont/shared-types:test: +                     "additionalProperties": {
+@cermont/shared-types:test: +                       "anyOf": [
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "string"
+@cermont/shared-types:test: +                         },
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "number"
+@cermont/shared-types:test: +                         },
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "boolean"
+@cermont/shared-types:test: +                         }
+@cermont/shared-types:test: +                       ]
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     "propertyNames": {
+@cermont/shared-types:test: +                       "type": "string"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     "type": "object"
+@cermont/shared-types:test:                     },
+@cermont/shared-types:test:                     "name": {
+@cermont/shared-types:test:                       "maxLength": 200,
+@cermont/shared-types:test:                       "minLength": 1,
+@cermont/shared-types:test:                       "type": "string"
+@cermont/shared-types:test: @@ -1597,10 +1654,29 @@
+@cermont/shared-types:test:               },
+@cermont/shared-types:test:               "tools": {
+@cermont/shared-types:test:                 "items": {
+@cermont/shared-types:test:                   "additionalProperties": false,
+@cermont/shared-types:test:                   "properties": {
+@cermont/shared-types:test: +                   "customFields": {
+@cermont/shared-types:test: +                     "additionalProperties": {
+@cermont/shared-types:test: +                       "anyOf": [
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "string"
+@cermont/shared-types:test: +                         },
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "number"
+@cermont/shared-types:test: +                         },
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "boolean"
+@cermont/shared-types:test: +                         }
+@cermont/shared-types:test: +                       ]
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     "propertyNames": {
+@cermont/shared-types:test: +                       "type": "string"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     "type": "object"
+@cermont/shared-types:test: +                   },
+@cermont/shared-types:test:                     "name": {
+@cermont/shared-types:test:                       "maxLength": 200,
+@cermont/shared-types:test:                       "minLength": 1,
+@cermont/shared-types:test:                       "type": "string"
+@cermont/shared-types:test:                     },
+@cermont/shared-types:test: @@ -1661,10 +1737,29 @@
+@cermont/shared-types:test:                   "additionalProperties": false,
+@cermont/shared-types:test:                   "properties": {
+@cermont/shared-types:test:                     "certificateRequired": {
+@cermont/shared-types:test:                       "default": false,
+@cermont/shared-types:test:                       "type": "boolean"
+@cermont/shared-types:test: +                   },
+@cermont/shared-types:test: +                   "customFields": {
+@cermont/shared-types:test: +                     "additionalProperties": {
+@cermont/shared-types:test: +                       "anyOf": [
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "string"
+@cermont/shared-types:test: +                         },
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "number"
+@cermont/shared-types:test: +                         },
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "boolean"
+@cermont/shared-types:test: +                         }
+@cermont/shared-types:test: +                       ]
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     "propertyNames": {
+@cermont/shared-types:test: +                       "type": "string"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     "type": "object"
+@cermont/shared-types:test:                     },
+@cermont/shared-types:test:                     "name": {
+@cermont/shared-types:test:                       "maxLength": 200,
+@cermont/shared-types:test:                       "minLength": 1,
+@cermont/shared-types:test:                       "type": "string"
+@cermont/shared-types:test: @@ -1694,10 +1789,29 @@
+@cermont/shared-types:test:               },
+@cermont/shared-types:test:               "tools": {
+@cermont/shared-types:test:                 "items": {
+@cermont/shared-types:test:                   "additionalProperties": false,
+@cermont/shared-types:test:                   "properties": {
+@cermont/shared-types:test: +                   "customFields": {
+@cermont/shared-types:test: +                     "additionalProperties": {
+@cermont/shared-types:test: +                       "anyOf": [
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "string"
+@cermont/shared-types:test: +                         },
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "number"
+@cermont/shared-types:test: +                         },
+@cermont/shared-types:test: +                         {
+@cermont/shared-types:test: +                           "type": "boolean"
+@cermont/shared-types:test: +                         }
+@cermont/shared-types:test: +                       ]
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     "propertyNames": {
+@cermont/shared-types:test: +                       "type": "string"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     "type": "object"
+@cermont/shared-types:test: +                   },
+@cermont/shared-types:test:                     "name": {
+@cermont/shared-types:test:                       "maxLength": 200,
+@cermont/shared-types:test:                       "minLength": 1,
+@cermont/shared-types:test:                       "type": "string"
+@cermont/shared-types:test:                     },
+@cermont/shared-types:test: @@ -13868,10 +13982,29 @@
+@cermont/shared-types:test:               "properties": {
+@cermont/shared-types:test:                 "certificateRequired": {
+@cermont/shared-types:test:                   "default": false,
+@cermont/shared-types:test:                   "type": "boolean"
+@cermont/shared-types:test:                 },
+@cermont/shared-types:test: +               "customFields": {
+@cermont/shared-types:test: +                 "additionalProperties": {
+@cermont/shared-types:test: +                   "anyOf": [
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "string"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "number"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "boolean"
+@cermont/shared-types:test: +                     }
+@cermont/shared-types:test: +                   ]
+@cermont/shared-types:test: +                 },
+@cermont/shared-types:test: +                 "propertyNames": {
+@cermont/shared-types:test: +                   "type": "string"
+@cermont/shared-types:test: +                 },
+@cermont/shared-types:test: +                 "type": "object"
+@cermont/shared-types:test: +               },
+@cermont/shared-types:test:                 "name": {
+@cermont/shared-types:test:                   "maxLength": 200,
+@cermont/shared-types:test:                   "minLength": 1,
+@cermont/shared-types:test:                   "type": "string"
+@cermont/shared-types:test:                 },
+@cermont/shared-types:test: @@ -13897,10 +14030,29 @@
+@cermont/shared-types:test:           },
+@cermont/shared-types:test:           "tools": {
+@cermont/shared-types:test:             "items": {
+@cermont/shared-types:test:               "additionalProperties": false,
+@cermont/shared-types:test:               "properties": {
+@cermont/shared-types:test: +               "customFields": {
+@cermont/shared-types:test: +                 "additionalProperties": {
+@cermont/shared-types:test: +                   "anyOf": [
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "string"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "number"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "boolean"
+@cermont/shared-types:test: +                     }
+@cermont/shared-types:test: +                   ]
+@cermont/shared-types:test: +                 },
+@cermont/shared-types:test: +                 "propertyNames": {
+@cermont/shared-types:test: +                   "type": "string"
+@cermont/shared-types:test: +                 },
+@cermont/shared-types:test: +                 "type": "object"
+@cermont/shared-types:test: +               },
+@cermont/shared-types:test:                 "name": {
+@cermont/shared-types:test:                   "maxLength": 200,
+@cermont/shared-types:test:                   "minLength": 1,
+@cermont/shared-types:test:                   "type": "string"
+@cermont/shared-types:test:                 },
+@cermont/shared-types:test: @@ -25563,10 +25715,29 @@
+@cermont/shared-types:test:         "additionalProperties": false,
+@cermont/shared-types:test:         "properties": {
+@cermont/shared-types:test:           "certificateRequired": {
+@cermont/shared-types:test:             "default": false,
+@cermont/shared-types:test:             "type": "boolean"
+@cermont/shared-types:test: +         },
+@cermont/shared-types:test: +         "customFields": {
+@cermont/shared-types:test: +           "additionalProperties": {
+@cermont/shared-types:test: +             "anyOf": [
+@cermont/shared-types:test: +               {
+@cermont/shared-types:test: +                 "type": "string"
+@cermont/shared-types:test: +               },
+@cermont/shared-types:test: +               {
+@cermont/shared-types:test: +                 "type": "number"
+@cermont/shared-types:test: +               },
+@cermont/shared-types:test: +               {
+@cermont/shared-types:test: +                 "type": "boolean"
+@cermont/shared-types:test: +               }
+@cermont/shared-types:test: +             ]
+@cermont/shared-types:test: +           },
+@cermont/shared-types:test: +           "propertyNames": {
+@cermont/shared-types:test: +             "type": "string"
+@cermont/shared-types:test: +           },
+@cermont/shared-types:test: +           "type": "object"
+@cermont/shared-types:test:           },
+@cermont/shared-types:test:           "name": {
+@cermont/shared-types:test:             "maxLength": 200,
+@cermont/shared-types:test:             "minLength": 1,
+@cermont/shared-types:test:             "type": "string"
+@cermont/shared-types:test: @@ -37871,10 +38042,29 @@
+@cermont/shared-types:test:               "additionalProperties": false,
+@cermont/shared-types:test:               "properties": {
+@cermont/shared-types:test:                 "certificateRequired": {
+@cermont/shared-types:test:                   "default": false,
+@cermont/shared-types:test:                   "type": "boolean"
+@cermont/shared-types:test: +               },
+@cermont/shared-types:test: +               "customFields": {
+@cermont/shared-types:test: +                 "additionalProperties": {
+@cermont/shared-types:test: +                   "anyOf": [
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "string"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "number"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "boolean"
+@cermont/shared-types:test: +                     }
+@cermont/shared-types:test: +                   ]
+@cermont/shared-types:test: +                 },
+@cermont/shared-types:test: +                 "propertyNames": {
+@cermont/shared-types:test: +                   "type": "string"
+@cermont/shared-types:test: +                 },
+@cermont/shared-types:test: +                 "type": "object"
+@cermont/shared-types:test:                 },
+@cermont/shared-types:test:                 "name": {
+@cermont/shared-types:test:                   "maxLength": 200,
+@cermont/shared-types:test:                   "minLength": 1,
+@cermont/shared-types:test:                   "type": "string"
+@cermont/shared-types:test: @@ -37902,10 +38092,29 @@
+@cermont/shared-types:test:           },
+@cermont/shared-types:test:           "tools": {
+@cermont/shared-types:test:             "items": {
+@cermont/shared-types:test:               "additionalProperties": false,
+@cermont/shared-types:test:               "properties": {
+@cermont/shared-types:test: +               "customFields": {
+@cermont/shared-types:test: +                 "additionalProperties": {
+@cermont/shared-types:test: +                   "anyOf": [
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "string"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "number"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "boolean"
+@cermont/shared-types:test: +                     }
+@cermont/shared-types:test: +                   ]
+@cermont/shared-types:test: +                 },
+@cermont/shared-types:test: +                 "propertyNames": {
+@cermont/shared-types:test: +                   "type": "string"
+@cermont/shared-types:test: +                 },
+@cermont/shared-types:test: +                 "type": "object"
+@cermont/shared-types:test: +               },
+@cermont/shared-types:test:                 "name": {
+@cermont/shared-types:test:                   "maxLength": 200,
+@cermont/shared-types:test:                   "minLength": 1,
+@cermont/shared-types:test:                   "type": "string"
+@cermont/shared-types:test:                 },
+@cermont/shared-types:test: @@ -37975,10 +38184,29 @@
+@cermont/shared-types:test:               "additionalProperties": false,
+@cermont/shared-types:test:               "properties": {
+@cermont/shared-types:test:                 "certificateRequired": {
+@cermont/shared-types:test:                   "default": false,
+@cermont/shared-types:test:                   "type": "boolean"
+@cermont/shared-types:test: +               },
+@cermont/shared-types:test: +               "customFields": {
+@cermont/shared-types:test: +                 "additionalProperties": {
+@cermont/shared-types:test: +                   "anyOf": [
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "string"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "number"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "boolean"
+@cermont/shared-types:test: +                     }
+@cermont/shared-types:test: +                   ]
+@cermont/shared-types:test: +                 },
+@cermont/shared-types:test: +                 "propertyNames": {
+@cermont/shared-types:test: +                   "type": "string"
+@cermont/shared-types:test: +                 },
+@cermont/shared-types:test: +                 "type": "object"
+@cermont/shared-types:test:                 },
+@cermont/shared-types:test:                 "name": {
+@cermont/shared-types:test:                   "maxLength": 200,
+@cermont/shared-types:test:                   "minLength": 1,
+@cermont/shared-types:test:                   "type": "string"
+@cermont/shared-types:test: @@ -38006,10 +38234,29 @@
+@cermont/shared-types:test:           },
+@cermont/shared-types:test:           "tools": {
+@cermont/shared-types:test:             "items": {
+@cermont/shared-types:test:               "additionalProperties": false,
+@cermont/shared-types:test:               "properties": {
+@cermont/shared-types:test: +               "customFields": {
+@cermont/shared-types:test: +                 "additionalProperties": {
+@cermont/shared-types:test: +                   "anyOf": [
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "string"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "number"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "boolean"
+@cermont/shared-types:test: +                     }
+@cermont/shared-types:test: +                   ]
+@cermont/shared-types:test: +                 },
+@cermont/shared-types:test: +                 "propertyNames": {
+@cermont/shared-types:test: +                   "type": "string"
+@cermont/shared-types:test: +                 },
+@cermont/shared-types:test: +                 "type": "object"
+@cermont/shared-types:test: +               },
+@cermont/shared-types:test:                 "name": {
+@cermont/shared-types:test:                   "maxLength": 200,
+@cermont/shared-types:test:                   "minLength": 1,
+@cermont/shared-types:test:                   "type": "string"
+@cermont/shared-types:test:                 },
+@cermont/shared-types:test: @@ -62893,10 +63140,29 @@
+@cermont/shared-types:test:       },
+@cermont/shared-types:test:       "ToolSchema": {
+@cermont/shared-types:test:         "$schema": "https://json-schema.org/draft/2020-12/schema",
+@cermont/shared-types:test:         "additionalProperties": false,
+@cermont/shared-types:test:         "properties": {
+@cermont/shared-types:test: +         "customFields": {
+@cermont/shared-types:test: +           "additionalProperties": {
+@cermont/shared-types:test: +             "anyOf": [
+@cermont/shared-types:test: +               {
+@cermont/shared-types:test: +                 "type": "string"
+@cermont/shared-types:test: +               },
+@cermont/shared-types:test: +               {
+@cermont/shared-types:test: +                 "type": "number"
+@cermont/shared-types:test: +               },
+@cermont/shared-types:test: +               {
+@cermont/shared-types:test: +                 "type": "boolean"
+@cermont/shared-types:test: +               }
+@cermont/shared-types:test: +             ]
+@cermont/shared-types:test: +           },
+@cermont/shared-types:test: +           "propertyNames": {
+@cermont/shared-types:test: +             "type": "string"
+@cermont/shared-types:test: +           },
+@cermont/shared-types:test: +           "type": "object"
+@cermont/shared-types:test: +         },
+@cermont/shared-types:test:           "name": {
+@cermont/shared-types:test:             "maxLength": 200,
+@cermont/shared-types:test:             "minLength": 1,
+@cermont/shared-types:test:             "type": "string"
+@cermont/shared-types:test:           },
+@cermont/shared-types:test: @@ -64604,10 +64870,29 @@
+@cermont/shared-types:test:               "properties": {
+@cermont/shared-types:test:                 "certificateRequired": {
+@cermont/shared-types:test:                   "default": false,
+@cermont/shared-types:test:                   "type": "boolean"
+@cermont/shared-types:test:                 },
+@cermont/shared-types:test: +               "customFields": {
+@cermont/shared-types:test: +                 "additionalProperties": {
+@cermont/shared-types:test: +                   "anyOf": [
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "string"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "number"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "boolean"
+@cermont/shared-types:test: +                     }
+@cermont/shared-types:test: +                   ]
+@cermont/shared-types:test: +                 },
+@cermont/shared-types:test: +                 "propertyNames": {
+@cermont/shared-types:test: +                   "type": "string"
+@cermont/shared-types:test: +                 },
+@cermont/shared-types:test: +                 "type": "object"
+@cermont/shared-types:test: +               },
+@cermont/shared-types:test:                 "name": {
+@cermont/shared-types:test:                   "maxLength": 200,
+@cermont/shared-types:test:                   "minLength": 1,
+@cermont/shared-types:test:                   "type": "string"
+@cermont/shared-types:test:                 },
+@cermont/shared-types:test: @@ -64636,10 +64921,29 @@
+@cermont/shared-types:test:           },
+@cermont/shared-types:test:           "tools": {
+@cermont/shared-types:test:             "items": {
+@cermont/shared-types:test:               "additionalProperties": false,
+@cermont/shared-types:test:               "properties": {
+@cermont/shared-types:test: +               "customFields": {
+@cermont/shared-types:test: +                 "additionalProperties": {
+@cermont/shared-types:test: +                   "anyOf": [
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "string"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "number"
+@cermont/shared-types:test: +                     },
+@cermont/shared-types:test: +                     {
+@cermont/shared-types:test: +                       "type": "boolean"
+@cermont/shared-types:test: +                     }
+@cermont/shared-types:test: +                   ]
+@cermont/shared-types:test: +                 },
+@cermont/shared-types:test: +                 "propertyNames": {
+@cermont/shared-types:test: +                   "type": "string"
+@cermont/shared-types:test: +                 },
+@cermont/shared-types:test: +                 "type": "object"
+@cermont/shared-types:test: +               },
+@cermont/shared-types:test:                 "name": {
+@cermont/shared-types:test:                   "maxLength": 200,
+@cermont/shared-types:test:                   "minLength": 1,
+@cermont/shared-types:test:                   "type": "string"
+@cermont/shared-types:test:                 },
+@cermont/shared-types:test: 
+@cermont/shared-types:test:  ❯ tests/contracts/api-contracts.snapshot.test.ts:18:29
+@cermont/shared-types:test:      16|   const generatedSnapshot = stringifyApiContractSnapshot(buildApiContr…
+@cermont/shared-types:test:      17|
+@cermont/shared-types:test:      18|   expect(generatedSnapshot).toBe(committedSnapshot);
+@cermont/shared-types:test:        |                             ^
+@cermont/shared-types:test:      19|  });
+@cermont/shared-types:test:      20|
+@cermont/shared-types:test: 
+@cermont/shared-types:test: ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+@cermont/shared-types:test: 
+@cermont/shared-types:test: 
+@cermont/shared-types:test:  Test Files  1 failed | 13 passed (14)
+@cermont/shared-types:test:       Tests  1 failed | 82 passed (83)
+@cermont/shared-types:test:    Start at  23:40:21
+@cermont/shared-types:test:    Duration  11.22s (transform 61.32s, setup 0ms, import 82.13s, tests 948ms, environment 2ms)
+@cermont/shared-types:test: 
+@cermont/shared-types:test: npm error Lifecycle script `test` failed with error:
+@cermont/shared-types:test: npm error code 1
+@cermont/shared-types:test: npm error path C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types
+@cermont/shared-types:test: npm error workspace @cermont/shared-types@1.0.0
+@cermont/shared-types:test: npm error location C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types
+@cermont/shared-types:test: npm error command failed
+@cermont/shared-types:test: npm error command C:\WINDOWS\system32\cmd.exe /d /s /c vitest run
+ ERROR  @cermont/shared-types#test: command (C:\Users\camil\Downloads\cermont_aplicativo\cermont_aplicativo\packages\shared-types) C:\Program Files\nodejs\npm.cmd run test exited (1)
+
+ Tasks:    2 successful, 4 total
+Cached:    1 cached, 4 total
+  Time:    12.628s 
+Failed:    @cermont/shared-types#test
+
+ ERROR  run failed: command  exited (1)
+EXIT_CODE=1

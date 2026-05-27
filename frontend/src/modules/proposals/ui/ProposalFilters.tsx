@@ -83,7 +83,7 @@ function ProposalFiltersSkeleton() {
 }
 
 function ProposalFiltersInner({ onFilter }: ProposalFiltersProps) {
-	const { push } = useRouter();
+	const { replace } = useRouter();
 	const searchParams = useSearchParams();
 
 	const getSearchParam = (key: string) => readSearchParam(searchParams, key);
@@ -104,6 +104,8 @@ function ProposalFiltersInner({ onFilter }: ProposalFiltersProps) {
 	const { searchInput, status, dateFrom, dateTo, showFilters } = state;
 
 	const debouncedSearch = useDebounce(searchInput, 400);
+
+	const currentHref = searchParams.toString() ? `/proposals?${searchParams.toString()}` : "/proposals";
 
 	const applyFilters = useCallback(
 		(search: string, st: string, from: string, to: string) => {
@@ -136,7 +138,10 @@ function ProposalFiltersInner({ onFilter }: ProposalFiltersProps) {
 			params.set("page", "1");
 
 			const query = params.toString();
-			push(`/proposals${query ? `?${query}` : ""}`);
+			const nextHref = `/proposals${query ? `?${query}` : ""}`;
+			if (nextHref !== currentHref) {
+				replace(nextHref);
+			}
 
 			onFilter?.({
 				search: search || undefined,
@@ -145,7 +150,7 @@ function ProposalFiltersInner({ onFilter }: ProposalFiltersProps) {
 				dateTo: to || undefined,
 			});
 		},
-		[push, searchParams, onFilter],
+		[currentHref, replace, searchParams, onFilter],
 	);
 
 	useEffect(() => {
@@ -176,7 +181,9 @@ function ProposalFiltersInner({ onFilter }: ProposalFiltersProps) {
 
 	const handleClearFilters = () => {
 		dispatch({ type: "CLEAR" });
-		push("/proposals");
+		if (currentHref !== "/proposals") {
+			replace("/proposals");
+		}
 		onFilter?.({});
 	};
 

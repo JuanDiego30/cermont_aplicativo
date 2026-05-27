@@ -4,6 +4,7 @@ import {
 	ChecklistStatusSchema,
 } from "@cermont/shared-types";
 import { type Document, model, Schema, Types } from "mongoose";
+import { removeVersionKey } from "../common/types/safe-types";
 
 const ChecklistItemSchema = new Schema(
 	{
@@ -72,9 +73,7 @@ ChecklistSchema.index({ status: 1, updatedAt: -1 });
 
 ChecklistSchema.set("toJSON", {
 	transform: (_doc, ret) => {
-		const obj = ret as unknown as Record<string, unknown>;
-		delete obj.__v;
-		return obj;
+		return removeVersionKey(ret);
 	},
 });
 

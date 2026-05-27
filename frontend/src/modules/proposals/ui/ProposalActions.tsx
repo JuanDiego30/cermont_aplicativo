@@ -8,7 +8,7 @@ import {
 	useRejectProposal,
 	useUpdateProposal,
 } from "@/modules/proposals/queries";
-import { normalizeProposalStatus } from "@/modules/proposals/ui/ProposalStatusBadge";
+import { normalizeProposalStatus } from "@/modules/proposals/proposal-status";
 
 interface ProposalActionsProps {
 	proposalId: string;

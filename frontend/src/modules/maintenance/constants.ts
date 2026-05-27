@@ -34,12 +34,14 @@ export const DEFAULT_TOOL_ROW = {
 	name: "",
 	quantity: 1,
 	specifications: "",
+	customFieldsText: "",
 } as const;
 
 export const DEFAULT_EQUIPMENT_ROW = {
 	name: "",
 	quantity: 1,
 	certificateRequired: false,
+	customFieldsText: "",
 } as const;
 
 export const DEFAULT_MAINTENANCE_KIT_ACTIVITY: ActivityType = "electrico";

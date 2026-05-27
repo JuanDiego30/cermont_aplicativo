@@ -58,7 +58,63 @@ describe("maintenance.service", () => {
 			expect(result).toBe(kit);
 		});
 
-		it("lanza error si el nombre ya existe", async () => {
+		it("preserva campos personalizados de herramientas y equipos", async () => {
+			const kit = buildKit();
+			vi.mocked(MaintenanceKit.findOne).mockReturnValue({
+				lean: vi.fn().mockResolvedValue(null),
+			} as never);
+			vi.mocked(MaintenanceKit.create).mockResolvedValue(kit as never);
+
+			await MaintenanceKitService.create(
+				{
+					name: "Kit torque",
+					activityType: "mecanico",
+					tools: [
+						{
+							name: "Torquímetro",
+							quantity: 1,
+							customFields: {
+								serial: "TQ-8842",
+								rangoNm: 340,
+							},
+						},
+					],
+					equipment: [
+						{
+							name: "Bomba de prueba",
+							quantity: 1,
+							certificateRequired: true,
+							customFields: {
+								presionMaxPsi: 5000,
+							},
+						},
+					],
+				},
+				IDS.user,
+			);
+
+			expect(MaintenanceKit.create).toHaveBeenCalledWith(
+				expect.objectContaining({
+					tools: [
+						expect.objectContaining({
+							customFields: {
+								serial: "TQ-8842",
+								rangoNm: 340,
+							},
+						}),
+					],
+					equipment: [
+						expect.objectContaining({
+							customFields: {
+								presionMaxPsi: 5000,
+							},
+						}),
+					],
+				}),
+			);
+		});
+
+		it("throws when the kit name already exists", async () => {
 			vi.mocked(MaintenanceKit.findOne).mockReturnValue({
 				lean: vi.fn().mockResolvedValue(buildKit()),
 			} as never);
@@ -145,7 +201,7 @@ describe("maintenance.service", () => {
 			expect(result).toMatchObject({ name: "Kit correctivo", is_active: false });
 		});
 
-		it("lanza error si cambia a un nombre duplicado", async () => {
+		it("throws when changing to a duplicate kit name", async () => {
 			const kit = buildKit();
 			vi.mocked(MaintenanceKit.findById).mockResolvedValue(kit as never);
 			vi.mocked(MaintenanceKit.findOne).mockReturnValue({

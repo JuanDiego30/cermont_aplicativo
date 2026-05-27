@@ -21,7 +21,7 @@ import {
 import { NotFoundError } from "../../common/errors/AppError";
 
 import { createLogger } from "../../common/utils/logger";
-import { Proposal } from "../../models";
+import { Proposal, Order } from "../../models";
 import { Document } from "../../models/Document";
 import { Evidence } from "../../models/Evidence";
 import { ServiceCase, type ServiceCaseDocument } from "../../models/ServiceCase";
@@ -903,22 +903,29 @@ export async function buildServiceCaseWorkflowView(
 	const orderId = serviceCase.artifacts.workOrder?.id;
 	const currentStepCode =
 		serviceCase.currentStepCode ?? mapLegacyServiceCaseStageToStep(serviceCase.currentStage);
-	const [documents, evidences] = await Promise.all([
+	const [documents, evidences, order] = await Promise.all([
 		listWorkflowDocuments(orderId, serviceCase._id),
 		listWorkflowEvidences(orderId),
+		orderId ? Order.findById(orderId).lean().exec() : Promise.resolve(void 0),
 	]);
+
+	const updatedAtString = serviceCase.updatedAt;
+
+	const deadlineString = order?.completedAt
+		? new Date(order.completedAt).toISOString()
+		: void 0;
 
 	return {
 		serviceCaseId: serviceCase._id,
 		orderId,
 		code: serviceCase.code,
 		clientName: serviceCase.clientName,
-		location: undefined,
-		serviceType: undefined,
+		location: order?.location || void 0,
+		serviceType: order?.type || void 0,
 		globalStatus: serviceCase.currentStage,
-		responsibleName: undefined,
-		deadline: undefined,
-		updatedAt: serviceCase.updatedAt,
+		responsibleName: order?.assignedToName || void 0,
+		deadline: deadlineString,
+		updatedAt: updatedAtString,
 		currentStepCode,
 		steps: serviceCase.stepsChecklist ?? buildWorkflowSteps(serviceCase, serviceCaseId),
 		activeStepRequirements: serviceCase.currentStepRequirements ?? [],

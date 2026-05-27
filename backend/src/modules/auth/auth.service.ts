@@ -231,7 +231,7 @@ export async function logout(accessToken: string, refreshToken: string): Promise
 			blacklistToken(refreshDecoded, REFRESH_EXPIRES_IN),
 		]);
 	} catch (err) {
-		log.error("Failed to blacklist tokens on logout", { err });
+		log.error("Failed to blacklist tokens on logout", { err: String(err) });
 	}
 }
 

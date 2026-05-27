@@ -50,6 +50,14 @@ export interface KpiLeadTime {
 	count: number;
 }
 
+interface FinancialAggregate extends KpiFinancial {
+	_id: string;
+}
+
+interface LeadTimeAggregate extends KpiLeadTime {
+	_id: string;
+}
+
 export interface KpiResult {
 	overview: KpiOverview;
 	by_stage: Record<string, number>;
@@ -78,7 +86,7 @@ function calcCompletionRate(completed: number, total: number): number {
 	return total > 0 ? Math.round((completed / total) * 100) : 0;
 }
 
-function buildFinancial(raw: Record<string, unknown> | undefined): KpiFinancial {
+function buildFinancial(raw: FinancialAggregate | undefined): KpiFinancial {
 	const defaults: KpiFinancial = {
 		total_actual: 0,
 		count: 0,
@@ -87,12 +95,14 @@ function buildFinancial(raw: Record<string, unknown> | undefined): KpiFinancial 
 	if (!raw) {
 		return defaults;
 	}
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const { _id, ...rest } = raw as unknown as { _id: unknown } & KpiFinancial;
-	return { ...rest, currency: DEFAULT_CURRENCY };
+	return {
+		total_actual: raw.total_actual,
+		count: raw.count,
+		currency: DEFAULT_CURRENCY,
+	};
 }
 
-function buildLeadTime(raw: Record<string, unknown> | undefined): KpiLeadTime {
+function buildLeadTime(raw: LeadTimeAggregate | undefined): KpiLeadTime {
 	if (!raw) {
 		return {
 			avg_lead_time_days: null,
@@ -101,9 +111,12 @@ function buildLeadTime(raw: Record<string, unknown> | undefined): KpiLeadTime {
 			count: 0,
 		};
 	}
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const { _id, ...rest } = raw as unknown as { _id: unknown } & KpiLeadTime;
-	return rest;
+	return {
+		avg_lead_time_days: raw.avg_lead_time_days,
+		min_lead_time_days: raw.min_lead_time_days,
+		max_lead_time_days: raw.max_lead_time_days,
+		count: raw.count,
+	};
 }
 
 // ─── Consultas MongoDB (SRP: cada función hace una sola cosa) ─────────────────
@@ -115,7 +128,7 @@ const groupByField = (field: string) =>
 	]);
 
 const queryFinancialSummary = () =>
-	Cost.aggregate([
+	Cost.aggregate<FinancialAggregate>([
 		{
 			$group: {
 				_id: null,
@@ -137,7 +150,7 @@ const queryChecklistStats = () =>
 	]);
 
 const queryLeadTimeStats = () =>
-	Order.aggregate([
+	Order.aggregate<LeadTimeAggregate>([
 		{ $match: { status: "closed", completedAt: { $exists: true } } },
 		{
 			$project: {

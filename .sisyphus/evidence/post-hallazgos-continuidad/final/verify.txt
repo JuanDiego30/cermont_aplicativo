@@ -1,0 +1,442 @@
+
+> cermont-monorepo@1.0.0 verify
+> npm run contracts:check && npm run typecheck && npm run lint && npm run test && npm run build && npm run quality:strict
+
+
+> cermont-monorepo@1.0.0 contracts:check
+> tsx tooling/contracts/check-contract-guard.ts
+
+✅ API contracts guard passed.
+   Snapshot hash: sha256:c1ffb311b207191ac8008ba317a1487daefa0f91e59fe32899905860fd6278bc
+   Latest migration: 013-maintenance-kit-custom-fields
+
+> cermont-monorepo@1.0.0 typecheck
+> turbo run typecheck
+
+• turbo 2.9.14
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running typecheck in 5 packages
+   • Remote caching disabled
+
+@cermont/domain:typecheck: cache hit, replaying logs 8509b9d13a046cd1
+@cermont/domain:typecheck: 
+@cermont/domain:typecheck: > @cermont/domain@1.0.0 typecheck
+@cermont/domain:typecheck: > tsc --noEmit
+@cermont/domain:typecheck: 
+@cermont/config:typecheck: cache hit, replaying logs 59789236586dd732
+@cermont/config:typecheck: 
+@cermont/config:typecheck: > @cermont/config@1.0.0 typecheck
+@cermont/config:typecheck: > tsc --noEmit
+@cermont/config:typecheck: 
+@cermont/shared-types:typecheck: cache miss, executing 1f60ed914aae3113
+@cermont/shared-types:build: cache hit, replaying logs 26591cda83329ff0
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/backend:typecheck: cache miss, executing ba94a8f6247d3bc4
+@cermont/frontend:typecheck: cache miss, executing 48ef76a67c0404e9
+@cermont/shared-types:typecheck: 
+@cermont/shared-types:typecheck: > @cermont/shared-types@1.0.0 typecheck
+@cermont/shared-types:typecheck: > tsc --noEmit
+@cermont/shared-types:typecheck: 
+@cermont/frontend:typecheck: 
+@cermont/backend:typecheck: 
+@cermont/backend:typecheck: > @cermont/backend@5.2.1 typecheck
+@cermont/backend:typecheck: > tsc --noEmit
+@cermont/frontend:typecheck: > @cermont/frontend@1.2.0 typecheck
+@cermont/backend:typecheck: 
+@cermont/frontend:typecheck: > tsc --noEmit
+@cermont/frontend:typecheck: 
+
+ Tasks:    6 successful, 6 total
+Cached:    3 cached, 6 total
+  Time:    14.828s 
+
+
+> cermont-monorepo@1.0.0 lint
+> turbo run lint
+
+• turbo 2.9.14
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running lint in 5 packages
+   • Remote caching disabled
+
+@cermont/config:lint: cache hit, replaying logs 4317a8fed26e7385
+@cermont/config:lint: 
+@cermont/config:lint: > @cermont/config@1.0.0 lint
+@cermont/config:lint: > biome check .
+@cermont/config:lint: 
+@cermont/config:lint: Checked 4 files in 43ms. No fixes applied.
+@cermont/domain:lint: cache hit, replaying logs 284acb074297da17
+@cermont/domain:lint: 
+@cermont/domain:lint: > @cermont/domain@1.0.0 lint
+@cermont/domain:lint: > biome check .
+@cermont/domain:lint: 
+@cermont/domain:lint: Checked 16 files in 86ms. No fixes applied.
+@cermont/shared-types:lint: cache hit, replaying logs 4f746996cb582fb0
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint: > @cermont/shared-types@1.0.0 lint
+@cermont/shared-types:lint: > biome check .
+@cermont/shared-types:lint: 
+@cermont/shared-types:lint: Checked 113 files in 136ms. No fixes applied.
+@cermont/shared-types:build: cache hit, replaying logs 26591cda83329ff0
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/backend:lint: cache hit, replaying logs c4a0c4565f2b48c5
+@cermont/backend:lint: 
+@cermont/backend:lint: > @cermont/backend@5.2.1 lint
+@cermont/backend:lint: > biome lint .
+@cermont/backend:lint: 
+@cermont/backend:lint: Checked 240 files in 276ms. No fixes applied.
+@cermont/frontend:lint: cache hit, replaying logs ad78d3fcf9467f7e
+@cermont/frontend:lint: 
+@cermont/frontend:lint: > @cermont/frontend@1.2.0 lint
+@cermont/frontend:lint: > biome lint .
+@cermont/frontend:lint: 
+@cermont/frontend:lint: Checked 355 files in 348ms. No fixes applied.
+
+ Tasks:    6 successful, 6 total
+Cached:    6 cached, 6 total
+  Time:    89ms >>> FULL TURBO
+
+
+> cermont-monorepo@1.0.0 test
+> turbo run test
+
+• turbo 2.9.14
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running test in 5 packages
+   • Remote caching disabled
+
+@cermont/shared-types:test: cache hit, replaying logs 2990a51c66e2c533
+@cermont/shared-types:test: 
+@cermont/shared-types:test: > @cermont/shared-types@1.0.0 test
+@cermont/shared-types:test: > vitest run
+@cermont/shared-types:test: 
+@cermont/shared-types:test: 
+@cermont/shared-types:test:  RUN  v4.1.7 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/packages/shared-types
+@cermont/shared-types:test: 
+@cermont/shared-types:test:  ✓ tests/workflow/document-ingestion-mode.test.ts (4 tests) 6ms
+@cermont/shared-types:test:  ✓ tests/workflow/closure-readiness.test.ts (3 tests) 7ms
+@cermont/shared-types:test:  ✓ tests/schemas/analytics-schema.test.ts (2 tests) 13ms
+@cermont/shared-types:test:  ✓ tests/schemas/cermont-operational-step.schema.test.ts (12 tests) 21ms
+@cermont/shared-types:test:  ✓ tests/schemas/auth-normalization.test.ts (3 tests) 10ms
+@cermont/shared-types:test:  ✓ tests/constants/labels.test.ts (1 test) 5ms
+@cermont/shared-types:test:  ✓ tests/schemas/maintenance-kit-enterprise.test.ts (4 tests) 13ms
+@cermont/shared-types:test:  ✓ tests/schemas/work-request.schema.test.ts (2 tests) 16ms
+@cermont/shared-types:test:  ✓ tests/schemas/document-ingestion.schema.test.ts (3 tests) 61ms
+@cermont/shared-types:test:  ✓ tests/schemas/order-clean-contract.test.ts (5 tests) 53ms
+@cermont/shared-types:test:  ✓ tests/schemas/custom-field-values.test.ts (2 tests) 73ms
+@cermont/shared-types:test:  ✓ tests/schemas/execution-session.schema.test.ts (3 tests) 18ms
+@cermont/shared-types:test:  ✓ tests/schemas/domain-pipeline-phase1.test.ts (37 tests) 101ms
+@cermont/shared-types:test:  ✓ tests/contracts/api-contracts.snapshot.test.ts (2 tests) 510ms
+@cermont/shared-types:test:      ✓ matches the committed snapshot artifact  464ms
+@cermont/shared-types:test: 
+@cermont/shared-types:test:  Test Files  14 passed (14)
+@cermont/shared-types:test:       Tests  83 passed (83)
+@cermont/shared-types:test:    Start at  00:05:16
+@cermont/shared-types:test:    Duration  5.07s (transform 18.33s, setup 0ms, import 26.48s, tests 908ms, environment 3ms)
+@cermont/shared-types:test: 
+@cermont/shared-types:build: cache hit, replaying logs 26591cda83329ff0
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/frontend:test: cache hit, replaying logs dee0c6b90e3a494f
+@cermont/frontend:test: 
+@cermont/frontend:test: > @cermont/frontend@1.2.0 test
+@cermont/frontend:test: > vitest run
+@cermont/frontend:test: 
+@cermont/frontend:test: 
+@cermont/frontend:test:  RUN  v4.1.7 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/frontend
+@cermont/frontend:test: 
+@cermont/frontend:test:  ✓ tests/lib/rbac-extended.test.ts (25 tests) 35ms
+@cermont/frontend:test:  ✓ tests/lib/work-order-fsm.test.ts (24 tests) 16ms
+@cermont/frontend:test:  ✓ tests/lib/sync-queue.test.ts (4 tests) 27ms
+@cermont/frontend:test: stderr | tests/lib/env-validator.test.ts > validateEnv (frontend) > throws when NEXT_PUBLIC_APP_URL is missing
+@cermont/frontend:test: 
+@cermont/frontend:test: ❌ Frontend environment validation failed:
+@cermont/frontend:test: 
+@cermont/frontend:test:   - NEXT_PUBLIC_APP_URL is required
+@cermont/frontend:test: 
+@cermont/frontend:test: Please ensure NEXT_PUBLIC_APP_URL is set in your environment.
+@cermont/frontend:test: 
+@cermont/frontend:test: 
+@cermont/frontend:test:  ✓ tests/lib/env-validator.test.ts (3 tests) 19ms
+@cermont/frontend:test:  ✓ tests/lib/connectivity.test.tsx (2 tests) 43ms
+@cermont/frontend:test:  ✓ tests/modules/checklists/useOfflineChecklist.test.tsx (2 tests) 45ms
+@cermont/frontend:test:  ✓ tests/modules/templates/dynamic-form-renderer.test.tsx (1 test) 436ms
+@cermont/frontend:test:      ✓ renders CERMONT field types and persists custom options in the field value  431ms
+@cermont/frontend:test:  ✓ tests/components/sync/SyncStatusBar.test.tsx (4 tests) 320ms
+@cermont/frontend:test:  ✓ tests/modules/evidences/useOfflineEvidence.test.tsx (1 test) 51ms
+@cermont/frontend:test:  ✓ tests/lib/sync-manager.test.tsx (2 tests) 185ms
+@cermont/frontend:test:  ✓ tests/modules/work-requests/work-requests-page.test.tsx (1 test) 115ms
+@cermont/frontend:test:  ✓ tests/modules/site-visits/site-visits-new-page.test.tsx (1 test) 409ms
+@cermont/frontend:test:      ✓ creates a site visit through the canonical site-visits endpoint  398ms
+@cermont/frontend:test:  ✓ tests/lib/costs-queries.test.tsx (12 tests) 530ms
+@cermont/frontend:test:  ✓ tests/modules/service-cases/service-cases-page.test.tsx (1 test) 106ms
+@cermont/frontend:test:  ✓ tests/lib/logger.test.ts (6 tests) 6ms
+@cermont/frontend:test:  ✓ tests/lib/pagination.test.ts (2 tests) 4ms
+@cermont/frontend:test:  ✓ tests/modules/core/navigation.test.ts (2 tests) 4ms
+@cermont/frontend:test:  ✓ tests/lib/retry-strategy.test.ts (2 tests) 3ms
+@cermont/frontend:test:  ✓ tests/modules/orders/kanban-query-limit.test.ts (1 test) 3ms
+@cermont/frontend:test:  ✓ tests/modules/proposals/proposals-search-params.test.tsx (2 tests) 169ms
+@cermont/frontend:test: 
+@cermont/frontend:test:  Test Files  20 passed (20)
+@cermont/frontend:test:       Tests  98 passed (98)
+@cermont/frontend:test:    Start at  00:05:16
+@cermont/frontend:test:    Duration  13.39s (transform 4.40s, setup 1.04s, import 18.95s, tests 2.53s, environment 115.54s)
+@cermont/frontend:test: 
+@cermont/backend:test: cache hit, replaying logs 29472e49ea0e3a17
+@cermont/backend:test: 
+@cermont/backend:test: > @cermont/backend@5.2.1 test
+@cermont/backend:test: > vitest run
+@cermont/backend:test: 
+@cermont/backend:test: 
+@cermont/backend:test:  RUN  v4.1.7 C:/Users/camil/Downloads/cermont_aplicativo/cermont_aplicativo/backend
+@cermont/backend:test: 
+@cermont/backend:test:  ✓ tests/services/evidence.service.test.ts (12 tests) 27ms
+@cermont/backend:test:  ✓ tests/services/cost.service.test.ts (7 tests) 24ms
+@cermont/backend:test:  ✓ tests/services/audit.service.test.ts (2 tests) 133ms
+@cermont/backend:test:  ✓ tests/services/maintenance.service.test.ts (11 tests) 38ms
+@cermont/backend:test:  ✓ tests/services/payment-business-rules.test.ts (10 tests) 44ms
+@cermont/backend:test:  ✓ tests/services/order.service.test.ts (27 tests) 92ms
+@cermont/backend:test:  ✓ tests/services/pdf-generator.service.test.ts (4 tests) 346ms
+@cermont/backend:test:  ✓ tests/services/auth.service.test.ts (14 tests) 41ms
+@cermont/backend:test:  ✓ tests/services/proposal.service.test.ts (11 tests) 65ms
+@cermont/backend:test:  ✓ tests/services/checklist.service.test.ts (15 tests) 41ms
+@cermont/backend:test:  ✓ tests/services/sync.service.test.ts (10 tests) 15ms
+@cermont/backend:test:  ✓ tests/services/report.service.test.ts (5 tests) 14ms
+@cermont/backend:test:  ✓ tests/services/order-rules.test.ts (6 tests) 9ms
+@cermont/backend:test:  ✓ tests/services/work-request.service.test.ts (2 tests) 14ms
+@cermont/backend:test:  ✓ tests/services/document.service.test.ts (7 tests) 79ms
+@cermont/backend:test:  ✓ tests/common/error-metrics.test.ts (1 test) 9ms
+@cermont/backend:test:  ✓ tests/services/work-request.test.ts (5 tests) 10ms
+@cermont/backend:test:  ✓ tests/common/roles.guard.test.ts (3 tests) 10ms
+@cermont/backend:test:  ✓ tests/services/closing-evidence-routing.test.ts (4 tests) 6ms
+@cermont/backend:test:  ✓ tests/services/user.service.test.ts (3 tests) 7ms
+@cermont/backend:test:  ✓ tests/services/purchase-order.service.test.ts (4 tests) 13ms
+@cermont/backend:test:  ✓ tests/common/authorize.middleware.test.ts (5 tests) 9ms
+@cermont/backend:test:  ✓ tests/common/errors.test.ts (2 tests) 8ms
+@cermont/backend:test:  ✓ tests/middlewares/upload-magic-bytes.test.ts (3 tests) 9ms
+@cermont/backend:test:  ✓ tests/controllers/no-in-memory-business-controllers.test.ts (4 tests) 7ms
+@cermont/backend:test:  ✓ tests/common/mapping.test.ts (3 tests) 6ms
+@cermont/backend:test:  ✓ tests/services/administrative-workflow.service.test.ts (1 test) 8ms
+@cermont/backend:test:  ✓ tests/services/order-closure-assert.test.ts (2 tests) 6ms
+@cermont/backend:test:  ✓ tests/services/cermont-workflow-gate.service.test.ts (5 tests) 16ms
+@cermont/backend:test:  ✓ tests/services/service-case.service.test.ts (9 tests) 11ms
+@cermont/backend:test:  ✓ tests/services/order.helpers.test.ts (1 test) 19ms
+@cermont/backend:test:  ✓ tests/controllers/service-case.controller.test.ts (1 test) 13ms
+@cermont/backend:test:  ✓ tests/routes/dynamic-platform-routes.test.ts (5 tests) 31ms
+@cermont/backend:test:  ✓ tests/routes/plan-endpoint-aliases.test.ts (3 tests) 7ms
+@cermont/backend:test: 
+@cermont/backend:test:  Test Files  34 passed (34)
+@cermont/backend:test:       Tests  207 passed (207)
+@cermont/backend:test:    Start at  00:05:16
+@cermont/backend:test:    Duration  8.69s (transform 16.69s, setup 2.86s, import 69.50s, tests 1.19s, environment 6ms)
+@cermont/backend:test: 
+
+ Tasks:    4 successful, 4 total
+Cached:    4 cached, 4 total
+  Time:    95ms >>> FULL TURBO
+
+
+> cermont-monorepo@1.0.0 build
+> turbo run build
+
+• turbo 2.9.14
+
+   • Packages in scope: @cermont/backend, @cermont/config, @cermont/domain, @cermont/frontend, @cermont/shared-types
+   • Running build in 5 packages
+   • Remote caching disabled
+
+@cermont/config:build: cache hit, replaying logs e17c5f2db54f2161
+@cermont/config:build: 
+@cermont/config:build: > @cermont/config@1.0.0 build
+@cermont/config:build: > tsc --project tsconfig.json
+@cermont/config:build: 
+@cermont/domain:build: cache hit, replaying logs ee9d1eb244779f07
+@cermont/domain:build: 
+@cermont/domain:build: > @cermont/domain@1.0.0 build
+@cermont/domain:build: > tsc --project tsconfig.json
+@cermont/domain:build: 
+@cermont/shared-types:build: cache hit, replaying logs 26591cda83329ff0
+@cermont/shared-types:build: 
+@cermont/shared-types:build: > @cermont/shared-types@1.0.0 build
+@cermont/shared-types:build: > tsc --project tsconfig.json
+@cermont/shared-types:build: 
+@cermont/frontend:build: cache miss, executing 2937d12193badaf3
+@cermont/backend:build: cache hit, replaying logs 788695507aa709f4
+@cermont/backend:build: 
+@cermont/backend:build: > @cermont/backend@5.2.1 build
+@cermont/backend:build: > tsc
+@cermont/backend:build: 
+@cermont/frontend:build: 
+@cermont/frontend:build: > @cermont/frontend@1.2.0 build
+@cermont/frontend:build: > next build --webpack
+@cermont/frontend:build: 
+@cermont/frontend:build: ▲ Next.js 16.2.6 (webpack)
+@cermont/frontend:build: - Environments: .env.local
+@cermont/frontend:build: - Experiments (use with caution):
+@cermont/frontend:build:   · optimizePackageImports
+@cermont/frontend:build:   · serverActions
+@cermont/frontend:build: 
+@cermont/frontend:build:   Creating an optimized production build ...
+@cermont/frontend:build: ✓ Compiled successfully in 10.3s
+@cermont/frontend:build:   Running TypeScript ...
+@cermont/frontend:build:   Finished TypeScript in 11.1s ...
+@cermont/frontend:build:   Collecting page data using 15 workers ...
+@cermont/frontend:build:   Generating static pages using 15 workers (0/46) ...
+@cermont/frontend:build:   Generating static pages using 15 workers (11/46) 
+@cermont/frontend:build:   Generating static pages using 15 workers (22/46) 
+@cermont/frontend:build:   Generating static pages using 15 workers (34/46) 
+@cermont/frontend:build: ✓ Generating static pages using 15 workers (46/46) in 1541ms
+@cermont/frontend:build:   Finalizing page optimization ...
+@cermont/frontend:build:   Collecting build traces ...
+@cermont/frontend:build: 
+@cermont/frontend:build: Route (app)
+@cermont/frontend:build: ┌ ○ /
+@cermont/frontend:build: ├ ○ /_not-found
+@cermont/frontend:build: ├ ƒ /admin
+@cermont/frontend:build: ├ ƒ /admin/users
+@cermont/frontend:build: ├ ƒ /admin/users/[id]
+@cermont/frontend:build: ├ ƒ /admin/users/[id]/edit
+@cermont/frontend:build: ├ ƒ /admin/users/new
+@cermont/frontend:build: ├ ƒ /api/auth/login
+@cermont/frontend:build: ├ ƒ /api/auth/register-client
+@cermont/frontend:build: ├ ƒ /assets
+@cermont/frontend:build: ├ ƒ /billing
+@cermont/frontend:build: ├ ƒ /billing/invoices
+@cermont/frontend:build: ├ ƒ /billing/invoices/[id]
+@cermont/frontend:build: ├ ƒ /billing/ses
+@cermont/frontend:build: ├ ƒ /billing/ses/[id]
+@cermont/frontend:build: ├ ƒ /costs
+@cermont/frontend:build: ├ ƒ /costs/[orderId]
+@cermont/frontend:build: ├ ƒ /costs/[orderId]/ejecucion
+@cermont/frontend:build: ├ ƒ /dashboard
+@cermont/frontend:build: ├ ƒ /delivery-records
+@cermont/frontend:build: ├ ƒ /delivery-records/[id]
+@cermont/frontend:build: ├ ƒ /documents
+@cermont/frontend:build: ├ ƒ /documents/ingestion/[id]
+@cermont/frontend:build: ├ ƒ /evidences
+@cermont/frontend:build: ├ ƒ /execution
+@cermont/frontend:build: ├ ƒ /execution/[id]
+@cermont/frontend:build: ├ ○ /forgot-password
+@cermont/frontend:build: ├ ○ /login
+@cermont/frontend:build: ├ ƒ /maintenance
+@cermont/frontend:build: ├ ƒ /maintenance/[id]
+@cermont/frontend:build: ├ ƒ /maintenance/[id]/edit
+@cermont/frontend:build: ├ ƒ /maintenance/new
+@cermont/frontend:build: ├ ƒ /orders
+@cermont/frontend:build: ├ ƒ /orders/[id]
+@cermont/frontend:build: ├ ƒ /orders/[id]/edit
+@cermont/frontend:build: ├ ƒ /orders/[id]/execution
+@cermont/frontend:build: ├ ƒ /orders/[id]/inspections/[inspectionId]
+@cermont/frontend:build: ├ ƒ /orders/[id]/invoice
+@cermont/frontend:build: ├ ƒ /orders/[id]/planning
+@cermont/frontend:build: ├ ƒ /orders/kanban
+@cermont/frontend:build: ├ ƒ /orders/new
+@cermont/frontend:build: ├ ƒ /payments
+@cermont/frontend:build: ├ ƒ /payments/[id]
+@cermont/frontend:build: ├ ƒ /planning
+@cermont/frontend:build: ├ ƒ /planning/[id]
+@cermont/frontend:build: ├ ƒ /profile
+@cermont/frontend:build: ├ ƒ /proposals
+@cermont/frontend:build: ├ ƒ /proposals/[id]
+@cermont/frontend:build: ├ ƒ /proposals/new
+@cermont/frontend:build: ├ ƒ /purchase-orders
+@cermont/frontend:build: ├ ƒ /purchase-orders/[id]
+@cermont/frontend:build: ├ ƒ /register
+@cermont/frontend:build: ├ ƒ /reports
+@cermont/frontend:build: ├ ƒ /reports/[id]
+@cermont/frontend:build: ├ ƒ /reports/archive
+@cermont/frontend:build: ├ ○ /reset-password
+@cermont/frontend:build: ├ ƒ /resources
+@cermont/frontend:build: ├ ƒ /resources/[id]
+@cermont/frontend:build: ├ ƒ /resources/kits
+@cermont/frontend:build: ├ ƒ /resources/kits/new
+@cermont/frontend:build: ├ ƒ /service-cases
+@cermont/frontend:build: ├ ƒ /service-cases/[id]
+@cermont/frontend:build: ├ ƒ /site-visits
+@cermont/frontend:build: ├ ƒ /site-visits/[id]
+@cermont/frontend:build: ├ ƒ /site-visits/new
+@cermont/frontend:build: ├ ○ /sitemap.xml
+@cermont/frontend:build: ├ ƒ /templates
+@cermont/frontend:build: ├ ƒ /templates/[id]
+@cermont/frontend:build: ├ ○ /unauthorized
+@cermont/frontend:build: ├ ƒ /work-requests
+@cermont/frontend:build: ├ ƒ /work-requests/[id]
+@cermont/frontend:build: └ ƒ /work-requests/new
+@cermont/frontend:build: 
+@cermont/frontend:build: 
+@cermont/frontend:build: ƒ Proxy (Middleware)
+@cermont/frontend:build: 
+@cermont/frontend:build: ○  (Static)   prerendered as static content
+@cermont/frontend:build: ƒ  (Dynamic)  server-rendered on demand
+@cermont/frontend:build: 
+
+ Tasks:    5 successful, 5 total
+Cached:    4 cached, 5 total
+  Time:    40.368s 
+
+ WARNING  IO error: Espacio en disco insuficiente. (os error 112)
+
+> cermont-monorepo@1.0.0 quality:strict
+> npm run quality:weak-tokens && npm run quality:language && npm run quality:semantics && npm run quality:routes && npm run quality:dtos && npm run quality:zero && npm run quality:lint-residue && npm run quality:service-size
+
+
+> cermont-monorepo@1.0.0 quality:weak-tokens
+> tsx tooling/quality/check-weak-tokens.ts
+
+Weak token quality check: 1655 findings
+- weak-token-a: 30/33 within baseline
+- weak-token-n: 642/647 within baseline
+- weak-token-u: 492/506 within baseline
+- weak-token-ud: 491/497 within baseline
+
+> cermont-monorepo@1.0.0 quality:language
+> tsx tooling/quality/check-language.ts
+
+Language quality check: 1849 findings
+- spanish-source-token: 1849/1850 within baseline
+
+> cermont-monorepo@1.0.0 quality:semantics
+> tsx tooling/quality/check-semantics.ts
+
+Semantic markup quality check: 11 findings
+- missing-semantic-landmark: 11/12 within baseline
+
+> cermont-monorepo@1.0.0 quality:routes
+> tsx tooling/quality/check-routes.ts
+
+Backend route quality check: 51 findings
+- route-missing-authentication: 1/1 within baseline
+- route-missing-authorization-policy: 29/29 within baseline
+- route-missing-validation: 21/21 within baseline
+
+> cermont-monorepo@1.0.0 quality:dtos
+> tsx tooling/quality/check-dtos.ts
+
+Local DTO quality check: 79 findings
+- local-api-dto: 79/79 within baseline
+
+> cermont-monorepo@1.0.0 quality:zero
+> tsx tooling/quality/check-zero-rules.ts
+
+Zero rules quality check: 0 findings
+
+> cermont-monorepo@1.0.0 quality:lint-residue
+> tsx tooling/quality/check-lint-residue.ts
+
+Lint residue quality check: 0 findings
+
+> cermont-monorepo@1.0.0 quality:service-size
+> tsx tooling/quality/check-service-size.ts
+
+Application service size quality check: 0 findings

@@ -6,6 +6,7 @@
  */
 
 import { z } from "zod";
+import { CustomFieldValuesSchema } from "./custom-field.schema";
 
 export const ActivityTypeEnum = z.enum([
 	"electrico",
@@ -24,6 +25,7 @@ export const ToolSchema = z.object({
 	name: z.string().min(1).max(200),
 	quantity: z.number().int().min(1),
 	specifications: z.string().optional(),
+	customFields: CustomFieldValuesSchema,
 });
 
 export type Tool = z.infer<typeof ToolSchema>;
@@ -35,6 +37,7 @@ export const EquipmentSchema = z.object({
 	name: z.string().min(1).max(200),
 	quantity: z.number().int().min(1),
 	certificateRequired: z.boolean().default(false),
+	customFields: CustomFieldValuesSchema,
 });
 
 export type Equipment = z.infer<typeof EquipmentSchema>;

@@ -15,6 +15,11 @@ export interface OfflineEvidenceInput {
 	description?: string;
 	capturedAt: string;
 	file: File;
+	gpsLocation?: {
+		lat: number;
+		lng: number;
+		capturedAt: string;
+	};
 }
 
 type OfflineEvidenceResponse = {
@@ -68,6 +73,10 @@ async function queueEvidenceUpload(variables: OfflineEvidenceInput): Promise<voi
 		payload.description = variables.description.trim();
 	}
 
+	if (variables.gpsLocation) {
+		payload.gpsLocation = variables.gpsLocation;
+	}
+
 	const entry: SyncQueueEntry = {
 		id: createUuid(),
 		endpoint: "/evidences",
@@ -97,6 +106,10 @@ function buildEvidenceFormData(data: OfflineEvidenceInput): FormData {
 
 	if (typeof data.description === "string" && data.description.trim().length > 0) {
 		formData.append("description", data.description.trim());
+	}
+
+	if (data.gpsLocation) {
+		formData.append("gpsLocation", JSON.stringify(data.gpsLocation));
 	}
 
 	return formData;
