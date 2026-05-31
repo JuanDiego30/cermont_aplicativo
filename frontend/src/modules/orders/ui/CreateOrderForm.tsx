@@ -211,13 +211,12 @@ export function CreateOrderForm({
 			<FormField name="kitTemplate" htmlFor="order-kitTemplate" label="Plantilla de kit">
 				<Select id="order-kitTemplate" {...register("kitTemplate")}>
 					<option value="">Sin kit</option>
-					{(kitTemplates || [])
-						.filter((kit) => !selectedType || kit.type === selectedType)
-						.map((kit) => (
-							<option key={kit.id} value={kit.id}>
-								{kit.name} - {kit.description}
-							</option>
-						))}
+{(kitTemplates || []).reduce<React.ReactNode[]>((acc, kit) => {
+                    if (!selectedType || kit.type === selectedType) {
+                      acc.push(<option key={kit.id} value={kit.id}>{kit.name} - {kit.description}</option>);
+                    }
+                    return acc;
+                  }, [])}
 				</Select>
 			</FormField>
 

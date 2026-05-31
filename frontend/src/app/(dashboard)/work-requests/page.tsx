@@ -21,7 +21,7 @@ function WorkRequestList() {
 
 	if (isLoading) {
 		return (
-			<div className="flex items-center justify-center py-24" role="status">
+			<div className="flex items-center justify-center py-24" aria-live="polite">
 				<Loader2
 					className="size-8 animate-spin text-[var(--color-brand-blue)]"
 					aria-hidden="true"

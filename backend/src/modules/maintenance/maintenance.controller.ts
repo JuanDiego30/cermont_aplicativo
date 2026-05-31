@@ -76,13 +76,13 @@ export const getAllKits = async (req: Request, res: Response) => {
 	const pageValue =
 		pageQuery !== undefined
 			? parseNumberQuery(String(pageQuery), 1)
-			: offsetToPage(getString(offset), limitValue);
+			: offsetToPage(String(offset), limitValue);
 
 	const result = await MaintenanceKitService.findAll(
 		{
-			activityType,
-			isActive,
-			search,
+			activityType: getString(activityType as string | undefined).trim() || undefined,
+			isActive: getString(isActive as string | undefined).trim() || undefined,
+			search: getString(search as string | undefined).trim() || undefined,
 		},
 		pageValue,
 		limitValue,

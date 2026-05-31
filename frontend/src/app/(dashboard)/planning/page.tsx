@@ -104,10 +104,10 @@ export default function PlanningPage() {
 					</div>
 				) : null}
 				{isLoading ? (
-					<div className="flex items-center justify-center py-16" role="status">
-						<Loader2 className="size-7 animate-spin text-[var(--color-brand)]" aria-hidden="true" />
-						<span className="sr-only">Cargando planeacion</span>
-					</div>
+					<output className="flex items-center justify-center py-16" aria-live="polite">
+						<Loader2 className="size-7 animate-spin text-brand" aria-hidden="true" />
+						<span className="sr-only">Cargando planeación</span>
+					</output>
 				) : null}
 				{isError ? (
 					<div className="p-4">

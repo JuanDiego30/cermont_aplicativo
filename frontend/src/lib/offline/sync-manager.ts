@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { isPresent } from "@cermont/shared-types";
 import { toApiUrl } from "@/lib/http/api-client";
 import { createLogger } from "@/lib/monitoring/logger";
 import { useAuthStore } from "@/store/auth.store";
@@ -37,8 +38,13 @@ class SyncRequestError extends Error {
 }
 
 function buildAuthHeaders(): HeadersInit {
-	const token = useAuthStore.getState().accessToken;
-	return token ? { Authorization: `Bearer ${token}` } : {};
+	const tokenStatus = useAuthStore.getState().accessToken;
+
+	if (!isPresent(tokenStatus)) {
+		return {};
+	}
+
+	return { Authorization: `Bearer ${tokenStatus.value}` };
 }
 
 function isFilePayload(payload: Record<string, unknown>): boolean {

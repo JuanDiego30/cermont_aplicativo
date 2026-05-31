@@ -55,7 +55,13 @@ export async function uploadEvidence(req: Request, res: Response): Promise<void>
 		req.body,
 	);
 	const normalizedGpsLocation = gpsLocation
-		? { ...gpsLocation, capturedAt: new Date(gpsLocation.capturedAt) }
+		? {
+				lat: gpsLocation.lat,
+				lng: gpsLocation.lng,
+				capturedAt: gpsLocation.capturedAt
+					? new Date(gpsLocation.capturedAt)
+					: new Date(),
+			}
 		: undefined;
 
 	const evidence = await EvidenceService.createEvidence(
@@ -84,6 +90,18 @@ export async function deleteEvidence(req: Request, res: Response): Promise<void>
 	const user = requireUser(req);
 
 	const evidence = await EvidenceService.deleteEvidence(id, user._id);
+
+	res.status(200).json({
+		success: true,
+		data: evidence,
+	});
+}
+
+export async function verifyEvidence(req: Request, res: Response): Promise<void> {
+	const { id } = EvidenceIdSchema.parse(req.params);
+	const user = requireUser(req);
+
+	const evidence = await EvidenceService.verifyEvidence(id, user._id, user.role);
 
 	res.status(200).json({
 		success: true,

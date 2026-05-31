@@ -39,7 +39,7 @@ const COPYRIGHT_YEAR = 2026;
 
 export function LoginCarousel() {
 	const [currentSlide, setCurrentSlide] = useState(0);
-	const [isPaused, setIsPaused] = useState(false);
+	const isPaused = useRef(false);
 	const panelRef = useRef<HTMLDivElement>(null);
 
 	// GSAP sequential reveal of brand elements
@@ -60,14 +60,13 @@ export function LoginCarousel() {
 	);
 
 	useEffect(() => {
-		if (isPaused || prefersReducedMotion()) {
-			return;
-		}
 		const interval = setInterval(() => {
-			setCurrentSlide((prev) => (prev + 1) % CAROUSEL_SLIDES.length);
+			if (!isPaused.current && !prefersReducedMotion()) {
+				setCurrentSlide((prev) => (prev + 1) % CAROUSEL_SLIDES.length);
+			}
 		}, 6000);
 		return () => clearInterval(interval);
-	}, [isPaused]);
+	}, []);
 
 	const goToSlide = (index: number) => setCurrentSlide(index);
 	const goToPrev = () =>
@@ -79,10 +78,10 @@ export function LoginCarousel() {
 			ref={panelRef}
 			className="relative flex h-full min-h-[480px] flex-col justify-between overflow-hidden bg-[var(--surface-sidebar)] px-10 py-16 lg:px-16 lg:py-20"
 			aria-label="Carrusel informativo corporativo"
-			onMouseEnter={() => setIsPaused(true)}
-			onMouseLeave={() => setIsPaused(false)}
-			onFocus={() => setIsPaused(true)}
-			onBlur={() => setIsPaused(false)}
+			onMouseEnter={() => (isPaused.current = true)}
+			onMouseLeave={() => (isPaused.current = false)}
+			onFocus={() => (isPaused.current = true)}
+			onBlur={() => (isPaused.current = false)}
 		>
 			{CAROUSEL_SLIDES.map((slide, index) => (
 				<Image

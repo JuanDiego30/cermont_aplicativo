@@ -1,12 +1,17 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { usePaymentsList } from "@/modules/billing/queries";
-import { paymentRows, WorkflowRecordsPage } from "@/modules/billing/ui/WorkflowRecordsPage";
+import {
+	paymentRows,
+	WorkflowRecordsPage,
+	WorkflowRecordsPageLoadingState,
+} from "@/modules/billing/ui/WorkflowRecordsPage";
 
-export default function PaymentsPage() {
-	const searchParams = useSearchParams();
-	const workOrderId = searchParams.get("workOrderId")?.trim() || undefined;
+function PaymentsPageContent() {
+	const { get } = useSearchParams();
+	const workOrderId = get("workOrderId")?.trim() || undefined;
 	const query = usePaymentsList(workOrderId ? { workOrderId, limit: 50 } : undefined);
 
 	return (
@@ -37,5 +42,13 @@ export default function PaymentsPage() {
 				{ href: "/documents", label: "Soportes" },
 			]}
 		/>
+	);
+}
+
+export default function PaymentsPage() {
+	return (
+		<Suspense fallback={<WorkflowRecordsPageLoadingState />}>
+			<PaymentsPageContent />
+		</Suspense>
 	);
 }

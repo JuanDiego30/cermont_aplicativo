@@ -287,11 +287,12 @@ export async function getAllTemplateDrafts(
 /**
  * Get a single template draft by ID
  */
-export async function getTemplateDraftById(id: string): Promise<ITemplateDraftDocument | null> {
+export async function getTemplateDraftById(id: string): Promise<ITemplateDraftDocument | undefined> {
 	if (!Types.ObjectId.isValid(id)) {
-		return null;
+		return undefined;
 	}
-	return TemplateDraft.findById(id).exec();
+	const draft = await TemplateDraft.findById(id).exec();
+	return draft ?? undefined;
 }
 
 /**

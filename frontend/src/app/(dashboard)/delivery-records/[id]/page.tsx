@@ -4,7 +4,7 @@ import type { DeliveryRecord, DeliverySignatureMethod } from "@cermont/shared-ty
 import { ArrowLeft, Ban, FileSignature, Send, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useReducer, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -15,30 +15,35 @@ import {
 	useSignDeliveryRecord,
 } from "@/modules/billing/queries";
 
+import { RejectForm } from "@/core/ui/RejectForm";
+
+const DATE_FMT = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
+const fmtDate = (v?: string) => (v ? DATE_FMT.format(new Date(v)) : "Sin fecha");
+
 function deliveryStatusTone(status: DeliveryRecord["status"]): string {
 	if (status === "signed") {
-		return "border-[var(--color-success-border)] bg-[var(--color-success-bg)] text-[var(--color-success)]";
+		return "border-success/30 bg-success/5 text-success";
 	}
 	if (status === "rejected" || status === "cancelled") {
-		return "border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] text-[var(--color-danger)]";
+		return "border-destructive/30 bg-destructive/5 text-destructive";
 	}
 	if (status === "draft" || status === "sent") {
-		return "border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] text-[var(--color-warning)]";
+		return "border-warning/30 bg-warning/5 text-warning";
 	}
-	return "border-[var(--border-default)] bg-[var(--surface-secondary)] text-[var(--text-secondary)]";
+	return "border-border bg-surface-secondary text-muted-foreground";
 }
 
 function acceptanceStatusTone(status: DeliveryRecord["acceptanceStatus"]): string {
 	if (status === "accepted") {
-		return "text-[var(--color-success)]";
+		return "text-success";
 	}
 	if (status === "rejected") {
-		return "text-[var(--color-danger)]";
+		return "text-destructive";
 	}
 	if (status === "accepted_with_observations") {
-		return "text-[var(--color-warning)]";
+		return "text-warning";
 	}
-	return "text-[var(--text-secondary)]";
+	return "text-muted-foreground";
 }
 
 export default function DeliveryRecordDetailPage() {
@@ -52,8 +57,8 @@ export default function DeliveryRecordDetailPage() {
 function DetailSkeleton() {
 	return (
 		<section className="space-y-6" aria-label="Cargando acta de entrega">
-			<div className="h-8 w-48 animate-pulse rounded-[var(--radius-md)] bg-zinc-100" />
-			<div className="h-32 animate-pulse rounded-[var(--radius-lg)] bg-zinc-100" />
+			<div className="h-8 w-48 animate-pulse rounded-md bg-zinc-100" />
+			<div className="h-32 animate-pulse rounded-lg bg-zinc-100" />
 		</section>
 	);
 }
@@ -83,7 +88,7 @@ function BackLink() {
 	return (
 		<Link
 			href="/delivery-records"
-			className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-brand)]"
+			className="inline-flex items-center gap-2 text-sm font-medium text-brand"
 		>
 			<ArrowLeft className="size-4" aria-hidden="true" />
 			Volver a Actas de entrega
@@ -93,17 +98,17 @@ function BackLink() {
 
 function ErrorCard({ onRetry }: { onRetry: () => void }) {
 	return (
-		<div className="rounded-[var(--radius-lg)] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] p-5">
-			<h2 className="text-base font-semibold text-[var(--text-primary)]">
+		<div className="rounded-lg border border-destructive/20 bg-destructive/10 p-5">
+			<h2 className="text-base font-semibold text-foreground">
 				No se pudo cargar el acta
 			</h2>
-			<p className="mt-1 text-sm text-[var(--text-secondary)]">
+			<p className="mt-1 text-sm text-muted-foreground">
 				Ocurri&oacute;n un error al obtener los datos.
 			</p>
 			<button
 				type="button"
 				onClick={onRetry}
-				className="mt-3 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm font-medium text-[var(--text-primary)]"
+				className="mt-3 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground"
 			>
 				Reintentar
 			</button>
@@ -113,14 +118,14 @@ function ErrorCard({ onRetry }: { onRetry: () => void }) {
 
 function EmptyCard() {
 	return (
-		<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] p-6">
-			<h2 className="text-base font-semibold text-[var(--text-primary)]">Acta no encontrada</h2>
-			<p className="mt-1 text-sm text-[var(--text-secondary)]">
+		<div className="rounded-lg border border-dashed border-border bg-card p-6">
+			<h2 className="text-base font-semibold text-foreground">Acta no encontrada</h2>
+			<p className="mt-1 text-sm text-muted-foreground">
 				El identificador no corresponde a ning&uacute;n acta registrada.
 			</p>
 			<Link
 				href="/delivery-records"
-				className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[var(--color-brand)]"
+				className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-brand"
 			>
 				<ArrowLeft className="size-4" />
 				Volver al listado
@@ -202,7 +207,7 @@ function RecordContent({ record }: { record: DeliveryRecord }) {
 							type="button"
 							onClick={() => toggleAction("send")}
 							disabled={sendMutation.isPending}
-							className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-brand)] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+							className="inline-flex items-center gap-2 rounded-md bg-brand px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
 						>
 							<Send className="size-4" />
 							Enviar
@@ -213,7 +218,7 @@ function RecordContent({ record }: { record: DeliveryRecord }) {
 							type="button"
 							onClick={() => toggleAction("sign")}
 							disabled={signMutation.isPending}
-							className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-brand)] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+							className="inline-flex items-center gap-2 rounded-md bg-brand px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
 						>
 							<FileSignature className="size-4" />
 							Firmar
@@ -224,7 +229,7 @@ function RecordContent({ record }: { record: DeliveryRecord }) {
 							type="button"
 							onClick={() => toggleAction("reject")}
 							disabled={rejectMutation.isPending}
-							className="inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-danger)] bg-[var(--color-danger-bg)] px-4 py-2 text-sm font-medium text-[var(--color-danger)] disabled:opacity-50"
+							className="inline-flex items-center gap-2 rounded-md border border-destructive bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive disabled:opacity-50"
 						>
 							<XCircle className="size-4" />
 							Rechazar
@@ -235,7 +240,7 @@ function RecordContent({ record }: { record: DeliveryRecord }) {
 							type="button"
 							onClick={() => toggleAction("cancel")}
 							disabled={cancelMutation.isPending}
-							className="inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-4 py-2 text-sm font-medium text-[var(--text-primary)] disabled:opacity-50"
+							className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-4 py-2 text-sm font-medium text-foreground disabled:opacity-50"
 						>
 							<Ban className="size-4" />
 							Cancelar
@@ -247,7 +252,12 @@ function RecordContent({ record }: { record: DeliveryRecord }) {
 			{showAction("send") && <SendForm onSend={handleSend} pending={sendMutation.isPending} />}
 			{showAction("sign") && <SignForm onSign={handleSign} pending={signMutation.isPending} />}
 			{showAction("reject") && (
-				<RejectForm onReject={handleReject} pending={rejectMutation.isPending} />
+				<RejectForm
+					title="Rechazar Acta"
+					onReject={handleReject}
+					pending={rejectMutation.isPending}
+					minChars={10}
+				/>
 			)}
 			{showAction("cancel") && (
 				<ConfirmCancel onCancel={handleCancel} pending={cancelMutation.isPending} />
@@ -257,18 +267,15 @@ function RecordContent({ record }: { record: DeliveryRecord }) {
 }
 
 function RecordInfo({ record }: { record: DeliveryRecord }) {
-	const dateFmt = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
-	const fmtDate = (v?: string) => (v ? dateFmt.format(new Date(v)) : "Sin fecha");
-
-	return (
+  return (
 		<div className="space-y-4">
-			<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-card">
+			<div className="rounded-lg border border-border bg-card p-6 shadow-card">
 				<div className="flex flex-wrap items-start justify-between gap-3">
 					<div>
-						<h2 id="dr-detail-title" className="text-xl font-semibold text-[var(--text-primary)]">
+						<h2 id="dr-detail-title" className="text-xl font-semibold text-foreground">
 							{record.code}
 						</h2>
-						<p className="text-sm text-[var(--text-secondary)]">
+						<p className="text-sm text-muted-foreground">
 							Orden {record.workOrderId} &middot; Informe {record.technicalReportId}
 						</p>
 					</div>
@@ -299,22 +306,22 @@ function RecordInfo({ record }: { record: DeliveryRecord }) {
 			</div>
 
 			{record.clientObservations && (
-				<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-card">
-					<h3 className="text-sm font-semibold text-[var(--text-primary)]">
+				<div className="rounded-lg border border-border bg-card p-4 shadow-card">
+					<h3 className="text-sm font-semibold text-foreground">
 						Observaciones del cliente
 					</h3>
-					<p className="mt-2 text-sm text-[var(--text-secondary)]">{record.clientObservations}</p>
+					<p className="mt-2 text-sm text-muted-foreground">{record.clientObservations}</p>
 				</div>
 			)}
 
 			{record.rejectionReason && (
-				<div className="rounded-[var(--radius-lg)] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] p-4">
-					<h3 className="text-sm font-semibold text-[var(--color-danger)]">Motivo de rechazo</h3>
-					<p className="mt-2 text-sm text-[var(--text-secondary)]">{record.rejectionReason}</p>
+				<div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4">
+					<h3 className="text-sm font-semibold text-destructive">Motivo de rechazo</h3>
+					<p className="mt-2 text-sm text-muted-foreground">{record.rejectionReason}</p>
 				</div>
 			)}
 
-			<div className="flex flex-wrap gap-4 text-xs text-[var(--text-muted)]">
+			<div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
 				<span>Creado: {fmtDate(record.createdAt)}</span>
 				<span>Actualizado: {fmtDate(record.updatedAt)}</span>
 			</div>
@@ -332,25 +339,25 @@ function FieldCard({
 	valueClass?: string;
 }) {
 	return (
-		<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-card">
-			<p className="text-xs font-medium uppercase text-[var(--text-muted)]">{title}</p>
-			<p className={`mt-1 text-sm text-[var(--text-primary)] ${valueClass ?? ""}`}>{value}</p>
+		<div className="rounded-lg border border-border bg-card p-4 shadow-card">
+			<p className="text-xs font-medium uppercase text-muted-foreground">{title}</p>
+			<p className={`mt-1 text-sm text-foreground ${valueClass ?? ""}`}>{value}</p>
 		</div>
 	);
 }
 
 function SendForm({ onSend, pending }: { onSend: () => void; pending: boolean }) {
 	return (
-		<div className="rounded-[var(--radius-lg)] border border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] p-4">
-			<h3 className="text-sm font-semibold text-[var(--color-warning)]">Confirmar env&iacute;o</h3>
-			<p className="mt-1 text-sm text-[var(--text-secondary)]">
+		<div className="rounded-lg border border-warning/20 bg-warning/10 p-4">
+			<h3 className="text-sm font-semibold text-warning">Confirmar env&iacute;o</h3>
+			<p className="mt-1 text-sm text-muted-foreground">
 				&iquest;Desea enviar esta acta para firma del cliente?
 			</p>
 			<button
 				type="button"
 				onClick={onSend}
 				disabled={pending}
-				className="mt-3 rounded-[var(--radius-md)] bg-[var(--color-brand)] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+				className="mt-3 rounded-md bg-brand px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
 			>
 				{pending ? "Enviando..." : "Confirmar env&iacute;o"}
 			</button>
@@ -371,53 +378,76 @@ function SignForm({
 	}) => void;
 	pending: boolean;
 }) {
-	const [docRef, setDocRef] = useState("");
-	const [method, setMethod] = useState<DeliverySignatureMethod>("manual");
-	const [signedAt, setSignedAt] = useState(() => new Date().toISOString().slice(0, 16));
-	const [signedBy, setSignedBy] = useState("");
-	const [obs, setObs] = useState("");
+	type SignFormState = {
+		docRef: string;
+		method: DeliverySignatureMethod;
+		obs: string;
+		signedAt: string;
+		signedBy: string;
+	};
+	type SignFormField = keyof SignFormState;
+	type SignFormAction = { field: SignFormField; value: SignFormState[SignFormField] };
+
+	const [form, dispatch] = useReducer(
+		(state: SignFormState, action: SignFormAction): SignFormState => ({
+			...state,
+			[action.field]: action.value,
+		}),
+		{
+			docRef: "",
+			method: "manual",
+			obs: "",
+			signedAt: new Date().toISOString().slice(0, 16),
+			signedBy: "",
+		},
+	);
+	const { docRef, method, obs, signedAt, signedBy } = form;
+	const setField = <TField extends SignFormField>(field: TField, value: SignFormState[TField]) =>
+		dispatch({ field, value });
 
 	const valid = docRef.trim().length > 0 && signedBy.trim().length > 0;
 
+	const handleSubmit = async () => {
+		if (!valid) {
+			return;
+		}
+
+		await onSign({
+			signedDocumentRef: docRef.trim(),
+			signatureMethod: method,
+			signedAt: new Date(signedAt).toISOString(),
+			signedBy: signedBy.trim(),
+			clientObservations: obs.trim() || undefined,
+		});
+	};
+
 	return (
 		<form
-			className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-card"
-			onSubmit={(e) => {
-				e.preventDefault();
-				if (!valid) {
-					return;
-				}
-				onSign({
-					signedDocumentRef: docRef.trim(),
-					signatureMethod: method,
-					signedAt: new Date(signedAt).toISOString(),
-					signedBy: signedBy.trim(),
-					clientObservations: obs.trim() || undefined,
-				});
-			}}
+			className="space-y-3 rounded-lg border border-border bg-card p-4 shadow-card"
+			action={handleSubmit}
 		>
-			<h3 className="text-sm font-semibold text-[var(--text-primary)]">Firmar acta</h3>
+			<h3 className="text-sm font-semibold text-foreground">Firmar acta</h3>
 
-			<label htmlFor="docRef" className="block text-sm">
-				<span className="text-[var(--text-secondary)]">Referencia del documento firmado *</span>
+			<div className="space-y-1">
+				<label htmlFor="docRef" className="text-sm text-muted-foreground">Referencia del documento firmado *</label>
 				<input
 					id="docRef"
 					type="text"
 					value={docRef}
-					onChange={(e) => setDocRef(e.target.value)}
-					className="mt-1 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-2 text-sm"
+					onChange={(e) => setField("docRef", e.target.value)}
+					className="w-full rounded-md border border-border bg-surface-secondary px-3 py-2 text-sm"
 					required
 					aria-required="true"
 				/>
-			</label>
+			</div>
 
-			<label htmlFor="method" className="block text-sm">
-				<span className="text-[var(--text-secondary)]">M&eacute;todo de firma *</span>
+			<div className="space-y-1">
+				<label htmlFor="method" className="text-sm text-muted-foreground">M&eacute;todo de firma *</label>
 				<select
 					id="method"
 					value={method}
-					onChange={(e) => setMethod(e.target.value as DeliverySignatureMethod)}
-					className="mt-1 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-2 text-sm"
+					onChange={(e) => setField("method", e.target.value as DeliverySignatureMethod)}
+					className="w-full rounded-md border border-border bg-surface-secondary px-3 py-2 text-sm"
 					required
 					aria-required="true"
 				>
@@ -425,48 +455,48 @@ function SignForm({
 					<option value="digital">Digital</option>
 					<option value="uploaded_document">Documento cargado</option>
 				</select>
-			</label>
+			</div>
 
-			<label htmlFor="signedAt" className="block text-sm">
-				<span className="text-[var(--text-secondary)]">Fecha y hora de firma *</span>
+			<div className="space-y-1">
+				<label htmlFor="signedAt" className="text-sm text-muted-foreground">Fecha y hora de firma *</label>
 				<input
 					id="signedAt"
 					type="datetime-local"
 					value={signedAt}
-					onChange={(e) => setSignedAt(e.target.value)}
-					className="mt-1 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-2 text-sm"
+					onChange={(e) => setField("signedAt", e.target.value)}
+					className="w-full rounded-md border border-border bg-surface-secondary px-3 py-2 text-sm"
 					required
 				/>
-			</label>
+			</div>
 
-			<label htmlFor="signedBy" className="block text-sm">
-				<span className="text-[var(--text-secondary)]">Nombre de quien firma *</span>
+			<div className="space-y-1">
+				<label htmlFor="signedBy" className="text-sm text-muted-foreground">Nombre de quien firma *</label>
 				<input
 					id="signedBy"
 					type="text"
 					value={signedBy}
-					onChange={(e) => setSignedBy(e.target.value)}
-					className="mt-1 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-2 text-sm"
+					onChange={(e) => setField("signedBy", e.target.value)}
+					className="mt-1 w-full rounded-md border border-border bg-surface-secondary px-3 py-2 text-sm"
 					required
 					aria-required="true"
 				/>
-			</label>
+			</div>
 
 			<label htmlFor="obs" className="block text-sm">
-				<span className="text-[var(--text-secondary)]">Observaciones (opcional)</span>
+				<span className="text-muted-foreground">Observaciones (opcional)</span>
 				<textarea
 					id="obs"
 					value={obs}
-					onChange={(e) => setObs(e.target.value)}
+					onChange={(e) => setField("obs", e.target.value)}
 					rows={3}
-					className="mt-1 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-2 text-sm"
+					className="mt-1 w-full rounded-md border border-border bg-surface-secondary px-3 py-2 text-sm"
 				/>
 			</label>
 
 			<button
 				type="submit"
 				disabled={pending || !valid}
-				className="rounded-[var(--radius-md)] bg-[var(--color-brand)] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+				className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
 			>
 				{pending ? "Firmando..." : "Confirmar firma"}
 			</button>
@@ -474,58 +504,11 @@ function SignForm({
 	);
 }
 
-function RejectForm({
-	onReject,
-	pending,
-}: {
-	onReject: (reason: string) => void;
-	pending: boolean;
-}) {
-	const [reason, setReason] = useState("");
-
-	return (
-		<form
-			className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] p-4"
-			onSubmit={(e) => {
-				e.preventDefault();
-				if (reason.trim().length < 5) {
-					return;
-				}
-				onReject(reason.trim());
-			}}
-		>
-			<h3 className="text-sm font-semibold text-[var(--color-danger)]">Rechazar acta</h3>
-			<label htmlFor="rejectReason" className="block text-sm">
-				<span className="text-[var(--text-secondary)]">
-					Motivo de rechazo * (m&iacute;nimo 5 caracteres)
-				</span>
-				<textarea
-					id="rejectReason"
-					value={reason}
-					onChange={(e) => setReason(e.target.value)}
-					rows={3}
-					className="mt-1 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-2 text-sm"
-					required
-					minLength={5}
-					aria-required="true"
-				/>
-			</label>
-			<button
-				type="submit"
-				disabled={pending || reason.trim().length < 5}
-				className="rounded-[var(--radius-md)] bg-[var(--color-danger)] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-			>
-				{pending ? "Rechazando..." : "Confirmar rechazo"}
-			</button>
-		</form>
-	);
-}
-
 function ConfirmCancel({ onCancel, pending }: { onCancel: () => void; pending: boolean }) {
 	return (
-		<div className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-card">
-			<h3 className="text-sm font-semibold text-[var(--text-primary)]">Cancelar acta</h3>
-			<p className="text-sm text-[var(--text-secondary)]">
+		<div className="space-y-3 rounded-lg border border-border bg-card p-4 shadow-card">
+			<h3 className="text-sm font-semibold text-foreground">Cancelar acta</h3>
+			<p className="text-sm text-muted-foreground">
 				&iquest;Est&aacute; seguro de que desea cancelar esta acta? Esta acci&oacute;n no se puede
 				deshacer.
 			</p>
@@ -533,7 +516,7 @@ function ConfirmCancel({ onCancel, pending }: { onCancel: () => void; pending: b
 				type="button"
 				onClick={onCancel}
 				disabled={pending}
-				className="rounded-[var(--radius-md)] border border-[var(--color-danger)] bg-[var(--color-danger-bg)] px-4 py-2 text-sm font-medium text-[var(--color-danger)] disabled:opacity-50"
+				className="rounded-md border border-destructive bg-destructive/5 px-4 py-2 text-sm font-medium text-destructive disabled:opacity-50"
 			>
 				{pending ? "Cancelando..." : "Confirmar cancelaci&oacute;n"}
 			</button>

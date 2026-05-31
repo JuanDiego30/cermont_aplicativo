@@ -5,21 +5,24 @@
  * The actual parsing lives in `@cermont/config` and `./env`.
  */
 
+import { createLogger } from "../common/utils/logger";
 import { type Env, env } from "./env";
+
+const logger = createLogger("validate-env");
 
 export function validateEnv(): Env {
 	return env;
 }
 
 if (require.main === module) {
-	console.log("🔍 Validating environment variables...");
+	logger.info("🔍 Validating environment variables...");
 	const currentEnv = validateEnv();
-	console.log("✅ Environment validation passed!");
-	console.log(`   NODE_ENV: ${currentEnv.NODE_ENV}`);
-	console.log(`   PORT: ${currentEnv.PORT}`);
-	console.log(`   MONGODB_URI: ${currentEnv.MONGODB_URI.replace(/\/\/([^:]+):/g, "//***:")}`);
-	console.log(`   FRONTEND_URL: ${currentEnv.FRONTEND_URL}`);
-	console.log(`   LOG_LEVEL: ${currentEnv.LOG_LEVEL}`);
+	logger.info("✅ Environment validation passed!");
+	logger.info(`   NODE_ENV: ${currentEnv.NODE_ENV}`);
+	logger.info(`   PORT: ${currentEnv.PORT}`);
+	logger.info(`   MONGODB_URI: ${currentEnv.MONGODB_URI.replace(/\/\/([^:]+):/g, "//***:")}`);
+	logger.info(`   FRONTEND_URL: ${currentEnv.FRONTEND_URL}`);
+	logger.info(`   LOG_LEVEL: ${currentEnv.LOG_LEVEL}`);
 }
 
 export default validateEnv;

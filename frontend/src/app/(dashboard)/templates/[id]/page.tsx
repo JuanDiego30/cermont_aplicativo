@@ -7,6 +7,9 @@ import { Suspense } from "react";
 import type { DocumentTemplateItem } from "@/modules/templates/queries";
 import { useTemplate } from "@/modules/templates/queries";
 
+const DATE_FMT = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
+const fmtDate = (v: string) => DATE_FMT.format(new Date(v));
+
 export default function TemplateDetailPage() {
 	return (
 		<Suspense fallback={<DetailSkeleton />}>
@@ -34,16 +37,16 @@ function TemplateDetailInner() {
 		<section className="space-y-6" aria-labelledby="template-detail-title">
 			<Link
 				href="/templates"
-				className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-brand)]"
+				className="inline-flex items-center gap-2 text-sm font-medium text-brand"
 			>
 				<ArrowLeft className="size-4" aria-hidden="true" /> Volver a Plantillas
 			</Link>
 
 			{isLoading && (
-				<div className="flex items-center justify-center py-16" role="status">
-					<Loader2 className="size-7 animate-spin text-[var(--color-brand)]" aria-hidden="true" />
+				<output className="flex items-center justify-center py-16" aria-live="polite">
+					<Loader2 className="size-7 animate-spin text-brand" aria-hidden="true" />
 					<span className="sr-only">Cargando plantilla</span>
-				</div>
+				</output>
 			)}
 
 			{isError && (
@@ -81,10 +84,7 @@ function TemplateDetailInner() {
 }
 
 function TemplateContent({ tpl }: { tpl: DocumentTemplateItem }) {
-	const dateFmt = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
-	const fmtDate = (v: string) => dateFmt.format(new Date(v));
-
-	return (
+  return (
 		<div className="space-y-4">
 			<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-card">
 				<div className="flex flex-wrap items-start justify-between gap-3">

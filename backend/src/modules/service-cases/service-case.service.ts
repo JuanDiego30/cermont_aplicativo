@@ -373,10 +373,10 @@ export async function getServiceCases(query: {
 	return { data, total, page: query.page, limit: query.limit };
 }
 
-export async function getServiceCaseById(id: string): Promise<ServiceCaseView | null> {
+export async function getServiceCaseById(id: string): Promise<ServiceCaseView | undefined> {
 	const rawCase = await ServiceCase.findById(id);
 	if (!rawCase) {
-		return null;
+		return undefined;
 	}
 
 	const baseCase = rawCase.toObject({ versionKey: false }) as {

@@ -76,4 +76,14 @@ router.delete(
 	EvidenceController.deleteEvidence,
 );
 
+// POST /api/evidences/:id/verify
+// Roles: GER, RES, SUP
+router.post(
+	"/:id/verify",
+	authenticate,
+	authorize("gerente", "residente", "supervisor"),
+	validateParams(EvidenceIdSchema),
+	EvidenceController.verifyEvidence,
+);
+
 export default router;

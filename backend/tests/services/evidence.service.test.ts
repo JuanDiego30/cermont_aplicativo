@@ -401,4 +401,62 @@ describe("EvidenceService", () => {
 			await expect(evidenceService.deleteEvidence("missing-id", userId)).rejects.toThrow();
 		});
 	});
+
+	describe("verifyEvidence", () => {
+		it("verifies evidence and writes an audit log when user has authorized role", async () => {
+			const evidenceDoc = mockEvidenceDocument();
+			vi.mocked(Evidence.findById).mockResolvedValue(
+				evidenceDoc as unknown as Awaited<ReturnType<typeof Evidence.findById>>,
+			);
+
+			const verifierId = "507f1f77bcf86cd799439088";
+			const result = await evidenceService.verifyEvidence("evidence-id-1", verifierId, "gerente");
+
+			expect(Evidence.findById).toHaveBeenCalledWith("evidence-id-1");
+			expect(evidenceDoc.verifiedAt).toBeInstanceOf(Date);
+			expect(evidenceDoc.save).toHaveBeenCalled();
+			expect(createAuditLog).toHaveBeenCalledWith(
+				expect.objectContaining({
+					action: "EVIDENCE_VERIFIED",
+					entity: "Evidence",
+					userId: verifierId,
+					metadata: expect.objectContaining({
+						orderId,
+						filename: "1700000000000-abcd-efgh-ijkl.webp",
+					}),
+				}),
+			);
+			expect(result).toEqual(
+				expect.objectContaining({
+					_id: "evidence-id-1",
+					uploadedBy: userId,
+				}),
+			);
+		});
+
+		it("allows supervisor role to verify", async () => {
+			const evidenceDoc = mockEvidenceDocument();
+			vi.mocked(Evidence.findById).mockResolvedValue(
+				evidenceDoc as unknown as Awaited<ReturnType<typeof Evidence.findById>>,
+			);
+
+			await expect(
+				evidenceService.verifyEvidence("evidence-id-1", userId, "supervisor"),
+			).resolves.toBeDefined();
+		});
+
+		it("rejects verification from unauthorized role", async () => {
+			await expect(
+				evidenceService.verifyEvidence("evidence-id-1", userId, "operador"),
+			).rejects.toThrow("You do not have permission to verify evidence");
+		});
+
+		it("throws when evidence does not exist", async () => {
+			vi.mocked(Evidence.findById).mockResolvedValue(null);
+
+			await expect(
+				evidenceService.verifyEvidence("missing-id", userId, "gerente"),
+			).rejects.toThrow();
+		});
+	});
 });

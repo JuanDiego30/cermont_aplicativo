@@ -1,5 +1,6 @@
 "use client";
 
+import * as Dialog from "@radix-ui/react-dialog";
 import {
 	Archive,
 	Calendar,
@@ -11,9 +12,11 @@ import {
 	ShieldCheck,
 	Trash2,
 	Workflow,
+	X,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { Button } from "@/core/ui/Button";
 import {
 	getDocumentAssociationCount,
 	getDocumentLinkedEntityLabel,
@@ -116,36 +119,49 @@ function ActionDialog({
 }) {
 	const [reason, setReason] = useState("");
 	const dialogCopy = getDialogCopy(action, document);
+	const handleClose = () => {
+		setReason("");
+		onClose();
+	};
 
 	if (!open) {
-		return <></>;
+		return null;
 	}
 
 	return (
-		<div
-			role="dialog"
-			aria-modal="true"
-			aria-labelledby="documents-action-dialog-title"
-			className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
-			onClick={(event) => {
-				if (event.target === event.currentTarget) {
-					onClose();
-				}
-			}}
-			onKeyDown={(event) => {
-				if (event.key === "Escape") {
-					onClose();
+		<Dialog.Root
+			open={open}
+			onOpenChange={(isOpen) => {
+				if (!isOpen) {
+					handleClose();
 				}
 			}}
 		>
-			<div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-				<h3
-					id="documents-action-dialog-title"
-					className="text-lg font-semibold text-zinc-900"
-				>
-					{dialogCopy.title}
-				</h3>
-				<p className="mt-2 text-sm leading-6 text-zinc-600">{dialogCopy.description}</p>
+			<Dialog.Portal>
+				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+				<Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-xl">
+					<div className="flex items-start justify-between gap-4">
+						<div>
+							<Dialog.Title className="text-lg font-semibold text-zinc-900">
+								{dialogCopy.title}
+							</Dialog.Title>
+							<Dialog.Description className="mt-2 text-sm leading-6 text-zinc-600">
+								{dialogCopy.description}
+							</Dialog.Description>
+						</div>
+						<Dialog.Close asChild>
+							<Button
+								type="button"
+								variant="ghost"
+								size="icon"
+								className="size-9 rounded-full"
+								aria-label="Cerrar dialogo de documento"
+								onClick={handleClose}
+							>
+								<X className="size-4" aria-hidden="true" />
+							</Button>
+						</Dialog.Close>
+					</div>
 				<label
 					htmlFor="documents-action-reason"
 					className="mt-4 block text-sm font-medium text-zinc-700"
@@ -161,28 +177,25 @@ function ActionDialog({
 					className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
 				/>
 				<div className="mt-5 flex justify-end gap-3">
-					<button
+					<Button
 						type="button"
-						onClick={onClose}
-						className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+						variant="secondary"
+						onClick={handleClose}
 					>
 						Cancelar
-					</button>
-					<button
+					</Button>
+					<Button
 						type="button"
 						onClick={() => onConfirm(reason.trim())}
-						disabled={isPending}
-						className={`rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-							action === "archive"
-								? "bg-amber-600 hover:bg-amber-700"
-								: "bg-red-600 hover:bg-red-700"
-						}`}
+						loading={isPending}
+						variant={action === "archive" ? "accent" : "destructive"}
 					>
-						{isPending ? "Procesando..." : dialogCopy.confirmLabel}
-					</button>
+						{dialogCopy.confirmLabel}
+					</Button>
 				</div>
-			</div>
-		</div>
+				</Dialog.Content>
+			</Dialog.Portal>
+		</Dialog.Root>
 	);
 }
 
@@ -451,9 +464,7 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 					onClose={closeDialog}
 					onConfirm={pendingActionKind === "archive" ? handleArchive : handleDelete}
 				/>
-			) : (
-				<></>
-			)}
+			) : null}
 		</section>
 	);
 }

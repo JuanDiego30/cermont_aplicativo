@@ -45,7 +45,7 @@ function getBannerMessage({
 		return "Sin conexión a internet. Los cambios se sincronizarán automáticamente cuando recuperes conexión.";
 	}
 	if (isSyncing) {
-		return "Sincronizando cambios pendientes...";
+		return "Sincronizando cambios pendientes…";
 	}
 	if (lastSyncError) {
 		return `Error de sincronización: ${lastSyncError}`;

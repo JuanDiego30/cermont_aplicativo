@@ -248,3 +248,27 @@ export async function generateTokenPair(
 ): Promise<TokenPair> {
 	return buildTokenPair(userId, _email, role);
 }
+
+// ─── Password Reset ───────────────────────────────────────────────────────────
+
+/**
+ * Genera un token de reset de contraseña.
+ * En producción, guardaría el token hasheado en la base de datos y enviaría email.
+ * Para desarrollo: devolver el token directamente.
+ */
+export function generateResetToken(_email: string): string {
+	// En producción: buscar usuario y generar token
+	// Por ahora, devolver string vacío para indicar que necesita implementación
+	return "";
+}
+
+/**
+ * Restablece la contraseña usando el token de reset.
+ * @throws BadRequestError si el token es inválido o expirado
+ * @throws NotFoundError si el usuario no existe
+ */
+export async function resetPassword(_token: string, _newPassword: string): Promise<void> {
+	// En producción: buscar usuario por token hasheado y verificar expiración
+	// Por ahora, devolver error para indicar que necesita implementación
+	throw new BadRequestError("Password reset requires database token validation. Implement user.resetPasswordToken field.");
+}

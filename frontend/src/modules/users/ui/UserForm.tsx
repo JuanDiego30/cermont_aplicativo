@@ -7,6 +7,7 @@ import {
 	type User,
 	type UserRole,
 } from "@cermont/shared-types";
+import { DEFAULT_NEW_USER_ROLE } from "@cermont/domain";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
@@ -58,7 +59,7 @@ export function UserForm({ user, onSuccess, defaultRole }: UserFormProps) {
 		defaultValues: {
 			name: user?.name ?? "",
 			email: user?.email ?? "",
-			role: user?.role ?? defaultRole ?? ("tecnico" as UserRole),
+			role: user?.role ?? defaultRole ?? DEFAULT_NEW_USER_ROLE,
 			phone: user?.phone ?? "",
 			password: "",
 		},

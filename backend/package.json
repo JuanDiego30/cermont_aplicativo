@@ -19,6 +19,7 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
+		"@cermont/domain": "*",
 		"@cermont/shared-types": "*",
 		"@simplewebauthn/server": "^13.3.0",
 		"archiver": "^8.0.0",

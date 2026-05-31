@@ -130,10 +130,14 @@ export const KIT_REGISTRY: Record<string, KitTemplate> = {
 
 /**
  * Get kit template by ID
- * Returns no value if not found
+ * Returns not-found status object if lookup fails
  */
-export function getKitTemplate(kitId: string): KitTemplate | undefined {
-	return KIT_REGISTRY[kitId];
+export function getKitTemplate(kitId: string): KitTemplate | { status: "not_found"; id: string } {
+	const kit = KIT_REGISTRY[kitId];
+	if (!kit) {
+		return { status: "not_found" as const, id: kitId };
+	}
+	return kit;
 }
 
 /**
@@ -153,10 +157,11 @@ export function listAllKits(): KitTemplate[] {
 /**
  * Default kit to apply based on order type
  * Used if no explicit kit is specified during order creation
+ * Returns not-found status object for unmatched types
  */
 export function getDefaultKitForOrderType(
 	orderType: "maintenance" | "inspection" | "installation" | "repair" | "decommission" | "other",
-): KitTemplate | undefined {
+): KitTemplate | { status: "not_found"; type: string } {
 	switch (orderType) {
 		case "maintenance":
 			return KIT_MAINTENANCE;
@@ -169,8 +174,8 @@ export function getDefaultKitForOrderType(
 		case "decommission":
 			return KIT_DECOMMISSION;
 		case "other":
-			return;
+			return { status: "not_found" as const, type: "other" };
 		default:
-			return;
+			return { status: "not_found" as const, type: String(orderType) as unknown as string };
 	}
 }

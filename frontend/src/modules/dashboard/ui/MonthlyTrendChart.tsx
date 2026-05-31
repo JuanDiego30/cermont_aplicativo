@@ -47,14 +47,14 @@ export const MonthlyTrendChart = memo(function MonthlyTrendChart({
 			title="Tendencia mensual"
 			subtitle="Órdenes creadas vs completadas"
 			legend={[
-				{ color: "var(--color-brand-blue)", label: "Generadas" },
-				{ color: "var(--color-success)", label: "Completadas" },
+				{ color: "var(--color-brand)", label: "Generadas" },
+				{ color: "var(--color-cermont-green)", label: "Completadas" },
 			]}
 		>
-			<div role="img" aria-label="Tendencia mensual de órdenes creadas y completadas">
+			<figure role="img" aria-label="Tendencia mensual de órdenes creadas y completadas">
 				<ResponsiveContainer width="100%" height={280}>
 					<BarChart data={data} margin={{ top: 4, right: 8, left: -16, bottom: 0 }} barGap={4}>
-						<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-default)" />
+						<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-border)" />
 						<XAxis
 							dataKey="month"
 							tick={{ fontSize: 11, fill: "var(--text-tertiary)" }}
@@ -103,7 +103,7 @@ export const MonthlyTrendChart = memo(function MonthlyTrendChart({
 						/>
 					</BarChart>
 				</ResponsiveContainer>
-			</div>
+			</figure>
 		</ChartCard>
 	);
 });

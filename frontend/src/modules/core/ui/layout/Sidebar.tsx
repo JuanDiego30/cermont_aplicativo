@@ -68,13 +68,13 @@ function SidebarNavItem({
 					{label}
 				</span>
 				{item.badge !== undefined && item.badge > 0 && (
-					<span
-						className={`ml-auto rounded-full bg-[var(--color-brand-blue)] px-2 py-0.5 text-[10px] font-semibold text-white ${sidebarCollapsed ? "sr-only" : ""}`}
-						role="status"
+					<output
+						className={`ml-auto rounded-full bg-brand px-2 py-0.5 text-[10px] font-semibold text-white ${sidebarCollapsed ? "sr-only" : ""}`}
 						aria-label={`${item.badge} pendientes`}
+						aria-live="polite"
 					>
 						{item.badge}
-					</span>
+					</output>
 				)}
 			</Link>
 		</li>

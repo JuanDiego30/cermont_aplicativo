@@ -1,12 +1,17 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { useServiceEntrySheetsList } from "@/modules/billing/queries";
-import { sesRows, WorkflowRecordsPage } from "@/modules/billing/ui/WorkflowRecordsPage";
+import {
+	sesRows,
+	WorkflowRecordsPage,
+	WorkflowRecordsPageLoadingState,
+} from "@/modules/billing/ui/WorkflowRecordsPage";
 
-export default function BillingSESPage() {
-	const searchParams = useSearchParams();
-	const workOrderId = searchParams.get("workOrderId")?.trim() || undefined;
+function BillingSESPageContent() {
+	const { get } = useSearchParams();
+	const workOrderId = get("workOrderId")?.trim() || undefined;
 	const query = useServiceEntrySheetsList(workOrderId ? { workOrderId, limit: 50 } : undefined);
 
 	return (
@@ -37,5 +42,13 @@ export default function BillingSESPage() {
 				{ href: "/documents", label: "Soportes" },
 			]}
 		/>
+	);
+}
+
+export default function BillingSESPage() {
+	return (
+		<Suspense fallback={<WorkflowRecordsPageLoadingState />}>
+			<BillingSESPageContent />
+		</Suspense>
 	);
 }

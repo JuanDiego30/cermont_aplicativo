@@ -15,7 +15,7 @@
 //
 // Reference: DOC-04 Section Middleware Strategy
 
-import { ADMIN_ROLES } from "@cermont/domain";
+import { ROUTE_ACCESS_RULES } from "@cermont/domain";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
@@ -40,10 +40,10 @@ const PUBLIC_PATHS = [
  * Role-protected paths — require specific roles to access
  * The user role is read from a non-HttpOnly cookie set at login
  * (the HttpOnly refreshToken cannot be read by the proxy for claims)
+ * Uses ROUTE_ACCESS_RULES from @cermont/domain as SSOT
  */
-const ROLE_PROTECTED_PATHS: Array<{ path: string; roles: readonly string[] }> = [
-	{ path: "/admin", roles: ADMIN_ROLES },
-];
+const ROLE_PROTECTED_PATHS: Array<{ path: string; roles: readonly string[] }> =
+	(ROUTE_ACCESS_RULES ?? []).map((rule) => ({ path: rule.prefix, roles: rule.roles }));
 
 /**
  * Proxy function — runs before request reaches app

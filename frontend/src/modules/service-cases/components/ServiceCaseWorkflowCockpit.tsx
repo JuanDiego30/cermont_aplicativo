@@ -380,7 +380,7 @@ function TimelineSection({ timeline }: { timeline: ServiceCaseWorkflowViewModel[
 
 function SummaryItem({ label, value }: { label: string; value: string }) {
 	return (
-		<div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-3 py-3">
+		<div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-3">
 			<p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">
 				{label}
 			</p>

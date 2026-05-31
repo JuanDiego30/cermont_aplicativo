@@ -309,3 +309,21 @@ export function hasAllPermissions(role: UserRole | string, permissions: Permissi
 }
 
 export { hasRole };
+
+/**
+ * Check if a role can access a specific business module.
+ * A convenience wrapper that accepts module names instead of full paths.
+ *
+ * @param role - The user role to check
+ * @param moduleName - Module name (e.g., 'orders', 'admin', 'costs')
+ * @returns True if the role can access the module
+ *
+ * @example
+ * ```typescript
+ * canAccessModule('tecnico', 'orders'); // true
+ * canAccessModule('cliente', 'admin');  // false
+ * ```
+ */
+export function canAccessModule(role: UserRole | string, moduleName: string): boolean {
+	return canAccessPath(`/${moduleName}`, role);
+}

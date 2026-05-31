@@ -219,18 +219,20 @@ export function CermontAIDrawer() {
 							onChange={(e) => setInput(e.target.value)}
 							onKeyDown={handleKeyDown}
 							placeholder="Hazme una pregunta…"
-							className="max-h-32 min-h-[40px] w-full resize-none bg-transparent px-3 py-2 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-tertiary)]"
+							aria-label="Pregunta a la IA de Cermont"
+							className="max-h-32 min-h-10 w-full resize-none bg-transparent px-3 py-2 text-sm text-(--text-primary) outline-none placeholder:text-(--text-tertiary)"
 						/>
 						<button
 							type="button"
 							onClick={() => handleSend()}
 							disabled={!input.trim()}
-							className="flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-brand-blue)] text-white transition-all hover:bg-[var(--color-brand-blue-hover)] disabled:opacity-50 disabled:hover:bg-[var(--color-brand-blue)]"
+							aria-label="Enviar pregunta"
+							className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-(--color-brand-blue) text-white transition-all hover:bg-(--color-brand-blue-hover) disabled:opacity-50 disabled:hover:bg-(--color-brand-blue)"
 						>
 							<Send className="size-4" />
 						</button>
 					</div>
-					<p className="mt-2 text-center text-[10px] text-[var(--text-tertiary)]">
+					<p className="mt-2 text-center text-[10px] text-(--text-tertiary)">
 						Cermont AI puede cometer errores. Verifica la info.
 					</p>
 				</div>

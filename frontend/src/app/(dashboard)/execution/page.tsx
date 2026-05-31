@@ -50,14 +50,14 @@ const STATUS_LABELS: Record<ExecutionSessionStatus, string> = {
 };
 
 const STATUS_STYLES: Record<ExecutionSessionStatus, string> = {
-	draft: "bg-[var(--surface-secondary)] text-[var(--text-secondary)]",
-	ready: "bg-blue-50 text-[var(--color-brand)]",
-	in_progress: "bg-green-50 text-[var(--color-success)]",
+	draft: "bg-surface-secondary text-muted-foreground",
+	ready: "bg-blue-50 text-brand",
+	in_progress: "bg-green-50 text-success",
 	paused: "bg-amber-50 text-amber-700",
 	completed: "bg-emerald-50 text-emerald-700",
-	cancelled: "bg-red-50 text-[var(--color-danger)]",
+	cancelled: "bg-red-50 text-destructive",
 	sync_pending: "bg-sky-50 text-sky-700",
-	sync_failed: "bg-red-50 text-[var(--color-danger)]",
+	sync_failed: "bg-red-50 text-destructive",
 };
 
 const DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
@@ -98,17 +98,17 @@ export default function ExecutionPage() {
 
 	return (
 		<section className="space-y-6" aria-labelledby="execution-title">
-			<header className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-2)]">
+			<header className="rounded-xl border border-border bg-card p-5 shadow-sm">
 				<div className="flex flex-wrap items-start justify-between gap-4">
 					<div>
-						<p className="text-sm font-medium text-[var(--color-brand)]">Paso 6 / Ejecucion</p>
+						<p className="text-sm font-medium text-brand">Paso 6 / Ejecucion</p>
 						<h1
 							id="execution-title"
-							className="mt-2 text-2xl font-semibold text-[var(--text-primary)]"
+							className="mt-2 text-2xl font-semibold text-foreground"
 						>
 							Sesiones de ejecucion
 						</h1>
-						<p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--text-secondary)]">
+						<p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
 							Controla inicio, avance en campo, evidencias, formularios dinamicos, incidentes y
 							cierre tecnico desde sesiones conectadas a ordenes y planeacion.
 						</p>
@@ -131,8 +131,8 @@ export default function ExecutionPage() {
 
 			<DocumentActions />
 
-			<div className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
-				<div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-subtle)] p-4">
+			<div className="rounded-xl border border-border bg-card shadow-sm">
+				<div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle p-4">
 					<div className="flex flex-wrap gap-2" role="tablist" aria-label="Filtrar ejecuciones">
 						{STATUS_FILTERS.map((filter) => (
 							<button
@@ -141,8 +141,8 @@ export default function ExecutionPage() {
 								onClick={() => setStatus(filter.value)}
 								className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
 									status === filter.value
-										? "border-[var(--color-brand)] bg-[var(--color-brand-blue-bg)] text-[var(--color-brand)]"
-										: "border-[var(--border-default)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+										? "border-brand bg-brand-blue-bg text-brand"
+										: "border-border text-muted-foreground hover:bg-surface-secondary"
 								}`}
 							>
 								{filter.label}
@@ -210,13 +210,13 @@ function KpiCard({
 	value: number;
 }) {
 	return (
-		<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-card">
+		<article className="rounded-lg border border-border bg-card p-4 shadow-card">
 			<div className="flex items-center justify-between gap-3">
 				<div>
-					<p className="text-sm text-[var(--text-secondary)]">{label}</p>
-					<p className="mt-1 text-2xl font-semibold text-[var(--text-primary)]">{value}</p>
+					<p className="text-sm text-muted-foreground">{label}</p>
+					<p className="mt-1 text-2xl font-semibold text-foreground">{value}</p>
 				</div>
-				<span className="flex size-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-brand-blue-bg)] text-[var(--color-brand)]">
+				<span className="flex size-10 items-center justify-center rounded-md bg-brand-blue-bg text-brand">
 					<Icon className="size-5" aria-hidden="true" />
 				</span>
 			</div>
@@ -274,18 +274,18 @@ function ActionLink({
 		>
 			<button
 				type="button"
-				className="group w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 text-left shadow-card transition-colors hover:border-[var(--color-brand)]"
+				className="group w-full rounded-lg border border-border bg-card p-4 text-left shadow-card transition-colors hover:border-brand"
 			>
 				<div className="flex items-start gap-3">
-					<span className="flex size-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--surface-secondary)] text-[var(--color-brand)]">
+					<span className="flex size-10 items-center justify-center rounded-md bg-surface-secondary text-brand">
 						<Icon className="size-5" aria-hidden="true" />
 					</span>
 					<div>
-						<h2 className="text-sm font-semibold text-[var(--text-primary)]">{title}</h2>
-						<p className="mt-1 text-sm leading-5 text-[var(--text-secondary)]">{description}</p>
+						<h2 className="text-sm font-semibold text-foreground">{title}</h2>
+						<p className="mt-1 text-sm leading-5 text-muted-foreground">{description}</p>
 					</div>
 					<ArrowRight
-						className="ml-auto size-4 text-[var(--text-tertiary)] transition-transform group-hover:translate-x-0.5"
+						className="ml-auto size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5"
 						aria-hidden="true"
 					/>
 				</div>
@@ -296,22 +296,22 @@ function ActionLink({
 
 function LoadingRows() {
 	return (
-		<div className="space-y-3 p-4" role="status">
+		<output className="space-y-3 p-4">
 			{["row-1", "row-2", "row-3"].map((key) => (
 				<div
 					key={key}
-					className="h-20 animate-pulse rounded-[var(--radius-lg)] bg-[var(--surface-secondary)]"
+					className="h-20 animate-pulse rounded-lg bg-surface-secondary"
 				/>
 			))}
 			<span className="sr-only">Cargando ejecuciones</span>
-		</div>
+		</output>
 	);
 }
 
 function ExecutionTable({ sessions }: { sessions: ExecutionSessionListItem[] }) {
 	return (
 		<div className="overflow-x-auto">
-			<table className="min-w-full divide-y divide-[var(--border-subtle)]">
+			<table className="min-w-full divide-y divide-border-subtle">
 				<caption className="sr-only">Sesiones de ejecucion por orden de trabajo.</caption>
 				<thead>
 					<tr>
@@ -323,16 +323,16 @@ function ExecutionTable({ sessions }: { sessions: ExecutionSessionListItem[] }) 
 						<HeaderCell>Accion</HeaderCell>
 					</tr>
 				</thead>
-				<tbody className="divide-y divide-[var(--border-subtle)]">
+				<tbody className="divide-y divide-border-subtle">
 					{sessions.map((session) => {
 						const id = getSessionId(session);
 						return (
-							<tr key={id || session.code} className="hover:bg-[var(--surface-secondary)]/70">
+							<tr key={id || session.code} className="hover:bg-surface-secondary/70">
 								<td className="px-4 py-3">
-									<div className="font-mono text-sm font-medium text-[var(--text-primary)]">
+									<div className="font-mono text-sm font-medium text-foreground">
 										{session.code}
 									</div>
-									<div className="text-xs text-[var(--text-tertiary)]">
+									<div className="text-xs text-muted-foreground">
 										OT {session.workOrderId}
 									</div>
 								</td>
@@ -345,13 +345,13 @@ function ExecutionTable({ sessions }: { sessions: ExecutionSessionListItem[] }) 
 										{STATUS_LABELS[session.status]}
 									</span>
 								</td>
-								<td className="px-4 py-3 text-sm text-[var(--text-secondary)]">
+								<td className="px-4 py-3 text-sm text-secondary">
 									{formatDate(session.startedAt)}
 								</td>
-								<td className="px-4 py-3 text-sm text-[var(--text-secondary)]">
+								<td className="px-4 py-3 text-sm text-secondary">
 									{session.evidenceIds.length}
 								</td>
-								<td className="px-4 py-3 text-sm text-[var(--text-secondary)]">
+								<td className="px-4 py-3 text-sm text-secondary">
 									{session.blockers.length}
 								</td>
 								<td className="px-4 py-3">
@@ -375,7 +375,7 @@ function HeaderCell({ children }: { children: string }) {
 	return (
 		<th
 			scope="col"
-			className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.08em] text-[var(--text-tertiary)]"
+			className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground"
 		>
 			{children}
 		</th>

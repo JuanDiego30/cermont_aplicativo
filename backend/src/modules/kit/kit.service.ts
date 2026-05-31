@@ -7,7 +7,7 @@
 
 import { Types } from "mongoose";
 import { BadRequestError, NotFoundError } from "../../common/errors/AppError";
-import { type IKitDocument, Kit } from "../../models/Kit";
+import { type EvidenceRequirement, type IKitDocument, type KitFileAttachment, type KitFormBinding, type KitItem, type KitRule, Kit } from "../../models/Kit";
 import { createAuditLog } from "../audit/audit.service";
 
 export interface CreateKitDto {
@@ -15,11 +15,11 @@ export interface CreateKitDto {
 	description?: string;
 	serviceTypeIds?: string[];
 	category?: string;
-	items?: Record<string, unknown>[];
-	documents?: Record<string, unknown>[];
-	forms?: Record<string, unknown>[];
-	evidenceRequirements?: Record<string, unknown>[];
-	rules?: Record<string, unknown>[];
+	items?: KitItem[];
+	documents?: KitFileAttachment[];
+	forms?: KitFormBinding[];
+	evidenceRequirements?: EvidenceRequirement[];
+	rules?: KitRule[];
 }
 
 export interface UpdateKitDto {
@@ -27,15 +27,17 @@ export interface UpdateKitDto {
 	description?: string;
 	serviceTypeIds?: string[];
 	category?: string;
-	items?: Record<string, unknown>[];
-	documents?: Record<string, unknown>[];
-	forms?: Record<string, unknown>[];
-	evidenceRequirements?: Record<string, unknown>[];
-	rules?: Record<string, unknown>[];
+	items?: KitItem[];
+	documents?: KitFileAttachment[];
+	forms?: KitFormBinding[];
+	evidenceRequirements?: EvidenceRequirement[];
+	rules?: KitRule[];
 }
 
+export type KitStatus = "draft" | "published" | "archived";
+
 export interface KitFilters {
-	status?: string;
+	status?: KitStatus;
 	serviceTypeIds?: string[];
 	category?: string;
 	search?: string;
@@ -114,26 +116,17 @@ export async function getAllKits(
 	const limit = pagination.limit || 20;
 	const skip = (page - 1) * limit;
 
-	const query: Record<string, unknown> = {};
-
-	if (filters.status) {
-		query.status = filters.status;
-	}
-
-	if (filters.category) {
-		query.category = filters.category;
-	}
-
-	if (filters.serviceTypeIds && filters.serviceTypeIds.length > 0) {
-		query.serviceTypes = { $in: filters.serviceTypeIds };
-	}
-
-	if (filters.search) {
-		query.$or = [
-			{ name: { $regex: filters.search, $options: "i" } },
-			{ description: { $regex: filters.search, $options: "i" } },
-		];
-	}
+	const query = {
+		...(filters.status && { status: filters.status }),
+		...(filters.category && { category: filters.category }),
+		...(filters.serviceTypeIds?.length && { serviceTypes: { $in: filters.serviceTypeIds } }),
+		...(filters.search && {
+			$or: [
+				{ name: { $regex: filters.search, $options: "i" } },
+				{ description: { $regex: filters.search, $options: "i" } },
+			],
+		}),
+	};
 
 	const [data, total] = await Promise.all([
 		Kit.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
@@ -350,7 +343,7 @@ export function validateKitCompleteness(kit: IKitDocument): { isValid: boolean; 
 	const errors: string[] = [];
 
 	// Check required items
-	const requiredItems = kit.items?.filter((item: Record<string, unknown>) => item.required) || [];
+	const requiredItems = kit.items?.filter((item) => item.required) || [];
 	if (requiredItems.length === 0) {
 		errors.push("Kit must have at least one item");
 	}
@@ -359,22 +352,22 @@ export function validateKitCompleteness(kit: IKitDocument): { isValid: boolean; 
 	for (const item of requiredItems) {
 		if (item.type === "tool" || item.type === "equipment") {
 			// Items should have associated documents or be marked as not requiring them
-			if (!Array.isArray(item.documents) || (item.documents as unknown[]).length === 0) {
+			if (!item.code && !item.description) {
 				errors.push(`Item "${item.name}" requires documents but none are attached`);
 			}
 		}
 	}
 
 	// Check critical items are present
-	const criticalItems = kit.items?.filter((item: Record<string, unknown>) => item.critical) || [];
+	const criticalItems = kit.items?.filter((item) => item.critical) || [];
 	if (criticalItems.length > 0) {
 		// All critical items should be present
 		const missingCritical = criticalItems.filter(
-			(item: Record<string, unknown>) => typeof item.quantity !== "number" || item.quantity <= 0,
+			(item) => typeof item.quantity !== "number" || item.quantity <= 0,
 		);
 		if (missingCritical.length > 0) {
 			errors.push(
-				`Missing quantity for critical items: ${missingCritical.map((i: Record<string, unknown>) => i.name).join(", ")}`,
+				`Missing quantity for critical items: ${missingCritical.map((i) => i.name).join(", ")}`,
 			);
 		}
 	}

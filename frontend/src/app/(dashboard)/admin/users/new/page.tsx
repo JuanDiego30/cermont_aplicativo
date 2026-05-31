@@ -1,3 +1,4 @@
+import { DEFAULT_NEW_USER_ROLE } from "@cermont/domain";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { UserForm } from "@/modules/users/ui/UserForm";
@@ -18,7 +19,7 @@ export default function NewUserPage() {
 				</h1>
 			</header>
 
-			<UserForm defaultRole="tecnico" />
+			<UserForm defaultRole={DEFAULT_NEW_USER_ROLE} />
 		</section>
 	);
 }

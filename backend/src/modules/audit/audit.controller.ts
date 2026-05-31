@@ -18,9 +18,9 @@ import { findById, findLogs } from "./audit.service";
 export const getAuditLogs = async (req: Request, res: Response) => {
 	// Use validated query data from middleware (validateQuery(AuditLogsQuerySchema))
 	const { user_id, model_name, action, page, limit } = AuditLogsQuerySchema.parse(req.query);
-	const userId = getString(user_id);
-	const modelName = getString(model_name);
-	const auditAction = getString(action);
+	const userId = getString(user_id ?? "");
+	const modelName = getString(model_name ?? "");
+	const auditAction = getString(action ?? "");
 
 	const filters = {
 		user_id: userId,

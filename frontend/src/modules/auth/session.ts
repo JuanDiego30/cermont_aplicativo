@@ -9,12 +9,13 @@ import { isAuthenticatedRole, type UserRole } from "@cermont/domain";
 import { redirect } from "next/navigation";
 import { getCookieToken } from "@/lib/http/server-auth";
 import { useAuthStore } from "@/store/auth.store";
+import { isPresent, type StatusObject } from "@cermont/shared-types";
 
 // ── Strong types for authenticated sessions ──────────────────────────
 type AuthenticatedUser = {
 	id: string;
-	email: string | null;
-	name: string | null;
+	email: string;
+	name: string;
 	role: UserRole;
 };
 
@@ -59,16 +60,16 @@ function decodeJWT(token: string): { id: string; role: string } | null {
 export async function getSession(): Promise<AuthenticatedSession | null> {
 	if (typeof window !== "undefined") {
 		// Client-side: use the global auth store since we can't read the HttpOnly cookie
-		const user = useAuthStore.getState().user;
-		if (!user) {
+		const userStatus: StatusObject<AuthenticatedUser> = useAuthStore.getState().user;
+		if (!isPresent(userStatus)) {
 			return null;
 		}
 		return {
 			user: {
-				id: user.id,
-				email: user.email,
-				name: user.name,
-				role: user.role,
+				id: userStatus.value.id,
+				email: userStatus.value.email,
+				name: userStatus.value.name,
+				role: userStatus.value.role,
 			},
 		};
 	} else {
@@ -91,8 +92,8 @@ export async function getSession(): Promise<AuthenticatedSession | null> {
 		return {
 			user: {
 				id: decoded.id,
-				email: null,
-				name: null,
+				email: "",
+				name: "",
 				role: normalizedRole,
 			},
 		};

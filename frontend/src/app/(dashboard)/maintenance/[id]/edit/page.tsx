@@ -94,6 +94,7 @@ export default function EditMaintenanceKitPage() {
 
 			<div className="rounded-[32px] border border-zinc-200 bg-white/95 p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/95 sm:p-6">
 				<MaintenanceKitForm
+					key={kit._id}
 					mode="edit"
 					initialKit={kit}
 					submitLabel="Guardar cambios"

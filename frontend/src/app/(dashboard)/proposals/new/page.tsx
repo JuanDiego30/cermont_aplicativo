@@ -6,7 +6,7 @@ import { format, addDays } from "date-fns";
 import { ArrowLeft, Loader2, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useFieldArray, useForm } from "react-hook-form";
+import { type FieldErrors, type UseFormRegister, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useCreateProposal } from "@/modules/proposals/hooks/useCreateProposal";
 
@@ -27,16 +27,178 @@ const ProposalFormSchema = z.object({
 
 type ProposalFormValues = z.infer<typeof ProposalFormSchema>;
 
+const copFormatter = new Intl.NumberFormat("es-CO", {
+	style: "currency",
+	currency: "COP",
+	maximumFractionDigits: 0,
+});
+
 function formatCOP(value: number): string {
-	return new Intl.NumberFormat("es-CO", {
-		style: "currency",
-		currency: "COP",
-		maximumFractionDigits: 0,
-	}).format(value);
+	return copFormatter.format(value);
 }
 
 function calcItemTotal(quantity: number, unitCost: number): number {
 	return quantity * unitCost;
+}
+
+function ProposalClientInfoSection({
+	errors,
+	register,
+}: {
+	errors: FieldErrors<ProposalFormValues>;
+	register: UseFormRegister<ProposalFormValues>;
+}) {
+	return (
+		<section
+			className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
+			aria-labelledby="client-section-title"
+		>
+			<h2 id="client-section-title" className="text-base font-semibold text-[var(--text-primary)]">
+				Información del Cliente
+			</h2>
+			<div className="mt-4 grid gap-4 sm:grid-cols-2">
+				<div>
+					<label htmlFor="clientName" className="block text-sm font-medium text-[var(--text-secondary)]">
+						Cliente <span aria-hidden="true" className="text-[var(--color-danger)]">*</span>
+					</label>
+					<input
+						id="clientName"
+						type="text"
+						{...register("clientName")}
+						placeholder="Nombre del cliente"
+						className="input-field mt-1"
+					/>
+					{errors.clientName && (
+						<p className="mt-1 text-xs text-[var(--color-danger)]" role="alert">
+							{errors.clientName.message}
+						</p>
+					)}
+				</div>
+				<div>
+					<label htmlFor="clientEmail" className="block text-sm font-medium text-[var(--text-secondary)]">
+						Email
+					</label>
+					<input
+						id="clientEmail"
+						type="email"
+						{...register("clientEmail")}
+						placeholder="cliente@ejemplo.com"
+						className="input-field mt-1"
+					/>
+					{errors.clientEmail && (
+						<p className="mt-1 text-xs text-[var(--color-danger)]" role="alert">
+							{errors.clientEmail.message}
+						</p>
+					)}
+				</div>
+				<div>
+					<label htmlFor="validUntil" className="block text-sm font-medium text-[var(--text-secondary)]">
+						Válida hasta <span aria-hidden="true" className="text-[var(--color-danger)]">*</span>
+					</label>
+					<input id="validUntil" type="date" {...register("validUntil")} className="input-field mt-1" />
+					{errors.validUntil && (
+						<p className="mt-1 text-xs text-[var(--color-danger)]" role="alert">
+							{errors.validUntil.message}
+						</p>
+					)}
+				</div>
+			</div>
+		</section>
+	);
+}
+
+function ProposalCostSummarySection({
+	subtotal,
+	taxAmount,
+	total,
+}: {
+	subtotal: number;
+	taxAmount: number;
+	total: number;
+}) {
+	return (
+		<section
+			className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
+			aria-labelledby="cost-breakdown-title"
+		>
+			<h2 id="cost-breakdown-title" className="text-base font-semibold text-[var(--text-primary)]">
+				Resumen de Costos
+			</h2>
+			<div className="mt-4 space-y-2 border-b border-[var(--border-subtle)] pb-4">
+				<div className="flex justify-between text-sm">
+					<span className="text-muted-foreground">Subtotal</span>
+					<span className="font-medium text-foreground">{formatCOP(subtotal)}</span>
+				</div>
+				<div className="flex justify-between text-sm">
+					<span className="text-muted-foreground">IVA (19%)</span>
+					<span className="font-medium text-foreground">{formatCOP(taxAmount)}</span>
+				</div>
+			</div>
+			<div className="mt-4 flex justify-between">
+				<span className="text-base font-semibold text-foreground">Total</span>
+				<span className="text-xl font-bold text-brand">{formatCOP(total)}</span>
+			</div>
+		</section>
+	);
+}
+
+function ProposalNotesSection({
+	errorMessage,
+	register,
+}: {
+	errorMessage?: string;
+	register: UseFormRegister<ProposalFormValues>;
+}) {
+	return (
+		<section
+			className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
+			aria-labelledby="notes-section-title"
+		>
+			<h2 id="notes-section-title" className="text-base font-semibold text-[var(--text-primary)]">
+				Notas y Términos
+			</h2>
+			<div className="mt-4">
+				<label htmlFor="notes" className="block text-sm font-medium text-[var(--text-secondary)]">
+					Notas adicionales
+				</label>
+				<textarea
+					id="notes"
+					rows={4}
+					{...register("notes")}
+					placeholder="Condiciones de pago, tiempo de entrega, garantías, etc."
+					className="input-field mt-1"
+				/>
+				{errorMessage ? (
+					<p className="mt-1 text-xs text-[var(--color-danger)]" role="alert">
+						{errorMessage}
+					</p>
+				) : null}
+			</div>
+		</section>
+	);
+}
+
+function ProposalFormActions({ isSubmitting }: { isSubmitting: boolean }) {
+	return (
+		<div className="flex justify-end gap-3">
+			<Link
+				href="/proposals"
+				className="rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition hover:bg-[var(--surface-secondary)]"
+			>
+				Cancelar
+			</Link>
+			<button type="submit" disabled={isSubmitting} className="btn-primary min-w-[160px]">
+				{isSubmitting ? (
+					<>
+						<Loader2 aria-hidden="true" className="size-4 animate-spin" />
+						Creando…
+					</>
+				) : (
+					"Crear Propuesta"
+				)}
+			</button>
+		</div>
+	);
 }
 
 export default function NewProposalPage() {
@@ -109,82 +271,28 @@ export default function NewProposalPage() {
 				</Link>
 				<h1
 					id="new-proposal-title"
-					className="text-2xl font-semibold text-[var(--text-primary)]"
+					className="text-2xl font-semibold text-foreground"
 				>
 					Nueva Propuesta
 				</h1>
 			</div>
 
 			<form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
-				{/* ── Client Info Section ── */}
-				<section
-					className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
-					aria-labelledby="client-section-title"
-				>
-					<h2 id="client-section-title" className="text-base font-semibold text-[var(--text-primary)]">
-						Información del Cliente
-					</h2>
-					<div className="mt-4 grid gap-4 sm:grid-cols-2">
-						<div>
-							<label htmlFor="clientName" className="block text-sm font-medium text-[var(--text-secondary)]">
-								Cliente <span aria-hidden="true" className="text-[var(--color-danger)]">*</span>
-							</label>
-							<input
-								id="clientName"
-								type="text"
-								{...register("clientName")}
-								placeholder="Nombre del cliente"
-								className="input-field mt-1"
-							/>
-							{errors.clientName && (
-								<p className="mt-1 text-xs text-[var(--color-danger)]" role="alert">{errors.clientName.message}</p>
-							)}
-						</div>
-						<div>
-							<label htmlFor="clientEmail" className="block text-sm font-medium text-[var(--text-secondary)]">
-								Email
-							</label>
-							<input
-								id="clientEmail"
-								type="email"
-								{...register("clientEmail")}
-								placeholder="cliente@ejemplo.com"
-								className="input-field mt-1"
-							/>
-							{errors.clientEmail && (
-								<p className="mt-1 text-xs text-[var(--color-danger)]" role="alert">{errors.clientEmail.message}</p>
-							)}
-						</div>
-						<div>
-							<label htmlFor="validUntil" className="block text-sm font-medium text-[var(--text-secondary)]">
-								Válida hasta <span aria-hidden="true" className="text-[var(--color-danger)]">*</span>
-							</label>
-							<input
-								id="validUntil"
-								type="date"
-								{...register("validUntil")}
-								className="input-field mt-1"
-							/>
-							{errors.validUntil && (
-								<p className="mt-1 text-xs text-[var(--color-danger)]" role="alert">{errors.validUntil.message}</p>
-							)}
-						</div>
-					</div>
-				</section>
+				<ProposalClientInfoSection errors={errors} register={register} />
 
 				{/* ── Line Items Section ── */}
 				<section
-					className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
+					className="rounded-xl border border-border bg-card p-6 shadow-sm"
 					aria-labelledby="items-section-title"
 				>
 					<div className="flex items-center justify-between">
-						<h2 id="items-section-title" className="text-base font-semibold text-[var(--text-primary)]">
+						<h2 id="items-section-title" className="text-base font-semibold text-foreground">
 							Items de la Propuesta
 						</h2>
 						<button
 							type="button"
 							onClick={() => append({ description: "", unit: "lote", quantity: 1, unitCost: 0 })}
-							className="flex items-center gap-1.5 rounded-[var(--radius-md)] bg-[var(--color-brand)] px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
+							className="flex items-center gap-1.5 rounded-md bg-brand px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
 						>
 							<Plus aria-hidden="true" className="size-3.5" />
 							Agregar item
@@ -192,7 +300,7 @@ export default function NewProposalPage() {
 					</div>
 
 					{errors.items && (
-						<p className="mt-2 text-xs text-[var(--color-danger)]" role="alert">{errors.items.message ?? errors.items.root?.message}</p>
+						<p className="mt-2 text-xs text-destructive" role="alert">{errors.items.message ?? errors.items.root?.message}</p>
 					)}
 
 					<div className="mt-4 space-y-3">
@@ -204,7 +312,7 @@ export default function NewProposalPage() {
 							return (
 								<div
 									key={field.id}
-									className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-4"
+									className="rounded-lg border border-border-subtle bg-surface-secondary p-4"
 								>
 									<div className="flex items-start justify-between gap-2">
 										<div className="flex-1 space-y-3">
@@ -298,54 +406,9 @@ export default function NewProposalPage() {
 					</div>
 				</section>
 
-				{/* ── Cost Breakdown Section ── */}
-				<section
-					className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
-					aria-labelledby="cost-breakdown-title"
-				>
-					<h2 id="cost-breakdown-title" className="text-base font-semibold text-[var(--text-primary)]">
-						Resumen de Costos
-					</h2>
-					<div className="mt-4 space-y-2 border-b border-[var(--border-subtle)] pb-4">
-						<div className="flex justify-between text-sm">
-							<span className="text-[var(--text-secondary)]">Subtotal</span>
-							<span className="font-medium text-[var(--text-primary)]">{formatCOP(subtotal)}</span>
-						</div>
-						<div className="flex justify-between text-sm">
-							<span className="text-[var(--text-secondary)]">IVA (19%)</span>
-							<span className="font-medium text-[var(--text-primary)]">{formatCOP(taxAmount)}</span>
-						</div>
-					</div>
-					<div className="mt-4 flex justify-between">
-						<span className="text-base font-semibold text-[var(--text-primary)]">Total</span>
-						<span className="text-xl font-bold text-[var(--color-brand)]">{formatCOP(total)}</span>
-					</div>
-				</section>
+				<ProposalCostSummarySection subtotal={subtotal} taxAmount={taxAmount} total={total} />
 
-				{/* ── Notes Section ── */}
-				<section
-					className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
-					aria-labelledby="notes-section-title"
-				>
-					<h2 id="notes-section-title" className="text-base font-semibold text-[var(--text-primary)]">
-						Notas y Términos
-					</h2>
-					<div className="mt-4">
-						<label htmlFor="notes" className="block text-sm font-medium text-[var(--text-secondary)]">
-							Notas adicionales
-						</label>
-						<textarea
-							id="notes"
-							rows={4}
-							{...register("notes")}
-							placeholder="Condiciones de pago, tiempo de entrega, garantías, etc."
-							className="input-field mt-1"
-						/>
-						{errors.notes && (
-							<p className="mt-1 text-xs text-[var(--color-danger)]" role="alert">{errors.notes.message}</p>
-						)}
-					</div>
-				</section>
+				<ProposalNotesSection errorMessage={errors.notes?.message} register={register} />
 
 				{/* ── Error Banner ── */}
 				{mutation.isError && (
@@ -357,29 +420,7 @@ export default function NewProposalPage() {
 					</div>
 				)}
 
-				{/* ── Actions ── */}
-				<div className="flex justify-end gap-3">
-					<Link
-						href="/proposals"
-						className="rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-4 py-2.5 text-sm font-medium text-[var(--text-secondary)] transition hover:bg-[var(--surface-secondary)]"
-					>
-						Cancelar
-					</Link>
-					<button
-						type="submit"
-						disabled={isSubmitting}
-						className="btn-primary min-w-[160px]"
-					>
-						{isSubmitting ? (
-							<>
-								<Loader2 aria-hidden="true" className="size-4 animate-spin" />
-								Creando…
-							</>
-						) : (
-							"Crear Propuesta"
-						)}
-					</button>
-				</div>
+				<ProposalFormActions isSubmitting={isSubmitting} />
 			</form>
 		</section>
 	);

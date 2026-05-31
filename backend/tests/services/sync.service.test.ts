@@ -265,12 +265,17 @@ describe("SyncService", () => {
 		});
 
 		it("should report errors for unsupported entity types", async () => {
+			// Use a valid entity type that doesn't have a handler yet
+			// The entity types "technical-report" and "purchase-order" are defined in
+			// the schema but their handlers throw SYNC_NOT_IMPLEMENTED
 			const operations: OfflineOperation[] = [
 				{
 					id: "op-unsupported",
-					type: "unknown_entity" as never,
+					type: "technical-report",
 					action: "create",
-					payload: {},
+					payload: {
+						description: "Test report",
+					},
 					timestamp: new Date().toISOString(),
 				},
 			];
@@ -282,7 +287,7 @@ describe("SyncService", () => {
 			expect(result.failed).toBe(1);
 			expect(result.errors).toHaveLength(1);
 			expect(result.errors[0].id).toBe("op-unsupported");
-			expect(result.errors[0].error).toContain("Unsupported entity type");
+			expect(result.errors[0].error).toContain("not yet implemented");
 		});
 
 		it("should reject unsupported actions for known entities", async () => {

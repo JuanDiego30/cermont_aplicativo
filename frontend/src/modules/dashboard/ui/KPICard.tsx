@@ -144,13 +144,12 @@ export function KPICard({
 					<Icon className="size-6" />
 				</div>
 				{trend && (
-					<div
-						role="status"
+					<output
 						className={cn(
 							"flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold font-mono",
 							trend.isPositive
-								? "bg-[var(--color-success-bg)] text-[var(--color-cermont-green-deep)]"
-								: "bg-[var(--color-danger-bg)] text-[var(--color-danger)]",
+								? "bg-(--color-success-bg) text-brand-green-deep"
+								: "bg-(--color-danger-bg) text-(--color-danger)",
 						)}
 					>
 						{trend.isPositive ? (
@@ -158,20 +157,20 @@ export function KPICard({
 						) : (
 							<TrendingDown className="size-3" aria-hidden="true" />
 						)}
-						{Math.abs(trend.value)}%
-					</div>
+						{trend.value}%
+					</output>
 				)}
 			</div>
 
 			<div className="mt-5">
-				<h3 className="text-sm font-semibold text-[var(--text-secondary)] uppercase tracking-wider font-mono">
+				<h3 className="text-sm font-semibold text-(--text-secondary) uppercase tracking-wider font-mono">
 					{title}
 				</h3>
-				<p className="mt-1 text-3xl font-bold tracking-tight text-[var(--text-primary)]">
+				<p className="mt-1 text-3xl font-bold tracking-tight text-(--text-primary)">
 					{displayString}
 				</p>
 				{description && (
-					<p className="mt-2 text-xs font-medium text-[var(--text-tertiary)] truncate">
+					<p className="mt-2 text-xs font-medium text-(--text-tertiary) truncate">
 						{description}
 					</p>
 				)}

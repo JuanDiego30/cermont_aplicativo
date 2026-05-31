@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { StatusObject } from "@cermont/shared-types";
 
 type Theme = "light" | "dark";
 
@@ -7,8 +8,8 @@ interface UIState {
 	sidebarCollapsed: boolean;
 	chatOpen: boolean;
 	theme: Theme;
-	activeModal: string | null;
-	modalData: unknown;
+	activeModal: StatusObject<string>;
+	modalData: StatusObject<unknown>;
 
 	toggleSidebar: () => void;
 	setSidebarOpen: (open: boolean) => void;
@@ -48,8 +49,8 @@ export const useUIStore = create<UIState>((set) => ({
 	sidebarCollapsed: false,
 	chatOpen: false,
 	theme: "light",
-	activeModal: null,
-	modalData: null,
+	activeModal: { status: "absent" } as StatusObject<string>,
+	modalData: { status: "absent" } as StatusObject<unknown>,
 
 	toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
 	setSidebarOpen: (open) => set({ sidebarOpen: open }),
@@ -72,6 +73,10 @@ export const useUIStore = create<UIState>((set) => ({
 			applyTheme(next);
 			return { theme: next };
 		}),
-	openModal: (name, data = null) => set({ activeModal: name, modalData: data }),
-	closeModal: () => set({ activeModal: null, modalData: null }),
+	openModal: (name, data) =>
+		set({
+			activeModal: { status: "present", value: name },
+			modalData: data !== undefined ? { status: "present", value: data } : { status: "absent" },
+		}),
+	closeModal: () => set({ activeModal: { status: "absent" }, modalData: { status: "absent" } }),
 }));

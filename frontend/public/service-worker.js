@@ -19,6 +19,27 @@ const STATIC_ASSETS = ["/", "/dashboard", "/manifest.json", "/offline.html"];
 const API_CACHE_LIMIT = 200;
 
 /**
+ * Valida si el scheme de la URL es soportado para caching
+ * Soporta: http:, https:
+ * Rechaza: chrome-extension:, moz-extension:, edge-extension:, devtools:, ws:, wss:, data:, blob:
+ */
+function isSupportedScheme(url) {
+	if (!url?.protocol) { return false; }
+	return url.protocol === "http:" || url.protocol === "https:";
+}
+
+/**
+ * Valida si una URL debe ser procesada por el service worker
+ */
+function shouldProcessRequest(url) {
+	// Solo procesar http/https
+	if (!isSupportedScheme(url)) {
+		return false;
+	}
+	return true;
+}
+
+/**
  * Install: Cachear assets estáticos
  */
 self.addEventListener("install", (event) => {
@@ -92,6 +113,13 @@ self.addEventListener("fetch", (event) => {
 	const { request } = event;
 	const url = new URL(request.url);
 
+	// Validar scheme soportado (rechazar chrome-extension, moz-extension, etc.)
+	if (!shouldProcessRequest(url)) {
+		// No procesar requests con scheme no soportado
+		event.respondWith(fetch(request));
+		return;
+	}
+
 	// Solo cachear GET requests
 	if (request.method !== "GET") {
 		return;
@@ -127,8 +155,12 @@ self.addEventListener("fetch", (event) => {
 		event.respondWith(
 			fetch(request)
 				.then((response) => {
+					// Siempre devolver la respuesta, incluso si es error
+					if (!response) {
+						throw new Error("No response received");
+					}
 					// Cachear respuestas exitosas de GET para uso offline
-					if (response && response.status === 200 && isCacheableAPI(url)) {
+					if (response.status === 200 && isCacheableAPI(url)) {
 						const responseToCache = response.clone();
 						event.waitUntil(
 							caches.open(API_CACHE).then((cache) => {

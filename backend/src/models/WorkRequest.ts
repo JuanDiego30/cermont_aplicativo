@@ -6,6 +6,30 @@ import {
 } from "@cermont/shared-types";
 import mongoose, { type Model, Schema } from "mongoose";
 
+export interface SiteVisitRecord {
+	scheduledAt?: Date;
+	completedAt?: Date;
+	technicianId?: mongoose.Types.ObjectId;
+	technicianName?: string;
+	notes?: string;
+	technicalFindings?: string;
+	scopeClarifications?: string;
+	estimatedDuration?: number;
+	riskNotes?: string;
+	evidences: Array<{
+		id: mongoose.Types.ObjectId;
+		url: string;
+		type: "image" | "document" | "video";
+		description?: string;
+		uploadedAt: Date;
+	}>;
+	measurements?: {
+		value: string;
+		unit: string;
+		description?: string;
+	};
+}
+
 export interface WorkRequestRecord {
 	code: string;
 	status: WorkRequestStatus;
@@ -39,6 +63,7 @@ export interface WorkRequestRecord {
 	}>;
 	requiresSiteVisit: boolean;
 	visitNotes?: string;
+	visit?: SiteVisitRecord;
 	assignedTo?: mongoose.Types.ObjectId;
 	assignedToName?: string;
 	linkedProposalId?: mongoose.Types.ObjectId;
@@ -62,6 +87,27 @@ const EvidenceSchema = new Schema(
 		type: { type: String, enum: ["image", "document", "video"], required: true },
 		description: { type: String, trim: true, maxlength: 300 },
 		uploadedAt: { type: Date, default: Date.now },
+	},
+	{ _id: false },
+);
+
+const SiteVisitSchema = new Schema(
+	{
+		scheduledAt: { type: Date },
+		completedAt: { type: Date },
+		technicianId: { type: Schema.Types.ObjectId, ref: "User" },
+		technicianName: { type: String, trim: true, maxlength: 200 },
+		notes: { type: String, trim: true, maxlength: 1000 },
+		technicalFindings: { type: String, trim: true, maxlength: 3000 },
+		scopeClarifications: { type: String, trim: true, maxlength: 3000 },
+		estimatedDuration: { type: Number, min: 0 },
+		riskNotes: { type: String, trim: true, maxlength: 1000 },
+		evidences: { type: [EvidenceSchema], default: [] },
+		measurements: {
+			value: { type: String, maxlength: 200 },
+			unit: { type: String, maxlength: 50 },
+			description: { type: String, maxlength: 500 },
+		},
 	},
 	{ _id: false },
 );
@@ -120,6 +166,7 @@ const WorkRequestSchema = new Schema<WorkRequestRecord>(
 		initialEvidences: { type: [EvidenceSchema], default: [] },
 		requiresSiteVisit: { type: Boolean, default: false },
 		visitNotes: { type: String, trim: true, maxlength: 1000 },
+		visit: { type: SiteVisitSchema, default: undefined },
 		assignedTo: { type: Schema.Types.ObjectId, ref: "User", index: true },
 		assignedToName: { type: String, trim: true },
 		linkedProposalId: { type: Schema.Types.ObjectId, ref: "Proposal" },

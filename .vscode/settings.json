@@ -1,0 +1,30 @@
+{
+	"prisma.enableDiagnostics": false,
+	"prisma.pinToPrisma6": false,
+	"prisma.schemaPath": "prisma/schema.prisma",
+
+	"files.watcherExclude": {
+		"**/node_modules/**": true,
+		"**/.next/**": true,
+		"**/dist/**": true,
+		"**/.turbo/**": true,
+		"**/coverage/**": true,
+		"**/.git/objects/**": true
+	},
+	"search.exclude": {
+		"**/node_modules": true,
+		"**/.next": true,
+		"**/dist": true,
+		"**/.turbo": true,
+		"**/coverage": true,
+		"**/package-lock.json": true
+	},
+	"files.exclude": {
+		"**/.turbo": true,
+		"**/dist": true
+	},
+	"typescript.tsserver.maxTsServerMemory": 512,
+	"typescript.preferences.importModuleSpecifier": "relative",
+	"editor.minimap.enabled": false,
+	"extensions.autoUpdate": false
+}

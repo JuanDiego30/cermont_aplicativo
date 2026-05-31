@@ -113,9 +113,10 @@ function buildChecklistItems(order: ChecklistTemplateOrder): ChecklistResponse["
 	const kit = getDefaultKitForOrderType(
 		order.type as Parameters<typeof getDefaultKitForOrderType>[0],
 	);
-	const sourceItems = kit?.materials.length ? kit.materials : (order.materials ?? []);
+	// Extract materials if kit was found, otherwise use order materials
+	const sourceItems = "materials" in kit ? kit.materials : (order.materials ?? []);
 
-	const kitItems = sourceItems.map((material, index) => ({
+	const kitItems = sourceItems.map((material: { name: string; quantity: number; unit: string }, index: number) => ({
 		id: `tool-${index + 1}`,
 		category: "tool" as const,
 		description: `${material.name} (${material.quantity} ${material.unit})`,
@@ -216,8 +217,9 @@ async function buildChecklistBlueprint(
 		order.type as Parameters<typeof getDefaultKitForOrderType>[0],
 	);
 
+	const templateName = "name" in legacyKit ? legacyKit.name : `Checklist ${order.code}`;
 	return {
-		templateName: legacyKit?.name ?? `Checklist ${order.code}`,
+		templateName,
 		items: buildChecklistItems(order),
 	};
 }

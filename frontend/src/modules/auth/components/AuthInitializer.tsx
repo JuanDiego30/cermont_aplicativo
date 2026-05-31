@@ -1,16 +1,17 @@
 "use client";
 
-import { isAuthenticatedRole, type UserRole } from "@cermont/domain";
+import { resolveUserRole, type UserRole } from "@cermont/domain";
 import { useQuery } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { ApiError, apiClient } from "@/lib/http/api-client";
 import { useAuthStore } from "@/store/auth.store";
+import { isPresent, type StatusObject } from "@cermont/shared-types";
 
 interface User {
 	id: string;
-	email: string | null;
-	name: string | null;
+	email: string;
+	name: string;
 	role: UserRole;
 }
 
@@ -23,11 +24,11 @@ type AuthUserResponse = {
 };
 
 function toUser(input: AuthUserResponse): User {
-	const role = isAuthenticatedRole(input.role) ? input.role : "cliente";
+	const role = resolveUserRole(input.role);
 	return {
 		id: input.id ?? input._id ?? "",
-		email: input.email ?? null,
-		name: input.name ?? null,
+		email: input.email ?? "",
+		name: input.name ?? "",
 		role,
 	};
 }
@@ -94,14 +95,17 @@ async function loadAuthenticatedUser(
 
 async function initializeAuthSession(isPublicAuthRoute: boolean): Promise<User | null> {
 	const authStore = useAuthStore.getState();
-	let sessionToken = authStore.accessToken;
+	const accessTokenStatus: StatusObject<string> = authStore.accessToken;
 
 	if (isPublicAuthRoute) {
-		if (!sessionToken) {
+		if (!isPresent(accessTokenStatus)) {
 			authStore.clearAuth();
 		}
-		return authStore.user;
+		const userStatus = authStore.user;
+		return isPresent(userStatus) ? userStatus.value : null;
 	}
+
+	let sessionToken = isPresent(accessTokenStatus) ? accessTokenStatus.value : null;
 
 	if (!sessionToken) {
 		sessionToken = await refreshSessionToken(authStore);

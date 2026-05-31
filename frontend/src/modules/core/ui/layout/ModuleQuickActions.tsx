@@ -162,8 +162,8 @@ export function ModuleQuickActions({
 						aria-pressed={mode === "document"}
 						className={`rounded-xl px-3 py-2 text-xs font-medium transition ${
 							mode === "document"
-								? "bg-[var(--color-brand-blue)] text-white shadow-[var(--shadow-brand)]"
-								: "border border-[var(--border-default)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+								? "bg-(--color-brand-blue) text-white shadow-brand"
+								: "border border-(--border-default) text-(--text-secondary) hover:bg-surface-secondary"
 						}`}
 					>
 						Documento externo
@@ -174,8 +174,8 @@ export function ModuleQuickActions({
 						aria-pressed={mode === "evidence"}
 						className={`rounded-xl px-3 py-2 text-xs font-medium transition ${
 							mode === "evidence"
-								? "bg-[var(--color-brand-blue)] text-white shadow-[var(--shadow-brand)]"
-								: "border border-[var(--border-default)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+								? "bg-(--color-brand-blue) text-white shadow-brand"
+								: "border border-(--border-default) text-(--text-secondary) hover:bg-surface-secondary"
 						}`}
 					>
 						Foto evidencia
@@ -205,7 +205,7 @@ export function ModuleQuickActions({
 						? "Cerrar acciones rápidas de documentos y evidencias"
 						: "Abrir acciones rápidas de documentos y evidencias"
 				}
-				className="flex items-center gap-2 rounded-full bg-[var(--color-brand-blue)] px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-brand)] hover:bg-[var(--color-brand-blue-hover)]"
+				className="flex items-center gap-2 rounded-full bg-(--color-brand-blue) px-4 py-2.5 text-sm font-semibold text-white shadow-brand hover:bg-(--color-brand-blue-hover)"
 			>
 				{mode === "document" ? (
 					<FileUp aria-hidden="true" className="size-4" />
@@ -240,8 +240,8 @@ function QuickActionPanelBody({
 	if (isLoadingOrders) {
 		return (
 			<p
-				role="status"
-				className="rounded-xl border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-2 text-xs text-[var(--text-secondary)]"
+				aria-live="polite"
+				className="rounded-xl border border-(--border-default) bg-surface-secondary px-3 py-2 text-xs text-(--text-secondary)"
 			>
 				Cargando órdenes recientes…
 			</p>
@@ -322,7 +322,7 @@ function QuickEvidenceUploader({
 			</label>
 
 			{selectedOrder ? (
-				<EvidenceUploader orderId={selectedOrder.id} />
+				<EvidenceUploader key={selectedOrder.id} orderId={selectedOrder.id} />
 			) : (
 				<p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
 					Selecciona una orden válida para cargar evidencia.

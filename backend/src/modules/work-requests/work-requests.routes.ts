@@ -11,6 +11,7 @@
 import {
 	CreateWorkRequestSchema,
 	ListWorkRequestsQuerySchema,
+	ScheduleVisitSchema,
 	UpdateWorkRequestStatusSchema,
 	WorkRequestIdParamsSchema,
 } from "@cermont/shared-types";
@@ -99,6 +100,32 @@ router.delete(
 	authorize("gerente"),
 	validateParams(WorkRequestIdParamsSchema),
 	WorkRequestController.deleteWorkRequest,
+);
+
+/**
+ * POST /api/work-requests/:id/visits
+ * Create site visit for work request
+ * Roles: GER, RES, HES, SUP
+ */
+router.post(
+	"/:id/visits",
+	authenticate,
+	authorize("gerente", "residente", "hes", "supervisor"),
+	validateParams(WorkRequestIdParamsSchema),
+	validateBody(ScheduleVisitSchema),
+	WorkRequestController.createSiteVisit,
+);
+
+/**
+ * GET /api/work-requests/:id/visits
+ * List site visits for work request
+ * Roles: All authenticated users
+ */
+router.get(
+	"/:id/visits",
+	authenticate,
+	validateParams(WorkRequestIdParamsSchema),
+	WorkRequestController.listSiteVisits,
 );
 
 export default router;

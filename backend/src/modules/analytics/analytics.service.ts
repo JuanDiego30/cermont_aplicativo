@@ -44,9 +44,9 @@ export interface KpiChecklists {
 }
 
 export interface KpiLeadTime {
-	avg_lead_time_days: number | null;
-	min_lead_time_days: number | null;
-	max_lead_time_days: number | null;
+	avg_lead_time_days: number;
+	min_lead_time_days: number;
+	max_lead_time_days: number;
 	count: number;
 }
 
@@ -105,16 +105,16 @@ function buildFinancial(raw: FinancialAggregate | undefined): KpiFinancial {
 function buildLeadTime(raw: LeadTimeAggregate | undefined): KpiLeadTime {
 	if (!raw) {
 		return {
-			avg_lead_time_days: null,
-			min_lead_time_days: null,
-			max_lead_time_days: null,
+			avg_lead_time_days: 0,
+			min_lead_time_days: 0,
+			max_lead_time_days: 0,
 			count: 0,
 		};
 	}
 	return {
-		avg_lead_time_days: raw.avg_lead_time_days,
-		min_lead_time_days: raw.min_lead_time_days,
-		max_lead_time_days: raw.max_lead_time_days,
+		avg_lead_time_days: raw.avg_lead_time_days ?? 0,
+		min_lead_time_days: raw.min_lead_time_days ?? 0,
+		max_lead_time_days: raw.max_lead_time_days ?? 0,
 		count: raw.count,
 	};
 }
@@ -249,17 +249,44 @@ export async function getKpis(): Promise<KpiResult> {
 }
 
 export function getErrorDashboard(limit = 10): ErrorDashboardResult {
-	const metrics = getErrorMetrics(limit);
+  const metrics = getErrorMetrics(limit);
 
-	return {
-		total_errors: metrics.totalErrors,
-		by_module: metrics.modules,
-		by_endpoint: metrics.endpoints.map((endpoint) => ({
-			module: endpoint.module,
-			endpoint: endpoint.endpoint,
-			count: endpoint.count,
-			last_error_at: endpoint.lastErrorAt,
-		})),
-		generated_at: metrics.generatedAt,
-	};
+  return {
+    total_errors: metrics.totalErrors,
+    by_module: metrics.modules,
+    by_endpoint: metrics.endpoints.map((endpoint) => ({
+      module: endpoint.module,
+      endpoint: endpoint.endpoint,
+      count: endpoint.count,
+      last_error_at: endpoint.lastErrorAt,
+    })),
+    generated_at: metrics.generatedAt,
+  };
+}
+
+export function getSystemMetrics(): {
+  status: "operational" | "degraded" | "unhealthy";
+  timestamp: string;
+  uptime_seconds: number;
+  memory: {
+    rss_mb: number;
+    heap_used_mb: number;
+    external_mb: number;
+  };
+  version: string;
+} {
+  const memory = process.memoryUsage();
+  const uptime = process.uptime();
+
+  return {
+    status: "operational",
+    timestamp: new Date().toISOString(),
+    uptime_seconds: Math.round(uptime),
+    memory: {
+      rss_mb: Math.round((memory.rss / 1024 / 1024) * 100) / 100,
+      heap_used_mb: Math.round((memory.heapUsed / 1024 / 1024) * 100) / 100,
+      external_mb: Math.round((memory.external / 1024 / 1024) * 100) / 100,
+    },
+    version: "1.0.0",
+  };
 }

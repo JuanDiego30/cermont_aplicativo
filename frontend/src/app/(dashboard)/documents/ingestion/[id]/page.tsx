@@ -20,7 +20,7 @@ function ReviewLoading() {
 		<div className="flex flex-col items-center justify-center py-20 gap-4">
 			<Loader2 className="size-8 animate-spin text-[var(--color-brand)]" />
 			<p className="text-sm font-medium text-[var(--text-secondary)]">
-				Analizando estructura del borrador...
+				Analizando estructura del borrador…
 			</p>
 		</div>
 	);

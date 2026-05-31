@@ -1,5 +1,5 @@
 import { RotateCcw } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useReducer } from "react";
 import { Button } from "@/core/ui/Button";
 
 type DraftValue = Record<string, unknown>;
@@ -54,7 +54,8 @@ export function useStateAutosave<T extends DraftValue>({
 }: UseStateAutosaveOptions<T>): UseStateAutosaveResult<T> {
 	const storageKey = useMemo(() => buildStorageKey(draftId), [draftId]);
 	const initialSnapshot = useMemo(() => JSON.stringify(value), [value]);
-	const [hasDraft, setHasDraft] = useState(() => readStoredDraft(storageKey) !== null);
+	const [, bumpDraftRevision] = useReducer((current: number) => current + 1, 0);
+	const hasDraft = readStoredDraft(storageKey) !== null;
 
 	useEffect(() => {
 		const currentSnapshot = JSON.stringify(value);
@@ -64,7 +65,7 @@ export function useStateAutosave<T extends DraftValue>({
 		}
 
 		writeStoredDraft(storageKey, value);
-		setHasDraft(true);
+		bumpDraftRevision();
 	}, [initialSnapshot, storageKey, value]);
 
 	const restoreDraft = (fallback: T) => {
@@ -73,7 +74,7 @@ export function useStateAutosave<T extends DraftValue>({
 			return fallback;
 		}
 
-		setHasDraft(true);
+		bumpDraftRevision();
 		return storedDraft;
 	};
 
@@ -82,7 +83,7 @@ export function useStateAutosave<T extends DraftValue>({
 			window.localStorage.removeItem(storageKey);
 		}
 
-		setHasDraft(false);
+		bumpDraftRevision();
 	};
 
 	return { restoreDraft, clearDraft, hasDraft };

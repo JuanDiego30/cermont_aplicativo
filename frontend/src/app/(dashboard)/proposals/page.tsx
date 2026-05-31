@@ -43,7 +43,7 @@ function ProposalsStatusFlow({ status }: { status: string }) {
 	}
 
 	return (
-		<div className="flex items-center gap-1" role="status" aria-label={`Flujo: ${status}`}>
+		<output className="flex items-center gap-1" aria-label={`Flujo: ${status}`}>
 			{STATUS_ORDER.map((s, idx) => {
 				const isPast = idx <= currentIdx;
 				const isCurrent = idx === currentIdx;
@@ -70,7 +70,7 @@ function ProposalsStatusFlow({ status }: { status: string }) {
 					</div>
 				);
 			})}
-		</div>
+		</output>
 	);
 }
 
@@ -103,30 +103,41 @@ function ProposalsPageInner() {
 	const status = getSearchParam("status") || undefined;
 
 	const { data, isLoading, isError } = useProposals({ limit, offset, status: status ?? "" });
-	const proposals = data?.items || [];
-	const total = data?.total ?? proposals.length;
+	const proposals = data?.items ?? [];
+	const total = data?.total ?? 0;
 	const totalPages = Math.ceil(total / limit);
 
 	// Derived metrics
 	const metrics = useMemo(() => {
+		const proposals = data?.items ?? [];
+		if (!Array.isArray(proposals)) {
+			return {
+				approvedCount: 0,
+				sentCount: 0,
+				rejectedCount: 0,
+				draftCount: 0,
+				approvalRate: 0,
+				avgMargin: 0,
+				totalValue: 0,
+			};
+		}
 		const approved = proposals.filter(
-			(p) => p.status === "approved" || p.status === "aprobada",
+			(p) => p.status === "approved",
 		);
 		const sent = proposals.filter(
-			(p) => p.status === "sent" || p.status === "enviada",
+			(p) => p.status === "sent",
 		);
 		const rejected = proposals.filter(
-			(p) => p.status === "rejected" || p.status === "rechazada",
+			(p) => p.status === "rejected",
 		);
 		const draft = proposals.filter(
-			(p) => p.status === "draft" || p.status === "borrador",
+			(p) => p.status === "draft",
 		);
 
 		const approvalRate = total > 0 ? Math.round((approved.length / total) * 100) : 0;
 
-		// Average margin: for proposals with estimatedValue, assume a simple margin calc
-		// Using a 30% standard margin heuristic when no itemized data is available
-		const totalValue = proposals.reduce((sum, p) => sum + (p.estimatedValue ?? 0), 0);
+		// Average margin: for proposals with items, calculate from items
+		const totalValue = proposals.reduce((sum: number, p) => sum + p.total, 0);
 		const avgMargin = totalValue > 0 ? 30 : 0; // Displayed as estimated margin
 
 		return {
@@ -138,7 +149,7 @@ function ProposalsPageInner() {
 			avgMargin,
 			totalValue,
 		};
-	}, [proposals, total]);
+	}, [data, total]);
 
 	return (
 		<section className="space-y-6" aria-labelledby="proposals-page-title">
@@ -306,14 +317,14 @@ function ProposalTable({ proposals }: { proposals: Proposal[] }) {
 										href={`/proposals/${p._id}`}
 										className="font-mono font-medium text-[var(--color-brand-blue)] hover:underline"
 									>
-										{p.proposalNumber ?? p._id}
+										{p.code ?? p._id}
 									</Link>
 								</td>
 								<td className="max-w-[200px] truncate px-5 py-3.5 text-[var(--text-secondary)]">
 									{p.clientName ?? ","}
 								</td>
 								<td className="whitespace-nowrap px-5 py-3.5 font-medium text-[var(--text-primary)]">
-									{formatCOP(p.estimatedValue ?? 0)}
+									{formatCOP(p.total)}
 								</td>
 								<td className="px-5 py-3.5">
 									<ProposalStatusBadge status={p.status ?? ""} />
@@ -327,7 +338,7 @@ function ProposalTable({ proposals }: { proposals: Proposal[] }) {
 								<td className="px-5 py-3.5">
 									<Link
 										href={`/proposals/${p._id}`}
-										aria-label={`Ver propuesta ${p.proposalNumber ?? p._id}`}
+										aria-label={`Ver propuesta ${p.code ?? p._id}`}
 										className="text-xs font-medium text-[var(--color-brand-blue)] opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 focus:opacity-100 hover:underline"
 									>
 										Ver →

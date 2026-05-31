@@ -4,25 +4,25 @@ import type { ButtonHTMLAttributes, Ref } from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-	"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-[background-color,color,box-shadow,transform,opacity] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-focus-ring)] focus-visible:ring-offset-2 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+	"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-[background-color,color,box-shadow,transform,opacity] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--color-focus-ring) focus-visible:ring-offset-2 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
 	{
 		variants: {
 			variant: {
 				default:
-					"bg-[var(--color-neutral-900)] text-[var(--text-inverse)] shadow-[var(--shadow-button)] hover:opacity-90",
+					"bg-zinc-900 text-white shadow-button hover:opacity-90",
 				primary:
-					"bg-[var(--color-brand)] text-[var(--text-inverse)] shadow-[var(--shadow-button)] hover:opacity-90",
+					"bg-brand text-white shadow-button hover:opacity-90",
 				secondary:
-					"border border-[var(--border-medium)] bg-[var(--surface-primary)] text-[var(--text-primary)] shadow-[var(--shadow-button)] hover:bg-[var(--surface-secondary)]",
+					"border border-border-medium bg-card text-foreground shadow-button hover:bg-surface-secondary",
 				accent:
-					"bg-[var(--color-brand-accent)] text-[var(--text-inverse)] shadow-[var(--shadow-button)] hover:opacity-90",
+					"bg-brand-accent text-white shadow-button hover:opacity-90",
 				ghost:
-					"bg-transparent text-[var(--text-tertiary)] hover:bg-[var(--border-subtle)] hover:text-[var(--text-primary)]",
+					"bg-transparent text-muted-foreground hover:bg-border-subtle hover:text-foreground",
 				destructive:
-					"bg-[var(--color-danger)] text-[var(--text-inverse)] shadow-[var(--shadow-button)] hover:opacity-90",
+					"bg-destructive text-white shadow-button hover:opacity-90",
 				outline:
-					"border border-[var(--border-subtle)] bg-transparent text-[var(--text-primary)] hover:bg-[var(--border-subtle)]",
-				link: "text-[var(--color-brand)] underline-offset-4 hover:underline",
+					"border border-border-subtle bg-transparent text-foreground hover:bg-border-subtle",
+				link: "text-brand underline-offset-4 hover:underline",
 			},
 			size: {
 				default: "h-10 px-6 py-2",

@@ -21,13 +21,13 @@ export default function BillingPage() {
 	return (
 		<section className="space-y-6" aria-labelledby="billing-title">
 			<header>
-				<p className="text-sm font-medium text-[var(--color-brand)]">
+				<p className="text-sm font-medium text-brand">
 					Dashboard / Cierre administrativo
 				</p>
-				<h1 id="billing-title" className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+				<h1 id="billing-title" className="mt-2 text-2xl font-semibold text-foreground">
 					Cierre administrativo
 				</h1>
-				<p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--text-secondary)]">
+				<p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
 					Orquesta SES / Ariba, facturas y pagos para cerrar el servicio sin perder trazabilidad con
 					actas, informes técnicos y costos.
 				</p>
@@ -39,9 +39,9 @@ export default function BillingPage() {
 				<BillingTile href="/payments" title="Pagos" value={paymentTotal} />
 			</div>
 
-			<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-card">
-				<h2 className="text-base font-semibold text-[var(--text-primary)]">Estado del cierre</h2>
-				<p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
+			<div className="rounded-lg border border-border bg-card p-5 shadow-card">
+				<h2 className="text-base font-semibold text-foreground">Estado del cierre</h2>
+				<p className="mt-2 text-sm leading-6 text-muted-foreground">
 					{pendingInvoices > 0
 						? `${pendingInvoices} facturas siguen abiertas o pendientes de aprobación.`
 						: "No hay facturas abiertas en la consulta actual."}
@@ -49,13 +49,13 @@ export default function BillingPage() {
 				<div className="mt-4 flex flex-wrap gap-2">
 					<Link
 						href="/delivery-records"
-						className="rounded-[var(--radius-md)] border border-[var(--border-default)] px-3 py-2 text-sm font-medium text-[var(--text-primary)]"
+						className="rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground"
 					>
 						Revisar actas
 					</Link>
 					<Link
 						href="/costs"
-						className="rounded-[var(--radius-md)] border border-[var(--border-default)] px-3 py-2 text-sm font-medium text-[var(--text-primary)]"
+						className="rounded-md border border-border px-3 py-2 text-sm font-medium text-foreground"
 					>
 						Ver costos
 					</Link>
@@ -67,7 +67,7 @@ export default function BillingPage() {
 					>
 						<button
 							type="button"
-							className="rounded-[var(--radius-md)] bg-[var(--color-brand)] px-3 py-2 text-sm font-medium text-white"
+							className="rounded-md bg-brand px-3 py-2 text-sm font-medium text-white"
 						>
 							Subir soporte
 						</button>
@@ -82,10 +82,10 @@ function BillingTile({ href, title, value }: { href: string; title: string; valu
 	return (
 		<Link
 			href={href}
-			className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-card transition-colors hover:bg-[var(--surface-secondary)]"
+			className="rounded-lg border border-border bg-card p-5 shadow-card transition-colors hover:bg-surface-secondary"
 		>
-			<p className="text-sm font-medium text-[var(--text-secondary)]">{title}</p>
-			<p className="mt-2 text-3xl font-semibold text-[var(--text-primary)]">{value}</p>
+			<p className="text-sm font-medium text-muted-foreground">{title}</p>
+			<p className="mt-2 text-3xl font-semibold text-foreground">{value}</p>
 		</Link>
 	);
 }

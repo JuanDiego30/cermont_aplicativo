@@ -67,12 +67,12 @@ export default function OrdersPage() {
 function OrdersLoading() {
 	return (
 		<section aria-labelledby="orders-page-title" className="space-y-5">
-			<div
-				className="flex h-64 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]"
-				role="status"
+			<output
+				className="flex h-64 items-center justify-center rounded-lg border border-border bg-card shadow-sm"
+				aria-live="polite"
 			>
-				<span className="text-[var(--text-secondary)]">Cargando datos…</span>
-			</div>
+				<span className="text-secondary">Cargando datos…</span>
+			</output>
 		</section>
 	);
 }
@@ -158,17 +158,17 @@ function OrdersPageInner() {
 			)}
 
 			{isLoading ? (
-				<div
+				<output
 					data-orders-reveal
-					className="flex h-64 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]"
-					role="status"
+					className="flex h-64 items-center justify-center rounded-lg border border-border bg-card shadow-sm"
+					aria-live="polite"
 				>
-					<span className="text-[var(--text-secondary)]">Cargando datos…</span>
-				</div>
+					<span className="text-secondary">Cargando datos…</span>
+				</output>
 			) : orders.length === 0 ? (
 				<div
 					data-orders-reveal
-					className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]"
+					className="rounded-lg border border-border bg-card shadow-sm"
 				>
 					<EmptyState
 						title="No se encontraron órdenes"

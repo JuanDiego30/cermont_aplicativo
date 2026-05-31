@@ -1,12 +1,17 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { useDeliveryRecordsList } from "@/modules/billing/queries";
-import { deliveryRows, WorkflowRecordsPage } from "@/modules/billing/ui/WorkflowRecordsPage";
+import {
+	deliveryRows,
+	WorkflowRecordsPage,
+	WorkflowRecordsPageLoadingState,
+} from "@/modules/billing/ui/WorkflowRecordsPage";
 
-export default function DeliveryRecordsPage() {
-	const searchParams = useSearchParams();
-	const workOrderId = searchParams.get("workOrderId")?.trim() || undefined;
+function DeliveryRecordsPageContent() {
+	const { get } = useSearchParams();
+	const workOrderId = get("workOrderId")?.trim() || undefined;
 	const query = useDeliveryRecordsList(workOrderId ? { workOrderId, limit: 50 } : undefined);
 
 	return (
@@ -37,5 +42,13 @@ export default function DeliveryRecordsPage() {
 				{ href: "/billing/ses", label: "SES / Ariba" },
 			]}
 		/>
+	);
+}
+
+export default function DeliveryRecordsPage() {
+	return (
+		<Suspense fallback={<WorkflowRecordsPageLoadingState />}>
+			<DeliveryRecordsPageContent />
+		</Suspense>
 	);
 }

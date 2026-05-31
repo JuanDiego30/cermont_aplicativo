@@ -18,7 +18,7 @@ export interface OfflineEvidenceInput {
 	gpsLocation?: {
 		lat: number;
 		lng: number;
-		capturedAt: string;
+		capturedAt?: string;
 	};
 }
 

@@ -15,7 +15,11 @@
  *   5. Response sent with correct status code
  */
 
-import { ChangePasswordSchema } from "@cermont/shared-types";
+import {
+	ChangePasswordSchema,
+	ForgotPasswordSchema,
+	ResetPasswordSchema,
+} from "@cermont/shared-types";
 import type { Request, Response } from "express";
 import { UnauthorizedError } from "../../common/errors/AppError";
 import { sendSuccess } from "../../common/interceptors/response.interceptor";
@@ -225,4 +229,47 @@ export async function changePassword(req: Request, res: Response): Promise<void>
 	res.clearCookie("refreshToken", getRefreshTokenCookieOptions(req));
 	res.clearCookie("userRole", getReadableRoleCookieOptions(req));
 	sendSuccess(res, { message: "Password updated successfully" });
+}
+
+/**
+ * POST /api/auth/forgot-password
+ *
+ * Solicita restablecimiento de contraseña.
+ * Request body:
+ *   { email: string }
+ *
+ * Response 200:
+ *   { success: true, message: "If the email exists, a reset link has been sent" }
+ *
+ * Security: Siempre devuelve 200, no revela si el email existe o no.
+ */
+export async function forgotPassword(req: Request, res: Response): Promise<void> {
+	const { email } = ForgotPasswordSchema.parse(req.body);
+
+	// Generar token de reset (en producción, enviar email)
+	// Para desarrollo: devolver el token en la respuesta
+	AuthService.generateResetToken(email);
+
+	// En producción, esto enviaría un email con el enlace de reset
+	// sendResetPasswordEmail(email, resetToken);
+
+	sendSuccess(res, { message: "If the email exists, a reset link has been sent" });
+}
+
+/**
+ * POST /api/auth/reset-password
+ *
+ * Restablece la contraseña usando el token de reset.
+ * Request body:
+ *   { token: string, password: string }
+ *
+ * Response 200:
+ *   { success: true, message: "Password reset successfully" }
+ */
+export async function resetPassword(req: Request, res: Response): Promise<void> {
+	const { token, password } = ResetPasswordSchema.parse(req.body);
+
+	await AuthService.resetPassword(token, password);
+
+	sendSuccess(res, { message: "Password reset successfully" });
 }

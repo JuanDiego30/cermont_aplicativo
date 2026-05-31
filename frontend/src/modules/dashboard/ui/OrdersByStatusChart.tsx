@@ -65,7 +65,7 @@ export const OrdersByStatusChart = memo(function OrdersByStatusChart({
 				label: item.label,
 			}))}
 		>
-			<div role="img" aria-label="Distribución de órdenes por estado">
+			<figure role="img" aria-label="Distribución de órdenes por estado">
 				<ResponsiveContainer width="100%" height={280}>
 					<PieChart>
 						<Pie
@@ -99,7 +99,7 @@ export const OrdersByStatusChart = memo(function OrdersByStatusChart({
 				<div className="mt-4 text-center text-sm text-[var(--text-secondary)]">
 					Total: <span className="font-semibold text-[var(--text-primary)]">{total}</span>
 				</div>
-			</div>
+			</figure>
 		</ChartCard>
 	);
 });

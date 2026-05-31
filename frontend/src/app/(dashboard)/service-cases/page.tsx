@@ -190,13 +190,10 @@ function ServiceCasesList() {
 
 	if (isLoading) {
 		return (
-			<div className="flex items-center justify-center py-24" role="status">
-				<Loader2
-					className="size-8 animate-spin text-[var(--color-brand-blue)]"
-					aria-hidden="true"
-				/>
+			<output className="flex items-center justify-center py-24" aria-live="polite">
+				<Loader2 className="size-8 animate-spin text-brand" aria-hidden="true" />
 				<span className="sr-only">Cargando casos…</span>
-			</div>
+			</output>
 		);
 	}
 
@@ -233,8 +230,8 @@ export default function ServiceCasesPage() {
 	return (
 		<div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 			<div className="mb-8">
-				<h1 className="text-2xl font-semibold text-[var(--text-primary)]">Casos de Servicio</h1>
-				<p className="mt-1 text-sm text-[var(--text-secondary)]">
+				<h1 className="text-2xl font-semibold text-primary">Casos de Servicio</h1>
+				<p className="mt-1 text-sm text-secondary">
 					Caso → 14 pasos → documentos → evidencias → bloqueadores → costos → cierre
 				</p>
 			</div>

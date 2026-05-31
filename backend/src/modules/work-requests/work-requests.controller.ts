@@ -1,6 +1,7 @@
 import {
 	CreateWorkRequestSchema,
 	ListWorkRequestsQuerySchema,
+	ScheduleVisitSchema,
 	UpdateWorkRequestStatusSchema,
 	WorkRequestIdParamsSchema,
 } from "@cermont/shared-types";
@@ -115,4 +116,34 @@ export async function deleteWorkRequest(req: Request, res: Response) {
 	const workRequest = await WorkRequestService.deleteWorkRequest(id, userId, userRole);
 
 	res.status(200).json({ success: true, data: workRequest });
+}
+
+/**
+ * Create site visit for work request
+ * POST /api/work-requests/:id/visits
+ * Roles: GER, RES, HES, SUP
+ */
+export async function createSiteVisit(req: Request, res: Response) {
+	const user = requireUser(req);
+	const userId = user._id.toString();
+	const { id } = WorkRequestIdParamsSchema.parse(req.params);
+	const data = ScheduleVisitSchema.parse(req.body);
+
+	const result = await WorkRequestService.createSiteVisit(id, data, userId);
+
+	res.status(201).json({ success: true, data: result });
+}
+
+/**
+ * List site visits for work request
+ * GET /api/work-requests/:id/visits
+ * Roles: All authenticated users
+ */
+export async function listSiteVisits(req: Request, res: Response) {
+	const user = requireUser(req);
+	const { id } = WorkRequestIdParamsSchema.parse(req.params);
+
+	const visits = await WorkRequestService.listSiteVisits(id, user);
+
+	res.status(200).json({ success: true, data: visits });
 }

@@ -67,7 +67,7 @@ export function OrderEvidencesTab({ orderId }: OrderEvidencesTabProps) {
 			aria-label="Evidencias fotográficas"
 			className="space-y-6 rounded-xl border border-zinc-200 bg-white p-4 sm:p-6 dark:border-zinc-800 dark:bg-zinc-950"
 		>
-			<EvidenceUploader orderId={orderId} />
+			<EvidenceUploader key={orderId} orderId={orderId} />
 
 			{totalEvidences === 0 ? (
 				<div className="flex flex-col items-center justify-center py-8 text-center">

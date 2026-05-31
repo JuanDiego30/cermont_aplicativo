@@ -1,12 +1,17 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { useInvoicesList } from "@/modules/billing/queries";
-import { invoiceRows, WorkflowRecordsPage } from "@/modules/billing/ui/WorkflowRecordsPage";
+import {
+	invoiceRows,
+	WorkflowRecordsPage,
+	WorkflowRecordsPageLoadingState,
+} from "@/modules/billing/ui/WorkflowRecordsPage";
 
-export default function BillingInvoicesPage() {
-	const searchParams = useSearchParams();
-	const workOrderId = searchParams.get("workOrderId")?.trim() || undefined;
+function BillingInvoicesPageContent() {
+	const { get } = useSearchParams();
+	const workOrderId = get("workOrderId")?.trim() || undefined;
 	const query = useInvoicesList(workOrderId ? { workOrderId, limit: 50 } : undefined);
 
 	return (
@@ -37,5 +42,13 @@ export default function BillingInvoicesPage() {
 				{ href: "/documents", label: "Soportes" },
 			]}
 		/>
+	);
+}
+
+export default function BillingInvoicesPage() {
+	return (
+		<Suspense fallback={<WorkflowRecordsPageLoadingState />}>
+			<BillingInvoicesPageContent />
+		</Suspense>
 	);
 }

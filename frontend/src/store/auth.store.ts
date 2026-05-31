@@ -6,26 +6,29 @@
 import type { UserRole } from "@cermont/domain";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { StatusObject } from "@cermont/shared-types";
 
 interface AuthUser {
 	id: string;
-	name: string | null;
-	email: string | null;
+	name: string;
+	email: string;
 	role: UserRole;
 }
 
 interface AuthState {
 	// NEVER persisted — memory only for XSS protection
-	accessToken: string | null;
+	// Using StatusObject pattern instead of null
+	accessToken: StatusObject<string>;
 
 	// User data (safe to persist — no sensitive info)
-	user: AuthUser | null;
+	// Using StatusObject pattern instead of null
+	user: StatusObject<AuthUser>;
 
 	// Refresh token persisted by backend in httpOnly cookie (not here)
 	isAuthenticated: boolean;
 
 	// Actions
-	setAuth: (user: AuthUser, accessToken: string | null) => void;
+	setAuth: (user: AuthUser, accessToken: string) => void;
 	clearAuth: () => void;
 	setAccessToken: (token: string) => void;
 	clearAccessToken: () => void;
@@ -34,20 +37,21 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()(
 	persist(
 		(set) => ({
-			user: null,
-			accessToken: null,
+			user: { status: "absent" } as StatusObject<AuthUser>,
+			accessToken: { status: "absent" } as StatusObject<string>,
 			isAuthenticated: false,
 
-			setAuth: (user, accessToken) => set({ user, accessToken, isAuthenticated: true }),
+			setAuth: (user, accessToken) =>
+				set({ user: { status: "present", value: user }, accessToken: { status: "present", value: accessToken }, isAuthenticated: true }),
 
-			clearAuth: () => set({ user: null, accessToken: null, isAuthenticated: false }),
+			clearAuth: () => set({ user: { status: "absent" }, accessToken: { status: "absent" }, isAuthenticated: false }),
 
 			setAccessToken: (token) => {
-				set({ accessToken: token });
+				set({ accessToken: { status: "present", value: token } });
 				/** @see DOC-04 sección Token Management en cliente */
 			},
 
-			clearAccessToken: () => set({ accessToken: null }),
+			clearAccessToken: () => set({ accessToken: { status: "absent" } }),
 		}),
 		{
 			name: "cermont-auth",

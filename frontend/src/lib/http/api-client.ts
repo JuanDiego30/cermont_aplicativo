@@ -2,6 +2,7 @@
 // ÚNICO cliente HTTP del frontend — todos los módulos usan este
 
 import { isProduction } from "@cermont/config";
+import { isPresent } from "@cermont/shared-types";
 import { useAuthStore } from "@/store/auth.store";
 import {
 	API_ROOT,
@@ -51,8 +52,13 @@ function sleep(ms: number): Promise<void> {
 }
 
 function buildAuthHeaders(): HeadersInit {
-	const token = useAuthStore.getState().accessToken;
-	return token ? { Authorization: `Bearer ${token}` } : {};
+	const tokenStatus = useAuthStore.getState().accessToken;
+
+	if (!isPresent(tokenStatus)) {
+		return {};
+	}
+
+	return { Authorization: `Bearer ${tokenStatus.value}` };
 }
 
 function getRequestHeaders(

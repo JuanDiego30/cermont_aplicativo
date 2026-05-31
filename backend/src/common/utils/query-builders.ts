@@ -21,6 +21,12 @@ export interface UserContext {
 	role: string;
 }
 
+/** Date range filter with $gte/$lte operators */
+export interface DateRangeConditions {
+	$gte?: Date;
+	$lte?: Date;
+}
+
 /**
  * Builds a MongoDB date range filter
  *
@@ -35,11 +41,11 @@ export interface UserContext {
 export function buildDateRangeFilter(
 	filter: DateRangeFilter,
 	fieldName: string = "createdAt",
-): Record<string, unknown> {
-	const dateFilter: Record<string, unknown> = {};
+): { [key: string]: DateRangeConditions } {
+	const dateFilter: { [key: string]: DateRangeConditions } = {};
 
 	if (filter.startDate || filter.endDate) {
-		const rangeCondition: Record<string, Date> = {};
+		const rangeCondition: DateRangeConditions = {};
 
 		if (filter.startDate) {
 			rangeCondition.$gte = new Date(filter.startDate);
@@ -71,10 +77,10 @@ export function buildDateRangeFilter(
  * const filter = applyRBACFilter(user, baseFilter);
  * // Returns: { status: 'active', assignedTechnician: '123' }
  */
-export function applyRBACFilter(
-	user: UserContext | undefined,
-	baseFilter: Record<string, unknown>,
-): Record<string, unknown> {
+export function applyRBACFilter<T extends object>(
+	user: UserContext | UserContext,
+	baseFilter: T,
+): T & { assignedTechnician?: string } {
 	// No user context = return base filter unchanged
 	if (!user) {
 		return baseFilter;

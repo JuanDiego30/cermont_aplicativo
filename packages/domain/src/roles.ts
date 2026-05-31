@@ -197,6 +197,23 @@ export const ROLE_HIERARCHY: Record<UserRole, number> = {
 } as const satisfies Record<UserRole, number>;
 
 /**
+ * Get the human-readable display name for a role.
+ *
+ * @param role - The role to get the name for
+ * @returns Human-readable role name, or the input if role is unknown
+ *
+ * @example
+ * ```typescript
+ * getRoleName('gerente'); // "Gerente"
+ * getRoleName('hes');     // "Coordinador HES"
+ * getRoleName('invalid'); // "invalid"
+ * ```
+ */
+export function getRoleName(role: string): string {
+	return ROLE_LABELS[role as UserRole] ?? role;
+}
+
+/**
  * English-to-Spanish legacy role alias mapping.
  *
  * Used by {@link normalizeUserRole} to handle legacy English role references
@@ -278,6 +295,28 @@ export function isUserRoleInput(role: string): role is UserRole {
  * normalizeUserRole('invalid'); // null
  * ```
  */
+/**
+ * Default role used when normalization fails.
+ * "cliente" is the safest default — limited permissions, no internal access.
+ */
+export const DEFAULT_USER_ROLE: UserRole = "cliente";
+
+/**
+ * Normalizes a role string to a valid UserRole or null.
+ * Handles case variations (gerente/Gerente, hes/HES, etc.)
+ * and legacy English aliases (manager → gerente, technician → tecnico, etc.).
+ *
+ * @param role - Role string to normalize (can be any case, or English alias)
+ * @returns Normalized UserRole or null if invalid
+ *
+ * @example
+ * ```typescript
+ * normalizeUserRole('GERENTE'); // 'gerente'
+ * normalizeUserRole('HES');     // 'hes'
+ * normalizeUserRole('manager'); // 'gerente' (legacy alias)
+ * normalizeUserRole('invalid'); // null
+ * ```
+ */
 export function normalizeUserRole(role: unknown): UserRole | null {
 	if (typeof role !== "string") {
 		return null;
@@ -288,6 +327,31 @@ export function normalizeUserRole(role: unknown): UserRole | null {
 	}
 	return ENGLISH_TO_SPANISH_ROLE[normalized] ?? null;
 }
+
+/**
+ * Resolves a role input to a valid UserRole, falling back to DEFAULT_USER_ROLE.
+ * Use this instead of inline `"cliente"` fallback strings.
+ *
+ * @param role - Unknown role input
+ * @param fallback - Optional fallback role (defaults to DEFAULT_USER_ROLE)
+ * @returns A valid UserRole, guaranteed
+ *
+ * @example
+ * ```typescript
+ * const role = resolveUserRole(input.role); // UserRole, never null
+ * const role = resolveUserRole(input.role, "tecnico"); // with explicit fallback
+ * ```
+ */
+export function resolveUserRole(role: unknown, fallback: UserRole = DEFAULT_USER_ROLE): UserRole {
+	const normalized = normalizeUserRole(role);
+	return normalized ?? fallback;
+}
+
+/**
+ * Default initial role for new user creation forms.
+ * "tecnico" is the most common starting role for new field workers.
+ */
+export const DEFAULT_NEW_USER_ROLE: UserRole = "tecnico";
 
 /**
  * Checks if user has any of the allowed roles.

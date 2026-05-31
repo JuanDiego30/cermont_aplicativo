@@ -8,11 +8,14 @@ import { Suspense, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import {
-	useCancelSiteVisit,
-	useCompleteSiteVisit,
-	useSiteVisit,
-	useStartSiteVisit,
+  useCancelSiteVisit,
+  useCompleteSiteVisit,
+  useSiteVisit,
+  useStartSiteVisit,
 } from "@/modules/site-visits/queries";
+
+const DATE_FMT = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
+const fmtDate = (v?: string) => (v ? DATE_FMT.format(new Date(v)) : "Sin fecha");
 
 export default function SiteVisitDetailPage() {
 	return (
@@ -172,10 +175,7 @@ function VisitContent({ visit }: { visit: SiteVisitRecord }) {
 }
 
 function VisitInfo({ visit }: { visit: SiteVisitRecord }) {
-	const dateFmt = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
-	const fmtDate = (v?: string) => (v ? dateFmt.format(new Date(v)) : "Sin fecha");
-
-	const statusTone =
+  const statusTone =
 		visit.status === "completed"
 			? "border-[var(--color-success-border)] bg-[var(--color-success-bg)] text-[var(--color-success)]"
 			: visit.status === "cancelled"
@@ -312,46 +312,47 @@ function CompleteForm({
 	const [observations, setObservations] = useState("");
 	const [recommendations, setRecommendations] = useState("");
 
+	const handleSubmit = async () => {
+		await onSubmit({
+			observations: observations.trim() || undefined,
+			recommendations: recommendations.trim() || undefined,
+			measurements: [],
+			findings: [],
+			photos: [],
+		});
+	};
+
 	return (
 		<form
-			className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--color-success-border)] bg-[var(--color-success-bg)] p-4"
-			onSubmit={(e) => {
-				e.preventDefault();
-				onSubmit({
-					observations: observations.trim() || undefined,
-					recommendations: recommendations.trim() || undefined,
-					measurements: [],
-					findings: [],
-					photos: [],
-				});
-			}}
+			className="space-y-3 rounded-lg border border-(--color-success-border) bg-(--color-success-bg) p-4"
+			action={handleSubmit}
 		>
-			<h3 className="text-sm font-semibold text-[var(--color-success)]">Completar visita</h3>
+			<h3 className="text-sm font-semibold text-(--color-success)">Completar visita</h3>
 
 			<label className="block text-sm">
-				<span className="text-[var(--text-secondary)]">Observaciones</span>
+				<span className="text-(--text-secondary)">Observaciones</span>
 				<textarea
 					value={observations}
 					onChange={(e) => setObservations(e.target.value)}
 					rows={3}
-					className="mt-1 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-2 text-sm"
+					className="mt-1 w-full rounded-md border border-(--border-default) bg-surface-secondary px-3 py-2 text-sm"
 				/>
 			</label>
 
 			<label className="block text-sm">
-				<span className="text-[var(--text-secondary)]">Recomendaciones para propuesta</span>
+				<span className="text-(--text-secondary)">Recomendaciones para propuesta</span>
 				<textarea
 					value={recommendations}
 					onChange={(e) => setRecommendations(e.target.value)}
 					rows={3}
-					className="mt-1 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-2 text-sm"
+					className="mt-1 w-full rounded-md border border-(--border-default) bg-surface-secondary px-3 py-2 text-sm"
 				/>
 			</label>
 
 			<button
 				type="submit"
 				disabled={pending}
-				className="rounded-[var(--radius-md)] bg-[var(--color-success)] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+				className="rounded-md bg-(--color-success) px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
 			>
 				{pending ? "Completando..." : "Confirmar finalización"}
 			</button>

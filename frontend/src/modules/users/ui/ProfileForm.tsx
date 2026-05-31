@@ -170,7 +170,7 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
 						)}
 					</div>
 					{successMessage && (
-						<div role="status" className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
+						<div aria-live="polite" className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
 							{successMessage}
 						</div>
 					)}
@@ -273,6 +273,7 @@ function PasswordChangeSection({
 					name="username"
 					autoComplete="username"
 					defaultValue={userEmail}
+					aria-label="Correo de usuario"
 					className="hidden"
 				/>
 				<div>
@@ -340,7 +341,7 @@ function PasswordChangeSection({
 					)}
 				</div>
 				{pwSuccess && (
-					<div role="status" className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
+					<div aria-live="polite" className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
 						{pwSuccess}
 					</div>
 				)}

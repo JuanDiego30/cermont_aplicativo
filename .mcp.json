@@ -1,0 +1,16 @@
+{
+	"mcpServers": {
+		"next-devtools": {
+			"command": "npx",
+			"args": ["-y", "next-devtools-mcp@latest"]
+		},
+		"express-mcp": {
+			"command": "npx",
+			"args": ["-y", "tsx", "backend/src/mcp/server.ts"],
+			"cwd": "${workspaceFolder}",
+			"env": {
+				"NODE_ENV": "development"
+			}
+		}
+	}
+}

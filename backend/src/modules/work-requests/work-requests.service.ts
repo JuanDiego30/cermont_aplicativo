@@ -1,10 +1,12 @@
 import type {
 	CreateWorkRequestInput,
 	ListWorkRequestsQuery,
+	ScheduleVisitInput,
 	WorkRequestStatus,
 } from "@cermont/shared-types";
 import { Types } from "mongoose";
 import { AppError } from "../../common/errors";
+import type { AuthPayload } from "../../common/utils/request";
 import { Counter, ServiceCase, WorkRequest } from "../../models";
 
 const WORK_REQUEST_STATUS_TRANSITIONS: Record<WorkRequestStatus, WorkRequestStatus[]> = {
@@ -295,4 +297,121 @@ export async function deleteWorkRequest(id: string, userId: string, userRole: st
 	);
 
 	return deletedWorkRequest;
+}
+
+/**
+ * Create site visit for work request
+ * @param workRequestId - Work request ID
+ * @param data - Schedule visit input
+ * @param userId - ID of the user creating the visit
+ * @returns Created site visit
+ */
+export async function createSiteVisit(
+	workRequestId: string,
+	data: ScheduleVisitInput,
+	userId: string,
+) {
+	const workRequest = await WorkRequest.findById(workRequestId);
+
+	if (!workRequest) {
+		throw new AppError("WORK_REQUEST_NOT_FOUND", 404, "Work request not found");
+	}
+
+	// Update the work request with visit information
+	const visitUpdate: {
+		scheduledAt: Date;
+		technicianId: Types.ObjectId;
+		technicianName: string;
+		notes?: string;
+		evidences: never[];
+	} = {
+		scheduledAt: new Date(data.scheduledAt),
+		technicianId: new Types.ObjectId(data.technicianId),
+		technicianName: data.technicianName,
+		notes: data.notes,
+		evidences: [],
+	};
+
+	// Set work request status to visit_required if not already qualified
+	if (workRequest.status === "submitted" || workRequest.status === "qualified") {
+		workRequest.status = "visit_required";
+		workRequest.visit = {
+			...visitUpdate,
+		};
+		workRequest.updatedBy = new Types.ObjectId(userId);
+		await workRequest.save();
+	} else {
+		workRequest.visit = {
+			...visitUpdate,
+		};
+		workRequest.updatedBy = new Types.ObjectId(userId);
+		await workRequest.save();
+	}
+
+	// Create linked service case entry
+	const now = new Date();
+	const serviceCase = await ServiceCase.findOne({
+		"artifacts.workRequest.id": workRequest._id,
+	});
+
+	if (serviceCase) {
+		serviceCase.currentStage = "assessment";
+		serviceCase.currentStepCode = "step_02_site_visit";
+		serviceCase.artifacts.siteVisit = {
+			id: workRequest._id,
+			code: workRequest.code,
+			status: "scheduled",
+			updatedAt: now,
+		};
+		serviceCase.nextActions = [
+			{
+				command: "complete_site_visit",
+				label: "Completar visita tecnica",
+				requiredRole: "tecnico",
+				route: `/site-visits/${workRequest._id}`,
+			},
+		];
+		serviceCase.timeline.push({
+			eventId: `visit_scheduled_${workRequest._id}`,
+			stage: "assessment",
+			command: "site_visit_scheduled",
+			actorId: new Types.ObjectId(userId),
+			actorRole: "supervisor",
+			occurredAt: now,
+			notes: `Visita programada para solicitud ${workRequest.code}`,
+		});
+		await serviceCase.save();
+	}
+
+	return { workRequest, serviceCase };
+}
+
+/**
+ * List site visits for work request
+ * @param workRequestId - Work request ID
+ * @param user - Authenticated user
+ * @returns Array of site visits (embedded in work request)
+ */
+export async function listSiteVisits(
+	workRequestId: string,
+	_user: AuthPayload,
+): Promise<{ visits: { scheduledAt?: Date; technicianName?: string; status: string }[] }> {
+	const workRequest = await WorkRequest.findById(workRequestId);
+
+	if (!workRequest) {
+		throw new AppError("WORK_REQUEST_NOT_FOUND", 404, "Work request not found");
+	}
+
+	// Return the visit information (embedded) or empty array
+	const visits = workRequest.visit
+		? [
+				{
+					scheduledAt: workRequest.visit.scheduledAt,
+					technicianName: workRequest.visit.technicianName,
+					status: "scheduled",
+				},
+			]
+		: [];
+
+	return { visits };
 }

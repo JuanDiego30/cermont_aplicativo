@@ -19,7 +19,8 @@ import {
 import Link from "next/link";
 import { useRef, useSyncExternalStore } from "react";
 import { Skeleton } from "@/core/ui/Skeleton";
-import { LazyMonthlyTrendChart, LazyOrdersByStatusChart } from "@/lib/utils/lazy";
+import { LazyMonthlyTrendChart } from "@/lib/utils/lazy-monthly-trend-chart";
+import { LazyOrdersByStatusChart } from "@/lib/utils/lazy-orders-by-status-chart";
 import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
 import { useDashboardSummary } from "@/modules/dashboard/hooks/useDashboardSummary";

@@ -64,10 +64,10 @@ export default function PurchaseOrdersPage() {
 			</header>
 
 			{isLoading ? (
-				<div className="flex items-center justify-center py-16" role="status">
-					<Loader2 className="size-7 animate-spin text-[var(--color-brand)]" aria-hidden="true" />
+				<output className="flex items-center justify-center py-16" aria-live="polite">
+					<Loader2 className="size-7 animate-spin text-brand" aria-hidden="true" />
 					<span className="sr-only">Cargando órdenes de compra</span>
-				</div>
+				</output>
 			) : null}
 
 			{isError ? (

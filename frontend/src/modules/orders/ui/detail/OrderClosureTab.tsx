@@ -16,6 +16,14 @@ interface OrderClosureTabProps {
 
 type ClosureOrder = NonNullable<ReturnType<typeof useOrder>["data"]>;
 type ClosureStatusUpdate = "ready_for_invoicing" | "closed";
+type ClosureGateState = {
+	administrativeClosureReady: boolean;
+	hasCosts: boolean;
+	isClosed: boolean;
+	isCompleted: boolean;
+	isReadyForInvoicing: boolean;
+	reportApproved: boolean;
+};
 
 const CLOSURE_STATUS_LABELS: Record<string, string> = {
 	open: "Abierta",
@@ -51,6 +59,14 @@ export function OrderClosureTab({ orderId }: OrderClosureTabProps) {
 	const canMarkReadyForInvoicing = isCompleted && !order.invoiceReady && hasCosts && reportApproved;
 	const administrativeClosureReady = closureReport?.canCloseAdministratively ?? false;
 	const canClose = isReadyForInvoicing && !isClosed && administrativeClosureReady;
+	const gateState: ClosureGateState = {
+		administrativeClosureReady,
+		hasCosts,
+		isClosed,
+		isCompleted,
+		isReadyForInvoicing,
+		reportApproved,
+	};
 
 	const handleStatusUpdate = async (status: ClosureStatusUpdate) => {
 		try {
@@ -100,15 +116,7 @@ export function OrderClosureTab({ orderId }: OrderClosureTabProps) {
 				visible={canClose}
 				onClose={() => handleStatusUpdate("closed")}
 			/>
-			<ClosureGateAlerts
-				administrativeClosureReady={administrativeClosureReady}
-				closureReport={closureReport}
-				hasCosts={hasCosts}
-				isClosed={isClosed}
-				isCompleted={isCompleted}
-				isReadyForInvoicing={isReadyForInvoicing}
-				reportApproved={reportApproved}
-			/>
+			<ClosureGateAlerts closureReport={closureReport} state={gateState} />
 			<ClosedNotice visible={isClosed} />
 		</section>
 	);
@@ -339,23 +347,16 @@ function AdministrativeClosureRequirements({
 	);
 }
 
-function ClosureGateAlerts({
-	administrativeClosureReady,
-	closureReport,
-	hasCosts,
-	isClosed,
-	isCompleted,
-	isReadyForInvoicing,
-	reportApproved,
-}: {
-	administrativeClosureReady: boolean;
-	closureReport?: ClosureReport;
-	hasCosts: boolean;
-	isClosed: boolean;
-	isCompleted: boolean;
-	isReadyForInvoicing: boolean;
-	reportApproved: boolean;
-}) {
+function ClosureGateAlerts({ closureReport, state }: { closureReport?: ClosureReport; state: ClosureGateState }) {
+	const {
+		administrativeClosureReady,
+		hasCosts,
+		isClosed,
+		isCompleted,
+		isReadyForInvoicing,
+		reportApproved,
+	} = state;
+
 	if (!isCompleted || isClosed) {
 		return null;
 	}

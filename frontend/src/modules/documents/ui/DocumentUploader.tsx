@@ -144,29 +144,55 @@ interface DocumentUploaderProps extends React.ComponentProps<"div"> {
 	serviceCases?: ServiceCaseOption[];
 }
 
+function escapeRegExp(value: string): string {
+	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function createClosingStepPattern(keywords: string[]): RegExp {
+	return new RegExp(
+		keywords.map((keyword) => `(?=.*${escapeRegExp(keyword)})`).join(""),
+		"i",
+	);
+}
+
 const CLOSING_STEP_RULES: Array<{
-	keywords: string[];
+	pattern: RegExp;
 	step: CermontOperationalStepCode;
 }> = [
-	{ keywords: ["pago", "payment"], step: "step_14_payment_closure" },
 	{
-		keywords: ["factura", "invoice", "aprob", "acept"],
+		pattern: createClosingStepPattern(["pago", "payment"]),
+		step: "step_14_payment_closure",
+	},
+	{
+		pattern: createClosingStepPattern(["factura", "invoice", "aprob", "acept"]),
 		step: "step_13_invoice_approval",
 	},
-	{ keywords: ["factura", "invoice"], step: "step_12_invoice_submission" },
 	{
-		keywords: ["ses", "ariba", "aprob", "accept"],
+		pattern: createClosingStepPattern(["factura", "invoice"]),
+		step: "step_12_invoice_submission",
+	},
+	{
+		pattern: createClosingStepPattern(["ses", "ariba", "aprob", "accept"]),
 		step: "step_11_ses_approval",
 	},
-	{ keywords: ["ses", "ariba"], step: "step_10_ses_submission" },
-	{ keywords: ["firma", "signed"], step: "step_09_client_signature" },
-	{ keywords: ["acta", "entrega"], step: "step_08_delivery_record" },
+	{
+		pattern: createClosingStepPattern(["ses", "ariba"]),
+		step: "step_10_ses_submission",
+	},
+	{
+		pattern: createClosingStepPattern(["firma", "signed"]),
+		step: "step_09_client_signature",
+	},
+	{
+		pattern: createClosingStepPattern(["acta", "entrega"]),
+		step: "step_08_delivery_record",
+	},
 ];
 
 function suggestClosingStep(fileName: string): CermontOperationalStepCode | "" {
 	const normalized = fileName.toLowerCase();
 	for (const rule of CLOSING_STEP_RULES) {
-		if (rule.keywords.every((keyword) => normalized.includes(keyword))) {
+		if (rule.pattern.test(normalized)) {
 			return rule.step;
 		}
 	}
@@ -335,22 +361,13 @@ function handleDocumentUploadSuccess({
 	mode,
 	onUploaded,
 	router,
-	qc,
 }: {
 	document: DocumentRecord;
 	ingest: IngestResult | null;
 	mode: "upload" | "select";
 	onUploaded?: (result: { document: DocumentRecord; ingest: IngestResult | null }) => void;
 	router: ReturnType<typeof useRouter>;
-	qc: ReturnType<typeof useQueryClient>;
 }) {
-	qc.invalidateQueries({ queryKey: ["documents"] });
-	qc.invalidateQueries({ queryKey: ["service-cases"] });
-	qc.invalidateQueries({ queryKey: ["orders"] });
-	qc.invalidateQueries({ queryKey: ["planning-packets"] });
-	qc.invalidateQueries({ queryKey: ["execution-sessions"] });
-	qc.invalidateQueries({ queryKey: ["evidences"] });
-	qc.invalidateQueries({ queryKey: ["document-templates"] });
 	onUploaded?.({ document, ingest });
 
 	if (ingest?.status === "template_draft_created" && ingest.draftId) {
@@ -382,8 +399,16 @@ function useDocumentUploadMutation({
 	return useMutation({
 		mutationFn: async (data: DocumentFormInput): Promise<UploadResult> =>
 			data.mode === "select" ? handleSelectExistingDocument(data) : handleUploadNewDocument(data),
-		onSuccess: ({ document, ingest, mode }) =>
-			handleDocumentUploadSuccess({ document, ingest, mode, onUploaded, router, qc }),
+		onSuccess: ({ document, ingest, mode }) => {
+			void qc.invalidateQueries({ queryKey: ["documents"] });
+			void qc.invalidateQueries({ queryKey: ["service-cases"] });
+			void qc.invalidateQueries({ queryKey: ["orders"] });
+			void qc.invalidateQueries({ queryKey: ["planning-packets"] });
+			void qc.invalidateQueries({ queryKey: ["execution-sessions"] });
+			void qc.invalidateQueries({ queryKey: ["evidences"] });
+			void qc.invalidateQueries({ queryKey: ["document-templates"] });
+			handleDocumentUploadSuccess({ document, ingest, mode, onUploaded, router });
+		},
 		onError: (error: Error) => {
 			toast.error(error.message ?? "Error al subir el documento");
 		},
@@ -410,15 +435,15 @@ function PurposeSelector({
 						onClick={() => setValue("purpose", option.value, { shouldValidate: true })}
 						className={`rounded-xl border p-4 text-left transition-colors ${
 							isActive
-								? "border-[var(--color-brand)] bg-[var(--color-brand-blue-bg)]"
-								: "border-zinc-200 bg-zinc-50 hover:border-[var(--color-brand)]/50"
+								? "border-brand bg-(--color-brand-blue-bg)"
+								: "border-zinc-200 bg-zinc-50 hover:border-brand/50"
 						}`}
 					>
 						<div className="flex items-center gap-2">
-							<Icon className="size-4 text-[var(--color-brand)]" />
-							<p className="text-sm font-bold text-[var(--text-primary)]">{option.label}</p>
+							<Icon className="size-4 text-brand" />
+							<p className="text-sm font-bold text-(--text-primary)">{option.label}</p>
 						</div>
-						<p className="mt-2 text-xs text-[var(--text-secondary)]">{option.description}</p>
+						<p className="mt-2 text-xs text-(--text-secondary)">{option.description}</p>
 					</button>
 				);
 			})}
@@ -541,7 +566,7 @@ function ServiceCaseField({
 	}
 
 	return (
-		<div className="space-y-4 rounded-xl border border-[var(--color-brand-blue-border)] bg-[var(--color-brand-blue-bg)] p-4">
+		<div className="space-y-4 rounded-xl border border-(--color-brand-blue-border) bg-(--color-brand-blue-bg) p-4">
 			<div className="space-y-2">
 				<label htmlFor="doc-service-case" className="block text-sm font-medium text-zinc-700">
 					Caso de servicio
@@ -572,7 +597,7 @@ function ServiceCaseField({
 					<p className="text-xs text-red-600">{errors.serviceCaseId.message}</p>
 				)}
 			</div>
-			<p className="text-xs text-[var(--text-secondary)]">
+			<p className="text-xs text-(--text-secondary)">
 				{selectedPurpose === "closing_evidence"
 					? "Si no selecciona un paso, el backend intentará clasificar la evidencia por nombre de archivo y usted podrá corregirla subiéndola al paso correcto."
 					: "Asociar el archivo al caso permite que el cockpit actualice bloqueadores y requisitos del paso correspondiente."}
@@ -701,7 +726,7 @@ export function DocumentUploader({
 				<fieldset
 					className={`space-y-5 rounded-xl border bg-white p-4 transition-colors sm:p-6 ${
 						isDragging
-							? "border-[var(--color-brand)] bg-[var(--color-brand-blue-bg)]"
+							? "border-brand bg-(--color-brand-blue-bg)"
 							: "border-zinc-200"
 					}`}
 					onDragOver={(event) => {
@@ -750,7 +775,7 @@ export function DocumentUploader({
 										}
 									}}
 								>
-									<option value="">Seleccionar documento...</option>
+									<option value="">Seleccionar documento…</option>
 									{libraryDocuments?.map((doc) => (
 										<option key={doc._id} value={doc._id}>
 											{doc.title}

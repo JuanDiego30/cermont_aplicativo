@@ -94,8 +94,7 @@ export function SyncStatusBar() {
 
 	return (
 		<div className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-end px-4 pt-4 sm:px-6">
-			<div
-				role="status"
+			<output
 				aria-live="polite"
 				data-state={state}
 				className={cn(
@@ -105,7 +104,7 @@ export function SyncStatusBar() {
 			>
 				{icon}
 				<span className="truncate">{message}</span>
-			</div>
+			</output>
 		</div>
 	);
 }

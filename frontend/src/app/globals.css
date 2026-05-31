@@ -193,9 +193,11 @@
 	--color-destructive-foreground: var(--destructive-foreground);
 	--color-border: var(--border);
 	--color-border-default: var(--border-subtle);
+	--color-border-medium: var(--border-medium);
 	--color-border-strong: var(--border-medium);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-focus-ring: var(--ring);
 	--color-sidebar: var(--sidebar);
 
 	--color-brand: var(--color-brand);
@@ -278,11 +280,11 @@
 
 @layer components {
 	.input-field {
-		@apply w-full rounded-lg border border-[var(--border-medium)] bg-[var(--surface-card)] px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--color-focus-ring)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 transition-[background-color,border-color,box-shadow,color] duration-200;
+		@apply w-full rounded-lg border border-border-medium bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:border-brand focus:outline-none focus:ring-2 focus:ring-focus-ring/20 transition-[background-color,border-color,box-shadow,color] duration-200;
 	}
 
 	.btn-primary {
-		@apply flex items-center justify-center gap-2 rounded-full bg-[var(--color-brand)] px-6 py-2.5 text-sm font-semibold text-white transition-[background-color,box-shadow,opacity,transform] duration-200;
+		@apply flex items-center justify-center gap-2 rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white transition-[background-color,box-shadow,opacity,transform] duration-200;
 		box-shadow: var(--shadow-button);
 	}
 

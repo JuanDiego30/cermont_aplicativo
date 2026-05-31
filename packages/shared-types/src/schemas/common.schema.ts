@@ -15,7 +15,7 @@ export const PaginationQuerySchema = z
 export type PaginationQuery = z.infer<typeof PaginationQuerySchema>;
 
 // Mongoose-compatible document shape (used by backend schema definitions)
-export interface MongooseDocument<_T = Record<string, unknown>> {
+export interface MongooseDocument<_T = object> {
 	_id: string;
 	createdAt: string;
 	updatedAt: string;
@@ -23,13 +23,13 @@ export interface MongooseDocument<_T = Record<string, unknown>> {
 }
 
 // Auditable document with createdBy/updatedBy
-export interface AuditableDocument<_T = Record<string, unknown>> extends MongooseDocument<_T> {
+export interface AuditableDocument<_T = object> extends MongooseDocument<_T> {
 	createdBy: string;
 	updatedBy?: string;
 }
 
-// Soft-deletable document
-export interface SoftDeleteDocument<_T = Record<string, unknown>> extends AuditableDocument<_T> {
-	deletedAt?: string | null;
+// Soft-deletable document (deletedAt is optional — absence means not deleted)
+export interface SoftDeleteDocument<_T = object> extends AuditableDocument<_T> {
+	deletedAt?: string;
 	deletedBy?: string;
 }

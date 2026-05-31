@@ -178,8 +178,17 @@ export async function enqueue(entry: SyncQueueEntry): Promise<SyncQueueEntry> {
 }
 
 export async function dequeue(id: string): Promise<void> {
+	await dequeueMany([id]);
+}
+
+export async function dequeueMany(ids: readonly string[]): Promise<void> {
+	if (ids.length === 0) {
+		return;
+	}
+
+	const idSet = new Set(ids);
 	const entries = await readPersistentEntries();
-	const nextEntries = entries.filter((entry) => entry.id !== id);
+	const nextEntries = entries.filter((entry) => !idSet.has(entry.id));
 
 	if (nextEntries.length === entries.length) {
 		return;

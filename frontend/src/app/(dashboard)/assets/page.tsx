@@ -31,9 +31,9 @@ function AssetList() {
 
 	if (isLoading) {
 		return (
-			<div className="flex justify-center py-24" role="status">
+			<div className="flex justify-center py-24" aria-live="polite">
 				<Loader2
-					className="size-8 animate-spin text-[var(--color-brand-blue)]"
+					className="size-8 animate-spin text-brand-blue"
 					aria-hidden="true"
 				/>
 				<span className="sr-only">Cargando activos…</span>

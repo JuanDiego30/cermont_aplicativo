@@ -169,6 +169,14 @@ function LoadingState() {
 	);
 }
 
+export function WorkflowRecordsPageLoadingState() {
+	return (
+		<section className="space-y-6" aria-busy="true" aria-label="Loading workflow records">
+			<LoadingState />
+		</section>
+	);
+}
+
 function ErrorState({ onRetry }: { onRetry: () => void }) {
 	return (
 		<div className="rounded-[var(--radius-lg)] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] p-5">

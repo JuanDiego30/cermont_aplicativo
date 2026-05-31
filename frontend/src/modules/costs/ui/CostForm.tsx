@@ -3,7 +3,6 @@
 import type { Cost, CostResponse, CreateCostInput, UpdateCostInput } from "@cermont/shared-types";
 import { CreateCostSchema } from "@cermont/shared-types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { FormField, Select, TextArea, TextField } from "@/modules/core";
@@ -48,10 +47,6 @@ export function CostForm({ orderId, cost, readOnly = false, onSuccess, onCancel 
 		resolver: zodResolver(CreateCostSchema),
 		defaultValues: buildDefaultValues(orderId, cost),
 	});
-
-	useEffect(() => {
-		reset(buildDefaultValues(orderId, cost));
-	}, [cost, orderId, reset]);
 
 	const isSubmitting = createMutation.isPending || updateMutation.isPending;
 

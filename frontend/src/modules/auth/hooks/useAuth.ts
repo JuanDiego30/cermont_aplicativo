@@ -1,9 +1,10 @@
 "use client";
 
-import { isAuthenticatedRole, type UserRole } from "@cermont/domain";
+import { resolveUserRole, type UserRole } from "@cermont/domain";
 import { useMutation } from "@tanstack/react-query";
 import { apiClient } from "@/lib/http/api-client";
 import { useAuthStore } from "@/store/auth.store";
+import { isPresent, getValue } from "@cermont/shared-types";
 
 /** Shape of the user object returned by auth API */
 interface AuthUserResponse {
@@ -17,17 +18,17 @@ interface AuthUserResponse {
 /** Canonical user type shared between auth store and consumers */
 export interface AuthUser {
 	id: string;
-	email: string | null;
-	name: string | null;
+	email: string;
+	name: string;
 	role: UserRole;
 }
 
 function toUser(input: AuthUserResponse): AuthUser {
-	const role = isAuthenticatedRole(input.role) ? input.role : "cliente";
+	const role = resolveUserRole(input.role);
 	return {
 		id: input.id ?? input._id ?? "",
-		email: input.email ?? null,
-		name: input.name ?? null,
+		email: input.email ?? "",
+		name: input.name ?? "",
 		role,
 	};
 }
@@ -62,15 +63,15 @@ interface RefreshResponse {
 
 /** Read-only access to auth state (user, isAuthenticated, accessToken) */
 function useAuthState() {
-	const user = useAuthStore((state) => state.user);
+	const userStatus = useAuthStore((state) => state.user);
 	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-	const accessToken = useAuthStore((state) => state.accessToken);
+	const accessTokenStatus = useAuthStore((state) => state.accessToken);
 
 	return {
-		user: user as AuthUser | null,
+		user: isPresent(userStatus) ? userStatus.value : null,
 		isAuthenticated,
 		isLoading: false,
-		accessToken,
+		accessToken: getValue(accessTokenStatus, null),
 	};
 }
 

@@ -2,9 +2,9 @@
 
 const LOGO_CSS = `
   :root {
-    --hex-stroke: var(--color-foreground, #0d0d0d);
-    --hex-fill: var(--color-brand-light, #d4fae8);
-    --text-color: var(--color-foreground, #0d0d0d);
+    --hex-stroke: var(--color-foreground, #000);
+    --hex-fill: var(--color-background, #fff);
+    --text-color: var(--color-foreground, #000);
   }
 
   .cermont-logo {
@@ -12,8 +12,8 @@ const LOGO_CSS = `
   }
 
   .hex-bg {
-    stroke: var(--color-border-subtle);
-    fill: var(--color-background);
+    stroke: var(--color-border-subtle, #e5e7eb);
+    fill: var(--color-background, #fff);
     stroke-width: 8;
     stroke-linejoin: round;
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -24,7 +24,7 @@ const LOGO_CSS = `
   }
 
   .cermont-logo:hover .hex-bg {
-    stroke: var(--color-brand);
+    stroke: var(--color-brand, #2154A6);
     stroke-width: 10;
     transform: scale(1.02);
   }
@@ -68,7 +68,7 @@ const LOGO_CSS = `
 
   .cermont-logo:hover .logo-text {
     transform: translateY(2px);
-    fill: var(--color-brand-deep);
+    fill: var(--color-brand, #2154A6);
   }
 
   @keyframes drawHex {

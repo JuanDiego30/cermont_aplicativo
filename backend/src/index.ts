@@ -14,6 +14,7 @@ import { getDatabaseHealth } from "./config/db";
 import { env } from "./config/env";
 import aiRoutes from "./modules/ai/ai.routes";
 import analyticsRoutes from "./modules/analytics/analytics.routes";
+import metricsRoutes from "./modules/analytics/metrics.routes";
 import assetRoutes from "./modules/asset/asset.routes";
 import auditRoutes from "./modules/audit/audit.routes";
 import authRoutes from "./modules/auth/auth.routes";
@@ -260,6 +261,7 @@ app.use("/api/observability", observabilityRoutes);
 app.use("/api/notifications", notificationsRoutes);
 app.use("/api/service-cases", serviceCaseRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/metrics", metricsRoutes);
 
 function getBackendVersion(): string {
 	try {
@@ -308,6 +310,6 @@ app.get("/health", (_req, res) => {
 
 // Global error handler — MUST be registered LAST
 // Processes AppError, ZodError, Mongoose errors, and unknown errors
-app.use(errorHandler as express.ErrorRequestHandler);
+app.use(errorHandler);
 
 export default app;

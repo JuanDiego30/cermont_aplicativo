@@ -411,7 +411,7 @@ function handleNonTemplatePurposes(
 	targetStepCode: CermontOperationalStepCode | undefined,
 	documentId: string,
 	options: IngestDocumentRequest,
-): IngestResult | null {
+): { status: "handled"; result: IngestResult } | { status: "continue" } {
 	if (isClosingEvidencePurpose(purpose)) {
 		const routing = applyClosingEvidenceMetadata(doc, {
 			serviceCaseId:
@@ -420,28 +420,37 @@ function handleNonTemplatePurposes(
 		});
 		doc.save();
 
-		return buildStoredResult(documentId, purpose, {
-			status: "closing_evidence_routed",
-			targetStepCode: routing.targetStepCode,
-			classification: routing.classification,
-			message: `Closing evidence routed to ${routing.targetStepCode ?? "manual_review"}.`,
-		});
+		return {
+			status: "handled",
+			result: buildStoredResult(documentId, purpose, {
+				status: "closing_evidence_routed",
+				targetStepCode: routing.targetStepCode,
+				classification: routing.classification,
+				message: `Closing evidence routed to ${routing.targetStepCode ?? "manual_review"}.`,
+			}),
+		};
 	}
 
 	if (isLibraryOnlyPurpose(purpose)) {
-		return buildStoredResult(documentId, purpose, {
-			targetStepCode,
-		});
+		return {
+			status: "handled",
+			result: buildStoredResult(documentId, purpose, {
+				targetStepCode,
+			}),
+		};
 	}
 
 	if (!shouldCreateTemplateDraft(purpose)) {
-		return buildStoredResult(documentId, purpose, {
-			targetStepCode,
-			message: `Document stored successfully with purpose: ${purpose}.`,
-		});
+		return {
+			status: "handled",
+			result: buildStoredResult(documentId, purpose, {
+				targetStepCode,
+				message: `Document stored successfully with purpose: ${purpose}.`,
+			}),
+		};
 	}
 
-	return null;
+	return { status: "continue" };
 }
 
 /**
@@ -474,8 +483,8 @@ export async function ingestDocument(
 	await doc.save();
 
 	const nonTemplateResult = handleNonTemplatePurposes(doc, purpose, targetStepCode, documentId, options);
-	if (nonTemplateResult) {
-		return nonTemplateResult;
+	if (nonTemplateResult.status === "handled") {
+		return nonTemplateResult.result;
 	}
 
 	const extension = detectDocumentExtension(title, filename);

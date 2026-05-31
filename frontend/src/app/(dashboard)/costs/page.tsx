@@ -4,7 +4,7 @@ import { ArrowRight, ClipboardList, Loader2, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
 import { COST_CATEGORY_LABELS, formatCurrency, useCostList } from "@/modules/costs";
@@ -76,25 +76,24 @@ export default function CostsPage() {
 		getServerHydrationSnapshot,
 	);
 	const costQuery = useCostList({ limit: 25 }, { enabled: isHydrated && Boolean(accessToken) });
-	const costs = costQuery.data?.costs ?? [];
+	const costs = costQuery.data?.costs;
 	const isWaitingForSession = !isHydrated || (isAuthenticated && !accessToken);
 
-	const totals = useMemo(() => {
-		return costs.reduce(
-			(acc, cost) => {
-				acc.estimated += cost.estimatedAmount;
-				acc.actual += cost.actualAmount;
-				acc.tax += cost.taxAmount;
-				return acc;
-			},
-			{ estimated: 0, actual: 0, tax: 0 },
-		);
-	}, [costs]);
+	const costItems = costs ?? [];
+	const totals = costItems.reduce(
+		(acc, cost) => {
+			acc.estimated += cost.estimatedAmount;
+			acc.actual += cost.actualAmount;
+			acc.tax += cost.taxAmount;
+			return acc;
+		},
+		{ estimated: 0, actual: 0, tax: 0 },
+	);
 
-	const hasCosts = costs.length > 0;
+	const hasCosts = (costs?.length ?? 0) > 0;
 
 	// Variance metrics
-	const costMetrics = useMemo(() => {
+	const costMetrics = (() => {
 		const overallVariance = hasCosts ? totals.actual - totals.estimated : 0;
 		const overallVariancePct = totals.estimated > 0
 			? (overallVariance / totals.estimated) * 100
@@ -108,7 +107,7 @@ export default function CostsPage() {
 			varianceState,
 			semaphore,
 		};
-	}, [totals, hasCosts]);
+	})();
 
 	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -225,10 +224,10 @@ export default function CostsPage() {
 					</h2>
 				</div>
 				{isWaitingForSession || costQuery.isLoading ? (
-					<div className="flex items-center justify-center py-16" role="status">
+					<output className="flex items-center justify-center py-16">
 						<Loader2 className="size-6 animate-spin text-[var(--color-brand-blue)]" />
 						<span className="sr-only">Cargando costos</span>
-					</div>
+					</output>
 				) : costQuery.isError ? (
 					<div className="p-6">
 						<EmptyState
@@ -237,7 +236,7 @@ export default function CostsPage() {
 							description="Revisa la conexión con el backend e inténtalo de nuevo."
 						/>
 					</div>
-				) : costs.length === 0 ? (
+				) : costItems.length === 0 ? (
 					<div className="p-6">
 						<EmptyState
 							icon="reports"
@@ -260,7 +259,7 @@ export default function CostsPage() {
 								</tr>
 							</thead>
 							<tbody className="divide-y divide-[var(--border-default)]">
-								{costs.map((cost) => {
+								{costItems.map((cost) => {
 									const variance = cost.actualAmount - cost.estimatedAmount;
 									const variancePct = cost.estimatedAmount > 0
 										? (variance / cost.estimatedAmount) * 100

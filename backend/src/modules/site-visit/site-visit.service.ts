@@ -8,6 +8,17 @@ import { AppError } from "../../common/errors";
 import { Counter } from "../../models";
 import { type SiteVisitDocument, SiteVisitModel } from "../../models/SiteVisit";
 
+type SiteVisitMeasurementRecord = SiteVisitRecord["measurements"][number];
+type SiteVisitFindingRecord = SiteVisitRecord["findings"][number];
+type SiteVisitPhotoRecord = SiteVisitRecord["photos"][number];
+type SiteVisitCommandHistoryRecord = SiteVisitRecord["commandHistory"][number];
+
+interface SiteVisitListFilter {
+	workRequestId?: string;
+	clientId?: string;
+	status?: string;
+}
+
 function formatCode(sequence: number, year: number): string {
 	return `SV-${year}-${String(sequence).padStart(4, "0")}`;
 }
@@ -19,71 +30,89 @@ async function generateCode(): Promise<string> {
 	return formatCode(sequence, year);
 }
 
-function toRecord(doc: SiteVisitDocument): SiteVisitRecord {
-	const obj = doc.toJSON() as Record<string, unknown>;
+function toIsoString(value: Date): string {
+	return value.toISOString();
+}
 
-	const toISO = (v: unknown): string | undefined => {
-		if (v instanceof Date) {
-			return v.toISOString();
-		}
-		return undefined;
-	};
+function mapMeasurement(
+	measurement: SiteVisitDocument["measurements"][number],
+): SiteVisitMeasurementRecord {
+	return typeof measurement.unit === "string"
+		? {
+				label: measurement.label,
+				value: measurement.value,
+				unit: measurement.unit,
+			}
+		: {
+				label: measurement.label,
+				value: measurement.value,
+			};
+}
 
+function mapFinding(finding: SiteVisitDocument["findings"][number]): SiteVisitFindingRecord {
 	return {
-		_id: String(obj._id),
-		code: String(obj.code),
-		workRequestId: String(obj.workRequestId),
-		serviceCaseId: String(obj.serviceCaseId),
-		clientId: String(obj.clientId),
-		clientName: String(obj.clientName),
-		visitDate: doc.visitDate instanceof Date ? doc.visitDate.toISOString() : String(obj.visitDate),
-		location: String(obj.location),
-		responsibleUserId: String(obj.responsibleUserId),
-		responsibleName: String(obj.responsibleName),
-		measurements: Array.isArray(obj.measurements)
-			? (obj.measurements as Array<Record<string, unknown>>).map((m) => ({
-					label: String(m.label),
-					value: String(m.value),
-					unit: m.unit ? String(m.unit) : undefined,
-				}))
-			: [],
-		findings: Array.isArray(obj.findings)
-			? (obj.findings as Array<Record<string, unknown>>).map((f) => ({
-					description: String(f.description),
-					severity: String(f.severity) as SiteVisitRecord["findings"][0]["severity"],
-					category: String(f.category) as SiteVisitRecord["findings"][0]["category"],
-				}))
-			: [],
-		photos: Array.isArray(obj.photos)
-			? (obj.photos as Array<Record<string, unknown>>).map((p) => ({
-					url: String(p.url),
-					caption: p.caption ? String(p.caption) : undefined,
-					takenAt: p.takenAt instanceof Date ? (p.takenAt as Date).toISOString() : undefined,
-				}))
-			: [],
-		requirements: obj.requirements ? String(obj.requirements) : undefined,
-		identifiedRisks: obj.identifiedRisks ? String(obj.identifiedRisks) : undefined,
-		recommendations: obj.recommendations ? String(obj.recommendations) : undefined,
-		observations: obj.observations ? String(obj.observations) : undefined,
-		commandHistory: Array.isArray(obj.commandHistory)
-			? (obj.commandHistory as Array<Record<string, unknown>>).map((h) => ({
-					clientMutationId: String(h.clientMutationId),
-					command: String(h.command),
-					recordedAt:
-						h.recordedAt instanceof Date
-							? (h.recordedAt as Date).toISOString()
-							: String(h.recordedAt),
-				}))
-			: [],
-		status: String(obj.status) as SiteVisitRecord["status"],
-		startedAt: toISO(obj.startedAt),
-		completedAt: toISO(obj.completedAt),
-		cancelledAt: toISO(obj.cancelledAt),
-		cancellationReason: obj.cancellationReason ? String(obj.cancellationReason) : undefined,
-		createdBy: String(obj.createdBy),
-		createdAt: doc.createdAt instanceof Date ? doc.createdAt.toISOString() : String(obj.createdAt),
-		updatedAt: doc.updatedAt instanceof Date ? doc.updatedAt.toISOString() : String(obj.updatedAt),
-	} as unknown as SiteVisitRecord;
+		description: finding.description,
+		severity: finding.severity,
+		category: finding.category,
+	};
+}
+
+function mapPhoto(photo: SiteVisitDocument["photos"][number]): SiteVisitPhotoRecord {
+	return typeof photo.takenAt === "undefined"
+		? {
+				url: photo.url,
+				...(typeof photo.caption === "string" ? { caption: photo.caption } : {}),
+			}
+		: {
+				url: photo.url,
+				...(typeof photo.caption === "string" ? { caption: photo.caption } : {}),
+				takenAt: toIsoString(photo.takenAt),
+			};
+}
+
+function mapCommandHistory(
+	entry: SiteVisitDocument["commandHistory"][number],
+): SiteVisitCommandHistoryRecord {
+	return {
+		clientMutationId: entry.clientMutationId,
+		command: entry.command,
+		recordedAt: toIsoString(entry.recordedAt),
+	};
+}
+
+function toRecord(doc: SiteVisitDocument): SiteVisitRecord {
+	return {
+		_id: doc._id.toString(),
+		code: doc.code,
+		workRequestId: doc.workRequestId.toString(),
+		serviceCaseId: doc.serviceCaseId.toString(),
+		clientId: doc.clientId.toString(),
+		clientName: doc.clientName,
+		visitDate: toIsoString(doc.visitDate),
+		location: doc.location,
+		responsibleUserId: doc.responsibleUserId.toString(),
+		responsibleName: doc.responsibleName,
+		measurements: doc.measurements.map(mapMeasurement),
+		findings: doc.findings.map(mapFinding),
+		photos: doc.photos.map(mapPhoto),
+		commandHistory: doc.commandHistory.map(mapCommandHistory),
+		status: doc.status as SiteVisitRecord["status"],
+		createdBy: doc.createdBy.toString(),
+		createdAt: toIsoString(doc.createdAt),
+		updatedAt: toIsoString(doc.updatedAt),
+		...(typeof doc.requirements === "string" ? { requirements: doc.requirements } : {}),
+		...(typeof doc.identifiedRisks === "string"
+			? { identifiedRisks: doc.identifiedRisks }
+			: {}),
+		...(typeof doc.recommendations === "string" ? { recommendations: doc.recommendations } : {}),
+		...(typeof doc.observations === "string" ? { observations: doc.observations } : {}),
+		...(doc.startedAt instanceof Date ? { startedAt: toIsoString(doc.startedAt) } : {}),
+		...(doc.completedAt instanceof Date ? { completedAt: toIsoString(doc.completedAt) } : {}),
+		...(doc.cancelledAt instanceof Date ? { cancelledAt: toIsoString(doc.cancelledAt) } : {}),
+		...(typeof doc.cancellationReason === "string"
+			? { cancellationReason: doc.cancellationReason }
+			: {}),
+	};
 }
 
 export async function listSiteVisits(query: {
@@ -99,7 +128,7 @@ export async function listSiteVisits(query: {
 	limit: number;
 	pages: number;
 }> {
-	const filter: Record<string, unknown> = {};
+	const filter: SiteVisitListFilter = {};
 	if (query.workRequestId) {
 		filter.workRequestId = query.workRequestId;
 	}
@@ -119,7 +148,7 @@ export async function listSiteVisits(query: {
 	]);
 
 	return {
-		data: await Promise.all(docs.map(toRecord)),
+		data: docs.map(toRecord),
 		total,
 		page: query.page,
 		limit: query.limit,

@@ -23,10 +23,10 @@ export default function OrderExecutionPage({ params }: OrderExecutionPageProps) 
 
 	if (executionQuery.isLoading) {
 		return (
-			<div className="flex items-center justify-center py-24" role="status">
-				<Loader2 className="size-8 animate-spin text-[var(--color-brand)]" aria-hidden="true" />
-				<span className="sr-only">Cargando ejecucion de la orden</span>
-			</div>
+			<output className="flex items-center justify-center py-24" aria-live="polite">
+				<Loader2 className="size-8 animate-spin text-brand" aria-hidden="true" />
+				<span className="sr-only">Cargando ejecución de la orden</span>
+			</output>
 		);
 	}
 
@@ -34,7 +34,7 @@ export default function OrderExecutionPage({ params }: OrderExecutionPageProps) 
 		<section className="space-y-6" aria-labelledby="order-execution-title">
 			<Link
 				href={`/orders/${id}`}
-				className="inline-flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+				className="inline-flex items-center gap-2 text-sm font-medium text-secondary hover:text-primary"
 			>
 				<ArrowLeft className="size-4" aria-hidden="true" />
 				Volver a la orden

@@ -1,4 +1,4 @@
-import { MAINTENANCE_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
+import { ADMIN_ROLES, MAINTENANCE_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import type { ActivityType, MaintenanceKit } from "@cermont/shared-types";
 
 export const MAINTENANCE_KIT_ACTIVITY_OPTIONS: ReadonlyArray<{
@@ -28,7 +28,7 @@ export const MAINTENANCE_KIT_VISIBILITY_OPTIONS = [
 
 export const MAINTENANCE_KIT_CREATE_ROLES = MAINTENANCE_MANAGEMENT_ROLES;
 export const MAINTENANCE_KIT_EDIT_ROLES = MANAGEMENT_ROLES;
-export const MAINTENANCE_KIT_DELETE_ROLES = ["gerente"] as const;
+export const MAINTENANCE_KIT_DELETE_ROLES = ADMIN_ROLES;
 
 export const DEFAULT_TOOL_ROW = {
 	name: "",

@@ -36,11 +36,11 @@ const STATUS_LABELS: Record<string, string> = {
 
 const STATUS_COLORS: Record<string, string> = {
 	draft: "bg-gray-100 text-gray-700",
-	submitted: "bg-blue-50 text-[var(--color-brand-blue)]",
-	qualified: "bg-green-50 text-[var(--color-success)]",
+	submitted: "bg-blue-50 text-brand",
+	qualified: "bg-success/10 text-success",
 	visit_required: "bg-amber-50 text-amber-700",
 	proposal_pending: "bg-purple-50 text-purple-700",
-	cancelled: "bg-red-50 text-[var(--color-danger)]",
+	cancelled: "bg-destructive/10 text-destructive",
 };
 
 const URGENCY_LABELS: Record<string, string> = {
@@ -90,11 +90,8 @@ export default function WorkRequestDetailPage({ params }: WorkRequestDetailPageP
 
 	if (isLoading) {
 		return (
-			<div className="flex items-center justify-center py-24" role="status">
-				<Loader2
-					className="size-8 animate-spin text-[var(--color-brand-blue)]"
-					aria-hidden="true"
-				/>
+			<div className="flex items-center justify-center py-24" aria-live="polite">
+				<Loader2 className="size-8 animate-spin text-brand" aria-hidden="true" />
 				<span className="sr-only">Cargando solicitud…</span>
 			</div>
 		);
@@ -122,7 +119,7 @@ export default function WorkRequestDetailPage({ params }: WorkRequestDetailPageP
 			{/* Back navigation */}
 			<Link
 				href="/work-requests"
-				className="mb-6 inline-flex items-center gap-1 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+				className="mb-6 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground"
 			>
 				<ChevronLeft className="size-4" aria-hidden="true" />
 				Volver a solicitudes
@@ -132,14 +129,14 @@ export default function WorkRequestDetailPage({ params }: WorkRequestDetailPageP
 			<div className="mb-8 flex flex-wrap items-start justify-between gap-4">
 				<div>
 					<div className="flex items-center gap-3">
-						<span className="font-mono text-sm text-[var(--text-tertiary)]">
+						<span className="font-mono text-sm text-muted-foreground">
 							{workRequest.code}
 						</span>
 						<span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
 							{statusLabel}
 						</span>
 					</div>
-					<h1 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+					<h1 className="mt-2 text-2xl font-semibold text-foreground">
 						{workRequest.shortDescription}
 					</h1>
 				</div>
@@ -147,7 +144,7 @@ export default function WorkRequestDetailPage({ params }: WorkRequestDetailPageP
 					{workRequest.status === "submitted" && (
 						<Button
 							size="sm"
-							className="bg-[var(--color-success)] text-white hover:bg-[var(--color-success-hover)]"
+							className="bg-success text-white hover:bg-success/90"
 						>
 							Calificar solicitud
 						</Button>
@@ -161,36 +158,36 @@ export default function WorkRequestDetailPage({ params }: WorkRequestDetailPageP
 				<div className="space-y-6">
 					<section
 						aria-labelledby="client-info"
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-card)] p-6 shadow-[var(--shadow-card)]"
+						className="rounded-lg border border-border bg-card p-6 shadow-card"
 					>
 						<h2
 							id="client-info"
-							className="mb-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-tertiary)]"
+							className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground"
 						>
 							Cliente y contacto
 						</h2>
 						<dl className="space-y-3 text-sm">
 							<div className="flex items-center gap-2">
-								<User className="size-4 text-[var(--text-tertiary)]" aria-hidden="true" />
+								<User className="size-4 text-muted-foreground" aria-hidden="true" />
 								<dt className="sr-only">Cliente</dt>
-								<dd className="font-medium text-[var(--text-primary)]">{workRequest.clientName}</dd>
+								<dd className="font-medium text-foreground">{workRequest.clientName}</dd>
 							</div>
 							{workRequest.requesterName && (
 								<div className="flex items-center gap-2">
-									<dt className="text-[var(--text-tertiary)]">Solicitante:</dt>
-									<dd className="text-[var(--text-secondary)]">{workRequest.requesterName}</dd>
+									<dt className="text-muted-foreground">Solicitante:</dt>
+									<dd className="text-muted-foreground">{workRequest.requesterName}</dd>
 								</div>
 							)}
 							{workRequest.requesterEmail && (
 								<div className="flex items-center gap-2">
-									<dt className="text-[var(--text-tertiary)]">Email:</dt>
-									<dd className="text-[var(--text-secondary)]">{workRequest.requesterEmail}</dd>
+									<dt className="text-muted-foreground">Email:</dt>
+									<dd className="text-muted-foreground">{workRequest.requesterEmail}</dd>
 								</div>
 							)}
 							{workRequest.requesterPhone && (
 								<div className="flex items-center gap-2">
-									<Phone className="size-4 text-[var(--text-tertiary)]" aria-hidden="true" />
-									<dd className="text-[var(--text-secondary)]">{workRequest.requesterPhone}</dd>
+									<Phone className="size-4 text-muted-foreground" aria-hidden="true" />
+									<dd className="text-muted-foreground">{workRequest.requesterPhone}</dd>
 								</div>
 							)}
 						</dl>
@@ -198,44 +195,44 @@ export default function WorkRequestDetailPage({ params }: WorkRequestDetailPageP
 
 					<section
 						aria-labelledby="service-details"
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-card)] p-6 shadow-[var(--shadow-card)]"
+						className="rounded-lg border border-border bg-card p-6 shadow-card"
 					>
 						<h2
 							id="service-details"
-							className="mb-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-tertiary)]"
+							className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground"
 						>
 							Detalles del servicio
 						</h2>
 						<dl className="space-y-3 text-sm">
 							<div className="flex items-center gap-2">
-								<MapPin className="size-4 text-[var(--text-tertiary)]" aria-hidden="true" />
-								<dd className="text-[var(--text-primary)]">{workRequest.serviceSite}</dd>
+								<MapPin className="size-4 text-muted-foreground" aria-hidden="true" />
+								<dd className="text-foreground">{workRequest.serviceSite}</dd>
 							</div>
 							<div className="flex items-center gap-2">
-								<Tag className="size-4 text-[var(--text-tertiary)]" aria-hidden="true" />
+								<Tag className="size-4 text-muted-foreground" aria-hidden="true" />
 								<dt className="sr-only">Tipo de servicio</dt>
-								<dd className="font-medium text-[var(--text-primary)]">
+								<dd className="font-medium text-foreground">
 									{workRequest.serviceType}
 								</dd>
 							</div>
 							<div className="flex items-center gap-2">
-								<Route className="size-4 text-[var(--text-tertiary)]" aria-hidden="true" />
-								<dt className="text-[var(--text-tertiary)]">Canal:</dt>
-								<dd className="text-[var(--text-secondary)]">
+								<Route className="size-4 text-muted-foreground" aria-hidden="true" />
+								<dt className="text-muted-foreground">Canal:</dt>
+								<dd className="text-muted-foreground">
 									{CHANNEL_LABELS[workRequest.sourceChannel] ?? workRequest.sourceChannel}
 								</dd>
 							</div>
 							<div className="flex items-center gap-2">
-								<Clock className="size-4 text-[var(--text-tertiary)]" aria-hidden="true" />
-								<dt className="text-[var(--text-tertiary)]">Urgencia:</dt>
-								<dd className="text-[var(--text-secondary)]">
+								<Clock className="size-4 text-muted-foreground" aria-hidden="true" />
+								<dt className="text-muted-foreground">Urgencia:</dt>
+								<dd className="text-muted-foreground">
 									{URGENCY_LABELS[workRequest.urgency] ?? workRequest.urgency}
 								</dd>
 							</div>
 							{workRequest.requestedDate && (
 								<div className="flex items-center gap-2">
-									<Calendar className="size-4 text-[var(--text-tertiary)]" aria-hidden="true" />
-									<dd className="text-[var(--text-secondary)]">Solicitado: {requestedDateLabel}</dd>
+									<Calendar className="size-4 text-muted-foreground" aria-hidden="true" />
+									<dd className="text-muted-foreground">Solicitado: {requestedDateLabel}</dd>
 								</div>
 							)}
 						</dl>
@@ -246,15 +243,15 @@ export default function WorkRequestDetailPage({ params }: WorkRequestDetailPageP
 				<div className="space-y-6">
 					<section
 						aria-labelledby="description-info"
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-card)] p-6 shadow-[var(--shadow-card)]"
+						className="rounded-lg border border-border bg-card p-6 shadow-card"
 					>
 						<h2
 							id="description-info"
-							className="mb-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-tertiary)]"
+							className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground"
 						>
 							Descripción
 						</h2>
-						<p className="text-sm leading-6 text-[var(--text-secondary)] whitespace-pre-wrap">
+						<p className="text-sm leading-6 text-muted-foreground whitespace-pre-wrap">
 							{workRequest.description}
 						</p>
 					</section>
@@ -262,11 +259,11 @@ export default function WorkRequestDetailPage({ params }: WorkRequestDetailPageP
 					{workRequest.requiresSiteVisit && (
 						<section
 							aria-labelledby="visit-info"
-							className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-card)] p-6 shadow-[var(--shadow-card)]"
+							className="rounded-lg border border-border bg-card p-6 shadow-card"
 						>
 							<h2
 								id="visit-info"
-								className="mb-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-tertiary)]"
+								className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground"
 							>
 								Visita técnica requerida
 							</h2>
@@ -280,15 +277,15 @@ export default function WorkRequestDetailPage({ params }: WorkRequestDetailPageP
 					{/* Document upload CTA */}
 					<section
 						aria-labelledby="documents-section"
-						className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)] p-6"
+						className="rounded-lg border border-dashed border-border bg-surface-secondary p-6"
 					>
 						<h2
 							id="documents-section"
-							className="mb-3 text-sm font-semibold uppercase tracking-wider text-[var(--text-tertiary)]"
+							className="mb-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground"
 						>
 							Documentos
 						</h2>
-						<p className="text-sm text-[var(--text-secondary)]">
+						<p className="text-sm text-muted-foreground">
 							Adjunta documentos iniciales: PDF, Excel, Word, fotos o soportes del cliente.
 						</p>
 						<div className="mt-4">

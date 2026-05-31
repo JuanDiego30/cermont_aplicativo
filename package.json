@@ -37,7 +37,7 @@
     "format.check": "turbo run format:check",
     "verify": "npm run contracts:check && npm run typecheck && npm run lint && npm run test && npm run build && npm run quality:strict",
     "clean": "turbo run clean && node -e \"const fs=require('fs');fs.rmSync('node_modules',{recursive:true,force:true});\"",
-    "db:seed": "node backend/dist/_shared/scripts/seed.js",
+    "db:seed": "node backend/dist/scripts/seed.js",
     "contracts:check": "tsx tooling/contracts/check-contract-guard.ts",
     "ghost:check": "tsx tooling/prevent-ghost-dirs.ts",
     "docker:up": "docker compose up --build -d",
@@ -53,13 +53,15 @@
     "deploy:pm2:startup": "pm2 startup",
     "monitor": "bash scripts/monitor.sh",
     "clean:hard": "powershell ./scripts/clean-zombies.ps1 && turbo run clean && node -e \"const fs=require('fs');fs.rmSync('node_modules/.cache',{recursive:true,force:true});\"",
-    "doctor": "npx react-doctor@latest"
+    "doctor": "react-doctor",
+    "doctor:verbose": "react-doctor --verbose"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",
     "@types/node": "^25.9.1",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.5",
+    "react-doctor": "^0.2.10",
     "tsx": "^4.22.3",
     "turbo": "^2.9.14",
     "typescript": "^6.0.3",
@@ -84,5 +86,8 @@
     "*.{json,jsonc}": [
       "biome check --write"
     ]
+  },
+  "dependencies": {
+    "superpowers": "^0.0.2"
   }
 }

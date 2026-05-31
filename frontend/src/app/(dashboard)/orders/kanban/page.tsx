@@ -255,13 +255,9 @@ export default function OrdersKanbanPage() {
 			)}
 
 			{isLoading ? (
-				<div
-					role="status"
-					aria-live="polite"
-					className="flex h-64 items-center justify-center text-sm text-[var(--text-tertiary)]"
-				>
+				<output className="flex h-64 items-center justify-center text-sm text-(--text-tertiary)">
 					Cargando tablero kanban…
-				</div>
+				</output>
 			) : (
 				<DndProvider backend={HTML5Backend}>
 					<div className="flex gap-4 overflow-x-auto pb-4">

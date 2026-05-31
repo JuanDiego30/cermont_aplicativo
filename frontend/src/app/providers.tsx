@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { MotionConfig } from "framer-motion";
 import { type ReactNode, useEffect, useState } from "react";
-import { detailQueryOptions } from "@/_shared/lib/query/query-options";
+import { detailQueryOptions } from "@/lib/constants/query-options";
 import { STALE_TIMES } from "@/lib/constants/query-config";
 import { persistQueryToIndexedDB, restoreQueryFromIndexedDB } from "@/lib/pwa/query-persist";
 import { ThemeProvider } from "@/lib/theme/ThemeProvider";
@@ -41,13 +41,18 @@ export function Providers({ children }: { children: ReactNode }) {
 		const cache = queryClient.getQueryCache();
 		const unsubscribe = cache.subscribe(() => {
 			const queries = queryClient.getQueryCache().getAll();
-			const cacheable = queries
-				.filter((q) => q.queryKey[0] !== "__cached__")
-				.map((q) => ({
-					key: q.queryKey,
-					data: q.state.data,
-					dataUpdatedAt: q.state.dataUpdatedAt,
-				}));
+			const cacheable = queries.reduce<
+				{ key: readonly unknown[]; data: unknown; dataUpdatedAt: number }[]
+			>((acc, q) => {
+				if (q.queryKey[0] !== "__cached__") {
+					acc.push({
+						key: q.queryKey,
+						data: q.state.data,
+						dataUpdatedAt: q.state.dataUpdatedAt,
+					});
+				}
+				return acc;
+			}, []);
 			persistQueryToIndexedDB(cacheable);
 		});
 		return unsubscribe;

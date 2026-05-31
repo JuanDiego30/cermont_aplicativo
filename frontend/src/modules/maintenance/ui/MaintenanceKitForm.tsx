@@ -9,7 +9,6 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { useEffect } from "react";
 import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Checkbox, FormField, Select, TextField } from "@/core/ui/FormField";
@@ -48,15 +47,16 @@ function parseCustomFieldsText(value = ""): Record<string, string> {
 	}
 
 	return Object.fromEntries(
-		trimmed
-			.split(";")
-			.map((entry) => entry.trim())
-			.filter(Boolean)
-			.map((entry) => {
-				const [key, ...rest] = entry.split("=");
-				return [key.trim(), rest.join("=").trim()];
-			})
-			.filter(([key, fieldValue]) => Boolean(key) && Boolean(fieldValue)),
+		trimmed.split(";").flatMap((entry) => {
+			const trimmedEntry = entry.trim();
+			if (!trimmedEntry) {
+				return [];
+			}
+			const [key, ...rest] = trimmedEntry.split("=");
+			const k = key.trim();
+			const v = rest.join("=").trim();
+			return k && v ? [[k, v]] : [];
+		}),
 	);
 }
 
@@ -138,7 +138,6 @@ export function MaintenanceKitForm({
 	const {
 		register,
 		control,
-		reset,
 		handleSubmit,
 		formState: { errors, isSubmitting },
 	} = useForm<MaintenanceKitFormValues>({
@@ -155,10 +154,6 @@ export function MaintenanceKitForm({
 		control,
 		name: "equipment",
 	});
-
-	useEffect(() => {
-		reset(buildDefaultValues(initialKit));
-	}, [initialKit, reset]);
 
 	const submitHandler: SubmitHandler<MaintenanceKitFormValues> = async (values) => {
 		await onSubmit(normalizePayload(values, mode));

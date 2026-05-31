@@ -10,7 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { CustomizableSelect } from "@/_shared/ui/forms/CustomizableSelect";
+import { CustomizableSelect } from "@/core/ui/CustomizableSelect";
 import { Button } from "@/core/ui/Button";
 import { ApiError } from "@/lib/http/api-client";
 import { ContextualDocumentUploadModal } from "@/modules/documents/ui/ContextualDocumentUploadModal";

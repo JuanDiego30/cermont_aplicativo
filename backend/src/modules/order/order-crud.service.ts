@@ -56,7 +56,7 @@ export async function createOrder(
 	let materials = payload.materials || [];
 	if (!materials.length && payload.kitTemplate) {
 		const kit = getDefaultKitForOrderType(payload.type);
-		if (kit) {
+		if ("materials" in kit) {
 			materials = kit.materials;
 		}
 	}

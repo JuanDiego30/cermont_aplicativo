@@ -82,6 +82,7 @@ export {
 export type { Permission } from "./permissions";
 export {
 	checkAllPermissions,
+	getRolePermissions,
 	hasPermission,
 	ROLE_PERMISSIONS,
 } from "./permissions";
@@ -95,12 +96,14 @@ export {
 } from "./planning.rules";
 // ─── RBAC ───────────────────────────────────────────────────────────────────
 export {
+	canAccessModule,
 	canAccessPath,
 	canPerformAction,
 	getAllowedRolesForPath,
 	hasAllPermissions,
 	isPublicPath,
 	PUBLIC_PATHS,
+	ROUTE_ACCESS_RULES,
 } from "./rbac";
 // ─── Roles ─────────────────────────────────────────────────────────────────
 export type { UserRole } from "./roles";
@@ -113,9 +116,12 @@ export {
 	ASSET_MANAGEMENT_ROLES,
 	BILLING_ACCESS_ROLES,
 	DASHBOARD_ACCESS_ROLES,
+	DEFAULT_NEW_USER_ROLE,
+	DEFAULT_USER_ROLE,
 	EVIDENCE_ACCESS_ROLES,
 	FIELD_EXECUTION_ACCESS_ROLES,
 	FINANCE_ACCESS_ROLES,
+	getRoleName,
 	hasRole,
 	INTERNAL_ROLES,
 	isAuthenticatedRole,
@@ -129,6 +135,7 @@ export {
 	RESOURCE_ROLES,
 	ROLE_HIERARCHY,
 	ROLE_LABELS,
+	resolveUserRole,
 	SITE_VISIT_CANCEL_ROLES,
 	SITE_VISIT_EXECUTION_ROLES,
 	SITE_VISIT_MANAGEMENT_ROLES,

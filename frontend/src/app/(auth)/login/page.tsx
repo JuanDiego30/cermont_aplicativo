@@ -19,9 +19,9 @@ export default function LoginPage() {
 				>
 					<Suspense
 						fallback={
-							<div className="flex items-center justify-center py-24" role="status">
+							<div className="flex items-center justify-center py-24" aria-live="polite">
 								<Loader2
-									className="size-10 animate-spin text-[var(--color-brand)]"
+									className="size-10 animate-spin text-brand"
 									aria-hidden="true"
 								/>
 								<span className="sr-only">Cargando formulario de inicio de sesión…</span>

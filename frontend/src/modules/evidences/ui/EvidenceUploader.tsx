@@ -4,7 +4,7 @@ import { CreateEvidenceSchema, type EvidenceType } from "@cermont/shared-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Image as ImageIcon, Loader2, Upload, X } from "lucide-react";
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -95,10 +95,6 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 		);
 	}, [setValue]);
 
-	useEffect(() => {
-		captureGps();
-	}, [captureGps]);
-
 	const handleFileChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
 			const file = e.target.files?.[0];
@@ -136,7 +132,6 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 			});
 			setPreview({ state: "empty" });
 			setGpsCapture({ state: "idle" });
-			captureGps();
 		} catch (error) {
 			toast.error(error instanceof Error ? error.message : "Error al subir la evidencia");
 		}
@@ -204,8 +199,8 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 							<div className="flex items-center gap-2.5 text-xs text-zinc-600 dark:text-zinc-300">
 								{gpsCapture.state === "fetching" && (
 									<>
-										<Loader2 className="size-3.5 animate-spin text-zinc-500" />
-										<span>Capturando coordenadas...</span>
+										<Loader2 className="size-3.5 animate-spin text-zinc-50" />
+										<span>Capturando coordenadas…</span>
 									</>
 								)}
 								{gpsCapture.state === "success" && (
@@ -244,25 +239,15 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 						<span className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
 							Imagen
 						</span>
-						{/* biome-ignore lint/a11y/useSemanticElements: contains nested button for remove action */}
-						<div
-							className={`relative cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-colors sm:p-8 ${
+						<label
+							htmlFor="evidence-file"
+							className={`relative block cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-colors sm:p-8 ${
 								preview.state === "ready"
 									? "border-zinc-300 dark:border-zinc-600"
 									: errors.file
 										? "border-red-400 dark:border-red-500"
 										: "border-zinc-300 hover:border-zinc-400 dark:border-zinc-600 dark:hover:border-zinc-500"
 							}`}
-							onClick={() => document.getElementById("evidence-file")?.click()}
-							onKeyDown={(e) => {
-								if (e.key === "Enter" || e.key === " ") {
-									e.preventDefault();
-									document.getElementById("evidence-file")?.click();
-								}
-							}}
-							role="button"
-							tabIndex={0}
-							aria-label="Seleccionar imagen"
 						>
 							<input
 								id="evidence-file"
@@ -273,7 +258,10 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 							/>
 							{preview.state === "ready" ? (
 								<div className="space-y-3">
-									<div className="relative mx-auto h-48 w-full max-w-sm overflow-hidden rounded-lg">
+									<output
+										className="relative mx-auto h-48 w-full max-w-sm overflow-hidden rounded-lg"
+										aria-live="polite"
+									>
 										<Image
 											src={preview.url}
 											alt="Vista previa de evidencia"
@@ -291,9 +279,9 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 											className="absolute right-2 top-2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70"
 											aria-label="Eliminar vista previa"
 										>
-											<X className="size-4" />
+										<X className="size-4" />
 										</button>
-									</div>
+									</output>
 									<p className="text-xs text-zinc-500 dark:text-zinc-400">
 										Haga clic para cambiar la imagen
 									</p>
@@ -309,7 +297,7 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 									</p>
 								</div>
 							)}
-						</div>
+						</label>
 						{errors.file && (
 							<p className="text-xs text-red-600 dark:text-red-400" role="alert">
 								{errors.file.message}

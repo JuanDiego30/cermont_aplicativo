@@ -3,7 +3,16 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useSyncExternalStore } from "react";
+
+const subscribeMotion = (callback: () => void) => {
+	const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+	mediaQuery.addEventListener("change", callback);
+	return () => mediaQuery.removeEventListener("change", callback);
+};
+
+const getSnapshotMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const getServerSnapshotMotion = () => false;
 import { AboutSection } from "./AboutSection";
 import { ContactSection } from "./ContactSection";
 import { CtaSection } from "./CtaSection";
@@ -29,17 +38,13 @@ const BLOB_CONFIG_BY_ATTR: ReadonlyMap<string, (typeof BLOB_CONFIG)[number]> = n
 gsap.registerPlugin(ScrollTrigger);
 
 export function PublicLandingContent() {
-	const [shouldReduceMotion, setShouldReduceMotion] = useState(false);
+	const shouldReduceMotion = useSyncExternalStore(
+		subscribeMotion,
+		getSnapshotMotion,
+		getServerSnapshotMotion,
+	);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const sectionsRef = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-		setShouldReduceMotion(mediaQuery.matches);
-		const handleChange = (event: MediaQueryListEvent) => setShouldReduceMotion(event.matches);
-		mediaQuery.addEventListener("change", handleChange);
-		return () => mediaQuery.removeEventListener("change", handleChange);
-	}, []);
 
 	useGSAP(
 		() => {
@@ -81,7 +86,7 @@ export function PublicLandingContent() {
 				if (!sections.length) {
 					return;
 				}
-				ScrollTrigger.batch(sections, {
+				ScrollTrigger.batch(sections as Element[], {
 					interval: 0.12,
 					batchMax: 3,
 					onEnter: (batch) => {
@@ -109,7 +114,7 @@ export function PublicLandingContent() {
 	return (
 		<div
 			ref={containerRef}
-			className="relative isolate w-full max-w-full overflow-x-hidden bg-[var(--surface-page)] text-[var(--text-primary)]"
+			className="relative isolate w-full max-w-full overflow-x-hidden bg-surface-page text-primary"
 		>
 			<LandingHeader />
 

@@ -9,7 +9,7 @@ import {
 import { FileText, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { type FormEvent, Suspense, useMemo, useState } from "react";
+import { type FormEvent, Suspense, useMemo, useReducer } from "react";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { cloneSearchParams, readSearchParam } from "@/lib/utils/search-params";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
@@ -34,6 +34,80 @@ const DOCUMENT_PURPOSE_VALUES = new Set(
 );
 
 const STEP_CODE_VALUES = new Set(CERMONT_OPERATIONAL_STEPS.map((step) => step.code));
+
+type DocumentsFilterState = {
+	includeArchived: boolean;
+	orderFilter: string;
+	purposeFilter: DocumentPurpose | "";
+	searchInput: string;
+	serviceCaseFilter: string;
+	stepFilter: CermontOperationalStepCode | "";
+};
+
+type DocumentsFilterAction =
+	| { type: "setIncludeArchived"; value: boolean }
+	| { type: "setOrderFilter"; value: string }
+	| { type: "setPurposeFilter"; value: DocumentPurpose | "" }
+	| { type: "setSearchInput"; value: string }
+	| { type: "setServiceCaseFilter"; value: string }
+	| { type: "setStepFilter"; value: CermontOperationalStepCode | "" }
+	| { type: "reset" };
+
+type DocumentsFilterSeed = {
+	initialIncludeArchived: boolean;
+	initialOrderId: string;
+	initialPurpose: DocumentPurpose | "";
+	initialSearch: string;
+	initialServiceCaseId: string;
+	initialStep: CermontOperationalStepCode | "";
+};
+
+function createDocumentsFilterState({
+	initialIncludeArchived,
+	initialOrderId,
+	initialPurpose,
+	initialSearch,
+	initialServiceCaseId,
+	initialStep,
+}: DocumentsFilterSeed): DocumentsFilterState {
+	return {
+		includeArchived: initialIncludeArchived,
+		orderFilter: initialOrderId,
+		purposeFilter: initialPurpose,
+		searchInput: initialSearch,
+		serviceCaseFilter: initialServiceCaseId,
+		stepFilter: initialStep,
+	};
+}
+
+function documentsFilterReducer(
+	state: DocumentsFilterState,
+	action: DocumentsFilterAction,
+): DocumentsFilterState {
+	switch (action.type) {
+		case "setIncludeArchived":
+			return { ...state, includeArchived: action.value };
+		case "setOrderFilter":
+			return { ...state, orderFilter: action.value };
+		case "setPurposeFilter":
+			return { ...state, purposeFilter: action.value };
+		case "setSearchInput":
+			return { ...state, searchInput: action.value };
+		case "setServiceCaseFilter":
+			return { ...state, serviceCaseFilter: action.value };
+		case "setStepFilter":
+			return { ...state, stepFilter: action.value };
+		case "reset":
+			return {
+				includeArchived: false,
+				orderFilter: "",
+				purposeFilter: "",
+				searchInput: "",
+				serviceCaseFilter: "",
+				stepFilter: "",
+			};
+	}
+}
 
 export default function DocumentsPage() {
 	return (
@@ -175,7 +249,7 @@ function DocumentsPageHeader({
 						<p className="mt-1 text-sm text-[var(--text-secondary)]">
 							{isLoading ? (
 								<>
-									<Loader2 className="mr-1 inline-block size-3 animate-spin" /> Loading...
+									<Loader2 className="mr-1 inline-block size-3 animate-spin" /> Loading&hellip;
 								</>
 							) : (
 								`${filteredCount} documento(s) disponibles.`
@@ -438,12 +512,26 @@ function DocumentsPageInner() {
 	const initialIncludeArchived = readBooleanSearchParam(searchParams, "includeArchived");
 	const defaultPurpose = resolveDefaultPurpose(initialPurpose || undefined);
 
-	const [searchInput, setSearchInput] = useState(initialSearch);
-	const [orderFilter, setOrderFilter] = useState(initialOrderId);
-	const [serviceCaseFilter, setServiceCaseFilter] = useState(initialServiceCaseId);
-	const [purposeFilter, setPurposeFilter] = useState<DocumentPurpose | "">(initialPurpose);
-	const [stepFilter, setStepFilter] = useState<CermontOperationalStepCode | "">(initialStep);
-	const [includeArchived, setIncludeArchived] = useState(initialIncludeArchived);
+	const [filters, dispatch] = useReducer(
+		documentsFilterReducer,
+		{
+			initialIncludeArchived,
+			initialOrderId,
+			initialPurpose,
+			initialSearch,
+			initialServiceCaseId,
+			initialStep,
+		},
+		createDocumentsFilterState,
+	);
+	const {
+		includeArchived,
+		orderFilter,
+		purposeFilter,
+		searchInput,
+		serviceCaseFilter,
+		stepFilter,
+	} = filters;
 
 	const { data: ordersResult, isLoading: isLoadingOrders } = useOrders({ limit: 100 });
 	const { data: serviceCasesList, isLoading: isLoadingServiceCases } = useServiceCaseList();
@@ -514,14 +602,19 @@ function DocumentsPageInner() {
 	};
 
 	const handleReset = () => {
-		setSearchInput("");
-		setOrderFilter("");
-		setServiceCaseFilter("");
-		setPurposeFilter("");
-		setStepFilter("");
-		setIncludeArchived(false);
+		dispatch({ type: "reset" });
 		replace("/documents");
 	};
+
+	const setIncludeArchived = (value: boolean) => dispatch({ type: "setIncludeArchived", value });
+	const setOrderFilter = (value: string) => dispatch({ type: "setOrderFilter", value });
+	const setPurposeFilter = (value: DocumentPurpose | "") =>
+		dispatch({ type: "setPurposeFilter", value });
+	const setSearchInput = (value: string) => dispatch({ type: "setSearchInput", value });
+	const setServiceCaseFilter = (value: string) =>
+		dispatch({ type: "setServiceCaseFilter", value });
+	const setStepFilter = (value: CermontOperationalStepCode | "") =>
+		dispatch({ type: "setStepFilter", value });
 
 	const isLoading = isLoadingOrders || isLoadingDocs || isLoadingServiceCases;
 	const activeFiltersCount = [

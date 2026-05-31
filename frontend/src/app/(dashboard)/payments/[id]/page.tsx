@@ -4,10 +4,15 @@ import type { Payment, PaymentMethod } from "@cermont/shared-types";
 import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { usePayment, useReconcilePayment, useRejectPayment } from "@/modules/billing/queries";
+
+import { RejectForm } from "@/core/ui/RejectForm";
+
+const DATE_FMT = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
+const fmtDate = (v?: string) => (v ? DATE_FMT.format(new Date(v)) : "Sin fecha");
 
 export default function PaymentDetailPage() {
 	return (
@@ -20,8 +25,8 @@ export default function PaymentDetailPage() {
 function DetailSkeleton() {
 	return (
 		<section className="space-y-6" aria-label="Cargando pago">
-			<div className="h-8 w-48 animate-pulse rounded-[var(--radius-md)] bg-zinc-100" />
-			<div className="h-32 animate-pulse rounded-[var(--radius-lg)] bg-zinc-100" />
+			<div className="h-8 w-48 animate-pulse rounded-md bg-zinc-100" />
+			<div className="h-32 animate-pulse rounded-lg bg-zinc-100" />
 		</section>
 	);
 }
@@ -51,7 +56,7 @@ function BackLink() {
 	return (
 		<Link
 			href="/payments"
-			className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-brand)]"
+			className="inline-flex items-center gap-2 text-sm font-medium text-brand"
 		>
 			<ArrowLeft className="size-4" aria-hidden="true" />
 			Volver a Pagos
@@ -61,17 +66,17 @@ function BackLink() {
 
 function ErrorCard({ onRetry }: { onRetry: () => void }) {
 	return (
-		<div className="rounded-[var(--radius-lg)] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] p-5">
-			<h2 className="text-base font-semibold text-[var(--text-primary)]">
+		<div className="rounded-lg border border-destructive/20 bg-destructive/10 p-5">
+			<h2 className="text-base font-semibold text-foreground">
 				No se pudo cargar el pago
 			</h2>
-			<p className="mt-1 text-sm text-[var(--text-secondary)]">
+			<p className="mt-1 text-sm text-muted-foreground">
 				Ocurri&oacute;n un error al obtener los datos.
 			</p>
 			<button
 				type="button"
 				onClick={onRetry}
-				className="mt-3 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm font-medium text-[var(--text-primary)]"
+				className="mt-3 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground"
 			>
 				Reintentar
 			</button>
@@ -81,14 +86,14 @@ function ErrorCard({ onRetry }: { onRetry: () => void }) {
 
 function EmptyCard() {
 	return (
-		<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] p-6">
-			<h2 className="text-base font-semibold text-[var(--text-primary)]">Pago no encontrado</h2>
-			<p className="mt-1 text-sm text-[var(--text-secondary)]">
+		<div className="rounded-lg border border-dashed border-border bg-card p-6">
+			<h2 className="text-base font-semibold text-foreground">Pago no encontrado</h2>
+			<p className="mt-1 text-sm text-muted-foreground">
 				El identificador no corresponde a ning&uacute;n pago registrado.
 			</p>
 			<Link
 				href="/payments"
-				className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[var(--color-brand)]"
+				className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-brand"
 			>
 				<ArrowLeft className="size-4" />
 				Volver al listado
@@ -140,7 +145,7 @@ function PaymentContent({ payment }: { payment: Payment }) {
 							type="button"
 							onClick={() => toggleAction("reconcile")}
 							disabled={reconcileMutation.isPending}
-							className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-success)] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+							className="inline-flex items-center gap-2 rounded-md bg-success px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
 						>
 							<CheckCircle2 className="size-4" />
 							Conciliar
@@ -151,7 +156,7 @@ function PaymentContent({ payment }: { payment: Payment }) {
 							type="button"
 							onClick={() => toggleAction("reject")}
 							disabled={rejectMutation.isPending}
-							className="inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-danger)] bg-[var(--color-danger-bg)] px-4 py-2 text-sm font-medium text-[var(--color-danger)] disabled:opacity-50"
+							className="inline-flex items-center gap-2 rounded-md border border-destructive bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive disabled:opacity-50"
 						>
 							<XCircle className="size-4" />
 							Rechazar
@@ -164,42 +169,45 @@ function PaymentContent({ payment }: { payment: Payment }) {
 				<ReconcileForm onReconcile={handleReconcile} pending={reconcileMutation.isPending} />
 			)}
 			{showAction("reject") && (
-				<RejectForm onReject={handleReject} pending={rejectMutation.isPending} />
+				<RejectForm
+					title="Rechazar pago"
+					onReject={handleReject}
+					pending={rejectMutation.isPending}
+					minChars={10}
+				/>
 			)}
 		</>
 	);
 }
 
 function PaymentInfo({ payment }: { payment: Payment }) {
-	const dateFmt = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
-	const fmtDate = (v?: string) => (v ? dateFmt.format(new Date(v)) : "Sin fecha");
-	const currencyFmt = new Intl.NumberFormat("es-CO", {
-		style: "currency",
-		currency: payment.currency,
-		maximumFractionDigits: 0,
-	});
+  const currencyFmt = useMemo(() => new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: payment.currency,
+    maximumFractionDigits: 0,
+  }), [payment.currency]);
 
 	const statusTone =
 		payment.status === "reconciled"
-			? "border-[var(--color-success-border)] bg-[var(--color-success-bg)] text-[var(--color-success)]"
+			? "border-success/20 bg-success/10 text-success"
 			: payment.status === "rejected"
-				? "border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] text-[var(--color-danger)]"
+				? "border-destructive/20 bg-destructive/10 text-destructive"
 				: payment.status === "recorded" || payment.status === "due"
-					? "border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] text-[var(--color-warning)]"
-					: "border-[var(--border-default)] bg-[var(--surface-secondary)] text-[var(--text-secondary)]";
+					? "border-warning/20 bg-warning/10 text-warning"
+					: "border-border bg-surface-secondary text-muted-foreground";
 
 	return (
 		<div className="space-y-4">
-			<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-card">
+			<div className="rounded-lg border border-border bg-card p-6 shadow-card">
 				<div className="flex flex-wrap items-start justify-between gap-3">
 					<div>
 						<h2
 							id="payment-detail-title"
-							className="text-xl font-semibold text-[var(--text-primary)]"
+							className="text-xl font-semibold text-foreground"
 						>
 							{payment.paymentReference}
 						</h2>
-						<p className="text-sm text-[var(--text-secondary)]">
+						<p className="text-sm text-muted-foreground">
 							Factura {payment.invoiceId} &middot; Orden {payment.workOrderId}
 						</p>
 					</div>
@@ -215,7 +223,7 @@ function PaymentInfo({ payment }: { payment: Payment }) {
 				<FieldCard
 					title="Monto"
 					value={currencyFmt.format(payment.amount)}
-					valueClass="text-[var(--color-brand)] font-semibold"
+					valueClass="text-brand font-semibold"
 				/>
 				<FieldCard
 					title="M&eacute;todo de pago"
@@ -237,13 +245,13 @@ function PaymentInfo({ payment }: { payment: Payment }) {
 			</div>
 
 			{payment.rejectionReason && (
-				<div className="rounded-[var(--radius-lg)] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] p-4">
-					<h3 className="text-sm font-semibold text-[var(--color-danger)]">Motivo de rechazo</h3>
-					<p className="mt-2 text-sm text-[var(--text-secondary)]">{payment.rejectionReason}</p>
+				<div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4">
+					<h3 className="text-sm font-semibold text-destructive">Motivo de rechazo</h3>
+					<p className="mt-2 text-sm text-muted-foreground">{payment.rejectionReason}</p>
 				</div>
 			)}
 
-			<div className="flex flex-wrap gap-4 text-xs text-[var(--text-muted)]">
+			<div className="flex flex-wrap gap-4 text-xs text-muted">
 				<span>Creado: {fmtDate(payment.createdAt)}</span>
 				<span>Actualizado: {fmtDate(payment.updatedAt)}</span>
 			</div>
@@ -272,9 +280,9 @@ function FieldCard({
 	valueClass?: string;
 }) {
 	return (
-		<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-card">
-			<p className="text-xs font-medium uppercase text-[var(--text-muted)]">{title}</p>
-			<p className={`mt-1 text-sm text-[var(--text-primary)] ${valueClass ?? ""}`}>{value}</p>
+		<div className="rounded-lg border border-border bg-card p-4 shadow-card">
+			<p className="text-xs font-medium uppercase text-muted-foreground">{title}</p>
+			<p className={`mt-1 text-sm text-foreground ${valueClass ?? ""}`}>{value}</p>
 		</div>
 	);
 }
@@ -288,78 +296,31 @@ function ReconcileForm({
 }) {
 	const [notes, setNotes] = useState("");
 
+	const handleSubmit = async () => {
+		await onReconcile(notes.trim() || undefined);
+	};
+
 	return (
 		<form
-			className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--color-success-border)] bg-[var(--color-success-bg)] p-4"
-			onSubmit={(e) => {
-				e.preventDefault();
-				onReconcile(notes.trim() || undefined);
-			}}
+			className="space-y-3 rounded-lg border border-success/30 bg-success/5 p-4"
+			action={handleSubmit}
 		>
-			<h3 className="text-sm font-semibold text-[var(--color-success)]">Conciliar pago</h3>
+			<h3 className="text-sm font-semibold text-success">Conciliar pago</h3>
 			<label className="block text-sm">
-				<span className="text-[var(--text-secondary)]">
-					Notas de conciliaci&oacute;n (opcional)
-				</span>
+				<span className="text-muted-foreground">Notas de conciliaci&oacute;n (opcional)</span>
 				<textarea
 					value={notes}
 					onChange={(e) => setNotes(e.target.value)}
 					rows={3}
-					className="mt-1 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-2 text-sm"
+					className="mt-1 w-full rounded-md border border-border bg-surface-secondary px-3 py-2 text-sm"
 				/>
 			</label>
 			<button
 				type="submit"
 				disabled={pending}
-				className="rounded-[var(--radius-md)] bg-[var(--color-success)] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+				className="rounded-md bg-success px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
 			>
 				{pending ? "Conciliando..." : "Confirmar conciliaci&oacute;n"}
-			</button>
-		</form>
-	);
-}
-
-function RejectForm({
-	onReject,
-	pending,
-}: {
-	onReject: (reason: string) => void;
-	pending: boolean;
-}) {
-	const [reason, setReason] = useState("");
-
-	return (
-		<form
-			className="space-y-3 rounded-[var(--radius-lg)] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] p-4"
-			onSubmit={(e) => {
-				e.preventDefault();
-				if (reason.trim().length < 5) {
-					return;
-				}
-				onReject(reason.trim());
-			}}
-		>
-			<h3 className="text-sm font-semibold text-[var(--color-danger)]">Rechazar pago</h3>
-			<label className="block text-sm">
-				<span className="text-[var(--text-secondary)]">
-					Motivo de rechazo * (m&iacute;nimo 5 caracteres)
-				</span>
-				<textarea
-					value={reason}
-					onChange={(e) => setReason(e.target.value)}
-					rows={3}
-					className="mt-1 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-2 text-sm"
-					required
-					minLength={5}
-					aria-required="true"
-				/>
-			</label>
-			<button
-				type="submit"
-				disabled={pending || reason.trim().length < 5}
-				className="rounded-[var(--radius-md)] bg-[var(--color-danger)] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-			>
-				{pending ? "Rechazando..." : "Confirmar rechazo"}
 			</button>
 		</form>
 	);

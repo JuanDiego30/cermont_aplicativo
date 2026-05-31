@@ -378,6 +378,17 @@ export const documentAPI = {
  * };
  * ```
  */
+
+/** Structured error detail shape */
+export type ApiErrorDetail = {
+	code: string;
+	message: string;
+	details?: Record<string, string>;
+};
+
+/** Arbitrary metadata map (timestamps, pagination extras, etc.) */
+export type ApiMeta = Record<string, string | number | boolean>;
+
 export type ApiEnvelope<T> = {
 	success: boolean;
 	data: T;
@@ -386,8 +397,8 @@ export type ApiEnvelope<T> = {
 	/** Machine-readable error code from the backend */
 	code?: string;
 	/** Human-readable or structured error detail */
-	error?: string | Record<string, unknown> | null;
-	meta?: Record<string, unknown>;
+	error?: string | ApiErrorDetail;
+	meta?: ApiMeta;
 };
 
 /**
@@ -406,7 +417,7 @@ export type ApiEnvelope<T> = {
 export type ApiSuccess<T> = {
 	status: "success";
 	data: T;
-	meta?: Record<string, unknown>;
+	meta?: ApiMeta;
 };
 
 /**

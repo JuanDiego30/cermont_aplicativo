@@ -212,35 +212,6 @@ export type RequireKeys<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>
 export type OptionalKeys<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 /**
- * Nullable type - allows null or undefined
- * Useful for representing optional database fields
- *
- * @example
- * ```typescript
- * type NullableString = Nullable<string>; // string | null | undefined
- * ```
- */
-export type Nullable<T> = T | null | undefined;
-
-/**
- * NonNullableFields - makes all fields of a type non-nullable
- * Useful for ensuring required data is present
- *
- * @example
- * ```typescript
- * interface User {
- *   name: string | null;
- *   email?: string;
- * }
- *
- * type NonNullUser = NonNullableFields<User>; // { name: string; email: string; }
- * ```
- */
-export type NonNullableFields<T> = {
-	[P in keyof T]-?: NonNullable<T[P]>;
-};
-
-/**
  * Mutable - removes readonly modifiers from all properties
  * Useful for creating mutable copies of readonly types
  *

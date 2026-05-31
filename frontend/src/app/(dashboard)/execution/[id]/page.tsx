@@ -31,6 +31,7 @@ import {
 	useSubmitExecutionDynamicForm,
 } from "@/modules/execution/queries";
 import { useAuthStore } from "@/store/auth.store";
+import { isPresent, type StatusObject } from "@cermont/shared-types";
 
 type ExecutionDetailPageProps = {
 	params: Promise<{ id: string }>;
@@ -65,10 +66,17 @@ function getErrorMessage(error: Error | null): string {
 	return error?.message ?? "";
 }
 
+type AuthUser = {
+	id: string;
+	email: string;
+	name: string;
+	role: string;
+};
+
 export default function ExecutionDetailPage({ params }: ExecutionDetailPageProps) {
 	const { id } = use(params);
 	const { push } = useRouter();
-	const user = useAuthStore((state) => state.user);
+	const userStatus: StatusObject<AuthUser> = useAuthStore((state) => state.user);
 	const { data: session, isLoading, isError, isPaused, refetch } = useExecutionSession(id);
 
 	if (isPaused) {
@@ -84,10 +92,10 @@ export default function ExecutionDetailPage({ params }: ExecutionDetailPageProps
 
 	if (isLoading) {
 		return (
-			<div className="flex items-center justify-center py-24" role="status">
-				<Loader2 className="size-8 animate-spin text-[var(--color-brand)]" aria-hidden="true" />
-				<span className="sr-only">Cargando ejecucion</span>
-			</div>
+			<output className="flex items-center justify-center py-24" aria-live="polite">
+				<Loader2 className="size-8 animate-spin text-brand" aria-hidden="true" />
+				<span className="sr-only">Cargando ejecución</span>
+			</output>
 		);
 	}
 
@@ -102,6 +110,7 @@ export default function ExecutionDetailPage({ params }: ExecutionDetailPageProps
 		);
 	}
 
+	const user = isPresent(userStatus) ? userStatus.value : null;
 	return <ExecutionDetailWorkspace id={id} session={session} user={user} />;
 }
 
@@ -245,6 +254,7 @@ function ExecutionDetailWorkspace({
 
 					<Panel title="Formulario dinamico">
 						<textarea
+							aria-label="Contenido del formulario dinamico"
 							value={dynamicValue}
 							onChange={(event) => setDynamicValue(event.target.value)}
 							rows={4}
@@ -277,6 +287,7 @@ function ExecutionDetailWorkspace({
 
 					<Panel title="Incidente operativo">
 						<textarea
+							aria-label="Descripcion del incidente operativo"
 							value={incidentDescription}
 							onChange={(event) => setIncidentDescription(event.target.value)}
 							rows={3}

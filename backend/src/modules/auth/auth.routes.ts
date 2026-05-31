@@ -7,11 +7,13 @@
  * - POST /api/auth/logout — authenticated
  * - GET /api/auth/me — authenticated
  * - PATCH /api/auth/change-password — authenticated
+ * - POST /api/auth/forgot-password — public (rate limited)
+ * - POST /api/auth/reset-password — public (rate limited)
  *
  * All inputs validated by middleware BEFORE controller.
  */
 
-import { ChangePasswordSchema, LoginSchema } from "@cermont/shared-types";
+import { ChangePasswordSchema, ForgotPasswordSchema, LoginSchema, ResetPasswordSchema } from "@cermont/shared-types";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { validateBody } from "../../middlewares/validate";
@@ -56,5 +58,18 @@ router.patch(
 	validateBody(ChangePasswordSchema),
 	AuthController.changePassword,
 );
+
+/**
+ * POST /api/auth/forgot-password
+ * Public endpoint — requests password reset
+ * Returns success even if email doesn't exist (security)
+ */
+router.post("/forgot-password", validateBody(ForgotPasswordSchema), AuthController.forgotPassword);
+
+/**
+ * POST /api/auth/reset-password
+ * Public endpoint — resets password using token
+ */
+router.post("/reset-password", validateBody(ResetPasswordSchema), AuthController.resetPassword);
 
 export default router;

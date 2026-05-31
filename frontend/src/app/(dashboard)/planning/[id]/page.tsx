@@ -8,6 +8,9 @@ import { Suspense } from "react";
 import { toast } from "sonner";
 import { useApprovePlanning, usePlanningDetail } from "@/modules/planning/queries";
 
+const DATE_FMT = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
+const fmtDate = (v?: string) => (v ? DATE_FMT.format(new Date(v)) : "Sin fecha");
+
 export default function PlanningDetailPage() {
 	return (
 		<Suspense fallback={<DetailSkeleton />}>
@@ -84,17 +87,14 @@ function PacketContent({ packet }: { packet: PlanningPacket }) {
 
 	const handleApprove = async () => {
 		try {
-			await approveMutation.mutateAsync();
+			await approveMutation.mutateAsync({});
 			toast.success("Planeación aprobada correctamente");
 		} catch {
 			toast.error("Error al aprobar la planeación");
 		}
 	};
 
-	const dateFmt = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
-	const fmtDate = (v?: string) => (v ? dateFmt.format(new Date(v)) : "Sin fecha");
-
-	const statusTone =
+  const statusTone =
 		packet.status === "approved"
 			? "border-[var(--color-success-border)] bg-[var(--color-success-bg)] text-[var(--color-success)]"
 			: packet.status === "blocked"

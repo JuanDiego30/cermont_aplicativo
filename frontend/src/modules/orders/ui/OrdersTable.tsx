@@ -81,20 +81,21 @@ export function OrdersTable({
 			<div className="hidden overflow-x-auto lg:block">
 				<table className="w-full text-left text-sm border-collapse">
 					<thead>
-						<tr className="bg-[var(--surface-secondary)]/50 border-y border-[var(--border-subtle)]">
+						<tr className="bg-surface-secondary/50 border-y border-border-default">
 							{selectionEnabled ? (
 								<th scope="col" className="w-14 px-6 py-4">
 									<input
 										type="checkbox"
 										checked={allSelected}
 										onChange={() => onToggleSelectAll?.()}
-										className="size-4.5 rounded border-[var(--border-medium)] text-[var(--color-brand)] focus:ring-[color:var(--color-brand)]/20"
+										aria-label="Seleccionar todas las órdenes"
+										className="size-4.5 rounded border border-border text-brand focus:ring-brand/20"
 									/>
 								</th>
 							) : null}
 							<th
 								scope="col"
-								className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)] font-mono"
+								className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.15em] text-(--text-tertiary) font-mono"
 							>
 								N° OT
 							</th>
@@ -145,6 +146,7 @@ export function OrdersTable({
 											type="checkbox"
 											checked={selectedIds.has(order._id)}
 											onChange={() => onToggleOrderSelection?.(order._id)}
+											aria-label={`Seleccionar orden ${order.code}`}
 											className="size-4.5 rounded border-[var(--border-medium)] text-[var(--color-brand)] focus:ring-[color:var(--color-brand)]/20"
 										/>
 									</td>
@@ -214,6 +216,7 @@ export function OrdersTable({
 										type="checkbox"
 										checked={selectedIds.has(order._id)}
 										onChange={() => onToggleOrderSelection?.(order._id)}
+										aria-label={`Seleccionar orden ${order.code}`}
 										className="size-5 rounded border-[var(--border-medium)] text-[var(--color-brand)]"
 									/>
 								)}

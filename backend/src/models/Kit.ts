@@ -9,10 +9,70 @@ import { type Document, model, Schema, type Types } from "mongoose";
  * Maps to @cermont/shared-types/schemas/kit.schema.ts
  */
 
+// ─── Concrete Interfaces (replacing Record<string, unknown>) ─────────────────
+
+export interface KitItem {
+	id?: string;
+	type: "tool" | "equipment" | "material" | "ppe" | "document" | "form";
+	name: string;
+	code?: string;
+	description?: string;
+	quantity: number;
+	unit: string;
+	unitCost?: number;
+	required?: boolean;
+	critical?: boolean;
+}
+
+export interface KitFileAttachment {
+	id?: string;
+	name: string;
+	fileId?: string;
+	fileUrl?: string;
+	mimeType?: string;
+	size?: number;
+	uploadedAt?: string | Date;
+}
+
+export interface KitRule {
+	id?: string;
+	name: string;
+	condition: string;
+	action: "warn" | "block" | "require_evidence";
+	message: string;
+	severity: "low" | "medium" | "high";
+	active?: boolean;
+}
+
+export interface KitFormBinding {
+	id?: string;
+	templateId: string | Types.ObjectId;
+	templateName: string;
+	required?: boolean;
+	stage?: string;
+}
+
+export interface EvidenceRequirement {
+	id?: string;
+	name: string;
+	description?: string;
+	type:
+		| "photo_before"
+		| "photo_during"
+		| "photo_after"
+		| "signature"
+		| "document"
+		| "gps"
+		| "checklist";
+	required?: boolean;
+	stage?: string;
+	component?: string;
+}
+
 // ─── Subdocument Schemas ─────────────────────────────────────────────────────────
 
 // Kit Item
-const _KitItemSchema = new Schema(
+const _KitItemSchema = new Schema<KitItem>(
 	{
 		id: { type: String },
 		type: {
@@ -33,7 +93,7 @@ const _KitItemSchema = new Schema(
 );
 
 // Kit File Attachment
-const _KitFileAttachmentSchema = new Schema(
+const _KitFileAttachmentSchema = new Schema<KitFileAttachment>(
 	{
 		id: { type: String },
 		name: { type: String, required: true, maxlength: 200 },
@@ -47,7 +107,7 @@ const _KitFileAttachmentSchema = new Schema(
 );
 
 // Kit Rule
-const _KitRuleSchema = new Schema(
+const _KitRuleSchema = new Schema<KitRule>(
 	{
 		id: { type: String },
 		name: { type: String, required: true, maxlength: 200 },
@@ -61,7 +121,7 @@ const _KitRuleSchema = new Schema(
 );
 
 // Kit Form Binding
-const _KitFormBindingSchema = new Schema(
+const _KitFormBindingSchema = new Schema<KitFormBinding>(
 	{
 		id: { type: String },
 		templateId: { type: Schema.Types.ObjectId, ref: "DocumentTemplate", required: true },
@@ -73,7 +133,7 @@ const _KitFormBindingSchema = new Schema(
 );
 
 // Evidence Requirement
-const _EvidenceRequirementSchema = new Schema(
+const _EvidenceRequirementSchema = new Schema<EvidenceRequirement>(
 	{
 		id: { type: String },
 		name: { type: String, required: true, maxlength: 200 },
@@ -108,11 +168,11 @@ export interface IKitDocument extends Document {
 	version: number;
 	status: "draft" | "published" | "archived";
 	serviceTypes: string[];
-	items: Record<string, unknown>[];
-	documents: Record<string, unknown>[];
-	forms: Record<string, unknown>[];
-	evidenceRequirements: Record<string, unknown>[];
-	rules: Record<string, unknown>[];
+	items: KitItem[];
+	documents: KitFileAttachment[];
+	forms: KitFormBinding[];
+	evidenceRequirements: EvidenceRequirement[];
+	rules: KitRule[];
 	isActive: boolean;
 	createdBy?: Types.ObjectId;
 	createdAt: Date;
@@ -162,8 +222,9 @@ KitSchema.index({ createdBy: 1, createdAt: -1 });
 
 KitSchema.set("toJSON", {
 	transform: (_doc, ret) => {
-		delete (ret as unknown as Record<string, unknown>).__v;
-		return ret;
+		const result = ret as unknown as Record<string, unknown>;
+		delete result.__v;
+		return result;
 	},
 });
 

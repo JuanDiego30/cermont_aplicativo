@@ -113,7 +113,7 @@ export async function findProposalsByOrderId(orderId: string, viewer: ProposalVi
 	};
 
 	if (!canViewerSeeAllProposals(viewer)) {
-		where.clientEmail = getClientEmailPattern(viewer.email);
+		where.clientEmail = getClientEmailPattern(viewer.email ?? "");
 	}
 
 	return Proposal.find(where)
@@ -137,7 +137,7 @@ export async function findAllProposals(
 		where.status = filters.status;
 	}
 	if (!canViewerSeeAllProposals(viewer)) {
-		where.clientEmail = getClientEmailPattern(viewer.email);
+		where.clientEmail = getClientEmailPattern(viewer.email ?? "");
 	}
 
 	const skip = (page - 1) * limit;

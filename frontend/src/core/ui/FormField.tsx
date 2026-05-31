@@ -218,15 +218,15 @@ export function Checkbox({ className, label, error, ref, ...props }: CheckboxPro
 				type="checkbox"
 				ref={ref}
 				className={cn(
-					"size-4.5 rounded border transition-all cursor-pointer text-[var(--color-brand)] focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 focus:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50",
+					"size-4.5 rounded border transition-all cursor-pointer text-brand focus:ring-2 focus:ring-(--color-focus-ring)/20 focus:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50",
 					error
-						? "border-[var(--color-danger)]"
-						: "border-[var(--border-medium)] group-hover:border-[var(--color-brand)]",
+						? "border-destructive"
+						: "border-border-medium group-hover:border-brand",
 				)}
 				{...props}
 			/>
 			{label ? (
-				<span className="select-none text-sm text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">
+				<span className="select-none text-sm text-muted-foreground group-hover:text-foreground transition-colors">
 					{label}
 				</span>
 			) : null}

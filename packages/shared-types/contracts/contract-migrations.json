@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:dbaad0a583a9e4cc0bab0649c23f830721bfe97bdfae89d27ea96fd115a2d752",
+	"currentSnapshotHash": "sha256:b6202a98a25f4c511209d3a2c7db97850bc3e064a79c8bb917dbe4db128c4c63",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -12,7 +12,7 @@
 			"id": "001-user-update-avatar-url",
 			"date": "2026-04-14",
 			"type": "non-breaking",
-			"description": "Alinea el contrato de actualizaci├│n de usuario con avatarUrl compartido.",
+			"description": "Alinea el contrato de actualización de usuario con avatarUrl compartido.",
 			"toHash": "sha256:70be53118e15f3f5840ab6c2cba7b1373a5d047f72269719779677038d7030d7"
 		},
 		{
@@ -105,6 +105,20 @@
 			"type": "breaking",
 			"description": "Normalize CreateProposalInputSchema Spanish field names (cliente, descripcion, valorEstimado) to canonical English (client, description, estimatedValue).",
 			"toHash": "sha256:dbaad0a583a9e4cc0bab0649c23f830721bfe97bdfae89d27ea96fd115a2d752"
+		},
+		{
+			"id": "015-offline-entity-types-extension",
+			"date": "2026-05-29",
+			"type": "non-breaking",
+			"description": "Extend OfflineEntityTypeSchema from 3 to 10 types to support full offline sync for work-request, site-visit, checklist, evidence, planning-packet, cost, delivery-record, service-entry-sheet, invoice, and payment entities.",
+			"toHash": "sha256:d06a944d2e136c184e17e10311028478f2d48f7a6c7bff89f6134bfe464c4f93"
+		},
+		{
+			"id": "016-offline-payload-discriminated-unions",
+			"date": "2026-05-30",
+			"type": "non-breaking",
+			"description": "Add discriminated union schemas for offline sync operations (work-request, site-visit, planning-packet, execution-session, evidence) with typed payloads + uuid id field.",
+			"toHash": "sha256:b6202a98a25f4c511209d3a2c7db97850bc3e064a79c8bb917dbe4db128c4c63"
 		}
 	]
 }

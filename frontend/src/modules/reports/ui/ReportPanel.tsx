@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useOrder } from "@/modules/orders/queries";
 import { useAuthStore } from "@/store/auth.store";
+import { isPresent } from "@cermont/shared-types";
 import {
 	useApproveReport,
 	useCreateReport,
@@ -32,7 +33,8 @@ export function ReportPanel({ orderId, readOnly = false }: ReportPanelProps) {
 		error: reportError,
 	} = useOrderReport(orderId);
 	const report = reportData ?? undefined;
-	const currentRole = useAuthStore((state) => state.user?.role);
+	const userStatus = useAuthStore((state) => state.user);
+	const currentRole = isPresent(userStatus) ? userStatus.value.role : "";
 	const createReport = useCreateReport();
 	const updateReport = useUpdateReport(report?._id ?? "");
 	const approveReport = useApproveReport(report?._id ?? "");
@@ -417,6 +419,7 @@ function ReportReviewActions({
 					value={rejectionReason}
 					onChange={(event) => onRejectionReasonChange(event.target.value)}
 					placeholder="Motivo de rechazo"
+					aria-label="Motivo de rechazo"
 					className="min-w-0 flex-1 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-blue-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-white"
 				/>
 				<button

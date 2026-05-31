@@ -46,8 +46,10 @@ export * from "./payment.schema";
 export * from "./pdf-import.schema";
 export * from "./pipeline.schema";
 export type {
+	ApprovePlanningPacketInput,
 	CreatePlanningPacketInput,
 	PlanningPacket,
+	PlanningPacketListQuery,
 	PlanningPacketStatus,
 	UpdatePlanningPacketInput,
 } from "./planning-packet.schema";

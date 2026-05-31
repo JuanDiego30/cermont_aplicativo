@@ -79,10 +79,9 @@ function StepItem({
 	const isDone = step.status === "completed";
 	const isCurrent = step.code === currentStepCode;
 	const isBlocked = step.status === "blocked";
-	const blockerSummary = step.blockers
-		.map((blocker) => blocker.message)
-		.filter(Boolean)
-		.join(" · ");
+  const blockerSummary = step.blockers
+      .flatMap((blocker) => blocker.message ? [blocker.message] : [])
+      .join(" · ");
 	const missingDocuments = step.requirements.filter(
 		(requirement) => requirement.type === "document" && requirement.status !== "satisfied",
 	).length;

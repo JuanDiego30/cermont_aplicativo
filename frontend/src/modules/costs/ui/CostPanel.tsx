@@ -1,8 +1,7 @@
 "use client";
 
 import type { Cost } from "@cermont/shared-types";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useState } from "react";
 import { useOrderCostSummary, useOrderCosts } from "../queries";
 import { CostBreakdownTable } from "./CostBreakdownTable";
 import { CostForm } from "./CostForm";
@@ -18,12 +17,6 @@ export function CostPanel({ orderId, readOnly = false, showOrderList = true }: C
 	const [editingCost, setEditingCost] = useState<Cost | null>(null);
 	const summaryQuery = useOrderCostSummary(orderId);
 	const listQuery = useOrderCosts(orderId);
-
-	useEffect(() => {
-		if (summaryQuery.error instanceof Error) {
-			toast.error(summaryQuery.error.message);
-		}
-	}, [summaryQuery.error]);
 
 	const costs = listQuery.data?.costs ?? [];
 
@@ -51,6 +44,7 @@ export function CostPanel({ orderId, readOnly = false, showOrderList = true }: C
 				</header>
 
 				<CostForm
+					key={`${orderId}:${editingCost?._id ?? "new"}`}
 					orderId={orderId}
 					cost={editingCost}
 					readOnly={readOnly}

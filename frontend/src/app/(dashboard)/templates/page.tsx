@@ -17,11 +17,11 @@ export default function TemplatesPage() {
 					<p className="text-sm font-medium text-[var(--color-brand)]">Gestión</p>
 					<h1
 						id="templates-title"
-						className="mt-2 text-2xl font-semibold text-[var(--text-primary)]"
+						className="mt-2 text-2xl font-semibold text-primary"
 					>
 						Plantillas documentales
 					</h1>
-					<p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--text-secondary)]">
+					<p className="mt-1 max-w-3xl text-sm leading-6 text-secondary">
 						Plantillas y formularios dinámicos derivados de documentos para planeación, ejecución y
 						cierre.
 					</p>
@@ -29,10 +29,10 @@ export default function TemplatesPage() {
 			</header>
 
 			{isLoading && (
-				<div className="flex items-center justify-center py-16" role="status">
-					<Loader2 className="size-7 animate-spin text-[var(--color-brand)]" aria-hidden="true" />
+				<output className="flex items-center justify-center py-16" aria-live="polite">
+					<Loader2 className="size-7 animate-spin text-brand" aria-hidden="true" />
 					<span className="sr-only">Cargando plantillas</span>
-				</div>
+				</output>
 			)}
 
 			{isError && (

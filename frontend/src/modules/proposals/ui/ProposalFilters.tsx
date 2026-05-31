@@ -6,17 +6,6 @@ import { Suspense, useCallback, useEffect, useReducer } from "react";
 import { cloneSearchParams, readSearchParam } from "@/lib/utils/search-params";
 import { useDebounce } from "@/modules/core/hooks/useDebounce";
 
-interface ProposalFilterValues {
-	search?: string;
-	status?: string;
-	dateFrom?: string;
-	dateTo?: string;
-}
-
-interface ProposalFiltersProps {
-	onFilter?: (filters: ProposalFilterValues) => void;
-}
-
 const STATUS_OPTIONS = [
 	{ value: "", label: "Todos los estados" },
 	{ value: "draft", label: "Borrador" },
@@ -65,10 +54,10 @@ function filterReducer(state: FilterState, action: FilterAction): FilterState {
 
 // ── Public Component ──
 
-export function ProposalFilters(props: ProposalFiltersProps) {
+export function ProposalFilters() {
 	return (
 		<Suspense fallback={<ProposalFiltersSkeleton />}>
-			<ProposalFiltersInner {...props} />
+			<ProposalFiltersInner />
 		</Suspense>
 	);
 }
@@ -82,7 +71,7 @@ function ProposalFiltersSkeleton() {
 	);
 }
 
-function ProposalFiltersInner({ onFilter }: ProposalFiltersProps) {
+function ProposalFiltersInner() {
 	const { replace } = useRouter();
 	const searchParams = useSearchParams();
 
@@ -143,14 +132,8 @@ function ProposalFiltersInner({ onFilter }: ProposalFiltersProps) {
 				replace(nextHref);
 			}
 
-			onFilter?.({
-				search: search || undefined,
-				status: st || undefined,
-				dateFrom: from || undefined,
-				dateTo: to || undefined,
-			});
 		},
-		[currentHref, replace, searchParams, onFilter],
+		[currentHref, replace, searchParams],
 	);
 
 	useEffect(() => {
@@ -184,7 +167,6 @@ function ProposalFiltersInner({ onFilter }: ProposalFiltersProps) {
 		if (currentHref !== "/proposals") {
 			replace("/proposals");
 		}
-		onFilter?.({});
 	};
 
 	return (

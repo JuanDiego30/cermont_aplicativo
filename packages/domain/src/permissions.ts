@@ -355,3 +355,19 @@ export function checkAllPermissions(role: UserRole | string, permissions: Permis
 	const rolePerms = ROLE_PERMISSIONS[role as UserRole];
 	return permissions.every((permission) => rolePerms.includes(permission));
 }
+
+/**
+ * Get all permissions assigned to a role.
+ *
+ * @param role - The role to get permissions for
+ * @returns Array of permission strings, or empty array if role is unknown
+ *
+ * @example
+ * ```typescript
+ * getRolePermissions('gerente');
+ * // ["users:create", "users:read", "orders:create", ...]
+ * ```
+ */
+export function getRolePermissions(role: UserRole | string): readonly Permission[] {
+	return ROLE_PERMISSIONS[role as UserRole] ?? [];
+}

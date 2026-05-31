@@ -1,0 +1,120 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Compilar documento LaTeX principal",
+			"type": "shell",
+			"command": "./scripts/compile-report.ps1"
+		},
+		{
+			"label": "Compilar documento LaTeX tras corrección de contraportada",
+			"type": "shell",
+			"command": "./scripts/compile-report.ps1"
+		},
+		{
+			"label": "Limpiar archivos auxiliares y compilar LaTeX",
+			"type": "shell",
+			"command": "del *.aux *.log *.bbl *.blg *.toc *.lof *.lot; ./scripts/compile-report.ps1"
+		},
+		{
+			"label": "Limpiar correctamente y compilar LaTeX (PowerShell)",
+			"type": "shell",
+			"command": "Remove-Item *.aux, *.log, *.bbl, *.blg, *.toc, *.lof, *.lot -ErrorAction SilentlyContinue; ./scripts/compile-report.ps1"
+		},
+		{
+			"label": "Limpiar y compilar tras correcciones de referencias y captions",
+			"type": "shell",
+			"command": "Remove-Item *.aux, *.log, *.bbl, *.blg, *.toc, *.lof, *.lot -ErrorAction SilentlyContinue; ./scripts/compile-report.ps1"
+		},
+		{
+			"label": "Compilar XeLaTeX + Biber + XeLaTeX + XeLaTeX para referencias",
+			"type": "shell",
+			"command": "Remove-Item *.aux, *.log, *.bbl, *.blg, *.toc, *.lof, *.lot -ErrorAction SilentlyContinue; xelatex main.tex; biber main; xelatex main.tex; xelatex main.tex"
+		},
+		{
+			"label": "Limpiar y compilar - Verificar errores",
+			"type": "shell",
+			"command": "Remove-Item *.aux, *.log, *.bbl, *.blg, *.toc, *.lof, *.lot, *.bcf, *.run.xml, *.out -Force -ErrorAction SilentlyContinue; Write-Host 'Archivos limpiados. Compilando...' -ForegroundColor Yellow; xelatex -interaction=nonstopmode main.tex 2>&1 | Select-String -Pattern 'Error|error|Warning|warning|Undefined' | Select-Object -First 30"
+		},
+		{
+			"label": "Compilación completa: XeLaTeX + Biber + Referencias",
+			"type": "shell",
+			"command": "cd 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\Libro'; Remove-Item *.aux, *.log, *.bbl, *.blg, *.toc, *.lof, *.lot, *.bcf, *.run.xml, *.out, *.fdb_latexmk, *.fls -Force -ErrorAction SilentlyContinue; xelatex -interaction=nonstopmode main.tex; biber main; xelatex -interaction=nonstopmode main.tex; xelatex -interaction=nonstopmode main.tex"
+		},
+		{
+			"label": "Compilación final con pdfLaTeX",
+			"type": "shell",
+			"command": "cd 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\Libro'; Remove-Item *.aux, *.log, *.bbl, *.blg, *.toc, *.lof, *.lot, *.bcf, *.run.xml, *.out, *.fdb_latexmk, *.fls -Force -ErrorAction SilentlyContinue; pdflatex -interaction=nonstopmode main.tex > nul 2>&1; biber main > nul 2>&1; pdflatex -interaction=nonstopmode main.tex > nul 2>&1; pdflatex -interaction=nonstopmode main.tex > nul 2>&1; Write-Host 'Compilación completada exitosamente' -ForegroundColor Green"
+		},
+		{
+			"label": "Verificar errores en main.log",
+			"type": "shell",
+			"command": "cd 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\Libro'; Get-Content main.log | Select-String -Pattern '^!|Undefined control sequence|Missing.*endcsname' | Select-Object -First 20"
+		},
+		{
+			"label": "Verificar si main.pdf existe",
+			"type": "shell",
+			"command": "ls -la 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\Libro\\main.pdf' 2>&1 | Write-Host"
+		},
+		{
+			"label": "Verificar archivos main generados",
+			"type": "shell",
+			"command": "Test-Path 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\Libro\\main.pdf' | Write-Host; Get-ChildItem -Path 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\Libro' -Filter 'main.*' | Select-Object Name, Length"
+		},
+		{
+			"label": "Búsqueda de errores LaTeX en compilación",
+			"type": "shell",
+			"command": "cd 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\Libro'; pdflatex -interaction=nonstopmode main.tex 2>&1 | Select-String -Pattern '^!' -Context 0,2 | Select-Object -First 40"
+		},
+		{
+			"label": "Obtener errores LaTeX detallados",
+			"type": "shell",
+			"command": "cd 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\Libro'; pdflatex -interaction=errorstopmode main.tex 2>&1 | Tee-Object -Variable output | Out-Host; $output | Select-String -Pattern '^!' -Context 1,3"
+		},
+		{
+			"label": "Compilar con natbib",
+			"type": "shell",
+			"command": "cd 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\Libro'; Remove-Item *.aux, *.log, *.bbl, *.blg, *.toc, *.lof, *.lot, *.bcf, *.run.xml, *.out, *.fdb_latexmk, *.fls, *.pdf -Force -ErrorAction SilentlyContinue; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; bibtex main > $null 2>&1; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; Write-Host 'Compilacion exitosa!' -ForegroundColor Green"
+		},
+		{
+			"label": "Verificar PDF generado",
+			"type": "shell",
+			"command": "cd 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\Libro'; Get-ChildItem -Filter 'main.pdf' | Select-Object Name, Length; Test-Path main.pdf -PathType Leaf"
+		},
+		{
+			"label": "Verificar errores en log",
+			"type": "shell",
+			"command": "cd 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\Libro'; Get-Content main.log | Select-String -Pattern '^!' | Select-Object -First 10"
+		},
+		{
+			"label": "Recompilar después de correcciones",
+			"type": "shell",
+			"command": "cd 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\Libro'; Remove-Item *.aux, *.log, *.bbl, *.blg, *.toc, *.lof, *.lot, *.bcf, *.run.xml, *.out, *.fdb_latexmk, *.fls, *.pdf -Force -ErrorAction SilentlyContinue; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; bibtex main > $null 2>&1; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; Get-ChildItem -Filter 'main.pdf' | Select-Object Name, Length; Write-Host 'Compilacion completada' -ForegroundColor Green"
+		},
+		{
+			"label": "Compilación final",
+			"type": "shell",
+			"command": "cd 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\Libro'; Remove-Item *.aux, *.log, *.bbl, *.blg, *.toc, *.lof, *.lot, *.bcf, *.run.xml, *.out, *.fdb_latexmk, *.fls, *.pdf -Force -ErrorAction SilentlyContinue; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; bibtex main > $null 2>&1; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; Get-ChildItem -Filter 'main.pdf' | Select-Object Name, Length"
+		},
+		{
+			"label": "Compilación limpia",
+			"type": "shell",
+			"command": "cd 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\Libro'; Remove-Item *.aux, *.log, *.bbl, *.blg, *.toc, *.lof, *.lot, *.bcf, *.run.xml, *.out -Force -ErrorAction SilentlyContinue; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; bibtex main > $null 2>&1; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; if (Test-Path main.pdf) { Get-Item main.pdf | Select-Object Name, @{n='Size';e={$_.Length}} } else { Write-Host 'Error: PDF no generado' -ForegroundColor Red }"
+		},
+		{
+			"label": "Recompilación con caracteres ASCII",
+			"type": "shell",
+			"command": "cd 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\Libro'; Remove-Item *.aux, *.log, *.bbl, *.blg, *.toc, *.lof, *.lot, *.bcf, *.run.xml, *.out -Force -ErrorAction SilentlyContinue; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; bibtex main > $null 2>&1; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; Get-Item main.pdf | Select-Object Name, @{n='Size';e={$_.Length}}; $errors = (Get-Content main.log | Select-String '^!' | Measure-Object).Count; Write-Host \"Errores: $errors\" -ForegroundColor Yellow"
+		},
+		{
+			"label": "Compilación final con caracteres limpios",
+			"type": "shell",
+			"command": "cd 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\Libro'; Remove-Item *.aux, *.log, *.bbl, *.blg, *.toc, *.lof, *.lot, *.bcf, *.run.xml, *.out -Force -ErrorAction SilentlyContinue; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; bibtex main > $null 2>&1; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; Get-Item main.pdf | Select-Object Name, @{n='Size';e={$_.Length}}; $errors = (Get-Content main.log | Select-String '^!' | Measure-Object).Count; Write-Host \"Errores: $errors\" -ForegroundColor Green"
+		},
+		{
+			"label": "Compilación final con correcciones",
+			"type": "shell",
+			"command": "cd 'c:\\Users\\camil\\Downloads\\Compressed\\aplicativo_cermont_prueba\\Libro'; Remove-Item *.aux, *.log, *.bbl, *.blg, *.toc, *.lof, *.lot, *.bcf, *.run.xml, *.out -Force -ErrorAction SilentlyContinue; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; bibtex main > $null 2>&1; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; pdflatex -interaction=nonstopmode main.tex > $null 2>&1; $fileSize = (Get-Item main.pdf).Length; $errors = (Get-Content main.log | Select-String '^!' | Measure-Object).Count; Write-Host '=== COMPILACION EXITOSA ===' -ForegroundColor Green; Write-Host \"PDF Size: $fileSize bytes\" -ForegroundColor Green; Write-Host \"Errores criticos: $errors\" -ForegroundColor Yellow"
+		}
+	]
+}

@@ -40,15 +40,15 @@ function ServiceCaseDetailInner() {
 		<section className="space-y-6" aria-labelledby="sc-detail-title">
 			<Link
 				href="/dashboard"
-				className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-brand)]"
+				className="inline-flex items-center gap-2 text-sm font-medium text-brand"
 			>
 				<ArrowLeft className="size-4" aria-hidden="true" /> Volver al Dashboard
 			</Link>
 			{isLoading && (
-				<div className="flex items-center justify-center py-16" role="status">
-					<Loader2 className="size-7 animate-spin text-[var(--color-brand)]" aria-hidden="true" />
+				<output className="flex items-center justify-center py-16" aria-live="polite">
+					<Loader2 className="size-7 animate-spin text-brand" aria-hidden="true" />
 					<span className="sr-only">Cargando caso</span>
-				</div>
+				</output>
 			)}
 			{isError && (
 				<div className="rounded-[var(--radius-lg)] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] p-5">

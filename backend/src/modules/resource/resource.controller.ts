@@ -86,15 +86,15 @@ export const createResource = async (req: Request, res: Response) => {
 export const getAllResources = async (req: Request, res: Response) => {
 	const { type, status, search, limit = "50", offset = "0", page: pageQuery } = req.query;
 	const limitValue = parseNumberQuery(String(limit), 50, 100);
-	const pageValue = getString(pageQuery).trim()
-		? parseNumberQuery(String(pageQuery), 1)
+	const pageValue = getString(pageQuery as string | undefined ?? "").trim()
+		? parseNumberQuery(String(pageQuery ?? ""), 1)
 		: offsetToPage(String(offset), limitValue);
 
 	const result = await ResourceService.findAll(
 		{
-			type: getString(type).trim() || undefined,
-			status: getString(status).trim() || undefined,
-			search: getString(search).trim() || undefined,
+			type: getString(type as string | undefined).trim() || undefined,
+			status: getString(status as string | undefined).trim() || undefined,
+			search: getString(search as string | undefined).trim() || undefined,
 		},
 		pageValue,
 		limitValue,
