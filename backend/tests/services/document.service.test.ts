@@ -5,6 +5,14 @@ const mocks = vi.hoisted(() => ({
 	documentFindById: vi.fn(),
 	documentFindByIdAndDelete: vi.fn(),
 	createAuditLog: vi.fn(),
+	unlink: vi.fn(),
+}));
+
+vi.mock("node:fs/promises", () => ({
+	default: {
+		unlink: mocks.unlink,
+	},
+	unlink: mocks.unlink,
 }));
 
 vi.mock("../../src/models/Document", () => ({
@@ -32,6 +40,7 @@ vi.mock("../../src/common/utils/logger", () => ({
 }));
 
 import {
+	archiveDocument,
 	associateDocument,
 	deleteDocument,
 	findAllDocuments,
@@ -181,8 +190,29 @@ describe("DocumentService", () => {
 	});
 
 	it("finds documents by purpose filter", async () => {
-		const docs = await findAllDocuments({ purpose: "closure_support" });
+		const docs = await findAllDocuments({ purpose: "support_document" });
 		expect(Array.isArray(docs)).toBe(true);
+	});
+
+	it("archives a document explicitly with retention metadata", async () => {
+		const document = buildDocumentDoc();
+		mocks.documentFindById.mockResolvedValue(document);
+
+		const result = await archiveDocument(DOCUMENT_ID, USER_ID, "policy retention");
+
+		expect(result.lifecycleStatus).toBe("archived");
+		expect(result.archivedBy?.toString()).toBe(USER_ID);
+		expect(result.archiveReason).toBe("policy retention");
+		expect(result.retentionUntil).toBeInstanceOf(Date);
+		expect(document.save).toHaveBeenCalledTimes(1);
+		expect(mocks.createAuditLog).toHaveBeenCalledWith(
+			expect.objectContaining({
+				action: "DOCUMENT_ARCHIVED",
+				entity: "Document",
+				entityId: DOCUMENT_ID,
+				userId: USER_ID,
+			}),
+		);
 	});
 
 	it("archives critical closing evidence instead of physically deleting it", async () => {
@@ -205,6 +235,27 @@ describe("DocumentService", () => {
 				entity: "Document",
 				entityId: DOCUMENT_ID,
 				userId: USER_ID,
+			}),
+		);
+	});
+
+	it("physically deletes non-critical documents and logs the action", async () => {
+		const document = buildDocumentDoc();
+		mocks.documentFindById.mockResolvedValue(document);
+		mocks.unlink.mockResolvedValue();
+
+		const result = await deleteDocument(DOCUMENT_ID, USER_ID, "cleanup");
+
+		expect(result).toEqual({ status: "deleted", documentId: DOCUMENT_ID });
+		expect(mocks.unlink).toHaveBeenCalledWith(document.file_url);
+		expect(mocks.documentFindByIdAndDelete).toHaveBeenCalledWith(DOCUMENT_ID);
+		expect(mocks.createAuditLog).toHaveBeenCalledWith(
+			expect.objectContaining({
+				action: "DOCUMENT_DELETED",
+				entity: "Document",
+				entityId: DOCUMENT_ID,
+				userId: USER_ID,
+				metadata: { reason: "cleanup" },
 			}),
 		);
 	});

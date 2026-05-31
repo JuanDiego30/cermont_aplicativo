@@ -1,4 +1,4 @@
-import type { UserRole } from "../rbac/roles";
+import type { UserRole } from "@cermont/domain";
 import type { ChecklistItemCategory, ChecklistStatus } from "../schemas/checklist.schema";
 import type { CostCategory, CostLineDeltaStatus } from "../schemas/cost.schema";
 import type { EvidenceType } from "../schemas/evidence.schema";

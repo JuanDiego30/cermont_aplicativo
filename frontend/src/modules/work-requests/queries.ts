@@ -44,10 +44,10 @@ export function useCreateWorkRequest() {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: async (data: CreateWorkRequestInput) => {
-			const response = await apiClient.post<{ success: boolean; data: WorkRequest }>(
-				"/work-requests",
-				data,
-			);
+			const response = await apiClient.post<{
+				success: boolean;
+				data: { workRequest: WorkRequest; serviceCase: { _id: string; code: string } };
+			}>("/work-requests", data);
 			if (!response.success) {
 				throw new Error("Error al crear la solicitud");
 			}

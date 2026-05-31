@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
 	workRequestCountDocuments: vi.fn(),
 	workRequestFindById: vi.fn(),
 	workRequestFindByIdAndUpdate: vi.fn(),
+	serviceCaseCreate: vi.fn(),
 }));
 
 vi.mock("../../src/models", () => ({
@@ -20,6 +21,9 @@ vi.mock("../../src/models", () => ({
 		countDocuments: mocks.workRequestCountDocuments,
 		findById: mocks.workRequestFindById,
 		findByIdAndUpdate: mocks.workRequestFindByIdAndUpdate,
+	},
+	ServiceCase: {
+		create: mocks.serviceCaseCreate,
 	},
 }));
 
@@ -78,8 +82,10 @@ describe("WorkRequestService", () => {
 			}),
 		);
 		expect(result).toMatchObject({
-			code: `WR-${new Date().getFullYear()}-0007`,
-			status: "submitted",
+			workRequest: {
+				code: `WR-${new Date().getFullYear()}-0007`,
+				status: "submitted",
+			},
 		});
 	});
 

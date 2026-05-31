@@ -1,18 +1,34 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { usePaymentsList } from "@/modules/billing/queries";
 import { paymentRows, WorkflowRecordsPage } from "@/modules/billing/ui/WorkflowRecordsPage";
 
 export default function PaymentsPage() {
-	const query = usePaymentsList();
+	const searchParams = useSearchParams();
+	const workOrderId = searchParams.get("workOrderId")?.trim() || undefined;
+	const query = usePaymentsList(workOrderId ? { workOrderId, limit: 50 } : undefined);
 
 	return (
 		<WorkflowRecordsPage
+			activeContext={
+				workOrderId
+					? {
+							label: "Work order",
+							value: workOrderId,
+							clearHref: "/payments",
+						}
+					: undefined
+			}
 			eyebrow="Dashboard / Pagos"
 			title="Pagos"
 			description="Conciliación administrativa de recaudo contra facturas, SES y órdenes de trabajo."
-			emptyTitle="Sin pagos registrados"
-			emptyDescription="Registra pagos desde facturas aprobadas y adjunta soporte bancario para conciliación."
+			emptyTitle={workOrderId ? "No payments for this order" : "Sin pagos registrados"}
+			emptyDescription={
+				workOrderId
+					? "The filtered work order does not have reconciled payments yet. Keep bank support and collection follow-up here."
+					: "Registra pagos desde facturas aprobadas y adjunta soporte bancario para conciliación."
+			}
 			query={query}
 			rows={paymentRows}
 			primaryLinks={[

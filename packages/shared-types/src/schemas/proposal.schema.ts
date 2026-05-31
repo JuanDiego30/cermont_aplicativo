@@ -133,9 +133,9 @@ export type ConvertProposalToOrderInput = z.infer<typeof ConvertProposalToOrderS
 
 export const CreateProposalInputSchema = z
 	.object({
-		cliente: z.string().min(1, "El cliente es requerido"),
-		descripcion: z.string().min(10, "La descripción debe tener al menos 10 caracteres"),
-		valorEstimado: z.number().min(1, "El valor estimado debe ser mayor a 0"),
+		client: z.string().min(1, "El cliente es requerido"),
+		description: z.string().min(10, "La descripción debe tener al menos 10 caracteres"),
+		estimatedValue: z.number().min(1, "El valor estimado debe ser mayor a 0"),
 		orderId: z.string().optional(),
 	})
 	.strict();

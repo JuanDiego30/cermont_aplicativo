@@ -46,6 +46,7 @@
 		"test:ci": "vitest run"
 	},
 	"dependencies": {
+		"@cermont/domain": "*",
 		"zod": "^4.4.3"
 	}
 }

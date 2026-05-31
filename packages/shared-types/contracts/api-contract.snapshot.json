@@ -15496,26 +15496,26 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
       "properties": {
-        "cliente": {
+        "client": {
           "minLength": 1,
           "type": "string"
         },
-        "descripcion": {
+        "description": {
           "minLength": 10,
           "type": "string"
         },
-        "orderId": {
-          "type": "string"
-        },
-        "valorEstimado": {
+        "estimatedValue": {
           "minimum": 1,
           "type": "number"
+        },
+        "orderId": {
+          "type": "string"
         }
       },
       "required": [
-        "cliente",
-        "descripcion",
-        "valorEstimado"
+        "client",
+        "description",
+        "estimatedValue"
       ],
       "type": "object"
     },

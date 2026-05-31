@@ -9,6 +9,7 @@ import { ArrowLeft, FileText, Loader2, Save, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import { CustomizableSelect } from "@/_shared/ui/forms/CustomizableSelect";
 import { Button } from "@/core/ui/Button";
 import { ApiError } from "@/lib/http/api-client";
@@ -129,7 +130,13 @@ export default function NewWorkRequestPage() {
 	function submitForm(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
 		createMutation.mutate(buildPayload(form), {
-			onSuccess: (created) => push(`/work-requests/${created._id}`),
+			onSuccess: (created) => {
+				toast.success(`Solicitud creada. Caso de servicio: ${created.serviceCase.code}`, {
+					description: "Redirigiendo al cockpit del caso...",
+					duration: 5000,
+				});
+				push(`/service-cases/${created.serviceCase._id}`);
+			},
 		});
 	}
 

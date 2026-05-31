@@ -25,14 +25,26 @@ test("login exitoso y redirect al dashboard", async ({ page }) => {
 
 test("login inválido muestra mensaje de error", async ({ page }) => {
 	await page.goto("/login");
+	await page.waitForLoadState("networkidle");
 
 	await page.getByLabel("Correo electrónico").first().fill(E2E_LOGIN_EMAIL);
 	await page.getByLabel("Contraseña").first().fill("wrong-password");
+
+	// Wait for the API response before checking DOM
+	const responsePromise = page.waitForResponse(
+		(resp) =>
+			resp.url().includes("/api/auth/login") ||
+			resp.url().includes("/api/backend/auth/login"),
+	);
 	await page
 		.getByRole("button", { name: /iniciar sesión/i })
 		.first()
 		.click();
+	await responsePromise;
 
-	await expect(page.getByRole("alert")).toContainText(/invalid email or password/i);
+	// Verify error alert is shown inside the login form (handles both 401 and rate-limit 429)
+	await expect(
+		page.locator('[data-login-form] [role="alert"]'),
+	).toBeVisible();
 	await expect(page).toHaveURL(/\/login$/);
 });

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 384" width="384" height="384">
+  <style>
+    .bg { fill: #2154A6; }
+    .text { fill: #ffffff; font-family: sans-serif; font-weight: bold; font-size: 268px; }
+  </style>
+  <rect class="bg" width="384" height="384" rx="48"/>
+  <text class="text" x="192" y="288" text-anchor="middle">C</text>
+</svg>

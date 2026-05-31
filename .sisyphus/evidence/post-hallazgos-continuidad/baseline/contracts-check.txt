@@ -1,8 +1,0 @@
-## npm run contracts:check
-
-> cermont-monorepo@1.0.0 contracts:check
-> tsx tooling/contracts/check-contract-guard.ts
-
-❌ API contract snapshot is outdated.
-   Run: npm run contracts:snapshot:update
-EXIT_CODE=1

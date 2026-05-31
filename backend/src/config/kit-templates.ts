@@ -130,7 +130,7 @@ export const KIT_REGISTRY: Record<string, KitTemplate> = {
 
 /**
  * Get kit template by ID
- * Returns undefined if not found
+ * Returns no value if not found
  */
 export function getKitTemplate(kitId: string): KitTemplate | undefined {
 	return KIT_REGISTRY[kitId];
@@ -169,8 +169,8 @@ export function getDefaultKitForOrderType(
 		case "decommission":
 			return KIT_DECOMMISSION;
 		case "other":
-			return undefined;
+			return;
 		default:
-			return undefined;
+			return;
 	}
 }

@@ -1,7 +1,0 @@
-remote: 
-remote: Create a pull request for 'rescue/restore-missing-project-files' on GitHub by visiting:        
-remote:      https://github.com/JuanDiego30/cermont_aplicativo/pull/new/rescue/restore-missing-project-files        
-remote: 
-branch 'rescue/restore-missing-project-files' set up to track 'origin/rescue/restore-missing-project-files'.
-To https://github.com/JuanDiego30/cermont_aplicativo.git
- * [new branch]      HEAD -> rescue/restore-missing-project-files

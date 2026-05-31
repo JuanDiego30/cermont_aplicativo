@@ -8,6 +8,7 @@ import { formatDate } from "@/lib/utils/format-date";
 import { useOrderCostSummary } from "@/modules/costs";
 import { useOrder, useOrderClosureReport, useUpdateOrderStatus } from "@/modules/orders/queries";
 import { ReportPanel, useOrderReport } from "@/modules/reports";
+import { OrderAdministrativeWorkflowLane } from "./OrderAdministrativeWorkflowLane";
 
 interface OrderClosureTabProps {
 	orderId: string;
@@ -79,6 +80,7 @@ export function OrderClosureTab({ orderId }: OrderClosureTabProps) {
 			/>
 
 			<AdministrativeClosureRequirements isLoading={closureReportLoading} report={closureReport} />
+			<OrderAdministrativeWorkflowLane closureReport={closureReport} orderId={orderId} />
 
 			<ClosureDetails
 				costSummaryLoading={costSummaryLoading}

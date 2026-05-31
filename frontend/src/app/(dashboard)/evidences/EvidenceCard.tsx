@@ -1,7 +1,9 @@
 "use client";
 
 import type { Evidence } from "@cermont/shared-types";
+import { Camera } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/core/ui/Button";
 import {
 	formatEvidenceDate,
@@ -20,45 +22,72 @@ export function EvidenceCard({ evidence }: EvidenceCardProps) {
 	const stage = normalizeEvidenceStage(evidence.type);
 
 	return (
-		<article className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-			<div className="flex items-center justify-between gap-3">
-				<span
-					className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${getEvidenceStyle(stage)}`}
-				>
-					{getEvidenceLabel(stage)}
-				</span>
+		<article className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
+			<div className="relative aspect-[4/3] overflow-hidden bg-[var(--surface-secondary)]">
+				<Image
+					src={evidence.url}
+					alt={`Vista previa de ${fileName}`}
+					fill
+					sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 25vw"
+					className="object-cover transition-transform duration-200 hover:scale-[1.03]"
+				/>
 
-				<time className="text-xs text-zinc-500" dateTime={evidence.capturedAt}>
-					{formatEvidenceDate(evidence.capturedAt)}
-				</time>
-			</div>
-
-			<div className="mt-3 space-y-1">
-				<p className="break-all text-sm font-medium text-zinc-900">{fileName}</p>
-				{evidence.description ? (
-					<p className="text-xs text-zinc-600">{evidence.description}</p>
-				) : null}
-				<p className="text-xs text-zinc-600">
-					Orden asociada:{" "}
-					<span className="font-mono text-[11px] text-zinc-500">{evidence.orderId}</span>
-				</p>
-			</div>
-
-			<div className="mt-4 flex gap-2">
-				<Button asChild variant="outline" size="sm">
-					<a
-						href={evidence.url}
-						target="_blank"
-						rel="noreferrer"
-						aria-label={`Ver archivo ${fileName}`}
+				<div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 bg-gradient-to-b from-black/50 via-black/10 to-transparent p-3">
+					<span
+						className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset backdrop-blur ${getEvidenceStyle(stage)}`}
 					>
-						Ver archivo
-					</a>
-				</Button>
+						{getEvidenceLabel(stage)}
+					</span>
 
-				<Button asChild variant="ghost" size="sm">
-					<Link href={`/orders/${evidence.orderId}`}>Ver orden</Link>
-				</Button>
+					<time
+						className="rounded-full bg-black/45 px-2.5 py-1 text-[11px] font-medium text-white"
+						dateTime={evidence.capturedAt}
+					>
+						{formatEvidenceDate(evidence.capturedAt)}
+					</time>
+				</div>
+			</div>
+
+			<div className="space-y-3 p-4">
+				<div className="space-y-1">
+					<p className="line-clamp-2 break-all text-sm font-semibold text-[var(--text-primary)]">
+						{fileName}
+					</p>
+					<p className="inline-flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
+						<Camera aria-hidden="true" className="size-3.5" />
+						Imagen operativa vinculada a la orden
+					</p>
+				</div>
+
+				{evidence.description ? (
+					<p className="line-clamp-2 text-xs text-[var(--text-secondary)]">
+						{evidence.description}
+					</p>
+				) : null}
+
+				<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-secondary)]/50 px-3 py-2">
+					<p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+						Orden asociada
+					</p>
+					<p className="mt-1 font-mono text-xs text-[var(--text-primary)]">{evidence.orderId}</p>
+				</div>
+
+				<div className="flex flex-wrap gap-2">
+					<Button asChild variant="outline" size="sm">
+						<a
+							href={evidence.url}
+							target="_blank"
+							rel="noreferrer"
+							aria-label={`Ver archivo ${fileName}`}
+						>
+							Abrir imagen
+						</a>
+					</Button>
+
+					<Button asChild variant="ghost" size="sm">
+						<Link href={`/orders/${evidence.orderId}`}>Ver orden</Link>
+					</Button>
+				</div>
 			</div>
 		</article>
 	);

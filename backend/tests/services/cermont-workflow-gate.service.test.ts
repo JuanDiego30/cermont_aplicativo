@@ -76,8 +76,8 @@ function buildCompleteExecutionSession() {
 		laborEntries: [{ technicianId: "tech-1", hours: 4 }],
 		incidents: [],
 		signatures: [
-			{ signatureId: "sig-tech", role: "tecnico", signedAt: "2026-05-25T11:05:00.000Z" },
-			{ signatureId: "sig-supervisor", role: "supervisor", signedAt: "2026-05-25T11:10:00.000Z" },
+			{ signatureId: "sig-tech", role: "tecnico", signatureType: "technician", signedAt: "2026-05-25T11:05:00.000Z" },
+			{ signatureId: "sig-supervisor", role: "supervisor", signatureType: "supervisor", signedAt: "2026-05-25T11:10:00.000Z" },
 		],
 	};
 }
@@ -118,6 +118,73 @@ describe("Cermont workflow gate — execution step blockers", () => {
 		const blockerCodes = blockers.map((blocker) => blocker.code);
 
 		expect(blockerCodes).not.toContain("MISSING_LABOR_TIME");
+		expect(blockerCodes).not.toContain("MISSING_TECHNICAL_SIGNATURE");
+		expect(blockerCodes).not.toContain("MISSING_SUPERVISOR_SIGNATURE");
+	});
+
+	it("blocks MISSING_TECHNICAL_SIGNATURE when signatures array lacks a technician signature by signatureType", async () => {
+		mocks.executionSessionFindOne.mockReturnValue(
+			leanResult({
+				...buildCompleteExecutionSession(),
+				signatures: [
+					{ signatureId: "sig-supervisor", role: "supervisor", signatureType: "supervisor", signedAt: "2026-05-25T11:10:00.000Z" },
+				],
+			}),
+		);
+
+		const blockers = await workflowGateService.calculateStepBlockers(SERVICE_CASE_ID);
+		const blockerCodes = blockers.map((blocker) => blocker.code);
+
+		expect(blockerCodes).toContain("MISSING_TECHNICAL_SIGNATURE");
+		expect(blockerCodes).not.toContain("MISSING_SUPERVISOR_SIGNATURE");
+	});
+
+	it("blocks MISSING_SUPERVISOR_SIGNATURE when signatures array lacks a supervisor signature by signatureType", async () => {
+		mocks.executionSessionFindOne.mockReturnValue(
+			leanResult({
+				...buildCompleteExecutionSession(),
+				signatures: [
+					{ signatureId: "sig-tech", role: "tecnico", signatureType: "technician", signedAt: "2026-05-25T11:05:00.000Z" },
+				],
+			}),
+		);
+
+		const blockers = await workflowGateService.calculateStepBlockers(SERVICE_CASE_ID);
+		const blockerCodes = blockers.map((blocker) => blocker.code);
+
+		expect(blockerCodes).not.toContain("MISSING_TECHNICAL_SIGNATURE");
+		expect(blockerCodes).toContain("MISSING_SUPERVISOR_SIGNATURE");
+	});
+
+	it("blocks both MISSING_TECHNICAL_SIGNATURE and MISSING_SUPERVISOR_SIGNATURE when signatures are empty", async () => {
+		mocks.executionSessionFindOne.mockReturnValue(
+			leanResult({
+				...buildCompleteExecutionSession(),
+				signatures: [],
+			}),
+		);
+
+		const blockers = await workflowGateService.calculateStepBlockers(SERVICE_CASE_ID);
+		const blockerCodes = blockers.map((blocker) => blocker.code);
+
+		expect(blockerCodes).toContain("MISSING_TECHNICAL_SIGNATURE");
+		expect(blockerCodes).toContain("MISSING_SUPERVISOR_SIGNATURE");
+	});
+
+	it("supports backward compatibility: role-only signatures (without signatureType) are recognized", async () => {
+		mocks.executionSessionFindOne.mockReturnValue(
+			leanResult({
+				...buildCompleteExecutionSession(),
+				signatures: [
+					{ signatureId: "sig-tech", role: "tecnico", signedAt: "2026-05-25T11:05:00.000Z" },
+					{ signatureId: "sig-supervisor", role: "supervisor", signedAt: "2026-05-25T11:10:00.000Z" },
+				],
+			}),
+		);
+
+		const blockers = await workflowGateService.calculateStepBlockers(SERVICE_CASE_ID);
+		const blockerCodes = blockers.map((blocker) => blocker.code);
+
 		expect(blockerCodes).not.toContain("MISSING_TECHNICAL_SIGNATURE");
 		expect(blockerCodes).not.toContain("MISSING_SUPERVISOR_SIGNATURE");
 	});

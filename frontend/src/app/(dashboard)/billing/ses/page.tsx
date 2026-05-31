@@ -1,18 +1,34 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useServiceEntrySheetsList } from "@/modules/billing/queries";
 import { sesRows, WorkflowRecordsPage } from "@/modules/billing/ui/WorkflowRecordsPage";
 
 export default function BillingSESPage() {
-	const query = useServiceEntrySheetsList();
+	const searchParams = useSearchParams();
+	const workOrderId = searchParams.get("workOrderId")?.trim() || undefined;
+	const query = useServiceEntrySheetsList(workOrderId ? { workOrderId, limit: 50 } : undefined);
 
 	return (
 		<WorkflowRecordsPage
+			activeContext={
+				workOrderId
+					? {
+							label: "Work order",
+							value: workOrderId,
+							clearHref: "/billing/ses",
+						}
+					: undefined
+			}
 			eyebrow="Dashboard / Cierre administrativo / SES"
 			title="SES / Ariba"
 			description="Controla Service Entry Sheets, referencias Ariba, aprobación y soportes antes de facturar."
-			emptyTitle="Sin SES registradas"
-			emptyDescription="Las SES se crean desde actas firmadas. Adjunta soportes PDF, Excel, Word o fotos para mantener el cierre auditable."
+			emptyTitle={workOrderId ? "No SES for this order" : "Sin SES registradas"}
+			emptyDescription={
+				workOrderId
+					? "This work order does not have linked SES records yet. Use the order filter for traceability or attach external filing and approval support."
+					: "Las SES se crean desde actas firmadas. Adjunta soportes PDF, Excel, Word o fotos para mantener el cierre auditable."
+			}
 			query={query}
 			rows={sesRows}
 			primaryLinks={[

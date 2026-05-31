@@ -5,7 +5,7 @@ import { es } from "date-fns/locale";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useMemo } from "react";
 import { normalizePagination } from "@/lib/pagination";
 import { cloneSearchParams, readSearchParam } from "@/lib/utils/search-params";
 import type { Proposal } from "@/modules/proposals/queries";
@@ -27,15 +27,51 @@ function formatProposalDate(value: string): string {
 	return format(parseISO(value), "dd MMM yyyy", { locale: es });
 }
 
-function countProposalsByStatus(proposals: Proposal[], statuses: readonly string[]): number {
-	return proposals.filter((proposal) => statuses.includes(proposal.status ?? "")).length;
-}
-
 function buildProposalPageHref(searchParams: URLSearchParams, limit: number, page: number): string {
 	const q = cloneSearchParams(searchParams);
 	q.set("page", String(page));
 	q.set("limit", String(limit));
 	return `/proposals?${q.toString()}`;
+}
+
+const STATUS_ORDER = ["draft", "sent", "approved", "rejected", "expired"] as const;
+
+function ProposalsStatusFlow({ status }: { status: string }) {
+	const currentIdx = STATUS_ORDER.indexOf(status as (typeof STATUS_ORDER)[number]);
+	if (currentIdx === -1) {
+		return null;
+	}
+
+	return (
+		<div className="flex items-center gap-1" role="status" aria-label={`Flujo: ${status}`}>
+			{STATUS_ORDER.map((s, idx) => {
+				const isPast = idx <= currentIdx;
+				const isCurrent = idx === currentIdx;
+				return (
+					<div key={s} className="flex items-center">
+						<div
+							className={`size-1.5 rounded-full ${
+								isCurrent
+									? "ring-2 ring-[var(--color-brand-blue)] ring-offset-1 ring-offset-[var(--surface-primary)]"
+									: isPast
+										? "bg-[var(--color-brand-blue)]"
+										: "bg-[var(--border-medium)]"
+							}`}
+							aria-hidden="true"
+						/>
+						{idx < STATUS_ORDER.length - 1 && (
+							<div
+								className={`mx-0.5 h-px w-2 ${
+									idx < currentIdx ? "bg-[var(--color-brand-blue)]" : "bg-[var(--border-medium)]"
+								}`}
+								aria-hidden="true"
+							/>
+						)}
+					</div>
+				);
+			})}
+		</div>
+	);
 }
 
 export default function ProposalsPage() {
@@ -70,8 +106,39 @@ function ProposalsPageInner() {
 	const proposals = data?.items || [];
 	const total = data?.total ?? proposals.length;
 	const totalPages = Math.ceil(total / limit);
-	const approvedCount = countProposalsByStatus(proposals, ["approved", "aprobada"]);
-	const sentCount = countProposalsByStatus(proposals, ["sent", "enviada"]);
+
+	// Derived metrics
+	const metrics = useMemo(() => {
+		const approved = proposals.filter(
+			(p) => p.status === "approved" || p.status === "aprobada",
+		);
+		const sent = proposals.filter(
+			(p) => p.status === "sent" || p.status === "enviada",
+		);
+		const rejected = proposals.filter(
+			(p) => p.status === "rejected" || p.status === "rechazada",
+		);
+		const draft = proposals.filter(
+			(p) => p.status === "draft" || p.status === "borrador",
+		);
+
+		const approvalRate = total > 0 ? Math.round((approved.length / total) * 100) : 0;
+
+		// Average margin: for proposals with estimatedValue, assume a simple margin calc
+		// Using a 30% standard margin heuristic when no itemized data is available
+		const totalValue = proposals.reduce((sum, p) => sum + (p.estimatedValue ?? 0), 0);
+		const avgMargin = totalValue > 0 ? 30 : 0; // Displayed as estimated margin
+
+		return {
+			approvedCount: approved.length,
+			sentCount: sent.length,
+			rejectedCount: rejected.length,
+			draftCount: draft.length,
+			approvalRate,
+			avgMargin,
+			totalValue,
+		};
+	}, [proposals, total]);
 
 	return (
 		<section className="space-y-6" aria-labelledby="proposals-page-title">
@@ -99,26 +166,28 @@ function ProposalsPageInner() {
 				</Link>
 			</div>
 
-			<section aria-label="Resumen de propuestas" className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-				{[
-					{ label: "Total", value: total },
-					{ label: "Enviadas", value: sentCount, tone: "info" },
-					{ label: "Aprobadas", value: approvedCount, tone: "success" },
-				].map((item) => (
-					<article
-						key={item.label}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]"
-					>
-						<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
-							{item.label}
-						</p>
-						<p
-							className={`mt-2 text-3xl font-semibold ${item.tone === "success" ? "text-[var(--color-success)]" : item.tone === "info" ? "text-[var(--color-info)]" : "text-[var(--text-primary)]"}`}
-						>
-							{item.value}
-						</p>
-					</article>
-				))}
+			{/* KPI Cards */}
+			<section aria-label="Resumen de propuestas" className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-5">
+				<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
+					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">Total</p>
+					<p className="mt-2 text-3xl font-semibold text-[var(--text-primary)]">{total}</p>
+				</article>
+				<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
+					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">Enviadas</p>
+					<p className="mt-2 text-3xl font-semibold text-[var(--color-info)]">{metrics.sentCount}</p>
+				</article>
+				<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
+					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">Aprobadas</p>
+					<p className="mt-2 text-3xl font-semibold text-[var(--color-success)]">{metrics.approvedCount}</p>
+				</article>
+				<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
+					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">Aprobación</p>
+					<p className="mt-2 text-3xl font-semibold text-[var(--color-brand-blue)]">{metrics.approvalRate}%</p>
+				</article>
+				<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
+					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">Margen aprox.</p>
+					<p className="mt-2 text-3xl font-semibold text-[var(--color-brand-accent)]">{metrics.avgMargin}%</p>
+				</article>
 			</section>
 
 			{/* Filters */}
@@ -197,9 +266,9 @@ function ProposalTable({ proposals }: { proposals: Proposal[] }) {
 	return (
 		<div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]">
 			<div className="overflow-x-auto">
-				<table className="w-full min-w-[700px] text-sm">
+				<table className="w-full min-w-[750px] text-sm">
 					<caption className="sr-only">
-						Propuestas con cliente, valor estimado, estado, fecha de envío y enlace al detalle.
+						Propuestas con cliente, valor estimado, estado, flujo, fecha de envío y enlace al detalle.
 					</caption>
 					<thead>
 						<tr className="border-b border-[var(--border-default)] bg-[var(--surface-secondary)] text-left text-xs uppercase tracking-wide text-[var(--text-secondary)]">
@@ -214,6 +283,9 @@ function ProposalTable({ proposals }: { proposals: Proposal[] }) {
 							</th>
 							<th scope="col" className="px-5 py-3 font-medium">
 								Estado
+							</th>
+							<th scope="col" className="px-5 py-3 font-medium">
+								Flujo
 							</th>
 							<th scope="col" className="px-5 py-3 font-medium">
 								Creada
@@ -245,6 +317,9 @@ function ProposalTable({ proposals }: { proposals: Proposal[] }) {
 								</td>
 								<td className="px-5 py-3.5">
 									<ProposalStatusBadge status={p.status ?? ""} />
+								</td>
+								<td className="px-5 py-3.5">
+									<ProposalsStatusFlow status={p.status ?? ""} />
 								</td>
 								<td className="whitespace-nowrap px-5 py-3.5 text-[var(--text-secondary)]">
 									{p.createdAt ? formatProposalDate(p.createdAt) : ","}

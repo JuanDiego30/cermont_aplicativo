@@ -41,6 +41,12 @@ function tle(stage: string, command: string, actorId: string, role: string) {
 		occurredAt: NOW,
 	};
 }
+function coalesceNumber(...values: (number | undefined | null)[]): number {
+	for (const v of values) {
+		if (typeof v === "number") { return v; }
+	}
+	return 0;
+}
 
 type SeedArtifact = ReturnType<typeof art>;
 type SeedBlocker = {
@@ -478,12 +484,615 @@ const CASES: SeedCaseRecord[] = [
 			paidAmount: 192_000_000,
 		},
 	},
+	{
+		code: "SC-K-CLOSED",
+		clientName: "Termoeléctrica Termocandelaria",
+		currentStage: "closed" as const,
+		currentStepCode: "step_14_payment_closure" as const,
+		artifacts: {
+			workRequest: art("a00000000000000000000069", "WR-2026-011", "received"),
+			siteVisit: art("a00000000000000000000070", "SV-2026-010", "completed"),
+			proposal: art("a00000000000000000000071", "PROP-2026-009", "approved"),
+			purchaseOrder: art("a00000000000000000000072", "PO-2026-008", "approved"),
+			workOrder: art("a00000000000000000000073", "OT-2026-008", "completed"),
+			planningPacket: art("a00000000000000000000074", "PLAN-2026-007", "approved"),
+			executionSession: art("a00000000000000000000075", "EXEC-2026-007", "completed"),
+			technicalReport: art("a00000000000000000000076", "TR-2026-006", "approved"),
+			deliveryRecord: art("a00000000000000000000077", "DR-2026-005", "signed"),
+			serviceEntrySheet: art("a00000000000000000000078", "SES-2026-004", "approved"),
+			invoice: art("a00000000000000000000079", "INV-2026-003", "approved"),
+			payment: art("a00000000000000000000080", "PAY-2026-002", "recorded"),
+		},
+		financialSummary: {
+			proposalAmount: 550_000_000,
+			actualCost: 510_000_000,
+			sesTotal: 540_000_000,
+			invoicedAmount: 535_000_000,
+			paidAmount: 535_000_000,
+		},
+	},
+	{
+		code: "SC-L-CANCELLED",
+		clientName: "Minera de Cobre — Proyecto Norte",
+		currentStage: "cancelled" as const,
+		currentStepCode: "step_05_planning" as const,
+		artifacts: {
+			workRequest: art("a00000000000000000000081", "WR-2026-012", "received"),
+			siteVisit: art("a00000000000000000000082", "SV-2026-011", "completed"),
+			proposal: art("a00000000000000000000083", "PROP-2026-010", "approved"),
+			purchaseOrder: art("a00000000000000000000084", "PO-2026-009", "approved"),
+			workOrder: art("a00000000000000000000085", "OT-2026-009", "cancelled"),
+		},
+		financialSummary: {
+			proposalAmount: 780_000_000,
+			actualCost: 0,
+		},
+	},
 ];
+
+// ── Multi-Collection Materialization ────────────────────────────────
+
+/**
+ * Ensure a document exists by code. Creates it if missing.
+ * Returns the document _id (as string) regardless of create-or-skip.
+ */
+async function ensureDocument(
+	db: mongoose.mongo.Db,
+	collectionName: string,
+	code: string,
+	doc: Record<string, unknown>,
+): Promise<string | undefined> {
+	const collection = db.collection(collectionName);
+	const existing = await collection.findOne({ code });
+	if (existing) {
+		console.log(`  [skip] ${collectionName} ${code} — already exists`);
+		return existing._id.toString();
+	}
+	const result = await collection.insertOne({
+		...doc,
+		createdAt: NOW,
+		updatedAt: NOW,
+	});
+	console.log(`  [create] ${collectionName} ${code} — ${result.insertedId}`);
+	return result.insertedId.toString();
+}
+
+const ADMIN_USER = "a00000000000000000000000001" as const;
+const RESIDENT_USER = "a00000000000000000000000002" as const;
+const SUPERVISOR_USER = "a00000000000000000000000003" as const;
+const TECNICO_USER = "a00000000000000000000000004" as const;
+const ADMINISTRATIVO_USER = "a00000000000000000000000005" as const;
+const HES_USER = "a00000000000000000000000006" as const;
+
+const SEED_USERS = [
+	{
+		_id: oid(ADMIN_USER),
+		name: "Ana Gerente",
+		email: "ana.gerente@cermont.com",
+		password: "$2a$12$seedplaceholderGerente2026",
+		role: "gerente",
+		isActive: true,
+	},
+	{
+		_id: oid(RESIDENT_USER),
+		name: "Roberto Residente",
+		email: "roberto.residente@cermont.com",
+		password: "$2a$12$seedplaceholderResidente2026",
+		role: "residente",
+		isActive: true,
+	},
+	{
+		_id: oid(SUPERVISOR_USER),
+		name: "Silvia Supervisor",
+		email: "silvia.supervisor@cermont.com",
+		password: "$2a$12$seedplaceholderSupervisor2026",
+		role: "supervisor",
+		isActive: true,
+	},
+	{
+		_id: oid(TECNICO_USER),
+		name: "Carlos Técnico",
+		email: "carlos.tecnico@cermont.com",
+		password: "$2a$12$seedplaceholderTecnico2026",
+		role: "tecnico",
+		isActive: true,
+	},
+	{
+		_id: oid(ADMINISTRATIVO_USER),
+		name: "Adriana Administrativo",
+		email: "adriana.admin@cermont.com",
+		password: "$2a$12$seedplaceholderAdmin2026",
+		role: "administrativo",
+		isActive: true,
+	},
+	{
+		_id: oid(HES_USER),
+		name: "Héctor HES",
+		email: "hector.hes@cermont.com",
+		password: "$2a$12$seedplaceholderHes2026",
+		role: "HES",
+		isActive: true,
+	},
+];
+
+async function materializeUsers(db: mongoose.mongo.Db) {
+	console.log("\n── Materializing Users ──");
+	for (const user of SEED_USERS) {
+		await ensureDocument(db, "users", user.email, user as unknown as Record<string, unknown>);
+	}
+}
+
+async function materializeOrder(
+	db: mongoose.mongo.Db,
+	code: string,
+	_id: string,
+	status: string,
+	serviceCaseCode: string,
+	clientName: string,
+) {
+	const orderDoc = {
+		_id: oid(_id),
+		code,
+		type: "mantenimiento",
+		status,
+		priority: "medium",
+		description: `Orden generada desde caso ${serviceCaseCode} — ${clientName}`,
+		assetId: "ASSET-SEED-001",
+		assetName: "Activo de prueba",
+		location: "Ubicación de prueba",
+		createdBy: oid(RESIDENT_USER),
+	};
+	await ensureDocument(db, "orders", code, orderDoc as unknown as Record<string, unknown>);
+}
+
+async function materializeExecutionSession(
+	db: mongoose.mongo.Db,
+	code: string,
+	_id: string,
+	status: string,
+	_workOrderCode: string,
+	workOrderId: string,
+) {
+	const sessionDoc = {
+		_id: oid(_id),
+		code,
+		workOrderId: oid(workOrderId),
+		status,
+		assignedCrew: [oid(TECNICO_USER), oid(SUPERVISOR_USER)],
+		startedBy: oid(SUPERVISOR_USER),
+		startedAt: NOW,
+		completedAt: status === "completed" ? NOW : undefined,
+		completedBy: status === "completed" ? oid(TECNICO_USER) : undefined,
+		offlineSyncStatus: "synced",
+		createdBy: oid(SUPERVISOR_USER),
+	};
+	await ensureDocument(db, "executionsessions", code, sessionDoc as unknown as Record<string, unknown>);
+}
+
+async function materializeTechnicalReport(
+	db: mongoose.mongo.Db,
+	code: string,
+	_id: string,
+	status: string,
+	workOrderId: string,
+	executionSessionId: string,
+) {
+	const trDoc = {
+		_id: oid(_id),
+		code,
+		workOrderId: oid(workOrderId),
+		executionSessionId: oid(executionSessionId),
+		executionSummary:
+			status === "draft"
+				? "Reporte en borrador — pendiente de completar"
+				: "Ejecución completada según planeación. Se realizaron las actividades programadas sin novedades.",
+		activitiesPerformed: [
+			"Inspección visual del área de trabajo",
+			"Ejecución de mantenimiento programado",
+			"Verificación de parámetros operativos",
+		],
+		findings: [
+			"Equipo operando dentro de parámetros normales",
+			"Se identificó desgaste en componente secundario",
+		],
+		deviations: [],
+		status,
+		generatedBy: oid(RESIDENT_USER),
+		generatedAt: NOW,
+	};
+	await ensureDocument(db, "technicalreports", code, trDoc as unknown as Record<string, unknown>);
+}
+
+async function materializeDeliveryRecord(
+	db: mongoose.mongo.Db,
+	code: string,
+	_id: string,
+	status: string,
+	workOrderId: string,
+	technicalReportId: string,
+	acceptanceStatus: string,
+) {
+	const drDoc = {
+		_id: oid(_id),
+		code,
+		workOrderId: oid(workOrderId),
+		technicalReportId: oid(technicalReportId),
+		status,
+		acceptanceStatus,
+		deliveryDate: NOW,
+		clientRepresentative: "Cliente representante",
+		signatureMethod: "digital",
+		signedAt: status === "signed" || status === "delivered" ? NOW : undefined,
+		signedBy: status === "signed" || status === "delivered" ? "Cliente Firma" : undefined,
+		clientMutationIds: [],
+	};
+	await ensureDocument(db, "deliveryrecords", code, drDoc as unknown as Record<string, unknown>);
+}
+
+async function materializeServiceEntrySheet(
+	db: mongoose.mongo.Db,
+	code: string,
+	_id: string,
+	status: string,
+	workOrderId: string,
+	deliveryRecordId: string,
+	clientName: string,
+	amount: number,
+) {
+	const sesDoc = {
+		_id: oid(_id),
+		code,
+		workOrderId: oid(workOrderId),
+		deliveryRecordId: oid(deliveryRecordId),
+		clientId: oid(ADMINISTRATIVO_USER),
+		clientName,
+		amount,
+		currency: "COP",
+		taxAmount: Math.round(amount * 0.19),
+		totalAmount: Math.round(amount * 1.19),
+		status,
+		serviceLines: [
+			{
+				description: `Servicios correspondientes a ${code}`,
+				quantity: 1,
+				unit: "global",
+				unitPrice: amount,
+				total: amount,
+			},
+		],
+		createdBy: oid(ADMINISTRATIVO_USER),
+		submittedAt: status === "submitted" || status === "approved" ? NOW : undefined,
+		approvedAt: status === "approved" ? NOW : undefined,
+		approvedBy: status === "approved" ? oid(RESIDENT_USER) : undefined,
+	};
+	await ensureDocument(db, "serviceentrysheets", code, sesDoc as unknown as Record<string, unknown>);
+}
+
+async function materializeInvoice(
+	db: mongoose.mongo.Db,
+	code: string,
+	_id: string,
+	status: string,
+	workOrderId: string,
+	serviceEntrySheetId: string,
+	clientName: string,
+	amount: number,
+) {
+	const invDoc = {
+		_id: oid(_id),
+		code,
+		workOrderId: oid(workOrderId),
+		serviceEntrySheetId: oid(serviceEntrySheetId),
+		clientId: oid(ADMINISTRATIVO_USER),
+		clientName,
+		amount,
+		currency: "COP",
+		taxAmount: Math.round(amount * 0.19),
+		totalAmount: Math.round(amount * 1.19),
+		status,
+		invoiceLines: [
+			{
+				description: `Facturación correspondiente a ${code}`,
+				quantity: 1,
+				unit: "global",
+				unitPrice: amount,
+				total: amount,
+			},
+		],
+		createdBy: oid(ADMINISTRATIVO_USER),
+		issueDate: NOW,
+		dueDate: new Date(NOW.getTime() + 30 * 24 * 60 * 60 * 1000),
+		submittedAt: status === "submitted" || status === "approved" ? NOW : undefined,
+		approvedAt: status === "approved" ? NOW : undefined,
+		approvedBy: status === "approved" ? oid(RESIDENT_USER) : undefined,
+	};
+	await ensureDocument(db, "invoices", code, invDoc as unknown as Record<string, unknown>);
+}
+
+async function materializePayment(
+	db: mongoose.mongo.Db,
+	code: string,
+	_id: string,
+	status: string,
+	invoiceId: string,
+	workOrderId: string,
+	serviceEntrySheetId: string,
+	_clientName: string,
+	amount: number,
+) {
+	const payDoc = {
+		_id: oid(_id),
+		code,
+		invoiceId: oid(invoiceId),
+		workOrderId: oid(workOrderId),
+		serviceEntrySheetId: oid(serviceEntrySheetId),
+		clientId: oid(ADMINISTRATIVO_USER),
+		paymentReference: `BANK-REF-${code}`,
+		paidAt: NOW,
+		amount,
+		currency: "COP",
+		paymentMethod: "bank_transfer",
+		bankReference: `BANK-TRANSFER-${code}`,
+		recordedBy: oid(ADMINISTRATIVO_USER),
+		recordedAt: NOW,
+		reconciledBy: oid(ADMINISTRATIVO_USER),
+		reconciledAt: NOW,
+		status,
+	};
+	await ensureDocument(db, "payments", code, payDoc as unknown as Record<string, unknown>);
+}
+
+async function materializeOperationalArtifacts(
+	db: mongoose.mongo.Db,
+	c: SeedCaseRecord,
+	arts: Record<string, { id: { toString: () => string }; code: string; status: string }>,
+) {
+	// Order (workOrder)
+	if (!arts.workOrder) { return; }
+	await materializeOrder(
+		db,
+		arts.workOrder.code,
+		arts.workOrder.id.toString(),
+		arts.workOrder.status,
+		c.code,
+		c.clientName,
+	);
+
+	// ExecutionSession (depends on workOrder)
+	if (arts.executionSession) {
+		const woCode = arts.workOrder.code;
+		const woId = arts.workOrder.id.toString();
+		await materializeExecutionSession(
+			db,
+			arts.executionSession.code,
+			arts.executionSession.id.toString(),
+			arts.executionSession.status,
+			woCode,
+			woId,
+		);
+	}
+
+	// TechnicalReport (depends on workOrder + executionSession)
+	if (arts.technicalReport) {
+		const woId = arts.workOrder.id.toString();
+		const exId = arts.executionSession?.id.toString() ?? "a00000000000000000000000000";
+		await materializeTechnicalReport(
+			db,
+			arts.technicalReport.code,
+			arts.technicalReport.id.toString(),
+			arts.technicalReport.status,
+			woId,
+			exId,
+		);
+	}
+
+	// DeliveryRecord (depends on workOrder + technicalReport)
+	if (arts.deliveryRecord) {
+		const woId = arts.workOrder.id.toString();
+		const trId = arts.technicalReport?.id.toString() ?? "a00000000000000000000000000";
+		await materializeDeliveryRecord(
+			db,
+			arts.deliveryRecord.code,
+			arts.deliveryRecord.id.toString(),
+			arts.deliveryRecord.status,
+			woId,
+			trId,
+			arts.deliveryRecord.status === "signed" ? "accepted" : "pending",
+		);
+	}
+}
+
+async function materializeBillingArtifacts(
+	db: mongoose.mongo.Db,
+	c: SeedCaseRecord,
+	arts: Record<string, { id: { toString: () => string }; code: string; status: string }>,
+) {
+	// ServiceEntrySheet (depends on workOrder + deliveryRecord)
+	if (arts.serviceEntrySheet) {
+		const woId = arts.workOrder?.id.toString() ?? "a00000000000000000000000000";
+		const drId = arts.deliveryRecord?.id.toString() ?? "a00000000000000000000000000";
+		const sesAmount = coalesceNumber(c.financialSummary.sesTotal, c.financialSummary.proposalAmount);
+		await materializeServiceEntrySheet(
+			db,
+			arts.serviceEntrySheet.code,
+			arts.serviceEntrySheet.id.toString(),
+			arts.serviceEntrySheet.status,
+			woId,
+			drId,
+			c.clientName,
+			sesAmount,
+		);
+	}
+
+	// Invoice (depends on workOrder + serviceEntrySheet)
+	if (arts.invoice) {
+		const woId = arts.workOrder?.id.toString() ?? "a00000000000000000000000000";
+		const sesId = arts.serviceEntrySheet?.id.toString() ?? "a00000000000000000000000000";
+		const invAmount = coalesceNumber(c.financialSummary.invoicedAmount, c.financialSummary.proposalAmount);
+		await materializeInvoice(
+			db,
+			arts.invoice.code,
+			arts.invoice.id.toString(),
+			arts.invoice.status,
+			woId,
+			sesId,
+			c.clientName,
+			invAmount,
+		);
+	}
+
+	// Payment (depends on invoice + workOrder + serviceEntrySheet)
+	if (arts.payment) {
+		const invId = arts.invoice?.id.toString() ?? "a00000000000000000000000000";
+		const woId = arts.workOrder?.id.toString() ?? "a00000000000000000000000000";
+		const sesId = arts.serviceEntrySheet?.id.toString() ?? "a00000000000000000000000000";
+		const payAmount = coalesceNumber(c.financialSummary.paidAmount, c.financialSummary.invoicedAmount);
+		await materializePayment(
+			db,
+			arts.payment.code,
+			arts.payment.id.toString(),
+			arts.payment.status,
+			invId,
+			woId,
+			sesId,
+			c.clientName,
+			payAmount,
+		);
+	}
+}
+
+async function materializeEvidence(
+	db: mongoose.mongo.Db,
+	code: string,
+	_id: string,
+	executionSessionId: string,
+	evidenceType: string,
+) {
+	const evDoc = {
+		_id: oid(_id),
+		code,
+		executionSessionId: oid(executionSessionId),
+		type: evidenceType,
+		urls: [
+			`/uploads/evidences/${code.toLowerCase()}_photo_1.jpg`,
+			`/uploads/evidences/${code.toLowerCase()}_photo_2.jpg`,
+			`/uploads/evidences/${code.toLowerCase()}_photo_3.jpg`,
+		],
+		status: "completed",
+		uploadedBy: oid(TECNICO_USER),
+		uploadedAt: NOW,
+		createdAt: NOW,
+		updatedAt: NOW,
+	};
+	await ensureDocument(db, "evidences", code, evDoc as unknown as Record<string, unknown>);
+}
+
+const COST_CATEGORIES = ["labor", "materials", "equipment", "transport", "subcontract", "overhead"] as const;
+
+async function materializeCost(
+	db: mongoose.mongo.Db,
+	code: string,
+	_id: string,
+	orderId: string,
+	category: string,
+	description: string,
+	estimatedAmount: number,
+	actualAmount: number,
+) {
+	const cstDoc = {
+		_id: oid(_id),
+		code,
+		orderId: oid(orderId),
+		category,
+		description,
+		estimatedAmount,
+		actualAmount,
+		taxAmount: Math.round(actualAmount * 0.19),
+		taxRate: 0.19,
+		currency: "COP",
+		notes: `Costo generado desde semilla — ${code}`,
+		recordedBy: oid(RESIDENT_USER),
+		recordedAt: NOW,
+		createdAt: NOW,
+		updatedAt: NOW,
+	};
+	await ensureDocument(db, "costs", code, cstDoc as unknown as Record<string, unknown>);
+}
+
+async function materializeEvidenceArtifacts(
+	db: mongoose.mongo.Db,
+	arts: Record<string, { id: { toString: () => string }; code: string; status: string }>,
+	stage: string,
+) {
+	if (!arts.executionSession) {
+		return;
+	}
+	const exId = arts.executionSession.id.toString();
+	const exCode = arts.executionSession.code;
+	const evidenceTypes: string[] =
+		stage === "in_execution" ? ["before"] : ["before", "during", "after"];
+	for (const evType of evidenceTypes) {
+		const evCode = `EVD-${exCode}-${evType.toUpperCase()}`;
+		const evId = new mongoose.Types.ObjectId().toString();
+		await materializeEvidence(db, evCode, evId, exId, evType);
+	}
+}
+
+const CATEGORY_PCT: Record<string, number> = {
+	labor: 0.35,
+	materials: 0.25,
+	equipment: 0.20,
+	transport: 0.10,
+	subcontract: 0.07,
+	overhead: 0.03,
+};
+
+async function materializeCostArtifacts(
+	db: mongoose.mongo.Db,
+	c: SeedCaseRecord,
+	arts: Record<string, { id: { toString: () => string }; code: string; status: string }>,
+) {
+	if (!arts.workOrder) {
+		return;
+	}
+	const woId = arts.workOrder.id.toString();
+	const woCode = arts.workOrder.code;
+	const proposalAmt = typeof c.financialSummary.proposalAmount === "number" ? c.financialSummary.proposalAmount : 0;
+	const actualAmt = typeof c.financialSummary.actualCost === "number" ? c.financialSummary.actualCost : 0;
+	const pctActual = actualAmt > 0 ? actualAmt / proposalAmt : 0.9;
+
+	for (const cat of COST_CATEGORIES) {
+		const catPct = CATEGORY_PCT[cat] ?? 0.03;
+		const est = Math.round(proposalAmt * catPct);
+		if (est <= 0) {
+			continue;
+		}
+		const act = Math.round(proposalAmt * catPct * pctActual);
+		const cstCode = `CST-${woCode}-${cat.toUpperCase()}`;
+		const cstId = new mongoose.Types.ObjectId().toString();
+		await materializeCost(db, cstCode, cstId, woId, cat, `Costo de ${cat} — ${c.clientName}`, est, act);
+	}
+}
+
+async function materializeArtifacts(db: mongoose.mongo.Db, c: SeedCaseRecord) {
+	const arts = c.artifacts as unknown as Record<string, { id: { toString: () => string }; code: string; status: string }>;
+	await materializeOperationalArtifacts(db, c, arts);
+	await materializeBillingArtifacts(db, c, arts);
+	await materializeEvidenceArtifacts(db, arts, c.currentStage);
+	await materializeCostArtifacts(db, c, arts);
+}
 
 // ── Main ────────────────────────────────────────────────────────────
 
 async function main() {
 	await mongoose.connect(MONGO_URI, { family: 4, serverSelectionTimeoutMS: 10_000 });
+	const db = mongoose.connection.db;
+	if (!db) {
+		throw new Error("Database not initialized");
+	}
+
+	// Materialize seed users first (needed as references for all entities)
+	await materializeUsers(db);
 
 	const model = mongoose.connection.collection("service_cases");
 
@@ -495,33 +1104,37 @@ async function main() {
 		if (exists) {
 			console.log(`[skip] ${c.code} — already exists`);
 			skipped++;
-			continue;
+		} else {
+			const blockers = c.blockers ?? [];
+
+			await model.insertOne({
+				code: c.code,
+				clientName: c.clientName,
+				currentStage: c.currentStage,
+				currentStepCode: c.currentStepCode,
+				artifacts: c.artifacts,
+				blockers,
+				nextActions: buildNextActions(c.currentStepCode, blockers),
+				currentStepRequirements: buildCurrentStepRequirements(c.currentStepCode, blockers),
+				stepsChecklist: buildStepsChecklist(c.currentStepCode, blockers),
+				timeline: [tle(c.currentStage, "create_seed_case", "a00000000000000000000000", "gerente")],
+				financialSummary: buildFinancialSummary(c.financialSummary),
+				operationalSummary: buildOperationalSummary(c, blockers),
+				createdAt: NOW,
+				updatedAt: NOW,
+			});
+
+			console.log(`[created] ${c.code} — ${c.clientName} [${c.currentStage}]`);
+			created++;
 		}
 
-		const blockers = c.blockers ?? [];
-
-		await model.insertOne({
-			code: c.code,
-			clientName: c.clientName,
-			currentStage: c.currentStage,
-			currentStepCode: c.currentStepCode,
-			artifacts: c.artifacts,
-			blockers,
-			nextActions: buildNextActions(c.currentStepCode, blockers),
-			currentStepRequirements: buildCurrentStepRequirements(c.currentStepCode, blockers),
-			stepsChecklist: buildStepsChecklist(c.currentStepCode, blockers),
-			timeline: [tle(c.currentStage, "create_seed_case", "a00000000000000000000000", "gerente")],
-			financialSummary: buildFinancialSummary(c.financialSummary),
-			operationalSummary: buildOperationalSummary(c, blockers),
-			createdAt: NOW,
-			updatedAt: NOW,
-		});
-
-		console.log(`[created] ${c.code} — ${c.clientName} [${c.currentStage}]`);
-		created++;
+		// ALWAYS materialize artifacts — previous seed runs may have created the case
+		// but not the related collection documents
+		console.log(`  materializing artifacts for ${c.code}...`);
+		await materializeArtifacts(db, c);
 	}
 
-	console.log(`\nDone. Created ${created}, skipped ${skipped}.`);
+	console.log(`\nDone. Created ${created} cases, skipped ${skipped} existing.`);
 
 	await mongoose.disconnect();
 	process.exit(0);

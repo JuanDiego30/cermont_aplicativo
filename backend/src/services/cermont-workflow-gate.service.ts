@@ -458,7 +458,7 @@ async function checkExecutionSessionBlockers(
 
 	const session = executionSession as ExecutionSessionDocument & {
 		incidents?: Array<{ resolved?: boolean }>;
-		signatures?: Array<{ role?: string }>;
+		signatures?: Array<{ role?: string; signatureType?: string }>;
 	};
 
 	if (session?.incidents?.some((incident) => incident.resolved !== true)) {
@@ -475,10 +475,15 @@ async function checkExecutionSessionBlockers(
 		);
 	}
 
-	const signatureRoles = (session?.signatures || []).map((signature) =>
-		String(signature.role || "").toLowerCase(),
-	);
-	if (!signatureRoles.some((role) => role.includes("tecnico"))) {
+	const signatures = session?.signatures || [];
+	const hasTechnicianSignature = signatures.some((sig) => {
+		if (sig.signatureType) {
+			return sig.signatureType === "technician";
+		}
+		// Backward compatibility: fallback to role if signatureType is not populated
+		return String(sig.role || "").toLowerCase().includes("tecnico");
+	});
+	if (!hasTechnicianSignature) {
 		blockers.push(
 			createBlocker({
 				artifactType: "ExecutionSession",
@@ -492,7 +497,14 @@ async function checkExecutionSessionBlockers(
 		);
 	}
 
-	if (!signatureRoles.some((role) => role.includes("supervisor"))) {
+	const hasSupervisorSignature = signatures.some((sig) => {
+		if (sig.signatureType) {
+			return sig.signatureType === "supervisor";
+		}
+		// Backward compatibility: fallback to role if signatureType is not populated
+		return String(sig.role || "").toLowerCase().includes("supervisor");
+	});
+	if (!hasSupervisorSignature) {
 		blockers.push(
 			createBlocker({
 				artifactType: "ExecutionSession",

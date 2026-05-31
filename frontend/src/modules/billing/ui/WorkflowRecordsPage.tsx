@@ -36,7 +36,14 @@ type RecordRow = {
 	updatedAt: string;
 };
 
+export type WorkflowRecordsActiveContext = {
+	clearHref: string;
+	label: string;
+	value: string;
+};
+
 type RecordsPageProps<T> = {
+	activeContext?: WorkflowRecordsActiveContext;
 	eyebrow: string;
 	title: string;
 	description: string;
@@ -306,7 +313,30 @@ function RecordsCards({ rows }: { rows: RecordRow[] }) {
 	);
 }
 
+function ActiveContextBanner({ context }: { context: WorkflowRecordsActiveContext }) {
+	return (
+		<div className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--color-brand)]/20 bg-[var(--color-brand-blue-bg)] px-4 py-3 text-sm text-[var(--text-primary)] sm:flex-row sm:items-center sm:justify-between">
+			<div>
+				<p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-brand)]">
+					Active filter
+				</p>
+				<p className="mt-1">
+					{context.label}: <span className="font-semibold">{context.value}</span>
+				</p>
+			</div>
+			<Link
+				href={context.clearHref}
+				className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-brand)]"
+			>
+				View all records
+				<ArrowRight className="size-4" aria-hidden="true" />
+			</Link>
+		</div>
+	);
+}
+
 export function WorkflowRecordsPage<T>({
+	activeContext,
 	eyebrow,
 	title,
 	description,
@@ -327,6 +357,7 @@ export function WorkflowRecordsPage<T>({
 				description={description}
 				primaryLinks={primaryLinks}
 			/>
+			{activeContext ? <ActiveContextBanner context={activeContext} /> : null}
 			{!isOnline ? <OfflineNotice /> : null}
 			<WorkflowStats rows={normalizedRows} total={query.data?.total ?? normalizedRows.length} />
 			{query.isLoading ? <LoadingState /> : null}

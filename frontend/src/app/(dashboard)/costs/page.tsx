@@ -13,6 +13,59 @@ const subscribeToHydration = () => () => {};
 const getClientHydrationSnapshot = () => true;
 const getServerHydrationSnapshot = () => false;
 
+function computeDataState(
+	estimatedAmount: number,
+	actualAmount: number,
+): "NO_DATA" | "ESTIMATED_ONLY" | "ACTUAL_ONLY" | "ESTIMATED_AND_ACTUAL" {
+	if (estimatedAmount > 0 && actualAmount > 0) {
+		return "ESTIMATED_AND_ACTUAL";
+	}
+	if (estimatedAmount > 0) {
+		return "ESTIMATED_ONLY";
+	}
+	if (actualAmount > 0) {
+		return "ACTUAL_ONLY";
+	}
+	return "NO_DATA";
+}
+
+function dataStateLabel(state: ReturnType<typeof computeDataState>): string {
+	switch (state) {
+		case "ESTIMATED_ONLY": return "Solo estimado";
+		case "ACTUAL_ONLY": return "Solo real";
+		case "ESTIMATED_AND_ACTUAL": return "Estimado y real";
+		default: return "Sin datos";
+	}
+}
+
+function dataStateColor(state: ReturnType<typeof computeDataState>): string {
+	switch (state) {
+		case "ESTIMATED_ONLY": return "text-[var(--color-info)]";
+		case "ACTUAL_ONLY": return "text-[var(--color-warning)]";
+		case "ESTIMATED_AND_ACTUAL": return "text-[var(--color-success)]";
+		default: return "text-[var(--text-tertiary)]";
+	}
+}
+
+function varianceSemaphore(variance: number, variancePercent: number | null): {
+	color: string;
+	label: string;
+} {
+	if (variance < 0) {
+		return { color: "text-[var(--color-success)]", label: "Bajo presupuesto" };
+	}
+	if (variancePercent === null || variance === 0) {
+		return { color: "text-[var(--text-tertiary)]", label: "Sin variación" };
+	}
+	if (variancePercent <= 5) {
+		return { color: "text-[var(--color-success)]", label: "En presupuesto" };
+	}
+	if (variancePercent <= 15) {
+		return { color: "text-[var(--color-warning)]", label: "Sobre costo leve" };
+	}
+	return { color: "text-[var(--color-danger)]", label: "Sobre costo crítico" };
+}
+
 export default function CostsPage() {
 	const { push } = useRouter();
 	const { accessToken, isAuthenticated } = useAuth();
@@ -37,6 +90,25 @@ export default function CostsPage() {
 			{ estimated: 0, actual: 0, tax: 0 },
 		);
 	}, [costs]);
+
+	const hasCosts = costs.length > 0;
+
+	// Variance metrics
+	const costMetrics = useMemo(() => {
+		const overallVariance = hasCosts ? totals.actual - totals.estimated : 0;
+		const overallVariancePct = totals.estimated > 0
+			? (overallVariance / totals.estimated) * 100
+			: null;
+		const varianceState = hasCosts ? computeDataState(totals.estimated, totals.actual) : "NO_DATA";
+		const semaphore = varianceSemaphore(overallVariance, overallVariancePct);
+
+		return {
+			overallVariance,
+			overallVariancePct,
+			varianceState,
+			semaphore,
+		};
+	}, [totals, hasCosts]);
 
 	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -79,11 +151,34 @@ export default function CostsPage() {
 				</div>
 			</header>
 
-			<div className="grid gap-3 sm:grid-cols-3">
-				<Metric label="Estimado" value={formatCurrency(totals.estimated)} />
-				<Metric label="Real" value={formatCurrency(totals.actual)} />
-				<Metric label="Impuestos" value={formatCurrency(totals.tax)} />
+			{/* Metrics Row */}
+			<div className="grid gap-3 sm:grid-cols-4">
+				<MetricCard label="Estimado" value={hasCosts ? formatCurrency(totals.estimated) : "Sin datos registrados"} />
+				<MetricCard label="Real" value={hasCosts ? formatCurrency(totals.actual) : "Sin datos registrados"} />
+				<MetricCard label="Impuestos" value={hasCosts ? formatCurrency(totals.tax) : "Sin datos registrados"} />
+				<MetricCard
+					label="Variación"
+					value={
+						hasCosts
+							? `${formatCurrency(costMetrics.overallVariance)}${costMetrics.overallVariancePct !== null ? ` (${costMetrics.overallVariancePct.toFixed(1)}%)` : ""}`
+							: "Sin datos"
+					}
+					color={costMetrics.semaphore.color}
+				/>
 			</div>
+
+			{/* Data State Info */}
+			{hasCosts && (
+				<div className="flex flex-wrap gap-2 text-xs">
+					<span className="text-[var(--text-tertiary)]">Estado general:</span>
+					<span className={`font-medium ${dataStateColor(costMetrics.varianceState)}`}>
+						{dataStateLabel(costMetrics.varianceState)}
+					</span>
+					<span className={`font-medium ${costMetrics.semaphore.color}`}>
+						• {costMetrics.semaphore.label}
+					</span>
+				</div>
+			)}
 
 			<section
 				className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
@@ -160,12 +255,19 @@ export default function CostsPage() {
 									<th className="px-6 py-3 font-semibold">Estimado</th>
 									<th className="px-6 py-3 font-semibold">Real</th>
 									<th className="px-6 py-3 font-semibold">Variación</th>
+									<th className="px-6 py-3 font-semibold">Estado</th>
 									<th className="px-6 py-3 font-semibold">Orden</th>
 								</tr>
 							</thead>
 							<tbody className="divide-y divide-[var(--border-default)]">
 								{costs.map((cost) => {
 									const variance = cost.actualAmount - cost.estimatedAmount;
+									const variancePct = cost.estimatedAmount > 0
+										? (variance / cost.estimatedAmount) * 100
+										: null;
+									const state = computeDataState(cost.estimatedAmount, cost.actualAmount);
+									const semi = varianceSemaphore(variance, variancePct);
+
 									return (
 										<tr key={cost._id}>
 											<td className="px-6 py-4 font-medium text-[var(--text-primary)]">
@@ -180,8 +282,16 @@ export default function CostsPage() {
 											<td className="px-6 py-4 text-[var(--text-secondary)]">
 												{formatCurrency(cost.actualAmount, cost.currency)}
 											</td>
-											<td className="px-6 py-4 text-[var(--text-secondary)]">
+											<td className={`px-6 py-4 font-medium ${semi.color}`}>
 												{formatCurrency(variance, cost.currency)}
+												{variancePct !== null && (
+													<span className="ml-1 text-xs">
+														({variancePct > 0 ? "+" : ""}{variancePct.toFixed(1)}%)
+													</span>
+												)}
+											</td>
+											<td className={`px-6 py-4 text-sm font-medium ${dataStateColor(state)}`}>
+												{dataStateLabel(state)}
 											</td>
 											<td className="px-6 py-4">
 												<Link
@@ -203,11 +313,11 @@ export default function CostsPage() {
 	);
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function MetricCard({ label, value, color }: { label: string; value: string; color?: string }) {
 	return (
 		<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
 			<p className="text-xs font-medium uppercase text-[var(--text-tertiary)]">{label}</p>
-			<p className="mt-2 text-xl font-semibold text-[var(--text-primary)]">{value}</p>
+			<p className={`mt-2 text-xl font-semibold ${color ?? "text-[var(--text-primary)]"}`}>{value}</p>
 		</div>
 	);
 }

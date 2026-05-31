@@ -1,21 +1,39 @@
 "use client";
 
 import { ADMIN_ROLES } from "@cermont/domain";
-import type { CermontOperationalStepCode, DocumentPurpose } from "@cermont/shared-types";
+import {
+	CERMONT_OPERATIONAL_STEPS,
+	type CermontOperationalStepCode,
+	type DocumentPurpose,
+} from "@cermont/shared-types";
 import { FileText, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, Suspense, useMemo, useState } from "react";
+import { EmptyState } from "@/core/ui/EmptyState";
 import { cloneSearchParams, readSearchParam } from "@/lib/utils/search-params";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
 import { useDocuments } from "@/modules/documents/queries";
-import { DocumentGallery, type DocumentRecord } from "@/modules/documents/ui/DocumentGallery";
+import { DocumentGallery } from "@/modules/documents/ui/DocumentGallery";
 import { DocumentUploader } from "@/modules/documents/ui/DocumentUploader";
 import { useOrders } from "@/modules/orders/queries";
 import { useServiceCaseList } from "@/modules/service-cases/queries";
 
 const FILTER_FIELD_CLASS =
 	"rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--text-tertiary)] focus:border-[var(--color-brand-blue)] focus:ring-2 focus:ring-[color:var(--color-brand-blue)]/15";
+
+const DOCUMENT_PURPOSE_FILTER_OPTIONS: Array<{ label: string; value: DocumentPurpose }> = [
+	{ value: "library", label: "Biblioteca" },
+	{ value: "template_source", label: "Fuente de plantilla" },
+	{ value: "closing_evidence", label: "Closure evidence" },
+	{ value: "support_document", label: "Soporte operativo" },
+];
+
+const DOCUMENT_PURPOSE_VALUES = new Set(
+	DOCUMENT_PURPOSE_FILTER_OPTIONS.map((option) => option.value),
+);
+
+const STEP_CODE_VALUES = new Set(CERMONT_OPERATIONAL_STEPS.map((step) => step.code));
 
 export default function DocumentsPage() {
 	return (
@@ -48,14 +66,42 @@ function resolveDefaultPurpose(value: DocumentPurpose | undefined): DocumentPurp
 	return "library";
 }
 
+function readBooleanSearchParam(searchParams: ReturnType<typeof useSearchParams>, key: string) {
+	return readSearchParam(searchParams, key) === "true";
+}
+
+function normalizePurposeFilter(value: string): DocumentPurpose | "" {
+	if (DOCUMENT_PURPOSE_VALUES.has(value as DocumentPurpose)) {
+		return value as DocumentPurpose;
+	}
+
+	return "";
+}
+
+function normalizeStepFilter(value: string): CermontOperationalStepCode | "" {
+	if (STEP_CODE_VALUES.has(value as CermontOperationalStepCode)) {
+		return value as CermontOperationalStepCode;
+	}
+
+	return "";
+}
+
 function buildDocumentsHref({
+	includeArchived,
 	orderFilter,
+	purposeFilter,
 	searchInput,
+	serviceCaseFilter,
 	searchParams,
+	stepFilter,
 }: {
+	includeArchived: boolean;
 	orderFilter: string;
+	purposeFilter: DocumentPurpose | "";
 	searchInput: string;
+	serviceCaseFilter: string;
 	searchParams: ReturnType<typeof useSearchParams>;
+	stepFilter: CermontOperationalStepCode | "";
 }) {
 	const params = cloneSearchParams(searchParams);
 
@@ -69,6 +115,30 @@ function buildDocumentsHref({
 		params.set("orderId", orderFilter);
 	} else {
 		params.delete("orderId");
+	}
+
+	if (serviceCaseFilter) {
+		params.set("serviceCaseId", serviceCaseFilter);
+	} else {
+		params.delete("serviceCaseId");
+	}
+
+	if (purposeFilter) {
+		params.set("purpose", purposeFilter);
+	} else {
+		params.delete("purpose");
+	}
+
+	if (stepFilter) {
+		params.set("step", stepFilter);
+	} else {
+		params.delete("step");
+	}
+
+	if (includeArchived) {
+		params.set("includeArchived", "true");
+	} else {
+		params.delete("includeArchived");
 	}
 
 	const query = params.toString();
@@ -105,7 +175,7 @@ function DocumentsPageHeader({
 						<p className="mt-1 text-sm text-[var(--text-secondary)]">
 							{isLoading ? (
 								<>
-									<Loader2 className="mr-1 inline-block size-3 animate-spin" /> Cargando…
+									<Loader2 className="mr-1 inline-block size-3 animate-spin" /> Loading...
 								</>
 							) : (
 								`${filteredCount} documento(s) disponibles.`
@@ -152,19 +222,41 @@ function DocumentsPageHeader({
 }
 
 function DocumentsFilters({
+	activeFiltersCount,
 	handleSearch,
+	handleReset,
+	includeArchived,
 	orderFilter,
 	orderOptions,
+	purposeFilter,
 	searchInput,
+	serviceCaseFilter,
+	serviceCaseOptions,
+	setIncludeArchived,
 	setOrderFilter,
+	setPurposeFilter,
 	setSearchInput,
+	setServiceCaseFilter,
+	setStepFilter,
+	stepFilter,
 }: {
+	activeFiltersCount: number;
 	handleSearch: (event: FormEvent<HTMLFormElement>) => void;
+	handleReset: () => void;
+	includeArchived: boolean;
 	orderFilter: string;
 	orderOptions: Array<{ assetName?: string; code?: string; id: string }>;
+	purposeFilter: DocumentPurpose | "";
 	searchInput: string;
+	serviceCaseFilter: string;
+	serviceCaseOptions: Array<{ clientName?: string; code?: string; id: string }>;
+	setIncludeArchived: (value: boolean) => void;
 	setOrderFilter: (value: string) => void;
+	setPurposeFilter: (value: DocumentPurpose | "") => void;
 	setSearchInput: (value: string) => void;
+	setServiceCaseFilter: (value: string) => void;
+	setStepFilter: (value: CermontOperationalStepCode | "") => void;
+	stepFilter: CermontOperationalStepCode | "";
 }) {
 	return (
 		<section
@@ -176,12 +268,12 @@ function DocumentsFilters({
 			</h2>
 
 			<search>
-				<form
-					className="grid grid-cols-1 gap-3 md:grid-cols-[1fr_auto_auto]"
-					onSubmit={handleSearch}
-				>
-					<div>
-						<label htmlFor="documents-search" className="sr-only">
+				<form className="grid grid-cols-1 gap-3 xl:grid-cols-12" onSubmit={handleSearch}>
+					<div className="xl:col-span-3">
+						<label
+							htmlFor="documents-search"
+							className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]"
+						>
 							Buscar documento
 						</label>
 						<input
@@ -189,14 +281,17 @@ function DocumentsFilters({
 							name="q"
 							value={searchInput}
 							onChange={(event) => setSearchInput(event.target.value)}
-							placeholder="Buscar por título, archivo o ID de orden"
+							placeholder="Buscar por título, archivo o ID de OT"
 							className={`w-full ${FILTER_FIELD_CLASS}`}
 						/>
 					</div>
 
-					<div>
-						<label htmlFor="documents-order-filter" className="sr-only">
-							Filtrar por orden
+					<div className="xl:col-span-2">
+						<label
+							htmlFor="documents-order-filter"
+							className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]"
+						>
+							Filtrar por OT
 						</label>
 						<select
 							id="documents-order-filter"
@@ -214,13 +309,115 @@ function DocumentsFilters({
 						</select>
 					</div>
 
+					<div className="xl:col-span-2">
+						<label
+							htmlFor="documents-service-case-filter"
+							className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]"
+						>
+							Filtrar por caso de servicio
+						</label>
+						<select
+							id="documents-service-case-filter"
+							name="serviceCaseId"
+							value={serviceCaseFilter}
+							onChange={(event) => setServiceCaseFilter(event.target.value)}
+							className={FILTER_FIELD_CLASS}
+						>
+							<option value="">Todos los casos</option>
+							{serviceCaseOptions.map((serviceCase) => (
+								<option key={serviceCase.id} value={serviceCase.id}>
+									{serviceCase.code || serviceCase.id} ·{" "}
+									{serviceCase.clientName || "Sin cuenta"}
+								</option>
+							))}
+						</select>
+					</div>
+
+					<div className="xl:col-span-2">
+						<label
+							htmlFor="documents-purpose-filter"
+							className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]"
+						>
+							Filtrar por propósito documental
+						</label>
+						<select
+							id="documents-purpose-filter"
+							name="purpose"
+							value={purposeFilter}
+							onChange={(event) =>
+								setPurposeFilter(normalizePurposeFilter(event.target.value))
+							}
+							className={FILTER_FIELD_CLASS}
+						>
+							<option value="">Todos los propósitos</option>
+							{DOCUMENT_PURPOSE_FILTER_OPTIONS.map((option) => (
+								<option key={option.value} value={option.value}>
+									{option.label}
+								</option>
+							))}
+						</select>
+					</div>
+
+					<div className="xl:col-span-2">
+						<label
+							htmlFor="documents-step-filter"
+							className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]"
+						>
+							Filtrar por paso operacional
+						</label>
+						<select
+							id="documents-step-filter"
+							name="step"
+							value={stepFilter}
+							onChange={(event) => setStepFilter(normalizeStepFilter(event.target.value))}
+							className={FILTER_FIELD_CLASS}
+						>
+							<option value="">Todos los pasos</option>
+							{CERMONT_OPERATIONAL_STEPS.map((step) => (
+								<option key={step.code} value={step.code}>
+									{step.stepNumber}. {step.label}
+								</option>
+							))}
+						</select>
+					</div>
+
 					<button
 						type="submit"
-						className="rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700"
+						className="rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 xl:col-span-1 xl:self-end"
 					>
 						Filtrar
 					</button>
+
+					<button
+						type="button"
+						onClick={handleReset}
+						className="rounded-xl border border-[var(--border-default)] bg-[var(--surface-secondary)] px-4 py-2 text-sm font-medium text-[var(--text-primary)] transition-colors hover:bg-[var(--surface-primary)] xl:col-span-1 xl:self-end"
+					>
+						Limpiar filtros
+					</button>
 				</form>
+
+				<div className="mt-4 flex flex-col gap-3 border-t border-[var(--border-default)] pt-4 md:flex-row md:items-center md:justify-between">
+					<label
+						htmlFor="documents-include-archived"
+						className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)]"
+					>
+						<input
+							id="documents-include-archived"
+							type="checkbox"
+							checked={includeArchived}
+							onChange={(event) => setIncludeArchived(event.target.checked)}
+							className="size-4 rounded border-[var(--border-default)] text-[var(--color-brand-blue)] focus:ring-[var(--color-brand-blue)]"
+						/>
+						Mostrar archivados
+					</label>
+
+					<p className="text-xs text-[var(--text-tertiary)]">
+						{activeFiltersCount > 0
+							? `${activeFiltersCount} filtro(s) activos para ubicar documentos en contexto.`
+							: "Sin filtros activos. Se muestran los documentos visibles del contexto actual."}
+					</p>
+				</div>
 			</search>
 		</section>
 	);
@@ -236,20 +433,26 @@ function DocumentsPageInner() {
 	const initialSearch = getSearchParam("q") ?? "";
 	const initialOrderId = getSearchParam("orderId") ?? "";
 	const initialServiceCaseId = getSearchParam("serviceCaseId") ?? "";
-	const initialPurpose = getSearchParam("purpose") as DocumentPurpose | undefined;
-	const initialStep = getSearchParam("step") as CermontOperationalStepCode | undefined;
-	const defaultPurpose = resolveDefaultPurpose(initialPurpose);
+	const initialPurpose = normalizePurposeFilter(getSearchParam("purpose"));
+	const initialStep = normalizeStepFilter(getSearchParam("step"));
+	const initialIncludeArchived = readBooleanSearchParam(searchParams, "includeArchived");
+	const defaultPurpose = resolveDefaultPurpose(initialPurpose || undefined);
 
 	const [searchInput, setSearchInput] = useState(initialSearch);
 	const [orderFilter, setOrderFilter] = useState(initialOrderId);
+	const [serviceCaseFilter, setServiceCaseFilter] = useState(initialServiceCaseId);
+	const [purposeFilter, setPurposeFilter] = useState<DocumentPurpose | "">(initialPurpose);
+	const [stepFilter, setStepFilter] = useState<CermontOperationalStepCode | "">(initialStep);
+	const [includeArchived, setIncludeArchived] = useState(initialIncludeArchived);
 
 	const { data: ordersResult, isLoading: isLoadingOrders } = useOrders({ limit: 100 });
 	const { data: serviceCasesList, isLoading: isLoadingServiceCases } = useServiceCaseList();
 	const { data: documentsData = [], isLoading: isLoadingDocs } = useDocuments({
 		order_id: orderFilter || undefined,
-		purpose: initialPurpose || undefined,
-		serviceCaseId: initialServiceCaseId || undefined,
-		stepCode: initialStep || undefined,
+		purpose: purposeFilter || undefined,
+		serviceCaseId: serviceCaseFilter || undefined,
+		stepCode: stepFilter || undefined,
+		includeArchived: includeArchived || undefined,
 	});
 
 	const isGlobalAdmin = session?.role
@@ -283,10 +486,10 @@ function DocumentsPageInner() {
 		const query = searchInput.trim().toLowerCase();
 
 		if (!query) {
-			return documentsData as DocumentRecord[];
+			return documentsData;
 		}
 
-		return (documentsData as DocumentRecord[]).filter((document) => {
+		return documentsData.filter((document) => {
 			return [document.title, document.file_url, document.order_id, document.mime_type]
 				.filter(Boolean)
 				.join(" ")
@@ -297,10 +500,38 @@ function DocumentsPageInner() {
 
 	const handleSearch = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		replace(buildDocumentsHref({ orderFilter, searchInput, searchParams }));
+		replace(
+			buildDocumentsHref({
+				includeArchived,
+				orderFilter,
+				purposeFilter,
+				searchInput,
+				serviceCaseFilter,
+				searchParams,
+				stepFilter,
+			}),
+		);
+	};
+
+	const handleReset = () => {
+		setSearchInput("");
+		setOrderFilter("");
+		setServiceCaseFilter("");
+		setPurposeFilter("");
+		setStepFilter("");
+		setIncludeArchived(false);
+		replace("/documents");
 	};
 
 	const isLoading = isLoadingOrders || isLoadingDocs || isLoadingServiceCases;
+	const activeFiltersCount = [
+		searchInput.trim(),
+		orderFilter,
+		serviceCaseFilter,
+		purposeFilter,
+		stepFilter,
+		includeArchived ? "archived" : "",
+	].filter(Boolean).length;
 
 	return (
 		<section className="space-y-6" aria-labelledby="documents-page-title">
@@ -312,27 +543,63 @@ function DocumentsPageInner() {
 			/>
 
 			<DocumentsFilters
+				activeFiltersCount={activeFiltersCount}
 				handleSearch={handleSearch}
+				handleReset={handleReset}
+				includeArchived={includeArchived}
 				orderFilter={orderFilter}
 				orderOptions={orderOptions}
+				purposeFilter={purposeFilter}
 				searchInput={searchInput}
+				serviceCaseFilter={serviceCaseFilter}
+				serviceCaseOptions={serviceCaseOptions}
+				setIncludeArchived={setIncludeArchived}
 				setOrderFilter={setOrderFilter}
+				setPurposeFilter={setPurposeFilter}
 				setSearchInput={setSearchInput}
+				setServiceCaseFilter={setServiceCaseFilter}
+				setStepFilter={setStepFilter}
+				stepFilter={stepFilter}
 			/>
 
 			{!isLoading && (
 				<DocumentUploader
+					key={`${orderFilter}|${serviceCaseFilter}|${purposeFilter || "library"}|${stepFilter}`}
 					orders={orderOptions}
 					serviceCases={serviceCaseOptions}
 					defaultOrderId={orderFilter || initialOrderId}
-					defaultServiceCaseId={initialServiceCaseId}
-					defaultPurpose={defaultPurpose}
-					defaultStepCode={initialStep}
+					defaultServiceCaseId={serviceCaseFilter || initialServiceCaseId}
+					defaultPurpose={resolveDefaultPurpose(purposeFilter || defaultPurpose)}
+					defaultStepCode={stepFilter || initialStep || undefined}
 				/>
 			)}
 
 			{!isLoading ? (
-				<DocumentGallery documents={filteredDocuments as DocumentRecord[]} />
+				filteredDocuments.length > 0 ? (
+					<DocumentGallery documents={filteredDocuments} />
+				) : (
+					<EmptyState
+						icon={activeFiltersCount > 0 ? "search" : "documents"}
+						title={
+							activeFiltersCount > 0
+								? "No hay documentos para este contexto"
+								: "Sin documentos disponibles"
+						}
+						description={
+							activeFiltersCount > 0
+								? "Ajuste los filtros de caso, paso, propósito o archivo para ampliar la búsqueda."
+								: "Los documentos aparecerán aquí cuando se carguen desde operación, plantillas o cierre."
+						}
+						action={
+							activeFiltersCount > 0
+								? {
+										label: "Limpiar filtros",
+										onClick: handleReset,
+									}
+								: undefined
+						}
+					/>
+				)
 			) : (
 				<div className="flex h-40 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
 					<Loader2 className="size-5 animate-spin text-[var(--text-tertiary)]" aria-hidden="true" />

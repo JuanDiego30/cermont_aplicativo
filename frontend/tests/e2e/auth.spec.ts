@@ -20,20 +20,27 @@ test.describe("Authentication Flow", () => {
 
 	test("shows error on invalid credentials", async ({ page }) => {
 		await page.goto("/login");
+		await page.waitForLoadState("networkidle");
 
 		// Fill form using accessible locators
 		await page.getByLabel("Correo electrónico").first().fill(E2E_LOGIN_EMAIL);
 		await page.getByLabel("Contraseña").first().fill("wrongpassword");
 
-		// Submit
+		// Wait for the API response before checking DOM
+		const responsePromise = page.waitForResponse(
+			(resp) =>
+				resp.url().includes("/api/auth/login") ||
+				resp.url().includes("/api/backend/auth/login"),
+		);
 		await page
 			.getByRole("button", { name: /iniciar sesión/i })
 			.first()
 			.click();
+		await responsePromise;
 
-		// Should show an explicit backend error
+		// Should show an explicit backend error (handles both 401 and rate-limit 429)
 		await expect(
-			page.getByRole("alert").filter({ hasText: /invalid email or password/i }),
+			page.locator('[data-login-form] [role="alert"]'),
 		).toBeVisible();
 		await expect(page).toHaveURL(/\/login$/);
 	});

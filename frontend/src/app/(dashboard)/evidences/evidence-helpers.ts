@@ -2,9 +2,10 @@
  * Evidences Page — Helper Functions and Constants
  */
 
-import type { EvidenceType } from "@cermont/shared-types";
+import type { Evidence, EvidenceType } from "@cermont/shared-types";
 
 export type EvidenceFilter = "all" | EvidenceType;
+export type EvidenceViewMode = "gallery" | "table";
 
 const LEGACY_STAGE_TO_TYPE: Record<string, EvidenceType> = {
 	antes: "before",
@@ -13,6 +14,15 @@ const LEGACY_STAGE_TO_TYPE: Record<string, EvidenceType> = {
 	final: "signature",
 };
 
+export const EVIDENCE_STAGE_ORDER: EvidenceType[] = [
+	"before",
+	"during",
+	"after",
+	"defect",
+	"safety",
+	"signature",
+];
+
 export const EVIDENCE_LABELS: Record<EvidenceType, string> = {
 	before: "Antes",
 	during: "Durante",
@@ -20,6 +30,15 @@ export const EVIDENCE_LABELS: Record<EvidenceType, string> = {
 	defect: "Defecto",
 	safety: "Seguridad",
 	signature: "Firma",
+};
+
+export const EVIDENCE_DESCRIPTIONS: Record<EvidenceType, string> = {
+	before: "Estado inicial antes de intervenir el servicio o activo.",
+	during: "Avance operativo, maniobras y soporte del trabajo en curso.",
+	after: "Resultado final entregable después de ejecutar la orden.",
+	defect: "Hallazgos, fallas o no conformidades detectadas en campo.",
+	safety: "Soportes HSE, controles críticos y condiciones seguras.",
+	signature: "Firmas o constancias visuales de validación de cierre.",
 };
 
 const EVIDENCE_STYLES: Record<EvidenceType, string> = {
@@ -61,8 +80,30 @@ export function toEvidenceFilter(raw: string | undefined): EvidenceFilter {
 	return resolved ?? "all";
 }
 
+export function toEvidenceViewMode(raw: string | undefined): EvidenceViewMode {
+	return raw === "table" ? "table" : "gallery";
+}
+
 export function normalizeEvidenceStage(raw: string): string {
 	return resolveEvidenceType(raw) ?? raw;
+}
+
+export function groupEvidencesByStage(
+	evidences: Evidence[],
+): Array<{
+		description: string;
+		items: Evidence[];
+		label: string;
+		type: EvidenceType;
+	}> {
+	const grouped = EVIDENCE_STAGE_ORDER.map((type) => ({
+		type,
+		label: EVIDENCE_LABELS[type],
+		description: EVIDENCE_DESCRIPTIONS[type],
+		items: evidences.filter((evidence) => evidence.type === type),
+	}));
+
+	return grouped.filter((group) => group.items.length > 0);
 }
 
 export function formatEvidenceDate(date: string | Date) {

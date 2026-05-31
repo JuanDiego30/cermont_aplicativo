@@ -1,4 +1,0 @@
-branch=rescue/restore-missing-project-files
-mode=new-upstream
-head=bf2cdb6b3da6f656cb8cdebe4f3f2d8fcf02ec1b
-push_exit_code=0

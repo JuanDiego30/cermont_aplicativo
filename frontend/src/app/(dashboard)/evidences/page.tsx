@@ -2,10 +2,10 @@
 
 import type { Evidence, EvidenceType } from "@cermont/shared-types";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { Camera, Loader2, Search } from "lucide-react";
+import { Camera, LayoutGrid, Loader2, Rows3, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { type FormEvent, Suspense, useMemo, useState } from "react";
+import { type FormEvent, type ReactNode, Suspense, useMemo, useState } from "react";
 import { Button } from "@/core/ui/Button";
 import { STALE_TIMES } from "@/lib/constants/query-config";
 import { readSearchParam } from "@/lib/utils/search-params";
@@ -15,10 +15,13 @@ import { EvidenceCard } from "./EvidenceCard";
 import { EvidenceTableRow } from "./EvidenceTableRow";
 import {
 	EVIDENCE_LABELS,
+	EVIDENCE_STAGE_ORDER,
 	type EvidenceFilter,
+	type EvidenceViewMode,
 	getEvidenceLabel,
-	normalizeEvidenceStage,
+	groupEvidencesByStage,
 	toEvidenceFilter,
+	toEvidenceViewMode,
 } from "./evidence-helpers";
 
 const FIELD_CLASS =
@@ -26,31 +29,31 @@ const FIELD_CLASS =
 
 const FILTER_OPTIONS: Array<{ value: EvidenceFilter; label: string }> = [
 	{ value: "all", label: "Todas las etapas" },
-	...Object.entries(EVIDENCE_LABELS).map(([value, label]) => ({
-		value: value as EvidenceType,
-		label,
+	...EVIDENCE_STAGE_ORDER.map((value) => ({
+		value,
+		label: EVIDENCE_LABELS[value],
 	})),
 ];
 
 type EvidenceCounts = Record<"total" | EvidenceType, number>;
 
 function buildCounts(items: Evidence[]): EvidenceCounts {
-	return items.reduce<EvidenceCounts>(
-		(accumulator, evidence) => {
-			accumulator.total += 1;
-			accumulator[evidence.type] += 1;
-			return accumulator;
-		},
-		{
-			total: 0,
-			before: 0,
-			during: 0,
-			after: 0,
-			defect: 0,
-			safety: 0,
-			signature: 0,
-		},
-	);
+	const counts: EvidenceCounts = {
+		total: 0,
+		before: 0,
+		during: 0,
+		after: 0,
+		defect: 0,
+		safety: 0,
+		signature: 0,
+	};
+
+	for (const evidence of items) {
+		counts.total += 1;
+		counts[evidence.type] += 1;
+	}
+
+	return counts;
 }
 
 function evidenceMatchesFilter(
@@ -58,7 +61,7 @@ function evidenceMatchesFilter(
 	selectedType: EvidenceFilter,
 	query: string,
 ): boolean {
-	if (selectedType !== "all" && normalizeEvidenceStage(evidence.type) !== selectedType) {
+	if (selectedType !== "all" && evidence.type !== selectedType) {
 		return false;
 	}
 
@@ -78,6 +81,7 @@ function buildEvidenceSearchParams(
 	searchInput: string,
 	selectedOrderId: string,
 	selectedType: EvidenceFilter,
+	viewMode: EvidenceViewMode,
 ): string {
 	const params = new URLSearchParams(currentParams.toString());
 	const trimmedSearch = searchInput.trim();
@@ -100,6 +104,12 @@ function buildEvidenceSearchParams(
 		params.delete("label");
 	}
 
+	if (viewMode === "table") {
+		params.set("view", "table");
+	} else {
+		params.delete("view");
+	}
+
 	return params.toString();
 }
 
@@ -111,10 +121,12 @@ function useEvidenceFilters() {
 	const initialSearch = getSearchParam("q") ?? "";
 	const initialOrderId = getSearchParam("orderId") ?? "";
 	const initialType = toEvidenceFilter(getSearchParam("label") ?? undefined);
+	const initialViewMode = toEvidenceViewMode(getSearchParam("view") ?? undefined);
 
 	const [searchInput, setSearchInput] = useState(initialSearch);
 	const [selectedOrderId, setSelectedOrderId] = useState(initialOrderId);
 	const [selectedType, setSelectedType] = useState<EvidenceFilter>(initialType);
+	const [viewMode, setViewMode] = useState<EvidenceViewMode>(initialViewMode);
 
 	const { data: ordersResult, isLoading: isLoadingOrders } = useOrders({ limit: 100 });
 
@@ -127,6 +139,8 @@ function useEvidenceFilters() {
 		setSelectedOrderId,
 		selectedType,
 		setSelectedType,
+		viewMode,
+		setViewMode,
 		ordersResult,
 		isLoadingOrders,
 	};
@@ -149,8 +163,6 @@ function EvidencesLoading() {
 		</section>
 	);
 }
-
-// ── Extracted Sub-Components ──
 
 interface EvidencesStatsSectionProps {
 	counts: Record<string, number>;
@@ -213,7 +225,7 @@ function EvidencesFiltersForm({
 			aria-labelledby="evidences-filters-title"
 		>
 			<h2 id="evidences-filters-title" className="sr-only">
-				Filtros de evidencias
+				Filtros de soportes
 			</h2>
 
 			<div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.4fr_1fr_1fr_auto]">
@@ -301,8 +313,50 @@ function EvidencesFiltersForm({
 	);
 }
 
+interface EvidencesViewToggleProps {
+	viewMode: EvidenceViewMode;
+	onChange: (mode: EvidenceViewMode) => void;
+}
+
+function EvidencesViewToggle({ viewMode, onChange }: EvidencesViewToggleProps) {
+	return (
+		<fieldset
+			className="inline-flex rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-1 shadow-[var(--shadow-1)]"
+			aria-label="Modo de visualización"
+		>
+			<legend className="sr-only">Modo de visualización</legend>
+			<button
+				type="button"
+				onClick={() => onChange("gallery")}
+				aria-pressed={viewMode === "gallery"}
+				className={`inline-flex items-center gap-2 rounded-[calc(var(--radius-lg)-4px)] px-3 py-2 text-sm font-medium transition-colors ${
+					viewMode === "gallery"
+						? "bg-[var(--color-brand-blue)] text-white shadow-[var(--shadow-brand)]"
+						: "text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+				}`}
+			>
+				<LayoutGrid aria-hidden="true" className="size-4" />
+				Galería
+			</button>
+			<button
+				type="button"
+				onClick={() => onChange("table")}
+				aria-pressed={viewMode === "table"}
+				className={`inline-flex items-center gap-2 rounded-[calc(var(--radius-lg)-4px)] px-3 py-2 text-sm font-medium transition-colors ${
+					viewMode === "table"
+						? "bg-[var(--color-brand-blue)] text-white shadow-[var(--shadow-brand)]"
+						: "text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+				}`}
+			>
+				<Rows3 aria-hidden="true" className="size-4" />
+				Tabla
+			</button>
+		</fieldset>
+	);
+}
+
 interface EvidencesEmptyStateProps {
-	icon: React.ReactNode;
+	icon: ReactNode;
 	title: string;
 	description: string;
 }
@@ -319,38 +373,60 @@ function EvidencesEmptyState({ icon, title, description }: EvidencesEmptyStatePr
 
 interface EvidencesSummaryGridProps {
 	counts: EvidenceCounts;
+	selectedType: EvidenceFilter;
+	onStageSelect: (value: EvidenceFilter) => void;
 }
 
-function EvidencesSummaryGrid({ counts }: EvidencesSummaryGridProps) {
-	const summaryItems: Array<[string, string]> = [
-		["total", "Total"],
-		["before", getEvidenceLabel("before")],
-		["during", getEvidenceLabel("during")],
-		["after", getEvidenceLabel("after")],
-		["defect", getEvidenceLabel("defect")],
-		["safety", getEvidenceLabel("safety")],
-		["signature", getEvidenceLabel("signature")],
+function EvidencesSummaryGrid({
+	counts,
+	selectedType,
+	onStageSelect,
+}: EvidencesSummaryGridProps) {
+	const summaryItems: Array<{
+		label: string;
+		value: number;
+		filter: EvidenceFilter;
+	}> = [
+		{ filter: "all", label: "Total", value: counts.total },
+		...EVIDENCE_STAGE_ORDER.map((type) => ({
+			filter: type,
+			label: getEvidenceLabel(type),
+			value: counts[type],
+		})),
 	];
 
 	return (
 		<section aria-labelledby="evidences-summary-title">
-			<h2 id="evidences-summary-title" className="sr-only">
-				Resumen de evidencias
-			</h2>
-			<div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-7">
-				{summaryItems.map(([key, label]) => (
-					<div
-						key={key}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-2)]"
-					>
-						<p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
-							{label}
-						</p>
-						<p className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
-							{key === "total" ? counts.total : counts[key as EvidenceType]}
-						</p>
-					</div>
-				))}
+			<div className="mb-3 flex items-center justify-between gap-3">
+				<h2 id="evidences-summary-title" className="text-sm font-semibold text-[var(--text-primary)]">
+					Cobertura por etapa
+				</h2>
+				<p className="text-xs text-[var(--text-tertiary)]">
+					Use estas tarjetas para acotar la galería sin cambiar de pantalla.
+				</p>
+			</div>
+			<div className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-7">
+				{summaryItems.map((item) => {
+					const isActive = selectedType === item.filter;
+					return (
+						<button
+							key={item.filter}
+							type="button"
+							onClick={() => onStageSelect(item.filter)}
+							aria-pressed={isActive}
+							className={`rounded-[var(--radius-lg)] border p-4 text-left shadow-[var(--shadow-2)] transition-colors ${
+								isActive
+									? "border-[var(--color-brand-blue)] bg-[var(--color-brand-blue-bg)]"
+									: "border-[var(--border-default)] bg-[var(--surface-primary)] hover:bg-[var(--surface-secondary)]/70"
+							}`}
+						>
+							<p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
+								{item.label}
+							</p>
+							<p className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">{item.value}</p>
+						</button>
+					);
+				})}
 			</div>
 		</section>
 	);
@@ -365,7 +441,7 @@ function EvidencesTableView({ evidences }: EvidencesTableViewProps) {
 		return (
 			<EvidencesEmptyState
 				icon={<Camera aria-hidden="true" className="mx-auto size-10 text-[var(--text-tertiary)]" />}
-				title="No hay evidencias para mostrar"
+				title="No hay soportes para mostrar"
 				description="Ajusta los filtros o revisa otra orden de trabajo."
 			/>
 		);
@@ -381,7 +457,7 @@ function EvidencesTableView({ evidences }: EvidencesTableViewProps) {
 
 			<section className="hidden overflow-x-auto rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] md:block">
 				<table className="min-w-full text-left text-sm">
-					<caption className="sr-only">Evidencias con etapa, archivo, orden y fecha.</caption>
+					<caption className="sr-only">Soportes con etapa, archivo, orden y fecha.</caption>
 					<thead className="bg-[var(--surface-secondary)]/60 text-xs uppercase tracking-[0.16em] text-[var(--text-secondary)]">
 						<tr>
 							<th scope="col" className="px-4 py-3 font-semibold">
@@ -412,7 +488,58 @@ function EvidencesTableView({ evidences }: EvidencesTableViewProps) {
 	);
 }
 
-// ── Main Component ──
+interface EvidencesGalleryViewProps {
+	evidences: Evidence[];
+}
+
+function EvidencesGalleryView({ evidences }: EvidencesGalleryViewProps) {
+	const groups = groupEvidencesByStage(evidences);
+
+	if (groups.length === 0) {
+		return (
+			<EvidencesEmptyState
+				icon={<Camera aria-hidden="true" className="mx-auto size-10 text-[var(--text-tertiary)]" />}
+				title="No hay soportes para este filtro"
+				description="Amplía la etapa o la búsqueda para revisar otros soportes capturados."
+			/>
+		);
+	}
+
+	return (
+		<div className="space-y-5">
+			{groups.map((group) => (
+				<section
+					key={group.type}
+					className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-2)]"
+					aria-labelledby={`evidence-group-${group.type}`}
+				>
+					<div className="mb-4 flex flex-col gap-2 border-b border-[var(--border-default)] pb-4 md:flex-row md:items-start md:justify-between">
+						<div className="space-y-1">
+							<h3
+								id={`evidence-group-${group.type}`}
+								className="text-lg font-semibold text-[var(--text-primary)]"
+							>
+								{group.label}
+							</h3>
+							<p className="max-w-2xl text-sm text-[var(--text-secondary)]">
+								{group.description}
+							</p>
+						</div>
+						<p className="text-sm font-medium text-[var(--text-tertiary)]">
+							{group.items.length} soporte(s)
+						</p>
+					</div>
+
+					<div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
+						{group.items.map((evidence) => (
+							<EvidenceCard key={evidence._id} evidence={evidence} />
+						))}
+					</div>
+				</section>
+			))}
+		</div>
+	);
+}
 
 function EvidencesPageInner() {
 	const {
@@ -424,6 +551,8 @@ function EvidencesPageInner() {
 		setSelectedOrderId,
 		selectedType,
 		setSelectedType,
+		viewMode,
+		setViewMode,
 		ordersResult,
 		isLoadingOrders,
 	} = useEvidenceFilters();
@@ -457,6 +586,20 @@ function EvidencesPageInner() {
 			searchInput,
 			selectedOrderId,
 			selectedType,
+			viewMode,
+		);
+		replace(`/evidences${query ? `?${query}` : ""}`);
+	};
+
+	const handleViewModeChange = (mode: EvidenceViewMode) => {
+		setViewMode(mode);
+
+		const query = buildEvidenceSearchParams(
+			searchParams,
+			searchInput,
+			selectedOrderId,
+			selectedType,
+			mode,
 		);
 		replace(`/evidences${query ? `?${query}` : ""}`);
 	};
@@ -465,6 +608,7 @@ function EvidencesPageInner() {
 		setSearchInput("");
 		setSelectedType("all");
 		setSelectedOrderId("");
+		setViewMode("gallery");
 		replace("/evidences");
 	};
 
@@ -472,18 +616,19 @@ function EvidencesPageInner() {
 		<section className="space-y-6" aria-labelledby="evidences-page-title">
 			<header className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
 				<div className="border-b border-[var(--border-default)] bg-[linear-gradient(135deg,rgba(58,120,216,0.12),rgba(15,23,41,0.02),transparent)] p-5 sm:px-6">
-					<p className="text-sm text-[var(--text-secondary)]">Dashboard / Evidencias</p>
+					<p className="text-sm text-[var(--text-secondary)]">Dashboard / Soportes</p>
 					<div className="mt-3 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 						<div className="space-y-1">
 							<h1
 								id="evidences-page-title"
 								className="text-2xl font-semibold text-[var(--text-primary)]"
 							>
-								Evidencias
+								Soportes visuales
 							</h1>
 							<p className="max-w-2xl text-sm text-[var(--text-secondary)]">
-								El backend expone evidencias por orden de trabajo. Selecciona una orden para ver sus
-								archivos, filtra por etapa y busca por nombre de archivo o descripción.
+								Gestor visual de soportes por orden. Selecciona una orden para revisar la
+								captura operativa agrupada por etapa, detectar vacíos y abrir cada imagen en
+								contexto.
 							</p>
 						</div>
 
@@ -516,26 +661,47 @@ function EvidencesPageInner() {
 						<Camera aria-hidden="true" className="mx-auto size-10 text-[var(--text-tertiary)]" />
 					}
 					title="Selecciona una orden"
-					description="Las evidencias se consultan por orden. Si vienes desde una orden específica, el filtro se cargará automáticamente."
+					description="Los soportes se consultan por orden. Si vienes desde una orden específica, el filtro se cargará automáticamente."
 				/>
 			) : isLoadingEvidences ? (
 				<section className="flex h-64 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)]">
 					<div className="flex items-center gap-3 text-[var(--text-secondary)]">
 						<Loader2 className="size-5 animate-spin" aria-hidden="true" />
-						Cargando evidencias…
+						Cargando soportes…
 					</div>
 				</section>
 			) : error ? (
 				<section className="rounded-[var(--radius-xl)] border border-[var(--color-danger)]/20 bg-[var(--color-danger-bg)] p-6 text-sm text-[var(--color-danger)]">
-					No se pudieron cargar las evidencias. {(error as Error)?.message}
+					No se pudieron cargar los soportes. {(error as Error).message}
 				</section>
 			) : (
 				<section aria-labelledby="evidences-list-title" className="space-y-4">
-					<h2 id="evidences-list-title" className="sr-only">
-						Listado de evidencias
-					</h2>
-					<EvidencesSummaryGrid counts={counts} />
-					<EvidencesTableView evidences={filteredEvidences} />
+					<div className="flex flex-col gap-4 rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-2)] md:flex-row md:items-center md:justify-between">
+						<div className="space-y-1">
+							<h2 id="evidences-list-title" className="text-base font-semibold text-[var(--text-primary)]">
+								{selectedOrder
+									? `${selectedOrder.code} · ${selectedOrder.assetName}`
+									: "Listado de soportes"}
+							</h2>
+							<p className="text-sm text-[var(--text-secondary)]">
+								{filteredEvidences.length} soporte(s) visibles para el contexto actual.
+							</p>
+						</div>
+
+						<EvidencesViewToggle viewMode={viewMode} onChange={handleViewModeChange} />
+					</div>
+
+					<EvidencesSummaryGrid
+						counts={counts}
+						selectedType={selectedType}
+						onStageSelect={setSelectedType}
+					/>
+
+					{viewMode === "gallery" ? (
+						<EvidencesGalleryView evidences={filteredEvidences} />
+					) : (
+						<EvidencesTableView evidences={filteredEvidences} />
+					)}
 				</section>
 			)}
 		</section>

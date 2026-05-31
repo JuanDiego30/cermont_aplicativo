@@ -166,13 +166,30 @@ export async function validatePlanningReadiness(id: string, userRole: string) {
 		planningPacket.supportDocuments.some((doc) => doc.documentType === "ptw" && doc.required);
 	const hasRequiredReferenceDocs = hasRequiredATS && hasRequiredPTW;
 
+	// Check all tools are available
+	const allToolsAvailable =
+		planningPacket.tools.length === 0 || planningPacket.tools.every((tool) => tool.available);
+
+	// Check all equipment is available and certified
+	const allEquipmentAvailable =
+		planningPacket.equipment.length === 0 ||
+		planningPacket.equipment.every((eq) => eq.available && (!eq.certificateRequired || eq.certificateRequired));
+
+	// Check all certifications are verified
+	const allCertificationsVerified =
+		planningPacket.requiredCertifications.length === 0 ||
+		planningPacket.requiredCertifications.every((cert) => cert.verified);
+
 	let newStatus = planningPacket.status;
 	if (
 		allChecklistItemsChecked &&
 		noUnresolvedBlockers &&
 		hasCrew &&
 		hasSchedule &&
-		hasRequiredReferenceDocs
+		hasRequiredReferenceDocs &&
+		allToolsAvailable &&
+		allEquipmentAvailable &&
+		allCertificationsVerified
 	) {
 		newStatus = "ready";
 	} else {

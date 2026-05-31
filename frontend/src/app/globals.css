@@ -145,7 +145,7 @@
 
 .dark,
 [data-theme="dark"] {
-	--color-background: #07111f;
+	--color-background: #0f1117;
 	--color-foreground: #f8fafc;
 	--color-muted: #0f1f33;
 	--color-muted-foreground: #cbd5e1;
@@ -278,7 +278,7 @@
 
 @layer components {
 	.input-field {
-		@apply w-full rounded-lg border border-[var(--border-medium)] bg-white px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--color-focus-ring)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 transition-[background-color,border-color,box-shadow,color] duration-200;
+		@apply w-full rounded-lg border border-[var(--border-medium)] bg-[var(--surface-card)] px-4 py-2.5 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--color-focus-ring)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 transition-[background-color,border-color,box-shadow,color] duration-200;
 	}
 
 	.btn-primary {

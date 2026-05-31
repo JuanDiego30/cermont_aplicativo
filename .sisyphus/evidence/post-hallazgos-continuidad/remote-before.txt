@@ -1,2 +1,0 @@
-origin	https://github.com/JuanDiego30/cermont_aplicativo.git (fetch)
-origin	https://github.com/JuanDiego30/cermont_aplicativo.git (push)

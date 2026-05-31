@@ -78,6 +78,12 @@ export const MAINTENANCE_MANAGEMENT_ROLES = [
 	"hes",
 ] as const satisfies readonly UserRole[];
 
+export const AI_ASSISTANT_ROLES = [
+	"gerente",
+	"residente",
+	"supervisor",
+] as const satisfies readonly UserRole[];
+
 export const ADMIN_PLUS_RESIDENTE = [
 	"gerente",
 	"residente",
@@ -191,6 +197,34 @@ export const ROLE_HIERARCHY: Record<UserRole, number> = {
 } as const satisfies Record<UserRole, number>;
 
 /**
+ * English-to-Spanish legacy role alias mapping.
+ *
+ * Used by {@link normalizeUserRole} to handle legacy English role references
+ * (e.g., "manager" → "gerente", "technician" → "tecnico").
+ *
+ * @internal
+ */
+const ENGLISH_TO_SPANISH_ROLE: Record<string, UserRole> = {
+	manager: "gerente",
+	resident_engineer: "residente",
+	hse_coordinator: "hes",
+	supervisor: "supervisor",
+	operator: "operador",
+	technician: "tecnico",
+	administrator: "administrativo",
+	client: "cliente",
+};
+
+/**
+ * Legacy role aliases for backward compatibility.
+ * Maps English role names to canonical Spanish role values.
+ *
+ * @deprecated Use canonical Spanish role values directly.
+ *   {@link normalizeUserRole} handles these automatically.
+ */
+export const LEGACY_ROLE_ALIASES = ENGLISH_TO_SPANISH_ROLE;
+
+/**
  * Type guard to validate if a value is an authenticated role
  * Provides compile-time type narrowing for safer role handling
  *
@@ -212,8 +246,53 @@ export function isAuthenticatedRole(role: unknown): role is UserRole {
 }
 
 /**
- * Checks if user has any of the allowed roles
- * Handles both single role check and array of allowed roles
+ * Type guard that accepts only string input (stricter than {@link isAuthenticatedRole}).
+ *
+ * Useful for mapping functions where the input is already known to be a string.
+ *
+ * @param role - String value to validate
+ * @returns True if role is a valid UserRole
+ *
+ * @example
+ * ```typescript
+ * ["gerente", "invalid"].filter(isUserRoleInput); // ["gerente"]
+ * ```
+ */
+export function isUserRoleInput(role: string): role is UserRole {
+	return (ALL_AUTHENTICATED_ROLES as readonly string[]).includes(role);
+}
+
+/**
+ * Normalizes a role string to a valid UserRole or null.
+ * Handles case variations (gerente/Gerente, hes/HES, etc.)
+ * and legacy English aliases (manager → gerente, technician → tecnico, etc.).
+ *
+ * @param role - Role string to normalize (can be any case, or English alias)
+ * @returns Normalized UserRole or null if invalid
+ *
+ * @example
+ * ```typescript
+ * normalizeUserRole('GERENTE'); // 'gerente'
+ * normalizeUserRole('HES');     // 'hes'
+ * normalizeUserRole('manager'); // 'gerente' (legacy alias)
+ * normalizeUserRole('invalid'); // null
+ * ```
+ */
+export function normalizeUserRole(role: unknown): UserRole | null {
+	if (typeof role !== "string") {
+		return null;
+	}
+	const normalized = role.toLowerCase().trim();
+	if (isAuthenticatedRole(normalized)) {
+		return normalized;
+	}
+	return ENGLISH_TO_SPANISH_ROLE[normalized] ?? null;
+}
+
+/**
+ * Checks if user has any of the allowed roles.
+ * Handles both single role check and array of allowed roles.
+ * Uses normalization for case-insensitive and alias-aware comparison.
  *
  * @param userRole - The user's role to check
  * @param allowedRoles - Array of roles that are allowed
@@ -224,36 +303,21 @@ export function isAuthenticatedRole(role: unknown): role is UserRole {
  * if (hasRole(user.role, ['gerente', 'residente'])) {
  *   // User is either gerente or residente
  * }
+ *
+ * // Legacy aliases work too
+ * hasRole('manager', ['gerente']); // true
  * ```
  */
 export function hasRole(
 	userRole: UserRole | string,
-	allowedRoles: UserRole[] | readonly UserRole[],
+	allowedRoles: readonly (UserRole | string)[],
 ): boolean {
-	if (!isAuthenticatedRole(userRole)) {
+	const normalizedUserRole = normalizeUserRole(userRole);
+	if (!normalizedUserRole) {
 		return false;
 	}
-	return (allowedRoles as readonly string[]).includes(userRole);
-}
-
-/**
- * Normalizes a role string to a valid UserRole or null
- * Handles case variations (gerente/Gerente, hes/HES, etc.)
- *
- * @param role - Role string to normalize (can be any case)
- * @returns Normalized UserRole or null if invalid
- *
- * @example
- * ```typescript
- * normalizeUserRole('GERENTE'); // 'gerente'
- * normalizeUserRole('HES');     // 'hes'
- * normalizeUserRole('invalid'); // null
- * ```
- */
-export function normalizeUserRole(role: unknown): UserRole | null {
-	if (typeof role !== "string") {
-		return null;
-	}
-	const normalized = role.toLowerCase().trim();
-	return isAuthenticatedRole(normalized) ? normalized : null;
+	return allowedRoles.some((role) => {
+		const normalized = normalizeUserRole(role);
+		return normalized !== null && normalized === normalizedUserRole;
+	});
 }

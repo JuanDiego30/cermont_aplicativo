@@ -79,6 +79,7 @@ export {
 	STEP_KEYS,
 } from "./operational-steps";
 // ─── Permissions ────────────────────────────────────────────────────────────
+export type { Permission } from "./permissions";
 export {
 	checkAllPermissions,
 	hasPermission,
@@ -106,6 +107,7 @@ export type { UserRole } from "./roles";
 export {
 	ADMIN_PLUS_RESIDENTE,
 	ADMIN_ROLES,
+	AI_ASSISTANT_ROLES,
 	ALL_AUTHENTICATED_ROLES,
 	APPROVER_ROLES,
 	ASSET_MANAGEMENT_ROLES,
@@ -117,6 +119,8 @@ export {
 	hasRole,
 	INTERNAL_ROLES,
 	isAuthenticatedRole,
+	isUserRoleInput,
+	LEGACY_ROLE_ALIASES,
 	MAINTENANCE_MANAGEMENT_ROLES,
 	MANAGEMENT_ROLES,
 	normalizeUserRole,

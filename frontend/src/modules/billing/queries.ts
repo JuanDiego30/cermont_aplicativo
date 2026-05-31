@@ -6,7 +6,12 @@ import type {
 	CreateOrderInvoiceInput,
 	CreateOrderServiceEntrySheetInput,
 	DeliveryRecord,
+	DeliveryRecordReadModel,
 	Invoice,
+	ListDeliveryRecordsQuery,
+	ListInvoicesQuery,
+	ListPaymentsQuery,
+	ListServiceEntrySheetsQuery,
 	Payment,
 	ReconcilePaymentInput,
 	RegisterInvoicePaymentInput,
@@ -17,6 +22,7 @@ import type {
 	ServiceEntrySheet,
 	SignDeliveryRecordInput,
 	SubmitServiceEntrySheetInput,
+	TechnicalReportReadModel,
 } from "@cermont/shared-types";
 import type { QueryClient } from "@tanstack/react-query";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -40,25 +46,36 @@ export type WorkflowList<T> = {
 	pages: number;
 };
 
+type WorkflowFilterValue = string | number | readonly string[] | undefined;
+type WorkflowQueryKeyPart = string | number | boolean | object | undefined;
+
 const BILLING_KEYS = {
+	technicalReports: {
+		byOrder: (orderId: string) => ["technical-reports", "by-order", orderId] as const,
+	},
 	deliveryRecords: {
 		all: ["delivery-records"] as const,
-		list: () => [...BILLING_KEYS.deliveryRecords.all, "list"] as const,
+		list: (filters?: Record<string, WorkflowFilterValue>) =>
+			[...BILLING_KEYS.deliveryRecords.all, "list", filters] as const,
 		detail: (id: string) => [...BILLING_KEYS.deliveryRecords.all, "detail", id] as const,
+		byOrder: (orderId: string) => [...BILLING_KEYS.deliveryRecords.all, "by-order", orderId] as const,
 	},
 	serviceEntrySheets: {
 		all: ["service-entry-sheets"] as const,
-		list: () => [...BILLING_KEYS.serviceEntrySheets.all, "list"] as const,
+		list: (filters?: Record<string, WorkflowFilterValue>) =>
+			[...BILLING_KEYS.serviceEntrySheets.all, "list", filters] as const,
 		detail: (id: string) => [...BILLING_KEYS.serviceEntrySheets.all, "detail", id] as const,
 	},
 	invoices: {
 		all: ["invoices"] as const,
-		list: () => [...BILLING_KEYS.invoices.all, "list"] as const,
+		list: (filters?: Record<string, WorkflowFilterValue>) =>
+			[...BILLING_KEYS.invoices.all, "list", filters] as const,
 		detail: (id: string) => [...BILLING_KEYS.invoices.all, "detail", id] as const,
 	},
 	payments: {
 		all: ["payments"] as const,
-		list: () => [...BILLING_KEYS.payments.all, "list"] as const,
+		list: (filters?: Record<string, WorkflowFilterValue>) =>
+			[...BILLING_KEYS.payments.all, "list", filters] as const,
 		detail: (id: string) => [...BILLING_KEYS.payments.all, "detail", id] as const,
 	},
 } as const;
@@ -73,7 +90,40 @@ function unwrapList<T>(response: ListEnvelope<T>): WorkflowList<T> {
 	};
 }
 
-function useWorkflowList<T>(queryKey: readonly string[], endpoint: string) {
+function normalizeStringFilter(value: string | undefined): string | undefined {
+	const trimmedValue = value?.trim();
+	return trimmedValue ? trimmedValue : undefined;
+}
+
+function buildWorkflowEndpoint(
+	basePath: string,
+	filters: Record<string, WorkflowFilterValue>,
+): string {
+	const params = new URLSearchParams();
+
+	for (const [key, value] of Object.entries(filters)) {
+		if (value === undefined) {
+			continue;
+		}
+
+		if (Array.isArray(value)) {
+			for (const item of value) {
+				const trimmedItem = item.trim();
+				if (trimmedItem) {
+					params.append(key, trimmedItem);
+				}
+			}
+			continue;
+		}
+
+		params.set(key, String(value));
+	}
+
+	const queryString = params.toString();
+	return queryString ? `${basePath}?${queryString}` : basePath;
+}
+
+function useWorkflowList<T>(queryKey: readonly WorkflowQueryKeyPart[], endpoint: string) {
 	return useQuery({
 		queryKey,
 		queryFn: async () => unwrapList(await apiClient.get<ListEnvelope<T>>(endpoint)),
@@ -83,6 +133,44 @@ function useWorkflowList<T>(queryKey: readonly string[], endpoint: string) {
 }
 
 // ─── Detail queries ──────────────────────────────────────────────────────
+
+export function useOrderTechnicalReport(orderId: string) {
+	const normalizedOrderId = orderId.trim();
+
+	return useQuery({
+		queryKey: BILLING_KEYS.technicalReports.byOrder(normalizedOrderId),
+		queryFn: async () => {
+			const response = await apiClient.get<ApiEnvelope<TechnicalReportReadModel>>(
+				`/orders/${normalizedOrderId}/technical-report`,
+			);
+			if (!response.data) {
+				throw new Error("No se pudo cargar el informe técnico de la orden");
+			}
+			return response.data;
+		},
+		enabled: normalizedOrderId.length > 0,
+		staleTime: STALE_TIMES.DETAIL,
+	});
+}
+
+export function useOrderDeliveryRecord(orderId: string) {
+	const normalizedOrderId = orderId.trim();
+
+	return useQuery({
+		queryKey: BILLING_KEYS.deliveryRecords.byOrder(normalizedOrderId),
+		queryFn: async () => {
+			const response = await apiClient.get<ApiEnvelope<DeliveryRecordReadModel>>(
+				`/orders/${normalizedOrderId}/delivery-record`,
+			);
+			if (!response.data) {
+				throw new Error("No se pudo cargar el acta de entrega de la orden");
+			}
+			return response.data;
+		},
+		enabled: normalizedOrderId.length > 0,
+		staleTime: STALE_TIMES.DETAIL,
+	});
+}
 
 export function useDeliveryRecord(id: string) {
 	return useQuery({
@@ -122,26 +210,71 @@ export function usePayment(id: string) {
 
 // ─── List queries (existing) ─────────────────────────────────────────────
 
-export function useDeliveryRecordsList() {
+export function useDeliveryRecordsList(filters?: Partial<ListDeliveryRecordsQuery>) {
+	const normalizedFilters = {
+		workOrderId: normalizeStringFilter(filters?.workOrderId),
+		technicalReportId: normalizeStringFilter(filters?.technicalReportId),
+		status: filters?.status,
+		page: filters?.page,
+		limit: filters?.limit ?? 50,
+	};
+
 	return useWorkflowList<DeliveryRecord>(
-		BILLING_KEYS.deliveryRecords.list(),
-		"/delivery-records?limit=50",
+		BILLING_KEYS.deliveryRecords.list(normalizedFilters),
+		buildWorkflowEndpoint("/delivery-records", normalizedFilters),
 	);
 }
 
-export function useServiceEntrySheetsList() {
+export function useServiceEntrySheetsList(filters?: Partial<ListServiceEntrySheetsQuery>) {
+	const normalizedFilters = {
+		status: filters?.status?.filter((value) => value.trim().length > 0),
+		workOrderId: normalizeStringFilter(filters?.workOrderId),
+		clientId: normalizeStringFilter(filters?.clientId),
+		search: normalizeStringFilter(filters?.search),
+		dateFrom: normalizeStringFilter(filters?.dateFrom),
+		dateTo: normalizeStringFilter(filters?.dateTo),
+		page: filters?.page,
+		limit: filters?.limit ?? 50,
+	};
+
 	return useWorkflowList<ServiceEntrySheet>(
-		BILLING_KEYS.serviceEntrySheets.list(),
-		"/service-entry-sheets?limit=50",
+		BILLING_KEYS.serviceEntrySheets.list(normalizedFilters),
+		buildWorkflowEndpoint("/service-entry-sheets", normalizedFilters),
 	);
 }
 
-export function useInvoicesList() {
-	return useWorkflowList<Invoice>(BILLING_KEYS.invoices.list(), "/invoices?limit=50");
+export function useInvoicesList(filters?: Partial<ListInvoicesQuery>) {
+	const normalizedFilters = {
+		status: filters?.status?.filter((value) => value.trim().length > 0),
+		workOrderId: normalizeStringFilter(filters?.workOrderId),
+		clientId: normalizeStringFilter(filters?.clientId),
+		search: normalizeStringFilter(filters?.search),
+		dateFrom: normalizeStringFilter(filters?.dateFrom),
+		dateTo: normalizeStringFilter(filters?.dateTo),
+		page: filters?.page,
+		limit: filters?.limit ?? 50,
+	};
+
+	return useWorkflowList<Invoice>(
+		BILLING_KEYS.invoices.list(normalizedFilters),
+		buildWorkflowEndpoint("/invoices", normalizedFilters),
+	);
 }
 
-export function usePaymentsList() {
-	return useWorkflowList<Payment>(BILLING_KEYS.payments.list(), "/payments?limit=50");
+export function usePaymentsList(filters?: Partial<ListPaymentsQuery>) {
+	const normalizedFilters = {
+		invoiceId: normalizeStringFilter(filters?.invoiceId),
+		workOrderId: normalizeStringFilter(filters?.workOrderId),
+		clientId: normalizeStringFilter(filters?.clientId),
+		status: filters?.status,
+		page: filters?.page,
+		limit: filters?.limit ?? 50,
+	};
+
+	return useWorkflowList<Payment>(
+		BILLING_KEYS.payments.list(normalizedFilters),
+		buildWorkflowEndpoint("/payments", normalizedFilters),
+	);
 }
 
 // ─── Delivery Record mutations ───────────────────────────────────────────

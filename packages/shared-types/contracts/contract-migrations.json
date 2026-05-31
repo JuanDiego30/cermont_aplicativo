@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:c1ffb311b207191ac8008ba317a1487daefa0f91e59fe32899905860fd6278bc",
+	"currentSnapshotHash": "sha256:dbaad0a583a9e4cc0bab0649c23f830721bfe97bdfae89d27ea96fd115a2d752",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -98,6 +98,13 @@
 			"type": "non-breaking",
 			"description": "Expose maintenance kit customFields for tools and equipment so planning kits can preserve user-defined field values.",
 			"toHash": "sha256:c1ffb311b207191ac8008ba317a1487daefa0f91e59fe32899905860fd6278bc"
+		},
+		{
+			"id": "014-proposal-schema-english-field-names",
+			"date": "2026-05-28",
+			"type": "breaking",
+			"description": "Normalize CreateProposalInputSchema Spanish field names (cliente, descripcion, valorEstimado) to canonical English (client, description, estimatedValue).",
+			"toHash": "sha256:dbaad0a583a9e4cc0bab0649c23f830721bfe97bdfae89d27ea96fd115a2d752"
 		}
 	]
 }

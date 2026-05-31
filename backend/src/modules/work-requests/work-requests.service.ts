@@ -3,8 +3,9 @@ import type {
 	ListWorkRequestsQuery,
 	WorkRequestStatus,
 } from "@cermont/shared-types";
+import { Types } from "mongoose";
 import { AppError } from "../../common/errors";
-import { Counter, WorkRequest } from "../../models";
+import { Counter, ServiceCase, WorkRequest } from "../../models";
 
 const WORK_REQUEST_STATUS_TRANSITIONS: Record<WorkRequestStatus, WorkRequestStatus[]> = {
 	draft: ["submitted", "cancelled"],
@@ -53,7 +54,47 @@ export async function createWorkRequest(data: CreateWorkRequestInput, userId: st
 		createdBy: userId,
 		updatedBy: userId,
 	});
-	return workRequest;
+
+	// Create linked service case for the 14-step workflow
+	const scSequence = await Counter.inc(`SC-${now.getFullYear()}`);
+	const scCode = `SC-${now.getFullYear()}-${String(scSequence).padStart(4, "0")}`;
+	const serviceCase = await ServiceCase.create({
+		code: scCode,
+		clientName: data.clientName,
+		currentStage: "intake",
+		currentStepCode: "step_01_work_request",
+		artifacts: {
+			workRequest: {
+				id: workRequest._id,
+				code: workRequest.code,
+				status: workRequest.status,
+				updatedAt: now,
+			},
+		},
+		nextActions: [
+			{
+				command: data.requiresSiteVisit ? "create_site_visit" : "create_proposal",
+				label: data.requiresSiteVisit
+					? "Registrar visita tecnica"
+					: "Crear propuesta economica",
+				requiredRole: "residente",
+				route: data.requiresSiteVisit ? "/site-visits/new" : "/proposals/new",
+			},
+		],
+		timeline: [
+			{
+				eventId: `wr_created_${workRequest._id}`,
+				stage: "intake",
+				command: "work_request_created",
+				actorId: new Types.ObjectId(userId),
+				actorRole: "requester",
+				occurredAt: now,
+				notes: `Solicitud ${workRequest.code} registrada`,
+			},
+		],
+	});
+
+	return { workRequest, serviceCase };
 }
 
 /**
