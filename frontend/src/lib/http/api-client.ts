@@ -20,6 +20,12 @@ export { ApiError } from "./api-client-constants";
 
 let isRefreshing = false;
 let pendingRequests: PendingRequest[] = [];
+const OFFLINE_LIKE_ERROR_CODES = new Set([
+	"BACKEND_UNAVAILABLE",
+	"OFFLINE",
+	"SERVICE_UNAVAILABLE",
+	"NETWORK_ERROR",
+]);
 
 interface RequestContext {
 	canRetry: boolean;
@@ -114,6 +120,31 @@ function getErrorDetails(body: unknown): ApiErrorDetail[] {
 		return errorBody.details;
 	}
 	return [];
+}
+
+function isOfflineLikeCode(code: string | undefined): boolean {
+	return typeof code === "string" && OFFLINE_LIKE_ERROR_CODES.has(code);
+}
+
+function isBrowserOffline(): boolean {
+	return typeof navigator !== "undefined" && navigator.onLine === false;
+}
+
+export function isOfflineLikeError(error: Error): boolean {
+	if (error instanceof ApiError) {
+		return isOfflineLikeCode(error.code) || (error.status === 503 && error.code !== "TOKEN_EXPIRED");
+	}
+
+	if (error instanceof TypeError) {
+		const message = error.message.toLowerCase();
+		return (
+			message.includes("failed to fetch") ||
+			message.includes("networkerror") ||
+			message.includes("load failed")
+		);
+	}
+
+	return error.name === "AbortError";
 }
 
 function rejectPendingRequests(error: unknown): void {
@@ -230,7 +261,16 @@ function logCompletedRequest(
 	});
 }
 
-function shouldRetryResponse(context: RequestContext, status: number, attempt: number): boolean {
+function shouldRetryResponse(
+	context: RequestContext,
+	status: number,
+	attempt: number,
+	code: string | undefined,
+): boolean {
+	if (isOfflineLikeCode(code)) {
+		return false;
+	}
+
 	return context.canRetry && DEFAULT_RETRY_STATUSES.has(status) && attempt < MAX_RETRIES;
 }
 
@@ -280,11 +320,21 @@ async function handleResponse<T>(
 	const body = await parseJsonBody(response);
 	const code = getErrorCode(body);
 
-	if (response.status === 401 && code === "TOKEN_EXPIRED") {
-		return retryAfterTokenRefresh<T>(context, options);
+	if (response.status === 401) {
+		// Trigger refresh on any 401 when the user is authenticated.
+		// The backend returns "UNAUTHORIZED" for missing/invalid tokens and
+		// "TOKEN_EXPIRED" for expired tokens. Both cases require a refresh
+		// via the httpOnly refresh-token cookie. Without this, the first
+		// request after a page reload (when the in-memory access token is
+		// gone but isAuthenticated is still true from the persist layer)
+		// would 401-storm the backend because 401 is not in the retry set
+		// but TanStack Query would still retry the query.
+		if (code === "TOKEN_EXPIRED" || useAuthStore.getState().isAuthenticated) {
+			return retryAfterTokenRefresh<T>(context, options);
+		}
 	}
 
-	if (shouldRetryResponse(context, response.status, attempt)) {
+	if (shouldRetryResponse(context, response.status, attempt, code)) {
 		await sleep(BASE_RETRY_DELAY_MS * (attempt + 1));
 		return "retry";
 	}
@@ -313,6 +363,15 @@ async function handleNetworkError(
 	if (error instanceof ApiError) {
 		throw error;
 	}
+
+	if (isBrowserOffline()) {
+		throw new ApiError(
+			503,
+			"Sin conexión. Se mostrarán datos locales si existen.",
+			"OFFLINE",
+		);
+	}
+
 	logApiRequest("Request network error", {
 		method: context.method,
 		url: context.normalizedPath,
@@ -321,7 +380,11 @@ async function handleNetworkError(
 		attempt: attempt + 1,
 	});
 	if (!context.canRetry || attempt >= MAX_RETRIES) {
-		throw error;
+		const message =
+			error instanceof Error
+				? error.message
+				: "El backend no está disponible. Se mostrarán datos locales si existen.";
+		throw new ApiError(503, message, "BACKEND_UNAVAILABLE");
 	}
 	await sleep(BASE_RETRY_DELAY_MS * (attempt + 1));
 }
@@ -343,7 +406,18 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 			await handleNetworkError(context, error, attempt);
 		}
 	}
-	throw new Error("Request failed after retry attempts.");
+	logApiRequest("Request exhausted retries", {
+		method: context.method,
+		url: context.normalizedPath,
+		requestId: context.requestId,
+		durationMs: Date.now() - context.startedAt,
+		attempts: MAX_RETRIES + 1,
+	});
+	throw new ApiError(
+		503,
+		"El servicio no está disponible. Por favor, inténtalo de nuevo en unos minutos.",
+		"SERVICE_UNAVAILABLE",
+	);
 }
 
 export const apiClient = {
