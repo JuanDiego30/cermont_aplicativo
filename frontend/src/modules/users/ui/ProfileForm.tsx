@@ -16,9 +16,9 @@ const profileUpdateSchema = CreateUserSchema.pick({
 	name: true,
 	phone: true,
 }).extend({
-	avatarUrl: z.string().url("URL inválida").optional().or(z.literal("")),
+	avatarUrl: z.url("URL inválida").optional().or(z.literal("")),
 });
-type ProfileUpdateData = z.infer<typeof profileUpdateSchema>;
+type ProfileUpdateValues = z.infer<typeof profileUpdateSchema>;
 
 const passwordChangeSchema = ChangePasswordSchema.extend({
 	confirmPassword: z.string().min(8, "Mínimo 8 caracteres"),
@@ -26,7 +26,7 @@ const passwordChangeSchema = ChangePasswordSchema.extend({
 	message: "Las contraseñas no coinciden",
 	path: ["confirmPassword"],
 });
-type PasswordChangeData = z.infer<typeof passwordChangeSchema>;
+type PasswordChangeValues = z.infer<typeof passwordChangeSchema>;
 
 // ── Local interface for the profile page data shape ──
 export interface ProfileUser {
@@ -46,7 +46,7 @@ function useProfileMutations(userId: string) {
 	const queryClient = useQueryClient();
 
 	const updateProfileMutation = useMutation({
-		mutationFn: async (data: ProfileUpdateData) => {
+		mutationFn: async (data: ProfileUpdateValues) => {
 			await apiClient.put(`/users/${userId}`, {
 				name: data.name.trim(),
 				phone: data.phone || null,
@@ -69,7 +69,7 @@ function usePasswordMutations() {
 	const queryClient = useQueryClient();
 
 	const changePasswordMutation = useMutation({
-		mutationFn: async (data: PasswordChangeData) => {
+		mutationFn: async (data: PasswordChangeValues) => {
 			await apiClient.patch("/auth/change-password", {
 				currentPassword: data.currentPassword,
 				newPassword: data.newPassword,
@@ -89,12 +89,12 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
 	const fullName = user.name.trim();
 	const avatarUrl = user.avatarUrl;
 
-	const profileForm = useForm<ProfileUpdateData>({
+	const profileForm = useForm<ProfileUpdateValues>({
 		resolver: zodResolver(profileUpdateSchema),
 		defaultValues: { name: fullName, phone: user.phone || "", avatarUrl: avatarUrl || "" },
 	});
 
-	const passwordForm = useForm<PasswordChangeData>({
+	const passwordForm = useForm<PasswordChangeValues>({
 		resolver: zodResolver(passwordChangeSchema),
 		defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "" },
 	});
@@ -170,7 +170,10 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
 						)}
 					</div>
 					{successMessage && (
-						<div aria-live="polite" className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
+						<div
+							aria-live="polite"
+							className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700"
+						>
 							{successMessage}
 						</div>
 					)}
@@ -254,7 +257,7 @@ function PasswordChangeSection({
 	changePasswordMutation,
 	userEmail,
 }: {
-	passwordForm: ReturnType<typeof useForm<PasswordChangeData>>;
+	passwordForm: ReturnType<typeof useForm<PasswordChangeValues>>;
 	pwSuccess: string | null;
 	changePasswordMutation: PwMutation;
 	userEmail: string;
@@ -341,7 +344,10 @@ function PasswordChangeSection({
 					)}
 				</div>
 				{pwSuccess && (
-					<div aria-live="polite" className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
+					<div
+						aria-live="polite"
+						className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700"
+					>
 						{pwSuccess}
 					</div>
 				)}

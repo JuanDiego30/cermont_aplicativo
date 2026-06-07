@@ -13,7 +13,7 @@ import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody } from "../../middlewares/validate";
-import { syncOffline } from "./sync.controller";
+import { getOfflineBatch, syncOffline } from "./sync.controller";
 
 const router = Router();
 
@@ -29,6 +29,13 @@ router.post(
 	authorize(...ALL_AUTHENTICATED_ROLES),
 	validateBody(SyncBatchSchema),
 	syncOffline,
+);
+
+router.get(
+	"/offline/:batchId",
+	authenticate,
+	authorize(...ALL_AUTHENTICATED_ROLES),
+	getOfflineBatch,
 );
 
 export default router;

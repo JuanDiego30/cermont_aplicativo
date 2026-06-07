@@ -1,194 +1,120 @@
 "use client";
 
-import type { ApiEnvelope } from "@cermont/shared-types";
-import { useQuery } from "@tanstack/react-query";
-import { Loader2, Search, Wrench } from "lucide-react";
-import Link from "next/link";
-import { useMemo, useState } from "react";
+/**
+ * Resources List Page — Full CRUD catalog view
+ *
+ * Features:
+ *   - Tabs to filter by resource type
+ *   - Search by name / type / brand / model
+ *   - Create resource dialog (ResourceForm)
+ *   - Delete with AlertDialog confirmation
+ *   - Stats summary row
+ *   - Loading / error / empty states
+ *   - Links to detail page
+ */
+
+import { Loader2, Plus, Search, Trash2 } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+
 import { Button } from "@/core/ui/Button";
 import { EmptyState } from "@/core/ui/EmptyState";
-import { apiClient } from "@/lib/http/api-client";
+import { useDeleteResource, useResourceList } from "@/modules/resources/hooks/useResources";
+import { ResourceForm } from "@/modules/resources/ui/ResourceForm";
 import { ResourceCard } from "./ResourceCard";
-import { RESOURCE_TYPE_LABELS } from "./resource-constants";
+import { RESOURCE_TYPE_LABELS, RESOURCE_TYPE_ORDER } from "./resource-constants";
 
-type ResourceInstance = {
-	estado_actual?: string;
-	currentStatus?: string;
-};
-
-type ResourceApiItem = {
-	_id?: string;
-	id?: string;
-	nombre?: string;
-	name?: string;
-	tipo?: string;
-	type?: string;
-	unidad?: string;
-	unit?: string;
-	instances?: ResourceInstance[];
-	resource_instances?: ResourceInstance[];
-};
-
-type NormalizedResource = {
-	_id: string;
-	nombre: string;
-	tipo: string;
-	unidad: string;
-	totalInstancias: number;
-	instanciasDisponibles: number;
-	estadoPrincipal: string;
-	availabilityPercentage: number;
-};
-
-function normalizeResource(resource: ResourceApiItem): NormalizedResource {
-	const instances = resource.instances || resource.resource_instances || [];
-	const counts = instances.reduce(
-		(acc, instance) => {
-			const state = instance.estado_actual || instance.currentStatus;
-
-			if (state === "disponible") {
-				acc.disponible += 1;
-			}
-			if (state === "en_uso" || state === "en uso") {
-				acc.enUso += 1;
-			}
-			if (state === "mantenimiento") {
-				acc.mantenimiento += 1;
-			}
-			if (state === "fuera_de_servicio" || state === "fuera de servicio") {
-				acc.fueraDeServicio += 1;
-			}
-
-			return acc;
-		},
-		{ disponible: 0, enUso: 0, mantenimiento: 0, fueraDeServicio: 0 },
-	);
-
-	const estadoPrincipal =
-		counts.fueraDeServicio > 0
-			? "fuera_de_servicio"
-			: counts.mantenimiento > 0
-				? "mantenimiento"
-				: counts.enUso > 0
-					? "en_uso"
-					: "disponible";
-
-	const totalInstancias = instances.length;
-
-	return {
-		_id: resource._id || resource.id || resource.nombre || resource.name || crypto.randomUUID(),
-		nombre: resource.nombre || resource.name || "Sin nombre",
-		tipo: resource.tipo || resource.type || "otro",
-		unidad: resource.unidad || resource.unit || "otro",
-		totalInstancias,
-		instanciasDisponibles: counts.disponible,
-		estadoPrincipal,
-		availabilityPercentage:
-			totalInstancias > 0 ? Math.round((counts.disponible / totalInstancias) * 100) : 0,
-	};
-}
+type TabValue = "all" | (typeof RESOURCE_TYPE_ORDER)[number];
 
 export default function ResourcesPage() {
 	const [query, setQuery] = useState("");
-	const [categoryFilter, setCategoryFilter] = useState<string>("all");
+	const [activeTab, setActiveTab] = useState<TabValue>("all");
+	const [formOpen, setFormOpen] = useState(false);
 
-	const { data, isLoading, isError, error } = useQuery<ResourceApiItem[]>({
-		queryKey: ["resources"],
-		queryFn: async () => {
-			const body = await apiClient.get<ApiEnvelope<ResourceApiItem[]>>("/resources");
-			return body?.data || [];
-		},
+	const selectedType = activeTab === "all" ? undefined : activeTab;
+
+	const {
+		data: paginated,
+		isLoading,
+		isError,
+		error,
+		refetch,
+	} = useResourceList({
+		search: query || undefined,
+		type: selectedType,
+		limit: 100,
 	});
 
-	const normalizedResources = useMemo(() => (data || []).map(normalizeResource), [data]);
+	const deleteMutation = useDeleteResource();
 
-	const categoryOptions = useMemo(() => {
-		const options = Array.from(new Set(normalizedResources.map((resource) => resource.tipo)));
-		return ["all", ...options];
-	}, [normalizedResources]);
+	const resources = useMemo(() => paginated?.data ?? [], [paginated]);
 
-	const filteredResources = useMemo(() => {
-		const searchTerm = query.trim().toLowerCase();
+	// Stats
+	const stats = useMemo(() => {
+		const total = resources.length;
+		const active = resources.filter((r) => r.active !== false).length;
+		const maintenance = resources.filter((r) => r.status === "maintenance").length;
+		const lowStock = resources.filter((r) => r.status === "expired" || r.active === false).length;
+		return { total, active, maintenance, lowStock };
+	}, [resources]);
 
-		return normalizedResources.filter((resource) => {
-			const matchesSearch =
-				!searchTerm ||
-				resource.nombre.toLowerCase().includes(searchTerm) ||
-				resource.tipo.toLowerCase().includes(searchTerm) ||
-				resource.unidad.toLowerCase().includes(searchTerm);
+	// Tabs
+	const tabOptions: { value: TabValue; label: string }[] = useMemo(
+		() => [
+			{ value: "all", label: "Todos" },
+			...RESOURCE_TYPE_ORDER.map((t) => ({
+				value: t as TabValue,
+				label: RESOURCE_TYPE_LABELS[t] ?? t,
+			})),
+		],
+		[],
+	);
 
-			const matchesCategory = categoryFilter === "all" || resource.tipo === categoryFilter;
-
-			return matchesSearch && matchesCategory;
-		});
-	}, [categoryFilter, normalizedResources, query]);
-
-	const totals = useMemo(() => {
-		const totalResources = normalizedResources.length;
-		const totalInstances = normalizedResources.reduce(
-			(acc, resource) => acc + resource.totalInstancias,
-			0,
-		);
-		const availableInstances = normalizedResources.reduce(
-			(acc, resource) => acc + resource.instanciasDisponibles,
-			0,
-		);
-		const lowStockResources = normalizedResources.filter(
-			(resource) => resource.totalInstancias > 0 && resource.availabilityPercentage <= 25,
-		).length;
-
-		return {
-			totalResources,
-			totalInstances,
-			availableInstances,
-			lowStockResources,
-		};
-	}, [normalizedResources]);
-
-	const lowStockResources = normalizedResources.filter(
-		(resource) => resource.totalInstancias > 0 && resource.availabilityPercentage <= 25,
+	// Handlers
+	const handleDelete = useCallback(
+		async (id: string) => {
+			try {
+				await deleteMutation.mutateAsync(id);
+			} catch {
+				// handled by React Query
+			}
+		},
+		[deleteMutation],
 	);
 
 	return (
 		<section className="space-y-6" aria-labelledby="resources-page-title">
+			{/* Header */}
 			<header className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]">
 				<div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
 					<div className="space-y-2">
 						<p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">
-							Inventario
+							Catálogo
 						</p>
 						<h1
 							id="resources-page-title"
 							className="text-2xl font-semibold text-[var(--text-primary)]"
 						>
-							Inventario y Recursos
+							Recursos
 						</h1>
 						<p className="max-w-2xl text-sm text-[var(--text-secondary)]">
-							Gestiona equipos, herramientas y materiales operativos con una vista clara de
-							disponibilidad y estado.
+							Gestiona herramientas, equipos, materiales y otros recursos operativos.
 						</p>
 					</div>
 
-					<div className="flex items-center gap-2">
-						<Button asChild variant="outline">
-							<Link href="/resources/kits">
-								<Wrench aria-hidden="true" className="size-4" />
-								Ver kits típicos
-							</Link>
-						</Button>
-					</div>
+					<Button onClick={() => setFormOpen(true)} variant="primary">
+						<Plus aria-hidden="true" className="size-4" />
+						Nuevo recurso
+					</Button>
 				</div>
 			</header>
 
-			<section
-				aria-label="Resumen de inventario"
-				className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
-			>
+			{/* Stats row */}
+			<section aria-label="Resumen" className="grid grid-cols-2 gap-4 sm:grid-cols-4">
 				{[
-					{ label: "Recursos", value: totals.totalResources },
-					{ label: "Instancias", value: totals.totalInstances },
-					{ label: "Disponibles", value: totals.availableInstances, tone: "success" },
-					{ label: "Stock bajo", value: totals.lowStockResources, tone: "warning" },
+					{ label: "Total", value: stats.total },
+					{ label: "Activos", value: stats.active, success: true },
+					{ label: "En mantenimiento", value: stats.maintenance, warning: true },
+					{ label: "Stock bajo / inactivos", value: stats.lowStock, danger: true },
 				].map((stat) => (
 					<article
 						key={stat.label}
@@ -198,7 +124,15 @@ export default function ResourcesPage() {
 							{stat.label}
 						</p>
 						<p
-							className={`mt-2 text-3xl font-semibold ${stat.tone === "success" ? "text-[var(--color-success)]" : stat.tone === "warning" ? "text-[var(--color-warning)]" : "text-[var(--text-primary)]"}`}
+							className={`mt-2 text-3xl font-semibold ${
+								stat.success
+									? "text-[var(--color-success)]"
+									: stat.warning
+										? "text-[var(--color-warning)]"
+										: stat.danger
+											? "text-[var(--color-danger)]"
+											: "text-[var(--text-primary)]"
+							}`}
 						>
 							{stat.value}
 						</p>
@@ -206,24 +140,8 @@ export default function ResourcesPage() {
 				))}
 			</section>
 
-			{lowStockResources.length > 0 ? (
-				<aside className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--color-warning-bg)] bg-[var(--color-warning-bg)]/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-					<div>
-						<p className="text-sm font-semibold text-[var(--color-warning)]">
-							{lowStockResources.length} recurso{lowStockResources.length > 1 ? "s" : ""} con stock
-							bajo
-						</p>
-						<p className="text-xs text-[var(--text-secondary)]">
-							Revisa los elementos cercanos al límite para evitar quiebres operativos.
-						</p>
-					</div>
-					<span className="rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-[var(--color-warning)]">
-						Prioridad alta
-					</span>
-				</aside>
-			) : null}
-
-			<section className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
+			{/* Search + tabs */}
+			<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
 				<div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
 					<div className="relative w-full lg:max-w-md">
 						<label htmlFor="resource-search" className="sr-only">
@@ -237,77 +155,108 @@ export default function ResourcesPage() {
 							id="resource-search"
 							name="q"
 							value={query}
-							onChange={(event) => setQuery(event.target.value)}
-							placeholder="Buscar por nombre, tipo o unidad"
+							onChange={(e) => setQuery(e.target.value)}
+							placeholder="Buscar por nombre, tipo, marca…"
 							className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] py-2.5 pl-10 pr-4 text-sm text-[var(--text-primary)] outline-none transition focus:border-[var(--border-focus)] focus:ring-2 focus:ring-[color:var(--color-brand-blue)]/20"
 						/>
 					</div>
-
-					<div className="flex flex-wrap gap-2">
-						{categoryOptions.map((category) => {
-							const label =
-								category === "all" ? "Todas" : (RESOURCE_TYPE_LABELS[category] ?? category);
-							const isActive = categoryFilter === category;
-
-							return (
-								<button
-									key={category}
-									type="button"
-									onClick={() => setCategoryFilter(category)}
-									className={`rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition ${
-										isActive
-											? "bg-[var(--color-brand-blue)] text-white shadow-[var(--shadow-brand)]"
-											: "border border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
-									}`}
-								>
-									{label}
-								</button>
-							);
-						})}
-					</div>
 				</div>
-			</section>
 
+				{/* Tabs */}
+				<div
+					className="mt-4 flex flex-wrap gap-2"
+					role="tablist"
+					aria-label="Filtrar por tipo de recurso"
+				>
+					{tabOptions.map((tab) => (
+						<button
+							key={tab.value}
+							role="tab"
+							type="button"
+							aria-selected={activeTab === tab.value}
+							onClick={() => setActiveTab(tab.value)}
+							className={`rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition ${
+								activeTab === tab.value
+									? "bg-[var(--color-brand-blue)] text-white shadow-[var(--shadow-brand)]"
+									: "border border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+							}`}
+						>
+							{tab.label}
+						</button>
+					))}
+				</div>
+			</div>
+
+			{/* Resource list */}
 			<section aria-labelledby="resources-list-title" className="space-y-4">
 				<h2 id="resources-list-title" className="sr-only">
 					Listado de recursos
 				</h2>
 
 				{isLoading ? (
-					<div className="flex h-32 items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)]">
-						<Loader2 className="mr-2 size-6 animate-spin" /> Cargando…
+					<div className="flex h-40 items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)]">
+						<Loader2 className="mr-2 size-6 animate-spin" aria-hidden="true" />
+						Cargando recursos…
 					</div>
 				) : isError ? (
-					<div className="flex h-32 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--color-danger-bg)] bg-[var(--color-danger-bg)]/60 text-[var(--color-danger)] shadow-[var(--shadow-1)]">
-						Error: {(error as Error).message}
+					<div className="flex flex-col items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--color-danger-bg)] bg-[var(--color-danger-bg)]/60 p-8 text-center">
+						<p className="text-sm font-medium text-[var(--color-danger)]">
+							{(error as Error).message}
+						</p>
+						<Button variant="outline" size="sm" onClick={() => refetch()}>
+							Reintentar
+						</Button>
 					</div>
-				) : filteredResources.length === 0 ? (
+				) : resources.length === 0 ? (
 					<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]">
 						<EmptyState
-							title="Sin resultados"
-							description="Prueba con otro filtro o cambia el término de búsqueda."
-							icon="search"
+							title={query || activeTab !== "all" ? "Sin resultados" : "No hay recursos"}
+							description={
+								query || activeTab !== "all"
+									? "Prueba con otro filtro o cambia el término de búsqueda."
+									: "Crea tu primer recurso para empezar a gestionar el catálogo."
+							}
+							icon="resources"
 							action={
-								query || categoryFilter !== "all"
+								query || activeTab !== "all"
 									? {
 											label: "Limpiar filtros",
 											onClick: () => {
 												setQuery("");
-												setCategoryFilter("all");
+												setActiveTab("all");
 											},
 										}
-									: undefined
+									: {
+											label: "Crear recurso",
+											onClick: () => setFormOpen(true),
+										}
 							}
 						/>
 					</div>
 				) : (
 					<div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-						{filteredResources.map((resource) => (
-							<ResourceCard key={resource._id} resource={resource} />
+						{resources.map((resource) => (
+							<div key={resource._id} className="group relative">
+								<ResourceCard resource={resource} />
+
+								{/* Delete button */}
+								<button
+									type="button"
+									onClick={() => handleDelete(resource._id)}
+									className="absolute right-2 top-2 flex size-7 items-center justify-center rounded-full bg-[var(--color-danger-bg)] text-[var(--color-danger)] opacity-0 transition-opacity hover:bg-[var(--color-danger)] hover:text-white group-hover:opacity-100"
+									aria-label={`Eliminar ${resource.name}`}
+									disabled={deleteMutation.isPending}
+								>
+									<Trash2 className="size-3.5" aria-hidden="true" />
+								</button>
+							</div>
 						))}
 					</div>
 				)}
 			</section>
+
+			{/* Create / Edit dialog */}
+			<ResourceForm open={formOpen} onOpenChange={setFormOpen} onSuccess={() => refetch()} />
 		</section>
 	);
 }

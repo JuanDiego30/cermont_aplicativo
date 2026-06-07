@@ -347,7 +347,13 @@ function AdministrativeClosureRequirements({
 	);
 }
 
-function ClosureGateAlerts({ closureReport, state }: { closureReport?: ClosureReport; state: ClosureGateState }) {
+function ClosureGateAlerts({
+	closureReport,
+	state,
+}: {
+	closureReport?: ClosureReport;
+	state: ClosureGateState;
+}) {
 	const {
 		administrativeClosureReady,
 		hasCosts,

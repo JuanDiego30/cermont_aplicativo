@@ -1,17 +1,15 @@
 import type {
 	CostDataState,
-	CostResponse as CostResponseType,
 	CostSummary,
 	CreateCostInput,
 	ListCostsQuery,
 	UpdateCostInput,
 } from "@cermont/shared-types";
+import type { CostResponse as CostSnapshot } from "@cermont/shared-types";
 import { Types } from "mongoose";
 import { BadRequestError, ForbiddenError, NotFoundError } from "../../common/errors/AppError";
-import { Cost, Invoice, Order, Payment } from "../../models";
+import { Cost, Document, Evidence, Invoice, Order, Payment } from "../../models";
 import type { ICostDocument } from "../../models/Cost";
-
-type CostResponse = CostResponseType;
 
 export type CostDashboard = {
 	generatedAt: string;
@@ -35,6 +33,25 @@ const COST_CATEGORY_ORDER = [
 	"other",
 ] satisfies readonly CostSummary["byCategory"][number]["category"][];
 
+type EvidenceSupportQuery = {
+	_id: { $in: Types.ObjectId[] };
+	deletedAt: { $exists: false };
+	$or: Array<{ orderId: Types.ObjectId } | { workOrderId: Types.ObjectId }>;
+};
+
+type DocumentSupportQuery = {
+	_id: { $in: Types.ObjectId[] };
+	lifecycleStatus: { $ne: "deleted" };
+	$or: Array<
+		| { order_id: Types.ObjectId }
+		| { "associations.orderId": Types.ObjectId }
+		| {
+				linkedEntityType: { $in: ["order", "work_order"] };
+				linkedEntityId: Types.ObjectId;
+		  }
+	>;
+};
+
 function parseObjectId(value: string, fieldName: string): Types.ObjectId {
 	if (!Types.ObjectId.isValid(value)) {
 		throw new BadRequestError(`Invalid ${fieldName}`, `INVALID_${fieldName.toUpperCase()}`);
@@ -43,7 +60,7 @@ function parseObjectId(value: string, fieldName: string): Types.ObjectId {
 	return new Types.ObjectId(value);
 }
 
-function toIsoString(value: Date | string | undefined): string {
+function toIsoString(value?: Date | string): string {
 	if (!value) {
 		return new Date(0).toISOString();
 	}
@@ -56,9 +73,9 @@ function computeVariance(estimatedAmount: number, actualAmount: number): number 
 	return Number(actualAmount ?? 0) - Number(estimatedAmount ?? 0);
 }
 
-function computeVariancePercent(estimatedAmount: number, actualAmount: number): number | null {
+function computeVariancePercent(estimatedAmount: number, actualAmount: number): number {
 	if (estimatedAmount <= 0) {
-		return null;
+		return 0;
 	}
 
 	return computeVariance(estimatedAmount, actualAmount) / estimatedAmount;
@@ -112,10 +129,15 @@ async function resolveBillingDataState(
 	return fallback;
 }
 
-function formatCostResponse(doc: ICostDocument): CostResponse {
+function formatCostResponse(doc: ICostDocument): CostSnapshot {
 	const estimatedAmount = Number(doc.estimatedAmount ?? 0);
 	const actualAmount = Number(doc.actualAmount ?? 0);
 	const taxAmount = Number(doc.taxAmount ?? 0);
+	const voidMetadata = {
+		...(doc.voidedAt ? { voidedAt: toIsoString(doc.voidedAt) } : {}),
+		...(doc.voidedBy ? { voidedBy: doc.voidedBy.toString() } : {}),
+		...(doc.voidReason ? { voidReason: doc.voidReason } : {}),
+	};
 
 	return {
 		_id: doc._id.toString(),
@@ -128,14 +150,107 @@ function formatCostResponse(doc: ICostDocument): CostResponse {
 		taxRate: Number(doc.taxRate ?? 0),
 		currency: doc.currency ?? "COP",
 		notes: doc.notes,
+		supportEvidenceIds: (doc.supportEvidenceIds ?? []).map((id) => id.toString()),
+		supportDocumentIds: (doc.supportDocumentIds ?? []).map((id) => id.toString()),
+		status: doc.status ?? "active",
+		...voidMetadata,
 		recordedBy: doc.recordedBy.toString(),
 		recordedAt: toIsoString(doc.recordedAt),
 		createdAt: toIsoString(doc.createdAt),
 		updatedAt: toIsoString(doc.updatedAt),
 		variance: computeVariance(estimatedAmount, actualAmount),
-		variancePercent: computeVariancePercent(estimatedAmount, actualAmount),
+		variancePercent: { status: "present" as const, value: computeVariancePercent(estimatedAmount, actualAmount) },
 		dataState: resolveAmountDataState(estimatedAmount, actualAmount),
 	};
+}
+
+function parseObjectIds(values: readonly string[] = [], fieldName: string): Types.ObjectId[] {
+	return values.map((value) => parseObjectId(value, fieldName));
+}
+
+function hasDefinedPayloadKey<K extends keyof UpdateCostInput>(
+	payload: UpdateCostInput,
+	key: K,
+): payload is UpdateCostInput & { [P in K]-?: Exclude<UpdateCostInput[P], void> } {
+	return Object.hasOwn(payload, key) && payload[key] !== void 0;
+}
+
+function ensureActualCostHasSupport(input: {
+	actualAmount: number;
+	supportEvidenceIds: readonly Types.ObjectId[];
+	supportDocumentIds: readonly Types.ObjectId[];
+}): void {
+	if (input.actualAmount <= 0) {
+		return;
+	}
+
+	if (input.supportEvidenceIds.length + input.supportDocumentIds.length === 0) {
+		throw new BadRequestError(
+			"Actual cost entries require at least one support evidence or document",
+			"COST_SUPPORT_REQUIRED",
+		);
+	}
+}
+
+function buildEvidenceSupportQuery(
+	orderObjectId: Types.ObjectId,
+	supportEvidenceIds: Types.ObjectId[],
+): EvidenceSupportQuery {
+	return {
+		_id: { $in: supportEvidenceIds },
+		deletedAt: { $exists: false },
+		$or: [{ orderId: orderObjectId }, { workOrderId: orderObjectId }],
+	};
+}
+
+function buildDocumentSupportQuery(
+	orderObjectId: Types.ObjectId,
+	supportDocumentIds: Types.ObjectId[],
+): DocumentSupportQuery {
+	return {
+		_id: { $in: supportDocumentIds },
+		lifecycleStatus: { $ne: "deleted" },
+		$or: [
+			{ order_id: orderObjectId },
+			{ "associations.orderId": orderObjectId },
+			{
+				linkedEntityType: { $in: ["order", "work_order"] },
+				linkedEntityId: orderObjectId,
+			},
+		],
+	};
+}
+
+async function ensureCostSupportsBelongToOrder(input: {
+	orderObjectId: Types.ObjectId;
+	supportEvidenceIds: Types.ObjectId[];
+	supportDocumentIds: Types.ObjectId[];
+}): Promise<void> {
+	if (input.supportEvidenceIds.length > 0) {
+		const evidenceCount = await Evidence.countDocuments(
+			buildEvidenceSupportQuery(input.orderObjectId, input.supportEvidenceIds),
+		);
+
+		if (evidenceCount !== input.supportEvidenceIds.length) {
+			throw new BadRequestError(
+				"Cost support evidence must exist and belong to the order",
+				"COST_SUPPORT_EVIDENCE_INVALID",
+			);
+		}
+	}
+
+	if (input.supportDocumentIds.length > 0) {
+		const documentCount = await Document.countDocuments(
+			buildDocumentSupportQuery(input.orderObjectId, input.supportDocumentIds),
+		);
+
+		if (documentCount !== input.supportDocumentIds.length) {
+			throw new BadRequestError(
+				"Cost support document must exist and belong to the order",
+				"COST_SUPPORT_DOCUMENT_INVALID",
+			);
+		}
+	}
 }
 
 function ensureCostWriteAccess(cost: ICostDocument, userId: string, userRole: string): void {
@@ -158,9 +273,21 @@ async function ensureOrderExists(orderId: string): Promise<void> {
 /**
  * Create cost entry.
  */
-export async function createCost(data: CreateCostInput, userId: string): Promise<CostResponse> {
+export async function createCost(data: CreateCostInput, userId: string): Promise<CostSnapshot> {
 	const orderObjectId = parseObjectId(data.orderId, "orderId");
 	await ensureOrderExists(orderObjectId.toString());
+	const supportEvidenceIds = parseObjectIds(data.supportEvidenceIds, "supportEvidenceId");
+	const supportDocumentIds = parseObjectIds(data.supportDocumentIds, "supportDocumentId");
+	ensureActualCostHasSupport({
+		actualAmount: data.actualAmount,
+		supportEvidenceIds,
+		supportDocumentIds,
+	});
+	await ensureCostSupportsBelongToOrder({
+		orderObjectId,
+		supportEvidenceIds,
+		supportDocumentIds,
+	});
 
 	const cost = new Cost({
 		orderId: orderObjectId,
@@ -172,6 +299,9 @@ export async function createCost(data: CreateCostInput, userId: string): Promise
 		taxRate: data.taxRate ?? 0,
 		currency: data.currency ?? "COP",
 		notes: data.notes,
+		supportEvidenceIds,
+		supportDocumentIds,
+		status: "active",
 		recordedBy: parseObjectId(userId, "userId"),
 		recordedAt: new Date(),
 	});
@@ -184,7 +314,7 @@ export async function createCost(data: CreateCostInput, userId: string): Promise
  * List costs with optional filters and pagination.
  */
 export async function listCosts(query: ListCostsQuery): Promise<{
-	costs: CostResponse[];
+	costs: CostSnapshot[];
 	total: number;
 	page: number;
 	limit: number;
@@ -194,7 +324,11 @@ export async function listCosts(query: ListCostsQuery): Promise<{
 	const limit = query.limit ?? 20;
 	const skip = (page - 1) * limit;
 
-	const filter: Record<string, unknown> = {};
+	const filter: {
+		status: { $ne: "voided" };
+		orderId?: Types.ObjectId;
+		category?: ListCostsQuery["category"];
+	} = { status: { $ne: "voided" } };
 
 	if (query.orderId) {
 		const orderObjectId = parseObjectId(query.orderId, "orderId");
@@ -233,7 +367,7 @@ export async function getCostsByOrderId(
 	limit: number = 20,
 	category?: ListCostsQuery["category"],
 ): Promise<{
-	costs: CostResponse[];
+	costs: CostSnapshot[];
 	total: number;
 	page: number;
 	limit: number;
@@ -250,15 +384,15 @@ export async function getCostsByOrderId(
 /**
  * Fetch a single cost by ID.
  */
-export async function getCostById(costId: string): Promise<CostResponse> {
+export async function getCostById(costId: string): Promise<CostSnapshot> {
 	const costObjectId = parseObjectId(costId, "costId");
-	const cost = await Cost.findById(costObjectId).lean();
+	const cost = await Cost.findById(costObjectId).lean<ICostDocument>();
 
 	if (!cost) {
 		throw new NotFoundError("Cost", costId);
 	}
 
-	return formatCostResponse(cost as unknown as ICostDocument);
+	return formatCostResponse(cost);
 }
 
 /**
@@ -270,7 +404,7 @@ export async function getOrderSummary(orderId: string): Promise<CostSummary> {
 
 	const [totalsResult, categoryResult] = await Promise.all([
 		Cost.aggregate([
-			{ $match: { orderId: orderObjectId } },
+			{ $match: { orderId: orderObjectId, status: { $ne: "voided" } } },
 			{
 				$group: {
 					_id: null,
@@ -281,7 +415,7 @@ export async function getOrderSummary(orderId: string): Promise<CostSummary> {
 			},
 		]),
 		Cost.aggregate([
-			{ $match: { orderId: orderObjectId } },
+			{ $match: { orderId: orderObjectId, status: { $ne: "voided" } } },
 			{
 				$group: {
 					_id: "$category",
@@ -340,7 +474,9 @@ export async function getOrderSummary(orderId: string): Promise<CostSummary> {
 		totalActual,
 		totalTax,
 		variance,
-		variancePercent: totalEstimated > 0 ? variance / totalEstimated : null,
+		variancePercent: totalEstimated > 0
+			? { status: "present", value: variance / totalEstimated }
+			: { status: "absent" },
 		hasCosts: dataState !== "NO_DATA",
 		dataState,
 		byCategory,
@@ -357,6 +493,7 @@ export async function getCostSummary(orderId: string): Promise<CostSummary> {
 export async function getCostDashboard(): Promise<CostDashboard> {
 	const [totalsResult, categoryResult] = await Promise.all([
 		Cost.aggregate<{ totalEstimated: number; totalActual: number; totalTax: number }>([
+			{ $match: { status: { $ne: "voided" } } },
 			{
 				$group: {
 					_id: null,
@@ -367,6 +504,7 @@ export async function getCostDashboard(): Promise<CostDashboard> {
 			},
 		]),
 		Cost.aggregate<CostSummary["byCategory"][number]>([
+			{ $match: { status: { $ne: "voided" } } },
 			{
 				$group: {
 					_id: "$category",
@@ -422,7 +560,7 @@ export async function updateCost(
 	payload: UpdateCostInput,
 	userId: string,
 	userRole: string,
-): Promise<CostResponse> {
+): Promise<CostSnapshot> {
 	const costObjectId = parseObjectId(costId, "costId");
 	const cost = await Cost.findById(costObjectId);
 
@@ -432,30 +570,47 @@ export async function updateCost(
 
 	ensureCostWriteAccess(cost, userId, userRole);
 
-	if (payload.category !== undefined) {
+	if (hasDefinedPayloadKey(payload, "category")) {
 		cost.category = payload.category;
 	}
-	if (payload.description !== undefined) {
+	if (hasDefinedPayloadKey(payload, "description")) {
 		cost.description = payload.description;
 	}
-	if (payload.estimatedAmount !== undefined) {
+	if (hasDefinedPayloadKey(payload, "estimatedAmount")) {
 		cost.estimatedAmount = payload.estimatedAmount;
 	}
-	if (payload.actualAmount !== undefined) {
+	if (hasDefinedPayloadKey(payload, "actualAmount")) {
 		cost.actualAmount = payload.actualAmount;
 	}
-	if (payload.taxAmount !== undefined) {
+	if (hasDefinedPayloadKey(payload, "taxAmount")) {
 		cost.taxAmount = payload.taxAmount;
 	}
-	if (payload.taxRate !== undefined) {
+	if (hasDefinedPayloadKey(payload, "taxRate")) {
 		cost.taxRate = payload.taxRate;
 	}
-	if (payload.currency !== undefined) {
+	if (hasDefinedPayloadKey(payload, "currency")) {
 		cost.currency = payload.currency;
 	}
-	if (payload.notes !== undefined) {
+	if (hasDefinedPayloadKey(payload, "notes")) {
 		cost.notes = payload.notes;
 	}
+	if (hasDefinedPayloadKey(payload, "supportEvidenceIds")) {
+		cost.supportEvidenceIds = parseObjectIds(payload.supportEvidenceIds, "supportEvidenceId");
+	}
+	if (hasDefinedPayloadKey(payload, "supportDocumentIds")) {
+		cost.supportDocumentIds = parseObjectIds(payload.supportDocumentIds, "supportDocumentId");
+	}
+
+	ensureActualCostHasSupport({
+		actualAmount: cost.actualAmount,
+		supportEvidenceIds: cost.supportEvidenceIds ?? [],
+		supportDocumentIds: cost.supportDocumentIds ?? [],
+	});
+	await ensureCostSupportsBelongToOrder({
+		orderObjectId: cost.orderId,
+		supportEvidenceIds: cost.supportEvidenceIds ?? [],
+		supportDocumentIds: cost.supportDocumentIds ?? [],
+	});
 
 	await cost.save();
 	return formatCostResponse(cost);
@@ -468,17 +623,21 @@ export async function deleteCost(
 	costId: string,
 	userId: string,
 	userRole: string,
-): Promise<CostResponse> {
+): Promise<CostSnapshot> {
 	const costObjectId = parseObjectId(costId, "costId");
-	const cost = await Cost.findById(costObjectId).lean();
+	const cost = await Cost.findById(costObjectId);
 
 	if (!cost) {
 		throw new NotFoundError("Cost", costId);
 	}
 
-	ensureCostWriteAccess(cost as unknown as ICostDocument, userId, userRole);
+	ensureCostWriteAccess(cost, userId, userRole);
 
-	await Cost.deleteOne({ _id: costObjectId });
+	cost.status = "voided";
+	cost.voidedAt = new Date();
+	cost.voidedBy = parseObjectId(userId, "userId");
+	cost.voidReason = "Voided through cost deletion endpoint";
+	await cost.save();
 
-	return formatCostResponse(cost as unknown as ICostDocument);
+	return formatCostResponse(cost);
 }

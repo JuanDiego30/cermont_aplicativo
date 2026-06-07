@@ -14,16 +14,13 @@ export default function LoginPage() {
 			{/* Form - rendered ONCE, responsive positioning */}
 			<div className="flex w-full items-center justify-center md:w-1/2 lg:w-[50%]">
 				<section
-					className="w-full max-w-md px-8 py-16 md:px-12 lg:px-20"
+					className="animate-fade-in-up w-full max-w-md px-8 py-16 md:px-12 lg:px-20"
 					aria-label="Formulario de inicio de sesión"
 				>
 					<Suspense
 						fallback={
 							<div className="flex items-center justify-center py-24" aria-live="polite">
-								<Loader2
-									className="size-10 animate-spin text-brand"
-									aria-hidden="true"
-								/>
+								<Loader2 className="size-10 animate-spin text-brand" aria-hidden="true" />
 								<span className="sr-only">Cargando formulario de inicio de sesión…</span>
 							</div>
 						}

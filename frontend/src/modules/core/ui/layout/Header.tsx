@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
+import { NetworkStatusChip } from "@/components/sync/NetworkStatusChip";
 import { ThemeToggle } from "@/core/ui/ThemeToggle";
 import { apiClient } from "@/lib/http/api-client";
 import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
@@ -61,10 +62,10 @@ export default function Header({
 				return;
 			}
 			gsap.from(headerRef.current, {
-				y: -20,
+				y: -8,
 				opacity: 0,
-				duration: 0.5,
-				ease: "power2.out",
+				duration: 0.22,
+				ease: "power3.out",
 			});
 		},
 		{ scope: headerRef, dependencies: [] },
@@ -121,7 +122,7 @@ export default function Header({
 	return (
 		<header
 			ref={headerRef}
-			className="sticky top-0 z-30 flex h-[var(--header-height)] items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface-primary)]/80 px-4 backdrop-blur-xl transition-all duration-200 sm:px-6 shadow-sm"
+			className="motion-panel sticky top-0 z-30 flex h-[var(--header-height)] items-center justify-between border-b border-border-default bg-background/92 px-4 shadow-[0_1px_0_rgba(0,0,0,0.03)] backdrop-blur-xl sm:px-6"
 		>
 			{/* Left */}
 			<div className="flex items-center gap-4">
@@ -134,22 +135,22 @@ export default function Header({
 					aria-controls="sidebar"
 					aria-expanded={sidebarOpen}
 					aria-label={sidebarOpen ? "Cerrar navegación" : "Abrir navegación"}
-					className="rounded-full p-2 text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-secondary)] hover:text-[var(--text-primary)] lg:hidden border border-[var(--border-subtle)]"
+					className="motion-button rounded-full border border-border-default p-2 text-secondary-foreground hover:bg-secondary hover:text-foreground lg:hidden"
 				>
 					<Menu className="size-5" aria-hidden="true" />
 				</button>
 
 				<div className="flex flex-col">
 					<div className="flex items-center gap-2">
-						<p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-brand)] font-mono">
+						<p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand font-mono">
 							{moduleTitle}
 						</p>
-						<span className="text-[var(--border-medium)]">•</span>
-						<p className="text-[10px] font-medium text-[var(--text-muted)] font-mono uppercase">
+						<span className="text-border-medium">•</span>
+						<p className="text-[10px] font-medium text-muted-foreground font-mono uppercase">
 							Arauca
 						</p>
 					</div>
-					<h1 className="text-sm font-semibold text-[var(--text-primary)] leading-none mt-1">
+					<h1 className="mt-1 text-sm font-semibold leading-none text-foreground [text-wrap:balance]">
 						{pageTitle}
 					</h1>
 				</div>
@@ -157,10 +158,15 @@ export default function Header({
 
 			{/* Right controls */}
 			<div className="flex items-center gap-2">
+				{/* Network Status Chip */}
+				<NetworkStatusChip />
+
+				<div className="h-6 w-px bg-border-default mx-1" />
+
 				{/* Theme toggle */}
 				<ThemeToggle />
 
-				<div className="h-6 w-px bg-[var(--border-subtle)] mx-1" />
+				<div className="h-6 w-px bg-border-default mx-1" />
 
 				{/* Notifications */}
 				<HeaderNotifications

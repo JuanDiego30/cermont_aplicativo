@@ -1,5 +1,7 @@
 import { type Document, model, Schema, type Types } from "mongoose";
 
+import { FileAssetRefSchema, type FileAssetRef } from "./sub-schemas/FileAssetRefSchema";
+
 /**
  * Kit Mongoose Model (New Generation)
  *
@@ -22,6 +24,7 @@ export interface KitItem {
 	unitCost?: number;
 	required?: boolean;
 	critical?: boolean;
+	image?: FileAssetRef;
 }
 
 export interface KitFileAttachment {
@@ -170,6 +173,7 @@ export interface IKitDocument extends Document {
 	serviceTypes: string[];
 	items: KitItem[];
 	documents: KitFileAttachment[];
+	fileAssets: FileAssetRef[];
 	forms: KitFormBinding[];
 	evidenceRequirements: EvidenceRequirement[];
 	rules: KitRule[];
@@ -199,6 +203,7 @@ const KitSchema = new Schema<IKitDocument>(
 		serviceTypes: { type: [String], default: [] },
 		items: { type: Schema.Types.Mixed, required: true },
 		documents: { type: Schema.Types.Mixed, default: [] },
+		fileAssets: { type: [FileAssetRefSchema], default: [] },
 		forms: { type: Schema.Types.Mixed, default: [] },
 		evidenceRequirements: { type: Schema.Types.Mixed, default: [] },
 		rules: { type: Schema.Types.Mixed, default: [] },

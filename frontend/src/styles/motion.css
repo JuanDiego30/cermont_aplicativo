@@ -1,0 +1,382 @@
+/* ════════════════════════════════════════════════════════════════
+ * Cermont Motion System — CSS custom properties & utility classes
+ *
+ * Principles:
+ * - Single source of truth for all animation values
+ * - Animate opacity + transform only (layout properties are banned)
+ * - Never use `transition-all` without justification
+ * - All animations respect prefers-reduced-motion
+ * - Per Emil Kowalski: ease-out for UI, avoid scale(0) entries
+ * ════════════════════════════════════════════════════════════════ */
+
+@layer tokens {
+	:root {
+		/* ── Duration Tokens — Per design-engineering principles ── */
+		--duration-instant: 80ms; /* Button press, micro-interactions */
+		--duration-fast: 150ms; /* Hover states, small transitions */
+		--duration-normal: 220ms; /* Standard UI transitions */
+		--duration-slow: 320ms; /* Drawer/modal entrances */
+		--duration-entrance: 400ms; /* Page/section reveals */
+
+		/* ── Easing Tokens — Strong custom curves per design-engineering ── */
+		--ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+		--ease-enter: cubic-bezier(0, 0, 0.2, 1); /* Strong ease-out */
+		--ease-exit: cubic-bezier(0.4, 0, 1, 1); /* Standard ease-out */
+		--ease-emphasized: cubic-bezier(0.23, 1, 0.32, 1); /* Power curve */
+		--ease-emphasized-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+		--ease-linear: linear;
+
+		/* Emilio Kowalski recommended curves */
+		--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+		--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+		/* ── Stagger Tokens ── */
+		--stagger-tight: 30ms;
+		--stagger-normal: 50ms;
+		--stagger-relaxed: 80ms;
+
+		/* ── Transform Tokens ── */
+		--press-scale: 0.98;
+		--hover-lift: -1px;
+		--modal-initial-scale: 0.97;
+		--slide-distance: 6px;
+		--shell-max-width: 1600px;
+	}
+}
+
+@layer base {
+	html {
+		scroll-behavior: smooth;
+		scroll-padding-top: calc(var(--header-height) + var(--space-4));
+		scrollbar-gutter: stable both-edges;
+	}
+
+	body {
+		overflow-x: hidden;
+	}
+}
+
+@layer utilities {
+	.motion-surface,
+	.motion-card,
+	.motion-button,
+	.motion-press,
+	.motion-input,
+	.motion-overlay,
+	.motion-panel,
+	.motion-drawer,
+	.motion-modal,
+	.motion-reveal,
+	.motion-reveal-up,
+	.motion-hover-lift,
+	.motion-list-item,
+	.motion-stagger-item,
+	.motion-subtle {
+		backface-visibility: hidden;
+		transform: translateZ(0);
+	}
+
+	.motion-shell {
+		contain: layout paint;
+	}
+
+	.motion-card {
+		transition-property: transform, opacity, background-color, border-color, box-shadow;
+		transition-duration: var(--duration-normal);
+		transition-timing-function: var(--ease-standard);
+	}
+
+	.motion-panel,
+	.motion-modal,
+	.motion-drawer {
+		transition-property: opacity, transform, box-shadow, background-color, border-color;
+		transition-duration: var(--duration-normal);
+		transition-timing-function: var(--ease-emphasized);
+	}
+
+	.motion-button,
+	.motion-press,
+	.motion-input,
+	.motion-list-item {
+		transition-property: transform, opacity, color, background-color, border-color, box-shadow;
+		transition-duration: var(--duration-fast);
+		transition-timing-function: var(--ease-standard);
+	}
+
+	.motion-reveal,
+	.motion-reveal-up,
+	.motion-stagger-item {
+		transition-property: opacity, transform;
+		transition-duration: var(--duration-normal);
+		transition-timing-function: var(--ease-enter);
+	}
+
+	.motion-hover-lift,
+	.motion-subtle {
+		transition-property: transform, opacity, background-color, color, border-color, box-shadow;
+		transition-duration: var(--duration-fast);
+		transition-timing-function: var(--ease-standard);
+	}
+
+	/* ── Transition Shorthands ── */
+	.transition-fade {
+		transition-property: opacity;
+		transition-duration: var(--duration-normal);
+		transition-timing-function: var(--ease-standard);
+	}
+
+	.transition-slide-up {
+		transition-property: opacity, transform;
+		transition-duration: var(--duration-slow);
+		transition-timing-function: var(--ease-emphasized);
+	}
+
+	.transition-color {
+		transition-property: color, background-color, border-color, box-shadow;
+		transition-duration: var(--duration-fast);
+		transition-timing-function: var(--ease-standard);
+	}
+
+	.transition-transform {
+		transition-property: transform;
+		transition-duration: var(--duration-fast);
+		transition-timing-function: var(--ease-standard);
+	}
+
+	.transition-opacity {
+		transition-property: opacity;
+		transition-duration: var(--duration-normal);
+		transition-timing-function: var(--ease-standard);
+	}
+
+	/* ── Hover & Active States ── */
+	.hover-lift {
+		transition: transform var(--duration-fast) var(--ease-standard);
+	}
+
+	.hover-lift:hover {
+		transform: translateY(var(--hover-lift));
+	}
+
+	.press-scale {
+		transition: transform var(--duration-instant) var(--ease-standard);
+	}
+
+	.press-scale:active {
+		transform: scale(var(--press-scale));
+	}
+
+	/* ── Card hover ── */
+	.card-hover {
+		transition-property: transform, box-shadow, border-color;
+		transition-duration: var(--duration-fast);
+		transition-timing-function: var(--ease-standard);
+	}
+
+	.card-hover:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px -6px rgba(0, 0, 0, 0.08);
+	}
+
+	.motion-button:hover,
+	.motion-press:hover,
+	.motion-hover-lift:hover {
+		transform: translateY(var(--hover-lift));
+	}
+
+	.motion-button:active,
+	.motion-press:active {
+		transform: scale(var(--press-scale));
+	}
+
+	/* ── Entrance Animations ── */
+	@keyframes fade-in-up {
+		from {
+			opacity: 0;
+			transform: translateY(var(--slide-distance));
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+	/* Per Emil Kowalski: never animate from scale(0) - start from 0.95 */
+	@keyframes scale-in {
+		from {
+			opacity: 0;
+			transform: scale(0.95);
+		}
+		to {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	@keyframes slide-up {
+		from {
+			opacity: 0;
+			transform: translateY(100%);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes slide-down {
+		from {
+			opacity: 0;
+			transform: translateY(-100%);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	/* ── Animation Utility Classes ── */
+	.animate-fade-in-up {
+		animation: fade-in-up var(--duration-entrance) var(--ease-out) forwards;
+	}
+
+	.animate-fade-in {
+		animation: fade-in var(--duration-normal) var(--ease-enter) forwards;
+	}
+
+	/* Per Emil Kowalski: scale-in starts from 0.95, not 0 */
+	.animate-scale-in {
+		animation: scale-in var(--duration-normal) var(--ease-enter) forwards;
+	}
+
+	.animate-slide-up {
+		animation: slide-up var(--duration-slow) var(--ease-out) forwards;
+	}
+
+	.animate-slide-down {
+		animation: slide-down var(--duration-slow) var(--ease-out) forwards;
+	}
+
+	/* ── Stagger animation for lists ── */
+	.stagger-item {
+		opacity: 0;
+		transform: translateY(var(--slide-distance));
+		animation: fade-in-up var(--duration-normal) var(--ease-out) forwards;
+	}
+
+	.stagger-item:nth-child(1) {
+		animation-delay: 0ms;
+	}
+	.stagger-item:nth-child(2) {
+		animation-delay: calc(var(--stagger-tight) * 1);
+	}
+	.stagger-item:nth-child(3) {
+		animation-delay: calc(var(--stagger-tight) * 2);
+	}
+	.stagger-item:nth-child(4) {
+		animation-delay: calc(var(--stagger-tight) * 3);
+	}
+	.stagger-item:nth-child(5) {
+		animation-delay: calc(var(--stagger-tight) * 4);
+	}
+	.stagger-item:nth-child(6) {
+		animation-delay: calc(var(--stagger-tight) * 5);
+	}
+	.stagger-item:nth-child(7) {
+		animation-delay: calc(var(--stagger-tight) * 6);
+	}
+	.stagger-item:nth-child(8) {
+		animation-delay: calc(var(--stagger-tight) * 7);
+	}
+	.stagger-item:nth-child(9) {
+		animation-delay: calc(var(--stagger-tight) * 8);
+	}
+	.stagger-item:nth-child(10) {
+		animation-delay: calc(var(--stagger-tight) * 9);
+	}
+}
+
+/* ── Reduced Motion — Complete Reset ── */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms;
+		animation-iteration-count: 1;
+		transition-duration: 0.01ms;
+		scroll-behavior: auto;
+	}
+
+	.animate-blob,
+	.animate-fade-in-up,
+	.animate-fade-in,
+	.animate-scale-in,
+	.animate-slide-up,
+	.animate-slide-down {
+		animation: none;
+		opacity: 1;
+		transform: none;
+	}
+
+	.stagger-item {
+		animation: none;
+		opacity: 1;
+		transform: none;
+	}
+
+	.hover-lift:hover {
+		transform: none;
+	}
+
+	.card-hover:hover {
+		transform: none;
+	}
+
+	.motion-surface,
+	.motion-card,
+	.motion-button,
+	.motion-press,
+	.motion-input,
+	.motion-overlay,
+	.motion-panel,
+	.motion-drawer,
+	.motion-modal,
+	.motion-reveal,
+	.motion-reveal-up,
+	.motion-hover-lift,
+	.motion-list-item,
+	.motion-stagger-item,
+	.motion-subtle {
+		transform: none;
+		transition-duration: 0.01ms;
+	}
+
+	.motion-button:active,
+	.motion-press:active,
+	.motion-hover-lift:hover,
+	.motion-button:hover,
+	.motion-card:hover {
+		transform: none;
+	}
+
+	.motion-button,
+	.motion-press,
+	.motion-hover-lift,
+	.motion-subtle,
+	.motion-list-item,
+	.motion-panel,
+	.motion-card,
+	.motion-modal,
+	.motion-drawer {
+		transition-property: opacity, color, background-color, border-color, box-shadow;
+	}
+}

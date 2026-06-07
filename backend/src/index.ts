@@ -9,6 +9,7 @@ import { rateLimit } from "express-rate-limit";
 import helmet from "helmet";
 import { errorHandler } from "./common/errors";
 import { requestId } from "./common/middlewares/request-id.middleware";
+import { shouldSkipAuthRateLimit, shouldSkipGlobalRateLimit } from "./common/security/rate-limit";
 import { createLogger } from "./common/utils/logger";
 import { getDatabaseHealth } from "./config/db";
 import { env } from "./config/env";
@@ -31,6 +32,7 @@ import evidenceRoutes from "./modules/evidence/evidence.routes";
 import evidenceCollectionRoutes from "./modules/evidence/evidence-collection.routes";
 import executionSessionRoutes from "./modules/execution-session/execution-session.routes";
 import executionTechnicalReportRoutes from "./modules/execution-session/execution-technical-report.routes";
+import filesRoutes from "./modules/files/files.routes";
 import inspectionRoutes from "./modules/inspection/inspection.routes";
 import invoiceRoutes from "./modules/invoice/invoice.routes";
 import invoicePaymentRoutes from "./modules/invoice/invoice-payment.routes";
@@ -119,8 +121,8 @@ app.use(
 		},
 		credentials: true,
 		methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-		allowedHeaders: ["Content-Type", "Authorization", "X-Request-Id"],
-		exposedHeaders: ["X-Total-Count", "X-Request-Id"],
+		allowedHeaders: ["Content-Type", "Authorization", "X-Request-Id", "Idempotency-Key"],
+		exposedHeaders: ["X-Total-Count", "X-Request-Id", "Idempotency-Key"],
 		maxAge: 86400, // Cache preflight 24h
 		optionsSuccessStatus: 204,
 	}),
@@ -168,6 +170,7 @@ const globalLimiter = rateLimit({
 	legacyHeaders: false,
 	message: { error: "Too many requests. Please try again later." },
 	keyGenerator: (req) => getClientIp(req),
+	skip: shouldSkipGlobalRateLimit,
 });
 
 const authLimiter = rateLimit({
@@ -177,6 +180,7 @@ const authLimiter = rateLimit({
 	legacyHeaders: false,
 	message: { error: "Too many login attempts. Please try again in 15 minutes." },
 	keyGenerator: (req) => getClientIp(req),
+	skip: shouldSkipAuthRateLimit,
 });
 
 function getClientIp(req: express.Request): string {
@@ -204,6 +208,18 @@ app.use((req, _res, next) => {
 	next();
 });
 
+if (isDev && !isTest) {
+	app.use(
+		"/uploads",
+		express.static(path.resolve(env.UPLOAD_DIR), {
+			dotfiles: "deny",
+			fallthrough: true,
+			index: false,
+			maxAge: 0,
+		}),
+	);
+}
+
 if (!isDev) {
 	app.use(compression());
 }
@@ -224,6 +240,7 @@ app.use("/api/evidence-collections", evidenceCollectionRoutes);
 app.use("/api/execution-sessions", executionSessionRoutes);
 app.use("/api/execution-sessions", executionTechnicalReportRoutes);
 app.use("/api/execution", executionSessionRoutes);
+app.use("/api/files", filesRoutes);
 app.use("/api/checklists", checklistRoutes);
 app.use("/api/costs", costRoutes);
 app.use("/api/kits", kitRoutes);
@@ -302,10 +319,23 @@ app.get("/api/health", (_req, res) => {
 	res.status(payload.status === "ok" ? 200 : 503).json(payload);
 });
 
+// HEAD support for connectivity ping used by the frontend's `useConnectivity`
+// hook (issues a HEAD request with no-store cache to detect real reachability
+// behind captive portals or WiFi-without-WAN).
+app.head("/api/health", (_req, res) => {
+	const payload = buildHealthPayload();
+	res.status(payload.status === "ok" ? 200 : 503).end();
+});
+
 // Alias without prefix for Docker healthcheck compatibility (DOC-08)
 app.get("/health", (_req, res) => {
 	const payload = buildHealthPayload();
 	res.status(payload.status === "ok" ? 200 : 503).json(payload);
+});
+
+app.head("/health", (_req, res) => {
+	const payload = buildHealthPayload();
+	res.status(payload.status === "ok" ? 200 : 503).end();
 });
 
 // Global error handler — MUST be registered LAST

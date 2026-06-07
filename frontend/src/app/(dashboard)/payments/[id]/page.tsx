@@ -7,9 +7,8 @@ import { useParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
-import { usePayment, useReconcilePayment, useRejectPayment } from "@/modules/billing/queries";
-
 import { RejectForm } from "@/core/ui/RejectForm";
+import { usePayment, useReconcilePayment, useRejectPayment } from "@/modules/billing/queries";
 
 const DATE_FMT = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
 const fmtDate = (v?: string) => (v ? DATE_FMT.format(new Date(v)) : "Sin fecha");
@@ -67,9 +66,7 @@ function BackLink() {
 function ErrorCard({ onRetry }: { onRetry: () => void }) {
 	return (
 		<div className="rounded-lg border border-destructive/20 bg-destructive/10 p-5">
-			<h2 className="text-base font-semibold text-foreground">
-				No se pudo cargar el pago
-			</h2>
+			<h2 className="text-base font-semibold text-foreground">No se pudo cargar el pago</h2>
 			<p className="mt-1 text-sm text-muted-foreground">
 				Ocurri&oacute;n un error al obtener los datos.
 			</p>
@@ -181,11 +178,15 @@ function PaymentContent({ payment }: { payment: Payment }) {
 }
 
 function PaymentInfo({ payment }: { payment: Payment }) {
-  const currencyFmt = useMemo(() => new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: payment.currency,
-    maximumFractionDigits: 0,
-  }), [payment.currency]);
+	const currencyFmt = useMemo(
+		() =>
+			new Intl.NumberFormat("es-CO", {
+				style: "currency",
+				currency: payment.currency,
+				maximumFractionDigits: 0,
+			}),
+		[payment.currency],
+	);
 
 	const statusTone =
 		payment.status === "reconciled"
@@ -201,10 +202,7 @@ function PaymentInfo({ payment }: { payment: Payment }) {
 			<div className="rounded-lg border border-border bg-card p-6 shadow-card">
 				<div className="flex flex-wrap items-start justify-between gap-3">
 					<div>
-						<h2
-							id="payment-detail-title"
-							className="text-xl font-semibold text-foreground"
-						>
+						<h2 id="payment-detail-title" className="text-xl font-semibold text-foreground">
 							{payment.paymentReference}
 						</h2>
 						<p className="text-sm text-muted-foreground">

@@ -2,7 +2,7 @@
 
 import type { CreateProposalInput } from "@cermont/shared-types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format, addDays } from "date-fns";
+import { addDays, format } from "date-fns";
 import { ArrowLeft, Loader2, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -19,7 +19,7 @@ const ProposalItemFormSchema = z.object({
 
 const ProposalFormSchema = z.object({
 	clientName: z.string().min(2, "El nombre del cliente debe tener al menos 2 caracteres").max(200),
-	clientEmail: z.string().email("Email inválido").optional().or(z.literal("")),
+	clientEmail: z.email("Email inválido").optional().or(z.literal("")),
 	validUntil: z.string().min(1, "La fecha de validez es requerida"),
 	items: z.array(ProposalItemFormSchema).min(1, "Agrega al menos un item"),
 	notes: z.string().max(2000).optional(),
@@ -58,8 +58,14 @@ function ProposalClientInfoSection({
 			</h2>
 			<div className="mt-4 grid gap-4 sm:grid-cols-2">
 				<div>
-					<label htmlFor="clientName" className="block text-sm font-medium text-[var(--text-secondary)]">
-						Cliente <span aria-hidden="true" className="text-[var(--color-danger)]">*</span>
+					<label
+						htmlFor="clientName"
+						className="block text-sm font-medium text-[var(--text-secondary)]"
+					>
+						Cliente{" "}
+						<span aria-hidden="true" className="text-[var(--color-danger)]">
+							*
+						</span>
 					</label>
 					<input
 						id="clientName"
@@ -75,7 +81,10 @@ function ProposalClientInfoSection({
 					)}
 				</div>
 				<div>
-					<label htmlFor="clientEmail" className="block text-sm font-medium text-[var(--text-secondary)]">
+					<label
+						htmlFor="clientEmail"
+						className="block text-sm font-medium text-[var(--text-secondary)]"
+					>
 						Email
 					</label>
 					<input
@@ -92,10 +101,21 @@ function ProposalClientInfoSection({
 					)}
 				</div>
 				<div>
-					<label htmlFor="validUntil" className="block text-sm font-medium text-[var(--text-secondary)]">
-						Válida hasta <span aria-hidden="true" className="text-[var(--color-danger)]">*</span>
+					<label
+						htmlFor="validUntil"
+						className="block text-sm font-medium text-[var(--text-secondary)]"
+					>
+						Válida hasta{" "}
+						<span aria-hidden="true" className="text-[var(--color-danger)]">
+							*
+						</span>
 					</label>
-					<input id="validUntil" type="date" {...register("validUntil")} className="input-field mt-1" />
+					<input
+						id="validUntil"
+						type="date"
+						{...register("validUntil")}
+						className="input-field mt-1"
+					/>
 					{errors.validUntil && (
 						<p className="mt-1 text-xs text-[var(--color-danger)]" role="alert">
 							{errors.validUntil.message}
@@ -231,10 +251,11 @@ export default function NewProposalPage() {
 	const watchedItems = watch("items");
 	const taxRateValue = 0.19; // Default 19%
 
-	const subtotal = watchedItems?.reduce(
-		(sum, item) => sum + calcItemTotal(item.quantity ?? 0, item.unitCost ?? 0),
-		0,
-	) ?? 0;
+	const subtotal =
+		watchedItems?.reduce(
+			(sum, item) => sum + calcItemTotal(item.quantity ?? 0, item.unitCost ?? 0),
+			0,
+		) ?? 0;
 	const taxAmount = subtotal * taxRateValue;
 	const total = subtotal + taxAmount;
 
@@ -269,10 +290,7 @@ export default function NewProposalPage() {
 					<ArrowLeft aria-hidden="true" className="size-4" />
 					Volver
 				</Link>
-				<h1
-					id="new-proposal-title"
-					className="text-2xl font-semibold text-foreground"
-				>
+				<h1 id="new-proposal-title" className="text-2xl font-semibold text-foreground">
 					Nueva Propuesta
 				</h1>
 			</div>
@@ -300,7 +318,9 @@ export default function NewProposalPage() {
 					</div>
 
 					{errors.items && (
-						<p className="mt-2 text-xs text-destructive" role="alert">{errors.items.message ?? errors.items.root?.message}</p>
+						<p className="mt-2 text-xs text-destructive" role="alert">
+							{errors.items.message ?? errors.items.root?.message}
+						</p>
 					)}
 
 					<div className="mt-4 space-y-3">
@@ -332,7 +352,9 @@ export default function NewProposalPage() {
 														className="input-field mt-0.5"
 													/>
 													{errors.items?.[index]?.description && (
-														<p className="mt-0.5 text-xs text-[var(--color-danger)]">{errors.items[index]?.description?.message}</p>
+														<p className="mt-0.5 text-xs text-[var(--color-danger)]">
+															{errors.items[index]?.description?.message}
+														</p>
 													)}
 												</div>
 												<div>
@@ -416,7 +438,9 @@ export default function NewProposalPage() {
 						role="alert"
 						className="rounded-[var(--radius-lg)] bg-[var(--color-danger-bg)] px-4 py-3 text-sm text-[var(--color-danger)]"
 					>
-						{mutation.error instanceof Error ? mutation.error.message : "Error al crear la propuesta"}
+						{mutation.error instanceof Error
+							? mutation.error.message
+							: "Error al crear la propuesta"}
 					</div>
 				)}
 

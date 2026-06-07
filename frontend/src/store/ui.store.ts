@@ -1,5 +1,5 @@
-import { create } from "zustand";
 import type { StatusObject } from "@cermont/shared-types";
+import { create } from "zustand";
 
 type Theme = "light" | "dark";
 

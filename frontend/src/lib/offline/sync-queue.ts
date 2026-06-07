@@ -1,9 +1,7 @@
-// NOTE: The workspace does not depend on `idb`, so we use native IndexedDB when available
-// and fall back to localStorage in environments that do not expose IndexedDB.
-// Checklist and evidence retries must preserve the same Idempotency-Key so the backend
-// can return the original record instead of creating duplicates.
-
+import type { OfflineJsonObject, OfflineOutboxItem } from "@cermont/shared-types";
 import { createLogger } from "@/lib/monitoring/logger";
+import { useAuthStore } from "@/store/auth.store";
+import { hasIndexedDBSupport, legacyQueueEntryToOutboxItem, nowIso, offlineDb } from "./offline-db";
 
 type SyncQueueMethod = "POST" | "PATCH" | "PUT" | "DELETE";
 type SyncQueueStatus = "pending" | "dead_letter";
@@ -12,7 +10,7 @@ export interface SyncQueueEntry {
 	id: string;
 	endpoint: string;
 	method: SyncQueueMethod;
-	payload: Record<string, unknown>;
+	payload: OfflineJsonObject;
 	createdAt: number;
 	retryCount: number;
 	idempotencyKey: string;
@@ -24,15 +22,10 @@ export interface SyncQueueEntry {
 
 const logger = createLogger("offline-sync:queue");
 
-const DATABASE_NAME = "CermontSyncQueueDB";
-const DATABASE_VERSION = 1;
-const STORE_NAME = "sync_queue";
 const LOCAL_STORAGE_KEY = "cermont.sync.queue.v1";
+const UNASSIGNED_USER_ID = "offline-session-unassigned";
+const DEDUPE_PAYLOAD_KEY = "__cermontDedupeKey";
 export const QUEUE_CHANGED_EVENT = "sync-queue:changed";
-
-function hasIndexedDBSupport(): boolean {
-	return typeof indexedDB !== "undefined";
-}
 
 function emitQueueChanged(): void {
 	if (typeof window === "undefined") {
@@ -52,7 +45,7 @@ function normalizeEntry(entry: SyncQueueEntry): SyncQueueEntry {
 }
 
 function sortEntries(entries: SyncQueueEntry[]): SyncQueueEntry[] {
-	return [...entries].sort(
+	return entries.toSorted(
 		(left, right) => left.createdAt - right.createdAt || left.id.localeCompare(right.id),
 	);
 }
@@ -92,53 +85,112 @@ function writeLocalStorageEntries(entries: SyncQueueEntry[]): void {
 	window.localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(entries));
 }
 
-function openDatabase(): Promise<IDBDatabase> {
-	return new Promise((resolve, reject) => {
-		const request = indexedDB.open(DATABASE_NAME, DATABASE_VERSION);
+function getCurrentUserId(): string {
+	const user = useAuthStore.getState().user;
+	return user.status === "present" ? user.value.id : UNASSIGNED_USER_ID;
+}
 
-		request.onerror = () => reject(request.error);
-		request.onsuccess = () => resolve(request.result);
-		request.onupgradeneeded = (event) => {
-			const database = (event.target as IDBOpenDBRequest).result;
-			if (!database.objectStoreNames.contains(STORE_NAME)) {
-				const store = database.createObjectStore(STORE_NAME, { keyPath: "id" });
-				store.createIndex("status", "status", { unique: false });
-				store.createIndex("dedupeKey", "dedupeKey", { unique: false });
-				store.createIndex("nextRetryAt", "nextRetryAt", { unique: false });
-			}
-		};
+function isDirectQueueItem(item: OfflineOutboxItem): boolean {
+	return (
+		typeof item.endpoint === "string" &&
+		item.endpoint !== "/sync/offline" &&
+		typeof item.method === "string"
+	);
+}
+
+function toQueueEntry(item: OfflineOutboxItem): SyncQueueEntry | false {
+	if (!isDirectQueueItem(item) || !item.endpoint || !item.method) {
+		return false;
+	}
+
+	const payload = { ...item.payload };
+	const dedupeValue = payload[DEDUPE_PAYLOAD_KEY];
+	delete payload[DEDUPE_PAYLOAD_KEY];
+
+	return normalizeEntry({
+		id: item.localId,
+		endpoint: item.endpoint,
+		method: item.method,
+		payload,
+		createdAt: Date.parse(item.createdAt),
+		retryCount: item.attempts,
+		idempotencyKey: item.idempotencyKey,
+		status: item.status === "failed" || item.status === "conflict" ? "dead_letter" : "pending",
+		nextRetryAt: item.nextRetryAt,
+		lastError: item.lastError,
+		dedupeKey: typeof dedupeValue === "string" ? dedupeValue : undefined,
 	});
 }
 
-async function readIndexedDBEntries(): Promise<SyncQueueEntry[]> {
-	const database = await openDatabase();
-	const transaction = database.transaction(STORE_NAME, "readonly");
-	const store = transaction.objectStore(STORE_NAME);
-	const request = store.getAll();
+function toOutboxItem(
+	entry: SyncQueueEntry,
+	existingItems: ReadonlyMap<string, OfflineOutboxItem>,
+): OfflineOutboxItem {
+	const existing = existingItems.get(entry.id);
+	const item = legacyQueueEntryToOutboxItem(entry, existing?.userId ?? getCurrentUserId());
 
-	return await new Promise<SyncQueueEntry[]>((resolve, reject) => {
-		request.onerror = () => reject(request.error);
-		request.onsuccess = () => {
-			const entries = (request.result as SyncQueueEntry[]).map((entry) => normalizeEntry(entry));
-			resolve(entries);
-		};
-	});
+	return {
+		...item,
+		createdAt: existing?.createdAt ?? item.createdAt,
+		updatedAt: nowIso(),
+	};
+}
+
+async function readIndexedDBEntries(): Promise<SyncQueueEntry[]> {
+	try {
+		const items = await offlineDb.offlineOutbox.toArray();
+		const entries: SyncQueueEntry[] = [];
+		for (const item of items) {
+			const entry = toQueueEntry(item);
+			if (entry) {
+				entries.push(entry);
+			}
+		}
+		return entries;
+	} catch (error) {
+		// If IndexedDB schema is stale or stores are missing (race during upgrade),
+		// return empty array to allow the app to continue loading.
+		// The database upgrade will complete on next access.
+		if (error instanceof Error && error.name === "NotFoundError") {
+			logger.warn("IndexedDB store not found during read - likely schema upgrade in progress", {
+				error: error.message,
+			});
+			return [];
+		}
+		throw error;
+	}
 }
 
 async function writePersistentEntries(entries: SyncQueueEntry[]): Promise<void> {
 	if (hasIndexedDBSupport()) {
-		const database = await openDatabase();
-		const transaction = database.transaction(STORE_NAME, "readwrite");
-		const store = transaction.objectStore(STORE_NAME);
-		store.clear();
-		for (const entry of entries) {
-			store.put(entry);
-		}
+		try {
+			const existingItems = await offlineDb.offlineOutbox.toArray();
+			const existingById = new Map(existingItems.map((item) => [item.localId, item]));
+			const directQueueIds = existingItems
+				.filter((item) => isDirectQueueItem(item))
+				.map((item) => item.localId);
+			const nextItems = entries.map((entry) => toOutboxItem(entry, existingById));
 
-		await new Promise<void>((resolve, reject) => {
-			transaction.onerror = () => reject(transaction.error);
-			transaction.oncomplete = () => resolve();
-		});
+			await offlineDb.transaction("rw", offlineDb.offlineOutbox, async () => {
+				if (directQueueIds.length > 0) {
+					await offlineDb.offlineOutbox.bulkDelete(directQueueIds);
+				}
+				if (nextItems.length > 0) {
+					await offlineDb.offlineOutbox.bulkPut(nextItems);
+				}
+			});
+		} catch (error) {
+			// If IndexedDB schema is stale or stores are missing (race during upgrade),
+			// fall back to localStorage to prevent complete failure.
+			if (error instanceof Error && error.name === "NotFoundError") {
+				logger.warn("IndexedDB store not found during write - falling back to localStorage", {
+					error: error.message,
+				});
+				writeLocalStorageEntries(entries);
+				return;
+			}
+			throw error;
+		}
 		return;
 	}
 

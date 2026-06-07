@@ -118,7 +118,7 @@ export function HeaderUserMenu({
 			{dropdownOpen ? (
 				<div
 					id="header-user-menu"
-					className="absolute right-0 mt-4 flex w-64 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-3)]"
+					className="animate-scale-in origin-top-right absolute right-0 mt-4 flex w-64 flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-3)]"
 				>
 					<ul className="flex flex-col gap-1 p-3">
 						<li>

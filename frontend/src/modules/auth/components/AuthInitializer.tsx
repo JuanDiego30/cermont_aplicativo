@@ -1,12 +1,12 @@
 "use client";
 
 import { resolveUserRole, type UserRole } from "@cermont/domain";
+import { isPresent, type StatusObject } from "@cermont/shared-types";
 import { useQuery } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { ApiError, apiClient } from "@/lib/http/api-client";
 import { useAuthStore } from "@/store/auth.store";
-import { isPresent, type StatusObject } from "@cermont/shared-types";
 
 interface User {
 	id: string;
@@ -15,7 +15,7 @@ interface User {
 	role: UserRole;
 }
 
-type AuthUserResponse = {
+type AuthUserContract = {
 	_id?: string;
 	id?: string;
 	email?: string | null;
@@ -23,7 +23,7 @@ type AuthUserResponse = {
 	role?: string;
 };
 
-function toUser(input: AuthUserResponse): User {
+function toUser(input: AuthUserContract): User {
 	const role = resolveUserRole(input.role);
 	return {
 		id: input.id ?? input._id ?? "",
@@ -52,21 +52,12 @@ type AuthStoreSnapshot = ReturnType<typeof useAuthStore.getState>;
 
 async function refreshSessionToken(authStore: AuthStoreSnapshot): Promise<string | null> {
 	try {
-		const refreshResponse = await apiClient.post<{
-			success: boolean;
-			data: { accessToken: string };
-		}>("/auth/refresh");
-
-		if (refreshResponse?.success && refreshResponse.data?.accessToken) {
-			authStore.setAccessToken(refreshResponse.data.accessToken);
-			return refreshResponse.data.accessToken;
-		}
+		const token = await apiClient.refresh();
+		return token;
 	} catch {
 		authStore.clearAuth();
 		return null;
 	}
-
-	return null;
 }
 
 async function loadAuthenticatedUser(
@@ -74,7 +65,7 @@ async function loadAuthenticatedUser(
 	sessionToken: string,
 ): Promise<User | null> {
 	try {
-		const response = await apiClient.get<{ success: boolean; data: AuthUserResponse }>("/auth/me");
+		const response = await apiClient.get<{ success: boolean; data: AuthUserContract }>("/auth/me");
 		if (response?.success && response.data) {
 			const parsedUser = toUser(response.data);
 			authStore.setAuth(parsedUser, sessionToken);
@@ -126,11 +117,28 @@ export function AuthInitializer({ children }: { children: ReactNode }) {
 	const { isLoading: _isLoading } = useQuery({
 		queryKey: ["auth", "session", isPublicAuthRoute ? "public" : "protected"],
 		queryFn: () => initializeAuthSession(isPublicAuthRoute),
+		networkMode: "always",
 		retry: false,
 		refetchOnWindowFocus: false,
 		refetchOnReconnect: false,
-		staleTime: Infinity,
+		staleTime: 0,
+		gcTime: 0,
 	});
+
+	if (!isPublicAuthRoute && _isLoading) {
+		return (
+			<div
+				className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[var(--surface-page)]"
+				aria-live="polite"
+			>
+				<div
+					className="size-10 animate-spin rounded-full border-4 border-[var(--border-subtle)] border-t-[var(--color-brand-blue)]"
+					aria-hidden="true"
+				/>
+				<p className="text-sm font-medium text-[var(--text-secondary)]">Inicializando sesión…</p>
+			</div>
+		);
+	}
 
 	return <>{children}</>;
 }

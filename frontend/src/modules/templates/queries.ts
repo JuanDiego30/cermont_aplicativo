@@ -4,17 +4,15 @@ import type { ApiEnvelope } from "@cermont/shared-types";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { STALE_TIMES } from "@/lib/constants/query-config";
-import { apiClient } from "@/lib/http/api-client";
+import { apiClient, isOfflineLikeError } from "@/lib/http/api-client";
+import {
+	type OfflineDocumentTemplateItem,
+	readDocumentTemplateListSnapshot,
+	saveDocumentTemplateListSnapshot,
+} from "@/lib/offline/local-repositories";
+import { useOfflineStore } from "@/store/offline.store";
 
-export interface DocumentTemplateItem {
-	_id: string;
-	name: string;
-	description?: string;
-	version?: number;
-	status: string;
-	createdAt: string;
-	updatedAt: string;
-}
+export interface DocumentTemplateItem extends OfflineDocumentTemplateItem {}
 
 export interface TemplateDraftFieldItem {
 	fieldId: string;
@@ -63,7 +61,27 @@ type PaginatedEnvelope<T> = ApiEnvelope<T[]> & {
 	pagination?: { total?: number; page?: number; limit?: number; totalPages?: number };
 };
 
-const TEMPLATE_KEYS = {
+export type TemplateListSource =
+	| {
+			status: "online";
+			updatedAt: string;
+	  }
+	| {
+			status: "offline_snapshot";
+			updatedAt: string;
+	  }
+	| {
+			status: "offline_empty";
+			updatedAt: string;
+	  };
+
+export interface TemplateListResult {
+	items: DocumentTemplateItem[];
+	total: number;
+	source: TemplateListSource;
+}
+
+export const TEMPLATE_KEYS = {
 	all: ["document-templates"] as const,
 	list: () => [...TEMPLATE_KEYS.all, "list"] as const,
 	detail: (id: string) => [...TEMPLATE_KEYS.all, "detail", id] as const,
@@ -71,18 +89,57 @@ const TEMPLATE_KEYS = {
 	draftDetail: (id: string) => [...TEMPLATE_KEYS.all, "draft-detail", id] as const,
 };
 
+function isNetworkFailure(error: Error): boolean {
+	return !useOfflineStore.getState().isOnline || isOfflineLikeError(error);
+}
+
+export async function fetchTemplateList(): Promise<TemplateListResult> {
+	try {
+		const response = await apiClient.get<PaginatedEnvelope<DocumentTemplateItem>>(
+			"/document-templates?limit=50",
+		);
+		const result: TemplateListResult = {
+			items: response.data,
+			total: response.pagination?.total ?? response.data.length,
+			source: {
+				status: "online",
+				updatedAt: new Date().toISOString(),
+			},
+		};
+		await saveDocumentTemplateListSnapshot(result);
+		return result;
+	} catch (error) {
+		if (error instanceof Error && isNetworkFailure(error)) {
+			const localSnapshot = await readDocumentTemplateListSnapshot();
+			if (localSnapshot.status === "found") {
+				return {
+					items: localSnapshot.snapshot.items,
+					total: localSnapshot.snapshot.total,
+					source: {
+						status: "offline_snapshot",
+						updatedAt: localSnapshot.snapshot.updatedAt,
+					},
+				};
+			}
+
+			return {
+				items: [],
+				total: 0,
+				source: {
+					status: "offline_empty",
+					updatedAt: new Date().toISOString(),
+				},
+			};
+		}
+
+		throw error;
+	}
+}
+
 export function useTemplates() {
 	return useQuery({
 		queryKey: TEMPLATE_KEYS.list(),
-		queryFn: async () => {
-			const response = await apiClient.get<PaginatedEnvelope<DocumentTemplateItem>>(
-				"/document-templates?limit=50",
-			);
-			return {
-				items: response.data,
-				total: response.pagination?.total ?? response.data.length,
-			};
-		},
+		queryFn: fetchTemplateList,
 		staleTime: STALE_TIMES.REALTIME,
 		placeholderData: keepPreviousData,
 	});

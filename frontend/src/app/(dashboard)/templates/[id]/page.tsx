@@ -84,7 +84,7 @@ function TemplateDetailInner() {
 }
 
 function TemplateContent({ tpl }: { tpl: DocumentTemplateItem }) {
-  return (
+	return (
 		<div className="space-y-4">
 			<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-card">
 				<div className="flex flex-wrap items-start justify-between gap-3">

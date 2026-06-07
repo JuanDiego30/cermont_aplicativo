@@ -166,10 +166,7 @@ function OrdersPageInner() {
 					<span className="text-secondary">Cargando datos…</span>
 				</output>
 			) : orders.length === 0 ? (
-				<div
-					data-orders-reveal
-					className="rounded-lg border border-border bg-card shadow-sm"
-				>
+				<div data-orders-reveal className="rounded-lg border border-border bg-card shadow-sm">
 					<EmptyState
 						title="No se encontraron órdenes"
 						description="Prueba ajustando los filtros o la búsqueda."

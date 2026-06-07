@@ -45,6 +45,8 @@ export default function SiteVisitsPage() {
 	const { data, isLoading, isError, refetch } = useSiteVisitsList();
 	const { isOnline } = useConnectivity();
 	const items = data?.items ?? [];
+	const isOfflineSnapshot = data?.source.status === "offline_snapshot";
+	const isOfflineEmpty = data?.source.status === "offline_empty";
 
 	return (
 		<section className="space-y-6" aria-labelledby="site-visits-title">
@@ -77,6 +79,13 @@ export default function SiteVisitsPage() {
 				<div className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] p-4 text-sm text-[var(--color-warning)]">
 					<WifiOff className="mt-0.5 size-4" aria-hidden="true" />
 					<p>Estás sin conexión. La vista conserva el último estado consultado.</p>
+				</div>
+			) : null}
+
+			{isOfflineSnapshot ? (
+				<div className="rounded-[var(--radius-lg)] border border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] px-4 py-3 text-sm text-[var(--text-primary)]">
+					Mostrando visitas guardadas localmente. Última actualización:{" "}
+					{new Date(data.source.updatedAt).toLocaleString("es-CO")}
 				</div>
 			) : null}
 
@@ -140,11 +149,12 @@ export default function SiteVisitsPage() {
 						</div>
 						<div>
 							<h2 className="text-base font-semibold text-[var(--text-primary)]">
-								Sin visitas técnicas
+								{isOfflineEmpty ? "Sin visitas guardadas localmente" : "Sin visitas técnicas"}
 							</h2>
 							<p className="mt-1.5 max-w-2xl text-sm leading-6 text-[var(--text-secondary)]">
-								Crea una visita técnica desde una solicitud de trabajo para registrar mediciones,
-								hallazgos y fotos en campo.
+								{isOfflineEmpty
+									? "Este dispositivo todavía no tiene visitas sincronizadas para trabajar sin conexión."
+									: "Crea una visita técnica desde una solicitud de trabajo para registrar mediciones, hallazgos y fotos en campo."}
 							</p>
 							<Link
 								href={APP_ROUTES.siteVisitNew}

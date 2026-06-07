@@ -15,7 +15,7 @@ export interface KanbanOrder {
 	completedAt: string | null;
 }
 
-export type KanbanData = Record<string, KanbanOrder[]>;
+export type KanbanBoard = Record<string, KanbanOrder[]>;
 
 export const KANBAN_ORDER_QUERY_LIMIT = MAX_PAGE_LIMIT;
 

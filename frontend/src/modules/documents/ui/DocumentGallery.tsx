@@ -18,13 +18,13 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/core/ui/Button";
 import {
+	type DocumentRecord,
 	getDocumentAssociationCount,
 	getDocumentLinkedEntityLabel,
 	getDocumentProtectionReason,
 	getDocumentPurposeLabel,
 	getDocumentStepLabel,
 	isProtectedDocument,
-	type DocumentRecord,
 } from "../document-lifecycle";
 import { useArchiveDocument, useDeleteDocument, useSignDocument } from "../queries";
 
@@ -96,8 +96,7 @@ function getDialogCopy(action: PendingActionKind, document: DocumentRecord) {
 
 	return {
 		confirmLabel: "Eliminar",
-		description:
-			"Deletes the record and physical file when no critical closeout links exist.",
+		description: "Deletes the record and physical file when no critical closeout links exist.",
 		title: "Eliminar documento",
 	};
 }
@@ -162,37 +161,33 @@ function ActionDialog({
 							</Button>
 						</Dialog.Close>
 					</div>
-				<label
-					htmlFor="documents-action-reason"
-					className="mt-4 block text-sm font-medium text-zinc-700"
-				>
-					Motivo (opcional)
-				</label>
-				<input
-					id="documents-action-reason"
-					type="text"
-					value={reason}
-					onChange={(event) => setReason(event.target.value)}
-					placeholder="Ej: documento duplicado o reemplazado"
-					className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-				/>
-				<div className="mt-5 flex justify-end gap-3">
-					<Button
-						type="button"
-						variant="secondary"
-						onClick={handleClose}
+					<label
+						htmlFor="documents-action-reason"
+						className="mt-4 block text-sm font-medium text-zinc-700"
 					>
-						Cancelar
-					</Button>
-					<Button
-						type="button"
-						onClick={() => onConfirm(reason.trim())}
-						loading={isPending}
-						variant={action === "archive" ? "accent" : "destructive"}
-					>
-						{dialogCopy.confirmLabel}
-					</Button>
-				</div>
+						Motivo (opcional)
+					</label>
+					<input
+						id="documents-action-reason"
+						type="text"
+						value={reason}
+						onChange={(event) => setReason(event.target.value)}
+						placeholder="Ej: documento duplicado o reemplazado"
+						className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+					/>
+					<div className="mt-5 flex justify-end gap-3">
+						<Button type="button" variant="secondary" onClick={handleClose}>
+							Cancelar
+						</Button>
+						<Button
+							type="button"
+							onClick={() => onConfirm(reason.trim())}
+							loading={isPending}
+							variant={action === "archive" ? "accent" : "destructive"}
+						>
+							{dialogCopy.confirmLabel}
+						</Button>
+					</div>
 				</Dialog.Content>
 			</Dialog.Portal>
 		</Dialog.Root>
@@ -249,7 +244,7 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 	return (
 		<section aria-label="Galeria de documentos">
 			<ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-			{documents.map((document) => {
+				{documents.map((document) => {
 					const isArchived = document.lifecycleStatus === "archived";
 					const isDeleted = document.lifecycleStatus === "deleted";
 					const isProtected = isProtectedDocument(document);
@@ -362,9 +357,7 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 
 									{isArchived && (
 										<div className="mt-3 rounded-lg border border-amber-100 bg-amber-50/70 p-3 text-xs leading-5 text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/20 dark:text-amber-200">
-											<p className="font-medium">
-												Archivado el {formatDate(document.archivedAt)}
-											</p>
+											<p className="font-medium">Archivado el {formatDate(document.archivedAt)}</p>
 											{document.retentionUntil && (
 												<p>Retencion hasta {formatDate(document.retentionUntil)}</p>
 											)}
@@ -460,7 +453,9 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 					action={pendingActionKind}
 					document={activeDocument}
 					open={isDialogOpen}
-					isPending={pendingActionKind === "archive" ? archiveMutation.isPending : deleteMutation.isPending}
+					isPending={
+						pendingActionKind === "archive" ? archiveMutation.isPending : deleteMutation.isPending
+					}
 					onClose={closeDialog}
 					onConfirm={pendingActionKind === "archive" ? handleArchive : handleDelete}
 				/>

@@ -6,6 +6,8 @@ import type {
 	ExecutionSession,
 	ExecutionSessionListQuery,
 	ExecutionSessionListResponse,
+	OfflineJsonObject,
+	OfflineJsonValue,
 	PauseExecutionSessionCommand,
 	ResumeExecutionSessionCommand,
 	StartExecutionSessionCommand,
@@ -13,11 +15,15 @@ import type {
 } from "@cermont/shared-types";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { STALE_TIMES } from "@/lib/constants/query-config";
-import { apiClient } from "@/lib/http/api-client";
+import { apiClient, isOfflineLikeError } from "@/lib/http/api-client";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/mutation-defaults";
+import { enqueue, type SyncQueueEntry } from "@/lib/offline/sync-queue";
+import { useOfflineStore } from "@/store/offline.store";
 
 type ExecutionDetailEnvelope = {
 	success: boolean;
 	data: ExecutionSession;
+	queued?: boolean;
 };
 
 const EXECUTION_KEYS = {
@@ -49,6 +55,53 @@ function unwrapExecutionDetail(response: ExecutionDetailEnvelope): ExecutionSess
 		throw new Error("No se pudo cargar la ejecucion");
 	}
 	return response.data;
+}
+
+function createUuid(): string {
+	if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+		return crypto.randomUUID();
+	}
+
+	return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function isNetworkFailure(error: Error): boolean {
+	return !useOfflineStore.getState().isOnline || isOfflineLikeError(error);
+}
+
+function toOfflinePayload(command: object, idempotencyKey: string): OfflineJsonObject {
+	const payload: OfflineJsonObject = { idempotencyKey };
+
+	for (const [key, value] of Object.entries(
+		command as Record<string, OfflineJsonValue | undefined>,
+	)) {
+		if (typeof value !== "undefined") {
+			payload[key] = value;
+		}
+	}
+
+	return payload;
+}
+
+async function queueExecutionCommand<TCommand extends object>(
+	id: string,
+	path: string,
+	command: TCommand,
+): Promise<void> {
+	const idempotencyKey = createUuid();
+	const payload = toOfflinePayload(command, idempotencyKey);
+	const entry: SyncQueueEntry = {
+		id: createUuid(),
+		endpoint: `/execution-sessions/${id}/${path}`,
+		method: "POST",
+		payload,
+		createdAt: Date.now(),
+		retryCount: 0,
+		idempotencyKey,
+		dedupeKey: `execution:${id}:${path}:${JSON.stringify(payload)}`,
+	};
+
+	await enqueue(entry);
 }
 
 export function useExecutionSessions(filters?: Partial<ExecutionSessionListQuery>) {
@@ -97,6 +150,7 @@ export function useExecutionSessionByOrder(orderId: string) {
 export function useCreateExecutionSessionForOrder(orderId: string) {
 	const queryClient = useQueryClient();
 	return useMutation({
+		mutationKey: [...EXECUTION_KEYS.all, "create-for-order", orderId],
 		mutationFn: () =>
 			apiClient.post<ExecutionDetailEnvelope>(`/orders/${orderId}/execution-session`, {}),
 		onSuccess: (response) => {
@@ -107,12 +161,91 @@ export function useCreateExecutionSessionForOrder(orderId: string) {
 	});
 }
 
-function useExecutionCommand<TCommand>(id: string, path: string) {
+function useExecutionCommand<TCommand extends object>(id: string, path: string) {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: (command: TCommand) =>
-			apiClient.post<ExecutionDetailEnvelope>(`/execution-sessions/${id}/${path}`, command),
-		onSuccess: () => {
+		mutationKey: [...OFFLINE_MUTATION_KEYS.executionCommand, id, path],
+		networkMode: "offlineFirst",
+		mutationFn: async (command: TCommand) => {
+			try {
+				return await apiClient.post<ExecutionDetailEnvelope>(
+					`/execution-sessions/${id}/${path}`,
+					command,
+				);
+			} catch (error) {
+				if (error instanceof Error && isNetworkFailure(error)) {
+					await queueExecutionCommand(id, path, command);
+					const cached = queryClient.getQueryData<ExecutionSession>(EXECUTION_KEYS.detail(id));
+					if (cached) {
+						const updated = { ...cached };
+						if (path === "start") {
+							updated.status = "in_progress";
+							updated.startedAt = new Date().toISOString();
+						} else if (path === "pause") {
+							updated.status = "paused";
+						} else if (path === "resume") {
+							updated.status = "in_progress";
+						} else if (path === "complete") {
+							updated.status = "completed";
+							updated.completedAt = new Date().toISOString();
+						} else if (path === "materials") {
+							const matCmd = command as AddExecutionMaterialUsageCommand;
+							updated.materialsUsed = [
+								...(updated.materialsUsed || []),
+								{
+									usageId: createUuid(),
+									materialId: matCmd.material.materialId,
+									name: matCmd.material.name || "Material",
+									quantityPlanned: matCmd.material.quantityPlanned || 0,
+									quantityUsed: matCmd.material.quantityUsed || 1,
+									unit: matCmd.material.unit || "units",
+									recordedAt: new Date().toISOString(),
+									recordedBy: matCmd.material.recordedBy || "system",
+								},
+							] as NonNullable<ExecutionSession["materialsUsed"]>;
+						} else if (path === "labor") {
+							const laborCmd = command as AddExecutionLaborEntryCommand;
+							updated.laborEntries = [
+								...(updated.laborEntries || []),
+								{
+									laborEntryId: createUuid(),
+									userId: laborCmd.labor.userId,
+									role: laborCmd.labor.role || "operator",
+									startedAt: laborCmd.labor.startedAt || new Date().toISOString(),
+									endedAt: laborCmd.labor.endedAt || new Date().toISOString(),
+									durationMinutes: laborCmd.labor.durationMinutes || 60,
+									description: laborCmd.labor.description || "Trabajo de campo",
+								},
+							] as NonNullable<ExecutionSession["laborEntries"]>;
+						} else if (path === "incidents") {
+							const incCmd = command as AddExecutionIncidentCommand;
+							updated.incidents = [
+								...(updated.incidents || []),
+								{
+									incidentId: createUuid(),
+									type: incCmd.incident.type,
+									severity: incCmd.incident.severity,
+									description: incCmd.incident.description,
+									occurredAt: incCmd.incident.occurredAt || new Date().toISOString(),
+									reportedBy: incCmd.incident.reportedBy || "system",
+									evidenceIds: incCmd.incident.evidenceIds || [],
+									resolved: false,
+								},
+							] as NonNullable<ExecutionSession["incidents"]>;
+						}
+						queryClient.setQueryData(EXECUTION_KEYS.detail(id), updated);
+						queryClient.invalidateQueries({ queryKey: EXECUTION_KEYS.byOrder(cached.workOrderId) });
+						return { success: true, data: updated, queued: true };
+					}
+				}
+
+				throw error;
+			}
+		},
+		onSuccess: (response) => {
+			if (response.queued) {
+				return;
+			}
 			queryClient.invalidateQueries({ queryKey: EXECUTION_KEYS.detail(id) });
 			queryClient.invalidateQueries({ queryKey: EXECUTION_KEYS.all });
 		},

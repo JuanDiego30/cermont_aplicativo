@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { statusObjectOf } from "../utils/status-types";
 import { ObjectIdSchema } from "./common.schema";
 
 /**
@@ -57,8 +58,8 @@ export const CustomFieldDefinitionSchema = z
 		updatedAt: z.string().datetime().optional(),
 		createdBy: ObjectIdSchema.optional(),
 		updatedBy: ObjectIdSchema.optional(),
-		deletedAt: z.string().datetime().nullable().optional(),
-		deletedBy: ObjectIdSchema.nullable().optional(),
+		deletedAt: statusObjectOf(z.string().datetime()).optional(),
+		deletedBy: statusObjectOf(ObjectIdSchema).optional(),
 	})
 	.strict();
 

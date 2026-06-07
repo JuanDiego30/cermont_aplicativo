@@ -8,8 +8,9 @@ import type {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { STALE_TIMES } from "@/lib/constants/query-config";
 import { apiClient } from "@/lib/http/api-client";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/mutation-defaults";
 
-export interface ChecklistListResponse {
+export interface ChecklistListContract {
 	success?: boolean;
 	data?: Checklist[];
 	error?: string;
@@ -36,7 +37,7 @@ export function useChecklist(orderId: string) {
 	return useQuery({
 		queryKey: CHECKLIST_KEYS.order(orderId),
 		queryFn: async (): Promise<Checklist | null> => {
-			const body = await apiClient.get<ChecklistListResponse>(
+			const body = await apiClient.get<ChecklistListContract>(
 				`/checklists/${encodeURIComponent(orderId)}`,
 			);
 
@@ -55,6 +56,7 @@ export function useCreateChecklist() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
+		mutationKey: OFFLINE_MUTATION_KEYS.checklistCreate,
 		mutationFn: async (data: CreateChecklistInput) => {
 			const body = await apiClient.post<ApiEnvelope<Checklist>>("/checklists", data);
 
@@ -64,6 +66,8 @@ export function useCreateChecklist() {
 
 			return body.data;
 		},
+		networkMode: "offlineFirst",
+		retry: 0,
 		onSuccess: (_data, variables) => {
 			queryClient.invalidateQueries({ queryKey: CHECKLIST_KEYS.order(variables.orderId) });
 			queryClient.invalidateQueries({ queryKey: CHECKLIST_KEYS.all });
@@ -75,6 +79,7 @@ export function useUpdateChecklistItem() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
+		mutationKey: OFFLINE_MUTATION_KEYS.checklistUpdateItem,
 		mutationFn: async ({
 			checklistId,
 			itemId,
@@ -95,6 +100,8 @@ export function useUpdateChecklistItem() {
 
 			return body.data;
 		},
+		networkMode: "offlineFirst",
+		retry: 0,
 		onSuccess: (_data, variables) => {
 			queryClient.invalidateQueries({ queryKey: CHECKLIST_KEYS.order(variables.orderId) });
 			queryClient.invalidateQueries({ queryKey: CHECKLIST_KEYS.all });
@@ -106,6 +113,7 @@ export function useCompleteChecklist() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
+		mutationKey: OFFLINE_MUTATION_KEYS.checklistComplete,
 		mutationFn: async ({ checklistId, signature, observations }: CompleteChecklistVariables) => {
 			const body = await apiClient.post<ApiEnvelope<Checklist>>(
 				`/checklists/${checklistId}/validate`,
@@ -121,6 +129,8 @@ export function useCompleteChecklist() {
 
 			return body.data;
 		},
+		networkMode: "offlineFirst",
+		retry: 0,
 		onSuccess: (_data, variables) => {
 			queryClient.invalidateQueries({ queryKey: CHECKLIST_KEYS.order(variables.orderId) });
 			queryClient.invalidateQueries({ queryKey: CHECKLIST_KEYS.all });

@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
+import { RejectForm } from "@/core/ui/RejectForm";
 import {
 	useApproveServiceEntrySheet,
 	useCancelServiceEntrySheet,
@@ -14,8 +15,6 @@ import {
 	useServiceEntrySheet,
 	useSubmitServiceEntrySheet,
 } from "@/modules/billing/queries";
-
-import { RejectForm } from "@/core/ui/RejectForm";
 
 const DATE_FMT = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
 const fmtDate = (v?: string) => (v ? DATE_FMT.format(new Date(v)) : "Sin fecha");
@@ -73,9 +72,7 @@ function BackLink() {
 function ErrorCard({ onRetry }: { onRetry: () => void }) {
 	return (
 		<div className="rounded-lg border border-destructive/20 bg-destructive/10 p-5">
-			<h2 className="text-base font-semibold text-foreground">
-				No se pudo cargar el SES
-			</h2>
+			<h2 className="text-base font-semibold text-foreground">No se pudo cargar el SES</h2>
 			<p className="mt-1 text-sm text-muted-foreground">
 				Ocurri&oacute;n un error al obtener los datos.
 			</p>
@@ -239,11 +236,15 @@ function SESContent({ ses }: { ses: ServiceEntrySheet }) {
 }
 
 function SESInfo({ ses }: { ses: ServiceEntrySheet }) {
-  const currencyFmt = useMemo(() => new Intl.NumberFormat("es-CO", {
-    style: "currency",
-    currency: ses.currency,
-    maximumFractionDigits: 0,
-  }), [ses.currency]);
+	const currencyFmt = useMemo(
+		() =>
+			new Intl.NumberFormat("es-CO", {
+				style: "currency",
+				currency: ses.currency,
+				maximumFractionDigits: 0,
+			}),
+		[ses.currency],
+	);
 
 	const statusTone =
 		ses.status === "approved"
@@ -316,24 +317,18 @@ function SESInfo({ ses }: { ses: ServiceEntrySheet }) {
 
 			{ses.serviceLines && ses.serviceLines.length > 0 && (
 				<div className="rounded-lg border border-border bg-card p-4 shadow-card">
-					<h3 className="text-sm font-semibold text-foreground">
-						L&iacute;neas de servicio
-					</h3>
+					<h3 className="text-sm font-semibold text-foreground">L&iacute;neas de servicio</h3>
 					<table className="mt-3 w-full text-sm">
 						<thead>
 							<tr className="border-b border-border/50">
 								<th className="py-2 text-left text-xs font-medium text-muted-foreground">
 									Descripci&oacute;n
 								</th>
-								<th className="py-2 text-right text-xs font-medium text-muted-foreground">
-									Cant.
-								</th>
+								<th className="py-2 text-right text-xs font-medium text-muted-foreground">Cant.</th>
 								<th className="py-2 text-right text-xs font-medium text-muted-foreground">
 									P. Unit.
 								</th>
-								<th className="py-2 text-right text-xs font-medium text-muted-foreground">
-									Total
-								</th>
+								<th className="py-2 text-right text-xs font-medium text-muted-foreground">Total</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -380,9 +375,7 @@ function FieldCard({
 function SubmitForm({ onSubmit, pending }: { onSubmit: () => void; pending: boolean }) {
 	return (
 		<div className="rounded-lg border border-warning/20 bg-warning/10 p-4">
-			<h3 className="text-sm font-semibold text-warning">
-				Enviar para aprobaci&oacute;n
-			</h3>
+			<h3 className="text-sm font-semibold text-warning">Enviar para aprobaci&oacute;n</h3>
 			<p className="mt-1 text-sm text-muted-foreground">
 				&iquest;Desea enviar este SES para aprobaci&oacute;n?
 			</p>

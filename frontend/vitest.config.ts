@@ -7,7 +7,7 @@ export default defineConfig({
 	test: {
 		globals: true,
 		environment: "jsdom",
-		include: ["tests/**/*.test.{ts,tsx}", "lib/**/*.test.{ts,tsx}"],
+		include: ["tests/**/*.test.{ts,tsx}", "lib/**/*.test.{ts,tsx}", "src/**/*.test.{ts,tsx}"],
 		setupFiles: ["./vitest.setup.ts"],
 		env: {
 			AUTH_SECRET: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",

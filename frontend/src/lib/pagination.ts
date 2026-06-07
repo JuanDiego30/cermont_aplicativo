@@ -10,7 +10,7 @@ const MAX_LIMIT = 100;
 /**
  * Parse a raw value as a positive integer. Returns fallback on NaN, zero, or negative.
  */
-export function parsePositiveInteger(
+function parsePositiveInteger(
 	value: string | number | null | undefined,
 	fallback: number,
 ): number {

@@ -12,7 +12,7 @@
 
 import { BadRequestError, NotFoundError, UnprocessableError } from "../../common/errors/AppError";
 import { Order, User, WorkReport } from "../../models";
-import type { OrderResponse } from "../../services/order/helpers";
+import type { OrderSnapshot } from "../../services/order/helpers";
 import { formatOrderResponse, logAudit } from "../../services/order/helpers";
 import { OrderStatus, validateStateTransition } from "../../services/order/order-rules";
 import { generateOrderPdf } from "../../services/pdf-generator.service";
@@ -109,7 +109,7 @@ async function applyOrderInvoicingRules(
  * @param actorRole - Role of the user making the transition
  * @param actorId - User ID making the transition
  * @param observations - Optional observation/note for the transition
- * @returns OrderResponse
+ * @returns OrderSnapshot
  * @throws NotFoundError if order doesn't exist
  * @throws BadRequestError if transition invalid
  */
@@ -119,7 +119,7 @@ export async function updateOrderStatus(
 	actorRole: string,
 	actorId: string,
 	observations?: string,
-): Promise<OrderResponse> {
+): Promise<OrderSnapshot> {
 	const order = await Order.findById(orderId);
 
 	if (!order) {
@@ -158,11 +158,11 @@ export async function updateOrderStatus(
  *
  * @param orderId - Order ID
  * @param userId - Technician/operator user ID
- * @returns OrderResponse
+ * @returns OrderSnapshot
  * @throws NotFoundError if order or user doesn't exist
  * @throws BadRequestError if user is not tecnico/operador
  */
-export async function assignOrder(orderId: string, userId: string): Promise<OrderResponse> {
+export async function assignOrder(orderId: string, userId: string): Promise<OrderSnapshot> {
 	const order = await Order.findById(orderId);
 
 	if (!order) {
@@ -217,10 +217,10 @@ export async function assignOrder(orderId: string, userId: string): Promise<Orde
  * Soft delete order (mark as cancelled or archived)
  *
  * @param orderId - Order ID
- * @returns OrderResponse
+ * @returns OrderSnapshot
  * @throws NotFoundError if order doesn't exist
  */
-export async function deleteOrder(orderId: string): Promise<OrderResponse> {
+export async function deleteOrder(orderId: string): Promise<OrderSnapshot> {
 	const order = await Order.findById(orderId);
 
 	if (!order) {
@@ -275,5 +275,5 @@ export async function getOrderReport(orderId: string): Promise<{
 }
 
 // Re-export types for consumers
-export type { OrderResponse };
+export type { OrderSnapshot };
 export { OrderStatus };

@@ -2,7 +2,7 @@ import type {
 	ApiEnvelope,
 	Cost,
 	CostCategory,
-	CostResponse,
+	CostResponse as CostSnapshot,
 	CostSummary,
 	CreateCostInput,
 	UpdateCostInput,
@@ -10,6 +10,8 @@ import type {
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CACHE_CONFIG } from "@/lib/constants/query-config";
 import { apiClient } from "@/lib/http/api-client";
+
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/mutation-defaults";
 
 export interface CostListFilters {
 	orderId?: string;
@@ -19,7 +21,7 @@ export interface CostListFilters {
 	limit?: number;
 }
 
-export interface CostListResult {
+export interface CostListQuery {
 	costs: Cost[];
 	total: number;
 	page: number;
@@ -47,7 +49,7 @@ interface CostListApiEnvelope extends ApiEnvelope<Cost[]> {
 
 type CostSummaryApiEnvelope = ApiEnvelope<CostSummary>;
 
-type CostDetailApiEnvelope = ApiEnvelope<CostResponse>;
+type CostDetailApiEnvelope = ApiEnvelope<CostSnapshot>;
 
 type LegacySummaryEnvelope = ApiEnvelope<Array<Record<string, unknown>>>;
 
@@ -104,7 +106,7 @@ function buildQueryString(filters?: CostListFilters): string {
 	return params.toString();
 }
 
-function toCostListResult(body?: CostListApiEnvelope | null): CostListResult {
+function toCostListResult(body?: CostListApiEnvelope): CostListQuery {
 	const meta = body?.meta ?? {};
 	const costs = body?.data ?? [];
 	const total = meta.total ?? costs.length;
@@ -121,9 +123,7 @@ function toCostListResult(body?: CostListApiEnvelope | null): CostListResult {
 	};
 }
 
-function mapLegacySummaryItems(
-	rows?: Array<Record<string, unknown>> | null,
-): CostLegacySummaryItem[] {
+function mapLegacySummaryItems(rows?: Array<Record<string, unknown>>): CostLegacySummaryItem[] {
 	return (rows ?? []).map((row) => {
 		return {
 			type: String(row.type ?? row.category ?? "other"),
@@ -144,7 +144,7 @@ export function useOrderCosts(orderId: string, filters?: Omit<CostListFilters, "
 
 	return useQuery({
 		queryKey: COSTS_KEYS.orderList(normalizedFilters.orderId, filters),
-		queryFn: async (): Promise<CostListResult> => {
+		queryFn: async (): Promise<CostListQuery> => {
 			const queryString = buildQueryString(normalizedFilters);
 			const url = queryString ? `/costs?${queryString}` : "/costs";
 			const body = await apiClient.get<CostListApiEnvelope>(url);
@@ -171,7 +171,7 @@ export function useCostList(filters?: CostListFilters, options?: { enabled?: boo
 
 	return useQuery({
 		queryKey: COSTS_KEYS.list(normalizedFilters),
-		queryFn: async (): Promise<CostListResult> => {
+		queryFn: async (): Promise<CostListQuery> => {
 			const queryString = buildQueryString(normalizedFilters);
 			const url = queryString ? `/costs?${queryString}` : "/costs";
 			const body = await apiClient.get<CostListApiEnvelope>(url);
@@ -271,7 +271,7 @@ export function useCost(id: string) {
 
 	return useQuery({
 		queryKey: COSTS_KEYS.detail(normalizedId),
-		queryFn: async (): Promise<CostResponse> => {
+		queryFn: async (): Promise<CostSnapshot> => {
 			const body = await apiClient.get<CostDetailApiEnvelope>(
 				`/costs/${encodeURIComponent(normalizedId)}`,
 			);
@@ -295,15 +295,18 @@ export function useCreateCost() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: async (data: CreateCostInput): Promise<CostResponse> => {
+		mutationKey: OFFLINE_MUTATION_KEYS.costCreate,
+		mutationFn: async (data: CreateCostInput): Promise<CostSnapshot> => {
 			const body = await apiClient.post<CostDetailApiEnvelope>("/costs", data);
 
 			if (body && typeof body === "object" && "success" in body && body.success === false) {
 				throw new Error(getApiErrorMessage(body, "Failed to create cost"));
 			}
 
-			return (body as CostDetailApiEnvelope)?.data ?? (body as unknown as CostResponse);
+			return (body as CostDetailApiEnvelope)?.data ?? (body as unknown as CostSnapshot);
 		},
+		networkMode: "offlineFirst",
+		retry: 0,
 		onSuccess: (createdCost) => {
 			queryClient.invalidateQueries({ queryKey: COSTS_KEYS.all });
 			queryClient.invalidateQueries({ queryKey: ["orders", createdCost.orderId] });
@@ -318,7 +321,8 @@ export function useUpdateCost(costId: string) {
 	const normalizedCostId = costId.trim();
 
 	return useMutation({
-		mutationFn: async (data: UpdateCostInput): Promise<CostResponse> => {
+		mutationKey: OFFLINE_MUTATION_KEYS.costUpdate,
+		mutationFn: async (data: UpdateCostInput): Promise<CostSnapshot> => {
 			const body = await apiClient.patch<CostDetailApiEnvelope>(
 				`/costs/${encodeURIComponent(normalizedCostId)}`,
 				data,
@@ -328,8 +332,10 @@ export function useUpdateCost(costId: string) {
 				throw new Error(getApiErrorMessage(body, "Failed to update cost"));
 			}
 
-			return (body as CostDetailApiEnvelope)?.data ?? (body as unknown as CostResponse);
+			return (body as CostDetailApiEnvelope)?.data ?? (body as unknown as CostSnapshot);
 		},
+		networkMode: "offlineFirst",
+		retry: 0,
 		onSuccess: (updatedCost) => {
 			queryClient.invalidateQueries({ queryKey: COSTS_KEYS.all });
 			queryClient.invalidateQueries({ queryKey: COSTS_KEYS.detail(normalizedCostId) });
@@ -344,7 +350,8 @@ export function useDeleteCost() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: async (costId: string): Promise<CostResponse> => {
+		mutationKey: OFFLINE_MUTATION_KEYS.costDelete,
+		mutationFn: async (costId: string): Promise<CostSnapshot> => {
 			const body = await apiClient.delete<CostDetailApiEnvelope>(
 				`/costs/${encodeURIComponent(costId)}`,
 			);
@@ -353,8 +360,10 @@ export function useDeleteCost() {
 				throw new Error(getApiErrorMessage(body, "Failed to delete cost"));
 			}
 
-			return (body as CostDetailApiEnvelope)?.data ?? (body as unknown as CostResponse);
+			return (body as CostDetailApiEnvelope)?.data ?? (body as unknown as CostSnapshot);
 		},
+		networkMode: "offlineFirst",
+		retry: 0,
 		onSuccess: (deletedCost) => {
 			queryClient.invalidateQueries({ queryKey: COSTS_KEYS.all });
 			queryClient.invalidateQueries({ queryKey: COSTS_KEYS.detail(deletedCost._id) });

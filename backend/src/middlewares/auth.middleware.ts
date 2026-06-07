@@ -12,16 +12,16 @@ import { normalizeUserRole } from "@cermont/domain";
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { AppError, UnauthorizedError } from "../common/errors";
-import type { AuthPayload } from "../common/utils/request";
+import type { AuthClaims } from "../common/utils/request";
 import { env } from "../config/env";
 import { TokenBlacklist, User } from "../models";
 
-export type { AuthPayload } from "../common/utils/request";
+export type { AuthClaims } from "../common/utils/request";
 
 declare global {
 	namespace Express {
 		interface Request {
-			user?: AuthPayload;
+			user?: AuthClaims;
 		}
 	}
 }
@@ -45,7 +45,7 @@ export async function authenticate(
 
 	const token = authHeader.slice(7); // Remove "Bearer " prefix
 
-	let payload: AuthPayload;
+	let payload: AuthClaims;
 
 	const jwtSecret = env.JWT_SECRET;
 	if (!jwtSecret) {
@@ -53,7 +53,7 @@ export async function authenticate(
 	}
 
 	try {
-		payload = jwt.verify(token, jwtSecret) as AuthPayload;
+		payload = jwt.verify(token, jwtSecret) as AuthClaims;
 	} catch (error) {
 		if (error instanceof jwt.TokenExpiredError) {
 			throw new AppError("Access token expired", 401, "TOKEN_EXPIRED");

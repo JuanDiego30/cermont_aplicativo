@@ -15,6 +15,7 @@ export {
 	ForbiddenError,
 	NotFoundError,
 	RateLimitError,
+	ServiceUnavailableError,
 	UnauthorizedError,
 	UnprocessableError,
 	ValidationError,

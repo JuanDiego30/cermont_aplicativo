@@ -94,7 +94,7 @@ function PacketContent({ packet }: { packet: PlanningPacket }) {
 		}
 	};
 
-  const statusTone =
+	const statusTone =
 		packet.status === "approved"
 			? "border-[var(--color-success-border)] bg-[var(--color-success-bg)] text-[var(--color-success)]"
 			: packet.status === "blocked"

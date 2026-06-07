@@ -25,8 +25,21 @@ import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
 import * as OrderController from "./order.controller";
+import { getPlanningPacketByWorkOrder } from "../planning-packet/planning-packet.controller";
 
 const router = Router();
+
+/**
+ * GET /api/orders/:orderId/planning-packet
+ * Get planning packet by work order ID
+ * Roles: Todos (all authenticated users)
+ */
+router.get(
+	"/:orderId/planning-packet",
+	authenticate,
+	// Roles: Todos (all authenticated users)
+	getPlanningPacketByWorkOrder,
+);
 
 /**
  * GET /api/orders

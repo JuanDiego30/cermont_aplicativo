@@ -13,6 +13,7 @@
 "use client";
 
 import { AlertCircle, RefreshCw } from "lucide-react";
+import { MOTION } from "@/components/motion/motion-classes";
 import { cn } from "@/lib/utils";
 
 export interface ErrorFallbackProps {
@@ -29,7 +30,9 @@ export interface ErrorFallbackProps {
 }
 
 function getErrorMessage(error: Error | null | undefined): string {
-	if (!error) { return ""; }
+	if (!error) {
+		return "";
+	}
 	return error.message || String(error);
 }
 
@@ -48,28 +51,26 @@ export function ErrorFallback({
 			aria-live="assertive"
 			aria-label="Error"
 			className={cn(
-				"flex flex-col items-center justify-center px-6 py-16 text-center",
+				`${MOTION.revealUp} motion-panel flex flex-col items-center justify-center px-6 py-16 text-center`,
 				className,
 			)}
 		>
 			{/* Error icon */}
-			<div className="mb-6 flex size-16 items-center justify-center rounded-full bg-red-50 dark:bg-red-900/20">
-				<AlertCircle className="size-8 text-red-500" aria-hidden="true" />
+			<div className="motion-subtle mb-6 flex size-16 items-center justify-center rounded-full bg-[color:var(--color-danger-bg)] text-[var(--color-danger)]">
+				<AlertCircle className="size-8" aria-hidden="true" />
 			</div>
 
 			{/* Title */}
-			<h2 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+			<h2 className="mb-2 text-lg font-semibold text-[var(--text-primary)] [text-wrap:balance]">
 				{title}
 			</h2>
 
 			{/* Description */}
-			<p className="mb-6 max-w-sm text-sm text-neutral-500 dark:text-neutral-400">
-				{description}
-			</p>
+			<p className="mb-6 max-w-sm text-sm text-[var(--text-secondary)]">{description}</p>
 
 			{/* Error detail (dev only) */}
 			{errorMessage && process.env.NODE_ENV === "development" && (
-				<pre className="mb-6 max-w-md overflow-auto rounded-lg bg-neutral-100 p-4 text-left text-xs text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
+				<pre className="mb-6 max-w-md overflow-auto rounded-lg bg-[var(--surface-secondary)] p-4 text-left text-xs text-[var(--text-secondary)]">
 					{errorMessage}
 				</pre>
 			)}
@@ -80,8 +81,8 @@ export function ErrorFallback({
 					type="button"
 					onClick={resetErrorBoundary}
 					className={cn(
-						"inline-flex items-center gap-2 rounded-full bg-[#2154A6] px-6 py-2.5 text-sm font-medium text-white transition-colors",
-						"hover:bg-[#1a4390] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4CAF50] focus-visible:ring-offset-2",
+						`${MOTION.button} inline-flex items-center gap-2 rounded-full bg-[#2154A6] px-6 py-2.5 text-sm font-medium text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4CAF50] focus-visible:ring-offset-2`,
+						"hover:bg-[#1a4390]",
 					)}
 				>
 					<RefreshCw className="size-4" aria-hidden="true" />

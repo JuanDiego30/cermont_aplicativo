@@ -1,7 +1,17 @@
-\begin{tikzpicture}[node distance=1cm, every node/.style={font=\scriptsize}, box/.style={draw, rounded corners, fill=blue!7, align=center, minimum width=3.0cm, minimum height=0.75cm}]
+\begin{tikzpicture}[
+  node distance=1cm,
+  every node/.style={font=\scriptsize},
+  box/.style={draw=institucionalBlue, rounded corners=3pt, fill=institucionalGrey!35, align=center, minimum width=3.0cm, minimum height=0.78cm, line width=0.75pt},
+  result/.style={draw=institucionalRed, rounded corners=3pt, fill=institucionalRed!8, align=center, minimum width=3.0cm, minimum height=0.78cm, line width=0.85pt},
+  arrow/.style={-{Latex[length=2mm]}, draw=institucionalBlue, line width=0.8pt},
+  arrowred/.style={-{Latex[length=2mm]}, draw=institucionalRed, line width=0.8pt}
+]
 \node[box] (utilidad) {Utilidad percibida};
 \node[box, right=of utilidad] (facilidad) {Facilidad de uso};
-\node[box, right=of facilidad] (intencion) {Aceptación del sistema};
+\node[result, right=of facilidad] (intencion) {Aceptación del sistema};
 \node[box, below=of facilidad] (contexto) {Condiciones de campo\\y soporte documental};
-\draw[-{Latex[length=2mm]}] (utilidad)--(intencion); \draw[-{Latex[length=2mm]}] (facilidad)--(intencion); \draw[-{Latex[length=2mm]}] (contexto)--(facilidad); \draw[-{Latex[length=2mm]}] (contexto)--(utilidad);
+\draw[arrow] (utilidad)--(facilidad);
+\draw[arrowred] (facilidad)--(intencion);
+\draw[arrow] (contexto)--(facilidad);
+\draw[arrow] (contexto)--(utilidad);
 \end{tikzpicture}

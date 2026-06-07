@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { statusObjectOf } from "../utils/status-types";
 import { ReportStatusSchema } from "./report.schema";
 
 const PIPELINE_STATUS_VALUES = ["completed", "ready_for_invoicing", "closed"] as const;
@@ -14,14 +15,14 @@ export const BillingPipelineItemSchema = z.object({
 	assetName: z.string(),
 	location: z.string(),
 	description: z.string(),
-	completedAt: z.string().nullable(),
+	completedAt: statusObjectOf(z.string()),
 	daysWaiting: z.number(),
 	invoiceReady: z.boolean(),
 	createdBy: z.string(),
-	clientName: z.string().nullable(),
+	clientName: statusObjectOf(z.string()),
 	sesStatus: z.enum(["pending", "registered", "approved"]).optional(),
 	invoiceStatus: z.enum(["pending", "sent", "approved", "paid"]).optional(),
-	paidAt: z.string().nullable().optional(),
+	paidAt: statusObjectOf(z.string()).optional(),
 	nteAmount: z.number().optional(),
 	hasDeliveryRecord: z.boolean().default(false),
 	deliveryRecordSigned: z.boolean().default(false),
@@ -29,7 +30,7 @@ export const BillingPipelineItemSchema = z.object({
 export type BillingPipelineItem = z.infer<typeof BillingPipelineItemSchema>;
 
 export const BillingPipelineGroupSchema = z.object({
-	clientName: z.string().nullable(),
+	clientName: statusObjectOf(z.string()),
 	createdBy: z.string(),
 	orders: z.array(BillingPipelineItemSchema),
 	totalOrders: z.number(),
@@ -76,14 +77,14 @@ export const ReportPipelineItemSchema = z.object({
 	assetName: z.string(),
 	location: z.string(),
 	description: z.string(),
-	createdAt: z.string().nullable(),
-	completedAt: z.string().nullable(),
+	createdAt: statusObjectOf(z.string()),
+	completedAt: statusObjectOf(z.string()),
 	daysWaiting: z.number(),
 	createdBy: z.string(),
-	reportId: z.string().nullable(),
-	reportStatus: ReportStatusSchema.nullable(),
-	reportSummary: z.string().nullable(),
-	pdfUrl: z.string().nullable(),
+	reportId: statusObjectOf(z.string()),
+	reportStatus: statusObjectOf(ReportStatusSchema),
+	reportSummary: statusObjectOf(z.string()),
+	pdfUrl: statusObjectOf(z.string()),
 });
 export type ReportPipelineItem = z.infer<typeof ReportPipelineItemSchema>;
 
@@ -91,7 +92,7 @@ export const ReportPipelineSummarySchema = z.object({
 	totalAwaitingApproval: z.number(),
 	averageDaysWaiting: z.number(),
 	maxDaysWaiting: z.number(),
-	averageCompletionToApprovalDays: z.number().nullable(),
+	averageCompletionToApprovalDays: statusObjectOf(z.number()),
 });
 export type ReportPipelineSummary = z.infer<typeof ReportPipelineSummarySchema>;
 
@@ -104,6 +105,6 @@ export type ReportPipelineResponse = z.infer<typeof ReportPipelineResponseSchema
 export const ReportMonthlyStatsSchema = z.object({
 	approvedThisMonth: z.number(),
 	rejectedThisMonth: z.number(),
-	avgClosureDays: z.number().nullable(),
+	avgClosureDays: statusObjectOf(z.number()),
 });
 export type ReportMonthlyStats = z.infer<typeof ReportMonthlyStatsSchema>;

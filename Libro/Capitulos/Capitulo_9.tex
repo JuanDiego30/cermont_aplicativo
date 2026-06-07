@@ -6,8 +6,8 @@
 \label{ch:discusion}
 
 % --- Ajustes editoriales locales del capítulo: sangría, espaciado y control de desbordamientos ---
-\setlength{\parindent}{1.25cm}
-\setlength{\parskip}{0pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
 \sloppy
 \emergencystretch=2em
 \raggedbottom
@@ -44,6 +44,8 @@ Académicamente, el trabajo muestra cómo una metodología aplicada transforma u
 \section{Síntesis crítica}
 \label{sec:sintesis-critica}
 
+El aporte del proyecto debe evaluarse desde una posición equilibrada. El aplicativo desarrollado aporta una base técnica para ordenar el flujo documental-operativo de CERMONT S.A.S.; sin embargo, su impacto sobre tiempos, costos, devoluciones o satisfacción de usuarios no debe afirmarse sin medición piloto. Por tanto, la discusión reconoce dos niveles de logro: el logro técnico, respaldado por arquitectura, módulos, capturas y pruebas que deben anexarse; y el logro operativo, pendiente de validarse con usuarios reales y órdenes de trabajo reales.
+
 \section{Discusión sobre la aplicabilidad del modelo a otras organizaciones}
 \label{sec:discusion-aplicabilidad}
 
@@ -70,22 +72,22 @@ Esta distribución asimétrica refleja una decisión consciente de priorización
 \section{Síntesis de la discusión}
 \label{sec:sintesis-final-discusion}
 
-La discusión presentada en este capítulo permite articular una valoración equilibrada del proyecto. Por un lado, el sistema implementado constituye una solución técnicamente sólida, fundamentada en decisiones arquitectónicas documentadas, respaldada por pruebas automatizadas y alineada con las necesidades operativas de CERMONT S.A.S. identificadas en el diagnóstico. Por otro lado, el trabajo reconoce explícitamente sus limitaciones: la validación cuantitativa de impacto requiere mediciones en entorno real aún no ejecutadas; la cobertura funcional no es uniforme entre módulos; y las capacidades de extracción documental automática, aunque arquitectónicamente previstas, constituyen trabajo futuro. Esta honestidad académica, lejos de debilitar el trabajo, lo fortalece al establecer con precisión qué fue demostrado, qué fue implementado y qué queda como trabajo posterior para fases posteriores.
+La discusión presentada en este capítulo permite articular una valoración equilibrada del proyecto. Por un lado, el sistema implementado constituye una base técnica documentada, fundamentada en decisiones arquitectónicas, evidencias visuales y pruebas que deben conservarse como anexos. Por otro lado, el trabajo reconoce explícitamente sus limitaciones: la validación cuantitativa de impacto requiere mediciones en entorno real aún no ejecutadas; la cobertura funcional no es uniforme entre módulos; y las capacidades de extracción documental automática, aunque arquitectónicamente previstas, constituyen trabajo futuro. Esta honestidad académica fortalece el trabajo al establecer con precisión qué fue demostrado, qué fue implementado y qué queda como trabajo posterior.
 
 % =====================================================================
 \section{Discusión sobre las decisiones arquitectónicas}
 \label{sec:discusion-arquitectura}
 
-Las decisiones arquitectónicas documentadas en el marco teórico demostraron su pertinencia durante el desarrollo del proyecto. La adopción de un monorepo con npm workspaces eliminó la duplicación de tipos entre frontend y backend, confirmando lo señalado por Richards y Ford \cite{richards2020} sobre la importancia de una fuente única de verdad en arquitecturas distribuidas. La elección de Express 5.2.1 permitió aprovechar la propagación nativa de errores asíncronos, reduciendo el código repetitivo de manejo de excepciones que habría sido necesario en versiones anteriores del framework.
+Las decisiones arquitectónicas documentadas en el marco teórico resultaron pertinentes durante el desarrollo del proyecto. La adopción de un monorepo con npm workspaces ayudó a controlar la duplicación de tipos entre frontend y backend, en coherencia con lo señalado por Richards y Ford \cite{richards2020} sobre la importancia de una fuente única de verdad en arquitecturas distribuidas. La elección de Express 5.2.1 permitió aprovechar la propagación nativa de errores asíncronos y simplificar parte del manejo de excepciones frente a versiones anteriores del framework.
 
 La decisión de utilizar MongoDB con Mongoose (ADR-003) resultó acertada para el contexto de formularios heterogéneos de CERMONT S.A.S., pero introdujo un costo de aprendizaje para desarrolladores acostumbrados a bases de datos relacionales. Este hallazgo coincide con la literatura sobre compensaciones arquitectónicas (\textit{architectural trade-offs}), que señala que ninguna decisión técnica está exenta de contrapartidas \cite{bass2021}.
 
-La implementación de Next.js 16 con App Router (ADR-004) proporcionó beneficios claros en el rendimiento de vistas de datos pesados mediante Server Components, aunque la coexistencia de componentes de servidor y cliente exigió una disciplina rigurosa en la delimitación de responsabilidades. La autenticación JWT con Zustand (ADR-005) demostró ser adecuada para el escenario offline, pero requiere atención continua a la seguridad de los tokens en el lado del cliente, particularmente en dispositivos compartidos o públicos.
+La implementación de Next.js con App Router (ADR-004) aportó una estructura clara para vistas protegidas y componentes interactivos, aunque la coexistencia de componentes de servidor y cliente exigió una disciplina rigurosa en la delimitación de responsabilidades. La autenticación JWT con Zustand (ADR-005) se consideró adecuada para el escenario offline parcial, pero requiere atención continua a la seguridad de los tokens en el lado del cliente, particularmente en dispositivos compartidos o públicos.
 
 \section{Discusión sobre la cobertura del flujo operativo}
 \label{sec:discusion-cobertura}
 
-El sistema implementado cubre los módulos principales del flujo operativo de CERMONT S.A.S., desde la autenticación hasta el cierre administrativo. Sin embargo, la cobertura no es uniforme: los módulos de órdenes de trabajo y evidencias alcanzaron una madurez funcional alta, mientras que módulos como la validación automática de certificaciones del personal o la integración directa con portales externos (SAP Ariba) permanecen como líneas de evolución futura.
+El sistema implementado cubre módulos principales del flujo operativo de CERMONT S.A.S., desde la autenticación hasta el cierre administrativo. Sin embargo, la cobertura no es uniforme: los módulos de órdenes de trabajo y evidencias cuentan con mayor evidencia funcional, mientras que módulos como la validación automática de certificaciones del personal o la integración directa con portales externos (SAP Ariba) permanecen como líneas de evolución futura.
 
 Esta distribución asimétrica de la madurez funcional es consistente con el enfoque de desarrollo iterativo adoptado, donde los módulos de mayor criticidad para el flujo operativo recibieron prioridad en las iteraciones tempranas. La literatura sobre metodologías ágiles respalda esta estrategia de priorización basada en valor de negocio \cite{beck2001}, aunque también advierte sobre el riesgo de acumular deuda técnica en los módulos postergados.
 
@@ -107,8 +109,6 @@ El presente trabajo se diferencia de estos antecedentes en tres aspectos: (a) ab
 \label{sec:lecciones-aprendidas}
 
 El desarrollo del aplicativo dejó varias lecciones relevantes para proyectos similares de Ingeniería Electrónica aplicada a software empresarial. En primer lugar, la adopción temprana de un flujo contract-first (esquema Zod $\rightarrow$ modelo $\rightarrow$ servicio $\rightarrow$ controlador $\rightarrow$ ruta $\rightarrow$ API client $\rightarrow$ hook $\rightarrow$ UI) previno numerosos errores de integración que habrían surgido si el frontend y el backend se hubieran desarrollado de forma independiente. En segundo lugar, la ejecución sistemática de compuertas de calidad después de cada iteración (\texttt{typecheck}, \texttt{lint}, \texttt{test}, \texttt{build}) evitó la acumulación de deuda técnica y facilitó la detección temprana de regresiones. En tercer lugar, la decisión de no incluir datos cuantitativos no verificados en el documento obligó a mantener una disciplina de trazabilidad que, aunque exigente, fortalece la defensa académica del trabajo frente a cualquier revisión académica.
-
-% --- AMPLIACIÓN ACADÉMICA INTEGRADA CAPÍTULO 9 ---
 
 \section{Discusión sobre la expansión del libro a partir de documentación técnica}
 \label{sec:discusion-expansion-documentacion-tecnica}

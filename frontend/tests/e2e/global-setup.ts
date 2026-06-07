@@ -31,13 +31,25 @@ async function seedDatabase(uri: string): Promise<void> {
 		const usersCollection = db.collection("users");
 		const maintenanceKitsCollection = db.collection("maintenancekits");
 
-		const [adminPassword, supervisorPassword, technicianPassword] = await Promise.all([
+		const [adminPassword, supervisorPassword, technicianPassword, seedPassword] = await Promise.all([
 			bcrypt.hash(E2E_ADMIN.password, 4),
 			bcrypt.hash(E2E_SUPERVISOR.password, 4),
 			bcrypt.hash(E2E_TECHNICIAN.password, 4),
+			bcrypt.hash("Cermont2026!", 4),
 		]);
 
 		await usersCollection.insertMany([
+			{
+				_id: new mongoose.Types.ObjectId(),
+				name: "Gerencia General",
+				email: "gerencia@cermont.con",
+				password: seedPassword,
+				role: "gerente",
+				isActive: true,
+				phone: "+57 300 000 0000",
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			},
 			{
 				_id: SEED_IDS.admin,
 				name: "E2E Admin",

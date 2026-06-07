@@ -4,6 +4,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { Bot, Send, Sparkles, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { MOTION } from "@/components/motion/motion-classes";
 import { useUIStore } from "@/store/ui.store";
 
 gsap.registerPlugin(useGSAP);
@@ -12,9 +13,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/http/api-client";
 import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
 
-interface AIResponse {
+interface AIEnvelope {
 	message: string;
 	suggestedActions?: string[];
+}
+
+interface AiMessage {
+	id: string;
+	role: "assistant" | "user";
+	content: string;
+	actions?: string[];
 }
 
 const QUICK_PROMPTS = [
@@ -24,13 +32,19 @@ const QUICK_PROMPTS = [
 	"Resumen del día",
 ];
 
+function createMessageId(role: AiMessage["role"]): string {
+	if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+		return `${role}-${crypto.randomUUID()}`;
+	}
+	return `${role}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 export function CermontAIDrawer() {
 	const { chatOpen, toggleChat } = useUIStore();
 	const queryClient = useQueryClient();
-	const [messages, setMessages] = useState<
-		{ role: "assistant" | "user"; content: string; actions?: string[] }[]
-	>([
+	const [messages, setMessages] = useState<AiMessage[]>([
 		{
+			id: createMessageId("assistant"),
 			role: "assistant",
 			content:
 				"Hola, soy **Cermont AI**. Puedo ayudarte a consultar estados de órdenes, buscar recursos activos o sugerir mantenimientos preventivos. ¿En qué te puedo ayudar hoy?",
@@ -40,11 +54,11 @@ export function CermontAIDrawer() {
 	const [input, setInput] = useState("");
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
-	const drawerRef = useRef<HTMLDivElement>(null);
+	const drawerRef = useRef<HTMLDialogElement>(null);
 
 	const mutation = useMutation({
 		mutationFn: async (query: string) => {
-			const response = await apiClient.post<{ success: boolean; data: AIResponse }>("/ai/chat", {
+			const response = await apiClient.post<{ success: boolean; data: AIEnvelope }>("/ai/chat", {
 				query,
 			});
 			return response.data;
@@ -54,6 +68,7 @@ export function CermontAIDrawer() {
 			setMessages((prev) => [
 				...prev,
 				{
+					id: createMessageId("assistant"),
 					role: "assistant",
 					content: data.message,
 					actions: data.suggestedActions,
@@ -64,6 +79,7 @@ export function CermontAIDrawer() {
 			setMessages((prev) => [
 				...prev,
 				{
+					id: createMessageId("assistant"),
 					role: "assistant",
 					content:
 						"Ha ocurrido un error al conectar con mis sistemas. Por favor, intenta de nuevo más tarde.",
@@ -87,8 +103,17 @@ export function CermontAIDrawer() {
 	}, [chatOpen]);
 
 	useEffect(() => {
-		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-	}, []);
+		const messageCount = messages.length;
+
+		if (!chatOpen && messageCount === 0) {
+			return;
+		}
+
+		messagesEndRef.current?.scrollIntoView({
+			behavior: prefersReducedMotion() ? "auto" : "smooth",
+			block: "end",
+		});
+	}, [chatOpen, messages.length]);
 
 	const handleSend = (text: string = input) => {
 		if (!text.trim() || mutation.isPending) {
@@ -96,7 +121,10 @@ export function CermontAIDrawer() {
 		}
 
 		const userMessage = text.trim();
-		setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
+		setMessages((prev) => [
+			...prev,
+			{ id: createMessageId("user"), role: "user", content: userMessage },
+		]);
 		if (text === input) {
 			setInput("");
 		}
@@ -118,13 +146,16 @@ export function CermontAIDrawer() {
 	return (
 		<>
 			<div
-				className="fixed inset-0 z-[100] bg-[color:rgb(15,23,41)]/42 backdrop-blur-sm lg:bg-transparent lg:backdrop-blur-none"
+				className={`${MOTION.overlay} fixed inset-0 z-[100] bg-[color:rgb(15,23,41)]/42 backdrop-blur-sm lg:bg-transparent lg:backdrop-blur-none`}
 				onClick={toggleChat}
 				aria-hidden="true"
 			/>
-			<div
+			<dialog
 				ref={drawerRef}
-				className="fixed inset-y-4 right-4 z-[101] flex w-[380px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-3)]"
+				open={chatOpen || undefined}
+				aria-labelledby="cermont-ai-title"
+				aria-modal="true"
+				className={`${MOTION.drawer} fixed inset-y-4 right-4 z-[101] flex w-[380px] max-w-[calc(100vw-32px)] flex-col overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[0_24px_48px_-12px_rgba(15,23,42,0.24)]`}
 			>
 				{/* Header */}
 				<div className="flex items-center justify-between border-b border-[var(--border-default)] bg-[linear-gradient(135deg,rgba(58,120,216,0.16),rgba(15,23,41,0.03),transparent)] px-5 py-4">
@@ -133,7 +164,7 @@ export function CermontAIDrawer() {
 							<Bot className="size-5" />
 						</div>
 						<div>
-							<h2 className="text-sm font-semibold text-[var(--text-primary)]">Cermont AI</h2>
+						<h2 id="cermont-ai-title" className="text-sm font-semibold text-[var(--text-primary)]">Cermont AI</h2>
 							<p className="mt-0.5 inline-flex items-center gap-1.5 text-[11px] font-medium text-[var(--color-success)]">
 								<span className="inline-block size-1.5 animate-pulse rounded-full bg-[var(--color-success)]"></span>
 								Operativo
@@ -143,7 +174,8 @@ export function CermontAIDrawer() {
 					<button
 						type="button"
 						onClick={toggleChat}
-						className="flex size-8 items-center justify-center rounded-full text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-secondary)] hover:text-[var(--text-primary)]"
+						aria-label="Cerrar asistente Cermont AI"
+						className="motion-button flex size-8 items-center justify-center rounded-full text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] hover:text-[var(--text-primary)]"
 					>
 						<X className="size-4" />
 					</button>
@@ -160,7 +192,7 @@ export function CermontAIDrawer() {
 								key={prompt}
 								type="button"
 								onClick={() => handleSend(prompt)}
-								className="rounded-full border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--color-brand-blue)] hover:text-[var(--color-brand-blue)]"
+								className="motion-button rounded-full border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:border-[var(--color-brand-blue)] hover:text-[var(--color-brand-blue)]"
 							>
 								{prompt}
 							</button>
@@ -170,13 +202,13 @@ export function CermontAIDrawer() {
 
 				{/* Messages list */}
 				<div
-					className="flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(58,120,216,0.04),transparent_28%)] p-5"
+					className="flex-1 overflow-y-auto bg-[linear-gradient(180deg,rgba(58,120,216,0.04),transparent_28%)] p-5 overscroll-contain"
 					ref={containerRef}
 				>
 					<div className="flex flex-col gap-4">
 						{messages.map((msg) => (
 							<div
-								key={msg.content}
+								key={msg.id}
 								className={`flex max-w-[85%] flex-col gap-1 ${
 									msg.role === "user" ? "self-end" : "self-start"
 								}`}
@@ -194,7 +226,7 @@ export function CermontAIDrawer() {
 									<div className="flex flex-wrap gap-2 pt-1">
 										{msg.actions.map((action) => (
 											<button
-												key={action}
+												key={`${msg.id}-${action}`}
 												type="button"
 												onClick={() => handleSend(action)}
 												className="rounded-full border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-1 text-[11px] font-medium text-[var(--text-secondary)] transition-colors hover:border-[var(--color-brand-blue)] hover:text-[var(--color-brand-blue)]"
@@ -227,7 +259,7 @@ export function CermontAIDrawer() {
 							onClick={() => handleSend()}
 							disabled={!input.trim()}
 							aria-label="Enviar pregunta"
-							className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-(--color-brand-blue) text-white transition-all hover:bg-(--color-brand-blue-hover) disabled:opacity-50 disabled:hover:bg-(--color-brand-blue)"
+							className="motion-button flex size-10 shrink-0 items-center justify-center rounded-lg bg-(--color-brand-blue) text-white hover:bg-(--color-brand-blue-hover) disabled:opacity-50 disabled:hover:bg-(--color-brand-blue)"
 						>
 							<Send className="size-4" />
 						</button>
@@ -236,7 +268,7 @@ export function CermontAIDrawer() {
 						Cermont AI puede cometer errores. Verifica la info.
 					</p>
 				</div>
-			</div>
+			</dialog>
 		</>
 	);
 }

@@ -54,7 +54,7 @@ import type {
   EvidenceCategory,
 } from "@cermont/shared-types";
 
-export interface EvidenceResponse {
+export interface EvidenceSnapshot {
   _id: string;
   orderId: string;
   type?: string;
@@ -85,7 +85,7 @@ interface EvidenceCreationOptions {
 /**
  * Format evidence document for API response (V1)
  */
-function formatEvidenceResponse(doc: IEvidenceDocument): EvidenceResponse {
+function formatEvidenceResponse(doc: IEvidenceDocument): EvidenceSnapshot {
   return {
     _id: doc._id.toString(),
     orderId: doc.workOrderId?.toString() || doc.orderId?.toString() || "",
@@ -109,7 +109,7 @@ function formatEvidenceResponse(doc: IEvidenceDocument): EvidenceResponse {
 /**
  * Format evidence document for API response (V2)
  */
-function formatEvidenceResponseV2(doc: IEvidenceDocument): EvidenceResponse {
+function formatEvidenceResponseV2(doc: IEvidenceDocument): EvidenceSnapshot {
   return {
     _id: doc._id.toString(),
     orderId: doc.workOrderId?.toString() || doc.orderId?.toString() || "",
@@ -178,7 +178,7 @@ async function processImageFile(
  * @param fileBuffer - Image buffer
  * @param userId - User uploading
  * @param payload - Additional metadata (description, GPS, capturedAt)
- * @returns EvidenceResponse
+ * @returns EvidenceSnapshot
  */
 export async function createEvidence(
   orderId: string,
@@ -191,7 +191,7 @@ export async function createEvidence(
     capturedAt: Date;
   },
   options?: EvidenceCreationOptions,
-): Promise<EvidenceResponse> {
+): Promise<EvidenceSnapshot> {
   const idempotencyKey = normalizeIdempotencyKey(options?.idempotencyKey);
 
   if (idempotencyKey) {
@@ -212,6 +212,10 @@ export async function createEvidence(
     throw new BadRequestError(
       `Cannot upload evidence for order in ${order.status} state. Order must be assigned, in progress, or recently completed.`,
     );
+  }
+
+  if (!hasValidImageMagicBytes(fileBuffer)) {
+    throw new BadRequestError("Invalid file type. Must be PNG, JPEG, WebP, or GIF");
   }
 
   const isSafe = await scanWithClamAV(fileBuffer, `evidence-${orderId}-${type}`);
@@ -291,7 +295,7 @@ export async function createEvidenceV2(
   fileBuffer: Buffer,
   userId: string,
   options?: { idempotencyKey?: string },
-): Promise<EvidenceResponse> {
+): Promise<EvidenceSnapshot> {
   const idempotencyKey = normalizeIdempotencyKey(options?.idempotencyKey);
 
   if (idempotencyKey) {
@@ -474,18 +478,28 @@ export async function getEvidencesByOrderId(
  * Get evidence by ID
  *
  * @param evidenceId - Evidence ID
- * @returns EvidenceResponse
+ * @returns EvidenceSnapshot
  */
-export async function getEvidenceById(evidenceId: string): Promise<EvidenceResponse> {
+export async function getEvidenceById(
+  evidenceId: string,
+  actor: { _id: string; role: string },
+): Promise<EvidenceSnapshot> {
   const evidence = await Evidence.findById(evidenceId).lean();
 
   if (!evidence) {
     throw new NotFoundError("Evidence", evidenceId);
   }
 
+  const orderId = evidence.workOrderId?.toString() || evidence.orderId?.toString() || "";
+  if (!orderId) {
+    throw new NotFoundError("Order", "linked evidence order");
+  }
+
+  await getOrderByIdWithAuth(orderId, actor);
+
   return {
     _id: evidence._id.toString(),
-    orderId: evidence.workOrderId?.toString() || evidence.orderId?.toString() || "",
+    orderId,
     type: evidence.type || "during",
     url: evidence.url,
     filename: evidence.filename,
@@ -510,12 +524,12 @@ export async function getEvidenceById(evidenceId: string): Promise<EvidenceRespo
  *
  * @param evidenceId - Evidence ID
  * @param userId - User performing deletion
- * @returns EvidenceResponse
+ * @returns EvidenceSnapshot
  */
 export async function deleteEvidence(
   evidenceId: string,
   userId: string,
-): Promise<EvidenceResponse> {
+): Promise<EvidenceSnapshot> {
   const evidence = await Evidence.findById(evidenceId);
 
   if (!evidence) {
@@ -570,7 +584,7 @@ export async function verifyEvidence(
   evidenceId: string,
   userId: string,
   userRole: string,
-): Promise<EvidenceResponse> {
+): Promise<EvidenceSnapshot> {
   // RBAC: Only gerente, residente, supervisor can verify
   if (!["gerente", "residente", "supervisor"].includes(userRole)) {
     throw new BadRequestError(

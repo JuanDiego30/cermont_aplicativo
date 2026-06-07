@@ -7,7 +7,7 @@
 import { ListServiceCasesQuerySchema, ServiceCaseIdParamsSchema } from "@cermont/shared-types";
 import type { Request, Response } from "express";
 import { Types } from "mongoose";
-import { AppError, BadRequestError } from "../../common/errors";
+import { BadRequestError } from "../../common/errors";
 import { sendSuccess } from "../../common/interceptors/response.interceptor";
 import { requireUser } from "../../common/utils/request";
 import { Document, ServiceCase } from "../../models";
@@ -15,7 +15,7 @@ import { getConsolidatedReport } from "../../modules/order/order-closure.service
 import * as CermontWorkflowGateService from "../../services/cermont-workflow-gate.service";
 import {
 	applyClosingEvidenceMetadata,
-	type ClosingEvidenceRoutingResult,
+	type ClosingEvidenceRoutingOutcome,
 } from "../../services/closing-evidence-routing.service";
 import * as ServiceCaseService from "./service-case.service";
 
@@ -90,7 +90,7 @@ export async function bulkClosingEvidenceForCase(req: Request, res: Response): P
 		throw new BadRequestError("documentIds must be an array");
 	}
 
-	const results: Array<{ documentId: string } & ClosingEvidenceRoutingResult> = [];
+	const results: Array<{ documentId: string } & ClosingEvidenceRoutingOutcome> = [];
 
 	for (const docId of documentIds) {
 		if (!Types.ObjectId.isValid(docId)) {
@@ -142,15 +142,8 @@ export async function closeServiceCase(req: Request, res: Response): Promise<voi
 	const id = req.params.id as string;
 	const user = requireUser(req);
 
-	try {
-		const result = await ServiceCaseService.closeServiceCase(id, String(user._id));
-		sendSuccess(res, result);
-	} catch (error) {
-		if (error instanceof AppError) {
-			throw error;
-		}
-		throw new AppError("CLOSE_FAILED", 500, "Error al cerrar el caso de servicio");
-	}
+	const result = await ServiceCaseService.closeServiceCase(id, String(user._id));
+	sendSuccess(res, result);
 }
 
 /**
@@ -161,13 +154,6 @@ export async function archiveServiceCase(req: Request, res: Response): Promise<v
 	const id = req.params.id as string;
 	const user = requireUser(req);
 
-	try {
-		const result = await ServiceCaseService.archiveServiceCase(id, String(user._id));
-		sendSuccess(res, result);
-	} catch (error) {
-		if (error instanceof AppError) {
-			throw error;
-		}
-		throw new AppError("ARCHIVE_FAILED", 500, "Error al archivar el caso de servicio");
-	}
+	const result = await ServiceCaseService.archiveServiceCase(id, String(user._id));
+	sendSuccess(res, result);
 }

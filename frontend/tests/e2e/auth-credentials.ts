@@ -26,10 +26,10 @@ export const E2E_TECHNICIAN = {
 };
 
 export const E2E_KIT = {
-  name: "Kit Eléctrico Estándar",
-  activityType: "electrico" as const,
-  tools: [{ name: "Multímetro", quantity: 1, specifications: "Digital" }],
-  equipment: [{ name: "EPP Completo", quantity: 1, certificateRequired: false }],
+	name: "Kit Eléctrico Estándar",
+	activityType: "electrico" as const,
+	tools: [{ name: "Multímetro", quantity: 1, specifications: "Digital" }],
+	equipment: [{ name: "EPP Completo", quantity: 1, certificateRequired: false }],
 };
 
 // Default test password for E2E tests
@@ -37,21 +37,21 @@ export const DEFAULT_TEST_PASSWORD = "Admin123!";
 
 // E2E test user credentials - using default password for testing
 export const E2E_TEST_USERS = {
-  admin: {
-    email: process.env.PLAYWRIGHT_E2E_ADMIN_EMAIL ?? "admin@cermont.test",
-    password: process.env.PLAYWRIGHT_E2E_ADMIN_PASSWORD ?? DEFAULT_TEST_PASSWORD,
-    role: "gerente" as const,
-  },
-  supervisor: {
-    email: process.env.PLAYWRIGHT_E2E_SUPERVISOR_EMAIL ?? "sup@cermont.test",
-    password: process.env.PLAYWRIGHT_E2E_SUPERVISOR_PASSWORD ?? DEFAULT_TEST_PASSWORD,
-    role: "supervisor" as const,
-  },
-  technician: {
-    email: process.env.PLAYWRIGHT_E2E_TECHNICIAN_EMAIL ?? "tech@cermont.test",
-    password: process.env.PLAYWRIGHT_E2E_TECHNICIAN_PASSWORD ?? DEFAULT_TEST_PASSWORD,
-    role: "tecnico" as const,
-  },
+	admin: {
+		email: process.env.PLAYWRIGHT_E2E_ADMIN_EMAIL ?? "admin@cermont.test",
+		password: process.env.PLAYWRIGHT_E2E_ADMIN_PASSWORD ?? DEFAULT_TEST_PASSWORD,
+		role: "gerente" as const,
+	},
+	supervisor: {
+		email: process.env.PLAYWRIGHT_E2E_SUPERVISOR_EMAIL ?? "sup@cermont.test",
+		password: process.env.PLAYWRIGHT_E2E_SUPERVISOR_PASSWORD ?? DEFAULT_TEST_PASSWORD,
+		role: "supervisor" as const,
+	},
+	technician: {
+		email: process.env.PLAYWRIGHT_E2E_TECHNICIAN_EMAIL ?? "tech@cermont.test",
+		password: process.env.PLAYWRIGHT_E2E_TECHNICIAN_PASSWORD ?? DEFAULT_TEST_PASSWORD,
+		role: "tecnico" as const,
+	},
 };
 
 export function hasE2ECredentials(): boolean {

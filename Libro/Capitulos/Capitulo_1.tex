@@ -1,6 +1,6 @@
 % =====================================================================
 % CAPÍTULO 1: INTRODUCCIÓN, PROBLEMÁTICA Y OBJETIVOS
-% Versión refactorizada y expandida bajo el paradigma "Opus 4 Thinking"
+% Versión académica revisada para trabajo de grado
 % Proyecto: Aplicativo web para la gestión de órdenes de trabajo,
 %           trazabilidad y cierre administrativo en CERMONT S.A.S.
 % Autor: Juan Diego Arévalo Pidiache
@@ -11,8 +11,8 @@
 \label{ch:introduccion}
 
 % --- Ajustes editoriales locales del capítulo: sangría, espaciado y control de desbordamientos ---
-\setlength{\parindent}{1.25cm}
-\setlength{\parskip}{0pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
 \sloppy
 \emergencystretch=2em
 \raggedbottom
@@ -41,7 +41,7 @@ CERMONT S.A.S. es una organización del sector privado constituida en el municip
 
 Debido a su naturaleza como contratista multiservicio, la empresa debe gestionar de forma simultánea múltiples flujos documentales que difieren estructuralmente según la especialidad de la intervención técnica. Un servicio de mantenimiento de sistemas de Circuito Cerrado de Televisión (CCTV) exige la verificación de componentes de radioenlace, sistemas fotovoltaicos de alimentación y parámetros de red inalámbrica \cite{formato_cctv}; mientras que un trabajo de inspección mecánica de líneas de vida verticales requiere el control de conformidad de anclajes, absorbedores de impacto, cables de acero y tensionadores de seguridad \cite{formato_lineas_vida}. A su vez, toda actividad civil o eléctrica en campo debe ir precedida obligatoriamente por una planeación de obra que defina la asignación de mano de obra calificada, herramientas especializadas, consumibles, equipos de protección individual (EPP) y la evaluación previa de riesgos mediante el Análisis de Trabajo Seguro (ATS) y los permisos de trabajo en caliente, alturas o espacios confinados \cite{formato_planeacion}.
 
-En este contexto, la información de una orden de trabajo no representa un registro estático; constituye una entidad dinámica cuyo ciclo de vida abarca desde la solicitud de cotización por parte del cliente hasta la conciliación financiera y contable del pago de la factura. La optimización de este ciclo de vida mediante un artefacto de software modular y configurable representa el núcleo metodológico del presente trabajo aplicado. Al digitalizar estas estructuras complejas y centralizar el flujo de aprobaciones bajo un modelo de base de datos robusto, se hace factible mitigar la pérdida de trazabilidad, reducir los tiempos de procesamiento administrativo y proveer una plataforma auditable que actúe como único punto de verdad para los distintos actores del proceso.
+En este contexto, la información de una orden de trabajo no representa un registro estático; constituye una entidad dinámica cuyo ciclo de vida abarca desde la solicitud de cotización por parte del cliente hasta la conciliación financiera y contable del pago de la factura. La optimización de este ciclo de vida mediante un artefacto de software modular y configurable representa el núcleo metodológico del presente trabajo aplicado. Al digitalizar estas estructuras complejas y centralizar el flujo de aprobaciones bajo un modelo de base de datos robusto, se hace factible mitigar la pérdida de trazabilidad, preparar la medición futura de tiempos administrativos y proveer una plataforma auditable que actúe como punto de referencia para los distintos actores del proceso.
 
 \section{Descripción detallada del flujo operativo de 14 pasos}
 \label{sec:flujo-14-pasos}
@@ -53,39 +53,36 @@ Para modelar de forma precisa el ciclo de vida del servicio en CERMONT S.A.S., s
 \renewcommand{\arraystretch}{1.10}
 \setlength{\LTpre}{0pt}
 \setlength{\LTpost}{6pt}
-\begin{longtable}{>{\raggedright\arraybackslash}p{0.9cm}
-                  >{\raggedright\arraybackslash}p{3.0cm}
-                  >{\raggedright\arraybackslash}p{7.1cm}
-                  >{\raggedright\arraybackslash}p{2.4cm}}
+\begin{longtable}{|p{0.9cm}|p{3.0cm}|p{7.1cm}|p{2.4cm}|}
 \caption{Ciclo de vida operativo y administrativo unificado de 14 pasos en CERMONT S.A.S. Fuente: elaboración propia con base en el proceso suministrado por la empresa.}
 \label{tab:flujo-14-pasos}\\
-\toprule
+\hline\ClassicTableHeader
 \textbf{Paso} & \textbf{Etapa funcional} & \textbf{Descripción del proceso} & \textbf{Entidad digital}\\
-\midrule
+\hline
 \endfirsthead
-\toprule
+\hline\ClassicTableHeader
 \textbf{Paso} & \textbf{Etapa funcional} & \textbf{Descripción del proceso} & \textbf{Entidad digital}\\
-\midrule
+\hline
 \endhead
-\midrule
+\hline
 \multicolumn{4}{r}{Continúa en la siguiente página}\\
 \endfoot
-\bottomrule
+\hline
 \endlastfoot
-1  & Solicitud formal & Recepción del requerimiento técnico del cliente por correo, llamada o canal autorizado. & WorkRequest\\
-2  & Visita técnica & Levantamiento de información, aclaración de dudas, mediciones y registro fotográfico cuando aplica. & SiteVisit\\
-3  & Propuesta económica & Preparación de la oferta técnica y económica, con alcance, recursos y condiciones para aprobación del cliente. & Proposal\\
-4  & Aprobación con PO & Recepción de la orden de compra o autorización formal que habilita la ejecución. & PurchaseOrder\\
-5  & Planeación & Definición del cronograma, mano de obra, herramientas, equipos, certificaciones, AST y documentos de apoyo. & PlanningPacket\\
-6  & Ejecución & Desarrollo de la actividad con permisos, socialización de AST, checklist, procedimientos y registro fotográfico. & ExecutionSession\\
-7  & Informe técnico & Consolidación de actividades realizadas, observaciones, evidencias y registro fotográfico. & TechnicalReport\\
-8  & Acta de entrega & Elaboración y envío del acta final al cliente para revisión y firma. & DeliveryRecord\\
-9  & Acta firmada & Recepción del acta firmada o del soporte de aceptación del cliente. & ClientAcceptance\\
-10 & SES / Ariba & Elaboración de la hoja de entrada de servicio y envío para aprobación en la plataforma correspondiente. & ServiceEntrySheet\\
-11 & SES aprobada & Recepción de la aprobación de la SES por parte del cliente. & SESApproval\\
-12 & Factura & Elaboración y envío de factura para aprobación del cliente por la plataforma habilitada. & InvoiceTracking\\
-13 & Aprobación de factura & Recepción de aprobación de la factura por parte del cliente. & InvoiceApproval\\
-14 & Pago & Registro, conciliación y cierre administrativo del pago del servicio. & PaymentRecord\\
+1  & Solicitud formal & Recepción del requerimiento técnico del cliente por correo, llamada o canal autorizado. & WorkRequest\\ \hline
+2  & Visita técnica & Levantamiento de información, aclaración de dudas, mediciones y registro fotográfico cuando aplica. & SiteVisit\\ \hline
+3  & Propuesta económica & Preparación de la oferta técnica y económica, con alcance, recursos y condiciones para aprobación del cliente. & Proposal\\ \hline
+4  & Aprobación con PO & Recepción de la orden de compra o autorización formal que habilita la ejecución. & PurchaseOrder\\ \hline
+5  & Planeación & Definición del cronograma, mano de obra, herramientas, equipos, certificaciones, AST y documentos de apoyo. & PlanningPacket\\ \hline
+6  & Ejecución & Desarrollo de la actividad con permisos, socialización de AST, checklist, procedimientos y registro fotográfico. & ExecutionSession\\ \hline
+7  & Informe técnico & Consolidación de actividades realizadas, observaciones, evidencias y registro fotográfico. & TechnicalReport\\ \hline
+8  & Acta de entrega & Elaboración y envío del acta final al cliente para revisión y firma. & DeliveryRecord\\ \hline
+9  & Acta firmada & Recepción del acta firmada o del soporte de aceptación del cliente. & ClientAcceptance\\ \hline
+10 & SES / Ariba & Elaboración de la hoja de entrada de servicio y envío para aprobación en la plataforma correspondiente. & ServiceEntrySheet\\ \hline
+11 & SES aprobada & Recepción de la aprobación de la SES por parte del cliente. & SESApproval\\ \hline
+12 & Factura & Elaboración y envío de factura para aprobación del cliente por la plataforma habilitada. & InvoiceTracking\\ \hline
+13 & Aprobación de factura & Recepción de aprobación de la factura por parte del cliente. & InvoiceApproval\\ \hline
+14 & Pago & Registro, conciliación y cierre administrativo del pago del servicio. & PaymentRecord\\ \hline
 \end{longtable}
 \end{center}
 
@@ -96,8 +93,8 @@ La representación gráfica de este ciclo transaccional se expone en la Figura \
 \begin{adjustbox}{max width=\linewidth,max totalheight=0.38\textheight,keepaspectratio}
 \begin{tikzpicture}[
     node distance=0.8cm and 0.2cm,
-    bloque/.style={draw, rounded corners, align=center, fill=gray!8, minimum height=0.8cm},
-    flecha/.style={-{Latex[length=2mm]}, line width=0.8pt},
+    bloque/.style={draw=institucionalBlue, rounded corners, align=center, fill=institucionalGrey!35, minimum height=0.8cm},
+    flecha/.style={-{Latex[length=2mm]}, line width=0.8pt, draw=institucionalBlue},
     flechaCritica/.style={-{Latex[length=2mm]}, line width=1pt, draw=institucionalRed},
     stepNode/.style={bloque, text width=2.0cm, font=\scriptsize\bfseries, minimum height=1.0cm},
     headerNode/.style={bloque, fill=institucionalBlue, text=white, font=\bfseries, text width=4cm}
@@ -164,7 +161,7 @@ La recopilación técnica y la formalización documental tras el regreso de las 
 \begin{itemize}
     \item \textbf{Causas de fallo identificadas:} Recaptura de información desde borradores impresos de campo a plantillas de Microsoft Word y Excel. Los ingenieros residentes dedican horas semanales a buscar fotos dispersas en chats de mensajería instantánea, ajustar dimensiones de imágenes y transcribir observaciones técnicas de campo. Este retraso dilata el tiempo de entrega de los informes técnicos preliminares y las actas formales al cliente para su revisión y aprobación física.
     \item \textbf{Impacto:} El retraso en la obtención del acta de entrega firmada por parte del supervisor del cliente corporativo detiene de inmediato el inicio de los trámites de facturación, prolongando los tiempos de radicación administrativa.
-    \item \textbf{Respuesta del aplicativo:} Motor de renderizado y exportación automática a formato PDF (\texttt{pdf-lib}) que toma los datos transaccionales, las respuestas de checklist validadas y las evidencias fotográficas almacenadas en base de datos para compilar de manera instantánea el informe técnico preliminar conforme a las plantillas corporativas de CERMONT S.A.S.
+    \item \textbf{Respuesta del aplicativo:} Motor de renderizado y exportación a formato PDF (\texttt{pdf-lib}) que toma los datos transaccionales, las respuestas de checklist validadas y las evidencias fotográficas almacenadas en base de datos para generar una versión preliminar del informe técnico conforme a las plantillas corporativas de CERMONT S.A.S.
 \end{itemize}
 
 \subsection{Falla Crítica 4: Retrasos en facturación y cierre administrativo (Pasos 10 a 14)}
@@ -187,30 +184,31 @@ La relación entre estas cinco fallas y los módulos del aplicativo se esquemati
 
 \begin{figure}[!htbp]
 \centering
-\begin{adjustbox}{max width=\linewidth,max totalheight=0.34\textheight,keepaspectratio}
+\begin{adjustbox}{max width=\linewidth,max totalheight=0.42\textheight,keepaspectratio}
 \begin{tikzpicture}[
     every node/.style={transform shape},
-    bloque/.style={draw, rounded corners, align=center, fill=gray!8},
-    bloqueCritico/.style={draw=institucionalRed, fill=institucionalRed!10, rounded corners, align=center, font=\scriptsize\bfseries},
-    flecha/.style={-{Latex[length=2mm]}, line width=0.8pt},
-    faseBox/.style={bloque, text width=3.0cm, minimum height=1.0cm},
-    flechaSecundaria/.style={flecha},
-    flechaCritica/.style={-{Latex[length=3mm]}, line width=1.6pt, draw=institucionalRed}
+    causa/.style={draw=institucionalBlue, fill=institucionalGrey!35, rounded corners=3pt, align=center, font=\scriptsize, text width=2.75cm, minimum height=1.05cm, line width=0.8pt},
+    consecuencia/.style={draw=institucionalRed, fill=institucionalRed!8, rounded corners=3pt, align=center, font=\scriptsize\bfseries, text width=8.7cm, minimum height=1.0cm, line width=1.0pt},
+    eje/.style={line width=0.9pt, draw=institucionalBlue},
+    flechaCausa/.style={-{Latex[length=2.4mm]}, line width=0.9pt, draw=institucionalRed}
 ]
-    \node (f1) [faseBox] at (0,1.0) {Fase 1: Planeación\\ \tiny Recursos no normalizados.};
-    \node (f2) [faseBox] at (4.4,1.0) {Fase 2: Ejecución\\ \tiny Papel, fotos sin contexto y sin red.};
-    \node (f3) [faseBox] at (0,-0.2) {Fase 3: Informes y Actas\\ \tiny Recaptura y retraso documental.};
-    \node (f4) [faseBox] at (4.4,-0.2) {Fase 4: Cierre Admin.\\ \tiny Soportes incompletos y retrasos de facturación.};
+    \node (c1) [causa] at (-6.0,1.2) {\textbf{Planeación}\\Recursos, personal y documentos incompletos};
+    \node (c2) [causa] at (-3.0,1.2) {\textbf{Ejecución}\\Formatos físicos y evidencias dispersas};
+    \node (c3) [causa] at (0,1.2) {\textbf{Informes y actas}\\Recaptura y revisión tardía};
+    \node (c4) [causa] at (3.0,1.2) {\textbf{Cierre administrativo}\\SES, facturas y pagos sin tablero único};
+    \node (c5) [causa] at (6.0,1.2) {\textbf{Costos reales}\\Comparación incompleta frente a propuesta};
 
-    \node (prob) [bloqueCritico, text width=4.2cm, minimum height=1.0cm] at (2.2,-1.5) {Fragmentación documental y atraso en cierres};
+    \node (efecto) [consecuencia] at (0,-1.15) {Fragmentación documental, pérdida de trazabilidad y retraso del cierre operativo-administrativo};
 
-    \draw [flechaSecundaria] (f1.south) -- ++(0,-0.15) -| (prob.north west);
-    \draw [flechaSecundaria] (f2.south) -- ++(0,-0.15) -| (prob.north east);
-    \draw [flechaSecundaria] (f3.south) -- ++(0,-0.15) -| (prob.west);
-    \draw [flechaSecundaria] (f4.south) -- ++(0,-0.15) -| (prob.east);
+    \draw[eje] (-6.0,0.05) -- (6.0,0.05);
+    \draw[flechaCausa] (c1.south) -- ++(0,-0.48) |- (-3.9,-0.58);
+    \draw[flechaCausa] (c2.south) -- ++(0,-0.48) |- (-2.0,-0.58);
+    \draw[flechaCausa] (c3.south) -- ++(0,-0.48) -- (0,-0.58);
+    \draw[flechaCausa] (c4.south) -- ++(0,-0.48) |- (2.0,-0.58);
+    \draw[flechaCausa] (c5.south) -- ++(0,-0.48) |- (3.9,-0.58);
 \end{tikzpicture}%
 \end{adjustbox}
-\caption{Diagrama de fallas por fases y su incidencia en el cierre operativo y documental. Fuente: Elaboración propia.}
+\caption{Diagrama de causa--efecto de las fallas críticas que inciden en la trazabilidad y el cierre operativo-administrativo. Fuente: elaboración propia.}
 \label{fig:ishikawa-fallas-cermont}
 \end{figure}
 
@@ -238,21 +236,21 @@ Desde la perspectiva de la ingeniería de software aplicada, el proyecto se just
 El reto técnico más relevante es la conectividad variable del trabajo en campo. Por ello, el aplicativo incorpora capacidades PWA, persistencia local y sincronización diferida para determinados registros operativos; sin embargo, la sincronización completa de evidencias con archivo binario todavía no debe describirse como resuelta en su totalidad. Junto con ello, el sistema utiliza contratos compartidos, validación estructurada, control de acceso por roles y generación documental automática, porque estos mecanismos responden directamente a las fallas detectadas en planeación, ejecución, informes y cierre administrativo \cite{mdn_service_worker,owasp_top10}.
 
 \subsection{Justificación Organizacional}
-Para CERMONT S.A.S., la herramienta representa un salto cualitativo hacia la madurez de procesos operativos y la digitalización integral. El aplicativo unifica en una única interfaz de trabajo a actores típicamente desconectados: gerentes que evalúan avances, ingenieros residentes que estructuran kits de planeación, técnicos de campo que recolectan evidencias y personal de seguimiento administrativo que rastrea actas, SES y facturas aprobadas. Al centralizar y auditar cada cambio de estado (audit logging), la empresa reduce costos transaccionales derivados de la búsqueda de soportes físicos y correos electrónicos, contribuye a reducir devoluciones de SES asociadas con documentación incompleta, y proporciona un soporte transparente a sus clientes corporativos, mejorando su posicionamiento competitivo como contratista confiable y digitalizado en Arauca y la región.
+Para CERMONT S.A.S., la herramienta representa un avance cualitativo hacia la madurez de procesos operativos y la digitalización integral. El aplicativo unifica en una única interfaz de trabajo a actores típicamente desconectados: gerentes que evalúan avances, ingenieros residentes que estructuran kits de planeación, técnicos de campo que recolectan evidencias y personal de seguimiento administrativo que rastrea actas, SES y facturas aprobadas. Al centralizar y auditar cada cambio de estado (audit logging), la empresa dispone de una base para disminuir búsquedas de soportes físicos y correos electrónicos, revisar devoluciones de SES asociadas con documentación incompleta y ofrecer a sus clientes corporativos un soporte más trazable. La medición de estos efectos queda pendiente por anexar evidencia operativa.
 
 \subsection{Justificación Académica}
 Este trabajo de grado realiza un aporte académico al programa de Ingeniería Electrónica de la Universidad de Pamplona al articular análisis de procesos, arquitectura de software y comparación de soluciones FSM para atender un problema operativo real de CERMONT S.A.S. La revisión de plataformas comerciales y proyectos open source permitió identificar vacíos de adaptación al contexto de contratistas locales y justificar una solución a medida.
 
 \subsection{Justificación Metodológica}
-El proyecto se rige por la metodología Design Science Research (DSR), un enfoque riguroso de investigación aplicada que se centra en el diseño, desarrollo, prueba y validación de un artefacto de ingeniería real para resolver un problema práctico observado \cite{hevner2004}. El uso de esta metodología garantiza que el producto final (el aplicativo de software) sea evaluado no solo por su correcta funcionalidad interna mediante pruebas de caja negra y typechecks unitarios, sino también por su utilidad y aplicabilidad en el escenario operativo y comercial real de CERMONT S.A.S., separando con total nitidez científica las evidencias técnicas construidas de aquellas métricas operativas sujetas a medición progresiva durante la práctica profesional.
+El proyecto se rige por la metodología Design Science Research (DSR), un enfoque riguroso de investigación aplicada que se centra en el diseño, desarrollo, prueba y validación de un artefacto de ingeniería real para resolver un problema práctico observado \cite{hevner2004}. El uso de esta metodología permite evaluar el aplicativo tanto por su funcionalidad técnica interna como por su utilidad potencial en el escenario operativo y comercial de CERMONT S.A.S., separando las evidencias técnicas construidas de aquellas métricas operativas sujetas a medición progresiva durante la práctica profesional.
 
 \section{Objetivos}
 \label{sec:objetivos}
 
-Para orientar el desarrollo y garantizar la solución de la problemática descrita, se formularon los siguientes objetivos:
+Para orientar el desarrollo frente a la problemática descrita, se formularon los siguientes objetivos:
 
 \subsection{Objetivo General}
-Desarrollar un aplicativo web que permita gestionar de forma centralizada las órdenes de trabajo y optimizar la trazabilidad de los procesos operativos y administrativos en CERMONT S.A.S., mejorando la planeación, ejecución y cierre administrativo de los servicios técnicos.
+Desarrollar un aplicativo web que permita gestionar de forma centralizada las órdenes de trabajo y fortalecer la trazabilidad de los procesos operativos y administrativos en CERMONT S.A.S., con énfasis en la planeación, ejecución y cierre administrativo de los servicios técnicos.
 
 \subsection{Objetivos Específicos}
 \begin{enumerate}
@@ -273,7 +271,7 @@ El aplicativo de software implementado integra de forma nativa los siguientes al
     \item \textbf{Gestión de Usuarios y Control de Accesos (RBAC):} Autenticación segura soportada por tokens JWT almacenados en cookies HttpOnly y autorización estricta estructurada bajo niveles de permiso diferenciados (Gerencia, Ingeniería Residente, Coordinador HES, Técnico de Campo, Personal Contable) mitigando vulnerabilidades críticas \cite{owasp_top10}.
     \item \textbf{Orden de Trabajo (Work Order):} Ciclo de vida dinámico modelado a través de transiciones de estado lógicas (\textit{Creada}, \textit{En Planeación}, \textit{Aprobada}, \textit{En Ejecución}, \textit{Finalizada Técnico}, \textit{Cierre Administrativo}) con registro de bitácora de auditoría histórica (\texttt{AuditLog}).
     \item \textbf{Módulo de Planeación Guiada:} Estructuración de paquetes de recursos asociados a la orden de trabajo utilizando plantillas parametrizadas de kits típicos (mano de obra, equipos con validación de vigencia de calibración, herramientas y documentos obligatorios).
-    \item \textbf{Módulo de Ejecución PWA Offline:} Diligenciamiento móvil de listas de verificación y checklists técnicos en campo utilizando IndexedDB local en ausencia de cobertura celular, dotado de captura directa de evidencias fotográficas y encolamiento en segundo plano operado por Service Workers \cite{mdn_service_worker}.
+    \item \textbf{Módulo de Ejecución PWA Offline:} Diligenciamiento móvil de listas de verificación y checklists técnicos en campo utilizando IndexedDB local en escenarios de cobertura celular limitada. La arquitectura contempla captura y encolamiento de evidencias, pero su validación completa debe realizarse por formulario y por tipo de archivo \cite{mdn_service_worker}.
     \item \textbf{Generación Documental:} Motor integrado para compilar, estructurar y renderizar de forma semiautomática las memorias de cálculo, respuestas de inspección y evidencias fotográficas en informes técnicos en formato PDF de alta definición (\texttt{pdf-lib}).
     \item \textbf{Módulo de Cierre Administrativo:} Panel web interactivo que permite rastrear la vinculación transaccional entre el acta de entrega firmada, el código SES cargado en SAP Ariba, la factura electrónica emitida y el registro de confirmación del pago conciliado.
 \end{itemize}
@@ -305,16 +303,16 @@ La solución propuesta afecta e involucra a múltiples actores dentro y fuera de
 \small
 \renewcommand{\arraystretch}{0.95}
 \setlength{\tabcolsep}{2pt}
-\def\StakeholderRow#1#2#3#4{\parbox[t]{2.2cm}{\raggedright #1} & \parbox[t]{4.4cm}{\raggedright #2} & \parbox[t]{4.7cm}{\raggedright #3} & \parbox[t]{2.3cm}{\raggedright #4}\\\midrule}
-\begin{tabular}{@{}l l l l@{}}
-\toprule
+\def\StakeholderRow#1#2#3#4{\parbox[t]{2.2cm}{\raggedright #1} & \parbox[t]{4.4cm}{\raggedright #2} & \parbox[t]{4.7cm}{\raggedright #3} & \parbox[t]{2.3cm}{\raggedright #4}\\\hline}
+\begin{tabular}{|l|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Actor} & \textbf{Necesidad principal} & \textbf{Problema actual} & \textbf{Beneficio esperado} \\
-\midrule
-\StakeholderRow{Gerente}{Visibilidad sobre el estado de todas las órdenes y la rentabilidad por servicio.}{Sin acceso a datos agregados en tiempo real; decisiones basadas en informes verbales.}{Dashboard con KPIs operativos y financieros; trazabilidad total de cada orden.}
+\hline
+\StakeholderRow{Gerente}{Visibilidad sobre el estado de todas las órdenes y la rentabilidad por servicio.}{Sin acceso a datos agregados en tiempo real; decisiones basadas en informes verbales.}{Dashboard con KPIs operativos y financieros; trazabilidad consultable por orden.}
 \StakeholderRow{Residente}{Asignación eficiente de recursos y personal a las órdenes de trabajo.}{Planeación manual desde cero para cada orden; sin biblioteca de kits reutilizables.}{Kits típicos por tipo de servicio; validación automática de disponibilidad de recursos.}
 \StakeholderRow{Supervisor}{Seguimiento de la ejecución en campo y revisión de evidencias.}{Dependencia de WhatsApp para comunicación con técnicos; sin visibilidad en tiempo real.}{Panel de ejecución con evidencias sincronizadas; notificaciones de novedades.}
-\StakeholderRow{Técnico / Operador}{Captura ágil de datos en campo, incluso sin conectividad.}{Formatos físicos que se dañan o extravían; fotos en dispositivo personal sin trazabilidad.}{Aplicación PWA con operación offline; captura de evidencias vinculadas automáticamente a la orden.}
-\bottomrule
+\StakeholderRow{Técnico / Operador}{Captura ágil de datos en campo, incluso con conectividad intermitente.}{Formatos físicos que se dañan o extravían; fotos en dispositivo personal sin trazabilidad.}{Aplicación PWA con operación offline parcial, snapshots locales y captura de evidencias vinculadas a la orden cuando el flujo correspondiente esté validado.}
+\hline
 \end{tabular}
 \end{table}
 \begin{table}[!htbp]
@@ -324,19 +322,19 @@ La solución propuesta afecta e involucra a múltiples actores dentro y fuera de
 \small
 \renewcommand{\arraystretch}{0.95}
 \setlength{\tabcolsep}{2pt}
-\def\StakeholderRowB#1#2#3#4{\parbox[t]{2.2cm}{\raggedright #1} & \parbox[t]{4.4cm}{\raggedright #2} & \parbox[t]{4.7cm}{\raggedright #3} & \parbox[t]{2.3cm}{\raggedright #4}\\\midrule}
-\begin{tabular}{@{}l l l l@{}}
-\toprule
+\def\StakeholderRowB#1#2#3#4{\parbox[t]{2.2cm}{\raggedright #1} & \parbox[t]{4.4cm}{\raggedright #2} & \parbox[t]{4.7cm}{\raggedright #3} & \parbox[t]{2.3cm}{\raggedright #4}\\\hline}
+\begin{tabular}{|l|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Actor} & \textbf{Necesidad principal} & \textbf{Problema actual} & \textbf{Beneficio esperado} \\
-\midrule
+\hline
 \StakeholderRowB{HES (Seguridad)}{Verificación del cumplimiento de checklists de seguridad y uso de EPP.}{Checklists en papel sin trazabilidad; difícil auditar cumplimiento histórico.}{Checklists digitales con registro de auditoría; evidencias fotográficas de condiciones de seguridad.}
 \StakeholderRowB{Admin.}{Preparación documental para facturación sin recaptura manual.}{Recopilación manual de soportes y demoras en el cierre.}{Generación automática de informes y seguimiento documental.}
 \StakeholderRowB{Cliente corporativo}{Conocer el estado de sus servicios y recibir documentación completa y oportuna.}{Sin visibilidad del avance; documentos entregados con retraso.}{Acceso a información de sus órdenes; documentación estructurada y trazable.}
-\bottomrule
+\hline
 \end{tabular}
 \end{table}
 
-Este análisis de actores fue utilizado como insumo para la definición de los módulos del sistema y la matriz de permisos RBAC. Cada módulo del aplicativo responde a las necesidades de al menos un perfil de usuario identificado en esta matriz, garantizando que el desarrollo se orientó a resolver problemas reales de los usuarios finales y no a implementar funcionalidades sin un propósito definido.
+Este análisis de actores fue utilizado como insumo para la definición de los módulos del sistema y la matriz de permisos RBAC. Cada módulo del aplicativo responde a las necesidades de al menos un perfil de usuario identificado en esta matriz, procurando que el desarrollo se oriente a resolver problemas reales de los usuarios finales y no a implementar funcionalidades sin un propósito definido.
 
 \section{Estructura general del documento de trabajo de grado}
 \label{sec:estructura-documento}
@@ -361,8 +359,6 @@ La lectura secuencial de estos capítulos permite al lector seguir el hilo condu
 
 El documento mantiene trazabilidad bibliográfica y distingue con claridad las afirmaciones del autor de las fuentes externas. Esa disciplina de trazabilidad, sostenida a lo largo de todo el libro, constituye un compromiso con la integridad académica y con la defendibilidad del trabajo frente a cualquier revisión por pares. El lector encontrará al final del volumen las referencias bibliográficas completas y los anexos que complementan la exposición con evidencia técnica y documental.
 
-% --- AMPLIACIÓN ACADÉMICA INTEGRADA CAPÍTULO 1 ---
-
 \section{Matriz de trazabilidad entre fallas, requisitos y módulos}
 \label{sec:matriz-fallas-requisitos-modulos}
 
@@ -374,16 +370,16 @@ Para evitar que el desarrollo del aplicativo se interprete como una simple digit
 \caption{Relación entre fallas operativas, requisitos funcionales y módulos del aplicativo. Fuente: elaboración propia.}
 \label{tab:fallas-requisitos-modulos-cap1}
 \begin{adjustbox}{max width=\textwidth}
-\begin{tabular}{p{3.0cm}p{2.0cm}p{4.2cm}p{3.0cm}p{3.4cm}}
-\toprule
+\begin{tabular}{|p{3.0cm}|p{2.0cm}|p{4.2cm}|p{3.0cm}|p{3.4cm}|}
+\hline\ClassicTableHeader
 \textbf{Falla identificada} & \textbf{Paso asociado} & \textbf{Requisito derivado} & \textbf{Módulo responsable} & \textbf{Evidencia esperada}\\
-\midrule
+\hline
 Planeación incompleta de herramientas y equipos & 5 & El sistema debe permitir configurar kits típicos por tipo de actividad, incluyendo herramientas, equipos, materiales, EPP y documentos de apoyo. & Planeación y kits típicos & Plantilla de planeación, checklist previo y registro de readiness.\\
 Ejecución con soportes dispersos & 6 & El sistema debe asociar evidencias, observaciones y formularios de campo a la orden de trabajo correspondiente. & Ejecución y evidencias & Evidencias anexadas a una orden con metadatos y trazabilidad.\\
 Retrasos en informes y actas & 7--9 & El sistema debe generar documentos técnicos a partir de la información capturada durante la ejecución. & Informes y actas & Informe técnico o acta generada desde datos estructurados.\\
 Seguimiento administrativo fragmentado & 10--14 & El sistema debe mostrar el estado de SES, factura, aprobación y pago en una línea de tiempo consultable. & Cierre administrativo & Panel de seguimiento por orden y estado documental.\\
 Ausencia de costos reales centralizados & 3--14 & El sistema debe vincular propuesta, ejecución, costos reales y facturación para comparar lo presupuestado con lo ejecutado. & Costos y propuesta & Registro de costos por orden, pendiente de validación con datos reales.\\
-\bottomrule
+\hline
 \end{tabular}
 \end{adjustbox}
 \end{table}

@@ -17,8 +17,10 @@ import {
 	Wrench,
 } from "lucide-react";
 import Link from "next/link";
-import { useRef, useSyncExternalStore } from "react";
+import { useCallback, useRef, useSyncExternalStore } from "react";
+import { BackendUnavailableState } from "@/components/common/PageStates";
 import { Skeleton } from "@/core/ui/Skeleton";
+import { isOfflineLikeError } from "@/lib/http/api-client";
 import { LazyMonthlyTrendChart } from "@/lib/utils/lazy-monthly-trend-chart";
 import { LazyOrdersByStatusChart } from "@/lib/utils/lazy-orders-by-status-chart";
 import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
@@ -29,6 +31,7 @@ import { DashboardFilters } from "@/modules/dashboard/ui/DashboardFilters";
 import { KPICard } from "@/modules/dashboard/ui/KPICard";
 import { RecentOrdersTable } from "@/modules/dashboard/ui/RecentOrdersTable";
 import { ServiceCaseDashboardPanel } from "@/modules/dashboard/ui/ServiceCaseDashboardPanel";
+import { StepTimeline } from "@/modules/dashboard/ui/StepTimeline";
 import { UpcomingMaintenanceList } from "@/modules/dashboard/ui/UpcomingMaintenanceList";
 import { useMaintenanceKits } from "@/modules/maintenance/hooks/useMaintenanceKits";
 import { useOrders } from "@/modules/orders/queries";
@@ -67,8 +70,8 @@ interface StatusSummaryItem {
 	bg: string;
 }
 
-type DashboardSummaryData = ReturnType<typeof useDashboardSummary>["data"];
-type ServiceCaseSummaryData = ReturnType<typeof useServiceCaseSummary>["data"];
+type DashboardSummarySnapshot = ReturnType<typeof useDashboardSummary>["data"];
+type ServiceCaseSummarySnapshot = ReturnType<typeof useServiceCaseSummary>["data"];
 
 function buildOrdersByStatus(charts?: DashboardCharts | null) {
 	return charts?.ordersByStatus.map(({ label, value }) => ({ name: label, value })) ?? [];
@@ -169,8 +172,8 @@ function emptyDashboardKpis(): DashboardKpiSnapshot {
 }
 
 function buildDashboardKpiSnapshot(
-	dashboardSummary: DashboardSummaryData,
-	serviceCaseSummary: ServiceCaseSummaryData,
+	dashboardSummary: DashboardSummarySnapshot,
+	serviceCaseSummary: ServiceCaseSummarySnapshot,
 	activeKitCount: number,
 ): DashboardKpiSnapshot {
 	if (!dashboardSummary) {
@@ -221,23 +224,56 @@ function useTodayLabel(): string {
 	);
 }
 
+function animateDashboard(scope: HTMLElement): void {
+	const header = scope.querySelector("[data-dash='header']");
+	const banner = scope.querySelector("[data-dash='banner']");
+	const kpis = scope.querySelectorAll("[data-dash='kpis']");
+	const charts = scope.querySelector("[data-dash='charts']");
+	const panels = scope.querySelectorAll("[data-dash='panel']");
+
+	if (!header && !banner && !kpis.length && !charts && !panels.length) {
+		return;
+	}
+
+	const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
+
+	if (header) {
+		tl.from(header, { opacity: 0, y: -18, duration: 0.5 });
+	}
+	if (banner) {
+		tl.from(banner, { opacity: 0, x: 30, duration: 0.5 }, "-=0.25");
+	}
+	if (kpis.length) {
+		tl.from(kpis, { opacity: 0, y: 20, stagger: 0.07, duration: 0.45 }, "-=0.1");
+	}
+	if (charts) {
+		tl.from(charts, { opacity: 0, y: 20, duration: 0.5 }, "-=0.1");
+	}
+	if (panels.length) {
+		tl.from(panels, { opacity: 0, y: 20, stagger: 0.1, duration: 0.45 }, "-=0.1");
+	}
+}
+
 export default function DashboardPage() {
 	const { user } = useAuth();
 	const {
 		data: dashboardSummary,
 		isLoading: dashboardSummaryLoading,
 		error: dashboardSummaryError,
+		refetch: refetchDashboardSummary,
 	} = useDashboardSummary();
 	const {
 		data: serviceCaseSummary,
 		isLoading: serviceCaseSummaryLoading,
 		error: serviceCaseSummaryError,
+		refetch: refetchServiceCaseSummary,
 	} = useServiceCaseSummary();
-	const { data: ordersPage, isLoading: ordersLoading } = useOrders();
+	const { data: ordersPage, isLoading: ordersLoading, refetch: refetchOrders } = useOrders();
 	const {
 		data: maintenanceKitPage,
 		isLoading: maintenanceKitsLoading,
 		error: maintenanceKitsError,
+		refetch: refetchMaintenanceKits,
 	} = useMaintenanceKits({ limit: 100 });
 	const maintenanceKits = maintenanceKitPage?.items ?? [];
 
@@ -246,37 +282,14 @@ export default function DashboardPage() {
 		dashboardSummaryLoading || serviceCaseSummaryLoading || ordersLoading || maintenanceKitsLoading;
 	const error = dashboardSummaryError ?? serviceCaseSummaryError ?? maintenanceKitsError;
 
+	const handleRetryAll = useCallback(() => {
+		void refetchDashboardSummary();
+		void refetchServiceCaseSummary();
+		void refetchOrders();
+		void refetchMaintenanceKits();
+	}, [refetchDashboardSummary, refetchServiceCaseSummary, refetchOrders, refetchMaintenanceKits]);
+
 	const pageRef = useRef<HTMLDivElement>(null);
-
-	function animateDashboard(scope: HTMLElement): void {
-		const header = scope.querySelector("[data-dash='header']");
-		const banner = scope.querySelector("[data-dash='banner']");
-		const kpis = scope.querySelectorAll("[data-dash='kpis']");
-		const charts = scope.querySelector("[data-dash='charts']");
-		const panels = scope.querySelectorAll("[data-dash='panel']");
-
-		if (!header && !banner && !kpis.length && !charts && !panels.length) {
-			return;
-		}
-
-		const tl = gsap.timeline({ defaults: { ease: "power2.out" } });
-
-		if (header) {
-			tl.from(header, { opacity: 0, y: -18, duration: 0.5 });
-		}
-		if (banner) {
-			tl.from(banner, { opacity: 0, x: 30, duration: 0.5 }, "-=0.25");
-		}
-		if (kpis.length) {
-			tl.from(kpis, { opacity: 0, y: 20, stagger: 0.07, duration: 0.45 }, "-=0.1");
-		}
-		if (charts) {
-			tl.from(charts, { opacity: 0, y: 20, duration: 0.5 }, "-=0.1");
-		}
-		if (panels.length) {
-			tl.from(panels, { opacity: 0, y: 20, stagger: 0.1, duration: 0.45 }, "-=0.1");
-		}
-	}
 
 	useGSAP(
 		() => {
@@ -315,6 +328,12 @@ export default function DashboardPage() {
 	}
 
 	if (error) {
+		// Backend / network outage gets its own, friendlier state.
+		// We avoid dumping the technical message to the user; the
+		// banner above already announces the situation.
+		if (isOfflineLikeError(error as Error)) {
+			return <DashboardOfflineState onRetry={handleRetryAll} />;
+		}
 		return <DashboardErrorState message={(error as Error).message} />;
 	}
 
@@ -341,6 +360,8 @@ export default function DashboardPage() {
 				role={user?.role || "Gerente de Mantenimiento"}
 				userName={userName}
 			/>
+
+			<StepTimeline />
 
 			<ServiceCaseDashboardPanel
 				activeOrders={activeOrders}
@@ -443,6 +464,17 @@ function DashboardErrorState({ message }: { message: string }) {
 			<div className="rounded-[var(--radius-lg)] border border-[var(--color-danger-bg)] bg-[var(--color-danger-bg)]/60 p-6 text-sm text-[var(--color-danger)] shadow-[var(--shadow-1)]">
 				No se pudo cargar la información del dashboard. {message}
 			</div>
+		</section>
+	);
+}
+
+function DashboardOfflineState({ onRetry }: { onRetry: () => void }) {
+	return (
+		<section className="space-y-6" aria-labelledby="dashboard-page-title">
+			<h1 id="dashboard-page-title" className="text-3xl font-semibold text-[var(--text-primary)]">
+				Panel de Control Operativo
+			</h1>
+			<BackendUnavailableState onRetry={onRetry} />
 		</section>
 	);
 }

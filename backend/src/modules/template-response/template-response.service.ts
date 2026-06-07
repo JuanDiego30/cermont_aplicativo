@@ -47,7 +47,7 @@ function isTemplateResponseStatus(value: string): value is ITemplateResponseDocu
 	return TEMPLATE_RESPONSE_STATUSES.some((status) => status === value);
 }
 
-export interface CreateTemplateResponseDto {
+export interface CreateTemplateAnswerCommand {
 	documentTemplateId: string;
 	documentTemplateVersionId?: string;
 	versionNumber?: number;
@@ -59,7 +59,7 @@ export interface CreateTemplateResponseDto {
 	deviceInfo?: TemplateResponseDeviceInfo;
 }
 
-export interface UpdateTemplateResponseDto {
+export interface UpdateTemplateAnswerCommand {
 	values?: TemplateResponseValues;
 	sections?: TemplateResponseSection[];
 	attachments?: TemplateResponseAttachment[];
@@ -81,7 +81,7 @@ export interface PaginationOptions {
 	limit?: number;
 }
 
-export interface PaginatedResult<T> {
+export interface PageEnvelope<T> {
 	data: T[];
 	pagination: {
 		page: number;
@@ -129,7 +129,7 @@ function countCompletedValues(values: TemplateResponseValues): number {
  * Create a new TemplateResponse
  */
 export async function createTemplateResponse(
-	data: CreateTemplateResponseDto,
+	data: CreateTemplateAnswerCommand,
 	userId: string,
 ): Promise<ITemplateResponseDocument> {
 	const response = await TemplateResponse.create({
@@ -191,7 +191,7 @@ export async function getTemplateResponseById(id: string): Promise<ITemplateResp
 export async function listTemplateResponses(
 	filters: TemplateResponseFilters = {},
 	pagination: PaginationOptions = {},
-): Promise<PaginatedResult<ITemplateResponseDocument>> {
+): Promise<PageEnvelope<ITemplateResponseDocument>> {
 	return getAllTemplateResponses(filters, pagination);
 }
 
@@ -201,7 +201,7 @@ export async function listTemplateResponses(
 export async function getAllTemplateResponses(
 	filters: TemplateResponseFilters = {},
 	pagination: PaginationOptions = {},
-): Promise<PaginatedResult<ITemplateResponseDocument>> {
+): Promise<PageEnvelope<ITemplateResponseDocument>> {
 	const page = pagination.page || 1;
 	const limit = pagination.limit || 20;
 	const skip = (page - 1) * limit;
@@ -270,7 +270,7 @@ export async function getResponsesByEntity(
  */
 export async function updateTemplateResponse(
 	id: string,
-	data: UpdateTemplateResponseDto,
+	data: UpdateTemplateAnswerCommand,
 	userId: string,
 ): Promise<ITemplateResponseDocument> {
 	if (!Types.ObjectId.isValid(id)) {

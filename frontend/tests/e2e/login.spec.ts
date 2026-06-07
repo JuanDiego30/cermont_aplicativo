@@ -33,8 +33,7 @@ test("login inválido muestra mensaje de error", async ({ page }) => {
 	// Wait for the API response before checking DOM
 	const responsePromise = page.waitForResponse(
 		(resp) =>
-			resp.url().includes("/api/auth/login") ||
-			resp.url().includes("/api/backend/auth/login"),
+			resp.url().includes("/api/auth/login") || resp.url().includes("/api/backend/auth/login"),
 	);
 	await page
 		.getByRole("button", { name: /iniciar sesión/i })
@@ -43,8 +42,6 @@ test("login inválido muestra mensaje de error", async ({ page }) => {
 	await responsePromise;
 
 	// Verify error alert is shown inside the login form (handles both 401 and rate-limit 429)
-	await expect(
-		page.locator('[data-login-form] [role="alert"]'),
-	).toBeVisible();
+	await expect(page.locator('[data-login-form] [role="alert"]')).toBeVisible();
 	await expect(page).toHaveURL(/\/login$/);
 });

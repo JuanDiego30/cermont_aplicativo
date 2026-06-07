@@ -2,27 +2,33 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SyncStatusBar } from "@/components/sync/SyncStatusBar";
 
-const connectivityState = { isOnline: true };
-const syncManagerState = {
-	status: "idle" as "idle" | "syncing" | "error",
+const syncStatusState = {
+	isOnline: true,
 	pendingCount: 0,
-	deadLetterCount: 0,
+	isSyncing: false,
+	lastSyncError: "",
 };
 
-vi.mock("@/lib/offline/connectivity", () => ({
-	useConnectivity: () => connectivityState,
+const offlineStoreState = {
+	failedCount: 0,
+};
+
+vi.mock("@/lib/offline/use-sync-status", () => ({
+	useSyncStatus: () => syncStatusState,
 }));
 
-vi.mock("@/lib/offline/sync-manager", () => ({
-	useSyncManager: () => syncManagerState,
+vi.mock("@/store/offline.store", () => ({
+	useOfflineStore: (selector: (state: typeof offlineStoreState) => number) =>
+		selector(offlineStoreState),
 }));
 
 describe("SyncStatusBar", () => {
 	beforeEach(() => {
-		connectivityState.isOnline = true;
-		syncManagerState.status = "idle";
-		syncManagerState.pendingCount = 0;
-		syncManagerState.deadLetterCount = 0;
+		syncStatusState.isOnline = true;
+		syncStatusState.pendingCount = 0;
+		syncStatusState.isSyncing = false;
+		syncStatusState.lastSyncError = "";
+		offlineStoreState.failedCount = 0;
 	});
 
 	it("shows the online state", () => {
@@ -33,8 +39,8 @@ describe("SyncStatusBar", () => {
 	});
 
 	it("shows the offline state", () => {
-		connectivityState.isOnline = false;
-		syncManagerState.pendingCount = 2;
+		syncStatusState.isOnline = false;
+		syncStatusState.pendingCount = 2;
 
 		render(<SyncStatusBar />);
 
@@ -44,8 +50,8 @@ describe("SyncStatusBar", () => {
 	});
 
 	it("shows the syncing state", () => {
-		syncManagerState.status = "syncing";
-		syncManagerState.pendingCount = 3;
+		syncStatusState.isSyncing = true;
+		syncStatusState.pendingCount = 3;
 
 		render(<SyncStatusBar />);
 
@@ -55,8 +61,8 @@ describe("SyncStatusBar", () => {
 	});
 
 	it("shows the sync error state", () => {
-		syncManagerState.status = "error";
-		syncManagerState.deadLetterCount = 4;
+		syncStatusState.lastSyncError = "Hay cambios offline que requieren revisión.";
+		offlineStoreState.failedCount = 4;
 
 		render(<SyncStatusBar />);
 

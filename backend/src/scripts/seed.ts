@@ -13,13 +13,17 @@
  *
  * Contraseña para TODOS los usuarios: definida por SEED_DEFAULT_PASSWORD
  */
-import { env } from "@cermont/config";
+import dotenv from "dotenv";
+dotenv.config({ path: ".env" });
+
+import { validateEnv } from "@cermont/config";
 import { ROLE_LABELS, type UserRole } from "@cermont/domain";
 import mongoose from "mongoose";
 import { User } from "../models/User";
 
 // ─── Config ────────────────────────────────────────────────────────────────────
 
+const env = validateEnv();
 const MONGODB_URI = env.MONGODB_URI ?? "mongodb://127.0.0.1:27017/cermont";
 
 const DEFAULT_PASSWORD = env.SEED_DEFAULT_PASSWORD;

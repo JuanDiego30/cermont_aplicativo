@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { statusObjectOf } from "../utils/status-types";
 import { OrderTypeSchema } from "./order.schema";
 
 const DateOnlySchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -39,13 +40,13 @@ export const HistoryOrderRowSchema = z.object({
 	code: z.string(),
 	type: z.string(),
 	status: z.string(),
-	clientName: z.string().nullable(),
+	clientName: statusObjectOf(z.string()),
 	assetName: z.string(),
 	location: z.string(),
-	technicianName: z.string().nullable(),
-	completedAt: z.string().nullable(),
-	paidAt: z.string().nullable(),
-	archivedAt: z.string().nullable(),
+	technicianName: statusObjectOf(z.string()),
+	completedAt: statusObjectOf(z.string()),
+	paidAt: statusObjectOf(z.string()),
+	archivedAt: statusObjectOf(z.string()),
 	totalCop: z.number(),
 });
 export type HistoryOrderRow = z.infer<typeof HistoryOrderRowSchema>;

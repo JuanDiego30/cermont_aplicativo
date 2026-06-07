@@ -7,6 +7,8 @@ import {
 	BulkClosingEvidenceRequestSchema,
 	IngestDocumentRequestSchema,
 } from "@cermont/shared-types";
+import type { StatusObject } from "@cermont/shared-types";
+import { isPresent } from "@cermont/shared-types";
 import type { Request, Response } from "express";
 import { Types } from "mongoose";
 import { BadRequestError } from "../../common/errors";
@@ -16,11 +18,11 @@ import { Document, DocumentExtractionJob, TemplateDraft } from "../../models";
 import { convertTemplateDraftToTemplate } from "../../modules/template-draft/template-draft.service";
 import {
 	applyClosingEvidenceMetadata,
-	type ClosingEvidenceRoutingResult,
+	type ClosingEvidenceRoutingOutcome,
 } from "../../services/closing-evidence-routing.service";
 import { ingestDocument } from "./document-ingestion.service";
 
-type ClosingEvidenceResult = { documentId: string } & ClosingEvidenceRoutingResult;
+type ClosingEvidenceOutcome = { documentId: string } & ClosingEvidenceRoutingOutcome;
 
 export const ingestDocumentController = async (req: Request, res: Response) => {
 	const documentId = req.params.documentId as string;
@@ -97,7 +99,7 @@ export const bulkClosingEvidenceController = async (req: Request, res: Response)
 	const processed = await Promise.all(
 		documentIds.map((docId) => processClosingEvidenceDocument(docId, serviceCaseId)),
 	);
-	const results = processed.filter((result): result is ClosingEvidenceResult => result !== null);
+	const results = processed.filter(isPresent).map((r) => r.value);
 
 	return sendSuccess(res, {
 		processed: results.length,
@@ -108,21 +110,24 @@ export const bulkClosingEvidenceController = async (req: Request, res: Response)
 async function processClosingEvidenceDocument(
 	documentId: string,
 	serviceCaseId: string | undefined,
-): Promise<ClosingEvidenceResult | null> {
+): Promise<StatusObject<ClosingEvidenceOutcome>> {
 	if (!Types.ObjectId.isValid(documentId)) {
-		return null;
+		return { status: "absent" };
 	}
 
 	const doc = await Document.findById(documentId);
 	if (!doc) {
-		return null;
+		return { status: "absent" };
 	}
 
 	const routing = applyClosingEvidenceMetadata(doc, { serviceCaseId });
 	await doc.save();
 
 	return {
-		documentId,
-		...routing,
+		status: "present",
+		value: {
+			documentId,
+			...routing,
+		},
 	};
 }

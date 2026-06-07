@@ -16,7 +16,7 @@ export interface MaintenanceKitListFilters {
 	isActive?: boolean;
 }
 
-export interface MaintenanceKitListResponse {
+export interface MaintenanceKitListContract {
 	success?: boolean;
 	data?: MaintenanceKit[];
 	pagination?: {
@@ -29,7 +29,7 @@ export interface MaintenanceKitListResponse {
 	message?: string;
 }
 
-export interface MaintenanceKitListResult {
+export interface MaintenanceKitListEnvelope {
 	items: MaintenanceKit[];
 	total: number;
 	page: number;
@@ -83,10 +83,10 @@ export function useMaintenanceKits(filters?: MaintenanceKitListFilters) {
 
 	return useQuery({
 		queryKey: MAINTENANCE_KIT_KEYS.list(normalizedFilters),
-		queryFn: async (): Promise<MaintenanceKitListResult> => {
+		queryFn: async (): Promise<MaintenanceKitListEnvelope> => {
 			const queryString = buildKitQueryParams(normalizedFilters);
 			const url = queryString ? `/maintenance/kits?${queryString}` : "/maintenance/kits";
-			const body = await apiClient.get<MaintenanceKitListResponse>(url);
+			const body = await apiClient.get<MaintenanceKitListContract>(url);
 			const pagination = body?.pagination;
 
 			return {
@@ -128,6 +128,9 @@ export function useCreateMaintenanceKit() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
+		mutationKey: ["maintenance", "kit", "create"],
+		networkMode: "offlineFirst",
+		retry: 0,
 		mutationFn: async (data: MaintenanceKitMutationInput) => {
 			const body = await apiClient.post<ApiEnvelope<MaintenanceKit>>("/maintenance/kits", data);
 			if (!body?.success) {
@@ -145,6 +148,9 @@ export function useUpdateMaintenanceKit(id: string) {
 	const queryClient = useQueryClient();
 
 	return useMutation({
+		mutationKey: ["maintenance", "kit", "update"],
+		networkMode: "offlineFirst",
+		retry: 0,
 		mutationFn: async (data: MaintenanceKitMutationInput) => {
 			const body = await apiClient.patch<ApiEnvelope<MaintenanceKit>>(
 				`/maintenance/kits/${id}`,
@@ -166,6 +172,9 @@ export function useDeleteMaintenanceKit() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
+		mutationKey: ["maintenance", "kit", "delete"],
+		networkMode: "offlineFirst",
+		retry: 0,
 		mutationFn: async (id: string) => {
 			const body = await apiClient.delete<ApiEnvelope<{ message: string }>>(
 				`/maintenance/kits/${id}`,

@@ -47,7 +47,7 @@ import { getOrderByIdWithAuth } from "../../src/modules/order/order-crud.service
 describe("EvidenceService", () => {
 	const orderId = "507f1f77bcf86cd799439011";
 	const userId = "507f1f77bcf86cd799439099";
-	const fileBuffer = Buffer.from("mock-image-buffer");
+	const fileBuffer = Buffer.from([0xff, 0xd8, 0xff, 0xdb, 0x00, 0x43, 0x00, 0x08]);
 	const compressedBuffer = Buffer.from("compressed-webp-buffer");
 	const uploadedAt = new Date("2026-01-01T10:00:00.000Z");
 	const capturedAt = new Date("2026-01-01T09:30:00.000Z");
@@ -184,6 +184,29 @@ describe("EvidenceService", () => {
 					capturedAt,
 				}),
 			).rejects.toThrow("Cannot upload evidence for order in cancelled state");
+		});
+
+		it("rejects non-image bytes before malware scan and image processing", async () => {
+			vi.mocked(Order.findById).mockReturnValue({
+				lean: vi.fn().mockResolvedValue({ status: "assigned" }),
+			} as unknown as ReturnType<typeof Order.findById>);
+
+			await expect(
+				evidenceService.createEvidence(
+					orderId,
+					"before",
+					Buffer.from("not an image"),
+					userId,
+					{
+						capturedAt,
+					},
+				),
+			).rejects.toThrow("Invalid file type. Must be PNG, JPEG, WebP, or GIF");
+
+			expect(scanWithClamAV).not.toHaveBeenCalled();
+			expect(sharp).not.toHaveBeenCalled();
+			expect(saveFile).not.toHaveBeenCalled();
+			expect(Evidence).not.toHaveBeenCalled();
 		});
 
 		it("rejects infected files before image processing", async () => {
@@ -324,6 +347,8 @@ describe("EvidenceService", () => {
 	});
 
 	describe("getEvidenceById", () => {
+		const actor = { _id: userId, role: "tecnico" };
+
 		it("returns a formatted evidence document", async () => {
 			vi.mocked(Evidence.findById).mockReturnValue({
 				lean: vi.fn().mockResolvedValue({
@@ -343,8 +368,12 @@ describe("EvidenceService", () => {
 					updatedAt: uploadedAt,
 				}),
 			} as unknown as ReturnType<typeof Evidence.findById>);
+			vi.mocked(getOrderByIdWithAuth).mockResolvedValue({
+				_id: orderId,
+				status: "in_progress",
+			} as unknown as Awaited<ReturnType<typeof getOrderByIdWithAuth>>);
 
-			await expect(evidenceService.getEvidenceById("evidence-1")).resolves.toEqual(
+			await expect(evidenceService.getEvidenceById("evidence-1", actor)).resolves.toEqual(
 				expect.objectContaining({
 					_id: "evidence-1",
 					orderId,
@@ -352,6 +381,7 @@ describe("EvidenceService", () => {
 					uploadedBy: userId,
 				}),
 			);
+			expect(getOrderByIdWithAuth).toHaveBeenCalledWith(orderId, actor);
 		});
 
 		it("throws when evidence is missing", async () => {
@@ -359,7 +389,36 @@ describe("EvidenceService", () => {
 				lean: vi.fn().mockResolvedValue(null),
 			} as unknown as ReturnType<typeof Evidence.findById>);
 
-			await expect(evidenceService.getEvidenceById("missing-id")).rejects.toThrow();
+			await expect(evidenceService.getEvidenceById("missing-id", actor)).rejects.toThrow();
+			expect(getOrderByIdWithAuth).not.toHaveBeenCalled();
+		});
+
+		it("rejects when the actor cannot access the evidence order", async () => {
+			const { ForbiddenError } = await import("../../src/common/errors/AppError");
+			vi.mocked(Evidence.findById).mockReturnValue({
+				lean: vi.fn().mockResolvedValue({
+					_id: "evidence-private",
+					orderId,
+					type: "after",
+					url: "https://cdn.example.com/after.webp",
+					filename: "after.webp",
+					mimeType: "image/webp",
+					sizeBytes: 222,
+					capturedAt,
+					uploadedAt,
+					uploadedBy: userId,
+					createdAt: uploadedAt,
+					updatedAt: uploadedAt,
+				}),
+			} as unknown as ReturnType<typeof Evidence.findById>);
+			vi.mocked(getOrderByIdWithAuth).mockRejectedValue(
+				new ForbiddenError("You do not have access to this order"),
+			);
+
+			await expect(evidenceService.getEvidenceById("evidence-private", actor)).rejects.toThrow(
+				"You do not have access to this order",
+			);
+			expect(getOrderByIdWithAuth).toHaveBeenCalledWith(orderId, actor);
 		});
 	});
 

@@ -1,4 +1,4 @@
-export function getOrderInitials(value?: string | null): string {
+export function getOrderInitials(value?: string): string {
 	if (!value) {
 		return "OT";
 	}

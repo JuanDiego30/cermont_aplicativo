@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:b6202a98a25f4c511209d3a2c7db97850bc3e064a79c8bb917dbe4db128c4c63",
+	"currentSnapshotHash": "sha256:75c5ebedd6b499c8aee522e49648c6446b2a0fb71c8822079205d4df33fb6403",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -118,7 +118,77 @@
 			"date": "2026-05-30",
 			"type": "non-breaking",
 			"description": "Add discriminated union schemas for offline sync operations (work-request, site-visit, planning-packet, execution-session, evidence) with typed payloads + uuid id field.",
-			"toHash": "sha256:b6202a98a25f4c511209d3a2c7db97850bc3e064a79c8bb917dbe4db128c4c63"
+			"toHash": "sha256:ddaf27405036d9b9af6040e9c1bb6595b5e15abbcc58675d372c30ea7f788871"
+		},
+		{
+			"id": "017-file-asset-contract",
+			"date": "2026-06-01",
+			"type": "non-breaking",
+			"description": "Introduce FileAsset contract (FileAssetRef, FileAssetUploadInput, FileAssetUploadResponse) with category, sync status and entity type taxonomies, plus mime allowlist (jpeg/png/webp/gif/pdf) and category presets. Supports file/image assets for kits, tools, equipment, materials, evidences, before/after photos, signatures, delivery records, technical reports, cctv, life-line, planning, checklist evidence and report covers.",
+			"toHash": "sha256:53702d5ab3548081301c695bc81cfa1942f4413b5dd3d8525bbe6a82c00345cc"
+		},
+		{
+			"id": "018-file-asset-form-input-and-result",
+			"date": "2026-06-01",
+			"type": "non-breaking",
+			"description": "Add FileAssetUploadInputFormSchema for multipart form validation (accepts tags as string or string[] and coerces to string[]) and CreateFileAssetResultSchema for the service-layer return value of createFileAssetFromUpload. The form schema is used as a route-level validateBody middleware on POST /api/files/upload so the controller can rely on req.body being already validated and coerced.",
+			"toHash": "sha256:09adb5eea63e8ac997c07ffc454d263512894ad7026c7ed2274980be10f331a4"
+		},
+		{
+			"id": "019-kit-tool-image-fields",
+			"date": "2026-06-01",
+			"type": "non-breaking",
+			"description": "Add image (single FileAssetRef) and gallery (array of FileAssetRef) fields to KitItemSchema and ToolSchema for support of item-level images in kits and tools/equipment/materials.",
+			"toHash": "sha256:4fd0f714782ffef1317b5c7ee28317700a463e88aeb9ea04479c4423e61da443"
+		},
+		{
+			"id": "020-file-asset-phase-42-taxonomy",
+			"date": "2026-06-02",
+			"type": "non-breaking",
+			"description": "Align FileAsset contract with Phase 42 implementation by adding safety item images, signed documents, safety_item entity ownership, and synced/pending/failed sync statuses.",
+			"toHash": "sha256:19ddeea54f7e9c55f64331774eafe1222a0e677ff6ba039e716164086229487a"
+		},
+		{
+			"id": "021-planning-packet-operational-form-fields",
+			"date": "2026-06-03",
+			"type": "non-breaking",
+			"description": "Extend PlanningPacket contracts with CERMONT planning form fields for inspector, place, date, business unit, scope, materials, safety elements, worker requirements and responsible signatures. Expands planning support document types for ATS/PTW/procedures and certification evidence.",
+			"toHash": "sha256:546e9f85a52f4a6587ec3aea634cc7044160a9199068b9698d65bfdf9480d7ab"
+		},
+		{
+			"id": "022-rbac-status-object-contract-refresh",
+			"date": "2026-06-03",
+			"type": "breaking",
+			"description": "Refresh the API contract snapshot after aligning shared role schemas with the CERMONT operating roles and status-object absence semantics emitted by current shared schemas.",
+			"toHash": "sha256:757e9899ea0bbae6ce943dce54cef4f612c131cc8f7fbcf8d3ae1d858daa2040"
+		},
+		{
+			"id": "023-rbac-auxiliar-hes-lowercase",
+			"date": "2026-06-03",
+			"type": "breaking",
+			"description": "Normalize the Auxiliar HES role value to lowercase auxiliar_hes so shared RBAC validation, role normalization and generated contracts use a single canonical representation.",
+			"toHash": "sha256:032f145bd6e6d0c0b103e56a65c3dbf427e10ae4ab6d8c92b2059677d48589da"
+		},
+		{
+			"id": "024-offline-sync-modern-outbox",
+			"date": "2026-06-04",
+			"type": "non-breaking",
+			"description": "Extend offline sync contracts with modern outbox items, batch ids, item-level sync results, conflict metadata, file metadata and typed JSON payloads while keeping legacy operation support for existing queues.",
+			"toHash": "sha256:a8bf071798eedaaef099ffde05e6aebe08489bdf9f454e860c8ad9aac9aa99e3"
+		},
+		{
+			"id": "025-cost-support-and-voided-history",
+			"date": "2026-06-04",
+			"type": "breaking",
+			"description": "Require support evidence or documents for actual cost entries and expose cost record status plus void metadata so historical costs are voided instead of physically deleted.",
+			"toHash": "sha256:3faf46eb3a35ca27fb5af3df5ad80b655b3a2800449b09f3e77a48dc372f0425"
+		},
+		{
+			"id": "026-apply-planning-kit",
+			"date": "2026-06-06",
+			"type": "non-breaking",
+			"description": "Add ApplyPlanningKitSchema and its type to support applying typical kits to planning packets.",
+			"toHash": "sha256:75c5ebedd6b499c8aee522e49648c6446b2a0fb71c8822079205d4df33fb6403"
 		}
 	]
 }

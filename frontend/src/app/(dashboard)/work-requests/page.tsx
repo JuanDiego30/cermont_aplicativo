@@ -7,17 +7,10 @@ import { EmptyState } from "@/core/ui/EmptyState";
 import { useWorkRequests } from "@/modules/work-requests/queries";
 
 function WorkRequestList() {
-	const { data, isLoading, error, isPaused } = useWorkRequests();
-
-	if (isPaused) {
-		return (
-			<EmptyState
-				icon="documents"
-				title="Sin conexión"
-				description="No se pueden cargar las solicitudes. Verifica tu conexión a internet."
-			/>
-		);
-	}
+	const { data, isLoading, error } = useWorkRequests();
+	const items = data?.items ?? [];
+	const isOfflineSnapshot = data?.source.status === "offline_snapshot";
+	const isOfflineEmpty = data?.source.status === "offline_empty";
 
 	if (isLoading) {
 		return (
@@ -41,39 +34,53 @@ function WorkRequestList() {
 		);
 	}
 
-	if (data.length === 0) {
+	if (items.length === 0) {
 		return (
 			<EmptyState
 				icon="documents"
-				title="No hay solicitudes"
-				description="Aún no se han registrado solicitudes de trabajo."
+				title={isOfflineEmpty ? "Sin solicitudes guardadas localmente" : "No hay solicitudes"}
+				description={
+					isOfflineEmpty
+						? "Este dispositivo todavía no tiene solicitudes sincronizadas para trabajar sin conexión."
+						: "Aún no se han registrado solicitudes de trabajo."
+				}
 			/>
 		);
 	}
 
 	return (
-		<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-			{data.map((item) => (
-				<Link
-					key={item._id}
-					href={`/work-requests/${item._id}`}
-					className="group rounded-2xl border border-[var(--border-default)] bg-[var(--surface-card)] p-5 shadow-[var(--shadow-card)] transition hover:shadow-[var(--shadow-2)]"
-				>
-					<div className="flex items-center justify-between">
-						<span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-brand-blue)]">
-							{item.code}
-						</span>
-						<span className="rounded-full bg-[var(--color-brand-blue-bg)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-brand-blue)]">
-							{item.status}
-						</span>
-					</div>
-					<p className="mt-3 text-sm font-semibold text-[var(--text-primary)] group-hover:text-[var(--color-brand-blue)]">
-						{item.shortDescription}
-					</p>
-					<p className="mt-1 text-xs text-[var(--text-tertiary)]">{item.clientName}</p>
-				</Link>
-			))}
-		</div>
+		<section className="space-y-4" aria-label="Solicitudes de trabajo">
+			{isOfflineSnapshot ? (
+				<div className="rounded-[var(--radius-lg)] border border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] px-4 py-3 text-sm text-[var(--text-primary)]">
+					Mostrando solicitudes guardadas localmente. Última actualización:{" "}
+					{new Date(data.source.updatedAt).toLocaleString("es-CO")}
+				</div>
+			) : (
+				false
+			)}
+			<div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				{items.map((item) => (
+					<Link
+						key={item._id}
+						href={`/work-requests/${item._id}`}
+						className="group rounded-2xl border border-[var(--border-default)] bg-[var(--surface-card)] p-5 shadow-[var(--shadow-card)] transition hover:shadow-[var(--shadow-2)]"
+					>
+						<div className="flex items-center justify-between">
+							<span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-brand-blue)]">
+								{item.code}
+							</span>
+							<span className="rounded-full bg-[var(--color-brand-blue-bg)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-brand-blue)]">
+								{item.status}
+							</span>
+						</div>
+						<p className="mt-3 text-sm font-semibold text-[var(--text-primary)] group-hover:text-[var(--color-brand-blue)]">
+							{item.shortDescription}
+						</p>
+						<p className="mt-1 text-xs text-[var(--text-tertiary)]">{item.clientName}</p>
+					</Link>
+				))}
+			</div>
+		</section>
 	);
 }
 

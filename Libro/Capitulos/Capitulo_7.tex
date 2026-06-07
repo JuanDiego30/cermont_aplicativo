@@ -6,8 +6,8 @@
 \label{ch:resultados}
 
 % --- Ajustes editoriales locales del capítulo: sangría, espaciado y control de desbordamientos ---
-\setlength{\parindent}{1.25cm}
-\setlength{\parskip}{0pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
 \sloppy
 \emergencystretch=2em
 \raggedbottom
@@ -21,7 +21,7 @@ Este capítulo presenta los resultados derivados del desarrollo del sistema y or
 
 El primer resultado del proyecto fue la construcción de una base tecnológica capaz de centralizar órdenes de trabajo, recursos, evidencias y soportes documentales. Esta integración permite que la información deje de estar fragmentada entre hojas de cálculo, documentos aislados y registros informales.
 
-El segundo resultado fue la organización del flujo operativo en módulos coherentes. Cada módulo responde a una parte del proceso real: gestión de usuarios, planeación, ejecución, evidencias, documentación y cierre. Esta estructura facilita la comprensión del sistema y reduce la dependencia de soluciones improvisadas.
+El segundo resultado fue la organización del flujo operativo en módulos coherentes. Cada módulo responde a una parte del proceso real: gestión de usuarios, planeación, ejecución, evidencias, documentación y cierre. Esta estructura facilita la comprensión del sistema y orienta la operación hacia una menor dependencia de soluciones improvisadas.
 
 El tercer resultado fue la definición de una base compatible con la evolución futura hacia formularios reutilizables y plantillas documentales más dinámicas. Esta posibilidad no debe reportarse como automatización confirmada si no existe evidencia formal de su implementación; sin embargo, constituye un resultado de diseño relevante porque deja la arquitectura preparada para extenderse.
 
@@ -30,7 +30,7 @@ El tercer resultado fue la definición de una base compatible con la evolución 
 
 A nivel funcional, el sistema permite representar el ciclo de vida de una orden de trabajo sin depender de documentos dispersos. Esa representación incluye el registro inicial, la planeación, la ejecución con evidencias y el seguimiento administrativo posterior.
 
-Además, la solución favorece la trazabilidad porque cada elemento queda vinculado a la orden correspondiente. Ese vínculo mejora la consulta histórica y la reconstrucción del servicio, dos aspectos que eran problemáticos en el esquema manual descrito en el diagnóstico.
+Además, la solución favorece la trazabilidad porque cada elemento queda vinculado a la orden correspondiente. Ese vínculo facilita la consulta histórica y la reconstrucción del servicio, dos aspectos que eran problemáticos en el esquema manual descrito en el diagnóstico.
 
 \section{Indicadores por medir con evidencia verificable}
 \label{sec:indicadores-pendientes}
@@ -43,17 +43,17 @@ Los resultados cuantitativos que requieren datos medidos no deben inventarse. Po
 \label{tab:indicadores-pendientes}
 
 \small
-\def\PendRow#1#2#3{\parbox[t]{3.0cm}{\raggedright #1} & \parbox[t]{6.6cm}{\raggedright #2} & \parbox[t]{4.0cm}{\raggedright #3}\\\midrule}
-\begin{tabular}{@{}l l l@{}}
-\toprule
+\def\PendRow#1#2#3{\parbox[t]{3.0cm}{\raggedright #1} & \parbox[t]{6.6cm}{\raggedright #2} & \parbox[t]{4.0cm}{\raggedright #3}\\\hline}
+\begin{tabular}{|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Indicador} & \textbf{Dato requerido} & \textbf{Evidencia esperada} \\
-\midrule
+\hline
 \PendRow{Tiempo de planeación}{Promedio antes y después de la implementación}{Cronometraje, registros de uso o bitácoras}
 \PendRow{Tiempo de cierre}{Duración promedio del ciclo documental}{Fechas de creación, revisión y cierre}
 \PendRow{Completitud documental}{Porcentaje de órdenes con soportes completos}{Lista de chequeo o auditoría de documentos}
 \PendRow{Trazabilidad de evidencias}{Número de evidencias correctamente asociadas}{Capturas del sistema o inventario de archivos}
 \PendRow{Satisfacción de usuarios}{Valoraciones por rol o por sesión de prueba}{Encuesta, entrevista o formato UAT}
-\bottomrule
+\hline
 \end{tabular}
 \end{table}
 
@@ -98,7 +98,7 @@ El desarrollo del aplicativo produjo resultados verificables en cada uno de los 
 
 \subsection{Módulo de planeación y kits típicos}
 
-\textbf{Resultado obtenido:} Se desarrolló el módulo de planeación que permite asociar a cada orden de trabajo un paquete de recursos (\texttt{PlanningPacket}) compuesto por personal técnico, herramientas, equipos, materiales, elementos de protección personal y documentos requeridos. Los kits típicos permiten precargar configuraciones de recursos estandarizadas según el tipo de servicio, reduciendo la necesidad de planear cada orden desde cero.
+\textbf{Resultado obtenido:} Se desarrolló el módulo de planeación que permite asociar a cada orden de trabajo un paquete de recursos (\texttt{PlanningPacket}) compuesto por personal técnico, herramientas, equipos, materiales, elementos de protección personal y documentos requeridos. Los kits típicos permiten precargar configuraciones de recursos estandarizadas según el tipo de servicio, evitando que cada orden deba planearse completamente desde cero.
 
 \textbf{Evidencia disponible:} Pruebas de integración que verifican la validación de disponibilidad de recursos, la asignación de kits a órdenes de trabajo y la detección de recursos faltantes o con certificaciones vencidas.
 
@@ -114,7 +114,7 @@ El desarrollo del aplicativo produjo resultados verificables en cada uno de los 
 
 \subsection{Módulo de generación documental}
 
-\textbf{Resultado obtenido:} Se implementó un motor de generación de documentos PDF utilizando la biblioteca \texttt{pdf-lib}, capaz de compilar informes técnicos y actas de entrega a partir de los datos transaccionales almacenados en el sistema. El motor inserta datos de la orden, resultados de checklists, evidencias fotográficas y firmas digitales en plantillas predefinidas.
+\textbf{Resultado obtenido:} Se implementó un motor de generación de documentos PDF utilizando la biblioteca \texttt{pdf-lib}, orientado a compilar informes técnicos y actas de entrega a partir de los datos transaccionales almacenados en el sistema. El motor inserta datos de la orden, resultados de checklists, evidencias fotográficas y firmas registradas en plantillas predefinidas cuando la información requerida se encuentra disponible.
 
 \textbf{Evidencia disponible:} Pruebas funcionales que verifican la generación exitosa de buffers PDF válidos, la correcta inserción de datos dinámicos y la integridad estructural del documento binario resultante.
 
@@ -122,7 +122,7 @@ El desarrollo del aplicativo produjo resultados verificables en cada uno de los 
 
 \subsection{Módulo de cierre administrativo y seguimiento}
 
-\textbf{Resultado obtenido:} Se implementó un módulo de seguimiento administrativo que vincula cada orden de trabajo con los estados de los documentos posteriores a la ejecución: informe técnico, acta de entrega, firma del cliente, hoja de entrada de servicio (SES), factura electrónica y registro de pago. Este módulo permite identificar, para cada orden, qué documentos están pendientes y cuál es el siguiente paso requerido para avanzar hacia el cierre.
+\textbf{Resultado obtenido:} Se implementó un módulo de seguimiento administrativo que vincula cada orden de trabajo con los estados de los documentos posteriores a la ejecución: informe técnico, acta de entrega, firma del cliente, hoja de entrada de servicio (SES), factura emitida externamente y registro de pago. Este módulo permite identificar, para cada orden, qué documentos están pendientes y cuál es el siguiente paso requerido para avanzar hacia el cierre.
 
 \textbf{Evidencia disponible:} Pruebas de integración que verifican la actualización correcta del estado de cierre cuando se completan los documentos requeridos en secuencia, y la detección de bloqueos cuando un documento obligatorio no ha sido generado o aprobado.
 
@@ -130,9 +130,9 @@ El desarrollo del aplicativo produjo resultados verificables en cada uno de los 
 
 \subsection{Módulo de operación offline (PWA)}
 
-\textbf{Resultado obtenido:} Se implementó soporte parcial para operación offline mediante Service Worker, almacenamiento local y cola de sincronización. Cuando el dispositivo pierde conectividad, determinados registros operativos se encolan localmente y se sincronizan al recuperar la conexión. La interfaz refleja el estado de sincronización mediante indicadores visuales.
+\textbf{Resultado obtenido:} Se implementó soporte parcial para operación offline mediante Service Worker con Serwist/Turbopack, almacenamiento local en Dexie/IndexedDB, persistencia de caché de TanStack Query, cola de sincronización e indicadores visuales. Cuando el dispositivo pierde conectividad, determinados registros operativos se conservan localmente y se sincronizan al recuperar la conexión, siempre que exista sesión activa y el backend confirme la recepción. Además, las rutas internas calentadas y los listados base de casos de servicio, solicitudes, visitas técnicas y plantillas documentales pueden consultarse desde el app shell después de una carga online previa.
 
-\textbf{Evidencia disponible:} Pruebas que verifican el encolamiento correcto de operaciones compatibles, la sincronización al recuperar conectividad y la deduplicación mediante \texttt{clientMutationId}. El propio backend documenta como limitación que la sincronización offline de evidencias con archivo real aún no está soportada.
+\textbf{Evidencia disponible:} Pruebas que verifican contratos offline, registro del Service Worker, respuesta HTTP 200 de \path{/serwist/sw.js}, fallback \path{/~offline}, snapshots en IndexedDB, reglas de no caché para API y deduplicación mediante identificadores de idempotencia. La sincronización de evidencias y formularios debe validarse por vertical slice, por lo que la cobertura offline completa de todos los formularios queda pendiente por anexar evidencia E2E.
 
 \textbf{Relación con objetivos:} Este resultado es transversal a los objetivos 2 y 3, ya que la capacidad offline constituye un requisito arquitectónico parcialmente implementado en los módulos de campo.
 
@@ -147,18 +147,18 @@ La Tabla \ref{tab:problema-requisito-modulo} relaciona las fallas documentadas p
 \caption{Relación problema, requisito, módulo y evidencia. Fuente: Elaboración propia con base en el repositorio y documentos técnicos.}
 \label{tab:problema-requisito-modulo}
 \footnotesize
-\def\ProblemRow#1#2#3#4#5#6{\parbox[t]{2.7cm}{\raggedright #1} & \parbox[t]{1.2cm}{\raggedright #2} & \parbox[t]{2.8cm}{\raggedright #3} & \parbox[t]{2.7cm}{\raggedright #4} & \parbox[t]{3.3cm}{\raggedright #5} & \parbox[t]{1.8cm}{\raggedright #6}\\\midrule}
+\def\ProblemRow#1#2#3#4#5#6{\parbox[t]{2.7cm}{\raggedright #1} & \parbox[t]{1.2cm}{\raggedright #2} & \parbox[t]{2.8cm}{\raggedright #3} & \parbox[t]{2.7cm}{\raggedright #4} & \parbox[t]{3.3cm}{\raggedright #5} & \parbox[t]{1.8cm}{\raggedright #6}\\\hline}
 \begin{adjustbox}{max width=\textwidth}
-\begin{tabular}{@{}l l l l l l@{}}
-\toprule
+\begin{tabular}{|l|l|l|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Falla identificada} & \textbf{Paso} & \textbf{Requisito del sistema} & \textbf{Módulo} & \textbf{Evidencia} & \textbf{Objetivo} \\
-\midrule
+\hline
 \ProblemRow{Planeación incompleta de herramientas y equipos}{5}{Configurar kits típicos y paquetes de planeación por tipo de servicio.}{Planeación / Resources \& Kits}{Esquema de planeación, rutas backend y vista de planeación.}{2 y 3}
 \ProblemRow{Faltantes durante ejecución}{5--6}{Diligenciar checklists y consultar recursos con soporte offline cuando aplique.}{Execution Session / Checklists}{Esquema de ejecución, hook offline y servicio de sincronización.}{2 y 3}
 \ProblemRow{Retrasos en informes y actas}{7--9}{Consolidar evidencias y generar documentos desde datos del sistema.}{Evidencias / Informes / PDF}{Servicios de reportes y vista de informes.}{3}
 \ProblemRow{Retrasos en facturación}{10--14}{Hacer seguimiento del estado de SES, factura y pago por orden.}{Billing / SES / Invoices / Payments}{Esquema SES y vistas de SES y pagos.}{2 y 3}
 \ProblemRow{Ausencia de control de costos reales}{3--14}{Relacionar propuesta, costos reales y cierre administrativo.}{Proposals / Costs}{Esquema de costos, modelo backend y vista de costos.}{2 y 3}
-\bottomrule
+\hline
 \end{tabular}
 \end{adjustbox}
 \end{table}
@@ -174,16 +174,16 @@ La Tabla \ref{tab:trazabilidad-objetivos} presenta la relación sistemática ent
 \caption{Matriz de trazabilidad: objetivos, fases, resultados y evidencias. Fuente: Elaboración propia.}
 \label{tab:trazabilidad-objetivos}
 \small
-\def\TrazRow#1#2#3#4{\parbox[t]{2.5cm}{\raggedright #1} & \parbox[t]{2.8cm}{\raggedright #2} & \parbox[t]{3.7cm}{\raggedright #3} & \parbox[t]{3.4cm}{\raggedright #4}\\\midrule}
-\begin{tabular}{@{}l l l l@{}}
-\toprule
+\def\TrazRow#1#2#3#4{\parbox[t]{2.5cm}{\raggedright #1} & \parbox[t]{2.8cm}{\raggedright #2} & \parbox[t]{3.7cm}{\raggedright #3} & \parbox[t]{3.4cm}{\raggedright #4}\\\hline}
+\begin{tabular}{|l|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Objetivo específico} & \textbf{Fase metodológica} & \textbf{Resultado obtenido} & \textbf{Evidencia} \\
-\midrule
+\hline
 \TrazRow{1. Diagnosticar el flujo actual e identificar fallas críticas}{Diagnóstico documental y operativo}{Identificación del flujo de 14 pasos y de cinco fallas críticas documentadas para CERMONT S.A.S.}{Formatos reales analizados, documento del proceso y tablas de diagnóstico.}
 \TrazRow{2. Diseñar la arquitectura funcional y técnica}{Diseño funcional}{Arquitectura de 3 capas documentada; modelo de datos con entidades principales; matriz RBAC de 8 roles; definición de API endpoints por módulo.}{Diagramas de arquitectura, modelo conceptual de datos, tabla de módulos funcionales.}
 \TrazRow{3. Implementar los módulos principales}{Implementación}{Módulos funcionales para autenticación, órdenes, planeación, evidencias, informes, cierre administrativo y costos; la operación offline queda implementada de forma parcial.}{Código fuente del monorepo y pruebas automatizadas documentadas.}
 \TrazRow{4. Validar el funcionamiento del aplicativo}{Validación}{Pruebas unitarias, de integración y escenarios técnicos documentados; la prueba piloto con usuarios y métricas de impacto queda pendiente.}{Reporte técnico de pruebas y matriz de validación propuesta por rol.}
-\bottomrule
+\hline
 \end{tabular}
 \end{table}
 
@@ -195,13 +195,13 @@ Como resultado complementario de la fase de validación, se aplicó una revisió
 
 \begin{enumerate}
     \item \textbf{Control de Acceso Quebrado (A01:2021):} Mitigado mediante middleware de autorización RBAC en el backend para todos los endpoints protegidos. Las pruebas confirman que usuarios sin permisos reciben HTTP 403.
-    \item \textbf{Fallas Criptográficas (A02:2021):} Las contraseñas se almacenan como hashes Bcrypt; las comunicaciones se protegen mediante TLS 1.3 en producción; los tokens JWT se firman criptográficamente.
+    \item \textbf{Fallas Criptográficas (A02:2021):} Las contraseñas se almacenan como hashes Bcrypt; en producción, las comunicaciones deben protegerse mediante HTTPS/TLS; los tokens JWT se firman criptográficamente.
     \item \textbf{Inyección (A03:2021):} Mitigado mediante el uso de Mongoose como ODM (consultas parametrizadas) y validación Zod de todos los payloads entrantes antes de cualquier operación de base de datos.
     \item \textbf{Diseño Inseguro (A04:2021):} El flujo contract-first y las compuertas de calidad por iteración (\texttt{typecheck}, \texttt{lint}, \texttt{test}, \texttt{react-doctor}) reducen el riesgo de introducir vulnerabilidades por descuido en el diseño.
     \item \textbf{Registro y Monitoreo Insuficientes (A09:2021):} Cada acción crítica genera un evento de auditoría inmutable con tipo de evento, usuario, entidad afectada, estado anterior, estado nuevo y marca de tiempo.
 \end{enumerate}
 
-Estos resultados confirman que la seguridad fue incorporada como un requisito transversal desde la fase de diseño arquitectónico, en concordancia con el principio de defensa en profundidad documentado en el marco teórico.
+Estos resultados documentan que la seguridad fue incorporada como un requisito transversal desde la fase de diseño arquitectónico, en concordancia con el principio de defensa en profundidad documentado en el marco teórico.
 
 % =====================================================================
 \section{Síntesis de resultados y contribuciones}
@@ -213,28 +213,26 @@ Desde la perspectiva de los objetivos del proyecto, el diagnóstico documentó e
 
 Los indicadores cuantitativos de impacto operativo —tiempos de planeación, completitud documental, trazabilidad de evidencias, satisfacción de usuarios— permanecen como métricas por medir durante la adopción del sistema en el entorno productivo de CERMONT S.A.S. Esta situación refleja la diferencia entre validación técnica del artefacto y validación operativa del impacto, distinción necesaria para mantener la veracidad académica del documento.
 
-% --- AMPLIACIÓN ACADÉMICA INTEGRADA CAPÍTULO 7 ---
-
 \section{Auditoría de evidencias técnicas por módulo}
 \label{sec:auditoria-evidencias-tecnicas-modulo}
 
 Los resultados técnicos del proyecto deben presentarse con una estructura que permita distinguir entre evidencia verificable y alcance propuesto. La matriz siguiente organiza los módulos principales según su relación con el problema de CERMONT, el tipo de evidencia esperada y el estado que debe usarse en el libro. Esta forma de presentación evita afirmar como terminado un módulo que solo está documentado o parcialmente conectado.
 
-\begin{longtable}{>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}p{3.0cm} >{\raggedright\arraybackslash}p{4.8cm} >{\raggedright\arraybackslash}p{3.0cm}}
+\begin{longtable}{|p{3.2cm}|p{3.0cm}|p{4.8cm}|p{3.0cm}|}
 \caption{Auditoría de resultados técnicos por módulo. Fuente: elaboración propia.}
 \label{tab:auditoria-resultados-modulos}\\
-\toprule
+\hline\ClassicTableHeader
 \textbf{Módulo} & \textbf{Falla que atiende} & \textbf{Evidencia técnica esperada} & \textbf{Redacción recomendada}\\
-\midrule
+\hline
 \endfirsthead
-\toprule
+\hline\ClassicTableHeader
 \textbf{Módulo} & \textbf{Falla que atiende} & \textbf{Evidencia técnica esperada} & \textbf{Redacción recomendada}\\
-\midrule
+\hline
 \endhead
-\midrule
+\hline
 \multicolumn{4}{r}{Continúa en la siguiente página}\\
 \endfoot
-\bottomrule
+\hline
 \endlastfoot
 Usuarios y roles & Acceso no diferenciado a información y acciones críticas. & Middleware, roles, pruebas de permisos y capturas de rutas protegidas. & Implementado si hay evidencia en código y pruebas.\\
 Órdenes de trabajo & Fragmentación del seguimiento operativo. & Entidad, listado, detalle, estados y vínculos con módulos posteriores. & Implementado o parcial según conexión real con flujo completo.\\

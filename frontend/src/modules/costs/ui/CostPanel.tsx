@@ -14,7 +14,7 @@ interface CostPanelProps {
 }
 
 export function CostPanel({ orderId, readOnly = false, showOrderList = true }: CostPanelProps) {
-	const [editingCost, setEditingCost] = useState<Cost | null>(null);
+	const [editingCost, setEditingCost] = useState<Cost | undefined>(undefined);
 	const summaryQuery = useOrderCostSummary(orderId);
 	const listQuery = useOrderCosts(orderId);
 
@@ -25,12 +25,12 @@ export function CostPanel({ orderId, readOnly = false, showOrderList = true }: C
 			<CostSummaryCard
 				summary={summaryQuery.data}
 				isLoading={summaryQuery.isLoading}
-				error={summaryQuery.error instanceof Error ? summaryQuery.error : null}
+				error={summaryQuery.error instanceof Error ? summaryQuery.error : undefined}
 			/>
 			<CostBreakdownTable
 				summary={summaryQuery.data}
 				isLoading={summaryQuery.isLoading}
-				error={summaryQuery.error instanceof Error ? summaryQuery.error : null}
+				error={summaryQuery.error instanceof Error ? summaryQuery.error : undefined}
 			/>
 
 			<section className="space-y-4 rounded-3xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 sm:p-6">
@@ -48,9 +48,9 @@ export function CostPanel({ orderId, readOnly = false, showOrderList = true }: C
 					orderId={orderId}
 					cost={editingCost}
 					readOnly={readOnly}
-					onCancel={() => setEditingCost(null)}
+					onCancel={() => setEditingCost(undefined)}
 					onSuccess={() => {
-						setEditingCost(null);
+						setEditingCost(undefined);
 						summaryQuery.refetch();
 						listQuery.refetch();
 					}}

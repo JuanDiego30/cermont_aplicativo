@@ -4,6 +4,7 @@
 import { isProduction } from "@cermont/config";
 import { isPresent } from "@cermont/shared-types";
 import { useAuthStore } from "@/store/auth.store";
+import { useOfflineStore } from "@/store/offline.store";
 import {
 	API_ROOT,
 	ApiError,
@@ -34,6 +35,7 @@ interface RequestContext {
 	requestId: string;
 	requestUrl: string;
 	startedAt: number;
+	isAuthRequest: boolean;
 }
 
 function generateRequestId(): string {
@@ -67,16 +69,8 @@ function buildAuthHeaders(): HeadersInit {
 	return { Authorization: `Bearer ${tokenStatus.value}` };
 }
 
-function getRequestHeaders(
-	headers: HeadersInit | undefined,
-	body: RequestInit["body"],
-): HeadersInit {
-	const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
-	return {
-		...(isFormData ? {} : { "Content-Type": "application/json" }),
-		...buildAuthHeaders(),
-		...headers,
-	};
+function isFormDataBody(body: RequestInit["body"]): boolean {
+	return typeof FormData !== "undefined" && body instanceof FormData;
 }
 
 async function parseJsonBody(response: Response): Promise<unknown> {
@@ -127,12 +121,31 @@ function isOfflineLikeCode(code: string | undefined): boolean {
 }
 
 function isBrowserOffline(): boolean {
-	return typeof navigator !== "undefined" && navigator.onLine === false;
+	return !useOfflineStore.getState().isOnline;
+}
+
+function isUserAuthenticatedInStorage(): boolean {
+	if (typeof window === "undefined") {
+		return false;
+	}
+	try {
+		const raw = window.localStorage.getItem("cermont-auth");
+		if (!raw) {
+			return false;
+		}
+		const parsed = JSON.parse(raw);
+		const userStatus = parsed?.state?.user;
+		return userStatus?.status === "present" || (userStatus?.id && userStatus?.role) || parsed?.state?.isAuthenticated === true;
+	} catch {
+		return false;
+	}
 }
 
 export function isOfflineLikeError(error: Error): boolean {
 	if (error instanceof ApiError) {
-		return isOfflineLikeCode(error.code) || (error.status === 503 && error.code !== "TOKEN_EXPIRED");
+		return (
+			isOfflineLikeCode(error.code) || (error.status === 503 && error.code !== "TOKEN_EXPIRED")
+		);
 	}
 
 	if (error instanceof TypeError) {
@@ -218,6 +231,7 @@ function createRequestContext(path: string, options: RequestInit): RequestContex
 		requestId: generateRequestId(),
 		requestUrl: `${API_ROOT}${normalizedPath}`,
 		startedAt: Date.now(),
+		isAuthRequest: normalizedPath.startsWith("/auth/"),
 	};
 }
 
@@ -225,13 +239,16 @@ function createRequestInit(
 	options: RequestInit,
 	requestId: string,
 	authorization?: string,
+	isAuthRequest = false,
 ): RequestInit {
 	return {
 		...options,
 		headers: {
-			...getRequestHeaders(options.headers, options.body),
+			...(isFormDataBody(options.body) ? {} : { "Content-Type": "application/json" }),
+			...buildAuthHeaders(),
 			...(authorization ? { Authorization: authorization } : {}),
 			"X-Request-Id": requestId,
+			...(isAuthRequest ? { "X-Skip-SW": "1" } : {}),
 		},
 		cache: "no-store",
 		credentials: "include",
@@ -281,7 +298,7 @@ async function retryAfterTokenRefresh<T>(
 	const token = await waitForRefresh();
 	const retryResponse = await fetch(
 		context.requestUrl,
-		createRequestInit(options, context.requestId, `Bearer ${token}`),
+		createRequestInit(options, context.requestId, `Bearer ${token}`, context.isAuthRequest),
 	);
 
 	if (retryResponse.ok) {
@@ -329,7 +346,11 @@ async function handleResponse<T>(
 		// gone but isAuthenticated is still true from the persist layer)
 		// would 401-storm the backend because 401 is not in the retry set
 		// but TanStack Query would still retry the query.
-		if (code === "TOKEN_EXPIRED" || useAuthStore.getState().isAuthenticated) {
+		if (
+			code === "TOKEN_EXPIRED" ||
+			useAuthStore.getState().isAuthenticated ||
+			isUserAuthenticatedInStorage()
+		) {
 			return retryAfterTokenRefresh<T>(context, options);
 		}
 	}
@@ -365,11 +386,7 @@ async function handleNetworkError(
 	}
 
 	if (isBrowserOffline()) {
-		throw new ApiError(
-			503,
-			"Sin conexión. Se mostrarán datos locales si existen.",
-			"OFFLINE",
-		);
+		throw new ApiError(503, "Sin conexión. Se mostrarán datos locales si existen.", "OFFLINE");
 	}
 
 	logApiRequest("Request network error", {
@@ -392,11 +409,31 @@ async function handleNetworkError(
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 	const context = createRequestContext(path, options);
 
+	if (!context.isAuthRequest) {
+		const userStatus = useAuthStore.getState().user;
+		const tokenStatus = useAuthStore.getState().accessToken;
+		if (!isPresent(tokenStatus) && (isPresent(userStatus) || isUserAuthenticatedInStorage())) {
+			try {
+				await waitForRefresh();
+			} catch (error) {
+				logApiRequest("Pre-flight refresh failed", {
+					method: context.method,
+					url: context.normalizedPath,
+					requestId: context.requestId,
+					error: error instanceof Error ? error.message : String(error),
+				});
+				// Continue to let the request execute (it will likely fail with 401 and handle correctly)
+			}
+		}
+	}
+
+	// Retry loop: each iteration re-attempts the same request after backoff.
+	// Sequential by definition — not a candidate for Promise.all.
 	for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
 		try {
 			const response = await fetch(
 				context.requestUrl,
-				createRequestInit(options, context.requestId),
+				createRequestInit(options, context.requestId, undefined, context.isAuthRequest),
 			);
 			const result = await handleResponse<T>(context, options, response, attempt);
 			if (result !== "retry") {
@@ -441,6 +478,7 @@ export const apiClient = {
 			body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined,
 		}),
 	delete: <T>(path: string, init?: RequestInit) => request<T>(path, { ...init, method: "DELETE" }),
+	refresh: () => waitForRefresh(),
 };
 
 export function toApiUrl(path: string): string {

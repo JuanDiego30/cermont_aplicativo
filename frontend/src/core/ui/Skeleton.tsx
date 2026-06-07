@@ -15,6 +15,7 @@ interface SkeletonProps {
 
 const base =
 	"animate-pulse rounded bg-[var(--color-neutral-200)] dark:bg-[var(--color-neutral-700)]";
+const KPI_CARD_KEYS = ["card-1", "card-2", "card-3", "card-4"] as const;
 
 function RowSkeleton({ rows = 1, className = "" }: { rows?: number; className?: string }) {
 	const rowKeys = Array.from({ length: rows }, (_, rowIndex) => `row-${rowIndex}`);
@@ -35,11 +36,9 @@ export function Skeleton({
 	height = 24,
 }: SkeletonProps) {
 	if (variant === "kpi-card") {
-		const cardKeys = ["card-1", "card-2", "card-3", "card-4"];
-
 		return (
 			<div className={`grid gap-4 sm:grid-cols-2 xl:grid-cols-4 ${className}`}>
-				{cardKeys.map((cardKey) => (
+				{KPI_CARD_KEYS.map((cardKey) => (
 					<div
 						key={cardKey}
 						className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-card"

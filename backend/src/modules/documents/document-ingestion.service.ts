@@ -32,7 +32,7 @@ type DetectedField = ReturnType<typeof buildDetectedFields>[number];
 type DetectedTable = ReturnType<typeof buildDetectedTables>[number];
 type IngestionStatus = "draft" | "review_required";
 
-export interface IngestResult {
+export interface IngestOutcome {
 	documentId: string;
 	status: string;
 	draftId: string | null;
@@ -292,8 +292,8 @@ function evaluateExtractionConfidence(
 function buildStoredResult(
 	documentId: string,
 	purpose: IngestDocumentRequest["purpose"],
-	options?: Partial<IngestResult>,
-): IngestResult {
+	options?: Partial<IngestOutcome>,
+): IngestOutcome {
 	return {
 		documentId,
 		status: "stored_with_purpose",
@@ -411,7 +411,7 @@ function handleNonTemplatePurposes(
 	targetStepCode: CermontOperationalStepCode | undefined,
 	documentId: string,
 	options: IngestDocumentRequest,
-): { status: "handled"; result: IngestResult } | { status: "continue" } {
+): { status: "handled"; result: IngestOutcome } | { status: "continue" } {
 	if (isClosingEvidencePurpose(purpose)) {
 		const routing = applyClosingEvidenceMetadata(doc, {
 			serviceCaseId:
@@ -460,7 +460,7 @@ export async function ingestDocument(
 	documentId: string,
 	userId: string,
 	options: IngestDocumentRequest,
-): Promise<IngestResult> {
+): Promise<IngestOutcome> {
 	const doc = await Document.findById(documentId);
 	if (!doc) {
 		throw new AppError("Document not found", 404, "DOCUMENT_NOT_FOUND");

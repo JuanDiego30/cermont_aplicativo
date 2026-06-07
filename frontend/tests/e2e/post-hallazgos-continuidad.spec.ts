@@ -36,7 +36,7 @@ async function installAuthenticatedSession(page: Page): Promise<void> {
 			sameSite: "Lax",
 		},
 	]);
-	await page.addInitScript(() => {
+	await page.addInitScript((role) => {
 		window.localStorage.setItem(
 			"cermont-auth",
 			JSON.stringify({
@@ -45,14 +45,14 @@ async function installAuthenticatedSession(page: Page): Promise<void> {
 						id: "665000000000000000000001",
 						name: "Cermont QA",
 						email: "qa@cermont.test",
-						role: ROLE_MANAGER,
+						role,
 					},
 					isAuthenticated: true,
 				},
 				version: 0,
 			}),
 		);
-	});
+	}, ROLE_MANAGER);
 }
 
 function buildBlocker() {
@@ -280,7 +280,8 @@ async function installApiMocks(page: Page) {
 
 	await page.route("**/api/backend/orders**", async (route) => {
 		const url = new URL(route.request().url());
-		invalidOrderLimitRequested = invalidOrderLimitRequested || url.searchParams.get("limit") === "250";
+		invalidOrderLimitRequested =
+			invalidOrderLimitRequested || url.searchParams.get("limit") === "250";
 		await route.fulfill({
 			json: {
 				success: true,
@@ -328,6 +329,10 @@ async function installApiMocks(page: Page) {
 }
 
 test.beforeEach(async ({ page }) => {
+	page.on("console", (msg) => console.log(`[BROWSER CONSOLE] ${msg.type()}: ${msg.text()}`));
+	page.on("pageerror", (err) => console.log(`[BROWSER ERROR] ${err.message}`));
+	page.on("request", (req) => console.log(`[NETWORK REQUEST] ${req.method()} ${req.url()}`));
+	page.on("response", (res) => console.log(`[NETWORK RESPONSE] ${res.status()} ${res.url()}`));
 	await installAuthenticatedSession(page);
 });
 
@@ -380,6 +385,8 @@ test("keeps custom form options usable and dark inputs legible", async ({ page }
 	await expect(page.getByRole("heading", { name: "Nueva solicitud de trabajo" })).toBeVisible();
 	await page.waitForLoadState("networkidle");
 
+	// Wait for React hydration to settle and bind event listeners
+	await page.waitForTimeout(2000);
 	await page.getByLabel("Canal").selectOption("other");
 
 	const customInput = page.getByLabel("Especificar canal");

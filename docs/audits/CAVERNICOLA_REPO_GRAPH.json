@@ -1,0 +1,341 @@
+{
+  "nodes": [
+    {
+      "id": "workspace.backend",
+      "type": "workspace",
+      "path": "backend",
+      "status": "implemented",
+      "notes": ["Express 5.2.1 modular API server"]
+    },
+    {
+      "id": "workspace.frontend",
+      "type": "workspace",
+      "path": "frontend",
+      "status": "implemented",
+      "notes": ["Next.js 16.2.4 App Router PWA"]
+    },
+    {
+      "id": "workspace.shared-types",
+      "type": "package",
+      "path": "packages/shared-types",
+      "status": "implemented",
+      "notes": ["Zod 4.x shared contracts SSOT"]
+    },
+    {
+      "id": "workspace.domain",
+      "type": "package",
+      "path": "packages/domain",
+      "status": "implemented",
+      "notes": ["Centralized RBAC roles and permissions mapping"]
+    },
+    {
+      "id": "frontend.route.deliveryRecords",
+      "type": "frontend_route",
+      "path": "/delivery-records",
+      "file": "frontend/src/app/(dashboard)/delivery-records/page.tsx",
+      "status": "implemented",
+      "businessSteps": [8, 9]
+    },
+    {
+      "id": "frontend.component.DeliveryRecordsPageContent",
+      "type": "page_component",
+      "file": "frontend/src/app/(dashboard)/delivery-records/page.tsx",
+      "status": "implemented",
+      "notes": ["Wrapped in Suspense to comply with Next 16 query params standard"]
+    },
+    {
+      "id": "frontend.hook.useDeliveryRecordsList",
+      "type": "hook",
+      "file": "frontend/src/modules/billing/queries.ts",
+      "status": "implemented"
+    },
+    {
+      "id": "frontend.apiClient",
+      "type": "api_client_function",
+      "file": "frontend/src/lib/http/api-client.ts",
+      "status": "implemented"
+    },
+    {
+      "id": "shared.contract.ListDeliveryRecordsQuerySchema",
+      "type": "shared_zod_contract",
+      "file": "packages/shared-types/src/schemas/delivery-record.schema.ts",
+      "status": "implemented"
+    },
+    {
+      "id": "backend.route.deliveryRecord",
+      "type": "backend_route",
+      "file": "backend/src/modules/delivery-record/delivery-record.routes.ts",
+      "status": "implemented"
+    },
+    {
+      "id": "backend.controller.WorkflowController.listDeliveryRecords",
+      "type": "controller",
+      "file": "backend/src/modules/order/administrative-workflow.controller.ts",
+      "status": "implemented"
+    },
+    {
+      "id": "backend.service.administrativeWorkflow",
+      "type": "service",
+      "file": "backend/src/services/administrative-workflow.service.ts",
+      "status": "implemented"
+    },
+    {
+      "id": "backend.model.DeliveryRecord",
+      "type": "mongoose_model",
+      "file": "backend/src/models/DeliveryRecord.ts",
+      "status": "implemented"
+    },
+    {
+      "id": "mongodb.collection.deliveryrecords",
+      "type": "mongodb_collection",
+      "name": "deliveryrecords",
+      "status": "implemented"
+    },
+    {
+      "id": "indexeddb.store.sync_queue",
+      "type": "indexeddb_store",
+      "database": "CermontSyncQueueDB",
+      "store": "sync_queue",
+      "status": "implemented"
+    },
+    {
+      "id": "indexeddb.store.blob_outbox",
+      "type": "indexeddb_store",
+      "database": "CermontBlobOutboxDB",
+      "store": "blob_outbox",
+      "status": "implemented"
+    },
+    {
+      "id": "shared.contract.FileAssetRefSchema",
+      "type": "shared_zod_contract",
+      "file": "packages/shared-types/src/schemas/file-asset.schema.ts",
+      "status": "implemented",
+      "notes": [
+        "Phase 42 file asset categories include safety_item_image and signed_document",
+        "syncStatus uses synced, pending and failed for backend/frontend/offline alignment"
+      ]
+    },
+    {
+      "id": "backend.model.FileAsset",
+      "type": "mongoose_model",
+      "file": "backend/src/models/FileAsset.ts",
+      "status": "implemented",
+      "notes": ["Stores file metadata for local development uploads and entity attachments"]
+    },
+    {
+      "id": "backend.model.Resource.fileAssets",
+      "type": "mongoose_model_field",
+      "file": "backend/src/models/Resource.ts",
+      "status": "implemented",
+      "notes": ["Resources can own equipment, material and safety item FileAssetRef attachments"]
+    },
+    {
+      "id": "backend.route.files",
+      "type": "backend_route",
+      "file": "backend/src/modules/files/files.routes.ts",
+      "status": "implemented",
+      "endpoints": [
+        "POST /api/files/upload",
+        "GET /api/files/:id",
+        "GET /api/files",
+        "DELETE /api/files/:id"
+      ]
+    },
+    {
+      "id": "backend.service.files",
+      "type": "service",
+      "file": "backend/src/modules/files/files.service.ts",
+      "status": "implemented",
+      "notes": [
+        "Persists upload metadata, audits upload/delete events and appends FileAssetRef to supported parent entities",
+        "tool, equipment, material and safety_item uploads attach to Resource records used by /resources"
+      ]
+    },
+    {
+      "id": "frontend.api.files",
+      "type": "api_client_function",
+      "file": "frontend/src/modules/files/api/files.api.ts",
+      "status": "implemented"
+    },
+    {
+      "id": "frontend.rewrite.uploads",
+      "type": "frontend_rewrite",
+      "file": "frontend/next.config.ts",
+      "status": "implemented",
+      "notes": ["Rewrites /uploads/:path* to backend local upload storage so persisted FileAsset URLs render in the browser"]
+    },
+    {
+      "id": "frontend.hook.useUploadFile",
+      "type": "hook",
+      "file": "frontend/src/modules/files/hooks/useFileAssets.ts",
+      "status": "implemented"
+    },
+    {
+      "id": "frontend.component.ImageUploadField",
+      "type": "ui_component",
+      "file": "frontend/src/modules/files/ui/ImageUploadField.tsx",
+      "status": "implemented",
+      "notes": ["Shows selected preview, upload progress, backend error state and persisted uploaded preview"]
+    },
+    {
+      "id": "frontend.route.resourceDetail",
+      "type": "frontend_route",
+      "path": "/resources/:id",
+      "file": "frontend/src/app/(dashboard)/resources/[id]/page.tsx",
+      "status": "implemented",
+      "notes": [
+        "Uses FileAttachmentsSection with tool_image, equipment_image and safety_item_image based on current and legacy resource type values"
+      ]
+    },
+    {
+      "id": "backend.test.filesUpload",
+      "type": "test",
+      "file": "backend/tests/files/file-upload.test.ts",
+      "status": "implemented"
+    },
+    {
+      "id": "backend.test.filesStaticServing",
+      "type": "test",
+      "file": "backend/tests/files/file-serving-route.test.ts",
+      "status": "implemented"
+    },
+    {
+      "id": "frontend.test.ImageUploadField",
+      "type": "test",
+      "file": "frontend/tests/files/image-upload-field.test.tsx",
+      "status": "implemented"
+    },
+    {
+      "id": "frontend.e2e.fileUpload",
+      "type": "e2e_test",
+      "file": "frontend/tests/e2e/file-upload.spec.ts",
+      "status": "implemented",
+      "notes": ["Creates a real Resource, uploads a real image through /resources/:id, reloads, verifies /uploads and /api/files metadata"]
+    }
+  ],
+  "edges": [
+    {
+      "from": "frontend.route.deliveryRecords",
+      "to": "frontend.component.DeliveryRecordsPageContent",
+      "type": "renders"
+    },
+    {
+      "from": "frontend.component.DeliveryRecordsPageContent",
+      "to": "frontend.hook.useDeliveryRecordsList",
+      "type": "uses"
+    },
+    {
+      "from": "frontend.hook.useDeliveryRecordsList",
+      "to": "frontend.apiClient",
+      "type": "calls"
+    },
+    {
+      "from": "frontend.apiClient",
+      "to": "backend.route.deliveryRecord",
+      "type": "callsEndpoint"
+    },
+    {
+      "from": "backend.route.deliveryRecord",
+      "to": "shared.contract.ListDeliveryRecordsQuerySchema",
+      "type": "validates"
+    },
+    {
+      "from": "backend.route.deliveryRecord",
+      "to": "backend.controller.WorkflowController.listDeliveryRecords",
+      "type": "uses"
+    },
+    {
+      "from": "backend.controller.WorkflowController.listDeliveryRecords",
+      "to": "backend.service.administrativeWorkflow",
+      "type": "uses"
+    },
+    {
+      "from": "backend.service.administrativeWorkflow",
+      "to": "backend.model.DeliveryRecord",
+      "type": "readsWrites"
+    },
+    {
+      "from": "backend.model.DeliveryRecord",
+      "to": "mongodb.collection.deliveryrecords",
+      "type": "maps"
+    },
+    {
+      "from": "shared.contract.ListDeliveryRecordsQuerySchema",
+      "to": "frontend.hook.useDeliveryRecordsList",
+      "type": "types"
+    },
+    {
+      "from": "frontend.component.ImageUploadField",
+      "to": "frontend.hook.useUploadFile",
+      "type": "uses"
+    },
+    {
+      "from": "frontend.hook.useUploadFile",
+      "to": "frontend.api.files",
+      "type": "calls"
+    },
+    {
+      "from": "frontend.api.files",
+      "to": "backend.route.files",
+      "type": "callsEndpoint"
+    },
+    {
+      "from": "backend.route.files",
+      "to": "backend.service.files",
+      "type": "uses"
+    },
+    {
+      "from": "backend.route.files",
+      "to": "shared.contract.FileAssetRefSchema",
+      "type": "validates"
+    },
+    {
+      "from": "backend.service.files",
+      "to": "backend.model.FileAsset",
+      "type": "readsWrites"
+    },
+    {
+      "from": "backend.service.files",
+      "to": "backend.model.Resource.fileAssets",
+      "type": "appends"
+    },
+    {
+      "from": "backend.model.FileAsset",
+      "to": "shared.contract.FileAssetRefSchema",
+      "type": "mirrors"
+    },
+    {
+      "from": "frontend.rewrite.uploads",
+      "to": "backend.route.files",
+      "type": "servesStoredFiles"
+    },
+    {
+      "from": "frontend.hook.useUploadFile",
+      "to": "indexeddb.store.blob_outbox",
+      "type": "queuesOfflineUploads"
+    },
+    {
+      "from": "frontend.route.resourceDetail",
+      "to": "frontend.component.ImageUploadField",
+      "type": "rendersUpload"
+    },
+    {
+      "from": "frontend.e2e.fileUpload",
+      "to": "frontend.route.resourceDetail",
+      "type": "verifies"
+    },
+    {
+      "from": "frontend.e2e.fileUpload",
+      "to": "backend.route.files",
+      "type": "verifies"
+    }
+  ],
+  "findings": [
+    {
+      "severity": "P0",
+      "title": "Illegal invocation search-param proxy crash",
+      "evidence": "frontend/src/app/(dashboard)/delivery-records/page.tsx:13",
+      "action": "Avoid destructuring .get from useSearchParams() directly; call searchParams.get() instead."
+    }
+  ]
+}

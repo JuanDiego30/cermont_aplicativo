@@ -1,5 +1,14 @@
 import { cn } from "@/lib/utils";
 
+const toneClasses = {
+	default:
+		"border-zinc-200 bg-zinc-50 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white",
+	warning:
+		"border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/40 dark:bg-amber-900/10 dark:text-amber-200",
+	success:
+		"border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/40 dark:bg-emerald-900/10 dark:text-emerald-200",
+} as const;
+
 export function SummaryCard({
 	label,
 	value,
@@ -9,15 +18,6 @@ export function SummaryCard({
 	value: string;
 	tone?: "default" | "warning" | "success";
 }) {
-	const toneClasses = {
-		default:
-			"border-zinc-200 bg-zinc-50 text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white",
-		warning:
-			"border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/40 dark:bg-amber-900/10 dark:text-amber-200",
-		success:
-			"border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/40 dark:bg-emerald-900/10 dark:text-emerald-200",
-	} as const;
-
 	return (
 		<div className={cn("rounded-2xl border px-4 py-3", toneClasses[tone])}>
 			<dt className="text-xs font-medium uppercase tracking-[0.16em] opacity-70">{label}</dt>

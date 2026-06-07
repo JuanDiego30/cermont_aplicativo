@@ -1,11 +1,20 @@
 "use client";
 
-import type { Cost, CostResponse, CreateCostInput, UpdateCostInput } from "@cermont/shared-types";
+import type {
+	Cost,
+	CostResponse as CostSnapshot,
+	CreateCostInput,
+	Evidence,
+	UpdateCostInput,
+} from "@cermont/shared-types";
 import { CreateCostSchema } from "@cermont/shared-types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery } from "@tanstack/react-query";
+import type { ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { FormField, Select, TextArea, TextField } from "@/modules/core";
+import { listEvidences } from "@/modules/evidences/queries";
 import { useCreateCost, useUpdateCost } from "../queries";
 import { COST_CATEGORY_LABELS, COST_CATEGORY_OPTIONS } from "../utils";
 
@@ -13,7 +22,7 @@ interface CostFormProps {
 	orderId: string;
 	cost?: Cost | null;
 	readOnly?: boolean;
-	onSuccess?: (cost: CostResponse) => void;
+	onSuccess?: (cost: CostSnapshot) => void;
 	onCancel?: () => void;
 }
 
@@ -30,6 +39,8 @@ function buildDefaultValues(orderId: string, cost?: Cost | null): CostFormValues
 		taxRate: cost?.taxRate ?? 0,
 		currency: cost?.currency ?? "COP",
 		notes: cost?.notes,
+		supportEvidenceIds: cost?.supportEvidenceIds ?? [],
+		supportDocumentIds: cost?.supportDocumentIds ?? [],
 	};
 }
 
@@ -42,13 +53,30 @@ export function CostForm({ orderId, cost, readOnly = false, onSuccess, onCancel 
 		register,
 		handleSubmit,
 		reset,
+		setValue,
+		watch,
 		formState: { errors },
-	} = useForm<CostFormValues, unknown, CreateCostInput>({
+	} = useForm<CostFormValues, Record<string, never>, CreateCostInput>({
 		resolver: zodResolver(CreateCostSchema),
 		defaultValues: buildDefaultValues(orderId, cost),
 	});
 
+	const evidencesQuery = useQuery({
+		queryKey: ["evidences", orderId],
+		queryFn: () => listEvidences(orderId),
+		enabled: !!orderId,
+	});
+	const selectedEvidenceSupportId = watch("supportEvidenceIds")?.[0] ?? "";
 	const isSubmitting = createMutation.isPending || updateMutation.isPending;
+	const isSupportSelectorDisabled = readOnly || isSubmitting || evidencesQuery.isLoading;
+
+	function handleSupportEvidenceChange(event: ChangeEvent<HTMLSelectElement>) {
+		const selectedId = event.currentTarget.value;
+		setValue("supportEvidenceIds", selectedId ? [selectedId] : [], {
+			shouldDirty: true,
+			shouldValidate: true,
+		});
+	}
 
 	const onSubmit = handleSubmit(async (data: CreateCostInput) => {
 		const result = await submitCostForm({
@@ -184,6 +212,34 @@ export function CostForm({ orderId, cost, readOnly = false, onSuccess, onCancel 
 				</FormField>
 
 				<FormField
+					name="supportEvidenceIds"
+					htmlFor="cost-support-evidence"
+					label="Soporte"
+					error={errors.supportEvidenceIds?.message}
+					className="md:col-span-2"
+				>
+					<Select
+						id="cost-support-evidence"
+						value={selectedEvidenceSupportId}
+						onChange={handleSupportEvidenceChange}
+						disabled={isSupportSelectorDisabled}
+					>
+						<option value="">
+							{evidencesQuery.isLoading ? "Cargando soportes" : "Seleccionar soporte"}
+						</option>
+						<CurrentEvidenceSupportOption
+							selectedEvidenceSupportId={selectedEvidenceSupportId}
+							evidences={evidencesQuery.data ?? []}
+						/>
+						{(evidencesQuery.data ?? []).map((evidence) => (
+							<option key={evidence._id} value={evidence._id}>
+								{formatEvidenceSupportLabel(evidence)}
+							</option>
+						))}
+					</Select>
+				</FormField>
+
+				<FormField
 					name="notes"
 					htmlFor="cost-notes"
 					label="Observaciones"
@@ -220,7 +276,7 @@ async function submitCostForm({
 	isEditing: boolean;
 	createMutation: ReturnType<typeof useCreateCost>;
 	updateMutation: ReturnType<typeof useUpdateCost>;
-}): Promise<CostResponse> {
+}): Promise<CostSnapshot> {
 	if (!isEditing) {
 		return createMutation.mutateAsync(data);
 	}
@@ -234,7 +290,38 @@ async function submitCostForm({
 		taxRate: data.taxRate,
 		currency: data.currency,
 		notes: data.notes,
+		supportEvidenceIds: data.supportEvidenceIds,
+		supportDocumentIds: data.supportDocumentIds,
 	} satisfies UpdateCostInput);
+}
+
+function CurrentEvidenceSupportOption({
+	selectedEvidenceSupportId,
+	evidences,
+}: {
+	selectedEvidenceSupportId: string;
+	evidences: Evidence[];
+}) {
+	if (!selectedEvidenceSupportId) {
+		return null;
+	}
+
+	if (evidences.some((evidence) => evidence._id === selectedEvidenceSupportId)) {
+		return null;
+	}
+
+	return (
+		<option value={selectedEvidenceSupportId}>Soporte vinculado {selectedEvidenceSupportId}</option>
+	);
+}
+
+function formatEvidenceSupportLabel(evidence: Evidence): string {
+	const description = evidence.description?.trim();
+	if (description) {
+		return `${evidence.type} - ${description}`;
+	}
+
+	return `${evidence.type} - ${evidence.filename}`;
 }
 
 function CostFormActions({

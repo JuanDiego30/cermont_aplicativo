@@ -13,7 +13,7 @@ import {
 	type IDocumentExtractionJobDocument,
 } from "../../models/DocumentExtractionJob";
 
-interface DocumentImportJobResponse {
+interface DocumentImportJobContract {
 	_id: string;
 	documentSourceFileId: string;
 	adapter: IDocumentExtractionJobDocument["adapter"];
@@ -31,8 +31,8 @@ interface DocumentImportJobResponse {
 	replacementEndpoint: string;
 }
 
-function toImportJobResponse(job: IDocumentExtractionJobDocument): DocumentImportJobResponse {
-	const response: DocumentImportJobResponse = {
+function toImportJobResponse(job: IDocumentExtractionJobDocument): DocumentImportJobContract {
+	const response: DocumentImportJobContract = {
 		_id: job._id.toString(),
 		documentSourceFileId: job.documentSourceFileId.toString(),
 		adapter: job.adapter,

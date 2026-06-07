@@ -24,7 +24,6 @@ import type {
 	SubmitServiceEntrySheetInput,
 	TechnicalReportReadModel,
 } from "@cermont/shared-types";
-import type { QueryClient } from "@tanstack/react-query";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { STALE_TIMES } from "@/lib/constants/query-config";
 import { apiClient } from "@/lib/http/api-client";
@@ -58,7 +57,8 @@ const BILLING_KEYS = {
 		list: (filters?: Record<string, WorkflowFilterValue>) =>
 			[...BILLING_KEYS.deliveryRecords.all, "list", filters] as const,
 		detail: (id: string) => [...BILLING_KEYS.deliveryRecords.all, "detail", id] as const,
-		byOrder: (orderId: string) => [...BILLING_KEYS.deliveryRecords.all, "by-order", orderId] as const,
+		byOrder: (orderId: string) =>
+			[...BILLING_KEYS.deliveryRecords.all, "by-order", orderId] as const,
 	},
 	serviceEntrySheets: {
 		all: ["service-entry-sheets"] as const,
@@ -279,13 +279,6 @@ export function usePaymentsList(filters?: Partial<ListPaymentsQuery>) {
 
 // ─── Delivery Record mutations ───────────────────────────────────────────
 
-function invalidateDR(qc: QueryClient, id?: string) {
-	qc.invalidateQueries({ queryKey: BILLING_KEYS.deliveryRecords.all });
-	if (id) {
-		qc.invalidateQueries({ queryKey: BILLING_KEYS.deliveryRecords.detail(id) });
-	}
-}
-
 export function useCreateDeliveryRecordFromTechnicalReport(technicalReportId: string) {
 	const qc = useQueryClient();
 	return useMutation({
@@ -294,7 +287,9 @@ export function useCreateDeliveryRecordFromTechnicalReport(technicalReportId: st
 				`/delivery-records/from-technical-report/${technicalReportId}`,
 				data,
 			),
-		onSuccess: () => invalidateDR(qc),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.deliveryRecords.all });
+		},
 	});
 }
 
@@ -303,7 +298,10 @@ export function useSendDeliveryRecord(id: string) {
 	return useMutation({
 		mutationFn: (data?: SendDeliveryRecordInput) =>
 			apiClient.post<ApiEnvelope<DeliveryRecord>>(`/delivery-records/${id}/send`, data),
-		onSuccess: () => invalidateDR(qc, id),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.deliveryRecords.all });
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.deliveryRecords.detail(id) });
+		},
 	});
 }
 
@@ -312,7 +310,10 @@ export function useSignDeliveryRecord(id: string) {
 	return useMutation({
 		mutationFn: (data: SignDeliveryRecordInput) =>
 			apiClient.post<ApiEnvelope<DeliveryRecord>>(`/delivery-records/${id}/sign`, data),
-		onSuccess: () => invalidateDR(qc, id),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.deliveryRecords.all });
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.deliveryRecords.detail(id) });
+		},
 	});
 }
 
@@ -321,7 +322,10 @@ export function useRejectDeliveryRecord(id: string) {
 	return useMutation({
 		mutationFn: (data: RejectDeliveryRecordInput) =>
 			apiClient.post<ApiEnvelope<DeliveryRecord>>(`/delivery-records/${id}/reject`, data),
-		onSuccess: () => invalidateDR(qc, id),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.deliveryRecords.all });
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.deliveryRecords.detail(id) });
+		},
 	});
 }
 
@@ -329,18 +333,14 @@ export function useCancelDeliveryRecord(id: string) {
 	const qc = useQueryClient();
 	return useMutation({
 		mutationFn: () => apiClient.post<ApiEnvelope<DeliveryRecord>>(`/delivery-records/${id}/cancel`),
-		onSuccess: () => invalidateDR(qc, id),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.deliveryRecords.all });
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.deliveryRecords.detail(id) });
+		},
 	});
 }
 
 // ─── Service Entry Sheet mutations ──────────────────────────────────────
-
-function invalidateSES(qc: QueryClient, id?: string) {
-	qc.invalidateQueries({ queryKey: BILLING_KEYS.serviceEntrySheets.all });
-	if (id) {
-		qc.invalidateQueries({ queryKey: BILLING_KEYS.serviceEntrySheets.detail(id) });
-	}
-}
 
 export function useCreateServiceEntrySheetFromDeliveryRecord(deliveryRecordId: string) {
 	const qc = useQueryClient();
@@ -350,7 +350,9 @@ export function useCreateServiceEntrySheetFromDeliveryRecord(deliveryRecordId: s
 				`/service-entry-sheets/from-delivery-record/${deliveryRecordId}`,
 				data,
 			),
-		onSuccess: () => invalidateSES(qc),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.serviceEntrySheets.all });
+		},
 	});
 }
 
@@ -359,7 +361,10 @@ export function useSubmitServiceEntrySheet(id: string) {
 	return useMutation({
 		mutationFn: (data?: SubmitServiceEntrySheetInput) =>
 			apiClient.post<ApiEnvelope<ServiceEntrySheet>>(`/service-entry-sheets/${id}/submit`, data),
-		onSuccess: () => invalidateSES(qc, id),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.serviceEntrySheets.all });
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.serviceEntrySheets.detail(id) });
+		},
 	});
 }
 
@@ -368,7 +373,10 @@ export function useApproveServiceEntrySheet(id: string) {
 	return useMutation({
 		mutationFn: () =>
 			apiClient.post<ApiEnvelope<ServiceEntrySheet>>(`/service-entry-sheets/${id}/approve`),
-		onSuccess: () => invalidateSES(qc, id),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.serviceEntrySheets.all });
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.serviceEntrySheets.detail(id) });
+		},
 	});
 }
 
@@ -377,7 +385,10 @@ export function useRejectServiceEntrySheet(id: string) {
 	return useMutation({
 		mutationFn: (data: RejectServiceEntrySheetInput) =>
 			apiClient.post<ApiEnvelope<ServiceEntrySheet>>(`/service-entry-sheets/${id}/reject`, data),
-		onSuccess: () => invalidateSES(qc, id),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.serviceEntrySheets.all });
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.serviceEntrySheets.detail(id) });
+		},
 	});
 }
 
@@ -386,18 +397,14 @@ export function useCancelServiceEntrySheet(id: string) {
 	return useMutation({
 		mutationFn: () =>
 			apiClient.post<ApiEnvelope<ServiceEntrySheet>>(`/service-entry-sheets/${id}/cancel`),
-		onSuccess: () => invalidateSES(qc, id),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.serviceEntrySheets.all });
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.serviceEntrySheets.detail(id) });
+		},
 	});
 }
 
 // ─── Invoice mutations ──────────────────────────────────────────────────
-
-function invalidateInvoice(qc: QueryClient, id?: string) {
-	qc.invalidateQueries({ queryKey: BILLING_KEYS.invoices.all });
-	if (id) {
-		qc.invalidateQueries({ queryKey: BILLING_KEYS.invoices.detail(id) });
-	}
-}
 
 export function useCreateInvoiceFromSES(serviceEntrySheetId: string) {
 	const qc = useQueryClient();
@@ -407,7 +414,9 @@ export function useCreateInvoiceFromSES(serviceEntrySheetId: string) {
 				`/invoices/from-service-entry-sheet/${serviceEntrySheetId}`,
 				data,
 			),
-		onSuccess: () => invalidateInvoice(qc),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.invoices.all });
+		},
 	});
 }
 
@@ -415,7 +424,10 @@ export function useSubmitInvoice(id: string) {
 	const qc = useQueryClient();
 	return useMutation({
 		mutationFn: () => apiClient.post<ApiEnvelope<Invoice>>(`/invoices/${id}/submit`),
-		onSuccess: () => invalidateInvoice(qc, id),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.invoices.all });
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.invoices.detail(id) });
+		},
 	});
 }
 
@@ -423,7 +435,10 @@ export function useApproveInvoice(id: string) {
 	const qc = useQueryClient();
 	return useMutation({
 		mutationFn: () => apiClient.post<ApiEnvelope<Invoice>>(`/invoices/${id}/approve`),
-		onSuccess: () => invalidateInvoice(qc, id),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.invoices.all });
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.invoices.detail(id) });
+		},
 	});
 }
 
@@ -432,7 +447,10 @@ export function useRejectInvoice(id: string) {
 	return useMutation({
 		mutationFn: (data: RejectServiceEntrySheetInput) =>
 			apiClient.post<ApiEnvelope<Invoice>>(`/invoices/${id}/reject`, data),
-		onSuccess: () => invalidateInvoice(qc, id),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.invoices.all });
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.invoices.detail(id) });
+		},
 	});
 }
 
@@ -440,25 +458,23 @@ export function useCancelInvoice(id: string) {
 	const qc = useQueryClient();
 	return useMutation({
 		mutationFn: () => apiClient.post<ApiEnvelope<Invoice>>(`/invoices/${id}/cancel`),
-		onSuccess: () => invalidateInvoice(qc, id),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.invoices.all });
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.invoices.detail(id) });
+		},
 	});
 }
 
 // ─── Payment mutations ──────────────────────────────────────────────────
-
-function invalidatePayment(qc: QueryClient, id?: string) {
-	qc.invalidateQueries({ queryKey: BILLING_KEYS.payments.all });
-	if (id) {
-		qc.invalidateQueries({ queryKey: BILLING_KEYS.payments.detail(id) });
-	}
-}
 
 export function useRegisterPaymentForInvoice(invoiceId: string) {
 	const qc = useQueryClient();
 	return useMutation({
 		mutationFn: (data: RegisterInvoicePaymentInput) =>
 			apiClient.post<ApiEnvelope<Payment>>(`/payments/from-invoice/${invoiceId}`, data),
-		onSuccess: () => invalidatePayment(qc),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.payments.all });
+		},
 	});
 }
 
@@ -467,7 +483,10 @@ export function useReconcilePayment(id: string) {
 	return useMutation({
 		mutationFn: (data: ReconcilePaymentInput) =>
 			apiClient.post<ApiEnvelope<Payment>>(`/payments/${id}/reconcile`, data),
-		onSuccess: () => invalidatePayment(qc, id),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.payments.all });
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.payments.detail(id) });
+		},
 	});
 }
 
@@ -476,6 +495,9 @@ export function useRejectPayment(id: string) {
 	return useMutation({
 		mutationFn: (data: RejectPaymentRecordInput) =>
 			apiClient.post<ApiEnvelope<Payment>>(`/payments/${id}/reject`, data),
-		onSuccess: () => invalidatePayment(qc, id),
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.payments.all });
+			void qc.invalidateQueries({ queryKey: BILLING_KEYS.payments.detail(id) });
+		},
 	});
 }

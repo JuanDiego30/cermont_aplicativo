@@ -12,13 +12,13 @@
 import type { JsonValue } from "../types/safe-types";
 import type { Response } from "express";
 
-export interface ApiResponse<T> {
+export interface ApiEnvelope<T> {
 	success: true;
 	data: T;
 	meta?: Record<string, JsonValue>;
 }
 
-export interface ApiErrorResponse {
+export interface ApiErrorEnvelope {
 	success: false;
 	error: {
 		code: string;
@@ -34,7 +34,7 @@ export interface PaginationMeta {
 	limit: number;
 }
 
-export interface ApiPaginatedResponse<T> {
+export interface ApiPaginatedEnvelope<T> {
 	success: true;
 	data: T[];
 	pagination: PaginationMeta;
@@ -49,7 +49,7 @@ export function sendSuccess<T>(
 	statusCode: number = 200,
 	meta?: Record<string, JsonValue>,
 ): void {
-	const payload: ApiResponse<T> = {
+	const payload: ApiEnvelope<T> = {
 		success: true,
 		data,
 		...(meta && { meta }),
@@ -65,7 +65,7 @@ export function sendError(
 	error: { code: string; message: string; details?: JsonValue },
 	statusCode: number = 500,
 ): void {
-	const payload: ApiErrorResponse = {
+	const payload: ApiErrorEnvelope = {
 		success: false,
 		error,
 	};
@@ -84,7 +84,7 @@ export function sendPaginated<T>(
 ): void {
 	res.setHeader("X-Total-Count", String(total));
 
-	const payload: ApiPaginatedResponse<T> = {
+	const payload: ApiPaginatedEnvelope<T> = {
 		success: true,
 		data,
 		pagination: {

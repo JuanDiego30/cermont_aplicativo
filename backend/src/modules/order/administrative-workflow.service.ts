@@ -45,7 +45,7 @@ import {
 	type TechnicalReportDocument,
 } from "../../models";
 
-type ListResult<T> = {
+type ListEnvelope<T> = {
 	data: T[];
 	total: number;
 	page: number;
@@ -459,7 +459,7 @@ function buildReportSummary(sessionId: string, input: CreateTechnicalReportInput
 
 export async function listTechnicalReports(
 	filters: ListTechnicalReportsQuery,
-): Promise<ListResult<TechnicalReportResponse>> {
+): Promise<ListEnvelope<TechnicalReportResponse>> {
 	const page = filters.page ?? 1;
 	const limit = filters.limit ?? DEFAULT_LIMIT;
 	const query: Record<string, Types.ObjectId | string> = {};
@@ -733,7 +733,7 @@ export async function attachTechnicalReportDocument(
 
 export async function listDeliveryRecords(
 	filters: ListDeliveryRecordsQuery,
-): Promise<ListResult<DeliveryRecordResponse>> {
+): Promise<ListEnvelope<DeliveryRecordResponse>> {
 	const page = filters.page ?? 1;
 	const limit = filters.limit ?? DEFAULT_LIMIT;
 	const query: Record<string, Types.ObjectId | string> = {};
@@ -899,7 +899,7 @@ export async function cancelDeliveryRecord(id: string): Promise<DeliveryRecordRe
 
 export async function listServiceEntrySheets(
 	filters: ListServiceEntrySheetsQuery,
-): Promise<ListResult<ServiceEntrySheetResponse>> {
+): Promise<ListEnvelope<ServiceEntrySheetResponse>> {
 	const page = filters.page ?? 1;
 	const limit = filters.limit ?? DEFAULT_LIMIT;
 	const query: Record<string, Types.ObjectId | string | { $in: string[] }> = {};
@@ -1077,7 +1077,7 @@ export async function cancelServiceEntrySheet(id: string): Promise<ServiceEntryS
 
 export async function listInvoices(
 	filters: ListInvoicesQuery,
-): Promise<ListResult<InvoiceResponse>> {
+): Promise<ListEnvelope<InvoiceResponse>> {
 	const page = filters.page ?? 1;
 	const limit = filters.limit ?? DEFAULT_LIMIT;
 	const query: Record<string, Types.ObjectId | string | { $in: string[] }> = {};
@@ -1217,7 +1217,7 @@ export async function cancelInvoice(id: string): Promise<InvoiceResponse> {
 
 export async function listPayments(
 	filters: ListPaymentsQuery,
-): Promise<ListResult<PaymentResponse>> {
+): Promise<ListEnvelope<PaymentResponse>> {
 	const page = filters.page ?? 1;
 	const limit = filters.limit ?? DEFAULT_LIMIT;
 	const query: Record<string, Types.ObjectId | string> = {};

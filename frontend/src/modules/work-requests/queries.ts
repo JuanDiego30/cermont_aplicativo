@@ -5,22 +5,85 @@ import type {
 } from "@cermont/shared-types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { detailQueryOptions, listQueryOptions } from "@/lib/constants/query-options";
-import { apiClient } from "@/lib/http/api-client";
+import { apiClient, isOfflineLikeError } from "@/lib/http/api-client";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/mutation-defaults";
+import {
+	readWorkRequestListSnapshot,
+	saveWorkRequestListSnapshot,
+} from "@/lib/offline/local-repositories";
+import { useOfflineStore } from "@/store/offline.store";
 
-const workRequestsQueryKeys = {
+export type WorkRequestListSource =
+	| {
+			status: "online";
+			updatedAt: string;
+	  }
+	| {
+			status: "offline_snapshot";
+			updatedAt: string;
+	  }
+	| {
+			status: "offline_empty";
+			updatedAt: string;
+	  };
+
+export interface WorkRequestListResult {
+	items: WorkRequest[];
+	source: WorkRequestListSource;
+}
+
+export const WORK_REQUEST_KEYS = {
 	all: ["work-requests"] as const,
-	list: () => [...workRequestsQueryKeys.all, "list"] as const,
-	detail: (id: string) => [...workRequestsQueryKeys.all, "detail", id] as const,
-	pendingCount: () => [...workRequestsQueryKeys.all, "pendingCount"] as const,
+	list: () => [...WORK_REQUEST_KEYS.all, "list"] as const,
+	detail: (id: string) => [...WORK_REQUEST_KEYS.all, "detail", id] as const,
+	pendingCount: () => [...WORK_REQUEST_KEYS.all, "pendingCount"] as const,
 };
+
+function isNetworkFailure(error: Error): boolean {
+	return !useOfflineStore.getState().isOnline || isOfflineLikeError(error);
+}
+
+export async function fetchWorkRequestList(): Promise<WorkRequestListResult> {
+	try {
+		const response = await apiClient.get<WorkRequestListResponse>("/work-requests");
+		await saveWorkRequestListSnapshot(response.data);
+		return {
+			items: response.data,
+			source: {
+				status: "online",
+				updatedAt: new Date().toISOString(),
+			},
+		};
+	} catch (error) {
+		if (error instanceof Error && isNetworkFailure(error)) {
+			const localSnapshot = await readWorkRequestListSnapshot();
+			if (localSnapshot.status === "found") {
+				return {
+					items: localSnapshot.snapshot.items,
+					source: {
+						status: "offline_snapshot",
+						updatedAt: localSnapshot.snapshot.updatedAt,
+					},
+				};
+			}
+
+			return {
+				items: [],
+				source: {
+					status: "offline_empty",
+					updatedAt: new Date().toISOString(),
+				},
+			};
+		}
+
+		throw error;
+	}
+}
 
 export function useWorkRequests() {
 	return useQuery({
-		queryKey: workRequestsQueryKeys.list(),
-		queryFn: async () => {
-			const response = await apiClient.get<WorkRequestListResponse>("/work-requests");
-			return response.data;
-		},
+		queryKey: WORK_REQUEST_KEYS.list(),
+		queryFn: fetchWorkRequestList,
 		...listQueryOptions,
 	});
 }
@@ -28,6 +91,7 @@ export function useWorkRequests() {
 export function useCreateWorkRequest() {
 	const queryClient = useQueryClient();
 	return useMutation({
+		mutationKey: OFFLINE_MUTATION_KEYS.workRequestCreate,
 		mutationFn: async (data: CreateWorkRequestInput) => {
 			const response = await apiClient.post<{
 				success: boolean;
@@ -38,13 +102,15 @@ export function useCreateWorkRequest() {
 			}
 			return response.data;
 		},
-		onSuccess: () => queryClient.invalidateQueries({ queryKey: workRequestsQueryKeys.all }),
+		networkMode: "offlineFirst",
+		retry: 0,
+		onSuccess: () => queryClient.invalidateQueries({ queryKey: WORK_REQUEST_KEYS.all }),
 	});
 }
 
 export function useWorkRequest(id: string) {
 	return useQuery({
-		queryKey: workRequestsQueryKeys.detail(id),
+		queryKey: WORK_REQUEST_KEYS.detail(id),
 		queryFn: async () => {
 			const response = await apiClient.get<{ success: boolean; data: WorkRequest }>(
 				`/work-requests/${id}`,
@@ -58,7 +124,7 @@ export function useWorkRequest(id: string) {
 
 export function usePendingWorkRequestCount(enabled: boolean) {
 	return useQuery({
-		queryKey: workRequestsQueryKeys.pendingCount(),
+		queryKey: WORK_REQUEST_KEYS.pendingCount(),
 		queryFn: async () => {
 			const response = await apiClient.get<WorkRequestListResponse>(
 				"/work-requests?status=submitted&status=qualified&limit=1",

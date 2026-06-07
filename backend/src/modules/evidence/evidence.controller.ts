@@ -30,25 +30,45 @@ export async function getEvidencesByOrder(req: Request, res: Response): Promise<
 	});
 }
 
+export async function getEvidenceById(req: Request, res: Response): Promise<void> {
+	const { id } = EvidenceIdSchema.parse(req.params);
+	const user = requireUser(req);
+	const evidence = await EvidenceService.getEvidenceById(id, user);
+
+	res.status(200).json({
+		success: true,
+		data: evidence,
+	});
+}
+
+function tryParseGpsLocation(value: unknown) {
+	if (typeof value !== "string" || value.trim().length === 0) {
+		return void 0;
+	}
+	try {
+		const parsed = JSON.parse(value);
+		if (parsed && typeof parsed === "object") {
+			return {
+				lat: Number(parsed.lat),
+				lng: Number(parsed.lng),
+				capturedAt: parsed.capturedAt,
+			};
+		}
+	} catch {
+		// return void 0 and let schema validation handle it
+	}
+	return void 0;
+}
+
 export async function uploadEvidence(req: Request, res: Response): Promise<void> {
 	if (!req.file) {
 		throw new BadRequestError("No file uploaded");
 	}
 	const user = requireUser(req);
 
-	if (typeof req.body.gpsLocation === "string" && req.body.gpsLocation.trim().length > 0) {
-		try {
-			const parsed = JSON.parse(req.body.gpsLocation);
-			if (parsed && typeof parsed === "object") {
-				req.body.gpsLocation = {
-					lat: Number(parsed.lat),
-					lng: Number(parsed.lng),
-					capturedAt: parsed.capturedAt,
-				};
-			}
-		} catch {
-			// Let Zod fail if parsing failed
-		}
+	const parsedGps = tryParseGpsLocation(req.body.gpsLocation);
+	if (parsedGps) {
+		req.body.gpsLocation = parsedGps;
 	}
 
 	const { orderId, type, description, capturedAt, gpsLocation } = CreateEvidenceSchema.parse(

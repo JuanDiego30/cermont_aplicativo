@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import type {
 	ActivityType,
+	Document as CermontDocument,
 	Checklist,
 	CompleteChecklistInput,
 	CostResponse,
@@ -20,12 +21,24 @@ import { type APIRequestContext, request } from "@playwright/test";
 const API_BASE_URL = `${(process.env.E2E_API_BASE_URL ?? "http://localhost:4000/api").replace(/\/$/, "")}/`;
 const AUTH_DIR = path.join(process.cwd(), "tests/e2e/fixtures/.auth");
 const SEED_FILE = path.join(AUTH_DIR, "seed-data.json");
+const E2E_COST_SUPPORT_PDF = Buffer.from(
+	"%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF\n",
+	"utf8",
+);
 
 type ApiEnvelope<T> = {
 	success?: boolean;
 	data?: T;
 	error?: string;
 	message?: string;
+};
+
+type E2ECostInput = Omit<
+	CreateCostInput,
+	"orderId" | "supportEvidenceIds" | "supportDocumentIds"
+> & {
+	supportEvidenceIds?: string[];
+	supportDocumentIds?: string[];
 };
 
 function getErrorMessage(body: unknown, fallback: string): string {
@@ -83,7 +96,7 @@ export interface E2EApiClient {
 		observation?: string,
 	): Promise<Checklist>;
 	completeChecklist(orderId: string, input?: Partial<CompleteChecklistInput>): Promise<Checklist>;
-	addCost(orderId: string, input: Omit<CreateCostInput, "orderId">): Promise<CostResponse>;
+	addCost(orderId: string, input: E2ECostInput): Promise<CostResponse>;
 	getCostSummary(orderId: string): Promise<unknown>;
 	createReport(orderId: string, input?: Partial<CreateWorkReportInput>): Promise<WorkReport>;
 	approveReport(reportId: string): Promise<WorkReport>;
@@ -134,6 +147,35 @@ export async function createE2EApiClient(): Promise<E2EApiClient> {
 		}
 
 		return { Authorization: `Bearer ${accessToken}` };
+	}
+
+	async function createCostSupportDocument(orderId: string): Promise<string> {
+		const response = await requestContext.fetch("documents", {
+			method: "POST",
+			headers: authHeaders,
+			multipart: {
+				title: `Cost support ${orderId}`,
+				orderId,
+				purpose: "support_document",
+				file: {
+					name: `cost-support-${orderId}.pdf`,
+					mimeType: "application/pdf",
+					buffer: E2E_COST_SUPPORT_PDF,
+				},
+			},
+		});
+		const body = await readBody<CermontDocument>(response);
+
+		if (!response.ok() || body.success === false) {
+			throw new Error(getErrorMessage(body, `Failed to create cost support for order ${orderId}`));
+		}
+
+		const documentId = body.data?._id;
+		if (!documentId) {
+			throw new Error(`Missing support document id for order ${orderId}`);
+		}
+
+		return documentId;
 	}
 
 	const client: E2EApiClient = {
@@ -225,7 +267,18 @@ export async function createE2EApiClient(): Promise<E2EApiClient> {
 		},
 
 		async addCost(orderId, input) {
-			return send<CostResponse>("post", "costs", { orderId, ...input });
+			const supportEvidenceIds = input.supportEvidenceIds ?? [];
+			const supportDocumentIds =
+				supportEvidenceIds.length > 0 || input.supportDocumentIds?.length
+					? (input.supportDocumentIds ?? [])
+					: [await createCostSupportDocument(orderId)];
+
+			return send<CostResponse>("post", "costs", {
+				orderId,
+				...input,
+				supportEvidenceIds,
+				supportDocumentIds,
+			});
 		},
 
 		async getCostSummary(orderId) {

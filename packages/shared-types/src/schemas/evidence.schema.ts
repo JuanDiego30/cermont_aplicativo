@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { statusObjectOf } from "../utils/status-types";
 import { ObjectIdSchema } from "./common.schema";
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -101,7 +102,7 @@ export const EvidenceSchema = z
 		capturedAt: z.string().datetime(),
 		uploadedAt: z.string().datetime(),
 		uploadedBy: ObjectIdSchema,
-		deletedAt: z.string().datetime().nullable().optional(),
+		deletedAt: statusObjectOf(z.string().datetime()).optional(),
 		createdAt: z.string().datetime(),
 		updatedAt: z.string().datetime(),
 	})
@@ -152,7 +153,7 @@ export const EvidenceSchemaV2 = z
 				capturedAt: z.string().datetime().optional(),
 			})
 			.optional(),
-		deletedAt: z.string().datetime().nullable().optional(),
+		deletedAt: statusObjectOf(z.string().datetime()).optional(),
 		createdAt: z.string().datetime(),
 		updatedAt: z.string().datetime(),
 	})

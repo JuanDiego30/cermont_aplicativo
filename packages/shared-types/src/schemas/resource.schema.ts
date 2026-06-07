@@ -1,20 +1,49 @@
 /**
- * Resource Schema — Zod validation for resources (tools, vehicles, equipment)
+ * Resource Schema — Zod validation for resources (tools, vehicles, equipment, materials, etc.)
  *
- * Extended for advanced tool management with certifications and documents.
+ * Expanded for full CERMONT catalog needs: materials, PPE, labor roles, certification requirements,
+ * spare parts, with image gallery and unit/quantity tracking.
  * Maps to backend model: apps/backend/src/models/Resource.ts
  * Reference: DOC-09 Section Diccionario de Datos
  */
 
 import { z } from "zod";
 import { ObjectIdSchema } from "./common.schema";
+import { FileAssetRefSchema } from "./file-asset.schema";
 import { WorkflowStageSchema } from "./template-draft.schema";
 
 /**
- * Resource type
+ * Resource type — expanded to cover full CERMONT catalog
  */
-export const ResourceTypeEnum = z.enum(["tool", "vehicle", "equipment"]);
+export const ResourceTypeEnum = z.enum([
+	"tool",
+	"vehicle",
+	"equipment",
+	"material",
+	"safety_item",
+	"labor_role",
+	"certification_requirement",
+	"spare_part",
+]);
 export type ResourceType = z.infer<typeof ResourceTypeEnum>;
+
+/**
+ * Measurement units for resource quantity tracking
+ */
+export const ResourceUnitEnum = z.enum([
+	"unidad",
+	"metro",
+	"litro",
+	"kilogramo",
+	"libra",
+	"galon",
+	"caja",
+	"rollo",
+	"par",
+	"juego",
+	"kit",
+]);
+export type ResourceUnit = z.infer<typeof ResourceUnitEnum>;
 
 /**
  * Extended resource status
@@ -92,6 +121,11 @@ export const CreateResourceSchema = z
 		model: z.string().max(100).optional(),
 		purchaseDate: z.string().datetime().optional(),
 		category: z.string().max(100).optional(),
+		// New catalog fields
+		unit: ResourceUnitEnum.optional(),
+		defaultQuantity: z.number().int().positive().default(1),
+		active: z.boolean().default(true),
+		images: z.array(FileAssetRefSchema).default([]),
 		certifications: z.array(CertificationSchema).default([]),
 		documents: z.array(ResourceFileAttachmentSchema).default([]),
 		evidenceRequirements: z.array(ResourceEvidenceRequirementSchema).default([]),
@@ -116,6 +150,11 @@ export const UpdateResourceSchema = z
 		purchaseDate: z.string().datetime().optional(),
 		maintenanceDate: z.string().datetime().optional(),
 		category: z.string().max(100).optional(),
+		// New catalog fields
+		unit: ResourceUnitEnum.optional(),
+		defaultQuantity: z.number().int().positive().optional(),
+		active: z.boolean().optional(),
+		images: z.array(FileAssetRefSchema).optional(),
 		certifications: z.array(CertificationSchema).optional(),
 		documents: z.array(ResourceFileAttachmentSchema).optional(),
 		evidenceRequirements: z.array(ResourceEvidenceRequirementSchema).optional(),
@@ -158,6 +197,28 @@ export const AddCertificationSchema = z
 export type AddCertificationInput = z.infer<typeof AddCertificationSchema>;
 
 /**
+ * Attach image to resource
+ */
+export const AttachResourceImageSchema = z
+	.object({
+		image: FileAssetRefSchema,
+	})
+	.strict();
+
+export type AttachResourceImageInput = z.infer<typeof AttachResourceImageSchema>;
+
+/**
+ * Detach image from resource
+ */
+export const DetachResourceImageSchema = z
+	.object({
+		imageId: z.string().min(1),
+	})
+	.strict();
+
+export type DetachResourceImageInput = z.infer<typeof DetachResourceImageSchema>;
+
+/**
  * Full resource record (response)
  */
 export const ResourceOutputDtoSchema = z
@@ -173,6 +234,11 @@ export const ResourceOutputDtoSchema = z
 		purchaseDate: z.string().datetime().optional(),
 		maintenanceDate: z.string().datetime().optional(),
 		category: z.string().optional(),
+		// New catalog fields
+		unit: ResourceUnitEnum.optional(),
+		defaultQuantity: z.number().int().positive().default(1),
+		active: z.boolean().default(true),
+		images: z.array(FileAssetRefSchema).default([]),
 		certifications: z.array(CertificationSchema).default([]),
 		documents: z.array(ResourceFileAttachmentSchema).default([]),
 		evidenceRequirements: z.array(ResourceEvidenceRequirementSchema).default([]),
@@ -197,6 +263,7 @@ export const ResourceListQuerySchema = z
 		category: z.string().optional(),
 		search: z.string().optional(),
 		expired: z.boolean().optional(),
+		active: z.coerce.boolean().optional(),
 		page: z.coerce.number().int().min(1).default(1),
 		limit: z.coerce.number().int().min(1).max(100).default(20),
 	})

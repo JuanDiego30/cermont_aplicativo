@@ -6,12 +6,12 @@
 
 import { Order } from "../../models";
 
-export interface AIResponse {
+export interface AIEnvelope {
 	message: string;
 	suggestedActions?: string[];
 }
 
-export async function processUserQuery(query: string): Promise<AIResponse> {
+export async function processUserQuery(query: string): Promise<AIEnvelope> {
 	const normalizedQuery = query.toLowerCase();
 
 	// Basic Rule-Based logic for Cermont AI

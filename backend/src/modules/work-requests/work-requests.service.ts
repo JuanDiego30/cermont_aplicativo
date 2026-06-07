@@ -6,7 +6,7 @@ import type {
 } from "@cermont/shared-types";
 import { Types } from "mongoose";
 import { AppError } from "../../common/errors";
-import type { AuthPayload } from "../../common/utils/request";
+import type { AuthClaims } from "../../common/utils/request";
 import { Counter, ServiceCase, WorkRequest } from "../../models";
 
 const WORK_REQUEST_STATUS_TRANSITIONS: Record<WorkRequestStatus, WorkRequestStatus[]> = {
@@ -394,7 +394,7 @@ export async function createSiteVisit(
  */
 export async function listSiteVisits(
 	workRequestId: string,
-	_user: AuthPayload,
+	_user: AuthClaims,
 ): Promise<{ visits: { scheduledAt?: Date; technicianName?: string; status: string }[] }> {
 	const workRequest = await WorkRequest.findById(workRequestId);
 

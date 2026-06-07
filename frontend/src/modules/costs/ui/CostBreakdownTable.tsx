@@ -4,9 +4,9 @@ import type { CostSummary } from "@cermont/shared-types";
 import { formatCurrencyForState, labelForCostDataState } from "../utils";
 
 interface CostBreakdownTableProps {
-	summary?: CostSummary | null;
+	summary?: CostSummary;
 	isLoading?: boolean;
-	error?: Error | null;
+	error?: Error;
 }
 
 export function CostBreakdownTable({ summary, isLoading = false, error }: CostBreakdownTableProps) {

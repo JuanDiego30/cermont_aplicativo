@@ -63,8 +63,16 @@
 \usepackage{multirow}
 \usepackage{adjustbox}
 \usepackage{tabularx}
-\usepackage{xcolor}
+\usepackage[table]{xcolor}
 \usepackage{pdflscape}
+
+% Compatibilidad para instalaciones MiKTeX con versiones desfasadas de array/longtable.
+\makeatletter
+\providecommand{\insert@pcolumn}{\insert@column}
+\makeatother
+\ExplSyntaxOn
+\cs_if_exist:NF \tbl_gdecr_row_count: { \cs_new:Npn \tbl_gdecr_row_count: {} }
+\ExplSyntaxOff
 
 % Paleta institucional exigida para diagramas y resaltados.
 \definecolor{institucionalRed}{HTML}{AD3333}
@@ -73,10 +81,18 @@
 \colorlet{UnipamplonaRojo}{institucionalRed}
 \colorlet{UnipamplonaAzul}{institucionalBlue}
 \colorlet{UnipamplonaGris}{institucionalGrey}
-% colortbl no es necesario: xcolor se cargó con la opción table.
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\newcommand{\ClassicTableHeader}{\rowcolor{UnipamplonaGris!60}}
+\newcommand{\ClassicTableSetup}{\setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.25}\arrayrulecolor{black}}
+\newcommand{\AppScreenshot}[2][]{%
+  \begingroup
+  \setlength{\fboxsep}{0pt}%
+  \setlength{\fboxrule}{0.4pt}%
+  \fcolorbox{UnipamplonaGris}{white}{\includegraphics[#1]{#2}}%
+  \endgroup
+}
 \usepackage{enumitem}
 %\usepackage{xurl}      % Para URLs que se dividen entre líneas (No encontrado)
 \usepackage{url}       % Reemplazo estándar
@@ -322,9 +338,9 @@
 \usepackage{setspace}
 \onehalfspacing
 
-% Sin sangría ni espaciado APA
+% Formato editorial sin sangría inicial, con separación limpia entre párrafos.
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{0pt}
+\setlength{\parskip}{6pt}
 
 %----------------------------------------------------------------
 % PASO 12: LISTAS

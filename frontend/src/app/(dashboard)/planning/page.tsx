@@ -20,7 +20,7 @@ import { EmptyState } from "@/core/ui/EmptyState";
 import { apiClient } from "@/lib/http/api-client";
 import { ContextualDocumentUploadModal } from "@/modules/documents/ui/ContextualDocumentUploadModal";
 
-type PlanningListResponse = {
+type PlanningListContract = {
 	success: boolean;
 	data: PlanningPacket[];
 };
@@ -34,7 +34,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 async function fetchPlanningPackets(): Promise<PlanningPacket[]> {
-	const response = await apiClient.get<PlanningListResponse>("/planning-packets?limit=50");
+	const response = await apiClient.get<PlanningListContract>("/planning-packets?limit=50");
 	if (!response.success) {
 		throw new Error("No se pudo cargar la planeacion");
 	}

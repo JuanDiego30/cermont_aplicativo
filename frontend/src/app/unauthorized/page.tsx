@@ -12,15 +12,15 @@ export const metadata: Metadata = {
 export default function UnauthorizedPage() {
 	return (
 		<main className="flex min-h-screen items-center justify-center px-4 py-10">
-			<section className="flex flex-col items-center gap-6 text-center">
+			<section className="motion-panel flex flex-col items-center gap-6 text-center">
 				<header className="flex flex-col items-center gap-2">
-					<p className="text-7xl font-extrabold text-red-500 dark:text-red-400" aria-hidden="true">
+					<p className="text-7xl font-extrabold text-[var(--color-danger)]" aria-hidden="true">
 						403
 					</p>
-					<h1 className="text-2xl font-semibold text-zinc-900 dark:text-white">
+					<h1 className="text-2xl font-semibold text-[var(--text-primary)]">
 						Acceso no autorizado
 					</h1>
-					<p className="max-w-sm text-sm text-zinc-600 dark:text-zinc-400">
+					<p className="max-w-sm text-sm text-[var(--text-secondary)]">
 						No tienes permisos para acceder a esta página. Si crees que esto es un error, contacta
 						al administrador del sistema.
 					</p>
@@ -28,13 +28,13 @@ export default function UnauthorizedPage() {
 				<footer className="flex flex-wrap justify-center gap-3">
 					<Link
 						href="/"
-						className="rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+						className="motion-button rounded-lg bg-[var(--color-brand)] px-5 py-2.5 text-sm font-medium text-white hover:bg-[var(--color-brand-blue-deep)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus-ring)] focus-visible:ring-offset-2"
 					>
 						Ir al inicio
 					</Link>
 					<Link
 						href="/login"
-						className="rounded-lg border border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800 dark:focus-visible:ring-offset-zinc-950"
+						className="motion-button rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-5 py-2.5 text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--surface-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus-ring)] focus-visible:ring-offset-2"
 					>
 						Iniciar sesión
 					</Link>

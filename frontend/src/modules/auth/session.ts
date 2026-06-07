@@ -6,10 +6,10 @@
  */
 
 import { isAuthenticatedRole, type UserRole } from "@cermont/domain";
+import { isPresent, type StatusObject } from "@cermont/shared-types";
 import { redirect } from "next/navigation";
 import { getCookieToken } from "@/lib/http/server-auth";
 import { useAuthStore } from "@/store/auth.store";
-import { isPresent, type StatusObject } from "@cermont/shared-types";
 
 // ── Strong types for authenticated sessions ──────────────────────────
 type AuthenticatedUser = {

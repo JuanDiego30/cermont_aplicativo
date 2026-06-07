@@ -47,18 +47,16 @@ function SidebarNavItem({
 				href={to}
 				aria-current={isActive ? "page" : undefined}
 				onClick={onNavigate}
-				className={`group flex items-center gap-3 rounded-[var(--radius-lg)] px-3 py-2 text-sm transition-all duration-200 ${
+				className={`group motion-list-item flex items-center gap-3 rounded-[var(--radius-lg)] px-3 py-2 text-sm transition-all duration-200 ${
 					isActive
-						? "bg-[var(--surface-sidebar-active)] text-[var(--color-brand)] font-semibold"
-						: "text-[var(--text-secondary)] hover:bg-[var(--surface-sidebar-hover)] hover:text-[var(--text-primary)]"
+						? "bg-surface-sidebar-active text-brand font-semibold"
+						: "text-secondary-foreground hover:bg-surface-sidebar-hover hover:text-foreground"
 				}`}
 				title={sidebarCollapsed ? label : undefined}
 			>
 				<Icon
-					className={`size-4.5 shrink-0 transition-all ${
-						isActive
-							? "text-[var(--color-brand)] scale-110"
-							: "text-[var(--text-muted)] group-hover:text-[var(--text-primary)]"
+					className={`size-4.5 shrink-0 transition-transform duration-[var(--duration-fast)] ease-[var(--ease-standard)] ${
+						isActive ? "scale-110 text-brand" : "text-muted-foreground group-hover:text-foreground"
 					}`}
 					aria-hidden="true"
 				/>
@@ -159,7 +157,7 @@ export function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
 				ref={sidebarRef}
 				id="sidebar"
 				aria-label="Barra de navegación lateral"
-				className={`fixed left-0 top-0 z-50 flex h-full flex-col border-r border-[var(--border-subtle)] bg-[var(--surface-sidebar)] transition-all duration-300 ease-in-out lg:static lg:z-auto lg:translate-x-0 ${
+				className={`motion-drawer fixed left-0 top-0 z-50 flex h-dvh flex-col border-r border-border-default bg-surface-sidebar transition-all duration-[var(--duration-standard)] ease-[var(--ease-standard)] lg:static lg:z-auto lg:translate-x-0 ${
 					sidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
 				} ${sidebarCollapsed ? "w-[var(--sidebar-width-collapsed)]" : "w-[var(--sidebar-width)]"}`}
 			>

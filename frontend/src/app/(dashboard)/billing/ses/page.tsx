@@ -10,8 +10,8 @@ import {
 } from "@/modules/billing/ui/WorkflowRecordsPage";
 
 function BillingSESPageContent() {
-	const { get } = useSearchParams();
-	const workOrderId = get("workOrderId")?.trim() || undefined;
+	const searchParams = useSearchParams();
+	const workOrderId = searchParams.get("workOrderId")?.trim() || undefined;
 	const query = useServiceEntrySheetsList(workOrderId ? { workOrderId, limit: 50 } : undefined);
 
 	return (

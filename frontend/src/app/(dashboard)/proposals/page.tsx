@@ -2,10 +2,11 @@
 
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-import { Plus } from "lucide-react";
+import { FileText, Plus } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useMemo } from "react";
+import { EmptyState } from "@/components/common/EmptyState";
 import { normalizePagination } from "@/lib/pagination";
 import { cloneSearchParams, readSearchParam } from "@/lib/utils/search-params";
 import type { Proposal } from "@/modules/proposals/queries";
@@ -121,18 +122,10 @@ function ProposalsPageInner() {
 				totalValue: 0,
 			};
 		}
-		const approved = proposals.filter(
-			(p) => p.status === "approved",
-		);
-		const sent = proposals.filter(
-			(p) => p.status === "sent",
-		);
-		const rejected = proposals.filter(
-			(p) => p.status === "rejected",
-		);
-		const draft = proposals.filter(
-			(p) => p.status === "draft",
-		);
+		const approved = proposals.filter((p) => p.status === "approved");
+		const sent = proposals.filter((p) => p.status === "sent");
+		const rejected = proposals.filter((p) => p.status === "rejected");
+		const draft = proposals.filter((p) => p.status === "draft");
 
 		const approvalRate = total > 0 ? Math.round((approved.length / total) * 100) : 0;
 
@@ -178,26 +171,47 @@ function ProposalsPageInner() {
 			</div>
 
 			{/* KPI Cards */}
-			<section aria-label="Resumen de propuestas" className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-5">
+			<section
+				aria-label="Resumen de propuestas"
+				className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-5"
+			>
 				<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
-					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">Total</p>
+					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
+						Total
+					</p>
 					<p className="mt-2 text-3xl font-semibold text-[var(--text-primary)]">{total}</p>
 				</article>
 				<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
-					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">Enviadas</p>
-					<p className="mt-2 text-3xl font-semibold text-[var(--color-info)]">{metrics.sentCount}</p>
+					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
+						Enviadas
+					</p>
+					<p className="mt-2 text-3xl font-semibold text-[var(--color-info)]">
+						{metrics.sentCount}
+					</p>
 				</article>
 				<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
-					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">Aprobadas</p>
-					<p className="mt-2 text-3xl font-semibold text-[var(--color-success)]">{metrics.approvedCount}</p>
+					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
+						Aprobadas
+					</p>
+					<p className="mt-2 text-3xl font-semibold text-[var(--color-success)]">
+						{metrics.approvedCount}
+					</p>
 				</article>
 				<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
-					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">Aprobación</p>
-					<p className="mt-2 text-3xl font-semibold text-[var(--color-brand-blue)]">{metrics.approvalRate}%</p>
+					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
+						Aprobación
+					</p>
+					<p className="mt-2 text-3xl font-semibold text-[var(--color-brand-blue)]">
+						{metrics.approvalRate}%
+					</p>
 				</article>
 				<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
-					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">Margen aprox.</p>
-					<p className="mt-2 text-3xl font-semibold text-[var(--color-brand-accent)]">{metrics.avgMargin}%</p>
+					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
+						Margen aprox.
+					</p>
+					<p className="mt-2 text-3xl font-semibold text-[var(--color-brand-accent)]">
+						{metrics.avgMargin}%
+					</p>
 				</article>
 			</section>
 
@@ -264,9 +278,15 @@ function ProposalListContent({
 
 	if (proposals.length === 0) {
 		return (
-			<div className="flex h-32 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] text-sm text-[var(--text-tertiary)] shadow-[var(--shadow-1)]">
-				No hay propuestas
-			</div>
+			<EmptyState
+				icon={FileText}
+				title="No hay propuestas"
+				description="No se encontraron propuestas para los filtros seleccionados. Crea una nueva propuesta desde una solicitud de trabajo."
+				action={{
+					label: "Nueva propuesta",
+					onClick: () => (window.location.href = "/proposals/new"),
+				}}
+			/>
 		);
 	}
 
@@ -279,7 +299,8 @@ function ProposalTable({ proposals }: { proposals: Proposal[] }) {
 			<div className="overflow-x-auto">
 				<table className="w-full min-w-[750px] text-sm">
 					<caption className="sr-only">
-						Propuestas con cliente, valor estimado, estado, flujo, fecha de envío y enlace al detalle.
+						Propuestas con cliente, valor estimado, estado, flujo, fecha de envío y enlace al
+						detalle.
 					</caption>
 					<thead>
 						<tr className="border-b border-[var(--border-default)] bg-[var(--surface-secondary)] text-left text-xs uppercase tracking-wide text-[var(--text-secondary)]">

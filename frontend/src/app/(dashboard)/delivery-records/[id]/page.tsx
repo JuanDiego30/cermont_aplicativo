@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import { Suspense, useReducer, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
+import { RejectForm } from "@/core/ui/RejectForm";
 import {
 	useCancelDeliveryRecord,
 	useDeliveryRecord,
@@ -14,8 +15,7 @@ import {
 	useSendDeliveryRecord,
 	useSignDeliveryRecord,
 } from "@/modules/billing/queries";
-
-import { RejectForm } from "@/core/ui/RejectForm";
+import { FileAttachmentsSection } from "@/modules/files";
 
 const DATE_FMT = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
 const fmtDate = (v?: string) => (v ? DATE_FMT.format(new Date(v)) : "Sin fecha");
@@ -99,9 +99,7 @@ function BackLink() {
 function ErrorCard({ onRetry }: { onRetry: () => void }) {
 	return (
 		<div className="rounded-lg border border-destructive/20 bg-destructive/10 p-5">
-			<h2 className="text-base font-semibold text-foreground">
-				No se pudo cargar el acta
-			</h2>
+			<h2 className="text-base font-semibold text-foreground">No se pudo cargar el acta</h2>
 			<p className="mt-1 text-sm text-muted-foreground">
 				Ocurri&oacute;n un error al obtener los datos.
 			</p>
@@ -267,7 +265,7 @@ function RecordContent({ record }: { record: DeliveryRecord }) {
 }
 
 function RecordInfo({ record }: { record: DeliveryRecord }) {
-  return (
+	return (
 		<div className="space-y-4">
 			<div className="rounded-lg border border-border bg-card p-6 shadow-card">
 				<div className="flex flex-wrap items-start justify-between gap-3">
@@ -307,9 +305,7 @@ function RecordInfo({ record }: { record: DeliveryRecord }) {
 
 			{record.clientObservations && (
 				<div className="rounded-lg border border-border bg-card p-4 shadow-card">
-					<h3 className="text-sm font-semibold text-foreground">
-						Observaciones del cliente
-					</h3>
+					<h3 className="text-sm font-semibold text-foreground">Observaciones del cliente</h3>
 					<p className="mt-2 text-sm text-muted-foreground">{record.clientObservations}</p>
 				</div>
 			)}
@@ -325,6 +321,14 @@ function RecordInfo({ record }: { record: DeliveryRecord }) {
 				<span>Creado: {fmtDate(record.createdAt)}</span>
 				<span>Actualizado: {fmtDate(record.updatedAt)}</span>
 			</div>
+
+			<FileAttachmentsSection
+				entityType="delivery_record"
+				entityId={record._id}
+				category="delivery_record_attachment"
+				title="Adjuntos del acta"
+				description="Sube el PDF firmado, fotos de la entrega o cualquier soporte relevante para esta acta."
+			/>
 		</div>
 	);
 }
@@ -429,7 +433,9 @@ function SignForm({
 			<h3 className="text-sm font-semibold text-foreground">Firmar acta</h3>
 
 			<div className="space-y-1">
-				<label htmlFor="docRef" className="text-sm text-muted-foreground">Referencia del documento firmado *</label>
+				<label htmlFor="docRef" className="text-sm text-muted-foreground">
+					Referencia del documento firmado *
+				</label>
 				<input
 					id="docRef"
 					type="text"
@@ -442,7 +448,9 @@ function SignForm({
 			</div>
 
 			<div className="space-y-1">
-				<label htmlFor="method" className="text-sm text-muted-foreground">M&eacute;todo de firma *</label>
+				<label htmlFor="method" className="text-sm text-muted-foreground">
+					M&eacute;todo de firma *
+				</label>
 				<select
 					id="method"
 					value={method}
@@ -458,7 +466,9 @@ function SignForm({
 			</div>
 
 			<div className="space-y-1">
-				<label htmlFor="signedAt" className="text-sm text-muted-foreground">Fecha y hora de firma *</label>
+				<label htmlFor="signedAt" className="text-sm text-muted-foreground">
+					Fecha y hora de firma *
+				</label>
 				<input
 					id="signedAt"
 					type="datetime-local"
@@ -470,7 +480,9 @@ function SignForm({
 			</div>
 
 			<div className="space-y-1">
-				<label htmlFor="signedBy" className="text-sm text-muted-foreground">Nombre de quien firma *</label>
+				<label htmlFor="signedBy" className="text-sm text-muted-foreground">
+					Nombre de quien firma *
+				</label>
 				<input
 					id="signedBy"
 					type="text"

@@ -11,7 +11,7 @@ import { BadRequestError, NotFoundError } from "../../common/errors/AppError";
 import { type IToolDocument, Tool, type ToolCertification } from "../../models/Tool";
 import { createAuditLog } from "../audit/audit.service";
 
-export interface CreateToolDto {
+export interface CreateToolCommand {
 	name: string;
 	category?: string;
 	description?: string;
@@ -25,7 +25,7 @@ export interface CreateToolDto {
 	dynamicForms?: string[];
 }
 
-export interface UpdateToolDto {
+export interface UpdateToolCommand {
 	name?: string;
 	category?: string;
 	description?: string;
@@ -51,7 +51,7 @@ export interface PaginationOptions {
 	limit?: number;
 }
 
-export interface PaginatedResult<T> {
+export interface PageEnvelope<T> {
 	data: T[];
 	pagination: {
 		page: number;
@@ -64,7 +64,7 @@ export interface PaginatedResult<T> {
 /**
  * Create a new Tool
  */
-export async function createTool(data: CreateToolDto, userId: string): Promise<IToolDocument> {
+export async function createTool(data: CreateToolCommand, userId: string): Promise<IToolDocument> {
 	const tool = await Tool.create({
 		name: data.name,
 		type: "tool", // Required field
@@ -122,7 +122,7 @@ export async function getToolById(id: string): Promise<IToolDocument> {
 export async function getAllTools(
 	filters: ToolFilters = {},
 	pagination: PaginationOptions = {},
-): Promise<PaginatedResult<IToolDocument>> {
+): Promise<PageEnvelope<IToolDocument>> {
 	const page = pagination.page || 1;
 	const limit = pagination.limit || 20;
 	const skip = (page - 1) * limit;
@@ -170,7 +170,7 @@ export async function getAllTools(
  */
 export async function updateTool(
 	id: string,
-	data: UpdateToolDto,
+	data: UpdateToolCommand,
 	userId: string,
 ): Promise<IToolDocument> {
 	if (!Types.ObjectId.isValid(id)) {

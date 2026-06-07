@@ -4,12 +4,20 @@
  * Handles resource management business logic:
  * - CRUD operations for resources
  * - Status transitions
+ * - Image gallery management (attach/detach FileAssetRef)
  */
 
-import type { CreateResource, ResourceStatus, UpdateResource } from "@cermont/shared-types";
+import type {
+	AttachResourceImageInput,
+	CreateResource,
+	DetachResourceImageInput,
+	ResourceStatus,
+	UpdateResource,
+} from "@cermont/shared-types";
 import type mongoose from "mongoose";
-import { AppError } from "../../common/errors";
+import { AppError, ServiceUnavailableError } from "../../common/errors";
 import { createLogger } from "../../common/utils/logger";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { type IResource, Resource } from "../../models/Resource";
 
 const log = createLogger("resource-service");
@@ -34,11 +42,30 @@ function mapResourceInput(data: ResourceMapperInput): Record<string, unknown> {
 	if (data.serialNumber !== undefined) {
 		payload.serial_number = data.serialNumber;
 	}
+	if (data.brand !== undefined) {
+		payload.brand = data.brand;
+	}
+	if (data.model !== undefined) {
+		payload.modelName = data.model;
+	}
 	if (data.purchaseDate !== undefined) {
 		payload.purchase_date = new Date(data.purchaseDate);
 	}
 	if (data.maintenanceDate !== undefined) {
 		payload.maintenance_date = new Date(data.maintenanceDate);
+	}
+	if (data.category !== undefined) {
+		payload.category = data.category;
+	}
+	// New catalog fields
+	if (data.unit !== undefined) {
+		payload.unit = data.unit;
+	}
+	if (data.defaultQuantity !== undefined) {
+		payload.default_quantity = data.defaultQuantity;
+	}
+	if (data.active !== undefined) {
+		payload.active = data.active;
 	}
 
 	return payload;
@@ -62,7 +89,7 @@ async function createResource(data: CreateResource, userId: string): Promise<IRe
  * Get all resources with filters and pagination
  */
 async function findAllResources(
-	filters: { type?: string; status?: string; search?: string },
+	filters: { type?: string; status?: string; search?: string; active?: boolean },
 	page: number = 1,
 	limit: number = 50,
 ): Promise<{ data: IResource[]; total: number }> {
@@ -73,18 +100,32 @@ async function findAllResources(
 	if (filters.status) {
 		where.status = filters.status;
 	}
+	if (filters.active !== undefined) {
+		where.active = filters.active;
+	}
 	if (filters.search) {
 		where.$text = { $search: filters.search };
 	}
 
 	const skip = (page - 1) * limit;
 
-	const [data, total] = await Promise.all([
-		Resource.find(where).sort({ created_at: -1 }).limit(limit).skip(skip).lean(),
-		Resource.countDocuments(where),
-	]);
+	try {
+		const [data, total] = await Promise.all([
+			Resource.find(where).sort({ created_at: -1 }).limit(limit).skip(skip).lean(),
+			Resource.countDocuments(where),
+		]);
 
-	return { data, total };
+		return { data, total };
+	} catch (error) {
+		if (error instanceof Error && isTransientDatabaseError(error)) {
+			log.error("Database unavailable while listing resources", { error: String(error) });
+			throw new ServiceUnavailableError(
+				"La base de datos no está disponible. Por favor, inténtalo de nuevo en unos minutos.",
+				"RESOURCE_SERVICE_UNAVAILABLE",
+			);
+		}
+		throw error;
+	}
 }
 
 /**
@@ -153,6 +194,42 @@ async function deleteResource(id: string): Promise<void> {
 	log.info("Resource deleted", { resourceId: id });
 }
 
+// ─── Image Gallery Management ────────────────────────────────────────────────
+
+/**
+ * Attach a FileAssetRef image to a resource's fileAssets array
+ */
+async function attachImage(id: string, input: AttachResourceImageInput): Promise<IResource> {
+	const resource = await Resource.findByIdAndUpdate(
+		id,
+		{ $push: { fileAssets: input.image } },
+		{ new: true },
+	);
+	if (!resource) {
+		throw new AppError("Recurso no encontrado", 404, "RESOURCE_NOT_FOUND");
+	}
+
+	log.info("Image attached to resource", { resourceId: id, imageId: input.image.id });
+	return resource;
+}
+
+/**
+ * Detach a FileAssetRef image from a resource's fileAssets array by image id
+ */
+async function detachImage(id: string, input: DetachResourceImageInput): Promise<IResource> {
+	const resource = await Resource.findByIdAndUpdate(
+		id,
+		{ $pull: { fileAssets: { id: input.imageId } } },
+		{ new: true },
+	);
+	if (!resource) {
+		throw new AppError("Recurso no encontrado", 404, "RESOURCE_NOT_FOUND");
+	}
+
+	log.info("Image detached from resource", { resourceId: id, imageId: input.imageId });
+	return resource;
+}
+
 export const ResourceService = {
 	create: createResource,
 	findAll: findAllResources,
@@ -160,4 +237,6 @@ export const ResourceService = {
 	update: updateResource,
 	updateStatus: updateResourceStatus,
 	delete: deleteResource,
+	attachImage,
+	detachImage,
 } as const;

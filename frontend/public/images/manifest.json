@@ -1,335 +1,335 @@
 {
-  "generatedAt": "2026-05-26T05:14:44.278Z",
-  "note": "Original PNG files remain in /images/login and /images/landing. Optimized variants are generated under /images/optimized.",
-  "images": [
-    {
-      "group": "login",
-      "alt": "Operación documental Cermont en campo",
-      "source": "/images/login/ChatGPT Image 25 may 2026, 23_14_18 (1).png",
-      "variants": [
-        {
-          "width": 640,
-          "format": "webp",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-1-640.webp"
-        },
-        {
-          "width": 640,
-          "format": "avif",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-1-640.avif"
-        },
-        {
-          "width": 960,
-          "format": "webp",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-1-960.webp"
-        },
-        {
-          "width": 960,
-          "format": "avif",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-1-960.avif"
-        },
-        {
-          "width": 1280,
-          "format": "webp",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-1-1280.webp"
-        },
-        {
-          "width": 1280,
-          "format": "avif",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-1-1280.avif"
-        },
-        {
-          "width": 1920,
-          "format": "webp",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-1-1920.webp"
-        },
-        {
-          "width": 1920,
-          "format": "avif",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-1-1920.avif"
-        }
-      ]
-    },
-    {
-      "group": "login",
-      "alt": "Operación documental Cermont en campo",
-      "source": "/images/login/ChatGPT Image 25 may 2026, 23_14_18 (2).png",
-      "variants": [
-        {
-          "width": 640,
-          "format": "webp",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-2-640.webp"
-        },
-        {
-          "width": 640,
-          "format": "avif",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-2-640.avif"
-        },
-        {
-          "width": 960,
-          "format": "webp",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-2-960.webp"
-        },
-        {
-          "width": 960,
-          "format": "avif",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-2-960.avif"
-        },
-        {
-          "width": 1280,
-          "format": "webp",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-2-1280.webp"
-        },
-        {
-          "width": 1280,
-          "format": "avif",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-2-1280.avif"
-        },
-        {
-          "width": 1920,
-          "format": "webp",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-2-1920.webp"
-        },
-        {
-          "width": 1920,
-          "format": "avif",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-2-1920.avif"
-        }
-      ]
-    },
-    {
-      "group": "login",
-      "alt": "Operación documental Cermont en campo",
-      "source": "/images/login/ChatGPT Image 25 may 2026, 23_14_19 (3).png",
-      "variants": [
-        {
-          "width": 640,
-          "format": "webp",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-19-3-640.webp"
-        },
-        {
-          "width": 640,
-          "format": "avif",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-19-3-640.avif"
-        },
-        {
-          "width": 960,
-          "format": "webp",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-19-3-960.webp"
-        },
-        {
-          "width": 960,
-          "format": "avif",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-19-3-960.avif"
-        },
-        {
-          "width": 1280,
-          "format": "webp",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-19-3-1280.webp"
-        },
-        {
-          "width": 1280,
-          "format": "avif",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-19-3-1280.avif"
-        },
-        {
-          "width": 1920,
-          "format": "webp",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-19-3-1920.webp"
-        },
-        {
-          "width": 1920,
-          "format": "avif",
-          "src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-19-3-1920.avif"
-        }
-      ]
-    },
-    {
-      "group": "landing",
-      "alt": "Servicios industriales Cermont con trazabilidad operativa",
-      "source": "/images/landing/ChatGPT Image 25 may 2026, 22_58_49 (1).png",
-      "variants": [
-        {
-          "width": 640,
-          "format": "webp",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-640.webp"
-        },
-        {
-          "width": 640,
-          "format": "avif",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-640.avif"
-        },
-        {
-          "width": 960,
-          "format": "webp",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-960.webp"
-        },
-        {
-          "width": 960,
-          "format": "avif",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-960.avif"
-        },
-        {
-          "width": 1280,
-          "format": "webp",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-1280.webp"
-        },
-        {
-          "width": 1280,
-          "format": "avif",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-1280.avif"
-        },
-        {
-          "width": 1920,
-          "format": "webp",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-1920.webp"
-        },
-        {
-          "width": 1920,
-          "format": "avif",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-1920.avif"
-        }
-      ]
-    },
-    {
-      "group": "landing",
-      "alt": "Servicios industriales Cermont con trazabilidad operativa",
-      "source": "/images/landing/ChatGPT Image 25 may 2026, 22_58_50 (2).png",
-      "variants": [
-        {
-          "width": 640,
-          "format": "webp",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-640.webp"
-        },
-        {
-          "width": 640,
-          "format": "avif",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-640.avif"
-        },
-        {
-          "width": 960,
-          "format": "webp",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-960.webp"
-        },
-        {
-          "width": 960,
-          "format": "avif",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-960.avif"
-        },
-        {
-          "width": 1280,
-          "format": "webp",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-1280.webp"
-        },
-        {
-          "width": 1280,
-          "format": "avif",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-1280.avif"
-        },
-        {
-          "width": 1920,
-          "format": "webp",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-1920.webp"
-        },
-        {
-          "width": 1920,
-          "format": "avif",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-1920.avif"
-        }
-      ]
-    },
-    {
-      "group": "landing",
-      "alt": "Servicios industriales Cermont con trazabilidad operativa",
-      "source": "/images/landing/ChatGPT Image 25 may 2026, 22_58_50 (3).png",
-      "variants": [
-        {
-          "width": 640,
-          "format": "webp",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-640.webp"
-        },
-        {
-          "width": 640,
-          "format": "avif",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-640.avif"
-        },
-        {
-          "width": 960,
-          "format": "webp",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-960.webp"
-        },
-        {
-          "width": 960,
-          "format": "avif",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-960.avif"
-        },
-        {
-          "width": 1280,
-          "format": "webp",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-1280.webp"
-        },
-        {
-          "width": 1280,
-          "format": "avif",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-1280.avif"
-        },
-        {
-          "width": 1920,
-          "format": "webp",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-1920.webp"
-        },
-        {
-          "width": 1920,
-          "format": "avif",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-1920.avif"
-        }
-      ]
-    },
-    {
-      "group": "landing",
-      "alt": "Servicios industriales Cermont con trazabilidad operativa",
-      "source": "/images/landing/ChatGPT Image 25 may 2026, 22_58_52 (4).png",
-      "variants": [
-        {
-          "width": 640,
-          "format": "webp",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-52-4-640.webp"
-        },
-        {
-          "width": 640,
-          "format": "avif",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-52-4-640.avif"
-        },
-        {
-          "width": 960,
-          "format": "webp",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-52-4-960.webp"
-        },
-        {
-          "width": 960,
-          "format": "avif",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-52-4-960.avif"
-        },
-        {
-          "width": 1280,
-          "format": "webp",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-52-4-1280.webp"
-        },
-        {
-          "width": 1280,
-          "format": "avif",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-52-4-1280.avif"
-        },
-        {
-          "width": 1920,
-          "format": "webp",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-52-4-1920.webp"
-        },
-        {
-          "width": 1920,
-          "format": "avif",
-          "src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-52-4-1920.avif"
-        }
-      ]
-    }
-  ]
+	"generatedAt": "2026-05-26T05:14:44.278Z",
+	"note": "Original PNG files remain in /images/login and /images/landing. Optimized variants are generated under /images/optimized.",
+	"images": [
+		{
+			"group": "login",
+			"alt": "Operación documental Cermont en campo",
+			"source": "/images/login/ChatGPT Image 25 may 2026, 23_14_18 (1).png",
+			"variants": [
+				{
+					"width": 640,
+					"format": "webp",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-1-640.webp"
+				},
+				{
+					"width": 640,
+					"format": "avif",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-1-640.avif"
+				},
+				{
+					"width": 960,
+					"format": "webp",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-1-960.webp"
+				},
+				{
+					"width": 960,
+					"format": "avif",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-1-960.avif"
+				},
+				{
+					"width": 1280,
+					"format": "webp",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-1-1280.webp"
+				},
+				{
+					"width": 1280,
+					"format": "avif",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-1-1280.avif"
+				},
+				{
+					"width": 1920,
+					"format": "webp",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-1-1920.webp"
+				},
+				{
+					"width": 1920,
+					"format": "avif",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-1-1920.avif"
+				}
+			]
+		},
+		{
+			"group": "login",
+			"alt": "Operación documental Cermont en campo",
+			"source": "/images/login/ChatGPT Image 25 may 2026, 23_14_18 (2).png",
+			"variants": [
+				{
+					"width": 640,
+					"format": "webp",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-2-640.webp"
+				},
+				{
+					"width": 640,
+					"format": "avif",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-2-640.avif"
+				},
+				{
+					"width": 960,
+					"format": "webp",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-2-960.webp"
+				},
+				{
+					"width": 960,
+					"format": "avif",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-2-960.avif"
+				},
+				{
+					"width": 1280,
+					"format": "webp",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-2-1280.webp"
+				},
+				{
+					"width": 1280,
+					"format": "avif",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-2-1280.avif"
+				},
+				{
+					"width": 1920,
+					"format": "webp",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-2-1920.webp"
+				},
+				{
+					"width": 1920,
+					"format": "avif",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-18-2-1920.avif"
+				}
+			]
+		},
+		{
+			"group": "login",
+			"alt": "Operación documental Cermont en campo",
+			"source": "/images/login/ChatGPT Image 25 may 2026, 23_14_19 (3).png",
+			"variants": [
+				{
+					"width": 640,
+					"format": "webp",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-19-3-640.webp"
+				},
+				{
+					"width": 640,
+					"format": "avif",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-19-3-640.avif"
+				},
+				{
+					"width": 960,
+					"format": "webp",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-19-3-960.webp"
+				},
+				{
+					"width": 960,
+					"format": "avif",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-19-3-960.avif"
+				},
+				{
+					"width": 1280,
+					"format": "webp",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-19-3-1280.webp"
+				},
+				{
+					"width": 1280,
+					"format": "avif",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-19-3-1280.avif"
+				},
+				{
+					"width": 1920,
+					"format": "webp",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-19-3-1920.webp"
+				},
+				{
+					"width": 1920,
+					"format": "avif",
+					"src": "/images/optimized/login/chatgpt-image-25-may-2026-23-14-19-3-1920.avif"
+				}
+			]
+		},
+		{
+			"group": "landing",
+			"alt": "Servicios industriales Cermont con trazabilidad operativa",
+			"source": "/images/landing/ChatGPT Image 25 may 2026, 22_58_49 (1).png",
+			"variants": [
+				{
+					"width": 640,
+					"format": "webp",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-640.webp"
+				},
+				{
+					"width": 640,
+					"format": "avif",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-640.avif"
+				},
+				{
+					"width": 960,
+					"format": "webp",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-960.webp"
+				},
+				{
+					"width": 960,
+					"format": "avif",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-960.avif"
+				},
+				{
+					"width": 1280,
+					"format": "webp",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-1280.webp"
+				},
+				{
+					"width": 1280,
+					"format": "avif",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-1280.avif"
+				},
+				{
+					"width": 1920,
+					"format": "webp",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-1920.webp"
+				},
+				{
+					"width": 1920,
+					"format": "avif",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-49-1-1920.avif"
+				}
+			]
+		},
+		{
+			"group": "landing",
+			"alt": "Servicios industriales Cermont con trazabilidad operativa",
+			"source": "/images/landing/ChatGPT Image 25 may 2026, 22_58_50 (2).png",
+			"variants": [
+				{
+					"width": 640,
+					"format": "webp",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-640.webp"
+				},
+				{
+					"width": 640,
+					"format": "avif",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-640.avif"
+				},
+				{
+					"width": 960,
+					"format": "webp",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-960.webp"
+				},
+				{
+					"width": 960,
+					"format": "avif",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-960.avif"
+				},
+				{
+					"width": 1280,
+					"format": "webp",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-1280.webp"
+				},
+				{
+					"width": 1280,
+					"format": "avif",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-1280.avif"
+				},
+				{
+					"width": 1920,
+					"format": "webp",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-1920.webp"
+				},
+				{
+					"width": 1920,
+					"format": "avif",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-2-1920.avif"
+				}
+			]
+		},
+		{
+			"group": "landing",
+			"alt": "Servicios industriales Cermont con trazabilidad operativa",
+			"source": "/images/landing/ChatGPT Image 25 may 2026, 22_58_50 (3).png",
+			"variants": [
+				{
+					"width": 640,
+					"format": "webp",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-640.webp"
+				},
+				{
+					"width": 640,
+					"format": "avif",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-640.avif"
+				},
+				{
+					"width": 960,
+					"format": "webp",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-960.webp"
+				},
+				{
+					"width": 960,
+					"format": "avif",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-960.avif"
+				},
+				{
+					"width": 1280,
+					"format": "webp",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-1280.webp"
+				},
+				{
+					"width": 1280,
+					"format": "avif",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-1280.avif"
+				},
+				{
+					"width": 1920,
+					"format": "webp",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-1920.webp"
+				},
+				{
+					"width": 1920,
+					"format": "avif",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-50-3-1920.avif"
+				}
+			]
+		},
+		{
+			"group": "landing",
+			"alt": "Servicios industriales Cermont con trazabilidad operativa",
+			"source": "/images/landing/ChatGPT Image 25 may 2026, 22_58_52 (4).png",
+			"variants": [
+				{
+					"width": 640,
+					"format": "webp",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-52-4-640.webp"
+				},
+				{
+					"width": 640,
+					"format": "avif",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-52-4-640.avif"
+				},
+				{
+					"width": 960,
+					"format": "webp",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-52-4-960.webp"
+				},
+				{
+					"width": 960,
+					"format": "avif",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-52-4-960.avif"
+				},
+				{
+					"width": 1280,
+					"format": "webp",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-52-4-1280.webp"
+				},
+				{
+					"width": 1280,
+					"format": "avif",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-52-4-1280.avif"
+				},
+				{
+					"width": 1920,
+					"format": "webp",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-52-4-1920.webp"
+				},
+				{
+					"width": 1920,
+					"format": "avif",
+					"src": "/images/optimized/landing/chatgpt-image-25-may-2026-22-58-52-4-1920.avif"
+				}
+			]
+		}
+	]
 }

@@ -630,7 +630,7 @@ describe("SiteVisit standalone command schemas", () => {
 });
 
 // ──────────────────────────────────────────────────────────────────────────────
-// 9. No schema uses any/unknown/null/undefined explicitly
+// 9. No schema uses weak sentinel or escape-hatch values explicitly
 // (Verified by TypeScript compilation — this test documents the contract)
 // ──────────────────────────────────────────────────────────────────────────────
 

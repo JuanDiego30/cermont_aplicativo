@@ -138,3 +138,17 @@ export class RateLimitError extends AppError {
 		super(message, 429, ERROR_CODES.RATE_LIMIT_EXCEEDED);
 	}
 }
+
+/**
+ * 503 — Service Unavailable
+ * Upstream/downstream dependency failure (MongoDB, AI, file storage, etc.)
+ */
+export class ServiceUnavailableError extends AppError {
+	constructor(
+		message: string = "Service temporarily unavailable",
+		code: string = "SERVICE_UNAVAILABLE",
+		details?: JsonValue,
+	) {
+		super(message, 503, code, details);
+	}
+}

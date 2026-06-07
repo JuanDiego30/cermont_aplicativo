@@ -2,8 +2,8 @@
 
 import type { Evidence } from "@cermont/shared-types";
 import { Camera } from "lucide-react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/core/ui/Button";
 import {
 	formatEvidenceDate,

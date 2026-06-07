@@ -1,11 +1,14 @@
 /**
- * Tool Schema — Zod validation for advanced tool management
+ * Tool Schema — Zod validation for tool, equipment, and resource management
  *
- * Dedicated contracts for /api/tools endpoints.
+ * Extended with image/galley support for tools, equipment, and materials.
+ * Maps to backend model: backend/src/models/Tool.ts
+ * Reference: DOC-09 Section Diccionario de Datos
  */
 
 import { z } from "zod";
 import { ObjectIdSchema } from "./common.schema";
+import { FileAssetRefSchema } from "./file-asset.schema";
 
 export const ToolStatusEnum = z.enum([
 	"available",
@@ -89,6 +92,8 @@ export const ToolSchema = z
 		brand: z.string().optional(),
 		modelName: z.string().optional(),
 		category: z.string().optional(),
+		image: FileAssetRefSchema.optional(),
+		gallery: z.array(FileAssetRefSchema).default([]),
 		certifications: z.array(ToolCertificationSchema).default([]),
 		documents: z.array(ToolDocumentSchema).default([]),
 		evidenceRequirements: z.array(ToolEvidenceRequirementSchema).default([]),

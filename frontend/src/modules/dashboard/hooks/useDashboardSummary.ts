@@ -23,7 +23,7 @@ import type {
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/http/api-client";
 
-interface DashboardSummaryResponse {
+interface DashboardSummaryContract {
 	success?: boolean;
 	data?: DashboardSummary;
 }
@@ -73,13 +73,12 @@ export function useDashboardSummary() {
 	}>({
 		queryKey: DASHBOARD_KEYS.summary,
 		queryFn: async () => {
-			const body = await apiClient.get<DashboardSummaryResponse>("/dashboard/summary");
+			const body = await apiClient.get<DashboardSummaryContract>("/dashboard/summary");
 			if (!body?.success || !body?.data) {
 				throw new Error(body?.data ? "No data" : "Error al cargar el dashboard");
 			}
 			return mapDashboardSummary(body.data);
 		},
 		staleTime: 15_000,
-		retry: 2,
 	});
 }

@@ -1,131 +1,352 @@
 "use client";
 
-import { hasRole, RESOURCE_ROLES } from "@cermont/domain";
-import type { ApiEnvelope, MaintenanceKit } from "@cermont/shared-types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Package2, Plus } from "lucide-react";
-import Link from "next/link";
-import { apiClient } from "@/lib/http/api-client";
-import { useAuth } from "@/modules/auth/hooks/useAuth";
+/**
+ * Kits List Page — Kit template catalog view
+ *
+ * Features:
+ *   - Filter by category
+ *   - Search by name / description
+ *   - Create kit dialog (KitForm)
+ *   - Delete with confirmation
+ *   - Publish / Archive actions
+ *   - Loading / error / empty states
+ */
 
-export default function KitsPage() {
+import { hasRole, MAINTENANCE_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
+import { Archive, CheckCircle2, Loader2, Package2, Plus, Trash2 } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+
+import { Button } from "@/core/ui/Button";
+import { EmptyState } from "@/core/ui/EmptyState";
+import { useAuth } from "@/modules/auth/hooks/useAuth";
+import {
+	useArchiveKit,
+	useDeleteKit,
+	useKitList,
+	usePublishKit,
+} from "@/modules/kits/hooks/useKits";
+import { KitForm } from "@/modules/kits/ui/KitForm";
+
+const CATEGORY_LABELS: Record<string, string> = {
+	electrico: "Eléctrico",
+	mecanico: "Mecánico",
+	civil: "Civil",
+	instrumentacion: "Instrumentación",
+	general: "General",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+	draft: "Borrador",
+	published: "Publicado",
+	archived: "Archivado",
+};
+
+const STATUS_STYLES: Record<string, string> = {
+	draft:
+		"bg-[var(--color-warning-bg)] text-[var(--color-warning)] ring-[color:var(--color-warning)]/15",
+	published:
+		"bg-[var(--color-success-bg)] text-[var(--color-success)] ring-[color:var(--color-success)]/15",
+	archived:
+		"bg-[var(--surface-secondary)] text-[var(--text-tertiary)] ring-[var(--border-default)]/30",
+};
+
+export default function KitsListPage() {
 	const { user: session } = useAuth();
 	const role = session?.role ?? "";
-	const canManage = hasRole(role, RESOURCE_ROLES);
-	const queryClient = useQueryClient();
+	const canManage = hasRole(role, MAINTENANCE_MANAGEMENT_ROLES);
+	const canPublish = hasRole(role, MANAGEMENT_ROLES);
 
-	const deleteMutation = useMutation({
-		mutationFn: async (kitId: string) => {
-			await apiClient.delete(`/resources/kits/${kitId}`);
-		},
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ["typical_kits"] });
-		},
-	});
+	const [searchQuery, setSearchQuery] = useState("");
+	const [categoryFilter, setCategoryFilter] = useState<string>("");
+	const [formOpen, setFormOpen] = useState(false);
 
 	const {
-		data: kits,
+		data: paginated,
 		isLoading,
 		isError,
 		error,
-	} = useQuery<MaintenanceKit[]>({
-		queryKey: ["typical_kits"],
-		queryFn: async () => {
-			const body = await apiClient.get<ApiEnvelope<MaintenanceKit[]>>("/resources/kits");
-			return body?.data || [];
-		},
+		refetch,
+	} = useKitList({
+		search: searchQuery || undefined,
+		category: categoryFilter || undefined,
+		limit: 100,
 	});
+
+	const deleteMutation = useDeleteKit();
+	const publishMutation = usePublishKit();
+	const archiveMutation = useArchiveKit();
+
+	const kits = useMemo(() => paginated?.data ?? [], [paginated]);
+
+	// Stats
+	const stats = useMemo(() => {
+		const total = kits.length;
+		const published = kits.filter((k) => k.status === "published").length;
+		const drafts = kits.filter((k) => k.status === "draft").length;
+		const archived = kits.filter((k) => k.status === "archived").length;
+		return { total, published, drafts, archived };
+	}, [kits]);
+
+	const handleDelete = useCallback(
+		async (id: string) => {
+			try {
+				await deleteMutation.mutateAsync(id);
+			} catch {
+				// handled by React Query
+			}
+		},
+		[deleteMutation],
+	);
+
+	const handlePublish = useCallback(
+		async (id: string) => {
+			try {
+				await publishMutation.mutateAsync(id);
+			} catch {
+				// handled by React Query
+			}
+		},
+		[publishMutation],
+	);
+
+	const handleArchive = useCallback(
+		async (id: string) => {
+			try {
+				await archiveMutation.mutateAsync(id);
+			} catch {
+				// handled by React Query
+			}
+		},
+		[archiveMutation],
+	);
 
 	return (
 		<section className="space-y-6" aria-labelledby="kits-page-title">
 			{/* Header */}
-			<div className="flex items-center justify-between">
-				<div>
-					<nav aria-label="Breadcrumb" className="flex items-center gap-2">
-						<Link
-							href="/resources"
-							className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
-						>
-							Recursos
-						</Link>
-						<span aria-hidden="true" className="text-zinc-300 dark:text-zinc-600">
-							/
-						</span>
-						<span className="text-sm text-zinc-700 dark:text-zinc-300">Kits Típicos</span>
-					</nav>
-					<h1
-						id="kits-page-title"
-						className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-white"
-					>
-						Kits Típicos
-					</h1>
-					<p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-						{kits?.length || 0} kits configurados
-					</p>
+			<header className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]">
+				<div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+					<div className="space-y-2">
+						<p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--text-tertiary)]">
+							Catálogo
+						</p>
+						<h1 id="kits-page-title" className="text-2xl font-semibold text-[var(--text-primary)]">
+							Kits Típicos
+						</h1>
+						<p className="max-w-2xl text-sm text-[var(--text-secondary)]">
+							Gestiona kits de herramientas, equipos y materiales por tipo de actividad.
+						</p>
+					</div>
+
+					{canManage && (
+						<Button onClick={() => setFormOpen(true)} variant="primary">
+							<Plus aria-hidden="true" className="size-4" />
+							Nuevo kit
+						</Button>
+					)}
 				</div>
-				{canManage && (
-					<Link
-						href="/maintenance/new"
-						className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700"
+			</header>
+
+			{/* Stats row */}
+			<section aria-label="Resumen" className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+				{[
+					{ label: "Total", value: stats.total, style: "" },
+					{ label: "Publicados", value: stats.published, style: "text-[var(--color-success)]" },
+					{ label: "Borradores", value: stats.drafts, style: "text-[var(--color-warning)]" },
+					{ label: "Archivados", value: stats.archived, style: "text-[var(--text-tertiary)]" },
+				].map((stat) => (
+					<article
+						key={stat.label}
+						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]"
 					>
-						<Plus aria-hidden="true" className="size-4" />
-						Nuevo Kit
-					</Link>
-				)}
+						<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
+							{stat.label}
+						</p>
+						<p
+							className={`mt-2 text-3xl font-semibold ${stat.style || "text-[var(--text-primary)]"}`}
+						>
+							{stat.value}
+						</p>
+					</article>
+				))}
+			</section>
+
+			{/* Search + filters */}
+			<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
+				<div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+					<div className="relative w-full lg:max-w-md">
+						<label htmlFor="kit-search" className="sr-only">
+							Buscar kits
+						</label>
+						<input
+							id="kit-search"
+							name="q"
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+							placeholder="Buscar por nombre…"
+							className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] py-2.5 pl-4 pr-4 text-sm text-[var(--text-primary)] outline-none transition focus:border-[var(--border-focus)] focus:ring-2 focus:ring-[color:var(--color-brand-blue)]/20"
+						/>
+					</div>
+
+					{/* Category filter */}
+					<div className="flex flex-wrap gap-2">
+						<button
+							type="button"
+							onClick={() => setCategoryFilter("")}
+							className={`rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition ${
+								!categoryFilter
+									? "bg-[var(--color-brand-blue)] text-white shadow-[var(--shadow-brand)]"
+									: "border border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+							}`}
+						>
+							Todos
+						</button>
+						{Object.entries(CATEGORY_LABELS).map(([value, label]) => (
+							<button
+								key={value}
+								type="button"
+								onClick={() => setCategoryFilter(value)}
+								className={`rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] transition ${
+									categoryFilter === value
+										? "bg-[var(--color-brand-blue)] text-white shadow-[var(--shadow-brand)]"
+										: "border border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
+								}`}
+							>
+								{label}
+							</button>
+						))}
+					</div>
+				</div>
 			</div>
 
-			{/* Grid */}
-			{isLoading ? (
-				<div className="flex h-32 items-center justify-center rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-sm text-zinc-400 shadow-sm">
-					<Loader2 className="animate-spin size-6 mr-2" /> Cargando kits…
-				</div>
-			) : isError ? (
-				<div className="flex h-32 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-sm text-red-500 shadow-sm dark:bg-red-900/20 dark:border-red-900/30">
-					Error al cargar kits: {(error as Error).message}
-				</div>
-			) : kits?.length === 0 ? (
-				<div className="flex h-32 items-center justify-center rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-sm text-zinc-400 shadow-sm">
-					No hay kits registrados
-				</div>
-			) : (
-				<ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-					{(kits || []).map((kit) => (
-						<li key={kit._id}>
-							<article className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
-								<div className="flex items-start gap-3">
-									<div className="rounded-lg bg-blue-50 p-2 dark:bg-blue-900/30">
-										<Package2
-											aria-hidden="true"
-											className="size-5 text-blue-600 dark:text-blue-400"
-										/>
-									</div>
+			{/* Kit list */}
+			<section aria-labelledby="kits-list-title" className="space-y-4">
+				<h2 id="kits-list-title" className="sr-only">
+					Listado de kits
+				</h2>
+
+				{isLoading ? (
+					<div className="flex h-40 items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)]">
+						<Loader2 className="mr-2 size-6 animate-spin" aria-hidden="true" />
+						Cargando kits…
+					</div>
+				) : isError ? (
+					<div className="flex flex-col items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--color-danger-bg)] bg-[var(--color-danger-bg)]/60 p-8 text-center">
+						<p className="text-sm font-medium text-[var(--color-danger)]">
+							{(error as Error).message}
+						</p>
+						<Button variant="outline" size="sm" onClick={() => refetch()}>
+							Reintentar
+						</Button>
+					</div>
+				) : kits.length === 0 ? (
+					<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-1)]">
+						<EmptyState
+							title={searchQuery || categoryFilter ? "Sin resultados" : "No hay kits"}
+							description={
+								searchQuery || categoryFilter
+									? "Prueba con otro filtro o cambia el término de búsqueda."
+									: "Crea tu primer kit para empezar a gestionar el catálogo."
+							}
+							icon="resources"
+							action={
+								searchQuery || categoryFilter
+									? {
+											label: "Limpiar filtros",
+											onClick: () => {
+												setSearchQuery("");
+												setCategoryFilter("");
+											},
+										}
+									: canManage
+										? {
+												label: "Crear kit",
+												onClick: () => setFormOpen(true),
+											}
+										: undefined
+							}
+						/>
+					</div>
+				) : (
+					<div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+						{kits.map((kit) => (
+							<article
+								key={kit._id}
+								className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)] transition-all hover:-translate-y-0.5 hover:shadow-[var(--shadow-2)]"
+							>
+								<div className="flex items-start justify-between gap-3">
 									<div className="min-w-0 flex-1">
-										<h2 className="truncate font-semibold text-zinc-900 dark:text-white">
-											{kit.name}
-										</h2>
-										<p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-											{kit.activityType}
+										<div className="flex items-center gap-2">
+											<div className="rounded-lg bg-[var(--color-info-bg)] p-1.5">
+												<Package2 aria-hidden="true" className="size-4 text-[var(--color-info)]" />
+											</div>
+											<h3 className="truncate text-base font-semibold text-[var(--text-primary)]">
+												{kit.name}
+											</h3>
+										</div>
+										<p className="mt-2 text-xs text-[var(--text-secondary)]">
+											{CATEGORY_LABELS[kit.category] ?? kit.category}
 										</p>
-										<p className="mt-2 text-xs font-medium text-zinc-400 dark:text-zinc-500">
-											{kit.tools.length + kit.equipment.length} ítem(s)
+										<p className="mt-1 text-xs text-[var(--text-tertiary)]">
+											{kit.items?.length ?? 0} ítem(s) &middot; v{kit.version}
 										</p>
-										{canManage && kit._id && (
-											<button
-												type="button"
-												onClick={() => deleteMutation.mutate(kit._id)}
-												className="mt-3 text-xs font-semibold text-red-600 hover:text-red-700"
-												disabled={deleteMutation.isPending}
-											>
-												{deleteMutation.isPending ? "Eliminando…" : "Eliminar"}
-											</button>
-										)}
 									</div>
+									<span
+										className={`inline-flex shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ring-1 ring-inset ${STATUS_STYLES[kit.status] ?? ""}`}
+									>
+										{STATUS_LABELS[kit.status] ?? kit.status}
+									</span>
+								</div>
+
+								{kit.description && (
+									<p className="mt-3 line-clamp-2 text-sm text-[var(--text-secondary)]">
+										{kit.description}
+									</p>
+								)}
+
+								{/* Actions */}
+								<div className="mt-4 flex items-center gap-2">
+									{canPublish && kit.status === "draft" && (
+										<button
+											type="button"
+											onClick={() => handlePublish(kit._id)}
+											className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-success)] hover:text-[var(--color-success)]/80 transition-colors"
+											disabled={publishMutation.isPending}
+										>
+											<CheckCircle2 aria-hidden="true" className="size-3.5" />
+											Publicar
+										</button>
+									)}
+									{canPublish && kit.status === "published" && (
+										<button
+											type="button"
+											onClick={() => handleArchive(kit._id)}
+											className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
+											disabled={archiveMutation.isPending}
+										>
+											<Archive aria-hidden="true" className="size-3.5" />
+											Archivar
+										</button>
+									)}
+									{canManage && kit.status === "draft" && (
+										<button
+											type="button"
+											onClick={() => handleDelete(kit._id)}
+											className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-danger)] hover:text-[var(--color-danger)]/80 transition-colors"
+											disabled={deleteMutation.isPending}
+										>
+											<Trash2 aria-hidden="true" className="size-3.5" />
+											Eliminar
+										</button>
+									)}
 								</div>
 							</article>
-						</li>
-					))}
-				</ul>
-			)}
+						))}
+					</div>
+				)}
+			</section>
+
+			{/* Create dialog */}
+			<KitForm open={formOpen} onOpenChange={setFormOpen} onSuccess={() => refetch()} />
 		</section>
 	);
 }

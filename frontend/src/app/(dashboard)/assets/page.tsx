@@ -15,7 +15,7 @@ type AssetItem = {
 	serialNumber: string;
 };
 
-type ASTListResponse = {
+type AssetListContract = {
 	success: boolean;
 	data: { items: AssetItem[] };
 };
@@ -24,7 +24,7 @@ function AssetList() {
 	const { data, isLoading, error } = useQuery<AssetItem[]>({
 		queryKey: ["assets"],
 		queryFn: async () => {
-			const json = await apiClient.get<ASTListResponse>("/assets");
+			const json = await apiClient.get<AssetListContract>("/assets");
 			return json.data?.items ?? [];
 		},
 	});
@@ -32,10 +32,7 @@ function AssetList() {
 	if (isLoading) {
 		return (
 			<div className="flex justify-center py-24" aria-live="polite">
-				<Loader2
-					className="size-8 animate-spin text-brand-blue"
-					aria-hidden="true"
-				/>
+				<Loader2 className="size-8 animate-spin text-brand-blue" aria-hidden="true" />
 				<span className="sr-only">Cargando activos…</span>
 			</div>
 		);

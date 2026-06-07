@@ -9,7 +9,7 @@
 import type { SyncBatch } from "@cermont/shared-types";
 import type { Request, Response } from "express";
 import { sendSuccess } from "../../common/interceptors/response.interceptor";
-import { requireUser } from "../../common/utils/request";
+import { getString, requireUser } from "../../common/utils/request";
 import { processSyncBatch } from "./sync.service";
 
 /**
@@ -21,12 +21,33 @@ import { processSyncBatch } from "./sync.service";
  */
 export const syncOffline = async (req: Request, res: Response) => {
 	const user = requireUser(req);
-	const { operations } = req.body as SyncBatch;
+	const { batchId, operations } = req.body as SyncBatch;
 
 	const userId = user._id.toString();
 	const userRole = user.role;
 
-	const result = await processSyncBatch(operations, userRole, userId);
+	const result = await processSyncBatch(operations, userRole, userId, batchId);
 
 	return sendSuccess(res, result, 200);
+};
+
+/**
+ * GET /api/sync/offline/:batchId
+ * The current implementation processes sync batches synchronously and returns
+ * the authoritative item-level result in the POST response. This endpoint keeps
+ * the public contract available for clients that poll by batch id, while making
+ * the limitation explicit instead of returning fabricated state.
+ */
+export const getOfflineBatch = async (req: Request, res: Response) => {
+	const batchId = getString(req.params.batchId);
+	return sendSuccess(
+		res,
+		{
+			batchId,
+			status: "not_persisted",
+			message:
+				"Offline sync batches are processed synchronously; use POST /api/sync/offline response as the source of truth.",
+		},
+		200,
+	);
 };

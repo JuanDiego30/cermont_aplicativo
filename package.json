@@ -18,6 +18,10 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
+    "start": "turbo run start",
+    "start:prod": "turbo run start --parallel --filter=@cermont/backend --filter=@cermont/frontend",
+    "start:backend": "npm -w @cermont/backend run start",
+    "start:frontend": "npm -w @cermont/frontend run start",
     "test": "turbo run test",
     "test:e2e": "npm --workspace frontend run test:e2e -- --config=playwright.post-hallazgos.config.ts",
     "test:coverage": "turbo run test:ci",
@@ -37,7 +41,7 @@
     "format.check": "turbo run format:check",
     "verify": "npm run contracts:check && npm run typecheck && npm run lint && npm run test && npm run build && npm run quality:strict",
     "clean": "turbo run clean && node -e \"const fs=require('fs');fs.rmSync('node_modules',{recursive:true,force:true});\"",
-    "db:seed": "node backend/dist/scripts/seed.js",
+    "db:seed": "npm run seed -w backend",
     "contracts:check": "tsx tooling/contracts/check-contract-guard.ts",
     "ghost:check": "tsx tooling/prevent-ghost-dirs.ts",
     "docker:up": "docker compose up --build -d",
@@ -57,15 +61,15 @@
     "doctor:verbose": "react-doctor --verbose"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.15",
+    "@biomejs/biome": "^2.4.16",
     "@types/node": "^25.9.1",
     "husky": "^9.1.7",
-    "lint-staged": "^17.0.5",
-    "react-doctor": "^0.2.10",
-    "tsx": "^4.22.3",
-    "turbo": "^2.9.14",
+    "lint-staged": "^17.0.7",
+    "react-doctor": "^0.4.0",
+    "tsx": "^4.22.4",
+    "turbo": "^2.9.16",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.7"
+    "vitest": "^4.1.8"
   },
   "lint-staged": {
     "backend/**/*.{js,jsx,ts,tsx,mjs,cjs,css,json,jsonc}": [

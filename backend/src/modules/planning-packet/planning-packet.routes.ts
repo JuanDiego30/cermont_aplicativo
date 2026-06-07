@@ -10,6 +10,7 @@
 
 import {
 	AddReferenceDocumentSchema,
+	ApplyPlanningKitSchema,
 	ApprovePlanningPacketSchema,
 	CreatePlanningPacketSchema,
 	PlanningPacketIdParamsSchema,
@@ -17,6 +18,7 @@ import {
 	ReopenPlanningPacketSchema,
 	UpdatePlanningPacketSchema,
 } from "@cermont/shared-types";
+import { MANAGEMENT_ROLES, PLANNING_ACCESS_ROLES } from "@cermont/domain";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
@@ -24,7 +26,12 @@ import { validateBody, validateParams, validateQuery } from "../../middlewares/v
 import * as PlanningPacketController from "./planning-packet.controller";
 
 const router = Router();
+const PLANNING_READINESS_ROLES = [...PLANNING_ACCESS_ROLES, "hes"] as const;
 
+/**
+ * GET /api/planning-packets
+ * List planning packets
+ */
 router.get(
 	"/",
 	authenticate,
@@ -52,7 +59,7 @@ router.get(
 router.post(
 	"/",
 	authenticate,
-	authorize("gerente", "residente", "supervisor"),
+	authorize(...PLANNING_ACCESS_ROLES),
 	validateBody(CreatePlanningPacketSchema),
 	PlanningPacketController.createPlanningPacket,
 );
@@ -65,7 +72,7 @@ router.post(
 router.patch(
 	"/:id",
 	authenticate,
-	authorize("gerente", "residente", "supervisor"),
+	authorize(...PLANNING_ACCESS_ROLES),
 	validateParams(PlanningPacketIdParamsSchema),
 	validateBody(UpdatePlanningPacketSchema),
 	PlanningPacketController.updatePlanningPacket,
@@ -79,9 +86,23 @@ router.patch(
 router.post(
 	"/:id/validate-readiness",
 	authenticate,
-	authorize("gerente", "residente", "supervisor", "hes"),
+	authorize(...PLANNING_READINESS_ROLES),
 	validateParams(PlanningPacketIdParamsSchema),
 	PlanningPacketController.validatePlanningReadiness,
+);
+
+/**
+ * POST /api/planning-packets/:id/apply-kit
+ * Apply typical kit to planning packet
+ * Roles: GER, RES, SUP
+ */
+router.post(
+	"/:id/apply-kit",
+	authenticate,
+	authorize(...PLANNING_ACCESS_ROLES),
+	validateParams(PlanningPacketIdParamsSchema),
+	validateBody(ApplyPlanningKitSchema),
+	PlanningPacketController.applyPlanningKit,
 );
 
 /**
@@ -92,7 +113,15 @@ router.post(
 router.post(
 	"/:id/approve",
 	authenticate,
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
+	validateParams(PlanningPacketIdParamsSchema),
+	validateBody(ApprovePlanningPacketSchema),
+	PlanningPacketController.approvePlanningPacket,
+);
+router.post(
+	"/:id/approve",
+	authenticate,
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(PlanningPacketIdParamsSchema),
 	validateBody(ApprovePlanningPacketSchema),
 	PlanningPacketController.approvePlanningPacket,
@@ -106,7 +135,7 @@ router.post(
 router.post(
 	"/:id/reopen",
 	authenticate,
-	authorize("gerente", "residente"),
+	authorize(...MANAGEMENT_ROLES),
 	validateParams(PlanningPacketIdParamsSchema),
 	validateBody(ReopenPlanningPacketSchema),
 	PlanningPacketController.reopenPlanningPacket,
@@ -120,7 +149,7 @@ router.post(
 router.post(
 	"/:id/reference-documents",
 	authenticate,
-	authorize("gerente", "residente", "supervisor"),
+	authorize(...PLANNING_ACCESS_ROLES),
 	validateParams(PlanningPacketIdParamsSchema),
 	validateBody(AddReferenceDocumentSchema),
 	PlanningPacketController.addReferenceDocument,
@@ -134,7 +163,7 @@ router.post(
 router.get(
 	"/:id/reference-documents",
 	authenticate,
-	authorize("gerente", "residente", "supervisor", "hes"),
+	authorize(...PLANNING_READINESS_ROLES),
 	validateParams(PlanningPacketIdParamsSchema),
 	PlanningPacketController.listReferenceDocuments,
 );

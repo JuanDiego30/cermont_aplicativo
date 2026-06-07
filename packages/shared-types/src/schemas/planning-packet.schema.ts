@@ -19,6 +19,20 @@ const PLANNING_PACKET_STATUS_VALUES = [
 export const PlanningPacketStatusSchema = z.enum(PLANNING_PACKET_STATUS_VALUES);
 export type PlanningPacketStatus = z.infer<typeof PlanningPacketStatusSchema>;
 
+const PLANNING_BUSINESS_UNIT_VALUES = ["IT", "MNT", "SC", "GEN", "OTHER"] as const;
+
+export const PlanningBusinessUnitSchema = z.enum(PLANNING_BUSINESS_UNIT_VALUES);
+export type PlanningBusinessUnit = z.infer<typeof PlanningBusinessUnitSchema>;
+
+const PLANNING_RESPONSIBLE_ROLE_VALUES = [
+	"ingeniero_residente",
+	"tecnico_electricista",
+	"hes",
+] as const;
+
+export const PlanningResponsibleRoleSchema = z.enum(PLANNING_RESPONSIBLE_ROLE_VALUES);
+export type PlanningResponsibleRole = z.infer<typeof PlanningResponsibleRoleSchema>;
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Sub-schemas
 // ──────────────────────────────────────────────────────────────────────────────
@@ -44,6 +58,16 @@ export const PlanningScheduleSchema = z
 
 export type PlanningSchedule = z.infer<typeof PlanningScheduleSchema>;
 
+export const PlanningResourceLineSchema = z
+	.object({
+		description: z.string().min(1).max(300),
+		quantity: z.number().int().positive(),
+		unit: z.string().min(1).max(40).optional(),
+	})
+	.strict();
+
+export type PlanningResourceLine = z.infer<typeof PlanningResourceLineSchema>;
+
 export const PlanningToolSchema = z
 	.object({
 		name: z.string().min(1).max(200),
@@ -67,6 +91,30 @@ export const PlanningEquipmentSchema = z
 
 export type PlanningEquipment = z.infer<typeof PlanningEquipmentSchema>;
 
+export const WorkerRequirementsSchema = z
+	.object({
+		electricistas: z.number().int().min(0).default(0),
+		tecnicosTelecomunicacion: z.number().int().min(0).default(0),
+		instrumentistas: z.number().int().min(0).default(0),
+		obreros: z.number().int().min(0).default(0),
+	})
+	.strict();
+
+export type WorkerRequirements = z.infer<typeof WorkerRequirementsSchema>;
+
+export const PlanningResponsibleSchema = z
+	.object({
+		role: PlanningResponsibleRoleSchema,
+		userId: ObjectIdSchema.optional(),
+		name: z.string().min(1).max(200).optional(),
+		status: z.enum(["pending", "assigned", "signed"]).default("assigned"),
+		signedAt: z.string().datetime().optional(),
+		signatureEvidenceId: ObjectIdSchema.optional(),
+	})
+	.strict();
+
+export type PlanningResponsible = z.infer<typeof PlanningResponsibleSchema>;
+
 export const RequiredCertificationSchema = z
 	.object({
 		certificationId: ObjectIdSchema.optional(),
@@ -84,7 +132,19 @@ export const SupportDocumentSchema = z
 		documentId: ObjectIdSchema.optional(),
 		name: z.string().min(1).max(200),
 		url: z.string().url(),
-		documentType: z.enum(["ast", "ptw", "procedure", "sds", "other"]),
+		documentType: z.enum([
+			"ats",
+			"ast",
+			"ptw",
+			"procedure",
+			"procedimiento",
+			"sds",
+			"formato_tarea_critica",
+			"checklist_equipos",
+			"certificacion_equipo",
+			"certificacion_personal",
+			"other",
+		]),
 		uploadedAt: z.string().datetime(),
 		required: z.boolean().default(false),
 	})
@@ -128,14 +188,29 @@ export const PlanningPacketSchema = z
 	.object({
 		_id: ObjectIdSchema,
 		workOrderId: ObjectIdSchema,
+		responsibleInspectorId: ObjectIdSchema.optional(),
+		responsibleInspectorName: z.string().min(1).max(200).optional(),
+		place: z.string().min(3).max(300).optional(),
+		plannedDate: z.string().datetime().optional(),
+		businessUnit: PlanningBusinessUnitSchema.optional(),
+		scope: z.string().min(20).max(3000).optional(),
 		schedule: PlanningScheduleSchema.optional(),
 		crew: z.array(CrewMemberSchema).default([]),
 		supervisorId: ObjectIdSchema.optional(),
 		hesResponsibleId: ObjectIdSchema.optional(),
 		kitTemplateId: z.string().min(1).max(120).optional(),
 		kitSnapshot: PlanningKitSnapshotSchema.optional(),
+		materials: z.array(PlanningResourceLineSchema).default([]),
 		tools: z.array(PlanningToolSchema).default([]),
 		equipment: z.array(PlanningEquipmentSchema).default([]),
+		safetyElements: z.array(PlanningResourceLineSchema).default([]),
+		workerRequirements: WorkerRequirementsSchema.default({
+			electricistas: 0,
+			tecnicosTelecomunicacion: 0,
+			instrumentistas: 0,
+			obreros: 0,
+		}),
+		responsibles: z.array(PlanningResponsibleSchema).default([]),
 		requiredCertifications: z.array(RequiredCertificationSchema).default([]),
 		astRequired: z.boolean().default(false),
 		ptwRequired: z.boolean().default(false),
@@ -146,7 +221,12 @@ export const PlanningPacketSchema = z
 		status: PlanningPacketStatusSchema,
 		approvedBy: ObjectIdSchema.optional(),
 		approvedAt: z.string().datetime().optional(),
+		approvalNotes: z.string().max(500).optional(),
 		createdBy: ObjectIdSchema,
+		updatedBy: ObjectIdSchema.optional(),
+		reopenedBy: ObjectIdSchema.optional(),
+		reopenedAt: z.string().datetime().optional(),
+		reopenReason: z.string().max(500).optional(),
 		createdAt: z.string().datetime(),
 		updatedAt: z.string().datetime(),
 	})
@@ -161,14 +241,24 @@ export type PlanningPacket = z.infer<typeof PlanningPacketSchema>;
 export const CreatePlanningPacketSchema = z
 	.object({
 		workOrderId: ObjectIdSchema,
+		responsibleInspectorId: ObjectIdSchema.optional(),
+		responsibleInspectorName: z.string().min(1).max(200).optional(),
+		place: z.string().min(3).max(300).optional(),
+		plannedDate: z.string().datetime().optional(),
+		businessUnit: PlanningBusinessUnitSchema.optional(),
+		scope: z.string().min(20).max(3000).optional(),
 		schedule: PlanningScheduleSchema.optional(),
 		crew: z.array(CrewMemberSchema).optional(),
 		supervisorId: ObjectIdSchema.optional(),
 		hesResponsibleId: ObjectIdSchema.optional(),
 		kitTemplateId: z.string().min(1).max(120).optional(),
 		kitSnapshot: PlanningKitSnapshotSchema.optional(),
+		materials: z.array(PlanningResourceLineSchema).optional(),
 		tools: z.array(PlanningToolSchema).optional(),
 		equipment: z.array(PlanningEquipmentSchema).optional(),
+		safetyElements: z.array(PlanningResourceLineSchema).optional(),
+		workerRequirements: WorkerRequirementsSchema.optional(),
+		responsibles: z.array(PlanningResponsibleSchema).optional(),
 		requiredCertifications: z.array(RequiredCertificationSchema).optional(),
 		astRequired: z.boolean().default(false),
 		ptwRequired: z.boolean().default(false),
@@ -182,14 +272,24 @@ export type CreatePlanningPacketInput = z.infer<typeof CreatePlanningPacketSchem
 
 export const UpdatePlanningPacketSchema = z
 	.object({
+		responsibleInspectorId: ObjectIdSchema.optional(),
+		responsibleInspectorName: z.string().min(1).max(200).optional(),
+		place: z.string().min(3).max(300).optional(),
+		plannedDate: z.string().datetime().optional(),
+		businessUnit: PlanningBusinessUnitSchema.optional(),
+		scope: z.string().min(20).max(3000).optional(),
 		schedule: PlanningScheduleSchema.optional(),
 		crew: z.array(CrewMemberSchema).optional(),
 		supervisorId: ObjectIdSchema.optional(),
 		hesResponsibleId: ObjectIdSchema.optional(),
 		kitTemplateId: z.string().min(1).max(120).optional(),
 		kitSnapshot: PlanningKitSnapshotSchema.optional(),
+		materials: z.array(PlanningResourceLineSchema).optional(),
 		tools: z.array(PlanningToolSchema).optional(),
 		equipment: z.array(PlanningEquipmentSchema).optional(),
+		safetyElements: z.array(PlanningResourceLineSchema).optional(),
+		workerRequirements: WorkerRequirementsSchema.optional(),
+		responsibles: z.array(PlanningResponsibleSchema).optional(),
 		requiredCertifications: z.array(RequiredCertificationSchema).optional(),
 		astRequired: z.boolean().optional(),
 		ptwRequired: z.boolean().optional(),
@@ -239,3 +339,11 @@ export const PlanningPacketListQuerySchema = z
 	})
 	.strict();
 export type PlanningPacketListQuery = z.infer<typeof PlanningPacketListQuerySchema>;
+
+export const ApplyPlanningKitSchema = z
+	.object({
+		kitTemplateId: z.string().min(1).max(120),
+	})
+	.strict();
+
+export type ApplyPlanningKitInput = z.infer<typeof ApplyPlanningKitSchema>;

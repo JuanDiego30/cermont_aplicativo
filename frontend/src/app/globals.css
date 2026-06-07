@@ -60,7 +60,7 @@
 	--color-success-bg: var(--color-cermont-green-bg);
 	--color-warning: #c37d0d;
 	--color-warning-bg: #fef3c7;
-	--color-danger: #d45656;
+	--color-danger: #b83939;
 	--color-danger-bg: #fee2e2;
 	--color-info: #3772cf;
 	--color-info-bg: #eef2ff;
@@ -159,15 +159,18 @@
 	--surface-sidebar: #0d0d0d;
 
 	--text-primary: var(--color-foreground);
-	--text-secondary: #a0a0a0;
-	--text-tertiary: #888888;
-	--text-muted: #666666;
+	--text-secondary: #a1a1aa;
+	--text-tertiary: #8b8d98;
+	--text-muted: #71717a;
 
 	--border-subtle: rgba(255, 255, 255, 0.08);
 	--border-medium: rgba(255, 255, 255, 0.12);
 
 	--color-brand: var(--color-cermont-blue-light);
 	--color-brand-accent: var(--color-cermont-green-light);
+
+	/* Functional color overrides — darker surfaces need a lighter foreground to meet WCAG AA (>=4.5:1). */
+	--color-danger: #fca5a5;
 
 	--shadow-card: 0px 2px 4px rgba(0, 0, 0, 0.4);
 	--shadow-button: 0px 1px 2px rgba(0, 0, 0, 0.4);
@@ -245,7 +248,7 @@
 		color: var(--text-primary);
 		background-color: var(--surface-page);
 		-webkit-font-smoothing: antialiased;
-		@apply bg-background font-normal text-foreground antialiased transition-colors duration-200;
+		@apply bg-background font-normal text-foreground antialiased transition-colors duration-200 ease-out;
 	}
 
 	*:focus-visible {
@@ -284,12 +287,12 @@
 	}
 
 	.btn-primary {
-		@apply flex items-center justify-center gap-2 rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white transition-[background-color,box-shadow,opacity,transform] duration-200;
+		@apply flex items-center justify-center gap-2 rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white transition-[background-color,box-shadow,opacity,transform] duration-200 ease-out;
 		box-shadow: var(--shadow-button);
 	}
 
 	.btn-primary:active {
-		@apply scale-[0.98];
+		@apply scale-[0.97];
 	}
 
 	.btn-primary:hover {

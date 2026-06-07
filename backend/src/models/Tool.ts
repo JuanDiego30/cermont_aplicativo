@@ -1,5 +1,7 @@
 import { type Document, model, Schema, type Types } from "mongoose";
 
+import { FileAssetRefSchema, type FileAssetRef } from "./sub-schemas/FileAssetRefSchema";
+
 /**
  * Tool Mongoose Model (Advanced Tool Management)
  *
@@ -125,8 +127,11 @@ export interface IToolDocument extends Document {
 	purchaseDate?: Date;
 	maintenanceDate?: Date;
 	category?: string;
+	image?: FileAssetRef;
+	gallery: FileAssetRef[];
 	certifications: ToolCertification[];
 	documents: ToolResourceFileAttachment[];
+	fileAssets: FileAssetRef[];
 	evidenceRequirements: ToolEvidenceRequirement[];
 	dynamicForms: Types.ObjectId[];
 	createdBy?: Types.ObjectId;
@@ -157,8 +162,11 @@ const ToolSchema = new Schema<IToolDocument>(
 		purchaseDate: { type: Date },
 		maintenanceDate: { type: Date },
 		category: { type: String, maxlength: 100 },
+		image: { type: FileAssetRefSchema },
+		gallery: { type: [FileAssetRefSchema], default: [] },
 		certifications: { type: Schema.Types.Mixed, default: [] },
 		documents: { type: Schema.Types.Mixed, default: [] },
+		fileAssets: { type: [FileAssetRefSchema], default: [] },
 		evidenceRequirements: { type: Schema.Types.Mixed, default: [] },
 		dynamicForms: [{ type: Schema.Types.ObjectId, ref: "DocumentTemplate" }],
 		createdBy: { type: Schema.Types.ObjectId, ref: "User" },

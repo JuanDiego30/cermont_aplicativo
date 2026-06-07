@@ -177,6 +177,8 @@ describe("Costs Queries", () => {
 				taxAmount: 0,
 				taxRate: 0,
 				currency: "COP",
+				supportEvidenceIds: ["507f1f77bcf86cd799439011"],
+				supportDocumentIds: [],
 			};
 
 			vi.mocked(apiClient.post).mockResolvedValue({
@@ -186,8 +188,10 @@ describe("Costs Queries", () => {
 				recordedAt: new Date().toISOString(),
 				createdAt: new Date().toISOString(),
 				updatedAt: new Date().toISOString(),
+				status: "active",
 				variance: 0,
-				variancePercent: 0,
+				variancePercent: { status: "present", value: 0 },
+				dataState: "ESTIMATED_AND_ACTUAL",
 			});
 
 			const { result } = renderHook(() => useCreateCost(), { wrapper: createWrapper() });

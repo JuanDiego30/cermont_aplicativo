@@ -52,7 +52,10 @@ describe("apiClient 401 → refresh behaviour", () => {
 			.fn()
 			.mockResolvedValueOnce(
 				new Response(
-					JSON.stringify({ success: false, error: { code: "UNAUTHORIZED", message: "Missing or invalid Authorization header" } }),
+					JSON.stringify({
+						success: false,
+						error: { code: "UNAUTHORIZED", message: "Missing or invalid Authorization header" },
+					}),
 					{ status: 401, headers: { "Content-Type": "application/json" } },
 				),
 			)
@@ -72,7 +75,9 @@ describe("apiClient 401 → refresh behaviour", () => {
 		globalThis.fetch = fetchMock as unknown as typeof fetch;
 
 		// Act
-		const result = await apiClient.get<{ success: boolean; data: Array<{ id: string }> }>("/orders");
+		const result = await apiClient.get<{ success: boolean; data: Array<{ id: string }> }>(
+			"/orders",
+		);
 
 		// Assert
 		expect(result).toEqual({ success: true, data: [{ id: "1" }] });
@@ -102,7 +107,10 @@ describe("apiClient 401 → refresh behaviour", () => {
 			.fn()
 			.mockResolvedValueOnce(
 				new Response(
-					JSON.stringify({ success: false, error: { code: "TOKEN_EXPIRED", message: "Token expired" } }),
+					JSON.stringify({
+						success: false,
+						error: { code: "TOKEN_EXPIRED", message: "Token expired" },
+					}),
 					{ status: 401, headers: { "Content-Type": "application/json" } },
 				),
 			)
@@ -136,7 +144,10 @@ describe("apiClient 401 → refresh behaviour", () => {
 
 		const fetchMock = vi.fn().mockResolvedValue(
 			new Response(
-				JSON.stringify({ success: false, error: { code: "UNAUTHORIZED", message: "Invalid credentials" } }),
+				JSON.stringify({
+					success: false,
+					error: { code: "UNAUTHORIZED", message: "Invalid credentials" },
+				}),
 				{ status: 401, headers: { "Content-Type": "application/json" } },
 			),
 		);
@@ -155,20 +166,29 @@ describe("apiClient 401 → refresh behaviour", () => {
 	it("clears auth when refresh itself returns 401", async () => {
 		useAuthStore.setState({
 			isAuthenticated: true,
-			user: { status: "present", value: { id: "u1", name: "Test", email: "t@e.c", role: "gerente" as never } },
+			user: {
+				status: "present",
+				value: { id: "u1", name: "Test", email: "t@e.c", role: "gerente" as never },
+			},
 		});
 
 		const fetchMock = vi
 			.fn()
 			.mockResolvedValueOnce(
 				new Response(
-					JSON.stringify({ success: false, error: { code: "UNAUTHORIZED", message: "Missing token" } }),
+					JSON.stringify({
+						success: false,
+						error: { code: "UNAUTHORIZED", message: "Missing token" },
+					}),
 					{ status: 401, headers: { "Content-Type": "application/json" } },
 				),
 			)
 			.mockResolvedValueOnce(
 				new Response(
-					JSON.stringify({ success: false, error: { code: "UNAUTHORIZED", message: "Refresh token invalid" } }),
+					JSON.stringify({
+						success: false,
+						error: { code: "UNAUTHORIZED", message: "Refresh token invalid" },
+					}),
 					{ status: 401, headers: { "Content-Type": "application/json" } },
 				),
 			);

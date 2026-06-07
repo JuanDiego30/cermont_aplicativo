@@ -12,10 +12,11 @@ import { describe, expect, it } from "vitest";
 import { APP_ROUTES } from "@/lib/routes";
 
 describe("RBAC - Role Constants", () => {
-	it("ADMIN_ROLES contains gerente and administrativo", () => {
+	it("ADMIN_ROLES contains management and administrative coordinators", () => {
 		expect(ADMIN_ROLES).toContain("gerente");
 		expect(ADMIN_ROLES).toContain("administrativo");
-		expect(ADMIN_ROLES.length).toBe(2);
+		expect(ADMIN_ROLES).toContain("coord_administrativo");
+		expect(ADMIN_ROLES.length).toBe(3);
 	});
 
 	it("ALL_AUTHENTICATED_ROLES contains all roles", () => {
@@ -23,7 +24,14 @@ describe("RBAC - Role Constants", () => {
 		expect(ALL_AUTHENTICATED_ROLES).toContain("gerente");
 		expect(ALL_AUTHENTICATED_ROLES).toContain("residente");
 		expect(ALL_AUTHENTICATED_ROLES).toContain("supervisor");
+		expect(ALL_AUTHENTICATED_ROLES).toContain("supervisor_electricista");
+		expect(ALL_AUTHENTICATED_ROLES).toContain("tecnico_electricista");
 		expect(ALL_AUTHENTICATED_ROLES).toContain("administrativo");
+		expect(ALL_AUTHENTICATED_ROLES).toContain("coord_administrativo");
+		expect(ALL_AUTHENTICATED_ROLES).toContain("auxiliar_contable");
+		expect(ALL_AUTHENTICATED_ROLES).toContain("auxiliar_hes");
+		expect(ALL_AUTHENTICATED_ROLES).toContain("oficial_construccion");
+		expect(ALL_AUTHENTICATED_ROLES).toContain("pasante");
 		expect(ALL_AUTHENTICATED_ROLES).toContain("operador");
 		expect(ALL_AUTHENTICATED_ROLES).toContain("hes");
 		expect(ALL_AUTHENTICATED_ROLES).toContain("cliente");

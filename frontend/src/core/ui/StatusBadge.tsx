@@ -16,7 +16,7 @@ const STATUS_CONFIG: Record<string, { label: string; className: string; dotClass
 		label: "En Progreso",
 		className:
 			"bg-[var(--color-warning-bg)] text-[var(--color-warning)] ring-[var(--color-warning)]/15",
-		dotClass: "bg-[var(--color-warning)] animate-pulse",
+		dotClass: "bg-[var(--color-warning)]",
 	},
 	on_hold: {
 		label: "En Pausa",
@@ -46,7 +46,7 @@ const STATUS_CONFIG: Record<string, { label: string; className: string; dotClass
 		label: "Pend. Aprobación",
 		className:
 			"bg-[var(--color-warning-bg)] text-[var(--color-warning)] ring-[var(--color-warning)]/15",
-		dotClass: "bg-[var(--color-warning)] animate-pulse",
+		dotClass: "bg-[var(--color-warning)]",
 	},
 	abierta: {
 		label: "Abierta",
@@ -57,7 +57,7 @@ const STATUS_CONFIG: Record<string, { label: string; className: string; dotClass
 		label: "Pend. Aprobación",
 		className:
 			"bg-[var(--color-warning-bg)] text-[var(--color-warning)] ring-[var(--color-warning)]/15",
-		dotClass: "bg-[var(--color-warning)] animate-pulse",
+		dotClass: "bg-[var(--color-warning)]",
 	},
 };
 
@@ -79,7 +79,7 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
 		<span
 			data-testid="order-status-badge"
 			className={cn(
-				"inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold uppercase tracking-wider ring-1 ring-inset font-mono",
+				"motion-subtle inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold uppercase tracking-wider ring-1 ring-inset font-mono",
 				config.className,
 				className,
 			)}

@@ -21,7 +21,7 @@ type QuickActionMode = "document" | "evidence";
 const QUICK_ACTION_ORDERS_LIMIT = 20;
 const EMPTY_QUICK_ACTION_ORDERS: QuickActionOrderOption[] = [];
 
-interface QuickActionsOrdersResponse {
+interface QuickActionsOrdersContract {
 	data?: Record<
 		string,
 		Array<{
@@ -62,7 +62,7 @@ export function ModuleQuickActions({
 	} = useQuery({
 		queryKey: ["quick-actions-orders"],
 		queryFn: async ({ signal }) => {
-			const payload = await apiClient.get<QuickActionsOrdersResponse>(
+			const payload = await apiClient.get<QuickActionsOrdersContract>(
 				`/orders/kanban?limit=${QUICK_ACTION_ORDERS_LIMIT}`,
 				{ signal },
 			);

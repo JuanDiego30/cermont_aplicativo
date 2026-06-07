@@ -1,6 +1,6 @@
 import type {
-	ClosureRequirement,
 	ClosureReport,
+	ClosureRequirement,
 	DeliveryRecord,
 	DeliveryRecordReadModel,
 	TechnicalReport,
@@ -25,7 +25,9 @@ export function resolveGroupedRequirementStatus(
 	report: ClosureReport | undefined,
 	kinds: ClosureRequirement["kind"][],
 ): AdministrativeWorkflowCardStatus {
-	const requirements = report?.requirements.filter((requirement) => kinds.includes(requirement.kind));
+	const requirements = report?.requirements.filter((requirement) =>
+		kinds.includes(requirement.kind),
+	);
 
 	if (!requirements?.length) {
 		return "missing";
@@ -46,7 +48,9 @@ export function resolveGroupedRequirementMessage(
 	report: ClosureReport | undefined,
 	kinds: ClosureRequirement["kind"][],
 ): string | undefined {
-	const requirements = report?.requirements.filter((requirement) => kinds.includes(requirement.kind));
+	const requirements = report?.requirements.filter((requirement) =>
+		kinds.includes(requirement.kind),
+	);
 	const incompleteRequirement = requirements?.find(
 		(requirement) => requirement.status !== "completed",
 	);
@@ -56,8 +60,12 @@ export function resolveGroupedRequirementMessage(
 	}
 
 	return requirements
-		?.filter((requirement) => requirement.status !== "completed")
-		.map((requirement) => requirement.label)
+		?.reduce<string[]>((labels, requirement) => {
+			if (requirement.status !== "completed") {
+				labels.push(requirement.label);
+			}
+			return labels;
+		}, [])
 		.join(" · ");
 }
 
@@ -75,9 +83,7 @@ export function administrativeWorkflowStatusLabel(
 	return "Faltante";
 }
 
-export function administrativeWorkflowStatusTone(
-	status: AdministrativeWorkflowCardStatus,
-): string {
+export function administrativeWorkflowStatusTone(status: AdministrativeWorkflowCardStatus): string {
 	if (status === "completed") {
 		return "border-green-200 bg-green-50 text-green-700 dark:border-green-900/30 dark:bg-green-900/10 dark:text-green-300";
 	}

@@ -3,12 +3,12 @@
 import { CheckCircle, Edit, FilePlus, Send, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { normalizeProposalStatus } from "@/modules/proposals/proposal-status";
 import {
 	useApproveProposal,
 	useRejectProposal,
 	useUpdateProposal,
 } from "@/modules/proposals/queries";
-import { normalizeProposalStatus } from "@/modules/proposals/proposal-status";
 
 interface ProposalActionsProps {
 	proposalId: string;
@@ -17,6 +17,16 @@ interface ProposalActionsProps {
 	onSend?: () => void;
 	onConvert?: () => void;
 }
+
+type ActionButtonVariant = "default" | "primary" | "success" | "danger";
+
+const ACTION_BUTTON_VARIANTS: Record<ActionButtonVariant, string> = {
+	default:
+		"border border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800",
+	primary: "bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-400",
+	success: "bg-green-600 text-white hover:bg-green-700 disabled:bg-green-400",
+	danger: "bg-red-600 text-white hover:bg-red-700 disabled:bg-red-400",
+};
 
 export function ProposalActions({
 	proposalId,
@@ -132,17 +142,9 @@ function ActionButton({
 	icon: React.ReactNode;
 	label: string;
 	onClick?: () => void;
-	variant?: "default" | "primary" | "success" | "danger";
+	variant?: ActionButtonVariant;
 	loading?: boolean;
 }) {
-	const variants = {
-		default:
-			"border border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800",
-		primary: "bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-400",
-		success: "bg-green-600 text-white hover:bg-green-700 disabled:bg-green-400",
-		danger: "bg-red-600 text-white hover:bg-red-700 disabled:bg-red-400",
-	};
-
 	return (
 		<button
 			type="button"
@@ -150,7 +152,7 @@ function ActionButton({
 			disabled={loading}
 			className={cn(
 				"inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed",
-				variants[variant],
+				ACTION_BUTTON_VARIANTS[variant],
 			)}
 		>
 			{loading ? (

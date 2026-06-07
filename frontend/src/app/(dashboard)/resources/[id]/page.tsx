@@ -1,113 +1,79 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Loader2, Package } from "lucide-react";
+/**
+ * Resource Detail Page — Full read / edit view
+ *
+ * Displays all fields from the expanded Resource schema:
+ * name, type, status, description, identifiers, inventory, images, etc.
+ *
+ * Edit is handled inline via ResourceForm dialog. Images are managed
+ * via ResourceImageEditor.
+ */
+
+import { ArrowLeft, Loader2, Pencil } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { apiClient } from "@/lib/http/api-client";
+import { useCallback, useMemo, useState } from "react";
+
+import { Button } from "@/core/ui/Button";
 import { formatDate } from "@/lib/utils/format-date";
-
-const STATUS_STYLES: Record<string, string> = {
-	disponible:
-		"bg-green-100 text-green-700 ring-green-200 dark:bg-green-900/20 dark:text-green-400 dark:ring-green-900",
-	en_uso:
-		"bg-blue-100 text-blue-700 ring-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:ring-blue-900",
-	mantenimiento:
-		"bg-yellow-100 text-yellow-700 ring-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:ring-yellow-900",
-	fuera_de_servicio:
-		"bg-red-100 text-red-700 ring-red-200 dark:bg-red-900/20 dark:text-red-400 dark:ring-red-900",
-};
-
-const TYPE_LABELS: Record<string, string> = {
-	material: "Material",
-	herramienta: "Herramienta",
-	equipo: "Equipo",
-	epp: "EPP",
-	repuesto: "Repuesto",
-};
-
-const UNIT_LABELS: Record<string, string> = {
-	unid: "Unid.",
-	mtrs: "Metros",
-	gls: "Galones",
-	kg: "Kg",
-	lb: "Lb",
-	otro: "Otro",
-};
-
-interface ResourceInstance {
-	_id?: string;
-	id?: string;
-	serial_id?: string;
-	serialId?: string;
-	serial?: string;
-	modelo?: string;
-	model?: string;
-	marca?: string;
-	brand?: string;
-	estado_actual?: string;
-	currentStatus?: string;
-	fecha_certificacion?: string;
-	certificationDate?: string;
-}
-
-interface ResourceDetail {
-	_id: string;
-	nombre: string;
-	tipo: string;
-	unidad: string;
-	created_at: string;
-	resource_instances: ResourceInstance[];
-}
+import { useResourceDetail } from "@/modules/resources/hooks/useResources";
+import { ResourceForm } from "@/modules/resources/ui/ResourceForm";
+import { ResourceImageEditor } from "@/modules/resources/ui/ResourceImageEditor";
+import {
+	RESOURCE_TYPE_LABELS,
+	STATUS_LABELS,
+	STATUS_STYLES,
+	UNIT_LABELS,
+} from "../resource-constants";
 
 export default function ResourceDetailPage() {
 	const params = useParams();
 	const id = params.id as string;
 
-	const {
-		data: resource,
-		isLoading,
-		isError,
-		error,
-	} = useQuery<ResourceDetail>({
-		queryKey: ["resource", id],
-		queryFn: async () => {
-			const body = await apiClient.get<{
-				success?: boolean;
-				data?: Record<string, unknown>;
-				error?: string;
-			}>(`/resources/${id}`);
-			const r = body?.data;
-			if (!r) {
-				throw new Error("Recurso no encontrado");
-			}
+	const { data: resource, isLoading, isError, error, refetch } = useResourceDetail(id);
+	const [editOpen, setEditOpen] = useState(false);
 
-			const rawInstances = r.instances ?? r.resource_instances ?? [];
+	const handleEditSuccess = useCallback(() => {
+		setEditOpen(false);
+		refetch();
+	}, [refetch]);
 
-			return {
-				_id: String(r._id ?? r.id ?? ""),
-				nombre: String(r.nombre ?? r.name ?? ""),
-				tipo: String(r.tipo ?? r.type ?? ""),
-				unidad: String(r.unidad ?? r.unit ?? ""),
-				created_at: String(r.createdAt ?? r.created_at ?? ""),
-				resource_instances: Array.isArray(rawInstances) ? (rawInstances as ResourceInstance[]) : [],
-			};
-		},
-		enabled: !!id,
-	});
+	// Computed labels
+	const typeLabel = useMemo(
+		() => (resource ? (RESOURCE_TYPE_LABELS[resource.type] ?? resource.type) : ""),
+		[resource],
+	);
+	const statusKey = resource?.status ?? "available";
+	const statusLabel = STATUS_LABELS[statusKey] ?? statusKey;
+	const unitLabel = resource?.unit ? (UNIT_LABELS[resource.unit] ?? resource.unit) : "";
+	const statusStyle = STATUS_STYLES[statusKey] ?? "bg-zinc-100 text-zinc-600 ring-zinc-300";
 
+	// Loading state
 	if (isLoading) {
 		return (
-			<div className="flex h-64 items-center justify-center text-zinc-500">
-				<Loader2 className="animate-spin size-6 mr-2" /> Cargando detalle de recurso…
+			<div className="flex h-64 items-center justify-center text-[var(--text-secondary)]">
+				<Loader2 className="mr-2 size-6 animate-spin" aria-hidden="true" />
+				Cargando detalle…
 			</div>
 		);
 	}
 
+	// Error state
 	if (isError || !resource) {
 		return (
-			<div className="p-4 bg-red-50 text-red-600 rounded-lg dark:bg-red-900/20 dark:text-red-400">
-				No se pudo cargar el recurso. {(error as Error)?.message}
+			<div className="flex flex-col items-center gap-4 rounded-[var(--radius-lg)] border border-[var(--color-danger-bg)] bg-[var(--color-danger-bg)]/60 p-8 text-center">
+				<p className="text-sm font-medium text-[var(--color-danger)]">
+					{(error as Error)?.message ?? "Recurso no encontrado"}
+				</p>
+				<div className="flex gap-3">
+					<Button variant="outline" size="sm" onClick={() => refetch()}>
+						Reintentar
+					</Button>
+					<Button asChild variant="outline" size="sm">
+						<Link href="/resources">Volver al listado</Link>
+					</Button>
+				</div>
 			</div>
 		);
 	}
@@ -115,136 +81,167 @@ export default function ResourceDetailPage() {
 	return (
 		<section className="space-y-6" aria-labelledby="resource-detail-title">
 			{/* Header */}
-			<div className="flex items-start gap-4">
-				<Link
-					href="/resources"
-					className="mt-1 flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300"
-				>
-					<ArrowLeft aria-hidden="true" className="size-4" />
-					Volver
-				</Link>
-				<div className="flex items-center gap-3">
-					<Package aria-hidden="true" className="size-6 text-blue-600 dark:text-blue-500" />
-					<h1
-						id="resource-detail-title"
-						className="text-2xl font-semibold text-zinc-900 dark:text-white"
+			<div className="flex flex-wrap items-start justify-between gap-4">
+				<div className="flex items-start gap-3">
+					<Link
+						href="/resources"
+						className="mt-1 flex items-center gap-1 text-sm text-[var(--text-tertiary)] transition-colors hover:text-[var(--text-primary)]"
 					>
-						{resource.nombre}
-					</h1>
-					<span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:ring-blue-900">
-						{TYPE_LABELS[resource.tipo] ?? resource.tipo}
-					</span>
+						<ArrowLeft aria-hidden="true" className="size-4" />
+						Volver
+					</Link>
+					<div>
+						<h1
+							id="resource-detail-title"
+							className="text-2xl font-semibold text-[var(--text-primary)]"
+						>
+							{resource.name}
+						</h1>
+						<div className="mt-1 flex flex-wrap items-center gap-2">
+							<span className="rounded-full bg-[var(--surface-secondary)] px-2.5 py-0.5 text-xs font-medium text-[var(--text-secondary)] ring-1 ring-inset ring-[var(--border-default)]">
+								{typeLabel}
+							</span>
+							<span
+								className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${statusStyle}`}
+							>
+								{statusLabel}
+							</span>
+							{resource.active === false ? (
+								<span className="rounded-full bg-[var(--color-danger-bg)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-danger)] ring-1 ring-inset ring-[var(--color-danger)]/20">
+									Inactivo
+								</span>
+							) : null}
+						</div>
+					</div>
 				</div>
+
+				<Button onClick={() => setEditOpen(true)} variant="outline" size="sm">
+					<Pencil aria-hidden="true" className="size-4" />
+					Editar
+				</Button>
 			</div>
 
-			{/* Info Card */}
-			<div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
-				<h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400">
-					Información General
-				</h2>
-				<dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
-					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Nombre</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">{resource.nombre}</dd>
-					</div>
-					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Tipo</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">
-							{TYPE_LABELS[resource.tipo] ?? resource.tipo}
-						</dd>
-					</div>
-					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Unidad</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">
-							{UNIT_LABELS[resource.unidad] ?? resource.unidad}
-						</dd>
-					</div>
-					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Instancias</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">
-							{resource.resource_instances.length}
-						</dd>
-					</div>
-					<div>
-						<dt className="font-medium text-zinc-500 dark:text-zinc-400">Registrado</dt>
-						<dd className="mt-1 text-zinc-900 dark:text-white">
-							{resource.created_at ? formatDate(resource.created_at) : ","}
-						</dd>
-					</div>
-				</dl>
-			</div>
-
-			{/* Instances Table */}
-			<div className="rounded-xl border border-zinc-200 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800">
-				<div className="border-b border-zinc-100 px-6 py-4 dark:border-zinc-800">
-					<h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-						Instancias ({resource.resource_instances.length})
+			{/* Info grid */}
+			<div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+				{/* Main info card */}
+				<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)] lg:col-span-2">
+					<h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+						Información general
 					</h2>
+
+					<dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+						{field("Nombre", resource.name)}
+						{field("Tipo", typeLabel)}
+						{field("Estado", statusLabel)}
+						{field("Unidad", unitLabel || "—")}
+						{field("Cantidad por defecto", String(resource.defaultQuantity ?? 1))}
+						{field("Activo", resource.active !== false ? "Sí" : "No")}
+						{resource.description ? field("Descripción", resource.description) : null}
+						{resource.serialNumber ? field("N° Serial", resource.serialNumber) : null}
+						{resource.brand ? field("Marca", resource.brand) : null}
+						{resource.model ? field("Modelo", resource.model) : null}
+						{resource.category ? field("Categoría", resource.category) : null}
+						{resource.purchaseDate
+							? field("Fecha de compra", formatDate(resource.purchaseDate))
+							: null}
+					</dl>
 				</div>
-				{resource.resource_instances.length === 0 ? (
-					<div className="flex h-24 items-center justify-center text-sm text-zinc-400">
-						No hay instancias registradas
-					</div>
-				) : (
+
+				{/* Side info card */}
+				<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]">
+					<h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+						Auditoría
+					</h2>
+					<dl className="space-y-3 text-sm">
+						{resource.createdBy ? field("Creado por", resource.createdBy) : null}
+						{resource.updatedBy ? field("Actualizado por", resource.updatedBy) : null}
+						{field("Creado", formatDate(resource.createdAt))}
+						{field("Actualizado", formatDate(resource.updatedAt))}
+					</dl>
+				</div>
+			</div>
+
+			{/* Image gallery */}
+			<ResourceImageEditor resourceId={resource._id} images={resource.images ?? []} />
+
+			{/* Certifications */}
+			{resource.certifications && resource.certifications.length > 0 ? (
+				<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-[var(--shadow-1)]">
+					<h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+						Certificaciones ({resource.certifications.length})
+					</h2>
 					<div className="overflow-x-auto">
 						<table className="w-full min-w-[500px] text-sm">
-							<caption className="sr-only">
-								Instancias del recurso con serial, modelo, marca, estado y certificación.
-							</caption>
 							<thead>
-								<tr className="border-b border-zinc-100 bg-zinc-50 text-left dark:bg-zinc-800/50 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400">
-									<th scope="col" className="px-5 py-3 font-medium">
-										Serial
+								<tr className="border-b border-[var(--border-default)] text-left text-xs font-semibold uppercase tracking-[0.1em] text-[var(--text-tertiary)]">
+									<th scope="col" className="px-3 py-2">
+										Nombre
 									</th>
-									<th scope="col" className="px-5 py-3 font-medium">
-										Modelo
+									<th scope="col" className="px-3 py-2">
+										Tipo
 									</th>
-									<th scope="col" className="px-5 py-3 font-medium">
-										Marca
+									<th scope="col" className="px-3 py-2">
+										Emisión
 									</th>
-									<th scope="col" className="px-5 py-3 font-medium">
+									<th scope="col" className="px-3 py-2">
+										Vencimiento
+									</th>
+									<th scope="col" className="px-3 py-2">
 										Estado
-									</th>
-									<th scope="col" className="px-5 py-3 font-medium">
-										Cert.
 									</th>
 								</tr>
 							</thead>
-							<tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-								{resource.resource_instances.map((inst) => (
-									<tr
-										key={inst._id || inst.id}
-										className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 border-zinc-100 dark:border-zinc-800"
-									>
-										<td className="px-5 py-3 font-mono text-zinc-900 dark:text-white">
-											{inst.serial_id || inst.serialId || inst.serial}
+							<tbody className="divide-y divide-[var(--border-subtle)]">
+								{resource.certifications.map((cert) => (
+									<tr key={cert.id} className="hover:bg-[var(--surface-secondary)]">
+										<td className="px-3 py-2.5 font-medium text-[var(--text-primary)]">
+											{cert.name}
 										</td>
-										<td className="px-5 py-3 text-zinc-700 dark:text-zinc-300">
-											{(inst.modelo || inst.model) ?? ","}
+										<td className="px-3 py-2.5 text-[var(--text-secondary)]">{cert.type}</td>
+										<td className="px-3 py-2.5 text-[var(--text-secondary)]">
+											{formatDate(cert.issuedAt)}
 										</td>
-										<td className="px-5 py-3 text-zinc-700 dark:text-zinc-300">
-											{(inst.marca || inst.brand) ?? ","}
+										<td className="px-3 py-2.5 text-[var(--text-secondary)]">
+											{formatDate(cert.expiresAt)}
 										</td>
-										<td className="px-5 py-3">
+										<td className="px-3 py-2.5">
 											<span
-												className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 ring-inset ${STATUS_STYLES[inst.estado_actual ?? inst.currentStatus ?? ""] ?? "bg-zinc-100 text-zinc-600 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:ring-zinc-700"}`}
+												className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${
+													cert.status === "valid"
+														? "bg-[var(--color-success-bg)] text-[var(--color-success)] ring-[var(--color-success)]/20"
+														: cert.status === "expired"
+															? "bg-[var(--color-danger-bg)] text-[var(--color-danger)] ring-[var(--color-danger)]/20"
+															: "bg-[var(--surface-secondary)] text-[var(--text-tertiary)] ring-[var(--border-default)]"
+												}`}
 											>
-												{inst.estado_actual ?? inst.currentStatus ?? ","}
+												{cert.status}
 											</span>
-										</td>
-										<td className="px-5 py-3 text-zinc-500 dark:text-zinc-400">
-											{(() => {
-												const certDate = inst.fecha_certificacion ?? inst.certificationDate;
-												return certDate ? formatDate(certDate) : ",";
-											})()}
 										</td>
 									</tr>
 								))}
 							</tbody>
 						</table>
 					</div>
-				)}
-			</div>
+				</div>
+			) : null}
+
+			{/* Dialog for editing */}
+			<ResourceForm
+				resource={resource}
+				open={editOpen}
+				onOpenChange={setEditOpen}
+				onSuccess={handleEditSuccess}
+			/>
 		</section>
+	);
+}
+
+/** Small helper to render a dt/dd pair */
+function field(label: string, value: string): React.ReactNode {
+	return (
+		<div>
+			<dt className="text-xs font-medium text-[var(--text-tertiary)]">{label}</dt>
+			<dd className="mt-0.5 text-sm text-[var(--text-primary)]">{value}</dd>
+		</div>
 	);
 }

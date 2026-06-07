@@ -9,7 +9,7 @@ interface ApplyClosingEvidenceMetadataOptions {
 	targetStepCode?: CermontOperationalStepCode;
 }
 
-export interface ClosingEvidenceRoutingResult {
+export interface ClosingEvidenceRoutingOutcome {
 	classification: ClosingEvidenceClassification;
 	targetStepCode?: CermontOperationalStepCode;
 }
@@ -120,7 +120,7 @@ function mapStepCodeToClassification(
 export function applyClosingEvidenceMetadata(
 	document: IDocument,
 	options: ApplyClosingEvidenceMetadataOptions = {},
-): ClosingEvidenceRoutingResult {
+): ClosingEvidenceRoutingOutcome {
 	const classification =
 		(options.targetStepCode ? mapStepCodeToClassification(options.targetStepCode) : undefined) ??
 		classifyClosingEvidence(document.title, document.mime_type);

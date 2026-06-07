@@ -7,6 +7,11 @@
  * On failure, throws ValidationError (AppError subclass) which Express 5
  * auto-routes to the global error handler — no try/catch needed.
  *
+ * EXPRESS 5 NOTE: req.query and req.params are readonly getters in Express 5.
+ * Validated data is stored on req.validatedData[target] for downstream access.
+ * Controllers should read from req.validatedData.query / req.validatedData.params
+ * or re-parse with Zod (which is already the current pattern in controllers).
+ *
  * Usage:
  *   router.post('/', validate(createOrderSchema), orderController.create)
  *   router.get('/', validate(getOrderSchema, 'query'), orderController.list)
@@ -17,6 +22,19 @@ import type { ZodTypeAny } from "zod";
 import { ValidationError } from "../common/errors/AppError";
 
 type ValidationTarget = "body" | "query" | "params";
+
+// Extend Express Request to hold validated data
+declare global {
+	namespace Express {
+		interface Request {
+			validatedData?: {
+				body?: unknown;
+				query?: unknown;
+				params?: unknown;
+			};
+		}
+	}
+}
 
 /**
  * Factory function to create validation middleware
@@ -38,21 +56,15 @@ export function validate(schema: ZodTypeAny, target: ValidationTarget = "body") 
 			throw new ValidationError("Validation failed", details);
 		}
 
-		// Replace with parsed data (includes defaults and transformations)
+		// Store validated data for downstream middleware/controllers
+		if (!req.validatedData) {
+			req.validatedData = {};
+		}
+		req.validatedData[target] = result.data;
+
+		// Express 5: req.body is still writable; req.query and req.params are readonly getters
 		if (target === "body") {
-			req.body = result.data as Request["body"];
-		} else if (target === "query") {
-			const query = req.query as Record<string, unknown>;
-			Object.keys(query).forEach((key) => {
-				delete query[key];
-			});
-			Object.assign(query, result.data as Record<string, unknown>);
-		} else {
-			const params = req.params as Record<string, unknown>;
-			Object.keys(params).forEach((key) => {
-				delete params[key];
-			});
-			Object.assign(params, result.data as Record<string, unknown>);
+			req.body = result.data;
 		}
 
 		next();

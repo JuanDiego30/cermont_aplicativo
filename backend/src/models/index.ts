@@ -21,6 +21,7 @@
 // @see DOC-09 Section Colecciones Solo-Backend
 export { AuditLog } from "./AuditLog";
 export { Checklist } from "./Checklist";
+export { IdempotencyEntry, type IdempotencyEntryDocument } from "./IdempotencyEntry";
 export { Cost } from "./Cost";
 // Optional: Legacy models (kept for compatibility but may be deprecated)
 export { CostControl } from "./CostControl";
@@ -43,6 +44,7 @@ export {
 export { Evidence } from "./Evidence";
 export { EvidenceCollection, type IEvidenceCollectionDocument } from "./EvidenceCollection";
 export { ExecutionSession, type ExecutionSessionDocument } from "./ExecutionSession";
+export { FileAsset, type IFileAssetDocument } from "./FileAsset";
 export { Inspection } from "./Inspection";
 export { Invoice, type InvoiceDocument } from "./Invoice";
 export { type IKitDocument, Kit } from "./Kit";

@@ -1,5 +1,7 @@
 import { type Document, model, Schema, Types } from "mongoose";
 
+import { FileAssetRefSchema, type FileAssetRef } from "./sub-schemas/FileAssetRefSchema";
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Evidence Model — Per DOC-09 §7 (Diccionario de Datos)
 //
@@ -47,6 +49,7 @@ export interface IEvidenceDocument extends Document {
     sizeBytes: number;
     uploadedAt: Date;
   }>;
+  fileAssets: FileAssetRef[];
 
   // Content
   description?: string;
@@ -108,7 +111,8 @@ const EvidenceSchema = new Schema<IEvidenceDocument>(
     mimeType: { type: String, required: true },
     sizeBytes: { type: Number, required: true },
     variants: [EvidenceImageVariantSchema],
-    
+    fileAssets: { type: [FileAssetRefSchema], default: [] },
+
     // Content
     description: { type: String, maxlength: 500 },
     capturedAt: { type: Date, required: true },

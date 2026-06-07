@@ -21,7 +21,7 @@ const log = createLogger("document-service");
  * Create a new document record
  */
 
-interface CreateDocumentData {
+interface CreateDocumentCommand {
 	title: string;
 	orderId?: string;
 	purpose?: IDocument["purpose"];
@@ -34,7 +34,7 @@ interface CreateDocumentData {
 	fileSize?: number;
 }
 
-function normalizeCreateDocumentInput(data: CreateDocumentData, userId: string, filePath: string) {
+function normalizeCreateDocumentInput(data: CreateDocumentCommand, userId: string, filePath: string) {
 	const uploadedBy = parseObjectId(userId);
 	const linkedEntityId =
 		data.linkedEntityId && data.linkedEntityId.length > 0
@@ -55,7 +55,7 @@ function normalizeCreateDocumentInput(data: CreateDocumentData, userId: string, 
 }
 
 function buildAssociationSubDocument(
-	data: CreateDocumentData,
+	data: CreateDocumentCommand,
 	normalized: ReturnType<typeof normalizeCreateDocumentInput>,
 ): Record<string, unknown> {
 	const association: Record<string, unknown> = {
@@ -85,7 +85,7 @@ function buildAssociationSubDocument(
 }
 
 function buildCreateDocumentPayload(
-	data: CreateDocumentData,
+	data: CreateDocumentCommand,
 	normalized: ReturnType<typeof normalizeCreateDocumentInput>,
 ): Parameters<typeof Document.create>[0] {
 	const payload: Record<string, unknown> = {
@@ -123,7 +123,7 @@ function buildCreateDocumentPayload(
 }
 
 export async function createDocument(
-	data: CreateDocumentData,
+	data: CreateDocumentCommand,
 	filePath: string,
 	userId: string,
 ): Promise<IDocument> {
@@ -328,7 +328,7 @@ export async function getDocumentAssociations(id: string): Promise<DocumentAssoc
 	return (document.associations ?? []).map(mapAssociation);
 }
 
-type DocumentDeletionResult =
+type DocumentDeletionOutcome =
 	| {
 			status: "archived";
 			documentId: string;
@@ -442,7 +442,7 @@ export async function deleteDocument(
 	id: string,
 	userId: string,
 	reason: string = "Deletion requested",
-): Promise<DocumentDeletionResult> {
+): Promise<DocumentDeletionOutcome> {
 	const document = await Document.findById(id);
 	if (!document) {
 		throw new AppError("Document not found", 404, "DOCUMENT_NOT_FOUND");

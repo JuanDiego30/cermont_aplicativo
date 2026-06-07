@@ -118,11 +118,18 @@ export default function TemplatesPage() {
 						</thead>
 						<tbody className="divide-y divide-[var(--border-default)]">
 							{items.map((template) => (
-								<tr key={template._id} className="transition-colors hover:bg-[var(--surface-secondary)]">
-									<td className="px-4 py-3 font-medium text-[var(--text-primary)]">{template.name}</td>
+								<tr
+									key={template._id}
+									className="transition-colors hover:bg-[var(--surface-secondary)]"
+								>
+									<td className="px-4 py-3 font-medium text-[var(--text-primary)]">
+										{template.name}
+									</td>
 									<td className="px-4 py-3 text-[var(--text-secondary)]">{template.purpose}</td>
 									<td className="px-4 py-3">
-										<span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${statusBadge(template.status)}`}>
+										<span
+											className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${statusBadge(template.status)}`}
+										>
 											{template.status}
 										</span>
 									</td>

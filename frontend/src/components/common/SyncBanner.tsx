@@ -45,7 +45,8 @@ function getBannerState(props: SyncBannerProps): {
 			visible: true,
 			icon: <CloudOff className="size-4 shrink-0" aria-hidden="true" />,
 			message: "Sin conexión — los cambios se sincronizarán automáticamente",
-			className: "bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800",
+			className:
+				"bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800",
 		};
 	}
 
@@ -55,7 +56,8 @@ function getBannerState(props: SyncBannerProps): {
 			visible: true,
 			icon: <AlertTriangle className="size-4 shrink-0" aria-hidden="true" />,
 			message: `Error de sincronización: ${lastSyncError}`,
-			className: "bg-red-50 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800",
+			className:
+				"bg-red-50 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800",
 		};
 	}
 
@@ -65,7 +67,8 @@ function getBannerState(props: SyncBannerProps): {
 			visible: true,
 			icon: <RefreshCw className="size-4 shrink-0 animate-spin" aria-hidden="true" />,
 			message: "Sincronizando cambios pendientes…",
-			className: "bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800",
+			className:
+				"bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800",
 		};
 	}
 
@@ -75,7 +78,8 @@ function getBannerState(props: SyncBannerProps): {
 			visible: true,
 			icon: <Wifi className="size-4 shrink-0" aria-hidden="true" />,
 			message: `${pendingCount} ${pendingCount === 1 ? "cambio pendiente" : "cambios pendientes"} de sincronizar`,
-			className: "bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800",
+			className:
+				"bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800",
 		};
 	}
 
@@ -97,13 +101,9 @@ export function SyncBanner(props: SyncBannerProps) {
 	}
 
 	return (
-		<div
-			role="status"
+		<output
 			aria-live="polite"
-			className={cn(
-				"flex items-center gap-2 border-b px-4 py-2 text-sm font-medium",
-				className,
-			)}
+			className={cn("flex items-center gap-2 border-b px-4 py-2 text-sm font-medium", className)}
 		>
 			{icon}
 			<span className="flex-1 truncate">{message}</span>
@@ -120,6 +120,6 @@ export function SyncBanner(props: SyncBannerProps) {
 					Sincronizar ahora
 				</button>
 			)}
-		</div>
+		</output>
 	);
 }

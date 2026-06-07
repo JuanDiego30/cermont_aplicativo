@@ -13,6 +13,7 @@ const subscribeMotion = (callback: () => void) => {
 
 const getSnapshotMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const getServerSnapshotMotion = () => false;
+
 import { AboutSection } from "./AboutSection";
 import { ContactSection } from "./ContactSection";
 import { CtaSection } from "./CtaSection";

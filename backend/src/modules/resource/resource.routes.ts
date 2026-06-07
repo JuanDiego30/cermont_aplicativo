@@ -1,7 +1,9 @@
 import { MAINTENANCE_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import {
+	AttachResourceImageSchema,
 	CreateMaintenanceKitSchema,
 	CreateResourceSchema,
+	DetachResourceImageSchema,
 	PaginationQuerySchema,
 	ResourceIdSchema,
 	UpdateMaintenanceKitSchema,
@@ -20,8 +22,10 @@ import {
 	updateKit,
 } from "../maintenance/maintenance.controller";
 import {
+	attachImage,
 	createResource,
 	deleteResource,
+	detachImage,
 	getAllResources,
 	getResourceById,
 	updateResource,
@@ -104,6 +108,23 @@ router.delete(
 	"/:resourceId/documents/:documentId",
 	authorize("gerente", "residente"),
 	detachDocumentFromTool,
+);
+
+// ─── Image Gallery Endpoints ───────────────────────────────────────
+router.post(
+	"/:id/images",
+	authorize("gerente", "residente", "supervisor"),
+	validateParams(ResourceIdSchema),
+	validateBody(AttachResourceImageSchema),
+	attachImage,
+);
+
+router.delete(
+	"/:id/images",
+	authorize("gerente", "residente", "supervisor"),
+	validateParams(ResourceIdSchema),
+	validateBody(DetachResourceImageSchema),
+	detachImage,
 );
 
 export default router;

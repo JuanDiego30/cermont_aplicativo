@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
+import { RejectForm } from "@/core/ui/RejectForm";
 import {
 	useApproveInvoice,
 	useCancelInvoice,
@@ -14,7 +15,6 @@ import {
 	useRejectInvoice,
 	useSubmitInvoice,
 } from "@/modules/billing/queries";
-import { RejectForm } from "@/core/ui/RejectForm";
 
 function invoiceStatusTone(status: Invoice["status"]): string {
 	if (status === "approved" || status === "accepted" || status === "paid") {
@@ -82,9 +82,7 @@ function BackLink() {
 function ErrorCard({ onRetry }: { onRetry: () => void }) {
 	return (
 		<div className="rounded-lg border border-destructive/20 bg-destructive/10 p-5">
-			<h2 className="text-base font-semibold text-foreground">
-				No se pudo cargar la factura
-			</h2>
+			<h2 className="text-base font-semibold text-foreground">No se pudo cargar la factura</h2>
 			<p className="mt-1 text-sm text-muted-foreground">
 				Ocurri&oacute;n un error al obtener los datos.
 			</p>
@@ -253,9 +251,11 @@ const DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
 	timeStyle: "short",
 });
 
-function InvoiceInfo({ invoice }: { invoice: Invoice }) {
-	const fmtDate = (v?: string) => (v ? DATE_FORMATTER.format(new Date(v)) : "Sin fecha");
+function formatInvoiceDate(value?: string): string {
+	return value ? DATE_FORMATTER.format(new Date(value)) : "Sin fecha";
+}
 
+function InvoiceInfo({ invoice }: { invoice: Invoice }) {
 	const currencyFmt = useMemo(
 		() =>
 			new Intl.NumberFormat("es-CO", {
@@ -271,10 +271,7 @@ function InvoiceInfo({ invoice }: { invoice: Invoice }) {
 			<div className="rounded-lg border border-border bg-card p-6 shadow-card">
 				<div className="flex flex-wrap items-start justify-between gap-3">
 					<div>
-						<h2
-							id="invoice-detail-title"
-							className="text-xl font-semibold text-foreground"
-						>
+						<h2 id="invoice-detail-title" className="text-xl font-semibold text-foreground">
 							{invoice.invoiceNumber || invoice.code}
 						</h2>
 						<p className="text-sm text-muted-foreground">
@@ -313,12 +310,12 @@ function InvoiceInfo({ invoice }: { invoice: Invoice }) {
 			</div>
 
 			<div className="grid gap-4 md:grid-cols-2">
-				<FieldCard title="Fecha de emisi&oacute;n" value={fmtDate(invoice.issuedAt)} />
-				<FieldCard title="Fecha de vencimiento" value={fmtDate(invoice.dueDate)} />
-				<FieldCard title="Enviada" value={fmtDate(invoice.sentAt)} />
-				<FieldCard title="Enviada por" value={fmtDate(invoice.submittedAt)} />
-				<FieldCard title="Aceptada" value={fmtDate(invoice.acceptedAt)} />
-				<FieldCard title="Pagada" value={fmtDate(invoice.paidAt)} />
+				<FieldCard title="Fecha de emisi&oacute;n" value={formatInvoiceDate(invoice.issuedAt)} />
+				<FieldCard title="Fecha de vencimiento" value={formatInvoiceDate(invoice.dueDate)} />
+				<FieldCard title="Enviada" value={formatInvoiceDate(invoice.sentAt)} />
+				<FieldCard title="Enviada por" value={formatInvoiceDate(invoice.submittedAt)} />
+				<FieldCard title="Aceptada" value={formatInvoiceDate(invoice.acceptedAt)} />
+				<FieldCard title="Pagada" value={formatInvoiceDate(invoice.paidAt)} />
 			</div>
 
 			{invoice.rejectionReason && (
@@ -337,24 +334,18 @@ function InvoiceInfo({ invoice }: { invoice: Invoice }) {
 
 			{invoice.invoiceLines && invoice.invoiceLines.length > 0 && (
 				<div className="rounded-lg border border-border bg-card p-4 shadow-card">
-					<h3 className="text-sm font-semibold text-foreground">
-						L&iacute;neas de factura
-					</h3>
+					<h3 className="text-sm font-semibold text-foreground">L&iacute;neas de factura</h3>
 					<table className="mt-3 w-full text-sm">
 						<thead>
 							<tr className="border-b border-border/50">
 								<th className="py-2 text-left text-xs font-medium text-muted-foreground">
 									Descripci&oacute;n
 								</th>
-								<th className="py-2 text-right text-xs font-medium text-muted-foreground">
-									Cant.
-								</th>
+								<th className="py-2 text-right text-xs font-medium text-muted-foreground">Cant.</th>
 								<th className="py-2 text-right text-xs font-medium text-muted-foreground">
 									P. Unit.
 								</th>
-								<th className="py-2 text-right text-xs font-medium text-muted-foreground">
-									Total
-								</th>
+								<th className="py-2 text-right text-xs font-medium text-muted-foreground">Total</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -374,8 +365,8 @@ function InvoiceInfo({ invoice }: { invoice: Invoice }) {
 			)}
 
 			<div className="flex flex-wrap gap-4 text-xs text-muted">
-				<span>Creado: {fmtDate(invoice.createdAt)}</span>
-				<span>Actualizado: {fmtDate(invoice.updatedAt)}</span>
+				<span>Creado: {formatInvoiceDate(invoice.createdAt)}</span>
+				<span>Actualizado: {formatInvoiceDate(invoice.updatedAt)}</span>
 			</div>
 		</div>
 	);

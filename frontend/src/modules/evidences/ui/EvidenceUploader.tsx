@@ -38,9 +38,7 @@ interface EvidenceUploaderProps {
 	orderId?: string;
 }
 
-type PreviewState =
-	| { state: "empty" }
-	| { state: "ready"; url: string };
+type PreviewState = { state: "empty" } | { state: "ready"; url: string };
 
 type GpsCaptureState =
 	| { state: "idle" }
@@ -91,7 +89,7 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 				console.error("GPS capture failed", error);
 				setGpsCapture({ state: "error" });
 			},
-			{ enableHighAccuracy: true, timeout: 8000 }
+			{ enableHighAccuracy: true, timeout: 8000 },
 		);
 	}, [setValue]);
 
@@ -207,7 +205,8 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 									<>
 										<span className="inline-flex size-2 rounded-full bg-emerald-500 animate-pulse" />
 										<span className="font-medium">
-											Ubicación capturada: {gpsCapture.location.lat.toFixed(5)}, {gpsCapture.location.lng.toFixed(5)}
+											Ubicación capturada: {gpsCapture.location.lat.toFixed(5)},{" "}
+											{gpsCapture.location.lng.toFixed(5)}
 										</span>
 									</>
 								)}
@@ -219,11 +218,11 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 										</span>
 									</>
 								)}
-								{gpsCapture.state === "idle" && (
-									<span>Sin capturar</span>
-								)}
+								{gpsCapture.state === "idle" && <span>Sin capturar</span>}
 							</div>
-							{(gpsCapture.state === "error" || gpsCapture.state === "idle" || gpsCapture.state === "success") && (
+							{(gpsCapture.state === "error" ||
+								gpsCapture.state === "idle" ||
+								gpsCapture.state === "success") && (
 								<button
 									type="button"
 									onClick={captureGps}
@@ -279,7 +278,7 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 											className="absolute right-2 top-2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70"
 											aria-label="Eliminar vista previa"
 										>
-										<X className="size-4" />
+											<X className="size-4" />
 										</button>
 									</output>
 									<p className="text-xs text-zinc-500 dark:text-zinc-400">

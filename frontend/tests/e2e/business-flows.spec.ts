@@ -118,9 +118,17 @@ test.describe("PWA Features", () => {
 	});
 
 	test("should have service worker file available", async ({ page }) => {
-		const response = await page.request.get(`${BASE_URL}/service-worker.js`);
+		const response = await page.request.get(`${BASE_URL}/serwist/sw.js`);
 
 		expect(response.status()).toBe(200);
+	});
+
+	test("should serve a health-check endpoint", async ({ page }) => {
+		const response = await page.request.get(`${BASE_URL}/api/health`);
+
+		expect(response.status()).toBe(200);
+		const data = await response.json();
+		expect(data).toHaveProperty("ok", true);
 	});
 
 	test("should register service worker", async ({ page }) => {

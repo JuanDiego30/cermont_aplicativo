@@ -1,14 +1,24 @@
 "use client";
 
 import type { CostSummary } from "@cermont/shared-types";
+import { getValue } from "@cermont/shared-types";
 import { AlertTriangle, CheckCircle2, TrendingDown, TrendingUp } from "lucide-react";
 import { formatCurrencyForState, formatPercent, labelForCostDataState } from "../utils";
 
 interface CostSummaryCardProps {
-	summary?: CostSummary | null;
+	summary?: CostSummary;
 	isLoading?: boolean;
-	error?: Error | null;
+	error?: Error;
 }
+
+const METRIC_TONE_CLASSES = {
+	neutral:
+		"border-zinc-200 bg-zinc-50 text-zinc-950 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white",
+	success:
+		"border-emerald-200 bg-emerald-50 text-emerald-950 dark:border-emerald-900/40 dark:bg-emerald-900/10 dark:text-emerald-100",
+	danger:
+		"border-rose-200 bg-rose-50 text-rose-950 dark:border-rose-900/40 dark:bg-rose-900/10 dark:text-rose-100",
+} as const;
 
 export function CostSummaryCard({ summary, isLoading = false, error }: CostSummaryCardProps) {
 	if (isLoading) {
@@ -76,7 +86,7 @@ export function CostSummaryCard({ summary, isLoading = false, error }: CostSumma
 					</div>
 					<div className="rounded-2xl bg-white p-4 dark:bg-zinc-950">
 						<p className="text-3xl font-black tracking-tight text-zinc-950 dark:text-white">
-							{formatPercent(summary.variancePercent)}
+							{formatPercent(getValue(summary.variancePercent, 0))}
 						</p>
 						<p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
 							{summary.variance > 0
@@ -114,17 +124,8 @@ function Metric({
 	tone?: "neutral" | "success" | "danger";
 	testid?: string;
 }) {
-	const toneClasses = {
-		neutral:
-			"border-zinc-200 bg-zinc-50 text-zinc-950 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white",
-		success:
-			"border-emerald-200 bg-emerald-50 text-emerald-950 dark:border-emerald-900/40 dark:bg-emerald-900/10 dark:text-emerald-100",
-		danger:
-			"border-rose-200 bg-rose-50 text-rose-950 dark:border-rose-900/40 dark:bg-rose-900/10 dark:text-rose-100",
-	} as const;
-
 	return (
-		<div data-testid={testid} className={`rounded-2xl border p-4 ${toneClasses[tone]}`}>
+		<div data-testid={testid} className={`rounded-2xl border p-4 ${METRIC_TONE_CLASSES[tone]}`}>
 			<p className="text-xs font-semibold uppercase tracking-[0.18em] opacity-70">{label}</p>
 			<p className="mt-2 text-lg font-black tracking-tight">{value}</p>
 		</div>

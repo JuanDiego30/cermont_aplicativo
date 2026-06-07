@@ -9,6 +9,7 @@ import {
 	EvidenceOrderIdParamsSchema,
 	PaginationQuerySchema,
 } from "@cermont/shared-types";
+import { INTERNAL_ROLES } from "@cermont/domain";
 import { Router } from "express";
 import multer from "multer";
 import { authenticate } from "../../middlewares/auth.middleware";
@@ -64,6 +65,15 @@ router.post(
 	upload.single("file"),
 	validateBody(CreateEvidenceSchema),
 	EvidenceController.uploadEvidence,
+);
+
+// GET /api/evidences/:id
+router.get(
+	"/:id",
+	authenticate,
+	authorize(...INTERNAL_ROLES),
+	validateParams(EvidenceIdSchema),
+	EvidenceController.getEvidenceById,
 );
 
 // DELETE /api/evidences/:id

@@ -94,7 +94,9 @@ function ProposalFiltersInner() {
 
 	const debouncedSearch = useDebounce(searchInput, 400);
 
-	const currentHref = searchParams.toString() ? `/proposals?${searchParams.toString()}` : "/proposals";
+	const currentHref = searchParams.toString()
+		? `/proposals?${searchParams.toString()}`
+		: "/proposals";
 
 	const applyFilters = useCallback(
 		(search: string, st: string, from: string, to: string) => {
@@ -131,7 +133,6 @@ function ProposalFiltersInner() {
 			if (nextHref !== currentHref) {
 				replace(nextHref);
 			}
-
 		},
 		[currentHref, replace, searchParams],
 	);
@@ -147,19 +148,16 @@ function ProposalFiltersInner() {
 	const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const newStatus = e.target.value;
 		dispatch({ type: "SET_STATUS", payload: newStatus });
-		applyFilters(searchInput, newStatus, dateFrom, dateTo);
 	};
 
 	const handleDateFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const newDateFrom = e.target.value;
 		dispatch({ type: "SET_DATE_FROM", payload: newDateFrom });
-		applyFilters(searchInput, status, newDateFrom, dateTo);
 	};
 
 	const handleDateToChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const newDateTo = e.target.value;
 		dispatch({ type: "SET_DATE_TO", payload: newDateTo });
-		applyFilters(searchInput, status, dateFrom, newDateTo);
 	};
 
 	const handleClearFilters = () => {

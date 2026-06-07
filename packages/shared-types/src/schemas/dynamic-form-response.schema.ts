@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { statusObjectOf } from "../utils/status-types";
 import { ObjectIdSchema } from "./common.schema";
 
 export const FormFieldResponseSchema = z
@@ -6,7 +7,7 @@ export const FormFieldResponseSchema = z
 		fieldKey: z.string().min(1),
 		value: z.union([z.string(), z.number(), z.boolean(), z.array(z.string())]).optional(),
 		isCustomOption: z.boolean().default(false),
-		customValue: z.string().nullable().default(null),
+		customValue: statusObjectOf(z.string()),
 		proposeForCatalog: z.boolean().default(false),
 		fileUrl: z.string().url().optional(),
 	})

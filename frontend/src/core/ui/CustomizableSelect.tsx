@@ -103,9 +103,7 @@ function OptionButton({ option, isSelected, onSelect, dataTestId }: OptionButton
 			data-testid={`${dataTestId}-option-${option.value}`}
 			className={cn(
 				"w-full px-3 py-2 text-left text-sm transition-colors hover:bg-surface-secondary",
-				isSelected
-					? "bg-brand/10 text-brand font-medium"
-					: "text-(--text-primary)",
+				isSelected ? "bg-brand/10 text-brand font-medium" : "text-(--text-primary)",
 			)}
 		>
 			{option.label}
@@ -452,10 +450,7 @@ export function CustomizableSelect({
 	return (
 		<div className={cn("space-y-2", className)} ref={containerRef}>
 			{label && (
-				<label
-					htmlFor={selectId}
-					className="block text-sm font-medium text-(--text-secondary)"
-				>
+				<label htmlFor={selectId} className="block text-sm font-medium text-(--text-secondary)">
 					{label}
 					{required ? <span className="ml-1 text-(--color-danger)">*</span> : null}
 				</label>

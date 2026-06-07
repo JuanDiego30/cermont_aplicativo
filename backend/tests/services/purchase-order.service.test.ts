@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ConflictError, UnprocessableError } from "../../src/common/errors/AppError";
+import {
+	ConflictError,
+	ServiceUnavailableError,
+	UnprocessableError,
+} from "../../src/common/errors/AppError";
 import {
 	assertProposalReadyForWorkOrder,
+	listPurchaseOrders,
 	registerPurchaseOrder,
 	validatePurchaseOrder,
 } from "../../src/modules/purchase-order/purchase-order.service";
@@ -10,6 +15,8 @@ import { mockQueryChain } from "../test-utils";
 const mocks = vi.hoisted(() => ({
 	proposalFindById: vi.fn(),
 	purchaseOrderCreate: vi.fn(),
+	purchaseOrderCountDocuments: vi.fn(),
+	purchaseOrderFind: vi.fn(),
 	purchaseOrderFindById: vi.fn(),
 	purchaseOrderFindOne: vi.fn(),
 }));
@@ -22,7 +29,9 @@ vi.mock("../../src/models", () => ({
 
 vi.mock("../../src/models/PurchaseOrder", () => ({
 	PurchaseOrderModel: {
+		countDocuments: mocks.purchaseOrderCountDocuments,
 		create: mocks.purchaseOrderCreate,
+		find: mocks.purchaseOrderFind,
 		findById: mocks.purchaseOrderFindById,
 		findOne: mocks.purchaseOrderFindOne,
 	},
@@ -157,5 +166,26 @@ describe("purchase-order.service", () => {
 		expect(doc.validatedBy?.toString()).toBe(validatorId);
 		expect(doc.save).toHaveBeenCalledTimes(1);
 		expect(result.status).toBe("approved");
+	});
+
+	it("listPurchaseOrders maps transient database failures to a typed 503", async () => {
+		const databaseError = new Error("server selection timed out");
+		databaseError.name = "MongooseServerSelectionError";
+		mocks.purchaseOrderFind.mockReturnValueOnce({
+			sort: vi.fn().mockReturnValue({
+				skip: vi.fn().mockReturnValue({
+					limit: vi.fn().mockRejectedValue(databaseError),
+				}),
+			}),
+		});
+		mocks.purchaseOrderCountDocuments.mockResolvedValueOnce(0);
+
+		const result = listPurchaseOrders({ page: 1, limit: 50 });
+
+		await expect(result).rejects.toMatchObject({
+			code: "PURCHASE_ORDER_SERVICE_UNAVAILABLE",
+			statusCode: 503,
+		});
+		await expect(result).rejects.toBeInstanceOf(ServiceUnavailableError);
 	});
 });

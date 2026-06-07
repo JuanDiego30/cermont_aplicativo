@@ -11,7 +11,7 @@ import { apiClient } from "@/lib/http/api-client";
 import { formatDate, formatDateTime } from "@/lib/utils/format-date";
 import { ROLE_COLORS } from "./user-detail-constants";
 
-interface UserData {
+interface UserSnapshot {
 	_id: string;
 	name?: string;
 	first_name?: string;
@@ -29,14 +29,14 @@ interface UserData {
 	createdAt?: string;
 }
 
-type UserResponse = { success?: boolean; data?: UserData; error?: string; message?: string };
+type UserContract = { success?: boolean; data?: UserSnapshot; error?: string; message?: string };
 
 function safeGet<T>(val: T | undefined | null, fallback: T): T {
 	return val != null ? val : fallback;
 }
 
 async function fetchUserDetail(userId: string) {
-	const body = await apiClient.get<UserResponse>(`/users/${userId}`);
+	const body = await apiClient.get<UserContract>(`/users/${userId}`);
 	if (!body?.success || !body.data) {
 		throw new Error(body?.message || body?.error || "Error al cargar el usuario");
 	}

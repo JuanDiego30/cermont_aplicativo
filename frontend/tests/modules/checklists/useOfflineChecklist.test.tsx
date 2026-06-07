@@ -1,4 +1,6 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook } from "@testing-library/react";
+import type React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useOfflineChecklist } from "@/modules/checklists/hooks/useOfflineChecklist";
 
@@ -32,14 +34,27 @@ vi.mock("@/lib/offline/sync-queue", () => ({
 }));
 
 describe("useOfflineChecklist", () => {
+	let queryClient: QueryClient;
+	let wrapper: React.FC<{ children: React.ReactNode }>;
+
 	beforeEach(() => {
 		vi.clearAllMocks();
+		queryClient = new QueryClient({
+			defaultOptions: {
+				queries: {
+					retry: false,
+				},
+			},
+		});
+		wrapper = ({ children }) => (
+			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+		);
 	});
 
 	it("queues checklist creation when the network fails", async () => {
 		mocks.createChecklistMutateAsync.mockRejectedValue(new TypeError("Failed to fetch"));
 
-		const { result } = renderHook(() => useOfflineChecklist());
+		const { result } = renderHook(() => useOfflineChecklist(), { wrapper });
 
 		await expect(
 			result.current.createChecklistMutation.mutateAsync({ orderId: "order-1" }),
@@ -59,7 +74,7 @@ describe("useOfflineChecklist", () => {
 	it("queues checklist completion when the network fails", async () => {
 		mocks.completeChecklistMutateAsync.mockRejectedValue(new TypeError("Failed to fetch"));
 
-		const { result } = renderHook(() => useOfflineChecklist());
+		const { result } = renderHook(() => useOfflineChecklist(), { wrapper });
 
 		await expect(
 			result.current.completeChecklistMutation.mutateAsync({

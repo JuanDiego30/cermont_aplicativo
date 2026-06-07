@@ -1,14 +1,14 @@
 % =====================================================================
 % CAPÍTULO 2: MARCO TEÓRICO
-% Versión refactorizada con enfoque en conceptos aplicables al proyecto
+% Versión académica con enfoque en conceptos aplicables al proyecto
 % =====================================================================
 
 \chapter{Marco Teórico}
 \label{ch:marco-teorico}
 
 % --- Ajustes editoriales locales del capítulo: sangría, espaciado y control de desbordamientos ---
-\setlength{\parindent}{1.25cm}
-\setlength{\parskip}{0pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
 \sloppy
 \emergencystretch=2em
 \raggedbottom
@@ -16,13 +16,13 @@
 
 La ingeniería de software moderna proporciona un cuerpo conceptual y metodológico riguroso para el diseño, desarrollo, validación y mantenimiento de sistemas de información empresariales complejos \cite{sommerville2016}. En el contexto de las organizaciones contemporáneas, el software ha dejado de considerarse una simple herramienta de automatización aislada para constituir el núcleo de los flujos de valor operativos, financieros y de cumplimiento normativo \cite{pressman2020}. 
 
-El diseño de un sistema empresarial moderno exige la adopción de arquitecturas desacopladas que separen con claridad la interfaz de usuario de la lógica de negocio y los mecanismos de almacenamiento. La arquitectura de tres capas (presentación, lógica y datos) o su evolución hacia arquitecturas limpias y modulares (arquitectura hexagonal u cebolla) garantizan que los componentes de presentación no tengan acoplamiento con los detalles de persistencia física o de red \cite{bass2021}. En el desarrollo web contemporáneo, este desacoplamiento se instrumenta mediante el uso de APIs de tipo REST (Representational State Transfer) o GraphQL, las cuales definen contratos de comunicación estrictos sobre el protocolo HTTP, posibilitando que múltiples clientes (web, móviles o IoT) interactúen de forma homogénea con un único motor de reglas de negocio en el backend.
+El diseño de un sistema empresarial moderno exige la adopción de arquitecturas desacopladas que separen con claridad la interfaz de usuario de la lógica de negocio y los mecanismos de almacenamiento. La arquitectura de tres capas (presentación, lógica y datos) o su evolución hacia arquitecturas limpias y modulares (arquitectura hexagonal u cebolla) favorecen que los componentes de presentación no dependan directamente de los detalles de persistencia física o de red \cite{bass2021}. En el desarrollo web contemporáneo, este desacoplamiento se instrumenta mediante el uso de APIs de tipo REST (Representational State Transfer) o GraphQL, las cuales definen contratos de comunicación estrictos sobre el protocolo HTTP, posibilitando que múltiples clientes (web, móviles o IoT) interactúen de forma homogénea con un único motor de reglas de negocio en el backend.
 
 \section{Modelado de servicios de campo y órdenes de trabajo (FSM)}
 
 La gestión de servicios de campo, conocida formalmente como Field Service Management (FSM), abarca la planificación operativa, la asignación dinámica de recursos humanos e instrumentales, el control de la ejecución en sitio y el posterior cierre administrativo de actividades realizadas fuera de las instalaciones principales de una organización \cite{gartner2024}. Los sistemas FSM abordan una de las mayores fuentes de ineficiencia en empresas de servicios técnicos: la brecha de comunicación y la fragmentación documental entre el personal que labora en campo y los departamentos de planeación y control administrativo.
 
-De acuerdo con la literatura de gestión de procesos de negocio (BPM), el eje central de un sistema FSM es el ciclo de vida de la orden de trabajo (Work Order Life Cycle) \cite{dumas2018}. Dicha entidad actúa como un contenedor semántico y un elemento de correlación unificado, vinculando de manera unívoca al cliente, el contrato legal, los activos físicos intervenidos, los técnicos asignados, las evidencias recolectadas en sitio, los costos operativos asociados y los entregables documentales (como informes técnicos y actas de entrega). La adopción de este enfoque garantiza la trazabilidad e integridad del flujo operativo y disminuye significativamente los ciclos de facturación al eliminar la recaptura manual de datos dispersos en formatos físicos \cite{fieldaware2023}.
+De acuerdo con la literatura de gestión de procesos de negocio (BPM), el eje central de un sistema FSM es el ciclo de vida de la orden de trabajo (Work Order Life Cycle) \cite{dumas2018}. Dicha entidad actúa como un contenedor semántico y un elemento de correlación unificado, vinculando de manera unívoca al cliente, el contrato legal, los activos físicos intervenidos, los técnicos asignados, las evidencias recolectadas en sitio, los costos operativos asociados y los entregables documentales (como informes técnicos y actas de entrega). La adopción de este enfoque puede fortalecer la trazabilidad del flujo operativo y disminuir la recaptura manual de datos dispersos en formatos físicos, siempre que su efecto se valide con registros de uso \cite{fieldaware2023}.
 
 \section{Sistemas CMMS, ERP y su convergencia técnica}
 
@@ -76,18 +76,18 @@ A modo de síntesis, las cinco dimensiones teóricas descritas se interconectan 
 \small
 \begingroup
 \setlength{\tabcolsep}{4pt}
-\def\SynthRow#1#2#3{\parbox[t]{3.0cm}{\raggedright #1} & \parbox[t]{4.2cm}{\raggedright #2} & \parbox[t]{8.0cm}{\raggedright #3}\\\midrule}
+\def\SynthRow#1#2#3{\parbox[t]{3.0cm}{\raggedright #1} & \parbox[t]{4.2cm}{\raggedright #2} & \parbox[t]{8.0cm}{\raggedright #3}\\\hline}
 \begin{adjustbox}{max width=\textwidth}
-\begin{tabular}{@{}l l l@{}}
-\toprule
+\begin{tabular}{|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Dimensión Teórica} & \textbf{Concepto Clave} & \textbf{Aporte Operativo al Aplicativo} \\
-\midrule
+\hline
 \SynthRow{Ingeniería de Software}{Arquitectura desacoplada de tres capas y modularidad MVC.}{Mantenibilidad del monorepo, aislamiento de lógica de negocio y tests automatizados.}
 \SynthRow{Gestión de Servicios}{El ciclo de vida de la orden de trabajo como eje de datos.}{Centralización de evidencias, estados, personal y costos por cada servicio en campo.}
 \SynthRow{Resiliencia Offline}{PWA, Service Workers y sincronización local en IndexedDB.}{Continuidad operativa para técnicos laborando en zonas sin conectividad celular.}
 \SynthRow{Formularios Dinámicos}{Declaración basada en esquemas estructurados reutilizables.}{Flexibilidad operativa para soportar múltiples formatos de inspección sin redesplegar.}
 \SynthRow{Seguridad por Diseño}{Estándares OWASP Top 10, JWT HttpOnly y RBAC estricto.}{Protección contra fugas de datos y control de acceso sobre los roles de CERMONT S.A.S..}
-\bottomrule
+\hline
 \end{tabular}
 \end{adjustbox}
 \endgroup
@@ -111,6 +111,58 @@ Para el caso de CERMONT S.A.S., la toma de decisiones arquitectónicas estuvo gu
 
 Desde esta perspectiva, los ADR cumplen una función metodológica: registrar por qué una decisión fue adoptada, qué alternativas se evaluaron y qué limitaciones permanecen abiertas. Esta práctica fortalece la mantenibilidad del proyecto y mejora la auditabilidad académica del desarrollo, especialmente en un trabajo de grado donde es necesario diferenciar entre lo implementado, lo parcialmente implementado y lo propuesto para evolución futura.
 
+\section{Herramientas tecnológicas utilizadas y criterio de selección}
+\label{sec:herramientas-stack-teorico}
+
+El marco teórico también debe explicar las herramientas concretas empleadas en el desarrollo, no como una lista de nombres comerciales, sino como un conjunto de decisiones técnicas asociadas al problema de CERMONT S.A.S. La Figura \ref{fig:ecosistema-tecnologico-cermont} organiza las tecnologías verificables del repositorio por capa de responsabilidad: interfaz de usuario, API, contratos, seguridad, persistencia, pruebas y soporte de despliegue. Esta lectura por capas permite defender por qué el proyecto no se abordó como un conjunto de formularios aislados, sino como una plataforma web con contratos compartidos y trazabilidad documental.
+
+\begin{figure}[!htbp]
+\centering
+\begin{adjustbox}{max width=\textwidth,max totalheight=0.44\textheight,keepaspectratio}
+\input{Figuras/ecosistema_tecnologico_cermont.tex}
+\end{adjustbox}
+\caption{Ecosistema tecnológico empleado en el aplicativo CERMONT, organizado por capas de responsabilidad. Fuente: elaboración propia con base en el repositorio del proyecto.}
+\label{fig:ecosistema-tecnologico-cermont}
+\end{figure}
+
+La selección de tecnologías se realizó atendiendo restricciones académicas y empresariales: un solo desarrollador principal durante la práctica, necesidad de mantener coherencia entre frontend y backend, operación en campo con conectividad variable, manejo de documentos heterogéneos y control de permisos por rol. La Tabla \ref{tab:seleccion-stack-tecnologico} presenta una versión sintética, pensada para recrearse manualmente en Word si el documento se entrega en ese formato. Por esa razón se evitaron columnas redundantes, versiones excesivas o descripciones promocionales.
+
+\begin{table}[!htbp]
+\centering
+\caption{Justificación académica del stack tecnológico seleccionado. Fuente: elaboración propia.}
+\label{tab:seleccion-stack-tecnologico}
+\footnotesize
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{|p{3.2cm}|p{4.3cm}|p{3.4cm}|p{4.1cm}|}
+\hline\ClassicTableHeader
+\textbf{Tecnología} & \textbf{Necesidad del proyecto} & \textbf{Alternativa considerada} & \textbf{Criterio de selección}\\
+\hline
+Next.js y React & Construir vistas protegidas, formularios y paneles de seguimiento para los módulos del flujo operativo. & React SPA con Vite o Angular. & Integración de enrutamiento, componentes y protección de rutas en una misma base frontend.\\
+Node.js y Express & Exponer una API modular para órdenes, propuestas, evidencias, actas, SES y pagos. & NestJS o Fastify. & Menor complejidad estructural para un equipo pequeño y compatibilidad directa con middlewares de seguridad.\\
+MongoDB y Mongoose & Almacenar órdenes, evidencias y documentos con estructuras variables según el tipo de servicio. & PostgreSQL con ORM relacional. & Modelo documental adecuado para formularios y soportes heterogéneos; exige control explícito de consistencia.\\
+TypeScript & Evitar divergencias de tipos entre capas y favorecer la mantenibilidad del código. & JavaScript sin tipado estático. & Tipado estricto en frontend, backend y paquetes compartidos.\\
+Zod y paquetes compartidos & Validar datos con una fuente única de verdad entre contratos, API y formularios. & Joi o interfaces duplicadas. & Permite inferir tipos desde esquemas y aplicar validación en ambos extremos.\\
+JWT y RBAC & Controlar acceso a módulos sensibles según rol y estado del proceso. & Sesiones tradicionales o validación solo en interfaz. & Autenticación sin estado y autorización verificable en backend.\\
+TanStack Query y Zustand & Separar estado del servidor, sesión de usuario y estados de carga o error. & \texttt{fetch} directo en componentes o stores manuales. & Mejora la organización del frontend y evita mezclar red con componentes visuales.\\
+PWA, Service Worker e IndexedDB & Permitir captura y sincronización diferida en escenarios de conectividad variable. & Aplicación exclusivamente en línea. & Soporte técnico para operación offline parcial; la sincronización completa de archivos queda como línea de fortalecimiento.\\
+Vitest, Supertest y Biome & Validar reglas, endpoints y calidad estática del código. & Jest, pruebas manuales o linting disperso. & Ejecución rápida y coherente con TypeScript y el monorepo.\\
+npm workspaces y Docker & Organizar frontend, backend y paquetes compartidos; facilitar entornos reproducibles. & Repositorios separados o ejecución manual por carpeta. & Mantiene estructura monorepo y controla la duplicación de contratos.\\
+\hline
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+El enfoque \textit{contract-first} resume la forma en que estas herramientas se conectan. Primero se define el contrato de datos con Zod; luego se implementan el modelo, el servicio, la ruta HTTP, el cliente de API, el hook de consulta y finalmente la pantalla. Esta secuencia, representada en la Figura \ref{fig:flujo-contract-first-cermont}, evita que el frontend y el backend evolucionen con interpretaciones diferentes sobre una misma entidad del negocio.
+
+\begin{figure}[!htbp]
+\centering
+\begin{adjustbox}{max width=\textwidth,max totalheight=0.32\textheight,keepaspectratio}
+\input{Figuras/flujo_contract_first_cermont.tex}
+\end{adjustbox}
+\caption{Flujo contract-first aplicado a los módulos del aplicativo. Fuente: elaboración propia.}
+\label{fig:flujo-contract-first-cermont}
+\end{figure}
+
 % =====================================================================
 \section{Teoría de costos operativos y motor de trazabilidad financiera}
 \label{sec:teoria-costos}
@@ -119,7 +171,7 @@ En empresas contratistas multiservicio, la capacidad de comparar el costo presup
 
 El modelo conceptual de costos adoptado en el proyecto distingue tres categorías analíticas. El \textbf{Costo Presupuestado} (\textit{BudgetedCost}) se calcula durante la fase de propuesta económica y planeación, a partir de los recursos estimados (personal, materiales, equipos, transporte, subcontratos) y los precios unitarios definidos en catálogos. El \textbf{Costo Real} (\textit{ActualCost}) se registra durante la fase de ejecución, cuando los técnicos confirman el consumo de materiales, las horas de mano de obra, el uso de equipos y los gastos de transporte. El \textbf{Costo Facturado} (\textit{InvoicedCost}) corresponde al valor finalmente presentado al cliente mediante la factura electrónica. La diferencia entre el costo presupuestado y el costo real constituye la \textbf{varianza de ejecución}, mientras que la diferencia entre el costo real y el facturado representa el \textbf{margen operativo bruto}.
 
-La captura de costos en campo, habilitada por la arquitectura offline del sistema, introduce un requisito de integridad transaccional: un consumo de material registrado sin conectividad debe conservar su trazabilidad (usuario, fecha, orden de trabajo, tipo de recurso, cantidad y unidad) y sincronizarse sin duplicación cuando se recupere la conexión. Para ello, el sistema emplea identificadores de mutación del cliente (\path{clientMutationId}) que permiten al backend detectar y descartar envíos duplicados, garantizando la idempotencia de las operaciones de sincronización \cite{richards2020}.
+La captura de costos en campo, habilitada por la arquitectura offline del sistema, introduce un requisito de integridad transaccional: un consumo de material registrado sin conectividad debe conservar su trazabilidad (usuario, fecha, orden de trabajo, tipo de recurso, cantidad y unidad) y sincronizarse sin duplicación cuando se recupere la conexión. Para ello, el sistema emplea identificadores de mutación del cliente (\path{clientMutationId}) que permiten al backend detectar y descartar envíos duplicados, apoyando la idempotencia de las operaciones de sincronización \cite{richards2020}.
 
 La integración del motor de costos con los demás módulos del sistema sigue un patrón de arquitectura orientada a eventos: cada acción de consumo de recursos en el módulo de Ejecución, cada uso de repuestos en el módulo de Mantenimiento y cada gasto de transporte registrado emite un evento de dominio que alimenta el motor de costos. Este diseño evita el acoplamiento directo entre módulos y permite que el cálculo de costos se mantenga actualizado sin requerir consultas costosas que crucen múltiples colecciones de la base de datos.
 
@@ -132,7 +184,7 @@ La literatura sobre gestión de servicios de campo propone modelos de madurez qu
 \begin{enumerate}
     \item \textbf{Nivel 1 — Procesos manuales:} La totalidad de la gestión se realiza mediante papel, llamadas telefónicas y comunicación informal. No existe un repositorio centralizado de órdenes de trabajo. Las evidencias se almacenan en dispositivos personales sin trazabilidad. \textit{Este era el nivel de partida de CERMONT S.A.S. antes del proyecto.}
     \item \textbf{Nivel 2 — Herramientas ofimáticas aisladas:} Se utilizan hojas de cálculo, documentos Word y carpetas compartidas para registrar información, pero sin integración entre ellas. La captura de datos es manual y propensa a errores de transcripción. Los reportes se generan copiando y pegando información entre aplicaciones.
-    \item \textbf{Nivel 3 — Sistema digital integrado:} Una plataforma centralizada gestiona el ciclo de vida de la orden de trabajo, con módulos interconectados para planeación, ejecución, evidencias y cierre. Los datos se capturan una sola vez y fluyen entre módulos sin recaptura. La trazabilidad está garantizada mediante registros de auditoría. \textit{Este es el nivel objetivo del proyecto CERMONT.}
+    \item \textbf{Nivel 3 — Sistema digital integrado:} Una plataforma centralizada gestiona el ciclo de vida de la orden de trabajo, con módulos interconectados para planeación, ejecución, evidencias y cierre. Los datos se capturan en el punto de origen y se reutilizan entre módulos cuando existe contrato compartido. La trazabilidad se respalda mediante registros de auditoría. \textit{Este es el nivel objetivo del proyecto CERMONT.}
     \item \textbf{Nivel 4 — Operación inteligente:} El sistema incorpora capacidades predictivas (estimación de duración de trabajos, detección de necesidades de mantenimiento), optimización automática de rutas y asignación de recursos, y analítica avanzada para la toma de decisiones gerenciales.
     \item \textbf{Nivel 5 — Ecosistema autónomo:} Integración total con sistemas de clientes y proveedores, operación autónoma con mínima intervención humana, gemelos digitales de activos y operaciones, y capacidades de auto-remediación ante desviaciones del plan.
 \end{enumerate}
@@ -163,7 +215,7 @@ El código fuente del aplicativo se rige por los cinco principios SOLID, cuya ap
 
 \textbf{Principio Abierto/Cerrado (OCP).} Los módulos del sistema están abiertos a extensión pero cerrados a modificación. El módulo de formularios dinámicos, por ejemplo, permite añadir nuevos tipos de campo y reglas de validación sin modificar el motor de renderizado. De igual forma, el sistema de eventos de auditoría permite suscribir nuevos consumidores sin alterar los productores de eventos existentes.
 
-\textbf{Principio de Sustitución de Liskov (LSP).} Las abstracciones definidas en el sistema pueden ser sustituidas por implementaciones concretas sin alterar el comportamiento esperado. Los repositorios simulados utilizados en las pruebas unitarias respetan las mismas interfaces que los repositorios reales, garantizando que las pruebas sean representativas del comportamiento en producción.
+\textbf{Principio de Sustitución de Liskov (LSP).} Las abstracciones definidas en el sistema pueden ser sustituidas por implementaciones concretas sin alterar el comportamiento esperado. Los repositorios simulados utilizados en las pruebas unitarias respetan las mismas interfaces que los repositorios reales, favoreciendo que las pruebas sean representativas del comportamiento esperado.
 
 \textbf{Principio de Segregación de Interfaces (ISP).} Los contratos de API y los esquemas de datos no obligan a los consumidores a depender de campos que no utilizan. Cada endpoint de la API expone exclusivamente los datos requeridos por la operación, evitando respuestas sobrecargadas que aumentarían el tráfico de red y el acoplamiento entre módulos.
 
@@ -172,8 +224,6 @@ El código fuente del aplicativo se rige por los cinco principios SOLID, cuya ap
 La aplicación conjunta de estos principios produjo un código base donde los cambios en un módulo rara vez generan efectos colaterales en otros módulos, donde las pruebas unitarias pueden ejecutarse en milisegundos sin dependencias externas, y donde la incorporación de nuevas funcionalidades no requiere reescribir componentes existentes.
 
 La aplicación de estos principios no fue un ejercicio académico abstracto, sino una necesidad práctica impuesta por las restricciones del proyecto: un único desarrollador, un plazo limitado por el calendario académico de la práctica empresarial, y la expectativa de que el código resultante pudiera ser mantenido y extendido por el personal de CERMONT S.A.S. sin requerir la presencia permanente del autor. Los principios SOLID y los patrones de diseño actuaron como un marco de referencia que guió las decisiones cotidianas de implementación, desde la organización de archivos en el repositorio hasta la firma de las funciones en los servicios de dominio. La experiencia confirma lo señalado por Martin \cite{martin2008}: el código limpio no es un lujo estético, sino una inversión en la capacidad de evolución del software a lo largo del tiempo.
-
-% --- AMPLIACIÓN ACADÉMICA INTEGRADA CAPÍTULO 2 ---
 
 \section{Marco conceptual ampliado para la plataforma documental-operativa}
 \label{sec:marco-conceptual-documental-operativo}
@@ -200,16 +250,16 @@ El contexto de operación de CERMONT S.A.S. exige requisitos de calidad que van 
 \caption{Relación entre atributos de calidad y decisiones de diseño del sistema. Fuente: elaboración propia.}
 \label{tab:atributos-calidad-decisiones}
 \begin{adjustbox}{max width=\textwidth}
-\begin{tabular}{p{3.0cm}p{5.8cm}p{5.8cm}}
-\toprule
+\begin{tabular}{|p{3.0cm}|p{5.8cm}|p{5.8cm}|}
+\hline\ClassicTableHeader
 \textbf{Atributo de calidad} & \textbf{Necesidad en CERMONT S.A.S.} & \textbf{Decisión de diseño asociada}\\
-\midrule
+\hline
 Mantenibilidad & Adaptar el sistema a múltiples servicios, formatos y tipos de actividad. & Arquitectura modular, separación frontend/backend y contratos compartidos.\\
 Seguridad & Controlar acceso a información operativa, administrativa y documental. & Autenticación, RBAC, validación de entradas y auditoría de eventos críticos.\\
 Usabilidad & Facilitar el registro de información durante la actividad técnica. & Interfaces por flujo, estados de carga, formularios orientados a tarea y diseño mobile-first.\\
 Tolerancia a conectividad & Registrar información en campo aun cuando la red sea limitada. & Estrategia PWA, almacenamiento local y sincronización diferida en escenarios controlados.\\
 Auditabilidad & Reconstruir decisiones, cambios de estado y soportes usados para cierre. & Eventos, historial de orden, vínculos entre evidencias, informes, actas, SES y factura.\\
-\bottomrule
+\hline
 \end{tabular}
 \end{adjustbox}
 \end{table}

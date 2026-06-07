@@ -183,8 +183,8 @@ function TemplateDraftReviewerSidebar({
 					{targetStep && (
 						<p className="mt-2 text-[11px] text-muted-foreground">
 							Fase {targetStep.phase === "operational" ? "operativa" : "administrativa"} ·{" "}
-							{targetStep.requiredDocuments.length} documentos ·{" "}
-							{targetStep.requiredForms.length} formularios
+							{targetStep.requiredDocuments.length} documentos · {targetStep.requiredForms.length}{" "}
+							formularios
 						</p>
 					)}
 				</div>
@@ -220,9 +220,9 @@ function TemplateDraftReviewerSidebar({
 				<div className="flex gap-3">
 					<Sparkles className="mt-0.5 size-4 shrink-0 text-amber-500" />
 					<p className="text-[10px] leading-relaxed text-secondary">
-						<span className="font-bold text-foreground">Regla de publicación:</span>{" "}
-						la plantilla solo debe aprobarse cuando los campos, opciones y firmas requeridas
-						representen la lógica real del paso objetivo.
+						<span className="font-bold text-foreground">Regla de publicación:</span> la plantilla
+						solo debe aprobarse cuando los campos, opciones y firmas requeridas representen la
+						lógica real del paso objetivo.
 					</p>
 				</div>
 			</div>
@@ -490,16 +490,15 @@ export function TemplateDraftReviewer({ draft }: TemplateDraftReviewerProps) {
 	const updateDraft = useUpdateDraft(draft._id);
 	const submitForReview = useSubmitDraftForReview(draft._id);
 
-	const [state, dispatch] = useReducer(
-		templateDraftReviewerReducer,
-		draft,
-		createReviewerState,
-	);
+	const [state, dispatch] = useReducer(templateDraftReviewerReducer, draft, createReviewerState);
 
 	const { name, description, reviewerNotes, sections, targetStepCode } = state;
 
-	const setSections = (value: TemplateDraftSectionItem[] | ((curr: TemplateDraftSectionItem[]) => TemplateDraftSectionItem[])) => 
-		dispatch({ type: "SET_SECTIONS", value });
+	const setSections = (
+		value:
+			| TemplateDraftSectionItem[]
+			| ((curr: TemplateDraftSectionItem[]) => TemplateDraftSectionItem[]),
+	) => dispatch({ type: "SET_SECTIONS", value });
 
 	const isConverted = draft.status === "converted_to_template";
 	const isEditingLocked = isConverted;
@@ -769,12 +768,8 @@ export function TemplateDraftReviewer({ draft }: TemplateDraftReviewerProps) {
 					sectionCount={sections.length}
 					totalFields={totalFields}
 					confidence={draft.confidence || 0}
-					onTargetStepCodeChange={(value) =>
-						dispatch({ type: "SET_TARGET_STEP_CODE", value })
-					}
-					onReviewerNotesChange={(value) =>
-						dispatch({ type: "SET_REVIEWER_NOTES", value })
-					}
+					onTargetStepCodeChange={(value) => dispatch({ type: "SET_TARGET_STEP_CODE", value })}
+					onReviewerNotesChange={(value) => dispatch({ type: "SET_REVIEWER_NOTES", value })}
 				/>
 			</div>
 		</div>

@@ -7,6 +7,12 @@ import type { Evidence, EvidenceType } from "@cermont/shared-types";
 export type EvidenceFilter = "all" | EvidenceType;
 export type EvidenceViewMode = "gallery" | "table";
 
+// Hoisted Intl formatters for performance
+const EVIDENCE_DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
+	dateStyle: "medium",
+	timeStyle: "short",
+});
+
 const LEGACY_STAGE_TO_TYPE: Record<string, EvidenceType> = {
 	antes: "before",
 	durante: "during",
@@ -32,7 +38,7 @@ export const EVIDENCE_LABELS: Record<EvidenceType, string> = {
 	signature: "Firma",
 };
 
-export const EVIDENCE_DESCRIPTIONS: Record<EvidenceType, string> = {
+const EVIDENCE_DESCRIPTIONS: Record<EvidenceType, string> = {
 	before: "Estado inicial antes de intervenir el servicio o activo.",
 	during: "Avance operativo, maniobras y soporte del trabajo en curso.",
 	after: "Resultado final entregable después de ejecutar la orden.",
@@ -88,14 +94,12 @@ export function normalizeEvidenceStage(raw: string): string {
 	return resolveEvidenceType(raw) ?? raw;
 }
 
-export function groupEvidencesByStage(
-	evidences: Evidence[],
-): Array<{
-		description: string;
-		items: Evidence[];
-		label: string;
-		type: EvidenceType;
-	}> {
+export function groupEvidencesByStage(evidences: Evidence[]): Array<{
+	description: string;
+	items: Evidence[];
+	label: string;
+	type: EvidenceType;
+}> {
 	const grouped = EVIDENCE_STAGE_ORDER.map((type) => ({
 		type,
 		label: EVIDENCE_LABELS[type],
@@ -108,10 +112,7 @@ export function groupEvidencesByStage(
 
 export function formatEvidenceDate(date: string | Date) {
 	const d = typeof date === "string" ? new Date(date) : date;
-	return new Intl.DateTimeFormat("es-CO", {
-		dateStyle: "medium",
-		timeStyle: "short",
-	}).format(d);
+	return EVIDENCE_DATE_FORMATTER.format(d);
 }
 
 export function getFileName(url: string) {

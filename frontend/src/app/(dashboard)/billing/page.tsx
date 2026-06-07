@@ -21,9 +21,7 @@ export default function BillingPage() {
 	return (
 		<section className="space-y-6" aria-labelledby="billing-title">
 			<header>
-				<p className="text-sm font-medium text-brand">
-					Dashboard / Cierre administrativo
-				</p>
+				<p className="text-sm font-medium text-brand">Dashboard / Cierre administrativo</p>
 				<h1 id="billing-title" className="mt-2 text-2xl font-semibold text-foreground">
 					Cierre administrativo
 				</h1>

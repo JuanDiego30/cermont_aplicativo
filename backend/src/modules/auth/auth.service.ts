@@ -28,7 +28,7 @@ export interface TokenPair {
 	expiresIn: number;
 }
 
-export interface LoginResponse {
+export interface LoginContract {
 	accessToken: string;
 	refreshToken: string;
 	user: {
@@ -40,12 +40,12 @@ export interface LoginResponse {
 	};
 }
 
-export interface RefreshResponse {
+export interface RefreshContract {
 	accessToken: string;
 }
 
 // SECURITY FIX: RT-004 - Use JWT standard 'sub' claim instead of custom '_id' and 'email'
-interface JwtPayload {
+interface JwtClaims {
 	sub?: string; // JWT standard - user identifier
 	_id?: string; // Backward compatibility
 	email?: string; // Deprecated - email removed from token
@@ -120,7 +120,7 @@ async function blacklistToken(
  * Autentica un usuario con email + contraseña.
  * @throws UnauthorizedError si el usuario no existe, la cuenta está inactiva o la contraseña es incorrecta
  */
-export async function login(email: string, password: string): Promise<LoginResponse> {
+export async function login(email: string, password: string): Promise<LoginContract> {
 	const user = await User.findOne({ email }).select("+password");
 
 	if (!user) {
@@ -183,11 +183,11 @@ export async function changePassword(userId: string, payload: ChangePasswordInpu
  * Renueva el access token a partir de un refresh token válido.
  * @throws UnauthorizedError si el token es inválido, expirado o fue revocado
  */
-export async function refreshAccessToken(refreshToken: string): Promise<RefreshResponse> {
-	let payload: JwtPayload;
+export async function refreshAccessToken(refreshToken: string): Promise<RefreshContract> {
+	let payload: JwtClaims;
 
 	try {
-		payload = jwt.verify(refreshToken, getRefreshTokenSecret()) as JwtPayload;
+		payload = jwt.verify(refreshToken, getRefreshTokenSecret()) as JwtClaims;
 	} catch (err) {
 		if (err instanceof jwt.TokenExpiredError) {
 			throw new UnauthorizedError("Refresh token expired");

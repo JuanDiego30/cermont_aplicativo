@@ -8,8 +8,11 @@
  */
 
 import {
+	AttachResourceImageSchema,
 	type Certification,
 	CreateResourceSchema,
+	DetachResourceImageSchema,
+	type FileAssetRef,
 	type ResourceEvidenceRequirement,
 	type ResourceFileAttachment,
 	type Resource as ResourceResponse,
@@ -42,6 +45,11 @@ interface ResourceRecord {
 	purchase_date?: Date | string;
 	maintenance_date?: Date | string;
 	category?: string;
+	// New catalog fields
+	unit?: string;
+	default_quantity?: number;
+	active?: boolean;
+	fileAssets?: FileAssetRef[];
 	certifications?: Certification[];
 	documents?: ResourceFileAttachment[];
 	evidenceRequirements?: ResourceEvidenceRequirement[];
@@ -52,28 +60,58 @@ interface ResourceRecord {
 	updated_at: Date | string;
 }
 
+type OptionalFieldMapper<T, V> = [key: keyof T, value: V | undefined, transform?: (v: V) => string];
+
+function setOptionalFields<T>(
+	target: T,
+	_resource: ResourceRecord,
+	mappers: OptionalFieldMapper<T, string | Date>[],
+): void {
+	for (const [key, value, transform] of mappers) {
+		if (value !== undefined && value !== null && value !== "") {
+			if (transform) {
+				target[key] = transform(value) as T[keyof T];
+			} else {
+				target[key] = value as T[keyof T];
+			}
+		}
+	}
+}
+
 function serializeResource(resource: ResourceRecord): ResourceResponse {
-	return {
+	const base: ResourceResponse = {
 		_id: String(resource._id),
 		name: resource.name,
 		type: resource.type,
 		status: resource.status,
-		...(resource.description ? { description: resource.description } : {}),
-		...(resource.serial_number ? { serialNumber: resource.serial_number } : {}),
-		...(resource.brand ? { brand: resource.brand } : {}),
-		...(resource.modelName ? { model: resource.modelName } : {}),
-		...(resource.purchase_date ? { purchaseDate: toIsoString(resource.purchase_date) } : {}),
-		...(resource.maintenance_date ? { maintenanceDate: toIsoString(resource.maintenance_date) } : {}),
-		...(resource.category ? { category: resource.category } : {}),
+		defaultQuantity: resource.default_quantity ?? 1,
+		active: resource.active ?? true,
+		images: (resource.fileAssets ?? []) as FileAssetRef[],
 		certifications: resource.certifications ?? [],
 		documents: resource.documents ?? [],
 		evidenceRequirements: resource.evidenceRequirements ?? [],
 		dynamicForms: (resource.dynamicForms ?? []) as string[],
-		...(resource.created_by ? { createdBy: String(resource.created_by) } : {}),
-		...(resource.updated_by ? { updatedBy: String(resource.updated_by) } : {}),
 		createdAt: toIsoString(resource.created_at) || new Date().toISOString(),
 		updatedAt: toIsoString(resource.updated_at) || new Date().toISOString(),
 	};
+
+	setOptionalFields(base, resource, [
+		["description", resource.description],
+		["serialNumber", resource.serial_number],
+		["brand", resource.brand],
+		["model", resource.modelName],
+		["category", resource.category],
+		["createdBy", resource.created_by, (v) => String(v)],
+		["updatedBy", resource.updated_by, (v) => String(v)],
+		["purchaseDate", resource.purchase_date, (v) => toIsoString(v)],
+		["maintenanceDate", resource.maintenance_date, (v) => toIsoString(v)],
+	]);
+
+	if (resource.unit) {
+		base.unit = resource.unit as ResourceResponse["unit"];
+	}
+
+	return base;
 }
 
 export const createResource = async (req: Request, res: Response) => {
@@ -84,17 +122,20 @@ export const createResource = async (req: Request, res: Response) => {
 };
 
 export const getAllResources = async (req: Request, res: Response) => {
-	const { type, status, search, limit = "50", offset = "0", page: pageQuery } = req.query;
+	const { type, status, search, active, limit = "50", offset = "0", page: pageQuery } = req.query;
 	const limitValue = parseNumberQuery(String(limit), 50, 100);
 	const pageValue = getString(pageQuery as string | undefined ?? "").trim()
 		? parseNumberQuery(String(pageQuery ?? ""), 1)
 		: offsetToPage(String(offset), limitValue);
+
+	const activeValue = active !== undefined ? active === "true" || active === "1" : undefined;
 
 	const result = await ResourceService.findAll(
 		{
 			type: getString(type as string | undefined).trim() || undefined,
 			status: getString(status as string | undefined).trim() || undefined,
 			search: getString(search as string | undefined).trim() || undefined,
+			active: activeValue,
 		},
 		pageValue,
 		limitValue,
@@ -136,4 +177,22 @@ export const updateResourceStatus = async (req: Request, res: Response) => {
 export const deleteResource = async (req: Request, res: Response) => {
 	await ResourceService.delete(getString(req.params.id));
 	return sendSuccess(res, { message: "Recurso eliminado exitosamente" });
+};
+
+// ─── Image Gallery Endpoints ─────────────────────────────────────────────────
+
+export const attachImage = async (req: Request, res: Response) => {
+	const resource = await ResourceService.attachImage(
+		getString(req.params.id),
+		AttachResourceImageSchema.parse(req.body),
+	);
+	return sendSuccess(res, serializeResource(resource as ResourceRecord));
+};
+
+export const detachImage = async (req: Request, res: Response) => {
+	const resource = await ResourceService.detachImage(
+		getString(req.params.id),
+		DetachResourceImageSchema.parse(req.body),
+	);
+	return sendSuccess(res, serializeResource(resource as ResourceRecord));
 };

@@ -32,10 +32,7 @@ export function RejectForm({
 	return (
 		<form
 			onSubmit={handleSubmit}
-			className={cn(
-				"space-y-3 rounded-xl border border-danger/30 bg-danger/5 p-4",
-				className,
-			)}
+			className={cn("space-y-3 rounded-xl border border-danger/30 bg-danger/5 p-4", className)}
 		>
 			<h3 className="text-sm font-semibold text-danger">{title}</h3>
 			<div className="space-y-1.5">

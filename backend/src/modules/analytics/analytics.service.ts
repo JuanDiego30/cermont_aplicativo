@@ -58,7 +58,7 @@ interface LeadTimeAggregate extends KpiLeadTime {
 	_id: string;
 }
 
-export interface KpiResult {
+export interface KpiSnapshot {
 	overview: KpiOverview;
 	by_stage: Record<string, number>;
 	by_priority: Record<string, number>;
@@ -69,7 +69,7 @@ export interface KpiResult {
 	generated_at: string;
 }
 
-export interface ErrorDashboardResult {
+export interface ErrorDashboardSnapshot {
 	total_errors: number;
 	by_module: Array<{ module: string; count: number }>;
 	by_endpoint: Array<{ module: string; endpoint: string; count: number; last_error_at: string }>;
@@ -189,7 +189,7 @@ const queryCompletedMonthCount = () => {
 
 // ─── Servicio ─────────────────────────────────────────────────────────────────
 
-export async function getKpis(): Promise<KpiResult> {
+export async function getKpis(): Promise<KpiSnapshot> {
 	const [
 		stageGroups,
 		priorityGroups,
@@ -248,7 +248,7 @@ export async function getKpis(): Promise<KpiResult> {
 	};
 }
 
-export function getErrorDashboard(limit = 10): ErrorDashboardResult {
+export function getErrorDashboard(limit = 10): ErrorDashboardSnapshot {
   const metrics = getErrorMetrics(limit);
 
   return {

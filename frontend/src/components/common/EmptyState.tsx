@@ -18,6 +18,7 @@
 import type { LucideIcon } from "lucide-react";
 import { Inbox } from "lucide-react";
 import type { ReactNode } from "react";
+import { MOTION } from "@/components/motion/motion-classes";
 import { cn } from "@/lib/utils";
 
 export interface EmptyStateAction {
@@ -60,25 +61,23 @@ export function EmptyState({
 		<section
 			aria-label={ariaLabel}
 			className={cn(
-				"flex flex-col items-center justify-center px-6 py-16 text-center",
+				`${MOTION.revealUp} motion-panel flex flex-col items-center justify-center px-6 py-16 text-center`,
 				className,
 			)}
 		>
 			{/* Icon */}
-			<div className="mb-6 flex size-16 items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800">
-				{customIcon ?? (Icon && <Icon className="size-8 text-neutral-400" aria-hidden="true" />)}
+			<div className="motion-subtle mb-6 flex size-16 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-[var(--text-tertiary)]">
+				{customIcon ?? (Icon && <Icon className="size-8" aria-hidden="true" />)}
 			</div>
 
 			{/* Title */}
-			<h3 className="mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+			<h3 className="mb-2 text-lg font-semibold text-[var(--text-primary)] [text-wrap:balance]">
 				{title}
 			</h3>
 
 			{/* Description */}
 			{description && (
-				<p className="mb-8 max-w-sm text-sm text-neutral-500 dark:text-neutral-400">
-					{description}
-				</p>
+				<p className="mb-8 max-w-sm text-sm text-[var(--text-secondary)]">{description}</p>
 			)}
 
 			{(action || secondaryAction) && (
@@ -88,9 +87,9 @@ export function EmptyState({
 							type="button"
 							onClick={action.onClick}
 							className={cn(
-								"inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4CAF50] focus-visible:ring-offset-2",
+								`${MOTION.button} inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4CAF50] focus-visible:ring-offset-2`,
 								action.variant === "secondary"
-									? "border border-black/[0.08] bg-white text-neutral-900 hover:bg-neutral-50 dark:border-white/[0.08] dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700"
+									? "border border-[var(--border-subtle)] bg-[var(--surface-primary)] text-[var(--text-primary)] hover:bg-[var(--surface-secondary)]"
 									: "bg-[#2154A6] text-white hover:bg-[#1a4390]",
 							)}
 						>
@@ -103,13 +102,15 @@ export function EmptyState({
 							type="button"
 							onClick={secondaryAction.onClick}
 							className={cn(
-								"inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4CAF50] focus-visible:ring-offset-2",
+								`${MOTION.button} inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4CAF50] focus-visible:ring-offset-2`,
 								secondaryAction.variant === "secondary"
-									? "border border-black/[0.08] bg-white text-neutral-900 hover:bg-neutral-50 dark:border-white/[0.08] dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700"
+									? "border border-[var(--border-subtle)] bg-[var(--surface-primary)] text-[var(--text-primary)] hover:bg-[var(--surface-secondary)]"
 									: "bg-[#2154A6] text-white hover:bg-[#1a4390]",
 							)}
 						>
-							{secondaryAction.icon && <secondaryAction.icon className="size-4" aria-hidden="true" />}
+							{secondaryAction.icon && (
+								<secondaryAction.icon className="size-4" aria-hidden="true" />
+							)}
 							{secondaryAction.label}
 						</button>
 					)}

@@ -24,7 +24,9 @@ type MaintenanceKitCreateInput = z.input<typeof CreateMaintenanceKitSchema>;
 type MaintenanceKitToolFormValue = MaintenanceKitCreateInput["tools"][number] & {
 	customFieldsText?: string;
 };
-type MaintenanceKitEquipmentFormValue = NonNullable<MaintenanceKitCreateInput["equipment"]>[number] & {
+type MaintenanceKitEquipmentFormValue = NonNullable<
+	MaintenanceKitCreateInput["equipment"]
+>[number] & {
 	customFieldsText?: string;
 };
 
@@ -132,7 +134,9 @@ export function MaintenanceKitForm({
 		tools: z
 			.array(ToolSchema.extend({ customFieldsText: z.string().optional() }))
 			.min(1, "At least one tool required"),
-		equipment: z.array(EquipmentSchema.extend({ customFieldsText: z.string().optional() })).default([]),
+		equipment: z
+			.array(EquipmentSchema.extend({ customFieldsText: z.string().optional() }))
+			.default([]),
 		isActive: z.boolean().optional(),
 	});
 	const {

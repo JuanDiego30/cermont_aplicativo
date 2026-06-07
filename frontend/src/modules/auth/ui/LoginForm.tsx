@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { Button } from "@/core/ui/Button";
@@ -18,8 +18,13 @@ type LoginFormInput = z.input<typeof LoginSchema>;
 export function LoginForm() {
 	const [showPassword, setShowPassword] = useState(false);
 	const [loginError, setLoginError] = useState<string | null>(null);
+	const [isHydrated, setIsHydrated] = useState(false);
 	const { login } = useAuthActions();
 	const { push } = useRouter();
+
+	useEffect(() => {
+		setIsHydrated(true);
+	}, []);
 
 	const {
 		register,
@@ -32,11 +37,18 @@ export function LoginForm() {
 
 	async function onSubmit(data: LoginInput) {
 		setLoginError(null);
+		if (typeof navigator !== "undefined" && !navigator.onLine) {
+			setLoginError("Sin conexión a internet. Conéctese a una red para iniciar sesión.");
+			return;
+		}
 		try {
 			await login(data.email, data.password);
 			push("/dashboard");
 		} catch (err) {
-			const message = err instanceof Error ? err.message : "Error de autenticación";
+			const message =
+				err instanceof Error
+					? err.message
+					: "Error de autenticación. Verifique su conexión e intente de nuevo.";
 			setLoginError(message);
 		}
 	}
@@ -56,7 +68,7 @@ export function LoginForm() {
 			{loginError && (
 				<div
 					role="alert"
-					className="rounded-2xl border border-[var(--color-danger)]/20 bg-[var(--color-danger-bg)] p-4 text-sm font-medium text-[var(--color-danger)] flex items-center gap-3 animate-in fade-in slide-in-from-top-1"
+					className="rounded-2xl border border-[var(--color-danger)]/20 bg-[var(--color-danger-bg)] p-4 text-sm font-medium text-[var(--color-danger)] flex items-center gap-3 animate-scale-in"
 				>
 					<div className="flex size-5 shrink-0 items-center justify-center rounded-full bg-[var(--color-danger)] text-white">
 						<span className="text-[10px] font-bold">!</span>
@@ -84,6 +96,7 @@ export function LoginForm() {
 						placeholder="correo@empresa.com"
 						leftIcon={<Mail className="size-4" />}
 						error={!!errors.email}
+						disabled={!isHydrated || isSubmitting}
 						{...register("email")}
 					/>
 				</FormField>
@@ -97,6 +110,7 @@ export function LoginForm() {
 							placeholder="••••••••"
 							leftIcon={<Lock className="size-4" />}
 							error={!!errors.password}
+							disabled={!isHydrated || isSubmitting}
 							{...register("password")}
 						/>
 						<button
@@ -120,6 +134,7 @@ export function LoginForm() {
 
 				<Button
 					type="submit"
+					disabled={!isHydrated || isSubmitting}
 					loading={isSubmitting}
 					variant="primary"
 					size="lg"

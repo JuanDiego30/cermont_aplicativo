@@ -3,10 +3,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { apiClient } from "@/lib/http/api-client";
-import {
-	useOrderDeliveryRecord,
-	useServiceEntrySheetsList,
-} from "@/modules/billing/queries";
+import { useOrderDeliveryRecord, useServiceEntrySheetsList } from "@/modules/billing/queries";
 
 vi.mock("@/lib/http/api-client", () => ({
 	apiClient: {

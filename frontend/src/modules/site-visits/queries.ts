@@ -1,10 +1,15 @@
 "use client";
 
 import type { ApiEnvelope, SiteVisitRecord } from "@cermont/shared-types";
-import type { QueryClient } from "@tanstack/react-query";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { STALE_TIMES } from "@/lib/constants/query-config";
-import { apiClient } from "@/lib/http/api-client";
+import { apiClient, isOfflineLikeError } from "@/lib/http/api-client";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/mutation-defaults";
+import {
+	readSiteVisitListSnapshot,
+	saveSiteVisitListSnapshot,
+} from "@/lib/offline/local-repositories";
+import { useOfflineStore } from "@/store/offline.store";
 
 type ListEnvelope<T> = ApiEnvelope<T[]> & {
 	meta?: {
@@ -21,9 +26,24 @@ export type WorkflowList<T> = {
 	page: number;
 	limit: number;
 	pages: number;
+	source: WorkflowListSource;
 };
 
-const SITE_VISIT_KEYS = {
+export type WorkflowListSource =
+	| {
+			status: "online";
+			updatedAt: string;
+	  }
+	| {
+			status: "offline_snapshot";
+			updatedAt: string;
+	  }
+	| {
+			status: "offline_empty";
+			updatedAt: string;
+	  };
+
+export const SITE_VISIT_KEYS = {
 	all: ["site-visits"] as const,
 	list: () => [...SITE_VISIT_KEYS.all, "list"] as const,
 	detail: (id: string) => [...SITE_VISIT_KEYS.all, "detail", id] as const,
@@ -36,27 +56,64 @@ function unwrapList<T>(response: ListEnvelope<T>): WorkflowList<T> {
 		page: response.meta?.page ?? 1,
 		limit: response.meta?.limit ?? response.data.length,
 		pages: response.meta?.pages ?? 1,
+		source: {
+			status: "online",
+			updatedAt: new Date().toISOString(),
+		},
 	};
 }
 
-function invalidateAll(qc: QueryClient) {
-	qc.invalidateQueries({ queryKey: SITE_VISIT_KEYS.all });
-}
-
-function invalidateDetail(qc: QueryClient, id: string) {
-	qc.invalidateQueries({ queryKey: SITE_VISIT_KEYS.detail(id) });
-	invalidateAll(qc);
+function isNetworkFailure(error: Error): boolean {
+	return !useOfflineStore.getState().isOnline || isOfflineLikeError(error);
 }
 
 // ─── List query ────────────────────────────────────────────────────────────
 
+export async function fetchSiteVisitList(): Promise<WorkflowList<SiteVisitRecord>> {
+	try {
+		const result = unwrapList<SiteVisitRecord>(
+			await apiClient.get<ListEnvelope<SiteVisitRecord>>("/site-visits?limit=50"),
+		);
+		await saveSiteVisitListSnapshot(result);
+		return result;
+	} catch (error) {
+		if (error instanceof Error && isNetworkFailure(error)) {
+			const localSnapshot = await readSiteVisitListSnapshot();
+			if (localSnapshot.status === "found") {
+				return {
+					items: localSnapshot.snapshot.items,
+					total: localSnapshot.snapshot.total,
+					page: localSnapshot.snapshot.page,
+					limit: localSnapshot.snapshot.limit,
+					pages: localSnapshot.snapshot.pages,
+					source: {
+						status: "offline_snapshot",
+						updatedAt: localSnapshot.snapshot.updatedAt,
+					},
+				};
+			}
+
+			return {
+				items: [],
+				total: 0,
+				page: 1,
+				limit: 50,
+				pages: 0,
+				source: {
+					status: "offline_empty",
+					updatedAt: new Date().toISOString(),
+				},
+			};
+		}
+
+		throw error;
+	}
+}
+
 export function useSiteVisitsList() {
 	return useQuery({
 		queryKey: SITE_VISIT_KEYS.list(),
-		queryFn: async () =>
-			unwrapList<SiteVisitRecord>(
-				await apiClient.get<ListEnvelope<SiteVisitRecord>>("/site-visits?limit=50"),
-			),
+		queryFn: fetchSiteVisitList,
 		staleTime: STALE_TIMES.REALTIME,
 		placeholderData: keepPreviousData,
 	});
@@ -78,34 +135,57 @@ export function useSiteVisit(id: string) {
 export function useCreateSiteVisit() {
 	const qc = useQueryClient();
 	return useMutation({
+		mutationKey: OFFLINE_MUTATION_KEYS.siteVisitCreate,
 		mutationFn: (data: Record<string, unknown>) =>
 			apiClient.post<ApiEnvelope<SiteVisitRecord>>("/site-visits", data),
-		onSuccess: () => invalidateAll(qc),
+		networkMode: "offlineFirst",
+		retry: 0,
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: SITE_VISIT_KEYS.all });
+		},
 	});
 }
 
 export function useStartSiteVisit(id: string) {
 	const qc = useQueryClient();
 	return useMutation({
+		mutationKey: OFFLINE_MUTATION_KEYS.siteVisitStart,
 		mutationFn: () => apiClient.post<ApiEnvelope<SiteVisitRecord>>(`/site-visits/${id}/start`),
-		onSuccess: () => invalidateDetail(qc, id),
+		networkMode: "offlineFirst",
+		retry: 0,
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: SITE_VISIT_KEYS.detail(id) });
+			void qc.invalidateQueries({ queryKey: SITE_VISIT_KEYS.all });
+		},
 	});
 }
 
 export function useCompleteSiteVisit(id: string) {
 	const qc = useQueryClient();
 	return useMutation({
+		mutationKey: OFFLINE_MUTATION_KEYS.siteVisitComplete,
 		mutationFn: (data: Record<string, unknown>) =>
 			apiClient.post<ApiEnvelope<SiteVisitRecord>>(`/site-visits/${id}/complete`, data),
-		onSuccess: () => invalidateDetail(qc, id),
+		networkMode: "offlineFirst",
+		retry: 0,
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: SITE_VISIT_KEYS.detail(id) });
+			void qc.invalidateQueries({ queryKey: SITE_VISIT_KEYS.all });
+		},
 	});
 }
 
 export function useCancelSiteVisit(id: string) {
 	const qc = useQueryClient();
 	return useMutation({
+		mutationKey: OFFLINE_MUTATION_KEYS.siteVisitCancel,
 		mutationFn: (data: { reason: string }) =>
 			apiClient.post<ApiEnvelope<SiteVisitRecord>>(`/site-visits/${id}/cancel`, data),
-		onSuccess: () => invalidateDetail(qc, id),
+		networkMode: "offlineFirst",
+		retry: 0,
+		onSuccess: () => {
+			void qc.invalidateQueries({ queryKey: SITE_VISIT_KEYS.detail(id) });
+			void qc.invalidateQueries({ queryKey: SITE_VISIT_KEYS.all });
+		},
 	});
 }

@@ -2,7 +2,7 @@
  * UserService Unit Tests (Minimal - Validates Mock Path Setup)
  *
  * These tests validate that UserService can be properly mocked
- * and imported without "undefined" errors.
+ * and imported without missing-value errors.
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";

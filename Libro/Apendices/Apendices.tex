@@ -75,46 +75,53 @@ Este documento de mantenimiento físico de infraestructura de telecomunicaciones
 
 El aplicativo web de CERMONT S.A.S. se construyó de manera incremental mediante un flujo de trabajo estructurado de veintidós iteraciones de ingeniería, documentadas en el directorio del repositorio como bitácora técnica de prompts. A continuación se desglosa el registro de estas iteraciones, asociando cada prompt a su objetivo tecnológico y su aporte concreto.
 
-\begin{longtable}{C{1.2cm} L{3.2cm} L{4.2cm} L{4.2cm} C{1.4cm}}
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{longtable}{|C{1.1cm}|L{3.1cm}|L{4.1cm}|L{4.3cm}|C{1.2cm}|}
 \caption{Bitácora cronológica y técnica de la serie de prompts 00--21. Fuente: Elaboración propia.} \label{tab:bitacora-prompts-table} \\
-\toprule
-\textbf{Prompt} & \textbf{Tema de Iteración} & \textbf{Objetivo Tecnológico} & \textbf{Aporte Técnico en Código} & \textbf{Capítulo} \\
-\midrule
+\hline\ClassicTableHeader
+\textbf{Prompt} & \textbf{Iteración} & \textbf{Objetivo tecnológico} & \textbf{Evidencia técnica resumida} & \textbf{Cap.} \\
+\hline
 \endfirsthead
-\multicolumn{5}{c}{{\bfseries \tablename\ \thetable{} -- Continúa de la página anterior}} \\
-\toprule
-\textbf{Prompt} & \textbf{Tema de Iteración} & \textbf{Objetivo Tecnológico} & \textbf{Aporte Técnico en Código} & \textbf{Capítulo} \\
-\midrule
+\hline
+\multicolumn{5}{|c|}{{\bfseries \tablename\ \thetable{} -- Continúa de la página anterior}} \\
+\hline\ClassicTableHeader
+\textbf{Prompt} & \textbf{Iteración} & \textbf{Objetivo tecnológico} & \textbf{Evidencia técnica resumida} & \textbf{Cap.} \\
+\hline
 \endhead
-\midrule
-\multicolumn{5}{r}{{Continúa en la siguiente página...}} \\
+\hline
+\multicolumn{5}{|r|}{{Continúa en la siguiente página...}} \\
+\hline
 \endfoot
-\bottomrule
+\hline
 \endlastfoot
 
-00 & Foundation & Definir base transversal de seguridad y diseño & Roles en \texttt{packages/domain}, auth middleware, proxy.ts & 5, 6 \\ \midrule
-01 & Dashboard & Panel analítico e indicadores de gestión & Componente Dashboard, consulta de KPIs y estado de OTs & 6 \\ \midrule
-02 & Work Requests & Captura del paso 1 del flujo de negocio & \texttt{work-request.schema.ts}, router y API del paso 1 & 6 \\ \midrule
-03 & Site Visits & Registro y evidencias del paso 2 del flujo & \texttt{site-visit.schema.ts}, backend y frontend de visitas & 6 \\ \midrule
-04 & Proposals & Gestión de la cotización y aprobación del paso 3 y 4 & \texttt{proposal.schema.ts}, cálculo de impuestos y costos & 6 \\ \midrule
-05 & ServiceCase & Consolidación de la entidad Orden de Trabajo & \texttt{order.schema.ts}, lógica de asignación y transiciones & 6 \\ \midrule
-06 & Planning Packet & Digitalización del paso 5 (Planeación) & \texttt{planning-packet.schema.ts}, definición de kits & 6 \\ \midrule
-07 & Execution Session & Soporte transaccional del paso 6 (Ejecución) & \texttt{execution-session.service.ts}, control de estados & 6 \\ \midrule
-08 & Evidences & Captura de fotos y metadatos EXIF (paso 7) & \texttt{evidence.service.ts}, validación y compresión de fotos & 6, 8 \\ \midrule
-09 & Tech Reports & Generación de informes del paso 7 y 8 & \texttt{technical-report.schema.ts}, PDF dinámicos con pdf-lib & 6 \\ \midrule
-10 & Delivery Records & Formalización del paso 9 (Cierre técnico) & \texttt{delivery-record.schema.ts}, firmas en pantalla & 6 \\ \midrule
-11 & Admin Closure & Cierre administrativo tras la ejecución & \texttt{order-closure.service.ts}, checklist interno gerencial & 6 \\ \midrule
-12 & Service Entry & Registro de SES y entrada de SAP Ariba (paso 11) & \texttt{service-entry-sheet.schema.ts}, API de facturación & 6 \\ \midrule
-13 & Invoices & Gestión de facturación DIAN (paso 12) & \texttt{invoice.schema.ts}, control de estados financieros & 6 \\ \midrule
-14 & Payments & Registro de pagos finales (paso 14) & \texttt{payment.schema.ts}, conciliación bancaria interna & 6 \\ \midrule
-15 & Cost Engine & Control financiero costos reales vs presupuesto & \texttt{costControl.schema.ts}, cálculo de rentabilidad & 6, 7 \\ \midrule
-16 & Assets & Registro de equipos intervenidos en campo & \texttt{asset.schema.ts}, historial de mantenimiento & 6 \\ \midrule
-17 & Maintenance & Catálogo de plantillas de mantenimiento & \texttt{MaintenanceKit.ts}, listas de repuestos asignados & 6 \\ \midrule
-18 & Document Core & Almacenamiento centralizado de documentos & \texttt{document.routes.ts}, control de versiones & 6 \\ \midrule
-19 & Resources & Planeación de personal y herramientas & \texttt{kit.service.ts}, alertas de stock & 6 \\ \midrule
-20 & Users \& Admin & Configuración del RBAC e interfaz admin & \texttt{user.routes.ts}, auditoría de accesos & 6 \\ \midrule
-21 & Cross-Module Stabilization & Corrida final de pruebas unitarias y calidad & Carpeta \texttt{backend/tests/}, \texttt{frontend/tests/}, \texttt{tooling/} & 8 \\
+00 & Foundation & Definir base transversal de seguridad y diseño. & Roles, autenticación, proxy de seguridad y lineamientos iniciales. & 5, 6 \\ \hline
+01 & Dashboard & Construir panel de seguimiento e indicadores de gestión. & Vista de tablero, KPIs y estado general de órdenes. & 6 \\ \hline
+02 & Work Requests & Capturar el paso 1 del flujo de negocio. & Contratos, rutas y formulario de solicitudes. & 6 \\ \hline
+03 & Site Visits & Registrar visitas y evidencias del paso 2. & Estructura de visitas y soporte de evidencia asociada. & 6 \\ \hline
+04 & Proposals & Gestionar cotización y aprobación comercial. & Contratos de propuesta, cálculo y estados comerciales. & 6 \\ \hline
+05 & ServiceCase & Consolidar la entidad orden de trabajo. & Modelo de orden, asignaciones y transiciones principales. & 6 \\ \hline
+06 & Planning Packet & Digitalizar el paso 5 de planeación. & Paquetes de planeación, recursos y kits típicos. & 6 \\ \hline
+07 & Execution Session & Soportar la ejecución en campo. & Sesiones de ejecución, estados y sincronización parcial. & 6 \\ \hline
+08 & Evidences & Asociar fotos y metadatos a la orden. & Servicio de evidencias, validación y soporte visual. & 6, 8 \\ \hline
+09 & Tech Reports & Generar informes técnicos desde datos estructurados. & Contratos de informe y generación documental. & 6 \\ \hline
+10 & Delivery Records & Formalizar el cierre técnico. & Actas, aceptación y soporte de entrega. & 6 \\ \hline
+11 & Admin Closure & Organizar el cierre administrativo. & Checklist interno, estados y trazabilidad de cierre. & 6 \\ \hline
+12 & Service Entry & Registrar SES y seguimiento Ariba. & Seguimiento interno de SES y soportes asociados. & 6 \\ \hline
+13 & Invoices & Gestionar facturación. & Control de estados de factura y relación con cierre. & 6 \\ \hline
+14 & Payments & Registrar pagos finales. & Estado de pago y cierre financiero interno. & 6 \\ \hline
+15 & Cost Engine & Controlar costos reales frente al presupuesto. & Motor de costos, consulta por orden y datos pendientes. & 6, 7 \\ \hline
+16 & Assets & Registrar activos intervenidos. & Historial básico de activos y relación con órdenes. & 6 \\ \hline
+17 & Maintenance & Crear plantillas de mantenimiento. & Catálogos de kits, repuestos y recursos asociados. & 6 \\ \hline
+18 & Document Core & Centralizar documentos operativos. & Gestión documental, versiones y soportes. & 6 \\ \hline
+19 & Resources & Planear personal, herramientas y equipos. & Recursos, kits y alertas operativas. & 6 \\ \hline
+20 & Users \& Admin & Configurar RBAC e interfaz administrativa. & Usuarios, permisos y auditoría de acceso. & 6 \\ \hline
+21 & Cross-Module Stabilization & Ejecutar pruebas y estabilización final. & Pruebas de backend, frontend y herramientas de calidad. & 8 \\ \hline
 \end{longtable}
+\endgroup
 
 Esta secuencia incremental garantiza que la complejidad técnica del sistema fuera dominada de forma progresiva, aplicando compuertas de verificación y análisis estático en cada paso del flujo Contract-First.
 
@@ -126,169 +133,43 @@ Esta secuencia incremental garantiza que la complejidad técnica del sistema fue
 
 En este apéndice se expone el código real de componentes e infraestructura crítica del sistema, sirviendo como evidencia explícita de la implementación.
 
-\section{Service Worker Manual de la PWA (\texttt{frontend/public/service-worker.js})}
-A continuación se transcribe en su totalidad el archivo del \textit{Service Worker} implementado de forma nativa en la ruta del frontend. Este script configura la estrategia de caché local, el enrutamiento adaptativo de peticiones y el manejo de mensajería para sincronización offline:
+\section{Service Worker Serwist de la PWA (\texttt{/serwist/sw.js})}
+La versión corregida de la PWA no utiliza un archivo manual en \path{frontend/public/service-worker.js}. El worker se genera desde \path{frontend/src/app/sw.ts}, se compila mediante \texttt{@serwist/turbopack} y se sirve desde la ruta \path{/serwist/sw.js}. Esta decisión evita mantener un script estático desactualizado y permite que el precache incorpore los artefactos reales producidos por \texttt{next build}.
 
-\begin{lstlisting}[language=JavaScript, caption={Service Worker PWA de CERMONT S.A.S. en \texttt{frontend/public/service-worker.js}}, label={lst:service-worker-real-code}]
-/**
- * SERVICE WORKER — CERMONT PWA
- * Estrategia de cache:
- * - STATIC_CACHE: Assets estaticos (CSS, JS, imagenes) — Cache-first
- * - DYNAMIC_CACHE: Paginas y datos dinamicos — Network-first con fallback
- * - API: network-only para evitar exponer datos stale/sensibles en Cache Storage
- *
- * NOTA: Este es un service-worker manual. En el futuro, considerar migrar a workbox
- *       para mejor gestion de precaching y actualizacion automatica.
- */
+\begin{lstlisting}[language=TypeScript, caption={Estructura real del Service Worker Serwist de CERMONT}, label={lst:service-worker-serwist}]
+import { defaultCache } from "@serwist/turbopack/worker";
+import {
+  CacheFirst,
+  ExpirationPlugin,
+  NetworkFirst,
+  NetworkOnly,
+  Serwist,
+  StaleWhileRevalidate,
+} from "serwist";
 
-const STATIC_CACHE = "cermont-static-v1";
-const DYNAMIC_CACHE = "cermont-dynamic-v1";
-
-const STATIC_ASSETS = ["/", "/dashboard", "/manifest.json", "/offline.html"];
-
-/**
- * Install: Cachear assets estaticos
- */
-self.addEventListener("install", (event) => {
-	event.waitUntil(
-		caches.open(STATIC_CACHE).then((cache) => {
-			return cache.addAll(STATIC_ASSETS).catch((err) => {
-				console.warn("[SW] Error cacheando assets estaticos:", err);
-			});
-		}),
-	);
-	self.skipWaiting();
+const serwist = new Serwist({
+  precacheEntries: self.__SW_MANIFEST,
+  skipWaiting: true,
+  clientsClaim: true,
+  navigationPreload: true,
+  runtimeCaching: [
+    // /api/* y /uploads/* se mantienen NetworkOnly.
+    // /_next/static/* usa CacheFirst.
+    // /_next/image, /images y /landing usan StaleWhileRevalidate.
+    // Rutas internas visitadas usan NetworkFirst con expiracion.
+    ...defaultCache,
+  ],
+  fallbacks: {
+    entries: [{ url: "/~offline", matcher: ({ request }) => request.destination === "document" }],
+  },
 });
 
-/**
- * Activate: Limpiar caches viejos
- */
-self.addEventListener("activate", (event) => {
-	event.waitUntil(
-		caches.keys().then((cacheNames) => {
-			return Promise.all(
-				cacheNames
-					.filter((name) => !name.startsWith("cermont-"))
-					.map((name) => caches.delete(name)),
-			);
-		}),
-	);
-	self.clients.claim();
-});
-
-/**
- * Fetch: Estrategia de cache segun el tipo de request
- */
-self.addEventListener("fetch", (event) => {
-	const { request } = event;
-	const url = new URL(request.url);
-
-	// Solo cachear GET requests
-	if (request.method !== "GET") {
-		return;
-	}
-
-	// 1. STATIC ASSETS (JS, CSS, imagenes) — Cache-first
-	if (
-		url.pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot)$/) ||
-		url.pathname.startsWith("/api/uploads")
-	) {
-		event.respondWith(
-			caches.match(request).then((cached) => {
-				if (cached) {
-					return cached;
-				}
-				return fetch(request).then((response) => {
-					// Cachear la respuesta si es exitosa
-					if (response && response.status === 200) {
-						const responseToCache = response.clone();
-						event.waitUntil(
-							caches.open(STATIC_CACHE).then((cache) => cache.put(request, responseToCache)),
-						);
-					}
-					return response;
-				});
-			}),
-		);
-		return;
-	}
-
-	// 2. API CALLS (/api/*) — Network-only
-	if (url.pathname.startsWith("/api/")) {
-		event.respondWith(
-			fetch(request)
-				.then((response) => response)
-				.catch(() => {
-					return new Response(JSON.stringify({ error: "Sin conexion a internet" }), {
-						status: 503,
-						headers: { "Content-Type": "application/json" },
-					});
-				}),
-		);
-		return;
-	}
-
-	// 3. PAGINAS HTML — Network-first con fallback a offline
-	if (request.mode === "navigate" || url.pathname === "/" || url.pathname.endsWith(".html")) {
-		event.respondWith(
-			fetch(request)
-				.then((response) => {
-					// Cachear paginas HTML exitosas
-					if (response && response.status === 200) {
-						const responseToCache = response.clone();
-						event.waitUntil(
-							caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, responseToCache)),
-						);
-					}
-					return response;
-				})
-				.catch(() => {
-					// Intenta cache de la pagina
-					return caches
-						.match(request)
-						.then((cached) => cached || caches.match("/offline.html"))
-						.catch(() => new Response("Offline", { status: 503 }));
-				}),
-		);
-		return;
-	}
-
-	// 4. DEFAULT — Network-first
-	event.respondWith(
-		fetch(request)
-			.then((response) => {
-				if (response && response.status === 200) {
-					const responseToCache = response.clone();
-					event.waitUntil(
-						caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, responseToCache)),
-					);
-				}
-				return response;
-			})
-			.catch(() => caches.match(request)),
-	);
-});
-
-/**
- * Message handling para sincronizacion manual
- */
-self.addEventListener("message", (event) => {
-	if (event.data?.type === "SKIP_WAITING") {
-		self.skipWaiting();
-		event.ports?.[0]?.postMessage({ success: true });
-	}
-
-	if (event.data?.type === "CLEAR_CACHE") {
-		event.waitUntil(
-			Promise.all([caches.delete(DYNAMIC_CACHE), caches.delete(STATIC_CACHE)]).then(() => {
-				event.ports?.[0]?.postMessage({ success: true });
-			}),
-		);
-	}
-});
+serwist.addEventListeners();
 \end{lstlisting}
 
-El service worker utiliza una división de cachés estáticos (\texttt{STATIC\_CACHE}) y dinámicos (\texttt{DYNAMIC\_CACHE}), previniendo el almacenamiento en caché de llamadas de la API para garantizar la seguridad transaccional de los datos de la empresa, aislando la lógica de red de forma óptima.
+La configuración se completa con \path{frontend/src/app/serwist/[path]/route.ts}, que expone \path{/serwist/sw.js} y agrega \path{/~offline} al precache. Las pruebas de producción verifican que el endpoint responde HTTP 200, que el worker queda activo y que rutas internas calentadas como \path{/service-cases}, \path{/work-requests}, \path{/site-visits} y \path{/templates} renderizan sin pantalla en blanco después de perder conectividad.
+
+Por seguridad, las respuestas de \path{/api/*} y \path{/uploads/*} no se almacenan en Cache Storage. Los datos consultables sin conexión se guardan en IndexedDB mediante Dexie y TanStack Query, por ejemplo en las tablas locales \texttt{offlineServiceCaseLists}, \texttt{offlineWorkRequestLists}, \texttt{offlineSiteVisitLists} y \texttt{offlineDocumentTemplateLists}.
 
 \section{Control de Acceso por Rol (RBAC Middleware del Backend)}
 A continuación se detalla cómo el backend en Express valida los roles de usuario a nivel de rutas, asegurando que solo usuarios autorizados según el perfil en la matriz RBAC (Gerente, Residente, Técnico, HES, Supervisor, Administrativo, Cliente) puedan acceder o modificar los recursos correspondientes:

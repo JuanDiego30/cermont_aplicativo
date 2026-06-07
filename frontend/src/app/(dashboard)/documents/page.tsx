@@ -400,8 +400,7 @@ function DocumentsFilters({
 							<option value="">Todos los casos</option>
 							{serviceCaseOptions.map((serviceCase) => (
 								<option key={serviceCase.id} value={serviceCase.id}>
-									{serviceCase.code || serviceCase.id} ·{" "}
-									{serviceCase.clientName || "Sin cuenta"}
+									{serviceCase.code || serviceCase.id} · {serviceCase.clientName || "Sin cuenta"}
 								</option>
 							))}
 						</select>
@@ -418,9 +417,7 @@ function DocumentsFilters({
 							id="documents-purpose-filter"
 							name="purpose"
 							value={purposeFilter}
-							onChange={(event) =>
-								setPurposeFilter(normalizePurposeFilter(event.target.value))
-							}
+							onChange={(event) => setPurposeFilter(normalizePurposeFilter(event.target.value))}
 							className={FILTER_FIELD_CLASS}
 						>
 							<option value="">Todos los propósitos</option>
@@ -611,8 +608,7 @@ function DocumentsPageInner() {
 	const setPurposeFilter = (value: DocumentPurpose | "") =>
 		dispatch({ type: "setPurposeFilter", value });
 	const setSearchInput = (value: string) => dispatch({ type: "setSearchInput", value });
-	const setServiceCaseFilter = (value: string) =>
-		dispatch({ type: "setServiceCaseFilter", value });
+	const setServiceCaseFilter = (value: string) => dispatch({ type: "setServiceCaseFilter", value });
 	const setStepFilter = (value: CermontOperationalStepCode | "") =>
 		dispatch({ type: "setStepFilter", value });
 

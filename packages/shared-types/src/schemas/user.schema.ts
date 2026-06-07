@@ -23,16 +23,23 @@ const normalizeRoleInput = (value: unknown): unknown => {
 	return normalized || value;
 };
 
-// Roles RBAC (8 exactos) — SSOT en @cermont/domain
+// Roles RBAC (15 roles) — SSOT en @cermont/domain
 // DOC-04 §4.2: valores canónicos en español y minúsculas.
 const CanonicalUserRoleSchema = z.enum([
 	"gerente",
 	"residente",
 	"hes",
+	"coord_administrativo",
+	"auxiliar_contable",
 	"supervisor",
+	"auxiliar_hes",
+	"supervisor_electricista",
+	"tecnico_electricista",
 	"operador",
 	"tecnico",
+	"oficial_construccion",
 	"administrativo",
+	"pasante",
 	"cliente",
 ]);
 export const UserRoleSchema = z.preprocess(normalizeRoleInput, CanonicalUserRoleSchema);

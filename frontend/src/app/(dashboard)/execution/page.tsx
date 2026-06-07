@@ -102,10 +102,7 @@ export default function ExecutionPage() {
 				<div className="flex flex-wrap items-start justify-between gap-4">
 					<div>
 						<p className="text-sm font-medium text-brand">Paso 6 / Ejecucion</p>
-						<h1
-							id="execution-title"
-							className="mt-2 text-2xl font-semibold text-foreground"
-						>
+						<h1 id="execution-title" className="mt-2 text-2xl font-semibold text-foreground">
 							Sesiones de ejecucion
 						</h1>
 						<p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
@@ -298,10 +295,7 @@ function LoadingRows() {
 	return (
 		<output className="space-y-3 p-4">
 			{["row-1", "row-2", "row-3"].map((key) => (
-				<div
-					key={key}
-					className="h-20 animate-pulse rounded-lg bg-surface-secondary"
-				/>
+				<div key={key} className="h-20 animate-pulse rounded-lg bg-surface-secondary" />
 			))}
 			<span className="sr-only">Cargando ejecuciones</span>
 		</output>
@@ -332,9 +326,7 @@ function ExecutionTable({ sessions }: { sessions: ExecutionSessionListItem[] }) 
 									<div className="font-mono text-sm font-medium text-foreground">
 										{session.code}
 									</div>
-									<div className="text-xs text-muted-foreground">
-										OT {session.workOrderId}
-									</div>
+									<div className="text-xs text-muted-foreground">OT {session.workOrderId}</div>
 								</td>
 								<td className="px-4 py-3">
 									<span
@@ -348,12 +340,8 @@ function ExecutionTable({ sessions }: { sessions: ExecutionSessionListItem[] }) 
 								<td className="px-4 py-3 text-sm text-secondary">
 									{formatDate(session.startedAt)}
 								</td>
-								<td className="px-4 py-3 text-sm text-secondary">
-									{session.evidenceIds.length}
-								</td>
-								<td className="px-4 py-3 text-sm text-secondary">
-									{session.blockers.length}
-								</td>
+								<td className="px-4 py-3 text-sm text-secondary">{session.evidenceIds.length}</td>
+								<td className="px-4 py-3 text-sm text-secondary">{session.blockers.length}</td>
 								<td className="px-4 py-3">
 									<Button asChild variant="secondary" size="sm">
 										<Link href={id ? `/execution/${id}` : "/execution"}>

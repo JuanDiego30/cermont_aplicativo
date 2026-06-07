@@ -6,8 +6,10 @@ import { Camera, LayoutGrid, Loader2, Rows3, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, type ReactNode, Suspense, useMemo, useState } from "react";
+import { SyncBanner } from "@/components/common/SyncBanner";
 import { Button } from "@/core/ui/Button";
 import { STALE_TIMES } from "@/lib/constants/query-config";
+import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
 import { readSearchParam } from "@/lib/utils/search-params";
 import { listEvidences } from "@/modules/evidences/queries";
 import { useOrders } from "@/modules/orders/queries";
@@ -377,11 +379,7 @@ interface EvidencesSummaryGridProps {
 	onStageSelect: (value: EvidenceFilter) => void;
 }
 
-function EvidencesSummaryGrid({
-	counts,
-	selectedType,
-	onStageSelect,
-}: EvidencesSummaryGridProps) {
+function EvidencesSummaryGrid({ counts, selectedType, onStageSelect }: EvidencesSummaryGridProps) {
 	const summaryItems: Array<{
 		label: string;
 		value: number;
@@ -398,7 +396,10 @@ function EvidencesSummaryGrid({
 	return (
 		<section aria-labelledby="evidences-summary-title">
 			<div className="mb-3 flex items-center justify-between gap-3">
-				<h2 id="evidences-summary-title" className="text-sm font-semibold text-[var(--text-primary)]">
+				<h2
+					id="evidences-summary-title"
+					className="text-sm font-semibold text-[var(--text-primary)]"
+				>
 					Cobertura por etapa
 				</h2>
 				<p className="text-xs text-[var(--text-tertiary)]">
@@ -521,9 +522,7 @@ function EvidencesGalleryView({ evidences }: EvidencesGalleryViewProps) {
 							>
 								{group.label}
 							</h3>
-							<p className="max-w-2xl text-sm text-[var(--text-secondary)]">
-								{group.description}
-							</p>
+							<p className="max-w-2xl text-sm text-[var(--text-secondary)]">{group.description}</p>
 						</div>
 						<p className="text-sm font-medium text-[var(--text-tertiary)]">
 							{group.items.length} soporte(s)
@@ -542,6 +541,7 @@ function EvidencesGalleryView({ evidences }: EvidencesGalleryViewProps) {
 }
 
 function EvidencesPageInner() {
+	const isOnline = useOnlineStatus();
 	const {
 		replace,
 		searchParams,
@@ -613,97 +613,102 @@ function EvidencesPageInner() {
 	};
 
 	return (
-		<section className="space-y-6" aria-labelledby="evidences-page-title">
-			<header className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
-				<div className="border-b border-[var(--border-default)] bg-[linear-gradient(135deg,rgba(58,120,216,0.12),rgba(15,23,41,0.02),transparent)] p-5 sm:px-6">
-					<p className="text-sm text-[var(--text-secondary)]">Dashboard / Soportes</p>
-					<div className="mt-3 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-						<div className="space-y-1">
-							<h1
-								id="evidences-page-title"
-								className="text-2xl font-semibold text-[var(--text-primary)]"
-							>
-								Soportes visuales
-							</h1>
-							<p className="max-w-2xl text-sm text-[var(--text-secondary)]">
-								Gestor visual de soportes por orden. Selecciona una orden para revisar la
-								captura operativa agrupada por etapa, detectar vacíos y abrir cada imagen en
-								contexto.
-							</p>
+		<>
+			<SyncBanner isOnline={isOnline} />
+			<section className="space-y-6" aria-labelledby="evidences-page-title">
+				<header className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
+					<div className="border-b border-[var(--border-default)] bg-[linear-gradient(135deg,rgba(58,120,216,0.12),rgba(15,23,41,0.02),transparent)] p-5 sm:px-6">
+						<p className="text-sm text-[var(--text-secondary)]">Dashboard / Soportes</p>
+						<div className="mt-3 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+							<div className="space-y-1">
+								<h1
+									id="evidences-page-title"
+									className="text-2xl font-semibold text-[var(--text-primary)]"
+								>
+									Soportes visuales
+								</h1>
+								<p className="max-w-2xl text-sm text-[var(--text-secondary)]">
+									Gestor visual de soportes por orden. Selecciona una orden para revisar la captura
+									operativa agrupada por etapa, detectar vacíos y abrir cada imagen en contexto.
+								</p>
+							</div>
+
+							{selectedOrder ? (
+								<Button asChild variant="outline" size="sm">
+									<Link href={`/orders/${selectedOrder._id}`}>Abrir orden</Link>
+								</Button>
+							) : null}
 						</div>
-
-						{selectedOrder ? (
-							<Button asChild variant="outline" size="sm">
-								<Link href={`/orders/${selectedOrder._id}`}>Abrir orden</Link>
-							</Button>
-						) : null}
 					</div>
-				</div>
-				<EvidencesStatsSection counts={counts} />
-			</header>
+					<EvidencesStatsSection counts={counts} />
+				</header>
 
-			<EvidencesFiltersForm
-				searchInput={searchInput}
-				selectedOrderId={selectedOrderId}
-				selectedType={selectedType}
-				isLoadingOrders={isLoadingOrders}
-				orderOptions={orderOptions}
-				onSearchInputChange={setSearchInput}
-				onOrderIdChange={setSelectedOrderId}
-				onTypeChange={setSelectedType}
-				onSubmit={handleSubmit}
-				onClear={clearFilters}
-			/>
-
-			{!selectedOrderId ? (
-				<EvidencesEmptyState
-					icon={
-						<Camera aria-hidden="true" className="mx-auto size-10 text-[var(--text-tertiary)]" />
-					}
-					title="Selecciona una orden"
-					description="Los soportes se consultan por orden. Si vienes desde una orden específica, el filtro se cargará automáticamente."
+				<EvidencesFiltersForm
+					searchInput={searchInput}
+					selectedOrderId={selectedOrderId}
+					selectedType={selectedType}
+					isLoadingOrders={isLoadingOrders}
+					orderOptions={orderOptions}
+					onSearchInputChange={setSearchInput}
+					onOrderIdChange={setSelectedOrderId}
+					onTypeChange={setSelectedType}
+					onSubmit={handleSubmit}
+					onClear={clearFilters}
 				/>
-			) : isLoadingEvidences ? (
-				<section className="flex h-64 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)]">
-					<div className="flex items-center gap-3 text-[var(--text-secondary)]">
-						<Loader2 className="size-5 animate-spin" aria-hidden="true" />
-						Cargando soportes…
-					</div>
-				</section>
-			) : error ? (
-				<section className="rounded-[var(--radius-xl)] border border-[var(--color-danger)]/20 bg-[var(--color-danger-bg)] p-6 text-sm text-[var(--color-danger)]">
-					No se pudieron cargar los soportes. {(error as Error).message}
-				</section>
-			) : (
-				<section aria-labelledby="evidences-list-title" className="space-y-4">
-					<div className="flex flex-col gap-4 rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-2)] md:flex-row md:items-center md:justify-between">
-						<div className="space-y-1">
-							<h2 id="evidences-list-title" className="text-base font-semibold text-[var(--text-primary)]">
-								{selectedOrder
-									? `${selectedOrder.code} · ${selectedOrder.assetName}`
-									: "Listado de soportes"}
-							</h2>
-							<p className="text-sm text-[var(--text-secondary)]">
-								{filteredEvidences.length} soporte(s) visibles para el contexto actual.
-							</p>
+
+				{!selectedOrderId ? (
+					<EvidencesEmptyState
+						icon={
+							<Camera aria-hidden="true" className="mx-auto size-10 text-[var(--text-tertiary)]" />
+						}
+						title="Selecciona una orden"
+						description="Los soportes se consultan por orden. Si vienes desde una orden específica, el filtro se cargará automáticamente."
+					/>
+				) : isLoadingEvidences ? (
+					<section className="flex h-64 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)]">
+						<div className="flex items-center gap-3 text-[var(--text-secondary)]">
+							<Loader2 className="size-5 animate-spin" aria-hidden="true" />
+							Cargando soportes…
+						</div>
+					</section>
+				) : error ? (
+					<section className="rounded-[var(--radius-xl)] border border-[var(--color-danger)]/20 bg-[var(--color-danger-bg)] p-6 text-sm text-[var(--color-danger)]">
+						No se pudieron cargar los soportes. {(error as Error).message}
+					</section>
+				) : (
+					<section aria-labelledby="evidences-list-title" className="space-y-4">
+						<div className="flex flex-col gap-4 rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-2)] md:flex-row md:items-center md:justify-between">
+							<div className="space-y-1">
+								<h2
+									id="evidences-list-title"
+									className="text-base font-semibold text-[var(--text-primary)]"
+								>
+									{selectedOrder
+										? `${selectedOrder.code} · ${selectedOrder.assetName}`
+										: "Listado de soportes"}
+								</h2>
+								<p className="text-sm text-[var(--text-secondary)]">
+									{filteredEvidences.length} soporte(s) visibles para el contexto actual.
+								</p>
+							</div>
+
+							<EvidencesViewToggle viewMode={viewMode} onChange={handleViewModeChange} />
 						</div>
 
-						<EvidencesViewToggle viewMode={viewMode} onChange={handleViewModeChange} />
-					</div>
+						<EvidencesSummaryGrid
+							counts={counts}
+							selectedType={selectedType}
+							onStageSelect={setSelectedType}
+						/>
 
-					<EvidencesSummaryGrid
-						counts={counts}
-						selectedType={selectedType}
-						onStageSelect={setSelectedType}
-					/>
-
-					{viewMode === "gallery" ? (
-						<EvidencesGalleryView evidences={filteredEvidences} />
-					) : (
-						<EvidencesTableView evidences={filteredEvidences} />
-					)}
-				</section>
-			)}
-		</section>
+						{viewMode === "gallery" ? (
+							<EvidencesGalleryView evidences={filteredEvidences} />
+						) : (
+							<EvidencesTableView evidences={filteredEvidences} />
+						)}
+					</section>
+				)}
+			</section>
+		</>
 	);
 }

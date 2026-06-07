@@ -1,9 +1,18 @@
-\begin{tikzpicture}[node distance=0.9cm, every node/.style={font=\scriptsize}, box/.style={draw, rounded corners, align=center, minimum width=2.2cm, minimum height=0.7cm, fill=purple!7}]
-\node[box] (up) {Documento\\PDF/Word/Foto};
+\begin{tikzpicture}[
+  node distance=0.75cm,
+  every node/.style={font=\scriptsize},
+  box/.style={draw=institucionalBlue, rounded corners=3pt, align=center, minimum width=2.18cm, minimum height=0.72cm, fill=institucionalGrey!35, line width=0.75pt},
+  review/.style={draw=institucionalRed, rounded corners=3pt, align=center, minimum width=2.18cm, minimum height=0.72cm, fill=institucionalRed!8, line width=0.85pt},
+  arrow/.style={-{Latex[length=2mm]}, draw=institucionalBlue, line width=0.8pt},
+  arrowred/.style={-{Latex[length=2mm]}, draw=institucionalRed, line width=0.8pt}
+]
+\node[box] (up) {Documento\\PDF / Word / foto};
 \node[box, right=of up] (imp) {Importación};
-\node[box, right=of imp] (map) {Mapeo de\\campos};
-\node[box, right=of map] (rev) {Revisión\\humana};
-\node[box, right=of rev] (form) {Formulario\\digital};
-\node[box, right=of form] (pdf) {Documento\\generado};
-\draw[-{Latex[length=2mm]}] (up)--(imp); \draw[-{Latex[length=2mm]}] (imp)--(map); \draw[-{Latex[length=2mm]}] (map)--(rev); \draw[-{Latex[length=2mm]}] (rev)--(form); \draw[-{Latex[length=2mm]}] (form)--(pdf);
+\node[box, right=of imp] (map) {Mapeo de campos};
+\node[review, right=of map] (rev) {Revisión humana};
+\node[box, right=of rev] (form) {Formulario digital};
+\node[box, right=of form] (pdf) {Documento generado};
+
+\foreach \a/\b in {up/imp,imp/map,map/rev,rev/form,form/pdf}{\draw[arrow] (\a)--(\b);}
+\draw[arrowred] (rev.south) -- ++(0,-0.42) node[below, font=\tiny, align=center] {control académico y operativo};
 \end{tikzpicture}

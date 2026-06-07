@@ -1,10 +1,146 @@
 import type {
+	AddReferenceDocumentInput,
+	ApprovePlanningPacketInput,
 	CreatePlanningPacketInput,
 	PlanningPacketStatus,
+	ReopenPlanningPacketInput,
 	UpdatePlanningPacketInput,
 } from "@cermont/shared-types";
+import { MANAGEMENT_ROLES, PLANNING_ACCESS_ROLES } from "@cermont/domain";
+import mongoose from "mongoose";
 import { AppError } from "../../common/errors";
 import { PlanningPacket } from "../../models/PlanningPacket";
+import { createAuditLog } from "../audit/audit.service";
+import { Kit } from "../../models/Kit";
+import { getKitTemplate, type KitTemplate } from "../../config/kit-templates";
+
+const PLANNING_READINESS_ROLES = [...PLANNING_ACCESS_ROLES, "hes"] as const;
+const REQUIRED_PLANNING_RESPONSIBLE_ROLES = [
+	"ingeniero_residente",
+	"tecnico_electricista",
+	"hes",
+] as const;
+type PlanningReferenceValue = string | Date | { toString(): string };
+type PlanningBlockerReadiness = { resolved: boolean };
+type PlanningPacketReadinessView = {
+	status: PlanningPacketStatus;
+	responsibleInspectorId?: PlanningReferenceValue;
+	responsibleInspectorName?: string;
+	place?: string;
+	plannedDate?: Date | string;
+	businessUnit?: string;
+	scope?: string;
+	schedule?: { plannedStartAt?: Date | string };
+	crew: Array<{ name?: string; role?: string }>;
+	materials: Array<{ description?: string; quantity?: number }>;
+	tools: Array<{ available: boolean }>;
+	equipment: Array<{ available: boolean; certificateRequired?: boolean }>;
+	safetyElements: Array<{ description?: string; quantity?: number }>;
+	workerRequirements?: {
+		electricistas?: number;
+		tecnicosTelecomunicacion?: number;
+		instrumentistas?: number;
+		obreros?: number;
+	};
+	responsibles: Array<{
+		role: string;
+		status?: string;
+		userId?: PlanningReferenceValue;
+		name?: string;
+		signatureEvidenceId?: PlanningReferenceValue;
+	}>;
+	requiredCertifications: Array<{ verified: boolean }>;
+	astRequired: boolean;
+	ptwRequired: boolean;
+	supportDocuments: Array<{ documentType: string; required: boolean }>;
+	readinessChecklist: Array<{ checked: boolean }>;
+	blockers: PlanningBlockerReadiness[];
+};
+
+function hasAllowedRole(userRole: string, allowedRoles: readonly string[]) {
+	return allowedRoles.includes(userRole);
+}
+
+function hasCompletePlanningHeader(packet: PlanningPacketReadinessView) {
+	return [
+		Boolean(packet.responsibleInspectorId || packet.responsibleInspectorName),
+		Boolean(packet.place && packet.place.trim().length >= 3),
+		Boolean(packet.plannedDate || packet.schedule?.plannedStartAt),
+		Boolean(packet.businessUnit),
+		Boolean(packet.scope && packet.scope.trim().length >= 20),
+	].every(Boolean);
+}
+
+function hasCompleteResourcePlan(packet: PlanningPacketReadinessView) {
+	const workerRequirements = packet.workerRequirements;
+	const totalRequiredWorkers =
+		(workerRequirements?.electricistas ?? 0) +
+		(workerRequirements?.tecnicosTelecomunicacion ?? 0) +
+		(workerRequirements?.instrumentistas ?? 0) +
+		(workerRequirements?.obreros ?? 0);
+
+	return [
+		packet.crew.length > 0,
+		packet.materials.length > 0,
+		packet.tools.length > 0 && packet.tools.every((tool) => tool.available),
+		packet.equipment.length > 0 && packet.equipment.every((equipment) => equipment.available),
+		packet.safetyElements.length > 0,
+		totalRequiredWorkers > 0,
+	].every(Boolean);
+}
+
+function hasRequiredPlanningResponsibles(packet: PlanningPacketReadinessView) {
+	return REQUIRED_PLANNING_RESPONSIBLE_ROLES.every((role) =>
+		packet.responsibles.some(
+			(responsible) =>
+				responsible.role === role &&
+				responsible.status !== "pending" &&
+				Boolean(responsible.userId || responsible.name || responsible.signatureEvidenceId),
+		),
+	);
+}
+
+function hasRequiredReferenceDocuments(packet: PlanningPacketReadinessView) {
+	const hasRequiredATS =
+		!packet.astRequired ||
+		packet.supportDocuments.some(
+			(document) =>
+				(document.documentType === "ats" || document.documentType === "ast") && document.required,
+		);
+	const hasRequiredPTW =
+		!packet.ptwRequired ||
+		packet.supportDocuments.some((document) => document.documentType === "ptw" && document.required);
+
+	return hasRequiredATS && hasRequiredPTW;
+}
+
+function hasRequiredCertifications(packet: PlanningPacketReadinessView) {
+	const allCertificationsVerified =
+		packet.requiredCertifications.length === 0 ||
+		packet.requiredCertifications.every((certification) => certification.verified);
+	const equipmentRequiresCertification = packet.equipment.some(
+		(equipment) => equipment.certificateRequired,
+	);
+	const hasRequiredEquipmentCertifications =
+		!equipmentRequiresCertification ||
+		(packet.requiredCertifications.length > 0 && allCertificationsVerified);
+
+	return allCertificationsVerified && hasRequiredEquipmentCertifications;
+}
+
+function resolvePlanningReadinessStatus(packet: PlanningPacketReadinessView): PlanningPacketStatus {
+	const readinessChecks = [
+		packet.readinessChecklist.every((item) => item.checked),
+		packet.blockers.every((blocker) => blocker.resolved),
+		hasCompletePlanningHeader(packet),
+		hasCompleteResourcePlan(packet),
+		hasRequiredPlanningResponsibles(packet),
+		hasRequiredReferenceDocuments(packet),
+		hasRequiredCertifications(packet),
+	];
+
+	return readinessChecks.every(Boolean) ? "ready" : "incomplete";
+}
 
 export async function listPlanningPackets(query: {
 	workOrderId?: string;
@@ -40,6 +176,18 @@ export async function createPlanningPacket(data: CreatePlanningPacketInput, user
 		...data,
 		createdBy: userId,
 	});
+
+	createAuditLog({
+		userId,
+		entity: "PlanningPacket",
+		entityId: planningPacket._id.toString(),
+		action: "PLANNING_PACKET_CREATED",
+		after: {
+			status: planningPacket.status,
+			workOrderId: planningPacket.workOrderId?.toString(),
+		},
+	});
+
 	return planningPacket;
 }
 
@@ -95,6 +243,7 @@ export async function getPlanningPacketByWorkOrderId(workOrderId: string) {
 export async function updatePlanningPacket(
 	id: string,
 	data: UpdatePlanningPacketInput,
+	userId: string,
 	userRole: string,
 ) {
 	const planningPacket = await PlanningPacket.findById(id);
@@ -104,7 +253,7 @@ export async function updatePlanningPacket(
 	}
 
 	// RBAC: Only gerente, residente, supervisor can update
-	if (!["gerente", "residente", "supervisor"].includes(userRole)) {
+	if (!hasAllowedRole(userRole, PLANNING_ACCESS_ROLES)) {
 		throw new AppError("FORBIDDEN", 403, "You do not have permission to update planning packets");
 	}
 
@@ -113,15 +262,28 @@ export async function updatePlanningPacket(
 		throw new AppError("INVALID_OPERATION", 400, "Cannot update an approved planning packet");
 	}
 
-	const updatedPacket = await PlanningPacket.findByIdAndUpdate(id, data, {
-		new: true,
-		runValidators: true,
-	})
+	const updatedPacket = await PlanningPacket.findByIdAndUpdate(
+		id,
+		{ ...data, updatedBy: userId },
+		{
+			new: true,
+			runValidators: true,
+		},
+	)
 		.populate("supervisorId", "name email role")
 		.populate("hesResponsibleId", "name email role")
 		.populate("crew.userId", "name email role")
 		.populate("approvedBy", "name email")
 		.populate("createdBy", "name email");
+
+	createAuditLog({
+		userId,
+		entity: "PlanningPacket",
+		entityId: id,
+		action: "PLANNING_PACKET_UPDATED",
+		before: { status: planningPacket.status },
+		after: { ...data },
+	});
 
 	return updatedPacket;
 }
@@ -133,7 +295,7 @@ export async function updatePlanningPacket(
  * @param userRole - Role of the user making the validation
  * @returns Updated planning packet with readiness status
  */
-export async function validatePlanningReadiness(id: string, userRole: string) {
+export async function validatePlanningReadiness(id: string, userId: string, userRole: string) {
 	const planningPacket = await PlanningPacket.findById(id);
 
 	if (!planningPacket) {
@@ -141,7 +303,7 @@ export async function validatePlanningReadiness(id: string, userRole: string) {
 	}
 
 	// RBAC: Only gerente, residente, supervisor, HES can validate
-	if (!["gerente", "residente", "supervisor", "hes"].includes(userRole)) {
+	if (!hasAllowedRole(userRole, PLANNING_READINESS_ROLES)) {
 		throw new AppError(
 			"FORBIDDEN",
 			403,
@@ -149,56 +311,13 @@ export async function validatePlanningReadiness(id: string, userRole: string) {
 		);
 	}
 
-	// Check readiness criteria
-	const allChecklistItemsChecked = planningPacket.readinessChecklist.every((item) => item.checked);
-	const noUnresolvedBlockers = planningPacket.blockers.length === 0;
-	const hasCrew = planningPacket.crew.length > 0;
-	const hasSchedule = planningPacket.schedule !== null;
-
-	// Check required reference documents (ATS, AST, PTW)
-	const hasRequiredATS =
-		!planningPacket.astRequired ||
-		planningPacket.supportDocuments.some(
-			(doc) => (doc.documentType === "ats" || doc.documentType === "ast") && doc.required,
-		);
-	const hasRequiredPTW =
-		!planningPacket.ptwRequired ||
-		planningPacket.supportDocuments.some((doc) => doc.documentType === "ptw" && doc.required);
-	const hasRequiredReferenceDocs = hasRequiredATS && hasRequiredPTW;
-
-	// Check all tools are available
-	const allToolsAvailable =
-		planningPacket.tools.length === 0 || planningPacket.tools.every((tool) => tool.available);
-
-	// Check all equipment is available and certified
-	const allEquipmentAvailable =
-		planningPacket.equipment.length === 0 ||
-		planningPacket.equipment.every((eq) => eq.available && (!eq.certificateRequired || eq.certificateRequired));
-
-	// Check all certifications are verified
-	const allCertificationsVerified =
-		planningPacket.requiredCertifications.length === 0 ||
-		planningPacket.requiredCertifications.every((cert) => cert.verified);
-
-	let newStatus = planningPacket.status;
-	if (
-		allChecklistItemsChecked &&
-		noUnresolvedBlockers &&
-		hasCrew &&
-		hasSchedule &&
-		hasRequiredReferenceDocs &&
-		allToolsAvailable &&
-		allEquipmentAvailable &&
-		allCertificationsVerified
-	) {
-		newStatus = "ready";
-	} else {
-		newStatus = "incomplete";
-	}
+	const newStatus = resolvePlanningReadinessStatus(
+		planningPacket as PlanningPacketReadinessView,
+	);
 
 	const updatedPacket = await PlanningPacket.findByIdAndUpdate(
 		id,
-		{ status: newStatus },
+		{ status: newStatus, updatedBy: userId },
 		{
 			new: true,
 			runValidators: true,
@@ -209,6 +328,14 @@ export async function validatePlanningReadiness(id: string, userRole: string) {
 		.populate("crew.userId", "name email role")
 		.populate("approvedBy", "name email")
 		.populate("createdBy", "name email");
+
+	createAuditLog({
+		userId,
+		entity: "PlanningPacket",
+		entityId: id,
+		action: "PLANNING_PACKET_VALIDATED",
+		after: { status: newStatus },
+	});
 
 	return updatedPacket;
 }
@@ -223,7 +350,7 @@ export async function validatePlanningReadiness(id: string, userRole: string) {
  */
 export async function approvePlanningPacket(
 	id: string,
-	_data: UpdatePlanningPacketInput,
+	data: ApprovePlanningPacketInput,
 	userId: string,
 	userRole: string,
 ) {
@@ -234,7 +361,7 @@ export async function approvePlanningPacket(
 	}
 
 	// RBAC: Only gerente, residente can approve
-	if (!["gerente", "residente"].includes(userRole)) {
+	if (!hasAllowedRole(userRole, MANAGEMENT_ROLES)) {
 		throw new AppError("FORBIDDEN", 403, "You do not have permission to approve planning packets");
 	}
 
@@ -253,6 +380,8 @@ export async function approvePlanningPacket(
 			status: "approved",
 			approvedAt: new Date(),
 			approvedBy: userId,
+			approvalNotes: data.notes,
+			updatedBy: userId,
 		},
 		{ new: true, runValidators: true },
 	)
@@ -261,6 +390,18 @@ export async function approvePlanningPacket(
 		.populate("crew.userId", "name email role")
 		.populate("approvedBy", "name email")
 		.populate("createdBy", "name email");
+
+	createAuditLog({
+		userId,
+		entity: "PlanningPacket",
+		entityId: id,
+		action: "PLANNING_PACKET_APPROVED",
+		after: {
+			status: "approved",
+			approvedBy: userId,
+			notes: data.notes,
+		},
+	});
 
 	return updatedPlanningPacket;
 }
@@ -275,7 +416,7 @@ export async function approvePlanningPacket(
  */
 export async function reopenPlanningPacket(
 	id: string,
-	_data: UpdatePlanningPacketInput,
+	data: ReopenPlanningPacketInput,
 	userId: string,
 	userRole: string,
 ) {
@@ -286,7 +427,7 @@ export async function reopenPlanningPacket(
 	}
 
 	// RBAC: Only gerente, residente can reopen
-	if (!["gerente", "residente"].includes(userRole)) {
+	if (!hasAllowedRole(userRole, MANAGEMENT_ROLES)) {
 		throw new AppError("FORBIDDEN", 403, "You do not have permission to reopen planning packets");
 	}
 
@@ -297,6 +438,8 @@ export async function reopenPlanningPacket(
 			status: "draft",
 			reopenedAt: new Date(),
 			reopenedBy: userId,
+			reopenReason: data.reason,
+			updatedBy: userId,
 		},
 		{
 			new: true,
@@ -309,6 +452,15 @@ export async function reopenPlanningPacket(
 		.populate("approvedBy", "name email")
 		.populate("createdBy", "name email");
 
+	createAuditLog({
+		userId,
+		entity: "PlanningPacket",
+		entityId: id,
+		action: "PLANNING_PACKET_REOPENED",
+		before: { status: planningPacket.status },
+		after: { status: "draft", reason: data.reason },
+	});
+
 	return updatedPacket;
 }
 
@@ -317,8 +469,8 @@ export async function reopenPlanningPacket(
  */
 export async function addReferenceDocument(
 	id: string,
-	data: { documentId: string; documentType: string; name: string; required: boolean },
-	_userId: string,
+	data: AddReferenceDocumentInput,
+	userId: string,
 ) {
 	const packet = await PlanningPacket.findById(id);
 	if (!packet) {
@@ -332,8 +484,21 @@ export async function addReferenceDocument(
 		required: data.required,
 		uploadedAt: new Date(),
 	});
+	packet.set("updatedBy", userId);
 
 	await packet.save();
+
+	createAuditLog({
+		userId,
+		entity: "PlanningPacket",
+		entityId: id,
+		action: "REFERENCE_DOCUMENT_ADDED",
+		after: {
+			documentType: data.documentType,
+			name: data.name,
+		},
+	});
+
 	return packet;
 }
 
@@ -346,4 +511,210 @@ export async function listReferenceDocuments(id: string) {
 		throw new AppError("PLANNING_PACKET_NOT_FOUND", 404, "Planning packet not found");
 	}
 	return packet.supportDocuments;
+}
+
+interface ResourceWithQuantity {
+	quantity?: number;
+	[key: string]: unknown;
+}
+
+/**
+ * Helper to merge resources by name/description key
+ */
+function mergeResources<T extends ResourceWithQuantity>(
+	existing: T[],
+	incoming: T[],
+	nameKey: keyof T,
+): T[] {
+	const merged = [...existing];
+	for (const item of incoming) {
+		const keyVal = String(item[nameKey] || "").toLowerCase().trim();
+		const idx = merged.findIndex(
+			(x) => String(x[nameKey] || "").toLowerCase().trim() === keyVal,
+		);
+		if (idx >= 0) {
+			const existingItem = merged[idx];
+			merged[idx] = {
+				...existingItem,
+				quantity: (existingItem.quantity || 0) + (item.quantity || 0),
+			} as T;
+		} else {
+			merged.push(item);
+		}
+	}
+	return merged;
+}
+
+interface DbKitItem {
+	type: string;
+	name: string;
+	quantity?: number;
+	description?: string;
+	required?: boolean;
+	unit?: string;
+}
+
+interface DbKit {
+	_id: mongoose.Types.ObjectId | string;
+	name: string;
+	category?: string;
+	version?: number | string;
+	items: DbKitItem[];
+}
+
+function mapDbKit(dbKit: DbKit) {
+	const items = Array.isArray(dbKit.items) ? dbKit.items : [];
+	const kitSnapshot = {
+		kitTemplateId: String(dbKit._id),
+		name: dbKit.name,
+		code: dbKit.category || "",
+		version: String(dbKit.version || "1"),
+		activityType: dbKit.category || "general",
+		tools: items
+			.filter((i) => i.type === "tool")
+			.map((i) => ({
+				name: i.name,
+				quantity: i.quantity || 1,
+				available: true,
+				specifications: i.description || "",
+			})),
+		equipment: items
+			.filter((i) => i.type === "equipment")
+			.map((i) => ({
+				name: i.name,
+				quantity: i.quantity || 1,
+				available: true,
+				certificateRequired: i.required || false,
+			})),
+		minimumPpe: items.filter((i) => i.type === "ppe").map((i) => i.name),
+	};
+
+	const toolsToMerge = kitSnapshot.tools;
+	const equipmentToMerge = kitSnapshot.equipment;
+	const materialsToMerge = items
+		.filter((i) => i.type === "material")
+		.map((i) => ({
+			description: i.name,
+			quantity: i.quantity || 1,
+			unit: i.unit || "unidad",
+		}));
+	const safetyElementsToMerge = items
+		.filter((i) => i.type === "ppe")
+		.map((i) => ({
+			description: i.name,
+			quantity: i.quantity || 1,
+			unit: i.unit || "unidad",
+		}));
+
+	return {
+		kitSnapshot,
+		toolsToMerge,
+		equipmentToMerge,
+		materialsToMerge,
+		safetyElementsToMerge,
+	};
+}
+
+function mapStaticKit(staticKit: KitTemplate) {
+	const kitSnapshot = {
+		kitTemplateId: staticKit.id,
+		name: staticKit.name,
+		code: staticKit.id,
+		version: "1",
+		activityType: staticKit.type,
+		tools: [] as Array<{ name: string; quantity: number; available: boolean }>,
+		equipment: [] as Array<{ name: string; quantity: number; available: boolean; certificateRequired: boolean }>,
+		minimumPpe: [] as string[],
+	};
+
+	const materialsToMerge = staticKit.materials.map((m) => ({
+		description: m.name,
+		quantity: m.quantity || 1,
+		unit: m.unit || "unidad",
+	}));
+
+	return {
+		kitSnapshot,
+		toolsToMerge: [] as Array<{ name: string; quantity: number; available: boolean }>,
+		equipmentToMerge: [] as Array<{ name: string; quantity: number; available: boolean; certificateRequired: boolean }>,
+		materialsToMerge,
+		safetyElementsToMerge: [] as Array<{ description: string; quantity: number; unit: string }>,
+	};
+}
+
+/**
+ * Apply a kit template to a planning packet
+ * @param id - Planning packet ID
+ * @param kitTemplateId - ID of the dynamic kit or static kit template
+ * @param userId - ID of the user making the request
+ * @param userRole - Role of the user making the request
+ * @returns Updated planning packet
+ */
+export async function applyKitToPlanningPacket(
+	id: string,
+	kitTemplateId: string,
+	userId: string,
+	userRole: string,
+) {
+	const planningPacket = await PlanningPacket.findById(id);
+
+	if (!planningPacket) {
+		throw new AppError("PLANNING_PACKET_NOT_FOUND", 404, "Planning packet not found");
+	}
+
+	// RBAC: Only gerente, residente, supervisor can modify
+	if (!hasAllowedRole(userRole, PLANNING_ACCESS_ROLES)) {
+		throw new AppError("FORBIDDEN", 403, "You do not have permission to modify planning packets");
+	}
+
+	// Cannot update if already approved
+	if (planningPacket.status === "approved") {
+		throw new AppError("INVALID_OPERATION", 400, "Cannot update an approved planning packet");
+	}
+
+	// 1. Try to load dynamic kit from MongoDB if it's a valid ObjectId
+	let dbKit: DbKit | null = null;
+	if (mongoose.Types.ObjectId.isValid(kitTemplateId)) {
+		dbKit = (await Kit.findById(kitTemplateId)) as unknown as DbKit | null;
+	}
+
+	const {
+		kitSnapshot,
+		toolsToMerge,
+		equipmentToMerge,
+		materialsToMerge,
+		safetyElementsToMerge,
+	} = dbKit
+		? mapDbKit(dbKit)
+		: (() => {
+				const staticKit = getKitTemplate(kitTemplateId);
+				if (!staticKit || "status" in staticKit) {
+					throw new AppError("KIT_TEMPLATE_NOT_FOUND", 404, `Kit template not found: ${kitTemplateId}`);
+				}
+				return mapStaticKit(staticKit);
+			})();
+
+	// Merge resources into the planning packet
+	const updatedTools = mergeResources(planningPacket.tools || [], toolsToMerge, "name");
+	const updatedEquipment = mergeResources(planningPacket.equipment || [], equipmentToMerge, "name");
+	const updatedMaterials = mergeResources(planningPacket.materials || [], materialsToMerge, "description");
+	const updatedSafety = mergeResources(planningPacket.safetyElements || [], safetyElementsToMerge, "description");
+
+	planningPacket.kitTemplateId = kitTemplateId;
+	planningPacket.kitSnapshot = kitSnapshot as typeof planningPacket.kitSnapshot;
+	planningPacket.tools.splice(0, planningPacket.tools.length, ...updatedTools);
+	planningPacket.equipment.splice(0, planningPacket.equipment.length, ...updatedEquipment);
+	planningPacket.materials.splice(0, planningPacket.materials.length, ...updatedMaterials);
+	planningPacket.safetyElements.splice(0, planningPacket.safetyElements.length, ...updatedSafety);
+
+	// Recalculate status based on new resource plan
+	planningPacket.status = resolvePlanningReadinessStatus(
+		planningPacket as unknown as PlanningPacketReadinessView,
+	);
+	planningPacket.set("updatedBy", userId);
+
+	await planningPacket.save();
+
+	// Return fully populated packet
+	return getPlanningPacketById(String(planningPacket._id));
 }

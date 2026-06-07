@@ -1,13 +1,14 @@
 "use client";
 
 import { AlertTriangle, RefreshCw, Wifi, WifiOff } from "lucide-react";
+import { MOTION } from "@/components/motion/motion-classes";
 import { useSyncStatus } from "@/lib/offline/use-sync-status";
 
 interface BannerState {
 	isOnline: boolean;
 	isSyncing: boolean;
 	pendingCount: number;
-	lastSyncError: string | null;
+	lastSyncError: string;
 }
 
 function getBannerClassName({ isOnline, lastSyncError }: BannerState): string {
@@ -66,7 +67,7 @@ export function OfflineBanner() {
 	}
 
 	return (
-		<div role="alert" className={getBannerClassName(state)}>
+		<div role="alert" className={`${MOTION.panel} motion-panel ${getBannerClassName(state)}`}>
 			<BannerIcon {...state} />
 
 			<span className="flex-1">{getBannerMessage(state)}</span>
@@ -74,8 +75,8 @@ export function OfflineBanner() {
 			{pendingCount > 0 && isOnline && (
 				<button
 					type="button"
-					onClick={() => window.dispatchEvent(new CustomEvent("sync-queue:retry"))}
-					className="shrink-0 rounded-full bg-current/10 px-3 py-1 text-xs font-semibold hover:bg-current/20 transition-colors"
+					onClick={() => window.dispatchEvent(new Event("sync-queue:changed"))}
+					className="motion-button shrink-0 rounded-full bg-current/10 px-3 py-1 text-xs font-semibold hover:bg-current/20"
 				>
 					Sincronizar ahora
 				</button>

@@ -12,10 +12,10 @@ type MonthlyTrendPoint = { month: string; creadas: number; completadas: number }
 const MonthlyTrendChartComponent = dynamic<{
 	data: MonthlyTrendPoint[];
 	loading?: boolean;
-}>(
-	() => import("@/modules/dashboard/ui/MonthlyTrendChart").then((m) => m.MonthlyTrendChart),
-	{ loading: ChartLoadingFallback, ssr: false },
-);
+}>(() => import("@/modules/dashboard/ui/MonthlyTrendChart").then((m) => m.MonthlyTrendChart), {
+	loading: ChartLoadingFallback,
+	ssr: false,
+});
 
 export function LazyMonthlyTrendChart({
 	data,

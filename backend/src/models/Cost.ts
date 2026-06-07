@@ -13,6 +13,12 @@ export interface ICostDocument extends Document {
 	taxRate: number;
 	currency: string;
 	notes?: string;
+	supportEvidenceIds: Types.ObjectId[];
+	supportDocumentIds: Types.ObjectId[];
+	status: "active" | "voided";
+	voidedAt?: Date;
+	voidedBy?: Types.ObjectId;
+	voidReason?: string;
 	recordedBy: Types.ObjectId;
 	recordedAt: Date;
 	variance?: number;
@@ -37,6 +43,18 @@ const CostSchema = new Schema<ICostDocument>(
 		taxRate: { type: Number, required: true, min: 0, max: 1, default: 0 },
 		currency: { type: String, required: true, default: "COP" },
 		notes: { type: String, maxlength: 500 },
+		supportEvidenceIds: [{ type: Types.ObjectId, ref: "Evidence", default: [] }],
+		supportDocumentIds: [{ type: Types.ObjectId, ref: "Document", default: [] }],
+		status: {
+			type: String,
+			enum: ["active", "voided"],
+			required: true,
+			default: "active",
+			index: true,
+		},
+		voidedAt: { type: Date },
+		voidedBy: { type: Types.ObjectId, ref: "User" },
+		voidReason: { type: String, maxlength: 500 },
 		recordedBy: { type: Types.ObjectId, ref: "User", required: true, index: true },
 		recordedAt: { type: Date, required: true, default: Date.now, index: true },
 	},
@@ -63,6 +81,7 @@ CostSchema.virtual("variancePercent").get(function (this: ICostDocument) {
 
 CostSchema.index({ orderId: 1, category: 1 });
 CostSchema.index({ orderId: 1, recordedAt: -1 });
+CostSchema.index({ orderId: 1, status: 1 });
 CostSchema.index({ recordedBy: 1, recordedAt: -1 });
 
 CostSchema.set("toJSON", {

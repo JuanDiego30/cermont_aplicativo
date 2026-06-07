@@ -285,6 +285,8 @@ task-*
 frontend-lint.txt
 *.md
 !docs/plans/CERMONT_REBUILD_ROADMAP.md
+!docs/offline-test-protocol.md
+!docs/offline-online-fix-report.md
 
 # ── NEGATIONS: Project JSON configs MUST be versioned ──
 !package.json

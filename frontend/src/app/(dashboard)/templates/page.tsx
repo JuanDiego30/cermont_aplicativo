@@ -9,16 +9,15 @@ const dateFormatter = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium" });
 export default function TemplatesPage() {
 	const { data, isLoading, isError, refetch } = useTemplates();
 	const items = data?.items ?? [];
+	const isOfflineSnapshot = data?.source.status === "offline_snapshot";
+	const isOfflineEmpty = data?.source.status === "offline_empty";
 
 	return (
 		<section className="space-y-6" aria-labelledby="templates-title">
 			<header className="space-y-4">
 				<div>
 					<p className="text-sm font-medium text-[var(--color-brand)]">Gestión</p>
-					<h1
-						id="templates-title"
-						className="mt-2 text-2xl font-semibold text-primary"
-					>
+					<h1 id="templates-title" className="mt-2 text-2xl font-semibold text-primary">
 						Plantillas documentales
 					</h1>
 					<p className="mt-1 max-w-3xl text-sm leading-6 text-secondary">
@@ -53,6 +52,13 @@ export default function TemplatesPage() {
 				</div>
 			)}
 
+			{isOfflineSnapshot && (
+				<div className="rounded-[var(--radius-lg)] border border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] px-4 py-3 text-sm text-[var(--text-primary)]">
+					Mostrando plantillas guardadas localmente. Última actualización:{" "}
+					{new Date(data.source.updatedAt).toLocaleString("es-CO")}
+				</div>
+			)}
+
 			{!isLoading && !isError && items.length === 0 && (
 				<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] p-6">
 					<div className="flex items-start gap-4">
@@ -60,10 +66,13 @@ export default function TemplatesPage() {
 							<FileText className="size-5" aria-hidden="true" />
 						</div>
 						<div>
-							<h2 className="text-base font-semibold text-[var(--text-primary)]">Sin plantillas</h2>
+							<h2 className="text-base font-semibold text-[var(--text-primary)]">
+								{isOfflineEmpty ? "Sin plantillas guardadas localmente" : "Sin plantillas"}
+							</h2>
 							<p className="mt-1.5 max-w-2xl text-sm leading-6 text-[var(--text-secondary)]">
-								Crea plantillas desde documentos para estandarizar formularios de planeación,
-								ejecución y mantenimiento.
+								{isOfflineEmpty
+									? "Este dispositivo todavía no tiene plantillas sincronizadas para trabajar sin conexión."
+									: "Crea plantillas desde documentos para estandarizar formularios de planeación, ejecución y mantenimiento."}
 							</p>
 						</div>
 					</div>

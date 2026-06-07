@@ -15,7 +15,7 @@ import type { IChecklistDocument } from "../../models/Checklist";
 
 const log = createLogger("checklist-service");
 
-type ChecklistItemResponse = ChecklistResponse["items"][number];
+type ChecklistItemSnapshot = ChecklistResponse["items"][number];
 
 const STANDARD_CHECKLIST_ITEMS: Array<{
 	id: string;
@@ -80,7 +80,7 @@ function toObjectId(id: string, label: string): Types.ObjectId {
 	return new Types.ObjectId(id);
 }
 
-function formatChecklistItem(item: IChecklistDocument["items"][number]): ChecklistItemResponse {
+function formatChecklistItem(item: IChecklistDocument["items"][number]): ChecklistItemSnapshot {
 	return {
 		id: item.id,
 		category: item.category,

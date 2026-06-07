@@ -13,6 +13,8 @@ const mocks = vi.hoisted(() => ({
 	costFindById: vi.fn(),
 	costAggregate: vi.fn(),
 	costDeleteOne: vi.fn(),
+	evidenceCountDocuments: vi.fn(),
+	documentCountDocuments: vi.fn(),
 	invoiceFindOne: vi.fn(),
 	paymentFindOne: vi.fn(),
 }));
@@ -31,6 +33,12 @@ vi.mock("../../src/models", () => {
 		Order: {
 			findById: mocks.orderFindById,
 		},
+		Evidence: {
+			countDocuments: mocks.evidenceCountDocuments,
+		},
+		Document: {
+			countDocuments: mocks.documentCountDocuments,
+		},
 		Invoice: {
 			findOne: mocks.invoiceFindOne,
 		},
@@ -46,6 +54,7 @@ import * as CostService from "../../src/modules/cost/cost.service";
 const ORDER_ID = "507f1f77bcf86cd799439011";
 const COST_ID = "507f1f77bcf86cd799439021";
 const USER_ID = "507f1f77bcf86cd799439031";
+const SUPPORT_EVIDENCE_ID = "507f1f77bcf86cd799439051";
 
 function buildOrder() {
 	return {
@@ -72,6 +81,9 @@ function buildCostDoc(overrides: Record<string, unknown> = {}) {
 		recordedAt: new Date("2026-03-23T12:00:00Z"),
 		createdAt: new Date("2026-03-23T12:00:00Z"),
 		updatedAt: new Date("2026-03-23T13:00:00Z"),
+		supportEvidenceIds: [new Types.ObjectId(SUPPORT_EVIDENCE_ID)],
+		supportDocumentIds: [],
+		status: "active",
 		save,
 		...overrides,
 	};
@@ -98,6 +110,8 @@ describe("CostService", () => {
 		mocks.costFindById.mockResolvedValue(null);
 		mocks.costAggregate.mockResolvedValue([]);
 		mocks.costDeleteOne.mockResolvedValue({ acknowledged: true, deletedCount: 1 });
+		mocks.evidenceCountDocuments.mockResolvedValue(1);
+		mocks.documentCountDocuments.mockResolvedValue(0);
 		mocks.invoiceFindOne.mockReturnValue({
 			select: vi.fn().mockReturnThis(),
 			lean: vi.fn().mockResolvedValue(undefined),
@@ -123,6 +137,8 @@ describe("CostService", () => {
 				taxRate: 0.19,
 				currency: "COP",
 				notes: "Urgent replacement",
+				supportEvidenceIds: [new Types.ObjectId(SUPPORT_EVIDENCE_ID)],
+				supportDocumentIds: [],
 				recordedBy: new Types.ObjectId(USER_ID),
 			});
 
@@ -141,6 +157,8 @@ describe("CostService", () => {
 					taxRate: 0.19,
 					currency: "COP",
 					notes: "Urgent replacement",
+					supportEvidenceIds: [SUPPORT_EVIDENCE_ID],
+					supportDocumentIds: [],
 				},
 				USER_ID,
 			);
@@ -157,6 +175,8 @@ describe("CostService", () => {
 					taxRate: 0.19,
 					currency: "COP",
 					notes: "Urgent replacement",
+					supportEvidenceIds: [expect.any(Types.ObjectId)],
+					supportDocumentIds: [],
 					recordedBy: expect.any(Types.ObjectId),
 					recordedAt: expect.any(Date),
 				}),
@@ -167,10 +187,83 @@ describe("CostService", () => {
 				estimatedAmount: 1500,
 				actualAmount: 1750,
 				taxAmount: 333,
+				supportEvidenceIds: [SUPPORT_EVIDENCE_ID],
+				supportDocumentIds: [],
 				variance: 250,
-				variancePercent: 0.16666666666666666,
+				variancePercent: { status: "present", value: 0.16666666666666666 },
 				dataState: "ESTIMATED_AND_ACTUAL",
 			});
+		});
+
+		it("rejects actual costs that do not include evidence or document support", async () => {
+			await expect(
+				CostService.createCost(
+					{
+						orderId: ORDER_ID,
+						category: "materials",
+						description: "Consumables purchased in field",
+						estimatedAmount: 0,
+						actualAmount: 500,
+					},
+					USER_ID,
+				),
+			).rejects.toThrow("Actual cost entries require at least one support evidence or document");
+
+			expect(CostModel).not.toHaveBeenCalled();
+		});
+
+		it("rejects cost support that is not attached to the same order", async () => {
+			mocks.evidenceCountDocuments.mockResolvedValueOnce(0);
+
+			await expect(
+				CostService.createCost(
+					{
+						orderId: ORDER_ID,
+						category: "materials",
+						description: "Consumables purchased in field",
+						estimatedAmount: 0,
+						actualAmount: 500,
+						supportEvidenceIds: [SUPPORT_EVIDENCE_ID],
+					},
+					USER_ID,
+				),
+			).rejects.toThrow("Cost support evidence must exist and belong to the order");
+
+			const query = mocks.evidenceCountDocuments.mock.calls[0]?.[0] as {
+				_id: { $in: Types.ObjectId[] };
+				$or: Array<{ orderId?: Types.ObjectId; workOrderId?: Types.ObjectId }>;
+			};
+			expect(query._id.$in[0]?.toString()).toBe(SUPPORT_EVIDENCE_ID);
+			expect(query.$or.map((clause) => clause.orderId?.toString() ?? clause.workOrderId?.toString()))
+				.toContain(ORDER_ID);
+			expect(CostModel).not.toHaveBeenCalled();
+		});
+
+		it("rejects document support that is not attached to the same order", async () => {
+			mocks.documentCountDocuments.mockResolvedValueOnce(0);
+
+			await expect(
+				CostService.createCost(
+					{
+						orderId: ORDER_ID,
+						category: "materials",
+						description: "Consumables purchased in field",
+						estimatedAmount: 0,
+						actualAmount: 500,
+						supportDocumentIds: [SUPPORT_EVIDENCE_ID],
+					},
+					USER_ID,
+				),
+			).rejects.toThrow("Cost support document must exist and belong to the order");
+
+			const query = mocks.documentCountDocuments.mock.calls[0]?.[0] as {
+				_id: { $in: Types.ObjectId[] };
+				$or: Array<{ order_id?: Types.ObjectId; linkedEntityId?: Types.ObjectId }>;
+			};
+			expect(query._id.$in[0]?.toString()).toBe(SUPPORT_EVIDENCE_ID);
+			expect(query.$or.map((clause) => clause.order_id?.toString() ?? clause.linkedEntityId?.toString()))
+				.toContain(ORDER_ID);
+			expect(CostModel).not.toHaveBeenCalled();
 		});
 
 		it("throws NotFoundError when the order does not exist", async () => {
@@ -186,6 +279,7 @@ describe("CostService", () => {
 						description: "Labor work",
 						estimatedAmount: 100,
 						actualAmount: 120,
+						supportEvidenceIds: [SUPPORT_EVIDENCE_ID],
 					},
 					USER_ID,
 				),
@@ -284,7 +378,7 @@ describe("CostService", () => {
 				totalActual: 1200,
 				totalTax: 228,
 				variance: 200,
-				variancePercent: 0.2,
+				variancePercent: { status: "present", value: 0.2 },
 				hasCosts: true,
 				dataState: "ESTIMATED_AND_ACTUAL",
 				byCategory: [
@@ -311,7 +405,7 @@ describe("CostService", () => {
 				totalActual: 0,
 				totalTax: 0,
 				variance: 0,
-				variancePercent: null,
+				variancePercent: { status: "absent" },
 				hasCosts: false,
 				dataState: "NO_DATA",
 				byCategory: [],
@@ -358,6 +452,25 @@ describe("CostService", () => {
 					"tecnico",
 				),
 			).rejects.toThrow(ForbiddenError);
+		});
+	});
+
+	describe("deleteCost", () => {
+		it("voids a cost instead of physically deleting historical cost data", async () => {
+			const costDoc = buildCostDoc();
+			mocks.costFindById.mockResolvedValueOnce(costDoc);
+
+			const result = await CostService.deleteCost(COST_ID, USER_ID, "tecnico");
+
+			expect(costDoc.status).toBe("voided");
+			expect(costDoc.voidedBy?.toString()).toBe(USER_ID);
+			expect(costDoc.voidedAt).toBeInstanceOf(Date);
+			expect(costDoc.save).toHaveBeenCalled();
+			expect(mocks.costDeleteOne).not.toHaveBeenCalled();
+			expect(result).toMatchObject({
+				_id: COST_ID,
+				status: "voided",
+			});
 		});
 	});
 });

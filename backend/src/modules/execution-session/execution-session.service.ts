@@ -41,7 +41,7 @@ import {
 	NotFoundError,
 	UnprocessableError,
 } from "../../common/errors";
-import type { AuthPayload } from "../../common/utils/request";
+import type { AuthClaims } from "../../common/utils/request";
 import {
 	Counter,
 	ExecutionSession,
@@ -235,7 +235,7 @@ async function refreshExecutionState(session: ExecutionSessionDocument): Promise
 
 async function updateServiceCaseProjection(
 	session: ExecutionSessionDocument,
-	actor: AuthPayload,
+	actor: AuthClaims,
 	command: string,
 	stage: "in_execution" | "technical_closure",
 ): Promise<void> {
@@ -346,7 +346,7 @@ export async function getExecutionSessionByWorkOrder(workOrderId: string) {
 
 export async function createExecutionSession(
 	data: CreateExecutionSessionInput,
-	actor: AuthPayload,
+	actor: AuthClaims,
 ) {
 	const order = await Order.findById(data.workOrderId);
 
@@ -401,7 +401,7 @@ export async function createExecutionSession(
 export async function startExecutionSession(
 	id: string,
 	command: StartExecutionSessionCommand,
-	actor: AuthPayload,
+	actor: AuthClaims,
 ) {
 	const session = await getSessionOrThrow(id);
 	if (assertCommandNotProcessed(session, command.clientMutationId)) {
@@ -453,7 +453,7 @@ export async function startExecutionSession(
 export async function pauseExecutionSession(
 	id: string,
 	command: PauseExecutionSessionCommand,
-	actor: AuthPayload,
+	actor: AuthClaims,
 ) {
 	const session = await getSessionOrThrow(id);
 	if (assertCommandNotProcessed(session, command.clientMutationId)) {
@@ -478,7 +478,7 @@ export async function pauseExecutionSession(
 export async function resumeExecutionSession(
 	id: string,
 	command: ResumeExecutionSessionCommand,
-	actor: AuthPayload,
+	actor: AuthClaims,
 ) {
 	const session = await getSessionOrThrow(id);
 	if (assertCommandNotProcessed(session, command.clientMutationId)) {
@@ -503,7 +503,7 @@ export async function resumeExecutionSession(
 export async function completeExecutionSession(
 	id: string,
 	command: CompleteExecutionSessionCommand,
-	actor: AuthPayload,
+	actor: AuthClaims,
 ) {
 	const session = await getSessionOrThrow(id);
 	if (assertCommandNotProcessed(session, command.clientMutationId)) {
@@ -543,7 +543,7 @@ export async function completeExecutionSession(
 export async function cancelExecutionSession(
 	id: string,
 	command: CancelExecutionSessionCommand,
-	actor: AuthPayload,
+	actor: AuthClaims,
 ) {
 	const session = await getSessionOrThrow(id);
 	if (assertCommandNotProcessed(session, command.clientMutationId)) {
@@ -569,7 +569,7 @@ export async function cancelExecutionSession(
 export async function addExecutionEvidence(
 	id: string,
 	command: AddExecutionEvidenceCommand,
-	_actor: AuthPayload,
+	_actor: AuthClaims,
 ) {
 	const session = await getSessionOrThrow(id);
 	if (assertCommandNotProcessed(session, command.clientMutationId)) {
@@ -611,7 +611,7 @@ export async function addExecutionEvidence(
 export async function addMaterialUsage(
 	id: string,
 	command: AddExecutionMaterialUsageCommand,
-	_actor: AuthPayload,
+	_actor: AuthClaims,
 ) {
 	const session = await getSessionOrThrow(id);
 	if (assertCommandNotProcessed(session, command.clientMutationId)) {
@@ -632,7 +632,7 @@ export async function addMaterialUsage(
 export async function addToolUsage(
 	id: string,
 	command: AddExecutionToolUsageCommand,
-	_actor: AuthPayload,
+	_actor: AuthClaims,
 ) {
 	const session = await getSessionOrThrow(id);
 	if (assertCommandNotProcessed(session, command.clientMutationId)) {
@@ -652,7 +652,7 @@ export async function addToolUsage(
 export async function addEquipmentUsage(
 	id: string,
 	command: AddExecutionEquipmentUsageCommand,
-	_actor: AuthPayload,
+	_actor: AuthClaims,
 ) {
 	const session = await getSessionOrThrow(id);
 	if (assertCommandNotProcessed(session, command.clientMutationId)) {
@@ -682,7 +682,7 @@ export async function addEquipmentUsage(
 export async function addLaborEntry(
 	id: string,
 	command: AddExecutionLaborEntryCommand,
-	_actor: AuthPayload,
+	_actor: AuthClaims,
 ) {
 	const session = await getSessionOrThrow(id);
 	if (assertCommandNotProcessed(session, command.clientMutationId)) {
@@ -704,7 +704,7 @@ export async function addLaborEntry(
 export async function addIncident(
 	id: string,
 	command: AddExecutionIncidentCommand,
-	_actor: AuthPayload,
+	_actor: AuthClaims,
 ) {
 	const session = await getSessionOrThrow(id);
 	if (assertCommandNotProcessed(session, command.clientMutationId)) {
@@ -726,7 +726,7 @@ export async function addIncident(
 export async function resolveIncident(
 	id: string,
 	command: ResolveExecutionIncidentCommand,
-	actor: AuthPayload,
+	actor: AuthClaims,
 ) {
 	const session = await getSessionOrThrow(id);
 	if (assertCommandNotProcessed(session, command.clientMutationId)) {
@@ -754,7 +754,7 @@ export async function resolveIncident(
 export async function addObservation(
 	id: string,
 	command: AddExecutionObservationCommand,
-	_actor: AuthPayload,
+	_actor: AuthClaims,
 ) {
 	const session = await getSessionOrThrow(id);
 	if (assertCommandNotProcessed(session, command.clientMutationId)) {
@@ -774,7 +774,7 @@ export async function addObservation(
 export async function addSignature(
 	id: string,
 	command: AddExecutionSignatureCommand,
-	_actor: AuthPayload,
+	_actor: AuthClaims,
 ) {
 	const session = await getSessionOrThrow(id);
 	if (assertCommandNotProcessed(session, command.clientMutationId)) {
@@ -795,7 +795,7 @@ export async function addSignature(
 export async function submitChecklistResponse(
 	id: string,
 	command: SubmitExecutionChecklistCommand,
-	_actor: AuthPayload,
+	_actor: AuthClaims,
 ) {
 	const session = await getSessionOrThrow(id);
 	if (assertCommandNotProcessed(session, command.clientMutationId)) {
@@ -816,7 +816,7 @@ export async function submitChecklistResponse(
 export async function submitDynamicFormResponse(
 	id: string,
 	command: SubmitExecutionDynamicFormCommand,
-	_actor: AuthPayload,
+	_actor: AuthClaims,
 ) {
 	const session = await getSessionOrThrow(id);
 	if (assertCommandNotProcessed(session, command.clientMutationId)) {
@@ -836,7 +836,7 @@ export async function submitDynamicFormResponse(
 export async function processExecutionCommand(
 	id: string,
 	command: ExecutionOfflineCommand,
-	actor: AuthPayload,
+	actor: AuthClaims,
 ): Promise<ExecutionCommandResult> {
 	const session = await getSessionOrThrow(id);
 	if (assertCommandNotProcessed(session, command.clientMutationId)) {
@@ -910,7 +910,7 @@ export async function processExecutionCommand(
 export async function syncExecutionCommands(
 	id: string,
 	commands: ExecutionOfflineCommand[],
-	actor: AuthPayload,
+	actor: AuthClaims,
 ) {
 	const results: ExecutionCommandResult[] = [];
 

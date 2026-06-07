@@ -16,7 +16,7 @@ interface KitTemplate {
 	}>;
 }
 
-interface KitTemplatesResponse {
+interface KitTemplatesContract {
 	success?: boolean;
 	data?: KitTemplate[];
 }
@@ -32,7 +32,7 @@ export function useKitTemplates() {
 	return useQuery({
 		queryKey: KITS_KEYS.templates,
 		queryFn: async () => {
-			const body = await apiClient.get<KitTemplatesResponse>("/kits/templates");
+			const body = await apiClient.get<KitTemplatesContract>("/kits/templates");
 			return body?.data ?? [];
 		},
 		staleTime: 30_000,

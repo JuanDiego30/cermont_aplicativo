@@ -2,14 +2,13 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import type { ReactNode } from "react";
 import "./globals.css";
-import { SyncStatusBar } from "@/components/sync/SyncStatusBar";
 import { getEnv } from "@/lib/env-validator";
 import { createLogger } from "@/lib/monitoring/logger";
 import { initSentry } from "@/lib/monitoring/sentry";
-import { THEME_INIT_SCRIPT_SRC } from "@/lib/theme/theme-init-script";
+import { THEME_INIT_SCRIPT } from "@/lib/theme/theme-init-script";
 import { AppToaster } from "@/modules/core/ui/AppToaster";
-import { ServiceWorkerRegistration } from "@/modules/core/ui/pwa/ServiceWorkerRegistration";
 import { Providers } from "./providers";
+import { AppSerwistProvider } from "./serwist-provider";
 
 const logger = createLogger("APP:layout");
 
@@ -35,10 +34,11 @@ export const metadata: Metadata = {
 	icons: {
 		icon: [
 			{ url: "/icons/logo-cermont.svg", type: "image/svg+xml" },
+			{ url: "/favicon.png", type: "image/png" },
 			{ url: "/favicon.ico", type: "image/x-icon", sizes: "48x48" },
 		],
-		apple: [{ url: "/icons/logo-cermont.svg", type: "image/svg+xml" }],
-		shortcut: [{ url: "/icons/logo-cermont.svg", type: "image/svg+xml" }],
+		apple: [{ url: "/icons/logo-cermont.png", type: "image/png" }],
+		shortcut: [{ url: "/icons/logo-cermont.png", type: "image/png" }],
 	},
 	openGraph: {
 		title: "Cermont S.A.S. | Plataforma Operativa",
@@ -81,13 +81,15 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
 	return (
-		<html lang="es" suppressHydrationWarning>
-			<body className="bg-[var(--surface-page)] text-[var(--foreground)] antialiased">
-				<Providers>{children}</Providers>
-				<SyncStatusBar />
-				<ServiceWorkerRegistration />
+		<html lang="es" suppressHydrationWarning data-scroll-behavior="smooth">
+			<body className="min-h-screen overflow-x-hidden bg-[var(--surface-page)] text-[var(--foreground)] antialiased selection:bg-[var(--color-brand-blue)]/15 selection:text-[var(--foreground)]">
+				<AppSerwistProvider>
+					<Providers>{children}</Providers>
+				</AppSerwistProvider>
 				<AppToaster />
-				<Script id="theme-init" src={THEME_INIT_SCRIPT_SRC} strategy="beforeInteractive" />
+				<Script id="theme-init" strategy="beforeInteractive">
+					{THEME_INIT_SCRIPT}
+				</Script>
 			</body>
 		</html>
 	);

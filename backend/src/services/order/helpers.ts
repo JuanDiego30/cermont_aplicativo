@@ -41,7 +41,7 @@ function toIsoString(value: Date | string): string {
 	return value instanceof Date ? value.toISOString() : value;
 }
 
-export interface OrderResponse {
+export interface OrderSnapshot {
 	_id: string;
 	code: string;
 	type: OrderType;
@@ -78,7 +78,7 @@ export interface OrderResponse {
 	updatedAt: string;
 }
 
-export function formatOrderResponse(doc: OrderDoc): OrderResponse {
+export function formatOrderResponse(doc: OrderDoc): OrderSnapshot {
 	return {
 		_id: doc._id.toString(),
 		code: doc.code,

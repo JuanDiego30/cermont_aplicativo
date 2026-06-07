@@ -3,7 +3,8 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { TrendingDown, TrendingUp } from "lucide-react";
-import { type ComponentType, useRef, useState } from "react";
+import { type ComponentType, useRef } from "react";
+import { MOTION } from "@/components/motion/motion-classes";
 import { cn } from "@/lib/utils";
 import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
 
@@ -77,15 +78,24 @@ export function KPICard({
 }: KPICardProps) {
 	const colors = COLOR_MAP[color];
 	const cardRef = useRef<HTMLElement>(null);
+	// Direct DOM ref for the counter — we write textContent on every frame
+	// instead of calling setState. This prevents ~72 React re-renders per
+	// 1.2s animation and removes a major source of jank.
+	const valueRef = useRef<HTMLParagraphElement>(null);
 	const numericTarget = typeof value === "number" ? value : null;
-	const [displayVal, setDisplayVal] = useState(numericTarget !== null ? 0 : value);
+	const staticDisplay = typeof value === "string" ? value : formatValue(numericTarget ?? 0, format);
 
 	// Card entrance + counter animation
 	useGSAP(
 		() => {
+			if (!valueRef.current) {
+				return;
+			}
+
 			if (prefersReducedMotion()) {
+				// Paint the final value once; no animation.
 				if (numericTarget !== null) {
-					setDisplayVal(formatValue(numericTarget, format));
+					valueRef.current.textContent = formatValue(numericTarget, format);
 				}
 				return;
 			}
@@ -99,16 +109,23 @@ export function KPICard({
 
 			if (numericTarget !== null) {
 				const counter = { value: 0 };
+				// Seed the DOM node so we don't render "0" briefly.
+				valueRef.current.textContent = formatValue(0, format);
 				gsap.to(counter, {
 					value: numericTarget,
 					duration: 1.2,
 					delay: 0.1,
 					ease: "power2.out",
 					onUpdate() {
-						setDisplayVal(formatValue(counter.value, format));
+						// Direct DOM mutation — bypass React reconciliation.
+						if (valueRef.current) {
+							valueRef.current.textContent = formatValue(counter.value, format);
+						}
 					},
 					onComplete() {
-						setDisplayVal(formatValue(numericTarget, format));
+						if (valueRef.current) {
+							valueRef.current.textContent = formatValue(numericTarget, format);
+						}
 					},
 				});
 			}
@@ -116,19 +133,17 @@ export function KPICard({
 		{ scope: cardRef, dependencies: [value] },
 	);
 
-	const displayString = typeof value === "string" ? value : (displayVal as string);
-
 	return (
 		<article
 			ref={cardRef}
 			className={cn(
-				"group relative overflow-hidden rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-card transition-all hover:shadow-md hover:border-[var(--border-medium)]",
+				`${MOTION.card} group relative overflow-hidden rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-card hover:border-[var(--border-medium)] hover:shadow-md`,
 				className,
 			)}
 		>
 			<div
 				className={cn(
-					"absolute top-0 left-0 h-1 w-full opacity-0 transition-opacity group-hover:opacity-100",
+					"absolute left-0 top-0 h-1 w-full opacity-0 transition-opacity duration-[var(--duration-fast)] ease-[var(--ease-standard)] group-hover:opacity-100",
 					colors.accent,
 				)}
 			/>
@@ -136,7 +151,7 @@ export function KPICard({
 			<div className="flex items-start justify-between">
 				<div
 					className={cn(
-						"flex size-12 items-center justify-center rounded-2xl transition-transform group-hover:scale-110",
+						"flex size-12 items-center justify-center rounded-2xl transition-transform duration-[var(--duration-fast)] ease-[var(--ease-emphasized)] group-hover:scale-110",
 						colors.iconBg,
 						colors.iconText,
 					)}
@@ -166,13 +181,17 @@ export function KPICard({
 				<h3 className="text-sm font-semibold text-(--text-secondary) uppercase tracking-wider font-mono">
 					{title}
 				</h3>
-				<p className="mt-1 text-3xl font-bold tracking-tight text-(--text-primary)">
-					{displayString}
+				<p
+					ref={valueRef}
+					// For string values we render the static text;
+					// for numeric targets GSAP overwrites textContent on every frame.
+					suppressHydrationWarning
+					className="mt-1 text-3xl font-bold tracking-tight text-(--text-primary)"
+				>
+					{staticDisplay}
 				</p>
 				{description && (
-					<p className="mt-2 text-xs font-medium text-(--text-tertiary) truncate">
-						{description}
-					</p>
+					<p className="mt-2 text-xs font-medium text-(--text-tertiary) truncate">{description}</p>
 				)}
 			</div>
 		</article>

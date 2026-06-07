@@ -1,14 +1,14 @@
 % =====================================================================
 % CAPÍTULO 4: MARCO LEGAL, NORMATIVO Y ÉTICO
-% Versión refactorizada
+% Versión académica
 % =====================================================================
 
 \chapter{Marco Legal, Normativo y Ético}
 \label{ch:marco-legal}
 
 % --- Ajustes editoriales locales del capítulo: sangría, espaciado y control de desbordamientos ---
-\setlength{\parindent}{1.25cm}
-\setlength{\parskip}{0pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
 \sloppy
 \emergencystretch=2em
 \raggedbottom
@@ -64,7 +64,7 @@ Los diez principios rectores establecidos en el artículo 4 de la Ley 1581 tiene
     \item \textbf{Principio de libertad (art. 4, lit. c):} El tratamiento requiere consentimiento previo, expreso e informado. Se recomienda que CERMONT S.A.S. implemente un formulario de autorización de tratamiento de datos conforme al Decreto 1377 de 2013, con registro digital de la aceptación.
     \item \textbf{Principio de veracidad o calidad (art. 4, lit. d):} Los datos deben ser veraces, completos, exactos y actualizados. El sistema aplica validaciones de integridad referencial en la base de datos y reglas de negocio que previenen inconsistencias.
     \item \textbf{Principio de transparencia (art. 4, lit. e):} El titular debe poder conocer la existencia de datos que le conciernen. El sistema debe proveer una funcionalidad que permita a los usuarios consultar los datos personales almacenados sobre ellos.
-    \item \textbf{Principio de acceso y circulación restringida (art. 4, lit. f):} Los datos solo pueden ser accedidos por personas autorizadas. El middleware de autorización RBAC del backend garantiza este principio para cada endpoint de la API.
+    \item \textbf{Principio de acceso y circulación restringida (art. 4, lit. f):} Los datos solo pueden ser accedidos por personas autorizadas. El middleware de autorización RBAC del backend respalda este principio para los endpoints protegidos de la API.
     \item \textbf{Principio de seguridad (art. 4, lit. g):} Deben adoptarse medidas técnicas para proteger los datos. El sistema implementa autenticación JWT, comunicaciones TLS, hash Bcrypt para contraseñas y registros de auditoría para accesos a datos sensibles.
     \item \textbf{Principio de confidencialidad (art. 4, lit. h):} Todas las personas que intervengan en el tratamiento deben garantizar la reserva de la información. El control de acceso por roles y los registros de auditoría respaldan este principio.
 \end{enumerate}
@@ -103,11 +103,11 @@ La Tabla \ref{tab:matriz-requisitos-legales} sintetiza la relación entre los re
 \caption{Matriz de trazabilidad: requisitos legales y funcionalidades del sistema. Fuente: Elaboración propia.}
 \label{tab:matriz-requisitos-legales}
 \small
-\def\LegalRow#1#2#3{\parbox[t]{3.5cm}{\raggedright #1} & \parbox[t]{7.3cm}{\raggedright #2} & \parbox[t]{3.0cm}{\raggedright #3}\\\midrule}
-\begin{tabular}{@{}l l l@{}}
-\toprule
+\def\LegalRow#1#2#3{\parbox[t]{3.5cm}{\raggedright #1} & \parbox[t]{7.3cm}{\raggedright #2} & \parbox[t]{3.0cm}{\raggedright #3}\\\hline}
+\begin{tabular}{|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Requisito normativo} & \textbf{Funcionalidad del sistema que lo soporta} & \textbf{Estado} \\
-\midrule
+\hline
 \LegalRow{Consentimiento del titular (Ley 1581/2012, art. 4 lit. c)}{Registro digital de autorizaciones con marca de tiempo.}{Pendiente de implementar en frontend.}
 \LegalRow{Acceso restringido (Ley 1581/2012, art. 4 lit. f)}{Middleware RBAC en backend para todos los endpoints protegidos.}{Implementado.}
 \LegalRow{Seguridad de datos (Ley 1581/2012, art. 4 lit. g)}{JWT HttpOnly, TLS, Bcrypt, auditoría de accesos.}{Implementado.}
@@ -116,11 +116,9 @@ La Tabla \ref{tab:matriz-requisitos-legales} sintetiza la relación entre los re
 \LegalRow{Verificación de condiciones de trabajo (SG-SST)}{Checklists digitales con registro de EPP y condiciones de seguridad.}{Implementado.}
 \LegalRow{Información base para facturación (DIAN Res. 000042/2020)}{Módulo de cierre administrativo con datos estructurados del servicio.}{Implementado.}
 \LegalRow{Ética profesional (Ley 842/2003, COPNIA)}{Documentación verificable; no se afirman resultados no medidos.}{Cumplido en el documento.}
-\bottomrule
+\hline
 \end{tabular}
 \end{table}
-
-% --- AMPLIACIÓN ACADÉMICA INTEGRADA CAPÍTULO 4 ---
 
 \section{Aplicación del marco legal al diseño funcional del sistema}
 \label{sec:aplicacion-marco-legal-diseno}
@@ -133,16 +131,16 @@ El marco legal y ético no debe presentarse como un listado aislado de normas. S
 \caption{Relación entre consideraciones normativas y requisitos del aplicativo. Fuente: elaboración propia.}
 \label{tab:marco-legal-requisitos-funcionales}
 \begin{adjustbox}{max width=\textwidth}
-\begin{tabular}{p{3.2cm}p{5.6cm}p{5.6cm}}
-\toprule
+\begin{tabular}{|p{3.2cm}|p{5.6cm}|p{5.6cm}|}
+\hline\ClassicTableHeader
 \textbf{Consideración} & \textbf{Riesgo si no se controla} & \textbf{Respuesta del sistema}\\
-\midrule
+\hline
 Protección de datos personales & Exposición de información de empleados, técnicos, clientes o firmantes. & Autenticación, roles, permisos y limitación de acceso según perfil.\\
 Confidencialidad contractual & Divulgación no autorizada de órdenes, evidencias, informes o soportes de cliente. & Acceso por orden, auditoría y control documental.\\
 Propiedad intelectual & Uso no autorizado de código, plantillas o librerías sin respetar licencias. & Inventario de dependencias y revisión de licencias en el repositorio.\\
 Integridad documental & Modificación no trazada de evidencias, informes, actas o estados de cierre. & Eventos de auditoría, estados controlados y registro de metadatos.\\
 Seguridad de la información & Manipulación de datos por usuarios no autorizados o entradas maliciosas. & Validación de payloads, sanitización, RBAC y registro de errores.\\
-\bottomrule
+\hline
 \end{tabular}
 \end{adjustbox}
 \end{table}
@@ -150,7 +148,7 @@ Seguridad de la información & Manipulación de datos por usuarios no autorizado
 \section{Confidencialidad de documentos operativos y evidencias}
 \label{sec:confidencialidad-documentos-evidencias}
 
-Los documentos operativos de CERMONT S.A.S. pueden contener información sensible sobre clientes, ubicaciones, evidencias fotográficas, hallazgos técnicos, firmas, permisos de trabajo, condiciones de seguridad y soportes administrativos. Esta información no debe tratarse como archivos genéricos. Desde el punto de vista ético, el aplicativo debe garantizar que cada documento quede asociado a una orden, a un responsable y a un estado; además, debe permitir restringir su consulta según el rol del usuario.
+Los documentos operativos de CERMONT S.A.S. pueden contener información sensible sobre clientes, ubicaciones, evidencias fotográficas, hallazgos técnicos, firmas, permisos de trabajo, condiciones de seguridad y soportes administrativos. Esta información no debe tratarse como archivos genéricos. Desde el punto de vista ético, el aplicativo debe procurar que cada documento quede asociado a una orden, a un responsable y a un estado; además, debe permitir restringir su consulta según el rol del usuario.
 
 La confidencialidad también se relaciona con la forma en que el libro presenta los anexos. Los documentos internos pueden usarse como evidencia académica, pero no deben divulgar información sensible innecesaria. Si un formato contiene nombres, firmas, datos de clientes o detalles confidenciales, se recomienda anonimizar o recortar la evidencia antes de incorporarla en la versión final del trabajo. Esta práctica no debilita el soporte documental; por el contrario, demuestra responsabilidad ética en el manejo de información empresarial.
 

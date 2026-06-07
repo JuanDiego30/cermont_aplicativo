@@ -16,7 +16,7 @@ interface ServiceCaseSummary {
 	revenue: number;
 }
 
-interface SummaryResponse {
+interface SummaryContract {
 	success?: boolean;
 	data?: ServiceCaseSummary;
 }
@@ -30,7 +30,7 @@ export function useServiceCaseSummary() {
 	return useQuery({
 		queryKey: SERVICE_CASE_KEYS.summary,
 		queryFn: async () => {
-			const body = await apiClient.get<SummaryResponse>("/service-cases/summary");
+			const body = await apiClient.get<SummaryContract>("/service-cases/summary");
 			return body?.data ?? null;
 		},
 		staleTime: 30_000,

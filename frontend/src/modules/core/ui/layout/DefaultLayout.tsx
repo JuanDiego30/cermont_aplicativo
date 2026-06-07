@@ -17,26 +17,26 @@ export default function DefaultLayout({ children }: DefaultLayoutProps) {
 	const { sidebarOpen, setSidebarOpen } = useUIStore();
 
 	return (
-		<div className="relative flex min-h-screen flex-col bg-[var(--surface-page)]">
+		<div className="motion-shell relative flex min-h-dvh flex-col overflow-x-hidden bg-[var(--surface-page)]">
 			<a
 				href="#main-content"
-				className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[9999] focus:rounded-lg focus:bg-[var(--color-brand)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[var(--color-foreground)] focus:outline-none"
+				className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[9999] focus:rounded-full focus:bg-[var(--color-brand)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus-ring)]"
 			>
 				Saltar al contenido principal
 			</a>
 
-			<div className="relative flex flex-1 overflow-hidden">
+			<div className="relative flex min-h-0 flex-1">
 				<Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-				<div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+				<div className="relative flex min-w-0 flex-1 flex-col">
 					<Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
 					<main
 						id="main-content"
 						tabIndex={-1}
-						className="min-h-screen flex-1 overflow-auto bg-[var(--surface-page)]"
+						className="min-w-0 flex-1 bg-[var(--surface-page)] scroll-mt-[calc(var(--header-height)+var(--space-4))]"
 					>
-						<div className="mx-auto max-w-[1600px] p-4 pb-24 md:p-6 md:pb-6 2xl:p-8">
+						<div className="animate-fade-in-up mx-auto w-full max-w-[var(--shell-max-width)] px-4 py-4 pb-28 md:px-6 md:py-6 md:pb-8 2xl:px-8 2xl:py-8">
 							{children}
 						</div>
 					</main>

@@ -18,30 +18,30 @@ export default function AppErrorBoundary({ error, reset }: ErrorProps) {
 			<p role="alert" className="sr-only">
 				Algo salió mal. {error.digest ? `Código: ${error.digest}.` : ""}
 			</p>
-			<section className="flex max-w-lg flex-col items-center gap-4 text-center">
+			<section className="motion-panel flex max-w-lg flex-col items-center gap-4 text-center">
 				<header className="space-y-2">
-					<h1 className="text-xl font-semibold text-red-700 dark:text-red-400">Algo salió mal</h1>
-					<p className="text-sm text-zinc-600 dark:text-zinc-400">
+					<h1 className="text-xl font-semibold text-[var(--color-danger)]">Algo salió mal</h1>
+					<p className="text-sm text-[var(--text-secondary)]">
 						Ocurrió un error inesperado. Intenta nuevamente o contacta soporte si el problema
 						persiste.
 					</p>
 				</header>
 				{error.digest && (
-					<p aria-hidden="true" className="text-xs text-zinc-500 dark:text-zinc-400">
+					<p aria-hidden="true" className="text-xs text-[var(--text-muted)]">
 						Código: {error.digest}
 					</p>
 				)}
 				<footer className="flex flex-wrap justify-center gap-3">
 					<button
 						onClick={() => reset()}
-						className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-zinc-950"
+						className="motion-button rounded-lg bg-[var(--color-brand)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--color-brand-blue-deep)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus-ring)] focus-visible:ring-offset-2"
 						type="button"
 					>
 						Reintentar
 					</button>
 					<Link
 						href="/"
-						className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800 dark:focus-visible:ring-offset-zinc-950"
+						className="motion-button rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-4 py-2 text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--surface-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-focus-ring)] focus-visible:ring-offset-2"
 					>
 						Ir al inicio
 					</Link>

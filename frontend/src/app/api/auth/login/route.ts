@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
 			env.BACKEND_URL?.trim() || (isProduction() ? "http://backend:4000" : "http://localhost:4000");
 		const response = await fetch(`${backendUrl}/api/auth/login`, {
 			method: "POST",
+			cache: "no-store",
 			headers: {
 				"Content-Type": "application/json",
 			},
@@ -66,7 +67,12 @@ export async function POST(request: NextRequest) {
 
 		// If backend login failed, forward the error
 		if (!response.ok) {
-			return NextResponse.json(data, { status: response.status });
+			const errorResponse = NextResponse.json(data, { status: response.status });
+			// CRITICAL: Never cache auth error responses either
+			errorResponse.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+			errorResponse.headers.set("Pragma", "no-cache");
+			errorResponse.headers.set("Expires", "0");
+			return errorResponse;
 		}
 
 		// Success — extract refreshToken from backend response headers
@@ -79,7 +85,13 @@ export async function POST(request: NextRequest) {
 					: [];
 
 		// Create response with accessToken
+		// CRITICAL: Set explicit no-cache headers so the Service Worker
+		// never caches the login response. This prevents the SW from
+		// serving a stale auth token on subsequent requests.
 		const successResponse = NextResponse.json(data, { status: 200 });
+		successResponse.headers.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+		successResponse.headers.set("Pragma", "no-cache");
+		successResponse.headers.set("Expires", "0");
 
 		// Forward all Set-Cookie headers (including refreshToken) to client
 		// The browser will automatically manage the httpOnly cookie

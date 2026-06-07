@@ -79,6 +79,9 @@ export function useArchiveDocument() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
+		mutationKey: ["documents", "archive"],
+		networkMode: "offlineFirst",
+		retry: 0,
 		mutationFn: async ({ id, reason }: { id: string; reason?: string }) => {
 			const response = await apiClient.patch<ApiEnvelope<DocumentRecord>>(
 				`/documents/${id}/archive`,
@@ -100,10 +103,16 @@ export function useDeleteDocument() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
+		mutationKey: ["documents", "delete"],
+		networkMode: "offlineFirst",
+		retry: 0,
 		mutationFn: async ({ id, reason }: { id: string; reason?: string }) => {
-			const response = await apiClient.delete<ApiEnvelope<DocumentDeleteOutcome>>(`/documents/${id}`, {
-				body: reason ? JSON.stringify({ reason }) : void 0,
-			});
+			const response = await apiClient.delete<ApiEnvelope<DocumentDeleteOutcome>>(
+				`/documents/${id}`,
+				{
+					body: reason ? JSON.stringify({ reason }) : void 0,
+				},
+			);
 			return response.data;
 		},
 		onSuccess: (result) => {
@@ -120,6 +129,9 @@ export function useSignDocument() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
+		mutationKey: ["documents", "sign"],
+		networkMode: "offlineFirst",
+		retry: 0,
 		mutationFn: async ({ id }: { id: string }) => {
 			const response = await apiClient.patch<ApiEnvelope<DocumentRecord>>(`/documents/${id}/sign`);
 			return response.data;
@@ -134,5 +146,5 @@ export function useSignDocument() {
 	});
 }
 
-export { DOCUMENTS_KEYS };
 export type { DocumentDeleteOutcome, DocumentRecord };
+export { DOCUMENTS_KEYS };

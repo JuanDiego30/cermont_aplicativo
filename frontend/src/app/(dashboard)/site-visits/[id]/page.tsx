@@ -8,10 +8,10 @@ import { Suspense, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import {
-  useCancelSiteVisit,
-  useCompleteSiteVisit,
-  useSiteVisit,
-  useStartSiteVisit,
+	useCancelSiteVisit,
+	useCompleteSiteVisit,
+	useSiteVisit,
+	useStartSiteVisit,
 } from "@/modules/site-visits/queries";
 
 const DATE_FMT = new Intl.DateTimeFormat("es-CO", { dateStyle: "medium", timeStyle: "short" });
@@ -175,7 +175,7 @@ function VisitContent({ visit }: { visit: SiteVisitRecord }) {
 }
 
 function VisitInfo({ visit }: { visit: SiteVisitRecord }) {
-  const statusTone =
+	const statusTone =
 		visit.status === "completed"
 			? "border-[var(--color-success-border)] bg-[var(--color-success-bg)] text-[var(--color-success)]"
 			: visit.status === "cancelled"

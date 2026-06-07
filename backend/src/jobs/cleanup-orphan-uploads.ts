@@ -11,7 +11,7 @@ export interface CleanupOrphanUploadsOptions {
 	dryRun?: boolean;
 }
 
-export interface CleanupOrphanUploadsResult {
+export interface CleanupOrphanUploadsOutcome {
 	scannedCount: number;
 	referencedCount: number;
 	orphanedCount: number;
@@ -77,7 +77,7 @@ async function collectReferencedUploads(): Promise<Set<string>> {
 
 export async function cleanupOrphanUploads(
 	options: CleanupOrphanUploadsOptions = {},
-): Promise<CleanupOrphanUploadsResult> {
+): Promise<CleanupOrphanUploadsOutcome> {
 	const maxAgeMs = options.maxAgeMs ?? DEFAULT_MAX_AGE_MS;
 	const dryRun = options.dryRun ?? false;
 
@@ -111,7 +111,7 @@ export async function cleanupOrphanUploads(
 		}
 	}
 
-	const result: CleanupOrphanUploadsResult = {
+	const result: CleanupOrphanUploadsOutcome = {
 		scannedCount: files.length,
 		referencedCount: referencedUploads.size,
 		orphanedCount: orphanedFiles.length,

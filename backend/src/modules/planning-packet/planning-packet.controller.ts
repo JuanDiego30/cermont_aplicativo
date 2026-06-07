@@ -1,8 +1,11 @@
 import {
 	AddReferenceDocumentSchema,
+	ApplyPlanningKitSchema,
+	ApprovePlanningPacketSchema,
 	CreatePlanningPacketSchema,
 	PlanningPacketIdParamsSchema,
 	PlanningPacketListQuerySchema,
+	ReopenPlanningPacketSchema,
 	UpdatePlanningPacketSchema,
 } from "@cermont/shared-types";
 import type { Request, Response } from "express";
@@ -79,11 +82,17 @@ export async function getPlanningPacketByWorkOrder(req: Request, res: Response) 
  */
 export async function updatePlanningPacket(req: Request, res: Response) {
 	const user = requireUser(req);
+	const userId = String(user._id);
 	const userRole = user.role;
 	const { id } = PlanningPacketIdParamsSchema.parse(req.params);
 	const data = UpdatePlanningPacketSchema.partial().parse(req.body);
 
-	const planningPacket = await PlanningPacketService.updatePlanningPacket(id, data, userRole);
+	const planningPacket = await PlanningPacketService.updatePlanningPacket(
+		id,
+		data,
+		userId,
+		userRole,
+	);
 
 	res.status(200).json({ success: true, data: planningPacket });
 }
@@ -95,10 +104,11 @@ export async function updatePlanningPacket(req: Request, res: Response) {
  */
 export async function validatePlanningReadiness(req: Request, res: Response) {
 	const user = requireUser(req);
+	const userId = String(user._id);
 	const userRole = user.role;
 	const { id } = PlanningPacketIdParamsSchema.parse(req.params);
 
-	const planningPacket = await PlanningPacketService.validatePlanningReadiness(id, userRole);
+	const planningPacket = await PlanningPacketService.validatePlanningReadiness(id, userId, userRole);
 
 	res.status(200).json({ success: true, data: planningPacket });
 }
@@ -113,8 +123,7 @@ export async function approvePlanningPacket(req: Request, res: Response) {
 	const userId = String(user._id);
 	const userRole = user.role;
 	const { id } = PlanningPacketIdParamsSchema.parse(req.params);
-	const data = CreatePlanningPacketSchema.partial().parse(req.body);
-
+	const data = ApprovePlanningPacketSchema.parse(req.body);
 	const planningPacket = await PlanningPacketService.approvePlanningPacket(
 		id,
 		data,
@@ -135,7 +144,7 @@ export async function reopenPlanningPacket(req: Request, res: Response) {
 	const userId = String(user._id);
 	const userRole = user.role;
 	const { id } = PlanningPacketIdParamsSchema.parse(req.params);
-	const data = CreatePlanningPacketSchema.partial().parse(req.body);
+	const data = ReopenPlanningPacketSchema.parse(req.body);
 
 	const planningPacket = await PlanningPacketService.reopenPlanningPacket(
 		id,
@@ -170,4 +179,26 @@ export async function listReferenceDocuments(req: Request, res: Response) {
 	const id = req.params.id as string;
 	const docs = await PlanningPacketService.listReferenceDocuments(id);
 	res.status(200).json({ success: true, data: docs });
+}
+
+/**
+ * Apply a typical kit to planning packet
+ * POST /api/planning-packets/:id/apply-kit
+ * Roles: GER, RES, SUP
+ */
+export async function applyPlanningKit(req: Request, res: Response) {
+	const user = requireUser(req);
+	const userId = String(user._id);
+	const userRole = user.role;
+	const { id } = PlanningPacketIdParamsSchema.parse(req.params);
+	const { kitTemplateId } = ApplyPlanningKitSchema.parse(req.body);
+
+	const planningPacket = await PlanningPacketService.applyKitToPlanningPacket(
+		id,
+		kitTemplateId,
+		userId,
+		userRole,
+	);
+
+	res.status(200).json({ success: true, data: planningPacket });
 }

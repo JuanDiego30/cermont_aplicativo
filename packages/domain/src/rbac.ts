@@ -166,6 +166,7 @@ export const PUBLIC_PATHS = [
 	"/",
 	"/login",
 	"/register",
+	"/~offline",
 	"/forgot-password",
 	"/reset-password",
 	"/unauthorized",

@@ -1,13 +1,13 @@
 {
-  "weak-token-a": 33,
-  "weak-token-u": 506,
-  "weak-token-n": 656,
-  "weak-token-ud": 539,
-  "spanish-source-token": 1861,
+  "weak-token-a": 48,
+  "weak-token-u": 486,
+  "weak-token-n": 706,
+  "weak-token-ud": 600,
+  "spanish-source-token": 1871,
   "missing-semantic-landmark": 12,
   "route-missing-authentication": 1,
   "route-missing-authorization-policy": 30,
   "route-missing-validation": 21,
-  "local-api-dto": 79,
+  "local-api-dto": 40,
   "lint-disable-residue": 2
 }

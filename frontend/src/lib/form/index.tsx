@@ -9,7 +9,7 @@ interface UseStateAutosaveOptions<T extends DraftValue> {
 	value: T;
 }
 
-interface UseStateAutosaveResult<T extends DraftValue> {
+interface UseStateAutosaveOutcome<T extends DraftValue> {
 	restoreDraft: (fallback: T) => T;
 	clearDraft: () => void;
 	hasDraft: boolean;
@@ -51,7 +51,7 @@ function writeStoredDraft<T extends DraftValue>(storageKey: string, value: T) {
 export function useStateAutosave<T extends DraftValue>({
 	draftId,
 	value,
-}: UseStateAutosaveOptions<T>): UseStateAutosaveResult<T> {
+}: UseStateAutosaveOptions<T>): UseStateAutosaveOutcome<T> {
 	const storageKey = useMemo(() => buildStorageKey(draftId), [draftId]);
 	const initialSnapshot = useMemo(() => JSON.stringify(value), [value]);
 	const [, bumpDraftRevision] = useReducer((current: number) => current + 1, 0);

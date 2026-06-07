@@ -1,22 +1,103 @@
 /**
  * Audit Log Actions — Single Source of Truth
+ *
+ * Must contain EVERY action that createAuditLog can receive.
+ * WORKFLOW section added per code audit gap — missing workflow actions
+ * prevented proper filtering of operational audit events.
  */
 
 export const AUDIT_ACTIONS = {
-	// Template Management
+	// ── Workflow: Work Requests ──────────────────────────────────────
+	WORK_REQUEST_CREATED: "WORK_REQUEST_CREATED",
+	WORK_REQUEST_VALIDATED: "WORK_REQUEST_VALIDATED",
+	WORK_REQUEST_CANCELLED: "WORK_REQUEST_CANCELLED",
+
+	// ── Workflow: Site Visits ────────────────────────────────────────
+	SITE_VISIT_SCHEDULED: "SITE_VISIT_SCHEDULED",
+	SITE_VISIT_COMPLETED: "SITE_VISIT_COMPLETED",
+
+	// ── Workflow: Proposals ──────────────────────────────────────────
+	PROPOSAL_CREATED: "PROPOSAL_CREATED",
+	PROPOSAL_APPROVED: "PROPOSAL_APPROVED",
+	PROPOSAL_REJECTED: "PROPOSAL_REJECTED",
+
+	// ── Workflow: Purchase Orders ────────────────────────────────────
+	PURCHASE_ORDER_RECEIVED: "PURCHASE_ORDER_RECEIVED",
+	PURCHASE_ORDER_APPROVED: "PURCHASE_ORDER_APPROVED",
+
+	// ── Workflow: Orders ─────────────────────────────────────────────
+	ORDER_CREATED: "ORDER_CREATED",
+	ORDER_UPDATED: "ORDER_UPDATED",
+	ORDER_CLOSED: "ORDER_CLOSED",
+
+	// ── Workflow: Planning ───────────────────────────────────────────
+	PLANNING_PACKET_CREATED: "PLANNING_PACKET_CREATED",
+	PLANNING_PACKET_UPDATED: "PLANNING_PACKET_UPDATED",
+	PLANNING_PACKET_VALIDATED: "PLANNING_PACKET_VALIDATED",
+	PLANNING_PACKET_APPROVED: "PLANNING_PACKET_APPROVED",
+	PLANNING_PACKET_REJECTED: "PLANNING_PACKET_REJECTED",
+	PLANNING_PACKET_REOPENED: "PLANNING_PACKET_REOPENED",
+	REFERENCE_DOCUMENT_ADDED: "REFERENCE_DOCUMENT_ADDED",
+
+	// ── Workflow: Execution ──────────────────────────────────────────
+	EXECUTION_STARTED: "EXECUTION_STARTED",
+	EXECUTION_PAUSED: "EXECUTION_PAUSED",
+	EXECUTION_RESUMED: "EXECUTION_RESUMED",
+	EXECUTION_COMPLETED: "EXECUTION_COMPLETED",
+	EXECUTION_CANCELLED: "EXECUTION_CANCELLED",
+	MATERIAL_USAGE_RECORDED: "MATERIAL_USAGE_RECORDED",
+	LABOR_ENTRY_RECORDED: "LABOR_ENTRY_RECORDED",
+	INCIDENT_REPORTED: "INCIDENT_REPORTED",
+
+	// ── Workflow: Evidence ───────────────────────────────────────────
+	EVIDENCE_UPLOADED: "EVIDENCE_UPLOADED",
+	EVIDENCE_DELETED: "EVIDENCE_DELETED",
+	EVIDENCE_COLLECTION_CREATED: "EVIDENCE_COLLECTION_CREATED",
+
+	// ── Workflow: Technical Report ───────────────────────────────────
+	TECHNICAL_REPORT_CREATED: "TECHNICAL_REPORT_CREATED",
+	TECHNICAL_REPORT_APPROVED: "TECHNICAL_REPORT_APPROVED",
+
+	// ── Workflow: Delivery Record ────────────────────────────────────
+	DELIVERY_RECORD_CREATED: "DELIVERY_RECORD_CREATED",
+	DELIVERY_RECORD_SIGNED: "DELIVERY_RECORD_SIGNED",
+
+	// ── Workflow: SES / Ariba ────────────────────────────────────────
+	SES_CREATED: "SES_CREATED",
+	SES_SUBMITTED: "SES_SUBMITTED",
+	SES_APPROVED: "SES_APPROVED",
+	SES_REJECTED: "SES_REJECTED",
+
+	// ── Workflow: Invoices ───────────────────────────────────────────
+	INVOICE_ISSUED: "INVOICE_ISSUED",
+	INVOICE_SENT: "INVOICE_SENT",
+	INVOICE_APPROVED: "INVOICE_APPROVED",
+	INVOICE_REJECTED: "INVOICE_REJECTED",
+
+	// ── Workflow: Payments ───────────────────────────────────────────
+	PAYMENT_REGISTERED: "PAYMENT_REGISTERED",
+	PAYMENT_RECONCILED: "PAYMENT_RECONCILED",
+
+	// ── Workflow: Service Case ───────────────────────────────────────
+	SERVICE_CASE_CREATED: "SERVICE_CASE_CREATED",
+	SERVICE_CASE_STEP_ADVANCED: "SERVICE_CASE_STEP_ADVANCED",
+	SERVICE_CASE_CLOSED: "SERVICE_CASE_CLOSED",
+	SERVICE_CASE_ARCHIVED: "SERVICE_CASE_ARCHIVED",
+
+	// ── Template Management ──────────────────────────────────────────
 	TEMPLATE_CREATED: "TEMPLATE_CREATED",
 	TEMPLATE_UPDATED: "TEMPLATE_UPDATED",
 	TEMPLATE_CLASSIFIED: "TEMPLATE_CLASSIFIED",
 	TEMPLATE_DELETED: "TEMPLATE_DELETED",
 
-	// Template Versions
+	// ── Template Versions ────────────────────────────────────────────
 	VERSION_CREATED: "VERSION_CREATED",
 	VERSION_UPDATED: "VERSION_UPDATED",
 	VERSION_PUBLISHED: "VERSION_PUBLISHED",
 	VERSION_DEPRECATED: "VERSION_DEPRECATED",
 	VERSION_CLONED: "VERSION_CLONED",
 
-	// Form Responses
+	// ── Form Responses ───────────────────────────────────────────────
 	RESPONSE_CREATED: "RESPONSE_CREATED",
 	RESPONSE_UPDATED: "RESPONSE_UPDATED",
 	RESPONSE_SUBMITTED: "RESPONSE_SUBMITTED",
@@ -24,13 +105,13 @@ export const AUDIT_ACTIONS = {
 	RESPONSE_REJECTED: "RESPONSE_REJECTED",
 	RESPONSE_SYNCED: "RESPONSE_SYNCED",
 
-	// Files & Imports
+	// ── Files & Imports ──────────────────────────────────────────────
 	FILE_UPLOADED: "FILE_UPLOADED",
 	FILE_SCANNED: "FILE_SCANNED",
 	XLSX_IMPORT_STARTED: "XLSX_IMPORT_STARTED",
 	PDF_IMPORT_STARTED: "PDF_IMPORT_STARTED",
 
-	// Asset & Maintenance
+	// ── Asset & Maintenance ──────────────────────────────────────────
 	ASSET_CREATED: "ASSET_CREATED",
 	CERTIFICATE_ADDED: "CERTIFICATE_ADDED",
 	MAINTENANCE_RESOLVED: "MAINTENANCE_RESOLVED",

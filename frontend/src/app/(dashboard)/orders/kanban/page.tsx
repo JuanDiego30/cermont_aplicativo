@@ -16,7 +16,7 @@ import {
 	COLUMN_COLORS,
 	COLUMN_LABELS,
 	KANBAN_ORDER_QUERY_LIMIT,
-	type KanbanData,
+	type KanbanBoard,
 	type KanbanOrder,
 	VISIBLE_COLUMNS,
 } from "./kanban-constants";
@@ -38,11 +38,11 @@ function toKanbanOrder(order: Order): KanbanOrder {
 	};
 }
 
-function groupOrdersByStatus(orders: Order[]): KanbanData {
+function groupOrdersByStatus(orders: Order[]): KanbanBoard {
 	const grouped = VISIBLE_COLUMNS.reduce((acc, status) => {
 		acc[status] = [];
 		return acc;
-	}, {} as KanbanData);
+	}, {} as KanbanBoard);
 
 	for (const order of orders) {
 		if (!VISIBLE_COLUMN_SET.has(order.status)) {

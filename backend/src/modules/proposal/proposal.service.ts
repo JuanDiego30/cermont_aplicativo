@@ -19,7 +19,7 @@ import mongoose from "mongoose";
 import { AppError, ForbiddenError } from "../../common/errors";
 import { createLogger } from "../../common/utils/logger";
 import { escapeRegExp } from "../../common/utils/normalization";
-import type { AuthPayload } from "../../common/utils/request";
+import type { AuthClaims } from "../../common/utils/request";
 import { Counter, Proposal } from "../../models";
 import * as OrderService from "../../modules/order/order.service";
 
@@ -27,7 +27,7 @@ type ProposalOrderInput = Parameters<typeof OrderService.createOrder>[0];
 
 const log = createLogger("proposal-service");
 
-interface ProposalViewer extends Pick<AuthPayload, "_id" | "email" | "role"> {}
+interface ProposalViewer extends Pick<AuthClaims, "_id" | "email" | "role"> {}
 
 function normalizeEmail(value: unknown): string {
 	return typeof value === "string" ? value.trim().toLowerCase() : "";

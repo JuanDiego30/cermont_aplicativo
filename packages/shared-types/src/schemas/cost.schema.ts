@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { statusObjectOf } from "../utils/status-types";
 
 export const CostCategorySchema = z.enum([
 	"labor",
@@ -22,6 +23,9 @@ export const CostDataStateSchema = z.enum([
 ]);
 export type CostDataState = z.infer<typeof CostDataStateSchema>;
 
+export const CostRecordStatusSchema = z.enum(["active", "voided"]);
+export type CostRecordStatus = z.infer<typeof CostRecordStatusSchema>;
+
 export const CostByCategorySchema = z.object({
 	category: CostCategorySchema,
 	estimated: z.number(),
@@ -32,7 +36,17 @@ export const CostByCategorySchema = z.object({
 });
 export type CostByCategory = z.infer<typeof CostByCategorySchema>;
 
-export const CreateCostSchema = z.object({
+function hasCostSupport(data: {
+	actualAmount: number;
+	supportEvidenceIds: string[];
+	supportDocumentIds: string[];
+}): boolean {
+	return (
+		data.actualAmount <= 0 || data.supportEvidenceIds.length + data.supportDocumentIds.length > 0
+	);
+}
+
+const CostInputBaseSchema = z.object({
 	orderId: z.string().min(1),
 	category: CostCategorySchema,
 	description: z.string().min(1).max(200),
@@ -42,10 +56,17 @@ export const CreateCostSchema = z.object({
 	taxRate: z.number().min(0).max(1).default(0),
 	currency: z.string().default("COP"),
 	notes: z.string().max(500).optional(),
+	supportEvidenceIds: z.array(z.string().min(1)).max(20).default([]),
+	supportDocumentIds: z.array(z.string().min(1)).max(20).default([]),
+});
+
+export const CreateCostSchema = CostInputBaseSchema.refine(hasCostSupport, {
+	message: "Actual cost entries require at least one support evidence or document",
+	path: ["supportEvidenceIds"],
 });
 export type CreateCostInput = z.infer<typeof CreateCostSchema>;
 
-export const UpdateCostSchema = CreateCostSchema.omit({
+export const UpdateCostSchema = CostInputBaseSchema.omit({
 	orderId: true,
 }).partial();
 export type UpdateCostInput = z.infer<typeof UpdateCostSchema>;
@@ -74,7 +95,7 @@ export const CostSummarySchema = z.object({
 	totalActual: z.number(),
 	totalTax: z.number(),
 	variance: z.number(),
-	variancePercent: z.number().nullable(),
+	variancePercent: statusObjectOf(z.number()),
 	hasCosts: z.boolean(),
 	dataState: CostDataStateSchema,
 	byCategory: z.array(CostByCategorySchema),
@@ -92,6 +113,12 @@ export const CostSchema = z.object({
 	taxRate: z.number().min(0).max(1),
 	currency: z.string(),
 	notes: z.string().max(500).optional(),
+	supportEvidenceIds: z.array(z.string().min(1)),
+	supportDocumentIds: z.array(z.string().min(1)),
+	status: CostRecordStatusSchema,
+	voidedAt: z.string().optional(),
+	voidedBy: z.string().optional(),
+	voidReason: z.string().max(500).optional(),
 	recordedBy: z.string(),
 	recordedAt: z.string(),
 	createdAt: z.string(),
@@ -109,7 +136,7 @@ export type CostLineDeltaStatus = z.infer<typeof CostLineDeltaStatusSchema>;
 
 export const CostResponseSchema = CostSchema.extend({
 	variance: z.number(),
-	variancePercent: z.number().nullable(),
+	variancePercent: statusObjectOf(z.number()),
 	dataState: CostDataStateSchema,
 });
 export type CostResponse = z.infer<typeof CostResponseSchema>;

@@ -1,9 +1,21 @@
-\begin{tikzpicture}[node distance=0.9cm, every node/.style={font=\scriptsize}, layer/.style={draw, rounded corners, align=center, minimum width=4.2cm, minimum height=0.8cm, fill=blue!6}]
+\begin{tikzpicture}[
+  node distance=0.85cm,
+  every node/.style={font=\scriptsize},
+  layer/.style={draw=institucionalBlue, rounded corners=3pt, align=center, minimum width=4.5cm, minimum height=0.82cm, fill=institucionalGrey!35, line width=0.75pt},
+  control/.style={draw=institucionalRed, rounded corners=3pt, fill=institucionalRed!8, align=center, minimum width=3.5cm, minimum height=1.65cm, line width=0.85pt},
+  arrow/.style={-{Latex[length=2mm]}, draw=institucionalBlue, line width=0.8pt},
+  dashedlink/.style={-{Latex[length=2mm]}, draw=institucionalRed, dashed, line width=0.8pt}
+]
 \node[layer] (ui) {Frontend\\Next.js / React / UI modular};
 \node[layer, below=of ui] (contracts) {Contratos compartidos\\Zod / tipos / RBAC};
 \node[layer, below=of contracts] (api) {Backend API\\Express / servicios de dominio};
 \node[layer, below=of api] (data) {Persistencia\\MongoDB / Mongoose / archivos};
-\draw[-{Latex[length=2mm]}] (ui)--(contracts); \draw[-{Latex[length=2mm]}] (contracts)--(api); \draw[-{Latex[length=2mm]}] (api)--(data);
-\node[draw, rounded corners, fill=green!8, align=center, right=1.1cm of contracts, minimum width=3.4cm] {Auditoría\\validación\\permisos};
-\draw[-{Latex[length=2mm]}, dashed] (contracts)--(api.east);
+
+\node[control, right=1.15cm of contracts] (gov) {Gobierno técnico\\auditoría\\validación\\permisos};
+
+\draw[arrow] (ui)--(contracts);
+\draw[arrow] (contracts)--(api);
+\draw[arrow] (api)--(data);
+\draw[dashedlink] (gov.west) -- (contracts.east);
+\draw[dashedlink] (gov.west) |- (api.east);
 \end{tikzpicture}

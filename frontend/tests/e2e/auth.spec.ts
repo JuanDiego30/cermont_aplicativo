@@ -29,8 +29,7 @@ test.describe("Authentication Flow", () => {
 		// Wait for the API response before checking DOM
 		const responsePromise = page.waitForResponse(
 			(resp) =>
-				resp.url().includes("/api/auth/login") ||
-				resp.url().includes("/api/backend/auth/login"),
+				resp.url().includes("/api/auth/login") || resp.url().includes("/api/backend/auth/login"),
 		);
 		await page
 			.getByRole("button", { name: /iniciar sesión/i })
@@ -39,9 +38,7 @@ test.describe("Authentication Flow", () => {
 		await responsePromise;
 
 		// Should show an explicit backend error (handles both 401 and rate-limit 429)
-		await expect(
-			page.locator('[data-login-form] [role="alert"]'),
-		).toBeVisible();
+		await expect(page.locator('[data-login-form] [role="alert"]')).toBeVisible();
 		await expect(page).toHaveURL(/\/login$/);
 	});
 

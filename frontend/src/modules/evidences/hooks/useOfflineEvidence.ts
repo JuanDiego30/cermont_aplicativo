@@ -1,11 +1,14 @@
 "use client";
 
-import type { EvidenceType } from "@cermont/shared-types";
+import type { EvidenceType, OfflineJsonObject } from "@cermont/shared-types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { apiClient } from "@/lib/http/api-client";
 import { createLogger } from "@/lib/monitoring/logger";
+import { OFFLINE_MUTATION_KEYS } from "@/lib/offline/mutation-defaults";
+import { hasIndexedDBSupport, nowIso, offlineDb } from "@/lib/offline/offline-db";
 import { enqueue, type SyncQueueEntry } from "@/lib/offline/sync-queue";
+import { useOfflineStore } from "@/store/offline.store";
 
 const logger = createLogger("offline-sync:evidences");
 
@@ -22,7 +25,7 @@ export interface OfflineEvidenceInput {
 	};
 }
 
-type OfflineEvidenceResponse = {
+type OfflineEvidenceOutcome = {
 	success: boolean;
 	data: {
 		_id: string;
@@ -39,7 +42,7 @@ function createUuid(): string {
 }
 
 function isNetworkFailure(error: unknown): boolean {
-	if (typeof navigator !== "undefined" && navigator.onLine === false) {
+	if (!useOfflineStore.getState().isOnline) {
 		return true;
 	}
 
@@ -59,34 +62,69 @@ async function fileToBase64(file: File): Promise<string> {
 }
 
 async function queueEvidenceUpload(variables: OfflineEvidenceInput): Promise<void> {
-	const fileBase64 = await fileToBase64(variables.file);
-	const payload: Record<string, unknown> = {
+	const entryId = createUuid();
+	const idempotencyKey = createUuid();
+	const fileLocalId = createUuid();
+	const payload: OfflineJsonObject = {
 		orderId: variables.orderId,
+		category: "evidence_photo",
+		idempotencyKey,
 		type: variables.type,
 		capturedAt: variables.capturedAt,
-		fileBase64,
+		fileLocalId,
 		fileName: variables.file.name,
 		fileType: variables.file.type,
 	};
+
+	if (!hasIndexedDBSupport()) {
+		payload.fileBase64 = await fileToBase64(variables.file);
+	}
 
 	if (typeof variables.description === "string" && variables.description.trim().length > 0) {
 		payload.description = variables.description.trim();
 	}
 
 	if (variables.gpsLocation) {
-		payload.gpsLocation = variables.gpsLocation;
+		payload.gpsLocation = {
+			lat: variables.gpsLocation.lat,
+			lng: variables.gpsLocation.lng,
+			...(variables.gpsLocation.capturedAt ? { capturedAt: variables.gpsLocation.capturedAt } : {}),
+		};
 	}
 
 	const entry: SyncQueueEntry = {
-		id: createUuid(),
+		id: entryId,
 		endpoint: "/evidences",
 		method: "POST",
 		payload,
 		createdAt: Date.now(),
 		retryCount: 0,
-		idempotencyKey: createUuid(),
+		idempotencyKey,
 		dedupeKey: `evidences:create:${variables.orderId}:${variables.type}:${variables.file.name}:${variables.file.type}:${variables.capturedAt}:${variables.description ?? ""}`,
 	};
+
+	if (hasIndexedDBSupport()) {
+		const timestamp = nowIso();
+		await offlineDb.transaction("rw", offlineDb.offlineFiles, async () => {
+			await offlineDb.offlineFiles.put({
+				localId: fileLocalId,
+				outboxLocalId: entry.id,
+				workOrderId: variables.orderId,
+				entityType: "evidence",
+				entityId: variables.orderId,
+				flowStep: 7,
+				fileName: variables.file.name,
+				mimeType: variables.file.type || "application/octet-stream",
+				sizeBytes: variables.file.size,
+				category: "evidence_photo",
+				status: "pending_upload",
+				createdAt: timestamp,
+				updatedAt: timestamp,
+				idempotencyKey,
+				blob: variables.file,
+			});
+		});
+	}
 
 	logger.info("Queued evidence upload for offline sync", {
 		orderId: variables.orderId,
@@ -119,12 +157,13 @@ export function useOfflineEvidence() {
 	const queryClient = useQueryClient();
 
 	const uploadMutation = useMutation({
-		mutationFn: async (data: OfflineEvidenceInput): Promise<OfflineEvidenceResponse> => {
+		mutationKey: OFFLINE_MUTATION_KEYS.evidenceUpload,
+		mutationFn: async (data: OfflineEvidenceInput): Promise<OfflineEvidenceOutcome> => {
 			const formData = buildEvidenceFormData(data);
-			const body = await apiClient.post<OfflineEvidenceResponse>("/evidences", formData);
+			const body = await apiClient.post<OfflineEvidenceOutcome>("/evidences", formData);
 
 			if (!body?.success) {
-				throw new Error("Error al subir la evidencia");
+				throw new Error("Failed to upload evidence");
 			}
 
 			return body;
@@ -135,7 +174,7 @@ export function useOfflineEvidence() {
 	});
 
 	const mutateAsync = useCallback(
-		async (data: OfflineEvidenceInput): Promise<OfflineEvidenceResponse | null> => {
+		async (data: OfflineEvidenceInput): Promise<OfflineEvidenceOutcome | null> => {
 			try {
 				return await uploadMutation.mutateAsync(data);
 			} catch (error) {
@@ -154,6 +193,6 @@ export function useOfflineEvidence() {
 		...uploadMutation,
 		mutateAsync,
 	} as typeof uploadMutation & {
-		mutateAsync: (data: OfflineEvidenceInput) => Promise<OfflineEvidenceResponse | null>;
+		mutateAsync: (data: OfflineEvidenceInput) => Promise<OfflineEvidenceOutcome | null>;
 	};
 }

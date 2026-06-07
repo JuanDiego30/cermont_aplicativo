@@ -10,8 +10,10 @@
 import type {
 	CreateMaintenanceKit,
 	CustomFieldValues,
+	StatusObject,
 	UpdateMaintenanceKit,
 } from "@cermont/shared-types";
+import { isPresent } from "@cermont/shared-types";
 import { AppError } from "../../common/errors";
 import { createLogger } from "../../common/utils/logger";
 import {
@@ -20,44 +22,56 @@ import {
 	normalizeQuantity,
 	normalizeText,
 } from "../../common/utils/normalization";
-import { MaintenanceKit } from "../../models/MaintenanceKit.js";
+import { type ActivityType, MaintenanceKit } from "../../models/MaintenanceKit.js";
 
 const log = createLogger("kit-service");
 
-export interface CreateKitData extends Partial<CreateMaintenanceKit> {
+export interface CreateKitCommand extends Partial<CreateMaintenanceKit> {
 	activity_type?: string;
 	isActive?: boolean;
 	is_active?: boolean;
 }
 
-export interface UpdateKitData extends Partial<UpdateMaintenanceKit> {
+export interface UpdateKitCommand extends Partial<UpdateMaintenanceKit> {
 	activity_type?: string;
 	is_active?: boolean;
 }
 
-function mapTool(
-	tool: Partial<CreateMaintenanceKit["tools"][number]> & { specifications?: unknown },
-): {
+type ToolMapEntry = {
 	name: string;
 	quantity: number;
 	specifications?: string;
 	customFields?: NonNullable<CustomFieldValues>;
-} | null {
+};
+
+type EquipmentMapEntry = {
+	name: string;
+	quantity: number;
+	certificate_required: boolean;
+	customFields?: NonNullable<CustomFieldValues>;
+};
+
+function mapTool(
+	tool: Partial<CreateMaintenanceKit["tools"][number]> & { specifications?: unknown },
+): StatusObject<ToolMapEntry> {
 	const name = normalizeText(tool.name);
 	const quantity = normalizeQuantity(tool.quantity);
 
 	if (!name || quantity === undefined) {
-		return null;
+		return { status: "absent" };
 	}
 
 	const specifications = normalizeText(tool.specifications);
 	const customFields = normalizeCustomFields(tool.customFields);
 
 	return {
-		name,
-		quantity,
-		...(specifications ? { specifications } : {}),
-		...(Object.keys(customFields).length > 0 ? { customFields } : {}),
+		status: "present",
+		value: {
+			name,
+			quantity,
+			...(specifications ? { specifications } : {}),
+			...(Object.keys(customFields).length > 0 ? { customFields } : {}),
+		},
 	};
 }
 
@@ -66,17 +80,12 @@ function mapEquipment(
 		certificateRequired?: string | number | boolean;
 		certificate_required?: string | number | boolean;
 	},
-): {
-	name: string;
-	quantity: number;
-	certificate_required: boolean;
-	customFields?: NonNullable<CustomFieldValues>;
-} | null {
+): StatusObject<EquipmentMapEntry> {
 	const name = normalizeText(item.name);
 	const quantity = normalizeQuantity(item.quantity);
 
 	if (!name || quantity === undefined) {
-		return null;
+		return { status: "absent" };
 	}
 
 	const certificateRequired =
@@ -84,16 +93,17 @@ function mapEquipment(
 	const customFields = normalizeCustomFields(item.customFields);
 
 	return {
-		name,
-		quantity,
-		certificate_required: certificateRequired,
-		...(Object.keys(customFields).length > 0 ? { customFields } : {}),
+		status: "present",
+		value: {
+			name,
+			quantity,
+			certificate_required: certificateRequired,
+			...(Object.keys(customFields).length > 0 ? { customFields } : {}),
+		},
 	};
 }
 
-function normalizeCustomFields(
-	customFields: CustomFieldValues,
-): NonNullable<CustomFieldValues> {
+function normalizeCustomFields(customFields: CustomFieldValues): NonNullable<CustomFieldValues> {
 	if (!customFields) {
 		return {};
 	}
@@ -105,8 +115,39 @@ function normalizeCustomFields(
 	return entries.length > 0 ? Object.fromEntries(entries) : {};
 }
 
-function buildCreateDocument(data: CreateKitData, userId: string): Record<string, unknown> {
-	const createDoc: Record<string, unknown> = {
+interface CreateDocumentInput {
+	created_by: string;
+	is_active: boolean;
+	name?: string;
+	activity_type?: ActivityType;
+	tools?: ToolMapEntry[];
+	equipment?: EquipmentMapEntry[];
+}
+
+interface UpdateDocumentInput {
+	name?: string;
+	activity_type?: ActivityType;
+	tools?: ToolMapEntry[];
+	equipment?: EquipmentMapEntry[];
+	is_active?: boolean;
+}
+
+function normalizeActivityType(value?: string): StatusObject<ActivityType> {
+	const activityType = normalizeText(value);
+	switch (activityType) {
+		case "electrico":
+		case "mecanico":
+		case "civil":
+		case "telecomunicaciones":
+		case "hse":
+			return { status: "present", value: activityType };
+		default:
+			return { status: "absent" };
+	}
+}
+
+function buildCreateDocument(data: CreateKitCommand, userId: string) {
+	const createDoc: CreateDocumentInput = {
 		created_by: userId,
 		is_active: true,
 	};
@@ -116,21 +157,23 @@ function buildCreateDocument(data: CreateKitData, userId: string): Record<string
 		createDoc.name = name;
 	}
 
-	const activityType = normalizeText(data.activityType ?? data.activity_type);
-	if (activityType) {
-		createDoc.activity_type = activityType;
+	const activityType = normalizeActivityType(data.activityType ?? data.activity_type);
+	if (isPresent(activityType)) {
+		createDoc.activity_type = activityType.value;
 	}
 
 	if (data.tools !== undefined) {
 		createDoc.tools = data.tools
 			.map(mapTool)
-			.filter((tool): tool is NonNullable<typeof tool> => tool !== null);
+			.filter(isPresent)
+			.map((t) => t.value);
 	}
 
 	if (data.equipment !== undefined) {
 		createDoc.equipment = data.equipment
 			.map(mapEquipment)
-			.filter((entry): entry is NonNullable<typeof entry> => entry !== null);
+			.filter(isPresent)
+			.map((e) => e.value);
 	}
 
 	const isActive = normalizeBoolean(data.isActive ?? data.is_active);
@@ -141,29 +184,31 @@ function buildCreateDocument(data: CreateKitData, userId: string): Record<string
 	return createDoc;
 }
 
-function buildUpdateDocument(updates: UpdateKitData): Record<string, unknown> {
-	const updateDoc: Record<string, unknown> = {};
+function buildUpdateDocument(updates: UpdateKitCommand) {
+	const updateDoc: UpdateDocumentInput = {};
 
 	const name = normalizeText(updates.name);
 	if (name) {
 		updateDoc.name = name;
 	}
 
-	const activityType = normalizeText(updates.activityType ?? updates.activity_type);
-	if (activityType) {
-		updateDoc.activity_type = activityType;
+	const activityType = normalizeActivityType(updates.activityType ?? updates.activity_type);
+	if (isPresent(activityType)) {
+		updateDoc.activity_type = activityType.value;
 	}
 
 	if (updates.tools !== undefined) {
 		updateDoc.tools = updates.tools
 			.map(mapTool)
-			.filter((tool): tool is NonNullable<typeof tool> => tool !== null);
+			.filter(isPresent)
+			.map((t) => t.value);
 	}
 
 	if (updates.equipment !== undefined) {
 		updateDoc.equipment = updates.equipment
 			.map(mapEquipment)
-			.filter((entry): entry is NonNullable<typeof entry> => entry !== null);
+			.filter(isPresent)
+			.map((e) => e.value);
 	}
 
 	const isActive = normalizeBoolean(updates.isActive ?? updates.is_active);
@@ -177,7 +222,7 @@ function buildUpdateDocument(updates: UpdateKitData): Record<string, unknown> {
 /**
  * Create a new kit
  */
-async function createKit(data: CreateKitData, userId: string): Promise<unknown> {
+async function createKit(data: CreateKitCommand, userId: string): Promise<unknown> {
 	const normalizedName = normalizeText(data.name);
 	if (normalizedName) {
 		const existing = await MaintenanceKit.findOne({ name: normalizedName }).lean();
@@ -208,6 +253,7 @@ async function findAllKits(
 ): Promise<{ data: unknown[]; total: number }> {
 	const where: Record<string, unknown> = {};
 	const activityType = normalizeText(String(filters.activityType ?? filters.activity_type ?? ""));
+
 	const isActive = normalizeBoolean(String(filters.isActive ?? filters.is_active));
 	const search = normalizeText(String(filters.search ?? ""));
 
@@ -250,7 +296,7 @@ async function findKitById(id: string): Promise<unknown> {
 /**
  * Update a kit
  */
-async function updateKit(id: string, updates: UpdateKitData): Promise<unknown> {
+async function updateKit(id: string, updates: UpdateKitCommand): Promise<unknown> {
 	const kit = await MaintenanceKit.findById(id);
 	if (!kit) {
 		throw new AppError("Kit not found", 404, "KIT_NOT_FOUND");

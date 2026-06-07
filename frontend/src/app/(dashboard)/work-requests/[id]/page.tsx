@@ -129,9 +129,7 @@ export default function WorkRequestDetailPage({ params }: WorkRequestDetailPageP
 			<div className="mb-8 flex flex-wrap items-start justify-between gap-4">
 				<div>
 					<div className="flex items-center gap-3">
-						<span className="font-mono text-sm text-muted-foreground">
-							{workRequest.code}
-						</span>
+						<span className="font-mono text-sm text-muted-foreground">{workRequest.code}</span>
 						<span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusColor}`}>
 							{statusLabel}
 						</span>
@@ -142,10 +140,7 @@ export default function WorkRequestDetailPage({ params }: WorkRequestDetailPageP
 				</div>
 				<div className="flex gap-2">
 					{workRequest.status === "submitted" && (
-						<Button
-							size="sm"
-							className="bg-success text-white hover:bg-success/90"
-						>
+						<Button size="sm" className="bg-success text-white hover:bg-success/90">
 							Calificar solicitud
 						</Button>
 					)}
@@ -211,9 +206,7 @@ export default function WorkRequestDetailPage({ params }: WorkRequestDetailPageP
 							<div className="flex items-center gap-2">
 								<Tag className="size-4 text-muted-foreground" aria-hidden="true" />
 								<dt className="sr-only">Tipo de servicio</dt>
-								<dd className="font-medium text-foreground">
-									{workRequest.serviceType}
-								</dd>
+								<dd className="font-medium text-foreground">{workRequest.serviceType}</dd>
 							</div>
 							<div className="flex items-center gap-2">
 								<Route className="size-4 text-muted-foreground" aria-hidden="true" />

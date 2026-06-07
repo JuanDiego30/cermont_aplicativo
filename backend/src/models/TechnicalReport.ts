@@ -1,6 +1,8 @@
 import { TechnicalReportStatusSchema } from "@cermont/shared-types";
 import { type Document, model, Schema, Types } from "mongoose";
 
+import { FileAssetRefSchema, type FileAssetRef } from "./sub-schemas/FileAssetRefSchema";
+
 export interface TechnicalReportDocument extends Document {
 	_id: Types.ObjectId;
 	code: string;
@@ -25,6 +27,7 @@ export interface TechnicalReportDocument extends Document {
 	rejectionReason?: string;
 	status: string;
 	clientMutationIds: string[];
+	fileAssets: FileAssetRef[];
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -63,6 +66,7 @@ const technicalReportSchema = new Schema<TechnicalReportDocument>(
 			index: true,
 		},
 		clientMutationIds: { type: [String], default: [], index: true },
+		fileAssets: { type: [FileAssetRefSchema], default: [] },
 	},
 	{ timestamps: true, versionKey: false },
 );

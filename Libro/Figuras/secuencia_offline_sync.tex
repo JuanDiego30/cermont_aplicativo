@@ -1,9 +1,18 @@
-\begin{tikzpicture}[node distance=1.0cm, every node/.style={font=\scriptsize}, box/.style={draw, rounded corners, align=center, minimum width=2.4cm, minimum height=0.75cm, fill=orange!8}]
+\begin{tikzpicture}[
+  node distance=0.9cm,
+  every node/.style={font=\scriptsize},
+  box/.style={draw=institucionalBlue, rounded corners=3pt, align=center, minimum width=2.45cm, minimum height=0.78cm, fill=institucionalGrey!35, line width=0.75pt},
+  limit/.style={draw=institucionalRed, rounded corners=3pt, align=center, text width=4.1cm, minimum height=0.58cm, fill=institucionalRed!8, font=\tiny, line width=0.75pt},
+  arrow/.style={-{Latex[length=2mm]}, draw=institucionalBlue, line width=0.8pt},
+  warn/.style={-{Latex[length=2mm]}, draw=institucionalRed, line width=0.75pt}
+]
 \node[box] (cap) {Captura en campo};
 \node[box, right=of cap] (local) {IndexedDB\\cola local};
 \node[box, right=of local] (net) {Detección\\de red};
 \node[box, right=of net] (api) {API backend};
 \node[box, right=of api] (ok) {Confirmación\\y auditoría};
-\draw[-{Latex[length=2mm]}] (cap)--(local); \draw[-{Latex[length=2mm]}] (local)--(net); \draw[-{Latex[length=2mm]}] (net)--(api); \draw[-{Latex[length=2mm]}] (api)--(ok);
-\node[below=0.65cm of local, align=center, font=\tiny] {No se pierde información si la red falla};
+\foreach \a/\b in {cap/local,local/net,net/api,api/ok}{\draw[arrow] (\a)--(\b);}
+
+\node[limit, below=0.62cm of local] (note) {La sincronización completa de archivos binarios se declara como alcance parcial};
+\draw[warn] (local) -- (note);
 \end{tikzpicture}

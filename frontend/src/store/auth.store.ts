@@ -4,9 +4,9 @@
 // Refresh token is persisted (in httpOnly cookie by backend)
 
 import type { UserRole } from "@cermont/domain";
+import type { StatusObject } from "@cermont/shared-types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { StatusObject } from "@cermont/shared-types";
 
 interface AuthUser {
 	id: string;
@@ -42,9 +42,18 @@ export const useAuthStore = create<AuthState>()(
 			isAuthenticated: false,
 
 			setAuth: (user, accessToken) =>
-				set({ user: { status: "present", value: user }, accessToken: { status: "present", value: accessToken }, isAuthenticated: true }),
+				set({
+					user: { status: "present", value: user },
+					accessToken: { status: "present", value: accessToken },
+					isAuthenticated: true,
+				}),
 
-			clearAuth: () => set({ user: { status: "absent" }, accessToken: { status: "absent" }, isAuthenticated: false }),
+			clearAuth: () =>
+				set({
+					user: { status: "absent" },
+					accessToken: { status: "absent" },
+					isAuthenticated: false,
+				}),
 
 			setAccessToken: (token) => {
 				set({ accessToken: { status: "present", value: token } });
@@ -55,11 +64,14 @@ export const useAuthStore = create<AuthState>()(
 		}),
 		{
 			name: "cermont-auth",
-			// CRITICAL: Only persist user and auth state, NEVER accessToken
+			// CRITICAL: Only persist user, NEVER accessToken or isAuthenticated
+			// isAuthenticated is NOT persisted — derived by AuthInitializer on page load.
+			// Without this, Zustand restore sets isAuthenticated=true before AuthInitializer
+			// runs, causing a 401 storm as queries fire with no valid accessToken.
 			partialize: (state) => ({
 				user: state.user,
-				isAuthenticated: state.isAuthenticated,
-				// accessToken is NOT included in persistence
+				// isAuthenticated: NOT persisted — prevents stale auth state on page reload
+				// accessToken: NOT persisted — security / memory only
 			}),
 		},
 	),

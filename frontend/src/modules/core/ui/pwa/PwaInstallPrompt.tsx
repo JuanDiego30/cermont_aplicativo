@@ -64,7 +64,10 @@ export function PwaInstallPrompt() {
 		const isSafari = /safari/.test(userAgent) && !/crios|fxios|edgios/.test(userAgent);
 		return isiOS && isSafari;
 	}, []);
-	const isStandaloneRef = useRef(isStandaloneMode());
+	const isStandaloneRef = useRef<boolean | null>(null);
+	if (isStandaloneRef.current === null) {
+		isStandaloneRef.current = isStandaloneMode();
+	}
 	const { deferredPrompt, isDismissed } = state;
 
 	useEffect(() => {
@@ -126,7 +129,7 @@ export function PwaInstallPrompt() {
 	}
 
 	return (
-		<div className="fixed inset-x-4 bottom-24 z-50 rounded-2xl border border-zinc-200 bg-white/95 p-4 shadow-2xl backdrop-blur md:bottom-6 md:left-auto md:right-6 md:max-w-sm dark:border-zinc-700 dark:bg-zinc-950/90">
+		<div className="motion-panel fixed inset-x-4 bottom-24 z-50 rounded-2xl border border-zinc-200 bg-white/95 p-4 shadow-2xl backdrop-blur md:bottom-6 md:left-auto md:right-6 md:max-w-sm dark:border-zinc-700 dark:bg-zinc-950/90">
 			<div className="flex items-start justify-between gap-3">
 				<div className="flex gap-3">
 					<div className="rounded-2xl bg-zinc-900 p-3 text-white dark:bg-zinc-100 dark:text-zinc-900">
@@ -148,7 +151,7 @@ export function PwaInstallPrompt() {
 				<button
 					type="button"
 					onClick={dismiss}
-					className="rounded-full p-1 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+					className="motion-button rounded-full p-1 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
 					aria-label="Cerrar aviso de instalación"
 				>
 					<X aria-hidden="true" className="size-4" />
@@ -177,7 +180,7 @@ export function PwaInstallPrompt() {
 					<button
 						type="button"
 						onClick={install}
-						className="flex-1 rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+						className="motion-button flex-1 rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
 					>
 						Instalar ahora
 					</button>
@@ -185,7 +188,7 @@ export function PwaInstallPrompt() {
 				<button
 					type="button"
 					onClick={dismiss}
-					className="rounded-xl border border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900"
+					className="motion-button rounded-xl border border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900"
 				>
 					Más tarde
 				</button>

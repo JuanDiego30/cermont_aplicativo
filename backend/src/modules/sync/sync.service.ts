@@ -1,24 +1,27 @@
 /**
  * sync.service.ts — Servicio de sincronización offline (DOC-06, DOC-10)
  *
- * Procesa un lote de operaciones encoladas en IndexedDB por el Service Worker.
- * Cada op tiene: id (UUID), type (entidad), action (CRUD), payload, timestamp.
- *
- * SRP: Solo procesa el batch. Cada entidad tiene su propio servicio.
- * Fault-tolerant: errores en operaciones individuales NO detienen el batch.
- *
- * DOC REFERENCE: DOC-06 §6 (Offline Sync), DOC-07 §5.2 (Order FSM)
+ * Procesa lotes de operaciones encoladas localmente. Acepta el contrato
+ * moderno `localId/entityType/operation` y el contrato legacy `id/type/action`
+ * mientras se completa la migración de IndexedDB nativo a Dexie.
  */
 
 import type {
+  CreateOrderInput,
+  LegacyOfflineEntityType,
   OfflineOperation,
+  OfflineEntityType,
+  OfflineOperationType,
+  OfflineOutboxItem,
   OfflineWorkRequestPayload,
   OfflineSiteVisitPayload,
   OfflinePlanningPacketPayload,
   OfflineExecutionPayload,
   OfflineEvidencePayload,
+  OfflineSyncItemResult,
   SyncResult,
 } from "@cermont/shared-types";
+import { CreateOrderSchema } from "@cermont/shared-types";
 import type { UserRole } from "@cermont/domain";
 import { AppError } from "../../common/errors/AppError";
 import * as OrderSvc from "../../modules/order/order.service";
@@ -29,6 +32,104 @@ import * as WorkRequestSvc from "../../modules/work-requests/work-requests.servi
 import * as SiteVisitSvc from "../../modules/site-visit/site-visit.service";
 import * as PlanningPacketSvc from "../../modules/planning-packet/planning-packet.service";
 import * as ExecutionSessionSvc from "../../modules/execution-session/execution-session.service";
+
+type LegacyAction = "create" | "update" | "delete";
+
+interface NormalizedOfflineOperation {
+  id: string;
+  type: LegacyOfflineEntityType;
+  action: LegacyAction;
+  payload: OfflineOperation["payload"];
+}
+
+const MODERN_TO_LEGACY_ENTITY: Partial<Record<OfflineEntityType, LegacyOfflineEntityType>> = {
+  work_request: "work-request",
+  site_visit: "site-visit",
+  work_order: "order",
+  planning_packet: "planning-packet",
+  execution_session: "execution-session",
+  checklist_submission: "checklist",
+  evidence: "evidence",
+  cost_record: "cost",
+  delivery_record: "delivery-record",
+  client_acceptance: "delivery-record",
+  service_entry_sheet: "service-entry-sheet",
+  invoice: "invoice",
+  invoice_approval: "invoice",
+  payment_record: "payment",
+  technical_report: "technical-report",
+  purchase_order: "purchase-order",
+};
+
+const MODERN_TO_LEGACY_ACTION: Record<OfflineOperationType, LegacyAction> = {
+  create: "create",
+  update: "update",
+  delete: "delete",
+  upload_file: "create",
+  submit_form: "create",
+  transition_state: "update",
+};
+
+function isModernOfflineOperation(op: OfflineOperation): op is OfflineOutboxItem {
+  return "localId" in op && "entityType" in op && "operation" in op;
+}
+
+function buildBatchId(): string {
+  return `offline-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function getOperationLocalId(op: OfflineOperation): string {
+  return isModernOfflineOperation(op) ? op.localId : op.id;
+}
+
+function normalizeOperation(op: OfflineOperation): NormalizedOfflineOperation {
+  if (!isModernOfflineOperation(op)) {
+    return {
+      id: op.id,
+      type: op.type,
+      action: op.action,
+      payload: op.payload,
+    };
+  }
+
+  const legacyType = MODERN_TO_LEGACY_ENTITY[op.entityType];
+  if (!legacyType) {
+    throw new AppError(
+      `Offline sync for '${op.entityType}' is not yet implemented`,
+      501,
+      "SYNC_NOT_IMPLEMENTED",
+    );
+  }
+
+  return {
+    id: op.serverId ?? op.localId,
+    type: legacyType,
+    action: MODERN_TO_LEGACY_ACTION[op.operation],
+    payload: op.payload,
+  };
+}
+
+function toSyncItemResult(op: OfflineOperation, error?: unknown): OfflineSyncItemResult {
+  const localId = getOperationLocalId(op);
+  if (!error) {
+    return { localId, status: "synced" };
+  }
+
+  const message = error instanceof Error ? error.message : "Unknown error";
+  const isConflict =
+    error instanceof AppError && (error.statusCode === 409 || error.code === "CONFLICT");
+
+  if (isConflict) {
+    return {
+      localId,
+      status: "conflict",
+      error: message,
+      conflict: { reason: message },
+    };
+  }
+
+  return { localId, status: "failed", error: message };
+}
 
 /**
  * Procesa un batch de operaciones offline.
@@ -41,17 +142,20 @@ export async function processSyncBatch(
 	operations: OfflineOperation[],
 	actorRole: string,
 	actorId: string,
+	batchId = buildBatchId(),
 ): Promise<SyncResult> {
-	const result: SyncResult = { processed: 0, failed: 0, errors: [] };
+	const result: SyncResult = { batchId, results: [], processed: 0, failed: 0, errors: [] };
 
 	for (const op of operations) {
 		try {
 			await applyOperation(op, actorRole, actorId);
 			result.processed++;
+			result.results.push(toSyncItemResult(op));
 		} catch (err) {
 			result.failed++;
+			result.results.push(toSyncItemResult(op, err));
 			result.errors.push({
-				id: op.id,
+				id: getOperationLocalId(op),
 				error: err instanceof Error ? err.message : "Unknown error",
 			});
 		}
@@ -65,27 +169,29 @@ async function applyOperation(
   actorRole: string,
   actorId: string,
 ): Promise<void> {
-  switch (op.type) {
+  const normalized = normalizeOperation(op);
+
+  switch (normalized.type) {
     case "order":
-      await applyOrderOperation(op, actorRole, actorId);
+      await applyOrderOperation(normalized, actorRole, actorId);
       break;
     case "checklist":
-      await applyChecklistOperation(op, actorRole, actorId);
+      await applyChecklistOperation(normalized, actorRole, actorId);
       break;
     case "evidence":
-      await applyEvidenceOperation(op, actorRole, actorId);
+      await applyEvidenceOperation(normalized, actorRole, actorId);
       break;
     case "work-request":
-      await applyWorkRequestOperation(op as OfflineOperation & { payload: OfflineWorkRequestPayload }, actorRole, actorId);
+      await applyWorkRequestOperation(normalized as NormalizedOfflineOperation & { payload: OfflineWorkRequestPayload }, actorRole, actorId);
       break;
     case "site-visit":
-      await applySiteVisitOperation(op as OfflineOperation & { payload: OfflineSiteVisitPayload }, actorRole, actorId);
+      await applySiteVisitOperation(normalized as NormalizedOfflineOperation & { payload: OfflineSiteVisitPayload }, actorRole, actorId);
       break;
     case "planning-packet":
-      await applyPlanningPacketOperation(op as OfflineOperation & { payload: OfflinePlanningPacketPayload }, actorRole, actorId);
+      await applyPlanningPacketOperation(normalized as NormalizedOfflineOperation & { payload: OfflinePlanningPacketPayload }, actorRole, actorId);
       break;
     case "execution-session":
-      await applyExecutionSessionOperation(op as OfflineOperation & { payload: OfflineExecutionPayload }, actorRole, actorId);
+      await applyExecutionSessionOperation(normalized as NormalizedOfflineOperation & { payload: OfflineExecutionPayload }, actorRole, actorId);
       break;
     case "cost":
     case "delivery-record":
@@ -97,7 +203,7 @@ async function applyOperation(
       // These entity types are defined for future offline support
       // but handlers are not yet implemented - mark as unsupported for now
       throw new AppError(
-        `Offline sync for '${op.type}' is not yet implemented`,
+        `Offline sync for '${normalized.type}' is not yet implemented`,
         501,
         "SYNC_NOT_IMPLEMENTED",
       );
@@ -106,14 +212,14 @@ async function applyOperation(
 }
 
 async function applyOrderOperation(
-	op: OfflineOperation,
+	op: NormalizedOfflineOperation,
 	actorRole: string,
 	actorId: string,
 ): Promise<void> {
-	const payload = op.payload as Record<string, unknown>;
+	const payload = op.payload;
 	switch (op.action) {
 		case "create":
-			await OrderSvc.createOrder(payload as Parameters<typeof OrderSvc.createOrder>[0], actorId);
+			await OrderSvc.createOrder(parseCreateOrderPayload(payload), actorId);
 			break;
 		case "update": {
 			const { id, status, observations } = payload as {
@@ -143,12 +249,28 @@ async function applyOrderOperation(
 	}
 }
 
+function parseCreateOrderPayload(payload: NormalizedOfflineOperation["payload"]): CreateOrderInput {
+	const parsed = CreateOrderSchema.safeParse(payload);
+	if (!parsed.success) {
+		throw new AppError(
+			"order create payload is invalid",
+			400,
+			"VALIDATION_FAILED",
+			parsed.error.issues.map((issue) => ({
+				field: issue.path.join("."),
+				message: issue.message,
+			})),
+		);
+	}
+	return parsed.data;
+}
+
 async function applyChecklistOperation(
-	op: OfflineOperation,
+	op: NormalizedOfflineOperation,
 	_actorRole: string,
 	actorId: string,
 ): Promise<void> {
-	const payload = op.payload as Record<string, unknown>;
+	const payload = op.payload;
 	switch (op.action) {
 		case "create": {
 			const { orderId } = payload as { orderId?: string };
@@ -215,7 +337,7 @@ function hasValidImageMagicBytes(buffer: Buffer): boolean {
 }
 
 async function applyEvidenceOperation(
-  op: OfflineOperation,
+  op: NormalizedOfflineOperation,
   actorRole: string,
   actorId: string,
 ): Promise<void> {
@@ -274,7 +396,7 @@ async function applyEvidenceOperation(
  * Apply work request offline operation
  */
 async function applyWorkRequestOperation(
-  op: OfflineOperation & { payload: OfflineWorkRequestPayload },
+  op: NormalizedOfflineOperation & { payload: OfflineWorkRequestPayload },
   _actorRole: string,
   actorId: string,
 ): Promise<void> {
@@ -302,7 +424,7 @@ async function applyWorkRequestOperation(
  * Apply site visit offline operation
  */
 async function applySiteVisitOperation(
-  op: OfflineOperation & { payload: OfflineSiteVisitPayload },
+  op: NormalizedOfflineOperation & { payload: OfflineSiteVisitPayload },
   _actorRole: string,
   actorId: string,
 ): Promise<void> {
@@ -326,8 +448,8 @@ async function applySiteVisitOperation(
  * Apply planning packet offline operation
  */
 async function applyPlanningPacketOperation(
-  op: OfflineOperation & { payload: OfflinePlanningPacketPayload },
-  _actorRole: string,
+  op: NormalizedOfflineOperation & { payload: OfflinePlanningPacketPayload },
+  actorRole: string,
   actorId: string,
 ): Promise<void> {
   const payload = op.payload;
@@ -338,7 +460,7 @@ async function applyPlanningPacketOperation(
       break;
     }
     case "update": {
-      await PlanningPacketSvc.updatePlanningPacket(op.id, payload, _actorRole);
+      await PlanningPacketSvc.updatePlanningPacket(op.id, payload, actorId, actorRole);
       break;
     }
     default:
@@ -350,7 +472,7 @@ async function applyPlanningPacketOperation(
  * Apply execution session offline operation
  */
 async function applyExecutionSessionOperation(
-  op: OfflineOperation & { payload: OfflineExecutionPayload },
+  op: NormalizedOfflineOperation & { payload: OfflineExecutionPayload },
   _actorRole: string,
   actorId: string,
 ): Promise<void> {

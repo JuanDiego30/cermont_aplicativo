@@ -1,6 +1,11 @@
 "use client";
 
 import {
+	CERMONT_OPERATIONAL_STEPS,
+	mapLegacyServiceCaseStageToStep,
+	type ServiceCase,
+} from "@cermont/shared-types";
+import {
 	AlertTriangle,
 	ArrowRight,
 	FileText,
@@ -9,18 +14,14 @@ import {
 	TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
-import {
-	CERMONT_OPERATIONAL_STEPS,
-	mapLegacyServiceCaseStageToStep,
-	type ServiceCase,
-} from "@cermont/shared-types";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { useServiceCaseList } from "@/modules/service-cases/queries";
 
 const TOTAL_CERMONT_STEPS = CERMONT_OPERATIONAL_STEPS.length;
 
 function resolveCurrentStep(serviceCase: ServiceCase) {
-	const stepCode = serviceCase.currentStepCode ?? mapLegacyServiceCaseStageToStep(serviceCase.currentStage);
+	const stepCode =
+		serviceCase.currentStepCode ?? mapLegacyServiceCaseStageToStep(serviceCase.currentStage);
 	return (
 		CERMONT_OPERATIONAL_STEPS.find((step) => step.code === stepCode) ?? CERMONT_OPERATIONAL_STEPS[0]
 	);
@@ -130,7 +131,11 @@ function ServiceCaseCard({ serviceCase }: { serviceCase: ServiceCase }) {
 					label="Evidencias"
 					value={typeof evidenceCount === "number" ? String(evidenceCount) : "Por asociar"}
 				/>
-				<ServiceCaseMetric icon={TrendingUp} label="Costos" value={resolveCostStatus(serviceCase)} />
+				<ServiceCaseMetric
+					icon={TrendingUp}
+					label="Costos"
+					value={resolveCostStatus(serviceCase)}
+				/>
 			</div>
 
 			<div className="mt-5 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-4">
@@ -140,7 +145,9 @@ function ServiceCaseCard({ serviceCase }: { serviceCase: ServiceCase }) {
 				<p className="mt-2 text-sm font-medium text-[var(--text-primary)]">
 					{resolveNextAction(serviceCase)}
 				</p>
-				<p className="mt-1 text-xs text-[var(--text-secondary)]">Responsable: {resolveOwner(serviceCase)}</p>
+				<p className="mt-1 text-xs text-[var(--text-secondary)]">
+					Responsable: {resolveOwner(serviceCase)}
+				</p>
 			</div>
 
 			<div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm">
@@ -187,6 +194,8 @@ function ServiceCaseMetric({
 
 function ServiceCasesList() {
 	const { data, isLoading, error } = useServiceCaseList();
+	const isOfflineSnapshot = data?.source.status === "offline_snapshot";
+	const isOfflineEmpty = data?.source.status === "offline_empty";
 
 	if (isLoading) {
 		return (
@@ -211,18 +220,32 @@ function ServiceCasesList() {
 		return (
 			<EmptyState
 				icon="documents"
-				title="Sin casos de servicio"
-				description="Aún no hay casos proyectados en el cockpit. Revise la conversión desde solicitudes, propuestas y órdenes."
+				title={isOfflineEmpty ? "Sin casos guardados localmente" : "Sin casos de servicio"}
+				description={
+					isOfflineEmpty
+						? "Este dispositivo todavía no tiene casos sincronizados para trabajar sin conexión."
+						: "Aún no hay casos proyectados en el cockpit. Revise la conversión desde solicitudes, propuestas y órdenes."
+				}
 			/>
 		);
 	}
 
 	return (
-		<div className="grid gap-4 lg:grid-cols-2">
-			{data.items.map((serviceCase) => (
-				<ServiceCaseCard key={serviceCase._id} serviceCase={serviceCase} />
-			))}
-		</div>
+		<section className="space-y-4" aria-label="Casos de servicio">
+			{isOfflineSnapshot ? (
+				<div className="rounded-[var(--radius-lg)] border border-[var(--color-warning-border)] bg-[var(--color-warning-bg)] px-4 py-3 text-sm text-[var(--text-primary)]">
+					Mostrando casos guardados localmente. Última actualización:{" "}
+					{new Date(data.source.updatedAt).toLocaleString("es-CO")}
+				</div>
+			) : (
+				false
+			)}
+			<div className="grid gap-4 lg:grid-cols-2">
+				{data.items.map((serviceCase) => (
+					<ServiceCaseCard key={serviceCase._id} serviceCase={serviceCase} />
+				))}
+			</div>
+		</section>
 	);
 }
 

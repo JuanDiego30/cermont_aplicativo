@@ -2,9 +2,9 @@
 
 import { AlertTriangle, CheckCircle2, Loader2, WifiOff } from "lucide-react";
 import type { ReactNode } from "react";
-import { useConnectivity } from "@/lib/offline/connectivity";
-import { useSyncManager } from "@/lib/offline/sync-manager";
+import { useSyncStatus } from "@/lib/offline/use-sync-status";
 import { cn } from "@/lib/utils";
+import { useOfflineStore } from "@/store/offline.store";
 
 type SyncStatusState = "online" | "offline" | "syncing" | "sync_error";
 
@@ -82,8 +82,9 @@ function getSyncStatusView(
 }
 
 export function SyncStatusBar() {
-	const { isOnline } = useConnectivity();
-	const { status, pendingCount, deadLetterCount } = useSyncManager();
+	const { isOnline, pendingCount, isSyncing, lastSyncError } = useSyncStatus();
+	const deadLetterCount = useOfflineStore((state) => state.failedCount);
+	const status = isSyncing ? "syncing" : lastSyncError ? "error" : "idle";
 
 	const { state, icon, message, pillClass } = getSyncStatusView(
 		isOnline,

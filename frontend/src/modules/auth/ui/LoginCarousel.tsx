@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { Activity, ChevronLeft, ChevronRight, ShieldCheck, Zap } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { MOTION } from "@/components/motion/motion-classes";
 import { Logo } from "@/core/ui/Logo";
 import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
 
@@ -91,7 +92,7 @@ export function LoginCarousel() {
 					fill
 					priority={index === 0}
 					sizes="(max-width: 768px) 100vw, 50vw"
-					className={`object-cover transition-opacity duration-700 ${
+					className={`object-cover transition-[opacity,transform] duration-[var(--duration-slow)] ease-[var(--ease-standard)] ${
 						index === currentSlide ? "opacity-55" : "opacity-0"
 					}`}
 				/>
@@ -128,7 +129,7 @@ export function LoginCarousel() {
 					{CAROUSEL_SLIDES.map((slide, index) => (
 						<div
 							key={slide.id}
-							className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+							className={`absolute inset-0 transition-[transform,opacity] duration-[var(--duration-slow)] ease-[var(--ease-standard)] ${
 								index === currentSlide
 									? "translate-x-0 opacity-100 visible"
 									: "translate-x-8 opacity-0 invisible"
@@ -159,7 +160,7 @@ export function LoginCarousel() {
 								key={slide.id}
 								type="button"
 								onClick={() => goToSlide(index)}
-								className={`h-1.5 rounded-full transition-all duration-500 ${
+								className={`h-1.5 rounded-full transition-[width,background-color,opacity] duration-[var(--duration-slow)] ease-[var(--ease-standard)] ${
 									index === currentSlide
 										? "w-10 bg-[var(--color-cermont-green-light)]"
 										: "w-3 bg-white/20 hover:bg-white/40"
@@ -173,7 +174,7 @@ export function LoginCarousel() {
 						<button
 							type="button"
 							onClick={goToPrev}
-							className="flex size-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition-all hover:bg-white/15 active:scale-95"
+							className={`${MOTION.button} flex size-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white hover:bg-white/15 active:scale-95`}
 							aria-label="Slide anterior"
 						>
 							<ChevronLeft className="size-5" />
@@ -181,7 +182,7 @@ export function LoginCarousel() {
 						<button
 							type="button"
 							onClick={goToNext}
-							className="flex size-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition-all hover:bg-white/15 active:scale-95"
+							className={`${MOTION.button} flex size-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white hover:bg-white/15 active:scale-95`}
 							aria-label="Siguiente slide"
 						>
 							<ChevronRight className="size-5" />

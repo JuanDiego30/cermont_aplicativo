@@ -31,23 +31,34 @@ function computeDataState(
 
 function dataStateLabel(state: ReturnType<typeof computeDataState>): string {
 	switch (state) {
-		case "ESTIMATED_ONLY": return "Solo estimado";
-		case "ACTUAL_ONLY": return "Solo real";
-		case "ESTIMATED_AND_ACTUAL": return "Estimado y real";
-		default: return "Sin datos";
+		case "ESTIMATED_ONLY":
+			return "Solo estimado";
+		case "ACTUAL_ONLY":
+			return "Solo real";
+		case "ESTIMATED_AND_ACTUAL":
+			return "Estimado y real";
+		default:
+			return "Sin datos";
 	}
 }
 
 function dataStateColor(state: ReturnType<typeof computeDataState>): string {
 	switch (state) {
-		case "ESTIMATED_ONLY": return "text-[var(--color-info)]";
-		case "ACTUAL_ONLY": return "text-[var(--color-warning)]";
-		case "ESTIMATED_AND_ACTUAL": return "text-[var(--color-success)]";
-		default: return "text-[var(--text-tertiary)]";
+		case "ESTIMATED_ONLY":
+			return "text-[var(--color-info)]";
+		case "ACTUAL_ONLY":
+			return "text-[var(--color-warning)]";
+		case "ESTIMATED_AND_ACTUAL":
+			return "text-[var(--color-success)]";
+		default:
+			return "text-[var(--text-tertiary)]";
 	}
 }
 
-function varianceSemaphore(variance: number, variancePercent: number | null): {
+function varianceSemaphore(
+	variance: number,
+	variancePercent: number | null,
+): {
 	color: string;
 	label: string;
 } {
@@ -95,9 +106,8 @@ export default function CostsPage() {
 	// Variance metrics
 	const costMetrics = (() => {
 		const overallVariance = hasCosts ? totals.actual - totals.estimated : 0;
-		const overallVariancePct = totals.estimated > 0
-			? (overallVariance / totals.estimated) * 100
-			: null;
+		const overallVariancePct =
+			totals.estimated > 0 ? (overallVariance / totals.estimated) * 100 : null;
 		const varianceState = hasCosts ? computeDataState(totals.estimated, totals.actual) : "NO_DATA";
 		const semaphore = varianceSemaphore(overallVariance, overallVariancePct);
 
@@ -152,9 +162,18 @@ export default function CostsPage() {
 
 			{/* Metrics Row */}
 			<div className="grid gap-3 sm:grid-cols-4">
-				<MetricCard label="Estimado" value={hasCosts ? formatCurrency(totals.estimated) : "Sin datos registrados"} />
-				<MetricCard label="Real" value={hasCosts ? formatCurrency(totals.actual) : "Sin datos registrados"} />
-				<MetricCard label="Impuestos" value={hasCosts ? formatCurrency(totals.tax) : "Sin datos registrados"} />
+				<MetricCard
+					label="Estimado"
+					value={hasCosts ? formatCurrency(totals.estimated) : "Sin datos registrados"}
+				/>
+				<MetricCard
+					label="Real"
+					value={hasCosts ? formatCurrency(totals.actual) : "Sin datos registrados"}
+				/>
+				<MetricCard
+					label="Impuestos"
+					value={hasCosts ? formatCurrency(totals.tax) : "Sin datos registrados"}
+				/>
 				<MetricCard
 					label="Variación"
 					value={
@@ -261,9 +280,8 @@ export default function CostsPage() {
 							<tbody className="divide-y divide-[var(--border-default)]">
 								{costItems.map((cost) => {
 									const variance = cost.actualAmount - cost.estimatedAmount;
-									const variancePct = cost.estimatedAmount > 0
-										? (variance / cost.estimatedAmount) * 100
-										: null;
+									const variancePct =
+										cost.estimatedAmount > 0 ? (variance / cost.estimatedAmount) * 100 : null;
 									const state = computeDataState(cost.estimatedAmount, cost.actualAmount);
 									const semi = varianceSemaphore(variance, variancePct);
 
@@ -285,7 +303,8 @@ export default function CostsPage() {
 												{formatCurrency(variance, cost.currency)}
 												{variancePct !== null && (
 													<span className="ml-1 text-xs">
-														({variancePct > 0 ? "+" : ""}{variancePct.toFixed(1)}%)
+														({variancePct > 0 ? "+" : ""}
+														{variancePct.toFixed(1)}%)
 													</span>
 												)}
 											</td>
@@ -316,7 +335,9 @@ function MetricCard({ label, value, color }: { label: string; value: string; col
 	return (
 		<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
 			<p className="text-xs font-medium uppercase text-[var(--text-tertiary)]">{label}</p>
-			<p className={`mt-2 text-xl font-semibold ${color ?? "text-[var(--text-primary)]"}`}>{value}</p>
+			<p className={`mt-2 text-xl font-semibold ${color ?? "text-[var(--text-primary)]"}`}>
+				{value}
+			</p>
 		</div>
 	);
 }

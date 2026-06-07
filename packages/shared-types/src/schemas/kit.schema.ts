@@ -8,6 +8,7 @@
 
 import { z } from "zod";
 import { ObjectIdSchema } from "./common.schema";
+import { FileAssetRefSchema } from "./file-asset.schema";
 import { ServiceTypeSchema, WorkflowStageSchema } from "./template-draft.schema";
 
 /**
@@ -30,6 +31,8 @@ export const KitItemSchema = z.object({
 	unitCost: z.number().nonnegative().optional(),
 	required: z.boolean().default(false),
 	critical: z.boolean().default(false),
+	// Image support for items
+	image: FileAssetRefSchema.optional(),
 });
 export type KitItem = z.infer<typeof KitItemSchema>;
 

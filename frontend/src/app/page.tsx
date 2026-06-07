@@ -1,5 +1,5 @@
-import { PublicLandingContent } from "@/landing/components/PublicLandingContent";
 import type { Metadata } from "next";
+import { PublicLandingContent } from "@/landing/components/PublicLandingContent";
 
 export const metadata: Metadata = {
 	title: "Cermont S.A.S. — Soluciones Integrales en Ingeniería",

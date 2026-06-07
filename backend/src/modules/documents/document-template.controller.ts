@@ -12,7 +12,7 @@ import { sendSuccess } from "../../common/interceptors/response.interceptor";
 import { requireUser } from "../../common/utils/request";
 import { DocumentTemplate, type IDocumentTemplateDocument } from "../../models/DocumentTemplate";
 
-interface DocumentTemplateResponse {
+interface DocumentTemplateContract {
 	_id: string;
 	name: string;
 	templateName: string;
@@ -34,7 +34,7 @@ interface DocumentTemplateResponse {
 	updatedBy?: string;
 }
 
-type DocumentTemplateCreatePayload = {
+type DocumentTemplateCreateBody = {
 	templateName: string;
 	sourceType: CreateDocumentTemplate["sourceType"];
 	status: IDocumentTemplateDocument["status"];
@@ -59,8 +59,8 @@ function sendValidationError(res: Response, code: string, message: string, detai
 	});
 }
 
-function toTemplateResponse(template: IDocumentTemplateDocument): DocumentTemplateResponse {
-	const response: DocumentTemplateResponse = {
+function toTemplateResponse(template: IDocumentTemplateDocument): DocumentTemplateContract {
+	const response: DocumentTemplateContract = {
 		_id: template._id.toString(),
 		name: template.templateName,
 		templateName: template.templateName,
@@ -105,8 +105,8 @@ function toTemplateResponse(template: IDocumentTemplateDocument): DocumentTempla
 function buildCreatePayload(
 	body: CreateDocumentTemplate,
 	userId: string,
-): DocumentTemplateCreatePayload {
-	const payload: DocumentTemplateCreatePayload = {
+): DocumentTemplateCreateBody {
+	const payload: DocumentTemplateCreateBody = {
 		templateName: body.templateName,
 		sourceType: body.sourceType,
 		status: body.status ?? "draft",

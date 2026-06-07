@@ -15,7 +15,7 @@ import { ForbiddenError, NotFoundError } from "../../common/errors/AppError";
 import type { MaterialItem } from "../../config/kit-templates";
 import { getDefaultKitForOrderType } from "../../config/kit-templates";
 import { Order } from "../../models";
-import type { OrderResponse } from "../../services/order/helpers";
+import type { OrderSnapshot } from "../../services/order/helpers";
 import { formatOrderResponse, generateOrderCode, logAudit } from "../../services/order/helpers";
 import { OrderPriority, OrderStatus, OrderType } from "../../services/order/order-rules";
 import * as ChecklistSvc from "../checklist/checklist.service";
@@ -28,7 +28,7 @@ const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\
  *
  * @param payload - Order creation payload
  * @param createdBy - User ID creating the order
- * @returns OrderResponse
+ * @returns OrderSnapshot
  */
 export async function createOrder(
 	payload: {
@@ -44,7 +44,7 @@ export async function createOrder(
 		customFields?: Record<string, string | number | boolean>;
 	},
 	createdBy: string,
-): Promise<OrderResponse> {
+): Promise<OrderSnapshot> {
 	if (payload.proposalId) {
 		await assertProposalReadyForWorkOrder(payload.proposalId);
 	}
@@ -112,7 +112,7 @@ export async function createOrder(
  * @param page - Page number (1-indexed)
  * @param limit - Items per page
  * @param filters - Optional: { status?, priority?, assignedTo?, search?, role? (for visibility) }
- * @returns { orders: OrderResponse[], total, page, limit, pages }
+ * @returns { orders: OrderSnapshot[], total, page, limit, pages }
  */
 export async function listOrders(
 	page: number = 1,
@@ -187,14 +187,14 @@ export async function listOrders(
  *
  * @param orderId - Order MongoDB ObjectId as string
  * @param requestingUser - The user requesting the order { _id, role }
- * @returns OrderResponse
+ * @returns OrderSnapshot
  * @throws NotFoundError if order doesn't exist
  * @throws ForbiddenError if user doesn't have access
  */
 export async function getOrderByIdWithAuth(
 	orderId: string,
 	requestingUser: { _id: string; role: string },
-): Promise<OrderResponse> {
+): Promise<OrderSnapshot> {
 	const order = await Order.findById(orderId).lean();
 
 	if (!order) {
@@ -218,10 +218,10 @@ export async function getOrderByIdWithAuth(
  * @deprecated Use getOrderByIdWithAuth instead
  *
  * @param orderId - Order MongoDB ObjectId as string
- * @returns OrderResponse
+ * @returns OrderSnapshot
  * @throws NotFoundError if order doesn't exist
  */
-export async function getOrderById(orderId: string): Promise<OrderResponse> {
+export async function getOrderById(orderId: string): Promise<OrderSnapshot> {
 	const order = await Order.findById(orderId).lean();
 
 	if (!order) {
@@ -241,7 +241,7 @@ export async function getOrderById(orderId: string): Promise<OrderResponse> {
  * @param orderId - Order ID
  * @param payload - Partial update payload
  * @param requestingUser - The user requesting the update { _id, role }
- * @returns OrderResponse
+ * @returns OrderSnapshot
  * @throws NotFoundError if order doesn't exist
  * @throws ForbiddenError if user doesn't have access
  */
@@ -254,7 +254,7 @@ export async function updateOrder(
 		observations?: string;
 	},
 	requestingUser?: { _id: string; role: string },
-): Promise<OrderResponse> {
+): Promise<OrderSnapshot> {
 	const order = await Order.findById(orderId);
 
 	if (!order) {
@@ -289,5 +289,5 @@ export async function updateOrder(
 }
 
 // Re-export types for consumers
-export type { OrderResponse };
+export type { OrderSnapshot };
 export { OrderPriority, OrderStatus, OrderType };

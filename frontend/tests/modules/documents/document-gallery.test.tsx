@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
 import type { Document } from "@cermont/shared-types";
+import { fireEvent, render, screen } from "@testing-library/react";
 import type { ComponentProps, ReactNode } from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { DocumentGallery } from "@/modules/documents/ui/DocumentGallery";

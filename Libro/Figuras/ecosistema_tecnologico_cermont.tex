@@ -1,0 +1,58 @@
+\begin{tikzpicture}[
+  font=\scriptsize,
+  layer/.style={
+    draw=institucionalBlue,
+    rounded corners=2mm,
+    thick,
+    fill=institucionalBlue!4,
+    minimum width=14.4cm,
+    minimum height=1.45cm
+  },
+  tool/.style={
+    draw=institucionalGrey,
+    rounded corners=1.5mm,
+    fill=white,
+    align=center,
+    minimum width=2.15cm,
+    minimum height=0.64cm
+  },
+  label/.style={font=\scriptsize\bfseries, text=institucionalBlue}
+]
+
+\node[layer] (frontend) at (0,0) {};
+\node[label, anchor=west] at (-6.9,0.46) {Frontend y experiencia de usuario};
+\node[tool] at (-5.4,-0.15) {Next.js\\React};
+\node[tool] at (-2.9,-0.15) {TypeScript};
+\node[tool] at (-0.4,-0.15) {TanStack\\Query};
+\node[tool] at (2.1,-0.15) {Zustand};
+\node[tool] at (4.6,-0.15) {PWA\\Service Worker};
+
+\node[layer] (backend) at (0,-1.9) {};
+\node[label, anchor=west] at (-6.9,-1.44) {Backend, contratos y seguridad};
+\node[tool] at (-5.4,-2.05) {Node.js};
+\node[tool] at (-2.9,-2.05) {Express};
+\node[tool] at (-0.4,-2.05) {Zod};
+\node[tool] at (2.1,-2.05) {JWT\\RBAC};
+\node[tool] at (4.6,-2.05) {pdf-lib\\APIs REST};
+
+\node[layer] (data) at (0,-3.8) {};
+\node[label, anchor=west] at (-6.9,-3.34) {Persistencia, pruebas y despliegue};
+\node[tool] at (-5.4,-3.95) {MongoDB};
+\node[tool] at (-2.9,-3.95) {Mongoose};
+\node[tool] at (-0.4,-3.95) {Vitest\\Supertest};
+\node[tool] at (2.1,-3.95) {Biome};
+\node[tool] at (4.6,-3.95) {Docker\\npm workspaces};
+
+\draw[-{Latex[length=2mm]}, thick, institucionalBlue] (-5.4,-0.78) -- (-5.4,-1.24);
+\draw[-{Latex[length=2mm]}, thick, institucionalBlue] (-2.9,-0.78) -- (-2.9,-1.24);
+\draw[-{Latex[length=2mm]}, thick, institucionalBlue] (-0.4,-0.78) -- (-0.4,-1.24);
+\draw[-{Latex[length=2mm]}, thick, institucionalBlue] (2.1,-0.78) -- (2.1,-1.24);
+\draw[-{Latex[length=2mm]}, thick, institucionalBlue] (4.6,-0.78) -- (4.6,-1.24);
+
+\draw[-{Latex[length=2mm]}, thick, institucionalBlue] (-5.4,-2.68) -- (-5.4,-3.14);
+\draw[-{Latex[length=2mm]}, thick, institucionalBlue] (-2.9,-2.68) -- (-2.9,-3.14);
+\draw[-{Latex[length=2mm]}, thick, institucionalBlue] (-0.4,-2.68) -- (-0.4,-3.14);
+\draw[-{Latex[length=2mm]}, thick, institucionalBlue] (2.1,-2.68) -- (2.1,-3.14);
+\draw[-{Latex[length=2mm]}, thick, institucionalBlue] (4.6,-2.68) -- (4.6,-3.14);
+
+\end{tikzpicture}

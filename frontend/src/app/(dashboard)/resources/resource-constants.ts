@@ -1,30 +1,65 @@
 /**
- * Resources Page — Constants
+ * Resources Page — Constants & Labels
+ *
+ * Source of truth for UI labels matching the expanded ResourceTypeEnum
+ * from @cermont/shared-types.
  */
 
 export const RESOURCE_TYPE_LABELS: Record<string, string> = {
+	tool: "Herramienta",
+	vehicle: "Vehículo",
+	equipment: "Equipo",
 	material: "Material",
-	herramienta: "Herramienta",
-	equipo: "Equipo",
-	epp: "EPP",
-	repuesto: "Repuesto",
+	safety_item: "EPP / Seguridad",
+	labor_role: "Rol Laboral",
+	certification_requirement: "Certificación",
+	spare_part: "Repuesto",
 };
 
+
+
+
+export const RESOURCE_TYPE_ORDER: string[] = [
+	"tool",
+	"equipment",
+	"vehicle",
+	"material",
+	"safety_item",
+	"spare_part",
+	"labor_role",
+	"certification_requirement",
+];
+
 export const UNIT_LABELS: Record<string, string> = {
-	unid: "Unidades",
-	mtrs: "Metros",
-	gls: "Galones",
-	kg: "Kilogramos",
-	lb: "Libras",
-	otro: "Otro",
+	unidad: "Unidades",
+	metro: "Metros",
+	litro: "Litros",
+	kilogramo: "Kilogramos",
+	libra: "Libras",
+	galon: "Galones",
+	caja: "Caja",
+	rollo: "Rollo",
+	par: "Par",
+	juego: "Juego",
+	kit: "Kit",
 };
 
 export const STATUS_STYLES: Record<string, string> = {
-	disponible:
+	available:
 		"bg-[var(--color-success-bg)] text-[var(--color-success)] ring-[color:var(--color-success)]/15",
-	en_uso: "bg-[var(--color-info-bg)] text-[var(--color-info)] ring-[color:var(--color-info)]/15",
-	mantenimiento:
+	assigned: "bg-[var(--color-info-bg)] text-[var(--color-info)] ring-[color:var(--color-info)]/15",
+	maintenance:
 		"bg-[var(--color-warning-bg)] text-[var(--color-warning)] ring-[color:var(--color-warning)]/15",
-	fuera_de_servicio:
+	expired:
 		"bg-[var(--color-danger-bg)] text-[var(--color-danger)] ring-[color:var(--color-danger)]/15",
+	inactive:
+		"bg-[var(--surface-secondary)] text-[var(--text-tertiary)] ring-[var(--border-default)]/30",
+};
+
+export const STATUS_LABELS: Record<string, string> = {
+	available: "Disponible",
+	assigned: "Asignado",
+	maintenance: "Mantenimiento",
+	expired: "Vencido",
+	inactive: "Inactivo",
 };

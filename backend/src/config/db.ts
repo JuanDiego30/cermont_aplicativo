@@ -20,7 +20,7 @@ const _unusedCONNECTION_STATES = CONNECTION_STATES;
 
 let connectPromise: Promise<typeof mongoose> | null = null;
 let listenersRegistered = false;
-let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+let reconnectTimer: ReturnType<typeof setTimeout> | false = false;
 let isShuttingDown = false;
 let isConnecting = false;
 
@@ -94,7 +94,7 @@ function registerConnectionListeners(): void {
 		}
 
 		reconnectTimer = setTimeout(() => {
-			reconnectTimer = null;
+			reconnectTimer = false;
 			void reconnectDatabase();
 		}, 5_000);
 	});
@@ -138,7 +138,7 @@ export const disconnectDB = async (): Promise<void> => {
 
 	if (reconnectTimer) {
 		clearTimeout(reconnectTimer);
-		reconnectTimer = null;
+		reconnectTimer = false;
 	}
 
 	if (mongoose.connection.readyState === 0) {

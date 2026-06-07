@@ -1,13 +1,13 @@
 "use client";
 
 import { resolveUserRole, type UserRole } from "@cermont/domain";
-import { useMutation } from "@tanstack/react-query";
+import { getValue, isPresent } from "@cermont/shared-types";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/http/api-client";
 import { useAuthStore } from "@/store/auth.store";
-import { isPresent, getValue } from "@cermont/shared-types";
 
 /** Shape of the user object returned by auth API */
-interface AuthUserResponse {
+interface AuthUserContract {
 	_id?: string;
 	id?: string;
 	email?: string | null;
@@ -23,7 +23,7 @@ export interface AuthUser {
 	role: UserRole;
 }
 
-function toUser(input: AuthUserResponse): AuthUser {
+function toUser(input: AuthUserContract): AuthUser {
 	const role = resolveUserRole(input.role);
 	return {
 		id: input.id ?? input._id ?? "",
@@ -40,18 +40,18 @@ interface LoginVariables {
 	password: string;
 }
 
-interface LoginResponse {
+interface LoginContract {
 	success: boolean;
 	data: {
 		accessToken: string;
 		expiresIn: number;
-		user: AuthUserResponse;
+		user: AuthUserContract;
 	};
 }
 
 // ── Refresh response ──────────────────────────────────────────────────────────
 
-interface RefreshResponse {
+interface RefreshContract {
 	success: boolean;
 	data: {
 		accessToken: string;
@@ -77,11 +77,13 @@ function useAuthState() {
 
 /** Auth actions (login, logout, refresh) — all use TanStack Query useMutation */
 export function useAuthActions() {
+	const queryClient = useQueryClient();
 	const { setAuth, clearAuth, setAccessToken } = useAuthStore();
 
 	const loginMutation = useMutation({
+		networkMode: "always",
 		mutationFn: async ({ email, password }: LoginVariables) => {
-			const response = await apiClient.post<LoginResponse>("/auth/login", { email, password });
+			const response = await apiClient.post<LoginContract>("/auth/login", { email, password });
 
 			if (response?.success && response.data) {
 				return response.data;
@@ -93,6 +95,7 @@ export function useAuthActions() {
 		onSuccess: (data) => {
 			const user = toUser(data.user);
 			setAuth(user, data.accessToken);
+			void queryClient.invalidateQueries();
 		},
 	});
 
@@ -100,20 +103,26 @@ export function useAuthActions() {
 	const login = (email: string, password: string) => loginMutation.mutateAsync({ email, password });
 
 	const logoutMutation = useMutation({
+		networkMode: "always",
 		mutationFn: async () => {
 			await apiClient.post("/auth/logout");
 		},
 		onSuccess: () => {
 			clearAuth();
+			void queryClient.invalidateQueries();
+			queryClient.clear();
 		},
 		onError: () => {
 			clearAuth();
+			void queryClient.invalidateQueries();
+			queryClient.clear();
 		},
 	});
 
 	const refreshMutation = useMutation({
+		networkMode: "always",
 		mutationFn: async () => {
-			const response = await apiClient.post<RefreshResponse>("/auth/refresh");
+			const response = await apiClient.post<RefreshContract>("/auth/refresh");
 
 			if (response?.success && response.data) {
 				return response.data;
@@ -123,6 +132,7 @@ export function useAuthActions() {
 		},
 		onSuccess: (data) => {
 			setAccessToken(data.accessToken);
+			void queryClient.invalidateQueries();
 		},
 		onError: () => {
 			clearAuth();

@@ -99,6 +99,24 @@ export function OrderInspectionsTab({ orderId }: OrderInspectionsTabProps) {
 	);
 }
 
+const statusStyles = {
+	pending: "border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900",
+	passed: "border-green-200 bg-green-50 dark:border-green-900/30 dark:bg-green-900/10",
+	failed: "border-red-200 bg-red-50 dark:border-red-900/30 dark:bg-red-900/10",
+};
+
+const statusLabels = {
+	pending: "Pendiente",
+	passed: "Aprobado",
+	failed: "Rechazado",
+};
+
+const dotColors = {
+	pending: "bg-zinc-300 dark:bg-zinc-600",
+	passed: "bg-green-500 dark:bg-green-400",
+	failed: "bg-red-500 dark:bg-red-400",
+};
+
 function CheckpointCard({
 	label,
 	status,
@@ -106,24 +124,6 @@ function CheckpointCard({
 	label: string;
 	status: "pending" | "passed" | "failed";
 }) {
-	const statusStyles = {
-		pending: "border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900",
-		passed: "border-green-200 bg-green-50 dark:border-green-900/30 dark:bg-green-900/10",
-		failed: "border-red-200 bg-red-50 dark:border-red-900/30 dark:bg-red-900/10",
-	};
-
-	const statusLabels = {
-		pending: "Pendiente",
-		passed: "Aprobado",
-		failed: "Rechazado",
-	};
-
-	const dotColors = {
-		pending: "bg-zinc-300 dark:bg-zinc-600",
-		passed: "bg-green-500 dark:bg-green-400",
-		failed: "bg-red-500 dark:bg-red-400",
-	};
-
 	return (
 		<div
 			className={`flex items-center justify-between rounded-lg border px-4 py-3 ${statusStyles[status]}`}

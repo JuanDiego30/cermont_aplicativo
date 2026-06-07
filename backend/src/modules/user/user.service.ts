@@ -16,7 +16,7 @@ import { BadRequestError, ConflictError, NotFoundError } from "../../common/erro
 import { USER_ROLES, User } from "../../models";
 import type { IUserDocument } from "../../models/User";
 
-export interface UserResponse {
+export interface UserContract {
 	_id: string;
 	name: string;
 	email: string;
@@ -43,7 +43,7 @@ function validateRole(role: string): void {
 /**
  * Format user document for API response (exclude sensitive fields)
  */
-function formatUserResponse(doc: IUserDocument): UserResponse {
+function formatUserResponse(doc: IUserDocument): UserContract {
 	return {
 		_id: doc._id.toString(),
 		name: doc.name,
@@ -61,13 +61,13 @@ function formatUserResponse(doc: IUserDocument): UserResponse {
  * Create a new user
  *
  * @param payload - CreateUserPayload (name, email, password, role, phone?)
- * @returns UserResponse
+ * @returns UserContract
  * @throws ConflictError if email already exists
  * @throws BadRequestError if validation fails
  *
  * Password hashing is automatic via User model's pre('save') hook.
  */
-export async function createUser(payload: CreateUserInput): Promise<UserResponse> {
+export async function createUser(payload: CreateUserInput): Promise<UserContract> {
 	// Validate role per ISSUE-032
 	validateRole(payload.role);
 
@@ -99,7 +99,7 @@ export async function createUser(payload: CreateUserInput): Promise<UserResponse
  * @param page - Page number (1-indexed)
  * @param limit - Items per page
  * @param filters - Optional: { role?, isActive? }
- * @returns { users: UserResponse[], total, page, limit, pages }
+ * @returns { users: UserContract[], total, page, limit, pages }
  */
 export async function listUsers(
 	page: number = 1,
@@ -140,10 +140,10 @@ export async function listUsers(
  * Get user by ID
  *
  * @param userId - MongoDB ObjectId as string
- * @returns UserResponse
+ * @returns UserContract
  * @throws NotFoundError if user doesn't exist
  */
-export async function getUserById(userId: string): Promise<UserResponse> {
+export async function getUserById(userId: string): Promise<UserContract> {
 	const user = await User.findById(userId).select("-password").lean();
 
 	if (!user) {
@@ -158,12 +158,12 @@ export async function getUserById(userId: string): Promise<UserResponse> {
  *
  * @param role - User role as string (gerente, tecnico, etc.)
  * @param isActive - Optional: filter by active status (default: true)
- * @returns Array of UserResponse
+ * @returns Array of UserContract
  */
 export async function getUsersByRole(
 	role: UserRole | undefined,
 	isActive: boolean = true,
-): Promise<UserResponse[]> {
+): Promise<UserContract[]> {
 	if (!role) {
 		return [];
 	}
@@ -182,12 +182,12 @@ export async function getUsersByRole(
  *
  * @param userId - MongoDB ObjectId as string
  * @param payload - UpdateUserPayload (partial fields)
- * @returns UserResponse
+ * @returns UserContract
  * @throws NotFoundError if user doesn't exist
  * @throws ConflictError if email already taken by another user
  * @throws BadRequestError if role is invalid
  */
-export async function updateUser(userId: string, payload: UpdateUserInput): Promise<UserResponse> {
+export async function updateUser(userId: string, payload: UpdateUserInput): Promise<UserContract> {
 	const user = await User.findById(userId);
 
 	if (!user) {
@@ -238,10 +238,10 @@ export async function updateUser(userId: string, payload: UpdateUserInput): Prom
  * This is the standard way to "delete" users in this system.
  *
  * @param userId - MongoDB ObjectId as string
- * @returns UserResponse
+ * @returns UserContract
  * @throws NotFoundError if user doesn't exist
  */
-export async function deactivateUser(userId: string): Promise<UserResponse> {
+export async function deactivateUser(userId: string): Promise<UserContract> {
 	const user = await User.findById(userId);
 
 	if (!user) {

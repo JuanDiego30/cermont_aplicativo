@@ -29,7 +29,7 @@ type DraftSection = ITemplateDraftDocument["sections"][number];
 type DraftField = DraftSection["fields"][number];
 type DraftTable = ITemplateDraftDocument["tables"][number];
 
-export interface CreateTemplateDraftDto {
+export interface CreateTemplateDraftCommand {
 	documentSourceFileId: string;
 	extractionJobId: string;
 	name: string;
@@ -44,7 +44,7 @@ export interface CreateTemplateDraftDto {
 	confidence?: number;
 }
 
-export interface UpdateTemplateDraftDto {
+export interface UpdateTemplateDraftCommand {
 	name?: string;
 	description?: string;
 	serviceTypes?: string[];
@@ -299,7 +299,7 @@ export async function getTemplateDraftById(id: string): Promise<ITemplateDraftDo
  * Create a new template draft manually or from ingestion
  */
 export async function createTemplateDraft(
-	dto: CreateTemplateDraftDto,
+	dto: CreateTemplateDraftCommand,
 	userId: string,
 ): Promise<ITemplateDraftDocument> {
 	const draft = await TemplateDraft.create({
@@ -327,7 +327,7 @@ export async function createTemplateDraft(
  */
 export async function updateTemplateDraft(
 	id: string,
-	dto: UpdateTemplateDraftDto,
+	dto: UpdateTemplateDraftCommand,
 	userId: string,
 ): Promise<ITemplateDraftDocument> {
 	const draft = await TemplateDraft.findById(id);

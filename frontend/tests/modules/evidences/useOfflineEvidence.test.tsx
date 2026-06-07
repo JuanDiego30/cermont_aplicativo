@@ -7,6 +7,10 @@ import { useOfflineEvidence } from "@/modules/evidences/hooks/useOfflineEvidence
 
 const mocks = vi.hoisted(() => ({
 	enqueueMock: vi.fn().mockResolvedValue(undefined),
+	hasIndexedDBSupportMock: vi.fn().mockReturnValue(true),
+	nowIsoMock: vi.fn().mockReturnValue("2026-01-01T10:00:00.000Z"),
+	offlineFilesPutMock: vi.fn().mockResolvedValue(undefined),
+	offlineTransactionMock: vi.fn(async (_mode, _table, callback: () => Promise<void>) => callback()),
 	postMock: vi.fn(),
 }));
 
@@ -18,6 +22,17 @@ vi.mock("@/lib/http/api-client", () => ({
 
 vi.mock("@/lib/offline/sync-queue", () => ({
 	enqueue: mocks.enqueueMock,
+}));
+
+vi.mock("@/lib/offline/offline-db", () => ({
+	hasIndexedDBSupport: mocks.hasIndexedDBSupportMock,
+	nowIso: mocks.nowIsoMock,
+	offlineDb: {
+		offlineFiles: {
+			put: mocks.offlineFilesPutMock,
+		},
+		transaction: mocks.offlineTransactionMock,
+	},
 }));
 
 const createWrapper = () => {
@@ -70,6 +85,7 @@ describe("useOfflineEvidence", () => {
 				type: "before",
 				description: "Frontal",
 				capturedAt: "2026-01-01T10:00:00.000Z",
+				fileLocalId: expect.any(String),
 				fileName: "photo.jpg",
 				fileType: "image/jpeg",
 			}),
@@ -77,8 +93,19 @@ describe("useOfflineEvidence", () => {
 				"evidences:create:order-1:before:photo.jpg:image/jpeg:2026-01-01T10:00:00.000Z:Frontal",
 		});
 
-		expect(typeof queuedEntry.payload.fileBase64).toBe("string");
-		expect((queuedEntry.payload.fileBase64 as string).length).toBeGreaterThan(0);
+		expect(queuedEntry.payload).not.toHaveProperty("fileBase64");
+		expect(mocks.offlineFilesPutMock).toHaveBeenCalledWith(
+			expect.objectContaining({
+				localId: queuedEntry.payload.fileLocalId,
+				outboxLocalId: queuedEntry.id,
+				entityType: "evidence",
+				workOrderId: "order-1",
+				fileName: "photo.jpg",
+				mimeType: "image/jpeg",
+				status: "pending_upload",
+				blob: file,
+			}),
+		);
 		expect(apiClient.post).toHaveBeenCalledWith("/evidences", expect.any(FormData));
 	});
 });

@@ -12,7 +12,7 @@ import * as ServiceCaseService from "../../modules/service-cases/service-case.se
 import * as CermontWorkflowGateService from "../../services/cermont-workflow-gate.service";
 import * as WorkflowService from "./administrative-workflow.service";
 
-type ListPayload<T> = {
+type ListEnvelope<T> = {
 	data: T[];
 	total: number;
 	page: number;
@@ -20,7 +20,7 @@ type ListPayload<T> = {
 	pages: number;
 };
 
-function sendList<T>(res: Response, payload: ListPayload<T>): void {
+function sendList<T>(res: Response, payload: ListEnvelope<T>): void {
 	res.status(200).json({
 		success: true,
 		data: payload.data,

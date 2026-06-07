@@ -9,7 +9,7 @@ import { useAuth } from "@/modules/auth/hooks/useAuth";
 import type { ProfileUser } from "@/modules/users/ui/ProfileForm";
 import { ProfileForm } from "@/modules/users/ui/ProfileForm";
 
-interface ProfileUserData {
+interface ProfileUserSnapshot {
 	id: string;
 	name: string;
 	first_name: string;
@@ -34,7 +34,7 @@ function extractProfileField(d: Record<string, unknown>, keys: string[], fallbac
 	return fallback;
 }
 
-async function fetchProfileData(userId: string | undefined): Promise<ProfileUserData> {
+async function fetchProfileData(userId: string | undefined): Promise<ProfileUserSnapshot> {
 	const body = await apiClient.get<ApiEnvelope<Record<string, unknown>>>(`/users/${userId}`);
 	if (!body?.data) {
 		throw new Error("No pudimos cargar tu perfil");
@@ -62,7 +62,7 @@ export default function ProfilePage() {
 	const { user: session, isLoading: isAuthLoading } = useAuth();
 	const userId = session?.id;
 
-	const { data: user, isLoading: isUserLoading } = useQuery<ProfileUserData>({
+	const { data: user, isLoading: isUserLoading } = useQuery<ProfileUserSnapshot>({
 		queryKey: ["userProfile", userId],
 		queryFn: () => fetchProfileData(userId),
 		enabled: !!userId,

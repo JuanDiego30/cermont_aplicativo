@@ -190,8 +190,14 @@ export const NAV_GROUPS = [
 export const AI_ASSISTANT_ICON = Bot;
 
 export function getVisibleNavigationGroups(userRole: UserRole | string) {
-	return NAV_GROUPS.map((group) => ({
-		...group,
-		items: group.items.filter((item) => canAccessPath(item.to, userRole)),
-	})).filter((group) => group.items.length > 0);
+	const visibleGroups: NavigationGroup[] = [];
+
+	for (const group of NAV_GROUPS) {
+		const items = group.items.filter((item) => canAccessPath(item.to, userRole));
+		if (items.length > 0) {
+			visibleGroups.push({ ...group, items });
+		}
+	}
+
+	return visibleGroups;
 }

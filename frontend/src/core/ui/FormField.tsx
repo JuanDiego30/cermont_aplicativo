@@ -102,7 +102,7 @@ export function TextField({
 				type={type}
 				ref={ref}
 				className={cn(
-					"w-full rounded-full border bg-[var(--surface-primary)] text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-muted)]",
+					"motion-input w-full rounded-full border bg-[var(--surface-primary)] text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-muted)]",
 					TEXT_FIELD_SIZE_CLASSES[size],
 					leftIcon ? "pl-11" : "",
 					rightIcon || onClear ? "pr-11" : "",
@@ -141,7 +141,7 @@ export function TextArea({ className, error, ref, ...props }: TextAreaProps) {
 		<textarea
 			ref={ref}
 			className={cn(
-				"w-full rounded-[var(--radius-lg)] border bg-[var(--surface-primary)] px-4 py-3 text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-muted)] resize-y min-h-[100px]",
+				"motion-input w-full rounded-[var(--radius-lg)] border bg-[var(--surface-primary)] px-4 py-3 text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-muted)] resize-y min-h-[100px]",
 				error
 					? "border-[var(--color-danger)] focus:border-[var(--color-danger)] focus:ring-[color:var(--color-danger)]/20"
 					: "border-[var(--border-medium)] focus:border-[var(--color-focus-ring)]",
@@ -171,7 +171,7 @@ export function Select({ className, error, size = "md", children, ref, ...props 
 			<select
 				ref={ref}
 				className={cn(
-					"w-full cursor-pointer appearance-none rounded-full border bg-[var(--surface-primary)] text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-muted)]",
+					"motion-input w-full cursor-pointer appearance-none rounded-full border bg-[var(--surface-primary)] text-[var(--text-primary)] transition-[border-color,box-shadow,background-color,color] duration-150 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-focus-ring)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-secondary)] disabled:text-[var(--text-muted)]",
 					SELECT_SIZE_CLASSES[size],
 					"bg-[right_1rem_center] bg-no-repeat pr-10",
 					error
@@ -218,10 +218,8 @@ export function Checkbox({ className, label, error, ref, ...props }: CheckboxPro
 				type="checkbox"
 				ref={ref}
 				className={cn(
-					"size-4.5 rounded border transition-all cursor-pointer text-brand focus:ring-2 focus:ring-(--color-focus-ring)/20 focus:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50",
-					error
-						? "border-destructive"
-						: "border-border-medium group-hover:border-brand",
+					"motion-input size-4.5 rounded border transition-[border-color,background-color,box-shadow,transform,opacity] cursor-pointer text-brand focus:ring-2 focus:ring-(--color-focus-ring)/20 focus:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50",
+					error ? "border-destructive" : "border-border-medium group-hover:border-brand",
 				)}
 				{...props}
 			/>

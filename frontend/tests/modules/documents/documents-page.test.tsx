@@ -1,7 +1,7 @@
+import { ADMIN_ROLES } from "@cermont/domain";
 import { fireEvent, render, screen } from "@testing-library/react";
 import type { ComponentProps, ReactNode } from "react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { ADMIN_ROLES } from "@cermont/domain";
 import DocumentsPage from "@/app/(dashboard)/documents/page";
 
 const replaceMock = vi.fn();

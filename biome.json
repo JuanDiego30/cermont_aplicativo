@@ -18,7 +18,8 @@
 			"!**/packages/shared-types/contracts/api-contract.snapshot.json",
 			"!**/packages/shared-types/src/zod",
 			"!**/backend/src/config/env.js",
-			"!**/frontend/public/sw.js"
+			"!**/frontend/public/sw.js",
+			"!**/frontend/public/service-worker.js"
 		]
 	},
 	"formatter": {

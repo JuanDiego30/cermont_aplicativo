@@ -1,9 +1,12 @@
 import type { PurchaseOrderAuthorization, PurchaseOrderStatus } from "@cermont/shared-types";
 import { Types } from "mongoose";
-import { AppError, ConflictError, UnprocessableError } from "../../common/errors";
+import { AppError, ConflictError, ServiceUnavailableError, UnprocessableError } from "../../common/errors";
+import { createLogger } from "../../common/utils/logger";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { Proposal } from "../../models";
 import { type PurchaseOrderDocument, PurchaseOrderModel } from "../../models/PurchaseOrder";
 
+const log = createLogger("purchase-order-service");
 const APPROVED_PURCHASE_ORDER_STATUSES = ["approved", "validated"] as const;
 const PENDING_PURCHASE_ORDER_STATUSES = ["pending", "received"] as const;
 
@@ -125,13 +128,27 @@ export async function listPurchaseOrders(query: {
 		filter.status = statusFilter;
 	}
 
-	const [docs, total] = await Promise.all([
-		PurchaseOrderModel.find(filter)
-			.sort({ createdAt: -1 })
-			.skip((query.page - 1) * query.limit)
-			.limit(query.limit),
-		PurchaseOrderModel.countDocuments(filter),
-	]);
+	let docs: PurchaseOrderDocument[];
+	let total: number;
+
+	try {
+		[docs, total] = await Promise.all([
+			PurchaseOrderModel.find(filter)
+				.sort({ createdAt: -1 })
+				.skip((query.page - 1) * query.limit)
+				.limit(query.limit),
+			PurchaseOrderModel.countDocuments(filter),
+		]);
+	} catch (error) {
+		if (error instanceof Error && isTransientDatabaseError(error)) {
+			log.error("Database unavailable while listing purchase orders", { error: String(error) });
+			throw new ServiceUnavailableError(
+				"Database temporarily unavailable while listing purchase orders.",
+				"PURCHASE_ORDER_SERVICE_UNAVAILABLE",
+			);
+		}
+		throw error;
+	}
 
 	return {
 		data: docs.map(toRecord),

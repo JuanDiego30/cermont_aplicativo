@@ -1,6 +1,146 @@
 import { PlanningPacketStatusSchema } from "@cermont/shared-types";
 import mongoose from "mongoose";
 
+const PlanningResourceLineSchema = new mongoose.Schema(
+	{
+		description: {
+			type: String,
+			required: true,
+			trim: true,
+		},
+		quantity: {
+			type: Number,
+			required: true,
+			min: 1,
+		},
+		unit: {
+			type: String,
+			trim: true,
+		},
+	},
+	{ _id: false },
+);
+
+const PlanningToolSchema = new mongoose.Schema(
+	{
+		name: {
+			type: String,
+			required: true,
+			trim: true,
+		},
+		quantity: {
+			type: Number,
+			required: true,
+			min: 1,
+		},
+		available: {
+			type: Boolean,
+			required: true,
+			default: false,
+		},
+		specifications: {
+			type: String,
+			trim: true,
+		},
+	},
+	{ _id: false },
+);
+
+const PlanningEquipmentSchema = new mongoose.Schema(
+	{
+		equipmentId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Asset",
+		},
+		name: {
+			type: String,
+			required: true,
+			trim: true,
+		},
+		quantity: {
+			type: Number,
+			required: true,
+			min: 1,
+			default: 1,
+		},
+		available: {
+			type: Boolean,
+			required: true,
+			default: false,
+		},
+		certificateRequired: {
+			type: Boolean,
+			default: false,
+		},
+	},
+	{ _id: false },
+);
+
+const PlanningResponsibleSchema = new mongoose.Schema(
+	{
+		role: {
+			type: String,
+			enum: ["ingeniero_residente", "tecnico_electricista", "hes"],
+			required: true,
+		},
+		userId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+		},
+		name: {
+			type: String,
+			trim: true,
+		},
+		status: {
+			type: String,
+			enum: ["pending", "assigned", "signed"],
+			default: "assigned",
+		},
+		signedAt: Date,
+		signatureEvidenceId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "Evidence",
+		},
+	},
+	{ _id: false },
+);
+
+const PlanningBlockerSchema = new mongoose.Schema(
+	{
+		blockerId: {
+			type: String,
+			required: true,
+		},
+		type: {
+			type: String,
+			required: true,
+		},
+		description: {
+			type: String,
+			required: true,
+			trim: true,
+		},
+		severity: {
+			type: String,
+			required: true,
+		},
+		resolved: {
+			type: Boolean,
+			default: false,
+		},
+		resolution: {
+			type: String,
+			trim: true,
+		},
+		resolvedBy: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+		},
+		resolvedAt: Date,
+	},
+	{ _id: false },
+);
+
 const PlanningPacketSchema = new mongoose.Schema(
 	{
 		workOrderId: {
@@ -8,6 +148,28 @@ const PlanningPacketSchema = new mongoose.Schema(
 			ref: "Order",
 			required: true,
 			index: true,
+		},
+		responsibleInspectorId: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+		},
+		responsibleInspectorName: {
+			type: String,
+			trim: true,
+		},
+		place: {
+			type: String,
+			trim: true,
+		},
+		plannedDate: Date,
+		businessUnit: {
+			type: String,
+			enum: ["IT", "MNT", "SC", "GEN", "OTHER"],
+			index: true,
+		},
+		scope: {
+			type: String,
+			trim: true,
 		},
 		schedule: {
 			plannedStartAt: Date,
@@ -46,30 +208,37 @@ const PlanningPacketSchema = new mongoose.Schema(
 			version: String,
 			activityType: String,
 			estimatedHours: Number,
-			tools: mongoose.Schema.Types.Mixed,
-			equipment: mongoose.Schema.Types.Mixed,
+			tools: [PlanningToolSchema],
+			equipment: [PlanningEquipmentSchema],
 			minimumPpe: [String],
 		},
-		tools: [
-			{
-				name: String,
-				quantity: Number,
-				available: Boolean,
-				specifications: String,
+		materials: [PlanningResourceLineSchema],
+		tools: [PlanningToolSchema],
+		equipment: [PlanningEquipmentSchema],
+		safetyElements: [PlanningResourceLineSchema],
+		workerRequirements: {
+			electricistas: {
+				type: Number,
+				min: 0,
+				default: 0,
 			},
-		],
-		equipment: [
-			{
-				equipmentId: {
-					type: mongoose.Schema.Types.ObjectId,
-					ref: "Asset",
-				},
-				name: String,
-				quantity: Number,
-				available: Boolean,
-				certificateRequired: Boolean,
+			tecnicosTelecomunicacion: {
+				type: Number,
+				min: 0,
+				default: 0,
 			},
-		],
+			instrumentistas: {
+				type: Number,
+				min: 0,
+				default: 0,
+			},
+			obreros: {
+				type: Number,
+				min: 0,
+				default: 0,
+			},
+		},
+		responsibles: [PlanningResponsibleSchema],
 		requiredCertifications: [
 			{
 				certificationId: {
@@ -119,24 +288,7 @@ const PlanningPacketSchema = new mongoose.Schema(
 				checkedAt: Date,
 			},
 		],
-		blockers: [
-			{
-				blockerId: String,
-				type: String,
-				description: String,
-				severity: String,
-				resolved: {
-					type: Boolean,
-					default: false,
-				},
-				resolution: String,
-				resolvedBy: {
-					type: mongoose.Schema.Types.ObjectId,
-					ref: "User",
-				},
-				resolvedAt: Date,
-			},
-		],
+		blockers: [PlanningBlockerSchema],
 		status: {
 			type: String,
 			enum: PlanningPacketStatusSchema.options,
@@ -148,6 +300,23 @@ const PlanningPacketSchema = new mongoose.Schema(
 			ref: "User",
 		},
 		approvedAt: Date,
+		approvalNotes: {
+			type: String,
+			trim: true,
+		},
+		updatedBy: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+		},
+		reopenedBy: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User",
+		},
+		reopenedAt: Date,
+		reopenReason: {
+			type: String,
+			trim: true,
+		},
 		createdBy: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",
@@ -164,5 +333,7 @@ PlanningPacketSchema.index({ workOrderId: 1, status: 1 });
 PlanningPacketSchema.index({ status: 1 });
 PlanningPacketSchema.index({ supervisorId: 1 });
 PlanningPacketSchema.index({ "crew.userId": 1 });
+PlanningPacketSchema.index({ businessUnit: 1, plannedDate: 1 });
+PlanningPacketSchema.index({ responsibleInspectorId: 1 });
 
 export const PlanningPacket = mongoose.model("PlanningPacket", PlanningPacketSchema);

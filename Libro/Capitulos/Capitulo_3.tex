@@ -1,14 +1,14 @@
 % =====================================================================
 % CAPÍTULO 3: ESTADO DEL ARTE E INVESTIGACIÓN DE SOFTWARE
-% Versión refactorizada con fuentes verificables
+% Versión académica con fuentes verificables
 % =====================================================================
 
 \chapter{Estado del Arte e Investigación de Software}
 \label{ch:estado-arte}
 
 % --- Ajustes editoriales locales del capítulo: sangría, espaciado y control de desbordamientos ---
-\setlength{\parindent}{1.25cm}
-\setlength{\parskip}{0pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
 \sloppy
 \emergencystretch=2em
 \raggedbottom
@@ -26,16 +26,16 @@ Las plataformas comerciales muestran qué funcionalidades se consideran estánda
 \label{tab:plataformas-comerciales}
 \small
 \setlength{\tabcolsep}{2pt}
-\def\CommercialRow#1#2#3#4{\parbox[t]{2.55cm}{\raggedright #1} & \parbox[t]{4.1cm}{\raggedright #2} & \parbox[t]{4.55cm}{\raggedright #3} & \parbox[t]{2.75cm}{\raggedright #4}\\\midrule}
-\begin{tabular}{@{}l l l l@{}}
-\toprule
+\def\CommercialRow#1#2#3#4{\parbox[t]{2.55cm}{\raggedright #1} & \parbox[t]{4.1cm}{\raggedright #2} & \parbox[t]{4.55cm}{\raggedright #3} & \parbox[t]{2.75cm}{\raggedright #4}\\\hline}
+\begin{tabular}{|l|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Herramienta} & \textbf{Enfoque} & \textbf{Aporte al proyecto} & \textbf{Dato verificable} \\
-\midrule
+\hline
 \CommercialRow{Jobber}{Servicios en sitio: cotización, agenda, despacho, facturación y comunicación.}{Referencia de flujo comercial para empresas de servicios.}{Planes desde USD 29 hasta USD 529 al mes \cite{jobber_pricing}.}
 \CommercialRow{Odoo Field Service}{Servicio de campo en Odoo: tareas, productos, planificación y hojas de trabajo.}{Referencia para integrar servicio de campo con otros módulos.}{La documentación oficial describe tareas, productos e itinerarios \cite{odoo_field_service}.}
 \CommercialRow{ServiceM8}{Contratistas: trabajos, clientes, cotizaciones y facturación.}{Referencia para movilidad y flujo técnico.}{Su página indica planes mensuales y prueba gratuita \cite{servicem8_pricing}.}
 \CommercialRow{Fracttal}{Mantenimiento y gestión de activos.}{Referencia latinoamericana para CMMS y activos.}{Integra SAP, ERP, WhatsApp y hojas de cálculo \cite{fracttal}.}
-\bottomrule
+\hline
 \end{tabular}
 \end{table}
 
@@ -49,18 +49,18 @@ La revisión demuestra que existen soluciones maduras, pero también evidencia q
 \label{tab:repositorios-abiertos}
 \small
 \setlength{\tabcolsep}{2pt}
-\def\RepoRow#1#2#3#4{\parbox[t]{2.45cm}{\raggedright #1} & \parbox[t]{4.05cm}{\raggedright #2} & \parbox[t]{4.0cm}{\raggedright #3} & \parbox[t]{2.55cm}{\raggedright #4}\\\midrule}
-\begin{tabular}{@{}l l l l@{}}
-\toprule
+\def\RepoRow#1#2#3#4{\parbox[t]{2.45cm}{\raggedright #1} & \parbox[t]{4.05cm}{\raggedright #2} & \parbox[t]{4.0cm}{\raggedright #3} & \parbox[t]{2.55cm}{\raggedright #4}\\\hline}
+\begin{tabular}{|l|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Proyecto} & \textbf{Descripción} & \textbf{Relación con CERMONT S.A.S.} & \textbf{Tipo} \\
-\midrule
+\hline
 \RepoRow{OCA Field Service}{Módulos de FSM mantenidos por OCA \cite{oca_field_service}.}{Referencia para órdenes, ubicaciones, técnicos y servicios.}{Repositorio GitHub.}
 \RepoRow{ERPNext}{ERP libre con contabilidad, CRM, compras e inventario \cite{erpnext}.}{Permite comparar un ERP amplio frente a una solución focalizada.}{ERP open-source.}
 \RepoRow{openMAINT}{Aplicación para activos y mantenimiento \cite{openmaint}.}{Aporta conceptos de mantenimiento e indicadores.}{CMMS/EAM.}
 \RepoRow{Atlas CMMS}{CMMS autoalojable con React y Docker \cite{atlas2024}.}{Referencia para órdenes e inventario.}{Repositorio GitHub.}
 \RepoRow{Liberu Maintenance}{CMMS con Laravel y Filament, gestión documental y versionamiento \cite{liberu2024}.}{Aporta patrones de documental y formularios.}{Repositorio GitHub.}
 \RepoRow{FieldPro}{FSM con React 18, TypeScript y Supabase \cite{fieldpro2024}.}{Referencia por stack similar y checklist digital.}{Repositorio GitHub.}
-\bottomrule
+\hline
 \end{tabular}
 \end{table}
 
@@ -73,17 +73,17 @@ Estos proyectos confirman que la solución propuesta debe modelar claramente ent
 \caption{Librerías de formularios dinámicos aplicables al proyecto. Fuente: Elaboración propia.}
 \label{tab:librerias-formularios}
 \small
-\def\FormRow#1#2#3{\parbox[t]{3.4cm}{\raggedright #1} & \parbox[t]{5.0cm}{\raggedright #2} & \parbox[t]{5.7cm}{\raggedright #3}\\\midrule}
-\begin{tabular}{@{}l l l@{}}
-\toprule
+\def\FormRow#1#2#3{\parbox[t]{3.4cm}{\raggedright #1} & \parbox[t]{5.0cm}{\raggedright #2} & \parbox[t]{5.7cm}{\raggedright #3}\\\hline}
+\begin{tabular}{|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Librería} & \textbf{Funcionalidad relevante} & \textbf{Aplicación propuesta} \\
-\midrule
+\hline
 \FormRow{React JSON Schema Form}{Genera formularios React de forma declarativa a partir de JSON Schema \cite{rjsf}.}{Formularios versionados si el frontend usa React.}
 \FormRow{JSON Forms}{Enfoque basado en JSON Schema con soporte para React, Angular y Vue \cite{jsonforms}.}{Alternativa flexible si se requiere independencia de framework.}
 \FormRow{SurveyJS}{Librería MIT para renderizar formularios JSON y enviar respuestas a una base de datos propia \cite{surveyjs}.}{Formularios largos, encuestas de inspección y checklists.}
 \FormRow{Form.io}{Ecosistema de formularios JSON con componentes para frameworks web \cite{formio}.}{Evaluar si se requiere constructor visual de formularios.}
 \FormRow{YAMLForms}{Generación de formularios desde esquemas YAML a PDF, HTML y DOCX \cite{yamlforms2024}.}{Referencia para línea de evolución de formularios configurables.}
-\bottomrule
+\hline
 \end{tabular}
 \end{table}
 
@@ -96,18 +96,18 @@ El módulo de formularios dinámicos desde documentos existentes necesita transf
 \caption{Herramientas para extracción documental. Fuente: Elaboración propia.}
 \label{tab:extraccion-documental}
 \small
-\def\ExtractRow#1#2#3{\parbox[t]{3.3cm}{\raggedright #1} & \parbox[t]{5.3cm}{\raggedright #2} & \parbox[t]{5.0cm}{\raggedright #3}\\\midrule}
-\begin{tabular}{@{}l l l@{}}
-\toprule
+\def\ExtractRow#1#2#3{\parbox[t]{3.3cm}{\raggedright #1} & \parbox[t]{5.3cm}{\raggedright #2} & \parbox[t]{5.0cm}{\raggedright #3}\\\hline}
+\begin{tabular}{|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Herramienta} & \textbf{Capacidad reportada por la fuente} & \textbf{Uso posible en el proyecto} \\
-\midrule
+\hline
 \ExtractRow{Docling}{Procesamiento y extracción estructurada de formatos diversos, con comprensión avanzada de PDF e integración con flujos de IA \cite{docling}.}{Convertir PDF/DOCX a representación estructurada antes de generar plantillas.}
 \ExtractRow{Unstructured}{Transformación de documentos complejos a formatos limpios y estructurados para modelos de lenguaje \cite{unstructured}.}{Extraer secciones, listas y bloques textuales de formatos existentes.}
 \ExtractRow{PaddleOCR}{OCR y extracción estructurada para documentos PDF e imágenes, con soporte de múltiples idiomas \cite{paddleocr}.}{Procesar fotografías o PDFs escaneados de formatos de campo.}
 \ExtractRow{MinerU}{Conversión de PDF, imágenes, DOCX, PPTX y XLSX en Markdown o JSON para procesamiento posterior \cite{mineru}.}{Generar entrada estructurada para un módulo futuro de plantillas dinámicas.}
 \ExtractRow{PyPDFForm}{Biblioteca Python para inspeccionar y rellenar formularios PDF mediante diccionarios Python \cite{pypdfform2024}.}{Referencia para extracción y llenado de formularios PDF existentes.}
 \ExtractRow{Doc2Form}{Aplicación que usa Gemini AI para convertir PDF o Word en Google Forms \cite{doc2form2024}.}{Demuestra viabilidad de extracción automatizada desde documentos no estructurados.}
-\bottomrule
+\hline
 \end{tabular}
 \end{table}
 
@@ -118,11 +118,11 @@ El módulo de formularios dinámicos desde documentos existentes necesita transf
 \caption{Comparación de proyectos open source de gestión de servicios de campo. Fuente: Elaboración propia.}
 \label{tab:comparacion-proyectos}
 \scriptsize
-\def\CompareRow#1#2#3#4#5#6{\parbox[t]{2.2cm}{\raggedright #1} & \parbox[t]{1.9cm}{\raggedright #2} & \parbox[t]{1.9cm}{\raggedright #3} & \parbox[t]{1.9cm}{\raggedright #4} & \parbox[t]{1.9cm}{\raggedright #5} & \parbox[t]{2.0cm}{\raggedright #6}\\\midrule}
-\begin{tabular}{@{}l l l l l l@{}}
-\toprule
+\def\CompareRow#1#2#3#4#5#6{\parbox[t]{2.2cm}{\raggedright #1} & \parbox[t]{1.9cm}{\raggedright #2} & \parbox[t]{1.9cm}{\raggedright #3} & \parbox[t]{1.9cm}{\raggedright #4} & \parbox[t]{1.9cm}{\raggedright #5} & \parbox[t]{2.0cm}{\raggedright #6}\\\hline}
+\begin{tabular}{|l|l|l|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Característica} & \textbf{Atlas CMMS} & \textbf{Liberu Maint.} & \textbf{OCA Field Svc} & \textbf{FieldPro} & \textbf{CERMONT (este proyecto)} \\
-\midrule
+\hline
 \CompareRow{Órdenes de trabajo}{Sí}{Sí}{Sí}{Sí}{Sí}
 \CompareRow{Planeación de recursos}{Básica}{Sí}{Sí}{Limitada}{Sí (kits típicos)}
 \CompareRow{Checklists digitales}{No}{No}{No}{Sí (48 ítems)}{Sí}
@@ -134,7 +134,7 @@ El módulo de formularios dinámicos desde documentos existentes necesita transf
 \CompareRow{Cierre administrativo}{No}{No}{No}{No}{Sí (SES, facturación)}
 \CompareRow{Stack principal}{React + Docker}{Laravel + PHP}{Python (Odoo)}{React + Supabase}{Next.js + Express + MongoDB}
 \CompareRow{Licencia}{AGPLv3 / Com.}{MIT}{AGPLv3}{Propietaria}{Académica / Propietaria}
-\bottomrule
+\hline
 \end{tabular}
 
 \vspace{0.3cm}
@@ -153,7 +153,7 @@ El proyecto se posiciona como una solución aplicada, enfocada en el flujo real 
 \section{Análisis de madurez del mercado FSM}
 \label{sec:madurez-fsm-mercado}
 
-El mercado de software de gestión de servicios de campo (FSM) ha experimentado una evolución significativa en la última década. Según el informe Magic Quadrant for Field Service Management de Gartner \cite{gartner2024}, el mercado se consolida alrededor de capacidades como la inteligencia artificial para programación predictiva, la realidad aumentada para asistencia remota y la analítica avanzada para optimización de fuerza laboral. Los líderes del cuadrante (ServiceMax, IFS, Oracle, SAP) ofrecen plataformas empresariales con amplia cobertura funcional, pero con costos de licencia que pueden oscilar entre USD 10,000 y USD 50,000 anuales para implementaciones en empresas medianas, según el mismo informe.
+El mercado de software de gestión de servicios de campo (FSM) ha evolucionado hacia capacidades como programación predictiva, asistencia remota y analítica avanzada para optimización de fuerza laboral \cite{gartner2024}. Los líderes del mercado ofrecen plataformas empresariales con amplia cobertura funcional; sin embargo, su adopción exige evaluar costos de licencia, implementación, migración de datos, capacitación y personalización. En este trabajo no se reportan valores económicos como resultado del proyecto, salvo que se anexen cotizaciones o fuentes verificables.
 
 Un estudio de Aberdeen Group \cite{aberdeen2019} encontró que las empresas con mejores prácticas en FSM logran una tasa de resolución en primera visita (First-Time Fix Rate) del 77\%, comparada con el 63\% del promedio de la industria, atribuyendo esta diferencia a la disponibilidad de información completa en el punto de servicio. Este hallazgo refuerza la importancia de que el aplicativo de CERMONT S.A.S. proporcione a los técnicos de campo acceso a toda la información relevante (historial del activo, checklists, kits de recursos) antes y durante la ejecución.
 
@@ -178,7 +178,7 @@ La principal diferencia con el proyecto CERMONT radica en la dependencia del eco
 
 \subsection{Atlas CMMS: referencia de despliegue autoalojado}
 
-Atlas CMMS \cite{atlas2024} es un sistema de gestión de mantenimiento computarizado autoalojado, desarrollado con React para el frontend y desplegable mediante Docker Compose. Su arquitectura de despliegue basada en contenedores demostró la viabilidad de ofrecer una solución CMMS que el cliente puede instalar en su propia infraestructura, un modelo relevante para CERMONT S.A.S. considerando que sus datos operativos y financieros deben permanecer bajo su control.
+Atlas CMMS \cite{atlas2024} es un sistema de gestión de mantenimiento computarizado autoalojado, desarrollado con React para el frontend y desplegable mediante Docker Compose. Su arquitectura de despliegue basada en contenedores sirve como referencia para soluciones que el cliente puede instalar en su propia infraestructura, un modelo relevante para CERMONT S.A.S. considerando que sus datos operativos y financieros deben permanecer bajo su control.
 
 Las funcionalidades de Atlas CMMS —creación y asignación de órdenes de trabajo, registro de tiempos, automatización de órdenes mediante disparadores, exportación de reportes— cubren adecuadamente el dominio de mantenimiento de activos fijos en instalaciones industriales. Sin embargo, su alcance no abarca la gestión integral de servicios contratados para terceros, donde la trazabilidad documental, la generación de actas e informes para clientes y el cierre administrativo con facturación constituyen requisitos críticos que diferencian el proyecto CERMONT de un CMMS convencional.
 
@@ -193,15 +193,15 @@ La revisión de trabajos de grado en repositorios institucionales de universidad
 \label{tab:antecedentes-colombia}
 \small
 \setlength{\tabcolsep}{4pt}
-\def\AntecedentRow#1#2#3#4{\parbox[t]{2.4cm}{\raggedright #1} & \parbox[t]{3.4cm}{\raggedright #2} & \parbox[t]{3.8cm}{\raggedright #3} & \parbox[t]{4.0cm}{\raggedright #4}\\\midrule}
-\begin{tabular}{@{}l l l l@{}}
-\toprule
+\def\AntecedentRow#1#2#3#4{\parbox[t]{2.4cm}{\raggedright #1} & \parbox[t]{3.4cm}{\raggedright #2} & \parbox[t]{3.8cm}{\raggedright #3} & \parbox[t]{4.0cm}{\raggedright #4}\\\hline}
+\begin{tabular}{|l|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Autor y año} & \textbf{Enfoque general} & \textbf{Aporte relevante} & \textbf{Diferencia con este proyecto} \\
-\midrule
+\hline
 \AntecedentRow{García López (2021) \cite{garcia2021}}{Sistema web para mantenimiento de flota urbana.}{Demuestra viabilidad de digitalizar controles operativos con tecnologías web.}{Enfocado en activos propios; no cubre cierre administrativo con facturación.}
 \AntecedentRow{Rodríguez y Torres (2022) \cite{rodriguez2022}}{Aplicación móvil para órdenes de trabajo en telecomunicaciones.}{Muestra interés por movilidad y registro en campo.}{Prioriza movilidad; no incluye trazabilidad de cierre documental.}
 \AntecedentRow{Martínez Suárez (2020) \cite{martinez2020}}{Sistema web para mantenimiento preventivo en PYME industrial.}{Demuestra control de actividades técnicas con base documental.}{Alcance limitado a mantenimiento; no cubre servicios a terceros ni facturación.}
-\bottomrule
+\hline
 \end{tabular}
 \end{table}
 
@@ -212,11 +212,11 @@ Estos antecedentes confirman que la digitalización de procesos de mantenimiento
 
 El desarrollo del aplicativo CERMONT se sitúa en la intersección de varias tendencias tecnológicas que están transformando la gestión de servicios de campo. A continuación se analizan tres tendencias particularmente relevantes y su relación con las decisiones de diseño adoptadas.
 
-\textbf{Operación offline-first.} La combinación de Progressive Web Apps (PWA) con almacenamiento local IndexedDB y sincronización diferida se ha consolidado como el enfoque predominante para aplicaciones de campo en zonas con conectividad intermitente \cite{gartner2024}. El proyecto CERMONT adopta este enfoque mediante Service Workers que interceptan peticiones HTTP y almacenan datos localmente, con un motor de sincronización que aplica retroceso exponencial y deduplicación mediante \texttt{clientMutationId}. Esta arquitectura permite que los técnicos de campo capturen evidencias y completen checklists independientemente de la disponibilidad de red, una capacidad crítica para operaciones en zonas rurales de Arauca.
+\textbf{Operación offline-first.} La combinación de Progressive Web Apps (PWA) con almacenamiento local IndexedDB y sincronización diferida se ha consolidado como el enfoque predominante para aplicaciones de campo en zonas con conectividad intermitente \cite{gartner2024}. El proyecto CERMONT adopta este enfoque mediante Service Workers que gestionan el app shell y mediante almacenamiento local para datos operativos, con un motor de sincronización que aplica retroceso exponencial y deduplicación mediante \texttt{clientMutationId}. Esta arquitectura permite continuidad parcial para técnicos de campo y establece la base para capturar evidencias y completar checklists aun con red variable, siempre que cada formulario sea validado en pruebas específicas.
 
 \textbf{Formularios dinámicos configurables.} La tendencia hacia formularios definidos mediante esquemas declarativos (JSON Schema, YAML) en lugar de componentes de interfaz codificados manualmente responde a la necesidad de adaptabilidad en entornos multiservicio \cite{rjsf,jsonforms}. El proyecto CERMONT incorpora esta tendencia mediante la especificación de formularios como plantillas versionadas en \texttt{@cermont/shared-types}, con un motor de renderizado que genera la interfaz de captura a partir del esquema. La evolución futura hacia formularios extraídos automáticamente de documentos PDF/WORD existentes representa la convergencia de esta tendencia con las capacidades emergentes de extracción documental.
 
-\textbf{Generación documental automatizada.} La capacidad de generar documentos PDF, DOCX y otros formatos a partir de datos estructurados almacenados en el sistema elimina la necesidad de recaptura manual y garantiza consistencia entre los datos operativos y los documentos entregados al cliente \cite{pypdfform2024}. El proyecto CERMONT implementa esta capacidad mediante \texttt{pdf-lib} para la generación de informes técnicos y actas de entrega, con plantillas que insertan automáticamente datos de la orden, resultados de checklists y evidencias fotográficas.
+\textbf{Generación documental automatizada.} La capacidad de generar documentos PDF, DOCX y otros formatos a partir de datos estructurados almacenados en el sistema puede reducir recaptura manual y mejorar la consistencia entre los datos operativos y los documentos entregados al cliente \cite{pypdfform2024}. El proyecto CERMONT incorpora esta línea mediante \texttt{pdf-lib} para la generación de informes técnicos y actas de entrega, con plantillas que insertan datos de la orden, resultados de checklists y evidencias fotográficas cuando la información requerida está disponible.
 
 \section{Justificación de la solución a medida frente a alternativas existentes}
 \label{sec:justificacion-a-medida}
@@ -229,17 +229,17 @@ La revisión del estado del arte permite articular una justificación fundamenta
 \label{tab:criterios-evaluacion}
 \scriptsize
 \setlength{\tabcolsep}{2pt}
-\def\CriteriaRow#1#2#3#4#5{\parbox[t]{2.55cm}{\raggedright #1} & \parbox[t]{3.7cm}{\raggedright #2} & \parbox[t]{2.05cm}{\raggedright #3} & \parbox[t]{2.05cm}{\raggedright #4} & \parbox[t]{2.05cm}{\raggedright #5}\\\midrule}
-\begin{tabular}{@{}l l l l l@{}}
-\toprule
+\def\CriteriaRow#1#2#3#4#5{\parbox[t]{2.55cm}{\raggedright #1} & \parbox[t]{3.7cm}{\raggedright #2} & \parbox[t]{2.05cm}{\raggedright #3} & \parbox[t]{2.05cm}{\raggedright #4} & \parbox[t]{2.05cm}{\raggedright #5}\\\hline}
+\begin{tabular}{|l|l|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Criterio} & \textbf{Descripción} & \textbf{Plataformas comerciales} & \textbf{Open source} & \textbf{Desarrollo a medida} \\
-\midrule
+\hline
 \CriteriaRow{Adaptación a formatos propios}{Ajuste a formatos reales de CERMONT.}{Baja}{Media}{Alta}
 \CriteriaRow{Costo total de propiedad}{Costo acumulado a tres años.}{Alto}{Medio}{Bajo}
 \CriteriaRow{Independencia tecnológica}{Control del código y de los datos.}{Baja}{Alta}{Alta}
 \CriteriaRow{Operación offline}{Funcionamiento sin conectividad.}{Variable}{Variable}{Alta}
 \CriteriaRow{Evolución funcional}{Incorporar y modificar módulos.}{Limitada}{Media}{Alta}
-\bottomrule
+\hline
 \end{tabular}
 \end{table}
 
@@ -259,9 +259,7 @@ Un factor determinante en la decisión de desarrollar una solución a medida es 
 
 \textbf{Fracttal}, con presencia en el mercado latinoamericano, no publica precios estándar en su sitio web, requiriendo contacto directo para cotización. Esta práctica, común en plataformas empresariales, dificulta la comparación objetiva de costos y refuerza el argumento a favor de una solución con costos transparentes y controlables \cite{fracttal}.
 
-El análisis de costos, sumado a los criterios cualitativos de la Tabla \ref{tab:criterios-evaluacion}, confirma que la inversión requerida para adoptar una plataforma comercial —incluyendo licencias, implementación, migración de datos, capacitación y personalización— no se justifica para el volumen actual de operaciones de CERMONT S.A.S., particularmente cuando dicha inversión no garantiza la adaptación a los formatos operativos propios de la empresa. El desarrollo a medida, cuyo costo principal es el tiempo de ingeniería del practicante, produce un sistema ajustado a los procesos reales de la organización, con independencia tecnológica total y sin costos recurrentes de licenciamiento.
-
-% --- AMPLIACIÓN ACADÉMICA INTEGRADA CAPÍTULO 3 ---
+El análisis de costos, sumado a los criterios cualitativos de la Tabla \ref{tab:criterios-evaluacion}, sugiere que la adopción de una plataforma comercial debe evaluarse con cautela para el volumen actual de operaciones de CERMONT S.A.S., particularmente cuando dicha inversión no asegura adaptación a los formatos operativos propios de la empresa. El desarrollo a medida, cuyo costo principal durante la práctica fue el tiempo de ingeniería del estudiante, produjo una base ajustada a los procesos reales de la organización y sin costos recurrentes de licenciamiento asociados al núcleo desarrollado.
 
 \section{Criterios académicos para comparar soluciones existentes}
 \label{sec:criterios-comparacion-soluciones}
@@ -274,17 +272,17 @@ La comparación con herramientas comerciales y repositorios abiertos no debe lim
 \caption{Criterios de comparación utilizados para evaluar alternativas frente al aplicativo a medida. Fuente: elaboración propia.}
 \label{tab:criterios-comparacion-alternativas}
 \begin{adjustbox}{max width=\textwidth}
-\begin{tabular}{p{3.2cm}p{5.7cm}p{5.7cm}}
-\toprule
+\begin{tabular}{|p{3.2cm}|p{5.7cm}|p{5.7cm}|}
+\hline\ClassicTableHeader
 \textbf{Criterio} & \textbf{Pregunta de evaluación} & \textbf{Relevancia para CERMONT S.A.S.}\\
-\midrule
+\hline
 Cobertura del flujo & ¿La herramienta cubre solicitud, propuesta, PO, planeación, ejecución, informes, actas, SES, factura y pago? & El proceso real de CERMONT no termina en la ejecución técnica, sino en el cierre administrativo.\\
 Configurabilidad documental & ¿Permite adaptar formularios y plantillas a formatos propios de la empresa? & La empresa usa documentos diversos para CCTV, líneas de vida, planeación y soporte HES.\\
 Operación móvil y offline & ¿Permite trabajar con conectividad intermitente sin perder datos? & El registro de evidencias y checklists se realiza en campo.\\
 Trazabilidad y auditoría & ¿Conserva historial, estados, responsables y evidencias por orden? & La trazabilidad permite reconstruir el avance de cada servicio.\\
 Costo y adopción & ¿El costo y la complejidad de implementación son viables para la empresa? & Las soluciones robustas pueden ser costosas o rígidas para una contratista multiservicio local.\\
 Control de costos reales & ¿Relaciona presupuesto, ejecución y facturación? & La empresa necesita comparar costos reales frente a lo estimado.\\
-\bottomrule
+\hline
 \end{tabular}
 \end{adjustbox}
 \end{table}

@@ -39,40 +39,11 @@ export function OrdersTable({
 	const allSelected = selectionEnabled && orders.length > 0 && selectedIds.size === orders.length;
 
 	if (isLoading) {
-		const skeletonKeys = Array.from({ length: 5 }, (_, i) => `order-sk-${i}`);
-
-		return (
-			<div className="space-y-4">
-				{skeletonKeys.map((k) => (
-					<div
-						key={k}
-						className="h-20 animate-pulse rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)]/50"
-					/>
-				))}
-			</div>
-		);
+		return <OrdersTableSkeleton rows={5} />;
 	}
 
 	if (!orders || orders.length === 0) {
-		return (
-			<div className="flex min-h-[320px] flex-col items-center justify-center rounded-[2rem] border border-dashed border-[var(--border-medium)] bg-[var(--surface-primary)] text-center p-8">
-				<div className="flex size-16 items-center justify-center rounded-2xl bg-[var(--surface-secondary)] text-[var(--text-tertiary)] mb-4">
-					<Clock className="size-8" />
-				</div>
-				<p className="text-base font-semibold text-[var(--text-primary)]">
-					No hay órdenes registradas
-				</p>
-				<p className="mt-1 text-sm text-[var(--text-tertiary)] max-w-xs">
-					Aún no se han creado órdenes de trabajo con los criterios de búsqueda actuales.
-				</p>
-				<Link
-					href="/orders/new"
-					className="mt-6 text-sm font-bold uppercase tracking-wider text-[var(--color-brand)] hover:underline"
-				>
-					Crear Nueva Orden →
-				</Link>
-			</div>
-		);
+		return <EmptyOrdersState onNewOrder={() => push("/orders/new")} />;
 	}
 
 	return (
@@ -80,8 +51,8 @@ export function OrdersTable({
 			{/* Desktop Table */}
 			<div className="hidden overflow-x-auto lg:block">
 				<table className="w-full text-left text-sm border-collapse">
-					<thead>
-						<tr className="bg-surface-secondary/50 border-y border-border-default">
+					<thead className="sticky top-0 z-10 bg-[var(--surface-primary)]">
+						<tr className="bg-[var(--surface-secondary)]/70 border-b border-[var(--border-subtle)]">
 							{selectionEnabled ? (
 								<th scope="col" className="w-14 px-6 py-4">
 									<input
@@ -188,9 +159,9 @@ export function OrdersTable({
 										type="button"
 										onClick={() => push(`/orders/${order._id}`)}
 										className="inline-flex size-9 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-[var(--text-tertiary)] transition-all group-hover:bg-[var(--color-brand)] group-hover:text-white group-hover:shadow-lg"
-										aria-label="Ver detalles"
+										aria-label={`Ver detalles de OT ${order.code}`}
 									>
-										<Eye className="size-4.5" />
+										<Eye className="size-4.5" aria-hidden="true" />
 									</button>
 								</td>
 							</tr>
@@ -257,6 +228,128 @@ export function OrdersTable({
 					</article>
 				))}
 			</div>
+		</div>
+	);
+}
+
+/* ── Skeleton Component ── */
+function OrdersTableSkeleton({ rows = 5 }: { rows?: number }) {
+	const skeletonIds = Array.from({ length: rows }, (_, i) => `sk-${i}`);
+
+	return (
+		<div
+			className="w-full overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] shadow-sm animate-fade-in"
+			aria-busy="true"
+		>
+			<span className="sr-only">Tabla en carga</span>
+			<div className="overflow-x-auto" aria-hidden="true">
+				<table className="w-full border-collapse text-left text-sm">
+					<thead>
+						<tr className="border-b border-[var(--border-subtle)] bg-[var(--surface-secondary)]/70">
+							<th scope="col" className="w-14 px-6 py-4">
+								<SkeletonBlock className="h-4.5 w-4.5 animate-pulse rounded" />
+							</th>
+							<th
+								scope="col"
+								className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)] font-mono"
+							>
+								N° OT
+							</th>
+							<th
+								scope="col"
+								className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)] font-mono"
+							>
+								Activo / Equipo
+							</th>
+							<th
+								scope="col"
+								className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)] font-mono"
+							>
+								Tipo de Servicio
+							</th>
+							<th
+								scope="col"
+								className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)] font-mono"
+							>
+								Estado
+							</th>
+							<th
+								scope="col"
+								className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)] font-mono"
+							>
+								Prioridad
+							</th>
+							<th
+								scope="col"
+								className="px-6 py-4 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-tertiary)] font-mono text-right"
+							>
+								Acciones
+							</th>
+						</tr>
+					</thead>
+					<tbody className="divide-y divide-[var(--border-subtle)]">
+						{skeletonIds.map((id) => (
+							<tr key={id} className="animate-pulse">
+								<td className="px-6 py-5">
+									<SkeletonBlock className="h-4.5 w-4.5 rounded" />
+								</td>
+								<td className="px-6 py-5">
+									<SkeletonBlock className="h-4 w-12 rounded" />
+								</td>
+								<td className="px-6 py-5">
+									<div className="flex items-center gap-3">
+										<SkeletonBlock className="h-10 w-10 rounded-xl" />
+										<div className="space-y-2">
+											<SkeletonBlock className="h-4 w-28 rounded" />
+											<SkeletonBlock className="h-3 w-16 rounded" />
+										</div>
+									</div>
+								</td>
+								<td className="px-6 py-5">
+									<SkeletonBlock className="h-5 w-20 rounded-lg" />
+								</td>
+								<td className="px-6 py-5">
+									<SkeletonBlock className="h-5.5 w-16 rounded-full" />
+								</td>
+								<td className="px-6 py-5">
+									<SkeletonBlock className="h-5.5 w-16 rounded-full" />
+								</td>
+								<td className="px-6 py-5 text-right">
+									<SkeletonBlock className="ml-auto h-9 w-9 rounded-full" />
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	);
+}
+
+function SkeletonBlock({ className }: { className: string }) {
+	return <span className={cn("block bg-[var(--border-subtle)]", className)} aria-hidden="true" />;
+}
+
+/* ── Empty State Component ── */
+function EmptyOrdersState({ onNewOrder }: { onNewOrder: () => void }) {
+	return (
+		<div className="flex min-h-[320px] flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-[var(--border-medium)] bg-[var(--surface-primary)] p-8 text-center animate-scale-in">
+			<div className="flex size-16 items-center justify-center rounded-2xl bg-[var(--surface-secondary)] text-[var(--text-tertiary)] mb-4">
+				<Clock className="size-8" />
+			</div>
+			<p className="text-base font-semibold text-[var(--text-primary)]">
+				No hay órdenes registradas
+			</p>
+			<p className="mt-1 text-sm text-[var(--text-tertiary)] max-w-xs">
+				Aún no se han creado órdenes de trabajo con los criterios de búsqueda actuales.
+			</p>
+			<button
+				type="button"
+				onClick={onNewOrder}
+				className="motion-button mt-6 rounded-full bg-[var(--color-brand)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+			>
+				Crear Nueva Orden
+			</button>
 		</div>
 	);
 }

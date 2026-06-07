@@ -3,5 +3,14 @@
 import { Toaster } from "sonner";
 
 export function AppToaster() {
-	return <Toaster position="top-right" theme="system" richColors closeButton expand />;
+	return (
+		<Toaster
+			position="top-right"
+			theme="system"
+			richColors
+			closeButton
+			expand
+			toastOptions={{ className: "motion-panel" }}
+		/>
+	);
 }

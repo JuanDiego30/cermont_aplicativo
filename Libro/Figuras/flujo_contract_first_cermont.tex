@@ -1,0 +1,38 @@
+\begin{tikzpicture}[
+  font=\scriptsize,
+  flowstep/.style={
+    draw=institucionalBlue,
+    rounded corners=1.5mm,
+    align=center,
+    fill=white,
+    minimum width=2.15cm,
+    minimum height=0.88cm
+  },
+  group/.style={
+    draw=institucionalGrey,
+    rounded corners=2mm
+  },
+  arrow/.style={-{Latex[length=2mm]}, thick, institucionalBlue}
+]
+
+\node[flowstep, fill=institucionalRed!8] (schema) at (0,0) {Contrato\\Zod};
+\node[flowstep] (model) at (2.65,0) {Modelo\\Mongoose};
+\node[flowstep] (service) at (5.3,0) {Servicio\\de dominio};
+\node[flowstep] (route) at (7.95,0) {Ruta API\\Express};
+\node[flowstep] (client) at (10.6,0) {apiClient\\tipado};
+\node[flowstep] (hook) at (13.25,0) {Hook\\TanStack};
+\node[flowstep, fill=institucionalBlue!8] (ui) at (15.9,0) {Pantalla\\Next.js};
+
+\draw[arrow] (schema) -- (model);
+\draw[arrow] (model) -- (service);
+\draw[arrow] (service) -- (route);
+\draw[arrow] (route) -- (client);
+\draw[arrow] (client) -- (hook);
+\draw[arrow] (hook) -- (ui);
+
+\node[group, fit=(schema)(model)(service)(route), inner sep=6pt, label={[font=\scriptsize\bfseries]above:Backend y contratos compartidos}] {};
+\node[group, fit=(client)(hook)(ui), inner sep=6pt, label={[font=\scriptsize\bfseries]above:Frontend y experiencia de usuario}] {};
+
+\node[align=center, text width=13.5cm] at (7.95,-1.45) {El mismo contrato de datos se usa para validar entrada, persistir con consistencia y presentar estados de carga, error y vacio sin duplicar reglas entre capas.};
+
+\end{tikzpicture}

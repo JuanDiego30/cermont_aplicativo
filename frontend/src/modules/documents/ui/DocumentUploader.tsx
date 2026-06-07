@@ -119,7 +119,7 @@ interface ServiceCaseOption {
 	clientName?: string;
 }
 
-interface IngestResult {
+interface IngestOutcome {
 	classification?: string;
 	draftId: string | null;
 	status: string;
@@ -128,9 +128,9 @@ interface IngestResult {
 
 type DocumentUploaderMode = "upload" | "select";
 
-interface UploadResult {
+interface UploadOutcome {
 	document: DocumentRecord;
-	ingest: IngestResult | null;
+	ingest: IngestOutcome | null;
 	mode: DocumentUploaderMode;
 }
 
@@ -139,7 +139,7 @@ interface DocumentUploaderProps extends React.ComponentProps<"div"> {
 	defaultPurpose?: DocumentPurpose;
 	defaultServiceCaseId?: string;
 	defaultStepCode?: CermontOperationalStepCode;
-	onUploaded?: (result: { document: DocumentRecord; ingest: IngestResult | null }) => void;
+	onUploaded?: (result: { document: DocumentRecord; ingest: IngestOutcome | null }) => void;
 	orders?: OrderOption[];
 	serviceCases?: ServiceCaseOption[];
 }
@@ -149,10 +149,7 @@ function escapeRegExp(value: string): string {
 }
 
 function createClosingStepPattern(keywords: string[]): RegExp {
-	return new RegExp(
-		keywords.map((keyword) => `(?=.*${escapeRegExp(keyword)})`).join(""),
-		"i",
-	);
+	return new RegExp(keywords.map((keyword) => `(?=.*${escapeRegExp(keyword)})`).join(""), "i");
 }
 
 const CLOSING_STEP_RULES: Array<{
@@ -303,7 +300,7 @@ function applyFileSelection({
 	}
 }
 
-async function handleSelectExistingDocument(data: DocumentFormInput): Promise<UploadResult> {
+async function handleSelectExistingDocument(data: DocumentFormInput): Promise<UploadOutcome> {
 	if (!data.selectedDocumentId) {
 		throw new Error("Seleccione un documento de la biblioteca");
 	}
@@ -318,7 +315,7 @@ async function handleSelectExistingDocument(data: DocumentFormInput): Promise<Up
 		return { document: selectedDocument, ingest: null, mode: data.mode };
 	}
 
-	const ingestResponse = await apiClient.post<ApiEnvelope<IngestResult>>(
+	const ingestResponse = await apiClient.post<ApiEnvelope<IngestOutcome>>(
 		`/documents/${data.selectedDocumentId}/ingest`,
 		{
 			purpose: data.purpose,
@@ -332,7 +329,7 @@ async function handleSelectExistingDocument(data: DocumentFormInput): Promise<Up
 	return { document: selectedDocument, ingest: ingestResponse.data, mode: data.mode };
 }
 
-async function handleUploadNewDocument(data: DocumentFormInput): Promise<UploadResult> {
+async function handleUploadNewDocument(data: DocumentFormInput): Promise<UploadOutcome> {
 	const formData = buildUploadFormData(data);
 	const uploadResponse = await apiClient.post<ApiEnvelope<DocumentRecord>>("/documents", formData);
 	const uploadedDocument = uploadResponse.data;
@@ -341,7 +338,7 @@ async function handleUploadNewDocument(data: DocumentFormInput): Promise<UploadR
 		return { document: uploadedDocument, ingest: null, mode: data.mode };
 	}
 
-	const ingestResponse = await apiClient.post<ApiEnvelope<IngestResult>>(
+	const ingestResponse = await apiClient.post<ApiEnvelope<IngestOutcome>>(
 		`/documents/${uploadedDocument._id}/ingest`,
 		{
 			purpose: data.purpose,
@@ -363,9 +360,9 @@ function handleDocumentUploadSuccess({
 	router,
 }: {
 	document: DocumentRecord;
-	ingest: IngestResult | null;
+	ingest: IngestOutcome | null;
 	mode: "upload" | "select";
-	onUploaded?: (result: { document: DocumentRecord; ingest: IngestResult | null }) => void;
+	onUploaded?: (result: { document: DocumentRecord; ingest: IngestOutcome | null }) => void;
 	router: ReturnType<typeof useRouter>;
 }) {
 	onUploaded?.({ document, ingest });
@@ -391,13 +388,13 @@ function handleDocumentUploadSuccess({
 function useDocumentUploadMutation({
 	onUploaded,
 }: {
-	onUploaded?: (result: { document: DocumentRecord; ingest: IngestResult | null }) => void;
+	onUploaded?: (result: { document: DocumentRecord; ingest: IngestOutcome | null }) => void;
 }) {
 	const qc = useQueryClient();
 	const router = useRouter();
 
 	return useMutation({
-		mutationFn: async (data: DocumentFormInput): Promise<UploadResult> =>
+		mutationFn: async (data: DocumentFormInput): Promise<UploadOutcome> =>
 			data.mode === "select" ? handleSelectExistingDocument(data) : handleUploadNewDocument(data),
 		onSuccess: ({ document, ingest, mode }) => {
 			void qc.invalidateQueries({ queryKey: ["documents"] });
@@ -725,9 +722,7 @@ export function DocumentUploader({
 				<input type="hidden" {...register("mode")} />
 				<fieldset
 					className={`space-y-5 rounded-xl border bg-white p-4 transition-colors sm:p-6 ${
-						isDragging
-							? "border-brand bg-(--color-brand-blue-bg)"
-							: "border-zinc-200"
+						isDragging ? "border-brand bg-(--color-brand-blue-bg)" : "border-zinc-200"
 					}`}
 					onDragOver={(event) => {
 						event.preventDefault();

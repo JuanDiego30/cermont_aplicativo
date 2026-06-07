@@ -17,10 +17,17 @@ export type UserRole =
 	| "gerente"
 	| "residente"
 	| "hes"
+	| "coord_administrativo"
+	| "auxiliar_contable"
 	| "supervisor"
+	| "auxiliar_hes"
+	| "supervisor_electricista"
+	| "tecnico_electricista"
 	| "operador"
 	| "tecnico"
+	| "oficial_construccion"
 	| "administrativo"
+	| "pasante"
 	| "cliente";
 
 /**
@@ -31,10 +38,17 @@ export const ALL_AUTHENTICATED_ROLES = [
 	"gerente",
 	"residente",
 	"hes",
+	"coord_administrativo",
+	"auxiliar_contable",
 	"supervisor",
+	"auxiliar_hes",
+	"supervisor_electricista",
+	"tecnico_electricista",
 	"operador",
 	"tecnico",
+	"oficial_construccion",
 	"administrativo",
+	"pasante",
 	"cliente",
 ] as const satisfies readonly UserRole[];
 
@@ -42,7 +56,11 @@ export const ALL_AUTHENTICATED_ROLES = [
  * Admin-only roles with full system access
  * Used for user management and system configuration
  */
-export const ADMIN_ROLES = ["gerente", "administrativo"] as const satisfies readonly UserRole[];
+export const ADMIN_ROLES = [
+	"gerente",
+	"administrativo",
+	"coord_administrativo",
+] as const satisfies readonly UserRole[];
 
 /**
  * Resource management roles (orders, costs, proposals)
@@ -52,7 +70,9 @@ export const RESOURCE_ROLES = [
 	"gerente",
 	"residente",
 	"supervisor",
+	"supervisor_electricista",
 	"operador",
+	"tecnico_electricista",
 ] as const satisfies readonly UserRole[];
 
 /**
@@ -63,8 +83,10 @@ export const REPORT_ROLES = [
 	"gerente",
 	"residente",
 	"supervisor",
+	"supervisor_electricista",
 	"operador",
 	"tecnico",
+	"tecnico_electricista",
 	"administrativo",
 ] as const satisfies readonly UserRole[];
 
@@ -76,13 +98,20 @@ export const MAINTENANCE_MANAGEMENT_ROLES = [
 	"gerente",
 	"residente",
 	"hes",
+	"auxiliar_hes",
 ] as const satisfies readonly UserRole[];
 
 export const AI_ASSISTANT_ROLES = [
 	"gerente",
 	"residente",
 	"supervisor",
+	"coord_administrativo",
 ] as const satisfies readonly UserRole[];
+
+/**
+ * Intern / pasante roles — read-only access to dashboards and reports
+ */
+export const INTERN_ACCESS_ROLES = ["pasante"] as const satisfies readonly UserRole[];
 
 export const ADMIN_PLUS_RESIDENTE = [
 	"gerente",
@@ -100,35 +129,48 @@ export const PLANNING_ACCESS_ROLES = [
 	"gerente",
 	"residente",
 	"supervisor",
+	"supervisor_electricista",
+	"coord_administrativo",
 ] as const satisfies readonly UserRole[];
 
 export const FIELD_EXECUTION_ACCESS_ROLES = [
 	"gerente",
 	"residente",
 	"supervisor",
+	"supervisor_electricista",
 	"operador",
 	"tecnico",
+	"tecnico_electricista",
+	"oficial_construccion",
 ] as const satisfies readonly UserRole[];
 
 export const EVIDENCE_ACCESS_ROLES = [
 	"gerente",
 	"residente",
 	"hes",
+	"auxiliar_hes",
 	"supervisor",
+	"supervisor_electricista",
 	"operador",
 	"tecnico",
+	"tecnico_electricista",
+	"oficial_construccion",
 ] as const satisfies readonly UserRole[];
 
 export const BILLING_ACCESS_ROLES = [
 	"gerente",
 	"residente",
 	"hes",
+	"coord_administrativo",
+	"auxiliar_contable",
 	"administrativo",
 	"cliente",
 ] as const satisfies readonly UserRole[];
 
 export const FINANCE_ACCESS_ROLES = [
 	"gerente",
+	"coord_administrativo",
+	"auxiliar_contable",
 	"administrativo",
 ] as const satisfies readonly UserRole[];
 
@@ -141,13 +183,16 @@ export const SITE_VISIT_MANAGEMENT_ROLES = [
 	"gerente",
 	"residente",
 	"supervisor",
+	"supervisor_electricista",
 ] as const satisfies readonly UserRole[];
 
 export const SITE_VISIT_EXECUTION_ROLES = [
 	"gerente",
 	"residente",
 	"supervisor",
+	"supervisor_electricista",
 	"tecnico",
+	"tecnico_electricista",
 ] as const satisfies readonly UserRole[];
 
 export const SITE_VISIT_CANCEL_ROLES = [
@@ -168,10 +213,17 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 	gerente: "Gerente",
 	residente: "Ing. Residente",
 	hes: "Coordinador HES",
+	coord_administrativo: "Coordinador Administrativo",
+	auxiliar_contable: "Auxiliar Contable",
 	supervisor: "Supervisor",
+	auxiliar_hes: "Auxiliar HES",
+	supervisor_electricista: "Supervisor Electricista",
+	tecnico_electricista: "Técnico Electricista",
 	operador: "Operador",
 	tecnico: "Técnico",
+	oficial_construccion: "Oficial de Construcción",
 	administrativo: "Administrativo",
+	pasante: "Pasante",
 	cliente: "Cliente",
 } as const satisfies Record<UserRole, string>;
 
@@ -188,12 +240,19 @@ export const ROLE_LABELS: Record<UserRole, string> = {
 export const ROLE_HIERARCHY: Record<UserRole, number> = {
 	gerente: 0,
 	residente: 1,
-	supervisor: 2,
-	hes: 3,
-	operador: 4,
-	tecnico: 5,
-	administrativo: 6,
-	cliente: 7,
+	coord_administrativo: 2,
+	supervisor: 3,
+	hes: 4,
+	auxiliar_contable: 5,
+	supervisor_electricista: 6,
+	tecnico_electricista: 7,
+	operador: 8,
+	tecnico: 9,
+	auxiliar_hes: 10,
+	oficial_construccion: 11,
+	administrativo: 12,
+	pasante: 13,
+	cliente: 14,
 } as const satisfies Record<UserRole, number>;
 
 /**
@@ -225,10 +284,17 @@ const ENGLISH_TO_SPANISH_ROLE: Record<string, UserRole> = {
 	manager: "gerente",
 	resident_engineer: "residente",
 	hse_coordinator: "hes",
+	coord_administrative: "coord_administrativo",
+	accounting_assistant: "auxiliar_contable",
 	supervisor: "supervisor",
+	hse_assistant: "auxiliar_hes",
+	electrician_supervisor: "supervisor_electricista",
+	electrician_technician: "tecnico_electricista",
 	operator: "operador",
 	technician: "tecnico",
+	construction_officer: "oficial_construccion",
 	administrator: "administrativo",
+	intern: "pasante",
 	client: "cliente",
 };
 

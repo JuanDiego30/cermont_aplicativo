@@ -14,14 +14,14 @@ import {
 } from "../../models/EvidenceCollection";
 import { createAuditLog } from "../audit/audit.service";
 
-export interface CreateEvidenceCollectionDto {
+export interface CreateEvidenceCollectionCommand {
 	entityType: string;
 	entityId: string;
 	title: string;
 	description?: string;
 }
 
-export interface AddEvidenceItemDto {
+export interface AddEvidenceItemCommand {
 	type: string;
 	stage?: string;
 	component?: string;
@@ -49,7 +49,7 @@ export interface PaginationOptions {
 	limit?: number;
 }
 
-export interface PaginatedResult<T> {
+export interface PageEnvelope<T> {
 	data: T[];
 	pagination: {
 		page: number;
@@ -74,7 +74,7 @@ type EvidenceCollectionListQuery = {
  * Create a new EvidenceCollection
  */
 export async function createEvidenceCollection(
-	data: CreateEvidenceCollectionDto,
+	data: CreateEvidenceCollectionCommand,
 	userId: string,
 ): Promise<IEvidenceCollectionDocument> {
 	const collection = await EvidenceCollection.create({
@@ -128,7 +128,7 @@ export async function getEvidenceCollectionById(
 export async function getAllEvidenceCollections(
 	filters: EvidenceCollectionFilters = {},
 	pagination: PaginationOptions = {},
-): Promise<PaginatedResult<IEvidenceCollectionDocument>> {
+): Promise<PageEnvelope<IEvidenceCollectionDocument>> {
 	const page = pagination.page || 1;
 	const limit = pagination.limit || 20;
 	const skip = (page - 1) * limit;
@@ -198,7 +198,7 @@ export async function getEvidenceCollectionsByEntity(
  */
 export async function addEvidenceItem(
 	collectionId: string,
-	item: AddEvidenceItemDto,
+	item: AddEvidenceItemCommand,
 	userId: string,
 ): Promise<IEvidenceCollectionDocument> {
 	if (!Types.ObjectId.isValid(collectionId)) {
@@ -351,7 +351,7 @@ export async function deleteEvidenceCollection(id: string, userId: string): Prom
 	});
 }
 
-function inferStageFromItemType(type: AddEvidenceItemDto["type"]): IEvidenceItemRecord["stage"] {
+function inferStageFromItemType(type: AddEvidenceItemCommand["type"]): IEvidenceItemRecord["stage"] {
 	switch (type) {
 		case "photo_before":
 			return "before";

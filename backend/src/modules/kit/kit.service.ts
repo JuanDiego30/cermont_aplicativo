@@ -10,7 +10,7 @@ import { BadRequestError, NotFoundError } from "../../common/errors/AppError";
 import { type EvidenceRequirement, type IKitDocument, type KitFileAttachment, type KitFormBinding, type KitItem, type KitRule, Kit } from "../../models/Kit";
 import { createAuditLog } from "../audit/audit.service";
 
-export interface CreateKitDto {
+export interface CreateKitCommand {
 	name: string;
 	description?: string;
 	serviceTypeIds?: string[];
@@ -22,7 +22,7 @@ export interface CreateKitDto {
 	rules?: KitRule[];
 }
 
-export interface UpdateKitDto {
+export interface UpdateKitCommand {
 	name?: string;
 	description?: string;
 	serviceTypeIds?: string[];
@@ -48,7 +48,7 @@ export interface PaginationOptions {
 	limit?: number;
 }
 
-export interface PaginatedResult<T> {
+export interface PageEnvelope<T> {
 	data: T[];
 	pagination: {
 		page: number;
@@ -61,7 +61,7 @@ export interface PaginatedResult<T> {
 /**
  * Create a new Kit
  */
-export async function createKit(data: CreateKitDto, userId: string): Promise<IKitDocument> {
+export async function createKit(data: CreateKitCommand, userId: string): Promise<IKitDocument> {
 	const kit = await Kit.create({
 		name: data.name,
 		description: data.description,
@@ -111,7 +111,7 @@ export async function getKitById(id: string): Promise<IKitDocument> {
 export async function getAllKits(
 	filters: KitFilters = {},
 	pagination: PaginationOptions = {},
-): Promise<PaginatedResult<IKitDocument>> {
+): Promise<PageEnvelope<IKitDocument>> {
 	const page = pagination.page || 1;
 	const limit = pagination.limit || 20;
 	const skip = (page - 1) * limit;
@@ -163,7 +163,7 @@ export async function getKitsByServiceType(serviceTypeId: string): Promise<IKitD
  */
 export async function updateKit(
 	id: string,
-	data: UpdateKitDto,
+	data: UpdateKitCommand,
 	userId: string,
 ): Promise<IKitDocument> {
 	if (!Types.ObjectId.isValid(id)) {

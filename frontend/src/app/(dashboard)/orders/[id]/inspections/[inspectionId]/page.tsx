@@ -312,24 +312,18 @@ function InfoBlock({ label, value }: { label: string; value: string }) {
 	);
 }
 
-function MiniStat({
-	label,
-	value,
-	tone,
-}: {
-	label: string;
-	value: number;
-	tone: "green" | "red" | "blue" | "slate";
-}) {
-	const tones: Record<typeof tone, string> = {
-		green: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300",
-		red: "bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-300",
-		blue: "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300",
-		slate: "bg-zinc-50 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
-	};
+type MiniStatTone = "green" | "red" | "blue" | "slate";
 
+const MINI_STAT_TONES: Record<MiniStatTone, string> = {
+	green: "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300",
+	red: "bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-300",
+	blue: "bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300",
+	slate: "bg-zinc-50 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300",
+};
+
+function MiniStat({ label, value, tone }: { label: string; value: number; tone: MiniStatTone }) {
 	return (
-		<div className={`rounded-xl px-4 py-3 text-center ${tones[tone]}`}>
+		<div className={`rounded-xl px-4 py-3 text-center ${MINI_STAT_TONES[tone]}`}>
 			<p className="text-2xl font-semibold">{value}</p>
 			<p className="text-xs font-medium uppercase tracking-wide">{label}</p>
 		</div>

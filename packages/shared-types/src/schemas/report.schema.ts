@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { statusObjectOf } from "../utils/status-types";
 import { ObjectIdSchema } from "./common.schema";
 
 export const ReportStatusSchema = z.enum(["draft", "pending_review", "approved", "rejected"]);
@@ -155,9 +156,9 @@ export const ReportPipelineResponseSchema = z.object({
 			assetName: z.string(),
 			location: z.string(),
 			description: z.string(),
-			createdAt: z.string().nullable(),
+			createdAt: statusObjectOf(z.string()),
 			updatedAt: z.string(),
-			pdfUrl: z.string().nullable(),
+			pdfUrl: statusObjectOf(z.string()),
 		}),
 	),
 	summary: z.object({
@@ -173,7 +174,7 @@ export type ReportPipelineResponse = z.infer<typeof ReportPipelineResponseSchema
 export const ReportMonthlyStatsSchema = z.object({
 	approvedThisMonth: z.number(),
 	rejectedThisMonth: z.number(),
-	avgClosureDays: z.number().nullable(),
+	avgClosureDays: statusObjectOf(z.number()),
 });
 export type ReportMonthlyStats = z.infer<typeof ReportMonthlyStatsSchema>;
 

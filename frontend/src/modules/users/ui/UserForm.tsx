@@ -1,5 +1,6 @@
 "use client";
 
+import { DEFAULT_NEW_USER_ROLE } from "@cermont/domain";
 import {
 	type CreateUserInput,
 	CreateUserSchema,
@@ -7,7 +8,6 @@ import {
 	type User,
 	type UserRole,
 } from "@cermont/shared-types";
-import { DEFAULT_NEW_USER_ROLE } from "@cermont/domain";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
@@ -24,7 +24,7 @@ const userFormSchema = CreateUserSchema.omit({
 	password: CreateUserSchema.shape.password.optional(),
 });
 
-export type UserFormData = z.output<typeof userFormSchema>;
+export type UserFormValues = z.output<typeof userFormSchema>;
 export type UserFormInput = z.input<typeof userFormSchema>;
 
 function getUserFormSchema(isEdit: boolean) {
@@ -39,7 +39,7 @@ function getUserFormSchema(isEdit: boolean) {
 }
 
 interface UserFormProps {
-	user?: User | null;
+	user?: User;
 	onSuccess?: () => void;
 	defaultRole?: UserRole;
 }
@@ -54,7 +54,7 @@ export function UserForm({ user, onSuccess, defaultRole }: UserFormProps) {
 		register,
 		handleSubmit,
 		formState: { errors },
-	} = useForm<UserFormInput, Record<string, never>, UserFormData>({
+	} = useForm<UserFormInput, Record<string, never>, UserFormValues>({
 		resolver: zodResolver(validationSchema),
 		defaultValues: {
 			name: user?.name ?? "",
@@ -66,7 +66,7 @@ export function UserForm({ user, onSuccess, defaultRole }: UserFormProps) {
 	});
 
 	const mutation = useMutation({
-		mutationFn: async (data: UserFormData) => {
+		mutationFn: async (data: UserFormValues) => {
 			const phone = data.phone?.trim();
 
 			if (isEdit) {

@@ -2,22 +2,19 @@ import type { UserRole } from "@cermont/domain";
 import type { Request } from "express";
 import { UnauthorizedError } from "../errors";
 
-export interface AuthPayload {
+export interface AuthClaims {
 	_id: string;
 	email?: string;
 	role: UserRole;
 	jti?: string;
 }
 
-export function getString(value: string | string[] | number | null | undefined): string {
+export function getString(value?: string | string[] | number): string {
 	if (typeof value === "string") {
 		return value;
 	}
 	if (typeof value === "number") {
 		return String(value);
-	}
-	if (value === null || value === undefined) {
-		return "";
 	}
 	if (Array.isArray(value) && typeof value[0] === "string") {
 		return value[0];
@@ -25,7 +22,7 @@ export function getString(value: string | string[] | number | null | undefined):
 	return "";
 }
 
-export function requireUser(req: Request): AuthPayload {
+export function requireUser(req: Request): AuthClaims {
 	if (!req.user) {
 		throw new UnauthorizedError("User context required");
 	}

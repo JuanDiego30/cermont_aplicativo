@@ -1,9 +1,10 @@
 "use client";
 
-import type { CreateChecklistInput } from "@cermont/shared-types";
-import type { UseMutationResult } from "@tanstack/react-query";
+import type { Checklist, ChecklistItem, CreateChecklistInput } from "@cermont/shared-types";
+import { type UseMutationResult, useQueryClient } from "@tanstack/react-query";
 import { createLogger } from "@/lib/monitoring/logger";
 import { enqueue, type SyncQueueEntry } from "@/lib/offline/sync-queue";
+import { useOfflineStore } from "@/store/offline.store";
 import {
 	type CompleteChecklistVariables,
 	type UpdateChecklistItemVariables,
@@ -23,7 +24,7 @@ function createUuid(): string {
 }
 
 function isNetworkFailure(error: unknown): boolean {
-	if (typeof navigator !== "undefined" && navigator.onLine === false) {
+	if (!useOfflineStore.getState().isOnline) {
 		return true;
 	}
 
@@ -53,89 +54,159 @@ function wrapMutation<TData, TVariables>(
 	};
 }
 
-async function queueCreateChecklist(variables: CreateChecklistInput): Promise<void> {
-	const entry: SyncQueueEntry = {
-		id: createUuid(),
-		endpoint: "/checklists",
-		method: "POST",
-		payload: { orderId: variables.orderId },
-		createdAt: Date.now(),
-		retryCount: 0,
-		idempotencyKey: createUuid(),
-		dedupeKey: `checklists:create:${variables.orderId}`,
-	};
-
-	logger.info("Queued checklist creation for offline sync", {
-		orderId: variables.orderId,
-		idempotencyKey: entry.idempotencyKey,
-	});
-
-	await enqueue(entry);
-}
-
-async function queueUpdateChecklistItem(variables: UpdateChecklistItemVariables): Promise<void> {
-	const entry: SyncQueueEntry = {
-		id: createUuid(),
-		endpoint: `/checklists/${variables.checklistId}/items/${variables.itemId}`,
-		method: "PATCH",
-		payload: {
-			completed: variables.completed,
-			observation: variables.observation,
-		},
-		createdAt: Date.now(),
-		retryCount: 0,
-		idempotencyKey: createUuid(),
-		dedupeKey: `checklists:update:${variables.checklistId}:${variables.itemId}:${variables.completed}:${variables.observation ?? ""}`,
-	};
-
-	logger.info("Queued checklist item update for offline sync", {
-		checklistId: variables.checklistId,
-		itemId: variables.itemId,
-		idempotencyKey: entry.idempotencyKey,
-	});
-
-	await enqueue(entry);
-}
-
-async function queueCompleteChecklist(variables: CompleteChecklistVariables): Promise<void> {
-	const entry: SyncQueueEntry = {
-		id: createUuid(),
-		endpoint: `/checklists/${variables.checklistId}/validate`,
-		method: "POST",
-		payload: {
-			signature: variables.signature,
-			observations: variables.observations,
-		},
-		createdAt: Date.now(),
-		retryCount: 0,
-		idempotencyKey: createUuid(),
-		dedupeKey: `checklists:complete:${variables.checklistId}:${variables.signature}:${variables.observations ?? ""}`,
-	};
-
-	logger.info("Queued checklist completion for offline sync", {
-		checklistId: variables.checklistId,
-		idempotencyKey: entry.idempotencyKey,
-	});
-
-	await enqueue(entry);
-}
-
 export function useOfflineChecklist() {
+	const queryClient = useQueryClient();
 	const createChecklistMutation = useCreateChecklist();
 	const updateChecklistItemMutation = useUpdateChecklistItem();
 	const completeChecklistMutation = useCompleteChecklist();
 
 	const wrappedCreateChecklistMutation = wrapMutation(
 		createChecklistMutation,
-		queueCreateChecklist,
+		async (variables: CreateChecklistInput) => {
+			const entryId = createUuid();
+			const entry: SyncQueueEntry = {
+				id: entryId,
+				endpoint: "/checklists",
+				method: "POST",
+				payload: { orderId: variables.orderId },
+				createdAt: Date.now(),
+				retryCount: 0,
+				idempotencyKey: createUuid(),
+				dedupeKey: `checklists:create:${variables.orderId}`,
+			};
+
+			logger.info("Queued checklist creation for offline sync", {
+				orderId: variables.orderId,
+				idempotencyKey: entry.idempotencyKey,
+			});
+
+			await enqueue(entry);
+
+			const mockChecklist = {
+				_id: entryId,
+				orderId: variables.orderId,
+				templateName: "Checklist estándar (Borrador offline)",
+				status: "pending",
+				items: [
+					{
+						id: "equipment-1",
+						category: "equipment",
+						description: "Equipo principal revisado y operativo",
+						required: true,
+						completed: false,
+					},
+					{
+						id: "ppe-1",
+						category: "ppe",
+						description: "Equipo de proteccion personal completo",
+						required: true,
+						completed: false,
+					},
+					{
+						id: "procedure-1",
+						category: "procedure",
+						description: "Permiso de trabajo y AST verificados",
+						required: true,
+						completed: false,
+					},
+				],
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString(),
+			};
+			queryClient.setQueryData(["checklists", "order", variables.orderId], mockChecklist);
+		},
 	);
+
 	const wrappedUpdateChecklistItemMutation = wrapMutation(
 		updateChecklistItemMutation,
-		queueUpdateChecklistItem,
+		async (variables: UpdateChecklistItemVariables) => {
+			const payload = {
+				completed: variables.completed,
+				...(variables.observation ? { observation: variables.observation } : {}),
+			};
+			const entry: SyncQueueEntry = {
+				id: createUuid(),
+				endpoint: `/checklists/${variables.checklistId}/items/${variables.itemId}`,
+				method: "PATCH",
+				payload,
+				createdAt: Date.now(),
+				retryCount: 0,
+				idempotencyKey: createUuid(),
+				dedupeKey: `checklists:update:${variables.checklistId}:${variables.itemId}:${variables.completed}:${variables.observation ?? ""}`,
+			};
+
+			logger.info("Queued checklist item update for offline sync", {
+				checklistId: variables.checklistId,
+				itemId: variables.itemId,
+				idempotencyKey: entry.idempotencyKey,
+			});
+
+			await enqueue(entry);
+
+			queryClient.setQueryData(
+				["checklists", "order", variables.orderId],
+				(old: Checklist | undefined) => {
+					if (!old) {
+						return old;
+					}
+					const updatedItems = old.items.map((item: ChecklistItem) =>
+						item.id === variables.itemId
+							? { ...item, completed: variables.completed, observation: variables.observation }
+							: item,
+					);
+					const hasCompleted = updatedItems.some((item: ChecklistItem) => item.completed);
+					const status = hasCompleted ? "in_progress" : "pending";
+					return {
+						...old,
+						status,
+						items: updatedItems,
+					};
+				},
+			);
+		},
 	);
+
 	const wrappedCompleteChecklistMutation = wrapMutation(
 		completeChecklistMutation,
-		queueCompleteChecklist,
+		async (variables: CompleteChecklistVariables) => {
+			const payload = {
+				signature: variables.signature,
+				...(variables.observations ? { observations: variables.observations } : {}),
+			};
+			const entry: SyncQueueEntry = {
+				id: createUuid(),
+				endpoint: `/checklists/${variables.checklistId}/validate`,
+				method: "POST",
+				payload,
+				createdAt: Date.now(),
+				retryCount: 0,
+				idempotencyKey: createUuid(),
+				dedupeKey: `checklists:complete:${variables.checklistId}:${variables.signature}:${variables.observations ?? ""}`,
+			};
+
+			logger.info("Queued checklist completion for offline sync", {
+				checklistId: variables.checklistId,
+				idempotencyKey: entry.idempotencyKey,
+			});
+
+			await enqueue(entry);
+
+			queryClient.setQueryData(
+				["checklists", "order", variables.orderId],
+				(old: Checklist | undefined) => {
+					if (!old) {
+						return old;
+					}
+					return {
+						...old,
+						status: "completed",
+						signature: variables.signature,
+						observations: variables.observations,
+						completedAt: new Date().toISOString(),
+					};
+				},
+			);
+		},
 	);
 
 	return {

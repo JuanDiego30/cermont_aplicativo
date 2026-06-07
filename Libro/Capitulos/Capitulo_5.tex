@@ -1,14 +1,14 @@
 % =====================================================================
 % CAPÍTULO 5: METODOLOGÍA
-% Versión refactorizada — sin datos cuantitativos no verificados
+% Versión académica sin datos cuantitativos no verificados
 % =====================================================================
 
 \chapter{Metodología}
 \label{ch:metodologia}
 
 % --- Ajustes editoriales locales del capítulo: sangría, espaciado y control de desbordamientos ---
-\setlength{\parindent}{1.25cm}
-\setlength{\parskip}{0pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
 \sloppy
 \emergencystretch=2em
 \raggedbottom
@@ -25,18 +25,18 @@ La metodología se articula con Design Science Research \cite{hevner2004,peffers
 \caption{Fases metodológicas del proyecto. Fuente: Elaboración propia.}
 \label{tab:fases-metodologicas}
 \small
-\def\FaseRow#1#2#3#4{\parbox[t]{3.0cm}{\raggedright #1} & \parbox[t]{4.8cm}{\raggedright #2} & \parbox[t]{4.0cm}{\raggedright #3} & \parbox[t]{2.5cm}{\raggedright #4}\\\midrule}
+\def\FaseRow#1#2#3#4{\parbox[t]{3.0cm}{\raggedright #1} & \parbox[t]{4.8cm}{\raggedright #2} & \parbox[t]{4.0cm}{\raggedright #3} & \parbox[t]{2.5cm}{\raggedright #4}\\\hline}
 \begin{adjustbox}{max width=\textwidth}
-\begin{tabular}{@{}l l l l@{}}
-\toprule
+\begin{tabular}{|l|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Fase} & \textbf{Propósito} & \textbf{Actividades principales} & \textbf{Evidencia esperada} \\
-\midrule
+\hline
 \FaseRow{Diagnóstico documental y operativo}{Comprender el flujo actual y los formatos existentes.}{Revisión de formatos, proceso paso a paso, inducción HES, anteproyecto y observaciones.}{Inventario de documentos, flujo actual y matriz de problemas.}
 \FaseRow{Diseño funcional}{Definir módulos, roles, estados y reglas del sistema.}{Casos de uso, arquitectura, modelo de datos, estados de orden y formularios.}{Diagramas y especificación funcional.}
 \FaseRow{Desarrollo}{Construir los módulos principales del aplicativo.}{Desarrollo de frontend, backend, base de datos, autenticación, órdenes, evidencias e informes.}{Código fuente, capturas y pruebas funcionales.}
 \FaseRow{Validación}{Comprobar que el sistema responda al flujo de negocio.}{Pruebas de escenarios, revisión por usuarios, checklist de funcionalidades y medición de indicadores reales.}{Actas de prueba, matriz de resultados y observaciones.}
 \FaseRow{Documentación final}{Consolidar el libro de trabajo de grado.}{Redacción académica, revisión de citas, anexos y conclusiones.}{Libro final y PDF compilado.}
-\bottomrule
+\hline
 \end{tabular}
 \end{adjustbox}
 \end{table}
@@ -56,46 +56,49 @@ Metodológicamente, esta documentación no se incorpora como anexo literal ni co
 
 A continuación, se detalla la correspondencia metodológica, el aporte específico y las evidencias asociadas a cada uno de estos documentos dentro de la arquitectura técnica del aplicativo en la Tabla~\ref{tab:matriz-integracion-docs}.
 
-\begin{longtable}{>{\centering\arraybackslash}p{0.8cm} >{\raggedright\arraybackslash}p{3.2cm} >{\centering\arraybackslash}p{1.0cm} >{\raggedright\arraybackslash}p{3.5cm} >{\raggedright\arraybackslash}p{4.5cm} >{\raggedright\arraybackslash}p{3.0cm}}
+\begingroup
+\scriptsize
+\ClassicTableSetup
+\begin{longtable}{|C{0.9cm}|L{3.2cm}|C{1.2cm}|L{5.2cm}|L{3.0cm}|}
 \caption{Matriz de integración de la serie técnica de documentos 00--22. Fuente: Elaboración propia.} \label{tab:matriz-integracion-docs} \\
-\toprule
-\textbf{Doc.} & \textbf{Tema principal} & \textbf{Cap.} & \textbf{Aporte al proyecto} & \textbf{Evidencia técnica} & \textbf{Observación} \\
-\midrule
+\hline\ClassicTableHeader
+\textbf{Doc.} & \textbf{Tema principal} & \textbf{Cap.} & \textbf{Evidencia resumida} & \textbf{Estado metodológico} \\
+\hline
 \endfirsthead
-\multicolumn{6}{c}{{\bfseries \tablename\ \thetable{} -- Continúa de la página anterior}} \\
-\toprule
-\textbf{Doc.} & \textbf{Tema principal} & \textbf{Cap.} & \textbf{Aporte al proyecto} & \textbf{Evidencia técnica} & \textbf{Observación} \\
-\midrule
+\multicolumn{5}{c}{{\bfseries \tablename\ \thetable{} -- Continúa de la página anterior}} \\
+\hline\ClassicTableHeader
+\textbf{Doc.} & \textbf{Tema principal} & \textbf{Cap.} & \textbf{Evidencia resumida} & \textbf{Estado metodológico} \\
+\hline
 \endhead
-\midrule
-\multicolumn{6}{r}{{Continúa en la siguiente página...}} \\
+\hline
+\multicolumn{5}{r}{{Continúa en la siguiente página...}} \\
 \endfoot
-\bottomrule
+\hline
 \endlastfoot
-
-00 & Foundation: auth, RBAC, API, design, observability & 5, 6, 8 & Define la base transversal del sistema & \texttt{packages/domain/src/roles.ts}, \texttt{backend/src/middlewares/auth.middleware.ts}, \texttt{frontend/src/proxy.ts} & Documento fundacional de arquitectura \\ \midrule
-01 & Dashboard / KPIs & 6, 7 & Soporta visibilidad gerencial y analítica & \texttt{frontend/src/app/(dashboard)/dashboard/}, \texttt{packages/shared-types/src/schemas/analytics.schema.ts} & Integrado como panel de seguimiento \\ \midrule
-02 & Solicitudes / Work Requests & 1, 6, 7 & Materializa el paso 1 del flujo & \texttt{packages/shared-types/src/schemas/work-request.schema.ts}, \texttt{backend/src/routes/work-request.routes.ts} & Implementado \\ \midrule
-03 & Visitas técnicas / Site Visits & 1, 6, 7 & Materializa el paso 2 del flujo & \texttt{packages/shared-types/src/schemas/site-visit.schema.ts}, \texttt{backend/src/routes/site-visit.routes.ts} & Implementado \\ \midrule
-04 & Propuestas / Proposals & 1, 6, 7 & Conecta propuesta y autorización inicial & \texttt{packages/shared-types/src/schemas/proposal.schema.ts}, \texttt{backend/src/routes/proposal.routes.ts} & Implementado \\ \midrule
-05 & Órdenes / ServiceCase Detail & 1, 6, 7 & Establece la entidad central del sistema & \texttt{packages/shared-types/src/schemas/order.schema.ts}, \texttt{backend/src/services/order/order-rules.ts} & Implementado \\ \midrule
-06 & Planeación / Planning Packet & 1, 6, 7 & Responde a la falla de planeación y kits típicos & \texttt{packages/shared-types/src/schemas/planning-packet.schema.ts}, \texttt{backend/src/routes/planning-packet.routes.ts}, \texttt{frontend/src/app/(dashboard)/planning/page.tsx} & Implementado \\ \midrule
-07 & Ejecución / Execution Session & 1, 6, 7 & Soporta ejecución guiada y estados de campo & \texttt{packages/shared-types/src/schemas/execution-session.schema.ts}, \texttt{backend/src/services/execution-session.service.ts} & Implementado \\ \midrule
-08 & Evidencias / Evidence Management & 1, 6, 7, 8 & Atiende captura y trazabilidad de evidencias & \texttt{packages/shared-types/src/schemas/evidence.schema.ts}, \texttt{backend/src/services/evidence.service.ts}, \texttt{frontend/src/app/(dashboard)/evidences/page.tsx} & Implementado \\ \midrule
-09 & Informes técnicos / Technical Reports & 1, 6, 7, 8 & Responde al retraso en informes & \texttt{packages/shared-types/src/schemas/technical-report.schema.ts}, \texttt{backend/src/routes/technical-report.routes.ts} & Implementado \\ \midrule
-10 & Actas / Delivery Records & 1, 6, 7 & Atiende formalización de cierre técnico & \texttt{packages/shared-types/src/schemas/delivery-record.schema.ts}, \texttt{frontend/src/app/(dashboard)/delivery-records/} & Implementado \\ \midrule
-11 & Cierre administrativo / Admin Closure & 1, 6, 7 & Orquesta el cierre documental posterior a ejecución & \texttt{backend/src/routes/order-closure.routes.ts}, \texttt{backend/src/services/order-closure.service.ts} & Implementado como seguimiento interno \\ \midrule
-12 & SES / Ariba / Service Entry Sheets & 1, 6, 7 & Soporta seguimiento del paso 11 & \texttt{packages/shared-types/src/schemas/service-entry-sheet.schema.ts}, \texttt{frontend/src/app/(dashboard)/billing/ses/page.tsx} & Implementado sin integración externa directa \\ \midrule
-13 & Facturas / Invoices & 1, 6, 7 & Soporta seguimiento del paso 12 & \texttt{packages/shared-types/src/schemas/invoice.schema.ts}, \texttt{frontend/src/app/(dashboard)/billing/invoices/} & Implementado \\ \midrule
-14 & Pagos / Payments & 1, 6, 7 & Soporta seguimiento del paso 14 & \texttt{packages/shared-types/src/schemas/payment.schema.ts}, \texttt{frontend/src/app/(dashboard)/payments/page.tsx} & Implementado \\ \midrule
-15 & Costos / Cost Engine & 1, 6, 7 & Atiende la falla de costos reales vs propuesta & \texttt{packages/shared-types/src/schemas/costControl.schema.ts}, \texttt{backend/src/models/CostControl.ts}, \texttt{frontend/src/app/(dashboard)/costs/page.tsx} & Implementado \\ \midrule
-16 & Activos / Assets & 6, 7 & Vincula equipos/activos intervenidos & \texttt{packages/shared-types/src/schemas/asset.schema.ts}, \texttt{frontend/src/app/(dashboard)/assets/} & Implementado \\ \midrule
-17 & Mantenimiento / Maintenance & 6, 7 & Soporta catálogos y kits de mantenimiento & \texttt{frontend/src/app/(dashboard)/maintenance/}, \texttt{backend/src/models/MaintenanceKit.ts} & Implementado \\ \midrule
-18 & Documentos / Document-Driven Core & 5, 6, 7 & Refuerza enfoque documental del sistema & \texttt{backend/src/routes/document.routes.ts}, \texttt{frontend/src/app/(dashboard)/documents/page.tsx} & Implementado \\ \midrule
-19 & Recursos \& Kits & 1, 6, 7 & Refuerza planeación y disponibilidad de recursos & \texttt{frontend/src/app/(dashboard)/resources/kits/page.tsx}, \texttt{backend/src/services/kit.service.ts} & Implementado \\ \midrule
-20 & Users / RBAC / Administration & 6, 7, 8 & Soporta administración y permisos & \texttt{frontend/src/app/(dashboard)/admin/}, \texttt{backend/src/routes/user.routes.ts} & Implementado \\ \midrule
-21 & Cross-Module Stabilization / Release Readiness & 5, 8 & Consolida pruebas, gates y estabilización final & \texttt{backend/tests/}, \texttt{frontend/tests/}, \texttt{tooling/quality/} & Debe usarse como soporte de validación técnica \\
+00 & Base transversal & 5, 6, 8 & Roles, autenticación, API, diseño y observabilidad. & Soporte de arquitectura.\\ \hline
+01 & Dashboard y KPIs & 6, 7 & Panel de seguimiento gerencial y contratos de analítica. & Implementado como vista de seguimiento.\\ \hline
+02 & Solicitudes & 1, 6, 7 & Entrada formal del servicio y creación de requerimientos. & Implementado.\\ \hline
+03 & Visitas técnicas & 1, 6, 7 & Registro de levantamientos, mediciones y evidencias iniciales. & Implementado; captura dedicada pendiente.\\ \hline
+04 & Propuestas & 1, 6, 7 & Oferta técnica y económica vinculada al flujo comercial. & Implementado.\\ \hline
+05 & Órdenes & 1, 6, 7 & Entidad central que agrupa estados, reglas y trazabilidad. & Implementado.\\ \hline
+06 & Planeación & 1, 6, 7 & Paquetes de recursos, kits, personal y documentos previos. & Implementado.\\ \hline
+07 & Ejecución & 1, 6, 7 & Sesiones de campo, formularios, estados y sincronización parcial. & Implementado con alcance offline parcial.\\ \hline
+08 & Evidencias & 1, 6, 7, 8 & Gestión visual y contratos de soportes asociados a órdenes. & Implementado; sincronización binaria completa pendiente.\\ \hline
+09 & Informes técnicos & 1, 6, 7, 8 & Generación y consulta de informes derivados de la ejecución. & Implementado con evidencia técnica.\\ \hline
+10 & Actas & 1, 6, 7 & Actas de entrega y soporte de aceptación del cliente. & Implementado.\\ \hline
+11 & Cierre administrativo & 1, 6, 7 & Vista de seguimiento documental posterior a la ejecución. & Implementado como control interno.\\ \hline
+12 & SES / Ariba & 1, 6, 7 & Registro y control de SES, referencias y soportes. & Implementado sin integración externa directa.\\ \hline
+13 & Facturas & 1, 6, 7 & Seguimiento de facturas y estado de aprobación. & Implementado; captura dedicada pendiente.\\ \hline
+14 & Pagos & 1, 6, 7 & Registro de pago y cierre financiero del servicio. & Implementado.\\ \hline
+15 & Costos & 1, 6, 7 & Comparación entre propuesta, ejecución y cierre. & Implementado; métricas reales pendientes.\\ \hline
+16 & Activos & 6, 7 & Asociación de intervenciones con equipos o sistemas atendidos. & Implementado.\\ \hline
+17 & Mantenimiento & 6, 7 & Catálogos y kits para actividades repetibles. & Implementado.\\ \hline
+18 & Documentos & 5, 6, 7 & Núcleo documental para soportes, plantillas y archivos. & Implementado.\\ \hline
+19 & Recursos y kits & 1, 6, 7 & Disponibilidad de recursos para planeación y ejecución. & Implementado.\\ \hline
+20 & Usuarios y RBAC & 6, 7, 8 & Administración de usuarios, permisos y roles. & Implementado.\\ \hline
+21 & Estabilización & 5, 8 & Pruebas, compuertas y preparación para entrega. & Soporte de validación técnica.\\ \hline
 \end{longtable}
+\endgroup
 
 \section{Variables e indicadores de validación}
 
@@ -105,18 +108,18 @@ Para evitar afirmaciones no verificadas, la validación se plantea como una matr
 \centering
 \caption{Indicadores propuestos para validación con datos reales. Fuente: Elaboración propia.}
 \label{tab:indicadores-validacion}
-\def\IndicatorRow#1#2#3{\parbox[t]{3.5cm}{\raggedright #1} & \parbox[t]{7.3cm}{\raggedright #2} & \parbox[t]{3.2cm}{\raggedright #3}\\\midrule}
+\def\IndicatorRow#1#2#3{\parbox[t]{3.5cm}{\raggedright #1} & \parbox[t]{7.3cm}{\raggedright #2} & \parbox[t]{3.2cm}{\raggedright #3}\\\hline}
 \begin{adjustbox}{max width=\textwidth}
-\begin{tabular}{@{}l l l@{}}
-\toprule
+\begin{tabular}{|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Indicador} & \textbf{Forma de medición} & \textbf{Estado actual en el libro} \\
-\midrule
+\hline
 \IndicatorRow{Tiempo de planeación}{Comparar tiempo requerido para preparar una orden antes y después del sistema.}{Pendiente por medir.}
 \IndicatorRow{Completitud documental}{Verificar si todos los formatos y evidencias exigidos quedaron asociados a la orden.}{Pendiente por medir.}
 \IndicatorRow{Trazabilidad de evidencias}{Revisar si cada evidencia conserva orden, usuario, fecha, descripción y archivo.}{Evaluación funcional.}
 \IndicatorRow{Errores de diligenciamiento}{Contar campos obligatorios vacíos o inconsistencias detectadas en revisión.}{Pendiente por medir.}
 \IndicatorRow{Satisfacción de usuarios}{Aplicar instrumento breve o SUS únicamente si los usuarios prueban el sistema.}{Pendiente por aplicar.}
-\bottomrule
+\hline
 \end{tabular}
 \end{adjustbox}
 \end{table}
@@ -135,7 +138,7 @@ El documento debe mantener separación entre diagnóstico, diseño, implementaci
 \section{Flujo de trabajo Contract-First: del esquema a la interfaz}
 \label{sec:contract-first}
 
-El desarrollo de cada módulo del aplicativo siguió un flujo de trabajo estandarizado de once pasos, diseñado para garantizar que ninguna funcionalidad llegara al frontend sin haber sido validada previamente en las capas de contrato, modelo de datos, lógica de negocio y API. Este enfoque, conocido como \textit{Contract-First Development}, establece que el contrato de datos —expresado como un esquema Zod en el paquete \texttt{@cermont/shared-types}— constituye el primer artefacto construido y la fuente de verdad de la cual se derivan todas las implementaciones subsecuentes.
+El desarrollo de cada módulo del aplicativo siguió un flujo de trabajo estandarizado de once pasos, diseñado para evitar que una funcionalidad llegara al frontend sin haber sido validada previamente en las capas de contrato, modelo de datos, lógica de negocio y API. Este enfoque, conocido como \textit{Contract-First Development}, establece que el contrato de datos —expresado como un esquema Zod en el paquete \texttt{@cermont/shared-types}— constituye el primer artefacto construido y la fuente de verdad de la cual se derivan todas las implementaciones subsecuentes.
 
 \begin{enumerate}
     \item \textbf{Esquema Zod en shared-types.} Se define la estructura de datos, los tipos de cada campo, las validaciones (longitud, formato, obligatoriedad, valores permitidos) y los comandos de mutación (crear, actualizar, aprobar, rechazar, archivar). Este esquema es la única fuente de verdad del contrato.
@@ -151,7 +154,7 @@ El desarrollo de cada módulo del aplicativo siguió un flujo de trabajo estanda
     \item \textbf{Componente UI.} Se construye la interfaz de usuario consumiendo exclusivamente los hooks de TanStack Query, con estados de carga, error, vacío, prohibido y offline.
 \end{enumerate}
 
-Este flujo garantiza trazabilidad completa: cada pantalla del frontend tiene un endpoint correspondiente en el backend, cada endpoint está respaldado por un servicio con pruebas, y cada servicio opera sobre datos validados por un esquema Zod compartido.
+Este flujo busca mantener trazabilidad completa: cada pantalla del frontend debe tener un endpoint correspondiente en el backend, cada endpoint debe estar respaldado por un servicio con pruebas, y cada servicio debe operar sobre datos validados por un esquema Zod compartido.
 
 \section{Compuertas de calidad por iteración}
 \label{sec:quality-gates}
@@ -162,12 +165,12 @@ Cada iteración de desarrollo —entendida como la implementación de un módulo
 \centering
 \caption{Compuertas de calidad aplicadas por iteración de desarrollo. Fuente: Elaboración propia.}
 \label{tab:quality-gates}
-\def\GateRow#1#2#3{\parbox[t]{3.0cm}{\raggedright #1} & \parbox[t]{7.5cm}{\raggedright #2} & \parbox[t]{3.5cm}{\raggedright #3}\\\midrule}
+\def\GateRow#1#2#3{\parbox[t]{3.0cm}{\raggedright #1} & \parbox[t]{7.5cm}{\raggedright #2} & \parbox[t]{3.5cm}{\raggedright #3}\\\hline}
 \begin{adjustbox}{max width=\textwidth}
-\begin{tabular}{@{}l l l@{}}
-\toprule
+\begin{tabular}{|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Compuerta} & \textbf{Descripción} & \textbf{Criterio de aprobación} \\
-\midrule
+\hline
 \GateRow{\texttt{typecheck}}{Verificación estática de tipos TypeScript en todos los workspaces del monorepo.}{Cero errores. No se permite \texttt{@ts-ignore}, \texttt{as any} ni supresiones.}
 \GateRow{\texttt{lint}}{Análisis estático de estilo y calidad de código mediante Biome.}{Cero errores y cero advertencias.}
 \GateRow{\texttt{test}}{Ejecución de pruebas unitarias y de integración con Vitest.}{Todas las pruebas pasan. No se eliminan pruebas para aprobar.}
@@ -175,7 +178,7 @@ Cada iteración de desarrollo —entendida como la implementación de un módulo
 \GateRow{\texttt{verify}}{Pipeline completo: \texttt{typecheck} + \texttt{build}.}{Ambas compuertas superadas.}
 \GateRow{\path{contracts:check}}{Verificación de que los contratos compartidos no tienen cambios no intencionados.}{Sin divergencias entre instantáneas (\textit{snapshots}).}
 \GateRow{\texttt{react-doctor}}{Auditoría de componentes React: componentes gigantes, exports no usados, problemas de hidratación, Suspense, accesibilidad.}{Cero problemas reportados.}
-\bottomrule
+\hline
 \end{tabular}
 \end{adjustbox}
 \end{table}
@@ -199,7 +202,7 @@ La triangulación de estas tres fuentes —documentos internos, flujo de proceso
 \section{Matriz de trazabilidad metodológica}
 \label{sec:matriz-metodologica}
 
-Para garantizar que cada objetivo específico del proyecto fuera abordado mediante actividades concretas, verificables y con entregables definidos, se construyó la matriz de trazabilidad que se presenta en la Tabla \ref{tab:matriz-objetivos-fases}. Esta matriz relaciona los objetivos específicos con las fases metodológicas, las actividades ejecutadas, las herramientas empleadas, los entregables producidos y los criterios de validación aplicados. Su propósito es demostrar la coherencia interna del diseño metodológico y facilitar la verificación del cumplimiento de cada objetivo por parte de la revisión académica.
+Para verificar que cada objetivo específico del proyecto fuera abordado mediante actividades concretas y con entregables definidos, se construyó la matriz de trazabilidad que se presenta en la Tabla \ref{tab:matriz-objetivos-fases}. Esta matriz relaciona los objetivos específicos con las fases metodológicas, las actividades ejecutadas, las herramientas empleadas, los entregables producidos y los criterios de validación aplicados. Su propósito es demostrar la coherencia interna del diseño metodológico y facilitar la revisión académica del cumplimiento de cada objetivo.
 
 \begin{table}[!htbp]
 \centering
@@ -207,17 +210,17 @@ Para garantizar que cada objetivo específico del proyecto fuera abordado median
 \label{tab:matriz-objetivos-fases}
 \footnotesize
 \renewcommand{\arraystretch}{0.95}
-\def\MatrizRow#1#2#3#4#5{\parbox[t]{2.0cm}{\raggedright #1} & \parbox[t]{1.9cm}{\raggedright #2} & \parbox[t]{3.3cm}{\raggedright #3} & \parbox[t]{2.7cm}{\raggedright #4} & \parbox[t]{2.8cm}{\raggedright #5}\\\midrule}
+\def\MatrizRow#1#2#3#4#5{\parbox[t]{2.0cm}{\raggedright #1} & \parbox[t]{1.9cm}{\raggedright #2} & \parbox[t]{3.3cm}{\raggedright #3} & \parbox[t]{2.7cm}{\raggedright #4} & \parbox[t]{2.8cm}{\raggedright #5}\\\hline}
 \begin{adjustbox}{max width=\textwidth}
-\begin{tabular}{@{}l l l l l@{}}
-\toprule
+\begin{tabular}{|l|l|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Objetivo} & \textbf{Fase} & \textbf{Actividades principales} & \textbf{Herramientas} & \textbf{Entregable / Evidencia} \\
-\midrule
+\hline
 \MatrizRow{1. Diagnóstico}{Diagnóstico documental}{Revisión de formatos, flujo de 14 pasos y fases críticas de fragmentación.}{Documentos Cermont y diagramas TikZ.}{Inventario documental, flujo y fallas críticas.}
 \MatrizRow{2. Diseño}{Diseño funcional}{Módulos, estados, datos, RBAC y decisiones arquitectónicas.}{Arquitectura, MER y referencias técnicas.}{Arquitectura, modelo de datos y RBAC.}
 \MatrizRow{3. Implementación}{Desarrollo}{Frontend, backend, base de datos y autenticación.}{Next.js, Express, MongoDB, Zod, TypeScript y Vitest.}{Código, pruebas y capturas.}
 \MatrizRow{4. Validación}{Validación}{Pruebas unitarias, de integración y de seguridad.}{Vitest, Supertest, OWASP y checklist.}{Informe de pruebas y aceptación.}
-\bottomrule
+\hline
 \end{tabular}
 \end{adjustbox}
 \end{table}
@@ -233,7 +236,7 @@ El workspace \texttt{frontend} contiene la interfaz de usuario implementada en N
 
 El workspace \texttt{packages} contiene los paquetes compartidos que actúan como fuente única de verdad para los contratos de datos. \texttt{@cermont/shared-types} define los esquemas Zod y los tipos TypeScript inferidos, consumidos tanto por el backend como por el frontend. \texttt{@cermont/domain} centraliza las definiciones de roles RBAC, los helpers de verificación de permisos y las constantes de negocio. \texttt{@cermont/config} unifica la validación de variables de entorno.
 
-Esta organización del código, alineada con los principios de Clean Code, DRY y SSOT documentados en las reglas de desarrollo de CERMONT S.A.S., garantiza que cada responsabilidad tenga una ubicación predecible en el repositorio y que las dependencias entre capas estén explícitamente controladas.
+Esta organización del código, alineada con los principios de Clean Code, DRY y SSOT documentados en las reglas de desarrollo de CERMONT S.A.S., favorece que cada responsabilidad tenga una ubicación predecible en el repositorio y que las dependencias entre capas estén explícitamente controladas.
 
 \section{Procedimiento de validación metodológica}
 \label{sec:procedimiento-validacion}
@@ -266,45 +269,43 @@ El proyecto se ejecutó a lo largo de las fases descritas en este capítulo, con
 \caption{Distribución temporal de las actividades del proyecto. Fuente: Elaboración propia.}
 \label{tab:cronograma}
 \small
-\def\CronoRow#1#2#3{\parbox[t]{5.3cm}{\raggedright #1} & \parbox[t]{4.7cm}{\raggedright #2} & \parbox[t]{3.2cm}{\raggedright #3}\\\midrule}
-\begin{tabular}{@{}l l l@{}}
-\toprule
+\def\CronoRow#1#2#3{\parbox[t]{5.3cm}{\raggedright #1} & \parbox[t]{4.7cm}{\raggedright #2} & \parbox[t]{3.2cm}{\raggedright #3}\\\hline}
+\begin{tabular}{|l|l|l|}
+\hline\ClassicTableHeader
 \textbf{Actividad principal} & \textbf{Fase metodológica} & \textbf{Dedicación estimada} \\
-\midrule
+\hline
 \CronoRow{Revisión documental de formatos CERMONT y flujo de 14 pasos}{Diagnóstico}{Primeras 3 semanas}
 \CronoRow{Revisión de literatura: FSM, CMMS, formularios dinámicos, seguridad web}{Estado del arte y marco teórico}{Semanas 2 a 6}
 \CronoRow{Definición de arquitectura, modelo de datos y decisiones de diseño (ADR)}{Diseño funcional}{Semanas 4 a 8}
 \CronoRow{Desarrollo iterativo de módulos (7 iteraciones)}{Desarrollo}{Semanas 6 a 20}
 \CronoRow{Pruebas unitarias, de integración y validación de seguridad}{Validación}{Semanas 16 a 22}
 \CronoRow{Redacción del libro de trabajo de grado y compilación de anexos}{Documentación}{Semanas 18 a 24}
-\bottomrule
+\hline
 \end{tabular}
 \end{table}
 
 Las fechas exactas de inicio y finalización de cada actividad deben verificarse con el cronograma aprobado en el anteproyecto y con el registro de avance de la práctica empresarial. La distribución presentada en esta tabla refleja la secuencia lógica de dependencias entre fases, no necesariamente la calendarización precisa que depende de factores externos como la disponibilidad de documentos, la coordinación con la empresa y el calendario académico.
-
-% --- AMPLIACIÓN ACADÉMICA INTEGRADA CAPÍTULO 5 ---
 
 \section{Modelo de integración académica de la documentación técnica 00--22}
 \label{sec:modelo-integracion-00-22-ampliado}
 
 La documentación técnica 00--22 se utilizó como bitácora estructurada del desarrollo del aplicativo. Su valor metodológico no consiste en aumentar el volumen del libro mediante anexos literales, sino en reconstruir la secuencia de decisiones, módulos, reglas y criterios de calidad que guiaron la implementación. Cada documento aporta una pieza del proceso: algunos definen arquitectura, otros describen backend, frontend, seguridad, pruebas, evidencias, despliegue o cierre administrativo. La integración académica consiste en traducir esa documentación de ingeniería en una narrativa verificable.
 
-\begin{longtable}{>{\raggedright\arraybackslash}p{1.6cm} >{\raggedright\arraybackslash}p{4.2cm} >{\raggedright\arraybackslash}p{5.1cm} >{\raggedright\arraybackslash}p{3.2cm}}
+\begin{longtable}{|p{1.6cm}|p{4.2cm}|p{5.1cm}|p{3.2cm}|}
 \caption{Matriz ampliada de integración de la documentación técnica 00--22 en el libro. Fuente: elaboración propia.}
 \label{tab:integracion-docs-00-22-ampliada}\\
-\toprule
+\hline\ClassicTableHeader
 \textbf{Doc.} & \textbf{Tema principal} & \textbf{Uso académico en el libro} & \textbf{Capítulo principal}\\
-\midrule
+\hline
 \endfirsthead
-\toprule
+\hline\ClassicTableHeader
 \textbf{Doc.} & \textbf{Tema principal} & \textbf{Uso académico en el libro} & \textbf{Capítulo principal}\\
-\midrule
+\hline
 \endhead
-\midrule
+\hline
 \multicolumn{4}{r}{Continúa en la siguiente página}\\
 \endfoot
-\bottomrule
+\hline
 \endlastfoot
 DOC-00 & Contexto técnico inicial & Delimita visión, alcance y restricciones iniciales del aplicativo. & Cap. 5--6\\
 DOC-01 & Stack tecnológico & Sustenta la selección de tecnologías y alternativas consideradas. & Cap. 6\\
@@ -350,17 +351,17 @@ Este procedimiento se alinea con una metodología de investigación aplicada por
 \caption{Fases metodológicas y documentos técnicos asociados. Fuente: elaboración propia.}
 \label{tab:fases-docs-soporte}
 \begin{adjustbox}{max width=\textwidth}
-\begin{tabular}{p{3.0cm}p{4.5cm}p{5.0cm}p{2.8cm}}
-\toprule
+\begin{tabular}{|p{3.0cm}|p{4.5cm}|p{5.0cm}|p{2.8cm}|}
+\hline\ClassicTableHeader
 \textbf{Fase} & \textbf{Propósito} & \textbf{Documentos de soporte} & \textbf{Resultado esperado}\\
-\midrule
+\hline
 Diagnóstico & Comprender el flujo de 14 pasos, fallas y actores. & DOC-00, DOC-07, DOC-22, documentos internos de CERMONT. & Matriz problema--requisito.\\
 Diseño arquitectónico & Definir estructura, stack, módulos, entidades y contratos. & DOC-01, DOC-02, DOC-09, DOC-10. & Arquitectura y modelo de datos.\\
 Implementación funcional & Construir módulos de negocio por vertical slices. & DOC-03, DOC-05, DOC-07, DOC-07B, DOC-19. & Funciones implementadas o parciales.\\
 Seguridad y control & Aplicar RBAC, validación, errores y auditoría. & DOC-04, DOC-14, DOC-21. & Módulos protegidos y trazables.\\
 Validación técnica & Ejecutar pruebas, gates y revisión de comportamiento. & DOC-11, DOC-13, DOC-15, DOC-17, DOC-18. & Evidencias de pruebas y limitaciones.\\
 Cierre y continuidad & Documentar soporte, mantenimiento y evolución. & DOC-20, DOC-21, DOC-22. & Recomendaciones y trabajo futuro.\\
-\bottomrule
+\hline
 \end{tabular}
 \end{adjustbox}
 \end{table}

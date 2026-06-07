@@ -74,7 +74,7 @@ export function HeaderNotifications({
 			{showNotifications ? (
 				<div
 					id="header-notifications-panel"
-					className="absolute right-0 mt-2 min-w-[360px] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-3)]"
+					className="animate-scale-in origin-top-right absolute right-0 mt-2 min-w-[360px] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-3)]"
 				>
 					<header className="flex items-center justify-between border-b border-[var(--border-default)] px-4 py-3">
 						<h2

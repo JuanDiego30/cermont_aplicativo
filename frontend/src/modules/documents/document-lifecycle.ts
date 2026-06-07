@@ -1,10 +1,10 @@
 import {
 	CERMONT_OPERATIONAL_STEPS,
 	type CermontOperationalStepCode,
-	type Document as DocumentRecord,
 	type DocumentAssociation,
 	type DocumentLinkedEntityType,
 	type DocumentPurpose,
+	type Document as DocumentRecord,
 } from "@cermont/shared-types";
 
 const CRITICAL_DOCUMENT_STEPS = new Set<CermontOperationalStepCode>([
@@ -77,7 +77,9 @@ function getFirstAssociationWithPurpose(document: DocumentRecord): DocumentAssoc
 }
 
 function getFirstAssociationWithEntity(document: DocumentRecord): DocumentAssociation | false {
-	return document.associations.find((association) => Boolean(association.linkedEntityType)) || false;
+	return (
+		document.associations.find((association) => Boolean(association.linkedEntityType)) || false
+	);
 }
 
 function getPrimaryPurpose(document: DocumentRecord): DocumentPurpose | "" {
@@ -151,9 +153,8 @@ export function getDocumentProtectionReason(document: DocumentRecord): string {
 		return "Linked to closeout evidence";
 	}
 
-	const criticalStepAssociation = document.associations.find(
-		(association) =>
-			Boolean(association.targetStepCode && CRITICAL_DOCUMENT_STEPS.has(association.targetStepCode)),
+	const criticalStepAssociation = document.associations.find((association) =>
+		Boolean(association.targetStepCode && CRITICAL_DOCUMENT_STEPS.has(association.targetStepCode)),
 	);
 	if (criticalStepAssociation?.targetStepCode) {
 		const stepLabel = getDocumentStepLabel({
@@ -163,12 +164,10 @@ export function getDocumentProtectionReason(document: DocumentRecord): string {
 		return stepLabel ? `Linked to ${stepLabel}` : "Linked to admin closeout";
 	}
 
-	const criticalEntityAssociation = document.associations.find(
-		(association) =>
-			Boolean(
-				association.linkedEntityType &&
-					CRITICAL_DOCUMENT_ENTITIES.has(association.linkedEntityType),
-			),
+	const criticalEntityAssociation = document.associations.find((association) =>
+		Boolean(
+			association.linkedEntityType && CRITICAL_DOCUMENT_ENTITIES.has(association.linkedEntityType),
+		),
 	);
 	if (criticalEntityAssociation?.linkedEntityType) {
 		const entityLabel = ENTITY_LABELS[criticalEntityAssociation.linkedEntityType];
