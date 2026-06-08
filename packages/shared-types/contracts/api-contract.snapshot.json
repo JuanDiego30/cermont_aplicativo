@@ -17859,8 +17859,17 @@
           "minItems": 1,
           "type": "array"
         },
+        "nitEmisor": {
+          "type": "string"
+        },
+        "nitReceptor": {
+          "type": "string"
+        },
         "notes": {
           "maxLength": 1000,
+          "type": "string"
+        },
+        "numeroResolucion": {
           "type": "string"
         },
         "paymentMethod": {
@@ -17876,6 +17885,11 @@
           "format": "uri",
           "maxLength": 500,
           "type": "string"
+        },
+        "retencionFuente": {
+          "default": 0,
+          "minimum": 0,
+          "type": "number"
         },
         "retentionAmount": {
           "minimum": 0,
@@ -17945,8 +17959,21 @@
           "minimum": 0,
           "type": "number"
         },
+        "tipoDocumento": {
+          "default": "FV",
+          "enum": [
+            "FV",
+            "NC",
+            "ND"
+          ],
+          "type": "string"
+        },
         "total": {
           "minimum": 0,
+          "type": "number"
+        },
+        "totalConIva": {
+          "exclusiveMinimum": 0,
           "type": "number"
         },
         "workOrderId": {
@@ -17960,7 +17987,8 @@
         "clientName",
         "amount",
         "taxAmount",
-        "currency"
+        "currency",
+        "tipoDocumento"
       ],
       "type": "object"
     },
@@ -18802,8 +18830,17 @@
           },
           "type": "array"
         },
+        "nitEmisor": {
+          "type": "string"
+        },
+        "nitReceptor": {
+          "type": "string"
+        },
         "notes": {
           "maxLength": 1000,
+          "type": "string"
+        },
+        "numeroResolucion": {
           "type": "string"
         },
         "paymentMethod": {
@@ -18814,6 +18851,11 @@
             "CREDITO"
           ],
           "type": "string"
+        },
+        "retencionFuente": {
+          "default": 0,
+          "minimum": 0,
+          "type": "number"
         },
         "seller": {
           "additionalProperties": false,
@@ -18852,11 +18894,25 @@
             "email"
           ],
           "type": "object"
+        },
+        "tipoDocumento": {
+          "default": "FV",
+          "enum": [
+            "FV",
+            "NC",
+            "ND"
+          ],
+          "type": "string"
+        },
+        "totalConIva": {
+          "exclusiveMinimum": 0,
+          "type": "number"
         }
       },
       "required": [
         "issueDate",
-        "dueDate"
+        "dueDate",
+        "tipoDocumento"
       ],
       "type": "object"
     },
@@ -42410,6 +42466,15 @@
       ],
       "type": "string"
     },
+    "InvoiceElectronicDocumentTypeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "FV",
+        "NC",
+        "ND"
+      ],
+      "type": "string"
+    },
     "InvoiceIdParamsSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -42740,8 +42805,17 @@
           "minItems": 1,
           "type": "array"
         },
+        "nitEmisor": {
+          "type": "string"
+        },
+        "nitReceptor": {
+          "type": "string"
+        },
         "notes": {
           "maxLength": 1000,
+          "type": "string"
+        },
+        "numeroResolucion": {
           "type": "string"
         },
         "paidAt": {
@@ -42779,6 +42853,11 @@
         "rejectionReason": {
           "maxLength": 500,
           "type": "string"
+        },
+        "retencionFuente": {
+          "default": 0,
+          "minimum": 0,
+          "type": "number"
         },
         "retentionAmount": {
           "minimum": 0,
@@ -42916,12 +42995,25 @@
           },
           "type": "array"
         },
+        "tipoDocumento": {
+          "default": "FV",
+          "enum": [
+            "FV",
+            "NC",
+            "ND"
+          ],
+          "type": "string"
+        },
         "total": {
           "minimum": 0,
           "type": "number"
         },
         "totalAmount": {
           "minimum": 0,
+          "type": "number"
+        },
+        "totalConIva": {
+          "exclusiveMinimum": 0,
           "type": "number"
         },
         "updatedAt": {
@@ -42952,7 +43044,8 @@
         "status",
         "attachments",
         "commandHistory",
-        "createdBy"
+        "createdBy",
+        "tipoDocumento"
       ],
       "type": "object"
     },
@@ -43248,8 +43341,17 @@
           "minItems": 1,
           "type": "array"
         },
+        "nitEmisor": {
+          "type": "string"
+        },
+        "nitReceptor": {
+          "type": "string"
+        },
         "notes": {
           "maxLength": 1000,
+          "type": "string"
+        },
+        "numeroResolucion": {
           "type": "string"
         },
         "paidAt": {
@@ -43287,6 +43389,11 @@
         "rejectionReason": {
           "maxLength": 500,
           "type": "string"
+        },
+        "retencionFuente": {
+          "default": 0,
+          "minimum": 0,
+          "type": "number"
         },
         "retentionAmount": {
           "minimum": 0,
@@ -43424,12 +43531,25 @@
           },
           "type": "array"
         },
+        "tipoDocumento": {
+          "default": "FV",
+          "enum": [
+            "FV",
+            "NC",
+            "ND"
+          ],
+          "type": "string"
+        },
         "total": {
           "minimum": 0,
           "type": "number"
         },
         "totalAmount": {
           "minimum": 0,
+          "type": "number"
+        },
+        "totalConIva": {
+          "exclusiveMinimum": 0,
           "type": "number"
         },
         "updatedAt": {
@@ -43460,7 +43580,8 @@
         "status",
         "attachments",
         "commandHistory",
-        "createdBy"
+        "createdBy",
+        "tipoDocumento"
       ],
       "type": "object"
     },

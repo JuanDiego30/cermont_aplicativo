@@ -68,6 +68,9 @@ export type InvoiceStatus = z.infer<typeof InvoiceStatusSchema>;
 export const InvoiceDocumentTypeSchema = z.enum(["NIT", "CC", "CE", "PASAPORTE"]);
 export type InvoiceDocumentType = z.infer<typeof InvoiceDocumentTypeSchema>;
 
+export const InvoiceElectronicDocumentTypeSchema = z.enum(["FV", "NC", "ND"]);
+export type InvoiceElectronicDocumentType = z.infer<typeof InvoiceElectronicDocumentTypeSchema>;
+
 export const InvoicePaymentMethodSchema = z.enum([
 	"TRANSFERENCIA",
 	"CHEQUE",
@@ -162,6 +165,12 @@ export const InvoiceSchema = z
 		cufe: z.string().max(200).optional(),
 		qrCode: z.string().url().max(500).optional(),
 		paymentMethod: InvoicePaymentMethodSchema.optional(),
+		numeroResolucion: z.string().optional(),
+		totalConIva: z.number().positive().optional(),
+		retencionFuente: z.number().nonnegative().default(0).optional(),
+		nitEmisor: z.string().optional(),
+		nitReceptor: z.string().optional(),
+		tipoDocumento: InvoiceElectronicDocumentTypeSchema.default("FV"),
 	})
 	.strip();
 
@@ -215,6 +224,12 @@ export const CreateInvoiceSchema = z
 		cufe: z.string().max(200).optional(),
 		qrCode: z.string().url().max(500).optional(),
 		paymentMethod: InvoicePaymentMethodSchema.optional(),
+		numeroResolucion: z.string().optional(),
+		totalConIva: z.number().positive().optional(),
+		retencionFuente: z.number().nonnegative().default(0).optional(),
+		nitEmisor: z.string().optional(),
+		nitReceptor: z.string().optional(),
+		tipoDocumento: InvoiceElectronicDocumentTypeSchema.default("FV"),
 	})
 	.strict();
 
@@ -250,6 +265,12 @@ export const CreateOrderInvoiceSchema = z
 		lineItems: z.array(InvoiceLineItemSchema).optional(),
 		ivaRate: z.number().min(0).max(1).optional(),
 		paymentMethod: InvoicePaymentMethodSchema.optional(),
+		numeroResolucion: z.string().optional(),
+		totalConIva: z.number().positive().optional(),
+		retencionFuente: z.number().nonnegative().default(0).optional(),
+		nitEmisor: z.string().optional(),
+		nitReceptor: z.string().optional(),
+		tipoDocumento: InvoiceElectronicDocumentTypeSchema.default("FV"),
 	})
 	.strict();
 
@@ -406,4 +427,10 @@ export interface InvoiceDocument<TID = string> extends MongooseDocument<TID> {
 	cufe?: string;
 	qrCode?: string;
 	paymentMethod?: InvoicePaymentMethod;
+	numeroResolucion?: string;
+	totalConIva?: number;
+	retencionFuente?: number;
+	nitEmisor?: string;
+	nitReceptor?: string;
+	tipoDocumento?: InvoiceElectronicDocumentType;
 }

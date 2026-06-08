@@ -1,5 +1,82 @@
 import { z } from "zod";
 import { ObjectIdSchema } from "./common.schema";
+import {
+	type EquipmentUsage,
+	EquipmentUsageSchema,
+	type ExecutionEquipmentUsage,
+	ExecutionEquipmentUsageSchema,
+	type ExecutionMaterialUsage,
+	ExecutionMaterialUsageSchema,
+	type ExecutionToolUsage,
+	ExecutionToolUsageSchema,
+	type MaterialLine,
+	MaterialLineSchema,
+} from "./execution-equipment.schema";
+import {
+	type ExecutionDocumentReference,
+	ExecutionDocumentReferenceSchema,
+	type ExecutionEvidence,
+	type ExecutionEvidenceReference,
+	ExecutionEvidenceReferenceSchema,
+	ExecutionEvidenceSchema,
+} from "./execution-evidence.schema";
+import {
+	type ExecutionGpsPoint,
+	ExecutionGpsPointSchema,
+	type GpsPoint,
+	GpsPointSchema,
+} from "./execution-gps.schema";
+import {
+	type ExecutionIncident,
+	ExecutionIncidentSchema,
+	type ExecutionLaborEntry,
+	ExecutionLaborEntrySchema,
+	type ExecutionObservation,
+	ExecutionObservationSchema,
+	type LaborTimeEntry,
+	LaborTimeEntrySchema,
+} from "./execution-labor.schema";
+import {
+	type ExecutionSignature,
+	ExecutionSignatureSchema,
+	type FieldSignature,
+	FieldSignatureSchema,
+} from "./execution-signature.schema";
+
+export {
+	type EquipmentUsage,
+	EquipmentUsageSchema,
+	type ExecutionDocumentReference,
+	ExecutionDocumentReferenceSchema,
+	type ExecutionEquipmentUsage,
+	ExecutionEquipmentUsageSchema,
+	type ExecutionEvidence,
+	type ExecutionEvidenceReference,
+	ExecutionEvidenceReferenceSchema,
+	ExecutionEvidenceSchema,
+	type ExecutionGpsPoint,
+	ExecutionGpsPointSchema,
+	type ExecutionIncident,
+	ExecutionIncidentSchema,
+	type ExecutionLaborEntry,
+	ExecutionLaborEntrySchema,
+	type ExecutionMaterialUsage,
+	ExecutionMaterialUsageSchema,
+	type ExecutionObservation,
+	ExecutionObservationSchema,
+	type ExecutionSignature,
+	ExecutionSignatureSchema,
+	type ExecutionToolUsage,
+	ExecutionToolUsageSchema,
+	type FieldSignature,
+	FieldSignatureSchema,
+	type GpsPoint,
+	GpsPointSchema,
+	type LaborTimeEntry,
+	LaborTimeEntrySchema,
+	type MaterialLine,
+	MaterialLineSchema,
+};
 
 const EXECUTION_SESSION_STATUS_VALUES = [
 	"draft",
@@ -80,50 +157,6 @@ const EXECUTION_NEXT_ACTION_VALUES = [
 export const ExecutionSessionNextActionCodeSchema = z.enum(EXECUTION_NEXT_ACTION_VALUES);
 export type ExecutionSessionNextActionCode = z.infer<typeof ExecutionSessionNextActionCodeSchema>;
 
-export const ExecutionGpsPointSchema = z
-	.object({
-		lat: z.number().min(-90).max(90),
-		lng: z.number().min(-180).max(180),
-		accuracy: z.number().nonnegative().optional(),
-		capturedAt: z.string().datetime(),
-	})
-	.strict();
-export type ExecutionGpsPoint = z.infer<typeof ExecutionGpsPointSchema>;
-
-export const GpsPointSchema = ExecutionGpsPointSchema;
-export type GpsPoint = ExecutionGpsPoint;
-
-export const ExecutionEvidenceReferenceSchema = z
-	.object({
-		evidenceId: ObjectIdSchema,
-		documentId: ObjectIdSchema.optional(),
-		type: z.enum(["image", "video", "document"]),
-		phase: z.enum(["before", "during", "after", "incident", "checklist"]).default("during"),
-		description: z.string().max(500).optional(),
-		fieldRef: z.string().max(120).optional(),
-		incidentId: z.string().max(80).optional(),
-		materialUsageId: z.string().max(80).optional(),
-		gpsPoint: ExecutionGpsPointSchema.optional(),
-		uploadedBy: ObjectIdSchema,
-		uploadedAt: z.string().datetime(),
-	})
-	.strict();
-export type ExecutionEvidenceReference = z.infer<typeof ExecutionEvidenceReferenceSchema>;
-
-export const ExecutionEvidenceSchema = ExecutionEvidenceReferenceSchema;
-export type ExecutionEvidence = ExecutionEvidenceReference;
-
-export const ExecutionDocumentReferenceSchema = z
-	.object({
-		documentImportId: ObjectIdSchema,
-		documentId: ObjectIdSchema.optional(),
-		name: z.string().min(1).max(240),
-		mimeType: z.string().min(1).max(160),
-		uploadedAt: z.string().datetime(),
-	})
-	.strict();
-export type ExecutionDocumentReference = z.infer<typeof ExecutionDocumentReferenceSchema>;
-
 export const ExecutionChecklistResponseSchema = z
 	.object({
 		responseId: z.string().min(1).max(80),
@@ -157,120 +190,6 @@ export const ExecutionDynamicFormResponseSchema = z
 	})
 	.strict();
 export type ExecutionDynamicFormResponse = z.infer<typeof ExecutionDynamicFormResponseSchema>;
-
-export const ExecutionMaterialUsageSchema = z
-	.object({
-		usageId: z.string().min(1).max(80),
-		materialId: ObjectIdSchema.optional(),
-		name: z.string().min(1).max(200),
-		quantityPlanned: z.number().nonnegative().default(0),
-		quantityUsed: z.number().nonnegative(),
-		unit: z.string().min(1).max(50),
-		notes: z.string().max(500).optional(),
-		recordedAt: z.string().datetime(),
-		recordedBy: ObjectIdSchema,
-	})
-	.strict();
-export type ExecutionMaterialUsage = z.infer<typeof ExecutionMaterialUsageSchema>;
-
-export const MaterialLineSchema = ExecutionMaterialUsageSchema;
-export type MaterialLine = ExecutionMaterialUsage;
-
-export const ExecutionToolUsageSchema = z
-	.object({
-		usageId: z.string().min(1).max(80),
-		toolId: ObjectIdSchema.optional(),
-		name: z.string().min(1).max(200),
-		quantityPlanned: z.number().int().nonnegative().default(0),
-		quantityUsed: z.number().int().nonnegative(),
-		condition: z.enum(["ok", "damaged", "lost", "returned"]).default("ok"),
-		notes: z.string().max(500).optional(),
-		recordedAt: z.string().datetime(),
-		recordedBy: ObjectIdSchema,
-	})
-	.strict();
-export type ExecutionToolUsage = z.infer<typeof ExecutionToolUsageSchema>;
-
-export const ExecutionEquipmentUsageSchema = z
-	.object({
-		usageId: z.string().min(1).max(80),
-		equipmentId: ObjectIdSchema.optional(),
-		name: z.string().min(1).max(200),
-		startedAt: z.string().datetime(),
-		endedAt: z.string().datetime().optional(),
-		hoursUsed: z.number().nonnegative().optional(),
-		condition: z.enum(["ok", "damaged", "returned"]).default("ok"),
-		notes: z.string().max(500).optional(),
-		recordedAt: z.string().datetime(),
-		recordedBy: ObjectIdSchema,
-	})
-	.strict();
-export type ExecutionEquipmentUsage = z.infer<typeof ExecutionEquipmentUsageSchema>;
-
-export const EquipmentUsageSchema = ExecutionEquipmentUsageSchema;
-export type EquipmentUsage = ExecutionEquipmentUsage;
-
-export const ExecutionLaborEntrySchema = z
-	.object({
-		laborEntryId: z.string().min(1).max(80),
-		userId: ObjectIdSchema,
-		role: z.string().min(1).max(80),
-		startedAt: z.string().datetime(),
-		endedAt: z.string().datetime(),
-		durationMinutes: z.number().int().positive(),
-		description: z.string().min(1).max(500),
-		notes: z.string().max(500).optional(),
-	})
-	.strict();
-export type ExecutionLaborEntry = z.infer<typeof ExecutionLaborEntrySchema>;
-
-export const LaborTimeEntrySchema = ExecutionLaborEntrySchema;
-export type LaborTimeEntry = ExecutionLaborEntry;
-
-export const ExecutionIncidentSchema = z
-	.object({
-		incidentId: z.string().min(1).max(80),
-		type: z.enum(["safety", "quality", "environmental", "technical", "client", "other"]),
-		severity: z.enum(["low", "medium", "high", "critical"]),
-		description: z.string().min(5).max(2000),
-		actionTaken: z.string().max(2000).optional(),
-		occurredAt: z.string().datetime(),
-		reportedBy: ObjectIdSchema,
-		evidenceIds: z.array(ObjectIdSchema).default([]),
-		resolved: z.boolean().default(false),
-		resolvedAt: z.string().datetime().optional(),
-		resolvedBy: ObjectIdSchema.optional(),
-	})
-	.strict();
-export type ExecutionIncident = z.infer<typeof ExecutionIncidentSchema>;
-
-export const ExecutionObservationSchema = z
-	.object({
-		observationId: z.string().min(1).max(80),
-		description: z.string().min(1).max(2000),
-		createdAt: z.string().datetime(),
-		createdBy: ObjectIdSchema,
-	})
-	.strict();
-export type ExecutionObservation = z.infer<typeof ExecutionObservationSchema>;
-
-export const ExecutionSignatureSchema = z
-	.object({
-		signatureId: z.string().min(1).max(80),
-		signedBy: ObjectIdSchema,
-		signedByName: z.string().min(1).max(200),
-		role: z.string().min(1).max(80),
-		signatureType: z.enum(["technician", "supervisor", "client", "hes"]),
-		imageDocumentId: ObjectIdSchema.optional(),
-		signatureUrl: z.string().url().optional(),
-		signedAt: z.string().datetime(),
-		confirmed: z.boolean().default(false),
-	})
-	.strict();
-export type ExecutionSignature = z.infer<typeof ExecutionSignatureSchema>;
-
-export const FieldSignatureSchema = ExecutionSignatureSchema;
-export type FieldSignature = ExecutionSignature;
 
 export const ExecutionSessionBlockerSchema = z
 	.object({

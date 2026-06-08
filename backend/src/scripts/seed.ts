@@ -27,12 +27,9 @@ import { User } from "../models/User";
 const env = validateEnv();
 const MONGODB_URI = env.MONGODB_URI ?? "mongodb://127.0.0.1:27017/cermont";
 
-const DEFAULT_PASSWORD = env.SEED_DEFAULT_PASSWORD;
-if (!DEFAULT_PASSWORD) {
-	throw new Error(
-		"SEED_DEFAULT_PASSWORD environment variable is required to run seed script. " +
-			"Set it in your .env file or pass it as: SEED_DEFAULT_PASSWORD=<strong_password> npm run seed",
-	);
+const DEFAULT_PASSWORD = env.SEED_DEFAULT_PASSWORD || "Cermont2026!";
+if (!env.SEED_DEFAULT_PASSWORD) {
+	console.warn("⚠️  SEED_DEFAULT_PASSWORD environment variable not set. Falling back to 'Cermont2026!'");
 }
 
 // ─── Seed data ─────────────────────────────────────────────────────────────────

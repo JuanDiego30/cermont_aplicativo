@@ -355,6 +355,23 @@ function formatInvoice(doc: InvoiceDocument): InvoiceResponse {
 		createdBy: doc.createdBy.toString(),
 		createdAt: doc.createdAt.toISOString(),
 		updatedAt: doc.updatedAt.toISOString(),
+		seller: doc.seller,
+		buyer: doc.buyer,
+		lineItems: doc.lineItems,
+		taxBase: doc.taxBase,
+		ivaRate: doc.ivaRate,
+		ivaAmount: doc.ivaAmount,
+		retentionRate: doc.retentionRate,
+		retentionAmount: doc.retentionAmount,
+		cufe: doc.cufe,
+		qrCode: doc.qrCode,
+		paymentMethod: doc.paymentMethod as InvoiceResponse["paymentMethod"],
+		numeroResolucion: doc.numeroResolucion,
+		totalConIva: doc.totalConIva,
+		retencionFuente: doc.retencionFuente,
+		nitEmisor: doc.nitEmisor,
+		nitReceptor: doc.nitReceptor,
+		tipoDocumento: (doc.tipoDocumento || "FV") as InvoiceResponse["tipoDocumento"],
 	};
 }
 

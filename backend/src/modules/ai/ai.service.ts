@@ -144,10 +144,14 @@ export async function processUserQuery(
 ): Promise<AssistantChatResponse> {
 	const apiKey = process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY;
 	if (!apiKey) {
-		throw new ServiceUnavailableError(
-			"Asistente no disponible temporalmente",
-			"AI_SERVICE_UNAVAILABLE",
-		);
+		return {
+			threadId: threadId || `th_degraded_${Date.now()}`,
+			reply:
+				"El asistente no está disponible en este momento. " +
+				"Contacta al administrador del sistema para activar el servicio.",
+			suggestedActions: ["Continuar con el proceso manualmente"],
+			blockers: [],
+		};
 	}
 
 	const serviceCase = await ServiceCase.findById(serviceCaseId);

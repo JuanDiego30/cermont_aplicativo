@@ -21,6 +21,7 @@ import {
 	type UserRole,
 } from "@cermont/domain";
 import { useMemo } from "react";
+import { useAuth } from "@/modules/auth/hooks/useAuth";
 
 export type PermissionAction =
 	| "approve_proposal"
@@ -143,12 +144,16 @@ export interface UsePermissionsResult {
 }
 
 export function usePermissions({ userRole }: UsePermissionsOptions = {}): UsePermissionsResult {
+	const auth = useAuth();
 	const resolvedRole = useMemo((): UserRole => {
-		if (!userRole) {
-			return "cliente";
+		if (userRole) {
+			return userRole;
 		}
-		return userRole;
-	}, [userRole]);
+		if (auth.user?.role) {
+			return auth.user.role;
+		}
+		return "cliente";
+	}, [userRole, auth.user?.role]);
 
 	const roleLabel = useMemo(() => {
 		switch (resolvedRole) {

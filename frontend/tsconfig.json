@@ -1,7 +1,6 @@
 {
 	"compilerOptions": {
 		"target": "ES2022",
-		"baseUrl": ".",
 		"lib": ["dom", "dom.iterable", "esnext", "webworker"],
 		"allowJs": true,
 		"skipLibCheck": true,
@@ -26,9 +25,8 @@
 				"name": "next"
 			}
 		],
-		"ignoreDeprecations": "6.0",
 		"paths": {
-			"@/*": ["src/*"]
+			"@/*": ["./src/*"]
 		}
 	},
 	"include": [

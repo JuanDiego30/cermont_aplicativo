@@ -30,6 +30,7 @@ import { useParams } from "next/navigation";
 import { type FormEvent, type ReactNode, useMemo, useReducer } from "react";
 import { ApiError } from "@/lib/http/api-client";
 import { useAuth } from "@/modules/auth/hooks/useAuth";
+import { usePermissions } from "@/modules/core/hooks/usePermissions";
 import { useKitTemplates, type KitTemplate as QueryKitTemplate } from "@/modules/kits/queries";
 import { useOrder } from "@/modules/orders/queries";
 import {
@@ -723,13 +724,13 @@ function ResourceTable<T extends Record<string, unknown>>({
 
 function WorkflowStatusPanel({
 	planningPacket,
-	isGerenteOrResidente,
+	canApprove,
 	handleValidateReadiness,
 	isValidationPending,
 	dispatch,
 }: {
 	planningPacket: PlanningPacket;
-	isGerenteOrResidente: boolean;
+	canApprove: boolean;
 	handleValidateReadiness: () => void;
 	isValidationPending: boolean;
 	dispatch: (action: PlanningFormAction) => void;
@@ -767,7 +768,7 @@ function WorkflowStatusPanel({
 					</button>
 				)}
 
-				{planningPacket.status === "ready" && isGerenteOrResidente && (
+				{planningPacket.status === "ready" && canApprove && (
 					<button
 						type="button"
 						onClick={() => dispatch({ type: "SHOW_APPROVAL_MODAL", payload: true })}
@@ -778,7 +779,7 @@ function WorkflowStatusPanel({
 					</button>
 				)}
 
-				{planningPacket.status === "approved" && isGerenteOrResidente && (
+				{planningPacket.status === "approved" && canApprove && (
 					<button
 						type="button"
 						onClick={() => dispatch({ type: "SHOW_REOPEN_MODAL", payload: true })}
@@ -1003,13 +1004,14 @@ export default function OrderPlanningPage() {
 
 	// Local state
 	const [state, dispatch] = useReducer(planningReducer, initialState);
+	const { canPerformAction } = usePermissions();
+	const isGerenteOrResidente = useMemo(
+		() => canPerformAction("approve_planning"),
+		[canPerformAction],
+	);
 
 	const isPlanningRole = useMemo(
 		() => user?.role && (PLANNING_ACCESS_ROLES as readonly string[]).includes(user.role),
-		[user?.role],
-	);
-	const isGerenteOrResidente = useMemo(
-		() => user?.role === "gerente" || user?.role === "residente",
 		[user?.role],
 	);
 
@@ -1179,7 +1181,7 @@ export default function OrderPlanningPage() {
 					<div className="space-y-6">
 						<WorkflowStatusPanel
 							planningPacket={planningPacket}
-							isGerenteOrResidente={!!isGerenteOrResidente}
+							canApprove={isGerenteOrResidente}
 							handleValidateReadiness={handleValidateReadiness}
 							isValidationPending={validateMutation.isPending}
 							dispatch={dispatch}

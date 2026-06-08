@@ -8,6 +8,7 @@ import { Suspense, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { RejectForm } from "@/core/ui/RejectForm";
+import { usePermissions } from "@/modules/core/hooks/usePermissions";
 import {
 	useApproveInvoice,
 	useCancelInvoice,
@@ -117,6 +118,7 @@ function EmptyCard() {
 
 function InvoiceContent({ invoice }: { invoice: Invoice }) {
 	const [activeAction, setActiveAction] = useState<string>("none");
+	const { canApprove } = usePermissions();
 
 	const submitMutation = useSubmitInvoice(invoice._id);
 	const approveMutation = useApproveInvoice(invoice._id);
@@ -164,8 +166,8 @@ function InvoiceContent({ invoice }: { invoice: Invoice }) {
 	};
 
 	const canSubmit = invoice.status === "draft" || invoice.status === "issued";
-	const canApprove = invoice.status === "submitted" || invoice.status === "sent";
-	const canReject = invoice.status === "submitted" || invoice.status === "sent";
+	const canApproveStatus = invoice.status === "submitted" || invoice.status === "sent";
+	const canRejectStatus = invoice.status === "submitted" || invoice.status === "sent";
 	const canCancel =
 		invoice.status === "draft" || invoice.status === "issued" || invoice.status === "rejected";
 
@@ -176,7 +178,7 @@ function InvoiceContent({ invoice }: { invoice: Invoice }) {
 		<>
 			<InvoiceInfo invoice={invoice} />
 
-			{canSubmit || canApprove || canReject || canCancel ? (
+			{canSubmit || canApproveStatus || canRejectStatus || canCancel ? (
 				<div className="flex flex-wrap gap-3">
 					{canSubmit && activeAction !== "submit" && (
 						<button
@@ -189,22 +191,26 @@ function InvoiceContent({ invoice }: { invoice: Invoice }) {
 							Enviar
 						</button>
 					)}
-					{canApprove && activeAction !== "approve" && (
+					{canApproveStatus && activeAction !== "approve" && (
 						<button
 							type="button"
 							onClick={() => toggleAction("approve")}
-							disabled={approveMutation.isPending}
+							disabled={approveMutation.isPending || !canApprove}
+							aria-disabled={!canApprove}
+							title={!canApprove ? "No tienes permiso para aprobar" : void 0}
 							className="inline-flex items-center gap-2 rounded-md bg-success px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
 						>
 							<CheckCircle2 className="size-4" />
 							Aprobar
 						</button>
 					)}
-					{canReject && activeAction !== "reject" && (
+					{canRejectStatus && activeAction !== "reject" && (
 						<button
 							type="button"
 							onClick={() => toggleAction("reject")}
-							disabled={rejectMutation.isPending}
+							disabled={rejectMutation.isPending || !canApprove}
+							aria-disabled={!canApprove}
+							title={!canApprove ? "No tienes permiso para rechazar" : void 0}
 							className="inline-flex items-center gap-2 rounded-md border border-destructive bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive disabled:opacity-50"
 						>
 							<XCircle className="size-4" />

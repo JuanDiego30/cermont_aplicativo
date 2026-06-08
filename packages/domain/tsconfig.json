@@ -13,8 +13,7 @@
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
-		"moduleResolution": "nodenext",
-		"ignoreDeprecations": "6.0"
+		"moduleResolution": "nodenext"
 	},
 	"include": ["src/**/*"],
 	"exclude": ["node_modules", "dist"]

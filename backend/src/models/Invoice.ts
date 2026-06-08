@@ -1,4 +1,9 @@
-import { BillingCurrencySchema, InvoiceStatusSchema } from "@cermont/shared-types";
+import {
+	BillingCurrencySchema,
+	InvoiceStatusSchema,
+	type InvoiceDocumentType,
+	type InvoiceElectronicDocumentType,
+} from "@cermont/shared-types";
 import { type Document, model, Schema, Types } from "mongoose";
 
 const invoiceLineSchema = new Schema(
@@ -95,6 +100,41 @@ export interface InvoiceDocument extends Document {
 	createdBy: Types.ObjectId;
 	createdAt: Date;
 	updatedAt: Date;
+	seller?: {
+		nit: string;
+		businessName: string;
+		address: string;
+		phone: string;
+		email: string;
+	};
+	buyer?: {
+		documentType: InvoiceDocumentType;
+		documentNumber: string;
+		businessName: string;
+		address: string;
+		email: string;
+	};
+	lineItems?: Array<{
+		description: string;
+		quantity: number;
+		unitPrice: number;
+		discount?: number;
+		subtotal: number;
+	}>;
+	taxBase?: number;
+	ivaRate?: number;
+	ivaAmount?: number;
+	retentionRate?: number;
+	retentionAmount?: number;
+	cufe?: string;
+	qrCode?: string;
+	paymentMethod?: string;
+	numeroResolucion?: string;
+	totalConIva?: number;
+	retencionFuente?: number;
+	nitEmisor?: string;
+	nitReceptor?: string;
+	tipoDocumento?: InvoiceElectronicDocumentType;
 }
 
 const invoiceSchema = new Schema<InvoiceDocument>(
@@ -137,6 +177,43 @@ const invoiceSchema = new Schema<InvoiceDocument>(
 		commandHistory: { type: [commandHistoryEntrySchema], default: [] },
 		notes: { type: String, maxlength: 1000 },
 		createdBy: { type: Types.ObjectId, ref: "User", required: true },
+		seller: {
+			nit: { type: String },
+			businessName: { type: String },
+			address: { type: String },
+			phone: { type: String },
+			email: { type: String },
+		},
+		buyer: {
+			documentType: { type: String },
+			documentNumber: { type: String },
+			businessName: { type: String },
+			address: { type: String },
+			email: { type: String },
+		},
+		lineItems: [
+			{
+				description: { type: String },
+				quantity: { type: Number },
+				unitPrice: { type: Number },
+				discount: { type: Number },
+				subtotal: { type: Number },
+			},
+		],
+		taxBase: { type: Number },
+		ivaRate: { type: Number },
+		ivaAmount: { type: Number },
+		retentionRate: { type: Number },
+		retentionAmount: { type: Number },
+		cufe: { type: String },
+		qrCode: { type: String },
+		paymentMethod: { type: String },
+		numeroResolucion: { type: String },
+		totalConIva: { type: Number },
+		retencionFuente: { type: Number, default: 0 },
+		nitEmisor: { type: String },
+		nitReceptor: { type: String },
+		tipoDocumento: { type: String, default: "FV" },
 	},
 	{ timestamps: true, versionKey: false },
 );

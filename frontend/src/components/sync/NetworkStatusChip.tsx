@@ -129,16 +129,17 @@ interface SyncQueueDialogProps {
 	entries: SyncQueueEntry[];
 	isOnline: boolean;
 	onDeleteEntry: (id: string) => void;
+	onDialogClose?: () => void;
 }
 
-function SyncQueueDialog({ dialogRef, entries, isOnline, onDeleteEntry }: SyncQueueDialogProps) {
+function SyncQueueDialog({ dialogRef, entries, isOnline, onDeleteEntry, onDialogClose }: SyncQueueDialogProps) {
 	return (
 		<dialog
 			ref={dialogRef}
 			aria-labelledby="queue-dialog-title"
 			className="motion-modal relative flex h-[500px] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-border-default bg-background p-6 shadow-2xl backdrop:bg-black/40 backdrop:backdrop-blur-sm"
 			onClose={() => {
-				// Native dialog close handler (Escape or .close())
+				onDialogClose?.();
 			}}
 		>
 			<button
@@ -350,6 +351,9 @@ export function NetworkStatusChip() {
 				entries={queueEntries}
 				isOnline={isOnline}
 				onDeleteEntry={handleDeleteEntry}
+				onDialogClose={() => {
+					refreshQueueEntries().catch(() => {});
+				}}
 			/>
 		</div>
 	);

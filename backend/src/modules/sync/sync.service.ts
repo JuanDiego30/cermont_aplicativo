@@ -53,6 +53,7 @@ import * as CostSvc from "../cost/cost.service";
 import * as EvidenceSvc from "../evidence/evidence.service";
 import * as AdministrativeWorkflowSvc from "../order/administrative-workflow.service";
 import * as PurchaseOrderSvc from "../purchase-order/purchase-order.service";
+import * as ServiceCaseSvc from "../service-cases/service-case.service";
 
 type LegacyAction = "create" | "update" | "delete";
 
@@ -467,6 +468,56 @@ async function applyInvoiceOperation(
 	}
 }
 
+async function handleCreatePayment(
+	op: NormalizedOfflineOperation,
+	actorRole: string,
+	actorId: string,
+): Promise<void> {
+	const invoiceId = (op.payload as { invoiceId?: string }).invoiceId;
+	if (!invoiceId) {
+		throw new AppError("payment creation requires invoiceId", 400, "MISSING_FIELDS");
+	}
+	const payload = RegisterInvoicePaymentSchema.parse(op.payload);
+	const existing = await Payment.findOne({
+		$or: [
+			...(payload.clientMutationId
+				? [{ "commandHistory.clientMutationId": payload.clientMutationId }]
+				: []),
+			{ paymentReference: payload.paymentReference },
+		],
+	});
+	if (existing) {
+		return;
+	}
+	await AdministrativeWorkflowSvc.registerPaymentForInvoice(invoiceId, payload, {
+		_id: actorId,
+		role: actorRole,
+	});
+}
+
+async function handleUpdatePayment(
+	op: NormalizedOfflineOperation,
+	actorRole: string,
+	actorId: string,
+): Promise<void> {
+	const action = (op.payload as { action?: string }).action;
+	if (action !== "reconcile") {
+		return;
+	}
+	const reconcilePayload = ReconcilePaymentSchema.parse(op.payload);
+	const payment = await AdministrativeWorkflowSvc.reconcilePayment(op.id, reconcilePayload, {
+		_id: actorId,
+		role: actorRole,
+	});
+	if (payment?.status !== "reconciled") {
+		return;
+	}
+	const dbPayment = await Payment.findById(op.id);
+	if (dbPayment?.serviceCaseId) {
+		await ServiceCaseSvc.closeServiceCase(dbPayment.serviceCaseId.toString(), actorId);
+	}
+}
+
 /**
  * Apply payment offline operation
  */
@@ -475,40 +526,12 @@ async function applyPaymentOperation(
 	actorRole: string,
 	actorId: string,
 ): Promise<void> {
-	const payload = RegisterInvoicePaymentSchema.parse(op.payload);
-	const invoiceId = (op.payload as { invoiceId?: string }).invoiceId;
-	const action = (op.payload as { action?: string }).action;
-
 	switch (op.action) {
-		case "create": {
-			if (!invoiceId) {
-				throw new AppError("payment creation requires invoiceId", 400, "MISSING_FIELDS");
-			}
-			const existing = await Payment.findOne({
-				$or: [
-					...(payload.clientMutationId
-						? [{ "commandHistory.clientMutationId": payload.clientMutationId }]
-						: []),
-					{ paymentReference: payload.paymentReference },
-				],
-			});
-			if (existing) {
-				return;
-			}
-			await AdministrativeWorkflowSvc.registerPaymentForInvoice(invoiceId, payload, {
-				_id: actorId,
-				role: actorRole,
-			});
+		case "create":
+			await handleCreatePayment(op, actorRole, actorId);
 			break;
-		}
 		case "update":
-			if (action === "reconcile") {
-				const reconcilePayload = ReconcilePaymentSchema.parse(op.payload);
-				await AdministrativeWorkflowSvc.reconcilePayment(op.id, reconcilePayload, {
-					_id: actorId,
-					role: actorRole,
-				});
-			}
+			await handleUpdatePayment(op, actorRole, actorId);
 			break;
 		default:
 			throw new AppError(`Payment action '${op.action}' not supported`, 400, "UNSUPPORTED_ACTION");

@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:d03aff02e4057c5ece1ffca5a1cb2a1899ea545ad8c8e715dae2b81fc018e813",
+	"currentSnapshotHash": "sha256:5a9ab4d947d74377dd977aaf1eb151ed3189113bf83f651ebd196f7d122d96cd",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -196,6 +196,13 @@
 			"type": "non-breaking",
 			"description": "Add CostBaselineSnapshotSchema to planning packets and fix contract serialization with optional object defaults.",
 			"toHash": "sha256:d03aff02e4057c5ece1ffca5a1cb2a1899ea545ad8c8e715dae2b81fc018e813"
+		},
+		{
+			"id": "028-prompt-maestro-v3-updates",
+			"date": "2026-06-08",
+			"type": "non-breaking",
+			"description": "Add Colombian DIAN fields to Invoice schema and extract modular sub-schemas for ExecutionSession.",
+			"toHash": "sha256:5a9ab4d947d74377dd977aaf1eb151ed3189113bf83f651ebd196f7d122d96cd"
 		}
 	]
 }

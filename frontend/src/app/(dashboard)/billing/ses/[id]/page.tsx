@@ -8,6 +8,7 @@ import { Suspense, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { RejectForm } from "@/core/ui/RejectForm";
+import { usePermissions } from "@/modules/core/hooks/usePermissions";
 import {
 	useApproveServiceEntrySheet,
 	useCancelServiceEntrySheet,
@@ -107,6 +108,7 @@ function EmptyCard() {
 
 function SESContent({ ses }: { ses: ServiceEntrySheet }) {
 	const [activeAction, setActiveAction] = useState<string>("none");
+	const { canApprove } = usePermissions();
 
 	const submitMutation = useSubmitServiceEntrySheet(ses._id);
 	const approveMutation = useApproveServiceEntrySheet(ses._id);
@@ -154,8 +156,8 @@ function SESContent({ ses }: { ses: ServiceEntrySheet }) {
 	};
 
 	const canSubmit = ses.status === "draft" || ses.status === "created";
-	const canApprove = ses.status === "submitted";
-	const canReject = ses.status === "submitted";
+	const canApproveStatus = ses.status === "submitted";
+	const canRejectStatus = ses.status === "submitted";
 	const canCancel = ses.status === "draft" || ses.status === "created" || ses.status === "rejected";
 
 	const showAction = (name: string) => activeAction === name;
@@ -165,7 +167,7 @@ function SESContent({ ses }: { ses: ServiceEntrySheet }) {
 		<>
 			<SESInfo ses={ses} />
 
-			{canSubmit || canApprove || canReject || canCancel ? (
+			{canSubmit || canApproveStatus || canRejectStatus || canCancel ? (
 				<div className="flex flex-wrap gap-3">
 					{canSubmit && activeAction !== "submit" && (
 						<button
@@ -178,22 +180,26 @@ function SESContent({ ses }: { ses: ServiceEntrySheet }) {
 							Enviar para aprobaci&oacute;n
 						</button>
 					)}
-					{canApprove && activeAction !== "approve" && (
+					{canApproveStatus && activeAction !== "approve" && (
 						<button
 							type="button"
 							onClick={() => toggleAction("approve")}
-							disabled={approveMutation.isPending}
+							disabled={approveMutation.isPending || !canApprove}
+							aria-disabled={!canApprove}
+							title={!canApprove ? "No tienes permiso para aprobar" : void 0}
 							className="inline-flex items-center gap-2 rounded-md bg-success px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
 						>
 							<CheckCircle2 className="size-4" />
 							Aprobar
 						</button>
 					)}
-					{canReject && activeAction !== "reject" && (
+					{canRejectStatus && activeAction !== "reject" && (
 						<button
 							type="button"
 							onClick={() => toggleAction("reject")}
-							disabled={rejectMutation.isPending}
+							disabled={rejectMutation.isPending || !canApprove}
+							aria-disabled={!canApprove}
+							title={!canApprove ? "No tienes permiso para rechazar" : void 0}
 							className="inline-flex items-center gap-2 rounded-md border border-destructive bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive disabled:opacity-50"
 						>
 							<XCircle className="size-4" />

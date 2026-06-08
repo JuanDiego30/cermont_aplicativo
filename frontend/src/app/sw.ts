@@ -104,9 +104,9 @@ const authApiNoCache: RuntimeCaching = {
 	matcher: ({ url }) => {
 		const pathname = url.pathname;
 		return (
-			pathname.startsWith("/api/auth/") ||
-			pathname.startsWith("/api/backend/auth/") ||
-			pathname.startsWith("/api/sync/")
+			pathname.startsWith("/api/auth") ||
+			pathname.startsWith("/api/backend/auth") ||
+			pathname.startsWith("/api/sync")
 		);
 	},
 	handler: new NetworkOnly({
@@ -281,6 +281,19 @@ self.addEventListener("message", (event: ExtendableMessageEvent) => {
 				event.ports[0]?.postMessage({ success: true });
 			}),
 	);
+});
+
+// CRITICAL: Intercept and stop propagation of auth and skip-SW requests.
+// This prevents Serwist from hijacking them and ensures the browser handles them natively.
+self.addEventListener("fetch", (event: FetchEvent) => {
+	const url = new URL(event.request.url);
+	if (
+		event.request.headers.get("X-Skip-SW") === "1" ||
+		url.pathname.startsWith("/api/auth") ||
+		url.pathname.startsWith("/api/backend/auth")
+	) {
+		event.stopImmediatePropagation();
+	}
 });
 
 serwist.addEventListeners();
