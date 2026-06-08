@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:75c5ebedd6b499c8aee522e49648c6446b2a0fb71c8822079205d4df33fb6403",
+	"currentSnapshotHash": "sha256:d03aff02e4057c5ece1ffca5a1cb2a1899ea545ad8c8e715dae2b81fc018e813",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -189,6 +189,13 @@
 			"type": "non-breaking",
 			"description": "Add ApplyPlanningKitSchema and its type to support applying typical kits to planning packets.",
 			"toHash": "sha256:75c5ebedd6b499c8aee522e49648c6446b2a0fb71c8822079205d4df33fb6403"
+		},
+		{
+			"id": "027-cost-baseline-snapshot",
+			"date": "2026-06-07",
+			"type": "non-breaking",
+			"description": "Add CostBaselineSnapshotSchema to planning packets and fix contract serialization with optional object defaults.",
+			"toHash": "sha256:d03aff02e4057c5ece1ffca5a1cb2a1899ea545ad8c8e715dae2b81fc018e813"
 		}
 	]
 }

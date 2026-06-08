@@ -12,7 +12,7 @@
  */
 
 // Auth API Contracts
-import { ChatRequestSchema } from "../schemas/ai.schema";
+import { AssistantChatRequestSchema } from "../schemas/ai.schema";
 import { ErrorDashboardQuerySchema, NotificationIdSchema } from "../schemas/analytics.schema";
 import { AuditLogIdSchema, AuditLogsQuerySchema } from "../schemas/audit.schema";
 import { LoginSchema } from "../schemas/auth.schema";
@@ -20,7 +20,7 @@ import { CreateUserSchema } from "../schemas/user.schema";
 
 export const aiAPI = {
 	chat: {
-		body: ChatRequestSchema,
+		body: AssistantChatRequestSchema,
 	} as const,
 } as const;
 

@@ -34,7 +34,86 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useReducer } from "react";
+
+// ── Reducer ──────────────────────────────────────────────────────
+
+type TabKey = "materials" | "tools" | "equipment" | "safety";
+type BusinessUnit = "IT" | "MNT" | "SC" | "GEN" | "OTHER";
+
+interface PlanningFormState {
+	activeTab: TabKey;
+	isEditing: boolean;
+	selectedKitId: string;
+	place: string;
+	plannedDate: string;
+	businessUnit: BusinessUnit;
+	scope: string;
+	inspectorName: string;
+	approvalNotes: string;
+	reopenReason: string;
+	showApprovalModal: boolean;
+	showReopenModal: boolean;
+}
+
+type PlanningFormAction =
+	| { type: "SET_ACTIVE_TAB"; payload: TabKey }
+	| { type: "TOGGLE_EDIT"; payload?: boolean }
+	| { type: "SET_KIT_ID"; payload: string }
+	| { type: "UPDATE_FORM"; payload: Partial<Pick<PlanningFormState, "place" | "plannedDate" | "businessUnit" | "scope" | "inspectorName">> }
+	| { type: "SET_APPROVAL_NOTES"; payload: string }
+	| { type: "SET_REOPEN_REASON"; payload: string }
+	| { type: "SHOW_APPROVAL_MODAL"; payload: boolean }
+	| { type: "SHOW_REOPEN_MODAL"; payload: boolean }
+	| { type: "POPULATE_FORM"; payload: { place: string; plannedDate: string; businessUnit: string; scope: string; inspectorName: string } };
+
+const initialState: PlanningFormState = {
+	activeTab: "materials",
+	isEditing: false,
+	selectedKitId: "",
+	place: "",
+	plannedDate: "",
+	businessUnit: "MNT",
+	scope: "",
+	inspectorName: "",
+	approvalNotes: "",
+	reopenReason: "",
+	showApprovalModal: false,
+	showReopenModal: false,
+};
+
+function planningReducer(state: PlanningFormState, action: PlanningFormAction): PlanningFormState {
+	switch (action.type) {
+		case "SET_ACTIVE_TAB":
+			return { ...state, activeTab: action.payload };
+		case "TOGGLE_EDIT":
+			return { ...state, isEditing: action.payload ?? !state.isEditing };
+		case "SET_KIT_ID":
+			return { ...state, selectedKitId: action.payload };
+		case "UPDATE_FORM":
+			return { ...state, ...action.payload };
+		case "SET_APPROVAL_NOTES":
+			return { ...state, approvalNotes: action.payload };
+		case "SET_REOPEN_REASON":
+			return { ...state, reopenReason: action.payload };
+		case "SHOW_APPROVAL_MODAL":
+			return { ...state, showApprovalModal: action.payload };
+		case "SHOW_REOPEN_MODAL":
+			return { ...state, showReopenModal: action.payload };
+		case "POPULATE_FORM":
+			return {
+				...state,
+				isEditing: true,
+				place: action.payload.place,
+				plannedDate: action.payload.plannedDate,
+				businessUnit: (action.payload.businessUnit as BusinessUnit) || "MNT",
+				scope: action.payload.scope,
+				inspectorName: action.payload.inspectorName,
+			};
+		default:
+			return state;
+	}
+}
 
 export default function OrderPlanningPage() {
 	const params = useParams();
@@ -60,22 +139,21 @@ export default function OrderPlanningPage() {
 	const reopenMutation = useReopenPlanning(planningPacket?._id || "");
 
 	// Local state
-	const [activeTab, setActiveTab] = useState<"materials" | "tools" | "equipment" | "safety">("materials");
-	const [isEditing, setIsEditing] = useState(false);
-	const [selectedKitId, setSelectedKitId] = useState("");
-
-	// Edit form state
-	const [place, setPlace] = useState("");
-	const [plannedDate, setPlannedDate] = useState("");
-	const [businessUnit, setBusinessUnit] = useState<"IT" | "MNT" | "SC" | "GEN" | "OTHER">("MNT");
-	const [scope, setScope] = useState("");
-	const [inspectorName, setInspectorName] = useState("");
-
-	// Approval / Reopen text inputs
-	const [approvalNotes, setApprovalNotes] = useState("");
-	const [reopenReason, setReopenReason] = useState("");
-	const [showApprovalModal, setShowApprovalModal] = useState(false);
-	const [showReopenModal, setShowReopenModal] = useState(false);
+	const [state, dispatch] = useReducer(planningReducer, initialState);
+	const {
+		activeTab,
+		isEditing,
+		selectedKitId,
+		place,
+		plannedDate,
+		businessUnit,
+		scope,
+		inspectorName,
+		approvalNotes,
+		reopenReason,
+		showApprovalModal,
+		showReopenModal,
+	} = state;
 
 	const isPlanningRole = user?.role && (PLANNING_ACCESS_ROLES as readonly string[]).includes(user.role);
 	const isGerenteOrResidente = user?.role === "gerente" || user?.role === "residente";
@@ -86,16 +164,18 @@ export default function OrderPlanningPage() {
 	// Populate form fields on edit start
 	const startEdit = () => {
 		if (planningPacket) {
-			setPlace(planningPacket.place || "");
-			setPlannedDate(
-				planningPacket.plannedDate
-					? new Date(planningPacket.plannedDate).toISOString().slice(0, 16)
-					: "",
-			);
-			setBusinessUnit((planningPacket.businessUnit as "IT" | "MNT" | "SC" | "GEN" | "OTHER") || "MNT");
-			setScope(planningPacket.scope || "");
-			setInspectorName(planningPacket.responsibleInspectorName || "");
-			setIsEditing(true);
+			dispatch({
+				type: "POPULATE_FORM",
+				payload: {
+					place: planningPacket.place || "",
+					plannedDate: planningPacket.plannedDate
+						? new Date(planningPacket.plannedDate).toISOString().slice(0, 16)
+						: "",
+					businessUnit: (planningPacket.businessUnit as string) || "MNT",
+					scope: planningPacket.scope || "",
+					inspectorName: planningPacket.responsibleInspectorName || "",
+				},
+			});
 		}
 	};
 
@@ -113,7 +193,7 @@ export default function OrderPlanningPage() {
 				scope,
 				responsibleInspectorName: inspectorName,
 			});
-			setIsEditing(false);
+			dispatch({ type: "TOGGLE_EDIT", payload: false });
 		} catch (err) {
 			console.error("Error updating planning:", err);
 		}
@@ -138,7 +218,7 @@ export default function OrderPlanningPage() {
 		}
 		try {
 			await applyKitMutation.mutateAsync({ kitTemplateId: selectedKitId });
-			setSelectedKitId("");
+			dispatch({ type: "SET_KIT_ID", payload: "" });
 		} catch (err) {
 			console.error("Error applying kit:", err);
 		}
@@ -155,8 +235,8 @@ export default function OrderPlanningPage() {
 	const handleApprove = async () => {
 		try {
 			await approveMutation.mutateAsync({ notes: approvalNotes });
-			setShowApprovalModal(false);
-			setApprovalNotes("");
+			dispatch({ type: "SHOW_APPROVAL_MODAL", payload: false });
+			dispatch({ type: "SET_APPROVAL_NOTES", payload: "" });
 		} catch (err) {
 			console.error("Error approving planning:", err);
 		}
@@ -165,8 +245,8 @@ export default function OrderPlanningPage() {
 	const handleReopen = async () => {
 		try {
 			await reopenMutation.mutateAsync({ reason: reopenReason });
-			setShowReopenModal(false);
-			setReopenReason("");
+			dispatch({ type: "SHOW_REOPEN_MODAL", payload: false });
+			dispatch({ type: "SET_REOPEN_REASON", payload: "" });
 		} catch (err) {
 			console.error("Error reopening planning:", err);
 		}
@@ -329,7 +409,7 @@ export default function OrderPlanningPage() {
 												id="inspector"
 												type="text"
 												value={inspectorName}
-												onChange={(e) => setInspectorName(e.target.value)}
+												onChange={(e) => dispatch({ type: "UPDATE_FORM", payload: { inspectorName: e.target.value } })}
 												placeholder="Ej. Ing. Juan Diego"
 												className="w-full text-sm px-3.5 py-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
 											/>
@@ -342,7 +422,7 @@ export default function OrderPlanningPage() {
 												id="place"
 												type="text"
 												value={place}
-												onChange={(e) => setPlace(e.target.value)}
+												onChange={(e) => dispatch({ type: "UPDATE_FORM", payload: { place: e.target.value } })}
 												placeholder="Ej. Campo Caño Limón"
 												className="w-full text-sm px-3.5 py-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
 												required
@@ -359,7 +439,7 @@ export default function OrderPlanningPage() {
 												id="plannedDate"
 												type="datetime-local"
 												value={plannedDate}
-												onChange={(e) => setPlannedDate(e.target.value)}
+												onChange={(e) => dispatch({ type: "UPDATE_FORM", payload: { plannedDate: e.target.value } })}
 												className="w-full text-sm px-3.5 py-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
 											/>
 										</div>
@@ -370,7 +450,7 @@ export default function OrderPlanningPage() {
 											<select
 												id="bu"
 												value={businessUnit}
-												onChange={(e) => setBusinessUnit(e.target.value as "IT" | "MNT" | "SC" | "GEN" | "OTHER")}
+												onChange={(e) => dispatch({ type: "UPDATE_FORM", payload: { businessUnit: e.target.value as BusinessUnit } })}
 												className="w-full text-sm px-3.5 py-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
 											>
 												<option value="MNT">Mantenimiento (MNT)</option>
@@ -389,7 +469,7 @@ export default function OrderPlanningPage() {
 										<textarea
 											id="scope"
 											value={scope}
-											onChange={(e) => setScope(e.target.value)}
+											onChange={(e) => dispatch({ type: "UPDATE_FORM", payload: { scope: e.target.value } })}
 											rows={4}
 											placeholder="Detalle el alcance técnico del plan de trabajo..."
 											className="w-full text-sm px-3.5 py-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
@@ -400,7 +480,7 @@ export default function OrderPlanningPage() {
 									<div className="flex items-center justify-end gap-3 pt-2">
 										<button
 											type="button"
-											onClick={() => setIsEditing(false)}
+											onClick={() => dispatch({ type: "TOGGLE_EDIT", payload: false })}
 											className="text-sm font-semibold text-zinc-650 hover:text-zinc-900 dark:text-zinc-450 dark:hover:text-white px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl"
 										>
 											Cancelar
@@ -504,7 +584,7 @@ export default function OrderPlanningPage() {
 									<select
 										id="kit"
 										value={selectedKitId}
-										onChange={(e) => setSelectedKitId(e.target.value)}
+										onChange={(e) => dispatch({ type: "SET_KIT_ID", payload: e.target.value })}
 										className="text-sm px-3.5 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
 									>
 										<option value="">Seleccione un kit...</option>
@@ -549,7 +629,7 @@ export default function OrderPlanningPage() {
 							<div className="flex overflow-x-auto gap-2 border-b border-zinc-200 dark:border-zinc-850 mb-6 pb-2">
 								<button
 									type="button"
-									onClick={() => setActiveTab("materials")}
+									onClick={() => dispatch({ type: "SET_ACTIVE_TAB", payload: "materials" })}
 									className={`text-sm font-semibold px-4 py-2 rounded-xl transition-all whitespace-nowrap ${
 										activeTab === "materials"
 											? "bg-blue-600 text-white shadow-sm"
@@ -560,7 +640,7 @@ export default function OrderPlanningPage() {
 								</button>
 								<button
 									type="button"
-									onClick={() => setActiveTab("tools")}
+									onClick={() => dispatch({ type: "SET_ACTIVE_TAB", payload: "tools" })}
 									className={`text-sm font-semibold px-4 py-2 rounded-xl transition-all whitespace-nowrap ${
 										activeTab === "tools"
 											? "bg-blue-600 text-white shadow-sm"
@@ -571,7 +651,7 @@ export default function OrderPlanningPage() {
 								</button>
 								<button
 									type="button"
-									onClick={() => setActiveTab("equipment")}
+									onClick={() => dispatch({ type: "SET_ACTIVE_TAB", payload: "equipment" })}
 									className={`text-sm font-semibold px-4 py-2 rounded-xl transition-all whitespace-nowrap ${
 										activeTab === "equipment"
 											? "bg-blue-600 text-white shadow-sm"
@@ -582,7 +662,7 @@ export default function OrderPlanningPage() {
 								</button>
 								<button
 									type="button"
-									onClick={() => setActiveTab("safety")}
+									onClick={() => dispatch({ type: "SET_ACTIVE_TAB", payload: "safety" })}
 									className={`text-sm font-semibold px-4 py-2 rounded-xl transition-all whitespace-nowrap ${
 										activeTab === "safety"
 											? "bg-blue-600 text-white shadow-sm"
@@ -831,7 +911,7 @@ export default function OrderPlanningPage() {
 								{planningPacket.status === "ready" && isGerenteOrResidente && (
 									<button
 										type="button"
-										onClick={() => setShowApprovalModal(true)}
+										onClick={() => dispatch({ type: "SHOW_APPROVAL_MODAL", payload: true })}
 										className="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all text-sm active:scale-[0.98]"
 									>
 										<Lock className="size-4" />
@@ -842,7 +922,7 @@ export default function OrderPlanningPage() {
 								{planningPacket.status === "approved" && isGerenteOrResidente && (
 									<button
 										type="button"
-										onClick={() => setShowReopenModal(true)}
+										onClick={() => dispatch({ type: "SHOW_REOPEN_MODAL", payload: true })}
 										className="w-full inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all text-sm active:scale-[0.98]"
 									>
 										<Unlock className="size-4" />
@@ -886,7 +966,7 @@ export default function OrderPlanningPage() {
 						</p>
 						<textarea
 							value={approvalNotes}
-							onChange={(e) => setApprovalNotes(e.target.value)}
+							onChange={(e) => dispatch({ type: "SET_APPROVAL_NOTES", payload: e.target.value })}
 							rows={3}
 							placeholder="Notas sobre el plan, personal, o equipos..."
 							className="w-full text-sm px-3.5 py-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
@@ -894,7 +974,8 @@ export default function OrderPlanningPage() {
 						<div className="flex items-center justify-end gap-3 pt-2">
 							<button
 								type="button"
-								onClick={() => setShowApprovalModal(false)}
+								onClick={() => dispatch({ type: "SHOW_APPROVAL_MODAL", payload: false })}
+								aria-label="Cancelar aprobación"
 								className="text-sm font-semibold text-zinc-650 hover:text-zinc-900 dark:text-zinc-450 dark:hover:text-white px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl"
 							>
 								Cancelar
@@ -903,6 +984,7 @@ export default function OrderPlanningPage() {
 								type="button"
 								onClick={handleApprove}
 								disabled={approveMutation.isPending}
+								aria-label="Confirmar aprobación del plan"
 								className="text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl shadow-sm flex items-center gap-1.5 disabled:opacity-50"
 							>
 								{approveMutation.isPending && <Loader2 className="animate-spin size-4" />}
@@ -926,7 +1008,7 @@ export default function OrderPlanningPage() {
 						</p>
 						<textarea
 							value={reopenReason}
-							onChange={(e) => setReopenReason(e.target.value)}
+							onChange={(e) => dispatch({ type: "SET_REOPEN_REASON", payload: e.target.value })}
 							rows={3}
 							placeholder="Razón por la cual se reabre el plan de trabajo..."
 							className="w-full text-sm px-3.5 py-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
@@ -935,7 +1017,8 @@ export default function OrderPlanningPage() {
 						<div className="flex items-center justify-end gap-3 pt-2">
 							<button
 								type="button"
-								onClick={() => setShowReopenModal(false)}
+								onClick={() => dispatch({ type: "SHOW_REOPEN_MODAL", payload: false })}
+								aria-label="Cancelar reapertura"
 								className="text-sm font-semibold text-zinc-650 hover:text-zinc-900 dark:text-zinc-450 dark:hover:text-white px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl"
 							>
 								Cancelar
@@ -944,6 +1027,7 @@ export default function OrderPlanningPage() {
 								type="button"
 								onClick={handleReopen}
 								disabled={!reopenReason.trim() || reopenMutation.isPending}
+								aria-label="Reabrir plan de trabajo"
 								className="text-sm font-semibold bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl shadow-sm flex items-center gap-1.5 disabled:opacity-50"
 							>
 								{reopenMutation.isPending && <Loader2 className="animate-spin size-4" />}

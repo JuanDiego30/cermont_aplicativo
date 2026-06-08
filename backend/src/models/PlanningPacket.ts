@@ -304,6 +304,20 @@ const PlanningPacketSchema = new mongoose.Schema(
 			type: String,
 			trim: true,
 		},
+		costBaselineSnapshot: {
+			frozenAt: Date,
+			frozenBy: {
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "User",
+			},
+			laborCosts: Number,
+			materialCosts: Number,
+			equipmentCosts: Number,
+			totalBudget: Number,
+			contingencyPercentage: Number,
+			contingencyAmount: Number,
+			grandTotal: Number,
+		},
 		updatedBy: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User",

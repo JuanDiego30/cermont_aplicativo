@@ -3,7 +3,8 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { Bot, Send, Sparkles, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useMemo, useEffect, useRef, useState } from "react";
 import { MOTION } from "@/components/motion/motion-classes";
 import { useUIStore } from "@/store/ui.store";
 
@@ -12,10 +13,17 @@ gsap.registerPlugin(useGSAP);
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/http/api-client";
 import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
+import { useServiceCase } from "@/modules/service-cases/queries";
+import type { AssistantChatRequest } from "@cermont/shared-types";
 
 interface AIEnvelope {
 	message: string;
 	suggestedActions?: string[];
+	actions?: string[];
+	// Backend AssistantChatResponse shape
+	threadId?: string;
+	reply?: string;
+	blockers?: string[];
 }
 
 interface AiMessage {
@@ -23,6 +31,8 @@ interface AiMessage {
 	role: "assistant" | "user";
 	content: string;
 	actions?: string[];
+	serviceCaseId?: string;
+	threadId?: string;
 }
 
 const QUICK_PROMPTS = [
@@ -42,6 +52,16 @@ function createMessageId(role: AiMessage["role"]): string {
 export function CermontAIDrawer() {
 	const { chatOpen, toggleChat } = useUIStore();
 	const queryClient = useQueryClient();
+	const pathname = usePathname();
+	const serviceCaseIdFromUrl = useMemo(() => {
+		const match = pathname.match(/\/service-cases\/([^/]+)/);
+		return match ? match[1] : null;
+	}, [pathname]);
+	const { data: workflow } = useServiceCase(serviceCaseIdFromUrl ?? "");
+
+	const serviceCaseId = workflow?.data?.serviceCaseId;
+	const currentModule = pathname ?? null;
+
 	const [messages, setMessages] = useState<AiMessage[]>([
 		{
 			id: createMessageId("assistant"),
@@ -56,22 +76,48 @@ export function CermontAIDrawer() {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const drawerRef = useRef<HTMLDialogElement>(null);
 
+	const [activeThreadId, setActiveThreadId] = useState<string>();
+
 	const mutation = useMutation({
 		mutationFn: async (query: string) => {
-			const response = await apiClient.post<{ success: boolean; data: AIEnvelope }>("/ai/chat", {
-				query,
-			});
-			return response.data;
+			const payload: AssistantChatRequest = {
+				serviceCaseId: serviceCaseId ?? "",
+				message: query,
+				...(activeThreadId ? { threadId: activeThreadId } : {}),
+				...(currentModule ? { currentModule } : {}),
+			};
+
+			const response = await apiClient.post<{ success: boolean; data: AIEnvelope }>("/ai/chat", payload);
+			const data = (response.data as AIEnvelope) ?? {};
+			return {
+				message: data.reply ?? data.message ?? "",
+				suggestedActions: data.suggestedActions ?? data.actions,
+				threadId: data.threadId,
+				blockers: data.blockers,
+			} satisfies AIEnvelope;
 		},
 		onSuccess: (data) => {
+			if (data.threadId) {
+				setActiveThreadId(data.threadId);
+			}
 			void queryClient.invalidateQueries({ queryKey: ["ai", "chat"] });
 			setMessages((prev) => [
-				...prev,
+				...prev.map((msg) =>
+					msg.id === prev[prev.length - 1]?.id
+						? {
+								...msg,
+							threadId: data.threadId ?? msg.threadId,
+							serviceCaseId: msg.serviceCaseId ?? serviceCaseId,
+							}
+						: msg,
+				),
 				{
 					id: createMessageId("assistant"),
 					role: "assistant",
 					content: data.message,
 					actions: data.suggestedActions,
+					serviceCaseId,
+					threadId: data.threadId,
 				},
 			]);
 		},
@@ -83,6 +129,7 @@ export function CermontAIDrawer() {
 					role: "assistant",
 					content:
 						"Ha ocurrido un error al conectar con mis sistemas. Por favor, intenta de nuevo más tarde.",
+					serviceCaseId,
 				},
 			]);
 		},
@@ -123,7 +170,7 @@ export function CermontAIDrawer() {
 		const userMessage = text.trim();
 		setMessages((prev) => [
 			...prev,
-			{ id: createMessageId("user"), role: "user", content: userMessage },
+			{ id: createMessageId("user"), role: "user", content: userMessage, serviceCaseId, threadId: activeThreadId },
 		]);
 		if (text === input) {
 			setInput("");
@@ -164,7 +211,7 @@ export function CermontAIDrawer() {
 							<Bot className="size-5" />
 						</div>
 						<div>
-						<h2 id="cermont-ai-title" className="text-sm font-semibold text-[var(--text-primary)]">Cermont AI</h2>
+							<h2 id="cermont-ai-title" className="text-sm font-semibold text-[var(--text-primary)]">Cermont AI</h2>
 							<p className="mt-0.5 inline-flex items-center gap-1.5 text-[11px] font-medium text-[var(--color-success)]">
 								<span className="inline-block size-1.5 animate-pulse rounded-full bg-[var(--color-success)]"></span>
 								Operativo
@@ -250,7 +297,9 @@ export function CermontAIDrawer() {
 							value={input}
 							onChange={(e) => setInput(e.target.value)}
 							onKeyDown={handleKeyDown}
-							placeholder="Hazme una pregunta…"
+							placeholder={
+								currentModule ? `Pregunta sobre ${currentModule}` : "Hazme una pregunta…"
+							}
 							aria-label="Pregunta a la IA de Cermont"
 							className="max-h-32 min-h-10 w-full resize-none bg-transparent px-3 py-2 text-sm text-(--text-primary) outline-none placeholder:text-(--text-tertiary)"
 						/>

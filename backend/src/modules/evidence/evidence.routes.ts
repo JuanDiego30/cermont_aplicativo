@@ -48,9 +48,11 @@ const upload = multer({
 });
 
 // GET /api/evidences/order/:orderId
+// Roles: Todos (all authenticated users)
 router.get(
 	"/order/:orderId",
 	authenticate,
+	authorize(...INTERNAL_ROLES),
 	validateParams(EvidenceOrderIdParamsSchema),
 	validateQuery(PaginationQuerySchema),
 	EvidenceController.getEvidencesByOrder,

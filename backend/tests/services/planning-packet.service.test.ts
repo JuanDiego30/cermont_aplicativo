@@ -46,6 +46,7 @@ type PlanningPacketFixture = {
 type PopulateChainFixture = {
 	status: string;
 	populate: ReturnType<typeof vi.fn>;
+	toObject: ReturnType<typeof vi.fn>;
 };
 
 const ROLE_RESIDENTE = ["resi", "dente"].join("");
@@ -132,8 +133,10 @@ function buildPopulateChain(status: string): PopulateChainFixture {
 	const chain: PopulateChainFixture = {
 		status,
 		populate: vi.fn(),
+		toObject: vi.fn(),
 	};
 	chain.populate.mockReturnValue(chain);
+	chain.toObject.mockReturnValue({ status });
 	return chain;
 }
 

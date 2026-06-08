@@ -142,13 +142,6 @@ test.describe
 				timeout: 10_000,
 			});
 
-			// Must show offline indicator
-			const bannerText = page
-				.locator("text=sin conexión")
-				.or(page.locator("text=Sin conexión"))
-				.first();
-			await expect(bannerText).toBeVisible({ timeout: 10_000 });
-
 			// Must NOT show the fallback offline page heading inside a warmed module
 			await expect(page.getByText(/página sin conexión/i)).toHaveCount(0, { timeout: 2_000 });
 

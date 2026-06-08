@@ -12,7 +12,9 @@ export default async function DashboardRootLayout({ children }: { children: Reac
 
 	return (
 		<DashboardProviders>
-			<DefaultLayout>{children}</DefaultLayout>
+			<DefaultLayout>
+				<main>{children}</main>
+			</DefaultLayout>
 		</DashboardProviders>
 	);
 }

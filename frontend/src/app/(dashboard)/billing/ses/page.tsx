@@ -47,8 +47,10 @@ function BillingSESPageContent() {
 
 export default function BillingSESPage() {
 	return (
-		<Suspense fallback={<WorkflowRecordsPageLoadingState />}>
-			<BillingSESPageContent />
-		</Suspense>
+		<main>
+			<Suspense fallback={<WorkflowRecordsPageLoadingState />}>
+				<BillingSESPageContent />
+			</Suspense>
+		</main>
 	);
 }

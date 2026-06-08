@@ -1,3 +1,4 @@
+import { INTERNAL_ROLES } from "@cermont/domain";
 import {
 	ChecklistIdParamsSchema,
 	ChecklistItemParamsSchema,
@@ -18,6 +19,7 @@ const router = Router();
 router.get(
 	"/",
 	authenticate,
+	authorize(...INTERNAL_ROLES),
 	validateQuery(ListChecklistsQuerySchema),
 	ChecklistController.listChecklists,
 );
@@ -25,6 +27,7 @@ router.get(
 router.get(
 	"/order/:orderId",
 	authenticate,
+	authorize(...INTERNAL_ROLES),
 	validateParams(ChecklistOrderIdParamsSchema),
 	ChecklistController.listChecklistsByOrder,
 );
@@ -32,6 +35,7 @@ router.get(
 router.get(
 	"/:orderId",
 	authenticate,
+	authorize(...INTERNAL_ROLES),
 	validateParams(ChecklistOrderIdParamsSchema),
 	ChecklistController.listChecklistsByOrder,
 );

@@ -18,5 +18,5 @@ interface AuthLayoutProps {
 }
 
 export default function AuthLayout({ children }: AuthLayoutProps) {
-	return <>{children}</>;
+	return <section>{children}</section>;
 }

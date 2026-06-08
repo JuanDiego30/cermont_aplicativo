@@ -6,6 +6,17 @@
  */
 
 import {
+	type CermontOperationalStepStatus,
+	canAdvanceStep,
+	CERMONT_OPERATIONAL_STEPS as DOMAIN_OPERATIONAL_STEPS,
+	type ServiceCaseEvent,
+	type ServiceCaseState,
+	ServiceCaseStateMachine,
+	type ServiceCaseWorkflowSnapshot,
+	type WorkflowBlocker,
+	type WorkflowContext,
+} from "@cermont/domain";
+import {
 	CERMONT_OPERATIONAL_STEPS,
 	type ClosureWorkflowSummary,
 	type CostTraceabilitySummary,
@@ -18,15 +29,25 @@ import {
 	type ServiceCase as ServiceCaseView,
 	type ServiceCaseWorkflowViewModel,
 } from "@cermont/shared-types";
+import { Types } from "mongoose";
 import { NotFoundError } from "../../common/errors/AppError";
-
 import { createLogger } from "../../common/utils/logger";
-import { Proposal, Order } from "../../models";
+import {
+	Cost,
+	DeliveryRecord,
+	ExecutionSession,
+	Order,
+	PlanningPacket,
+	Proposal,
+	User,
+} from "../../models";
 import { Document } from "../../models/Document";
 import { Evidence } from "../../models/Evidence";
 import { ServiceCase, type ServiceCaseDocument } from "../../models/ServiceCase";
 import { calculateStepBlockers } from "../../services/cermont-workflow-gate.service";
+import { createAuditLog } from "../audit/audit.service";
 import { getOrderSummary } from "../cost/cost.service";
+import { notifyStateTransition } from "../notifications/notification.service";
 
 const log = createLogger("service-case-service");
 
@@ -911,9 +932,7 @@ export async function buildServiceCaseWorkflowView(
 
 	const updatedAtString = serviceCase.updatedAt;
 
-	const deadlineString = order?.completedAt
-		? new Date(order.completedAt).toISOString()
-		: void 0;
+	const deadlineString = order?.completedAt ? new Date(order.completedAt).toISOString() : void 0;
 
 	return {
 		serviceCaseId: serviceCase._id,
@@ -977,4 +996,392 @@ export async function archiveServiceCase(id: string, _userId: string) {
 	}
 
 	return getServiceCaseById(id);
+}
+
+/**
+ * Builds a dynamic WorkflowContext representation for the state machine
+ * by checking the status of all case artifacts across databases.
+ */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: legacy method
+export async function buildWorkflowContext(caseId: string): Promise<WorkflowContext> {
+	const serviceCase = await ServiceCase.findById(caseId);
+	if (!serviceCase) {
+		throw new NotFoundError("Service case", caseId);
+	}
+
+	const availableDocuments: string[] = [];
+	const availableEvidences: string[] = [];
+	const approvals: string[] = [];
+	let hasCostBaseline = false;
+	let hasActualCosts = false;
+
+	const art = serviceCase.artifacts || {};
+
+	// Step 1: WorkRequest
+	if (
+		art.workRequest?.id &&
+		["completed", "assigned", "in_progress"].includes(art.workRequest.status)
+	) {
+		availableDocuments.push("formal_request");
+	}
+
+	// Step 2: SiteVisit
+	if (art.siteVisit?.id && art.siteVisit.status === "completed") {
+		availableDocuments.push("visit_report");
+	}
+	const orderId = art.workOrder?.id || serviceCase._id;
+	if (orderId) {
+		const beforeEvidenceCount = await Evidence.countDocuments({
+			orderId,
+			type: "before",
+			deletedAt: null,
+		});
+		if (beforeEvidenceCount > 0) {
+			availableEvidences.push("visit_evidence");
+		}
+	}
+
+	// Step 3: Proposal
+	if (art.proposal?.id && art.proposal.status === "approved") {
+		availableDocuments.push("economic_proposal");
+	}
+
+	// Step 4: PurchaseOrder
+	if (art.purchaseOrder?.id && art.purchaseOrder.status === "approved") {
+		approvals.push("client_po");
+	}
+
+	// Step 5: Planning
+	if (art.planningPacket?.id) {
+		const pp = await PlanningPacket.findById(art.planningPacket.id).lean();
+		if (pp) {
+			if (pp.status === "approved") {
+				availableDocuments.push("ats", "ptw", "checklist", "kit");
+				hasCostBaseline = true;
+				approvals.push("planning_approved");
+			}
+		}
+	}
+
+	// Step 6: Execution
+	if (art.executionSession?.id) {
+		const es = await ExecutionSession.findById(art.executionSession.id).lean();
+		if (es) {
+			if (["in_progress", "completed", "finished"].includes(es.status)) {
+				approvals.push("execution_started");
+			}
+		}
+	}
+
+	// Step 7: Evidences
+	if (orderId) {
+		const duringEvidenceCount = await Evidence.countDocuments({
+			orderId,
+			type: "during",
+			deletedAt: null,
+		});
+		if (duringEvidenceCount > 0) {
+			availableEvidences.push("execution_evidence");
+		}
+
+		const actualCostCount = await Cost.countDocuments({
+			orderId,
+		});
+		if (actualCostCount > 0) {
+			hasActualCosts = true;
+		}
+	}
+
+	// Step 8: TechnicalReport
+	if (art.technicalReport?.id && art.technicalReport.status === "approved") {
+		availableDocuments.push("technical_report");
+	}
+
+	// Step 9: DeliveryRecord
+	if (art.deliveryRecord?.id) {
+		const dr = await DeliveryRecord.findById(art.deliveryRecord.id).lean();
+		if (dr) {
+			availableDocuments.push("delivery_record");
+			if (dr.status === "signed") {
+				approvals.push("client_signature");
+			}
+		}
+	}
+
+	// Step 10: ClientSignature
+	if (art.deliveryRecord?.status === "signed") {
+		approvals.push("client_signature");
+	}
+
+	// Step 11: SES
+	if (art.serviceEntrySheet?.id && art.serviceEntrySheet.status === "approved") {
+		approvals.push("ses_approved");
+	}
+
+	// Step 12: Invoice
+	if (art.invoice?.id) {
+		availableDocuments.push("invoice");
+		if (art.invoice.status === "approved" || art.invoice.status === "paid") {
+			approvals.push("invoice_approved");
+		}
+	}
+
+	// Step 13: InvoiceApproval
+	if (art.invoice?.status === "approved" || art.invoice?.status === "paid") {
+		approvals.push("invoice_approved");
+	}
+
+	// Step 14: Payment
+	if (
+		art.payment?.id &&
+		(art.payment.status === "completed" || art.payment.status === "reconciled")
+	) {
+		approvals.push("payment_record");
+	}
+
+	return {
+		availableDocuments,
+		availableEvidences,
+		approvals,
+		hasCostBaseline,
+		hasActualCosts,
+	};
+}
+
+export type AdvanceServiceCaseResult =
+	| { success: true; serviceCase: ServiceCaseDocument }
+	| {
+			success: false;
+			error: "TRANSITION_BLOCKED";
+			blockers: readonly WorkflowBlocker[];
+			message: string;
+	  };
+
+const DB_STEP_TO_DOMAIN_STATE: Record<string, string> = {
+	step_01_work_request: "work_request",
+	step_02_site_visit: "site_visit",
+	step_03_proposal: "proposal",
+	step_04_purchase_order: "purchase_order",
+	step_05_planning: "planning",
+	step_06_execution: "execution",
+	step_07_technical_report: "evidences",
+	step_08_delivery_record: "technical_report",
+	step_09_client_signature: "delivery_record",
+	step_10_ses_submission: "client_signature",
+	step_11_ses_approval: "ses",
+	step_12_invoice_submission: "invoice",
+	step_13_invoice_approval: "invoice_approval",
+	step_14_payment_closure: "payment",
+};
+
+const DOMAIN_STATE_TO_DB_STEP: Record<string, string> = {
+	work_request: "step_01_work_request",
+	site_visit: "step_02_site_visit",
+	proposal: "step_03_proposal",
+	purchase_order: "step_04_purchase_order",
+	planning: "step_05_planning",
+	execution: "step_06_execution",
+	evidences: "step_07_technical_report",
+	technical_report: "step_08_delivery_record",
+	delivery_record: "step_09_client_signature",
+	client_signature: "step_10_ses_submission",
+	ses: "step_11_ses_approval",
+	invoice: "step_12_invoice_submission",
+	invoice_approval: "step_13_invoice_approval",
+	payment: "step_14_payment_closure",
+	closed: "step_14_payment_closure",
+};
+
+const STEP_TO_STAGE_MAP: Record<string, string> = {
+	step_01_work_request: "intake",
+	step_02_site_visit: "assessment",
+	step_03_proposal: "proposal",
+	step_04_purchase_order: "authorization",
+	step_05_planning: "planning",
+	step_06_execution: "in_execution",
+	step_07_technical_report: "technical_closure",
+	step_08_delivery_record: "administrative_closure",
+	step_09_client_signature: "administrative_closure",
+	step_10_ses_submission: "ses_pending",
+	step_11_ses_approval: "billing_pending",
+	step_12_invoice_submission: "receivable_open",
+	step_13_invoice_approval: "receivable_open",
+	step_14_payment_closure: "paid",
+};
+
+function dbStepToDomainState(dbStep: string): ServiceCaseState {
+	return (DB_STEP_TO_DOMAIN_STATE[dbStep] ?? "pending") as ServiceCaseState;
+}
+
+function domainStateToDbStep(state: ServiceCaseState): string {
+	return DOMAIN_STATE_TO_DB_STEP[state] ?? "step_01_work_request";
+}
+
+function getTransitionEvent(state: ServiceCaseState): ServiceCaseEvent {
+	switch (state) {
+		case "pending":
+			return { type: "WORK_REQUEST_CREATED" };
+		case "work_request":
+			return { type: "SITE_VISIT_COMPLETED" };
+		case "site_visit":
+			return { type: "PROPOSAL_APPROVED" };
+		case "proposal":
+			return { type: "PURCHASE_ORDER_APPROVED" };
+		case "purchase_order":
+			return { type: "PLANNING_APPROVED" };
+		case "planning":
+			return { type: "EXECUTION_COMPLETED" };
+		case "execution":
+			return { type: "EVIDENCE_VERIFIED" };
+		case "evidences":
+			return { type: "TECHNICAL_REPORT_APPROVED" };
+		case "technical_report":
+			return { type: "DELIVERY_RECORD_GENERATED" };
+		case "delivery_record":
+			return { type: "CLIENT_SIGNATURE_REGISTERED" };
+		case "client_signature":
+			return { type: "SES_APPROVED" };
+		case "ses":
+			return { type: "INVOICE_CREATED" };
+		case "invoice":
+			return { type: "INVOICE_APPROVED" };
+		case "invoice_approval":
+			return { type: "PAYMENT_REGISTERED" };
+		case "payment":
+			return { type: "CASE_CLOSED" };
+		default:
+			throw new Error(`Unknown state for transition event: ${state}`);
+	}
+}
+
+/**
+ * Executes a step transition for the service case using the domain State Machine
+ */
+export async function advanceServiceCaseState(
+	caseId: string,
+	userId: string,
+): Promise<AdvanceServiceCaseResult> {
+	const serviceCase = await ServiceCase.findById(caseId);
+	if (!serviceCase) {
+		throw new NotFoundError("ServiceCase", caseId);
+	}
+
+	const currentStepCode = serviceCase.currentStepCode || "step_01_work_request";
+	const currentState = dbStepToDomainState(currentStepCode);
+
+	// 1. Build step statuses for the snapshot
+	const stepStatuses: Record<string, CermontOperationalStepStatus> = {};
+	const currentStepIndex = DOMAIN_OPERATIONAL_STEPS.findIndex((s) => s.key === currentState);
+
+	for (let i = 0; i < DOMAIN_OPERATIONAL_STEPS.length; i++) {
+		const step = DOMAIN_OPERATIONAL_STEPS[i];
+		if (i < currentStepIndex) {
+			stepStatuses[step.key] = "completed";
+		} else if (i === currentStepIndex) {
+			stepStatuses[step.key] = "in_progress";
+		} else {
+			stepStatuses[step.key] = "pending";
+		}
+	}
+
+	const snapshot: ServiceCaseWorkflowSnapshot = {
+		currentStepKey: currentState,
+		stepStatuses,
+	};
+
+	// 2. Build workflow context
+	const context = await buildWorkflowContext(caseId);
+
+	// 3. Verify via state machine if we can advance
+	const canAdvance = canAdvanceStep(snapshot, context);
+	if (!canAdvance.allowed) {
+		return {
+			success: false,
+			error: "TRANSITION_BLOCKED",
+			blockers: canAdvance.blockers,
+			message: "No se puede avanzar al siguiente paso. Requisitos faltantes.",
+		};
+	}
+
+	// 4. Perform transition
+	const event = getTransitionEvent(currentState);
+	const transitionResult = ServiceCaseStateMachine.transition(
+		currentState,
+		event,
+		snapshot,
+		context,
+	);
+
+	if (transitionResult.status === "blocked") {
+		return {
+			success: false,
+			error: "TRANSITION_BLOCKED",
+			blockers: transitionResult.reasons.map((msg) => ({
+				code: "STATE_MACHINE_BLOCKED",
+				message: msg,
+				stepKey: currentState,
+				severity: "critical" as const,
+			})),
+			message:
+				"No se puede avanzar al siguiente paso. Transición rechazada por la máquina de estado.",
+		};
+	}
+
+	const newDomainState = transitionResult.state;
+	const newStepCode = domainStateToDbStep(newDomainState);
+	const newStage = (STEP_TO_STAGE_MAP[newStepCode] ??
+		"intake") as ServiceCaseDocument["currentStage"];
+
+	// 5. Update serviceCase document
+	serviceCase.currentStepCode = newStepCode;
+	serviceCase.currentStage = newStage;
+
+	const actor = await User.findById(userId);
+	const actorRole = actor ? actor.role : "supervisor";
+
+	serviceCase.timeline.push({
+		eventId: `evt_${Date.now()}`,
+		stage: newStage,
+		command: "MANUAL_ADVANCE",
+		occurredAt: new Date(),
+		actorId: new Types.ObjectId(userId),
+		actorRole,
+		notes: `Advanced operational step from ${currentStepCode} to ${newStepCode} via domain State Machine`,
+	});
+
+	await serviceCase.save();
+
+	// Calculate and save new blockers for the new step
+	const newBlockers = await calculateStepBlockers(serviceCase._id.toString());
+	await ServiceCase.findByIdAndUpdate(serviceCase._id, {
+		blockers: newBlockers.map((blocker) => ({ ...blocker })),
+	});
+
+	// 6. Log Audit
+	createAuditLog({
+		userId,
+		entity: "ServiceCase",
+		entityId: serviceCase._id.toString(),
+		action: "STATE_TRANSITION",
+		before: currentStepCode,
+		after: newStepCode,
+		metadata: {
+			previousState: currentState,
+			newState: newDomainState,
+			stage: newStage,
+		},
+	});
+
+	// 7. Notify State Transition
+	await notifyStateTransition(serviceCase._id.toString(), currentState, newDomainState, userId);
+
+	const updatedCase = await ServiceCase.findById(caseId);
+	if (!updatedCase) {
+		throw new NotFoundError("ServiceCase", caseId);
+	}
+
+	return {
+		success: true,
+		serviceCase: updatedCase,
+	};
 }

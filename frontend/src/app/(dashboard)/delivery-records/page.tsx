@@ -47,8 +47,10 @@ function DeliveryRecordsPageContent() {
 
 export default function DeliveryRecordsPage() {
 	return (
-		<Suspense fallback={<WorkflowRecordsPageLoadingState />}>
-			<DeliveryRecordsPageContent />
-		</Suspense>
+		<main>
+			<Suspense fallback={<WorkflowRecordsPageLoadingState />}>
+				<DeliveryRecordsPageContent />
+			</Suspense>
+		</main>
 	);
 }

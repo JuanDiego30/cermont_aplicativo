@@ -84,7 +84,9 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
 		<html lang="es" suppressHydrationWarning data-scroll-behavior="smooth">
 			<body className="min-h-screen overflow-x-hidden bg-[var(--surface-page)] text-[var(--foreground)] antialiased selection:bg-[var(--color-brand-blue)]/15 selection:text-[var(--foreground)]">
 				<AppSerwistProvider>
-					<Providers>{children}</Providers>
+					<Providers>
+						<main>{children}</main>
+					</Providers>
 				</AppSerwistProvider>
 				<AppToaster />
 				<Script id="theme-init" strategy="beforeInteractive">

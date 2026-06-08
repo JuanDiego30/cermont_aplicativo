@@ -61,14 +61,14 @@ export function CostForm({ orderId, cost, readOnly = false, onSuccess, onCancel 
 		defaultValues: buildDefaultValues(orderId, cost),
 	});
 
-	const evidencesQuery = useQuery({
+	const { data: evidencesData = [], isLoading: isEvidencesLoading } = useQuery({
 		queryKey: ["evidences", orderId],
 		queryFn: () => listEvidences(orderId),
 		enabled: !!orderId,
 	});
 	const selectedEvidenceSupportId = watch("supportEvidenceIds")?.[0] ?? "";
 	const isSubmitting = createMutation.isPending || updateMutation.isPending;
-	const isSupportSelectorDisabled = readOnly || isSubmitting || evidencesQuery.isLoading;
+	const isSupportSelectorDisabled = readOnly || isSubmitting || isEvidencesLoading;
 
 	function handleSupportEvidenceChange(event: ChangeEvent<HTMLSelectElement>) {
 		const selectedId = event.currentTarget.value;
@@ -225,13 +225,13 @@ export function CostForm({ orderId, cost, readOnly = false, onSuccess, onCancel 
 						disabled={isSupportSelectorDisabled}
 					>
 						<option value="">
-							{evidencesQuery.isLoading ? "Cargando soportes" : "Seleccionar soporte"}
+							{isEvidencesLoading ? "Cargando soportes" : "Seleccionar soporte"}
 						</option>
 						<CurrentEvidenceSupportOption
 							selectedEvidenceSupportId={selectedEvidenceSupportId}
-							evidences={evidencesQuery.data ?? []}
+							evidences={evidencesData}
 						/>
-						{(evidencesQuery.data ?? []).map((evidence) => (
+						{evidencesData.map((evidence) => (
 							<option key={evidence._id} value={evidence._id}>
 								{formatEvidenceSupportLabel(evidence)}
 							</option>

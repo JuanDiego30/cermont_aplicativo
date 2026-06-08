@@ -47,8 +47,10 @@ function PaymentsPageContent() {
 
 export default function PaymentsPage() {
 	return (
-		<Suspense fallback={<WorkflowRecordsPageLoadingState />}>
-			<PaymentsPageContent />
-		</Suspense>
+		<main>
+			<Suspense fallback={<WorkflowRecordsPageLoadingState />}>
+				<PaymentsPageContent />
+			</Suspense>
+		</main>
 	);
 }

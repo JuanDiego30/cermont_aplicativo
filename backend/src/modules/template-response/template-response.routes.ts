@@ -14,17 +14,20 @@ const router = Router();
 
 router.use(authenticate);
 
+// No body validation needed — template response creation handled by controller
 router.post("/", authorize("gerente", "residente", "supervisor", "tecnico", "operador"), create);
 router.get("/", authorize("gerente", "residente", "supervisor", "administrativo"), list);
 router.get("/:id", authorize("gerente", "residente", "supervisor", "tecnico", "operador"), getById);
 router.patch(
 	"/:id",
 	authorize("gerente", "residente", "supervisor", "tecnico", "operador"),
+	// No body validation needed — template response update handled by controller
 	update,
 );
 router.post(
 	"/:id/submit",
 	authorize("gerente", "residente", "supervisor", "tecnico", "operador"),
+	// No body validation needed — submit is an action endpoint with no body
 	submit,
 );
 

@@ -1,4 +1,4 @@
-import { ChatRequestSchema } from "@cermont/shared-types";
+import { AssistantChatRequestSchema } from "@cermont/shared-types";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
@@ -10,8 +10,9 @@ const router = Router();
 /**
  * GET /api/ai/status
  * Documenta el estado actual y evolución futura del módulo IA (Pasos v2.0).
+ * No body validation needed — status check is GET-only
  */
-router.get("/status", (_req, res) => {
+router.get("/status", authenticate, (_req, res) => {
 	res.json({
 		success: true,
 		status: "implemented_v1",
@@ -27,7 +28,7 @@ router.post(
 	"/chat",
 	authenticate,
 	authorize("gerente", "residente", "supervisor"),
-	validateBody(ChatRequestSchema),
+	validateBody(AssistantChatRequestSchema),
 	chatHandler,
 );
 

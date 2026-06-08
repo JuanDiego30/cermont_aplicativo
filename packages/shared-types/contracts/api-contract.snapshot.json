@@ -6,14 +6,28 @@
           "$schema": "https://json-schema.org/draft/2020-12/schema",
           "additionalProperties": false,
           "properties": {
-            "query": {
+            "currentModule": {
+              "maxLength": 100,
+              "type": "string"
+            },
+            "message": {
               "maxLength": 4000,
               "minLength": 1,
+              "type": "string"
+            },
+            "serviceCaseId": {
+              "maxLength": 64,
+              "minLength": 1,
+              "type": "string"
+            },
+            "threadId": {
+              "maxLength": 64,
               "type": "string"
             }
           },
           "required": [
-            "query"
+            "serviceCaseId",
+            "message"
           ],
           "type": "object"
         }
@@ -7413,6 +7427,53 @@
       ],
       "type": "object"
     },
+    "AIErrorResponseSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "error": {
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "enum": [
+                "AI_SERVICE_UNAVAILABLE",
+                "INVALID_SERVICE_CASE",
+                "UNAUTHORIZED",
+                "RATE_LIMITED",
+                "THREAD_NOT_FOUND",
+                "INTERNAL_ERROR"
+              ],
+              "type": "string"
+            },
+            "details": {
+              "additionalProperties": {},
+              "propertyNames": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "message": {
+              "maxLength": 500,
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "type": "object"
+        },
+        "success": {
+          "const": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "success",
+        "error"
+      ],
+      "type": "object"
+    },
     "AnalyticsPeriodSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "enum": [
@@ -9063,6 +9124,415 @@
       },
       "required": [
         "userId"
+      ],
+      "type": "object"
+    },
+    "AssistantChatRequestSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "currentModule": {
+          "maxLength": 100,
+          "type": "string"
+        },
+        "message": {
+          "maxLength": 4000,
+          "minLength": 1,
+          "type": "string"
+        },
+        "serviceCaseId": {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        "threadId": {
+          "maxLength": 64,
+          "type": "string"
+        }
+      },
+      "required": [
+        "serviceCaseId",
+        "message"
+      ],
+      "type": "object"
+    },
+    "AssistantChatResponseSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "blockers": {
+          "items": {
+            "maxLength": 200,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "currentStepKey": {
+          "enum": [
+            "step_01_work_request",
+            "step_02_site_visit",
+            "step_03_proposal",
+            "step_04_purchase_order",
+            "step_05_planning",
+            "step_06_execution",
+            "step_07_technical_report",
+            "step_08_delivery_record",
+            "step_09_client_signature",
+            "step_10_ses_submission",
+            "step_11_ses_approval",
+            "step_12_invoice_submission",
+            "step_13_invoice_approval",
+            "step_14_payment_closure"
+          ],
+          "type": "string"
+        },
+        "reply": {
+          "maxLength": 8000,
+          "minLength": 1,
+          "type": "string"
+        },
+        "suggestedActions": {
+          "items": {
+            "maxLength": 100,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "threadId": {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "threadId",
+        "reply"
+      ],
+      "type": "object"
+    },
+    "AssistantMessageSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "maxLength": 8000,
+          "minLength": 1,
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": false,
+          "properties": {
+            "blockers": {
+              "items": {
+                "maxLength": 200,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "confidence": {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            "stepKey": {
+              "enum": [
+                "step_01_work_request",
+                "step_02_site_visit",
+                "step_03_proposal",
+                "step_04_purchase_order",
+                "step_05_planning",
+                "step_06_execution",
+                "step_07_technical_report",
+                "step_08_delivery_record",
+                "step_09_client_signature",
+                "step_10_ses_submission",
+                "step_11_ses_approval",
+                "step_12_invoice_submission",
+                "step_13_invoice_approval",
+                "step_14_payment_closure"
+              ],
+              "type": "string"
+            },
+            "suggestedActions": {
+              "items": {
+                "maxLength": 100,
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "role": {
+          "enum": [
+            "user",
+            "assistant",
+            "system"
+          ],
+          "type": "string"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "content",
+        "timestamp"
+      ],
+      "type": "object"
+    },
+    "AssistantStatusSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "capabilities": {
+          "items": {
+            "maxLength": 50,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "message": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "available",
+            "unavailable",
+            "degraded"
+          ],
+          "type": "string"
+        },
+        "success": {
+          "const": true,
+          "type": "boolean"
+        },
+        "version": {
+          "maxLength": 20,
+          "type": "string"
+        }
+      },
+      "required": [
+        "success",
+        "status",
+        "version",
+        "capabilities",
+        "message"
+      ],
+      "type": "object"
+    },
+    "AssistantThreadSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "_id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "context": {
+          "additionalProperties": false,
+          "default": {
+            "allowedActions": [],
+            "blockers": [],
+            "stepRequirements": {},
+            "userRole": "cliente"
+          },
+          "properties": {
+            "allowedActions": {
+              "default": [],
+              "items": {
+                "maxLength": 100,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "blockers": {
+              "default": [],
+              "items": {
+                "maxLength": 200,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "clientName": {
+              "maxLength": 200,
+              "type": "string"
+            },
+            "serviceCaseCode": {
+              "maxLength": 40,
+              "type": "string"
+            },
+            "stepRequirements": {
+              "additionalProperties": {},
+              "default": {},
+              "propertyNames": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "userRole": {
+              "enum": [
+                "gerente",
+                "residente",
+                "hes",
+                "coord_administrativo",
+                "auxiliar_contable",
+                "supervisor",
+                "auxiliar_hes",
+                "supervisor_electricista",
+                "tecnico_electricista",
+                "operador",
+                "tecnico",
+                "oficial_construccion",
+                "administrativo",
+                "pasante",
+                "cliente"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "blockers",
+            "allowedActions",
+            "stepRequirements",
+            "userRole"
+          ],
+          "type": "object"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "currentStepKey": {
+          "enum": [
+            "step_01_work_request",
+            "step_02_site_visit",
+            "step_03_proposal",
+            "step_04_purchase_order",
+            "step_05_planning",
+            "step_06_execution",
+            "step_07_technical_report",
+            "step_08_delivery_record",
+            "step_09_client_signature",
+            "step_10_ses_submission",
+            "step_11_ses_approval",
+            "step_12_invoice_submission",
+            "step_13_invoice_approval",
+            "step_14_payment_closure"
+          ],
+          "type": "string"
+        },
+        "messages": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "maxLength": 8000,
+                "minLength": 1,
+                "type": "string"
+              },
+              "metadata": {
+                "additionalProperties": false,
+                "properties": {
+                  "blockers": {
+                    "items": {
+                      "maxLength": 200,
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "confidence": {
+                    "maximum": 1,
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "stepKey": {
+                    "enum": [
+                      "step_01_work_request",
+                      "step_02_site_visit",
+                      "step_03_proposal",
+                      "step_04_purchase_order",
+                      "step_05_planning",
+                      "step_06_execution",
+                      "step_07_technical_report",
+                      "step_08_delivery_record",
+                      "step_09_client_signature",
+                      "step_10_ses_submission",
+                      "step_11_ses_approval",
+                      "step_12_invoice_submission",
+                      "step_13_invoice_approval",
+                      "step_14_payment_closure"
+                    ],
+                    "type": "string"
+                  },
+                  "suggestedActions": {
+                    "items": {
+                      "maxLength": 100,
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                },
+                "type": "object"
+              },
+              "role": {
+                "enum": [
+                  "user",
+                  "assistant",
+                  "system"
+                ],
+                "type": "string"
+              },
+              "timestamp": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "role",
+              "content",
+              "timestamp"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "serviceCaseId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "threadId": {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "userId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "_id",
+        "threadId",
+        "serviceCaseId",
+        "userId",
+        "currentStepKey",
+        "messages",
+        "context",
+        "createdAt",
+        "updatedAt"
       ],
       "type": "object"
     },
@@ -11032,21 +11502,6 @@
       "required": [
         "currentPassword",
         "newPassword"
-      ],
-      "type": "object"
-    },
-    "ChatRequestSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "query": {
-          "maxLength": 4000,
-          "minLength": 1,
-          "type": "string"
-        }
-      },
-      "required": [
-        "query"
       ],
       "type": "object"
     },
@@ -17290,6 +17745,48 @@
           "maxLength": 200,
           "type": "string"
         },
+        "buyer": {
+          "additionalProperties": false,
+          "properties": {
+            "address": {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            "businessName": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            },
+            "documentNumber": {
+              "maxLength": 30,
+              "minLength": 1,
+              "type": "string"
+            },
+            "documentType": {
+              "enum": [
+                "NIT",
+                "CC",
+                "CE",
+                "PASAPORTE"
+              ],
+              "type": "string"
+            },
+            "email": {
+              "format": "email",
+              "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "documentType",
+            "documentNumber",
+            "businessName",
+            "address",
+            "email"
+          ],
+          "type": "object"
+        },
         "clientId": {
           "pattern": "^[0-9a-fA-F]{24}$",
           "type": "string"
@@ -17299,22 +17796,156 @@
           "minLength": 1,
           "type": "string"
         },
+        "cufe": {
+          "maxLength": 200,
+          "type": "string"
+        },
         "currency": {
           "default": "COP",
           "maxLength": 3,
           "minLength": 3,
           "type": "string"
         },
+        "dueDate": {},
+        "invoiceDate": {},
+        "invoiceNumber": {
+          "maxLength": 120,
+          "minLength": 1,
+          "type": "string"
+        },
+        "ivaAmount": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "ivaRate": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "lineItems": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "maxLength": 300,
+                "minLength": 1,
+                "type": "string"
+              },
+              "discount": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "quantity": {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              "subtotal": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "unitPrice": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "description",
+              "quantity",
+              "unitPrice",
+              "subtotal"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
         "notes": {
           "maxLength": 1000,
+          "type": "string"
+        },
+        "paymentMethod": {
+          "enum": [
+            "TRANSFERENCIA",
+            "CHEQUE",
+            "EFECTIVO",
+            "CREDITO"
+          ],
+          "type": "string"
+        },
+        "qrCode": {
+          "format": "uri",
+          "maxLength": 500,
+          "type": "string"
+        },
+        "retentionAmount": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "retentionRate": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "seller": {
+          "additionalProperties": false,
+          "properties": {
+            "address": {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            "businessName": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            },
+            "email": {
+              "format": "email",
+              "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+              "type": "string"
+            },
+            "nit": {
+              "maxLength": 30,
+              "minLength": 1,
+              "type": "string"
+            },
+            "phone": {
+              "maxLength": 50,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "nit",
+            "businessName",
+            "address",
+            "phone",
+            "email"
+          ],
+          "type": "object"
+        },
+        "serviceCaseId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
           "type": "string"
         },
         "serviceEntrySheetId": {
           "pattern": "^[0-9a-fA-F]{24}$",
           "type": "string"
         },
+        "subtotal": {
+          "minimum": 0,
+          "type": "number"
+        },
         "taxAmount": {
           "default": 0,
+          "minimum": 0,
+          "type": "number"
+        },
+        "taxBase": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "total": {
           "minimum": 0,
           "type": "number"
         },
@@ -18068,6 +18699,48 @@
           "minLength": 1,
           "type": "string"
         },
+        "buyer": {
+          "additionalProperties": false,
+          "properties": {
+            "address": {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            "businessName": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            },
+            "documentNumber": {
+              "maxLength": 30,
+              "minLength": 1,
+              "type": "string"
+            },
+            "documentType": {
+              "enum": [
+                "NIT",
+                "CC",
+                "CE",
+                "PASAPORTE"
+              ],
+              "type": "string"
+            },
+            "email": {
+              "format": "email",
+              "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "documentType",
+            "documentNumber",
+            "businessName",
+            "address",
+            "email"
+          ],
+          "type": "object"
+        },
         "clientMutationId": {
           "format": "uuid",
           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
@@ -18088,9 +18761,97 @@
           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
           "type": "string"
         },
+        "ivaRate": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "lineItems": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "maxLength": 300,
+                "minLength": 1,
+                "type": "string"
+              },
+              "discount": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "quantity": {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              "subtotal": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "unitPrice": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "description",
+              "quantity",
+              "unitPrice",
+              "subtotal"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
         "notes": {
           "maxLength": 1000,
           "type": "string"
+        },
+        "paymentMethod": {
+          "enum": [
+            "TRANSFERENCIA",
+            "CHEQUE",
+            "EFECTIVO",
+            "CREDITO"
+          ],
+          "type": "string"
+        },
+        "seller": {
+          "additionalProperties": false,
+          "properties": {
+            "address": {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            "businessName": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            },
+            "email": {
+              "format": "email",
+              "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+              "type": "string"
+            },
+            "nit": {
+              "maxLength": 30,
+              "minLength": 1,
+              "type": "string"
+            },
+            "phone": {
+              "maxLength": 50,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "nit",
+            "businessName",
+            "address",
+            "phone",
+            "email"
+          ],
+          "type": "object"
         }
       },
       "required": [
@@ -41639,6 +42400,16 @@
       ],
       "type": "object"
     },
+    "InvoiceDocumentTypeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "NIT",
+        "CC",
+        "CE",
+        "PASAPORTE"
+      ],
+      "type": "string"
+    },
     "InvoiceIdParamsSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -41650,6 +42421,40 @@
       },
       "required": [
         "id"
+      ],
+      "type": "object"
+    },
+    "InvoiceLineItemSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "maxLength": 300,
+          "minLength": 1,
+          "type": "string"
+        },
+        "discount": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "quantity": {
+          "exclusiveMinimum": 0,
+          "type": "number"
+        },
+        "subtotal": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "unitPrice": {
+          "minimum": 0,
+          "type": "number"
+        }
+      },
+      "required": [
+        "description",
+        "quantity",
+        "unitPrice",
+        "subtotal"
       ],
       "type": "object"
     },
@@ -41727,6 +42532,48 @@
         "billingAccount": {
           "type": "string"
         },
+        "buyer": {
+          "additionalProperties": false,
+          "properties": {
+            "address": {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            "businessName": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            },
+            "documentNumber": {
+              "maxLength": 30,
+              "minLength": 1,
+              "type": "string"
+            },
+            "documentType": {
+              "enum": [
+                "NIT",
+                "CC",
+                "CE",
+                "PASAPORTE"
+              ],
+              "type": "string"
+            },
+            "email": {
+              "format": "email",
+              "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "documentType",
+            "documentNumber",
+            "businessName",
+            "address",
+            "email"
+          ],
+          "type": "object"
+        },
         "clientId": {
           "pattern": "^[0-9a-fA-F]{24}$",
           "type": "string"
@@ -41775,6 +42622,10 @@
         },
         "createdBy": {
           "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "cufe": {
+          "maxLength": 200,
           "type": "string"
         },
         "currency": {
@@ -41843,6 +42694,52 @@
           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
           "type": "string"
         },
+        "ivaAmount": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "ivaRate": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "lineItems": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "maxLength": 300,
+                "minLength": 1,
+                "type": "string"
+              },
+              "discount": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "quantity": {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              "subtotal": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "unitPrice": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "description",
+              "quantity",
+              "unitPrice",
+              "subtotal"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
         "notes": {
           "maxLength": 1000,
           "type": "string"
@@ -41852,8 +42749,22 @@
           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
           "type": "string"
         },
+        "paymentMethod": {
+          "enum": [
+            "TRANSFERENCIA",
+            "CHEQUE",
+            "EFECTIVO",
+            "CREDITO"
+          ],
+          "type": "string"
+        },
         "paymentReference": {
           "maxLength": 100,
+          "type": "string"
+        },
+        "qrCode": {
+          "format": "uri",
+          "maxLength": 500,
           "type": "string"
         },
         "rejectedAt": {
@@ -41869,9 +42780,60 @@
           "maxLength": 500,
           "type": "string"
         },
+        "retentionAmount": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "retentionRate": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "seller": {
+          "additionalProperties": false,
+          "properties": {
+            "address": {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            "businessName": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            },
+            "email": {
+              "format": "email",
+              "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+              "type": "string"
+            },
+            "nit": {
+              "maxLength": 30,
+              "minLength": 1,
+              "type": "string"
+            },
+            "phone": {
+              "maxLength": 50,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "nit",
+            "businessName",
+            "address",
+            "phone",
+            "email"
+          ],
+          "type": "object"
+        },
         "sentAt": {
           "format": "date-time",
           "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "serviceCaseId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
           "type": "string"
         },
         "serviceEntrySheetCode": {
@@ -41892,7 +42854,14 @@
             "rejected",
             "partially_paid",
             "paid",
-            "cancelled"
+            "cancelled",
+            "void",
+            "DRAFT",
+            "SENT",
+            "APPROVED",
+            "REJECTED",
+            "PAID",
+            "VOID"
           ],
           "type": "string"
         },
@@ -41911,6 +42880,10 @@
         },
         "taxAmount": {
           "default": 0,
+          "minimum": 0,
+          "type": "number"
+        },
+        "taxBase": {
           "minimum": 0,
           "type": "number"
         },
@@ -41979,9 +42952,515 @@
         "status",
         "attachments",
         "commandHistory",
-        "createdBy",
-        "createdAt",
-        "updatedAt"
+        "createdBy"
+      ],
+      "type": "object"
+    },
+    "InvoicePaymentMethodSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "TRANSFERENCIA",
+        "CHEQUE",
+        "EFECTIVO",
+        "CREDITO"
+      ],
+      "type": "string"
+    },
+    "InvoiceSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "_id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "acceptedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "acceptedBy": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "amount": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "approvedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "approvedBy": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "attachments": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "pattern": "^[0-9a-fA-F]{24}$",
+                "type": "string"
+              },
+              "name": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "pdf",
+                  "image",
+                  "document"
+                ],
+                "type": "string"
+              },
+              "uploadedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              },
+              "url": {
+                "format": "uri",
+                "type": "string"
+              }
+            },
+            "required": [
+              "url",
+              "type",
+              "name"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "billingAccount": {
+          "type": "string"
+        },
+        "buyer": {
+          "additionalProperties": false,
+          "properties": {
+            "address": {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            "businessName": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            },
+            "documentNumber": {
+              "maxLength": 30,
+              "minLength": 1,
+              "type": "string"
+            },
+            "documentType": {
+              "enum": [
+                "NIT",
+                "CC",
+                "CE",
+                "PASAPORTE"
+              ],
+              "type": "string"
+            },
+            "email": {
+              "format": "email",
+              "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "documentType",
+            "documentNumber",
+            "businessName",
+            "address",
+            "email"
+          ],
+          "type": "object"
+        },
+        "clientId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "clientName": {
+          "type": "string"
+        },
+        "code": {
+          "pattern": "^INV-\\d{4}-\\d{4}$",
+          "type": "string"
+        },
+        "commandHistory": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "clientMutationId": {
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
+                "type": "string"
+              },
+              "command": {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              "recordedAt": {
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "clientMutationId",
+              "command",
+              "recordedAt"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "createdBy": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "cufe": {
+          "maxLength": 200,
+          "type": "string"
+        },
+        "currency": {
+          "default": "COP",
+          "enum": [
+            "COP",
+            "USD",
+            "EUR"
+          ],
+          "type": "string"
+        },
+        "dueDate": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "invoiceLines": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "maxLength": 300,
+                "minLength": 1,
+                "type": "string"
+              },
+              "quantity": {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              "total": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "unit": {
+                "maxLength": 50,
+                "minLength": 1,
+                "type": "string"
+              },
+              "unitPrice": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "description",
+              "quantity",
+              "unit",
+              "unitPrice",
+              "total"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "invoiceNumber": {
+          "type": "string"
+        },
+        "issuedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "issueDate": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "ivaAmount": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "ivaRate": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "lineItems": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "maxLength": 300,
+                "minLength": 1,
+                "type": "string"
+              },
+              "discount": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "quantity": {
+                "exclusiveMinimum": 0,
+                "type": "number"
+              },
+              "subtotal": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "unitPrice": {
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "description",
+              "quantity",
+              "unitPrice",
+              "subtotal"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "notes": {
+          "maxLength": 1000,
+          "type": "string"
+        },
+        "paidAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "paymentMethod": {
+          "enum": [
+            "TRANSFERENCIA",
+            "CHEQUE",
+            "EFECTIVO",
+            "CREDITO"
+          ],
+          "type": "string"
+        },
+        "paymentReference": {
+          "maxLength": 100,
+          "type": "string"
+        },
+        "qrCode": {
+          "format": "uri",
+          "maxLength": 500,
+          "type": "string"
+        },
+        "rejectedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "rejectedBy": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "rejectionReason": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "retentionAmount": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "retentionRate": {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "seller": {
+          "additionalProperties": false,
+          "properties": {
+            "address": {
+              "maxLength": 300,
+              "minLength": 1,
+              "type": "string"
+            },
+            "businessName": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            },
+            "email": {
+              "format": "email",
+              "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
+              "type": "string"
+            },
+            "nit": {
+              "maxLength": 30,
+              "minLength": 1,
+              "type": "string"
+            },
+            "phone": {
+              "maxLength": 50,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "nit",
+            "businessName",
+            "address",
+            "phone",
+            "email"
+          ],
+          "type": "object"
+        },
+        "sentAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "serviceCaseId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "serviceEntrySheetCode": {
+          "type": "string"
+        },
+        "serviceEntrySheetId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "issued",
+            "sent",
+            "submitted",
+            "approved",
+            "accepted",
+            "rejected",
+            "partially_paid",
+            "paid",
+            "cancelled",
+            "void",
+            "DRAFT",
+            "SENT",
+            "APPROVED",
+            "REJECTED",
+            "PAID",
+            "VOID"
+          ],
+          "type": "string"
+        },
+        "submittedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "submittedBy": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "subtotal": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "taxAmount": {
+          "default": 0,
+          "minimum": 0,
+          "type": "number"
+        },
+        "taxBase": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "taxBreakdown": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "amount": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "name": {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              "rate": {
+                "maximum": 1,
+                "minimum": 0,
+                "type": "number"
+              }
+            },
+            "required": [
+              "name",
+              "rate",
+              "amount"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "total": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "totalAmount": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "workOrderCode": {
+          "type": "string"
+        },
+        "workOrderId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "_id",
+        "code",
+        "workOrderId",
+        "clientId",
+        "clientName",
+        "amount",
+        "taxAmount",
+        "totalAmount",
+        "currency",
+        "invoiceLines",
+        "taxBreakdown",
+        "status",
+        "attachments",
+        "commandHistory",
+        "createdBy"
       ],
       "type": "object"
     },
@@ -41997,7 +43476,14 @@
         "rejected",
         "partially_paid",
         "paid",
-        "cancelled"
+        "cancelled",
+        "void",
+        "DRAFT",
+        "SENT",
+        "APPROVED",
+        "REJECTED",
+        "PAID",
+        "VOID"
       ],
       "type": "string"
     },
@@ -45066,7 +46552,14 @@
               "rejected",
               "partially_paid",
               "paid",
-              "cancelled"
+              "cancelled",
+              "void",
+              "DRAFT",
+              "SENT",
+              "APPROVED",
+              "REJECTED",
+              "PAID",
+              "VOID"
             ],
             "type": "string"
           },
@@ -46942,6 +48435,20 @@
       ],
       "type": "object"
     },
+    "NotificationIdParamsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
     "NotificationIdSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -46955,6 +48462,119 @@
         "id"
       ],
       "type": "object"
+    },
+    "NotificationSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "body": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "type": "string"
+        },
+        "createdAt": {},
+        "id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "isRead": {
+          "default": false,
+          "type": "boolean"
+        },
+        "metadata": {
+          "additionalProperties": {},
+          "propertyNames": {
+            "type": "string"
+          },
+          "type": "object"
+        },
+        "notificationId": {
+          "type": "string"
+        },
+        "readAt": {},
+        "recipientRole": {
+          "enum": [
+            "gerente",
+            "residente",
+            "hes",
+            "coord_administrativo",
+            "auxiliar_contable",
+            "supervisor",
+            "auxiliar_hes",
+            "supervisor_electricista",
+            "tecnico_electricista",
+            "operador",
+            "tecnico",
+            "oficial_construccion",
+            "administrativo",
+            "pasante",
+            "cliente"
+          ],
+          "type": "string"
+        },
+        "recipientUserId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "relatedEntity": {
+          "additionalProperties": false,
+          "properties": {
+            "entityId": {
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            },
+            "entityType": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "entityType",
+            "entityId"
+          ],
+          "type": "object"
+        },
+        "title": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "STATE_TRANSITION",
+            "APPROVAL_REQUIRED",
+            "DOCUMENT_UPLOADED",
+            "SYNC_FAILED",
+            "COMMENT_ADDED",
+            "DEADLINE_WARNING",
+            "PAYMENT_RECEIVED"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "notificationId",
+        "recipientUserId",
+        "type",
+        "title",
+        "body",
+        "relatedEntity",
+        "isRead",
+        "createdAt"
+      ],
+      "type": "object"
+    },
+    "NotificationTypeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "STATE_TRANSITION",
+        "APPROVAL_REQUIRED",
+        "DOCUMENT_UPLOADED",
+        "SYNC_FAILED",
+        "COMMENT_ADDED",
+        "DEADLINE_WARNING",
+        "PAYMENT_RECEIVED"
+      ],
+      "type": "string"
     },
     "ObjectIdSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -53974,6 +55594,52 @@
             "OTHER"
           ],
           "type": "string"
+        },
+        "costBaselineSnapshot": {
+          "additionalProperties": false,
+          "properties": {
+            "contingencyAmount": {
+              "type": "number"
+            },
+            "contingencyPercentage": {
+              "type": "number"
+            },
+            "equipmentCosts": {
+              "type": "number"
+            },
+            "frozenAt": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+              "type": "string"
+            },
+            "frozenBy": {
+              "type": "string"
+            },
+            "grandTotal": {
+              "type": "number"
+            },
+            "laborCosts": {
+              "type": "number"
+            },
+            "materialCosts": {
+              "type": "number"
+            },
+            "totalBudget": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "frozenAt",
+            "frozenBy",
+            "laborCosts",
+            "materialCosts",
+            "equipmentCosts",
+            "totalBudget",
+            "contingencyPercentage",
+            "contingencyAmount",
+            "grandTotal"
+          ],
+          "type": "object"
         },
         "createdAt": {
           "format": "date-time",

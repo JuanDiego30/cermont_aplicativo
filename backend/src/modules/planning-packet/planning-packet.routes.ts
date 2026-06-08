@@ -18,7 +18,7 @@ import {
 	ReopenPlanningPacketSchema,
 	UpdatePlanningPacketSchema,
 } from "@cermont/shared-types";
-import { MANAGEMENT_ROLES, PLANNING_ACCESS_ROLES } from "@cermont/domain";
+import { MANAGEMENT_ROLES, PLANNING_ACCESS_ROLES, INTERNAL_ROLES } from "@cermont/domain";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
@@ -35,6 +35,7 @@ const PLANNING_READINESS_ROLES = [...PLANNING_ACCESS_ROLES, "hes"] as const;
 router.get(
 	"/",
 	authenticate,
+	authorize(...INTERNAL_ROLES),
 	validateQuery(PlanningPacketListQuerySchema),
 	PlanningPacketController.listPlanningPackets,
 );
@@ -47,6 +48,7 @@ router.get(
 router.get(
 	"/:id",
 	authenticate,
+	authorize(...INTERNAL_ROLES),
 	validateParams(PlanningPacketIdParamsSchema),
 	PlanningPacketController.getPlanningPacket,
 );

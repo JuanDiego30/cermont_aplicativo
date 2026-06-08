@@ -24,11 +24,9 @@ vi.mock("../../src/models/IdempotencyEntry", () => ({
 }));
 
 // Import after mock
-const {
-	idempotency,
-	requireIdempotencyKey,
-	generateIdempotencyKey,
-} = await import("../../src/middlewares/idempotency.middleware");
+const { idempotency, requireIdempotencyKey, generateIdempotencyKey } = await import(
+	"../../src/middlewares/idempotency.middleware"
+);
 
 describe("idempotency middleware", () => {
 	beforeEach(() => {
@@ -120,7 +118,7 @@ describe("idempotency middleware", () => {
 				once: ReturnType<typeof vi.fn>;
 				statusCode: number;
 			};
-			resTyped.json.mockImplementation(function intercepted(this: unknown, body: unknown) {
+			resTyped.json.mockImplementation(function intercepted(this: unknown, _body: unknown) {
 				// Simulate the finish event after json is called
 				const finishCb = resTyped.once.mock.calls[0]?.[1];
 				if (finishCb) {
@@ -197,9 +195,7 @@ describe("idempotency middleware", () => {
 	describe("generateIdempotencyKey", () => {
 		it("generates a valid UUID key", () => {
 			const key = generateIdempotencyKey();
-			expect(key).toMatch(
-				/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
-			);
+			expect(key).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
 		});
 
 		it("generates unique keys on each call", () => {

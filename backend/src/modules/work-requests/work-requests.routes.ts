@@ -8,6 +8,7 @@
  * - Order: authenticate → authorize → validate → controller
  */
 
+import { INTERNAL_ROLES } from "@cermont/domain";
 import {
 	CreateWorkRequestSchema,
 	ListWorkRequestsQuerySchema,
@@ -32,6 +33,7 @@ const router = Router();
 router.get(
 	"/",
 	authenticate,
+	authorize(...INTERNAL_ROLES),
 	validateQuery(ListWorkRequestsQuerySchema),
 	WorkRequestController.getWorkRequests,
 );
@@ -45,6 +47,7 @@ router.get(
 router.get(
 	"/:id",
 	authenticate,
+	authorize(...INTERNAL_ROLES),
 	validateParams(WorkRequestIdParamsSchema),
 	WorkRequestController.getWorkRequest,
 );
@@ -124,6 +127,7 @@ router.post(
 router.get(
 	"/:id/visits",
 	authenticate,
+	authorize(...INTERNAL_ROLES),
 	validateParams(WorkRequestIdParamsSchema),
 	WorkRequestController.listSiteVisits,
 );

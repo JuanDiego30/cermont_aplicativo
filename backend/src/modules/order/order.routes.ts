@@ -11,6 +11,7 @@
  * The service layer enforces finer domain rules.
  */
 
+import { INTERNAL_ROLES } from "@cermont/domain";
 import {
 	AssignOrderSchema,
 	CreateOrderSchema,
@@ -37,6 +38,7 @@ const router = Router();
 router.get(
 	"/:orderId/planning-packet",
 	authenticate,
+	authorize(...INTERNAL_ROLES),
 	// Roles: Todos (all authenticated users)
 	getPlanningPacketByWorkOrder,
 );
@@ -49,6 +51,7 @@ router.get(
 router.get(
 	"/",
 	authenticate,
+	authorize(...INTERNAL_ROLES),
 	validateQuery(OrderListQuerySchema),
 	// Note: All roles can list, but service may filter visibility
 	OrderController.listOrders,
@@ -80,7 +83,7 @@ router.post(
  * Roles: Todos (all authenticated users)
  * Validation: OrderIdSchema (params)
  */
-router.get("/:id", authenticate, validateParams(OrderIdSchema), OrderController.getOrder);
+router.get("/:id", authenticate, authorize(...INTERNAL_ROLES), validateParams(OrderIdSchema), OrderController.getOrder);
 
 /**
  * PUT /api/orders/:id
@@ -106,6 +109,7 @@ router.put(
 router.patch(
 	"/:id/status",
 	authenticate,
+	authorize(...INTERNAL_ROLES),
 	validateParams(OrderIdSchema),
 	validateBody(UpdateOrderStatusSchema),
 	OrderController.updateOrderStatus,
@@ -119,6 +123,7 @@ router.patch(
 router.patch(
 	"/:id/transition",
 	authenticate,
+	authorize(...INTERNAL_ROLES),
 	validateParams(OrderIdSchema),
 	validateBody(TransitionOrderStatusSchema),
 	OrderController.transitionOrderStatus,

@@ -1,0 +1,233 @@
+"use client";
+
+import { useMemo } from "react";
+import {
+	type UserRole,
+	ROLE_HIERARCHY,
+	hasRole,
+	APPROVER_ROLES,
+	MANAGEMENT_ROLES,
+	PLANNING_ACCESS_ROLES,
+	FIELD_EXECUTION_ACCESS_ROLES,
+	EVIDENCE_ACCESS_ROLES,
+	BILLING_ACCESS_ROLES,
+	FINANCE_ACCESS_ROLES,
+	ASSET_MANAGEMENT_ROLES,
+	SITE_VISIT_MANAGEMENT_ROLES,
+	MAINTENANCE_MANAGEMENT_ROLES,
+	RESOURCE_ROLES,
+	REPORT_ROLES,
+	INTERNAL_ROLES,
+	DASHBOARD_ACCESS_ROLES,
+	ADMIN_ROLES,
+} from "@cermont/domain";
+
+export type PermissionAction =
+	| "approve_proposal"
+	| "reject_proposal"
+	| "convert_proposal_to_order"
+	| "approve_planning"
+	| "reopen_planning"
+	| "start_execution"
+	| "upload_evidence"
+	| "approve_technical_report"
+	| "generate_delivery_record"
+	| "register_client_signature"
+	| "create_ses"
+	| "approve_ses"
+	| "create_invoice"
+	| "approve_invoice"
+	| "register_payment"
+	| "edit_order"
+	| "close_case"
+	| "archive_case"
+	| "manage_users"
+	| "view_audit"
+	| "manage_assets"
+	| "manage_maintenance"
+	| "create_proposal"
+	| "create_work_request"
+	| "view_admin_panel"
+	| "view_costs";
+
+const ACTION_ROLE_MAP: Record<PermissionAction, readonly UserRole[]> = {
+	approve_proposal: APPROVER_ROLES,
+	reject_proposal: APPROVER_ROLES,
+	convert_proposal_to_order: MANAGEMENT_ROLES,
+	approve_planning: MANAGEMENT_ROLES,
+	reopen_planning: MANAGEMENT_ROLES,
+	start_execution: FIELD_EXECUTION_ACCESS_ROLES,
+	upload_evidence: EVIDENCE_ACCESS_ROLES,
+	approve_technical_report: REPORT_ROLES,
+	generate_delivery_record: REPORT_ROLES,
+	register_client_signature: MANAGEMENT_ROLES,
+	create_ses: BILLING_ACCESS_ROLES,
+	approve_ses: BILLING_ACCESS_ROLES,
+	create_invoice: BILLING_ACCESS_ROLES,
+	approve_invoice: APPROVER_ROLES,
+	register_payment: FINANCE_ACCESS_ROLES,
+	edit_order: RESOURCE_ROLES,
+	close_case: MANAGEMENT_ROLES,
+	archive_case: ["gerente"],
+	manage_users: ADMIN_ROLES,
+	view_audit: [...MANAGEMENT_ROLES, ...ADMIN_ROLES],
+	manage_assets: ASSET_MANAGEMENT_ROLES,
+	manage_maintenance: MAINTENANCE_MANAGEMENT_ROLES,
+	create_proposal: [...RESOURCE_ROLES, "administrativo"],
+	create_work_request: INTERNAL_ROLES,
+	view_admin_panel: ADMIN_ROLES,
+	view_costs: INTERNAL_ROLES,
+};
+
+export type AppModule =
+	| "dashboard"
+	| "service-cases"
+	| "orders"
+	| "planning"
+	| "execution"
+	| "evidences"
+	| "reports"
+	| "documents"
+	| "work-requests"
+	| "site-visits"
+	| "proposals"
+	| "purchase-orders"
+	| "delivery-records"
+	| "billing"
+	| "payments"
+	| "costs"
+	| "assets"
+	| "maintenance"
+	| "resources"
+	| "admin";
+
+const MODULE_ROLE_MAP: Readonly<Record<AppModule, readonly UserRole[]>> = {
+	dashboard: DASHBOARD_ACCESS_ROLES,
+	"service-cases": DASHBOARD_ACCESS_ROLES,
+	orders: RESOURCE_ROLES,
+	planning: PLANNING_ACCESS_ROLES,
+	execution: FIELD_EXECUTION_ACCESS_ROLES,
+	evidences: EVIDENCE_ACCESS_ROLES,
+	reports: REPORT_ROLES,
+	documents: DASHBOARD_ACCESS_ROLES,
+	"work-requests": DASHBOARD_ACCESS_ROLES,
+	"site-visits": SITE_VISIT_MANAGEMENT_ROLES,
+	proposals: [...MANAGEMENT_ROLES, "administrativo"],
+	"purchase-orders": INTERNAL_ROLES,
+	"delivery-records": INTERNAL_ROLES,
+	billing: BILLING_ACCESS_ROLES,
+	payments: BILLING_ACCESS_ROLES,
+	costs: DASHBOARD_ACCESS_ROLES,
+	assets: ASSET_MANAGEMENT_ROLES,
+	maintenance: MAINTENANCE_MANAGEMENT_ROLES,
+	resources: DASHBOARD_ACCESS_ROLES,
+	admin: ADMIN_ROLES,
+} as const;
+
+export interface UsePermissionsOptions {
+	readonly userRole?: UserRole | null;
+}
+
+export interface UsePermissionsResult {
+	readonly canPerformAction: (action: PermissionAction) => boolean;
+	readonly isRoleAtLeast: (minimumRole: UserRole) => boolean;
+	readonly getVisibleModules: () => AppModule[];
+	readonly isReadOnly: boolean;
+	readonly roleLabel: string;
+	readonly roleHierarchy: typeof ROLE_HIERARCHY;
+}
+
+export function usePermissions({
+	userRole,
+}: UsePermissionsOptions = {}): UsePermissionsResult {
+	const resolvedRole = useMemo((): UserRole => {
+		if (!userRole) {
+			return "cliente";
+		}
+		return userRole;
+	}, [userRole]);
+
+	const roleLabel = useMemo(() => {
+		switch (resolvedRole) {
+			case "gerente":
+				return "Gerente";
+			case "residente":
+				return "Ing. Residente";
+			case "hes":
+				return "Coordinador HES";
+			case "coord_administrativo":
+				return "Coordinador Administrativo";
+			case "auxiliar_contable":
+				return "Auxiliar Contable";
+			case "supervisor":
+				return "Supervisor";
+			case "auxiliar_hes":
+				return "Auxiliar HES";
+			case "supervisor_electricista":
+				return "Supervisor Electricista";
+			case "tecnico_electricista":
+				return "Técnico Electricista";
+			case "operador":
+				return "Operador";
+			case "tecnico":
+				return "Técnico";
+			case "oficial_construccion":
+				return "Oficial de Construcción";
+			case "administrativo":
+				return "Administrativo";
+			case "pasante":
+				return "Pasante";
+			case "cliente":
+				return "Cliente";
+			default:
+				return resolvedRole;
+		}
+	}, [resolvedRole]);
+
+	const canPerformAction = useMemo(
+		() => (action: PermissionAction): boolean => {
+			if (resolvedRole === "cliente") {
+				return false;
+			}
+			const allowedRoles = ACTION_ROLE_MAP[action];
+			if (!allowedRoles) {
+				return false;
+			}
+			return hasRole(resolvedRole, allowedRoles);
+		},
+		[resolvedRole],
+	);
+
+	const isRoleAtLeast = useMemo(
+		() => (minimumRole: UserRole): boolean => {
+			const userLevel = ROLE_HIERARCHY[resolvedRole];
+			const minimumLevel = ROLE_HIERARCHY[minimumRole];
+			return userLevel <= minimumLevel;
+		},
+		[resolvedRole],
+	);
+
+	const getVisibleModules = useMemo(
+		() =>
+			(): AppModule[] => {
+				if (resolvedRole === "cliente") {
+					return [];
+				}
+				return (Object.entries(MODULE_ROLE_MAP) as [AppModule, readonly UserRole[]][])
+					.filter(([, allowedRoles]) => hasRole(resolvedRole, allowedRoles))
+					.map(([module]) => module);
+			},
+		[resolvedRole],
+	);
+
+	const isReadOnly = useMemo(() => resolvedRole === "pasante", [resolvedRole]);
+
+	return {
+		canPerformAction,
+		isRoleAtLeast,
+		getVisibleModules,
+		isReadOnly,
+		roleLabel,
+		roleHierarchy: ROLE_HIERARCHY,
+	};
+}

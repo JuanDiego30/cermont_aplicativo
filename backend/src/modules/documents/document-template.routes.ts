@@ -9,6 +9,7 @@ const router = Router();
 router.use(authenticate);
 
 // POST /api/document-templates — Create a new document template
+// No body validation needed — template creation uses file upload
 router.post("/", authorize(...INTERNAL_ROLES), createTemplate);
 
 // GET /api/document-templates — List all templates

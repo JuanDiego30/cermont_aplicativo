@@ -107,7 +107,7 @@ async function ensureCreationPreconditions(orderId: string): Promise<{
 		Evidence.countDocuments({ orderId: parseObjectId(orderId, "orderId"), deletedAt: null }),
 	]);
 
-	if (!checklist || checklist.status !== "completed") {
+	if (checklist?.status !== "completed") {
 		throw new UnprocessableError(
 			"The checklist must be completed before creating a report",
 			"REPORT_CHECKLIST_INCOMPLETE",

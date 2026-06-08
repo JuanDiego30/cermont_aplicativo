@@ -29,11 +29,11 @@ export default function NewKitPage() {
 	};
 
 	return (
-		<div className="flex h-40 items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)]">
+		<section className="flex h-40 items-center justify-center rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--surface-primary)] text-[var(--text-secondary)]">
 			<Loader2 className="mr-2 size-6 animate-spin" aria-hidden="true" />
 			<span className="text-sm">Preparando formulario…</span>
 
 			<KitForm open={formOpen} onOpenChange={handleOpenChange} onSuccess={handleSuccess} />
-		</div>
+		</section>
 	);
 }

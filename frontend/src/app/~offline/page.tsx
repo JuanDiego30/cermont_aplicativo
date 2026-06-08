@@ -8,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function OfflinePage() {
-	return <OfflinePageClient />;
+	return (
+		<main>
+			<OfflinePageClient />
+		</main>
+	);
 }

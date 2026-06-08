@@ -142,6 +142,11 @@ function resolvePlanningReadinessStatus(packet: PlanningPacketReadinessView): Pl
 	return readinessChecks.every(Boolean) ? "ready" : "incomplete";
 }
 
+function normalizeNumber(value: unknown): number {
+	const parsed = Number(value);
+	return Number.isFinite(parsed) ? parsed : 0;
+}
+
 export async function listPlanningPackets(query: {
 	workOrderId?: string;
 	status?: PlanningPacketStatus;
@@ -257,9 +262,20 @@ export async function updatePlanningPacket(
 		throw new AppError("FORBIDDEN", 403, "You do not have permission to update planning packets");
 	}
 
-	// Cannot update if already approved
-	if (planningPacket.status === "approved") {
-		throw new AppError("INVALID_OPERATION", 400, "Cannot update an approved planning packet");
+	// Cannot update costs or status if already approved and frozen
+	if (planningPacket.status === "approved" && (planningPacket.toObject() as Record<string, unknown>).costBaselineSnapshot) {
+		const costFieldsChanged =
+			data.materials !== undefined ||
+			data.tools !== undefined ||
+			data.equipment !== undefined ||
+			data.safetyElements !== undefined;
+		if (costFieldsChanged) {
+			throw new AppError(
+				"COST_BASELINE_FROZEN",
+				409,
+				"Cannot update costs after planning approval. Cost baseline is frozen.",
+			);
+		}
 	}
 
 	const updatedPacket = await PlanningPacket.findByIdAndUpdate(
@@ -312,7 +328,7 @@ export async function validatePlanningReadiness(id: string, userId: string, user
 	}
 
 	const newStatus = resolvePlanningReadinessStatus(
-		planningPacket as PlanningPacketReadinessView,
+		planningPacket as unknown as PlanningPacketReadinessView,
 	);
 
 	const updatedPacket = await PlanningPacket.findByIdAndUpdate(
@@ -338,6 +354,46 @@ export async function validatePlanningReadiness(id: string, userId: string, user
 	});
 
 	return updatedPacket;
+}
+
+function computeCostBaseline(packet: {
+	materials: Array<{ quantity?: number }>;
+	tools: Array<{ quantity?: number; specifications?: string | null }>;
+	equipment: Array<{ quantity?: number }>;
+	safetyElements: Array<{ quantity?: number }>;
+	crewSize: number;
+}) {
+	const estimateUnitCost = (item: { quantity?: number; specifications?: string | null }): number => {
+		const quantity = normalizeNumber(item.quantity);
+		const note = (item.specifications || "").toLowerCase();
+		const premium =
+			note.includes("certificado") || note.includes("especializado") || note.includes("industrial")
+				? 1.25
+				: 1;
+		return quantity * 50000 * premium;
+	};
+
+	const laborCosts = packet.crewSize * 50000;
+	const materialCosts = packet.materials.reduce((sum, item) => {
+		const quantity = normalizeNumber(item.quantity);
+		return sum + quantity * 25000;
+	}, 0);
+	const equipmentCosts = packet.equipment.reduce((sum, item) => sum + estimateUnitCost(item), 0);
+
+	const totalBudget = laborCosts + materialCosts + equipmentCosts;
+	const contingencyPercentage = 0.1;
+	const contingencyAmount = totalBudget * contingencyPercentage;
+	const grandTotal = totalBudget + contingencyAmount;
+
+	return {
+		laborCosts,
+		materialCosts,
+		equipmentCosts,
+		totalBudget,
+		contingencyPercentage,
+		contingencyAmount,
+		grandTotal,
+	};
 }
 
 /**
@@ -374,6 +430,14 @@ export async function approvePlanningPacket(
 		);
 	}
 
+	const costBaseline = computeCostBaseline({
+		materials: planningPacket.materials as unknown as Array<{ quantity?: number }>,
+		tools: planningPacket.tools as unknown as Array<{ quantity?: number; specifications?: string | null }>,
+		equipment: planningPacket.equipment as unknown as Array<{ quantity?: number }>,
+		safetyElements: planningPacket.safetyElements as unknown as Array<{ quantity?: number }>,
+		crewSize: planningPacket.crew.length,
+	});
+
 	const updatedPlanningPacket = await PlanningPacket.findByIdAndUpdate(
 		id,
 		{
@@ -381,6 +445,11 @@ export async function approvePlanningPacket(
 			approvedAt: new Date(),
 			approvedBy: userId,
 			approvalNotes: data.notes,
+			costBaselineSnapshot: {
+				frozenAt: new Date(),
+				frozenBy: userId,
+				...costBaseline,
+			},
 			updatedBy: userId,
 		},
 		{ new: true, runValidators: true },
@@ -400,6 +469,7 @@ export async function approvePlanningPacket(
 			status: "approved",
 			approvedBy: userId,
 			notes: data.notes,
+			costBaselineSnapshot: updatedPlanningPacket?.toObject().costBaselineSnapshot,
 		},
 	});
 
@@ -439,6 +509,7 @@ export async function reopenPlanningPacket(
 			reopenedAt: new Date(),
 			reopenedBy: userId,
 			reopenReason: data.reason,
+			costBaselineSnapshot: undefined,
 			updatedBy: userId,
 		},
 		{
@@ -667,9 +738,13 @@ export async function applyKitToPlanningPacket(
 		throw new AppError("FORBIDDEN", 403, "You do not have permission to modify planning packets");
 	}
 
-	// Cannot update if already approved
-	if (planningPacket.status === "approved") {
-		throw new AppError("INVALID_OPERATION", 400, "Cannot update an approved planning packet");
+	// Cannot update if already approved and frozen
+	if (planningPacket.status === "approved" && (planningPacket.toObject() as Record<string, unknown>).costBaselineSnapshot) {
+		throw new AppError(
+			"COST_BASELINE_FROZEN",
+			400,
+			"Cannot modify planning packet after approval. Cost baseline is frozen.",
+		);
 	}
 
 	// 1. Try to load dynamic kit from MongoDB if it's a valid ObjectId

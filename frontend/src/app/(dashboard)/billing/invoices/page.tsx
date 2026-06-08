@@ -47,8 +47,10 @@ function BillingInvoicesPageContent() {
 
 export default function BillingInvoicesPage() {
 	return (
-		<Suspense fallback={<WorkflowRecordsPageLoadingState />}>
-			<BillingInvoicesPageContent />
-		</Suspense>
+		<main>
+			<Suspense fallback={<WorkflowRecordsPageLoadingState />}>
+				<BillingInvoicesPageContent />
+			</Suspense>
+		</main>
 	);
 }

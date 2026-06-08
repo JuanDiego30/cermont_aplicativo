@@ -8,7 +8,7 @@ import {
 	getNotifications,
 	markAllNotificationsAsRead,
 	markNotificationAsRead,
-} from "../analytics/analytics.controller";
+} from "./notification.controller";
 
 const router = Router();
 
@@ -20,6 +20,14 @@ router.get("/", authorize(...INTERNAL_ROLES), getNotifications);
 // PATCH /api/notifications/:id
 router.patch(
 	"/:id",
+	authorize(...INTERNAL_ROLES),
+	validateParams(NotificationIdSchema),
+	markNotificationAsRead,
+);
+
+// PATCH /api/notifications/:id/read
+router.patch(
+	"/:id/read",
 	authorize(...INTERNAL_ROLES),
 	validateParams(NotificationIdSchema),
 	markNotificationAsRead,

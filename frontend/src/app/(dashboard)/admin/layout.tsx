@@ -4,5 +4,5 @@ import { requireRole } from "@/modules/auth/session";
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
 	await requireRole(ADMIN_ROLES);
-	return <>{children}</>;
+	return <section>{children}</section>;
 }

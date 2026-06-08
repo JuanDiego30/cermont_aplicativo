@@ -12,28 +12,35 @@ router.get("/", authorize(...INTERNAL_ROLES), TemplateDraftController.getAll);
 router.post(
 	"/",
 	authorize("gerente", "residente", "administrativo"),
+	// No body validation needed — template draft creation handled by controller
 	TemplateDraftController.create,
 );
 router.get("/:id", authorize(...INTERNAL_ROLES), TemplateDraftController.getById);
 router.patch(
 	"/:id",
 	authorize("gerente", "residente", "administrativo"),
+	// No body validation needed — template draft update handled by controller
 	TemplateDraftController.update,
 );
 router.post(
 	"/:id/approve",
 	authorize("gerente", "administrativo"),
+	// No body validation needed — approve is an action endpoint with no body
 	TemplateDraftController.approve,
 );
-router.post("/:id/reject", authorize("gerente", "administrativo"), TemplateDraftController.reject);
+router.post("/:id/reject", authorize("gerente", "administrativo"), 
+	// No body validation needed — reject is an action endpoint with no body
+	TemplateDraftController.reject);
 router.post(
 	"/:id/submit-for-review",
 	authorize("gerente", "residente", "administrativo"),
+	// No body validation needed — submit-for-review is an action endpoint with no body
 	TemplateDraftController.submitForReview,
 );
 router.post(
 	"/:id/convert-to-template",
 	authorize("gerente", "administrativo"),
+	// No body validation needed — convert is an action endpoint with no body
 	TemplateDraftController.convert,
 );
 router.delete("/:id", authorize("gerente", "administrativo"), TemplateDraftController.remove);

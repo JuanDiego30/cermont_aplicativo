@@ -49,6 +49,7 @@ export { Inspection } from "./Inspection";
 export { Invoice, type InvoiceDocument } from "./Invoice";
 export { type IKitDocument, Kit } from "./Kit";
 export { MaintenanceKit } from "./MaintenanceKit";
+export { Notification, type INotification } from "./Notification";
 export { Order } from "./Order";
 export { Payment, type PaymentDocument } from "./Payment";
 export { PlanningPacket } from "./PlanningPacket";

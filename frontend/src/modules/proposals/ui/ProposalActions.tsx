@@ -3,6 +3,7 @@
 import { CheckCircle, Edit, FilePlus, Send, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { usePermissions } from "@/modules/core/hooks/usePermissions";
 import { normalizeProposalStatus } from "@/modules/proposals/proposal-status";
 import {
 	useApproveProposal,
@@ -36,6 +37,7 @@ export function ProposalActions({
 	onConvert,
 }: ProposalActionsProps) {
 	const normalizedStatus = normalizeProposalStatus(status);
+	const { canPerformAction, isReadOnly } = usePermissions();
 
 	const approveMutation = useApproveProposal(proposalId);
 	const rejectMutation = useRejectProposal(proposalId);
@@ -78,51 +80,77 @@ export function ProposalActions({
 		});
 	};
 
+	const showSend = normalizedStatus === "draft";
+	const showApproveReject = normalizedStatus === "sent";
+	const showConvert = normalizedStatus === "approved";
+	const showNone = normalizedStatus === "rejected" || normalizedStatus === "expired";
+
 	return (
 		<div className="space-y-3">
 			<div className="flex flex-wrap gap-2">
-				{normalizedStatus === "draft" && (
+				{showSend && (
 					<>
-						<ActionButton icon={<Edit className="size-4" />} label="Editar" onClick={onEdit} />
+						{!isReadOnly && (
+							<ActionButton icon={<Edit className="size-4" />} label="Editar" onClick={onEdit} />
+						)}
+						{canPerformAction("approve_proposal") ? (
+							<ActionButton
+								icon={<Send className="size-4" />}
+								label="Enviar"
+								onClick={handleSend}
+								variant="primary"
+								loading={updateMutation.isPending}
+							/>
+						) : (
+							<ActionButton icon={<Send className="size-4" />} label="Enviar" disabled />
+						)}
+					</>
+				)}
+
+				{showApproveReject && (
+					<>
+						{canPerformAction("approve_proposal") ? (
+							<ActionButton
+								icon={<CheckCircle className="size-4" />}
+								label="Aprobar"
+								onClick={handleApprove}
+								variant="success"
+								loading={approveMutation.isPending}
+							/>
+						) : (
+							<ActionButton icon={<CheckCircle className="size-4" />} label="Aprobar" disabled />
+						)}
+						{canPerformAction("reject_proposal") ? (
+							<ActionButton
+								icon={<XCircle className="size-4" />}
+								label="Rechazar"
+								onClick={handleReject}
+								variant="danger"
+								loading={rejectMutation.isPending}
+							/>
+						) : (
+							<ActionButton icon={<XCircle className="size-4" />} label="Rechazar" disabled />
+						)}
+					</>
+				)}
+
+				{showConvert &&
+					(canPerformAction("convert_proposal_to_order") ? (
 						<ActionButton
-							icon={<Send className="size-4" />}
-							label="Enviar"
-							onClick={handleSend}
+							icon={<FilePlus className="size-4" />}
+							label="Convertir a Orden"
+							onClick={onConvert}
 							variant="primary"
-							loading={updateMutation.isPending}
 						/>
-					</>
-				)}
-
-				{normalizedStatus === "sent" && (
-					<>
+					) : (
 						<ActionButton
-							icon={<CheckCircle className="size-4" />}
-							label="Aprobar"
-							onClick={handleApprove}
-							variant="success"
-							loading={approveMutation.isPending}
+							icon={<FilePlus className="size-4" />}
+							label="Convertir a Orden"
+							disabled
 						/>
-						<ActionButton
-							icon={<XCircle className="size-4" />}
-							label="Rechazar"
-							onClick={handleReject}
-							variant="danger"
-							loading={rejectMutation.isPending}
-						/>
-					</>
-				)}
+					))}
 
-				{normalizedStatus === "approved" && (
-					<ActionButton
-						icon={<FilePlus className="size-4" />}
-						label="Convertir a Orden"
-						onClick={onConvert}
-						variant="primary"
-					/>
-				)}
-
-				{(normalizedStatus === "rejected" || normalizedStatus === "expired") && (
+				{showNone && (
 					<p className="text-sm text-zinc-500 dark:text-zinc-400">
 						Esta propuesta no tiene acciones disponibles.
 					</p>
@@ -138,18 +166,20 @@ function ActionButton({
 	onClick,
 	variant = "default",
 	loading = false,
+	disabled = false,
 }: {
 	icon: React.ReactNode;
 	label: string;
 	onClick?: () => void;
 	variant?: ActionButtonVariant;
 	loading?: boolean;
+	disabled?: boolean;
 }) {
 	return (
 		<button
 			type="button"
 			onClick={onClick}
-			disabled={loading}
+			disabled={loading || disabled}
 			className={cn(
 				"inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed",
 				ACTION_BUTTON_VARIANTS[variant],

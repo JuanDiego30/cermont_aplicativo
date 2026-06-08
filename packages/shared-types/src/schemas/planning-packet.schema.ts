@@ -180,6 +180,22 @@ export const PlanningKitSnapshotSchema = z
 
 export type PlanningKitSnapshot = z.infer<typeof PlanningKitSnapshotSchema>;
 
+export const CostBaselineSnapshotSchema = z
+	.object({
+		frozenAt: z.string().datetime(),
+		frozenBy: z.string(),
+		laborCosts: z.number(),
+		materialCosts: z.number(),
+		equipmentCosts: z.number(),
+		totalBudget: z.number(),
+		contingencyPercentage: z.number(),
+		contingencyAmount: z.number(),
+		grandTotal: z.number(),
+	})
+	.optional();
+
+export type CostBaselineSnapshot = z.infer<typeof CostBaselineSnapshotSchema>;
+
 // ──────────────────────────────────────────────────────────────────────────────
 // Main entity
 // ──────────────────────────────────────────────────────────────────────────────
@@ -222,6 +238,7 @@ export const PlanningPacketSchema = z
 		approvedBy: ObjectIdSchema.optional(),
 		approvedAt: z.string().datetime().optional(),
 		approvalNotes: z.string().max(500).optional(),
+		costBaselineSnapshot: CostBaselineSnapshotSchema,
 		createdBy: ObjectIdSchema,
 		updatedBy: ObjectIdSchema.optional(),
 		reopenedBy: ObjectIdSchema.optional(),

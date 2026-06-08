@@ -1,4 +1,4 @@
-import { MAINTENANCE_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
+import { INTERNAL_ROLES, MAINTENANCE_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import {
 	AttachResourceImageSchema,
 	CreateMaintenanceKitSchema,
@@ -43,14 +43,14 @@ const router = express.Router();
 router.use(authenticate);
 
 // Kits typical / maintenance kits aliases
-router.get("/kits", validateQuery(PaginationQuerySchema), getAllKits);
+router.get("/kits", authorize(...INTERNAL_ROLES), validateQuery(PaginationQuerySchema), getAllKits);
 router.post(
 	"/kits",
 	authorize(...MAINTENANCE_MANAGEMENT_ROLES),
 	validateBody(CreateMaintenanceKitSchema),
 	createKit,
 );
-router.get("/kits/:id", validateParams(ResourceIdSchema), getKitById);
+router.get("/kits/:id", authorize(...INTERNAL_ROLES), validateParams(ResourceIdSchema), getKitById);
 router.patch(
 	"/kits/:id",
 	authorize(...MANAGEMENT_ROLES),
@@ -69,10 +69,10 @@ router.post(
 );
 
 // Get all resources (with optional filters) - all authenticated
-router.get("/", validateQuery(PaginationQuerySchema), getAllResources);
+router.get("/", authorize(...INTERNAL_ROLES), validateQuery(PaginationQuerySchema), getAllResources);
 
 // Get single resource - all authenticated
-router.get("/:id", validateParams(ResourceIdSchema), getResourceById);
+router.get("/:id", authorize(...INTERNAL_ROLES), validateParams(ResourceIdSchema), getResourceById);
 
 // Update resource - gerente, residente, supervisor
 router.patch(

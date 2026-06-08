@@ -473,7 +473,7 @@ export function invoiceRows(items: Invoice[]): RecordRow[] {
 		amount: item.totalAmount,
 		currency: item.currency,
 		href: `/billing/invoices/${item._id}`,
-		updatedAt: item.updatedAt,
+		updatedAt: item.updatedAt ?? "",
 	}));
 }
 

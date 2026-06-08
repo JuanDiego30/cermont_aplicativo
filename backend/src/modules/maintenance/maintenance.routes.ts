@@ -1,4 +1,4 @@
-import { MAINTENANCE_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
+import { INTERNAL_ROLES, MAINTENANCE_MANAGEMENT_ROLES, MANAGEMENT_ROLES } from "@cermont/domain";
 import {
 	CreateMaintenanceKitSchema,
 	PaginationQuerySchema,
@@ -22,7 +22,7 @@ const router = express.Router();
 router.use(authenticate);
 
 // GET /api/maintenance/kits — List kits (all authenticated users)
-router.get("/kits", validateQuery(PaginationQuerySchema), getAllKits);
+router.get("/kits", authorize(...INTERNAL_ROLES), validateQuery(PaginationQuerySchema), getAllKits);
 
 // POST /api/maintenance/kits — Create kit (gerente, residente, hes only)
 router.post(
@@ -33,7 +33,7 @@ router.post(
 );
 
 // GET /api/maintenance/kits/:id — Get single kit
-router.get("/kits/:id", validateParams(ResourceIdSchema), getKitById);
+router.get("/kits/:id", authorize(...INTERNAL_ROLES), validateParams(ResourceIdSchema), getKitById);
 
 // PATCH /api/maintenance/kits/:id — Update kit (gerente, residente only)
 router.patch(
@@ -48,7 +48,7 @@ router.patch(
 router.delete("/kits/:id", authorize("gerente"), validateParams(ResourceIdSchema), deleteKit);
 
 // GET /api/maintenance/kits — List kits (all authenticated users)
-router.get("/", getAllKits);
+router.get("/", authorize(...INTERNAL_ROLES), getAllKits);
 
 // POST /api/maintenance/kits — Create kit (gerente, residente, hes only)
 router.post(
@@ -59,7 +59,7 @@ router.post(
 );
 
 // GET /api/maintenance/kits/:id — Get single kit
-router.get("/:id", validateParams(ResourceIdSchema), getKitById);
+router.get("/:id", authorize(...INTERNAL_ROLES), validateParams(ResourceIdSchema), getKitById);
 
 // PATCH /api/maintenance/kits/:id — Update kit (gerente, residente only)
 router.patch(
@@ -75,10 +75,11 @@ router.delete("/:id", authorize("gerente"), validateParams(ResourceIdSchema), de
 
 // ─── Kit Document Attachments ─────────────────────────────────────
 // POST /api/maintenance/kits/:kitId/documents — Attach document to kit
+// No body validation needed — multipart form data handled by multer middleware
 router.post("/kits/:kitId/documents", authorize("gerente", "residente"), attachDocumentToKit);
 
 // GET /api/maintenance/kits/:kitId/documents — List kit documents
-router.get("/kits/:kitId/documents", listKitDocuments);
+router.get("/kits/:kitId/documents", authorize(...INTERNAL_ROLES), listKitDocuments);
 
 // DELETE /api/maintenance/kits/:kitId/documents/:documentId — Detach document
 router.delete(

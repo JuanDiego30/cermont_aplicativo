@@ -39,6 +39,7 @@ router.post("/refresh", AuthController.refresh);
  * POST /api/auth/logout
  * Protected endpoint — requires valid access token
  * Also reads refreshToken from cookie
+ * No body validation needed — logout uses cookie, not body
  */
 router.post("/logout", authenticate, AuthController.logout);
 

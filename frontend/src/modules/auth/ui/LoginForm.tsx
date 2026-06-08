@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { Button } from "@/core/ui/Button";
@@ -18,13 +18,8 @@ type LoginFormInput = z.input<typeof LoginSchema>;
 export function LoginForm() {
 	const [showPassword, setShowPassword] = useState(false);
 	const [loginError, setLoginError] = useState<string | null>(null);
-	const [isHydrated, setIsHydrated] = useState(false);
 	const { login } = useAuthActions();
 	const { push } = useRouter();
-
-	useEffect(() => {
-		setIsHydrated(true);
-	}, []);
 
 	const {
 		register,
@@ -96,7 +91,7 @@ export function LoginForm() {
 						placeholder="correo@empresa.com"
 						leftIcon={<Mail className="size-4" />}
 						error={!!errors.email}
-						disabled={!isHydrated || isSubmitting}
+						disabled={isSubmitting}
 						{...register("email")}
 					/>
 				</FormField>
@@ -110,7 +105,7 @@ export function LoginForm() {
 							placeholder="••••••••"
 							leftIcon={<Lock className="size-4" />}
 							error={!!errors.password}
-							disabled={!isHydrated || isSubmitting}
+							disabled={isSubmitting}
 							{...register("password")}
 						/>
 						<button
@@ -134,7 +129,7 @@ export function LoginForm() {
 
 				<Button
 					type="submit"
-					disabled={!isHydrated || isSubmitting}
+					disabled={isSubmitting}
 					loading={isSubmitting}
 					variant="primary"
 					size="lg"

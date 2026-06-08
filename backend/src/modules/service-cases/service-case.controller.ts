@@ -12,7 +12,6 @@ import { sendSuccess } from "../../common/interceptors/response.interceptor";
 import { requireUser } from "../../common/utils/request";
 import { Document, ServiceCase } from "../../models";
 import { getConsolidatedReport } from "../../modules/order/order-closure.service";
-import * as CermontWorkflowGateService from "../../services/cermont-workflow-gate.service";
 import {
 	applyClosingEvidenceMetadata,
 	type ClosingEvidenceRoutingOutcome,
@@ -74,12 +73,18 @@ export async function advanceServiceCase(req: Request, res: Response): Promise<v
 	const { id } = ServiceCaseIdParamsSchema.parse(req.params);
 	const user = requireUser(req);
 
-	const result = await CermontWorkflowGateService.advanceServiceCaseStep(
-		id,
-		String(user._id),
-		"MANUAL_ADVANCE",
-	);
-	sendSuccess(res, result);
+	const result = await ServiceCaseService.advanceServiceCaseState(id, String(user._id));
+
+	if (!result.success) {
+		res.status(409).json({
+			error: result.error,
+			blockers: result.blockers,
+			message: result.message,
+		});
+		return;
+	}
+
+	sendSuccess(res, result.serviceCase);
 }
 
 export async function bulkClosingEvidenceForCase(req: Request, res: Response): Promise<void> {

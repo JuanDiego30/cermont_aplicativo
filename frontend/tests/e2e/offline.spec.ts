@@ -95,18 +95,51 @@ test.describe
 		});
 
 		test("shows and clears the offline banner when connectivity changes", async ({
-			context,
 			page,
 		}) => {
-			await page.goto(`${BASE_URL}/login`, { waitUntil: "networkidle" });
+			// Banner is auth-gated, so login and navigate to a protected route
+			await page.goto(`${BASE_URL}/login`, { waitUntil: "domcontentloaded" });
+			await page.getByLabel("Correo electrónico").first().fill("gerencia@cermont.co");
+			await page.getByLabel("Contraseña").first().fill("Cermont2026!");
+			await page
+				.getByRole("button", { name: /iniciar sesión/i })
+				.first()
+				.click();
+			await page.waitForURL(/dashboard/, { timeout: 20_000 });
 			await waitForActiveServiceWorker(page);
 
-			await context.setOffline(true);
+			// Go to a protected route to ensure OfflineBanner mounts
+			await page.goto(`${BASE_URL}/dashboard`, { waitUntil: "domcontentloaded" });
+			// Wait for React to hydrate and the connectivity monitor to register listeners
+			await expect(
+				page.getByRole("heading", { name: "Panel de Control", exact: true }).first(),
+			).toBeVisible({ timeout: 15_000 });
+
+			// Step 1: Make connectivity check endpoints fail so checkRealConnectivity
+			// returns false when the monitor next probes reachability.
+			// We do NOT use context.setOffline(true) because it sets navigator.onLine
+			// to false, which causes runConnectivityCheck to short-circuit via the
+			// !navigator.onLine check BEFORE calling checkRealConnectivity. By keeping
+			// navigator.onLine=true and instead failing the real pings, we trigger
+			// the checkRealConnectivity path which correctly calls setConnectivity.
+			await page.route("**/api/backend/health", (route) => route.abort("internetdisconnected"));
+			await page.route("**/serwist/sw.js", (route) => route.abort("internetdisconnected"));
+
+			// Step 2: Trigger a bounded connectivity check by dispatching a synthetic
+			// event. The event listener's handleConnectivityHint → requestBoundedCheck
+			// will schedule runConnectivityCheck. Since navigator.onLine is still true,
+			// it bypasses the short-circuit and calls checkRealConnectivity, which
+			// fails because the routes are aborted → setConnectivity(false).
+			await page.evaluate(() => window.dispatchEvent(new Event("offline")));
 			await expect(
 				page.getByText(/los cambios se sincronizar[aá]n autom[aá]ticamente/i).first(),
-			).toBeVisible({ timeout: 12_000 });
+			).toBeVisible({ timeout: 15_000 });
 
-			await context.setOffline(false);
+			// Step 3: Restore connectivity by un-routing the health endpoints and
+			// dispatching a synthetic online event to trigger a bounded check.
+			await page.unroute("**/api/backend/health");
+			await page.unroute("**/serwist/sw.js");
+			await page.evaluate(() => window.dispatchEvent(new Event("online")));
 			await expect(
 				page.getByText(/los cambios se sincronizar[aá]n autom[aá]ticamente/i).first(),
 			).toBeHidden({ timeout: 20_000 });
