@@ -40,8 +40,6 @@ function useClickOutside(
 	}, [isActive, ref]);
 }
 
-
-
 // ─── SyncStatusPopover ──────────────────────────────────────────────
 
 interface SyncStatusPopoverProps {
@@ -85,9 +83,7 @@ function SyncStatusPopover({
 
 				<div className="flex justify-between text-xs">
 					<span className="text-secondary-foreground">Cola de salida:</span>
-					<span className="font-semibold text-foreground font-mono">
-						{pendingCount} pendientes
-					</span>
+					<span className="font-semibold text-foreground font-mono">{pendingCount} pendientes</span>
 				</div>
 
 				{deadLetterCount > 0 && (
@@ -135,12 +131,7 @@ interface SyncQueueDialogProps {
 	onDeleteEntry: (id: string) => void;
 }
 
-function SyncQueueDialog({
-	dialogRef,
-	entries,
-	isOnline,
-	onDeleteEntry,
-}: SyncQueueDialogProps) {
+function SyncQueueDialog({ dialogRef, entries, isOnline, onDeleteEntry }: SyncQueueDialogProps) {
 	return (
 		<dialog
 			ref={dialogRef}

@@ -1,26 +1,26 @@
 "use client";
 
-import { useMemo } from "react";
 import {
-	type UserRole,
-	ROLE_HIERARCHY,
-	hasRole,
+	ADMIN_ROLES,
 	APPROVER_ROLES,
+	ASSET_MANAGEMENT_ROLES,
+	BILLING_ACCESS_ROLES,
+	DASHBOARD_ACCESS_ROLES,
+	EVIDENCE_ACCESS_ROLES,
+	FIELD_EXECUTION_ACCESS_ROLES,
+	FINANCE_ACCESS_ROLES,
+	hasRole,
+	INTERNAL_ROLES,
+	MAINTENANCE_MANAGEMENT_ROLES,
 	MANAGEMENT_ROLES,
 	PLANNING_ACCESS_ROLES,
-	FIELD_EXECUTION_ACCESS_ROLES,
-	EVIDENCE_ACCESS_ROLES,
-	BILLING_ACCESS_ROLES,
-	FINANCE_ACCESS_ROLES,
-	ASSET_MANAGEMENT_ROLES,
-	SITE_VISIT_MANAGEMENT_ROLES,
-	MAINTENANCE_MANAGEMENT_ROLES,
-	RESOURCE_ROLES,
 	REPORT_ROLES,
-	INTERNAL_ROLES,
-	DASHBOARD_ACCESS_ROLES,
-	ADMIN_ROLES,
+	RESOURCE_ROLES,
+	ROLE_HIERARCHY,
+	SITE_VISIT_MANAGEMENT_ROLES,
+	type UserRole,
 } from "@cermont/domain";
+import { useMemo } from "react";
 
 export type PermissionAction =
 	| "approve_proposal"
@@ -135,11 +135,14 @@ export interface UsePermissionsResult {
 	readonly isReadOnly: boolean;
 	readonly roleLabel: string;
 	readonly roleHierarchy: typeof ROLE_HIERARCHY;
+	/** Convenience helpers for common checks */
+	readonly canApprove: boolean;
+	readonly isAdmin: boolean;
+	readonly isField: boolean;
+	readonly hasRoleLevel: (minLevel: number) => boolean;
 }
 
-export function usePermissions({
-	userRole,
-}: UsePermissionsOptions = {}): UsePermissionsResult {
+export function usePermissions({ userRole }: UsePermissionsOptions = {}): UsePermissionsResult {
 	const resolvedRole = useMemo((): UserRole => {
 		if (!userRole) {
 			return "cliente";
@@ -185,42 +188,75 @@ export function usePermissions({
 	}, [resolvedRole]);
 
 	const canPerformAction = useMemo(
-		() => (action: PermissionAction): boolean => {
-			if (resolvedRole === "cliente") {
-				return false;
-			}
-			const allowedRoles = ACTION_ROLE_MAP[action];
-			if (!allowedRoles) {
-				return false;
-			}
-			return hasRole(resolvedRole, allowedRoles);
-		},
-		[resolvedRole],
-	);
-
-	const isRoleAtLeast = useMemo(
-		() => (minimumRole: UserRole): boolean => {
-			const userLevel = ROLE_HIERARCHY[resolvedRole];
-			const minimumLevel = ROLE_HIERARCHY[minimumRole];
-			return userLevel <= minimumLevel;
-		},
-		[resolvedRole],
-	);
-
-	const getVisibleModules = useMemo(
 		() =>
-			(): AppModule[] => {
+			(action: PermissionAction): boolean => {
 				if (resolvedRole === "cliente") {
-					return [];
+					return false;
 				}
-				return (Object.entries(MODULE_ROLE_MAP) as [AppModule, readonly UserRole[]][])
-					.filter(([, allowedRoles]) => hasRole(resolvedRole, allowedRoles))
-					.map(([module]) => module);
+				const allowedRoles = ACTION_ROLE_MAP[action];
+				if (!allowedRoles) {
+					return false;
+				}
+				return hasRole(resolvedRole, allowedRoles);
 			},
 		[resolvedRole],
 	);
 
+	const isRoleAtLeast = useMemo(
+		() =>
+			(minimumRole: UserRole): boolean => {
+				const userLevel = ROLE_HIERARCHY[resolvedRole];
+				const minimumLevel = ROLE_HIERARCHY[minimumRole];
+				return userLevel <= minimumLevel;
+			},
+		[resolvedRole],
+	);
+
+	const getVisibleModules = useMemo(
+		() => (): AppModule[] => {
+			if (resolvedRole === "cliente") {
+				return [];
+			}
+			return (Object.entries(MODULE_ROLE_MAP) as [AppModule, readonly UserRole[]][])
+				.filter(([, allowedRoles]) => hasRole(resolvedRole, allowedRoles))
+				.map(([module]) => module);
+		},
+		[resolvedRole],
+	);
+
 	const isReadOnly = useMemo(() => resolvedRole === "pasante", [resolvedRole]);
+
+	// New convenience helpers
+	const canApprove = useMemo(
+		() => APPROVER_ROLES.includes(resolvedRole as "gerente" | "supervisor"),
+		[resolvedRole],
+	);
+	const isAdmin = useMemo(
+		() =>
+			ADMIN_ROLES.includes(resolvedRole as "gerente" | "coord_administrativo" | "administrativo"),
+		[resolvedRole],
+	);
+	const isField = useMemo(
+		() =>
+			FIELD_EXECUTION_ACCESS_ROLES.includes(
+				resolvedRole as
+					| "gerente"
+					| "residente"
+					| "supervisor"
+					| "supervisor_electricista"
+					| "tecnico_electricista"
+					| "operador"
+					| "tecnico"
+					| "oficial_construccion",
+			),
+		[resolvedRole],
+	);
+	const hasRoleLevel = useMemo(
+		() =>
+			(minLevel: number): boolean =>
+				(ROLE_HIERARCHY[resolvedRole] ?? 99) <= minLevel,
+		[resolvedRole],
+	);
 
 	return {
 		canPerformAction,
@@ -229,5 +265,9 @@ export function usePermissions({
 		isReadOnly,
 		roleLabel,
 		roleHierarchy: ROLE_HIERARCHY,
+		canApprove,
+		isAdmin,
+		isField,
+		hasRoleLevel,
 	};
 }

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Service case flow", () => {
 	test.beforeEach(async ({ page }) => {
@@ -17,7 +17,7 @@ test.describe("Service case flow", () => {
 	test("workflow cockpit exposes blockers when requirements are missing", async ({ page }) => {
 		await page.goto("/service-cases");
 		const firstCase = page.getByRole("link", { name: /ver/i }).first();
-		if (await firstCase.count() > 0) {
+		if ((await firstCase.count()) > 0) {
 			await firstCase.click();
 			await expect(page.getByText(/bloqueo|requisito|pendiente/i)).toBeVisible();
 		}

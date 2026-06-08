@@ -16,10 +16,7 @@ import { Router } from "express";
 
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
-import {
-	processUploadedFile,
-	upload,
-} from "../../middlewares/uploadMiddleware";
+import { processUploadedFile, upload } from "../../middlewares/uploadMiddleware";
 import { validateBody } from "../../middlewares/validate";
 import * as FilesController from "./files.controller";
 

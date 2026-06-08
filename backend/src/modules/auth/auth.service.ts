@@ -270,5 +270,7 @@ export function generateResetToken(_email: string): string {
 export async function resetPassword(_token: string, _newPassword: string): Promise<void> {
 	// En producción: buscar usuario por token hasheado y verificar expiración
 	// Por ahora, devolver error para indicar que necesita implementación
-	throw new BadRequestError("Password reset requires database token validation. Implement user.resetPasswordToken field.");
+	throw new BadRequestError(
+		"Password reset requires database token validation. Implement user.resetPasswordToken field.",
+	);
 }

@@ -4,8 +4,8 @@ import { onlineManager, QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { MotionConfig } from "framer-motion";
-import { type ReactNode, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { type ReactNode, useEffect, useState } from "react";
 import { OfflineBanner } from "@/components/offline/OfflineBanner";
 import { STALE_TIMES } from "@/lib/constants/query-config";
 import { detailQueryOptions } from "@/lib/constants/query-options";
@@ -21,15 +21,24 @@ import { AuthInitializer } from "@/modules/auth/components/AuthInitializer";
 import { useAuthStore } from "@/store/auth.store";
 import { useOfflineStore } from "@/store/offline.store";
 
-const PUBLIC_AUTH_PATHS = ["/", "/login", "/register", "/forgot-password", "/reset-password", "/unauthorized"];
+const PUBLIC_AUTH_PATHS = [
+	"/",
+	"/login",
+	"/register",
+	"/forgot-password",
+	"/reset-password",
+	"/unauthorized",
+];
 
 function isPublicAuthPath(pathname: string): boolean {
-	return PUBLIC_AUTH_PATHS.some((path) => (path === "/" ? pathname === "/" : pathname.startsWith(path)));
+	return PUBLIC_AUTH_PATHS.some((path) =>
+		path === "/" ? pathname === "/" : pathname.startsWith(path),
+	);
 }
 
 function OfflineStorageBootstrap() {
 	const userId = useAuthStore((state) =>
-		state.user.status === "present" ? state.user.value.id : ""
+		state.user.status === "present" ? state.user.value.id : "",
 	);
 
 	useEffect(() => {

@@ -351,7 +351,9 @@ export async function deleteEvidenceCollection(id: string, userId: string): Prom
 	});
 }
 
-function inferStageFromItemType(type: AddEvidenceItemCommand["type"]): IEvidenceItemRecord["stage"] {
+function inferStageFromItemType(
+	type: AddEvidenceItemCommand["type"],
+): IEvidenceItemRecord["stage"] {
 	switch (type) {
 		case "photo_before":
 			return "before";

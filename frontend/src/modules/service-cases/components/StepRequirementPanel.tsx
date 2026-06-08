@@ -14,6 +14,8 @@ import {
 	ImageIcon,
 	PenSquare,
 } from "lucide-react";
+import { useAuth } from "../../auth/hooks/useAuth";
+import { usePermissions } from "../../core/hooks/usePermissions";
 
 interface StepRequirementPanelProps {
 	blockers: DomainBlocker[];
@@ -105,6 +107,10 @@ export function StepRequirementPanel({
 	showBlockers = true,
 	step,
 }: StepRequirementPanelProps) {
+	const { user } = useAuth();
+	const { hasRoleLevel } = usePermissions({ userRole: user?.role });
+	const canUserAdvance = hasRoleLevel(4);
+
 	return (
 		<div className="space-y-5 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5 shadow-card">
 			<div className="flex items-center justify-between">
@@ -181,7 +187,7 @@ export function StepRequirementPanel({
 					<button
 						type="button"
 						className="rounded-[var(--radius-md)] bg-[var(--color-brand)] px-4 py-1.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-[var(--color-brand-hover)] disabled:cursor-not-allowed disabled:opacity-40"
-						disabled={!canAdvance || isAdvancing}
+						disabled={!canAdvance || !canUserAdvance || isAdvancing}
 						onClick={onAdvance}
 					>
 						{isAdvancing ? "Avanzando..." : `Avanzar al Paso ${step.stepNumber + 1}`}

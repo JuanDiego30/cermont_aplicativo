@@ -16,9 +16,6 @@ export const RESOURCE_TYPE_LABELS: Record<string, string> = {
 	spare_part: "Repuesto",
 };
 
-
-
-
 export const RESOURCE_TYPE_ORDER: string[] = [
 	"tool",
 	"equipment",

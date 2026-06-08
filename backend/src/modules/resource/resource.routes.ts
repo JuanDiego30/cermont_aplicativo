@@ -69,7 +69,12 @@ router.post(
 );
 
 // Get all resources (with optional filters) - all authenticated
-router.get("/", authorize(...INTERNAL_ROLES), validateQuery(PaginationQuerySchema), getAllResources);
+router.get(
+	"/",
+	authorize(...INTERNAL_ROLES),
+	validateQuery(PaginationQuerySchema),
+	getAllResources,
+);
 
 // Get single resource - all authenticated
 router.get("/:id", authorize(...INTERNAL_ROLES), validateParams(ResourceIdSchema), getResourceById);

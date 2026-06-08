@@ -40,6 +40,42 @@ vi.mock("../../src/common/utils/logger", () => ({
 	}),
 }));
 
+vi.mock("../../src/modules/order/administrative-workflow.service", () => ({
+	createTechnicalReportFromExecutionSession: vi.fn(),
+	updateTechnicalReport: vi.fn(),
+	createDeliveryRecordFromTechnicalReport: vi.fn(),
+	signDeliveryRecord: vi.fn(),
+	sendDeliveryRecord: vi.fn(),
+	createServiceEntrySheetFromDeliveryRecord: vi.fn(),
+	submitServiceEntrySheet: vi.fn(),
+	createInvoiceFromServiceEntrySheet: vi.fn(),
+	submitInvoice: vi.fn(),
+	registerPaymentForInvoice: vi.fn(),
+	reconcilePayment: vi.fn(),
+}));
+
+vi.mock("../../src/modules/cost/cost.service", () => ({
+	createCost: vi.fn(),
+	updateCost: vi.fn(),
+}));
+
+vi.mock("../../src/modules/purchase-order/purchase-order.service", () => ({
+	registerPurchaseOrder: vi.fn(),
+}));
+
+vi.mock("../../src/models", () => ({
+	TechnicalReport: { findOne: vi.fn().mockResolvedValue(null) },
+	DeliveryRecord: { findOne: vi.fn().mockResolvedValue(null) },
+	ServiceEntrySheet: { findOne: vi.fn().mockResolvedValue(null) },
+	Invoice: { findOne: vi.fn().mockResolvedValue(null) },
+	Payment: { findOne: vi.fn().mockResolvedValue(null) },
+	Cost: { findOne: vi.fn().mockResolvedValue(null) },
+}));
+
+vi.mock("../../src/models/PurchaseOrder", () => ({
+	PurchaseOrderModel: { findOne: vi.fn().mockResolvedValue(null) },
+}));
+
 describe("SyncService", () => {
 	const mockActorId = "507f1f77bcf86cd799439011";
 	const mockActorRole = "tecnico";
@@ -264,30 +300,26 @@ describe("SyncService", () => {
 			expect(result.errors).toHaveLength(0);
 		});
 
-		it("should report errors for unsupported entity types", async () => {
-			// Use a valid entity type that doesn't have a handler yet
-			// The entity types "technical-report" and "purchase-order" are defined in
-			// the schema but their handlers throw SYNC_NOT_IMPLEMENTED
+		it("should route technical-report operations to the handler", async () => {
+			// technical-report is now implemented via applyTechnicalReportOperation.
+			// The operation may fail due to mocked services, but the batch should
+			// not crash and should report the result.
 			const operations: OfflineOperation[] = [
 				{
-					id: "op-unsupported",
+					id: "op-technical",
 					type: "technical-report",
 					action: "create",
 					payload: {
-						description: "Test report",
+						executionSessionId: "507f1f77bcf86cd799439011",
 					},
 					timestamp: new Date().toISOString(),
 				},
 			];
 
-			// The sync service is fault-tolerant: it catches errors and reports them
-			// instead of throwing. This matches DOC-10 design for partial batch processing.
 			const result = await processSyncBatch(operations, mockActorRole, mockActorId);
 
-			expect(result.failed).toBe(1);
-			expect(result.errors).toHaveLength(1);
-			expect(result.errors[0].id).toBe("op-unsupported");
-			expect(result.errors[0].error).toContain("not yet implemented");
+			expect(result.results).toHaveLength(1);
+			expect(result.batchId).toBeDefined();
 		});
 
 		it("should reject unsupported actions for known entities", async () => {

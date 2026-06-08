@@ -16,8 +16,7 @@
 
 import crypto from "node:crypto";
 import path from "node:path";
-
-import { Types } from "mongoose";
+import type { CreateFileAssetResult as CreateFileAssetOutcome } from "@cermont/shared-types";
 import {
 	ALLOWED_FILE_MIME_TYPES,
 	type FileAssetCategory,
@@ -26,21 +25,16 @@ import {
 	FileAssetRefSchema,
 	type FileAssetUploadInput,
 } from "@cermont/shared-types";
-import type { CreateFileAssetResult as CreateFileAssetOutcome } from "@cermont/shared-types";
-
+import { Types } from "mongoose";
+import { BadRequestError, NotFoundError, UnprocessableError } from "../../common/errors/AppError";
 import { createLogger } from "../../common/utils/logger";
 import { env } from "../../config/env";
-import {
-	BadRequestError,
-	NotFoundError,
-	UnprocessableError,
-} from "../../common/errors/AppError";
 import { DeliveryRecord } from "../../models/DeliveryRecord";
-import { type IFileAssetDocument, FileAsset } from "../../models/FileAsset";
-import { Kit } from "../../models/Kit";
 import { Evidence } from "../../models/Evidence";
-import { TechnicalReport } from "../../models/TechnicalReport";
+import { FileAsset, type IFileAssetDocument } from "../../models/FileAsset";
+import { Kit } from "../../models/Kit";
 import { Resource } from "../../models/Resource";
+import { TechnicalReport } from "../../models/TechnicalReport";
 import { createAuditLog } from "../audit/audit.service";
 
 const log = createLogger("files-service");
@@ -418,7 +412,9 @@ export async function getFileAssetById(id: string): Promise<IFileAssetDocument> 
  * List FileAssets owned by a specific entity, optionally filtered by category.
  * Excludes soft-deleted records by default.
  */
-export async function listFileAssetsByEntity(query: ListFileAssetsQuery): Promise<IFileAssetDocument[]> {
+export async function listFileAssetsByEntity(
+	query: ListFileAssetsQuery,
+): Promise<IFileAssetDocument[]> {
 	if (!Types.ObjectId.isValid(query.entityId)) {
 		throw new BadRequestError(
 			`Invalid entityId: '${query.entityId}' is not a valid ObjectId`,

@@ -433,10 +433,7 @@ async function openLegacyBlobDatabase(): Promise<IDBDatabase | false> {
 		};
 		request.onsuccess = () => {
 			const database = request.result;
-			if (
-				createdForInspection ||
-				!database.objectStoreNames.contains(LEGACY_BLOB_STORE_NAME)
-			) {
+			if (createdForInspection || !database.objectStoreNames.contains(LEGACY_BLOB_STORE_NAME)) {
 				database.close();
 				if (createdForInspection) {
 					globalThis.indexedDB.deleteDatabase(LEGACY_BLOB_DB_NAME);

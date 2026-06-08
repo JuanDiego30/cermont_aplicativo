@@ -185,7 +185,7 @@ write("Capitulos/Capitulo_6.tex", cap6);
 console.log('\n[6] Checking figure captions for "Fuente: Elaboración propia"');
 const figDir = path.join(basePath, "Figuras");
 const figFiles = fs.readdirSync(figDir).filter((f) => f.endsWith(".tex"));
-let issues = [];
+const issues = [];
 for (const f of figFiles) {
 	const content = fs.readFileSync(path.join(figDir, f), "utf8");
 	if (content.includes("\\caption")) {

@@ -13,7 +13,12 @@
  * All inputs validated by middleware BEFORE controller.
  */
 
-import { ChangePasswordSchema, ForgotPasswordSchema, LoginSchema, ResetPasswordSchema } from "@cermont/shared-types";
+import {
+	ChangePasswordSchema,
+	ForgotPasswordSchema,
+	LoginSchema,
+	ResetPasswordSchema,
+} from "@cermont/shared-types";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { validateBody } from "../../middlewares/validate";

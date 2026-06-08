@@ -11,11 +11,7 @@
  *   - useDetachResourceImage  — mutation to detach image
  */
 
-import type {
-	CreateResource,
-	FileAssetRef,
-	UpdateResource,
-} from "@cermont/shared-types";
+import type { CreateResource, FileAssetRef, UpdateResource } from "@cermont/shared-types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {

@@ -105,12 +105,12 @@ const authApiNoCache: RuntimeCaching = {
 		const pathname = url.pathname;
 		return (
 			pathname.startsWith("/api/auth/") ||
-			pathname.startsWith("/api/backend/auth/")
+			pathname.startsWith("/api/backend/auth/") ||
+			pathname.startsWith("/api/sync/")
 		);
 	},
 	handler: new NetworkOnly({
-		// Login can take > 10s on cold start (backend boot, MongoDB connection).
-		// Use 30s to avoid aborting legitimate requests.
+		// Login and Sync can take > 10s on cold start.
 		networkTimeoutSeconds: 30,
 	}),
 };

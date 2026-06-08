@@ -56,11 +56,9 @@ describe("Execution Session API Endpoints", () => {
 		});
 
 		test("should throw NOT_FOUND when work order does not exist", async () => {
-			vi.spyOn(ExecutionSessionService, "createExecutionSession").mockImplementation(
-				async () => {
-					throw new AppError("Order not found", 404, "ORDER_NOT_FOUND");
-				},
-			);
+			vi.spyOn(ExecutionSessionService, "createExecutionSession").mockImplementation(async () => {
+				throw new AppError("Order not found", 404, "ORDER_NOT_FOUND");
+			});
 
 			await expect(
 				ExecutionSessionService.createExecutionSession(
@@ -86,7 +84,9 @@ describe("Execution Session API Endpoints", () => {
 				.spyOn(ExecutionSessionService, "getExecutionSessionById")
 				.mockResolvedValue(mockSession as unknown as { _id: string });
 
-			const result = await ExecutionSessionService.getExecutionSessionById("507f1f77bcf86cd799439021");
+			const result = await ExecutionSessionService.getExecutionSessionById(
+				"507f1f77bcf86cd799439021",
+			);
 
 			expect(result.code).toBe("EX-2024-0001");
 			expect(getSpy).toHaveBeenCalledWith("507f1f77bcf86cd799439021");

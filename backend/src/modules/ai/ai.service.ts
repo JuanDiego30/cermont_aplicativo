@@ -4,34 +4,17 @@
  * Provides contextual AI processing for the Cermont AI Assistant.
  */
 
-import {
-	getStepRequirements,
-	buildBlockers,
-	CERMONT_OPERATIONAL_STEPS,
-	type ServiceCaseWorkflowSnapshot,
-	type CermontOperationalStepStatus,
-} from "@cermont/domain";
-import type { AssistantChatResponse, CermontOperationalStepCode } from "@cermont/shared-types";
+import { CERMONT_OPERATIONAL_STEPS, getStepRequirements } from "@cermont/domain";
+import type {
+	AssistantChatResponse,
+	CermontOperationalStepCode,
+	DomainBlocker,
+} from "@cermont/shared-types";
+import { NotFoundError, ServiceUnavailableError } from "../../common/errors/AppError";
 import { ServiceCase } from "../../models";
-import { buildWorkflowContext } from "../service-cases/service-case.service";
-import { ServiceUnavailableError, NotFoundError } from "../../common/errors/AppError";
+import { canAdvanceToNextStep } from "../../services/cermont-workflow-gate.service";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-
-function buildStepStatuses(currentStepIndex: number): Record<string, CermontOperationalStepStatus> {
-	const statuses: Record<string, CermontOperationalStepStatus> = {};
-	for (let i = 0; i < CERMONT_OPERATIONAL_STEPS.length; i++) {
-		const step = CERMONT_OPERATIONAL_STEPS[i];
-		if (i < currentStepIndex) {
-			statuses[step.key] = "completed";
-		} else if (i === currentStepIndex) {
-			statuses[step.key] = "in_progress";
-		} else {
-			statuses[step.key] = "pending";
-		}
-	}
-	return statuses;
-}
 
 function buildSystemPrompt(params: {
 	serviceCaseId: string;
@@ -42,14 +25,17 @@ function buildSystemPrompt(params: {
 	currentModule?: string;
 	userRole?: string;
 	requirements: ReadonlyArray<{ required: boolean; label: string; kind: string }>;
-	blockers: ReadonlyArray<{ message: string; severity: string }>;
+	blockers: ReadonlyArray<{ message: string; severity: string; ownerRole: string }>;
+	canAdvance: boolean;
 }): string {
 	const requirementLines = params.requirements
 		.map((r) => `- [${r.required ? "Requerido" : "Opcional"}] ${r.label} (Tipo: ${r.kind})`)
 		.join("\n");
 	const blockerLines =
 		params.blockers.length > 0
-			? params.blockers.map((b) => `- ${b.message} (Severidad: ${b.severity})`).join("\n")
+			? params.blockers
+					.map((b) => `- ${b.message} (Responsable: ${b.ownerRole}, Severidad: ${b.severity})`)
+					.join("\n")
 			: "- Ninguno. Todos los requisitos están cumplidos para avanzar.";
 	const moduleLine = params.currentModule
 		? `- Sección actual en pantalla: ${params.currentModule}`
@@ -64,6 +50,7 @@ Detalles del caso actual:
 - Cliente: ${params.clientName}
 - Paso Activo: ${params.currentStepCode} (${CERMONT_OPERATIONAL_STEPS[params.currentStepIndex]?.label || ""})
 - Rol del Usuario: ${params.userRole || "desconocido"}
+- ¿Puede avanzar al siguiente paso?: ${params.canAdvance ? "SÍ" : "NO"}
 ${moduleLine}
 
 Requisitos del Paso Activo:
@@ -75,8 +62,9 @@ ${blockerLines}
 Instrucciones:
 1. Responde de forma concisa y estructurada (máximo 3 párrafos o lista de viñetas).
 2. Si faltan requisitos, indícale al usuario qué debe cargar o qué rol debe aprobar para avanzar.
-3. Responde siempre en español.
-4. Orienta tus respuestas al módulo actual si se proporciona.`;
+3. Si el usuario es el responsable de un bloqueador (Responsable: ${params.userRole}), dale prioridad a esa acción.
+4. Responde siempre en español.
+5. Orienta tus respuestas al módulo actual si se proporciona.`;
 }
 
 async function callOpenAI(systemPrompt: string, message: string): Promise<string> {
@@ -167,19 +155,16 @@ export async function processUserQuery(
 		throw new NotFoundError("ServiceCase", serviceCaseId);
 	}
 
-	const currentStepCode = (serviceCase.currentStepCode || "step_01_work_request") as CermontOperationalStepCode;
+	const currentStepCode = (serviceCase.currentStepCode ||
+		"step_01_work_request") as CermontOperationalStepCode;
 	const normalizedCurrent = currentStepCode.startsWith("step_")
 		? currentStepCode.split("_").slice(2).join("_")
 		: currentStepCode;
 
 	const currentStepIndex = CERMONT_OPERATIONAL_STEPS.findIndex((s) => s.key === normalizedCurrent);
-	const snapshot: ServiceCaseWorkflowSnapshot = {
-		currentStepKey: currentStepCode,
-		stepStatuses: buildStepStatuses(currentStepIndex),
-	};
 
-	const workflowContext = await buildWorkflowContext(serviceCaseId);
-	const blockers = buildBlockers(snapshot, workflowContext);
+	// Get real-time blockers and advance status from the Workflow Gate
+	const { canAdvance, blockers } = await canAdvanceToNextStep(serviceCaseId);
 	const requirements = getStepRequirements(currentStepCode);
 
 	const systemPrompt = buildSystemPrompt({
@@ -191,16 +176,26 @@ export async function processUserQuery(
 		currentModule,
 		userRole,
 		requirements,
-		blockers,
+		blockers: blockers.map((b: DomainBlocker) => ({
+			message: b.message,
+			severity: b.severity,
+			ownerRole: b.ownerRole,
+		})),
+		canAdvance,
 	});
 
 	const reply = await requestCompletion(systemPrompt, message);
 
+	// Filter suggested actions by role: only show blockers where the user is the owner
+	const suggestedActions = blockers
+		.filter((b: DomainBlocker) => !userRole || b.ownerRole === userRole)
+		.map((b: DomainBlocker) => b.recommendedAction);
+
 	return {
 		threadId: threadId || `th_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
 		reply,
-		suggestedActions: blockers.map((b) => b.message),
-		blockers: blockers.map((b) => b.message),
+		suggestedActions: suggestedActions.length > 0 ? suggestedActions : ["Continuar con el proceso"],
+		blockers: blockers.map((b: DomainBlocker) => b.message),
 		currentStepKey: currentStepCode,
 	};
 }

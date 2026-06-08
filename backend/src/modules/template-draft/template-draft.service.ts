@@ -287,7 +287,9 @@ export async function getAllTemplateDrafts(
 /**
  * Get a single template draft by ID
  */
-export async function getTemplateDraftById(id: string): Promise<ITemplateDraftDocument | undefined> {
+export async function getTemplateDraftById(
+	id: string,
+): Promise<ITemplateDraftDocument | undefined> {
 	if (!Types.ObjectId.isValid(id)) {
 		return undefined;
 	}

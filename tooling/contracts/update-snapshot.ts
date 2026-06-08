@@ -1,5 +1,9 @@
 import { writeFileSync } from "node:fs";
-import { buildApiContractSnapshot, createSnapshotHash, stringifyApiContractSnapshot } from "../../packages/shared-types/contracts/contractSnapshot";
+import {
+	buildApiContractSnapshot,
+	createSnapshotHash,
+	stringifyApiContractSnapshot,
+} from "../../packages/shared-types/contracts/contractSnapshot";
 
 const snapshot = stringifyApiContractSnapshot(buildApiContractSnapshot());
 const hash = createSnapshotHash(snapshot);

@@ -1,3 +1,4 @@
+import { MANAGEMENT_ROLES, PLANNING_ACCESS_ROLES } from "@cermont/domain";
 import type {
 	AddReferenceDocumentInput,
 	ApprovePlanningPacketInput,
@@ -6,13 +7,12 @@ import type {
 	ReopenPlanningPacketInput,
 	UpdatePlanningPacketInput,
 } from "@cermont/shared-types";
-import { MANAGEMENT_ROLES, PLANNING_ACCESS_ROLES } from "@cermont/domain";
 import mongoose from "mongoose";
 import { AppError } from "../../common/errors";
+import { getKitTemplate, type KitTemplate } from "../../config/kit-templates";
+import { Kit } from "../../models/Kit";
 import { PlanningPacket } from "../../models/PlanningPacket";
 import { createAuditLog } from "../audit/audit.service";
-import { Kit } from "../../models/Kit";
-import { getKitTemplate, type KitTemplate } from "../../config/kit-templates";
 
 const PLANNING_READINESS_ROLES = [...PLANNING_ACCESS_ROLES, "hes"] as const;
 const REQUIRED_PLANNING_RESPONSIBLE_ROLES = [
@@ -109,7 +109,9 @@ function hasRequiredReferenceDocuments(packet: PlanningPacketReadinessView) {
 		);
 	const hasRequiredPTW =
 		!packet.ptwRequired ||
-		packet.supportDocuments.some((document) => document.documentType === "ptw" && document.required);
+		packet.supportDocuments.some(
+			(document) => document.documentType === "ptw" && document.required,
+		);
 
 	return hasRequiredATS && hasRequiredPTW;
 }
@@ -263,7 +265,10 @@ export async function updatePlanningPacket(
 	}
 
 	// Cannot update costs or status if already approved and frozen
-	if (planningPacket.status === "approved" && (planningPacket.toObject() as Record<string, unknown>).costBaselineSnapshot) {
+	if (
+		planningPacket.status === "approved" &&
+		(planningPacket.toObject() as Record<string, unknown>).costBaselineSnapshot
+	) {
 		const costFieldsChanged =
 			data.materials !== undefined ||
 			data.tools !== undefined ||
@@ -363,7 +368,10 @@ function computeCostBaseline(packet: {
 	safetyElements: Array<{ quantity?: number }>;
 	crewSize: number;
 }) {
-	const estimateUnitCost = (item: { quantity?: number; specifications?: string | null }): number => {
+	const estimateUnitCost = (item: {
+		quantity?: number;
+		specifications?: string | null;
+	}): number => {
 		const quantity = normalizeNumber(item.quantity);
 		const note = (item.specifications || "").toLowerCase();
 		const premium =
@@ -432,7 +440,10 @@ export async function approvePlanningPacket(
 
 	const costBaseline = computeCostBaseline({
 		materials: planningPacket.materials as unknown as Array<{ quantity?: number }>,
-		tools: planningPacket.tools as unknown as Array<{ quantity?: number; specifications?: string | null }>,
+		tools: planningPacket.tools as unknown as Array<{
+			quantity?: number;
+			specifications?: string | null;
+		}>,
 		equipment: planningPacket.equipment as unknown as Array<{ quantity?: number }>,
 		safetyElements: planningPacket.safetyElements as unknown as Array<{ quantity?: number }>,
 		crewSize: planningPacket.crew.length,
@@ -599,9 +610,14 @@ function mergeResources<T extends ResourceWithQuantity>(
 ): T[] {
 	const merged = [...existing];
 	for (const item of incoming) {
-		const keyVal = String(item[nameKey] || "").toLowerCase().trim();
+		const keyVal = String(item[nameKey] || "")
+			.toLowerCase()
+			.trim();
 		const idx = merged.findIndex(
-			(x) => String(x[nameKey] || "").toLowerCase().trim() === keyVal,
+			(x) =>
+				String(x[nameKey] || "")
+					.toLowerCase()
+					.trim() === keyVal,
 		);
 		if (idx >= 0) {
 			const existingItem = merged[idx];
@@ -694,7 +710,12 @@ function mapStaticKit(staticKit: KitTemplate) {
 		version: "1",
 		activityType: staticKit.type,
 		tools: [] as Array<{ name: string; quantity: number; available: boolean }>,
-		equipment: [] as Array<{ name: string; quantity: number; available: boolean; certificateRequired: boolean }>,
+		equipment: [] as Array<{
+			name: string;
+			quantity: number;
+			available: boolean;
+			certificateRequired: boolean;
+		}>,
 		minimumPpe: [] as string[],
 	};
 
@@ -707,7 +728,12 @@ function mapStaticKit(staticKit: KitTemplate) {
 	return {
 		kitSnapshot,
 		toolsToMerge: [] as Array<{ name: string; quantity: number; available: boolean }>,
-		equipmentToMerge: [] as Array<{ name: string; quantity: number; available: boolean; certificateRequired: boolean }>,
+		equipmentToMerge: [] as Array<{
+			name: string;
+			quantity: number;
+			available: boolean;
+			certificateRequired: boolean;
+		}>,
 		materialsToMerge,
 		safetyElementsToMerge: [] as Array<{ description: string; quantity: number; unit: string }>,
 	};
@@ -739,7 +765,10 @@ export async function applyKitToPlanningPacket(
 	}
 
 	// Cannot update if already approved and frozen
-	if (planningPacket.status === "approved" && (planningPacket.toObject() as Record<string, unknown>).costBaselineSnapshot) {
+	if (
+		planningPacket.status === "approved" &&
+		(planningPacket.toObject() as Record<string, unknown>).costBaselineSnapshot
+	) {
 		throw new AppError(
 			"COST_BASELINE_FROZEN",
 			400,
@@ -753,27 +782,34 @@ export async function applyKitToPlanningPacket(
 		dbKit = (await Kit.findById(kitTemplateId)) as unknown as DbKit | null;
 	}
 
-	const {
-		kitSnapshot,
-		toolsToMerge,
-		equipmentToMerge,
-		materialsToMerge,
-		safetyElementsToMerge,
-	} = dbKit
-		? mapDbKit(dbKit)
-		: (() => {
-				const staticKit = getKitTemplate(kitTemplateId);
-				if (!staticKit || "status" in staticKit) {
-					throw new AppError("KIT_TEMPLATE_NOT_FOUND", 404, `Kit template not found: ${kitTemplateId}`);
-				}
-				return mapStaticKit(staticKit);
-			})();
+	const { kitSnapshot, toolsToMerge, equipmentToMerge, materialsToMerge, safetyElementsToMerge } =
+		dbKit
+			? mapDbKit(dbKit)
+			: (() => {
+					const staticKit = getKitTemplate(kitTemplateId);
+					if (!staticKit || "status" in staticKit) {
+						throw new AppError(
+							"KIT_TEMPLATE_NOT_FOUND",
+							404,
+							`Kit template not found: ${kitTemplateId}`,
+						);
+					}
+					return mapStaticKit(staticKit);
+				})();
 
 	// Merge resources into the planning packet
 	const updatedTools = mergeResources(planningPacket.tools || [], toolsToMerge, "name");
 	const updatedEquipment = mergeResources(planningPacket.equipment || [], equipmentToMerge, "name");
-	const updatedMaterials = mergeResources(planningPacket.materials || [], materialsToMerge, "description");
-	const updatedSafety = mergeResources(planningPacket.safetyElements || [], safetyElementsToMerge, "description");
+	const updatedMaterials = mergeResources(
+		planningPacket.materials || [],
+		materialsToMerge,
+		"description",
+	);
+	const updatedSafety = mergeResources(
+		planningPacket.safetyElements || [],
+		safetyElementsToMerge,
+		"description",
+	);
 
 	planningPacket.kitTemplateId = kitTemplateId;
 	planningPacket.kitSnapshot = kitSnapshot as typeof planningPacket.kitSnapshot;

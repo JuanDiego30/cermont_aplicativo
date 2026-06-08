@@ -31,12 +31,14 @@ async function seedDatabase(uri: string): Promise<void> {
 		const usersCollection = db.collection("users");
 		const maintenanceKitsCollection = db.collection("maintenancekits");
 
-		const [adminPassword, supervisorPassword, technicianPassword, seedPassword] = await Promise.all([
-			bcrypt.hash(E2E_ADMIN.password, 4),
-			bcrypt.hash(E2E_SUPERVISOR.password, 4),
-			bcrypt.hash(E2E_TECHNICIAN.password, 4),
-			bcrypt.hash("Cermont2026!", 4),
-		]);
+		const [adminPassword, supervisorPassword, technicianPassword, seedPassword] = await Promise.all(
+			[
+				bcrypt.hash(E2E_ADMIN.password, 4),
+				bcrypt.hash(E2E_SUPERVISOR.password, 4),
+				bcrypt.hash(E2E_TECHNICIAN.password, 4),
+				bcrypt.hash("Cermont2026!", 4),
+			],
+		);
 
 		await usersCollection.insertMany([
 			{

@@ -25,8 +25,8 @@ import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateBody, validateParams, validateQuery } from "../../middlewares/validate";
-import * as OrderController from "./order.controller";
 import { getPlanningPacketByWorkOrder } from "../planning-packet/planning-packet.controller";
+import * as OrderController from "./order.controller";
 
 const router = Router();
 
@@ -83,7 +83,13 @@ router.post(
  * Roles: Todos (all authenticated users)
  * Validation: OrderIdSchema (params)
  */
-router.get("/:id", authenticate, authorize(...INTERNAL_ROLES), validateParams(OrderIdSchema), OrderController.getOrder);
+router.get(
+	"/:id",
+	authenticate,
+	authorize(...INTERNAL_ROLES),
+	validateParams(OrderIdSchema),
+	OrderController.getOrder,
+);
 
 /**
  * PUT /api/orders/:id

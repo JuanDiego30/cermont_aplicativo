@@ -108,7 +108,11 @@ export async function validatePlanningReadiness(req: Request, res: Response) {
 	const userRole = user.role;
 	const { id } = PlanningPacketIdParamsSchema.parse(req.params);
 
-	const planningPacket = await PlanningPacketService.validatePlanningReadiness(id, userId, userRole);
+	const planningPacket = await PlanningPacketService.validatePlanningReadiness(
+		id,
+		userId,
+		userRole,
+	);
 
 	res.status(200).json({ success: true, data: planningPacket });
 }

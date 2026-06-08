@@ -76,9 +76,7 @@ export async function createWorkRequest(data: CreateWorkRequestInput, userId: st
 		nextActions: [
 			{
 				command: data.requiresSiteVisit ? "create_site_visit" : "create_proposal",
-				label: data.requiresSiteVisit
-					? "Registrar visita tecnica"
-					: "Crear propuesta economica",
+				label: data.requiresSiteVisit ? "Registrar visita tecnica" : "Crear propuesta economica",
 				requiredRole: "residente",
 				route: data.requiresSiteVisit ? "/site-visits/new" : "/proposals/new",
 			},

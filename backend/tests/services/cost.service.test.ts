@@ -234,8 +234,9 @@ describe("CostService", () => {
 				$or: Array<{ orderId?: Types.ObjectId; workOrderId?: Types.ObjectId }>;
 			};
 			expect(query._id.$in[0]?.toString()).toBe(SUPPORT_EVIDENCE_ID);
-			expect(query.$or.map((clause) => clause.orderId?.toString() ?? clause.workOrderId?.toString()))
-				.toContain(ORDER_ID);
+			expect(
+				query.$or.map((clause) => clause.orderId?.toString() ?? clause.workOrderId?.toString()),
+			).toContain(ORDER_ID);
 			expect(CostModel).not.toHaveBeenCalled();
 		});
 
@@ -261,8 +262,9 @@ describe("CostService", () => {
 				$or: Array<{ order_id?: Types.ObjectId; linkedEntityId?: Types.ObjectId }>;
 			};
 			expect(query._id.$in[0]?.toString()).toBe(SUPPORT_EVIDENCE_ID);
-			expect(query.$or.map((clause) => clause.order_id?.toString() ?? clause.linkedEntityId?.toString()))
-				.toContain(ORDER_ID);
+			expect(
+				query.$or.map((clause) => clause.order_id?.toString() ?? clause.linkedEntityId?.toString()),
+			).toContain(ORDER_ID);
 			expect(CostModel).not.toHaveBeenCalled();
 		});
 

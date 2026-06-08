@@ -76,8 +76,18 @@ function buildCompleteExecutionSession() {
 		laborEntries: [{ technicianId: "tech-1", hours: 4 }],
 		incidents: [],
 		signatures: [
-			{ signatureId: "sig-tech", role: "tecnico", signatureType: "technician", signedAt: "2026-05-25T11:05:00.000Z" },
-			{ signatureId: "sig-supervisor", role: "supervisor", signatureType: "supervisor", signedAt: "2026-05-25T11:10:00.000Z" },
+			{
+				signatureId: "sig-tech",
+				role: "tecnico",
+				signatureType: "technician",
+				signedAt: "2026-05-25T11:05:00.000Z",
+			},
+			{
+				signatureId: "sig-supervisor",
+				role: "supervisor",
+				signatureType: "supervisor",
+				signedAt: "2026-05-25T11:10:00.000Z",
+			},
 		],
 	};
 }
@@ -127,7 +137,12 @@ describe("Cermont workflow gate — execution step blockers", () => {
 			leanResult({
 				...buildCompleteExecutionSession(),
 				signatures: [
-					{ signatureId: "sig-supervisor", role: "supervisor", signatureType: "supervisor", signedAt: "2026-05-25T11:10:00.000Z" },
+					{
+						signatureId: "sig-supervisor",
+						role: "supervisor",
+						signatureType: "supervisor",
+						signedAt: "2026-05-25T11:10:00.000Z",
+					},
 				],
 			}),
 		);
@@ -144,7 +159,12 @@ describe("Cermont workflow gate — execution step blockers", () => {
 			leanResult({
 				...buildCompleteExecutionSession(),
 				signatures: [
-					{ signatureId: "sig-tech", role: "tecnico", signatureType: "technician", signedAt: "2026-05-25T11:05:00.000Z" },
+					{
+						signatureId: "sig-tech",
+						role: "tecnico",
+						signatureType: "technician",
+						signedAt: "2026-05-25T11:05:00.000Z",
+					},
 				],
 			}),
 		);
@@ -177,7 +197,11 @@ describe("Cermont workflow gate — execution step blockers", () => {
 				...buildCompleteExecutionSession(),
 				signatures: [
 					{ signatureId: "sig-tech", role: "tecnico", signedAt: "2026-05-25T11:05:00.000Z" },
-					{ signatureId: "sig-supervisor", role: "supervisor", signedAt: "2026-05-25T11:10:00.000Z" },
+					{
+						signatureId: "sig-supervisor",
+						role: "supervisor",
+						signedAt: "2026-05-25T11:10:00.000Z",
+					},
 				],
 			}),
 		);

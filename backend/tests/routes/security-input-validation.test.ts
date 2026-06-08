@@ -6,15 +6,14 @@
  * Based on OWASP WSTG-04-05: Testing for Mass Assignment
  */
 
-import { describe, expect, test } from "vitest";
-
 // Import the shared schemas to verify they reject malicious payloads
 import {
-	CreateWorkRequestSchema,
-	CreateProposalSchema,
 	CreateEvidenceSchema,
 	CreateOrderSchema,
+	CreateProposalSchema,
+	CreateWorkRequestSchema,
 } from "@cermont/shared-types";
+import { describe, expect, test } from "vitest";
 
 describe("Input Validation Security Tests", () => {
 	describe("Type validation - reject invalid field types", () => {

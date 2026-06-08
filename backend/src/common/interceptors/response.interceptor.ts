@@ -9,8 +9,8 @@
  * The actual envelope is enforced by sendSuccess/sendError in common/http/response.ts
  */
 
-import type { JsonValue } from "../types/safe-types";
 import type { Response } from "express";
+import type { JsonValue } from "../types/safe-types";
 
 export interface ApiEnvelope<T> {
 	success: true;

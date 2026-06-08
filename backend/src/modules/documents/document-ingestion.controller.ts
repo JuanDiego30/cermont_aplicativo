@@ -3,12 +3,12 @@
  * Thin HTTP layer. Delegates to DocumentIngestionService.
  */
 
+import type { StatusObject } from "@cermont/shared-types";
 import {
 	BulkClosingEvidenceRequestSchema,
 	IngestDocumentRequestSchema,
+	isPresent,
 } from "@cermont/shared-types";
-import type { StatusObject } from "@cermont/shared-types";
-import { isPresent } from "@cermont/shared-types";
 import type { Request, Response } from "express";
 import { Types } from "mongoose";
 import { BadRequestError } from "../../common/errors";

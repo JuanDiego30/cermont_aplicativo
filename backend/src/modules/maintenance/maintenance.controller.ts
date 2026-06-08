@@ -13,11 +13,7 @@ import {
 	sendPaginated,
 	sendSuccess,
 } from "../../common/interceptors/response.interceptor";
-import {
-	offsetToPage,
-	parseNumberQuery,
-	toIsoString,
-} from "../../common/utils/mapping";
+import { offsetToPage, parseNumberQuery, toIsoString } from "../../common/utils/mapping";
 import { getString, requireUser } from "../../common/utils/request";
 import { MaintenanceKitService } from "./maintenance.service";
 
@@ -46,11 +42,15 @@ function serializeMaintenanceKit(kit: MaintenanceKitRecord): MaintenanceKitRespo
 		_id: String(kit._id),
 		name: kit.name,
 		activityType: kit.activity_type as MaintenanceKitResponse["activityType"],
-		...(kit.tools ? { tools: kit.tools.map((tool) => ({
-			name: tool.name,
-			quantity: tool.quantity,
-			...(tool.specifications ? { specifications: tool.specifications } : {}),
-		})) } : { tools: [] }),
+		...(kit.tools
+			? {
+					tools: kit.tools.map((tool) => ({
+						name: tool.name,
+						quantity: tool.quantity,
+						...(tool.specifications ? { specifications: tool.specifications } : {}),
+					})),
+				}
+			: { tools: [] }),
 		equipment: (kit.equipment || []).map((item) => ({
 			name: item.name,
 			quantity: item.quantity,

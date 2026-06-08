@@ -344,10 +344,7 @@ export async function getExecutionSessionByWorkOrder(workOrderId: string) {
 	return session;
 }
 
-export async function createExecutionSession(
-	data: CreateExecutionSessionInput,
-	actor: AuthClaims,
-) {
+export async function createExecutionSession(data: CreateExecutionSessionInput, actor: AuthClaims) {
 	const order = await Order.findById(data.workOrderId);
 
 	if (!order) {

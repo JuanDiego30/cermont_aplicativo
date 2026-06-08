@@ -177,9 +177,7 @@ describe("ProposalsController", () => {
 
 			expect(mockApproveProposalService).toHaveBeenCalled();
 			expect(res.status).toHaveBeenCalledWith(200);
-			expect(res.json).toHaveBeenCalledWith(
-				expect.objectContaining({ success: true }),
-			);
+			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
 		});
 	});
 

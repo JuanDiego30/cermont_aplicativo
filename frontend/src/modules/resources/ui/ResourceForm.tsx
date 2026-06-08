@@ -68,7 +68,6 @@ export function ResourceForm({ resource, open, onOpenChange, onSuccess }: Resour
 		],
 	);
 
-
 	const {
 		register,
 		handleSubmit,

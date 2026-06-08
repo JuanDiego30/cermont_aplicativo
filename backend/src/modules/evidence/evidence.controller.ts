@@ -78,9 +78,7 @@ export async function uploadEvidence(req: Request, res: Response): Promise<void>
 		? {
 				lat: gpsLocation.lat,
 				lng: gpsLocation.lng,
-				capturedAt: gpsLocation.capturedAt
-					? new Date(gpsLocation.capturedAt)
-					: new Date(),
+				capturedAt: gpsLocation.capturedAt ? new Date(gpsLocation.capturedAt) : new Date(),
 			}
 		: undefined;
 

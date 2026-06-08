@@ -192,15 +192,9 @@ describe("EvidenceService", () => {
 			} as unknown as ReturnType<typeof Order.findById>);
 
 			await expect(
-				evidenceService.createEvidence(
-					orderId,
-					"before",
-					Buffer.from("not an image"),
-					userId,
-					{
-						capturedAt,
-					},
-				),
+				evidenceService.createEvidence(orderId, "before", Buffer.from("not an image"), userId, {
+					capturedAt,
+				}),
 			).rejects.toThrow("Invalid file type. Must be PNG, JPEG, WebP, or GIF");
 
 			expect(scanWithClamAV).not.toHaveBeenCalled();

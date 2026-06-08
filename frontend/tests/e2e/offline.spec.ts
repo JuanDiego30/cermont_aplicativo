@@ -94,9 +94,7 @@ test.describe
 			await expect(page.getByRole("button", { name: /^reintentar$/i })).toBeVisible();
 		});
 
-		test("shows and clears the offline banner when connectivity changes", async ({
-			page,
-		}) => {
+		test("shows and clears the offline banner when connectivity changes", async ({ page }) => {
 			// Banner is auth-gated, so login and navigate to a protected route
 			await page.goto(`${BASE_URL}/login`, { waitUntil: "domcontentloaded" });
 			await page.getByLabel("Correo electrónico").first().fill("gerencia@cermont.co");

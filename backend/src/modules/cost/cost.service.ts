@@ -1,11 +1,11 @@
 import type {
 	CostDataState,
+	CostResponse as CostSnapshot,
 	CostSummary,
 	CreateCostInput,
 	ListCostsQuery,
 	UpdateCostInput,
 } from "@cermont/shared-types";
-import type { CostResponse as CostSnapshot } from "@cermont/shared-types";
 import { Types } from "mongoose";
 import { BadRequestError, ForbiddenError, NotFoundError } from "../../common/errors/AppError";
 import { Cost, Document, Evidence, Invoice, Order, Payment } from "../../models";
@@ -159,7 +159,10 @@ function formatCostResponse(doc: ICostDocument): CostSnapshot {
 		createdAt: toIsoString(doc.createdAt),
 		updatedAt: toIsoString(doc.updatedAt),
 		variance: computeVariance(estimatedAmount, actualAmount),
-		variancePercent: { status: "present" as const, value: computeVariancePercent(estimatedAmount, actualAmount) },
+		variancePercent: {
+			status: "present" as const,
+			value: computeVariancePercent(estimatedAmount, actualAmount),
+		},
 		dataState: resolveAmountDataState(estimatedAmount, actualAmount),
 	};
 }
@@ -474,9 +477,10 @@ export async function getOrderSummary(orderId: string): Promise<CostSummary> {
 		totalActual,
 		totalTax,
 		variance,
-		variancePercent: totalEstimated > 0
-			? { status: "present", value: variance / totalEstimated }
-			: { status: "absent" },
+		variancePercent:
+			totalEstimated > 0
+				? { status: "present", value: variance / totalEstimated }
+				: { status: "absent" },
 		hasCosts: dataState !== "NO_DATA",
 		dataState,
 		byCategory,

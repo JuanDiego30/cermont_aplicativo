@@ -43,7 +43,9 @@ function tle(stage: string, command: string, actorId: string, role: string) {
 }
 function coalesceNumber(...values: (number | undefined | null)[]): number {
 	for (const v of values) {
-		if (typeof v === "number") { return v; }
+		if (typeof v === "number") {
+			return v;
+		}
 	}
 	return 0;
 }
@@ -87,7 +89,10 @@ const STEP_LABELS: Record<string, string> = {
 	step_14_payment_closure: "Pago y cierre definitivo",
 };
 
-const NEXT_ACTIONS: Record<string, { command: string; label: string; requiredRole: string; route: string }> = {
+const NEXT_ACTIONS: Record<
+	string,
+	{ command: string; label: string; requiredRole: string; route: string }
+> = {
 	step_01_work_request: {
 		command: "validate_work_request",
 		label: "Validar solicitud formal",
@@ -246,7 +251,9 @@ function buildFinancialSummary(summary: SeedFinancialSummary): SeedFinancialSumm
 }
 
 function buildOperationalSummary(seedCase: SeedCaseRecord, blockers: SeedBlocker[]) {
-	const criticalBlockersCount = blockers.filter((blocker) => blocker.severity === "blocking").length;
+	const criticalBlockersCount = blockers.filter(
+		(blocker) => blocker.severity === "blocking",
+	).length;
 	const currentStepNumber = stepNumberFromCode(seedCase.currentStepCode);
 
 	return {
@@ -259,8 +266,12 @@ function buildOperationalSummary(seedCase: SeedCaseRecord, blockers: SeedBlocker
 		reportStatus: seedCase.artifacts.technicalReport?.status ?? "pending",
 		deliveryRecordStatus: seedCase.artifacts.deliveryRecord?.status ?? "pending",
 		offlineSyncStatus: "synced",
-		totalLaborHours: seedCase.artifacts.executionSession ? Math.max(currentStepNumber - 5, 1) * 8 : 0,
-		totalMaterialLines: seedCase.artifacts.executionSession ? Math.max(currentStepNumber - 5, 1) : 0,
+		totalLaborHours: seedCase.artifacts.executionSession
+			? Math.max(currentStepNumber - 5, 1) * 8
+			: 0,
+		totalMaterialLines: seedCase.artifacts.executionSession
+			? Math.max(currentStepNumber - 5, 1)
+			: 0,
 	};
 }
 
@@ -666,7 +677,12 @@ async function materializeExecutionSession(
 		offlineSyncStatus: "synced",
 		createdBy: oid(SUPERVISOR_USER),
 	};
-	await ensureDocument(db, "executionsessions", code, sessionDoc as unknown as Record<string, unknown>);
+	await ensureDocument(
+		db,
+		"executionsessions",
+		code,
+		sessionDoc as unknown as Record<string, unknown>,
+	);
 }
 
 async function materializeTechnicalReport(
@@ -765,7 +781,12 @@ async function materializeServiceEntrySheet(
 		approvedAt: status === "approved" ? NOW : undefined,
 		approvedBy: status === "approved" ? oid(RESIDENT_USER) : undefined,
 	};
-	await ensureDocument(db, "serviceentrysheets", code, sesDoc as unknown as Record<string, unknown>);
+	await ensureDocument(
+		db,
+		"serviceentrysheets",
+		code,
+		sesDoc as unknown as Record<string, unknown>,
+	);
 }
 
 async function materializeInvoice(
@@ -848,7 +869,9 @@ async function materializeOperationalArtifacts(
 	arts: Record<string, { id: { toString: () => string }; code: string; status: string }>,
 ) {
 	// Order (workOrder)
-	if (!arts.workOrder) { return; }
+	if (!arts.workOrder) {
+		return;
+	}
 	await materializeOrder(
 		db,
 		arts.workOrder.code,
@@ -911,7 +934,10 @@ async function materializeBillingArtifacts(
 	if (arts.serviceEntrySheet) {
 		const woId = arts.workOrder?.id.toString() ?? "a00000000000000000000000000";
 		const drId = arts.deliveryRecord?.id.toString() ?? "a00000000000000000000000000";
-		const sesAmount = coalesceNumber(c.financialSummary.sesTotal, c.financialSummary.proposalAmount);
+		const sesAmount = coalesceNumber(
+			c.financialSummary.sesTotal,
+			c.financialSummary.proposalAmount,
+		);
 		await materializeServiceEntrySheet(
 			db,
 			arts.serviceEntrySheet.code,
@@ -928,7 +954,10 @@ async function materializeBillingArtifacts(
 	if (arts.invoice) {
 		const woId = arts.workOrder?.id.toString() ?? "a00000000000000000000000000";
 		const sesId = arts.serviceEntrySheet?.id.toString() ?? "a00000000000000000000000000";
-		const invAmount = coalesceNumber(c.financialSummary.invoicedAmount, c.financialSummary.proposalAmount);
+		const invAmount = coalesceNumber(
+			c.financialSummary.invoicedAmount,
+			c.financialSummary.proposalAmount,
+		);
 		await materializeInvoice(
 			db,
 			arts.invoice.code,
@@ -946,7 +975,10 @@ async function materializeBillingArtifacts(
 		const invId = arts.invoice?.id.toString() ?? "a00000000000000000000000000";
 		const woId = arts.workOrder?.id.toString() ?? "a00000000000000000000000000";
 		const sesId = arts.serviceEntrySheet?.id.toString() ?? "a00000000000000000000000000";
-		const payAmount = coalesceNumber(c.financialSummary.paidAmount, c.financialSummary.invoicedAmount);
+		const payAmount = coalesceNumber(
+			c.financialSummary.paidAmount,
+			c.financialSummary.invoicedAmount,
+		);
 		await materializePayment(
 			db,
 			arts.payment.code,
@@ -987,7 +1019,14 @@ async function materializeEvidence(
 	await ensureDocument(db, "evidences", code, evDoc as unknown as Record<string, unknown>);
 }
 
-const COST_CATEGORIES = ["labor", "materials", "equipment", "transport", "subcontract", "overhead"] as const;
+const COST_CATEGORIES = [
+	"labor",
+	"materials",
+	"equipment",
+	"transport",
+	"subcontract",
+	"overhead",
+] as const;
 
 async function materializeCost(
 	db: mongoose.mongo.Db,
@@ -1041,8 +1080,8 @@ async function materializeEvidenceArtifacts(
 const CATEGORY_PCT: Record<string, number> = {
 	labor: 0.35,
 	materials: 0.25,
-	equipment: 0.20,
-	transport: 0.10,
+	equipment: 0.2,
+	transport: 0.1,
 	subcontract: 0.07,
 	overhead: 0.03,
 };
@@ -1057,8 +1096,10 @@ async function materializeCostArtifacts(
 	}
 	const woId = arts.workOrder.id.toString();
 	const woCode = arts.workOrder.code;
-	const proposalAmt = typeof c.financialSummary.proposalAmount === "number" ? c.financialSummary.proposalAmount : 0;
-	const actualAmt = typeof c.financialSummary.actualCost === "number" ? c.financialSummary.actualCost : 0;
+	const proposalAmt =
+		typeof c.financialSummary.proposalAmount === "number" ? c.financialSummary.proposalAmount : 0;
+	const actualAmt =
+		typeof c.financialSummary.actualCost === "number" ? c.financialSummary.actualCost : 0;
 	const pctActual = actualAmt > 0 ? actualAmt / proposalAmt : 0.9;
 
 	for (const cat of COST_CATEGORIES) {
@@ -1070,12 +1111,24 @@ async function materializeCostArtifacts(
 		const act = Math.round(proposalAmt * catPct * pctActual);
 		const cstCode = `CST-${woCode}-${cat.toUpperCase()}`;
 		const cstId = new mongoose.Types.ObjectId().toString();
-		await materializeCost(db, cstCode, cstId, woId, cat, `Costo de ${cat} — ${c.clientName}`, est, act);
+		await materializeCost(
+			db,
+			cstCode,
+			cstId,
+			woId,
+			cat,
+			`Costo de ${cat} — ${c.clientName}`,
+			est,
+			act,
+		);
 	}
 }
 
 async function materializeArtifacts(db: mongoose.mongo.Db, c: SeedCaseRecord) {
-	const arts = c.artifacts as unknown as Record<string, { id: { toString: () => string }; code: string; status: string }>;
+	const arts = c.artifacts as unknown as Record<
+		string,
+		{ id: { toString: () => string }; code: string; status: string }
+	>;
 	await materializeOperationalArtifacts(db, c, arts);
 	await materializeBillingArtifacts(db, c, arts);
 	await materializeEvidenceArtifacts(db, arts, c.currentStage);

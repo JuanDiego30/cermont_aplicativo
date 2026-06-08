@@ -10,6 +10,6 @@ import { sendSuccess } from "../../common/interceptors/response.interceptor";
 import * as AnalyticsService from "../analytics/analytics.service";
 
 export const getSystemMetrics = async (_req: Request, res: Response) => {
-  const metrics = AnalyticsService.getSystemMetrics();
-  return sendSuccess(res, metrics);
+	const metrics = AnalyticsService.getSystemMetrics();
+	return sendSuccess(res, metrics);
 };

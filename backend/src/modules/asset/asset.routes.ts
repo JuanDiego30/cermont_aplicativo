@@ -28,14 +28,26 @@ const router = Router();
  * List all assets (paginated, filtered)
  * Roles: Todos (all authenticated users)
  */
-router.get("/", authenticate, authorize(...INTERNAL_ROLES), validateQuery(ListAssetsQuerySchema), AssetController.getAssets);
+router.get(
+	"/",
+	authenticate,
+	authorize(...INTERNAL_ROLES),
+	validateQuery(ListAssetsQuerySchema),
+	AssetController.getAssets,
+);
 
 /**
  * GET /api/assets/:id
  * Get asset by ID
  * Roles: Todos (all authenticated users)
  */
-router.get("/:id", authenticate, authorize(...INTERNAL_ROLES), validateParams(AssetIdSchema), AssetController.getAsset);
+router.get(
+	"/:id",
+	authenticate,
+	authorize(...INTERNAL_ROLES),
+	validateParams(AssetIdSchema),
+	AssetController.getAsset,
+);
 
 /**
  * POST /api/assets

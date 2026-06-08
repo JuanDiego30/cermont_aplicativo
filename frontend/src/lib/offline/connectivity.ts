@@ -171,7 +171,8 @@ function startConnectivityMonitor({ enabled }: ConnectivityMonitorOptions): () =
 		// Circuit breaker: if we've been offline too long or too many attempts,
 		// cap the interval at the max backoff (60s) and slow down further
 		const offlineDuration = Date.now() - firstOfflineAt;
-		const shouldCap = offlineAttempt >= MAX_OFFLINE_ATTEMPTS || offlineDuration > MAX_OFFLINE_DURATION_MS;
+		const shouldCap =
+			offlineAttempt >= MAX_OFFLINE_ATTEMPTS || offlineDuration > MAX_OFFLINE_DURATION_MS;
 
 		if (shouldCap) {
 			// Use max backoff interval (60s) and don't increment further

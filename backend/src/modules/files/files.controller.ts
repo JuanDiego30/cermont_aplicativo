@@ -49,12 +49,7 @@ export const upload = async (req: Request, res: Response): Promise<void> => {
 		offlineLocalId: bodyInput.offlineLocalId ?? headerIdempotencyKey,
 	};
 
-	const result = await createFileAssetFromUpload(
-		input,
-		req.file,
-		String(user._id),
-		user.email,
-	);
+	const result = await createFileAssetFromUpload(input, req.file, String(user._id), user.email);
 
 	return sendCreated(res, result.ref);
 };
@@ -150,7 +145,12 @@ export const listByEntity = async (req: Request, res: Response): Promise<void> =
 		return;
 	}
 
-	const docs = await listFileAssetsByEntity({ entityType, entityId, category, includeDeleted } as Parameters<typeof listFileAssetsByEntity>[0]);
+	const docs = await listFileAssetsByEntity({
+		entityType,
+		entityId,
+		category,
+		includeDeleted,
+	} as Parameters<typeof listFileAssetsByEntity>[0]);
 	return sendSuccess(
 		res,
 		docs.map((doc) => ({

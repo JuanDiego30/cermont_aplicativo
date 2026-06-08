@@ -34,7 +34,11 @@ interface CreateDocumentCommand {
 	fileSize?: number;
 }
 
-function normalizeCreateDocumentInput(data: CreateDocumentCommand, userId: string, filePath: string) {
+function normalizeCreateDocumentInput(
+	data: CreateDocumentCommand,
+	userId: string,
+	filePath: string,
+) {
 	const uploadedBy = parseObjectId(userId);
 	const linkedEntityId =
 		data.linkedEntityId && data.linkedEntityId.length > 0

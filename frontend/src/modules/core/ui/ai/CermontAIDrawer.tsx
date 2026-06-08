@@ -4,17 +4,17 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { Bot, Send, Sparkles, X } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useMemo, useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MOTION } from "@/components/motion/motion-classes";
 import { useUIStore } from "@/store/ui.store";
 
 gsap.registerPlugin(useGSAP);
 
+import type { AssistantChatRequest } from "@cermont/shared-types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/http/api-client";
 import { prefersReducedMotion } from "@/lib/utils/reduced-motion";
 import { useServiceCase } from "@/modules/service-cases/queries";
-import type { AssistantChatRequest } from "@cermont/shared-types";
 
 interface AIEnvelope {
 	message: string;
@@ -87,7 +87,10 @@ export function CermontAIDrawer() {
 				...(currentModule ? { currentModule } : {}),
 			};
 
-			const response = await apiClient.post<{ success: boolean; data: AIEnvelope }>("/ai/chat", payload);
+			const response = await apiClient.post<{ success: boolean; data: AIEnvelope }>(
+				"/ai/chat",
+				payload,
+			);
 			const data = (response.data as AIEnvelope) ?? {};
 			return {
 				message: data.reply ?? data.message ?? "",
@@ -106,8 +109,8 @@ export function CermontAIDrawer() {
 					msg.id === prev[prev.length - 1]?.id
 						? {
 								...msg,
-							threadId: data.threadId ?? msg.threadId,
-							serviceCaseId: msg.serviceCaseId ?? serviceCaseId,
+								threadId: data.threadId ?? msg.threadId,
+								serviceCaseId: msg.serviceCaseId ?? serviceCaseId,
 							}
 						: msg,
 				),
@@ -170,7 +173,13 @@ export function CermontAIDrawer() {
 		const userMessage = text.trim();
 		setMessages((prev) => [
 			...prev,
-			{ id: createMessageId("user"), role: "user", content: userMessage, serviceCaseId, threadId: activeThreadId },
+			{
+				id: createMessageId("user"),
+				role: "user",
+				content: userMessage,
+				serviceCaseId,
+				threadId: activeThreadId,
+			},
 		]);
 		if (text === input) {
 			setInput("");
@@ -211,7 +220,12 @@ export function CermontAIDrawer() {
 							<Bot className="size-5" />
 						</div>
 						<div>
-							<h2 id="cermont-ai-title" className="text-sm font-semibold text-[var(--text-primary)]">Cermont AI</h2>
+							<h2
+								id="cermont-ai-title"
+								className="text-sm font-semibold text-[var(--text-primary)]"
+							>
+								Cermont AI
+							</h2>
 							<p className="mt-0.5 inline-flex items-center gap-1.5 text-[11px] font-medium text-[var(--color-success)]">
 								<span className="inline-block size-1.5 animate-pulse rounded-full bg-[var(--color-success)]"></span>
 								Operativo

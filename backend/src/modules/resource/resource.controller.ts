@@ -25,11 +25,7 @@ import {
 	sendPaginated,
 	sendSuccess,
 } from "../../common/interceptors/response.interceptor";
-import {
-	offsetToPage,
-	parseNumberQuery,
-	toIsoString,
-} from "../../common/utils/mapping";
+import { offsetToPage, parseNumberQuery, toIsoString } from "../../common/utils/mapping";
 import { getString, requireUser } from "../../common/utils/request";
 import { ResourceService } from "./resource.service";
 
@@ -124,7 +120,7 @@ export const createResource = async (req: Request, res: Response) => {
 export const getAllResources = async (req: Request, res: Response) => {
 	const { type, status, search, active, limit = "50", offset = "0", page: pageQuery } = req.query;
 	const limitValue = parseNumberQuery(String(limit), 50, 100);
-	const pageValue = getString(pageQuery as string | undefined ?? "").trim()
+	const pageValue = getString((pageQuery as string | undefined) ?? "").trim()
 		? parseNumberQuery(String(pageQuery ?? ""), 1)
 		: offsetToPage(String(offset), limitValue);
 

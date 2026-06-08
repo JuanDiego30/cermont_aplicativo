@@ -3,13 +3,13 @@
  * DOC-10 §5: Evidencias
  */
 
+import { INTERNAL_ROLES } from "@cermont/domain";
 import {
 	CreateEvidenceSchema,
 	EvidenceIdSchema,
 	EvidenceOrderIdParamsSchema,
 	PaginationQuerySchema,
 } from "@cermont/shared-types";
-import { INTERNAL_ROLES } from "@cermont/domain";
 import { Router } from "express";
 import multer from "multer";
 import { authenticate } from "../../middlewares/auth.middleware";

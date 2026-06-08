@@ -13,12 +13,7 @@
  *   DELETE /api/resources/:id/images
  */
 
-import type {
-	CreateResource,
-	FileAssetRef,
-	Resource,
-	UpdateResource,
-} from "@cermont/shared-types";
+import type { CreateResource, FileAssetRef, Resource, UpdateResource } from "@cermont/shared-types";
 
 import { apiClient } from "@/lib/http/api-client";
 

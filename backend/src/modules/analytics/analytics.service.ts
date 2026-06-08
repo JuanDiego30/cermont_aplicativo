@@ -249,44 +249,44 @@ export async function getKpis(): Promise<KpiSnapshot> {
 }
 
 export function getErrorDashboard(limit = 10): ErrorDashboardSnapshot {
-  const metrics = getErrorMetrics(limit);
+	const metrics = getErrorMetrics(limit);
 
-  return {
-    total_errors: metrics.totalErrors,
-    by_module: metrics.modules,
-    by_endpoint: metrics.endpoints.map((endpoint) => ({
-      module: endpoint.module,
-      endpoint: endpoint.endpoint,
-      count: endpoint.count,
-      last_error_at: endpoint.lastErrorAt,
-    })),
-    generated_at: metrics.generatedAt,
-  };
+	return {
+		total_errors: metrics.totalErrors,
+		by_module: metrics.modules,
+		by_endpoint: metrics.endpoints.map((endpoint) => ({
+			module: endpoint.module,
+			endpoint: endpoint.endpoint,
+			count: endpoint.count,
+			last_error_at: endpoint.lastErrorAt,
+		})),
+		generated_at: metrics.generatedAt,
+	};
 }
 
 export function getSystemMetrics(): {
-  status: "operational" | "degraded" | "unhealthy";
-  timestamp: string;
-  uptime_seconds: number;
-  memory: {
-    rss_mb: number;
-    heap_used_mb: number;
-    external_mb: number;
-  };
-  version: string;
+	status: "operational" | "degraded" | "unhealthy";
+	timestamp: string;
+	uptime_seconds: number;
+	memory: {
+		rss_mb: number;
+		heap_used_mb: number;
+		external_mb: number;
+	};
+	version: string;
 } {
-  const memory = process.memoryUsage();
-  const uptime = process.uptime();
+	const memory = process.memoryUsage();
+	const uptime = process.uptime();
 
-  return {
-    status: "operational",
-    timestamp: new Date().toISOString(),
-    uptime_seconds: Math.round(uptime),
-    memory: {
-      rss_mb: Math.round((memory.rss / 1024 / 1024) * 100) / 100,
-      heap_used_mb: Math.round((memory.heapUsed / 1024 / 1024) * 100) / 100,
-      external_mb: Math.round((memory.external / 1024 / 1024) * 100) / 100,
-    },
-    version: "1.0.0",
-  };
+	return {
+		status: "operational",
+		timestamp: new Date().toISOString(),
+		uptime_seconds: Math.round(uptime),
+		memory: {
+			rss_mb: Math.round((memory.rss / 1024 / 1024) * 100) / 100,
+			heap_used_mb: Math.round((memory.heapUsed / 1024 / 1024) * 100) / 100,
+			external_mb: Math.round((memory.external / 1024 / 1024) * 100) / 100,
+		},
+		version: "1.0.0",
+	};
 }

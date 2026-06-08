@@ -482,7 +482,13 @@ export async function ingestDocument(
 	applyIngestionMetadata(doc, { ...options, purpose });
 	await doc.save();
 
-	const nonTemplateResult = handleNonTemplatePurposes(doc, purpose, targetStepCode, documentId, options);
+	const nonTemplateResult = handleNonTemplatePurposes(
+		doc,
+		purpose,
+		targetStepCode,
+		documentId,
+		options,
+	);
 	if (nonTemplateResult.status === "handled") {
 		return nonTemplateResult.result;
 	}

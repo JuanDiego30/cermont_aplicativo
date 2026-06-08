@@ -135,7 +135,11 @@ function isUserAuthenticatedInStorage(): boolean {
 		}
 		const parsed = JSON.parse(raw);
 		const userStatus = parsed?.state?.user;
-		return userStatus?.status === "present" || (userStatus?.id && userStatus?.role) || parsed?.state?.isAuthenticated === true;
+		return (
+			userStatus?.status === "present" ||
+			(userStatus?.id && userStatus?.role) ||
+			parsed?.state?.isAuthenticated === true
+		);
 	} catch {
 		return false;
 	}

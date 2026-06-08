@@ -1,7 +1,7 @@
 import { TechnicalReportStatusSchema } from "@cermont/shared-types";
 import { type Document, model, Schema, Types } from "mongoose";
 
-import { FileAssetRefSchema, type FileAssetRef } from "./sub-schemas/FileAssetRefSchema";
+import { type FileAssetRef, FileAssetRefSchema } from "./sub-schemas/FileAssetRefSchema";
 
 export interface TechnicalReportDocument extends Document {
 	_id: Types.ObjectId;

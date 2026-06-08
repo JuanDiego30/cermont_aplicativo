@@ -101,9 +101,7 @@ function toRecord(doc: SiteVisitDocument): SiteVisitRecord {
 		createdAt: toIsoString(doc.createdAt),
 		updatedAt: toIsoString(doc.updatedAt),
 		...(typeof doc.requirements === "string" ? { requirements: doc.requirements } : {}),
-		...(typeof doc.identifiedRisks === "string"
-			? { identifiedRisks: doc.identifiedRisks }
-			: {}),
+		...(typeof doc.identifiedRisks === "string" ? { identifiedRisks: doc.identifiedRisks } : {}),
 		...(typeof doc.recommendations === "string" ? { recommendations: doc.recommendations } : {}),
 		...(typeof doc.observations === "string" ? { observations: doc.observations } : {}),
 		...(doc.startedAt instanceof Date ? { startedAt: toIsoString(doc.startedAt) } : {}),

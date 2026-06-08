@@ -1,6 +1,6 @@
 import { type Document, model, Schema, type Types } from "mongoose";
 
-import { FileAssetRefSchema, type FileAssetRef } from "./sub-schemas/FileAssetRefSchema";
+import { type FileAssetRef, FileAssetRefSchema } from "./sub-schemas/FileAssetRefSchema";
 
 /**
  * Kit Mongoose Model (New Generation)

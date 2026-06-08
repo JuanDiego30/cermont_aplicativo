@@ -104,7 +104,9 @@ function buildReadyPlanningPacket(
 				certificateRequired: true,
 			},
 		],
-		safetyElements: [{ description: ["Arn\u00e9s", " de seguridad"].join(""), quantity: 1, unit: "und" }],
+		safetyElements: [
+			{ description: ["Arn\u00e9s", " de seguridad"].join(""), quantity: 1, unit: "und" },
+		],
 		workerRequirements: {
 			electricistas: 1,
 			tecnicosTelecomunicacion: 0,
@@ -112,8 +114,16 @@ function buildReadyPlanningPacket(
 			obreros: 0,
 		},
 		responsibles: [
-			{ role: ["ingeniero_", ROLE_RESIDENTE].join(""), name: ["Ing. ", ROLE_RESIDENTE].join(""), status: "assigned" },
-			{ role: [ROLE_TECNICO, "_electricista"].join(""), name: ["T\u00e9c", "nico electricista"].join(""), status: "assigned" },
+			{
+				role: ["ingeniero_", ROLE_RESIDENTE].join(""),
+				name: ["Ing. ", ROLE_RESIDENTE].join(""),
+				status: "assigned",
+			},
+			{
+				role: [ROLE_TECNICO, "_electricista"].join(""),
+				name: ["T\u00e9c", "nico electricista"].join(""),
+				status: "assigned",
+			},
 			{ role: "hes", name: "Coordinador HES", status: "assigned" },
 		],
 		requiredCertifications: [{ name: "Certificación de escalera", verified: true }],
@@ -286,7 +296,7 @@ describe("PlanningPacketService", () => {
 					"invalid-kit",
 					USER_ID,
 					ROLE_RESIDENTE,
-				)
+				),
 			).rejects.toThrow();
 		});
 	});

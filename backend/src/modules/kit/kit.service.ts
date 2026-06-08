@@ -7,7 +7,15 @@
 
 import { Types } from "mongoose";
 import { BadRequestError, NotFoundError } from "../../common/errors/AppError";
-import { type EvidenceRequirement, type IKitDocument, type KitFileAttachment, type KitFormBinding, type KitItem, type KitRule, Kit } from "../../models/Kit";
+import {
+	type EvidenceRequirement,
+	type IKitDocument,
+	Kit,
+	type KitFileAttachment,
+	type KitFormBinding,
+	type KitItem,
+	type KitRule,
+} from "../../models/Kit";
 import { createAuditLog } from "../audit/audit.service";
 
 export interface CreateKitCommand {

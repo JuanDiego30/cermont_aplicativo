@@ -14,6 +14,7 @@
  * Contraseña para TODOS los usuarios: definida por SEED_DEFAULT_PASSWORD
  */
 import dotenv from "dotenv";
+
 dotenv.config({ path: ".env" });
 
 import { validateEnv } from "@cermont/config";

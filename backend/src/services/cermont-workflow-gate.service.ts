@@ -18,6 +18,7 @@ import { ServiceCase, type ServiceCaseDocument } from "../models/ServiceCase";
 import { ServiceEntrySheet } from "../models/ServiceEntrySheet";
 import { User } from "../models/User";
 import { createAuditLog } from "../modules/audit/audit.service";
+import { notifyStateTransition } from "../modules/notifications/notification.service";
 
 const STEP_TO_STAGE_MAP: Record<CermontOperationalStepCode, ServiceCaseStage> = {
 	step_01_work_request: "intake",
@@ -481,7 +482,9 @@ async function checkExecutionSessionBlockers(
 			return sig.signatureType === "technician";
 		}
 		// Backward compatibility: fallback to role if signatureType is not populated
-		return String(sig.role || "").toLowerCase().includes("tecnico");
+		return String(sig.role || "")
+			.toLowerCase()
+			.includes("tecnico");
 	});
 	if (!hasTechnicianSignature) {
 		blockers.push(
@@ -502,7 +505,9 @@ async function checkExecutionSessionBlockers(
 			return sig.signatureType === "supervisor";
 		}
 		// Backward compatibility: fallback to role if signatureType is not populated
-		return String(sig.role || "").toLowerCase().includes("supervisor");
+		return String(sig.role || "")
+			.toLowerCase()
+			.includes("supervisor");
 	});
 	if (!hasSupervisorSignature) {
 		blockers.push(
@@ -1052,6 +1057,11 @@ export async function advanceServiceCaseStep(
 			newStepCode: nextStep.code,
 			newStage: nextStage,
 		},
+	});
+
+	// Notificar al cambiar estado (fire-and-forget — no bloquear la respuesta)
+	notifyStateTransition(serviceCaseId, previousStepCode, nextStep.code, userId).catch((err) => {
+		console.error("[WorkflowGate] notifyStateTransition failed:", err);
 	});
 
 	return serviceCase;

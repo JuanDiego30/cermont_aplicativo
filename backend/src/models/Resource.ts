@@ -1,5 +1,5 @@
 import mongoose, { type Document, Schema } from "mongoose";
-import { FileAssetRefSchema, type FileAssetRef } from "./sub-schemas/FileAssetRefSchema";
+import { type FileAssetRef, FileAssetRefSchema } from "./sub-schemas/FileAssetRefSchema";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Resource Model — Per DOC-09 §7 (Diccionario de Datos)

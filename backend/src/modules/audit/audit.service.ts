@@ -152,5 +152,3 @@ export async function findById(id: string): Promise<unknown> {
 	}
 	return entry;
 }
-
-

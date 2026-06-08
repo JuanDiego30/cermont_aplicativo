@@ -1,8 +1,8 @@
 import type { AssistantChatRequest } from "@cermont/shared-types";
 import type { Request, Response } from "express";
+import { ForbiddenError, NotFoundError } from "../../common/errors/AppError";
 import { requireUser } from "../../common/utils/request";
 import { ServiceCase } from "../../models";
-import { NotFoundError, ForbiddenError } from "../../common/errors/AppError";
 import { processUserQuery } from "./ai.service";
 
 export async function chatHandler(req: Request, res: Response) {
@@ -20,7 +20,13 @@ export async function chatHandler(req: Request, res: Response) {
 		throw new ForbiddenError("No está autorizado para acceder a este caso de servicio.");
 	}
 
-	const responseData = await processUserQuery(message, serviceCaseId, threadId, currentModule, user.role);
+	const responseData = await processUserQuery(
+		message,
+		serviceCaseId,
+		threadId,
+		currentModule,
+		user.role,
+	);
 
 	res.json({
 		success: true,

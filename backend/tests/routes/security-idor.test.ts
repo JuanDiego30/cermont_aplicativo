@@ -7,10 +7,9 @@
  */
 
 import { describe, expect, test } from "vitest";
-
+import * as DocumentService from "../../src/modules/documents/document.service";
 // Import service modules that handle resource access
 import * as ServiceCaseService from "../../src/modules/service-cases/service-case.service";
-import * as DocumentService from "../../src/modules/documents/document.service";
 
 describe("IDOR Security Tests", () => {
 	describe("Order IDOR - User cannot access another user's order (BOLA Prevention)", () => {

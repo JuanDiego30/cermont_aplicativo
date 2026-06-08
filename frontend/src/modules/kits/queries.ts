@@ -2,7 +2,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/lib/http/api-client";
 
 // ── Types ──────────────────────────────────────────────────────
-interface KitTemplate {
+export interface KitTemplate {
 	id: string;
 	name: string;
 	description: string;

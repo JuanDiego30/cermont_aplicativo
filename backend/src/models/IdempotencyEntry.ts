@@ -10,7 +10,7 @@
  * Pattern: TTL-based with 24-hour expiry (configurable)
  */
 
-import { model, Schema, type Document, type Types } from "mongoose";
+import { type Document, model, Schema, type Types } from "mongoose";
 
 export interface IdempotencyEntryDocument extends Document {
 	_id: Types.ObjectId;

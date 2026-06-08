@@ -59,7 +59,9 @@ describe("WorkRequest API Endpoints", () => {
 				},
 			};
 
-			const createSpy = vi.spyOn(WorkRequestService, "createWorkRequest").mockResolvedValue(mockResult);
+			const createSpy = vi
+				.spyOn(WorkRequestService, "createWorkRequest")
+				.mockResolvedValue(mockResult);
 
 			const result = await WorkRequestService.createWorkRequest(mockInput, "user123");
 
@@ -77,7 +79,9 @@ describe("WorkRequest API Endpoints", () => {
 				status: "submitted",
 			};
 
-			const getSpy = vi.spyOn(WorkRequestService, "getWorkRequestById").mockResolvedValue(mockWorkRequest);
+			const getSpy = vi
+				.spyOn(WorkRequestService, "getWorkRequestById")
+				.mockResolvedValue(mockWorkRequest);
 
 			const result = await WorkRequestService.getWorkRequestById(
 				"507f1f77bcf86cd799439011",
@@ -150,7 +154,9 @@ describe("WorkRequest API Endpoints", () => {
 				],
 			};
 
-			const listVisitsSpy = vi.spyOn(WorkRequestService, "listSiteVisits").mockResolvedValue(mockResult);
+			const listVisitsSpy = vi
+				.spyOn(WorkRequestService, "listSiteVisits")
+				.mockResolvedValue(mockResult);
 
 			const result = await WorkRequestService.listSiteVisits("507f1f77bcf86cd799439011", {
 				_id: "user123",

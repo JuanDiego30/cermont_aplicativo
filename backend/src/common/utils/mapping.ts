@@ -11,7 +11,12 @@
 
 import { getString } from "./request";
 
-type IdCandidate = string | number | boolean | { readonly _id?: string } | { readonly toString: () => string };
+type IdCandidate =
+	| string
+	| number
+	| boolean
+	| { readonly _id?: string }
+	| { readonly toString: () => string };
 
 export function toStringId(value: IdCandidate): string {
 	if (typeof value === "string") {

@@ -28,9 +28,12 @@ router.post(
 	// No body validation needed — approve is an action endpoint with no body
 	TemplateDraftController.approve,
 );
-router.post("/:id/reject", authorize("gerente", "administrativo"), 
+router.post(
+	"/:id/reject",
+	authorize("gerente", "administrativo"),
 	// No body validation needed — reject is an action endpoint with no body
-	TemplateDraftController.reject);
+	TemplateDraftController.reject,
+);
 router.post(
 	"/:id/submit-for-review",
 	authorize("gerente", "residente", "administrativo"),

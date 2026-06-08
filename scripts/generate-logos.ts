@@ -25,32 +25,23 @@ async function generate() {
 
 	// 1. icon-192.png
 	console.log(`Generating icon-192.png...`);
-	await sharp(sourceBuffer)
-		.resize(192, 192)
-		.png()
-		.toFile(path.join(outputDir, "icon-192.png"));
+	await sharp(sourceBuffer).resize(192, 192).png().toFile(path.join(outputDir, "icon-192.png"));
 
 	// 2. icon-512.png
 	console.log(`Generating icon-512.png...`);
-	await sharp(sourceBuffer)
-		.resize(512, 512)
-		.png()
-		.toFile(path.join(outputDir, "icon-512.png"));
+	await sharp(sourceBuffer).resize(512, 512).png().toFile(path.join(outputDir, "icon-512.png"));
 
 	// 3. maskable-icon-192.png (with safe-zone layout padding on white background)
 	console.log(`Generating maskable-icon-192.png...`);
-	const maskable192Logo = await sharp(sourceBuffer)
-		.resize(130, 130)
-		.png()
-		.toBuffer();
+	const maskable192Logo = await sharp(sourceBuffer).resize(130, 130).png().toBuffer();
 
 	await sharp({
 		create: {
 			width: 192,
 			height: 192,
 			channels: 4,
-			background: { r: 255, g: 255, b: 255, alpha: 1 }
-		}
+			background: { r: 255, g: 255, b: 255, alpha: 1 },
+		},
 	})
 		.composite([{ input: maskable192Logo, gravity: "center" }])
 		.png()
@@ -58,18 +49,15 @@ async function generate() {
 
 	// 4. maskable-icon-512.png (with safe-zone layout padding on white background)
 	console.log(`Generating maskable-icon-512.png...`);
-	const maskable512Logo = await sharp(sourceBuffer)
-		.resize(348, 348)
-		.png()
-		.toBuffer();
+	const maskable512Logo = await sharp(sourceBuffer).resize(348, 348).png().toBuffer();
 
 	await sharp({
 		create: {
 			width: 512,
 			height: 512,
 			channels: 4,
-			background: { r: 255, g: 255, b: 255, alpha: 1 }
-		}
+			background: { r: 255, g: 255, b: 255, alpha: 1 },
+		},
 	})
 		.composite([{ input: maskable512Logo, gravity: "center" }])
 		.png()
@@ -77,10 +65,7 @@ async function generate() {
 
 	// 5. logo-cermont.png
 	console.log(`Generating logo-cermont.png...`);
-	await sharp(sourceBuffer)
-		.resize(512, 512)
-		.png()
-		.toFile(path.join(outputDir, "logo-cermont.png"));
+	await sharp(sourceBuffer).resize(512, 512).png().toFile(path.join(outputDir, "logo-cermont.png"));
 
 	// 6. favicon.png
 	console.log(`Generating favicon.png...`);

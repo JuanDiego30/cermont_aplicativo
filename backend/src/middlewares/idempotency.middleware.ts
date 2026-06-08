@@ -38,10 +38,7 @@ const IDEMPOTENT_METHODS = new Set(["POST", "PATCH", "PUT", "DELETE"]);
  * Extracts the idempotency key from a request.
  * Priority: Idempotency-Key header > X-Idempotency-Key header > requestId option > req.id > UUID
  */
-function extractIdempotencyKey(
-	req: Request,
-	fallbackRequestId?: string,
-): string | undefined {
+function extractIdempotencyKey(req: Request, fallbackRequestId?: string): string | undefined {
 	return (
 		(req.headers["idempotency-key"] as string | undefined) ??
 		(req.headers["x-idempotency-key"] as string | undefined) ??
@@ -60,10 +57,7 @@ function hashKey(key: string): string {
 /**
  * Intercepts res.json to capture the response body for caching.
  */
-function interceptJson(
-	res: Response,
-	maxBodyBytes: number,
-): { body: () => string | null } {
+function interceptJson(res: Response, maxBodyBytes: number): { body: () => string | null } {
 	const originalJson = res.json.bind(res);
 	let capturedBody: string | null = null;
 
