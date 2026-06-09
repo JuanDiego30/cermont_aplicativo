@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, Suspense, useEffect, useState } from "react";
 import { useConnectivity } from "@/lib/offline/connectivity";
 import { APP_ROUTES } from "@/lib/routes";
 import { useServiceCaseContext } from "@/modules/service-cases/hooks/useServiceCaseContext";
@@ -59,6 +59,20 @@ function cleanText(value: string): string {
 }
 
 export default function SiteVisitNewPage() {
+	return (
+		<Suspense
+			fallback={
+				<div className="flex items-center justify-center py-12">
+					<div className="size-8 animate-spin rounded-full border-2 border-[var(--color-brand)] border-t-transparent" />
+				</div>
+			}
+		>
+			<SiteVisitNewPageContent />
+		</Suspense>
+	);
+}
+
+function SiteVisitNewPageContent() {
 	const { push } = useRouter();
 	const searchParams = useSearchParams();
 	const { isOnline } = useConnectivity();
@@ -261,17 +275,13 @@ export default function SiteVisitNewPage() {
 							<WifiOff className="mt-0.5 size-4" aria-hidden="true" />
 							<p>Estás sin conexión. La creación requiere conexión para reservar consecutivo.</p>
 						</div>
-					) : (
-						void 0
-					)}
+					) : null}
 
-					{formError || createSiteVisit.isError ? (
+					{(formError || createSiteVisit.isError) && (
 						<div className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] p-4 text-sm text-[var(--color-danger)]">
 							<AlertTriangle className="mt-0.5 size-4" aria-hidden="true" />
 							<p>{formError || "No se pudo crear la visita técnica."}</p>
 						</div>
-					) : (
-						void 0
 					)}
 
 					{/* Inherited fields banner */}
@@ -301,9 +311,7 @@ export default function SiteVisitNewPage() {
 								))}
 							</div>
 						</div>
-					) : (
-						void 0
-					)}
+					) : null}
 
 					<form
 						onSubmit={handleSubmit}

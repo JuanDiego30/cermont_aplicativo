@@ -40,7 +40,6 @@ COPY backend ./backend
 RUN npm run build -w @cermont/config
 RUN npm run build -w @cermont/shared-types
 RUN npm run build -w @cermont/domain
-RUN npm run build -w @cermont/config
 
 # Compilar backend
 RUN npm run build -w backend

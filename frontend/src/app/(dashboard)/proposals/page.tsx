@@ -4,7 +4,7 @@ import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { FileText, Plus } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo } from "react";
 import { EmptyState } from "@/components/common/EmptyState";
 import { normalizePagination } from "@/lib/pagination";
@@ -260,6 +260,8 @@ function ProposalListContent({
 	isLoading: boolean;
 	isError: boolean;
 }) {
+	const router = useRouter();
+
 	if (isLoading) {
 		return (
 			<div className="flex h-32 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] text-sm text-[var(--text-tertiary)] shadow-[var(--shadow-1)]">
@@ -284,7 +286,7 @@ function ProposalListContent({
 				description="No se encontraron propuestas para los filtros seleccionados. Crea una nueva propuesta desde una solicitud de trabajo."
 				action={{
 					label: "Nueva propuesta",
-					onClick: () => (window.location.href = "/proposals/new"),
+					onClick: () => router.push("/proposals/new"),
 				}}
 			/>
 		);

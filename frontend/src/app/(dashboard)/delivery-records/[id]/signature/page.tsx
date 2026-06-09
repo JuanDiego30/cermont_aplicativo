@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { use, useState } from "react";
+import { Suspense, use, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/core/ui/Button";
 import { apiClient } from "@/lib/http/api-client";
@@ -15,10 +15,29 @@ type SignaturePageProps = {
 
 export default function SignaturePage({ params }: SignaturePageProps) {
 	const { id } = use(params);
-	const { push } = useRouter();
+	if (!id) {
+		return (
+			<div className="mx-auto max-w-2xl px-4 py-12 text-center">
+				<h1 className="text-xl font-semibold text-red-600">Falta ID del acta</h1>
+			</div>
+		);
+	}
+	return (
+		<Suspense
+			fallback={
+				<div className="flex items-center justify-center py-24">
+					<Loader2 className="size-8 animate-spin text-[var(--color-brand)]" />
+				</div>
+			}
+		>
+			<SignaturePageContent id={id} />
+		</Suspense>
+	);
+}
+
+function SignaturePageContent({ id }: { id: string }) {
 	const searchParams = useSearchParams();
 	const serviceCaseId = searchParams.get("serviceCaseId") ?? "";
-	const [isSigning, setIsSigning] = useState(false);
 
 	const { data: deliveryRecord, isLoading } = useQuery({
 		queryKey: ["delivery-record", id],
@@ -31,14 +50,6 @@ export default function SignaturePage({ params }: SignaturePageProps) {
 		enabled: Boolean(id),
 	});
 
-	if (!id) {
-		return (
-			<div className="mx-auto max-w-2xl px-4 py-12 text-center">
-				<h1 className="text-xl font-semibold text-red-600">Falta ID del acta</h1>
-			</div>
-		);
-	}
-
 	if (isLoading) {
 		return (
 			<div className="flex items-center justify-center py-24">
@@ -46,6 +57,27 @@ export default function SignaturePage({ params }: SignaturePageProps) {
 			</div>
 		);
 	}
+
+	return (
+		<SignaturePageForm
+			id={id}
+			serviceCaseId={serviceCaseId}
+			deliveryRecord={deliveryRecord as Record<string, unknown> | undefined}
+		/>
+	);
+}
+
+function SignaturePageForm({
+	id,
+	serviceCaseId,
+	deliveryRecord,
+}: {
+	id: string;
+	serviceCaseId: string;
+	deliveryRecord?: Record<string, unknown>;
+}) {
+	const { push } = useRouter();
+	const [isSigning, setIsSigning] = useState(false);
 
 	return (
 		<div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">

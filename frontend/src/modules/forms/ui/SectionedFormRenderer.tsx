@@ -27,6 +27,32 @@ type FormValues = Record<string, FieldValue>;
 
 // ── ConformityInput ────────────────────────────────────────────────────────
 
+const CONFORMITY_OPTIONS = [
+	{
+		value: "C",
+		label: "C",
+		title: "Conforme",
+		color: "border-green-400 bg-green-50 text-green-700 hover:bg-green-100",
+	},
+	{
+		value: "NC",
+		label: "NC",
+		title: "No conforme",
+		color: "border-red-400 bg-red-50 text-red-700 hover:bg-red-100",
+	},
+	{
+		value: "NA",
+		label: "NA",
+		title: "No aplica",
+		color: "border-zinc-300 bg-zinc-50 text-zinc-500 hover:bg-zinc-100",
+	},
+] as const satisfies ReadonlyArray<{
+	value: string;
+	label: string;
+	title: string;
+	color: string;
+}>;
+
 function ConformityInput({
 	id,
 	value,
@@ -38,30 +64,9 @@ function ConformityInput({
 	onChange: (v: string) => void;
 	disabled?: boolean;
 }) {
-	const opts = [
-		{
-			value: "C",
-			label: "C",
-			title: "Conforme",
-			color: "border-green-400 bg-green-50 text-green-700 hover:bg-green-100",
-		},
-		{
-			value: "NC",
-			label: "NC",
-			title: "No conforme",
-			color: "border-red-400 bg-red-50 text-red-700 hover:bg-red-100",
-		},
-		{
-			value: "NA",
-			label: "NA",
-			title: "No aplica",
-			color: "border-zinc-300 bg-zinc-50 text-zinc-500 hover:bg-zinc-100",
-		},
-	] as const;
-
 	return (
 		<fieldset id={id} className="flex gap-2" aria-label="Conformidad">
-			{opts.map((opt) => {
+			{CONFORMITY_OPTIONS.map((opt) => {
 				const isSelected = value === opt.value;
 				return (
 					<button
