@@ -171,6 +171,23 @@ export function useServiceCase(id: string) {
 	});
 }
 
+/**
+ * Archive a closed service case (gerente only).
+ * Soft-archive keeps history but removes from active lists.
+ */
+export function useArchiveServiceCase(id: string) {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async () => {
+			return apiClient.post<ApiEnvelope<ServiceCase>>(`/service-cases/${id}/archive`);
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: SERVICE_CASE_KEYS.detail(id) });
+			queryClient.invalidateQueries({ queryKey: SERVICE_CASE_KEYS.list() });
+		},
+	});
+}
+
 export function useAdvanceServiceCaseStep(id: string) {
 	const queryClient = useQueryClient();
 	return useMutation({

@@ -110,6 +110,7 @@ export function ServiceCaseWorkflowCockpit({
 				code={serviceCase.code}
 				currentStepNumber={currentStep?.stepNumber}
 				currentStepCode={currentStepCode}
+				daysInCurrentStep={operationalSummary?.daysInCurrentStep}
 				orderId={orderId}
 				serviceCaseId={serviceCase.serviceCaseId}
 				updatedAt={serviceCase.updatedAt}
@@ -174,6 +175,7 @@ function WorkflowHeader({
 	code,
 	currentStepCode,
 	currentStepNumber,
+	daysInCurrentStep,
 	orderId,
 	serviceCaseId,
 	updatedAt,
@@ -183,11 +185,13 @@ function WorkflowHeader({
 	code: string;
 	currentStepCode: CermontOperationalStepCode;
 	currentStepNumber?: number;
+	daysInCurrentStep?: number;
 	orderId?: string;
 	serviceCaseId: string;
 	updatedAt: string;
 	uploadPurpose: "closing_evidence" | "support_document";
 }) {
+	const isStuck = typeof daysInCurrentStep === "number" && daysInCurrentStep >= 5;
 	return (
 		<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-card">
 			<div className="flex flex-wrap items-start justify-between gap-4">
@@ -209,6 +213,23 @@ function WorkflowHeader({
 							<span className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-2.5 py-1">
 								Paso actual: {currentStepNumber || "?"}
 							</span>
+							{typeof daysInCurrentStep === "number" && (
+								<span
+									className={`rounded-full border px-2.5 py-1 font-semibold ${
+										isStuck
+											? "border-amber-300 bg-amber-50 text-amber-700"
+											: "border-[var(--border-subtle)] bg-[var(--surface-secondary)]"
+									}`}
+									title={isStuck ? "Este caso lleva varios días sin avanzar" : undefined}
+								>
+									{isStuck ? "⚠ " : ""}
+									{daysInCurrentStep === 0
+										? "Avanzado hoy"
+										: daysInCurrentStep === 1
+											? "1 día en este paso"
+											: `${daysInCurrentStep} días en este paso`}
+								</span>
+							)}
 							<span className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-2.5 py-1">
 								Actualizado: {formatDate(updatedAt)}
 							</span>
@@ -244,10 +265,26 @@ function WorkflowSummaryPanels({
 	financialSummary: ServiceCaseWorkflowViewModel["financialSummary"];
 	operationalSummary: ServiceCaseWorkflowViewModel["operationalSummary"];
 }) {
+	const daysInStep =
+		typeof operationalSummary?.daysInCurrentStep === "number"
+			? operationalSummary.daysInCurrentStep
+			: null;
+
 	const operationalItems = [
 		{
+			label: "Días en paso actual",
+			value:
+				daysInStep !== null
+					? daysInStep === 0
+						? "Hoy"
+						: daysInStep === 1
+							? "1 día"
+							: `${daysInStep} días`
+					: "—",
+		},
+		{
 			label: "Evidencias",
-			value: String(operationalSummary?.evidenceCount ?? blockerCount),
+			value: String(operationalSummary?.evidenceCount ?? 0),
 		},
 		{
 			label: "Bloqueadores",

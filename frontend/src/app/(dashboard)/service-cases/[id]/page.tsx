@@ -5,9 +5,15 @@ import { AlertCircle, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Suspense } from "react";
+import { toast } from "sonner";
 import { ApiError } from "@/lib/http/api-client";
+import { useAuth } from "@/modules/auth/hooks/useAuth";
 import { ServiceCaseWorkflowCockpit } from "@/modules/service-cases/components/ServiceCaseWorkflowCockpit";
-import { useAdvanceServiceCaseStep, useServiceCase } from "@/modules/service-cases/queries";
+import {
+	useAdvanceServiceCaseStep,
+	useArchiveServiceCase,
+	useServiceCase,
+} from "@/modules/service-cases/queries";
 
 export default function ServiceCaseDetailPage() {
 	return (
@@ -32,6 +38,11 @@ function ServiceCaseDetailInner() {
 	const { data: envelope, isLoading, isError, refetch } = useServiceCase(id);
 	const sc = envelope?.data;
 	const advance = useAdvanceServiceCaseStep(id);
+	const archive = useArchiveServiceCase(id);
+	const { user } = useAuth();
+	const isGerente = user?.role === "gerente";
+	const canArchive =
+		isGerente && sc && (sc.globalStatus === "paid" || sc.globalStatus === "closed");
 
 	const apiError = advance.error instanceof ApiError ? advance.error : false;
 	const isBlockedTransition = apiError !== false && apiError.code === "STEP_TRANSITION_BLOCKED";
@@ -148,6 +159,33 @@ function ServiceCaseDetailInner() {
 					isAdvancing={advance.isPending}
 				/>
 			) : null}
+
+			{/* Archive action — gerente only, closed cases */}
+			{canArchive && (
+				<div className="flex justify-end">
+					<button
+						type="button"
+						disabled={archive.isPending}
+						onClick={() => {
+							if (!confirm("¿Archivar este caso? Esta acción es irreversible.")) {
+								return;
+							}
+							archive.mutate(undefined, {
+								onSuccess: () => toast.success("Caso archivado correctamente"),
+								onError: (err) =>
+									toast.error("No se pudo archivar el caso", { description: err.message }),
+							});
+						}}
+						className="inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:border-[var(--color-danger)] hover:text-[var(--color-danger)] disabled:cursor-not-allowed disabled:opacity-50"
+					>
+						{archive.isPending ? (
+							<Loader2 className="size-4 animate-spin" />
+						) : (
+							<span>Archivar caso</span>
+						)}
+					</button>
+				</div>
+			)}
 		</section>
 	);
 }

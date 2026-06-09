@@ -175,6 +175,8 @@ export const ServiceCaseOperationalSummarySchema = z
 		totalLaborHours: z.number().nonnegative().optional(),
 		totalMaterialLines: z.number().int().nonnegative().optional(),
 		incidentCount: z.number().int().nonnegative().optional(),
+		/** Days the case has been in the current workflow step (computed at read time) */
+		daysInCurrentStep: z.number().int().nonnegative().optional(),
 	})
 	.strict();
 

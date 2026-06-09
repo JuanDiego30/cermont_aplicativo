@@ -829,6 +829,28 @@ async function resolveActualCosts(
 	return { actualTotalCost, actualLabor, actualMaterials, actualEquipment, actualTaxes };
 }
 
+/**
+ * Computes how many days the case has been in its current step.
+ * Looks at the most recent timeline entry's occurredAt date.
+ * Returns 0 when there are no timeline entries.
+ */
+function computeDaysInCurrentStep(timeline?: Array<{ occurredAt?: Date | string }>): number {
+	if (!timeline || timeline.length === 0) {
+		return 0;
+	}
+	const sorted = [...timeline].sort((a, b) => {
+		const dateA = a.occurredAt ? new Date(a.occurredAt).getTime() : 0;
+		const dateB = b.occurredAt ? new Date(b.occurredAt).getTime() : 0;
+		return dateB - dateA;
+	});
+	const latestOccurredAt = sorted[0]?.occurredAt;
+	if (!latestOccurredAt) {
+		return 0;
+	}
+	const diffMs = Date.now() - new Date(latestOccurredAt).getTime();
+	return Math.max(0, Math.floor(diffMs / 86_400_000));
+}
+
 async function buildDefaultCostTraceability(
 	financialSummary: ServiceCaseView["financialSummary"],
 	orderId?: string,
@@ -1091,7 +1113,11 @@ export async function buildServiceCaseWorkflowView(
 			artifacts: serviceCase.artifacts,
 			timeline: serviceCase.timeline ?? [],
 			financialSummary: serviceCase.financialSummary,
-			operationalSummary: serviceCase.operationalSummary,
+			operationalSummary: {
+				...serviceCase.operationalSummary,
+				assignedCrew: serviceCase.operationalSummary?.assignedCrew ?? [],
+				daysInCurrentStep: computeDaysInCurrentStep(serviceCase.timeline),
+			},
 			documents,
 			evidences,
 			costs: await buildDefaultCostTraceability(serviceCase.financialSummary, orderId),
@@ -1125,7 +1151,11 @@ export async function buildServiceCaseWorkflowView(
 			artifacts: serviceCase.artifacts,
 			timeline: serviceCase.timeline ?? [],
 			financialSummary: serviceCase.financialSummary,
-			operationalSummary: serviceCase.operationalSummary,
+			operationalSummary: {
+				...serviceCase.operationalSummary,
+				assignedCrew: serviceCase.operationalSummary?.assignedCrew ?? [],
+				daysInCurrentStep: computeDaysInCurrentStep(serviceCase.timeline),
+			},
 			documents: [],
 			evidences: [],
 			costs: await buildDefaultCostTraceability(serviceCase.financialSummary, undefined),
