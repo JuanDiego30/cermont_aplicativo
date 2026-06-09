@@ -15,12 +15,12 @@ import { BadRequestError } from "../../common/errors";
 import { sendSuccess } from "../../common/interceptors/response.interceptor";
 import { requireUser } from "../../common/utils/request";
 import { Document, ServiceCase } from "../../models";
-import { buildServiceCaseStepContext } from "../../services/service-case-step-context.service";
 import { getConsolidatedReport } from "../../modules/order/order-closure.service";
 import {
 	applyClosingEvidenceMetadata,
 	type ClosingEvidenceRoutingOutcome,
 } from "../../services/closing-evidence-routing.service";
+import { buildServiceCaseStepContext } from "../../services/service-case-step-context.service";
 import * as ServiceCaseService from "./service-case.service";
 
 export async function listServiceCases(req: Request, res: Response): Promise<void> {

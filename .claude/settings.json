@@ -1,0 +1,9 @@
+{
+	"permissions": {
+		"allow": [
+			"PowerShell(npm run typecheck 2>&1 | Select-Object -Last 12; \"EXIT: $LASTEXITCODE\")",
+			"PowerShell(docker compose config --quiet 2>&1; \"CONFIG EXIT: $LASTEXITCODE\"; docker compose config --services 2>&1)",
+			"PowerShell(npm run test 2>&1 | Select-Object -Last 40; \"EXIT: $LASTEXITCODE\")"
+		]
+	}
+}

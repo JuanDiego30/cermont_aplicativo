@@ -126,6 +126,7 @@ function PhotoInput({
 			</div>
 			{preview ? (
 				<div className="relative shrink-0">
+					{/* biome-ignore lint/performance/noImgElement: blob URL preview — Next.js Image no soporta blob: */}
 					<img
 						src={preview}
 						alt="Vista previa"

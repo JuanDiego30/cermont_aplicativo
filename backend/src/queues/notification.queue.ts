@@ -11,7 +11,7 @@
  *   await enqueueNotification(serviceCaseId, prevState, newState, userId);
  */
 
-import type { ConnectionOptions } from "bullmq";
+import type { ConnectionOptions, Job } from "bullmq";
 import { Queue, Worker } from "bullmq";
 import { Types } from "mongoose";
 import { createLogger } from "../common/utils/logger";
@@ -181,9 +181,14 @@ export function initNotificationWorker(): void {
 		return;
 	}
 
-	const worker = new Worker(
+	const worker = new Worker<{
+		serviceCaseId: string;
+		previousState: string;
+		newState: string;
+		triggeredByUserId: string;
+	}>(
 		"cermont-notifications",
-		async (job) => {
+		async (job: Job) => {
 			const { serviceCaseId, previousState, newState, triggeredByUserId } = job.data;
 			await saveNotificationDirectly(serviceCaseId, previousState, newState, triggeredByUserId);
 		},
@@ -193,11 +198,11 @@ export function initNotificationWorker(): void {
 		},
 	);
 
-	worker.on("completed", (job) => {
+	worker.on("completed", (job: Job) => {
 		log.info("Job completed", { jobId: job.id ?? "unknown" });
 	});
 
-	worker.on("failed", (job, err) => {
+	worker.on("failed", (job: Job | undefined, err: Error) => {
 		log.error("Job failed", { jobId: job?.id ?? "unknown", error: err.message });
 	});
 

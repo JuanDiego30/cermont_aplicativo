@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:cd24b65fb4354bf4bd88e08df5a76ee24ba10f2649a23f38049a36606b973c73",
+	"currentSnapshotHash": "sha256:22e64afefa4a4b8e47254762503fec7083c522b94532ed77cf62f6300447a705",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -273,6 +273,13 @@
 			"type": "non-breaking",
 			"description": "Add title field to CreateEvidenceSchema and EvidenceSchema for per-photo descriptive titles.",
 			"toHash": "sha256:cd24b65fb4354bf4bd88e08df5a76ee24ba10f2649a23f38049a36606b973c73"
+		},
+		{
+			"id": "039-days-in-current-step",
+			"date": "2026-06-09",
+			"type": "non-breaking",
+			"description": "Add daysInCurrentStep integer field to ServiceCase contract for KPI tracking.",
+			"toHash": "sha256:22e64afefa4a4b8e47254762503fec7083c522b94532ed77cf62f6300447a705"
 		}
 	]
 }

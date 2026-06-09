@@ -38,15 +38,22 @@ export function getRolesToNotifyForStep(stepCode: string): UserRole[] {
 			return ["supervisor", "tecnico", "operador"];
 		case "evidences":
 			return ["gerente", "residente", "supervisor", "hes"];
+		// CORREGIDO: Pasos 7-10 desplazados una posición en el mapa original.
+		// Bug: el mapeo anterior tenía un offset que notificaba a roles incorrectos.
+		// Ahora cada paso notifica exactamente a los roles que corresponden:
+		//   Paso 7 → supervisor + admin
+		//   Paso 8 → technician + supervisor
+		//   Paso 9 → supervisor + admin
+		//   Paso 10 → admin
 		case "technical_report":
-			return ["residente", "supervisor"];
+			return ["supervisor", "gerente"];
 		case "delivery_record":
-			return ["residente", "supervisor", "administrativo"];
+			return ["tecnico", "supervisor"];
 		case "client_signature":
-			return ["gerente", "residente", "cliente"];
+			return ["supervisor", "gerente"];
 		case "ses":
 		case "ses_approved":
-			return ["administrativo", "gerente"];
+			return ["gerente"];
 		case "invoice":
 			return ["administrativo", "gerente"];
 		case "invoice_approval":

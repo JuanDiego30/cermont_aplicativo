@@ -2,11 +2,16 @@ import { spawnSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { createSerwistRoute } from "@serwist/turbopack";
 
-const gitRevision = spawnSync("git", ["rev-parse", "HEAD"], {
-	encoding: "utf-8",
-}).stdout.trim();
-
-const revision = gitRevision || randomUUID();
+// Git revision is used for service worker cache busting.
+// In Docker builds there's no .git directory, so we fall back to a random UUID.
+const revision = (() => {
+	try {
+		const result = spawnSync("git", ["rev-parse", "HEAD"], { encoding: "utf-8" });
+		return (result.stdout || "").trim() || randomUUID();
+	} catch {
+		return randomUUID();
+	}
+})();
 
 const serwistRoute = createSerwistRoute({
 	swSrc: "src/app/sw.ts",

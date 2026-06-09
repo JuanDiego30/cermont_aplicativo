@@ -20,6 +20,7 @@ import {
 	ResetPasswordSchema,
 } from "@cermont/shared-types";
 import { Router } from "express";
+import rateLimit from "express-rate-limit";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { validateBody } from "../../middlewares/validate";
 import * as AuthController from "./auth.controller";
@@ -27,18 +28,39 @@ import * as AuthController from "./auth.controller";
 const router = Router();
 
 /**
+ * Rate limiter para endpoints de autenticación.
+ * Previene ataques de fuerza bruta en login/refresh.
+ * 10 intentos máximo por ventana de 15 minutos.
+ */
+const authLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutos
+	max: 10, // máximo 10 intentos
+	standardHeaders: true,
+	legacyHeaders: false,
+	message: {
+		success: false,
+		error: {
+			code: "RATE_LIMIT_EXCEEDED",
+			message: "Demasiados intentos. Espera 15 minutos.",
+		},
+	},
+});
+
+/**
  * POST /api/auth/login
  * Public endpoint — no authentication required
  * Body validated against LoginSchema (Zod)
+ * Rate limited: 10 intentos / 15 min
  */
-router.post("/login", validateBody(LoginSchema), AuthController.login);
+router.post("/login", authLimiter, validateBody(LoginSchema), AuthController.login);
 
 /**
  * POST /api/auth/refresh
  * Public endpoint — reads refreshToken from HttpOnly cookie
  * No body validation needed
+ * Rate limited: 10 intentos / 15 min
  */
-router.post("/refresh", AuthController.refresh);
+router.post("/refresh", authLimiter, AuthController.refresh);
 
 /**
  * POST /api/auth/logout

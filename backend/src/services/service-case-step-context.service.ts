@@ -7,8 +7,8 @@
  */
 
 import {
-	type CermontOperationalStepCode,
 	CERMONT_OPERATIONAL_STEPS,
+	type CermontOperationalStepCode,
 	type DomainBlocker,
 	type InheritedField,
 	type ServiceCaseStepContext,
@@ -83,7 +83,10 @@ type ServiceCaseLeanObj = {
 	priority?: string;
 	requestedDate?: string | Date;
 	generalScope?: string;
-	artifacts?: Record<string, { id?: { toString(): string }; code?: string; status?: string; updatedAt?: string | Date }>;
+	artifacts?: Record<
+		string,
+		{ id?: { toString(): string }; code?: string; status?: string; updatedAt?: string | Date }
+	>;
 	createdAt?: Date;
 };
 
@@ -143,7 +146,18 @@ function addField(
 	required = false,
 ): void {
 	if (value) {
-		fields.push(inherited(key, label, String(value), sourceStepCode, sourceEntityId, sourceStepLabel, editable, required));
+		fields.push(
+			inherited(
+				key,
+				label,
+				String(value),
+				sourceStepCode,
+				sourceEntityId,
+				sourceStepLabel,
+				editable,
+				required,
+			),
+		);
 	}
 }
 
@@ -177,13 +191,83 @@ type ArtifactRefs = {
 };
 
 function addWorkRequestBase(fields: InheritedField[], a: ArtifactRefs): void {
-	addField(fields, a.serviceCase.clientId, "clientId", "ID del cliente", "step_01_work_request", a.wrId, "Solicitud de servicio", false, true);
-	addField(fields, a.serviceCase.clientName, "clientName", "Nombre del cliente", "step_01_work_request", a.wrId, "Solicitud de servicio", true, true);
-	addField(fields, a.serviceCase.location, "location", "Ubicación / sitio", "step_01_work_request", a.wrId, "Solicitud de servicio", true, true);
-	addField(fields, a.serviceCase.generalScope, "generalScope", "Alcance general", "step_01_work_request", a.wrId, "Solicitud de servicio", true, false);
-	addField(fields, a.serviceCase.businessUnit, "businessUnit", "Unidad de negocio", "step_01_work_request", a.wrId, "Solicitud de servicio", true, false);
-	addField(fields, a.serviceCase.priority, "priority", "Prioridad", "step_01_work_request", a.wrId, "Solicitud de servicio", true, false);
-	addField(fields, a.serviceCase.requestedDate, "requestedDate", "Fecha requerida", "step_01_work_request", a.wrId, "Solicitud de servicio", true, false);
+	addField(
+		fields,
+		a.serviceCase.clientId,
+		"clientId",
+		"ID del cliente",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.serviceCase.clientName,
+		"clientName",
+		"Nombre del cliente",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		true,
+		true,
+	);
+	addField(
+		fields,
+		a.serviceCase.location,
+		"location",
+		"Ubicación / sitio",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		true,
+		true,
+	);
+	addField(
+		fields,
+		a.serviceCase.generalScope,
+		"generalScope",
+		"Alcance general",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		true,
+		false,
+	);
+	addField(
+		fields,
+		a.serviceCase.businessUnit,
+		"businessUnit",
+		"Unidad de negocio",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		true,
+		false,
+	);
+	addField(
+		fields,
+		a.serviceCase.priority,
+		"priority",
+		"Prioridad",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		true,
+		false,
+	);
+	addField(
+		fields,
+		a.serviceCase.requestedDate,
+		"requestedDate",
+		"Fecha requerida",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		true,
+		false,
+	);
 }
 
 function addFieldsForStep02(fields: InheritedField[], a: ArtifactRefs): void {
@@ -192,92 +276,622 @@ function addFieldsForStep02(fields: InheritedField[], a: ArtifactRefs): void {
 
 function addFieldsForStep03(fields: InheritedField[], a: ArtifactRefs): void {
 	addWorkRequestBase(fields, a);
-	addField(fields, a.sv?.status, "technicalFindings", "Hallazgos técnicos", "step_02_site_visit", a.svId, "Visita técnica", true, false);
-	addField(fields, a.sv?.updatedAt, "visitDate", "Fecha de visita", "step_02_site_visit", a.svId, "Visita técnica", false, false);
+	addField(
+		fields,
+		a.sv?.status,
+		"technicalFindings",
+		"Hallazgos técnicos",
+		"step_02_site_visit",
+		a.svId,
+		"Visita técnica",
+		true,
+		false,
+	);
+	addField(
+		fields,
+		a.sv?.updatedAt,
+		"visitDate",
+		"Fecha de visita",
+		"step_02_site_visit",
+		a.svId,
+		"Visita técnica",
+		false,
+		false,
+	);
 }
 
 function addFieldsForStep04(fields: InheritedField[], a: ArtifactRefs): void {
-	addField(fields, a.serviceCase.clientName, "clientName", "Nombre del cliente", "step_01_work_request", a.wrId, "Solicitud de servicio", true, true);
-	addField(fields, a.serviceCase.location, "location", "Ubicación", "step_01_work_request", a.wrId, "Solicitud de servicio", true, true);
-	addField(fields, a.pr?.id, "proposalId", "ID de propuesta", "step_03_proposal", a.prId, "Propuesta económica", false, true);
-	addField(fields, a.pr?.status, "proposalAmount", "Valor de propuesta", "step_03_proposal", a.prId, "Propuesta económica", true, true);
-	addField(fields, a.serviceCase.generalScope, "generalScope", "Alcance", "step_01_work_request", a.wrId, "Solicitud de servicio", true, false);
+	addField(
+		fields,
+		a.serviceCase.clientName,
+		"clientName",
+		"Nombre del cliente",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		true,
+		true,
+	);
+	addField(
+		fields,
+		a.serviceCase.location,
+		"location",
+		"Ubicación",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		true,
+		true,
+	);
+	addField(
+		fields,
+		a.pr?.id,
+		"proposalId",
+		"ID de propuesta",
+		"step_03_proposal",
+		a.prId,
+		"Propuesta económica",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.pr?.status,
+		"proposalAmount",
+		"Valor de propuesta",
+		"step_03_proposal",
+		a.prId,
+		"Propuesta económica",
+		true,
+		true,
+	);
+	addField(
+		fields,
+		a.serviceCase.generalScope,
+		"generalScope",
+		"Alcance",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		true,
+		false,
+	);
 }
 
 function addFieldsForStep05(fields: InheritedField[], a: ArtifactRefs): void {
-	addField(fields, a.serviceCase.clientName, "clientName", "Nombre del cliente", "step_01_work_request", a.wrId, "Solicitud de servicio", true, true);
-	addField(fields, a.serviceCase.location, "location", "Sitio / ubicación", "step_01_work_request", a.wrId, "Solicitud de servicio", true, true);
-	addField(fields, a.serviceCase.workTypeName, "workTypeName", "Tipo de trabajo", "step_01_work_request", a.wrId, "Solicitud de servicio", true, false);
-	addField(fields, a.po?.id, "purchaseOrderId", "ID de orden de compra", "step_04_purchase_order", a.poId, "Orden de compra", false, true);
-	addField(fields, a.po?.status, "poValue", "Valor aprobado", "step_04_purchase_order", a.poId, "Orden de compra", true, false);
-	addField(fields, a.serviceCase.generalScope, "approvedScope", "Alcance aprobado", "step_01_work_request", a.wrId, "Solicitud de servicio", true, false);
-	addField(fields, a.serviceCase.requestedDate, "requestedDate", "Fechas estimadas", "step_01_work_request", a.wrId, "Solicitud de servicio", true, false);
+	addField(
+		fields,
+		a.serviceCase.clientName,
+		"clientName",
+		"Nombre del cliente",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		true,
+		true,
+	);
+	addField(
+		fields,
+		a.serviceCase.location,
+		"location",
+		"Sitio / ubicación",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		true,
+		true,
+	);
+	addField(
+		fields,
+		a.serviceCase.workTypeName,
+		"workTypeName",
+		"Tipo de trabajo",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		true,
+		false,
+	);
+	addField(
+		fields,
+		a.po?.id,
+		"purchaseOrderId",
+		"ID de orden de compra",
+		"step_04_purchase_order",
+		a.poId,
+		"Orden de compra",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.po?.status,
+		"poValue",
+		"Valor aprobado",
+		"step_04_purchase_order",
+		a.poId,
+		"Orden de compra",
+		true,
+		false,
+	);
+	addField(
+		fields,
+		a.serviceCase.generalScope,
+		"approvedScope",
+		"Alcance aprobado",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		true,
+		false,
+	);
+	addField(
+		fields,
+		a.serviceCase.requestedDate,
+		"requestedDate",
+		"Fechas estimadas",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		true,
+		false,
+	);
 }
 
 function addFieldsForStep06(fields: InheritedField[], a: ArtifactRefs): void {
-	addField(fields, a.serviceCase.clientName, "clientName", "Nombre del cliente", "step_01_work_request", a.wrId, "Solicitud de servicio", false, true);
-	addField(fields, a.serviceCase.location, "location", "Ubicación", "step_01_work_request", a.wrId, "Solicitud de servicio", false, true);
-	addField(fields, a.pp?.id, "planningPacketId", "ID de planeación", "step_05_planning", a.ppId, "Planeación", false, true);
-	addField(fields, a.pp?.status, "planningStatus", "Estado de planeación", "step_05_planning", a.ppId, "Planeación", false, false);
-	addField(fields, a.serviceCase.workTypeName, "workTypeName", "Tipo de trabajo", "step_01_work_request", a.wrId, "Solicitud de servicio", false, false);
+	addField(
+		fields,
+		a.serviceCase.clientName,
+		"clientName",
+		"Nombre del cliente",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.serviceCase.location,
+		"location",
+		"Ubicación",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.pp?.id,
+		"planningPacketId",
+		"ID de planeación",
+		"step_05_planning",
+		a.ppId,
+		"Planeación",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.pp?.status,
+		"planningStatus",
+		"Estado de planeación",
+		"step_05_planning",
+		a.ppId,
+		"Planeación",
+		false,
+		false,
+	);
+	addField(
+		fields,
+		a.serviceCase.workTypeName,
+		"workTypeName",
+		"Tipo de trabajo",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		false,
+		false,
+	);
 }
 
 function addFieldsForStep07(fields: InheritedField[], a: ArtifactRefs): void {
-	addField(fields, a.serviceCase.clientName, "clientName", "Nombre del cliente", "step_01_work_request", a.wrId, "Solicitud de servicio", false, true);
-	addField(fields, a.serviceCase.location, "location", "Ubicación", "step_01_work_request", a.wrId, "Solicitud de servicio", false, true);
-	addField(fields, a.es?.id, "executionSessionId", "ID de ejecución", "step_06_execution", a.esId, "Ejecución en campo", false, true);
-	addField(fields, a.es?.status, "executionStatus", "Estado de ejecución", "step_06_execution", a.esId, "Ejecución en campo", false, false);
-	addField(fields, a.serviceCase.generalScope, "generalScope", "Alcance del trabajo", "step_01_work_request", a.wrId, "Solicitud de servicio", false, false);
+	addField(
+		fields,
+		a.serviceCase.clientName,
+		"clientName",
+		"Nombre del cliente",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.serviceCase.location,
+		"location",
+		"Ubicación",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.es?.id,
+		"executionSessionId",
+		"ID de ejecución",
+		"step_06_execution",
+		a.esId,
+		"Ejecución en campo",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.es?.status,
+		"executionStatus",
+		"Estado de ejecución",
+		"step_06_execution",
+		a.esId,
+		"Ejecución en campo",
+		false,
+		false,
+	);
+	addField(
+		fields,
+		a.serviceCase.generalScope,
+		"generalScope",
+		"Alcance del trabajo",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		false,
+		false,
+	);
 }
 
 function addFieldsForStep08(fields: InheritedField[], a: ArtifactRefs): void {
-	addField(fields, a.serviceCase.clientName, "clientName", "Nombre del cliente", "step_01_work_request", a.wrId, "Solicitud de servicio", false, true);
-	addField(fields, a.tr?.id, "technicalReportId", "ID de informe técnico", "step_07_technical_report", a.trId, "Informe técnico", false, true);
-	addField(fields, a.tr?.status, "reportStatus", "Estado del informe", "step_07_technical_report", a.trId, "Informe técnico", false, false);
-	addField(fields, a.serviceCase.location, "location", "Ubicación", "step_01_work_request", a.wrId, "Solicitud de servicio", false, true);
+	addField(
+		fields,
+		a.serviceCase.clientName,
+		"clientName",
+		"Nombre del cliente",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.tr?.id,
+		"technicalReportId",
+		"ID de informe técnico",
+		"step_07_technical_report",
+		a.trId,
+		"Informe técnico",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.tr?.status,
+		"reportStatus",
+		"Estado del informe",
+		"step_07_technical_report",
+		a.trId,
+		"Informe técnico",
+		false,
+		false,
+	);
+	addField(
+		fields,
+		a.serviceCase.location,
+		"location",
+		"Ubicación",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		false,
+		true,
+	);
 }
 
 function addFieldsForStep09(fields: InheritedField[], a: ArtifactRefs): void {
-	addField(fields, a.serviceCase.clientName, "clientName", "Nombre del cliente", "step_01_work_request", a.wrId, "Solicitud de servicio", true, true);
-	addField(fields, a.dr?.id, "deliveryRecordId", "ID de acta de entrega", "step_08_delivery_record", a.drId, "Acta de entrega", false, true);
-	addField(fields, a.dr?.status, "deliveryStatus", "Estado del acta", "step_08_delivery_record", a.drId, "Acta de entrega", false, false);
-	addField(fields, a.dr?.updatedAt, "deliveryDate", "Fecha de entrega", "step_08_delivery_record", a.drId, "Acta de entrega", false, false);
+	addField(
+		fields,
+		a.serviceCase.clientName,
+		"clientName",
+		"Nombre del cliente",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		true,
+		true,
+	);
+	addField(
+		fields,
+		a.dr?.id,
+		"deliveryRecordId",
+		"ID de acta de entrega",
+		"step_08_delivery_record",
+		a.drId,
+		"Acta de entrega",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.dr?.status,
+		"deliveryStatus",
+		"Estado del acta",
+		"step_08_delivery_record",
+		a.drId,
+		"Acta de entrega",
+		false,
+		false,
+	);
+	addField(
+		fields,
+		a.dr?.updatedAt,
+		"deliveryDate",
+		"Fecha de entrega",
+		"step_08_delivery_record",
+		a.drId,
+		"Acta de entrega",
+		false,
+		false,
+	);
 }
 
 function addFieldsForStep10(fields: InheritedField[], a: ArtifactRefs): void {
-	addField(fields, a.serviceCase.clientName, "clientName", "Nombre del cliente", "step_01_work_request", a.wrId, "Solicitud de servicio", true, true);
-	addField(fields, a.dr?.status, "signedDeliveryStatus", "Acta firmada", "step_08_delivery_record", a.drId, "Acta de entrega", false, true);
-	addField(fields, a.serviceCase.location, "location", "Ubicación", "step_01_work_request", a.wrId, "Solicitud de servicio", false, true);
-	addField(fields, a.po?.id, "poReference", "Referencia PO", "step_04_purchase_order", a.poId, "Orden de compra", false, false);
+	addField(
+		fields,
+		a.serviceCase.clientName,
+		"clientName",
+		"Nombre del cliente",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		true,
+		true,
+	);
+	addField(
+		fields,
+		a.dr?.status,
+		"signedDeliveryStatus",
+		"Acta firmada",
+		"step_08_delivery_record",
+		a.drId,
+		"Acta de entrega",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.serviceCase.location,
+		"location",
+		"Ubicación",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.po?.id,
+		"poReference",
+		"Referencia PO",
+		"step_04_purchase_order",
+		a.poId,
+		"Orden de compra",
+		false,
+		false,
+	);
 }
 
 function addFieldsForStep11(fields: InheritedField[], a: ArtifactRefs): void {
-	addField(fields, a.ses?.id, "sesId", "ID de SES", "step_10_ses_submission", a.sesId, "Radicación SES", false, true);
-	addField(fields, a.ses?.status, "sesStatus", "Estado SES", "step_10_ses_submission", a.sesId, "Radicación SES", false, false);
-	addField(fields, a.serviceCase.clientName, "clientName", "Nombre del cliente", "step_01_work_request", a.wrId, "Solicitud de servicio", false, true);
+	addField(
+		fields,
+		a.ses?.id,
+		"sesId",
+		"ID de SES",
+		"step_10_ses_submission",
+		a.sesId,
+		"Radicación SES",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.ses?.status,
+		"sesStatus",
+		"Estado SES",
+		"step_10_ses_submission",
+		a.sesId,
+		"Radicación SES",
+		false,
+		false,
+	);
+	addField(
+		fields,
+		a.serviceCase.clientName,
+		"clientName",
+		"Nombre del cliente",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		false,
+		true,
+	);
 }
 
 function addFieldsForStep12(fields: InheritedField[], a: ArtifactRefs): void {
-	addField(fields, a.serviceCase.clientName, "clientName", "Nombre del cliente", "step_01_work_request", a.wrId, "Solicitud de servicio", true, true);
-	addField(fields, a.ses?.id, "approvedSesId", "SES aprobada", "step_11_ses_approval", a.sesId, "Aprobación SES", false, true);
-	addField(fields, a.ses?.status, "sesAmount", "Valor SES", "step_11_ses_approval", a.sesId, "Aprobación SES", true, false);
-	addField(fields, a.po?.id, "poReference", "Referencia PO", "step_04_purchase_order", a.poId, "Orden de compra", false, false);
-	addField(fields, a.serviceCase.location, "location", "Ubicación", "step_01_work_request", a.wrId, "Solicitud de servicio", false, true);
+	addField(
+		fields,
+		a.serviceCase.clientName,
+		"clientName",
+		"Nombre del cliente",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		true,
+		true,
+	);
+	addField(
+		fields,
+		a.ses?.id,
+		"approvedSesId",
+		"SES aprobada",
+		"step_11_ses_approval",
+		a.sesId,
+		"Aprobación SES",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.ses?.status,
+		"sesAmount",
+		"Valor SES",
+		"step_11_ses_approval",
+		a.sesId,
+		"Aprobación SES",
+		true,
+		false,
+	);
+	addField(
+		fields,
+		a.po?.id,
+		"poReference",
+		"Referencia PO",
+		"step_04_purchase_order",
+		a.poId,
+		"Orden de compra",
+		false,
+		false,
+	);
+	addField(
+		fields,
+		a.serviceCase.location,
+		"location",
+		"Ubicación",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		false,
+		true,
+	);
 }
 
 function addFieldsForStep13(fields: InheritedField[], a: ArtifactRefs): void {
-	addField(fields, a.inv?.id, "invoiceId", "ID de factura", "step_12_invoice_submission", a.invId, "Emisión factura", false, true);
-	addField(fields, a.inv?.status, "invoiceNumber", "Número de factura", "step_12_invoice_submission", a.invId, "Emisión factura", false, false);
-	addField(fields, a.inv?.updatedAt, "invoiceAmount", "Valor factura", "step_12_invoice_submission", a.invId, "Emisión factura", true, false);
-	addField(fields, a.serviceCase.clientName, "clientName", "Nombre del cliente", "step_01_work_request", a.wrId, "Solicitud de servicio", false, true);
+	addField(
+		fields,
+		a.inv?.id,
+		"invoiceId",
+		"ID de factura",
+		"step_12_invoice_submission",
+		a.invId,
+		"Emisión factura",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.inv?.status,
+		"invoiceNumber",
+		"Número de factura",
+		"step_12_invoice_submission",
+		a.invId,
+		"Emisión factura",
+		false,
+		false,
+	);
+	addField(
+		fields,
+		a.inv?.updatedAt,
+		"invoiceAmount",
+		"Valor factura",
+		"step_12_invoice_submission",
+		a.invId,
+		"Emisión factura",
+		true,
+		false,
+	);
+	addField(
+		fields,
+		a.serviceCase.clientName,
+		"clientName",
+		"Nombre del cliente",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		false,
+		true,
+	);
 }
 
 function addFieldsForStep14(fields: InheritedField[], a: ArtifactRefs): void {
-	addField(fields, a.inv?.id, "approvedInvoiceId", "Factura aprobada", "step_13_invoice_approval", a.invId, "Aprobación factura", false, true);
-	addField(fields, a.inv?.status, "invoiceAmount", "Valor factura", "step_13_invoice_approval", a.invId, "Aprobación factura", true, false);
-	addField(fields, a.inv?.updatedAt, "paymentDueDate", "Fecha de vencimiento", "step_12_invoice_submission", a.invId, "Emisión factura", true, false);
-	addField(fields, a.pay?.status, "paymentStatus", "Estado de pago", "step_14_payment_closure", a.payId, "Pago y cierre", true, false);
-	addField(fields, a.serviceCase.clientName, "clientName", "Nombre del cliente", "step_01_work_request", a.wrId, "Solicitud de servicio", false, true);
+	addField(
+		fields,
+		a.inv?.id,
+		"approvedInvoiceId",
+		"Factura aprobada",
+		"step_13_invoice_approval",
+		a.invId,
+		"Aprobación factura",
+		false,
+		true,
+	);
+	addField(
+		fields,
+		a.inv?.status,
+		"invoiceAmount",
+		"Valor factura",
+		"step_13_invoice_approval",
+		a.invId,
+		"Aprobación factura",
+		true,
+		false,
+	);
+	addField(
+		fields,
+		a.inv?.updatedAt,
+		"paymentDueDate",
+		"Fecha de vencimiento",
+		"step_12_invoice_submission",
+		a.invId,
+		"Emisión factura",
+		true,
+		false,
+	);
+	addField(
+		fields,
+		a.pay?.status,
+		"paymentStatus",
+		"Estado de pago",
+		"step_14_payment_closure",
+		a.payId,
+		"Pago y cierre",
+		true,
+		false,
+	);
+	addField(
+		fields,
+		a.serviceCase.clientName,
+		"clientName",
+		"Nombre del cliente",
+		"step_01_work_request",
+		a.wrId,
+		"Solicitud de servicio",
+		false,
+		true,
+	);
 }
 
 // Dispatcher map: step code → resolver fn
@@ -310,8 +924,11 @@ function resolveInheritedFields(
 ): InheritedField[] {
 	const fields: InheritedField[] = [];
 	const artifacts = serviceCase.artifacts ?? {};
-	const extract = (key: string): { id?: { toString(): string }; code?: string; status?: string; updatedAt?: string | Date } | Undef =>
-		artifacts[key];
+	const extract = (
+		key: string,
+	):
+		| { id?: { toString(): string }; code?: string; status?: string; updatedAt?: string | Date }
+		| Undef => artifacts[key];
 
 	const getId = (obj: { id?: { toString(): string } } | Undef): string =>
 		obj?.id ? String(obj.id) : "";
@@ -341,7 +958,16 @@ function resolveInheritedFields(
 		sesId: getId(ses),
 		invId: getId(inv),
 		payId: getId(pay),
-		sv, pr, po, pp, es, tr, dr, ses, inv, pay,
+		sv,
+		pr,
+		po,
+		pp,
+		es,
+		tr,
+		dr,
+		ses,
+		inv,
+		pay,
 	};
 
 	const resolver = STEP_FIELD_RESOLVERS[stepCode];
@@ -388,9 +1014,7 @@ function resolvePreviousStepEntity(
 /**
  * Resolves required fields for the current step based on the step definition.
  */
-function resolveStepRequiredFields(
-	stepCode: CermontOperationalStepCode,
-): StepRequiredField[] {
+function resolveStepRequiredFields(stepCode: CermontOperationalStepCode): StepRequiredField[] {
 	const stepDef = CERMONT_OPERATIONAL_STEPS.find((s) => s.code === stepCode);
 	if (!stepDef) {
 		return [];
@@ -546,4 +1170,3 @@ export async function buildServiceCaseStepContext(
 
 	return context;
 }
-

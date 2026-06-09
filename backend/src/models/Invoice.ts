@@ -1,8 +1,8 @@
 import {
 	BillingCurrencySchema,
-	InvoiceStatusSchema,
 	type InvoiceDocumentType,
 	type InvoiceElectronicDocumentType,
+	InvoiceStatusSchema,
 } from "@cermont/shared-types";
 import { type Document, model, Schema, Types } from "mongoose";
 

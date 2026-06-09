@@ -61480,6 +61480,11 @@
           "minLength": 1,
           "type": "string"
         },
+        "daysInCurrentStep": {
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
         "deliveryRecordStatus": {
           "maxLength": 60,
           "minLength": 1,
@@ -62435,6 +62440,11 @@
               "maxLength": 60,
               "minLength": 1,
               "type": "string"
+            },
+            "daysInCurrentStep": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
             },
             "deliveryRecordStatus": {
               "maxLength": 60,
@@ -64862,6 +64872,11 @@
               "maxLength": 60,
               "minLength": 1,
               "type": "string"
+            },
+            "daysInCurrentStep": {
+              "maximum": 9007199254740991,
+              "minimum": 0,
+              "type": "integer"
             },
             "deliveryRecordStatus": {
               "maxLength": 60,

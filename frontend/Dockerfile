@@ -87,5 +87,6 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
 # Usar dumb-init para manejo correcto de señales
 ENTRYPOINT ["dumb-init", "--"]
 
-# Ejecutar servidor Next.js
-CMD ["node", "frontend/server.js"]
+# Ejecutar servidor Next.js (standalone con monorepo outputFileTracingRoot)
+# Next.js 16 + monorepo genera la entrada en app/frontend/server.js
+CMD ["node", "app/frontend/server.js"]

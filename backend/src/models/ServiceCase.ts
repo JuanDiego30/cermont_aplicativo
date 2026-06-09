@@ -9,8 +9,8 @@
  * evidence, reports, delivery records, SES, invoices, and payments.
  */
 
-import { type Document, model, Schema, Types } from "mongoose";
 import type { DomainBlocker } from "@cermont/shared-types";
+import { type Document, model, Schema, Types } from "mongoose";
 
 const SERVICE_CASE_STAGES = [
 	"intake",

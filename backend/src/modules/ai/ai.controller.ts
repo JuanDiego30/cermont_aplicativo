@@ -1,7 +1,4 @@
-import {
-	AIErrorResponseSchema,
-	type AssistantChatRequest,
-} from "@cermont/shared-types";
+import { AIErrorResponseSchema, type AssistantChatRequest } from "@cermont/shared-types";
 import type { Request, Response } from "express";
 import { AppError } from "../../common/errors/AppError";
 import { requireUser } from "../../common/utils/request";

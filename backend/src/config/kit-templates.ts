@@ -20,7 +20,15 @@ export interface KitTemplate {
 	id: string;
 	name: string;
 	description: string;
-	type: "maintenance" | "inspection" | "installation" | "repair" | "decommission" | "cctv" | "lifeline" | "other";
+	type:
+		| "maintenance"
+		| "inspection"
+		| "installation"
+		| "repair"
+		| "decommission"
+		| "cctv"
+		| "lifeline"
+		| "other";
 	materials: MaterialItem[];
 }
 
@@ -124,7 +132,8 @@ const KIT_DECOMMISSION: KitTemplate = {
 const KIT_CCTV: KitTemplate = {
 	id: "kit-cctv-001",
 	name: "Kit Mantenimiento CCTV",
-	description: "Materiales y herramientas para mantenimiento de sistemas de videovigilancia (cámaras, radioenlaces, cajas de conexiones)",
+	description:
+		"Materiales y herramientas para mantenimiento de sistemas de videovigilancia (cámaras, radioenlaces, cajas de conexiones)",
 	type: "cctv",
 	materials: [
 		// Equipos de limpieza y revisión
@@ -170,7 +179,8 @@ const KIT_CCTV: KitTemplate = {
 const KIT_LIFELINE: KitTemplate = {
 	id: "kit-lifeline-001",
 	name: "Kit Inspección Líneas de Vida Vertical",
-	description: "Materiales y herramientas para inspección y mantenimiento de sistemas de líneas de vida verticales (anclaje, tensor, cable)",
+	description:
+		"Materiales y herramientas para inspección y mantenimiento de sistemas de líneas de vida verticales (anclaje, tensor, cable)",
 	type: "lifeline",
 	materials: [
 		// Componentes de anclaje — parte superior
@@ -253,7 +263,15 @@ export function listAllKits(): KitTemplate[] {
  * Returns not-found status object for unmatched types
  */
 export function getDefaultKitForOrderType(
-	orderType: "maintenance" | "inspection" | "installation" | "repair" | "decommission" | "cctv" | "lifeline" | "other",
+	orderType:
+		| "maintenance"
+		| "inspection"
+		| "installation"
+		| "repair"
+		| "decommission"
+		| "cctv"
+		| "lifeline"
+		| "other",
 ): KitTemplate | { status: "not_found"; type: string } {
 	switch (orderType) {
 		case "maintenance":

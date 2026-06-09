@@ -84,32 +84,35 @@ describe("notification.service — dbStepToDomainState", () => {
 });
 
 describe("notification.service — getRolesToNotifyForStep", () => {
-	it("notifica a residente+supervisor para step_07 technical_report", () => {
+	it("notifica a supervisor+admin para step_07 technical_report (NO roles de evidencias)", () => {
 		const roles = getRolesToNotifyForStep("step_07_technical_report");
-		expect(roles).toContain("residente");
 		expect(roles).toContain("supervisor");
+		expect(roles).toContain("gerente");
 		expect(roles).not.toContain("hes");
+		expect(roles).not.toContain("tecnico");
+		expect(roles).not.toContain("residente");
 	});
 
-	it("notifica a residente+supervisor+administrativo para step_08 delivery_record", () => {
+	it("notifica a tecnico+supervisor para step_08 delivery_record (NO residente)", () => {
 		const roles = getRolesToNotifyForStep("step_08_delivery_record");
-		expect(roles).toContain("residente");
+		expect(roles).toContain("tecnico");
 		expect(roles).toContain("supervisor");
-		expect(roles).toContain("administrativo");
+		expect(roles).not.toContain("residente");
 	});
 
-	it("notifica a gerente+residente+cliente para step_09 client_signature", () => {
+	it("notifica a supervisor+admin para step_09 client_signature (NO residente)", () => {
 		const roles = getRolesToNotifyForStep("step_09_client_signature");
+		expect(roles).toContain("supervisor");
 		expect(roles).toContain("gerente");
-		expect(roles).toContain("residente");
-		expect(roles).toContain("cliente");
+		expect(roles).not.toContain("residente");
+		expect(roles).not.toContain("cliente");
 	});
 
-	it("notifica a administrativo+gerente para step_10 ses", () => {
+	it("notifica solo a admin para step_10 ses_submission (NO roles de client_signature)", () => {
 		const roles = getRolesToNotifyForStep("step_10_ses_submission");
-		expect(roles).toContain("administrativo");
-		expect(roles).toContain("gerente");
-		expect(roles).not.toContain("cliente");
+		expect(roles).toEqual(["gerente"]);
+		expect(roles).not.toContain("residente");
+		expect(roles).not.toContain("administrativo");
 	});
 
 	it("notifica a supervisor+tecnico+operador para execution", () => {
@@ -138,8 +141,8 @@ describe("notification.service — notifyStateTransition", () => {
 		});
 		mocks.userFind.mockReturnValue({
 			lean: vi.fn().mockResolvedValue([
-				{ _id: "user1", role: "residente" },
-				{ _id: "user2", role: "supervisor" },
+				{ _id: "user1", role: "supervisor" },
+				{ _id: "user2", role: "gerente" },
 			]),
 		});
 
@@ -153,8 +156,8 @@ describe("notification.service — notifyStateTransition", () => {
 		expect(mocks.notificationInsertMany).toHaveBeenCalled();
 		const notifications = mocks.notificationInsertMany.mock.calls[0][0];
 		expect(notifications).toHaveLength(2);
-		expect(notifications[0].recipientRole).toBe("residente");
-		expect(notifications[1].recipientRole).toBe("supervisor");
+		expect(notifications[0].recipientRole).toBe("supervisor");
+		expect(notifications[1].recipientRole).toBe("gerente");
 	});
 
 	it("handles missing service case gracefully without throwing", async () => {

@@ -8,8 +8,8 @@
 
 import type { CanonicalCaseData } from "@cermont/shared-types";
 import {
-	type CermontOperationalStepCode,
 	CERMONT_OPERATIONAL_STEPS,
+	type CermontOperationalStepCode,
 	type FieldOverride,
 	type ServiceCaseStepContext,
 } from "@cermont/shared-types";
@@ -18,8 +18,8 @@ import { NotFoundError } from "../common/errors/AppError";
 import { createLogger } from "../common/utils/logger";
 import { ServiceCase } from "../models";
 import { createAuditLog } from "../modules/audit/audit.service";
-import { buildServiceCaseStepContext } from "./service-case-step-context.service";
 import { calculateStepBlockers } from "./cermont-workflow-gate.service";
+import { buildServiceCaseStepContext } from "./service-case-step-context.service";
 
 const log = createLogger("submit-step-payload");
 
@@ -31,9 +31,20 @@ type JsonLike = Record<string, string | number | boolean | object | Date | undef
 // ──────────────────────────────────────────────────────────────────────────────
 
 const CANONICAL_FIELD_KEYS = new Set([
-	"clientId", "clientName", "contactName", "contactPhone", "contactEmail",
-	"siteId", "siteName", "location", "businessUnit", "workTypeId",
-	"workTypeName", "priority", "requestedDate", "generalScope",
+	"clientId",
+	"clientName",
+	"contactName",
+	"contactPhone",
+	"contactEmail",
+	"siteId",
+	"siteName",
+	"location",
+	"businessUnit",
+	"workTypeId",
+	"workTypeName",
+	"priority",
+	"requestedDate",
+	"generalScope",
 ]);
 
 /**
@@ -186,7 +197,10 @@ export async function submitStepPayload(
 		entityId = result.id;
 		entityCode = result.code;
 	} catch (_error) {
-		log.error("Failed to save step entity", { stepCode, errorMsg: _error instanceof Error ? _error.message : String(_error) });
+		log.error("Failed to save step entity", {
+			stepCode,
+			errorMsg: _error instanceof Error ? _error.message : String(_error),
+		});
 		return { success: false, error: "Error al guardar la entidad del paso" };
 	}
 

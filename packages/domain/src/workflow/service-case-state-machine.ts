@@ -61,7 +61,9 @@ const TRANSITIONS: Readonly<
 	Record<ServiceCaseState, Partial<Record<ServiceCaseEvent["type"], ServiceCaseState>>>
 > = {
 	pending: { WORK_REQUEST_CREATED: "work_request" },
-	work_request: { SITE_VISIT_COMPLETED: "site_visit", PROPOSAL_APPROVED: "proposal" },
+	// CORREGIDO: work_request NO puede ir directamente a proposal.
+	// Debe pasar primero por site_visit (Paso 2 del flujo CERMONT de 14 pasos).
+	work_request: { SITE_VISIT_COMPLETED: "site_visit" },
 	site_visit: { PROPOSAL_APPROVED: "proposal" },
 	proposal: { PURCHASE_ORDER_APPROVED: "purchase_order" },
 	purchase_order: { PLANNING_APPROVED: "planning" },

@@ -29,7 +29,9 @@ const MONGODB_URI = env.MONGODB_URI ?? "mongodb://127.0.0.1:27017/cermont";
 
 const DEFAULT_PASSWORD = env.SEED_DEFAULT_PASSWORD || "Cermont2026!";
 if (!env.SEED_DEFAULT_PASSWORD) {
-	console.warn("⚠️  SEED_DEFAULT_PASSWORD environment variable not set. Falling back to 'Cermont2026!'");
+	console.warn(
+		"⚠️  SEED_DEFAULT_PASSWORD environment variable not set. Falling back to 'Cermont2026!'",
+	);
 }
 
 // ─── Seed data ─────────────────────────────────────────────────────────────────
