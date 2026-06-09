@@ -30,7 +30,7 @@ import {
 	type ServiceCaseWorkflowViewModel,
 } from "@cermont/shared-types";
 import { Types } from "mongoose";
-import { NotFoundError } from "../../common/errors/AppError";
+import { ConflictError, NotFoundError } from "../../common/errors/AppError";
 import { createLogger } from "../../common/utils/logger";
 import {
 	Cost,
@@ -1185,17 +1185,42 @@ export async function closeServiceCase(id: string, _userId: string) {
 
 	return getServiceCaseById(id);
 }
-export async function archiveServiceCase(id: string, _userId: string) {
+export async function archiveServiceCase(id: string, userId: string) {
 	const serviceCase = await ServiceCase.findById(id);
 	if (!serviceCase) {
 		throw new NotFoundError("Service case not found");
 	}
 
-	// Archive using findByIdAndUpdate
-	const updated = await ServiceCase.findByIdAndUpdate(id, { status: "archived" }, { new: true });
+	// Only terminal-state cases may be archived
+	const ARCHIVABLE_STAGES = ["paid", "cancelled"] as const;
+	if (!ARCHIVABLE_STAGES.includes(serviceCase.currentStage as (typeof ARCHIVABLE_STAGES)[number])) {
+		throw new ConflictError(
+			`Cannot archive a service case in stage "${serviceCase.currentStage}". ` +
+				`Only paid or cancelled cases may be archived.`,
+		);
+	}
+
+	// Update the canonical stage field (not `status` which is an artifact sub-field)
+	const previousStage = serviceCase.currentStage;
+	const updated = await ServiceCase.findByIdAndUpdate(
+		id,
+		{ currentStage: "archived" },
+		{ new: true },
+	);
 	if (!updated) {
 		throw new NotFoundError("Service case not found after update");
 	}
+
+	// Audit: fire-and-forget, never blocks the response
+	createAuditLog({
+		userId,
+		entity: "ServiceCase",
+		entityId: id,
+		action: "ARCHIVED",
+		before: previousStage,
+		after: "archived",
+		metadata: { archivedAt: new Date().toISOString() },
+	});
 
 	return getServiceCaseById(id);
 }
