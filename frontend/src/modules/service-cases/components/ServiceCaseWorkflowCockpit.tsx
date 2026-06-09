@@ -7,6 +7,7 @@ import type {
 import { FileText, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { ContextualDocumentUploadModal } from "@/modules/documents/ui/ContextualDocumentUploadModal";
+import { CostComparisonPanel } from "./CostComparisonPanel";
 import { NextActionPanel } from "./NextActionPanel";
 import { OperationalStepProgress } from "./OperationalStepProgress";
 import { StepRequirementPanel } from "./StepRequirementPanel";
@@ -138,6 +139,17 @@ export function ServiceCaseWorkflowCockpit({
 						financialSummary={financialSummary}
 						operationalSummary={operationalSummary}
 					/>
+
+					{/* Cost comparison panel — shown when there is at least some cost data */}
+					{(serviceCase.costs.estimated.estimatedTotalCost > 0 ||
+						serviceCase.costs.actual.actualTotalCost > 0 ||
+						serviceCase.costs.billing.invoiceValue > 0) && (
+						<CostComparisonPanel
+							costs={serviceCase.costs}
+							serviceCaseId={serviceCase.serviceCaseId}
+						/>
+					)}
+
 					<ArtifactsSection artifacts={serviceCase.artifacts ?? {}} />
 				</div>
 

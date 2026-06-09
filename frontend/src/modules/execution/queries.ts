@@ -283,3 +283,19 @@ export function useAddExecutionIncident(id: string) {
 export function useSubmitExecutionDynamicForm(id: string) {
 	return useExecutionCommand<SubmitExecutionDynamicFormCommand>(id, "dynamic-form");
 }
+
+export function useCreateExecutionSession() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationKey: [...EXECUTION_KEYS.all, "create"],
+		mutationFn: (data: {
+			workOrderId: string;
+			planningPacketId?: string;
+			serviceCaseId?: string;
+			assignedCrew?: string[];
+		}) => apiClient.post<ExecutionDetailEnvelope>("/execution-sessions", data),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: EXECUTION_KEYS.all });
+		},
+	});
+}

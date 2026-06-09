@@ -426,6 +426,21 @@ export function useRejectReport(id: string) {
 	});
 }
 
+export function useCreateTechnicalReport(executionSessionId: string) {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationKey: ["technical-reports", "create", executionSessionId],
+		mutationFn: (data: { executionSummary?: string; findings?: string[]; deviations?: string[] }) =>
+			apiClient.post<ApiEnvelope<{ _id: string }>>(
+				`/execution-sessions/${executionSessionId}/technical-report`,
+				data,
+			),
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: ["technical-reports"] });
+		},
+	});
+}
+
 export function useDownloadReportPdf() {
 	const queryClient = useQueryClient();
 

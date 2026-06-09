@@ -43,6 +43,7 @@
 		"clean": "turbo run clean && node -e \"const fs=require('fs');fs.rmSync('node_modules',{recursive:true,force:true});\"",
 		"db:seed": "npm run seed -w backend",
 		"contracts:check": "tsx tooling/contracts/check-contract-guard.ts",
+		"contracts:snapshot:update": "tsx tooling/contracts/update-contract-snapshot.ts",
 		"ghost:check": "tsx tooling/prevent-ghost-dirs.ts",
 		"docker:up": "docker compose up --build -d",
 		"docker:down": "docker compose down",

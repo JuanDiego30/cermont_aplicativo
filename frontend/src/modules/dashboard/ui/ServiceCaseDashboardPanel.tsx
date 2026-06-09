@@ -16,6 +16,11 @@ interface ServiceCaseDashboardPanelProps {
 	activeKitCount: number;
 	totalBudgetApproved: number;
 	recentOrdersCount: number;
+	// Enhanced KPIs
+	blockedCases?: number;
+	readyToBill?: number;
+	readyToClose?: number;
+	inPlanning?: number;
 }
 
 const WORKFLOW_STEPS = [
@@ -55,45 +60,48 @@ export function ServiceCaseDashboardPanel({
 	activeKitCount,
 	totalBudgetApproved,
 	recentOrdersCount,
+	blockedCases = 0,
+	readyToBill = 0,
+	readyToClose = 0,
+	inPlanning = 0,
 }: ServiceCaseDashboardPanelProps) {
 	const totalOperationalCases = activeOrders + closedOrders + overdueOrders;
 	const executionLoad = activeOrders + maintenanceOpenCount;
 	const closeoutProgress =
 		totalOperationalCases > 0 ? (closedOrders / totalOperationalCases) * 100 : 0;
-	const riskCount = overdueOrders;
 	const closeoutProgressPercent = clampPercent(closeoutProgress);
 	const workflowPreview = WORKFLOW_STEPS.slice(0, 6);
 	const workflowCloseout = WORKFLOW_STEPS.slice(6);
 
 	const actionCards = [
 		{
-			label: "Órdenes activas",
+			label: "Casos activos",
 			value: activeOrders,
-			href: "/orders",
+			href: "/service-cases",
 			icon: ClipboardList,
 			tone: "text-[var(--color-brand-blue)]",
 			surface: "bg-[var(--color-brand-blue-bg)]",
 		},
 		{
-			label: "Ejecución y mantenimiento",
-			value: executionLoad,
-			href: "/maintenance",
+			label: "En planeación / ejecución",
+			value: executionLoad + inPlanning,
+			href: "/execution",
 			icon: Wrench,
 			tone: "text-[var(--color-brand-deep)]",
 			surface: "bg-[var(--color-brand-light)]",
 		},
 		{
-			label: "Riesgos abiertos",
-			value: riskCount,
-			href: "/reports",
+			label: "Bloqueados",
+			value: blockedCases || overdueOrders,
+			href: "/service-cases",
 			icon: AlertTriangle,
 			tone: "text-[var(--color-danger)]",
 			surface: "bg-[var(--color-danger-bg)]",
 		},
 		{
-			label: "Cierre administrativo",
-			value: closedOrders,
-			href: "/costs",
+			label: "Listos para facturar",
+			value: readyToBill || readyToClose || closedOrders,
+			href: "/billing/ses",
 			icon: ClipboardCheck,
 			tone: "text-[var(--color-success)]",
 			surface: "bg-[var(--color-success-bg)]",

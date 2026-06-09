@@ -103,6 +103,22 @@ export async function updateWorkRequestStatus(req: Request, res: Response) {
 }
 
 /**
+ * Qualify a work request
+ * POST /api/work-requests/:id/qualify
+ * Roles: GER, RES, HES
+ */
+export async function qualifyWorkRequest(req: Request, res: Response) {
+	const user = requireUser(req);
+	const userId = user._id.toString();
+	const userRole = user.role;
+	const { id } = WorkRequestIdParamsSchema.parse(req.params);
+
+	const result = await WorkRequestService.qualifyWorkRequest(id, userId, userRole);
+
+	res.status(200).json({ success: true, data: result });
+}
+
+/**
  * Delete (soft delete) work request
  * DELETE /api/work-requests/:id
  * Roles: GER (only gerente can delete)

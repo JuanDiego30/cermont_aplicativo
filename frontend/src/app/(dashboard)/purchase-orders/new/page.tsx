@@ -6,17 +6,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, ArrowLeft, CheckCircle2, Loader2, Save } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/core/ui/Button";
 import { FormField, Select, TextField } from "@/core/ui/FormField";
 import { apiClient } from "@/lib/http/api-client";
+import { useServiceCaseContext } from "@/modules/service-cases/hooks/useServiceCaseContext";
 
-// Form schema mirrors the canonical RegisterPurchaseOrderSchema but omits
-// `attachments` (the form does not yet provide an upload widget) so that
-// input type === output type. This avoids the .default([]) input/output
-// split that would otherwise break react-hook-form generics.
 const RegisterPOFormSchema = RegisterPurchaseOrderSchema.omit({
 	attachments: true,
 	receivedAt: true,
@@ -33,20 +31,6 @@ const CURRENCY_OPTIONS = [
 	{ value: "EUR", label: "EUR — Euro" },
 ] as const;
 
-function defaultValues(): FormValues {
-	const now = toDateTimeLocalValue(new Date());
-	return {
-		proposalId: "",
-		poNumber: "",
-		contractReference: "",
-		serviceAccount: "",
-		billingAccount: "",
-		approvedAmount: 0,
-		currency: "COP",
-		receivedAt: now,
-	};
-}
-
 function toDateTimeLocalValue(date: Date): string {
 	const timezoneOffsetMs = date.getTimezoneOffset() * 60_000;
 	return new Date(date.getTime() - timezoneOffsetMs).toISOString().slice(0, 16);
@@ -60,8 +44,32 @@ function toPurchaseOrderPayload(values: FormValues): z.input<typeof RegisterPurc
 }
 
 export default function NewPurchaseOrderPage() {
+	return (
+		<Suspense
+			fallback={
+				<div className="flex items-center justify-center py-24">
+					<Loader2 className="size-8 animate-spin text-[var(--color-brand)]" />
+				</div>
+			}
+		>
+			<NewPurchaseOrderContent />
+		</Suspense>
+	);
+}
+
+function NewPurchaseOrderContent() {
 	const router = useRouter();
 	const queryClient = useQueryClient();
+	const searchParams = useSearchParams();
+	const serviceCaseId = searchParams.get("serviceCaseId") ?? "";
+
+	// Load inherited context (gets proposal ID from artifacts)
+	const { inheritedFields, isLoading: isContextLoading } = useServiceCaseContext(
+		"step_04_purchase_order",
+		serviceCaseId,
+	);
+
+	const inheritedProposalId = inheritedFields.find((f) => f.key === "proposalId")?.value ?? "";
 
 	const {
 		register,
@@ -70,7 +78,16 @@ export default function NewPurchaseOrderPage() {
 		setError,
 	} = useForm<FormValues>({
 		resolver: zodResolver(RegisterPOFormSchema),
-		defaultValues: defaultValues(),
+		defaultValues: {
+			proposalId: inheritedProposalId,
+			poNumber: "",
+			contractReference: "",
+			serviceAccount: "",
+			billingAccount: "",
+			approvedAmount: 0,
+			currency: "COP",
+			receivedAt: toDateTimeLocalValue(new Date()),
+		},
 		mode: "onBlur",
 	});
 
@@ -81,21 +98,22 @@ export default function NewPurchaseOrderPage() {
 	>({
 		mutationFn: async (values) => {
 			const payload = toPurchaseOrderPayload(values);
-			const response = await apiClient.post<ApiEnvelope<PurchaseOrderAuthorization>>(
-				"/purchase-orders",
-				payload,
-			);
-			return response;
+			return apiClient.post<ApiEnvelope<PurchaseOrderAuthorization>>("/purchase-orders", payload);
 		},
 		onSuccess: (response) => {
 			void queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
 			const created = response.data;
-			router.push(`/purchase-orders/${created._id}`);
+			// Navigate back to cockpit if we have a serviceCaseId, otherwise to PO detail
+			if (serviceCaseId) {
+				router.push(`/service-cases/${serviceCaseId}`);
+			} else {
+				router.push(`/purchase-orders/${created._id}`);
+			}
 		},
 		onError: (error) => {
 			setError("root", {
 				type: "server",
-				message: error.message ?? "Unable to register the purchase order.",
+				message: error.message ?? "No se pudo registrar la orden de compra.",
 			});
 		},
 	});
@@ -107,24 +125,45 @@ export default function NewPurchaseOrderPage() {
 	return (
 		<section className="space-y-6" aria-labelledby="new-po-title">
 			<header className="space-y-3">
-				<div>
-					<p className="text-sm font-medium text-[var(--color-brand)]">Paso 4 / Operación</p>
-					<h1 id="new-po-title" className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
-						Register purchase order
-					</h1>
-					<p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--text-secondary)]">
-						Link the purchase order to an approved proposal. The PO remains pending until it is
-						validated or rejected.
-					</p>
-				</div>
 				<Link
-					href="/purchase-orders"
+					href={serviceCaseId ? `/service-cases/${serviceCaseId}` : "/purchase-orders"}
 					className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-brand)]"
 				>
 					<ArrowLeft className="size-4" aria-hidden="true" />
-					Volver a órdenes
+					Volver
 				</Link>
+				<div>
+					<p className="text-sm font-medium text-[var(--color-brand)]">Paso 4 / Orden de compra</p>
+					<h1 id="new-po-title" className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+						Registrar orden de compra
+					</h1>
+					<p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--text-secondary)]">
+						Vincula la orden de compra a la propuesta aprobada para avanzar al paso de planeación.
+					</p>
+				</div>
 			</header>
+
+			{/* Inherited context banner */}
+			{!isContextLoading && inheritedFields.length > 0 && (
+				<div className="rounded-[var(--radius-lg)] border border-[var(--color-brand)]/20 bg-[var(--color-brand-blue-bg)] p-4">
+					<p className="text-xs font-bold uppercase tracking-wide text-[var(--color-brand)]">
+						Datos heredados del caso
+					</p>
+					<div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+						{inheritedFields.slice(0, 4).map((field) => (
+							<div key={field.key} className="rounded-[var(--radius-md)] bg-white/70 px-3 py-2">
+								<p className="text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--text-muted)]">
+									{field.label}
+								</p>
+								<p className="mt-0.5 text-sm font-semibold text-[var(--text-primary)] truncate">
+									{field.value}
+								</p>
+								<p className="text-[9px] text-[var(--color-brand)]">↑ {field.sourceStepLabel}</p>
+							</div>
+						))}
+					</div>
+				</div>
+			)}
 
 			<form
 				onSubmit={handleSubmit(onSubmit)}
@@ -134,8 +173,8 @@ export default function NewPurchaseOrderPage() {
 				<div className="grid gap-4 md:grid-cols-2">
 					<FormField
 						name="proposalId"
-						label="Proposal ID"
-						helperText="ObjectId of the approved proposal (24 characters)."
+						label="ID de la propuesta"
+						helperText="ObjectId de la propuesta aprobada (24 caracteres)."
 						required
 						error={errors.proposalId?.message}
 					>
@@ -266,7 +305,7 @@ export default function NewPurchaseOrderPage() {
 						/>
 						<div>
 							<p className="text-sm font-semibold text-[var(--text-primary)]">
-								Unable to register purchase order
+								No se pudo registrar la orden de compra
 							</p>
 							<p className="mt-1 text-sm text-[var(--text-secondary)]">{errors.root.message}</p>
 						</div>
@@ -283,7 +322,7 @@ export default function NewPurchaseOrderPage() {
 							aria-hidden="true"
 						/>
 						<p className="text-sm text-[var(--text-primary)]">
-							Purchase order registered. Redirecting to detail…
+							Orden de compra registrada. Redirigiendo…
 						</p>
 					</output>
 				) : null}
@@ -299,7 +338,9 @@ export default function NewPurchaseOrderPage() {
 						Registrar PO
 					</Button>
 					<Button asChild type="button" variant="secondary" disabled={mutation.isPending}>
-						<Link href="/purchase-orders">Cancelar</Link>
+						<Link href={serviceCaseId ? `/service-cases/${serviceCaseId}` : "/purchase-orders"}>
+							Cancelar
+						</Link>
 					</Button>
 					{mutation.isPending ? (
 						<span className="inline-flex items-center gap-2 text-sm text-[var(--text-secondary)]">

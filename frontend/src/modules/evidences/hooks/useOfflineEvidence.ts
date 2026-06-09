@@ -15,6 +15,7 @@ const logger = createLogger("offline-sync:evidences");
 export interface OfflineEvidenceInput {
 	orderId: string;
 	type: EvidenceType;
+	title?: string;
 	description?: string;
 	capturedAt: string;
 	file: File;
@@ -80,6 +81,10 @@ async function queueEvidenceUpload(variables: OfflineEvidenceInput): Promise<voi
 		payload.fileBase64 = await fileToBase64(variables.file);
 	}
 
+	if (typeof variables.title === "string" && variables.title.trim().length > 0) {
+		payload.title = variables.title.trim();
+	}
+
 	if (typeof variables.description === "string" && variables.description.trim().length > 0) {
 		payload.description = variables.description.trim();
 	}
@@ -100,7 +105,7 @@ async function queueEvidenceUpload(variables: OfflineEvidenceInput): Promise<voi
 		createdAt: Date.now(),
 		retryCount: 0,
 		idempotencyKey,
-		dedupeKey: `evidences:create:${variables.orderId}:${variables.type}:${variables.file.name}:${variables.file.type}:${variables.capturedAt}:${variables.description ?? ""}`,
+		dedupeKey: `evidences:create:${variables.orderId}:${variables.type}:${variables.file.name}:${variables.file.type}:${variables.capturedAt}:${variables.title ?? ""}:${variables.description ?? ""}`,
 	};
 
 	if (hasIndexedDBSupport()) {
@@ -141,6 +146,10 @@ function buildEvidenceFormData(data: OfflineEvidenceInput): FormData {
 	formData.append("type", data.type);
 	formData.append("capturedAt", data.capturedAt);
 	formData.append("orderId", data.orderId);
+
+	if (typeof data.title === "string" && data.title.trim().length > 0) {
+		formData.append("title", data.title.trim());
+	}
 
 	if (typeof data.description === "string" && data.description.trim().length > 0) {
 		formData.append("description", data.description.trim());

@@ -1,6 +1,9 @@
 "use client";
 
-import type { CanonicalCaseData, InheritedField as InheritedFieldType } from "@cermont/shared-types";
+import type {
+	CanonicalCaseData,
+	InheritedField as InheritedFieldType,
+} from "@cermont/shared-types";
 import { InheritedField } from "./InheritedField";
 
 interface CanonicalCaseFieldsProps {
@@ -23,7 +26,9 @@ export function CanonicalCaseFields({
 	onFieldChange,
 	readOnly,
 }: CanonicalCaseFieldsProps) {
-	if (!canonical) { return null; }
+	if (!canonical) {
+		return null;
+	}
 
 	const inheritedMap = new Map(inheritedFields.map((f) => [f.key, f]));
 
@@ -58,7 +63,10 @@ export function CanonicalCaseFields({
 
 				return (
 					<div key={field.key} className="grid gap-1.5">
-						<label htmlFor={`canonical-${field.key}`} className="text-sm font-medium text-[var(--text-primary)]">
+						<label
+							htmlFor={`canonical-${field.key}`}
+							className="text-sm font-medium text-[var(--text-primary)]"
+						>
 							{field.label}
 						</label>
 						{readOnly ? (

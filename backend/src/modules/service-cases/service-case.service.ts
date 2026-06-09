@@ -361,6 +361,109 @@ function buildWorkflowStepChecklist(
 	};
 }
 
+// ── Smart next-action route builder ─────────────────────────────
+
+type NormalizedArtifactMap = Record<string, { id: string } | undefined>;
+
+/** Pre-resolve artifact IDs from the artifact map */
+function resolveArtifactIds(artifacts: NormalizedArtifactMap) {
+	return {
+		workRequestId: artifacts.workRequest?.id,
+		siteVisitId: artifacts.siteVisit?.id,
+		proposalId: artifacts.proposal?.id,
+		purchaseOrderId: artifacts.purchaseOrder?.id,
+		planningPacketId: artifacts.planningPacket?.id,
+		workOrderId: artifacts.workOrder?.id,
+		executionSessionId: artifacts.executionSession?.id,
+		technicalReportId: artifacts.technicalReport?.id,
+		deliveryRecordId: artifacts.deliveryRecord?.id,
+		sesId: artifacts.serviceEntrySheet?.id,
+		invoiceId: artifacts.invoice?.id,
+		paymentId: artifacts.payment?.id,
+	};
+}
+
+/** Returns the detail route if `existingId` is present, otherwise the create route. */
+function detailOrCreate(
+	existingId: string | undefined,
+	detailBase: string,
+	createUrl: string,
+): string {
+	return existingId ? `${detailBase}${existingId}` : createUrl;
+}
+
+/**
+ * Produces context-aware create/detail routes for each workflow step.
+ * - If the artifact for a step already exists, links to its detail page.
+ * - If not, links to the create form with the required parent IDs as query params.
+ *
+ * Data-driven to keep cognitive complexity low.
+ */
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: data-driven lookup, complexity is inherent to 14-step workflow
+function buildSmartNextActionRoute(
+	stepCode: string,
+	serviceCaseId: string,
+	artifacts: NormalizedArtifactMap,
+): string | undefined {
+	const a = resolveArtifactIds(artifacts);
+	const sc = `serviceCaseId=${serviceCaseId}`;
+
+	const ROUTES: Record<string, string> = {
+		step_01_work_request: detailOrCreate(a.workRequestId, "/work-requests/", `/work-requests/new`),
+		step_02_site_visit: detailOrCreate(a.siteVisitId, "/site-visits/", `/site-visits/new?${sc}`),
+		step_03_proposal: detailOrCreate(a.proposalId, "/proposals/", `/proposals/new?${sc}`),
+		step_04_purchase_order: detailOrCreate(
+			a.purchaseOrderId,
+			"/purchase-orders/",
+			`/purchase-orders/new?${sc}`,
+		),
+		step_05_planning: detailOrCreate(
+			a.planningPacketId,
+			"/planning/",
+			`/planning-packet/new?${sc}`,
+		),
+		step_06_execution: a.executionSessionId
+			? `/execution/${a.executionSessionId}`
+			: a.workOrderId
+				? `/execution/new?${sc}&workOrderId=${a.workOrderId}`
+				: `/execution/new?${sc}`,
+		step_07_technical_report: a.technicalReportId
+			? `/reports/${a.technicalReportId}`
+			: a.executionSessionId
+				? `/reports/new?executionSessionId=${a.executionSessionId}&${sc}`
+				: `/reports/new?${sc}`,
+		step_08_delivery_record: a.deliveryRecordId
+			? `/delivery-records/${a.deliveryRecordId}`
+			: a.technicalReportId
+				? `/delivery-records/new?technicalReportId=${a.technicalReportId}&${sc}`
+				: `/delivery-records/new?${sc}`,
+		step_09_client_signature: a.deliveryRecordId
+			? `/delivery-records/${a.deliveryRecordId}`
+			: `/delivery-records?${sc}`,
+		step_10_ses_submission: a.sesId
+			? `/billing/ses/${a.sesId}`
+			: a.deliveryRecordId
+				? `/billing/ses/new?deliveryRecordId=${a.deliveryRecordId}&${sc}`
+				: `/billing/ses/new?${sc}`,
+		step_11_ses_approval: a.sesId ? `/billing/ses/${a.sesId}/approve` : `/billing/ses?${sc}`,
+		step_12_invoice_submission: a.invoiceId
+			? `/billing/invoices/${a.invoiceId}`
+			: a.sesId
+				? `/billing/invoices/new?sesId=${a.sesId}&${sc}`
+				: `/billing/invoices/new?${sc}`,
+		step_13_invoice_approval: a.invoiceId
+			? `/billing/invoices/${a.invoiceId}/approve`
+			: `/billing/invoices?${sc}`,
+		step_14_payment_closure: a.paymentId
+			? `/payments/${a.paymentId}`
+			: a.invoiceId
+				? `/payments/new?invoiceId=${a.invoiceId}&${sc}`
+				: `/payments/new?${sc}`,
+	};
+
+	return ROUTES[stepCode];
+}
+
 // ── CRUD operations ──────────────────────────────────────────────
 
 export async function getServiceCases(query: {
@@ -465,12 +568,17 @@ export async function getServiceCaseById(id: string): Promise<ServiceCaseView | 
 	const currentStep = CERMONT_OPERATIONAL_STEPS.find((step) => step.code === currentStepCode);
 	const { currentRequirements, steps } = buildWorkflowStepChecklist(currentStepCode, blockers);
 
+	// Build a context-aware route that deep-links to the right create/detail page
+	const smartRoute = currentStepCode
+		? buildSmartNextActionRoute(currentStepCode, id, normalizedArtifacts)
+		: undefined;
+
 	const _nextActions = blockers.length
 		? blockers.slice(0, 3).map((blocker) => ({
 				command: blocker.code.toLowerCase().slice(0, 80),
 				label: blocker.recommendedAction.slice(0, 200),
 				requiredRole: blocker.ownerRole,
-				route: currentStep?.route,
+				route: smartRoute ?? currentStep?.route,
 			}))
 		: currentStep
 			? [
@@ -478,7 +586,7 @@ export async function getServiceCaseById(id: string): Promise<ServiceCaseView | 
 						command: currentStep.nextAction.toLowerCase().replace(/\s+/g, "_").slice(0, 80),
 						label: currentStep.nextAction.slice(0, 200),
 						requiredRole: currentStep.allowedRoles[0] || "supervisor",
-						route: currentStep.route,
+						route: smartRoute ?? currentStep.route,
 					},
 				]
 			: computeNextActions(rawCase.currentStage);
@@ -527,22 +635,40 @@ export async function getServiceCaseSummary(): Promise<{
 	inProgress: number;
 	completedThisMonth: number;
 	revenue: number;
+	// Enhanced operational KPIs
+	blockedCases: number;
+	readyToBill: number;
+	readyToClose: number;
+	inExecution: number;
+	inPlanning: number;
+	stepDistribution: Array<{ stepCode: string; count: number }>;
 }> {
-	const [totalCases, stageCounts, completedThisMonth] = await Promise.all([
-		ServiceCase.countDocuments(),
-		ServiceCase.aggregate([{ $group: { _id: "$currentStage", count: { $sum: 1 } } }]),
-		ServiceCase.countDocuments({
-			currentStage: { $in: ["paid", "archived"] },
-			updatedAt: {
-				$gte: new Date(new Date().setDate(1)),
-			},
-		}),
-	]);
+	const startOfMonth = new Date();
+	startOfMonth.setDate(1);
+	startOfMonth.setHours(0, 0, 0, 0);
+
+	const [totalCases, stageCounts, stepCounts, completedThisMonth, blockedCases] = await Promise.all(
+		[
+			ServiceCase.countDocuments(),
+			ServiceCase.aggregate([{ $group: { _id: "$currentStage", count: { $sum: 1 } } }]),
+			ServiceCase.aggregate([{ $group: { _id: "$currentStepCode", count: { $sum: 1 } } }]),
+			ServiceCase.countDocuments({
+				currentStage: { $in: ["paid", "archived"] },
+				updatedAt: { $gte: startOfMonth },
+			}),
+			// Cases with at least one blocker that is 'blocking' severity
+			ServiceCase.countDocuments({ "blockers.0": { $exists: true } }),
+		],
+	);
 
 	const stageMap: Record<string, number> = {};
 	for (const entry of stageCounts) {
 		stageMap[entry._id] = entry.count;
 	}
+
+	const stepDistribution = stepCounts
+		.filter((e: { _id: string | null }) => e._id)
+		.map((e: { _id: string; count: number }) => ({ stepCode: e._id, count: e.count }));
 
 	const activeStages = [
 		"intake",
@@ -561,6 +687,9 @@ export async function getServiceCaseSummary(): Promise<{
 	const activeCases = activeStages.reduce((sum, stage) => sum + (stageMap[stage] ?? 0), 0);
 	const pendingApproval = stageMap.authorization ?? 0;
 	const inProgress = stageMap.in_execution ?? 0;
+	const inPlanning = (stageMap.planning ?? 0) + (stageMap.ready_to_execute ?? 0);
+	const readyToBill = (stageMap.ses_pending ?? 0) + (stageMap.billing_pending ?? 0);
+	const readyToClose = stageMap.receivable_open ?? 0;
 
 	return {
 		totalCases,
@@ -569,6 +698,12 @@ export async function getServiceCaseSummary(): Promise<{
 		inProgress,
 		completedThisMonth,
 		revenue: 0,
+		blockedCases,
+		readyToBill,
+		readyToClose,
+		inExecution: inProgress,
+		inPlanning,
+		stepDistribution,
 	};
 }
 
@@ -1269,16 +1404,16 @@ function getTransitionEvent(state: ServiceCaseState): ServiceCaseEvent {
 		case "planning":
 			return { type: "EXECUTION_COMPLETED" };
 		case "execution":
+			return { type: "EVIDENCE_VERIFIED" };
+		case "evidences":
 			return { type: "TECHNICAL_REPORT_APPROVED" };
 		case "technical_report":
 			return { type: "DELIVERY_RECORD_GENERATED" };
 		case "delivery_record":
 			return { type: "CLIENT_SIGNATURE_REGISTERED" };
 		case "client_signature":
-			return { type: "SES_SUBMITTED" };
-		case "ses":
 			return { type: "SES_APPROVED" };
-		case "ses_approved":
+		case "ses":
 			return { type: "INVOICE_CREATED" };
 		case "invoice":
 			return { type: "INVOICE_APPROVED" };

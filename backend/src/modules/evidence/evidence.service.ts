@@ -59,6 +59,7 @@ export interface EvidenceSnapshot {
 	filename: string;
 	mimeType: string;
 	sizeBytes: number;
+	title?: string;
 	description?: string;
 	gpsLocation?: {
 		lat: number;
@@ -91,6 +92,7 @@ function formatEvidenceResponse(doc: IEvidenceDocument): EvidenceSnapshot {
 		filename: doc.filename,
 		mimeType: doc.mimeType,
 		sizeBytes: doc.sizeBytes,
+		title: doc.title,
 		description: doc.description,
 		gpsLocation: doc.gpsLocation as { lat: number; lng: number; capturedAt: Date } | undefined,
 		capturedAt: doc.capturedAt,
@@ -115,6 +117,7 @@ function formatEvidenceResponseV2(doc: IEvidenceDocument): EvidenceSnapshot {
 		filename: doc.filename,
 		mimeType: doc.mimeType,
 		sizeBytes: doc.sizeBytes,
+		title: doc.title,
 		description: doc.description,
 		gpsLocation: doc.gpsLocation as { lat: number; lng: number; capturedAt: Date } | undefined,
 		capturedAt: doc.capturedAt,
@@ -183,6 +186,7 @@ export async function createEvidence(
 	fileBuffer: Buffer,
 	userId: string,
 	payload: {
+		title?: string;
 		description?: string;
 		gpsLocation?: { lat: number; lng: number; capturedAt: Date };
 		capturedAt: Date;
@@ -232,6 +236,7 @@ export async function createEvidence(
 		url,
 		mimeType: "image/webp",
 		sizeBytes,
+		title: payload.title,
 		description: payload.description,
 		gpsLocation: payload.gpsLocation,
 		capturedAt: payload.capturedAt,
@@ -460,6 +465,7 @@ export async function getEvidencesByOrderId(
 			filename: e.filename,
 			mimeType: e.mimeType,
 			sizeBytes: e.sizeBytes,
+			title: e.title,
 			description: e.description,
 			gpsLocation: e.gpsLocation,
 			capturedAt: e.capturedAt,
@@ -508,6 +514,7 @@ export async function getEvidenceById(
 		filename: evidence.filename,
 		mimeType: evidence.mimeType,
 		sizeBytes: evidence.sizeBytes,
+		title: evidence.title,
 		description: evidence.description,
 		gpsLocation: evidence.gpsLocation,
 		capturedAt: evidence.capturedAt,
@@ -563,6 +570,7 @@ export async function deleteEvidence(
 		filename: evidence.filename,
 		mimeType: evidence.mimeType,
 		sizeBytes: evidence.sizeBytes,
+		title: evidence.title,
 		description: evidence.description,
 		gpsLocation: evidence.gpsLocation,
 		capturedAt: evidence.capturedAt,
@@ -623,6 +631,7 @@ export async function verifyEvidence(
 		filename: evidence.filename,
 		mimeType: evidence.mimeType,
 		sizeBytes: evidence.sizeBytes,
+		title: evidence.title,
 		description: evidence.description,
 		gpsLocation: evidence.gpsLocation,
 		capturedAt: evidence.capturedAt,

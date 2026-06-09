@@ -252,6 +252,37 @@ function ExecutionDetailWorkspace({
 						</div>
 					</Panel>
 
+					{/* CERMONT technical form templates */}
+					<Panel title="Formularios técnicos CERMONT">
+						<p className="mb-3 text-xs text-[var(--text-secondary)]">
+							Registra los formularios operativos: planeación de obra, mantenimiento CCTV,
+							inspección de líneas de vida.
+						</p>
+						<div className="grid gap-2 sm:grid-cols-2">
+							{[
+								{ id: "cermont_cctv_v1", label: "Mant. CCTV" },
+								{ id: "cermont_lineas_vida_v1", label: "Líneas de vida" },
+								{ id: "cermont_planeacion_obra_v1", label: "Planeación de obra" },
+							].map((tpl) => {
+								const qs = new URLSearchParams();
+								qs.set("executionSessionId", id);
+								if (session.serviceCaseId) {
+									qs.set("serviceCaseId", session.serviceCaseId);
+								}
+								return (
+									<Link
+										key={tpl.id}
+										href={`/forms/${tpl.id}?${qs.toString()}`}
+										className="flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-secondary)] px-3 py-2 text-xs font-semibold text-[var(--text-primary)] transition-all hover:border-[var(--color-brand)] hover:text-[var(--color-brand)]"
+									>
+										<FileText className="size-3.5 shrink-0" aria-hidden="true" />
+										{tpl.label}
+									</Link>
+								);
+							})}
+						</div>
+					</Panel>
+
 					<Panel title="Formulario dinamico">
 						<textarea
 							aria-label="Contenido del formulario dinamico"

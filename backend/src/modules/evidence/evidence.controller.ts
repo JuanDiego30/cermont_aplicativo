@@ -71,7 +71,7 @@ export async function uploadEvidence(req: Request, res: Response): Promise<void>
 		req.body.gpsLocation = parsedGps;
 	}
 
-	const { orderId, type, description, capturedAt, gpsLocation } = CreateEvidenceSchema.parse(
+	const { orderId, type, title, description, capturedAt, gpsLocation } = CreateEvidenceSchema.parse(
 		req.body,
 	);
 	const normalizedGpsLocation = gpsLocation
@@ -88,6 +88,7 @@ export async function uploadEvidence(req: Request, res: Response): Promise<void>
 		req.file.buffer,
 		user._id,
 		{
+			title,
 			description,
 			gpsLocation: normalizedGpsLocation,
 			capturedAt: new Date(capturedAt),

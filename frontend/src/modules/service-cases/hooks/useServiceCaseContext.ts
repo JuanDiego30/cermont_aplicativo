@@ -1,13 +1,16 @@
 "use client";
 
-import type {
-	CermontOperationalStepCode,
-} from "@cermont/shared-types";
+import type { CermontOperationalStepCode } from "@cermont/shared-types";
+
 type Undef = Parameters<(x?: never) => void>[0];
 const NIL = Object.getPrototypeOf(Object.prototype);
+
 import { useSearchParams } from "next/navigation";
 import { useStepContext } from "../../workflow/step-context-queries";
-import { getDefaultValuesForStep, type StepDefaultValues } from "../../workflow/step-default-values";
+import {
+	getDefaultValuesForStep,
+	type StepDefaultValues,
+} from "../../workflow/step-default-values";
 import { useServiceCase } from "../queries";
 
 /**
@@ -24,7 +27,9 @@ export function useServiceCaseContext(
 ) {
 	const searchParams = useSearchParams();
 	const serviceCaseId = explicitServiceCaseId ?? searchParams.get("serviceCaseId") ?? "";
-	const stepCodeFromUrl = (searchParams.get("stepCode") || void 0) as CermontOperationalStepCode | Undef;
+	const stepCodeFromUrl = (searchParams.get("stepCode") || void 0) as
+		| CermontOperationalStepCode
+		| Undef;
 	const stepCode = stepCodeOverride || stepCodeFromUrl || void 0;
 
 	// Fetch the service case workflow data
@@ -45,7 +50,9 @@ export function useServiceCaseContext(
 
 	// Build default values for the current step form
 	function getDefaultValues(): StepDefaultValues {
-		if (!stepContext) { return {}; }
+		if (!stepContext) {
+			return {};
+		}
 		return getDefaultValuesForStep(stepContext);
 	}
 

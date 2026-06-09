@@ -93,6 +93,19 @@ router.patch(
 );
 
 /**
+ * POST /api/work-requests/:id/qualify
+ * Qualify a work request (advance to next step)
+ * Roles: GER, RES, HES
+ */
+router.post(
+	"/:id/qualify",
+	authenticate,
+	authorize("gerente", "residente", "hes"),
+	validateParams(WorkRequestIdParamsSchema),
+	WorkRequestController.qualifyWorkRequest,
+);
+
+/**
  * DELETE /api/work-requests/:id
  * Soft delete work request (mark as cancelled)
  * Roles: GER (only gerente can delete)

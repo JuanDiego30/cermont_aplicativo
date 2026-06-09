@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:26287fa459779068d0d9e35a715847eab02637a6432e31aa9932e77420195e8e",
+	"currentSnapshotHash": "sha256:cd24b65fb4354bf4bd88e08df5a76ee24ba10f2649a23f38049a36606b973c73",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -252,6 +252,27 @@
 			"description": "Add serviceCaseId to CreateProposalSchema to fix 400 error when creating proposal with linked service case.",
 			"date": "2026-06-09",
 			"id": "036-proposal-servicecaseid-fix"
+		},
+		{
+			"type": "non-breaking",
+			"toHash": "sha256:4a7f784a75bd7f7187b8d5b8390d56c888071798bbf9e928dda96c794149b6e7",
+			"description": "Export ServiceCaseStepContext schemas from shared-types barrel so StepContextQuerySchema is available at runtime.",
+			"date": "2026-06-09",
+			"id": "037-step-context-schema-barrel-export"
+		},
+		{
+			"type": "non-breaking",
+			"toHash": "sha256:cd24b65fb4354bf4bd88e08df5a76ee24ba10f2649a23f38049a36606b973c73",
+			"description": "Regenerate contract snapshot after fixing getTransitionEvent state mapping in service-case state machine.",
+			"date": "2026-06-09",
+			"id": "038-fix-get-transition-event-state-mapping"
+		},
+		{
+			"id": "038-evidence-title-field",
+			"date": "2026-06-09",
+			"type": "non-breaking",
+			"description": "Add title field to CreateEvidenceSchema and EvidenceSchema for per-photo descriptive titles.",
+			"toHash": "sha256:cd24b65fb4354bf4bd88e08df5a76ee24ba10f2649a23f38049a36606b973c73"
 		}
 	]
 }

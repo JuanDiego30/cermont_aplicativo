@@ -90,7 +90,7 @@ describe("useOfflineEvidence", () => {
 				fileType: "image/jpeg",
 			}),
 			dedupeKey:
-				"evidences:create:order-1:before:photo.jpg:image/jpeg:2026-01-01T10:00:00.000Z:Frontal",
+				"evidences:create:order-1:before:photo.jpg:image/jpeg:2026-01-01T10:00:00.000Z::Frontal",
 		});
 
 		expect(queuedEntry.payload).not.toHaveProperty("fileBase64");

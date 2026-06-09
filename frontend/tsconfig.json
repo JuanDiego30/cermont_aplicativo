@@ -46,6 +46,7 @@
 		"dist",
 		".next",
 		"tests/e2e/global-setup.ts",
-		"tests/e2e/global-teardown.ts"
+		"tests/e2e/global-teardown.ts",
+		"tests/e2e/deploy-readiness.spec.ts"
 	]
 }

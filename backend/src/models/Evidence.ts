@@ -29,8 +29,8 @@ export interface IEvidenceDocument extends Document {
 	type?: "before" | "during" | "after" | "defect" | "safety" | "signature";
 
 	// Technical evidence metadata (Lote 3 — PROMPT CREA §5)
-	componentName?: string;           // e.g. "Cámara 01", "Placa anclaje superior"
-	photoLabel?: string;              // Descriptive label shown in technical reports
+	componentName?: string; // e.g. "Cámara 01", "Placa anclaje superior"
+	photoLabel?: string; // Descriptive label shown in technical reports
 	beforeAfter?: "before" | "after" | "during"; // Position in intervention lifecycle
 
 	// V2 fields
@@ -70,6 +70,7 @@ export interface IEvidenceDocument extends Document {
 	fileAssets: FileAssetRef[];
 
 	// Content
+	title?: string;
 	description?: string;
 	capturedAt: Date;
 	offlineCapturedAt?: Date;
@@ -150,6 +151,7 @@ const EvidenceSchema = new Schema<IEvidenceDocument>(
 		},
 
 		// Content
+		title: { type: String, trim: true, maxlength: 120 },
 		description: { type: String, maxlength: 500 },
 		capturedAt: { type: Date, required: true },
 		offlineCapturedAt: { type: Date },

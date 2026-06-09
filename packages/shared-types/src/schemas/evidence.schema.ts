@@ -91,6 +91,7 @@ export const EvidenceSchema = z
 		url: z.string().url(),
 		mimeType: z.string(),
 		sizeBytes: z.number().int().positive(),
+		title: z.string().max(120).optional(),
 		description: z.string().max(500).optional(),
 		gpsLocation: z
 			.object({
@@ -112,6 +113,7 @@ export const CreateEvidenceSchema = z
 	.object({
 		orderId: ObjectIdSchema,
 		type: EvidenceTypeSchema,
+		title: z.string().min(1, "El título es obligatorio").max(120).optional(),
 		description: z.string().max(500).optional(),
 		gpsLocation: z
 			.object({

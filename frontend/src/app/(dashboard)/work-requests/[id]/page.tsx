@@ -16,10 +16,11 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use } from "react";
+import { toast } from "sonner";
 import { Button } from "@/core/ui/Button";
 import { EmptyState } from "@/core/ui/EmptyState";
 import { ContextualDocumentUploadModal } from "@/modules/documents/ui/ContextualDocumentUploadModal";
-import { useWorkRequest } from "@/modules/work-requests/queries";
+import { useQualifyWorkRequest, useWorkRequest } from "@/modules/work-requests/queries";
 
 type WorkRequestDetailPageProps = {
 	params: Promise<{ id: string }>;
@@ -76,6 +77,7 @@ export default function WorkRequestDetailPage({ params }: WorkRequestDetailPageP
 	const { id } = use(params);
 	const { push, refresh } = useRouter();
 	const { data: workRequest, isLoading, isError, isPaused } = useWorkRequest(id);
+	const qualifyMutation = useQualifyWorkRequest();
 
 	if (isPaused) {
 		return (
@@ -140,7 +142,27 @@ export default function WorkRequestDetailPage({ params }: WorkRequestDetailPageP
 				</div>
 				<div className="flex gap-2">
 					{workRequest.status === "submitted" && (
-						<Button size="sm" className="bg-success text-white hover:bg-success/90">
+						<Button
+							size="sm"
+							className="bg-success text-white hover:bg-success/90"
+							loading={qualifyMutation.isPending}
+							onClick={() => {
+								qualifyMutation.mutate(id, {
+									onSuccess: (data) => {
+										toast.success("Solicitud calificada exitosamente", {
+											description: `Caso: ${data.serviceCase.code}. Redirigiendo al cockpit...`,
+											duration: 5000,
+										});
+										push(`/service-cases/${data.serviceCase._id}`);
+									},
+									onError: (error) => {
+										toast.error("Error al calificar", {
+											description: error.message,
+										});
+									},
+								});
+							}}
+						>
 							Calificar solicitud
 						</Button>
 					)}

@@ -1,16 +1,27 @@
 "use client";
 
 import type { CreateSiteVisitRecordInput } from "@cermont/shared-types";
-import { AlertTriangle, ArrowLeft, CalendarClock, ExternalLink, Save, Search, WifiOff } from "lucide-react";
+import {
+	AlertTriangle,
+	ArrowLeft,
+	CalendarClock,
+	ExternalLink,
+	Save,
+	Search,
+	WifiOff,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useEffect, useState } from "react";
 import { useConnectivity } from "@/lib/offline/connectivity";
 import { APP_ROUTES } from "@/lib/routes";
 import { useServiceCaseContext } from "@/modules/service-cases/hooks/useServiceCaseContext";
-import { useCreateSiteVisit } from "@/modules/site-visits/queries";
-import { getSiteVisitDefaults, getInheritedFieldSourceLabel } from "@/modules/workflow/step-default-values";
 import { useServiceCaseList } from "@/modules/service-cases/queries";
+import { useCreateSiteVisit } from "@/modules/site-visits/queries";
+import {
+	getInheritedFieldSourceLabel,
+	getSiteVisitDefaults,
+} from "@/modules/workflow/step-default-values";
 
 type SiteVisitFormState = {
 	workRequestId: string;
@@ -143,12 +154,15 @@ export default function SiteVisitNewPage() {
 					</Link>
 					<div>
 						<p className="text-sm font-medium text-[var(--color-brand)]">Paso 2 / Visita técnica</p>
-						<h1 id="site-visit-select-title" className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
+						<h1
+							id="site-visit-select-title"
+							className="mt-2 text-2xl font-semibold text-[var(--text-primary)]"
+						>
 							Seleccionar caso de servicio
 						</h1>
 						<p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--text-secondary)]">
-							Seleccione la solicitud o caso de servicio al que desea asociar la visita técnica.
-							Los datos del cliente y ubicación se heredarán automáticamente.
+							Seleccione la solicitud o caso de servicio al que desea asociar la visita técnica. Los
+							datos del cliente y ubicación se heredarán automáticamente.
 						</p>
 					</div>
 				</header>
@@ -182,7 +196,9 @@ export default function SiteVisitNewPage() {
 									className="flex items-center justify-between rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 text-left transition-all hover:border-[var(--color-brand)] hover:shadow-sm"
 								>
 									<div>
-										<p className="font-semibold text-[var(--text-primary)]">{caseItem.clientName}</p>
+										<p className="font-semibold text-[var(--text-primary)]">
+											{caseItem.clientName}
+										</p>
 										<p className="mt-1 text-sm text-[var(--text-muted)]">
 											{caseItem.code} · {caseItem.currentStage}
 										</p>
@@ -228,7 +244,8 @@ export default function SiteVisitNewPage() {
 						Nueva visita técnica
 					</h1>
 					<p className="mt-1 max-w-3xl text-sm leading-6 text-[var(--text-secondary)]">
-						Complete los campos específicos de la visita. Los datos del caso se heredan de la solicitud.
+						Complete los campos específicos de la visita. Los datos del caso se heredan de la
+						solicitud.
 					</p>
 				</div>
 			</header>
@@ -244,14 +261,18 @@ export default function SiteVisitNewPage() {
 							<WifiOff className="mt-0.5 size-4" aria-hidden="true" />
 							<p>Estás sin conexión. La creación requiere conexión para reservar consecutivo.</p>
 						</div>
-					) : void 0}
+					) : (
+						void 0
+					)}
 
 					{formError || createSiteVisit.isError ? (
 						<div className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] p-4 text-sm text-[var(--color-danger)]">
 							<AlertTriangle className="mt-0.5 size-4" aria-hidden="true" />
 							<p>{formError || "No se pudo crear la visita técnica."}</p>
 						</div>
-					) : void 0}
+					) : (
+						void 0
+					)}
 
 					{/* Inherited fields banner */}
 					{inheritedFields.length > 0 ? (
@@ -261,10 +282,17 @@ export default function SiteVisitNewPage() {
 							</p>
 							<div className="mt-3 grid gap-2 sm:grid-cols-2">
 								{inheritedFields.map((field) => (
-									<div key={field.key} className="flex items-center justify-between rounded-md bg-white/50 px-3 py-2">
+									<div
+										key={field.key}
+										className="flex items-center justify-between rounded-md bg-white/50 px-3 py-2"
+									>
 										<div>
-											<p className="text-xs font-medium text-[var(--text-secondary)]">{field.label}</p>
-											<p className="text-sm font-semibold text-[var(--text-primary)]">{field.value}</p>
+											<p className="text-xs font-medium text-[var(--text-secondary)]">
+												{field.label}
+											</p>
+											<p className="text-sm font-semibold text-[var(--text-primary)]">
+												{field.value}
+											</p>
 										</div>
 										<span className="text-[10px] font-medium text-[var(--color-brand)]">
 											{getInheritedFieldSourceLabel(field)}
@@ -273,7 +301,9 @@ export default function SiteVisitNewPage() {
 								))}
 							</div>
 						</div>
-					) : void 0}
+					) : (
+						void 0
+					)}
 
 					<form
 						onSubmit={handleSubmit}

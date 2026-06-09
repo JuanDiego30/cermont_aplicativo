@@ -371,6 +371,10 @@ export default function DashboardPage() {
 				activeKitCount={activeKitCount}
 				totalBudgetApproved={totalBudgetApproved}
 				recentOrdersCount={recentOrders.length}
+				blockedCases={serviceCaseSummary?.blockedCases ?? 0}
+				readyToBill={serviceCaseSummary?.readyToBill ?? 0}
+				readyToClose={serviceCaseSummary?.readyToClose ?? 0}
+				inPlanning={serviceCaseSummary?.inPlanning ?? 0}
 			/>
 
 			{/* KPI cards , Figma style */}

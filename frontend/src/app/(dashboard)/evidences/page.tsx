@@ -1,209 +1,339 @@
 "use client";
 
-import type { Evidence, EvidenceType } from "@cermont/shared-types";
+import type { Evidence } from "@cermont/shared-types";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { Camera, LayoutGrid, Loader2, Rows3, Search } from "lucide-react";
-import Link from "next/link";
+import {
+	AlertCircle,
+	Camera,
+	Image as ImageIcon,
+	LayoutGrid,
+	Loader2,
+	Rows3,
+	Search,
+	Upload,
+	X,
+} from "lucide-react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { type FormEvent, type ReactNode, Suspense, useMemo, useState } from "react";
+import {
+	type FormEvent,
+	type ReactNode,
+	Suspense,
+	useCallback,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
+import { toast } from "sonner";
 import { SyncBanner } from "@/components/common/SyncBanner";
 import { Button } from "@/core/ui/Button";
 import { STALE_TIMES } from "@/lib/constants/query-config";
 import { useOnlineStatus } from "@/lib/hooks/useOnlineStatus";
 import { readSearchParam } from "@/lib/utils/search-params";
+import { useOfflineEvidence } from "@/modules/evidences/hooks/useOfflineEvidence";
 import { listEvidences } from "@/modules/evidences/queries";
 import { useOrders } from "@/modules/orders/queries";
 import { EvidenceCard } from "./EvidenceCard";
 import { EvidenceTableRow } from "./EvidenceTableRow";
-import {
-	EVIDENCE_LABELS,
-	EVIDENCE_STAGE_ORDER,
-	type EvidenceFilter,
-	type EvidenceViewMode,
-	getEvidenceLabel,
-	groupEvidencesByStage,
-	toEvidenceFilter,
-	toEvidenceViewMode,
-} from "./evidence-helpers";
+import { type EvidenceViewMode, getEvidenceTitle, toEvidenceViewMode } from "./evidence-helpers";
 
 const FIELD_CLASS =
 	"w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--text-tertiary)] focus:border-[var(--color-brand-blue)] focus:ring-2 focus:ring-[color:var(--color-brand-blue)]/15";
 
-const FILTER_OPTIONS: Array<{ value: EvidenceFilter; label: string }> = [
-	{ value: "all", label: "Todas las etapas" },
-	...EVIDENCE_STAGE_ORDER.map((value) => ({
-		value,
-		label: EVIDENCE_LABELS[value],
-	})),
-];
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
-type EvidenceCounts = Record<"total" | EvidenceType, number>;
+// ── Evidence filter by text search ──────────────────────────────────────────
 
-function buildCounts(items: Evidence[]): EvidenceCounts {
-	const counts: EvidenceCounts = {
-		total: 0,
-		before: 0,
-		during: 0,
-		after: 0,
-		defect: 0,
-		safety: 0,
-		signature: 0,
-	};
-
-	for (const evidence of items) {
-		counts.total += 1;
-		counts[evidence.type] += 1;
-	}
-
-	return counts;
-}
-
-function evidenceMatchesFilter(
-	evidence: Evidence,
-	selectedType: EvidenceFilter,
-	query: string,
-): boolean {
-	if (selectedType !== "all" && evidence.type !== selectedType) {
-		return false;
-	}
-
+function evidenceMatchesSearch(evidence: Evidence, query: string): boolean {
 	if (!query) {
 		return true;
 	}
-
-	const haystack = [evidence.filename, evidence.description ?? "", evidence.orderId, evidence.type]
+	const haystack = [getEvidenceTitle(evidence), evidence.description ?? "", evidence.filename]
 		.join(" ")
 		.toLowerCase();
-
 	return haystack.includes(query);
 }
 
-function buildEvidenceSearchParams(
-	currentParams: URLSearchParams,
-	searchInput: string,
-	selectedOrderId: string,
-	selectedType: EvidenceFilter,
-	viewMode: EvidenceViewMode,
-): string {
-	const params = new URLSearchParams(currentParams.toString());
-	const trimmedSearch = searchInput.trim();
+// ── Upload Section ──────────────────────────────────────────────────────────
 
-	if (trimmedSearch) {
-		params.set("q", trimmedSearch);
-	} else {
-		params.delete("q");
-	}
-
-	if (selectedOrderId) {
-		params.set("orderId", selectedOrderId);
-	} else {
-		params.delete("orderId");
-	}
-
-	if (selectedType !== "all") {
-		params.set("label", selectedType);
-	} else {
-		params.delete("label");
-	}
-
-	if (viewMode === "table") {
-		params.set("view", "table");
-	} else {
-		params.delete("view");
-	}
-
-	return params.toString();
+interface EvidenceUploadSectionProps {
+	selectedOrderId: string;
+	orderOptions: Array<{ _id: string; code: string; assetName: string }>;
+	isLoadingOrders: boolean;
+	onUploadComplete: () => void;
 }
 
-function useEvidenceFilters() {
-	const searchParams = useSearchParams();
-	const { replace } = useRouter();
-	const getSearchParam = (key: string) => readSearchParam(searchParams, key);
+function EvidenceUploadSection({
+	selectedOrderId,
+	orderOptions,
+	isLoadingOrders,
+	onUploadComplete,
+}: EvidenceUploadSectionProps) {
+	const uploadMutation = useOfflineEvidence();
+	const fileInputRef = useRef<HTMLInputElement>(null);
 
-	const initialSearch = getSearchParam("q") ?? "";
-	const initialOrderId = getSearchParam("orderId") ?? "";
-	const initialType = toEvidenceFilter(getSearchParam("label") ?? undefined);
-	const initialViewMode = toEvidenceViewMode(getSearchParam("view") ?? undefined);
+	const [selectedFile, setSelectedFile] = useState<File | null>(null);
+	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+	const [evidenceTitle, setEvidenceTitle] = useState("");
+	const [evidenceDesc, setEvidenceDesc] = useState("");
+	const [isUploading, setIsUploading] = useState(false);
 
-	const [searchInput, setSearchInput] = useState(initialSearch);
-	const [selectedOrderId, setSelectedOrderId] = useState(initialOrderId);
-	const [selectedType, setSelectedType] = useState<EvidenceFilter>(initialType);
-	const [viewMode, setViewMode] = useState<EvidenceViewMode>(initialViewMode);
-
-	const { data: ordersResult, isLoading: isLoadingOrders } = useOrders({ limit: 100 });
-
-	return {
-		replace,
-		searchParams,
-		searchInput,
-		setSearchInput,
-		selectedOrderId,
-		setSelectedOrderId,
-		selectedType,
-		setSelectedType,
-		viewMode,
-		setViewMode,
-		ordersResult,
-		isLoadingOrders,
-	};
-}
-
-export default function EvidencesPage() {
-	return (
-		<Suspense fallback={<EvidencesLoading />}>
-			<EvidencesPageInner />
-		</Suspense>
+	const handleFileChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			const file = e.target.files?.[0] ?? null;
+			if (file) {
+				if (file.size > MAX_FILE_SIZE) {
+					toast.error("El archivo no debe superar 10MB");
+					return;
+				}
+				if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+					toast.error("Formato no válido. Use JPG, PNG o WebP");
+					return;
+				}
+				setSelectedFile(file);
+				if (previewUrl) {
+					URL.revokeObjectURL(previewUrl);
+				}
+				setPreviewUrl(URL.createObjectURL(file));
+			}
+		},
+		[previewUrl],
 	);
-}
 
-function EvidencesLoading() {
+	const resetForm = useCallback(() => {
+		setSelectedFile(null);
+		if (previewUrl) {
+			URL.revokeObjectURL(previewUrl);
+		}
+		setPreviewUrl(null);
+		setEvidenceTitle("");
+		setEvidenceDesc("");
+		if (fileInputRef.current) {
+			fileInputRef.current.value = "";
+		}
+	}, [previewUrl]);
+
+	const handleUpload = useCallback(async () => {
+		if (!selectedFile || !selectedOrderId) {
+			return;
+		}
+		if (!evidenceTitle.trim()) {
+			toast.error("Agrega un título que describa esta evidencia");
+			return;
+		}
+
+		setIsUploading(true);
+		try {
+			// Combine title + description into the description field for storage
+			const description = evidenceDesc.trim()
+				? `${evidenceTitle.trim()} — ${evidenceDesc.trim()}`
+				: evidenceTitle.trim();
+
+			const result = await uploadMutation.mutateAsync({
+				orderId: selectedOrderId,
+				type: "during",
+				description,
+				capturedAt: new Date().toISOString(),
+				file: selectedFile,
+			});
+
+			if (result) {
+				toast.success("Evidencia subida correctamente");
+			} else {
+				toast.info("Evidencia guardada para sincronizar cuando haya conexión");
+			}
+
+			resetForm();
+			onUploadComplete();
+		} catch (error) {
+			toast.error(error instanceof Error ? error.message : "Error al subir la evidencia");
+		} finally {
+			setIsUploading(false);
+		}
+	}, [
+		selectedFile,
+		selectedOrderId,
+		evidenceTitle,
+		evidenceDesc,
+		uploadMutation,
+		resetForm,
+		onUploadComplete,
+	]);
+
+	const canUpload = !!selectedOrderId && !!selectedFile && !!evidenceTitle.trim() && !isUploading;
+
 	return (
-		<section className="space-y-6" aria-labelledby="evidences-page-title">
-			<div className="flex h-40 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
-				<Loader2 className="size-5 animate-spin text-[var(--text-tertiary)]" aria-hidden="true" />
+		<section
+			aria-label="Subir evidencia del trabajo realizado"
+			className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-2)] sm:p-6"
+		>
+			<div className="mb-4 flex items-center gap-2">
+				<Camera className="size-5 text-[var(--color-brand-blue)]" aria-hidden="true" />
+				<h2 className="text-base font-semibold text-[var(--text-primary)]">
+					Evidencia del trabajo realizado
+				</h2>
 			</div>
+
+			<div className="grid gap-4 sm:grid-cols-2">
+				{/* Order selector */}
+				<div>
+					<label
+						htmlFor="ev-order"
+						className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]"
+					>
+						Orden de trabajo
+					</label>
+					<select
+						id="ev-order"
+						value={selectedOrderId}
+						onChange={() => {}}
+						disabled
+						className={FIELD_CLASS}
+					>
+						<option value="">
+							{isLoadingOrders ? "Cargando órdenes…" : "Selecciona una orden"}
+						</option>
+						{orderOptions.map((order) => (
+							<option key={order._id} value={order._id}>
+								{order.code} · {order.assetName}
+							</option>
+						))}
+					</select>
+					<p className="mt-1 text-[11px] text-[var(--text-tertiary)]">
+						Selecciona la orden desde los filtros de arriba
+					</p>
+				</div>
+
+				{/* Title */}
+				<div>
+					<label
+						htmlFor="ev-title"
+						className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]"
+					>
+						Título <span className="text-[var(--color-danger)]">*</span>
+					</label>
+					<input
+						id="ev-title"
+						type="text"
+						value={evidenceTitle}
+						onChange={(e) => setEvidenceTitle(e.target.value)}
+						placeholder="¿Qué muestra esta evidencia?"
+						maxLength={200}
+						className={FIELD_CLASS}
+					/>
+				</div>
+			</div>
+
+			{/* Description */}
+			<div className="mt-3">
+				<label
+					htmlFor="ev-desc"
+					className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]"
+				>
+					Descripción adicional
+				</label>
+				<textarea
+					id="ev-desc"
+					value={evidenceDesc}
+					onChange={(e) => setEvidenceDesc(e.target.value)}
+					placeholder="Detalles de lo que se trabajó, hallazgos, observaciones…"
+					maxLength={500}
+					rows={2}
+					className={FIELD_CLASS}
+				/>
+			</div>
+
+			{/* File upload */}
+			<div className="mt-3">
+				<label
+					htmlFor="ev-file-upload"
+					className={`relative block cursor-pointer rounded-[var(--radius-lg)] border-2 border-dashed p-5 text-center transition-colors sm:p-6 ${
+						previewUrl
+							? "border-[var(--color-brand-blue)]/30"
+							: "border-[var(--border-default)] hover:border-[var(--color-brand-blue)]/50"
+					}`}
+				>
+					<input
+						ref={fileInputRef}
+						id="ev-file-upload"
+						type="file"
+						accept="image/jpeg,image/jpg,image/png,image/webp"
+						className="hidden"
+						onChange={handleFileChange}
+					/>
+
+					{previewUrl ? (
+						<div className="space-y-3">
+							<div className="relative mx-auto h-40 w-full max-w-sm overflow-hidden rounded-[var(--radius-lg)]">
+								<Image
+									src={previewUrl}
+									alt="Vista previa"
+									fill
+									unoptimized
+									className="object-cover"
+									sizes="(max-width: 640px) 100vw, 384px"
+								/>
+								<button
+									type="button"
+									onClick={(e) => {
+										e.stopPropagation();
+										resetForm();
+									}}
+									className="absolute right-2 top-2 rounded-full bg-black/50 p-1.5 text-white hover:bg-black/70"
+									aria-label="Quitar imagen"
+								>
+									<X className="size-4" />
+								</button>
+							</div>
+							<p className="text-xs text-[var(--text-tertiary)]">
+								{selectedFile?.name} (
+								{selectedFile ? (selectedFile.size / 1024 / 1024).toFixed(1) : "0"} MB)
+							</p>
+							<p className="text-xs text-[var(--text-tertiary)]">Haz clic para cambiar la imagen</p>
+						</div>
+					) : (
+						<div>
+							<ImageIcon
+								className="mx-auto mb-2 size-10 text-[var(--text-tertiary)]"
+								aria-hidden="true"
+							/>
+							<p className="text-sm font-medium text-[var(--text-primary)]">
+								Arrastra una imagen o haz clic para seleccionar
+							</p>
+							<p className="mt-1 text-xs text-[var(--text-tertiary)]">JPG, PNG, WebP — Máx 10MB</p>
+						</div>
+					)}
+				</label>
+			</div>
+
+			{/* Upload button */}
+			<button
+				type="button"
+				disabled={!canUpload}
+				onClick={handleUpload}
+				className="mt-4 flex w-full items-center justify-center gap-2 rounded-[var(--radius-lg)] bg-[var(--color-brand-blue)] px-4 py-2.5 text-sm font-medium text-white shadow-[var(--shadow-brand)] transition-colors hover:bg-[var(--color-brand-blue-hover)] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+			>
+				{isUploading ? (
+					<Loader2 className="size-4 animate-spin" aria-hidden="true" />
+				) : (
+					<Upload className="size-4" aria-hidden="true" />
+				)}
+				{isUploading ? "Subiendo…" : "Subir evidencia"}
+			</button>
 		</section>
 	);
 }
 
-interface EvidencesStatsSectionProps {
-	counts: Record<string, number>;
-}
-
-function EvidencesStatsSection({ counts }: EvidencesStatsSectionProps) {
-	return (
-		<div className="p-5 sm:px-6">
-			<div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-				{[
-					{ label: "Total", value: counts.total },
-					{ label: getEvidenceLabel("before"), value: counts.before },
-					{ label: getEvidenceLabel("during"), value: counts.during },
-					{ label: getEvidenceLabel("after"), value: counts.after },
-				].map((item) => (
-					<article
-						key={item.label}
-						className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-secondary)]/50 p-4"
-					>
-						<p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
-							{item.label}
-						</p>
-						<p className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">{item.value}</p>
-					</article>
-				))}
-			</div>
-		</div>
-	);
-}
+// ── Filters Form ────────────────────────────────────────────────────────────
 
 interface EvidencesFiltersFormProps {
 	searchInput: string;
 	selectedOrderId: string;
-	selectedType: EvidenceFilter;
 	isLoadingOrders: boolean;
 	orderOptions: Array<{ _id: string; code: string; assetName: string }>;
 	onSearchInputChange: (value: string) => void;
 	onOrderIdChange: (value: string) => void;
-	onTypeChange: (value: EvidenceFilter) => void;
 	onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 	onClear: () => void;
 }
@@ -211,12 +341,10 @@ interface EvidencesFiltersFormProps {
 function EvidencesFiltersForm({
 	searchInput,
 	selectedOrderId,
-	selectedType,
 	isLoadingOrders,
 	orderOptions,
 	onSearchInputChange,
 	onOrderIdChange,
-	onTypeChange,
 	onSubmit,
 	onClear,
 }: EvidencesFiltersFormProps) {
@@ -227,10 +355,10 @@ function EvidencesFiltersForm({
 			aria-labelledby="evidences-filters-title"
 		>
 			<h2 id="evidences-filters-title" className="sr-only">
-				Filtros de soportes
+				Filtros de evidencias
 			</h2>
 
-			<div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.4fr_1fr_1fr_auto]">
+			<div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.4fr_1fr_auto]">
 				<div>
 					<label
 						htmlFor="evidence-order"
@@ -269,30 +397,9 @@ function EvidencesFiltersForm({
 						id="evidence-search"
 						value={searchInput}
 						onChange={(event) => onSearchInputChange(event.target.value)}
-						placeholder="Archivo, descripción o ID"
+						placeholder="Título o descripción"
 						className={FIELD_CLASS}
 					/>
-				</div>
-
-				<div>
-					<label
-						htmlFor="evidence-type"
-						className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]"
-					>
-						Etapa
-					</label>
-					<select
-						id="evidence-type"
-						value={selectedType}
-						onChange={(event) => onTypeChange(event.target.value as EvidenceFilter)}
-						className={FIELD_CLASS}
-					>
-						{FILTER_OPTIONS.map((option) => (
-							<option key={option.value} value={option.value}>
-								{option.label}
-							</option>
-						))}
-					</select>
 				</div>
 
 				<div className="flex items-end gap-2">
@@ -314,6 +421,8 @@ function EvidencesFiltersForm({
 		</form>
 	);
 }
+
+// ── View Toggle ─────────────────────────────────────────────────────────────
 
 interface EvidencesViewToggleProps {
 	viewMode: EvidenceViewMode;
@@ -357,13 +466,17 @@ function EvidencesViewToggle({ viewMode, onChange }: EvidencesViewToggleProps) {
 	);
 }
 
-interface EvidencesEmptyStateProps {
+// ── Empty State ─────────────────────────────────────────────────────────────
+
+function EvidencesEmptyState({
+	icon,
+	title,
+	description,
+}: {
 	icon: ReactNode;
 	title: string;
 	description: string;
-}
-
-function EvidencesEmptyState({ icon, title, description }: EvidencesEmptyStateProps) {
+}) {
 	return (
 		<section className="rounded-[var(--radius-xl)] border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)]/40 p-10 text-center">
 			{icon}
@@ -373,77 +486,15 @@ function EvidencesEmptyState({ icon, title, description }: EvidencesEmptyStatePr
 	);
 }
 
-interface EvidencesSummaryGridProps {
-	counts: EvidenceCounts;
-	selectedType: EvidenceFilter;
-	onStageSelect: (value: EvidenceFilter) => void;
-}
+// ── Table View ──────────────────────────────────────────────────────────────
 
-function EvidencesSummaryGrid({ counts, selectedType, onStageSelect }: EvidencesSummaryGridProps) {
-	const summaryItems: Array<{
-		label: string;
-		value: number;
-		filter: EvidenceFilter;
-	}> = [
-		{ filter: "all", label: "Total", value: counts.total },
-		...EVIDENCE_STAGE_ORDER.map((type) => ({
-			filter: type,
-			label: getEvidenceLabel(type),
-			value: counts[type],
-		})),
-	];
-
-	return (
-		<section aria-labelledby="evidences-summary-title">
-			<div className="mb-3 flex items-center justify-between gap-3">
-				<h2
-					id="evidences-summary-title"
-					className="text-sm font-semibold text-[var(--text-primary)]"
-				>
-					Cobertura por etapa
-				</h2>
-				<p className="text-xs text-[var(--text-tertiary)]">
-					Use estas tarjetas para acotar la galería sin cambiar de pantalla.
-				</p>
-			</div>
-			<div className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-7">
-				{summaryItems.map((item) => {
-					const isActive = selectedType === item.filter;
-					return (
-						<button
-							key={item.filter}
-							type="button"
-							onClick={() => onStageSelect(item.filter)}
-							aria-pressed={isActive}
-							className={`rounded-[var(--radius-lg)] border p-4 text-left shadow-[var(--shadow-2)] transition-colors ${
-								isActive
-									? "border-[var(--color-brand-blue)] bg-[var(--color-brand-blue-bg)]"
-									: "border-[var(--border-default)] bg-[var(--surface-primary)] hover:bg-[var(--surface-secondary)]/70"
-							}`}
-						>
-							<p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
-								{item.label}
-							</p>
-							<p className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">{item.value}</p>
-						</button>
-					);
-				})}
-			</div>
-		</section>
-	);
-}
-
-interface EvidencesTableViewProps {
-	evidences: Evidence[];
-}
-
-function EvidencesTableView({ evidences }: EvidencesTableViewProps) {
+function EvidencesTableView({ evidences }: { evidences: Evidence[] }) {
 	if (evidences.length === 0) {
 		return (
 			<EvidencesEmptyState
 				icon={<Camera aria-hidden="true" className="mx-auto size-10 text-[var(--text-tertiary)]" />}
-				title="No hay soportes para mostrar"
-				description="Ajusta los filtros o revisa otra orden de trabajo."
+				title="No hay evidencias para mostrar"
+				description="Selecciona una orden y sube imágenes del trabajo realizado."
 			/>
 		);
 	}
@@ -458,14 +509,11 @@ function EvidencesTableView({ evidences }: EvidencesTableViewProps) {
 
 			<section className="hidden overflow-x-auto rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] md:block">
 				<table className="min-w-full text-left text-sm">
-					<caption className="sr-only">Soportes con etapa, archivo, orden y fecha.</caption>
+					<caption className="sr-only">Evidencias registradas con título y fecha.</caption>
 					<thead className="bg-[var(--surface-secondary)]/60 text-xs uppercase tracking-[0.16em] text-[var(--text-secondary)]">
 						<tr>
-							<th scope="col" className="px-4 py-3 font-semibold">
-								Etapa
-							</th>
-							<th scope="col" className="px-4 py-3 font-semibold">
-								Archivo
+							<th scope="col" className="px-4 py-3 font-semibold min-w-[200px]">
+								Título
 							</th>
 							<th scope="col" className="px-4 py-3 font-semibold">
 								Orden
@@ -489,54 +537,78 @@ function EvidencesTableView({ evidences }: EvidencesTableViewProps) {
 	);
 }
 
-interface EvidencesGalleryViewProps {
-	evidences: Evidence[];
-}
+// ── Gallery View ────────────────────────────────────────────────────────────
 
-function EvidencesGalleryView({ evidences }: EvidencesGalleryViewProps) {
-	const groups = groupEvidencesByStage(evidences);
-
-	if (groups.length === 0) {
+function EvidencesGalleryView({ evidences }: { evidences: Evidence[] }) {
+	if (evidences.length === 0) {
 		return (
 			<EvidencesEmptyState
 				icon={<Camera aria-hidden="true" className="mx-auto size-10 text-[var(--text-tertiary)]" />}
-				title="No hay soportes para este filtro"
-				description="Amplía la etapa o la búsqueda para revisar otros soportes capturados."
+				title="No hay evidencias para este filtro"
+				description="Sube imágenes del trabajo realizado desde el formulario de arriba."
 			/>
 		);
 	}
 
 	return (
-		<div className="space-y-5">
-			{groups.map((group) => (
-				<section
-					key={group.type}
-					className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-2)]"
-					aria-labelledby={`evidence-group-${group.type}`}
-				>
-					<div className="mb-4 flex flex-col gap-2 border-b border-[var(--border-default)] pb-4 md:flex-row md:items-start md:justify-between">
-						<div className="space-y-1">
-							<h3
-								id={`evidence-group-${group.type}`}
-								className="text-lg font-semibold text-[var(--text-primary)]"
-							>
-								{group.label}
-							</h3>
-							<p className="max-w-2xl text-sm text-[var(--text-secondary)]">{group.description}</p>
-						</div>
-						<p className="text-sm font-medium text-[var(--text-tertiary)]">
-							{group.items.length} soporte(s)
-						</p>
-					</div>
-
-					<div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
-						{group.items.map((evidence) => (
-							<EvidenceCard key={evidence._id} evidence={evidence} />
-						))}
-					</div>
-				</section>
+		<div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
+			{evidences.map((evidence) => (
+				<EvidenceCard key={evidence._id} evidence={evidence} />
 			))}
 		</div>
+	);
+}
+
+// ── Filters Hook ────────────────────────────────────────────────────────────
+
+function useEvidenceFilters() {
+	const searchParams = useSearchParams();
+	const { replace } = useRouter();
+	const getSearchParam = (key: string) => readSearchParam(searchParams, key);
+
+	const initialSearch = getSearchParam("q") ?? "";
+	const initialOrderId = getSearchParam("orderId") ?? "";
+	const initialViewMode = toEvidenceViewMode(getSearchParam("view") ?? undefined);
+
+	const [searchInput, setSearchInput] = useState(initialSearch);
+	const [selectedOrderId, setSelectedOrderId] = useState(initialOrderId);
+	const [viewMode, setViewMode] = useState<EvidenceViewMode>(initialViewMode);
+
+	const { data: ordersResult, isLoading: isLoadingOrders } = useOrders({ limit: 100 });
+
+	return {
+		replace,
+		searchParams,
+		searchInput,
+		setSearchInput,
+		selectedOrderId,
+		setSelectedOrderId,
+		viewMode,
+		setViewMode,
+		ordersResult,
+		isLoadingOrders,
+	};
+}
+
+// ── Loading State ───────────────────────────────────────────────────────────
+
+function EvidencesLoading() {
+	return (
+		<section className="space-y-6" aria-labelledby="evidences-page-title">
+			<div className="flex h-40 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
+				<Loader2 className="size-5 animate-spin text-[var(--text-tertiary)]" aria-hidden="true" />
+			</div>
+		</section>
+	);
+}
+
+// ── Main Page ───────────────────────────────────────────────────────────────
+
+export default function EvidencesPage() {
+	return (
+		<Suspense fallback={<EvidencesLoading />}>
+			<EvidencesPageInner />
+		</Suspense>
 	);
 }
 
@@ -549,8 +621,6 @@ function EvidencesPageInner() {
 		setSearchInput,
 		selectedOrderId,
 		setSelectedOrderId,
-		selectedType,
-		setSelectedType,
 		viewMode,
 		setViewMode,
 		ordersResult,
@@ -558,13 +628,14 @@ function EvidencesPageInner() {
 	} = useEvidenceFilters();
 	const orderOptions = ordersResult?.items ?? [];
 	const selectedOrder = orderOptions.find((order) => order._id === selectedOrderId);
+	const [refreshKey, setRefreshKey] = useState(0);
 
 	const {
 		data: evidences = [],
 		isLoading: isLoadingEvidences,
 		error,
 	} = useQuery({
-		queryKey: ["evidences", selectedOrderId],
+		queryKey: ["evidences", selectedOrderId, refreshKey],
 		queryFn: () => listEvidences(selectedOrderId),
 		enabled: !!selectedOrderId,
 		staleTime: STALE_TIMES.LIST,
@@ -573,40 +644,48 @@ function EvidencesPageInner() {
 
 	const filteredEvidences = useMemo(() => {
 		const query = searchInput.trim().toLowerCase();
-		return evidences.filter((evidence) => evidenceMatchesFilter(evidence, selectedType, query));
-	}, [evidences, searchInput, selectedType]);
+		return evidences.filter((evidence) => evidenceMatchesSearch(evidence, query));
+	}, [evidences, searchInput]);
 
-	const counts = useMemo(() => buildCounts(filteredEvidences), [filteredEvidences]);
+	const handleUploadComplete = useCallback(() => {
+		setRefreshKey((k) => k + 1);
+	}, []);
+
+	const buildSearchParams = useCallback(
+		(input: string, orderId: string, mode: EvidenceViewMode) => {
+			const params = new URLSearchParams(searchParams.toString());
+			if (input.trim()) {
+				params.set("q", input.trim());
+			} else {
+				params.delete("q");
+			}
+			if (orderId) {
+				params.set("orderId", orderId);
+			} else {
+				params.delete("orderId");
+			}
+			if (mode === "table") {
+				params.set("view", "table");
+			} else {
+				params.delete("view");
+			}
+			return params.toString();
+		},
+		[searchParams],
+	);
 
 	const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-
-		const query = buildEvidenceSearchParams(
-			searchParams,
-			searchInput,
-			selectedOrderId,
-			selectedType,
-			viewMode,
-		);
-		replace(`/evidences${query ? `?${query}` : ""}`);
+		replace(`/evidences?${buildSearchParams(searchInput, selectedOrderId, viewMode)}`);
 	};
 
 	const handleViewModeChange = (mode: EvidenceViewMode) => {
 		setViewMode(mode);
-
-		const query = buildEvidenceSearchParams(
-			searchParams,
-			searchInput,
-			selectedOrderId,
-			selectedType,
-			mode,
-		);
-		replace(`/evidences${query ? `?${query}` : ""}`);
+		replace(`/evidences?${buildSearchParams(searchInput, selectedOrderId, mode)}`);
 	};
 
 	const clearFilters = () => {
 		setSearchInput("");
-		setSelectedType("all");
 		setSelectedOrderId("");
 		setViewMode("gallery");
 		replace("/evidences");
@@ -616,64 +695,74 @@ function EvidencesPageInner() {
 		<>
 			<SyncBanner isOnline={isOnline} />
 			<section className="space-y-6" aria-labelledby="evidences-page-title">
-				<header className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
+				{/* Header */}
+				<header className="rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
 					<div className="border-b border-[var(--border-default)] bg-[linear-gradient(135deg,rgba(58,120,216,0.12),rgba(15,23,41,0.02),transparent)] p-5 sm:px-6">
-						<p className="text-sm text-[var(--text-secondary)]">Dashboard / Soportes</p>
+						<p className="text-sm text-[var(--text-secondary)]">Dashboard / Evidencias</p>
 						<div className="mt-3 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 							<div className="space-y-1">
 								<h1
 									id="evidences-page-title"
 									className="text-2xl font-semibold text-[var(--text-primary)]"
 								>
-									Soportes visuales
+									Evidencias del trabajo
 								</h1>
 								<p className="max-w-2xl text-sm text-[var(--text-secondary)]">
-									Gestor visual de soportes por orden. Selecciona una orden para revisar la captura
-									operativa agrupada por etapa, detectar vacíos y abrir cada imagen en contexto.
+									Sube imágenes como evidencia del trabajo realizado en cada orden. Cada imagen debe
+									tener un título descriptivo.
 								</p>
 							</div>
-
 							{selectedOrder ? (
 								<Button asChild variant="outline" size="sm">
-									<Link href={`/orders/${selectedOrder._id}`}>Abrir orden</Link>
+									<a href={`/orders/${selectedOrder._id}`}>Abrir orden</a>
 								</Button>
 							) : null}
 						</div>
 					</div>
-					<EvidencesStatsSection counts={counts} />
 				</header>
 
+				{/* Filters */}
 				<EvidencesFiltersForm
 					searchInput={searchInput}
 					selectedOrderId={selectedOrderId}
-					selectedType={selectedType}
 					isLoadingOrders={isLoadingOrders}
 					orderOptions={orderOptions}
 					onSearchInputChange={setSearchInput}
 					onOrderIdChange={setSelectedOrderId}
-					onTypeChange={setSelectedType}
 					onSubmit={handleSubmit}
 					onClear={clearFilters}
 				/>
 
+				{/* Upload section — only visible when an order is selected */}
+				{selectedOrderId ? (
+					<EvidenceUploadSection
+						selectedOrderId={selectedOrderId}
+						orderOptions={orderOptions}
+						isLoadingOrders={isLoadingOrders}
+						onUploadComplete={handleUploadComplete}
+					/>
+				) : null}
+
+				{/* Evidence gallery */}
 				{!selectedOrderId ? (
 					<EvidencesEmptyState
 						icon={
 							<Camera aria-hidden="true" className="mx-auto size-10 text-[var(--text-tertiary)]" />
 						}
 						title="Selecciona una orden"
-						description="Los soportes se consultan por orden. Si vienes desde una orden específica, el filtro se cargará automáticamente."
+						description="Selecciona una orden de trabajo para ver sus evidencias y subir nuevas imágenes."
 					/>
 				) : isLoadingEvidences ? (
 					<section className="flex h-64 items-center justify-center rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)]">
 						<div className="flex items-center gap-3 text-[var(--text-secondary)]">
 							<Loader2 className="size-5 animate-spin" aria-hidden="true" />
-							Cargando soportes…
+							Cargando evidencias…
 						</div>
 					</section>
 				) : error ? (
-					<section className="rounded-[var(--radius-xl)] border border-[var(--color-danger)]/20 bg-[var(--color-danger-bg)] p-6 text-sm text-[var(--color-danger)]">
-						No se pudieron cargar los soportes. {(error as Error).message}
+					<section className="flex items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-danger)]/20 bg-[var(--color-danger-bg)] p-6 text-sm text-[var(--color-danger)]">
+						<AlertCircle className="size-5 shrink-0" aria-hidden="true" />
+						No se pudieron cargar las evidencias. {(error as Error).message}
 					</section>
 				) : (
 					<section aria-labelledby="evidences-list-title" className="space-y-4">
@@ -685,21 +774,15 @@ function EvidencesPageInner() {
 								>
 									{selectedOrder
 										? `${selectedOrder.code} · ${selectedOrder.assetName}`
-										: "Listado de soportes"}
+										: "Listado de evidencias"}
 								</h2>
 								<p className="text-sm text-[var(--text-secondary)]">
-									{filteredEvidences.length} soporte(s) visibles para el contexto actual.
+									{filteredEvidences.length} evidencia(s) registrada(s) para esta orden.
 								</p>
 							</div>
 
 							<EvidencesViewToggle viewMode={viewMode} onChange={handleViewModeChange} />
 						</div>
-
-						<EvidencesSummaryGrid
-							counts={counts}
-							selectedType={selectedType}
-							onStageSelect={setSelectedType}
-						/>
 
 						{viewMode === "gallery" ? (
 							<EvidencesGalleryView evidences={filteredEvidences} />

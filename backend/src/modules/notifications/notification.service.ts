@@ -9,21 +9,21 @@ const DB_STEP_TO_DOMAIN_STATE: Record<string, string> = {
 	step_04_purchase_order: "purchase_order",
 	step_05_planning: "planning",
 	step_06_execution: "execution",
-	step_07_technical_report: "evidences",
-	step_08_delivery_record: "technical_report",
-	step_09_client_signature: "delivery_record",
-	step_10_ses_submission: "client_signature",
-	step_11_ses_approval: "ses",
+	step_07_technical_report: "technical_report",
+	step_08_delivery_record: "delivery_record",
+	step_09_client_signature: "client_signature",
+	step_10_ses_submission: "ses",
+	step_11_ses_approval: "ses_approved",
 	step_12_invoice_submission: "invoice",
 	step_13_invoice_approval: "invoice_approval",
 	step_14_payment_closure: "payment",
 };
 
-function dbStepToDomainState(dbStep: string): string {
+export function dbStepToDomainState(dbStep: string): string {
 	return DB_STEP_TO_DOMAIN_STATE[dbStep] ?? "pending";
 }
 
-function getRolesToNotifyForStep(stepCode: string): UserRole[] {
+export function getRolesToNotifyForStep(stepCode: string): UserRole[] {
 	const state = stepCode.startsWith("step_") ? dbStepToDomainState(stepCode) : stepCode;
 	switch (state) {
 		case "site_visit":
@@ -45,6 +45,7 @@ function getRolesToNotifyForStep(stepCode: string): UserRole[] {
 		case "client_signature":
 			return ["gerente", "residente", "cliente"];
 		case "ses":
+		case "ses_approved":
 			return ["administrativo", "gerente"];
 		case "invoice":
 			return ["administrativo", "gerente"];

@@ -4,10 +4,7 @@
  * instead of building defaultValues from scratch.
  */
 
-import type {
-	InheritedField,
-	ServiceCaseStepContext,
-} from "@cermont/shared-types";
+import type { InheritedField, ServiceCaseStepContext } from "@cermont/shared-types";
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Type for form default values (record of field key → value)
@@ -25,20 +22,48 @@ export function getDefaultValuesForStep(context: ServiceCaseStepContext): StepDe
 	const values: StepDefaultValues = {};
 
 	// 1. Include canonical case data
-	if (context.canonical.clientId) { values.clientId = context.canonical.clientId; }
-	if (context.canonical.clientName) { values.clientName = context.canonical.clientName; }
-	if (context.canonical.contactName) { values.contactName = context.canonical.contactName; }
-	if (context.canonical.contactPhone) { values.contactPhone = context.canonical.contactPhone; }
-	if (context.canonical.contactEmail) { values.contactEmail = context.canonical.contactEmail; }
-	if (context.canonical.siteId) { values.siteId = context.canonical.siteId; }
-	if (context.canonical.siteName) { values.siteName = context.canonical.siteName; }
-	if (context.canonical.location) { values.location = context.canonical.location; }
-	if (context.canonical.businessUnit) { values.businessUnit = context.canonical.businessUnit; }
-	if (context.canonical.workTypeId) { values.workTypeId = context.canonical.workTypeId; }
-	if (context.canonical.workTypeName) { values.workTypeName = context.canonical.workTypeName; }
-	if (context.canonical.priority) { values.priority = context.canonical.priority; }
-	if (context.canonical.requestedDate) { values.requestedDate = context.canonical.requestedDate; }
-	if (context.canonical.generalScope) { values.generalScope = context.canonical.generalScope; }
+	if (context.canonical.clientId) {
+		values.clientId = context.canonical.clientId;
+	}
+	if (context.canonical.clientName) {
+		values.clientName = context.canonical.clientName;
+	}
+	if (context.canonical.contactName) {
+		values.contactName = context.canonical.contactName;
+	}
+	if (context.canonical.contactPhone) {
+		values.contactPhone = context.canonical.contactPhone;
+	}
+	if (context.canonical.contactEmail) {
+		values.contactEmail = context.canonical.contactEmail;
+	}
+	if (context.canonical.siteId) {
+		values.siteId = context.canonical.siteId;
+	}
+	if (context.canonical.siteName) {
+		values.siteName = context.canonical.siteName;
+	}
+	if (context.canonical.location) {
+		values.location = context.canonical.location;
+	}
+	if (context.canonical.businessUnit) {
+		values.businessUnit = context.canonical.businessUnit;
+	}
+	if (context.canonical.workTypeId) {
+		values.workTypeId = context.canonical.workTypeId;
+	}
+	if (context.canonical.workTypeName) {
+		values.workTypeName = context.canonical.workTypeName;
+	}
+	if (context.canonical.priority) {
+		values.priority = context.canonical.priority;
+	}
+	if (context.canonical.requestedDate) {
+		values.requestedDate = context.canonical.requestedDate;
+	}
+	if (context.canonical.generalScope) {
+		values.generalScope = context.canonical.generalScope;
+	}
 
 	// 2. Include inherited field values (overrides canonical if same key)
 	for (const field of context.inheritedFields) {

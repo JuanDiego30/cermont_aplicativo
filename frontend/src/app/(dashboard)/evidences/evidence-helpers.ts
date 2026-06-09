@@ -2,112 +2,18 @@
  * Evidences Page — Helper Functions and Constants
  */
 
-import type { Evidence, EvidenceType } from "@cermont/shared-types";
+import type { Evidence } from "@cermont/shared-types";
 
-export type EvidenceFilter = "all" | EvidenceType;
 export type EvidenceViewMode = "gallery" | "table";
 
-// Hoisted Intl formatters for performance
+// Hoisted Intl formatter for performance
 const EVIDENCE_DATE_FORMATTER = new Intl.DateTimeFormat("es-CO", {
 	dateStyle: "medium",
 	timeStyle: "short",
 });
 
-const LEGACY_STAGE_TO_TYPE: Record<string, EvidenceType> = {
-	antes: "before",
-	durante: "during",
-	despues: "after",
-	final: "signature",
-};
-
-export const EVIDENCE_STAGE_ORDER: EvidenceType[] = [
-	"before",
-	"during",
-	"after",
-	"defect",
-	"safety",
-	"signature",
-];
-
-export const EVIDENCE_LABELS: Record<EvidenceType, string> = {
-	before: "Antes",
-	during: "Durante",
-	after: "Después",
-	defect: "Defecto",
-	safety: "Seguridad",
-	signature: "Firma",
-};
-
-const EVIDENCE_DESCRIPTIONS: Record<EvidenceType, string> = {
-	before: "Estado inicial antes de intervenir el servicio o activo.",
-	during: "Avance operativo, maniobras y soporte del trabajo en curso.",
-	after: "Resultado final entregable después de ejecutar la orden.",
-	defect: "Hallazgos, fallas o no conformidades detectadas en campo.",
-	safety: "Soportes HSE, controles críticos y condiciones seguras.",
-	signature: "Firmas o constancias visuales de validación de cierre.",
-};
-
-const EVIDENCE_STYLES: Record<EvidenceType, string> = {
-	before: "bg-slate-100 text-slate-700 ring-slate-200",
-	during: "bg-blue-50 text-blue-700 ring-blue-200",
-	after: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-	defect: "bg-rose-50 text-rose-700 ring-rose-200",
-	safety: "bg-amber-50 text-amber-700 ring-amber-200",
-	signature: "bg-purple-50 text-purple-700 ring-purple-200",
-};
-
-const DEFAULT_EVIDENCE_STYLE = "bg-slate-100 text-slate-700 ring-slate-200";
-
-function resolveEvidenceType(value: string): EvidenceType | undefined {
-	const normalized = value.trim().toLowerCase();
-	if (normalized in EVIDENCE_LABELS) {
-		return normalized as EvidenceType;
-	}
-
-	return LEGACY_STAGE_TO_TYPE[normalized];
-}
-
-export function getEvidenceLabel(value: string): string {
-	const resolved = resolveEvidenceType(value);
-	return resolved ? EVIDENCE_LABELS[resolved] : value;
-}
-
-export function getEvidenceStyle(value: string): string {
-	const resolved = resolveEvidenceType(value);
-	return resolved ? EVIDENCE_STYLES[resolved] : DEFAULT_EVIDENCE_STYLE;
-}
-
-export function toEvidenceFilter(raw: string | undefined): EvidenceFilter {
-	if (!raw) {
-		return "all";
-	}
-
-	const resolved = resolveEvidenceType(raw);
-	return resolved ?? "all";
-}
-
 export function toEvidenceViewMode(raw: string | undefined): EvidenceViewMode {
 	return raw === "table" ? "table" : "gallery";
-}
-
-export function normalizeEvidenceStage(raw: string): string {
-	return resolveEvidenceType(raw) ?? raw;
-}
-
-export function groupEvidencesByStage(evidences: Evidence[]): Array<{
-	description: string;
-	items: Evidence[];
-	label: string;
-	type: EvidenceType;
-}> {
-	const grouped = EVIDENCE_STAGE_ORDER.map((type) => ({
-		type,
-		label: EVIDENCE_LABELS[type],
-		description: EVIDENCE_DESCRIPTIONS[type],
-		items: evidences.filter((evidence) => evidence.type === type),
-	}));
-
-	return grouped.filter((group) => group.items.length > 0);
 }
 
 export function formatEvidenceDate(date: string | Date) {
@@ -117,4 +23,37 @@ export function formatEvidenceDate(date: string | Date) {
 
 export function getFileName(url: string) {
 	return url.split("/").pop() ?? url;
+}
+
+/** Returns the display title for an evidence: photoLabel > description > filename */
+export function getEvidenceTitle(evidence: Evidence): string {
+	const v2 = evidence as Evidence & { photoLabel?: string };
+	if (v2.photoLabel?.trim()) {
+		return v2.photoLabel.trim();
+	}
+	if (evidence.description?.trim()) {
+		return evidence.description.trim();
+	}
+	return getFileName(evidence.url);
+}
+
+/** Returns the secondary description (everything that's not the title) */
+export function getEvidenceSubtitle(evidence: Evidence): string {
+	const v2 = evidence as Evidence & { photoLabel?: string };
+	if (v2.photoLabel?.trim() && evidence.description?.trim()) {
+		return evidence.description.trim();
+	}
+	return "";
+}
+
+/** Groups evidence by orderId for the gallery */
+export function groupEvidencesByOrder(evidences: Evidence[]): Map<string, Evidence[]> {
+	const groups = new Map<string, Evidence[]>();
+	for (const ev of evidences) {
+		const key = ev.orderId;
+		const existing = groups.get(key) ?? [];
+		existing.push(ev);
+		groups.set(key, existing);
+	}
+	return groups;
 }

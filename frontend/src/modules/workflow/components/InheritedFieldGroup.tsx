@@ -22,7 +22,9 @@ export function InheritedFieldGroup({
 	onFieldChange,
 	readOnly,
 }: InheritedFieldGroupProps) {
-	if (fields.length === 0) { return null; }
+	if (fields.length === 0) {
+		return null;
+	}
 
 	return (
 		<div className="rounded-[var(--radius-lg)] border border-[var(--color-brand)]/20 bg-[var(--color-brand-blue-bg)] p-4">

@@ -122,6 +122,48 @@ export function useWorkRequest(id: string) {
 	});
 }
 
+export function useQualifyWorkRequest() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationKey: [...WORK_REQUEST_KEYS.all, "qualify"],
+		mutationFn: async (id: string) => {
+			const response = await apiClient.post<{
+				success: boolean;
+				data: { workRequest: WorkRequest; serviceCase: { _id: string; code: string } };
+			}>(`/work-requests/${id}/qualify`);
+			if (!response.success) {
+				throw new Error("Error al calificar la solicitud");
+			}
+			return response.data;
+		},
+		onSuccess: (_data, variables) => {
+			queryClient.invalidateQueries({ queryKey: WORK_REQUEST_KEYS.detail(variables) });
+			queryClient.invalidateQueries({ queryKey: WORK_REQUEST_KEYS.list() });
+			queryClient.invalidateQueries({ queryKey: ["service-cases"] });
+		},
+	});
+}
+
+export function useUpdateWorkRequestStatus() {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async ({ id, status }: { id: string; status: string }) => {
+			const response = await apiClient.patch<{ success: boolean; data: WorkRequest }>(
+				`/work-requests/${id}/status`,
+				{ status },
+			);
+			if (!response.success) {
+				throw new Error("Error al actualizar estado");
+			}
+			return response.data;
+		},
+		onSuccess: () => {
+			void queryClient.invalidateQueries({ queryKey: WORK_REQUEST_KEYS.all });
+			void queryClient.invalidateQueries({ queryKey: ["service-cases"] });
+		},
+	});
+}
+
 export function usePendingWorkRequestCount(enabled: boolean) {
 	return useQuery({
 		queryKey: WORK_REQUEST_KEYS.pendingCount(),

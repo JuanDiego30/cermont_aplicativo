@@ -298,6 +298,100 @@ export async function deleteWorkRequest(id: string, userId: string, userRole: st
 }
 
 /**
+ * Qualify a work request — marks it as ready for next step
+ * Updates the linked ServiceCase with proper step transitions
+ */
+async function assertWorkRequestQualifyable(id: string, _userId: string, userRole: string) {
+	const workRequest = await WorkRequest.findById(id);
+	if (!workRequest) {
+		throw new AppError("WORK_REQUEST_NOT_FOUND", 404, "Work request not found");
+	}
+	if (!["gerente", "residente", "hes"].includes(userRole)) {
+		throw new AppError("FORBIDDEN", 403, "No tienes permiso para calificar solicitudes");
+	}
+	const allowed = WORK_REQUEST_STATUS_TRANSITIONS[workRequest.status];
+	if (!allowed.includes("qualified")) {
+		throw new AppError(
+			"INVALID_STATUS_TRANSITION",
+			400,
+			`No se puede calificar solicitud en estado ${workRequest.status}`,
+		);
+	}
+	if (!workRequest.clientName || !workRequest.serviceSite || !workRequest.description) {
+		throw new AppError("MISSING_REQUIRED_FIELDS", 400, "Debe tener cliente, sitio y descripción");
+	}
+	return workRequest;
+}
+
+async function updateServiceCaseAfterQualify(
+	workRequestId: Types.ObjectId,
+	workRequestCode: string,
+	hasVisit: boolean,
+	userId: string,
+	userRole: string,
+) {
+	const now = new Date();
+	const requiresVisit = hasVisit;
+	const nextStepCode = requiresVisit ? "step_02_site_visit" : "step_03_proposal";
+	const nextStage = requiresVisit ? "assessment" : "proposal";
+
+	const serviceCase = await ServiceCase.findOne({ "artifacts.workRequest.id": workRequestId });
+	if (!serviceCase) {
+		return;
+	}
+
+	serviceCase.currentStepCode = nextStepCode;
+	serviceCase.currentStage = nextStage;
+
+	if (serviceCase.artifacts.workRequest) {
+		serviceCase.artifacts.workRequest = {
+			...serviceCase.artifacts.workRequest,
+			status: "qualified",
+			updatedAt: now,
+		};
+	}
+
+	serviceCase.nextActions = [
+		{
+			command: requiresVisit ? "create_site_visit" : "create_proposal",
+			label: requiresVisit ? "Registrar visita tecnica" : "Crear propuesta economica",
+			requiredRole: "residente",
+			route: requiresVisit ? "/site-visits/new" : "/proposals/new",
+		},
+	];
+
+	serviceCase.timeline.push({
+		eventId: `wr_qualified_${String(workRequestId)}_${Date.now()}`,
+		stage: serviceCase.currentStage,
+		command: "work_request_qualified",
+		actorId: new Types.ObjectId(userId),
+		actorRole: userRole,
+		occurredAt: now,
+		notes: `Solicitud ${workRequestCode} calificada por ${userRole}`,
+	});
+
+	await serviceCase.save();
+}
+
+export async function qualifyWorkRequest(id: string, userId: string, userRole: string) {
+	const workRequest = await assertWorkRequestQualifyable(id, userId, userRole);
+	workRequest.status = "qualified";
+	workRequest.updatedBy = new Types.ObjectId(userId);
+	await workRequest.save();
+	await updateServiceCaseAfterQualify(
+		workRequest._id,
+		workRequest.code,
+		workRequest.visit?.scheduledAt != null,
+		userId,
+		userRole,
+	);
+	return {
+		workRequest,
+		serviceCase: await ServiceCase.findOne({ "artifacts.workRequest.id": workRequest._id }),
+	};
+}
+
+/**
  * Create site visit for work request
  * @param workRequestId - Work request ID
  * @param data - Schedule visit input

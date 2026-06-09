@@ -1094,6 +1094,10 @@
               "maximum": 9007199254740991,
               "type": "integer"
             },
+            "title": {
+              "maxLength": 120,
+              "type": "string"
+            },
             "type": {
               "enum": [
                 "before",
@@ -1194,6 +1198,11 @@
             },
             "orderId": {
               "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            },
+            "title": {
+              "maxLength": 120,
+              "minLength": 1,
               "type": "string"
             },
             "type": {
@@ -2815,10 +2824,6 @@
             },
             "notes": {
               "maxLength": 2000,
-              "type": "string"
-            },
-            "serviceCaseId": {
-              "pattern": "^[0-9a-fA-F]{24}$",
               "type": "string"
             },
             "title": {
@@ -4475,10 +4480,6 @@
                               },
                               "serialTag": {
                                 "maxLength": 120,
-                                "type": "string"
-                              },
-                              "serviceCaseId": {
-                                "pattern": "^[0-9a-fA-F]{24}$",
                                 "type": "string"
                               },
                               "serviceSite": {
@@ -9663,393 +9664,6 @@
       },
       "type": "object"
     },
-    "ASTSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "_id": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "additionalControls": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "approvedBy": {
-          "additionalProperties": false,
-          "properties": {
-            "confirmed": {
-              "default": false,
-              "type": "boolean"
-            },
-            "imageDocumentId": {
-              "pattern": "^[0-9a-fA-F]{24}$",
-              "type": "string"
-            },
-            "role": {
-              "maxLength": 80,
-              "minLength": 1,
-              "type": "string"
-            },
-            "signatureId": {
-              "maxLength": 80,
-              "minLength": 1,
-              "type": "string"
-            },
-            "signatureType": {
-              "enum": [
-                "technician",
-                "supervisor",
-                "client",
-                "hes"
-              ],
-              "type": "string"
-            },
-            "signatureUrl": {
-              "format": "uri",
-              "type": "string"
-            },
-            "signedAt": {
-              "format": "date-time",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-              "type": "string"
-            },
-            "signedBy": {
-              "pattern": "^[0-9a-fA-F]{24}$",
-              "type": "string"
-            },
-            "signedByName": {
-              "maxLength": 200,
-              "minLength": 1,
-              "type": "string"
-            }
-          },
-          "required": [
-            "signatureId",
-            "signedBy",
-            "signedByName",
-            "role",
-            "signatureType",
-            "signedAt",
-            "confirmed"
-          ],
-          "type": "object"
-        },
-        "createdAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "crewLeader": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "crewMembers": {
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "date": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "elaboratedBy": {
-          "additionalProperties": false,
-          "properties": {
-            "confirmed": {
-              "default": false,
-              "type": "boolean"
-            },
-            "imageDocumentId": {
-              "pattern": "^[0-9a-fA-F]{24}$",
-              "type": "string"
-            },
-            "role": {
-              "maxLength": 80,
-              "minLength": 1,
-              "type": "string"
-            },
-            "signatureId": {
-              "maxLength": 80,
-              "minLength": 1,
-              "type": "string"
-            },
-            "signatureType": {
-              "enum": [
-                "technician",
-                "supervisor",
-                "client",
-                "hes"
-              ],
-              "type": "string"
-            },
-            "signatureUrl": {
-              "format": "uri",
-              "type": "string"
-            },
-            "signedAt": {
-              "format": "date-time",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-              "type": "string"
-            },
-            "signedBy": {
-              "pattern": "^[0-9a-fA-F]{24}$",
-              "type": "string"
-            },
-            "signedByName": {
-              "maxLength": 200,
-              "minLength": 1,
-              "type": "string"
-            }
-          },
-          "required": [
-            "signatureId",
-            "signedBy",
-            "signedByName",
-            "role",
-            "signatureType",
-            "signedAt",
-            "confirmed"
-          ],
-          "type": "object"
-        },
-        "emergencyPlan": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "executionSessionId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "location": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "orderId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "ppeRequired": {
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "reviewedBy": {
-          "additionalProperties": false,
-          "properties": {
-            "confirmed": {
-              "default": false,
-              "type": "boolean"
-            },
-            "imageDocumentId": {
-              "pattern": "^[0-9a-fA-F]{24}$",
-              "type": "string"
-            },
-            "role": {
-              "maxLength": 80,
-              "minLength": 1,
-              "type": "string"
-            },
-            "signatureId": {
-              "maxLength": 80,
-              "minLength": 1,
-              "type": "string"
-            },
-            "signatureType": {
-              "enum": [
-                "technician",
-                "supervisor",
-                "client",
-                "hes"
-              ],
-              "type": "string"
-            },
-            "signatureUrl": {
-              "format": "uri",
-              "type": "string"
-            },
-            "signedAt": {
-              "format": "date-time",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-              "type": "string"
-            },
-            "signedBy": {
-              "pattern": "^[0-9a-fA-F]{24}$",
-              "type": "string"
-            },
-            "signedByName": {
-              "maxLength": 200,
-              "minLength": 1,
-              "type": "string"
-            }
-          },
-          "required": [
-            "signatureId",
-            "signedBy",
-            "signedByName",
-            "role",
-            "signatureType",
-            "signedAt",
-            "confirmed"
-          ],
-          "type": "object"
-        },
-        "socializedAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "status": {
-          "default": "draft",
-          "enum": [
-            "draft",
-            "reviewed",
-            "approved",
-            "completed",
-            "cancelled"
-          ],
-          "type": "string"
-        },
-        "steps": {
-          "default": [],
-          "items": {
-            "additionalProperties": false,
-            "properties": {
-              "controls": {
-                "default": [],
-                "items": {
-                  "maxLength": 300,
-                  "minLength": 1,
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              "hazards": {
-                "default": [],
-                "items": {
-                  "maxLength": 200,
-                  "minLength": 1,
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              "responsible": {
-                "maxLength": 200,
-                "minLength": 1,
-                "type": "string"
-              },
-              "stepNumber": {
-                "exclusiveMinimum": 0,
-                "maximum": 9007199254740991,
-                "type": "integer"
-              },
-              "taskDescription": {
-                "maxLength": 500,
-                "minLength": 1,
-                "type": "string"
-              }
-            },
-            "required": [
-              "stepNumber",
-              "taskDescription",
-              "hazards",
-              "controls"
-            ],
-            "type": "object"
-          },
-          "type": "array"
-        },
-        "updatedAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "workDescription": {
-          "maxLength": 500,
-          "minLength": 1,
-          "type": "string"
-        }
-      },
-      "required": [
-        "executionSessionId",
-        "orderId",
-        "status",
-        "workDescription",
-        "location",
-        "date",
-        "crewLeader",
-        "crewMembers",
-        "steps",
-        "ppeRequired",
-        "createdAt",
-        "updatedAt"
-      ],
-      "type": "object"
-    },
-    "ASTStatusSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "enum": [
-        "draft",
-        "reviewed",
-        "approved",
-        "completed",
-        "cancelled"
-      ],
-      "type": "string"
-    },
-    "ASTStepSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "controls": {
-          "default": [],
-          "items": {
-            "maxLength": 300,
-            "minLength": 1,
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "hazards": {
-          "default": [],
-          "items": {
-            "maxLength": 200,
-            "minLength": 1,
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "responsible": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "stepNumber": {
-          "exclusiveMinimum": 0,
-          "maximum": 9007199254740991,
-          "type": "integer"
-        },
-        "taskDescription": {
-          "maxLength": 500,
-          "minLength": 1,
-          "type": "string"
-        }
-      },
-      "required": [
-        "stepNumber",
-        "taskDescription",
-        "hazards",
-        "controls"
-      ],
-      "type": "object"
-    },
     "AttachResourceImageSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -11509,97 +11123,6 @@
       ],
       "type": "object"
     },
-    "CameraSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "_id": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "brand": {
-          "maxLength": 100,
-          "type": "string"
-        },
-        "clientId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "connectionType": {
-          "enum": [
-            "poe",
-            "wireless",
-            "coaxial",
-            "fibra"
-          ],
-          "type": "string"
-        },
-        "createdAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "height": {
-          "minimum": 0,
-          "type": "number"
-        },
-        "location": {
-          "maxLength": 200,
-          "type": "string"
-        },
-        "model": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "notes": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "serialNumber": {
-          "maxLength": 100,
-          "type": "string"
-        },
-        "siteId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "type": {
-          "default": "cctv",
-          "enum": [
-            "cctv",
-            "ip",
-            "analogica",
-            "termica",
-            "multisensor"
-          ],
-          "type": "string"
-        },
-        "updatedAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        }
-      },
-      "required": [
-        "model",
-        "type",
-        "createdAt",
-        "updatedAt"
-      ],
-      "type": "object"
-    },
-    "CameraTypeSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "enum": [
-        "cctv",
-        "ip",
-        "analogica",
-        "termica",
-        "multisensor"
-      ],
-      "type": "string"
-    },
     "CancelDeliveryRecordSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -12498,83 +12021,6 @@
       ],
       "type": "string"
     },
-    "ClientSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "_id": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "address": {
-          "maxLength": 300,
-          "type": "string"
-        },
-        "contactName": {
-          "maxLength": 200,
-          "type": "string"
-        },
-        "createdAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "email": {
-          "format": "email",
-          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
-          "type": "string"
-        },
-        "name": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "nit": {
-          "maxLength": 50,
-          "minLength": 1,
-          "type": "string"
-        },
-        "notes": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "phone": {
-          "maxLength": 20,
-          "type": "string"
-        },
-        "status": {
-          "default": "active",
-          "enum": [
-            "active",
-            "inactive",
-            "suspended"
-          ],
-          "type": "string"
-        },
-        "updatedAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "nit",
-        "status",
-        "createdAt",
-        "updatedAt"
-      ],
-      "type": "object"
-    },
-    "ClientStatusSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "enum": [
-        "active",
-        "inactive",
-        "suspended"
-      ],
-      "type": "string"
-    },
     "CloneDocumentTemplateVersionSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -13343,104 +12789,6 @@
         "evidences"
       ],
       "type": "object"
-    },
-    "ContractSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "_id": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "amount": {
-          "minimum": 0,
-          "type": "number"
-        },
-        "clientId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "code": {
-          "maxLength": 50,
-          "minLength": 1,
-          "type": "string"
-        },
-        "createdAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "description": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "documents": {
-          "default": [],
-          "items": {
-            "pattern": "^[0-9a-fA-F]{24}$",
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "endDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "name": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "notes": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "startDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "status": {
-          "default": "draft",
-          "enum": [
-            "draft",
-            "active",
-            "suspended",
-            "completed",
-            "cancelled"
-          ],
-          "type": "string"
-        },
-        "updatedAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        }
-      },
-      "required": [
-        "code",
-        "clientId",
-        "name",
-        "startDate",
-        "endDate",
-        "status",
-        "documents",
-        "createdAt",
-        "updatedAt"
-      ],
-      "type": "object"
-    },
-    "ContractStatusSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "enum": [
-        "draft",
-        "active",
-        "suspended",
-        "completed",
-        "cancelled"
-      ],
-      "type": "string"
     },
     "ConvertProposalToOrderSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -16122,169 +15470,6 @@
       ],
       "type": "object"
     },
-    "CreateASTSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "crewLeader": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "crewMembers": {
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "date": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "location": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "ppeRequired": {
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "steps": {
-          "default": [],
-          "items": {
-            "additionalProperties": false,
-            "properties": {
-              "controls": {
-                "default": [],
-                "items": {
-                  "maxLength": 300,
-                  "minLength": 1,
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              "hazards": {
-                "default": [],
-                "items": {
-                  "maxLength": 200,
-                  "minLength": 1,
-                  "type": "string"
-                },
-                "type": "array"
-              },
-              "responsible": {
-                "maxLength": 200,
-                "minLength": 1,
-                "type": "string"
-              },
-              "stepNumber": {
-                "exclusiveMinimum": 0,
-                "maximum": 9007199254740991,
-                "type": "integer"
-              },
-              "taskDescription": {
-                "maxLength": 500,
-                "minLength": 1,
-                "type": "string"
-              }
-            },
-            "required": [
-              "stepNumber",
-              "taskDescription",
-              "hazards",
-              "controls"
-            ],
-            "type": "object"
-          },
-          "type": "array"
-        },
-        "workDescription": {
-          "maxLength": 500,
-          "minLength": 1,
-          "type": "string"
-        }
-      },
-      "required": [
-        "workDescription",
-        "location",
-        "date",
-        "crewLeader",
-        "crewMembers",
-        "steps",
-        "ppeRequired"
-      ],
-      "type": "object"
-    },
-    "CreateCameraSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "brand": {
-          "maxLength": 100,
-          "type": "string"
-        },
-        "clientId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "connectionType": {
-          "enum": [
-            "poe",
-            "wireless",
-            "coaxial",
-            "fibra"
-          ],
-          "type": "string"
-        },
-        "height": {
-          "minimum": 0,
-          "type": "number"
-        },
-        "location": {
-          "maxLength": 200,
-          "type": "string"
-        },
-        "model": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "notes": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "serialNumber": {
-          "maxLength": 100,
-          "type": "string"
-        },
-        "siteId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "type": {
-          "default": "cctv",
-          "enum": [
-            "cctv",
-            "ip",
-            "analogica",
-            "termica",
-            "multisensor"
-          ],
-          "type": "string"
-        }
-      },
-      "required": [
-        "model",
-        "type"
-      ],
-      "type": "object"
-    },
     "CreateCertificateSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -16400,58 +15585,6 @@
       },
       "required": [
         "orderId"
-      ],
-      "type": "object"
-    },
-    "CreateClientSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "address": {
-          "maxLength": 300,
-          "type": "string"
-        },
-        "contactName": {
-          "maxLength": 200,
-          "type": "string"
-        },
-        "email": {
-          "format": "email",
-          "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
-          "type": "string"
-        },
-        "name": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "nit": {
-          "maxLength": 50,
-          "minLength": 1,
-          "type": "string"
-        },
-        "notes": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "phone": {
-          "maxLength": 20,
-          "type": "string"
-        },
-        "status": {
-          "default": "active",
-          "enum": [
-            "active",
-            "inactive",
-            "suspended"
-          ],
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "nit",
-        "status"
       ],
       "type": "object"
     },
@@ -18306,71 +17439,6 @@
       ],
       "type": "object"
     },
-    "CreateEPPSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "brand": {
-          "maxLength": 100,
-          "type": "string"
-        },
-        "certification": {
-          "maxLength": 200,
-          "type": "string"
-        },
-        "expirationDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "minStock": {
-          "default": 0,
-          "maximum": 9007199254740991,
-          "minimum": 0,
-          "type": "integer"
-        },
-        "name": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "notes": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "size": {
-          "maxLength": 20,
-          "type": "string"
-        },
-        "stock": {
-          "default": 0,
-          "maximum": 9007199254740991,
-          "minimum": 0,
-          "type": "integer"
-        },
-        "type": {
-          "enum": [
-            "casco",
-            "arnes",
-            "gafas",
-            "guantes",
-            "tapones",
-            "respirador",
-            "botas",
-            "overol",
-            "otros"
-          ],
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "type",
-        "stock",
-        "minStock"
-      ],
-      "type": "object"
-    },
     "CreateEvidenceCollectionSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -18443,6 +17511,11 @@
         },
         "orderId": {
           "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 120,
+          "minLength": 1,
           "type": "string"
         },
         "type": {
@@ -19514,77 +18587,6 @@
       ],
       "type": "object"
     },
-    "CreateLifelineSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "cableDiameter": {
-          "exclusiveMinimum": 0,
-          "type": "number"
-        },
-        "cableLength": {
-          "exclusiveMinimum": 0,
-          "type": "number"
-        },
-        "cableType": {
-          "maxLength": 100,
-          "type": "string"
-        },
-        "certification": {
-          "maxLength": 200,
-          "type": "string"
-        },
-        "clientId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "installationDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "lastInspectionDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "location": {
-          "maxLength": 300,
-          "minLength": 1,
-          "type": "string"
-        },
-        "manufacturer": {
-          "maxLength": 200,
-          "type": "string"
-        },
-        "nextInspectionDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "notes": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "siteId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "type": {
-          "enum": [
-            "vertical",
-            "horizontal",
-            "portatil"
-          ],
-          "type": "string"
-        }
-      },
-      "required": [
-        "type",
-        "location"
-      ],
-      "type": "object"
-    },
     "CreateMaintenanceKitSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -19780,135 +18782,6 @@
         "title",
         "type",
         "rules"
-      ],
-      "type": "object"
-    },
-    "CreateMasterDataEquipmentSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "brand": {
-          "maxLength": 100,
-          "type": "string"
-        },
-        "category": {
-          "enum": [
-            "medicion",
-            "seguridad",
-            "comunicacion",
-            "electrico",
-            "construccion",
-            "cctv",
-            "general"
-          ],
-          "type": "string"
-        },
-        "clientId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "lastCalibrationDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "model": {
-          "maxLength": 100,
-          "type": "string"
-        },
-        "name": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "nextCalibrationDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "notes": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "serialNumber": {
-          "maxLength": 100,
-          "type": "string"
-        },
-        "siteId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "status": {
-          "default": "available",
-          "enum": [
-            "available",
-            "in_use",
-            "maintenance",
-            "retired"
-          ],
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "category",
-        "status"
-      ],
-      "type": "object"
-    },
-    "CreateMaterialSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "category": {
-          "enum": [
-            "electrico",
-            "electronico",
-            "estructura",
-            "ferreteria",
-            "tuberia",
-            "seguridad",
-            "general"
-          ],
-          "type": "string"
-        },
-        "minStock": {
-          "default": 0,
-          "maximum": 9007199254740991,
-          "minimum": 0,
-          "type": "integer"
-        },
-        "name": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "notes": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "stock": {
-          "default": 0,
-          "maximum": 9007199254740991,
-          "minimum": 0,
-          "type": "integer"
-        },
-        "unit": {
-          "maxLength": 30,
-          "minLength": 1,
-          "type": "string"
-        },
-        "unitCost": {
-          "minimum": 0,
-          "type": "number"
-        }
-      },
-      "required": [
-        "name",
-        "category",
-        "unit",
-        "stock",
-        "minStock"
       ],
       "type": "object"
     },
@@ -21842,10 +20715,6 @@
           "maxLength": 2000,
           "type": "string"
         },
-        "serviceCaseId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
         "title": {
           "maxLength": 200,
           "minLength": 5,
@@ -21861,174 +20730,6 @@
         "title",
         "clientName",
         "items",
-        "validUntil"
-      ],
-      "type": "object"
-    },
-    "CreatePTWSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "area": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "category": {
-          "enum": [
-            "frio",
-            "caliente",
-            "electrico_frio",
-            "electrico_caliente",
-            "simplificado"
-          ],
-          "type": "string"
-        },
-        "description": {
-          "maxLength": 500,
-          "minLength": 1,
-          "type": "string"
-        },
-        "requiredPPE": {
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "risks": {
-          "default": [],
-          "items": {
-            "additionalProperties": false,
-            "properties": {
-              "category": {
-                "enum": [
-                  "mecanico",
-                  "electrico",
-                  "quimico",
-                  "biologico",
-                  "fisico",
-                  "ergonomico",
-                  "psicosocial"
-                ],
-                "type": "string"
-              },
-              "controlMeasure": {
-                "maxLength": 500,
-                "minLength": 1,
-                "type": "string"
-              },
-              "description": {
-                "maxLength": 300,
-                "minLength": 1,
-                "type": "string"
-              },
-              "probability": {
-                "enum": [
-                  "baja",
-                  "media",
-                  "alta"
-                ],
-                "type": "string"
-              },
-              "severity": {
-                "enum": [
-                  "baja",
-                  "media",
-                  "alta"
-                ],
-                "type": "string"
-              }
-            },
-            "required": [
-              "description",
-              "category",
-              "probability",
-              "severity",
-              "controlMeasure"
-            ],
-            "type": "object"
-          },
-          "type": "array"
-        },
-        "supervisorSignature": {
-          "additionalProperties": false,
-          "properties": {
-            "confirmed": {
-              "default": false,
-              "type": "boolean"
-            },
-            "imageDocumentId": {
-              "pattern": "^[0-9a-fA-F]{24}$",
-              "type": "string"
-            },
-            "role": {
-              "maxLength": 80,
-              "minLength": 1,
-              "type": "string"
-            },
-            "signatureId": {
-              "maxLength": 80,
-              "minLength": 1,
-              "type": "string"
-            },
-            "signatureType": {
-              "enum": [
-                "technician",
-                "supervisor",
-                "client",
-                "hes"
-              ],
-              "type": "string"
-            },
-            "signatureUrl": {
-              "format": "uri",
-              "type": "string"
-            },
-            "signedAt": {
-              "format": "date-time",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-              "type": "string"
-            },
-            "signedBy": {
-              "pattern": "^[0-9a-fA-F]{24}$",
-              "type": "string"
-            },
-            "signedByName": {
-              "maxLength": 200,
-              "minLength": 1,
-              "type": "string"
-            }
-          },
-          "required": [
-            "signatureId",
-            "signedBy",
-            "signedByName",
-            "role",
-            "signatureType",
-            "signedAt",
-            "confirmed"
-          ],
-          "type": "object"
-        },
-        "validFrom": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "validUntil": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        }
-      },
-      "required": [
-        "category",
-        "area",
-        "description",
-        "risks",
-        "requiredPPE",
-        "validFrom",
         "validUntil"
       ],
       "type": "object"
@@ -22555,66 +21256,6 @@
         "amount",
         "currency",
         "taxAmount"
-      ],
-      "type": "object"
-    },
-    "CreateSiteSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "address": {
-          "maxLength": 300,
-          "type": "string"
-        },
-        "city": {
-          "maxLength": 100,
-          "type": "string"
-        },
-        "clientId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "contactName": {
-          "maxLength": 200,
-          "type": "string"
-        },
-        "contactPhone": {
-          "maxLength": 20,
-          "type": "string"
-        },
-        "coordinates": {
-          "additionalProperties": false,
-          "properties": {
-            "lat": {
-              "maximum": 90,
-              "minimum": -90,
-              "type": "number"
-            },
-            "lng": {
-              "maximum": 180,
-              "minimum": -180,
-              "type": "number"
-            }
-          },
-          "required": [
-            "lat",
-            "lng"
-          ],
-          "type": "object"
-        },
-        "name": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "notes": {
-          "maxLength": 500,
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "clientId"
       ],
       "type": "object"
     },
@@ -24074,10 +22715,6 @@
         },
         "serialTag": {
           "maxLength": 120,
-          "type": "string"
-        },
-        "serviceCaseId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
           "type": "string"
         },
         "serviceSite": {
@@ -31398,7 +30035,6 @@
         "MISSING_PO",
         "MISSING_CREW_ASSIGNMENT",
         "MISSING_KIT_TEMPLATE",
-        "MISSING_KIT_CRITICAL_ITEMS",
         "MISSING_TOOLS",
         "MISSING_EQUIPMENT",
         "MISSING_HSE_CERTIFICATION",
@@ -31430,9 +30066,7 @@
         "TEMPLATE_RESPONSE_NOT_VALIDATED",
         "CLOSING_PACKAGE_INCOMPLETE",
         "INVOICE_NOT_APPROVED",
-        "INVOICE_NOT_APPROVED_BEFORE_PAYMENT",
-        "PAYMENT_NOT_RECONCILED",
-        "SES_NOT_APPROVED_BEFORE_INVOICE"
+        "PAYMENT_NOT_RECONCILED"
       ],
       "type": "string"
     },
@@ -31467,7 +30101,6 @@
             "MISSING_PO",
             "MISSING_CREW_ASSIGNMENT",
             "MISSING_KIT_TEMPLATE",
-            "MISSING_KIT_CRITICAL_ITEMS",
             "MISSING_TOOLS",
             "MISSING_EQUIPMENT",
             "MISSING_HSE_CERTIFICATION",
@@ -31499,9 +30132,7 @@
             "TEMPLATE_RESPONSE_NOT_VALIDATED",
             "CLOSING_PACKAGE_INCOMPLETE",
             "INVOICE_NOT_APPROVED",
-            "INVOICE_NOT_APPROVED_BEFORE_PAYMENT",
-            "PAYMENT_NOT_RECONCILED",
-            "SES_NOT_APPROVED_BEFORE_INVOICE"
+            "PAYMENT_NOT_RECONCILED"
           ],
           "type": "string"
         },
@@ -32514,115 +31145,6 @@
       ],
       "type": "object"
     },
-    "EPPSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "_id": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "brand": {
-          "maxLength": 100,
-          "type": "string"
-        },
-        "certification": {
-          "maxLength": 200,
-          "type": "string"
-        },
-        "createdAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "expirationDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "minStock": {
-          "default": 0,
-          "maximum": 9007199254740991,
-          "minimum": 0,
-          "type": "integer"
-        },
-        "name": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "notes": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "size": {
-          "maxLength": 20,
-          "type": "string"
-        },
-        "stock": {
-          "default": 0,
-          "maximum": 9007199254740991,
-          "minimum": 0,
-          "type": "integer"
-        },
-        "type": {
-          "enum": [
-            "casco",
-            "arnes",
-            "gafas",
-            "guantes",
-            "tapones",
-            "respirador",
-            "botas",
-            "overol",
-            "otros"
-          ],
-          "type": "string"
-        },
-        "updatedAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "type",
-        "stock",
-        "minStock",
-        "createdAt",
-        "updatedAt"
-      ],
-      "type": "object"
-    },
-    "EPPTypeSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "enum": [
-        "casco",
-        "arnes",
-        "gafas",
-        "guantes",
-        "tapones",
-        "respirador",
-        "botas",
-        "overol",
-        "otros"
-      ],
-      "type": "string"
-    },
-    "EquipmentCategorySchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "enum": [
-        "medicion",
-        "seguridad",
-        "comunicacion",
-        "electrico",
-        "construccion",
-        "cctv",
-        "general"
-      ],
-      "type": "string"
-    },
     "EquipmentSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -32667,16 +31189,6 @@
         "certificateRequired"
       ],
       "type": "object"
-    },
-    "EquipmentStatusSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "enum": [
-        "available",
-        "in_use",
-        "maintenance",
-        "retired"
-      ],
-      "type": "string"
     },
     "EquipmentUsageSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -33830,6 +32342,10 @@
           "exclusiveMinimum": 0,
           "maximum": 9007199254740991,
           "type": "integer"
+        },
+        "title": {
+          "maxLength": 120,
+          "type": "string"
         },
         "type": {
           "enum": [
@@ -44194,105 +42710,6 @@
       ],
       "type": "object"
     },
-    "InventoryCategorySchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "enum": [
-        "herramienta",
-        "equipo",
-        "material",
-        "epp",
-        "consumible",
-        "otro"
-      ],
-      "type": "string"
-    },
-    "InventoryItemSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "_id": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "category": {
-          "enum": [
-            "herramienta",
-            "equipo",
-            "material",
-            "epp",
-            "consumible",
-            "otro"
-          ],
-          "type": "string"
-        },
-        "createdAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "currentStock": {
-          "default": 0,
-          "maximum": 9007199254740991,
-          "minimum": 0,
-          "type": "integer"
-        },
-        "lastMovementDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "location": {
-          "maxLength": 200,
-          "type": "string"
-        },
-        "minStock": {
-          "default": 0,
-          "maximum": 9007199254740991,
-          "minimum": 0,
-          "type": "integer"
-        },
-        "name": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "notes": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "unit": {
-          "maxLength": 30,
-          "minLength": 1,
-          "type": "string"
-        },
-        "updatedAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "category",
-        "currentStock",
-        "minStock",
-        "unit",
-        "createdAt",
-        "updatedAt"
-      ],
-      "type": "object"
-    },
-    "InventoryMovementTypeSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "enum": [
-        "entrada",
-        "salida",
-        "ajuste",
-        "prestamo",
-        "devolucion"
-      ],
-      "type": "string"
-    },
     "InvoiceDocumentTypeSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "enum": [
@@ -46718,10 +45135,6 @@
                   "maxLength": 120,
                   "type": "string"
                 },
-                "serviceCaseId": {
-                  "pattern": "^[0-9a-fA-F]{24}$",
-                  "type": "string"
-                },
                 "serviceSite": {
                   "maxLength": 300,
                   "minLength": 1,
@@ -48182,102 +46595,6 @@
           "type": "object"
         }
       ]
-    },
-    "LifelineSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "_id": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "cableDiameter": {
-          "exclusiveMinimum": 0,
-          "type": "number"
-        },
-        "cableLength": {
-          "exclusiveMinimum": 0,
-          "type": "number"
-        },
-        "cableType": {
-          "maxLength": 100,
-          "type": "string"
-        },
-        "certification": {
-          "maxLength": 200,
-          "type": "string"
-        },
-        "clientId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "createdAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "installationDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "lastInspectionDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "location": {
-          "maxLength": 300,
-          "minLength": 1,
-          "type": "string"
-        },
-        "manufacturer": {
-          "maxLength": 200,
-          "type": "string"
-        },
-        "nextInspectionDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "notes": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "siteId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "type": {
-          "enum": [
-            "vertical",
-            "horizontal",
-            "portatil"
-          ],
-          "type": "string"
-        },
-        "updatedAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        }
-      },
-      "required": [
-        "type",
-        "location",
-        "createdAt",
-        "updatedAt"
-      ],
-      "type": "object"
-    },
-    "LifelineTypeSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "enum": [
-        "vertical",
-        "horizontal",
-        "portatil"
-      ],
-      "type": "string"
     },
     "LinkedDocumentSummarySchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -50396,108 +48713,6 @@
       ],
       "type": "object"
     },
-    "MasterDataEquipmentSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "_id": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "brand": {
-          "maxLength": 100,
-          "type": "string"
-        },
-        "category": {
-          "enum": [
-            "medicion",
-            "seguridad",
-            "comunicacion",
-            "electrico",
-            "construccion",
-            "cctv",
-            "general"
-          ],
-          "type": "string"
-        },
-        "clientId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "createdAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "lastCalibrationDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "model": {
-          "maxLength": 100,
-          "type": "string"
-        },
-        "name": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "nextCalibrationDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "notes": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "serialNumber": {
-          "maxLength": 100,
-          "type": "string"
-        },
-        "siteId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "status": {
-          "default": "available",
-          "enum": [
-            "available",
-            "in_use",
-            "maintenance",
-            "retired"
-          ],
-          "type": "string"
-        },
-        "updatedAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "category",
-        "status",
-        "createdAt",
-        "updatedAt"
-      ],
-      "type": "object"
-    },
-    "MaterialCategorySchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "enum": [
-        "electrico",
-        "electronico",
-        "estructura",
-        "ferreteria",
-        "tuberia",
-        "seguridad",
-        "general"
-      ],
-      "type": "string"
-    },
     "MaterialLineSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -50552,78 +48767,6 @@
         "unit",
         "recordedAt",
         "recordedBy"
-      ],
-      "type": "object"
-    },
-    "MaterialSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "_id": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "category": {
-          "enum": [
-            "electrico",
-            "electronico",
-            "estructura",
-            "ferreteria",
-            "tuberia",
-            "seguridad",
-            "general"
-          ],
-          "type": "string"
-        },
-        "createdAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "minStock": {
-          "default": 0,
-          "maximum": 9007199254740991,
-          "minimum": 0,
-          "type": "integer"
-        },
-        "name": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "notes": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "stock": {
-          "default": 0,
-          "maximum": 9007199254740991,
-          "minimum": 0,
-          "type": "integer"
-        },
-        "unit": {
-          "maxLength": 30,
-          "minLength": 1,
-          "type": "string"
-        },
-        "unitCost": {
-          "minimum": 0,
-          "type": "number"
-        },
-        "updatedAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "category",
-        "unit",
-        "stock",
-        "minStock",
-        "createdAt",
-        "updatedAt"
       ],
       "type": "object"
     },
@@ -52074,10 +50217,6 @@
                     },
                     "serialTag": {
                       "maxLength": 120,
-                      "type": "string"
-                    },
-                    "serviceCaseId": {
-                      "pattern": "^[0-9a-fA-F]{24}$",
                       "type": "string"
                     },
                     "serviceSite": {
@@ -54798,10 +52937,6 @@
         },
         "serialTag": {
           "maxLength": 120,
-          "type": "string"
-        },
-        "serviceCaseId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
           "type": "string"
         },
         "serviceSite": {
@@ -57763,7 +55898,6 @@
                   "MISSING_PO",
                   "MISSING_CREW_ASSIGNMENT",
                   "MISSING_KIT_TEMPLATE",
-                  "MISSING_KIT_CRITICAL_ITEMS",
                   "MISSING_TOOLS",
                   "MISSING_EQUIPMENT",
                   "MISSING_HSE_CERTIFICATION",
@@ -57795,9 +55929,7 @@
                   "TEMPLATE_RESPONSE_NOT_VALIDATED",
                   "CLOSING_PACKAGE_INCOMPLETE",
                   "INVOICE_NOT_APPROVED",
-                  "INVOICE_NOT_APPROVED_BEFORE_PAYMENT",
-                  "PAYMENT_NOT_RECONCILED",
-                  "SES_NOT_APPROVED_BEFORE_INVOICE"
+                  "PAYMENT_NOT_RECONCILED"
                 ],
                 "type": "string"
               },
@@ -59123,369 +57255,6 @@
         "approved",
         "rejected",
         "expired"
-      ],
-      "type": "string"
-    },
-    "PTWCategorySchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "enum": [
-        "frio",
-        "caliente",
-        "electrico_frio",
-        "electrico_caliente",
-        "simplificado"
-      ],
-      "type": "string"
-    },
-    "PTWRiskSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "category": {
-          "enum": [
-            "mecanico",
-            "electrico",
-            "quimico",
-            "biologico",
-            "fisico",
-            "ergonomico",
-            "psicosocial"
-          ],
-          "type": "string"
-        },
-        "controlMeasure": {
-          "maxLength": 500,
-          "minLength": 1,
-          "type": "string"
-        },
-        "description": {
-          "maxLength": 300,
-          "minLength": 1,
-          "type": "string"
-        },
-        "probability": {
-          "enum": [
-            "baja",
-            "media",
-            "alta"
-          ],
-          "type": "string"
-        },
-        "severity": {
-          "enum": [
-            "baja",
-            "media",
-            "alta"
-          ],
-          "type": "string"
-        }
-      },
-      "required": [
-        "description",
-        "category",
-        "probability",
-        "severity",
-        "controlMeasure"
-      ],
-      "type": "object"
-    },
-    "PTWSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "_id": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "area": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "category": {
-          "enum": [
-            "frio",
-            "caliente",
-            "electrico_frio",
-            "electrico_caliente",
-            "simplificado"
-          ],
-          "type": "string"
-        },
-        "closedAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "closureNotes": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "createdAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "description": {
-          "maxLength": 500,
-          "minLength": 1,
-          "type": "string"
-        },
-        "executionSessionId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "hesSignature": {
-          "additionalProperties": false,
-          "properties": {
-            "confirmed": {
-              "default": false,
-              "type": "boolean"
-            },
-            "imageDocumentId": {
-              "pattern": "^[0-9a-fA-F]{24}$",
-              "type": "string"
-            },
-            "role": {
-              "maxLength": 80,
-              "minLength": 1,
-              "type": "string"
-            },
-            "signatureId": {
-              "maxLength": 80,
-              "minLength": 1,
-              "type": "string"
-            },
-            "signatureType": {
-              "enum": [
-                "technician",
-                "supervisor",
-                "client",
-                "hes"
-              ],
-              "type": "string"
-            },
-            "signatureUrl": {
-              "format": "uri",
-              "type": "string"
-            },
-            "signedAt": {
-              "format": "date-time",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-              "type": "string"
-            },
-            "signedBy": {
-              "pattern": "^[0-9a-fA-F]{24}$",
-              "type": "string"
-            },
-            "signedByName": {
-              "maxLength": 200,
-              "minLength": 1,
-              "type": "string"
-            }
-          },
-          "required": [
-            "signatureId",
-            "signedBy",
-            "signedByName",
-            "role",
-            "signatureType",
-            "signedAt",
-            "confirmed"
-          ],
-          "type": "object"
-        },
-        "issuedBy": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "issuedTo": {
-          "default": [],
-          "items": {
-            "pattern": "^[0-9a-fA-F]{24}$",
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "orderId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "requiredPPE": {
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "risks": {
-          "default": [],
-          "items": {
-            "additionalProperties": false,
-            "properties": {
-              "category": {
-                "enum": [
-                  "mecanico",
-                  "electrico",
-                  "quimico",
-                  "biologico",
-                  "fisico",
-                  "ergonomico",
-                  "psicosocial"
-                ],
-                "type": "string"
-              },
-              "controlMeasure": {
-                "maxLength": 500,
-                "minLength": 1,
-                "type": "string"
-              },
-              "description": {
-                "maxLength": 300,
-                "minLength": 1,
-                "type": "string"
-              },
-              "probability": {
-                "enum": [
-                  "baja",
-                  "media",
-                  "alta"
-                ],
-                "type": "string"
-              },
-              "severity": {
-                "enum": [
-                  "baja",
-                  "media",
-                  "alta"
-                ],
-                "type": "string"
-              }
-            },
-            "required": [
-              "description",
-              "category",
-              "probability",
-              "severity",
-              "controlMeasure"
-            ],
-            "type": "object"
-          },
-          "type": "array"
-        },
-        "status": {
-          "default": "draft",
-          "enum": [
-            "draft",
-            "issued",
-            "active",
-            "closed",
-            "cancelled"
-          ],
-          "type": "string"
-        },
-        "supervisorSignature": {
-          "additionalProperties": false,
-          "properties": {
-            "confirmed": {
-              "default": false,
-              "type": "boolean"
-            },
-            "imageDocumentId": {
-              "pattern": "^[0-9a-fA-F]{24}$",
-              "type": "string"
-            },
-            "role": {
-              "maxLength": 80,
-              "minLength": 1,
-              "type": "string"
-            },
-            "signatureId": {
-              "maxLength": 80,
-              "minLength": 1,
-              "type": "string"
-            },
-            "signatureType": {
-              "enum": [
-                "technician",
-                "supervisor",
-                "client",
-                "hes"
-              ],
-              "type": "string"
-            },
-            "signatureUrl": {
-              "format": "uri",
-              "type": "string"
-            },
-            "signedAt": {
-              "format": "date-time",
-              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-              "type": "string"
-            },
-            "signedBy": {
-              "pattern": "^[0-9a-fA-F]{24}$",
-              "type": "string"
-            },
-            "signedByName": {
-              "maxLength": 200,
-              "minLength": 1,
-              "type": "string"
-            }
-          },
-          "required": [
-            "signatureId",
-            "signedBy",
-            "signedByName",
-            "role",
-            "signatureType",
-            "signedAt",
-            "confirmed"
-          ],
-          "type": "object"
-        },
-        "updatedAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "validFrom": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "validUntil": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        }
-      },
-      "required": [
-        "executionSessionId",
-        "orderId",
-        "category",
-        "status",
-        "area",
-        "description",
-        "risks",
-        "requiredPPE",
-        "validFrom",
-        "validUntil",
-        "issuedBy",
-        "issuedTo",
-        "createdAt",
-        "updatedAt"
-      ],
-      "type": "object"
-    },
-    "PTWStatusSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "enum": [
-        "draft",
-        "issued",
-        "active",
-        "closed",
-        "cancelled"
       ],
       "type": "string"
     },
@@ -61264,7 +59033,6 @@
             "MISSING_PO",
             "MISSING_CREW_ASSIGNMENT",
             "MISSING_KIT_TEMPLATE",
-            "MISSING_KIT_CRITICAL_ITEMS",
             "MISSING_TOOLS",
             "MISSING_EQUIPMENT",
             "MISSING_HSE_CERTIFICATION",
@@ -61296,9 +59064,7 @@
             "TEMPLATE_RESPONSE_NOT_VALIDATED",
             "CLOSING_PACKAGE_INCOMPLETE",
             "INVOICE_NOT_APPROVED",
-            "INVOICE_NOT_APPROVED_BEFORE_PAYMENT",
-            "PAYMENT_NOT_RECONCILED",
-            "SES_NOT_APPROVED_BEFORE_INVOICE"
+            "PAYMENT_NOT_RECONCILED"
           ],
           "type": "string"
         },
@@ -62720,97 +60486,6 @@
       ],
       "type": "object"
     },
-    "ScheduleEventSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "_id": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "createdAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "endDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "notes": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "orderId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "resourceId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "resourceName": {
-          "maxLength": 200,
-          "type": "string"
-        },
-        "resourceType": {
-          "enum": [
-            "personal",
-            "equipo",
-            "vehiculo",
-            "herramienta"
-          ],
-          "type": "string"
-        },
-        "startDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "status": {
-          "default": "scheduled",
-          "enum": [
-            "scheduled",
-            "in_progress",
-            "completed",
-            "cancelled"
-          ],
-          "type": "string"
-        },
-        "title": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "updatedAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        }
-      },
-      "required": [
-        "title",
-        "resourceType",
-        "resourceId",
-        "startDate",
-        "endDate",
-        "status",
-        "createdAt",
-        "updatedAt"
-      ],
-      "type": "object"
-    },
-    "ScheduleEventStatusSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "enum": [
-        "scheduled",
-        "in_progress",
-        "completed",
-        "cancelled"
-      ],
-      "type": "string"
-    },
     "ScheduleVisitSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -63365,7 +61040,6 @@
                   "MISSING_PO",
                   "MISSING_CREW_ASSIGNMENT",
                   "MISSING_KIT_TEMPLATE",
-                  "MISSING_KIT_CRITICAL_ITEMS",
                   "MISSING_TOOLS",
                   "MISSING_EQUIPMENT",
                   "MISSING_HSE_CERTIFICATION",
@@ -63397,9 +61071,7 @@
                   "TEMPLATE_RESPONSE_NOT_VALIDATED",
                   "CLOSING_PACKAGE_INCOMPLETE",
                   "INVOICE_NOT_APPROVED",
-                  "INVOICE_NOT_APPROVED_BEFORE_PAYMENT",
-                  "PAYMENT_NOT_RECONCILED",
-                  "SES_NOT_APPROVED_BEFORE_INVOICE"
+                  "PAYMENT_NOT_RECONCILED"
                 ],
                 "type": "string"
               },
@@ -63571,7 +61243,6 @@
                   "MISSING_PO",
                   "MISSING_CREW_ASSIGNMENT",
                   "MISSING_KIT_TEMPLATE",
-                  "MISSING_KIT_CRITICAL_ITEMS",
                   "MISSING_TOOLS",
                   "MISSING_EQUIPMENT",
                   "MISSING_HSE_CERTIFICATION",
@@ -63603,9 +61274,7 @@
                   "TEMPLATE_RESPONSE_NOT_VALIDATED",
                   "CLOSING_PACKAGE_INCOMPLETE",
                   "INVOICE_NOT_APPROVED",
-                  "INVOICE_NOT_APPROVED_BEFORE_PAYMENT",
-                  "PAYMENT_NOT_RECONCILED",
-                  "SES_NOT_APPROVED_BEFORE_INVOICE"
+                  "PAYMENT_NOT_RECONCILED"
                 ],
                 "type": "string"
               },
@@ -64248,7 +61917,6 @@
                   "MISSING_PO",
                   "MISSING_CREW_ASSIGNMENT",
                   "MISSING_KIT_TEMPLATE",
-                  "MISSING_KIT_CRITICAL_ITEMS",
                   "MISSING_TOOLS",
                   "MISSING_EQUIPMENT",
                   "MISSING_HSE_CERTIFICATION",
@@ -64280,9 +61948,7 @@
                   "TEMPLATE_RESPONSE_NOT_VALIDATED",
                   "CLOSING_PACKAGE_INCOMPLETE",
                   "INVOICE_NOT_APPROVED",
-                  "INVOICE_NOT_APPROVED_BEFORE_PAYMENT",
-                  "PAYMENT_NOT_RECONCILED",
-                  "SES_NOT_APPROVED_BEFORE_INVOICE"
+                  "PAYMENT_NOT_RECONCILED"
                 ],
                 "type": "string"
               },
@@ -64443,7 +62109,6 @@
                   "MISSING_PO",
                   "MISSING_CREW_ASSIGNMENT",
                   "MISSING_KIT_TEMPLATE",
-                  "MISSING_KIT_CRITICAL_ITEMS",
                   "MISSING_TOOLS",
                   "MISSING_EQUIPMENT",
                   "MISSING_HSE_CERTIFICATION",
@@ -64475,9 +62140,7 @@
                   "TEMPLATE_RESPONSE_NOT_VALIDATED",
                   "CLOSING_PACKAGE_INCOMPLETE",
                   "INVOICE_NOT_APPROVED",
-                  "INVOICE_NOT_APPROVED_BEFORE_PAYMENT",
-                  "PAYMENT_NOT_RECONCILED",
-                  "SES_NOT_APPROVED_BEFORE_INVOICE"
+                  "PAYMENT_NOT_RECONCILED"
                 ],
                 "type": "string"
               },
@@ -64888,7 +62551,6 @@
                         "MISSING_PO",
                         "MISSING_CREW_ASSIGNMENT",
                         "MISSING_KIT_TEMPLATE",
-                        "MISSING_KIT_CRITICAL_ITEMS",
                         "MISSING_TOOLS",
                         "MISSING_EQUIPMENT",
                         "MISSING_HSE_CERTIFICATION",
@@ -64920,9 +62582,7 @@
                         "TEMPLATE_RESPONSE_NOT_VALIDATED",
                         "CLOSING_PACKAGE_INCOMPLETE",
                         "INVOICE_NOT_APPROVED",
-                        "INVOICE_NOT_APPROVED_BEFORE_PAYMENT",
-                        "PAYMENT_NOT_RECONCILED",
-                        "SES_NOT_APPROVED_BEFORE_INVOICE"
+                        "PAYMENT_NOT_RECONCILED"
                       ],
                       "type": "string"
                     },
@@ -65094,7 +62754,6 @@
                         "MISSING_PO",
                         "MISSING_CREW_ASSIGNMENT",
                         "MISSING_KIT_TEMPLATE",
-                        "MISSING_KIT_CRITICAL_ITEMS",
                         "MISSING_TOOLS",
                         "MISSING_EQUIPMENT",
                         "MISSING_HSE_CERTIFICATION",
@@ -65126,9 +62785,7 @@
                         "TEMPLATE_RESPONSE_NOT_VALIDATED",
                         "CLOSING_PACKAGE_INCOMPLETE",
                         "INVOICE_NOT_APPROVED",
-                        "INVOICE_NOT_APPROVED_BEFORE_PAYMENT",
-                        "PAYMENT_NOT_RECONCILED",
-                        "SES_NOT_APPROVED_BEFORE_INVOICE"
+                        "PAYMENT_NOT_RECONCILED"
                       ],
                       "type": "string"
                     },
@@ -65481,7 +63138,6 @@
                   "MISSING_PO",
                   "MISSING_CREW_ASSIGNMENT",
                   "MISSING_KIT_TEMPLATE",
-                  "MISSING_KIT_CRITICAL_ITEMS",
                   "MISSING_TOOLS",
                   "MISSING_EQUIPMENT",
                   "MISSING_HSE_CERTIFICATION",
@@ -65513,9 +63169,7 @@
                   "TEMPLATE_RESPONSE_NOT_VALIDATED",
                   "CLOSING_PACKAGE_INCOMPLETE",
                   "INVOICE_NOT_APPROVED",
-                  "INVOICE_NOT_APPROVED_BEFORE_PAYMENT",
-                  "PAYMENT_NOT_RECONCILED",
-                  "SES_NOT_APPROVED_BEFORE_INVOICE"
+                  "PAYMENT_NOT_RECONCILED"
                 ],
                 "type": "string"
               },
@@ -66000,7 +63654,6 @@
                   "MISSING_PO",
                   "MISSING_CREW_ASSIGNMENT",
                   "MISSING_KIT_TEMPLATE",
-                  "MISSING_KIT_CRITICAL_ITEMS",
                   "MISSING_TOOLS",
                   "MISSING_EQUIPMENT",
                   "MISSING_HSE_CERTIFICATION",
@@ -66032,9 +63685,7 @@
                   "TEMPLATE_RESPONSE_NOT_VALIDATED",
                   "CLOSING_PACKAGE_INCOMPLETE",
                   "INVOICE_NOT_APPROVED",
-                  "INVOICE_NOT_APPROVED_BEFORE_PAYMENT",
-                  "PAYMENT_NOT_RECONCILED",
-                  "SES_NOT_APPROVED_BEFORE_INVOICE"
+                  "PAYMENT_NOT_RECONCILED"
                 ],
                 "type": "string"
               },
@@ -66521,7 +64172,6 @@
                   "MISSING_PO",
                   "MISSING_CREW_ASSIGNMENT",
                   "MISSING_KIT_TEMPLATE",
-                  "MISSING_KIT_CRITICAL_ITEMS",
                   "MISSING_TOOLS",
                   "MISSING_EQUIPMENT",
                   "MISSING_HSE_CERTIFICATION",
@@ -66553,9 +64203,7 @@
                   "TEMPLATE_RESPONSE_NOT_VALIDATED",
                   "CLOSING_PACKAGE_INCOMPLETE",
                   "INVOICE_NOT_APPROVED",
-                  "INVOICE_NOT_APPROVED_BEFORE_PAYMENT",
-                  "PAYMENT_NOT_RECONCILED",
-                  "SES_NOT_APPROVED_BEFORE_INVOICE"
+                  "PAYMENT_NOT_RECONCILED"
                 ],
                 "type": "string"
               },
@@ -67343,7 +64991,6 @@
                         "MISSING_PO",
                         "MISSING_CREW_ASSIGNMENT",
                         "MISSING_KIT_TEMPLATE",
-                        "MISSING_KIT_CRITICAL_ITEMS",
                         "MISSING_TOOLS",
                         "MISSING_EQUIPMENT",
                         "MISSING_HSE_CERTIFICATION",
@@ -67375,9 +65022,7 @@
                         "TEMPLATE_RESPONSE_NOT_VALIDATED",
                         "CLOSING_PACKAGE_INCOMPLETE",
                         "INVOICE_NOT_APPROVED",
-                        "INVOICE_NOT_APPROVED_BEFORE_PAYMENT",
-                        "PAYMENT_NOT_RECONCILED",
-                        "SES_NOT_APPROVED_BEFORE_INVOICE"
+                        "PAYMENT_NOT_RECONCILED"
                       ],
                       "type": "string"
                     },
@@ -67549,7 +65194,6 @@
                         "MISSING_PO",
                         "MISSING_CREW_ASSIGNMENT",
                         "MISSING_KIT_TEMPLATE",
-                        "MISSING_KIT_CRITICAL_ITEMS",
                         "MISSING_TOOLS",
                         "MISSING_EQUIPMENT",
                         "MISSING_HSE_CERTIFICATION",
@@ -67581,9 +65225,7 @@
                         "TEMPLATE_RESPONSE_NOT_VALIDATED",
                         "CLOSING_PACKAGE_INCOMPLETE",
                         "INVOICE_NOT_APPROVED",
-                        "INVOICE_NOT_APPROVED_BEFORE_PAYMENT",
-                        "PAYMENT_NOT_RECONCILED",
-                        "SES_NOT_APPROVED_BEFORE_INVOICE"
+                        "PAYMENT_NOT_RECONCILED"
                       ],
                       "type": "string"
                     },
@@ -68683,82 +66325,6 @@
       ],
       "type": "object"
     },
-    "SiteSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "_id": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "address": {
-          "maxLength": 300,
-          "type": "string"
-        },
-        "city": {
-          "maxLength": 100,
-          "type": "string"
-        },
-        "clientId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "contactName": {
-          "maxLength": 200,
-          "type": "string"
-        },
-        "contactPhone": {
-          "maxLength": 20,
-          "type": "string"
-        },
-        "coordinates": {
-          "additionalProperties": false,
-          "properties": {
-            "lat": {
-              "maximum": 90,
-              "minimum": -90,
-              "type": "number"
-            },
-            "lng": {
-              "maximum": 180,
-              "minimum": -180,
-              "type": "number"
-            }
-          },
-          "required": [
-            "lat",
-            "lng"
-          ],
-          "type": "object"
-        },
-        "createdAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "name": {
-          "maxLength": 200,
-          "minLength": 1,
-          "type": "string"
-        },
-        "notes": {
-          "maxLength": 500,
-          "type": "string"
-        },
-        "updatedAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "clientId",
-        "createdAt",
-        "updatedAt"
-      ],
-      "type": "object"
-    },
     "SiteVisitFindingSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -69506,7 +67072,6 @@
             "MISSING_PO",
             "MISSING_CREW_ASSIGNMENT",
             "MISSING_KIT_TEMPLATE",
-            "MISSING_KIT_CRITICAL_ITEMS",
             "MISSING_TOOLS",
             "MISSING_EQUIPMENT",
             "MISSING_HSE_CERTIFICATION",
@@ -69538,9 +67103,7 @@
             "TEMPLATE_RESPONSE_NOT_VALIDATED",
             "CLOSING_PACKAGE_INCOMPLETE",
             "INVOICE_NOT_APPROVED",
-            "INVOICE_NOT_APPROVED_BEFORE_PAYMENT",
-            "PAYMENT_NOT_RECONCILED",
-            "SES_NOT_APPROVED_BEFORE_INVOICE"
+            "PAYMENT_NOT_RECONCILED"
           ],
           "type": "string"
         },
@@ -69633,66 +67196,6 @@
         "external_reference"
       ],
       "type": "string"
-    },
-    "StockMovementSchema": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "additionalProperties": false,
-      "properties": {
-        "_id": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "createdAt": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "itemId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "movementDate": {
-          "format": "date-time",
-          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
-          "type": "string"
-        },
-        "orderId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        },
-        "quantity": {
-          "maximum": 9007199254740991,
-          "minimum": -9007199254740991,
-          "type": "integer"
-        },
-        "reason": {
-          "maxLength": 300,
-          "type": "string"
-        },
-        "type": {
-          "enum": [
-            "entrada",
-            "salida",
-            "ajuste",
-            "prestamo",
-            "devolucion"
-          ],
-          "type": "string"
-        },
-        "userId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
-          "type": "string"
-        }
-      },
-      "required": [
-        "itemId",
-        "type",
-        "quantity",
-        "userId",
-        "movementDate",
-        "createdAt"
-      ],
-      "type": "object"
     },
     "SubmitDynamicFormResponseSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -70467,10 +67970,6 @@
                           },
                           "serialTag": {
                             "maxLength": 120,
-                            "type": "string"
-                          },
-                          "serviceCaseId": {
-                            "pattern": "^[0-9a-fA-F]{24}$",
                             "type": "string"
                           },
                           "serviceSite": {
@@ -90603,7 +88102,6 @@
             "MISSING_PO",
             "MISSING_CREW_ASSIGNMENT",
             "MISSING_KIT_TEMPLATE",
-            "MISSING_KIT_CRITICAL_ITEMS",
             "MISSING_TOOLS",
             "MISSING_EQUIPMENT",
             "MISSING_HSE_CERTIFICATION",
@@ -90635,9 +88133,7 @@
             "TEMPLATE_RESPONSE_NOT_VALIDATED",
             "CLOSING_PACKAGE_INCOMPLETE",
             "INVOICE_NOT_APPROVED",
-            "INVOICE_NOT_APPROVED_BEFORE_PAYMENT",
-            "PAYMENT_NOT_RECONCILED",
-            "SES_NOT_APPROVED_BEFORE_INVOICE"
+            "PAYMENT_NOT_RECONCILED"
           ],
           "type": "string"
         },
@@ -91190,10 +88686,6 @@
                 "maxLength": 120,
                 "type": "string"
               },
-              "serviceCaseId": {
-                "pattern": "^[0-9a-fA-F]{24}$",
-                "type": "string"
-              },
               "serviceSite": {
                 "maxLength": 300,
                 "minLength": 1,
@@ -91678,10 +89170,6 @@
         },
         "serialTag": {
           "maxLength": 120,
-          "type": "string"
-        },
-        "serviceCaseId": {
-          "pattern": "^[0-9a-fA-F]{24}$",
           "type": "string"
         },
         "serviceSite": {

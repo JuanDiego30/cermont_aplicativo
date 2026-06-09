@@ -140,6 +140,7 @@ export {
 } from "./report.schema";
 export * from "./resource.schema";
 export * from "./service-case.schema";
+export * from "./service-case-step-context.schema";
 export * from "./service-case-workflow.schema";
 export * from "./service-entry-sheet.schema";
 export * from "./service-type.schema";

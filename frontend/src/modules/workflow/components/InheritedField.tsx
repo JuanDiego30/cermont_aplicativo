@@ -21,7 +21,10 @@ export function InheritedField({ field, value, onChange, readOnly }: InheritedFi
 	return (
 		<div className="grid gap-1.5">
 			<div className="flex items-center justify-between">
-				<label htmlFor={`inherited-${field.key}`} className="text-sm font-medium text-[var(--text-primary)]">
+				<label
+					htmlFor={`inherited-${field.key}`}
+					className="text-sm font-medium text-[var(--text-primary)]"
+				>
 					{field.label}
 					{field.required && <span className="ml-1 text-[var(--color-danger)]">*</span>}
 				</label>

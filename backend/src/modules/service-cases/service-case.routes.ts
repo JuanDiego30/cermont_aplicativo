@@ -11,6 +11,7 @@ import {
 	closeServiceCase,
 	getCaseClosingStatus,
 	getServiceCase,
+	getServiceCaseStepContext,
 	getServiceCaseSummary,
 	getServiceCaseWorkflow,
 	listServiceCases,
@@ -30,6 +31,14 @@ router.get(
 
 // GET /api/service-cases/summary — Dashboard aggregated summary
 router.get("/summary", authorize(...INTERNAL_ROLES), getServiceCaseSummary);
+
+// GET /api/service-cases/:id/step-context?stepCode=<code> — Inherited step context for create forms
+router.get(
+	"/:id/step-context",
+	authorize(...INTERNAL_ROLES),
+	validateParams(ServiceCaseIdParamsSchema),
+	getServiceCaseStepContext,
+);
 
 // GET /api/service-cases/:id/workflow — Explicit workflow view for cockpit
 router.get(

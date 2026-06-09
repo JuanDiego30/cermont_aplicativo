@@ -132,7 +132,13 @@ interface SyncQueueDialogProps {
 	onDialogClose?: () => void;
 }
 
-function SyncQueueDialog({ dialogRef, entries, isOnline, onDeleteEntry, onDialogClose }: SyncQueueDialogProps) {
+function SyncQueueDialog({
+	dialogRef,
+	entries,
+	isOnline,
+	onDeleteEntry,
+	onDialogClose,
+}: SyncQueueDialogProps) {
 	return (
 		<dialog
 			ref={dialogRef}

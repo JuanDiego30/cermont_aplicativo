@@ -14,6 +14,13 @@ interface ServiceCaseSummary {
 	inProgress: number;
 	completedThisMonth: number;
 	revenue: number;
+	// Enhanced operational KPIs
+	blockedCases?: number;
+	readyToBill?: number;
+	readyToClose?: number;
+	inExecution?: number;
+	inPlanning?: number;
+	stepDistribution?: Array<{ stepCode: string; count: number }>;
 }
 
 interface SummaryContract {

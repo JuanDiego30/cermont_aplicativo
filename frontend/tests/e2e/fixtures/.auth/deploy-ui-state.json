@@ -1,0 +1,35 @@
+{
+	"cookies": [
+		{
+			"name": "refreshToken",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTI2NWNkZjIyMTMxYzA2OGExNzU5NDMiLCJyb2xlIjoiZ2VyZW50ZSIsImp0aSI6IjBmY2U5MzIxLTBhZDctNDQzZC04OWY3LWY0ODlmZmUxNjZhYiIsImlhdCI6MTc4MTAwODU0OCwiZXhwIjoxNzgxNjEzMzQ4fQ.4dP2NuGgNiIBhj-rhODQS1G0_K6U_KWGFmpzrahrko0",
+			"domain": "localhost",
+			"path": "/",
+			"expires": 1781613348.155104,
+			"httpOnly": true,
+			"secure": false,
+			"sameSite": "Lax"
+		},
+		{
+			"name": "userRole",
+			"value": "gerente",
+			"domain": "localhost",
+			"path": "/",
+			"expires": 1781613348.155698,
+			"httpOnly": false,
+			"secure": false,
+			"sameSite": "Lax"
+		}
+	],
+	"origins": [
+		{
+			"origin": "http://localhost:3000",
+			"localStorage": [
+				{
+					"name": "cermont-auth",
+					"value": "{\"state\":{\"user\":{\"status\":\"present\",\"value\":{\"id\":\"6a265cdf22131c068a175943\",\"email\":\"gerencia@cermont.co\",\"name\":\"Gerencia General\",\"role\":\"gerente\"}}},\"version\":0}"
+				}
+			]
+		}
+	]
+}

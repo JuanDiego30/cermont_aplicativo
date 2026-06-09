@@ -6,7 +6,11 @@
  * so users can continue working on a step even without connectivity.
  */
 
-import type { CermontOperationalStepCode, FieldOverride, OfflineJsonObject } from "@cermont/shared-types";
+import type {
+	CermontOperationalStepCode,
+	FieldOverride,
+	OfflineJsonObject,
+} from "@cermont/shared-types";
 import { offlineDb } from "@/lib/offline/offline-db";
 
 export interface StepContextDraft {
@@ -46,7 +50,9 @@ export async function loadStepContextDraft(
 ): Promise<StepContextDraft | null> {
 	const key = draftKey(serviceCaseId, stepCode);
 	const record = await offlineDb.offlineMeta.get(key);
-	if (!record) { return null; }
+	if (!record) {
+		return null;
+	}
 	return record.value as unknown as StepContextDraft;
 }
 
@@ -64,12 +70,8 @@ export async function removeStepContextDraft(
 /**
  * Lists all saved step context drafts for a given service case.
  */
-export async function listStepContextDrafts(
-	serviceCaseId: string,
-): Promise<StepContextDraft[]> {
+export async function listStepContextDrafts(serviceCaseId: string): Promise<StepContextDraft[]> {
 	const prefix = draftKey(serviceCaseId, "");
-	const allRecords = await offlineDb.offlineMeta
-		.filter((r) => r.key.startsWith(prefix))
-		.toArray();
+	const allRecords = await offlineDb.offlineMeta.filter((r) => r.key.startsWith(prefix)).toArray();
 	return allRecords.map((r) => r.value as unknown as StepContextDraft);
 }

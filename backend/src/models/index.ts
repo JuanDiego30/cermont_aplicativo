@@ -40,10 +40,12 @@ export {
 	DocumentTemplateVersion,
 	type IDocumentTemplateVersionDocument,
 } from "./DocumentTemplateVersion";
+export { DynamicFormTemplate, type DynamicFormTemplateDocument } from "./DynamicFormTemplate";
 export { Evidence } from "./Evidence";
 export { EvidenceCollection, type IEvidenceCollectionDocument } from "./EvidenceCollection";
 export { ExecutionSession, type ExecutionSessionDocument } from "./ExecutionSession";
 export { FileAsset, type IFileAssetDocument } from "./FileAsset";
+export { FormSubmission, type FormSubmissionDocument } from "./FormSubmission";
 export { IdempotencyEntry, type IdempotencyEntryDocument } from "./IdempotencyEntry";
 export { Inspection } from "./Inspection";
 export { Invoice, type InvoiceDocument } from "./Invoice";
