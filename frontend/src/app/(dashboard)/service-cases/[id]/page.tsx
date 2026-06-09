@@ -42,7 +42,7 @@ function ServiceCaseDetailInner() {
 	const { user } = useAuth();
 	const isGerente = user?.role === "gerente";
 	const canArchive =
-		isGerente && sc && (sc.globalStatus === "paid" || sc.globalStatus === "closed");
+		isGerente && sc && (sc.globalStatus === "paid" || sc.globalStatus === "cancelled");
 
 	const apiError = advance.error instanceof ApiError ? advance.error : false;
 	const isBlockedTransition = apiError !== false && apiError.code === "STEP_TRANSITION_BLOCKED";
