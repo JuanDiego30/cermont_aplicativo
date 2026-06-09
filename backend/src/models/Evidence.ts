@@ -28,6 +28,11 @@ export interface IEvidenceDocument extends Document {
 	orderId?: Types.ObjectId;
 	type?: "before" | "during" | "after" | "defect" | "safety" | "signature";
 
+	// Technical evidence metadata (Lote 3 — PROMPT CREA §5)
+	componentName?: string;           // e.g. "Cámara 01", "Placa anclaje superior"
+	photoLabel?: string;              // Descriptive label shown in technical reports
+	beforeAfter?: "before" | "after" | "during"; // Position in intervention lifecycle
+
 	// V2 fields
 	code?: string;
 	phase?: "before" | "during" | "after" | "closure";
@@ -86,7 +91,7 @@ export interface IEvidenceDocument extends Document {
 	// Verification
 	verifiedAt?: Date;
 	verifiedBy?: Types.ObjectId;
-	deletedAt: Date | null;
+	deletedAt?: Date | "not_applicable";
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -135,6 +140,14 @@ const EvidenceSchema = new Schema<IEvidenceDocument>(
 		sizeBytes: { type: Number, required: true },
 		variants: [EvidenceImageVariantSchema],
 		fileAssets: { type: [FileAssetRefSchema], default: [] },
+
+		// Technical evidence metadata (Lote 3 — PROMPT CREA §5)
+		componentName: { type: String, maxlength: 200 },
+		photoLabel: { type: String, maxlength: 200 },
+		beforeAfter: {
+			type: String,
+			enum: ["before", "after", "during"],
+		},
 
 		// Content
 		description: { type: String, maxlength: 500 },

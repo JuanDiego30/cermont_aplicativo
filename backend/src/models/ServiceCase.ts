@@ -10,6 +10,7 @@
  */
 
 import { type Document, model, Schema, Types } from "mongoose";
+import type { DomainBlocker } from "@cermont/shared-types";
 
 const SERVICE_CASE_STAGES = [
 	"intake",
@@ -139,7 +140,7 @@ export type ServiceCaseDocument = Document & {
 	currentStage: (typeof SERVICE_CASE_STAGES)[number];
 	currentStepCode?: string;
 	artifacts: Record<string, { id: Types.ObjectId; code?: string; status: string; updatedAt: Date }>;
-	blockers: Record<string, unknown>[];
+	blockers: DomainBlocker[];
 	nextActions: { command: string; label: string; requiredRole: string; route?: string }[];
 	timeline: {
 		eventId: string;
@@ -150,8 +151,8 @@ export type ServiceCaseDocument = Document & {
 		occurredAt: Date;
 		notes?: string;
 	}[];
-	financialSummary?: Record<string, unknown>;
-	operationalSummary?: Record<string, unknown>;
+	financialSummary?: Record<string, string | number | boolean | object | Date | undefined>;
+	operationalSummary?: Record<string, string | number | boolean | object | Date | undefined>;
 	createdAt: Date;
 	updatedAt: Date;
 };

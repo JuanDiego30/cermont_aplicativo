@@ -125,6 +125,13 @@ export const CreateEvidenceSchema = z
 	.strict();
 
 // ──────────────────────────────────────────────────────────────────────────────
+// Technical Category — Domain-specific classification for field inspections
+// ──────────────────────────────────────────────────────────────────────────────
+
+export const TechnicalCategorySchema = z.enum(["lineas_de_vida", "cctv", "anclajes", "general"]);
+export type TechnicalCategory = z.infer<typeof TechnicalCategorySchema>;
+
+// ──────────────────────────────────────────────────────────────────────────────
 // Enhanced Evidence Schema (V2) — For 14-step workflow with variants
 // ──────────────────────────────────────────────────────────────────────────────
 
@@ -134,10 +141,18 @@ export const EvidenceSchemaV2 = z
 		code: z.string().min(1).max(40),
 		phase: EvidencePhaseSchema,
 		category: EvidenceCategorySchema,
+		technicalCategory: TechnicalCategorySchema.optional(),
+		equipmentId: ObjectIdSchema.optional(),
+		location: z.string().max(300).optional(),
+		inspectionType: z.string().max(100).optional(),
 		serviceCaseId: ObjectIdSchema,
 		workOrderId: ObjectIdSchema.optional(),
 		executionSessionId: ObjectIdSchema.optional(),
 		description: z.string().max(500).optional(),
+		// Technical evidence metadata (Lote 3 — PROMPT CREA §5)
+		componentName: z.string().max(200).optional(),
+		photoLabel: z.string().max(200).optional(),
+		beforeAfter: z.enum(["before", "after", "during"]).optional(),
 		mimeType: z.string().min(1).max(120),
 		sizeBytes: z.number().int().positive(),
 		url: z.string().url(),
@@ -174,6 +189,10 @@ export const OfflineEvidencePayloadSchema = z
 		workOrderId: ObjectIdSchema.optional(),
 		executionSessionId: ObjectIdSchema.optional(),
 		description: z.string().max(500).optional(),
+		// Technical evidence metadata (Lote 3 — PROMPT CREA §5)
+		componentName: z.string().max(200).optional(),
+		photoLabel: z.string().max(200).optional(),
+		beforeAfter: z.enum(["before", "after", "during"]).optional(),
 		mimeType: z.string().min(1).max(120),
 		sizeBytes: z.number().int().positive().optional(),
 		temporaryUrl: z.string().url().optional(),

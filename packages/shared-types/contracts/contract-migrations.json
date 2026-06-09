@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:5a9ab4d947d74377dd977aaf1eb151ed3189113bf83f651ebd196f7d122d96cd",
+	"currentSnapshotHash": "sha256:26287fa459779068d0d9e35a715847eab02637a6432e31aa9932e77420195e8e",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -203,6 +203,55 @@
 			"type": "non-breaking",
 			"description": "Add Colombian DIAN fields to Invoice schema and extract modular sub-schemas for ExecutionSession.",
 			"toHash": "sha256:5a9ab4d947d74377dd977aaf1eb151ed3189113bf83f651ebd196f7d122d96cd"
+		},
+		{
+			"id": "029-blocker-codes-cross-step-validation",
+			"date": "2026-06-08",
+			"type": "non-breaking",
+			"description": "Add SES_NOT_APPROVED_BEFORE_INVOICE and INVOICE_NOT_APPROVED_BEFORE_PAYMENT blocker codes for cross-step administrative closure validation.",
+			"toHash": "sha256:9a3feb85b11bd62d8d86f0874425a9f60ee258a49750cd92c9f9dc8773c1edb5"
+		},
+		{
+			"date": "2026-06-08",
+			"toHash": "sha256:7094003130542477268bf0d61413982ddfe1c086b11de30ca3baf6acf5349c9e",
+			"description": "Add master data schemas (client, site, equipment, material, epp, camera, lifeline).",
+			"id": "031-master-data-schemas",
+			"type": "non-breaking"
+		},
+		{
+			"type": "non-breaking",
+			"toHash": "sha256:6fcc75f0caa49da92586db773920a7b28dc8edef9d78fe3c1c38f583f3f5d6a6",
+			"description": "Add Wave 4 commercial feature schemas (contract, inventory-item, schedule-event).",
+			"date": "2026-06-08",
+			"id": "032-wave4-commercial-schemas"
+		},
+		{
+			"type": "non-breaking",
+			"toHash": "sha256:4996ff0e42088c97de1c5d1366f78f32a1e9cb096d7d62d6973323560db107de",
+			"description": "Add MISSING_KIT_CRITICAL_ITEMS blocker code and normalize 14 step domain semantics (ses_approved step).",
+			"date": "2026-06-08",
+			"id": "033-blocker-code-kit-critical-items"
+		},
+		{
+			"type": "non-breaking",
+			"toHash": "sha256:de7aca55b2a6233c32fc8375ff5b64f6bd123455ff54f32d7399a2c9a0924102",
+			"description": "Add serviceCaseId to WorkRequest schema for step-context inheritance chain (Lote 1-1). Add ServiceCaseStepContext schema with InheritedField, FieldOverride, CanonicalCaseData contracts.",
+			"date": "2026-06-08",
+			"id": "034-service-case-step-context-inheritance"
+		},
+		{
+			"type": "non-breaking",
+			"toHash": "sha256:b5765c49747a1d35f0f1b2f4a33f3916e82430a8c80233bcbf083666f6c01bfb",
+			"description": "Regenerate contract snapshot after build — captures accumulated schema changes including step-context contracts and WorkRequest serviceCaseId field.",
+			"date": "2026-06-08",
+			"id": "035-contract-snapshot-rebuild"
+		},
+		{
+			"type": "non-breaking",
+			"toHash": "sha256:26287fa459779068d0d9e35a715847eab02637a6432e31aa9932e77420195e8e",
+			"description": "Add serviceCaseId to CreateProposalSchema to fix 400 error when creating proposal with linked service case.",
+			"date": "2026-06-09",
+			"id": "036-proposal-servicecaseid-fix"
 		}
 	]
 }

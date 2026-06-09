@@ -4,13 +4,18 @@
  * Layer: authenticate → authorize → validate → controller → res.json()
  */
 
-import { ListServiceCasesQuerySchema, ServiceCaseIdParamsSchema } from "@cermont/shared-types";
+import {
+	ListServiceCasesQuerySchema,
+	ServiceCaseIdParamsSchema,
+	StepContextQuerySchema,
+} from "@cermont/shared-types";
 import type { Request, Response } from "express";
 import { Types } from "mongoose";
 import { BadRequestError } from "../../common/errors";
 import { sendSuccess } from "../../common/interceptors/response.interceptor";
 import { requireUser } from "../../common/utils/request";
 import { Document, ServiceCase } from "../../models";
+import { buildServiceCaseStepContext } from "../../services/service-case-step-context.service";
 import { getConsolidatedReport } from "../../modules/order/order-closure.service";
 import {
 	applyClosingEvidenceMetadata,
@@ -49,6 +54,14 @@ export async function getServiceCase(req: Request, res: Response): Promise<void>
 	sendSuccess(res, serviceCase);
 }
 
+export async function getServiceCaseStepContext(req: Request, res: Response): Promise<void> {
+	const { id } = ServiceCaseIdParamsSchema.parse(req.params);
+	const { stepCode } = StepContextQuerySchema.parse(req.query);
+
+	const context = await buildServiceCaseStepContext(id, stepCode);
+	sendSuccess(res, context);
+}
+
 export async function getServiceCaseWorkflow(req: Request, res: Response): Promise<void> {
 	const { id } = ServiceCaseIdParamsSchema.parse(req.params);
 	const workflow = await ServiceCaseService.buildServiceCaseWorkflowView(id);
@@ -77,8 +90,9 @@ export async function advanceServiceCase(req: Request, res: Response): Promise<v
 
 	if (!result.success) {
 		res.status(409).json({
+			code: "STEP_TRANSITION_BLOCKED",
 			error: result.error,
-			blockers: result.blockers,
+			details: result.blockers,
 			message: result.message,
 		});
 		return;

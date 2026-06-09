@@ -467,18 +467,18 @@ export async function getServiceCaseById(id: string): Promise<ServiceCaseView | 
 
 	const _nextActions = blockers.length
 		? blockers.slice(0, 3).map((blocker) => ({
-				command: blocker.code.toLowerCase(),
-				label: blocker.recommendedAction,
+				command: blocker.code.toLowerCase().slice(0, 80),
+				label: blocker.recommendedAction.slice(0, 200),
 				requiredRole: blocker.ownerRole,
-				route: currentStep?.route.replace("[id]", id),
+				route: currentStep?.route,
 			}))
 		: currentStep
 			? [
 					{
-						command: currentStep.nextAction.toLowerCase().replace(/\s+/g, "_"),
-						label: currentStep.nextAction,
+						command: currentStep.nextAction.toLowerCase().replace(/\s+/g, "_").slice(0, 80),
+						label: currentStep.nextAction.slice(0, 200),
 						requiredRole: currentStep.allowedRoles[0] || "supervisor",
-						route: currentStep.route.replace("[id]", id),
+						route: currentStep.route,
 					},
 				]
 			: computeNextActions(rawCase.currentStage);
@@ -490,7 +490,7 @@ export async function getServiceCaseById(id: string): Promise<ServiceCaseView | 
 		clientName: baseCase.clientName,
 		currentStage: baseCase.currentStage,
 		artifacts: normalizedArtifacts,
-		nextActions: baseCase.nextActions ?? [],
+		nextActions: _nextActions,
 		timeline: normalizedTimeline,
 		financialSummary: baseCase.financialSummary,
 		operationalSummary: baseCase.operationalSummary,
@@ -913,6 +913,7 @@ function buildWorkflowClosure(serviceCase: ServiceCaseView): ClosureWorkflowSumm
 	};
 }
 
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: workflow aggregator with fallback
 export async function buildServiceCaseWorkflowView(
 	serviceCaseId: string,
 ): Promise<ServiceCaseWorkflowViewModel> {
@@ -921,46 +922,82 @@ export async function buildServiceCaseWorkflowView(
 		throw new NotFoundError("ServiceCase", serviceCaseId);
 	}
 
-	const orderId = serviceCase.artifacts.workOrder?.id;
+	const orderId = serviceCase.artifacts?.workOrder?.id;
 	const currentStepCode =
 		serviceCase.currentStepCode ?? mapLegacyServiceCaseStageToStep(serviceCase.currentStage);
-	const [documents, evidences, order] = await Promise.all([
-		listWorkflowDocuments(orderId, serviceCase._id),
-		listWorkflowEvidences(orderId),
-		orderId ? Order.findById(orderId).lean().exec() : Promise.resolve(void 0),
-	]);
 
-	const updatedAtString = serviceCase.updatedAt;
+	try {
+		const [documents, evidences, order] = await Promise.all([
+			listWorkflowDocuments(orderId, serviceCase._id),
+			listWorkflowEvidences(orderId),
+			orderId ? Order.findById(orderId).lean().exec() : Promise.resolve(void 0),
+		]);
 
-	const deadlineString = order?.completedAt ? new Date(order.completedAt).toISOString() : void 0;
+		const updatedAtString = serviceCase.updatedAt;
+		const deadlineString = order?.completedAt ? new Date(order.completedAt).toISOString() : void 0;
 
-	return {
-		serviceCaseId: serviceCase._id,
-		orderId,
-		code: serviceCase.code,
-		clientName: serviceCase.clientName,
-		location: order?.location || undefined,
-		serviceType: order?.type || undefined,
-		globalStatus: serviceCase.currentStage,
-		responsibleName: order?.assignedToName || undefined,
-		deadline: deadlineString,
-		updatedAt: updatedAtString,
-		currentStepCode,
-		steps: serviceCase.stepsChecklist ?? buildWorkflowSteps(serviceCase, serviceCaseId),
-		activeStepRequirements: serviceCase.currentStepRequirements ?? [],
-		blockers: serviceCase.blockers ?? [],
-		nextActions: buildWorkflowNextActions(serviceCase, currentStepCode, serviceCaseId),
-		canAdvance: serviceCase.canAdvance,
-		artifacts: serviceCase.artifacts,
-		timeline: serviceCase.timeline ?? [],
-		financialSummary: serviceCase.financialSummary,
-		operationalSummary: serviceCase.operationalSummary,
-		documents,
-		evidences,
-		costs: await buildDefaultCostTraceability(serviceCase.financialSummary, orderId),
-		closure: buildWorkflowClosure(serviceCase),
-		generatedAt: new Date().toISOString(),
-	};
+		return {
+			serviceCaseId: serviceCase._id,
+			orderId,
+			code: serviceCase.code,
+			clientName: serviceCase.clientName,
+			location: order?.location || undefined,
+			serviceType: order?.type || undefined,
+			globalStatus: serviceCase.currentStage,
+			responsibleName: order?.assignedToName || undefined,
+			deadline: deadlineString,
+			updatedAt: updatedAtString,
+			currentStepCode,
+			steps: serviceCase.stepsChecklist ?? buildWorkflowSteps(serviceCase, serviceCaseId),
+			activeStepRequirements: serviceCase.currentStepRequirements ?? [],
+			blockers: serviceCase.blockers ?? [],
+			nextActions: buildWorkflowNextActions(serviceCase, currentStepCode, serviceCaseId),
+			canAdvance: serviceCase.canAdvance,
+			artifacts: serviceCase.artifacts,
+			timeline: serviceCase.timeline ?? [],
+			financialSummary: serviceCase.financialSummary,
+			operationalSummary: serviceCase.operationalSummary,
+			documents,
+			evidences,
+			costs: await buildDefaultCostTraceability(serviceCase.financialSummary, orderId),
+			closure: buildWorkflowClosure(serviceCase),
+			generatedAt: new Date().toISOString(),
+		};
+	} catch (error) {
+		// Graceful fallback for early-stage cases without linked entities
+		log.warn("Workflow view build failed, returning minimal view", {
+			serviceCaseId,
+			orderId: orderId ?? "none",
+			errorMessage: error instanceof Error ? error.message : String(error),
+		});
+		return {
+			serviceCaseId: serviceCase._id,
+			orderId: undefined,
+			code: serviceCase.code,
+			clientName: serviceCase.clientName,
+			location: undefined,
+			serviceType: undefined,
+			globalStatus: serviceCase.currentStage,
+			responsibleName: undefined,
+			deadline: undefined,
+			updatedAt: serviceCase.updatedAt,
+			currentStepCode,
+			steps: serviceCase.stepsChecklist ?? buildWorkflowSteps(serviceCase, serviceCaseId),
+			activeStepRequirements: serviceCase.currentStepRequirements ?? [],
+			blockers: serviceCase.blockers ?? [],
+			nextActions: buildWorkflowNextActions(serviceCase, currentStepCode, serviceCaseId),
+			canAdvance: serviceCase.canAdvance,
+			artifacts: serviceCase.artifacts,
+			timeline: serviceCase.timeline ?? [],
+			financialSummary: serviceCase.financialSummary,
+			operationalSummary: serviceCase.operationalSummary,
+			documents: [],
+			evidences: [],
+			costs: await buildDefaultCostTraceability(serviceCase.financialSummary, undefined),
+			closure: buildWorkflowClosure(serviceCase),
+			generatedAt: new Date().toISOString(),
+		};
+	}
 }
 
 log.info("ServiceCase service initialized");
@@ -1148,7 +1185,7 @@ export async function buildWorkflowContext(caseId: string): Promise<WorkflowCont
 	};
 }
 
-export type AdvanceServiceCaseResult =
+export type AdvanceServiceCaseOutcome =
 	| { success: true; serviceCase: ServiceCaseDocument }
 	| {
 			success: false;
@@ -1164,11 +1201,11 @@ const DB_STEP_TO_DOMAIN_STATE: Record<string, string> = {
 	step_04_purchase_order: "purchase_order",
 	step_05_planning: "planning",
 	step_06_execution: "execution",
-	step_07_technical_report: "evidences",
-	step_08_delivery_record: "technical_report",
-	step_09_client_signature: "delivery_record",
-	step_10_ses_submission: "client_signature",
-	step_11_ses_approval: "ses",
+	step_07_technical_report: "technical_report",
+	step_08_delivery_record: "delivery_record",
+	step_09_client_signature: "client_signature",
+	step_10_ses_submission: "ses",
+	step_11_ses_approval: "ses_approved",
 	step_12_invoice_submission: "invoice",
 	step_13_invoice_approval: "invoice_approval",
 	step_14_payment_closure: "payment",
@@ -1181,11 +1218,11 @@ const DOMAIN_STATE_TO_DB_STEP: Record<string, string> = {
 	purchase_order: "step_04_purchase_order",
 	planning: "step_05_planning",
 	execution: "step_06_execution",
-	evidences: "step_07_technical_report",
-	technical_report: "step_08_delivery_record",
-	delivery_record: "step_09_client_signature",
-	client_signature: "step_10_ses_submission",
-	ses: "step_11_ses_approval",
+	technical_report: "step_07_technical_report",
+	delivery_record: "step_08_delivery_record",
+	client_signature: "step_09_client_signature",
+	ses: "step_10_ses_submission",
+	ses_approved: "step_11_ses_approval",
 	invoice: "step_12_invoice_submission",
 	invoice_approval: "step_13_invoice_approval",
 	payment: "step_14_payment_closure",
@@ -1232,16 +1269,16 @@ function getTransitionEvent(state: ServiceCaseState): ServiceCaseEvent {
 		case "planning":
 			return { type: "EXECUTION_COMPLETED" };
 		case "execution":
-			return { type: "EVIDENCE_VERIFIED" };
-		case "evidences":
 			return { type: "TECHNICAL_REPORT_APPROVED" };
 		case "technical_report":
 			return { type: "DELIVERY_RECORD_GENERATED" };
 		case "delivery_record":
 			return { type: "CLIENT_SIGNATURE_REGISTERED" };
 		case "client_signature":
-			return { type: "SES_APPROVED" };
+			return { type: "SES_SUBMITTED" };
 		case "ses":
+			return { type: "SES_APPROVED" };
+		case "ses_approved":
 			return { type: "INVOICE_CREATED" };
 		case "invoice":
 			return { type: "INVOICE_APPROVED" };
@@ -1260,7 +1297,7 @@ function getTransitionEvent(state: ServiceCaseState): ServiceCaseEvent {
 export async function advanceServiceCaseState(
 	caseId: string,
 	userId: string,
-): Promise<AdvanceServiceCaseResult> {
+): Promise<AdvanceServiceCaseOutcome> {
 	const serviceCase = await ServiceCase.findById(caseId);
 	if (!serviceCase) {
 		throw new NotFoundError("ServiceCase", caseId);

@@ -20,7 +20,7 @@ export interface KitTemplate {
 	id: string;
 	name: string;
 	description: string;
-	type: "maintenance" | "inspection" | "installation" | "repair" | "decommission" | "other";
+	type: "maintenance" | "inspection" | "installation" | "repair" | "decommission" | "cctv" | "lifeline" | "other";
 	materials: MaterialItem[];
 }
 
@@ -117,6 +117,97 @@ const KIT_DECOMMISSION: KitTemplate = {
 };
 
 /**
+ * CCTV maintenance kit — Mantenimiento de sistemas de videovigilancia
+ * Source: 10_Formato_Mantenimiento_CCTV3 (CERMONT field documentation)
+ * Components: cámaras, radioenlaces, cajas de conexiones, sistema eléctrico
+ */
+const KIT_CCTV: KitTemplate = {
+	id: "kit-cctv-001",
+	name: "Kit Mantenimiento CCTV",
+	description: "Materiales y herramientas para mantenimiento de sistemas de videovigilancia (cámaras, radioenlaces, cajas de conexiones)",
+	type: "cctv",
+	materials: [
+		// Equipos de limpieza y revisión
+		{ name: "Paño antiestático para lente", quantity: 4, unit: "unidad" },
+		{ name: "Espray limpiador óptico", quantity: 1, unit: "frasco" },
+		{ name: "Brocha antiestática", quantity: 2, unit: "unidad" },
+		// Cámara
+		{ name: "Soporte/bracket cámara domo", quantity: 2, unit: "unidad" },
+		{ name: "Tornillería inoxidable M4/M6 cámara", quantity: 1, unit: "juego" },
+		{ name: "Silicona neutra sellado carcasa", quantity: 1, unit: "unidad" },
+		// Radioenlace
+		{ name: "Antena sectorial 2.4 GHz (repuesto)", quantity: 1, unit: "unidad" },
+		{ name: "Cable UTP Cat 6 intemperie", quantity: 10, unit: "metro" },
+		{ name: "Conector RJ45 exterior", quantity: 10, unit: "unidad" },
+		{ name: "Injector POE 48V", quantity: 1, unit: "unidad" },
+		// Caja de conexiones CCTV
+		{ name: "Prensaestopa PG13.5", quantity: 4, unit: "unidad" },
+		{ name: "Regleta de terminales 10A", quantity: 1, unit: "unidad" },
+		{ name: "Tubo termoencogible variado", quantity: 1, unit: "bolsa" },
+		{ name: "Bridas plásticas 300 mm", quantity: 20, unit: "unidad" },
+		// Conexión eléctrica / alimentación
+		{ name: "Fusible 1A / 2A (repuesto)", quantity: 4, unit: "unidad" },
+		{ name: "Cable alimentación 2x14 AWG", quantity: 5, unit: "metro" },
+		// Sistema puesta a tierra
+		{ name: "Cable cobre desnudo 6 AWG", quantity: 2, unit: "metro" },
+		{ name: "Conector a tierra tipo cuña", quantity: 2, unit: "unidad" },
+		// EPP
+		{ name: "Arnés de seguridad (verificado con línea de vida)", quantity: 1, unit: "juego" },
+		{ name: "Guantes dieléctricos Clase 0", quantity: 1, unit: "par" },
+		{ name: "Casco con barbiquejo", quantity: 1, unit: "unidad" },
+		{ name: "Gafas de seguridad", quantity: 1, unit: "unidad" },
+		// Formatos
+		{ name: "Formato mantenimiento CCTV (F-MT-CCTV-001)", quantity: 3, unit: "unidad" },
+		{ name: "Formato ART/permiso trabajo en alturas", quantity: 1, unit: "unidad" },
+	],
+};
+
+/**
+ * Líneas de vida vertical kit — Inspección y mantenimiento de sistemas de anclaje
+ * Source: 08_Formato_Inspeccion_lineas_de_vida_Vertical3 (CERMONT field documentation)
+ * Components: placas anclaje, platinas, absorbedor, tensor, cable inoxidable
+ */
+const KIT_LIFELINE: KitTemplate = {
+	id: "kit-lifeline-001",
+	name: "Kit Inspección Líneas de Vida Vertical",
+	description: "Materiales y herramientas para inspección y mantenimiento de sistemas de líneas de vida verticales (anclaje, tensor, cable)",
+	type: "lifeline",
+	materials: [
+		// Componentes de anclaje — parte superior
+		{ name: "Placa anclaje superior (acero galvanizado)", quantity: 1, unit: "unidad" },
+		{ name: "Pernos expansivos M12 (placa superior)", quantity: 4, unit: "unidad" },
+		{ name: "Platina sujeción guía superior", quantity: 2, unit: "unidad" },
+		// Línea / cable
+		{ name: "Cable acero inoxidable AISI 316 ø8mm", quantity: 2, unit: "metro" },
+		{ name: "Casquillo prensacable ø8mm", quantity: 4, unit: "unidad" },
+		{ name: "Soporte cable guía (cada 5m)", quantity: 2, unit: "unidad" },
+		// Sistema tensor
+		{ name: "Tensor cable inoxidable M12", quantity: 1, unit: "unidad" },
+		{ name: "Pasador seguridad tensor", quantity: 2, unit: "unidad" },
+		// Absorbedor de energía
+		{ name: "Absorbedor de energía tipo YOYO certificado", quantity: 1, unit: "unidad" },
+		{ name: "Mosquetón seguro doble acción 25 kN", quantity: 2, unit: "unidad" },
+		// Componentes de anclaje — parte inferior
+		{ name: "Placa anclaje inferior (acero galvanizado)", quantity: 1, unit: "unidad" },
+		{ name: "Pernos expansivos M12 (placa inferior)", quantity: 4, unit: "unidad" },
+		// Placa identificación
+		{ name: "Placa identificación/trazabilidad (acero inox)", quantity: 1, unit: "unidad" },
+		// Herramientas de inspección
+		{ name: "Llave torque 20-100 Nm", quantity: 1, unit: "unidad" },
+		{ name: "Calibrador pie de rey (verificación diámetro cable)", quantity: 1, unit: "unidad" },
+		{ name: "Medidor de tensión cable", quantity: 1, unit: "unidad" },
+		// EPP inspector
+		{ name: "Arnés anticaída certificado EN 361", quantity: 1, unit: "juego" },
+		{ name: "Casco montañero con barbiquejo", quantity: 1, unit: "unidad" },
+		{ name: "Guantes de trabajo anticorte", quantity: 1, unit: "par" },
+		// Formatos
+		{ name: "Formato inspección líneas de vida (F-IN-LV-001)", quantity: 3, unit: "unidad" },
+		{ name: "Formato AST permiso trabajo en alturas", quantity: 1, unit: "unidad" },
+		{ name: "Etiqueta resultado inspección (OK / REQUIERE RETIRO)", quantity: 5, unit: "unidad" },
+	],
+};
+
+/**
  * Registry of all available kit templates
  * Indexed by type and id for easy lookup
  */
@@ -126,6 +217,8 @@ export const KIT_REGISTRY: Record<string, KitTemplate> = {
 	[KIT_INSTALLATION.id]: KIT_INSTALLATION,
 	[KIT_REPAIR.id]: KIT_REPAIR,
 	[KIT_DECOMMISSION.id]: KIT_DECOMMISSION,
+	[KIT_CCTV.id]: KIT_CCTV,
+	[KIT_LIFELINE.id]: KIT_LIFELINE,
 };
 
 /**
@@ -160,7 +253,7 @@ export function listAllKits(): KitTemplate[] {
  * Returns not-found status object for unmatched types
  */
 export function getDefaultKitForOrderType(
-	orderType: "maintenance" | "inspection" | "installation" | "repair" | "decommission" | "other",
+	orderType: "maintenance" | "inspection" | "installation" | "repair" | "decommission" | "cctv" | "lifeline" | "other",
 ): KitTemplate | { status: "not_found"; type: string } {
 	switch (orderType) {
 		case "maintenance":
@@ -173,6 +266,10 @@ export function getDefaultKitForOrderType(
 			return KIT_REPAIR;
 		case "decommission":
 			return KIT_DECOMMISSION;
+		case "cctv":
+			return KIT_CCTV;
+		case "lifeline":
+			return KIT_LIFELINE;
 		case "other":
 			return { status: "not_found" as const, type: "other" };
 		default:
