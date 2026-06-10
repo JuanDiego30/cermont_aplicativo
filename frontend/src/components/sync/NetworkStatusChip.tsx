@@ -97,25 +97,34 @@ function SyncStatusPopover({
 			</div>
 
 			<div className="flex flex-col gap-2 border-t border-border-default pt-2">
-				<button
-					type="button"
-					onClick={onOpenQueueDrawer}
-					className="motion-button w-full rounded-lg border border-border-default py-2 text-center text-xs font-semibold text-secondary-foreground hover:bg-secondary"
-				>
-					Ver cola de salida ({queueEntryCount})
-				</button>
+				{queueEntryCount === 0 && deadLetterCount === 0 ? (
+					<div className="flex items-center justify-center gap-1.5 py-1.5 text-xs text-emerald-600">
+						<CheckCircle2 className="size-3.5" />
+						<span className="font-medium">Todo sincronizado</span>
+					</div>
+				) : (
+					<>
+						<button
+							type="button"
+							onClick={onOpenQueueDrawer}
+							className="motion-button w-full rounded-lg border border-border-default py-2 text-center text-xs font-semibold text-secondary-foreground hover:bg-secondary"
+						>
+							Ver cola de salida ({queueEntryCount})
+						</button>
 
-				{isOnline && pendingCount > 0 && (
-					<button
-						type="button"
-						onClick={() => {
-							window.dispatchEvent(new Event("sync-queue:changed"));
-						}}
-						className="motion-button flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand py-2 text-center text-xs font-semibold text-white hover:bg-brand-strong"
-					>
-						<RefreshCw className="size-3.5 animate-spin-slow" />
-						Sincronizar ahora
-					</button>
+						{isOnline && pendingCount > 0 && (
+							<button
+								type="button"
+								onClick={() => {
+									window.dispatchEvent(new Event("sync-queue:changed"));
+								}}
+								className="motion-button flex w-full items-center justify-center gap-1.5 rounded-lg bg-brand py-2 text-center text-xs font-semibold text-white hover:bg-brand-strong"
+							>
+								<RefreshCw className="size-3.5 animate-spin-slow" />
+								Sincronizar ahora
+							</button>
+						)}
+					</>
 				)}
 			</div>
 		</div>

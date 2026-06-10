@@ -1,84 +1,45 @@
 "use client";
 
-import { AlertTriangle, RefreshCw, Wifi, WifiOff } from "lucide-react";
-import { MOTION } from "@/components/motion/motion-classes";
+import { AlertTriangle, CheckCircle2, RefreshCw, WifiOff } from "lucide-react";
 import { useSyncStatus } from "@/lib/offline/use-sync-status";
-
-interface BannerState {
-	isOnline: boolean;
-	isSyncing: boolean;
-	pendingCount: number;
-	lastSyncError: string;
-}
-
-function getBannerClassName({ isOnline, lastSyncError }: BannerState): string {
-	const base =
-		"fixed bottom-0 left-0 right-0 z-50 flex items-center gap-3 px-4 py-2 text-sm font-medium shadow-lg";
-	if (!isOnline) {
-		return `${base} bg-red-50 text-red-800 border-t border-red-200`;
-	}
-	if (lastSyncError) {
-		return `${base} bg-amber-50 text-amber-800 border-t border-amber-200`;
-	}
-	return `${base} bg-blue-50 text-blue-800 border-t border-blue-200`;
-}
-
-function BannerIcon({ isOnline, isSyncing, lastSyncError }: BannerState) {
-	if (!isOnline) {
-		return <WifiOff className="size-4 shrink-0" />;
-	}
-	if (isSyncing) {
-		return <RefreshCw className="size-4 shrink-0 animate-spin" />;
-	}
-	if (lastSyncError) {
-		return <AlertTriangle className="size-4 shrink-0" />;
-	}
-	return <Wifi className="size-4 shrink-0" />;
-}
-
-function getBannerMessage({
-	isOnline,
-	isSyncing,
-	lastSyncError,
-	pendingCount,
-}: BannerState): string {
-	if (!isOnline) {
-		return "Sin conexión a internet. Los cambios se sincronizarán automáticamente cuando recuperes conexión.";
-	}
-	if (isSyncing) {
-		return "Sincronizando cambios pendientes…";
-	}
-	if (lastSyncError) {
-		return `Error de sincronización: ${lastSyncError}`;
-	}
-	return `${pendingCount} cambio${pendingCount !== 1 ? "s" : ""} pendiente${pendingCount !== 1 ? "s" : ""} de sincronizar`;
-}
-
-function shouldShowBanner({ isOnline, pendingCount, lastSyncError }: BannerState): boolean {
-	return !(isOnline && pendingCount === 0 && !lastSyncError);
-}
 
 export function OfflineBanner() {
 	const { isOnline, pendingCount, isSyncing, lastSyncError } = useSyncStatus();
-	const state: BannerState = { isOnline, pendingCount, isSyncing, lastSyncError };
 
-	if (!shouldShowBanner(state)) {
+	// When everything is fine, render nothing
+	if (isOnline && pendingCount === 0 && !lastSyncError) {
 		return null;
 	}
 
 	return (
-		<div role="alert" className={`${MOTION.panel} motion-panel ${getBannerClassName(state)}`}>
-			<BannerIcon {...state} />
+		<div className="motion-card fixed bottom-4 right-4 z-50 flex items-center gap-2.5 rounded-full border border-border-default bg-background px-4 py-2 shadow-[var(--shadow-3)]">
+			{!isOnline ? (
+				<WifiOff className="size-3.5 shrink-0 text-red-500" />
+			) : isSyncing ? (
+				<RefreshCw className="size-3.5 shrink-0 animate-spin text-[var(--color-cermont-blue)]" />
+			) : lastSyncError ? (
+				<AlertTriangle className="size-3.5 shrink-0 text-amber-500" />
+			) : (
+				<CheckCircle2 className="size-3.5 shrink-0 text-[var(--color-cermont-green)]" />
+			)}
 
-			<span className="flex-1">{getBannerMessage(state)}</span>
+			<span className="whitespace-nowrap text-[11px] font-medium text-foreground">
+				{!isOnline
+					? "Sin conexión"
+					: isSyncing
+						? "Sincronizando…"
+						: lastSyncError
+							? "Error de sincronización"
+							: `${pendingCount} pendiente${pendingCount !== 1 ? "s" : ""}`}
+			</span>
 
-			{pendingCount > 0 && isOnline && (
+			{!isOnline && (
 				<button
 					type="button"
 					onClick={() => window.dispatchEvent(new Event("sync-queue:changed"))}
-					className="motion-button shrink-0 rounded-full bg-current/10 px-3 py-1 text-xs font-semibold hover:bg-current/20"
+					className="rounded-full bg-[var(--color-cermont-blue)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-cermont-blue)] hover:bg-[var(--color-cermont-blue)]/20"
 				>
-					Sincronizar ahora
+					Reintentar
 				</button>
 			)}
 		</div>
