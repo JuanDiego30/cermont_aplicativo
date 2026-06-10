@@ -20,6 +20,13 @@ vi.mock("../../modules/auth/auth.service.js", () => ({
 	getRefreshTokenMaxAge: () => mockGetRefreshTokenMaxAge(),
 }));
 
+vi.mock("../../modules/user/user.service.js", () => ({
+	getUserById: vi.fn(),
+	updateUser: vi.fn(),
+	getUserByEmail: vi.fn(),
+	deleteUser: vi.fn(),
+}));
+
 const importController = async () => import("../../modules/auth/auth.controller.js");
 type AuthControllerModule = Awaited<ReturnType<typeof importController>>;
 
