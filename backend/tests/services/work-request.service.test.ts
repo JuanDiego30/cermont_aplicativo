@@ -46,18 +46,27 @@ const createInput: CreateWorkRequestInput = {
 };
 
 function buildFindChain<T>(resolvedValue: T) {
+	const exec = vi.fn<() => Promise<T>>();
+	exec.mockResolvedValue(resolvedValue);
 	const chain = {
 		sort: vi.fn(),
 		limit: vi.fn(),
 		skip: vi.fn(),
-		populate: vi.fn<() => Promise<T>>(),
+		populate: vi.fn(),
+		exec,
 	};
 	chain.sort.mockReturnValue(chain);
 	chain.limit.mockReturnValue(chain);
 	chain.skip.mockReturnValue(chain);
-	chain.populate.mockResolvedValue(resolvedValue);
+	chain.populate.mockReturnValue(chain);
 
 	return chain;
+}
+
+function buildCountChain(resolvedValue: number) {
+	const exec = vi.fn<() => Promise<number>>();
+	exec.mockResolvedValue(resolvedValue);
+	return { exec };
 }
 
 describe("WorkRequestService", () => {
@@ -93,7 +102,7 @@ describe("WorkRequestService", () => {
 		const data = [{ code: "WR-2026-0001", status: "submitted" }];
 		const chain = buildFindChain(data);
 		mocks.workRequestFind.mockReturnValue(chain);
-		mocks.workRequestCountDocuments.mockResolvedValue(1);
+		mocks.workRequestCountDocuments.mockReturnValue(buildCountChain(1));
 
 		const result = await WorkRequestService.getWorkRequests(
 			{

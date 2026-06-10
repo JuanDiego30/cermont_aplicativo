@@ -14,7 +14,7 @@ import type {
 	UpdateMaintenanceKit,
 } from "@cermont/shared-types";
 import { isPresent } from "@cermont/shared-types";
-import { AppError } from "../../common/errors";
+import { AppError, ServiceUnavailableError } from "../../common/errors";
 import { createLogger } from "../../common/utils/logger";
 import {
 	escapeRegExp,
@@ -22,6 +22,7 @@ import {
 	normalizeQuantity,
 	normalizeText,
 } from "../../common/utils/normalization";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { type ActivityType, MaintenanceKit } from "../../models/MaintenanceKit.js";
 
 const log = createLogger("kit-service");
@@ -269,15 +270,25 @@ async function findAllKits(
 
 	const skip = (page - 1) * limit;
 
-	const [data, total] = await Promise.all([
-		MaintenanceKit.find(where)
-			.populate("created_by", "name email")
-			.sort({ activity_type: 1, name: 1 })
-			.limit(limit)
-			.skip(skip)
-			.lean(),
-		MaintenanceKit.countDocuments(where),
-	]);
+	let data: unknown[];
+	let total: number;
+
+	try {
+		[data, total] = await Promise.all([
+			MaintenanceKit.find(where)
+				.populate("created_by", "name email")
+				.sort({ activity_type: 1, name: 1 })
+				.limit(limit)
+				.skip(skip)
+				.lean(),
+			MaintenanceKit.countDocuments(where),
+		]);
+	} catch (error) {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	}
 
 	return { data, total };
 }

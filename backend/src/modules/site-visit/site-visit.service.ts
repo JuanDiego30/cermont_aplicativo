@@ -4,7 +4,8 @@ import type {
 	SiteVisitRecord,
 	UpdateSiteVisitRecordInput,
 } from "@cermont/shared-types";
-import { AppError } from "../../common/errors";
+import { AppError, ServiceUnavailableError } from "../../common/errors";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { Counter } from "../../models";
 import { type SiteVisitDocument, SiteVisitModel } from "../../models/SiteVisit";
 
@@ -137,13 +138,23 @@ export async function listSiteVisits(query: {
 		filter.status = query.status;
 	}
 
-	const [docs, total] = await Promise.all([
-		SiteVisitModel.find(filter)
-			.sort({ createdAt: -1 })
-			.skip((query.page - 1) * query.limit)
-			.limit(query.limit),
-		SiteVisitModel.countDocuments(filter),
-	]);
+	let docs: SiteVisitDocument[];
+	let total: number;
+
+	try {
+		[docs, total] = await Promise.all([
+			SiteVisitModel.find(filter)
+				.sort({ createdAt: -1 })
+				.skip((query.page - 1) * query.limit)
+				.limit(query.limit),
+			SiteVisitModel.countDocuments(filter),
+		]);
+	} catch (error) {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	}
 
 	return {
 		data: docs.map(toRecord),

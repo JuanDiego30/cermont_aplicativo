@@ -7,7 +7,9 @@
  */
 
 import type { DashboardSummary } from "@cermont/shared-types";
+import { ServiceUnavailableError } from "../../common/errors/AppError";
 import { createLogger } from "../../common/utils/logger";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { Asset } from "../../models/Asset";
 import { Cost } from "../../models/Cost";
 import { DeliveryRecord } from "../../models/DeliveryRecord";
@@ -39,37 +41,59 @@ const PIPELINE_STAGES = [
 export async function getDashboardSummary(): Promise<DashboardSummary> {
 	const now = new Date().toISOString();
 
-	const [
-		operationalPipeline,
-		blockers,
-		nextActions,
-		administrativeClosure,
-		financialAging,
-		costVariance,
-		documentWorkload,
-		assetMaintenance,
-		offlineSync,
-		recentActivity,
-		_charts,
-		orderStatuses,
-		monthlyOrders,
-		costByCategory,
-	] = await Promise.all([
-		buildPipeline(),
-		buildBlockers(),
-		buildNextActions(),
-		buildAdministrativeClosure(),
-		buildFinancialAging(),
-		buildCostVariance(),
-		buildDocumentWorkload(),
-		buildAssetMaintenance(),
-		buildOfflineSync(),
-		buildRecentActivity(),
-		buildCharts(),
-		getOrdersByStatus(),
-		getMonthlyOrders(),
-		getCostByCategory(),
-	]);
+	let operationalPipeline: DashboardSummary["operationalPipeline"];
+	let blockers: DashboardSummary["blockers"];
+	let nextActions: DashboardSummary["nextActions"];
+	let administrativeClosure: DashboardSummary["administrativeClosure"];
+	let financialAging: DashboardSummary["financialAging"];
+	let costVariance: DashboardSummary["costVariance"];
+	let documentWorkload: DashboardSummary["documentWorkload"];
+	let assetMaintenance: DashboardSummary["assetMaintenance"];
+	let offlineSync: DashboardSummary["offlineSync"];
+	let recentActivity: DashboardSummary["recentActivity"];
+	let _charts: Record<string, unknown>;
+	let orderStatuses: DashboardSummary["charts"]["ordersByStatus"];
+	let monthlyOrders: DashboardSummary["charts"]["ordersByMonth"];
+	let costByCategory: DashboardSummary["charts"]["costByCategory"];
+
+	try {
+		[
+			operationalPipeline,
+			blockers,
+			nextActions,
+			administrativeClosure,
+			financialAging,
+			costVariance,
+			documentWorkload,
+			assetMaintenance,
+			offlineSync,
+			recentActivity,
+			_charts,
+			orderStatuses,
+			monthlyOrders,
+			costByCategory,
+		] = await Promise.all([
+			buildPipeline(),
+			buildBlockers(),
+			buildNextActions(),
+			buildAdministrativeClosure(),
+			buildFinancialAging(),
+			buildCostVariance(),
+			buildDocumentWorkload(),
+			buildAssetMaintenance(),
+			buildOfflineSync(),
+			buildRecentActivity(),
+			buildCharts(),
+			getOrdersByStatus(),
+			getMonthlyOrders(),
+			getCostByCategory(),
+		]);
+	} catch (error) {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	}
 
 	return {
 		generatedAt: now,

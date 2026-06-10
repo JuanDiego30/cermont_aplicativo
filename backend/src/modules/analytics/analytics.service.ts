@@ -1,5 +1,7 @@
+import { ServiceUnavailableError } from "../../common/errors/AppError";
 import { getErrorMetrics } from "../../common/observability/error-metrics";
 import { createLogger } from "../../common/utils/logger";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { Checklist } from "../../models/Checklist";
 import { Cost } from "../../models/Cost";
 import { MaintenanceKit } from "../../models/MaintenanceKit";
@@ -56,6 +58,11 @@ interface FinancialAggregate extends KpiFinancial {
 
 interface LeadTimeAggregate extends KpiLeadTime {
 	_id: string;
+}
+
+interface ChecklistAggregate {
+	total: number;
+	completed: number;
 }
 
 export interface KpiSnapshot {
@@ -190,31 +197,50 @@ const queryCompletedMonthCount = () => {
 // ─── Servicio ─────────────────────────────────────────────────────────────────
 
 export async function getKpis(): Promise<KpiSnapshot> {
-	const [
-		stageGroups,
-		priorityGroups,
-		typeGroups,
-		financialRaw,
-		checklistRaw,
-		leadTimeRaw,
-		overdueCount,
-		totalOrders,
-		maintenanceOpenCount,
-		resourceInUseCount,
-		completedMonthCount,
-	] = await Promise.all([
-		groupByField("status"),
-		groupByField("priority"),
-		groupByField("type"),
-		queryFinancialSummary(),
-		queryChecklistStats(),
-		queryLeadTimeStats(),
-		queryOverdueCount(),
-		Order.countDocuments(),
-		queryMaintenanceOpenCount(),
-		queryResourceInUseCount(),
-		queryCompletedMonthCount(),
-	]);
+	let stageGroups: GroupCount[];
+	let priorityGroups: GroupCount[];
+	let typeGroups: GroupCount[];
+	let financialRaw: FinancialAggregate[];
+	let checklistRaw: ChecklistAggregate[];
+	let leadTimeRaw: LeadTimeAggregate[];
+	let overdueCount: number;
+	let totalOrders: number;
+	let maintenanceOpenCount: number;
+	let resourceInUseCount: number;
+	let completedMonthCount: number;
+
+	try {
+		[
+			stageGroups,
+			priorityGroups,
+			typeGroups,
+			financialRaw,
+			checklistRaw,
+			leadTimeRaw,
+			overdueCount,
+			totalOrders,
+			maintenanceOpenCount,
+			resourceInUseCount,
+			completedMonthCount,
+		] = await Promise.all([
+			groupByField("status"),
+			groupByField("priority"),
+			groupByField("type"),
+			queryFinancialSummary(),
+			queryChecklistStats(),
+			queryLeadTimeStats(),
+			queryOverdueCount(),
+			Order.countDocuments(),
+			queryMaintenanceOpenCount(),
+			queryResourceInUseCount(),
+			queryCompletedMonthCount(),
+		]);
+	} catch (error) {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	}
 
 	const byStage = toCountMap(stageGroups);
 	const byPriority = toCountMap(priorityGroups);

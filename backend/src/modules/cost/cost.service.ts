@@ -7,7 +7,13 @@ import type {
 	UpdateCostInput,
 } from "@cermont/shared-types";
 import { Types } from "mongoose";
-import { BadRequestError, ForbiddenError, NotFoundError } from "../../common/errors/AppError";
+import {
+	BadRequestError,
+	ForbiddenError,
+	NotFoundError,
+	ServiceUnavailableError,
+} from "../../common/errors/AppError";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { Cost, Document, Evidence, Invoice, Order, Payment } from "../../models";
 import type { ICostDocument } from "../../models/Cost";
 
@@ -343,14 +349,24 @@ export async function listCosts(query: ListCostsQuery): Promise<{
 		filter.category = query.category;
 	}
 
-	const [total, costs] = await Promise.all([
-		Cost.countDocuments(filter),
-		Cost.find(filter)
-			.sort({ createdAt: -1, _id: -1 })
-			.skip(skip)
-			.limit(limit)
-			.lean<ICostDocument[]>(),
-	]);
+	let total: number;
+	let costs: ICostDocument[];
+
+	try {
+		[total, costs] = await Promise.all([
+			Cost.countDocuments(filter),
+			Cost.find(filter)
+				.sort({ createdAt: -1, _id: -1 })
+				.skip(skip)
+				.limit(limit)
+				.lean<ICostDocument[]>(),
+		]);
+	} catch (error) {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	}
 
 	return {
 		costs: costs.map((doc) => formatCostResponse(doc as ICostDocument)),

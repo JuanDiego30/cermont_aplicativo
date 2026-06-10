@@ -18,7 +18,7 @@ const CONNECTION_OPTIONS: mongoose.ConnectOptions = {
 const CONNECTION_STATES = ["disconnected", "connected", "connecting", "disconnecting"] as const;
 const _unusedCONNECTION_STATES = CONNECTION_STATES;
 
-let connectPromise: Promise<typeof mongoose> | null = null;
+let connectPromise: Promise<void> | false;
 let listenersRegistered = false;
 let reconnectTimer: ReturnType<typeof setTimeout> | false = false;
 let isShuttingDown = false;
@@ -35,7 +35,7 @@ function delay(ms: number): Promise<void> {
 
 async function connectWithRetry(): Promise<void> {
 	const maxAttempts = 3;
-	let lastError: unknown;
+	let lastError: Error | string = new Error("Default");
 
 	isConnecting = true;
 
@@ -46,7 +46,7 @@ async function connectWithRetry(): Promise<void> {
 				log.info("MongoDB connected", { host: connection.connection.host, attempt });
 				return;
 			} catch (error) {
-				lastError = error;
+				lastError = error instanceof Error ? error : new Error(String(error));
 				log.warn("MongoDB connection attempt failed", {
 					attempt,
 					maxAttempts,
@@ -126,8 +126,8 @@ export const connectDB = async (): Promise<void> => {
 
 	if (!connectPromise) {
 		connectPromise = connectWithRetry().finally(() => {
-			connectPromise = null;
-		}) as unknown as Promise<typeof mongoose>;
+			connectPromise = false;
+		});
 	}
 
 	await connectPromise;
@@ -150,7 +150,7 @@ export const disconnectDB = async (): Promise<void> => {
 
 export const getDatabaseHealth = (): {
 	readyState: number;
-	state: "disconnected" | "connected" | "connecting" | "disconnecting" | "unknown";
+	state: "disconnected" | "connected" | "connecting" | "disconnecting" | "unrecognized";
 } => {
 	const readyState = mongoose.connection.readyState;
 	const states: Record<number, "disconnected" | "connected" | "connecting" | "disconnecting"> = {
@@ -161,6 +161,6 @@ export const getDatabaseHealth = (): {
 	};
 	return {
 		readyState,
-		state: states[readyState] ?? "unknown",
+		state: states[readyState] ?? "unrecognized",
 	};
 };

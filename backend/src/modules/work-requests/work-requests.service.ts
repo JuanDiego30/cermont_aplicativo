@@ -5,9 +5,13 @@ import type {
 	WorkRequestStatus,
 } from "@cermont/shared-types";
 import { Types } from "mongoose";
-import { AppError } from "../../common/errors";
+import { AppError, ServiceUnavailableError } from "../../common/errors";
+import { createLogger } from "../../common/utils/logger";
 import type { AuthClaims } from "../../common/utils/request";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { Counter, ServiceCase, WorkRequest } from "../../models";
+
+const _log = createLogger("work-requests-service");
 
 const WORK_REQUEST_STATUS_TRANSITIONS: Record<WorkRequestStatus, WorkRequestStatus[]> = {
 	draft: ["submitted", "cancelled"],
@@ -141,21 +145,28 @@ export async function getWorkRequests(
 		];
 	}
 
-	const workRequests = await WorkRequest.find(filter)
-		.sort({ createdAt: -1 })
-		.limit(limit)
-		.skip((page - 1) * limit)
-		.populate("createdBy", "name email");
-
-	const total = await WorkRequest.countDocuments(filter);
+	const [workRequestsResult, totalResult] = await Promise.all([
+		WorkRequest.find(filter)
+			.sort({ createdAt: -1 })
+			.limit(limit)
+			.skip((page - 1) * limit)
+			.populate<{ createdBy: { name: string; email: string } }>("createdBy", "name email")
+			.exec(),
+		WorkRequest.countDocuments(filter).exec(),
+	]).catch((error) => {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	});
 
 	return {
-		data: workRequests,
+		data: workRequestsResult,
 		pagination: {
 			page,
 			limit,
-			total,
-			totalPages: Math.ceil(total / limit),
+			total: totalResult,
+			totalPages: Math.ceil(totalResult / limit),
 		},
 	};
 }

@@ -1,5 +1,6 @@
-import { NotFoundError } from "../../common/errors/AppError";
+import { NotFoundError, ServiceUnavailableError } from "../../common/errors/AppError";
 import { createLogger } from "../../common/utils/logger";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { AuditLog, User } from "../../models";
 
 const log = createLogger("audit-service");
@@ -133,10 +134,20 @@ export async function findLogs(
 	const query = buildQuery(filters);
 	const skip = (page - 1) * limit;
 
-	const [total, logs] = await Promise.all([
-		AuditLog.countDocuments(query),
-		AuditLog.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }).lean(),
-	]);
+	let total: number;
+	let logs: unknown[];
+
+	try {
+		[total, logs] = await Promise.all([
+			AuditLog.countDocuments(query),
+			AuditLog.find(query).skip(skip).limit(limit).sort({ createdAt: -1 }).lean(),
+		]);
+	} catch (error) {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	}
 
 	return { logs, total, page, limit };
 }
