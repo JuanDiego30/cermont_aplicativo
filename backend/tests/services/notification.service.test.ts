@@ -168,4 +168,26 @@ describe("notification.service — notifyStateTransition", () => {
 		).resolves.toBeUndefined();
 		expect(mocks.notificationInsertMany).not.toHaveBeenCalled();
 	});
+
+	it("propagates database insertion failure — caught by Express global error handler", async () => {
+		mocks.serviceCaseFindById.mockResolvedValue({
+			_id: "507f1f77bcf86cd799439011",
+			code: "SC-002",
+		});
+		mocks.userFind.mockReturnValue({
+			lean: vi.fn().mockResolvedValue([{ _id: "user1", role: "supervisor" }]),
+		});
+		mocks.notificationInsertMany.mockRejectedValue(new Error("DB connection lost"));
+
+		await expect(
+			notifyStateTransition(
+				"507f1f77bcf86cd799439011",
+				"step_06_execution",
+				"step_07_technical_report",
+				"user1",
+			),
+		).rejects.toThrow("DB connection lost");
+
+		expect(mocks.notificationInsertMany).toHaveBeenCalled();
+	});
 });

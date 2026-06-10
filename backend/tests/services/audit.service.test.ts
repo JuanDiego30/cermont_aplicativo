@@ -103,4 +103,48 @@ describe("audit.service", () => {
 			limit: 25,
 		});
 	});
+
+	it("enforces audit immutability — no update or delete methods exposed", async () => {
+		const userQuery = {
+			select: vi.fn().mockReturnThis(),
+			lean: vi.fn().mockResolvedValue({ email: "admin@cermont.com" }),
+		};
+
+		vi.mocked(User.findById).mockReturnValue(userQuery as never);
+		vi.mocked(AuditLog.create).mockResolvedValue({
+			_id: "507f1f77bcf86cd799439011",
+			action: "PAYMENT_REGISTERED",
+			entityType: "Payment",
+			entityId: "507f1f77bcf86cd799439099",
+			userId: "507f1f77bcf86cd799439088",
+			userEmail: "admin@cermont.com",
+			createdAt: new Date("2026-06-10T00:00:00Z"),
+		} as never);
+
+		createAuditLog({
+			action: "PAYMENT_REGISTERED",
+			entity: "Payment",
+			entityId: "507f1f77bcf86cd799439099",
+			userId: "507f1f77bcf86cd799439088",
+			before: { status: "invoice_approved" },
+			after: { status: "paid" },
+		});
+
+		await vi.waitFor(() => expect(AuditLog.create).toHaveBeenCalled());
+
+		const createdArg = vi.mocked(AuditLog.create).mock.calls[0][0] as Record<string, unknown>;
+		expect(createdArg.action).toBe("PAYMENT_REGISTERED");
+		expect(createdArg.entityType).toBe("Payment");
+		expect((createdArg.changes as Record<string, unknown>).before).toEqual({
+			status: "invoice_approved",
+		});
+
+		const {
+			createAuditLog: _,
+			findLogs: _f,
+			findById: _fi,
+			...rest
+		} = await import("../../src/modules/audit/audit.service");
+		expect(Object.keys(rest)).toHaveLength(0);
+	});
 });
