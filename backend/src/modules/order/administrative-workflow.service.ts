@@ -28,7 +28,13 @@ import type {
 	TechnicalReport as TechnicalReportResponse,
 } from "@cermont/shared-types";
 import { Types } from "mongoose";
-import { BadRequestError, NotFoundError, UnprocessableError } from "../../common/errors/AppError";
+import {
+	BadRequestError,
+	NotFoundError,
+	ServiceUnavailableError,
+	UnprocessableError,
+} from "../../common/errors/AppError";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import {
 	DeliveryRecord,
 	type DeliveryRecordDocument,
@@ -497,7 +503,12 @@ export async function listTechnicalReports(
 			.skip((page - 1) * limit)
 			.limit(limit),
 		TechnicalReport.countDocuments(query),
-	]);
+	]).catch((error: unknown) => {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	});
 	return { data: docs.map(formatTechnicalReport), total, page, limit, pages: pages(total, limit) };
 }
 
@@ -771,7 +782,12 @@ export async function listDeliveryRecords(
 			.skip((page - 1) * limit)
 			.limit(limit),
 		DeliveryRecord.countDocuments(query),
-	]);
+	]).catch((error: unknown) => {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	});
 	return { data: docs.map(formatDeliveryRecord), total, page, limit, pages: pages(total, limit) };
 }
 
@@ -937,7 +953,12 @@ export async function listServiceEntrySheets(
 			.skip((page - 1) * limit)
 			.limit(limit),
 		ServiceEntrySheet.countDocuments(query),
-	]);
+	]).catch((error: unknown) => {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	});
 	return {
 		data: docs.map(formatServiceEntrySheet),
 		total,
@@ -1115,7 +1136,12 @@ export async function listInvoices(
 			.skip((page - 1) * limit)
 			.limit(limit),
 		Invoice.countDocuments(query),
-	]);
+	]).catch((error: unknown) => {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	});
 	return { data: docs.map(formatInvoice), total, page, limit, pages: pages(total, limit) };
 }
 
@@ -1259,7 +1285,12 @@ export async function listPayments(
 			.skip((page - 1) * limit)
 			.limit(limit),
 		Payment.countDocuments(query),
-	]);
+	]).catch((error: unknown) => {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	});
 	return { data: docs.map(formatPayment), total, page, limit, pages: pages(total, limit) };
 }
 

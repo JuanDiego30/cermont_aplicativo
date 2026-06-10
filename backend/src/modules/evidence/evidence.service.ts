@@ -15,8 +15,13 @@
 import { Types } from "mongoose";
 import sharp from "sharp";
 import { v4 as uuidv4 } from "uuid";
-import { BadRequestError, NotFoundError } from "../../common/errors/AppError";
+import {
+	BadRequestError,
+	NotFoundError,
+	ServiceUnavailableError,
+} from "../../common/errors/AppError";
 import { saveFile } from "../../common/storage/local-storage";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { scanWithClamAV } from "../../middlewares/uploadMiddleware";
 import { Evidence, Order } from "../../models";
 import type { IEvidenceDocument } from "../../models/Evidence";
@@ -447,12 +452,15 @@ export async function getEvidencesByOrderId(
 	await getOrderByIdWithAuth(orderId, actor);
 
 	const skip = (page - 1) * limit;
-	const total = await Evidence.countDocuments({ orderId });
-	const evidences = await Evidence.find({ orderId })
-		.skip(skip)
-		.limit(limit)
-		.sort({ createdAt: -1 })
-		.lean();
+	const [total, evidences] = await Promise.all([
+		Evidence.countDocuments({ orderId }),
+		Evidence.find({ orderId }).skip(skip).limit(limit).sort({ createdAt: -1 }).lean(),
+	]).catch((error: unknown) => {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	});
 
 	const pages = Math.ceil(total / limit);
 

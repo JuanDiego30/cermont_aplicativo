@@ -8,7 +8,8 @@ import type {
 	UpdatePlanningPacketInput,
 } from "@cermont/shared-types";
 import mongoose from "mongoose";
-import { AppError } from "../../common/errors";
+import { AppError, ServiceUnavailableError } from "../../common/errors";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { getKitTemplate, type KitTemplate } from "../../config/kit-templates";
 import { Kit } from "../../models/Kit";
 import { PlanningPacket } from "../../models/PlanningPacket";
@@ -169,7 +170,13 @@ export async function listPlanningPackets(query: {
 		.populate("hesResponsibleId", "name email role")
 		.populate("crew.userId", "name email role")
 		.populate("approvedBy", "name email")
-		.populate("createdBy", "name email");
+		.populate("createdBy", "name email")
+		.catch((error: unknown) => {
+			if (isTransientDatabaseError(error as Error)) {
+				throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+			}
+			throw error;
+		});
 }
 
 /**
