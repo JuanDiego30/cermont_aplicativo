@@ -39,15 +39,14 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 	const photosRef = useRef(photos);
 	photosRef.current = photos;
 
-	// Cleanup all blob URLs on unmount — uses ref to avoid stale closure
+	// Cleanup all blob URLs on unmount — snapshot into effect to satisfy deps
 	useEffect(() => {
+		const urls = photosRef.current.map((p) => p.previewUrl);
 		return () => {
-			for (const photo of photosRef.current) {
-				URL.revokeObjectURL(photo.previewUrl);
+			for (const url of urls) {
+				URL.revokeObjectURL(url);
 			}
 		};
-		// react-doctor(false-positive): photosRef stays in sync, cleanup reads latest version
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	// ── File handling ──────────────────────────────────────────────────────

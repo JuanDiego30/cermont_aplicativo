@@ -16,10 +16,11 @@ import type {
 	ProposalStatus,
 } from "@cermont/shared-types";
 import mongoose from "mongoose";
-import { AppError, ForbiddenError } from "../../common/errors";
+import { AppError, ForbiddenError, ServiceUnavailableError } from "../../common/errors";
 import { createLogger } from "../../common/utils/logger";
 import { escapeRegExp } from "../../common/utils/normalization";
 import type { AuthClaims } from "../../common/utils/request";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { Counter, Proposal } from "../../models";
 import * as OrderService from "../../modules/order/order.service";
 
@@ -142,16 +143,26 @@ export async function findAllProposals(
 
 	const skip = (page - 1) * limit;
 
-	const [data, total] = await Promise.all([
-		Proposal.find(where)
-			.populate("createdBy", "name email")
-			.populate("approvedBy", "name email")
-			.sort({ createdAt: -1 })
-			.limit(limit)
-			.skip(skip)
-			.lean(),
-		Proposal.countDocuments(where),
-	]);
+	let data: unknown[];
+	let total: number;
+
+	try {
+		[data, total] = await Promise.all([
+			Proposal.find(where)
+				.populate("createdBy", "name email")
+				.populate("approvedBy", "name email")
+				.sort({ createdAt: -1 })
+				.limit(limit)
+				.skip(skip)
+				.lean(),
+			Proposal.countDocuments(where),
+		]);
+	} catch (error) {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	}
 
 	return { data, total };
 }

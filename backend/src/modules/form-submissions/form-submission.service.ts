@@ -1,4 +1,6 @@
 import { Types } from "mongoose";
+import { ServiceUnavailableError } from "../../common/errors/AppError";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { FormSubmission, type FormSubmissionDocument } from "../../models/FormSubmission";
 
 export interface CreateFormSubmissionInput {
@@ -74,14 +76,24 @@ export async function listFormSubmissions(filter: ListFormSubmissionsFilter) {
 	const limit = Math.min(100, Math.max(1, filter.limit ?? 20));
 	const skip = (page - 1) * limit;
 
-	const [items, total] = await Promise.all([
-		FormSubmission.find(query)
-			.sort({ submittedAt: -1 })
-			.skip(skip)
-			.limit(limit)
-			.lean<FormSubmissionDocument[]>(),
-		FormSubmission.countDocuments(query),
-	]);
+	let items: FormSubmissionDocument[];
+	let total: number;
+
+	try {
+		[items, total] = await Promise.all([
+			FormSubmission.find(query)
+				.sort({ submittedAt: -1 })
+				.skip(skip)
+				.limit(limit)
+				.lean<FormSubmissionDocument[]>(),
+			FormSubmission.countDocuments(query),
+		]);
+	} catch (error) {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	}
 
 	return { items, total, page, limit };
 }

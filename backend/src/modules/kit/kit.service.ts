@@ -6,7 +6,12 @@
  */
 
 import { Types } from "mongoose";
-import { BadRequestError, NotFoundError } from "../../common/errors/AppError";
+import {
+	BadRequestError,
+	NotFoundError,
+	ServiceUnavailableError,
+} from "../../common/errors/AppError";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import {
 	type EvidenceRequirement,
 	type IKitDocument,
@@ -136,10 +141,20 @@ export async function getAllKits(
 		}),
 	};
 
-	const [data, total] = await Promise.all([
-		Kit.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-		Kit.countDocuments(query),
-	]);
+	let data: IKitDocument[];
+	let total: number;
+
+	try {
+		[data, total] = await Promise.all([
+			Kit.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+			Kit.countDocuments(query),
+		]);
+	} catch (error) {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	}
 
 	return {
 		data,

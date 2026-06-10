@@ -8,13 +8,14 @@ import type {
 	PlanningTool,
 	WorkerRequirements,
 } from "@cermont/shared-types";
-import { AlertTriangle, ArrowLeft, Loader2, Save, Search } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Loader2, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, Suspense, useReducer, useState } from "react";
 import { useCreatePlanningPacket } from "@/modules/planning/queries";
 import { useServiceCaseContext } from "@/modules/service-cases/hooks/useServiceCaseContext";
 import { useServiceCaseList } from "@/modules/service-cases/queries";
+import { CaseSelector } from "./CaseSelector";
 import { detectKitFromWorkType, KIT_SUGGESTIONS } from "./constants";
 import type { InheritedFieldDef } from "./PlanningPacketBasicInfo";
 import { PlanningPacketBasicInfo } from "./PlanningPacketBasicInfo";
@@ -98,6 +99,63 @@ export default function PlanningPacketNewPage() {
 	);
 }
 
+// ── Form state reducer ──────────────────────────────────────────────────
+
+type FormState = {
+	place: string;
+	businessUnit: PlanningBusinessUnit;
+	scope: string;
+	plannedDate: string;
+	responsibleName: string;
+	astRequired: boolean;
+	ptwRequired: boolean;
+	planningNotes: string;
+};
+
+type FormAction =
+	| { type: "SET_PLACE"; payload: string }
+	| { type: "SET_BUSINESS_UNIT"; payload: PlanningBusinessUnit }
+	| { type: "SET_SCOPE"; payload: string }
+	| { type: "SET_PLANNED_DATE"; payload: string }
+	| { type: "SET_RESPONSIBLE_NAME"; payload: string }
+	| { type: "SET_AST_REQUIRED"; payload: boolean }
+	| { type: "SET_PTW_REQUIRED"; payload: boolean }
+	| { type: "SET_PLANNING_NOTES"; payload: string };
+
+function formReducer(state: FormState, action: FormAction): FormState {
+	switch (action.type) {
+		case "SET_PLACE":
+			return { ...state, place: action.payload };
+		case "SET_BUSINESS_UNIT":
+			return { ...state, businessUnit: action.payload };
+		case "SET_SCOPE":
+			return { ...state, scope: action.payload };
+		case "SET_PLANNED_DATE":
+			return { ...state, plannedDate: action.payload };
+		case "SET_RESPONSIBLE_NAME":
+			return { ...state, responsibleName: action.payload };
+		case "SET_AST_REQUIRED":
+			return { ...state, astRequired: action.payload };
+		case "SET_PTW_REQUIRED":
+			return { ...state, ptwRequired: action.payload };
+		case "SET_PLANNING_NOTES":
+			return { ...state, planningNotes: action.payload };
+		default:
+			return state;
+	}
+}
+
+const initialFormState: FormState = {
+	place: "",
+	businessUnit: "GEN",
+	scope: "",
+	plannedDate: "",
+	responsibleName: "",
+	astRequired: true,
+	ptwRequired: true,
+	planningNotes: "",
+};
+
 function PlanningPacketNewPageContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -112,17 +170,20 @@ function PlanningPacketNewPageContent() {
 	} = useServiceCaseContext("step_05_planning", selectedCaseId);
 
 	// Form state
-	const [place, setPlace] = useState("");
-	const [businessUnit, setBusinessUnit] = useState<PlanningBusinessUnit>("GEN");
-	const [scope, setScope] = useState("");
-	const [plannedDate, setPlannedDate] = useState("");
-	const [responsibleName, setResponsibleName] = useState("");
 	const kitSuggestionKey = "";
 	const [resources, dispatchResources] = useReducer(resourceReducer, initialResourceState);
 	const { materials, tools, equipment, safetyElements, workerReqs } = resources;
-	const [astRequired, setAstRequired] = useState(true);
-	const [ptwRequired, setPtwRequired] = useState(true);
-	const [planningNotes, setPlanningNotes] = useState("");
+	const [formState, dispatchForm] = useReducer(formReducer, initialFormState);
+	const {
+		place,
+		businessUnit,
+		scope,
+		plannedDate,
+		responsibleName,
+		astRequired,
+		ptwRequired,
+		planningNotes,
+	} = formState;
 	const [formError, setFormError] = useState("");
 
 	// Expanded sections
@@ -166,9 +227,11 @@ function PlanningPacketNewPageContent() {
 			},
 		});
 		if (inheritedWorkTypeName && !scope) {
-			setScope(
-				inheritedScope || `Mantenimiento de ${inheritedWorkTypeName} — ${inheritedLocation}`,
-			);
+			dispatchForm({
+				type: "SET_SCOPE",
+				payload:
+					inheritedScope || `Mantenimiento de ${inheritedWorkTypeName} — ${inheritedLocation}`,
+			});
 		}
 	}
 
@@ -179,10 +242,10 @@ function PlanningPacketNewPageContent() {
 
 	// Initialize scope from inherited fields if empty
 	if (inheritedScope && !scope && !isContextLoading) {
-		setScope(inheritedScope);
+		dispatchForm({ type: "SET_SCOPE", payload: inheritedScope });
 	}
 	if (inheritedLocation && !place && !isContextLoading) {
-		setPlace(inheritedLocation);
+		dispatchForm({ type: "SET_PLACE", payload: inheritedLocation });
 	}
 
 	function handleSubmit(event: FormEvent) {
@@ -236,70 +299,14 @@ function PlanningPacketNewPageContent() {
 	// ─── Case Selector ─────────────────────────────────────────────────────────
 	if (showCaseSelector) {
 		return (
-			<section className="space-y-6" aria-labelledby="planning-select-title">
-				<header className="space-y-3">
-					<Link
-						href="/service-cases"
-						className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-brand)]"
-					>
-						<ArrowLeft className="size-4" />
-						Volver a casos
-					</Link>
-					<div>
-						<p className="text-sm font-medium text-[var(--color-brand)]">Paso 5 / Planeación</p>
-						<h1
-							id="planning-select-title"
-							className="mt-1 text-2xl font-semibold text-[var(--text-primary)]"
-						>
-							Seleccionar caso de servicio
-						</h1>
-						<p className="mt-1 text-sm text-[var(--text-secondary)]">
-							Seleccione el caso con orden de compra aprobada para iniciar la planeación.
-						</p>
-					</div>
-				</header>
-
-				{isCasesLoading ? (
-					<div className="flex justify-center py-12">
-						<Loader2 className="size-8 animate-spin text-[var(--color-brand)]" />
-					</div>
-				) : (
-					<div className="grid gap-3">
-						{(casesData?.items ?? []).length === 0 ? (
-							<div className="rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] p-8 text-center">
-								<Search className="mx-auto size-8 text-[var(--text-muted)]" />
-								<p className="mt-3 text-sm text-[var(--text-secondary)]">
-									No hay casos disponibles con PO aprobada.
-								</p>
-							</div>
-						) : (
-							(casesData?.items ?? []).map(
-								(c: { _id: string; clientName: string; code: string; currentStage: string }) => (
-									<button
-										key={c._id}
-										type="button"
-										onClick={() => {
-											setSelectedCaseId(c._id);
-											setShowCaseSelector(false);
-										}}
-										className="flex items-center justify-between rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 text-left transition-all hover:border-[var(--color-brand)] hover:shadow-sm"
-									>
-										<div>
-											<p className="font-semibold text-[var(--text-primary)]">{c.clientName}</p>
-											<p className="mt-0.5 text-sm text-[var(--text-muted)]">
-												{c.code} · {c.currentStage}
-											</p>
-										</div>
-										<span className="text-sm font-medium text-[var(--color-brand)]">
-											Seleccionar →
-										</span>
-									</button>
-								),
-							)
-						)}
-					</div>
-				)}
-			</section>
+			<CaseSelector
+				isCasesLoading={isCasesLoading}
+				casesData={casesData}
+				onSelectCase={(caseId) => {
+					setSelectedCaseId(caseId);
+					setShowCaseSelector(false);
+				}}
+			/>
 		);
 	}
 
@@ -341,15 +348,15 @@ function PlanningPacketNewPageContent() {
 
 			<PlanningPacketBasicInfo
 				responsibleName={responsibleName}
-				onResponsibleNameChange={setResponsibleName}
+				onResponsibleNameChange={(v) => dispatchForm({ type: "SET_RESPONSIBLE_NAME", payload: v })}
 				place={place}
-				onPlaceChange={setPlace}
+				onPlaceChange={(v) => dispatchForm({ type: "SET_PLACE", payload: v })}
 				plannedDate={plannedDate}
-				onPlannedDateChange={setPlannedDate}
+				onPlannedDateChange={(v) => dispatchForm({ type: "SET_PLANNED_DATE", payload: v })}
 				businessUnit={businessUnit}
-				onBusinessUnitChange={setBusinessUnit}
+				onBusinessUnitChange={(v) => dispatchForm({ type: "SET_BUSINESS_UNIT", payload: v })}
 				scope={scope}
-				onScopeChange={setScope}
+				onScopeChange={(v) => dispatchForm({ type: "SET_SCOPE", payload: v })}
 				inheritedLocation={inheritedLocation}
 				inheritedWorkTypeName={inheritedWorkTypeName}
 				isContextLoading={isContextLoading}
@@ -385,11 +392,11 @@ function PlanningPacketNewPageContent() {
 						dispatchResources({ type: "SET_SAFETY_ELEMENTS", payload: s })
 					}
 					astRequired={astRequired}
-					onAstRequiredChange={setAstRequired}
+					onAstRequiredChange={(v) => dispatchForm({ type: "SET_AST_REQUIRED", payload: v })}
 					ptwRequired={ptwRequired}
-					onPtwRequiredChange={setPtwRequired}
+					onPtwRequiredChange={(v) => dispatchForm({ type: "SET_PTW_REQUIRED", payload: v })}
 					planningNotes={planningNotes}
-					onPlanningNotesChange={setPlanningNotes}
+					onPlanningNotesChange={(v) => dispatchForm({ type: "SET_PLANNING_NOTES", payload: v })}
 					expandedSections={expandedSections}
 					onToggleSection={toggleSection}
 				/>

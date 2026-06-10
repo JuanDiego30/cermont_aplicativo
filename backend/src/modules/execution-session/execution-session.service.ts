@@ -39,9 +39,11 @@ import {
 	BadRequestError,
 	ConflictError,
 	NotFoundError,
+	ServiceUnavailableError,
 	UnprocessableError,
 } from "../../common/errors";
 import type { AuthClaims } from "../../common/utils/request";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import {
 	Counter,
 	ExecutionSession,
@@ -306,13 +308,23 @@ export async function listExecutionSessions(query: ExecutionSessionListQuery) {
 		filter.$or = [{ code: { $regex: search, $options: "i" } }];
 	}
 
-	const [data, total] = await Promise.all([
-		ExecutionSession.find(filter)
-			.sort({ updatedAt: -1 })
-			.skip((page - 1) * limit)
-			.limit(limit),
-		ExecutionSession.countDocuments(filter),
-	]);
+	let data: ExecutionSessionDocument[];
+	let total: number;
+
+	try {
+		[data, total] = await Promise.all([
+			ExecutionSession.find(filter)
+				.sort({ updatedAt: -1 })
+				.skip((page - 1) * limit)
+				.limit(limit),
+			ExecutionSession.countDocuments(filter),
+		]);
+	} catch (error) {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	}
 
 	return {
 		data,

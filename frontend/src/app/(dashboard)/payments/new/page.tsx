@@ -3,7 +3,7 @@
 import { ArrowLeft, Info, Loader2, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useReducer } from "react";
 import { toast } from "sonner";
 import { Button } from "@/core/ui/Button";
 import { useRegisterPaymentForInvoice } from "@/modules/billing/queries";
@@ -42,6 +42,48 @@ const PAYMENT_METHOD_LABELS: Record<string, string> = {
 	other: "Otro",
 };
 
+type PaymentMethod = "bank_transfer" | "check" | "electronic" | "cash" | "other";
+
+interface PaymentFormState {
+	paymentReference: string;
+	paidAt: string;
+	amount: string;
+	paymentMethod: PaymentMethod;
+	bankReference: string;
+}
+
+type PaymentFormAction =
+	| { type: "SET_PAYMENT_REFERENCE"; payload: string }
+	| { type: "SET_PAID_AT"; payload: string }
+	| { type: "SET_AMOUNT"; payload: string }
+	| { type: "SET_PAYMENT_METHOD"; payload: PaymentMethod }
+	| { type: "SET_BANK_REFERENCE"; payload: string };
+
+function paymentFormReducer(state: PaymentFormState, action: PaymentFormAction): PaymentFormState {
+	switch (action.type) {
+		case "SET_PAYMENT_REFERENCE":
+			return { ...state, paymentReference: action.payload };
+		case "SET_PAID_AT":
+			return { ...state, paidAt: action.payload };
+		case "SET_AMOUNT":
+			return { ...state, amount: action.payload };
+		case "SET_PAYMENT_METHOD":
+			return { ...state, paymentMethod: action.payload };
+		case "SET_BANK_REFERENCE":
+			return { ...state, bankReference: action.payload };
+		default:
+			return state;
+	}
+}
+
+const initialFormState: PaymentFormState = {
+	paymentReference: "",
+	paidAt: nowDatetimeLocal(),
+	amount: "",
+	paymentMethod: "bank_transfer",
+	bankReference: "",
+};
+
 function NewPaymentForm() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -58,13 +100,8 @@ function NewPaymentForm() {
 	const derivedInvoiceId = prefilledInvoiceId || workflow?.artifacts?.invoice?.id || "";
 
 	const invoiceId = derivedInvoiceId;
-	const [paymentReference, setPaymentReference] = useState("");
-	const [paidAt, setPaidAt] = useState(nowDatetimeLocal());
-	const [amount, setAmount] = useState("");
-	const [paymentMethod, setPaymentMethod] = useState<
-		"bank_transfer" | "check" | "electronic" | "cash" | "other"
-	>("bank_transfer");
-	const [bankReference, setBankReference] = useState("");
+	const [formState, dispatch] = useReducer(paymentFormReducer, initialFormState);
+	const { paymentReference, paidAt, amount, paymentMethod, bankReference } = formState;
 
 	const resolvedInvoiceId = invoiceId || derivedInvoiceId;
 
@@ -204,7 +241,7 @@ function NewPaymentForm() {
 							type="text"
 							required
 							value={paymentReference}
-							onChange={(e) => setPaymentReference(e.target.value)}
+							onChange={(e) => dispatch({ type: "SET_PAYMENT_REFERENCE", payload: e.target.value })}
 							placeholder="Ej. TXN-2024-001"
 							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
 						/>
@@ -220,7 +257,7 @@ function NewPaymentForm() {
 								type="datetime-local"
 								required
 								value={paidAt}
-								onChange={(e) => setPaidAt(e.target.value)}
+								onChange={(e) => dispatch({ type: "SET_PAID_AT", payload: e.target.value })}
 								className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
 							/>
 						</div>
@@ -235,7 +272,7 @@ function NewPaymentForm() {
 								min="0.01"
 								step="1"
 								value={amount}
-								onChange={(e) => setAmount(e.target.value)}
+								onChange={(e) => dispatch({ type: "SET_AMOUNT", payload: e.target.value })}
 								placeholder="0"
 								className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
 							/>
@@ -253,9 +290,7 @@ function NewPaymentForm() {
 							id="paymentMethod"
 							value={paymentMethod}
 							onChange={(e) =>
-								setPaymentMethod(
-									e.target.value as "bank_transfer" | "check" | "electronic" | "cash" | "other",
-								)
+								dispatch({ type: "SET_PAYMENT_METHOD", payload: e.target.value as PaymentMethod })
 							}
 							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
 						>
@@ -279,7 +314,7 @@ function NewPaymentForm() {
 							id="bankReference"
 							type="text"
 							value={bankReference}
-							onChange={(e) => setBankReference(e.target.value)}
+							onChange={(e) => dispatch({ type: "SET_BANK_REFERENCE", payload: e.target.value })}
 							placeholder="Número de comprobante o referencia bancaria"
 							className="h-10 w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm"
 						/>

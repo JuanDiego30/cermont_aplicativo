@@ -6,7 +6,12 @@
  */
 
 import { Types } from "mongoose";
-import { BadRequestError, NotFoundError } from "../../common/errors/AppError";
+import {
+	BadRequestError,
+	NotFoundError,
+	ServiceUnavailableError,
+} from "../../common/errors/AppError";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import {
 	EvidenceCollection,
 	type IEvidenceCollectionDocument,
@@ -150,10 +155,20 @@ export async function getAllEvidenceCollections(
 		];
 	}
 
-	const [data, total] = await Promise.all([
-		EvidenceCollection.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-		EvidenceCollection.countDocuments(query),
-	]);
+	let data: IEvidenceCollectionDocument[];
+	let total: number;
+
+	try {
+		[data, total] = await Promise.all([
+			EvidenceCollection.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+			EvidenceCollection.countDocuments(query),
+		]);
+	} catch (error) {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	}
 
 	return {
 		data,
