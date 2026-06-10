@@ -277,6 +277,8 @@ claude.exe
 *.jpeg
 # Config serialization
 *.yml
+!docker-compose.yml
+!docker-compose*.yml
 *.txt
 *.csv
 # Generated reports
@@ -284,6 +286,8 @@ react-doctor-*
 task-*
 frontend-lint.txt
 *.md
+!docs/deploy/*.md
+!docs/audits/*.md
 !docs/plans/CERMONT_REBUILD_ROADMAP.md
 !docs/offline-test-protocol.md
 !docs/offline-online-fix-report.md

@@ -1,0 +1,215 @@
+# ============================================================================
+# Docker Compose - Cermont S.A.S.
+# Uso (demo): docker compose up -d --build   (funciona sin .env)
+# Logs:       docker compose logs -f
+#
+# ⚠️  ADVERTENCIA DE SEGURIDAD ⚠️
+# Las variables tienen DEFAULTS DE DEMO para que el sistema arranque sin
+# configuración. Son públicas (están en este repositorio) y NO deben usarse
+# en producción real. Para producción:
+#   cp .env.production.example .env   y generar secretos con openssl.
+# Ver: docs/deploy/VARIABLES_ENTORNO.md
+# ============================================================================
+
+services:
+  # ============================================================================
+  # MongoDB - Base de datos
+  # ============================================================================
+  mongodb:
+    # NOTA: la imagen oficial de mongo NO tiene variante alpine (verificado:
+    # "no such manifest: docker.io/library/mongo:7.0-alpine")
+    image: mongo:7.0
+    container_name: cermont_mongo
+    restart: always
+    environment:
+      # DEMO ONLY — definir valores propios en .env para producción
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-cermont_demo}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-cermont_demo_password_2026}
+      MONGO_INITDB_DATABASE: cermont
+    volumes:
+      - mongo_data:/data/db
+      - mongo_configdb:/data/configdb
+      - ./docker/mongo-init.js:/docker-entrypoint-initdb.d/01-init.js:ro
+    networks:
+      - cermont_net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1G
+        reservations:
+          cpus: '1'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================================================
+  # Backend - API Express
+  # Ejecuta: npm run start:backend → node backend/dist/server.js
+  # ============================================================================
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: runtime
+    container_name: cermont_backend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      # URL de conexión a MongoDB con credenciales (DEMO defaults)
+      MONGODB_URI: mongodb://${MONGO_ROOT_USER:-cermont_demo}:${MONGO_ROOT_PASSWORD:-cermont_demo_password_2026}@mongodb:27017/cermont?authSource=admin&retryWrites=true&w=majority
+      # DEMO ONLY — secretos públicos del repo; en producción generar con
+      # openssl rand -hex 32 y definirlos en .env
+      JWT_SECRET: ${JWT_SECRET:-cermont_demo_jwt_secret_NO_USAR_EN_PRODUCCION_2026}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET:-cermont_demo_refresh_secret_NO_USAR_EN_PRODUCCION_2026}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      # Seed automático: crea usuarios demo si la BD está vacía (demo: true)
+      SEED_ON_START: ${SEED_ON_START:-true}
+      SEED_DEFAULT_PASSWORD: ${SEED_DEFAULT_PASSWORD:-Cermont2026!}
+      UPLOAD_DIR: /app/uploads
+      MAX_FILE_SIZE: "52428800"
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # Optimización de memoria
+      NODE_OPTIONS: "--max-old-space-size=512"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - uploads_data:/app/uploads
+    networks:
+      - cermont_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '1'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================================================
+  # Frontend - Next.js
+  # Ejecuta: npm run start:frontend → next start
+  # ============================================================================
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      target: runtime
+    container_name: cermont_frontend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      # URL del backend vista desde el contenedor (red interna Docker)
+      BACKEND_URL: http://backend:4000
+      # URL del API vista desde el navegador (a través de nginx)
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost/api}
+      # URL pública de la aplicación
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      NEXT_PUBLIC_APP_NAME: "Cermont S.A.S."
+      NEXT_TELEMETRY_DISABLED: 1
+      HOSTNAME: "0.0.0.0"
+      NODE_OPTIONS: "--max-old-space-size=256"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - cermont_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '1'
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================================================
+  # Nginx - Reverse Proxy & Load Balancer
+  # Puerto único: 8081 (frontend + API)
+  # ============================================================================
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: cermont_nginx
+    restart: always
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      # Único puerto público — todo el tráfico entra aquí (frontend + /api/health).
+      # Windows local: si el puerto 80 está bloqueado por IIS/HTTP.SYS, usar:
+      #   NGINX_PORT=8081 docker compose up -d
+      - "${NGINX_PORT:-0.0.0.0:80}:80"
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - cermont_net
+    healthcheck:
+      # 127.0.0.1 explicito: busybox wget resuelve localhost via IPv6 (::1)
+      # y nginx solo escucha IPv4 -> falso "unhealthy"
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "3"
+
+volumes:
+  mongo_data:
+    driver: local
+  mongo_configdb:
+    driver: local
+  uploads_data:
+    driver: local
+
+networks:
+  cermont_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
