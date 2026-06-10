@@ -150,30 +150,28 @@ const noApiCaching: RuntimeCaching = {
 const nextStaticCaching: RuntimeCaching = {
 	matcher: ({ request, url }) =>
 		request.method === "GET" && url.pathname.startsWith("/_next/static/"),
-	handler: new CacheFirst({
+	handler: new StaleWhileRevalidate({
 		cacheName: "next-static",
 		plugins: [
 			cacheableWithoutCookies,
 			new ExpirationPlugin({
 				maxEntries: 200,
-				maxAgeSeconds: 30 * ONE_DAY_SECONDS,
+				maxAgeSeconds: 7 * ONE_DAY_SECONDS,
 			}),
 		],
 	}),
 };
 
+// NOTE: With images.unoptimized=true in next.config.ts, next/image no
+// longer generates /_next/image URLs — it renders plain <img> tags with
+// direct /images/* paths. This runtimeCaching entry is a safety net for
+// stray requests (e.g. from cached pages or old SW), but MUST use
+// NetworkOnly to avoid caching 400 errors from the disabled optimizer.
 const nextImageCaching: RuntimeCaching = {
 	matcher: ({ request, url }) =>
 		request.method === "GET" && url.pathname.startsWith("/_next/image"),
-	handler: new StaleWhileRevalidate({
-		cacheName: "next-images",
-		plugins: [
-			cacheableWithoutCookies,
-			new ExpirationPlugin({
-				maxEntries: 100,
-				maxAgeSeconds: 7 * ONE_DAY_SECONDS,
-			}),
-		],
+	handler: new NetworkOnly({
+		networkTimeoutSeconds: 10,
 	}),
 };
 
@@ -260,6 +258,16 @@ const serwist = new Serwist({
 	},
 });
 
+// Register Serwist event handlers FIRST — at the top level of the module,
+// synchronously. This ensures esbuild compilation (via @serwist/turbopack/worker)
+// keeps all self.addEventListener() calls in the initial synchronous sweep of
+// the worker script, satisfying the service worker spec requirement that event
+// handlers MUST be added during initial evaluation.
+serwist.addEventListeners();
+
+// Custom CLEAR_CACHE message handler — registered after Serwist so both
+// handlers coexist. Serwist's internal message handler processes its own
+// DevTools/inspection messages; we only react to { type: "CLEAR_CACHE" }.
 self.addEventListener("message", (event: ExtendableMessageEvent) => {
 	if (event.data?.type !== "CLEAR_CACHE") {
 		return;
@@ -285,6 +293,9 @@ self.addEventListener("message", (event: ExtendableMessageEvent) => {
 
 // CRITICAL: Intercept and stop propagation of auth and skip-SW requests.
 // This prevents Serwist from hijacking them and ensures the browser handles them natively.
+// Registered after Serwist's own fetch handler — Serwist's runtimeCaching already
+// uses NetworkOnly for these paths (authApiNoCache, skipSwHeaderBypass), so
+// stopImmediatePropagation is an extra safety measure.
 self.addEventListener("fetch", (event: FetchEvent) => {
 	const url = new URL(event.request.url);
 	if (
@@ -295,7 +306,5 @@ self.addEventListener("fetch", (event: FetchEvent) => {
 		event.stopImmediatePropagation();
 	}
 });
-
-serwist.addEventListeners();
 
 export { serwist };

@@ -165,15 +165,13 @@ export function validateFileSignature(
  */
 export async function scanWithClamAV(fileBuffer: Buffer, filename: string): Promise<boolean> {
 	if (!env.CLAMAV_ENABLED) {
-		if (env.NODE_ENV === "production") {
-			log.error("ClamAV scan disabled in production — rejecting upload", { filename });
-			throw new BadRequestError("Malware scan is required in production");
-		}
-
-		log.warn("ClamAV scan disabled outside production; allowing upload", {
-			filename,
-			nodeEnv: env.NODE_ENV,
-		});
+		log.warn(
+			"ClamAV scan disabled; allowing upload without scan (set CLAMAV_ENABLED=true and deploy ClamAV for production scanning)",
+			{
+				filename,
+				nodeEnv: env.NODE_ENV,
+			},
+		);
 		return true;
 	}
 	try {

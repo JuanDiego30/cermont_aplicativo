@@ -318,3 +318,6 @@ backend/biome-out.txt
 backend/biome-output.txt
 backend/lint-errors.txt
 packages/shared-types/shared-types-lint.txt
+
+# Entornos de produccion con secretos reales - NUNCA commitear
+.env.production

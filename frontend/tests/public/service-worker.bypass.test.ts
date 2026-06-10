@@ -51,10 +51,10 @@ describe("src/app/sw.ts — architecture", () => {
 		expect(sw).not.toMatch(/navigateFallback:\s*OFFLINE_URL/);
 	});
 
-	it("caches /_next/image with StaleWhileRevalidate (not in defaultCache for Next.js)", () => {
+	it("uses NetworkOnly for /_next/image to avoid caching 400 errors from disabled optimizer", () => {
 		expect(sw).toMatch(/\/_next\/image/);
 		expect(sw).toMatch(/nextImageCaching/);
-		expect(sw).toMatch(/StaleWhileRevalidate\s*\(\s*\{[^}]*cacheName:\s*["']next-images["']/s);
+		expect(sw).toMatch(/NetworkOnly/);
 	});
 
 	it("keeps authenticated API and upload responses out of Service Worker caches", () => {

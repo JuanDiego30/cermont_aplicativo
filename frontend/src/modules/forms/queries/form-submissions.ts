@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/http/api-client";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -44,14 +44,9 @@ interface FormSubmissionEnvelope {
 	data: FormSubmission;
 }
 
-interface FormSubmissionListEnvelope {
-	data: FormSubmission[];
-	meta: { total: number; page: number; limit: number };
-}
-
 // ── Query keys ─────────────────────────────────────────────────────────────
 
-export const FORM_SUBMISSION_KEYS = {
+const FORM_SUBMISSION_KEYS = {
 	all: ["form-submissions"] as const,
 	list: (filters?: Record<string, string>) =>
 		[...FORM_SUBMISSION_KEYS.all, "list", filters] as const,
@@ -85,29 +80,5 @@ export function useCreateFormSubmission() {
 				queryKey: FORM_SUBMISSION_KEYS.all,
 			});
 		},
-	});
-}
-
-// ── Queries ────────────────────────────────────────────────────────────────
-
-export function useFormSubmissionsForCase(serviceCaseId: string) {
-	return useQuery({
-		queryKey: FORM_SUBMISSION_KEYS.byServiceCase(serviceCaseId),
-		queryFn: async (): Promise<FormSubmissionListEnvelope> => {
-			return apiClient.get<FormSubmissionListEnvelope>(
-				`/api/form-submissions?serviceCaseId=${serviceCaseId}&limit=50`,
-			);
-		},
-		enabled: !!serviceCaseId,
-	});
-}
-
-export function useFormSubmission(id: string) {
-	return useQuery({
-		queryKey: FORM_SUBMISSION_KEYS.detail(id),
-		queryFn: async (): Promise<FormSubmissionEnvelope> => {
-			return apiClient.get<FormSubmissionEnvelope>(`/api/form-submissions/${id}`);
-		},
-		enabled: !!id,
 	});
 }

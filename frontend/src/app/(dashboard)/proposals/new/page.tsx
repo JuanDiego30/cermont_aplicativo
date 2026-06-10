@@ -10,7 +10,9 @@ import { Suspense } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { useCreateProposal } from "@/modules/proposals/hooks/useCreateProposal";
+import { StepBreadcrumb } from "@/modules/service-cases/components/StepBreadcrumb";
 import { useServiceCaseContext } from "@/modules/service-cases/hooks/useServiceCaseContext";
+import { InheritedFieldGroup } from "@/modules/workflow";
 
 const ProposalItemFormSchema = z.object({
 	description: z.string().min(1, "La descripción es requerida").max(300),
@@ -153,26 +155,16 @@ function NewProposalContent() {
 				</div>
 			</div>
 
-			{/* Inherited context banner */}
-			{!isContextLoading && inheritedFields.length > 0 && (
-				<div className="rounded-[var(--radius-lg)] border border-[var(--color-brand)]/20 bg-[var(--color-brand-blue-bg)] p-4">
-					<p className="text-xs font-bold uppercase tracking-wide text-[var(--color-brand)]">
-						Datos heredados del caso
-					</p>
-					<div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-						{inheritedFields.slice(0, 6).map((field) => (
-							<div key={field.key} className="rounded-[var(--radius-md)] bg-white/70 px-3 py-2">
-								<p className="text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--text-muted)]">
-									{field.label}
-								</p>
-								<p className="mt-0.5 text-sm font-semibold text-[var(--text-primary)] truncate">
-									{field.value}
-								</p>
-								<p className="text-[9px] text-[var(--color-brand)]">↑ {field.sourceStepLabel}</p>
-							</div>
-						))}
-					</div>
-				</div>
+			{/* Mini-timeline del flujo de 14 pasos (renderiza solo con ?serviceCaseId) */}
+			<StepBreadcrumb />
+
+			{/* Inherited context banner (componente compartido del módulo workflow) */}
+			{!isContextLoading && (
+				<InheritedFieldGroup
+					title="Datos heredados del caso"
+					fields={inheritedFields.slice(0, 6)}
+					readOnly
+				/>
 			)}
 
 			<form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>

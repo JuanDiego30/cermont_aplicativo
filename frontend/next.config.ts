@@ -3,7 +3,7 @@ import { isProduction, validateEnv } from "@cermont/config";
 import { withSerwist } from "@serwist/turbopack";
 import type { NextConfig } from "next";
 
-const monorepoRoot = path.resolve(__dirname, "../..");
+const monorepoRoot = path.resolve(__dirname, "..");
 const env = validateEnv();
 // Backend runs on port 4000 (see backend/package.json scripts)
 const defaultBackendUrl = isProduction() ? "http://backend:4000" : "http://localhost:4000";
@@ -32,8 +32,11 @@ const nextConfig: NextConfig = {
 	},
 	poweredByHeader: false,
 	images: {
-		minimumCacheTTL: 60,
-		formats: ["image/webp"],
+		// All public images are already optimized (WebP/AVIF via sharp in the
+		// backend, manually optimized for landing/login assets). Disabling
+		// the built-in optimizer avoids 400 errors from re-optimizing
+		// already-processed files and reduces server CPU load.
+		unoptimized: true,
 	},
 	allowedDevOrigins: [...localDevOrigins],
 	async rewrites() {
@@ -51,4 +54,13 @@ const nextConfig: NextConfig = {
 // can compile and serve the service worker at `/serwist/sw.js`.
 // It does NOT take legacy options (swSrc, swDest, swUrl, etc.) — those moved
 // to the Route Handler and `sw.ts` itself.
-export default withSerwist(nextConfig);
+//
+// SAFETY: images.unoptimized se re-aplica DESPUÉS de withSerwist para
+// garantizar que ningún wrapper sobreescriba esta bandera. Next.js sin
+// unoptimized=true genera URL /_next/image que rompen assets estáticos.
+export default withSerwist({
+	...nextConfig,
+	images: {
+		unoptimized: true,
+	},
+});

@@ -110,28 +110,22 @@ function ProposalsPageInner() {
 
 	// Derived metrics
 	const metrics = useMemo(() => {
-		const proposals = data?.items ?? [];
-		if (!Array.isArray(proposals)) {
+		const items = data?.items ?? [];
+		if (!Array.isArray(items)) {
 			return {
 				approvedCount: 0,
 				sentCount: 0,
 				rejectedCount: 0,
 				draftCount: 0,
 				approvalRate: 0,
-				avgMargin: 0,
-				totalValue: 0,
 			};
 		}
-		const approved = proposals.filter((p) => p.status === "approved");
-		const sent = proposals.filter((p) => p.status === "sent");
-		const rejected = proposals.filter((p) => p.status === "rejected");
-		const draft = proposals.filter((p) => p.status === "draft");
+		const approved = items.filter((p) => p.status === "approved");
+		const sent = items.filter((p) => p.status === "sent");
+		const rejected = items.filter((p) => p.status === "rejected");
+		const draft = items.filter((p) => p.status === "draft");
 
 		const approvalRate = total > 0 ? Math.round((approved.length / total) * 100) : 0;
-
-		// Average margin: for proposals with items, calculate from items
-		const totalValue = proposals.reduce((sum: number, p) => sum + p.total, 0);
-		const avgMargin = totalValue > 0 ? 30 : 0; // Displayed as estimated margin
 
 		return {
 			approvedCount: approved.length,
@@ -139,8 +133,6 @@ function ProposalsPageInner() {
 			rejectedCount: rejected.length,
 			draftCount: draft.length,
 			approvalRate,
-			avgMargin,
-			totalValue,
 		};
 	}, [data, total]);
 
@@ -171,10 +163,7 @@ function ProposalsPageInner() {
 			</div>
 
 			{/* KPI Cards */}
-			<section
-				aria-label="Resumen de propuestas"
-				className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-5"
-			>
+			<section aria-label="Resumen de propuestas" className="grid grid-cols-2 gap-4 sm:grid-cols-4">
 				<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
 					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
 						Total
@@ -203,14 +192,6 @@ function ProposalsPageInner() {
 					</p>
 					<p className="mt-2 text-3xl font-semibold text-[var(--color-brand-blue)]">
 						{metrics.approvalRate}%
-					</p>
-				</article>
-				<article className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-1)]">
-					<p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-tertiary)]">
-						Margen aprox.
-					</p>
-					<p className="mt-2 text-3xl font-semibold text-[var(--color-brand-accent)]">
-						{metrics.avgMargin}%
 					</p>
 				</article>
 			</section>

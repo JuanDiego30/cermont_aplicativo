@@ -323,11 +323,14 @@ function FieldRenderer({
 		}
 	}
 
+	// Hoisted: renderInput es factory de JSX (ReactNode), no componente — no remonta
+	const input = renderInput();
+
 	// Checkbox renders its own label
 	if (field.type === "checkbox") {
 		return (
 			<div className={`${field.span === 2 ? "sm:col-span-2" : ""}`}>
-				{renderInput()}
+				{input}
 				{error && <p className="mt-1 text-xs text-red-500">{error}</p>}
 			</div>
 		);
@@ -339,7 +342,7 @@ function FieldRenderer({
 				{field.label}
 				{field.required && <span className="ml-1 text-red-500">*</span>}
 			</label>
-			{renderInput()}
+			{input}
 			{field.hint && field.type !== "photo" && (
 				<p className="text-[10px] text-[var(--text-muted)]">{field.hint}</p>
 			)}

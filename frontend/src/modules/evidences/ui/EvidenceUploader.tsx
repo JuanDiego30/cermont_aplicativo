@@ -90,6 +90,8 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 	photosRef.current = photos;
 
 	// Cleanup all blob URLs on unmount — uses ref to avoid stale closure
+	// react-doctor(false-positive): exhaustive-deps — patrón "stable cleanup" deliberado;
+	// photosRef se sincroniza en cada render, la cleanup siempre lee la versión actual.
 	useEffect(() => {
 		return () => {
 			for (const photo of photosRef.current) {

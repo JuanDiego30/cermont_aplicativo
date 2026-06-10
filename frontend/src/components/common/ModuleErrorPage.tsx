@@ -6,6 +6,7 @@
  */
 "use client";
 
+import Link from "next/link";
 import { useEffect } from "react";
 import { createLogger } from "@/lib/monitoring/logger";
 
@@ -13,6 +14,8 @@ export interface ModuleErrorPageProps {
 	error: Error & { digest?: string };
 	reset: () => void;
 	moduleName: string;
+	/** Enlace opcional "Ir al inicio" (p. ej. /dashboard) */
+	homeHref?: string;
 }
 
 const ExclamationIcon = () => (
@@ -31,7 +34,7 @@ const ExclamationIcon = () => (
 	</svg>
 );
 
-export function ModuleErrorPage({ error, reset, moduleName }: ModuleErrorPageProps) {
+export function ModuleErrorPage({ error, reset, moduleName, homeHref }: ModuleErrorPageProps) {
 	const logger = createLogger(`${moduleName.toLowerCase()}:error-boundary`);
 
 	useEffect(() => {
@@ -68,6 +71,14 @@ export function ModuleErrorPage({ error, reset, moduleName }: ModuleErrorPagePro
 				>
 					Reintentar
 				</button>
+				{homeHref && (
+					<Link
+						href={homeHref}
+						className="rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+					>
+						Ir al inicio
+					</Link>
+				)}
 			</footer>
 		</section>
 	);

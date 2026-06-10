@@ -57,7 +57,7 @@ export interface CermontFormTemplate {
 // Template 1 — Planeación de obra (Step 5)
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const PLANNING_OBRA_TEMPLATE: CermontFormTemplate = {
+const PLANNING_OBRA_TEMPLATE: CermontFormTemplate = {
 	id: "cermont_planeacion_obra_v1",
 	name: "Formato de Planeación de Obra",
 	description: "Formato oficial CERMONT para planeación y programación de actividades de obra",
@@ -282,7 +282,7 @@ const LINEA_VIDA_COMPONENTS = [
 	"Placa de identificación",
 ] as const;
 
-export const LINEAS_VIDA_TEMPLATE: CermontFormTemplate = {
+const LINEAS_VIDA_TEMPLATE: CermontFormTemplate = {
 	id: "cermont_lineas_vida_v1",
 	name: "Formato de Inspección Líneas de Vida Vertical",
 	description: "Inspección técnica de sistema de línea de vida vertical certificado CERMONT",
@@ -470,7 +470,7 @@ const CCTV_CONFORM_OPTIONS = [
 	{ value: "na", label: "N/A" },
 ];
 
-export const CCTV_TEMPLATE: CermontFormTemplate = {
+const CCTV_TEMPLATE: CermontFormTemplate = {
 	id: "cermont_cctv_v1",
 	name: "Formato de Mantenimiento Preventivo CCTV",
 	description: "Rutina de mantenimiento preventivo para sistema de videovigilancia CCTV",

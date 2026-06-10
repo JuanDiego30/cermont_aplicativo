@@ -93,6 +93,8 @@ function SiteVisitNewPageContent() {
 	const { data: casesData, isLoading: isCasesLoading } = useServiceCaseList();
 
 	// Populate form once when stepContext arrives
+	// react-doctor(false-positive): no-derived-state / no-event-handler — inicialización
+	// one-shot desde datos async (query), no un evento; el guard useRef evita re-copias.
 	const contextInitialized = useRef(false);
 	useEffect(() => {
 		if (contextInitialized.current) {

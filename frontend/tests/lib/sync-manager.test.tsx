@@ -65,8 +65,11 @@ describe("useSyncManager", () => {
 		offlineDbMocks.offlineFilesGet.mockReset();
 		offlineDbMocks.offlineFilesUpdate.mockClear();
 		offlineDbMocks.hasIndexedDBSupport.mockReturnValue(true);
-		useAuthStore.getState().clearAuth();
-		useAuthStore.getState().setAccessToken("test-access-token");
+		// act(): el store de zustand notifica a componentes montados — evita ruido "not wrapped in act"
+		act(() => {
+			useAuthStore.getState().clearAuth();
+			useAuthStore.getState().setAccessToken("test-access-token");
+		});
 		vi.stubGlobal(
 			"fetch",
 			vi.fn(async () => new Response("", { status: 200 })),
@@ -76,7 +79,9 @@ describe("useSyncManager", () => {
 	afterEach(() => {
 		vi.useRealTimers();
 		vi.unstubAllGlobals();
-		useAuthStore.getState().clearAuth();
+		act(() => {
+			useAuthStore.getState().clearAuth();
+		});
 		queueState.splice(0, queueState.length);
 	});
 

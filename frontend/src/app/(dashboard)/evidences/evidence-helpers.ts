@@ -45,15 +45,3 @@ export function getEvidenceSubtitle(evidence: Evidence): string {
 	}
 	return "";
 }
-
-/** Groups evidence by orderId for the gallery */
-export function groupEvidencesByOrder(evidences: Evidence[]): Map<string, Evidence[]> {
-	const groups = new Map<string, Evidence[]>();
-	for (const ev of evidences) {
-		const key = ev.orderId;
-		const existing = groups.get(key) ?? [];
-		existing.push(ev);
-		groups.set(key, existing);
-	}
-	return groups;
-}

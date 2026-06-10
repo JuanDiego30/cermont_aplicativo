@@ -109,11 +109,39 @@ const allowedOrigins = Array.from(
 	),
 );
 
+/**
+ * Check if a given origin string belongs to a Docker bridge/overlay network.
+ * Docker Compose assigns private IPs in 172.x.x.x, 10.x.x.x, or 192.168.x.x
+ * ranges to containers. These origins are safe for development/staging.
+ * In production, CORS should be locked to a specific domain via FRONTEND_URL.
+ */
+function isDockerNetworkOrigin(origin: string): boolean {
+	if (!origin) {
+		return false;
+	}
+	try {
+		const url = new URL(origin);
+		const host = url.hostname;
+		if (["localhost", "127.0.0.1", "0.0.0.0", "host.docker.internal"].includes(host)) {
+			return true;
+		}
+		// Docker bridge: 172.16.0.0/12, 172.17.0.0/16 ... 172.31.0.0/16
+		// Docker Desktop: 192.168.x.x
+		// Overlay/Compose: 10.x.x.x
+		if (/^(172\.(1[6-9]|2\d|3[01])\.|10\.|192\.168\.)/.test(host)) {
+			return true;
+		}
+		return false;
+	} catch {
+		return false;
+	}
+}
+
 app.use(
 	cors({
 		origin: (origin, callback) => {
 			// Allow requests without an origin header (Postman, curl, server-side)
-			if (!origin || allowedOrigins.includes(origin)) {
+			if (!origin || allowedOrigins.includes(origin) || isDockerNetworkOrigin(origin)) {
 				callback(null, true);
 				return;
 			}

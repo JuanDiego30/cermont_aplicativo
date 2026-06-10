@@ -976,6 +976,9 @@ function PlanningPacketNewPageContent() {
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
+// react-doctor(false-positive): control-has-associated-label — los inputs envueltos
+// por FormField SÍ tienen <label htmlFor> asociado (renderizado aquí); el análisis
+// estático no traza la asociación a través del wrapper.
 function FormField({
 	label,
 	required,
@@ -1061,9 +1064,11 @@ function ResourceTableRow<T>({
 	renderRow: (row: T, index: number) => ReactNode;
 	onRemove: (index: number) => void;
 }) {
+	// Hoisted: renderRow es factory de celdas (ReactNode), no componente — no remonta
+	const cells = renderRow(row, i);
 	return (
 		<tr className="group">
-			{renderRow(row, i)}
+			{cells}
 			<td className="pl-2 py-1.5">
 				<button
 					type="button"
@@ -1121,7 +1126,9 @@ function ResourceTable<T>({
 										{col}
 									</th>
 								))}
-								<th scope="col" className="pb-2 w-8" />
+								<th scope="col" className="pb-2 w-8">
+									<span className="sr-only">Acciones</span>
+								</th>
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-[var(--border-subtle)]">

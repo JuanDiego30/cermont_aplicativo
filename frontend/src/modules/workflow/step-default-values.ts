@@ -109,29 +109,3 @@ export function getSiteVisitDefaults(context: ServiceCaseStepContext): StepDefau
 export function getInheritedFieldSourceLabel(field: InheritedField): string {
 	return `Heredado de ${field.sourceStepLabel}`;
 }
-
-// ──────────────────────────────────────────────────────────────────────────────
-// Check if a field is inherited in the given context
-// ──────────────────────────────────────────────────────────────────────────────
-
-export function isFieldInherited(
-	context: ServiceCaseStepContext,
-	fieldKey: string,
-): InheritedField | undefined {
-	return context.inheritedFields.find((f) => f.key === fieldKey);
-}
-
-// ──────────────────────────────────────────────────────────────────────────────
-// Check if a field has an override in the given context
-// ──────────────────────────────────────────────────────────────────────────────
-
-export function hasFieldOverride(
-	context: ServiceCaseStepContext,
-	fieldKey: string,
-): { hasOverride: boolean; overrideReason?: string } {
-	const override = context.overrides.find((o) => o.key === fieldKey);
-	if (override) {
-		return { hasOverride: true, overrideReason: override.reason };
-	}
-	return { hasOverride: false };
-}

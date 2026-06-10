@@ -21,18 +21,6 @@ type QuickActionMode = "document" | "evidence";
 const QUICK_ACTION_ORDERS_LIMIT = 20;
 const EMPTY_QUICK_ACTION_ORDERS: QuickActionOrderOption[] = [];
 
-interface QuickActionsOrdersContract {
-	data?: Record<
-		string,
-		Array<{
-			id: string;
-			code: string;
-			clientName: string | null;
-		}>
-	>;
-	error?: string;
-}
-
 export function ModuleQuickActions({
 	initialOrders = EMPTY_QUICK_ACTION_ORDERS,
 }: ModuleQuickActionsProps) {
@@ -62,21 +50,24 @@ export function ModuleQuickActions({
 	} = useQuery({
 		queryKey: ["quick-actions-orders"],
 		queryFn: async ({ signal }) => {
-			const payload = await apiClient.get<QuickActionsOrdersContract>(
-				`/orders/kanban?limit=${QUICK_ACTION_ORDERS_LIMIT}`,
-				{ signal },
-			);
+			// NOTA: No existe endpoint /api/orders/kanban en el backend.
+			// Usamos el listado estándar de órdenes y tomamos las más recientes.
+			const payload = await apiClient.get<{
+				success?: boolean;
+				data?: Array<{
+					_id: string;
+					code: string;
+					clientName: string | null;
+				}>;
+				error?: string;
+			}>(`/orders?limit=${QUICK_ACTION_ORDERS_LIMIT}`, { signal });
 
-			if (!payload.data || typeof payload.data !== "object") {
-				throw new Error(payload.error ?? "No se pudieron cargar las órdenes recientes.");
+			if (!payload?.data || !Array.isArray(payload.data)) {
+				throw new Error(payload?.error ?? "No se pudieron cargar las órdenes recientes.");
 			}
 
-			const allOrders = Object.values(payload.data)
-				.flatMap((column) => (Array.isArray(column) ? column : []))
-				.slice(0, QUICK_ACTION_ORDERS_LIMIT);
-
-			return allOrders.map((order) => ({
-				id: order.id,
+			return payload.data.slice(0, QUICK_ACTION_ORDERS_LIMIT).map((order) => ({
+				id: order._id,
 				number: order.code,
 				client: order.clientName ?? "Sin cliente",
 			}));

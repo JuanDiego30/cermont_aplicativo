@@ -79,6 +79,31 @@ function SignaturePageForm({
 	const { push } = useRouter();
 	const [isSigning, setIsSigning] = useState(false);
 
+	const handleSignClient = async () => {
+		setIsSigning(true);
+		const signedAt = new Date().toISOString();
+		try {
+			const res = await apiClient.post<{ success: boolean; error?: string }>(
+				`/delivery-records/${id}/sign`,
+				{
+					acceptanceStatus: "accepted",
+					signatureMethod: "digital",
+					signedAt,
+				},
+			);
+			if (res.success) {
+				toast.success("Firma registrada exitosamente");
+				push(`/service-cases/${serviceCaseId || ""}`);
+			} else {
+				toast.error(res.error || "Error al registrar firma");
+			}
+		} catch {
+			toast.error("Error de conexión");
+		} finally {
+			setIsSigning(false);
+		}
+	};
+
 	return (
 		<div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
 			<Link
@@ -103,34 +128,7 @@ function SignaturePageForm({
 					<p className="mb-4 text-sm text-[var(--text-secondary)]">
 						Confirma que el cliente ha firmado el acta de entrega para avanzar al paso de SES/Ariba.
 					</p>
-					<Button
-						loading={isSigning}
-						onClick={async () => {
-							setIsSigning(true);
-							// react-doctor: Date in onClick handler — safe, not in SSR JSX (false positive)
-							const signedAt = new Date().toISOString();
-							try {
-								const res = await apiClient.post<{ success: boolean; error?: string }>(
-									`/delivery-records/${id}/sign`,
-									{
-										acceptanceStatus: "accepted",
-										signatureMethod: "digital",
-										signedAt,
-									},
-								);
-								if (res.success) {
-									toast.success("Firma registrada exitosamente");
-									push(`/service-cases/${serviceCaseId || ""}`);
-								} else {
-									toast.error(res.error || "Error al registrar firma");
-								}
-							} catch {
-								toast.error("Error de conexión");
-							} finally {
-								setIsSigning(false);
-							}
-						}}
-					>
+					<Button loading={isSigning} onClick={handleSignClient}>
 						Registrar firma del cliente
 					</Button>
 				</div>
