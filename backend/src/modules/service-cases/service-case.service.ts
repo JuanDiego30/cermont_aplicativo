@@ -1459,8 +1459,6 @@ function getTransitionEvent(state: ServiceCaseState): ServiceCaseEvent {
 		case "planning":
 			return { type: "EXECUTION_COMPLETED" };
 		case "execution":
-			return { type: "EVIDENCE_VERIFIED" };
-		case "evidences":
 			return { type: "TECHNICAL_REPORT_APPROVED" };
 		case "technical_report":
 			return { type: "DELIVERY_RECORD_GENERATED" };

@@ -872,19 +872,6 @@ async function resolvePaymentClosureBlockers({
 		);
 	}
 
-	if (!paymentRecord?.supportingDocumentUrl && !stepDocuments.length) {
-		blockers.push(
-			createEvidenceBlocker({
-				artifactType: "Payment",
-				field: "bank_statement",
-				message: "Falta la evidencia bancaria para soportar la conciliación final.",
-				ownerRole: "administrativo",
-				recommendedAction: "Adjuntar extracto o soporte bancario del pago.",
-				stepCode: "step_14_payment_closure",
-			}),
-		);
-	}
-
 	return blockers;
 }
 

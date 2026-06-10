@@ -32,15 +32,27 @@ function normalizeOrderStatus(status: OrderStatus): OrderStatus {
 /**
  * State transition rules — strict validation
  *
- * Valid transitions by current state:
- * open → assigned, cancelled
- * assigned → in_progress, on_hold, cancelled
- * in_progress → completed, on_hold, cancelled
+ * Defines the 19-state order lifecycle with ALL valid transitions:
+ *
+ * open → proposal_sent, planning, assigned, cancelled
+ * proposal_sent → proposal_approved, cancelled
+ * proposal_approved → planning, assigned, cancelled
+ * planning → assigned, ready_for_execution, cancelled
+ * assigned → ready_for_execution, in_progress, on_hold, cancelled
+ * ready_for_execution → execution_in_progress, in_progress, on_hold, cancelled
+ * execution_in_progress → execution_completed, report_pending, on_hold, cancelled
+ * execution_completed → report_pending, completed, cancelled
+ * in_progress → report_pending, completed, on_hold, cancelled
+ * report_pending → completed, cancelled
  * on_hold → in_progress, cancelled
- * completed → ready_for_invoicing, closed, cancelled
- * ready_for_invoicing → closed, cancelled
- * closed → (terminal state, no transitions)
- * cancelled → (terminal state, no transitions)
+ * completed → ready_for_invoicing, acta_signed, closed, cancelled
+ * ready_for_invoicing → acta_signed, closed, cancelled
+ * acta_signed → ses_sent, closed, cancelled
+ * ses_sent → invoice_approved, closed, cancelled
+ * invoice_approved → paid, closed, cancelled
+ * paid → closed
+ * closed → (terminal state — no transitions)
+ * cancelled → (terminal state — no transitions)
  */
 const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 	open: ["proposal_sent", "planning", "assigned", "cancelled"],

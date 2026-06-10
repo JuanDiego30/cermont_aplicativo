@@ -92,12 +92,22 @@ router.patch(
  * Public endpoint — requests password reset
  * Returns success even if email doesn't exist (security)
  */
-router.post("/forgot-password", validateBody(ForgotPasswordSchema), AuthController.forgotPassword);
+router.post(
+	"/forgot-password",
+	authLimiter,
+	validateBody(ForgotPasswordSchema),
+	AuthController.forgotPassword,
+);
 
 /**
  * POST /api/auth/reset-password
  * Public endpoint — resets password using token
  */
-router.post("/reset-password", validateBody(ResetPasswordSchema), AuthController.resetPassword);
+router.post(
+	"/reset-password",
+	authLimiter,
+	validateBody(ResetPasswordSchema),
+	AuthController.resetPassword,
+);
 
 export default router;
