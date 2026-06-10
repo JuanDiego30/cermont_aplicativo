@@ -80,7 +80,7 @@ COPY --from=builder --chown=expressjs:nodejs /app/backend/dist ./backend/dist
 COPY --from=builder --chown=expressjs:nodejs /app/backend/package.json ./backend/package.json
 
 # Crear directorio de uploads con permisos
-RUN mkdir -p /app/uploads && chown -R expressjs:nodejs /app/uploads && chmod 755 /app/uploads
+RUN mkdir -p /app/uploads && chown -R expressjs:nodejs /app/uploads && chmod 775 /app/uploads
 
 # Configuración de entorno para producción
 ENV NODE_ENV=production \
