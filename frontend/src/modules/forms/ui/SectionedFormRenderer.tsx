@@ -13,6 +13,7 @@
  */
 
 import { Camera, ChevronDown, ChevronRight } from "lucide-react";
+import Image from "next/image";
 import { useRef, useState } from "react";
 import type {
 	CermontFieldType,
@@ -135,13 +136,13 @@ function PhotoInput({
 			</div>
 			{preview ? (
 				<div className="relative shrink-0">
-					{/* react-doctor(false-positive): blob: URL preview — next/image does not support blob: */}
-					{/* biome-ignore lint/performance/noImgElement: blob URL preview */}
-					<img
+					{/* unoptimized: blob URL preview — next/image does not support blob: protocol otherwise */}
+					<Image
 						src={preview}
 						alt="Vista previa"
 						width={64}
 						height={64}
+						unoptimized
 						className="size-16 rounded-[var(--radius-md)] object-cover ring-1 ring-[var(--border-default)]"
 					/>
 					<button
