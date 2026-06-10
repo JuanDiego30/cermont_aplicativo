@@ -52,7 +52,7 @@ function NewInvoiceForm() {
 	// Derive SES ID: prefer URL param → artifacts
 	const derivedSesId = prefilledSesId || workflow?.artifacts?.serviceEntrySheet?.id || "";
 
-	const [sesId] = useState(() => derivedSesId);
+	const sesId = derivedSesId;
 	const [invoiceNumber, setInvoiceNumber] = useState("");
 	const [issueDate, setIssueDate] = useState(todayDateValue());
 	const [dueDate, setDueDate] = useState(thirtyDaysFromNowValue());

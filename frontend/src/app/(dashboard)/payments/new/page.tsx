@@ -57,7 +57,7 @@ function NewPaymentForm() {
 	// Derive invoice ID: prefer URL param → artifacts
 	const derivedInvoiceId = prefilledInvoiceId || workflow?.artifacts?.invoice?.id || "";
 
-	const [invoiceId] = useState(() => derivedInvoiceId);
+	const invoiceId = derivedInvoiceId;
 	const [paymentReference, setPaymentReference] = useState("");
 	const [paidAt, setPaidAt] = useState(nowDatetimeLocal());
 	const [amount, setAmount] = useState("");

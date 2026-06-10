@@ -8,153 +8,80 @@ import type {
 	PlanningTool,
 	WorkerRequirements,
 } from "@cermont/shared-types";
-import {
-	AlertTriangle,
-	ArrowLeft,
-	CheckCircle,
-	ChevronDown,
-	ChevronUp,
-	Loader2,
-	Package,
-	Plus,
-	Save,
-	Search,
-	Shield,
-	Trash2,
-	Users,
-	Wrench,
-	XCircle,
-	Zap,
-} from "lucide-react";
+import { AlertTriangle, ArrowLeft, Loader2, Save, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import type { ReactNode } from "react";
-import { type FormEvent, Suspense, useRef, useState } from "react";
+import { type FormEvent, Suspense, useReducer, useState } from "react";
 import { useCreatePlanningPacket } from "@/modules/planning/queries";
 import { useServiceCaseContext } from "@/modules/service-cases/hooks/useServiceCaseContext";
 import { useServiceCaseList } from "@/modules/service-cases/queries";
+import { detectKitFromWorkType, KIT_SUGGESTIONS } from "./constants";
+import type { InheritedFieldDef } from "./PlanningPacketBasicInfo";
+import { PlanningPacketBasicInfo } from "./PlanningPacketBasicInfo";
+import { PlanningPacketResources } from "./PlanningPacketResources";
+import { PlanningPacketSafety } from "./PlanningPacketSafety";
+import { PlanningPacketSchedule } from "./PlanningPacketSchedule";
 
-// ─── Work type → kit suggestion mapping ─────────────────────────────────────
-const KIT_SUGGESTIONS: Record<
-	string,
-	{
-		label: string;
-		tools: PlanningTool[];
-		materials: PlanningResourceLine[];
-		safetyElements: PlanningResourceLine[];
-		ppe: string[];
-	}
-> = {
-	cctv: {
-		label: "Kit CCTV — Mantenimiento preventivo",
-		tools: [
-			{ name: "Multímetro digital", quantity: 1, available: false },
-			{ name: "Destornilladores juego", quantity: 1, available: false },
-			{ name: "Cámara de inspección", quantity: 1, available: false },
-			{ name: "Limpiador óptico", quantity: 1, available: false },
-			{ name: "Cable UTP y ponchadora", quantity: 1, available: false },
-			{ name: "Escalera de fibra 8m", quantity: 1, available: false },
-		],
-		materials: [
-			{ description: "Terminales BNC", quantity: 10, unit: "und" },
-			{ description: "Cinta aislante", quantity: 2, unit: "rollo" },
-			{ description: "Bridas plásticas 15cm", quantity: 20, unit: "und" },
-			{ description: "Silicona impermeabilizante", quantity: 1, unit: "und" },
-		],
-		safetyElements: [
-			{ description: "Casco dieléctrico", quantity: 2, unit: "und" },
-			{ description: "Guantes dieléctricos clase 0", quantity: 2, unit: "par" },
-			{ description: "Botas dieléctricas", quantity: 2, unit: "par" },
-			{ description: "Arnés de seguridad completo", quantity: 2, unit: "und" },
-			{ description: "Gafas de seguridad", quantity: 2, unit: "und" },
-		],
-		ppe: [
-			"Casco dieléctrico",
-			"Guantes dieléctricos",
-			"Botas dieléctricas",
-			"Arnés (trabajo en altura)",
-			"Gafas de seguridad",
-		],
-	},
-	lineas_de_vida: {
-		label: "Kit Líneas de vida verticales",
-		tools: [
-			{ name: "Torquímetro", quantity: 1, available: false },
-			{ name: "Medidor de tensión de cable", quantity: 1, available: false },
-			{ name: "Calibrador vernier", quantity: 1, available: false },
-			{ name: "Llave allen set", quantity: 1, available: false },
-			{ name: "Cámara fotográfica", quantity: 1, available: false },
-		],
-		materials: [
-			{ description: "Pernos de acero inox M10×50", quantity: 20, unit: "und" },
-			{ description: "Tuercas M10 inox", quantity: 20, unit: "und" },
-			{ description: "Arandelas planas M10 inox", quantity: 40, unit: "und" },
-			{ description: "Grasa de protección anticorrosión", quantity: 1, unit: "und" },
-		],
-		safetyElements: [
-			{ description: "Casco dieléctrico", quantity: 2, unit: "und" },
-			{ description: "Arnés de seguridad tipo X", quantity: 2, unit: "und" },
-			{ description: "Eslinga de posicionamiento 1.2m", quantity: 2, unit: "und" },
-			{ description: "Conector absorbedor de impacto", quantity: 2, unit: "und" },
-			{ description: "Botas con puntera metálica", quantity: 2, unit: "par" },
-		],
-		ppe: [
-			"Casco con barbiquejo",
-			"Arnés tipo X certificado",
-			"Eslinga de posicionamiento",
-			"Absorbedor de impacto",
-			"Botas con puntera",
-		],
-	},
-	electricidad: {
-		label: "Kit Eléctrico general",
-		tools: [
-			{ name: "Pinza amperimétrica", quantity: 1, available: false },
-			{ name: "Megger o megóhmetro", quantity: 1, available: false },
-			{ name: "Detector de tensión", quantity: 1, available: false },
-			{ name: "Juego de llaves torx", quantity: 1, available: false },
-			{ name: "Escalera dieléctrica", quantity: 1, available: false },
-		],
-		materials: [
-			{ description: "Terminales preaislados juego", quantity: 1, unit: "juego" },
-			{ description: "Cable AWG 12 THHN", quantity: 10, unit: "mt" },
-			{ description: "Interruptores termomagnéticos 20A", quantity: 2, unit: "und" },
-		],
-		safetyElements: [
-			{ description: "Casco dieléctrico clase E", quantity: 2, unit: "und" },
-			{ description: "Guantes dieléctricos clase 2", quantity: 2, unit: "par" },
-			{ description: "Tapete dieléctrico", quantity: 1, unit: "und" },
-			{ description: "Lentes UV", quantity: 2, unit: "und" },
-		],
-		ppe: [
-			"Casco dieléctrico clase E",
-			"Guantes clase 2",
-			"Tapete dieléctrico",
-			"Lentes UV",
-			"Ropa ignífuga",
-		],
+// ── Resource state reducer ─────────────────────────────────────────────
+
+type ResourceState = {
+	materials: PlanningResourceLine[];
+	tools: PlanningTool[];
+	equipment: PlanningEquipment[];
+	safetyElements: PlanningResourceLine[];
+	workerReqs: WorkerRequirements;
+};
+
+type ResourceAction =
+	| { type: "SET_MATERIALS"; payload: PlanningResourceLine[] }
+	| { type: "SET_TOOLS"; payload: PlanningTool[] }
+	| { type: "SET_EQUIPMENT"; payload: PlanningEquipment[] }
+	| { type: "SET_SAFETY_ELEMENTS"; payload: PlanningResourceLine[] }
+	| { type: "SET_WORKER_REQS"; payload: WorkerRequirements }
+	| {
+			type: "APPLY_KIT";
+			payload: {
+				tools: PlanningTool[];
+				materials: PlanningResourceLine[];
+				safetyElements: PlanningResourceLine[];
+			};
+	  };
+
+const initialResourceState: ResourceState = {
+	materials: [],
+	tools: [],
+	equipment: [],
+	safetyElements: [],
+	workerReqs: {
+		electricistas: 0,
+		tecnicosTelecomunicacion: 0,
+		instrumentistas: 0,
+		obreros: 0,
 	},
 };
 
-const BUSINESS_UNIT_OPTIONS: Array<{ value: PlanningBusinessUnit; label: string }> = [
-	{ value: "IT", label: "IT" },
-	{ value: "MNT", label: "MNT" },
-	{ value: "SC", label: "SC" },
-	{ value: "GEN", label: "GEN" },
-	{ value: "OTHER", label: "Otros" },
-];
-
-function emptyMaterial(): PlanningResourceLine {
-	return { description: "", quantity: 1, unit: "und" };
-}
-function emptyTool(): PlanningTool {
-	return { name: "", quantity: 1, available: false };
-}
-function emptyEquipment(): PlanningEquipment {
-	return { name: "", quantity: 1, available: false, certificateRequired: false };
-}
-function emptySafetyEl(): PlanningResourceLine {
-	return { description: "", quantity: 1, unit: "und" };
+function resourceReducer(state: ResourceState, action: ResourceAction): ResourceState {
+	switch (action.type) {
+		case "SET_MATERIALS":
+			return { ...state, materials: action.payload };
+		case "SET_TOOLS":
+			return { ...state, tools: action.payload };
+		case "SET_EQUIPMENT":
+			return { ...state, equipment: action.payload };
+		case "SET_SAFETY_ELEMENTS":
+			return { ...state, safetyElements: action.payload };
+		case "SET_WORKER_REQS":
+			return { ...state, workerReqs: action.payload };
+		case "APPLY_KIT":
+			return {
+				...state,
+				tools: action.payload.tools.map((t) => ({ ...t })),
+				materials: action.payload.materials.map((m) => ({ ...m })),
+				safetyElements: action.payload.safetyElements.map((s) => ({ ...s })),
+			};
+		default:
+			return state;
+	}
 }
 
 export default function PlanningPacketNewPage() {
@@ -169,21 +96,6 @@ export default function PlanningPacketNewPage() {
 			<PlanningPacketNewPageContent />
 		</Suspense>
 	);
-}
-
-/** Detects kit suggestion from work type string — pure function, module-scope */
-function detectKitFromWorkType(workType: string): string {
-	const wt = workType.toLowerCase();
-	if (wt.includes("cctv") || wt.includes("camara") || wt.includes("vigilancia")) {
-		return "cctv";
-	}
-	if (wt.includes("linea") || wt.includes("vida") || wt.includes("lifeline")) {
-		return "lineas_de_vida";
-	}
-	if (wt.includes("electric") || wt.includes("eléctric")) {
-		return "electricidad";
-	}
-	return "";
 }
 
 function PlanningPacketNewPageContent() {
@@ -205,17 +117,9 @@ function PlanningPacketNewPageContent() {
 	const [scope, setScope] = useState("");
 	const [plannedDate, setPlannedDate] = useState("");
 	const [responsibleName, setResponsibleName] = useState("");
-	const [kitSuggestionKey] = useState("");
-	const [materials, setMaterials] = useState<PlanningResourceLine[]>([]);
-	const [tools, setTools] = useState<PlanningTool[]>([]);
-	const [equipment, setEquipment] = useState<PlanningEquipment[]>([]);
-	const [safetyElements, setSafetyElements] = useState<PlanningResourceLine[]>([]);
-	const [workerReqs, setWorkerReqs] = useState<WorkerRequirements>({
-		electricistas: 0,
-		tecnicosTelecomunicacion: 0,
-		instrumentistas: 0,
-		obreros: 0,
-	});
+	const kitSuggestionKey = "";
+	const [resources, dispatchResources] = useReducer(resourceReducer, initialResourceState);
+	const { materials, tools, equipment, safetyElements, workerReqs } = resources;
 	const [astRequired, setAstRequired] = useState(true);
 	const [ptwRequired, setPtwRequired] = useState(true);
 	const [planningNotes, setPlanningNotes] = useState("");
@@ -233,24 +137,34 @@ function PlanningPacketNewPageContent() {
 
 	const createMutation = useCreatePlanningPacket();
 
-	const inheritedClientName = inheritedFields.find((f) => f.key === "clientName")?.value ?? "";
-	const inheritedLocation = inheritedFields.find((f) => f.key === "location")?.value ?? "";
-	const inheritedWorkTypeName = inheritedFields.find((f) => f.key === "workTypeName")?.value ?? "";
-	const inheritedScope = inheritedFields.find((f) => f.key === "approvedScope")?.value ?? "";
+	const inheritedClientName =
+		inheritedFields.find((f: { key: string }) => f.key === "clientName")?.value ?? "";
+	const inheritedLocation =
+		inheritedFields.find((f: { key: string }) => f.key === "location")?.value ?? "";
+	const inheritedWorkTypeName =
+		inheritedFields.find((f: { key: string }) => f.key === "workTypeName")?.value ?? "";
+	const inheritedScope =
+		inheritedFields.find((f: { key: string }) => f.key === "approvedScope")?.value ?? "";
 	const orderId = workflow?.orderId ?? "";
 
 	function toggleSection(key: string) {
 		setExpandedSections((prev) => ({ ...prev, [key]: !prev[key] }));
 	}
 
-	function applyKitSuggestion(key: string) {
+	function applyKitSuggestion() {
+		const key = autoSuggestedKey || kitSuggestionKey;
 		const kit = KIT_SUGGESTIONS[key];
 		if (!kit) {
 			return;
 		}
-		setTools(kit.tools.map((t) => ({ ...t })));
-		setMaterials(kit.materials.map((m) => ({ ...m })));
-		setSafetyElements(kit.safetyElements.map((s) => ({ ...s })));
+		dispatchResources({
+			type: "APPLY_KIT",
+			payload: {
+				tools: kit.tools,
+				materials: kit.materials,
+				safetyElements: kit.safetyElements,
+			},
+		});
 		if (inheritedWorkTypeName && !scope) {
 			setScope(
 				inheritedScope || `Mantenimiento de ${inheritedWorkTypeName} — ${inheritedLocation}`,
@@ -359,27 +273,29 @@ function PlanningPacketNewPageContent() {
 								</p>
 							</div>
 						) : (
-							(casesData?.items ?? []).map((c) => (
-								<button
-									key={c._id}
-									type="button"
-									onClick={() => {
-										setSelectedCaseId(c._id);
-										setShowCaseSelector(false);
-									}}
-									className="flex items-center justify-between rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 text-left transition-all hover:border-[var(--color-brand)] hover:shadow-sm"
-								>
-									<div>
-										<p className="font-semibold text-[var(--text-primary)]">{c.clientName}</p>
-										<p className="mt-0.5 text-sm text-[var(--text-muted)]">
-											{c.code} · {c.currentStage}
-										</p>
-									</div>
-									<span className="text-sm font-medium text-[var(--color-brand)]">
-										Seleccionar →
-									</span>
-								</button>
-							))
+							(casesData?.items ?? []).map(
+								(c: { _id: string; clientName: string; code: string; currentStage: string }) => (
+									<button
+										key={c._id}
+										type="button"
+										onClick={() => {
+											setSelectedCaseId(c._id);
+											setShowCaseSelector(false);
+										}}
+										className="flex items-center justify-between rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4 text-left transition-all hover:border-[var(--color-brand)] hover:shadow-sm"
+									>
+										<div>
+											<p className="font-semibold text-[var(--text-primary)]">{c.clientName}</p>
+											<p className="mt-0.5 text-sm text-[var(--text-muted)]">
+												{c.code} · {c.currentStage}
+											</p>
+										</div>
+										<span className="text-sm font-medium text-[var(--color-brand)]">
+											Seleccionar →
+										</span>
+									</button>
+								),
+							)
 						)}
 					</div>
 				)}
@@ -423,758 +339,104 @@ function PlanningPacketNewPageContent() {
 				</div>
 			</header>
 
-			{isContextLoading ? (
-				<div className="flex justify-center py-8">
-					<Loader2 className="size-8 animate-spin text-[var(--color-brand)]" />
+			<PlanningPacketBasicInfo
+				responsibleName={responsibleName}
+				onResponsibleNameChange={setResponsibleName}
+				place={place}
+				onPlaceChange={setPlace}
+				plannedDate={plannedDate}
+				onPlannedDateChange={setPlannedDate}
+				businessUnit={businessUnit}
+				onBusinessUnitChange={setBusinessUnit}
+				scope={scope}
+				onScopeChange={setScope}
+				inheritedLocation={inheritedLocation}
+				inheritedWorkTypeName={inheritedWorkTypeName}
+				isContextLoading={isContextLoading}
+				autoSuggestedKey={autoSuggestedKey}
+				kitSuggestionKey={kitSuggestionKey}
+				onApplyKitSuggestion={applyKitSuggestion}
+				inheritedFields={inheritedFields as unknown as InheritedFieldDef[]}
+			/>
+
+			{/* Errors */}
+			{(formError || createMutation.isError) && (
+				<div className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] p-4 text-sm text-[var(--color-danger)]">
+					<AlertTriangle className="mt-0.5 size-4 shrink-0" />
+					<p>{formError || "No se pudo crear la planeación."}</p>
 				</div>
-			) : (
-				<>
-					{/* Inherited context banner */}
-					{inheritedFields.length > 0 && (
-						<div className="rounded-[var(--radius-lg)] border border-[var(--color-brand)]/20 bg-[var(--color-brand-blue-bg)] p-4">
-							<p className="text-xs font-bold uppercase tracking-wide text-[var(--color-brand)]">
-								Datos heredados del caso
-							</p>
-							<div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-								{inheritedFields.map((f) => (
-									<div key={f.key} className="rounded-[var(--radius-md)] bg-white/70 px-3 py-2">
-										<p className="text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--text-muted)]">
-											{f.label}
-										</p>
-										<p className="mt-0.5 text-sm font-semibold text-[var(--text-primary)] truncate">
-											{f.value}
-										</p>
-										<p className="text-[9px] text-[var(--color-brand)]">↑ {f.sourceStepLabel}</p>
-									</div>
-								))}
-							</div>
-						</div>
-					)}
+			)}
 
-					{/* Kit suggestion banner */}
-					{(autoSuggestedKey || kitSuggestionKey) && (
-						<div className="rounded-[var(--radius-lg)] border border-amber-200 bg-amber-50 p-4">
-							<div className="flex items-start justify-between gap-3">
-								<div>
-									<p className="text-sm font-semibold text-amber-900">
-										Kit típico sugerido para: {inheritedWorkTypeName}
-									</p>
-									<p className="mt-0.5 text-xs text-amber-700">
-										{KIT_SUGGESTIONS[autoSuggestedKey || kitSuggestionKey]?.label}
-									</p>
-								</div>
-								<button
-									type="button"
-									onClick={() => applyKitSuggestion(autoSuggestedKey || kitSuggestionKey)}
-									className="inline-flex shrink-0 items-center gap-1.5 rounded-[var(--radius-md)] bg-amber-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-800"
-								>
-									<Package className="size-3.5" />
-									Aplicar kit
-								</button>
-							</div>
-						</div>
-					)}
+			<form onSubmit={handleSubmit} className="space-y-4">
+				<PlanningPacketResources
+					materials={materials}
+					onMaterialsChange={(m) => dispatchResources({ type: "SET_MATERIALS", payload: m })}
+					tools={tools}
+					onToolsChange={(t) => dispatchResources({ type: "SET_TOOLS", payload: t })}
+					equipment={equipment}
+					onEquipmentChange={(e) => dispatchResources({ type: "SET_EQUIPMENT", payload: e })}
+					expandedSections={expandedSections}
+					onToggleSection={toggleSection}
+				/>
 
-					{/* Errors */}
-					{(formError || createMutation.isError) && (
-						<div className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-[var(--color-danger-border)] bg-[var(--color-danger-bg)] p-4 text-sm text-[var(--color-danger)]">
-							<AlertTriangle className="mt-0.5 size-4 shrink-0" />
-							<p>{formError || "No se pudo crear la planeación."}</p>
-						</div>
-					)}
+				<PlanningPacketSafety
+					safetyElements={safetyElements}
+					onSafetyElementsChange={(s) =>
+						dispatchResources({ type: "SET_SAFETY_ELEMENTS", payload: s })
+					}
+					astRequired={astRequired}
+					onAstRequiredChange={setAstRequired}
+					ptwRequired={ptwRequired}
+					onPtwRequiredChange={setPtwRequired}
+					planningNotes={planningNotes}
+					onPlanningNotesChange={setPlanningNotes}
+					expandedSections={expandedSections}
+					onToggleSection={toggleSection}
+				/>
 
-					<form onSubmit={handleSubmit} className="space-y-4">
-						{/* General data */}
-						<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5">
-							<h2 className="mb-4 text-sm font-semibold text-[var(--text-primary)]">
-								Datos generales
-							</h2>
-							<div className="grid gap-4 md:grid-cols-2">
-								<FormField label="Responsable de inspección" required htmlFor="responsible-name">
-									<input
-										id="responsible-name"
-										type="text"
-										value={responsibleName}
-										onChange={(e) => setResponsibleName(e.target.value)}
-										placeholder="ING. RESIDENTE / SUPERVISOR"
-										className="field-input"
-									/>
-								</FormField>
-								<FormField label="Lugar / sitio" required htmlFor="place">
-									<input
-										id="place"
-										type="text"
-										value={place}
-										onChange={(e) => setPlace(e.target.value)}
-										placeholder={inheritedLocation || "Ubicación de ejecución"}
-										className="field-input"
-									/>
-								</FormField>
-								<FormField label="Fecha planeada" htmlFor="planned-date">
-									<input
-										id="planned-date"
-										type="datetime-local"
-										value={plannedDate}
-										onChange={(e) => setPlannedDate(e.target.value)}
-										className="field-input"
-									/>
-								</FormField>
-								<FormField label="Unidad de negocio" required>
-									<select
-										id="businessUnit"
-										value={businessUnit}
-										onChange={(e) => setBusinessUnit(e.target.value as PlanningBusinessUnit)}
-										className="field-input"
-										aria-label="Unidad de negocio"
-									>
-										{BUSINESS_UNIT_OPTIONS.map((o) => (
-											<option key={o.value} value={o.value}>
-												{o.label}
-											</option>
-										))}
-									</select>
-								</FormField>
-							</div>
-							<div className="mt-4">
-								<FormField label="Alcance de la actividad" required htmlFor="scope">
-									<textarea
-										id="scope"
-										value={scope}
-										onChange={(e) => setScope(e.target.value)}
-										rows={3}
-										placeholder="Descripción detallada del alcance de la obra/actividad..."
-										className="field-input resize-none"
-									/>
-									<p className="mt-1 text-xs text-[var(--text-muted)]">
-										Mínimo 20 caracteres. {scope.length}/3000
-									</p>
-								</FormField>
-							</div>
-						</div>
+				<PlanningPacketSchedule
+					workerReqs={workerReqs}
+					onWorkerReqsChange={(w) => dispatchResources({ type: "SET_WORKER_REQS", payload: w })}
+					materials={materials}
+					tools={tools}
+					safetyElements={safetyElements}
+					expandedSections={expandedSections}
+					onToggleSection={toggleSection}
+				/>
 
-						{/* Materials section */}
-						<CollapsibleSection
-							icon={<Package className="size-4" />}
-							title="Materiales"
-							count={materials.length}
-							expanded={expandedSections.materials}
-							onToggle={() => toggleSection("materials")}
-						>
-							<ResourceTable
-								rows={materials}
-								columns={["Descripción", "Cantidad", "Unidad"]}
-								onAdd={() => setMaterials((prev) => [...prev, emptyMaterial()])}
-								onRemove={(i) => setMaterials((prev) => prev.filter((_, idx) => idx !== i))}
-								renderRow={(row, i) => (
-									<>
-										<input
-											type="text"
-											value={row.description}
-											onChange={(e) => {
-												const updated = [...materials];
-												updated[i] = { ...row, description: e.target.value };
-												setMaterials(updated);
-											}}
-											placeholder="Descripción del material"
-											className="field-input text-sm"
-											aria-label={`Material, fila ${i + 1} — descripción`}
-										/>
-										<input
-											type="number"
-											min={1}
-											value={row.quantity}
-											onChange={(e) => {
-												const updated = [...materials];
-												updated[i] = { ...row, quantity: Number(e.target.value) };
-												setMaterials(updated);
-											}}
-											className="field-input w-20 text-sm"
-											aria-label={`Material, fila ${i + 1} — cantidad`}
-										/>
-										<input
-											type="text"
-											value={row.unit ?? "und"}
-											onChange={(e) => {
-												const updated = [...materials];
-												updated[i] = { ...row, unit: e.target.value };
-												setMaterials(updated);
-											}}
-											placeholder="und"
-											className="field-input w-20 text-sm"
-											aria-label={`Material, fila ${i + 1} — unidad`}
-										/>
-									</>
-								)}
-							/>
-						</CollapsibleSection>
-
-						{/* Tools section */}
-						<CollapsibleSection
-							icon={<Wrench className="size-4" />}
-							title="Herramientas"
-							count={tools.length}
-							expanded={expandedSections.tools}
-							onToggle={() => toggleSection("tools")}
-						>
-							<ResourceTable
-								rows={tools}
-								columns={["Herramienta", "Cant.", "Disponible"]}
-								onAdd={() => setTools((prev) => [...prev, emptyTool()])}
-								onRemove={(i) => setTools((prev) => prev.filter((_, idx) => idx !== i))}
-								renderRow={(row, i) => (
-									<>
-										<input
-											type="text"
-											value={row.name}
-											onChange={(e) => {
-												const updated = [...tools];
-												updated[i] = { ...row, name: e.target.value };
-												setTools(updated);
-											}}
-											placeholder="Nombre de la herramienta"
-											className="field-input text-sm"
-											aria-label={`Herramienta, fila ${i + 1} — nombre`}
-										/>
-										<input
-											type="number"
-											min={1}
-											value={row.quantity}
-											onChange={(e) => {
-												const updated = [...tools];
-												updated[i] = { ...row, quantity: Number(e.target.value) };
-												setTools(updated);
-											}}
-											className="field-input w-20 text-sm"
-											aria-label={`Herramienta, fila ${i + 1} — cantidad`}
-										/>
-										<button
-											type="button"
-											onClick={() => {
-												const updated = [...tools];
-												updated[i] = { ...row, available: !row.available };
-												setTools(updated);
-											}}
-											aria-label={`Herramienta, fila ${i + 1} — cambiar disponibilidad`}
-											className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
-												row.available
-													? "bg-green-100 text-green-700 hover:bg-green-200"
-													: "bg-gray-100 text-gray-500 hover:bg-gray-200"
-											}`}
-										>
-											{row.available ? (
-												<CheckCircle className="size-3" />
-											) : (
-												<XCircle className="size-3" />
-											)}
-											{row.available ? "Sí" : "No"}
-										</button>
-									</>
-								)}
-							/>
-						</CollapsibleSection>
-
-						{/* Equipment section */}
-						<CollapsibleSection
-							icon={<Zap className="size-4" />}
-							title="Equipos"
-							count={equipment.length}
-							expanded={expandedSections.equipment}
-							onToggle={() => toggleSection("equipment")}
-						>
-							<ResourceTable
-								rows={equipment}
-								columns={["Equipo", "Cant.", "Disponible", "Certif."]}
-								onAdd={() => setEquipment((prev) => [...prev, emptyEquipment()])}
-								onRemove={(i) => setEquipment((prev) => prev.filter((_, idx) => idx !== i))}
-								renderRow={(row, i) => (
-									<>
-										<input
-											type="text"
-											value={row.name}
-											onChange={(e) => {
-												const updated = [...equipment];
-												updated[i] = { ...row, name: e.target.value };
-												setEquipment(updated);
-											}}
-											placeholder="Nombre del equipo"
-											className="field-input text-sm"
-											aria-label={`Equipo, fila ${i + 1} — nombre`}
-										/>
-										<input
-											type="number"
-											min={1}
-											value={row.quantity}
-											onChange={(e) => {
-												const updated = [...equipment];
-												updated[i] = { ...row, quantity: Number(e.target.value) };
-												setEquipment(updated);
-											}}
-											className="field-input w-20 text-sm"
-											aria-label={`Equipo, fila ${i + 1} — cantidad`}
-										/>
-										<button
-											type="button"
-											onClick={() => {
-												const updated = [...equipment];
-												updated[i] = { ...row, available: !row.available };
-												setEquipment(updated);
-											}}
-											aria-label={`Equipo, fila ${i + 1} — cambiar disponibilidad`}
-											className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
-												row.available ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
-											}`}
-										>
-											{row.available ? "Sí" : "No"}
-										</button>
-										<button
-											type="button"
-											onClick={() => {
-												const updated = [...equipment];
-												updated[i] = {
-													...row,
-													certificateRequired: !row.certificateRequired,
-												};
-												setEquipment(updated);
-											}}
-											aria-label={`Equipo, fila ${i + 1} — certificado requerido`}
-											className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
-												row.certificateRequired
-													? "bg-amber-100 text-amber-700"
-													: "bg-gray-100 text-gray-500"
-											}`}
-										>
-											{row.certificateRequired ? "Sí" : "No"}
-										</button>
-									</>
-								)}
-							/>
-						</CollapsibleSection>
-
-						{/* Safety elements */}
-						<CollapsibleSection
-							icon={<Shield className="size-4" />}
-							title="Elementos de seguridad (EPP)"
-							count={safetyElements.length}
-							expanded={expandedSections.safety}
-							onToggle={() => toggleSection("safety")}
-						>
-							<ResourceTable
-								rows={safetyElements}
-								columns={["Descripción", "Cantidad", "Unidad"]}
-								onAdd={() => setSafetyElements((prev) => [...prev, emptySafetyEl()])}
-								onRemove={(i) => setSafetyElements((prev) => prev.filter((_, idx) => idx !== i))}
-								renderRow={(row, i) => (
-									<>
-										<input
-											type="text"
-											value={row.description}
-											onChange={(e) => {
-												const updated = [...safetyElements];
-												updated[i] = { ...row, description: e.target.value };
-												setSafetyElements(updated);
-											}}
-											placeholder="EPP / Elemento de seguridad"
-											className="field-input text-sm"
-											aria-label={`EPP, fila ${i + 1} — descripción`}
-										/>
-										<input
-											type="number"
-											min={1}
-											value={row.quantity}
-											onChange={(e) => {
-												const updated = [...safetyElements];
-												updated[i] = { ...row, quantity: Number(e.target.value) };
-												setSafetyElements(updated);
-											}}
-											className="field-input w-20 text-sm"
-											aria-label={`EPP, fila ${i + 1} — cantidad`}
-										/>
-										<input
-											type="text"
-											value={row.unit ?? "und"}
-											onChange={(e) => {
-												const updated = [...safetyElements];
-												updated[i] = { ...row, unit: e.target.value };
-												setSafetyElements(updated);
-											}}
-											placeholder="und"
-											className="field-input w-20 text-sm"
-											aria-label={`EPP, fila ${i + 1} — unidad`}
-										/>
-									</>
-								)}
-							/>
-						</CollapsibleSection>
-
-						{/* Crew requirements */}
-						<CollapsibleSection
-							icon={<Users className="size-4" />}
-							title="Número de trabajadores"
-							expanded={expandedSections.crew}
-							onToggle={() => toggleSection("crew")}
-						>
-							<div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
-								{(
-									[
-										{
-											key: "electricistas" as keyof WorkerRequirements,
-											label: "Electricistas",
-										},
-										{
-											key: "tecnicosTelecomunicacion" as keyof WorkerRequirements,
-											label: "Téc. Telecomunicación",
-										},
-										{
-											key: "instrumentistas" as keyof WorkerRequirements,
-											label: "Instrumentistas",
-										},
-										{ key: "obreros" as keyof WorkerRequirements, label: "Obreros" },
-									] satisfies Array<{ key: keyof WorkerRequirements; label: string }>
-								).map(({ key, label }) => (
-									<FormField key={key} label={label} htmlFor={`worker-${key}`}>
-										<input
-											id={`worker-${key}`}
-											type="number"
-											min={0}
-											max={50}
-											value={workerReqs[key]}
-											onChange={(e) =>
-												setWorkerReqs((prev) => ({
-													...prev,
-													[key]: Number(e.target.value),
-												}))
-											}
-											className="field-input w-full"
-										/>
-									</FormField>
-								))}
-							</div>
-						</CollapsibleSection>
-
-						{/* Documents required */}
-						<CollapsibleSection
-							icon={<Shield className="size-4" />}
-							title="Documentos de apoyo requeridos"
-							expanded={expandedSections.docs}
-							onToggle={() => toggleSection("docs")}
-						>
-							<div className="grid gap-3 sm:grid-cols-2">
-								<label className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-secondary)] p-3 cursor-pointer">
-									<input
-										type="checkbox"
-										checked={astRequired}
-										onChange={(e) => setAstRequired(e.target.checked)}
-										className="size-4 rounded"
-									/>
-									<div>
-										<p className="text-sm font-medium text-[var(--text-primary)]">
-											ATS (Análisis de Trabajo Seguro)
-										</p>
-										<p className="text-xs text-[var(--text-muted)]">
-											Requerido para tareas de riesgo
-										</p>
-									</div>
-								</label>
-								<label className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-secondary)] p-3 cursor-pointer">
-									<input
-										type="checkbox"
-										checked={ptwRequired}
-										onChange={(e) => setPtwRequired(e.target.checked)}
-										className="size-4 rounded"
-									/>
-									<div>
-										<p className="text-sm font-medium text-[var(--text-primary)]">
-											PTW (Permiso de Trabajo)
-										</p>
-										<p className="text-xs text-[var(--text-muted)]">Permiso formal de trabajo</p>
-									</div>
-								</label>
-							</div>
-						</CollapsibleSection>
-
-						{/* Notes */}
-						<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5">
-							<FormField label="Observaciones adicionales" htmlFor="planning-notes">
-								<textarea
-									id="planning-notes"
-									value={planningNotes}
-									onChange={(e) => setPlanningNotes(e.target.value)}
-									rows={3}
-									placeholder="Notas, consideraciones especiales, restricciones del sitio..."
-									className="field-input resize-none"
-								/>
-							</FormField>
-						</div>
-
-						{/* Readiness summary */}
-						<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-secondary)] p-4">
-							<p className="text-xs font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">
-								Resumen de readiness
-							</p>
-							<div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-								<ReadinessBadge
-									label="Materiales"
-									ready={materials.length > 0}
-									count={materials.length}
-								/>
-								<ReadinessBadge
-									label="Herramientas"
-									ready={tools.length > 0}
-									count={tools.length}
-								/>
-								<ReadinessBadge
-									label="EPP"
-									ready={safetyElements.length > 0}
-									count={safetyElements.length}
-								/>
-								<ReadinessBadge
-									label="Trabajadores"
-									ready={Object.values(workerReqs).some((v) => v > 0)}
-									count={Object.values(workerReqs).reduce((a, b) => a + b, 0)}
-								/>
-							</div>
-						</div>
-
-						{/* Submit */}
-						<div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4">
-							<button
-								type="button"
-								onClick={() => setShowCaseSelector(true)}
-								className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] border border-[var(--border-default)] px-4 text-sm font-medium text-[var(--text-primary)]"
+				{/* Submit */}
+				<div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-4">
+					<button
+						type="button"
+						onClick={() => setShowCaseSelector(true)}
+						className="inline-flex min-h-11 items-center rounded-[var(--radius-md)] border border-[var(--border-default)] px-4 text-sm font-medium text-[var(--text-primary)]"
+					>
+						Cambiar caso
+					</button>
+					<div className="flex gap-3">
+						{selectedCaseId && (
+							<Link
+								href={`/service-cases/${selectedCaseId}`}
+								className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-default)] px-4 text-sm font-medium text-[var(--text-primary)]"
 							>
-								Cambiar caso
-							</button>
-							<div className="flex gap-3">
-								{selectedCaseId && (
-									<Link
-										href={`/service-cases/${selectedCaseId}`}
-										className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-default)] px-4 text-sm font-medium text-[var(--text-primary)]"
-									>
-										Ver caso
-									</Link>
-								)}
-								<button
-									type="submit"
-									disabled={createMutation.isPending}
-									className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-brand)] px-5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-								>
-									{createMutation.isPending ? (
-										<Loader2 className="size-4 animate-spin" />
-									) : (
-										<Save className="size-4" />
-									)}
-									Guardar planeación
-								</button>
-							</div>
-						</div>
-					</form>
-				</>
-			)}
-		</section>
-	);
-}
-
-// ─── Sub-components ──────────────────────────────────────────────────────────
-
-// react-doctor(false-positive): control-has-associated-label — los inputs envueltos
-// por FormField SÍ tienen <label htmlFor> asociado (renderizado aquí); el análisis
-// estático no traza la asociación a través del wrapper.
-function FormField({
-	label,
-	required,
-	htmlFor,
-	children,
-}: {
-	label: string;
-	required?: boolean;
-	htmlFor?: string;
-	children: ReactNode;
-}) {
-	const labelEl = (
-		<>
-			{label}
-			{required && <span className="ml-1 text-[var(--color-danger)]">*</span>}
-		</>
-	);
-	return (
-		<div className="grid gap-1.5">
-			{htmlFor ? (
-				<label htmlFor={htmlFor} className="text-sm font-medium text-[var(--text-primary)]">
-					{labelEl}
-				</label>
-			) : (
-				<span className="text-sm font-medium text-[var(--text-primary)]">{labelEl}</span>
-			)}
-			{children}
-		</div>
-	);
-}
-
-function CollapsibleSection({
-	icon,
-	title,
-	count,
-	expanded,
-	onToggle,
-	children,
-}: {
-	icon: ReactNode;
-	title: string;
-	count?: number;
-	expanded: boolean;
-	onToggle: () => void;
-	children: ReactNode;
-}) {
-	return (
-		<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] overflow-hidden">
-			<button
-				type="button"
-				onClick={onToggle}
-				className="flex w-full items-center justify-between p-4 text-left"
-			>
-				<span className="flex items-center gap-2.5 text-sm font-semibold text-[var(--text-primary)]">
-					<span className="text-[var(--color-brand)]">{icon}</span>
-					{title}
-					{count !== undefined && count > 0 && (
-						<span className="rounded-full bg-[var(--color-brand)]/10 px-2 py-0.5 text-xs font-medium text-[var(--color-brand)]">
-							{count}
-						</span>
-					)}
-				</span>
-				{expanded ? (
-					<ChevronUp className="size-4 text-[var(--text-muted)]" />
-				) : (
-					<ChevronDown className="size-4 text-[var(--text-muted)]" />
-				)}
-			</button>
-			{expanded && <div className="border-t border-[var(--border-subtle)] p-4">{children}</div>}
-		</div>
-	);
-}
-
-/** Named wrapper for a single ResourceTable row — avoids inline render calls */
-function ResourceTableRow<T>({
-	row,
-	index: i,
-	renderRow,
-	onRemove,
-}: {
-	row: T;
-	index: number;
-	renderRow: (row: T, index: number) => ReactNode;
-	onRemove: (index: number) => void;
-}) {
-	// Hoisted: renderRow es factory de celdas (ReactNode), no componente — no remonta
-	const cells = renderRow(row, i);
-	return (
-		<tr className="group">
-			{cells}
-			<td className="pl-2 py-1.5">
-				<button
-					type="button"
-					onClick={() => onRemove(i)}
-					className="rounded p-1 text-[var(--text-muted)] opacity-0 transition-opacity hover:text-[var(--color-danger)] group-hover:opacity-100"
-				>
-					<Trash2 className="size-3.5" />
-				</button>
-			</td>
-		</tr>
-	);
-}
-
-function ResourceTable<T>({
-	rows,
-	columns,
-	onAdd,
-	onRemove,
-	renderRow,
-}: {
-	rows: T[];
-	columns: string[];
-	onAdd: () => void;
-	onRemove: (index: number) => void;
-	renderRow: (row: T, index: number) => ReactNode;
-}) {
-	// Stable key per position — generated once per row slot, survives re-renders
-	const stableKeys = useRef<string[]>([]);
-	if (stableKeys.current.length < rows.length) {
-		for (let i = stableKeys.current.length; i < rows.length; i++) {
-			stableKeys.current.push(
-				typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-					? crypto.randomUUID()
-					: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
-			);
-		}
-	}
-	if (stableKeys.current.length > rows.length) {
-		stableKeys.current.length = rows.length;
-	}
-
-	return (
-		<div className="space-y-2">
-			{rows.length > 0 && (
-				<div className="overflow-x-auto">
-					<table className="w-full text-sm">
-						<thead>
-							<tr className="border-b border-[var(--border-subtle)]">
-								{columns.map((col) => (
-									<th
-										key={col}
-										scope="col"
-										className="pb-2 pr-3 text-left text-xs font-medium uppercase tracking-[0.1em] text-[var(--text-muted)]"
-									>
-										{col}
-									</th>
-								))}
-								<th scope="col" className="pb-2 w-8">
-									<span className="sr-only">Acciones</span>
-								</th>
-							</tr>
-						</thead>
-						<tbody className="divide-y divide-[var(--border-subtle)]">
-							{rows.map((row, i) => (
-								<ResourceTableRow
-									key={stableKeys.current[i]}
-									row={row}
-									index={i}
-									renderRow={renderRow}
-									onRemove={onRemove}
-								/>
-							))}
-						</tbody>
-					</table>
+								Ver caso
+							</Link>
+						)}
+						<button
+							type="submit"
+							disabled={createMutation.isPending}
+							className="inline-flex min-h-11 items-center gap-2 rounded-[var(--radius-md)] bg-[var(--color-brand)] px-5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+						>
+							{createMutation.isPending ? (
+								<Loader2 className="size-4 animate-spin" />
+							) : (
+								<Save className="size-4" />
+							)}
+							Guardar planeación
+						</button>
+					</div>
 				</div>
-			)}
-			<button
-				type="button"
-				onClick={onAdd}
-				className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] px-3 py-2 text-xs font-medium text-[var(--text-muted)] transition-colors hover:border-[var(--color-brand)] hover:text-[var(--color-brand)]"
-			>
-				<Plus className="size-3.5" />
-				Agregar fila
-			</button>
-		</div>
-	);
-}
-
-function ReadinessBadge({ label, ready, count }: { label: string; ready: boolean; count: number }) {
-	return (
-		<div
-			className={`flex items-center gap-2 rounded-[var(--radius-md)] border p-2.5 ${
-				ready
-					? "border-green-200 bg-green-50"
-					: "border-[var(--border-default)] bg-[var(--surface-primary)]"
-			}`}
-		>
-			{ready ? (
-				<CheckCircle className="size-4 text-green-600 shrink-0" />
-			) : (
-				<XCircle className="size-4 text-[var(--text-muted)] shrink-0" />
-			)}
-			<div>
-				<p className="text-xs font-medium text-[var(--text-primary)]">{label}</p>
-				<p className="text-[10px] text-[var(--text-muted)]">{count} registros</p>
-			</div>
-		</div>
+			</form>
+		</section>
 	);
 }

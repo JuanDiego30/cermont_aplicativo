@@ -38,7 +38,7 @@ function NewSESForm() {
 	// Derive delivery record ID: prefer URL param → artifacts
 	const derivedDeliveryId = prefilledDeliveryId || workflow?.artifacts?.deliveryRecord?.id || "";
 
-	const [deliveryRecordId] = useState(() => derivedDeliveryId);
+	const deliveryRecordId = derivedDeliveryId;
 	const [aribaDocumentNumber, setAribaDocumentNumber] = useState("");
 	const [description, setDescription] = useState("");
 	const [total, setTotal] = useState("");

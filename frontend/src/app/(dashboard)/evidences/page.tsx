@@ -20,6 +20,7 @@ import {
 	type ReactNode,
 	Suspense,
 	useCallback,
+	useEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -74,45 +75,44 @@ function EvidenceUploadSection({
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
-	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+	const previewUrl = useMemo(
+		() => (selectedFile ? URL.createObjectURL(selectedFile) : null),
+		[selectedFile],
+	);
+	useEffect(() => {
+		return () => {
+			if (previewUrl) {
+				URL.revokeObjectURL(previewUrl);
+			}
+		};
+	}, [previewUrl]);
 	const [evidenceTitle, setEvidenceTitle] = useState("");
 	const [evidenceDesc, setEvidenceDesc] = useState("");
 	const [isUploading, setIsUploading] = useState(false);
 
-	const handleFileChange = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
-			const file = e.target.files?.[0] ?? null;
-			if (file) {
-				if (file.size > MAX_FILE_SIZE) {
-					toast.error("El archivo no debe superar 10MB");
-					return;
-				}
-				if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-					toast.error("Formato no válido. Use JPG, PNG o WebP");
-					return;
-				}
-				setSelectedFile(file);
-				if (previewUrl) {
-					URL.revokeObjectURL(previewUrl);
-				}
-				setPreviewUrl(URL.createObjectURL(file));
+	const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0] ?? null;
+		if (file) {
+			if (file.size > MAX_FILE_SIZE) {
+				toast.error("El archivo no debe superar 10MB");
+				return;
 			}
-		},
-		[previewUrl],
-	);
+			if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+				toast.error("Formato no válido. Use JPG, PNG o WebP");
+				return;
+			}
+			setSelectedFile(file);
+		}
+	}, []);
 
 	const resetForm = useCallback(() => {
 		setSelectedFile(null);
-		if (previewUrl) {
-			URL.revokeObjectURL(previewUrl);
-		}
-		setPreviewUrl(null);
 		setEvidenceTitle("");
 		setEvidenceDesc("");
 		if (fileInputRef.current) {
 			fileInputRef.current.value = "";
 		}
-	}, [previewUrl]);
+	}, []);
 
 	const handleUpload = useCallback(async () => {
 		if (!selectedFile || !selectedOrderId) {

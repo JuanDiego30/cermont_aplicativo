@@ -42,7 +42,7 @@ function NewDeliveryRecordForm() {
 	// Derive report ID: prefer URL param → artifacts
 	const derivedReportId = prefilledReportId || workflow?.artifacts?.technicalReport?.id || "";
 
-	const [technicalReportId] = useState(() => derivedReportId);
+	const technicalReportId = derivedReportId;
 	const [deliveryDate, setDeliveryDate] = useState(todayIso());
 	const [clientRepresentative, setClientRepresentative] = useState("");
 	const [clientContact, setClientContact] = useState("");
