@@ -18,7 +18,7 @@ import { ServiceCase, type ServiceCaseDocument } from "../models/ServiceCase";
 import { ServiceEntrySheet } from "../models/ServiceEntrySheet";
 import { User } from "../models/User";
 import { createAuditLog } from "../modules/audit/audit.service";
-import { notifyStateTransition } from "../modules/notifications/notification.service";
+import { enqueueNotification } from "../modules/notifications/notification.service";
 
 const STEP_TO_STAGE_MAP: Record<CermontOperationalStepCode, ServiceCaseStage> = {
 	step_01_work_request: "intake",
@@ -1046,9 +1046,9 @@ export async function advanceServiceCaseStep(
 		},
 	});
 
-	// Notificar al cambiar estado (fire-and-forget — no bloquear la respuesta)
-	notifyStateTransition(serviceCaseId, previousStepCode, nextStep.code, userId).catch((err) => {
-		console.error("[WorkflowGate] notifyStateTransition failed:", err);
+	// Enqueue notification via outbox — decouples delivery from the request path
+	enqueueNotification(serviceCaseId, previousStepCode, nextStep.code, userId).catch((err) => {
+		console.error("[WorkflowGate] enqueueNotification failed:", err);
 	});
 
 	return serviceCase;

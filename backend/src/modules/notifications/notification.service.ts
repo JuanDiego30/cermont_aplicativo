@@ -1,6 +1,11 @@
 import type { UserRole } from "@cermont/domain";
 import { Types } from "mongoose";
-import { Notification, ServiceCase, User } from "../../models";
+import { createLogger } from "../../common/utils/logger";
+import { Notification, NotificationOutbox, ServiceCase, User } from "../../models";
+
+const log = createLogger("notification-outbox");
+
+const RETRY_DELAYS_MS = [1 * 60 * 1000, 5 * 60 * 1000, 15 * 60 * 1000] as const;
 
 const DB_STEP_TO_DOMAIN_STATE: Record<string, string> = {
 	step_01_work_request: "work_request",
@@ -22,6 +27,8 @@ const DB_STEP_TO_DOMAIN_STATE: Record<string, string> = {
 export function dbStepToDomainState(dbStep: string): string {
 	return DB_STEP_TO_DOMAIN_STATE[dbStep] ?? "pending";
 }
+
+const WORKER_INTERVAL_MS = 30 * 1_000;
 
 export function getRolesToNotifyForStep(stepCode: string): UserRole[] {
 	const state = stepCode.startsWith("step_") ? dbStepToDomainState(stepCode) : stepCode;
@@ -151,4 +158,122 @@ export async function markAllAsRead(userId: string) {
 	return {
 		updated: result.modifiedCount,
 	};
+}
+
+// ─── Outbox Pattern ────────────────────────────────────────────────────────────
+
+export async function enqueueNotification(
+	serviceCaseId: string,
+	previousState: string,
+	newState: string,
+	triggeredByUserId: string,
+): Promise<void> {
+	await NotificationOutbox.create({
+		status: "pending",
+		serviceCaseId,
+		previousState,
+		newState,
+		triggeredByUserId,
+		retryCount: 0,
+		enqueuedAt: new Date(),
+	});
+}
+
+export async function processOutboxEntries(): Promise<void> {
+	const now = new Date();
+	const entries = await NotificationOutbox.find({
+		status: "pending",
+		$or: [
+			{ nextRetryAt: { $exists: false } },
+			{ nextRetryAt: null },
+			{ nextRetryAt: { $lte: now } },
+		],
+	}).limit(50);
+
+	for (const entry of entries) {
+		const claimed = await NotificationOutbox.findOneAndUpdate(
+			{ _id: entry._id, status: "pending" },
+			{ $set: { status: "processing" } },
+			{ new: false },
+		);
+		if (!claimed) {
+			continue;
+		}
+
+		try {
+			await notifyStateTransition(
+				entry.serviceCaseId,
+				entry.previousState,
+				entry.newState,
+				entry.triggeredByUserId,
+			);
+			await NotificationOutbox.updateOne(
+				{ _id: entry._id },
+				{ $set: { status: "sent", processedAt: new Date() } },
+			);
+		} catch (err) {
+			const newRetryCount = entry.retryCount + 1;
+			const isFinalAttempt = newRetryCount >= RETRY_DELAYS_MS.length;
+
+			if (isFinalAttempt) {
+				await NotificationOutbox.updateOne(
+					{ _id: entry._id },
+					{
+						$set: {
+							status: "failed",
+							retryCount: newRetryCount,
+							lastError: String(err),
+							processedAt: new Date(),
+						},
+					},
+				);
+				log.error("Outbox entry permanently failed", {
+					id: String(entry._id),
+					serviceCaseId: entry.serviceCaseId,
+					retryCount: newRetryCount,
+					error: String(err),
+				});
+			} else {
+				const delayMs =
+					RETRY_DELAYS_MS[newRetryCount - 1] ?? RETRY_DELAYS_MS[RETRY_DELAYS_MS.length - 1];
+				await NotificationOutbox.updateOne(
+					{ _id: entry._id },
+					{
+						$set: {
+							status: "pending",
+							retryCount: newRetryCount,
+							lastError: String(err),
+							nextRetryAt: new Date(Date.now() + delayMs),
+						},
+					},
+				);
+				log.warn("Outbox entry will retry", {
+					id: String(entry._id),
+					serviceCaseId: entry.serviceCaseId,
+					retryCount: newRetryCount,
+					nextRetryAt: new Date(Date.now() + delayMs).toISOString(),
+				});
+			}
+		}
+	}
+}
+
+export function startOutboxWorker(): () => void {
+	log.info("Starting notification outbox worker", { intervalMs: WORKER_INTERVAL_MS });
+	const timer = setInterval(() => {
+		processOutboxEntries().catch((err) => {
+			log.error("Outbox worker cycle failed", { error: String(err) });
+		});
+	}, WORKER_INTERVAL_MS);
+
+	timer.unref();
+
+	return () => {
+		clearInterval(timer);
+		log.info("Notification outbox worker stopped");
+	};
+}
+
+export async function getFailedOutboxNotifications(limit = 100) {
+	return NotificationOutbox.find({ status: "failed" }).sort({ enqueuedAt: -1 }).limit(limit).lean();
 }

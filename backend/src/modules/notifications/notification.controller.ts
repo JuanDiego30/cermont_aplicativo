@@ -25,3 +25,8 @@ export async function markAllNotificationsAsRead(req: Request, res: Response): P
 	const result = await NotificationService.markAllAsRead(String(user._id));
 	sendSuccess(res, result);
 }
+
+export async function getFailedOutboxEntries(_req: Request, res: Response): Promise<void> {
+	const data = await NotificationService.getFailedOutboxNotifications();
+	sendSuccess(res, data);
+}

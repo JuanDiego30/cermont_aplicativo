@@ -47,7 +47,7 @@ import { ServiceCase, type ServiceCaseDocument } from "../../models/ServiceCase"
 import { calculateStepBlockers } from "../../services/cermont-workflow-gate.service";
 import { createAuditLog } from "../audit/audit.service";
 import { getOrderSummary } from "../cost/cost.service";
-import { notifyStateTransition } from "../notifications/notification.service";
+import { enqueueNotification } from "../notifications/notification.service";
 
 const log = createLogger("service-case-service");
 
@@ -1597,8 +1597,8 @@ export async function advanceServiceCaseState(
 		},
 	});
 
-	// 7. Notify State Transition
-	await notifyStateTransition(serviceCase._id.toString(), currentState, newDomainState, userId);
+	// 7. Enqueue notification via outbox — resilient, non-blocking delivery
+	await enqueueNotification(serviceCase._id.toString(), currentState, newDomainState, userId);
 
 	const updatedCase = await ServiceCase.findById(caseId);
 	if (!updatedCase) {

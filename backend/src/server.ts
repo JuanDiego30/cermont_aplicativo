@@ -12,9 +12,11 @@ import { createLogger } from "./common/utils/logger";
 import { connectDB, disconnectDB } from "./config/db";
 import { env } from "./config/env";
 import app from "./index";
+import { startOutboxWorker } from "./modules/notifications/notification.service";
 
 const log = createLogger("server");
 let server: ReturnType<typeof app.listen> | undefined;
+let stopOutboxWorker: (() => void) | undefined;
 
 async function shutdown(signal: NodeJS.Signals): Promise<void> {
 	log.info(`Received ${signal}; shutting down gracefully`);
@@ -32,6 +34,7 @@ async function shutdown(signal: NodeJS.Signals): Promise<void> {
 			});
 		}
 
+		stopOutboxWorker?.();
 		await disconnectDB();
 		clearTimeout(forceExit);
 		process.exit(0);
@@ -44,6 +47,7 @@ async function shutdown(signal: NodeJS.Signals): Promise<void> {
 
 async function bootstrap() {
 	await connectDB();
+	stopOutboxWorker = startOutboxWorker();
 
 	const PORT = env.PORT;
 	server = app.listen(PORT, () => {

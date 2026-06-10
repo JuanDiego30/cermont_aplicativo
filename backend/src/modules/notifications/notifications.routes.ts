@@ -1,10 +1,11 @@
-import { INTERNAL_ROLES } from "@cermont/domain";
+import { ADMIN_ROLES, INTERNAL_ROLES } from "@cermont/domain";
 import { NotificationIdSchema } from "@cermont/shared-types";
 import { Router } from "express";
 import { authenticate } from "../../middlewares/auth.middleware";
 import { authorize } from "../../middlewares/authorize.middleware";
 import { validateParams } from "../../middlewares/validate";
 import {
+	getFailedOutboxEntries,
 	getNotifications,
 	markAllNotificationsAsRead,
 	markNotificationAsRead,
@@ -35,5 +36,8 @@ router.patch(
 
 // POST /api/notifications/mark-all-read
 router.post("/mark-all-read", authorize(...INTERNAL_ROLES), markAllNotificationsAsRead);
+
+// GET /api/notifications/outbox/failed — admin: view failed outbox entries
+router.get("/outbox/failed", authorize(...ADMIN_ROLES), getFailedOutboxEntries);
 
 export default router;
