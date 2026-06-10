@@ -58,14 +58,16 @@ function ConformityInput({
 	value,
 	onChange,
 	disabled,
+	fieldLabel,
 }: {
 	id: string;
 	value: FieldValue;
 	onChange: (v: string) => void;
 	disabled?: boolean;
+	fieldLabel?: string;
 }) {
 	return (
-		<fieldset id={id} className="flex gap-2" aria-label="Conformidad">
+		<fieldset id={id} className="flex gap-2" aria-label={fieldLabel || "Conformidad"}>
 			{CONFORMITY_OPTIONS.map((opt) => {
 				const isSelected = value === opt.value;
 				return (
@@ -76,6 +78,7 @@ function ConformityInput({
 						title={opt.title}
 						onClick={() => onChange(isSelected ? "" : opt.value)}
 						aria-pressed={isSelected}
+						aria-label={`${fieldLabel ? `${fieldLabel} — ` : ""}${opt.title} (${opt.label})`}
 						className={`w-14 rounded-[var(--radius-md)] border-2 py-1.5 text-xs font-bold transition-all ${
 							isSelected
 								? `${opt.color} ring-2 ring-offset-1 ring-current`
@@ -125,13 +128,15 @@ function PhotoInput({
 					accept="image/jpeg,image/png,image/webp"
 					disabled={disabled}
 					onChange={handleChange}
+					aria-label="Seleccionar archivo de imagen"
 					className="block w-full text-sm text-[var(--text-secondary)] file:mr-3 file:rounded-[var(--radius-md)] file:border file:border-[var(--color-brand)] file:bg-[var(--color-brand-blue-bg)] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-[var(--color-brand)] hover:file:border-[var(--color-brand-hover)]"
 				/>
 				{hint && <p className="mt-0.5 text-[10px] text-[var(--text-muted)]">{hint}</p>}
 			</div>
 			{preview ? (
 				<div className="relative shrink-0">
-					{/* biome-ignore lint/performance/noImgElement: blob URL preview — Next.js Image no soporta blob: */}
+					{/* react-doctor(false-positive): blob: URL preview — next/image does not support blob: */}
+					{/* biome-ignore lint/performance/noImgElement: blob URL preview */}
 					<img
 						src={preview}
 						alt="Vista previa"
@@ -186,6 +191,8 @@ function FieldRenderer({
 	const textareaClass =
 		"w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 disabled:opacity-60";
 
+	const fieldAriaLabel = field.label ? String(field.label) : undefined;
+
 	function renderInput() {
 		switch (field.type as CermontFieldType) {
 			case "text":
@@ -198,6 +205,7 @@ function FieldRenderer({
 						disabled={disabled}
 						onChange={(e) => onChange(e.target.value)}
 						className={inputClass}
+						aria-label={fieldAriaLabel}
 					/>
 				);
 
@@ -212,6 +220,7 @@ function FieldRenderer({
 						min={0}
 						onChange={(e) => onChange(e.target.value)}
 						className={inputClass}
+						aria-label={fieldAriaLabel}
 					/>
 				);
 
@@ -224,6 +233,7 @@ function FieldRenderer({
 						disabled={disabled}
 						onChange={(e) => onChange(e.target.value)}
 						className={inputClass}
+						aria-label={fieldAriaLabel}
 					/>
 				);
 
@@ -237,6 +247,7 @@ function FieldRenderer({
 						rows={3}
 						onChange={(e) => onChange(e.target.value)}
 						className={textareaClass}
+						aria-label={fieldAriaLabel}
 					/>
 				);
 
@@ -248,6 +259,7 @@ function FieldRenderer({
 						disabled={disabled}
 						onChange={(e) => onChange(e.target.value)}
 						className={inputClass}
+						aria-label={fieldAriaLabel}
 					>
 						<option value="">Seleccionar...</option>
 						{field.options?.map((opt) => (
@@ -268,13 +280,22 @@ function FieldRenderer({
 							disabled={disabled}
 							onChange={(e) => onChange(e.target.checked)}
 							className="size-4 rounded border-[var(--border-default)] accent-[var(--color-brand)]"
+							aria-label={fieldAriaLabel}
 						/>
 						<span className="text-sm text-[var(--text-primary)]">{field.label}</span>
 					</label>
 				);
 
 			case "conformity":
-				return <ConformityInput id={id} value={value} onChange={onChange} disabled={disabled} />;
+				return (
+					<ConformityInput
+						id={id}
+						value={value}
+						onChange={onChange}
+						disabled={disabled}
+						fieldLabel={fieldAriaLabel}
+					/>
+				);
 
 			case "photo":
 				return <PhotoInput id={id} onChange={onChange} disabled={disabled} hint={field.hint} />;
@@ -296,6 +317,7 @@ function FieldRenderer({
 						disabled={disabled}
 						onChange={(e) => onChange(e.target.value)}
 						className={inputClass}
+						aria-label={fieldAriaLabel}
 					/>
 				);
 		}

@@ -391,7 +391,8 @@ export function TechnicalEvidenceUploader({
 						</div>
 						{previewUrl && (
 							<div className="relative shrink-0">
-								{/* biome-ignore lint/performance/noImgElement: blob URL preview — Next.js Image no soporta blob: */}
+								{/* react-doctor(false-positive): blob: URL preview — next/image does not support blob: */}
+								{/* biome-ignore lint/performance/noImgElement: blob URL preview */}
 								<img
 									src={previewUrl}
 									alt="Vista previa"

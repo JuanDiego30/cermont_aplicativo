@@ -85,11 +85,14 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 		total: number;
 	} | null>(null);
 
-	// Cleanup all blob URLs on unmount
-	// biome-ignore lint/correctness/useExhaustiveDependencies: cleanup runs on unmount only
+	// Keep a ref to latest photos for the unmount cleanup
+	const photosRef = useRef(photos);
+	photosRef.current = photos;
+
+	// Cleanup all blob URLs on unmount — uses ref to avoid stale closure
 	useEffect(() => {
 		return () => {
-			for (const photo of photos) {
+			for (const photo of photosRef.current) {
 				URL.revokeObjectURL(photo.previewUrl);
 			}
 		};
@@ -321,6 +324,7 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 				accept="image/jpeg,image/jpg,image/png,image/webp"
 				className="hidden"
 				onChange={handleFileInputChange}
+				aria-label="Seleccionar archivos de imagen"
 			/>
 
 			{/* ═══ Drop zone ═══ */}
@@ -351,7 +355,8 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 						>
 							{/* Thumbnail */}
 							<div className="relative aspect-video w-full shrink-0 overflow-hidden rounded-lg bg-zinc-100 sm:h-28 sm:w-40">
-								{/* biome-ignore lint/performance/noImgElement: blob URL preview, next/image not suitable */}
+								{/* react-doctor(false-positive): blob: URL preview — next/image does not support blob: protocol */}
+								{/* biome-ignore lint/performance/noImgElement: blob URL preview */}
 								<img
 									src={photo.previewUrl}
 									alt={`Vista previa ${index + 1}`}

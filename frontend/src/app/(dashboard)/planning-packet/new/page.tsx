@@ -29,7 +29,7 @@ import {
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
-import { type FormEvent, Suspense, useState } from "react";
+import { type FormEvent, Suspense, useRef, useState } from "react";
 import { useCreatePlanningPacket } from "@/modules/planning/queries";
 import { useServiceCaseContext } from "@/modules/service-cases/hooks/useServiceCaseContext";
 import { useServiceCaseList } from "@/modules/service-cases/queries";
@@ -171,6 +171,21 @@ export default function PlanningPacketNewPage() {
 	);
 }
 
+/** Detects kit suggestion from work type string — pure function, module-scope */
+function detectKitFromWorkType(workType: string): string {
+	const wt = workType.toLowerCase();
+	if (wt.includes("cctv") || wt.includes("camara") || wt.includes("vigilancia")) {
+		return "cctv";
+	}
+	if (wt.includes("linea") || wt.includes("vida") || wt.includes("lifeline")) {
+		return "lineas_de_vida";
+	}
+	if (wt.includes("electric") || wt.includes("eléctric")) {
+		return "electricidad";
+	}
+	return "";
+}
+
 function PlanningPacketNewPageContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -241,20 +256,6 @@ function PlanningPacketNewPageContent() {
 				inheritedScope || `Mantenimiento de ${inheritedWorkTypeName} — ${inheritedLocation}`,
 			);
 		}
-	}
-
-	function detectKitFromWorkType(workType: string): string {
-		const wt = workType.toLowerCase();
-		if (wt.includes("cctv") || wt.includes("camara") || wt.includes("vigilancia")) {
-			return "cctv";
-		}
-		if (wt.includes("linea") || wt.includes("vida") || wt.includes("lifeline")) {
-			return "lineas_de_vida";
-		}
-		if (wt.includes("electric") || wt.includes("eléctric")) {
-			return "electricidad";
-		}
-		return "";
 	}
 
 	// Auto-suggest kit when inherited work type arrives
@@ -489,8 +490,9 @@ function PlanningPacketNewPageContent() {
 								Datos generales
 							</h2>
 							<div className="grid gap-4 md:grid-cols-2">
-								<FormField label="Responsable de inspección" required>
+								<FormField label="Responsable de inspección" required htmlFor="responsible-name">
 									<input
+										id="responsible-name"
 										type="text"
 										value={responsibleName}
 										onChange={(e) => setResponsibleName(e.target.value)}
@@ -498,8 +500,9 @@ function PlanningPacketNewPageContent() {
 										className="field-input"
 									/>
 								</FormField>
-								<FormField label="Lugar / sitio" required>
+								<FormField label="Lugar / sitio" required htmlFor="place">
 									<input
+										id="place"
 										type="text"
 										value={place}
 										onChange={(e) => setPlace(e.target.value)}
@@ -507,8 +510,9 @@ function PlanningPacketNewPageContent() {
 										className="field-input"
 									/>
 								</FormField>
-								<FormField label="Fecha planeada">
+								<FormField label="Fecha planeada" htmlFor="planned-date">
 									<input
+										id="planned-date"
 										type="datetime-local"
 										value={plannedDate}
 										onChange={(e) => setPlannedDate(e.target.value)}
@@ -530,8 +534,9 @@ function PlanningPacketNewPageContent() {
 								</FormField>
 							</div>
 							<div className="mt-4">
-								<FormField label="Alcance de la actividad" required>
+								<FormField label="Alcance de la actividad" required htmlFor="scope">
 									<textarea
+										id="scope"
 										value={scope}
 										onChange={(e) => setScope(e.target.value)}
 										rows={3}
@@ -570,6 +575,7 @@ function PlanningPacketNewPageContent() {
 											}}
 											placeholder="Descripción del material"
 											className="field-input text-sm"
+											aria-label={`Material, fila ${i + 1} — descripción`}
 										/>
 										<input
 											type="number"
@@ -581,6 +587,7 @@ function PlanningPacketNewPageContent() {
 												setMaterials(updated);
 											}}
 											className="field-input w-20 text-sm"
+											aria-label={`Material, fila ${i + 1} — cantidad`}
 										/>
 										<input
 											type="text"
@@ -592,6 +599,7 @@ function PlanningPacketNewPageContent() {
 											}}
 											placeholder="und"
 											className="field-input w-20 text-sm"
+											aria-label={`Material, fila ${i + 1} — unidad`}
 										/>
 									</>
 								)}
@@ -623,6 +631,7 @@ function PlanningPacketNewPageContent() {
 											}}
 											placeholder="Nombre de la herramienta"
 											className="field-input text-sm"
+											aria-label={`Herramienta, fila ${i + 1} — nombre`}
 										/>
 										<input
 											type="number"
@@ -634,6 +643,7 @@ function PlanningPacketNewPageContent() {
 												setTools(updated);
 											}}
 											className="field-input w-20 text-sm"
+											aria-label={`Herramienta, fila ${i + 1} — cantidad`}
 										/>
 										<button
 											type="button"
@@ -642,6 +652,7 @@ function PlanningPacketNewPageContent() {
 												updated[i] = { ...row, available: !row.available };
 												setTools(updated);
 											}}
+											aria-label={`Herramienta, fila ${i + 1} — cambiar disponibilidad`}
 											className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
 												row.available
 													? "bg-green-100 text-green-700 hover:bg-green-200"
@@ -685,6 +696,7 @@ function PlanningPacketNewPageContent() {
 											}}
 											placeholder="Nombre del equipo"
 											className="field-input text-sm"
+											aria-label={`Equipo, fila ${i + 1} — nombre`}
 										/>
 										<input
 											type="number"
@@ -696,6 +708,7 @@ function PlanningPacketNewPageContent() {
 												setEquipment(updated);
 											}}
 											className="field-input w-20 text-sm"
+											aria-label={`Equipo, fila ${i + 1} — cantidad`}
 										/>
 										<button
 											type="button"
@@ -704,6 +717,7 @@ function PlanningPacketNewPageContent() {
 												updated[i] = { ...row, available: !row.available };
 												setEquipment(updated);
 											}}
+											aria-label={`Equipo, fila ${i + 1} — cambiar disponibilidad`}
 											className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
 												row.available ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"
 											}`}
@@ -720,6 +734,7 @@ function PlanningPacketNewPageContent() {
 												};
 												setEquipment(updated);
 											}}
+											aria-label={`Equipo, fila ${i + 1} — certificado requerido`}
 											className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium transition-colors ${
 												row.certificateRequired
 													? "bg-amber-100 text-amber-700"
@@ -758,6 +773,7 @@ function PlanningPacketNewPageContent() {
 											}}
 											placeholder="EPP / Elemento de seguridad"
 											className="field-input text-sm"
+											aria-label={`EPP, fila ${i + 1} — descripción`}
 										/>
 										<input
 											type="number"
@@ -769,6 +785,7 @@ function PlanningPacketNewPageContent() {
 												setSafetyElements(updated);
 											}}
 											className="field-input w-20 text-sm"
+											aria-label={`EPP, fila ${i + 1} — cantidad`}
 										/>
 										<input
 											type="text"
@@ -780,6 +797,7 @@ function PlanningPacketNewPageContent() {
 											}}
 											placeholder="und"
 											className="field-input w-20 text-sm"
+											aria-label={`EPP, fila ${i + 1} — unidad`}
 										/>
 									</>
 								)}
@@ -811,8 +829,9 @@ function PlanningPacketNewPageContent() {
 										{ key: "obreros" as keyof WorkerRequirements, label: "Obreros" },
 									] satisfies Array<{ key: keyof WorkerRequirements; label: string }>
 								).map(({ key, label }) => (
-									<FormField key={key} label={label}>
+									<FormField key={key} label={label} htmlFor={`worker-${key}`}>
 										<input
+											id={`worker-${key}`}
 											type="number"
 											min={0}
 											max={50}
@@ -873,8 +892,9 @@ function PlanningPacketNewPageContent() {
 
 						{/* Notes */}
 						<div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] p-5">
-							<FormField label="Observaciones adicionales">
+							<FormField label="Observaciones adicionales" htmlFor="planning-notes">
 								<textarea
+									id="planning-notes"
 									value={planningNotes}
 									onChange={(e) => setPlanningNotes(e.target.value)}
 									rows={3}
@@ -957,18 +977,29 @@ function PlanningPacketNewPageContent() {
 function FormField({
 	label,
 	required,
+	htmlFor,
 	children,
 }: {
 	label: string;
 	required?: boolean;
+	htmlFor?: string;
 	children: ReactNode;
 }) {
+	const labelEl = (
+		<>
+			{label}
+			{required && <span className="ml-1 text-[var(--color-danger)]">*</span>}
+		</>
+	);
 	return (
 		<div className="grid gap-1.5">
-			<span className="text-sm font-medium text-[var(--text-primary)]">
-				{label}
-				{required && <span className="ml-1 text-[var(--color-danger)]">*</span>}
-			</span>
+			{htmlFor ? (
+				<label htmlFor={htmlFor} className="text-sm font-medium text-[var(--text-primary)]">
+					{labelEl}
+				</label>
+			) : (
+				<span className="text-sm font-medium text-[var(--text-primary)]">{labelEl}</span>
+			)}
 			{children}
 		</div>
 	);
@@ -1016,6 +1047,34 @@ function CollapsibleSection({
 	);
 }
 
+/** Named wrapper for a single ResourceTable row — avoids inline render calls */
+function ResourceTableRow<T>({
+	row,
+	index: i,
+	renderRow,
+	onRemove,
+}: {
+	row: T;
+	index: number;
+	renderRow: (row: T, index: number) => ReactNode;
+	onRemove: (index: number) => void;
+}) {
+	return (
+		<tr className="group">
+			{renderRow(row, i)}
+			<td className="pl-2 py-1.5">
+				<button
+					type="button"
+					onClick={() => onRemove(i)}
+					className="rounded p-1 text-[var(--text-muted)] opacity-0 transition-opacity hover:text-[var(--color-danger)] group-hover:opacity-100"
+				>
+					<Trash2 className="size-3.5" />
+				</button>
+			</td>
+		</tr>
+	);
+}
+
 function ResourceTable<T>({
 	rows,
 	columns,
@@ -1029,6 +1088,21 @@ function ResourceTable<T>({
 	onRemove: (index: number) => void;
 	renderRow: (row: T, index: number) => ReactNode;
 }) {
+	// Stable key per position — generated once per row slot, survives re-renders
+	const stableKeys = useRef<string[]>([]);
+	if (stableKeys.current.length < rows.length) {
+		for (let i = stableKeys.current.length; i < rows.length; i++) {
+			stableKeys.current.push(
+				typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+					? crypto.randomUUID()
+					: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+			);
+		}
+	}
+	if (stableKeys.current.length > rows.length) {
+		stableKeys.current.length = rows.length;
+	}
+
 	return (
 		<div className="space-y-2">
 			{rows.length > 0 && (
@@ -1039,29 +1113,24 @@ function ResourceTable<T>({
 								{columns.map((col) => (
 									<th
 										key={col}
+										scope="col"
 										className="pb-2 pr-3 text-left text-xs font-medium uppercase tracking-[0.1em] text-[var(--text-muted)]"
 									>
 										{col}
 									</th>
 								))}
-								<th className="pb-2 w-8" />
+								<th scope="col" className="pb-2 w-8" />
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-[var(--border-subtle)]">
 							{rows.map((row, i) => (
-								// biome-ignore lint/suspicious/noArrayIndexKey: generic T[] without stable id
-								<tr key={`row-${i}`} className="group">
-									{renderRow(row, i)}
-									<td className="pl-2 py-1.5">
-										<button
-											type="button"
-											onClick={() => onRemove(i)}
-											className="rounded p-1 text-[var(--text-muted)] opacity-0 transition-opacity hover:text-[var(--color-danger)] group-hover:opacity-100"
-										>
-											<Trash2 className="size-3.5" />
-										</button>
-									</td>
-								</tr>
+								<ResourceTableRow
+									key={stableKeys.current[i]}
+									row={row}
+									index={i}
+									renderRow={renderRow}
+									onRemove={onRemove}
+								/>
 							))}
 						</tbody>
 					</table>

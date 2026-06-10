@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { type FormEvent, Suspense, useEffect, useState } from "react";
+import { type FormEvent, Suspense, useEffect, useRef, useState } from "react";
 import { useConnectivity } from "@/lib/offline/connectivity";
 import { APP_ROUTES } from "@/lib/routes";
 import { useServiceCaseContext } from "@/modules/service-cases/hooks/useServiceCaseContext";
@@ -92,8 +92,12 @@ function SiteVisitNewPageContent() {
 	// Load available cases for selection
 	const { data: casesData, isLoading: isCasesLoading } = useServiceCaseList();
 
-	// Populate form when context loads
+	// Populate form once when stepContext arrives
+	const contextInitialized = useRef(false);
 	useEffect(() => {
+		if (contextInitialized.current) {
+			return;
+		}
 		if (stepContext && selectedCaseId) {
 			const defaults = getSiteVisitDefaults(stepContext);
 			setForm((prev) => ({
@@ -104,6 +108,7 @@ function SiteVisitNewPageContent() {
 				clientName: (defaults.clientName as string) ?? prev.clientName,
 				location: (defaults.location as string) ?? prev.location,
 			}));
+			contextInitialized.current = true;
 		}
 	}, [stepContext, selectedCaseId]);
 

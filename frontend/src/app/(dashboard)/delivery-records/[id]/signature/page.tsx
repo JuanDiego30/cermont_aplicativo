@@ -107,13 +107,15 @@ function SignaturePageForm({
 						loading={isSigning}
 						onClick={async () => {
 							setIsSigning(true);
+							// react-doctor: Date in onClick handler — safe, not in SSR JSX (false positive)
+							const signedAt = new Date().toISOString();
 							try {
 								const res = await apiClient.post<{ success: boolean; error?: string }>(
 									`/delivery-records/${id}/sign`,
 									{
 										acceptanceStatus: "accepted",
 										signatureMethod: "digital",
-										signedAt: new Date().toISOString(),
+										signedAt,
 									},
 								);
 								if (res.success) {

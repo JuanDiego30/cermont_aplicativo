@@ -3,7 +3,7 @@
 import { ArrowLeft, Info, Loader2, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/core/ui/Button";
 import { useCreateExecutionSession } from "@/modules/execution/queries";
@@ -45,18 +45,22 @@ function NewExecutionSessionForm() {
 	const [planningPacketId, setPlanningPacketId] = useState(derivedPlanningId);
 	const [assignedCrewRaw, setAssignedCrewRaw] = useState("");
 
-	// Update fields once context loads
+	// Single effect to populate derived IDs once context loads
+	const derivedIdsProcessed = useRef(false);
 	useEffect(() => {
-		if (derivedWorkOrderId && !workOrderId) {
-			setWorkOrderId(derivedWorkOrderId);
+		if (derivedIdsProcessed.current) {
+			return;
 		}
-	}, [derivedWorkOrderId, workOrderId]);
-
-	useEffect(() => {
-		if (derivedPlanningId && !planningPacketId) {
-			setPlanningPacketId(derivedPlanningId);
+		if (derivedWorkOrderId || derivedPlanningId) {
+			if (derivedWorkOrderId) {
+				setWorkOrderId(derivedWorkOrderId);
+			}
+			if (derivedPlanningId) {
+				setPlanningPacketId(derivedPlanningId);
+			}
+			derivedIdsProcessed.current = true;
 		}
-	}, [derivedPlanningId, planningPacketId]);
+	}, [derivedWorkOrderId, derivedPlanningId]);
 
 	const createMutation = useCreateExecutionSession();
 

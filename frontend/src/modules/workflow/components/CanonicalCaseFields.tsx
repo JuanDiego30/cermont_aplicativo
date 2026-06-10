@@ -78,6 +78,7 @@ export function CanonicalCaseFields({
 								id={`canonical-${field.key}`}
 								type="text"
 								defaultValue={field.value}
+								aria-label={field.label}
 								className="min-h-11 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 text-sm text-[var(--text-primary)] outline-none transition-colors focus:border-[var(--color-focus-ring)]"
 							/>
 						)}
