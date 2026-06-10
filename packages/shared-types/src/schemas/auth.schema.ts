@@ -22,7 +22,7 @@ const normalizeEmail = (value: unknown): unknown => {
  * Login schema — email + password
  */
 export const LoginSchema = z.object({
-	email: z.preprocess(normalizeEmail, z.string().email()),
+	email: z.preprocess(normalizeEmail, z.email()),
 	password: z.string().min(1),
 });
 export type LoginInput = z.infer<typeof LoginSchema>;
@@ -32,7 +32,7 @@ export type LoginInput = z.infer<typeof LoginSchema>;
  */
 export const RegisterSchema = z.object({
 	name: z.string().min(2).max(100),
-	email: z.preprocess(normalizeEmail, z.string().email("Invalid email address")),
+	email: z.preprocess(normalizeEmail, z.email()),
 	password: z.string().min(8).max(72).regex(PASSWORD_REGEX, PASSWORD_MESSAGE),
 	role: z
 		.enum([
@@ -71,7 +71,7 @@ export type ChangePasswordInput = z.infer<typeof ChangePasswordSchema>;
  * Forgot password schema — email only
  */
 export const ForgotPasswordSchema = z.object({
-	email: z.preprocess(normalizeEmail, z.string().email("Invalid email address")),
+	email: z.preprocess(normalizeEmail, z.email()),
 });
 export type ForgotPasswordInput = z.infer<typeof ForgotPasswordSchema>;
 

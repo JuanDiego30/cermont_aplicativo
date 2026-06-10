@@ -86,7 +86,7 @@ export const UserSchema = z
 	.object({
 		_id: ObjectIdSchema,
 		name: z.string().min(2).max(100),
-		email: z.preprocess(normalizeEmail, z.string().email()),
+		email: z.preprocess(normalizeEmail, z.email()),
 		role: UserRoleSchema,
 		isActive: z.boolean().default(true),
 		phone: z.string().max(20).optional(),
@@ -101,7 +101,7 @@ export type User = z.infer<typeof UserSchema>;
 export const CreateUserSchema = z
 	.object({
 		name: z.string().min(2).max(100),
-		email: z.preprocess(normalizeEmail, z.string().email()),
+		email: z.preprocess(normalizeEmail, z.email()),
 		password: z.string().min(8).max(72).regex(PASSWORD_REGEX, PASSWORD_MESSAGE),
 		role: UserRoleSchema,
 		phone: z.string().max(20).optional(),

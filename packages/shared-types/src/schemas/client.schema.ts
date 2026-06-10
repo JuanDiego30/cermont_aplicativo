@@ -11,7 +11,7 @@ export const ClientSchema = z
 		nit: z.string().min(1).max(50),
 		address: z.string().max(300).optional(),
 		contactName: z.string().max(200).optional(),
-		email: z.string().email().optional(),
+		email: z.email().optional(),
 		phone: z.string().max(20).optional(),
 		status: ClientStatusSchema.default("active"),
 		notes: z.string().max(500).optional(),

@@ -109,7 +109,7 @@ export const WorkRequestSchema = z
 
 		// Requester Information
 		requesterName: z.string().min(1).max(200),
-		requesterEmail: z.string().email().optional(),
+		requesterEmail: z.email().optional(),
 		requesterPhone: z.string().min(1).max(30).optional(),
 
 		// Client Information
@@ -344,7 +344,7 @@ export const ConvertWorkRequestToProposalSchema = z
 	.object({
 		title: z.string().min(5).max(200),
 		clientName: z.string().min(2).max(200),
-		clientEmail: z.string().email().optional(),
+		clientEmail: z.email().optional(),
 		items: z
 			.array(
 				z

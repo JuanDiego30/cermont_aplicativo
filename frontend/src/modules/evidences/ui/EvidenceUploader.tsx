@@ -389,6 +389,7 @@ export function EvidenceUploader({ orderId }: EvidenceUploaderProps) {
 										onChange={(e) => updatePhotoTitle(photo.id, e.target.value)}
 										placeholder="Ej: Sello mecánico con fuga detectada"
 										maxLength={120}
+										aria-label={`Título de la foto ${index + 1}`}
 										className={`w-full rounded-lg border px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-1 dark:bg-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-500 ${
 											photo.error
 												? "border-red-400 focus:border-red-500 focus:ring-red-500 dark:border-red-500 dark:focus:border-red-400 dark:focus:ring-red-400"

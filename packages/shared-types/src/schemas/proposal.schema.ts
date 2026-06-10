@@ -41,7 +41,7 @@ export const ProposalOutputDtoSchema = z
 		code: z.string().regex(/^PROP-\d{4}-\d{4}$/),
 		title: z.string().min(5).max(200),
 		clientName: z.string().min(2).max(200),
-		clientEmail: z.string().email().optional(),
+		clientEmail: z.email().optional(),
 		status: ProposalStatusSchema,
 		validUntil: z.string().datetime(),
 		items: z.array(ProposalItemSchema).min(1),
@@ -65,7 +65,7 @@ export const CreateProposalSchema = z
 	.object({
 		title: z.string().min(5).max(200),
 		clientName: z.string().min(2).max(200),
-		clientEmail: z.string().email().optional(),
+		clientEmail: z.email().optional(),
 		items: z.array(ProposalItemInputSchema).min(1),
 		validUntil: z.string().datetime(),
 		notes: z.string().max(2000).optional(),

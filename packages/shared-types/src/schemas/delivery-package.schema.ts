@@ -25,7 +25,7 @@ export const DeliveryPackageSchema = z.object({
 	zipSize: z.number().optional(),
 	recipients: z.array(
 		z.object({
-			email: z.string().email(),
+			email: z.email(),
 			name: z.string(),
 			role: z.string().optional(),
 		}),
@@ -44,7 +44,7 @@ export type DeliveryPackage = z.infer<typeof DeliveryPackageSchema>;
 export const EmailDeliveryRecordSchema = z.object({
 	_id: ObjectIdSchema,
 	packageId: ObjectIdSchema,
-	recipientEmail: z.string().email(),
+	recipientEmail: z.email(),
 	subject: z.string().min(1),
 	status: z.enum(["pending", "sent", "delivered", "opened", "clicked", "failed"]),
 	providerMessageId: z.string().optional(),
@@ -64,7 +64,7 @@ export const CreateDeliveryPackageSchema = z.object({
 	evidenceIds: z.array(z.string()).default([]),
 	recipients: z.array(
 		z.object({
-			email: z.string().email(),
+			email: z.email(),
 			name: z.string(),
 			role: z.string().optional(),
 		}),

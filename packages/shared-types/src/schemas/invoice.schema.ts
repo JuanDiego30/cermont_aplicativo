@@ -142,7 +142,7 @@ export const InvoiceSchema = z
 				businessName: z.string().min(1).max(200),
 				address: z.string().min(1).max(300),
 				phone: z.string().min(1).max(50),
-				email: z.string().email(),
+				email: z.email(),
 			})
 			.strict()
 			.optional(),
@@ -152,7 +152,7 @@ export const InvoiceSchema = z
 				documentNumber: z.string().min(1).max(30),
 				businessName: z.string().min(1).max(200),
 				address: z.string().min(1).max(300),
-				email: z.string().email(),
+				email: z.email(),
 			})
 			.strict()
 			.optional(),
@@ -199,7 +199,7 @@ export const CreateInvoiceSchema = z
 				businessName: z.string().min(1).max(200),
 				address: z.string().min(1).max(300),
 				phone: z.string().min(1).max(50),
-				email: z.string().email(),
+				email: z.email(),
 			})
 			.strict()
 			.optional(),
@@ -209,7 +209,7 @@ export const CreateInvoiceSchema = z
 				documentNumber: z.string().min(1).max(30),
 				businessName: z.string().min(1).max(200),
 				address: z.string().min(1).max(300),
-				email: z.string().email(),
+				email: z.email(),
 			})
 			.strict()
 			.optional(),
@@ -250,7 +250,7 @@ export const CreateOrderInvoiceSchema = z
 				businessName: z.string().min(1).max(200),
 				address: z.string().min(1).max(300),
 				phone: z.string().min(1).max(50),
-				email: z.string().email(),
+				email: z.email(),
 			})
 			.optional(),
 		buyer: z
@@ -259,7 +259,7 @@ export const CreateOrderInvoiceSchema = z
 				documentNumber: z.string().min(1).max(30),
 				businessName: z.string().min(1).max(200),
 				address: z.string().min(1).max(300),
-				email: z.string().email(),
+				email: z.email(),
 			})
 			.optional(),
 		lineItems: z.array(InvoiceLineItemSchema).optional(),

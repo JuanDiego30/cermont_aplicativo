@@ -21,7 +21,7 @@ const ProposalItemFormSchema = z.object({
 
 const ProposalFormSchema = z.object({
 	clientName: z.string().min(2, "El nombre del cliente debe tener al menos 2 caracteres").max(200),
-	clientEmail: z.string().email("Email inválido").optional().or(z.literal("")),
+	clientEmail: z.email().optional(),
 	validUntil: z.string().min(1, "La fecha de validez es requerida"),
 	items: z.array(ProposalItemFormSchema).min(1, "Agrega al menos un item"),
 	notes: z.string().max(2000).optional(),

@@ -21,7 +21,7 @@ export function formatEvidenceDate(date: string | Date) {
 	return EVIDENCE_DATE_FORMATTER.format(d);
 }
 
-export function getFileName(url: string) {
+function getFileName(url: string) {
 	return url.split("/").pop() ?? url;
 }
 

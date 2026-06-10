@@ -54,7 +54,7 @@ export const CanonicalCaseDataSchema = z
 		clientName: z.string().max(200).optional(),
 		contactName: z.string().max(200).optional(),
 		contactPhone: z.string().max(30).optional(),
-		contactEmail: z.string().email().optional(),
+		contactEmail: z.email().optional(),
 		siteId: ObjectIdSchema.optional(),
 		siteName: z.string().max(200).optional(),
 		location: z.string().max(500).optional(),

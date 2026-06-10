@@ -521,9 +521,11 @@ function PlanningPacketNewPageContent() {
 								</FormField>
 								<FormField label="Unidad de negocio" required>
 									<select
+										id="businessUnit"
 										value={businessUnit}
 										onChange={(e) => setBusinessUnit(e.target.value as PlanningBusinessUnit)}
 										className="field-input"
+										aria-label="Unidad de negocio"
 									>
 										{BUSINESS_UNIT_OPTIONS.map((o) => (
 											<option key={o.value} value={o.value}>
