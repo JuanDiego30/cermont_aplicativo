@@ -8,6 +8,8 @@ import { Suspense, use, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/core/ui/Button";
 import { apiClient } from "@/lib/http/api-client";
+import { captureClientSignature } from "@/modules/signatures/api/signatures-api";
+import { SignaturePad } from "@/modules/signatures/ui/SignaturePad";
 
 type SignaturePageProps = {
 	params: Promise<{ id: string }>;
@@ -78,11 +80,33 @@ function SignaturePageForm({
 }) {
 	const { push } = useRouter();
 	const [isSigning, setIsSigning] = useState(false);
+	const [signerName, setSignerName] = useState("");
+	const [signatureData, setSignatureData] = useState("");
+	const [captureMethod, setCaptureMethod] = useState<"canvas_touch" | "canvas_mouse">(
+		"canvas_mouse",
+	);
 
 	const handleSignClient = async () => {
+		if (!signerName.trim()) {
+			toast.error("Ingresa el nombre de quien firma");
+			return;
+		}
+		if (!signatureData) {
+			toast.error("Captura la firma en el recuadro");
+			return;
+		}
 		setIsSigning(true);
 		const signedAt = new Date().toISOString();
 		try {
+			await captureClientSignature({
+				clientName: signerName.trim(),
+				contextType: "delivery_record",
+				contextId: id,
+				captureMethod,
+				imageData: signatureData,
+				clientMutationId: crypto.randomUUID(),
+			});
+
 			const res = await apiClient.post<{ success: boolean; error?: string }>(
 				`/delivery-records/${id}/sign`,
 				{
@@ -123,10 +147,30 @@ function SignaturePageForm({
 					</p>
 				)}
 			</div>
-			<div className="rounded-xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-card">
-				<div className="flex flex-col items-center justify-center py-16 text-center">
-					<p className="mb-4 text-sm text-[var(--text-secondary)]">
-						Confirma que el cliente ha firmado el acta de entrega para avanzar al paso de SES/Ariba.
+			<div className="space-y-5 rounded-xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-card">
+				<div className="space-y-1">
+					<label htmlFor="signer-name" className="text-sm font-medium text-[var(--text-primary)]">
+						Nombre de quien firma
+					</label>
+					<input
+						id="signer-name"
+						value={signerName}
+						onChange={(e) => setSignerName(e.target.value)}
+						placeholder="Nombre y apellido del representante del cliente"
+						className="w-full rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-focus-ring)]"
+					/>
+				</div>
+
+				<SignaturePad
+					onChange={(dataUrl, method) => {
+						setSignatureData(dataUrl);
+						setCaptureMethod(method);
+					}}
+				/>
+
+				<div className="flex flex-col items-center gap-3">
+					<p className="text-xs text-[var(--text-tertiary)]">
+						La firma se almacena con sello de tiempo, hash y metadatos para su verificación.
 					</p>
 					<Button loading={isSigning} onClick={handleSignClient}>
 						Registrar firma del cliente
