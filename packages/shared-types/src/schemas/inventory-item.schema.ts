@@ -51,3 +51,48 @@ export const StockMovementSchema = z
 	})
 	.strict();
 export type StockMovement = z.infer<typeof StockMovementSchema>;
+
+// ─── Input DTOs ──────────────────────────────────────────────────────────────
+
+export const CreateInventoryItemSchema = InventoryItemSchema.omit({
+	_id: true,
+	currentStock: true,
+	lastMovementDate: true,
+	createdAt: true,
+	updatedAt: true,
+}).extend({
+	initialStock: z.number().int().nonnegative().default(0),
+});
+export type CreateInventoryItemInput = z.infer<typeof CreateInventoryItemSchema>;
+
+export const UpdateInventoryItemSchema = InventoryItemSchema.omit({
+	_id: true,
+	currentStock: true,
+	lastMovementDate: true,
+	createdAt: true,
+	updatedAt: true,
+}).partial();
+export type UpdateInventoryItemInput = z.infer<typeof UpdateInventoryItemSchema>;
+
+export const RegisterStockMovementSchema = z
+	.object({
+		type: InventoryMovementTypeSchema,
+		quantity: z.number().int().positive(),
+		reason: z.string().max(300).optional(),
+		orderId: ObjectIdSchema.optional(),
+	})
+	.strict();
+export type RegisterStockMovementInput = z.infer<typeof RegisterStockMovementSchema>;
+
+export const InventoryItemIdParamsSchema = z.object({ id: ObjectIdSchema }).strict();
+
+export const ListInventoryQuerySchema = z
+	.object({
+		page: z.coerce.number().int().positive().default(1),
+		limit: z.coerce.number().int().positive().max(100).default(20),
+		category: InventoryCategorySchema.optional(),
+		lowStock: z.coerce.boolean().optional(),
+		search: z.string().max(200).optional(),
+	})
+	.strict();
+export type ListInventoryQuery = z.infer<typeof ListInventoryQuerySchema>;

@@ -45,6 +45,7 @@ export * from "./file-asset.schema";
 export * from "./geolocation.schema";
 export * from "./history.schema";
 export * from "./inspection.schema";
+export * from "./inventory-item.schema";
 export * from "./invoice.schema";
 export * from "./invoice-approval.schema";
 export * from "./kit.schema";

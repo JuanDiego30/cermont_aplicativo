@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:f78c71ec86ca7d61cb6a9754cf42f128fc47a7481f55414a5e2e7e4afcf16c85",
+	"currentSnapshotHash": "sha256:7095cbea0bee9881abbba596716c224a2a292cda38bb46887968ff286436aaa1",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -308,6 +308,13 @@
 			"type": "non-breaking",
 			"description": "Add certifications and skills to the User contract with Add/UpdateSkills DTOs for the personnel certification matrix.",
 			"toHash": "sha256:f78c71ec86ca7d61cb6a9754cf42f128fc47a7481f55414a5e2e7e4afcf16c85"
+		},
+		{
+			"id": "044-inventory-contracts",
+			"date": "2026-06-11",
+			"type": "non-breaking",
+			"description": "Export inventory item and stock movement schemas with Create/Update/Movement/ListQuery DTOs for the inventory module.",
+			"toHash": "sha256:7095cbea0bee9881abbba596716c224a2a292cda38bb46887968ff286436aaa1"
 		}
 	]
 }

@@ -19171,6 +19171,61 @@
       ],
       "type": "object"
     },
+    "CreateInventoryItemSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "enum": [
+            "herramienta",
+            "equipo",
+            "material",
+            "epp",
+            "consumible",
+            "otro"
+          ],
+          "type": "string"
+        },
+        "initialStock": {
+          "default": 0,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "location": {
+          "maxLength": 200,
+          "type": "string"
+        },
+        "minStock": {
+          "default": 0,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "name": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "unit": {
+          "maxLength": 30,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "category",
+        "minStock",
+        "unit",
+        "initialStock"
+      ],
+      "type": "object"
+    },
     "CreateInvoiceSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -44861,6 +44916,119 @@
       ],
       "type": "object"
     },
+    "InventoryCategorySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "herramienta",
+        "equipo",
+        "material",
+        "epp",
+        "consumible",
+        "otro"
+      ],
+      "type": "string"
+    },
+    "InventoryItemIdParamsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "InventoryItemSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "_id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "herramienta",
+            "equipo",
+            "material",
+            "epp",
+            "consumible",
+            "otro"
+          ],
+          "type": "string"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "currentStock": {
+          "default": 0,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "lastMovementDate": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "location": {
+          "maxLength": 200,
+          "type": "string"
+        },
+        "minStock": {
+          "default": 0,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "name": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "unit": {
+          "maxLength": 30,
+          "minLength": 1,
+          "type": "string"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "category",
+        "currentStock",
+        "minStock",
+        "unit",
+        "createdAt",
+        "updatedAt"
+      ],
+      "type": "object"
+    },
+    "InventoryMovementTypeSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "entrada",
+        "salida",
+        "ajuste",
+        "prestamo",
+        "devolucion"
+      ],
+      "type": "string"
+    },
     "InvoiceApprovalIdParamsSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -50141,6 +50309,47 @@
         },
         "workOrderId": {
           "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "page",
+        "limit"
+      ],
+      "type": "object"
+    },
+    "ListInventoryQuerySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "enum": [
+            "herramienta",
+            "equipo",
+            "material",
+            "epp",
+            "consumible",
+            "otro"
+          ],
+          "type": "string"
+        },
+        "limit": {
+          "default": 20,
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "type": "integer"
+        },
+        "lowStock": {
+          "type": "boolean"
+        },
+        "page": {
+          "default": 1,
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "search": {
+          "maxLength": 200,
           "type": "string"
         }
       },
@@ -61778,6 +61987,40 @@
       ],
       "type": "object"
     },
+    "RegisterStockMovementSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "orderId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "quantity": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "reason": {
+          "maxLength": 300,
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "entrada",
+            "salida",
+            "ajuste",
+            "prestamo",
+            "devolucion"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "quantity"
+      ],
+      "type": "object"
+    },
     "RejectClientSignatureSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -71073,6 +71316,66 @@
         "external_reference"
       ],
       "type": "string"
+    },
+    "StockMovementSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "_id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "itemId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "movementDate": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "orderId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "quantity": {
+          "maximum": 9007199254740991,
+          "minimum": -9007199254740991,
+          "type": "integer"
+        },
+        "reason": {
+          "maxLength": 300,
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "entrada",
+            "salida",
+            "ajuste",
+            "prestamo",
+            "devolucion"
+          ],
+          "type": "string"
+        },
+        "userId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "itemId",
+        "type",
+        "quantity",
+        "userId",
+        "movementDate",
+        "createdAt"
+      ],
+      "type": "object"
     },
     "SubmitDynamicFormResponseSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -86130,6 +86433,48 @@
       "required": [
         "status"
       ],
+      "type": "object"
+    },
+    "UpdateInventoryItemSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "enum": [
+            "herramienta",
+            "equipo",
+            "material",
+            "epp",
+            "consumible",
+            "otro"
+          ],
+          "type": "string"
+        },
+        "location": {
+          "maxLength": 200,
+          "type": "string"
+        },
+        "minStock": {
+          "default": 0,
+          "maximum": 9007199254740991,
+          "minimum": 0,
+          "type": "integer"
+        },
+        "name": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "notes": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "unit": {
+          "maxLength": 30,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
       "type": "object"
     },
     "UpdateInvoiceTrackingSchema": {

@@ -38,6 +38,7 @@ import executionTechnicalReportRoutes from "./modules/execution-session/executio
 import filesRoutes from "./modules/files/files.routes";
 import formSubmissionRoutes from "./modules/form-submissions/form-submission.routes";
 import inspectionRoutes from "./modules/inspection/inspection.routes";
+import inventoryRoutes from "./modules/inventory/inventory.routes";
 import invoiceRoutes from "./modules/invoice/invoice.routes";
 import invoicePaymentRoutes from "./modules/invoice/invoice-payment.routes";
 import kitRoutes from "./modules/kit/kit.routes";
@@ -304,6 +305,7 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/audit", auditRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/inspections", inspectionRoutes);
+app.use("/api/inventory", inventoryRoutes);
 app.use("/api/sync", syncRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/work-requests", workRequestRoutes);

@@ -169,6 +169,11 @@ export const NAV_GROUPS = [
 				icon: Package,
 			},
 			{
+				to: APP_ROUTES.inventory,
+				label: "Inventario",
+				icon: Package,
+			},
+			{
 				to: APP_ROUTES.assets,
 				label: "Activos",
 				icon: Building2,
