@@ -39,10 +39,12 @@ const NOTIFICATION_TYPES = [
 function useNotifications(page = 1, typeFilter = "") {
 	return useQuery<NotificationsResponse>({
 		queryKey: ["notifications", "page", page, "type", typeFilter],
-		queryFn: () =>
-			apiClient.get<NotificationsResponse>(
-				`/api/notifications?page=${page}&limit=20${typeFilter ? `&type=${typeFilter}` : ""}`,
-			),
+		queryFn: async () => {
+			const envelope = await apiClient.get<{ success: boolean; data: NotificationsResponse }>(
+				`/notifications?page=${page}&limit=20${typeFilter ? `&type=${typeFilter}` : ""}`,
+			);
+			return envelope.data;
+		},
 	});
 }
 
@@ -55,14 +57,14 @@ export default function NotificationsPage() {
 
 	const markAsRead = useCallback(
 		async (id: string) => {
-			await apiClient.put(`/api/notifications/${id}/read`, {});
+			await apiClient.patch(`/notifications/${id}/read`);
 			queryClient.invalidateQueries({ queryKey: ["notifications"] });
 		},
 		[queryClient],
 	);
 
 	const markAllRead = useCallback(async () => {
-		await apiClient.put("/api/notifications/read-all", {});
+		await apiClient.post("/notifications/mark-all-read");
 		queryClient.invalidateQueries({ queryKey: ["notifications"] });
 	}, [queryClient]);
 

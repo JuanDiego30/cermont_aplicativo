@@ -340,25 +340,6 @@ export async function notifyStateTransition(
 
 // ─── Query ──────────────────────────────────────────────────────────────────
 
-export async function getNotificationsForUser(userId: string) {
-	const notifications = await NotificationModel.find({
-		recipientUserId: new Types.ObjectId(userId),
-	})
-		.sort({ createdAt: -1 })
-		.limit(50)
-		.lean();
-
-	const unreadCount = await NotificationModel.countDocuments({
-		recipientUserId: new Types.ObjectId(userId),
-		isRead: false,
-	});
-
-	return {
-		notifications,
-		unreadCount,
-	};
-}
-
 export async function getNotificationsForUserPaginated(
 	userId: string,
 	query: { page?: number; limit?: number; type?: string; isRead?: boolean },

@@ -6,7 +6,19 @@ import * as NotificationService from "./notification.service";
 
 export async function getNotifications(req: Request, res: Response): Promise<void> {
 	const user = requireUser(req);
-	const data = await NotificationService.getNotificationsForUser(String(user._id));
+	const page = Number.parseInt(String(req.query.page ?? ""), 10);
+	const limit = Number.parseInt(String(req.query.limit ?? ""), 10);
+	const type = typeof req.query.type === "string" && req.query.type ? req.query.type : "";
+	const isReadParam = String(req.query.isRead ?? "");
+
+	const data = await NotificationService.getNotificationsForUserPaginated(String(user._id), {
+		...(Number.isFinite(page) && page > 0 ? { page } : {}),
+		...(Number.isFinite(limit) && limit > 0 ? { limit } : {}),
+		...(type ? { type } : {}),
+		...(isReadParam === "true" || isReadParam === "false"
+			? { isRead: isReadParam === "true" }
+			: {}),
+	});
 	sendSuccess(res, data);
 }
 
