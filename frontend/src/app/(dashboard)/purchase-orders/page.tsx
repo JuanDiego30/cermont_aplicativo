@@ -134,7 +134,9 @@ export default function PurchaseOrdersPage() {
 									</td>
 									<td className="px-4 py-3 text-[var(--text-secondary)]">{po.serviceAccount}</td>
 									<td className="px-4 py-3 text-[var(--text-secondary)]">
-										{po.approvedAmount.toLocaleString("es-CO")}
+										{typeof po.approvedAmount === "number"
+											? po.approvedAmount.toLocaleString("es-CO")
+											: "—"}
 									</td>
 									<td className="px-4 py-3">
 										<span

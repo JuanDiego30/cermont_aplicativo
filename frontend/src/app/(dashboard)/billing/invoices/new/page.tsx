@@ -159,7 +159,10 @@ function NewInvoiceForm() {
 					</div>
 					<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
 						{inheritedFields.slice(0, 6).map((field) => (
-							<div key={field.key} className="rounded-[var(--radius-md)] bg-white/70 px-3 py-2">
+							<div
+								key={field.key}
+								className="rounded-[var(--radius-md)] bg-background/70 px-3 py-2"
+							>
 								<p className="text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--text-muted)]">
 									{field.label}
 								</p>

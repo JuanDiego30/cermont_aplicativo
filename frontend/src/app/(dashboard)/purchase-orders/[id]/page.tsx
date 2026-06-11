@@ -92,7 +92,10 @@ export default function PurchaseOrderDetailPage() {
 						<div className="flex justify-between">
 							<dt className="text-[var(--text-muted)]">Monto aprobado</dt>
 							<dd className="font-medium text-[var(--text-primary)]">
-								{po.approvedAmount.toLocaleString("es-CO")} {po.currency}
+								{typeof po.approvedAmount === "number"
+									? po.approvedAmount.toLocaleString("es-CO")
+									: "—"}{" "}
+								{po.currency}
 							</dd>
 						</div>
 						{po.contractReference ? (

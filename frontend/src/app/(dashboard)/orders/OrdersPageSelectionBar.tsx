@@ -39,7 +39,7 @@ export function OrdersPageSelectionBar({
 					variant="outline"
 					size="sm"
 					onClick={onToggleAll}
-					className="bg-white/50 border-[var(--color-brand)]/20 text-[var(--color-brand)] hover:bg-white"
+					className="bg-background/50 border-[var(--color-brand)]/20 text-[var(--color-brand)] hover:bg-background"
 				>
 					{allSelected ? "Deseleccionar todo" : "Seleccionar todo"}
 				</Button>

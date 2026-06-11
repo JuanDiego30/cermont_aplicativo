@@ -16,6 +16,7 @@
 
 /* ── Cermont Brand Tokens ── */
 :root {
+	color-scheme: light;
 	/* Semantic Colors */
 	--color-background: #ffffff;
 	--color-foreground: #0d0d0d;
@@ -105,11 +106,21 @@
 	--radius-xl: 24px;
 	--radius-full: 9999px;
 
+	/* ── Gradients ── */
+	--gradient-header: linear-gradient(
+		135deg,
+		rgba(58, 120, 216, 0.12),
+		rgba(15, 23, 41, 0.02),
+		transparent
+	);
+
 	/* ── Shadows (Whisper Shadows) ── */
 	--shadow-card: 0px 2px 4px rgba(0, 0, 0, 0.03);
 	--shadow-button: 0px 1px 2px rgba(0, 0, 0, 0.06);
 	--shadow-1: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
 	--shadow-2: 0 8px 20px -6px rgba(0, 0, 0, 0.08);
+	--shadow-3: 0 12px 32px -8px rgba(0, 0, 0, 0.12);
+	--shadow-modal: 0 24px 80px rgba(15, 23, 42, 0.28);
 
 	/* ── Typography ── */
 	--font-family: Inter, system-ui, -apple-system, sans-serif;
@@ -145,6 +156,7 @@
 
 .dark,
 [data-theme="dark"] {
+	color-scheme: dark;
 	--color-background: #0f1117;
 	--color-foreground: #f8fafc;
 	--color-muted: #0f1f33;
@@ -167,13 +179,40 @@
 	--border-medium: rgba(255, 255, 255, 0.12);
 
 	--color-brand: var(--color-cermont-blue-light);
+	--color-brand-hover: #5a92e0;
+	--color-brand-strong: var(--color-cermont-blue);
 	--color-brand-accent: var(--color-cermont-green-light);
+
+	/* Cermont backgrounds for dark */
+	--color-cermont-blue-bg: #0a1f3d;
+	--color-cermont-green-bg: #0a2e0a;
+
+	/* Surface overrides */
+	--surface-sidebar-hover: #1a1a2e;
+	--surface-sidebar-active: #0a1f3d;
+	--surface-overlay: rgba(0, 0, 0, 0.8);
+
+	/* Functional colors for dark */
+	--color-success-bg: #0a2e0a;
+	--color-warning-bg: #2e2a0a;
+	--color-danger-bg: #2e0a0a;
+	--color-info-bg: #0a0a2e;
 
 	/* Functional color overrides — darker surfaces need a lighter foreground to meet WCAG AA (>=4.5:1). */
 	--color-danger: #fca5a5;
+	--color-warning: #fbbf24;
 
+	--gradient-header: linear-gradient(
+		135deg,
+		rgba(58, 120, 216, 0.08),
+		rgba(255, 255, 255, 0.02),
+		transparent
+	);
 	--shadow-card: 0px 2px 4px rgba(0, 0, 0, 0.4);
 	--shadow-button: 0px 1px 2px rgba(0, 0, 0, 0.4);
+	--shadow-2: 0 8px 20px -6px rgba(0, 0, 0, 0.4);
+	--shadow-3: 0 12px 32px -8px rgba(0, 0, 0, 0.5);
+	--shadow-modal: 0 24px 80px rgba(0, 0, 0, 0.6);
 }
 
 @theme inline {

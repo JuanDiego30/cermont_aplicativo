@@ -138,13 +138,19 @@ function ActionDialog({
 		>
 			<Dialog.Portal>
 				<Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
-				<Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-xl">
+				<Dialog.Content
+					aria-labelledby="document-gallery-dialog-title"
+					className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-[var(--surface-primary)] p-6 shadow-[var(--shadow-2)]"
+				>
 					<div className="flex items-start justify-between gap-4">
 						<div>
-							<Dialog.Title className="text-lg font-semibold text-zinc-900">
+							<Dialog.Title
+								id="document-gallery-dialog-title"
+								className="text-lg font-semibold text-[var(--text-primary)]"
+							>
 								{dialogCopy.title}
 							</Dialog.Title>
-							<Dialog.Description className="mt-2 text-sm leading-6 text-zinc-600">
+							<Dialog.Description className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
 								{dialogCopy.description}
 							</Dialog.Description>
 						</div>
@@ -163,7 +169,7 @@ function ActionDialog({
 					</div>
 					<label
 						htmlFor="documents-action-reason"
-						className="mt-4 block text-sm font-medium text-zinc-700"
+						className="mt-4 block text-sm font-medium text-[var(--text-primary)]"
 					>
 						Motivo (opcional)
 					</label>
@@ -173,7 +179,7 @@ function ActionDialog({
 						value={reason}
 						onChange={(event) => setReason(event.target.value)}
 						placeholder="Ej: documento duplicado o reemplazado"
-						className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+						className="mt-1 w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
 					/>
 					<div className="mt-5 flex justify-end gap-3">
 						<Button type="button" variant="secondary" onClick={handleClose}>
@@ -204,8 +210,8 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 
 	if (!documents.length) {
 		return (
-			<div className="flex min-h-40 items-center justify-center rounded-lg border-2 border-dashed border-zinc-200 dark:border-zinc-700">
-				<p className="text-sm text-zinc-400">Sin documentos</p>
+			<div className="flex min-h-40 items-center justify-center rounded-lg border-2 border-dashed border-[var(--border-default)]">
+				<p className="text-sm text-[var(--text-tertiary)]">Sin documentos</p>
 			</div>
 		);
 	}
@@ -259,31 +265,31 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 					return (
 						<li key={document._id}>
 							<article
-								className={`flex h-full flex-col justify-between rounded-xl border bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:bg-zinc-950 ${
+								className={`flex h-full flex-col justify-between rounded-xl border bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-card)] transition-shadow hover:shadow-[var(--shadow-2)] ${
 									isArchived
-										? "border-amber-200 dark:border-amber-800"
+										? "border-amber-300 dark:border-amber-700"
 										: isDeleted
-											? "border-red-200 opacity-60 dark:border-red-800"
+											? "border-red-300 opacity-60 dark:border-red-700"
 											: isProtected
-												? "border-blue-200 dark:border-blue-800"
-												: "border-zinc-200 dark:border-zinc-800"
+												? "border-blue-300 dark:border-blue-700"
+												: "border-[var(--border-default)]"
 								}`}
 							>
 								<div>
 									<div className="flex items-start justify-between gap-3">
 										<div className="flex min-w-0 items-start gap-3">
 											<FileText
-												className="mt-0.5 size-5 shrink-0 text-blue-600 dark:text-blue-400"
+												className="mt-0.5 size-5 shrink-0 text-[var(--color-brand)]"
 												aria-hidden="true"
 											/>
 											<div className="min-w-0 flex-1">
-												<h3 className="truncate text-sm font-medium text-zinc-900 dark:text-white">
+												<h3 className="truncate text-sm font-medium text-[var(--text-primary)]">
 													{document.title}
 												</h3>
-												<p className="mt-0.5 truncate text-xs text-zinc-500 dark:text-zinc-400">
+												<p className="mt-0.5 truncate text-xs text-[var(--text-tertiary)]">
 													{getDocumentFileName(document.file_url)}
 												</p>
-												<p className="mt-0.5 truncate text-[11px] text-zinc-400 dark:text-zinc-500">
+												<p className="mt-0.5 truncate text-[11px] text-[var(--text-muted)]">
 													{document.file_url}
 												</p>
 											</div>
@@ -302,7 +308,7 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 												</span>
 											)}
 											{!isArchived && !isDeleted && isProtected && (
-												<span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+												<span className="inline-flex items-center gap-1 rounded-full bg-[var(--color-brand)]/10 px-2 py-0.5 text-[11px] font-medium text-[var(--color-brand)]">
 													<ShieldCheck className="size-3" aria-hidden="true" />
 													Protegido
 												</span>
@@ -316,28 +322,28 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 										</div>
 									</div>
 
-									<div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-										<span className="rounded-full bg-zinc-100 px-2 py-0.5 dark:bg-zinc-800">
+									<div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[var(--text-tertiary)]">
+										<span className="rounded-full bg-[var(--surface-secondary)] px-2 py-0.5">
 											{purposeLabel}
 										</span>
 										{document.mime_type && (
-											<span className="rounded-full bg-zinc-100 px-2 py-0.5 dark:bg-zinc-800">
+											<span className="rounded-full bg-[var(--surface-secondary)] px-2 py-0.5">
 												{document.mime_type}
 											</span>
 										)}
 										{stepLabel && (
-											<span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 dark:bg-zinc-800">
+											<span className="inline-flex items-center gap-1 rounded-full bg-[var(--surface-secondary)] px-2 py-0.5">
 												<Workflow className="size-3" aria-hidden="true" />
 												{stepLabel}
 											</span>
 										)}
 										{linkedEntityLabel && (
-											<span className="rounded-full bg-zinc-100 px-2 py-0.5 dark:bg-zinc-800">
+											<span className="rounded-full bg-[var(--surface-secondary)] px-2 py-0.5">
 												{linkedEntityLabel}
 											</span>
 										)}
 										{associationCount > 0 && (
-											<span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 dark:bg-zinc-800">
+											<span className="inline-flex items-center gap-1 rounded-full bg-[var(--surface-secondary)] px-2 py-0.5">
 												<Link2 className="size-3" aria-hidden="true" />
 												{associationCount} vinculo(s)
 											</span>
@@ -349,7 +355,7 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 									</div>
 
 									{isProtected && !isArchived && !isDeleted && (
-										<div className="mt-3 rounded-lg border border-blue-100 bg-blue-50/70 p-3 text-xs leading-5 text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/20 dark:text-blue-200">
+										<div className="mt-3 rounded-lg border border-[var(--color-brand)]/20 bg-[var(--color-brand)]/5 p-3 text-xs leading-5 text-[var(--text-secondary)]">
 											<p className="font-medium">Closeout protection</p>
 											<p>{protectionReason}</p>
 										</div>
@@ -366,8 +372,8 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 									)}
 								</div>
 
-								<div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-zinc-100 pt-3 dark:border-zinc-800">
-									<span className="flex items-center gap-1 text-xs text-zinc-400">
+								<div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-3">
+									<span className="flex items-center gap-1 text-xs text-[var(--text-tertiary)]">
 										<Calendar className="size-3" aria-hidden="true" />
 										Creado {formatDate(document.createdAt)}
 									</span>
@@ -424,7 +430,7 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 										{document.order_id && !isDeleted && (
 											<Link
 												href={`/orders/${document.order_id}`}
-												className="inline-flex items-center rounded-md px-2 py-1 text-[11px] font-medium text-zinc-500 transition-colors hover:text-blue-600"
+												className="inline-flex items-center rounded-md px-2 py-1 text-[11px] font-medium text-[var(--text-tertiary)] transition-colors hover:text-[var(--color-brand)]"
 											>
 												Ver orden
 											</Link>
@@ -434,7 +440,7 @@ export function DocumentGallery({ documents }: DocumentGalleryProps) {
 												href={document.file_url}
 												target="_blank"
 												rel="noopener noreferrer"
-												className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-blue-600 transition-colors hover:bg-blue-50"
+												className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-[var(--color-brand)] transition-colors hover:bg-[var(--color-brand)]/10"
 											>
 												<Download className="size-3" aria-hidden="true" />
 												Descargar

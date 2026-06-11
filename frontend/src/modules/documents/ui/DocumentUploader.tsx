@@ -432,15 +432,15 @@ function PurposeSelector({
 						onClick={() => setValue("purpose", option.value, { shouldValidate: true })}
 						className={`rounded-xl border p-4 text-left transition-colors ${
 							isActive
-								? "border-brand bg-(--color-brand-blue-bg)"
-								: "border-zinc-200 bg-zinc-50 hover:border-brand/50"
+								? "border-brand bg-[var(--surface-elevated)]"
+								: "border-[var(--border-default)] bg-[var(--surface-secondary)] hover:border-brand/50"
 						}`}
 					>
 						<div className="flex items-center gap-2">
 							<Icon className="size-4 text-brand" />
-							<p className="text-sm font-bold text-(--text-primary)">{option.label}</p>
+							<p className="text-sm font-bold text-[var(--text-primary)]">{option.label}</p>
 						</div>
-						<p className="mt-2 text-xs text-(--text-secondary)">{option.description}</p>
+						<p className="mt-2 text-xs text-[var(--text-secondary)]">{option.description}</p>
 					</button>
 				);
 			})}
@@ -464,13 +464,13 @@ function FileAndStepFields({
 	return (
 		<div className={`grid gap-4 ${mode === "upload" ? "sm:grid-cols-2" : "sm:grid-cols-1"}`}>
 			<div className="space-y-2">
-				<label htmlFor="doc-step" className="block text-sm font-medium text-zinc-700">
+				<label htmlFor="doc-step" className="block text-sm font-medium text-[var(--text-primary)]">
 					Paso operativo objetivo
 				</label>
 				<select
 					id="doc-step"
 					{...register("targetStepCode")}
-					className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+					className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
 				>
 					<option value="">Sugerencia automática / opcional</option>
 					{CERMONT_OPERATIONAL_STEPS.map((step) => (
@@ -483,7 +483,10 @@ function FileAndStepFields({
 
 			{mode === "upload" ? (
 				<div className="space-y-2">
-					<label htmlFor="doc-file" className="block text-sm font-medium text-zinc-700">
+					<label
+						htmlFor="doc-file"
+						className="block text-sm font-medium text-[var(--text-primary)]"
+					>
 						Archivo
 					</label>
 					<input
@@ -499,10 +502,10 @@ function FileAndStepFields({
 
 							onFileSelected(file);
 						}}
-						className="block w-full text-sm text-zinc-500 file:mr-4 file:rounded-md file:border-0 file:bg-zinc-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-zinc-700 hover:file:bg-zinc-200"
+						className="block w-full text-sm text-[var(--text-tertiary)] file:mr-4 file:rounded-md file:border-0 file:bg-[var(--surface-secondary)] file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-[var(--text-primary)] hover:file:bg-[var(--surface-elevated)]"
 					/>
 					{selectedFile && (
-						<p className="text-xs text-zinc-500">
+						<p className="text-xs text-[var(--text-tertiary)]">
 							{(selectedFile.size / 1024).toFixed(1)} KB , {selectedFile.name}
 						</p>
 					)}
@@ -522,13 +525,13 @@ function OrderField({
 }) {
 	return (
 		<div className="space-y-2">
-			<label htmlFor="doc-order" className="block text-sm font-medium text-zinc-700">
+			<label htmlFor="doc-order" className="block text-sm font-medium text-[var(--text-primary)]">
 				Orden de trabajo
 			</label>
 			<select
 				id="doc-order"
 				{...register("orderId")}
-				className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+				className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
 			>
 				<option value="">Sin orden</option>
 				{orders.map((order) => (
@@ -563,16 +566,19 @@ function ServiceCaseField({
 	}
 
 	return (
-		<div className="space-y-4 rounded-xl border border-(--color-brand-blue-border) bg-(--color-brand-blue-bg) p-4">
+		<div className="space-y-4 rounded-xl border border-[var(--border-medium)] bg-[var(--surface-secondary)] p-4">
 			<div className="space-y-2">
-				<label htmlFor="doc-service-case" className="block text-sm font-medium text-zinc-700">
+				<label
+					htmlFor="doc-service-case"
+					className="block text-sm font-medium text-[var(--text-primary)]"
+				>
 					Caso de servicio
 				</label>
 				{serviceCases && serviceCases.length > 0 ? (
 					<select
 						id="doc-service-case"
 						{...register("serviceCaseId")}
-						className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+						className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
 					>
 						<option value="">Seleccione un caso</option>
 						{serviceCases.map((serviceCase) => (
@@ -587,7 +593,7 @@ function ServiceCaseField({
 						type="text"
 						{...register("serviceCaseId")}
 						placeholder="ID del caso de servicio"
-						className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+						className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
 					/>
 				)}
 				{errors.serviceCaseId && (
@@ -616,7 +622,7 @@ function SubmitButton({
 		<button
 			type="submit"
 			disabled={isSubmitting || isPending}
-			className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+			className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--ring)] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
 		>
 			{isPending ? (
 				<>
@@ -680,7 +686,7 @@ export function DocumentUploader({
 	return (
 		<div className={`w-full ${className ?? ""}`} {...rest}>
 			{/* Mode selector */}
-			<div className="mb-4 flex gap-2 rounded-lg border border-zinc-200 bg-white p-1">
+			<div className="mb-4 flex gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] p-1">
 				<button
 					type="button"
 					onClick={() => {
@@ -689,7 +695,9 @@ export function DocumentUploader({
 						setValue("selectedDocumentId", "", { shouldValidate: false });
 					}}
 					className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-						mode === "upload" ? "bg-blue-600 text-white" : "text-zinc-600 hover:text-zinc-900"
+						mode === "upload"
+							? "bg-brand text-white"
+							: "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
 					}`}
 				>
 					Subir nuevo documento
@@ -701,7 +709,9 @@ export function DocumentUploader({
 						setValue("mode", "select", { shouldValidate: true });
 					}}
 					className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-						mode === "select" ? "bg-blue-600 text-white" : "text-zinc-600 hover:text-zinc-900"
+						mode === "select"
+							? "bg-brand text-white"
+							: "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
 					}`}
 				>
 					Seleccionar existente
@@ -721,8 +731,10 @@ export function DocumentUploader({
 			>
 				<input type="hidden" {...register("mode")} />
 				<fieldset
-					className={`space-y-5 rounded-xl border bg-white p-4 transition-colors sm:p-6 ${
-						isDragging ? "border-brand bg-(--color-brand-blue-bg)" : "border-zinc-200"
+					className={`space-y-5 rounded-xl border bg-[var(--surface-primary)] p-4 transition-colors sm:p-6 ${
+						isDragging
+							? "border-brand bg-[var(--surface-secondary)]"
+							: "border-[var(--border-default)]"
 					}`}
 					onDragOver={(event) => {
 						event.preventDefault();
@@ -738,7 +750,7 @@ export function DocumentUploader({
 						}
 					}}
 				>
-					<legend className="flex items-center gap-2 px-2 text-sm font-semibold text-zinc-700">
+					<legend className="flex items-center gap-2 px-2 text-sm font-semibold text-[var(--text-primary)]">
 						<FileUp className="size-4" aria-hidden="true" />
 						Subir documento
 					</legend>
@@ -749,19 +761,19 @@ export function DocumentUploader({
 						<div className="space-y-2">
 							<label
 								htmlFor="library-doc-select"
-								className="block text-sm font-medium text-zinc-700"
+								className="block text-sm font-medium text-[var(--text-primary)]"
 							>
 								Seleccionar documento de la biblioteca
 							</label>
 							{isLoadingLibraryDocuments ? (
 								<div className="flex items-center justify-center py-4">
-									<Loader2 className="size-4 animate-spin text-zinc-500" />
+									<Loader2 className="size-4 animate-spin text-[var(--text-tertiary)]" />
 								</div>
 							) : (
 								<select
 									id="library-doc-select"
 									{...register("selectedDocumentId")}
-									className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+									className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
 									onChange={(e) => {
 										setValue("selectedDocumentId", e.target.value, { shouldValidate: true });
 										const selectedDoc = libraryDocuments?.find((doc) => doc._id === e.target.value);
@@ -785,7 +797,10 @@ export function DocumentUploader({
 					)}
 
 					<div className="space-y-2">
-						<label htmlFor="doc-title" className="block text-sm font-medium text-zinc-700">
+						<label
+							htmlFor="doc-title"
+							className="block text-sm font-medium text-[var(--text-primary)]"
+						>
 							Título del documento
 						</label>
 						<input
@@ -793,9 +808,9 @@ export function DocumentUploader({
 							type="text"
 							{...register("title")}
 							placeholder="Ej: Acta de entrega SES 2026-05"
-							className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+							className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-sm focus:border-[var(--color-brand)] focus:outline-none focus:ring-1 focus:ring-[var(--color-brand)]"
 						/>
-						{errors.title && <p className="text-xs text-red-600">{errors.title.message}</p>}
+						{errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
 					</div>
 
 					<FileAndStepFields

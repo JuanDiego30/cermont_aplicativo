@@ -170,6 +170,20 @@ export function CermontAIDrawer() {
 			return;
 		}
 
+		// Block sends without a valid serviceCaseId — backend schema requires it
+		if (!serviceCaseId) {
+			setMessages((prev) => [
+				...prev,
+				{
+					id: createMessageId("assistant"),
+					role: "assistant",
+					content:
+						"Selecciona un caso de servicio para poder usar Cermont AI. Navega a un caso de servicio e intenta de nuevo.",
+				},
+			]);
+			return;
+		}
+
 		const userMessage = text.trim();
 		setMessages((prev) => [
 			...prev,

@@ -157,7 +157,7 @@ export function OrdersTable({
 								<td className="px-6 py-5 text-right">
 									<button
 										type="button"
-										onClick={() => push(`/orders/${order._id}`)}
+										onClick={() => push(`/orders/${String(order._id)}`)}
 										className="inline-flex size-9 items-center justify-center rounded-full bg-[var(--surface-secondary)] text-[var(--text-tertiary)] transition-all group-hover:bg-[var(--color-brand)] group-hover:text-white group-hover:shadow-lg"
 										aria-label={`Ver detalles de OT ${order.code}`}
 									>
@@ -219,7 +219,7 @@ export function OrdersTable({
 								{formatOrderDate(order.createdAt)}
 							</div>
 							<Link
-								href={`/orders/${order._id}`}
+								href={`/orders/${String(order._id)}`}
 								className="text-xs font-bold uppercase tracking-wider text-[var(--color-brand)] hover:underline"
 							>
 								Detalles →

@@ -226,7 +226,7 @@ function SiteVisitNewPageContent() {
 								{inheritedFields.map((field) => (
 									<div
 										key={field.key}
-										className="flex items-center justify-between rounded-md bg-white/50 px-3 py-2"
+										className="flex items-center justify-between rounded-md bg-background/50 px-3 py-2"
 									>
 										<div>
 											<p className="text-xs font-medium text-[var(--text-secondary)]">

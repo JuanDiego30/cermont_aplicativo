@@ -116,6 +116,10 @@ export function useSiteVisitsList() {
 		queryFn: fetchSiteVisitList,
 		staleTime: STALE_TIMES.REALTIME,
 		placeholderData: keepPreviousData,
+		// api-client already retries internally — avoid TanStack Query
+		// stacking retries on top and creating a request storm.
+		retry: 0,
+		refetchOnWindowFocus: false,
 	});
 }
 

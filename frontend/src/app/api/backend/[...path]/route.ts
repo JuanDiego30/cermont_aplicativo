@@ -1,4 +1,4 @@
-import { env, isProduction } from "@cermont/config";
+import { env } from "@cermont/config";
 import { type NextRequest, NextResponse } from "next/server";
 import { createLogger } from "@/lib/monitoring/logger";
 
@@ -31,8 +31,10 @@ type RouteContext = {
 type ProxyMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD";
 
 function resolveBackendBaseUrl(): string {
-	const fallback = isProduction() ? "http://backend:4000" : "http://localhost:4000";
-	return (env.BACKEND_URL?.trim() || fallback).replace(/\/+$/, "");
+	// BACKEND_URL es la única fuente de verdad. Sin ella, se usa localhost:4000
+	// para desarrollo local y npm run start. Docker Compose inyecta explícitamente
+	// BACKEND_URL=http://backend:4000 en el contenedor frontend.
+	return (env.BACKEND_URL?.trim() || "http://localhost:4000").replace(/\/+$/, "");
 }
 
 async function resolveBackendUrl(request: NextRequest, context: RouteContext): Promise<string> {

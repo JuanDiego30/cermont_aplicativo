@@ -69,7 +69,7 @@ export function PlanningPacketBasicInfo({
 					</p>
 					<div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
 						{inheritedFields.map((f) => (
-							<div key={f.key} className="rounded-[var(--radius-md)] bg-white/70 px-3 py-2">
+							<div key={f.key} className="rounded-[var(--radius-md)] bg-background/70 px-3 py-2">
 								<p className="text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--text-muted)]">
 									{f.label}
 								</p>

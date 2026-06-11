@@ -4,9 +4,9 @@ import { ROLE_LABELS, type UserRole } from "@cermont/domain";
 import { ChangePasswordSchema, CreateUserSchema } from "@cermont/shared-types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader2, User as UserIcon } from "lucide-react";
+import { Camera, Loader2, User as UserIcon } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { apiClient } from "@/lib/http/api-client";
@@ -102,12 +102,24 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
 	const { successMessage, updateProfileMutation } = useProfileMutations(user.id);
 	const { pwSuccess, changePasswordMutation } = usePasswordMutations();
 
+	// Photo preview: updates both display and form value in one handler
+	const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+	const handlePhotoSelect = (dataUrl: string) => {
+		setPreviewUrl(dataUrl);
+		profileForm.setValue("avatarUrl", dataUrl);
+	};
+
 	return (
 		<section className="mx-auto max-w-2xl space-y-6" aria-labelledby="profile-title">
-			<ProfileHeaderSection user={user} avatarUrl={avatarUrl} fullName={fullName} />
+			<ProfileHeaderSection
+				user={user}
+				avatarUrl={previewUrl || avatarUrl}
+				fullName={fullName}
+				onPhotoSelect={handlePhotoSelect}
+			/>
 
-			<section className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 shadow-sm">
-				<h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+			<section className="rounded-3xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-sm">
+				<h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
 					Información Personal
 				</h2>
 				<form
@@ -117,7 +129,7 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
 					<div>
 						<label
 							htmlFor="profile-name"
-							className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+							className="block text-sm font-medium text-[var(--text-primary)]"
 						>
 							Nombre completo
 						</label>
@@ -129,7 +141,7 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
 							{...profileForm.register("name")}
 						/>
 						{profileForm.formState.errors.name && (
-							<p className="mt-1 text-xs text-red-500">
+							<p className="mt-1 text-xs text-[var(--color-danger)]">
 								{profileForm.formState.errors.name.message}
 							</p>
 						)}
@@ -137,7 +149,7 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
 					<div>
 						<label
 							htmlFor="profile-phone"
-							className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+							className="block text-sm font-medium text-[var(--text-primary)]"
 						>
 							Teléfono
 						</label>
@@ -149,36 +161,20 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
 							{...profileForm.register("phone")}
 						/>
 					</div>
-					<div>
-						<label
-							htmlFor="profile-avatar-url"
-							className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-						>
-							URL de Avatar
-						</label>
-						<input
-							id="profile-avatar-url"
-							type="url"
-							placeholder="https://…"
-							className="input-field mt-1"
-							{...profileForm.register("avatarUrl")}
-						/>
-						{profileForm.formState.errors.avatarUrl && (
-							<p className="mt-1 text-xs text-red-500">
-								{profileForm.formState.errors.avatarUrl.message}
-							</p>
-						)}
-					</div>
+					<input type="hidden" {...profileForm.register("avatarUrl")} />
 					{successMessage && (
 						<div
 							aria-live="polite"
-							className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700"
+							className="rounded-lg bg-[var(--color-success-bg)] px-4 py-3 text-sm text-[var(--color-success)]"
 						>
 							{successMessage}
 						</div>
 					)}
 					{updateProfileMutation.error && (
-						<div role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+						<div
+							role="alert"
+							className="rounded-lg bg-[var(--color-danger-bg)] px-4 py-3 text-sm text-[var(--color-danger)]"
+						>
 							{updateProfileMutation.error instanceof Error
 								? updateProfileMutation.error.message
 								: "Error"}
@@ -188,7 +184,7 @@ export function ProfileForm({ user }: { user: ProfileUser }) {
 						<button
 							type="submit"
 							disabled={updateProfileMutation.isPending}
-							className="flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+							className="flex items-center gap-2 rounded-full bg-[var(--color-brand)] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[var(--color-brand-hover)] disabled:opacity-60"
 						>
 							{updateProfileMutation.isPending && <Loader2 className="size-4 animate-spin" />}
 							Guardar Cambios
@@ -211,39 +207,79 @@ function ProfileHeaderSection({
 	user,
 	avatarUrl,
 	fullName,
+	onPhotoSelect,
 }: {
 	user: ProfileUser;
 	avatarUrl: string | null;
 	fullName: string;
+	onPhotoSelect: (dataUrl: string) => void;
 }) {
+	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+		const file = e.target.files?.[0];
+		if (!file) {
+			return;
+		}
+		const reader = new FileReader();
+		reader.onload = (ev) => {
+			const result = ev.target?.result as string;
+			if (result) {
+				onPhotoSelect(result);
+			}
+		};
+		reader.readAsDataURL(file);
+	}
+
 	return (
 		<header className="flex items-center gap-4">
-			<figure className="flex size-14 items-center justify-center rounded-full bg-blue-100">
-				{avatarUrl ? (
-					<Image
-						src={avatarUrl}
-						alt={`Avatar de ${user.name}`}
-						width={56}
-						height={56}
-						unoptimized
-						className="size-14 rounded-full object-cover"
-					/>
-				) : (
-					<UserIcon aria-hidden="true" className="size-7 text-blue-600" />
-				)}
-			</figure>
+			<div className="relative">
+				<figure className="flex size-14 items-center justify-center rounded-full bg-[var(--color-cermont-blue-bg)] overflow-hidden">
+					{avatarUrl ? (
+						<Image
+							src={avatarUrl}
+							alt={`Avatar de ${user.name}`}
+							width={56}
+							height={56}
+							unoptimized
+							className="size-14 rounded-full object-cover"
+						/>
+					) : (
+						<UserIcon aria-hidden="true" className="size-7 text-[var(--color-brand)]" />
+					)}
+				</figure>
+				<button
+					type="button"
+					onClick={() => fileInputRef.current?.click()}
+					className="absolute -bottom-1 -right-1 flex size-6 items-center justify-center rounded-full border-2 border-white bg-[var(--color-brand)] text-white shadow-sm transition-transform hover:scale-110"
+					aria-label="Cambiar foto de perfil"
+				>
+					<Camera className="size-3" />
+				</button>
+				<input
+					ref={fileInputRef}
+					type="file"
+					accept="image/png,image/jpeg,image/webp"
+					className="hidden"
+					onChange={handleFileSelect}
+					tabIndex={-1}
+					aria-label="Seleccionar foto de perfil"
+				/>
+			</div>
 			<div>
-				<h1 id="profile-title" className="text-2xl font-semibold text-zinc-900 dark:text-white">
+				<h1 id="profile-title" className="text-2xl font-semibold text-[var(--text-primary)]">
 					{fullName}
 				</h1>
 				<p className="flex items-center gap-2">
-					<span className="text-sm text-zinc-500 dark:text-zinc-400">{user.email}</span>
-					<span className="rounded-full bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-400">
+					<span className="text-sm text-[var(--text-secondary)]">{user.email}</span>
+					<span className="rounded-full bg-[var(--color-cermont-blue-bg)] px-2 py-0.5 text-xs font-medium text-[var(--color-brand)]">
 						{ROLE_LABELS[user.role as UserRole] ?? user.role}
 					</span>
 				</p>
 				{user.lastLogin && (
-					<p className="text-xs text-zinc-400">Último acceso: {formatDateTime(user.lastLogin)}</p>
+					<p className="text-xs text-[var(--text-muted)]">
+						Último acceso: {formatDateTime(user.lastLogin)}
+					</p>
 				)}
 			</div>
 		</header>
@@ -263,8 +299,8 @@ function PasswordChangeSection({
 	userEmail: string;
 }) {
 	return (
-		<section className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 shadow-sm">
-			<h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+		<section className="rounded-3xl border border-[var(--border-default)] bg-[var(--surface-primary)] p-6 shadow-sm">
+			<h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
 				Cambiar Contraseña
 			</h2>
 			<form
@@ -282,7 +318,7 @@ function PasswordChangeSection({
 				<div>
 					<label
 						htmlFor="profile-current-password"
-						className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+						className="block text-sm font-medium text-[var(--text-primary)]"
 					>
 						Contraseña actual
 					</label>
@@ -295,7 +331,7 @@ function PasswordChangeSection({
 						{...passwordForm.register("currentPassword")}
 					/>
 					{passwordForm.formState.errors.currentPassword && (
-						<p className="mt-1 text-xs text-red-500">
+						<p className="mt-1 text-xs text-[var(--color-danger)]">
 							{passwordForm.formState.errors.currentPassword.message}
 						</p>
 					)}
@@ -303,7 +339,7 @@ function PasswordChangeSection({
 				<div>
 					<label
 						htmlFor="profile-new-password"
-						className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+						className="block text-sm font-medium text-[var(--text-primary)]"
 					>
 						Nueva contraseña
 					</label>
@@ -317,7 +353,7 @@ function PasswordChangeSection({
 						{...passwordForm.register("newPassword")}
 					/>
 					{passwordForm.formState.errors.newPassword && (
-						<p className="mt-1 text-xs text-red-500">
+						<p className="mt-1 text-xs text-[var(--color-danger)]">
 							{passwordForm.formState.errors.newPassword.message}
 						</p>
 					)}
@@ -325,7 +361,7 @@ function PasswordChangeSection({
 				<div>
 					<label
 						htmlFor="profile-confirm-password"
-						className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+						className="block text-sm font-medium text-[var(--text-primary)]"
 					>
 						Confirmar contraseña
 					</label>
@@ -338,7 +374,7 @@ function PasswordChangeSection({
 						{...passwordForm.register("confirmPassword")}
 					/>
 					{passwordForm.formState.errors.confirmPassword && (
-						<p className="mt-1 text-xs text-red-500">
+						<p className="mt-1 text-xs text-[var(--color-danger)]">
 							{passwordForm.formState.errors.confirmPassword.message}
 						</p>
 					)}
@@ -346,13 +382,16 @@ function PasswordChangeSection({
 				{pwSuccess && (
 					<div
 						aria-live="polite"
-						className="rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700"
+						className="rounded-lg bg-[var(--color-success-bg)] px-4 py-3 text-sm text-[var(--color-success)]"
 					>
 						{pwSuccess}
 					</div>
 				)}
 				{changePasswordMutation.error && (
-					<div role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+					<div
+						role="alert"
+						className="rounded-lg bg-[var(--color-danger-bg)] px-4 py-3 text-sm text-[var(--color-danger)]"
+					>
 						{changePasswordMutation.error instanceof Error
 							? changePasswordMutation.error.message
 							: String(changePasswordMutation.error)}
@@ -362,7 +401,7 @@ function PasswordChangeSection({
 					<button
 						type="submit"
 						disabled={changePasswordMutation.isPending}
-						className="flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-800 px-5 py-2.5 text-sm font-semibold text-white hover:bg-zinc-900 disabled:opacity-60"
+						className="flex items-center gap-2 rounded-full border border-[var(--border-default)] bg-[var(--surface-secondary)] px-5 py-2.5 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-sidebar-hover)] disabled:opacity-60"
 					>
 						{changePasswordMutation.isPending && <Loader2 className="size-4 animate-spin" />}
 						Cambiar Contraseña

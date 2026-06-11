@@ -20,7 +20,7 @@ import { useOrders } from "@/modules/orders/queries";
 import { useServiceCaseList } from "@/modules/service-cases/queries";
 
 const FILTER_FIELD_CLASS =
-	"rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--text-tertiary)] focus:border-[var(--color-brand-blue)] focus:ring-2 focus:ring-[color:var(--color-brand-blue)]/15";
+	"rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--surface-primary)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none transition-colors placeholder:text-[var(--text-tertiary)] focus:border-[var(--color-brand)] focus:ring-2 focus:ring-[var(--color-brand)]/15";
 
 const DOCUMENT_PURPOSE_FILTER_OPTIONS: Array<{ label: string; value: DocumentPurpose }> = [
 	{ value: "library", label: "Biblioteca" },
@@ -232,7 +232,7 @@ function DocumentsPageHeader({
 }) {
 	return (
 		<header className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-2)]">
-			<div className="border-b border-[var(--border-default)] bg-[linear-gradient(135deg,rgba(58,120,216,0.12),rgba(15,23,41,0.02),transparent)] p-5 sm:px-6">
+			<div className="border-b border-[var(--border-default)] bg-[var(--gradient-header)] p-5 sm:px-6">
 				<p className="text-sm text-[var(--text-secondary)]">Dashboard / Documentos</p>
 
 				<div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -241,7 +241,7 @@ function DocumentsPageHeader({
 							id="documents-page-title"
 							className="flex items-center gap-2 text-2xl font-semibold text-[var(--text-primary)]"
 						>
-							<span className="flex size-10 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-brand-blue-bg)] text-[var(--color-brand-blue)]">
+							<span className="flex size-10 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-brand)]/10 text-[var(--color-brand)]">
 								<FileText aria-hidden="true" className="size-5" />
 							</span>
 							Gestión de documentos
@@ -285,7 +285,7 @@ function DocumentsPageHeader({
 						<p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-tertiary)]">
 							Modo
 						</p>
-						<p className="mt-2 text-2xl font-semibold text-[var(--color-brand-blue)]">
+						<p className="mt-2 text-2xl font-semibold text-[var(--color-brand)]">
 							{isGlobalAdmin ? "Global" : "Limitado"}
 						</p>
 					</article>
@@ -454,7 +454,7 @@ function DocumentsFilters({
 
 					<button
 						type="submit"
-						className="rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-700 xl:col-span-1 xl:self-end"
+						className="rounded-xl bg-brand px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90 xl:col-span-1 xl:self-end"
 					>
 						Filtrar
 					</button>
@@ -478,7 +478,7 @@ function DocumentsFilters({
 							type="checkbox"
 							checked={includeArchived}
 							onChange={(event) => setIncludeArchived(event.target.checked)}
-							className="size-4 rounded border-[var(--border-default)] text-[var(--color-brand-blue)] focus:ring-[var(--color-brand-blue)]"
+							className="size-4 rounded border-[var(--border-default)] text-[var(--color-brand)] focus:ring-[var(--color-brand)]"
 						/>
 						Mostrar archivados
 					</label>

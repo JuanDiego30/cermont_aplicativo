@@ -7,7 +7,7 @@ import { AuthBackgroundBlobs } from "@/modules/auth/ui/AuthBackgroundBlobs";
 export const metadata: Metadata = { title: "Solicitar acceso" };
 
 const INPUT_CLASS =
-	"rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition-[background-color,border-color,box-shadow,color] focus:border-primary-400 focus:bg-white/10 focus-visible:ring-4 focus-visible:ring-primary-500/20";
+	"rounded-xl border border-white/10 bg-background/5 px-4 py-3 text-sm text-white placeholder-zinc-500 outline-none transition-[background-color,border-color,box-shadow,color] focus:border-primary-400 focus:bg-background/10 focus-visible:ring-4 focus-visible:ring-primary-500/20";
 
 const LABEL_CLASS = "text-sm font-semibold text-zinc-300";
 
@@ -189,7 +189,7 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
 
 					<Link
 						href="/login"
-						className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-zinc-200 transition hover:bg-white/10 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-500/30"
+						className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-background/5 px-4 py-3 text-sm font-medium text-zinc-200 transition hover:bg-background/10 focus:outline-none focus-visible:ring-4 focus-visible:ring-primary-500/30"
 					>
 						<ArrowLeft className="size-4" aria-hidden="true" />
 						Volver al inicio de sesión

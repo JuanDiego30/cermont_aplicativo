@@ -69,12 +69,18 @@ export function ContextualDocumentUploadModal({
 		<Dialog.Root open={open} onOpenChange={setOpen}>
 			<Dialog.Trigger asChild>{children}</Dialog.Trigger>
 			<Dialog.Portal>
-				<Dialog.Overlay className="fixed inset-0 z-40 bg-slate-950/55 backdrop-blur-sm" />
-				<Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[min(960px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[28px] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[0_24px_80px_rgba(15,23,42,0.28)]">
+				<Dialog.Overlay className="fixed inset-0 z-40 bg-[var(--surface-overlay)] backdrop-blur-sm" />
+				<Dialog.Content
+					aria-labelledby="contextual-upload-dialog-title"
+					className="fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[min(960px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[28px] border border-[var(--border-default)] bg-[var(--surface-primary)] shadow-[var(--shadow-modal)]"
+				>
 					<div className="border-b border-[var(--border-subtle)] px-6 py-5">
 						<div className="flex items-start justify-between gap-4">
 							<div className="space-y-2">
-								<Dialog.Title className="text-lg font-semibold text-[var(--text-primary)]">
+								<Dialog.Title
+									id="contextual-upload-dialog-title"
+									className="text-lg font-semibold text-[var(--text-primary)]"
+								>
 									{title}
 								</Dialog.Title>
 								<Dialog.Description className="max-w-3xl text-sm leading-6 text-[var(--text-secondary)]">

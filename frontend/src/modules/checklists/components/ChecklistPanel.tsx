@@ -206,18 +206,18 @@ export function ChecklistPanel({ orderId, readOnly = false }: ChecklistPanelProp
 	const groupedItems = groupChecklistItems(checklist);
 
 	return (
-		<section className="space-y-6 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 sm:p-6">
+		<section className="space-y-6 rounded-[var(--radius-lg)] border border-[var(--border-medium)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-card)] sm:p-6">
 			<header className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
 				<div className="space-y-2">
-					<span className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-sky-700 dark:border-sky-900/40 dark:bg-sky-900/10 dark:text-sky-300">
+					<span className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-[var(--border-medium)] bg-[var(--surface-secondary)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-secondary)]">
 						<ClipboardList className="size-3.5" aria-hidden="true" />
 						Checklist operativo
 					</span>
 					<div className="space-y-1">
-						<h3 className="text-lg font-semibold text-zinc-900 dark:text-white">
+						<h3 className="text-lg font-semibold text-[var(--text-primary)]">
 							{checklist.templateName ?? "Checklist estándar"}
 						</h3>
-						<p className="text-sm text-zinc-500 dark:text-zinc-400">
+						<p className="text-sm text-[var(--text-secondary)]">
 							Control de herramientas, equipos, EPP y procedimiento asociado a la orden.
 						</p>
 					</div>
@@ -307,7 +307,7 @@ function EmptyChecklistState({
 	onCreate: () => void;
 }) {
 	return (
-		<section className="space-y-4 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 sm:p-6">
+		<section className="space-y-4 rounded-[var(--radius-lg)] border border-[var(--border-medium)] bg-[var(--surface-primary)] p-4 shadow-[var(--shadow-card)] sm:p-6">
 			<header className="space-y-2">
 				<span className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-sky-700 dark:border-sky-900/40 dark:bg-sky-900/10 dark:text-sky-300">
 					<ClipboardList className="size-3.5" aria-hidden="true" />
