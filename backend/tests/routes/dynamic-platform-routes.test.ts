@@ -69,8 +69,10 @@ describe("dynamic platform routes", () => {
 
 	it("mounts kit, tool, and evidence collection routes in the backend app", () => {
 		const source = readFileSync(new URL("../../src/index.ts", import.meta.url), "utf8");
-		expect(source).toContain('app.use("/api/kits", kitRoutes);');
-		expect(source).toContain('app.use("/api/tools", toolRoutes);');
-		expect(source).toContain('app.use("/api/evidence-collections", evidenceCollectionRoutes);');
+		expect(source).toContain('{ prefix: "/api/kits", router: kitRoutes }');
+		expect(source).toContain('{ prefix: "/api/tools", router: toolRoutes }');
+		expect(source).toContain(
+			'{ prefix: "/api/evidence-collections", router: evidenceCollectionRoutes }',
+		);
 	});
 });

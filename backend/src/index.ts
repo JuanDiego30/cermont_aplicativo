@@ -7,6 +7,7 @@ import express from "express";
 import mongoSanitize from "express-mongo-sanitize";
 import { rateLimit } from "express-rate-limit";
 import helmet from "helmet";
+import { type ApiMount, buildDocsHtml, buildOpenApiDocument } from "./common/docs/api-docs";
 import { errorHandler } from "./common/errors";
 import { requestId } from "./common/middlewares/request-id.middleware";
 import { shouldSkipAuthRateLimit, shouldSkipGlobalRateLimit } from "./common/security/rate-limit";
@@ -260,67 +261,87 @@ if (!isDev) {
 	app.use(compression());
 }
 
-// Routes — 16 documented API modules (DOC-10)
+// Routes — registry compartido entre los mounts y /api/docs (SSOT)
 if (isTest) {
 	app.use("/api/auth", authRoutes);
 } else {
 	app.use("/api/auth", authLimiter, authRoutes);
 }
-app.use("/api/orders", orderRoutes);
-app.use("/api/orders", orderExecutionSessionRoutes);
-app.use("/api/orders", orderClosureRoutes);
-app.use("/api/orders", orderAdministrativeWorkflowRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/evidences", evidenceRoutes);
-app.use("/api/evidence-collections", evidenceCollectionRoutes);
-app.use("/api/execution-sessions", executionSessionRoutes);
-app.use("/api/execution-sessions", executionTechnicalReportRoutes);
-app.use("/api/files", filesRoutes);
-app.use("/api/fleet", fleetRoutes);
-app.use("/api/form-submissions", formSubmissionRoutes);
-app.use("/api/checklists", checklistRoutes);
-app.use("/api/clients", clientRoutes);
-app.use("/api/signatures", clientSignatureRoutes);
-app.use("/api/costs", costRoutes);
-app.use("/api/custom-fields", customFieldRoutes);
-app.use("/api/kits", kitRoutes);
-app.use("/api/maintenance", maintenanceRoutes);
-app.use("/api/documents", documentRoutes);
-app.use("/api/documents", documentImportRoutes);
-app.use("/api/documents", documentIngestionRoutes);
-app.use("/api/document-templates", documentTemplateRoutes);
-app.use("/api/template-drafts", templateDraftRoutes);
-app.use("/api/template-responses", templateResponseRoutes);
-app.use("/api/proposals", proposalRoutes);
-app.use("/api/purchase-orders", purchaseOrderRoutes);
-app.use("/api/resources", resourceRoutes);
-app.use("/api/reports", reportRoutes);
-app.use("/api/technical-reports", technicalReportRoutes);
-app.use("/api/tools", toolRoutes);
-app.use("/api/delivery-records", deliveryRecordRoutes);
-app.use("/api/delivery-records", deliveryRecordServiceEntrySheetRoutes);
-app.use("/api/service-entry-sheets", serviceEntrySheetRoutes);
-app.use("/api/service-entry-sheets", serviceEntrySheetInvoiceRoutes);
-app.use("/api/invoices", invoiceRoutes);
-app.use("/api/invoices", invoicePaymentRoutes);
-app.use("/api/payments", paymentRoutes);
-app.use("/api/audit", auditRoutes);
-app.use("/api/analytics", analyticsRoutes);
-app.use("/api/inspections", inspectionRoutes);
-app.use("/api/inventory", inventoryRoutes);
-app.use("/api/sync", syncRoutes);
-app.use("/api/ai", aiRoutes);
-app.use("/api/work-requests", workRequestRoutes);
-app.use("/api/asts", safetyAnalysisRoutes);
-app.use("/api/assets", assetRoutes);
-app.use("/api/planning-packets", planningPacketRoutes);
-app.use("/api/site-visits", siteVisitRoutes);
-app.use("/api/observability", observabilityRoutes);
-app.use("/api/notifications", notificationsRoutes);
-app.use("/api/service-cases", serviceCaseRoutes);
-app.use("/api/dashboard", dashboardRoutes);
-app.use("/api/metrics", metricsRoutes);
-app.use("/api/portal", portalRoutes);
+
+const API_MOUNTS: ApiMount[] = [
+	{ prefix: "/api/auth", router: authRoutes },
+	{ prefix: "/api/orders", router: orderRoutes },
+	{ prefix: "/api/orders", router: orderExecutionSessionRoutes },
+	{ prefix: "/api/orders", router: orderClosureRoutes },
+	{ prefix: "/api/orders", router: orderAdministrativeWorkflowRoutes },
+	{ prefix: "/api/users", router: userRoutes },
+	{ prefix: "/api/evidences", router: evidenceRoutes },
+	{ prefix: "/api/evidence-collections", router: evidenceCollectionRoutes },
+	{ prefix: "/api/execution-sessions", router: executionSessionRoutes },
+	{ prefix: "/api/execution-sessions", router: executionTechnicalReportRoutes },
+	{ prefix: "/api/files", router: filesRoutes },
+	{ prefix: "/api/fleet", router: fleetRoutes },
+	{ prefix: "/api/form-submissions", router: formSubmissionRoutes },
+	{ prefix: "/api/checklists", router: checklistRoutes },
+	{ prefix: "/api/clients", router: clientRoutes },
+	{ prefix: "/api/signatures", router: clientSignatureRoutes },
+	{ prefix: "/api/costs", router: costRoutes },
+	{ prefix: "/api/custom-fields", router: customFieldRoutes },
+	{ prefix: "/api/kits", router: kitRoutes },
+	{ prefix: "/api/maintenance", router: maintenanceRoutes },
+	{ prefix: "/api/documents", router: documentRoutes },
+	{ prefix: "/api/documents", router: documentImportRoutes },
+	{ prefix: "/api/documents", router: documentIngestionRoutes },
+	{ prefix: "/api/document-templates", router: documentTemplateRoutes },
+	{ prefix: "/api/template-drafts", router: templateDraftRoutes },
+	{ prefix: "/api/template-responses", router: templateResponseRoutes },
+	{ prefix: "/api/proposals", router: proposalRoutes },
+	{ prefix: "/api/purchase-orders", router: purchaseOrderRoutes },
+	{ prefix: "/api/resources", router: resourceRoutes },
+	{ prefix: "/api/reports", router: reportRoutes },
+	{ prefix: "/api/technical-reports", router: technicalReportRoutes },
+	{ prefix: "/api/tools", router: toolRoutes },
+	{ prefix: "/api/delivery-records", router: deliveryRecordRoutes },
+	{ prefix: "/api/delivery-records", router: deliveryRecordServiceEntrySheetRoutes },
+	{ prefix: "/api/service-entry-sheets", router: serviceEntrySheetRoutes },
+	{ prefix: "/api/service-entry-sheets", router: serviceEntrySheetInvoiceRoutes },
+	{ prefix: "/api/invoices", router: invoiceRoutes },
+	{ prefix: "/api/invoices", router: invoicePaymentRoutes },
+	{ prefix: "/api/payments", router: paymentRoutes },
+	{ prefix: "/api/audit", router: auditRoutes },
+	{ prefix: "/api/analytics", router: analyticsRoutes },
+	{ prefix: "/api/inspections", router: inspectionRoutes },
+	{ prefix: "/api/inventory", router: inventoryRoutes },
+	{ prefix: "/api/sync", router: syncRoutes },
+	{ prefix: "/api/ai", router: aiRoutes },
+	{ prefix: "/api/work-requests", router: workRequestRoutes },
+	{ prefix: "/api/asts", router: safetyAnalysisRoutes },
+	{ prefix: "/api/assets", router: assetRoutes },
+	{ prefix: "/api/planning-packets", router: planningPacketRoutes },
+	{ prefix: "/api/site-visits", router: siteVisitRoutes },
+	{ prefix: "/api/observability", router: observabilityRoutes },
+	{ prefix: "/api/notifications", router: notificationsRoutes },
+	{ prefix: "/api/service-cases", router: serviceCaseRoutes },
+	{ prefix: "/api/dashboard", router: dashboardRoutes },
+	{ prefix: "/api/metrics", router: metricsRoutes },
+	{ prefix: "/api/portal", router: portalRoutes },
+];
+
+for (const mount of API_MOUNTS) {
+	if (mount.prefix === "/api/auth") {
+		continue; // mounted above with auth rate limiter
+	}
+	app.use(mount.prefix, mount.router);
+}
+
+// API documentation — generated from the real routers at boot (DOC task 6.2)
+const openApiDocument = buildOpenApiDocument(API_MOUNTS, getBackendVersion());
+app.get("/api/docs/openapi.json", (_req, res) => {
+	res.status(200).json(openApiDocument);
+});
+app.get("/api/docs", (_req, res) => {
+	res.status(200).type("html").send(buildDocsHtml());
+});
 
 function getBackendVersion(): string {
 	try {
