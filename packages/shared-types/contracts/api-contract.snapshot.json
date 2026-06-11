@@ -9779,6 +9779,406 @@
       },
       "type": "object"
     },
+    "ASTIdParamsSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "type": "object"
+    },
+    "ASTSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "_id": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "additionalControls": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "approvedBy": {
+          "additionalProperties": false,
+          "properties": {
+            "confirmed": {
+              "default": false,
+              "type": "boolean"
+            },
+            "imageDocumentId": {
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            },
+            "role": {
+              "maxLength": 80,
+              "minLength": 1,
+              "type": "string"
+            },
+            "signatureId": {
+              "maxLength": 80,
+              "minLength": 1,
+              "type": "string"
+            },
+            "signatureType": {
+              "enum": [
+                "technician",
+                "supervisor",
+                "client",
+                "hes"
+              ],
+              "type": "string"
+            },
+            "signatureUrl": {
+              "format": "uri",
+              "type": "string"
+            },
+            "signedAt": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+              "type": "string"
+            },
+            "signedBy": {
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            },
+            "signedByName": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "signatureId",
+            "signedBy",
+            "signedByName",
+            "role",
+            "signatureType",
+            "signedAt",
+            "confirmed"
+          ],
+          "type": "object"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "crewLeader": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "crewMembers": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "date": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "elaboratedBy": {
+          "additionalProperties": false,
+          "properties": {
+            "confirmed": {
+              "default": false,
+              "type": "boolean"
+            },
+            "imageDocumentId": {
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            },
+            "role": {
+              "maxLength": 80,
+              "minLength": 1,
+              "type": "string"
+            },
+            "signatureId": {
+              "maxLength": 80,
+              "minLength": 1,
+              "type": "string"
+            },
+            "signatureType": {
+              "enum": [
+                "technician",
+                "supervisor",
+                "client",
+                "hes"
+              ],
+              "type": "string"
+            },
+            "signatureUrl": {
+              "format": "uri",
+              "type": "string"
+            },
+            "signedAt": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+              "type": "string"
+            },
+            "signedBy": {
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            },
+            "signedByName": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "signatureId",
+            "signedBy",
+            "signedByName",
+            "role",
+            "signatureType",
+            "signedAt",
+            "confirmed"
+          ],
+          "type": "object"
+        },
+        "emergencyPlan": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "executionSessionId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "location": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "orderId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "ppeRequired": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "reviewedBy": {
+          "additionalProperties": false,
+          "properties": {
+            "confirmed": {
+              "default": false,
+              "type": "boolean"
+            },
+            "imageDocumentId": {
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            },
+            "role": {
+              "maxLength": 80,
+              "minLength": 1,
+              "type": "string"
+            },
+            "signatureId": {
+              "maxLength": 80,
+              "minLength": 1,
+              "type": "string"
+            },
+            "signatureType": {
+              "enum": [
+                "technician",
+                "supervisor",
+                "client",
+                "hes"
+              ],
+              "type": "string"
+            },
+            "signatureUrl": {
+              "format": "uri",
+              "type": "string"
+            },
+            "signedAt": {
+              "format": "date-time",
+              "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+              "type": "string"
+            },
+            "signedBy": {
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "type": "string"
+            },
+            "signedByName": {
+              "maxLength": 200,
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "signatureId",
+            "signedBy",
+            "signedByName",
+            "role",
+            "signatureType",
+            "signedAt",
+            "confirmed"
+          ],
+          "type": "object"
+        },
+        "socializedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "status": {
+          "default": "draft",
+          "enum": [
+            "draft",
+            "reviewed",
+            "approved",
+            "completed",
+            "cancelled"
+          ],
+          "type": "string"
+        },
+        "steps": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "controls": {
+                "default": [],
+                "items": {
+                  "maxLength": 300,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "hazards": {
+                "default": [],
+                "items": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "responsible": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              "stepNumber": {
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991,
+                "type": "integer"
+              },
+              "taskDescription": {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "stepNumber",
+              "taskDescription",
+              "hazards",
+              "controls"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "updatedAt": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "workDescription": {
+          "maxLength": 500,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "orderId",
+        "status",
+        "workDescription",
+        "location",
+        "date",
+        "crewLeader",
+        "crewMembers",
+        "steps",
+        "ppeRequired",
+        "createdAt",
+        "updatedAt"
+      ],
+      "type": "object"
+    },
+    "ASTStatusSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "enum": [
+        "draft",
+        "reviewed",
+        "approved",
+        "completed",
+        "cancelled"
+      ],
+      "type": "string"
+    },
+    "ASTStepSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "controls": {
+          "default": [],
+          "items": {
+            "maxLength": 300,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "hazards": {
+          "default": [],
+          "items": {
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "responsible": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "stepNumber": {
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "taskDescription": {
+          "maxLength": 500,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "stepNumber",
+        "taskDescription",
+        "hazards",
+        "controls"
+      ],
+      "type": "object"
+    },
     "AttachResourceImageSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -16004,6 +16404,122 @@
         "name",
         "type",
         "status"
+      ],
+      "type": "object"
+    },
+    "CreateASTSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "additionalControls": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "crewLeader": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "crewMembers": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "date": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "emergencyPlan": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "executionSessionId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "location": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "orderId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "ppeRequired": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "steps": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "controls": {
+                "default": [],
+                "items": {
+                  "maxLength": 300,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "hazards": {
+                "default": [],
+                "items": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "responsible": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              "stepNumber": {
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991,
+                "type": "integer"
+              },
+              "taskDescription": {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "stepNumber",
+              "taskDescription",
+              "hazards",
+              "controls"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "workDescription": {
+          "maxLength": 500,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "orderId",
+        "workDescription",
+        "location",
+        "date",
+        "crewLeader",
+        "crewMembers",
+        "steps",
+        "ppeRequired"
       ],
       "type": "object"
     },
@@ -49322,6 +49838,43 @@
       ],
       "type": "object"
     },
+    "ListASTQuerySchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "limit": {
+          "default": 20,
+          "exclusiveMinimum": 0,
+          "maximum": 100,
+          "type": "integer"
+        },
+        "orderId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "page": {
+          "default": 1,
+          "exclusiveMinimum": 0,
+          "maximum": 9007199254740991,
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "reviewed",
+            "approved",
+            "completed",
+            "cancelled"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "page",
+        "limit"
+      ],
+      "type": "object"
+    },
     "ListChecklistsQuerySchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
@@ -69249,6 +69802,34 @@
       ],
       "type": "object"
     },
+    "SignASTSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "enum": [
+            "elaborated",
+            "reviewed",
+            "approved"
+          ],
+          "type": "string"
+        },
+        "signatureUrl": {
+          "format": "uri",
+          "type": "string"
+        },
+        "signedByName": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "signedByName"
+      ],
+      "type": "object"
+    },
     "SignatureCaptureMethodSchema": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "enum": [
@@ -84069,6 +84650,108 @@
             "infrastructure",
             "other"
           ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "UpdateASTSchema": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "additionalControls": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "crewLeader": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "crewMembers": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "date": {
+          "format": "date-time",
+          "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z))$",
+          "type": "string"
+        },
+        "emergencyPlan": {
+          "maxLength": 500,
+          "type": "string"
+        },
+        "executionSessionId": {
+          "pattern": "^[0-9a-fA-F]{24}$",
+          "type": "string"
+        },
+        "location": {
+          "maxLength": 200,
+          "minLength": 1,
+          "type": "string"
+        },
+        "ppeRequired": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "steps": {
+          "default": [],
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "controls": {
+                "default": [],
+                "items": {
+                  "maxLength": 300,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "hazards": {
+                "default": [],
+                "items": {
+                  "maxLength": 200,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "responsible": {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              "stepNumber": {
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991,
+                "type": "integer"
+              },
+              "taskDescription": {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "stepNumber",
+              "taskDescription",
+              "hazards",
+              "controls"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "workDescription": {
+          "maxLength": 500,
+          "minLength": 1,
           "type": "string"
         }
       },

@@ -142,6 +142,7 @@ export {
 	WorkReportSchema,
 } from "./report.schema";
 export * from "./resource.schema";
+export * from "./safety-analysis.schema";
 export * from "./service-case.schema";
 export * from "./service-case-step-context.schema";
 export * from "./service-case-workflow.schema";

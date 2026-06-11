@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:c56c139fb449b71e1244848af968b2053251ff8a76915ee2d7a9073788ab0210",
+	"currentSnapshotHash": "sha256:0afbdf9828b916e458e05555b4978c366b43bd300322caa7246f9b6a9cd8392d",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -294,6 +294,13 @@
 			"type": "non-breaking",
 			"description": "Export Client schema from barrel and extend it with city, industry, contracts, Update/ListQuery DTOs for the CRM module.",
 			"toHash": "sha256:c56c139fb449b71e1244848af968b2053251ff8a76915ee2d7a9073788ab0210"
+		},
+		{
+			"id": "042-safety-analysis-ast-contracts",
+			"date": "2026-06-11",
+			"type": "non-breaking",
+			"description": "Export AST (safety analysis) schemas from barrel with Update/ListQuery/Sign DTOs and FSM transition map for the digital AST module.",
+			"toHash": "sha256:0afbdf9828b916e458e05555b4978c366b43bd300322caa7246f9b6a9cd8392d"
 		}
 	]
 }
