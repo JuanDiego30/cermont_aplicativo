@@ -7,7 +7,12 @@ import type {
 } from "@cermont/shared-types";
 import { evaluateClosureReadiness } from "@cermont/shared-types";
 import { Types } from "mongoose";
-import { NotFoundError, UnprocessableError } from "../../common/errors/AppError";
+import {
+	NotFoundError,
+	ServiceUnavailableError,
+	UnprocessableError,
+} from "../../common/errors/AppError";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { Document, Order } from "../../models";
 import { DeliveryRecord, type DeliveryRecordDocument } from "../../models/DeliveryRecord";
 import { Invoice, type InvoiceDocument } from "../../models/Invoice";
@@ -190,6 +195,50 @@ export async function assertAdministrativeClosureReady(orderId: string): Promise
  * Genera un reporte consolidado de cierre administrativo agregando datos de múltiples entidades.
  * Implementa el patrón "Read Model" para trazabilidad de los pasos 8-14.
  */
+/**
+ * Carga en paralelo todas las entidades relacionadas al cierre administrativo.
+ * Extraída de getConsolidatedReport para reducir complejidad cognitiva.
+ */
+async function loadClosureEntities(
+	orderObjectId: Types.ObjectId,
+	linkedEntityIds: Types.ObjectId[],
+): Promise<{
+	deliveryRecord: DeliveryRecordDocument | null;
+	ses: ServiceEntrySheetDocument | null;
+	invoice: InvoiceDocument | null;
+	payment: PaymentDocument | null;
+	closingDocs: InstanceType<typeof Document>[];
+}> {
+	try {
+		const [deliveryRecord, ses, invoice, payment, closingDocs] = await Promise.all([
+			DeliveryRecord.findOne({ workOrderId: orderObjectId, status: { $ne: "cancelled" } }),
+			ServiceEntrySheet.findOne({ workOrderId: orderObjectId, status: { $ne: "cancelled" } }),
+			Invoice.findOne({ workOrderId: orderObjectId, status: { $ne: "cancelled" } }),
+			Payment.findOne({ workOrderId: orderObjectId, status: { $ne: "cancelled" } }),
+			Document.find({
+				linkedEntityId: { $in: linkedEntityIds },
+				targetStepCode: {
+					$in: [
+						"step_08_delivery_record",
+						"step_09_client_signature",
+						"step_10_ses_submission",
+						"step_11_ses_approval",
+						"step_12_invoice_submission",
+						"step_13_invoice_approval",
+						"step_14_payment_closure",
+					],
+				},
+			}),
+		]);
+		return { deliveryRecord, ses, invoice, payment, closingDocs };
+	} catch (error) {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	}
+}
+
 export async function getConsolidatedReport(
 	orderId: string,
 	serviceCaseId?: string,
@@ -206,28 +255,11 @@ export async function getConsolidatedReport(
 		throw new NotFoundError("Order", orderId);
 	}
 
-	// 2. Cargar artefactos relacionados en paralelo para máxima eficiencia
-	// Incluimos documentos vinculados a los pasos administrativos (8-14)
-	const [deliveryRecord, ses, invoice, payment, closingDocs] = await Promise.all([
-		DeliveryRecord.findOne({ workOrderId: orderObjectId, status: { $ne: "cancelled" } }),
-		ServiceEntrySheet.findOne({ workOrderId: orderObjectId, status: { $ne: "cancelled" } }),
-		Invoice.findOne({ workOrderId: orderObjectId, status: { $ne: "cancelled" } }),
-		Payment.findOne({ workOrderId: orderObjectId, status: { $ne: "cancelled" } }),
-		Document.find({
-			linkedEntityId: { $in: linkedEntityIds },
-			targetStepCode: {
-				$in: [
-					"step_08_delivery_record",
-					"step_09_client_signature",
-					"step_10_ses_submission",
-					"step_11_ses_approval",
-					"step_12_invoice_submission",
-					"step_13_invoice_approval",
-					"step_14_payment_closure",
-				],
-			},
-		}),
-	]);
+	// 2. Cargar artefactos relacionados en paralelo
+	const { deliveryRecord, ses, invoice, payment, closingDocs } = await loadClosureEntities(
+		orderObjectId,
+		linkedEntityIds,
+	);
 
 	const requirements = buildClosureRequirements({
 		deliveryRecord,

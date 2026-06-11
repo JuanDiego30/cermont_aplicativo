@@ -1,20 +1,29 @@
 import type { Request, Response } from "express";
+import { ServiceUnavailableError } from "../../common/errors";
 import { getString, requireUser } from "../../common/utils/request";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import * as SiteVisitService from "./site-visit.service";
 
 export async function list(req: Request, res: Response) {
-	const result = await SiteVisitService.listSiteVisits({
-		page: Number(req.query.page) || 1,
-		limit: Number(req.query.limit) || 20,
-		workRequestId: req.query.workRequestId ? String(req.query.workRequestId) : undefined,
-		clientId: req.query.clientId ? String(req.query.clientId) : undefined,
-		status: req.query.status ? String(req.query.status) : undefined,
-	});
-	res.json({
-		success: true,
-		data: result.data,
-		meta: { total: result.total, page: result.page, limit: result.limit, pages: result.pages },
-	});
+	try {
+		const result = await SiteVisitService.listSiteVisits({
+			page: Number(req.query.page) || 1,
+			limit: Number(req.query.limit) || 20,
+			workRequestId: req.query.workRequestId ? String(req.query.workRequestId) : undefined,
+			clientId: req.query.clientId ? String(req.query.clientId) : undefined,
+			status: req.query.status ? String(req.query.status) : undefined,
+		});
+		res.json({
+			success: true,
+			data: result.data,
+			meta: { total: result.total, page: result.page, limit: result.limit, pages: result.pages },
+		});
+	} catch (error) {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	}
 }
 
 export async function getById(req: Request, res: Response) {

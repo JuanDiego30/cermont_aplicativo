@@ -141,6 +141,7 @@ serviceEntrySheetSchema.index(
 	{ unique: true, partialFilterExpression: { status: { $ne: "cancelled" } } },
 );
 serviceEntrySheetSchema.index({ workOrderId: 1, status: 1 });
+serviceEntrySheetSchema.index({ status: 1, createdAt: -1 });
 serviceEntrySheetSchema.index({ serviceCaseId: 1 });
 serviceEntrySheetSchema.index({ createdAt: -1 });
 

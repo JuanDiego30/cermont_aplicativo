@@ -176,6 +176,26 @@ async function processImageFile(
 }
 
 /**
+ * Get evidence statistics for dashboard
+ */
+export async function getEvidenceStats(_actor: { _id: string; role: string }): Promise<{
+	total: number;
+	pending: number;
+	verified: number;
+}> {
+	const [total, verified] = await Promise.all([
+		Evidence.countDocuments({}),
+		Evidence.countDocuments({ verifiedAt: { $ne: null } }),
+	]);
+
+	return {
+		total,
+		pending: total - verified,
+		verified,
+	};
+}
+
+/**
  * Create evidence entry (V1 - legacy, for backward compatibility)
  *
  * @param orderId - Order ID
@@ -488,6 +508,52 @@ export async function getEvidencesByOrderId(
 		page,
 		limit,
 		pages,
+	};
+}
+
+/**
+ * List evidences with pagination and optional filters
+ */
+export async function listEvidences(
+	query: {
+		page: number;
+		limit: number;
+		orderId?: string;
+		status?: string;
+	},
+	_actor: { _id: string; role: string },
+): Promise<{
+	data: EvidenceSnapshot[];
+	total: number;
+	page: number;
+	limit: number;
+	pages: number;
+}> {
+	const filter: Record<string, unknown> = {};
+	if (query.orderId) {
+		filter.$or = [{ orderId: query.orderId }, { workOrderId: query.orderId }];
+	}
+	if (query.status) {
+		filter.verifiedAt = query.status === "verified" ? { $ne: null } : null;
+	}
+
+	const skip = (query.page - 1) * query.limit;
+	const [total, docs] = await Promise.all([
+		Evidence.countDocuments(filter),
+		Evidence.find(filter).skip(skip).limit(query.limit).sort({ createdAt: -1 }).lean(),
+	]).catch((error: unknown) => {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	});
+
+	return {
+		data: docs.map(formatEvidenceResponse),
+		total,
+		page: query.page,
+		limit: query.limit,
+		pages: Math.ceil(total / query.limit),
 	};
 }
 

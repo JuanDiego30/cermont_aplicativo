@@ -47,6 +47,20 @@ const upload = multer({
 	},
 });
 
+// GET /api/evidences/stats — evidence statistics for dashboard
+// Roles: Todos (all authenticated users)
+router.get("/stats", authenticate, authorize(...INTERNAL_ROLES), EvidenceController.getStats);
+
+// GET /api/evidences — list all evidences (paginado, filtrable)
+// Roles: Todos (all authenticated users)
+router.get(
+	"/",
+	authenticate,
+	authorize(...INTERNAL_ROLES),
+	validateQuery(PaginationQuerySchema),
+	EvidenceController.listEvidences,
+);
+
 // GET /api/evidences/order/:orderId
 // Roles: Todos (all authenticated users)
 router.get(

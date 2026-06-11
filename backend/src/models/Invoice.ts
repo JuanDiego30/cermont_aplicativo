@@ -223,6 +223,7 @@ invoiceSchema.index(
 	{ unique: true, partialFilterExpression: { status: { $ne: "cancelled" } } },
 );
 invoiceSchema.index({ workOrderId: 1, status: 1 });
+invoiceSchema.index({ status: 1, clientId: 1 });
 invoiceSchema.index({ serviceCaseId: 1 });
 invoiceSchema.index({ createdAt: -1 });
 

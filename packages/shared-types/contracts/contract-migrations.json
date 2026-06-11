@@ -1,5 +1,5 @@
 {
-	"currentSnapshotHash": "sha256:22e64afefa4a4b8e47254762503fec7083c522b94532ed77cf62f6300447a705",
+	"currentSnapshotHash": "sha256:682cfea8e65e2c4a1a83523cf912f56a02321f5a44c0e03f4ff96a414cbb2938",
 	"migrations": [
 		{
 			"id": "000-initial-baseline",
@@ -280,6 +280,13 @@
 			"type": "non-breaking",
 			"description": "Add daysInCurrentStep integer field to ServiceCase contract for KPI tracking.",
 			"toHash": "sha256:22e64afefa4a4b8e47254762503fec7083c522b94532ed77cf62f6300447a705"
+		},
+		{
+			"id": "040-invoice-approval-client-signature-schemas",
+			"date": "2026-06-11",
+			"type": "non-breaking",
+			"description": "Add InvoiceApproval and ClientSignature schemas, enhance Notification schema with multi-channel, add FSM engine.",
+			"toHash": "sha256:682cfea8e65e2c4a1a83523cf912f56a02321f5a44c0e03f4ff96a414cbb2938"
 		}
 	]
 }

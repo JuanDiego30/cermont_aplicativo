@@ -112,4 +112,9 @@ const siteVisitSchema = new Schema<SiteVisitDocument>(
 	{ timestamps: true },
 );
 
+// ── Índices compuestos ─────────────────────────────────────────────────
+siteVisitSchema.index({ workRequestId: 1 });
+siteVisitSchema.index({ status: 1, createdAt: -1 });
+siteVisitSchema.index({ clientId: 1, createdAt: -1 });
+
 export const SiteVisitModel = model<SiteVisitDocument>("SiteVisit", siteVisitSchema);

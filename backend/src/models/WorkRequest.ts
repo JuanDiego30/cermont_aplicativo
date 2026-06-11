@@ -197,6 +197,7 @@ const WorkRequestSchema = new Schema<WorkRequestRecord>(
 );
 
 WorkRequestSchema.index({ status: 1, createdAt: -1 });
+WorkRequestSchema.index({ clientId: 1, createdAt: -1 });
 WorkRequestSchema.index({ clientName: "text", shortDescription: "text", description: "text" });
 
 function getWorkRequestModel(): Model<WorkRequestRecord> {

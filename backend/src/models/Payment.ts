@@ -76,6 +76,7 @@ const paymentSchema = new Schema<PaymentDocument>(
 );
 
 paymentSchema.index({ invoiceId: 1, paymentReference: 1 }, { unique: true });
+paymentSchema.index({ status: 1, invoiceId: 1 });
 paymentSchema.index({ workOrderId: 1, status: 1 });
 paymentSchema.index({ serviceCaseId: 1 });
 paymentSchema.index({ createdAt: -1 });

@@ -9,10 +9,12 @@ import {
 	BadRequestError,
 	ForbiddenError,
 	NotFoundError,
+	ServiceUnavailableError,
 	UnprocessableError,
 } from "../../common/errors/AppError";
 import { saveFile } from "../../common/storage/local-storage";
 import { createLogger } from "../../common/utils/logger";
+import { isTransientDatabaseError } from "../../common/utils/transient-database-error";
 import { Checklist, Evidence, Order, WorkReport } from "../../models";
 import type { IWorkReportDocument } from "../../models/WorkReport";
 import { getOrderSummary } from "../../modules/cost/cost.service";
@@ -101,11 +103,22 @@ async function ensureCreationPreconditions(orderId: string): Promise<{
 		);
 	}
 
-	const [checklist, costSummary, evidenceCount] = await Promise.all([
-		Checklist.findOne({ orderId: parseObjectId(orderId, "orderId") }).lean(),
-		getOrderSummary(orderId),
-		Evidence.countDocuments({ orderId: parseObjectId(orderId, "orderId"), deletedAt: null }),
-	]);
+	let checklist: { status?: string } | null = null;
+	let costSummary: Awaited<ReturnType<typeof getOrderSummary>>;
+	let evidenceCount: number;
+
+	try {
+		[checklist, costSummary, evidenceCount] = await Promise.all([
+			Checklist.findOne({ orderId: parseObjectId(orderId, "orderId") }).lean(),
+			getOrderSummary(orderId),
+			Evidence.countDocuments({ orderId: parseObjectId(orderId, "orderId"), deletedAt: null }),
+		]);
+	} catch (error) {
+		if (isTransientDatabaseError(error as Error)) {
+			throw new ServiceUnavailableError("Database temporarily unavailable. Please try again.");
+		}
+		throw error;
+	}
 
 	if (checklist?.status !== "completed") {
 		throw new UnprocessableError(

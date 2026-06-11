@@ -80,6 +80,7 @@ deliveryRecordSchema.index(
 	{ unique: true, partialFilterExpression: { status: { $ne: "cancelled" } } },
 );
 deliveryRecordSchema.index({ workOrderId: 1, status: 1 });
+deliveryRecordSchema.index({ status: 1, createdAt: -1 });
 deliveryRecordSchema.index({ serviceCaseId: 1 });
 deliveryRecordSchema.index({ createdAt: -1 });
 

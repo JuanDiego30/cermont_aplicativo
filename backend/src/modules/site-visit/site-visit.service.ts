@@ -85,20 +85,20 @@ function toRecord(doc: SiteVisitDocument): SiteVisitRecord {
 	return {
 		_id: doc._id.toString(),
 		code: doc.code,
-		workRequestId: doc.workRequestId.toString(),
-		serviceCaseId: doc.serviceCaseId.toString(),
-		clientId: doc.clientId.toString(),
+		workRequestId: doc.workRequestId?.toString() ?? "",
+		serviceCaseId: doc.serviceCaseId?.toString() ?? "",
+		clientId: doc.clientId?.toString() ?? "",
 		clientName: doc.clientName,
 		visitDate: toIsoString(doc.visitDate),
 		location: doc.location,
-		responsibleUserId: doc.responsibleUserId.toString(),
+		responsibleUserId: doc.responsibleUserId?.toString() ?? "",
 		responsibleName: doc.responsibleName,
 		measurements: doc.measurements.map(mapMeasurement),
 		findings: doc.findings.map(mapFinding),
 		photos: doc.photos.map(mapPhoto),
 		commandHistory: doc.commandHistory.map(mapCommandHistory),
 		status: doc.status as SiteVisitRecord["status"],
-		createdBy: doc.createdBy.toString(),
+		createdBy: doc.createdBy?.toString() ?? "",
 		createdAt: toIsoString(doc.createdAt),
 		updatedAt: toIsoString(doc.updatedAt),
 		...(typeof doc.requirements === "string" ? { requirements: doc.requirements } : {}),
@@ -126,6 +126,12 @@ export async function listSiteVisits(query: {
 	page: number;
 	limit: number;
 	pages: number;
+	summary: {
+		scheduled: number;
+		in_progress: number;
+		completed: number;
+		cancelled: number;
+	};
 }> {
 	const filter: SiteVisitListFilter = {};
 	if (query.workRequestId) {
@@ -156,12 +162,25 @@ export async function listSiteVisits(query: {
 		throw error;
 	}
 
+	const [scheduledCount, inProgressCount, completedCount, cancelledCount] = await Promise.all([
+		SiteVisitModel.countDocuments({ ...filter, status: "scheduled" }),
+		SiteVisitModel.countDocuments({ ...filter, status: "in_progress" }),
+		SiteVisitModel.countDocuments({ ...filter, status: "completed" }),
+		SiteVisitModel.countDocuments({ ...filter, status: "cancelled" }),
+	]);
+
 	return {
 		data: docs.map(toRecord),
 		total,
 		page: query.page,
 		limit: query.limit,
 		pages: Math.ceil(total / query.limit),
+		summary: {
+			scheduled: scheduledCount,
+			in_progress: inProgressCount,
+			completed: completedCount,
+			cancelled: cancelledCount,
+		},
 	};
 }
 
